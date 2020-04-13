@@ -13,6 +13,8 @@ public:
     
     void send(const std::string& text);
     
+    void send(const char* buffer, int n);
+    
     void end();
     
 private:

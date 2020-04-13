@@ -15,12 +15,14 @@ void Response::send(const std::string& text) {
     acceptedSocket->writeLn("Connection: Closed");
     acceptedSocket->writeLn();
     acceptedSocket->write(text);
-    //    acceptedSocket->close();
 }
 
+
+void Response::send(const char* buffer, int n) {
+    acceptedSocket->write(buffer, n);
+}
+
+
 void Response::end() {
-    acceptedSocket->writeLn("HTTP/1.1 200 OK");
-    acceptedSocket->writeLn("Connection: Closed");
-    acceptedSocket->writeLn();
     acceptedSocket->close();
 }
