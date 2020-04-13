@@ -7,7 +7,7 @@
 #include "SocketMultiplexer.h"
 #include "ServerSocket.h"
 
-ConnectedSocket::ConnectedSocket(int csFd, ServerSocket* ss) : state(states::REQUEST), bodyData(0), bodyLength(0), bodyPointer(0), line(""), serverSocket(ss), request(this), response(this) {
+ConnectedSocket::ConnectedSocket(int csFd) : state(states::REQUEST), bodyData(0), bodyLength(0), bodyPointer(0), line("") {
     this->setFd(csFd);
 }
 
@@ -89,7 +89,7 @@ void ConnectedSocket::bodyJunk(const char* junk, int n) {
     bodyPointer += n;
     
     if (bodyPointer == bodyLength)  {
-        serverSocket->process(request, response);
+        this->ready();
     }
 }
 
@@ -135,7 +135,7 @@ void ConnectedSocket::lineRead() {
                 if (bodyLength > 0) {
                     state = states::BODY;
                 } else {
-                    serverSocket->process(request, response);
+                    this->ready();
                 }
             } else {
                 if (isspace(readBuffer.at(0))) {

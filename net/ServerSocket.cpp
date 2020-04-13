@@ -1,5 +1,5 @@
 #include "ServerSocket.h"
-#include "ConnectedSocket.h"
+#include "AcceptedSocket.h"
 
 ServerSocket::ServerSocket(uint16_t port) {
     fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -37,7 +37,7 @@ ConnectedSocket* ServerSocket::accept() {
         return 0;
     }
     
-    ConnectedSocket* cs = new ConnectedSocket(csFd, this);
+    AcceptedSocket* cs = new AcceptedSocket(csFd, this);
     
     cs->setFd(csFd);
     cs->setRemoteAddress(InetAddress(addr));

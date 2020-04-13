@@ -8,13 +8,11 @@
 
 #include <map>
 
-class ServerSocket;
-
 class ConnectedSocket : public Socket
 {
 public:
-    ConnectedSocket(int csFd, ServerSocket* ss);
-    ~ConnectedSocket();
+    ConnectedSocket(int csFd);
+    virtual ~ConnectedSocket();
     
     void write(const char* buffer, int size);
     void write(const std::string& junk);
@@ -29,6 +27,8 @@ public:
     virtual void close();
     
     void send();
+    
+    virtual void ready() = 0;
     
     
 protected:
@@ -53,13 +53,9 @@ protected:
     char* bodyData;
     int bodyLength;
     
-    ServerSocket* serverSocket;
-    
 private:
     int bodyPointer;
     std::string line;
-    Request request;
-    Response response;
     
 friend class Response;
 friend class Request;
