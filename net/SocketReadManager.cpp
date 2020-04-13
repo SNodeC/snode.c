@@ -29,6 +29,7 @@ void readJunk(int fd,
     }
 }
 
+
 int SocketReadManager::process(fd_set& fdSet, int count) {
     for (std::list<Socket*>::iterator it = sockets.begin(); it != sockets.end() && count > 0; ++it) {
         if (FD_ISSET((*it)->getFd(), &fdSet)) {
@@ -39,7 +40,7 @@ int SocketReadManager::process(fd_set& fdSet, int count) {
             } else if (ConnectedSocket* connectedSocket = dynamic_cast<ConnectedSocket*> (*it)) {
                 readJunk(connectedSocket->getFd(),
                          LAMBDA(void, (const char* junk, int n)) {
-                             connectedSocket->push(junk, n);
+                             connectedSocket->read(junk, n);
                          },
                          LAMBDA(void, ()) {
                              std::cout << "EOF: " << connectedSocket->getFd() << std::endl;

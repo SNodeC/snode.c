@@ -3,12 +3,12 @@
 
 #include <map>
 
-class ConnectedSocket;
+class AcceptedSocket;
 
 class Request
 {
 public:
-    Request(ConnectedSocket* cs) : connectedSocket(cs) {
+    Request(AcceptedSocket* as) : acceptedSocket(as) {
     }
     
     std::map<std::string, std::string>& header();
@@ -18,7 +18,7 @@ public:
     int bodySize();
     
 private:
-    ConnectedSocket* connectedSocket;
+    AcceptedSocket* acceptedSocket;
 };
 
 #endif // REQUEST_H
