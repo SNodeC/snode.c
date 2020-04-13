@@ -5,22 +5,22 @@
 
 #include <iostream>
 
-#include "ConnectedSocket.h"
+#include "AcceptedSocket.h"
 
 
 void Response::send(const std::string& text) {
-    connectedSocket->writeLn("HTTP/1.1 200 OK");
-    connectedSocket->writeLn("Content-Type: text/html; charset=iso-8859-1");
-    connectedSocket->writeLn("Content-Length: " + std::to_string(text.length()));
-    connectedSocket->writeLn("Connection: Closed");
-    connectedSocket->writeLn();
-    connectedSocket->write(text);
-//    connectedSocket->close();
+    acceptedSocket->writeLn("HTTP/1.1 200 OK");
+    acceptedSocket->writeLn("Content-Type: text/html; charset=iso-8859-1");
+    acceptedSocket->writeLn("Content-Length: " + std::to_string(text.length()));
+    acceptedSocket->writeLn("Connection: Closed");
+    acceptedSocket->writeLn();
+    acceptedSocket->write(text);
+    //    acceptedSocket->close();
 }
 
 void Response::end() {
-    connectedSocket->writeLn("HTTP/1.1 200 OK");
-    connectedSocket->writeLn("Connection: Closed");
-    connectedSocket->writeLn();
-    connectedSocket->close();
+    acceptedSocket->writeLn("HTTP/1.1 200 OK");
+    acceptedSocket->writeLn("Connection: Closed");
+    acceptedSocket->writeLn();
+    acceptedSocket->close();
 }

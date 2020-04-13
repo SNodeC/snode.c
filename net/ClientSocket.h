@@ -6,7 +6,7 @@
 #include "ConnectedSocket.h"
 #include "InetAddress.h"
 
-class ClientSocket : public ConnectedSocket
+class ClientSocket {}; /* : public ConnectedSocket
 {
 private:
     ClientSocket(int csFd);
@@ -14,7 +14,9 @@ private:
 public:
     static ClientSocket* connect(const InetAddress& ina, std::function<void (Request& req)> callback);
     
-    void ready();
+    virtual void ready();
+    
+    virtual void push(const char* junk, int n);
     
 protected:
     Request request;
@@ -22,5 +24,5 @@ protected:
 private:
     std::function<void (Request& req)> callback;
 };
-
+*/
 #endif // CLIENTSOCKET_H

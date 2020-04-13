@@ -2,6 +2,7 @@
 
 #include "SocketMultiplexer.h"
 
+/*
 ClientSocket::ClientSocket(int csfd) : ConnectedSocket(csfd), request(this) {
 }
 
@@ -37,6 +38,11 @@ ClientSocket* ClientSocket::connect(const InetAddress& ina, std::function<void (
 }
 
 
+void ClientSocket::push(const char* junk, int n) {
+}
+
+
 void ClientSocket::ready() {
     callback(request);
 }
+*/
