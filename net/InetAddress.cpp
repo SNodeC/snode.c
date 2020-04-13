@@ -40,6 +40,6 @@ InetAddress& InetAddress::operator=(const InetAddress& ina) {
 }
 
 
-struct sockaddr_in& InetAddress::getSockAddr() {
+const struct sockaddr_in& InetAddress::getSockAddr() const {
     return addr;
 }
