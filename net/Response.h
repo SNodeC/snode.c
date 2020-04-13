@@ -3,13 +3,12 @@
 
 #include <string>
 
-class ConnectedSocket;
+class AcceptedSocket;
 
 class Response
 {
 public:
-    Response(ConnectedSocket* cs) {
-        connectedSocket = cs;
+    Response(AcceptedSocket* as) : acceptedSocket(as) {
     }
     
     void send(const std::string& text);
@@ -17,7 +16,7 @@ public:
     void end();
     
 private:
-    ConnectedSocket* connectedSocket;
+    AcceptedSocket* acceptedSocket;
 };
 
 

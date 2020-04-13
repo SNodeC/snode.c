@@ -1,15 +1,15 @@
 #include "Request.h"
 
-#include "ConnectedSocket.h"
+#include "AcceptedSocket.h"
 
 std::map<std::string, std::string>& Request::header() {
-    return connectedSocket->headerMap;
+    return acceptedSocket->headerMap;
 }
 
 const char* Request::body() {
-    return connectedSocket->bodyData;
+    return acceptedSocket->bodyData;
 }
 
 int Request::bodySize() {
-    return connectedSocket->bodyLength;
+    return acceptedSocket->bodyLength;
 }
