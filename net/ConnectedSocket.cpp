@@ -51,11 +51,6 @@ void ConnectedSocket::clearReadBuffer() {
 }
 
 
-void ConnectedSocket::clearWriteBuffer() {
-    writeBuffer.clear();
-}
-
-
 void ConnectedSocket::send() {
     ssize_t ret = ::send(this->getFd(), writeBuffer.c_str(), (writeBuffer.size() < 4096) ? writeBuffer.size() : 4096, 0);
     

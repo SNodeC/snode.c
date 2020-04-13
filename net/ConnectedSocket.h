@@ -33,10 +33,9 @@ public:
     
 protected:
     void clearReadBuffer();
-    void clearWriteBuffer();
     
     InetAddress remoteAddress;
-     
+    
     std::string readBuffer;
     std::string writeBuffer;
 };

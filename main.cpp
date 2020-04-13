@@ -110,11 +110,11 @@ int main(int argc, char **argv) {
         } else {
             std::string document;
             
-            document = "<!DOCTYPE html>\n";
-            document += "<html>\n<body>\n";
-            document += "<h1>My First Heading</h1>\n";
-            document += "<p>My first paragraph.</p>\n";
-            document += "</body>\n</html>\n";
+            document = "<!DOCTYPE html>";
+            document += "<html><body>";
+            document += "<h1>My First Heading</h1>";
+            document += "<p>My first paragraph.</p>";
+            document += "</body></html>";
             
             res.send(document);
         }
