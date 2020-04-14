@@ -2,9 +2,9 @@
 #define SOCKETREADMANAGER_H
 
 #include "SocketManager.h"
+#include "Reader.h"
 
-
-class SocketReadManager : public SocketManager
+class SocketReadManager : public SocketManager<Reader>
 {
 public:
     int process(fd_set& fdSet, int count);

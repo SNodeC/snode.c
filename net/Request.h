@@ -17,6 +17,10 @@ public:
 
     int bodySize();
     
+    bool isPost();
+    bool isGet();
+    bool isPut();
+    
 private:
     AcceptedSocket* acceptedSocket;
 };

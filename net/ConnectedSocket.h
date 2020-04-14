@@ -5,9 +5,11 @@
 
 #include "InetAddress.h"
 #include "Socket.h"
+#include "Writer.h"
+#include "Reader.h"
 
 
-class ConnectedSocket : public Socket
+class ConnectedSocket : public Socket, public Reader, public Writer
 {
 public:
     ConnectedSocket(int csFd);
@@ -21,16 +23,12 @@ public:
     InetAddress& getRemoteAddress();
     void setRemoteAddress(const InetAddress& remoteAddress);
     
-    virtual void read(const char* junk, int n) = 0;
-    
+    virtual void writeEvent();
+
     void close();
     
-    void send();
-    
-    virtual void ready() = 0;
-    
-    virtual void reset() = 0;
-    
+
+
 protected:
     void clearReadBuffer();
     
