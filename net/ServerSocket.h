@@ -4,14 +4,15 @@
 #include <functional>
 
 #include "Socket.h"
-
+#include "Reader.h"
 
 class Request;
 class Response;
-class ConnectedSocket;
+class AcceptedSocket;
 
-class ServerSocket : public Socket {
+class ServerSocket : public Socket, public Reader {
 private:
+    ServerSocket();
     ServerSocket(uint16_t port);
     ServerSocket(const std::string hostname, uint16_t port);
 
@@ -38,10 +39,12 @@ public:
     }
     
     int listen(int backlog) {
-        return ::listen(fd, backlog);
+        return ::listen(this->getFd(), backlog);
     }
     
-    ConnectedSocket* accept();
+    AcceptedSocket* accept();
+    
+    virtual void readEvent();
     
 private:
     std::function<void (Request& req, Response& res)> allProcessor;

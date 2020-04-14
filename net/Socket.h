@@ -1,32 +1,23 @@
 #ifndef SOCKET_H
 #define SOCKET_H
 
+#include "Descriptor.h"
 #include "InetAddress.h"
 
-class Socket {
+class Socket : public Descriptor {
 public:
-    Socket();
+    Socket(int csFd);
     
     virtual ~Socket();
-    
-    int getFd() const;
-    
-    void setFd(int fd);
     
     int bind(InetAddress& localAddress);
     
     void setLocalAddress(const InetAddress& localAddress);
     
     InetAddress& getLocalAddress();
-    
-    void incManagedCount();
-    
-    void decManagedCount();
-    
+
 protected:
     InetAddress localAddress;
-    int fd;
-    int managedCount;
 };
 
 #endif // SOCKET_H

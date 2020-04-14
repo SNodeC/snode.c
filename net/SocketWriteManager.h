@@ -2,11 +2,9 @@
 #define SOCKETWRITEMANAGER_H
 
 #include "SocketManager.h"
+#include "Writer.h"
 
-/**
- * @todo write docs
- */
-class SocketWriteManager : public SocketManager
+class SocketWriteManager : public SocketManager<Writer>
 {
 public:
     int process(fd_set& fdSet, int count);

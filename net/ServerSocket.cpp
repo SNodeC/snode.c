@@ -1,9 +1,12 @@
 #include "ServerSocket.h"
 #include "AcceptedSocket.h"
+#include "SocketMultiplexer.h"
 
-ServerSocket::ServerSocket(uint16_t port) {
-    fd = socket(AF_INET, SOCK_STREAM, 0);
-    
+ServerSocket::ServerSocket() : Socket(socket(AF_INET, SOCK_STREAM, 0)) {
+}
+
+
+ServerSocket::ServerSocket(uint16_t port) : ServerSocket() {
     int sockopt = 1;
     setsockopt(this->getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt));
     
@@ -13,7 +16,7 @@ ServerSocket::ServerSocket(uint16_t port) {
 }
 
 
-ServerSocket::ServerSocket(const std::string hostname, uint16_t port) {
+ServerSocket::ServerSocket(const std::string hostname, uint16_t port) : ServerSocket() {
 }
 
 
@@ -27,11 +30,11 @@ ServerSocket* ServerSocket::instance(const std::string& hostname, uint16_t port)
 }
 
 
-ConnectedSocket* ServerSocket::accept() {
+AcceptedSocket* ServerSocket::accept() {
     struct sockaddr_in addr;
     socklen_t addrlen = sizeof(addr);
     
-    int csFd = ::accept(fd, (struct sockaddr*) &addr, &addrlen);
+    int csFd = ::accept(this->getFd(), (struct sockaddr*) &addr, &addrlen);
     
     if (csFd < 0) {
         return 0;
@@ -39,7 +42,6 @@ ConnectedSocket* ServerSocket::accept() {
     
     AcceptedSocket* cs = new AcceptedSocket(csFd, this);
     
-    cs->setFd(csFd);
     cs->setRemoteAddress(InetAddress(addr));
     
     struct sockaddr_in localAddress;
@@ -57,5 +59,38 @@ ConnectedSocket* ServerSocket::accept() {
 
 
 void ServerSocket::process(Request& request, Response& response) {
-    getProcessor(request, response);
+    // if GET-Request
+    if (request.isGet()) {
+        if (getProcessor) {
+            getProcessor(request, response);
+        }
+    }
+    
+    // if POST-Request
+    if (request.isPost()) {
+        if (postProcessor) {
+            postProcessor(request, response);
+        }
+    }
+    
+    // if PUT-Request
+    if (request.isPut()) {
+        if  (putProcessor) {
+            putProcessor(request, response);
+        }
+    }
+    
+    // For all:
+    if (allProcessor) {
+        allProcessor(request, response);
+    }
+}
+
+
+void ServerSocket::readEvent() {
+    AcceptedSocket* as = this->accept();
+    
+    if (as) {
+        SocketMultiplexer::instance().getReadManager().manageSocket(as);
+    }
 }

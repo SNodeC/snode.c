@@ -16,25 +16,26 @@ public:
     AcceptedSocket(int csFd, ServerSocket* ss);
     ~AcceptedSocket();
     
-    virtual void ready();
+    virtual void readEvent();
+    virtual void writeEvent();
     
-    virtual void read(const char* junk, int n);
-    
-    virtual void reset();
     
 protected:
     ServerSocket* serverSocket;
     
-    void bodyJunk(const char* junk, int n);
+    void junkRead(const char* junk, int n);
     void lineRead();
     void addHeaderLine(const std::string& line);
+    void bodyJunk(const char* junk, int n);
+    void requestReady();
     
-    std::map<std::string, std::string> headerMap;
     
 private:
     Request request;
     Response response;
     
+    std::string requestLine;
+    std::map<std::string, std::string> headerMap;
     char* bodyData;
     int bodyLength;
     

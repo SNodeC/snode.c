@@ -5,8 +5,7 @@
 #include "SocketMultiplexer.h"
 #include "ServerSocket.h"
 
-ConnectedSocket::ConnectedSocket(int csFd) {
-    this->setFd(csFd);
+ConnectedSocket::ConnectedSocket(int csFd) : Socket(csFd) {
 }
 
 
@@ -45,23 +44,20 @@ void ConnectedSocket::close() {
 }
 
 
-
 void ConnectedSocket::clearReadBuffer() {
     readBuffer.clear();
 }
 
 
-void ConnectedSocket::send() {
+void ConnectedSocket::writeEvent() {
     ssize_t ret = ::send(this->getFd(), writeBuffer.c_str(), (writeBuffer.size() < 4096) ? writeBuffer.size() : 4096, 0);
     
     if (ret >= 0) {
         writeBuffer.erase(0, ret);
         if (writeBuffer.empty()) {
-            this->reset();
             SocketMultiplexer::instance().getWriteManager().unmanageSocket(this);
         }
     } else {
-        this->reset();
         SocketMultiplexer::instance().getWriteManager().unmanageSocket(this);
     }
 }

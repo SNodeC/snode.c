@@ -7,6 +7,7 @@
 #include <string.h>
 
 #include "ServerSocket.h"
+#include "SocketMultiplexer.h"
 
 
 AcceptedSocket::AcceptedSocket(int csFd, ServerSocket* ss) : ConnectedSocket(csFd), serverSocket(ss), request(this), response(this), bodyData(0), bodyLength(0), state(states::REQUEST), bodyPointer(0), line("")  {
@@ -20,12 +21,12 @@ AcceptedSocket::~AcceptedSocket() {
 }
 
 
-void AcceptedSocket::ready() {
+void AcceptedSocket::requestReady() {
     serverSocket->process(request, response);
 }
 
 
-void AcceptedSocket::read(const char* junk, int n) {
+void AcceptedSocket::junkRead(const char* junk, int n) {
     if (state == REQUEST || state == HEADER) {
         for (int i = 0; i < n; i++) {
             if (junk[i] != '\r' && junk[i] != '\n') {
@@ -54,7 +55,7 @@ void AcceptedSocket::bodyJunk(const char* junk, int n) {
     bodyPointer += n;
     
     if (bodyPointer == bodyLength)  {
-        this->ready();
+        this->requestReady();
     }
 }
 
@@ -89,6 +90,7 @@ void AcceptedSocket::lineRead() {
     switch(state) {
         case states::REQUEST:
             std::cout << "Request: " << readBuffer << std::endl;
+            requestLine = readBuffer;
             state = states::HEADER;
             break;
         case states::HEADER: 
@@ -101,7 +103,7 @@ void AcceptedSocket::lineRead() {
                 if (bodyLength > 0) {
                     state = states::BODY;
                 } else {
-                    this->ready();
+                    this->requestReady();
                 }
             } else {
                 if (isspace(readBuffer.at(0))) {
@@ -124,6 +126,49 @@ void AcceptedSocket::lineRead() {
 }
 
 
-void AcceptedSocket::reset() {
-    state = states::REQUEST;
+#define LAMBDACB(ret, name, args) std::function<ret (args)> name
+#define LAMBDA(ret, args) [&] args -> ret
+
+static void readJunk(int fd, 
+              LAMBDACB(void, JUNKcb, (const char* junk, int ret)),
+              LAMBDACB(void, EOFcb, ()),
+              LAMBDACB(void, ERRcb, (int err))) {
+    #define MAX_JUNKSIZE 4096
+    char junk[MAX_JUNKSIZE - 1];
+    
+    int ret = recv(fd, junk, MAX_JUNKSIZE, 0);
+    
+    if (ret > 0) {
+        junk[ret] = 0;
+        JUNKcb(junk, ret);
+    } else if (ret == 0) {
+        EOFcb();
+    } else {
+        ERRcb(ret);
+    }
+}
+              
+
+void AcceptedSocket::readEvent() {
+    std::cout << "ReadEvent" << std::endl;
+    readJunk(this->getFd(),
+             LAMBDA(void, (const char* junk, int n)) {
+                 this->junkRead(junk, n);
+             },
+             LAMBDA(void, ()) {
+                 std::cout << "EOF: " << this->getFd() << std::endl;
+                 SocketMultiplexer::instance().getReadManager().unmanageSocket(this);
+             },
+             LAMBDA(void, (int err)) {
+                 std::cout << "ERR " << err << std::endl;
+                 SocketMultiplexer::instance().getReadManager().unmanageSocket(this);
+             });
+}
+
+
+void AcceptedSocket::writeEvent() {
+    ConnectedSocket::writeEvent();
+    if (writeBuffer.empty()) {
+        state = states::REQUEST;
+    }
 }
