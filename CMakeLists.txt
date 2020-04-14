@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(servervoc)
+project(snode.c)
 
 add_subdirectory(net)
 
-add_executable(servervoc main.cpp)
+add_executable(snode.c main.cpp)
 
-target_link_libraries(servervoc LINK_PUBLIC net)
+target_link_libraries(snode.c LINK_PUBLIC net)
 
-install(TARGETS servervoc RUNTIME DESTINATION bin)
+install(TARGETS snode.c RUNTIME DESTINATION bin)
