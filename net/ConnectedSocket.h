@@ -19,14 +19,12 @@ public:
     virtual void write(const std::string& junk);
     virtual void writeLn(const std::string& junk = "");
     
-    InetAddress& getLocalAddress();
     InetAddress& getRemoteAddress();
     void setRemoteAddress(const InetAddress& remoteAddress);
     
     virtual void writeEvent();
 
     void close();
-    
 
 
 protected:

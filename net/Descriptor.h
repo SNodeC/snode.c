@@ -9,12 +9,6 @@ public:
     
     int getFd() const;
     
-    /*
-    virtual void readEvent() {};
-    virtual void writeEvent() {};
-    virtual void exceptionEvent() {};
-    */
-    
     void incManagedCount();
     void decManagedCount();
     
