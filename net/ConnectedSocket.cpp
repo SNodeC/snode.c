@@ -5,6 +5,7 @@
 #include "SocketMultiplexer.h"
 #include "ServerSocket.h"
 
+
 ConnectedSocket::ConnectedSocket(int csFd) : Socket(csFd) {
 }
 
@@ -22,10 +23,12 @@ void ConnectedSocket::setRemoteAddress(const InetAddress& remoteAddress) {
     this->remoteAddress = remoteAddress;
 }
 
+
 void ConnectedSocket::write(const char* buffer, int size) {
     writeBuffer.append(buffer, size);
     SocketMultiplexer::instance().getWriteManager().manageSocket(this);
 }
+
 
 void ConnectedSocket::write(const std::string& junk) {
     writeBuffer += junk;
