@@ -97,9 +97,6 @@ void AcceptedSocket::lineRead() {
             if (readBuffer.empty()) {
                 addHeaderLine(line);
                 line.clear();
-                
-                std::map<std::string, std::string>::iterator it;
-                
                 if (bodyLength > 0) {
                     state = states::BODY;
                 } else {
@@ -134,12 +131,11 @@ static void readJunk(int fd,
               LAMBDACB(void, EOFcb, ()),
               LAMBDACB(void, ERRcb, (int err))) {
     #define MAX_JUNKSIZE 4096
-    char junk[MAX_JUNKSIZE - 1];
+    char junk[MAX_JUNKSIZE];
     
     int ret = recv(fd, junk, MAX_JUNKSIZE, 0);
     
     if (ret > 0) {
-        junk[ret] = 0;
         JUNKcb(junk, ret);
     } else if (ret == 0) {
         EOFcb();
@@ -150,7 +146,6 @@ static void readJunk(int fd,
               
 
 void AcceptedSocket::readEvent() {
-    std::cout << "ReadEvent" << std::endl;
     readJunk(this->getFd(),
              LAMBDA(void, (const char* junk, int n)) {
                  this->junkRead(junk, n);
@@ -168,6 +163,7 @@ void AcceptedSocket::readEvent() {
 
 void AcceptedSocket::writeEvent() {
     ConnectedSocket::writeEvent();
+    
     if (writeBuffer.empty()) {
         state = states::REQUEST;
     }

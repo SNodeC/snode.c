@@ -15,11 +15,16 @@
 #include "Request.h"
 #include "Response.h"
 
+#include "FileReader.h"
+
 
 int main(int argc, char **argv) {
     signal(SIGPIPE, SIG_IGN);
     
     ServerSocket* serverSocket = ServerSocket::instance(8080);
+    
+    SocketMultiplexer& sm = SocketMultiplexer::instance();
+    sm.getReadManager().manageSocket(serverSocket);
     
     serverSocket->get([] (Request& req, Response& res) -> void {
         std::map<std::string, std::string>& header = req.header();
@@ -29,6 +34,7 @@ int main(int argc, char **argv) {
             std::cout << (*it).first << ": " << (*it).second << std::endl;
         }
         
+        /*
         if (req.bodySize() > 0) {
             const char* body = req.body();
             int bodySize = req.bodySize();
@@ -51,12 +57,23 @@ int main(int argc, char **argv) {
             document += "</body></html>";
             
             res.send(document);
-        }
+        }*/
+        
+        res.header();
+        FileReader::read("./index.html", 
+                        [&] (unsigned char* data, int length) -> void {
+                            if (length > 0) {
+                                res.send((char*) data, length);
+                            } else {
+                                res.end();
+                            }
+                        },
+                        [] (int err) -> void {
+                            std::cout << "Error: " << strerror(err) << std::endl;
+                        });
+        
     });
     
-    SocketMultiplexer& sm = SocketMultiplexer::instance();
-
-    sm.getReadManager().manageSocket(serverSocket);
     
     while(1) {
         sm.tick();

@@ -11,6 +11,8 @@ public:
     Response(AcceptedSocket* as) : acceptedSocket(as) {
     }
     
+    void header();
+    
     void send(const std::string& text);
     
     void send(const char* buffer, int n);

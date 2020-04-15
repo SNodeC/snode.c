@@ -8,6 +8,13 @@
 #include "AcceptedSocket.h"
 
 
+void Response::header() {
+    acceptedSocket->writeLn("HTTP/1.1 200 OK");
+    acceptedSocket->writeLn("Content-Type: text/html; charset=iso-8859-1");
+    acceptedSocket->writeLn("Connection: Closed");
+    acceptedSocket->writeLn();
+}
+
 void Response::send(const std::string& text) {
     acceptedSocket->writeLn("HTTP/1.1 200 OK");
     acceptedSocket->writeLn("Content-Type: text/html; charset=iso-8859-1");
