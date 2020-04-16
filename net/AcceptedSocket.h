@@ -19,16 +19,19 @@ public:
     virtual void readEvent();
     virtual void writeEvent();
     
+    virtual void write(const char* buffer, int size);
+    virtual void write(const std::string& junk);
+    virtual void writeLn(const std::string& junk = "");
+    virtual void sendFile(const std::string& file);
+    
     
 protected:
-    ServerSocket* serverSocket;
-    
     void junkRead(const char* junk, int n);
     void lineRead();
     void addHeaderLine(const std::string& line);
     void bodyJunk(const char* junk, int n);
     void requestReady();
-    
+
     
 private:
     Request request;

@@ -42,6 +42,10 @@ public:
         return ::listen(this->getFd(), backlog);
     }
     
+    void serverRoot(std::string rootDir);
+    
+    std::string& getRootDir();
+    
     AcceptedSocket* accept();
     
     virtual void readEvent();
@@ -51,6 +55,8 @@ private:
     std::function<void (Request& req, Response& res)> getProcessor;
     std::function<void (Request& req, Response& res)> postProcessor;
     std::function<void (Request& req, Response& res)> putProcessor;
+    
+    std::string rootDir;
 };
 
 #endif // SERVERSOCKET_H

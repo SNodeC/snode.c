@@ -4,9 +4,10 @@
 #include "ConnectedSocket.h"
 #include "SocketMultiplexer.h"
 #include "ServerSocket.h"
+#include "FileReader.h"
 
 
-ConnectedSocket::ConnectedSocket(int csFd) : Socket(csFd) {
+ConnectedSocket::ConnectedSocket(int csFd, ServerSocket* ss) : Socket(csFd), serverSocket(ss) {
 }
 
 
@@ -39,6 +40,22 @@ void ConnectedSocket::write(const std::string& junk) {
 void ConnectedSocket::writeLn(const std::string& junk) {
     writeBuffer += junk + "\r\n";
     SocketMultiplexer::instance().getWriteManager().manageSocket(this);
+}
+
+
+void ConnectedSocket::sendFile(const std::string& file) {
+    FileReader::read(file,
+                     [&] (unsigned char* data, int length) -> void {
+                         if (length > 0) {
+                             this->write((char*) data, length);
+                         } else {
+                             this->close();
+                         }
+                     },
+                     [&] (int err) -> void {
+                         std::cout << "Error: " << strerror(err) << std::endl;
+                         this->close();
+                     });
 }
 
 

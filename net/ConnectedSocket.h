@@ -8,16 +8,18 @@
 #include "Writer.h"
 #include "Reader.h"
 
+class ServerSocket;
 
 class ConnectedSocket : public Socket, public Reader, public Writer
 {
 public:
-    ConnectedSocket(int csFd);
+    ConnectedSocket(int csFd, ServerSocket* ss);
     virtual ~ConnectedSocket();
     
     virtual void write(const char* buffer, int size);
     virtual void write(const std::string& junk);
     virtual void writeLn(const std::string& junk = "");
+    virtual void sendFile(const std::string& file);
     
     InetAddress& getRemoteAddress();
     void setRemoteAddress(const InetAddress& remoteAddress);
@@ -28,6 +30,7 @@ public:
 
 
 protected:
+    ServerSocket* serverSocket;
     void clearReadBuffer();
     
     InetAddress remoteAddress;
