@@ -21,6 +21,8 @@ public:
     bool isGet();
     bool isPut();
     
+    const std::string requestURI();
+    
 private:
     AcceptedSocket* acceptedSocket;
 };

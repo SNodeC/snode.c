@@ -10,7 +10,7 @@
 #include "SocketMultiplexer.h"
 
 
-AcceptedSocket::AcceptedSocket(int csFd, ServerSocket* ss) : ConnectedSocket(csFd), serverSocket(ss), request(this), response(this), bodyData(0), bodyLength(0), state(states::REQUEST), bodyPointer(0), line("")  {
+AcceptedSocket::AcceptedSocket(int csFd, ServerSocket* ss) : ConnectedSocket(csFd, ss), request(this), response(this), bodyData(0), bodyLength(0), state(states::REQUEST), bodyPointer(0), line("")  {
 }
 
 
@@ -168,3 +168,23 @@ void AcceptedSocket::writeEvent() {
         state = states::REQUEST;
     }
 }
+
+
+void AcceptedSocket::write(const char* buffer, int size) {
+    ConnectedSocket::write(buffer, size);
+}
+
+void AcceptedSocket::write(const std::string& junk) {
+    ConnectedSocket::write(junk);
+}
+
+void AcceptedSocket::writeLn(const std::string& junk) {
+    ConnectedSocket::writeLn(junk);
+}
+
+void AcceptedSocket::sendFile(const std::string& file) {
+    std::string absolutFileName = serverSocket->getRootDir() + file;
+    
+    ConnectedSocket::sendFile(absolutFileName);
+}
+

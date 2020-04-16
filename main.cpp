@@ -1,82 +1,60 @@
 #include <iostream>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <signal.h>
-#include <list>
-#include <functional>
-#include <map>
+#include <magic.h>
 #include <string.h>
+#include <signal.h>
 
-#include "TimerManager.h"
 #include "ServerSocket.h"
-#include "SocketManager.h"
 #include "SocketMultiplexer.h"
-
 #include "Request.h"
 #include "Response.h"
 
-#include "FileReader.h"
-
+void init() {
+    signal(SIGPIPE, SIG_IGN);
+}
 
 int main(int argc, char **argv) {
-    signal(SIGPIPE, SIG_IGN);
+    init();
+    
+    magic_t magic = magic_open(MAGIC_MIME);
+    if (magic_load(magic, NULL) != 0) {
+        std::cout << "cannot load magic database - " << magic_error(magic) << std::endl;
+        magic_close(magic);
+        return 1;
+    }
+    std::cout << "hier: " << magic_file(magic, "./index.html") << std::endl;
+    
     
     ServerSocket* serverSocket = ServerSocket::instance(8080);
     
-    SocketMultiplexer& sm = SocketMultiplexer::instance();
-    sm.getReadManager().manageSocket(serverSocket);
+    serverSocket->serverRoot("/home/voc/projects/html-pages/Static-Site-Samples/POHTML");
     
-    serverSocket->get([] (Request& req, Response& res) -> void {
+    serverSocket->get([&] (Request& req, Response& res) -> void {
+        /*
         std::map<std::string, std::string>& header = req.header();
         std::map<std::string, std::string>::iterator it;
         
         for (it = header.begin(); it != header.end(); ++it) {
             std::cout << (*it).first << ": " << (*it).second << std::endl;
         }
+        */
+//        res.header();
+        std::string uri = req.requestURI();
         
-        /*
-        if (req.bodySize() > 0) {
-            const char* body = req.body();
-            int bodySize = req.bodySize();
+        std::cout << "URI: " << uri << std::endl;
+        if (uri == "/") {
+            uri = "/index.html";
+        }
+        std::cout << "URI: " << uri << std::endl;
         
-            char* str = new char[bodySize + 1];
-        
-            memcpy(str, body, bodySize);
-            str[bodySize] = 0;
-        
-            std::cout << str << std::endl;
-            
-            res.send(str);
-        } else {
-            std::string document;
-            
-            document = "<!DOCTYPE html>";
-            document += "<html><body>";
-            document += "<h1>My First Heading</h1>";
-            document += "<p>My first paragraph.</p>";
-            document += "</body></html>";
-            
-            res.send(document);
-        }*/
-        
-        res.header();
-        FileReader::read("./index.html", 
-                        [&] (unsigned char* data, int length) -> void {
-                            if (length > 0) {
-                                res.send((char*) data, length);
-                            } else {
-                                res.end();
-                            }
-                        },
-                        [] (int err) -> void {
-                            std::cout << "Error: " << strerror(err) << std::endl;
-                        });
-        
+        std::cout << "Content-Type: " << magic_file(magic, ("/home/voc/projects/html-pages/Static-Site-Samples/POHTML" + uri).c_str()) << std::endl;
+    
+        res.contentType(magic_file(magic, ("/home/voc/projects/html-pages/Static-Site-Samples/POHTML" + uri).c_str()));
+        res.sendFile(uri);
     });
     
     
     while(1) {
-        sm.tick();
+        SocketMultiplexer::instance().tick();
     }
     
     return 0;

@@ -1,5 +1,7 @@
 #include "Request.h"
 
+#include <sstream>
+
 #include "AcceptedSocket.h"
 
 std::map<std::string, std::string>& Request::header() {
@@ -24,4 +26,15 @@ bool Request::isPost() {
 
 bool Request::isPut() {
     return acceptedSocket->requestLine.find("PUT") != std::string::npos;
+}
+
+const std::string Request::requestURI() {
+    std::string method;
+    std::string uri;
+    
+    std::istringstream tokenStream(acceptedSocket->requestLine);
+    std::getline(tokenStream, method, ' ');
+    std::getline(tokenStream, uri, ' ');
+    
+    return uri;
 }

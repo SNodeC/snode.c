@@ -2,7 +2,8 @@
 #include "AcceptedSocket.h"
 #include "SocketMultiplexer.h"
 
-ServerSocket::ServerSocket() : Socket(socket(AF_INET, SOCK_STREAM, 0)) {
+ServerSocket::ServerSocket() : Socket(socket(AF_INET, SOCK_STREAM, 0)), rootDir(".") {
+    SocketMultiplexer::instance().getReadManager().manageSocket(this);
 }
 
 
@@ -93,4 +94,15 @@ void ServerSocket::readEvent() {
     if (as) {
         SocketMultiplexer::instance().getReadManager().manageSocket(as);
     }
+}
+
+
+void ServerSocket::serverRoot(std::string rootDir) {
+    this->rootDir = rootDir;
+}
+
+
+
+std::string& ServerSocket::getRootDir() {
+    return rootDir;
 }

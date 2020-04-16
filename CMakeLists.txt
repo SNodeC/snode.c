@@ -6,6 +6,6 @@ add_subdirectory(net)
 
 add_executable(snode.c main.cpp)
 
-target_link_libraries(snode.c LINK_PUBLIC net)
+target_link_libraries(snode.c LINK_PUBLIC net magic)
 
 install(TARGETS snode.c RUNTIME DESTINATION bin)
