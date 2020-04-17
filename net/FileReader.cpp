@@ -12,7 +12,7 @@ FileReader::FileReader(int fd) : Descriptor(fd) {
 }
 
 
-void FileReader::read(std::string path, std::function<void (unsigned char* data, int len)> junkRead, std::function<void (int err)> error) {
+void FileReader::read(std::string path, std::function<void (char* data, int len)> junkRead, std::function<void (int err)> error) {
     int fd = open(path.c_str(), O_RDONLY);
     
     if (fd >= 0) {
@@ -27,7 +27,7 @@ void FileReader::read(std::string path, std::function<void (unsigned char* data,
 
 
 void FileReader::readEvent() {
-    unsigned char buffer[4096];
+    char buffer[4096];
     
     int ret = ::read(this->getFd(), buffer, 4096);
     

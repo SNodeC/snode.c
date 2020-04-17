@@ -14,12 +14,12 @@ private:
     FileReader(int fd);
     
 public:
-    static void read(std::string path, std::function<void (unsigned char* data, int len)> junkRead, std::function<void (int err)> error);
+    static void read(std::string path, std::function<void (char* data, int len)> junkRead, std::function<void (int err)> error);
     
     virtual void readEvent();
     
 private:
-    std::function<void (unsigned char* data, int len)> junkRead;
+    std::function<void (char* data, int len)> junkRead;
     std::function<void (int err)> error;
 };
 

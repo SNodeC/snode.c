@@ -8,12 +8,12 @@
 #include "Request.h"
 #include "Response.h"
 
-class ServerSocket;
+class Server;
 
 class AcceptedSocket : public ConnectedSocket
 {
 public:
-    AcceptedSocket(int csFd, ServerSocket* ss);
+    AcceptedSocket(int csFd, Server* ss);
     ~AcceptedSocket();
     
     virtual void readEvent();
@@ -38,7 +38,7 @@ private:
     Response response;
     
     std::string requestLine;
-    std::map<std::string, std::string> headerMap;
+    std::map<std::string, std::string> requestHeader;
     char* bodyData;
     int bodyLength;
     

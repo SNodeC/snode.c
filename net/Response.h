@@ -6,21 +6,20 @@
 
 class AcceptedSocket;
 
-class Response
-{
+class Response {
 public:
     Response(AcceptedSocket* as);
     
     void contentType(const std::string& contentType) {
-        headerMap["Content-Type"] = contentType;
+        responseHeader["Content-Type"] = contentType;
     }
     
     void contentLength(int length) {
-        headerMap["Content-Length"] = std::to_string(length);
+        responseHeader["Content-Length"] = std::to_string(length);
     }
     
     void status(int status) {
-        this->stat = status;
+        this->responseStatus = status;
     }
     
     void send(const std::string& text);
@@ -31,17 +30,14 @@ public:
     
     void end();
     
-protected:
     void sendHeader();
     
 private:
     AcceptedSocket* acceptedSocket;
     
-    std::map<std::string, std::string> headerMap;
-    int stat;
+    std::map<std::string, std::string> responseHeader;
+    int responseStatus;
     bool headerSent;
-    
-    std::map<int, std::string> statusCode;
 };
 
 

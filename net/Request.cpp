@@ -5,7 +5,7 @@
 #include "AcceptedSocket.h"
 
 std::map<std::string, std::string>& Request::header() {
-    return acceptedSocket->headerMap;
+    return acceptedSocket->requestHeader;
 }
 
 const char* Request::body() {

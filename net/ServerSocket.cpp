@@ -2,12 +2,12 @@
 #include "AcceptedSocket.h"
 #include "SocketMultiplexer.h"
 
-ServerSocket::ServerSocket() : Socket(socket(AF_INET, SOCK_STREAM, 0)), rootDir(".") {
+Server::Server() : Socket(socket(AF_INET, SOCK_STREAM, 0)), rootDir(".") {
     SocketMultiplexer::instance().getReadManager().manageSocket(this);
 }
 
 
-ServerSocket::ServerSocket(uint16_t port) : ServerSocket() {
+Server::Server(uint16_t port) : Server() {
     int sockopt = 1;
     setsockopt(this->getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt));
     
@@ -17,21 +17,21 @@ ServerSocket::ServerSocket(uint16_t port) : ServerSocket() {
 }
 
 
-ServerSocket::ServerSocket(const std::string hostname, uint16_t port) : ServerSocket() {
+Server::Server(const std::string hostname, uint16_t port) : Server() {
 }
 
 
-ServerSocket* ServerSocket::instance(uint16_t port) {
-    return new ServerSocket(port);
+Server& Server::instance(uint16_t port) {
+    return *(new Server(port));
 }
 
 
-ServerSocket* ServerSocket::instance(const std::string& hostname, uint16_t port) {
-    return new ServerSocket(hostname, port);
+Server& Server::instance(const std::string& hostname, uint16_t port) {
+    return *(new Server(hostname, port));
 }
 
 
-AcceptedSocket* ServerSocket::accept() {
+AcceptedSocket* Server::accept() {
     struct sockaddr_in addr;
     socklen_t addrlen = sizeof(addr);
     
@@ -59,7 +59,7 @@ AcceptedSocket* ServerSocket::accept() {
 }
 
 
-void ServerSocket::process(Request& request, Response& response) {
+void Server::process(Request& request, Response& response) {
     // if GET-Request
     if (request.isGet()) {
         if (getProcessor) {
@@ -88,7 +88,7 @@ void ServerSocket::process(Request& request, Response& response) {
 }
 
 
-void ServerSocket::readEvent() {
+void Server::readEvent() {
     AcceptedSocket* as = this->accept();
     
     if (as) {
@@ -97,12 +97,12 @@ void ServerSocket::readEvent() {
 }
 
 
-void ServerSocket::serverRoot(std::string rootDir) {
+void Server::serverRoot(std::string rootDir) {
     this->rootDir = rootDir;
 }
 
 
 
-std::string& ServerSocket::getRootDir() {
+std::string& Server::getRootDir() {
     return rootDir;
 }
