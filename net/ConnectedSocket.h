@@ -8,12 +8,12 @@
 #include "Writer.h"
 #include "Reader.h"
 
-class ServerSocket;
+class Server;
 
 class ConnectedSocket : public Socket, public Reader, public Writer
 {
 public:
-    ConnectedSocket(int csFd, ServerSocket* ss);
+    ConnectedSocket(int csFd, Server* ss);
     virtual ~ConnectedSocket();
     
     virtual void write(const char* buffer, int size);
@@ -30,7 +30,7 @@ public:
 
 
 protected:
-    ServerSocket* serverSocket;
+    Server* serverSocket;
     void clearReadBuffer();
     
     InetAddress remoteAddress;

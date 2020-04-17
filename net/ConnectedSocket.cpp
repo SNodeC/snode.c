@@ -7,7 +7,7 @@
 #include "FileReader.h"
 
 
-ConnectedSocket::ConnectedSocket(int csFd, ServerSocket* ss) : Socket(csFd), serverSocket(ss) {
+ConnectedSocket::ConnectedSocket(int csFd, Server* ss) : Socket(csFd), serverSocket(ss) {
 }
 
 
@@ -45,9 +45,9 @@ void ConnectedSocket::writeLn(const std::string& junk) {
 
 void ConnectedSocket::sendFile(const std::string& file) {
     FileReader::read(file,
-                     [&] (unsigned char* data, int length) -> void {
+                     [&] (char* data, int length) -> void {
                          if (length > 0) {
-                             this->write((char*) data, length);
+                             this->write(data, length);
                          } else {
                              this->close();
                          }

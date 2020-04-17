@@ -6,11 +6,13 @@
 
 #include <string.h>
 
+#include "MimeTypes.h"
 #include "ServerSocket.h"
 #include "SocketMultiplexer.h"
+#include <filesystem>
 
 
-AcceptedSocket::AcceptedSocket(int csFd, ServerSocket* ss) : ConnectedSocket(csFd, ss), request(this), response(this), bodyData(0), bodyLength(0), state(states::REQUEST), bodyPointer(0), line("")  {
+AcceptedSocket::AcceptedSocket(int csFd, Server* ss) : ConnectedSocket(csFd, ss), request(this), response(this), bodyData(0), bodyLength(0), state(states::REQUEST), bodyPointer(0), line("")  {
 }
 
 
@@ -76,10 +78,10 @@ void AcceptedSocket::addHeaderLine(const std::string& line) {
         std::transform(key.begin(), key.end(), key.begin(),
                        [](unsigned char c){ return std::tolower(c); });
         
-        headerMap[key] = token.substr(strBegin, strRange);
+        requestHeader[key] = token.substr(strBegin, strRange);
         
         if (key == "content-length") {
-            bodyLength = std::stoi(headerMap[key]);
+            bodyLength = std::stoi(requestHeader[key]);
             bodyData = new char[bodyLength];
         }
     }
@@ -171,20 +173,35 @@ void AcceptedSocket::writeEvent() {
 
 
 void AcceptedSocket::write(const char* buffer, int size) {
+    response.sendHeader();
     ConnectedSocket::write(buffer, size);
 }
 
 void AcceptedSocket::write(const std::string& junk) {
+    response.sendHeader();
     ConnectedSocket::write(junk);
 }
 
 void AcceptedSocket::writeLn(const std::string& junk) {
+    response.sendHeader();
     ConnectedSocket::writeLn(junk);
 }
 
 void AcceptedSocket::sendFile(const std::string& file) {
+    
     std::string absolutFileName = serverSocket->getRootDir() + file;
     
-    ConnectedSocket::sendFile(absolutFileName);
+    if (std::filesystem::exists(absolutFileName)) {
+        response.contentType(MimeTypes::contentType(absolutFileName));
+        response.contentLength(std::filesystem::file_size(absolutFileName));
+        std::cout << "MimeType: " << MimeTypes::contentType(absolutFileName) << std::endl;
+        response.sendHeader();
+        ConnectedSocket::sendFile(absolutFileName);
+    } else {
+        response.status(404);
+        response.contentLength(0);
+        response.sendHeader();
+        this->close();
+    }
 }
 

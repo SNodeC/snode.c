@@ -5,8 +5,7 @@
 
 class AcceptedSocket;
 
-class Request
-{
+class Request {
 public:
     Request(AcceptedSocket* as) : acceptedSocket(as) {
     }

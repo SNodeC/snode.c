@@ -10,15 +10,15 @@ class Request;
 class Response;
 class AcceptedSocket;
 
-class ServerSocket : public Socket, public Reader {
+class Server : public Socket, public Reader {
 private:
-    ServerSocket();
-    ServerSocket(uint16_t port);
-    ServerSocket(const std::string hostname, uint16_t port);
+    Server();
+    Server(uint16_t port);
+    Server(const std::string hostname, uint16_t port);
 
 public:
-    static ServerSocket* instance(uint16_t port);
-    static ServerSocket* instance(const std::string& hostname, uint16_t port);
+    static Server& instance(uint16_t port);
+    static Server& instance(const std::string& hostname, uint16_t port);
     
     void process(Request& request, Response& response);
     
