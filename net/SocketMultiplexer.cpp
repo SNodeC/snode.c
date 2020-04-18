@@ -32,3 +32,11 @@ void SocketMultiplexer::tick() {
         }
     }
 }
+
+
+void SocketMultiplexer::run()
+{
+    while(1) {
+        this->tick();
+    }
+}

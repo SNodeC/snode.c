@@ -102,7 +102,11 @@ void Server::serverRoot(std::string rootDir) {
 }
 
 
-
 std::string& Server::getRootDir() {
     return rootDir;
+}
+
+
+void Server::run() {
+    SocketMultiplexer::instance().run();
 }

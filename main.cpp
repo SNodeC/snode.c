@@ -3,7 +3,6 @@
 #include <signal.h>
 
 #include "ServerSocket.h"
-#include "SocketMultiplexer.h"
 #include "Request.h"
 #include "Response.h"
 
@@ -16,10 +15,11 @@ int main(int argc, char **argv) {
     
     Server& app = Server::instance(8080);
 
-    app.serverRoot("/home/voc/projects/html-pages/Static-Site-Samples/POHTML");
+//    app.serverRoot("/home/voc/projects/html-pages/Static-Site-Samples/POHTML");
+    app.serverRoot("/home/voc/Downloads/greeny_661");
 
     app.get(
-        [&] (Request& req, Response& res) -> void {
+        [] (Request& req, Response& res) -> void {
             std::string uri = req.requestURI();
             
             if (uri == "/") {
@@ -30,10 +30,7 @@ int main(int argc, char **argv) {
         }
     );
 
-
-    while(1) {
-        SocketMultiplexer::instance().tick();
-    }
+    Server::run();
 
     return 0;
 }
