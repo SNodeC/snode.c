@@ -35,6 +35,8 @@ public:
         return exceptionManager;
     }
     
+    void run();
+    
 protected:
     SocketReadManager readManager;
     SocketWriteManager writeManager;

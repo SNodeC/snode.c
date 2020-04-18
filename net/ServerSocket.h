@@ -50,6 +50,8 @@ public:
     
     virtual void readEvent();
     
+    static void run();
+    
 private:
     std::function<void (Request& req, Response& res)> allProcessor;
     std::function<void (Request& req, Response& res)> getProcessor;

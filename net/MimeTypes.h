@@ -3,6 +3,7 @@
 
 #include <magic.h>
 
+#include <map>
 #include <string>
 
 class MimeTypes
@@ -14,6 +15,8 @@ public:
     
 private:
     static magic_t magic;
+    
+    static std::map<std::string, std::string> mimeTypes;
 };
 
 #endif // MIMETYPES_H
