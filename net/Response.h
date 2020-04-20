@@ -10,17 +10,11 @@ class Response {
 public:
     Response(AcceptedSocket* as);
     
-    void contentType(const std::string& contentType) {
-        responseHeader["Content-Type"] = contentType;
-    }
+    void contentType(const std::string& contentType);
     
-    void contentLength(int length) {
-        responseHeader["Content-Length"] = std::to_string(length);
-    }
+    void contentLength(int length);
     
-    void status(int status) {
-        this->responseStatus = status;
-    }
+    void status(int status);
     
     void send(const std::string& text);
     

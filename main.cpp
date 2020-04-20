@@ -1,5 +1,4 @@
 #include <iostream>
-#include <string.h>
 #include <signal.h>
 
 #include "ServerSocket.h"

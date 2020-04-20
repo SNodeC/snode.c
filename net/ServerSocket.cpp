@@ -22,12 +22,12 @@ Server::Server(const std::string hostname, uint16_t port) : Server() {
 
 
 Server& Server::instance(uint16_t port) {
-    return *(new Server(port));
+    return *new Server(port);
 }
 
 
 Server& Server::instance(const std::string& hostname, uint16_t port) {
-    return *(new Server(hostname, port));
+    return *new Server(hostname, port);
 }
 
 

@@ -10,8 +10,22 @@
 #include "HTTPStatusCodes.h"
 
 Response::Response(AcceptedSocket* as) : acceptedSocket(as), responseStatus (200), headerSent(false) {
-    responseHeader["Content-Type"] = "text/html; charset=UTF8";
+    this->responseHeader["Content-Type"] = "text/html; charset=UTF8";
 }
+
+
+void Response::contentType(const std::string& contentType) {
+    this->responseHeader["Content-Type"] = contentType;
+}
+
+void Response::contentLength(int length) {
+    this->responseHeader["Content-Length"] = std::to_string(length);
+}
+
+void Response::status(int status) {
+    this->responseStatus = status;
+}
+
 
 void Response::sendHeader() {
     if (!headerSent) {
