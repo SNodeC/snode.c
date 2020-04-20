@@ -10,10 +10,6 @@ class Response {
 public:
     Response(AcceptedSocket* as);
     
-    void contentType(const std::string& contentType);
-    
-    void contentLength(int length);
-    
     void status(int status);
     
     void send(const std::string& text);
@@ -24,14 +20,12 @@ public:
     
     void end();
     
-    void sendHeader();
+    void set(const std::string& field, const std::string& value);
+    
+    void append(const std::string& field, const std::string& value);
     
 private:
     AcceptedSocket* acceptedSocket;
-    
-    std::map<std::string, std::string> responseHeader;
-    int responseStatus;
-    bool headerSent;
 };
 
 

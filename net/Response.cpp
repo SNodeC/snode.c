@@ -9,59 +9,40 @@
 
 #include "HTTPStatusCodes.h"
 
-Response::Response(AcceptedSocket* as) : acceptedSocket(as), responseStatus (200), headerSent(false) {
-    this->responseHeader["Content-Type"] = "text/html; charset=UTF8";
+Response::Response(AcceptedSocket* as) : acceptedSocket(as) {
 }
 
-
-void Response::contentType(const std::string& contentType) {
-    this->responseHeader["Content-Type"] = contentType;
-}
-
-void Response::contentLength(int length) {
-    this->responseHeader["Content-Length"] = std::to_string(length);
-}
 
 void Response::status(int status) {
-    this->responseStatus = status;
+    this->acceptedSocket->responseStatus = status;
 }
 
 
-void Response::sendHeader() {
-    if (!headerSent) {
-        acceptedSocket->ConnectedSocket::writeLn("HTTP/1.1 " + std::to_string( responseStatus ) + " " + HTTPStatusCode::reason( responseStatus ));
-    
-        for (std::map<std::string, std::string>::iterator it = responseHeader.begin(); it != responseHeader.end(); ++it) {
-            acceptedSocket->ConnectedSocket::writeLn((*it).first + ": " + (*it).second);
-        }
-        acceptedSocket->ConnectedSocket::writeLn();
-        headerSent = true;
-    }
+void Response::set(const std::string& field, const std::string& value) {
+    acceptedSocket->responseHeader[field] = value;
 }
+
+
+void Response::append(const std::string& field, const std::string& value) {
+    acceptedSocket->responseHeader[field] = acceptedSocket->responseHeader[field] + ", " + value;
+}
+
 
 void Response::send(const std::string& text) {
-    responseHeader["Content-Length"] = std::to_string(text.length());
-//    sendHeader();
-    acceptedSocket->write(text);
+    acceptedSocket->send(text);
 }
 
 
 void Response::sendFile(const std::string& file) {
-//    sendHeader();
     acceptedSocket->sendFile(file);
 }
 
 
 void Response::send(const char* buffer, int n) {
-//    sendHeader();
-    acceptedSocket->write(buffer, n);
+    acceptedSocket->send(buffer, n);
 }
 
 
 void Response::end() {
-    acceptedSocket->close();
-    headerSent = false;
-    responseHeader.clear();
-    responseHeader["Content-Type"] = "text/html; charset=UTF8";
-    responseStatus = 200;
+    acceptedSocket->end();
 }

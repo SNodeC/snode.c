@@ -5,6 +5,15 @@
 class Exception {
 public:
     virtual void exceptionEvent() = 0;
+    
+protected:
+    Exception(): managed(false) {
+    }
+    
+    virtual ~Exception() = default;
+
+public:
+    bool managed = false;
 };
 
 

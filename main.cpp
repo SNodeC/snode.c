@@ -15,7 +15,8 @@ int main(int argc, char **argv) {
     Server& app = Server::instance(8080);
 
 //    app.serverRoot("/home/voc/projects/html-pages/Static-Site-Samples/POHTML");
-    app.serverRoot("/home/voc/Downloads/greeny_661");
+//    app.serverRoot("/home/voc/Downloads/greeny_661");
+    app.serverRoot("/home/voc/projects/ServerVoc/sites/textured_stars");
 
     app.get(
         [] (Request& req, Response& res) -> void {
@@ -24,7 +25,7 @@ int main(int argc, char **argv) {
             if (uri == "/") {
                 uri = "/index.html";
             }
-            
+            res.set("Connection", "close");
             res.sendFile(uri);
         }
     );
