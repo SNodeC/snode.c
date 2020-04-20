@@ -9,13 +9,8 @@ public:
     
     int getFd() const;
     
-    void incManagedCount();
-    void decManagedCount();
-    
 private:
     int fd;
-    
-    int managedCount;
 };
 
 #endif // DESCRIPTOR_H

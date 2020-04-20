@@ -1,12 +1,13 @@
 #ifndef SOCKETMANAGER_H
 #define SOCKETMANAGER_H
 
-#include <algorithm>
-
 #include <sys/select.h>
+
+#include <algorithm>
 #include <list>
 
 #include "Descriptor.h"
+#include "Manageable.h"
 
 template <typename T> class SocketManager
 {
@@ -22,7 +23,7 @@ public:
             if (std::find(descriptors.begin(), descriptors.end(), *it) == descriptors.end()) {
                 FD_SET(dynamic_cast<Descriptor*>(*it)->getFd(), &fdSet);
                 descriptors.push_back(*it);
-                dynamic_cast<Descriptor*>(*it)->incManagedCount();
+                dynamic_cast<Manageable*>(*it)->incManaged();
             }
         }
         addedDescriptors.clear();
@@ -31,7 +32,7 @@ public:
             if (std::find(descriptors.begin(), descriptors.end(), *it) != descriptors.end()) {
                 FD_CLR(dynamic_cast<Descriptor*>(*it)->getFd(), &fdSet);
                 descriptors.remove(*it);
-                dynamic_cast<Descriptor*>(*it)->decManagedCount();;
+                dynamic_cast<Manageable*>(*it)->decManaged();
             }
         }
         removedDescriptors.clear();
@@ -41,17 +42,18 @@ public:
         return fdSet;
     }
     
-    
     void manageSocket(T* socket) {
-        if (socket != 0 && std::find(addedDescriptors.begin(), addedDescriptors.end(), socket) == addedDescriptors.end()) {
+        if (!socket->managed) {
             addedDescriptors.push_back(socket);
+            socket->managed = true;
         }
     }
     
     
     void unmanageSocket(T* socket) {
-        if (socket != 0 && std::find(removedDescriptors.begin(), removedDescriptors.end(), socket) == removedDescriptors.end()) {
+        if (socket->managed) {
             removedDescriptors.push_back(socket);
+            socket->managed = false;
         }
     }
     

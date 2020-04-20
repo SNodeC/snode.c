@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
             if (uri == "/") {
                 uri = "/index.html";
             }
-            res.set("Connection", "close");
+//            res.set("Connection", "close");
             res.sendFile(uri);
         }
     );

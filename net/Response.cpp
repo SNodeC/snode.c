@@ -19,30 +19,30 @@ void Response::status(int status) {
 
 
 void Response::set(const std::string& field, const std::string& value) {
-    acceptedSocket->responseHeader[field] = value;
+    this->acceptedSocket->responseHeader[field] = value;
 }
 
 
 void Response::append(const std::string& field, const std::string& value) {
-    acceptedSocket->responseHeader[field] = acceptedSocket->responseHeader[field] + ", " + value;
+    this->acceptedSocket->responseHeader[field] = acceptedSocket->responseHeader[field] + ", " + value;
 }
 
 
 void Response::send(const std::string& text) {
-    acceptedSocket->send(text);
+    this->acceptedSocket->send(text);
 }
 
 
 void Response::sendFile(const std::string& file) {
-    acceptedSocket->sendFile(file);
+    this->acceptedSocket->sendFile(file);
 }
 
 
 void Response::send(const char* buffer, int n) {
-    acceptedSocket->send(buffer, n);
+    this->acceptedSocket->send(buffer, n);
 }
 
 
 void Response::end() {
-    acceptedSocket->end();
+    this->acceptedSocket->end();
 }

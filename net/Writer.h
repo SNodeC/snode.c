@@ -1,19 +1,13 @@
 #ifndef WRITER_H
 #define WRITER_H
 
+#include "Manageable.h"
 
-class Writer {
+class Writer : public Manageable {
 public:
-    virtual void writeEvent() = 0;
-    
-protected:
-    Writer(): managed(false) {
-    }
-    
     virtual ~Writer() = default;
     
-private:
-    bool managed;
+    virtual void writeEvent() = 0;
 };
 
 
