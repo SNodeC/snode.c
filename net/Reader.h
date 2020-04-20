@@ -1,19 +1,13 @@
 #ifndef READER_H
 #define READER_H
 
+#include "Manageable.h"
 
-class Reader {
+class Reader : public Manageable {
 public:
-    virtual void readEvent() = 0;
-    
-protected:
-    Reader(): managed(false) {
-    }
-    
     virtual ~Reader() = default;
-
-public:
-    bool managed = false;
+    
+    virtual void readEvent() = 0;
 };
 
 

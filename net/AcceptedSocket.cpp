@@ -207,7 +207,7 @@ void AcceptedSocket::sendFile(const std::string& file) {
     } else {
         this->responseStatus = 404;
         this->responseHeader["Connection"] = "close";
-        this->end();
+        this->end(true);
     }
 }
 
@@ -225,9 +225,10 @@ void AcceptedSocket::sendHeader() {
 }
 
 
-void AcceptedSocket::end() {
+void AcceptedSocket::end(bool force) {
     this->sendHeader();
-    if (requestHeader["Connection"] == "close" || responseHeader["Connection"] == "close") {
+    
+    if (requestHeader["Connection"] == "close" || force) {
         std::cout << "AEOF" << std::endl;
         this->ConnectedSocket::end();
     }

@@ -1,19 +1,13 @@
 #ifndef EXCEPTION_H
 #define EXCEPTION_H
 
+#include "Manageable.h"
 
-class Exception {
+class Exception : public Manageable {
 public:
-    virtual void exceptionEvent() = 0;
-    
-protected:
-    Exception(): managed(false) {
-    }
-    
     virtual ~Exception() = default;
-
-public:
-    bool managed = false;
+    
+    virtual void exceptionEvent() = 0;
 };
 
 

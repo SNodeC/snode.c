@@ -21,7 +21,7 @@ public:
     virtual void send(const std::string& junk);
     virtual void sendFile(const std::string& file);
     
-    virtual void end();
+    virtual void end(bool force = false);
     
     
 protected:
