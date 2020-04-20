@@ -16,21 +16,25 @@ public:
     AcceptedSocket(int csFd, Server* ss);
     ~AcceptedSocket();
     
-    virtual void readEvent();
-    virtual void writeEvent();
     
-    virtual void write(const char* buffer, int size);
-    virtual void write(const std::string& junk);
-    virtual void writeLn(const std::string& junk = "");
+    virtual void send(const char* buffer, int size);
+    virtual void send(const std::string& junk);
     virtual void sendFile(const std::string& file);
+    
+    virtual void end();
     
     
 protected:
+    virtual void readEvent();
+    virtual void writeEvent();
+    
     void junkRead(const char* junk, int n);
     void lineRead();
-    void addHeaderLine(const std::string& line);
+    void addRequestHeader(const std::string& line);
     void bodyJunk(const char* junk, int n);
     void requestReady();
+    
+    void sendHeader();
 
     
 private:
@@ -39,6 +43,7 @@ private:
     
     std::string requestLine;
     std::map<std::string, std::string> requestHeader;
+    std::map<std::string, std::string> responseHeader;
     
     
     char* bodyData;
@@ -53,8 +58,13 @@ private:
     int bodyPointer;
     std::string line;
     
+    bool headerSent;
+    int responseStatus;
+    
+    
 friend class Response;
 friend class Request;
 };
 
 #endif // ACCEPTEDSOCKET_H
+

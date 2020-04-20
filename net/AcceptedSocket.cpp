@@ -3,16 +3,17 @@
 #include <algorithm>
 #include <iostream>
 #include <sstream>
+#include <filesystem>
 
 #include <string.h>
 
 #include "MimeTypes.h"
 #include "ServerSocket.h"
 #include "SocketMultiplexer.h"
-#include <filesystem>
+#include "HTTPStatusCodes.h"
 
 
-AcceptedSocket::AcceptedSocket(int csFd, Server* ss) : ConnectedSocket(csFd, ss), request(this), response(this), bodyData(0), bodyLength(0), state(states::REQUEST), bodyPointer(0), line("")  {
+AcceptedSocket::AcceptedSocket(int csFd, Server* ss) : ConnectedSocket(csFd, ss), request(this), response(this), bodyData(0), bodyLength(0), state(states::REQUEST), bodyPointer(0), line(""), headerSent(false), responseStatus(200) {
 }
 
 
@@ -62,7 +63,7 @@ void AcceptedSocket::bodyJunk(const char* junk, int n) {
 }
 
 
-void AcceptedSocket::addHeaderLine(const std::string& line) {
+void AcceptedSocket::addRequestHeader(const std::string& line) {
     if (!line.empty()) {
         std::string key;
         std::string token;
@@ -74,9 +75,6 @@ void AcceptedSocket::addHeaderLine(const std::string& line) {
         int strBegin = token.find_first_not_of(" \t");
         int strEnd = token.find_last_not_of(" \t");
         int strRange = strEnd - strBegin + 1;
-        
-        std::transform(key.begin(), key.end(), key.begin(),
-                       [](unsigned char c){ return std::tolower(c); });
         
         requestHeader[key] = token.substr(strBegin, strRange);
         
@@ -97,7 +95,7 @@ void AcceptedSocket::lineRead() {
             break;
         case states::HEADER: 
             if (readBuffer.empty()) {
-                addHeaderLine(line);
+                addRequestHeader(line);
                 line.clear();
                 if (bodyLength > 0) {
                     state = states::BODY;
@@ -112,7 +110,7 @@ void AcceptedSocket::lineRead() {
                     
                     line += " " + readBuffer.substr(strBegin, strRange);
                 } else {
-                    addHeaderLine(line);
+                    addRequestHeader(line);
                     line = readBuffer;
                 }
             }
@@ -172,36 +170,76 @@ void AcceptedSocket::writeEvent() {
 }
 
 
-void AcceptedSocket::write(const char* buffer, int size) {
-    response.sendHeader();
-    ConnectedSocket::write(buffer, size);
+void AcceptedSocket::send(const char* buffer, int size) {
+    if (responseHeader.find("Content-Type") == responseHeader.end()) {
+        responseHeader["Content-Type"] = "application/octet-stream";
+    }
+    responseHeader["Content-Length"] = size;
+    this->sendHeader();
+    ConnectedSocket::send(buffer, size);
+    this->end();
 }
 
-void AcceptedSocket::write(const std::string& junk) {
-    response.sendHeader();
-    ConnectedSocket::write(junk);
+
+void AcceptedSocket::send(const std::string& junk) {
+    if (responseHeader.find("Content-Type") == responseHeader.end()) {
+        responseHeader["Content-Type"] = "text/html; charset=utf-8";
+    }
+    responseHeader["Content-Length"] = junk.size();
+    this->sendHeader();
+    ConnectedSocket::send(junk);
+    this->end();
 }
 
-void AcceptedSocket::writeLn(const std::string& junk) {
-    response.sendHeader();
-    ConnectedSocket::writeLn(junk);
-}
 
 void AcceptedSocket::sendFile(const std::string& file) {
     
     std::string absolutFileName = serverSocket->getRootDir() + file;
     
     if (std::filesystem::exists(absolutFileName)) {
-        response.contentType(MimeTypes::contentType(absolutFileName));
-        response.contentLength(std::filesystem::file_size(absolutFileName));
-        std::cout << "MimeType: " << MimeTypes::contentType(absolutFileName) << std::endl;
-        response.sendHeader();
+        if (responseHeader.find("Content-Type") == responseHeader.end()) {
+            responseHeader["Content-Type"] = MimeTypes::contentType(absolutFileName);
+        }
+        responseHeader["Content-Length"] = std::to_string(std::filesystem::file_size(absolutFileName));
+        this->sendHeader();
         ConnectedSocket::sendFile(absolutFileName);
+        this->end();
     } else {
-        response.status(404);
-        response.contentLength(0);
-        response.sendHeader();
-        this->close();
+        this->responseStatus = 404;
+        this->responseHeader["Connection"] = "close";
+        this->end();
     }
 }
 
+
+void AcceptedSocket::sendHeader() {
+    if (!this->headerSent) {
+        this->ConnectedSocket::send("HTTP/1.1 " + std::to_string( responseStatus ) + " " + HTTPStatusCode::reason( responseStatus )+ "\r\n");
+        
+        for (std::map<std::string, std::string>::iterator it = responseHeader.begin(); it != responseHeader.end(); ++it) {
+            this->ConnectedSocket::send((*it).first + ": " + (*it).second + "\r\n");
+        }
+        this->ConnectedSocket::send("\r\n");
+        this->headerSent = true;
+    }
+}
+
+
+void AcceptedSocket::end() {
+    this->sendHeader();
+    if (requestHeader["Connection"] == "close" || responseHeader["Connection"] == "close") {
+        std::cout << "AEOF" << std::endl;
+        this->ConnectedSocket::end();
+    }
+    
+    this->headerSent = false;
+    this->responseHeader.clear();
+    this->responseStatus = 200;
+    if (this->bodyData != 0) {
+        delete bodyData;
+        bodyData = 0;
+        bodyLength = 0;
+    }
+    this->requestHeader.clear();
+    this->requestLine.clear();
+}

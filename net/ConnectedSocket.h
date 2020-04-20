@@ -16,20 +16,19 @@ public:
     ConnectedSocket(int csFd, Server* ss);
     virtual ~ConnectedSocket();
     
-    virtual void write(const char* buffer, int size);
-    virtual void write(const std::string& junk);
-    virtual void writeLn(const std::string& junk = "");
+    virtual void send(const char* buffer, int size);
+    virtual void send(const std::string& junk);
     virtual void sendFile(const std::string& file);
     
     InetAddress& getRemoteAddress();
     void setRemoteAddress(const InetAddress& remoteAddress);
     
-    virtual void writeEvent();
-
-    void close();
+    void end();
 
 
 protected:
+    virtual void writeEvent();
+    
     Server* serverSocket;
     void clearReadBuffer();
     
