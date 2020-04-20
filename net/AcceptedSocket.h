@@ -39,6 +39,8 @@ private:
     
     std::string requestLine;
     std::map<std::string, std::string> requestHeader;
+    
+    
     char* bodyData;
     int bodyLength;
     
