@@ -54,9 +54,7 @@ struct timeval TimerManager::getNextTimeout() {
 }
 
 
-int TimerManager::process() {
-    int dispatchCounter = 0;
-    
+void TimerManager::process() {
     struct timeval currentTime;
     gettimeofday(&currentTime, NULL);
     
@@ -69,12 +67,10 @@ int TimerManager::process() {
                 (*it)->update();
                 timerListDirty = true;
             }
-            dispatchCounter++;
         } else {
             break;
         }
     }
-    return dispatchCounter;
 }
 
 

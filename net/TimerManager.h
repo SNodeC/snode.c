@@ -12,7 +12,7 @@ public:
     
     struct timeval getNextTimeout();
     
-    int process();
+    void process();
     
     void remove(Timer* timer);
     void add(Timer* timer);

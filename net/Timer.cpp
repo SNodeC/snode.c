@@ -5,13 +5,13 @@
 #include "ContinousTimer.h"
 
 
-Timer::Timer(std::function<void (void* arg)> processor, const struct timeval& timeout, void* arg) : processor(processor), arg(arg), delay(timeout) {
+Timer::Timer(std::function<void (const void* arg)> processor, const struct timeval& timeout, const void* arg) : processor(processor), arg(arg), delay(timeout) {
     gettimeofday(&absoluteTimeout, NULL);
     update();
 }
 
 
-SingleshotTimer& Timer::singleshotTimer(std::function<void (void* arg)> processor, const struct timeval& timeout, void* arg) {
+SingleshotTimer Timer::singleshotTimer(std::function<void (const void* arg)> processor, const struct timeval& timeout, const void* arg) {
     SingleshotTimer* st = new SingleshotTimer(processor, timeout, arg);
     
     SocketMultiplexer::instance().getTimerManager().add(st);
@@ -19,7 +19,7 @@ SingleshotTimer& Timer::singleshotTimer(std::function<void (void* arg)> processo
     return *st;
 }
 
-ContinousTimer& Timer::continousTimer(std::function<void (void* arg)> processor, const struct timeval& timeout, void* arg) {
+ContinousTimer Timer::continousTimer(std::function<void (const void* arg)> processor, const struct timeval& timeout, const void* arg) {
     ContinousTimer* ct = new ContinousTimer(processor, timeout, arg);
     
     SocketMultiplexer::instance().getTimerManager().add(ct);

@@ -6,9 +6,7 @@
 class ContinousTimer : public Timer
 {
 public:
-    ContinousTimer(std::function<void (void* arg)> processor, const struct timeval& timeout, void* arg) : Timer(processor, timeout, arg) {}
-    
-protected:
+    ContinousTimer(std::function<void (const void* arg)> processor, const struct timeval& timeout, const void* arg) : Timer(processor, timeout, arg) {}
     virtual ~ContinousTimer() = default;
 };
 
