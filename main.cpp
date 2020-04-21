@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
             static int i = 0;
             std::cout << (const char*) arg << " " << i++ << std::endl;
         }, 
-        (struct timeval) {1, 0}, 
+        (struct timeval) {1, 100000}, 
         "Tack");
     
     Server::run();
