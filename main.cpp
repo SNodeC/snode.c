@@ -4,6 +4,8 @@
 #include "ServerSocket.h"
 #include "Request.h"
 #include "Response.h"
+#include "SingleshotTimer.h"
+#include "ContinousTimer.h"
 
 void init() {
     signal(SIGPIPE, SIG_IGN);
@@ -30,6 +32,13 @@ int main(int argc, char **argv) {
         }
     );
 
+    Timer& timer = Timer::continousTimer(
+        [] (void* arg) -> void {
+            std::cout << "Tick" << std::endl;
+        }, 
+        (struct timeval) {1, 0}, 
+        0);
+    
     Server::run();
 
     return 0;

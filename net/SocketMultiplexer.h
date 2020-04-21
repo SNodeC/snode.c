@@ -35,6 +35,10 @@ public:
         return exceptionManager;
     }
     
+    TimerManager& getTimerManager() {
+        return timerManager;
+    }
+    
     void run();
     
 protected:
