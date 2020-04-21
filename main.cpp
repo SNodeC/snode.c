@@ -32,12 +32,21 @@ int main(int argc, char **argv) {
         }
     );
 
-    Timer& timer = Timer::continousTimer(
-        [] (void* arg) -> void {
-            std::cout << "Tick" << std::endl;
+    Timer timer = Timer::continousTimer(
+        [] (const void* arg) -> void {
+            static int i = 0;
+            std::cout << (const char*) arg << " " << i++ << std::endl;
+        }, 
+        (struct timeval) {0, 500000}, 
+        "Tick");
+    
+    timer = Timer::continousTimer(
+        [] (const void* arg) -> void {
+            static int i = 0;
+            std::cout << (const char*) arg << " " << i++ << std::endl;
         }, 
         (struct timeval) {1, 0}, 
-        0);
+        "Tack");
     
     Server::run();
 

@@ -12,7 +12,7 @@ class ContinousTimer;
 
 class Timer {
 public:
-    Timer(std::function<void (void* arg)> processor, const struct timeval& timeout, void* arg);
+    Timer(std::function<void (const void* arg)> processor, const struct timeval& timeout, const void* arg);
     virtual ~Timer() = default;
     
     void update();
@@ -20,17 +20,17 @@ public:
     operator struct timeval() const;
     void dispatch();
     
-    static SingleshotTimer& singleshotTimer(std::function<void (void* arg)> processor, const struct timeval& timeout, void* arg);
+    static SingleshotTimer singleshotTimer(std::function<void (const void* arg)> processor, const struct timeval& timeout, const void* arg);
     
-    static ContinousTimer& continousTimer(std::function<void (void* arg)> processor, const struct timeval& timeout, void* arg);
+    static ContinousTimer continousTimer(std::function<void (const void* arg)> processor, const struct timeval& timeout, const void* arg);
     
     static void cancel(Timer* timer);
     
 protected:
     struct timeval absoluteTimeout;
-    std::function<void (void* arg)> processor;
+    std::function<void (const void* arg)> processor;
     struct timeval delay;
-    void* arg;
+    const void* arg;
 };
 
 bool operator<(const struct timeval &tv1, const struct timeval &tv2);
