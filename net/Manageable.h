@@ -12,13 +12,13 @@ public:
     virtual ~Manageable() = default;
     
     void incManaged() {
-        ManagedCounter::managedCount++;
+        ManagedCounter::managedCounter++;
     }
     
     void decManaged() {
-        ManagedCounter::managedCount--;
+        ManagedCounter::managedCounter--;
         
-        if (managedCount == 0) {
+        if (managedCounter == 0) {
             delete this;
         }
         

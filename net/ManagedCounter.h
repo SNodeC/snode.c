@@ -4,10 +4,10 @@
 class ManagedCounter
 {
 public:
-    ManagedCounter() : managedCount(0) {}
+    ManagedCounter() : managedCounter(0) {}
     
 protected:
-    int managedCount;
+    int managedCounter;
 };
 
 #endif // MANAGEDCOUNTER_H
