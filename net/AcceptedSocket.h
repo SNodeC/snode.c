@@ -48,11 +48,13 @@ private:
     int bodyLength;
     
     enum states {
+        START,
         REQUEST,
         REQUEST_LB,
         HEADER,
         HEADER_LB,
-        BODY
+        BODY,
+        ERROR
     } state;
 
     

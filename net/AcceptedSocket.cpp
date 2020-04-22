@@ -13,7 +13,7 @@
 #include "HTTPStatusCodes.h"
 
 
-AcceptedSocket::AcceptedSocket(int csFd, Server* ss) : ConnectedSocket(csFd, ss), request(this), response(this), bodyData(0), bodyLength(0), state(states::REQUEST), bodyPointer(0), line(""), headerSent(false), responseStatus(200) {
+AcceptedSocket::AcceptedSocket(int csFd, Server* ss) : ConnectedSocket(csFd, ss), request(this), response(this), bodyData(0), bodyLength(0), state(states::START), bodyPointer(0), line(""), headerSent(false), responseStatus(200) {
 }
 
 
@@ -34,7 +34,7 @@ void AcceptedSocket::requestReady() {
         }
         requestHeader.clear();
         requestLine.clear();
-        
+
         bodyData = 0;
         bodyLength = 0;
         bodyPointer = 0;
@@ -58,7 +58,7 @@ void AcceptedSocket::addRequestHeader(std::string& line) {
         int strBegin = token.find_first_not_of(" \t");
         int strEnd = token.find_last_not_of(" \t");
         int strRange = strEnd - strBegin + 1;
-        
+
         if (strBegin != std::string::npos) {
             requestHeader[key] = token.substr(strBegin, strRange);
 
@@ -75,9 +75,21 @@ void AcceptedSocket::readEvent() {
     ConnectedSocket::readEvent();
 
     if (state != BODY) {
-        for (size_t i = 0; i < readBuffer.size() && state != BODY; i++) {
+        for (size_t i = 0; i < readBuffer.size() && state != BODY && state != ERROR; i++) {
             char& ch = readBuffer[i];
             switch(state) {
+            case START:
+                if (isspace(ch)) {
+                    this->responseStatus = 400;
+                    this->responseHeader["Connection"] = "close";
+                    this->ConnectedSocket::end();
+                    this->end();
+                    state = ERROR;
+                } else {
+                    line += ch;
+                    state = REQUEST;
+                }
+                break;
             case REQUEST:
                 if (ch != '\r' && ch != '\n') {
                     line += ch;
@@ -140,28 +152,30 @@ void AcceptedSocket::readEvent() {
             case BODY:
                 std::cerr << "Body: This should not happen" << ch << std::endl;
                 break;
+            case ERROR:
+                break;
             }
         }
     }
-    
+
     if (state == BODY) {
         int n = readBuffer.size();
-        
+
         if (bodyLength - bodyPointer < n) {
             n = bodyLength - bodyPointer;
         }
-        
+
         memcpy(bodyData + bodyPointer, readBuffer.c_str(), n);
         bodyPointer += n;
-        
+
         if (bodyPointer == bodyLength)  {
             bodyData[bodyLength] = 0;
             this->requestReady();
-            state = REQUEST;
+            state = START;
         }
-        
+
     }
-    
+
     readBuffer.clear();
 }
 
@@ -170,7 +184,7 @@ void AcceptedSocket::writeEvent() {
     ConnectedSocket::writeEvent();
 
     if (writeBuffer.empty()) {
-        state = states::REQUEST;
+        state = START;
     }
 }
 
@@ -234,12 +248,6 @@ void AcceptedSocket::sendHeader() {
 
 void AcceptedSocket::end() {
     this->sendHeader();
-/*
-    if (requestHeader["Connection"] == "close" || force) {
-        std::cout << "AEOF" << std::endl;
-        this->ConnectedSocket::end();
-    }
-*/
     this->headerSent = false;
     this->responseHeader.clear();
     this->responseStatus = 200;
