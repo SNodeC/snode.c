@@ -28,6 +28,7 @@ public:
 
 protected:
     virtual void writeEvent();
+    virtual void readEvent();
     
     Server* serverSocket;
     void clearReadBuffer();

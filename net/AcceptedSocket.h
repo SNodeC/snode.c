@@ -21,17 +21,15 @@ public:
     virtual void send(const std::string& junk);
     virtual void sendFile(const std::string& file);
     
-    virtual void end(bool force = false);
+    virtual void end();
     
     
 protected:
     virtual void readEvent();
     virtual void writeEvent();
     
-    void junkRead(const char* junk, int n);
-    void lineRead();
-    void addRequestHeader(const std::string& line);
-    void bodyJunk(const char* junk, int n);
+    void addRequestHeader(std::string& line);
+    
     void requestReady();
     
     void sendHeader();
@@ -51,9 +49,12 @@ private:
     
     enum states {
         REQUEST,
+        REQUEST_LB,
         HEADER,
+        HEADER_LB,
         BODY
     } state;
+
     
     int bodyPointer;
     std::string line;

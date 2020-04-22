@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
             res.sendFile(uri);
         }
     );
-
+/*
     Timer timer = Timer::continousTimer(
         [] (const void* arg) -> void {
             static int i = 0;
@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
         }, 
         (struct timeval) {1, 100000}, 
         "Tack");
-    
+*/
     Server::run();
 
     return 0;
