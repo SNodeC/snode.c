@@ -38,8 +38,8 @@ void Response::sendFile(const std::string& file) {
 }
 
 
-void Response::send(const char* buffer, int n) {
-    this->acceptedSocket->send(buffer, n);
+void Response::send(const char* puffer, int n) {
+    this->acceptedSocket->send(puffer, n);
 }
 
 

@@ -16,7 +16,7 @@ public:
     ConnectedSocket(int csFd, Server* ss);
     virtual ~ConnectedSocket();
     
-    virtual void send(const char* buffer, int size);
+    virtual void send(const char* puffer, int size);
     virtual void send(const std::string& junk);
     virtual void sendFile(const std::string& file);
     
@@ -31,12 +31,12 @@ protected:
     virtual void readEvent();
     
     Server* serverSocket;
-    void clearReadBuffer();
+    void clearReadPuffer();
     
     InetAddress remoteAddress;
     
-    std::string readBuffer;
-    std::string writeBuffer;
+    std::string readPuffer;
+    std::string writePuffer;
 };
 
 #endif // CONNECTEDSOCKET_H

@@ -13,7 +13,7 @@
 #include "HTTPStatusCodes.h"
 
 
-AcceptedSocket::AcceptedSocket(int csFd, Server* ss) : ConnectedSocket(csFd, ss), request(this), response(this), bodyData(0), bodyLength(0), state(states::START), bodyPointer(0), line(""), headerSent(false), responseStatus(200) {
+AcceptedSocket::AcceptedSocket(int csFd, Server* ss) : ConnectedSocket(csFd, ss), request(this), response(this), bodyData(0), bodyLength(0), state(states::REQUEST), bodyPointer(0), line(""), headerSent(false), responseStatus(200), linestate(READ) {
 }
 
 
@@ -26,20 +26,6 @@ AcceptedSocket::~AcceptedSocket() {
 
 void AcceptedSocket::requestReady() {
     serverSocket->process(request, response);
-    state = HEADER;
-    if (this->bodyData != 0) {
-        if (requestHeader["connection"] == "close") {
-            std::cout << "AEOF" << std::endl;
-            this->ConnectedSocket::end();
-        }
-        requestHeader.clear();
-        requestLine.clear();
-
-        bodyData = 0;
-        bodyLength = 0;
-        bodyPointer = 0;
-        delete bodyData;
-    }
 }
 
 
@@ -64,149 +50,144 @@ void AcceptedSocket::addRequestHeader(std::string& line) {
 
             if (key == "content-length") {
                 bodyLength = std::stoi(requestHeader[key]);
-                bodyData = new char[bodyLength];
+                bodyData = new char[bodyLength + 1];
             }
         }
     }
 }
 
 
-void AcceptedSocket::readEvent() {
-    ConnectedSocket::readEvent();
+void AcceptedSocket::readLine(std::function<void (std::string)> lineRead) {
+    for(int i = 0; i < readPuffer.size() && state != ERROR; i++) {
+        char& ch = readPuffer[i];
 
-    if (state != BODY) {
-        for (size_t i = 0; i < readBuffer.size() && state != BODY && state != ERROR; i++) {
-            char& ch = readBuffer[i];
-            switch(state) {
-            case START:
-                if (isspace(ch)) {
-                    this->responseStatus = 400;
-                    this->responseHeader["Connection"] = "close";
-                    this->ConnectedSocket::end();
-                    this->end();
-                    state = ERROR;
-                } else {
-                    line += ch;
-                    state = REQUEST;
-                }
-                break;
-            case REQUEST:
-                if (ch != '\r' && ch != '\n') {
-                    line += ch;
-                } else if (ch == '\n') {
-                    state = REQUEST_LB;
-                }
-                break;
-            case REQUEST_LB:
-                if (ch != '\r') {
+        if (ch != '\r') { // '\r' can be ignored completely
+            switch(linestate) {
+                case READ:
                     if (ch == '\n') {
-                        line.clear();
-                        if (bodyLength > 0) {
-                            readBuffer.erase(0, i + 1);
-                            state = BODY;
+                        if (hl.empty()) {
+                            lineRead(hl);
                         } else {
-                            this->requestReady();
-                        }
-                    } else if (isspace(ch)) {
-                        line += ch;
-                        state = REQUEST;
-                    } else {
-                        requestLine = line;
-                        line.clear();
-                        line += ch;
-                        state = HEADER;
-                    }
-                }
-                break;
-            case HEADER:
-                if (ch != '\r') {
-                    if (ch != '\n') {
-                        line += ch;
-                    } else {
-                        state = HEADER_LB;
-                    }
-                }
-                break;
-            case HEADER_LB:
-                if (ch != '\r') {
-                    if (ch == '\n' || !isspace(ch)) {
-                        this->addRequestHeader(line);
-                        line.clear();
-                        if (ch != '\n') {
-                            line += ch;
-                            state = HEADER;
-                        } else {
-                            if (bodyLength > 0) {
-                                readBuffer.erase(0, i + 1);
-                                state = BODY;
-                            } else {
-                                this->requestReady();
-                            }
+                            linestate = EOL;
                         }
                     } else {
-                        line += ch;
-                        state = HEADER;
+                        hl += ch;
                     }
-                }
-                break;
-            case BODY:
-                std::cerr << "Body: This should not happen" << ch << std::endl;
-                break;
-            case ERROR:
-                break;
+                    break;
+                case EOL:
+                    if (ch == '\n') {
+                        lineRead(hl);
+                        hl.clear();
+                        lineRead(hl);
+                    } else if (!isblank(ch)) {
+                        lineRead(hl);
+                        hl.clear();
+                        hl += ch;
+                    } else {
+                        hl += ch;
+                    }
+                    linestate = READ;
+                    break;
             }
         }
     }
+    readPuffer.clear();
+}
 
-    if (state == BODY) {
-        int n = readBuffer.size();
 
+void AcceptedSocket::readEvent() {
+    ConnectedSocket::readEvent();
+    
+    if (state != BODY) {
+        readLine([&] (std::string line) -> void {
+            std::cout << "Line: " << line << std::endl;
+    
+            switch (state) {
+                case REQUEST:
+                    if (line.empty()) {
+                        this->responseStatus = 400;
+                        this->responseHeader["Connection"] = "close";
+                        this->ConnectedSocket::end();
+                        this->end();
+                        std::cout << "AEOF" << std::endl;
+                        state = ERROR;
+                    } else {
+                        requestLine = line;
+                        state = HEADER;
+                    }
+                    break;
+                case HEADER:
+                    if (line.empty()) {
+                        if (bodyLength != 0) {
+                            state = BODY;
+                        } else {
+                            std::cout << "Request ready" << std::endl;
+                            this->requestReady();
+                            state = REQUEST;
+                        }
+                    } else {
+                        this->addRequestHeader(line);
+                    }
+                    break;
+                case BODY:
+                case ERROR:
+                    std::cout << "State: BODY or ERROR. This should not happen" << std::endl;
+            }
+        });
+    } else {
+        int n = readPuffer.size();
+        
         if (bodyLength - bodyPointer < n) {
             n = bodyLength - bodyPointer;
         }
-
-        memcpy(bodyData + bodyPointer, readBuffer.c_str(), n);
+        
+        memcpy(bodyData + bodyPointer, readPuffer.c_str(), n);
         bodyPointer += n;
-
+        
         if (bodyPointer == bodyLength)  {
             bodyData[bodyLength] = 0;
+            std::cout << "Body: " << bodyData << std::endl;
             this->requestReady();
-            state = START;
+            state = REQUEST;
         }
-
+        readPuffer.clear();
     }
-
-    readBuffer.clear();
 }
 
 
 void AcceptedSocket::writeEvent() {
     ConnectedSocket::writeEvent();
 
-    if (writeBuffer.empty()) {
-        state = START;
+    if (writePuffer.empty()) {
+        state = REQUEST;
     }
 }
 
 
-void AcceptedSocket::send(const char* buffer, int size) {
+void AcceptedSocket::sendJunk(const char* puffer, int size) {
+    this->sendHeader();
+    ConnectedSocket::send(puffer, size);
+}
+
+
+void AcceptedSocket::send(const char* puffer, int size) {
     if (responseHeader.find("Content-Type") == responseHeader.end()) {
         responseHeader["Content-Type"] = "application/octet-stream";
     }
     responseHeader["Content-Length"] = size;
     this->sendHeader();
-    ConnectedSocket::send(buffer, size);
+    ConnectedSocket::send(puffer, size);
     this->end();
 }
 
 
-void AcceptedSocket::send(const std::string& junk) {
+void AcceptedSocket::send(const std::string& puffer) {
     if (responseHeader.find("Content-Type") == responseHeader.end()) {
         responseHeader["Content-Type"] = "text/html; charset=utf-8";
     }
-    responseHeader["Content-Length"] = junk.size();
+    responseHeader["Content-Length"] = puffer.size();
     this->sendHeader();
-    ConnectedSocket::send(junk);
+    ConnectedSocket::send(puffer);
     this->end();
 }
 
@@ -247,8 +228,26 @@ void AcceptedSocket::sendHeader() {
 
 
 void AcceptedSocket::end() {
-    this->sendHeader();
-    this->headerSent = false;
-    this->responseHeader.clear();
-    this->responseStatus = 200;
+    if (this->state != REQUEST) {
+        this->sendHeader();
+        this->headerSent = false;
+        this->responseHeader.clear();
+        this->responseStatus = 200;
+        this->state = REQUEST;
+    
+        if (this->requestHeader["connection"] == "close") {
+            std::cout << "AEOF" << std::endl;
+            this->ConnectedSocket::end();
+        }
+        
+        this->requestHeader.clear();
+        this->requestLine.clear();
+        
+        if (this->bodyData != 0) {
+            delete this->bodyData;
+            this->bodyData = 0;
+            this->bodyLength = 0;
+            this->bodyPointer = 0;
+        }
+    }
 }

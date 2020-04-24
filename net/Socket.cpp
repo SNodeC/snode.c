@@ -3,6 +3,10 @@
 
 #include "Socket.h"
 
+/*
+Socket::Socket() {
+}
+*/
 
 Socket::Socket(int csFd) : Descriptor(csFd) { // , managedCount(0) {
 }

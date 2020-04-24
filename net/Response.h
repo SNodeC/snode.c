@@ -14,7 +14,7 @@ public:
     
     void send(const std::string& text);
     
-    void send(const char* buffer, int n);
+    void send(const char* puffer, int n);
     
     void sendFile(const std::string& file);
     

@@ -4,6 +4,7 @@
 #include "ConnectedSocket.h"
 
 #include <map>
+#include <functional>
 
 #include "Request.h"
 #include "Response.h"
@@ -17,25 +18,23 @@ public:
     ~AcceptedSocket();
     
     
-    virtual void send(const char* buffer, int size);
-    virtual void send(const std::string& junk);
+    virtual void send(const char* puffer, int size);
+    virtual void send(const std::string& data);
+    virtual void sendJunk(const char* puffer, int size);
     virtual void sendFile(const std::string& file);
     
     virtual void end();
     
     
-protected:
+private:
     virtual void readEvent();
     virtual void writeEvent();
     
+    void readLine(std::function<void (std::string)> lineRead);
     void addRequestHeader(std::string& line);
-    
-    void requestReady();
-    
+    void requestReady();    
     void sendHeader();
 
-    
-private:
     Request request;
     Response response;
     
@@ -48,11 +47,8 @@ private:
     int bodyLength;
     
     enum states {
-        START,
         REQUEST,
-        REQUEST_LB,
         HEADER,
-        HEADER_LB,
         BODY,
         ERROR
     } state;
@@ -64,6 +60,12 @@ private:
     bool headerSent;
     int responseStatus;
     
+    enum linestate {
+        READ,
+        EOL
+    } linestate;
+    
+    std::string hl;
     
 friend class Response;
 friend class Request;

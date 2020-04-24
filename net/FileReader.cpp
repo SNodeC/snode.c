@@ -27,12 +27,12 @@ void FileReader::read(std::string path, std::function<void (char* data, int len)
 
 
 void FileReader::readEvent() {
-    char buffer[4096];
+    char puffer[4096];
     
-    int ret = ::read(this->getFd(), buffer, 4096);
+    int ret = ::read(this->getFd(), puffer, 4096);
     
     if (ret >= 0) {
-        this->junkRead(buffer, ret);
+        this->junkRead(puffer, ret);
         if (ret == 0) {
             SocketMultiplexer::instance().getReadManager().unmanageSocket(this);
         }
