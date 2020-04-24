@@ -6,10 +6,6 @@ Server::Server() : Socket(socket(AF_INET, SOCK_STREAM, 0)), rootDir(".") {
     SocketMultiplexer::instance().getReadManager().manageSocket(this);
 }
 
-/*
-Server::Server(const Server& server) {
-}
-*/
 
 Server::Server(uint16_t port) : Server() {
     int sockopt = 1;

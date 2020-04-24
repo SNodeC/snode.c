@@ -5,15 +5,6 @@
 #include "InetAddress.h"
 
 class Socket : public Descriptor {
-protected:
-//    Socket();
-/*    
-private:
-    Socket& operator=(const Socket& socket) {
-        return *this;
-    }
-*/
-
 public:
     Socket(int csFd);
 

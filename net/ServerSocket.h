@@ -13,15 +13,9 @@ class AcceptedSocket;
 class Server : public Socket, public Reader {
 private:
     Server();
-//    Server(const Server& server);
     Server(uint16_t port);
     Server(const std::string hostname, uint16_t port);
-/*
-private:
-    Server& operator=(const Server& server) {
-        return *this;
-    }
-*/    
+
 public:
     static Server& instance(uint16_t port);
     static Server& instance(const std::string& hostname, uint16_t port);

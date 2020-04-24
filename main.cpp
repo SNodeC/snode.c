@@ -20,8 +20,25 @@ int main(int argc, char **argv) {
 //    app.serverRoot("/home/voc/Downloads/greeny_661");
     app.serverRoot("/home/voc/projects/ServerVoc/sites/textured_stars");
 
+    
+    Timer& tick = Timer::continousTimer(
+        [] (const void* arg) -> void {
+            static int i = 0;
+            std::cout << (const char*) arg << " " << i++ << std::endl;
+        }, 
+        (struct timeval) {0, 500000}, "Tick");
+    
+    Timer& tack = Timer::continousTimer(
+        [] (const void* arg) -> void {
+            static int i = 0;
+            std::cout << (const char*) arg << " " << i++ << std::endl;
+        }, 
+        (struct timeval) {1, 100000}, "Tack");
+    
+    bool canceled = false;
+    
     app.get(
-        [] (Request& req, Response& res) -> void {
+        [&] (Request& req, Response& res) -> void {
             std::string uri = req.requestURI();
             
             if (uri == "/") {
@@ -29,28 +46,17 @@ int main(int argc, char **argv) {
             }
 //            res.set("Connection", "close");
             res.sendFile(uri);
+            
+            if (!canceled) {
+                tack.cancel();
+                canceled = true;
+            }
         }
     );
 
-    Timer& tick = Timer::continousTimer(
-        [] (const void* arg) -> void {
-            static int i = 0;
-            std::cout << (const char*) arg << " " << i++ << std::endl;
-        }, 
-        (struct timeval) {0, 500000}, 
-        "Tick");
-    
-    Timer& tack = Timer::continousTimer(
-        [] (const void* arg) -> void {
-            static int i = 0;
-            std::cout << (const char*) arg << " " << i++ << std::endl;
-        }, 
-        (struct timeval) {1, 100000}, 
-        "Tack");
-
-    tack.cancel();
 
     Server::run();
 
     return 0;
 }
+

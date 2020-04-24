@@ -1,14 +1,8 @@
-//#include <unistd.h>
 #include <sys/socket.h>
 
 #include "Socket.h"
 
-/*
-Socket::Socket() {
-}
-*/
-
-Socket::Socket(int csFd) : Descriptor(csFd) { // , managedCount(0) {
+Socket::Socket(int csFd) : Descriptor(csFd) {
 }
 
 
