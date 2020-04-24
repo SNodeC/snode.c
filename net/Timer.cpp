@@ -11,7 +11,7 @@ Timer::Timer(std::function<void (const void* arg)> processor, const struct timev
 }
 
 
-SingleshotTimer Timer::singleshotTimer(std::function<void (const void* arg)> processor, const struct timeval& timeout, const void* arg) {
+SingleshotTimer& Timer::singleshotTimer(std::function<void (const void* arg)> processor, const struct timeval& timeout, const void* arg) {
     SingleshotTimer* st = new SingleshotTimer(processor, timeout, arg);
     
     SocketMultiplexer::instance().getTimerManager().add(st);
@@ -19,7 +19,7 @@ SingleshotTimer Timer::singleshotTimer(std::function<void (const void* arg)> pro
     return *st;
 }
 
-ContinousTimer Timer::continousTimer(std::function<void (const void* arg)> processor, const struct timeval& timeout, const void* arg) {
+ContinousTimer& Timer::continousTimer(std::function<void (const void* arg)> processor, const struct timeval& timeout, const void* arg) {
     ContinousTimer* ct = new ContinousTimer(processor, timeout, arg);
     
     SocketMultiplexer::instance().getTimerManager().add(ct);
@@ -28,8 +28,8 @@ ContinousTimer Timer::continousTimer(std::function<void (const void* arg)> proce
 }
 
 
-void Timer::cancel(Timer* timer) {
-    SocketMultiplexer::instance().getTimerManager().remove(timer);
+void Timer::cancel() {
+    SocketMultiplexer::instance().getTimerManager().remove(this);
 }
 
 

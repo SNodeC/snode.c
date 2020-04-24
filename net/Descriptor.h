@@ -3,6 +3,18 @@
 
 class Descriptor
 {
+protected:
+    Descriptor();
+    
+private:
+    Descriptor& operator=(const Descriptor& descriptor) {
+        return *this;
+    }
+    
+    Descriptor(const Descriptor& descriptor) {
+        *this = descriptor;
+    }
+    
 public:
     Descriptor(int fd);
     virtual ~Descriptor();

@@ -2,6 +2,9 @@
 
 #include <unistd.h>
 
+Descriptor::Descriptor() {
+}
+
 Descriptor::Descriptor(int fd) : fd(fd) {
 }
 

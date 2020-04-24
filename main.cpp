@@ -31,8 +31,8 @@ int main(int argc, char **argv) {
             res.sendFile(uri);
         }
     );
-/*
-    Timer timer = Timer::continousTimer(
+
+    Timer& tick = Timer::continousTimer(
         [] (const void* arg) -> void {
             static int i = 0;
             std::cout << (const char*) arg << " " << i++ << std::endl;
@@ -40,14 +40,16 @@ int main(int argc, char **argv) {
         (struct timeval) {0, 500000}, 
         "Tick");
     
-    timer = Timer::continousTimer(
+    Timer& tack = Timer::continousTimer(
         [] (const void* arg) -> void {
             static int i = 0;
             std::cout << (const char*) arg << " " << i++ << std::endl;
         }, 
         (struct timeval) {1, 100000}, 
         "Tack");
-*/
+
+    tack.cancel();
+
     Server::run();
 
     return 0;

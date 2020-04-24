@@ -25,14 +25,14 @@ void ConnectedSocket::setRemoteAddress(const InetAddress& remoteAddress) {
 }
 
 
-void ConnectedSocket::send(const char* buffer, int size) {
-    writeBuffer.append(buffer, size);
+void ConnectedSocket::send(const char* puffer, int size) {
+    writePuffer.append(puffer, size);
     SocketMultiplexer::instance().getWriteManager().manageSocket(this);
 }
 
 
 void ConnectedSocket::send(const std::string& junk) {
-    writeBuffer += junk;
+    writePuffer += junk;
     SocketMultiplexer::instance().getWriteManager().manageSocket(this);
 }
 
@@ -56,8 +56,8 @@ void ConnectedSocket::end() {
 }
 
 
-void ConnectedSocket::clearReadBuffer() {
-    readBuffer.clear();
+void ConnectedSocket::clearReadPuffer() {
+    readPuffer.clear();
 }
 
 
@@ -68,7 +68,7 @@ void ConnectedSocket::readEvent() {
     ssize_t ret = recv(this->getFd(), junk, MAX_JUNKSIZE, 0);
     
     if (ret > 0) {
-        readBuffer.append(junk, ret);
+        readPuffer.append(junk, ret);
     } else if (ret == 0) {
         std::cout << "EOF: " << this->getFd() << std::endl;
         SocketMultiplexer::instance().getReadManager().unmanageSocket(this);
@@ -80,11 +80,11 @@ void ConnectedSocket::readEvent() {
 
 
 void ConnectedSocket::writeEvent() {
-    ssize_t ret = ::send(this->getFd(), writeBuffer.c_str(), (writeBuffer.size() < 4096) ? writeBuffer.size() : 4096, MSG_DONTWAIT | MSG_NOSIGNAL);
+    ssize_t ret = ::send(this->getFd(), writePuffer.c_str(), (writePuffer.size() < 4096) ? writePuffer.size() : 4096, MSG_DONTWAIT | MSG_NOSIGNAL);
     
     if (ret >= 0) {
-        writeBuffer.erase(0, ret);
-        if (writeBuffer.empty()) {
+        writePuffer.erase(0, ret);
+        if (writePuffer.empty()) {
             SocketMultiplexer::instance().getWriteManager().unmanageSocket(this);
         }
     } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
