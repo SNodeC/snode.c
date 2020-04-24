@@ -8,9 +8,9 @@
 #include "Descriptor.h"
 
 
-class FileReader : public Descriptor, public Reader
+class FileReader : public Reader
 {
-private:
+protected:
     FileReader(int fd);
     
 public:
@@ -18,9 +18,10 @@ public:
     
     virtual void readEvent();
     
-private:
+protected:
     std::function<void (char* data, int len)> junkRead;
     std::function<void (int err)> error;
+    
 };
 
 #endif // FILEREADER_H

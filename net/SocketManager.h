@@ -23,7 +23,7 @@ public:
             if (std::find(descriptors.begin(), descriptors.end(), *it) == descriptors.end()) {
                 FD_SET(dynamic_cast<Descriptor*>(*it)->getFd(), &fdSet);
                 descriptors.push_back(*it);
-                dynamic_cast<Manageable*>(*it)->incManaged();
+                dynamic_cast<ManagedDescriptor*>(*it)->incManaged();
             }
         }
         addedDescriptors.clear();
@@ -32,7 +32,7 @@ public:
             if (std::find(descriptors.begin(), descriptors.end(), *it) != descriptors.end()) {
                 FD_CLR(dynamic_cast<Descriptor*>(*it)->getFd(), &fdSet);
                 descriptors.remove(*it);
-                dynamic_cast<Manageable*>(*it)->decManaged();
+                dynamic_cast<ManagedDescriptor*>(*it)->decManaged();
             }
         }
         removedDescriptors.clear();

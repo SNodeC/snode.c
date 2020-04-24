@@ -2,7 +2,7 @@
 #include "AcceptedSocket.h"
 #include "SocketMultiplexer.h"
 
-Server::Server() : Socket(socket(AF_INET, SOCK_STREAM, 0)), rootDir(".") {
+Server::Server() : SocketReader(), rootDir(".") {
     SocketMultiplexer::instance().getReadManager().manageSocket(this);
 }
 

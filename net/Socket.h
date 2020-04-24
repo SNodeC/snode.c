@@ -4,10 +4,8 @@
 #include "Descriptor.h"
 #include "InetAddress.h"
 
-class Socket : public Descriptor {
+class Socket {
 public:
-    Socket(int csFd);
-
     virtual ~Socket();
     
     int bind(InetAddress& localAddress);
@@ -17,7 +15,18 @@ public:
     InetAddress& getLocalAddress();
 
 protected:
+    Socket();
+    
+    Socket(int fd) : fd(fd) {}
+    
+    int getSFd() {
+        return fd;
+    }
+    
     InetAddress localAddress;
+    
+protected:
+    int fd;
 };
 
 #endif // SOCKET_H

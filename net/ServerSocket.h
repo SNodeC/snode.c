@@ -3,14 +3,13 @@
 
 #include <functional>
 
-#include "Socket.h"
-#include "Reader.h"
+#include "SocketReader.h"
 
 class Request;
 class Response;
 class AcceptedSocket;
 
-class Server : public Socket, public Reader {
+class Server : public SocketReader {
 private:
     Server();
     Server(uint16_t port);
