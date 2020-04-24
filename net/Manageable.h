@@ -1,15 +1,20 @@
 #ifndef MANAGEABLE_H
 #define MANAGEABLE_H
 
+#include <iostream>
+
 #include "Descriptor.h"
 #include "ManagedCounter.h"
 
-class Manageable : virtual public ManagedCounter
+class ManagedDescriptor : virtual public Descriptor, virtual public ManagedCounter
 {   
 public:
-    Manageable() : managed(false) {}
+    ManagedDescriptor(int fd) : managed(false) {
+        this->setFd(fd);
+        std::cout << __PRETTY_FUNCTION__ << std::endl;
+    }
     
-    virtual ~Manageable() = default;
+    virtual ~ManagedDescriptor() = default;
     
     void incManaged() {
         ManagedCounter::managedCounter++;

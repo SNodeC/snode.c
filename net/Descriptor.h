@@ -16,10 +16,14 @@ private:
     }
     
 public:
-    Descriptor(int fd);
+//    Descriptor(int fd);
     virtual ~Descriptor();
     
     int getFd() const;
+    
+    void setFd(int fd) {
+        this->fd = fd;
+    }
     
 private:
     int fd;

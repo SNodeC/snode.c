@@ -2,12 +2,16 @@
 
 #include "Socket.h"
 
-Socket::Socket(int csFd) : Descriptor(csFd) {
+Socket::Socket() {
+    fd = ::socket(AF_INET, SOCK_STREAM, 0);
+    
 }
 
 
 Socket::~Socket() {
-    ::shutdown(this->getFd(), SHUT_RDWR);
+    if (fd != 0) {
+        ::shutdown(fd, SHUT_RDWR);
+    }
 }
 
 
@@ -19,7 +23,7 @@ InetAddress& Socket::getLocalAddress() {
 int Socket::bind(InetAddress& localAddress) {
     socklen_t addrlen = sizeof(struct sockaddr_in);
     
-    return ::bind(this->getFd(), (struct sockaddr*) &localAddress.getSockAddr(), addrlen);
+    return ::bind(fd, (struct sockaddr*) &localAddress.getSockAddr(), addrlen);
 }
 
 

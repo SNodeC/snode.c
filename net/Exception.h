@@ -3,7 +3,7 @@
 
 #include "Manageable.h"
 
-class Exception : public Manageable {
+class Exception : public ManagedDescriptor {
 public:
     virtual ~Exception() = default;
     

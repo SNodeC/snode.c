@@ -4,13 +4,12 @@
 #include <string>
 
 #include "InetAddress.h"
-#include "Socket.h"
-#include "Writer.h"
-#include "Reader.h"
+#include "SocketWriter.h"
+#include "SocketReader.h"
 
 class Server;
 
-class ConnectedSocket : public Socket, public Reader, public Writer
+class ConnectedSocket : public SocketReader, public SocketWriter
 {
 public:
     ConnectedSocket(int csFd, Server* ss);

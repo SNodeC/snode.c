@@ -8,7 +8,7 @@
 
 #include "SocketMultiplexer.h"
 
-FileReader::FileReader(int fd) : Descriptor(fd) {
+FileReader::FileReader(int fd) : Reader(fd) {
 }
 
 
