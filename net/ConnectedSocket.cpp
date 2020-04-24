@@ -59,36 +59,3 @@ void ConnectedSocket::end() {
 void ConnectedSocket::clearReadPuffer() {
     readPuffer.clear();
 }
-
-
-void ConnectedSocket::readEvent() {
-    #define MAX_JUNKSIZE 4096
-    char junk[MAX_JUNKSIZE];
-    
-    ssize_t ret = recv(this->getFd(), junk, MAX_JUNKSIZE, 0);
-    
-    if (ret > 0) {
-        readPuffer.append(junk, ret);
-    } else if (ret == 0) {
-        std::cout << "EOF: " << this->getFd() << std::endl;
-        SocketMultiplexer::instance().getReadManager().unmanageSocket(this);
-    } else {
-        std::cout << "Read: " << strerror(errno) << std::endl;
-        SocketMultiplexer::instance().getReadManager().unmanageSocket(this);
-    }
-}
-
-
-void ConnectedSocket::writeEvent() {
-    ssize_t ret = ::send(this->getFd(), writePuffer.c_str(), (writePuffer.size() < 4096) ? writePuffer.size() : 4096, MSG_DONTWAIT | MSG_NOSIGNAL);
-    
-    if (ret >= 0) {
-        writePuffer.erase(0, ret);
-        if (writePuffer.empty()) {
-            SocketMultiplexer::instance().getWriteManager().unmanageSocket(this);
-        }
-    } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
-        std::cout << "Write: " << strerror(errno) << std::endl;
-        SocketMultiplexer::instance().getWriteManager().unmanageSocket(this);
-    }
-}

@@ -27,16 +27,10 @@ public:
 
 
 protected:
-    virtual void writeEvent();
-    virtual void readEvent();
-    
     Server* serverSocket;
     void clearReadPuffer();
     
     InetAddress remoteAddress;
-    
-    std::string readPuffer;
-    std::string writePuffer;
 };
 
 #endif // CONNECTEDSOCKET_H

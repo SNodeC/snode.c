@@ -3,11 +3,15 @@
 
 #include "Manageable.h"
 
+#include <string>
+
 class Writer : public Manageable {
 public:
     virtual ~Writer() = default;
     
-    virtual void writeEvent() = 0;
+    virtual void writeEvent();
+    
+    std::string writePuffer;
 };
 
 
