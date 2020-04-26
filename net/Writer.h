@@ -1,21 +1,19 @@
 #ifndef WRITER_H
 #define WRITER_H
 
-#include <iostream>
-
-#include "Manageable.h"
-
 #include <string>
+
+#include "ManagedDescriptor.h"
+
 
 class Writer : public ManagedDescriptor {
 public:
-    Writer(int fd) : ManagedDescriptor(fd) {
-        std::cout << __PRETTY_FUNCTION__ << std::endl;
-    }
+    virtual void writeEvent() = 0;
+    
+protected:
+    Writer(int fd) : ManagedDescriptor(fd) {}
     
     virtual ~Writer() = default;
-    
-    virtual void writeEvent() = 0;
     
     std::string writePuffer;
 };

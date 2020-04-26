@@ -1,4 +1,7 @@
-#include <stdio.h>
+#include <string.h>
+
+#include <iostream>
+
 #include "SocketMultiplexer.h"
 
 
@@ -18,7 +21,7 @@ void SocketMultiplexer::tick() {
     int retval = select(maxFd + 1, &readfds, &writefds, &exceptfds, &tv);
     
     if (retval < 0) {
-        perror("Select:");
+        std::cout << "Select: " << strerror(errno) << std::endl;
     } else {
         timerManager.process();
         if (retval > 0) {
@@ -37,6 +40,6 @@ void SocketMultiplexer::tick() {
 void SocketMultiplexer::run()
 {
     while(1) {
-        this->tick();
+        SocketMultiplexer::instance().tick();
     }
 }

@@ -6,6 +6,7 @@
 #include "Response.h"
 #include "SingleshotTimer.h"
 #include "ContinousTimer.h"
+#include "HTTPServer.h"
 
 void init() {
     signal(SIGPIPE, SIG_IGN);
@@ -14,11 +15,14 @@ void init() {
 int main(int argc, char **argv) {
     init();
     
-    Server& app = Server::instance(8080);
+    HTTPServer::test();
+    
+    ServerSocket& app = ServerSocket::instance(8080);
 
 //    app.serverRoot("/home/voc/projects/html-pages/Static-Site-Samples/POHTML");
 //    app.serverRoot("/home/voc/Downloads/greeny_661");
-    app.serverRoot("/home/voc/projects/ServerVoc/sites/textured_stars");
+    //    app.serverRoot("/home/voc/projects/ServerVoc/sites/textured_stars");
+    app.serverRoot("/home/voc/projects/ServerVoc/doc/html");
 
     
     Timer& tick = Timer::continousTimer(
@@ -54,8 +58,7 @@ int main(int argc, char **argv) {
         }
     );
 
-
-    Server::run();
+    ServerSocket::run();
 
     return 0;
 }

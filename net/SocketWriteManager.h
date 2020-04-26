@@ -4,6 +4,7 @@
 #include "SocketManager.h"
 #include "Writer.h"
 
+
 class SocketWriteManager : public SocketManager<Writer>
 {
 public:

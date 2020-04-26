@@ -4,6 +4,7 @@
 #include "SocketManager.h"
 #include "Reader.h"
 
+
 class SocketReadManager : public SocketManager<Reader>
 {
 public:

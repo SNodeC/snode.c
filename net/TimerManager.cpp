@@ -1,8 +1,6 @@
-#include "TimerManager.h"
-
-#include <iostream>
 #include <sys/time.h>
 
+#include "TimerManager.h"
 #include "Timer.h"
 #include "SingleshotTimer.h"
 #include "ContinousTimer.h"
@@ -26,7 +24,7 @@ struct timeval TimerManager::getNextTimeout() {
     
     for(std::list<Timer*>::iterator it = removedList.begin(); it != removedList.end(); ++it) {
         timerList.remove(*it);
-        delete *it;
+        (*it)->destroy();
         timerListDirty = true;
     }
     removedList.clear();
@@ -37,7 +35,7 @@ struct timeval TimerManager::getNextTimeout() {
             timerListDirty = false;
         }
         
-        tv = (*(timerList.begin()))->absolutTimeout();
+        tv = (*(timerList.begin()))->timeout();
         
         struct timeval currentTime;
         gettimeofday(&currentTime, NULL);
@@ -59,7 +57,7 @@ void TimerManager::process() {
     gettimeofday(&currentTime, NULL);
     
     for (std::list<Timer*>::iterator it = timerList.begin(); it != timerList.end(); ++it) {
-        if ((*it)->absolutTimeout() <= currentTime) {
+        if ((*it)->timeout() <= currentTime) {
             (*it)->dispatch();
             if (dynamic_cast<SingleshotTimer*>(*it)) {
                 remove(*it);

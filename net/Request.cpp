@@ -1,8 +1,8 @@
-#include "Request.h"
-
 #include <sstream>
 
+#include "Request.h"
 #include "AcceptedSocket.h"
+
 
 std::map<std::string, std::string>& Request::header() {
     return this->acceptedSocket->requestHeader;

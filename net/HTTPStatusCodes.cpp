@@ -1,5 +1,6 @@
 #include "HTTPStatusCodes.h"
 
+
 std::map<int, std::string> HTTPStatusCode::statusCode = {
     {100, "Continue"},
     {101, "Switching Protocols"},

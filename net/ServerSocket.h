@@ -5,19 +5,20 @@
 
 #include "SocketReader.h"
 
+
 class Request;
 class Response;
 class AcceptedSocket;
 
-class Server : public SocketReader {
+class ServerSocket : public SocketReader {
 private:
-    Server();
-    Server(uint16_t port);
-    Server(const std::string hostname, uint16_t port);
+    ServerSocket();
+    ServerSocket(uint16_t port);
+    ServerSocket(const std::string hostname, uint16_t port);
 
 public:
-    static Server& instance(uint16_t port);
-    static Server& instance(const std::string& hostname, uint16_t port);
+    static ServerSocket& instance(uint16_t port);
+    static ServerSocket& instance(const std::string& hostname, uint16_t port);
     
     void process(Request& request, Response& response);
     
@@ -44,8 +45,6 @@ public:
     void serverRoot(std::string rootDir);
     
     std::string& getRootDir();
-    
-    AcceptedSocket* accept();
     
     virtual void readEvent();
     

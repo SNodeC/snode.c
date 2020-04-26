@@ -3,10 +3,12 @@
 
 #include "Timer.h"
 
+
 class ContinousTimer : public Timer
 {
 public:
     ContinousTimer(std::function<void (const void* arg)> processor, const struct timeval& timeout, const void* arg) : Timer(processor, timeout, arg) {}
+    
     virtual ~ContinousTimer() = default;
 };
 

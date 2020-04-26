@@ -1,8 +1,8 @@
-#include "Timer.h"
-
 #include "SocketMultiplexer.h"
 #include "SingleshotTimer.h"
 #include "ContinousTimer.h"
+
+#include "Timer.h"
 
 
 Timer::Timer(std::function<void (const void* arg)> processor, const struct timeval& timeout, const void* arg) : processor(processor), arg(arg), delay(timeout) {
@@ -43,7 +43,12 @@ void Timer::dispatch() {
 }
 
 
-struct timeval& Timer::absolutTimeout() {
+void Timer::destroy() {
+    delete this;
+}
+
+
+struct timeval& Timer::timeout() {
     return absoluteTimeout;
 }
 

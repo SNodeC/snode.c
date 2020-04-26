@@ -1,11 +1,10 @@
 #include <sys/socket.h>
 
 #include "Socket.h"
+#include "Descriptor.h"
 
-Socket::Socket() {
-    fd = ::socket(AF_INET, SOCK_STREAM, 0);
-    
-}
+
+Socket::Socket() : fd(::socket(AF_INET, SOCK_STREAM, 0)) {}
 
 
 Socket::~Socket() {

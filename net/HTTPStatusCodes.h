@@ -3,9 +3,7 @@
 
 #include <map>
 
-/**
- * @todo write docs
- */
+
 class HTTPStatusCode
 {
 public:

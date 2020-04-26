@@ -1,22 +1,21 @@
 #ifndef ACCEPTEDSOCKET_H
 #define ACCEPTEDSOCKET_H
 
-#include "ConnectedSocket.h"
-
 #include <map>
 #include <functional>
 
+#include "ConnectedSocket.h"
 #include "Request.h"
 #include "Response.h"
 
-class Server;
+
+class ServerSocket;
 
 class AcceptedSocket : public ConnectedSocket
 {
 public:
-    AcceptedSocket(int csFd, Server* ss);
+    AcceptedSocket(int csFd, ServerSocket* ss, const InetAddress& remoteAddress, const InetAddress& localAccress);
     ~AcceptedSocket();
-    
     
     virtual void send(const char* puffer, int size);
     virtual void send(const std::string& data);
@@ -24,7 +23,6 @@ public:
     virtual void sendFile(const std::string& file);
     
     virtual void end();
-    
     
 private:
     virtual void readEvent();
@@ -67,8 +65,8 @@ private:
     
     std::string hl;
     
-friend class Response;
-friend class Request;
+    friend class Response;
+    friend class Request;
 };
 
 #endif // ACCEPTEDSOCKET_H

@@ -5,6 +5,7 @@
 
 #include "Timer.h"
 
+
 class TimerManager
 {
 public:
@@ -17,13 +18,11 @@ public:
     void remove(Timer* timer);
     void add(Timer* timer);
     
-protected:
-    
+private:
     std::list<Timer*> timerList;
     std::list<Timer*> addedList;
     std::list<Timer*> removedList;
     
-private:
     class lttimernode
     {
     public:

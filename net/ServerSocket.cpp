@@ -1,13 +1,16 @@
+#include <unistd.h>       
+
 #include "ServerSocket.h"
 #include "AcceptedSocket.h"
 #include "SocketMultiplexer.h"
 
-Server::Server() : SocketReader(), rootDir(".") {
+
+ServerSocket::ServerSocket() : SocketReader(), rootDir(".") {
     SocketMultiplexer::instance().getReadManager().manageSocket(this);
 }
 
 
-Server::Server(uint16_t port) : Server() {
+ServerSocket::ServerSocket(uint16_t port) : ServerSocket() {
     int sockopt = 1;
     setsockopt(this->getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt));
     
@@ -17,49 +20,21 @@ Server::Server(uint16_t port) : Server() {
 }
 
 
-Server::Server(const std::string hostname, uint16_t port) : Server() {
+ServerSocket::ServerSocket(const std::string hostname, uint16_t port) : ServerSocket() {
 }
 
 
-Server& Server::instance(uint16_t port) {
-    return *new Server(port);
+ServerSocket& ServerSocket::instance(uint16_t port) {
+    return *new ServerSocket(port);
 }
 
 
-Server& Server::instance(const std::string& hostname, uint16_t port) {
-    return *new Server(hostname, port);
+ServerSocket& ServerSocket::instance(const std::string& hostname, uint16_t port) {
+    return *new ServerSocket(hostname, port);
 }
 
 
-AcceptedSocket* Server::accept() {
-    struct sockaddr_in addr;
-    socklen_t addrlen = sizeof(addr);
-    
-    int csFd = ::accept(this->getFd(), (struct sockaddr*) &addr, &addrlen);
-    
-    if (csFd < 0) {
-        return 0;
-    }
-    
-    AcceptedSocket* cs = new AcceptedSocket(csFd, this);
-    
-    cs->setRemoteAddress(InetAddress(addr));
-    
-    struct sockaddr_in localAddress;
-    socklen_t addressLength = sizeof(localAddress);
-    
-    if (getsockname(csFd, (struct sockaddr*) &localAddress, &addressLength) < 0) {
-        delete cs;
-        return 0;
-    }
-    
-    cs->setLocalAddress(InetAddress(localAddress));
-    
-    return cs;
-}
-
-
-void Server::process(Request& request, Response& response) {
+void ServerSocket::process(Request& request, Response& response) {
     // if GET-Request
     if (request.isGet()) {
         if (getProcessor) {
@@ -88,25 +63,38 @@ void Server::process(Request& request, Response& response) {
 }
 
 
-void Server::readEvent() {
-    AcceptedSocket* as = this->accept();
+void ServerSocket::readEvent() {
+    struct sockaddr_in remoteAddress;
+    socklen_t addrlen = sizeof(remoteAddress);
     
-    if (as) {
-        SocketMultiplexer::instance().getReadManager().manageSocket(as);
+    int csFd = ::accept(this->getFd(), (struct sockaddr*) &remoteAddress, &addrlen);
+    
+    if (csFd >= 0) {
+        struct sockaddr_in localAddress;
+        socklen_t addressLength = sizeof(localAddress);
+    
+        if (getsockname(csFd, (struct sockaddr*) &localAddress, &addressLength) == 0) {
+            AcceptedSocket* cs = new AcceptedSocket(csFd, this, InetAddress(remoteAddress), InetAddress(localAddress));
+            SocketMultiplexer::instance().getReadManager().manageSocket(cs);
+        } else {
+            shutdown(csFd, SHUT_RDWR);
+            close(csFd);
+        }
     }
 }
 
 
-void Server::serverRoot(std::string rootDir) {
+void ServerSocket::serverRoot(std::string rootDir) {
     this->rootDir = rootDir;
 }
 
 
-std::string& Server::getRootDir() {
+std::string& ServerSocket::getRootDir() {
     return rootDir;
 }
 
 
-void Server::run() {
+void ServerSocket::run() {
     SocketMultiplexer::instance().run();
 }
+
