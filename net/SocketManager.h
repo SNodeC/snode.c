@@ -6,18 +6,19 @@
 #include <algorithm>
 #include <list>
 
-#include "Descriptor.h"
-#include "Manageable.h"
+#include "ManagedDescriptor.h"
+
 
 template <typename T> class SocketManager
 {
-public:
+protected:
     SocketManager() : maxFd(0) {
         FD_ZERO(&fdSet);
     }
 
     virtual ~SocketManager() = default;
 
+public:
     fd_set& getFdSet() {
         for (typename std::list<T*>::iterator it = addedDescriptors.begin(); it != addedDescriptors.end(); ++it) {
             if (std::find(descriptors.begin(), descriptors.end(), *it) == descriptors.end()) {
@@ -42,6 +43,7 @@ public:
         return fdSet;
     }
     
+    
     void manageSocket(T* socket) {
         if (!socket->managed) {
             addedDescriptors.push_back(socket);
@@ -64,7 +66,6 @@ public:
     
 
 protected:
-    
     int updateMaxFd() {
         maxFd = 0;
         
@@ -79,6 +80,7 @@ protected:
 
     fd_set fdSet;
     int maxFd;
+    
     std::list<T*> descriptors;
     std::list<T*> addedDescriptors;
     std::list<T*> removedDescriptors;

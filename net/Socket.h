@@ -1,8 +1,8 @@
 #ifndef SOCKET_H
 #define SOCKET_H
 
-#include "Descriptor.h"
 #include "InetAddress.h"
+
 
 class Socket {
 public:
@@ -10,22 +10,23 @@ public:
     
     int bind(InetAddress& localAddress);
     
-    void setLocalAddress(const InetAddress& localAddress);
-    
     InetAddress& getLocalAddress();
-
-protected:
-    Socket();
     
-    Socket(int fd) : fd(fd) {}
+    
+protected:
+    void setLocalAddress(const InetAddress& localAddress);
+    Socket();
     
     int getSFd() {
         return fd;
     }
     
+    void setSFd(int fd) {
+        this->fd = fd;
+    }
+    
     InetAddress localAddress;
     
-protected:
     int fd;
 };
 

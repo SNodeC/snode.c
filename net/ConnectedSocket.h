@@ -7,26 +7,25 @@
 #include "SocketWriter.h"
 #include "SocketReader.h"
 
-class Server;
+
+class ServerSocket;
 
 class ConnectedSocket : public SocketReader, public SocketWriter
 {
 public:
-    ConnectedSocket(int csFd, Server* ss);
+    ConnectedSocket(int csFd, ServerSocket* ss);
     virtual ~ConnectedSocket();
     
     virtual void send(const char* puffer, int size);
     virtual void send(const std::string& junk);
     virtual void sendFile(const std::string& file);
+    void end();
     
     InetAddress& getRemoteAddress();
     void setRemoteAddress(const InetAddress& remoteAddress);
-    
-    void end();
-
 
 protected:
-    Server* serverSocket;
+    ServerSocket* serverSocket;
     void clearReadPuffer();
     
     InetAddress remoteAddress;

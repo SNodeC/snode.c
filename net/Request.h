@@ -2,6 +2,8 @@
 #define REQUEST_H
 
 #include <map>
+#include <string>
+
 
 class AcceptedSocket;
 
@@ -12,15 +14,14 @@ public:
     
     std::map<std::string, std::string>& header();
     
-    const char* body();
-
-    int bodySize();
-    
     bool isPost();
     bool isGet();
     bool isPut();
     
     const std::string requestURI();
+    
+    const char* body();
+    int bodySize();
     
 private:
     AcceptedSocket* acceptedSocket;

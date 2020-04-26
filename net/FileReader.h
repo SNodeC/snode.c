@@ -1,8 +1,8 @@
 #ifndef FILEREADER_H
 #define FILEREADER_H
 
-#include <string>
 #include <functional>
+#include <string>
 
 #include "Reader.h"
 #include "Descriptor.h"

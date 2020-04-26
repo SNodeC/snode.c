@@ -1,12 +1,12 @@
-#include "SocketReader.h"
-
 #include <iostream>
 
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 
+#include "SocketReader.h"
 #include "SocketMultiplexer.h"
+
 
 void SocketReader::readEvent() {
     #define MAX_JUNKSIZE 4096

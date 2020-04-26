@@ -1,6 +1,7 @@
 #ifndef DESCRIPTOR_H
 #define DESCRIPTOR_H
 
+
 class Descriptor
 {
 protected:
@@ -16,7 +17,6 @@ private:
     }
     
 public:
-//    Descriptor(int fd);
     virtual ~Descriptor();
     
     int getFd() const;

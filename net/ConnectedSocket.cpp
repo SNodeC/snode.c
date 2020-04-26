@@ -7,7 +7,7 @@
 #include "FileReader.h"
 
 
-ConnectedSocket::ConnectedSocket(int csFd, Server* ss) : SocketReader(csFd), SocketWriter(csFd), serverSocket(ss) {
+ConnectedSocket::ConnectedSocket(int csFd, ServerSocket* ss) : SocketReader(csFd), SocketWriter(csFd), serverSocket(ss) {
 }
 
 

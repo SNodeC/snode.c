@@ -4,17 +4,18 @@
 #include "Writer.h"
 #include "Socket.h"
 
-/**
- * @todo write docs
- */
-class SocketWriter : public virtual Socket, public Writer
+
+class SocketWriter : public Writer, virtual public Socket
 {
 public:
+    void writeEvent();
+    
+protected:
     SocketWriter() : Socket(), Writer(this->getSFd()) {}
     
-    SocketWriter(int fd) : Socket(fd), Writer(fd) {}
-    
-    void writeEvent();
+    SocketWriter(int fd) : Writer(fd) {
+        this->setSFd(fd);
+    }
 };
 
 #endif // SOCKETWRITER_H

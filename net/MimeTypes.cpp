@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <iostream>
 
+
 magic_t MimeTypes::magic = MimeTypes::init();
 
 std::map<std::string, std::string> MimeTypes::mimeTypes = {

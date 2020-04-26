@@ -1,13 +1,10 @@
-#include "Response.h"
-
 #include <sys/types.h>
 #include <sys/socket.h>
 
-#include <iostream>
-
+#include "Response.h"
 #include "AcceptedSocket.h"
-
 #include "HTTPStatusCodes.h"
+
 
 Response::Response(AcceptedSocket* as) : acceptedSocket(as) {
 }

@@ -1,19 +1,19 @@
 #include "AcceptedSocket.h"
 
+#include <string.h>
+
 #include <algorithm>
 #include <filesystem>
-#include <iostream>
 #include <sstream>
-
-#include <string.h>
 
 #include "MimeTypes.h"
 #include "ServerSocket.h"
-#include "SocketMultiplexer.h"
 #include "HTTPStatusCodes.h"
 
 
-AcceptedSocket::AcceptedSocket(int csFd, Server* ss) : ConnectedSocket(csFd, ss), request(this), response(this), bodyData(0), bodyLength(0), state(states::REQUEST), bodyPointer(0), line(""), headerSent(false), responseStatus(200), linestate(READ) {
+AcceptedSocket::AcceptedSocket(int csFd, ServerSocket* ss, const InetAddress& remoteAddress, const InetAddress& localAccress) : ConnectedSocket(csFd, ss), request(this), response(this), bodyData(0), bodyLength(0), state(states::REQUEST), bodyPointer(0), line(""), headerSent(false), responseStatus(200), linestate(READ) {
+    this->setRemoteAddress(remoteAddress);
+    this->setLocalAddress(localAccress);
 }
 
 
@@ -50,7 +50,7 @@ void AcceptedSocket::addRequestHeader(std::string& line) {
 
             if (key == "content-length") {
                 bodyLength = std::stoi(requestHeader[key]);
-                bodyData = new char[bodyLength + 1];
+                bodyData = new char[bodyLength];
             }
         }
     }
@@ -100,8 +100,6 @@ void AcceptedSocket::readEvent() {
     
     if (state != BODY) {
         readLine([&] (std::string line) -> void {
-            std::cout << "Line: " << line << std::endl;
-    
             switch (state) {
                 case REQUEST:
                     if (line.empty()) {
@@ -109,7 +107,6 @@ void AcceptedSocket::readEvent() {
                         this->responseHeader["Connection"] = "close";
                         this->ConnectedSocket::end();
                         this->end();
-                        std::cout << "AEOF" << std::endl;
                         state = ERROR;
                     } else {
                         requestLine = line;
@@ -121,7 +118,6 @@ void AcceptedSocket::readEvent() {
                         if (bodyLength != 0) {
                             state = BODY;
                         } else {
-                            std::cout << "Request ready" << std::endl;
                             this->requestReady();
                             state = REQUEST;
                         }
@@ -131,7 +127,7 @@ void AcceptedSocket::readEvent() {
                     break;
                 case BODY:
                 case ERROR:
-                    std::cout << "State: BODY or ERROR. This should not happen" << std::endl;
+                    break;
             }
         });
     } else {
@@ -145,8 +141,6 @@ void AcceptedSocket::readEvent() {
         bodyPointer += n;
         
         if (bodyPointer == bodyLength)  {
-            bodyData[bodyLength] = 0;
-            std::cout << "Body: " << bodyData << std::endl;
             this->requestReady();
             state = REQUEST;
         }
@@ -209,7 +203,6 @@ void AcceptedSocket::sendFile(const std::string& file) {
         this->responseHeader["Connection"] = "close";
         this->ConnectedSocket::end();
         this->end();
-        std::cout << "AEOF" << std::endl;
     }
 }
 
@@ -236,7 +229,6 @@ void AcceptedSocket::end() {
         this->state = REQUEST;
     
         if (this->requestHeader["connection"] == "close") {
-            std::cout << "AEOF" << std::endl;
             this->ConnectedSocket::end();
         }
         

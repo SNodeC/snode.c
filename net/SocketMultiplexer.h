@@ -6,24 +6,25 @@
 #include "SocketExceptionManager.h"
 #include "TimerManager.h"
 
+#include <iostream>
+
 
 class SocketMultiplexer
 {
 private:
-    
     SocketMultiplexer() {
+        std::cout << "Multiplexer" << std::endl;
+//        atexit(SocketMultiplexer::run);
     }
     
 public:
-    static SocketMultiplexer socketMultiplexer;
-    
     static SocketMultiplexer& instance() {
+        std::cout << "Multiplexer instance" << std::endl;
         return socketMultiplexer;
     }
     
-    void tick();
-    
     SocketReadManager& getReadManager() {
+        std::cout << "Multiplexer readManager" << std::endl;
         return readManager;
     }
     
@@ -38,14 +39,19 @@ public:
     TimerManager& getTimerManager() {
         return timerManager;
     }
+
+    static void run();
     
-    void run();
+private:
+    void tick();
     
-protected:
+    static SocketMultiplexer socketMultiplexer;
+    
     SocketReadManager readManager;
     SocketWriteManager writeManager;
     SocketExceptionManager exceptionManager;
     TimerManager timerManager;
 };
+
 
 #endif // SOCKETMULTIPLEXER_H

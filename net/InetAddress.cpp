@@ -1,5 +1,5 @@
-#include <string.h>
 #include <netdb.h>
+#include <string.h>
 
 #include "InetAddress.h"
 

@@ -1,7 +1,8 @@
 #ifndef EXCEPTION_H
 #define EXCEPTION_H
 
-#include "Manageable.h"
+#include "ManagedDescriptor.h"
+
 
 class Exception : public ManagedDescriptor {
 public:

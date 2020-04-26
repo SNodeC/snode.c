@@ -1,21 +1,19 @@
 #ifndef READER_H
 #define READER_H
 
-#include <iostream>
-
-#include "Manageable.h"
-
 #include <string>
+
+#include "ManagedDescriptor.h"
+
 
 class Reader : public ManagedDescriptor {
 public:
-    Reader(int fd) : ManagedDescriptor(fd) {
-        std::cout << __PRETTY_FUNCTION__ << std::endl;
-    }
+    virtual void readEvent() = 0;
+    
+protected:
+    Reader(int fd) : ManagedDescriptor(fd) {}
     
     virtual ~Reader() = default;
-    
-    virtual void readEvent() = 0;
     
     std::string readPuffer;
 };

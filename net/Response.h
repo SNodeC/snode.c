@@ -1,8 +1,9 @@
 #ifndef RESPONSE_H
 #define RESPONSE_H
 
-#include <string>
 #include <map>
+#include <string>
+
 
 class AcceptedSocket;
 
