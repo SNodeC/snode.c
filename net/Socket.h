@@ -12,9 +12,9 @@ public:
     
     InetAddress& getLocalAddress();
     
+    void setLocalAddress(const InetAddress& localAddress);
     
 protected:
-    void setLocalAddress(const InetAddress& localAddress);
     Socket();
     
     int getSFd() {

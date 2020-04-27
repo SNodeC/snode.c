@@ -1,6 +1,7 @@
 #ifndef CONNECTEDSOCKET_H
 #define CONNECTEDSOCKET_H
 
+#include <functional>
 #include <string>
 
 #include "InetAddress.h"
@@ -14,7 +15,21 @@ class ConnectedSocket : public SocketReader, public SocketWriter
 {
 public:
     ConnectedSocket(int csFd, ServerSocket* ss);
+    
+    ConnectedSocket(int csFd, 
+                    ServerSocket* ss, 
+                    std::function<void (ConnectedSocket* cs, std::string line)> readProcessor
+                   );
+    
     virtual ~ConnectedSocket();
+    
+    void setContext(void* context) {
+        this->context = context;
+    }
+    
+    void* getContext() {
+        return this->context;
+    }
     
     virtual void send(const char* puffer, int size);
     virtual void send(const std::string& junk);
@@ -26,6 +41,8 @@ public:
 
 protected:
     ServerSocket* serverSocket;
+    void* context;
+    
     void clearReadPuffer();
     
     InetAddress remoteAddress;

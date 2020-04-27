@@ -4,8 +4,10 @@ project(snode.c)
 
 add_subdirectory(net)
 
+add_subdirectory(http)
+
 add_executable(snode.c main.cpp)
 
-target_link_libraries(snode.c LINK_PUBLIC net magic)
+target_link_libraries(snode.c LINK_PUBLIC http)
 
 install(TARGETS snode.c RUNTIME DESTINATION bin)

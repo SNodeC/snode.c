@@ -5,12 +5,19 @@
 #include "SocketMultiplexer.h"
 
 
-ServerSocket::ServerSocket() : SocketReader(), rootDir(".") {
+ServerSocket::ServerSocket(std::function<void (ConnectedSocket* cs)> onConnect,
+                           std::function<void (ConnectedSocket* cs)> onDisconnect,
+                           std::function<void (ConnectedSocket* cs, std::string line)> rp) 
+    : SocketReader(), onConnect(onConnect), onDisconnect(onDisconnect), readProcessor(rp), rootDir(".") {
     SocketMultiplexer::instance().getReadManager().manageSocket(this);
 }
 
 
-ServerSocket::ServerSocket(uint16_t port) : ServerSocket() {
+ServerSocket::ServerSocket(uint16_t port, 
+                           std::function<void (ConnectedSocket* cs)> oc,
+                           std::function<void (ConnectedSocket* cs)> od,
+                           std::function<void (ConnectedSocket* cs, std::string line)> rp) 
+    : ServerSocket(oc, od, rp) {
     int sockopt = 1;
     setsockopt(this->getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt));
     
@@ -20,17 +27,11 @@ ServerSocket::ServerSocket(uint16_t port) : ServerSocket() {
 }
 
 
-ServerSocket::ServerSocket(const std::string hostname, uint16_t port) : ServerSocket() {
-}
-
-
-ServerSocket& ServerSocket::instance(uint16_t port) {
-    return *new ServerSocket(port);
-}
-
-
-ServerSocket& ServerSocket::instance(const std::string& hostname, uint16_t port) {
-    return *new ServerSocket(hostname, port);
+ServerSocket& ServerSocket::instance(uint16_t port,
+                                     std::function<void (ConnectedSocket* cs)> oc,
+                                     std::function<void (ConnectedSocket* cs)> od,
+                                     std::function<void (ConnectedSocket* cs, std::string line)> rp) {
+    return *new ServerSocket(port, oc, od, rp);
 }
 
 
@@ -63,7 +64,7 @@ void ServerSocket::process(Request& request, Response& response) {
 }
 
 
-void ServerSocket::readEvent() {
+void ServerSocket::readEvent1() {
     struct sockaddr_in remoteAddress;
     socklen_t addrlen = sizeof(remoteAddress);
     
@@ -81,6 +82,35 @@ void ServerSocket::readEvent() {
             close(csFd);
         }
     }
+}
+
+
+void ServerSocket::readEvent() {
+    struct sockaddr_in remoteAddress;
+    socklen_t addrlen = sizeof(remoteAddress);
+    
+    int csFd = ::accept(this->getFd(), (struct sockaddr*) &remoteAddress, &addrlen);
+    
+    if (csFd >= 0) {
+        struct sockaddr_in localAddress;
+        socklen_t addressLength = sizeof(localAddress);
+        
+        if (getsockname(csFd, (struct sockaddr*) &localAddress, &addressLength) == 0) {
+            ConnectedSocket* cs = new ConnectedSocket(csFd, this, this->readProcessor);
+            cs->setRemoteAddress(remoteAddress);
+            cs->setLocalAddress(localAddress);
+            SocketMultiplexer::instance().getReadManager().manageSocket(cs);
+            onConnect(cs);
+        } else {
+            shutdown(csFd, SHUT_RDWR);
+            close(csFd);
+        }
+    }
+}
+    
+
+void ServerSocket::disconnect(ConnectedSocket* cs) {
+    onDisconnect(cs);
 }
 
 

@@ -11,7 +11,15 @@ ConnectedSocket::ConnectedSocket(int csFd, ServerSocket* ss) : SocketReader(csFd
 }
 
 
+ConnectedSocket::ConnectedSocket(int csFd, 
+                                 ServerSocket* ss, 
+                                 std::function<void (ConnectedSocket* cs, std::string line)> readProcessor
+                                ) 
+: SocketReader(csFd, readProcessor), SocketWriter(csFd), serverSocket(ss) {
+}
+
 ConnectedSocket::~ConnectedSocket() {
+    serverSocket->disconnect(this);
 }
 
 
