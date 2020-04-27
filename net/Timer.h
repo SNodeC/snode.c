@@ -15,12 +15,13 @@ protected:
     Timer(std::function<void (const void* arg)> processor, const struct timeval& timeout, const void* arg);
 
 protected:
-    virtual ~Timer() = default;
+    Timer() {}
     
-private:
     Timer(const Timer& timer) {
         *this = timer;
     }
+    
+    virtual ~Timer() = default;
     
     Timer& operator=(const Timer& timer) {
         return *this;

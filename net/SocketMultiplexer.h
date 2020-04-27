@@ -6,15 +6,12 @@
 #include "SocketExceptionManager.h"
 #include "TimerManager.h"
 
-#include <iostream>
-
 
 class SocketMultiplexer
 {
 private:
-    SocketMultiplexer() {
-//        atexit(SocketMultiplexer::run);
-    }
+    SocketMultiplexer() {}
+    
     
 public:
     static SocketMultiplexer& instance() {

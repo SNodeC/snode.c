@@ -3,10 +3,10 @@
 
 #include <functional>
 
-#include "ServerSocket.h"
 #include "Request.h"
 #include "Response.h"
 
+class ServerSocket;
 class ConnectedSocket;
 
 class HTTPServer
