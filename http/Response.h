@@ -1,7 +1,6 @@
 #ifndef RESPONSE_H
 #define RESPONSE_H
 
-#include <map>
 #include <string>
 
 
@@ -13,11 +12,11 @@ public:
     
     void status(int status);
     
-    void send(const std::string& text);
+    void send(const std::string& text) const;
     
-    void send(const char* puffer, int n);
+    void send(const char* puffer, int n) const;
     
-    void sendFile(const std::string& file);
+    void sendFile(const std::string& file) const;
     
     void end();
     

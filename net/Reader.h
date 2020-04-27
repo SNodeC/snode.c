@@ -14,8 +14,6 @@ protected:
     Reader(int fd) : ManagedDescriptor(fd) {}
     
     virtual ~Reader() = default;
-    
-    std::string readPuffer;
 };
 
 

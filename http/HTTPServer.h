@@ -2,8 +2,6 @@
 #define HTTPSERVER_H
 
 #include <functional>
-#include <iostream>
-#include <list>
 
 #include "ServerSocket.h"
 #include "Request.h"
@@ -13,26 +11,31 @@ class ConnectedSocket;
 
 class HTTPServer
 {
-public:
+private:
     HTTPServer(int port);
+
+public:    
+    static HTTPServer& instance(int port);
     
-    void all(std::function<void (Request& req, Response& res)> processor) {
+    void destroy();
+    
+    void process(const Request& request, const Response& response);
+    
+    void all(std::function<void (const Request& req, const Response& res)> processor) {
         allProcessor = processor;
     }
     
-    void get(std::function<void (Request& req, Response& res)> processor) {
+    void get(std::function<void (const Request& req, const Response& res)> processor) {
         getProcessor = processor;
     }
     
-    void post(std::function<void (Request& req, Response& res)> processor) {
+    void post(std::function<void (const Request& req, const Response& res)> processor) {
         postProcessor = processor;
     }
     
-    void put(std::function<void (Request& req, Response& res)> processor) {
+    void put(std::function<void (const Request& req, const Response& res)> processor) {
         putProcessor = processor;
     }
-    
-    void process(Request& request, Response& response);
     
     std::string& getRootDir() {
         return rootDir;
@@ -43,10 +46,10 @@ public:
     }
     
 protected:
-    std::function<void (Request& req, Response& res)> allProcessor;
-    std::function<void (Request& req, Response& res)> getProcessor;
-    std::function<void (Request& req, Response& res)> postProcessor;
-    std::function<void (Request& req, Response& res)> putProcessor;
+    std::function<void (const Request& req, const Response& res)> allProcessor;
+    std::function<void (const Request& req, const Response& res)> getProcessor;
+    std::function<void (const Request& req, const Response& res)> postProcessor;
+    std::function<void (const Request& req, const Response& res)> putProcessor;
     
     std::string rootDir;
 };

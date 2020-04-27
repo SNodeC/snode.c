@@ -14,11 +14,11 @@ public:
     
     std::map<std::string, std::string>& header();
     
-    bool isPost();
-    bool isGet();
-    bool isPut();
+    bool isPost() const;
+    bool isGet() const;
+    bool isPut() const;
     
-    const std::string requestURI();
+    const std::string requestURI() const;
     
     const char* body();
     int bodySize();

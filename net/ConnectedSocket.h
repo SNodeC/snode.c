@@ -14,8 +14,6 @@ class ServerSocket;
 class ConnectedSocket : public SocketReader, public SocketWriter
 {
 public:
-    ConnectedSocket(int csFd, ServerSocket* ss);
-    
     ConnectedSocket(int csFd, 
                     ServerSocket* ss, 
                     std::function<void (ConnectedSocket* cs, std::string line)> readProcessor
@@ -42,8 +40,6 @@ public:
 protected:
     ServerSocket* serverSocket;
     void* context;
-    
-    void clearReadPuffer();
     
     InetAddress remoteAddress;
 };

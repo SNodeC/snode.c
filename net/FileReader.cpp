@@ -30,11 +30,10 @@ void FileReader::readEvent() {
     
     int ret = ::read(this->getFd(), puffer, 4096);
     
-    if (ret >= 0) {
+    if (ret > 0) {
         this->junkRead(puffer, ret);
-        if (ret == 0) {
-            SocketMultiplexer::instance().getReadManager().unmanageSocket(this);
-        }
+    } else  if (ret == 0) {
+        SocketMultiplexer::instance().getReadManager().unmanageSocket(this);
     } else {
         this->error(errno);
         SocketMultiplexer::instance().getReadManager().unmanageSocket(this);

@@ -2,9 +2,10 @@
 #define SOCKET_H
 
 #include "InetAddress.h"
+#include "Descriptor.h"
 
 
-class Socket {
+class Socket : virtual public Descriptor {
 public:
     virtual ~Socket();
     
@@ -16,18 +17,8 @@ public:
     
 protected:
     Socket();
-    
-    int getSFd() {
-        return fd;
-    }
-    
-    void setSFd(int fd) {
-        this->fd = fd;
-    }
-    
+
     InetAddress localAddress;
-    
-    int fd;
 };
 
 #endif // SOCKET_H

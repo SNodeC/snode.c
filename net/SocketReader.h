@@ -13,18 +13,13 @@ class SocketReader : public Reader, virtual public Socket
 {
 public:
     void readEvent();
-    void readEvent1();
     
 protected:
-    SocketReader() : Socket(), Reader(this->getSFd()) {}
+    SocketReader() : Socket(), Reader(this->getFd()) {}
     
-    SocketReader(int fd) : Reader(fd) {
-        this->setSFd(fd);
-    }
+    SocketReader(int fd) : Reader(fd) {}
     
-    SocketReader(int fd, std::function<void (ConnectedSocket* cs, std::string line)> rp) : Socket(), Reader(this->getSFd()), readProcessor(rp) {
-        this->setSFd(fd);
-    }
+    SocketReader(int fd, std::function<void (ConnectedSocket* cs, std::string line)> rp) : Socket(), Reader(this->getFd()), readProcessor(rp) {}
     
     std::function<void (ConnectedSocket* cs, std::string line)> readProcessor;
 };

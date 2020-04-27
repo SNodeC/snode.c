@@ -4,12 +4,14 @@
 #include "Descriptor.h"
 
 
-Socket::Socket() : fd(::socket(AF_INET, SOCK_STREAM, 0)) {}
+Socket::Socket() {
+    this->setFd(::socket(AF_INET, SOCK_STREAM, 0));
+}
 
 
 Socket::~Socket() {
-    if (fd != 0) {
-        ::shutdown(fd, SHUT_RDWR);
+    if (this->getFd() != 0) {
+        ::shutdown(this->getFd(), SHUT_RDWR);
     }
 }
 
@@ -22,7 +24,7 @@ InetAddress& Socket::getLocalAddress() {
 int Socket::bind(InetAddress& localAddress) {
     socklen_t addrlen = sizeof(struct sockaddr_in);
     
-    return ::bind(fd, (struct sockaddr*) &localAddress.getSockAddr(), addrlen);
+    return ::bind(this->getFd(), (struct sockaddr*) &localAddress.getSockAddr(), addrlen);
 }
 
 

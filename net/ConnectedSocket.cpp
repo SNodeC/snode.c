@@ -7,15 +7,11 @@
 #include "FileReader.h"
 
 
-ConnectedSocket::ConnectedSocket(int csFd, ServerSocket* ss) : SocketReader(csFd), SocketWriter(csFd), serverSocket(ss) {
-}
-
-
 ConnectedSocket::ConnectedSocket(int csFd, 
-                                 ServerSocket* ss, 
+                                 ServerSocket* serverSocket, 
                                  std::function<void (ConnectedSocket* cs, std::string line)> readProcessor
                                 ) 
-: SocketReader(csFd, readProcessor), SocketWriter(csFd), serverSocket(ss) {
+: SocketReader(csFd, readProcessor), SocketWriter(csFd), serverSocket(serverSocket) {
 }
 
 ConnectedSocket::~ConnectedSocket() {
@@ -61,9 +57,4 @@ void ConnectedSocket::sendFile(const std::string& file) {
 
 void ConnectedSocket::end() {
     SocketMultiplexer::instance().getReadManager().unmanageSocket(this);
-}
-
-
-void ConnectedSocket::clearReadPuffer() {
-    readPuffer.clear();
 }

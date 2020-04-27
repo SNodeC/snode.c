@@ -14,9 +14,9 @@ class HTTPServer;
 class HTTPContext
 {
 public:
-    HTTPContext(HTTPServer* ss, ConnectedSocket* cs);
+    HTTPContext(HTTPServer* serverSocket, ConnectedSocket* connectedSocket);
     
-    void httpRequest(std::string line);
+    void parseHttpRequest(std::string line);
     void readLine(std::string readPuffer, std::function<void (std::string)> lineRead);
     void requestReady();
     
@@ -31,8 +31,8 @@ public:
     void end();
 
 protected:    
-    ConnectedSocket* cs;
-    HTTPServer* ss;
+    ConnectedSocket* connectedSocket;
+    HTTPServer* serverSocket;
     
     std::string requestLine;
     std::map<std::string, std::string> requestHeader;
@@ -61,7 +61,7 @@ protected:
         EOL
     } linestate;
     
-    std::string hl;
+    std::string headerLine;
     
     friend class Response;
     friend class Request;
