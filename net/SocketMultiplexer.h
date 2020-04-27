@@ -19,12 +19,10 @@ private:
     
 public:
     static SocketMultiplexer& instance() {
-        std::cout << "Multiplexer instance" << std::endl;
         return socketMultiplexer;
     }
     
     SocketReadManager& getReadManager() {
-        std::cout << "Multiplexer readManager" << std::endl;
         return readManager;
     }
     
