@@ -1,6 +1,3 @@
-#include <sys/types.h>
-#include <sys/socket.h>
-
 #include "Response.h"
 #include "HTTPContext.h"
 #include "HTTPStatusCodes.h"
@@ -25,17 +22,17 @@ void Response::append(const std::string& field, const std::string& value) {
 }
 
 
-void Response::send(const std::string& text) {
+void Response::send(const std::string& text) const {
     this->httpContext->send(text);
 }
 
 
-void Response::sendFile(const std::string& file) {
+void Response::sendFile(const std::string& file) const {
     this->httpContext->sendFile(file);
 }
 
 
-void Response::send(const char* puffer, int n) {
+void Response::send(const char* puffer, int n) const {
     this->httpContext->send(puffer, n);
 }
 

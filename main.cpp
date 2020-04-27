@@ -15,15 +15,10 @@ void init() {
 int main(int argc, char **argv) {
     init();
     
-//    ServerSocket& app = ServerSocket::instance(8080);
-    HTTPServer* app = new HTTPServer(8080);
+    HTTPServer& app = HTTPServer::instance(8080);
 
-//    app->serverRoot("/home/voc/projects/html-pages/Static-Site-Samples/POHTML");
-//    app.serverRoot("/home/voc/Downloads/greeny_661");
-    //    app.serverRoot("/home/voc/projects/ServerVoc/sites/textured_stars");
-    app->serverRoot("/home/voc/projects/ServerVoc/doc/html");
+    app.serverRoot("/home/voc/projects/ServerVoc/doc/html");
 
-    /*
     Timer& tick = Timer::continousTimer(
         [] (const void* arg) -> void {
             static int i = 0;
@@ -37,11 +32,10 @@ int main(int argc, char **argv) {
             std::cout << (const char*) arg << " " << i++ << std::endl;
         }, 
         (struct timeval) {1, 100000}, "Tack");
-    */
     bool canceled = false;
     
-    app->get(
-        [&] (Request& req, Response& res) -> void {
+    app.get(
+        [&] (const Request& req, const Response& res) -> void {
             std::string uri = req.requestURI();
             
             if (uri == "/") {
@@ -51,7 +45,7 @@ int main(int argc, char **argv) {
             res.sendFile(uri);
             
             if (!canceled) {
-//                tack.cancel();
+                tack.cancel();
                 canceled = true;
             }
         }

@@ -13,7 +13,6 @@ class SocketMultiplexer
 {
 private:
     SocketMultiplexer() {
-        std::cout << "Multiplexer" << std::endl;
 //        atexit(SocketMultiplexer::run);
     }
     

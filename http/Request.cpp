@@ -16,19 +16,19 @@ int Request::bodySize() {
     return this->httpContext->bodyLength;
 }
 
-bool Request::isGet() {
+bool Request::isGet() const {
     return this->httpContext->requestLine.find("GET") !=  std::string::npos;
 }
 
-bool Request::isPost() {
+bool Request::isPost() const {
     return this->httpContext->requestLine.find("POST") != std::string::npos;
 }
 
-bool Request::isPut() {
+bool Request::isPut() const {
     return this->httpContext->requestLine.find("PUT") != std::string::npos;
 }
 
-const std::string Request::requestURI() {
+const std::string Request::requestURI() const {
     std::string method;
     std::string uri;
     
