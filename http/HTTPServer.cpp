@@ -2,18 +2,19 @@
 
 #include "ConnectedSocket.h"
 #include "HTTPContext.h"
+#include "ServerSocket.h"
 
 
 HTTPServer::HTTPServer(int port)
 : rootDir(".") {
     ServerSocket::instance(port,
-        [&] (ConnectedSocket* connectedSocket) -> void {
+        [this] (ConnectedSocket* connectedSocket) -> void {
             connectedSocket->setContext(new HTTPContext(this, connectedSocket));
         },
-        [&] (ConnectedSocket* connectedSocket) -> void {
+        [] (ConnectedSocket* connectedSocket) -> void {
             delete static_cast<HTTPContext*>(connectedSocket->getContext());
         },
-        [&] (ConnectedSocket* connectedSocket, std::string line) -> void {
+        [] (ConnectedSocket* connectedSocket, std::string line) -> void {
             static_cast<HTTPContext*>(connectedSocket->getContext())->parseHttpRequest(line);
         }
     );

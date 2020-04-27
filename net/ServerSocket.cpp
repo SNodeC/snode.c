@@ -65,6 +65,6 @@ void ServerSocket::disconnect(ConnectedSocket* cs) {
 
 
 void ServerSocket::run() {
-    SocketMultiplexer::instance().run();
+    SocketMultiplexer::run();
 }
 

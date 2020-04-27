@@ -43,12 +43,12 @@ void ConnectedSocket::send(const std::string& junk) {
 
 void ConnectedSocket::sendFile(const std::string& file) {
     FileReader::read(file,
-                     [&] (char* data, int length) -> void {
+                     [this] (char* data, int length) -> void {
                          if (length > 0) {
                              this->ConnectedSocket::send(data, length);
                          }
                      },
-                     [&] (int err) -> void {
+                     [this] (int err) -> void {
                          std::cout << "Error: " << strerror(err) << std::endl;
                          this->end();
                      });

@@ -8,17 +8,8 @@
 #include "ContinousTimer.h"
 #include "HTTPServer.h"
 
-void init() {
-    signal(SIGPIPE, SIG_IGN);
-}
 
 int main(int argc, char **argv) {
-    init();
-    
-    HTTPServer& app = HTTPServer::instance(8080);
-
-    app.serverRoot("/home/voc/projects/ServerVoc/doc/html");
-
     Timer& tick = Timer::continousTimer(
         [] (const void* arg) -> void {
             static int i = 0;
@@ -34,8 +25,12 @@ int main(int argc, char **argv) {
         (struct timeval) {1, 100000}, "Tack");
     bool canceled = false;
     
+    HTTPServer& app = HTTPServer::instance(8080);
+    
+    app.serverRoot("/home/voc/projects/ServerVoc/doc/html");
+    
     app.get(
-        [&] (const Request& req, const Response& res) -> void {
+        [&canceled, &tack] (const Request& req, const Response& res) -> void {
             std::string uri = req.requestURI();
             
             if (uri == "/") {
@@ -51,7 +46,6 @@ int main(int argc, char **argv) {
         }
     );
 
-    
     ServerSocket::run();
 
     return 0;
