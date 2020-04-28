@@ -11,9 +11,7 @@ public:
     void writeEvent();
     
 protected:
-    SocketWriter() : Socket(), Writer(this->getFd()) {}
-    
-    SocketWriter(int fd) : Writer(fd) {}
+    SocketWriter(int fd) : Socket(), Writer(fd) {}
 };
 
 #endif // SOCKETWRITER_H

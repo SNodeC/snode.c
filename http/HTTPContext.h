@@ -16,13 +16,6 @@ class HTTPContext
 public:
     HTTPContext(HTTPServer* serverSocket, ConnectedSocket* connectedSocket);
     
-    void parseHttpRequest(std::string line);
-    void readLine(std::string readPuffer, std::function<void (std::string)> lineRead);
-    void requestReady();
-    
-    void addRequestHeader(std::string& line);  
-    void sendHeader();
-    
     void send(const char* puffer, int size);
     void send(const std::string& data);
     void sendJunk(const char* puffer, int size);
@@ -30,14 +23,21 @@ public:
     
     void end();
 
-protected:    
+protected:
+    void reset();
+    
+    void parseHttpRequest(std::string line);
+    void readLine(std::string readPuffer, std::function<void (std::string)> lineRead);
+    
+    void parseRequestLine(std::string line);
+    
+    void requestReady();
+    
+    void addRequestHeader(std::string& line);  
+    void sendHeader();
+    
     ConnectedSocket* connectedSocket;
     HTTPServer* serverSocket;
-    
-    std::string requestLine;
-    std::map<std::string, std::string> requestHeader;
-    std::map<std::string, std::string> responseHeader;
-    
     
     char* bodyData;
     int bodyLength;
@@ -63,8 +63,21 @@ protected:
     
     std::string headerLine;
     
+    /* Request-Line */
+    std::string method;
+    std::string requestUri;
+    std::string httpVersion;
+    
+    std::string path;
+    std::string fragment;
+    
+    std::map<std::string, std::string> queryMap;
+    std::map<std::string, std::string> requestHeader;
+    std::map<std::string, std::string> responseHeader;
+    
     friend class Response;
     friend class Request;
+    friend class HTTPServer;
 };
 
 #endif // HTTPCONTEXT_H

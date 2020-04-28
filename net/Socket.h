@@ -17,6 +17,7 @@ public:
     
 protected:
     Socket();
+    void open();
 
     InetAddress localAddress;
 };

@@ -9,15 +9,16 @@ ServerSocket::ServerSocket(std::function<void (ConnectedSocket* cs)> onConnect,
                            std::function<void (ConnectedSocket* cs)> onDisconnect,
                            std::function<void (ConnectedSocket* cs, std::string line)> readProcessor) 
 : SocketReader(), onConnect(onConnect), onDisconnect(onDisconnect), readProcessor(readProcessor) {
+    this->open();
     SocketMultiplexer::instance().getReadManager().manageSocket(this);
 }
 
 
 ServerSocket::ServerSocket(uint16_t port, 
-                           std::function<void (ConnectedSocket* cs)> oc,
-                           std::function<void (ConnectedSocket* cs)> od,
-                           std::function<void (ConnectedSocket* cs, std::string line)> rp) 
-    : ServerSocket(oc, od, rp) {
+                           std::function<void (ConnectedSocket* cs)> onConnect,
+                           std::function<void (ConnectedSocket* cs)> onDisconnect,
+                           std::function<void (ConnectedSocket* cs, std::string line)> readProcessor) 
+: ServerSocket(onConnect, onDisconnect, readProcessor) {
     int sockopt = 1;
     setsockopt(this->getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt));
     
@@ -28,10 +29,10 @@ ServerSocket::ServerSocket(uint16_t port,
 
 
 ServerSocket& ServerSocket::instance(uint16_t port,
-                                     std::function<void (ConnectedSocket* cs)> oc,
-                                     std::function<void (ConnectedSocket* cs)> od,
-                                     std::function<void (ConnectedSocket* cs, std::string line)> rp) {
-    return *new ServerSocket(port, oc, od, rp);
+                                     std::function<void (ConnectedSocket* cs)> onConnect,
+                                     std::function<void (ConnectedSocket* cs)> onDisconnect,
+                                     std::function<void (ConnectedSocket* cs, std::string line)> readProcessor) {
+    return *new ServerSocket(port, onConnect, onDisconnect, readProcessor);
 }
 
 

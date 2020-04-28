@@ -10,36 +10,39 @@
 #include "HTTPStatusCodes.h"
 #include "MimeTypes.h"
 
+
 HTTPContext::HTTPContext(HTTPServer* serverSocket, ConnectedSocket* connectedSocket)
 : connectedSocket(connectedSocket), serverSocket(serverSocket), bodyData(0), bodyLength(0), state(states::REQUEST), bodyPointer(0), line(""), headerSent(false), responseStatus(200), linestate(READ) {}
 
 
 void HTTPContext::parseHttpRequest(std::string line) {
+//    std::cout << line << std::endl;
     if (state != BODY) {
         readLine(line, [&] (std::string line) -> void {
             switch (state) {
             case REQUEST:
-                if (line.empty()) {
+                if (!line.empty()) {
+//                    requestLine = line;
+                    parseRequestLine(line);
+                    state = HEADER;
+                } else {
                     this->responseStatus = 400;
                     this->responseHeader["Connection"] = "close";
                     connectedSocket->end();
                     this->end();
                     state = ERROR;
-                } else {
-                    requestLine = line;
-                    state = HEADER;
                 }
                 break;
             case HEADER:
-                if (line.empty()) {
+                if (!line.empty()) {
+                    this->addRequestHeader(line);
+                } else {
                     if (bodyLength != 0) {
                         state = BODY;
                     } else {
                         this->requestReady();
                         state = REQUEST;
                     }
-                } else {
-                    this->addRequestHeader(line);
                 }
                 break;
             case BODY:
@@ -102,6 +105,30 @@ void HTTPContext::readLine(std::string readPuffer, std::function<void (std::stri
 }
 
 
+void HTTPContext::parseRequestLine(std::string line) {
+    std::istringstream requestLineStream(line);
+    
+    std::getline(requestLineStream, method, ' ');
+    std::getline(requestLineStream, requestUri, ' ');
+    std::getline(requestLineStream, httpVersion, '\r');
+    
+    std::string queries;
+    std::istringstream requestUriStream(requestUri);
+    std::getline(requestUriStream, path, '?');
+    std::getline(requestUriStream, queries, '#');
+    std::getline(requestUriStream, fragment);
+    
+    std::istringstream queriesStream(queries);
+    for (std::string query; std::getline(queriesStream, query, '&'); ) {
+        int equalSign = query.find_first_of('=');
+        std::string key = query.substr(0, equalSign);
+        std::string value = query.substr(equalSign + 1);
+        
+        queryMap[key] = value;
+    }
+}
+
+
 void HTTPContext::requestReady() {
     serverSocket->process(Request(this), Response(this));
 }
@@ -109,7 +136,6 @@ void HTTPContext::requestReady() {
 
 void HTTPContext::addRequestHeader(std::string& line) {
     if (!line.empty()) {
-
         std::transform(line.begin(), line.end(), line.begin(), ::tolower);
 
         std::string key;
@@ -120,7 +146,7 @@ void HTTPContext::addRequestHeader(std::string& line) {
         std::getline(tokenStream, token, '\n');
 
         int strBegin = token.find_first_not_of(" \t");
-        int strEnd = token.find_last_not_of(" \t");
+        int strEnd = token.find_last_not_of(" \t\r");
         int strRange = strEnd - strBegin + 1;
 
         if (strBegin != std::string::npos) {
@@ -163,8 +189,15 @@ void HTTPContext::send(const std::string& puffer) {
 }
 
 
-void HTTPContext::sendFile(const std::string& file) {
+void HTTPContext::sendFile(const std::string& url) {
 
+    int strEnd = url.find_first_of("?");
+    
+    std::string file = url;
+    if (strEnd != std::string::npos) {
+        file = url.substr(0, strEnd);
+    }
+    
     std::string absolutFileName = serverSocket->getRootDir() + file;
 
     if (std::filesystem::exists(absolutFileName)) {
@@ -198,26 +231,32 @@ void HTTPContext::sendHeader() {
 
 
 void HTTPContext::end() {
-    if (this->state != REQUEST) {
-        this->sendHeader();
-        this->headerSent = false;
-        this->responseHeader.clear();
-        this->responseStatus = 200;
-        this->state = REQUEST;
-
-        if (this->requestHeader["connection"] == "close") {
-            connectedSocket->end();
-        }
-
-        this->requestHeader.clear();
-        this->requestLine.clear();
-
-        if (this->bodyData != 0) {
-            delete this->bodyData;
-            this->bodyData = 0;
-            this->bodyLength = 0;
-            this->bodyPointer = 0;
-        }
-    }
+    this->sendHeader();
 }
 
+
+void HTTPContext::reset() {   
+    this->headerSent = false; 
+    this->responseHeader.clear();
+    this->responseStatus = 200;
+    this->state = REQUEST;
+    
+    if (this->requestHeader["connection"] == "close") {
+        connectedSocket->end();
+    }
+    
+    this->requestHeader.clear();
+    this->method.clear();
+    this->requestUri.clear();
+    this->httpVersion.clear();
+    this->path.clear();
+    this->fragment.clear();
+    this->queryMap.clear();
+    
+    if (this->bodyData != 0) {
+        delete this->bodyData;
+        this->bodyData = 0;
+        this->bodyLength = 0;
+        this->bodyPointer = 0;
+    }
+}

@@ -7,6 +7,7 @@
 #include "FileReader.h"
 #include "SocketMultiplexer.h"
 
+#include <iostream>
 
 FileReader::FileReader(int fd) : Reader(fd) {}
 

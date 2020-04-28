@@ -7,17 +7,22 @@ Response::Response(HTTPContext* httpContext) : httpContext(httpContext) {
 }
 
 
+Response::~Response() {
+    this->httpContext->reset();
+}
+
+
 void Response::status(int status) {
     this->httpContext->responseStatus = status;
 }
 
 
-void Response::set(const std::string& field, const std::string& value) {
+void Response::set(const std::string& field, const std::string& value) const {
     this->httpContext->responseHeader[field] = value;
 }
 
 
-void Response::append(const std::string& field, const std::string& value) {
+void Response::append(const std::string& field, const std::string& value) const {
     this->httpContext->responseHeader[field] = httpContext->responseHeader[field] + ", " + value;
 }
 
@@ -37,6 +42,6 @@ void Response::send(const char* puffer, int n) const {
 }
 
 
-void Response::end() {
+void Response::end() const {
     this->httpContext->end();
 }

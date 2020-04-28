@@ -9,6 +9,7 @@ class HTTPContext;
 class Response {
 public:
     Response(HTTPContext* httpContext);
+    ~Response();
     
     void status(int status);
     
@@ -18,11 +19,11 @@ public:
     
     void sendFile(const std::string& file) const;
     
-    void end();
+    void end() const;
     
-    void set(const std::string& field, const std::string& value);
+    void set(const std::string& field, const std::string& value) const;
     
-    void append(const std::string& field, const std::string& value);
+    void append(const std::string& field, const std::string& value) const;
     
 private:
     HTTPContext* httpContext;
