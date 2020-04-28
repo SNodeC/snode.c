@@ -18,26 +18,35 @@ std::string& Request::header(const std::string& key) const {
     return this->httpContext->requestHeader[tmpKey];
 }
 
+std::string& Request::cookie(const std::string& key) const {
+    return this->httpContext->requestCookies[key];
+}
+
 
 const char* Request::body() {
     return this->httpContext->bodyData;
 }
 
+
 int Request::bodySize() {
     return this->httpContext->bodyLength;
 }
 
+
 bool Request::isGet() const {
-    return this->httpContext->method == "GET"; // !=  std::string::npos;
+    return this->httpContext->method == "GET";
 }
+
 
 bool Request::isPost() const {
-    return this->httpContext->method == "POST"; // != std::string::npos;
+    return this->httpContext->method == "POST";
 }
 
+
 bool Request::isPut() const {
-    return this->httpContext->method == "PUT"; // != std::string::npos;
+    return this->httpContext->method == "PUT";
 }
+
 
 const std::string Request::requestURI() const {
     return this->httpContext->path;

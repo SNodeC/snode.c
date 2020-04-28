@@ -14,6 +14,7 @@ public:
     
     std::map<std::string, std::string>& header() const;
     std::string& header(const std::string& key) const;
+    std::string& cookie(const std::string& key) const;
     
     bool isPost() const;
     bool isGet() const;

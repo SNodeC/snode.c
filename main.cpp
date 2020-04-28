@@ -39,6 +39,7 @@ int main(int argc, char **argv) {
                 uri = "/index.html";
             }
             
+            std::cout << "Cookie: " << req.cookie("Test") << std::endl;
 //            res.set("Connection", "close");
             res.sendFile(uri);
             
