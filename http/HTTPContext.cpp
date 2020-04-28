@@ -10,6 +10,7 @@
 #include "HTTPStatusCodes.h"
 #include "MimeTypes.h"
 
+#include <iostream>
 
 HTTPContext::HTTPContext(HTTPServer* serverSocket, ConnectedSocket* connectedSocket)
 : connectedSocket(connectedSocket), serverSocket(serverSocket), bodyData(0), bodyLength(0), state(states::REQUEST), bodyPointer(0), line(""), headerSent(false), responseStatus(200), linestate(READ) {}
@@ -22,7 +23,6 @@ void HTTPContext::parseHttpRequest(std::string line) {
             switch (state) {
             case REQUEST:
                 if (!line.empty()) {
-//                    requestLine = line;
                     parseRequestLine(line);
                     state = HEADER;
                 } else {
@@ -134,27 +134,52 @@ void HTTPContext::requestReady() {
 }
 
 
+void HTTPContext::parseCookie(std::string value) {
+    std::istringstream cookyStream(value);
+    
+    for (std::string cooky; std::getline(cookyStream, cooky, ';'); ) {
+        int equalSign = cooky.find_first_of('=');
+        
+        std::string cookyName = cooky.substr(0, equalSign);
+        cookyName.erase(cookyName.find_last_not_of(" \t") + 1);
+        cookyName.erase(0, cookyName.find_first_not_of(" \t"));
+        
+        std::string cookyValue = cooky.substr(equalSign + 1);
+        cookyValue.erase(cookyValue.find_last_not_of(" \t") + 1);
+        cookyValue.erase(0, cookyValue.find_first_not_of(" \t"));
+        
+        std::cout << "Cookie: " << cookyName << " = " << cookyValue << std::endl;
+        requestCookies[cookyName] = cookyValue;
+    }
+}
+
+
 void HTTPContext::addRequestHeader(std::string& line) {
     if (!line.empty()) {
-        std::transform(line.begin(), line.end(), line.begin(), ::tolower);
 
         std::string key;
         std::string token;
 
         std::istringstream tokenStream(line);
         std::getline(tokenStream, key, ':');
-        std::getline(tokenStream, token, '\n');
+        std::getline(tokenStream, token, '\r');
+        
+        std::transform(key.begin(), key.end(), key.begin(), ::tolower);
 
         int strBegin = token.find_first_not_of(" \t");
-        int strEnd = token.find_last_not_of(" \t\r");
+        int strEnd = token.find_last_not_of(" \t");
         int strRange = strEnd - strBegin + 1;
 
         if (strBegin != std::string::npos) {
-            requestHeader[key] = token.substr(strBegin, strRange);
+            if (key == "cookie") {
+                parseCookie(token.substr(strBegin, strRange));
+            } else {
+                requestHeader[key] = token.substr(strBegin, strRange);
 
-            if (key == "content-length") {
-                bodyLength = std::stoi(requestHeader[key]);
-                bodyData = new char[bodyLength];
+                if (key == "content-length") {
+                    bodyLength = std::stoi(requestHeader[key]);
+                    bodyData = new char[bodyLength];
+                }
             }
         }
     }

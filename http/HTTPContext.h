@@ -30,6 +30,7 @@ protected:
     void readLine(std::string readPuffer, std::function<void (std::string)> lineRead);
     
     void parseRequestLine(std::string line);
+    void parseCookie(std::string value);
     
     void requestReady();
     
@@ -74,6 +75,8 @@ protected:
     std::map<std::string, std::string> queryMap;
     std::map<std::string, std::string> requestHeader;
     std::map<std::string, std::string> responseHeader;
+    std::map<std::string, std::string> requestCookies;
+    std::map<std::string, std::string> responseCookies;
     
     friend class Response;
     friend class Request;
