@@ -1,12 +1,23 @@
+#include <ctype.h>
+#include <algorithm>
 #include <sstream>
 
 #include "Request.h"
 #include "HTTPContext.h"
 
 
-std::map<std::string, std::string>& Request::header() {
+std::map<std::string, std::string>& Request::header() const {
     return this->httpContext->requestHeader;
 }
+
+
+std::string& Request::header(const std::string& key) const {
+    std::string tmpKey = key;
+    std::transform(tmpKey.begin(), tmpKey.end(), tmpKey.begin(), ::tolower);
+    
+    return this->httpContext->requestHeader[tmpKey];
+}
+
 
 const char* Request::body() {
     return this->httpContext->bodyData;
@@ -17,24 +28,32 @@ int Request::bodySize() {
 }
 
 bool Request::isGet() const {
-    return this->httpContext->requestLine.find("GET") !=  std::string::npos;
+    return this->httpContext->method == "GET"; // !=  std::string::npos;
 }
 
 bool Request::isPost() const {
-    return this->httpContext->requestLine.find("POST") != std::string::npos;
+    return this->httpContext->method == "POST"; // != std::string::npos;
 }
 
 bool Request::isPut() const {
-    return this->httpContext->requestLine.find("PUT") != std::string::npos;
+    return this->httpContext->method == "PUT"; // != std::string::npos;
 }
 
 const std::string Request::requestURI() const {
-    std::string method;
-    std::string uri;
-    
-    std::istringstream tokenStream(this->httpContext->requestLine);
-    std::getline(tokenStream, method, ' ');
-    std::getline(tokenStream, uri, ' ');
-    
-    return uri;
+    return this->httpContext->path;
+}
+
+
+const std::string Request::query(std::string key) const {
+    return this->httpContext->queryMap[key];
+}
+
+
+const std::string Request::httpVersion() const {
+    return this->httpContext->httpVersion;
+}
+
+
+const std::string Request::fragment() const {
+    return this->httpContext->fragment;
 }

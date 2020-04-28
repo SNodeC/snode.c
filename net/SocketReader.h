@@ -15,11 +15,9 @@ public:
     void readEvent();
     
 protected:
-    SocketReader() : Socket(), Reader(this->getFd()) {}
+    SocketReader() : Socket(), Reader(0) {}
     
-    SocketReader(int fd) : Reader(fd) {}
-    
-    SocketReader(int fd, std::function<void (ConnectedSocket* cs, std::string line)> rp) : Socket(), Reader(this->getFd()), readProcessor(rp) {}
+    SocketReader(int fd, std::function<void (ConnectedSocket* cs, std::string line)> rp) : Socket(), Reader(fd), readProcessor(rp) {}
     
     std::function<void (ConnectedSocket* cs, std::string line)> readProcessor;
 };

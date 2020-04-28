@@ -4,17 +4,17 @@
 #include "Descriptor.h"
 
 
-Socket::Socket() {
-    this->setFd(::socket(AF_INET, SOCK_STREAM, 0));
-}
+Socket::Socket() {}
 
 
 Socket::~Socket() {
-    if (this->getFd() != 0) {
-        ::shutdown(this->getFd(), SHUT_RDWR);
-    }
+    ::shutdown(this->getFd(), SHUT_RDWR);
 }
 
+void Socket::open() {
+    int fd = ::socket(AF_INET, SOCK_STREAM, 0);
+    this->setFd(fd);
+}
 
 InetAddress& Socket::getLocalAddress() {
     return localAddress;
