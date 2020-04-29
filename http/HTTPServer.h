@@ -14,7 +14,9 @@ class HTTPServer
 private:
     HTTPServer(int port);
 
-public:    
+public:
+    ~HTTPServer();
+    
     static HTTPServer& instance(int port);
     
     void destroy();
@@ -52,6 +54,9 @@ protected:
     std::function<void (const Request& req, const Response& res)> putProcessor;
     
     std::string rootDir;
+    
+private:
+    ServerSocket& serverSocket;
 };
 
 #endif // HTTPSERVER_H

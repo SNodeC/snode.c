@@ -6,7 +6,7 @@
 
 
 HTTPServer::HTTPServer(int port)
-: rootDir(".") {
+: rootDir("."), serverSocket(
     ServerSocket::instance(port,
         [this] (ConnectedSocket* connectedSocket) -> void {
             connectedSocket->setContext(new HTTPContext(this, connectedSocket));
@@ -17,7 +17,12 @@ HTTPServer::HTTPServer(int port)
         [] (ConnectedSocket* connectedSocket, std::string line) -> void {
             static_cast<HTTPContext*>(connectedSocket->getContext())->parseHttpRequest(line);
         }
-    );
+    )
+) {}
+
+
+HTTPServer::~HTTPServer() {
+    delete &serverSocket;
 }
 
 

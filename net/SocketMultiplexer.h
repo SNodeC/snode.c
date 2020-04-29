@@ -12,6 +12,10 @@ class SocketMultiplexer
 private:
     SocketMultiplexer() {}
     
+    ~SocketMultiplexer() {
+//        SocketMultiplexer::run();
+    }
+    
     
 public:
     static SocketMultiplexer& instance() {
