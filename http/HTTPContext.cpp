@@ -12,7 +12,7 @@
 
 
 HTTPContext::HTTPContext(HTTPServer* serverSocket, ConnectedSocket* connectedSocket)
-: connectedSocket(connectedSocket), serverSocket(serverSocket), bodyData(0), bodyLength(0), state(states::REQUEST), bodyPointer(0), line(""), headerSent(false), responseStatus(200), linestate(READ) {}
+: connectedSocket(connectedSocket), serverSocket(serverSocket), bodyData(0), bodyLength(0), state(states::REQUEST), bodyPointer(0), line(""), responseStatus(200), linestate(READ) {}
 
 
 void HTTPContext::parseHttpRequest(std::string line) {
@@ -183,12 +183,12 @@ void HTTPContext::addRequestHeader(std::string& line) {
     }
 }
 
-
+/*
 void HTTPContext::sendJunk(const char* puffer, int size) {
     this->sendHeader();
     connectedSocket->send(puffer, size);
 }
-
+*/
 
 void HTTPContext::send(const char* puffer, int size) {
     if (responseHeader.find("Content-Type") == responseHeader.end()) {
@@ -197,7 +197,7 @@ void HTTPContext::send(const char* puffer, int size) {
     responseHeader.insert({"Content-Length", std::to_string(size)});
     this->sendHeader();
     connectedSocket->send(puffer, size);
-    this->end();
+//    this->end();
 }
 
 
@@ -208,7 +208,7 @@ void HTTPContext::send(const std::string& puffer) {
     responseHeader.insert({"Content-Length", std::to_string(puffer.size())});
     this->sendHeader();
     connectedSocket->send(puffer);
-    this->end();
+//    this->end();
 }
 
 
@@ -230,32 +230,29 @@ void HTTPContext::sendFile(const std::string& url) {
         responseHeader.insert({"Content-Length", std::to_string(std::filesystem::file_size(absolutFileName))});
         this->sendHeader();
         connectedSocket->sendFile(absolutFileName);
-        this->end();
+//        this->end();
     } else {
         this->responseStatus = 404;
         this->responseHeader.insert({"Connection", "close"});
+        this->sendHeader();
         connectedSocket->end();
-        this->end();
+//        this->end();
     }
 }
 
 
 void HTTPContext::sendHeader() {
-    if (!this->headerSent) {
-        connectedSocket->send("HTTP/1.1 " + std::to_string( responseStatus ) + " " + HTTPStatusCode::reason( responseStatus )+ "\r\n");
+    connectedSocket->send("HTTP/1.1 " + std::to_string( responseStatus ) + " " + HTTPStatusCode::reason( responseStatus ) +  "\r\n");
 
-        for (std::multimap<std::string, std::string>::iterator it = responseHeader.begin(); it != responseHeader.end(); ++it) {
-            connectedSocket->send(it->first + ": " + it->second + "\r\n");
-        }
-        
-        for (std::multimap<std::string, std::string>::iterator it = responseCookies.begin(); it != responseCookies.end(); ++it) {
-            connectedSocket->send("Set-Cookie: " + it->first + "=" + it->second + "\r\n");
-        }
-        
-        connectedSocket->send("\r\n");
-        
-        this->headerSent = true;
+    for (std::multimap<std::string, std::string>::iterator it = responseHeader.begin(); it != responseHeader.end(); ++it) {
+        connectedSocket->send(it->first + ": " + it->second + "\r\n");
     }
+        
+    for (std::multimap<std::string, std::string>::iterator it = responseCookies.begin(); it != responseCookies.end(); ++it) {
+        connectedSocket->send("Set-Cookie: " + it->first + "=" + it->second + "\r\n");
+    }
+        
+    connectedSocket->send("\r\n");
 }
 
 
@@ -264,14 +261,14 @@ void HTTPContext::end() {
 }
 
 
-void HTTPContext::reset() {   
-    this->headerSent = false; 
-    this->responseHeader.clear();
-    this->responseStatus = 200;
-    this->state = REQUEST;
+void HTTPContext::reset() {  
     if (requestHeader.find("connection")->second == "close") {
         connectedSocket->end();
     }
+    
+    this->responseHeader.clear();
+    this->responseStatus = 200;
+    this->state = REQUEST;
     
     this->requestHeader.clear();
     this->method.clear();

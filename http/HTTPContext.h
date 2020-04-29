@@ -18,7 +18,7 @@ public:
     
     void send(const char* puffer, int size);
     void send(const std::string& data);
-    void sendJunk(const char* puffer, int size);
+//    void sendJunk(const char* puffer, int size);
     void sendFile(const std::string& file);
     
     void end();
@@ -54,7 +54,7 @@ protected:
     int bodyPointer;
     std::string line;
     
-    bool headerSent;
+//    bool headerSent;
     int responseStatus;
     
     enum linestate {
