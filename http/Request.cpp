@@ -6,16 +6,24 @@
 #include "HTTPContext.h"
 
 
-std::map<std::string, std::string>& Request::header() const {
+std::multimap<std::string, std::string>& Request::header() const {
     return this->httpContext->requestHeader;
 }
 
 
-std::string& Request::header(const std::string& key) const {
+const std::string& Request::header(const std::string& key, int i) const {
     std::string tmpKey = key;
     std::transform(tmpKey.begin(), tmpKey.end(), tmpKey.begin(), ::tolower);
     
-    return this->httpContext->requestHeader[tmpKey];
+    
+    std::pair<std::multimap<std::string, std::string>::iterator, std::multimap<std::string, std::string>::iterator> range = this->httpContext->requestHeader.equal_range(key);
+
+    if (std::distance(range.first, range.second) >= i) {
+        std::advance(range.first, i);
+        return (*(range.first)).second;
+    } else {
+        return nullstr;
+    }
 }
 
 std::string& Request::cookie(const std::string& key) const {

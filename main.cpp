@@ -10,7 +10,6 @@
 
 
 int main(int argc, char **argv) {
-    /*
     Timer& tick = Timer::continousTimer(
         [] (const void* arg) -> void {
             static int i = 0;
@@ -25,7 +24,6 @@ int main(int argc, char **argv) {
         }, 
         (struct timeval) {1, 100000}, "Tack");
         
-        */
     bool canceled = false;
     HTTPServer& app = HTTPServer::instance(8080);
     
@@ -39,12 +37,18 @@ int main(int argc, char **argv) {
                 uri = "/index.html";
             }
             
-            std::cout << "Cookie: " << req.cookie("Test") << std::endl;
+            std::cout << "RCookie: " << req.cookie("doxygen_width") << std::endl;
+            std::cout << "RCookie: " << req.cookie("Test") << std::endl;
+            
+            std::cout << "RHeader: " << req.header("Content-Length") << std::endl;
+            
+//            res.cookie("Test", "me");
+            
 //            res.set("Connection", "close");
             res.sendFile(uri);
             
             if (!canceled) {
-//                tack.cancel();
+                tack.cancel();
                 canceled = true;
             }
         }
