@@ -12,9 +12,6 @@ private:
         return *this;
     }
     
-    Descriptor(const Descriptor& descriptor) {
-        *this = descriptor;
-    }
     
 public:
     virtual ~Descriptor();

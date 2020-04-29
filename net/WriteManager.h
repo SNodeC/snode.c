@@ -1,11 +1,11 @@
 #ifndef SOCKETWRITEMANAGER_H
 #define SOCKETWRITEMANAGER_H
 
-#include "SocketManager.h"
+#include "Manager.h"
 #include "Writer.h"
 
 
-class WriteManager : public SocketManager<Writer>
+class WriteManager : public Manager<Writer>
 {
 public:
     int process(fd_set& fdSet, int count);

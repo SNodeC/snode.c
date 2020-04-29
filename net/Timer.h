@@ -14,7 +14,6 @@ class Timer {
 protected:
     Timer(std::function<void (const void* arg)> processor, const struct timeval& timeout, const void* arg);
 
-protected:
     Timer() {}
     
     Timer(const Timer& timer) {

@@ -9,14 +9,14 @@
 #include "ManagedDescriptor.h"
 
 
-template <typename T> class SocketManager
+template <typename T> class Manager
 {
 protected:
-    SocketManager() : maxFd(0) {
+    Manager() : maxFd(0) {
         FD_ZERO(&fdSet);
     }
 
-    virtual ~SocketManager() = default;
+    virtual ~Manager() = default;
 
 public:
     fd_set& getFdSet() {
