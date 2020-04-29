@@ -23,7 +23,9 @@ public:
     
     void set(const std::string& field, const std::string& value) const;
     
-    void append(const std::string& field, const std::string& value) const;
+    void cookie(const std::string& name, const std::string& value) const;
+    
+//    void append(const std::string& field, const std::string& value) const;
     
 private:
     HTTPContext* httpContext;

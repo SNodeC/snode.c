@@ -10,7 +10,6 @@
 #include "HTTPStatusCodes.h"
 #include "MimeTypes.h"
 
-#include <iostream>
 
 HTTPContext::HTTPContext(HTTPServer* serverSocket, ConnectedSocket* connectedSocket)
 : connectedSocket(connectedSocket), serverSocket(serverSocket), bodyData(0), bodyLength(0), state(states::REQUEST), bodyPointer(0), line(""), headerSent(false), responseStatus(200), linestate(READ) {}
@@ -27,7 +26,7 @@ void HTTPContext::parseHttpRequest(std::string line) {
                     state = HEADER;
                 } else {
                     this->responseStatus = 400;
-                    this->responseHeader["Connection"] = "close";
+                    this->responseHeader.insert({"Connection", "close"});
                     connectedSocket->end();
                     this->end();
                     state = ERROR;
@@ -148,7 +147,6 @@ void HTTPContext::parseCookie(std::string value) {
         cookyValue.erase(cookyValue.find_last_not_of(" \t") + 1);
         cookyValue.erase(0, cookyValue.find_first_not_of(" \t"));
         
-        std::cout << "Cookie: " << cookyName << " = " << cookyValue << std::endl;
         requestCookies[cookyName] = cookyValue;
     }
 }
@@ -174,10 +172,10 @@ void HTTPContext::addRequestHeader(std::string& line) {
             if (key == "cookie") {
                 parseCookie(token.substr(strBegin, strRange));
             } else {
-                requestHeader[key] = token.substr(strBegin, strRange);
+                requestHeader.insert({key, token.substr(strBegin, strRange)});
 
                 if (key == "content-length") {
-                    bodyLength = std::stoi(requestHeader[key]);
+                    bodyLength = std::stoi((*(requestHeader.find(key))).second);
                     bodyData = new char[bodyLength];
                 }
             }
@@ -194,9 +192,9 @@ void HTTPContext::sendJunk(const char* puffer, int size) {
 
 void HTTPContext::send(const char* puffer, int size) {
     if (responseHeader.find("Content-Type") == responseHeader.end()) {
-        responseHeader["Content-Type"] = "application/octet-stream";
+        responseHeader.insert({"Content-Type", "application/octet-stream"});
     }
-    responseHeader["Content-Length"] = size;
+    responseHeader.insert({"Content-Length", std::to_string(size)});
     this->sendHeader();
     connectedSocket->send(puffer, size);
     this->end();
@@ -205,9 +203,9 @@ void HTTPContext::send(const char* puffer, int size) {
 
 void HTTPContext::send(const std::string& puffer) {
     if (responseHeader.find("Content-Type") == responseHeader.end()) {
-        responseHeader["Content-Type"] = "text/html; charset=utf-8";
+        responseHeader.insert({"Content-Type", "text/html; charset=utf-8"});
     }
-    responseHeader["Content-Length"] = puffer.size();
+    responseHeader.insert({"Content-Length", std::to_string(puffer.size())});
     this->sendHeader();
     connectedSocket->send(puffer);
     this->end();
@@ -227,15 +225,15 @@ void HTTPContext::sendFile(const std::string& url) {
 
     if (std::filesystem::exists(absolutFileName)) {
         if (responseHeader.find("Content-Type") == responseHeader.end()) {
-            responseHeader["Content-Type"] = MimeTypes::contentType(absolutFileName);
+            responseHeader.insert({"Content-Type", MimeTypes::contentType(absolutFileName)});
         }
-        responseHeader["Content-Length"] = std::to_string(std::filesystem::file_size(absolutFileName));
+        responseHeader.insert({"Content-Length", std::to_string(std::filesystem::file_size(absolutFileName))});
         this->sendHeader();
         connectedSocket->sendFile(absolutFileName);
         this->end();
     } else {
         this->responseStatus = 404;
-        this->responseHeader["Connection"] = "close";
+        this->responseHeader.insert({"Connection", "close"});
         connectedSocket->end();
         this->end();
     }
@@ -246,10 +244,16 @@ void HTTPContext::sendHeader() {
     if (!this->headerSent) {
         connectedSocket->send("HTTP/1.1 " + std::to_string( responseStatus ) + " " + HTTPStatusCode::reason( responseStatus )+ "\r\n");
 
-        for (std::map<std::string, std::string>::iterator it = responseHeader.begin(); it != responseHeader.end(); ++it) {
-            connectedSocket->send((*it).first + ": " + (*it).second + "\r\n");
+        for (std::multimap<std::string, std::string>::iterator it = responseHeader.begin(); it != responseHeader.end(); ++it) {
+            connectedSocket->send(it->first + ": " + it->second + "\r\n");
         }
+        
+        for (std::multimap<std::string, std::string>::iterator it = responseCookies.begin(); it != responseCookies.end(); ++it) {
+            connectedSocket->send("Set-Cookie: " + it->first + "=" + it->second + "\r\n");
+        }
+        
         connectedSocket->send("\r\n");
+        
         this->headerSent = true;
     }
 }
@@ -265,8 +269,7 @@ void HTTPContext::reset() {
     this->responseHeader.clear();
     this->responseStatus = 200;
     this->state = REQUEST;
-    
-    if (this->requestHeader["connection"] == "close") {
+    if (requestHeader.find("connection")->second == "close") {
         connectedSocket->end();
     }
     

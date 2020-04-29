@@ -73,8 +73,8 @@ protected:
     std::string fragment;
     
     std::map<std::string, std::string> queryMap;
-    std::map<std::string, std::string> requestHeader;
-    std::map<std::string, std::string> responseHeader;
+    std::multimap<std::string, std::string> requestHeader;
+    std::multimap<std::string, std::string> responseHeader;
     std::map<std::string, std::string> requestCookies;
     std::map<std::string, std::string> responseCookies;
     

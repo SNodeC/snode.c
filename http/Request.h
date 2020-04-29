@@ -12,8 +12,8 @@ public:
     Request(HTTPContext* httpContext) : httpContext(httpContext) {
     }
     
-    std::map<std::string, std::string>& header() const;
-    std::string& header(const std::string& key) const;
+    std::multimap<std::string, std::string>& header() const;
+    const std::string& header(const std::string& key, int i = 0) const;
     std::string& cookie(const std::string& key) const;
     
     bool isPost() const;
@@ -30,6 +30,8 @@ public:
     
 private:
     HTTPContext* httpContext;
+    
+    std::string nullstr = "";
 };
 
 #endif // REQUEST_H

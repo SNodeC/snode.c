@@ -18,14 +18,19 @@ void Response::status(int status) {
 
 
 void Response::set(const std::string& field, const std::string& value) const {
-    this->httpContext->responseHeader[field] = value;
+    this->httpContext->responseHeader.insert({field, value});
 }
 
-
+/*
 void Response::append(const std::string& field, const std::string& value) const {
     this->httpContext->responseHeader[field] = httpContext->responseHeader[field] + ", " + value;
 }
+*/
 
+
+void Response::cookie(const std::string& name, const std::string& value) const {
+    this->httpContext->responseCookies.insert({name, value});
+}
 
 void Response::send(const std::string& text) const {
     this->httpContext->send(text);
