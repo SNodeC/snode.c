@@ -5,7 +5,7 @@
 #include "Writer.h"
 
 
-class SocketWriteManager : public SocketManager<Writer>
+class WriteManager : public SocketManager<Writer>
 {
 public:
     int process(fd_set& fdSet, int count);

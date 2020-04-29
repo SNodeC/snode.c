@@ -34,16 +34,18 @@ public:
     struct timeval& timeout();
     
     void dispatch();
-    void update();
+    virtual void update();
     void cancel();
     void destroy();
     
     operator struct timeval() const;
     
-private:
-    std::function<void (const void* arg)> processor;
+protected:
     struct timeval absoluteTimeout;
     struct timeval delay;
+    
+private:
+    std::function<void (const void* arg)> processor;
     const void* arg;
 };
 

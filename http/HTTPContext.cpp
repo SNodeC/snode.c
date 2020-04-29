@@ -18,7 +18,7 @@ HTTPContext::HTTPContext(HTTPServer* serverSocket, ConnectedSocket* connectedSoc
 void HTTPContext::parseHttpRequest(std::string line) {
 //    std::cout << line << std::endl;
     if (state != BODY) {
-        readLine(line, [&] (std::string line) -> void {
+        readLine(line, [&] (std::string& line) -> void {
             switch (state) {
             case REQUEST:
                 if (!line.empty()) {
@@ -67,7 +67,7 @@ void HTTPContext::parseHttpRequest(std::string line) {
 }
 
 
-void HTTPContext::readLine(std::string readPuffer, std::function<void (std::string)> lineRead) {
+void HTTPContext::readLine(std::string readPuffer, std::function<void (std::string&)> lineRead) {
     for(int i = 0; i < readPuffer.size() && state != ERROR; i++) {
         char& ch = readPuffer[i];
 
@@ -197,7 +197,6 @@ void HTTPContext::send(const char* puffer, int size) {
     responseHeader.insert({"Content-Length", std::to_string(size)});
     this->sendHeader();
     connectedSocket->send(puffer, size);
-//    this->end();
 }
 
 
@@ -208,7 +207,6 @@ void HTTPContext::send(const std::string& puffer) {
     responseHeader.insert({"Content-Length", std::to_string(puffer.size())});
     this->sendHeader();
     connectedSocket->send(puffer);
-//    this->end();
 }
 
 
@@ -230,13 +228,11 @@ void HTTPContext::sendFile(const std::string& url) {
         responseHeader.insert({"Content-Length", std::to_string(std::filesystem::file_size(absolutFileName))});
         this->sendHeader();
         connectedSocket->sendFile(absolutFileName);
-//        this->end();
     } else {
         this->responseStatus = 404;
         this->responseHeader.insert({"Connection", "close"});
         this->sendHeader();
         connectedSocket->end();
-//        this->end();
     }
 }
 

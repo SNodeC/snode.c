@@ -2,7 +2,7 @@
 
 #include "ServerSocket.h"
 #include "ConnectedSocket.h"
-#include "SocketMultiplexer.h"
+#include "Multiplexer.h"
 
 
 ServerSocket::ServerSocket(std::function<void (ConnectedSocket* cs)> onConnect,
@@ -10,7 +10,7 @@ ServerSocket::ServerSocket(std::function<void (ConnectedSocket* cs)> onConnect,
                            std::function<void (ConnectedSocket* cs, std::string line)> readProcessor) 
 : SocketReader(), onConnect(onConnect), onDisconnect(onDisconnect), readProcessor(readProcessor) {
     this->open();
-    SocketMultiplexer::instance().getReadManager().manageSocket(this);
+    Multiplexer::instance().getReadManager().manageSocket(this);
 }
 
 
@@ -28,11 +28,11 @@ ServerSocket::ServerSocket(uint16_t port,
 }
 
 
-ServerSocket& ServerSocket::instance(uint16_t port,
+ServerSocket* ServerSocket::instance(uint16_t port,
                                      std::function<void (ConnectedSocket* cs)> onConnect,
                                      std::function<void (ConnectedSocket* cs)> onDisconnect,
                                      std::function<void (ConnectedSocket* cs, std::string line)> readProcessor) {
-    return *new ServerSocket(port, onConnect, onDisconnect, readProcessor);
+    return new ServerSocket(port, onConnect, onDisconnect, readProcessor);
 }
 
 
@@ -50,7 +50,7 @@ void ServerSocket::readEvent() {
             ConnectedSocket* cs = new ConnectedSocket(csFd, this, this->readProcessor);
             cs->setRemoteAddress(remoteAddress);
             cs->setLocalAddress(localAddress);
-            SocketMultiplexer::instance().getReadManager().manageSocket(cs);
+            Multiplexer::instance().getReadManager().manageSocket(cs);
             onConnect(cs);
         } else {
             shutdown(csFd, SHUT_RDWR);
@@ -63,9 +63,3 @@ void ServerSocket::readEvent() {
 void ServerSocket::disconnect(ConnectedSocket* cs) {
     onDisconnect(cs);
 }
-
-
-void ServerSocket::run() {
-    SocketMultiplexer::run();
-}
-

@@ -1,4 +1,4 @@
-#include "SocketMultiplexer.h"
+#include "Multiplexer.h"
 #include "SingleshotTimer.h"
 #include "ContinousTimer.h"
 
@@ -14,7 +14,7 @@ Timer::Timer(std::function<void (const void* arg)> processor, const struct timev
 SingleshotTimer& Timer::singleshotTimer(std::function<void (const void* arg)> processor, const struct timeval& timeout, const void* arg) {
     SingleshotTimer* st = new SingleshotTimer(processor, timeout, arg);
     
-    SocketMultiplexer::instance().getTimerManager().add(st);
+    Multiplexer::instance().getTimerManager().add(st);
     
     return *st;
 }
@@ -22,14 +22,14 @@ SingleshotTimer& Timer::singleshotTimer(std::function<void (const void* arg)> pr
 ContinousTimer& Timer::continousTimer(std::function<void (const void* arg)> processor, const struct timeval& timeout, const void* arg) {
     ContinousTimer* ct = new ContinousTimer(processor, timeout, arg);
     
-    SocketMultiplexer::instance().getTimerManager().add(ct);
+    Multiplexer::instance().getTimerManager().add(ct);
     
     return *ct;
 }
 
 
 void Timer::cancel() {
-    SocketMultiplexer::instance().getTimerManager().remove(this);
+    Multiplexer::instance().getTimerManager().remove(this);
 }
 
 

@@ -2,7 +2,7 @@
 #include <string.h>
 
 #include "ConnectedSocket.h"
-#include "SocketMultiplexer.h"
+#include "Multiplexer.h"
 #include "ServerSocket.h"
 #include "FileReader.h"
 
@@ -31,13 +31,13 @@ void ConnectedSocket::setRemoteAddress(const InetAddress& remoteAddress) {
 
 void ConnectedSocket::send(const char* puffer, int size) {
     writePuffer.append(puffer, size);
-    SocketMultiplexer::instance().getWriteManager().manageSocket(this);
+    Multiplexer::instance().getWriteManager().manageSocket(this);
 }
 
 
 void ConnectedSocket::send(const std::string& junk) {
     writePuffer += junk;
-    SocketMultiplexer::instance().getWriteManager().manageSocket(this);
+    Multiplexer::instance().getWriteManager().manageSocket(this);
 }
 
 
@@ -56,5 +56,5 @@ void ConnectedSocket::sendFile(const std::string& file) {
 
 
 void ConnectedSocket::end() {
-    SocketMultiplexer::instance().getReadManager().unmanageSocket(this);
+    Multiplexer::instance().getReadManager().unmanageSocket(this);
 }

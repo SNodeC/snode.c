@@ -3,31 +3,59 @@
 #include "ConnectedSocket.h"
 #include "HTTPContext.h"
 #include "ServerSocket.h"
+#include "Multiplexer.h"
+
+#include <iostream>
+
+HTTPServer::HTTPServer() : rootDir(".") {}
 
 
-HTTPServer::HTTPServer(int port)
-: rootDir("."), serverSocket(
-    ServerSocket::instance(port,
-        [this] (ConnectedSocket* connectedSocket) -> void {
-            connectedSocket->setContext(new HTTPContext(this, connectedSocket));
-        },
-        [] (ConnectedSocket* connectedSocket) -> void {
-            delete static_cast<HTTPContext*>(connectedSocket->getContext());
-        },
-        [] (ConnectedSocket* connectedSocket, std::string line) -> void {
-            static_cast<HTTPContext*>(connectedSocket->getContext())->parseHttpRequest(line);
-        }
-    )
-) {}
-
-
-HTTPServer::~HTTPServer() {
-    delete &serverSocket;
+HTTPServer& HTTPServer::instance() {
+    return *new HTTPServer();
 }
 
 
-HTTPServer& HTTPServer::instance(int port) {
-    return *new HTTPServer(port);
+HTTPServer::~HTTPServer() {
+    std::cout << "Done" << std::endl;
+}
+
+
+void HTTPServer::listen(int port) {
+    ServerSocket::instance(port,
+                            [this] (ConnectedSocket* connectedSocket) -> void {
+                                connectedSocket->setContext(new HTTPContext(this, connectedSocket));
+                               
+                            },
+                            [] (ConnectedSocket* connectedSocket) -> void {
+                                delete static_cast<HTTPContext*>(connectedSocket->getContext());
+                            },
+                            [] (ConnectedSocket* connectedSocket, std::string line) -> void {
+                                static_cast<HTTPContext*>(connectedSocket->getContext())->parseHttpRequest(line);
+                            }
+                        );
+
+    Multiplexer::run();
+}
+
+
+void HTTPServer::listen(int port, const std::function<void (int err)>& callback) {
+    errno = 0;
+    
+    ServerSocket::instance(port,
+                            [this] (ConnectedSocket* connectedSocket) -> void {
+                                connectedSocket->setContext(new HTTPContext(this, connectedSocket));
+                            },
+                            [] (ConnectedSocket* connectedSocket) -> void {
+                                delete static_cast<HTTPContext*>(connectedSocket->getContext());
+                            },
+                            [] (ConnectedSocket* connectedSocket, std::string line) -> void {
+                                static_cast<HTTPContext*>(connectedSocket->getContext())->parseHttpRequest(line);
+                            }
+                        );
+    
+    callback(errno);
+
+    Multiplexer::run();
 }
 
 

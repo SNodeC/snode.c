@@ -1,7 +1,7 @@
-#include "SocketReadManager.h"
+#include "ReadManager.h"
 
 
-int SocketReadManager::process(fd_set& fdSet, int count) {
+int ReadManager::process(fd_set& fdSet, int count) {
     for (std::list<Reader*>::iterator it = descriptors.begin(); it != descriptors.end() && count > 0; ++it) {
         if (FD_ISSET(dynamic_cast<Descriptor*>(*it)->getFd(), &fdSet)) {
             count--;

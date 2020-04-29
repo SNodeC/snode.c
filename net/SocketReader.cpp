@@ -5,7 +5,7 @@
 #include <sys/socket.h>
 
 #include "SocketReader.h"
-#include "SocketMultiplexer.h"
+#include "Multiplexer.h"
 
 #include "ConnectedSocket.h"
 
@@ -21,10 +21,10 @@ void SocketReader::readEvent() {
         readProcessor(dynamic_cast<ConnectedSocket*>(this), line);
     } else if (ret == 0) {
         std::cout << "EOF: " << dynamic_cast<Descriptor*>(this)->getFd() << std::endl;
-        SocketMultiplexer::instance().getReadManager().unmanageSocket(this);
+        Multiplexer::instance().getReadManager().unmanageSocket(this);
     } else {
         std::cout << "Read: " << strerror(errno) << std::endl;
-        SocketMultiplexer::instance().getReadManager().unmanageSocket(this);
+        Multiplexer::instance().getReadManager().unmanageSocket(this);
     }
 }
 

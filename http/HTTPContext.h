@@ -27,7 +27,7 @@ protected:
     void reset();
     
     void parseHttpRequest(std::string line);
-    void readLine(std::string readPuffer, std::function<void (std::string)> lineRead);
+    void readLine(std::string readPuffer, std::function<void (std::string&)> lineRead);
     
     void parseRequestLine(std::string line);
     void parseCookie(std::string value);
@@ -54,7 +54,6 @@ protected:
     int bodyPointer;
     std::string line;
     
-//    bool headerSent;
     int responseStatus;
     
     enum linestate {

@@ -2,12 +2,13 @@
 
 #include <iostream>
 
-#include "SocketMultiplexer.h"
+#include "Multiplexer.h"
 
 
-SocketMultiplexer SocketMultiplexer::socketMultiplexer;
+Multiplexer Multiplexer::socketMultiplexer;
+bool Multiplexer::running = false;
 
-void SocketMultiplexer::tick() {
+void Multiplexer::tick() {
     fd_set exceptfds = exceptionManager.getFdSet();
     fd_set writefds = writeManager.getFdSet();
     fd_set readfds = readManager.getFdSet();
@@ -37,9 +38,24 @@ void SocketMultiplexer::tick() {
 }
 
 
-void SocketMultiplexer::run()
+void Multiplexer::run()
 {
-    while(1) {
-        SocketMultiplexer::instance().tick();
+    if (!Multiplexer::running) {
+        Multiplexer::running = true;
+        
+        while (Multiplexer::running){
+            Multiplexer::instance().tick();
+        };
+        
+        socketMultiplexer.readManager.clear();
+        socketMultiplexer.writeManager.clear();
+        socketMultiplexer.exceptionManager.clear();
     }
 }
+
+
+void Multiplexer::stop()
+{
+    Multiplexer::running = false;
+}
+

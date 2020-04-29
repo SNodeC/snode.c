@@ -5,7 +5,7 @@
 #include <iostream>
 
 #include "SocketWriter.h"
-#include "SocketMultiplexer.h"
+#include "Multiplexer.h"
 
 
 void SocketWriter::writeEvent() {
@@ -14,10 +14,10 @@ void SocketWriter::writeEvent() {
     if (ret >= 0) {
         writePuffer.erase(0, ret);
         if (writePuffer.empty()) {
-            SocketMultiplexer::instance().getWriteManager().unmanageSocket(this);
+            Multiplexer::instance().getWriteManager().unmanageSocket(this);
         }
     } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
         std::cout << "Write: " << strerror(errno) << std::endl;
-        SocketMultiplexer::instance().getWriteManager().unmanageSocket(this);
+        Multiplexer::instance().getWriteManager().unmanageSocket(this);
     }
 }
