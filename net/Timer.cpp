@@ -13,6 +13,8 @@ SingleshotTimer& Timer::singleshotTimer(std::function<void (void* arg)> processo
     SingleshotTimer* st = new SingleshotTimer(processor, timeout, arg);
     
     SocketMultiplexer::instance().getTimerManager().add(st);
+    
+    return *st;
 }
 
 
@@ -20,6 +22,13 @@ ContinousTimer& Timer::continousTimer(std::function<void (void* arg)> processor,
     ContinousTimer* ct = new ContinousTimer(processor, timeout, arg);
     
     SocketMultiplexer::instance().getTimerManager().add(ct);
+    
+    return *ct;
+}
+
+
+void Timer::cancel(Timer* timer) {
+    SocketMultiplexer::instance().getTimerManager().remove(timer);
 }
 
 

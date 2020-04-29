@@ -15,6 +15,9 @@
 #include "Request.h"
 #include "Response.h"
 
+#include "ContinousTimer.h"
+#include "SingleshotTimer.h"
+
 
 int main(int argc, char **argv) {
     signal(SIGPIPE, SIG_IGN);
@@ -53,6 +56,28 @@ int main(int argc, char **argv) {
             res.send(document);
         }
     });
+    
+    Timer& timer1 = Timer::continousTimer(
+        
+        [] (void* arg) -> void {
+            std::cout << "Tick: " << (char*) arg << std::endl;
+        },
+        
+        (struct timeval) {1, 0},
+                                         
+        (void *) "Test 1"
+    );
+    
+    Timer& timer2 = Timer::singleshotTimer(
+        [&timer1] (void* arg) -> void {
+            std::cout << "Tack: " << (char*) arg << std::endl;
+            Timer::cancel(&timer1);
+        },
+        
+        (struct timeval) {1, 500000},
+                                         
+        (void *) "Test 2"
+    );
     
     SocketMultiplexer& sm = SocketMultiplexer::instance();
 

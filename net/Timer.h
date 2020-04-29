@@ -21,6 +21,7 @@ public:
     
     void dispatch();
     void update();
+    static void cancel(Timer* timer);
     
     static SingleshotTimer& singleshotTimer(std::function<void (void* arg)> processor, const struct timeval& timeout, void* arg);
     static ContinousTimer& continousTimer(std::function<void (void* arg)> processor, const struct timeval& timeout, void* arg);
