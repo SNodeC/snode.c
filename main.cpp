@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
             
             std::cout << "RHeader: " << req.header("Content-Length") << std::endl;
             
-//            res.cookie("Test", "me");
+            res.cookie("Test", "me");
             
 //            res.set("Connection", "close");
             res.sendFile(uri);
