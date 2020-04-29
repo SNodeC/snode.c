@@ -5,7 +5,7 @@
 #include "Multiplexer.h"
 
 
-Multiplexer Multiplexer::socketMultiplexer;
+Multiplexer Multiplexer::multiplexer;
 bool Multiplexer::running = false;
 
 void Multiplexer::tick() {
@@ -47,9 +47,9 @@ void Multiplexer::run()
             Multiplexer::instance().tick();
         };
         
-        socketMultiplexer.readManager.clear();
-        socketMultiplexer.writeManager.clear();
-        socketMultiplexer.exceptionManager.clear();
+        multiplexer.readManager.clear();
+        multiplexer.writeManager.clear();
+        multiplexer.exceptionManager.clear();
     }
 }
 

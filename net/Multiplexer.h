@@ -17,7 +17,7 @@ private:
     
 public:
     static Multiplexer& instance() {
-        return socketMultiplexer;
+        return multiplexer;
     }
     
     ReadManager& getReadManager() {
@@ -43,7 +43,7 @@ public:
 private:
     void tick();
     
-    static Multiplexer socketMultiplexer;
+    static Multiplexer multiplexer;
     
     ReadManager readManager;
     WriteManager writeManager;

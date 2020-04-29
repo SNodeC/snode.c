@@ -1,10 +1,10 @@
 #ifndef SOCKETEXCEPTIONMANAGER_H
 #define SOCKETEXCEPTIONMANAGER_H
 
-#include "SocketManager.h"
+#include "Manager.h"
 #include "Exception.h"
 
-class ExceptionManager : public SocketManager<Exception> 
+class ExceptionManager : public Manager<Exception> 
 {
 public:
     int process(fd_set& fdSet, int count);

@@ -1,11 +1,11 @@
 #ifndef SOCKETREADMANAGER_H
 #define SOCKETREADMANAGER_H
 
-#include "SocketManager.h"
+#include "Manager.h"
 #include "Reader.h"
 
 
-class ReadManager : public SocketManager<Reader>
+class ReadManager : public Manager<Reader>
 {
 public:
     int process(fd_set& fdSet, int count);
