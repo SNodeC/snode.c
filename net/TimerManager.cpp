@@ -3,6 +3,8 @@
 #include <sys/time.h>
 
 #include "Timer.h"
+#include "SingleshotTimer.h"
+#include "ContinousTimer.h"
 
 TimerManager::TimerManager() : timerListDirty(false) {}
 
@@ -66,7 +68,7 @@ void TimerManager::process() {
     
     for(std::list<Timer*>::iterator it = timerList.begin(); it != timerList.end(); ++it) {
         if ((*it)->absolutTimeout() <= currentTime) {
-            (*it)->distpatch(); // real worker method
+            (*it)->dispatch(); // real worker method
             if (dynamic_cast<SingleshotTimer*>(*it)) {
                 remove(*it);
             } else if (dynamic_cast<ContinousTimer*>(*it)) {
