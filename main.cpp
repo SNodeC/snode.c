@@ -7,6 +7,7 @@
 #include "SingleshotTimer.h"
 #include "ContinousTimer.h"
 #include "HTTPServer.h"
+#include "Multiplexer.h"
 
 
 int main(int argc, char **argv) {
@@ -25,7 +26,7 @@ int main(int argc, char **argv) {
         (struct timeval) {1, 100000}, "Tack");
         
     bool canceled = false;
-    HTTPServer& app = HTTPServer::instance(8080);
+    HTTPServer& app = HTTPServer::instance();
     
     app.serverRoot("/home/voc/projects/ServerVoc/doc/html");
     
@@ -51,11 +52,18 @@ int main(int argc, char **argv) {
                 tack.cancel();
                 canceled = true;
             }
+//            SocketMultiplexer::stop();
         }
     );
 
-    ServerSocket::run();
+    app.listen(8080, 
+        [] (int err) -> void {
+            std::cout << "Listen: " << err << std::endl;
+        }
+    );
 
+    app.destroy();
+    
     return 0;
 }
 

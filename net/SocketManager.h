@@ -64,6 +64,13 @@ public:
         return maxFd;
     }
     
+    
+    void clear() {
+        addedDescriptors.clear();
+        removedDescriptors = descriptors;
+        getFdSet();
+    }
+    
 
 protected:
     int updateMaxFd() {

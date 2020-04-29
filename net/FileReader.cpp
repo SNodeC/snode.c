@@ -5,7 +5,7 @@
 #include <errno.h>
 
 #include "FileReader.h"
-#include "SocketMultiplexer.h"
+#include "Multiplexer.h"
 
 #include <iostream>
 
@@ -19,7 +19,7 @@ void FileReader::read(std::string path, std::function<void (char* data, int len)
         FileReader* reader = new FileReader(fd);
         reader->junkRead = junkRead;
         reader->error = error;
-        SocketMultiplexer::instance().getReadManager().manageSocket(reader);
+        Multiplexer::instance().getReadManager().manageSocket(reader);
     } else {
         error(errno);
     }
@@ -34,9 +34,9 @@ void FileReader::readEvent() {
     if (ret > 0) {
         this->junkRead(puffer, ret);
     } else  if (ret == 0) {
-        SocketMultiplexer::instance().getReadManager().unmanageSocket(this);
+        Multiplexer::instance().getReadManager().unmanageSocket(this);
     } else {
         this->error(errno);
-        SocketMultiplexer::instance().getReadManager().unmanageSocket(this);
+        Multiplexer::instance().getReadManager().unmanageSocket(this);
     }
 }

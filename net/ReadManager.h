@@ -5,7 +5,7 @@
 #include "Reader.h"
 
 
-class SocketReadManager : public SocketManager<Reader>
+class ReadManager : public SocketManager<Reader>
 {
 public:
     int process(fd_set& fdSet, int count);

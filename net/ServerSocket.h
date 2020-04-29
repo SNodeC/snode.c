@@ -22,7 +22,7 @@ private:
                  std::function<void (ConnectedSocket* cs, std::string line)> readProcesor);
 
 public:
-    static ServerSocket& instance(uint16_t port, 
+    static ServerSocket* instance(uint16_t port, 
                                   std::function<void (ConnectedSocket* cs)> onConnect,
                                   std::function<void (ConnectedSocket* cs)> onDisconnect,
                                   std::function<void (ConnectedSocket* cs, std::string line)> readProcesor);

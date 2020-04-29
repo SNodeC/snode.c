@@ -12,12 +12,15 @@ class ConnectedSocket;
 class HTTPServer
 {
 private:
-    HTTPServer(int port);
+    HTTPServer();
 
 public:
     ~HTTPServer();
     
-    static HTTPServer& instance(int port);
+    static HTTPServer& instance();
+    
+    void listen(int port);
+    void listen(int port, const std::function<void (int err)>& callback);
     
     void destroy();
     
@@ -56,7 +59,7 @@ protected:
     std::string rootDir;
     
 private:
-    ServerSocket& serverSocket;
+//    ServerSocket* serverSocket;
 };
 
 #endif // HTTPSERVER_H
