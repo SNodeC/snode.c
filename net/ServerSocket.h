@@ -14,18 +14,18 @@ class ServerSocket : public SocketReader {
 private:
     ServerSocket(std::function<void (ConnectedSocket* cs)> onConnect,
                  std::function<void (ConnectedSocket* cs)> onDisconnect,
-                 std::function<void (ConnectedSocket* cs, std::string line)> readProcesor);
+                 std::function<void (ConnectedSocket* cs, const char*  junk, ssize_t n)> readProcesor);
     
     ServerSocket(uint16_t port, 
                  std::function<void (ConnectedSocket* cs)> onConnect,
                  std::function<void (ConnectedSocket* cs)> onDisconnect,
-                 std::function<void (ConnectedSocket* cs, std::string line)> readProcesor);
+                 std::function<void (ConnectedSocket* cs, const char*  junk, ssize_t n)> readProcesor);
 
 public:
     static ServerSocket* instance(uint16_t port, 
                                   std::function<void (ConnectedSocket* cs)> onConnect,
                                   std::function<void (ConnectedSocket* cs)> onDisconnect,
-                                  std::function<void (ConnectedSocket* cs, std::string line)> readProcesor);
+                                  std::function<void (ConnectedSocket* cs, const char*  junk, ssize_t n)> readProcesor);
     
     int listen(int backlog) {
         return ::listen(this->getFd(), backlog);
@@ -40,7 +40,7 @@ public:
 private:
     std::function<void (ConnectedSocket* cs)> onConnect;
     std::function<void (ConnectedSocket* cs)> onDisconnect;
-    std::function<void (ConnectedSocket* cs, std::string line)> readProcessor;
+    std::function<void (ConnectedSocket* cs, const char*  junk, ssize_t n)> readProcessor;
 };
 
 #endif // SERVERSOCKET_H

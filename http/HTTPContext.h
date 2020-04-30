@@ -26,15 +26,15 @@ public:
 protected:
     void reset();
     
-    void parseHttpRequest(std::string line);
-    void readLine(std::string readPuffer, std::function<void (std::string&)> lineRead);
+    void parseHttpRequest(const char* junk, ssize_t n);
+    void readLine(const char* junk, ssize_t, std::function<void (std::string&)> lineRead);
     
-    void parseRequestLine(std::string line);
-    void parseCookie(std::string value);
+    void parseRequestLine(const std::string& line);
+    void parseCookie(const std::string& value);
     
     void requestReady();
     
-    void addRequestHeader(std::string& line);  
+    void addRequestHeader(const std::string& line);  
     void sendHeader();
     
     ConnectedSocket* connectedSocket;

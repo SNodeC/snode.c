@@ -7,7 +7,7 @@
 
 ServerSocket::ServerSocket(std::function<void (ConnectedSocket* cs)> onConnect,
                            std::function<void (ConnectedSocket* cs)> onDisconnect,
-                           std::function<void (ConnectedSocket* cs, std::string line)> readProcessor) 
+                           std::function<void (ConnectedSocket* cs, const char*  junk, ssize_t n)> readProcessor) 
 : SocketReader(), onConnect(onConnect), onDisconnect(onDisconnect), readProcessor(readProcessor) {
     this->open();
     Multiplexer::instance().getReadManager().manageSocket(this);
@@ -17,7 +17,7 @@ ServerSocket::ServerSocket(std::function<void (ConnectedSocket* cs)> onConnect,
 ServerSocket::ServerSocket(uint16_t port, 
                            std::function<void (ConnectedSocket* cs)> onConnect,
                            std::function<void (ConnectedSocket* cs)> onDisconnect,
-                           std::function<void (ConnectedSocket* cs, std::string line)> readProcessor) 
+                           std::function<void (ConnectedSocket* cs, const char*  junk, ssize_t n)> readProcessor) 
 : ServerSocket(onConnect, onDisconnect, readProcessor) {
     int sockopt = 1;
     setsockopt(this->getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt));
@@ -31,7 +31,7 @@ ServerSocket::ServerSocket(uint16_t port,
 ServerSocket* ServerSocket::instance(uint16_t port,
                                      std::function<void (ConnectedSocket* cs)> onConnect,
                                      std::function<void (ConnectedSocket* cs)> onDisconnect,
-                                     std::function<void (ConnectedSocket* cs, std::string line)> readProcessor) {
+                                     std::function<void (ConnectedSocket* cs, const char*  junk, ssize_t n)> readProcessor) {
     return new ServerSocket(port, onConnect, onDisconnect, readProcessor);
 }
 

@@ -24,13 +24,12 @@ void HTTPServer::listen(int port) {
     ServerSocket::instance(port,
                             [this] (ConnectedSocket* connectedSocket) -> void {
                                 connectedSocket->setContext(new HTTPContext(this, connectedSocket));
-                               
                             },
                             [] (ConnectedSocket* connectedSocket) -> void {
                                 delete static_cast<HTTPContext*>(connectedSocket->getContext());
                             },
-                            [] (ConnectedSocket* connectedSocket, std::string line) -> void {
-                                static_cast<HTTPContext*>(connectedSocket->getContext())->parseHttpRequest(line);
+                            [] (ConnectedSocket* connectedSocket, const char*  junk, ssize_t n) -> void {
+                                static_cast<HTTPContext*>(connectedSocket->getContext())->parseHttpRequest(junk, n);
                             }
                         );
 
@@ -48,8 +47,8 @@ void HTTPServer::listen(int port, const std::function<void (int err)>& callback)
                             [] (ConnectedSocket* connectedSocket) -> void {
                                 delete static_cast<HTTPContext*>(connectedSocket->getContext());
                             },
-                            [] (ConnectedSocket* connectedSocket, std::string line) -> void {
-                                static_cast<HTTPContext*>(connectedSocket->getContext())->parseHttpRequest(line);
+                            [] (ConnectedSocket* connectedSocket, const char*  junk, ssize_t n) -> void {
+                                static_cast<HTTPContext*>(connectedSocket->getContext())->parseHttpRequest(junk, n);
                             }
                         );
     
