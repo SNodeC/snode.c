@@ -38,7 +38,12 @@ void Response::send(const std::string& text) const {
 
 
 void Response::sendFile(const std::string& file) const {
-    this->httpContext->sendFile(file);
+    this->httpContext->sendFile(file, 0);
+}
+
+
+void Response::sendFile(const std::string& file, const std::function<void (int err)>& fn) const {
+    this->httpContext->sendFile(file, fn);
 }
 
 

@@ -5,13 +5,13 @@
 #include "Timer.h"
 
 
-Timer::Timer(std::function<void (const void* arg)> processor, const struct timeval& timeout, const void* arg) : processor(processor), arg(arg), delay(timeout) {
+Timer::Timer(const std::function<void (const void* arg)>& processor, const struct timeval& timeout, const void* arg) : processor(processor), arg(arg), delay(timeout) {
     gettimeofday(&absoluteTimeout, NULL);
     update();
 }
 
 
-SingleshotTimer& Timer::singleshotTimer(std::function<void (const void* arg)> processor, const struct timeval& timeout, const void* arg) {
+SingleshotTimer& Timer::singleshotTimer(const std::function<void (const void* arg)>& processor, const struct timeval& timeout, const void* arg) {
     SingleshotTimer* st = new SingleshotTimer(processor, timeout, arg);
     
     Multiplexer::instance().getTimerManager().add(st);
@@ -19,7 +19,7 @@ SingleshotTimer& Timer::singleshotTimer(std::function<void (const void* arg)> pr
     return *st;
 }
 
-ContinousTimer& Timer::continousTimer(std::function<void (const void* arg)> processor, const struct timeval& timeout, const void* arg) {
+ContinousTimer& Timer::continousTimer(const std::function<void (const void* arg)>& processor, const struct timeval& timeout, const void* arg) {
     ContinousTimer* ct = new ContinousTimer(processor, timeout, arg);
     
     Multiplexer::instance().getTimerManager().add(ct);

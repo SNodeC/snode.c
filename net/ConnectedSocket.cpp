@@ -14,6 +14,7 @@ ConnectedSocket::ConnectedSocket(int csFd,
 : SocketReader(csFd, readProcessor), SocketWriter(csFd), serverSocket(serverSocket) {
 }
 
+
 ConnectedSocket::~ConnectedSocket() {
     serverSocket->disconnect(this);
 }
@@ -41,17 +42,21 @@ void ConnectedSocket::send(const std::string& junk) {
 }
 
 
-void ConnectedSocket::sendFile(const std::string& file) {
+void ConnectedSocket::sendFile(const std::string& file, const std::function<void (int ret)>& fn) {
     FileReader::read(file,
-                     [this] (char* data, int length) -> void {
-                         if (length > 0) {
-                             this->ConnectedSocket::send(data, length);
-                         }
-                     },
-                     [this] (int err) -> void {
-                         std::cout << "Error: " << strerror(err) << std::endl;
-                         this->end();
-                     });
+                    [this] (char* data, int length) -> void {
+                        if (length > 0) {
+                            this->ConnectedSocket::send(data, length);
+                        }
+                    },
+                    [this, fn] (int err) -> void {
+                        if (fn) {
+                            fn(err);
+                        }
+                        if (err) {
+                            this->end();
+                        }
+                    });
 }
 
 

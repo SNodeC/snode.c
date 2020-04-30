@@ -7,21 +7,18 @@
 #include "FileReader.h"
 #include "Multiplexer.h"
 
-#include <iostream>
 
-FileReader::FileReader(int fd) : Reader(fd) {}
+FileReader::FileReader(int fd, const std::function<void (char* data, int len)>& junkRead, const std::function<void (int err)>& fn) : Reader(fd), junkRead(junkRead), fn(fn) {}
 
 
-void FileReader::read(std::string path, std::function<void (char* data, int len)> junkRead, std::function<void (int err)> error) {
+void FileReader::read(std::string path, const std::function<void (char* data, int len)>& junkRead, const std::function<void (int err)>& fn) {
     int fd = open(path.c_str(), O_RDONLY);
     
     if (fd >= 0) {
-        FileReader* reader = new FileReader(fd);
-        reader->junkRead = junkRead;
-        reader->error = error;
+        FileReader* reader = new FileReader(fd, junkRead, fn);
         Multiplexer::instance().getReadManager().manageSocket(reader);
     } else {
-        error(errno);
+        fn(errno);
     }
 }
 
@@ -34,9 +31,10 @@ void FileReader::readEvent() {
     if (ret > 0) {
         this->junkRead(puffer, ret);
     } else  if (ret == 0) {
+        this->fn(0);
         Multiplexer::instance().getReadManager().unmanageSocket(this);
     } else {
-        this->error(errno);
+        this->fn(errno);
         Multiplexer::instance().getReadManager().unmanageSocket(this);
     }
 }

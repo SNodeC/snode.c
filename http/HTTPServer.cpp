@@ -21,8 +21,7 @@ HTTPServer::~HTTPServer() {
 
 
 void HTTPServer::listen(int port) {
-    ServerSocket::instance(port,
-                            [this] (ConnectedSocket* connectedSocket) -> void {
+    ServerSocket::instance([this] (ConnectedSocket* connectedSocket) -> void {
                                 connectedSocket->setContext(new HTTPContext(this, connectedSocket));
                             },
                             [] (ConnectedSocket* connectedSocket) -> void {
@@ -31,7 +30,7 @@ void HTTPServer::listen(int port) {
                             [] (ConnectedSocket* connectedSocket, const char*  junk, ssize_t n) -> void {
                                 static_cast<HTTPContext*>(connectedSocket->getContext())->parseHttpRequest(junk, n);
                             }
-                        );
+                        ).listen(port, 5, 0);
 
     Multiplexer::run();
 }
@@ -40,8 +39,7 @@ void HTTPServer::listen(int port) {
 void HTTPServer::listen(int port, const std::function<void (int err)>& callback) {
     errno = 0;
     
-    ServerSocket::instance(port,
-                            [this] (ConnectedSocket* connectedSocket) -> void {
+    ServerSocket::instance([this] (ConnectedSocket* connectedSocket) -> void {
                                 connectedSocket->setContext(new HTTPContext(this, connectedSocket));
                             },
                             [] (ConnectedSocket* connectedSocket) -> void {
@@ -50,7 +48,7 @@ void HTTPServer::listen(int port, const std::function<void (int err)>& callback)
                             [] (ConnectedSocket* connectedSocket, const char*  junk, ssize_t n) -> void {
                                 static_cast<HTTPContext*>(connectedSocket->getContext())->parseHttpRequest(junk, n);
                             }
-                        );
+                        ).listen(port, 5, callback);
     
     callback(errno);
 

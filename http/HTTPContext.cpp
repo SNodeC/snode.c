@@ -66,7 +66,7 @@ void HTTPContext::parseHttpRequest(const char* junk, ssize_t n) {
 }
 
 
-void HTTPContext::readLine(const char* junk, ssize_t n, std::function<void (std::string&)> lineRead) {
+void HTTPContext::readLine(const char* junk, ssize_t n, const std::function<void (std::string&)>& lineRead) {
     for(int i = 0; i < n && state != ERROR; i++) {
         const char& ch = junk[i];
 
@@ -209,7 +209,7 @@ void HTTPContext::send(const std::string& puffer) {
 }
 
 
-void HTTPContext::sendFile(const std::string& url) {
+void HTTPContext::sendFile(const std::string& url, const std::function<void (int ret)>& fn) {
 
     int strEnd = url.find_first_of("?");
     
@@ -226,12 +226,13 @@ void HTTPContext::sendFile(const std::string& url) {
         }
         responseHeader.insert({"Content-Length", std::to_string(std::filesystem::file_size(absolutFileName))});
         this->sendHeader();
-        connectedSocket->sendFile(absolutFileName);
+        connectedSocket->sendFile(absolutFileName, fn);
     } else {
         this->responseStatus = 404;
         this->responseHeader.insert({"Connection", "close"});
         this->sendHeader();
         connectedSocket->end();
+        fn(ENOENT);
     }
 }
 

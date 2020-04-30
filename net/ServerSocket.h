@@ -1,6 +1,8 @@
 #ifndef SERVERSOCKET_H
 #define SERVERSOCKET_H
 
+#include <netinet/in.h>
+
 #include <functional>
 
 #include "SocketReader.h"
@@ -12,24 +14,16 @@ class ConnectedSocket;
 
 class ServerSocket : public SocketReader {
 private:
-    ServerSocket(std::function<void (ConnectedSocket* cs)> onConnect,
-                 std::function<void (ConnectedSocket* cs)> onDisconnect,
-                 std::function<void (ConnectedSocket* cs, const char*  junk, ssize_t n)> readProcesor);
-    
-    ServerSocket(uint16_t port, 
-                 std::function<void (ConnectedSocket* cs)> onConnect,
-                 std::function<void (ConnectedSocket* cs)> onDisconnect,
-                 std::function<void (ConnectedSocket* cs, const char*  junk, ssize_t n)> readProcesor);
+    ServerSocket(const std::function<void (ConnectedSocket* cs)>& onConnect,
+                 const std::function<void (ConnectedSocket* cs)>& onDisconnect,
+                 const std::function<void (ConnectedSocket* cs, const char*  junk, ssize_t n)>& readProcesor);
 
 public:
-    static ServerSocket* instance(uint16_t port, 
-                                  std::function<void (ConnectedSocket* cs)> onConnect,
-                                  std::function<void (ConnectedSocket* cs)> onDisconnect,
-                                  std::function<void (ConnectedSocket* cs, const char*  junk, ssize_t n)> readProcesor);
+    static ServerSocket& instance(const std::function<void (ConnectedSocket* cs)>& onConnect,
+                                  const std::function<void (ConnectedSocket* cs)>& onDisconnect,
+                                  const std::function<void (ConnectedSocket* cs, const char*  junk, ssize_t n)>& readProcesor);
     
-    int listen(int backlog) {
-        return ::listen(this->getFd(), backlog);
-    }
+    void listen(in_port_t port, int backlog, const std::function<void (int err)>& callback);
     
     virtual void readEvent();
     
@@ -41,6 +35,7 @@ private:
     std::function<void (ConnectedSocket* cs)> onConnect;
     std::function<void (ConnectedSocket* cs)> onDisconnect;
     std::function<void (ConnectedSocket* cs, const char*  junk, ssize_t n)> readProcessor;
+    std::function<void (int err)> callback;
 };
 
 #endif // SERVERSOCKET_H
