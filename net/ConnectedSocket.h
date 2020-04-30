@@ -31,7 +31,7 @@ public:
     
     virtual void send(const char* puffer, int size);
     virtual void send(const std::string& junk);
-    virtual void sendFile(const std::string& file);
+    virtual void sendFile(const std::string& file, const std::function<void (int ret)>& fn);
     void end();
     
     InetAddress& getRemoteAddress();

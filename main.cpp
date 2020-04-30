@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include <iostream>
 #include <signal.h>
 
@@ -28,7 +30,7 @@ int main(int argc, char **argv) {
     bool canceled = false;
     HTTPServer& app = HTTPServer::instance();
     
-    app.serverRoot("/home/voc/projects/ServerVoc/doc/html");
+    app.serverRoot("/home/voc/projects/ServerVoc/build/html");
     
     app.get(
         [&] (const Request& req, const Response& res) -> void {
@@ -37,16 +39,21 @@ int main(int argc, char **argv) {
             if (uri == "/") {
                 uri = "/index.html";
             }
-            
+/*            
             std::cout << "RCookie: " << req.cookie("doxygen_width") << std::endl;
             std::cout << "RCookie: " << req.cookie("Test") << std::endl;
             
             std::cout << "RHeader: " << req.header("Content-Length") << std::endl;
-            
+*/
             res.cookie("Test", "me");
             
 //            res.set("Connection", "close");
-            res.sendFile(uri);
+            res.sendFile(uri, [uri] (int ret) -> void {
+                if (ret != 0) {
+                    perror(uri.c_str());
+//                    std::cout << "Error: " << ret << ", " << uri << std::endl;
+                }
+            });
             
             if (!canceled) {
                 tack.cancel();
@@ -58,7 +65,9 @@ int main(int argc, char **argv) {
 
     app.listen(8080, 
         [] (int err) -> void {
-            std::cout << "Listen: " << err << std::endl;
+            if (err != 0) {
+                perror("Listen");
+            }
         }
     );
 

@@ -12,11 +12,9 @@ class ContinousTimer;
 
 class Timer {
 protected:
-    Timer(std::function<void (const void* arg)> processor, const struct timeval& timeout, const void* arg);
-
-    Timer() {}
+    Timer(const std::function<void (const void* arg)>& processor, const struct timeval& timeout, const void* arg);
     
-    Timer(const Timer& timer) {
+    Timer(const Timer& timer) : processor(0) {
         *this = timer;
     }
     
@@ -27,8 +25,8 @@ protected:
     }
     
 public:
-    static ContinousTimer& continousTimer(std::function<void (const void* arg)> processor, const struct timeval& timeout, const void* arg);
-    static SingleshotTimer& singleshotTimer(std::function<void (const void* arg)> processor, const struct timeval& timeout, const void* arg);
+    static ContinousTimer& continousTimer(const std::function<void (const void* arg)>& processor, const struct timeval& timeout, const void* arg);
+    static SingleshotTimer& singleshotTimer(const std::function<void (const void* arg)>& processor, const struct timeval& timeout, const void* arg);
     
     struct timeval& timeout();
     

@@ -11,9 +11,14 @@ Socket::~Socket() {
     ::shutdown(this->getFd(), SHUT_RDWR);
 }
 
-void Socket::open() {
+int Socket::open() {
     int fd = ::socket(AF_INET, SOCK_STREAM, 0);
-    this->setFd(fd);
+    
+    if (fd >= 0) {
+        this->setFd(fd);
+    }
+    
+    return fd;
 }
 
 InetAddress& Socket::getLocalAddress() {

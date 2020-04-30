@@ -22,18 +22,18 @@ public:
     fd_set& getFdSet() {
         for (typename std::list<T*>::iterator it = addedDescriptors.begin(); it != addedDescriptors.end(); ++it) {
             if (std::find(descriptors.begin(), descriptors.end(), *it) == descriptors.end()) {
-                FD_SET(dynamic_cast<Descriptor*>(*it)->getFd(), &fdSet);
+                FD_SET((*it)->getFd(), &fdSet);
                 descriptors.push_back(*it);
-                dynamic_cast<ManagedDescriptor*>(*it)->incManaged();
+                (*it)->incManaged();
             }
         }
         addedDescriptors.clear();
 
         for (typename std::list<T*>::iterator it = removedDescriptors.begin(); it != removedDescriptors.end(); ++it) {
             if (std::find(descriptors.begin(), descriptors.end(), *it) != descriptors.end()) {
-                FD_CLR(dynamic_cast<Descriptor*>(*it)->getFd(), &fdSet);
+                FD_CLR((*it)->getFd(), &fdSet);
                 descriptors.remove(*it);
-                dynamic_cast<ManagedDescriptor*>(*it)->decManaged();
+                (*it)->decManaged();
             }
         }
         removedDescriptors.clear();
@@ -77,8 +77,8 @@ protected:
         maxFd = 0;
         
         for (typename std::list<T*>::iterator it = descriptors.begin(); it != descriptors.end(); ++it) {
-            if (dynamic_cast<Descriptor*>(*it)->getFd() > maxFd) {
-                maxFd = dynamic_cast<Descriptor*>(*it)->getFd();
+            if ((*it)->getFd() > maxFd) {
+                maxFd = (*it)->getFd();
             }
         }
         

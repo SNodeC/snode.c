@@ -1,6 +1,7 @@
 #ifndef RESPONSE_H
 #define RESPONSE_H
 
+#include <functional>
 #include <string>
 
 
@@ -18,6 +19,7 @@ public:
     void send(const char* puffer, int n) const;
     
     void sendFile(const std::string& file) const;
+    void sendFile(const std::string& file, const std::function<void (int err)>& fn) const;
     
     void end() const;
     
