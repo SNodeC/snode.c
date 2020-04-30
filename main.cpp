@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
                 tack.cancel();
                 canceled = true;
             }
-            Multiplexer::stop();
+//            Multiplexer::stop();
         }
     );
 

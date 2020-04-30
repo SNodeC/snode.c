@@ -15,10 +15,9 @@ HTTPContext::HTTPContext(HTTPServer* serverSocket, ConnectedSocket* connectedSoc
 : connectedSocket(connectedSocket), serverSocket(serverSocket), bodyData(0), bodyLength(0), state(states::REQUEST), bodyPointer(0), line(""), responseStatus(200), linestate(READ) {}
 
 
-void HTTPContext::parseHttpRequest(std::string line) {
-//    std::cout << line << std::endl;
+void HTTPContext::parseHttpRequest(const char* junk, ssize_t n) {
     if (state != BODY) {
-        readLine(line, [&] (std::string& line) -> void {
+        readLine(junk, n, [&] (const std::string& line) -> void {
             switch (state) {
             case REQUEST:
                 if (!line.empty()) {
@@ -67,9 +66,9 @@ void HTTPContext::parseHttpRequest(std::string line) {
 }
 
 
-void HTTPContext::readLine(std::string readPuffer, std::function<void (std::string&)> lineRead) {
-    for(int i = 0; i < readPuffer.size() && state != ERROR; i++) {
-        char& ch = readPuffer[i];
+void HTTPContext::readLine(const char* junk, ssize_t n, std::function<void (std::string&)> lineRead) {
+    for(int i = 0; i < n && state != ERROR; i++) {
+        const char& ch = junk[i];
 
         if (ch != '\r') { // '\r' can be ignored completely
             switch(linestate) {
@@ -104,7 +103,7 @@ void HTTPContext::readLine(std::string readPuffer, std::function<void (std::stri
 }
 
 
-void HTTPContext::parseRequestLine(std::string line) {
+void HTTPContext::parseRequestLine(const std::string& line) {
     std::istringstream requestLineStream(line);
     
     std::getline(requestLineStream, method, ' ');
@@ -133,7 +132,7 @@ void HTTPContext::requestReady() {
 }
 
 
-void HTTPContext::parseCookie(std::string value) {
+void HTTPContext::parseCookie(const std::string& value) {
     std::istringstream cookyStream(value);
     
     for (std::string cooky; std::getline(cookyStream, cooky, ';'); ) {
@@ -152,7 +151,7 @@ void HTTPContext::parseCookie(std::string value) {
 }
 
 
-void HTTPContext::addRequestHeader(std::string& line) {
+void HTTPContext::addRequestHeader(const std::string& line) {
     if (!line.empty()) {
 
         std::string key;

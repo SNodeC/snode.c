@@ -9,7 +9,7 @@
 
 ConnectedSocket::ConnectedSocket(int csFd, 
                                  ServerSocket* serverSocket, 
-                                 std::function<void (ConnectedSocket* cs, std::string line)> readProcessor
+                                 std::function<void (ConnectedSocket* cs, const char* junk, ssize_t n)> readProcessor
                                 ) 
 : SocketReader(csFd, readProcessor), SocketWriter(csFd), serverSocket(serverSocket) {
 }
