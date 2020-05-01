@@ -44,15 +44,17 @@ void HTTPServer::listen(int port, const std::function<void (int err)>& callback)
                             [] (ConnectedSocket* connectedSocket, const char*  junk, ssize_t n) -> void {
                                 static_cast<HTTPContext*>(connectedSocket->getContext())->parseHttpRequest(junk, n);
                             }
-                        ).listen(port, 5, callback);
-    
-    callback(errno);
-
-    ServerSocket::run();
+                        ).listen(port, 5, [&] (int err) -> void {
+                            callback(err);
+                            if (!err) {
+                                ServerSocket::run();
+                            }
+                        });
 }
 
 
 void HTTPServer::destroy() {
+    ServerSocket::stop();
     delete this;
 }
 

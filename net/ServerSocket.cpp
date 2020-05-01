@@ -87,3 +87,7 @@ void ServerSocket::run() {
     Multiplexer::run();
 }
 
+
+void ServerSocket::stop() {
+    Multiplexer::stop();
+}

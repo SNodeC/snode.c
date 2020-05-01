@@ -31,6 +31,8 @@ public:
     
     static void run();
     
+    static void stop();
+    
 private:
     std::function<void (ConnectedSocket* cs)> onConnect;
     std::function<void (ConnectedSocket* cs)> onDisconnect;
