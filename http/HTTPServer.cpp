@@ -3,9 +3,7 @@
 #include "ConnectedSocket.h"
 #include "HTTPContext.h"
 #include "ServerSocket.h"
-#include "Multiplexer.h"
 
-#include <iostream>
 
 HTTPServer::HTTPServer() : rootDir(".") {}
 
@@ -15,9 +13,7 @@ HTTPServer& HTTPServer::instance() {
 }
 
 
-HTTPServer::~HTTPServer() {
-    std::cout << "Done" << std::endl;
-}
+HTTPServer::~HTTPServer() {}
 
 
 void HTTPServer::listen(int port) {
@@ -32,7 +28,7 @@ void HTTPServer::listen(int port) {
                             }
                         ).listen(port, 5, 0);
 
-    Multiplexer::run();
+    ServerSocket::run();
 }
 
 
@@ -52,7 +48,7 @@ void HTTPServer::listen(int port, const std::function<void (int err)>& callback)
     
     callback(errno);
 
-    Multiplexer::run();
+    ServerSocket::run();
 }
 
 

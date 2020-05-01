@@ -81,3 +81,9 @@ void ServerSocket::readEvent() {
 void ServerSocket::disconnect(ConnectedSocket* cs) {
     onDisconnect(cs);
 }
+
+
+void ServerSocket::run() {
+    Multiplexer::run();
+}
+

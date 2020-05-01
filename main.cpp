@@ -39,12 +39,15 @@ int main(int argc, char **argv) {
             if (uri == "/") {
                 uri = "/index.html";
             }
-/*            
+            
             std::cout << "RCookie: " << req.cookie("doxygen_width") << std::endl;
             std::cout << "RCookie: " << req.cookie("Test") << std::endl;
             
-            std::cout << "RHeader: " << req.header("Content-Length") << std::endl;
-*/
+//            std::cout << "RHeader: " << req.header("Content-Length") << std::endl;
+            std::cout << "RHeader: " << req.header("Accept") << std::endl;
+
+            std::cout << "RQuery: " << req.query("Hallo") << std::endl;
+            
             res.cookie("Test", "me");
             
 //            res.set("Connection", "close");
