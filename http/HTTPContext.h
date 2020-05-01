@@ -48,7 +48,7 @@ protected:
         HEADER,
         BODY,
         ERROR
-    } state;
+    } requestState;
     
     
     int bodyPointer;
