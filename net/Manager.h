@@ -16,30 +16,13 @@ protected:
         FD_ZERO(&fdSet);
     }
 
+    
     virtual ~Manager() = default;
 
 public:
     fd_set& getFdSet() {
-        for (typename std::list<T*>::iterator it = addedDescriptors.begin(); it != addedDescriptors.end(); ++it) {
-            if (std::find(descriptors.begin(), descriptors.end(), *it) == descriptors.end()) {
-                FD_SET((*it)->getFd(), &fdSet);
-                descriptors.push_back(*it);
-                (*it)->incManaged();
-            }
-        }
-        addedDescriptors.clear();
-
-        for (typename std::list<T*>::iterator it = removedDescriptors.begin(); it != removedDescriptors.end(); ++it) {
-            if (std::find(descriptors.begin(), descriptors.end(), *it) != descriptors.end()) {
-                FD_CLR((*it)->getFd(), &fdSet);
-                descriptors.remove(*it);
-                (*it)->decManaged();
-            }
-        }
-        removedDescriptors.clear();
-
-        updateMaxFd();
-
+        updateFdSet();
+        
         return fdSet;
     }
     
@@ -64,15 +47,19 @@ public:
         return maxFd;
     }
     
-    
+
     void clear() {
         addedDescriptors.clear();
         removedDescriptors = descriptors;
-        getFdSet();
+        updateFdSet();
     }
     
 
 protected:
+    std::list<T*> descriptors;
+
+    
+private:
     int updateMaxFd() {
         maxFd = 0;
         
@@ -84,11 +71,35 @@ protected:
         
         return maxFd;
     }
+    
+    void updateFdSet() {
+        if (!addedDescriptors.empty() || !removedDescriptors.empty()) {
+            for (typename std::list<T*>::iterator it = addedDescriptors.begin(); it != addedDescriptors.end(); ++it) {
+                if (std::find(descriptors.begin(), descriptors.end(), *it) == descriptors.end()) {
+                    FD_SET((*it)->getFd(), &fdSet);
+                    descriptors.push_back(*it);
+                    (*it)->incManaged();
+                }
+            }
+            addedDescriptors.clear();
+        
+            for (typename std::list<T*>::iterator it = removedDescriptors.begin(); it != removedDescriptors.end(); ++it) {
+                if (std::find(descriptors.begin(), descriptors.end(), *it) != descriptors.end()) {
+                    FD_CLR((*it)->getFd(), &fdSet);
+                    descriptors.remove(*it);
+                    (*it)->decManaged();
+                }
+            }
+            removedDescriptors.clear();
+        
+            updateMaxFd();
+        }
+    }
+    
 
     fd_set fdSet;
     int maxFd;
     
-    std::list<T*> descriptors;
     std::list<T*> addedDescriptors;
     std::list<T*> removedDescriptors;
 };
