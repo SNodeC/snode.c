@@ -49,11 +49,8 @@ void ServerSocket::readEvent() {
     socklen_t addrlen = sizeof(remoteAddress);
     
     int csFd = -1;
-    
-    do {
-        errno = 0;
-        csFd = ::accept(this->getFd(), (struct sockaddr*) &remoteAddress, &addrlen);
-    } while (csFd < 0 && errno == EINTR);
+
+    csFd = ::accept(this->getFd(), (struct sockaddr*) &remoteAddress, &addrlen);
     
     if (csFd >= 0) {
         struct sockaddr_in localAddress;
@@ -72,7 +69,7 @@ void ServerSocket::readEvent() {
             close(csFd);
             callback(errno);
         }
-    } else {
+    } else if (errno != EINTR) {
         callback(errno);
     }
 }

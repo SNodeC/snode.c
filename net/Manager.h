@@ -54,6 +54,7 @@ public:
         updateFdSet();
     }
     
+    virtual int process(fd_set& fdSet, int count) = 0;
 
 protected:
     std::list<T*> descriptors;

@@ -8,7 +8,7 @@
 class WriteManager : public Manager<Writer>
 {
 public:
-    int process(fd_set& fdSet, int count);
+    virtual int process(fd_set& fdSet, int count);
 };
 
 #endif // SOCKETWRITEMANAGER_H

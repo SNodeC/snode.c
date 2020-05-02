@@ -17,7 +17,7 @@ public:
 protected:
     SocketReader() : Socket(), Reader(0), readProcessor(0) {}
     
-    SocketReader(int fd, const std::function<void (ConnectedSocket* cs, const char* junk, ssize_t n)>& rp) : Socket(), Reader(fd), readProcessor(rp) {}
+    SocketReader(int fd, const std::function<void (ConnectedSocket* cs, const char* junk, ssize_t n)>& readProcessor) : Socket(), Reader(fd), readProcessor(readProcessor) {}
     
     std::function<void (ConnectedSocket* cs, const char* junk, ssize_t n)> readProcessor;
 };

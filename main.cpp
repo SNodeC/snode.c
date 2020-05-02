@@ -1,16 +1,14 @@
-#include <stdio.h>
-
 #include <iostream>
-#include <signal.h>
 
-#include "ServerSocket.h"
+#include <time.h>
+
 #include "Request.h"
 #include "Response.h"
 #include "SingleshotTimer.h"
 #include "ContinousTimer.h"
 #include "HTTPServer.h"
-#include "Multiplexer.h"
 
+#include "httputils.h"
 
 int main(int argc, char **argv) {
     Timer& tick = Timer::continousTimer(
@@ -45,6 +43,8 @@ int main(int argc, char **argv) {
             
 //            std::cout << "RHeader: " << req.header("Content-Length") << std::endl;
             std::cout << "RHeader: " << req.header("Accept") << std::endl;
+            
+            std::cout << "If-Modified: " << req.header("If-Modified-Since") << std::endl;
 
             std::cout << "RQuery: " << req.query("Hallo") << std::endl;
             
@@ -61,11 +61,12 @@ int main(int argc, char **argv) {
             if (!canceled) {
                 tack.cancel();
                 canceled = true;
+//                app.destroy();
             }
 //            Multiplexer::stop();
         }
     );
-
+    
     app.listen(8080, 
         [] (int err) -> void {
             if (err != 0) {

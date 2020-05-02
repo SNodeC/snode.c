@@ -200,6 +200,7 @@ void HTTPContext::sendFile(const std::string& url, const std::function<void (int
     std::string absolutFileName = serverSocket->getRootDir() + url;
 
     if (std::filesystem::exists(absolutFileName)) {
+        responseHeader.insert({"Last-Modified", httputils::file_mod_http_date(absolutFileName)});
         if (responseHeader.find("Content-Type") == responseHeader.end()) {
             responseHeader.insert({"Content-Type", MimeTypes::contentType(absolutFileName)});
         }
@@ -217,11 +218,14 @@ void HTTPContext::sendFile(const std::string& url, const std::function<void (int
 
 void HTTPContext::sendHeader() {
     connectedSocket->send("HTTP/1.1 " + std::to_string( responseStatus ) + " " + HTTPStatusCode::reason( responseStatus ) +  "\r\n");
-
+    
+    connectedSocket->send("Date: " + httputils::to_http_date() + "\r\n");
+    
     for (std::multimap<std::string, std::string>::iterator it = responseHeader.begin(); it != responseHeader.end(); ++it) {
         connectedSocket->send(it->first + ": " + it->second + "\r\n");
     }
-        
+    
+    
     for (std::multimap<std::string, std::string>::iterator it = responseCookies.begin(); it != responseCookies.end(); ++it) {
         connectedSocket->send("Set-Cookie: " + it->first + "=" + it->second + "\r\n");
     }
