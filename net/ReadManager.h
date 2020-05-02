@@ -8,7 +8,7 @@
 class ReadManager : public Manager<Reader>
 {
 public:
-    int process(fd_set& fdSet, int count);
+    virtual int process(fd_set& fdSet, int count);
 };
 
 #endif // SOCKETREADMANAGER_H

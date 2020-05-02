@@ -16,7 +16,7 @@ class ConnectedSocket : public SocketReader, public SocketWriter
 public:
     ConnectedSocket(int csFd, 
                     ServerSocket* ss, 
-                    std::function<void (ConnectedSocket* cs, const char*  junk, ssize_t n)> readProcessor
+                    const std::function<void (ConnectedSocket* cs, const char*  junk, ssize_t n)>& readProcessor
                    );
     
     virtual ~ConnectedSocket();

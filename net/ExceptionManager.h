@@ -7,7 +7,7 @@
 class ExceptionManager : public Manager<Exception> 
 {
 public:
-    int process(fd_set& fdSet, int count);
+    virtual int process(fd_set& fdSet, int count);
 };
 
 #endif // SOCKETEXCEPTIONMANAGER_H
