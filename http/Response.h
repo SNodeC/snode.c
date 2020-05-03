@@ -9,7 +9,9 @@ class HTTPContext;
 
 class Response {
 public:
-    Response(HTTPContext* httpContext);
+    Response(HTTPContext* httpContext) : httpContext(httpContext) {
+    }
+    
     ~Response();
     
     void status(int status);

@@ -3,10 +3,6 @@
 #include "HTTPStatusCodes.h"
 
 
-Response::Response(HTTPContext* httpContext) : httpContext(httpContext) {
-}
-
-
 Response::~Response() {
     this->httpContext->reset();
 }
