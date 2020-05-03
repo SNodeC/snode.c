@@ -14,7 +14,7 @@ int main(int argc, char **argv) {
     Timer& tick = Timer::continousTimer(
         [] (const void* arg) -> void {
             static int i = 0;
-            std::cout << (const char*) arg << " " << i++ << std::endl;
+            std::cout << (const char*) arg << " "<< i++ << std::endl;
         }, 
         (struct timeval) {0, 500000}, "Tick");
     

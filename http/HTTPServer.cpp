@@ -40,7 +40,7 @@ void HTTPServer::listen(int port) {
 }
 
 
-void HTTPServer::listen(int port, const std::function<void (int err)>& callback) {
+void HTTPServer::listen(int port, const std::function<void (int err)>& onError) {
     errno = 0;
     
     ServerSocket::instance([this] (ConnectedSocket* connectedSocket) -> void {
@@ -53,13 +53,17 @@ void HTTPServer::listen(int port, const std::function<void (int err)>& callback)
                                 static_cast<HTTPContext*>(connectedSocket->getContext())->parseHttpRequest(junk, n);
                             },
                             [] (int errnum) -> void {
-                                perror("ConnectedSocket");
+                                if (errnum) {
+                                    perror("ConnectedSocket");
+                                }
                             },
                             [] (int errnum) -> void {
-                                perror("ConnectedSocket");
+                                if (errnum) {
+                                    perror("ConnectedSocket");
+                                }
                             }
                         ).listen(port, 5, [&] (int err) -> void {
-                            callback(err);
+                            onError(err);
                             if (!err) {
                                 ServerSocket::run();
                             }
