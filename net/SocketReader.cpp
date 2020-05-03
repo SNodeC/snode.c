@@ -1,6 +1,4 @@
-#include <iostream>
-
-#include <string.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 
@@ -19,10 +17,10 @@ void SocketReader::readEvent() {
     if (ret > 0) {
         readProcessor(dynamic_cast<ConnectedSocket*>(this), junk, ret);
     } else if (ret == 0) {
-        std::cout << "EOF: " << this->getFd() << std::endl;
+        onError(0);
         Multiplexer::instance().getReadManager().unmanageSocket(this);
     } else {
-        std::cout << "Read: " << strerror(errno) << std::endl;
+        onError(errno);
         Multiplexer::instance().getReadManager().unmanageSocket(this);
     }
 }

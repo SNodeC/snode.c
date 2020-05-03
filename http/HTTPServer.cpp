@@ -4,6 +4,8 @@
 #include "HTTPContext.h"
 #include "ServerSocket.h"
 
+#include <stdio.h>
+
 
 HTTPServer::HTTPServer() : rootDir(".") {}
 
@@ -25,6 +27,12 @@ void HTTPServer::listen(int port) {
                             },
                             [] (ConnectedSocket* connectedSocket, const char*  junk, ssize_t n) -> void {
                                 static_cast<HTTPContext*>(connectedSocket->getContext())->parseHttpRequest(junk, n);
+                            },
+                            [] (int errnum) -> void {
+                                perror("ConnectedSocket");
+                            },
+                            [] (int errnum) -> void {
+                                perror("ConnectedSocket");
                             }
                         ).listen(port, 5, 0);
 
@@ -43,6 +51,12 @@ void HTTPServer::listen(int port, const std::function<void (int err)>& callback)
                             },
                             [] (ConnectedSocket* connectedSocket, const char*  junk, ssize_t n) -> void {
                                 static_cast<HTTPContext*>(connectedSocket->getContext())->parseHttpRequest(junk, n);
+                            },
+                            [] (int errnum) -> void {
+                                perror("ConnectedSocket");
+                            },
+                            [] (int errnum) -> void {
+                                perror("ConnectedSocket");
                             }
                         ).listen(port, 5, [&] (int err) -> void {
                             callback(err);

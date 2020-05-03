@@ -7,40 +7,51 @@
 
 ServerSocket::ServerSocket(const std::function<void (ConnectedSocket* cs)>& onConnect,
                            const std::function<void (ConnectedSocket* cs)>& onDisconnect,
-                           const std::function<void (ConnectedSocket* cs, const char*  junk, ssize_t n)>& readProcessor) 
-: SocketReader(), onConnect(onConnect), onDisconnect(onDisconnect), readProcessor(readProcessor) 
+                           const std::function<void (ConnectedSocket* cs, const char*  junk, ssize_t n)>& readProcessor,
+                           const std::function<void (int errnum)>& onCsReadError,
+                           const std::function<void (int errnum)>& onCsWriteError)
+: SocketReader(), onConnect(onConnect), onDisconnect(onDisconnect), readProcessor(readProcessor), onCsReadError(onCsReadError), onCsWriteError(onCsWriteError)
 {}
 
 
 ServerSocket& ServerSocket::instance(const std::function<void (ConnectedSocket* cs)>& onConnect,
                                      const std::function<void (ConnectedSocket* cs)>& onDisconnect,
-                                     const std::function<void (ConnectedSocket* cs, const char*  junk, ssize_t n)>& readProcessor) 
+                                     const std::function<void (ConnectedSocket* cs, const char*  junk, ssize_t n)>& readProcessor,
+                                     const std::function<void (int errnum)>& onCsReadError,
+                                     const std::function<void (int errnum)>& onCsWriteError) 
 {
-    return *new ServerSocket(onConnect, onDisconnect, readProcessor);
+    return *new ServerSocket(onConnect, onDisconnect, readProcessor, onCsReadError, onCsWriteError);
 }
 
 
-void ServerSocket::listen(in_port_t port, int backlog, const std::function<void (int err)>& callback) {
-    this->callback = callback;
-    if (this->open() < 0) {
-        if (callback) callback(errno);
-    } else {
-        int sockopt = 1;
+void ServerSocket::listen(in_port_t port, int backlog, const std::function<void (int err)>& onError) {
+    this->SocketReader::setOnError(onError);
     
-        if (setsockopt(this->getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
-            if (callback) callback(errno);
+    this->open([this, &port, &backlog, &onError] (int errnum) -> void {
+        if (errnum > 0) {
+            onError(errnum);
         } else {
-            localAddress = InetAddress(port);
-            this->bind(localAddress);
-    
-            if (::listen(this->getFd(), backlog) < 0) {
-                if (callback) callback(errno);
+            int sockopt = 1;
+            
+            if (setsockopt(this->getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
+                onError(errno);
             } else {
-                Multiplexer::instance().getReadManager().manageSocket(this);
-                if (callback) callback(0);
+                localAddress = InetAddress(port);
+                this->bind(localAddress, [this, &backlog, &onError] (int errnum) -> void {
+                    if (errnum > 0) {
+                        onError(errnum);
+                    } else {
+                        if (::listen(this->getFd(), backlog) < 0) {
+                            onError(errno);
+                        } else {
+                            Multiplexer::instance().getReadManager().manageSocket(this);
+                            onError(0);
+                        }
+                    }
+                });
             }
         }
-    }
+    });
 }
 
 
@@ -57,7 +68,7 @@ void ServerSocket::readEvent() {
         socklen_t addressLength = sizeof(localAddress);
         
         if (getsockname(csFd, (struct sockaddr*) &localAddress, &addressLength) == 0) {
-            ConnectedSocket* cs = new ConnectedSocket(csFd, this, this->readProcessor);
+            ConnectedSocket* cs = new ConnectedSocket(csFd, this, this->readProcessor, onCsReadError, onCsWriteError);
             
             cs->setRemoteAddress(remoteAddress);
             cs->setLocalAddress(localAddress);
@@ -67,10 +78,10 @@ void ServerSocket::readEvent() {
         } else {
             shutdown(csFd, SHUT_RDWR);
             close(csFd);
-            callback(errno);
+            onError(errno);
         }
     } else if (errno != EINTR) {
-        callback(errno);
+        onError(errno);
     }
 }
     

@@ -206,9 +206,7 @@ magic_t MimeTypes::init() {
     
 
 std::string MimeTypes::contentType(std::string file) {
-    std::filesystem::path(file).extension();
-    
-    std::map<std::string,	std::string>::iterator it = mimeTypes.find(std::filesystem::path(file).extension());
+    std::map<std::string, std::string>::iterator it = mimeTypes.find(std::filesystem::path(file).extension());
     
     std::string mimeType;
     

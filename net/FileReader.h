@@ -11,16 +11,17 @@
 class FileReader : public Reader
 {
 protected:
-    FileReader(int fd, const std::function<void (char* data, int len)>& junkRead, const std::function<void (int err)>& fn);
+    FileReader(int fd, const std::function<void (char* data, int len)>& junkRead, const std::function<void (int err)>& onError);
     
 public:
-    static void read(std::string path, const std::function<void (char* data, int len)>& junkRead, const std::function<void (int err)>& fn);
+    static FileReader* read(std::string path, const std::function<void (char* data, int len)>& junkRead, const std::function<void (int err)>& onError);
+    
+    void stop();
     
     virtual void readEvent();
     
 protected:
     std::function<void (char* data, int len)> junkRead;
-    std::function<void (int err)> fn;
     
 };
 
