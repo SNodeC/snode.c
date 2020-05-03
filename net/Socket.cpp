@@ -1,8 +1,9 @@
 #include <sys/socket.h>
 
+#include <errno.h>
+
 #include "Socket.h"
 #include "Descriptor.h"
-
 
 Socket::Socket() {}
 
@@ -11,14 +12,17 @@ Socket::~Socket() {
     ::shutdown(this->getFd(), SHUT_RDWR);
 }
 
-int Socket::open() {
+void Socket::open(const std::function<void (int errnum)>& onError) {
     int fd = ::socket(AF_INET, SOCK_STREAM, 0);
     
     if (fd >= 0) {
         this->setFd(fd);
+        onError(0);
+    } else {
+        onError(errno);
     }
     
-    return fd;
+//    return fd;
 }
 
 InetAddress& Socket::getLocalAddress() {
@@ -26,10 +30,18 @@ InetAddress& Socket::getLocalAddress() {
 }
 
 
-int Socket::bind(InetAddress& localAddress) {
+void Socket::bind(InetAddress& localAddress, const std::function<void (int errnum)>& onError) {
+    int ret = 0;
+    
     socklen_t addrlen = sizeof(struct sockaddr_in);
     
-    return ::bind(this->getFd(), (struct sockaddr*) &localAddress.getSockAddr(), addrlen);
+    ret = ::bind(this->getFd(), (struct sockaddr*) &localAddress.getSockAddr(), addrlen);
+    
+    if (ret < 0) {
+        onError(errno);
+    } else {
+        onError(0);
+    }
 }
 
 

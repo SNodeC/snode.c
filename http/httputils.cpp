@@ -7,7 +7,6 @@
 
 #include <sstream>
 
-#include <iostream>
 
 namespace httputils {
 
@@ -70,7 +69,6 @@ std::string to_http_date(struct tm* tm) {
         tm = gmtime(&now);
     }
     
-    std::cout << "Zone: " << tm->tm_zone << std::endl;
     strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", tm);
     
     return std::string(buf);

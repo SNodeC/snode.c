@@ -1,6 +1,7 @@
 #ifndef READER_H
 #define READER_H
 
+#include <functional>
 #include <string>
 
 #include "ManagedDescriptor.h"
@@ -11,9 +12,15 @@ public:
     virtual void readEvent() = 0;
     
 protected:
-    Reader(int fd) : ManagedDescriptor(fd) {}
+    Reader(int fd, const std::function<void (int errnum)>& onError) : ManagedDescriptor(fd), onError(onError) {}
+    
+    void setOnError(const std::function<void (int errnum)>& onError) {
+        this->onError = onError;
+    }
     
     virtual ~Reader() = default;
+    
+    std::function<void (int errnum)> onError;
 };
 
 
