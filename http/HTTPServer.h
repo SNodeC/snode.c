@@ -20,7 +20,7 @@ public:
     static HTTPServer& instance();
     
     void listen(int port);
-    void listen(int port, const std::function<void (int err)>& callback);
+    void listen(int port, const std::function<void (int err)>& onError);
     
     void destroy();
     

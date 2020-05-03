@@ -196,29 +196,27 @@ void HTTPContext::send(const std::string& puffer) {
 }
 
 
-void HTTPContext::sendFile(const std::string& url, const std::function<void (int ret)>& fn) {
+void HTTPContext::sendFile(const std::string& url, const std::function<void (int ret)>& onError) {
     std::string absolutFileName = serverSocket->getRootDir() + url;
 
     if (std::filesystem::exists(absolutFileName)) {
-        responseHeader.insert({"Last-Modified", httputils::file_mod_http_date(absolutFileName)});
         if (responseHeader.find("Content-Type") == responseHeader.end()) {
             responseHeader.insert({"Content-Type", MimeTypes::contentType(absolutFileName)});
         }
         responseHeader.insert({"Content-Length", std::to_string(std::filesystem::file_size(absolutFileName))});
         this->sendHeader();
-        connectedSocket->sendFile(absolutFileName, fn);
+        connectedSocket->sendFile(absolutFileName, onError);
     } else {
         this->responseStatus = 404;
         this->responseHeader.insert({"Connection", "close"});
         this->sendHeader();
-        fn(ENOENT);
+        onError(ENOENT);
     }
 }
 
 
 void HTTPContext::sendHeader() {
     connectedSocket->send("HTTP/1.1 " + std::to_string( responseStatus ) + " " + HTTPStatusCode::reason( responseStatus ) +  "\r\n");
-    
     connectedSocket->send("Date: " + httputils::to_http_date() + "\r\n");
     
     for (std::multimap<std::string, std::string>::iterator it = responseHeader.begin(); it != responseHeader.end(); ++it) {
