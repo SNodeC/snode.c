@@ -1,8 +1,6 @@
-#include <string.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-
-#include <iostream>
 
 #include "SocketWriter.h"
 #include "Multiplexer.h"
@@ -17,7 +15,7 @@ void SocketWriter::writeEvent() {
             Multiplexer::instance().getWriteManager().unmanageSocket(this);
         }
     } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
-        std::cout << "Write: " << strerror(errno) << std::endl;
+        onError(errno);
         Multiplexer::instance().getWriteManager().unmanageSocket(this);
     }
 }

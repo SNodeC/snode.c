@@ -15,9 +15,9 @@ public:
     void readEvent();
     
 protected:
-    SocketReader() : Socket(), Reader(0), readProcessor(0) {}
+    SocketReader() : Socket(), Reader(0, 0), readProcessor(0) {}
     
-    SocketReader(int fd, const std::function<void (ConnectedSocket* cs, const char* junk, ssize_t n)>& readProcessor) : Socket(), Reader(fd), readProcessor(readProcessor) {}
+    SocketReader(int fd, const std::function<void (ConnectedSocket* cs, const char* junk, ssize_t n)>& readProcessor, const std::function<void (int errnum)>& onError) : Socket(), Reader(fd, onError), readProcessor(readProcessor) {}
     
     std::function<void (ConnectedSocket* cs, const char* junk, ssize_t n)> readProcessor;
 };
