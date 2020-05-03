@@ -6,6 +6,7 @@
 #include "Request.h"
 #include "Response.h"
 
+
 class ServerSocket;
 class ConnectedSocket;
 
@@ -24,7 +25,7 @@ public:
     
     void destroy();
     
-    void process(HTTPContext* httpContext);
+    void process(const Request& request, const Response& response);
     
     void all(const std::function<void (const Request& req, const Response& res)>& processor) {
         allProcessor = processor;
