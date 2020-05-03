@@ -11,20 +11,19 @@ ConnectedSocket::ConnectedSocket(int csFd,
                                  const std::function<void (int errnum)>& onWriteError
                                 ) 
 : 
-SocketReader(csFd, readProcessor, [&] (int errnum) -> void {
-    onReadError(errnum);
-}),
-SocketWriter(csFd, [&] (int errnum) -> void {
-    if (fileReader) {
-        fileReader->stop();
-        fileReader = 0;
+    SocketReader(csFd, readProcessor, [&] (int errnum) -> void {
+        onReadError(errnum);
+    }),
+    SocketWriter(csFd, [&] (int errnum) -> void {
+        if (fileReader) {
+            fileReader->stop();
+            fileReader = 0;
+        }
+        onWriteError(errnum);
+    }),
+    serverSocket(serverSocket),
+    fileReader(0) {
     }
-    onWriteError(errnum);
-    
-}),
-serverSocket(serverSocket),
-fileReader(0) {
-}
 
 
 ConnectedSocket::~ConnectedSocket() {
@@ -77,3 +76,4 @@ void ConnectedSocket::sendFile(const std::string& file, const std::function<void
 void ConnectedSocket::end() {
     Multiplexer::instance().getReadManager().unmanageSocket(this);
 }
+

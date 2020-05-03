@@ -54,12 +54,12 @@ void HTTPServer::listen(int port, const std::function<void (int err)>& onError) 
                             },
                             [] (int errnum) -> void {
                                 if (errnum) {
-                                    perror("ConnectedSocket");
+                                    perror("Read from ConnectedSocket");
                                 }
                             },
                             [] (int errnum) -> void {
                                 if (errnum) {
-                                    perror("ConnectedSocket");
+                                    perror("Write to ConnectedSocket");
                                 }
                             }
                         ).listen(port, 5, [&] (int err) -> void {
@@ -77,10 +77,7 @@ void HTTPServer::destroy() {
 }
 
 
-void HTTPServer::process(HTTPContext* httpContext) {
-    Request request(httpContext);
-    Response response(httpContext);
-    
+void HTTPServer::process(const Request& request, const Response& response) {
     // if GET-Request
     if (request.isGet()) {
         if (getProcessor) {

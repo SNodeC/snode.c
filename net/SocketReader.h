@@ -7,6 +7,7 @@
 #include "Reader.h"
 #include "Socket.h"
 
+
 class ConnectedSocket;
 
 class SocketReader : public Reader, virtual public Socket
