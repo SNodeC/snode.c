@@ -71,8 +71,9 @@ int main(int argc, char **argv) {
         [] (int err) -> void {
             if (err != 0) {
                 perror("Listen");
+            } else {
+                std::cout << "Up and running" << std::endl;
             }
-            std::cout << "Up and running" << std::endl;
         }
     );
 

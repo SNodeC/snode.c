@@ -1,7 +1,5 @@
 #include <string.h>
 
-#include <iostream>
-
 #include "Multiplexer.h"
 
 
@@ -21,8 +19,9 @@ void Multiplexer::tick() {
     
     int retval = select(maxFd + 1, &readfds, &writefds, &exceptfds, &tv);
     
-    if (retval < 0) {
-        std::cout << "Select: " << strerror(errno) << std::endl;
+    if (retval < 0 && errno != EINTR) {
+        perror("Select");
+        stop();
     } else {
         timerManager.process();
         if (retval > 0) {

@@ -1,6 +1,8 @@
 #ifndef SOCKET_H
 #define SOCKET_H
 
+#include <functional>
+
 #include "InetAddress.h"
 #include "Descriptor.h"
 
@@ -9,7 +11,7 @@ class Socket : virtual public Descriptor {
 public:
     virtual ~Socket();
     
-    int bind(InetAddress& localAddress);
+    void bind(InetAddress& localAddress, const std::function<void (int errnum)>& onError);
     
     InetAddress& getLocalAddress();
     
@@ -17,7 +19,7 @@ public:
     
 protected:
     Socket();
-    int open();
+    void open(const std::function<void (int errnum)>& onError);
 
     InetAddress localAddress;
 };
