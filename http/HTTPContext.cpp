@@ -129,7 +129,7 @@ void HTTPContext::parseRequestLine(const std::string& line) {
 
 
 void HTTPContext::requestReady() {
-    serverSocket->process(Request(this), Response(this));
+    serverSocket->process(this);
 }
 
 

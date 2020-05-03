@@ -24,7 +24,7 @@ public:
     
     void destroy();
     
-    void process(const Request& request, const Response& response);
+    void process(HTTPContext* httpContext);
     
     void all(const std::function<void (const Request& req, const Response& res)>& processor) {
         allProcessor = processor;

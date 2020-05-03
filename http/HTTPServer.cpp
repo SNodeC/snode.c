@@ -77,7 +77,10 @@ void HTTPServer::destroy() {
 }
 
 
-void HTTPServer::process(const Request& request, const Response& response) {
+void HTTPServer::process(HTTPContext* httpContext) {
+    Request request(httpContext);
+    Response response(httpContext);
+    
     // if GET-Request
     if (request.isGet()) {
         if (getProcessor) {
