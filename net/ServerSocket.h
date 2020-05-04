@@ -1,9 +1,11 @@
 #ifndef SERVERSOCKET_H
 #define SERVERSOCKET_H
 
-#include <netinet/in.h>
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "SocketReader.h"
 

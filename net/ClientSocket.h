@@ -1,7 +1,11 @@
 #ifndef CLIENTSOCKET_H
 #define CLIENTSOCKET_H
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <functional>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "ConnectedSocket.h"
 #include "InetAddress.h"

@@ -1,10 +1,14 @@
 #ifndef TIMER_H
 #define TIMER_H
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <time.h>
 #include <sys/time.h>
 
 #include <functional>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 
 class SingleshotTimer;

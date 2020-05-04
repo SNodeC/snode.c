@@ -1,14 +1,16 @@
 #ifndef HTTPSERVER_H
 #define HTTPSERVER_H
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <functional>
 
-#include "Request.h"
-#include "Response.h"
-
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 class ServerSocket;
 class ConnectedSocket;
+class Request;
+class Response;
 
 class HTTPServer
 {

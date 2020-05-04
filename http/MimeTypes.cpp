@@ -1,7 +1,11 @@
 #include "MimeTypes.h"
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <filesystem>
 #include <iostream>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 
 magic_t MimeTypes::magic = MimeTypes::init();

@@ -1,6 +1,10 @@
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <ctype.h>
 #include <algorithm>
 #include <sstream>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Request.h"
 #include "HTTPContext.h"

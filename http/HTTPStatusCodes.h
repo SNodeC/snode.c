@@ -1,7 +1,11 @@
 #ifndef HTTPRESPONSECODES_H
 #define HTTPRESPONSECODES_H
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <map>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 
 class HTTPStatusCode

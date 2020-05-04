@@ -1,5 +1,9 @@
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <netdb.h>
 #include <string.h>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "InetAddress.h"
 

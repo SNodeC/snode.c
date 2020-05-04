@@ -1,8 +1,12 @@
 #ifndef CONNECTEDSOCKET_H
 #define CONNECTEDSOCKET_H
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <functional>
 #include <string>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "InetAddress.h"
 #include "SocketWriter.h"

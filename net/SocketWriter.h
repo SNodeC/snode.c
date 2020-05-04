@@ -1,6 +1,8 @@
 #ifndef SOCKETWRITER_H
 #define SOCKETWRITER_H
 
+#include <functional>
+
 #include "Writer.h"
 #include "Socket.h"
 
@@ -11,7 +13,7 @@ public:
     void writeEvent();
     
 protected:
-    SocketWriter(int fd, const std::function<void (int errnum)>& onError) : Socket(), Writer(fd, onError) {}
+    SocketWriter(const std::function<void (int errnum)>& onError) : Socket(), Writer(onError) {}
 };
 
 #endif // SOCKETWRITER_H

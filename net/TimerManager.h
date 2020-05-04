@@ -1,7 +1,11 @@
 #ifndef TIMERMANAGER_H
 #define TIMERMANAGER_H
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <list>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Timer.h"
 

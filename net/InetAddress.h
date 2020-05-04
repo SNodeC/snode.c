@@ -1,8 +1,12 @@
 #ifndef INETADDRESS_H
 #define INETADDRESS_H
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <netinet/in.h>
 #include <string>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 
 class InetAddress

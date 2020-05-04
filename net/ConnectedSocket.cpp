@@ -10,11 +10,11 @@ ConnectedSocket::ConnectedSocket(int csFd,
                                  const std::function<void (int errnum)>& onReadError,
                                  const std::function<void (int errnum)>& onWriteError
                                 ) 
-: 
-    SocketReader(csFd, readProcessor, [&] (int errnum) -> void {
+:   Descriptor(csFd),
+    SocketReader(readProcessor, [&] (int errnum) -> void {
         onReadError(errnum);
     }),
-    SocketWriter(csFd, [&] (int errnum) -> void {
+    SocketWriter([&] (int errnum) -> void {
         if (fileReader) {
             fileReader->stop();
             fileReader = 0;
