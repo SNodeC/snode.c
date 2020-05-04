@@ -30,7 +30,7 @@ int main(int argc, char **argv) {
     
     app.serverRoot("/home/voc/projects/ServerVoc/build/html");
     
-    app.get(
+    app.get("/",
         [&] (const Request& req, const Response& res) -> void {
             std::string uri = req.requestURI();
             
