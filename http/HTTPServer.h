@@ -29,19 +29,19 @@ public:
     
     void process(const Request& request, const Response& response);
     
-    void all(const std::function<void (const Request& req, const Response& res)>& processor) {
+    void all(const std::string& path, const std::function<void (const Request& req, const Response& res)>& processor) {
         allProcessor = processor;
     }
     
-    void get(const std::function<void (const Request& req, const Response& res)>& processor) {
+    void get(const std::string& path, const std::function<void (const Request& req, const Response& res)>& processor) {
         getProcessor = processor;
     }
     
-    void post(const std::function<void (const Request& req, const Response& res)>& processor) {
+    void post(const std::string& path, const std::function<void (const Request& req, const Response& res)>& processor) {
         postProcessor = processor;
     }
     
-    void put(const std::function<void (const Request& req, const Response& res)>& processor) {
+    void put(const std::string& path, const std::function<void (const Request& req, const Response& res)>& processor) {
         putProcessor = processor;
     }
     
