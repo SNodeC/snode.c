@@ -215,7 +215,7 @@ void HTTPContext::sendFile(const std::string& url, const std::function<void (int
         connectedSocket->sendFile(absolutFileName, onError);
     } else {
         this->responseStatus = 404;
-        this->responseHeader.insert({"Connection", "close"});
+        this->responseHeader.insert({"Content-Length", std::to_string(0)});
         this->sendHeader();
         onError(ENOENT);
     }
