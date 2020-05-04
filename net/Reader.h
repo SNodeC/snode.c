@@ -1,8 +1,11 @@
 #ifndef READER_H
 #define READER_H
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <functional>
-#include <string>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "ManagedDescriptor.h"
 
@@ -12,7 +15,7 @@ public:
     virtual void readEvent() = 0;
     
 protected:
-    Reader(int fd, const std::function<void (int errnum)>& onError) : ManagedDescriptor(fd), onError(onError) {}
+    Reader(const std::function<void (int errnum)>& onError) : ManagedDescriptor(), onError(onError) {}
     
     void setOnError(const std::function<void (int errnum)>& onError) {
         this->onError = onError;

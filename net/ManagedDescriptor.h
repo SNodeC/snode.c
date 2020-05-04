@@ -8,9 +8,7 @@
 class ManagedDescriptor : virtual public Descriptor, virtual public ManagedCounter
 {   
 public:
-    ManagedDescriptor(int fd) : managed(false) {
-        this->setFd(fd);
-    }
+    ManagedDescriptor() : Descriptor(getFd()), managed(false) {}
 
     virtual ~ManagedDescriptor() = default;
     

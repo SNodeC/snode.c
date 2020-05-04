@@ -1,8 +1,12 @@
 #ifndef WRITER_H
 #define WRITER_H
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <functional>
 #include <string>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "ManagedDescriptor.h"
 
@@ -12,7 +16,7 @@ public:
     virtual void writeEvent() = 0;
     
 protected:
-    Writer(int fd, const std::function<void (int errnum)>& onError) : ManagedDescriptor(fd), onError(onError) {}
+    Writer(const std::function<void (int errnum)>& onError) : ManagedDescriptor(), onError(onError) {}
     
     virtual ~Writer() = default;
     

@@ -1,5 +1,10 @@
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <string>
 #include <utility>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 
 namespace httputils {
     std::string url_decode(std::string text);

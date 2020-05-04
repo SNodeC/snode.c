@@ -1,9 +1,13 @@
 #ifndef MIMETYPES_H
 #define MIMETYPES_H
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <magic.h>
 #include <map>
 #include <string>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 
 class MimeTypes

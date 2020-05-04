@@ -1,8 +1,12 @@
 #ifndef FILEREADER_H
 #define FILEREADER_H
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <functional>
 #include <string>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Reader.h"
 #include "Descriptor.h"

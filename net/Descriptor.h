@@ -7,6 +7,8 @@ class Descriptor
 protected:
     Descriptor();
     
+    Descriptor(int fd);
+    
 private:
     Descriptor& operator=(const Descriptor& descriptor) {
         return *this;

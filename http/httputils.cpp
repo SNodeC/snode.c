@@ -1,11 +1,15 @@
 #include "httputils.h"
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
 
 #include <sstream>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 
 namespace httputils {

@@ -4,7 +4,14 @@
 #include "HTTPContext.h"
 #include "ServerSocket.h"
 
+#include "Request.h"
+#include "Response.h"
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <stdio.h>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 
 HTTPServer::HTTPServer() : rootDir(".") {}

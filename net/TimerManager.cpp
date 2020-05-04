@@ -1,4 +1,8 @@
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <sys/time.h>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "TimerManager.h"
 #include "Timer.h"

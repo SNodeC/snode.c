@@ -1,10 +1,12 @@
 #ifndef SOCKETMANAGER_H
 #define SOCKETMANAGER_H
 
-#include <sys/select.h>
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
 #include <list>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "ManagedDescriptor.h"
 

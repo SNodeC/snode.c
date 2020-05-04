@@ -1,8 +1,11 @@
 #ifndef SOCKETREADER_H
 #define SOCKETREADER_H
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <functional>
-#include <string>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Reader.h"
 #include "Socket.h"
@@ -16,9 +19,9 @@ public:
     void readEvent();
     
 protected:
-    SocketReader() : Socket(), Reader(0, 0), readProcessor(0) {}
+    SocketReader() : Socket(), Reader(0), readProcessor(0) {}
     
-    SocketReader(int fd, const std::function<void (ConnectedSocket* cs, const char* junk, ssize_t n)>& readProcessor, const std::function<void (int errnum)>& onError) : Socket(), Reader(fd, onError), readProcessor(readProcessor) {}
+    SocketReader(const std::function<void (ConnectedSocket* cs, const char* junk, ssize_t n)>& readProcessor, const std::function<void (int errnum)>& onError) : Socket(), Reader(onError), readProcessor(readProcessor) {}
     
     std::function<void (ConnectedSocket* cs, const char* junk, ssize_t n)> readProcessor;
 };

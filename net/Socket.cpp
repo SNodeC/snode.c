@@ -1,16 +1,22 @@
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <sys/socket.h>
 
 #include <errno.h>
 
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 #include "Socket.h"
 #include "Descriptor.h"
 
-Socket::Socket() {}
+
+Socket::Socket() : Descriptor(getFd()) {}
 
 
 Socket::~Socket() {
     ::shutdown(this->getFd(), SHUT_RDWR);
 }
+
 
 void Socket::open(const std::function<void (int errnum)>& onError) {
     int fd = ::socket(AF_INET, SOCK_STREAM, 0);
@@ -21,9 +27,8 @@ void Socket::open(const std::function<void (int errnum)>& onError) {
     } else {
         onError(errno);
     }
-    
-//    return fd;
 }
+
 
 InetAddress& Socket::getLocalAddress() {
     return localAddress;

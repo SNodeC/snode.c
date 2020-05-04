@@ -1,15 +1,19 @@
 #ifndef HTTPCONTEXT_H
 #define HTTPCONTEXT_H
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <functional>
 #include <string>
 #include <map>
 
-#include "Request.h"
-#include "Response.h"
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 
 class ConnectedSocket;
 class HTTPServer;
+class Request;
+class Response;
 
 class HTTPContext
 {

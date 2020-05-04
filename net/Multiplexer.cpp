@@ -1,4 +1,8 @@
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <string.h>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Multiplexer.h"
 

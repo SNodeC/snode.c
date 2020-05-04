@@ -1,14 +1,21 @@
 #include "HTTPContext.h"
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <string.h>
 
 #include <filesystem>
 #include <sstream>
 
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 #include "ConnectedSocket.h"
 #include "HTTPServer.h"
 #include "HTTPStatusCodes.h"
 #include "MimeTypes.h"
+
+#include "Request.h"
+#include "Response.h"
 
 #include "httputils.h"
 

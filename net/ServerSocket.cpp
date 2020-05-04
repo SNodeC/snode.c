@@ -1,4 +1,8 @@
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <unistd.h>       
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "ServerSocket.h"
 #include "ConnectedSocket.h"
