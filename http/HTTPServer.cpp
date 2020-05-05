@@ -111,3 +111,20 @@ void HTTPServer::process(const Request& request, const Response& response) {
         allProcessor(request, response);
     }
 }
+
+void HTTPServer::all(const std::string& path, const std::function<void (const Request& req, const Response& res)>& processor) {
+    allProcessor = processor;
+}
+
+void HTTPServer::get(const std::string& path, const std::function<void (const Request& req, const Response& res)>& processor) {
+    getProcessor = processor;
+}
+
+void HTTPServer::post(const std::string& path, const std::function<void (const Request& req, const Response& res)>& processor) {
+    postProcessor = processor;
+}
+
+void HTTPServer::put(const std::string& path, const std::function<void (const Request& req, const Response& res)>& processor) {
+    putProcessor = processor;
+}
+
