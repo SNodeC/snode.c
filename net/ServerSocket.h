@@ -42,7 +42,7 @@ public:
 private:
     std::function<void (ConnectedSocket* cs)> onConnect;
     std::function<void (ConnectedSocket* cs)> onDisconnect;
-    std::function<void (ConnectedSocket* cs, const char*  junk, ssize_t n)> readProcessor;
+    std::function<void (ConnectedSocket* cs, const char* junk, ssize_t n)> readProcessor;
 
     std::function<void (int errnum)> onCsReadError;
     std::function<void (int errnum)> onCsWriteError;

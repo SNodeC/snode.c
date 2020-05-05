@@ -28,19 +28,19 @@ HTTPServer::~HTTPServer() {}
 void HTTPServer::listen(int port) {
     ServerSocket::instance([this] (ConnectedSocket* connectedSocket) -> void {
                                 connectedSocket->setContext(new HTTPContext(this, connectedSocket));
-                            },
-                            [] (ConnectedSocket* connectedSocket) -> void {
+                           },
+                           [] (ConnectedSocket* connectedSocket) -> void {
                                 delete static_cast<HTTPContext*>(connectedSocket->getContext());
-                            },
-                            [] (ConnectedSocket* connectedSocket, const char*  junk, ssize_t n) -> void {
+                           },
+                           [] (ConnectedSocket* connectedSocket, const char*  junk, ssize_t n) -> void {
                                 static_cast<HTTPContext*>(connectedSocket->getContext())->parseHttpRequest(junk, n);
-                            },
-                            [] (int errnum) -> void {
+                           },
+                           [] (int errnum) -> void {
                                 perror("ConnectedSocket");
-                            },
-                            [] (int errnum) -> void {
+                           },
+                           [] (int errnum) -> void {
                                 perror("ConnectedSocket");
-                            }
+                           }
                         ).listen(port, 5, 0);
 
     ServerSocket::run();
