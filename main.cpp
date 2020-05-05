@@ -11,6 +11,7 @@
 #include "ServerSocket.h"
 #include "SocketManager.h"
 #include "SocketMultiplexer.h"
+#include "FileReader.h"
 
 #include "Request.h"
 #include "Response.h"
@@ -31,6 +32,8 @@ int main(int argc, char **argv) {
         for (it = header.begin(); it != header.end(); ++it) {
             std::cout << (*it).first << ": " << (*it).second << std::endl;
         }
+        
+        /*
         
         if (req.bodySize() > 0) {
             const char* body = req.body();
@@ -54,7 +57,22 @@ int main(int argc, char **argv) {
             document += "</body></html>";
             
             res.send(document);
-        }
+        } */
+        
+        res.header();
+        FileReader::read("./index.html",
+                         [&] (unsigned char* data, int length) -> void {
+                             std::cout << "From FileReader" << std::endl;
+                             if (length > 0) {
+                                 res.send((char*) data, length);
+                             } else {
+                                 res.end();
+                             }
+                         },
+                         [] (int err) -> void {
+                             std::cout << "Error: " << strerror(err) << std::endl;
+                         });
+                                 
     });
     
     Timer& timer1 = Timer::continousTimer(
@@ -78,6 +96,7 @@ int main(int argc, char **argv) {
                                          
         (void *) "Test 2"
     );
+    
     
     SocketMultiplexer& sm = SocketMultiplexer::instance();
 

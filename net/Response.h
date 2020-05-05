@@ -17,6 +17,8 @@ public:
     
     void end();
     
+    void header();
+    
 private:
     AcceptedSocket* acceptedSocket;
 };
