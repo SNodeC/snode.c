@@ -29,21 +29,13 @@ public:
     
     void process(const Request& request, const Response& response);
     
-    void all(const std::string& path, const std::function<void (const Request& req, const Response& res)>& processor) {
-        allProcessor = processor;
-    }
+    void all(const std::string& path, const std::function<void (const Request& req, const Response& res)>& processor);
     
-    void get(const std::string& path, const std::function<void (const Request& req, const Response& res)>& processor) {
-        getProcessor = processor;
-    }
+    void get(const std::string& path, const std::function<void (const Request& req, const Response& res)>& processor);
     
-    void post(const std::string& path, const std::function<void (const Request& req, const Response& res)>& processor) {
-        postProcessor = processor;
-    }
+    void post(const std::string& path, const std::function<void (const Request& req, const Response& res)>& processor);
     
-    void put(const std::string& path, const std::function<void (const Request& req, const Response& res)>& processor) {
-        putProcessor = processor;
-    }
+    void put(const std::string& path, const std::function<void (const Request& req, const Response& res)>& processor);
     
     std::string& getRootDir() {
         return rootDir;
