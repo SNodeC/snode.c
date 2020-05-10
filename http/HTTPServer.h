@@ -52,9 +52,6 @@ protected:
     std::function<void (const Request& req, const Response& res)> putProcessor;
     
     std::string rootDir;
-    
-private:
-//    ServerSocket* serverSocket;
 };
 
 #endif // HTTPSERVER_H

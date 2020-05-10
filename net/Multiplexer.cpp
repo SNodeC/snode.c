@@ -61,4 +61,3 @@ void Multiplexer::stop()
 {
     Multiplexer::running = false;
 }
-
