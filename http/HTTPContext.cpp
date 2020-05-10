@@ -71,7 +71,7 @@ void HTTPContext::parseHttpRequest(const char* junk, ssize_t n) {
 
         if (bodyPointer == bodyLength)  {
             this->requestReady();
-            requestState = REQUEST;
+//            requestState = REQUEST;
         }
     }
 }

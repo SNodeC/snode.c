@@ -16,6 +16,7 @@ add_library(net SHARED
     InetAddress.cpp
     Timer.cpp 
     FileReader.cpp
+    StartUp.cpp
 )
 
 target_link_libraries(net LINK_PUBLIC magic)
