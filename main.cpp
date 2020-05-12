@@ -94,16 +94,16 @@ int simpleWebserver(int argc, char** argv) {
                 std::string uri = req.requestURI();
                 
                 if (uri == "/") {
-                    uri = "/index.html";
+                    res.redirect("/index.html");
+                } else {
+                    std::cout << uri << std::endl;
+                
+                    res.sendFile(uri, [uri] (int ret) -> void {
+                        if (ret != 0) {
+                            perror(uri.c_str());
+                        }
+                    });
                 }
-                
-                std::cout << uri << std::endl;
-                
-                res.sendFile(uri, [uri] (int ret) -> void {
-                    if (ret != 0) {
-                        perror(uri.c_str());
-                    }
-                });
             });
     
     app.listen(8080, 

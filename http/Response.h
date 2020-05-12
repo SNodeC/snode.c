@@ -16,7 +16,7 @@ public:
     Response(HTTPContext* httpContext);
     ~Response();
     
-    void status(int status);
+    void status(int status) const;
     
     void send(const std::string& text) const;
     
@@ -30,6 +30,10 @@ public:
     void set(const std::string& field, const std::string& value) const;
     
     void cookie(const std::string& name, const std::string& value) const;
+    
+    void redirect(const std::string& name) const;
+    
+    void redirect(int status, const std::string& name) const;
     
 //    void append(const std::string& field, const std::string& value) const;
     
