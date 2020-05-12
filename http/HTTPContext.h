@@ -18,7 +18,7 @@ class Response;
 class HTTPContext
 {
 public:
-    HTTPContext(HTTPServer* serverSocket, ConnectedSocket* connectedSocket);
+    HTTPContext(HTTPServer* httpServer, ConnectedSocket* connectedSocket);
     
     void send(const char* puffer, int size);
     void send(const std::string& data);
@@ -42,7 +42,7 @@ protected:
     void sendHeader();
     
     ConnectedSocket* connectedSocket;
-    HTTPServer* serverSocket;
+    HTTPServer* httpServer;
     
     char* bodyData;
     int bodyLength;

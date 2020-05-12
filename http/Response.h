@@ -22,8 +22,10 @@ public:
     
     void send(const char* puffer, int n) const;
     
-    void sendFile(const std::string& file) const;
-    void sendFile(const std::string& file, const std::function<void (int err)>& fn) const;
+    void sendFile(const std::string& file, const std::function<void (int err)>& fn = 0) const;
+    
+    void download(const std::string& file, const std::function<void (int err)>& fn = 0) const;
+    void download(const std::string& file, const std::string& name, const std::function<void (int err)>& fn = 0) const;
     
     void end() const;
     
@@ -34,6 +36,10 @@ public:
     void redirect(const std::string& name) const;
     
     void redirect(int status, const std::string& name) const;
+    
+    void sendStatus(int status) const;
+    
+    void type(std::string type) const;
     
 //    void append(const std::string& field, const std::string& value) const;
     

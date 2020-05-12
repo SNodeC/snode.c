@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include <string.h>
 #include <time.h>
 
 #include "Request.h"
@@ -93,17 +94,17 @@ int simpleWebserver(int argc, char** argv) {
             [&] (const Request& req, const Response& res) -> void {
                 std::string uri = req.requestURI();
                 
-                if (uri == "/") {
-                    uri = "/index.html";
+                if (uri.empty()) {
+                    res.redirect("/index.html");
+                } else {
+                    std::cout << uri << std::endl;
+                
+                    res.sendFile(uri, [uri] (int ret) -> void {
+                        if (ret != 0) {
+                            std::cerr << uri << ": " << strerror(ret) << std::endl;
+                        }
+                    });
                 }
-                
-                std::cout << uri << std::endl;
-                
-                res.sendFile(uri, [uri] (int ret) -> void {
-                    if (ret != 0) {
-                        perror(uri.c_str());
-                    }
-                });
             });
     
     app.listen(8080, 
