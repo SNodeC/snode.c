@@ -215,8 +215,7 @@ void HTTPContext::sendFile(const std::string& url, const std::function<void (int
         connectedSocket->sendFile(absolutFileName, onError);
     } else {
         this->responseStatus = 404;
-        this->responseHeader.insert({"Content-Length", std::to_string(0)});
-        this->sendHeader();
+        this->end();
         onError(ENOENT);
     }
 }
@@ -231,7 +230,7 @@ void HTTPContext::sendHeader() {
     }
     
     
-    for (std::multimap<std::string, std::string>::iterator it = responseCookies.begin(); it != responseCookies.end(); ++it) {
+    for (std::map<std::string, std::string>::iterator it = responseCookies.begin(); it != responseCookies.end(); ++it) {
         connectedSocket->send("Set-Cookie: " + it->first + "=" + it->second + "\r\n");
     }
         
@@ -240,6 +239,7 @@ void HTTPContext::sendHeader() {
 
 
 void HTTPContext::end() {
+    this->responseHeader.insert({"Content-Length", std::to_string(0)});
     this->sendHeader();
 }
 

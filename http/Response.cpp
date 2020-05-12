@@ -12,7 +12,7 @@ Response::~Response() {
 }
 
 
-void Response::status(int status) {
+void Response::status(int status) const {
     this->httpContext->responseStatus = status;
 }
 
@@ -49,6 +49,18 @@ void Response::sendFile(const std::string& file, const std::function<void (int e
 
 void Response::send(const char* puffer, int n) const {
     this->httpContext->send(puffer, n);
+}
+
+
+void Response::redirect(const std::string& name) const {
+    this->redirect(302, name);
+}
+
+
+void Response::redirect(int status, const std::string& name) const {
+    this->status(status);
+    this->set("Location", name);
+    this->end();
 }
 
 
