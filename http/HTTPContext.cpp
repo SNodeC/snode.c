@@ -20,8 +20,8 @@
 #include "httputils.h"
 
 
-HTTPContext::HTTPContext(HTTPServer* serverSocket, ConnectedSocket* connectedSocket)
-: connectedSocket(connectedSocket), serverSocket(serverSocket), bodyData(0) {
+HTTPContext::HTTPContext(HTTPServer* httpServer, ConnectedSocket* connectedSocket)
+: connectedSocket(connectedSocket), httpServer(httpServer), bodyData(0) {
     this->reset();
 }
 
@@ -136,7 +136,7 @@ void HTTPContext::parseRequestLine(const std::string& line) {
 
 
 void HTTPContext::requestReady() {
-    serverSocket->process(Request(this), Response(this));
+    httpServer->process(Request(this), Response(this));
 }
 
 
@@ -204,15 +204,25 @@ void HTTPContext::send(const std::string& puffer) {
 
 
 void HTTPContext::sendFile(const std::string& url, const std::function<void (int ret)>& onError) {
-    std::string absolutFileName = serverSocket->getRootDir() + url;
+    std::string absolutFileName = httpServer->getRootDir() + url;
+    
+    std::error_code ec;
 
     if (std::filesystem::exists(absolutFileName)) {
-        if (responseHeader.find("Content-Type") == responseHeader.end()) {
-            responseHeader.insert({"Content-Type", MimeTypes::contentType(absolutFileName)});
+        absolutFileName = std::filesystem::canonical(absolutFileName);
+        
+        if (absolutFileName.rfind(httpServer->getRootDir(), 0) == 0) {
+            if (responseHeader.find("Content-Type") == responseHeader.end()) {
+                responseHeader.insert({"Content-Type", MimeTypes::contentType(absolutFileName)});
+            }
+            responseHeader.insert({"Content-Length", std::to_string(std::filesystem::file_size(absolutFileName))});
+            this->sendHeader();
+            connectedSocket->sendFile(absolutFileName, onError);
+        } else {
+            this->responseStatus = 403;
+            this->end();
+            onError(EACCES);
         }
-        responseHeader.insert({"Content-Length", std::to_string(std::filesystem::file_size(absolutFileName))});
-        this->sendHeader();
-        connectedSocket->sendFile(absolutFileName, onError);
     } else {
         this->responseStatus = 404;
         this->end();
@@ -222,13 +232,12 @@ void HTTPContext::sendFile(const std::string& url, const std::function<void (int
 
 
 void HTTPContext::sendHeader() {
-    connectedSocket->send("HTTP/1.1 " + std::to_string( responseStatus ) + " " + HTTPStatusCode::reason( responseStatus ) +  "\r\n");
+    connectedSocket->send("HTTP/1.1 " + std::to_string(responseStatus) + " " + HTTPStatusCode::reason(responseStatus) +  "\r\n");
     connectedSocket->send("Date: " + httputils::to_http_date() + "\r\n");
     
     for (std::multimap<std::string, std::string>::iterator it = responseHeader.begin(); it != responseHeader.end(); ++it) {
         connectedSocket->send(it->first + ": " + it->second + "\r\n");
     }
-    
     
     for (std::map<std::string, std::string>::iterator it = responseCookies.begin(); it != responseCookies.end(); ++it) {
         connectedSocket->send("Set-Cookie: " + it->first + "=" + it->second + "\r\n");

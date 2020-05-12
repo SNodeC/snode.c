@@ -45,6 +45,9 @@ public:
     
     void serverRoot(std::string rootDir) {
         this->rootDir = rootDir;
+        if (this->rootDir.back() != '/') {
+            this->rootDir += '/';
+        }
     }
     
 protected:
