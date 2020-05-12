@@ -7,6 +7,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Router.h"
+
 class ServerSocket;
 class ConnectedSocket;
 class Request;
