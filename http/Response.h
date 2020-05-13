@@ -14,7 +14,6 @@ class HTTPContext;
 class Response {
 public:
     Response(HTTPContext* httpContext);
-    ~Response();
     
     void status(int status) const;
     
