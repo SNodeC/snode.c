@@ -24,8 +24,8 @@ HTTPContext::HTTPContext(HTTPServer* httpServer, ConnectedSocket* connectedSocke
 
 
 void HTTPContext::receiveRequest(const char* junk, ssize_t n) {
-    if (requestState != BODY) {
-        parseRequest(junk, n, [&] (const std::string& line) -> void {
+    parseRequest(junk, n, 
+        [&] (const std::string& line) -> void {
             switch (requestState) {
             case REQUEST:
                 if (!line.empty()) {
@@ -55,58 +55,64 @@ void HTTPContext::receiveRequest(const char* junk, ssize_t n) {
             case ERROR:
                 break;
             }
+        },
+        [&] (const char* bodyJunk, int junkLen) -> void {
+            if (bodyLength - bodyPointer < junkLen) {
+                junkLen = bodyLength - bodyPointer;
+            }
+                
+            memcpy(bodyData + bodyPointer, bodyJunk, junkLen);
+            bodyPointer += junkLen;
+                
+            if (bodyPointer == bodyLength) {
+                this->requestReady();
+            }
         });
-    } else {
-        int n = line.size();
-
-        if (bodyLength - bodyPointer < n) {
-            n = bodyLength - bodyPointer;
-        }
-
-        memcpy(bodyData + bodyPointer, line.c_str(), n);
-        bodyPointer += n;
-
-        if (bodyPointer == bodyLength)  {
-            this->requestReady();
-//            requestState = REQUEST;
-        }
-    }
 }
 
 
-void HTTPContext::parseRequest(const char* junk, ssize_t n, const std::function<void (std::string&)>& lineRead) {
-    for(int i = 0; i < n && requestState != ERROR; i++) {
-        const char& ch = junk[i];
+void HTTPContext::parseRequest(const char* junk, ssize_t n, const std::function<void (std::string&)>& lineRead, const std::function<void (const char* bodyJunk, int junkLength)> bodyRead) {
+    if (requestState != BODY) {
+        int i = 0;
+        
+        while(i < n && requestState != ERROR && requestState != BODY) {
+            const char& ch = junk[i++];
 
-        if (ch != '\r') { // '\r' can be ignored completely
-            switch(linestate) {
-            case READ:
-                if (ch == '\n') {
-                    if (headerLine.empty()) {
-                        lineRead(headerLine);
+            if (ch != '\r') { // '\r' can be ignored completely
+                switch(linestate) {
+                case READ:
+                    if (ch == '\n') {
+                        if (headerLine.empty()) {
+                            lineRead(headerLine);
+                        } else {
+                            linestate = EOL;
+                        }
                     } else {
-                        linestate = EOL;
+                        headerLine += ch;
                     }
-                } else {
-                    headerLine += ch;
+                    break;
+                case EOL:
+                    if (ch == '\n') {
+                        lineRead(headerLine);
+                        headerLine.clear();
+                        lineRead(headerLine);
+                    } else if (!isblank(ch)) {
+                        lineRead(headerLine);
+                        headerLine.clear();
+                        headerLine += ch;
+                    } else {
+                        headerLine += ch;
+                    }
+                    linestate = READ;
+                    break;
                 }
-                break;
-            case EOL:
-                if (ch == '\n') {
-                    lineRead(headerLine);
-                    headerLine.clear();
-                    lineRead(headerLine);
-                } else if (!isblank(ch)) {
-                    lineRead(headerLine);
-                    headerLine.clear();
-                    headerLine += ch;
-                } else {
-                    headerLine += ch;
-                }
-                linestate = READ;
-                break;
             }
         }
+        if (i != n) {
+            bodyRead(junk + i, n - i);
+        }
+    } else {
+        bodyRead(junk, n);
     }
 }
 
@@ -174,12 +180,6 @@ void HTTPContext::addRequestHeader(const std::string& line) {
     }
 }
 
-/*
-void HTTPContext::sendJunk(const char* puffer, int size) {
-    this->sendHeader();
-    connectedSocket->send(puffer, size);
-}
-*/
 
 void HTTPContext::send(const char* puffer, int size) {
     if (responseHeader.find("Content-Type") == responseHeader.end()) {
@@ -259,7 +259,6 @@ void HTTPContext::reset() {
     this->responseStatus = 200;
     this->requestState = REQUEST;
     this->linestate = READ;
-    this->line.clear();
     
     this->requestHeader.clear();
     this->method.clear();

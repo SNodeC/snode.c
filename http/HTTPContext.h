@@ -22,7 +22,6 @@ public:
     
     void send(const char* puffer, int size);
     void send(const std::string& data);
-//    void sendJunk(const char* puffer, int size);
     void sendFile(const std::string& file, const std::function<void (int ret)>& fn);
     
     void end();
@@ -31,7 +30,7 @@ protected:
     void reset();
     
     void receiveRequest(const char* junk, ssize_t n);
-    void parseRequest(const char* junk, ssize_t, const std::function<void (std::string&)>& lineRead);
+    void parseRequest(const char* junk, ssize_t, const std::function<void (std::string&)>& lineRead, const std::function<void (const char* bodyJunk, int junkLength)> bodyRead);
     
     void parseRequestLine(const std::string& line);
     void parseCookie(const std::string& value);
@@ -56,7 +55,6 @@ protected:
     
     
     int bodyPointer;
-    std::string line;
     
     int responseStatus;
     

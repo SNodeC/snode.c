@@ -61,8 +61,8 @@ public:
     const std::string& httpVersion() const;
     const std::string& fragment() const;
     
-    const char* body();
-    int bodySize();
+    const char* body() const;
+    int bodySize() const;
     
 private:
     HTTPContext* httpContext;

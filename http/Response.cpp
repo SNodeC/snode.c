@@ -7,10 +7,6 @@
 Response::Response(HTTPContext* httpContext) : httpContext(httpContext) {}
 
 
-Response::~Response() {
-}
-
-
 void Response::status(int status) const {
     this->httpContext->responseStatus = status;
 }

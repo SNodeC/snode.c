@@ -45,12 +45,12 @@ const std::string& Request::cookie(const std::string& key) const {
 }
 
 
-const char* Request::body() {
+const char* Request::body() const {
     return this->httpContext->bodyData;
 }
 
 
-int Request::bodySize() {
+int Request::bodySize() const {
     return this->httpContext->bodyLength;
 }
 
