@@ -9,11 +9,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Request.h"
+#include "Response.h"
 
 class ConnectedSocket;
 class HTTPServer;
-class Request;
-class Response;
 
 class HTTPContext
 {
@@ -30,8 +30,8 @@ public:
 protected:
     void reset();
     
-    void parseHttpRequest(const char* junk, ssize_t n);
-    void readLine(const char* junk, ssize_t, const std::function<void (std::string&)>& lineRead);
+    void receiveRequest(const char* junk, ssize_t n);
+    void parseRequest(const char* junk, ssize_t, const std::function<void (std::string&)>& lineRead);
     
     void parseRequestLine(const std::string& line);
     void parseCookie(const std::string& value);
@@ -84,6 +84,9 @@ protected:
     friend class Response;
     friend class Request;
     friend class HTTPServer;
+    
+    Request request;
+    Response response;
 };
 
 #endif // HTTPCONTEXT_H

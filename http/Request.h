@@ -8,13 +8,45 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-
 class HTTPContext;
 
+#define FIELD(T, prop) \
+class C ## prop {\
+public:\
+    C ## prop(HTTPContext* httpContext) : httpContext(httpContext) {}\
+\
+    operator T() const;\
+    T operator=(T i) const;\
+\
+private:\
+    HTTPContext* httpContext;\
+};\
+\
+public:\
+    C ## prop prop;\
+\
+private:
+
+#define FIELDI(T, prop) \
+Request::C ## prop::operator T() const {\
+    return this->httpContext->prop;\
+}\
+\
+T Request::C ## prop::operator=(T i) const {\
+    this->httpContext->prop = i;\
+\
+    return i;\
+}
+
+#define FIELDC(prop) prop(httpContext)
+
+
 class Request {
+private:
+    FIELD(int, bodyLength);
+    
 public:
-    Request(HTTPContext* httpContext) : httpContext(httpContext) {
-    }
+    Request(HTTPContext* httpContext);
     
     std::multimap<std::string, std::string>& header() const;
     const std::string& header(const std::string& key, int i = 0) const;

@@ -92,9 +92,13 @@ int simpleWebserver(int argc, char** argv) {
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
+//                req.bodyLength = 35;
+                
+//                std::cout << "Field: " << req.bodyLength << std::endl;
+                
                 std::string uri = req.requestURI();
                 
-                if (uri.empty()) {
+                if (uri == "/") {
                     res.redirect("/index.html");
                 } else {
                     std::cout << uri << std::endl;
