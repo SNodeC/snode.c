@@ -8,6 +8,8 @@ add_subdirectory(http)
 
 add_executable(snode.c main.cpp)
 
+target_compile_options(snode.c PRIVATE --warn-conversion)
+
 target_link_libraries(snode.c LINK_PUBLIC http)
 
 install(TARGETS snode.c RUNTIME DESTINATION bin)

@@ -7,12 +7,6 @@
 #include "Request.h"
 #include "Response.h"
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <stdio.h>
-
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
 
 HTTPServer::HTTPServer() : rootDir("./") {}
 
@@ -33,7 +27,7 @@ void HTTPServer::listen(int port) {
                                 delete static_cast<HTTPContext*>(connectedSocket->getContext());
                            },
                            [] (ConnectedSocket* connectedSocket, const char*  junk, ssize_t n) -> void {
-                                static_cast<HTTPContext*>(connectedSocket->getContext())->parseHttpRequest(junk, n);
+                                static_cast<HTTPContext*>(connectedSocket->getContext())->receiveRequest(junk, n);
                            },
                            [] (int errnum) -> void {
                                 perror("ConnectedSocket");
@@ -57,7 +51,7 @@ void HTTPServer::listen(int port, const std::function<void (int err)>& onError) 
                                 delete static_cast<HTTPContext*>(connectedSocket->getContext());
                             },
                             [] (ConnectedSocket* connectedSocket, const char*  junk, ssize_t n) -> void {
-                                static_cast<HTTPContext*>(connectedSocket->getContext())->parseHttpRequest(junk, n);
+                                static_cast<HTTPContext*>(connectedSocket->getContext())->receiveRequest(junk, n);
                             },
                             [] (int errnum) -> void {
                                 if (errnum) {

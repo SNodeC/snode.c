@@ -10,6 +10,9 @@
 #include "HTTPContext.h"
 
 
+Request::Request(HTTPContext* httpContext) : FIELDC(bodyLength), httpContext(httpContext) {}
+
+
 std::multimap<std::string, std::string>& Request::header() const {
     return this->httpContext->requestHeader;
 }
@@ -89,3 +92,6 @@ const std::string& Request::httpVersion() const {
 const std::string& Request::fragment() const {
     return this->httpContext->fragment;
 }
+
+
+FIELDI(int, bodyLength);

@@ -14,21 +14,18 @@
 #include "HTTPStatusCodes.h"
 #include "MimeTypes.h"
 
-#include "Request.h"
-#include "Response.h"
-
 #include "httputils.h"
 
 
 HTTPContext::HTTPContext(HTTPServer* httpServer, ConnectedSocket* connectedSocket)
-: connectedSocket(connectedSocket), httpServer(httpServer), bodyData(0) {
+: connectedSocket(connectedSocket), httpServer(httpServer), bodyData(0), request(this), response(this) {
     this->reset();
 }
 
 
-void HTTPContext::parseHttpRequest(const char* junk, ssize_t n) {
+void HTTPContext::receiveRequest(const char* junk, ssize_t n) {
     if (requestState != BODY) {
-        readLine(junk, n, [&] (const std::string& line) -> void {
+        parseRequest(junk, n, [&] (const std::string& line) -> void {
             switch (requestState) {
             case REQUEST:
                 if (!line.empty()) {
@@ -77,7 +74,7 @@ void HTTPContext::parseHttpRequest(const char* junk, ssize_t n) {
 }
 
 
-void HTTPContext::readLine(const char* junk, ssize_t n, const std::function<void (std::string&)>& lineRead) {
+void HTTPContext::parseRequest(const char* junk, ssize_t n, const std::function<void (std::string&)>& lineRead) {
     for(int i = 0; i < n && requestState != ERROR; i++) {
         const char& ch = junk[i];
 
@@ -136,7 +133,8 @@ void HTTPContext::parseRequestLine(const std::string& line) {
 
 
 void HTTPContext::requestReady() {
-    httpServer->process(Request(this), Response(this));
+    httpServer->process(request, response);
+    this->reset();
 }
 
 
@@ -194,12 +192,7 @@ void HTTPContext::send(const char* puffer, int size) {
 
 
 void HTTPContext::send(const std::string& puffer) {
-    if (responseHeader.find("Content-Type") == responseHeader.end()) {
-        responseHeader.insert({"Content-Type", "text/html; charset=utf-8"});
-    }
-    responseHeader.insert({"Content-Length", std::to_string(puffer.size())});
-    this->sendHeader();
-    connectedSocket->send(puffer);
+    this->send(puffer.c_str(), puffer.size());
 }
 
 
@@ -221,12 +214,16 @@ void HTTPContext::sendFile(const std::string& url, const std::function<void (int
         } else {
             this->responseStatus = 403;
             this->end();
-            onError(EACCES);
+            if (onError) {
+                onError(EACCES);
+            }
         }
     } else {
         this->responseStatus = 404;
         this->end();
-        onError(ENOENT);
+        if (onError) {
+            onError(ENOENT);
+        }
     }
 }
 
@@ -279,3 +276,4 @@ void HTTPContext::reset() {
     this->bodyLength = 0;
     this->bodyPointer = 0;
 }
+    

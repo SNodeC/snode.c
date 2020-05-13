@@ -22,13 +22,6 @@ virtual void M(const std::string& path, const std::function<void (const Request&
     routes[ #M ].insert({path, Route(path, processor)}); \
 }
 
-/*
-//    Route r(path, processor); \
-routes[M].insert(Route(path, processor)); \
-//    M ## Routes.insert({path, r}); \
-}
-*/
-
 
 class Router
 {
@@ -47,5 +40,7 @@ public:
 protected:
     std::map<std::string, std::map<std::string, Route>> routes;
 };
+
+
 
 #endif // ROUTER_H
