@@ -56,7 +56,7 @@ struct timeval TimerManager::getNextTimeout() {
 }
 
 
-void TimerManager::process() {
+void TimerManager::dispatch() {
     struct timeval currentTime;
     gettimeofday(&currentTime, NULL);
     

@@ -17,7 +17,7 @@ public:
     
     struct timeval getNextTimeout();
     
-    void process();
+    void dispatch();
     
     void remove(Timer* timer);
     void add(Timer* timer);
