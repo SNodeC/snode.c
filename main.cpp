@@ -34,7 +34,7 @@ int timerApp(int argc, char** argv) {
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
-                std::string uri = req.requestURI();
+                std::string uri = req.originalUrl;
                 
                 if (uri == "/") {
                     uri = "/index.html";
@@ -88,21 +88,62 @@ int timerApp(int argc, char** argv) {
 int simpleWebserver(int argc, char** argv) {
     HTTPServer& app = HTTPServer::instance();
     
+    Router router;
+    
+    router.get("/search", 
+              [&] (const Request& req, const Response& res) -> void {
+                  
+                  std::string host = req.header("Host");
+                  
+                  //                std::cout << "Host: " << host << std::endl;
+                  
+                  std::string uri = req.originalUrl;
+                  
+                  //                std::cout << "RHeader: " << req.header("Accept") << std::endl;
+                  
+                  std::cout << "Uri: " << uri << std::endl;
+                  
+                  if (uri == "/") {
+                      res.redirect("/index.html");
+                  } else {
+                      //                    std::cout << uri << std::endl;
+                      
+                      if (req.bodySize() != 0) {
+                          std::cout << "Body: " << req.body << std::endl;
+                      }
+                      
+                      res.sendFile(uri, [uri] (int ret) -> void {
+                          if (ret != 0) {
+                              std::cerr << uri << ": " << strerror(ret) << std::endl;
+                          }
+                      });
+                  }
+              });
+    
     app.serverRoot("/home/voc/projects/ServerVoc/build/html");
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
-//                req.bodyLength = 35;
                 
-//                std::cout << "Field: " << req.bodyLength << std::endl;
+                std::string host = req.header("Host");
                 
-                std::string uri = req.requestURI();
+//                std::cout << "Host: " << host << std::endl;
+                
+                std::string uri = req.originalUrl;
+                
+//                std::cout << "RHeader: " << req.header("Accept") << std::endl;
+                
+                std::cout << "Uri: " << uri << std::endl;
                 
                 if (uri == "/") {
                     res.redirect("/index.html");
                 } else {
-                    std::cout << uri << std::endl;
-                
+//                    std::cout << uri << std::endl;
+                    
+                    if (req.bodySize() != 0) {
+                        std::cout << "Body: " << req.body << std::endl;
+                    }
+                    
                     res.sendFile(uri, [uri] (int ret) -> void {
                         if (ret != 0) {
                             std::cerr << uri << ": " << strerror(ret) << std::endl;
@@ -110,6 +151,38 @@ int simpleWebserver(int argc, char** argv) {
                     });
                 }
             });
+    app.get("/", router);
+    
+    /*
+    app.get("/search", 
+            [&] (const Request& req, const Response& res) -> void {
+                
+                std::string host = req.header("Host");
+                
+                //                std::cout << "Host: " << host << std::endl;
+                
+                std::string uri = req.originalUrl;
+                
+                //                std::cout << "RHeader: " << req.header("Accept") << std::endl;
+                
+                std::cout << "Uri: " << uri << std::endl;
+                
+                if (uri == "/") {
+                    res.redirect("/index.html");
+                } else {
+                    //                    std::cout << uri << std::endl;
+                    
+                    if (req.bodySize() != 0) {
+                        std::cout << "Body: " << req.body << std::endl;
+                    }
+                    
+                    res.sendFile(uri, [uri] (int ret) -> void {
+                        if (ret != 0) {
+                            std::cerr << uri << ": " << strerror(ret) << std::endl;
+                        }
+                    });
+                }
+            });*/
     
     app.listen(8080, 
                [] (int err) -> void {

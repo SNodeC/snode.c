@@ -4,8 +4,8 @@
 
 #include <string.h>
 
+#include <algorithm>
 #include <filesystem>
-#include <sstream>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -16,6 +16,8 @@
 
 #include "httputils.h"
 
+#include <iostream>
+
 
 HTTPContext::HTTPContext(HTTPServer* httpServer, ConnectedSocket* connectedSocket)
 : connectedSocket(connectedSocket), httpServer(httpServer), bodyData(0), request(this), response(this) {
@@ -25,7 +27,7 @@ HTTPContext::HTTPContext(HTTPServer* httpServer, ConnectedSocket* connectedSocke
 
 void HTTPContext::receiveRequest(const char* junk, ssize_t n) {
     parseRequest(junk, n, 
-        [&] (const std::string& line) -> void {
+        [&] (const std::string& line) -> void { // header data
             switch (requestState) {
             case REQUEST:
                 if (!line.empty()) {
@@ -56,7 +58,7 @@ void HTTPContext::receiveRequest(const char* junk, ssize_t n) {
                 break;
             }
         },
-        [&] (const char* bodyJunk, int junkLen) -> void {
+        [&] (const char* bodyJunk, int junkLen) -> void { // body data
             if (bodyLength - bodyPointer < junkLen) {
                 junkLen = bodyLength - bodyPointer;
             }
@@ -78,7 +80,7 @@ void HTTPContext::parseRequest(const char* junk, ssize_t n, const std::function<
         while(i < n && requestState != ERROR && requestState != BODY) {
             const char& ch = junk[i++];
 
-            if (ch != '\r') { // '\r' can be ignored completely
+            if (ch != '\r') { // '\r' can be ignored completely as long as we are not receiving the body of the document
                 switch(linestate) {
                 case READ:
                     if (ch == '\n') {
@@ -118,28 +120,38 @@ void HTTPContext::parseRequest(const char* junk, ssize_t n, const std::function<
 
 
 void HTTPContext::parseRequestLine(const std::string& line) {
-    std::istringstream requestLineStream(httputils::url_decode(line));
+    std::pair<std::string, std::string> pair;
     
-    std::getline(requestLineStream, method, ' ');
-    std::getline(requestLineStream, requestUri, ' ');
-    std::getline(requestLineStream, httpVersion, '\r');
+    pair = httputils::str_split(line, ' ');
+    method = pair.first;
+    httputils::to_lower(method);
     
-    std::string queries;
-    std::istringstream requestUriStream(requestUri);
-    std::getline(requestUriStream, path, '?');
-    std::getline(requestUriStream, queries, '#');
-    std::getline(requestUriStream, fragment);
+    pair = httputils::str_split(pair.second, ' ');
+    originalUrl = httputils::url_decode(pair.first);
+    httpVersion = pair.second;
     
-    std::istringstream queriesStream(queries);
-    for (std::string query; std::getline(queriesStream, query, '&'); ) {
-        std::pair<std::string, std::string> splitted = httputils::str_split(query, '=');
-        queryMap.insert(splitted);
+    /** Belongs into url-parser middleware */
+    pair = httputils::str_split(originalUrl, '?');
+    originalUrl = pair.first;
+    path = httputils::str_split_last(pair.first, '/').first;
+    
+    if (path.empty()) {
+        path = "/";
+    }
+    
+    std::string queries = pair.second;
+    
+    while(!queries.empty()) {
+        pair = httputils::str_split(queries, '&');
+        queries = pair.second;
+        pair = httputils::str_split(pair.first, '=');
+        queryMap.insert(pair);
     }
 }
 
 
 void HTTPContext::requestReady() {
-    httpServer->process(request, response);
+    httpServer->process(method, "", request, response);
     this->reset();
 }
 
@@ -160,11 +172,11 @@ void HTTPContext::parseCookie(const std::string& value) {
 
 void HTTPContext::addRequestHeader(const std::string& line) {
     if (!line.empty()) {
-        std::pair<std::string, std::string> splitted = httputils::str_split(line, ':', '\r');
+        std::pair<std::string, std::string> splitted = httputils::str_split(line, ':');
         httputils::str_trimm(splitted.first);
         httputils::str_trimm(splitted.second);
         
-        std::transform(splitted.first.begin(), splitted.first.end(), splitted.first.begin(), ::tolower);
+        httputils::to_lower(splitted.first);
 
         if (!splitted.second.empty()) {
             if (splitted.first == "cookie") {
@@ -262,10 +274,9 @@ void HTTPContext::reset() {
     
     this->requestHeader.clear();
     this->method.clear();
-    this->requestUri.clear();
+    this->originalUrl.clear();
     this->httpVersion.clear();
     this->path.clear();
-    this->fragment.clear();
     this->queryMap.clear();
     
     if (this->bodyData != 0) {

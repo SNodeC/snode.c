@@ -10,40 +10,8 @@
 
 class HTTPContext;
 
-#define FIELD(T, prop) \
-class C ## prop {\
-public:\
-    C ## prop(HTTPContext* httpContext) : httpContext(httpContext) {}\
-\
-    operator T() const;\
-    T operator=(T i) const;\
-\
-private:\
-    HTTPContext* httpContext;\
-};\
-\
-public:\
-    C ## prop prop;\
-\
-private:
-
-#define FIELDI(T, prop) \
-Request::C ## prop::operator T() const {\
-    return this->httpContext->prop;\
-}\
-\
-T Request::C ## prop::operator=(T i) const {\
-    this->httpContext->prop = i;\
-\
-    return i;\
-}
-
-#define FIELDC(prop) prop(httpContext)
-
-
 class Request {
 private:
-    FIELD(int, bodyLength);
     
 public:
     Request(HTTPContext* httpContext);
@@ -56,13 +24,18 @@ public:
     bool isGet() const;
     bool isPut() const;
     
-    const std::string& requestURI() const;
     const std::string& query(std::string key) const;
     const std::string& httpVersion() const;
     const std::string& fragment() const;
     
-    const char* body() const;
+    const std::string& method() const;
+    
     int bodySize() const;
+    
+// Properties
+    const std::string& originalUrl;
+    char*& body;
+    const std::string& path;
     
 private:
     HTTPContext* httpContext;
