@@ -26,9 +26,9 @@ friend class Router;
 };
 
 
-class RRoute : public Route {
+class RouterRoute : public Route {
 public:
-    RRoute(const Router* parent, std::string path, Router& router) : Route(parent, path), router(router) {}
+    RouterRoute(const Router* parent, std::string path, Router& router) : Route(parent, path), router(router) {}
     
     virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& req, const Response& res) const;
     
@@ -37,9 +37,9 @@ private:
 };
 
 
-class PRoute : public Route {
+class DispatcherRoute : public Route {
 public:
-    PRoute(const Router* parent, const std::string& path, const std::function<void (const Request& req, const Response& res)>& dispatcher): Route(parent, path), dispatcher(dispatcher) {}
+    DispatcherRoute(const Router* parent, const std::string& path, const std::function<void (const Request& req, const Response& res)>& dispatcher): Route(parent, path), dispatcher(dispatcher) {}
     
     virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& req, const Response& res) const;
     
@@ -48,9 +48,9 @@ private:
 };
 
 
-class MRoute : public Route {
+class MiddlewareRoute : public Route {
 public:
-    MRoute(const Router* parent, const std::string& path, const std::function<void (const Request& req, const Response& res, const std::function<void (void)>& next)>& dispatcher): Route (parent, path), dispatcher(dispatcher) {}
+    MiddlewareRoute(const Router* parent, const std::string& path, const std::function<void (const Request& req, const Response& res, const std::function<void (void)>& next)>& dispatcher): Route (parent, path), dispatcher(dispatcher) {}
     
     virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& req, const Response& res) const;
     
@@ -59,15 +59,17 @@ private:
 };
 
 
-#define METHOD(M) \
-void M(const std::string& path, const std::function<void (const Request& req, const Response& res)>& dispatcher) { \
-    routes[#M].push_back(new PRoute(this, path, dispatcher));\
+#define REQUESTMETHOD(METHOD) \
+void METHOD(const std::string& path, const std::function<void (const Request& req, const Response& res)>& dispatcher) { \
+    routes[#METHOD].push_back(new DispatcherRoute(this, path, dispatcher));\
 };\
-void M(const std::string& path, Router& router) { \
-    routes[#M].push_back(new RRoute(this, path, router));\
+\
+void METHOD(const std::string& path, Router& router) { \
+    routes[#METHOD].push_back(new RouterRoute(this, path, router));\
 };\
-void M(const std::string& path, const std::function<void (const Request& req, const Response& res, const std::function<void (void)>& next)>& dispatcher) { \
-    mroutes[#M].push_back(new MRoute(this, path, dispatcher)); \
+\
+void METHOD(const std::string& path, const std::function<void (const Request& req, const Response& res, const std::function<void (void)>& next)>& dispatcher) { \
+    mroutes[#METHOD].push_back(new MiddlewareRoute(this, path, dispatcher)); \
 };
 
 
@@ -77,16 +79,16 @@ public:
     Router() : Route(0, "") {}
     ~Router();
     
-    METHOD(use);
-    METHOD(get);
-    METHOD(put);
-    METHOD(post);
-    METHOD(del); // for delete
-    METHOD(connect);
-    METHOD(options);
-    METHOD(trace);
-    METHOD(patch);
-    METHOD(head);
+    REQUESTMETHOD(use);
+    REQUESTMETHOD(get);
+    REQUESTMETHOD(put);
+    REQUESTMETHOD(post);
+    REQUESTMETHOD(del); // for delete
+    REQUESTMETHOD(connect);
+    REQUESTMETHOD(options);
+    REQUESTMETHOD(trace);
+    REQUESTMETHOD(patch);
+    REQUESTMETHOD(head);
 
     virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& request, const Response& response) const;
     bool dispatch(const std::map<const std::string, std::list<const Route*>>& routes, const std::string& method, const std::string& mpath, const Request& request, const Response& response) const;
