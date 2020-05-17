@@ -151,7 +151,7 @@ void HTTPContext::parseRequestLine(const std::string& line) {
 
 
 void HTTPContext::requestReady() {
-    httpServer->process(method, "", request, response);
+    httpServer->dispatch(method, "", request, response);
     this->reset();
 }
 

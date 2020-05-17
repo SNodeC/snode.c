@@ -18,26 +18,26 @@ static std::string& path_concat(const std::string& first, const std::string& sec
 }
 
 
-bool RRoute::process(const std::string& method, const std::string& mpath, const Request& request, const Response& response) const {
+bool RRoute::dispatch(const std::string& method, const std::string& mpath, const Request& request, const Response& response) const {
     bool next = true;
     
     std::string& cpath = path_concat(mpath, path);
     
     if (request.path.rfind(cpath, 0) == 0) {
-        next = router.process(method, cpath, request, response);
+        next = router.dispatch(method, cpath, request, response);
     }
     
     return next;
 }
 
 
-bool PRoute::process(const std::string& method, const std::string& mpath, const Request& request, const Response& response) const {
+bool PRoute::dispatch(const std::string& method, const std::string& mpath, const Request& request, const Response& response) const {
     bool next = true;
     
     std::string& cpath = path_concat(mpath, path);
     
     if (cpath == request.path) {
-        this->processor(request, response);
+        this->dispatcher(request, response);
         next = false;
     }
     
@@ -45,14 +45,14 @@ bool PRoute::process(const std::string& method, const std::string& mpath, const 
 }
 
 
-bool MRoute::process(const std::string& method, const std::string& mpath, const Request& request, const Response& response) const {
+bool MRoute::dispatch(const std::string& method, const std::string& mpath, const Request& request, const Response& response) const {
     bool next = true;
     
     std::string& cpath = path_concat(mpath, path);
     
     if (cpath == request.path) {
         next = false;
-        this->processor(request, response, [&next] (void) -> void {
+        this->dispatcher(request, response, [&next] (void) -> void {
             next = true;
         });
     }
@@ -61,7 +61,29 @@ bool MRoute::process(const std::string& method, const std::string& mpath, const 
 }
 
 
-bool Router::process(const std::map<const std::string, std::list<const Route*>>& routes, const std::string& method, const std::string& mpath, const Request& request, const Response& response) const {
+Router::~Router() {
+    std::map<const std::string, std::list<const Route*>>::iterator it;
+    for (it = mroutes.begin(); it != mroutes.end(); ++it) {
+        std::list<const Route*>::const_iterator itb = it->second.begin();
+        std::list<const Route*>::const_iterator ite = it->second.end();
+        
+        while(itb != ite) {
+            delete *itb;
+        }
+    }
+    
+    for (it = routes.begin(); it != routes.end(); ++it) {
+        std::list<const Route*>::const_iterator itb = it->second.begin();
+        std::list<const Route*>::const_iterator ite = it->second.end();
+        
+        while(itb != ite) {
+            delete *itb;
+        }
+    }
+}
+
+
+bool Router::dispatch(const std::map<const std::string, std::list<const Route*>>& routes, const std::string& method, const std::string& mpath, const Request& request, const Response& response) const {
     bool next = true;
     
     std::map<const std::string, std::list<const Route*>>::const_iterator it = routes.find("use");
@@ -70,7 +92,7 @@ bool Router::process(const std::map<const std::string, std::list<const Route*>>&
         std::list<const Route*>::const_iterator ite = it->second.end();
         
         while(itb != ite && next) {
-            next = (*itb)->process(method, path, request, response);
+            next = (*itb)->dispatch(method, path, request, response);
             ++itb;
         }
     }
@@ -81,7 +103,7 @@ bool Router::process(const std::map<const std::string, std::list<const Route*>>&
         std::list<const Route*>::const_iterator ite = it->second.end();
         
         while(itb != ite && next) {
-            next = (*itb)->process(method, path, request, response);
+            next = (*itb)->dispatch(method, path, request, response);
             ++itb;
         }
     }
@@ -90,10 +112,10 @@ bool Router::process(const std::map<const std::string, std::list<const Route*>>&
 }
 
 
-bool Router::process(const std::string& method, const std::string& path, const Request& request, const Response& response) const {
-    process(mroutes, method, path, request, response);
+bool Router::dispatch(const std::string& method, const std::string& path, const Request& request, const Response& response) const {
+    dispatch(mroutes, method, path, request, response);
     
-    bool next = process(routes, method, path, request, response);
+    bool next = dispatch(routes, method, path, request, response);
 
     return next;
 }

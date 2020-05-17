@@ -27,15 +27,15 @@ void Multiplexer::tick() {
         perror("Select");
         stop();
     } else {
-        timerManager.process();
+        timerManager.dispatch();
         if (retval > 0) {
-            retval = readManager.process(readfds, retval);
+            retval = readManager.dispatch(readfds, retval);
         }
         if (retval > 0) {
-            retval = writeManager.process(writefds, retval);
+            retval = writeManager.dispatch(writefds, retval);
         }
         if (retval > 0) {
-            retval = exceptionManager.process(exceptfds, retval);
+            retval = exceptionManager.dispatch(exceptfds, retval);
         }
     }
 }

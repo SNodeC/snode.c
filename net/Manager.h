@@ -56,7 +56,7 @@ public:
         updateFdSet();
     }
     
-    virtual int process(fd_set& fdSet, int count) = 0;
+    virtual int dispatch(fd_set& fdSet, int count) = 0;
 
 protected:
     std::list<T*> descriptors;
