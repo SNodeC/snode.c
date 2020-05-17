@@ -8,6 +8,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#define MFREADSIZE 16384
+
 #include "FileReader.h"
 #include "Multiplexer.h"
 
@@ -37,9 +39,9 @@ void FileReader::stop() {
 
 
 void FileReader::readEvent() {
-    char puffer[4096];
+    char puffer[MFREADSIZE];
     
-    int ret = ::read(this->getFd(), puffer, 4096);
+    int ret = ::read(this->getFd(), puffer, MFREADSIZE);
     
     if (ret > 0) {
         this->junkRead(puffer, ret);

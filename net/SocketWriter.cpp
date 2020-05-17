@@ -6,12 +6,14 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#define MAX_JUNKSIZE 4096
+
 #include "SocketWriter.h"
 #include "Multiplexer.h"
 
 
 void SocketWriter::writeEvent() {
-    ssize_t ret = ::send(this->getFd(), writePuffer.c_str(), (writePuffer.size() < 4096) ? writePuffer.size() : 4096, MSG_DONTWAIT | MSG_NOSIGNAL);
+    ssize_t ret = ::send(this->getFd(), writePuffer.c_str(), (writePuffer.size() < MAX_JUNKSIZE) ? writePuffer.size() : MAX_JUNKSIZE, MSG_DONTWAIT | MSG_NOSIGNAL);
     
     if (ret >= 0) {
         writePuffer.erase(0, ret);

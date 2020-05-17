@@ -6,6 +6,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#define MAX_JUNKSIZE 16384
+
 #include "SocketReader.h"
 #include "Multiplexer.h"
 
@@ -13,7 +15,6 @@
 
 
 void SocketReader::readEvent() {
-    #define MAX_JUNKSIZE 4096
     static char junk[MAX_JUNKSIZE];
     
     ssize_t ret = recv(this->getFd(), junk, MAX_JUNKSIZE, 0);
