@@ -1,16 +1,17 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <ctype.h>
-#include <algorithm>
-#include <sstream>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Request.h"
 #include "HTTPContext.h"
+#include "httputils.h"
 
 
-Request::Request(HTTPContext* httpContext) : FIELDC(bodyLength), httpContext(httpContext) {}
+Request::Request(HTTPContext* httpContext) :
+originalUrl(httpContext->originalUrl), 
+body(httpContext->bodyData),
+path(httpContext->path),
+httpContext(httpContext) {}
 
 
 std::multimap<std::string, std::string>& Request::header() const {
@@ -20,7 +21,7 @@ std::multimap<std::string, std::string>& Request::header() const {
 
 const std::string& Request::header(const std::string& key, int i) const {
     std::string tmpKey = key;
-    std::transform(tmpKey.begin(), tmpKey.end(), tmpKey.begin(), ::tolower);
+    httputils::to_lower(tmpKey);
     
     if (this->httpContext->requestHeader.find(tmpKey) != this->httpContext->requestHeader.end()) {
         std::pair<std::multimap<std::string, std::string>::iterator, std::multimap<std::string, std::string>::iterator> range = this->httpContext->requestHeader.equal_range(tmpKey);
@@ -45,33 +46,28 @@ const std::string& Request::cookie(const std::string& key) const {
 }
 
 
-const char* Request::body() const {
-    return this->httpContext->bodyData;
-}
-
-
 int Request::bodySize() const {
     return this->httpContext->bodyLength;
 }
 
 
 bool Request::isGet() const {
-    return this->httpContext->method == "GET";
+    return this->httpContext->method == "get";
 }
 
 
 bool Request::isPost() const {
-    return this->httpContext->method == "POST";
+    return this->httpContext->method == "post";
 }
 
 
 bool Request::isPut() const {
-    return this->httpContext->method == "PUT";
+    return this->httpContext->method == "put";
 }
 
 
-const std::string& Request::requestURI() const {
-    return this->httpContext->path;
+const std::string& Request::method() const {
+    return this->httpContext->method;
 }
 
 
@@ -87,11 +83,3 @@ const std::string& Request::query(std::string key) const {
 const std::string& Request::httpVersion() const {
     return this->httpContext->httpVersion;
 }
-
-
-const std::string& Request::fragment() const {
-    return this->httpContext->fragment;
-}
-
-
-FIELDI(int, bodyLength);

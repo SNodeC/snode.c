@@ -14,7 +14,7 @@ class ConnectedSocket;
 class Request;
 class Response;
 
-class HTTPServer
+class HTTPServer : public Router
 {
 private:
     HTTPServer();
@@ -29,16 +29,6 @@ public:
     
     void destroy();
     
-    void process(const Request& request, const Response& response);
-    
-    void all(const std::string& path, const std::function<void (const Request& req, const Response& res)>& processor);
-    
-    void get(const std::string& path, const std::function<void (const Request& req, const Response& res)>& processor);
-    
-    void post(const std::string& path, const std::function<void (const Request& req, const Response& res)>& processor);
-    
-    void put(const std::string& path, const std::function<void (const Request& req, const Response& res)>& processor);
-    
     std::string& getRootDir() {
         return rootDir;
     }
@@ -49,13 +39,7 @@ public:
             this->rootDir += '/';
         }
     }
-    
-protected:
-    std::function<void (const Request& req, const Response& res)> allProcessor;
-    std::function<void (const Request& req, const Response& res)> getProcessor;
-    std::function<void (const Request& req, const Response& res)> postProcessor;
-    std::function<void (const Request& req, const Response& res)> putProcessor;
-    
+
     std::string rootDir;
 };
 

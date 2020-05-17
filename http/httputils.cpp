@@ -2,12 +2,13 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
 
-#include <sstream>
+#include <algorithm>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -21,8 +22,8 @@ static char from_hex(char ch) {
 
 std::string url_decode(std::string text) {
     char h;
-    std::ostringstream escaped;
-    escaped.fill('0');
+    
+    std::string escaped;
     
     for (auto i = text.begin(), n = text.end(); i != n; ++i) {
         std::string::value_type c = (*i);
@@ -30,17 +31,17 @@ std::string url_decode(std::string text) {
         if (c == '%') {
             if (i[1] && i[2]) {
                 h = from_hex(i[1]) << 4 | from_hex(i[2]);
-                escaped << h;
+                escaped += h;
                 i += 2;
             }
         } else if (c == '+') {
-            escaped << ' ';
+            escaped += ' ';
         } else {
-            escaped << c;
+            escaped += c;
         }
     }
     
-    return escaped.str();
+    return escaped;
 }
 
 
@@ -52,16 +53,47 @@ std::string& str_trimm(std::string& text) {
 }
 
 
-std::pair<std::string, std::string>  str_split(const std::string& base, char c_middle, char c_end) {
+std::pair<std::string, std::string>  str_split(const std::string& base, char c_middle) {
     std::pair<std::string, std::string>  split;
     
     int middle  = base.find_first_of(c_middle);
-    int end = base.find_first_of(c_end, middle + 1);
     
     split.first = base.substr(0, middle);
-    split.second = base.substr(middle + 1, end);
+    
+    if (middle != std::string::npos) {
+        split.second = base.substr(middle + 1);
+    }
     
     return split;
+}
+
+
+std::pair<std::string, std::string> str_split_last(const std::string& base, char c_middle) {
+    std::pair<std::string, std::string>  split;
+    
+    int middle  = base.find_last_of(c_middle);
+    
+    split.first = base.substr(0, middle);
+    
+    if (middle != std::string::npos) {
+        split.second = base.substr(middle + 1);
+    }
+    
+    return split;
+}
+    
+
+std::string str_substr_char(const std::string& string, const char c, std::string::size_type& pos) {
+    std::string::size_type rpos = string.find_first_of(c, pos);
+    
+    std::string result = "";
+    
+    if (rpos != std::string::npos) {
+        result = string.substr(pos, rpos - pos);
+        pos = rpos + 1;
+    }
+    
+    return result;
 }
 
 
@@ -98,6 +130,11 @@ std::string file_mod_http_date(std::string& filePath) {
     strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", gmtime(&(attrib.st_mtime)));
     
     return std::string(buf);    
+}
+
+
+std::string::iterator to_lower(std::string& string) {
+    return std::transform(string.begin(), string.end(), string.begin(), ::tolower);
 }
 
 }
