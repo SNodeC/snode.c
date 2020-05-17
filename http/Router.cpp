@@ -18,7 +18,7 @@ static std::string& path_concat(const std::string& first, const std::string& sec
 }
 
 
-bool RRoute::dispatch(const std::string& method, const std::string& mpath, const Request& request, const Response& response) const {
+bool RouterRoute::dispatch(const std::string& method, const std::string& mpath, const Request& request, const Response& response) const {
     bool next = true;
     
     std::string& cpath = path_concat(mpath, path);
@@ -31,7 +31,7 @@ bool RRoute::dispatch(const std::string& method, const std::string& mpath, const
 }
 
 
-bool PRoute::dispatch(const std::string& method, const std::string& mpath, const Request& request, const Response& response) const {
+bool DispatcherRoute::dispatch(const std::string& method, const std::string& mpath, const Request& request, const Response& response) const {
     bool next = true;
     
     std::string& cpath = path_concat(mpath, path);
@@ -45,7 +45,7 @@ bool PRoute::dispatch(const std::string& method, const std::string& mpath, const
 }
 
 
-bool MRoute::dispatch(const std::string& method, const std::string& mpath, const Request& request, const Response& response) const {
+bool MiddlewareRoute::dispatch(const std::string& method, const std::string& mpath, const Request& request, const Response& response) const {
     bool next = true;
     
     std::string& cpath = path_concat(mpath, path);
