@@ -204,6 +204,9 @@ void HTTPContext::send(const char* puffer, int size) {
 
 
 void HTTPContext::send(const std::string& puffer) {
+    if (responseHeader.find("Content-Type") == responseHeader.end()) {
+        responseHeader.insert({"Content-Type", "text/html; charset=utf-8"});
+    }
     this->send(puffer.c_str(), puffer.size());
 }
 
