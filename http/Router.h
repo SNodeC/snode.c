@@ -7,124 +7,97 @@
 #include <string>
 
 class Request;
-
 class Response;
-
 class Router;
 
-class Route
-{
+class Route {
 public:
-	Route (const Router *parent, const std::string &method, const std::string &path) : parent(parent), method(method), path(path)
-	{}
-	
-	virtual ~Route ()
-	{}
-	
-	virtual bool dispatch (const std::string &method, const std::string &mpath, const Request &req, const Response &res) const = 0;
-
-
+    Route(const Router* parent, const std::string& method, const std::string& path) : parent(parent), method(method), path(path) {}
+    virtual ~Route() {}
+    
+    virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& req, const Response& res) const = 0;
+    
+    
 protected:
-	const Router *parent;
-	const std::string method;
-	const std::string path;
-	
-	friend class Router;
+    const Router* parent;
+    const std::string method;
+    const std::string path;
+    
+friend class Router;
 };
 
 
-class RouterRoute : public Route
-{
+class RouterRoute : public Route {
 public:
-	RouterRoute (const Router *parent, const std::string &method, std::string path, Router &router) : Route(parent, method, path), router(router)
-	{}
-	
-	virtual bool dispatch (const std::string &method, const std::string &mpath, const Request &req, const Response &res) const;
-
+    RouterRoute(const Router* parent, const std::string& method, std::string path, Router& router) : Route(parent, method, path), router(router) {}
+    
+    virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& req, const Response& res) const;
+    
 private:
-	const Router &router;
+    const Router& router;
 };
 
 
-class DispatcherRoute : public Route
-{
+class DispatcherRoute : public Route {
 public:
-	DispatcherRoute (const Router *parent, const std::string &method, const std::string &path,
-	                 const std::function<void (const Request &req, const Response &res)> &dispatcher) : Route(parent, method, path),
-	                                                                                                    dispatcher(dispatcher)
-	{}
-	
-	virtual bool dispatch (const std::string &method, const std::string &mpath, const Request &req, const Response &res) const;
-
+    DispatcherRoute(const Router* parent, const std::string& method, const std::string& path, const std::function<void (const Request& req, const Response& res)>& dispatcher): Route(parent, method, path), dispatcher(dispatcher) {}
+    
+    virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& req, const Response& res) const;
+    
 private:
-	const std::function<void (const Request &req, const Response &res)> dispatcher;
+    const std::function<void (const Request& req, const Response& res)> dispatcher;
 };
 
 
-class MiddlewareRoute : public Route
-{
+class MiddlewareRoute : public Route {
 public:
-	MiddlewareRoute (const Router *parent, const std::string &method, const std::string &path,
-	                 const std::function<void (const Request &req, const Response &res, const std::function<void (void)> &next)> &dispatcher) : Route(
-			parent, method, path), dispatcher(dispatcher)
-	{}
-	
-	virtual bool dispatch (const std::string &method, const std::string &mpath, const Request &req, const Response &res) const;
-
+    MiddlewareRoute(const Router* parent, const std::string& method, const std::string& path, const std::function<void (const Request& req, const Response& res, const std::function<void (void)>& next)>& dispatcher): Route (parent, method, path), dispatcher(dispatcher) {}
+    
+    virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& req, const Response& res) const;
+    
 private:
-	const std::function<void (const Request &req, const Response &res, std::function<void (void)>)> dispatcher;
+    const std::function<void (const Request& req, const Response& res, std::function<void (void)>)> dispatcher;
 };
 
 
 #define REQUESTMETHOD(METHOD) \
 void METHOD(const std::string& path, const std::function<void (const Request& req, const Response& res)>& dispatcher) { \
-    nroutes.push_back(new DispatcherRoute(this, #METHOD, path, dispatcher));\
+    routes.push_back(new DispatcherRoute(this, #METHOD, path, dispatcher));\
 };\
 \
 void METHOD(const std::string& path, Router& router) { \
-    nroutes.push_back(new RouterRoute(this, #METHOD, path, router));\
+    routes.push_back(new RouterRoute(this, #METHOD, path, router));\
 };\
 \
 void METHOD(const std::string& path, const std::function<void (const Request& req, const Response& res, const std::function<void (void)>& next)>& dispatcher) { \
-    nroutes.push_back(new MiddlewareRoute(this, #METHOD, path, dispatcher));\
+    routes.push_back(new MiddlewareRoute(this, #METHOD, path, dispatcher));\
 };
 
 
 class Router : public Route
 {
 public:
-	Router () : Route(0, "use", "")
-	{}
-	
-	~Router ();
-	
-	REQUESTMETHOD(use);
-	
-	REQUESTMETHOD(get);
-	
-	REQUESTMETHOD(put);
-	
-	REQUESTMETHOD(post);
-	
-	REQUESTMETHOD(del); // for delete
-	REQUESTMETHOD(connect);
-	
-	REQUESTMETHOD(options);
-	
-	REQUESTMETHOD(trace);
-	
-	REQUESTMETHOD(patch);
-	
-	REQUESTMETHOD(head);
-	
-	bool dispatch (const std::list<const Route *> &nroute, const std::string &method, const std::string &mpath, const Request &request,
-	               const Response &response) const;
-	
-	virtual bool dispatch (const std::string &method, const std::string &mpath, const Request &request, const Response &response) const;
-
-
+    Router() : Route(0, "use", "") {}
+    ~Router();
+    
+    REQUESTMETHOD(use);
+    REQUESTMETHOD(get);
+    REQUESTMETHOD(put);
+    REQUESTMETHOD(post);
+    REQUESTMETHOD(del); // for delete
+    REQUESTMETHOD(connect);
+    REQUESTMETHOD(options);
+    REQUESTMETHOD(trace);
+    REQUESTMETHOD(patch);
+    REQUESTMETHOD(head);
+    
+    bool dispatch(const std::list<const Route*>& nroute, const std::string& method, const std::string& mpath, const Request& request, const Response& response) const;
+    
+    virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& request, const Response& response) const;
+    
+    
 protected:
-	std::list<const Route *> nroutes;
+    std::list<const Route*> routes;
 };
 
 
