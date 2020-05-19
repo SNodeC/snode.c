@@ -62,15 +62,15 @@ private:
 
 #define REQUESTMETHOD(METHOD) \
 void METHOD(const std::string& path, const std::function<void (const Request& req, const Response& res)>& dispatcher) { \
-    routes[#METHOD].push_back(new DispatcherRoute(this, #METHOD, path, dispatcher));\
+    nroutes.push_back(new DispatcherRoute(this, #METHOD, path, dispatcher));\
 };\
 \
 void METHOD(const std::string& path, Router& router) { \
-    routes[#METHOD].push_back(new RouterRoute(this, #METHOD, path, router));\
+    nroutes.push_back(new RouterRoute(this, #METHOD, path, router));\
 };\
 \
 void METHOD(const std::string& path, const std::function<void (const Request& req, const Response& res, const std::function<void (void)>& next)>& dispatcher) { \
-    mroutes[#METHOD].push_back(new MiddlewareRoute(this, #METHOD, path, dispatcher)); \
+    nroutes.push_back(new MiddlewareRoute(this, #METHOD, path, dispatcher));\
 };
 
 
@@ -90,13 +90,14 @@ public:
     REQUESTMETHOD(trace);
     REQUESTMETHOD(patch);
     REQUESTMETHOD(head);
-
+    
+    bool dispatch(const std::list<const Route*>& nroute, const std::string& method, const std::string& mpath, const Request& request, const Response& response) const;
+    
     virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& request, const Response& response) const;
-    bool dispatch(const std::map<const std::string, std::list<const Route*>>& routes, const std::string& method, const std::string& mpath, const Request& request, const Response& response) const;
+    
     
 protected:
-    std::map<const std::string, std::list<const Route*>> mroutes;
-    std::map<const std::string, std::list<const Route*>> routes;
+    std::list<const Route*> nroutes;
 };
 
 
