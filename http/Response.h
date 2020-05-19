@@ -4,12 +4,24 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
+#include <map>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 
 class HTTPContext;
+
+class Cookie {
+public:
+    Cookie(const std::string& value, const std::map<std::string, std::string>& options) : value(value), options(options) {}
+
+protected:
+    const std::string value;
+    const std::map<std::string, std::string> options;
+
+friend class HTTPContext;
+};
 
 class Response {
 public:
@@ -29,7 +41,7 @@ public:
     
     void set(const std::string& field, const std::string& value) const;
     
-    void cookie(const std::string& name, const std::string& value) const;
+    void cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options = {}) const;
     
 //    void append(const std::string& field, const std::string& value) const;
     

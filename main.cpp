@@ -29,7 +29,7 @@ int timerApp(int argc, char** argv) {
     bool canceled = false;
     HTTPServer& app = HTTPServer::instance();
     
-    app.serverRoot("/home/voc/projects/ServerVoc/build/html");
+    app.serverRoot("/home/student/Desktop/Networked Distributed Systems/snode.c/build/html");
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
@@ -48,8 +48,11 @@ int timerApp(int argc, char** argv) {
                 std::cout << "If-Modified: " << req.header("If-Modified-Since") << std::endl;
                 
                 std::cout << "RQuery: " << req.query("Hallo") << std::endl;
+
+                res.cookie("Test", "me", {
+                        {"Max-Age", "3600"}
+                });
                 
-                res.cookie("Test", "me");
                 
                 //            res.set("Connection", "close");
                 res.sendFile(uri, [uri] (int ret) -> void {
@@ -87,7 +90,7 @@ int timerApp(int argc, char** argv) {
 int simpleWebserver(int argc, char** argv) {
     HTTPServer& app = HTTPServer::instance();
     
-    app.serverRoot("/home/voc/projects/ServerVoc/build/html");
+    app.serverRoot("/home/student/Desktop/Networked Distributed Systems/snode.c/build/html");
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
@@ -96,8 +99,12 @@ int simpleWebserver(int argc, char** argv) {
                 if (uri == "/") {
                     uri = "/index.html";
                 }
-                
-                std::cout << uri << std::endl;
+
+                res.cookie("Test", "me", {
+                        {"Max-Age", "3600"}
+                });
+
+                // std::cout << uri << std::endl;
                 
                 res.sendFile(uri, [uri] (int ret) -> void {
                     if (ret != 0) {

@@ -231,8 +231,18 @@ void HTTPContext::sendHeader() {
     }
     
     
-    for (std::multimap<std::string, std::string>::iterator it = responseCookies.begin(); it != responseCookies.end(); ++it) {
-        connectedSocket->send("Set-Cookie: " + it->first + "=" + it->second + "\r\n");
+    for (std::multimap<std::string, Cookie>::iterator it = responseCookies.begin(); it != responseCookies.end(); ++it) {
+        std::string cookieString = it->first + "=" + it->second.value;
+        std::map<std::string, std::string>::const_iterator optionsBeginIterator = it->second.options.begin();
+        std::map<std::string, std::string>::const_iterator optionsEndIterator = it->second.options.end();
+
+        while(optionsBeginIterator != optionsEndIterator) {
+            cookieString += ";" + optionsBeginIterator->first + ((optionsBeginIterator->second != "") ? "=" + optionsBeginIterator->second : "");
+            optionsBeginIterator++;
+        }
+
+
+        connectedSocket->send("Set-Cookie: " + cookieString + "\r\n");
     }
         
     connectedSocket->send("\r\n");

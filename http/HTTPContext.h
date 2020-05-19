@@ -6,6 +6,8 @@
 #include <functional>
 #include <string>
 #include <map>
+#include <Request.h>
+#include <Response.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -79,7 +81,7 @@ protected:
     std::multimap<std::string, std::string> requestHeader;
     std::multimap<std::string, std::string> responseHeader;
     std::map<std::string, std::string> requestCookies;
-    std::map<std::string, std::string> responseCookies;
+    std::map<std::string, Cookie> responseCookies;
     
     friend class Response;
     friend class Request;

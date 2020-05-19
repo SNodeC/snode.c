@@ -28,8 +28,10 @@ void Response::append(const std::string& field, const std::string& value) const 
 */
 
 
-void Response::cookie(const std::string& name, const std::string& value) const {
-    this->httpContext->responseCookies.insert({name, value});
+void Response::cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options) const {
+    // class Cookie cookie(value, const std::map<std::string opt, std::string optvalue>& options)
+    Cookie cookie(value, options);
+    this->httpContext->responseCookies.insert({name, cookie});
 }
 
 void Response::send(const std::string& text) const {
