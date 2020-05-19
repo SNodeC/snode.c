@@ -10,20 +10,23 @@
 #include "ManagedDescriptor.h"
 
 
-class Reader : public ManagedDescriptor {
+class Reader : public ManagedDescriptor
+{
 public:
-    virtual void readEvent() = 0;
-    
+	virtual void readEvent () = 0;
+
 protected:
-    Reader(const std::function<void (int errnum)>& onError) : ManagedDescriptor(), onError(onError) {}
-    
-    void setOnError(const std::function<void (int errnum)>& onError) {
-        this->onError = onError;
-    }
-    
-    virtual ~Reader() = default;
-    
-    std::function<void (int errnum)> onError;
+	Reader (const std::function<void (int errnum)> &onError) : ManagedDescriptor(), onError(onError)
+	{}
+	
+	void setOnError (const std::function<void (int errnum)> &onError)
+	{
+		this->onError = onError;
+	}
+	
+	virtual ~Reader () = default;
+	
+	std::function<void (int errnum)> onError;
 };
 
 

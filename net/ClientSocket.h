@@ -11,7 +11,9 @@
 #include "InetAddress.h"
 
 
-class ClientSocket {}; /* : public ConnectedSocket
+class ClientSocket
+{
+}; /* : public ConnectedSocket
 {
 private:
     ClientSocket(int csFd);
@@ -21,7 +23,7 @@ public:
     
     virtual void ready();
     
-    virtual void push(const char* junk, int n);
+    virtual void push(const char* chunk, int n);
     
 protected:
     Request request;

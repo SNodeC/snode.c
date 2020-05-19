@@ -16,14 +16,17 @@ class ConnectedSocket;
 class SocketReader : public Reader, virtual public Socket
 {
 public:
-    void readEvent();
-    
+	void readEvent ();
+
 protected:
-    SocketReader() : Socket(), Reader(0), readProcessor(0) {}
-    
-    SocketReader(const std::function<void (ConnectedSocket* cs, const char* junk, ssize_t n)>& readProcessor, const std::function<void (int errnum)>& onError) : Socket(), Reader(onError), readProcessor(readProcessor) {}
-    
-    std::function<void (ConnectedSocket* cs, const char* junk, ssize_t n)> readProcessor;
+	SocketReader () : Socket(), Reader(0), readProcessor(0)
+	{}
+	
+	SocketReader (const std::function<void (ConnectedSocket *cs, const char *chunk, std::size_t n)> &readProcessor,
+	              const std::function<void (int errnum)> &onError) : Socket(), Reader(onError), readProcessor(readProcessor)
+	{}
+	
+	std::function<void (ConnectedSocket *cs, const char *chunk, std::size_t n)> readProcessor;
 };
 
 #endif // SOCKETREADER_H

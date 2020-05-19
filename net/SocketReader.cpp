@@ -14,19 +14,23 @@
 #include "ConnectedSocket.h"
 
 
-void SocketReader::readEvent() {
-    static char junk[MAX_JUNKSIZE];
-    
-    ssize_t ret = recv(this->getFd(), junk, MAX_JUNKSIZE, 0);
-    
-    if (ret > 0) {
-        readProcessor(dynamic_cast<ConnectedSocket*>(this), junk, ret);
-    } else if (ret == 0) {
-        onError(0);
-        Multiplexer::instance().getReadManager().unmanageSocket(this);
-    } else {
-        onError(errno);
-        Multiplexer::instance().getReadManager().unmanageSocket(this);
-    }
+void SocketReader::readEvent ()
+{
+	static char chunk[MAX_JUNKSIZE];
+	
+	std::size_t ret = recv(this->getFd(), chunk, MAX_JUNKSIZE, 0);
+	
+	if (ret > 0)
+	{
+		readProcessor(dynamic_cast<ConnectedSocket *>(this), chunk, ret);
+	} else if (ret == 0)
+	{
+		onError(0);
+		Multiplexer::instance().getReadManager().unmanageSocket(this);
+	} else
+	{
+		onError(errno);
+		Multiplexer::instance().getReadManager().unmanageSocket(this);
+	}
 }
 

@@ -5,27 +5,29 @@
 class Descriptor
 {
 protected:
-    Descriptor();
-    
-    Descriptor(int fd);
-    
+	Descriptor ();
+	
+	Descriptor (int fd);
+
 private:
-    Descriptor& operator=(const Descriptor& descriptor) {
-        return *this;
-    }
-    
-    
+	Descriptor &operator= (const Descriptor &descriptor)
+	{
+		return *this;
+	}
+
+
 public:
-    virtual ~Descriptor();
-    
-    int getFd() const;
-    
-    void setFd(int fd) {
-        this->fd = fd;
-    }
-    
+	virtual ~Descriptor ();
+	
+	int getFd () const;
+	
+	void setFd (int fd)
+	{
+		this->fd = fd;
+	}
+
 private:
-    int fd;
+	int fd;
 };
 
 #endif // DESCRIPTOR_H

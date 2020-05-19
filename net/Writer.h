@@ -11,18 +11,20 @@
 #include "ManagedDescriptor.h"
 
 
-class Writer : public ManagedDescriptor {
+class Writer : public ManagedDescriptor
+{
 public:
-    virtual void writeEvent() = 0;
-    
+	virtual void writeEvent () = 0;
+
 protected:
-    Writer(const std::function<void (int errnum)>& onError) : ManagedDescriptor(), onError(onError) {}
-    
-    virtual ~Writer() = default;
-    
-    std::string writePuffer;
-    
-    std::function<void (int errnum)> onError;
+	Writer (const std::function<void (int errnum)> &onError) : ManagedDescriptor(), onError(onError)
+	{}
+	
+	virtual ~Writer () = default;
+	
+	std::string writePuffer;
+	
+	std::function<void (int errnum)> onError;
 };
 
 

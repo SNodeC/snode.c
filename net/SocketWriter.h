@@ -10,10 +10,11 @@
 class SocketWriter : public Writer, virtual public Socket
 {
 public:
-    void writeEvent();
-    
+	void writeEvent ();
+
 protected:
-    SocketWriter(const std::function<void (int errnum)>& onError) : Socket(), Writer(onError) {}
+	SocketWriter (const std::function<void (int errnum)> &onError) : Socket(), Writer(onError)
+	{}
 };
 
 #endif // SOCKETWRITER_H

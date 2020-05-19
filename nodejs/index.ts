@@ -10,8 +10,9 @@ app.get('/:file', (req, res) => {   // http://localhost:8088/index.html
 });
 
 
-app.get('/search/:file', (req, res) => {     http://localhost:8088/search/index.html
-    console.log(req.originalUrl);
+app.get('/search/:file', (req, res) => {
+    http://localhost:8088/search/index.html
+        console.log(req.originalUrl);
     res.sendFile("/home/voc/projects/ServerVoc/build/html/search/" + req.params.file);
 });
 

@@ -1,0 +1,14 @@
+/home/student/projects/Server/build/CMakeFiles/install/strip.dir
+/home/student/projects/Server/build/CMakeFiles/install/local.dir
+/home/student/projects/Server/build/CMakeFiles/edit_cache.dir
+/home/student/projects/Server/build/CMakeFiles/install.dir
+/home/student/projects/Server/build/CMakeFiles/list_install_components.dir
+/home/student/projects/Server/build/CMakeFiles/rebuild_cache.dir
+/home/student/projects/Server/build/CMakeFiles/snode.c.dir
+/home/student/projects/Server/build/net/CMakeFiles/install/strip.dir
+/home/student/projects/Server/build/net/CMakeFiles/install/local.dir
+/home/student/projects/Server/build/net/CMakeFiles/install.dir
+/home/student/projects/Server/build/net/CMakeFiles/list_install_components.dir
+/home/student/projects/Server/build/net/CMakeFiles/rebuild_cache.dir
+/home/student/projects/Server/build/net/CMakeFiles/edit_cache.dir
+/home/student/projects/Server/build/net/CMakeFiles/net.dir

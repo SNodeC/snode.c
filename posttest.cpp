@@ -10,15 +10,17 @@
 #include "HTTPServer.h"
 
 #include "httputils.h"
-         
-                
-int testPost(int argc, char* argv[]) {
-    HTTPServer& app = HTTPServer::instance();
-    
-    app.get("/",
-            [&] (const Request& req, const Response& res) -> void {
-                res.send(
-                    "<html>"\
+
+
+int testPost (int argc, char *argv[])
+{
+	HTTPServer &app = HTTPServer::instance();
+	
+	app.get("/",
+	        [&] (const Request &req, const Response &res) -> void
+	        {
+		        res.send(
+				        "<html>"\
                         "<head>"\
                             "<style>"\
                                 "main {"\
@@ -48,42 +50,47 @@ int testPost(int argc, char* argv[]) {
                             "</main>"\
                         "</body>"\
                     "</html>");
-            });
-    
-    app.post("/", 
-             [&] (const Request& req, const Response& res) -> void {
-                 std::cout << "Content-Type: " << req.header("Content-Type") << std::endl;
-                 std::cout << "Content-Length: " << req.header("Content-Length") << std::endl;
-                 char* body = new char[std::stoi(req.header("Content-Length")) + 1];
-                 memcpy(body, req.body, std::stoi(req.header("Content-Length")));
-                 body[std::stoi(req.header("Content-Length"))] = 0;
-                 
-                 std::cout << "Body: " << std::endl;
-                 std::cout << body << std::endl;
-                 res.send(
-                    "<html>"\
+	        });
+	
+	app.post("/",
+	         [&] (const Request &req, const Response &res) -> void
+	         {
+		         std::cout << "Content-Type: " << req.header("Content-Type") << std::endl;
+		         std::cout << "Content-Length: " << req.header("Content-Length") << std::endl;
+		         char *body = new char[std::stoi(req.header("Content-Length")) + 1];
+		         memcpy(body, req.body, std::stoi(req.header("Content-Length")));
+		         body[std::stoi(req.header("Content-Length"))] = 0;
+		
+		         std::cout << "Body: " << std::endl;
+		         std::cout << body << std::endl;
+		         res.send(
+				         "<html>"\
                         "<body>"\
                             "<h1>Thank you</h1>"\
                         "</body>"\
                     "</html>"
-                );
-             });
-    
-    app.listen(8080, 
-               [] (int err) -> void {
-                   if (err != 0) {
-                       perror("Listen");
-                   } else {
-                       std::cout << "snode.c listening on port 8080" << std::endl;
-                   }
-               }
-    );
-    
-    return 0;
+		         );
+	         });
+	
+	app.listen(8080,
+	           [] (int err) -> void
+	           {
+		           if (err != 0)
+		           {
+			           perror("Listen");
+		           } else
+		           {
+			           std::cout << "snode.c listening on port 8080" << std::endl;
+		           }
+	           }
+	);
+	
+	return 0;
 }
-                
 
-int main(int argc, char** argv) {
-    return testPost(argc, argv);
+
+int main (int argc, char **argv)
+{
+	return testPost(argc, argv);
 }
 

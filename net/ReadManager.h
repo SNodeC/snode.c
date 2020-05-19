@@ -8,7 +8,7 @@
 class ReadManager : public Manager<Reader>
 {
 public:
-    virtual int dispatch(fd_set& fdSet, int count);
+	virtual int dispatch (fd_set &fdSet, int count);
 };
 
 #endif // SOCKETREADMANAGER_H
