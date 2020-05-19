@@ -33,6 +33,7 @@ int testPost(int argc, char* argv[]) {
                                     "border: 1px dotted;"\
                                 "}"\
                             "</style>"\
+                            "<title>Test of the POST http-method</title>"\
                         "</head>"\
                         "<body>"\
                             "<h1>Datei-Upload mit input type=\"file\"</h1>"\
