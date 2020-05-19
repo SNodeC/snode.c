@@ -23,7 +23,7 @@ bool RouterRoute::dispatch(const std::string& method, const std::string& mpath, 
     
     std::string& cpath = path_concat(mpath, path);
     
-    if (request.path.rfind(cpath, 0) == 0) {
+    if (request.path.rfind(cpath, 0) == 0 && method == this->method) {
         next = router.dispatch(method, cpath, request, response);
     }
     
@@ -36,7 +36,7 @@ bool DispatcherRoute::dispatch(const std::string& method, const std::string& mpa
     
     std::string& cpath = path_concat(mpath, path);
     
-    if (cpath == request.path) {
+    if (cpath == request.path && method == this->method) {
         this->dispatcher(request, response);
         next = false;
     }
@@ -50,7 +50,7 @@ bool MiddlewareRoute::dispatch(const std::string& method, const std::string& mpa
     
     std::string& cpath = path_concat(mpath, path);
     
-    if (cpath == request.path) {
+    if (cpath == request.path && (method == this->method || this->method == "use")) {
         next = false;
         this->dispatcher(request, response, [&next] (void) -> void {
             next = true;
@@ -62,60 +62,33 @@ bool MiddlewareRoute::dispatch(const std::string& method, const std::string& mpa
 
 
 Router::~Router() {
-    std::map<const std::string, std::list<const Route*>>::iterator it;
-    for (it = mroutes.begin(); it != mroutes.end(); ++it) {
-        std::list<const Route*>::const_iterator itb = it->second.begin();
-        std::list<const Route*>::const_iterator ite = it->second.end();
-        
-        while(itb != ite) {
-            delete *itb;
-        }
-    }
+    std::list<const Route*>::const_iterator itb = nroutes.begin();
+    std::list<const Route*>::const_iterator ite = nroutes.end();
     
-    for (it = routes.begin(); it != routes.end(); ++it) {
-        std::list<const Route*>::const_iterator itb = it->second.begin();
-        std::list<const Route*>::const_iterator ite = it->second.end();
-        
-        while(itb != ite) {
-            delete *itb;
-        }
+    while(itb != ite) {
+        delete *itb;
+        ++itb;
     }
 }
 
 
-bool Router::dispatch(const std::map<const std::string, std::list<const Route*>>& routes, const std::string& method, const std::string& mpath, const Request& request, const Response& response) const {
+bool Router::dispatch(const std::list<const Route*>& nroutes, const std::string& method, const std::string& mpath, const Request& request, const Response& response) const {
     bool next = true;
     
-    std::map<const std::string, std::list<const Route*>>::const_iterator it = routes.find("use");
-    if (it != routes.end()) {
-        std::list<const Route*>::const_iterator itb = it->second.begin();
-        std::list<const Route*>::const_iterator ite = it->second.end();
-        
-        while(itb != ite && next) {
-            next = (*itb)->dispatch(method, path, request, response);
-            ++itb;
-        }
-    }
+    std::list<const Route*>::const_iterator itb = nroutes.begin();
+    std::list<const Route*>::const_iterator ite = nroutes.end();
     
-    it = routes.find(method);
-    if (it != routes.end()) {
-        std::list<const Route*>::const_iterator itb = it->second.begin();
-        std::list<const Route*>::const_iterator ite = it->second.end();
-        
-        while(itb != ite && next) {
-            next = (*itb)->dispatch(method, path, request, response);
-            ++itb;
-        }
+    while(itb != ite && next) {
+        next = (*itb)->dispatch(method, path, request, response);
+        ++itb;
     }
     
     return next;
 }
-
+    
 
 bool Router::dispatch(const std::string& method, const std::string& path, const Request& request, const Response& response) const {
-    dispatch(mroutes, method, path, request, response);
+    bool next = dispatch(nroutes, method, path, request, response);
     
-    bool next = dispatch(routes, method, path, request, response);
-
     return next;
 }
