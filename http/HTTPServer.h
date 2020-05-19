@@ -17,12 +17,12 @@ class Response;
 class HTTPServer : public Router
 {
 private:
-    HTTPServer();
+    HTTPServer(const std::string& serverRoot);
 
 public:
     ~HTTPServer();
     
-    static HTTPServer& instance();
+    static HTTPServer& instance(const std::string& serverRoot = "./");
     
     void listen(int port);
     void listen(int port, const std::function<void (int err)>& onError);

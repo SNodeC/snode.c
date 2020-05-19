@@ -251,16 +251,24 @@ void HTTPContext::sendHeader() {
         connectedSocket->send(it->first + ": " + it->second + "\r\n");
     }
     
-    for (std::map<std::string, std::string>::iterator it = responseCookies.begin(); it != responseCookies.end(); ++it) {
-        connectedSocket->send("Set-Cookie: " + it->first + "=" + it->second + "\r\n");
-    }
+    for (std::map<std::string, ResponseCookie>::iterator it = responseCookies.begin(); it != responseCookies.end(); ++it) {
+        std::string cookiestring = it->first + "=" + it->second.value;
         
+        std::map<std::string, std::string>::const_iterator obit = it->second.options.begin();
+        std::map<std::string, std::string>::const_iterator oeit = it->second.options.end();
+        while(obit != oeit) {
+            cookiestring += "; " + obit->first + ((obit->second != "") ? "=" + obit->second : "");
+            ++obit;
+        }
+        connectedSocket->send("Set-Cookie: " + cookiestring + "\r\n");
+    }
+    
     connectedSocket->send("\r\n");
 }
 
 
 void HTTPContext::end() {
-    this->responseHeader.insert({"Content-Length", std::to_string(0)});
+    this->responseHeader.insert({"Content-Length", "0"});
     this->sendHeader();
 }
 
