@@ -28,9 +28,7 @@ int timerApp(int argc, char** argv) {
         (struct timeval) {1, 100000}, "Tack");
     
     bool canceled = false;
-    HTTPServer& app = HTTPServer::instance();
-    
-    app.serverRoot("/home/voc/projects/ServerVoc/build/html");
+    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
@@ -50,7 +48,12 @@ int timerApp(int argc, char** argv) {
                 
                 std::cout << "RQuery: " << req.query("Hallo") << std::endl;
                 
-                res.cookie("Test", "me");
+                res.cookie("Test", "me", 
+                    {
+                        {"Max-Age", "3600"}
+                    }
+                    
+                );
                 
                 //            res.set("Connection", "close");
                 res.sendFile(uri, [uri] (int ret) -> void {
@@ -86,7 +89,7 @@ int timerApp(int argc, char** argv) {
 
 
 int simpleWebserver(int argc, char** argv) {
-    HTTPServer& app = HTTPServer::instance();
+    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
     
     Router router;
     
@@ -119,11 +122,11 @@ int simpleWebserver(int argc, char** argv) {
                       });
                   }
               });
-    
-    app.serverRoot("/home/voc/projects/ServerVoc/build/html");
+
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
+                res.cookie("Test", "me", {{"Max-Age", "3600"}});
                 
                 std::string host = req.header("Host");
                 
@@ -201,7 +204,7 @@ int simpleWebserver(int argc, char** argv) {
                 
                 
 int testPost(int argc, char* argv[]) {
-    HTTPServer& app = HTTPServer::instance();
+    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {

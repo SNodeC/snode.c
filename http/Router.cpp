@@ -1,4 +1,5 @@
-#include "Router.h"
+
+                                  #include "Router.h"
 
 #include "Request.h"
 
@@ -62,8 +63,8 @@ bool MiddlewareRoute::dispatch(const std::string& method, const std::string& mpa
 
 
 Router::~Router() {
-    std::list<const Route*>::const_iterator itb = nroutes.begin();
-    std::list<const Route*>::const_iterator ite = nroutes.end();
+    std::list<const Route*>::const_iterator itb = routes.begin();
+    std::list<const Route*>::const_iterator ite = routes.end();
     
     while(itb != ite) {
         delete *itb;
@@ -88,7 +89,7 @@ bool Router::dispatch(const std::list<const Route*>& nroutes, const std::string&
     
 
 bool Router::dispatch(const std::string& method, const std::string& path, const Request& request, const Response& response) const {
-    bool next = dispatch(nroutes, method, path, request, response);
+    bool next = dispatch(routes, method, path, request, response);
     
     return next;
 }

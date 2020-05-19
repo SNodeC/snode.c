@@ -13,7 +13,7 @@
 
 
 int simpleWebserver(int argc, char** argv) {
-    HTTPServer& app = HTTPServer::instance();
+    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
     
     Router router;
     
@@ -47,7 +47,7 @@ int simpleWebserver(int argc, char** argv) {
                   }
               });
     
-    app.serverRoot("/home/voc/projects/ServerVoc/build/html");
+//    app.serverRoot("/home/voc/projects/ServerVoc/build/html");
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
@@ -61,6 +61,8 @@ int simpleWebserver(int argc, char** argv) {
 //                std::cout << "RHeader: " << req.header("Accept") << std::endl;
                 
                 std::cout << "Uri: " << uri << std::endl;
+                
+                res.cookie("Test", "me", {{"Max-Age", "3600"}});
                 
                 if (uri == "/") {
                     res.redirect("/index.html");

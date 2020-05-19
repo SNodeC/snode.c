@@ -8,11 +8,13 @@
 #include "Response.h"
 
 
-HTTPServer::HTTPServer() : rootDir("./") {}
+HTTPServer::HTTPServer(const std::string& serverRoot) {
+    this->serverRoot(serverRoot);
+}
 
 
-HTTPServer& HTTPServer::instance() {
-    return *new HTTPServer();
+HTTPServer& HTTPServer::instance(const std::string& serverRoot) {
+    return *new HTTPServer(serverRoot);
 }
 
 

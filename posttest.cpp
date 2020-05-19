@@ -13,7 +13,7 @@
          
                 
 int testPost(int argc, char* argv[]) {
-    HTTPServer& app = HTTPServer::instance();
+    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
@@ -54,8 +54,8 @@ int testPost(int argc, char* argv[]) {
              [&] (const Request& req, const Response& res) -> void {
                  std::cout << "Content-Type: " << req.header("Content-Type") << std::endl;
                  std::cout << "Content-Length: " << req.header("Content-Length") << std::endl;
-                 char* body = new char[std::stoi(req.header("Content-Length")) + 1];
-                 memcpy(body, req.body, std::stoi(req.header("Content-Length")));
+                 char* body = new char[std::stoul(req.header("Content-Length")) + 1];
+                 memcpy(body, req.body, std::stoul(req.header("Content-Length")));
                  body[std::stoi(req.header("Content-Length"))] = 0;
                  
                  std::cout << "Body: " << std::endl;

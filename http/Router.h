@@ -62,15 +62,15 @@ private:
 
 #define REQUESTMETHOD(METHOD) \
 void METHOD(const std::string& path, const std::function<void (const Request& req, const Response& res)>& dispatcher) { \
-    nroutes.push_back(new DispatcherRoute(this, #METHOD, path, dispatcher));\
+    routes.push_back(new DispatcherRoute(this, #METHOD, path, dispatcher));\
 };\
 \
 void METHOD(const std::string& path, Router& router) { \
-    nroutes.push_back(new RouterRoute(this, #METHOD, path, router));\
+    routes.push_back(new RouterRoute(this, #METHOD, path, router));\
 };\
 \
 void METHOD(const std::string& path, const std::function<void (const Request& req, const Response& res, const std::function<void (void)>& next)>& dispatcher) { \
-    nroutes.push_back(new MiddlewareRoute(this, #METHOD, path, dispatcher));\
+    routes.push_back(new MiddlewareRoute(this, #METHOD, path, dispatcher));\
 };
 
 
@@ -97,7 +97,7 @@ public:
     
     
 protected:
-    std::list<const Route*> nroutes;
+    std::list<const Route*> routes;
 };
 
 
