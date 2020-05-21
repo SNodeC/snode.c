@@ -24,6 +24,8 @@ public:
         }
     }
     
+//    virtual void unused() = 0;
+    
     bool managed = false;
 };
 

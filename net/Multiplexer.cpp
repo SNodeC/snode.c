@@ -49,10 +49,6 @@ void Multiplexer::run()
         while (Multiplexer::running){
             Multiplexer::instance().tick();
         };
-        
-        multiplexer.readManager.clear();
-        multiplexer.writeManager.clear();
-        multiplexer.exceptionManager.clear();
     }
 }
 

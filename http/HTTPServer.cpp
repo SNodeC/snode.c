@@ -70,8 +70,10 @@ void WebApp::listen(int port, const std::function<void (int err)>& onError) {
                         });
 }
 
+void WebApp::stop() {
+    ServerSocket::stop();
+}
 
 void WebApp::destroy() {
-    ServerSocket::stop();
     delete this;
 }
