@@ -18,9 +18,8 @@
 
 #include <iostream>
 
-
-HTTPContext::HTTPContext(HTTPServer* httpServer, ConnectedSocket* connectedSocket)
-: connectedSocket(connectedSocket), httpServer(httpServer), bodyData(0), request(this), response(this) {
+HTTPContext::HTTPContext(WebApp* httpServer, ConnectedSocket* connectedSocket)
+: connectedSocket(connectedSocket), httpServer(httpServer), headerSend(false), bodyData(0), request(this), response(this) {
     this->reset();
 }
 
@@ -127,11 +126,10 @@ void HTTPContext::parseRequestLine(const std::string& line) {
     httputils::to_lower(method);
     
     pair = httputils::str_split(pair.second, ' ');
-    originalUrl = httputils::url_decode(pair.first);
     httpVersion = pair.second;
     
     /** Belongs into url-parser middleware */
-    pair = httputils::str_split(originalUrl, '?');
+    pair = httputils::str_split(httputils::url_decode(pair.first), '?');
     originalUrl = pair.first;
     path = httputils::str_split_last(pair.first, '/').first;
     
@@ -224,6 +222,7 @@ void HTTPContext::sendFile(const std::string& url, const std::function<void (int
                 responseHeader.insert({"Content-Type", MimeTypes::contentType(absolutFileName)});
             }
             responseHeader.insert({"Content-Length", std::to_string(std::filesystem::file_size(absolutFileName))});
+            responseHeader.insert({"Last-Modified", httputils::file_mod_http_date(absolutFileName)});
             this->sendHeader();
             connectedSocket->sendFile(absolutFileName, onError);
         } else {
@@ -247,6 +246,22 @@ void HTTPContext::sendHeader() {
     connectedSocket->send("HTTP/1.1 " + std::to_string(responseStatus) + " " + HTTPStatusCode::reason(responseStatus) +  "\r\n");
     connectedSocket->send("Date: " + httputils::to_http_date() + "\r\n");
     
+    if (responseHeader.find("Connection") == responseHeader.end()) {
+        responseHeader.insert({"Connection", "close"});
+    }
+    if (responseHeader.find("Cache-Control") == responseHeader.end()) {
+        responseHeader.insert({"Cache-Control", "public, max-age=0"});
+    }
+    if (responseHeader.find("Accept-Ranges") == responseHeader.end()) {
+        responseHeader.insert({"Accept-Ranges", "bytes"});
+    }
+    if (responseHeader.find("X-Powered-By") == responseHeader.end()) {
+        responseHeader.insert({"X-Powered-By", "snode.c"});
+    }
+    if (requestHeader.find("connection") != requestHeader.end()) {
+        responseHeader.insert({"Connection", requestHeader.find("connection")->second});
+    }
+    
     for (std::multimap<std::string, std::string>::iterator it = responseHeader.begin(); it != responseHeader.end(); ++it) {
         connectedSocket->send(it->first + ": " + it->second + "\r\n");
     }
@@ -264,6 +279,8 @@ void HTTPContext::sendHeader() {
     }
     
     connectedSocket->send("\r\n");
+    
+    headerSend = true;
 }
 
 
@@ -273,9 +290,15 @@ void HTTPContext::end() {
 }
 
 
-void HTTPContext::reset() {  
-    if (requestHeader.find("connection")->second == "close") {
-        connectedSocket->end();
+void HTTPContext::reset() {
+    if (headerSend) {
+        if (requestHeader.find("connection") != requestHeader.end()) {        
+            if (requestHeader.find("connection")->second != "Keep-Alive") {
+                connectedSocket->end();
+            }
+        } else {
+            connectedSocket->end();
+        }
     }
     
     this->responseHeader.clear();
@@ -290,11 +313,16 @@ void HTTPContext::reset() {
     this->path.clear();
     this->queryMap.clear();
     
+    this->responseHeader.clear();
+    this->requestCookies.clear();
+    this->responseCookies.clear();
+    
     if (this->bodyData != 0) {
         delete this->bodyData;
         this->bodyData = 0;
     }
     this->bodyLength = 0;
     this->bodyPointer = 0;
+    this->headerSend = false;
 }
     

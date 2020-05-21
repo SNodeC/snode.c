@@ -8,21 +8,21 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Router.h"
+#include "Request.h"
+#include "Response.h"
 
 class ServerSocket;
 class ConnectedSocket;
-class Request;
-class Response;
 
-class HTTPServer : public Router
+class WebApp : public Router
 {
 private:
-    HTTPServer(const std::string& serverRoot);
+    WebApp(const std::string& serverRoot);
 
 public:
-    ~HTTPServer();
+    ~WebApp();
     
-    static HTTPServer& instance(const std::string& serverRoot = "./");
+    static WebApp& instance(const std::string& serverRoot = "./");
     
     void listen(int port);
     void listen(int port, const std::function<void (int err)>& onError);

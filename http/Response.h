@@ -28,9 +28,14 @@ public:
     
     void end() const;
     
-    void set(const std::string& field, const std::string& value) const;
+//    void set(const std::string& field, const std::string& value) const;
+    
+    void set(const std::multimap<std::string, std::string>& map) const;
     
     void cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options = {}) const;
+    
+    void clearCookie(const std::string& name, const std::map<std::string, std::string>& options = {}) const;
+    
     
     void redirect(const std::string& name) const;
     

@@ -19,11 +19,7 @@ public:
     std::multimap<std::string, std::string>& header() const;
     const std::string& header(const std::string& key, int i = 0) const;
     const std::string& cookie(const std::string& key) const;
-    
-    bool isPost() const;
-    bool isGet() const;
-    bool isPut() const;
-    
+
     const std::string& query(std::string key) const;
     const std::string& httpVersion() const;
     const std::string& fragment() const;
@@ -34,6 +30,7 @@ public:
     
 // Properties
     const std::string& originalUrl;
+    mutable std::string url;
     char*& body;
     const std::string& path;
     

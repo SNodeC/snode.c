@@ -1,117 +1,37 @@
 #include <iostream>
 
-#include <string.h>
-#include <time.h>
-
-#include "Request.h"
-#include "Response.h"
-#include "SingleshotTimer.h"
-#include "ContinousTimer.h"
 #include "HTTPServer.h"
 
-#include "httputils.h"
-
-
 int simpleWebserver(int argc, char** argv) {
-    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
-    
-    Router router;
-    
-    router.get("/search", 
-              [&] (const Request& req, const Response& res) -> void {
-                  
-                  std::string host = req.header("Host");
-                  
-                  //                std::cout << "Host: " << host << std::endl;
-                  
-                  std::string uri = req.originalUrl;
-                  
-                  //                std::cout << "RHeader: " << req.header("Accept") << std::endl;
-                  
-                  std::cout << "Uri: " << uri << std::endl;
-                  
-                  if (uri == "/") {
-                      res.redirect("/index.html");
-                  } else {
-                      //                    std::cout << uri << std::endl;
-                      
-                      if (req.bodySize() != 0) {
-                          std::cout << "Body: " << req.body << std::endl;
-                      }
-                      
-                      res.sendFile(uri, [uri] (int ret) -> void {
-                          if (ret != 0) {
-                              std::cerr << uri << ": " << strerror(ret) << std::endl;
-                          }
-                      });
-                  }
-              });
-    
-//    app.serverRoot("/home/voc/projects/ServerVoc/build/html");
-    
+    WebApp& app = WebApp::instance("/home/voc/projects/ServerVoc/build/html");
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
-                
-                std::string host = req.header("Host");
-                
-//                std::cout << "Host: " << host << std::endl;
-                
                 std::string uri = req.originalUrl;
-                
-//                std::cout << "RHeader: " << req.header("Accept") << std::endl;
-                
-                std::cout << "Uri: " << uri << std::endl;
-                
-                res.cookie("Test", "me", {{"Max-Age", "3600"}});
-                
+                std::cout << "Connection: " << req.header("Connection") << std::endl;
+//                std::cout << "URL: " << uri << std::endl;
+//                std::cout << "Cookie: " << req.cookie("rootcookie") << std::endl;
+//                res.cookie("searchcookie", "cookievalue", {{"Max-Age", "3600"}, {"Path", "/search"}});
+//                res.clearCookie("rootcookie");
+//                res.clearCookie("rootcookie");
+//                res.clearCookie("searchcookie", {{"Path", "/search"}});
                 if (uri == "/") {
                     res.redirect("/index.html");
+                } else if (uri == "/end") {
+                    app.destroy();
                 } else {
-//                    std::cout << uri << std::endl;
-                    
-                    if (req.bodySize() != 0) {
-                        std::cout << "Body: " << req.body << std::endl;
-                    }
-                    
-                    res.sendFile(uri, [uri] (int ret) -> void {
-                        if (ret != 0) {
-                            std::cerr << uri << ": " << strerror(ret) << std::endl;
-                        }
-                    });
+                    res.sendFile(uri);
                 }
             });
-    app.get("/", router);
     
-    /*
-    app.get("/search", 
-            [&] (const Request& req, const Response& res) -> void {
-                
-                std::string host = req.header("Host");
-                
-                //                std::cout << "Host: " << host << std::endl;
-                
-                std::string uri = req.originalUrl;
-                
-                //                std::cout << "RHeader: " << req.header("Accept") << std::endl;
-                
-                std::cout << "Uri: " << uri << std::endl;
-                
-                if (uri == "/") {
-                    res.redirect("/index.html");
-                } else {
-                    //                    std::cout << uri << std::endl;
-                    
-                    if (req.bodySize() != 0) {
-                        std::cout << "Body: " << req.body << std::endl;
-                    }
-                    
-                    res.sendFile(uri, [uri] (int ret) -> void {
-                        if (ret != 0) {
-                            std::cerr << uri << ": " << strerror(ret) << std::endl;
-                        }
-                    });
-                }
-            });*/
+    Router router;
+    router.get("/search", 
+               [&] (const Request& req, const Response& res) -> void {
+                   std::cout << "URL: " << req.originalUrl << std::endl;
+                   std::cout << "Cookie: " << req.cookie("searchcookie") << std::endl;
+                   res.sendFile(req.originalUrl);
+               });
+    
+    app.get("/", router);
     
     app.listen(8080, 
                [] (int err) -> void {
@@ -123,7 +43,7 @@ int simpleWebserver(int argc, char** argv) {
                }
     );
     
-    app.destroy();
+//    app.destroy();
     
     return 0;
 }
@@ -132,4 +52,3 @@ int simpleWebserver(int argc, char** argv) {
 int main(int argc, char** argv) {
     return simpleWebserver(argc, argv);
 }
-

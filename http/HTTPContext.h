@@ -13,16 +13,17 @@
 #include "Response.h"
 
 class ConnectedSocket;
-class HTTPServer;
+class WebApp;
 
 
 class ResponseCookie {
 public:
+    ResponseCookie() {}
     ResponseCookie(const std::string& value, const std::map<std::string, std::string>& options) : value(value), options(options) {}
-    
+
 protected:
-    const std::string value;
-    const std::map<std::string, std::string> options;
+    std::string value;
+    std::map<std::string, std::string> options;
     
     friend class HTTPContext;
 };
@@ -31,7 +32,7 @@ protected:
 class HTTPContext
 {
 public:
-    HTTPContext(HTTPServer* httpServer, ConnectedSocket* connectedSocket);
+    HTTPContext(WebApp* httpServer, ConnectedSocket* connectedSocket);
     
     void send(const char* puffer, int size);
     void send(const std::string& data);
@@ -54,7 +55,9 @@ protected:
     void sendHeader();
     
     ConnectedSocket* connectedSocket;
-    HTTPServer* httpServer;
+    WebApp* httpServer;
+    
+    bool headerSend;
     
     char* bodyData;
     int bodyLength;
@@ -96,7 +99,7 @@ protected:
     
     friend class Response;
     friend class Request;
-    friend class HTTPServer;
+    friend class WebApp;
     
     Request request;
     Response response;

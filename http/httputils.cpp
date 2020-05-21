@@ -103,6 +103,9 @@ std::string to_http_date(struct tm* tm) {
     if (tm == 0) {
         time_t now = time(0);
         tm = gmtime(&now);
+    } else {
+        time_t time = mktime(tm);
+        tm = gmtime(&time);
     }
     
     strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", tm);

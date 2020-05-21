@@ -60,17 +60,17 @@ private:
 };
 
 
-#define REQUESTMETHOD(METHOD) \
+#define REQUESTMETHOD(METHOD, HTTP_METHOD) \
 void METHOD(const std::string& path, const std::function<void (const Request& req, const Response& res)>& dispatcher) { \
-    routes.push_back(new DispatcherRoute(this, #METHOD, path, dispatcher));\
+    routes.push_back(new DispatcherRoute(this, HTTP_METHOD, path, dispatcher));\
 };\
 \
 void METHOD(const std::string& path, Router& router) { \
-    routes.push_back(new RouterRoute(this, #METHOD, path, router));\
+    routes.push_back(new RouterRoute(this, HTTP_METHOD, path, router));\
 };\
 \
 void METHOD(const std::string& path, const std::function<void (const Request& req, const Response& res, const std::function<void (void)>& next)>& dispatcher) { \
-    routes.push_back(new MiddlewareRoute(this, #METHOD, path, dispatcher));\
+    routes.push_back(new MiddlewareRoute(this, HTTP_METHOD, path, dispatcher));\
 };
 
 
@@ -80,16 +80,17 @@ public:
     Router() : Route(0, "use", "") {}
     ~Router();
     
-    REQUESTMETHOD(use);
-    REQUESTMETHOD(get);
-    REQUESTMETHOD(put);
-    REQUESTMETHOD(post);
-    REQUESTMETHOD(del); // for delete
-    REQUESTMETHOD(connect);
-    REQUESTMETHOD(options);
-    REQUESTMETHOD(trace);
-    REQUESTMETHOD(patch);
-    REQUESTMETHOD(head);
+    REQUESTMETHOD(use, "use");
+    REQUESTMETHOD(all, "all");
+    REQUESTMETHOD(get, "get");
+    REQUESTMETHOD(put, "put");
+    REQUESTMETHOD(post, "post");
+    REQUESTMETHOD(del, "delete");
+    REQUESTMETHOD(connect, "connect");
+    REQUESTMETHOD(options, "options");
+    REQUESTMETHOD(trace, "trace");
+    REQUESTMETHOD(patch, "patch");
+    REQUESTMETHOD(head, "head");
     
     bool dispatch(const std::list<const Route*>& nroute, const std::string& method, const std::string& mpath, const Request& request, const Response& response) const;
     
