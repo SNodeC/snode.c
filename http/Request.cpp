@@ -11,7 +11,8 @@ Request::Request(HTTPContext* httpContext) :
 originalUrl(httpContext->originalUrl), 
 body(httpContext->bodyData),
 path(httpContext->path),
-httpContext(httpContext) {}
+httpContext(httpContext)
+{}
 
 
 std::multimap<std::string, std::string>& Request::header() const {
@@ -48,21 +49,6 @@ const std::string& Request::cookie(const std::string& key) const {
 
 int Request::bodySize() const {
     return this->httpContext->bodyLength;
-}
-
-
-bool Request::isGet() const {
-    return this->httpContext->method == "get";
-}
-
-
-bool Request::isPost() const {
-    return this->httpContext->method == "post";
-}
-
-
-bool Request::isPut() const {
-    return this->httpContext->method == "put";
 }
 
 

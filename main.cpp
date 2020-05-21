@@ -28,7 +28,7 @@ int timerApp(int argc, char** argv) {
         (struct timeval) {1, 100000}, "Tack");
     
     bool canceled = false;
-    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
+    WebApp& app = WebApp::instance("/home/voc/projects/ServerVoc/build/html");
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
@@ -89,12 +89,19 @@ int timerApp(int argc, char** argv) {
 
 
 int simpleWebserver(int argc, char** argv) {
-    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
+    WebApp& app = WebApp::instance("/home/voc/projects/ServerVoc/build/html");
     
     Router router;
     
-    router.get("/search", 
+    router.get("/search/", [] (const Request& req, const Response& res, const std::function<void (void)>& next) {
+        std::cout << "Route 3" << std::endl;
+        next();
+    });
+    
+    router.get("/search/", 
               [&] (const Request& req, const Response& res) -> void {
+                  
+//                  res.set({{"Content-Length", "7"}});
                   
                   std::string host = req.header("Host");
                   
@@ -104,7 +111,8 @@ int simpleWebserver(int argc, char** argv) {
                   
                   //                std::cout << "RHeader: " << req.header("Accept") << std::endl;
                   
-                  std::cout << "Uri: " << uri << std::endl;
+                  std::cout << "OriginalUri: " << uri << std::endl;
+                  std::cout << "Uri: " << req.url << std::endl;
                   
                   if (uri == "/") {
                       res.redirect("/index.html");
@@ -123,6 +131,15 @@ int simpleWebserver(int argc, char** argv) {
                   }
               });
 
+    app.use("/", [] (const Request& req, const Response& res, const std::function<void (void)>& next) {
+        std::cout << "Route 1" << std::endl;
+        next();
+    });
+    
+    app.use("/", [] (const Request& req, const Response& res, const std::function<void (void)>& next) {
+        std::cout << "Route 2" << std::endl;
+        next();
+    });
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
@@ -136,7 +153,8 @@ int simpleWebserver(int argc, char** argv) {
                 
 //                std::cout << "RHeader: " << req.header("Accept") << std::endl;
                 
-                std::cout << "Uri: " << uri << std::endl;
+                std::cout << "OriginalUri: " << uri << std::endl;
+                std::cout << "Uri: " << req.url << std::endl;
                 
                 if (uri == "/") {
                     res.redirect("/index.html");
@@ -154,7 +172,11 @@ int simpleWebserver(int argc, char** argv) {
                     });
                 }
             });
+
+    
     app.get("/", router);
+
+    
     
     /*
     app.get("/search", 
@@ -204,7 +226,7 @@ int simpleWebserver(int argc, char** argv) {
                 
                 
 int testPost(int argc, char* argv[]) {
-    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
+    WebApp& app = WebApp::instance("/home/voc/projects/ServerVoc/build/html");
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {

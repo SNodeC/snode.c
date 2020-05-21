@@ -4,24 +4,21 @@
 #include "HTTPContext.h"
 #include "ServerSocket.h"
 
-#include "Request.h"
-#include "Response.h"
 
-
-HTTPServer::HTTPServer(const std::string& serverRoot) {
+WebApp::WebApp(const std::string& serverRoot) {
     this->serverRoot(serverRoot);
 }
 
 
-HTTPServer& HTTPServer::instance(const std::string& serverRoot) {
-    return *new HTTPServer(serverRoot);
+WebApp& WebApp::instance(const std::string& serverRoot) {
+    return *new WebApp(serverRoot);
 }
 
 
-HTTPServer::~HTTPServer() {}
+WebApp::~WebApp() {}
 
 
-void HTTPServer::listen(int port) {
+void WebApp::listen(int port) {
     ServerSocket::instance([this] (ConnectedSocket* connectedSocket) -> void {
                                 connectedSocket->setContext(new HTTPContext(this, connectedSocket));
                            },
@@ -43,7 +40,7 @@ void HTTPServer::listen(int port) {
 }
 
 
-void HTTPServer::listen(int port, const std::function<void (int err)>& onError) {
+void WebApp::listen(int port, const std::function<void (int err)>& onError) {
     errno = 0;
     
     ServerSocket::instance([this] (ConnectedSocket* connectedSocket) -> void {
@@ -74,7 +71,7 @@ void HTTPServer::listen(int port, const std::function<void (int err)>& onError) 
 }
 
 
-void HTTPServer::destroy() {
+void WebApp::destroy() {
     ServerSocket::stop();
     delete this;
 }

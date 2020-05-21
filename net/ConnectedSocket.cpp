@@ -62,13 +62,13 @@ void ConnectedSocket::sendFile(const std::string& file, const std::function<void
                         fileReader = 0;
                     },
                     [this, onError] (int err) -> void {
+//                        fileReader = 0;
                         if (onError) {
                             onError(err);
                         }
                         if (err) {
                             this->end();
                         }
-                        fileReader = 0;
                     });
 }
 
