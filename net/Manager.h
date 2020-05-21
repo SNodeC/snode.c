@@ -50,12 +50,6 @@ public:
     }
     
 
-    void clear() {
-        addedDescriptors.clear();
-        removedDescriptors = descriptors;
-        updateFdSet();
-    }
-    
     virtual int dispatch(fd_set& fdSet, int count) = 0;
 
 protected:

@@ -7,7 +7,7 @@ int simpleWebserver(int argc, char** argv) {
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
                 std::string uri = req.originalUrl;
-                std::cout << "Connection: " << req.header("Connection") << std::endl;
+//                std::cout << "Connection: " << req.header("Connection") << std::endl;
 //                std::cout << "URL: " << uri << std::endl;
 //                std::cout << "Cookie: " << req.cookie("rootcookie") << std::endl;
 //                res.cookie("searchcookie", "cookievalue", {{"Max-Age", "3600"}, {"Path", "/search"}});
@@ -17,7 +17,7 @@ int simpleWebserver(int argc, char** argv) {
                 if (uri == "/") {
                     res.redirect("/index.html");
                 } else if (uri == "/end") {
-                    app.destroy();
+                    app.stop();
                 } else {
                     res.sendFile(uri);
                 }
@@ -43,7 +43,7 @@ int simpleWebserver(int argc, char** argv) {
                }
     );
     
-//    app.destroy();
+    app.destroy();
     
     return 0;
 }

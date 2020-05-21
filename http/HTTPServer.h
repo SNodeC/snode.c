@@ -27,6 +27,7 @@ public:
     void listen(int port);
     void listen(int port, const std::function<void (int err)>& onError);
     
+    void stop();
     void destroy();
     
     std::string& getRootDir() {
