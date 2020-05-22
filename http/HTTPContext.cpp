@@ -217,7 +217,7 @@ void HTTPContext::sendFile(const std::string& url, const std::function<void (int
     if (std::filesystem::exists(absolutFileName)) {
         absolutFileName = std::filesystem::canonical(absolutFileName);
         
-        if (absolutFileName.rfind(httpServer->getRootDir(), 0) == 0) {
+        if (absolutFileName.rfind(httpServer->getRootDir(), 0) == 0 && std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
             if (responseHeader.find("Content-Type") == responseHeader.end()) {
                 responseHeader.insert({"Content-Type", MimeTypes::contentType(absolutFileName)});
             }
