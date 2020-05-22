@@ -7,7 +7,7 @@
 #include "Response.h"
 #include "SingleshotTimer.h"
 #include "ContinousTimer.h"
-#include "HTTPServer.h"
+#include "WebApp.h"
 
 #include "httputils.h"
          

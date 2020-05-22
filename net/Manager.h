@@ -19,7 +19,12 @@ protected:
     }
 
     
-    virtual ~Manager() = default;
+    virtual ~Manager() {
+        descriptors.reverse();
+        removedDescriptors = descriptors;
+        updateFdSet();
+    }
+    
 
 public:
     fd_set& getFdSet() {

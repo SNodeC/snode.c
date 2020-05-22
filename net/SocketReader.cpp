@@ -17,7 +17,7 @@
 void SocketReader::readEvent() {
     static char junk[MAX_JUNKSIZE];
     
-    ssize_t ret = recv(this->getFd(), junk, MAX_JUNKSIZE, 0);
+    ssize_t ret = recv(junk, MAX_JUNKSIZE, 0);
     
     if (ret > 0) {
         readProcessor(dynamic_cast<ConnectedSocket*>(this), junk, ret);

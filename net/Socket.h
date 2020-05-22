@@ -13,6 +13,8 @@
 
 class Socket : virtual public Descriptor {
 public:
+    void setFd(int fd);
+    
     virtual ~Socket();
     
     void bind(InetAddress& localAddress, const std::function<void (int errnum)>& onError);
@@ -23,7 +25,13 @@ public:
     
 protected:
     Socket();
+    Socket(int fd);
+    
     void open(const std::function<void (int errnum)>& onError);
+    
+    ssize_t recv(void *buf, size_t len, int flags);
+    ssize_t send(const void *buf, size_t len, int flags);
+    
 
     InetAddress localAddress;
 };

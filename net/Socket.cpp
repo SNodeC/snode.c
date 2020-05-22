@@ -13,8 +13,18 @@
 Socket::Socket() {}
 
 
+Socket::Socket(int fd) : Descriptor(fd) {
+    this->setFd(fd);
+}
+
+
 Socket::~Socket() {
     ::shutdown(this->getFd(), SHUT_RDWR);
+}
+
+
+void Socket::setFd(int fd) {
+    Descriptor::setFd(fd);
 }
 
 
@@ -27,6 +37,16 @@ void Socket::open(const std::function<void (int errnum)>& onError) {
     } else {
         onError(errno);
     }
+}
+
+
+ssize_t Socket::recv(void *buf, size_t len, int flags) {
+    return ::recv(this->getFd(), buf, len, flags);
+}
+
+
+ssize_t Socket::send(const void *buf, size_t len, int flags) {
+    return ::send(this->getFd(), buf, len, flags);
 }
 
 

@@ -10,7 +10,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "ConnectedSocket.h"
-#include "HTTPServer.h"
+#include "WebApp.h"
 #include "HTTPStatusCodes.h"
 #include "MimeTypes.h"
 

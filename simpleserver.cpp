@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "HTTPServer.h"
+#include "WebApp.h"
 
 int simpleWebserver(int argc, char** argv) {
     WebApp& app = WebApp::instance("/home/voc/projects/ServerVoc/build/html");

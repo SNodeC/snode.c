@@ -23,11 +23,12 @@ private:
                  const std::function<void (int errnum)>& onCsWriteError);
 
 public:
-    static ServerSocket& instance(const std::function<void (ConnectedSocket* cs)>& onConnect,
+    static ServerSocket* instance(const std::function<void (ConnectedSocket* cs)>& onConnect,
                                   const std::function<void (ConnectedSocket* cs)>& onDisconnect,
                                   const std::function<void (ConnectedSocket* cs, const char*  junk, ssize_t n)>& readProcesor,
                                   const std::function<void (int errnum)>& onCsReadError,
                                   const std::function<void (int errnum)>& onCsWriteError);
+    ~ServerSocket() {}
     
     void listen(in_port_t port, int backlog, const std::function<void (int err)>& onError);
     
