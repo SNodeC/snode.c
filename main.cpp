@@ -11,6 +11,7 @@
 
 #include "httputils.h"
 
+#define BUILD_PATH "/home/student/nds/snode.c/build/html"
 
 int timerApp(int argc, char** argv) {
     Timer& tick = Timer::continousTimer(
@@ -28,7 +29,7 @@ int timerApp(int argc, char** argv) {
         (struct timeval) {1, 100000}, "Tack");
     
     bool canceled = false;
-    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
+    HTTPServer& app = HTTPServer::instance(BUILD_PATH);
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
@@ -52,7 +53,6 @@ int timerApp(int argc, char** argv) {
                     {
                         {"Max-Age", "3600"}
                     }
-                    
                 );
                 
                 //            res.set("Connection", "close");
@@ -89,11 +89,11 @@ int timerApp(int argc, char** argv) {
 
 
 int simpleWebserver(int argc, char** argv) {
-    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
+    HTTPServer& app = HTTPServer::instance(BUILD_PATH);
     
     Router router;
     
-    router.get("/search", 
+    router.get("/search",
               [&] (const Request& req, const Response& res) -> void {
                   
                   std::string host = req.header("Host");
@@ -204,7 +204,7 @@ int simpleWebserver(int argc, char** argv) {
                 
                 
 int testPost(int argc, char* argv[]) {
-    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
+    HTTPServer& app = HTTPServer::instance(BUILD_PATH);
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
