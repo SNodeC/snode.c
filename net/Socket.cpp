@@ -10,7 +10,7 @@
 #include "Descriptor.h"
 
 
-Socket::Socket() : Descriptor(getFd()) {}
+Socket::Socket() {}
 
 
 Socket::~Socket() {

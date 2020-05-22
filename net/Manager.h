@@ -61,8 +61,8 @@ private:
         maxFd = 0;
         
         for (typename std::list<T*>::iterator it = descriptors.begin(); it != descriptors.end(); ++it) {
-            if ((*it)->getFd() > maxFd) {
-                maxFd = (*it)->getFd();
+            if (dynamic_cast<Descriptor*>(*it)->getFd() > maxFd) {
+                maxFd = dynamic_cast<Descriptor*>(*it)->getFd();
             }
         }
         
@@ -73,7 +73,7 @@ private:
         if (!addedDescriptors.empty() || !removedDescriptors.empty()) {
             for (typename std::list<T*>::iterator it = addedDescriptors.begin(); it != addedDescriptors.end(); ++it) {
                 if (std::find(descriptors.begin(), descriptors.end(), *it) == descriptors.end()) {
-                    FD_SET((*it)->getFd(), &fdSet);
+                    FD_SET(dynamic_cast<Descriptor*>(*it)->getFd(), &fdSet);
                     descriptors.push_back(*it);
                     (*it)->incManaged();
                 }
@@ -82,7 +82,7 @@ private:
         
             for (typename std::list<T*>::iterator it = removedDescriptors.begin(); it != removedDescriptors.end(); ++it) {
                 if (std::find(descriptors.begin(), descriptors.end(), *it) != descriptors.end()) {
-                    FD_CLR((*it)->getFd(), &fdSet);
+                    FD_CLR(dynamic_cast<Descriptor*>(*it)->getFd(), &fdSet);
                     descriptors.remove(*it);
                     (*it)->decManaged();
                 }
