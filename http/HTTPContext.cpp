@@ -19,8 +19,14 @@
 #include <iostream>
 
 HTTPContext::HTTPContext(WebApp* httpServer, ConnectedSocket* connectedSocket)
-: connectedSocket(connectedSocket), httpServer(httpServer), headerSend(false), bodyData(0), request(this), response(this) {
-    this->reset();
+: connectedSocket(connectedSocket),  httpServer(httpServer), request(this), response(this) {
+    this->responseStatus = 200;
+    this->requestState = requeststates::REQUEST;
+    this->lineState = linestate::READ;
+    this->bodyData = 0;
+    this->bodyLength = 0;
+    this->bodyPointer = 0;
+    this->headerSend = false;
 }
 
 
@@ -28,32 +34,32 @@ void HTTPContext::receiveRequest(const char* junk, ssize_t n) {
     parseRequest(junk, n, 
         [&] (const std::string& line) -> void { // header data
             switch (requestState) {
-            case REQUEST:
+            case requeststates::REQUEST:
                 if (!line.empty()) {
                     parseRequestLine(line);
-                    requestState = HEADER;
+                    requestState = requeststates::HEADER;
                 } else {
                     this->responseStatus = 400;
                     this->responseHeader.insert({"Connection", "close"});
                     connectedSocket->end();
                     this->end();
-                    requestState = ERROR;
+                    requestState = requeststates::ERROR;
                 }
                 break;
-            case HEADER:
+            case requeststates::HEADER:
                 if (!line.empty()) {
                     this->addRequestHeader(line);
                 } else {
                     if (bodyLength != 0) {
-                        requestState = BODY;
+                        requestState = requeststates::BODY;
                     } else {
                         this->requestReady();
-                        requestState = REQUEST;
+                        requestState = requeststates::REQUEST;
                     }
                 }
                 break;
-            case BODY:
-            case ERROR:
+            case requeststates::BODY:
+            case requeststates::ERROR:
                 break;
             }
         },
@@ -73,26 +79,26 @@ void HTTPContext::receiveRequest(const char* junk, ssize_t n) {
 
 
 void HTTPContext::parseRequest(const char* junk, ssize_t n, const std::function<void (std::string&)>& lineRead, const std::function<void (const char* bodyJunk, int junkLength)> bodyRead) {
-    if (requestState != BODY) {
+    if (requestState != requeststates::BODY) {
         int i = 0;
         
         while(i < n && requestState != ERROR && requestState != BODY) {
             const char& ch = junk[i++];
 
             if (ch != '\r') { // '\r' can be ignored completely as long as we are not receiving the body of the document
-                switch(linestate) {
-                case READ:
+                switch(lineState) {
+                case linestate::READ:
                     if (ch == '\n') {
                         if (headerLine.empty()) {
                             lineRead(headerLine);
                         } else {
-                            linestate = EOL;
+                            lineState = linestate::EOL;
                         }
                     } else {
                         headerLine += ch;
                     }
                     break;
-                case EOL:
+                case linestate::EOL:
                     if (ch == '\n') {
                         lineRead(headerLine);
                         headerLine.clear();
@@ -104,7 +110,7 @@ void HTTPContext::parseRequest(const char* junk, ssize_t n, const std::function<
                     } else {
                         headerLine += ch;
                     }
-                    linestate = READ;
+                    lineState = linestate::READ;
                     break;
                 }
             }
@@ -150,6 +156,15 @@ void HTTPContext::parseRequestLine(const std::string& line) {
 
 void HTTPContext::requestReady() {
     httpServer->dispatch(method, "", request, response);
+    
+    if (requestHeader.find("connection") != requestHeader.end()) {        
+        if (requestHeader.find("connection")->second != "Keep-Alive") {
+            connectedSocket->end();
+        }
+    } else {
+        connectedSocket->end();
+    }
+    
     this->reset();
 }
 
@@ -291,20 +306,9 @@ void HTTPContext::end() {
 
 
 void HTTPContext::reset() {
-    if (headerSend) {
-        if (requestHeader.find("connection") != requestHeader.end()) {        
-            if (requestHeader.find("connection")->second != "Keep-Alive") {
-                connectedSocket->end();
-            }
-        } else {
-            connectedSocket->end();
-        }
-    }
-    
-    this->responseHeader.clear();
     this->responseStatus = 200;
-    this->requestState = REQUEST;
-    this->linestate = READ;
+    this->requestState = requeststates::REQUEST;
+    this->lineState = linestate::READ;
     
     this->requestHeader.clear();
     this->method.clear();
