@@ -8,9 +8,12 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 
-magic_t MimeTypes::magic = MimeTypes::init();
 
-std::map<std::string, std::string> MimeTypes::mimeTypes = {
+MimeTypes MimeTypes::mimeTypes;
+
+magic_t MimeTypes::magic;
+
+std::map<std::string, std::string> MimeTypes::mimeType = {
     {".dwg",		"application/acad"},
     {".asd",		"application/astound"},
     {".asn",		"application/astound"},
@@ -196,30 +199,33 @@ std::map<std::string, std::string> MimeTypes::mimeTypes = {
     {".wrl",		"x-world/x-vrml"}
 };
 
-magic_t MimeTypes::init() {
-    magic_t magic = magic_open(MAGIC_MIME);
+MimeTypes::MimeTypes() {
+    MimeTypes::magic = magic_open(MAGIC_MIME);
     
     if (magic_load(magic,	NULL) != 0) {
         std::cerr << "cannot load magic database - " << magic_error(magic) << std::endl;
         magic_close(magic);
-        exit(1);
+        magic = 0;
     }
-    
-    return magic;
+}
+
+
+MimeTypes::~MimeTypes() {
+    magic_close(MimeTypes::magic);
 }
     
 
 std::string MimeTypes::contentType(std::string file) {
-    std::map<std::string, std::string>::iterator it = mimeTypes.find(std::filesystem::path(file).extension());
+    std::map<std::string, std::string>::iterator it = mimeType.find(std::filesystem::path(file).extension());
     
-    std::string mimeType;
+    std::string type;
     
-    if (it != mimeTypes.end()) {
-        mimeType = it->second;
-    } else {
-        mimeType = magic_file(magic,	(file.c_str()));
+    if (it != mimeType.end()) {
+        type = it->second;
+    } else if (magic != 0) {
+        type = magic_file(MimeTypes::magic,	(file.c_str()));
     }
     
-    return mimeType;
+    return type;
 }
     

@@ -13,14 +13,19 @@
 class MimeTypes
 {
 public:
+    
+    ~MimeTypes();
+    
     static std::string contentType(std::string file);
     
 private:
-    static magic_t init();
+    MimeTypes();
     
     static magic_t magic;
     
-    static std::map<std::string, std::string> mimeTypes;
+    static MimeTypes mimeTypes;
+    
+    static std::map<std::string, std::string> mimeType;
 };
 
 #endif // MIMETYPES_H
