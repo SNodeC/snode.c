@@ -18,7 +18,6 @@ class WebApp;
 
 class ResponseCookie {
 public:
-    ResponseCookie() {}
     ResponseCookie(const std::string& value, const std::map<std::string, std::string>& options) : value(value), options(options) {}
 
 protected:
@@ -31,55 +30,45 @@ protected:
 
 class HTTPContext
 {
-public:
-    HTTPContext(WebApp* httpServer, ConnectedSocket* connectedSocket);
-    
-    void send(const char* puffer, int size);
-    void send(const std::string& data);
-    void sendFile(const std::string& file, const std::function<void (int ret)>& fn);
-    
-    void end();
-
 protected:
-    void reset();
-    
-    void receiveRequest(const char* junk, ssize_t n);
-    void parseRequest(const char* junk, ssize_t, const std::function<void (std::string&)>& lineRead, const std::function<void (const char* bodyJunk, int junkLength)> bodyRead);
-    
-    void parseRequestLine(const std::string& line);
-    void parseCookie(const std::string& value);
-    
-    void requestReady();
-    
-    void addRequestHeader(const std::string& line);  
-    void sendHeader();
-    
-    ConnectedSocket* connectedSocket;
-    WebApp* httpServer;
-    
-    bool headerSend;
-    
-    char* bodyData;
-    int bodyLength;
-    
-    enum states {
+    enum requeststates {
         REQUEST,
         HEADER,
         BODY,
         ERROR
     } requestState;
     
-    
-    int bodyPointer;
-    
-    int responseStatus;
-    
     enum linestate {
         READ,
         EOL
-    } linestate;
+    } lineState;
+
+public:    
+    HTTPContext(WebApp* httpServer, ConnectedSocket* connectedSocket);
+    void receiveRequest(const char* junk, ssize_t n);
+
+protected:
+    void send(const char* puffer, int size);
+    void send(const std::string& data);
+    void sendFile(const std::string& file, const std::function<void (int ret)>& fn);
     
-    std::string headerLine;
+    void sendHeader();
+
+    void parseRequest(const char* junk, ssize_t, const std::function<void (std::string&)>& lineRead, const std::function<void (const char* bodyJunk, int junkLength)> bodyRead);
+    void parseRequestLine(const std::string& line);
+    void parseCookie(const std::string& value);
+    void addRequestHeader(const std::string& line);
+    
+    void requestReady();
+    
+    void end();
+    void reset();
+    
+    char* bodyData;
+    int bodyLength;
+    
+    
+    int responseStatus;
     
     /* Request-Line */
     std::string method;
@@ -96,10 +85,17 @@ protected:
     
     std::map<std::string, std::string> params;
     
-    
     friend class Response;
     friend class Request;
-    friend class WebApp;
+    
+private:
+    ConnectedSocket* connectedSocket;
+    WebApp* httpServer;
+    
+    std::string headerLine;
+    int bodyPointer;
+    
+    bool headerSend;
     
     Request request;
     Response response;
