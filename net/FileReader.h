@@ -8,11 +8,12 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "File.h"
 #include "Reader.h"
-#include "Descriptor.h"
+//#include "Descriptor.h"
 
 
-class FileReader : public Reader
+class FileReader : public Reader, virtual public File
 {
 protected:
     FileReader(int fd, const std::function<void (char* data, int len)>& junkRead, const std::function<void (int err)>& onError);
