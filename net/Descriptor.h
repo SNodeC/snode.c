@@ -20,7 +20,7 @@ public:
     
     int getFd() const;
     
-    void setFd(int fd) {
+    virtual void setFd(int fd) {
         this->fd = fd;
     }
     

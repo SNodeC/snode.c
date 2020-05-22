@@ -1,4 +1,4 @@
-#include "HTTPServer.h"
+#include "WebApp.h"
 
 #include "ConnectedSocket.h"
 #include "HTTPContext.h"
@@ -34,7 +34,7 @@ void WebApp::listen(int port) {
                            [] (int errnum) -> void {
                                 perror("ConnectedSocket");
                            }
-                        ).listen(port, 5, 0);
+                        )->listen(port, 5, 0);
 
     ServerSocket::run();
 }
@@ -62,7 +62,7 @@ void WebApp::listen(int port, const std::function<void (int err)>& onError) {
                                     perror("Write to ConnectedSocket");
                                 }
                             }
-                        ).listen(port, 5, [&] (int err) -> void {
+                        )->listen(port, 5, [&] (int err) -> void {
                             onError(err);
                             if (!err) {
                                 ServerSocket::run();

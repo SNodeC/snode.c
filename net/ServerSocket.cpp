@@ -18,13 +18,13 @@ ServerSocket::ServerSocket(const std::function<void (ConnectedSocket* cs)>& onCo
 {}
 
 
-ServerSocket& ServerSocket::instance(const std::function<void (ConnectedSocket* cs)>& onConnect,
+ServerSocket* ServerSocket::instance(const std::function<void (ConnectedSocket* cs)>& onConnect,
                                      const std::function<void (ConnectedSocket* cs)>& onDisconnect,
                                      const std::function<void (ConnectedSocket* cs, const char*  junk, ssize_t n)>& readProcessor,
                                      const std::function<void (int errnum)>& onCsReadError,
                                      const std::function<void (int errnum)>& onCsWriteError) 
 {
-    return *new ServerSocket(onConnect, onDisconnect, readProcessor, onCsReadError, onCsWriteError);
+    return new ServerSocket(onConnect, onDisconnect, readProcessor, onCsReadError, onCsWriteError);
 }
 
 
@@ -91,7 +91,9 @@ void ServerSocket::readEvent() {
     
 
 void ServerSocket::disconnect(ConnectedSocket* cs) {
-    onDisconnect(cs);
+    if (onDisconnect) {
+        onDisconnect(cs);
+    }
 }
 
 

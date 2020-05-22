@@ -46,10 +46,10 @@ void FileReader::readEvent() {
     if (ret > 0) {
         this->junkRead(puffer, ret);
     } else if (ret == 0) {
-        Multiplexer::instance().getReadManager().unmanageSocket(this);
+        this->stop();
         this->onError(0);
     } else {
-        Multiplexer::instance().getReadManager().unmanageSocket(this);
+        this->stop();
         this->onError(errno);
     }
 }

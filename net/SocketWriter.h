@@ -13,7 +13,7 @@ public:
     void writeEvent();
     
 protected:
-    SocketWriter(const std::function<void (int errnum)>& onError) : Socket(), Writer(onError) {}
+    SocketWriter(const std::function<void (int errnum)>& onError) : Writer(onError) {}
 };
 
 #endif // SOCKETWRITER_H
