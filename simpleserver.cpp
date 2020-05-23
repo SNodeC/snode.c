@@ -8,12 +8,13 @@
 #include "SingleshotTimer.h"
 #include "ContinousTimer.h"
 #include "HTTPServer.h"
+#include "ResponseCookie.h"
 
 #include "httputils.h"
 
 
 int simpleWebserver(int argc, char** argv) {
-    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
+    HTTPServer& app = HTTPServer::instance("/home/student/NDS/imCook/snode.c/build/html");
     
     Router router;
     
@@ -62,7 +63,7 @@ int simpleWebserver(int argc, char** argv) {
                 
                 std::cout << "Uri: " << uri << std::endl;
                 
-                res.cookie("Test", "me", {{"Max-Age", "3600"}});
+                res.cookie("Test", "timerApp", ResponseCookieOptions().domain("example.org").path().maxAge(200000)); 
                 
                 if (uri == "/") {
                     res.redirect("/index.html");

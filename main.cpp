@@ -49,12 +49,7 @@ int timerApp(int argc, char** argv) {
                 
                 std::cout << "RQuery: " << req.query("Hallo") << std::endl;
                 
-                res.cookie("Test", "me", 
-                    {
-                        {"Max-Age", "3600"}
-                    }
-                    
-                );
+                res.cookie("Test", "timerApp", ResponseCookieOptions().domain("example.org").path().maxAge(200000)); 
                 
                 //            res.set("Connection", "close");
                 res.sendFile(uri, [uri] (int ret) -> void {
@@ -127,7 +122,7 @@ int simpleWebserver(int argc, char** argv) {
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
-                res.cookie("Test", "me", {{"Max-Age", "3600"}});
+                res.cookie("Test", "timerApp", ResponseCookieOptions().domain("example.org").path().maxAge(200000)); 
                 
                 std::string host = req.header("Host");
                 
@@ -205,7 +200,7 @@ int simpleWebserver(int argc, char** argv) {
                 
                 
 int testPost(int argc, char* argv[]) {
-    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
+    HTTPServer& app = HTTPServer::instance("/home/student/NDS/imCook/snode.c/build/html");
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {

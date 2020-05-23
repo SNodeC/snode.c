@@ -13,6 +13,7 @@
 #include "HTTPServer.h"
 #include "HTTPStatusCodes.h"
 #include "MimeTypes.h"
+#include "ResponseCookie.h"
 
 #include "httputils.h"
 
@@ -255,13 +256,14 @@ void HTTPContext::sendHeader() {
     
     for (std::map<std::string, ResponseCookie>::iterator it = responseCookies.begin(); it != responseCookies.end(); ++it) {
         std::string cookiestring = it->first + "=" + it->second.value;
+        cookiestring += it->second.options.toString();
         
-        std::map<std::string, std::string>::const_iterator obit = it->second.options.begin();
-        std::map<std::string, std::string>::const_iterator oeit = it->second.options.end();
-        while(obit != oeit) {
-            cookiestring += "; " + obit->first + ((obit->second != "") ? "=" + obit->second : "");
-            ++obit;
-        }
+//         std::map<std::string, std::string>::const_iterator obit = it->second.options.begin();
+//         std::map<std::string, std::string>::const_iterator oeit = it->second.options.end();
+//         while(obit != oeit) {
+//             cookiestring += "; " + obit->first + ((obit->second != "") ? "=" + obit->second : "");
+//             ++obit;
+//         }
         connectedSocket->send("Set-Cookie: " + cookiestring + "\r\n");
     }
     
