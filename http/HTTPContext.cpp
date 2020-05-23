@@ -155,7 +155,7 @@ void HTTPContext::requestReady() {
     httpServer->dispatch(method, "", request, response);
 
     if (requestHeader.find("connection") != requestHeader.end()) {
-        if (requestHeader.find("connection")->second != "Keep-Alive") {
+        if (requestHeader.find("connection")->second == "Close") {
             connectedSocket->end();
         }
     } else {
