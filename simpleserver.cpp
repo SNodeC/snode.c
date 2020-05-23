@@ -5,6 +5,8 @@
 
 #include "Request.h"
 #include "Response.h"
+#include "ResponseCookie.h"
+#include "ResponseCookieOptions.h"
 #include "SingleshotTimer.h"
 #include "ContinousTimer.h"
 #include "HTTPServer.h"
@@ -63,7 +65,7 @@ int simpleWebserver(int argc, char** argv) {
                 
                 std::cout << "Uri: " << uri << std::endl;
                 
-                res.cookie("Test", "me", {{"Max-Age", "3600"}});
+                res.cookie("Test", "timerApp", ResponseCookieOptions().path("/images").maxAge(3600).httpOnly());
                 
                 if (uri == "/") {
                     res.redirect("/index.html");
