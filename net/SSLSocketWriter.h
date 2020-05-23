@@ -1,5 +1,5 @@
-#ifndef SOCKETWRITER_H
-#define SOCKETWRITER_H
+#ifndef SSLSOCKETWRITER_H
+#define SSLSOCKETWRITER_H
 
 #include <functional>
 
@@ -16,4 +16,4 @@ protected:
     SSLSocketWriter(const std::function<void (int errnum)>& onError) : Writer(onError) {}
 };
 
-#endif // SOCKETWRITER_H
+#endif // SSLSOCKETWRITER_H

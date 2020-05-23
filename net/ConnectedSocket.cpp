@@ -5,7 +5,7 @@
 
 
 ConnectedSocket::ConnectedSocket(int csFd, 
-                                 ServerSocket* serverSocket, 
+                                 BaseServerSocket<ConnectedSocket>* serverSocket, 
                                  const std::function<void (ConnectedSocket* cs, const char* junk, ssize_t n)>& readProcessor,
                                  const std::function<void (int errnum)>& onReadError,
                                  const std::function<void (int errnum)>& onWriteError

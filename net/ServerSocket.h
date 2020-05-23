@@ -15,37 +15,37 @@ class Response;
 class ConnectedSocket;
 class SSLConnectedSocket;
 
-class ServerSocket : public SocketReader {
+template<typename T>
+class BaseServerSocket : public SocketReader {
 private:
-    ServerSocket(const std::function<void (ConnectedSocket* cs)>& onConnect,
-                 const std::function<void (ConnectedSocket* cs)>& onDisconnect,
-                 const std::function<void (ConnectedSocket* cs, const char*  junk, ssize_t n)>& readProcesor,
+    BaseServerSocket(const std::function<void (T* cs)>& onConnect,
+                 const std::function<void (T* cs)>& onDisconnect,
+                 const std::function<void (T* cs, const char*  junk, ssize_t n)>& readProcesor,
                  const std::function<void (int errnum)>& onCsReadError,
                  const std::function<void (int errnum)>& onCsWriteError);
 
 public:
-    static ServerSocket* instance(const std::function<void (ConnectedSocket* cs)>& onConnect,
-                                  const std::function<void (ConnectedSocket* cs)>& onDisconnect,
-                                  const std::function<void (ConnectedSocket* cs, const char*  junk, ssize_t n)>& readProcesor,
+    static BaseServerSocket* instance(const std::function<void (T* cs)>& onConnect,
+                                  const std::function<void (T* cs)>& onDisconnect,
+                                  const std::function<void (T* cs, const char*  junk, ssize_t n)>& readProcesor,
                                   const std::function<void (int errnum)>& onCsReadError,
                                   const std::function<void (int errnum)>& onCsWriteError);
-    ~ServerSocket() {}
+    ~BaseServerSocket() {}
     
     void listen(in_port_t port, int backlog, const std::function<void (int err)>& onError);
     
     virtual void readEvent();
     
-    void disconnect(ConnectedSocket* cs);
-    void disconnect(SSLConnectedSocket* cs);
+    void disconnect(T* cs);
     
     static void run();
     
     static void stop();
     
 private:
-    std::function<void (ConnectedSocket* cs)> onConnect;
-    std::function<void (ConnectedSocket* cs)> onDisconnect;
-    std::function<void (ConnectedSocket* cs, const char* junk, ssize_t n)> readProcessor;
+    std::function<void (T* cs)> onConnect;
+    std::function<void (T* cs)> onDisconnect;
+    std::function<void (T* cs, const char* junk, ssize_t n)> readProcessor;
 
     std::function<void (int errnum)> onCsReadError;
     std::function<void (int errnum)> onCsWriteError;

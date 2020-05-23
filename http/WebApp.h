@@ -11,7 +11,6 @@
 #include "Request.h"
 #include "Response.h"
 
-class ServerSocket;
 class ConnectedSocket;
 
 class WebApp : public Router
@@ -27,7 +26,13 @@ public:
     void listen(int port);
     void listen(int port, const std::function<void (int err)>& onError);
     
+    
+//    void sslListen(int port);
+//    void sslListen(int port, const std::function<void (int err)>& onError);
+    
     void stop();
+//    void sslStop();
+    
     void destroy();
     
     std::string& getRootDir() {
