@@ -31,12 +31,11 @@ void WebApp::listen(int port) {
         static_cast<HTTPContext*>(connectedSocket->getContext())->receiveRequest(junk, n);
     },
     [] (int errnum) -> void {
-        perror("ConnectedSocket");
+        perror("Read from ConnectedSocket");
     },
     [] (int errnum) -> void {
-        perror("ConnectedSocket");
-    }
-                                                )->listen(port, 5, 0);
+        perror("Write to ConnectedSocket");
+    })->listen(port, 5, 0);
 
     SocketServerBase<SocketConnection>::run();
 }
@@ -63,8 +62,7 @@ void WebApp::listen(int port, const std::function<void (int err)>& onError) {
         if (errnum) {
             perror("Write to ConnectedSocket");
         }
-    }
-    )->listen(port, 5, [&] (int err) -> void {
+    })->listen(port, 5, [&] (int err) -> void {
         onError(err);
         if (!err) {
             SocketServerBase<SocketConnection>::run();
@@ -84,12 +82,11 @@ void WebApp::sslListen(int port) {
         static_cast<HTTPContext*>(connectedSocket->getContext())->receiveRequest(junk, n);
     },
     [] (int errnum) -> void {
-        perror("ConnectedSocket");
+        perror("Read from SSLConnectedSocket");
     },
     [] (int errnum) -> void {
-        perror("ConnectedSocket");
-    }
-                                                   )->listen(port, 5, 0);
+        perror("Write to SSLConnectedSocket");
+    })->listen(port, 5, 0);
 
     SocketServerBase<SSLSocketConnection>::run();
 }
@@ -116,8 +113,7 @@ void WebApp::sslListen(int port, const std::function<void (int err)>& onError) {
         if (errnum) {
             perror("Write to SSLConnectedSocket");
         }
-    }
-    )->listen(port, 5, [&] (int err) -> void {
+    })->listen(port, 5, [&] (int err) -> void {
         onError(err);
         if (!err) {
             SocketServerBase<SSLSocketConnection>::run();
