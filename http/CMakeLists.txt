@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-add_library(http SHARED HTTPServer.cpp HTTPContext.cpp HTTPStatusCodes.cpp MimeTypes.cpp Request.cpp Response.cpp httputils.cpp Router.cpp)
+add_library(http SHARED HTTPServer.cpp HTTPContext.cpp HTTPStatusCodes.cpp MimeTypes.cpp Request.cpp Response.cpp httputils.cpp Router.cpp ResponseCookie.cpp)
 
 target_link_libraries(http LINK_PUBLIC net magic)
 

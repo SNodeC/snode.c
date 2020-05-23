@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <filesystem>
+#include <fstream>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -252,7 +253,10 @@ void HTTPContext::sendHeader() {
     }
     
     for (std::map<std::string, ResponseCookie>::iterator it = responseCookies.begin(); it != responseCookies.end(); ++it) {
+        /*
         std::string cookiestring = it->first + "=" + it->second.value;
+        cookiestring += it->second.options.to_string();
+        
         
         std::map<std::string, std::string>::const_iterator obit = it->second.options.begin();
         std::map<std::string, std::string>::const_iterator oeit = it->second.options.end();
@@ -260,7 +264,8 @@ void HTTPContext::sendHeader() {
             cookiestring += "; " + obit->first + ((obit->second != "") ? "=" + obit->second : "");
             ++obit;
         }
-        connectedSocket->send("Set-Cookie: " + cookiestring + "\r\n");
+        */
+        connectedSocket->send("Set-Cookie: " + it->second.toString() + "\r\n");
     }
     
     connectedSocket->send("\r\n");

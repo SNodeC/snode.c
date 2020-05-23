@@ -8,8 +8,11 @@
 #include "SingleshotTimer.h"
 #include "ContinousTimer.h"
 #include "HTTPServer.h"
+#include "ResponseCookie.h"
 
 #include "httputils.h"
+
+#define BUILD_PATH "/home/student/NDS/CookieProject/snode.c/build/html"
 
 
 int timerApp(int argc, char** argv) {
@@ -28,7 +31,7 @@ int timerApp(int argc, char** argv) {
         (struct timeval) {1, 100000}, "Tack");
     
     bool canceled = false;
-    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
+    HTTPServer& app = HTTPServer::instance(BUILD_PATH);
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
@@ -48,12 +51,7 @@ int timerApp(int argc, char** argv) {
                 
                 std::cout << "RQuery: " << req.query("Hallo") << std::endl;
                 
-                res.cookie("Test", "me", 
-                    {
-                        {"Max-Age", "3600"}
-                    }
-                    
-                );
+                res.cookie("Test", "timerApp", ResponseCookieOptions().path("/test").maxAge(200000));
                 
                 //            res.set("Connection", "close");
                 res.sendFile(uri, [uri] (int ret) -> void {
@@ -89,7 +87,7 @@ int timerApp(int argc, char** argv) {
 
 
 int simpleWebserver(int argc, char** argv) {
-    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
+    HTTPServer& app = HTTPServer::instance(BUILD_PATH);
     
     Router router;
     
@@ -126,7 +124,7 @@ int simpleWebserver(int argc, char** argv) {
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
-                res.cookie("Test", "me", {{"Max-Age", "3600"}});
+                res.cookie("Test", "simpleWebserver", ResponseCookieOptions().domain("example.org").path("/simpleWebserver").maxAge(200000));
                 
                 std::string host = req.header("Host");
                 
@@ -204,7 +202,7 @@ int simpleWebserver(int argc, char** argv) {
                 
                 
 int testPost(int argc, char* argv[]) {
-    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
+    HTTPServer& app = HTTPServer::instance(BUILD_PATH);
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {

@@ -8,12 +8,15 @@
 #include "SingleshotTimer.h"
 #include "ContinousTimer.h"
 #include "HTTPServer.h"
+#include "ResponseCookie.h"
 
 #include "httputils.h"
 
+#define BUILD_PATH "/home/student/NDS/CookieProject/snode.c/build/html"
+
 
 int simpleWebserver(int argc, char** argv) {
-    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
+    HTTPServer& app = HTTPServer::instance(BUILD_PATH);
     
     Router router;
     
@@ -62,7 +65,7 @@ int simpleWebserver(int argc, char** argv) {
                 
                 std::cout << "Uri: " << uri << std::endl;
                 
-                res.cookie("Test", "me", {{"Max-Age", "3600"}});
+                res.cookie("Test", "me", ResponseCookieOptions().path("/images"));
                 
                 if (uri == "/") {
                     res.redirect("/index.html");

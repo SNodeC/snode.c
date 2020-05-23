@@ -10,10 +10,11 @@
 #include "HTTPServer.h"
 
 #include "httputils.h"
+#define BUILD_PATH "/home/student/NDS/CookieProject/snode.c/build/html"
          
                 
 int testPost(int argc, char* argv[]) {
-    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
+    HTTPServer& app = HTTPServer::instance(BUILD_PATH);
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
