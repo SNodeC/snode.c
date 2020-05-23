@@ -12,13 +12,6 @@
 SocketBase::SocketBase() {}
 
 
-/*
-SocketBase::SocketBase(int fd) : Descriptor(fd) {
-    this->setFd(fd);
-}
-*/
-
-
 SocketBase::~SocketBase() {
     ::shutdown(this->getFd(), SHUT_RDWR);
 }
