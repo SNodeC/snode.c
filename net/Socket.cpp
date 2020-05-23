@@ -27,11 +27,11 @@ void Socket::setFd(int fd) {
 }
 
 
-ssize_t Socket::recv(void *buf, size_t len, int flags) {
+ssize_t Socket::socketRecv(void *buf, size_t len, int flags) {
     return ::recv(this->getFd(), buf, len, flags);
 }
 
 
-ssize_t Socket::send(const void *buf, size_t len, int flags) {
+ssize_t Socket::socketSend(const void *buf, size_t len, int flags) {
     return ::send(this->getFd(), buf, len, flags);
 }

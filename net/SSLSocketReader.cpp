@@ -17,7 +17,7 @@
 void SSLSocketReader::readEvent() {
     static char junk[MAX_JUNKSIZE];
     
-    ssize_t ret = recv(junk, MAX_JUNKSIZE, 0);
+    ssize_t ret = socketRecv(junk, MAX_JUNKSIZE, 0);
     
     if (ret > 0) {
         readProcessor(dynamic_cast<SSLConnectedSocket*>(this), junk, ret);
