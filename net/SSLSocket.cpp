@@ -21,8 +21,8 @@ const SSL_METHOD* SSLSocket::init1() {
     return TLS_server_method();
 }
 
-#define CERTF "/home/voc/projects/ServerVoc/certs/test-cert.pem"
-#define KEYF "/home/voc/projects/ServerVoc/certs/test-cert.pem"
+#define CERTF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c.pem"
+#define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c.key.pem"
 
 
 SSL_CTX* SSLSocket::init2() {
@@ -45,6 +45,9 @@ SSL_CTX* SSLSocket::init2() {
         fprintf(stderr,"Private key does not match the certificate public key\n");
         exit(5);
     }
+    
+    // SSL_CTX_default_password_cb
+    // SSL_CTX_default_password_cb_userdata
 
     return ctx;
 }
