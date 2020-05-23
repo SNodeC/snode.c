@@ -45,12 +45,12 @@ void ServerSocket::listen(in_port_t port, int backlog, const std::function<void 
                     if (errnum > 0) {
                         onError(errnum);
                     } else {
-                        if (::listen(this->getFd(), backlog) < 0) {
-                            onError(errno);
-                        } else {
-                            Multiplexer::instance().getReadManager().manageSocket(this);
-                            onError(0);
-                        }
+                        this->Socket::listen(backlog, [this, &onError] (int errnum) -> void {
+                            if (errnum == 0) {
+                                Multiplexer::instance().getReadManager().manageSocket(this);
+                            }
+                            onError(errnum);
+                        });
                     }
                 });
             }
