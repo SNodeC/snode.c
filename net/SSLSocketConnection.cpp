@@ -5,24 +5,24 @@
 
 
 SSLSocketConnection::SSLSocketConnection(int csFd,
-        SocketServerBase<SSLSocketConnection>* serverSocket,
-        const std::function<void (SSLSocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
-        const std::function<void (int errnum)>& onReadError,
-        const std::function<void (int errnum)>& onWriteError
-                                        )
-    :   SSLSocket(csFd),
-        SSLSocketReader(readProcessor, [&] (int errnum) -> void {
-    onReadError(errnum);
-}),
-SSLSocketWriter([&] (int errnum) -> void {
-    if (fileReader) {
-        fileReader->stop();
-        fileReader = 0;
-    }
-    onWriteError(errnum);
-}),
-serverSocket(serverSocket),
-fileReader(0) {
+                                         SocketServerBase<SSLSocketConnection>* serverSocket,
+                                         const std::function<void (SSLSocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
+                                         const std::function<void (int errnum)>& onReadError,
+                                         const std::function<void (int errnum)>& onWriteError
+                                        ) :
+    SSLSocket(csFd),
+    SSLSocketReader(readProcessor, [&] (int errnum) -> void {
+        onReadError(errnum);
+    }),
+    SSLSocketWriter([&] (int errnum) -> void {
+        if (fileReader) {
+            fileReader->stop();
+            fileReader = 0;
+        }
+        onWriteError(errnum);
+    }),
+    serverSocket(serverSocket),
+    fileReader(0) {
 }
 
 

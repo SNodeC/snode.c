@@ -9,20 +9,20 @@ SocketConnection::SocketConnection(int csFd,
                                    const std::function<void (SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
                                    const std::function<void (int errnum)>& onReadError,
                                    const std::function<void (int errnum)>& onWriteError
-                                  )
-    :   Socket(csFd),
-        SocketReader(readProcessor, [&] (int errnum) -> void {
-    onReadError(errnum);
-}),
-SocketWriter([&] (int errnum) -> void {
-    if (fileReader) {
-        fileReader->stop();
-        fileReader = 0;
-    }
-    onWriteError(errnum);
-}),
-serverSocket(serverSocket),
-fileReader(0) {
+                                  ) :
+    Socket(csFd),
+    SocketReader(readProcessor, [&] (int errnum) -> void {
+        onReadError(errnum);
+    }),
+    SocketWriter([&] (int errnum) -> void {
+        if (fileReader) {
+            fileReader->stop();
+            fileReader = 0;
+        }
+        onWriteError(errnum);
+    }),
+    serverSocket(serverSocket),
+    fileReader(0) {
 }
 
 
@@ -75,4 +75,6 @@ void SocketConnection::sendFile(const std::string& file, const std::function<voi
 void SocketConnection::end() {
     Multiplexer::instance().getReadManager().unmanageSocket(this);
 }
+
+
 
