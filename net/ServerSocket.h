@@ -13,6 +13,7 @@
 class Request;
 class Response;
 class ConnectedSocket;
+class SSLConnectedSocket;
 
 class ServerSocket : public SocketReader {
 private:
@@ -35,6 +36,7 @@ public:
     virtual void readEvent();
     
     void disconnect(ConnectedSocket* cs);
+    void disconnect(SSLConnectedSocket* cs);
     
     static void run();
     
