@@ -11,8 +11,6 @@
 class HTTPContext;
 
 class Request {
-private:
-    
 public:
     Request(HTTPContext* httpContext);
     

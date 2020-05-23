@@ -11,9 +11,10 @@
 
 #include "httputils.h"
 
+#define BUILD_PATH "/home/student/nds/snode.c/build/html"
 
 int simpleWebserver(int argc, char** argv) {
-    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
+    HTTPServer& app = HTTPServer::instance(BUILD_PATH);
     
     Router router;
     
