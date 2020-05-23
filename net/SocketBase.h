@@ -26,7 +26,6 @@ public:
     
 protected:
     SocketBase();
-//    SocketBase(int fd);
     
     void open(const std::function<void (int errnum)>& onError);
     
