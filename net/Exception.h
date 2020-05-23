@@ -7,7 +7,7 @@
 class Exception : public ManagedDescriptor {
 public:
     virtual ~Exception() = default;
-    
+
     virtual void exceptionEvent() = 0;
 };
 

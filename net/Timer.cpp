@@ -13,17 +13,17 @@ Timer::Timer(const std::function<void (const void* arg)>& dispatcher, const stru
 
 SingleshotTimer& Timer::singleshotTimer(const std::function<void (const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg) {
     SingleshotTimer* st = new SingleshotTimer(dispatcher, timeout, arg);
-    
+
     Multiplexer::instance().getTimerManager().add(st);
-    
+
     return *st;
 }
 
 ContinousTimer& Timer::continousTimer(const std::function<void (const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg) {
     ContinousTimer* ct = new ContinousTimer(dispatcher, timeout, arg);
-    
+
     Multiplexer::instance().getTimerManager().add(ct);
-    
+
     return *ct;
 }
 
@@ -92,16 +92,16 @@ bool operator==(const struct timeval &tv1, const struct timeval &tv2)
 struct timeval operator+(const struct timeval &tv1, const struct timeval &tv2)
 {
     struct timeval help;
-    
+
     help.tv_sec = tv1.tv_sec + tv2.tv_sec;
-    
+
     help.tv_usec = tv1.tv_usec + tv2.tv_usec;
-    
+
     if (help.tv_usec > 999999) {
         help.tv_usec -= 1000000;
         help.tv_sec++;
     }
-    
+
     return help;
 }
 
@@ -109,14 +109,14 @@ struct timeval operator+(const struct timeval &tv1, const struct timeval &tv2)
 struct timeval operator-(const struct timeval &tv1, const struct timeval &tv2)
 {
     struct timeval help;
-    
+
     help.tv_sec = tv1.tv_sec - tv2.tv_sec;
     help.tv_usec = tv1.tv_usec - tv2.tv_usec;
-    
+
     if (help.tv_usec < 0) {
         help.tv_usec += 1000000;
         help.tv_sec--;
     }
-    
+
     return help;
 }

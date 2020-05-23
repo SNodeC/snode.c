@@ -8,6 +8,6 @@ int ExceptionManager::dispatch(fd_set& fdSet, int count) {
             (*it)->exceptionEvent();
         }
     }
-    
+
     return count;
 }

@@ -14,15 +14,15 @@ void Multiplexer::tick() {
     fd_set exceptfds = exceptionManager.getFdSet();
     fd_set writefds = writeManager.getFdSet();
     fd_set readfds = readManager.getFdSet();
-    
+
     int maxFd = readManager.getMaxFd();
     maxFd = writeManager.getMaxFd() > maxFd ? writeManager.getMaxFd() : maxFd;
     maxFd = exceptionManager.getMaxFd() > maxFd ? writeManager.getMaxFd() : maxFd;
-    
+
     struct timeval tv = timerManager.getNextTimeout();
-    
+
     int retval = select(maxFd + 1, &readfds, &writefds, &exceptfds, &tv);
-    
+
     if (retval < 0 && errno != EINTR) {
         perror("Select");
         stop();
@@ -45,8 +45,8 @@ void Multiplexer::run()
 {
     if (!Multiplexer::running) {
         Multiplexer::running = true;
-        
-        while (Multiplexer::running){
+
+        while (Multiplexer::running) {
             Multiplexer::instance().tick();
         };
     }

@@ -11,7 +11,7 @@ class SSLSocketWriter : public Writer, virtual public SSLSocket
 {
 public:
     void writeEvent();
-    
+
 protected:
     SSLSocketWriter(const std::function<void (int errnum)>& onError) : Writer(onError) {}
 };

@@ -26,6 +26,6 @@ int Descriptor::getFd() const {
     if (fd < 0) {
         std::cout << "Descriptor not initialized" << std::endl;
     }
-    
+
     return fd;
 }

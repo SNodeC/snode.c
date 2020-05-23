@@ -34,11 +34,11 @@ void Response::cookie(const std::string& name, const std::string& value, const s
 
 void Response::clearCookie(const std::string& name, const std::map<std::string, std::string>& options) const {
     std::map<std::string, std::string> opts = options;
-    
+
     opts.erase("Max-Age");
     time_t time = 0;
     opts["Expires"] = httputils::to_http_date(gmtime(&time));
-    
+
     this->cookie(name, "", opts);
 }
 
@@ -60,11 +60,11 @@ void Response::sendFile(const std::string& file, const std::function<void (int e
 
 void Response::download(const std::string& file, const std::function<void (int err)>& fn) const {
     std::string name = file;
-    
+
     if (name[0] == '/') {
         name.erase(0, 1);
     }
-    
+
     this->download(file, name, fn);
 }
 

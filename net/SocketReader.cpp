@@ -11,16 +11,16 @@
 #include "SocketReader.h"
 #include "Multiplexer.h"
 
-#include "ConnectedSocket.h"
+#include "SocketConnection.h"
 
 
 void SocketReader::readEvent() {
     static char junk[MAX_JUNKSIZE];
-    
+
     ssize_t ret = socketRecv(junk, MAX_JUNKSIZE, 0);
-    
+
     if (ret > 0) {
-        readProcessor(dynamic_cast<ConnectedSocket*>(this), junk, ret);
+        readProcessor(dynamic_cast<SocketConnection*>(this), junk, ret);
     } else if (ret == 0) {
         onError(0);
         Multiplexer::instance().getReadManager().unmanageSocket(this);

@@ -201,7 +201,7 @@ std::map<std::string, std::string> MimeTypes::mimeType = {
 
 MimeTypes::MimeTypes() {
     MimeTypes::magic = magic_open(MAGIC_MIME);
-    
+
     if (magic_load(magic,	NULL) != 0) {
         std::cerr << "cannot load magic database - " << magic_error(magic) << std::endl;
         magic_close(magic);
@@ -213,19 +213,19 @@ MimeTypes::MimeTypes() {
 MimeTypes::~MimeTypes() {
     magic_close(MimeTypes::magic);
 }
-    
+
 
 std::string MimeTypes::contentType(std::string file) {
     std::map<std::string, std::string>::iterator it = mimeType.find(std::filesystem::path(file).extension());
-    
+
     std::string type;
-    
+
     if (it != mimeType.end()) {
         type = it->second;
     } else if (magic != 0) {
         type = magic_file(MimeTypes::magic,	(file.c_str()));
     }
-    
+
     return type;
 }
-    
+

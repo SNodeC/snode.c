@@ -6,26 +6,26 @@
 
 
 class ManagedDescriptor : virtual public ManagedCounter
-{   
+{
 public:
     ManagedDescriptor() : managed(false) {}
 
     virtual ~ManagedDescriptor() = default;
-    
+
     void incManaged() {
         ManagedCounter::managedCounter++;
     }
-    
+
     void decManaged() {
         ManagedCounter::managedCounter--;
-        
+
         if (managedCounter == 0) {
             delete this;
         }
     }
-    
+
 //    virtual void unused() = 0;
-    
+
     bool managed = false;
 };
 

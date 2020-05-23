@@ -19,16 +19,16 @@ FileReader::FileReader(int fd, const std::function<void (char* data, int len)>& 
 
 FileReader* FileReader::read(std::string path, const std::function<void (char* data, int len)>& junkRead, const std::function<void (int err)>& onError) {
     FileReader* fileReader = 0;
-    
+
     int fd = open(path.c_str(), O_RDONLY);
-    
+
     if (fd >= 0) {
         fileReader = new FileReader(fd, junkRead, onError);
         Multiplexer::instance().getReadManager().manageSocket(fileReader);
     } else {
         onError(errno);
     }
-    
+
     return fileReader;
 }
 
@@ -40,9 +40,9 @@ void FileReader::stop() {
 
 void FileReader::readEvent() {
     char puffer[MFREADSIZE];
-    
+
     int ret = ::read(this->getFd(), puffer, MFREADSIZE);
-    
+
     if (ret > 0) {
         this->junkRead(puffer, ret);
     } else if (ret == 0) {
