@@ -10,7 +10,7 @@ ConnectedSocket::ConnectedSocket(int csFd,
                                  const std::function<void (int errnum)>& onReadError,
                                  const std::function<void (int errnum)>& onWriteError
                                 ) 
-:   Socket(csFd),
+:   SSLSocket(csFd),
     SocketReader(readProcessor, [&] (int errnum) -> void {
         onReadError(errnum);
     }),
