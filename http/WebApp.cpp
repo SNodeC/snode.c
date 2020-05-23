@@ -73,9 +73,8 @@ void WebApp::listen(int port, const std::function<void (int err)>& onError) {
 }
 
 
-/*
 void WebApp::sslListen(int port) {
-    SSLServerSocket::instance([this] (SSLConnectedSocket* connectedSocket) -> void {
+    BaseServerSocket<SSLConnectedSocket>::instance([this] (SSLConnectedSocket* connectedSocket) -> void {
         connectedSocket->setContext(new HTTPContext(this, connectedSocket));
     },
     [] (SSLConnectedSocket* connectedSocket) -> void {
@@ -92,15 +91,14 @@ void WebApp::sslListen(int port) {
     }
     )->listen(port, 5, 0);
     
-    SSLServerSocket::run();
+    BaseServerSocket<SSLConnectedSocket>::run();
 }
-*/
 
-/*
+
 void WebApp::sslListen(int port, const std::function<void (int err)>& onError) {
     errno = 0;
     
-    SSLServerSocket::instance([this] (SSLConnectedSocket* connectedSocket) -> void {
+    BaseServerSocket<SSLConnectedSocket>::instance([this] (SSLConnectedSocket* connectedSocket) -> void {
         connectedSocket->setContext(new HTTPContext(this, connectedSocket));
     },
     [] (SSLConnectedSocket* connectedSocket) -> void {
@@ -122,11 +120,11 @@ void WebApp::sslListen(int port, const std::function<void (int err)>& onError) {
     )->listen(port, 5, [&] (int err) -> void {
         onError(err);
         if (!err) {
-            ServerSocket::run();
+            BaseServerSocket<SSLConnectedSocket>::run();
         }
     });
 }
-*/
+
 
 void WebApp::stop() {
     BaseServerSocket<ConnectedSocket>::stop();
