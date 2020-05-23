@@ -14,13 +14,13 @@
 
 
 class FileReader;
-class ServerSocket;
+template<typename T> class BaseServerSocket;
 
 class ConnectedSocket : public SocketReader, public SocketWriter
 {
 public:
     ConnectedSocket(int csFd, 
-                    ServerSocket* ss, 
+                    BaseServerSocket<ConnectedSocket>* ss, 
                     const std::function<void (ConnectedSocket* cs, const char*  junk, ssize_t n)>& readProcessor,
                     const std::function<void (int errnum)>& onReadError,
                     const std::function<void (int errnum)>& onWriteError
@@ -45,7 +45,7 @@ public:
     void setRemoteAddress(const InetAddress& remoteAddress);
 
 protected:
-    ServerSocket* serverSocket;
+    BaseServerSocket<ConnectedSocket>* serverSocket;
     void* context;
     
     InetAddress remoteAddress;

@@ -33,12 +33,12 @@ int simpleWebserver(int argc, char** argv) {
     
     app.get("/", router);
     
-    app.listen(443, 
+    app.listen(8080, 
                [] (int err) -> void {
                    if (err != 0) {
                        perror("Listen");
                    } else {
-                       std::cout << "snode.c listening on port 443" << std::endl;
+                       std::cout << "snode.c listening on port 8080" << std::endl;
                    }
                }
     );

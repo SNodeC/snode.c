@@ -6,29 +6,32 @@
 
 #include "ServerSocket.h"
 #include "ConnectedSocket.h"
+#include "SSLConnectedSocket.h"
 #include "Multiplexer.h"
 
-
-ServerSocket::ServerSocket(const std::function<void (ConnectedSocket* cs)>& onConnect,
-                           const std::function<void (ConnectedSocket* cs)>& onDisconnect,
-                           const std::function<void (ConnectedSocket* cs, const char*  junk, ssize_t n)>& readProcessor,
+template<typename T>
+BaseServerSocket<T>::BaseServerSocket(const std::function<void (T* cs)>& onConnect,
+                                      const std::function<void (T* cs)>& onDisconnect,
+                                      const std::function<void (T* cs, const char*  junk, ssize_t n)>& readProcessor,
                            const std::function<void (int errnum)>& onCsReadError,
                            const std::function<void (int errnum)>& onCsWriteError)
 : SocketReader(), onConnect(onConnect), onDisconnect(onDisconnect), readProcessor(readProcessor), onCsReadError(onCsReadError), onCsWriteError(onCsWriteError)
 {}
 
 
-ServerSocket* ServerSocket::instance(const std::function<void (ConnectedSocket* cs)>& onConnect,
-                                     const std::function<void (ConnectedSocket* cs)>& onDisconnect,
-                                     const std::function<void (ConnectedSocket* cs, const char*  junk, ssize_t n)>& readProcessor,
+template<typename T>
+BaseServerSocket<T>* BaseServerSocket<T>::instance(const std::function<void (T* cs)>& onConnect,
+                                                   const std::function<void (T* cs)>& onDisconnect,
+                                                   const std::function<void (T* cs, const char*  junk, ssize_t n)>& readProcessor,
                                      const std::function<void (int errnum)>& onCsReadError,
                                      const std::function<void (int errnum)>& onCsWriteError) 
 {
-    return new ServerSocket(onConnect, onDisconnect, readProcessor, onCsReadError, onCsWriteError);
+    return new BaseServerSocket<T>(onConnect, onDisconnect, readProcessor, onCsReadError, onCsWriteError);
 }
 
 
-void ServerSocket::listen(in_port_t port, int backlog, const std::function<void (int err)>& onError) {
+template<typename T>
+void BaseServerSocket<T>::listen(in_port_t port, int backlog, const std::function<void (int err)>& onError) {
     this->SocketReader::setOnError(onError);
     
     this->open([this, &port, &backlog, &onError] (int errnum) -> void {
@@ -59,7 +62,8 @@ void ServerSocket::listen(in_port_t port, int backlog, const std::function<void 
 }
 
 
-void ServerSocket::readEvent() {
+template<typename T>
+void BaseServerSocket<T>::readEvent() {
     struct sockaddr_in remoteAddress;
     socklen_t addrlen = sizeof(remoteAddress);
     
@@ -72,7 +76,7 @@ void ServerSocket::readEvent() {
         socklen_t addressLength = sizeof(localAddress);
         
         if (getsockname(csFd, (struct sockaddr*) &localAddress, &addressLength) == 0) {
-            ConnectedSocket* cs = new ConnectedSocket(csFd, this, this->readProcessor, onCsReadError, onCsWriteError);
+            T* cs = new T(csFd, this, this->readProcessor, onCsReadError, onCsWriteError);
             
             cs->setRemoteAddress(remoteAddress);
             cs->setLocalAddress(localAddress);
@@ -89,26 +93,26 @@ void ServerSocket::readEvent() {
     }
 }
     
-
-void ServerSocket::disconnect(ConnectedSocket* cs) {
+    
+template<typename T>
+void BaseServerSocket<T>::disconnect(T* cs) {
     if (onDisconnect) {
         onDisconnect(cs);
     }
 }
 
 
-void ServerSocket::disconnect(SSLConnectedSocket* cs) {
-    if (onDisconnect) {
-        onDisconnect(cs);
-    }
-}
-
-
-void ServerSocket::run() {
+template<typename T>
+void BaseServerSocket<T>::run() {
     Multiplexer::run();
 }
 
 
-void ServerSocket::stop() {
+template<typename T>
+void BaseServerSocket<T>::stop() {
     Multiplexer::stop();
 }
+
+
+template class BaseServerSocket<ConnectedSocket>;
+template class BaseServerSocket<SSLConnectedSocket>;

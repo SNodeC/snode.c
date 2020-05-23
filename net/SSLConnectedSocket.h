@@ -1,5 +1,5 @@
-#ifndef CONNECTEDSOCKET_H
-#define CONNECTEDSOCKET_H
+#ifndef SSLCONNECTEDSOCKET_H
+#define SSLCONNECTEDSOCKET_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -14,13 +14,13 @@
 
 
 class FileReader;
-class ServerSocket;
+template<typename T> class BaseServerSocket;
 
 class SSLConnectedSocket : public SSLSocketReader, public SSLSocketWriter
 {
 public:
     SSLConnectedSocket(int csFd, 
-                    ServerSocket* ss, 
+                    BaseServerSocket<SSLConnectedSocket>* ss, 
                     const std::function<void (SSLConnectedSocket* cs, const char*  junk, ssize_t n)>& readProcessor,
                     const std::function<void (int errnum)>& onReadError,
                     const std::function<void (int errnum)>& onWriteError
@@ -45,7 +45,7 @@ public:
     void setRemoteAddress(const InetAddress& remoteAddress);
 
 protected:
-    ServerSocket* serverSocket;
+    BaseServerSocket<SSLConnectedSocket>* serverSocket;
     void* context;
     
     InetAddress remoteAddress;
@@ -54,4 +54,4 @@ private:
     FileReader* fileReader;
 };
 
-#endif // CONNECTEDSOCKET_H
+#endif // SSLCONNECTEDSOCKET_H

@@ -5,7 +5,7 @@
 
 
 SSLConnectedSocket::SSLConnectedSocket(int csFd, 
-                                 ServerSocket* serverSocket, 
+                                 BaseServerSocket<SSLConnectedSocket>* serverSocket, 
                                  const std::function<void (SSLConnectedSocket* cs, const char* junk, ssize_t n)>& readProcessor,
                                  const std::function<void (int errnum)>& onReadError,
                                  const std::function<void (int errnum)>& onWriteError

@@ -1,5 +1,5 @@
-#ifndef SOCKETREADER_H
-#define SOCKETREADER_H
+#ifndef SSLSOCKETREADER_H
+#define SSLSOCKETREADER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,4 +26,4 @@ protected:
     std::function<void (SSLConnectedSocket* cs, const char* junk, ssize_t n)> readProcessor;
 };
 
-#endif // SOCKETREADER_H
+#endif // SSLSOCKETREADER_H
