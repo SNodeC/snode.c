@@ -6,7 +6,6 @@
 #include "Request.h"
 #include "Response.h"
 #include "ResponseCookie.h"
-#include "ResponseCookieOptions.h"
 #include "SingleshotTimer.h"
 #include "ContinousTimer.h"
 #include "HTTPServer.h"

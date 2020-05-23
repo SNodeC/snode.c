@@ -20,7 +20,7 @@ void Response::set(const std::string& field, const std::string& value) const {
 }
 
 
-void Response::cookie ( const std::string& name, const std::string& value, const ResponseCookieOptions& options ) const
+void Response::cookie( const std::string& name, const std::string& value, const ResponseCookieOptions& options ) const
 {
     this->httpContext->responseCookies.insert({name, ResponseCookie(name, value, options)});
 }

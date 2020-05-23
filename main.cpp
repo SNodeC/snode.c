@@ -6,7 +6,6 @@
 #include "Request.h"
 #include "Response.h"
 #include "ResponseCookie.h"
-#include "ResponseCookieOptions.h"
 #include "SingleshotTimer.h"
 #include "ContinousTimer.h"
 #include "HTTPServer.h"
@@ -51,7 +50,7 @@ int timerApp(int argc, char** argv) {
                 
                 std::cout << "RQuery: " << req.query("Hallo") << std::endl;
                 
-                res.cookie("Test", "timerApp", ResponseCookieOptions());//.domain("example.org").path().maxAge(200000));
+                res.cookie("Test", "timerApp", ResponseCookieOptions().maxAge(200000));
                 
                 //            res.set("Connection", "close");
                 res.sendFile(uri, [uri] (int ret) -> void {
@@ -123,7 +122,7 @@ int simpleWebserver(int argc, char** argv) {
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
-                res.cookie("Test", "simpleWebserver", ResponseCookieOptions()); //.domain("example.org").path().maxAge(200000));
+                res.cookie("Test", "simpleWebserver", ResponseCookieOptions().path("/consumption").maxAge(3000));
                 
                 std::string host = req.header("Host");
                 
