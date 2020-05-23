@@ -5,11 +5,14 @@
 
 #include "Request.h"
 #include "Response.h"
+#include "ResponseCookie.h"
 #include "SingleshotTimer.h"
 #include "ContinousTimer.h"
 #include "HTTPServer.h"
 
 #include "httputils.h"
+
+#define BUILD_PATH "/home/student/projects/NDS/snode.c/build/html"
 
 
 int timerApp(int argc, char** argv) {
@@ -28,7 +31,7 @@ int timerApp(int argc, char** argv) {
         (struct timeval) {1, 100000}, "Tack");
     
     bool canceled = false;
-    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
+    HTTPServer& app = HTTPServer::instance(BUILD_PATH);
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
@@ -39,7 +42,7 @@ int timerApp(int argc, char** argv) {
                 }
                 
                 std::cout << "RCookie: " << req.cookie("doxygen_width") << std::endl;
-                std::cout << "RCookie: " << req.cookie("Test") << std::endl;
+                std::cout << "RCookie: " << req.cookie("TimerTest") << std::endl;
                 
                 //            std::cout << "RHeader: " << req.header("Content-Length") << std::endl;
                 std::cout << "RHeader: " << req.header("Accept") << std::endl;
@@ -48,12 +51,8 @@ int timerApp(int argc, char** argv) {
                 
                 std::cout << "RQuery: " << req.query("Hallo") << std::endl;
                 
-                res.cookie("Test", "me", 
-                    {
-                        {"Max-Age", "3600"}
-                    }
-                    
-                );
+                CookieOptions options{.maxAge = 3600};
+                res.cookie("TimerTest", "TimerTestCookieValue", options);
                 
                 //            res.set("Connection", "close");
                 res.sendFile(uri, [uri] (int ret) -> void {
@@ -89,7 +88,7 @@ int timerApp(int argc, char** argv) {
 
 
 int simpleWebserver(int argc, char** argv) {
-    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
+    HTTPServer& app = HTTPServer::instance(BUILD_PATH);
     
     Router router;
     
@@ -126,7 +125,8 @@ int simpleWebserver(int argc, char** argv) {
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
-                res.cookie("Test", "me", {{"Max-Age", "3600"}});
+                CookieOptions options{.httpOnly = true, .maxAge = 3600, .sameSite = Strict};
+                res.cookie("SimpleWebserverTest", "SuperCoolCookieValue", options);
                 
                 std::string host = req.header("Host");
                 
@@ -204,7 +204,7 @@ int simpleWebserver(int argc, char** argv) {
                 
                 
 int testPost(int argc, char* argv[]) {
-    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
+    HTTPServer& app = HTTPServer::instance(BUILD_PATH);
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {

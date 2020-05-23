@@ -17,6 +17,8 @@
 #include "httputils.h"
 
 #include <iostream>
+#include <filesystem>
+#include <filesystem>
 
 
 HTTPContext::HTTPContext(HTTPServer* httpServer, ConnectedSocket* connectedSocket)
@@ -157,9 +159,9 @@ void HTTPContext::requestReady() {
 
 
 void HTTPContext::parseCookie(const std::string& value) {
-    std::istringstream cookyStream(value);
+    std::istringstream cookieStream(value);
     
-    for (std::string cookie; std::getline(cookyStream, cookie, ';'); ) {
+    for (std::string cookie; std::getline(cookieStream, cookie, ';'); ) {
         std::pair<std::string, std::string> splitted = httputils::str_split(cookie, '=');
         
         httputils::str_trimm(splitted.first);
@@ -252,14 +254,7 @@ void HTTPContext::sendHeader() {
     }
     
     for (std::map<std::string, ResponseCookie>::iterator it = responseCookies.begin(); it != responseCookies.end(); ++it) {
-        std::string cookiestring = it->first + "=" + it->second.value;
-        
-        std::map<std::string, std::string>::const_iterator obit = it->second.options.begin();
-        std::map<std::string, std::string>::const_iterator oeit = it->second.options.end();
-        while(obit != oeit) {
-            cookiestring += "; " + obit->first + ((obit->second != "") ? "=" + obit->second : "");
-            ++obit;
-        }
+        std::string cookiestring = it->second.ToString();
         connectedSocket->send("Set-Cookie: " + cookiestring + "\r\n");
     }
     

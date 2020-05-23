@@ -6,26 +6,16 @@
 #include <functional>
 #include <string>
 #include <map>
+#include <ctime>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Request.h"
 #include "Response.h"
+#include "ResponseCookie.h"
 
 class ConnectedSocket;
 class HTTPServer;
-
-
-class ResponseCookie {
-public:
-    ResponseCookie(const std::string& value, const std::map<std::string, std::string>& options) : value(value), options(options) {}
-    
-protected:
-    const std::string value;
-    const std::map<std::string, std::string> options;
-    
-    friend class HTTPContext;
-};
 
 
 class HTTPContext

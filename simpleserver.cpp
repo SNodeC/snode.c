@@ -11,9 +11,11 @@
 
 #include "httputils.h"
 
+#define BUILD_PATH "/home/student/projects/NDS/snode.c/build/html"
+
 
 int simpleWebserver(int argc, char** argv) {
-    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
+    HTTPServer& app = HTTPServer::instance(BUILD_PATH);
     
     Router router;
     
@@ -62,7 +64,8 @@ int simpleWebserver(int argc, char** argv) {
                 
                 std::cout << "Uri: " << uri << std::endl;
                 
-                res.cookie("Test", "me", {{"Max-Age", "3600"}});
+                CookieOptions options{.maxAge = 3600};
+                res.cookie("Test", "me", options);
                 
                 if (uri == "/") {
                     res.redirect("/index.html");
