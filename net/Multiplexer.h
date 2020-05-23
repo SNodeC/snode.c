@@ -1,6 +1,8 @@
 #ifndef SOCKETMULTIPLEXER_H
 #define SOCKETMULTIPLEXER_H
 
+#include <signal.h>
+
 #include "ReadManager.h"
 #include "WriteManager.h"
 #include "ExceptionManager.h"
@@ -10,7 +12,17 @@
 class Multiplexer
 {
 private:
-    Multiplexer() {}
+    Multiplexer() {
+        struct sigaction sh;
+        struct sigaction osh;
+
+        sh.sa_handler = SIG_IGN;
+        sh.sa_flags = SA_RESTART;
+
+        if (sigaction(SIGPIPE, &sh, &osh) < 0) {
+            exit (-1);
+        }
+    }
 
     ~Multiplexer() {}
 
