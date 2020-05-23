@@ -96,13 +96,13 @@ void SSLSocket::setFd(int fd) {
 }
 
 
-ssize_t SSLSocket::recv(void *buf, size_t len, int flags) {
+ssize_t SSLSocket::socketRecv(void *buf, size_t len, int flags) {
     return ::SSL_read(ssl, buf, len);
 //    return ::recv(this->getFd(), buf, len, flags);
 }
 
 
-ssize_t SSLSocket::send(const void *buf, size_t len, int flags) {
+ssize_t SSLSocket::socketSend(const void *buf, size_t len, int flags) {
     return ::SSL_write(ssl, buf, len);
 //    return ::send(this->getFd(), buf, len, flags);
 }
