@@ -11,13 +11,13 @@
 class Socket : public SocketBase {
 public:
     virtual void setFd(int fd);
-    
+
     virtual ~Socket();
-    
+
 protected:
     Socket();
     Socket(int fd);
-    
+
     ssize_t socketRecv(void *buf, size_t len, int flags);
     ssize_t socketSend(const void *buf, size_t len, int flags);
 };

@@ -15,10 +15,10 @@ add_library(net SHARED
     SocketWriter.cpp
     SSLSocketReader.cpp 
     SSLSocketWriter.cpp 
-    ServerSocket.cpp
-    BaseConnectedSocket.cpp 
-    ConnectedSocket.cpp
-    SSLConnectedSocket.cpp 
+    SocketServer.cpp
+    SocketConnectionBase.cpp 
+    SocketConnection.cpp
+    SSLSocketConnection.cpp 
     ClientSocket.cpp
     TimerManager.cpp
     ReadManager.cpp

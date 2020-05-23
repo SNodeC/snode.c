@@ -8,6 +8,6 @@ int WriteManager::dispatch(fd_set& fdSet, int count) {
             (*it)->writeEvent();
         }
     }
-                
+
     return count;
 }

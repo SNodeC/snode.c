@@ -11,45 +11,45 @@ class Multiplexer
 {
 private:
     Multiplexer() {}
-    
+
     ~Multiplexer() {}
-    
-    
+
+
 public:
     static Multiplexer& instance() {
         return multiplexer;
     }
-    
+
     ReadManager& getReadManager() {
         return readManager;
     }
-    
+
     WriteManager& getWriteManager() {
         return writeManager;
     }
-    
+
     ExceptionManager& getExceptionManager() {
         return exceptionManager;
     }
-    
+
     TimerManager& getTimerManager() {
         return timerManager;
     }
 
     static void run();
-    
+
     static void stop();
-    
+
 private:
     void tick();
-    
+
     static Multiplexer multiplexer;
-    
+
     ReadManager readManager;
     WriteManager writeManager;
     ExceptionManager exceptionManager;
     TimerManager timerManager;
-    
+
     static bool running;
 };
 

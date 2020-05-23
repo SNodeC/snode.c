@@ -15,9 +15,9 @@ void snode(int argc, char** argv);
 int _snode(void) __attribute__ ((destructor()));
 int _snode() {
     std::cout << "sNode.C startup" << std::endl;
-    
+
     snode();
-    
+
     return 0;
 }
 

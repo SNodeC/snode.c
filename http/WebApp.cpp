@@ -1,9 +1,9 @@
 #include "WebApp.h"
 
-#include "ConnectedSocket.h"
-#include "SSLConnectedSocket.h"
+#include "SocketConnection.h"
+#include "SSLSocketConnection.h"
 #include "HTTPContext.h"
-#include "ServerSocket.h"
+#include "SocketServer.h"
 
 
 
@@ -21,66 +21,13 @@ WebApp::~WebApp() {}
 
 
 void WebApp::listen(int port) {
-    BaseServerSocket<ConnectedSocket>::instance([this] (ConnectedSocket* connectedSocket) -> void {
-                                connectedSocket->setContext(new HTTPContext(this, connectedSocket));
-                           },
-                           [] (ConnectedSocket* connectedSocket) -> void {
-                                delete static_cast<HTTPContext*>(connectedSocket->getContext());
-                           },
-                           [] (ConnectedSocket* connectedSocket, const char*  junk, ssize_t n) -> void {
-                                static_cast<HTTPContext*>(connectedSocket->getContext())->receiveRequest(junk, n);
-                           },
-                           [] (int errnum) -> void {
-                                perror("ConnectedSocket");
-                           },
-                           [] (int errnum) -> void {
-                                perror("ConnectedSocket");
-                           }
-                        )->listen(port, 5, 0);
-
-    BaseServerSocket<ConnectedSocket>::run();
-}
-
-
-void WebApp::listen(int port, const std::function<void (int err)>& onError) {
-    errno = 0;
-    
-    BaseServerSocket<ConnectedSocket>::instance([this] (ConnectedSocket* connectedSocket) -> void {
-                                connectedSocket->setContext(new HTTPContext(this, connectedSocket));
-                            },
-                            [] (ConnectedSocket* connectedSocket) -> void {
-                                delete static_cast<HTTPContext*>(connectedSocket->getContext());
-                            },
-                            [] (ConnectedSocket* connectedSocket, const char*  junk, ssize_t n) -> void {
-                                static_cast<HTTPContext*>(connectedSocket->getContext())->receiveRequest(junk, n);
-                            },
-                            [] (int errnum) -> void {
-                                if (errnum) {
-                                    perror("Read from ConnectedSocket");
-                                }
-                            },
-                            [] (int errnum) -> void {
-                                if (errnum) {
-                                    perror("Write to ConnectedSocket");
-                                }
-                            }
-                        )->listen(port, 5, [&] (int err) -> void {
-                            onError(err);
-                            if (!err) {
-                                BaseServerSocket<ConnectedSocket>::run();
-                            }
-                        });
-}
-
-
-void WebApp::sslListen(int port) {
-    BaseServerSocket<SSLConnectedSocket>::instance([this] (SSLConnectedSocket* connectedSocket) -> void {
+    SocketServerBase<SocketConnection>::instance([this] (SocketConnection* connectedSocket) -> void {
         connectedSocket->setContext(new HTTPContext(this, connectedSocket));
     },
-    [] (SSLConnectedSocket* connectedSocket) -> void {
+    [] (SocketConnection* connectedSocket) -> void {
         delete static_cast<HTTPContext*>(connectedSocket->getContext());
     },
-    [] (SSLConnectedSocket* connectedSocket, const char*  junk, ssize_t n) -> void {
+    [] (SocketConnection* connectedSocket, const char*  junk, ssize_t n) -> void {
         static_cast<HTTPContext*>(connectedSocket->getContext())->receiveRequest(junk, n);
     },
     [] (int errnum) -> void {
@@ -89,22 +36,75 @@ void WebApp::sslListen(int port) {
     [] (int errnum) -> void {
         perror("ConnectedSocket");
     }
-    )->listen(port, 5, 0);
-    
-    BaseServerSocket<SSLConnectedSocket>::run();
+                                                )->listen(port, 5, 0);
+
+    SocketServerBase<SocketConnection>::run();
+}
+
+
+void WebApp::listen(int port, const std::function<void (int err)>& onError) {
+    errno = 0;
+
+    SocketServerBase<SocketConnection>::instance([this] (SocketConnection* connectedSocket) -> void {
+        connectedSocket->setContext(new HTTPContext(this, connectedSocket));
+    },
+    [] (SocketConnection* connectedSocket) -> void {
+        delete static_cast<HTTPContext*>(connectedSocket->getContext());
+    },
+    [] (SocketConnection* connectedSocket, const char*  junk, ssize_t n) -> void {
+        static_cast<HTTPContext*>(connectedSocket->getContext())->receiveRequest(junk, n);
+    },
+    [] (int errnum) -> void {
+        if (errnum) {
+            perror("Read from ConnectedSocket");
+        }
+    },
+    [] (int errnum) -> void {
+        if (errnum) {
+            perror("Write to ConnectedSocket");
+        }
+    }
+    )->listen(port, 5, [&] (int err) -> void {
+        onError(err);
+        if (!err) {
+            SocketServerBase<SocketConnection>::run();
+        }
+    });
+}
+
+
+void WebApp::sslListen(int port) {
+    SocketServerBase<SSLSocketConnection>::instance([this] (SSLSocketConnection* connectedSocket) -> void {
+        connectedSocket->setContext(new HTTPContext(this, connectedSocket));
+    },
+    [] (SSLSocketConnection* connectedSocket) -> void {
+        delete static_cast<HTTPContext*>(connectedSocket->getContext());
+    },
+    [] (SSLSocketConnection* connectedSocket, const char*  junk, ssize_t n) -> void {
+        static_cast<HTTPContext*>(connectedSocket->getContext())->receiveRequest(junk, n);
+    },
+    [] (int errnum) -> void {
+        perror("ConnectedSocket");
+    },
+    [] (int errnum) -> void {
+        perror("ConnectedSocket");
+    }
+                                                   )->listen(port, 5, 0);
+
+    SocketServerBase<SSLSocketConnection>::run();
 }
 
 
 void WebApp::sslListen(int port, const std::function<void (int err)>& onError) {
     errno = 0;
-    
-    BaseServerSocket<SSLConnectedSocket>::instance([this] (SSLConnectedSocket* connectedSocket) -> void {
+
+    SocketServerBase<SSLSocketConnection>::instance([this] (SSLSocketConnection* connectedSocket) -> void {
         connectedSocket->setContext(new HTTPContext(this, connectedSocket));
     },
-    [] (SSLConnectedSocket* connectedSocket) -> void {
+    [] (SSLSocketConnection* connectedSocket) -> void {
         delete static_cast<HTTPContext*>(connectedSocket->getContext());
     },
-    [] (SSLConnectedSocket* connectedSocket, const char*  junk, ssize_t n) -> void {
+    [] (SSLSocketConnection* connectedSocket, const char*  junk, ssize_t n) -> void {
         static_cast<HTTPContext*>(connectedSocket->getContext())->receiveRequest(junk, n);
     },
     [] (int errnum) -> void {
@@ -120,14 +120,14 @@ void WebApp::sslListen(int port, const std::function<void (int err)>& onError) {
     )->listen(port, 5, [&] (int err) -> void {
         onError(err);
         if (!err) {
-            BaseServerSocket<SSLConnectedSocket>::run();
+            SocketServerBase<SSLSocketConnection>::run();
         }
     });
 }
 
 
 void WebApp::stop() {
-    BaseServerSocket<ConnectedSocket>::stop();
+    SocketServerBase<SocketConnection>::stop();
 }
 
 void WebApp::destroy() {

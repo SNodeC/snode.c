@@ -31,7 +31,7 @@ SSL_CTX* SSLSocket::init2() {
         ERR_print_errors_fp(stderr);
         exit(2);
     }
-    
+
     if (SSL_CTX_use_certificate_file(ctx, CERTF, SSL_FILETYPE_PEM) <= 0) {
         ERR_print_errors_fp(stderr);
         exit(3);
@@ -40,12 +40,12 @@ SSL_CTX* SSLSocket::init2() {
         ERR_print_errors_fp(stderr);
         exit(4);
     }
-    
+
     if (!SSL_CTX_check_private_key(ctx)) {
         fprintf(stderr,"Private key does not match the certificate public key\n");
         exit(5);
     }
-    
+
     return ctx;
 }
 
@@ -66,28 +66,28 @@ SSLSocket::~SSLSocket() {
 
 void SSLSocket::setFd(int fd) {
     SocketBase::setFd(fd);
-    
+
     ssl = SSL_new(SSLSocket::ctx);
     SSL_set_fd(ssl, fd);
     err = SSL_accept(ssl);
-    
+
     /*
     client_cert = SSL_get_peer_certificate (ssl);
     if (client_cert != NULL) {
         printf ("Client certificate:\n");
-        
+
         str = X509_NAME_oneline (X509_get_subject_name (client_cert), 0, 0);
         CHK_NULL(str);
         printf ("\t subject: %s\n", str);
         OPENSSL_free (str);
-        
+
         str = X509_NAME_oneline (X509_get_issuer_name  (client_cert), 0, 0);
         CHK_NULL(str);
         printf ("\t issuer: %s\n", str);
         OPENSSL_free (str);
-        
+
         // We could do all sorts of certificate verification stuff here before deallocating the certificate.
-        
+
         X509_free (client_cert);
     } else {
         printf ("Client does not have certificate.\n");

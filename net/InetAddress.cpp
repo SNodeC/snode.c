@@ -39,7 +39,7 @@ InetAddress::InetAddress(const InetAddress& ina) {
 
 InetAddress& InetAddress::operator=(const InetAddress& ina) {
     memcpy(&this->addr, &ina.addr, sizeof(struct sockaddr_in));
-    
+
     return *this;
 }
 

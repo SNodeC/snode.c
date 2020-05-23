@@ -8,10 +8,10 @@
 
 
 Request::Request(HTTPContext* httpContext) :
-originalUrl(httpContext->originalUrl), 
-body(httpContext->bodyData),
-path(httpContext->path),
-httpContext(httpContext)
+    originalUrl(httpContext->originalUrl),
+    body(httpContext->bodyData),
+    path(httpContext->path),
+    httpContext(httpContext)
 {}
 
 
@@ -23,7 +23,7 @@ std::multimap<std::string, std::string>& Request::header() const {
 const std::string& Request::header(const std::string& key, int i) const {
     std::string tmpKey = key;
     httputils::to_lower(tmpKey);
-    
+
     if (this->httpContext->requestHeader.find(tmpKey) != this->httpContext->requestHeader.end()) {
         std::pair<std::multimap<std::string, std::string>::iterator, std::multimap<std::string, std::string>::iterator> range = this->httpContext->requestHeader.equal_range(tmpKey);
 

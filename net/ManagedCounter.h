@@ -5,7 +5,7 @@ class ManagedCounter
 {
 public:
     ManagedCounter() : managedCounter(0) {}
-    
+
 protected:
     int managedCounter;
 };

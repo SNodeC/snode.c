@@ -24,7 +24,7 @@ void SocketBase::setFd(int fd) {
 
 void SocketBase::open(const std::function<void (int errnum)>& onError) {
     int fd = ::socket(AF_INET, SOCK_STREAM, 0);
-    
+
     if (fd >= 0) {
         this->setFd(fd);
         onError(0);
@@ -41,9 +41,9 @@ InetAddress& SocketBase::getLocalAddress() {
 
 void SocketBase::bind(InetAddress& localAddress, const std::function<void (int errnum)>& onError) {
     socklen_t addrlen = sizeof(struct sockaddr_in);
-    
+
     int ret = ::bind(this->getFd(), (struct sockaddr*) &localAddress.getSockAddr(), addrlen);
-    
+
     if (ret < 0) {
         onError(errno);
     } else {
@@ -54,7 +54,7 @@ void SocketBase::bind(InetAddress& localAddress, const std::function<void (int e
 
 void SocketBase::listen(int backlog, const std::function<void (int errnum)>& onError) {
     int ret = ::listen(this->getFd(), backlog);
-    
+
     if (ret < 0) {
         onError(errno);
     } else {

@@ -8,6 +8,6 @@ int ReadManager::dispatch(fd_set& fdSet, int count) {
             (*it)->readEvent();
         }
     }
-    
+
     return count;
 }

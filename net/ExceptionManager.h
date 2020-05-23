@@ -4,7 +4,7 @@
 #include "Manager.h"
 #include "Exception.h"
 
-class ExceptionManager : public Manager<Exception> 
+class ExceptionManager : public Manager<Exception>
 {
 public:
     virtual int dispatch(fd_set& fdSet, int count);

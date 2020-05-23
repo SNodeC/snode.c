@@ -11,19 +11,19 @@
 #include "Socket.h"
 
 
-class ConnectedSocket;
+class SocketConnection;
 
 class SocketReader : public Reader, virtual public Socket
 {
 public:
     void readEvent();
-    
+
 protected:
     SocketReader() : readProcessor(0) {}
-    
-    SocketReader(const std::function<void (ConnectedSocket* cs, const char* junk, ssize_t n)>& readProcessor, const std::function<void (int errnum)>& onError) : Socket(), Reader(onError), readProcessor(readProcessor) {}
-    
-    std::function<void (ConnectedSocket* cs, const char* junk, ssize_t n)> readProcessor;
+
+    SocketReader(const std::function<void (SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor, const std::function<void (int errnum)>& onError) : Socket(), Reader(onError), readProcessor(readProcessor) {}
+
+    std::function<void (SocketConnection* cs, const char* junk, ssize_t n)> readProcessor;
 };
 
 #endif // SOCKETREADER_H
