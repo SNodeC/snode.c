@@ -9,6 +9,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "InetAddress.h"
+#include "BaseConnectedSocket.h"
 #include "SocketWriter.h"
 #include "SocketReader.h"
 
@@ -16,7 +17,7 @@
 class FileReader;
 template<typename T> class BaseServerSocket;
 
-class ConnectedSocket : public SocketReader, public SocketWriter
+class ConnectedSocket : public BaseConnectedSocket, public SocketReader, public SocketWriter
 {
 public:
     ConnectedSocket(int csFd, 

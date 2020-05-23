@@ -12,7 +12,7 @@
 #include "Request.h"
 #include "Response.h"
 
-class ConnectedSocket;
+class BaseConnectedSocket;
 class WebApp;
 
 
@@ -44,7 +44,7 @@ protected:
     } lineState;
 
 public:    
-    HTTPContext(WebApp* httpServer, ConnectedSocket* connectedSocket);
+    HTTPContext(WebApp* httpServer, BaseConnectedSocket* connectedSocket);
     void receiveRequest(const char* junk, ssize_t n);
 
 protected:
@@ -89,7 +89,7 @@ protected:
     friend class Request;
     
 private:
-    ConnectedSocket* connectedSocket;
+    BaseConnectedSocket* connectedSocket;
     WebApp* httpServer;
     
     std::string headerLine;
