@@ -45,7 +45,7 @@ void ServerSocket::listen(in_port_t port, int backlog, const std::function<void 
                     if (errnum > 0) {
                         onError(errnum);
                     } else {
-                        this->Socket::listen(backlog, [this, &onError] (int errnum) -> void {
+                        this->SSLSocket::listen(backlog, [this, &onError] (int errnum) -> void {
                             if (errnum == 0) {
                                 Multiplexer::instance().getReadManager().manageSocket(this);
                             }

@@ -4,10 +4,10 @@
 #include <functional>
 
 #include "Writer.h"
-#include "Socket.h"
+#include "SSLSocket.h"
 
 
-class SocketWriter : public Writer, virtual public Socket
+class SocketWriter : public Writer, virtual public SSLSocket
 {
 public:
     void writeEvent();
