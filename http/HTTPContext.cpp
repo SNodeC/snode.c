@@ -18,7 +18,9 @@
 
 #include <iostream>
 
+#include <ctime>
 
+    
 HTTPContext::HTTPContext(HTTPServer* httpServer, ConnectedSocket* connectedSocket)
 : connectedSocket(connectedSocket), httpServer(httpServer), bodyData(0), request(this), response(this) {
     this->reset();

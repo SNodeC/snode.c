@@ -8,6 +8,7 @@
 #include "SingleshotTimer.h"
 #include "ContinousTimer.h"
 #include "HTTPServer.h"
+#include "ResponseCookie.h"
 
 #include "httputils.h"
 
@@ -28,7 +29,7 @@ int timerApp(int argc, char** argv) {
         (struct timeval) {1, 100000}, "Tack");
     
     bool canceled = false;
-    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
+    HTTPServer& app = HTTPServer::instance("/home/student/NDS/imCook/snode.c/build/html");
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
@@ -89,7 +90,7 @@ int timerApp(int argc, char** argv) {
 
 
 int simpleWebserver(int argc, char** argv) {
-    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
+    HTTPServer& app = HTTPServer::instance("/home/student/NDS/imCook/snode.c/build/html");
     
     Router router;
     

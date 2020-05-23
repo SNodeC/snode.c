@@ -5,6 +5,7 @@
 #include "Request.h"
 #include "HTTPContext.h"
 #include "httputils.h"
+#include "ResponseCookie.h"
 
 
 Request::Request(HTTPContext* httpContext) :

@@ -11,21 +11,13 @@
 
 #include "Request.h"
 #include "Response.h"
+#include "ResponseCookie.h"
+
+#include <ctime>
+
 
 class ConnectedSocket;
 class HTTPServer;
-
-
-class ResponseCookie {
-public:
-    ResponseCookie(const std::string& value, const std::map<std::string, std::string>& options) : value(value), options(options) {}
-    
-protected:
-    const std::string value;
-    const std::map<std::string, std::string> options;
-    
-    friend class HTTPContext;
-};
 
 
 class HTTPContext
