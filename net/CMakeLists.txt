@@ -8,8 +8,11 @@ add_library(net SHARED
     SSLSocket.cpp
     SocketReader.cpp
     SocketWriter.cpp
+    SSLSocketReader.cpp 
+    SSLSocketWriter.cpp 
     ServerSocket.cpp
     ConnectedSocket.cpp
+    SSLConnectedSocket.cpp 
     ClientSocket.cpp
     TimerManager.cpp
     ReadManager.cpp

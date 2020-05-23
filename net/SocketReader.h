@@ -8,12 +8,12 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Reader.h"
-#include "SSLSocket.h"
+#include "Socket.h"
 
 
 class ConnectedSocket;
 
-class SocketReader : public Reader, virtual public SSLSocket
+class SocketReader : public Reader, virtual public Socket
 {
 public:
     void readEvent();
@@ -21,7 +21,7 @@ public:
 protected:
     SocketReader() : readProcessor(0) {}
     
-    SocketReader(const std::function<void (ConnectedSocket* cs, const char* junk, ssize_t n)>& readProcessor, const std::function<void (int errnum)>& onError) : SSLSocket(), Reader(onError), readProcessor(readProcessor) {}
+    SocketReader(const std::function<void (ConnectedSocket* cs, const char* junk, ssize_t n)>& readProcessor, const std::function<void (int errnum)>& onError) : Socket(), Reader(onError), readProcessor(readProcessor) {}
     
     std::function<void (ConnectedSocket* cs, const char* junk, ssize_t n)> readProcessor;
 };

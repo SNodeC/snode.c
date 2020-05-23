@@ -45,7 +45,7 @@ void ServerSocket::listen(in_port_t port, int backlog, const std::function<void 
                     if (errnum > 0) {
                         onError(errnum);
                     } else {
-                        this->SSLSocket::listen(backlog, [this, &onError] (int errnum) -> void {
+                        this->Socket::listen(backlog, [this, &onError] (int errnum) -> void {
                             if (errnum == 0) {
                                 Multiplexer::instance().getReadManager().manageSocket(this);
                             }
@@ -91,6 +91,13 @@ void ServerSocket::readEvent() {
     
 
 void ServerSocket::disconnect(ConnectedSocket* cs) {
+    if (onDisconnect) {
+        onDisconnect(cs);
+    }
+}
+
+
+void ServerSocket::disconnect(SSLConnectedSocket* cs) {
     if (onDisconnect) {
         onDisconnect(cs);
     }
