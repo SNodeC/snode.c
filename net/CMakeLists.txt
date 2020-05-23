@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.0)
 
+find_package(OpenSSL REQUIRED)
+
+message("OpenSSL include dir: ${OPENSSL_INCLUDE_DIR}")
+message("OpenSSL libraries: ${OPENSSL_LIBRARIES}")
+
 add_library(net SHARED 
     Multiplexer.cpp 
     Descriptor.cpp 
@@ -26,16 +31,7 @@ add_library(net SHARED
     File.cpp
 )
 
-target_include_directories (net PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-
-# TODO: Add support for STATIC also.
-find_package(OpenSSL REQUIRED)
-
-message("OpenSSL include dir: ${OPENSSL_INCLUDE_DIR}")
-message("OpenSSL libraries: ${OPENSSL_LIBRARIES}")
-
-include_directories(${OPENSSL_INCLUDE_DIR})
-list(APPEND LIB_LIST ${OPENSSL_LIBRARIES})
+target_include_directories (net PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${OPENSSL_INCLUDE_DIR})
 
 target_link_libraries(net ${OPENSSL_LIBRARIES})
         
