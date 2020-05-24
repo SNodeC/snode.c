@@ -8,15 +8,15 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Writer.h"
-#include "Socket.h"
+#include "SocketLegacy.h"
 
 
-class SocketWriter : public Writer, virtual public Socket {
+class SocketLegacyWriter : public Writer, virtual public SocketLegacy {
 public:
     void writeEvent();
 
 protected:
-    SocketWriter(const std::function<void (int errnum)>& onError) : Writer(onError) {}
+    SocketLegacyWriter(const std::function<void (int errnum)>& onError) : Writer(onError) {}
 };
 
 #endif // SOCKETWRITER_H

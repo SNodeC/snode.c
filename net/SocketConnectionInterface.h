@@ -23,15 +23,9 @@ class SocketConnectionInterface
     
     virtual InetAddress& getRemoteAddress() = 0;
     virtual void setRemoteAddress(const InetAddress& remoteAddress) = 0;
-    
-protected:/*
-    SocketServerInterface* serverSocket;
-    
-    void* context;
-    
-    InetAddress remoteAddress;
-    
-    FileReader* fileReader;*/
+
+protected:
+    SocketConnectionInterface() = default;
 };
 
 #endif // SOCKETCONNECTIONINTERFACE_H

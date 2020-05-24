@@ -1,5 +1,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <errno.h>
+#include <sys/socket.h>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Socket.h"
@@ -8,25 +11,57 @@
 Socket::Socket() {}
 
 
-Socket::Socket(int fd) : SocketBase() {
-    this->setFd(fd);
-}
-
-
 Socket::~Socket() {
+    ::shutdown(this->getFd(), SHUT_RDWR);
 }
 
 
 void Socket::setFd(int fd) {
-    SocketBase::setFd(fd);
+    Descriptor::setFd(fd);
 }
 
 
-ssize_t Socket::socketRecv(void *buf, size_t len, int flags) {
-    return ::recv(this->getFd(), buf, len, flags);
+void Socket::open(const std::function<void (int errnum)>& onError) {
+    int fd = ::socket(AF_INET, SOCK_STREAM, 0);
+
+    if (fd >= 0) {
+        this->setFd(fd);
+        onError(0);
+    } else {
+        onError(errno);
+    }
 }
 
 
-ssize_t Socket::socketSend(const void *buf, size_t len, int flags) {
-    return ::send(this->getFd(), buf, len, flags);
+InetAddress& Socket::getLocalAddress() {
+    return localAddress;
+}
+
+
+void Socket::bind(InetAddress& localAddress, const std::function<void (int errnum)>& onError) {
+    socklen_t addrlen = sizeof(struct sockaddr_in);
+
+    int ret = ::bind(this->getFd(), (struct sockaddr*) &localAddress.getSockAddr(), addrlen);
+
+    if (ret < 0) {
+        onError(errno);
+    } else {
+        onError(0);
+    }
+}
+
+
+void Socket::listen(int backlog, const std::function<void (int errnum)>& onError) {
+    int ret = ::listen(this->getFd(), backlog);
+
+    if (ret < 0) {
+        onError(errno);
+    } else {
+        onError(0);
+    }
+}
+
+
+void Socket::setLocalAddress(const InetAddress& localAddress) {
+    this->localAddress = localAddress;
 }

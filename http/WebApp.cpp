@@ -1,9 +1,9 @@
 #include "WebApp.h"
 
-#include "SocketConnection.h"
-#include "SSLSocketConnection.h"
+#include "SocketLegacyConnection.h"
+#include "SocketSSLConnection.h"
 #include "HTTPContext.h"
-#include "SocketServer.h"
+#include "SocketServerBase.h"
 
 
 WebApp::WebApp(const std::string& serverRoot) {
@@ -20,7 +20,7 @@ WebApp::~WebApp() {}
 
 
 void WebApp::listen(int port) {
-    SocketServer::instance(
+    SocketLegacyServer::instance(
         [this] (SocketConnectionInterface* connectedSocket) -> void {
             connectedSocket->setContext(new HTTPContext(this, connectedSocket));
         },
@@ -38,14 +38,14 @@ void WebApp::listen(int port) {
         }
     )->listen(port, 5, 0);
 
-    SocketServerInterface::run();
+    SocketServer::run();
 }
 
 
 void WebApp::listen(int port, const std::function<void (int err)>& onError) {
     errno = 0;
 
-    SocketServer::instance(
+    SocketLegacyServer::instance(
         [this] (SocketConnectionInterface* connectedSocket) -> void {
             connectedSocket->setContext(new HTTPContext(this, connectedSocket));
         },
@@ -69,7 +69,7 @@ void WebApp::listen(int port, const std::function<void (int err)>& onError) {
         [&] (int err) -> void {
             onError(err);
             if (!err) {
-                SocketServerInterface::run();
+                SocketServer::run();
             }
         }
     );
@@ -77,7 +77,7 @@ void WebApp::listen(int port, const std::function<void (int err)>& onError) {
 
 
 void WebApp::sslListen(int port, const std::string& cert, const std::string& key, const std::string& password) {
-    SSLSocketServer::instance(
+    SocketSSLServer::instance(
         [this] (SocketConnectionInterface* connectedSocket) -> void {
             connectedSocket->setContext(new HTTPContext(this, connectedSocket));
         },
@@ -95,14 +95,14 @@ void WebApp::sslListen(int port, const std::string& cert, const std::string& key
         }
     )->listen(port, 5, cert, key, password, 0);
 
-    SocketServerInterface::run();
+    SocketServer::run();
 }
 
 
 void WebApp::sslListen(int port, const std::string& cert, const std::string& key, const std::string& password, const std::function<void (int err)>& onError) {
     errno = 0;
 
-    SSLSocketServer::instance(
+    SocketSSLServer::instance(
         [this] (SocketConnectionInterface* connectedSocket) -> void {
             connectedSocket->setContext(new HTTPContext(this, connectedSocket));
         },
@@ -126,7 +126,7 @@ void WebApp::sslListen(int port, const std::string& cert, const std::string& key
         [&] (int err) -> void {
             onError(err);
             if (!err) {
-                SocketServerInterface::run();
+                SocketServer::run();
             }
         }
     );
@@ -134,7 +134,7 @@ void WebApp::sslListen(int port, const std::string& cert, const std::string& key
 
 
 void WebApp::stop() {
-    SocketServerInterface::stop();
+    SocketServer::stop();
 }
 
 

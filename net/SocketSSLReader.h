@@ -8,20 +8,20 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Reader.h"
-#include "SSLSocket.h"
+#include "SocketSSL.h"
 
 
 class SocketConnectionInterface;
 
-class SSLSocketReader : public Reader, virtual public SSLSocket
+class SocketSSLReader : public Reader, virtual public SocketSSL
 {
 public:
     void readEvent();
 
 protected:
-    SSLSocketReader() : readProcessor(0) {}
+    SocketSSLReader() : readProcessor(0) {}
 
-    SSLSocketReader(const std::function<void (SocketConnectionInterface* cs, const char* junk, ssize_t n)>& readProcessor, const std::function<void (int errnum)>& onError) : SSLSocket(), Reader(onError), readProcessor(readProcessor) {}
+    SocketSSLReader(const std::function<void (SocketConnectionInterface* cs, const char* junk, ssize_t n)>& readProcessor, const std::function<void (int errnum)>& onError) : SocketSSL(), Reader(onError), readProcessor(readProcessor) {}
 
     std::function<void (SocketConnectionInterface* cs, const char* junk, ssize_t n)> readProcessor;
 };

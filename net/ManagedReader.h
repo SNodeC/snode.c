@@ -5,7 +5,7 @@
 #include "Reader.h"
 
 
-class ReadManager : public Manager<Reader>
+class ManagedReader : public Manager<Reader>
 {
 public:
     virtual int dispatch(fd_set& fdSet, int count);

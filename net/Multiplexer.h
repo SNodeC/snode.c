@@ -7,10 +7,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "ReadManager.h"
-#include "WriteManager.h"
+#include "ManagedReader.h"
+#include "ManagedWriter.h"
 #include "ExceptionManager.h"
-#include "TimerManager.h"
+#include "ManagedTimer.h"
 
 
 class Multiplexer
@@ -28,11 +28,11 @@ public:
         return multiplexer;
     }
 
-    ReadManager& getReadManager() {
+    ManagedReader& getReadManager() {
         return readManager;
     }
 
-    WriteManager& getWriteManager() {
+    ManagedWriter& getWriteManager() {
         return writeManager;
     }
 
@@ -40,8 +40,8 @@ public:
         return exceptionManager;
     }
 
-    TimerManager& getTimerManager() {
-        return timerManager;
+    ManagedTimer& getTimerManager() {
+        return managedTimer;
     }
 
     static void run();
@@ -53,10 +53,10 @@ private:
 
     static Multiplexer multiplexer;
 
-    ReadManager readManager;
-    WriteManager writeManager;
+    ManagedReader readManager;
+    ManagedWriter writeManager;
     ExceptionManager exceptionManager;
-    TimerManager timerManager;
+    ManagedTimer managedTimer;
 
     static bool running;
 };

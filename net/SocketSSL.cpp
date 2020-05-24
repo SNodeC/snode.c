@@ -2,29 +2,26 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "SSLSocket.h"
+#include "SocketSSL.h"
 
 
-SSLSocket::SSLSocket() {}
-
-
-SSLSocket::SSLSocket(int fd) : SocketBase(), ssl(0) {
+SocketSSL::SocketSSL(int fd) : Socket(), ssl(0) {
     this->setFd(fd);
 }
 
 
-SSLSocket::~SSLSocket() {
+SocketSSL::~SocketSSL() {
     SSL_shutdown(ssl);
     SSL_free(ssl);
 }
 
 
-void SSLSocket::setFd(int fd) {
-    SocketBase::setFd(fd);
+void SocketSSL::setFd(int fd) {
+    Socket::setFd(fd);
 }
 
 
-void SSLSocket::startSSL(SSL_CTX* ctx) {
+void SocketSSL::startSSL(SSL_CTX* ctx) {
     this->ssl = SSL_new(ctx);
     SSL_set_fd(ssl, getFd());
     err = SSL_accept(this->ssl);
@@ -54,7 +51,7 @@ void SSLSocket::startSSL(SSL_CTX* ctx) {
 }
 
 
-ssize_t SSLSocket::socketRecv(void *buf, size_t len, int) {
+ssize_t SocketSSL::socketRecv(void *buf, size_t len, int) {
     ssize_t ret = err;
     
     if (err > 0) {
@@ -65,7 +62,7 @@ ssize_t SSLSocket::socketRecv(void *buf, size_t len, int) {
 }
 
 
-ssize_t SSLSocket::socketSend(const void *buf, size_t len, int) {
+ssize_t SocketSSL::socketSend(const void *buf, size_t len, int) {
     ssize_t ret = err;
     
     if (err > 0) {

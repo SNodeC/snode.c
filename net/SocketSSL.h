@@ -12,20 +12,20 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "SocketBase.h"
+#include "Socket.h"
 
 
-class SSLSocket : public SocketBase {
+class SocketSSL : public Socket {
 public:
     virtual void setFd(int fd);
     
     void startSSL(SSL_CTX* ctx);
     
-    virtual ~SSLSocket();
+    virtual ~SocketSSL();
 
 protected:
-    SSLSocket();
-    SSLSocket(int fd);
+    SocketSSL() = default;
+    SocketSSL(int fd);
 
     ssize_t socketRecv(void *buf, size_t len, int flags);
     ssize_t socketSend(const void *buf, size_t len, int flags);
