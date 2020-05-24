@@ -24,7 +24,7 @@ void SSLSocket::setFd(int fd) {
 }
 
 
-void SSLSocket::setCTX(SSL_CTX* ctx) {
+void SSLSocket::startSSL(SSL_CTX* ctx) {
     this->ssl = SSL_new(ctx);
     SSL_set_fd(ssl, getFd());
     err = SSL_accept(this->ssl);

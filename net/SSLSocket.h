@@ -19,7 +19,7 @@ class SSLSocket : public SocketBase {
 public:
     virtual void setFd(int fd);
     
-    void setCTX(SSL_CTX* ctx);
+    void startSSL(SSL_CTX* ctx);
     
     virtual ~SSLSocket();
 
