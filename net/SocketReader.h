@@ -11,7 +11,7 @@
 #include "Socket.h"
 
 
-class SocketConnection;
+class SocketConnectionInterface;
 
 class SocketReader : public Reader, virtual public Socket
 {
@@ -21,9 +21,9 @@ public:
 protected:
     SocketReader() : readProcessor(0) {}
 
-    SocketReader(const std::function<void (SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor, const std::function<void (int errnum)>& onError) : Socket(), Reader(onError), readProcessor(readProcessor) {}
+    SocketReader(const std::function<void (SocketConnectionInterface* cs, const char* junk, ssize_t n)>& readProcessor, const std::function<void (int errnum)>& onError) : Socket(), Reader(onError), readProcessor(readProcessor) {}
 
-    std::function<void (SocketConnection* cs, const char* junk, ssize_t n)> readProcessor;
+    std::function<void (SocketConnectionInterface* cs, const char* junk, ssize_t n)> readProcessor;
 };
 
 #endif // SOCKETREADER_H

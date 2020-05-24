@@ -11,7 +11,7 @@
 #include "Request.h"
 #include "Response.h"
 
-class SocketConnection;
+class SocketConnectionInterface;
 
 class WebApp : public Router
 {
