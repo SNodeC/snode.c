@@ -40,7 +40,7 @@ void HTTPContext::receiveRequest(const char* junk, ssize_t n) {
                 requestState = requeststates::HEADER;
             } else {
                 this->responseStatus = 400;
-                this->responseHeader.insert({"Connection", "close"});
+                this->responseHeader.insert({"Connection", "Close"});
                 connectedSocket->end();
                 this->end();
                 requestState = requeststates::ERROR;
@@ -204,19 +204,17 @@ void HTTPContext::addRequestHeader(const std::string& line) {
 
 
 void HTTPContext::send(const char* puffer, int size) {
-    if (responseHeader.find("Content-Type") == responseHeader.end()) {
-        responseHeader.insert({"Content-Type", "application/octet-stream"});
-    }
+    responseHeader.insert({"Content-Type", "application/octet-stream"});
     responseHeader.insert({"Content-Length", std::to_string(size)});
+    
     this->sendHeader();
     connectedSocket->send(puffer, size);
 }
 
 
 void HTTPContext::send(const std::string& puffer) {
-    if (responseHeader.find("Content-Type") == responseHeader.end()) {
-        responseHeader.insert({"Content-Type", "text/html; charset=utf-8"});
-    }
+    responseHeader.insert({"Content-Type", "text/html; charset=utf-8"});
+        
     this->send(puffer.c_str(), puffer.size());
 }
 
@@ -230,10 +228,8 @@ void HTTPContext::sendFile(const std::string& url, const std::function<void (int
         absolutFileName = std::filesystem::canonical(absolutFileName);
 
         if (absolutFileName.rfind(httpServer->getRootDir(), 0) == 0 && std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
-            if (responseHeader.find("Content-Type") == responseHeader.end()) {
-                responseHeader.insert({"Content-Type", MimeTypes::contentType(absolutFileName)});
-            }
-            responseHeader.insert({"Content-Length", std::to_string(std::filesystem::file_size(absolutFileName))});
+            responseHeader.insert({"Content-Type", MimeTypes::contentType(absolutFileName)});
+            responseHeader.insert_or_assign("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
             responseHeader.insert({"Last-Modified", httputils::file_mod_http_date(absolutFileName)});
             this->sendHeader();
             connectedSocket->sendFile(absolutFileName, onError);
@@ -258,23 +254,11 @@ void HTTPContext::sendHeader() {
     connectedSocket->send("HTTP/1.1 " + std::to_string(responseStatus) + " " + HTTPStatusCode::reason(responseStatus) +  "\r\n");
     connectedSocket->send("Date: " + httputils::to_http_date() + "\r\n");
 
-    if (responseHeader.find("Connection") == responseHeader.end()) {
-        responseHeader.insert({"Connection", "close"});
-    }
-    if (responseHeader.find("Cache-Control") == responseHeader.end()) {
-        responseHeader.insert({"Cache-Control", "public, max-age=0"});
-    }
-    if (responseHeader.find("Accept-Ranges") == responseHeader.end()) {
-        responseHeader.insert({"Accept-Ranges", "bytes"});
-    }
-    if (responseHeader.find("X-Powered-By") == responseHeader.end()) {
-        responseHeader.insert({"X-Powered-By", "snode.c"});
-    }
-    if (requestHeader.find("connection") != requestHeader.end()) {
-        responseHeader.insert({"Connection", requestHeader.find("connection")->second});
-    }
+    responseHeader.insert({"Cache-Control", "public, max-age=0"});
+    responseHeader.insert({"Accept-Ranges", "bytes"});
+    responseHeader.insert({"X-Powered-By", "snode.c"});
 
-    for (std::multimap<std::string, std::string>::iterator it = responseHeader.begin(); it != responseHeader.end(); ++it) {
+    for (std::map<std::string, std::string>::iterator it = responseHeader.begin(); it != responseHeader.end(); ++it) {
         connectedSocket->send(it->first + ": " + it->second + "\r\n");
     }
 

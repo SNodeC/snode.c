@@ -4,6 +4,14 @@
 
 int simpleWebserver(int argc, char** argv) {
     WebApp& app = WebApp::instance("/home/voc/projects/ServerVoc/build/html");
+    
+    app.use("/",
+            [&] (const Request& req, const Response& res, const std::function<void (void)>& next) {
+                res.set("Connection", "Keep-Alive");
+                next();
+            });
+                
+    
     app.get("/",
     [&] (const Request& req, const Response& res) -> void {
         std::string uri = req.originalUrl;
@@ -14,6 +22,7 @@ int simpleWebserver(int argc, char** argv) {
 //                res.clearCookie("rootcookie");
 //                res.clearCookie("rootcookie");
 //                res.clearCookie("searchcookie", {{"Path", "/search"}});
+//        res.set({{"Connection", "Keep-Alive"}});
         if (uri == "/") {
             res.redirect("/index.html");
         } else if (uri == "/end") {
@@ -26,6 +35,7 @@ int simpleWebserver(int argc, char** argv) {
     Router router;
     router.get("/search",
     [&] (const Request& req, const Response& res) -> void {
+//        res.set({{"Connection", "Keep-Alive"}});
         std::cout << "URL: " << req.originalUrl << std::endl;
         std::cout << "Cookie: " << req.cookie("searchcookie") << std::endl;
         res.sendFile(req.originalUrl);
