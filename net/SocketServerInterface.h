@@ -1,9 +1,14 @@
 #ifndef SOCKETSERVERINTERFACE_H
 #define SOCKETSERVERINTERFACE_H
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <netinet/in.h>
 
 #include <functional>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 
 class SocketConnectionInterface;
 
@@ -15,6 +20,9 @@ public:
     virtual void readEvent() = 0;
     
     virtual void disconnect(SocketConnectionInterface* cs) = 0;
+    
+    static void run();
+    static void stop();
 };
 
 #endif // SOCKETSERVERINTERFACE_H

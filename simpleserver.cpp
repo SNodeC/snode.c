@@ -7,7 +7,7 @@ int simpleWebserver(int argc, char** argv) {
     
     app.use("/",
             [&] (const Request& req, const Response& res, const std::function<void (void)>& next) {
-                res.set("Connection", "Keep-Alive");
+//                res.set("Connection", "Keep-Alive");
                 next();
             });
                 

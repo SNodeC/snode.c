@@ -2,10 +2,10 @@
 #define BASECONNECTEDSOCKET_H
 
 #include "InetAddress.h"
-#include "FileReader.h"
 #include "SocketConnectionInterface.h"
-#include "SocketServerInterface.h"
-#include "SocketBase.h"
+
+class FileReader;
+class SocketServerInterface;
 
 template<typename R, typename W>
 class SocketConnectionBase : public SocketConnectionInterface, public R, public W
@@ -16,20 +16,7 @@ public:
                      const std::function<void (SocketConnectionInterface* cs, const char* junk, ssize_t n)>& readProcessor,
                      const std::function<void (int errnum)>& onReadError,
                      const std::function<void (int errnum)>& onWriteError
-    ) :
-    R(readProcessor, [&] (int errnum) -> void {
-        onReadError(errnum);
-    }),
-    W([&] (int errnum) -> void {
-        if (fileReader) {
-            fileReader->stop();
-            fileReader = 0;
-        }
-        onWriteError(errnum);
-    }),
-    serverSocket(serverSocket),
-    fileReader(0) {
-    }
+    );
     
     virtual ~SocketConnectionBase();
 

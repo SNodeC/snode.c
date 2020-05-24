@@ -6,7 +6,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "SocketBase.h"
-#include "Descriptor.h"
 
 
 SocketBase::SocketBase() {}
