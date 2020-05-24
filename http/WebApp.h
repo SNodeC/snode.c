@@ -27,8 +27,8 @@ public:
     void listen(int port, const std::function<void (int err)>& onError);
 
 
-    void sslListen(int port);
-    void sslListen(int port, const std::function<void (int err)>& onError);
+    void sslListen(int port, const std::string& cert, const std::string& key, const std::string& password);
+    void sslListen(int port, const std::string& cert, const std::string& key, const std::string& password, const std::function<void (int err)>& onError);
 
     void stop();
     void sslStop();

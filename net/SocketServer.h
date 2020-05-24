@@ -8,12 +8,14 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "SocketServerInterface.h"
+#include "SocketConnection.h"
+#include "SSLSocketConnection.h"
 #include "SocketReader.h"
 
 
 template<typename T>
 class SocketServerBase : public SocketServerInterface, public SocketReader {
-private:
+protected:
     SocketServerBase(const std::function<void (SocketConnectionInterface* cs)>& onConnect,
                      const std::function<void (SocketConnectionInterface* cs)>& onDisconnect,
                      const std::function<void (SocketConnectionInterface* cs, const char*  junk, ssize_t n)>& readProcesor,
@@ -21,12 +23,7 @@ private:
                      const std::function<void (int errnum)>& onCsWriteError);
 
 public:
-    static SocketServerBase* instance(const std::function<void (SocketConnectionInterface* cs)>& onConnect,
-                                      const std::function<void (SocketConnectionInterface* cs)>& onDisconnect,
-                                      const std::function<void (SocketConnectionInterface* cs, const char*  junk, ssize_t n)>& readProcesor,
-                                      const std::function<void (int errnum)>& onCsReadError,
-                                      const std::function<void (int errnum)>& onCsWriteError);
-    ~SocketServerBase() {}
+    virtual ~SocketServerBase() = default;
 
     void listen(in_port_t port, int backlog, const std::function<void (int err)>& onError);
 
@@ -42,5 +39,49 @@ private:
     std::function<void (int errnum)> onCsReadError;
     std::function<void (int errnum)> onCsWriteError;
 };
+
+
+class SSLSocketServer : public SocketServerBase<SSLSocketConnection> {
+private:
+    SSLSocketServer(const std::function<void (SocketConnectionInterface* cs)>& onConnect,
+                     const std::function<void (SocketConnectionInterface* cs)>& onDisconnect,
+                     const std::function<void (SocketConnectionInterface* cs, const char*  junk, ssize_t n)>& readProcesor,
+                     const std::function<void (int errnum)>& onCsReadError,
+                     const std::function<void (int errnum)>& onCsWriteError);
+
+public:
+    static SSLSocketServer* instance(const std::function<void (SocketConnectionInterface* cs)>& onConnect,
+                                                       const std::function<void (SocketConnectionInterface* cs)>& onDisconnect,
+                                                       const std::function<void (SocketConnectionInterface* cs, const char*  junk, ssize_t n)>& readProcessor,
+                                                       const std::function<void (int errnum)>& onCsReadError,
+                                                       const std::function<void (int errnum)>& onCsWriteError);
+    
+    using SocketServerBase<SSLSocketConnection>::listen;
+    void listen(in_port_t port, int backlog, const std::string& cert, const std::string& key, const std::string& password, const std::function<void (int err)>& onError);
+    
+    virtual void readEvent();
+    
+private:
+    std::function<void (SocketConnectionInterface* cs)> onConnect;
+    SSL_CTX* ctx;
+};
+
+
+class SocketServer : public SocketServerBase<SocketConnection> {
+private:
+    SocketServer(const std::function<void (SocketConnectionInterface* cs)>& onConnect,
+                 const std::function<void (SocketConnectionInterface* cs)>& onDisconnect,
+                 const std::function<void (SocketConnectionInterface* cs, const char*  junk, ssize_t n)>& readProcesor,
+                 const std::function<void (int errnum)>& onCsReadError,
+                 const std::function<void (int errnum)>& onCsWriteError);
+    
+public:
+    static SocketServer* instance(const std::function<void (SocketConnectionInterface* cs)>& onConnect,
+                                  const std::function<void (SocketConnectionInterface* cs)>& onDisconnect,
+                                  const std::function<void (SocketConnectionInterface* cs, const char*  junk, ssize_t n)>& readProcessor,
+                                  const std::function<void (int errnum)>& onCsReadError,
+                                  const std::function<void (int errnum)>& onCsWriteError);
+};
+
 
 #endif // SERVERSOCKET_H

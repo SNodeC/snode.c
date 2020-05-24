@@ -42,14 +42,17 @@ int simpleWebserver(int argc, char** argv) {
     });
 
     app.get("/", router);
-
+    
+    #define CERTF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c.pem"
+    #define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c.key.pem"
+    
     app.listen(8080,
     [&] (int err) -> void {
         if (err != 0) {
             perror("Listen");
         } else {
             std::cout << "snode.c listening on port 8080" << std::endl;
-            app.sslListen(8088,
+            app.sslListen(8088, CERTF, KEYF, "password",
             [] (int err) -> void {
                 if (err != 0) {
                     perror("Listen");
