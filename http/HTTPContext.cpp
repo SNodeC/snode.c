@@ -9,7 +9,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "SocketConnectionBase.h"
+#include "SocketConnectionInterface.h"
 #include "WebApp.h"
 #include "HTTPStatusCodes.h"
 #include "MimeTypes.h"
@@ -18,7 +18,7 @@
 
 #include <iostream>
 
-HTTPContext::HTTPContext(WebApp* httpServer, SocketConnectionBase* connectedSocket)
+HTTPContext::HTTPContext(WebApp* httpServer, SocketConnectionInterface* connectedSocket)
     : connectedSocket(connectedSocket),  httpServer(httpServer), request(this), response(this) {
     this->responseStatus = 200;
     this->requestState = requeststates::REQUEST;
