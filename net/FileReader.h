@@ -4,13 +4,11 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "File.h"
 #include "Reader.h"
-//#include "Descriptor.h"
 
 
 class FileReader : public Reader, virtual public File

@@ -7,27 +7,23 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "SocketServerInterface.h"
 #include "SocketReader.h"
 
 
-class Request;
-class Response;
-class SocketConnection;
-class SSLSocketConnection;
-
 template<typename T>
-class SocketServerBase : public SocketReader {
+class SocketServerBase : public SocketServerInterface, public SocketReader {
 private:
-    SocketServerBase(const std::function<void (T* cs)>& onConnect,
-                     const std::function<void (T* cs)>& onDisconnect,
-                     const std::function<void (T* cs, const char*  junk, ssize_t n)>& readProcesor,
+    SocketServerBase(const std::function<void (SocketConnectionInterface* cs)>& onConnect,
+                     const std::function<void (SocketConnectionInterface* cs)>& onDisconnect,
+                     const std::function<void (SocketConnectionInterface* cs, const char*  junk, ssize_t n)>& readProcesor,
                      const std::function<void (int errnum)>& onCsReadError,
                      const std::function<void (int errnum)>& onCsWriteError);
 
 public:
-    static SocketServerBase* instance(const std::function<void (T* cs)>& onConnect,
-                                      const std::function<void (T* cs)>& onDisconnect,
-                                      const std::function<void (T* cs, const char*  junk, ssize_t n)>& readProcesor,
+    static SocketServerBase* instance(const std::function<void (SocketConnectionInterface* cs)>& onConnect,
+                                      const std::function<void (SocketConnectionInterface* cs)>& onDisconnect,
+                                      const std::function<void (SocketConnectionInterface* cs, const char*  junk, ssize_t n)>& readProcesor,
                                       const std::function<void (int errnum)>& onCsReadError,
                                       const std::function<void (int errnum)>& onCsWriteError);
     ~SocketServerBase() {}
@@ -36,16 +32,12 @@ public:
 
     virtual void readEvent();
 
-    void disconnect(T* cs);
-
-    static void run();
-
-    static void stop();
+    void disconnect(SocketConnectionInterface* cs);
 
 private:
-    std::function<void (T* cs)> onConnect;
-    std::function<void (T* cs)> onDisconnect;
-    std::function<void (T* cs, const char* junk, ssize_t n)> readProcessor;
+    std::function<void (SocketConnectionInterface* cs)> onConnect;
+    std::function<void (SocketConnectionInterface* cs)> onDisconnect;
+    std::function<void (SocketConnectionInterface* cs, const char* junk, ssize_t n)> readProcessor;
 
     std::function<void (int errnum)> onCsReadError;
     std::function<void (int errnum)> onCsWriteError;

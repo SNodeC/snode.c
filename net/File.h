@@ -3,9 +3,7 @@
 
 #include "Descriptor.h"
 
-/**
- * @todo write docs
- */
+
 class File : virtual public Descriptor
 {
 };

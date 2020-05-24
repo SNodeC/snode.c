@@ -1,8 +1,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <errno.h>
-#include <sys/types.h>
-#include <sys/socket.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

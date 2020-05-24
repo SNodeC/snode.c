@@ -10,9 +10,9 @@
 #include "Multiplexer.h"
 
 template<typename T>
-SocketServerBase<T>::SocketServerBase(const std::function<void (T* cs)>& onConnect,
-                                      const std::function<void (T* cs)>& onDisconnect,
-                                      const std::function<void (T* cs, const char*  junk, ssize_t n)>& readProcessor,
+SocketServerBase<T>::SocketServerBase(const std::function<void (SocketConnectionInterface* cs)>& onConnect,
+                                      const std::function<void (SocketConnectionInterface* cs)>& onDisconnect,
+                                      const std::function<void (SocketConnectionInterface* cs, const char*  junk, ssize_t n)>& readProcessor,
                                       const std::function<void (int errnum)>& onCsReadError,
                                       const std::function<void (int errnum)>& onCsWriteError)
     : SocketReader(), onConnect(onConnect), onDisconnect(onDisconnect), readProcessor(readProcessor), onCsReadError(onCsReadError), onCsWriteError(onCsWriteError)
@@ -20,9 +20,9 @@ SocketServerBase<T>::SocketServerBase(const std::function<void (T* cs)>& onConne
 
 
 template<typename T>
-SocketServerBase<T>* SocketServerBase<T>::instance(const std::function<void (T* cs)>& onConnect,
-        const std::function<void (T* cs)>& onDisconnect,
-        const std::function<void (T* cs, const char*  junk, ssize_t n)>& readProcessor,
+SocketServerBase<T>* SocketServerBase<T>::instance(const std::function<void (SocketConnectionInterface* cs)>& onConnect,
+                                                   const std::function<void (SocketConnectionInterface* cs)>& onDisconnect,
+                                                   const std::function<void (SocketConnectionInterface* cs, const char*  junk, ssize_t n)>& readProcessor,
         const std::function<void (int errnum)>& onCsReadError,
         const std::function<void (int errnum)>& onCsWriteError)
 {
@@ -95,22 +95,10 @@ void SocketServerBase<T>::readEvent() {
 
 
 template<typename T>
-void SocketServerBase<T>::disconnect(T* cs) {
+void SocketServerBase<T>::disconnect(SocketConnectionInterface* cs) {
     if (onDisconnect) {
         onDisconnect(cs);
     }
-}
-
-
-template<typename T>
-void SocketServerBase<T>::run() {
-    Multiplexer::run();
-}
-
-
-template<typename T>
-void SocketServerBase<T>::stop() {
-    Multiplexer::stop();
 }
 
 

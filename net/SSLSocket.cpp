@@ -1,13 +1,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <sys/socket.h>
-
-#include <errno.h>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "SSLSocket.h"
-#include "Descriptor.h"
 
 
 const SSL_METHOD* SSLSocket::meth = SSLSocket::init1();
