@@ -1,5 +1,9 @@
-#include <string.h>
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <netdb.h>
+#include <string.h>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "InetAddress.h"
 
@@ -35,7 +39,7 @@ InetAddress::InetAddress(const InetAddress& ina) {
 
 InetAddress& InetAddress::operator=(const InetAddress& ina) {
     memcpy(&this->addr, &ina.addr, sizeof(struct sockaddr_in));
-    
+
     return *this;
 }
 
