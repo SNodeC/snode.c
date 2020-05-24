@@ -1,6 +1,5 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <iostream>
 #include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -91,12 +90,12 @@ void SocketServerBase<T>::disconnect(SocketConnectionInterface* cs) {
 
 
 SSLSocketServer::SSLSocketServer(const std::function<void (SocketConnectionInterface* cs)>& onConnect,
-                const std::function<void (SocketConnectionInterface* cs)>& onDisconnect,
-                const std::function<void (SocketConnectionInterface* cs, const char*  junk, ssize_t n)>& readProcessor,
-                const std::function<void (int errnum)>& onCsReadError,
-                const std::function<void (int errnum)>& onCsWriteError) :
+                                 const std::function<void (SocketConnectionInterface* cs)>& onDisconnect,
+                                 const std::function<void (SocketConnectionInterface* cs, const char*  junk, ssize_t n)>& readProcessor,
+                                 const std::function<void (int errnum)>& onCsReadError,
+                                 const std::function<void (int errnum)>& onCsWriteError) :
     SocketServerBase<SSLSocketConnection>(
-        [&] (SocketConnectionInterface* cs) {
+        [this] (SocketConnectionInterface* cs) {
             dynamic_cast<SSLSocketConnection*>(cs)->setCTX(ctx);
             this->onConnect(cs);
         }, onDisconnect, readProcessor, onCsReadError, onCsWriteError), onConnect(onConnect), ctx(0) {
@@ -120,7 +119,7 @@ SSLSocketServer::~SSLSocketServer() {
 
 void SSLSocketServer::listen(in_port_t port, int backlog, const std::string& cert, const std::string& key, const std::string& password, const std::function<void (int err)>& onError) {
     SocketServerBase<SSLSocketConnection>::listen(port, backlog, 
-        [onError, this, &cert, &key, &password] (int err) -> void {
+        [this, &cert, &key, &password, onError] (int err) -> void {
             SSL_load_error_strings();
             SSL_library_init();
             OpenSSL_add_ssl_algorithms();
@@ -128,22 +127,16 @@ void SSLSocketServer::listen(in_port_t port, int backlog, const std::string& cer
             ctx = SSL_CTX_new(TLS_server_method());
             if (!ctx) {
                 ERR_print_errors_fp(stderr);
-                exit(2);
-            }
-                
-            if (SSL_CTX_use_certificate_file(ctx, cert.c_str(), SSL_FILETYPE_PEM) <= 0) {
+                err = ERR_get_error();
+            } else if (SSL_CTX_use_certificate_file(ctx, cert.c_str(), SSL_FILETYPE_PEM) <= 0) {
                 ERR_print_errors_fp(stderr);
-                exit(3);
-            }
-            
-            if (SSL_CTX_use_PrivateKey_file(ctx, key.c_str(), SSL_FILETYPE_PEM) <= 0) {
+                err = ERR_get_error();
+            } else if (SSL_CTX_use_PrivateKey_file(ctx, key.c_str(), SSL_FILETYPE_PEM) <= 0) {
                 ERR_print_errors_fp(stderr);
-                exit(4);
-            }
-                
-            if (!SSL_CTX_check_private_key(ctx)) {
-                fprintf(stderr,"Private key does not match the certificate public key\n");
-                exit(5);
+                err = ERR_get_error();
+            } else if (!SSL_CTX_check_private_key(ctx)) {
+//                fprintf(stderr,"Private key does not match the certificate public key\n");
+                err = ERR_get_error();
             }
             
             onError(err);
