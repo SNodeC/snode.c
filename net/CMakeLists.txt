@@ -17,7 +17,7 @@ add_library(net SHARED
     Timer.cpp 
     FileReader.cpp
     StartUp.cpp
-)
+        )
 
 target_link_libraries(net LINK_PUBLIC magic)
 

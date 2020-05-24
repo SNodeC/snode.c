@@ -100,9 +100,12 @@ int simpleWebserver(int argc, char** argv) {
                     uri = "/index.html";
                 }
 
-                res.cookie("Test", "me", {
-                        {"Max-Age", "3600"}
-                });
+                // Defer cookie options to methods to clean up constructor and use IDE auto completion
+                Cookie testCookie = Cookie("NewImpl", "nice value");
+                testCookie.MaxAge("600");
+                testCookie.MakeHttpOnly();
+
+                res.cookie(testCookie.getName(), testCookie.getValue(), testCookie.getOptions());
 
                 // std::cout << uri << std::endl;
                 
