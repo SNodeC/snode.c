@@ -79,7 +79,7 @@ protected:
 
     std::map<std::string, std::string> queryMap;
     std::multimap<std::string, std::string> requestHeader;
-    std::multimap<std::string, std::string> responseHeader;
+    std::map<std::string, std::string> responseHeader;
     std::map<std::string, std::string> requestCookies;
     std::map<std::string, ResponseCookie> responseCookies;
 

@@ -16,14 +16,27 @@ void Response::status(int status) const {
     this->httpContext->responseStatus = status;
 }
 
-/*
-void Response::set(const std::string& field, const std::string& value) const {
-    this->httpContext->responseHeader.insert({field, value});
-}
-*/
 
-void Response::set(const std::multimap<std::string, std::string>& map) const {
-    this->httpContext->responseHeader.merge(const_cast<std::multimap<std::string, std::string>&>(map));
+void Response::append(const std::string& field, const std::string& value) const {
+    std::map<std::string, std::string>::iterator it = this->httpContext->responseHeader.find(field);
+    
+    if (it != this->httpContext->responseHeader.end()) {
+        it->second += ", " + value;
+    } else {
+        this->set(field, value);
+    }
+}
+
+
+void Response::set(const std::map<std::string, std::string>& map) const {
+    for (std::map<std::string, std::string>::const_iterator it = map.begin(); it != map.end(); ++it) {
+        this->set(it->first, it->second);
+    }
+}
+
+
+void Response::set(const std::string& field, const std::string& value) const {
+    this->httpContext->responseHeader.insert_or_assign(field, value);
 }
 
 
