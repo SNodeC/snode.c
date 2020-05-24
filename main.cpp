@@ -5,11 +5,13 @@
 
 #include "Request.h"
 #include "Response.h"
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include "SingleshotTimer.h"
 #include "ContinousTimer.h"
 #include "WebApp.h"
 
-#include "httputils.h"
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 
 int timerApp(int argc, char** argv) {

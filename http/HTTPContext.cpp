@@ -16,7 +16,6 @@
 
 #include "httputils.h"
 
-#include <iostream>
 
 HTTPContext::HTTPContext(WebApp* httpServer, SocketConnectionInterface* connectedSocket)
     : connectedSocket(connectedSocket),  httpServer(httpServer), request(this), response(this) {

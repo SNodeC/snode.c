@@ -1,7 +1,11 @@
 #ifndef SOCKETMULTIPLEXER_H
 #define SOCKETMULTIPLEXER_H
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <signal.h>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "ReadManager.h"
 #include "WriteManager.h"

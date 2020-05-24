@@ -1,7 +1,6 @@
 #ifndef BASECONNECTEDSOCKET_H
 #define BASECONNECTEDSOCKET_H
 
-#include "InetAddress.h"
 #include "SocketConnectionInterface.h"
 
 class FileReader;

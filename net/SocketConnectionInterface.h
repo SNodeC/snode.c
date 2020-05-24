@@ -1,7 +1,11 @@
 #ifndef SOCKETCONNECTIONINTERFACE_H
 #define SOCKETCONNECTIONINTERFACE_H
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <functional>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "InetAddress.h"
 

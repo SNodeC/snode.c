@@ -8,7 +8,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "SocketConnection.h"
-#include "InetAddress.h"
 
 
 class ClientSocket {}; /* : public ConnectedSocket

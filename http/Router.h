@@ -1,10 +1,14 @@
 #ifndef ROUTER_H
 #define ROUTER_H
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <functional>
 #include <list>
 #include <map>
 #include <string>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 class Request;
 class Response;
