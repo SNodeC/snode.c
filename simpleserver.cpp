@@ -1,6 +1,10 @@
 #include <iostream>
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "WebApp.h"
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 
 int simpleWebserver(int argc, char** argv) {
     WebApp& app = WebApp::instance("/home/voc/projects/ServerVoc/build/html");
