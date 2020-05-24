@@ -111,6 +111,13 @@ SSLSocketServer* SSLSocketServer::instance(const std::function<void (SocketConne
 }
 
 
+SSLSocketServer::~SSLSocketServer() {
+    if (ctx) {
+        SSL_CTX_free(ctx);
+    }
+}
+
+
 void SSLSocketServer::listen(in_port_t port, int backlog, const std::string& cert, const std::string& key, const std::string& password, const std::function<void (int err)>& onError) {
     SocketServerBase<SSLSocketConnection>::listen(port, backlog, 
         [onError, this, &cert, &key, &password] (int err) -> void {
