@@ -1,9 +1,13 @@
 #ifndef EXCEPTION_H
 #define EXCEPTION_H
 
+#include "ManagedDescriptor.h"
 
-class Exception {
+
+class Exception : public ManagedDescriptor {
 public:
+    virtual ~Exception() = default;
+
     virtual void exceptionEvent() = 0;
 };
 

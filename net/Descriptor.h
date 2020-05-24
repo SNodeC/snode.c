@@ -1,21 +1,31 @@
 #ifndef DESCRIPTOR_H
 #define DESCRIPTOR_H
 
+
 class Descriptor
 {
-public:
+protected:
+    Descriptor();
+
     Descriptor(int fd);
+
+private:
+    Descriptor& operator=(const Descriptor& descriptor) {
+        return *this;
+    }
+
+
+public:
     virtual ~Descriptor();
-    
+
     int getFd() const;
-    
-    void incManagedCount();
-    void decManagedCount();
-    
+
+    virtual void setFd(int fd) {
+        this->fd = fd;
+    }
+
 private:
     int fd;
-    
-    int managedCount;
 };
 
 #endif // DESCRIPTOR_H
