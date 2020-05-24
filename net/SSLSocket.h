@@ -18,7 +18,9 @@
 class SSLSocket : public SocketBase {
 public:
     virtual void setFd(int fd);
-
+    
+    void setCTX(SSL_CTX* ctx);
+    
     virtual ~SSLSocket();
 
 protected:
@@ -29,10 +31,6 @@ protected:
     ssize_t socketSend(const void *buf, size_t len, int flags);
 
 private:
-    static const SSL_METHOD* init1();
-    static SSL_CTX* init2();
-    static SSL_CTX* ctx;
-    static const SSL_METHOD* meth;
     SSL* ssl;
     int err;
 };

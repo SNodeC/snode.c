@@ -1,12 +1,11 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <iostream>
 #include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "SocketServer.h"
-#include "SocketConnection.h"
-#include "SSLSocketConnection.h"
 #include "Multiplexer.h"
 
 template<typename T>
@@ -17,17 +16,6 @@ SocketServerBase<T>::SocketServerBase(const std::function<void (SocketConnection
                                       const std::function<void (int errnum)>& onCsWriteError)
     : SocketReader(), onConnect(onConnect), onDisconnect(onDisconnect), readProcessor(readProcessor), onCsReadError(onCsReadError), onCsWriteError(onCsWriteError)
 {}
-
-
-template<typename T>
-SocketServerBase<T>* SocketServerBase<T>::instance(const std::function<void (SocketConnectionInterface* cs)>& onConnect,
-                                                   const std::function<void (SocketConnectionInterface* cs)>& onDisconnect,
-                                                   const std::function<void (SocketConnectionInterface* cs, const char*  junk, ssize_t n)>& readProcessor,
-        const std::function<void (int errnum)>& onCsReadError,
-        const std::function<void (int errnum)>& onCsWriteError)
-{
-    return new SocketServerBase<T>(onConnect, onDisconnect, readProcessor, onCsReadError, onCsWriteError);
-}
 
 
 template<typename T>
@@ -102,5 +90,78 @@ void SocketServerBase<T>::disconnect(SocketConnectionInterface* cs) {
 }
 
 
-template class SocketServerBase<SocketConnection>;
-template class SocketServerBase<SSLSocketConnection>;
+SSLSocketServer::SSLSocketServer(const std::function<void (SocketConnectionInterface* cs)>& onConnect,
+                const std::function<void (SocketConnectionInterface* cs)>& onDisconnect,
+                const std::function<void (SocketConnectionInterface* cs, const char*  junk, ssize_t n)>& readProcessor,
+                const std::function<void (int errnum)>& onCsReadError,
+                const std::function<void (int errnum)>& onCsWriteError) :
+    SocketServerBase<SSLSocketConnection>(
+        [&] (SocketConnectionInterface* cs) {
+            dynamic_cast<SSLSocketConnection*>(cs)->setCTX(ctx);
+            this->onConnect(cs);
+        }, onDisconnect, readProcessor, onCsReadError, onCsWriteError), onConnect(onConnect), ctx(0) {
+}
+
+SSLSocketServer* SSLSocketServer::instance(const std::function<void (SocketConnectionInterface* cs)>& onConnect,
+                                           const std::function<void (SocketConnectionInterface* cs)>& onDisconnect,
+                                           const std::function<void (SocketConnectionInterface* cs, const char*  junk, ssize_t n)>& readProcessor,
+                                           const std::function<void (int errnum)>& onCsReadError,
+                                           const std::function<void (int errnum)>& onCsWriteError) {
+    return new SSLSocketServer(onConnect, onDisconnect, readProcessor, onCsReadError, onCsWriteError);
+}
+
+
+void SSLSocketServer::listen(in_port_t port, int backlog, const std::string& cert, const std::string& key, const std::string& password, const std::function<void (int err)>& onError) {
+    SocketServerBase<SSLSocketConnection>::listen(port, backlog, 
+        [onError, this, &cert, &key, &password] (int err) -> void {
+            SSL_load_error_strings();
+            SSL_library_init();
+            OpenSSL_add_ssl_algorithms();
+                
+            ctx = SSL_CTX_new(TLS_server_method());
+            if (!ctx) {
+                ERR_print_errors_fp(stderr);
+                exit(2);
+            }
+                
+            if (SSL_CTX_use_certificate_file(ctx, cert.c_str(), SSL_FILETYPE_PEM) <= 0) {
+                ERR_print_errors_fp(stderr);
+                exit(3);
+            }
+            
+            if (SSL_CTX_use_PrivateKey_file(ctx, key.c_str(), SSL_FILETYPE_PEM) <= 0) {
+                ERR_print_errors_fp(stderr);
+                exit(4);
+            }
+                
+            if (!SSL_CTX_check_private_key(ctx)) {
+                fprintf(stderr,"Private key does not match the certificate public key\n");
+                exit(5);
+            }
+            
+            onError(err);
+        }
+    );
+}
+
+
+void SSLSocketServer::readEvent() {
+    SocketServerBase<SSLSocketConnection>::readEvent();
+}
+
+
+SocketServer::SocketServer(const std::function<void (SocketConnectionInterface* cs)>& onConnect,
+                           const std::function<void (SocketConnectionInterface* cs)>& onDisconnect,
+                           const std::function<void (SocketConnectionInterface* cs, const char*  junk, ssize_t n)>& readProcessor,
+                           const std::function<void (int errnum)>& onCsReadError,
+                           const std::function<void (int errnum)>& onCsWriteError) :
+    SocketServerBase<SocketConnection>(onConnect, onDisconnect, readProcessor, onCsReadError, onCsWriteError) {
+}
+                                 
+SocketServer* SocketServer::instance(const std::function<void (SocketConnectionInterface* cs)>& onConnect,
+                                     const std::function<void (SocketConnectionInterface* cs)>& onDisconnect,
+                                     const std::function<void (SocketConnectionInterface* cs, const char*  junk, ssize_t n)>& readProcessor,
+                                     const std::function<void (int errnum)>& onCsReadError,
+                                     const std::function<void (int errnum)>& onCsWriteError) {
+    return new SocketServer(onConnect, onDisconnect, readProcessor, onCsReadError, onCsWriteError);
+}
