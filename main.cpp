@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include <time.h>
+#include <Cookie.h>
 
 #include "Request.h"
 #include "Response.h"
@@ -101,9 +102,10 @@ int simpleWebserver(int argc, char** argv) {
                 }
 
                 // Defer cookie options to methods to clean up constructor and use IDE auto completion
-                Cookie testCookie = Cookie("NewImpl", "nice value");
+                Cookie testCookie = Cookie("NewCookieImplementation", "I am a beautiful cookie");
                 testCookie.MaxAge("600");
                 testCookie.MakeHttpOnly();
+                testCookie.MakeEssential();
 
                 res.cookie(testCookie.getName(), testCookie.getValue(), testCookie.getOptions());
 

@@ -8,6 +8,7 @@
 #include <map>
 #include <Request.h>
 #include <Response.h>
+#include "Cookie.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

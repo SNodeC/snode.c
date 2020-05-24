@@ -6,6 +6,7 @@
 
 #include <filesystem>
 #include <sstream>
+#include <map>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -18,6 +19,7 @@
 #include "Response.h"
 
 #include "httputils.h"
+#include "Cookie.h"
 
 
 HTTPContext::HTTPContext(HTTPServer* serverSocket, ConnectedSocket* connectedSocket)
