@@ -34,7 +34,7 @@ public:
     }
 
 
-    void manageSocket(T* socket) {
+    void add(T* socket) {
         if (!socket->managed) {
             addedDescriptors.push_back(socket);
             socket->managed = true;
@@ -42,7 +42,7 @@ public:
     }
 
 
-    void unmanageSocket(T* socket) {
+    void remove(T* socket) {
         if (socket->managed) {
             removedDescriptors.push_back(socket);
             socket->managed = false;

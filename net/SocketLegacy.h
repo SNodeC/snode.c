@@ -10,8 +10,6 @@
 
 class SocketLegacy : public Socket {
 public:
-    virtual void setFd(int fd);
-
     virtual ~SocketLegacy();
 
 protected:

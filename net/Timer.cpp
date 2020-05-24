@@ -14,7 +14,7 @@ Timer::Timer(const std::function<void (const void* arg)>& dispatcher, const stru
 SingleshotTimer& Timer::singleshotTimer(const std::function<void (const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg) {
     SingleshotTimer* st = new SingleshotTimer(dispatcher, timeout, arg);
 
-    Multiplexer::instance().getTimerManager().add(st);
+    Multiplexer::instance().getManagedTimer().add(st);
 
     return *st;
 }
@@ -22,14 +22,14 @@ SingleshotTimer& Timer::singleshotTimer(const std::function<void (const void* ar
 ContinousTimer& Timer::continousTimer(const std::function<void (const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg) {
     ContinousTimer* ct = new ContinousTimer(dispatcher, timeout, arg);
 
-    Multiplexer::instance().getTimerManager().add(ct);
+    Multiplexer::instance().getManagedTimer().add(ct);
 
     return *ct;
 }
 
 
 void Timer::cancel() {
-    Multiplexer::instance().getTimerManager().remove(this);
+    Multiplexer::instance().getManagedTimer().remove(this);
 }
 
 

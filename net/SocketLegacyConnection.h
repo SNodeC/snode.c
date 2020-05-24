@@ -19,7 +19,7 @@ class SocketLegacyConnection : public SocketConnectionBase<SocketLegacyReader, S
 public:
     SocketLegacyConnection(int csFd,
                            SocketServer* ss,
-                     const std::function<void (SocketConnectionInterface* cs, const char*  junk, ssize_t n)>& readProcessor,
+                     const std::function<void (SocketConnection* cs, const char*  junk, ssize_t n)>& readProcessor,
                      const std::function<void (int errnum)>& onReadError,
                      const std::function<void (int errnum)>& onWriteError
                     );

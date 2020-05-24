@@ -8,9 +8,9 @@
 #include "Multiplexer.h"
 
 template<typename T>
-SocketServerBase<T>::SocketServerBase(const std::function<void (SocketConnectionInterface* cs)>& onConnect,
-                                      const std::function<void (SocketConnectionInterface* cs)>& onDisconnect,
-                                      const std::function<void (SocketConnectionInterface* cs, const char*  junk, ssize_t n)>& readProcessor,
+SocketServerBase<T>::SocketServerBase(const std::function<void (SocketConnection* cs)>& onConnect,
+                                      const std::function<void (SocketConnection* cs)>& onDisconnect,
+                                      const std::function<void (SocketConnection* cs, const char*  junk, ssize_t n)>& readProcessor,
                                       const std::function<void (int errnum)>& onCsReadError,
                                       const std::function<void (int errnum)>& onCsWriteError)
     : SocketLegacyReader(), onConnect(onConnect), onDisconnect(onDisconnect), readProcessor(readProcessor), onCsReadError(onCsReadError), onCsWriteError(onCsWriteError)
@@ -37,7 +37,7 @@ void SocketServerBase<T>::listen(in_port_t port, int backlog, const std::functio
                     } else {
                         this->SocketLegacy::listen(backlog, [this, &onError] (int errnum) -> void {
                             if (errnum == 0) {
-                                Multiplexer::instance().getReadManager().manageSocket(this);
+                                Multiplexer::instance().getManagedReader().add(this);
                             }
                             onError(errnum);
                         });
@@ -68,7 +68,7 @@ void SocketServerBase<T>::readEvent() {
             cs->setRemoteAddress(remoteAddress);
             cs->setLocalAddress(localAddress);
 
-            Multiplexer::instance().getReadManager().manageSocket(cs);
+            Multiplexer::instance().getManagedReader().add(cs);
             onConnect(cs);
         } else {
             shutdown(csFd, SHUT_RDWR);
@@ -82,28 +82,28 @@ void SocketServerBase<T>::readEvent() {
 
 
 template<typename T>
-void SocketServerBase<T>::disconnect(SocketConnectionInterface* cs) {
+void SocketServerBase<T>::disconnect(SocketConnection* cs) {
     if (onDisconnect) {
         onDisconnect(cs);
     }
 }
 
 
-SocketSSLServer::SocketSSLServer(const std::function<void (SocketConnectionInterface* cs)>& onConnect,
-                                 const std::function<void (SocketConnectionInterface* cs)>& onDisconnect,
-                                 const std::function<void (SocketConnectionInterface* cs, const char*  junk, ssize_t n)>& readProcessor,
+SocketSSLServer::SocketSSLServer(const std::function<void (SocketConnection* cs)>& onConnect,
+                                 const std::function<void (SocketConnection* cs)>& onDisconnect,
+                                 const std::function<void (SocketConnection* cs, const char*  junk, ssize_t n)>& readProcessor,
                                  const std::function<void (int errnum)>& onCsReadError,
                                  const std::function<void (int errnum)>& onCsWriteError) :
     SocketServerBase<SocketSSLConnection>(
-        [this] (SocketConnectionInterface* cs) {
+        [this] (SocketConnection* cs) {
             dynamic_cast<SocketSSLConnection*>(cs)->startSSL(ctx);
             this->onConnect(cs);
         }, onDisconnect, readProcessor, onCsReadError, onCsWriteError), onConnect(onConnect), ctx(0) {
 }
 
-SocketSSLServer* SocketSSLServer::instance(const std::function<void (SocketConnectionInterface* cs)>& onConnect,
-                                           const std::function<void (SocketConnectionInterface* cs)>& onDisconnect,
-                                           const std::function<void (SocketConnectionInterface* cs, const char*  junk, ssize_t n)>& readProcessor,
+SocketSSLServer* SocketSSLServer::instance(const std::function<void (SocketConnection* cs)>& onConnect,
+                                           const std::function<void (SocketConnection* cs)>& onDisconnect,
+                                           const std::function<void (SocketConnection* cs, const char*  junk, ssize_t n)>& readProcessor,
                                            const std::function<void (int errnum)>& onCsReadError,
                                            const std::function<void (int errnum)>& onCsWriteError) {
     return new SocketSSLServer(onConnect, onDisconnect, readProcessor, onCsReadError, onCsWriteError);
@@ -150,17 +150,17 @@ void SocketSSLServer::readEvent() {
 }
 
 
-SocketLegacyServer::SocketLegacyServer(const std::function<void (SocketConnectionInterface* cs)>& onConnect,
-                           const std::function<void (SocketConnectionInterface* cs)>& onDisconnect,
-                           const std::function<void (SocketConnectionInterface* cs, const char*  junk, ssize_t n)>& readProcessor,
+SocketLegacyServer::SocketLegacyServer(const std::function<void (SocketConnection* cs)>& onConnect,
+                           const std::function<void (SocketConnection* cs)>& onDisconnect,
+                           const std::function<void (SocketConnection* cs, const char*  junk, ssize_t n)>& readProcessor,
                            const std::function<void (int errnum)>& onCsReadError,
                            const std::function<void (int errnum)>& onCsWriteError) :
     SocketServerBase<SocketLegacyConnection>(onConnect, onDisconnect, readProcessor, onCsReadError, onCsWriteError) {
 }
                                  
-SocketLegacyServer* SocketLegacyServer::instance(const std::function<void (SocketConnectionInterface* cs)>& onConnect,
-                                     const std::function<void (SocketConnectionInterface* cs)>& onDisconnect,
-                                     const std::function<void (SocketConnectionInterface* cs, const char*  junk, ssize_t n)>& readProcessor,
+SocketLegacyServer* SocketLegacyServer::instance(const std::function<void (SocketConnection* cs)>& onConnect,
+                                     const std::function<void (SocketConnection* cs)>& onDisconnect,
+                                     const std::function<void (SocketConnection* cs, const char*  junk, ssize_t n)>& readProcessor,
                                      const std::function<void (int errnum)>& onCsReadError,
                                      const std::function<void (int errnum)>& onCsWriteError) {
     return new SocketLegacyServer(onConnect, onDisconnect, readProcessor, onCsReadError, onCsWriteError);

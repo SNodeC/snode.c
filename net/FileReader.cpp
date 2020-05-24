@@ -22,7 +22,7 @@ FileReader* FileReader::read(std::string path, const std::function<void (char* d
 
     if (fd >= 0) {
         fileReader = new FileReader(fd, junkRead, onError);
-        Multiplexer::instance().getReadManager().manageSocket(fileReader);
+        Multiplexer::instance().getManagedReader().add(fileReader);
     } else {
         onError(errno);
     }
@@ -32,7 +32,7 @@ FileReader* FileReader::read(std::string path, const std::function<void (char* d
 
 
 void FileReader::stop() {
-    Multiplexer::instance().getReadManager().unmanageSocket(this);
+    Multiplexer::instance().getManagedReader().remove(this);
 }
 
 
