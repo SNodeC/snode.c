@@ -12,7 +12,7 @@
 template<typename R, typename W>
 SocketConnectionBase<R, W>::SocketConnectionBase(int csFd,
                      SocketServer* serverSocket,
-                     const std::function<void (SocketConnectionInterface* cs, const char* junk, ssize_t n)>& readProcessor,
+                     const std::function<void (SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
                      const std::function<void (int errnum)>& onReadError,
                      const std::function<void (int errnum)>& onWriteError
 ) :
@@ -48,13 +48,13 @@ void SocketConnectionBase<R, W>::setRemoteAddress(const InetAddress& remoteAddre
 template<typename R, typename W>
 void SocketConnectionBase<R, W>::send(const char* puffer, int size) {
     Writer::writePuffer.append(puffer, size);
-    Multiplexer::instance().getWriteManager().manageSocket(this);
+    Multiplexer::instance().getManagedWriter().add(this);
 }
 
 template<typename R, typename W>
 void SocketConnectionBase<R, W>::send(const std::string& junk) {
     Writer::writePuffer += junk;
-    Multiplexer::instance().getWriteManager().manageSocket(this);
+    Multiplexer::instance().getManagedWriter().add(this);
 }
 
 template<typename R, typename W>
@@ -78,7 +78,7 @@ void SocketConnectionBase<R, W>::sendFile(const std::string& file, const std::fu
 
 template<typename R, typename W>
 void SocketConnectionBase<R, W>::end() {
-    Multiplexer::instance().getReadManager().unmanageSocket(this);
+    Multiplexer::instance().getManagedReader().remove(this);
 }
 
 

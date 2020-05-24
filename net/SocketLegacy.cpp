@@ -14,11 +14,6 @@ SocketLegacy::~SocketLegacy() {
 }
 
 
-void SocketLegacy::setFd(int fd) {
-    Socket::setFd(fd);
-}
-
-
 ssize_t SocketLegacy::socketRecv(void *buf, size_t len, int flags) {
     return ::recv(this->getFd(), buf, len, flags);
 }

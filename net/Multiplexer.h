@@ -9,7 +9,7 @@
 
 #include "ManagedReader.h"
 #include "ManagedWriter.h"
-#include "ExceptionManager.h"
+#include "ManagedExceptions.h"
 #include "ManagedTimer.h"
 
 
@@ -28,19 +28,19 @@ public:
         return multiplexer;
     }
 
-    ManagedReader& getReadManager() {
-        return readManager;
+    ManagedReader& getManagedReader() {
+        return managedReader;
     }
 
-    ManagedWriter& getWriteManager() {
-        return writeManager;
+    ManagedWriter& getManagedWriter() {
+        return managedWriter;
     }
 
-    ExceptionManager& getExceptionManager() {
-        return exceptionManager;
+    ManagedExceptions& getManagedExceptions() {
+        return managedExceptions;
     }
 
-    ManagedTimer& getTimerManager() {
+    ManagedTimer& getManagedTimer() {
         return managedTimer;
     }
 
@@ -53,12 +53,13 @@ private:
 
     static Multiplexer multiplexer;
 
-    ManagedReader readManager;
-    ManagedWriter writeManager;
-    ExceptionManager exceptionManager;
+    ManagedReader managedReader;
+    ManagedWriter managedWriter;
+    ManagedExceptions managedExceptions;
     ManagedTimer managedTimer;
 
     static bool running;
+    static bool stopped;
 };
 
 

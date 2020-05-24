@@ -11,7 +11,7 @@
 #include "SocketLegacy.h"
 
 
-class SocketConnectionInterface;
+class SocketConnection;
 
 class SocketLegacyReader : public Reader, virtual public SocketLegacy
 {
@@ -21,9 +21,9 @@ public:
 protected:
     SocketLegacyReader() : readProcessor(0) {}
 
-    SocketLegacyReader(const std::function<void (SocketConnectionInterface* cs, const char* junk, ssize_t n)>& readProcessor, const std::function<void (int errnum)>& onError) : SocketLegacy(), Reader(onError), readProcessor(readProcessor) {}
+    SocketLegacyReader(const std::function<void (SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor, const std::function<void (int errnum)>& onError) : SocketLegacy(), Reader(onError), readProcessor(readProcessor) {}
 
-    std::function<void (SocketConnectionInterface* cs, const char* junk, ssize_t n)> readProcessor;
+    std::function<void (SocketConnection* cs, const char* junk, ssize_t n)> readProcessor;
 };
 
 #endif // SOCKETREADER_H

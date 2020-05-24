@@ -21,13 +21,13 @@ WebApp::~WebApp() {}
 
 void WebApp::listen(int port) {
     SocketLegacyServer::instance(
-        [this] (SocketConnectionInterface* connectedSocket) -> void {
+        [this] (SocketConnection* connectedSocket) -> void {
             connectedSocket->setContext(new HTTPContext(this, connectedSocket));
         },
-        [] (SocketConnectionInterface* connectedSocket) -> void {
+        [] (SocketConnection* connectedSocket) -> void {
             delete static_cast<HTTPContext*>(connectedSocket->getContext());
         },
-        [] (SocketConnectionInterface* connectedSocket, const char*  junk, ssize_t n) -> void {
+        [] (SocketConnection* connectedSocket, const char*  junk, ssize_t n) -> void {
             static_cast<HTTPContext*>(connectedSocket->getContext())->receiveRequest(junk, n);
         },
         [] (int errnum) -> void {
@@ -46,13 +46,13 @@ void WebApp::listen(int port, const std::function<void (int err)>& onError) {
     errno = 0;
 
     SocketLegacyServer::instance(
-        [this] (SocketConnectionInterface* connectedSocket) -> void {
+        [this] (SocketConnection* connectedSocket) -> void {
             connectedSocket->setContext(new HTTPContext(this, connectedSocket));
         },
-        [] (SocketConnectionInterface* connectedSocket) -> void {
+        [] (SocketConnection* connectedSocket) -> void {
             delete static_cast<HTTPContext*>(connectedSocket->getContext());
         },
-        [] (SocketConnectionInterface* connectedSocket, const char*  junk, ssize_t n) -> void {
+        [] (SocketConnection* connectedSocket, const char*  junk, ssize_t n) -> void {
             static_cast<HTTPContext*>(connectedSocket->getContext())->receiveRequest(junk, n);
         },
         [] (int errnum) -> void {
@@ -78,13 +78,13 @@ void WebApp::listen(int port, const std::function<void (int err)>& onError) {
 
 void WebApp::sslListen(int port, const std::string& cert, const std::string& key, const std::string& password) {
     SocketSSLServer::instance(
-        [this] (SocketConnectionInterface* connectedSocket) -> void {
+        [this] (SocketConnection* connectedSocket) -> void {
             connectedSocket->setContext(new HTTPContext(this, connectedSocket));
         },
-        [] (SocketConnectionInterface* connectedSocket) -> void {
+        [] (SocketConnection* connectedSocket) -> void {
             delete static_cast<HTTPContext*>(connectedSocket->getContext());
         },
-        [] (SocketConnectionInterface* connectedSocket, const char*  junk, ssize_t n) -> void {
+        [] (SocketConnection* connectedSocket, const char*  junk, ssize_t n) -> void {
             static_cast<HTTPContext*>(connectedSocket->getContext())->receiveRequest(junk, n);
         },
         [] (int errnum) -> void {
@@ -103,13 +103,13 @@ void WebApp::sslListen(int port, const std::string& cert, const std::string& key
     errno = 0;
 
     SocketSSLServer::instance(
-        [this] (SocketConnectionInterface* connectedSocket) -> void {
+        [this] (SocketConnection* connectedSocket) -> void {
             connectedSocket->setContext(new HTTPContext(this, connectedSocket));
         },
-        [] (SocketConnectionInterface* connectedSocket) -> void {
+        [] (SocketConnection* connectedSocket) -> void {
             delete static_cast<HTTPContext*>(connectedSocket->getContext());
         },
-        [] (SocketConnectionInterface* connectedSocket, const char*  junk, ssize_t n) -> void {
+        [] (SocketConnection* connectedSocket, const char*  junk, ssize_t n) -> void {
             static_cast<HTTPContext*>(connectedSocket->getContext())->receiveRequest(junk, n);
         },
         [] (int errnum) -> void {

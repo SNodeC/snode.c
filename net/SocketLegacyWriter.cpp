@@ -16,10 +16,10 @@ void SocketLegacyWriter::writeEvent() {
     if (ret >= 0) {
         writePuffer.erase(0, ret);
         if (writePuffer.empty()) {
-            Multiplexer::instance().getWriteManager().unmanageSocket(this);
+            Multiplexer::instance().getManagedWriter().remove(this);
         }
     } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
         onError(errno);
-        Multiplexer::instance().getWriteManager().unmanageSocket(this);
+        Multiplexer::instance().getManagedWriter().remove(this);
     }
 }

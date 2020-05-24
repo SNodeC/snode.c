@@ -8,12 +8,12 @@ message("OpenSSL libraries: ${OPENSSL_LIBRARIES}")
 add_library(net SHARED 
     ClientSocket.cpp
     Descriptor.cpp 
-    ExceptionManager.cpp
     File.cpp
     FileReader.cpp
     InetAddress.cpp
-    ManagedTimer.cpp
+    ManagedExceptions.cpp
     ManagedReader.cpp
+    ManagedTimer.cpp
     ManagedWriter.cpp
     Multiplexer.cpp 
     Socket.cpp 

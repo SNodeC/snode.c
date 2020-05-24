@@ -10,7 +10,7 @@
 
 #include "SocketLegacyReader.h"
 #include "Multiplexer.h"
-#include "SocketConnectionInterface.h"
+#include "SocketConnection.h"
 
 
 void SocketLegacyReader::readEvent() {
@@ -19,13 +19,13 @@ void SocketLegacyReader::readEvent() {
     ssize_t ret = socketRecv(junk, MAX_JUNKSIZE, 0);
 
     if (ret > 0) {
-        readProcessor(dynamic_cast<SocketConnectionInterface*>(this), junk, ret);
+        readProcessor(dynamic_cast<SocketConnection*>(this), junk, ret);
     } else if (ret == 0) {
         onError(0);
-        Multiplexer::instance().getReadManager().unmanageSocket(this);
+        Multiplexer::instance().getManagedReader().remove(this);
     } else {
         onError(errno);
-        Multiplexer::instance().getReadManager().unmanageSocket(this);
+        Multiplexer::instance().getManagedReader().remove(this);
     }
 }
 

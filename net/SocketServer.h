@@ -10,7 +10,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 
-class SocketConnectionInterface;
+class SocketConnection;
 
 class SocketServer
 {
@@ -19,7 +19,7 @@ public:
     
     virtual void readEvent() = 0;
     
-    virtual void disconnect(SocketConnectionInterface* cs) = 0;
+    virtual void disconnect(SocketConnection* cs) = 0;
     
     static void run();
     static void stop();

@@ -17,8 +17,6 @@
 
 class SocketSSL : public Socket {
 public:
-    virtual void setFd(int fd);
-    
     void startSSL(SSL_CTX* ctx);
     
     virtual ~SocketSSL();

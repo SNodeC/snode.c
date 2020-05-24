@@ -16,11 +16,6 @@ SocketSSL::~SocketSSL() {
 }
 
 
-void SocketSSL::setFd(int fd) {
-    Socket::setFd(fd);
-}
-
-
 void SocketSSL::startSSL(SSL_CTX* ctx) {
     this->ssl = SSL_new(ctx);
     SSL_set_fd(ssl, getFd());

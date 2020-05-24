@@ -7,15 +7,16 @@
 
 Multiplexer Multiplexer::multiplexer;
 bool Multiplexer::running = false;
+bool Multiplexer::stopped = false;
 
 void Multiplexer::tick() {
-    fd_set exceptfds = exceptionManager.getFdSet();
-    fd_set writefds = writeManager.getFdSet();
-    fd_set readfds = readManager.getFdSet();
+    fd_set exceptfds = managedExceptions.getFdSet();
+    fd_set writefds = managedWriter.getFdSet();
+    fd_set readfds = managedReader.getFdSet();
 
-    int maxFd = readManager.getMaxFd();
-    maxFd = writeManager.getMaxFd() > maxFd ? writeManager.getMaxFd() : maxFd;
-    maxFd = exceptionManager.getMaxFd() > maxFd ? writeManager.getMaxFd() : maxFd;
+    int maxFd = managedReader.getMaxFd();
+    maxFd = managedWriter.getMaxFd() > maxFd ? managedWriter.getMaxFd() : maxFd;
+    maxFd = managedExceptions.getMaxFd() > maxFd ? managedWriter.getMaxFd() : maxFd;
 
     struct timeval tv = managedTimer.getNextTimeout();
 
@@ -27,13 +28,13 @@ void Multiplexer::tick() {
     } else {
         managedTimer.dispatch();
         if (retval > 0) {
-            retval = readManager.dispatch(readfds, retval);
+            retval = managedReader.dispatch(readfds, retval);
         }
         if (retval > 0) {
-            retval = writeManager.dispatch(writefds, retval);
+            retval = managedWriter.dispatch(writefds, retval);
         }
         if (retval > 0) {
-            retval = exceptionManager.dispatch(exceptfds, retval);
+            retval = managedExceptions.dispatch(exceptfds, retval);
         }
     }
 }
@@ -44,14 +45,16 @@ void Multiplexer::run()
     if (!Multiplexer::running) {
         Multiplexer::running = true;
 
-        while (Multiplexer::running) {
+        while (!Multiplexer::stopped) {
             Multiplexer::instance().tick();
         };
+        
+        Multiplexer::running = false;
     }
 }
 
 
 void Multiplexer::stop()
 {
-    Multiplexer::running = false;
+    Multiplexer::stopped = true;
 }
