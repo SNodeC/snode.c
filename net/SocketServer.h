@@ -55,6 +55,7 @@ public:
                                                        const std::function<void (SocketConnectionInterface* cs, const char*  junk, ssize_t n)>& readProcessor,
                                                        const std::function<void (int errnum)>& onCsReadError,
                                                        const std::function<void (int errnum)>& onCsWriteError);
+    ~SSLSocketServer();
     
     using SocketServerBase<SSLSocketConnection>::listen;
     void listen(in_port_t port, int backlog, const std::string& cert, const std::string& key, const std::string& password, const std::function<void (int err)>& onError);
