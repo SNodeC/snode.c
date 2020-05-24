@@ -15,10 +15,9 @@ int simpleWebserver(int argc, char** argv) {
     app.get("/",
     [&] (const Request& req, const Response& res) -> void {
         std::string uri = req.originalUrl;
-//                std::cout << "Connection: " << req.header("Connection") << std::endl;
-//                std::cout << "URL: " << uri << std::endl;
-//                std::cout << "Cookie: " << req.cookie("rootcookie") << std::endl;
-//                res.cookie("searchcookie", "cookievalue", {{"Max-Age", "3600"}, {"Path", "/search"}});
+                std::cout << "URL: " << uri << std::endl;
+                std::cout << "Cookie: " << req.cookie("rootcookie") << std::endl;
+                res.cookie("searchcookie", "cookievalue", {{"Max-Age", "3600"}, {"Path", "/search"}});
 //                res.clearCookie("rootcookie");
 //                res.clearCookie("rootcookie");
 //                res.clearCookie("searchcookie", {{"Path", "/search"}});
