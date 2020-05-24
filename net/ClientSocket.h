@@ -7,7 +7,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "SocketConnection.h"
+#include "SocketLegacyConnection.h"
 
 
 class ClientSocket {}; /* : public ConnectedSocket

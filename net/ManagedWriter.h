@@ -5,7 +5,7 @@
 #include "Writer.h"
 
 
-class WriteManager : public Manager<Writer>
+class ManagedWriter : public Manager<Writer>
 {
 public:
     virtual int dispatch(fd_set& fdSet, int count);

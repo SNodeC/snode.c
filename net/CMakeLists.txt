@@ -6,31 +6,30 @@ message("OpenSSL include dir: ${OPENSSL_INCLUDE_DIR}")
 message("OpenSSL libraries: ${OPENSSL_LIBRARIES}")
 
 add_library(net SHARED 
-    Multiplexer.cpp 
-    Descriptor.cpp 
-    SocketBase.cpp 
-    Socket.cpp 
-    SSLSocket.cpp
-    SocketReader.cpp
-    SocketWriter.cpp
-    SSLSocketReader.cpp 
-    SSLSocketWriter.cpp 
-    SocketServerInterface.cpp 
-    SocketServer.cpp
-    SocketConnectionInterface.cpp
-    SocketConnectionBase.cpp 
-    SocketConnection.cpp
-    SSLSocketConnection.cpp 
     ClientSocket.cpp
-    TimerManager.cpp
-    ReadManager.cpp
-    WriteManager.cpp
+    Descriptor.cpp 
     ExceptionManager.cpp
-    InetAddress.cpp
-    Timer.cpp 
-    FileReader.cpp
-    StartUp.cpp
     File.cpp
+    FileReader.cpp
+    InetAddress.cpp
+    ManagedTimer.cpp
+    ManagedReader.cpp
+    ManagedWriter.cpp
+    Multiplexer.cpp 
+    Socket.cpp 
+    SocketConnectionBase.cpp 
+    SocketLegacyConnection.cpp
+    SocketLegacy.cpp 
+    SocketLegacyReader.cpp
+    SocketLegacyWriter.cpp
+    SocketServer.cpp
+    SocketServerBase.cpp 
+    SocketSSLConnection.cpp 
+    SocketSSL.cpp
+    SocketSSLReader.cpp 
+    SocketSSLWriter.cpp 
+    StartUp.cpp
+    Timer.cpp 
 )
 
 target_include_directories (net PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${OPENSSL_INCLUDE_DIR})

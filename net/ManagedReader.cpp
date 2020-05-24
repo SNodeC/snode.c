@@ -1,7 +1,7 @@
-#include "ReadManager.h"
+#include "ManagedReader.h"
 
 
-int ReadManager::dispatch(fd_set& fdSet, int count) {
+int ManagedReader::dispatch(fd_set& fdSet, int count) {
     for (std::list<Reader*>::iterator it = descriptors.begin(); it != descriptors.end() && count > 0; ++it) {
         if (FD_ISSET(dynamic_cast<Descriptor*>(*it)->getFd(), &fdSet)) {
             count--;

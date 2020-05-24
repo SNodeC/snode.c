@@ -8,12 +8,12 @@
 
 #define MAX_JUNKSIZE 16384
 
-#include "SSLSocketReader.h"
+#include "SocketLegacyReader.h"
 #include "Multiplexer.h"
 #include "SocketConnectionInterface.h"
 
 
-void SSLSocketReader::readEvent() {
+void SocketLegacyReader::readEvent() {
     static char junk[MAX_JUNKSIZE];
 
     ssize_t ret = socketRecv(junk, MAX_JUNKSIZE, 0);

@@ -4,18 +4,12 @@
 #include "SocketConnectionInterface.h"
 
 class FileReader;
-class SocketServerInterface;
+class SocketServer;
 
 template<typename R, typename W>
 class SocketConnectionBase : public SocketConnectionInterface, public R, public W
 {
 public:
-    SocketConnectionBase(int csFd,
-                     SocketServerInterface* serverSocket,
-                     const std::function<void (SocketConnectionInterface* cs, const char* junk, ssize_t n)>& readProcessor,
-                     const std::function<void (int errnum)>& onReadError,
-                     const std::function<void (int errnum)>& onWriteError
-    );
     
     virtual ~SocketConnectionBase();
 
@@ -36,7 +30,14 @@ public:
     virtual void setRemoteAddress(const InetAddress& remoteAddress);
 
 protected:
-    SocketServerInterface* serverSocket;
+    SocketConnectionBase(int csFd,
+                         SocketServer* serverSocket,
+                         const std::function<void (SocketConnectionInterface* cs, const char* junk, ssize_t n)>& readProcessor,
+                         const std::function<void (int errnum)>& onReadError,
+                         const std::function<void (int errnum)>& onWriteError
+    );
+    
+    SocketServer* serverSocket;
     
     void* context;
     

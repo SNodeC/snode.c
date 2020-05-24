@@ -9,17 +9,17 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "SocketConnectionBase.h"
-#include "SSLSocketWriter.h"
-#include "SSLSocketReader.h"
+#include "SocketSSLReader.h"
+#include "SocketSSLWriter.h"
 
 
-class SocketServerInterface;
+class SocketServer;
 
-class SSLSocketConnection : public SocketConnectionBase<SSLSocketReader, SSLSocketWriter>
+class SocketSSLConnection : public SocketConnectionBase<SocketSSLReader, SocketSSLWriter>
 {
 public:
-    SSLSocketConnection(int csFd,
-                        SocketServerInterface* ss,
+    SocketSSLConnection(int csFd,
+                        SocketServer* ss,
                         const std::function<void (SocketConnectionInterface* cs, const char*  junk, ssize_t n)>& readProcessor,
                         const std::function<void (int errnum)>& onReadError,
                         const std::function<void (int errnum)>& onWriteError

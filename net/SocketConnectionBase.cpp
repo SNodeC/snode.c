@@ -1,17 +1,17 @@
 #include "SocketConnectionBase.h"
 
 #include "Multiplexer.h"
-#include "SocketServerInterface.h"
-#include "SocketReader.h"
-#include "SocketWriter.h"
-#include "SSLSocketReader.h"
-#include "SSLSocketWriter.h"
+#include "SocketServer.h"
+#include "SocketLegacyReader.h"
+#include "SocketLegacyWriter.h"
+#include "SocketSSLReader.h"
+#include "SocketSSLWriter.h"
 #include "FileReader.h"
 
 
 template<typename R, typename W>
 SocketConnectionBase<R, W>::SocketConnectionBase(int csFd,
-                     SocketServerInterface* serverSocket,
+                     SocketServer* serverSocket,
                      const std::function<void (SocketConnectionInterface* cs, const char* junk, ssize_t n)>& readProcessor,
                      const std::function<void (int errnum)>& onReadError,
                      const std::function<void (int errnum)>& onWriteError
@@ -82,5 +82,5 @@ void SocketConnectionBase<R, W>::end() {
 }
 
 
-template class SocketConnectionBase<SocketReader, SocketWriter>;
-template class SocketConnectionBase<SSLSocketReader, SSLSocketWriter>;
+template class SocketConnectionBase<SocketLegacyReader, SocketLegacyWriter>;
+template class SocketConnectionBase<SocketSSLReader, SocketSSLWriter>;

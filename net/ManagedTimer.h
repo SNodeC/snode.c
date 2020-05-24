@@ -10,10 +10,10 @@
 #include "Timer.h"
 
 
-class TimerManager
+class ManagedTimer
 {
 public:
-    TimerManager();
+    ManagedTimer();
 
     struct timeval getNextTimeout();
 

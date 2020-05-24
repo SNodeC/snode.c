@@ -4,17 +4,17 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "TimerManager.h"
+#include "ManagedTimer.h"
 #include "Timer.h"
 #include "SingleshotTimer.h"
 #include "ContinousTimer.h"
 
 
-TimerManager::TimerManager() : timerListDirty(false) {
+ManagedTimer::ManagedTimer() : timerListDirty(false) {
 }
 
 
-struct timeval TimerManager::getNextTimeout() {
+struct timeval ManagedTimer::getNextTimeout() {
     struct timeval tv;
 
     tv.tv_sec = 20L;
@@ -56,7 +56,7 @@ struct timeval TimerManager::getNextTimeout() {
 }
 
 
-void TimerManager::dispatch() {
+void ManagedTimer::dispatch() {
     struct timeval currentTime;
     gettimeofday(&currentTime, NULL);
 
@@ -76,22 +76,22 @@ void TimerManager::dispatch() {
 }
 
 
-void TimerManager::remove(Timer* timer) {
+void ManagedTimer::remove(Timer* timer) {
     removedList.push_back(timer);
 }
 
 
-void TimerManager::add(Timer* timer) {
+void ManagedTimer::add(Timer* timer) {
     addedList.push_back(timer);
 }
 
 
-bool TimerManager::lttimernode::operator()(const Timer* t1, const Timer* t2) const
+bool ManagedTimer::lttimernode::operator()(const Timer* t1, const Timer* t2) const
 {
     return *t1 < *t2;
 }
 
 
-bool TimerManager::timernode_equality::operator()(const Timer* timer) const {
+bool ManagedTimer::timernode_equality::operator()(const Timer* timer) const {
     return *timer == *this->timer;
 }

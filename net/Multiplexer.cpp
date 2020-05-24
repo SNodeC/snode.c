@@ -17,7 +17,7 @@ void Multiplexer::tick() {
     maxFd = writeManager.getMaxFd() > maxFd ? writeManager.getMaxFd() : maxFd;
     maxFd = exceptionManager.getMaxFd() > maxFd ? writeManager.getMaxFd() : maxFd;
 
-    struct timeval tv = timerManager.getNextTimeout();
+    struct timeval tv = managedTimer.getNextTimeout();
 
     int retval = select(maxFd + 1, &readfds, &writefds, &exceptfds, &tv);
 
@@ -25,7 +25,7 @@ void Multiplexer::tick() {
         perror("Select");
         stop();
     } else {
-        timerManager.dispatch();
+        managedTimer.dispatch();
         if (retval > 0) {
             retval = readManager.dispatch(readfds, retval);
         }
