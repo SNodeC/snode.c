@@ -13,15 +13,7 @@ class Multiplexer
 {
 private:
     Multiplexer() {
-        struct sigaction sh;
-        struct sigaction osh;
-
-        sh.sa_handler = SIG_IGN;
-        sh.sa_flags = SA_RESTART;
-
-        if (sigaction(SIGPIPE, &sh, &osh) < 0) {
-            exit (-1);
-        }
+        signal(SIGPIPE, SIG_IGN);
     }
 
     ~Multiplexer() {}

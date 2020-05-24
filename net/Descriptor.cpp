@@ -1,8 +1,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <unistd.h>
-
 #include <iostream>
+#include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

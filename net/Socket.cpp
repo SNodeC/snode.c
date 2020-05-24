@@ -1,13 +1,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <sys/socket.h>
-
-#include <errno.h>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Socket.h"
-#include "Descriptor.h"
 
 
 Socket::Socket() {}

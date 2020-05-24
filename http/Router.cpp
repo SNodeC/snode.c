@@ -2,7 +2,6 @@
 #include "Request.h"
 #include "Response.h"
 
-#include <iostream>
 
 static const std::string path_concat(const std::string& first, const std::string& second) {
     std::string result;

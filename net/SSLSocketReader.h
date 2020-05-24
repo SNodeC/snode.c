@@ -11,7 +11,7 @@
 #include "SSLSocket.h"
 
 
-class SSLSocketConnection;
+class SocketConnectionInterface;
 
 class SSLSocketReader : public Reader, virtual public SSLSocket
 {
@@ -21,9 +21,9 @@ public:
 protected:
     SSLSocketReader() : readProcessor(0) {}
 
-    SSLSocketReader(const std::function<void (SSLSocketConnection* cs, const char* junk, ssize_t n)>& readProcessor, const std::function<void (int errnum)>& onError) : SSLSocket(), Reader(onError), readProcessor(readProcessor) {}
+    SSLSocketReader(const std::function<void (SocketConnectionInterface* cs, const char* junk, ssize_t n)>& readProcessor, const std::function<void (int errnum)>& onError) : SSLSocket(), Reader(onError), readProcessor(readProcessor) {}
 
-    std::function<void (SSLSocketConnection* cs, const char* junk, ssize_t n)> readProcessor;
+    std::function<void (SocketConnectionInterface* cs, const char* junk, ssize_t n)> readProcessor;
 };
 
 #endif // SSLSOCKETREADER_H
