@@ -1,10 +1,34 @@
 #include "SocketConnectionBase.h"
 
 #include "Multiplexer.h"
+#include "SocketServerInterface.h"
 #include "SocketReader.h"
 #include "SocketWriter.h"
 #include "SSLSocketReader.h"
 #include "SSLSocketWriter.h"
+#include "FileReader.h"
+
+
+template<typename R, typename W>
+SocketConnectionBase<R, W>::SocketConnectionBase(int csFd,
+                     SocketServerInterface* serverSocket,
+                     const std::function<void (SocketConnectionInterface* cs, const char* junk, ssize_t n)>& readProcessor,
+                     const std::function<void (int errnum)>& onReadError,
+                     const std::function<void (int errnum)>& onWriteError
+) :
+R(readProcessor, [&] (int errnum) -> void {
+    onReadError(errnum);
+}),
+W([&] (int errnum) -> void {
+    if (fileReader) {
+        fileReader->stop();
+        fileReader = 0;
+    }
+    onWriteError(errnum);
+}),
+serverSocket(serverSocket),
+fileReader(0) {
+}
 
 template<typename R, typename W>
 SocketConnectionBase<R, W>::~SocketConnectionBase() {

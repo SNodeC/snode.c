@@ -11,10 +11,6 @@
 #include "SocketReader.h"
 
 
-class Request;
-class Response;
-class SocketConnectionInterface;
-
 template<typename T>
 class SocketServerBase : public SocketServerInterface, public SocketReader {
 private:
@@ -37,10 +33,6 @@ public:
     virtual void readEvent();
 
     void disconnect(SocketConnectionInterface* cs);
-
-    static void run();
-
-    static void stop();
 
 private:
     std::function<void (SocketConnectionInterface* cs)> onConnect;

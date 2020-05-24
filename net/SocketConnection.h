@@ -4,17 +4,14 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "InetAddress.h"
 #include "SocketConnectionBase.h"
 #include "SocketWriter.h"
 #include "SocketReader.h"
 
 
-class FileReader;
 class SocketServerInterface;
 
 class SocketConnection : public SocketConnectionBase<SocketReader, SocketWriter>

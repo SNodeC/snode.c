@@ -102,16 +102,5 @@ void SocketServerBase<T>::disconnect(SocketConnectionInterface* cs) {
 }
 
 
-template<typename T>
-void SocketServerBase<T>::run() {
-    Multiplexer::run();
-}
-
-
-template<typename T>
-void SocketServerBase<T>::stop() {
-    Multiplexer::stop();
-}
-
 template class SocketServerBase<SocketConnection>;
 template class SocketServerBase<SSLSocketConnection>;

@@ -10,8 +10,7 @@
 
 #include "SSLSocketReader.h"
 #include "Multiplexer.h"
-
-#include "SSLSocketConnection.h"
+#include "SocketConnectionInterface.h"
 
 
 void SSLSocketReader::readEvent() {
@@ -20,7 +19,7 @@ void SSLSocketReader::readEvent() {
     ssize_t ret = socketRecv(junk, MAX_JUNKSIZE, 0);
 
     if (ret > 0) {
-        readProcessor(dynamic_cast<SSLSocketConnection*>(this), junk, ret);
+        readProcessor(dynamic_cast<SocketConnectionInterface*>(this), junk, ret);
     } else if (ret == 0) {
         onError(0);
         Multiplexer::instance().getReadManager().unmanageSocket(this);

@@ -8,13 +8,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "InetAddress.h"
 #include "SocketConnectionBase.h"
 #include "SSLSocketWriter.h"
 #include "SSLSocketReader.h"
 
 
-class FileReader;
 class SocketServerInterface;
 
 class SSLSocketConnection : public SocketConnectionBase<SSLSocketReader, SSLSocketWriter>

@@ -6,7 +6,6 @@
 #include "SocketServer.h"
 
 
-
 WebApp::WebApp(const std::string& serverRoot) {
     this->serverRoot(serverRoot);
 }
@@ -37,7 +36,7 @@ void WebApp::listen(int port) {
         perror("Write to ConnectedSocket");
     })->listen(port, 5, 0);
 
-    SocketServerBase<SocketConnection>::run();
+    SocketServerInterface::run();
 }
 
 
@@ -65,7 +64,7 @@ void WebApp::listen(int port, const std::function<void (int err)>& onError) {
     })->listen(port, 5, [&] (int err) -> void {
         onError(err);
         if (!err) {
-            SocketServerBase<SocketConnection>::run();
+            SocketServerInterface::run();
         }
     });
 }
@@ -88,7 +87,7 @@ void WebApp::sslListen(int port) {
         perror("Write to SSLConnectedSocket");
     })->listen(port, 5, 0);
 
-    SocketServerBase<SSLSocketConnection>::run();
+    SocketServerInterface::run();
 }
 
 
@@ -116,14 +115,14 @@ void WebApp::sslListen(int port, const std::function<void (int err)>& onError) {
     })->listen(port, 5, [&] (int err) -> void {
         onError(err);
         if (!err) {
-            SocketServerBase<SSLSocketConnection>::run();
+            SocketServerInterface::run();
         }
     });
 }
 
 
 void WebApp::stop() {
-    SocketServerBase<SocketConnection>::stop();
+    SocketServerInterface:stop();
 }
 
 void WebApp::destroy() {
