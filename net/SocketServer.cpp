@@ -96,7 +96,7 @@ SSLSocketServer::SSLSocketServer(const std::function<void (SocketConnectionInter
                                  const std::function<void (int errnum)>& onCsWriteError) :
     SocketServerBase<SSLSocketConnection>(
         [this] (SocketConnectionInterface* cs) {
-            dynamic_cast<SSLSocketConnection*>(cs)->setCTX(ctx);
+            dynamic_cast<SSLSocketConnection*>(cs)->startSSL(ctx);
             this->onConnect(cs);
         }, onDisconnect, readProcessor, onCsReadError, onCsWriteError), onConnect(onConnect), ctx(0) {
 }
