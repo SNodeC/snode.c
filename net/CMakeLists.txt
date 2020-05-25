@@ -22,13 +22,14 @@ add_library(net SHARED
     SocketLegacy.cpp 
     SocketLegacyReader.cpp
     SocketLegacyWriter.cpp
+    SocketLegacyServer.cpp
     SocketServer.cpp
     SocketServerBase.cpp 
     SocketSSLConnection.cpp 
     SocketSSL.cpp
     SocketSSLReader.cpp 
     SocketSSLWriter.cpp 
-    StartUp.cpp
+    SocketSSLServer.cpp
     Timer.cpp 
 )
 

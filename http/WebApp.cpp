@@ -2,8 +2,9 @@
 
 #include "SocketLegacyConnection.h"
 #include "SocketSSLConnection.h"
+#include "SocketLegacyServer.h"
+#include "SocketSSLServer.h"
 #include "HTTPContext.h"
-#include "SocketServerBase.h"
 
 
 WebApp::WebApp(const std::string& serverRoot) {
