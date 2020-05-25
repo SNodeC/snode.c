@@ -29,7 +29,7 @@ int timerApp(int argc, char** argv) {
     bool canceled = false;
     HTTPServer& app = HTTPServer::instance();
     
-    app.serverRoot("/home/voc/projects/ServerVoc/build/html");
+    app.serverRoot("/home/student/assignement1/branches/FileReader/build/html");
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
@@ -49,7 +49,11 @@ int timerApp(int argc, char** argv) {
                 
                 std::cout << "RQuery: " << req.query("Hallo") << std::endl;
                 
-                res.cookie("Test", "me");
+                res.cookie("Test", "me",
+                           {
+                                {"Max-Age","3600"}
+                            }
+                            );
                 
                 //            res.set("Connection", "close");
                 res.sendFile(uri, [uri] (int ret) -> void {
@@ -87,10 +91,15 @@ int timerApp(int argc, char** argv) {
 int simpleWebserver(int argc, char** argv) {
     HTTPServer& app = HTTPServer::instance();
     
-    app.serverRoot("/home/voc/projects/ServerVoc/build/html");
+    app.serverRoot("/home/student/assignement1/branches/FileReader/build/html");
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
+                res.cookie("Test1", "you",
+                           {
+                                {"Expires","Thur, 20 May 2020 07:28:00 GMT"}
+                            }
+                            );
                 std::string uri = req.requestURI();
                 
                 if (uri == "/") {
