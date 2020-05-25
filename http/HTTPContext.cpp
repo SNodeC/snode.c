@@ -1,8 +1,10 @@
 #include "HTTPContext.h"
-
+#include <time.h>
+#include <ctime>
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string.h>
+
 
 #include <filesystem>
 #include <sstream>
@@ -18,6 +20,8 @@
 #include "Response.h"
 
 #include "httputils.h"
+
+
 
 
 HTTPContext::HTTPContext(HTTPServer* serverSocket, ConnectedSocket* connectedSocket)
@@ -230,8 +234,18 @@ void HTTPContext::sendHeader() {
     }
     
     
-    for (std::map<std::string, std::string>::iterator it = responseCookies.begin(); it != responseCookies.end(); ++it) {
-        connectedSocket->send("Set-Cookie: " + it->first + "=" + it->second + "\r\n");
+    for (std::map<std::string, Cookie>::iterator it = responseCookies.begin(); it != responseCookies.end(); ++it) {
+        std::string cookiestring = it->first + "=" + it->second.value; 
+        std::map<std::string, std::string>::const_iterator optionit = it->second.options.begin(); 
+        std::map<std::string, std::string>::const_iterator optionendit = it->second.options.begin(); 
+        while(optionit != optionendit) {
+            cookiestring += "; " + optionit->first + ((optionit->second != "") ?  "=" + optionit->second : ""); 
+            ++optionit; 
+            
+        }
+        
+            
+        connectedSocket->send("Set-Cookie: " + cookiestring + "\r\n");
     }
         
     connectedSocket->send("\r\n");
