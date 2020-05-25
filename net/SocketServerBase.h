@@ -8,8 +8,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "SocketServer.h"
-#include "SocketLegacyConnection.h"
-#include "SocketSSLConnection.h"
 #include "SocketLegacyReader.h"
 
 
@@ -40,7 +38,7 @@ private:
     std::function<void (int errnum)> onCsWriteError;
 };
 
-
+/*
 class SocketSSLServer : public SocketServerBase<SocketSSLConnection> {
 private:
     SocketSSLServer(const std::function<void (SocketConnection* cs)>& onConnect,
@@ -66,8 +64,8 @@ private:
     std::function<void (SocketConnection* cs)> onConnect;
     SSL_CTX* ctx;
 };
-
-
+*/
+/*
 class SocketLegacyServer : public SocketServerBase<SocketLegacyConnection> {
 private:
     SocketLegacyServer(const std::function<void (SocketConnection* cs)>& onConnect,
@@ -83,6 +81,6 @@ public:
                                   const std::function<void (int errnum)>& onCsReadError,
                                   const std::function<void (int errnum)>& onCsWriteError);
 };
-
+*/
 
 #endif // SERVERSOCKET_H
