@@ -28,7 +28,6 @@ add_library(net SHARED
     SocketSSL.cpp
     SocketSSLReader.cpp 
     SocketSSLWriter.cpp 
-    StartUp.cpp
     Timer.cpp 
 )
 
