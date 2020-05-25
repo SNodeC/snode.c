@@ -9,6 +9,7 @@
 #include "SocketLegacyConnection.h"
 #include "SocketSSLConnection.h"
 
+
 template<typename T>
 SocketServerBase<T>::SocketServerBase(const std::function<void (SocketConnection* cs)>& onConnect,
                                       const std::function<void (SocketConnection* cs)>& onDisconnect,
@@ -89,6 +90,7 @@ void SocketServerBase<T>::disconnect(SocketConnection* cs) {
         onDisconnect(cs);
     }
 }
+
 
 template class SocketServerBase<SocketSSLConnection>;
 template class SocketServerBase<SocketLegacyConnection>;
