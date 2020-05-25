@@ -14,6 +14,7 @@ class ConnectedSocket;
 class HTTPServer;
 class Request;
 class Response;
+class Cookie;
 
 class HTTPContext
 {
@@ -79,7 +80,7 @@ protected:
     std::multimap<std::string, std::string> requestHeader;
     std::multimap<std::string, std::string> responseHeader;
     std::map<std::string, std::string> requestCookies;
-    std::map<std::string, std::string> responseCookies;
+    std::map<std::string, Cookie> responseCookies;
     
     friend class Response;
     friend class Request;
