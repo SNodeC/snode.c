@@ -17,6 +17,7 @@ SocketSSLServer::SocketSSLServer(const std::function<void (SocketConnection* cs)
         }, onDisconnect, readProcessor, onCsReadError, onCsWriteError), onConnect(onConnect), ctx(0) {
 }
 
+
 SocketSSLServer* SocketSSLServer::instance(const std::function<void (SocketConnection* cs)>& onConnect,
                                            const std::function<void (SocketConnection* cs)>& onDisconnect,
                                            const std::function<void (SocketConnection* cs, const char*  junk, ssize_t n)>& readProcessor,
@@ -59,9 +60,3 @@ void SocketSSLServer::listen(in_port_t port, int backlog, const std::string& cer
         }
     );
 }
-
-
-void SocketSSLServer::readEvent() {
-    SocketServerBase<SocketSSLConnection>::readEvent();
-}
-

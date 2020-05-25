@@ -1,10 +1,8 @@
 #include "WebApp.h"
 
-#include "SocketLegacyConnection.h"
-#include "SocketSSLConnection.h"
+#include "HTTPContext.h"
 #include "SocketLegacyServer.h"
 #include "SocketSSLServer.h"
-#include "HTTPContext.h"
 
 
 WebApp::WebApp(const std::string& serverRoot) {

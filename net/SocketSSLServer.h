@@ -28,8 +28,6 @@ public:
     using SocketServerBase<SocketSSLConnection>::listen;
     void listen(in_port_t port, int backlog, const std::string& cert, const std::string& key, const std::string& password, const std::function<void (int err)>& onError);
     
-    virtual void readEvent();
-    
 private:
     std::function<void (SocketConnection* cs)> onConnect;
     SSL_CTX* ctx;
