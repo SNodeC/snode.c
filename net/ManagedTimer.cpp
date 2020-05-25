@@ -2,6 +2,8 @@
 
 #include <sys/time.h>
 
+#include <algorithm>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "ManagedTimer.h"
@@ -20,17 +22,22 @@ struct timeval ManagedTimer::getNextTimeout() {
     tv.tv_sec = 20L;
     tv.tv_usec = 0L;
 
-    for(std::list<Timer*>::iterator it = addedList.begin(); it != addedList.end(); ++it) {
-        timerList.push_back(*it);
-        timerListDirty = true;
-    }
+    for_each(addedList.begin(), addedList.end(),
+        [this] (Timer* timer) {
+            timerList.push_back(timer);
+            timerListDirty = true;
+        }
+    );
     addedList.clear();
 
-    for(std::list<Timer*>::iterator it = removedList.begin(); it != removedList.end(); ++it) {
-        timerList.remove(*it);
-        (*it)->destroy();
-        timerListDirty = true;
-    }
+    for_each(addedList.begin(), addedList.end(),
+        [this] (Timer* timer) {
+            timerList.remove(timer);
+            timer->destroy();
+            timerListDirty = true;
+        }
+    );
+    
     removedList.clear();
 
     if (!timerList.empty()) {
@@ -58,8 +65,8 @@ struct timeval ManagedTimer::getNextTimeout() {
 
 void ManagedTimer::dispatch() {
     struct timeval currentTime;
-    gettimeofday(&currentTime, NULL);
-
+    gettimeofday(&currentTime, NULL);    
+    
     for (std::list<Timer*>::iterator it = timerList.begin(); it != timerList.end(); ++it) {
         if ((*it)->timeout() <= currentTime) {
             (*it)->dispatch();
