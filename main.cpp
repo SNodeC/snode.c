@@ -28,7 +28,7 @@ int timerApp(int argc, char** argv) {
         (struct timeval) {1, 100000}, "Tack");
     
     bool canceled = false;
-    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
+    HTTPServer& app = HTTPServer::instance("/home/student/projects/Server2/snode.c/build/doc/html");
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
@@ -48,12 +48,7 @@ int timerApp(int argc, char** argv) {
                 
                 std::cout << "RQuery: " << req.query("Hallo") << std::endl;
                 
-                res.cookie("Test", "me", 
-                    {
-                        {"Max-Age", "3600"}
-                    }
-                    
-                );
+                res.cookie("Cookie", "Carlos", {{"Max-Age", "3600"}});
                 
                 //            res.set("Connection", "close");
                 res.sendFile(uri, [uri] (int ret) -> void {
@@ -89,7 +84,7 @@ int timerApp(int argc, char** argv) {
 
 
 int simpleWebserver(int argc, char** argv) {
-    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
+    HTTPServer& app = HTTPServer::instance("/home/student/projects/Server2/snode.c/build/doc/html");
     
     Router router;
     
@@ -126,7 +121,8 @@ int simpleWebserver(int argc, char** argv) {
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
-                res.cookie("Test", "me", {{"Max-Age", "3600"}});
+                
+                
                 
                 std::string host = req.header("Host");
                 
@@ -137,6 +133,8 @@ int simpleWebserver(int argc, char** argv) {
 //                std::cout << "RHeader: " << req.header("Accept") << std::endl;
                 
                 std::cout << "Uri: " << uri << std::endl;
+                
+                res.cookie("Test Cookie", "cp", {{"Max-Age", "3600"}});
                 
                 if (uri == "/") {
                     res.redirect("/index.html");
@@ -204,7 +202,7 @@ int simpleWebserver(int argc, char** argv) {
                 
                 
 int testPost(int argc, char* argv[]) {
-    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
+    HTTPServer& app = HTTPServer::instance("/home/student/projects/Server2/snode.c/build/doc/html");
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {

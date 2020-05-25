@@ -21,7 +21,9 @@ public:
     ResponseCookie(const std::string& value, const std::map<std::string, std::string>& options) : value(value), options(options) {}
     
 protected:
+    
     const std::string value;
+    
     const std::map<std::string, std::string> options;
     
     friend class HTTPContext;
@@ -86,8 +88,10 @@ protected:
     std::string path;
     
     std::map<std::string, std::string> queryMap;
+    
     std::multimap<std::string, std::string> requestHeader;
     std::multimap<std::string, std::string> responseHeader;
+    
     std::map<std::string, std::string> requestCookies;
     std::map<std::string, ResponseCookie> responseCookies;
     
