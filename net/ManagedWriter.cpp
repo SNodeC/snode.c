@@ -2,12 +2,14 @@
 
 
 int ManagedWriter::dispatch(fd_set& fdSet, int count) {
-    for (std::list<Writer*>::iterator it = descriptors.begin(); it != descriptors.end() && count > 0; ++it) {
-        if (FD_ISSET(dynamic_cast<Descriptor*>(*it)->getFd(), &fdSet)) {
-            count--;
-            (*it)->writeEvent();
+    for_each(descriptors.begin(), descriptors.end(), 
+        [&fdSet, &count] (Writer* writer) -> void {
+            if (FD_ISSET(dynamic_cast<Descriptor*>(writer)->getFd(), &fdSet)) {
+                count--;
+                writer->writeEvent();
+            }
         }
-    }
-
+    );
+    
     return count;
 }
