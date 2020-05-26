@@ -1,0 +1,485 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="snode.c"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="msvc8"/>
+		<Option virtualFolders="CMake Files\;CMake Files\net\;CMake Files\http\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 all"/>
+					<CompileFile command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="snode.c">
+				<Option output="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug/snode.c.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/http"/>
+					<Add directory="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net"/>
+					<Add directory="G:\Programmordner\Visual Studio 2019 Community\VC\Tools\MSVC\14.25.28610\ATLMFC\include"/>
+					<Add directory="G:\Programmordner\Visual Studio 2019 Community\VC\Tools\MSVC\14.25.28610\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 snode.c"/>
+					<CompileFile command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="snode.c/fast">
+				<Option output="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug/snode.c.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/http"/>
+					<Add directory="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net"/>
+					<Add directory="G:\Programmordner\Visual Studio 2019 Community\VC\Tools\MSVC\14.25.28610\ATLMFC\include"/>
+					<Add directory="G:\Programmordner\Visual Studio 2019 Community\VC\Tools\MSVC\14.25.28610\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 snode.c/fast"/>
+					<CompileFile command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="posttest">
+				<Option output="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug/posttest.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/http"/>
+					<Add directory="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net"/>
+					<Add directory="G:\Programmordner\Visual Studio 2019 Community\VC\Tools\MSVC\14.25.28610\ATLMFC\include"/>
+					<Add directory="G:\Programmordner\Visual Studio 2019 Community\VC\Tools\MSVC\14.25.28610\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 posttest"/>
+					<CompileFile command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="posttest/fast">
+				<Option output="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug/posttest.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/http"/>
+					<Add directory="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net"/>
+					<Add directory="G:\Programmordner\Visual Studio 2019 Community\VC\Tools\MSVC\14.25.28610\ATLMFC\include"/>
+					<Add directory="G:\Programmordner\Visual Studio 2019 Community\VC\Tools\MSVC\14.25.28610\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 posttest/fast"/>
+					<CompileFile command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="simpleserver">
+				<Option output="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug/simpleserver.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/http"/>
+					<Add directory="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net"/>
+					<Add directory="G:\Programmordner\Visual Studio 2019 Community\VC\Tools\MSVC\14.25.28610\ATLMFC\include"/>
+					<Add directory="G:\Programmordner\Visual Studio 2019 Community\VC\Tools\MSVC\14.25.28610\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 simpleserver"/>
+					<CompileFile command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="simpleserver/fast">
+				<Option output="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug/simpleserver.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/http"/>
+					<Add directory="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net"/>
+					<Add directory="G:\Programmordner\Visual Studio 2019 Community\VC\Tools\MSVC\14.25.28610\ATLMFC\include"/>
+					<Add directory="G:\Programmordner\Visual Studio 2019 Community\VC\Tools\MSVC\14.25.28610\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 simpleserver/fast"/>
+					<CompileFile command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="install/local">
+				<Option working_dir="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 install/local"/>
+					<CompileFile command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="install">
+				<Option working_dir="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 install"/>
+					<CompileFile command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 edit_cache"/>
+					<CompileFile command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="list_install_components">
+				<Option working_dir="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 list_install_components"/>
+					<CompileFile command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\Makefile&quot; VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="net">
+				<Option output="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug/net/net.dll" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug/net"/>
+				<Option object_output="./"/>
+				<Option type="3"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net"/>
+					<Add directory="G:\Programmordner\Visual Studio 2019 Community\VC\Tools\MSVC\14.25.28610\ATLMFC\include"/>
+					<Add directory="G:\Programmordner\Visual Studio 2019 Community\VC\Tools\MSVC\14.25.28610\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\net\Makefile&quot; VERBOSE=1 net"/>
+					<CompileFile command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\net\Makefile&quot; VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\net\Makefile&quot; VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\net\Makefile&quot; VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="net/fast">
+				<Option output="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug/net/net.dll" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug/net"/>
+				<Option object_output="./"/>
+				<Option type="3"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net"/>
+					<Add directory="G:\Programmordner\Visual Studio 2019 Community\VC\Tools\MSVC\14.25.28610\ATLMFC\include"/>
+					<Add directory="G:\Programmordner\Visual Studio 2019 Community\VC\Tools\MSVC\14.25.28610\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\net\Makefile&quot; VERBOSE=1 net/fast"/>
+					<CompileFile command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\net\Makefile&quot; VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\net\Makefile&quot; VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\net\Makefile&quot; VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="http">
+				<Option output="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug/http/http.dll" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug/http"/>
+				<Option object_output="./"/>
+				<Option type="3"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/http"/>
+					<Add directory="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net"/>
+					<Add directory="G:\Programmordner\Visual Studio 2019 Community\VC\Tools\MSVC\14.25.28610\ATLMFC\include"/>
+					<Add directory="G:\Programmordner\Visual Studio 2019 Community\VC\Tools\MSVC\14.25.28610\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\http\Makefile&quot; VERBOSE=1 http"/>
+					<CompileFile command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\http\Makefile&quot; VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\http\Makefile&quot; VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\http\Makefile&quot; VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="http/fast">
+				<Option output="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug/http/http.dll" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug/http"/>
+				<Option object_output="./"/>
+				<Option type="3"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/http"/>
+					<Add directory="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net"/>
+					<Add directory="G:\Programmordner\Visual Studio 2019 Community\VC\Tools\MSVC\14.25.28610\ATLMFC\include"/>
+					<Add directory="G:\Programmordner\Visual Studio 2019 Community\VC\Tools\MSVC\14.25.28610\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\http\Makefile&quot; VERBOSE=1 http/fast"/>
+					<CompileFile command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\http\Makefile&quot; VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\http\Makefile&quot; VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f &quot;G:\Programmordner\OneDrive\OneDrive - students.fh-hagenberg.at\FH\Master 2. Semester\Networked And Distributed Systems\node.c\node.c\cmake-build-debug\http\Makefile&quot; VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/http/HTTPContext.cpp">
+			<Option target="http"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/http/HTTPContext.h">
+			<Option target="http"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/http/HTTPServer.cpp">
+			<Option target="http"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/http/HTTPServer.h">
+			<Option target="http"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/http/HTTPStatusCodes.cpp">
+			<Option target="http"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/http/HTTPStatusCodes.h">
+			<Option target="http"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/http/MimeTypes.cpp">
+			<Option target="http"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/http/MimeTypes.h">
+			<Option target="http"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/http/Request.cpp">
+			<Option target="http"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/http/Request.h">
+			<Option target="http"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/http/Response.cpp">
+			<Option target="http"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/http/Response.h">
+			<Option target="http"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/http/Router.cpp">
+			<Option target="http"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/http/Router.h">
+			<Option target="http"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/http/httputils.cpp">
+			<Option target="http"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/http/httputils.h">
+			<Option target="http"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/main.cpp">
+			<Option target="snode.c"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/ClientSocket.cpp">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/ClientSocket.h">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/ConnectedSocket.cpp">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/ConnectedSocket.h">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/Cookie.cpp">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/Cookie.h">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/Descriptor.cpp">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/Descriptor.h">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/ExceptionManager.cpp">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/ExceptionManager.h">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/FileReader.cpp">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/FileReader.h">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/InetAddress.cpp">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/InetAddress.h">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/Multiplexer.cpp">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/Multiplexer.h">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/ReadManager.cpp">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/ReadManager.h">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/ServerSocket.cpp">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/ServerSocket.h">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/Socket.cpp">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/Socket.h">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/SocketReader.cpp">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/SocketReader.h">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/SocketWriter.cpp">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/SocketWriter.h">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/StartUp.cpp">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/Timer.cpp">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/Timer.h">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/TimerManager.cpp">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/TimerManager.h">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/WriteManager.cpp">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/WriteManager.h">
+			<Option target="net"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/posttest.cpp">
+			<Option target="posttest"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/simpleserver.cpp">
+			<Option target="simpleserver"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/net/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\net\"/>
+		</Unit>
+		<Unit filename="G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/http/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\http\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

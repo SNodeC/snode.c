@@ -1,56 +1,54 @@
 #ifndef SERVERSOCKET_H
 #define SERVERSOCKET_H
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <functional>
 
-#include "Socket.h"
-#include "Reader.h"
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+#include "SocketReader.h"
+
 
 class Request;
-class Response;
-class AcceptedSocket;
 
-class ServerSocket : public Socket, public Reader {
+class Response;
+
+class ConnectedSocket;
+
+class ServerSocket : public SocketReader
+{
 private:
-    ServerSocket();
-    ServerSocket(uint16_t port);
-    ServerSocket(const std::string hostname, uint16_t port);
+	ServerSocket (const std::function<void (ConnectedSocket *cs)> &onConnect,
+	              const std::function<void (ConnectedSocket *cs)> &onDisconnect,
+	              const std::function<void (ConnectedSocket *cs, const char *chunk, std::size_t n)> &readProcesor,
+	              const std::function<void (int errnum)> &onCsReadError,
+	              const std::function<void (int errnum)> &onCsWriteError);
 
 public:
-    static ServerSocket* instance(uint16_t port);
-    static ServerSocket* instance(const std::string& hostname, uint16_t port);
-    
-    void process(Request& request, Response& response);
-    
-    void all(std::function<void (Request& req, Response& res)> processor) {
-        allProcessor = processor;
-    }
-    
-    void get(std::function<void (Request& req, Response& res)> processor) {
-        getProcessor = processor;
-    }
-    
-    void post(std::function<void (Request& req, Response& res)> processor) {
-        postProcessor = processor;
-    }
-    
-    void put(std::function<void (Request& req, Response& res)> processor) {
-        putProcessor = processor;
-    }
-    
-    int listen(int backlog) {
-        return ::listen(this->getFd(), backlog);
-    }
-    
-    AcceptedSocket* accept();
-    
-    virtual void readEvent();
-    
+	static ServerSocket &instance (const std::function<void (ConnectedSocket *cs)> &onConnect,
+	                               const std::function<void (ConnectedSocket *cs)> &onDisconnect,
+	                               const std::function<void (ConnectedSocket *cs, const char *chunk, std::size_t n)> &readProcesor,
+	                               const std::function<void (int errnum)> &onCsReadError,
+	                               const std::function<void (int errnum)> &onCsWriteError);
+	
+	void listen (in_port_t port, int backlog, const std::function<void (int err)> &onError);
+	
+	virtual void readEvent ();
+	
+	void disconnect (ConnectedSocket *cs);
+	
+	static void run ();
+	
+	static void stop ();
+
 private:
-    std::function<void (Request& req, Response& res)> allProcessor;
-    std::function<void (Request& req, Response& res)> getProcessor;
-    std::function<void (Request& req, Response& res)> postProcessor;
-    std::function<void (Request& req, Response& res)> putProcessor;
+	std::function<void (ConnectedSocket *cs)> onConnect;
+	std::function<void (ConnectedSocket *cs)> onDisconnect;
+	std::function<void (ConnectedSocket *cs, const char *chunk, std::size_t n)> readProcessor;
+	
+	std::function<void (int errnum)> onCsReadError;
+	std::function<void (int errnum)> onCsWriteError;
 };
 
 #endif // SERVERSOCKET_H

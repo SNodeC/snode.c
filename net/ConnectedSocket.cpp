@@ -1,66 +1,95 @@
-#include <iostream>
-#include <string.h>
-
 #include "ConnectedSocket.h"
-#include "SocketMultiplexer.h"
+#include "Multiplexer.h"
 #include "ServerSocket.h"
+#include "FileReader.h"
 
 
-ConnectedSocket::ConnectedSocket(int csFd) : Socket(csFd) {
+ConnectedSocket::ConnectedSocket (int csFd,
+                                  ServerSocket *serverSocket,
+                                  const std::function<void (ConnectedSocket *cs, const char *chunk, std::size_t n)> &readProcessor,
+                                  const std::function<void (int errnum)> &onReadError,
+                                  const std::function<void (int errnum)> &onWriteError
+)
+		: Descriptor(csFd),
+		  SocketReader(readProcessor, [&] (int errnum) -> void
+		  {
+			  onReadError(errnum);
+		  }),
+		  SocketWriter([&] (int errnum) -> void
+		               {
+			               if (fileReader)
+			               {
+				               fileReader->stop();
+				               fileReader = 0;
+			               }
+			               onWriteError(errnum);
+		               }),
+		  serverSocket(serverSocket),
+		  fileReader(0)
+{
 }
 
 
-ConnectedSocket::~ConnectedSocket() {
+ConnectedSocket::~ConnectedSocket ()
+{
+	serverSocket->disconnect(this);
 }
 
 
-InetAddress& ConnectedSocket::getRemoteAddress() {
-    return remoteAddress;
+InetAddress &ConnectedSocket::getRemoteAddress ()
+{
+	return remoteAddress;
 }
 
 
-void ConnectedSocket::setRemoteAddress(const InetAddress& remoteAddress) {
-    this->remoteAddress = remoteAddress;
+void ConnectedSocket::setRemoteAddress (const InetAddress &remoteAddress)
+{
+	this->remoteAddress = remoteAddress;
 }
 
 
-void ConnectedSocket::write(const char* buffer, int size) {
-    writeBuffer.append(buffer, size);
-    SocketMultiplexer::instance().getWriteManager().manageSocket(this);
+void ConnectedSocket::send (const char *puffer, int size)
+{
+	writePuffer.append(puffer, size);
+	Multiplexer::instance().getWriteManager().manageSocket(this);
 }
 
 
-void ConnectedSocket::write(const std::string& junk) {
-    writeBuffer += junk;
-    SocketMultiplexer::instance().getWriteManager().manageSocket(this);
+void ConnectedSocket::send (const std::string &chunk)
+{
+	writePuffer += chunk;
+	Multiplexer::instance().getWriteManager().manageSocket(this);
 }
 
 
-void ConnectedSocket::writeLn(const std::string& junk) {
-    writeBuffer += junk + "\r\n";
-    SocketMultiplexer::instance().getWriteManager().manageSocket(this);
+void ConnectedSocket::sendFile (const std::string &file, const std::function<void (int ret)> &onError)
+{
+	fileReader = FileReader::read(file,
+	                              [this] (char *data, int length) -> void
+	                              {
+		                              if (length > 0)
+		                              {
+			                              this->ConnectedSocket::send(data, length);
+		                              }
+		                              fileReader = 0;
+	                              },
+	                              [this, onError] (int err) -> void
+	                              {
+		                              if (onError)
+		                              {
+			                              onError(err);
+		                              }
+		                              if (err)
+		                              {
+			                              this->end();
+		                              }
+		                              fileReader = 0;
+	                              });
 }
 
 
-void ConnectedSocket::close() {
-    SocketMultiplexer::instance().getReadManager().unmanageSocket(this);
+void ConnectedSocket::end ()
+{
+	Multiplexer::instance().getReadManager().unmanageSocket(this);
 }
 
-
-void ConnectedSocket::clearReadBuffer() {
-    readBuffer.clear();
-}
-
-
-void ConnectedSocket::writeEvent() {
-    ssize_t ret = ::send(this->getFd(), writeBuffer.c_str(), (writeBuffer.size() < 4096) ? writeBuffer.size() : 4096, 0);
-    
-    if (ret >= 0) {
-        writeBuffer.erase(0, ret);
-        if (writeBuffer.empty()) {
-            SocketMultiplexer::instance().getWriteManager().unmanageSocket(this);
-        }
-    } else {
-        SocketMultiplexer::instance().getWriteManager().unmanageSocket(this);
-    }
-}

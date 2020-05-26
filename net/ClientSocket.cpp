@@ -1,6 +1,7 @@
 #include "ClientSocket.h"
 
-#include "SocketMultiplexer.h"
+#include "Multiplexer.h"
+
 
 /*
 ClientSocket::ClientSocket(int csfd) : ConnectedSocket(csfd), request(this) {
@@ -38,7 +39,7 @@ ClientSocket* ClientSocket::connect(const InetAddress& ina, std::function<void (
 }
 
 
-void ClientSocket::push(const char* junk, int n) {
+void ClientSocket::push(const char* chunk, int n) {
 }
 
 

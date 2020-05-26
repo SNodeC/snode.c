@@ -1,23 +1,33 @@
 #ifndef SOCKET_H
 #define SOCKET_H
 
-#include "Descriptor.h"
-#include "InetAddress.h"
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-class Socket : public Descriptor {
+#include <functional>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+#include "InetAddress.h"
+#include "Descriptor.h"
+
+
+class Socket : virtual public Descriptor
+{
 public:
-    Socket(int csFd);
-    
-    virtual ~Socket();
-    
-    int bind(InetAddress& localAddress);
-    
-    void setLocalAddress(const InetAddress& localAddress);
-    
-    InetAddress& getLocalAddress();
+	virtual ~Socket ();
+	
+	void bind (InetAddress &localAddress, const std::function<void (int errnum)> &onError);
+	
+	InetAddress &getLocalAddress ();
+	
+	void setLocalAddress (const InetAddress &localAddress);
 
 protected:
-    InetAddress localAddress;
+	Socket ();
+	
+	void open (const std::function<void (int errnum)> &onError);
+	
+	InetAddress localAddress;
 };
 
 #endif // SOCKET_H

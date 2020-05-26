@@ -1,0 +1,97 @@
+The system is: Windows - 6.1.7601 - AMD64
+Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+Compiler: G:/Programmordner/Visual Studio 2019 Community/VC/Tools/MSVC/14.25.28610/bin/Hostx86/x86/cl.exe 
+Build flags: 
+Id flags:  
+
+The output was:
+0
+Microsoft (R) C/C++-Optimierungscompiler Version 19.25.28611 für x86
+Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
+
+CMakeCCompilerId.c
+Microsoft (R) Incremental Linker Version 14.25.28611.0
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+/out:CMakeCCompilerId.exe 
+CMakeCCompilerId.obj 
+
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CMakeCCompilerId.exe"
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CMakeCCompilerId.obj"
+
+The C compiler identification is MSVC, found in "G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug/CMakeFiles/3.16.5/CompilerIdC/CMakeCCompilerId.exe"
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: G:/Programmordner/Visual Studio 2019 Community/VC/Tools/MSVC/14.25.28610/bin/Hostx86/x86/cl.exe 
+Build flags: 
+Id flags:  
+
+The output was:
+0
+Microsoft (R) C/C++-Optimierungscompiler Version 19.25.28611 für x86
+Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
+
+CMakeCXXCompilerId.cpp
+Microsoft (R) Incremental Linker Version 14.25.28611.0
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+/out:CMakeCXXCompilerId.exe 
+CMakeCXXCompilerId.obj 
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CMakeCXXCompilerId.exe"
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CMakeCXXCompilerId.obj"
+
+The CXX compiler identification is MSVC, found in "G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug/CMakeFiles/3.16.5/CompilerIdCXX/CMakeCXXCompilerId.exe"
+
+Determining if the C compiler works passed with the following output:
+Change Dir: G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):nmake /nologo cmTC_000ca\fast && 	"G:\Programmordner\Visual Studio 2019 Community\VC\Tools\MSVC\14.25.28610\bin\HostX86\x86\nmake.exe" -f CMakeFiles\cmTC_000ca.dir\build.make /nologo -L                  CMakeFiles\cmTC_000ca.dir\build
+Building C object CMakeFiles/cmTC_000ca.dir/testCCompiler.c.obj
+	G:\PROGRA~1\VISUAL~4\VC\Tools\MSVC\1425~1.286\bin\Hostx86\x86\cl.exe @C:\Users\Matthias\AppData\Local\Temp\nm2D03.tmp
+testCCompiler.c
+Linking C executable cmTC_000ca.exe
+	"G:\Programmordner\CLion\CLion 2020.1.1\bin\cmake\win\bin\cmake.exe" -E vs_link_exe --intdir=CMakeFiles\cmTC_000ca.dir --rc=C:\PROGRA~2\WI3CF2~1\10\bin\100183~1.0\x86\rc.exe --mt=C:\PROGRA~2\WI3CF2~1\10\bin\100183~1.0\x86\mt.exe --manifests  -- G:\PROGRA~1\VISUAL~4\VC\Tools\MSVC\1425~1.286\bin\Hostx86\x86\link.exe /nologo @CMakeFiles\cmTC_000ca.dir\objects1.rsp @C:\Users\Matthias\AppData\Local\Temp\nm2E5B.tmp
+
+
+
+Detecting C compiler ABI info compiled with the following output:
+Change Dir: G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):nmake /nologo cmTC_bbdc7\fast && 	"G:\Programmordner\Visual Studio 2019 Community\VC\Tools\MSVC\14.25.28610\bin\HostX86\x86\nmake.exe" -f CMakeFiles\cmTC_bbdc7.dir\build.make /nologo -L                  CMakeFiles\cmTC_bbdc7.dir\build
+Building C object CMakeFiles/cmTC_bbdc7.dir/CMakeCCompilerABI.c.obj
+	G:\PROGRA~1\VISUAL~4\VC\Tools\MSVC\1425~1.286\bin\Hostx86\x86\cl.exe @C:\Users\Matthias\AppData\Local\Temp\nm31D3.tmp
+CMakeCCompilerABI.c
+Linking C executable cmTC_bbdc7.exe
+	"G:\Programmordner\CLion\CLion 2020.1.1\bin\cmake\win\bin\cmake.exe" -E vs_link_exe --intdir=CMakeFiles\cmTC_bbdc7.dir --rc=C:\PROGRA~2\WI3CF2~1\10\bin\100183~1.0\x86\rc.exe --mt=C:\PROGRA~2\WI3CF2~1\10\bin\100183~1.0\x86\mt.exe --manifests  -- G:\PROGRA~1\VISUAL~4\VC\Tools\MSVC\1425~1.286\bin\Hostx86\x86\link.exe /nologo @CMakeFiles\cmTC_bbdc7.dir\objects1.rsp @C:\Users\Matthias\AppData\Local\Temp\nm3222.tmp
+
+
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):nmake /nologo cmTC_76b9b\fast && 	"G:\Programmordner\Visual Studio 2019 Community\VC\Tools\MSVC\14.25.28610\bin\HostX86\x86\nmake.exe" -f CMakeFiles\cmTC_76b9b.dir\build.make /nologo -L                  CMakeFiles\cmTC_76b9b.dir\build
+Building CXX object CMakeFiles/cmTC_76b9b.dir/testCXXCompiler.cxx.obj
+	G:\PROGRA~1\VISUAL~4\VC\Tools\MSVC\1425~1.286\bin\Hostx86\x86\cl.exe @C:\Users\Matthias\AppData\Local\Temp\nm35D9.tmp
+testCXXCompiler.cxx
+Linking CXX executable cmTC_76b9b.exe
+	"G:\Programmordner\CLion\CLion 2020.1.1\bin\cmake\win\bin\cmake.exe" -E vs_link_exe --intdir=CMakeFiles\cmTC_76b9b.dir --rc=C:\PROGRA~2\WI3CF2~1\10\bin\100183~1.0\x86\rc.exe --mt=C:\PROGRA~2\WI3CF2~1\10\bin\100183~1.0\x86\mt.exe --manifests  -- G:\PROGRA~1\VISUAL~4\VC\Tools\MSVC\1425~1.286\bin\Hostx86\x86\link.exe /nologo @CMakeFiles\cmTC_76b9b.dir\objects1.rsp @C:\Users\Matthias\AppData\Local\Temp\nm3628.tmp
+
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):nmake /nologo cmTC_18cbd\fast && 	"G:\Programmordner\Visual Studio 2019 Community\VC\Tools\MSVC\14.25.28610\bin\HostX86\x86\nmake.exe" -f CMakeFiles\cmTC_18cbd.dir\build.make /nologo -L                  CMakeFiles\cmTC_18cbd.dir\build
+Building CXX object CMakeFiles/cmTC_18cbd.dir/CMakeCXXCompilerABI.cpp.obj
+	G:\PROGRA~1\VISUAL~4\VC\Tools\MSVC\1425~1.286\bin\Hostx86\x86\cl.exe @C:\Users\Matthias\AppData\Local\Temp\nm3A7A.tmp
+CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTC_18cbd.exe
+	"G:\Programmordner\CLion\CLion 2020.1.1\bin\cmake\win\bin\cmake.exe" -E vs_link_exe --intdir=CMakeFiles\cmTC_18cbd.dir --rc=C:\PROGRA~2\WI3CF2~1\10\bin\100183~1.0\x86\rc.exe --mt=C:\PROGRA~2\WI3CF2~1\10\bin\100183~1.0\x86\mt.exe --manifests  -- G:\PROGRA~1\VISUAL~4\VC\Tools\MSVC\1425~1.286\bin\Hostx86\x86\link.exe /nologo @CMakeFiles\cmTC_18cbd.dir\objects1.rsp @C:\Users\Matthias\AppData\Local\Temp\nm3AD9.tmp
+
+
+
