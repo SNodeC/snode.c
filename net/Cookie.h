@@ -4,15 +4,15 @@
 #include <string>
 #include <map>
 
-public enum CookieOptions : std::string
+enum CookieOptions
 {
-	Expires = "Expires"
-	Max-Age = "Max-Age"
-	Domain = "Domain"
-	Path = "Path"
-	SameSite = "SameSite"
-	Secure = "Secure"
-	HttpOnly = "HttpOnly"
+	Expires = 'Expires',
+	MaxAge = 'Max-Age',
+	Domain = 'Domain',
+	Path = 'Path',
+	SameSite = 'SameSite',
+	Secure = 'Secure',
+	HttpOnly = 'HttpOnly'
 };
 
 class Cookie
