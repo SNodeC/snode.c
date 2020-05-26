@@ -5,9 +5,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "SingleshotTimer.h"
-#include "ContinousTimer.h"
-#include "WebApp.h"
+#include "./net/SingleshotTimer.h"
+#include "./net/ContinousTimer.h"
+#include "./http/WebApp.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
          

@@ -31,6 +31,7 @@ add_library(net SHARED
     SocketSSLWriter.cpp 
     SocketSSLServer.cpp
     Timer.cpp 
+    Cookie.cpp
 )
 
 target_include_directories (net PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${OPENSSL_INCLUDE_DIR})

@@ -9,6 +9,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Cookie.h"
 
 class HTTPContext;
 
@@ -35,6 +36,7 @@ public:
     void set(const std::map<std::string, std::string>& map) const;
 
     void cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options = {}) const;
+    void cookie(const Cookie& cookie) const;
 
     void clearCookie(const std::string& name, const std::map<std::string, std::string>& options = {}) const;
 

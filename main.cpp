@@ -3,13 +3,14 @@
 #include <string.h>
 #include <time.h>
 
-#include "Request.h"
-#include "Response.h"
+#include "./http/Request.h"
+#include "./http/Response.h"
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "SingleshotTimer.h"
-#include "ContinousTimer.h"
-#include "WebApp.h"
+#include "./net/SingleshotTimer.h"
+#include "./net/ContinousTimer.h"
+#include "./net/Cookie.h"
+#include "./http/WebApp.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -30,7 +31,7 @@ int timerApp(int argc, char** argv) {
         (struct timeval) {1, 100000}, "Tack");
     
     bool canceled = false;
-    WebApp& app = WebApp::instance("/home/voc/projects/ServerVoc/build/html");
+    WebApp& app = WebApp::instance("/home/Student/projects/Server/build/html");
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
@@ -50,12 +51,10 @@ int timerApp(int argc, char** argv) {
                 
                 std::cout << "RQuery: " << req.query("Hallo") << std::endl;
                 
-                res.cookie("Test", "me", 
-                    {
-                        {"Max-Age", "3600"}
-                    }
-                    
-                );
+                Cookie cookie = Cookie("Test", "me");
+                cookie.AddOption("Max-Age", "3600");
+                
+                res.cookie(cookie);
                 
                 //            res.set("Connection", "close");
                 res.sendFile(uri, [uri] (int ret) -> void {
@@ -91,7 +90,7 @@ int timerApp(int argc, char** argv) {
 
 
 int simpleWebserver(int argc, char** argv) {
-    WebApp& app = WebApp::instance("/home/voc/projects/ServerVoc/build/html");
+    WebApp& app = WebApp::instance("/home/student/projects/Server/build/html");
     
     Router router;
     

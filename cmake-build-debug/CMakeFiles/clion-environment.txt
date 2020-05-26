@@ -1,0 +1,4 @@
+ToolSet: 16.0 (local)@G:\Programmordner\Visual Studio 2019 Community
+Options: 
+
+Options:

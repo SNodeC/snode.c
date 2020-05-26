@@ -261,14 +261,14 @@ void HTTPContext::sendHeader() {
         connectedSocket->send(it->first + ": " + it->second + "\r\n");
     }
 
-    for (std::map<std::string, ResponseCookie>::iterator it = responseCookies.begin(); it != responseCookies.end(); ++it) {
-        std::string cookiestring = it->first + "=" + it->second.value;
+    for (std::list<Cookie>::iterator cookieIterator = responseCookies.begin(); cookieIterator != responseCookies.end(); ++cookieIterator) {
+        std::string cookiestring = cookieIterator->name + "=" + cookieIterator->value;
 
-        std::map<std::string, std::string>::const_iterator obit = it->second.options.begin();
-        std::map<std::string, std::string>::const_iterator oeit = it->second.options.end();
-        while(obit != oeit) {
-            cookiestring += "; " + obit->first + ((obit->second != "") ? "=" + obit->second : "");
-            ++obit;
+        std::map<std::string, std::string>::const_iterator optionsIterator = cookieIterator->options.begin();
+        
+        while(optionsIterator != cookieIterator->options.end()) {
+            cookiestring += "; " + optionsIterator->first + ((optionsIterator->second != "") ? "=" + optionsIterator->second : "");
+            ++optionsIterator;
         }
         connectedSocket->send("Set-Cookie: " + cookiestring + "\r\n");
     }

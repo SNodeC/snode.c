@@ -1,7 +1,7 @@
 #include <iostream>
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "WebApp.h"
+#include "./http/WebApp.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

@@ -6,27 +6,17 @@
 #include <functional>
 #include <string>
 #include <map>
+#include <list>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Request.h"
 #include "Response.h"
+#include "Cookie.h"
 
 
 class SocketConnection;
 class WebApp;
-
-
-class ResponseCookie {
-public:
-    ResponseCookie(const std::string& value, const std::map<std::string, std::string>& options) : value(value), options(options) {}
-
-protected:
-    std::string value;
-    std::map<std::string, std::string> options;
-
-    friend class HTTPContext;
-};
 
 
 class HTTPContext
@@ -82,7 +72,7 @@ protected:
     std::multimap<std::string, std::string> requestHeader;
     std::map<std::string, std::string> responseHeader;
     std::map<std::string, std::string> requestCookies;
-    std::map<std::string, ResponseCookie> responseCookies;
+    std::list<Cookie> responseCookies;
 
     std::map<std::string, std::string> params;
 
