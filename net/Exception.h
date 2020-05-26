@@ -4,12 +4,11 @@
 #include "ManagedDescriptor.h"
 
 
-class Exception : public ManagedDescriptor
-{
+class Exception : public ManagedDescriptor {
 public:
-	virtual ~Exception () = default;
-	
-	virtual void exceptionEvent () = 0;
+    virtual ~Exception() = default;
+
+    virtual void exceptionEvent() = 0;
 };
 
 

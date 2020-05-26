@@ -1,100 +1,18 @@
 #include <iostream>
 
-#include "TimerManager.h"
-#include "ServerSocket.h"
-#include "SocketManager.h"
-#include "SocketMultiplexer.h"
-#include "FileReader.h"
+#include <string.h>
+#include <time.h>
 
 #include "Request.h"
 #include "Response.h"
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include "SingleshotTimer.h"
 #include "ContinousTimer.h"
-#include "HTTPServer.h"
+#include "WebApp.h"
 
-#include "ContinousTimer.h"
-#include "SingleshotTimer.h"
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-
-int main(int argc, char **argv) {
-    signal(SIGPIPE, SIG_IGN);
-    
-    ServerSocket* serverSocket = ServerSocket::instance(8080);
-    
-    serverSocket->get([] (Request& req, Response& res) -> void {
-        std::map<std::string, std::string>& header = req.header();
-        std::map<std::string, std::string>::iterator it;
-        
-        for (it = header.begin(); it != header.end(); ++it) {
-            std::cout << (*it).first << ": " << (*it).second << std::endl;
-        }
-        
-        /*
-        
-        if (req.bodySize() > 0) {
-            const char* body = req.body();
-            int bodySize = req.bodySize();
-        
-            char* str = new char[bodySize + 1];
-        
-            memcpy(str, body, bodySize);
-            str[bodySize] = 0;
-        
-            std::cout << str << std::endl;
-            
-            res.send(str);
-        } else {
-            std::string document;
-            
-            document = "<!DOCTYPE html>";
-            document += "<html><body>";
-            document += "<h1>My First Heading</h1>";
-            document += "<p>My first paragraph.</p>";
-            document += "</body></html>";
-            
-            res.send(document);
-        } */
-        
-        res.header();
-        FileReader::read("./index.html",
-                         [&] (unsigned char* data, int length) -> void {
-                             std::cout << "From FileReader" << std::endl;
-                             if (length > 0) {
-                                 res.send((char*) data, length);
-                             } else {
-                                 res.end();
-                             }
-                         },
-                         [] (int err) -> void {
-                             std::cout << "Error: " << strerror(err) << std::endl;
-                         });
-                                 
-    });
-    
-    Timer& timer1 = Timer::continousTimer(
-        
-        [] (void* arg) -> void {
-            std::cout << "Tick: " << (char*) arg << std::endl;
-        },
-        
-        (struct timeval) {1, 0},
-                                         
-        (void *) "Test 1"
-    );
-    
-    Timer& timer2 = Timer::singleshotTimer(
-        [&timer1] (void* arg) -> void {
-            std::cout << "Tack: " << (char*) arg << std::endl;
-            Timer::cancel(&timer1);
-        },
-        
-        (struct timeval) {1, 500000},
-                                         
-        (void *) "Test 2"
-    );
-    
-    
-    SocketMultiplexer& sm = SocketMultiplexer::instance();
 
 int timerApp(int argc, char** argv) {
     Timer& tick = Timer::continousTimer(
@@ -112,7 +30,7 @@ int timerApp(int argc, char** argv) {
         (struct timeval) {1, 100000}, "Tack");
     
     bool canceled = false;
-    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
+    WebApp& app = WebApp::instance("/home/voc/projects/ServerVoc/build/html");
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
@@ -173,12 +91,19 @@ int timerApp(int argc, char** argv) {
 
 
 int simpleWebserver(int argc, char** argv) {
-    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
+    WebApp& app = WebApp::instance("/home/voc/projects/ServerVoc/build/html");
     
     Router router;
     
-    router.get("/search", 
+    router.get("/search/", [] (const Request& req, const Response& res, const std::function<void (void)>& next) {
+        std::cout << "Route 3" << std::endl;
+        next();
+    });
+    
+    router.get("/search/", 
               [&] (const Request& req, const Response& res) -> void {
+                  
+//                  res.set({{"Content-Length", "7"}});
                   
                   std::string host = req.header("Host");
                   
@@ -188,7 +113,8 @@ int simpleWebserver(int argc, char** argv) {
                   
                   //                std::cout << "RHeader: " << req.header("Accept") << std::endl;
                   
-                  std::cout << "Uri: " << uri << std::endl;
+                  std::cout << "OriginalUri: " << uri << std::endl;
+                  std::cout << "Uri: " << req.url << std::endl;
                   
                   if (uri == "/") {
                       res.redirect("/index.html");
@@ -207,6 +133,15 @@ int simpleWebserver(int argc, char** argv) {
                   }
               });
 
+    app.use("/", [] (const Request& req, const Response& res, const std::function<void (void)>& next) {
+        std::cout << "Route 1" << std::endl;
+        next();
+    });
+    
+    app.use("/", [] (const Request& req, const Response& res, const std::function<void (void)>& next) {
+        std::cout << "Route 2" << std::endl;
+        next();
+    });
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
@@ -220,7 +155,8 @@ int simpleWebserver(int argc, char** argv) {
                 
 //                std::cout << "RHeader: " << req.header("Accept") << std::endl;
                 
-                std::cout << "Uri: " << uri << std::endl;
+                std::cout << "OriginalUri: " << uri << std::endl;
+                std::cout << "Uri: " << req.url << std::endl;
                 
                 if (uri == "/") {
                     res.redirect("/index.html");
@@ -238,7 +174,11 @@ int simpleWebserver(int argc, char** argv) {
                     });
                 }
             });
+
+    
     app.get("/", router);
+
+    
     
     /*
     app.get("/search", 
@@ -288,7 +228,7 @@ int simpleWebserver(int argc, char** argv) {
                 
                 
 int testPost(int argc, char* argv[]) {
-    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
+    WebApp& app = WebApp::instance("/home/voc/projects/ServerVoc/build/html");
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {

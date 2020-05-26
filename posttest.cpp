@@ -3,17 +3,17 @@
 #include <string.h>
 #include <time.h>
 
-#include "Request.h"
-#include "Response.h"
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include "SingleshotTimer.h"
 #include "ContinousTimer.h"
-#include "HTTPServer.h"
+#include "WebApp.h"
 
-#include "httputils.h"
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
          
                 
 int testPost(int argc, char* argv[]) {
-    HTTPServer& app = HTTPServer::instance("/home/voc/projects/ServerVoc/build/html");
+    WebApp& app = WebApp::instance("/home/voc/projects/ServerVoc/build/html");
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {

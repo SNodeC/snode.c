@@ -1,63 +1,65 @@
 #ifndef SOCKETMULTIPLEXER_H
 #define SOCKETMULTIPLEXER_H
 
-#include "ReadManager.h"
-#include "WriteManager.h"
-#include "ExceptionManager.h"
-#include "TimerManager.h"
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <signal.h>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+#include "ManagedReader.h"
+#include "ManagedWriter.h"
+#include "ManagedExceptions.h"
+#include "ManagedTimer.h"
 
 
 class Multiplexer
 {
 private:
-	Multiplexer ()
-	{}
-	
-	~Multiplexer ()
-	{}
+    Multiplexer() {
+        signal(SIGPIPE, SIG_IGN);
+    }
+
+    ~Multiplexer() {}
 
 
 public:
-	static Multiplexer &instance ()
-	{
-		return multiplexer;
-	}
-	
-	ReadManager &getReadManager ()
-	{
-		return readManager;
-	}
-	
-	WriteManager &getWriteManager ()
-	{
-		return writeManager;
-	}
-	
-	ExceptionManager &getExceptionManager ()
-	{
-		return exceptionManager;
-	}
-	
-	TimerManager &getTimerManager ()
-	{
-		return timerManager;
-	}
-	
-	static void run ();
-	
-	static void stop ();
+    static Multiplexer& instance() {
+        return multiplexer;
+    }
+
+    ManagedReader& getManagedReader() {
+        return managedReader;
+    }
+
+    ManagedWriter& getManagedWriter() {
+        return managedWriter;
+    }
+
+    ManagedExceptions& getManagedExceptions() {
+        return managedExceptions;
+    }
+
+    ManagedTimer& getManagedTimer() {
+        return managedTimer;
+    }
+
+    static void run();
+
+    static void stop();
 
 private:
-	void tick ();
-	
-	static Multiplexer multiplexer;
-	
-	ReadManager readManager;
-	WriteManager writeManager;
-	ExceptionManager exceptionManager;
-	TimerManager timerManager;
-	
-	static bool running;
+    void tick();
+
+    static Multiplexer multiplexer;
+
+    ManagedReader managedReader;
+    ManagedWriter managedWriter;
+    ManagedExceptions managedExceptions;
+    ManagedTimer managedTimer;
+
+    static bool running;
+    static bool stopped;
 };
 
 

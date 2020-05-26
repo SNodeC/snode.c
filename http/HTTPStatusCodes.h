@@ -8,16 +8,14 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 
-class HTTPStatusCode
-{
+class HTTPStatusCode {
 public:
-	static std::string reason (int status)
-	{
-		return statusCode[status];
-	}
+    static std::string reason(int status) {
+        return statusCode[status];
+    }
 
 private:
-	static std::map<int, std::string> statusCode;
+    static std::map<int, std::string> statusCode;
 };
 
 #endif // HTTPRESPONSECODES_H

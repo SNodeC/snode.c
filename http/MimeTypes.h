@@ -10,17 +10,21 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 
-class MimeTypes
-{
+class MimeTypes {
 public:
-	static std::string contentType (std::string file);
+
+    ~MimeTypes();
+
+    static std::string contentType(std::string file);
 
 private:
-	static magic_t init ();
-	
-	static magic_t magic;
-	
-	static std::map<std::string, std::string> mimeTypes;
+    MimeTypes();
+
+    static magic_t magic;
+
+    static MimeTypes mimeTypes;
+
+    static std::map<std::string, std::string> mimeType;
 };
 
 #endif // MIMETYPES_H
