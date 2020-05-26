@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
 
-<<<<<<< HEAD
-add_library(net SHARED ClientSocket.cpp ConnectedSocket.cpp InetAddress.cpp ServerSocket.cpp Socket.cpp SocketMultiplexer.cpp TimerManager.cpp SocketReadManager.cpp SocketWriteManager.cpp SocketExceptionManager.cpp Request.cpp Response.cpp AcceptedSocket.cpp Descriptor.cpp Timer.cpp FileReader.cpp)
-=======
 add_library(net SHARED
         Multiplexer.cpp
         Descriptor.cpp
@@ -22,7 +19,6 @@ add_library(net SHARED
         StartUp.cpp
         Cookie.cpp
         )
->>>>>>> MatthiasKoettritsch
 
 target_link_libraries(net LINK_PUBLIC magic)
 

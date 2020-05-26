@@ -1,15 +1,10 @@
 #include <iostream>
 
-<<<<<<< HEAD
 #include "TimerManager.h"
 #include "ServerSocket.h"
 #include "SocketManager.h"
 #include "SocketMultiplexer.h"
 #include "FileReader.h"
-=======
-#include <string.h>
-#include <time.h>
->>>>>>> MatthiasKoettritsch
 
 #include "Request.h"
 #include "Response.h"
@@ -17,7 +12,6 @@
 #include "ContinousTimer.h"
 #include "HTTPServer.h"
 
-<<<<<<< HEAD
 #include "ContinousTimer.h"
 #include "SingleshotTimer.h"
 
@@ -101,10 +95,6 @@ int main(int argc, char **argv) {
     
     
     SocketMultiplexer& sm = SocketMultiplexer::instance();
-=======
-#include "httputils.h"
-
->>>>>>> MatthiasKoettritsch
 
 int timerApp(int argc, char** argv) {
     Timer& tick = Timer::continousTimer(

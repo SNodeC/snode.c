@@ -3,17 +3,6 @@
 
 #include "Timer.h"
 
-<<<<<<< HEAD
-class SingleshotTimer : public Timer
-{
-public:
-    SingleshotTimer(std::function<void (void* arg)> processor, const struct timeval& timeout, void* arg)
-    : Timer(processor, timeout, arg) {}
-    
-protected:
-    virtual ~SingleshotTimer() {}
-=======
-
 class SingleshotTimer : public Timer
 {
 public:
@@ -27,7 +16,6 @@ private:
 	{
 		return *this;
 	}
->>>>>>> MatthiasKoettritsch
 };
 
 #endif // SINGLESHOTTIMER_H

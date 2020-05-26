@@ -13,7 +13,10 @@
 -- Detecting CXX compiler ABI info - done
 -- Detecting CXX compile features
 -- Detecting CXX compile features - done
--- Could NOT find Doxygen (missing: DOXYGEN_EXECUTABLE) 
--- Configuring done
--- Generating done
--- Build files have been written to: G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug
+CMake Error at net/CMakeLists.txt:3:
+  Parse error.  Expected a command name, got unquoted argument with text
+  "<<<<<<<".
+
+
+-- Configuring incomplete, errors occurred!
+See also "G:/Programmordner/OneDrive/OneDrive - students.fh-hagenberg.at/FH/Master 2. Semester/Networked And Distributed Systems/node.c/node.c/cmake-build-debug/CMakeFiles/CMakeOutput.log".

@@ -1,10 +1,7 @@
 /build/
 *.kdev4
 /sites/
-<<<<<<< HEAD
 /doc/
-=======
->>>>>>> MatthiasKoettritsch
 /GPATH
 /GRTAGS
 /GTAGS
