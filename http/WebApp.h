@@ -11,7 +11,6 @@
 #include "Request.h"
 #include "Response.h"
 
-class SocketConnection;
 
 class WebApp : public Router
 {
@@ -26,12 +25,13 @@ public:
     void listen(int port);
     void listen(int port, const std::function<void (int err)>& onError);
 
+    void sslListen(int port, const std::string& cert, const std::string& key,
+                   const std::string& password);
+    void sslListen(int port, const std::string& cert, const std::string& key,
+                   const std::string& password, 
+                   const std::function<void (int err)>& onError);
 
-    void sslListen(int port, const std::string& cert, const std::string& key, const std::string& password);
-    void sslListen(int port, const std::string& cert, const std::string& key, const std::string& password, const std::function<void (int err)>& onError);
-
-    void stop();
-    void sslStop();
+    static void stop();
 
     void destroy();
 
@@ -41,11 +41,12 @@ public:
 
     void serverRoot(std::string rootDir) {
         this->rootDir = rootDir;
-        if (this->rootDir.back() != '/') {
-            this->rootDir += '/';
+        if (this->rootDir.back() == '/') {
+            this->rootDir.pop_back();
         }
     }
 
+private:
     std::string rootDir;
 };
 
