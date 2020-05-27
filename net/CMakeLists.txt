@@ -2,9 +2,6 @@ cmake_minimum_required(VERSION 3.0)
 
 find_package(OpenSSL REQUIRED)
 
-message("OpenSSL include dir: ${OPENSSL_INCLUDE_DIR}")
-message("OpenSSL libraries: ${OPENSSL_LIBRARIES}")
-
 add_library(net SHARED 
     ClientSocket.cpp
     Descriptor.cpp 
