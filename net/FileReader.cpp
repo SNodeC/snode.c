@@ -1,8 +1,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <errno.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <errno.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -12,10 +12,16 @@
 #include "Multiplexer.h"
 
 
-FileReader::FileReader(int fd, const std::function<void (char* data, int len)>& junkRead, const std::function<void (int err)>& onError) : Descriptor(fd), Reader(onError), junkRead(junkRead) {}
+FileReader::FileReader(int fd, const std::function<void(char* data, int len)>& junkRead,
+                       const std::function<void(int err)>& onError)
+    : Descriptor(fd)
+    , Reader(onError)
+    , junkRead(junkRead) {
+}
 
 
-FileReader* FileReader::read(std::string path, const std::function<void (char* data, int len)>& junkRead, const std::function<void (int err)>& onError) {
+FileReader* FileReader::read(std::string path, const std::function<void(char* data, int len)>& junkRead,
+                             const std::function<void(int err)>& onError) {
     FileReader* fileReader = 0;
 
     int fd = open(path.c_str(), O_RDONLY);

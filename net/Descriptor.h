@@ -2,8 +2,7 @@
 #define DESCRIPTOR_H
 
 
-class Descriptor
-{
+class Descriptor {
 protected:
     Descriptor();
 

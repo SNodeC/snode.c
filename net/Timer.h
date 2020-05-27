@@ -3,10 +3,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <time.h>
-#include <sys/time.h>
-
 #include <functional>
+#include <sys/time.h>
+#include <time.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -16,9 +15,10 @@ class ContinousTimer;
 
 class Timer {
 protected:
-    Timer(const std::function<void (const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg);
+    Timer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg);
 
-    Timer(const Timer& timer) : dispatcher(0) {
+    Timer(const Timer& timer)
+        : dispatcher(0) {
         *this = timer;
     }
 
@@ -29,8 +29,10 @@ protected:
     }
 
 public:
-    static ContinousTimer& continousTimer(const std::function<void (const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg);
-    static SingleshotTimer& singleshotTimer(const std::function<void (const void* arg)>& processor, const struct timeval& timeout, const void* arg);
+    static ContinousTimer& continousTimer(const std::function<void(const void* arg)>& dispatcher,
+                                          const struct timeval& timeout, const void* arg);
+    static SingleshotTimer& singleshotTimer(const std::function<void(const void* arg)>& processor,
+                                            const struct timeval& timeout, const void* arg);
 
     struct timeval& timeout();
 
@@ -46,18 +48,18 @@ protected:
     struct timeval delay;
 
 private:
-    std::function<void (const void* arg)> dispatcher;
+    std::function<void(const void* arg)> dispatcher;
     const void* arg;
 };
 
-bool operator<(const struct timeval &tv1, const struct timeval &tv2);
-bool operator>(const struct timeval &tv1, const struct timeval &tv2);
-bool operator<=(const struct timeval &tv1, const struct timeval &tv2);
-bool operator>=(const struct timeval &tv1, const struct timeval &tv2);
-bool operator==(const struct timeval &tv1, const struct timeval &tv2);
+bool operator<(const struct timeval& tv1, const struct timeval& tv2);
+bool operator>(const struct timeval& tv1, const struct timeval& tv2);
+bool operator<=(const struct timeval& tv1, const struct timeval& tv2);
+bool operator>=(const struct timeval& tv1, const struct timeval& tv2);
+bool operator==(const struct timeval& tv1, const struct timeval& tv2);
 
-struct timeval operator+(const struct timeval &tv1, const struct timeval &tv2);
-struct timeval operator-(const struct timeval &tv1, const struct timeval &tv2);
+struct timeval operator+(const struct timeval& tv1, const struct timeval& tv2);
+struct timeval operator-(const struct timeval& tv1, const struct timeval& tv2);
 
 
 #endif // TIMER_H

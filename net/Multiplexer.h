@@ -7,20 +7,20 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "ManagedReader.h"
-#include "ManagedWriter.h"
 #include "ManagedExceptions.h"
+#include "ManagedReader.h"
 #include "ManagedTimer.h"
+#include "ManagedWriter.h"
 
 
-class Multiplexer
-{
+class Multiplexer {
 private:
     Multiplexer() {
         signal(SIGPIPE, SIG_IGN);
     }
 
-    ~Multiplexer() {}
+    ~Multiplexer() {
+    }
 
 
 public:

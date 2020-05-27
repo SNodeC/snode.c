@@ -2,14 +2,16 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "httputils.h"
-
 #include "Response.h"
+
 #include "HTTPContext.h"
 #include "HTTPStatusCodes.h"
+#include "httputils.h"
 
 
-Response::Response(HTTPContext* httpContext) : httpContext(httpContext) {}
+Response::Response(HTTPContext* httpContext)
+    : httpContext(httpContext) {
+}
 
 
 void Response::status(int status) const {
@@ -19,7 +21,7 @@ void Response::status(int status) const {
 
 void Response::append(const std::string& field, const std::string& value) const {
     std::map<std::string, std::string>::iterator it = this->httpContext->responseHeader.find(field);
-    
+
     if (it != this->httpContext->responseHeader.end()) {
         it->second += ", " + value;
     } else {
@@ -40,7 +42,8 @@ void Response::set(const std::string& field, const std::string& value) const {
 }
 
 
-void Response::cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options) const {
+void Response::cookie(const std::string& name, const std::string& value,
+                      const std::map<std::string, std::string>& options) const {
     this->httpContext->responseCookies.insert({name, ResponseCookie(value, options)});
 }
 
@@ -66,12 +69,12 @@ void Response::send(const std::string& text) const {
 }
 
 
-void Response::sendFile(const std::string& file, const std::function<void (int err)>& fn) const {
+void Response::sendFile(const std::string& file, const std::function<void(int err)>& fn) const {
     this->httpContext->sendFile(file, fn);
 }
 
 
-void Response::download(const std::string& file, const std::function<void (int err)>& fn) const {
+void Response::download(const std::string& file, const std::function<void(int err)>& fn) const {
     std::string name = file;
 
     if (name[0] == '/') {
@@ -82,7 +85,8 @@ void Response::download(const std::string& file, const std::function<void (int e
 }
 
 
-void Response::download(const std::string& file, const std::string& name, const std::function<void (int err)>& fn) const {
+void Response::download(const std::string& file, const std::string& name,
+                        const std::function<void(int err)>& fn) const {
     this->set({{"Content-Disposition", "attachment; filename=\"" + name + "\""}});
     this->sendFile(file, fn);
 }

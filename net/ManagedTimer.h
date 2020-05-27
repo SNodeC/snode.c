@@ -10,8 +10,7 @@
 #include "Timer.h"
 
 
-class ManagedTimer
-{
+class ManagedTimer {
 public:
     ManagedTimer();
 
@@ -27,8 +26,7 @@ private:
     std::list<Timer*> addedList;
     std::list<Timer*> removedList;
 
-    class lttimernode
-    {
+    class lttimernode {
     public:
         bool operator()(const Timer* t1, const Timer* t2) const;
     };
@@ -36,7 +34,9 @@ private:
 
     class timernode_equality {
     public:
-        timernode_equality(Timer* timer) : timer(timer) {}
+        timernode_equality(Timer* timer)
+            : timer(timer) {
+        }
 
         bool operator()(const Timer* timer) const;
 

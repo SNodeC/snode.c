@@ -12,7 +12,6 @@
 
 class MimeTypes {
 public:
-
     ~MimeTypes();
 
     static std::string contentType(std::string file);

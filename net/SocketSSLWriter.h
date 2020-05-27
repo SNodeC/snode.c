@@ -7,17 +7,20 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Writer.h"
 #include "SocketSSL.h"
+#include "Writer.h"
 
 
-class SocketSSLWriter : public Writer, virtual public SocketSSL
-{
+class SocketSSLWriter
+    : public Writer
+    , virtual public SocketSSL {
 public:
     void writeEvent();
 
 protected:
-    SocketSSLWriter(const std::function<void (int errnum)>& onError) : Writer(onError) {}
+    SocketSSLWriter(const std::function<void(int errnum)>& onError)
+        : Writer(onError) {
+    }
 };
 
 #endif // SSLSOCKETWRITER_H

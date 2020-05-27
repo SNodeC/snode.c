@@ -16,8 +16,8 @@ protected:
     SocketLegacy() = default;
     SocketLegacy(int fd);
 
-    ssize_t socketRecv(void *buf, size_t len, int flags);
-    ssize_t socketSend(const void *buf, size_t len, int flags);
+    ssize_t socketRecv(void* buf, size_t len, int flags);
+    ssize_t socketSend(const void* buf, size_t len, int flags);
 };
 
 #endif // SOCKET_H

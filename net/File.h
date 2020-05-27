@@ -4,8 +4,6 @@
 #include "Descriptor.h"
 
 
-class File : virtual public Descriptor
-{
-};
+class File : virtual public Descriptor {};
 
 #endif // FILE_H

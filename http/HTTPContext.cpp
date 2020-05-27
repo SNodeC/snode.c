@@ -2,23 +2,24 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string.h>
-
 #include <algorithm>
 #include <filesystem>
+#include <string.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "SocketConnection.h"
-#include "WebApp.h"
 #include "HTTPStatusCodes.h"
 #include "MimeTypes.h"
-
+#include "SocketConnection.h"
+#include "WebApp.h"
 #include "httputils.h"
 
 
 HTTPContext::HTTPContext(WebApp* httpServer, SocketConnection* connectedSocket)
-    : connectedSocket(connectedSocket), webApp (httpServer), request(this), response(this) {
+    : connectedSocket(connectedSocket)
+    , webApp(httpServer)
+    , request(this)
+    , response(this) {
     this->responseStatus = 200;
     this->requestState = requeststates::REQUEST;
     this->lineState = linestate::READ;
@@ -30,59 +31,61 @@ HTTPContext::HTTPContext(WebApp* httpServer, SocketConnection* connectedSocket)
 
 
 void HTTPContext::receiveRequest(const char* junk, ssize_t n) {
-    parseRequest(junk, n,
-    [&] (const std::string& line) -> void { // header data
-        switch (requestState) {
-        case requeststates::REQUEST:
-            if (!line.empty()) {
-                parseRequestLine(line);
-                requestState = requeststates::HEADER;
-            } else {
-                this->responseStatus = 400;
-                this->responseHeader.insert({"Connection", "Close"});
-                connectedSocket->end();
-                this->end();
-                requestState = requeststates::ERROR;
-            }
-            break;
-        case requeststates::HEADER:
-            if (!line.empty()) {
-                this->addRequestHeader(line);
-            } else {
-                if (bodyLength != 0) {
-                    requestState = requeststates::BODY;
+    parseRequest(
+        junk, n,
+        [&](const std::string& line) -> void { // header data
+            switch (requestState) {
+            case requeststates::REQUEST:
+                if (!line.empty()) {
+                    parseRequestLine(line);
+                    requestState = requeststates::HEADER;
                 } else {
-                    this->requestReady();
-                    requestState = requeststates::REQUEST;
+                    this->responseStatus = 400;
+                    this->responseHeader.insert({"Connection", "Close"});
+                    this->end();
+                    connectedSocket->end();
+                    requestState = requeststates::ERROR;
                 }
+                break;
+            case requeststates::HEADER:
+                if (!line.empty()) {
+                    this->addRequestHeader(line);
+                } else {
+                    if (bodyLength != 0) {
+                        requestState = requeststates::BODY;
+                    } else {
+                        this->requestReady();
+                        requestState = requeststates::REQUEST;
+                    }
+                }
+                break;
+            case requeststates::BODY:
+            case requeststates::ERROR:
+                break;
             }
-            break;
-        case requeststates::BODY:
-        case requeststates::ERROR:
-            break;
-        }
-    },
-    [&] (const char* bodyJunk, int junkLen) -> void { // body data
-        if (bodyLength - bodyPointer < junkLen) {
-            junkLen = bodyLength - bodyPointer;
-        }
-        memcpy(bodyData + bodyPointer, bodyJunk, junkLen);
-        bodyPointer += junkLen;
-        if (bodyPointer == bodyLength) {
-            this->requestReady();
-        }
-    });
+        },
+        [&](const char* bodyJunk, int junkLen) -> void { // body data
+            if (bodyLength - bodyPointer < junkLen) {
+                junkLen = bodyLength - bodyPointer;
+            }
+            memcpy(bodyData + bodyPointer, bodyJunk, junkLen);
+            bodyPointer += junkLen;
+            if (bodyPointer == bodyLength) {
+                this->requestReady();
+            }
+        });
 }
 
 
-void HTTPContext::parseRequest(const char* junk, ssize_t n, const std::function<void (std::string&)>& lineRead, const std::function<void (const char* bodyJunk, int junkLength)> bodyRead) {
+void HTTPContext::parseRequest(const char* junk, ssize_t n, const std::function<void(std::string&)>& lineRead,
+                               const std::function<void(const char* bodyJunk, int junkLength)> bodyRead) {
     if (requestState != requeststates::BODY) {
         int i = 0;
 
-        while(i < n && requestState != ERROR && requestState != BODY) {
+        while (i < n && requestState != ERROR && requestState != BODY) {
             const char& ch = junk[i++];
             if (ch != '\r') { // '\r' can be ignored completely as long as we are not receiving the body of the document
-                switch(lineState) {
+                switch (lineState) {
                 case linestate::READ:
                     if (ch == '\n') {
                         if (headerLine.empty()) {
@@ -141,7 +144,7 @@ void HTTPContext::parseRequestLine(const std::string& line) {
 
     std::string queries = pair.second;
 
-    while(!queries.empty()) {
+    while (!queries.empty()) {
         pair = httputils::str_split(queries, '&');
         queries = pair.second;
         pair = httputils::str_split(pair.first, '=');
@@ -168,7 +171,7 @@ void HTTPContext::requestReady() {
 void HTTPContext::parseCookie(const std::string& value) {
     std::istringstream cookyStream(value);
 
-    for (std::string cookie; std::getline(cookyStream, cookie, ';'); ) {
+    for (std::string cookie; std::getline(cookyStream, cookie, ';');) {
         std::pair<std::string, std::string> splitted = httputils::str_split(cookie, '=');
 
         httputils::str_trimm(splitted.first);
@@ -205,7 +208,7 @@ void HTTPContext::addRequestHeader(const std::string& line) {
 void HTTPContext::send(const char* puffer, int size) {
     responseHeader.insert({"Content-Type", "application/octet-stream"});
     responseHeader.insert({"Content-Length", std::to_string(size)});
-    
+
     this->sendHeader();
     connectedSocket->send(puffer, size);
 }
@@ -213,12 +216,12 @@ void HTTPContext::send(const char* puffer, int size) {
 
 void HTTPContext::send(const std::string& puffer) {
     responseHeader.insert({"Content-Type", "text/html; charset=utf-8"});
-        
+
     this->send(puffer.c_str(), puffer.size());
 }
 
 
-void HTTPContext::sendFile(const std::string& url, const std::function<void (int ret)>& onError) {
+void HTTPContext::sendFile(const std::string& url, const std::function<void(int ret)>& onError) {
     std::string absolutFileName = webApp->getRootDir() + url;
 
     std::error_code ec;
@@ -226,9 +229,11 @@ void HTTPContext::sendFile(const std::string& url, const std::function<void (int
     if (std::filesystem::exists(absolutFileName)) {
         absolutFileName = std::filesystem::canonical(absolutFileName);
 
-        if (absolutFileName.rfind(webApp->getRootDir(), 0) == 0 && std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
+        if (absolutFileName.rfind(webApp->getRootDir(), 0) == 0 &&
+            std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
             responseHeader.insert({"Content-Type", MimeTypes::contentType(absolutFileName)});
-            responseHeader.insert_or_assign("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
+            responseHeader.insert_or_assign("Content-Length",
+                                            std::to_string(std::filesystem::file_size(absolutFileName)));
             responseHeader.insert({"Last-Modified", httputils::file_mod_http_date(absolutFileName)});
             this->sendHeader();
             connectedSocket->sendFile(absolutFileName, onError);
@@ -250,7 +255,8 @@ void HTTPContext::sendFile(const std::string& url, const std::function<void (int
 
 
 void HTTPContext::sendHeader() {
-    connectedSocket->send("HTTP/1.1 " + std::to_string(responseStatus) + " " + HTTPStatusCode::reason(responseStatus) +  "\r\n");
+    connectedSocket->send("HTTP/1.1 " + std::to_string(responseStatus) + " " + HTTPStatusCode::reason(responseStatus) +
+                          "\r\n");
     connectedSocket->send("Date: " + httputils::to_http_date() + "\r\n");
 
     responseHeader.insert({"Cache-Control", "public, max-age=0"});
@@ -261,12 +267,13 @@ void HTTPContext::sendHeader() {
         connectedSocket->send(it->first + ": " + it->second + "\r\n");
     }
 
-    for (std::map<std::string, ResponseCookie>::iterator it = responseCookies.begin(); it != responseCookies.end(); ++it) {
+    for (std::map<std::string, ResponseCookie>::iterator it = responseCookies.begin(); it != responseCookies.end();
+         ++it) {
         std::string cookiestring = it->first + "=" + it->second.value;
 
         std::map<std::string, std::string>::const_iterator obit = it->second.options.begin();
         std::map<std::string, std::string>::const_iterator oeit = it->second.options.end();
-        while(obit != oeit) {
+        while (obit != oeit) {
             cookiestring += "; " + obit->first + ((obit->second != "") ? "=" + obit->second : "");
             ++obit;
         }
@@ -309,4 +316,3 @@ void HTTPContext::reset() {
     this->bodyPointer = 0;
     this->headerSend = false;
 }
-

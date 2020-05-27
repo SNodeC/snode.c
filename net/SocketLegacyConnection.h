@@ -14,15 +14,12 @@
 
 class SocketServer;
 
-class SocketLegacyConnection : public SocketConnectionBase<SocketLegacyReader, SocketLegacyWriter>
-{
+class SocketLegacyConnection : public SocketConnectionBase<SocketLegacyReader, SocketLegacyWriter> {
 public:
-    SocketLegacyConnection(int csFd,
-                           SocketServer* ss,
-                     const std::function<void (SocketConnection* cs, const char*  junk, ssize_t n)>& readProcessor,
-                     const std::function<void (int errnum)>& onReadError,
-                     const std::function<void (int errnum)>& onWriteError
-                    );
+    SocketLegacyConnection(int csFd, SocketServer* ss,
+                           const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
+                           const std::function<void(int errnum)>& onReadError,
+                           const std::function<void(int errnum)>& onWriteError);
 };
 
 #endif // CONNECTEDSOCKET_H

@@ -40,21 +40,19 @@ void Multiplexer::tick() {
 }
 
 
-void Multiplexer::run()
-{
+void Multiplexer::run() {
     if (!Multiplexer::running) {
         Multiplexer::running = true;
 
         while (!Multiplexer::stopped) {
             Multiplexer::instance().tick();
         };
-        
+
         Multiplexer::running = false;
     }
 }
 
 
-void Multiplexer::stop()
-{
+void Multiplexer::stop() {
     Multiplexer::stopped = true;
 }

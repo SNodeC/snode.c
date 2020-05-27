@@ -11,10 +11,10 @@
 #include "ManagedDescriptor.h"
 
 
-template <typename T> class Manager
-{
+template <typename T> class Manager {
 protected:
-    Manager() : maxFd(0) {
+    Manager()
+        : maxFd(0) {
         FD_ZERO(&fdSet);
     }
 
@@ -65,34 +65,29 @@ private:
     int updateMaxFd() {
         maxFd = 0;
 
-        for_each(descriptors.begin(), descriptors.end(),
-            [this] (T* descriptor) {
-                Descriptor* desc = dynamic_cast<Descriptor*>(descriptor);
-                maxFd = std::max(desc->getFd(), maxFd);
-            }
-        );
-        
+        for_each(descriptors.begin(), descriptors.end(), [this](T* descriptor) {
+            Descriptor* desc = dynamic_cast<Descriptor*>(descriptor);
+            maxFd = std::max(desc->getFd(), maxFd);
+        });
+
         return maxFd;
     }
 
+
     void updateFdSet() {
         if (!addedDescriptors.empty() || !removedDescriptors.empty()) {
-            for_each(addedDescriptors.begin(), addedDescriptors.end(),
-                [this] (T* descriptor) {
-                    FD_SET(dynamic_cast<Descriptor*>(descriptor)->getFd(), &fdSet);
-                    descriptors.push_back(descriptor);
-                    descriptor->incManaged();
-                }
-            );
+            for_each(addedDescriptors.begin(), addedDescriptors.end(), [this](T* descriptor) {
+                FD_SET(dynamic_cast<Descriptor*>(descriptor)->getFd(), &fdSet);
+                descriptors.push_back(descriptor);
+                descriptor->incManaged();
+            });
             addedDescriptors.clear();
 
-            for_each(removedDescriptors.begin(), removedDescriptors.end(),
-                [this] (T* descriptor) {
-                    FD_CLR(dynamic_cast<Descriptor*>(descriptor)->getFd(), &fdSet);
-                    descriptors.remove(descriptor);
-                    descriptor->decManaged();
-                }
-            );
+            for_each(removedDescriptors.begin(), removedDescriptors.end(), [this](T* descriptor) {
+                FD_CLR(dynamic_cast<Descriptor*>(descriptor)->getFd(), &fdSet);
+                descriptors.remove(descriptor);
+                descriptor->decManaged();
+            });
             removedDescriptors.clear();
 
             updateMaxFd();
