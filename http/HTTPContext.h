@@ -91,7 +91,7 @@ protected:
 
 private:
     SocketConnection* connectedSocket;
-    WebApp* httpServer;
+    WebApp* webApp;
 
     std::string headerLine;
     int bodyPointer;

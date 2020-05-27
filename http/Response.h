@@ -29,7 +29,7 @@ public:
     void end() const;
 
     void append(const std::string& field, const std::string& value) const;
-    
+
     void set(const std::string& field, const std::string& value) const;
 
     void set(const std::map<std::string, std::string>& map) const;

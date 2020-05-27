@@ -18,7 +18,7 @@
 
 
 HTTPContext::HTTPContext(WebApp* httpServer, SocketConnection* connectedSocket)
-    : connectedSocket(connectedSocket),  httpServer(httpServer), request(this), response(this) {
+    : connectedSocket(connectedSocket), webApp (httpServer), request(this), response(this) {
     this->responseStatus = 200;
     this->requestState = requeststates::REQUEST;
     this->lineState = linestate::READ;
@@ -151,7 +151,7 @@ void HTTPContext::parseRequestLine(const std::string& line) {
 
 
 void HTTPContext::requestReady() {
-    httpServer->dispatch(method, "", request, response);
+    webApp->dispatch(method, "", request, response);
 
     if (requestHeader.find("connection") != requestHeader.end()) {
         if (requestHeader.find("connection")->second == "Close") {
@@ -219,14 +219,14 @@ void HTTPContext::send(const std::string& puffer) {
 
 
 void HTTPContext::sendFile(const std::string& url, const std::function<void (int ret)>& onError) {
-    std::string absolutFileName = httpServer->getRootDir() + url;
+    std::string absolutFileName = webApp->getRootDir() + url;
 
     std::error_code ec;
 
     if (std::filesystem::exists(absolutFileName)) {
         absolutFileName = std::filesystem::canonical(absolutFileName);
 
-        if (absolutFileName.rfind(httpServer->getRootDir(), 0) == 0 && std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
+        if (absolutFileName.rfind(webApp->getRootDir(), 0) == 0 && std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
             responseHeader.insert({"Content-Type", MimeTypes::contentType(absolutFileName)});
             responseHeader.insert_or_assign("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
             responseHeader.insert({"Last-Modified", httputils::file_mod_http_date(absolutFileName)});
