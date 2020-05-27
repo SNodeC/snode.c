@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.0)
 # storage of custom FindLibMagic.cmake
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
 
-#set(LIBMAGIC_FIND_QUIETLY ON)
 find_package(LibMagic REQUIRED)
 
 add_library(http SHARED WebApp.cpp HTTPContext.cpp HTTPStatusCodes.cpp MimeTypes.cpp Request.cpp Response.cpp httputils.cpp Router.cpp)

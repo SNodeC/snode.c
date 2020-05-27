@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
+
 project(snode.c)
 
 add_subdirectory(net)
@@ -37,8 +39,6 @@ if(BUILD_DOCUMENTATION)
         set(doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
 
         configure_file(${doxyfile_in} ${doxyfile} @ONLY)
-
-        message("Doxygen build started.")
 
         add_custom_target(doc
                         COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile_in}
