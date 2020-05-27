@@ -7,13 +7,12 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Router.h"
 #include "Request.h"
 #include "Response.h"
+#include "Router.h"
 
 
-class WebApp : public Router
-{
+class WebApp : public Router {
 private:
     WebApp(const std::string& serverRoot);
 
@@ -23,13 +22,11 @@ public:
     static WebApp& instance(const std::string& serverRoot = "./");
 
     void listen(int port);
-    void listen(int port, const std::function<void (int err)>& onError);
+    void listen(int port, const std::function<void(int err)>& onError);
 
-    void sslListen(int port, const std::string& cert, const std::string& key,
-                   const std::string& password);
-    void sslListen(int port, const std::string& cert, const std::string& key,
-                   const std::string& password, 
-                   const std::function<void (int err)>& onError);
+    void sslListen(int port, const std::string& cert, const std::string& key, const std::string& password);
+    void sslListen(int port, const std::string& cert, const std::string& key, const std::string& password,
+                   const std::function<void(int err)>& onError);
 
     static void stop();
 

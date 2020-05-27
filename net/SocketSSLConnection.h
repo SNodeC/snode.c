@@ -15,15 +15,12 @@
 
 class SocketServer;
 
-class SocketSSLConnection : public SocketConnectionBase<SocketSSLReader, SocketSSLWriter>
-{
+class SocketSSLConnection : public SocketConnectionBase<SocketSSLReader, SocketSSLWriter> {
 public:
-    SocketSSLConnection(int csFd,
-                        SocketServer* ss,
-                        const std::function<void (SocketConnection* cs, const char*  junk, ssize_t n)>& readProcessor,
-                        const std::function<void (int errnum)>& onReadError,
-                        const std::function<void (int errnum)>& onWriteError
-                       );
+    SocketSSLConnection(int csFd, SocketServer* ss,
+                        const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
+                        const std::function<void(int errnum)>& onReadError,
+                        const std::function<void(int errnum)>& onWriteError);
 };
 
 #endif // SSLCONNECTEDSOCKET_H

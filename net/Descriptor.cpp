@@ -8,7 +8,9 @@
 #include "Descriptor.h"
 
 
-Descriptor::Descriptor() : fd(-1) {}
+Descriptor::Descriptor()
+    : fd(-1) {
+}
 
 
 Descriptor::Descriptor(int fd) {

@@ -1,10 +1,11 @@
 #ifndef MANAGEDCOUNTER_H
 #define MANAGEDCOUNTER_H
 
-class ManagedCounter
-{
+class ManagedCounter {
 public:
-    ManagedCounter() : managedCounter(0) {}
+    ManagedCounter()
+        : managedCounter(0) {
+    }
 
 protected:
     int managedCounter;

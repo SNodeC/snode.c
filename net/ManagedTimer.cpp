@@ -1,18 +1,18 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <sys/time.h>
-
 #include <algorithm>
+#include <sys/time.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "ManagedTimer.h"
-#include "Timer.h"
-#include "SingleshotTimer.h"
 #include "ContinousTimer.h"
+#include "ManagedTimer.h"
+#include "SingleshotTimer.h"
+#include "Timer.h"
 
 
-ManagedTimer::ManagedTimer() : timerListDirty(false) {
+ManagedTimer::ManagedTimer()
+    : timerListDirty(false) {
 }
 
 
@@ -22,22 +22,18 @@ struct timeval ManagedTimer::getNextTimeout() {
     tv.tv_sec = 20L;
     tv.tv_usec = 0L;
 
-    for_each(addedList.begin(), addedList.end(),
-        [this] (Timer* timer) {
-            timerList.push_back(timer);
-            timerListDirty = true;
-        }
-    );
+    for_each(addedList.begin(), addedList.end(), [this](Timer* timer) {
+        timerList.push_back(timer);
+        timerListDirty = true;
+    });
     addedList.clear();
 
-    for_each(addedList.begin(), addedList.end(),
-        [this] (Timer* timer) {
-            timerList.remove(timer);
-            timer->destroy();
-            timerListDirty = true;
-        }
-    );
-    
+    for_each(addedList.begin(), addedList.end(), [this](Timer* timer) {
+        timerList.remove(timer);
+        timer->destroy();
+        timerListDirty = true;
+    });
+
     removedList.clear();
 
     if (!timerList.empty()) {
@@ -65,8 +61,8 @@ struct timeval ManagedTimer::getNextTimeout() {
 
 void ManagedTimer::dispatch() {
     struct timeval currentTime;
-    gettimeofday(&currentTime, NULL);    
-    
+    gettimeofday(&currentTime, NULL);
+
     for (std::list<Timer*>::iterator it = timerList.begin(); it != timerList.end(); ++it) {
         if ((*it)->timeout() <= currentTime) {
             (*it)->dispatch();
@@ -93,8 +89,7 @@ void ManagedTimer::add(Timer* timer) {
 }
 
 
-bool ManagedTimer::lttimernode::operator()(const Timer* t1, const Timer* t2) const
-{
+bool ManagedTimer::lttimernode::operator()(const Timer* t1, const Timer* t2) const {
     return *t1 < *t2;
 }
 

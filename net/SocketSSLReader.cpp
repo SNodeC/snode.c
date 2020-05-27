@@ -1,8 +1,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <errno.h>
-#include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -28,4 +28,3 @@ void SocketSSLReader::readEvent() {
         Multiplexer::instance().getManagedReader().remove(this);
     }
 }
-

@@ -4,8 +4,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
-#include <string>
 #include <map>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -19,7 +19,10 @@ class WebApp;
 
 class ResponseCookie {
 public:
-    ResponseCookie(const std::string& value, const std::map<std::string, std::string>& options) : value(value), options(options) {}
+    ResponseCookie(const std::string& value, const std::map<std::string, std::string>& options)
+        : value(value)
+        , options(options) {
+    }
 
 protected:
     std::string value;
@@ -29,20 +32,11 @@ protected:
 };
 
 
-class HTTPContext
-{
+class HTTPContext {
 protected:
-    enum requeststates {
-        REQUEST,
-        HEADER,
-        BODY,
-        ERROR
-    } requestState;
+    enum requeststates { REQUEST, HEADER, BODY, ERROR } requestState;
 
-    enum linestate {
-        READ,
-        EOL
-    } lineState;
+    enum linestate { READ, EOL } lineState;
 
 public:
     HTTPContext(WebApp* httpServer, SocketConnection* connectedSocket);
@@ -51,11 +45,12 @@ public:
 protected:
     void send(const char* puffer, int size);
     void send(const std::string& data);
-    void sendFile(const std::string& file, const std::function<void (int ret)>& fn);
+    void sendFile(const std::string& file, const std::function<void(int ret)>& fn);
 
     void sendHeader();
 
-    void parseRequest(const char* junk, ssize_t, const std::function<void (std::string&)>& lineRead, const std::function<void (const char* bodyJunk, int junkLength)> bodyRead);
+    void parseRequest(const char* junk, ssize_t, const std::function<void(std::string&)>& lineRead,
+                      const std::function<void(const char* bodyJunk, int junkLength)> bodyRead);
     void parseRequestLine(const std::string& line);
     void parseCookie(const std::string& value);
     void addRequestHeader(const std::string& line);

@@ -12,7 +12,6 @@ class HTTPContext;
 
 class Request {
 private:
-
 public:
     Request(HTTPContext* httpContext);
 
@@ -28,7 +27,7 @@ public:
 
     int bodySize() const;
 
-// Properties
+    // Properties
     const std::string& originalUrl;
     mutable std::string url;
     char*& body;

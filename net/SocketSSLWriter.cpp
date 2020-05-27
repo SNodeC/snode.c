@@ -1,8 +1,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <errno.h>
-#include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -13,7 +13,9 @@
 
 
 void SocketSSLWriter::writeEvent() {
-    ssize_t ret = socketSend(writePuffer.c_str(), (writePuffer.size() < MAX_JUNKSIZE) ? writePuffer.size() : MAX_JUNKSIZE, MSG_DONTWAIT | MSG_NOSIGNAL);
+    ssize_t ret =
+        socketSend(writePuffer.c_str(), (writePuffer.size() < MAX_JUNKSIZE) ? writePuffer.size() : MAX_JUNKSIZE,
+                   MSG_DONTWAIT | MSG_NOSIGNAL);
 
     if (ret >= 0) {
         writePuffer.erase(0, ret);

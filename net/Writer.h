@@ -15,13 +15,16 @@ public:
     virtual void writeEvent() = 0;
 
 protected:
-    Writer(const std::function<void (int errnum)>& onError) : ManagedDescriptor(), onError(onError) {}
+    Writer(const std::function<void(int errnum)>& onError)
+        : ManagedDescriptor()
+        , onError(onError) {
+    }
 
     virtual ~Writer() = default;
 
     std::string writePuffer;
 
-    std::function<void (int errnum)> onError;
+    std::function<void(int errnum)> onError;
 };
 
 

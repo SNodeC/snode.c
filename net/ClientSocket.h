@@ -16,7 +16,8 @@ private:
     ClientSocket(int csFd);
 
 public:
-    static ClientSocket* connect(const InetAddress& ina, std::function<void (Request& req)> callback);
+    static ClientSocket* connect(const InetAddress& ina, std::function<void
+(Request& req)> callback);
 
     virtual void ready();
 
@@ -29,4 +30,4 @@ private:
     std::function<void (Request& req)> callback;
 };
 */
-#endif // CLIENTSOCKET_H
+#endif                 // CLIENTSOCKET_H

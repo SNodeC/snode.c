@@ -1,4 +1,5 @@
 #include "Router.h"
+
 #include "Request.h"
 #include "Response.h"
 
@@ -22,7 +23,8 @@ static const std::string path_concat(const std::string& first, const std::string
 }
 
 
-bool RouterRoute::dispatch(const std::string& method, const std::string& mpath, const Request& request, const Response& response) const {
+bool RouterRoute::dispatch(const std::string& method, const std::string& mpath, const Request& request,
+                           const Response& response) const {
     bool next = true;
 
     std::string cpath = path_concat(mpath, path);
@@ -44,7 +46,8 @@ bool RouterRoute::dispatch(const std::string& method, const std::string& mpath, 
 }
 
 
-bool DispatcherRoute::dispatch(const std::string& method, const std::string& mpath, const Request& request, const Response& response) const {
+bool DispatcherRoute::dispatch(const std::string& method, const std::string& mpath, const Request& request,
+                               const Response& response) const {
     bool next = true;
 
     std::string cpath = path_concat(mpath, path);
@@ -54,7 +57,8 @@ bool DispatcherRoute::dispatch(const std::string& method, const std::string& mpa
     std::cout << "Dispatcher MPath: " << mpath << std::endl;
     std::cout << "Dispatcher CPath: " << cpath << std::endl;
     */
-    if ((request.path.rfind(cpath, 0) == 0 && this->method == "use") || (cpath == request.path && (method == this->method || this->method == "all"))) {
+    if ((request.path.rfind(cpath, 0) == 0 && this->method == "use") ||
+        (cpath == request.path && (method == this->method || this->method == "all"))) {
         request.url = request.originalUrl.substr(cpath.length());
         if (request.url.front() != '/') {
             request.url.insert(0, "/");
@@ -67,7 +71,8 @@ bool DispatcherRoute::dispatch(const std::string& method, const std::string& mpa
 }
 
 
-bool MiddlewareRoute::dispatch(const std::string& method, const std::string& mpath, const Request& request, const Response& response) const {
+bool MiddlewareRoute::dispatch(const std::string& method, const std::string& mpath, const Request& request,
+                               const Response& response) const {
     bool next = true;
 
     std::string cpath = path_concat(mpath, path);
@@ -77,13 +82,14 @@ bool MiddlewareRoute::dispatch(const std::string& method, const std::string& mpa
     std::cout << "Middleware MPath: " << mpath << std::endl;
     std::cout << "Middleware CPath: " << cpath << std::endl;
     */
-    if ((request.path.rfind(cpath, 0) == 0 && this->method == "use") || (cpath == request.path && (method == this->method || this->method == "all"))) {
+    if ((request.path.rfind(cpath, 0) == 0 && this->method == "use") ||
+        (cpath == request.path && (method == this->method || this->method == "all"))) {
         next = false;
         request.url = request.originalUrl.substr(cpath.length());
         if (request.url.front() != '/') {
             request.url.insert(0, "/");
         }
-        this->dispatcher(request, response, [&next] (void) -> void {
+        this->dispatcher(request, response, [&next](void) -> void {
             next = true;
         });
     }
@@ -96,20 +102,21 @@ Router::~Router() {
     std::list<const Route*>::const_iterator itb = routes.begin();
     std::list<const Route*>::const_iterator ite = routes.end();
 
-    while(itb != ite) {
+    while (itb != ite) {
         delete *itb;
         ++itb;
     }
 }
 
 
-bool Router::dispatch(const std::list<const Route*>& nroutes, const std::string& method, const std::string& mpath, const Request& request, const Response& response) const {
+bool Router::dispatch(const std::list<const Route*>& nroutes, const std::string& method, const std::string& mpath,
+                      const Request& request, const Response& response) const {
     bool next = true;
 
     std::list<const Route*>::const_iterator itb = nroutes.begin();
     std::list<const Route*>::const_iterator ite = nroutes.end();
 
-    while(itb != ite && next) {
+    while (itb != ite && next) {
         next = (*itb)->dispatch(method, mpath, request, response);
         ++itb;
     }
@@ -118,7 +125,8 @@ bool Router::dispatch(const std::list<const Route*>& nroutes, const std::string&
 }
 
 
-bool Router::dispatch(const std::string& method, const std::string& path, const Request& request, const Response& response) const {
+bool Router::dispatch(const std::string& method, const std::string& path, const Request& request,
+                      const Response& response) const {
     bool next = dispatch(routes, method, path, request, response);
 
     return next;

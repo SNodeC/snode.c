@@ -6,8 +6,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "InetAddress.h"
 #include "Descriptor.h"
+#include "InetAddress.h"
 
 
 class Socket : virtual public Descriptor {
@@ -16,9 +16,9 @@ public:
 
     virtual ~Socket();
 
-    void bind(InetAddress& localAddress, const std::function<void (int errnum)>& onError);
+    void bind(InetAddress& localAddress, const std::function<void(int errnum)>& onError);
 
-    void listen(int backlog, const std::function<void (int errnum)>& onError);
+    void listen(int backlog, const std::function<void(int errnum)>& onError);
 
     InetAddress& getLocalAddress();
 
@@ -27,10 +27,10 @@ public:
 protected:
     Socket();
 
-    void open(const std::function<void (int errnum)>& onError);
+    void open(const std::function<void(int errnum)>& onError);
 
-    virtual ssize_t socketRecv(void *buf, size_t len, int flags) = 0;
-    virtual ssize_t socketSend(const void *buf, size_t len, int flags) = 0;
+    virtual ssize_t socketRecv(void* buf, size_t len, int flags) = 0;
+    virtual ssize_t socketSend(const void* buf, size_t len, int flags) = 0;
 
 
     InetAddress localAddress;

@@ -1,16 +1,16 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <errno.h>
-#include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define MAX_JUNKSIZE 16384
 
-#include "SocketLegacyReader.h"
 #include "Multiplexer.h"
 #include "SocketConnection.h"
+#include "SocketLegacyReader.h"
 
 
 void SocketLegacyReader::readEvent() {
@@ -28,4 +28,3 @@ void SocketLegacyReader::readEvent() {
         Multiplexer::instance().getManagedReader().remove(this);
     }
 }
-

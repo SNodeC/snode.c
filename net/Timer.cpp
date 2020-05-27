@@ -1,17 +1,21 @@
-#include "Multiplexer.h"
-#include "SingleshotTimer.h"
-#include "ContinousTimer.h"
-
 #include "Timer.h"
 
+#include "ContinousTimer.h"
+#include "Multiplexer.h"
+#include "SingleshotTimer.h"
 
-Timer::Timer(const std::function<void (const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg) : dispatcher(dispatcher), arg(arg), delay(timeout) {
+
+Timer::Timer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg)
+    : dispatcher(dispatcher)
+    , arg(arg)
+    , delay(timeout) {
     gettimeofday(&absoluteTimeout, NULL);
     update();
 }
 
 
-SingleshotTimer& Timer::singleshotTimer(const std::function<void (const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg) {
+SingleshotTimer& Timer::singleshotTimer(const std::function<void(const void* arg)>& dispatcher,
+                                        const struct timeval& timeout, const void* arg) {
     SingleshotTimer* st = new SingleshotTimer(dispatcher, timeout, arg);
 
     Multiplexer::instance().getManagedTimer().add(st);
@@ -19,7 +23,8 @@ SingleshotTimer& Timer::singleshotTimer(const std::function<void (const void* ar
     return *st;
 }
 
-ContinousTimer& Timer::continousTimer(const std::function<void (const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg) {
+ContinousTimer& Timer::continousTimer(const std::function<void(const void* arg)>& dispatcher,
+                                      const struct timeval& timeout, const void* arg) {
     ContinousTimer* ct = new ContinousTimer(dispatcher, timeout, arg);
 
     Multiplexer::instance().getManagedTimer().add(ct);
@@ -53,44 +58,37 @@ struct timeval& Timer::timeout() {
 }
 
 
-Timer::operator struct timeval() const
-{
+Timer::operator struct timeval() const {
     return absoluteTimeout;
 }
 
 
-bool operator<(const struct timeval &tv1, const struct timeval &tv2)
-{
+bool operator<(const struct timeval& tv1, const struct timeval& tv2) {
     return (tv1.tv_sec < tv2.tv_sec) || ((tv1.tv_sec == tv2.tv_sec) && (tv1.tv_usec < tv2.tv_usec));
 }
 
 
-bool operator>(const struct timeval &tv1, const struct timeval &tv2)
-{
+bool operator>(const struct timeval& tv1, const struct timeval& tv2) {
     return (tv2.tv_sec < tv1.tv_sec) || ((tv2.tv_sec == tv1.tv_sec) && (tv2.tv_usec < tv1.tv_usec));
 }
 
 
-bool operator<=(const struct timeval &tv1, const struct timeval &tv2)
-{
+bool operator<=(const struct timeval& tv1, const struct timeval& tv2) {
     return !(tv1 > tv2);
 }
 
 
-bool operator>=(const struct timeval &tv1, const struct timeval &tv2)
-{
+bool operator>=(const struct timeval& tv1, const struct timeval& tv2) {
     return !(tv1 < tv2);
 }
 
 
-bool operator==(const struct timeval &tv1, const struct timeval &tv2)
-{
+bool operator==(const struct timeval& tv1, const struct timeval& tv2) {
     return !(tv1 < tv2) && !(tv2 < tv1);
 }
 
 
-struct timeval operator+(const struct timeval &tv1, const struct timeval &tv2)
-{
+struct timeval operator+(const struct timeval& tv1, const struct timeval& tv2) {
     struct timeval help;
 
     help.tv_sec = tv1.tv_sec + tv2.tv_sec;
@@ -106,8 +104,7 @@ struct timeval operator+(const struct timeval &tv1, const struct timeval &tv2)
 }
 
 
-struct timeval operator-(const struct timeval &tv1, const struct timeval &tv2)
-{
+struct timeval operator-(const struct timeval& tv1, const struct timeval& tv2) {
     struct timeval help;
 
     help.tv_sec = tv1.tv_sec - tv2.tv_sec;

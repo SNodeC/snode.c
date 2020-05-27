@@ -9,8 +9,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 
-class InetAddress
-{
+class InetAddress {
 public:
     InetAddress(const InetAddress& ina);
     InetAddress(const std::string& ipOrHostname, uint16_t port);

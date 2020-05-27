@@ -6,11 +6,12 @@
 class FileReader;
 class SocketServer;
 
-template<typename R, typename W>
-class SocketConnectionBase : public SocketConnection, public R, public W
-{
+template <typename R, typename W>
+class SocketConnectionBase
+    : public SocketConnection
+    , public R
+    , public W {
 public:
-    
     virtual ~SocketConnectionBase();
 
     void setContext(void* context) {
@@ -23,24 +24,22 @@ public:
 
     virtual void send(const char* puffer, int size);
     virtual void send(const std::string& junk);
-    virtual void sendFile(const std::string& file, const std::function<void (int ret)>& onError);
+    virtual void sendFile(const std::string& file, const std::function<void(int ret)>& onError);
     virtual void end();
 
     virtual InetAddress& getRemoteAddress();
     virtual void setRemoteAddress(const InetAddress& remoteAddress);
 
 protected:
-    SocketConnectionBase(int csFd,
-                         SocketServer* serverSocket,
-                         const std::function<void (SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
-                         const std::function<void (int errnum)>& onReadError,
-                         const std::function<void (int errnum)>& onWriteError
-    );
-    
+    SocketConnectionBase(int csFd, SocketServer* serverSocket,
+                         const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
+                         const std::function<void(int errnum)>& onReadError,
+                         const std::function<void(int errnum)>& onWriteError);
+
     SocketServer* serverSocket;
-    
+
     void* context;
-    
+
     InetAddress remoteAddress;
 
     FileReader* fileReader;

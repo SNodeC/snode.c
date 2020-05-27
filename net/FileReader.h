@@ -11,21 +11,23 @@
 #include "Reader.h"
 
 
-class FileReader : public Reader, virtual public File
-{
+class FileReader
+    : public Reader
+    , virtual public File {
 protected:
-    FileReader(int fd, const std::function<void (char* data, int len)>& junkRead, const std::function<void (int err)>& onError);
+    FileReader(int fd, const std::function<void(char* data, int len)>& junkRead,
+               const std::function<void(int err)>& onError);
 
 public:
-    static FileReader* read(std::string path, const std::function<void (char* data, int len)>& junkRead, const std::function<void (int err)>& onError);
+    static FileReader* read(std::string path, const std::function<void(char* data, int len)>& junkRead,
+                            const std::function<void(int err)>& onError);
 
     void stop();
 
     virtual void readEvent();
 
 protected:
-    std::function<void (char* data, int len)> junkRead;
-
+    std::function<void(char* data, int len)> junkRead;
 };
 
 #endif // FILEREADER_H

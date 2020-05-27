@@ -5,10 +5,11 @@
 #include "ManagedCounter.h"
 
 
-class ManagedDescriptor : virtual public ManagedCounter
-{
+class ManagedDescriptor : virtual public ManagedCounter {
 public:
-    ManagedDescriptor() : managed(false) {}
+    ManagedDescriptor()
+        : managed(false) {
+    }
 
     virtual ~ManagedDescriptor() = default;
 

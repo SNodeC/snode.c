@@ -5,7 +5,8 @@
 #include "SocketLegacy.h"
 
 
-SocketLegacy::SocketLegacy(int fd) : Socket() {
+SocketLegacy::SocketLegacy(int fd)
+    : Socket() {
     this->setFd(fd);
 }
 
@@ -14,11 +15,11 @@ SocketLegacy::~SocketLegacy() {
 }
 
 
-ssize_t SocketLegacy::socketRecv(void *buf, size_t len, int flags) {
+ssize_t SocketLegacy::socketRecv(void* buf, size_t len, int flags) {
     return ::recv(this->getFd(), buf, len, flags);
 }
 
 
-ssize_t SocketLegacy::socketSend(const void *buf, size_t len, int flags) {
+ssize_t SocketLegacy::socketSend(const void* buf, size_t len, int flags) {
     return ::send(this->getFd(), buf, len, flags);
 }
