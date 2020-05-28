@@ -7,6 +7,8 @@ find_package(LibMagic REQUIRED)
 
 add_library(http SHARED WebApp.cpp HTTPContext.cpp HTTPStatusCodes.cpp MimeTypes.cpp Request.cpp Response.cpp httputils.cpp Router.cpp)
 
+target_compile_options(http PRIVATE -fno-elide-constructors)
+
 set_target_properties(http PROPERTIES
             CXX_STANDARD 17
             CXX_EXTENSIONS OFF

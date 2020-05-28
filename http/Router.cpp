@@ -1,6 +1,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
+#include <iostream>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -28,6 +29,12 @@ static const std::string path_concat(const std::string& first, const std::string
 }
 
 
+RouterRoute::RouterRoute(const Router* parent, const std::string& method, std::string path, const Router* router)
+    : Route(parent, method, path)
+    , router(router) {
+}
+
+
 bool RouterRoute::dispatch(const std::string& method, const std::string& mpath, const Request& request, const Response& response) const {
     bool next = true;
 
@@ -43,10 +50,22 @@ bool RouterRoute::dispatch(const std::string& method, const std::string& mpath, 
         if (request.url.front() != '/') {
             request.url.insert(0, "/");
         }
-        next = router.dispatch(method, cpath, request, response);
+        next = router->dispatch(method, cpath, request, response);
     }
 
     return next;
+}
+
+
+const Route* RouterRoute::clone(const Router* parent) const {
+    return new RouterRoute(parent, method, path, new Router(*router));
+}
+
+
+DispatcherRoute::DispatcherRoute(const Router* parent, const std::string& method, const std::string& path,
+                                 const std::function<void(const Request& req, const Response& res)>& dispatcher)
+    : Route(parent, method, path)
+    , dispatcher(dispatcher) {
 }
 
 
@@ -72,6 +91,19 @@ bool DispatcherRoute::dispatch(const std::string& method, const std::string& mpa
     }
 
     return next;
+}
+
+
+const Route* DispatcherRoute::clone(const Router* parent) const {
+    return new DispatcherRoute(parent, method, path, dispatcher);
+}
+
+
+MiddlewareRoute::MiddlewareRoute(
+    const Router* parent, const std::string& method, const std::string& path,
+    const std::function<void(const Request& req, const Response& res, const std::function<void(void)>& next)>& dispatcher)
+    : Route(parent, method, path)
+    , dispatcher(dispatcher) {
 }
 
 
@@ -102,31 +134,55 @@ bool MiddlewareRoute::dispatch(const std::string& method, const std::string& mpa
 }
 
 
-Router::~Router() {
-    std::list<const Route*>::const_iterator itb = routes.begin();
-    std::list<const Route*>::const_iterator ite = routes.end();
-
-    while (itb != ite) {
-        delete *itb;
-        ++itb;
-    }
+const Route* MiddlewareRoute::clone(const Router* parent) const {
+    return new MiddlewareRoute(parent, method, path, dispatcher);
 }
 
 
-bool Router::dispatch(const std::list<const Route*>& nroutes, const std::string& method, const std::string& mpath, const Request& request,
-                      const Response& response) const {
-    bool next = true;
+Router::Router()
+    : Route(0, "use", "") {
+}
 
-    std::for_each(nroutes.begin(), nroutes.end(), [&next, &method, &mpath, &request, &response](const Route* route) -> void {
-        next = route->dispatch(method, mpath, request, response);
+
+Router::Router(const Router& router)
+    : Route(0, "use", "") {
+    std::for_each(router.routes.begin(), router.routes.end(), [this](const Route* route) -> void {
+        this->routes.push_back(route->clone(this));
+    });
+}
+
+
+Router& Router::operator=(const Router& router) {
+    this->clear();
+
+    std::for_each(router.routes.begin(), router.routes.end(), [this](const Route* route) -> void {
+        this->routes.push_back(route->clone(this));
     });
 
-    return next;
+    return *this;
+}
+
+
+void Router::clear() {
+    std::for_each(routes.begin(), routes.end(), [](const Route* route) -> void {
+        delete route;
+    });
+
+    this->routes.clear();
+}
+
+
+Router::~Router() {
+    this->clear();
 }
 
 
 bool Router::dispatch(const std::string& method, const std::string& path, const Request& request, const Response& response) const {
-    bool next = dispatch(routes, method, path, request, response);
+    bool next = true;
+
+    std::for_each(routes.begin(), routes.end(), [&next, &method, &path, &request, &response](const Route* route) -> void {
+        next = route->dispatch(method, path, request, response);
+    });
 
     return next;
 }
