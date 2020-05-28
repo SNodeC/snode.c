@@ -7,14 +7,12 @@
 
 Router route() {
     Router router;
-    Router r1;
     router.use("/", [&](const Request& req, const Response& res, const std::function<void(void)>& next) -> void {
         std::cout << "URL: " << req.originalUrl << std::endl;
         std::cout << "Cookie 1: " << req.cookie("searchcookie") << std::endl;
         
         next();
     });
-    router.use("/", r1);
     
     router.get("/", [&](const Request& req, const Response& res) -> void {
         std::cout << "URL: " << req.originalUrl << std::endl;
@@ -22,17 +20,18 @@ Router route() {
         res.sendFile(req.originalUrl);
     });
     
-
     return router;
 }
 
+
 Router rrr() {
-    return route();
+    Router router(route());
+    return router;
 }
 
 
 int simpleWebserver(int argc, char** argv) {
-    Router router1 = rrr();
+    Router router1 = route();
     Router router;
     router = router1;
 

@@ -15,7 +15,7 @@ class HTTPContext;
 class Response {
 public:
     Response(HTTPContext* httpContext);
-    
+
     void send(const char* puffer, int n) const;
     void send(const std::string& text) const;
 
@@ -26,7 +26,7 @@ public:
 
     void redirect(const std::string& name) const;
     void redirect(int status, const std::string& name) const;
-    
+
     void sendStatus(int status) const;
     void end() const;
 
