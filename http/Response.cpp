@@ -15,12 +15,14 @@ Response::Response(HTTPContext* httpContext)
 }
 
 
-void Response::status(int status) const {
+const Response& Response::status(int status) const {
     this->httpContext->responseStatus = status;
+    
+    return *this;
 }
 
 
-void Response::append(const std::string& field, const std::string& value) const {
+const Response& Response::append(const std::string& field, const std::string& value) const {
     std::map<std::string, std::string>::iterator it = this->httpContext->responseHeader.find(field);
 
     if (it != this->httpContext->responseHeader.end()) {
@@ -28,27 +30,35 @@ void Response::append(const std::string& field, const std::string& value) const 
     } else {
         this->set(field, value);
     }
+    
+    return *this;
 }
 
 
-void Response::set(const std::map<std::string, std::string>& map) const {
+const Response& Response::set(const std::map<std::string, std::string>& map) const {
     std::for_each(map.begin(), map.end(), [this](const std::pair<const std::string&, const std::string&>& header) -> void {
         this->set(header.first, header.second);
     });
+    
+    return *this;
 }
 
 
-void Response::set(const std::string& field, const std::string& value) const {
+const Response& Response::set(const std::string& field, const std::string& value) const {
     this->httpContext->responseHeader.insert_or_assign(field, value);
+    
+    return *this;
 }
 
 
-void Response::cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options) const {
+const Response& Response::cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options) const {
     this->httpContext->responseCookies.insert({name, ResponseCookie(value, options)});
+    
+    return *this;
 }
 
 
-void Response::clearCookie(const std::string& name, const std::map<std::string, std::string>& options) const {
+const Response& Response::clearCookie(const std::string& name, const std::map<std::string, std::string>& options) const {
     std::map<std::string, std::string> opts = options;
 
     opts.erase("Max-Age");
@@ -56,6 +66,8 @@ void Response::clearCookie(const std::string& name, const std::map<std::string, 
     opts["Expires"] = httputils::to_http_date(gmtime(&time));
 
     this->cookie(name, "", opts);
+    
+    return *this;
 }
 
 
@@ -109,8 +121,10 @@ void Response::sendStatus(int status) const {
 }
 
 
-void Response::type(std::string type) const {
+const Response& Response::type(std::string type) const {
     this->set({{"Content-Type", type}});
+    
+    return *this;
 }
 
 
