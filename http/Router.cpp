@@ -1,6 +1,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
+#include <iostream>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -43,10 +44,16 @@ bool RouterRoute::dispatch(const std::string& method, const std::string& mpath, 
         if (request.url.front() != '/') {
             request.url.insert(0, "/");
         }
-        next = router.dispatch(method, cpath, request, response);
+        next = router->dispatch(method, cpath, request, response);
     }
 
     return next;
+}
+
+const Route* RouterRoute::clone(const Router* parent) const {
+//    return new RouterRoute(parent, method, path, *dynamic_cast<const Router*>(router.clone(parent)));
+    std::cout << "RouterRoute.clone()" << std::endl;
+    return new RouterRoute(parent, method, path, new Router(*router));
 }
 
 
@@ -72,6 +79,11 @@ bool DispatcherRoute::dispatch(const std::string& method, const std::string& mpa
     }
 
     return next;
+}
+
+const Route* DispatcherRoute::clone(const Router* parent) const {
+    std::cout << "DispatcherRoute.clone()" << std::endl;
+    return new DispatcherRoute(parent, method, path, dispatcher);
 }
 
 
@@ -101,32 +113,28 @@ bool MiddlewareRoute::dispatch(const std::string& method, const std::string& mpa
     return next;
 }
 
+const Route* MiddlewareRoute::clone(const Router* parent) const {
+    std::cout << "MiddlewareRoute.clone()" << std::endl;
+    return new MiddlewareRoute(parent, method, path, dispatcher);
+}
+
 
 Router::~Router() {
     std::list<const Route*>::const_iterator itb = routes.begin();
     std::list<const Route*>::const_iterator ite = routes.end();
 
     while (itb != ite) {
-        delete *itb;
         ++itb;
     }
 }
 
 
-bool Router::dispatch(const std::list<const Route*>& nroutes, const std::string& method, const std::string& mpath, const Request& request,
-                      const Response& response) const {
+bool Router::dispatch(const std::string& method, const std::string& path, const Request& request, const Response& response) const {
     bool next = true;
 
-    std::for_each(nroutes.begin(), nroutes.end(), [&next, &method, &mpath, &request, &response](const Route* route) -> void {
-        next = route->dispatch(method, mpath, request, response);
+    std::for_each(routes.begin(), routes.end(), [&next, &method, &path, &request, &response](const Route* route) -> void {
+        next = route->dispatch(method, path, request, response);
     });
-
-    return next;
-}
-
-
-bool Router::dispatch(const std::string& method, const std::string& path, const Request& request, const Response& response) const {
-    bool next = dispatch(routes, method, path, request, response);
-
+    
     return next;
 }
