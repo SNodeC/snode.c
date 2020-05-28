@@ -19,8 +19,7 @@ protected:
     SocketServerBase(const std::function<void(SocketConnection* cs)>& onConnect,
                      const std::function<void(SocketConnection* cs)>& onDisconnect,
                      const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcesor,
-                     const std::function<void(int errnum)>& onCsReadError,
-                     const std::function<void(int errnum)>& onCsWriteError);
+                     const std::function<void(int errnum)>& onCsReadError, const std::function<void(int errnum)>& onCsWriteError);
 
 public:
     virtual ~SocketServerBase() = default;

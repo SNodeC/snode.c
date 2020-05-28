@@ -11,9 +11,8 @@
 
 
 void SocketLegacyWriter::writeEvent() {
-    ssize_t ret =
-        socketSend(writePuffer.c_str(), (writePuffer.size() < MAX_JUNKSIZE) ? writePuffer.size() : MAX_JUNKSIZE,
-                   MSG_DONTWAIT | MSG_NOSIGNAL);
+    ssize_t ret = socketSend(writePuffer.c_str(), (writePuffer.size() < MAX_JUNKSIZE) ? writePuffer.size() : MAX_JUNKSIZE,
+                             MSG_DONTWAIT | MSG_NOSIGNAL);
 
     if (ret >= 0) {
         writePuffer.erase(0, ret);

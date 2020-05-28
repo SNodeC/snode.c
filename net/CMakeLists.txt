@@ -32,5 +32,6 @@ add_library(net SHARED
 
 target_include_directories (net PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${OPENSSL_INCLUDE_DIR})
 target_link_libraries(net ${OPENSSL_LIBRARIES})
-
-set_property(TARGET net PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
+if(CHECK_INCLUDES)
+    set_property(TARGET net PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
+endif(CHECK_INCLUDES)

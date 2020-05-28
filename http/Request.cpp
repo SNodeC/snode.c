@@ -1,10 +1,11 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <algorithm>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Request.h"
-
 #include "HTTPContext.h"
+#include "Request.h"
 #include "httputils.h"
 
 
@@ -26,8 +27,8 @@ const std::string& Request::header(const std::string& key, int i) const {
     httputils::to_lower(tmpKey);
 
     if (this->httpContext->requestHeader.find(tmpKey) != this->httpContext->requestHeader.end()) {
-        std::pair<std::multimap<std::string, std::string>::iterator, std::multimap<std::string, std::string>::iterator>
-            range = this->httpContext->requestHeader.equal_range(tmpKey);
+        std::pair<std::multimap<std::string, std::string>::iterator, std::multimap<std::string, std::string>::iterator> range =
+            this->httpContext->requestHeader.equal_range(tmpKey);
 
         if (std::distance(range.first, range.second) >= i) {
             std::advance(range.first, i);

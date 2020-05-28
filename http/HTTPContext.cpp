@@ -30,9 +30,9 @@ HTTPContext::HTTPContext(WebApp* httpServer, SocketConnection* connectedSocket)
 }
 
 
-void HTTPContext::receiveRequest(const char* junk, ssize_t n) {
+void HTTPContext::receiveRequest(const char* junk, ssize_t junkLen) {
     parseRequest(
-        junk, n,
+        junk, junkLen,
         [&](const std::string& line) -> void { // header data
             switch (requestState) {
             case requeststates::REQUEST:
@@ -77,12 +77,12 @@ void HTTPContext::receiveRequest(const char* junk, ssize_t n) {
 }
 
 
-void HTTPContext::parseRequest(const char* junk, ssize_t n, const std::function<void(std::string&)>& lineRead,
+void HTTPContext::parseRequest(const char* junk, ssize_t junkLen, const std::function<void(std::string&)>& lineRead,
                                const std::function<void(const char* bodyJunk, int junkLength)> bodyRead) {
     if (requestState != requeststates::BODY) {
         int i = 0;
 
-        while (i < n && requestState != ERROR && requestState != BODY) {
+        while (i < junkLen && requestState != ERROR && requestState != BODY) {
             const char& ch = junk[i++];
             if (ch != '\r') { // '\r' can be ignored completely as long as we are not receiving the body of the document
                 switch (lineState) {
@@ -114,11 +114,11 @@ void HTTPContext::parseRequest(const char* junk, ssize_t n, const std::function<
                 }
             }
         }
-        if (i != n) {
-            bodyRead(junk + i, n - i);
+        if (i != junkLen) {
+            bodyRead(junk + i, junkLen - i);
         }
     } else {
-        bodyRead(junk, n);
+        bodyRead(junk, junkLen);
     }
 }
 
@@ -229,11 +229,9 @@ void HTTPContext::sendFile(const std::string& url, const std::function<void(int 
     if (std::filesystem::exists(absolutFileName)) {
         absolutFileName = std::filesystem::canonical(absolutFileName);
 
-        if (absolutFileName.rfind(webApp->getRootDir(), 0) == 0 &&
-            std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
+        if (absolutFileName.rfind(webApp->getRootDir(), 0) == 0 && std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
             responseHeader.insert({"Content-Type", MimeTypes::contentType(absolutFileName)});
-            responseHeader.insert_or_assign("Content-Length",
-                                            std::to_string(std::filesystem::file_size(absolutFileName)));
+            responseHeader.insert_or_assign("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
             responseHeader.insert({"Last-Modified", httputils::file_mod_http_date(absolutFileName)});
             this->sendHeader();
             connectedSocket->sendFile(absolutFileName, onError);
@@ -255,30 +253,28 @@ void HTTPContext::sendFile(const std::string& url, const std::function<void(int 
 
 
 void HTTPContext::sendHeader() {
-    connectedSocket->send("HTTP/1.1 " + std::to_string(responseStatus) + " " + HTTPStatusCode::reason(responseStatus) +
-                          "\r\n");
+    connectedSocket->send("HTTP/1.1 " + std::to_string(responseStatus) + " " + HTTPStatusCode::reason(responseStatus) + "\r\n");
     connectedSocket->send("Date: " + httputils::to_http_date() + "\r\n");
 
     responseHeader.insert({"Cache-Control", "public, max-age=0"});
     responseHeader.insert({"Accept-Ranges", "bytes"});
     responseHeader.insert({"X-Powered-By", "snode.c"});
 
-    for (std::map<std::string, std::string>::iterator it = responseHeader.begin(); it != responseHeader.end(); ++it) {
-        connectedSocket->send(it->first + ": " + it->second + "\r\n");
-    }
+    std::for_each(responseHeader.begin(), responseHeader.end(),
+                  [this](const std::pair<const std::string&, const std::string&>& header) -> void {
+                      this->connectedSocket->send(header.first + ": " + header.second + "\r\n");
+                  });
 
-    for (std::map<std::string, ResponseCookie>::iterator it = responseCookies.begin(); it != responseCookies.end();
-         ++it) {
-        std::string cookiestring = it->first + "=" + it->second.value;
+    std::for_each(responseCookies.begin(), responseCookies.end(),
+                  [this](const std::pair<const std::string&, const ResponseCookie&>& cookie) -> void {
+                      std::string cookieString = cookie.first + "=" + cookie.second.value;
 
-        std::map<std::string, std::string>::const_iterator obit = it->second.options.begin();
-        std::map<std::string, std::string>::const_iterator oeit = it->second.options.end();
-        while (obit != oeit) {
-            cookiestring += "; " + obit->first + ((obit->second != "") ? "=" + obit->second : "");
-            ++obit;
-        }
-        connectedSocket->send("Set-Cookie: " + cookiestring + "\r\n");
-    }
+                      std::for_each(cookie.second.options.begin(), cookie.second.options.end(),
+                                    [&cookieString](const std::pair<const std::string&, const std::string&>& options) -> void {
+                                        cookieString += "; " + options.first + ((options.second != "") ? "=" + options.second : "");
+                                    });
+                      this->connectedSocket->send("Set-Cookie: " + cookieString + "\r\n");
+                  });
 
     connectedSocket->send("\r\n");
 

@@ -1,11 +1,12 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#include <algorithm>
 
-#include "Response.h"
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "HTTPContext.h"
 #include "HTTPStatusCodes.h"
+#include "Response.h"
 #include "httputils.h"
 
 
@@ -31,9 +32,9 @@ void Response::append(const std::string& field, const std::string& value) const 
 
 
 void Response::set(const std::map<std::string, std::string>& map) const {
-    for (std::map<std::string, std::string>::const_iterator it = map.begin(); it != map.end(); ++it) {
-        this->set(it->first, it->second);
-    }
+    std::for_each(map.begin(), map.end(), [this](const std::pair<const std::string&, const std::string&>& header) -> void {
+        this->set(header.first, header.second);
+    });
 }
 
 
@@ -42,8 +43,7 @@ void Response::set(const std::string& field, const std::string& value) const {
 }
 
 
-void Response::cookie(const std::string& name, const std::string& value,
-                      const std::map<std::string, std::string>& options) const {
+void Response::cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options) const {
     this->httpContext->responseCookies.insert({name, ResponseCookie(value, options)});
 }
 
@@ -85,8 +85,7 @@ void Response::download(const std::string& file, const std::function<void(int er
 }
 
 
-void Response::download(const std::string& file, const std::string& name,
-                        const std::function<void(int err)>& fn) const {
+void Response::download(const std::string& file, const std::string& name, const std::function<void(int err)>& fn) const {
     this->set({{"Content-Disposition", "attachment; filename=\"" + name + "\""}});
     this->sendFile(file, fn);
 }

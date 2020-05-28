@@ -11,8 +11,7 @@
 
 template <typename R, typename W>
 SocketConnectionBase<R, W>::SocketConnectionBase(
-    int csFd, SocketServer* serverSocket,
-    const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
+    int csFd, SocketServer* serverSocket, const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
     const std::function<void(int errnum)>& onReadError, const std::function<void(int errnum)>& onWriteError)
     : R(readProcessor,
         [&](int errnum) -> void {

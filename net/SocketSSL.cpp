@@ -49,7 +49,7 @@ ssize_t SocketSSL::socketRecv(void* buf, size_t len, int) {
     ssize_t ret = err;
 
     if (err > 0) {
-        return ::SSL_read(ssl, buf, len);
+        ret = ::SSL_read(ssl, buf, len);
     }
 
     return ret;
