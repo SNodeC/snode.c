@@ -5,14 +5,35 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-
-int simpleWebserver(int argc, char** argv) {
+Router route() {
     Router router;
+    router.use("/", [&](const Request& req, const Response& res, const std::function<void(void)>& next) -> void {
+        std::cout << "URL: " << req.originalUrl << std::endl;
+        std::cout << "Cookie 1: " << req.cookie("searchcookie") << std::endl;
+        
+        next();
+    });
+    
     router.get("/", [&](const Request& req, const Response& res) -> void {
         std::cout << "URL: " << req.originalUrl << std::endl;
-        std::cout << "Cookie: " << req.cookie("searchcookie") << std::endl;
+        std::cout << "Cookie 2: " << req.cookie("searchcookie") << std::endl;
         res.sendFile(req.originalUrl);
     });
+    
+    return router;
+}
+
+
+Router rrr() {
+    Router router(route());
+    return router;
+}
+
+
+int simpleWebserver(int argc, char** argv) {
+    Router router1 = route();
+    Router router;
+    router = router1;
 
     WebApp& legacyApp = WebApp::instance("/home/voc/projects/ServerVoc/build/html/");
     legacyApp.use("/", [](const Request& req, const Response& res, const std::function<void(void)>& next) {

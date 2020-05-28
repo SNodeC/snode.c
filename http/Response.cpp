@@ -17,7 +17,7 @@ Response::Response(HTTPContext* httpContext)
 
 const Response& Response::status(int status) const {
     this->httpContext->responseStatus = status;
-    
+
     return *this;
 }
 
@@ -30,7 +30,7 @@ const Response& Response::append(const std::string& field, const std::string& va
     } else {
         this->set(field, value);
     }
-    
+
     return *this;
 }
 
@@ -39,21 +39,22 @@ const Response& Response::set(const std::map<std::string, std::string>& map) con
     std::for_each(map.begin(), map.end(), [this](const std::pair<const std::string&, const std::string&>& header) -> void {
         this->set(header.first, header.second);
     });
-    
+
     return *this;
 }
 
 
 const Response& Response::set(const std::string& field, const std::string& value) const {
     this->httpContext->responseHeader.insert_or_assign(field, value);
-    
+
     return *this;
 }
 
 
-const Response& Response::cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options) const {
+const Response& Response::cookie(const std::string& name, const std::string& value,
+                                 const std::map<std::string, std::string>& options) const {
     this->httpContext->responseCookies.insert({name, ResponseCookie(value, options)});
-    
+
     return *this;
 }
 
@@ -66,7 +67,7 @@ const Response& Response::clearCookie(const std::string& name, const std::map<st
     opts["Expires"] = httputils::to_http_date(gmtime(&time));
 
     this->cookie(name, "", opts);
-    
+
     return *this;
 }
 
@@ -123,7 +124,7 @@ void Response::sendStatus(int status) const {
 
 const Response& Response::type(std::string type) const {
     this->set({{"Content-Type", type}});
-    
+
     return *this;
 }
 

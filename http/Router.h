@@ -3,7 +3,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <algorithm>
 #include <functional>
+#include <iostream>
 #include <list>
 #include <map>
 #include <string>
@@ -32,7 +34,11 @@ protected:
     const std::string path;
 
 private:
-    Route(const Route& router) = delete;
+    virtual const Route* clone(const Router* parent) const {
+        return 0;
+    }
+
+    Route(const Route& route) = delete;
     Route& operator=(const Route& route) = delete;
 
     friend class Router;
@@ -41,29 +47,26 @@ private:
 
 class RouterRoute : public Route {
 public:
-    RouterRoute(const Router* parent, const std::string& method, std::string path, Router& router)
-        : Route(parent, method, path)
-        , router(router) {
-    }
+    RouterRoute(const Router* parent, const std::string& method, std::string path, const Router* router);
 
     virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& req, const Response& res) const;
 
 private:
-    const Router& router;
+    virtual const Route* clone(const Router* parent) const;
+    const Router* router;
 };
 
 
 class DispatcherRoute : public Route {
 public:
     DispatcherRoute(const Router* parent, const std::string& method, const std::string& path,
-                    const std::function<void(const Request& req, const Response& res)>& dispatcher)
-        : Route(parent, method, path)
-        , dispatcher(dispatcher) {
-    }
+                    const std::function<void(const Request& req, const Response& res)>& dispatcher);
 
     virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& req, const Response& res) const;
 
 private:
+    virtual const Route* clone(const Router* parent) const;
+
     const std::function<void(const Request& req, const Response& res)> dispatcher;
 };
 
@@ -71,14 +74,12 @@ private:
 class MiddlewareRoute : public Route {
 public:
     MiddlewareRoute(const Router* parent, const std::string& method, const std::string& path,
-                    const std::function<void(const Request& req, const Response& res, const std::function<void(void)>& next)>& dispatcher)
-        : Route(parent, method, path)
-        , dispatcher(dispatcher) {
-    }
+                    const std::function<void(const Request& req, const Response& res, const std::function<void(void)>& next)>& dispatcher);
 
     virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& req, const Response& res) const;
 
 private:
+    virtual const Route* clone(const Router* parent) const;
     const std::function<void(const Request& req, const Response& res, std::function<void(void)>)> dispatcher;
 };
 
@@ -90,7 +91,7 @@ private:
     };                                                                                                                                     \
                                                                                                                                            \
     Router& METHOD(const std::string& path, Router& router) {                                                                              \
-        routes.push_back(new RouterRoute(this, HTTP_METHOD, path, router));                                                                \
+        routes.push_back(new RouterRoute(this, HTTP_METHOD, path, &router));                                                               \
         return *this;                                                                                                                      \
     };                                                                                                                                     \
                                                                                                                                            \
@@ -104,10 +105,13 @@ private:
 
 class Router : public Route {
 public:
-    Router()
-        : Route(0, "use", "") {
-    }
+    Router();
+    Router(const Router& router);
+    Router& operator=(const Router& router);
+
+    void clear();
     ~Router();
+
 
     REQUESTMETHOD(use, "use");
     REQUESTMETHOD(all, "all");
@@ -120,9 +124,6 @@ public:
     REQUESTMETHOD(trace, "trace");
     REQUESTMETHOD(patch, "patch");
     REQUESTMETHOD(head, "head");
-
-    bool dispatch(const std::list<const Route*>& nroute, const std::string& method, const std::string& mpath, const Request& request,
-                  const Response& response) const;
 
     virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& request, const Response& response) const;
 
