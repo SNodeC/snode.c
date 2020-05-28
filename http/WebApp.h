@@ -21,22 +21,18 @@ public:
 
     static WebApp& instance(const std::string& serverRoot = "./");
 
-    void listen(int port);
-    void listen(int port, const std::function<void(int err)>& onError);
-
-    void sslListen(int port, const std::string& cert, const std::string& key, const std::string& password);
+    void listen(int port, const std::function<void(int err)>& onError = 0);
     void sslListen(int port, const std::string& cert, const std::string& key, const std::string& password,
-                   const std::function<void(int err)>& onError);
+                   const std::function<void(int err)>& onError = 0);
 
     static void stop();
-
     void destroy();
 
-    std::string& getRootDir() {
+    const std::string& getRootDir() {
         return rootDir;
     }
 
-    void serverRoot(std::string rootDir) {
+    void serverRoot(const std::string& rootDir) {
         this->rootDir = rootDir;
         if (this->rootDir.back() == '/') {
             this->rootDir.pop_back();
