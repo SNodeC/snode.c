@@ -24,8 +24,7 @@ public:
     virtual ~Route() {
     }
 
-    virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& req,
-                          const Response& res) const = 0;
+    virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& req, const Response& res) const = 0;
 
 
 protected:
@@ -44,8 +43,7 @@ public:
         , router(router) {
     }
 
-    virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& req,
-                          const Response& res) const;
+    virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& req, const Response& res) const;
 
 private:
     const Router& router;
@@ -60,8 +58,7 @@ public:
         , dispatcher(dispatcher) {
     }
 
-    virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& req,
-                          const Response& res) const;
+    virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& req, const Response& res) const;
 
 private:
     const std::function<void(const Request& req, const Response& res)> dispatcher;
@@ -71,35 +68,30 @@ private:
 class MiddlewareRoute : public Route {
 public:
     MiddlewareRoute(const Router* parent, const std::string& method, const std::string& path,
-                    const std::function<void(const Request& req, const Response& res,
-                                             const std::function<void(void)>& next)>& dispatcher)
+                    const std::function<void(const Request& req, const Response& res, const std::function<void(void)>& next)>& dispatcher)
         : Route(parent, method, path)
         , dispatcher(dispatcher) {
     }
 
-    virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& req,
-                          const Response& res) const;
+    virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& req, const Response& res) const;
 
 private:
     const std::function<void(const Request& req, const Response& res, std::function<void(void)>)> dispatcher;
 };
 
 
-#define REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                             \
-    void METHOD(const std::string& path,                                                                               \
-                const std::function<void(const Request& req, const Response& res)>& dispatcher) {                      \
-        routes.push_back(new DispatcherRoute(this, HTTP_METHOD, path, dispatcher));                                    \
-    };                                                                                                                 \
-                                                                                                                       \
-    void METHOD(const std::string& path, Router& router) {                                                             \
-        routes.push_back(new RouterRoute(this, HTTP_METHOD, path, router));                                            \
-    };                                                                                                                 \
-                                                                                                                       \
-    void METHOD(                                                                                                       \
-        const std::string& path,                                                                                       \
-        const std::function<void(const Request& req, const Response& res, const std::function<void(void)>& next)>&     \
-            dispatcher) {                                                                                              \
-        routes.push_back(new MiddlewareRoute(this, HTTP_METHOD, path, dispatcher));                                    \
+#define REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                                 \
+    void METHOD(const std::string& path, const std::function<void(const Request& req, const Response& res)>& dispatcher) {                 \
+        routes.push_back(new DispatcherRoute(this, HTTP_METHOD, path, dispatcher));                                                        \
+    };                                                                                                                                     \
+                                                                                                                                           \
+    void METHOD(const std::string& path, Router& router) {                                                                                 \
+        routes.push_back(new RouterRoute(this, HTTP_METHOD, path, router));                                                                \
+    };                                                                                                                                     \
+                                                                                                                                           \
+    void METHOD(const std::string& path,                                                                                                   \
+                const std::function<void(const Request& req, const Response& res, const std::function<void(void)>& next)>& dispatcher) {   \
+        routes.push_back(new MiddlewareRoute(this, HTTP_METHOD, path, dispatcher));                                                        \
     };
 
 
@@ -122,11 +114,10 @@ public:
     REQUESTMETHOD(patch, "patch");
     REQUESTMETHOD(head, "head");
 
-    bool dispatch(const std::list<const Route*>& nroute, const std::string& method, const std::string& mpath,
-                  const Request& request, const Response& response) const;
+    bool dispatch(const std::list<const Route*>& nroute, const std::string& method, const std::string& mpath, const Request& request,
+                  const Response& response) const;
 
-    virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& request,
-                          const Response& response) const;
+    virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& request, const Response& response) const;
 
 
 protected:

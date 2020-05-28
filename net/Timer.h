@@ -29,10 +29,10 @@ protected:
     }
 
 public:
-    static ContinousTimer& continousTimer(const std::function<void(const void* arg)>& dispatcher,
-                                          const struct timeval& timeout, const void* arg);
-    static SingleshotTimer& singleshotTimer(const std::function<void(const void* arg)>& processor,
-                                            const struct timeval& timeout, const void* arg);
+    static ContinousTimer& continousTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout,
+                                          const void* arg);
+    static SingleshotTimer& singleshotTimer(const std::function<void(const void* arg)>& processor, const struct timeval& timeout,
+                                            const void* arg);
 
     struct timeval& timeout();
 

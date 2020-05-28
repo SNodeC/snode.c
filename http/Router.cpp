@@ -1,7 +1,12 @@
-#include "Router.h"
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <algorithm>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Request.h"
 #include "Response.h"
+#include "Router.h"
 
 
 static const std::string path_concat(const std::string& first, const std::string& second) {
@@ -23,8 +28,7 @@ static const std::string path_concat(const std::string& first, const std::string
 }
 
 
-bool RouterRoute::dispatch(const std::string& method, const std::string& mpath, const Request& request,
-                           const Response& response) const {
+bool RouterRoute::dispatch(const std::string& method, const std::string& mpath, const Request& request, const Response& response) const {
     bool next = true;
 
     std::string cpath = path_concat(mpath, path);
@@ -109,24 +113,19 @@ Router::~Router() {
 }
 
 
-bool Router::dispatch(const std::list<const Route*>& nroutes, const std::string& method, const std::string& mpath,
-                      const Request& request, const Response& response) const {
+bool Router::dispatch(const std::list<const Route*>& nroutes, const std::string& method, const std::string& mpath, const Request& request,
+                      const Response& response) const {
     bool next = true;
 
-    std::list<const Route*>::const_iterator itb = nroutes.begin();
-    std::list<const Route*>::const_iterator ite = nroutes.end();
-
-    while (itb != ite && next) {
-        next = (*itb)->dispatch(method, mpath, request, response);
-        ++itb;
-    }
+    std::for_each(nroutes.begin(), nroutes.end(), [&next, &method, &mpath, &request, &response](const Route* route) -> void {
+        next = route->dispatch(method, mpath, request, response);
+    });
 
     return next;
 }
 
 
-bool Router::dispatch(const std::string& method, const std::string& path, const Request& request,
-                      const Response& response) const {
+bool Router::dispatch(const std::string& method, const std::string& path, const Request& request, const Response& response) const {
     bool next = dispatch(routes, method, path, request, response);
 
     return next;

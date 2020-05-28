@@ -12,8 +12,7 @@
 #include "Multiplexer.h"
 
 
-FileReader::FileReader(int fd, const std::function<void(char* data, int len)>& junkRead,
-                       const std::function<void(int err)>& onError)
+FileReader::FileReader(int fd, const std::function<void(char* data, int len)>& junkRead, const std::function<void(int err)>& onError)
     : Descriptor(fd)
     , Reader(onError)
     , junkRead(junkRead) {

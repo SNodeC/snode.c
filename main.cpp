@@ -258,9 +258,9 @@ int testPost(int argc, char* argv[]) {
         std::cout << "Body: " << std::endl;
         std::cout << body << std::endl;
         res.send("<html>"
-                 "<body>"
-                 "<h1>Thank you</h1>"
-                 "</body>"
+                    "<body>"
+                        "<h1>Thank you</h1>"
+                    "</body>"
                  "</html>");
     });
 

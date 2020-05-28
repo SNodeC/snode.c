@@ -14,5 +14,6 @@ set_target_properties(http PROPERTIES
 
 target_include_directories(http PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${LIBMAGIC_INCLUDEs})
 target_link_libraries(http LINK_PUBLIC net ${LIBMAGIC_LIBRARIES})
-
-set_property(TARGET http PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
+if(CHECK_INCLUDES)
+    set_property(TARGET http PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
+endif(CHECK_INCLUDES)

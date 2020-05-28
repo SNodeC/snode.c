@@ -11,11 +11,11 @@
 
 
 template <typename T>
-SocketServerBase<T>::SocketServerBase(
-    const std::function<void(SocketConnection* cs)>& onConnect,
-    const std::function<void(SocketConnection* cs)>& onDisconnect,
-    const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
-    const std::function<void(int errnum)>& onCsReadError, const std::function<void(int errnum)>& onCsWriteError)
+SocketServerBase<T>::SocketServerBase(const std::function<void(SocketConnection* cs)>& onConnect,
+                                      const std::function<void(SocketConnection* cs)>& onDisconnect,
+                                      const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
+                                      const std::function<void(int errnum)>& onCsReadError,
+                                      const std::function<void(int errnum)>& onCsWriteError)
     : SocketLegacyReader()
     , onConnect(onConnect)
     , onDisconnect(onDisconnect)
@@ -25,8 +25,7 @@ SocketServerBase<T>::SocketServerBase(
 }
 
 
-template <typename T>
-void SocketServerBase<T>::listen(in_port_t port, int backlog, const std::function<void(int err)>& onError) {
+template <typename T> void SocketServerBase<T>::listen(in_port_t port, int backlog, const std::function<void(int err)>& onError) {
     this->SocketLegacyReader::setOnError(onError);
 
     this->open([this, &port, &backlog, &onError](int errnum) -> void {
