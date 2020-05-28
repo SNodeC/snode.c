@@ -3,10 +3,13 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <algorithm>
 #include <functional>
 #include <list>
 #include <map>
 #include <string>
+
+#include <iostream>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -32,6 +35,8 @@ protected:
     const std::string path;
 
 private:
+    virtual const Route* clone(const Router* parent) const = 0;
+    
     Route(const Route& router) = delete;
     Route& operator=(const Route& route) = delete;
 
@@ -41,7 +46,7 @@ private:
 
 class RouterRoute : public Route {
 public:
-    RouterRoute(const Router* parent, const std::string& method, std::string path, Router& router)
+    RouterRoute(const Router* parent, const std::string& method, std::string path, const Router* router)
         : Route(parent, method, path)
         , router(router) {
     }
@@ -49,7 +54,8 @@ public:
     virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& req, const Response& res) const;
 
 private:
-    const Router& router;
+    virtual const Route* clone(const Router* parent) const;
+    const Router* router;
 };
 
 
@@ -64,6 +70,8 @@ public:
     virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& req, const Response& res) const;
 
 private:
+    virtual const Route* clone(const Router* parent) const;
+
     const std::function<void(const Request& req, const Response& res)> dispatcher;
 };
 
@@ -79,6 +87,7 @@ public:
     virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& req, const Response& res) const;
 
 private:
+    virtual const Route* clone(const Router* parent) const;
     const std::function<void(const Request& req, const Response& res, std::function<void(void)>)> dispatcher;
 };
 
@@ -90,7 +99,7 @@ private:
     };                                                                                                                                     \
                                                                                                                                            \
     Router& METHOD(const std::string& path, Router& router) {                                                                              \
-        routes.push_back(new RouterRoute(this, HTTP_METHOD, path, router));                                                                \
+        routes.push_back(new RouterRoute(this, HTTP_METHOD, path, &router));                                                               \
         return *this;                                                                                                                      \
     };                                                                                                                                     \
                                                                                                                                            \
@@ -121,14 +130,36 @@ public:
     REQUESTMETHOD(patch, "patch");
     REQUESTMETHOD(head, "head");
 
-    bool dispatch(const std::list<const Route*>& nroute, const std::string& method, const std::string& mpath, const Request& request,
-                  const Response& response) const;
-
     virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& request, const Response& response) const;
 
-
+    
+    Router(const Router& sRouter) : Route(0, "use", "") {
+        std::for_each(sRouter.routes.begin(), sRouter.routes.end(),
+            [this] (const Route* route) -> void {
+                this->routes.push_back(route->clone(this));
+            }
+        );
+    }
+    
+    Router& operator=(const Router& sRouter) {
+        this->routes.clear();  // todo destructor?
+        
+        std::for_each(sRouter.routes.begin(), sRouter.routes.end(),
+            [this] (const Route* route) -> void {
+                this->routes.push_back(route->clone(this));
+            }
+        );
+        
+        return *this;
+    }
+    
 protected:
     std::list<const Route*> routes;
+    
+private:
+    virtual const Route* clone(const Router* parent) const {
+        return 0;
+    }
 };
 
 
