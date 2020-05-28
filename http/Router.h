@@ -5,11 +5,10 @@
 
 #include <algorithm>
 #include <functional>
+#include <iostream>
 #include <list>
 #include <map>
 #include <string>
-
-#include <iostream>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -35,9 +34,11 @@ protected:
     const std::string path;
 
 private:
-    virtual const Route* clone(const Router* parent) const = 0;
-    
-    Route(const Route& router) = delete;
+    virtual const Route* clone(const Router* parent) const {
+        return 0;
+    }
+
+    Route(const Route& route) = delete;
     Route& operator=(const Route& route) = delete;
 
     friend class Router;
@@ -46,10 +47,7 @@ private:
 
 class RouterRoute : public Route {
 public:
-    RouterRoute(const Router* parent, const std::string& method, std::string path, const Router* router)
-        : Route(parent, method, path)
-        , router(router) {
-    }
+    RouterRoute(const Router* parent, const std::string& method, std::string path, const Router* router);
 
     virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& req, const Response& res) const;
 
@@ -62,10 +60,7 @@ private:
 class DispatcherRoute : public Route {
 public:
     DispatcherRoute(const Router* parent, const std::string& method, const std::string& path,
-                    const std::function<void(const Request& req, const Response& res)>& dispatcher)
-        : Route(parent, method, path)
-        , dispatcher(dispatcher) {
-    }
+                    const std::function<void(const Request& req, const Response& res)>& dispatcher);
 
     virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& req, const Response& res) const;
 
@@ -79,10 +74,7 @@ private:
 class MiddlewareRoute : public Route {
 public:
     MiddlewareRoute(const Router* parent, const std::string& method, const std::string& path,
-                    const std::function<void(const Request& req, const Response& res, const std::function<void(void)>& next)>& dispatcher)
-        : Route(parent, method, path)
-        , dispatcher(dispatcher) {
-    }
+                    const std::function<void(const Request& req, const Response& res, const std::function<void(void)>& next)>& dispatcher);
 
     virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& req, const Response& res) const;
 
@@ -113,10 +105,13 @@ private:
 
 class Router : public Route {
 public:
-    Router()
-        : Route(0, "use", "") {
-    }
+    Router();
+    Router(const Router& router);
+    Router& operator=(const Router& router);
+
+    void clear();
     ~Router();
+
 
     REQUESTMETHOD(use, "use");
     REQUESTMETHOD(all, "all");
@@ -132,34 +127,9 @@ public:
 
     virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& request, const Response& response) const;
 
-    
-    Router(const Router& sRouter) : Route(0, "use", "") {
-        std::for_each(sRouter.routes.begin(), sRouter.routes.end(),
-            [this] (const Route* route) -> void {
-                this->routes.push_back(route->clone(this));
-            }
-        );
-    }
-    
-    Router& operator=(const Router& sRouter) {
-        this->routes.clear();  // todo destructor?
-        
-        std::for_each(sRouter.routes.begin(), sRouter.routes.end(),
-            [this] (const Route* route) -> void {
-                this->routes.push_back(route->clone(this));
-            }
-        );
-        
-        return *this;
-    }
-    
+
 protected:
     std::list<const Route*> routes;
-    
-private:
-    virtual const Route* clone(const Router* parent) const {
-        return 0;
-    }
 };
 
 
