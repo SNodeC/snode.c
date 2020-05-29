@@ -5,7 +5,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
 
 find_package(LibMagic REQUIRED)
 
-add_library(http SHARED WebApp.cpp HTTPContext.cpp HTTPStatusCodes.cpp MimeTypes.cpp Request.cpp Response.cpp httputils.cpp Router.cpp NewRouter.cpp)
+add_library(http SHARED WebApp.cpp HTTPContext.cpp HTTPStatusCodes.cpp MimeTypes.cpp Request.cpp Response.cpp httputils.cpp Router.cpp)
 
 set_target_properties(http PROPERTIES
             CXX_STANDARD 17
