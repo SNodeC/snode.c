@@ -5,6 +5,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+
 Router route() {
     Router router;
     router.use("/", [&](const Request& req, const Response& res, const std::function<void(void)>& next) -> void {
@@ -14,11 +15,21 @@ Router route() {
         next();
     });
     
-    router.get("/", [&](const Request& req, const Response& res) -> void {
+    router.get("/search", [&](const Request& req, const Response& res) -> void {
         std::cout << "URL: " << req.originalUrl << std::endl;
         std::cout << "Cookie 2: " << req.cookie("searchcookie") << std::endl;
         res.sendFile(req.originalUrl);
     });
+    
+    Router r;
+    r.use("/",  [&](const Request& req, const Response& res, const std::function<void(void)>& next) -> void {
+        std::cout << "URL: " << req.originalUrl << std::endl;
+        std::cout << "Cookie 1: " << req.cookie("searchcookie") << std::endl;
+        
+        next();
+    });
+    
+    router.use("/", r);
     
     return router;
 }
@@ -31,7 +42,7 @@ Router rrr() {
 
 
 int simpleWebserver(int argc, char** argv) {
-    Router router1 = route();
+    Router router1 = rrr();
     Router router;
     router = router1;
 
@@ -66,7 +77,7 @@ int simpleWebserver(int argc, char** argv) {
                      res.sendFile(uri);
                  }
              })
-        .get("/search", router);
+        .get("/", router);
 
 #define CERTF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c.pem"
 #define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c.key.encrypted.pem"
