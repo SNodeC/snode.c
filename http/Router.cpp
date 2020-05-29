@@ -1,12 +1,3 @@
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <algorithm>
-#include <iostream>
-
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "Request.h"
-#include "Response.h"
 #include "Router.h"
 
 
@@ -29,145 +20,122 @@ static const std::string path_concat(const std::string& first, const std::string
 }
 
 
-RouterRoute::RouterRoute(const Router* parent, const std::string& method, std::string path, const Router* router)
-    : Route(parent, method, path)
-    , router(router) {
+bool Route::dispatch(const std::string& method, const std::string& parentPath, const Request& req, const Response& res) const {
+    return route->dispatch(mountPoint, method, parentPath, req, res);
 }
 
 
-bool RouterRoute::dispatch(const std::string& method, const std::string& mpath, const Request& request, const Response& response) const {
+bool RouterRoute::dispatch(const MountPoint& mountPoint, const std::string& method, const std::string& parentPath, const Request& req,
+                           const Response& res) const {
     bool next = true;
-
-    std::string cpath = path_concat(mpath, path);
-
-    if (request.path.rfind(cpath, 0) == 0 && method == this->method) {
-        request.url = request.originalUrl.substr(cpath.length());
-        if (request.url.front() != '/') {
-            request.url.insert(0, "/");
+    std::string cpath = path_concat(parentPath, mountPoint.path);
+/*
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
+    std::cout << "    Request Method: " << method << std::endl;
+    std::cout << "    Request Path: " << req.path << std::endl;
+    std::cout << "    Registered For: " << mountPoint.method << std::endl;
+    std::cout << "    Parent Path: " << parentPath << std::endl;
+    std::cout << "    Registered Path: " << mountPoint.path << std::endl;
+    std::cout << "    Combined Path: " << cpath << std::endl;
+    std::cout << "    Path Match: " << req.path.rfind(cpath, 0) << std::endl;
+*/
+    if (req.path.rfind(cpath, 0) == 0 && (mountPoint.method == method || mountPoint.method == "use")) {
+/*
+        std::cout << "    -----" << std::endl;
+        std::cout << "    MATCH" << std::endl;
+        std::cout << "    -----" << std::endl;
+*/
+        req.url = req.originalUrl.substr(cpath.length());
+        if (req.url.front() != '/') {
+            req.url.insert(0, "/");
         }
-        next = router->dispatch(method, cpath, request, response);
-    }
 
+        std::list<Route>::const_iterator route = routes.begin();
+        std::list<Route>::const_iterator end = routes.end();
+
+//         std::cout << ">>>>>>>" << std::endl;
+        while (route != end && next) {
+            next = route->dispatch(method, cpath, req, res);
+            ++route;
+        }
+//         std::cout << "<<<<<<<" << std::endl;
+    }
     return next;
 }
 
 
-const Route* RouterRoute::clone(const Router* parent) const {
-    return new RouterRoute(parent, method, path, new Router(*router));
-}
-
-
-DispatcherRoute::DispatcherRoute(const Router* parent, const std::string& method, const std::string& path,
-                                 const std::function<void(const Request& req, const Response& res)>& dispatcher)
-    : Route(parent, method, path)
-    , dispatcher(dispatcher) {
-}
-
-
-bool DispatcherRoute::dispatch(const std::string& method, const std::string& mpath, const Request& request,
-                               const Response& response) const {
+bool MiddlewareRoute::dispatch(const MountPoint& mountPoint, const std::string& method, const std::string& parentPath, const Request& req,
+                               const Response& res) const {
     bool next = true;
-
-    std::string cpath = path_concat(mpath, path);
-
-    if ((request.path.rfind(cpath, 0) == 0 && this->method == "use") ||
-        (cpath == request.path && (method == this->method || this->method == "all"))) {
-        request.url = request.originalUrl.substr(cpath.length());
-        if (request.url.front() != '/') {
-            request.url.insert(0, "/");
-        }
-        this->dispatcher(request, response);
+    std::string cpath = path_concat(parentPath, mountPoint.path);
+/*
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
+    std::cout << "    Request Method: " << method << std::endl;
+    std::cout << "    Request Path: " << req.path << std::endl;
+    std::cout << "    Registered For: " << mountPoint.method << std::endl;
+    std::cout << "    Parent Path: " << parentPath << std::endl;
+    std::cout << "    Registered Path: " << mountPoint.path << std::endl;
+    std::cout << "    Combined Path: " << cpath << std::endl;
+    std::cout << "    Path Match: " << req.path.rfind(cpath, 0) << std::endl;
+*/
+    if ((req.path.rfind(cpath, 0) == 0 && mountPoint.method == "use") ||
+        (cpath == req.path && (method == mountPoint.method || mountPoint.method == "all"))) {
+/*
+        std::cout << "    -----" << std::endl;
+        std::cout << "    MATCH" << std::endl;
+        std::cout << "    -----" << std::endl;
+*/
         next = false;
-    }
-
-    return next;
-}
-
-
-const Route* DispatcherRoute::clone(const Router* parent) const {
-    return new DispatcherRoute(parent, method, path, dispatcher);
-}
-
-
-MiddlewareRoute::MiddlewareRoute(
-    const Router* parent, const std::string& method, const std::string& path,
-    const std::function<void(const Request& req, const Response& res, const std::function<void(void)>& next)>& dispatcher)
-    : Route(parent, method, path)
-    , dispatcher(dispatcher) {
-}
-
-
-bool MiddlewareRoute::dispatch(const std::string& method, const std::string& mpath, const Request& request,
-                               const Response& response) const {
-    bool next = true;
-
-    std::string cpath = path_concat(mpath, path);
-
-    if ((request.path.rfind(cpath, 0) == 0 && this->method == "use") ||
-        (cpath == request.path && (method == this->method || this->method == "all"))) {
-        next = false;
-        request.url = request.originalUrl.substr(cpath.length());
-        if (request.url.front() != '/') {
-            request.url.insert(0, "/");
+        req.url = req.originalUrl.substr(cpath.length());
+        if (req.url.front() != '/') {
+            req.url.insert(0, "/");
         }
-        this->dispatcher(request, response, [&next](void) -> void {
+
+//         std::cout << ">>>>>>>" << std::endl;
+        this->dispatcher(req, res, [&next](void) -> void {
             next = true;
         });
+//         std::cout << "<<<<<<<" << std::endl;
+    }
+    return next;
+}
+
+
+bool DispatcherRoute::dispatch(const MountPoint& mountPoint, const std::string& method, const std::string& parentPath, const Request& req,
+                               const Response& res) const {
+    bool next = true;
+    std::string cpath = path_concat(parentPath, mountPoint.path);
+/*
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
+    std::cout << "    Request Method: " << method << std::endl;
+    std::cout << "    Request Path: " << req.path << std::endl;
+    std::cout << "    Registered For: " << mountPoint.method << std::endl;
+    std::cout << "    Parent Path: " << parentPath << std::endl;
+    std::cout << "    Registered Path: " << mountPoint.path << std::endl;
+    std::cout << "    Combined Path: " << cpath << std::endl;
+    std::cout << "    Path Match: " << (cpath == req.path) << std::endl;
+*/
+    if (cpath == req.path && (method == mountPoint.method || mountPoint.method == "all")) {
+/*
+        std::cout << "    -----" << std::endl;
+        std::cout << "    MATCH" << std::endl;
+        std::cout << "    -----" << std::endl;
+*/
+        req.url = req.originalUrl.substr(cpath.length());
+        if (req.url.front() != '/') {
+            req.url.insert(0, "/");
+        }
+
+//         std::cout << ">>>>>>>" << std::endl;
+        this->dispatcher(req, res);
+//         std::cout << "<<<<<<<" << std::endl;
+        next = false;
     }
 
     return next;
 }
 
 
-const Route* MiddlewareRoute::clone(const Router* parent) const {
-    return new MiddlewareRoute(parent, method, path, dispatcher);
-}
-
-
-Router::Router()
-    : Route(0, "use", "") {
-}
-
-
-Router::Router(const Router& router)
-    : Route(0, "use", "") {
-    std::for_each(router.routes.begin(), router.routes.end(), [this](const Route* route) -> void {
-        this->routes.push_back(route->clone(this));
-    });
-}
-
-
-Router& Router::operator=(const Router& router) {
-    this->clear();
-
-    std::for_each(router.routes.begin(), router.routes.end(), [this](const Route* route) -> void {
-        this->routes.push_back(route->clone(this));
-    });
-
-    return *this;
-}
-
-
-void Router::clear() {
-    std::for_each(routes.begin(), routes.end(), [](const Route* route) -> void {
-        delete route;
-    });
-
-    this->routes.clear();
-}
-
-
-Router::~Router() {
-    this->clear();
-}
-
-
-bool Router::dispatch(const std::string& method, const std::string& path, const Request& request, const Response& response) const {
-    bool next = true;
-
-    std::for_each(routes.begin(), routes.end(), [&next, &method, &path, &request, &response](const Route* route) -> void {
-        next = route->dispatch(method, path, request, response);
-    });
-
-    return next;
+bool Router::dispatch(const std::string& method, const Request& req, const Response& res) const {
+    return routerRoute->dispatch(mountPoint, method, "/", req, res);
 }

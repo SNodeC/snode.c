@@ -22,15 +22,6 @@ target_compile_options(simpleserver PRIVATE --warn-conversion)
 target_link_libraries(simpleserver LINK_PUBLIC http)
 install(TARGETS simpleserver RUNTIME DESTINATION bin)
 
-add_executable(testnewroute testnewroute.cpp)
-target_compile_options(testnewroute PRIVATE --warn-conversion)
-target_link_libraries(testnewroute LINK_PUBLIC http)
-install(TARGETS testnewroute RUNTIME DESTINATION bin)
-
-
-#target_compile_options(simpleserver PRIVATE -fno-elide-constructors)
-
-
 find_package(Doxygen)
 option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 

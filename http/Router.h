@@ -1,6 +1,5 @@
-#ifndef ROUTER_H
-#define ROUTER_H
-
+#ifndef NEWROUTER_H
+#define NEWROUTER_H
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
@@ -8,110 +7,122 @@
 #include <iostream>
 #include <list>
 #include <map>
+#include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-class Request;
-class Response;
+#include "Request.h"
+#include "Response.h"
+
+
 class Router;
+
+class MountPoint {
+public:
+    MountPoint(const std::string& method, const std::string& path)
+        : method(method)
+        , path(path) {
+    }
+
+    std::string method;
+    std::string path;
+};
+
+
+class Dispatcher {
+public:
+    Dispatcher() {
+    }
+    virtual ~Dispatcher() = default;
+
+    virtual bool dispatch(const MountPoint& mountPoint, const std::string& method, const std::string& parentPath, const Request& req,
+                          const Response& res) const = 0;
+};
+
 
 class Route {
 public:
-    Route(const Router* parent, const std::string& method, const std::string& path)
+    Route(Router* parent, const std::string& method, const std::string& path, const std::shared_ptr<Dispatcher>& route)
         : parent(parent)
-        , method(method)
-        , path(path) {
-    }
-    virtual ~Route() {
+        , mountPoint(method, path)
+        , route(route) {
     }
 
-    virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& req, const Response& res) const = 0;
+    bool dispatch(const std::string& method, const std::string& parentPath, const Request& req, const Response& res) const;
 
 protected:
-    const Router* parent;
-    const std::string method;
-    const std::string path;
+    Router* parent;
+    MountPoint mountPoint;
+    std::shared_ptr<Dispatcher> route;
+};
 
-private:
-    virtual const Route* clone(const Router* parent) const {
-        return 0;
-    }
 
-    Route(const Route& route) = delete;
-    Route& operator=(const Route& route) = delete;
+class RouterRoute : public Dispatcher {
+public:
+    virtual bool dispatch(const MountPoint& mountPoint, const std::string& method, const std::string& parentPath, const Request& req,
+                          const Response& res) const;
+
+protected:
+    std::list<Route> routes;
 
     friend class Router;
 };
 
 
-class RouterRoute : public Route {
+class MiddlewareRoute : public Dispatcher {
 public:
-    RouterRoute(const Router* parent, const std::string& method, std::string path, const Router* router);
+    MiddlewareRoute(const std::function<void(const Request& req, const Response& res, const std::function<void(void)>& next)>& dispatcher)
+        : dispatcher(dispatcher) {
+    }
 
-    virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& req, const Response& res) const;
+    virtual bool dispatch(const MountPoint& mountPoint, const std::string& method, const std::string& parentPath, const Request& req,
+                          const Response& res) const;
 
-private:
-    virtual const Route* clone(const Router* parent) const;
-    const Router* router;
-};
-
-
-class DispatcherRoute : public Route {
-public:
-    DispatcherRoute(const Router* parent, const std::string& method, const std::string& path,
-                    const std::function<void(const Request& req, const Response& res)>& dispatcher);
-
-    virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& req, const Response& res) const;
-
-private:
-    virtual const Route* clone(const Router* parent) const;
-
-    const std::function<void(const Request& req, const Response& res)> dispatcher;
-};
-
-
-class MiddlewareRoute : public Route {
-public:
-    MiddlewareRoute(const Router* parent, const std::string& method, const std::string& path,
-                    const std::function<void(const Request& req, const Response& res, const std::function<void(void)>& next)>& dispatcher);
-
-    virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& req, const Response& res) const;
-
-private:
-    virtual const Route* clone(const Router* parent) const;
+protected:
     const std::function<void(const Request& req, const Response& res, std::function<void(void)>)> dispatcher;
+};
+
+
+class DispatcherRoute : public Dispatcher {
+public:
+    DispatcherRoute(const std::function<void(const Request& req, const Response& res)>& dispatcher)
+        : dispatcher(dispatcher) {
+    }
+
+    virtual bool dispatch(const MountPoint& mountPoint, const std::string& method, const std::string& parentPath, const Request& req,
+                          const Response& res) const;
+
+protected:
+    const std::function<void(const Request& req, const Response& res)> dispatcher;
 };
 
 
 #define REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                                 \
     Router& METHOD(const std::string& path, const std::function<void(const Request& req, const Response& res)>& dispatcher) {              \
-        routes.push_back(new DispatcherRoute(this, HTTP_METHOD, path, dispatcher));                                                        \
+        routerRoute->routes.push_back(Route(this, HTTP_METHOD, path, std::make_shared<DispatcherRoute>(dispatcher)));                      \
         return *this;                                                                                                                      \
     };                                                                                                                                     \
                                                                                                                                            \
     Router& METHOD(const std::string& path, Router& router) {                                                                              \
-        routes.push_back(new RouterRoute(this, HTTP_METHOD, path, &router));                                                               \
+        routerRoute->routes.push_back(Route(this, HTTP_METHOD, path, router.routerRoute));                                                 \
         return *this;                                                                                                                      \
     };                                                                                                                                     \
                                                                                                                                            \
     Router& METHOD(                                                                                                                        \
         const std::string& path,                                                                                                           \
         const std::function<void(const Request& req, const Response& res, const std::function<void(void)>& next)>& dispatcher) {           \
-        routes.push_back(new MiddlewareRoute(this, HTTP_METHOD, path, dispatcher));                                                        \
+        routerRoute->routes.push_back(Route(this, HTTP_METHOD, path, std::make_shared<MiddlewareRoute>(dispatcher)));                      \
         return *this;                                                                                                                      \
     };
 
 
-class Router : public Route {
+class Router {
 public:
-    Router();
-    Router(const Router& router);
-    Router& operator=(const Router& router);
-
-    void clear();
-    ~Router();
-
+    Router()
+        : mountPoint("use", "/")
+        , routerRoute(new RouterRoute()) {
+    }
 
     REQUESTMETHOD(use, "use");
     REQUESTMETHOD(all, "all");
@@ -125,12 +136,11 @@ public:
     REQUESTMETHOD(patch, "patch");
     REQUESTMETHOD(head, "head");
 
-    virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& request, const Response& response) const;
-
+    virtual bool dispatch(const std::string& method, const Request& req, const Response& res) const;
 
 protected:
-    std::list<const Route*> routes;
+    MountPoint mountPoint;
+    std::shared_ptr<RouterRoute> routerRoute; // it can be shared by multiple routers
 };
 
-
-#endif // ROUTER_H
+#endif // NEWROUTER_H

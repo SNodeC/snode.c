@@ -5,9 +5,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+
 Router route() {
     Router router;
-    router.use("/1", [&](const Request& req, const Response& res, const std::function<void(void)>& next) -> void {
+    router.use("/", [&](const Request& req, const Response& res, const std::function<void(void)>& next) -> void {
         std::cout << "URL: " << req.originalUrl << std::endl;
         std::cout << "Cookie 1: " << req.cookie("searchcookie") << std::endl;
         
@@ -21,16 +22,14 @@ Router route() {
     });
     
     Router r;
-    r.use("/3",  [&](const Request& req, const Response& res, const std::function<void(void)>& next) -> void {
+    r.use("/",  [&](const Request& req, const Response& res, const std::function<void(void)>& next) -> void {
         std::cout << "URL: " << req.originalUrl << std::endl;
         std::cout << "Cookie 1: " << req.cookie("searchcookie") << std::endl;
         
         next();
     });
     
-    router.use("/4", r);
-    
-    std::cout << "Bevore return " << __PRETTY_FUNCTION__ << std::endl;
+    router.use("/", r);
     
     return router;
 }
@@ -38,20 +37,13 @@ Router route() {
 
 Router rrr() {
     Router router(route());
-    
-    std::cout << "Bevore return " << __PRETTY_FUNCTION__ << std::endl;
     return router;
 }
 
 
 int simpleWebserver(int argc, char** argv) {
-    std::cout << "Bevore rrr() " << __PRETTY_FUNCTION__ << std::endl;
     Router router1 = rrr();
-    
-    std::cout << "Bevore Router route " << __PRETTY_FUNCTION__ << std::endl;
     Router router;
-    
-    std::cout << "Bevore router = router1 " << __PRETTY_FUNCTION__ << std::endl;
     router = router1;
 
     WebApp& legacyApp = WebApp::instance("/home/voc/projects/ServerVoc/build/html/");
