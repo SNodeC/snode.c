@@ -2,11 +2,8 @@
 #define NEWROUTER_H
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <algorithm>
 #include <functional>
-#include <iostream>
 #include <list>
-#include <map>
 #include <memory>
 #include <string>
 
