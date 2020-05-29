@@ -49,8 +49,8 @@ int simpleWebserver(int argc, char** argv) {
     WebApp& legacyApp = WebApp::instance("/home/voc/projects/ServerVoc/build/html/");
     legacyApp.use("/", [](const Request& req, const Response& res, const std::function<void(void)>& next) {
         std::cout << "Redirect: "
-                  << "https://localhost:8088" + req.originalUrl << std::endl;
-        res.redirect("https://localhost:8088" + req.originalUrl);
+                  << "https://calisto.home.vchrist.at:8088" + req.originalUrl << std::endl;
+        res.redirect("https://calisto.home.vchrist.at:8088" + req.originalUrl);
     });
 
     WebApp& sslApp = WebApp::instance("/home/voc/projects/ServerVoc/build/html/");
@@ -79,7 +79,7 @@ int simpleWebserver(int argc, char** argv) {
              })
         .get("/", router);
 
-#define CERTF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c.pem"
+#define CERTF "/home/voc/projects/ServerVoc/certs/calisto.home.vchrist.at_-_snode.c.pem"
 #define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c.key.encrypted.pem"
 
     sslApp.sslListen(8088, CERTF, KEYF, "snode.c", [&legacyApp](int err) -> void {
