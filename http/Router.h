@@ -33,7 +33,7 @@ public:
     }
     virtual ~Dispatcher() = default;
 
-    virtual bool dispatch(const MountPoint& mountPoint, const std::string& method, const std::string& parentPath, const Request& req,
+    virtual bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req,
                           const Response& res) const = 0;
 };
 
@@ -46,7 +46,7 @@ public:
         , route(route) {
     }
 
-    bool dispatch(const std::string& method, const std::string& parentPath, const Request& req, const Response& res) const;
+    bool dispatch(const std::string& parentPath, const Request& req, const Response& res) const;
 
 protected:
     Router* parent;
@@ -57,7 +57,7 @@ protected:
 
 class RouterRoute : public Dispatcher {
 public:
-    virtual bool dispatch(const MountPoint& mountPoint, const std::string& method, const std::string& parentPath, const Request& req,
+    virtual bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req,
                           const Response& res) const;
 
 protected:
@@ -73,7 +73,7 @@ public:
         : dispatcher(dispatcher) {
     }
 
-    virtual bool dispatch(const MountPoint& mountPoint, const std::string& method, const std::string& parentPath, const Request& req,
+    virtual bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req,
                           const Response& res) const;
 
 protected:
@@ -87,7 +87,7 @@ public:
         : dispatcher(dispatcher) {
     }
 
-    virtual bool dispatch(const MountPoint& mountPoint, const std::string& method, const std::string& parentPath, const Request& req,
+    virtual bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req,
                           const Response& res) const;
 
 protected:
@@ -133,7 +133,7 @@ public:
     REQUESTMETHOD(patch, "patch");
     REQUESTMETHOD(head, "head");
 
-    virtual bool dispatch(const std::string& method, const Request& req, const Response& res) const;
+    virtual bool dispatch(const Request& req, const Response& res) const;
 
 protected:
     MountPoint mountPoint;
