@@ -154,7 +154,7 @@ void HTTPContext::parseRequestLine(const std::string& line) {
 
 
 void HTTPContext::requestReady() {
-    webApp->dispatch(method, request, response);
+    webApp->dispatch(request, response);
 
     if (requestHeader.find("connection") != requestHeader.end()) {
         if (requestHeader.find("connection")->second == "Close") {
