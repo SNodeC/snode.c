@@ -7,18 +7,30 @@
 
 Router route() {
     Router router;
-    router.use("/", [&](const Request& req, const Response& res, const std::function<void(void)>& next) -> void {
+    router.use("/1", [&](const Request& req, const Response& res, const std::function<void(void)>& next) -> void {
         std::cout << "URL: " << req.originalUrl << std::endl;
         std::cout << "Cookie 1: " << req.cookie("searchcookie") << std::endl;
         
         next();
     });
     
-    router.get("/", [&](const Request& req, const Response& res) -> void {
+    router.get("/search", [&](const Request& req, const Response& res) -> void {
         std::cout << "URL: " << req.originalUrl << std::endl;
         std::cout << "Cookie 2: " << req.cookie("searchcookie") << std::endl;
         res.sendFile(req.originalUrl);
     });
+    
+    Router r;
+    r.use("/3",  [&](const Request& req, const Response& res, const std::function<void(void)>& next) -> void {
+        std::cout << "URL: " << req.originalUrl << std::endl;
+        std::cout << "Cookie 1: " << req.cookie("searchcookie") << std::endl;
+        
+        next();
+    });
+    
+    router.use("/4", r);
+    
+    std::cout << "Bevore return " << __PRETTY_FUNCTION__ << std::endl;
     
     return router;
 }
@@ -26,13 +38,20 @@ Router route() {
 
 Router rrr() {
     Router router(route());
+    
+    std::cout << "Bevore return " << __PRETTY_FUNCTION__ << std::endl;
     return router;
 }
 
 
 int simpleWebserver(int argc, char** argv) {
-    Router router1 = route();
+    std::cout << "Bevore rrr() " << __PRETTY_FUNCTION__ << std::endl;
+    Router router1 = rrr();
+    
+    std::cout << "Bevore Router route " << __PRETTY_FUNCTION__ << std::endl;
     Router router;
+    
+    std::cout << "Bevore router = router1 " << __PRETTY_FUNCTION__ << std::endl;
     router = router1;
 
     WebApp& legacyApp = WebApp::instance("/home/voc/projects/ServerVoc/build/html/");
@@ -66,7 +85,7 @@ int simpleWebserver(int argc, char** argv) {
                      res.sendFile(uri);
                  }
              })
-        .get("/search", router);
+        .get("/", router);
 
 #define CERTF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c.pem"
 #define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c.key.encrypted.pem"
