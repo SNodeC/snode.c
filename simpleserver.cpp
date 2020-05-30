@@ -5,32 +5,37 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#define MIDDLEWARE(req, res, next) [&](const Request& req, const Response& res, const std::function<void(void)>& next) -> void
+#define APPLICATION(req, res) [&](const Request& req, const Response& res) -> void
 
 Router route() {
     Router router;
-    router.use("/", [&](const Request& req, const Response& res, const std::function<void(void)>& next) -> void {
-        std::cout << "URL: " << req.originalUrl << std::endl;
-        std::cout << "Cookie 1: " << req.cookie("searchcookie") << std::endl;
-        
-        next();
-    });
-    
-    router.get("/search", [&](const Request& req, const Response& res) -> void {
-        std::cout << "URL: " << req.originalUrl << std::endl;
-        std::cout << "Cookie 2: " << req.cookie("searchcookie") << std::endl;
-        res.sendFile(req.originalUrl);
-    });
-    
+    router.use(
+        "/", MIDDLEWARE(req, res, next) {
+            std::cout << "URL: " << req.originalUrl << std::endl;
+            std::cout << "Cookie 1: " << req.cookie("searchcookie") << std::endl;
+
+            next();
+        });
+
+    router.get(
+        "/search", APPLICATION(req, res) {
+            std::cout << "URL: " << req.originalUrl << std::endl;
+            std::cout << "Cookie 2: " << req.cookie("searchcookie") << std::endl;
+            res.sendFile(req.originalUrl);
+        });
+
     Router r;
-    r.use("/",  [&](const Request& req, const Response& res, const std::function<void(void)>& next) -> void {
-        std::cout << "URL: " << req.originalUrl << std::endl;
-        std::cout << "Cookie 1: " << req.cookie("searchcookie") << std::endl;
-        
-        next();
-    });
-    
+    r.use(
+        "/", MIDDLEWARE(req, res, next) {
+            std::cout << "URL: " << req.originalUrl << std::endl;
+            std::cout << "Cookie 1: " << req.cookie("searchcookie") << std::endl;
+
+            next();
+        });
+
     router.use("/", r);
-    
+
     return router;
 }
 
@@ -47,40 +52,43 @@ int simpleWebserver(int argc, char** argv) {
     router = router1;
 
     WebApp legacyApp("/home/voc/projects/ServerVoc/build/html/");
-    legacyApp.use("/", [](const Request& req, const Response& res, const std::function<void(void)>& next) {
-        std::cout << "Redirect: "
-                  << "https://calisto.home.vchrist.at:8088" + req.originalUrl << std::endl;
-        res.redirect("https://calisto.home.vchrist.at:8088" + req.originalUrl);
-    });
+    legacyApp.use(
+        "/", MIDDLEWARE(req, res, next) {
+            std::cout << "Redirect: "
+                      << "https://calisto.home.vchrist.at:8088" + req.originalUrl << std::endl;
+            res.redirect("https://calisto.home.vchrist.at:8088" + req.originalUrl);
+        });
 
     WebApp sslApp("/home/voc/projects/ServerVoc/build/html/");
     sslApp
-        .use("/",
-             [&](const Request& req, const Response& res, const std::function<void(void)>& next) {
-                 res.set("Connection", "Keep-Alive");
-                 next();
-             })
-        .get("/",
-             [&](const Request& req, const Response& res) -> void {
-                 std::string uri = req.originalUrl;
-                 std::cout << "URL: " << uri << std::endl;
-                 std::cout << "Cookie: " << req.cookie("rootcookie") << std::endl;
-                 res.cookie("searchcookie", "cookievalue", {{"Max-Age", "3600"}, {"Path", "/search"}});
-                 //                res.clearCookie("rootcookie");
-                 //                res.clearCookie("rootcookie");
-                 //                res.clearCookie("searchcookie", {{"Path", "/search"}});
-                 if (uri == "/") {
-                     res.redirect("/index.html");
-                 } else if (uri == "/end") {
-                     WebApp::stop();
-                 } else {
-                     res.sendFile(uri, [uri](int ret) -> void {
-                         if (ret != 0) {
-                             perror(uri.c_str());
-                         }
-                     });
-                 }
-             })
+        .use(
+            "/",
+            MIDDLEWARE(req, res, next) {
+                res.set("Connection", "Keep-Alive");
+                next();
+            })
+        .get(
+            "/",
+            APPLICATION(req, res) {
+                std::string uri = req.originalUrl;
+                std::cout << "URL: " << uri << std::endl;
+                std::cout << "Cookie: " << req.cookie("rootcookie") << std::endl;
+                res.cookie("searchcookie", "cookievalue", {{"Max-Age", "3600"}, {"Path", "/search"}});
+                //                res.clearCookie("rootcookie");
+                //                res.clearCookie("rootcookie");
+                //                res.clearCookie("searchcookie", {{"Path", "/search"}});
+                if (uri == "/") {
+                    res.redirect("/index.html");
+                } else if (uri == "/end") {
+                    WebApp::stop();
+                } else {
+                    res.sendFile(uri, [uri](int ret) -> void {
+                        if (ret != 0) {
+                            perror(uri.c_str());
+                        }
+                    });
+                }
+            })
         .get("/", router);
 
 #define CERTF "/home/voc/projects/ServerVoc/certs/calisto.home.vchrist.at_-_snode.c.pem"
