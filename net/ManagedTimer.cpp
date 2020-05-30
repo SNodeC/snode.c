@@ -26,7 +26,7 @@ struct timeval ManagedTimer::getNextTimeout() {
         timerList.push_back(timer);
         timerListDirty = true;
     }
-        
+
     addedList.clear();
 
     for (Timer* timer : removedList) {
@@ -63,7 +63,7 @@ struct timeval ManagedTimer::getNextTimeout() {
 void ManagedTimer::dispatch() {
     struct timeval currentTime;
     gettimeofday(&currentTime, NULL);
-    
+
     for (Timer* timer : timerList) {
         if (timer->timeout() <= currentTime) {
             timer->dispatch();
