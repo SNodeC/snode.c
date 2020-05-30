@@ -107,6 +107,8 @@ int timerApp(int argc, char** argv) {
             std::cout << "snode.c listening on port 8080" << std::endl;
         }
     });
+    
+    WebApp::start();
 
     return 0;
 }
@@ -237,6 +239,8 @@ int simpleWebserver(int argc, char** argv) {
         }
     });
 
+    WebApp::start();
+    
     return 0;
 }
 
@@ -299,6 +303,8 @@ int testPost(int argc, char* argv[]) {
             std::cout << "snode.c listening on port 8080" << std::endl;
         }
     });
+    
+    WebApp::start();
 
     return 0;
 }

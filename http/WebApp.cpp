@@ -41,9 +41,6 @@ void WebApp::listen(int port, const std::function<void(int err)>& onError) {
             if (onError) {
                 onError(err);
             }
-            if (!err) {
-                SocketServer::run();
-            }
         });
 }
 
@@ -76,10 +73,12 @@ void WebApp::sslListen(int port, const std::string& cert, const std::string& key
             if (onError) {
                 onError(err);
             }
-            if (!err) {
-                SocketServer::run();
-            }
         });
+}
+
+
+void WebApp::start() {
+    SocketServer::run();
 }
 
 
