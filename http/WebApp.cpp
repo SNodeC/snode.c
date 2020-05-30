@@ -10,11 +10,6 @@ WebApp::WebApp(const std::string& serverRoot) {
 }
 
 
-WebApp& WebApp::instance(const std::string& serverRoot) {
-    return *new WebApp(serverRoot);
-}
-
-
 WebApp::~WebApp() {
 }
 
@@ -90,9 +85,4 @@ void WebApp::sslListen(int port, const std::string& cert, const std::string& key
 
 void WebApp::stop() {
     SocketServer::stop();
-}
-
-
-void WebApp::destroy() {
-    delete this;
 }
