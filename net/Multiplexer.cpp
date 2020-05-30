@@ -40,7 +40,7 @@ void Multiplexer::tick() {
 }
 
 
-void Multiplexer::run() {
+void Multiplexer::start() {
     if (!Multiplexer::running) {
         Multiplexer::running = true;
 

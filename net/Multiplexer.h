@@ -44,8 +44,7 @@ public:
         return managedTimer;
     }
 
-    static void run();
-
+    static void start();
     static void stop();
 
 private:
