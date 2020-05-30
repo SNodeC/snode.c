@@ -15,7 +15,7 @@
 
 #define DREQUESTMETHOD(METHOD)                                                                                                             \
     Router& METHOD(const std::string& path, const std::function<void(const Request& req, const Response& res)>& dispatcher);               \
-    Router& METHOD(const std::string& path, Router& router);                                                                               \
+    Router& METHOD(const std::string& path, const Router& router);                                                                         \
     Router& METHOD(const std::string& path,                                                                                                \
                    const std::function<void(const Request& req, const Response& res, const std::function<void(void)>& next)>& dispatcher);
 
