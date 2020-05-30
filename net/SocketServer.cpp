@@ -3,8 +3,8 @@
 #include "Multiplexer.h"
 
 
-void SocketServer::run() {
-    Multiplexer::run();
+void SocketServer::start() {
+    Multiplexer::start();
 }
 
 
