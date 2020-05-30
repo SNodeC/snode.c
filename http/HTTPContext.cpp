@@ -305,7 +305,7 @@ void HTTPContext::reset() {
     this->responseCookies.clear();
 
     if (this->bodyData != 0) {
-        delete this->bodyData;
+        delete[] this->bodyData;
         this->bodyData = 0;
     }
     this->bodyLength = 0;
