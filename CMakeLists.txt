@@ -49,7 +49,6 @@ FILE(GLOB_RECURSE
     CHECK_CXX_SOURCE_FILES
     net/*.[tch]pp net/*.h
     http/*.[tch]pp http/*.h
-    *.[tch]pp *.h
 )
 INCLUDE("cmake/clang-cpp-checks.cmake")
 
