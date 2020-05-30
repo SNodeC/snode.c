@@ -8,57 +8,41 @@
 #define MIDDLEWARE(req, res, next) [&](const Request& req, const Response& res, const std::function<void(void)>& next) -> void
 #define APPLICATION(req, res) [&](const Request& req, const Response& res) -> void
 
-Router route() {
+const Router route() {
     Router router;
     router.use(
         "/", MIDDLEWARE(req, res, next) {
-            std::cout << "URL: " << req.originalUrl << std::endl;
+            std::cout << "Middleware 1 " << req.originalUrl << std::endl;
             std::cout << "Cookie 1: " << req.cookie("searchcookie") << std::endl;
 
             next();
         });
 
-    router.get(
-        "/search", APPLICATION(req, res) {
-            std::cout << "URL: " << req.originalUrl << std::endl;
-            std::cout << "Cookie 2: " << req.cookie("searchcookie") << std::endl;
-            res.sendFile(req.originalUrl);
-        });
-
     Router r;
     r.use(
         "/", MIDDLEWARE(req, res, next) {
-            std::cout << "URL: " << req.originalUrl << std::endl;
-            std::cout << "Cookie 1: " << req.cookie("searchcookie") << std::endl;
+            std::cout << "Middleware 2 " << req.originalUrl << std::endl;
+            std::cout << "Cookie 2: " << req.cookie("searchcookie") << std::endl;
 
             next();
         });
 
     router.use("/", r);
 
-    return router;
-}
-
-
-Router rrr() {
-    Router router(route());
-    return router;
-}
-
-
-int simpleWebserver(int argc, char** argv) {
-    Router router1 = rrr();
-    Router router;
-    router = router1;
-
-    WebApp legacyApp("/home/voc/projects/ServerVoc/build/html/");
-    legacyApp.use(
-        "/", MIDDLEWARE(req, res, next) {
-            std::cout << "Redirect: "
-                      << "https://calisto.home.vchrist.at:8088" + req.originalUrl << std::endl;
-            res.redirect("https://calisto.home.vchrist.at:8088" + req.originalUrl);
+    router.get(
+        "/search", APPLICATION(req, res) {
+            std::cout << "Search" << std::endl;
+            std::cout << "URL: " << req.originalUrl << std::endl;
+            std::cout << "Cookie 3: " << req.cookie("searchcookie") << std::endl;
+            res.sendFile(req.originalUrl);
         });
 
+
+    return router;
+}
+
+
+WebApp sslMain() {
     WebApp sslApp("/home/voc/projects/ServerVoc/build/html/");
     sslApp
         .use(
@@ -67,9 +51,9 @@ int simpleWebserver(int argc, char** argv) {
                 res.set("Connection", "Keep-Alive");
                 next();
             })
+        .get("/", route())
         .get(
-            "/",
-            APPLICATION(req, res) {
+            "/", APPLICATION(req, res) {
                 std::string uri = req.originalUrl;
                 std::cout << "URL: " << uri << std::endl;
                 std::cout << "Cookie: " << req.cookie("rootcookie") << std::endl;
@@ -88,8 +72,29 @@ int simpleWebserver(int argc, char** argv) {
                         }
                     });
                 }
-            })
-        .get("/", router);
+            });
+
+    return sslApp;
+}
+
+
+WebApp legacyMain() {
+    WebApp legacyApp("/home/voc/projects/ServerVoc/build/html/");
+    legacyApp.use(
+        "/", MIDDLEWARE(req, res, next) {
+            std::cout << "Redirect: "
+                      << "https://calisto.home.vchrist.at:8088" + req.originalUrl << std::endl;
+            res.redirect("https://calisto.home.vchrist.at:8088" + req.originalUrl);
+        });
+
+    return legacyApp;
+}
+
+
+int simpleWebserver(int argc, char** argv) {
+    WebApp legacyApp(legacyMain());
+
+    WebApp sslApp(sslMain());
 
 #define CERTF "/home/voc/projects/ServerVoc/certs/calisto.home.vchrist.at_-_snode.c.pem"
 #define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c.key.encrypted.pem"
@@ -100,15 +105,18 @@ int simpleWebserver(int argc, char** argv) {
             perror("Listen");
         } else {
             std::cout << "snode.c listening on port 8088" << std::endl;
-            legacyApp.listen(8080, [](int err) -> void {
-                if (err != 0) {
-                    perror("Listen");
-                } else {
-                    std::cout << "snode.c listening on port 8080" << std::endl;
-                }
-            });
         }
     });
+
+    legacyApp.listen(8080, [](int err) -> void {
+        if (err != 0) {
+            perror("Listen");
+        } else {
+            std::cout << "snode.c listening on port 8080" << std::endl;
+        }
+    });
+
+    WebApp::start();
 
     return 0;
 }
