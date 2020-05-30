@@ -80,10 +80,10 @@ void HTTPContext::receiveRequest(const char* junk, ssize_t junkLen) {
 void HTTPContext::parseRequest(const char* junk, ssize_t junkLen, const std::function<void(std::string&)>& lineRead,
                                const std::function<void(const char* bodyJunk, int junkLength)> bodyRead) {
     if (requestState != requeststates::BODY) {
-        int i = 0;
+        int n = 0;
 
-        while (i < junkLen && requestState != ERROR && requestState != BODY) {
-            const char& ch = junk[i++];
+        while (n < junkLen && requestState != ERROR && requestState != BODY) {
+            const char& ch = junk[n++];
             if (ch != '\r') { // '\r' can be ignored completely as long as we are not receiving the body of the document
                 switch (lineState) {
                 case linestate::READ:
@@ -114,8 +114,8 @@ void HTTPContext::parseRequest(const char* junk, ssize_t junkLen, const std::fun
                 }
             }
         }
-        if (i != junkLen) {
-            bodyRead(junk + i, junkLen - i);
+        if (n != junkLen) {
+            bodyRead(junk + n, junkLen - n);
         }
     } else {
         bodyRead(junk, junkLen);
