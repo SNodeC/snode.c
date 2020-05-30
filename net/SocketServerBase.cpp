@@ -33,7 +33,6 @@ template <typename T> void SocketServerBase<T>::listen(in_port_t port, int backl
             onError(errnum);
         } else {
             int sockopt = 1;
-
             if (setsockopt(this->getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
                 onError(errno);
             } else {
