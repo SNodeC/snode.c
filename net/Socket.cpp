@@ -17,8 +17,8 @@ Socket::~Socket() {
 }
 
 
-void Socket::setFd(int fd) {
-    Descriptor::setFd(fd);
+void Socket::attach(int fd) {
+    Descriptor::attach(fd);
 }
 
 
@@ -26,7 +26,7 @@ void Socket::open(const std::function<void(int errnum)>& onError) {
     int fd = ::socket(AF_INET, SOCK_STREAM, 0);
 
     if (fd >= 0) {
-        this->setFd(fd);
+        this->attach(fd);
         onError(0);
     } else {
         onError(errno);
