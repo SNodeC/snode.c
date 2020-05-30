@@ -19,13 +19,12 @@ const Router route() {
         });
 
     Router r;
-    r.use(
-        "/", MIDDLEWARE(req, res, next) {
-            std::cout << "Middleware 2 " << req.originalUrl << std::endl;
-            std::cout << "Cookie 2: " << req.cookie("searchcookie") << std::endl;
+    r.use(MIDDLEWARE(req, res, next) {
+        std::cout << "Middleware 2 " << req.originalUrl << std::endl;
+        std::cout << "Cookie 2: " << req.cookie("searchcookie") << std::endl;
 
-            next();
-        });
+        next();
+    });
 
     router.use("/", r);
 

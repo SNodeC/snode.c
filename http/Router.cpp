@@ -170,8 +170,18 @@ bool Router::dispatch(const Request& req, const Response& res) const {
         return *this;                                                                                                                      \
     };                                                                                                                                     \
                                                                                                                                            \
+    Router& Router::METHOD(const std::function<void(const Request& req, const Response& res)>& dispatcher) {                               \
+        routerRoute->routes.push_back(Route(this, HTTP_METHOD, "", std::make_shared<DispatcherRoute>(dispatcher)));                        \
+        return *this;                                                                                                                      \
+    };                                                                                                                                     \
+                                                                                                                                           \
     Router& Router::METHOD(const std::string& path, const Router& router) {                                                                \
         routerRoute->routes.push_back(Route(this, HTTP_METHOD, path, router.routerRoute));                                                 \
+        return *this;                                                                                                                      \
+    };                                                                                                                                     \
+                                                                                                                                           \
+    Router& Router::METHOD(const Router& router) {                                                                                         \
+        routerRoute->routes.push_back(Route(this, HTTP_METHOD, "", router.routerRoute));                                                   \
         return *this;                                                                                                                      \
     };                                                                                                                                     \
                                                                                                                                            \
@@ -179,6 +189,12 @@ bool Router::dispatch(const Request& req, const Response& res) const {
         const std::string& path,                                                                                                           \
         const std::function<void(const Request& req, const Response& res, const std::function<void(void)>& next)>& dispatcher) {           \
         routerRoute->routes.push_back(Route(this, HTTP_METHOD, path, std::make_shared<MiddlewareRoute>(dispatcher)));                      \
+        return *this;                                                                                                                      \
+    };                                                                                                                                     \
+                                                                                                                                           \
+    Router& Router::METHOD(                                                                                                                \
+        const std::function<void(const Request& req, const Response& res, const std::function<void(void)>& next)>& dispatcher) {           \
+        routerRoute->routes.push_back(Route(this, HTTP_METHOD, "", std::make_shared<MiddlewareRoute>(dispatcher)));                        \
         return *this;                                                                                                                      \
     };
 
