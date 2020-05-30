@@ -7,8 +7,8 @@
 
 Timer::Timer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg)
     : dispatcher(dispatcher)
-    , arg(arg)
-    , delay(timeout) {
+    , delay(timeout)
+    , arg(arg) {
     gettimeofday(&absoluteTimeout, NULL);
     update();
 }
