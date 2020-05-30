@@ -7,7 +7,7 @@
 
 SocketLegacy::SocketLegacy(int fd)
     : Socket() {
-    this->setFd(fd);
+    this->attach(fd);
 }
 
 

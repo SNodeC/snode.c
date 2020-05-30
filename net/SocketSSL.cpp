@@ -8,7 +8,7 @@
 SocketSSL::SocketSSL(int fd)
     : Socket()
     , ssl(0) {
-    this->setFd(fd);
+    this->attach(fd);
 }
 
 

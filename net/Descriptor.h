@@ -19,7 +19,7 @@ public:
 
     int getFd() const;
 
-    virtual void setFd(int fd) {
+    virtual void attach(int fd) {
         this->fd = fd;
     }
 

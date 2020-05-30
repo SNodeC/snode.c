@@ -12,7 +12,7 @@
 
 class Socket : virtual public Descriptor {
 public:
-    virtual void setFd(int fd);
+    virtual void attach(int fd);
 
     virtual ~Socket();
 
