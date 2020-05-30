@@ -13,7 +13,6 @@
 #include "Response.h"
 
 
-
 #define DREQUESTMETHOD(METHOD)                                                                                                             \
     Router& METHOD(const std::string& path, const std::function<void(const Request& req, const Response& res)>& dispatcher);               \
     Router& METHOD(const std::string& path, Router& router);                                                                               \
