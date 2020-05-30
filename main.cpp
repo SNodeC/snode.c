@@ -29,14 +29,15 @@ int timerApp(int argc, char** argv) {
         (struct timeval){1, 100000}, "Tack");
 
     bool canceled = false;
+    
     WebApp app("/home/voc/projects/ServerVoc/build/html");
 
     app.get("/", [&](const Request& req, const Response& res) -> void {
         std::string uri = req.originalUrl;
 
         if (uri == "/") {
-            uri = "/index.html";
-        }
+            res.redirect("/index.html");
+        } else {
 
         std::cout << "RCookie: " << req.cookie("doxygen_width") << std::endl;
         std::cout << "RCookie: " << req.cookie("Test") << std::endl;
@@ -48,9 +49,7 @@ int timerApp(int argc, char** argv) {
 
         std::cout << "RQuery: " << req.query("Hallo") << std::endl;
 
-        res.cookie("Test", "me", {{"Max-Age", "3600"}}
-
-        );
+        res.cookie("Test", "me", {{"Max-Age", "3600"}});
 
         //            res.set("Connection", "close");
         res.sendFile(uri, [uri](int ret) -> void {
@@ -66,6 +65,39 @@ int timerApp(int argc, char** argv) {
             //                app.destroy();
         }
         //            Multiplexer::stop();
+        }
+    });
+    
+    
+    app.get("/search/", [&](const Request& req, const Response& res) -> void {
+        //                  res.set({{"Content-Length", "7"}});
+
+        std::string host = req.header("Host");
+
+        //                std::cout << "Host: " << host << std::endl;
+
+        std::string uri = req.originalUrl;
+
+        //                std::cout << "RHeader: " << req.header("Accept") << std::endl;
+
+        std::cout << "OriginalUri: " << uri << std::endl;
+        std::cout << "Uri: " << req.url << std::endl;
+
+        if (uri == "/") {
+            res.redirect("/index.html");
+        } else {
+            //                    std::cout << uri << std::endl;
+
+            if (req.bodySize() != 0) {
+                std::cout << "Body: " << req.body << std::endl;
+            }
+
+            res.sendFile(uri, [uri](int ret) -> void {
+                if (ret != 0) {
+                    std::cerr << uri << ": " << strerror(ret) << std::endl;
+                }
+            });
+        }
     });
 
     app.listen(8080, [](int err) -> void {
@@ -273,5 +305,5 @@ int testPost(int argc, char* argv[]) {
 
 
 int main(int argc, char** argv) {
-    return simpleWebserver(argc, argv);
+    return timerApp(argc, argv);
 }
