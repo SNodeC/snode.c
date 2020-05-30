@@ -64,13 +64,14 @@ int testPost(int argc, char* argv[]) {
 
 #define CERTF "/home/voc/projects/ServerVoc/certs/calisto.home.vchrist.at_-_snode.c.pem"
 #define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c.key.encrypted.pem"
-
+#define KEYFPASS "snode.c"
+    
     app.listen(8080, [&app](int err) -> void {
         if (err != 0) {
             perror("Listen");
         } else {
             std::cout << "snode.c listening on port 8080" << std::endl;
-            app.sslListen(8088, CERTF, KEYF, "snode.c", [](int err) -> void {
+            app.sslListen(8088, CERTF, KEYF, KEYFPASS, [](int err) -> void {
                 if (err != 0) {
                     perror("Listen");
                 } else {

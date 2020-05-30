@@ -74,15 +74,20 @@ int simpleWebserver(int argc, char** argv) {
                  } else if (uri == "/end") {
                      WebApp::stop();
                  } else {
-                     res.sendFile(uri);
+                     res.sendFile(uri, [uri](int ret) -> void {
+                         if (ret != 0) {
+                             perror(uri.c_str());
+                         }
+                     });
                  }
              })
         .get("/", router);
 
 #define CERTF "/home/voc/projects/ServerVoc/certs/calisto.home.vchrist.at_-_snode.c.pem"
 #define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c.key.encrypted.pem"
+#define KEYFPASS "snode.c"
 
-    sslApp.sslListen(8088, CERTF, KEYF, "snode.c", [&legacyApp](int err) -> void {
+    sslApp.sslListen(8088, CERTF, KEYF, KEYFPASS, [&legacyApp](int err) -> void {
         if (err != 0) {
             perror("Listen");
         } else {
