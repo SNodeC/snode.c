@@ -12,7 +12,7 @@
 
 
 int testPost(int argc, char* argv[]) {
-    WebApp& app = WebApp::instance("/home/voc/projects/ServerVoc/build/html");
+    WebApp app("/home/voc/projects/ServerVoc/build/html");
 
     app.get("/", [&](const Request& req, const Response& res) -> void {
         res.send("<html>"
@@ -62,7 +62,7 @@ int testPost(int argc, char* argv[]) {
                  "</html>");
     });
 
-#define CERTF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c.pem"
+#define CERTF "/home/voc/projects/ServerVoc/certs/calisto.home.vchrist.at_-_snode.c.pem"
 #define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c.key.encrypted.pem"
 
     app.listen(8080, [&app](int err) -> void {

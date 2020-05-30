@@ -46,14 +46,14 @@ int simpleWebserver(int argc, char** argv) {
     Router router;
     router = router1;
 
-    WebApp& legacyApp = WebApp::instance("/home/voc/projects/ServerVoc/build/html/");
+    WebApp legacyApp("/home/voc/projects/ServerVoc/build/html/");
     legacyApp.use("/", [](const Request& req, const Response& res, const std::function<void(void)>& next) {
         std::cout << "Redirect: "
                   << "https://calisto.home.vchrist.at:8088" + req.originalUrl << std::endl;
         res.redirect("https://calisto.home.vchrist.at:8088" + req.originalUrl);
     });
 
-    WebApp& sslApp = WebApp::instance("/home/voc/projects/ServerVoc/build/html/");
+    WebApp sslApp("/home/voc/projects/ServerVoc/build/html/");
     sslApp
         .use("/",
              [&](const Request& req, const Response& res, const std::function<void(void)>& next) {
@@ -96,9 +96,6 @@ int simpleWebserver(int argc, char** argv) {
             });
         }
     });
-
-    legacyApp.destroy();
-    sslApp.destroy();
 
     return 0;
 }

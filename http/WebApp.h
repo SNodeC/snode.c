@@ -13,20 +13,17 @@
 
 
 class WebApp : public Router {
-private:
-    WebApp(const std::string& serverRoot);
+public:
+    WebApp(const std::string& serverRoot = "./");
 
 public:
     ~WebApp();
-
-    static WebApp& instance(const std::string& serverRoot = "./");
 
     void listen(int port, const std::function<void(int err)>& onError = 0);
     void sslListen(int port, const std::string& cert, const std::string& key, const std::string& password,
                    const std::function<void(int err)>& onError = 0);
 
     static void stop();
-    void destroy();
 
     const std::string& getRootDir() {
         return rootDir;
