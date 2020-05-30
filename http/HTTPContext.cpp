@@ -260,21 +260,19 @@ void HTTPContext::sendHeader() {
     responseHeader.insert({"Accept-Ranges", "bytes"});
     responseHeader.insert({"X-Powered-By", "snode.c"});
 
-    std::for_each(responseHeader.begin(), responseHeader.end(),
-                  [this](const std::pair<const std::string&, const std::string&>& header) -> void {
-                      this->connectedSocket->send(header.first + ": " + header.second + "\r\n");
-                  });
+    for (const std::pair<const std::string&, const std::string&>& header : responseHeader) {
+        this->connectedSocket->send(header.first + ": " + header.second + "\r\n");
+    }
 
-    std::for_each(responseCookies.begin(), responseCookies.end(),
-                  [this](const std::pair<const std::string&, const ResponseCookie&>& cookie) -> void {
-                      std::string cookieString = cookie.first + "=" + cookie.second.value;
+    for (const std::pair<const std::string&, const ResponseCookie&> cookie : responseCookies) {
+        std::string cookieString = cookie.first + "=" + cookie.second.value;
 
-                      std::for_each(cookie.second.options.begin(), cookie.second.options.end(),
-                                    [&cookieString](const std::pair<const std::string&, const std::string&>& options) -> void {
-                                        cookieString += "; " + options.first + ((options.second != "") ? "=" + options.second : "");
-                                    });
-                      this->connectedSocket->send("Set-Cookie: " + cookieString + "\r\n");
-                  });
+        for (const std::pair<const std::string&, const std::string&>& option : cookie.second.options) {
+            cookieString += "; " + option.first + ((option.second != "") ? "=" + option.second : "");
+        }
+
+        this->connectedSocket->send("Set-Cookie: " + cookieString + "\r\n");
+    }
 
     connectedSocket->send("\r\n");
 
