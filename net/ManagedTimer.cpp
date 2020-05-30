@@ -22,17 +22,18 @@ struct timeval ManagedTimer::getNextTimeout() {
     tv.tv_sec = 20L;
     tv.tv_usec = 0L;
 
-    for_each(addedList.begin(), addedList.end(), [this](Timer* timer) {
+    for (Timer* timer : addedList) {
         timerList.push_back(timer);
         timerListDirty = true;
-    });
+    }
+        
     addedList.clear();
 
-    for_each(addedList.begin(), addedList.end(), [this](Timer* timer) {
+    for (Timer* timer : removedList) {
         timerList.remove(timer);
         timer->destroy();
         timerListDirty = true;
-    });
+    }
 
     removedList.clear();
 
@@ -62,14 +63,14 @@ struct timeval ManagedTimer::getNextTimeout() {
 void ManagedTimer::dispatch() {
     struct timeval currentTime;
     gettimeofday(&currentTime, NULL);
-
-    for (std::list<Timer*>::iterator it = timerList.begin(); it != timerList.end(); ++it) {
-        if ((*it)->timeout() <= currentTime) {
-            (*it)->dispatch();
-            if (dynamic_cast<SingleshotTimer*>(*it)) {
-                remove(*it);
-            } else if (dynamic_cast<ContinousTimer*>(*it)) {
-                (*it)->update();
+    
+    for (Timer* timer : timerList) {
+        if (timer->timeout() <= currentTime) {
+            timer->dispatch();
+            if (dynamic_cast<SingleshotTimer*>(timer)) {
+                remove(timer);
+            } else if (dynamic_cast<ContinousTimer*>(timer)) {
+                timer->update();
                 timerListDirty = true;
             }
         } else {

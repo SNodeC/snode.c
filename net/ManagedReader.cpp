@@ -8,12 +8,12 @@
 
 
 int ManagedReader::dispatch(fd_set& fdSet, int count) {
-    for_each(descriptors.begin(), descriptors.end(), [&fdSet, &count](Reader* reader) -> void {
+    for (Reader* reader : descriptors) {
         if (FD_ISSET(dynamic_cast<Descriptor*>(reader)->getFd(), &fdSet)) {
             count--;
             reader->readEvent();
         }
-    });
+    }
 
     return count;
 }

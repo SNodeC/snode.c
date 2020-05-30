@@ -36,9 +36,9 @@ const Response& Response::append(const std::string& field, const std::string& va
 
 
 const Response& Response::set(const std::map<std::string, std::string>& map) const {
-    std::for_each(map.begin(), map.end(), [this](const std::pair<const std::string&, const std::string&>& header) -> void {
+    for (const std::pair<const std::string&, const std::string&>& header : map) {
         this->set(header.first, header.second);
-    });
+    }
 
     return *this;
 }
