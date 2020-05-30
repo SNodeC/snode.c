@@ -170,7 +170,7 @@ bool Router::dispatch(const Request& req, const Response& res) const {
         return *this;                                                                                                                      \
     };                                                                                                                                     \
                                                                                                                                            \
-    Router& Router::METHOD(const std::string& path, Router& router) {                                                                      \
+    Router& Router::METHOD(const std::string& path, const Router& router) {                                                                \
         routerRoute->routes.push_back(Route(this, HTTP_METHOD, path, router.routerRoute));                                                 \
         return *this;                                                                                                                      \
     };                                                                                                                                     \
