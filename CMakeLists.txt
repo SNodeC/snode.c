@@ -49,6 +49,7 @@ FILE(GLOB_RECURSE
     CHECK_CXX_SOURCE_FILES
     net/*.[tch]pp net/*.h
     http/*.[tch]pp http/*.h
+    *.[tch]pp *.h
 )
 INCLUDE("cmake/clang-cpp-checks.cmake")
 
@@ -69,3 +70,5 @@ endif(CHECK_INCLUDES)
 if(CHECK_INCLUDES)
     set_property(TARGET simpleserver PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
 endif(CHECK_INCLUDES)
+
+#xargs rm < install_manifest.txt
