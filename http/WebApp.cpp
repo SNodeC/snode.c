@@ -1,8 +1,8 @@
 #include "WebApp.h"
 
 #include "HTTPContext.h"
-#include "SocketLegacyServer.h"
-#include "SocketSSLServer.h"
+#include "socket/legacy/SocketServer.h"
+#include "socket/tls/SocketServer.h"
 
 
 WebApp::WebApp(const std::string& serverRoot) {
@@ -17,7 +17,7 @@ WebApp::~WebApp() {
 void WebApp::listen(int port, const std::function<void(int err)>& onError) {
     errno = 0;
 
-    SocketLegacyServer::instance(
+    legacy::SocketServer::instance(
         [this](SocketConnection* connectedSocket) -> void {
             connectedSocket->setContext(new HTTPContext(this, connectedSocket));
         },
@@ -27,12 +27,12 @@ void WebApp::listen(int port, const std::function<void(int err)>& onError) {
         [](SocketConnection* connectedSocket, const char* junk, ssize_t n) -> void {
             static_cast<HTTPContext*>(connectedSocket->getContext())->receiveRequest(junk, n);
         },
-        [](int errnum) -> void {
+        [](SocketConnection* connectedSocket, int errnum) -> void {
             if (errnum) {
                 perror("Read from ConnectedSocket");
             }
         },
-        [](int errnum) -> void {
+        [](SocketConnection* connectedSocket, int errnum) -> void {
             if (errnum) {
                 perror("Write to ConnectedSocket");
             }
@@ -49,7 +49,7 @@ void WebApp::sslListen(int port, const std::string& cert, const std::string& key
                        const std::function<void(int err)>& onError) {
     errno = 0;
 
-    SocketSSLServer::instance(
+    tls::SocketServer::instance(
         [this](SocketConnection* connectedSocket) -> void {
             connectedSocket->setContext(new HTTPContext(this, connectedSocket));
         },
@@ -59,14 +59,14 @@ void WebApp::sslListen(int port, const std::string& cert, const std::string& key
         [](SocketConnection* connectedSocket, const char* junk, ssize_t n) -> void {
             static_cast<HTTPContext*>(connectedSocket->getContext())->receiveRequest(junk, n);
         },
-        [](int errnum) -> void {
+        [](SocketConnection* connectedSocket, int errnum) -> void {
             if (errnum) {
-                perror("Read from SSLConnectedSocket");
+                static_cast<HTTPContext*>(connectedSocket->getContext())->onReadError(errnum);
             }
         },
-        [](int errnum) -> void {
+        [](SocketConnection* connectedSocket, int errnum) -> void {
             if (errnum) {
-                perror("Write to SSLConnectedSocket");
+                static_cast<HTTPContext*>(connectedSocket->getContext())->onWriteError(errnum);
             }
         })
         ->listen(port, 5, cert, key, password, [&](int err) -> void {

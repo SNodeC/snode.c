@@ -1,11 +1,8 @@
-#include <iostream>
-#include <string.h>
-#include <time.h>
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "ContinousTimer.h"
-#include "SingleshotTimer.h"
+#include <iostream>
+#include <string.h>
+
 #include "WebApp.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -60,6 +57,7 @@ int testPost(int argc, char* argv[]) {
                         "<h1>Thank you</h1>"
                     "</body>"
                 "</html>");
+        delete[] body;
     });
 
 #define CERTF "/home/voc/projects/ServerVoc/certs/calisto.home.vchrist.at_-_snode.c.pem"

@@ -5,10 +5,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "ContinousTimer.h"
 #include "ManagedTimer.h"
-#include "SingleshotTimer.h"
-#include "Timer.h"
+#include "timer/ContinousTimer.h"
+#include "timer/SingleshotTimer.h"
+#include "timer/Timer.h"
 
 
 ManagedTimer::ManagedTimer()
@@ -39,7 +39,7 @@ struct timeval ManagedTimer::getNextTimeout() {
 
     if (!timerList.empty()) {
         if (timerListDirty) {
-            timerList.sort(lttimernode());
+            timerList.sort(timernode_lt());
             timerListDirty = false;
         }
 
@@ -87,14 +87,4 @@ void ManagedTimer::remove(Timer* timer) {
 
 void ManagedTimer::add(Timer* timer) {
     addedList.push_back(timer);
-}
-
-
-bool ManagedTimer::lttimernode::operator()(const Timer* t1, const Timer* t2) const {
-    return *t1 < *t2;
-}
-
-
-bool ManagedTimer::timernode_equality::operator()(const Timer* timer) const {
-    return *timer == *this->timer;
 }
