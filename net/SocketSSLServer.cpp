@@ -71,10 +71,10 @@ void SocketSSLServer::listen(in_port_t port, int backlog, const std::string& cer
 
 
 int SocketSSLServer::passwordCallback(char* buf, int size, int rwflag, void* u) {
-    ::strncpy(buf, (char*)u, size);
+    ::strncpy(buf, (char*) u, size);
     buf[size - 1] = '\0';
 
-    ::memset(u, 0, ::strlen((char*)u)); // garble password
+    ::memset(u, 0, ::strlen((char*) u)); // garble password
     ::free(u);
 
     return ::strlen(buf);

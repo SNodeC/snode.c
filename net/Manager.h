@@ -11,7 +11,8 @@
 #include "ManagedDescriptor.h"
 
 
-template <typename T> class Manager {
+template <typename T>
+class Manager {
 protected:
     Manager()
         : maxFd(0) {

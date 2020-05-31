@@ -25,7 +25,8 @@ SocketServerBase<T>::SocketServerBase(const std::function<void(SocketConnection*
 }
 
 
-template <typename T> void SocketServerBase<T>::listen(in_port_t port, int backlog, const std::function<void(int err)>& onError) {
+template <typename T>
+void SocketServerBase<T>::listen(in_port_t port, int backlog, const std::function<void(int err)>& onError) {
     this->SocketLegacyReader::setOnError(onError);
 
     this->open([this, &port, &backlog, &onError](int errnum) -> void {
@@ -55,19 +56,20 @@ template <typename T> void SocketServerBase<T>::listen(in_port_t port, int backl
 }
 
 
-template <typename T> void SocketServerBase<T>::readEvent() {
+template <typename T>
+void SocketServerBase<T>::readEvent() {
     struct sockaddr_in remoteAddress;
     socklen_t addrlen = sizeof(remoteAddress);
 
     int csFd = -1;
 
-    csFd = ::accept(this->getFd(), (struct sockaddr*)&remoteAddress, &addrlen);
+    csFd = ::accept(this->getFd(), (struct sockaddr*) &remoteAddress, &addrlen);
 
     if (csFd >= 0) {
         struct sockaddr_in localAddress;
         socklen_t addressLength = sizeof(localAddress);
 
-        if (getsockname(csFd, (struct sockaddr*)&localAddress, &addressLength) == 0) {
+        if (getsockname(csFd, (struct sockaddr*) &localAddress, &addressLength) == 0) {
             T* cs = new T(csFd, this, this->readProcessor, onCsReadError, onCsWriteError);
 
             cs->setRemoteAddress(remoteAddress);
@@ -86,7 +88,8 @@ template <typename T> void SocketServerBase<T>::readEvent() {
 }
 
 
-template <typename T> void SocketServerBase<T>::disconnect(SocketConnection* cs) {
+template <typename T>
+void SocketServerBase<T>::disconnect(SocketConnection* cs) {
     if (onDisconnect) {
         onDisconnect(cs);
     }
