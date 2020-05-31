@@ -60,6 +60,7 @@ int testPost(int argc, char* argv[]) {
                         "<h1>Thank you</h1>"
                     "</body>"
                 "</html>");
+        delete[] body;
     });
 
 #define CERTF "/home/voc/projects/ServerVoc/certs/calisto.home.vchrist.at_-_snode.c.pem"

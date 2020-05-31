@@ -37,7 +37,7 @@ public:
     struct timeval& timeout();
 
     void dispatch();
-    virtual void update();
+    void update();
     void cancel();
     void destroy();
 
