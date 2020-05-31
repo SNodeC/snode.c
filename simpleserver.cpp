@@ -1,5 +1,6 @@
-#include <iostream>
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <iostream>
 
 #include "WebApp.h"
 

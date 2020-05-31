@@ -5,10 +5,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "ContinousTimer.h"
 #include "ManagedTimer.h"
-#include "SingleshotTimer.h"
-#include "Timer.h"
+#include "timer/ContinousTimer.h"
+#include "timer/SingleshotTimer.h"
+#include "timer/Timer.h"
 
 
 ManagedTimer::ManagedTimer()

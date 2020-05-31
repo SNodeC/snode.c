@@ -1,13 +1,8 @@
-#include "Request.h"
-#include "Response.h"
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <iostream>
 #include <string.h>
-#include <time.h>
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "ContinousTimer.h"
-#include "SingleshotTimer.h"
 #include "WebApp.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
