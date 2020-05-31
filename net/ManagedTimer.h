@@ -7,7 +7,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Timer.h"
+#include "timer/Timer.h"
 
 
 class ManagedTimer {
