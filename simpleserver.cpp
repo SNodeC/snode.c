@@ -103,7 +103,7 @@ int simpleWebserver(int argc, char** argv) {
         if (err != 0) {
             perror("Listen");
         } else {
-            std::cout << "snode.c listening on port 8088" << std::endl;
+            std::cout << "snode.c listening on port 8088 for SSL/TLS connections" << std::endl;
         }
     });
 
@@ -111,7 +111,7 @@ int simpleWebserver(int argc, char** argv) {
         if (err != 0) {
             perror("Listen");
         } else {
-            std::cout << "snode.c listening on port 8080" << std::endl;
+            std::cout << "snode.c listening on port 8080 for legacy connections" << std::endl;
         }
     });
 
