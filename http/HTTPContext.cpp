@@ -254,6 +254,7 @@ void HTTPContext::sendFile(const std::string& url, const std::function<void(int 
             responseHeader.insert_or_assign("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
             responseHeader.insert({"Last-Modified", httputils::file_mod_http_date(absolutFileName)});
             this->sendHeader();
+
             fileReader = FileReader::read(
                 absolutFileName,
                 [this](char* data, int length) -> void {
