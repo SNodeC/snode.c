@@ -56,8 +56,7 @@ void SocketConnectionBase<R, W>::send(const char* puffer, int size) {
 
 template <typename R, typename W>
 void SocketConnectionBase<R, W>::send(const std::string& junk) {
-    Writer::writePuffer += junk;
-    Multiplexer::instance().getManagedWriter().add(this);
+    send(junk.c_str(), junk.size());
 }
 
 
