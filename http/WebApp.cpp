@@ -29,12 +29,12 @@ void WebApp::listen(int port, const std::function<void(int err)>& onError) {
         },
         [](SocketConnection* connectedSocket, int errnum) -> void {
             if (errnum) {
-                perror("Read from ConnectedSocket");
+                static_cast<HTTPContext*>(connectedSocket->getContext())->onReadError(errnum);
             }
         },
         [](SocketConnection* connectedSocket, int errnum) -> void {
             if (errnum) {
-                perror("Write to ConnectedSocket");
+                static_cast<HTTPContext*>(connectedSocket->getContext())->onWriteError(errnum);
             }
         })
         ->listen(port, 5, [&](int err) -> void {
