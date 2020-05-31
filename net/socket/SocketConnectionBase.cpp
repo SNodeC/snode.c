@@ -2,7 +2,6 @@
 
 #include "Multiplexer.h"
 #include "SocketServer.h"
-#include "file/FileReader.h"
 #include "socket/legacy/SocketReader.h"
 #include "socket/legacy/SocketWriter.h"
 #include "socket/tls/SocketReader.h"
@@ -19,14 +18,9 @@ SocketConnectionBase<R, W>::SocketConnectionBase(
             onReadError(this, errnum);
         })
     , W([&](int errnum) -> void {
-        if (fileReader) {
-            fileReader->stop();
-            fileReader = 0;
-        }
         onWriteError(this, errnum);
     })
-    , serverSocket(serverSocket)
-    , fileReader(0) {
+    , serverSocket(serverSocket) {
 }
 
 
@@ -58,27 +52,6 @@ void SocketConnectionBase<R, W>::send(const char* puffer, int size) {
 template <typename R, typename W>
 void SocketConnectionBase<R, W>::send(const std::string& junk) {
     send(junk.c_str(), junk.size());
-}
-
-
-template <typename R, typename W>
-void SocketConnectionBase<R, W>::sendFile(const std::string& file, const std::function<void(int ret)>& onError) {
-    fileReader = FileReader::read(
-        file,
-        [this](char* data, int length) -> void {
-            if (length > 0) {
-                this->SocketConnectionBase<R, W>::send(data, length);
-            }
-            fileReader = 0;
-        },
-        [this, onError](int err) -> void {
-            if (onError) {
-                onError(err);
-            }
-            if (err) {
-                this->end();
-            }
-        });
 }
 
 

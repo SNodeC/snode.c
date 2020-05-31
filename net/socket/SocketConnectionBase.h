@@ -24,7 +24,6 @@ public:
 
     virtual void send(const char* puffer, int size);
     virtual void send(const std::string& junk);
-    virtual void sendFile(const std::string& file, const std::function<void(int ret)>& onError);
     virtual void end();
 
     virtual InetAddress& getRemoteAddress();
@@ -41,8 +40,6 @@ protected:
     void* context;
 
     InetAddress remoteAddress;
-
-    FileReader* fileReader;
 };
 
 #endif // BASECONNECTEDSOCKET_H

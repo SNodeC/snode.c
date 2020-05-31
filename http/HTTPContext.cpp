@@ -11,12 +11,14 @@
 #include "HTTPStatusCodes.h"
 #include "MimeTypes.h"
 #include "WebApp.h"
+#include "file/FileReader.h"
 #include "httputils.h"
 #include "socket/SocketConnection.h"
 
 
 HTTPContext::HTTPContext(WebApp* httpServer, SocketConnection* connectedSocket)
     : connectedSocket(connectedSocket)
+    , fileReader(0)
     , webApp(httpServer)
     , request(this)
     , response(this) {
@@ -31,11 +33,19 @@ HTTPContext::HTTPContext(WebApp* httpServer, SocketConnection* connectedSocket)
 
 
 void HTTPContext::onReadError(int errnum) {
+    if (fileReader) {
+        fileReader->stop();
+        fileReader = 0;
+    }
     perror("Read from ConnectedSocket");
 }
 
 
 void HTTPContext::onWriteError(int errnum) {
+    if (fileReader) {
+        fileReader->stop();
+        fileReader = 0;
+    }
     perror("Write to ConnectedSocket");
 }
 
@@ -244,7 +254,22 @@ void HTTPContext::sendFile(const std::string& url, const std::function<void(int 
             responseHeader.insert_or_assign("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
             responseHeader.insert({"Last-Modified", httputils::file_mod_http_date(absolutFileName)});
             this->sendHeader();
-            connectedSocket->sendFile(absolutFileName, onError);
+            fileReader = FileReader::read(
+                absolutFileName,
+                [this](char* data, int length) -> void {
+                    if (length > 0) {
+                        connectedSocket->send(data, length);
+                    }
+                },
+                [this, onError](int err) -> void {
+                    if (onError) {
+                        onError(err);
+                    }
+                    if (err) {
+                        fileReader = 0;
+                        connectedSocket->end();
+                    }
+                });
         } else {
             this->responseStatus = 403;
             this->end();

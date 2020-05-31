@@ -8,7 +8,7 @@ namespace legacy {
                                        const std::function<void(::SocketConnection* cs, int errnum)>& onReadError,
                                        const std::function<void(::SocketConnection* cs, int errnum)>& onWriteError)
         : legacy::Socket(csFd)
-        , SocketConnectionBase<SocketReader, SocketWriter>(csFd, serverSocket, readProcessor, onReadError, onWriteError) {
+        , SocketConnectionBase<legacy::SocketReader, legacy::SocketWriter>(csFd, serverSocket, readProcessor, onReadError, onWriteError) {
     }
 
 }; // namespace legacy
