@@ -11,6 +11,8 @@
 #include "Writer.h"
 
 
+namespace legacy {
+
 class SocketLegacyWriter
     : public Writer
     , virtual public SocketLegacy {
@@ -21,6 +23,8 @@ protected:
     SocketLegacyWriter(const std::function<void(int errnum)>& onError)
         : Writer(onError) {
     }
+};
+
 };
 
 #endif // SOCKETWRITER_H

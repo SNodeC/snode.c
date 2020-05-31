@@ -14,6 +14,7 @@
 
 #include "Socket.h"
 
+namespace ssl {
 
 class SocketSSL : public Socket {
 public:
@@ -31,6 +32,8 @@ protected:
 private:
     SSL* ssl;
     int err;
+};
+
 };
 
 #endif // SSLSOCKET_H

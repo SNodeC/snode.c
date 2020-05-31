@@ -13,6 +13,8 @@
 
 class SocketConnection;
 
+namespace legacy {
+
 class SocketLegacyReader
     : public Reader
     , virtual public SocketLegacy {
@@ -32,6 +34,8 @@ protected:
     }
 
     std::function<void(SocketConnection* cs, const char* junk, ssize_t n)> readProcessor;
+};
+
 };
 
 #endif // SOCKETREADER_H

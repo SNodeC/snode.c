@@ -13,6 +13,8 @@
 #include "SocketLegacyReader.h"
 
 
+namespace legacy {
+
 void SocketLegacyReader::readEvent() {
     static char junk[MAX_JUNKSIZE];
 
@@ -28,3 +30,5 @@ void SocketLegacyReader::readEvent() {
         Multiplexer::instance().getManagedReader().remove(this);
     }
 }
+
+};

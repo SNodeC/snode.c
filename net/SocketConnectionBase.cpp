@@ -88,5 +88,5 @@ void SocketConnectionBase<R, W>::end() {
 }
 
 
-template class SocketConnectionBase<SocketLegacyReader, SocketLegacyWriter>;
-template class SocketConnectionBase<SocketSSLReader, SocketSSLWriter>;
+template class SocketConnectionBase<legacy::SocketLegacyReader, legacy::SocketLegacyWriter>;
+template class SocketConnectionBase<ssl::SocketSSLReader, ssl::SocketSSLWriter>;

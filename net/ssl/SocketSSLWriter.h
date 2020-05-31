@@ -11,6 +11,8 @@
 #include "Writer.h"
 
 
+namespace ssl {
+
 class SocketSSLWriter
     : public Writer
     , virtual public SocketSSL {
@@ -21,6 +23,8 @@ protected:
     SocketSSLWriter(const std::function<void(int errnum)>& onError)
         : Writer(onError) {
     }
+};
+
 };
 
 #endif // SSLSOCKETWRITER_H

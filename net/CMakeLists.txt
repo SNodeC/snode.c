@@ -15,19 +15,19 @@ add_library(net SHARED
     Multiplexer.cpp
     Socket.cpp
     SocketConnectionBase.cpp
-    SocketLegacyConnection.cpp
-    SocketLegacy.cpp
-    SocketLegacyReader.cpp
-    SocketLegacyWriter.cpp
-    SocketLegacyServer.cpp
+    legacy/SocketLegacyConnection.cpp
+    legacy/SocketLegacy.cpp
+    legacy/SocketLegacyReader.cpp
+    legacy/SocketLegacyWriter.cpp
+    legacy/SocketLegacyServer.cpp
     SocketServer.cpp
     SocketServerBase.cpp
-    SocketSSLConnection.cpp
-    SocketSSL.cpp
-    SocketSSLReader.cpp
-    SocketSSLWriter.cpp
-    SocketSSLServer.cpp
-    Timer.cpp
+    ssl/SocketSSLConnection.cpp
+    ssl/SocketSSL.cpp
+    ssl/SocketSSLReader.cpp
+    ssl/SocketSSLWriter.cpp
+    ssl/SocketSSLServer.cpp
+    timer/Timer.cpp
 )
 
 target_link_libraries(net ${OPENSSL_LIBRARIES})
@@ -42,7 +42,7 @@ FILE(GLOB includes "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
 set_target_properties(net PROPERTIES PUBLIC_HEADER "${includes}")
 
-target_include_directories (net PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${OPENSSL_INCLUDE_DIR})
+target_include_directories (net PUBLIC ssl legacy timer ${CMAKE_CURRENT_SOURCE_DIR} ${OPENSSL_INCLUDE_DIR})
 
 install(TARGETS net LIBRARY DESTINATION lib)
 #install(TARGETS net PUBLIC_HEADER DESTINATION include)
