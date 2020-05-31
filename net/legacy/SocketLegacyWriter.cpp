@@ -1,18 +1,18 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <errno.h>
-#include <sys/socket.h>
-#include <sys/types.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define MAX_JUNKSIZE 4096
 
 #include "Multiplexer.h"
-#include "SocketSSLWriter.h"
+#include "SocketLegacyWriter.h"
 
 
-void SocketSSLWriter::writeEvent() {
+namespace legacy {
+
+void SocketLegacyWriter::writeEvent() {
     ssize_t ret = socketSend(writePuffer.c_str(), (writePuffer.size() < MAX_JUNKSIZE) ? writePuffer.size() : MAX_JUNKSIZE,
                              MSG_DONTWAIT | MSG_NOSIGNAL);
 
@@ -26,3 +26,5 @@ void SocketSSLWriter::writeEvent() {
         Multiplexer::instance().getManagedWriter().remove(this);
     }
 }
+
+};

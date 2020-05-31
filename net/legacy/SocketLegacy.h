@@ -8,6 +8,8 @@
 #include "Socket.h"
 
 
+namespace legacy {
+
 class SocketLegacy : public Socket {
 public:
     virtual ~SocketLegacy();
@@ -18,6 +20,8 @@ protected:
 
     ssize_t socketRecv(void* buf, size_t len, int flags);
     ssize_t socketSend(const void* buf, size_t len, int flags);
+};
+
 };
 
 #endif // SOCKET_H

@@ -13,6 +13,8 @@
 
 class SocketConnection;
 
+namespace ssl {
+    
 class SocketSSLReader
     : public Reader
     , virtual public SocketSSL {
@@ -32,6 +34,8 @@ protected:
     }
 
     std::function<void(SocketConnection* cs, const char* junk, ssize_t n)> readProcessor;
+};
+
 };
 
 #endif // SSLSOCKETREADER_H

@@ -8,6 +8,8 @@
 #include "SocketSSLServer.h"
 
 
+namespace ssl {
+    
 SocketSSLServer::SocketSSLServer(const std::function<void(SocketConnection* cs)>& onConnect,
                                  const std::function<void(SocketConnection* cs)>& onDisconnect,
                                  const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
@@ -79,3 +81,5 @@ int SocketSSLServer::passwordCallback(char* buf, int size, int rwflag, void* u) 
 
     return ::strlen(buf);
 }
+
+};

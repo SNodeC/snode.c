@@ -9,6 +9,8 @@
 #include "SocketServerBase.h"
 
 
+namespace legacy {
+
 class SocketLegacyServer : public SocketServerBase<SocketLegacyConnection> {
 private:
     SocketLegacyServer(const std::function<void(SocketConnection* cs)>& onConnect,
@@ -24,5 +26,6 @@ public:
                                         const std::function<void(int errnum)>& onCsWriteError);
 };
 
+};
 
 #endif // SOCKETLEGACYSERVER_H

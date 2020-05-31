@@ -9,6 +9,8 @@
 #include "SocketServerBase.h"
 
 
+namespace ssl {
+    
 class SocketSSLServer : public SocketServerBase<SocketSSLConnection> {
 private:
     SocketSSLServer(const std::function<void(SocketConnection* cs)>& onConnect,
@@ -32,6 +34,8 @@ private:
     std::function<void(SocketConnection* cs)> onConnect;
     SSL_CTX* ctx;
     static int passwordCallback(char* buf, int size, int rwflag, void* u);
+};
+
 };
 
 #endif // SOCKETSSLSERVER_H

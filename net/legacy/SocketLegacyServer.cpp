@@ -4,6 +4,7 @@
 
 #include "SocketLegacyServer.h"
 
+namespace legacy {
 
 SocketLegacyServer::SocketLegacyServer(const std::function<void(SocketConnection* cs)>& onConnect,
                                        const std::function<void(SocketConnection* cs)>& onDisconnect,
@@ -21,3 +22,5 @@ SocketLegacyServer::instance(const std::function<void(SocketConnection* cs)>& on
                              const std::function<void(int errnum)>& onCsReadError, const std::function<void(int errnum)>& onCsWriteError) {
     return new SocketLegacyServer(onConnect, onDisconnect, readProcessor, onCsReadError, onCsWriteError);
 }
+
+};

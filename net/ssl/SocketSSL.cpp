@@ -4,6 +4,7 @@
 
 #include "SocketSSL.h"
 
+namespace ssl {
 
 SocketSSL::SocketSSL(int fd)
     : Socket()
@@ -65,3 +66,5 @@ ssize_t SocketSSL::socketSend(const void* buf, size_t len, int) {
 
     return ret;
 }
+
+};

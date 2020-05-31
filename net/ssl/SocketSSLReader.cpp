@@ -13,6 +13,8 @@
 #include "SocketSSLReader.h"
 
 
+namespace ssl {
+    
 void SocketSSLReader::readEvent() {
     static char junk[MAX_JUNKSIZE];
 
@@ -28,3 +30,5 @@ void SocketSSLReader::readEvent() {
         Multiplexer::instance().getManagedReader().remove(this);
     }
 }
+
+};

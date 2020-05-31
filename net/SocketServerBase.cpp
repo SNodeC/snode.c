@@ -96,5 +96,5 @@ void SocketServerBase<T>::disconnect(SocketConnection* cs) {
 }
 
 
-template class SocketServerBase<SocketSSLConnection>;
-template class SocketServerBase<SocketLegacyConnection>;
+template class SocketServerBase<ssl::SocketSSLConnection>;
+template class SocketServerBase<legacy::SocketLegacyConnection>;
