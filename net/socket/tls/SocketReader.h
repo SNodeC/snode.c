@@ -19,7 +19,8 @@ namespace tls {
         : public SocketReaderBase
         , virtual public tls::Socket {
     public:
-        ssize_t recv(char* junk, const ssize_t& junkSize);
+        using tls::Socket::recv;
+        virtual ssize_t recv(char* junk, const ssize_t& junkSize);
 
     protected:
         SocketReader() {
