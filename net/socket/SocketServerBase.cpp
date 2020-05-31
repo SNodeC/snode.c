@@ -14,8 +14,8 @@ template <typename T>
 SocketServerBase<T>::SocketServerBase(const std::function<void(SocketConnection* cs)>& onConnect,
                                       const std::function<void(SocketConnection* cs)>& onDisconnect,
                                       const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
-                                      const std::function<void(int errnum)>& onCsReadError,
-                                      const std::function<void(int errnum)>& onCsWriteError)
+                                      const std::function<void(SocketConnection* cs, int errnum)>& onCsReadError,
+                                      const std::function<void(SocketConnection* cs, int errnum)>& onCsWriteError)
     : SocketReader()
     , onConnect(onConnect)
     , onDisconnect(onDisconnect)

@@ -30,6 +30,16 @@ HTTPContext::HTTPContext(WebApp* httpServer, SocketConnection* connectedSocket)
 }
 
 
+void HTTPContext::onReadError(int errnum) {
+    perror("Read from ConnectedSocket");
+}
+
+
+void HTTPContext::onWriteError(int errnum) {
+    perror("Write to ConnectedSocket");
+}
+
+
 void HTTPContext::receiveRequest(const char* junk, ssize_t junkLen) {
     parseRequest(
         junk, junkLen,
