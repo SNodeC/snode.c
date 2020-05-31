@@ -33,10 +33,6 @@ HTTPContext::HTTPContext(WebApp* httpServer, SocketConnection* connectedSocket)
 
 
 void HTTPContext::onReadError(int errnum) {
-    if (fileReader) {
-        fileReader->stop();
-        fileReader = 0;
-    }
     perror("Read from ConnectedSocket");
 }
 
