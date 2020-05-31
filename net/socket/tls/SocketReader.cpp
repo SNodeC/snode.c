@@ -22,11 +22,12 @@ namespace tls {
 
         if (ret > 0) {
             readProcessor(dynamic_cast<::SocketConnection*>(this), junk, ret);
-        } else if (ret == 0) {
-            onError(0);
-            Multiplexer::instance().getManagedReader().remove(this);
         } else {
-            onError(errno);
+            if (ret == 0) {
+                onError(0);
+            } else {
+                onError(errno);
+            }
             Multiplexer::instance().getManagedReader().remove(this);
         }
     }

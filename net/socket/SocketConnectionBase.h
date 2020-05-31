@@ -3,7 +3,7 @@
 
 #include "SocketConnection.h"
 
-class FileReader;
+
 class SocketServer;
 
 template <typename R, typename W>
