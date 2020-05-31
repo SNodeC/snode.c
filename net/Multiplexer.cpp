@@ -1,5 +1,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <iostream>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Multiplexer.h"
@@ -35,6 +37,9 @@ void Multiplexer::tick() {
         }
         if (retval > 0) {
             retval = managedExceptions.dispatch(exceptfds, retval);
+        }
+        if (retval > 0) {
+            std::cerr << "Select: not all descriptors processed - left: " << retval << std::endl;
         }
     }
 }
