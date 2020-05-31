@@ -259,11 +259,11 @@ void HTTPContext::sendFile(const std::string& url, const std::function<void(int 
                     }
                 },
                 [this, onError](int err) -> void {
+                    fileReader = 0;
                     if (onError) {
                         onError(err);
                     }
                     if (err) {
-                        fileReader = 0;
                         connectedSocket->end();
                     }
                 });
