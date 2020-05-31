@@ -118,13 +118,13 @@ bool MiddlewareRoute::dispatch(const MountPoint& mountPoint, const std::string& 
 
     if ((req.path.rfind(cpath, 0) == 0 && mountPoint.method == "use") ||
         (cpath == req.path && (req.method() == mountPoint.method || mountPoint.method == "all"))) {
-        next = false;
         req.url = req.originalUrl.substr(cpath.length());
 
         if (req.url.front() != '/') {
             req.url.insert(0, "/");
         }
 
+        next = false;
         this->dispatcher(req, res, [&next](void) -> void {
             next = true;
         });
