@@ -6,8 +6,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define MAX_JUNKSIZE 16384
-
 #include "Multiplexer.h"
 #include "socket/SocketConnection.h"
 #include "socket/legacy/SocketReader.h"
@@ -15,21 +13,8 @@
 
 namespace legacy {
 
-    void SocketReader::readEvent() {
-        static char junk[MAX_JUNKSIZE];
-
-        ssize_t ret = recv(junk, MAX_JUNKSIZE, 0);
-
-        if (ret > 0) {
-            readProcessor(dynamic_cast<::SocketConnection*>(this), junk, ret);
-        } else {
-            if (ret == 0) {
-                onError(0);
-            } else {
-                onError(errno);
-            }
-            Multiplexer::instance().getManagedReader().remove(this);
-        }
+    ssize_t SocketReader::recv(char* junk, const ssize_t& junkSize) {
+        return legacy::Socket::recv(junk, junkSize, 0);
     }
 
 }; // namespace legacy
