@@ -7,7 +7,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Reader.h"
+#include "socket/SocketReaderBase.h"
 #include "socket/legacy/Socket.h"
 
 
@@ -16,24 +16,20 @@ class SocketConnection;
 namespace legacy {
 
     class SocketReader
-        : public Reader
+        : public SocketReaderBase
         , virtual public legacy::Socket {
     public:
-        void readEvent();
+        ssize_t recv(char* junk, const ssize_t& junkSize);
 
     protected:
-        SocketReader()
-            : readProcessor(0) {
+        SocketReader() {
         }
 
         SocketReader(const std::function<void(::SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
                      const std::function<void(int errnum)>& onError)
             : legacy::Socket()
-            , Reader(onError)
-            , readProcessor(readProcessor) {
+            , SocketReaderBase(readProcessor, onError) {
         }
-
-        std::function<void(::SocketConnection* cs, const char* junk, ssize_t n)> readProcessor;
     };
 
 }; // namespace legacy

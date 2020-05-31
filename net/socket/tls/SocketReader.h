@@ -7,7 +7,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Reader.h"
+#include "socket/SocketReaderBase.h"
 #include "socket/tls/Socket.h"
 
 
@@ -16,24 +16,20 @@ class SocketConnection;
 namespace tls {
 
     class SocketReader
-        : public Reader
+        : public SocketReaderBase
         , virtual public tls::Socket {
     public:
-        void readEvent();
+        ssize_t recv(char* junk, const ssize_t& junkSize);
 
     protected:
-        SocketReader()
-            : readProcessor(0) {
+        SocketReader() {
         }
 
         SocketReader(const std::function<void(::SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
                      const std::function<void(int errnum)>& onError)
             : tls::Socket()
-            , Reader(onError)
-            , readProcessor(readProcessor) {
+            , SocketReaderBase(readProcessor, onError) {
         }
-
-        std::function<void(::SocketConnection* cs, const char* junk, ssize_t n)> readProcessor;
     };
 
 }; // namespace tls
