@@ -3,30 +3,30 @@ cmake_minimum_required(VERSION 3.0)
 find_package(OpenSSL REQUIRED)
 
 add_library(net SHARED 
-    ClientSocket.cpp
     Descriptor.cpp
-    File.cpp
-    FileReader.cpp
-    InetAddress.cpp
     ManagedExceptions.cpp
     ManagedReader.cpp
     ManagedTimer.cpp
     ManagedWriter.cpp
     Multiplexer.cpp
-    Socket.cpp
-    SocketConnectionBase.cpp
-    legacy/SocketLegacyConnection.cpp
-    legacy/SocketLegacy.cpp
-    legacy/SocketLegacyReader.cpp
-    legacy/SocketLegacyWriter.cpp
-    legacy/SocketLegacyServer.cpp
-    SocketServer.cpp
-    SocketServerBase.cpp
-    ssl/SocketSSLConnection.cpp
-    ssl/SocketSSL.cpp
-    ssl/SocketSSLReader.cpp
-    ssl/SocketSSLWriter.cpp
-    ssl/SocketSSLServer.cpp
+    file/File.cpp
+    file/FileReader.cpp
+    socket/ClientSocket.cpp
+    socket/InetAddress.cpp
+    socket/Socket.cpp
+    socket/SocketConnectionBase.cpp
+    socket/SocketServer.cpp
+    socket/SocketServerBase.cpp
+    socket/legacy/SocketConnection.cpp
+    socket/legacy/Socket.cpp
+    socket/legacy/SocketReader.cpp
+    socket/legacy/SocketWriter.cpp
+    socket/legacy/SocketServer.cpp
+    socket/tls/SocketConnection.cpp
+    socket/tls/Socket.cpp
+    socket/tls/SocketReader.cpp
+    socket/tls/SocketWriter.cpp
+    socket/tls/SocketServer.cpp
     timer/Timer.cpp
 )
 
@@ -42,7 +42,7 @@ FILE(GLOB includes "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
 set_target_properties(net PROPERTIES PUBLIC_HEADER "${includes}")
 
-target_include_directories (net PUBLIC ssl legacy timer ${CMAKE_CURRENT_SOURCE_DIR} ${OPENSSL_INCLUDE_DIR})
+target_include_directories (net PUBLIC timer ${CMAKE_CURRENT_SOURCE_DIR} ${OPENSSL_INCLUDE_DIR})
 
 install(TARGETS net LIBRARY DESTINATION lib)
 #install(TARGETS net PUBLIC_HEADER DESTINATION include)

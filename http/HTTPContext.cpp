@@ -10,9 +10,9 @@
 
 #include "HTTPStatusCodes.h"
 #include "MimeTypes.h"
-#include "SocketConnection.h"
 #include "WebApp.h"
 #include "httputils.h"
+#include "socket/SocketConnection.h"
 
 
 HTTPContext::HTTPContext(WebApp* httpServer, SocketConnection* connectedSocket)

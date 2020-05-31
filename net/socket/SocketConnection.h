@@ -7,7 +7,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "InetAddress.h"
+#include "socket/InetAddress.h"
 
 class SocketConnection {
 public:

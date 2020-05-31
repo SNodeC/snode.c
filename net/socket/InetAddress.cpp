@@ -5,7 +5,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "InetAddress.h"
+#include "socket/InetAddress.h"
 
 
 InetAddress::InetAddress(const std::string& ipOrHostname, uint16_t port) {
