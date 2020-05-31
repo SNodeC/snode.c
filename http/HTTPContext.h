@@ -40,6 +40,10 @@ protected:
 
 public:
     HTTPContext(WebApp* httpServer, SocketConnection* connectedSocket);
+    
+    void onReadError(int errnum);
+    void onWriteError(int errnum);
+    
     void receiveRequest(const char* junk, ssize_t n);
 
 protected:

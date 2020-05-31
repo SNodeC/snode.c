@@ -13,7 +13,8 @@ namespace tls {
     SocketServer::SocketServer(const std::function<void(::SocketConnection* cs)>& onConnect,
                                const std::function<void(::SocketConnection* cs)>& onDisconnect,
                                const std::function<void(::SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
-                               const std::function<void(int errnum)>& onCsReadError, const std::function<void(int errnum)>& onCsWriteError)
+                               const std::function<void(::SocketConnection* cs, int errnum)>& onCsReadError,
+                               const std::function<void(::SocketConnection* cs, int errnum)>& onCsWriteError)
         : SocketServerBase<tls::SocketConnection>(
               [this](::SocketConnection* cs) {
                   dynamic_cast<tls::SocketConnection*>(cs)->startSSL(ctx);
@@ -28,8 +29,8 @@ namespace tls {
     SocketServer* SocketServer::instance(const std::function<void(::SocketConnection* cs)>& onConnect,
                                          const std::function<void(::SocketConnection* cs)>& onDisconnect,
                                          const std::function<void(::SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
-                                         const std::function<void(int errnum)>& onCsReadError,
-                                         const std::function<void(int errnum)>& onCsWriteError) {
+                                         const std::function<void(::SocketConnection* cs, int errnum)>& onCsReadError,
+                                         const std::function<void(::SocketConnection* cs, int errnum)>& onCsWriteError) {
         return new SocketServer(onConnect, onDisconnect, readProcessor, onCsReadError, onCsWriteError);
     }
 

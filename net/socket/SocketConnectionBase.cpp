@@ -12,17 +12,18 @@
 template <typename R, typename W>
 SocketConnectionBase<R, W>::SocketConnectionBase(
     int csFd, SocketServer* serverSocket, const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
-    const std::function<void(int errnum)>& onReadError, const std::function<void(int errnum)>& onWriteError)
+    const std::function<void(::SocketConnection* cs, int errnum)>& onReadError,
+    const std::function<void(::SocketConnection* cs, int errnum)>& onWriteError)
     : R(readProcessor,
         [&](int errnum) -> void {
-            onReadError(errnum);
+            onReadError(this, errnum);
         })
     , W([&](int errnum) -> void {
         if (fileReader) {
             fileReader->stop();
             fileReader = 0;
         }
-        onWriteError(errnum);
+        onWriteError(this, errnum);
     })
     , serverSocket(serverSocket)
     , fileReader(0) {

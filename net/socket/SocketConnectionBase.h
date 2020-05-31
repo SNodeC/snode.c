@@ -33,7 +33,8 @@ public:
 protected:
     SocketConnectionBase(int csFd, SocketServer* serverSocket,
                          const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
-                         const std::function<void(int errnum)>& onReadError, const std::function<void(int errnum)>& onWriteError);
+                         const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
+                         const std::function<void(SocketConnection* cs, int errnum)>& onWriteError);
 
     SocketServer* serverSocket;
 
