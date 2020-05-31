@@ -29,28 +29,33 @@ SocketConnectionBase<R, W>::SocketConnectionBase(
 }
 
 
-template <typename R, typename W> SocketConnectionBase<R, W>::~SocketConnectionBase() {
+template <typename R, typename W>
+SocketConnectionBase<R, W>::~SocketConnectionBase() {
     serverSocket->disconnect(this);
 }
 
 
-template <typename R, typename W> InetAddress& SocketConnectionBase<R, W>::getRemoteAddress() {
+template <typename R, typename W>
+InetAddress& SocketConnectionBase<R, W>::getRemoteAddress() {
     return remoteAddress;
 }
 
 
-template <typename R, typename W> void SocketConnectionBase<R, W>::setRemoteAddress(const InetAddress& remoteAddress) {
+template <typename R, typename W>
+void SocketConnectionBase<R, W>::setRemoteAddress(const InetAddress& remoteAddress) {
     this->remoteAddress = remoteAddress;
 }
 
 
-template <typename R, typename W> void SocketConnectionBase<R, W>::send(const char* puffer, int size) {
+template <typename R, typename W>
+void SocketConnectionBase<R, W>::send(const char* puffer, int size) {
     Writer::writePuffer.append(puffer, size);
     Multiplexer::instance().getManagedWriter().add(this);
 }
 
 
-template <typename R, typename W> void SocketConnectionBase<R, W>::send(const std::string& junk) {
+template <typename R, typename W>
+void SocketConnectionBase<R, W>::send(const std::string& junk) {
     Writer::writePuffer += junk;
     Multiplexer::instance().getManagedWriter().add(this);
 }
@@ -77,7 +82,8 @@ void SocketConnectionBase<R, W>::sendFile(const std::string& file, const std::fu
 }
 
 
-template <typename R, typename W> void SocketConnectionBase<R, W>::end() {
+template <typename R, typename W>
+void SocketConnectionBase<R, W>::end() {
     Multiplexer::instance().getManagedReader().remove(this);
 }
 
