@@ -32,12 +32,12 @@ HTTPContext::HTTPContext(WebApp* httpServer, SocketConnection* connectedSocket)
 }
 
 
-void HTTPContext::onReadError(int errnum) {
+void HTTPContext::onReadError(int) {
     perror("Read from ConnectedSocket");
 }
 
 
-void HTTPContext::onWriteError(int errnum) {
+void HTTPContext::onWriteError(int) {
     if (fileReader) {
         fileReader->stop();
         fileReader = 0;
