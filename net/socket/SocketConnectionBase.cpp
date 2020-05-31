@@ -1,12 +1,12 @@
 #include "SocketConnectionBase.h"
 
-#include "FileReader.h"
 #include "Multiplexer.h"
-#include "SocketLegacyReader.h"
-#include "SocketLegacyWriter.h"
-#include "SocketSSLReader.h"
-#include "SocketSSLWriter.h"
 #include "SocketServer.h"
+#include "file/FileReader.h"
+#include "socket/legacy/SocketReader.h"
+#include "socket/legacy/SocketWriter.h"
+#include "socket/tls/SocketReader.h"
+#include "socket/tls/SocketWriter.h"
 
 
 template <typename R, typename W>
@@ -88,5 +88,5 @@ void SocketConnectionBase<R, W>::end() {
 }
 
 
-template class SocketConnectionBase<legacy::SocketLegacyReader, legacy::SocketLegacyWriter>;
-template class SocketConnectionBase<ssl::SocketSSLReader, ssl::SocketSSLWriter>;
+template class SocketConnectionBase<legacy::SocketReader, legacy::SocketWriter>;
+template class SocketConnectionBase<tls::SocketReader, tls::SocketWriter>;

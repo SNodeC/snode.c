@@ -7,7 +7,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Descriptor.h"
-#include "InetAddress.h"
+#include "socket/InetAddress.h"
 
 
 class Socket : virtual public Descriptor {

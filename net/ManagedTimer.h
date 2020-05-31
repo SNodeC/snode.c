@@ -26,22 +26,11 @@ private:
     std::list<Timer*> addedList;
     std::list<Timer*> removedList;
 
-    class lttimernode {
+    class timernode_lt {
     public:
-        bool operator()(const Timer* t1, const Timer* t2) const;
-    };
-
-
-    class timernode_equality {
-    public:
-        timernode_equality(Timer* timer)
-            : timer(timer) {
+        bool operator()(const Timer* t1, const Timer* t2) const {
+            return *t1 < *t2;
         }
-
-        bool operator()(const Timer* timer) const;
-
-    private:
-        Timer* timer;
     };
 
     bool timerListDirty;

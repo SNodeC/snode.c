@@ -1,8 +1,8 @@
 #include "WebApp.h"
 
 #include "HTTPContext.h"
-#include "SocketLegacyServer.h"
-#include "ssl/SocketSSLServer.h"
+#include "socket/legacy/SocketServer.h"
+#include "socket/tls/SocketServer.h"
 
 
 WebApp::WebApp(const std::string& serverRoot) {
@@ -17,7 +17,7 @@ WebApp::~WebApp() {
 void WebApp::listen(int port, const std::function<void(int err)>& onError) {
     errno = 0;
 
-    legacy::SocketLegacyServer::instance(
+    legacy::SocketServer::instance(
         [this](SocketConnection* connectedSocket) -> void {
             connectedSocket->setContext(new HTTPContext(this, connectedSocket));
         },
@@ -49,7 +49,7 @@ void WebApp::sslListen(int port, const std::string& cert, const std::string& key
                        const std::function<void(int err)>& onError) {
     errno = 0;
 
-    ssl::SocketSSLServer::instance(
+    tls::SocketServer::instance(
         [this](SocketConnection* connectedSocket) -> void {
             connectedSocket->setContext(new HTTPContext(this, connectedSocket));
         },

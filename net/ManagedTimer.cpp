@@ -39,7 +39,7 @@ struct timeval ManagedTimer::getNextTimeout() {
 
     if (!timerList.empty()) {
         if (timerListDirty) {
-            timerList.sort(lttimernode());
+            timerList.sort(timernode_lt());
             timerListDirty = false;
         }
 
@@ -87,14 +87,4 @@ void ManagedTimer::remove(Timer* timer) {
 
 void ManagedTimer::add(Timer* timer) {
     addedList.push_back(timer);
-}
-
-
-bool ManagedTimer::lttimernode::operator()(const Timer* t1, const Timer* t2) const {
-    return *t1 < *t2;
-}
-
-
-bool ManagedTimer::timernode_equality::operator()(const Timer* timer) const {
-    return *timer == *this->timer;
 }

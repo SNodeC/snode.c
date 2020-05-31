@@ -7,14 +7,14 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "SocketLegacyReader.h"
 #include "SocketServer.h"
+#include "socket/legacy/SocketReader.h"
 
 
 template <typename T>
 class SocketServerBase
     : public SocketServer
-    , public legacy::SocketLegacyReader {
+    , public legacy::SocketReader {
 protected:
     SocketServerBase(const std::function<void(SocketConnection* cs)>& onConnect,
                      const std::function<void(SocketConnection* cs)>& onDisconnect,

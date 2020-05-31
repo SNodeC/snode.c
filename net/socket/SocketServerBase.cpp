@@ -5,9 +5,9 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Multiplexer.h"
-#include "SocketLegacyConnection.h"
-#include "SocketSSLConnection.h"
 #include "SocketServerBase.h"
+#include "socket/legacy/SocketConnection.h"
+#include "socket/tls/SocketConnection.h"
 
 
 template <typename T>
@@ -16,7 +16,7 @@ SocketServerBase<T>::SocketServerBase(const std::function<void(SocketConnection*
                                       const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
                                       const std::function<void(int errnum)>& onCsReadError,
                                       const std::function<void(int errnum)>& onCsWriteError)
-    : SocketLegacyReader()
+    : SocketReader()
     , onConnect(onConnect)
     , onDisconnect(onDisconnect)
     , readProcessor(readProcessor)
@@ -27,7 +27,7 @@ SocketServerBase<T>::SocketServerBase(const std::function<void(SocketConnection*
 
 template <typename T>
 void SocketServerBase<T>::listen(in_port_t port, int backlog, const std::function<void(int err)>& onError) {
-    this->SocketLegacyReader::setOnError(onError);
+    this->SocketReader::setOnError(onError);
 
     this->open([this, &port, &backlog, &onError](int errnum) -> void {
         if (errnum > 0) {
@@ -42,7 +42,7 @@ void SocketServerBase<T>::listen(in_port_t port, int backlog, const std::functio
                     if (errnum > 0) {
                         onError(errnum);
                     } else {
-                        this->SocketLegacy::listen(backlog, [this, &onError](int errnum) -> void {
+                        this->Socket::listen(backlog, [this, &onError](int errnum) -> void {
                             if (errnum == 0) {
                                 Multiplexer::instance().getManagedReader().add(this);
                             }
@@ -96,5 +96,5 @@ void SocketServerBase<T>::disconnect(SocketConnection* cs) {
 }
 
 
-template class SocketServerBase<ssl::SocketSSLConnection>;
-template class SocketServerBase<legacy::SocketLegacyConnection>;
+template class SocketServerBase<tls::SocketConnection>;
+template class SocketServerBase<legacy::SocketConnection>;
