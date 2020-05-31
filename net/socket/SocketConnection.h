@@ -18,7 +18,6 @@ public:
 
     virtual void send(const char* puffer, int size) = 0;
     virtual void send(const std::string& junk) = 0;
-    virtual void sendFile(const std::string& file, const std::function<void(int ret)>& onError) = 0;
     virtual void end() = 0;
 
     virtual InetAddress& getRemoteAddress() = 0;

@@ -14,6 +14,7 @@
 
 
 class SocketConnection;
+class FileReader;
 class WebApp;
 
 
@@ -40,16 +41,16 @@ protected:
 
 public:
     HTTPContext(WebApp* httpServer, SocketConnection* connectedSocket);
-    
+
     void onReadError(int errnum);
     void onWriteError(int errnum);
-    
+
     void receiveRequest(const char* junk, ssize_t n);
 
 protected:
     void send(const char* puffer, int size);
     void send(const std::string& data);
-    void sendFile(const std::string& file, const std::function<void(int ret)>& fn);
+    void sendFile(const std::string& file, const std::function<void(int ret)>& fn = 0);
 
     void sendHeader();
 
@@ -90,6 +91,7 @@ protected:
 
 private:
     SocketConnection* connectedSocket;
+    FileReader* fileReader;
     WebApp* webApp;
 
     std::string headerLine;
