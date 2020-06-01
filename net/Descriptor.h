@@ -13,7 +13,6 @@ private:
         return *this;
     }
 
-
 public:
     virtual ~Descriptor();
 
