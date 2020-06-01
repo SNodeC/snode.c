@@ -20,8 +20,8 @@ public:
         return this->context;
     }
 
-    virtual void send(const char* puffer, int size);
-    virtual void send(const std::string& junk);
+    virtual void enqueue(const char* buffer, int size);
+    virtual void enqueue(const std::string& junk);
     virtual void end();
 
     virtual InetAddress& getRemoteAddress();

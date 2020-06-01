@@ -37,15 +37,15 @@ void SocketConnectionBase<R, W>::setRemoteAddress(const InetAddress& remoteAddre
 
 
 template <typename R, typename W>
-void SocketConnectionBase<R, W>::send(const char* puffer, int size) {
-    Writer::writePuffer.append(puffer, size);
+void SocketConnectionBase<R, W>::enqueue(const char* buffer, int size) {
+    Writer::writePuffer.append(buffer, size);
     Multiplexer::instance().getManagedWriter().add(this);
 }
 
 
 template <typename R, typename W>
-void SocketConnectionBase<R, W>::send(const std::string& junk) {
-    send(junk.c_str(), junk.size());
+void SocketConnectionBase<R, W>::enqueue(const std::string& junk) {
+    enqueue(junk.c_str(), junk.size());
 }
 
 
@@ -54,10 +54,12 @@ void SocketConnectionBase<R, W>::end() {
     Multiplexer::instance().getManagedReader().remove(this);
 }
 
+
 template <typename R, typename W>
 void SocketConnectionBase<R, W>::unmanaged() {
     serverSocket->disconnect(this);
 }
+
 
 template class SocketConnectionBase<legacy::SocketReader, legacy::SocketWriter>;
 template class SocketConnectionBase<tls::SocketReader, tls::SocketWriter>;
