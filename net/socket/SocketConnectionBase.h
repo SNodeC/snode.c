@@ -12,14 +12,6 @@ class SocketConnectionBase
     , public R
     , public W {
 public:
-    void setContext(void* context) {
-        this->context = context;
-    }
-
-    void* getContext() {
-        return this->context;
-    }
-
     virtual void enqueue(const char* buffer, int size);
     virtual void enqueue(const std::string& junk);
     virtual void end();
