@@ -27,7 +27,8 @@ public:
     virtual InetAddress& getRemoteAddress();
     virtual void setRemoteAddress(const InetAddress& remoteAddress);
 
-    void unmanaged();
+private:
+    virtual void unmanaged();
 
 protected:
     SocketConnectionBase(int csFd, SocketServer* serverSocket,

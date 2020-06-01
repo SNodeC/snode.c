@@ -31,11 +31,9 @@ public:
 
     void disconnect(SocketConnection* cs);
 
-    void unmanaged() {
-        delete this;
-    }
-
 private:
+    virtual void unmanaged();
+
     std::function<void(SocketConnection* cs)> onConnect;
     std::function<void(SocketConnection* cs)> onDisconnect;
     std::function<void(SocketConnection* cs, const char* junk, ssize_t n)> readProcessor;

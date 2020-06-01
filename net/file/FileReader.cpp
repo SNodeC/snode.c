@@ -41,6 +41,11 @@ void FileReader::stop() {
 }
 
 
+void FileReader::unmanaged() {
+    delete this;
+}
+
+
 void FileReader::readEvent() {
     char puffer[MFREADSIZE];
 
