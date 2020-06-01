@@ -25,9 +25,8 @@ public:
 
     virtual void readEvent();
 
-    virtual void unmanaged() {
-        delete this;
-    }
+private:
+    virtual void unmanaged();
 
 protected:
     std::function<void(char* data, int len)> junkRead;

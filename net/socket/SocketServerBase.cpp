@@ -97,5 +97,11 @@ void SocketServerBase<T>::disconnect(SocketConnection* cs) {
 }
 
 
+template <typename T>
+void SocketServerBase<T>::unmanaged() {
+    delete this;
+}
+
+
 template class SocketServerBase<tls::SocketConnection>;
 template class SocketServerBase<legacy::SocketConnection>;
