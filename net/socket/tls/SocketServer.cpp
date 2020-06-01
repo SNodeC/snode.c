@@ -5,6 +5,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Multiplexer.h"
 #include "socket/tls/SocketServer.h"
 
 
@@ -17,7 +18,9 @@ namespace tls {
                                const std::function<void(::SocketConnection* cs, int errnum)>& onCsWriteError)
         : SocketServerBase<tls::SocketConnection>(
               [this](::SocketConnection* cs) {
-                  dynamic_cast<tls::SocketConnection*>(cs)->startSSL(ctx);
+                  if (!dynamic_cast<tls::SocketConnection*>(cs)->startSSL(ctx)) {
+                      Multiplexer::instance().getManagedReader().remove(dynamic_cast<tls::SocketConnection*>(cs));
+                  }
                   this->onConnect(cs);
               },
               onDisconnect, readProcessor, onCsReadError, onCsWriteError)
