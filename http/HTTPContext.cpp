@@ -32,8 +32,23 @@ HTTPContext::HTTPContext(WebApp* httpServer, SocketConnection* connectedSocket)
 }
 
 
+HTTPContext::~HTTPContext() {
+    stopFileReader();
+}
+
+
+void HTTPContext::stopFileReader() {
+    if (fileReader) {
+        fileReader->writerGone();
+        fileReader = 0;
+    }
+}
+
+
 void HTTPContext::onReadError(int errnum) {
     (void) errnum;
+
+    stopFileReader();
 
     perror("Read from ConnectedSocket");
 }
@@ -42,10 +57,8 @@ void HTTPContext::onReadError(int errnum) {
 void HTTPContext::onWriteError(int errnum) {
     (void) errnum;
 
-    if (fileReader) {
-        fileReader->stop();
-        fileReader = 0;
-    }
+    stopFileReader();
+
     perror("Write to ConnectedSocket");
 }
 
@@ -258,6 +271,7 @@ void HTTPContext::sendFile(const std::string& url, const std::function<void(int 
             fileReader = FileReader::read(
                 absolutFileName,
                 [this](char* data, int length) -> void {
+                    fileReader = 0;
                     if (length > 0) {
                         connectedSocket->enqueue(data, length);
                     }
@@ -267,7 +281,6 @@ void HTTPContext::sendFile(const std::string& url, const std::function<void(int 
                         onError(err);
                     }
                     if (err) {
-                        fileReader = 0;
                         connectedSocket->end();
                     }
                 });
