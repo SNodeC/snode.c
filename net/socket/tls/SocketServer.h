@@ -33,6 +33,7 @@ namespace tls {
 
     private:
         std::function<void(::SocketConnection* cs)> onConnect;
+        std::function<void(::SocketConnection* cs)> onDisconnect;
         SSL_CTX* ctx;
         static int passwordCallback(char* buf, int size, int rwflag, void* u);
     };
