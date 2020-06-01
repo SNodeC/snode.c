@@ -23,8 +23,13 @@ namespace tls {
                   }
                   this->onConnect(cs);
               },
-              onDisconnect, readProcessor, onCsReadError, onCsWriteError)
+              [this](::SocketConnection* cs) {
+                  dynamic_cast<tls::SocketConnection*>(cs)->stopSSL();
+                  this->onDisconnect(cs);
+              },
+              readProcessor, onCsReadError, onCsWriteError)
         , onConnect(onConnect)
+        , onDisconnect(onDisconnect)
         , ctx(0) {
     }
 

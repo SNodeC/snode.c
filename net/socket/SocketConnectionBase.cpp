@@ -25,12 +25,6 @@ SocketConnectionBase<R, W>::SocketConnectionBase(
 
 
 template <typename R, typename W>
-SocketConnectionBase<R, W>::~SocketConnectionBase() {
-    serverSocket->disconnect(this);
-}
-
-
-template <typename R, typename W>
 InetAddress& SocketConnectionBase<R, W>::getRemoteAddress() {
     return remoteAddress;
 }
@@ -60,6 +54,10 @@ void SocketConnectionBase<R, W>::end() {
     Multiplexer::instance().getManagedReader().remove(this);
 }
 
+template <typename R, typename W>
+void SocketConnectionBase<R, W>::unmanaged() {
+    serverSocket->disconnect(this);
+}
 
 template class SocketConnectionBase<legacy::SocketReader, legacy::SocketWriter>;
 template class SocketConnectionBase<tls::SocketReader, tls::SocketWriter>;

@@ -31,6 +31,10 @@ public:
 
     void disconnect(SocketConnection* cs);
 
+    void unmanaged() {
+        delete this;
+    }
+
 private:
     std::function<void(SocketConnection* cs)> onConnect;
     std::function<void(SocketConnection* cs)> onDisconnect;
