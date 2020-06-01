@@ -15,7 +15,8 @@
 FileReader::FileReader(int fd, const std::function<void(char* data, int len)>& junkRead, const std::function<void(int err)>& onError)
     : Descriptor(fd)
     , Reader(onError)
-    , junkRead(junkRead) {
+    , junkRead(junkRead)
+    , writerOK(true) {
 }
 
 
@@ -51,13 +52,22 @@ void FileReader::readEvent() {
 
     int ret = ::read(this->getFd(), buffer, MFREADSIZE);
 
-    if (ret > 0) {
-        this->junkRead(buffer, ret);
-    } else if (ret == 0) {
-        this->stop();
-        this->onError(0);
+    if (writerOK) {
+        if (ret > 0) {
+            this->junkRead(buffer, ret);
+        } else if (ret == 0) {
+            this->stop();
+            this->onError(0);
+        } else {
+            this->stop();
+            this->onError(errno);
+        }
     } else {
         this->stop();
-        this->onError(errno);
     }
+}
+
+
+void FileReader::writerGone() {
+    writerOK = false;
 }

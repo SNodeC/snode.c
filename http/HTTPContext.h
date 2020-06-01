@@ -41,6 +41,7 @@ protected:
 
 public:
     HTTPContext(WebApp* httpServer, SocketConnection* connectedSocket);
+    ~HTTPContext();
 
     void onReadError(int errnum);
     void onWriteError(int errnum);
@@ -48,6 +49,8 @@ public:
     void receiveRequest(const char* junk, ssize_t n);
 
 protected:
+    void stopFileReader();
+
     void send(const char* puffer, int size);
     void send(const std::string& data);
     void sendFile(const std::string& file, const std::function<void(int ret)>& fn = 0);
