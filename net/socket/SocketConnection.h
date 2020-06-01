@@ -12,7 +12,6 @@
 class SocketConnection {
 public:
     virtual ~SocketConnection() = default;
-
     virtual void setContext(void* context) = 0;
     virtual void* getContext() = 0;
 

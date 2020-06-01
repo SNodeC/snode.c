@@ -13,17 +13,15 @@ public:
 
     virtual ~ManagedDescriptor() = default;
 
-    void incManaged() {
-        ManagedCounter::managedCounter++;
+    int incManaged() {
+        return ++ManagedCounter::managedCounter;
     }
 
-    void decManaged() {
-        ManagedCounter::managedCounter--;
-
-        if (managedCounter == 0) {
-            delete this;
-        }
+    int decManaged() {
+        return --ManagedCounter::managedCounter;
     }
+
+    virtual void unmanaged() = 0;
 
     bool managed = false;
 };

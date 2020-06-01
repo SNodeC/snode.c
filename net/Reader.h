@@ -12,6 +12,8 @@
 
 class Reader : public ManagedDescriptor {
 public:
+    virtual ~Reader() = default;
+
     virtual void readEvent() = 0;
 
 protected:
@@ -23,8 +25,6 @@ protected:
     void setOnError(const std::function<void(int errnum)>& onError) {
         this->onError = onError;
     }
-
-    virtual ~Reader() = default;
 
     std::function<void(int errnum)> onError;
 };

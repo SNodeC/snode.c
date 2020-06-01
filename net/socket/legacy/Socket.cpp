@@ -13,10 +13,6 @@ namespace legacy {
     }
 
 
-    Socket::~Socket() {
-    }
-
-
     ssize_t Socket::recv(void* buf, size_t len, int flags) {
         return ::recv(this->getFd(), buf, len, flags);
     }

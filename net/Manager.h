@@ -87,7 +87,9 @@ private:
             for (T* descriptor : removedDescriptors) {
                 FD_CLR(dynamic_cast<Descriptor*>(descriptor)->getFd(), &fdSet);
                 descriptors.remove(descriptor);
-                descriptor->decManaged();
+                if (descriptor->decManaged() == 0) {
+                    descriptor->unmanaged();
+                }
             }
             removedDescriptors.clear();
 

@@ -12,8 +12,6 @@ class SocketConnectionBase
     , public R
     , public W {
 public:
-    virtual ~SocketConnectionBase();
-
     void setContext(void* context) {
         this->context = context;
     }
@@ -28,6 +26,8 @@ public:
 
     virtual InetAddress& getRemoteAddress();
     virtual void setRemoteAddress(const InetAddress& remoteAddress);
+
+    void unmanaged();
 
 protected:
     SocketConnectionBase(int csFd, SocketServer* serverSocket,
