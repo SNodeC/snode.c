@@ -64,6 +64,7 @@ WebApp sslMain() {
                 if (uri == "/") {
                     res.redirect("/index.html");
                 } else if (uri == "/end") {
+                    res.send("Bye, bye!");
                     WebApp::stop();
                 } else {
                     res.sendFile(uri, [uri](int ret) -> void {
