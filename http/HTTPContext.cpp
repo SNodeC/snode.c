@@ -271,12 +271,10 @@ void HTTPContext::sendFile(const std::string& url, const std::function<void(int 
             fileReader = FileReader::read(
                 absolutFileName,
                 [this](char* data, int length) -> void {
-                    fileReader = 0;
-                    if (length > 0) {
-                        connectedSocket->enqueue(data, length);
-                    }
+                    connectedSocket->enqueue(data, length);
                 },
                 [this, onError](int err) -> void {
+                    fileReader = 0;
                     if (onError) {
                         onError(err);
                     }
