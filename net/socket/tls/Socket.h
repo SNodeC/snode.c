@@ -18,7 +18,7 @@ namespace tls {
 
     class Socket : public ::Socket {
     public:
-        void startSSL(SSL_CTX* ctx);
+        bool startSSL(SSL_CTX* ctx);
 
         virtual ~Socket();
 

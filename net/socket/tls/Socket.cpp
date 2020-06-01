@@ -19,11 +19,17 @@ namespace tls {
     }
 
 
-    void Socket::startSSL(SSL_CTX* ctx) {
+    bool Socket::startSSL(SSL_CTX* ctx) {
         this->ssl = SSL_new(ctx);
         SSL_set_fd(ssl, getFd());
         err = SSL_accept(this->ssl);
 
+        int sslerr = SSL_ERROR_NONE;
+        if (err < 1) {
+            sslerr = SSL_get_error(this->ssl, err);
+        }
+
+        return sslerr == SSL_ERROR_NONE;
         /*
              client_cert = SSL_get_peer_certificate (ssl);
              if (client_cert != NULL) {
