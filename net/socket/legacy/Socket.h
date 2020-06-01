@@ -11,9 +11,6 @@
 namespace legacy {
 
     class Socket : public ::Socket {
-    public:
-        virtual ~Socket();
-
     protected:
         Socket() = default;
         Socket(int fd);

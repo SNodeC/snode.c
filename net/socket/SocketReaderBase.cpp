@@ -17,7 +17,7 @@ void SocketReaderBase::readEvent() {
             onError(0);
         } else {
             onError(errno);
-        }
+        } // todo: do not disconnect on EAGIN EINTR
         Multiplexer::instance().getManagedReader().remove(this);
     }
 }

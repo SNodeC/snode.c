@@ -93,6 +93,7 @@ void SocketServerBase<T>::disconnect(SocketConnection* cs) {
     if (onDisconnect) {
         onDisconnect(cs);
     }
+    delete cs;
 }
 
 

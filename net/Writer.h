@@ -12,6 +12,8 @@
 
 class Writer : public ManagedDescriptor {
 public:
+    virtual ~Writer() = default;
+
     virtual void writeEvent() = 0;
 
 protected:
@@ -19,8 +21,6 @@ protected:
         : ManagedDescriptor()
         , onError(onError) {
     }
-
-    virtual ~Writer() = default;
 
     std::string writePuffer;
 

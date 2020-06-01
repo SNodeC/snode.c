@@ -13,12 +13,6 @@ namespace tls {
     }
 
 
-    Socket::~Socket() {
-        SSL_shutdown(ssl);
-        SSL_free(ssl);
-    }
-
-
     bool Socket::startSSL(SSL_CTX* ctx) {
         this->ssl = SSL_new(ctx);
         SSL_set_fd(ssl, getFd());
@@ -49,6 +43,12 @@ namespace tls {
                 printf ("Client does not have certificate.\n");
             }
         */
+    }
+
+
+    void Socket::stopSSL() {
+        SSL_shutdown(ssl);
+        SSL_free(ssl);
     }
 
 
