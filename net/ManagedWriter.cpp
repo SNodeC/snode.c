@@ -1,3 +1,9 @@
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <algorithm>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 #include "ManagedWriter.h"
 
 

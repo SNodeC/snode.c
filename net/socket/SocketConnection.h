@@ -15,8 +15,8 @@ public:
     virtual void setContext(void* context) = 0;
     virtual void* getContext() = 0;
 
-    virtual void send(const char* puffer, int size) = 0;
-    virtual void send(const std::string& junk) = 0;
+    virtual void enqueue(const char* buffer, int size) = 0;
+    virtual void enqueue(const std::string& junk) = 0;
     virtual void end() = 0;
 
     virtual InetAddress& getRemoteAddress() = 0;

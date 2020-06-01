@@ -47,12 +47,12 @@ void FileReader::unmanaged() {
 
 
 void FileReader::readEvent() {
-    char puffer[MFREADSIZE];
+    char buffer[MFREADSIZE];
 
-    int ret = ::read(this->getFd(), puffer, MFREADSIZE);
+    int ret = ::read(this->getFd(), buffer, MFREADSIZE);
 
     if (ret > 0) {
-        this->junkRead(puffer, ret);
+        this->junkRead(buffer, ret);
     } else if (ret == 0) {
         this->stop();
         this->onError(0);
