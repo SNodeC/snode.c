@@ -52,6 +52,7 @@ void Multiplexer::start() {
         while (!Multiplexer::stopped) {
             Multiplexer::instance().tick();
         };
+        Multiplexer::instance().tick();
 
         Multiplexer::running = false;
     }
