@@ -25,15 +25,13 @@ public:
 
     virtual void readEvent();
 
-    void writerGone();
-
 private:
     virtual void unmanaged();
 
 protected:
     std::function<void(char* data, int len)> junkRead;
 
-    bool writerOK;
+    bool write;
 };
 
 #endif // FILEREADER_H
