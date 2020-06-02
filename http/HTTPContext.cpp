@@ -39,7 +39,7 @@ HTTPContext::~HTTPContext() {
 
 void HTTPContext::stopFileReader() {
     if (fileReader) {
-        fileReader->writerGone();
+        fileReader->stop();
         fileReader = 0;
     }
 }
@@ -255,11 +255,12 @@ void HTTPContext::send(const std::string& puffer) {
 
 
 void HTTPContext::sendFile(const std::string& url, const std::function<void(int ret)>& onError) {
+    stopFileReader();
+
     std::string absolutFileName = webApp->getRootDir() + url;
 
-    std::error_code ec;
-
     if (std::filesystem::exists(absolutFileName)) {
+        std::error_code ec;
         absolutFileName = std::filesystem::canonical(absolutFileName);
 
         if (absolutFileName.rfind(webApp->getRootDir(), 0) == 0 && std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
