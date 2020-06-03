@@ -18,6 +18,11 @@ Descriptor::~Descriptor() {
 }
 
 
+void Descriptor::attachFd(int fd) {
+    this->fd = fd;
+}
+
+
 int Descriptor::getFd() const {
     if (fd < 0) {
         std::cout << "Descriptor not initialized" << std::endl;

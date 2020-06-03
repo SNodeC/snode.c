@@ -14,11 +14,9 @@ private:
 public:
     virtual ~Descriptor();
 
-    int getFd() const;
+    virtual void attachFd(int fd);
 
-    virtual void attach(int fd) {
-        this->fd = fd;
-    }
+    int getFd() const;
 
 private:
     int fd;
