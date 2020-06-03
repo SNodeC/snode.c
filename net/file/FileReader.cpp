@@ -13,10 +13,11 @@
 
 
 FileReader::FileReader(int fd, const std::function<void(char* data, int len)>& junkRead, const std::function<void(int err)>& onError)
-    : Descriptor(fd)
+    : Descriptor()
     , Reader(onError)
     , junkRead(junkRead)
     , write(true) {
+    this->attach(fd);
 }
 
 

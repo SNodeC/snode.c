@@ -13,11 +13,6 @@ Descriptor::Descriptor()
 }
 
 
-Descriptor::Descriptor(int fd) {
-    this->fd = fd;
-}
-
-
 Descriptor::~Descriptor() {
     ::close(fd);
 }
