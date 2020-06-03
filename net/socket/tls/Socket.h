@@ -22,8 +22,7 @@ namespace tls {
         void stopSSL();
 
     protected:
-        Socket() = default;
-        Socket(int fd);
+        Socket();
 
         ssize_t recv(void* buf, size_t len, int flags);
         ssize_t send(const void* buf, size_t len, int flags);

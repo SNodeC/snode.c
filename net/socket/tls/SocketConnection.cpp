@@ -7,8 +7,7 @@ namespace tls {
                                        const std::function<void(::SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
                                        const std::function<void(::SocketConnection* cs, int errnum)>& onReadError,
                                        const std::function<void(::SocketConnection* cs, int errnum)>& onWriteError)
-        : tls::Socket(csFd)
-        , SocketConnectionBase<tls::SocketReader, tls::SocketWriter>(csFd, serverSocket, readProcessor, onReadError, onWriteError) {
+        : SocketConnectionBase<tls::SocketReader, tls::SocketWriter>(csFd, serverSocket, readProcessor, onReadError, onWriteError) {
     }
 
 }; // namespace tls

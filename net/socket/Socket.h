@@ -21,7 +21,7 @@ public:
     void setLocalAddress(const InetAddress& localAddress);
 
 protected:
-    Socket();
+    Socket() = default;
 
     void open(const std::function<void(int errnum)>& onError);
 
