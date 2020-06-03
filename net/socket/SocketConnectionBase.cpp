@@ -21,7 +21,7 @@ SocketConnectionBase<R, W>::SocketConnectionBase(
         onWriteError(this, errnum);
     })
     , serverSocket(serverSocket) {
-    this->attach(csFd);
+    this->attachFd(csFd);
 }
 
 

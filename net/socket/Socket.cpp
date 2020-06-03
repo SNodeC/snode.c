@@ -17,7 +17,7 @@ void Socket::open(const std::function<void(int errnum)>& onError) {
     int fd = ::socket(AF_INET, SOCK_STREAM, 0);
 
     if (fd >= 0) {
-        this->attach(fd);
+        this->attachFd(fd);
         onError(0);
     } else {
         onError(errno);
