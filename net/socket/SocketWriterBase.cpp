@@ -7,6 +7,8 @@
 #define MAX_JUNKSIZE 4096
 
 void SocketWriterBase::writeEvent() {
+    errno = 0;
+
     ssize_t ret = send(writePuffer.c_str(), (writePuffer.size() < MAX_JUNKSIZE) ? writePuffer.size() : MAX_JUNKSIZE);
 
     if (ret >= 0) {

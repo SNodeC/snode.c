@@ -70,6 +70,8 @@ void SocketServerBase<T>::listen(in_port_t port, int backlog, const std::functio
 
 template <typename T>
 void SocketServerBase<T>::readEvent() {
+    errno = 0;
+
     struct sockaddr_in remoteAddress;
     socklen_t addrlen = sizeof(remoteAddress);
 
