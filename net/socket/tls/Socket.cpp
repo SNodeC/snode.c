@@ -6,10 +6,9 @@
 
 namespace tls {
 
-    Socket::Socket(int fd)
+    Socket::Socket()
         : ::Socket()
         , ssl(0) {
-        this->attach(fd);
     }
 
 

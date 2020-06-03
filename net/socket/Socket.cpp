@@ -8,10 +8,6 @@
 #include "Socket.h"
 
 
-Socket::Socket() {
-}
-
-
 Socket::~Socket() {
     ::shutdown(this->getFd(), SHUT_RDWR);
 }

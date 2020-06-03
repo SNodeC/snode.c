@@ -7,12 +7,6 @@
 
 namespace legacy {
 
-    Socket::Socket(int fd)
-        : ::Socket() {
-        this->attach(fd);
-    }
-
-
     ssize_t Socket::recv(void* buf, size_t len, int flags) {
         return ::recv(this->getFd(), buf, len, flags);
     }

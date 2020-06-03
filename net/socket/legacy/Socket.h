@@ -13,7 +13,6 @@ namespace legacy {
     class Socket : public ::Socket {
     protected:
         Socket() = default;
-        Socket(int fd);
 
         ssize_t recv(void* buf, size_t len, int flags);
         ssize_t send(const void* buf, size_t len, int flags);
