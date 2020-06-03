@@ -31,6 +31,9 @@ public:
 
     void disconnect(SocketConnection* cs);
 
+protected:
+    void listen(int backlog, const std::function<void(int errnum)>& onError);
+
 private:
     virtual void unmanaged();
 
