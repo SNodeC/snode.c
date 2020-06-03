@@ -68,7 +68,7 @@ private:
 
         for (T* descriptor : descriptors) {
             Descriptor* desc = dynamic_cast<Descriptor*>(descriptor);
-            maxFd = std::max(desc->getFd(), maxFd);
+            maxFd = std::max(desc->fd(), maxFd);
         }
 
         return maxFd;
@@ -78,14 +78,14 @@ private:
     void updateFdSet() {
         if (!addedDescriptors.empty() || !removedDescriptors.empty()) {
             for (T* descriptor : addedDescriptors) {
-                FD_SET(dynamic_cast<Descriptor*>(descriptor)->getFd(), &fdSet);
+                FD_SET(dynamic_cast<Descriptor*>(descriptor)->fd(), &fdSet);
                 descriptors.push_back(descriptor);
                 descriptor->incManaged();
             }
             addedDescriptors.clear();
 
             for (T* descriptor : removedDescriptors) {
-                FD_CLR(dynamic_cast<Descriptor*>(descriptor)->getFd(), &fdSet);
+                FD_CLR(dynamic_cast<Descriptor*>(descriptor)->fd(), &fdSet);
                 descriptors.remove(descriptor);
                 descriptor->decManaged();
             }

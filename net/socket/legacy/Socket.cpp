@@ -8,12 +8,12 @@
 namespace legacy {
 
     ssize_t Socket::recv(void* buf, size_t len, int flags) {
-        return ::recv(this->getFd(), buf, len, flags);
+        return ::recv(this->fd(), buf, len, flags);
     }
 
 
     ssize_t Socket::send(const void* buf, size_t len, int flags) {
-        return ::send(this->getFd(), buf, len, flags);
+        return ::send(this->fd(), buf, len, flags);
     }
 
 }; // namespace legacy
