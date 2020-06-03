@@ -46,20 +46,19 @@ void HTTPContext::stopFileReader() {
 
 
 void HTTPContext::onReadError(int errnum) {
-    (void) errnum;
-
     stopFileReader();
-
-    perror("Read from ConnectedSocket");
+    if (errnum && errnum != ECONNRESET) {
+        perror("HTTPContext");
+    }
 }
 
 
 void HTTPContext::onWriteError(int errnum) {
-    (void) errnum;
-
     stopFileReader();
 
-    perror("Write to ConnectedSocket");
+    if (errnum && errnum != ECONNRESET) {
+        perror("HTTPContext");
+    }
 }
 
 
