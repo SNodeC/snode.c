@@ -12,13 +12,9 @@
 
 class Socket : virtual public Descriptor {
 public:
-    virtual void attach(int fd);
-
     virtual ~Socket();
 
     void bind(InetAddress& localAddress, const std::function<void(int errnum)>& onError);
-
-    void listen(int backlog, const std::function<void(int errnum)>& onError);
 
     InetAddress& getLocalAddress();
 

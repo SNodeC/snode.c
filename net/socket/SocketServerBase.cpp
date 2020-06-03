@@ -26,6 +26,18 @@ SocketServerBase<T>::SocketServerBase(const std::function<void(SocketConnection*
 
 
 template <typename T>
+void SocketServerBase<T>::listen(int backlog, const std::function<void(int errnum)>& onError) {
+    int ret = ::listen(this->getFd(), backlog);
+
+    if (ret < 0) {
+        onError(errno);
+    } else {
+        onError(0);
+    }
+}
+
+
+template <typename T>
 void SocketServerBase<T>::listen(in_port_t port, int backlog, const std::function<void(int err)>& onError) {
     this->SocketReader::setOnError(onError);
 
@@ -42,7 +54,7 @@ void SocketServerBase<T>::listen(in_port_t port, int backlog, const std::functio
                     if (errnum > 0) {
                         onError(errnum);
                     } else {
-                        this->Socket::listen(backlog, [this, &onError](int errnum) -> void {
+                        this->listen(backlog, [this, &onError](int errnum) -> void {
                             if (errnum == 0) {
                                 Multiplexer::instance().getManagedReader().add(this);
                             }
