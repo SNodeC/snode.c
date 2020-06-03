@@ -28,14 +28,10 @@ void WebApp::listen(int port, const std::function<void(int err)>& onError) {
             static_cast<HTTPContext*>(connectedSocket->getContext())->receiveRequest(junk, n);
         },
         [](SocketConnection* connectedSocket, int errnum) -> void {
-            if (errnum) {
-                static_cast<HTTPContext*>(connectedSocket->getContext())->onReadError(errnum);
-            }
+            static_cast<HTTPContext*>(connectedSocket->getContext())->onReadError(errnum);
         },
         [](SocketConnection* connectedSocket, int errnum) -> void {
-            if (errnum) {
-                static_cast<HTTPContext*>(connectedSocket->getContext())->onWriteError(errnum);
-            }
+            static_cast<HTTPContext*>(connectedSocket->getContext())->onWriteError(errnum);
         })
         ->listen(port, 5, [&](int err) -> void {
             if (onError) {
@@ -60,14 +56,10 @@ void WebApp::sslListen(int port, const std::string& cert, const std::string& key
             static_cast<HTTPContext*>(connectedSocket->getContext())->receiveRequest(junk, n);
         },
         [](SocketConnection* connectedSocket, int errnum) -> void {
-            if (errnum) {
-                static_cast<HTTPContext*>(connectedSocket->getContext())->onReadError(errnum);
-            }
+            static_cast<HTTPContext*>(connectedSocket->getContext())->onReadError(errnum);
         },
         [](SocketConnection* connectedSocket, int errnum) -> void {
-            if (errnum) {
-                static_cast<HTTPContext*>(connectedSocket->getContext())->onWriteError(errnum);
-            }
+            static_cast<HTTPContext*>(connectedSocket->getContext())->onWriteError(errnum);
         })
         ->listen(port, 5, cert, key, password, [&](int err) -> void {
             if (onError) {
