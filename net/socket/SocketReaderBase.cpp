@@ -7,6 +7,8 @@
 #define MAX_JUNKSIZE 16384
 
 void SocketReaderBase::readEvent() {
+    errno = 0;
+
     static char junk[MAX_JUNKSIZE];
 
     ssize_t ret = recv(junk, MAX_JUNKSIZE);
