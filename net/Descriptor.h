@@ -16,10 +16,10 @@ public:
 
     virtual void attachFd(int fd);
 
-    int getFd() const;
+    int fd() const;
 
 private:
-    int fd;
+    int _fd;
 };
 
 #endif // DESCRIPTOR_H

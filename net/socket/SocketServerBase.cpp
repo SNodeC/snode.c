@@ -27,7 +27,7 @@ SocketServerBase<T>::SocketServerBase(const std::function<void(SocketConnection*
 
 template <typename T>
 void SocketServerBase<T>::listen(int backlog, const std::function<void(int errnum)>& onError) {
-    int ret = ::listen(this->getFd(), backlog);
+    int ret = ::listen(this->fd(), backlog);
 
     if (ret < 0) {
         onError(errno);
@@ -46,7 +46,7 @@ void SocketServerBase<T>::listen(in_port_t port, int backlog, const std::functio
             onError(errnum);
         } else {
             int sockopt = 1;
-            if (setsockopt(this->getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
+            if (setsockopt(this->fd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
                 onError(errno);
             } else {
                 localAddress = InetAddress(port);
@@ -77,7 +77,7 @@ void SocketServerBase<T>::readEvent() {
 
     int csFd = -1;
 
-    csFd = ::accept(this->getFd(), (struct sockaddr*) &remoteAddress, &addrlen);
+    csFd = ::accept(this->fd(), (struct sockaddr*) &remoteAddress, &addrlen);
 
     if (csFd >= 0) {
         struct sockaddr_in localAddress;
