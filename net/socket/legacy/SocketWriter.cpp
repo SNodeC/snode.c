@@ -11,7 +11,7 @@
 namespace legacy {
 
     ssize_t SocketWriter::send(const char* junk, const ssize_t& junkSize) {
-        return send(junk, junkSize, MSG_DONTWAIT | MSG_NOSIGNAL);
+        return legacy::Socket::send(junk, junkSize, MSG_DONTWAIT | MSG_NOSIGNAL);
     }
 
 }; // namespace legacy
