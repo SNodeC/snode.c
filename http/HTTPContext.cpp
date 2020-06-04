@@ -16,19 +16,13 @@
 #include "socket/SocketConnection.h"
 
 
-HTTPContext::HTTPContext(WebApp* httpServer, SocketConnection* connectedSocket)
+HTTPContext::HTTPContext(WebApp* webApp, SocketConnection* connectedSocket)
     : connectedSocket(connectedSocket)
-    , fileReader(0)
-    , webApp(httpServer)
+    , webApp(webApp)
     , request(this)
     , response(this) {
-    this->responseStatus = 200;
-    this->requestState = requeststates::REQUEST;
-    this->lineState = linestate::READ;
-    this->bodyData = 0;
-    this->bodyLength = 0;
-    this->bodyPointer = 0;
-    this->headerSend = false;
+    bodyData = 0;
+    this->prepareForRequest();
 }
 
 
@@ -47,6 +41,7 @@ void HTTPContext::stopFileReader() {
 
 void HTTPContext::onReadError(int errnum) {
     stopFileReader();
+
     if (errnum && errnum != ECONNRESET) {
         perror("HTTPContext");
     }
@@ -196,7 +191,7 @@ void HTTPContext::requestReady() {
         connectedSocket->end();
     }
 
-    this->reset();
+    this->prepareForRequest();
 }
 
 
@@ -254,7 +249,7 @@ void HTTPContext::send(const std::string& puffer) {
 
 
 void HTTPContext::sendFile(const std::string& url, const std::function<void(int ret)>& onError) {
-    stopFileReader();
+    stopFileReader(); // analyze further why this is necessary, why file send request overlap occure
 
     std::string absolutFileName = webApp->getRootDir() + url;
 
@@ -333,7 +328,7 @@ void HTTPContext::end() {
 }
 
 
-void HTTPContext::reset() {
+void HTTPContext::prepareForRequest() {
     this->responseStatus = 200;
     this->requestState = requeststates::REQUEST;
     this->lineState = linestate::READ;
@@ -353,7 +348,9 @@ void HTTPContext::reset() {
         delete[] this->bodyData;
         this->bodyData = 0;
     }
+
     this->bodyLength = 0;
     this->bodyPointer = 0;
     this->headerSend = false;
+    this->fileReader = 0;
 }
