@@ -66,7 +66,7 @@ protected:
     void requestReady();
 
     void end();
-    void reset();
+    void prepareForRequest();
 
     char* bodyData;
     int bodyLength;
