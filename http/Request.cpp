@@ -60,7 +60,7 @@ const std::string& Request::method() const {
 }
 
 
-const std::string& Request::query(std::string key) const {
+const std::string& Request::query(const std::string& key) const {
     if (this->httpContext->queryMap.find(key) != this->httpContext->queryMap.end()) {
         return this->httpContext->queryMap[key];
     } else {
