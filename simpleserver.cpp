@@ -1,7 +1,5 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "WebApp.h"
-
 #include <iostream>
 
 #include "WebApp.h"
@@ -103,7 +101,7 @@ int simpleWebserver(int argc, char** argv) {
 #define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c.key.encrypted.pem"
 #define KEYFPASS "snode.c"
 
-    sslApp.sslListen(8088, CERTF, KEYF, KEYFPASS, [&legacyApp](int err) -> void {
+    sslApp.sslListen(8088, CERTF, KEYF, KEYFPASS, [](int err) -> void {
         if (err != 0) {
             perror("Listen");
         } else {
