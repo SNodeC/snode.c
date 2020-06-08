@@ -17,6 +17,15 @@ const Router route() {
             std::cout << "Cookie 1: " << req.cookie("searchcookie") << std::endl;
 
             next();
+            
+            req.setAttribute<std::string>("Hallo");
+            req.setAttribute<int>(3);
+
+            std::string s = req.getAttribute<std::string>();
+            int i = req.getAttribute<int>();
+
+            std::cout << "String: --------- " << s << std::endl;
+            std::cout << "Int: --------- " << i << std::endl;
         });
 
     Router r;
