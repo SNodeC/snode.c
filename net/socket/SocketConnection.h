@@ -4,6 +4,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
+#include <iostream>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -11,8 +12,10 @@
 
 class SocketConnection {
 public:
-    virtual ~SocketConnection() = default;
-
+    virtual ~SocketConnection() {
+//        std::cout << "DELETE SocketConnection: " << this << std::endl;
+    }
+    
     void setContext(void* context) {
         this->context = context;
     }
@@ -32,6 +35,7 @@ public:
 protected:
     SocketConnection()
         : context(0) {
+//        std::cout << "CREATE SocketConnection: " << this << std::endl;
     }
 
     void* context;

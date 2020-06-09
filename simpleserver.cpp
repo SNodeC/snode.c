@@ -13,25 +13,28 @@ const Router route() {
     Router router;
     router.use(
         "/", MIDDLEWARE(req, res, next) {
-            std::cout << "Middleware 1 " << req.originalUrl << std::endl;
-            std::cout << "Cookie 1: " << req.cookie("searchcookie") << std::endl;
+//            std::cout << "Middleware 1 " << req.originalUrl << std::endl;
+//            std::cout << "Cookie 1: " << req.cookie("searchcookie") << std::endl;
 
             next();
             
-            req.setAttribute<std::string>("Hallo");
-            req.setAttribute<int>(3);
+//            req.setAttribute<std::string>("Hallo");
+//            req.setAttribute<std::string>("World", "Key1");
+//            req.setAttribute<int>(3);
 
-            std::string s = req.getAttribute<std::string>();
-            int i = req.getAttribute<int>();
+//            std::string hello = req.getAttribute<std::string>();
+//            std::string world = req.getAttribute<std::string>("Key1");
+//            int i = req.getAttribute<int>();
 
-            std::cout << "String: --------- " << s << std::endl;
-            std::cout << "Int: --------- " << i << std::endl;
+//            std::cout << "String: --------- " << hello << std::endl;
+//            std::cout << "String: --------- " << world << std::endl;
+//            std::cout << "Int: --------- " << i << std::endl;
         });
 
     Router r;
     r.use(MIDDLEWARE(req, res, next) {
-        std::cout << "Middleware 2 " << req.originalUrl << std::endl;
-        std::cout << "Cookie 2: " << req.cookie("searchcookie") << std::endl;
+//        std::cout << "Middleware 2 " << req.originalUrl << std::endl;
+//        std::cout << "Cookie 2: " << req.cookie("searchcookie") << std::endl;
 
         next();
     });
@@ -40,9 +43,9 @@ const Router route() {
 
     router.get(
         "/search", APPLICATION(req, res) {
-            std::cout << "Search" << std::endl;
-            std::cout << "URL: " << req.originalUrl << std::endl;
-            std::cout << "Cookie 3: " << req.cookie("searchcookie") << std::endl;
+//            std::cout << "Search" << std::endl;
+//            std::cout << "URL: " << req.originalUrl << std::endl;
+//            std::cout << "Cookie 3: " << req.cookie("searchcookie") << std::endl;
             res.sendFile(req.originalUrl);
         });
 
@@ -64,8 +67,8 @@ WebApp sslMain() {
         .get(
             "/", APPLICATION(req, res) {
                 std::string uri = req.originalUrl;
-                std::cout << "URL: " << uri << std::endl;
-                std::cout << "Cookie: " << req.cookie("rootcookie") << std::endl;
+//                std::cout << "URL: " << uri << std::endl;
+//                std::cout << "Cookie: " << req.cookie("rootcookie") << std::endl;
                 res.cookie("searchcookie", "cookievalue", {{"Max-Age", "3600"}, {"Path", "/search"}});
                 //                res.clearCookie("rootcookie");
                 //                res.clearCookie("rootcookie");

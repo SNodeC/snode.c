@@ -4,12 +4,14 @@
 
 #include <algorithm>
 #include <filesystem>
+#include <iostream>
 #include <string.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "HTTPStatusCodes.h"
 #include "MimeTypes.h"
+#include "Multiplexer.h"
 #include "WebApp.h"
 #include "file/FileReader.h"
 #include "httputils.h"
@@ -22,6 +24,7 @@ HTTPContext::HTTPContext(WebApp* webApp, SocketConnection* connectedSocket)
     , request(this)
     , response(this) {
     bodyData = 0;
+    fileReader = 0;
     this->prepareForRequest();
 }
 
@@ -263,12 +266,17 @@ void HTTPContext::sendFile(const std::string& url, const std::function<void(int 
             responseHeader.insert({"Last-Modified", httputils::file_mod_http_date(absolutFileName)});
             this->sendHeader();
 
+            Multiplexer::instance().getManagedReader().stash(dynamic_cast<Reader*>(connectedSocket));
+
             fileReader = FileReader::read(
                 absolutFileName,
                 [this](char* data, int length) -> void {
                     connectedSocket->enqueue(data, length);
                 },
                 [this, onError](int err) -> void {
+                    std::cout << "Filereader: EOF: " << fileReader->fd() << ", " << err << std::endl;
+                    std::cout << "        " << fileReader << " : " << connectedSocket << std::endl;
+                    Multiplexer::instance().getManagedReader().unstash(dynamic_cast<Reader*>(connectedSocket));
                     fileReader = 0;
                     if (onError) {
                         onError(err);
@@ -277,6 +285,7 @@ void HTTPContext::sendFile(const std::string& url, const std::function<void(int 
                         connectedSocket->end();
                     }
                 });
+            std::cout << "Filereader: Create: " << fileReader->fd() << std::endl;
         } else {
             this->responseStatus = 403;
             this->end();
@@ -352,5 +361,5 @@ void HTTPContext::prepareForRequest() {
     this->bodyLength = 0;
     this->bodyPointer = 0;
     this->headerSend = false;
-    this->fileReader = 0;
+//    this->fileReader = 0;
 }
