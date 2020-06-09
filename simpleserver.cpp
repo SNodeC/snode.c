@@ -22,10 +22,14 @@ int simpleWebserver(int argc, char** argv) {
                 std::cout << "URL: " << uri << std::endl;
                 std::cout << "Cookie: " << req.cookie("rootcookie") << std::endl;
                 res.cookie("searchcookie", "cookievalue", {{"Max-Age", "3600"}, {"Path", "/search"}});
+
                 req.setAttribute<std::string>("Hallo");
+                req.setAttribute<std::string>("World", "Key1");
                 req.setAttribute<int>(3);
-                
+
                 std::cout << "Attribute std::string: " << req.getAttribute<std::string>() << std::endl;
+                std::cout << "Attribute std::string: " << req.getAttribute<std::string>("Key1") << std::endl;
+
                 std::cout << "Attribute int: " << req.getAttribute<int>() << std::endl;
 //                res.clearCookie("rootcookie");
 //                res.clearCookie("rootcookie");
