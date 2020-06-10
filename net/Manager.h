@@ -24,8 +24,8 @@ protected:
         descriptors.reverse();
         removedDescriptors = descriptors;
         updateFdSet();
-        sDescriptors.reverse();
-        removedDescriptors = sDescriptors;
+        stashedDescriptors.reverse();
+        removedDescriptors = stashedDescriptors;
         updateFdSet();
     }
 
@@ -58,12 +58,12 @@ public:
 
 
     void stash(T* socket) {
-        stashedDescriptors.push_back(socket);
+        addedStashedDescriptors.push_back(socket);
     }
 
 
     void unstash(T* socket) {
-        unstashedDescriptors.push_back(socket);
+        removedStashedDescriptors.push_back(socket);
     }
 
 
@@ -92,7 +92,8 @@ private:
 
 
     void updateFdSet() {
-        if (!addedDescriptors.empty() || !removedDescriptors.empty() || !stashedDescriptors.empty() || !unstashedDescriptors.empty()) {
+        if (!addedDescriptors.empty() || !removedDescriptors.empty() || !addedStashedDescriptors.empty() ||
+            !removedStashedDescriptors.empty()) {
             for (T* descriptor : addedDescriptors) {
                 FD_SET(dynamic_cast<Descriptor*>(descriptor)->fd(), &fdSet);
                 descriptors.push_back(descriptor);
@@ -100,21 +101,21 @@ private:
             }
             addedDescriptors.clear();
 
-            for (T* descriptor : unstashedDescriptors) {
+            for (T* descriptor : removedStashedDescriptors) {
                 FD_SET(dynamic_cast<Descriptor*>(descriptor)->fd(), &fdSet);
                 descriptors.push_back(descriptor);
-                sDescriptors.remove(descriptor);
+                stashedDescriptors.remove(descriptor);
                 descriptor->decManaged();
             }
-            unstashedDescriptors.clear();
+            removedStashedDescriptors.clear();
 
-            for (T* descriptor : stashedDescriptors) {
+            for (T* descriptor : addedStashedDescriptors) {
                 FD_SET(dynamic_cast<Descriptor*>(descriptor)->fd(), &fdSet);
                 descriptors.remove(descriptor);
-                sDescriptors.push_back(descriptor);
+                stashedDescriptors.push_back(descriptor);
                 descriptor->incManaged();
             }
-            stashedDescriptors.clear();
+            addedStashedDescriptors.clear();
 
             for (T* descriptor : removedDescriptors) {
                 FD_CLR(dynamic_cast<Descriptor*>(descriptor)->fd(), &fdSet);
@@ -133,9 +134,9 @@ private:
 
     std::list<T*> addedDescriptors;
     std::list<T*> removedDescriptors;
+    std::list<T*> addedStashedDescriptors;
+    std::list<T*> removedStashedDescriptors;
     std::list<T*> stashedDescriptors;
-    std::list<T*> unstashedDescriptors;
-    std::list<T*> sDescriptors;
 };
 
 #endif // SOCKETMANAGER_H
