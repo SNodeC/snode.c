@@ -4,7 +4,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
-#include <iostream>
 #include <list>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -25,6 +24,9 @@ protected:
         descriptors.reverse();
         removedDescriptors = descriptors;
         updateFdSet();
+        sDescriptors.reverse();
+        removedDescriptors = sDescriptors;
+        updateFdSet();
     }
 
 
@@ -35,17 +37,14 @@ public:
         return fdSet;
     }
 
-    bool contains(std::list<T*>& listOfElements, T*& element) { 
-        
+    bool contains(std::list<T*>& listOfElements, T*& element) {
         typename std::list<T*>::iterator it = std::find(listOfElements.begin(), listOfElements.end(), element);
-        
+
         return it != listOfElements.end();
     }
 
     void add(T* socket) {
         if (!contains(descriptors, socket) && !contains(addedDescriptors, socket)) {
-            std::cout << "ADD: " << dynamic_cast<Descriptor*>(socket)->fd() << std::endl;
-            //        if (!socket->managed) {   // need a search
             addedDescriptors.push_back(socket);
         }
     }
@@ -53,30 +52,18 @@ public:
 
     void remove(T* socket) {
         if (contains(descriptors, socket) && !contains(removedDescriptors, socket)) {
-            std::cout << "REMOVE: " << dynamic_cast<Descriptor*>(socket)->fd() << std::endl;
-            //        if (socket->managed) {
             removedDescriptors.push_back(socket);
         }
     }
 
 
     void stash(T* socket) {
-        std::cout << "STASH: " << dynamic_cast<Descriptor*>(socket)->fd() << std::endl;
-        //        if (socket->managed) {
-//        removedDescriptors.push_back(socket);
         stashedDescriptors.push_back(socket);
-//        socket->incManaged();
-        //        }
     }
 
 
     void unstash(T* socket) {
-        
-        std::cout << "UNSTASH: " << dynamic_cast<Descriptor*>(socket)->fd() << std::endl;
-        //        if (socket->managed) {
         unstashedDescriptors.push_back(socket);
-//        stashedDescriptors.remove(socket);
-        //        }
     }
 
 
@@ -110,34 +97,31 @@ private:
                 FD_SET(dynamic_cast<Descriptor*>(descriptor)->fd(), &fdSet);
                 descriptors.push_back(descriptor);
                 descriptor->incManaged();
-                descriptor->checkForEOF();
-                
             }
             addedDescriptors.clear();
-
-            for (T* descriptor : stashedDescriptors) {
-                FD_SET(dynamic_cast<Descriptor*>(descriptor)->fd(), &fdSet);
-                descriptors.remove(descriptor);
-                descriptor->incManaged();
-                descriptor->checkForEOF();
-            }
-            stashedDescriptors.clear();
-            
-            for (T* descriptor : removedDescriptors) {
-                FD_CLR(dynamic_cast<Descriptor*>(descriptor)->fd(), &fdSet);
-                descriptors.remove(descriptor);
-                descriptor->decManaged();
-                descriptor->checkForEOF();
-            }
-            removedDescriptors.clear();
 
             for (T* descriptor : unstashedDescriptors) {
                 FD_SET(dynamic_cast<Descriptor*>(descriptor)->fd(), &fdSet);
                 descriptors.push_back(descriptor);
+                sDescriptors.remove(descriptor);
                 descriptor->decManaged();
-                descriptor->checkForEOF();
             }
             unstashedDescriptors.clear();
+
+            for (T* descriptor : stashedDescriptors) {
+                FD_SET(dynamic_cast<Descriptor*>(descriptor)->fd(), &fdSet);
+                descriptors.remove(descriptor);
+                sDescriptors.push_back(descriptor);
+                descriptor->incManaged();
+            }
+            stashedDescriptors.clear();
+
+            for (T* descriptor : removedDescriptors) {
+                FD_CLR(dynamic_cast<Descriptor*>(descriptor)->fd(), &fdSet);
+                descriptors.remove(descriptor);
+                descriptor->decManaged();
+            }
+            removedDescriptors.clear();
 
             updateMaxFd();
         }
@@ -151,6 +135,7 @@ private:
     std::list<T*> removedDescriptors;
     std::list<T*> stashedDescriptors;
     std::list<T*> unstashedDescriptors;
+    std::list<T*> sDescriptors;
 };
 
 #endif // SOCKETMANAGER_H

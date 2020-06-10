@@ -41,7 +41,6 @@ protected:
 
 public:
     HTTPContext(WebApp* httpServer, SocketConnection* connectedSocket);
-    ~HTTPContext();
 
     void onReadError(int errnum);
     void onWriteError(int errnum);

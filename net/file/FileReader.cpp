@@ -16,7 +16,7 @@ FileReader::FileReader(int fd, const std::function<void(char* data, int len)>& j
     : Descriptor()
     , Reader(onError)
     , junkRead(junkRead)
-    , write(true) {
+    , stopped(false) {
     this->attachFd(fd);
 }
 
@@ -39,15 +39,15 @@ FileReader* FileReader::read(std::string path, const std::function<void(char* da
 
 
 void FileReader::stop() {
-    write = false;
-    Multiplexer::instance().getManagedReader().remove(this);
+    if (!stopped) {
+        Multiplexer::instance().getManagedReader().remove(this);
+        this->onError(0);
+        stopped = true;
+    }
 }
 
 
 void FileReader::unmanaged() {
-    if (write) {
-        this->onError(0);
-    }
     delete this;
 }
 
@@ -57,15 +57,13 @@ void FileReader::readEvent() {
 
     int ret = ::read(this->fd(), buffer, MFREADSIZE);
 
-    if (write) {
+    if (!stopped) {
         if (ret > 0) {
             this->junkRead(buffer, ret);
-        } else if (ret == 0) {
-            this->stop();
-            this->onError(0);
         } else {
-            this->stop();
-            this->onError(errno);
+            stopped = true;
+            Multiplexer::instance().getManagedReader().remove(this);
+            this->onError(ret == 0 ? 0 : errno);
         }
     }
 }

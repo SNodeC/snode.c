@@ -4,8 +4,6 @@
 #include "Descriptor.h"
 #include "ManagedCounter.h"
 
-#include <iostream>
-
 
 class ManagedDescriptor : virtual public ManagedCounter {
 public:
@@ -20,10 +18,6 @@ public:
 
     void decManaged() {
         ManagedCounter::managedCounter--;
-    }
-    
-    void checkForEOF() {
-//        std::cout << "ManagedCounter: " << ManagedCounter::managedCounter << std::endl;
         if (ManagedCounter::managedCounter == 0) {
             unmanaged();
         }
@@ -31,7 +25,7 @@ public:
 
     virtual void unmanaged() = 0;
 
-//    bool managed = false;
+    //    bool managed = false;
 };
 
 #endif // MANAGEABLE_H

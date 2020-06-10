@@ -1,6 +1,5 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <iostream>
 #include <string.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

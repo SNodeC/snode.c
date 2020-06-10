@@ -95,9 +95,14 @@ WebApp legacyMain() {
     WebApp legacyApp("/home/voc/projects/ServerVoc/build/html/");
     legacyApp.use(
         "/", MIDDLEWARE(req, res, next) {
-            std::cout << "Redirect: "
-                      << "https://calisto.home.vchrist.at:8088" + req.originalUrl << std::endl;
-            res.redirect("https://calisto.home.vchrist.at:8088" + req.originalUrl);
+            if (req.originalUrl == "/end") {
+                    res.send("Bye, bye!");
+                    WebApp::stop();
+            } else {
+                std::cout << "Redirect: "
+                          << "https://calisto.home.vchrist.at:8088" + req.originalUrl << std::endl;
+                res.redirect("https://calisto.home.vchrist.at:8088" + req.originalUrl);
+            }
         });
 
     return legacyApp;
