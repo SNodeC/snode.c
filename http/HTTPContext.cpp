@@ -29,15 +29,9 @@ HTTPContext::HTTPContext(WebApp* webApp, SocketConnection* connectedSocket)
 }
 
 
-HTTPContext::~HTTPContext() {
-    stopFileReader();
-}
-
-
 void HTTPContext::stopFileReader() {
     if (fileReader) {
         fileReader->stop();
-        fileReader = 0;
     }
 }
 
@@ -252,8 +246,6 @@ void HTTPContext::send(const std::string& puffer) {
 
 
 void HTTPContext::sendFile(const std::string& url, const std::function<void(int ret)>& onError) {
-    stopFileReader(); // analyze further why this is necessary, why file send request overlap occure
-
     std::string absolutFileName = webApp->getRootDir() + url;
 
     if (std::filesystem::exists(absolutFileName)) {
@@ -274,8 +266,6 @@ void HTTPContext::sendFile(const std::string& url, const std::function<void(int 
                     connectedSocket->enqueue(data, length);
                 },
                 [this, onError](int err) -> void {
-                    std::cout << "Filereader: EOF: " << fileReader->fd() << ", " << err << std::endl;
-                    std::cout << "        " << fileReader << " : " << connectedSocket << std::endl;
                     Multiplexer::instance().getManagedReader().unstash(dynamic_cast<Reader*>(connectedSocket));
                     fileReader = 0;
                     if (onError) {
@@ -285,7 +275,6 @@ void HTTPContext::sendFile(const std::string& url, const std::function<void(int 
                         connectedSocket->end();
                     }
                 });
-            std::cout << "Filereader: Create: " << fileReader->fd() << std::endl;
         } else {
             this->responseStatus = 403;
             this->end();
@@ -361,5 +350,4 @@ void HTTPContext::prepareForRequest() {
     this->bodyLength = 0;
     this->bodyPointer = 0;
     this->headerSend = false;
-//    this->fileReader = 0;
 }

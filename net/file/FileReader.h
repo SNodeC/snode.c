@@ -31,7 +31,7 @@ private:
 protected:
     std::function<void(char* data, int len)> junkRead;
 
-    bool write;
+    bool stopped;
 };
 
 #endif // FILEREADER_H
