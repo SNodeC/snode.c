@@ -25,10 +25,12 @@ const Router route() {
             std::string hello = req.getAttribute<std::string>();
             std::string world = req.getAttribute<std::string>("Key1");
             int i = req.getAttribute<int>();
+            float f = req.getAttribute<float>();
 
             std::cout << "String: --------- " << hello << std::endl;
             std::cout << "String: --------- " << world << std::endl;
             std::cout << "Int: --------- " << i << std::endl;
+            std::cout << "Float: ---------- " << f << std::endl;
         });
 
     Router r;

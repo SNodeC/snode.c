@@ -9,24 +9,20 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-class HTTPContext;
 
+class HTTPContext;
 
 class Request {
 private:
 public:
     Request(HTTPContext* httpContext);
 
-    std::multimap<std::string, std::string>& header() const;
     const std::string& header(const std::string& key, int i = 0) const;
     const std::string& cookie(const std::string& key) const;
-
     const std::string& query(const std::string& key) const;
     const std::string& httpVersion() const;
     const std::string& fragment() const;
-
     const std::string& method() const;
-
     int bodySize() const;
 
     // Properties
@@ -39,39 +35,26 @@ private:
     template <typename Attribute>
     class AttributeProxy {
     public:
-        explicit AttributeProxy()
-            : _value(Attribute()) {
+        AttributeProxy(const Attribute& attribute)
+            : _attribute(attribute) { // copy constructor neccessary
         }
 
-        virtual ~AttributeProxy() = default;
-
-        const Attribute& operator=(const Attribute& value) const {
-            _value = const_cast<Attribute&>(value);
-            return _value;
-        }
-
-        Attribute& operator=(Attribute& value) const {
-            _value = value;
-            return _value;
-        }
-
-
-        operator Attribute&() const {
-            return _value;
+        Attribute& attribute() {
+            return _attribute;
         }
 
     private:
-        mutable Attribute _value;
+        Attribute _attribute;
     };
 
 public:
     template <typename Attribute>
     const Attribute getAttribute(const std::string& key = "") const {
-        Attribute attribute = Attribute();
+        Attribute attribute = Attribute(); // default constructor & copy constructor neccessary
 
         std::map<std::string, std::shared_ptr<void>>::const_iterator it = attributes.find(typeid(Attribute).name() + key);
         if (it != attributes.end()) {
-            attribute = static_cast<Attribute>(*std::static_pointer_cast<AttributeProxy<Attribute>>(it->second));
+            attribute = std::static_pointer_cast<AttributeProxy<Attribute>>(it->second)->attribute(); // assignment operator neccessary
         }
 
         return attribute;
@@ -82,10 +65,8 @@ public:
         bool inserted = false;
 
         if (attributes.find(typeid(Attribute).name() + key) == attributes.end()) {
-            std::shared_ptr<AttributeProxy<Attribute>> a(new AttributeProxy<Attribute>);
-            *a = attribute;
-            attributes.insert(
-                std::pair<std::string, std::shared_ptr<void>>(typeid(Attribute).name() + key, std::static_pointer_cast<void>(a)));
+            attributes[typeid(Attribute).name() + key] =
+                std::static_pointer_cast<void>(std::shared_ptr<AttributeProxy<Attribute>>(new AttributeProxy<Attribute>(attribute)));
             inserted = true;
         }
 
