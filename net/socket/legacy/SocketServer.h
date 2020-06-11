@@ -13,18 +13,18 @@ namespace legacy {
 
     class SocketServer : public SocketServerBase<legacy::SocketConnection> {
     private:
-        SocketServer(const std::function<void(::SocketConnection* cs)>& onConnect,
-                     const std::function<void(::SocketConnection* cs)>& onDisconnect,
+        SocketServer(const std::function<void(legacy::SocketConnection* cs)>& onConnect,
+                     const std::function<void(legacy::SocketConnection* cs)>& onDisconnect,
                      const std::function<void(::SocketConnection* cs, const char* junk, ssize_t n)>& readProcesor,
-                     const std::function<void(::SocketConnection* cs, int errnum)>& onCsReadError,
-                     const std::function<void(::SocketConnection* cs, int errnum)>& onCsWriteError);
+                     const std::function<void(::SocketConnection* cs, int errnum)>& onReadError,
+                     const std::function<void(::SocketConnection* cs, int errnum)>& onWriteError);
 
     public:
-        static SocketServer* instance(const std::function<void(::SocketConnection* cs)>& onConnect,
-                                      const std::function<void(::SocketConnection* cs)>& onDisconnect,
+        static SocketServer* instance(const std::function<void(legacy::SocketConnection* cs)>& onConnect,
+                                      const std::function<void(legacy::SocketConnection* cs)>& onDisconnect,
                                       const std::function<void(::SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
-                                      const std::function<void(::SocketConnection* cs, int errnum)>& onCsReadError,
-                                      const std::function<void(::SocketConnection* cs, int errnum)>& onCsWriteError);
+                                      const std::function<void(::SocketConnection* cs, int errnum)>& onReadError,
+                                      const std::function<void(::SocketConnection* cs, int errnum)>& onWriteError);
     };
 
 }; // namespace legacy

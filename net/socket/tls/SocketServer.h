@@ -13,18 +13,18 @@ namespace tls {
 
     class SocketServer : public SocketServerBase<tls::SocketConnection> {
     private:
-        SocketServer(const std::function<void(::SocketConnection* cs)>& onConnect,
-                     const std::function<void(::SocketConnection* cs)>& onDisconnect,
+        SocketServer(const std::function<void(tls::SocketConnection* cs)>& onConnect,
+                     const std::function<void(tls::SocketConnection* cs)>& onDisconnect,
                      const std::function<void(::SocketConnection* cs, const char* junk, ssize_t n)>& readProcesor,
-                     const std::function<void(::SocketConnection* cs, int errnum)>& onCsReadError,
-                     const std::function<void(::SocketConnection* cs, int errnum)>& onCsWriteError);
+                     const std::function<void(::SocketConnection* cs, int errnum)>& onReadError,
+                     const std::function<void(::SocketConnection* cs, int errnum)>& onWriteError);
 
     public:
-        static SocketServer* instance(const std::function<void(::SocketConnection* cs)>& onConnect,
-                                      const std::function<void(::SocketConnection* cs)>& onDisconnect,
+        static SocketServer* instance(const std::function<void(tls::SocketConnection* cs)>& onConnect,
+                                      const std::function<void(tls::SocketConnection* cs)>& onDisconnect,
                                       const std::function<void(::SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
-                                      const std::function<void(::SocketConnection* cs, int errnum)>& onCsReadError,
-                                      const std::function<void(::SocketConnection* cs, int errnum)>& onCsWriteError);
+                                      const std::function<void(::SocketConnection* cs, int errnum)>& onReadError,
+                                      const std::function<void(::SocketConnection* cs, int errnum)>& onWriteError);
         ~SocketServer();
 
         using SocketServerBase<tls::SocketConnection>::listen;
@@ -32,8 +32,8 @@ namespace tls {
                     const std::function<void(int err)>& onError);
 
     private:
-        std::function<void(::SocketConnection* cs)> onConnect;
-        std::function<void(::SocketConnection* cs)> onDisconnect;
+        std::function<void(tls::SocketConnection* cs)> onConnect;
+        std::function<void(tls::SocketConnection* cs)> onDisconnect;
         SSL_CTX* ctx;
         static int passwordCallback(char* buf, int size, int rwflag, void* u);
     };
