@@ -1,6 +1,10 @@
 #ifndef SOCKETWRITERBASE_H
 #define SOCKETWRITERBASE_H
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 #include <Writer.h>
 
 

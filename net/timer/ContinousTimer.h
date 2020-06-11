@@ -1,6 +1,10 @@
 #ifndef CONTINOUSTIMER_H
 #define CONTINOUSTIMER_H
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 #include "Timer.h"
 
 

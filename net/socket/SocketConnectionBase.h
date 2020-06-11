@@ -1,6 +1,10 @@
 #ifndef BASECONNECTEDSOCKET_H
 #define BASECONNECTEDSOCKET_H
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 #include "SocketConnection.h"
 
 
@@ -15,6 +19,12 @@ public:
     virtual void enqueue(const char* buffer, int size);
     virtual void enqueue(const std::string& junk);
     virtual void end();
+
+    virtual void stashReader();
+    virtual void unstashReader();
+
+    virtual void stashWriter();
+    virtual void unstashWriter();
 
     virtual InetAddress& getRemoteAddress();
     virtual void setRemoteAddress(const InetAddress& remoteAddress);
