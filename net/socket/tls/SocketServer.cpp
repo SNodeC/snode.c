@@ -10,35 +10,35 @@
 
 namespace tls {
 
-    SocketServer::SocketServer(const std::function<void(::SocketConnection* cs)>& onConnect,
-                               const std::function<void(::SocketConnection* cs)>& onDisconnect,
+    SocketServer::SocketServer(const std::function<void(tls::SocketConnection* cs)>& onConnect,
+                               const std::function<void(tls::SocketConnection* cs)>& onDisconnect,
                                const std::function<void(::SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
-                               const std::function<void(::SocketConnection* cs, int errnum)>& onCsReadError,
-                               const std::function<void(::SocketConnection* cs, int errnum)>& onCsWriteError)
+                               const std::function<void(::SocketConnection* cs, int errnum)>& onReadError,
+                               const std::function<void(::SocketConnection* cs, int errnum)>& onWriteError)
         : SocketServerBase<tls::SocketConnection>(
-              [this](::SocketConnection* cs) {
-                  if (!dynamic_cast<tls::SocketConnection*>(cs)->startSSL(ctx)) {
+              [this](tls::SocketConnection* cs) {
+                  if (!cs->startSSL(ctx)) {
                       Multiplexer::instance().getManagedReader().remove(dynamic_cast<tls::SocketConnection*>(cs));
                   }
                   this->onConnect(cs);
               },
-              [this](::SocketConnection* cs) {
-                  dynamic_cast<tls::SocketConnection*>(cs)->stopSSL();
+              [this](tls::SocketConnection* cs) {
+                  cs->stopSSL();
                   this->onDisconnect(cs);
               },
-              readProcessor, onCsReadError, onCsWriteError)
+              readProcessor, onReadError, onWriteError)
         , onConnect(onConnect)
         , onDisconnect(onDisconnect)
         , ctx(0) {
     }
 
 
-    SocketServer* SocketServer::instance(const std::function<void(::SocketConnection* cs)>& onConnect,
-                                         const std::function<void(::SocketConnection* cs)>& onDisconnect,
+    SocketServer* SocketServer::instance(const std::function<void(tls::SocketConnection* cs)>& onConnect,
+                                         const std::function<void(tls::SocketConnection* cs)>& onDisconnect,
                                          const std::function<void(::SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
-                                         const std::function<void(::SocketConnection* cs, int errnum)>& onCsReadError,
-                                         const std::function<void(::SocketConnection* cs, int errnum)>& onCsWriteError) {
-        return new SocketServer(onConnect, onDisconnect, readProcessor, onCsReadError, onCsWriteError);
+                                         const std::function<void(::SocketConnection* cs, int errnum)>& onReadError,
+                                         const std::function<void(::SocketConnection* cs, int errnum)>& onWriteError) {
+        return new SocketServer(onConnect, onDisconnect, readProcessor, onReadError, onWriteError);
     }
 
 

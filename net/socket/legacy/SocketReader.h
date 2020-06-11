@@ -11,8 +11,6 @@
 #include "socket/legacy/Socket.h"
 
 
-class SocketConnection;
-
 namespace legacy {
 
     class SocketReader

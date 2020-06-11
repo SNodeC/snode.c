@@ -11,8 +11,6 @@
 #include "socket/tls/Socket.h"
 
 
-class SocketConnection;
-
 namespace tls {
 
     class SocketReader
