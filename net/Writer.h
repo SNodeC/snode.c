@@ -22,6 +22,9 @@ protected:
         , onError(onError) {
     }
 
+    void stash();
+    void unstash();
+
     std::string writePuffer;
 
     std::function<void(int errnum)> onError;

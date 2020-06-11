@@ -4,11 +4,14 @@ find_package(OpenSSL REQUIRED)
 
 add_library(net SHARED 
     Descriptor.cpp
+    Exception.cpp
     ManagedExceptions.cpp
     ManagedReader.cpp
     ManagedTimer.cpp
     ManagedWriter.cpp
     Multiplexer.cpp
+    Reader.cpp
+    Writer.cpp
     file/File.cpp
     file/FileReader.cpp
     socket/ClientSocket.cpp

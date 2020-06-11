@@ -26,6 +26,9 @@ protected:
         this->onError = onError;
     }
 
+    void stash();
+    void unstash();
+
     std::function<void(int errnum)> onError;
 };
 

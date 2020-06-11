@@ -1,6 +1,10 @@
 #ifndef MANAGEABLE_H
 #define MANAGEABLE_H
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 #include "Descriptor.h"
 #include "ManagedCounter.h"
 

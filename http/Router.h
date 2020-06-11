@@ -1,5 +1,6 @@
 #ifndef NEWROUTER_H
 #define NEWROUTER_H
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>

@@ -1,6 +1,10 @@
 #ifndef SOCKETREADMANAGER_H
 #define SOCKETREADMANAGER_H
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 #include "Manager.h"
 #include "Reader.h"
 

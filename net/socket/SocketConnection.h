@@ -26,6 +26,17 @@ public:
 
     virtual void end() = 0;
 
+    virtual void stashReader() = 0;
+    virtual void unstashReader() = 0;
+
+    virtual void stashWriter() = 0;
+    virtual void unstashWriter() = 0;
+
+    virtual void stashException() {
+    }
+    virtual void unstashException() {
+    }
+
     virtual InetAddress& getRemoteAddress() = 0;
     virtual void setRemoteAddress(const InetAddress& remoteAddress) = 0;
 

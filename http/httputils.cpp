@@ -1,5 +1,3 @@
-#include "httputils.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
@@ -10,6 +8,8 @@
 #include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+#include "httputils.h"
 
 
 namespace httputils {

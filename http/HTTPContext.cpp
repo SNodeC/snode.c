@@ -11,7 +11,6 @@
 
 #include "HTTPStatusCodes.h"
 #include "MimeTypes.h"
-#include "Multiplexer.h"
 #include "WebApp.h"
 #include "file/FileReader.h"
 #include "httputils.h"
@@ -258,7 +257,7 @@ void HTTPContext::sendFile(const std::string& url, const std::function<void(int 
             responseHeader.insert({"Last-Modified", httputils::file_mod_http_date(absolutFileName)});
             this->sendHeader();
 
-            Multiplexer::instance().getManagedReader().stash(dynamic_cast<Reader*>(connectedSocket));
+            connectedSocket->stashReader();
 
             fileReader = FileReader::read(
                 absolutFileName,
@@ -266,11 +265,13 @@ void HTTPContext::sendFile(const std::string& url, const std::function<void(int 
                     connectedSocket->enqueue(data, length);
                 },
                 [this, onError](int err) -> void {
-                    Multiplexer::instance().getManagedReader().unstash(dynamic_cast<Reader*>(connectedSocket));
+                    connectedSocket->unstashReader();
                     fileReader = 0;
+
                     if (onError) {
                         onError(err);
                     }
+
                     if (err) {
                         connectedSocket->end();
                     }

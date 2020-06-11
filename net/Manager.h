@@ -11,7 +11,7 @@
 #include "ManagedDescriptor.h"
 
 
-template <typename T>
+template <typename ManagedDescriptor>
 class Manager {
 protected:
     Manager()
@@ -37,32 +37,32 @@ public:
         return fdSet;
     }
 
-    bool contains(std::list<T*>& listOfElements, T*& element) {
-        typename std::list<T*>::iterator it = std::find(listOfElements.begin(), listOfElements.end(), element);
+    bool contains(std::list<ManagedDescriptor*>& listOfElements, ManagedDescriptor*& element) {
+        typename std::list<ManagedDescriptor*>::iterator it = std::find(listOfElements.begin(), listOfElements.end(), element);
 
         return it != listOfElements.end();
     }
 
-    void add(T* socket) {
+    void add(ManagedDescriptor* socket) {
         if (!contains(descriptors, socket) && !contains(addedDescriptors, socket)) {
             addedDescriptors.push_back(socket);
         }
     }
 
 
-    void remove(T* socket) {
+    void remove(ManagedDescriptor* socket) {
         if (contains(descriptors, socket) && !contains(removedDescriptors, socket)) {
             removedDescriptors.push_back(socket);
         }
     }
 
 
-    void stash(T* socket) {
+    void stash(ManagedDescriptor* socket) {
         addedStashedDescriptors.push_back(socket);
     }
 
 
-    void unstash(T* socket) {
+    void unstash(ManagedDescriptor* socket) {
         removedStashedDescriptors.push_back(socket);
     }
 
@@ -75,14 +75,14 @@ public:
     virtual int dispatch(fd_set& fdSet, int count) = 0;
 
 protected:
-    std::list<T*> descriptors;
+    std::list<ManagedDescriptor*> descriptors;
 
 
 private:
     int updateMaxFd() {
         maxFd = 0;
 
-        for (T* descriptor : descriptors) {
+        for (ManagedDescriptor* descriptor : descriptors) {
             Descriptor* desc = dynamic_cast<Descriptor*>(descriptor);
             maxFd = std::max(desc->fd(), maxFd);
         }
@@ -94,14 +94,14 @@ private:
     void updateFdSet() {
         if (!addedDescriptors.empty() || !removedDescriptors.empty() || !addedStashedDescriptors.empty() ||
             !removedStashedDescriptors.empty()) {
-            for (T* descriptor : addedDescriptors) {
+            for (ManagedDescriptor* descriptor : addedDescriptors) {
                 FD_SET(dynamic_cast<Descriptor*>(descriptor)->fd(), &fdSet);
                 descriptors.push_back(descriptor);
                 descriptor->incManaged();
             }
             addedDescriptors.clear();
 
-            for (T* descriptor : removedStashedDescriptors) {
+            for (ManagedDescriptor* descriptor : removedStashedDescriptors) {
                 FD_SET(dynamic_cast<Descriptor*>(descriptor)->fd(), &fdSet);
                 descriptors.push_back(descriptor);
                 stashedDescriptors.remove(descriptor);
@@ -109,7 +109,7 @@ private:
             }
             removedStashedDescriptors.clear();
 
-            for (T* descriptor : addedStashedDescriptors) {
+            for (ManagedDescriptor* descriptor : addedStashedDescriptors) {
                 FD_SET(dynamic_cast<Descriptor*>(descriptor)->fd(), &fdSet);
                 descriptors.remove(descriptor);
                 stashedDescriptors.push_back(descriptor);
@@ -117,7 +117,7 @@ private:
             }
             addedStashedDescriptors.clear();
 
-            for (T* descriptor : removedDescriptors) {
+            for (ManagedDescriptor* descriptor : removedDescriptors) {
                 FD_CLR(dynamic_cast<Descriptor*>(descriptor)->fd(), &fdSet);
                 descriptors.remove(descriptor);
                 descriptor->decManaged();
@@ -132,11 +132,11 @@ private:
     fd_set fdSet;
     int maxFd;
 
-    std::list<T*> addedDescriptors;
-    std::list<T*> removedDescriptors;
-    std::list<T*> addedStashedDescriptors;
-    std::list<T*> removedStashedDescriptors;
-    std::list<T*> stashedDescriptors;
+    std::list<ManagedDescriptor*> addedDescriptors;
+    std::list<ManagedDescriptor*> removedDescriptors;
+    std::list<ManagedDescriptor*> addedStashedDescriptors;
+    std::list<ManagedDescriptor*> removedStashedDescriptors;
+    std::list<ManagedDescriptor*> stashedDescriptors;
 };
 
 #endif // SOCKETMANAGER_H

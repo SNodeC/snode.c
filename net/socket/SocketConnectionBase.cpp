@@ -1,3 +1,7 @@
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 #include "SocketConnectionBase.h"
 
 #include "Multiplexer.h"
@@ -59,6 +63,29 @@ void SocketConnectionBase<Reader, Writer>::end() {
 template <typename Reader, typename Writer>
 void SocketConnectionBase<Reader, Writer>::unmanaged() {
     serverSocket->disconnect(this);
+}
+
+template <typename Reader, typename Writer>
+void SocketConnectionBase<Reader, Writer>::stashReader() {
+    Reader::stash();
+}
+
+
+template <typename Reader, typename Writer>
+void SocketConnectionBase<Reader, Writer>::unstashReader() {
+    Reader::unstash();
+}
+
+
+template <typename Reader, typename Writer>
+void SocketConnectionBase<Reader, Writer>::stashWriter() {
+    Writer::stash();
+}
+
+
+template <typename Reader, typename Writer>
+void SocketConnectionBase<Reader, Writer>::unstashWriter() {
+    Writer::unstash();
 }
 
 

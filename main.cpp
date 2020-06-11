@@ -3,6 +3,9 @@
 #include <iostream>
 #include <string.h>
 
+#include "timer/ContinousTimer.h"
+#include "timer/SingleshotTimer.h"
+
 #include "WebApp.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
