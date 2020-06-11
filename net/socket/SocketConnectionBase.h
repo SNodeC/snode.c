@@ -6,11 +6,11 @@
 
 class SocketServer;
 
-template <typename R, typename W>
+template <typename Reader, typename Writer>
 class SocketConnectionBase
     : public SocketConnection
-    , public R
-    , public W {
+    , public Reader
+    , public Writer {
 public:
     virtual void enqueue(const char* buffer, int size);
     virtual void enqueue(const std::string& junk);

@@ -11,16 +11,16 @@
 #include "socket/legacy/SocketReader.h"
 
 
-template <typename T>
+template <typename SocketSonnectionImpl>
 class SocketServerBase
     : public SocketServer
     , public legacy::SocketReader {
 protected:
-    SocketServerBase(const std::function<void(SocketConnection* cs)>& onConnect,
-                     const std::function<void(SocketConnection* cs)>& onDisconnect,
+    SocketServerBase(const std::function<void(SocketSonnectionImpl* cs)>& onConnect,
+                     const std::function<void(SocketSonnectionImpl* cs)>& onDisconnect,
                      const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcesor,
-                     const std::function<void(SocketConnection* cs, int errnum)>& onCsReadError,
-                     const std::function<void(SocketConnection* cs, int errnum)>& onCsWriteError);
+                     const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
+                     const std::function<void(SocketConnection* cs, int errnum)>& onWriteError);
 
 public:
     virtual ~SocketServerBase() = default;
@@ -37,12 +37,13 @@ protected:
 private:
     virtual void unmanaged();
 
-    std::function<void(SocketConnection* cs)> onConnect;
-    std::function<void(SocketConnection* cs)> onDisconnect;
+    std::function<void(SocketSonnectionImpl* cs)> onConnect;
+    std::function<void(SocketSonnectionImpl* cs)> onDisconnect;
+
     std::function<void(SocketConnection* cs, const char* junk, ssize_t n)> readProcessor;
 
-    std::function<void(SocketConnection* cs, int errnum)> onCsReadError;
-    std::function<void(SocketConnection* cs, int errnum)> onCsWriteError;
+    std::function<void(SocketConnection* cs, int errnum)> onReadError;
+    std::function<void(SocketConnection* cs, int errnum)> onWriteError;
 };
 
 
