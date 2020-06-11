@@ -17,11 +17,6 @@ Request::Request(HTTPContext* httpContext)
 }
 
 
-std::multimap<std::string, std::string>& Request::header() const {
-    return this->httpContext->requestHeader;
-}
-
-
 const std::string& Request::header(const std::string& key, int i) const {
     std::string tmpKey = key;
     httputils::to_lower(tmpKey);
