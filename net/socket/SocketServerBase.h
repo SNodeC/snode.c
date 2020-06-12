@@ -18,7 +18,8 @@
 template <typename SocketConnectionImpl>
 class SocketServerBase
     : public SocketServer
-    , public legacy::SocketReader {
+    , public Reader
+    , public legacy::Socket {
 protected:
     SocketServerBase(const std::function<void(SocketConnectionImpl* cs)>& onConnect,
                      const std::function<void(SocketConnectionImpl* cs)>& onDisconnect,

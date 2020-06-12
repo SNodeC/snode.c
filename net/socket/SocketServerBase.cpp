@@ -16,7 +16,8 @@ SocketServerBase<SocketSonnectionImpl>::SocketServerBase(
     const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
     const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
     const std::function<void(SocketConnection* cs, int errnum)>& onWriteError)
-    : SocketReader()
+    : Reader()
+    , legacy::Socket()
     , onConnect(onConnect)
     , onDisconnect(onDisconnect)
     , readProcessor(readProcessor)
@@ -39,8 +40,6 @@ void SocketServerBase<SocketSonnectionImpl>::listen(int backlog, const std::func
 
 template <typename SocketSonnectionImpl>
 void SocketServerBase<SocketSonnectionImpl>::listen(in_port_t port, int backlog, const std::function<void(int err)>& onError) {
-    this->SocketReader::setOnError(onError);
-
     this->open([this, &port, &backlog, &onError](int errnum) -> void {
         if (errnum > 0) {
             onError(errnum);
