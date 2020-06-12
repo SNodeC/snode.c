@@ -92,6 +92,9 @@ protected:
     friend class Request;
 
 private:
+    void enqueue(const char* buf, size_t len);
+    void enqueue(const std::string& str);
+
     SocketConnection* connectedSocket;
     FileReader* fileReader;
     WebApp* webApp;

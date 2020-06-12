@@ -17,7 +17,7 @@ class SocketConnectionBase
     , public Writer {
 public:
     virtual void enqueue(const char* buffer, int size) override;
-    virtual void enqueue(const std::string& junk) override;
+
     virtual void end() override;
 
     virtual void stashReader() override;
