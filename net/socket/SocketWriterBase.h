@@ -13,11 +13,11 @@ public:
     virtual void writeEvent();
 
 protected:
-    virtual ssize_t send(const char* junk, const ssize_t& junkSize) = 0;
-
     SocketWriterBase(const std::function<void(int errnum)>& onError)
         : Writer(onError) {
     }
+
+    virtual ssize_t send(const char* junk, const ssize_t& junkSize) = 0;
 };
 
 #endif // SOCKETWRITERBASE_H

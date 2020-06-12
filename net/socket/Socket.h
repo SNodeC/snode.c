@@ -28,10 +28,6 @@ protected:
 
     void open(const std::function<void(int errnum)>& onError);
 
-    virtual ssize_t recv(void* buf, size_t len, int flags) = 0;
-    virtual ssize_t send(const void* buf, size_t len, int flags) = 0;
-
-
     InetAddress localAddress;
 };
 

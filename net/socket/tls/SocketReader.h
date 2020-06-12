@@ -16,10 +16,6 @@ namespace tls {
     class SocketReader
         : public SocketReaderBase
         , virtual public tls::Socket {
-    public:
-        using tls::Socket::recv;
-        virtual ssize_t recv(char* junk, const ssize_t& junkSize);
-
     protected:
         SocketReader() {
         }
@@ -29,6 +25,8 @@ namespace tls {
             : tls::Socket()
             , SocketReaderBase(readProcessor, onError) {
         }
+
+        virtual ssize_t recv(char* junk, const ssize_t& junkSize);
     };
 
 }; // namespace tls

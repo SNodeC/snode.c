@@ -16,14 +16,12 @@ namespace legacy {
     class SocketWriter
         : public SocketWriterBase
         , virtual public legacy::Socket {
-    public:
-        using legacy::Socket::send;
-        virtual ssize_t send(const char* junk, const ssize_t& junkSize);
-
     protected:
         SocketWriter(const std::function<void(int errnum)>& onError)
             : SocketWriterBase(onError) {
         }
+
+        virtual ssize_t send(const char* junk, const ssize_t& junkSize);
     };
 
 }; // namespace legacy
