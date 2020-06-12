@@ -15,13 +15,13 @@
 #include "socket/legacy/SocketReader.h"
 
 
-template <typename SocketSonnectionImpl>
+template <typename SocketConnectionImpl>
 class SocketServerBase
     : public SocketServer
     , public legacy::SocketReader {
 protected:
-    SocketServerBase(const std::function<void(SocketSonnectionImpl* cs)>& onConnect,
-                     const std::function<void(SocketSonnectionImpl* cs)>& onDisconnect,
+    SocketServerBase(const std::function<void(SocketConnectionImpl* cs)>& onConnect,
+                     const std::function<void(SocketConnectionImpl* cs)>& onDisconnect,
                      const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcesor,
                      const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
                      const std::function<void(SocketConnection* cs, int errnum)>& onWriteError);
@@ -41,8 +41,8 @@ protected:
 private:
     virtual void unmanaged();
 
-    std::function<void(SocketSonnectionImpl* cs)> onConnect;
-    std::function<void(SocketSonnectionImpl* cs)> onDisconnect;
+    std::function<void(SocketConnectionImpl* cs)> onConnect;
+    std::function<void(SocketConnectionImpl* cs)> onDisconnect;
 
     std::function<void(SocketConnection* cs, const char* junk, ssize_t n)> readProcessor;
 
