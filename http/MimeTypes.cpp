@@ -213,7 +213,7 @@ MimeTypes::~MimeTypes() {
 }
 
 
-std::string MimeTypes::contentType(std::string file) {
+std::string MimeTypes::contentType(const std::string& file) {
     std::map<std::string, std::string>::iterator it = mimeType.find(std::filesystem::path(file).extension());
 
     std::string type;

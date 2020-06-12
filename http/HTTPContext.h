@@ -57,7 +57,7 @@ protected:
     void sendHeader();
 
     void parseRequest(const char* junk, ssize_t, const std::function<void(std::string&)>& lineRead,
-                      const std::function<void(const char* bodyJunk, int junkLength)> bodyRead);
+                      const std::function<void(const char* bodyJunk, int junkLength)>& bodyRead);
     void parseRequestLine(const std::string& line);
     void parseCookie(const std::string& value);
     void addRequestHeader(const std::string& line);

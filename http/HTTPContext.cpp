@@ -101,7 +101,7 @@ void HTTPContext::receiveRequest(const char* junk, ssize_t junkLen) {
 
 
 void HTTPContext::parseRequest(const char* junk, ssize_t junkLen, const std::function<void(std::string&)>& lineRead,
-                               const std::function<void(const char* bodyJunk, int junkLength)> bodyRead) {
+                               const std::function<void(const char* bodyJunk, int junkLength)>& bodyRead) {
     if (requestState != requeststates::BODY) {
         int n = 0;
 

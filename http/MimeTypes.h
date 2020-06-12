@@ -12,9 +12,12 @@
 
 class MimeTypes {
 public:
+    MimeTypes(const MimeTypes&) = delete;
+    MimeTypes operator=(const MimeTypes&) = delete;
+
     ~MimeTypes();
 
-    static std::string contentType(std::string file);
+    static std::string contentType(const std::string& file);
 
 private:
     MimeTypes();

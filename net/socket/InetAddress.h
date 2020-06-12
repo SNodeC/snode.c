@@ -17,6 +17,8 @@ public:
     InetAddress(struct sockaddr_in& addr);
     InetAddress();
 
+    ~InetAddress() = default;
+
     InetAddress& operator=(const InetAddress& ina);
 
     const struct sockaddr_in& getSockAddr() const;

@@ -1,5 +1,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <assert.h>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Multiplexer.h"
@@ -36,6 +38,7 @@ void Multiplexer::tick() {
         if (retval > 0) {
             retval = managedExceptions.dispatch(exceptfds, retval);
         }
+        assert(retval == 0);
     }
 }
 

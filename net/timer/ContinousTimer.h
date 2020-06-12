@@ -10,7 +10,7 @@
 
 class ContinousTimer : public Timer {
 public:
-    ContinousTimer(std::function<void(const void* arg)> dispatcher, const struct timeval& timeout, const void* arg)
+    ContinousTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg)
         : Timer(dispatcher, timeout, arg) {
     }
 

@@ -60,7 +60,7 @@ public:
     DREQUESTMETHOD(patch);
     DREQUESTMETHOD(head);
 
-    virtual bool dispatch(const Request& req, const Response& res) const;
+    bool dispatch(const Request& req, const Response& res) const;
 
 protected:
     MountPoint mountPoint;

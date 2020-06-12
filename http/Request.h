@@ -44,6 +44,10 @@ private:
         }
 
     private:
+        static_assert(std::is_copy_constructible<Attribute>::value, "Attribute requires copying");
+        static_assert(std::is_default_constructible<Attribute>::value, "Attribute requires construction");
+        static_assert(std::is_assignable<Attribute&, Attribute>::value, "Attribute requires assignment");
+
         Attribute _attribute;
     };
 
