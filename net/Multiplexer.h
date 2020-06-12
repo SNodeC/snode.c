@@ -44,7 +44,7 @@ public:
         return managedTimer;
     }
 
-    static void start();
+    static void start(int argc, char** argv);
     static void stop();
 
 private:

@@ -20,7 +20,7 @@ public:
 
     virtual void disconnect(SocketConnection* cs) = 0;
 
-    static void start();
+    static void start(int argc, char** argv);
     static void stop();
 
 protected:

@@ -1,6 +1,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <iostream>
+#include <unistd.h>
 
 #include "WebApp.h"
 
@@ -136,7 +137,9 @@ int simpleWebserver(int argc, char** argv) {
         }
     });
 
-    WebApp::start();
+//    daemon(0, 0);
+
+    WebApp::start(argc, argv);
 
     return 0;
 }

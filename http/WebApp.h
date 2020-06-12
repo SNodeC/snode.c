@@ -24,7 +24,7 @@ public:
     void sslListen(int port, const std::string& cert, const std::string& key, const std::string& password,
                    const std::function<void(int err)>& onError = 0);
 
-    static void start();
+    static void start(int argc, char** argv);
     static void stop();
 
     const std::string& getRootDir() {

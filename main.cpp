@@ -106,7 +106,7 @@ int timerApp(int argc, char** argv) {
         }
     });
     
-    WebApp::start();
+    WebApp::start(argc, argv);
 
     return 0;
 }
@@ -237,7 +237,7 @@ int simpleWebserver(int argc, char** argv) {
         }
     });
 
-    WebApp::start();
+    WebApp::start(argc, argv);
     
     return 0;
 }
@@ -304,7 +304,7 @@ int testPost(int argc, char* argv[]) {
         }
     });
 
-    WebApp::start();
+    WebApp::start(argc, argv);
 
     return 0;
 }
