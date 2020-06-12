@@ -80,7 +80,7 @@ int testPost(int argc, char* argv[]) {
         }
     });
 
-    WebApp::start();
+    WebApp::start(argc, argv);
 
     return 0;
 }

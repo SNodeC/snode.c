@@ -73,8 +73,8 @@ void WebApp::sslListen(int port, const std::string& cert, const std::string& key
 }
 
 
-void WebApp::start() {
-    SocketServer::start();
+void WebApp::start(int argc, char** argv) {
+    SocketServer::start(argc, argv);
 }
 
 
