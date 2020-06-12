@@ -19,6 +19,9 @@ protected:
         FD_ZERO(&fdSet);
     }
 
+    Manager(const Manager&) = delete;
+    Manager& operator=(const Manager&) = delete;
+
 
     virtual ~Manager() {
         descriptors.reverse();

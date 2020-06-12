@@ -11,6 +11,9 @@
 
 class SocketConnection {
 public:
+    SocketConnection(const SocketConnection&) = delete;
+    SocketConnection& operator=(const SocketConnection&) = delete;
+
     virtual ~SocketConnection() = default;
 
     void setContext(void* context) {

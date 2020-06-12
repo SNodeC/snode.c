@@ -13,6 +13,9 @@ class SocketConnection;
 
 class SocketServer {
 public:
+    SocketServer(const SocketServer&) = delete;
+    SocketServer& operator=(const SocketServer&) = delete;
+
     virtual void listen(in_port_t port, int backlog, const std::function<void(int err)>& onError) = 0;
 
     virtual void readEvent() = 0;

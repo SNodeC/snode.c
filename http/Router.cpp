@@ -26,8 +26,11 @@ static const std::string path_concat(const std::string& first, const std::string
 
 class Dispatcher {
 public:
-    Dispatcher() {
-    }
+    Dispatcher() = default;
+    Dispatcher(const Dispatcher&) = delete;
+
+    Dispatcher& operator=(const Dispatcher&) = delete;
+
     virtual ~Dispatcher() = default;
 
     virtual bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req, const Response& res) const = 0;
@@ -53,6 +56,12 @@ protected:
 
 class RouterRoute : public Dispatcher {
 public:
+    RouterRoute() = default;
+
+    RouterRoute& operator=(const RouterRoute&) = delete;
+
+    RouterRoute(const RouterRoute&) = delete;
+
     virtual bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req, const Response& res) const;
 
 protected:
@@ -64,6 +73,10 @@ protected:
 
 class MiddlewareRoute : public Dispatcher {
 public:
+    MiddlewareRoute(const MiddlewareRoute&) = delete;
+
+    MiddlewareRoute& operator=(MiddlewareRoute&) = delete;
+
     MiddlewareRoute(const std::function<void(const Request& req, const Response& res, const std::function<void(void)>& next)>& dispatcher)
         : dispatcher(dispatcher) {
     }
@@ -77,6 +90,10 @@ protected:
 
 class DispatcherRoute : public Dispatcher {
 public:
+    DispatcherRoute(const DispatcherRoute&) = delete;
+
+    DispatcherRoute& operator=(DispatcherRoute&) = delete;
+
     DispatcherRoute(const std::function<void(const Request& req, const Response& res)>& dispatcher)
         : dispatcher(dispatcher) {
     }

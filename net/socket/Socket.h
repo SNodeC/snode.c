@@ -12,6 +12,9 @@
 
 class Socket : virtual public Descriptor {
 public:
+    Socket(const Socket&) = delete;
+    Socket& operator=(const Socket&) = delete;
+
     virtual ~Socket();
 
     void bind(InetAddress& localAddress, const std::function<void(int errnum)>& onError);

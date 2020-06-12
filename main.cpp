@@ -303,7 +303,7 @@ int testPost(int argc, char* argv[]) {
             std::cout << "snode.c listening on port 8080" << std::endl;
         }
     });
-    
+
     WebApp::start();
 
     return 0;

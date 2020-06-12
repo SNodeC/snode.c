@@ -14,6 +14,10 @@ public:
     ManagedDescriptor() {
     }
 
+    ManagedDescriptor(const ManagedDescriptor&) = delete;
+
+    ManagedDescriptor& operator=(const ManagedDescriptor&) = delete;
+
     virtual ~ManagedDescriptor() = default;
 
     void incManaged() {

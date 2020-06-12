@@ -21,7 +21,7 @@ FileReader::FileReader(int fd, const std::function<void(char* data, int len)>& j
 }
 
 
-FileReader* FileReader::read(std::string path, const std::function<void(char* data, int len)>& junkRead,
+FileReader* FileReader::read(const std::string& path, const std::function<void(char* data, int len)>& junkRead,
                              const std::function<void(int err)>& onError) {
     FileReader* fileReader = 0;
 

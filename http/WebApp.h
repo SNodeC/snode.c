@@ -15,7 +15,7 @@
 
 class WebApp : public Router {
 public:
-    WebApp(const std::string& serverRoot = "./");
+    WebApp(const std::string& rootDir = "./");
 
 public:
     ~WebApp();

@@ -11,9 +11,9 @@ protected:
     Descriptor();
 
 private:
-    Descriptor& operator=(const Descriptor& descriptor) {
-        return *this;
-    }
+    Descriptor(const Descriptor& d) = delete;
+
+    Descriptor& operator=(const Descriptor& descriptor) = delete;
 
 public:
     virtual ~Descriptor();

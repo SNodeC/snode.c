@@ -16,17 +16,11 @@ class ContinousTimer;
 class Timer {
 protected:
     Timer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg);
+    Timer(const Timer&) = delete;
 
-    Timer(const Timer& timer)
-        : dispatcher(0) {
-        *this = timer;
-    }
+    Timer& operator=(const Timer& timer) = delete;
 
     virtual ~Timer() = default;
-
-    Timer& operator=(const Timer& timer) {
-        return *this;
-    }
 
 public:
     static ContinousTimer& continousTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout,
