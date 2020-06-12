@@ -25,7 +25,6 @@ public:
     }
 
     virtual void enqueue(const char* buffer, int size) = 0;
-    virtual void enqueue(const std::string& junk) = 0;
 
     virtual void end() = 0;
 

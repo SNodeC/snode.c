@@ -228,12 +228,22 @@ void HTTPContext::addRequestHeader(const std::string& line) {
 }
 
 
+void HTTPContext::enqueue(const char* buf, size_t len) {
+    connectedSocket->enqueue(buf, len);
+}
+
+
+void HTTPContext::enqueue(const std::string& str) {
+    this->enqueue(str.c_str(), str.size());
+}
+
+
 void HTTPContext::send(const char* puffer, int size) {
     responseHeader.insert({"Content-Type", "application/octet-stream"});
     responseHeader.insert({"Content-Length", std::to_string(size)});
 
     this->sendHeader();
-    connectedSocket->enqueue(puffer, size);
+    this->enqueue(puffer, size);
 }
 
 
@@ -262,7 +272,7 @@ void HTTPContext::sendFile(const std::string& url, const std::function<void(int 
             fileReader = FileReader::read(
                 absolutFileName,
                 [this](char* data, int length) -> void {
-                    connectedSocket->enqueue(data, length);
+                    this->enqueue(data, length);
                 },
                 [this, onError](int err) -> void {
                     connectedSocket->unstashReader();
@@ -294,15 +304,15 @@ void HTTPContext::sendFile(const std::string& url, const std::function<void(int 
 
 
 void HTTPContext::sendHeader() {
-    connectedSocket->enqueue("HTTP/1.1 " + std::to_string(responseStatus) + " " + HTTPStatusCode::reason(responseStatus) + "\r\n");
-    connectedSocket->enqueue("Date: " + httputils::to_http_date() + "\r\n");
+    this->enqueue("HTTP/1.1 " + std::to_string(responseStatus) + " " + HTTPStatusCode::reason(responseStatus) + "\r\n");
+    this->enqueue("Date: " + httputils::to_http_date() + "\r\n");
 
     responseHeader.insert({"Cache-Control", "public, max-age=0"});
     responseHeader.insert({"Accept-Ranges", "bytes"});
     responseHeader.insert({"X-Powered-By", "snode.c"});
 
     for (const std::pair<const std::string&, const std::string&>& header : responseHeader) {
-        this->connectedSocket->enqueue(header.first + ": " + header.second + "\r\n");
+        this->enqueue(header.first + ": " + header.second + "\r\n");
     }
 
     for (const std::pair<const std::string&, const ResponseCookie&> cookie : responseCookies) {
@@ -312,10 +322,10 @@ void HTTPContext::sendHeader() {
             cookieString += "; " + option.first + ((option.second != "") ? "=" + option.second : "");
         }
 
-        this->connectedSocket->enqueue("Set-Cookie: " + cookieString + "\r\n");
+        this->enqueue("Set-Cookie: " + cookieString + "\r\n");
     }
 
-    connectedSocket->enqueue("\r\n");
+    this->enqueue("\r\n");
 
     headerSend = true;
 }

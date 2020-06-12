@@ -49,12 +49,6 @@ void SocketConnectionBase<Reader, Writer>::enqueue(const char* buffer, int size)
 
 
 template <typename Reader, typename Writer>
-void SocketConnectionBase<Reader, Writer>::enqueue(const std::string& junk) {
-    enqueue(junk.c_str(), junk.size());
-}
-
-
-template <typename Reader, typename Writer>
 void SocketConnectionBase<Reader, Writer>::end() {
     Multiplexer::instance().getManagedReader().remove(this);
 }
