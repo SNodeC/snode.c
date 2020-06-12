@@ -17,7 +17,7 @@ namespace legacy {
         : public SocketWriterBase
         , virtual public legacy::Socket {
     protected:
-        SocketWriter(const std::function<void(int errnum)>& onError)
+        explicit SocketWriter(const std::function<void(int errnum)>& onError)
             : SocketWriterBase(onError) {
         }
 

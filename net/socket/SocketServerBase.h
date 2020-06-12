@@ -30,17 +30,17 @@ protected:
 public:
     virtual ~SocketServerBase() = default;
 
-    void listen(in_port_t port, int backlog, const std::function<void(int err)>& onError);
+    void listen(in_port_t port, int backlog, const std::function<void(int err)>& onError) override;
 
-    virtual void readEvent();
+    virtual void readEvent() override;
 
-    void disconnect(SocketConnection* cs);
+    void disconnect(SocketConnection* cs) override;
 
 protected:
     void listen(int backlog, const std::function<void(int errnum)>& onError);
 
 private:
-    virtual void unmanaged();
+    virtual void unmanaged() override;
 
     std::function<void(SocketConnectionImpl* cs)> onConnect;
     std::function<void(SocketConnectionImpl* cs)> onDisconnect;

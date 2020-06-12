@@ -11,10 +11,10 @@
 
 class InetAddress {
 public:
-    InetAddress(const InetAddress& ina);
-    InetAddress(const std::string& ipOrHostname, uint16_t port);
-    InetAddress(uint16_t port);
-    InetAddress(struct sockaddr_in& addr);
+    explicit InetAddress(const InetAddress& ina);
+    explicit InetAddress(const std::string& ipOrHostname, uint16_t port);
+    explicit InetAddress(uint16_t port);
+    explicit InetAddress(struct sockaddr_in& addr);
     InetAddress();
 
     ~InetAddress() = default;

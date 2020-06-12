@@ -62,7 +62,8 @@ public:
 
     RouterRoute(const RouterRoute&) = delete;
 
-    virtual bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req, const Response& res) const;
+    virtual bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req,
+                          const Response& res) const override;
 
 protected:
     std::list<Route> routes;
@@ -77,11 +78,13 @@ public:
 
     MiddlewareRoute& operator=(MiddlewareRoute&) = delete;
 
-    MiddlewareRoute(const std::function<void(const Request& req, const Response& res, const std::function<void(void)>& next)>& dispatcher)
+    explicit MiddlewareRoute(
+        const std::function<void(const Request& req, const Response& res, const std::function<void(void)>& next)>& dispatcher)
         : dispatcher(dispatcher) {
     }
 
-    virtual bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req, const Response& res) const;
+    virtual bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req,
+                          const Response& res) const override;
 
 protected:
     const std::function<void(const Request& req, const Response& res, std::function<void(void)>)> dispatcher;
@@ -94,11 +97,12 @@ public:
 
     DispatcherRoute& operator=(DispatcherRoute&) = delete;
 
-    DispatcherRoute(const std::function<void(const Request& req, const Response& res)>& dispatcher)
+    explicit DispatcherRoute(const std::function<void(const Request& req, const Response& res)>& dispatcher)
         : dispatcher(dispatcher) {
     }
 
-    virtual bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req, const Response& res) const;
+    virtual bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req,
+                          const Response& res) const override;
 
 protected:
     const std::function<void(const Request& req, const Response& res)> dispatcher;

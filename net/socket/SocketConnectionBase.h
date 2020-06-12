@@ -16,21 +16,21 @@ class SocketConnectionBase
     , public Reader
     , public Writer {
 public:
-    virtual void enqueue(const char* buffer, int size);
-    virtual void enqueue(const std::string& junk);
-    virtual void end();
+    virtual void enqueue(const char* buffer, int size) override;
+    virtual void enqueue(const std::string& junk) override;
+    virtual void end() override;
 
-    virtual void stashReader();
-    virtual void unstashReader();
+    virtual void stashReader() override;
+    virtual void unstashReader() override;
 
-    virtual void stashWriter();
-    virtual void unstashWriter();
+    virtual void stashWriter() override;
+    virtual void unstashWriter() override;
 
-    virtual InetAddress& getRemoteAddress();
-    virtual void setRemoteAddress(const InetAddress& remoteAddress);
+    virtual InetAddress& getRemoteAddress() override;
+    virtual void setRemoteAddress(const InetAddress& remoteAddress) override;
 
 private:
-    virtual void unmanaged();
+    virtual void unmanaged() override;
 
 protected:
     SocketConnectionBase(int csFd, SocketServer* serverSocket,
@@ -39,8 +39,6 @@ protected:
                          const std::function<void(SocketConnection* cs, int errnum)>& onWriteError);
 
     SocketServer* serverSocket;
-
-    void* context;
 
     InetAddress remoteAddress;
 };
