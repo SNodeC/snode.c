@@ -12,7 +12,7 @@ class SocketConnection;
 
 class SocketReaderBase : public Reader {
 public:
-    void readEvent();
+    void readEvent() override;
 
 protected:
     SocketReaderBase()

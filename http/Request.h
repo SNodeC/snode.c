@@ -15,7 +15,7 @@ class HTTPContext;
 class Request {
 private:
 public:
-    Request(HTTPContext* httpContext);
+    explicit Request(HTTPContext* httpContext);
 
     const std::string& header(const std::string& key, int i = 0) const;
     const std::string& cookie(const std::string& key) const;
@@ -35,7 +35,7 @@ private:
     template <typename Attribute>
     class AttributeProxy {
     public:
-        AttributeProxy(const Attribute& attribute)
+        explicit AttributeProxy(const Attribute& attribute)
             : _attribute(attribute) { // copy constructor neccessary
         }
 

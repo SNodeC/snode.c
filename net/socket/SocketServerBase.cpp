@@ -85,8 +85,8 @@ void SocketServerBase<SocketSonnectionImpl>::readEvent() {
         if (getsockname(csFd, (struct sockaddr*) &localAddress, &addressLength) == 0) {
             SocketSonnectionImpl* cs = new SocketSonnectionImpl(csFd, this, readProcessor, onReadError, onWriteError);
 
-            cs->setRemoteAddress(remoteAddress);
-            cs->setLocalAddress(localAddress);
+            cs->setRemoteAddress(InetAddress(remoteAddress));
+            cs->setLocalAddress(InetAddress(localAddress));
 
             Multiplexer::instance().getManagedReader().add(cs);
             onConnect(cs);

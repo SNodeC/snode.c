@@ -17,7 +17,7 @@ namespace tls {
         : public SocketWriterBase
         , virtual public tls::Socket {
     protected:
-        SocketWriter(const std::function<void(int errnum)>& onError)
+        explicit SocketWriter(const std::function<void(int errnum)>& onError)
             : SocketWriterBase(onError) {
         }
 
