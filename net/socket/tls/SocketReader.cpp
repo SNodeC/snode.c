@@ -14,7 +14,13 @@
 namespace tls {
 
     ssize_t SocketReader::recv(char* junk, const ssize_t& junkSize) {
-        return tls::Socket::recv(junk, junkSize, 0);
+        ssize_t ret = err;
+
+        if (err > 0) {
+            ret = ::SSL_read(ssl, junk, junkSize);
+        }
+
+        return ret;
     }
 
 }; // namespace tls

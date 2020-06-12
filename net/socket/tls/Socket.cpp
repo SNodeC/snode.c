@@ -51,26 +51,4 @@ namespace tls {
         SSL_free(ssl);
     }
 
-
-    ssize_t Socket::recv(void* buf, size_t len, int) {
-        ssize_t ret = err;
-
-        if (err > 0) {
-            ret = ::SSL_read(ssl, buf, len);
-        }
-
-        return ret;
-    }
-
-
-    ssize_t Socket::send(const void* buf, size_t len, int) {
-        ssize_t ret = err;
-
-        if (err > 0) {
-            ret = ::SSL_write(ssl, buf, len);
-        }
-
-        return ret;
-    }
-
 }; // namespace tls

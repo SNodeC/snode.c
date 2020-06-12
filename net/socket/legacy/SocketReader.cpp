@@ -14,7 +14,8 @@
 namespace legacy {
 
     ssize_t SocketReader::recv(char* junk, const ssize_t& junkSize) {
-        return legacy::Socket::recv(junk, junkSize, 0);
+        return ::recv(this->fd(), junk, junkSize, 0);
+        ;
     }
 
 }; // namespace legacy

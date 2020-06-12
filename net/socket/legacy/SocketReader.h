@@ -16,10 +16,6 @@ namespace legacy {
     class SocketReader
         : public SocketReaderBase
         , virtual public legacy::Socket {
-    public:
-        using legacy::Socket::recv;
-        ssize_t recv(char* junk, const ssize_t& junkSize);
-
     protected:
         SocketReader() {
         }
@@ -29,6 +25,8 @@ namespace legacy {
             : legacy::Socket()
             , SocketReaderBase(readProcessor, onError) {
         }
+
+        ssize_t recv(char* junk, const ssize_t& junkSize);
     };
 
 }; // namespace legacy

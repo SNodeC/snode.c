@@ -13,7 +13,13 @@
 namespace tls {
 
     ssize_t SocketWriter::send(const char* junk, const ssize_t& junkSize) {
-        return tls::Socket::send(junk, junkSize, MSG_DONTWAIT | MSG_NOSIGNAL);
+        ssize_t ret = err;
+
+        if (err > 0) {
+            ret = ::SSL_write(ssl, junk, junkSize);
+        }
+
+        return ret;
     }
 
 }; // namespace tls
