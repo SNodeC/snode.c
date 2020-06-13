@@ -65,6 +65,11 @@ public:
     }
 
     template <typename Attribute>
+    bool hasAttribute(const std::string& key = "") const {
+        return attributes.find(typeid(Attribute).name() + key) != attributes.end();
+    }
+
+    template <typename Attribute>
     bool setAttribute(const Attribute& attribute, const std::string& key = "") const {
         bool inserted = false;
 

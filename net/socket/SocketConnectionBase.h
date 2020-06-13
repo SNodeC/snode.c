@@ -16,21 +16,21 @@ class SocketConnectionBase
     , public Reader
     , public Writer {
 public:
-    virtual void enqueue(const char* buffer, int size) override;
+    void enqueue(const char* buffer, int size) override;
 
-    virtual void end() override;
+    void end() override;
 
-    virtual void stashReader() override;
-    virtual void unstashReader() override;
+    void stashReader() override;
+    void unstashReader() override;
 
-    virtual void stashWriter() override;
-    virtual void unstashWriter() override;
+    void stashWriter() override;
+    void unstashWriter() override;
 
-    virtual InetAddress& getRemoteAddress() override;
-    virtual void setRemoteAddress(const InetAddress& remoteAddress) override;
+    InetAddress& getRemoteAddress() override;
+    void setRemoteAddress(const InetAddress& remoteAddress) override;
 
 private:
-    virtual void unmanaged() override;
+    void unmanaged() override;
 
 protected:
     SocketConnectionBase(int csFd, SocketServer* serverSocket,

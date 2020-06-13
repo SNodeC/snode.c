@@ -23,10 +23,10 @@ public:
 
     void stop();
 
-    virtual void readEvent() override;
+    void readEvent() override;
 
 private:
-    virtual void unmanaged() override;
+    void unmanaged() override;
 
 protected:
     std::function<void(char* data, int len)> junkRead;
