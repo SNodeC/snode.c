@@ -21,7 +21,7 @@ namespace tls {
             : SocketWriterBase(onError) {
         }
 
-        virtual ssize_t send(const char* junk, const ssize_t& junkSize);
+        ssize_t send(const char* junk, const ssize_t& junkSize) override;
     };
 
 }; // namespace tls

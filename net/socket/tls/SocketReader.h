@@ -26,7 +26,7 @@ namespace tls {
             , SocketReaderBase(readProcessor, onError) {
         }
 
-        virtual ssize_t recv(char* junk, const ssize_t& junkSize);
+        ssize_t recv(char* junk, const ssize_t& junkSize) override;
     };
 
 }; // namespace tls

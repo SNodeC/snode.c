@@ -62,8 +62,7 @@ public:
 
     RouterRoute(const RouterRoute&) = delete;
 
-    virtual bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req,
-                          const Response& res) const override;
+    bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req, const Response& res) const override;
 
 protected:
     std::list<Route> routes;
@@ -83,8 +82,7 @@ public:
         : dispatcher(dispatcher) {
     }
 
-    virtual bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req,
-                          const Response& res) const override;
+    bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req, const Response& res) const override;
 
 protected:
     const std::function<void(const Request& req, const Response& res, std::function<void(void)>)> dispatcher;

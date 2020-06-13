@@ -10,7 +10,7 @@
 
 class SocketWriterBase : public Writer {
 public:
-    virtual void writeEvent() override;
+    void writeEvent() override;
 
 protected:
     SocketWriterBase(const std::function<void(int errnum)>& onError)

@@ -16,9 +16,9 @@ private:
     Descriptor& operator=(const Descriptor& descriptor) = delete;
 
 public:
-    virtual ~Descriptor();
+    ~Descriptor();
 
-    virtual void attachFd(int fd);
+    void attachFd(int fd);
 
     int fd() const;
 

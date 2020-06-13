@@ -32,7 +32,7 @@ public:
 
     void listen(in_port_t port, int backlog, const std::function<void(int err)>& onError) override;
 
-    virtual void readEvent() override;
+    void readEvent() override;
 
     void disconnect(SocketConnection* cs) override;
 
@@ -40,7 +40,7 @@ protected:
     void listen(int backlog, const std::function<void(int errnum)>& onError);
 
 private:
-    virtual void unmanaged() override;
+    void unmanaged() override;
 
     std::function<void(SocketConnectionImpl* cs)> onConnect;
     std::function<void(SocketConnectionImpl* cs)> onDisconnect;

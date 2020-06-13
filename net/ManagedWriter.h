@@ -11,7 +11,7 @@
 
 class ManagedWriter : public Manager<Writer> {
 public:
-    virtual int dispatch(fd_set& fdSet, int count);
+    int dispatch(fd_set& fdSet, int count) override;
 };
 
 #endif // SOCKETWRITEMANAGER_H

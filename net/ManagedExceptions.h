@@ -11,7 +11,7 @@
 
 class ManagedExceptions : public Manager<Exception> {
 public:
-    virtual int dispatch(fd_set& fdSet, int count);
+    int dispatch(fd_set& fdSet, int count) override;
 };
 
 #endif // SOCKETEXCEPTIONMANAGER_H
