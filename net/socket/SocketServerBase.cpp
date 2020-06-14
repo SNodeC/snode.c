@@ -17,7 +17,7 @@ SocketServerBase<SocketConnectionImpl>::SocketServerBase(
     const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
     const std::function<void(SocketConnection* cs, int errnum)>& onWriteError)
     : Reader()
-    , legacy::Socket()
+    , Socket()
     , onConnect(onConnect)
     , onDisconnect(onDisconnect)
     , readProcessor(readProcessor)

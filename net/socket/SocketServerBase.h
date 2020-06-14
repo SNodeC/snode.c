@@ -7,19 +7,16 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Reader.h"
+#include "Socket.h"
 #include "SocketServer.h"
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "socket/legacy/SocketReader.h"
 
 
 template <typename SocketConnectionImpl>
 class SocketServerBase
     : public SocketServer
     , public Reader
-    , public legacy::Socket {
+    , public Socket {
 protected:
     SocketServerBase(const std::function<void(SocketConnectionImpl* cs)>& onConnect,
                      const std::function<void(SocketConnectionImpl* cs)>& onDisconnect,
