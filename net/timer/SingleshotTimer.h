@@ -16,7 +16,6 @@ public:
 
     ~SingleshotTimer() override = default;
 
-private:
     SingleshotTimer& operator=(const SingleshotTimer& timer) = delete;
 };
 
