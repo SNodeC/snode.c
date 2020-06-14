@@ -10,9 +10,9 @@
 #include "socket/tls/SocketConnection.h"
 
 
-template <typename SocketSonnectionImpl>
-SocketServerBase<SocketSonnectionImpl>::SocketServerBase(
-    const std::function<void(SocketSonnectionImpl* cs)>& onConnect, const std::function<void(SocketSonnectionImpl* cs)>& onDisconnect,
+template <typename SocketConnectionImpl>
+SocketServerBase<SocketConnectionImpl>::SocketServerBase(
+    const std::function<void(SocketConnectionImpl* cs)>& onConnect, const std::function<void(SocketConnectionImpl* cs)>& onDisconnect,
     const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
     const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
     const std::function<void(SocketConnection* cs, int errnum)>& onWriteError)
@@ -26,8 +26,8 @@ SocketServerBase<SocketSonnectionImpl>::SocketServerBase(
 }
 
 
-template <typename SocketSonnectionImpl>
-void SocketServerBase<SocketSonnectionImpl>::listen(int backlog, const std::function<void(int errnum)>& onError) {
+template <typename SocketConnectionImpl>
+void SocketServerBase<SocketConnectionImpl>::listen(int backlog, const std::function<void(int errnum)>& onError) {
     int ret = ::listen(this->fd(), backlog);
 
     if (ret < 0) {
@@ -38,8 +38,8 @@ void SocketServerBase<SocketSonnectionImpl>::listen(int backlog, const std::func
 }
 
 
-template <typename SocketSonnectionImpl>
-void SocketServerBase<SocketSonnectionImpl>::listen(in_port_t port, int backlog, const std::function<void(int err)>& onError) {
+template <typename SocketConnectionImpl>
+void SocketServerBase<SocketConnectionImpl>::listen(in_port_t port, int backlog, const std::function<void(int err)>& onError) {
     this->open([this, &port, &backlog, &onError](int errnum) -> void {
         if (errnum > 0) {
             onError(errnum);
@@ -67,8 +67,8 @@ void SocketServerBase<SocketSonnectionImpl>::listen(in_port_t port, int backlog,
 }
 
 
-template <typename SocketSonnectionImpl>
-void SocketServerBase<SocketSonnectionImpl>::readEvent() {
+template <typename SocketConnectionImpl>
+void SocketServerBase<SocketConnectionImpl>::readEvent() {
     errno = 0;
 
     struct sockaddr_in remoteAddress;
@@ -83,7 +83,7 @@ void SocketServerBase<SocketSonnectionImpl>::readEvent() {
         socklen_t addressLength = sizeof(localAddress);
 
         if (getsockname(csFd, (struct sockaddr*) &localAddress, &addressLength) == 0) {
-            SocketSonnectionImpl* cs = new SocketSonnectionImpl(csFd, this, readProcessor, onReadError, onWriteError);
+            SocketConnectionImpl* cs = new SocketConnectionImpl(csFd, this, readProcessor, onReadError, onWriteError);
 
             cs->setRemoteAddress(InetAddress(remoteAddress));
             cs->setLocalAddress(InetAddress(localAddress));
@@ -101,17 +101,17 @@ void SocketServerBase<SocketSonnectionImpl>::readEvent() {
 }
 
 
-template <typename SocketSonnectionImpl>
-void SocketServerBase<SocketSonnectionImpl>::disconnect(SocketConnection* cs) {
+template <typename SocketConnectionImpl>
+void SocketServerBase<SocketConnectionImpl>::disconnect(SocketConnection* cs) {
     if (onDisconnect) {
-        onDisconnect(dynamic_cast<SocketSonnectionImpl*>(cs));
+        onDisconnect(dynamic_cast<SocketConnectionImpl*>(cs));
     }
     delete cs;
 }
 
 
-template <typename SocketSonnectionImpl>
-void SocketServerBase<SocketSonnectionImpl>::unmanaged() {
+template <typename SocketConnectionImpl>
+void SocketServerBase<SocketConnectionImpl>::unmanaged() {
     delete this;
 }
 
