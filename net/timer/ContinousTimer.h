@@ -16,7 +16,6 @@ public:
 
     ~ContinousTimer() override = default;
 
-private:
     ContinousTimer& operator=(const ContinousTimer& timer) = delete;
 };
 
