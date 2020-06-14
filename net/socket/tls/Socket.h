@@ -25,7 +25,7 @@ namespace tls {
         Socket() = default;
 
         SSL* ssl{nullptr};
-        int err;
+        int err{0};
     };
 
 }; // namespace tls
