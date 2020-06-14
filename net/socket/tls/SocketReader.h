@@ -1,5 +1,5 @@
-#ifndef SSLSOCKETREADER_H
-#define SSLSOCKETREADER_H
+#ifndef TLS_SOCKETREADER_H
+#define TLS_SOCKETREADER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -17,8 +17,7 @@ namespace tls {
         : public SocketReaderBase
         , virtual public tls::Socket {
     protected:
-        SocketReader() {
-        }
+        SocketReader() = default;
 
         SocketReader(const std::function<void(::SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
                      const std::function<void(int errnum)>& onError)
@@ -31,4 +30,4 @@ namespace tls {
 
 }; // namespace tls
 
-#endif // SSLSOCKETREADER_H
+#endif // TLS_SOCKETREADER_H

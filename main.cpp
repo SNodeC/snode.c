@@ -1,7 +1,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstring>
 #include <iostream>
-#include <string.h>
 
 #include "timer/ContinousTimer.h"
 #include "timer/SingleshotTimer.h"
@@ -15,14 +15,14 @@ int timerApp(int argc, char** argv) {
     Timer& tick = Timer::continousTimer(
         [](const void* arg) -> void {
             static int i = 0;
-            std::cout << (const char*)arg << " " << i++ << std::endl;
+            std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
         },
         (struct timeval){0, 500000}, "Tick");
 
     Timer& tack = Timer::continousTimer(
         [](const void* arg) -> void {
             static int i = 0;
-            std::cout << (const char*)arg << " " << i++ << std::endl;
+            std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
         },
         (struct timeval){1, 100000}, "Tack");
 

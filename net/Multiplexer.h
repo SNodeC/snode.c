@@ -1,9 +1,9 @@
-#ifndef SOCKETMULTIPLEXER_H
-#define SOCKETMULTIPLEXER_H
+#ifndef MULTIPLEXER_H
+#define MULTIPLEXER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <signal.h>
+#include <csignal>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -19,9 +19,7 @@ private:
         signal(SIGPIPE, SIG_IGN);
     }
 
-    ~Multiplexer() {
-    }
-
+    ~Multiplexer() = default;
 
 public:
     static Multiplexer& instance() {
@@ -62,4 +60,4 @@ private:
 };
 
 
-#endif // SOCKETMULTIPLEXER_H
+#endif // MULTIPLEXER_H

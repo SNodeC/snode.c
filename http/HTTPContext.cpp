@@ -3,10 +3,10 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
+#include <cstring>
 #include <filesystem>
 #include <iostream>
 #include <numeric>
-#include <string.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -23,14 +23,14 @@ HTTPContext::HTTPContext(WebApp* webApp, SocketConnection* connectedSocket)
     , webApp(webApp)
     , request(this)
     , response(this) {
-    bodyData = 0;
-    fileReader = 0;
+    bodyData = nullptr;
+    fileReader = nullptr;
     this->prepareForRequest();
 }
 
 
 void HTTPContext::stopFileReader() {
-    if (fileReader) {
+    if (fileReader != nullptr) {
         fileReader->stop();
     }
 }
@@ -48,7 +48,7 @@ void HTTPContext::onReadError(int errnum) {
 void HTTPContext::onWriteError(int errnum) {
     stopFileReader();
 
-    if (errnum && errnum != ECONNRESET) {
+    if (errnum != 0 && errnum != ECONNRESET) {
         perror("HTTPContext");
     }
 }
@@ -152,7 +152,7 @@ void HTTPContext::parseRequestLine(const std::string& line) {
 
     pair = httputils::str_split(line, ' ');
     method = pair.first;
-    httputils::to_lower(method);
+    httputils::to_lower(&method);
 
     pair = httputils::str_split(pair.second, ' ');
     httpVersion = pair.second;
@@ -212,7 +212,7 @@ void HTTPContext::addRequestHeader(const std::string& line) {
         httputils::str_trimm(splitted.first);
         httputils::str_trimm(splitted.second);
 
-        httputils::to_lower(splitted.first);
+        httputils::to_lower(&splitted.first);
 
         if (!splitted.second.empty()) {
             if (splitted.first == "cookie") {
@@ -277,13 +277,13 @@ void HTTPContext::sendFile(const std::string& file, const std::function<void(int
                 },
                 [this, onError](int err) -> void {
                     connectedSocket->unstashReader();
-                    fileReader = 0;
+                    fileReader = nullptr;
 
                     if (onError) {
                         onError(err);
                     }
 
-                    if (err) {
+                    if (err != 0) {
                         connectedSocket->end();
                     }
                 });
@@ -312,15 +312,15 @@ void HTTPContext::sendHeader() {
     responseHeader.insert({"Accept-Ranges", "bytes"});
     responseHeader.insert({"X-Powered-By", "snode.c"});
 
-    for (const std::pair<const std::string&, const std::string&>& header : responseHeader) {
+    for (const std::pair<const std::string, std::string>& header : responseHeader) {
         this->enqueue(header.first + ": " + header.second + "\r\n");
     }
 
-    for (const std::pair<const std::string&, const ResponseCookie&> cookie : responseCookies) {
+    for (const std::pair<const std::string, ResponseCookie>& cookie : responseCookies) {
         std::string cookieString =
             std::accumulate(cookie.second.options.begin(), cookie.second.options.end(), cookie.first + "=" + cookie.second.value,
                             [](const std::string& str, const std::pair<const std::string&, const std::string&> option) -> std::string {
-                                return str + "; " + option.first + ((option.second != "") ? "=" + option.second : "");
+                                return str + "; " + option.first + ((option.second.empty()) ? "=" + option.second : "");
                             });
         this->enqueue("Set-Cookie: " + cookieString + "\r\n");
     }
@@ -353,9 +353,9 @@ void HTTPContext::prepareForRequest() {
     this->requestCookies.clear();
     this->responseCookies.clear();
 
-    if (this->bodyData != 0) {
+    if (this->bodyData != nullptr) {
         delete[] this->bodyData;
-        this->bodyData = 0;
+        this->bodyData = nullptr;
     }
 
     this->bodyLength = 0;

@@ -14,10 +14,6 @@ WebApp::WebApp(const std::string& rootDir) {
 }
 
 
-WebApp::~WebApp() {
-}
-
-
 void WebApp::listen(int port, const std::function<void(int err)>& onError) {
     errno = 0;
 

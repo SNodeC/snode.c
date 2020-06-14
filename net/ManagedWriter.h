@@ -1,5 +1,5 @@
-#ifndef SOCKETWRITEMANAGER_H
-#define SOCKETWRITEMANAGER_H
+#ifndef MANAGEDWRITER_H
+#define MANAGEDWRITER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -11,7 +11,7 @@
 
 class ManagedWriter : public Manager<Writer> {
 public:
-    int dispatch(fd_set& fdSet, int count) override;
+    int dispatch(const fd_set& fdSet, int count) override;
 };
 
-#endif // SOCKETWRITEMANAGER_H
+#endif // MANAGEDWRITER_H

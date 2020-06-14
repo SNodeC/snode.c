@@ -14,12 +14,10 @@ public:
         : Timer(dispatcher, timeout, arg) {
     }
 
-    virtual ~ContinousTimer() = default;
+    ~ContinousTimer() override = default;
 
 private:
-    ContinousTimer& operator=(const ContinousTimer& timer) {
-        return *this;
-    }
+    ContinousTimer& operator=(const ContinousTimer& timer) = delete;
 };
 
 #endif // CONTINOUSTIMER_H

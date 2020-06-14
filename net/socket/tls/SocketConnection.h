@@ -1,5 +1,5 @@
-#ifndef SSLCONNECTEDSOCKET_H
-#define SSLCONNECTEDSOCKET_H
+#ifndef TLS_SOCKETCONNECTION_H
+#define TLS_SOCKETCONNECTION_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,4 +24,4 @@ namespace tls {
 
 }; // namespace tls
 
-#endif // SSLCONNECTEDSOCKET_H
+#endif // TLS_SOCKETCONNECTION_H

@@ -1,5 +1,6 @@
-#ifndef SOCKETBASE_H
-#define SOCKETBASE_H
+#ifndef SOCKET_H
+#define SOCKET_H
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
@@ -17,7 +18,7 @@ public:
 
     virtual ~Socket();
 
-    void bind(InetAddress& localAddress, const std::function<void(int errnum)>& onError);
+    void bind(const InetAddress& localAddress, const std::function<void(int errnum)>& onError);
 
     InetAddress& getLocalAddress();
 
@@ -31,4 +32,4 @@ protected:
     InetAddress localAddress;
 };
 
-#endif // SOCKETBASE_H
+#endif // SOCKET_H

@@ -25,7 +25,7 @@ public:
         , options(options) {
     }
 
-protected:
+private:
     std::string value;
     std::map<std::string, std::string> options;
 
@@ -34,7 +34,7 @@ protected:
 
 
 class HTTPContext {
-protected:
+private:
     enum requeststates { REQUEST, HEADER, BODY, ERROR } requestState;
 
     enum linestate { READ, EOL } lineState;
@@ -42,21 +42,21 @@ protected:
 public:
     HTTPContext(WebApp* webApp, SocketConnection* connectedSocket);
 
+    void receiveRequest(const char* junk, ssize_t junkLen);
+
     void onReadError(int errnum);
     void onWriteError(int errnum);
 
-    void receiveRequest(const char* junk, ssize_t junkLen);
-
-protected:
+private:
     void stopFileReader();
 
     void send(const char* buffer, int size);
     void send(const std::string& buffer);
-    void sendFile(const std::string& file, const std::function<void(int ret)>& onError = 0);
+    void sendFile(const std::string& file, const std::function<void(int ret)>& onError = nullptr);
 
     void sendHeader();
 
-    void parseRequest(const char* junk, ssize_t, const std::function<void(std::string&)>& lineRead,
+    void parseRequest(const char* junk, ssize_t junkLen, const std::function<void(std::string&)>& lineRead,
                       const std::function<void(const char* bodyJunk, int junkLength)>& bodyRead);
     void parseRequestLine(const std::string& line);
     void parseCookie(const std::string& value);
@@ -69,7 +69,6 @@ protected:
 
     char* bodyData;
     int bodyLength;
-
 
     int responseStatus;
 
@@ -88,10 +87,6 @@ protected:
 
     std::map<std::string, std::string> params;
 
-    friend class Response;
-    friend class Request;
-
-private:
     void enqueue(const char* buf, size_t len);
     void enqueue(const std::string& str);
 
@@ -106,6 +101,9 @@ private:
 
     Request request;
     Response response;
+
+    friend class Response;
+    friend class Request;
 };
 
 #endif // HTTPCONTEXT_H

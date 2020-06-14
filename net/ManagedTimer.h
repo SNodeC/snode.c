@@ -1,5 +1,5 @@
-#ifndef TIMERMANAGER_H
-#define TIMERMANAGER_H
+#ifndef MANAGEDTIMER_H
+#define MANAGEDTIMER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -12,7 +12,7 @@
 
 class ManagedTimer {
 public:
-    ManagedTimer();
+    ManagedTimer() = default;
 
     struct timeval getNextTimeout();
 
@@ -29,11 +29,11 @@ private:
     class timernode_lt {
     public:
         bool operator()(const Timer* t1, const Timer* t2) const {
-            return *t1 < *t2;
+            return static_cast<timeval>(*t1) < static_cast<timeval>(*t2);
         }
     };
 
-    bool timerListDirty;
+    bool timerListDirty{false};
 };
 
-#endif // TIMERMANAGER_H
+#endif // MANAGEDTIMER_H

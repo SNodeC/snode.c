@@ -1,5 +1,5 @@
-#ifndef MANAGEABLE_H
-#define MANAGEABLE_H
+#ifndef MANAGEDDESCRIPTOR_H
+#define MANAGEDDESCRIPTOR_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -11,8 +11,7 @@
 
 class ManagedDescriptor : virtual public ManagedCounter {
 public:
-    ManagedDescriptor() {
-    }
+    ManagedDescriptor() = default;
 
     ManagedDescriptor(const ManagedDescriptor&) = delete;
 
@@ -36,4 +35,4 @@ public:
     //    bool managed = false;
 };
 
-#endif // MANAGEABLE_H
+#endif // MANAGEDDESCRIPTOR_H

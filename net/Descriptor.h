@@ -8,22 +8,19 @@
 
 class Descriptor {
 protected:
-    Descriptor();
-
-private:
-    Descriptor(const Descriptor& d) = delete;
-
-    Descriptor& operator=(const Descriptor& descriptor) = delete;
+    Descriptor() = default;
 
 public:
+    Descriptor(const Descriptor& d) = delete;
+    Descriptor& operator=(const Descriptor& descriptor) = delete;
     ~Descriptor();
 
     void attachFd(int fd);
 
-    int fd() const;
+    [[nodiscard]] int fd() const;
 
 private:
-    int _fd;
+    int _fd{-1};
 };
 
 #endif // DESCRIPTOR_H

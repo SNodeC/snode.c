@@ -7,7 +7,7 @@
 #include "ManagedExceptions.h"
 
 
-int ManagedExceptions::dispatch(fd_set& fdSet, int count) {
+int ManagedExceptions::dispatch(const fd_set& fdSet, int count) {
     for (Exception* exception : descriptors) {
         if (FD_ISSET(dynamic_cast<Descriptor*>(exception)->fd(), &fdSet)) {
             count--;

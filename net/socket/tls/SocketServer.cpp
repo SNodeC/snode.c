@@ -1,6 +1,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string.h>
+#include <cstring>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -29,7 +29,7 @@ namespace tls {
               readProcessor, onReadError, onWriteError)
         , onConnect(onConnect)
         , onDisconnect(onDisconnect)
-        , ctx(0) {
+        , ctx(nullptr) {
     }
 
 

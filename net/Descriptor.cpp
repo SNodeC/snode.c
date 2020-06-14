@@ -8,11 +8,6 @@
 #include "Descriptor.h"
 
 
-Descriptor::Descriptor()
-    : _fd(-1) {
-}
-
-
 Descriptor::~Descriptor() {
     ::close(_fd);
 }

@@ -16,7 +16,7 @@ public:
 
 protected:
     SocketReaderBase()
-        : readProcessor(0) {
+        : readProcessor(nullptr) {
     }
 
     SocketReaderBase(const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
@@ -27,6 +27,7 @@ protected:
 
     virtual ssize_t recv(char* junk, const ssize_t& junkSize) = 0;
 
+private:
     std::function<void(SocketConnection* cs, const char* junk, ssize_t n)> readProcessor;
 };
 

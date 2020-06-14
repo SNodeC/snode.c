@@ -11,17 +11,17 @@
 
 class InetAddress {
 public:
-    explicit InetAddress(const InetAddress& ina);
+    InetAddress() = default;
+    InetAddress(const InetAddress& ina);
     explicit InetAddress(const std::string& ipOrHostname, uint16_t port);
     explicit InetAddress(uint16_t port);
-    explicit InetAddress(struct sockaddr_in& addr);
-    InetAddress();
+    explicit InetAddress(const struct sockaddr_in& addr);
 
     ~InetAddress() = default;
 
     InetAddress& operator=(const InetAddress& ina);
 
-    const struct sockaddr_in& getSockAddr() const;
+    [[nodiscard]] const struct sockaddr_in& getSockAddr() const;
 
 private:
     struct sockaddr_in addr;

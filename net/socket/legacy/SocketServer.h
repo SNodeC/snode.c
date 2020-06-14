@@ -1,5 +1,5 @@
-#ifndef SOCKETLEGACYSERVER_H
-#define SOCKETLEGACYSERVER_H
+#ifndef LEGACY_SOCKETSERVER_H
+#define LEGACY_SOCKETSERVER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,4 +29,4 @@ namespace legacy {
 
 }; // namespace legacy
 
-#endif // SOCKETLEGACYSERVER_H
+#endif // LEGACY_SOCKETSERVER_H

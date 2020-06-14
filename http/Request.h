@@ -53,7 +53,7 @@ private:
 
 public:
     template <typename Attribute>
-    const Attribute getAttribute(const std::string& key = "") const {
+    Attribute getAttribute(const std::string& key = "") const {
         Attribute attribute = Attribute(); // default constructor & copy constructor neccessary
 
         std::map<std::string, std::shared_ptr<void>>::const_iterator it = attributes.find(typeid(Attribute).name() + key);

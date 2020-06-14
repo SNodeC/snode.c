@@ -71,7 +71,7 @@ template <typename SocketConnectionImpl>
 void SocketServerBase<SocketConnectionImpl>::readEvent() {
     errno = 0;
 
-    struct sockaddr_in remoteAddress;
+    struct sockaddr_in remoteAddress {};
     socklen_t addrlen = sizeof(remoteAddress);
 
     int csFd = -1;
@@ -79,10 +79,10 @@ void SocketServerBase<SocketConnectionImpl>::readEvent() {
     csFd = ::accept(this->fd(), (struct sockaddr*) &remoteAddress, &addrlen);
 
     if (csFd >= 0) {
-        struct sockaddr_in localAddress;
+        struct sockaddr_in localAddress {};
         socklen_t addressLength = sizeof(localAddress);
 
-        if (getsockname(csFd, (struct sockaddr*) &localAddress, &addressLength) == 0) {
+        if (getsockname(csFd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
             SocketConnectionImpl* cs = new SocketConnectionImpl(csFd, this, readProcessor, onReadError, onWriteError);
 
             cs->setRemoteAddress(InetAddress(remoteAddress));

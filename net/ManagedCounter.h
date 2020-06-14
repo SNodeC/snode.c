@@ -7,13 +7,8 @@
 
 
 class ManagedCounter {
-public:
-    ManagedCounter()
-        : managedCounter(0) {
-    }
-
 protected:
-    int managedCounter;
+    int managedCounter{0};
 };
 
 #endif // MANAGEDCOUNTER_H

@@ -1,5 +1,5 @@
-#ifndef SOCKETREADER_H
-#define SOCKETREADER_H
+#ifndef LEGACY_SOCKETREADER_H
+#define LEGACY_SOCKETREADER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -17,8 +17,7 @@ namespace legacy {
         : public SocketReaderBase
         , virtual public legacy::Socket {
     protected:
-        SocketReader() {
-        }
+        SocketReader() = default;
 
         SocketReader(const std::function<void(::SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
                      const std::function<void(int errnum)>& onError)
@@ -31,4 +30,4 @@ namespace legacy {
 
 }; // namespace legacy
 
-#endif // SOCKETREADER_H
+#endif // LEGACY_SOCKETREADER_H

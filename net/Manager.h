@@ -1,5 +1,5 @@
-#ifndef SOCKETMANAGER_H
-#define SOCKETMANAGER_H
+#ifndef MANAGER_H
+#define MANAGER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -14,14 +14,13 @@
 template <typename ManagedDescriptor>
 class Manager {
 protected:
-    Manager()
-        : maxFd(0) {
+    Manager() {
         FD_ZERO(&fdSet);
     }
 
+public:
     Manager(const Manager&) = delete;
     Manager& operator=(const Manager&) = delete;
-
 
     virtual ~Manager() {
         descriptors.reverse();
@@ -32,8 +31,6 @@ protected:
         updateFdSet();
     }
 
-
-public:
     fd_set& getFdSet() {
         updateFdSet();
 
@@ -75,7 +72,7 @@ public:
     }
 
 
-    virtual int dispatch(fd_set& fdSet, int count) = 0;
+    virtual int dispatch(const fd_set& fdSet, int count) = 0;
 
 protected:
     std::list<ManagedDescriptor*> descriptors;
@@ -133,7 +130,7 @@ private:
 
 
     fd_set fdSet;
-    int maxFd;
+    int maxFd{0};
 
     std::list<ManagedDescriptor*> addedDescriptors;
     std::list<ManagedDescriptor*> removedDescriptors;
@@ -142,4 +139,4 @@ private:
     std::list<ManagedDescriptor*> stashedDescriptors;
 };
 
-#endif // SOCKETMANAGER_H
+#endif // MANAGER_H

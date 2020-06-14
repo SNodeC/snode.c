@@ -1,5 +1,5 @@
-#ifndef SSLSOCKET_H
-#define SSLSOCKET_H
+#ifndef TLS_SOCKET_H
+#define TLS_SOCKET_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -22,13 +22,12 @@ namespace tls {
         void stopSSL();
 
     protected:
-        Socket();
+        Socket() = default;
 
-    protected:
-        SSL* ssl;
+        SSL* ssl{nullptr};
         int err;
     };
 
 }; // namespace tls
 
-#endif // SSLSOCKET_H
+#endif // TLS_SOCKET_H

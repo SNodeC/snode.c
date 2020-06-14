@@ -14,12 +14,10 @@ public:
         : Timer(dispatcher, timeout, arg) {
     }
 
-    virtual ~SingleshotTimer() = default;
+    ~SingleshotTimer() override = default;
 
 private:
-    SingleshotTimer& operator=(const SingleshotTimer& timer) {
-        return *this;
-    }
+    SingleshotTimer& operator=(const SingleshotTimer& timer) = delete;
 };
 
 #endif // SINGLESHOTTIMER_H

@@ -1,5 +1,5 @@
-#ifndef SERVERSOCKET_H
-#define SERVERSOCKET_H
+#ifndef SOCKETSERVERBASE_H
+#define SOCKETSERVERBASE_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -20,12 +20,12 @@ class SocketServerBase
 protected:
     SocketServerBase(const std::function<void(SocketConnectionImpl* cs)>& onConnect,
                      const std::function<void(SocketConnectionImpl* cs)>& onDisconnect,
-                     const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcesor,
+                     const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
                      const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
                      const std::function<void(SocketConnection* cs, int errnum)>& onWriteError);
 
 public:
-    virtual ~SocketServerBase() = default;
+    ~SocketServerBase() override = default;
 
     void listen(in_port_t port, int backlog, const std::function<void(int err)>& onError) override;
 
@@ -49,4 +49,4 @@ private:
 };
 
 
-#endif // SERVERSOCKET_H
+#endif // SOCKETSERVERBASE_H

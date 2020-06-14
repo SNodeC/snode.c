@@ -13,7 +13,7 @@ public:
     void writeEvent() override;
 
 protected:
-    SocketWriterBase(const std::function<void(int errnum)>& onError)
+    explicit SocketWriterBase(const std::function<void(int errnum)>& onError)
         : Writer(onError) {
     }
 

@@ -60,9 +60,9 @@ public:
     DREQUESTMETHOD(patch);
     DREQUESTMETHOD(head);
 
-    bool dispatch(const Request& req, const Response& res) const;
+    void dispatch(const Request& req, const Response& res) const;
 
-protected:
+private:
     MountPoint mountPoint;
     std::shared_ptr<RouterRoute> routerRoute; // it can be shared by multiple routers
 };

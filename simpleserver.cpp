@@ -7,8 +7,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define MIDDLEWARE(req, res, next) [&](const Request& req, const Response& res, const std::function<void(void)>& next) -> void
-#define APPLICATION(req, res) [&](const Request& req, const Response& res) -> void
+#define MIDDLEWARE(req, res, next) [&](const Request& (req), const Response& (res), const std::function<void(void)>& (next)) -> void
+#define APPLICATION(req, res) [&](const Request& (req), const Response& (res)) -> void
 
 const Router route() {
     Router router;

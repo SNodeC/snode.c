@@ -1,5 +1,5 @@
-#ifndef BASECONNECTEDSOCKET_H
-#define BASECONNECTEDSOCKET_H
+#ifndef SOCKETCONNECTIONBASE_H
+#define SOCKETCONNECTIONBASE_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,18 +29,18 @@ public:
     InetAddress& getRemoteAddress() override;
     void setRemoteAddress(const InetAddress& remoteAddress) override;
 
-private:
-    void unmanaged() override;
-
 protected:
     SocketConnectionBase(int csFd, SocketServer* serverSocket,
                          const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
                          const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
                          const std::function<void(SocketConnection* cs, int errnum)>& onWriteError);
 
+private:
+    void unmanaged() override;
+
     SocketServer* serverSocket;
 
-    InetAddress remoteAddress;
+    InetAddress remoteAddress{};
 };
 
-#endif // BASECONNECTEDSOCKET_H
+#endif // SOCKETCONNECTIONBASE_H

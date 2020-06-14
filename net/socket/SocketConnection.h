@@ -1,5 +1,5 @@
-#ifndef SOCKETCONNECTIONINTERFACE_H
-#define SOCKETCONNECTIONINTERFACE_H
+#ifndef SOCKETCONNECTION_H
+#define SOCKETCONNECTION_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -38,11 +38,10 @@ public:
     virtual void setRemoteAddress(const InetAddress& remoteAddress) = 0;
 
 protected:
-    SocketConnection()
-        : context(0) {
-    }
+    SocketConnection() = default;
 
-    void* context;
+private:
+    void* context{nullptr};
 };
 
-#endif // SOCKETCONNECTIONINTERFACE_H
+#endif // SOCKETCONNECTION_H

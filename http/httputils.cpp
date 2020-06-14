@@ -1,10 +1,10 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
-#include <ctype.h>
+#include <cctype>
+#include <ctime>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <time.h>
 #include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -19,7 +19,7 @@ namespace httputils {
     }
 
 
-    std::string url_decode(std::string text) {
+    std::string url_decode(const std::string& text) {
         char h;
 
         std::string escaped;
@@ -44,11 +44,12 @@ namespace httputils {
     }
 
 
-    std::string& str_trimm(std::string& text) {
-        text.erase(text.find_last_not_of(" \t") + 1);
-        text.erase(0, text.find_first_not_of(" \t"));
+    std::string str_trimm(const std::string& text) {
+        std::string tmpText = text;
+        tmpText.erase(text.find_last_not_of(" \t") + 1);
+        tmpText.erase(0, text.find_first_not_of(" \t"));
 
-        return text;
+        return tmpText;
     }
 
 
@@ -82,14 +83,14 @@ namespace httputils {
     }
 
 
-    std::string str_substr_char(const std::string& string, const char c, std::string::size_type& pos) {
-        std::string::size_type rpos = string.find_first_of(c, pos);
+    std::string str_substr_char(const std::string& string, char c, std::string::size_type* pos) {
+        std::string::size_type rpos = string.find_first_of(c, *pos);
 
         std::string result = "";
 
         if (rpos != std::string::npos) {
-            result = string.substr(pos, rpos - pos);
-            pos = rpos + 1;
+            result = string.substr(*pos, rpos - *pos);
+            *pos = rpos + 1;
         }
 
         return result;
@@ -99,8 +100,8 @@ namespace httputils {
     std::string to_http_date(struct tm* tm) {
         char buf[100];
 
-        if (tm == 0) {
-            time_t now = time(0);
+        if (tm == nullptr) {
+            time_t now = time(nullptr);
             tm = gmtime(&now);
         } else {
             time_t time = mktime(tm);
@@ -113,7 +114,7 @@ namespace httputils {
     }
 
 
-    struct tm from_http_date(std::string& http_date) {
+    struct tm from_http_date(const std::string& http_date) {
         struct tm tm;
 
         strptime(http_date.c_str(), "%a, %d %b %Y %H:%M:%S", &tm);
@@ -123,7 +124,7 @@ namespace httputils {
     }
 
 
-    std::string file_mod_http_date(std::string& filePath) {
+    std::string file_mod_http_date(const std::string& filePath) {
         char buf[100];
 
         struct stat attrib;
@@ -135,8 +136,8 @@ namespace httputils {
     }
 
 
-    std::string::iterator to_lower(std::string& string) {
-        return std::transform(string.begin(), string.end(), string.begin(), ::tolower);
+    std::string::iterator to_lower(std::string* string) {
+        return std::transform(string->begin(), string->end(), string->begin(), ::tolower);
     }
 
 } // namespace httputils

@@ -11,13 +11,10 @@
 #include "timer/Timer.h"
 
 
-ManagedTimer::ManagedTimer()
-    : timerListDirty(false) {
-}
-
-
 struct timeval ManagedTimer::getNextTimeout() {
-    struct timeval tv;
+    struct timeval tv {
+        0, 0
+    };
 
     tv.tv_sec = 20L;
     tv.tv_usec = 0L;
@@ -45,8 +42,10 @@ struct timeval ManagedTimer::getNextTimeout() {
 
         tv = (*(timerList.begin()))->timeout();
 
-        struct timeval currentTime;
-        gettimeofday(&currentTime, NULL);
+        struct timeval currentTime {
+            0, 0
+        };
+        gettimeofday(&currentTime, nullptr);
 
         if (tv < currentTime) {
             tv.tv_sec = 0;
@@ -61,15 +60,17 @@ struct timeval ManagedTimer::getNextTimeout() {
 
 
 void ManagedTimer::dispatch() {
-    struct timeval currentTime;
-    gettimeofday(&currentTime, NULL);
+    struct timeval currentTime {
+        0, 0
+    };
+    gettimeofday(&currentTime, nullptr);
 
     for (Timer* timer : timerList) {
         if (timer->timeout() <= currentTime) {
             timer->dispatch();
-            if (dynamic_cast<SingleshotTimer*>(timer)) {
+            if (dynamic_cast<SingleshotTimer*>(timer) != nullptr) {
                 remove(timer);
-            } else if (dynamic_cast<ContinousTimer*>(timer)) {
+            } else if (dynamic_cast<ContinousTimer*>(timer) != nullptr) {
                 timer->update();
                 timerListDirty = true;
             }

@@ -1,5 +1,5 @@
-#ifndef SOCKETSERVERINTERFACE_H
-#define SOCKETSERVERINTERFACE_H
+#ifndef SOCKETSERVER_H
+#define SOCKETSERVER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,4 +27,4 @@ protected:
     SocketServer() = default;
 };
 
-#endif // SOCKETSERVERINTERFACE_H
+#endif // SOCKETSERVER_H

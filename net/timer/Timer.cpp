@@ -13,7 +13,7 @@ Timer::Timer(const std::function<void(const void* arg)>& dispatcher, const struc
     : delay(timeout)
     , dispatcher(dispatcher)
     , arg(arg) {
-    gettimeofday(&absoluteTimeout, NULL);
+    gettimeofday(&absoluteTimeout, nullptr);
     update();
 }
 
