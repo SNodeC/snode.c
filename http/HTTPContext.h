@@ -40,19 +40,19 @@ protected:
     enum linestate { READ, EOL } lineState;
 
 public:
-    HTTPContext(WebApp* httpServer, SocketConnection* connectedSocket);
+    HTTPContext(WebApp* webApp, SocketConnection* connectedSocket);
 
     void onReadError(int errnum);
     void onWriteError(int errnum);
 
-    void receiveRequest(const char* junk, ssize_t n);
+    void receiveRequest(const char* junk, ssize_t junkLen);
 
 protected:
     void stopFileReader();
 
-    void send(const char* puffer, int size);
-    void send(const std::string& data);
-    void sendFile(const std::string& file, const std::function<void(int ret)>& fn = 0);
+    void send(const char* buffer, int size);
+    void send(const std::string& buffer);
+    void sendFile(const std::string& file, const std::function<void(int ret)>& onError = 0);
 
     void sendHeader();
 

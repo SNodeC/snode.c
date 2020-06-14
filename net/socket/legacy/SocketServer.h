@@ -15,7 +15,7 @@ namespace legacy {
     private:
         SocketServer(const std::function<void(legacy::SocketConnection* cs)>& onConnect,
                      const std::function<void(legacy::SocketConnection* cs)>& onDisconnect,
-                     const std::function<void(::SocketConnection* cs, const char* junk, ssize_t n)>& readProcesor,
+                     const std::function<void(::SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
                      const std::function<void(::SocketConnection* cs, int errnum)>& onReadError,
                      const std::function<void(::SocketConnection* cs, int errnum)>& onWriteError);
 

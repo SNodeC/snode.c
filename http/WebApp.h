@@ -27,7 +27,7 @@ public:
     static void start(int argc, char** argv);
     static void stop();
 
-    const std::string& getRootDir() {
+    const std::string& getRootDir() const {
         return rootDir;
     }
 
