@@ -9,8 +9,8 @@
 #include "socket/tls/SocketServer.h"
 
 
-WebApp::WebApp(const std::string& serverRoot) {
-    this->serverRoot(serverRoot);
+WebApp::WebApp(const std::string& rootDir) {
+    this->serverRoot(rootDir);
 }
 
 

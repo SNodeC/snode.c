@@ -16,7 +16,7 @@ namespace tls {
 
     class SocketConnection : public SocketConnectionBase<tls::SocketReader, tls::SocketWriter> {
     public:
-        SocketConnection(int csFd, ::SocketServer* ss,
+        SocketConnection(int csFd, ::SocketServer* serverSocket,
                          const std::function<void(::SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
                          const std::function<void(::SocketConnection* cs, int errnum)>& onReadError,
                          const std::function<void(::SocketConnection* cs, int errnum)>& onWriteError);

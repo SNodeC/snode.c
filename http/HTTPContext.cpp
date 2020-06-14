@@ -239,24 +239,24 @@ void HTTPContext::enqueue(const std::string& str) {
 }
 
 
-void HTTPContext::send(const char* puffer, int size) {
+void HTTPContext::send(const char* buffer, int size) {
     responseHeader.insert({"Content-Type", "application/octet-stream"});
     responseHeader.insert({"Content-Length", std::to_string(size)});
 
     this->sendHeader();
-    this->enqueue(puffer, size);
+    this->enqueue(buffer, size);
 }
 
 
-void HTTPContext::send(const std::string& puffer) {
+void HTTPContext::send(const std::string& buffer) {
     responseHeader.insert({"Content-Type", "text/html; charset=utf-8"});
 
-    this->send(puffer.c_str(), puffer.size());
+    this->send(buffer.c_str(), buffer.size());
 }
 
 
-void HTTPContext::sendFile(const std::string& url, const std::function<void(int ret)>& onError) {
-    std::string absolutFileName = webApp->getRootDir() + url;
+void HTTPContext::sendFile(const std::string& file, const std::function<void(int ret)>& onError) {
+    std::string absolutFileName = webApp->getRootDir() + file;
 
     if (std::filesystem::exists(absolutFileName)) {
         std::error_code ec;
