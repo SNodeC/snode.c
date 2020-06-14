@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <iostream>
+#include <numeric>
 #include <string.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -316,12 +317,11 @@ void HTTPContext::sendHeader() {
     }
 
     for (const std::pair<const std::string&, const ResponseCookie&> cookie : responseCookies) {
-        std::string cookieString = cookie.first + "=" + cookie.second.value;
-
-        for (const std::pair<const std::string&, const std::string&>& option : cookie.second.options) {
-            cookieString += "; " + option.first + ((option.second != "") ? "=" + option.second : "");
-        }
-
+        std::string cookieString =
+            std::accumulate(cookie.second.options.begin(), cookie.second.options.end(), cookie.first + "=" + cookie.second.value,
+                            [](const std::string& str, const std::pair<const std::string&, const std::string&> option) -> std::string {
+                                return str + "; " + option.first + ((option.second != "") ? "=" + option.second : "");
+                            });
         this->enqueue("Set-Cookie: " + cookieString + "\r\n");
     }
 
