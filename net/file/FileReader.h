@@ -28,7 +28,6 @@ public:
 private:
     void unmanaged() override;
 
-protected:
     std::function<void(char* data, int len)> junkRead;
 
     bool stopped;

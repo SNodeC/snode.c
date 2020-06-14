@@ -1,5 +1,5 @@
-#ifndef SSLSOCKETWRITER_H
-#define SSLSOCKETWRITER_H
+#ifndef TLS_SOCKETWRITER_H
+#define TLS_SOCKETWRITER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,4 +26,4 @@ namespace tls {
 
 }; // namespace tls
 
-#endif // SSLSOCKETWRITER_H
+#endif // TLS_SOCKETWRITER_H

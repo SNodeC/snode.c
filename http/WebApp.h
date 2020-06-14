@@ -15,19 +15,17 @@
 
 class WebApp : public Router {
 public:
-    WebApp(const std::string& rootDir = "./");
+    explicit WebApp(const std::string& rootDir = "./");
 
 public:
-    ~WebApp();
-
-    void listen(int port, const std::function<void(int err)>& onError = 0);
+    void listen(int port, const std::function<void(int err)>& onError = nullptr);
     void sslListen(int port, const std::string& cert, const std::string& key, const std::string& password,
-                   const std::function<void(int err)>& onError = 0);
+                   const std::function<void(int err)>& onError = nullptr);
 
     static void start(int argc, char** argv);
     static void stop();
 
-    const std::string& getRootDir() const {
+    [[nodiscard]] const std::string& getRootDir() const {
         return rootDir;
     }
 

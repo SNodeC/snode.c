@@ -7,7 +7,7 @@
 #include "ManagedReader.h"
 
 
-int ManagedReader::dispatch(fd_set& fdSet, int count) {
+int ManagedReader::dispatch(const fd_set& fdSet, int count) {
     for (Reader* reader : descriptors) {
         if (FD_ISSET(dynamic_cast<Descriptor*>(reader)->fd(), &fdSet)) {
             count--;

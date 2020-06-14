@@ -1,6 +1,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <errno.h>
+#include <cerrno>
 #include <sys/socket.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -30,10 +30,10 @@ InetAddress& Socket::getLocalAddress() {
 }
 
 
-void Socket::bind(InetAddress& localAddress, const std::function<void(int errnum)>& onError) {
+void Socket::bind(const InetAddress& localAddress, const std::function<void(int errnum)>& onError) {
     socklen_t addrlen = sizeof(struct sockaddr_in);
 
-    int ret = ::bind(this->fd(), (struct sockaddr*) &localAddress.getSockAddr(), addrlen);
+    int ret = ::bind(this->fd(), reinterpret_cast<const struct sockaddr*>(&localAddress.getSockAddr()), addrlen);
 
     if (ret < 0) {
         onError(errno);

@@ -12,14 +12,13 @@
 
 class Reader : public ManagedDescriptor {
 public:
-    virtual ~Reader() = default;
+    ~Reader() override = default;
 
     virtual void readEvent() = 0;
 
 protected:
-    Reader(const std::function<void(int errnum)>& onError = 0)
-        : ManagedDescriptor()
-        , onError(onError) {
+    explicit Reader(const std::function<void(int errnum)>& onError = nullptr)
+        : onError(onError) {
     }
 
     void setOnError(const std::function<void(int errnum)>& onError) {

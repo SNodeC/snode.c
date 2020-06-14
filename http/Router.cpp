@@ -33,7 +33,8 @@ public:
 
     virtual ~Dispatcher() = default;
 
-    virtual bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req, const Response& res) const = 0;
+    [[nodiscard]] virtual bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req,
+                                        const Response& res) const = 0;
 };
 
 
@@ -45,9 +46,9 @@ public:
         , route(route) {
     }
 
-    bool dispatch(const std::string& parentPath, const Request& req, const Response& res) const;
+    [[nodiscard]] bool dispatch(const std::string& parentPath, const Request& req, const Response& res) const;
 
-protected:
+private:
     Router* parent;
     MountPoint mountPoint;
     std::shared_ptr<Dispatcher> route;
@@ -62,9 +63,10 @@ public:
 
     RouterRoute(const RouterRoute&) = delete;
 
-    bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req, const Response& res) const override;
+    [[nodiscard]] bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req,
+                                const Response& res) const override;
 
-protected:
+private:
     std::list<Route> routes;
 
     friend class Router;
@@ -75,16 +77,17 @@ class MiddlewareRoute : public Dispatcher {
 public:
     MiddlewareRoute(const MiddlewareRoute&) = delete;
 
-    MiddlewareRoute& operator=(MiddlewareRoute&) = delete;
+    MiddlewareRoute& operator=(const MiddlewareRoute&) = delete;
 
     explicit MiddlewareRoute(
         const std::function<void(const Request& req, const Response& res, const std::function<void(void)>& next)>& dispatcher)
         : dispatcher(dispatcher) {
     }
 
-    bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req, const Response& res) const override;
+    [[nodiscard]] bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req,
+                                const Response& res) const override;
 
-protected:
+private:
     const std::function<void(const Request& req, const Response& res, std::function<void(void)>)> dispatcher;
 };
 
@@ -93,14 +96,14 @@ class DispatcherRoute : public Dispatcher {
 public:
     DispatcherRoute(const DispatcherRoute&) = delete;
 
-    DispatcherRoute& operator=(DispatcherRoute&) = delete;
+    DispatcherRoute& operator=(const DispatcherRoute&) = delete;
 
     explicit DispatcherRoute(const std::function<void(const Request& req, const Response& res)>& dispatcher)
         : dispatcher(dispatcher) {
     }
 
-    virtual bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req,
-                          const Response& res) const override;
+    [[nodiscard]] bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req,
+                                const Response& res) const override;
 
 protected:
     const std::function<void(const Request& req, const Response& res)> dispatcher;
@@ -148,7 +151,7 @@ bool MiddlewareRoute::dispatch(const MountPoint& mountPoint, const std::string& 
         }
 
         next = false;
-        this->dispatcher(req, res, [&next](void) -> void {
+        this->dispatcher(req, res, [&next]() -> void {
             next = true;
         });
     }
@@ -182,8 +185,8 @@ Router::Router()
 }
 
 
-bool Router::dispatch(const Request& req, const Response& res) const {
-    return routerRoute->dispatch(mountPoint, "/", req, res);
+void Router::dispatch(const Request& req, const Response& res) const {
+    routerRoute->dispatch(mountPoint, "/", req, res);
 }
 
 

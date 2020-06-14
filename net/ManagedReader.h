@@ -1,5 +1,5 @@
-#ifndef SOCKETREADMANAGER_H
-#define SOCKETREADMANAGER_H
+#ifndef MANAGEDREADER_H
+#define MANAGEDREADER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -11,7 +11,7 @@
 
 class ManagedReader : public Manager<Reader> {
 public:
-    int dispatch(fd_set& fdSet, int count) override;
+    int dispatch(const fd_set& fdSet, int count) override;
 };
 
-#endif // SOCKETREADMANAGER_H
+#endif // MANAGEDREADER_H

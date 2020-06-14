@@ -1,7 +1,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstring>
 #include <iostream>
-#include <string.h>
 
 #include "WebApp.h"
 

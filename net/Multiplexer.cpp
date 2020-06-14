@@ -1,6 +1,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <assert.h>
+#include <cassert>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

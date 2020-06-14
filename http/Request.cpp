@@ -19,7 +19,7 @@ Request::Request(HTTPContext* httpContext)
 
 const std::string& Request::header(const std::string& key, int i) const {
     std::string tmpKey = key;
-    httputils::to_lower(tmpKey);
+    httputils::to_lower(&tmpKey);
 
     if (this->httpContext->requestHeader.find(tmpKey) != this->httpContext->requestHeader.end()) {
         std::pair<std::multimap<std::string, std::string>::iterator, std::multimap<std::string, std::string>::iterator> range =

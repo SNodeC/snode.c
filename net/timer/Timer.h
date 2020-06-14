@@ -3,9 +3,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <ctime>
 #include <functional>
 #include <sys/time.h>
-#include <time.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -16,13 +16,13 @@ class ContinousTimer;
 class Timer {
 protected:
     Timer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg);
-    Timer(const Timer&) = delete;
-
-    Timer& operator=(const Timer& timer) = delete;
 
     virtual ~Timer() = default;
 
 public:
+    Timer(const Timer&) = delete;
+    Timer& operator=(const Timer& timer) = delete;
+
     static ContinousTimer& continousTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout,
                                           const void* arg);
     static SingleshotTimer& singleshotTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout,
@@ -35,13 +35,12 @@ public:
     void cancel();
     void destroy();
 
-    operator struct timeval() const;
+    explicit operator struct timeval() const;
 
-protected:
+private:
     struct timeval absoluteTimeout;
     struct timeval delay;
 
-private:
     std::function<void(const void* arg)> dispatcher;
     const void* arg;
 };

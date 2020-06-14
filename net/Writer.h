@@ -12,14 +12,13 @@
 
 class Writer : public ManagedDescriptor {
 public:
-    virtual ~Writer() = default;
+    ~Writer() override = default;
 
     virtual void writeEvent() = 0;
 
 protected:
-    Writer(const std::function<void(int errnum)>& onError)
-        : ManagedDescriptor()
-        , onError(onError) {
+    explicit Writer(const std::function<void(int errnum)>& onError)
+        : onError(onError) {
     }
 
     void stash();

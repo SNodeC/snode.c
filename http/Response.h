@@ -19,10 +19,10 @@ public:
     void send(const char* puffer, int n) const;
     void send(const std::string& text) const;
 
-    void sendFile(const std::string& file, const std::function<void(int err)>& fn = 0) const;
+    void sendFile(const std::string& file, const std::function<void(int err)>& fn = nullptr) const;
 
-    void download(const std::string& file, const std::function<void(int err)>& fn = 0) const;
-    void download(const std::string& file, const std::string& name, const std::function<void(int err)>& fn = 0) const;
+    void download(const std::string& file, const std::function<void(int err)>& fn = nullptr) const;
+    void download(const std::string& file, const std::string& name, const std::function<void(int err)>& fn = nullptr) const;
 
     void redirect(const std::string& name) const;
     void redirect(int status, const std::string& name) const;
@@ -36,7 +36,7 @@ public:
     const Response& set(const std::map<std::string, std::string>& map) const;
     const Response& cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options = {}) const;
     const Response& clearCookie(const std::string& name, const std::map<std::string, std::string>& options = {}) const;
-    const Response& type(std::string type) const;
+    const Response& type(const std::string& type) const;
 
 private:
     HTTPContext* httpContext;

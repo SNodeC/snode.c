@@ -7,12 +7,6 @@
 
 namespace tls {
 
-    Socket::Socket()
-        : ::Socket()
-        , ssl(0) {
-    }
-
-
     bool Socket::startSSL(SSL_CTX* ctx) {
         this->ssl = SSL_new(ctx);
         SSL_set_fd(ssl, fd());

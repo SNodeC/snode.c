@@ -1,5 +1,5 @@
-#ifndef SOCKETEXCEPTIONMANAGER_H
-#define SOCKETEXCEPTIONMANAGER_H
+#ifndef MANAGEDEXCEPTIONS_H
+#define MANAGEDEXCEPTIONS_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -11,7 +11,7 @@
 
 class ManagedExceptions : public Manager<Exception> {
 public:
-    int dispatch(fd_set& fdSet, int count) override;
+    int dispatch(const fd_set& fdSet, int count) override;
 };
 
-#endif // SOCKETEXCEPTIONMANAGER_H
+#endif // MANAGEDEXCEPTIONS_H

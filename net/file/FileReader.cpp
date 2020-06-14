@@ -1,6 +1,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <errno.h>
+#include <cerrno>
 #include <fcntl.h>
 #include <unistd.h>
 
@@ -13,8 +13,7 @@
 
 
 FileReader::FileReader(int fd, const std::function<void(char* data, int len)>& junkRead, const std::function<void(int err)>& onError)
-    : Descriptor()
-    , Reader(onError)
+    : Reader(onError)
     , junkRead(junkRead)
     , stopped(false) {
     this->attachFd(fd);
@@ -23,7 +22,7 @@ FileReader::FileReader(int fd, const std::function<void(char* data, int len)>& j
 
 FileReader* FileReader::read(const std::string& path, const std::function<void(char* data, int len)>& junkRead,
                              const std::function<void(int err)>& onError) {
-    FileReader* fileReader = 0;
+    FileReader* fileReader = nullptr;
 
     int fd = open(path.c_str(), O_RDONLY);
 

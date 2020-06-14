@@ -36,7 +36,7 @@ const Response& Response::append(const std::string& field, const std::string& va
 
 
 const Response& Response::set(const std::map<std::string, std::string>& map) const {
-    for (const std::pair<const std::string&, const std::string&>& header : map) {
+    for (const std::pair<const std::string, std::string>& header : map) {
         this->set(header.first, header.second);
     }
 
@@ -122,7 +122,7 @@ void Response::sendStatus(int status) const {
 }
 
 
-const Response& Response::type(std::string type) const {
+const Response& Response::type(const std::string& type) const {
     this->set({{"Content-Type", type}});
 
     return *this;

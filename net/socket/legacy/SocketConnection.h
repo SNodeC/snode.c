@@ -1,5 +1,5 @@
-#ifndef CONNECTEDSOCKET_H
-#define CONNECTEDSOCKET_H
+#ifndef LEGACY_SOCKETCONNECTION_H
+#define LEGACY_SOCKETCONNECTION_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,4 +24,4 @@ namespace legacy {
 
 }; // namespace legacy
 
-#endif // CONNECTEDSOCKET_H
+#endif // LEGACY_SOCKETCONNECTION_H

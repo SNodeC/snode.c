@@ -1,5 +1,5 @@
-#ifndef SOCKET_H
-#define SOCKET_H
+#ifndef LEGACY_SOCKET_H
+#define LEGACY_SOCKET_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -17,4 +17,4 @@ namespace legacy {
 
 }; // namespace legacy
 
-#endif // SOCKET_H
+#endif // LEGACY_SOCKET_H
