@@ -30,7 +30,7 @@ int timerApp(int argc, char** argv) {
     
     WebApp app("/home/voc/projects/ServerVoc/build/html");
 
-    app.get("/", [&](const Request& req, const Response& res) -> void {
+    app.get("/", [&canceled, &tack](const Request& req, const Response& res) -> void {
         std::string uri = req.originalUrl;
 
         if (uri == "/") {
