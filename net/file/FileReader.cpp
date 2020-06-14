@@ -52,7 +52,7 @@ void FileReader::unmanaged() {
 
 
 void FileReader::readEvent() {
-    char buffer[MFREADSIZE];
+    static char buffer[MFREADSIZE];
 
     int ret = ::read(this->fd(), buffer, MFREADSIZE);
 
