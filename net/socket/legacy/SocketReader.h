@@ -21,8 +21,7 @@ namespace legacy {
 
         SocketReader(const std::function<void(::SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
                      const std::function<void(int errnum)>& onError)
-            : legacy::Socket()
-            , SocketReaderBase(readProcessor, onError) {
+            : SocketReaderBase(readProcessor, onError) {
         }
 
         ssize_t recv(char* junk, const ssize_t& junkSize) override;
