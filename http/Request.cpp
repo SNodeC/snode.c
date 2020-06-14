@@ -36,6 +36,7 @@ const std::string& Request::header(const std::string& key, int i) const {
     }
 }
 
+
 const std::string& Request::cookie(const std::string& key) const {
     if (this->httpContext->requestCookies.find(key) != this->httpContext->requestCookies.end()) {
         return this->httpContext->requestCookies[key];
