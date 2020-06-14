@@ -10,7 +10,7 @@
 #define MIDDLEWARE(req, res, next) [&](const Request& (req), const Response& (res), const std::function<void(void)>& (next)) -> void
 #define APPLICATION(req, res) [&](const Request& (req), const Response& (res)) -> void
 
-const Router route() {
+Router route() {
     Router router;
     router.use(
         "/", MIDDLEWARE(req, res, next) {

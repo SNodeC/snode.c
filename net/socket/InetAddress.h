@@ -24,7 +24,7 @@ public:
     [[nodiscard]] const struct sockaddr_in& getSockAddr() const;
 
 private:
-    struct sockaddr_in addr{};
+    struct sockaddr_in addr {};
 };
 
 #endif // INETADDRESS_H
