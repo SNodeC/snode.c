@@ -19,7 +19,7 @@ public:
 
 public:
     void listen(int port, const std::function<void(int err)>& onError = nullptr);
-    void sslListen(int port, const std::string& cert, const std::string& key, const std::string& password,
+    void tlsListen(int port, const std::string& cert, const std::string& key, const std::string& password,
                    const std::function<void(int err)>& onError = nullptr);
 
     static void start(int argc, char** argv);
