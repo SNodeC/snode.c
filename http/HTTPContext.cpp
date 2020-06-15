@@ -305,29 +305,31 @@ void HTTPContext::sendFile(const std::string& file, const std::function<void(int
 
 
 void HTTPContext::sendHeader() {
-    this->enqueue("HTTP/1.1 " + std::to_string(responseStatus) + " " + HTTPStatusCode::reason(responseStatus) + "\r\n");
-    this->enqueue("Date: " + httputils::to_http_date() + "\r\n");
+    if (!headerSend) {
+        this->enqueue("HTTP/1.1 " + std::to_string(responseStatus) + " " + HTTPStatusCode::reason(responseStatus) + "\r\n");
+        this->enqueue("Date: " + httputils::to_http_date() + "\r\n");
 
-    responseHeader.insert({"Cache-Control", "public, max-age=0"});
-    responseHeader.insert({"Accept-Ranges", "bytes"});
-    responseHeader.insert({"X-Powered-By", "snode.c"});
+        responseHeader.insert({"Cache-Control", "public, max-age=0"});
+        responseHeader.insert({"Accept-Ranges", "bytes"});
+        responseHeader.insert({"X-Powered-By", "snode.c"});
 
-    for (const std::pair<const std::string, std::string>& header : responseHeader) {
-        this->enqueue(header.first + ": " + header.second + "\r\n");
+        for (const std::pair<const std::string, std::string>& header : responseHeader) {
+            this->enqueue(header.first + ": " + header.second + "\r\n");
+        }
+
+        for (const std::pair<const std::string, ResponseCookie>& cookie : responseCookies) {
+            std::string cookieString =
+                std::accumulate(cookie.second.options.begin(), cookie.second.options.end(), cookie.first + "=" + cookie.second.value,
+                                [](const std::string& str, const std::pair<const std::string&, const std::string&> option) -> std::string {
+                                    return str + "; " + option.first + ((option.second.empty()) ? "=" + option.second : "");
+                                });
+            this->enqueue("Set-Cookie: " + cookieString + "\r\n");
+        }
+
+        this->enqueue("\r\n");
+
+        headerSend = true;
     }
-
-    for (const std::pair<const std::string, ResponseCookie>& cookie : responseCookies) {
-        std::string cookieString =
-            std::accumulate(cookie.second.options.begin(), cookie.second.options.end(), cookie.first + "=" + cookie.second.value,
-                            [](const std::string& str, const std::pair<const std::string&, const std::string&> option) -> std::string {
-                                return str + "; " + option.first + ((option.second.empty()) ? "=" + option.second : "");
-                            });
-        this->enqueue("Set-Cookie: " + cookieString + "\r\n");
-    }
-
-    this->enqueue("\r\n");
-
-    headerSend = true;
 }
 
 
