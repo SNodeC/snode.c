@@ -17,7 +17,7 @@ public:
 
     void attachFd(int fd);
 
-    [[nodiscard]] int fd() const;
+    [[nodiscard]] int getFd() const;
 
 private:
     int _fd{-1};

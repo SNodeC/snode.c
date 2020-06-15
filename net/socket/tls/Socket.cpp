@@ -9,7 +9,7 @@ namespace tls {
 
     bool Socket::startSSL(SSL_CTX* ctx) {
         this->ssl = SSL_new(ctx);
-        SSL_set_fd(ssl, fd());
+        SSL_set_fd(ssl, getFd());
         err = SSL_accept(this->ssl);
 
         int sslerr = SSL_ERROR_NONE;

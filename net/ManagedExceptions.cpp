@@ -9,7 +9,7 @@
 
 int ManagedExceptions::dispatch(const fd_set& fdSet, int count) {
     for (Exception* exception : descriptors) {
-        if (FD_ISSET(dynamic_cast<Descriptor*>(exception)->fd(), &fdSet)) {
+        if (FD_ISSET(dynamic_cast<Descriptor*>(exception)->getFd(), &fdSet)) {
             count--;
             exception->exceptionEvent();
         }

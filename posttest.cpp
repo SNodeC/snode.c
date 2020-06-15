@@ -11,7 +11,7 @@
 int testPost(int argc, char* argv[]) {
     WebApp app("/home/voc/projects/ServerVoc/build/html");
 
-    app.get("/", [&](const Request& req, const Response& res) -> void {
+    app.get("/", [](const Request& req, const Response& res) -> void {
         res.send("<html>"
                     "<head>"
                         "<style>"
@@ -43,7 +43,7 @@ int testPost(int argc, char* argv[]) {
                  "</html>");
     });
 
-    app.post("/", [&](const Request& req, const Response& res) -> void {
+    app.post("/", [](const Request& req, const Response& res) -> void {
         std::cout << "Content-Type: " << req.header("Content-Type") << std::endl;
         std::cout << "Content-Length: " << req.header("Content-Length") << std::endl;
         char* body = new char[std::stoul(req.header("Content-Length")) + 1];
@@ -72,7 +72,7 @@ int testPost(int argc, char* argv[]) {
         }
     });
 
-    app.sslListen(8088, CERTF, KEYF, KEYFPASS, [](int err) -> void {
+    app.tlsListen(8088, CERTF, KEYF, KEYFPASS, [](int err) -> void {
         if (err != 0) {
             perror("Listen");
         } else {

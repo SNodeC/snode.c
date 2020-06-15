@@ -18,7 +18,7 @@ void Descriptor::attachFd(int fd) {
 }
 
 
-int Descriptor::fd() const {
+int Descriptor::getFd() const {
     if (_fd < 0) {
         std::cout << "Descriptor not initialized" << std::endl;
     }
