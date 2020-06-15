@@ -38,7 +38,7 @@ void Multiplexer::tick() {
         if (retval > 0) {
             retval = managedExceptions.dispatch(exceptfds, retval);
         }
-        //        assert(retval == 0);
+        assert(retval == 0);
     }
 }
 

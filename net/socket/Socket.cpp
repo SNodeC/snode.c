@@ -9,7 +9,7 @@
 
 
 Socket::~Socket() {
-    ::shutdown(this->fd(), SHUT_RDWR);
+    ::shutdown(this->getFd(), SHUT_RDWR);
 }
 
 
@@ -33,7 +33,7 @@ InetAddress& Socket::getLocalAddress() {
 void Socket::bind(const InetAddress& localAddress, const std::function<void(int errnum)>& onError) {
     socklen_t addrlen = sizeof(struct sockaddr_in);
 
-    int ret = ::bind(this->fd(), reinterpret_cast<const struct sockaddr*>(&localAddress.getSockAddr()), addrlen);
+    int ret = ::bind(this->getFd(), reinterpret_cast<const struct sockaddr*>(&localAddress.getSockAddr()), addrlen);
 
     if (ret < 0) {
         onError(errno);
