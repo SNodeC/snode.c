@@ -41,7 +41,7 @@ void WebApp::listen(int port, const std::function<void(int err)>& onError) {
 }
 
 
-void WebApp::sslListen(int port, const std::string& cert, const std::string& key, const std::string& password,
+void WebApp::tlsListen(int port, const std::string& cert, const std::string& key, const std::string& password,
                        const std::function<void(int err)>& onError) {
     errno = 0;
 
