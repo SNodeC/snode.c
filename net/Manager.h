@@ -82,7 +82,7 @@ private:
 
         for (ManagedDescriptor* descriptor : descriptors) {
             Descriptor* desc = dynamic_cast<Descriptor*>(descriptor);
-            maxFd = std::max(desc->fd(), maxFd);
+            maxFd = std::max(desc->getFd(), maxFd);
         }
 
         return maxFd;
@@ -93,14 +93,14 @@ private:
         if (!addedDescriptors.empty() || !removedDescriptors.empty() || !addedStashedDescriptors.empty() ||
             !removedStashedDescriptors.empty()) {
             for (ManagedDescriptor* descriptor : addedDescriptors) {
-                FD_SET(dynamic_cast<Descriptor*>(descriptor)->fd(), &fdSet);
+                FD_SET(dynamic_cast<Descriptor*>(descriptor)->getFd(), &fdSet);
                 descriptors.push_back(descriptor);
                 descriptor->incManaged();
             }
             addedDescriptors.clear();
 
             for (ManagedDescriptor* descriptor : removedStashedDescriptors) {
-                FD_SET(dynamic_cast<Descriptor*>(descriptor)->fd(), &fdSet);
+                FD_SET(dynamic_cast<Descriptor*>(descriptor)->getFd(), &fdSet);
                 descriptors.push_back(descriptor);
                 stashedDescriptors.remove(descriptor);
                 descriptor->decManaged();
@@ -108,7 +108,7 @@ private:
             removedStashedDescriptors.clear();
 
             for (ManagedDescriptor* descriptor : addedStashedDescriptors) {
-                FD_SET(dynamic_cast<Descriptor*>(descriptor)->fd(), &fdSet);
+                FD_CLR(dynamic_cast<Descriptor*>(descriptor)->getFd(), &fdSet);
                 descriptors.remove(descriptor);
                 stashedDescriptors.push_back(descriptor);
                 descriptor->incManaged();
@@ -116,7 +116,7 @@ private:
             addedStashedDescriptors.clear();
 
             for (ManagedDescriptor* descriptor : removedDescriptors) {
-                FD_CLR(dynamic_cast<Descriptor*>(descriptor)->fd(), &fdSet);
+                FD_CLR(dynamic_cast<Descriptor*>(descriptor)->getFd(), &fdSet);
                 descriptors.remove(descriptor);
                 descriptor->decManaged();
             }
