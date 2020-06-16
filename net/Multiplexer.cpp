@@ -24,10 +24,7 @@ void Multiplexer::tick() {
 
     int retval = select(maxFd + 1, &readfds, &writefds, &exceptfds, &tv);
 
-    if (retval < 0 && errno != EINTR) {
-        perror("Select");
-        stop();
-    } else {
+    if (retval >= 0) {
         managedTimer.dispatch();
         if (retval > 0) {
             retval = managedReader.dispatch(readfds, retval);
@@ -39,6 +36,9 @@ void Multiplexer::tick() {
             retval = managedExceptions.dispatch(exceptfds, retval);
         }
         assert(retval == 0);
+    } else if (errno != EINTR) {
+        perror("Select");
+        stop();
     }
 }
 
