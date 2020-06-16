@@ -27,13 +27,13 @@ option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation 
 
 if(BUILD_DOCUMENTATION)
     if (DOXYGEN_FOUND)
-        set(doxyfile_in ${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxygen.in)
-        set(doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+        set(DOXYFILE_IN ${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxygen.in)
+        set(DOCYFILE ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
 
-        configure_file(${doxyfile_in} ${doxyfile} @ONLY)
+        configure_file(${DOXYFILE_IN} ${DOCYFILE} @ONLY)
 
         add_custom_target(doc
-                        COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile_in}
+                        COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE_IN}
                         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                         COMMENT "Generating API documentation with Doxygen"
                         VERBATIM)
@@ -44,7 +44,7 @@ if(BUILD_DOCUMENTATION)
     endif (DOXYGEN_FOUND)
 endif(BUILD_DOCUMENTATION)
 
-# Set the source files to clang-format
+#Set the source files to clang - format
 FILE(GLOB_RECURSE
     CHECK_CXX_SOURCE_FILES
     net/*.[tch]pp net/*.h

@@ -4,7 +4,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
 
 find_package(LibMagic REQUIRED)
 
-add_library(http SHARED 
+add_library(http SHARED
     WebApp.cpp
     HTTPContext.cpp
     HTTPStatusCodes.cpp
