@@ -87,7 +87,7 @@ protected:
     std::list<ManagedDescriptor*> descriptors;
 
 
-public:
+private:
     int updateMaxFd() {
         maxFd = 0;
 
