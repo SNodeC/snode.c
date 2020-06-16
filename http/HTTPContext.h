@@ -48,6 +48,12 @@ public:
     void onWriteError(int errnum);
 
 private:
+    void stashReader();
+    void unstashReader();
+
+    void stashWriter();
+    void unstashWriter();
+
     void stopFileReader();
 
     void send(const char* buffer, int size);
