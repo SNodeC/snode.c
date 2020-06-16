@@ -25,8 +25,6 @@ protected:
                      const std::function<void(SocketConnection* cs, int errnum)>& onWriteError);
 
 public:
-    ~SocketServerBase() override = default;
-
     void listen(in_port_t port, int backlog, const std::function<void(int err)>& onError) override;
 
     void readEvent() override;
