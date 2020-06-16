@@ -268,7 +268,7 @@ void HTTPContext::sendFile(const std::string& file, const std::function<void(int
             responseHeader.insert({"Last-Modified", httputils::file_mod_http_date(absolutFileName)});
             this->sendHeader();
 
-            connectedSocket->stashReader();
+            this->stashReader();
 
             fileReader = FileReader::read(
                 absolutFileName,
@@ -276,7 +276,7 @@ void HTTPContext::sendFile(const std::string& file, const std::function<void(int
                     this->enqueue(data, length);
                 },
                 [this, onError](int err) -> void {
-                    connectedSocket->unstashReader();
+                    this->unstashReader();
                     fileReader = nullptr;
 
                     if (onError) {
@@ -363,4 +363,24 @@ void HTTPContext::prepareForRequest() {
     this->bodyLength = 0;
     this->bodyPointer = 0;
     this->headerSend = false;
+}
+
+
+void HTTPContext::stashReader() {
+    connectedSocket->stashReader();
+}
+
+
+void HTTPContext::unstashReader() {
+    connectedSocket->unstashReader();
+}
+
+
+void HTTPContext::stashWriter() {
+    connectedSocket->stashWriter();
+}
+
+
+void HTTPContext::unstashWriter() {
+    connectedSocket->unstashWriter();
 }
