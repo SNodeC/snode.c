@@ -15,10 +15,6 @@ public:
     void readEvent() override;
 
 protected:
-    SocketReaderBase()
-        : readProcessor(nullptr) {
-    }
-
     SocketReaderBase(const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
                      const std::function<void(int errnum)>& onError)
         : Reader(onError)

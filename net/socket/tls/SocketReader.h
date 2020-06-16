@@ -17,8 +17,6 @@ namespace tls {
         : public SocketReaderBase
         , virtual public tls::Socket {
     protected:
-        SocketReader() = default;
-
         SocketReader(const std::function<void(::SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
                      const std::function<void(int errnum)>& onError)
             : SocketReaderBase(readProcessor, onError) {
