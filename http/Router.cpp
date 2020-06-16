@@ -5,7 +5,7 @@
 #include "Router.h"
 
 
-static const std::string path_concat(const std::string& first, const std::string& second) {
+static std::string path_concat(const std::string& first, const std::string& second) {
     std::string result;
 
     if (first.back() == '/' && second.front() == '/') {
@@ -186,41 +186,41 @@ Router::Router()
 
 
 void Router::dispatch(const Request& req, const Response& res) const {
-    routerRoute->dispatch(mountPoint, "/", req, res);
+    [[maybe_unused]] bool next = routerRoute->dispatch(mountPoint, "/", req, res);
 }
 
 
 #define REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                                 \
     Router& Router::METHOD(const std::string& path, const std::function<void(const Request& req, const Response& res)>& dispatcher) {      \
-        routerRoute->routes.push_back(Route(this, HTTP_METHOD, path, std::make_shared<DispatcherRoute>(dispatcher)));                      \
+        routerRoute->routes.emplace_back(Route(this, HTTP_METHOD, path, std::make_shared<DispatcherRoute>(dispatcher)));                   \
         return *this;                                                                                                                      \
     };                                                                                                                                     \
                                                                                                                                            \
     Router& Router::METHOD(const std::function<void(const Request& req, const Response& res)>& dispatcher) {                               \
-        routerRoute->routes.push_back(Route(this, HTTP_METHOD, "", std::make_shared<DispatcherRoute>(dispatcher)));                        \
+        routerRoute->routes.emplace_back(Route(this, HTTP_METHOD, "", std::make_shared<DispatcherRoute>(dispatcher)));                     \
         return *this;                                                                                                                      \
     };                                                                                                                                     \
                                                                                                                                            \
     Router& Router::METHOD(const std::string& path, const Router& router) {                                                                \
-        routerRoute->routes.push_back(Route(this, HTTP_METHOD, path, router.routerRoute));                                                 \
+        routerRoute->routes.emplace_back(Route(this, HTTP_METHOD, path, router.routerRoute));                                              \
         return *this;                                                                                                                      \
     };                                                                                                                                     \
                                                                                                                                            \
     Router& Router::METHOD(const Router& router) {                                                                                         \
-        routerRoute->routes.push_back(Route(this, HTTP_METHOD, "", router.routerRoute));                                                   \
+        routerRoute->routes.emplace_back(Route(this, HTTP_METHOD, "", router.routerRoute));                                                \
         return *this;                                                                                                                      \
     };                                                                                                                                     \
                                                                                                                                            \
     Router& Router::METHOD(                                                                                                                \
         const std::string& path,                                                                                                           \
         const std::function<void(const Request& req, const Response& res, const std::function<void(void)>& next)>& dispatcher) {           \
-        routerRoute->routes.push_back(Route(this, HTTP_METHOD, path, std::make_shared<MiddlewareRoute>(dispatcher)));                      \
+        routerRoute->routes.emplace_back(Route(this, HTTP_METHOD, path, std::make_shared<MiddlewareRoute>(dispatcher)));                   \
         return *this;                                                                                                                      \
     };                                                                                                                                     \
                                                                                                                                            \
     Router& Router::METHOD(                                                                                                                \
         const std::function<void(const Request& req, const Response& res, const std::function<void(void)>& next)>& dispatcher) {           \
-        routerRoute->routes.push_back(Route(this, HTTP_METHOD, "", std::make_shared<MiddlewareRoute>(dispatcher)));                        \
+        routerRoute->routes.emplace_back(Route(this, HTTP_METHOD, "", std::make_shared<MiddlewareRoute>(dispatcher)));                     \
         return *this;                                                                                                                      \
     };
 
