@@ -79,10 +79,12 @@ WebApp sslMain() {
                 if (uri == "/") {
                     res.redirect("/index.html");
                 } else if (uri == "/end") {
-                    res.send("Bye, bye!");
+                    res.send("Bye, bye!\n");
                     WebApp::stop();
                 } else {
-                    res.sendFile(uri, [uri](int ret) -> void {
+//                    req.stash();
+                    res.sendFile(uri, [uri, &req](int ret) -> void {
+//                        req.unstash();
                         if (ret != 0) {
                             perror(uri.c_str());
                         }
@@ -99,7 +101,7 @@ WebApp legacyMain() {
     legacyApp.use(
         "/", MIDDLEWARE(req, res, next) {
             if (req.originalUrl == "/end") {
-                    res.send("Bye, bye!");
+                    res.send("Bye, bye!\n");
                     WebApp::stop();
             } else {
                 std::cout << "Redirect: "
