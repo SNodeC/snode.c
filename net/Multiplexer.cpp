@@ -48,9 +48,9 @@ void Multiplexer::start(int argc, char** argv) {
         Multiplexer::running = true;
 
         while (!Multiplexer::stopped) {
-            Multiplexer::instance().tick();
+            Multiplexer::multiplexer.tick();
         };
-        Multiplexer::instance().tick();
+        Multiplexer::multiplexer.tick();
 
         Multiplexer::running = false;
     }
