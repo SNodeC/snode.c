@@ -21,10 +21,6 @@ protected:
         : onError(onError) {
     }
 
-    void setOnError(const std::function<void(int errnum)>& onError) {
-        this->onError = onError;
-    }
-
     void stash();
     void unstash();
 
