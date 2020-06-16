@@ -58,23 +58,24 @@ namespace tls {
                 OpenSSL_add_ssl_algorithms();
 
                 ctx = SSL_CTX_new(TLS_server_method());
+                unsigned long sslErr{};
                 if (!ctx) {
                     ERR_print_errors_fp(stderr);
-                    err = ERR_get_error();
+                    sslErr = ERR_get_error();
                 } else {
                     SSL_CTX_set_default_passwd_cb(ctx, SocketServer::passwordCallback);
                     SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(password.c_str()));
                     if (SSL_CTX_use_certificate_chain_file(ctx, certChain.c_str()) <= 0) {
                         ERR_print_errors_fp(stderr);
-                        err = ERR_get_error();
+                        sslErr = ERR_get_error();
                     } else if (SSL_CTX_use_PrivateKey_file(ctx, keyPEM.c_str(), SSL_FILETYPE_PEM) <= 0) {
                         ERR_print_errors_fp(stderr);
-                        err = ERR_get_error();
+                        sslErr = ERR_get_error();
                     } else if (!SSL_CTX_check_private_key(ctx)) {
-                        err = ERR_get_error();
+                        sslErr = ERR_get_error();
                     }
                 }
-                onError(err);
+                onError(-ERR_GET_REASON(sslErr));
             } else {
                 onError(err);
             }
@@ -83,10 +84,10 @@ namespace tls {
 
 
     int SocketServer::passwordCallback(char* buf, int size, int rwflag, void* u) {
-        ::strncpy(buf, (char*) u, size);
+        ::strncpy(buf, static_cast<char*>(u), size);
         buf[size - 1] = '\0';
 
-        ::memset(u, 0, ::strlen((char*) u)); // garble password
+        ::memset(u, 0, ::strlen(static_cast<char*>(u))); // garble password
         ::free(u);
 
         return ::strlen(buf);

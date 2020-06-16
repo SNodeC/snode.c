@@ -76,7 +76,7 @@ void SocketServerBase<SocketConnectionImpl>::readEvent() {
 
     int csFd = -1;
 
-    csFd = ::accept(this->getFd(), (struct sockaddr*) &remoteAddress, &addrlen);
+    csFd = ::accept4(this->getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &addrlen, 0);
 
     if (csFd >= 0) {
         struct sockaddr_in localAddress {};

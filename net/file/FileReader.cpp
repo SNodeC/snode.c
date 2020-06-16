@@ -24,7 +24,7 @@ FileReader* FileReader::read(const std::string& path, const std::function<void(c
                              const std::function<void(int err)>& onError) {
     FileReader* fileReader = nullptr;
 
-    int fd = open(path.c_str(), O_RDONLY);
+    int fd = ::open(path.c_str(), O_RDONLY);
 
     if (fd >= 0) {
         fileReader = new FileReader(fd, junkRead, onError);

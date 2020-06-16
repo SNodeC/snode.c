@@ -38,7 +38,7 @@ public:
     explicit operator struct timeval() const;
 
 private:
-    struct timeval absoluteTimeout;
+    struct timeval absoluteTimeout {};
     struct timeval delay;
 
     std::function<void(const void* arg)> dispatcher;

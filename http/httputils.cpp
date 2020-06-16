@@ -14,23 +14,23 @@
 
 namespace httputils {
 
-    static char from_hex(char ch) {
+    static int from_hex(int ch) {
         return isdigit(ch) ? ch - '0' : tolower(ch) - 'a' + 10;
     }
 
 
     std::string url_decode(const std::string& text) {
-        char h;
+        int h;
 
         std::string escaped;
 
-        for (auto i = text.begin(), n = text.end(); i != n; ++i) {
+        for (std::string::const_iterator i = text.begin(), n = text.end(); i != n; ++i) {
             std::string::value_type c = (*i);
 
             if (c == '%') {
                 if (i[1] && i[2]) {
                     h = from_hex(i[1]) << 4 | from_hex(i[2]);
-                    escaped += h;
+                    escaped += static_cast<char>(h);
                     i += 2;
                 }
             } else if (c == '+') {
@@ -86,7 +86,7 @@ namespace httputils {
     std::string str_substr_char(const std::string& string, char c, std::string::size_type* pos) {
         std::string::size_type rpos = string.find_first_of(c, *pos);
 
-        std::string result = "";
+        std::string result{};
 
         if (rpos != std::string::npos) {
             result = string.substr(*pos, rpos - *pos);
@@ -115,7 +115,7 @@ namespace httputils {
 
 
     struct tm from_http_date(const std::string& http_date) {
-        struct tm tm;
+        struct tm tm {};
 
         strptime(http_date.c_str(), "%a, %d %b %Y %H:%M:%S", &tm);
         tm.tm_zone = "GMT";
@@ -127,7 +127,7 @@ namespace httputils {
     std::string file_mod_http_date(const std::string& filePath) {
         char buf[100];
 
-        struct stat attrib;
+        struct stat attrib {};
         stat(filePath.c_str(), &attrib);
 
         strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", gmtime(&(attrib.st_mtime)));

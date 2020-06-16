@@ -35,9 +35,9 @@ private:
 
 class HTTPContext {
 private:
-    enum requeststates { REQUEST, HEADER, BODY, ERROR } requestState;
+    enum requeststates { REQUEST, HEADER, BODY, ERROR } requestState{REQUEST};
 
-    enum linestate { READ, EOL } lineState;
+    enum linestate { READ, EOL } lineState{READ};
 
 public:
     HTTPContext(WebApp* webApp, SocketConnection* connectedSocket);
@@ -73,10 +73,10 @@ private:
     void end();
     void prepareForRequest();
 
-    char* bodyData;
-    int bodyLength;
+    char* bodyData{nullptr};
+    int bodyLength{0};
 
-    int responseStatus;
+    int responseStatus{0};
 
     /* Request-Line */
     std::string method;
@@ -97,13 +97,13 @@ private:
     void enqueue(const std::string& str);
 
     SocketConnection* connectedSocket;
-    FileReader* fileReader;
+    FileReader* fileReader{nullptr};
     WebApp* webApp;
 
     std::string headerLine;
-    int bodyPointer;
+    int bodyPointer{0};
 
-    bool headerSend;
+    bool headerSend{false};
 
     Request request;
     Response response;

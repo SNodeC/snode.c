@@ -43,5 +43,5 @@ InetAddress& InetAddress::operator=(const InetAddress& ina) {
 
 
 const struct sockaddr_in& InetAddress::getSockAddr() const {
-    return addr;
+    return this->addr;
 }

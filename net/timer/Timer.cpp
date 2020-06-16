@@ -93,7 +93,7 @@ bool operator==(const struct timeval& tv1, const struct timeval& tv2) {
 
 
 struct timeval operator+(const struct timeval& tv1, const struct timeval& tv2) {
-    struct timeval help;
+    struct timeval help {};
 
     help.tv_sec = tv1.tv_sec + tv2.tv_sec;
 
@@ -109,7 +109,7 @@ struct timeval operator+(const struct timeval& tv1, const struct timeval& tv2) {
 
 
 struct timeval operator-(const struct timeval& tv1, const struct timeval& tv2) {
-    struct timeval help;
+    struct timeval help {};
 
     help.tv_sec = tv1.tv_sec - tv2.tv_sec;
     help.tv_usec = tv1.tv_usec - tv2.tv_usec;

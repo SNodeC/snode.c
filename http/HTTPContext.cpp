@@ -23,8 +23,6 @@ HTTPContext::HTTPContext(WebApp* webApp, SocketConnection* connectedSocket)
     , webApp(webApp)
     , request(this)
     , response(this) {
-    bodyData = nullptr;
-    fileReader = nullptr;
     this->prepareForRequest();
 }
 
@@ -39,7 +37,7 @@ void HTTPContext::stopFileReader() {
 void HTTPContext::onReadError(int errnum) {
     stopFileReader();
 
-    if (errnum && errnum != ECONNRESET) {
+    if (errnum != 0 && errnum != ECONNRESET) {
         perror("HTTPContext");
     }
 }
