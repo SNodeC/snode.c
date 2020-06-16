@@ -31,8 +31,6 @@ public:
     }
 
     virtual void unmanaged() = 0;
-
-    //    bool managed = false;
 };
 
 #endif // MANAGEDDESCRIPTOR_H

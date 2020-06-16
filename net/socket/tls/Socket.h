@@ -22,8 +22,6 @@ namespace tls {
         void stopSSL();
 
     protected:
-        Socket() = default;
-
         SSL* ssl{nullptr};
         int err{0};
     };

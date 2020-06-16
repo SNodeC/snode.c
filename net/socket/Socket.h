@@ -29,7 +29,7 @@ protected:
 
     void open(const std::function<void(int errnum)>& onError);
 
-    InetAddress localAddress;
+    InetAddress localAddress{};
 };
 
 #endif // SOCKET_H

@@ -60,10 +60,6 @@ void Multiplexer::start(int argc, char** argv) {
             Multiplexer::multiplexer.tick();
         };
 
-        Multiplexer::multiplexer.managedExceptions.stop();
-        Multiplexer::multiplexer.managedWriter.stop();
-        Multiplexer::multiplexer.managedReader.stop();
-
         Multiplexer::running = false;
     }
 }

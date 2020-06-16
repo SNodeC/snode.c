@@ -17,8 +17,6 @@ class Multiplexer {
 private:
     Multiplexer();
 
-    ~Multiplexer() = default;
-
 public:
     static Multiplexer& instance() {
         return multiplexer;

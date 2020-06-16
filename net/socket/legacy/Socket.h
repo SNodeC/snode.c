@@ -10,10 +10,7 @@
 
 namespace legacy {
 
-    class Socket : public ::Socket {
-    protected:
-        Socket() = default;
-    };
+    class Socket : public ::Socket {};
 
 }; // namespace legacy
 
