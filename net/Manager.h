@@ -63,12 +63,16 @@ public:
 
 
     void stash(ManagedDescriptor* socket) {
-        addedStashedDescriptors.push_back(socket);
+        if (contains(descriptors, socket) && !contains(addedStashedDescriptors, socket)) {
+            addedStashedDescriptors.push_back(socket);
+        }
     }
 
 
     void unstash(ManagedDescriptor* socket) {
-        removedStashedDescriptors.push_back(socket);
+        if (!contains(descriptors, socket) && !contains(removedStashedDescriptors, socket)) {
+            removedStashedDescriptors.push_back(socket);
+        }
     }
 
 
