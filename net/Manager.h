@@ -21,13 +21,20 @@ public:
     Manager& operator=(const Manager&) = delete;
 
     virtual ~Manager() {
-        descriptors.reverse();
+        stop();
+    }
+
+
+    void stop() {
+        updateFdSet();
+
         removedDescriptors = descriptors;
         updateFdSet();
-        stashedDescriptors.reverse();
+
         removedDescriptors = stashedDescriptors;
         updateFdSet();
     }
+
 
     fd_set& getFdSet() {
         updateFdSet();
@@ -76,7 +83,7 @@ protected:
     std::list<ManagedDescriptor*> descriptors;
 
 
-private:
+public:
     int updateMaxFd() {
         maxFd = 0;
 
