@@ -11,6 +11,15 @@ Multiplexer Multiplexer::multiplexer;
 bool Multiplexer::running = false;
 bool Multiplexer::stopped = false;
 
+
+Multiplexer::Multiplexer() {
+    signal(SIGPIPE, SIG_IGN);
+    signal(SIGHUP, SIG_IGN);
+    signal(SIGINT, Multiplexer::stoponsig);
+    signal(SIGTERM, Multiplexer::stoponsig);
+}
+
+
 void Multiplexer::tick() {
     fd_set exceptfds = managedExceptions.getFdSet();
     fd_set writefds = managedWriter.getFdSet();
@@ -50,7 +59,10 @@ void Multiplexer::start(int argc, char** argv) {
         while (!Multiplexer::stopped) {
             Multiplexer::multiplexer.tick();
         };
-        Multiplexer::multiplexer.tick();
+
+        Multiplexer::multiplexer.managedExceptions.stop();
+        Multiplexer::multiplexer.managedWriter.stop();
+        Multiplexer::multiplexer.managedReader.stop();
 
         Multiplexer::running = false;
     }
@@ -59,4 +71,9 @@ void Multiplexer::start(int argc, char** argv) {
 
 void Multiplexer::stop() {
     Multiplexer::stopped = true;
+}
+
+
+void Multiplexer::stoponsig(int sig) {
+    stop();
 }

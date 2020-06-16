@@ -15,9 +15,7 @@
 
 class Multiplexer {
 private:
-    Multiplexer() {
-        signal(SIGPIPE, SIG_IGN);
-    }
+    Multiplexer();
 
     ~Multiplexer() = default;
 
@@ -46,7 +44,9 @@ public:
     static void stop();
 
 private:
-    void tick();
+    static void stoponsig(int sig);
+
+    inline void tick();
 
     static Multiplexer multiplexer;
 
