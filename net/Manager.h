@@ -70,8 +70,8 @@ public:
 
 
     void unstash(ManagedDescriptor* socket) {
-        if (!contains(descriptors, socket) && !contains(removedStashedDescriptors, socket)) {
-            removedStashedDescriptors.push_back(socket);
+        if (!contains(descriptors, socket) && !contains(untashedDescriptors, socket)) {
+            untashedDescriptors.push_back(socket);
         }
     }
 
@@ -102,7 +102,7 @@ private:
 
     void updateFdSet() {
         if (!addedDescriptors.empty() || !removedDescriptors.empty() || !addedStashedDescriptors.empty() ||
-            !removedStashedDescriptors.empty()) {
+            !untashedDescriptors.empty()) {
             for (ManagedDescriptor* descriptor : addedDescriptors) {
                 FD_SET(dynamic_cast<Descriptor*>(descriptor)->getFd(), &fdSet);
                 descriptors.push_back(descriptor);
@@ -110,13 +110,13 @@ private:
             }
             addedDescriptors.clear();
 
-            for (ManagedDescriptor* descriptor : removedStashedDescriptors) {
+            for (ManagedDescriptor* descriptor : untashedDescriptors) {
                 FD_SET(dynamic_cast<Descriptor*>(descriptor)->getFd(), &fdSet);
                 descriptors.push_back(descriptor);
                 stashedDescriptors.remove(descriptor);
                 descriptor->decManaged();
             }
-            removedStashedDescriptors.clear();
+            untashedDescriptors.clear();
 
             for (ManagedDescriptor* descriptor : addedStashedDescriptors) {
                 FD_CLR(dynamic_cast<Descriptor*>(descriptor)->getFd(), &fdSet);
@@ -144,7 +144,7 @@ private:
     std::list<ManagedDescriptor*> addedDescriptors;
     std::list<ManagedDescriptor*> removedDescriptors;
     std::list<ManagedDescriptor*> addedStashedDescriptors;
-    std::list<ManagedDescriptor*> removedStashedDescriptors;
+    std::list<ManagedDescriptor*> untashedDescriptors;
     std::list<ManagedDescriptor*> stashedDescriptors;
 };
 
