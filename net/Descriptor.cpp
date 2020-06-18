@@ -9,19 +9,19 @@
 
 
 Descriptor::~Descriptor() {
-    ::close(_fd);
+    ::close(fd);
 }
 
 
 void Descriptor::attachFd(int fd) {
-    this->_fd = fd;
+    this->fd = fd;
 }
 
 
 int Descriptor::getFd() const {
-    if (_fd < 0) {
+    if (fd < 0) {
         std::cout << "Descriptor not initialized" << std::endl;
     }
 
-    return _fd;
+    return fd;
 }

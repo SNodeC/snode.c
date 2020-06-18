@@ -20,7 +20,7 @@ public:
     [[nodiscard]] int getFd() const;
 
 private:
-    int _fd{-1};
+    int fd{-1};
 };
 
 #endif // DESCRIPTOR_H
