@@ -5,7 +5,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Multiplexer.h"
 #include "SocketConnection.h"
+#include "SocketServer.h"
 
 
 class SocketServer;
@@ -16,27 +18,60 @@ class SocketConnectionBase
     , public Reader
     , public Writer {
 public:
-    void enqueue(const char* buffer, int size) override;
+    void enqueue(const char* buffer, int size) override {
+        Writer::writePuffer.append(buffer, size);
+        Multiplexer::instance().getManagedWriter().add(this);
+    }
 
-    void end() override;
+    void end() override {
+        Multiplexer::instance().getManagedReader().remove(this);
+    }
 
-    void stashReader() override;
-    void unstashReader() override;
+    void stashReader() override {
+        Reader::stash();
+    }
 
-    void stashWriter() override;
-    void unstashWriter() override;
+    void unstashReader() override {
+        Reader::unstash();
+    }
 
-    InetAddress& getRemoteAddress() override;
-    void setRemoteAddress(const InetAddress& remoteAddress) override;
 
-protected:
+    void stashWriter() override {
+        Writer::stash();
+    }
+
+    void unstashWriter() override {
+        Writer::unstash();
+    }
+
+    InetAddress& getRemoteAddress() override {
+        return remoteAddress;
+    }
+
+    void setRemoteAddress(const InetAddress& remoteAddress) override {
+        this->remoteAddress = remoteAddress;
+    }
+
+public:
     SocketConnectionBase(int csFd, SocketServer* serverSocket,
                          const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
                          const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
-                         const std::function<void(SocketConnection* cs, int errnum)>& onWriteError);
+                         const std::function<void(SocketConnection* cs, int errnum)>& onWriteError)
+        : Reader(readProcessor,
+                 [&](int errnum) -> void {
+                     onReadError(this, errnum);
+                 })
+        , Writer([&](int errnum) -> void {
+            onWriteError(this, errnum);
+        })
+        , serverSocket(serverSocket) {
+        this->attachFd(csFd);
+    }
 
 private:
-    void unmanaged() override;
+    void unmanaged() override {
+        serverSocket->disconnect(this);
+    }
 
     SocketServer* serverSocket;
 

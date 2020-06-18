@@ -19,15 +19,12 @@ add_library(net SHARED
     socket/Socket.cpp
     socket/SocketConnectionBase.cpp
     socket/SocketServer.cpp
-    socket/SocketServerBase.cpp
     socket/SocketReaderBase.cpp
     socket/SocketWriterBase.cpp
-    socket/legacy/SocketConnection.cpp
     socket/legacy/Socket.cpp
     socket/legacy/SocketReader.cpp
     socket/legacy/SocketWriter.cpp
     socket/legacy/SocketServer.cpp
-    socket/tls/SocketConnection.cpp
     socket/tls/Socket.cpp
     socket/tls/SocketReader.cpp
     socket/tls/SocketWriter.cpp
