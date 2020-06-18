@@ -12,6 +12,9 @@
 
 class SocketServer;
 
+typedef std::function<void(SocketConnection* cs, const char* junk, ssize_t n)> ReadProcessor;
+typedef std::function<void(SocketConnection* cs, int errnum)> OnError;
+
 template <typename Reader, typename Writer>
 class SocketConnectionBase
     : public SocketConnection
@@ -54,9 +57,9 @@ public:
 
 public:
     SocketConnectionBase(int csFd, SocketServer* serverSocket,
-                         const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
-                         const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
-                         const std::function<void(SocketConnection* cs, int errnum)>& onWriteError)
+                         const ReadProcessor& readProcessor,
+                         const OnError& onReadError,
+                         const OnError& onWriteError)
         : Reader(readProcessor,
                  [&](int errnum) -> void {
                      onReadError(this, errnum);

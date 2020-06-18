@@ -13,10 +13,12 @@
 
 namespace legacy {
 
-    class SocketServer : public SocketServerBase<SocketConnectionBase<legacy::SocketReader, legacy::SocketWriter>> {
+    typedef SocketConnectionBase<legacy::SocketReader, legacy::SocketWriter> SocketConnection;
+
+    class SocketServer : public SocketServerBase<legacy::SocketConnection> {
     private:
-        SocketServer(const std::function<void(SocketConnectionBase<legacy::SocketReader, legacy::SocketWriter>* cs)>& onConnect,
-                     const std::function<void(SocketConnectionBase<legacy::SocketReader, legacy::SocketWriter>* cs)>& onDisconnect,
+        SocketServer(const std::function<void(legacy::SocketConnection* cs)>& onConnect,
+                     const std::function<void(legacy::SocketConnection* cs)>& onDisconnect,
                      const std::function<void(::SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
                      const std::function<void(::SocketConnection* cs, int errnum)>& onReadError,
                      const std::function<void(::SocketConnection* cs, int errnum)>& onWriteError);

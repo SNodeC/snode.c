@@ -13,30 +13,32 @@
 
 namespace tls {
 
-    class SocketServer : public SocketServerBase<SocketConnectionBase<tls::SocketReader, tls::SocketWriter>> {
+    typedef SocketConnectionBase<tls::SocketReader, tls::SocketWriter> SocketConnection;
+
+    class SocketServer : public SocketServerBase<tls::SocketConnection> {
     private:
-        SocketServer(const std::function<void(SocketConnectionBase<tls::SocketReader, tls::SocketWriter>* cs)>& onConnect,
-                     const std::function<void(SocketConnectionBase<tls::SocketReader, tls::SocketWriter>* cs)>& onDisconnect,
+        SocketServer(const std::function<void(tls::SocketConnection* cs)>& onConnect,
+                     const std::function<void(tls::SocketConnection* cs)>& onDisconnect,
                      const std::function<void(::SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
                      const std::function<void(::SocketConnection* cs, int errnum)>& onReadError,
                      const std::function<void(::SocketConnection* cs, int errnum)>& onWriteError);
 
     public:
         static SocketServer*
-        instance(const std::function<void(SocketConnectionBase<tls::SocketReader, tls::SocketWriter>* cs)>& onConnect,
-                 const std::function<void(SocketConnectionBase<tls::SocketReader, tls::SocketWriter>* cs)>& onDisconnect,
+        instance(const std::function<void(tls::SocketConnection* cs)>& onConnect,
+                 const std::function<void(tls::SocketConnection* cs)>& onDisconnect,
                  const std::function<void(::SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
                  const std::function<void(::SocketConnection* cs, int errnum)>& onReadError,
                  const std::function<void(::SocketConnection* cs, int errnum)>& onWriteError);
         ~SocketServer() override;
 
-        using SocketServerBase<SocketConnectionBase<tls::SocketReader, tls::SocketWriter>>::listen;
+        using SocketServerBase<tls::SocketConnection>::listen;
         void listen(in_port_t port, int backlog, const std::string& certChain, const std::string& keyPEM, const std::string& password,
                     const std::function<void(int err)>& onError);
 
     private:
-        std::function<void(SocketConnectionBase<tls::SocketReader, tls::SocketWriter>* cs)> onConnect;
-        std::function<void(SocketConnectionBase<tls::SocketReader, tls::SocketWriter>* cs)> onDisconnect;
+        std::function<void(tls::SocketConnection* cs)> onConnect;
+        std::function<void(tls::SocketConnection* cs)> onDisconnect;
         SSL_CTX* ctx;
         static int passwordCallback(char* buf, int size, int rwflag, void* u);
     };
