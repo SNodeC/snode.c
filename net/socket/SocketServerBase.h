@@ -23,8 +23,8 @@ protected:
     SocketServerBase(const std::function<void(SocketConnectionImpl* cs)>& onConnect,
                      const std::function<void(SocketConnectionImpl* cs)>& onDisconnect,
                      const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
-                     const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
-                     const std::function<void(SocketConnection* cs, int errnum)>& onWriteError)
+                     const std::function<void(SocketConnectionImpl* cs, int errnum)>& onReadError,
+                     const std::function<void(SocketConnectionImpl* cs, int errnum)>& onWriteError)
         : Reader()
         , Socket()
         , onConnect(onConnect)
@@ -37,9 +37,9 @@ protected:
 public:
     static SocketServerBase* instance(const std::function<void(SocketConnectionImpl* cs)>& onConnect,
                                       const std::function<void(SocketConnectionImpl* cs)>& onDisconnect,
-                                      const std::function<void(::SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
-                                      const std::function<void(::SocketConnection* cs, int errnum)>& onReadError,
-                                      const std::function<void(::SocketConnection* cs, int errnum)>& onWriteError) {
+                                      const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
+                                      const std::function<void(SocketConnectionImpl* cs, int errnum)>& onReadError,
+                                      const std::function<void(SocketConnectionImpl* cs, int errnum)>& onWriteError) {
         return new SocketServerBase(onConnect, onDisconnect, readProcessor, onReadError, onWriteError);
     }
 
@@ -131,8 +131,8 @@ private:
 
     std::function<void(SocketConnection* cs, const char* junk, ssize_t n)> readProcessor;
 
-    std::function<void(SocketConnection* cs, int errnum)> onReadError;
-    std::function<void(SocketConnection* cs, int errnum)> onWriteError;
+    std::function<void(SocketConnectionImpl* cs, int errnum)> onReadError;
+    std::function<void(SocketConnectionImpl* cs, int errnum)> onWriteError;
 };
 
 
