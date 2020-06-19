@@ -7,13 +7,13 @@
 
 #include "Multiplexer.h"
 #include "SocketConnection.h"
-#include "SocketServer.h"
+#include "SocketServerBase.h"
 
 
 class SocketServer;
 
-typedef std::function<void(SocketConnection* cs, const char* junk, ssize_t n)> ReadProcessor;
-typedef std::function<void(SocketConnection* cs, int errnum)> OnError;
+// typedef std::function<void(SocketConnection* cs, const char* junk, ssize_t n)> ReadProcessorr;
+// typedef std::function<void(SocketConnection* cs, int errnum)> OnError;
 
 template <typename Reader, typename Writer>
 class SocketConnectionBase
@@ -56,10 +56,10 @@ public:
     }
 
 public:
-    SocketConnectionBase(int csFd, SocketServer* serverSocket,
-                         const ReadProcessor& readProcessor,
-                         const OnError& onReadError,
-                         const OnError& onWriteError)
+    SocketConnectionBase(int csFd, SocketServerBase<SocketConnectionBase>* serverSocket,
+                         const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
+                         const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
+                         const std::function<void(SocketConnection* cs, int errnum)>& onWriteError)
         : Reader(readProcessor,
                  [&](int errnum) -> void {
                      onReadError(this, errnum);
@@ -76,7 +76,7 @@ private:
         serverSocket->disconnect(this);
     }
 
-    SocketServer* serverSocket;
+    SocketServerBase<SocketConnectionBase>* serverSocket;
 
     InetAddress remoteAddress{};
 };
