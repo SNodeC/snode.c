@@ -7,7 +7,6 @@
 
 #include "Reader.h"
 
-
 class SocketConnection;
 
 class SocketReaderBase : public Reader {
