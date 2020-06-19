@@ -101,8 +101,7 @@ private:
 
 
     void updateFdSet() {
-        if (!addedDescriptors.empty() || !removedDescriptors.empty() || !addedStashedDescriptors.empty() ||
-            !untashedDescriptors.empty()) {
+        if (!addedDescriptors.empty() || !removedDescriptors.empty() || !addedStashedDescriptors.empty() || !untashedDescriptors.empty()) {
             for (ManagedDescriptor* descriptor : addedDescriptors) {
                 FD_SET(dynamic_cast<Descriptor*>(descriptor)->getFd(), &fdSet);
                 descriptors.push_back(descriptor);
