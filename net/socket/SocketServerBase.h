@@ -14,6 +14,8 @@
 #include "SocketServer.h"
 
 
+class SocketReaderBase;
+
 template <typename SocketConnectionImpl>
 class SocketServerBase
     : public SocketServer
@@ -22,7 +24,7 @@ class SocketServerBase
 protected:
     SocketServerBase(const std::function<void(SocketConnectionImpl* cs)>& onConnect,
                      const std::function<void(SocketConnectionImpl* cs)>& onDisconnect,
-                     const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
+                     const std::function<void(SocketReaderBase* cs, const char* junk, ssize_t n)>& readProcessor,
                      const std::function<void(SocketConnectionImpl* cs, int errnum)>& onReadError,
                      const std::function<void(SocketConnectionImpl* cs, int errnum)>& onWriteError)
         : Reader()
@@ -37,7 +39,7 @@ protected:
 public:
     static SocketServerBase* instance(const std::function<void(SocketConnectionImpl* cs)>& onConnect,
                                       const std::function<void(SocketConnectionImpl* cs)>& onDisconnect,
-                                      const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
+                                      const std::function<void(SocketReaderBase* cs, const char* junk, ssize_t n)>& readProcessor,
                                       const std::function<void(SocketConnectionImpl* cs, int errnum)>& onReadError,
                                       const std::function<void(SocketConnectionImpl* cs, int errnum)>& onWriteError) {
         return new SocketServerBase(onConnect, onDisconnect, readProcessor, onReadError, onWriteError);
@@ -129,7 +131,7 @@ private:
     std::function<void(SocketConnectionImpl* cs)> onConnect;
     std::function<void(SocketConnectionImpl* cs)> onDisconnect;
 
-    std::function<void(SocketConnection* cs, const char* junk, ssize_t n)> readProcessor;
+    std::function<void(SocketReaderBase* cs, const char* junk, ssize_t n)> readProcessor;
 
     std::function<void(SocketConnectionImpl* cs, int errnum)> onReadError;
     std::function<void(SocketConnectionImpl* cs, int errnum)> onWriteError;
