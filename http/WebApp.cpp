@@ -24,8 +24,8 @@ void WebApp::listen(int port, const std::function<void(int err)>& onError) {
         [](SocketConnection* connectedSocket) -> void {
             delete static_cast<HTTPContext*>(connectedSocket->getContext());
         },
-        [](SocketConnection* connectedSocket, const char* junk, ssize_t n) -> void {
-            static_cast<HTTPContext*>(connectedSocket->getContext())->receiveRequest(junk, n);
+        [](SocketReaderBase* connectedSocket, const char* junk, ssize_t n) -> void {
+            static_cast<HTTPContext*>(dynamic_cast<SocketConnection*>(connectedSocket)->getContext())->receiveRequest(junk, n);
         },
         [](SocketConnection* connectedSocket, int errnum) -> void {
             static_cast<HTTPContext*>(connectedSocket->getContext())->onReadError(errnum);
@@ -52,8 +52,8 @@ void WebApp::tlsListen(int port, const std::string& cert, const std::string& key
         [](SocketConnection* connectedSocket) -> void {
             delete static_cast<HTTPContext*>(connectedSocket->getContext());
         },
-        [](SocketConnection* connectedSocket, const char* junk, ssize_t n) -> void {
-            static_cast<HTTPContext*>(connectedSocket->getContext())->receiveRequest(junk, n);
+        [](SocketReaderBase* connectedSocket, const char* junk, ssize_t n) -> void {
+            static_cast<HTTPContext*>(dynamic_cast<SocketConnection*>(connectedSocket)->getContext())->receiveRequest(junk, n);
         },
         [](SocketConnection* connectedSocket, int errnum) -> void {
             static_cast<HTTPContext*>(connectedSocket->getContext())->onReadError(errnum);

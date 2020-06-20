@@ -57,7 +57,7 @@ public:
 
 public:
     SocketConnectionBase(int csFd, SocketServerBase<SocketConnectionBase>* serverSocket,
-                         const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
+                         const std::function<void(SocketReaderBase* cs, const char* junk, ssize_t n)>& readProcessor,
                          const std::function<void(SocketConnectionBase* cs, int errnum)>& onReadError,
                          const std::function<void(SocketConnectionBase* cs, int errnum)>& onWriteError)
         : Reader(readProcessor,
