@@ -30,23 +30,6 @@ public:
         Multiplexer::instance().getManagedReader().remove(this);
     }
 
-    void stashReader() override {
-        Multiplexer::instance().getManagedReader().stash(this);
-    }
-
-    void unstashReader() override {
-        Multiplexer::instance().getManagedReader().unstash(this);
-    }
-
-
-    void stashWriter() override {
-        Multiplexer::instance().getManagedWriter().stash(this);
-    }
-
-    void unstashWriter() override {
-        Multiplexer::instance().getManagedWriter().unstash(this);
-    }
-
     InetAddress& getRemoteAddress() override {
         return remoteAddress;
     }

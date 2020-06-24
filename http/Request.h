@@ -82,9 +82,6 @@ public:
         return inserted;
     }
 
-    void stash() const;
-    void unstash() const;
-
 private:
     HTTPContext* httpContext;
 
