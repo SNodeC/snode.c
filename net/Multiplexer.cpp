@@ -52,7 +52,7 @@ void Multiplexer::tick() {
 }
 
 
-void Multiplexer::start(int argc, char** argv) {
+void Multiplexer::start(int argc, char* argv[]) {
     if (!Multiplexer::running) {
         Multiplexer::running = true;
 

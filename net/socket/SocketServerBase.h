@@ -10,23 +10,24 @@
 
 #include "Multiplexer.h"
 #include "Reader.h"
+#include "SNLogger.h"
 #include "Socket.h"
 #include "SocketServer.h"
 
 
 class SocketReaderBase;
 
-template <typename SocketConnectionImpl>
+template <typename SocketConnectionBase>
 class SocketServerBase
     : public SocketServer
     , public Reader
     , public Socket {
 protected:
-    SocketServerBase(const std::function<void(SocketConnectionImpl* cs)>& onConnect,
-                     const std::function<void(SocketConnectionImpl* cs)>& onDisconnect,
+    SocketServerBase(const std::function<void(SocketConnectionBase* cs)>& onConnect,
+                     const std::function<void(SocketConnectionBase* cs)>& onDisconnect,
                      const std::function<void(SocketReaderBase* cs, const char* junk, ssize_t n)>& readProcessor,
-                     const std::function<void(SocketConnectionImpl* cs, int errnum)>& onReadError,
-                     const std::function<void(SocketConnectionImpl* cs, int errnum)>& onWriteError)
+                     const std::function<void(SocketConnectionBase* cs, int errnum)>& onReadError,
+                     const std::function<void(SocketConnectionBase* cs, int errnum)>& onWriteError)
         : Reader()
         , Socket()
         , onConnect(onConnect)
@@ -37,11 +38,11 @@ protected:
     }
 
 public:
-    static SocketServerBase* instance(const std::function<void(SocketConnectionImpl* cs)>& onConnect,
-                                      const std::function<void(SocketConnectionImpl* cs)>& onDisconnect,
+    static SocketServerBase* instance(const std::function<void(SocketConnectionBase* cs)>& onConnect,
+                                      const std::function<void(SocketConnectionBase* cs)>& onDisconnect,
                                       const std::function<void(SocketReaderBase* cs, const char* junk, ssize_t n)>& readProcessor,
-                                      const std::function<void(SocketConnectionImpl* cs, int errnum)>& onReadError,
-                                      const std::function<void(SocketConnectionImpl* cs, int errnum)>& onWriteError) {
+                                      const std::function<void(SocketConnectionBase* cs, int errnum)>& onReadError,
+                                      const std::function<void(SocketConnectionBase* cs, int errnum)>& onWriteError) {
         return new SocketServerBase(onConnect, onDisconnect, readProcessor, onReadError, onWriteError);
     }
 
@@ -87,7 +88,7 @@ public:
             socklen_t addressLength = sizeof(localAddress);
 
             if (getsockname(csFd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
-                SocketConnectionImpl* cs = new SocketConnectionImpl(csFd, this, readProcessor, onReadError, onWriteError);
+                SocketConnectionBase* cs = new SocketConnectionBase(csFd, this, readProcessor, onReadError, onWriteError);
 
                 cs->setRemoteAddress(InetAddress(remoteAddress));
                 cs->setLocalAddress(InetAddress(localAddress));
@@ -95,18 +96,20 @@ public:
                 Multiplexer::instance().getManagedReader().add(cs);
                 onConnect(cs);
             } else {
+                logger->writeErrorEntry("Error");
                 shutdown(csFd, SHUT_RDWR);
                 ::close(csFd);
-                onError(errno);
+                //                onError(errno);
             }
         } else if (errno != EINTR) {
-            onError(errno);
+            logger->writeErrorEntry("Error");
+            //            onError(errno);
         }
     }
 
     void disconnect(SocketConnection* cs) override {
         if (onDisconnect) {
-            onDisconnect(dynamic_cast<SocketConnectionImpl*>(cs));
+            onDisconnect(dynamic_cast<SocketConnectionBase*>(cs));
         }
         delete cs;
     }
@@ -128,13 +131,13 @@ private:
         delete this;
     }
 
-    std::function<void(SocketConnectionImpl* cs)> onConnect;
-    std::function<void(SocketConnectionImpl* cs)> onDisconnect;
+    std::function<void(SocketConnectionBase* cs)> onConnect;
+    std::function<void(SocketConnectionBase* cs)> onDisconnect;
 
     std::function<void(SocketReaderBase* cs, const char* junk, ssize_t n)> readProcessor;
 
-    std::function<void(SocketConnectionImpl* cs, int errnum)> onReadError;
-    std::function<void(SocketConnectionImpl* cs, int errnum)> onWriteError;
+    std::function<void(SocketConnectionBase* cs, int errnum)> onReadError;
+    std::function<void(SocketConnectionBase* cs, int errnum)> onWriteError;
 };
 
 

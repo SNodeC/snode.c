@@ -108,6 +108,11 @@ private:
     Request request;
     Response response;
 
+    int contentLength{0};
+    int sendLen{0};
+
+    bool requestInProgress{false};
+
     friend class Response;
     friend class Request;
 };

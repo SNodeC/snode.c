@@ -30,6 +30,8 @@ private:
 
     std::function<void(char* data, int len)> junkRead;
 
+    std::function<void(int errnum)> onError;
+
     bool stopped;
 };
 

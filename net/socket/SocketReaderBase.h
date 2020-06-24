@@ -3,6 +3,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <functional>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Reader.h"
@@ -15,14 +17,17 @@ public:
 protected:
     SocketReaderBase(const std::function<void(SocketReaderBase* cs, const char* junk, ssize_t n)>& readProcessor,
                      const std::function<void(int errnum)>& onError)
-        : Reader(onError)
-        , readProcessor(readProcessor) {
+        : Reader(/*onError*/)
+        , readProcessor(readProcessor)
+        , onError(onError) {
     }
 
     virtual ssize_t recv(char* junk, const ssize_t& junkSize) = 0;
 
 private:
     std::function<void(SocketReaderBase* cs, const char* junk, ssize_t n)> readProcessor;
+
+    std::function<void(int errnum)> onError;
 };
 
 #endif // SOCKETREADERBASE_H

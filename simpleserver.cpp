@@ -3,12 +3,18 @@
 #include <iostream>
 #include <unistd.h>
 
-#include "WebApp.h"
+#include "legacy/WebApp.h"
+#include "tls/WebApp.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+
 #define MIDDLEWARE(req, res, next) [&](const Request& (req), const Response& (res), const std::function<void(void)>& (next)) -> void
 #define APPLICATION(req, res) [&](const Request& (req), const Response& (res)) -> void
+
+#define CERTF "/home/voc/projects/ServerVoc/certs/calisto.home.vchrist.at_-_snode.c.pem"
+#define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c.key.encrypted.pem"
+#define KEYFPASS "snode.c"
 
 Router route() {
     Router router;
@@ -57,8 +63,8 @@ Router route() {
 }
 
 
-WebApp sslMain() {
-    WebApp sslApp("/home/voc/projects/ServerVoc/build/html/");
+tls::WebApp sslMain() {
+    tls::WebApp sslApp("/home/voc/projects/ServerVoc/build/html/", CERTF, KEYF, KEYFPASS);
     sslApp
         .use(
             "/",
@@ -96,8 +102,8 @@ WebApp sslMain() {
 }
 
 
-WebApp legacyMain() {
-    WebApp legacyApp("/home/voc/projects/ServerVoc/build/html/");
+legacy::WebApp legacyMain() {
+    legacy::WebApp legacyApp("/home/voc/projects/ServerVoc/build/html/");
     legacyApp.use(
         "/", MIDDLEWARE(req, res, next) {
             if (req.originalUrl == "/end") {
@@ -115,15 +121,11 @@ WebApp legacyMain() {
 
 
 int simpleWebserver(int argc, char** argv) {
-    WebApp legacyApp(legacyMain());
+    legacy::WebApp legacyApp(legacyMain());
 
-    WebApp sslApp(sslMain());
+    tls::WebApp sslApp(sslMain());
 
-#define CERTF "/home/voc/projects/ServerVoc/certs/calisto.home.vchrist.at_-_snode.c.pem"
-#define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c.key.encrypted.pem"
-#define KEYFPASS "snode.c"
-
-    sslApp.tlsListen(8088, CERTF, KEYF, KEYFPASS, [](int err) -> void {
+    sslApp.listen(8088, [](int err) -> void {
         if (err != 0) {
             perror("Listen");
         } else {

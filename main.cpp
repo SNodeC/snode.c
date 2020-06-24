@@ -6,7 +6,7 @@
 #include "timer/ContinousTimer.h"
 #include "timer/SingleshotTimer.h"
 
-#include "WebApp.h"
+#include "legacy/WebApp.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -28,7 +28,7 @@ int timerApp(int argc, char** argv) {
 
     bool canceled = false;
     
-    WebApp app("/home/voc/projects/ServerVoc/build/html");
+    legacy::WebApp app("/home/voc/projects/ServerVoc/build/html");
 
     app.get("/", [&canceled, &tack](const Request& req, const Response& res) -> void {
         std::string uri = req.originalUrl;
@@ -113,7 +113,7 @@ int timerApp(int argc, char** argv) {
 
 
 int simpleWebserver(int argc, char** argv) {
-    WebApp app("/home/voc/projects/ServerVoc/build/html");
+    legacy::WebApp app("/home/voc/projects/ServerVoc/build/html");
 
     Router router;
 
@@ -244,7 +244,7 @@ int simpleWebserver(int argc, char** argv) {
 
 
 int testPost(int argc, char* argv[]) {
-    WebApp app("/home/voc/projects/ServerVoc/build/html");
+    legacy::WebApp app("/home/voc/projects/ServerVoc/build/html");
 
     app.get("/", [&](const Request& req, const Response& res) -> void {
         res.send("<html>"
@@ -311,5 +311,7 @@ int testPost(int argc, char* argv[]) {
 
 
 int main(int argc, char** argv) {
-    return timerApp(argc, argv);
+//    return timerApp(argc, argv);
+    return 0;
 }
+
