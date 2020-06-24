@@ -5,13 +5,3 @@
 #include "Exception.h"
 
 #include "Multiplexer.h"
-
-
-void Exception::stash() {
-    Multiplexer::instance().getManagedExceptions().stash(this);
-}
-
-
-void Exception::unstash() {
-    Multiplexer::instance().getManagedExceptions().unstash(this);
-}
