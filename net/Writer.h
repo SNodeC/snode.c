@@ -3,7 +3,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -17,16 +17,7 @@ public:
     virtual void writeEvent() = 0;
 
 protected:
-    explicit Writer(const std::function<void(int errnum)>& onError)
-        : onError(onError) {
-    }
-
-    void stash();
-    void unstash();
-
     std::string writePuffer;
-
-    std::function<void(int errnum)> onError;
 };
 
 

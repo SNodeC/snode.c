@@ -3,15 +3,20 @@
 #include <cstring>
 #include <iostream>
 
-#include "WebApp.h"
+#include "legacy/WebApp.h"
+#include "tls/WebApp.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 
-int testPost(int argc, char* argv[]) {
-    WebApp app("/home/voc/projects/ServerVoc/build/html");
+#define CERTF "/home/voc/projects/ServerVoc/certs/calisto.home.vchrist.at_-_snode.c.pem"
+#define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c.key.encrypted.pem"
+#define KEYFPASS "snode.c"
 
-    app.get("/", [](const Request& req, const Response& res) -> void {
+int testPost(int argc, char* argv[]) {
+    legacy::WebApp legacyApp("/home/voc/projects/ServerVoc/build/html");
+
+    legacyApp.get("/", [](const Request& req, const Response& res) -> void {
         res.send("<html>"
                     "<head>"
                         "<style>"
@@ -43,7 +48,7 @@ int testPost(int argc, char* argv[]) {
                  "</html>");
     });
 
-    app.post("/", [](const Request& req, const Response& res) -> void {
+    legacyApp.post("/", [](const Request& req, const Response& res) -> void {
         std::cout << "Content-Type: " << req.header("Content-Type") << std::endl;
         std::cout << "Content-Length: " << req.header("Content-Length") << std::endl;
         char* body = new char[std::stoul(req.header("Content-Length")) + 1];
@@ -60,11 +65,8 @@ int testPost(int argc, char* argv[]) {
         delete[] body;
     });
 
-#define CERTF "/home/voc/projects/ServerVoc/certs/calisto.home.vchrist.at_-_snode.c.pem"
-#define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c.key.encrypted.pem"
-#define KEYFPASS "snode.c"
 
-    app.listen(8080, [&app](int err) -> void {
+    legacyApp.listen(8080, [](int err) -> void {
         if (err != 0) {
             perror("Listen");
         } else {
@@ -72,7 +74,12 @@ int testPost(int argc, char* argv[]) {
         }
     });
 
-    app.tlsListen(8088, CERTF, KEYF, KEYFPASS, [](int err) -> void {
+    tls::WebApp www("/home/voc/projects/ServerVoc/build/html", CERTF, KEYF, KEYFPASS);
+    WebApp::clone(www, legacyApp);
+
+    tls::WebApp tlsWebApp("/home/voc/projects/ServerVoc/build/html", CERTF, KEYF, KEYFPASS, legacyApp);
+
+    tlsWebApp.listen(8088, [](int err) -> void {
         if (err != 0) {
             perror("Listen");
         } else {

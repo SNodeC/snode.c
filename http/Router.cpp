@@ -5,7 +5,7 @@
 #include "Router.h"
 
 
-static std::string path_concat(const std::string& first, const std::string& second) {
+static inline std::string path_concat(const std::string& first, const std::string& second) {
     std::string result;
 
     if (first.back() == '/' && second.front() == '/') {

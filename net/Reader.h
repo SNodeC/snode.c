@@ -15,16 +15,6 @@ public:
     ~Reader() override = default;
 
     virtual void readEvent() = 0;
-
-protected:
-    explicit Reader(const std::function<void(int errnum)>& onError = nullptr)
-        : onError(onError) {
-    }
-
-    void stash();
-    void unstash();
-
-    std::function<void(int errnum)> onError;
 };
 
 

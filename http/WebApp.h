@@ -14,26 +14,30 @@
 
 
 class WebApp : public Router {
-public:
+protected:
     explicit WebApp(const std::string& rootDir = "./");
 
-public:
-    void listen(int port, const std::function<void(int err)>& onError = nullptr);
-    void tlsListen(int port, const std::string& cert, const std::string& key, const std::string& password,
-                   const std::function<void(int err)>& onError = nullptr);
+    virtual void listen(int port, const std::function<void(int err)>& onError = nullptr) = 0;
 
-    static void start(int argc, char** argv);
+public:
+    static void start(int argc, char* argv[]);
     static void stop();
 
     [[nodiscard]] const std::string& getRootDir() const {
         return rootDir;
     }
 
-    void serverRoot(const std::string& rootDir) {
+    void setRootDir(const std::string& rootDir) {
         this->rootDir = rootDir;
         if (this->rootDir.back() == '/') {
             this->rootDir.pop_back();
         }
+    }
+
+    static void clone(WebApp& dest, const WebApp& src) {
+        dest.rootDir = src.rootDir;
+        dest.routerRoute = src.routerRoute;
+        dest.mountPoint = src.mountPoint;
     }
 
 private:

@@ -31,20 +31,20 @@ public:
     }
 
     void stashReader() override {
-        Reader::stash();
+        Multiplexer::instance().getManagedReader().stash(this);
     }
 
     void unstashReader() override {
-        Reader::unstash();
+        Multiplexer::instance().getManagedReader().unstash(this);
     }
 
 
     void stashWriter() override {
-        Writer::stash();
+        Multiplexer::instance().getManagedWriter().stash(this);
     }
 
     void unstashWriter() override {
-        Writer::unstash();
+        Multiplexer::instance().getManagedWriter().unstash(this);
     }
 
     InetAddress& getRemoteAddress() override {

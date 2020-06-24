@@ -53,49 +53,53 @@ void HTTPContext::onWriteError(int errnum) {
 
 
 void HTTPContext::receiveRequest(const char* junk, ssize_t junkLen) {
-    parseRequest(
-        junk, junkLen,
-        [&](const std::string& line) -> void { // header data
-            switch (requestState) {
-            case requeststates::REQUEST:
-                if (!line.empty()) {
-                    parseRequestLine(line);
-                    requestState = requeststates::HEADER;
-                } else {
-                    this->responseStatus = 400;
-                    this->responseHeader.insert({"Connection", "Close"});
-                    this->end();
-                    connectedSocket->end();
-                    requestState = requeststates::ERROR;
-                }
-                break;
-            case requeststates::HEADER:
-                if (!line.empty()) {
-                    this->addRequestHeader(line);
-                } else {
-                    if (bodyLength != 0) {
-                        requestState = requeststates::BODY;
+    if (requestInProgress) {
+        this->connectedSocket->end();
+    } else {
+        parseRequest(
+            junk, junkLen,
+            [&](const std::string& line) -> void { // header data
+                switch (requestState) {
+                case requeststates::REQUEST:
+                    if (!line.empty()) {
+                        parseRequestLine(line);
+                        requestState = requeststates::HEADER;
                     } else {
-                        this->requestReady();
-                        requestState = requeststates::REQUEST;
+                        this->responseStatus = 400;
+                        this->responseHeader.insert({"Connection", "Close"});
+                        this->end();
+                        connectedSocket->end();
+                        requestState = requeststates::ERROR;
                     }
+                    break;
+                case requeststates::HEADER:
+                    if (!line.empty()) {
+                        this->addRequestHeader(line);
+                    } else {
+                        if (bodyLength != 0) {
+                            requestState = requeststates::BODY;
+                        } else {
+                            this->requestReady();
+                            requestState = requeststates::REQUEST;
+                        }
+                    }
+                    break;
+                case requeststates::BODY:
+                case requeststates::ERROR:
+                    break;
                 }
-                break;
-            case requeststates::BODY:
-            case requeststates::ERROR:
-                break;
-            }
-        },
-        [&](const char* bodyJunk, int junkLen) -> void { // body data
-            if (bodyLength - bodyPointer < junkLen) {
-                junkLen = bodyLength - bodyPointer;
-            }
-            memcpy(bodyData + bodyPointer, bodyJunk, junkLen);
-            bodyPointer += junkLen;
-            if (bodyPointer == bodyLength) {
-                this->requestReady();
-            }
-        });
+            },
+            [&](const char* bodyJunk, int junkLen) -> void { // body data
+                if (bodyLength - bodyPointer < junkLen) {
+                    junkLen = bodyLength - bodyPointer;
+                }
+                memcpy(bodyData + bodyPointer, bodyJunk, junkLen);
+                bodyPointer += junkLen;
+                if (bodyPointer == bodyLength) {
+                    this->requestReady();
+                }
+            });
+    }
 }
 
 
@@ -176,6 +180,8 @@ void HTTPContext::parseRequestLine(const std::string& line) {
 
 
 void HTTPContext::requestReady() {
+    this->requestInProgress = true;
+
     webApp->dispatch(request, response);
 
     if (requestHeader.find("connection") != requestHeader.end()) {
@@ -185,8 +191,6 @@ void HTTPContext::requestReady() {
     } else {
         connectedSocket->end();
     }
-
-    this->prepareForRequest();
 }
 
 
@@ -229,6 +233,13 @@ void HTTPContext::addRequestHeader(const std::string& line) {
 
 void HTTPContext::enqueue(const char* buf, size_t len) {
     connectedSocket->enqueue(buf, len);
+
+    if (headerSend) {
+        sendLen += len;
+        if (sendLen == contentLength) {
+            prepareForRequest();
+        }
+    }
 }
 
 
@@ -266,7 +277,7 @@ void HTTPContext::sendFile(const std::string& file, const std::function<void(int
             responseHeader.insert({"Last-Modified", httputils::file_mod_http_date(absolutFileName)});
             this->sendHeader();
 
-            this->stashReader();
+            //            this->stashReader();
 
             fileReader = FileReader::read(
                 absolutFileName,
@@ -274,13 +285,11 @@ void HTTPContext::sendFile(const std::string& file, const std::function<void(int
                     this->enqueue(data, length);
                 },
                 [this, onError](int err) -> void {
-                    this->unstashReader();
-                    fileReader = nullptr;
-
+                    //                    this->unstashReader();
+                    //                    fileReader = nullptr;
                     if (onError) {
                         onError(err);
                     }
-
                     if (err != 0) {
                         connectedSocket->end();
                     }
@@ -327,6 +336,8 @@ void HTTPContext::sendHeader() {
         this->enqueue("\r\n");
 
         headerSend = true;
+
+        contentLength = std::stoi(responseHeader.find("Content-Length")->second);
     }
 }
 
@@ -334,6 +345,7 @@ void HTTPContext::sendHeader() {
 void HTTPContext::end() {
     this->responseHeader.insert({"Content-Length", "0"});
     this->sendHeader();
+    this->prepareForRequest();
 }
 
 
@@ -361,6 +373,15 @@ void HTTPContext::prepareForRequest() {
     this->bodyLength = 0;
     this->bodyPointer = 0;
     this->headerSend = false;
+
+    this->sendLen = 0;
+
+    stopFileReader();
+
+    this->contentLength = 0;
+    this->fileReader = nullptr;
+
+    this->requestInProgress = false;
 }
 
 
