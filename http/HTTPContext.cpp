@@ -156,15 +156,15 @@ void HTTPContext::parseRequestLine(const std::string& line) {
     httputils::to_lower(method);
 
     pair = httputils::str_split(pair.second, ' ');
-    httpVersion = pair.second;
+    request._httpVersion = pair.second;
 
     /** Belongs into url-parser middleware */
     pair = httputils::str_split(httputils::url_decode(pair.first), '?');
-    originalUrl = pair.first;
-    path = httputils::str_split_last(pair.first, '/').first;
+    request.originalUrl = pair.first;
+    request.path = httputils::str_split_last(pair.first, '/').first;
 
-    if (path.empty()) {
-        path = "/";
+    if (request.path.empty()) {
+        request.path = "/";
     }
 
     std::string queries = pair.second;
@@ -173,7 +173,7 @@ void HTTPContext::parseRequestLine(const std::string& line) {
         pair = httputils::str_split(queries, '&');
         queries = pair.second;
         pair = httputils::str_split(pair.first, '=');
-        queryMap.insert(pair);
+        request.queryMap.insert(pair);
     }
 }
 
@@ -183,8 +183,8 @@ void HTTPContext::requestReady() {
 
     webApp->dispatch(request, response);
 
-    if (requestHeader.find("connection") != requestHeader.end()) {
-        if (requestHeader.find("connection")->second == "Close") {
+    if (request.requestHeader.find("connection") != request.requestHeader.end()) {
+        if (request.requestHeader.find("connection")->second == "Close") {
             connectedSocket->end();
         }
     } else {
@@ -202,7 +202,7 @@ void HTTPContext::parseCookie(const std::string& value) {
         httputils::str_trimm(splitted.first);
         httputils::str_trimm(splitted.second);
 
-        requestCookies.insert(splitted);
+        request.requestCookies.insert(splitted);
     }
 }
 
@@ -219,7 +219,7 @@ void HTTPContext::addRequestHeader(const std::string& line) {
             if (splitted.first == "cookie") {
                 parseCookie(splitted.second);
             } else {
-                requestHeader.insert(splitted);
+                request.requestHeader.insert(splitted);
                 if (splitted.first == "content-length") {
                     bodyLength = std::stoi(splitted.second);
                     bodyData = new char[bodyLength];
@@ -349,15 +349,15 @@ void HTTPContext::prepareForRequest() {
     this->requestState = requeststates::REQUEST;
     this->lineState = linestate::READ;
 
-    this->requestHeader.clear();
+    request.requestHeader.clear();
     this->method.clear();
-    this->originalUrl.clear();
-    this->httpVersion.clear();
-    this->path.clear();
-    this->queryMap.clear();
+    request.originalUrl.clear();
+    request._httpVersion.clear();
+    request.path.clear();
+    request.queryMap.clear();
 
     this->responseHeader.clear();
-    this->requestCookies.clear();
+    request.requestCookies.clear();
     this->responseCookies.clear();
 
     if (this->bodyData != nullptr) {
