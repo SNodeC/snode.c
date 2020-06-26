@@ -74,15 +74,15 @@ private:
 
     /* Request-Line */
     std::string method;
-    std::string originalUrl;
-    std::string httpVersion;
+//    std::string originalUrl;
+//    std::string httpVersion;
 
-    std::string path;
+//    std::string path;
 
-    std::map<std::string, std::string> queryMap;
-    std::multimap<std::string, std::string> requestHeader;
+//    std::map<std::string, std::string> queryMap;
+//    std::multimap<std::string, std::string> requestHeader;
     std::map<std::string, std::string> responseHeader;
-    std::map<std::string, std::string> requestCookies;
+//    std::map<std::string, std::string> requestCookies;
     std::map<std::string, ResponseCookie> responseCookies;
 
     std::map<std::string, std::string> params;

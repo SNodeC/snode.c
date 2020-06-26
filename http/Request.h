@@ -26,10 +26,14 @@ public:
     int bodySize() const;
 
     // Properties
-    const std::string& originalUrl;
+    std::string originalUrl{""};
+    std::string _httpVersion{""};
     mutable std::string url;
     char*& body;
-    const std::string& path;
+    std::string path;
+    std::map<std::string, std::string> queryMap;
+    std::multimap<std::string, std::string> requestHeader;
+    std::map<std::string, std::string> requestCookies;
 
 private:
     template <typename Attribute>
