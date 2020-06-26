@@ -5,7 +5,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
 find_package(EASYLOGGINGPP REQUIRED)
 
 add_library(logger STATIC
-    SNLogger.cpp
+    Logger.cpp
 )
 
 set_target_properties(logger PROPERTIES

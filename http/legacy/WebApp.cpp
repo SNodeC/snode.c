@@ -17,7 +17,7 @@ namespace legacy {
                 delete static_cast<HTTPContext*>(connectedSocket->getContext());
             },
             [](SocketReaderBase* connectedSocket, const char* junk, ssize_t n) -> void {
-                static_cast<HTTPContext*>(dynamic_cast<SocketConnection*>(connectedSocket)->getContext())->receiveRequest(junk, n);
+                static_cast<HTTPContext*>(dynamic_cast<legacy::SocketConnection*>(connectedSocket)->getContext())->receiveRequest(junk, n);
             },
             [](::SocketConnection* connectedSocket, int errnum) -> void {
                 static_cast<HTTPContext*>(connectedSocket->getContext())->onReadError(errnum);

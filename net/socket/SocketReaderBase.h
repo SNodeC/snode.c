@@ -17,8 +17,7 @@ public:
 protected:
     SocketReaderBase(const std::function<void(SocketReaderBase* cs, const char* junk, ssize_t n)>& readProcessor,
                      const std::function<void(int errnum)>& onError)
-        : Reader(/*onError*/)
-        , readProcessor(readProcessor)
+        : readProcessor(readProcessor)
         , onError(onError) {
     }
 

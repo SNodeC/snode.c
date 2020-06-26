@@ -13,7 +13,7 @@
 
 namespace tls {
 
-    typedef SocketConnectionBase<tls::SocketReader, tls::SocketWriter> SocketConnection;
+    using SocketConnection = SocketConnectionBase<tls::SocketReader, tls::SocketWriter> ;
 
     class SocketServer : public SocketServerBase<tls::SocketConnection> {
     private:

@@ -44,7 +44,7 @@ namespace tls {
         void listen(int port, const std::function<void(int err)>& onError = nullptr) override;
 
     private:
-        static void start(int argc, char* argv[]) {
+        static void start() {
         }
 
         static void stop() {

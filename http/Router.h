@@ -46,11 +46,11 @@ class RouterRoute;
 
 namespace tls {
     class WebApp;
-}
+} // namespace tls
 
 namespace legacy {
     class WebApp;
-}
+} // namespace legacy
 
 class Router {
 public:

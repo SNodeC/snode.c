@@ -8,7 +8,7 @@ namespace legacy {
 
     class WebApp : public ::WebApp {
     public:
-        WebApp(const std::string& rootDir)
+        explicit WebApp(const std::string& rootDir)
             : ::WebApp(rootDir){};
 
         WebApp(const std::string& rootDir, const ::WebApp& webApp)
@@ -28,7 +28,7 @@ namespace legacy {
         void listen(int port, const std::function<void(int err)>& onError = nullptr) override;
 
     private:
-        static void start(int argc, char* argv[]) {
+        static void start() {
         }
 
         static void stop() {

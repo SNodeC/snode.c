@@ -8,9 +8,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Logger.h"
 #include "Multiplexer.h"
 #include "Reader.h"
-#include "SNLogger.h"
 #include "Socket.h"
 #include "SocketServer.h"
 
@@ -96,14 +96,12 @@ public:
                 Multiplexer::instance().getManagedReader().add(cs);
                 onConnect(cs);
             } else {
-                logger->writeErrorEntry("Error");
+                PLOG(ERROR) << "getsockname";
                 shutdown(csFd, SHUT_RDWR);
                 ::close(csFd);
-                //                onError(errno);
             }
         } else if (errno != EINTR) {
-            logger->writeErrorEntry("Error");
-            //            onError(errno);
+            PLOG(ERROR) << "accept";
         }
     }
 
