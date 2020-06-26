@@ -13,7 +13,7 @@
 #define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c.key.encrypted.pem"
 #define KEYFPASS "snode.c"
 
-int testPost(int argc, char* argv[]) {
+int testPost() {
     legacy::WebApp legacyApp("/home/voc/projects/ServerVoc/build/html");
 
     legacyApp.get("/", [](const Request& req, const Response& res) -> void {
@@ -87,12 +87,14 @@ int testPost(int argc, char* argv[]) {
         }
     });
 
-    WebApp::start(argc, argv);
+    WebApp::start();
 
     return 0;
 }
 
 
 int main(int argc, char** argv) {
-    return testPost(argc, argv);
+    WebApp::init(argc, argv);
+
+    return testPost();
 }

@@ -20,7 +20,8 @@ protected:
     virtual void listen(int port, const std::function<void(int err)>& onError = nullptr) = 0;
 
 public:
-    static void start(int argc, char* argv[]);
+    static void init(int argc, char* argv[]);
+    static void start();
     static void stop();
 
     [[nodiscard]] const std::string& getRootDir() const {
@@ -42,6 +43,8 @@ public:
 
 private:
     std::string rootDir;
+
+    static bool initialized;
 };
 
 #endif // HTTPSERVER_H

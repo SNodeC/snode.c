@@ -13,7 +13,7 @@
 
 namespace legacy {
 
-    typedef SocketConnectionBase<legacy::SocketReader, legacy::SocketWriter> SocketConnection;
+    using SocketConnection = SocketConnectionBase<legacy::SocketReader, legacy::SocketWriter>;
 
     class SocketServer : public SocketServerBase<legacy::SocketConnection> {
     private:

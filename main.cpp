@@ -11,7 +11,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 
-int timerApp(int argc, char** argv) {
+int timerApp() {
     Timer& tick = Timer::continousTimer(
         [](const void* arg) -> void {
             static int i = 0;
@@ -106,13 +106,13 @@ int timerApp(int argc, char** argv) {
         }
     });
     
-    WebApp::start(argc, argv);
+    WebApp::start();
 
     return 0;
 }
 
 
-int simpleWebserver(int argc, char** argv) {
+int simpleWebserver() {
     legacy::WebApp app("/home/voc/projects/ServerVoc/build/html");
 
     Router router;
@@ -237,13 +237,13 @@ int simpleWebserver(int argc, char** argv) {
         }
     });
 
-    WebApp::start(argc, argv);
+    WebApp::start();
     
     return 0;
 }
 
 
-int testPost(int argc, char* argv[]) {
+int testPost() {
     legacy::WebApp app("/home/voc/projects/ServerVoc/build/html");
 
     app.get("/", [&](const Request& req, const Response& res) -> void {
@@ -304,14 +304,15 @@ int testPost(int argc, char* argv[]) {
         }
     });
 
-    WebApp::start(argc, argv);
+    WebApp::start();
 
     return 0;
 }
 
 
 int main(int argc, char** argv) {
-//    return timerApp(argc, argv);
-    return 0;
+    WebApp::init(argc, argv);
+
+    return timerApp();
 }
 

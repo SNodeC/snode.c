@@ -9,13 +9,25 @@
 #include "socket/tls/SocketServer.h"
 
 
+bool WebApp::initialized{false};
+
 WebApp::WebApp(const std::string& rootDir) {
+    if (!initialized) {
+        std::cerr << "ERROR: WebApp not initialized. Use WebApp::init(argc, argv) before creating a concrete WebApp object" << std::endl;
+        exit(1);
+    }
     this->setRootDir(rootDir);
 }
 
 
-void WebApp::start(int argc, char* argv[]) {
-    SocketServer::start(argc, argv);
+void WebApp::init(int argc, char* argv[]) {
+    SocketServer::init(argc, argv);
+    WebApp::initialized = true;
+}
+
+
+void WebApp::start() {
+    SocketServer::start();
 }
 
 

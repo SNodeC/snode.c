@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <cstring>
 #include <filesystem>
-#include <iostream>
 #include <numeric>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -154,7 +153,7 @@ void HTTPContext::parseRequestLine(const std::string& line) {
 
     pair = httputils::str_split(line, ' ');
     method = pair.first;
-    httputils::to_lower(&method);
+    httputils::to_lower(method);
 
     pair = httputils::str_split(pair.second, ' ');
     httpVersion = pair.second;
@@ -214,7 +213,7 @@ void HTTPContext::addRequestHeader(const std::string& line) {
         httputils::str_trimm(splitted.first);
         httputils::str_trimm(splitted.second);
 
-        httputils::to_lower(&splitted.first);
+        httputils::to_lower(splitted.first);
 
         if (!splitted.second.empty()) {
             if (splitted.first == "cookie") {
@@ -324,7 +323,7 @@ void HTTPContext::sendHeader() {
             std::string cookieString =
                 std::accumulate(cookie.second.options.begin(), cookie.second.options.end(), cookie.first + "=" + cookie.second.value,
                                 [](const std::string& str, const std::pair<const std::string&, const std::string&> option) -> std::string {
-                                    return str + "; " + option.first + ((option.second.empty()) ? "=" + option.second : "");
+                                    return str + "; " + option.first + (!option.second.empty() ? "=" + option.second : "");
                                 });
             this->enqueue("Set-Cookie: " + cookieString + "\r\n");
         }
