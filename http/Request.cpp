@@ -10,8 +10,7 @@
 
 
 Request::Request(HTTPContext* httpContext)
-    : body(httpContext->bodyData)
-    , httpContext(httpContext) {
+    : httpContext(httpContext) {
 }
 
 
@@ -47,12 +46,7 @@ const std::string& Request::cookie(const std::string& key) const {
 
 
 int Request::bodySize() const {
-    return this->httpContext->bodyLength;
-}
-
-
-const std::string& Request::method() const {
-    return this->httpContext->method;
+    return bodyLength;
 }
 
 
@@ -67,6 +61,18 @@ const std::string& Request::query(const std::string& key) const {
 }
 
 
-const std::string& Request::httpVersion() const {
-    return _httpVersion;
+void Request::reset() {
+    requestHeader.clear();
+    method.clear();
+    originalUrl.clear();
+    httpVersion.clear();
+    path.clear();
+    queryMap.clear();
+
+    requestCookies.clear();
+    if (body != nullptr) {
+        delete[] body;
+        body = nullptr;
+    }
+    bodyLength = 0;
 }

@@ -119,7 +119,7 @@ bool RouterRoute::dispatch(const MountPoint& mountPoint, const std::string& pare
     bool next = true;
     std::string cpath = path_concat(parentPath, mountPoint.path);
 
-    if (req.path.rfind(cpath, 0) == 0 && (mountPoint.method == req.method() || mountPoint.method == "use")) {
+    if (req.path.rfind(cpath, 0) == 0 && (mountPoint.method == req.method || mountPoint.method == "use")) {
         req.url = req.originalUrl.substr(cpath.length());
 
         if (req.url.front() != '/') {
@@ -143,7 +143,7 @@ bool MiddlewareRoute::dispatch(const MountPoint& mountPoint, const std::string& 
     std::string cpath = path_concat(parentPath, mountPoint.path);
 
     if ((req.path.rfind(cpath, 0) == 0 && mountPoint.method == "use") ||
-        (cpath == req.path && (req.method() == mountPoint.method || mountPoint.method == "all"))) {
+        (cpath == req.path && (req.method == mountPoint.method || mountPoint.method == "all"))) {
         req.url = req.originalUrl.substr(cpath.length());
 
         if (req.url.front() != '/') {
@@ -163,7 +163,7 @@ bool DispatcherRoute::dispatch(const MountPoint& mountPoint, const std::string& 
     bool next = true;
     std::string cpath = path_concat(parentPath, mountPoint.path);
 
-    if (cpath == req.path && (req.method() == mountPoint.method || mountPoint.method == "all")) {
+    if (cpath == req.path && (req.method == mountPoint.method || mountPoint.method == "all")) {
         req.url = req.originalUrl.substr(cpath.length());
 
         if (req.url.front() != '/') {

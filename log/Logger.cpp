@@ -3,10 +3,10 @@
 #define ELPP_SYSLOG
 
 #include <easylogging++.cc>
+#include <iostream>
 #include <pwd.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <iostream>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -19,7 +19,6 @@ void Logger::init(int argc, char* argv[]) {
     START_EASYLOGGINGPP(argc, argv);
 
     std::string homedir;
-
 
     /*
     if ((homedir = getenv("HOME")).empty()) {
@@ -82,13 +81,16 @@ void Logger::logToFile(bool yes) {
 
 
 void Logger::logToStdOut(bool yes) {
-    el::base::type::VerboseLevel vl = el::Loggers::verboseLevel();
     el::Configurations defaultConf;
-    defaultConf.setGlobally(el::ConfigurationType::Enabled, "false");
+
+    bool verboseEnabled = el::Loggers::getLogger("default")->typedConfigurations()->enabled(el::Level::Verbose);
+    defaultConf.set(el::Level::Verbose, el::ConfigurationType::Enabled, verboseEnabled ? "true" : "false");
+
     if (yes) {
         defaultConf.set(el::Level::Global, el::ConfigurationType::ToStandardOutput, "true");
     } else {
         defaultConf.set(el::Level::Global, el::ConfigurationType::ToStandardOutput, "false");
     }
-    el::Loggers::setVerboseLevel(vl);
+
+    el::Loggers::reconfigureLogger("default", defaultConf);
 }

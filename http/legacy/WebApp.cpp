@@ -11,7 +11,7 @@ namespace legacy {
 
         legacy::SocketServer::instance(
             [this](legacy::SocketConnection* connectedSocket) -> void {
-                connectedSocket->setContext(new HTTPContext(this, connectedSocket));
+                connectedSocket->setContext(new HTTPContext(*this, connectedSocket));
             },
             [](legacy::SocketConnection* connectedSocket) -> void {
                 delete static_cast<HTTPContext*>(connectedSocket->getContext());
