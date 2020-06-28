@@ -10,30 +10,17 @@
 
 
 Request::Request(HTTPContext* httpContext)
-    : originalUrl(httpContext->originalUrl)
-    , body(httpContext->bodyData)
-    , path(httpContext->path)
-    , httpContext(httpContext) {
-}
-
-
-void Request::stash() const {
-    httpContext->stashReader();
-}
-
-
-void Request::unstash() const {
-    httpContext->unstashReader();
+    : httpContext(httpContext) {
 }
 
 
 const std::string& Request::header(const std::string& key, int i) const {
     std::string tmpKey = key;
-    httputils::to_lower(&tmpKey);
+    httputils::to_lower(tmpKey);
 
-    if (this->httpContext->requestHeader.find(tmpKey) != this->httpContext->requestHeader.end()) {
-        std::pair<std::multimap<std::string, std::string>::iterator, std::multimap<std::string, std::string>::iterator> range =
-            this->httpContext->requestHeader.equal_range(tmpKey);
+    if (requestHeader.find(tmpKey) != requestHeader.end()) {
+        std::pair<std::multimap<std::string, std::string>::const_iterator, std::multimap<std::string, std::string>::const_iterator> range =
+            requestHeader.equal_range(tmpKey);
 
         if (std::distance(range.first, range.second) >= i) {
             std::advance(range.first, i);
@@ -48,8 +35,10 @@ const std::string& Request::header(const std::string& key, int i) const {
 
 
 const std::string& Request::cookie(const std::string& key) const {
-    if (this->httpContext->requestCookies.find(key) != this->httpContext->requestCookies.end()) {
-        return this->httpContext->requestCookies[key];
+    std::map<std::string, std::string>::const_iterator it;
+
+    if ((it = requestCookies.find(key)) != requestCookies.end()) {
+        return it->second;
     } else {
         return nullstr;
     }
@@ -57,24 +46,33 @@ const std::string& Request::cookie(const std::string& key) const {
 
 
 int Request::bodySize() const {
-    return this->httpContext->bodyLength;
-}
-
-
-const std::string& Request::method() const {
-    return this->httpContext->method;
+    return bodyLength;
 }
 
 
 const std::string& Request::query(const std::string& key) const {
-    if (this->httpContext->queryMap.find(key) != this->httpContext->queryMap.end()) {
-        return this->httpContext->queryMap[key];
+    std::map<std::string, std::string>::const_iterator it;
+
+    if ((it = queryMap.find(key)) != queryMap.end()) {
+        return it->second;
     } else {
         return nullstr;
     }
 }
 
 
-const std::string& Request::httpVersion() const {
-    return this->httpContext->httpVersion;
+void Request::reset() {
+    requestHeader.clear();
+    method.clear();
+    originalUrl.clear();
+    httpVersion.clear();
+    path.clear();
+    queryMap.clear();
+
+    requestCookies.clear();
+    if (body != nullptr) {
+        delete[] body;
+        body = nullptr;
+    }
+    bodyLength = 0;
 }

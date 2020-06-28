@@ -17,22 +17,6 @@ class SocketConnection;
 class FileReader;
 class WebApp;
 
-
-class ResponseCookie {
-public:
-    ResponseCookie(const std::string& value, const std::map<std::string, std::string>& options)
-        : value(value)
-        , options(options) {
-    }
-
-private:
-    std::string value;
-    std::map<std::string, std::string> options;
-
-    friend class HTTPContext;
-};
-
-
 class HTTPContext {
 private:
     enum requeststates { REQUEST, HEADER, BODY, ERROR } requestState{REQUEST};
@@ -40,7 +24,7 @@ private:
     enum linestate { READ, EOL } lineState{READ};
 
 public:
-    HTTPContext(WebApp* webApp, SocketConnection* connectedSocket);
+    HTTPContext(const WebApp& webApp, SocketConnection* connectedSocket);
 
     void receiveRequest(const char* junk, ssize_t junkLen);
 
@@ -48,12 +32,6 @@ public:
     void onWriteError(int errnum);
 
 private:
-    void stashReader();
-    void unstashReader();
-
-    void stashWriter();
-    void unstashWriter();
-
     void stopFileReader();
 
     void send(const char* buffer, int size);
@@ -73,43 +51,27 @@ private:
     void end();
     void prepareForRequest();
 
-    char* bodyData{nullptr};
-    int bodyLength{0};
-
-    int responseStatus{0};
-
-    /* Request-Line */
-    std::string method;
-    std::string originalUrl;
-    std::string httpVersion;
-
-    std::string path;
-
-    std::map<std::string, std::string> queryMap;
-    std::multimap<std::string, std::string> requestHeader;
-    std::map<std::string, std::string> responseHeader;
-    std::map<std::string, std::string> requestCookies;
-    std::map<std::string, ResponseCookie> responseCookies;
-
-    std::map<std::string, std::string> params;
-
     void enqueue(const char* buf, size_t len);
     void enqueue(const std::string& str);
 
     SocketConnection* connectedSocket;
     FileReader* fileReader{nullptr};
-    WebApp* webApp;
+    const WebApp& webApp;
 
     std::string headerLine;
     int bodyPointer{0};
 
     bool headerSend{false};
 
+    int contentLength{0};
+    int sendLen{0};
+
+    bool requestInProgress{false};
+
     Request request;
     Response response;
 
     friend class Response;
-    friend class Request;
 };
 
 #endif // HTTPCONTEXT_H

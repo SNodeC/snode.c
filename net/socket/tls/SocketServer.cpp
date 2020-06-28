@@ -12,7 +12,7 @@ namespace tls {
 
     SocketServer::SocketServer(const std::function<void(tls::SocketConnection* cs)>& onConnect,
                                const std::function<void(tls::SocketConnection* cs)>& onDisconnect,
-                               const std::function<void(::SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
+                               const std::function<void(SocketReaderBase* cs, const char* junk, ssize_t n)>& readProcessor,
                                const std::function<void(::SocketConnection* cs, int errnum)>& onReadError,
                                const std::function<void(::SocketConnection* cs, int errnum)>& onWriteError)
         : SocketServerBase<tls::SocketConnection>(
@@ -35,7 +35,7 @@ namespace tls {
 
     SocketServer* SocketServer::instance(const std::function<void(tls::SocketConnection* cs)>& onConnect,
                                          const std::function<void(tls::SocketConnection* cs)>& onDisconnect,
-                                         const std::function<void(::SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
+                                         const std::function<void(SocketReaderBase* cs, const char* junk, ssize_t n)>& readProcessor,
                                          const std::function<void(::SocketConnection* cs, int errnum)>& onReadError,
                                          const std::function<void(::SocketConnection* cs, int errnum)>& onWriteError) {
         return new SocketServer(onConnect, onDisconnect, readProcessor, onReadError, onWriteError);
@@ -51,7 +51,7 @@ namespace tls {
 
     void SocketServer::listen(in_port_t port, int backlog, const std::string& certChain, const std::string& keyPEM,
                               const std::string& password, const std::function<void(int err)>& onError) {
-        SocketServerBase<SocketConnection>::listen(port, backlog, [this, &certChain, &keyPEM, &password, onError](int err) -> void {
+        SocketServerBase<tls::SocketConnection>::listen(port, backlog, [this, &certChain, &keyPEM, &password, onError](int err) -> void {
             if (!err) {
                 SSL_load_error_strings();
                 SSL_library_init();

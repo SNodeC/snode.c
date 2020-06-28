@@ -5,13 +5,3 @@
 #include "Writer.h"
 
 #include "Multiplexer.h"
-
-
-void Writer::stash() {
-    Multiplexer::instance().getManagedWriter().stash(this);
-}
-
-
-void Writer::unstash() {
-    Multiplexer::instance().getManagedWriter().unstash(this);
-}

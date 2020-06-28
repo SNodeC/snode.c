@@ -39,7 +39,29 @@ public:
     const Response& type(const std::string& type) const;
 
 private:
+    class ResponseCookie {
+    public:
+        ResponseCookie(const std::string& value, const std::map<std::string, std::string>& options)
+            : value(value)
+            , options(options) {
+        }
+
+    private:
+        std::string value;
+        std::map<std::string, std::string> options;
+
+        friend class HTTPContext;
+    };
+
+    void reset();
+
     HTTPContext* httpContext;
+
+    mutable int responseStatus{0};
+    mutable std::map<std::string, std::string> responseHeader;
+    mutable std::map<std::string, ResponseCookie> responseCookies;
+
+    friend class HTTPContext;
 };
 
 

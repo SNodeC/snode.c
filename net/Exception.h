@@ -14,9 +14,6 @@ public:
     ~Exception() override = default;
 
     virtual void exceptionEvent() = 0;
-
-    void stash();
-    void unstash();
 };
 
 

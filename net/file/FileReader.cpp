@@ -13,8 +13,8 @@
 
 
 FileReader::FileReader(int fd, const std::function<void(char* data, int len)>& junkRead, const std::function<void(int err)>& onError)
-    : Reader(onError)
-    , junkRead(junkRead)
+    : junkRead(junkRead)
+    , onError(onError)
     , stopped(false) {
     this->attachFd(fd);
 }

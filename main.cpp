@@ -6,12 +6,12 @@
 #include "timer/ContinousTimer.h"
 #include "timer/SingleshotTimer.h"
 
-#include "WebApp.h"
+#include "legacy/WebApp.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 
-int timerApp(int argc, char** argv) {
+int timerApp() {
     Timer& tick = Timer::continousTimer(
         [](const void* arg) -> void {
             static int i = 0;
@@ -28,7 +28,7 @@ int timerApp(int argc, char** argv) {
 
     bool canceled = false;
     
-    WebApp app("/home/voc/projects/ServerVoc/build/html");
+    legacy::WebApp app("/home/voc/projects/ServerVoc/build/html");
 
     app.get("/", [&canceled, &tack](const Request& req, const Response& res) -> void {
         std::string uri = req.originalUrl;
@@ -106,14 +106,14 @@ int timerApp(int argc, char** argv) {
         }
     });
     
-    WebApp::start(argc, argv);
+    WebApp::start();
 
     return 0;
 }
 
 
-int simpleWebserver(int argc, char** argv) {
-    WebApp app("/home/voc/projects/ServerVoc/build/html");
+int simpleWebserver() {
+    legacy::WebApp app("/home/voc/projects/ServerVoc/build/html");
 
     Router router;
 
@@ -237,14 +237,14 @@ int simpleWebserver(int argc, char** argv) {
         }
     });
 
-    WebApp::start(argc, argv);
+    WebApp::start();
     
     return 0;
 }
 
 
-int testPost(int argc, char* argv[]) {
-    WebApp app("/home/voc/projects/ServerVoc/build/html");
+int testPost() {
+    legacy::WebApp app("/home/voc/projects/ServerVoc/build/html");
 
     app.get("/", [&](const Request& req, const Response& res) -> void {
         res.send("<html>"
@@ -304,12 +304,15 @@ int testPost(int argc, char* argv[]) {
         }
     });
 
-    WebApp::start(argc, argv);
+    WebApp::start();
 
     return 0;
 }
 
 
 int main(int argc, char** argv) {
-    return timerApp(argc, argv);
+    WebApp::init(argc, argv);
+
+    return timerApp();
 }
+

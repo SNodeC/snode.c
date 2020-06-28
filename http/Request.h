@@ -20,16 +20,20 @@ public:
     const std::string& header(const std::string& key, int i = 0) const;
     const std::string& cookie(const std::string& key) const;
     const std::string& query(const std::string& key) const;
-    const std::string& httpVersion() const;
     const std::string& fragment() const;
-    const std::string& method() const;
     int bodySize() const;
 
     // Properties
-    const std::string& originalUrl;
+    std::string originalUrl{""};
+    std::string httpVersion{""};
     mutable std::string url;
-    char*& body;
-    const std::string& path;
+    char* body{nullptr};
+    std::string path;
+    std::map<std::string, std::string> queryMap;
+    std::multimap<std::string, std::string> requestHeader;
+    std::map<std::string, std::string> requestCookies;
+    std::string method{""};
+    int bodyLength{0};
 
 private:
     template <typename Attribute>
@@ -82,15 +86,16 @@ public:
         return inserted;
     }
 
-    void stash() const;
-    void unstash() const;
-
 private:
+    void reset();
+
     HTTPContext* httpContext;
 
     mutable std::map<std::string, std::shared_ptr<void>> attributes;
 
     std::string nullstr = "";
+
+    friend class HTTPContext;
 };
 
 #endif // REQUEST_H
