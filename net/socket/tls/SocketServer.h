@@ -13,7 +13,7 @@
 
 namespace tls {
 
-    using SocketConnection = SocketConnectionBase<tls::SocketReader, tls::SocketWriter> ;
+    using SocketConnection = SocketConnectionBase<tls::SocketReader, tls::SocketWriter>;
 
     class SocketServer : public SocketServerBase<tls::SocketConnection> {
     private:
@@ -31,7 +31,10 @@ namespace tls {
                                       const std::function<void(::SocketConnection* cs, int errnum)>& onWriteError);
         ~SocketServer() override;
 
+    protected:
         using SocketServerBase<tls::SocketConnection>::listen;
+
+    public:
         void listen(in_port_t port, int backlog, const std::string& certChain, const std::string& keyPEM, const std::string& password,
                     const std::function<void(int err)>& onError);
 

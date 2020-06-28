@@ -4,8 +4,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Multiplexer.h"
 #include "Logger.h"
+#include "Multiplexer.h"
 
 
 Multiplexer Multiplexer::multiplexer;

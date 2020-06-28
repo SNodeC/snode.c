@@ -16,16 +16,16 @@ Response::Response(HTTPContext* httpContext)
 
 
 const Response& Response::status(int status) const {
-    this->httpContext->responseStatus = status;
+    this->responseStatus = status;
 
     return *this;
 }
 
 
 const Response& Response::append(const std::string& field, const std::string& value) const {
-    std::map<std::string, std::string>::iterator it = this->httpContext->responseHeader.find(field);
+    std::map<std::string, std::string>::iterator it = this->responseHeader.find(field);
 
-    if (it != this->httpContext->responseHeader.end()) {
+    if (it != this->responseHeader.end()) {
         it->second += ", " + value;
     } else {
         this->set(field, value);
@@ -45,7 +45,7 @@ const Response& Response::set(const std::map<std::string, std::string>& map) con
 
 
 const Response& Response::set(const std::string& field, const std::string& value) const {
-    this->httpContext->responseHeader.insert_or_assign(field, value);
+    this->responseHeader.insert_or_assign(field, value);
 
     return *this;
 }
@@ -53,7 +53,7 @@ const Response& Response::set(const std::string& field, const std::string& value
 
 const Response& Response::cookie(const std::string& name, const std::string& value,
                                  const std::map<std::string, std::string>& options) const {
-    this->httpContext->responseCookies.insert({name, ResponseCookie(value, options)});
+    this->responseCookies.insert({name, ResponseCookie(value, options)});
 
     return *this;
 }
@@ -131,4 +131,11 @@ const Response& Response::type(const std::string& type) const {
 
 void Response::end() const {
     this->httpContext->end();
+}
+
+
+void Response::reset() {
+    responseStatus = 200;
+    responseHeader.clear();
+    responseCookies.clear();
 }

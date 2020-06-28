@@ -1,6 +1,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "Logger.h"
+
 #include "legacy/WebApp.h"
 #include "tls/WebApp.h"
 

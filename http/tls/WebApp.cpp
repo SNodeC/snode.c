@@ -11,7 +11,7 @@ namespace tls {
 
         tls::SocketServer::instance(
             [this](tls::SocketConnection* connectedSocket) -> void {
-                connectedSocket->setContext(new HTTPContext(this, connectedSocket));
+                connectedSocket->setContext(new HTTPContext(*this, connectedSocket));
             },
             [](tls::SocketConnection* connectedSocket) -> void {
                 delete static_cast<HTTPContext*>(connectedSocket->getContext());

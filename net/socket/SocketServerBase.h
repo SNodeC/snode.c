@@ -51,24 +51,25 @@ public:
             if (errnum > 0) {
                 onError(errnum);
             } else {
-                int sockopt = 1;
-                if (setsockopt(this->getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
-                    onError(errno);
-                } else {
-                    localAddress = InetAddress(port);
-                    this->bind(localAddress, [this, &backlog, &onError](int errnum) -> void {
-                        if (errnum > 0) {
-                            onError(errnum);
-                        } else {
-                            this->listen(backlog, [this, &onError](int errnum) -> void {
-                                if (errnum == 0) {
-                                    Multiplexer::instance().getManagedReader().add(this);
-                                }
+                this->reuseAddress([this, &port, &backlog, &onError](int errnum) -> void {
+                    if (errnum != 0) {
+                        onError(errnum);
+                    } else {
+                        localAddress = InetAddress(port);
+                        this->bind(localAddress, [this, &backlog, &onError](int errnum) -> void {
+                            if (errnum > 0) {
                                 onError(errnum);
-                            });
-                        }
-                    });
-                }
+                            } else {
+                                this->listen(backlog, [this, &onError](int errnum) -> void {
+                                    if (errnum == 0) {
+                                        Multiplexer::instance().getManagedReader().add(this);
+                                    }
+                                    onError(errnum);
+                                });
+                            }
+                        });
+                    }
+                });
             }
         });
     }

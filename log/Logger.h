@@ -24,7 +24,6 @@ public:
     static void logToStdOut(bool yes);
 
 protected:
-
     Level level{INFO};
 };
 
