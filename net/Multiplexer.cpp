@@ -4,6 +4,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Logger.h"
 #include "Multiplexer.h"
 
 
@@ -46,13 +47,20 @@ void Multiplexer::tick() {
         }
         assert(retval == 0);
     } else if (errno != EINTR) {
-        perror("Select");
+        PLOG(ERROR) << "select";
         stop();
     }
 }
 
 
-void Multiplexer::start(int argc, char** argv) {
+void Multiplexer::init(int argc, char* argv[]) {
+    Logger::init(argc, argv);
+}
+
+
+void Multiplexer::start() {
+    Multiplexer::stopped = false;
+
     if (!Multiplexer::running) {
         Multiplexer::running = true;
 

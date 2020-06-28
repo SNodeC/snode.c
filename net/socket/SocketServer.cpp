@@ -7,8 +7,13 @@
 #include "Multiplexer.h"
 
 
-void SocketServer::start(int argc, char** argv) {
-    Multiplexer::start(argc, argv);
+void SocketServer::init(int argc, char* argv[]) {
+    Multiplexer::init(argc, argv);
+}
+
+
+void SocketServer::start() {
+    Multiplexer::start();
 }
 
 

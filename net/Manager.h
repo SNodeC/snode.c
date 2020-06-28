@@ -8,6 +8,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Descriptor.h"
 #include "ManagedDescriptor.h"
 
 
@@ -29,9 +30,6 @@ public:
         updateFdSet();
 
         removedDescriptors = descriptors;
-        updateFdSet();
-
-        removedDescriptors = stashedDescriptors;
         updateFdSet();
     }
 
@@ -62,20 +60,6 @@ public:
     }
 
 
-    void stash(ManagedDescriptor* socket) {
-        if (contains(descriptors, socket) && !contains(addedStashedDescriptors, socket)) {
-            addedStashedDescriptors.push_back(socket);
-        }
-    }
-
-
-    void unstash(ManagedDescriptor* socket) {
-        if (!contains(descriptors, socket) && !contains(removedStashedDescriptors, socket)) {
-            removedStashedDescriptors.push_back(socket);
-        }
-    }
-
-
     int getMaxFd() {
         return maxFd;
     }
@@ -101,30 +85,13 @@ private:
 
 
     void updateFdSet() {
-        if (!addedDescriptors.empty() || !removedDescriptors.empty() || !addedStashedDescriptors.empty() ||
-            !removedStashedDescriptors.empty()) {
+        if (!addedDescriptors.empty() || !removedDescriptors.empty()) {
             for (ManagedDescriptor* descriptor : addedDescriptors) {
                 FD_SET(dynamic_cast<Descriptor*>(descriptor)->getFd(), &fdSet);
                 descriptors.push_back(descriptor);
                 descriptor->incManaged();
             }
             addedDescriptors.clear();
-
-            for (ManagedDescriptor* descriptor : removedStashedDescriptors) {
-                FD_SET(dynamic_cast<Descriptor*>(descriptor)->getFd(), &fdSet);
-                descriptors.push_back(descriptor);
-                stashedDescriptors.remove(descriptor);
-                descriptor->decManaged();
-            }
-            removedStashedDescriptors.clear();
-
-            for (ManagedDescriptor* descriptor : addedStashedDescriptors) {
-                FD_CLR(dynamic_cast<Descriptor*>(descriptor)->getFd(), &fdSet);
-                descriptors.remove(descriptor);
-                stashedDescriptors.push_back(descriptor);
-                descriptor->incManaged();
-            }
-            addedStashedDescriptors.clear();
 
             for (ManagedDescriptor* descriptor : removedDescriptors) {
                 FD_CLR(dynamic_cast<Descriptor*>(descriptor)->getFd(), &fdSet);
@@ -143,9 +110,6 @@ private:
 
     std::list<ManagedDescriptor*> addedDescriptors;
     std::list<ManagedDescriptor*> removedDescriptors;
-    std::list<ManagedDescriptor*> addedStashedDescriptors;
-    std::list<ManagedDescriptor*> removedStashedDescriptors;
-    std::list<ManagedDescriptor*> stashedDescriptors;
 };
 
 #endif // MANAGER_H

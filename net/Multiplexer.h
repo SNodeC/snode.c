@@ -38,7 +38,8 @@ public:
         return managedTimer;
     }
 
-    static void start(int argc, char** argv);
+    static void init(int argc, char* argv[]);
+    static void start();
     static void stop();
 
 private:

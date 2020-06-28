@@ -19,6 +19,7 @@ public:
     virtual ~Socket();
 
     void bind(const InetAddress& localAddress, const std::function<void(int errnum)>& onError);
+    void reuseAddress(const std::function<void(int errnum)>& onError);
 
     InetAddress& getLocalAddress();
 

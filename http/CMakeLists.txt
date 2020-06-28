@@ -6,6 +6,8 @@ find_package(LibMagic REQUIRED)
 
 add_library(http SHARED
     WebApp.cpp
+    legacy/WebApp.cpp
+    tls/WebApp.cpp
     HTTPContext.cpp
     HTTPStatusCodes.cpp
     MimeTypes.cpp
@@ -15,7 +17,7 @@ add_library(http SHARED
     Router.cpp
 )
 
-target_link_libraries(http LINK_PUBLIC net ${LIBMAGIC_LIBRARIES})
+target_link_libraries(http LINK_PUBLIC net logger ${LIBMAGIC_LIBRARIES})
 
 set_target_properties(http PROPERTIES
             CXX_STANDARD 17

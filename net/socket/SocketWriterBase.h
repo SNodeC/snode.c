@@ -3,6 +3,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <functional>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include <Writer.h>
@@ -14,10 +16,12 @@ public:
 
 protected:
     explicit SocketWriterBase(const std::function<void(int errnum)>& onError)
-        : Writer(onError) {
+        : onError(onError) {
     }
 
     virtual ssize_t send(const char* junk, const ssize_t& junkSize) = 0;
+
+    std::function<void(int errnum)> onError;
 };
 
 #endif // SOCKETWRITERBASE_H

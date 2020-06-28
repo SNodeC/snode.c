@@ -9,68 +9,25 @@
 #include "socket/tls/SocketServer.h"
 
 
+bool WebApp::initialized{false};
+
 WebApp::WebApp(const std::string& rootDir) {
-    this->serverRoot(rootDir);
+    if (!initialized) {
+        std::cerr << "ERROR: WebApp not initialized. Use WebApp::init(argc, argv) before creating a concrete WebApp object" << std::endl;
+        exit(1);
+    }
+    this->setRootDir(rootDir);
 }
 
 
-void WebApp::listen(int port, const std::function<void(int err)>& onError) {
-    errno = 0;
-
-    legacy::SocketServer::instance(
-        [this](SocketConnection* connectedSocket) -> void {
-            connectedSocket->setContext(new HTTPContext(this, connectedSocket));
-        },
-        [](SocketConnection* connectedSocket) -> void {
-            delete static_cast<HTTPContext*>(connectedSocket->getContext());
-        },
-        [](SocketConnection* connectedSocket, const char* junk, ssize_t n) -> void {
-            static_cast<HTTPContext*>(connectedSocket->getContext())->receiveRequest(junk, n);
-        },
-        [](SocketConnection* connectedSocket, int errnum) -> void {
-            static_cast<HTTPContext*>(connectedSocket->getContext())->onReadError(errnum);
-        },
-        [](SocketConnection* connectedSocket, int errnum) -> void {
-            static_cast<HTTPContext*>(connectedSocket->getContext())->onWriteError(errnum);
-        })
-        ->listen(port, 5, [&](int err) -> void {
-            if (onError) {
-                onError(err);
-            }
-        });
+void WebApp::init(int argc, char* argv[]) {
+    SocketServer::init(argc, argv);
+    WebApp::initialized = true;
 }
 
 
-void WebApp::tlsListen(int port, const std::string& cert, const std::string& key, const std::string& password,
-                       const std::function<void(int err)>& onError) {
-    errno = 0;
-
-    tls::SocketServer::instance(
-        [this](SocketConnection* connectedSocket) -> void {
-            connectedSocket->setContext(new HTTPContext(this, connectedSocket));
-        },
-        [](SocketConnection* connectedSocket) -> void {
-            delete static_cast<HTTPContext*>(connectedSocket->getContext());
-        },
-        [](SocketConnection* connectedSocket, const char* junk, ssize_t n) -> void {
-            static_cast<HTTPContext*>(connectedSocket->getContext())->receiveRequest(junk, n);
-        },
-        [](SocketConnection* connectedSocket, int errnum) -> void {
-            static_cast<HTTPContext*>(connectedSocket->getContext())->onReadError(errnum);
-        },
-        [](SocketConnection* connectedSocket, int errnum) -> void {
-            static_cast<HTTPContext*>(connectedSocket->getContext())->onWriteError(errnum);
-        })
-        ->listen(port, 5, cert, key, password, [&](int err) -> void {
-            if (onError) {
-                onError(err);
-            }
-        });
-}
-
-
-void WebApp::start(int argc, char** argv) {
-    SocketServer::start(argc, argv);
+void WebApp::start() {
+    SocketServer::start();
 }
 
 

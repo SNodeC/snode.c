@@ -1,11 +1,13 @@
 cmake_minimum_required(VERSION 3.0)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
+set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "ON")
 
 project(snode.c)
 
 add_subdirectory(net)
 add_subdirectory(http)
+add_subdirectory(log)
 
 add_executable(snode.c main.cpp)
 target_compile_options(snode.c PRIVATE --warn-conversion)
@@ -21,6 +23,11 @@ add_executable(simpleserver simpleserver.cpp)
 target_compile_options(simpleserver PRIVATE --warn-conversion)
 target_link_libraries(simpleserver LINK_PUBLIC http)
 install(TARGETS simpleserver RUNTIME DESTINATION bin)
+set_target_properties(simpleserver PROPERTIES
+            CXX_STANDARD 17
+            CXX_EXTENSIONS OFF
+            SOVERSION 1
+)
 
 find_package(Doxygen)
 option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
@@ -51,6 +58,7 @@ FILE(GLOB_RECURSE
     net/ssl/*.[tch]pp net/ssl/*.h
     net/legacy/*.[tch]pp net/legacy/*.h
     http/*.[tch]pp http/*.h
+    log/*.[tch]pp log/*.h
 )
 INCLUDE("cmake/clang-cpp-checks.cmake")
 

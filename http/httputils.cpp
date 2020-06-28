@@ -44,12 +44,11 @@ namespace httputils {
     }
 
 
-    std::string str_trimm(const std::string& text) {
-        std::string tmpText = text;
-        tmpText.erase(text.find_last_not_of(" \t") + 1);
-        tmpText.erase(0, text.find_first_not_of(" \t"));
+    std::string& str_trimm(std::string& text) {
+        text.erase(text.find_last_not_of(" \t") + 1);
+        text.erase(0, text.find_first_not_of(" \t"));
 
-        return tmpText;
+        return text;
     }
 
 
@@ -136,8 +135,8 @@ namespace httputils {
     }
 
 
-    std::string::iterator to_lower(std::string* string) {
-        return std::transform(string->begin(), string->end(), string->begin(), ::tolower);
+    std::string::iterator to_lower(std::string& string) {
+        return std::transform(string.begin(), string.end(), string.begin(), ::tolower);
     }
 
 } // namespace httputils
