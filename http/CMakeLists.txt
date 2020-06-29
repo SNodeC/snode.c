@@ -20,7 +20,7 @@ add_library(http SHARED
 target_link_libraries(http LINK_PUBLIC net logger ${LIBMAGIC_LIBRARIES})
 
 set_target_properties(http PROPERTIES
-            CXX_STANDARD 17
+            CXX_STANDARD 20
             CXX_EXTENSIONS OFF
             SOVERSION 1
 )

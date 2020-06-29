@@ -10,6 +10,7 @@
 
 
 namespace httputils {
+
     std::string url_decode(const std::string& text);
 
     std::string& str_trimm(std::string& text);
@@ -27,6 +28,7 @@ namespace httputils {
     std::string file_mod_http_date(const std::string& filePath);
 
     std::string::iterator to_lower(std::string& string);
+
 } // namespace httputils
 
 #endif // HTTPUTILS_H

@@ -44,7 +44,10 @@ private:
                       const std::function<void(const char* bodyJunk, int junkLength)>& bodyRead);
     void parseRequestLine(const std::string& line);
     void parseCookie(const std::string& value);
-    void addRequestHeader(const std::string& line);
+    void addRequestLine(const std::string& line);
+
+    void headerRead();
+    void bodyRead();
 
     void requestReady();
 

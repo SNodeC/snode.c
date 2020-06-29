@@ -73,14 +73,9 @@ void HTTPContext::receiveRequest(const char* junk, ssize_t junkLen) {
                     break;
                 case requeststates::HEADER:
                     if (!line.empty()) {
-                        this->addRequestHeader(line);
+                        this->addRequestLine(line);
                     } else {
-                        if (request.bodyLength != 0) {
-                            requestState = requeststates::BODY;
-                        } else {
-                            this->requestReady();
-                            requestState = requeststates::REQUEST;
-                        }
+                        headerRead();
                     }
                     break;
                 case requeststates::BODY:
@@ -95,7 +90,7 @@ void HTTPContext::receiveRequest(const char* junk, ssize_t junkLen) {
                 memcpy(request.body + bodyPointer, bodyJunk, junkLen);
                 bodyPointer += junkLen;
                 if (bodyPointer == request.bodyLength) {
-                    this->requestReady();
+                    this->bodyRead();
                 }
             });
     }
@@ -103,7 +98,7 @@ void HTTPContext::receiveRequest(const char* junk, ssize_t junkLen) {
 
 
 void HTTPContext::parseRequest(const char* junk, ssize_t junkLen, const std::function<void(std::string&)>& lineRead,
-                               const std::function<void(const char* bodyJunk, int junkLength)>& bodyRead) {
+                               const std::function<void(const char* bodyJunk, int junkLength)>& readBody) {
     if (requestState != requeststates::BODY) {
         int n = 0;
 
@@ -140,10 +135,10 @@ void HTTPContext::parseRequest(const char* junk, ssize_t junkLen, const std::fun
             }
         }
         if (n != junkLen) {
-            bodyRead(junk + n, junkLen - n);
+            readBody(junk + n, junkLen - n);
         }
     } else {
-        bodyRead(junk, junkLen);
+        readBody(junk, junkLen);
     }
 }
 
@@ -178,17 +173,21 @@ void HTTPContext::parseRequestLine(const std::string& line) {
 }
 
 
-void HTTPContext::requestReady() {
-    this->requestInProgress = true;
+void HTTPContext::addRequestLine(const std::string& line) {
+    if (!line.empty()) {
+        std::pair<std::string, std::string> splitted = httputils::str_split(line, ':');
+        httputils::str_trimm(splitted.first);
+        httputils::str_trimm(splitted.second);
 
-    webApp.dispatch(request, response);
+        httputils::to_lower(splitted.first);
 
-    if (request.requestHeader.find("connection") != request.requestHeader.end()) {
-        if (request.requestHeader.find("connection")->second == "Close") {
-            connectedSocket->end();
+        if (!splitted.second.empty()) {
+            if (splitted.first == "cookie") {
+                parseCookie(splitted.second);
+            } else {
+                request.requestHeader.insert(splitted);
+            }
         }
-    } else {
-        connectedSocket->end();
     }
 }
 
@@ -207,25 +206,37 @@ void HTTPContext::parseCookie(const std::string& value) {
 }
 
 
-void HTTPContext::addRequestHeader(const std::string& line) {
-    if (!line.empty()) {
-        std::pair<std::string, std::string> splitted = httputils::str_split(line, ':');
-        httputils::str_trimm(splitted.first);
-        httputils::str_trimm(splitted.second);
+void HTTPContext::headerRead() {
+    if (request.header("content-length") != "") {
+        request.bodyLength = std::stoi(request.header("content-length"));
+    }
 
-        httputils::to_lower(splitted.first);
+    if (request.bodyLength > 0) {
+        request.body = new char[request.bodyLength];
+        requestState = requeststates::BODY;
+    } else {
+        this->requestReady();
+        requestState = requeststates::REQUEST;
+    }
+}
 
-        if (!splitted.second.empty()) {
-            if (splitted.first == "cookie") {
-                parseCookie(splitted.second);
-            } else {
-                request.requestHeader.insert(splitted);
-                if (splitted.first == "content-length") {
-                    request.bodyLength = std::stoi(splitted.second);
-                    request.body = new char[request.bodyLength];
-                }
-            }
+
+void HTTPContext::bodyRead() {
+    this->requestReady();
+}
+
+
+void HTTPContext::requestReady() {
+    this->requestInProgress = true;
+
+    webApp.dispatch(request, response);
+
+    if (request.requestHeader.find("connection") != request.requestHeader.end()) {
+        if (request.requestHeader.find("connection")->second == "Close") {
+            connectedSocket->end();
         }
+    } else {
+        connectedSocket->end();
     }
 }
 

@@ -13,9 +13,10 @@
 class HTTPContext;
 
 class Response {
-public:
+private:
     explicit Response(HTTPContext* httpContext);
 
+public:
     void send(const char* puffer, int n) const;
     void send(const std::string& text) const;
 
