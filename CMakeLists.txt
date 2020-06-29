@@ -13,18 +13,28 @@ add_executable(snode.c main.cpp)
 target_compile_options(snode.c PRIVATE --warn-conversion)
 target_link_libraries(snode.c LINK_PUBLIC http)
 install(TARGETS snode.c RUNTIME DESTINATION bin)
+set_target_properties(snode.c PROPERTIES
+            CXX_STANDARD 20
+            CXX_EXTENSIONS OFF
+            SOVERSION 1
+)
 
 add_executable(posttest posttest.cpp)
 target_compile_options(posttest PRIVATE --warn-conversion)
 target_link_libraries(posttest LINK_PUBLIC http)
 install(TARGETS posttest RUNTIME DESTINATION bin)
+set_target_properties(posttest PROPERTIES
+            CXX_STANDARD 20
+            CXX_EXTENSIONS OFF
+            SOVERSION 1
+)
 
 add_executable(simpleserver simpleserver.cpp)
 target_compile_options(simpleserver PRIVATE --warn-conversion)
 target_link_libraries(simpleserver LINK_PUBLIC http)
 install(TARGETS simpleserver RUNTIME DESTINATION bin)
 set_target_properties(simpleserver PROPERTIES
-            CXX_STANDARD 17
+            CXX_STANDARD 20
             CXX_EXTENSIONS OFF
             SOVERSION 1
 )

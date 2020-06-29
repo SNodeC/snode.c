@@ -1,7 +1,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "Logger.h"
-
 #include "legacy/WebApp.h"
 #include "tls/WebApp.h"
 
@@ -28,18 +27,41 @@ Router route() {
             next();
 
             req.setAttribute<std::string>("Hallo");
-            req.setAttribute<std::string>("World", "Key1");
+            req.setAttribute<std::string, "Key1">("World");
             req.setAttribute<int>(3);
 
-            std::string hello = req.getAttribute<std::string>();
-            std::string world = req.getAttribute<std::string>("Key1");
-            int i = req.getAttribute<int>();
-            float f = req.getAttribute<float>();
+            req.setAttribute<std::string, "Hall">("juhu");
+            VLOG(3) << "####################### " + req.getAttribute<std::string, "Hall">();
 
-            VLOG(3) << "String: --------- " + hello;
-            VLOG(3) << "String: --------- " + world;
-            VLOG(3) << "Int: --------- " + std::to_string(i);
-            VLOG(3) << "Float: ---------- " + std::to_string(f);
+            if (!req.getAttribute<std::string>(
+                [](std::string& hello) -> void {
+                    VLOG(3) << "String: --------- " + hello;
+                })) {
+                VLOG(3) << "++++++++++ Attribute String not found";
+            }
+
+            req.getAttribute<std::string, "Key1">(
+                [](std::string& world) -> void {
+                    VLOG(3) << "String + Key1: --------- " + world;
+                },
+                [](const std::string& type) {
+                    VLOG(3) << "++++++++++ Attribute " + type + " not found";
+                });
+
+            if (!req.getAttribute<int>(
+                [](int& i) -> void {
+                    VLOG(3) << "Int: --------- " + std::to_string(i);
+                })) {
+                VLOG(3) << "++++++++++ Attribute int not found";
+            }
+
+            req.getAttribute<float>(
+                [](float& f) -> void {
+                    VLOG(3) << "Float: --------- " + std::to_string(f);
+                },
+                [](const std::string& type) {
+                    VLOG(3) << "++++++++++ Attribute " + type + " not found";
+                });
         });
 
     Router r;
