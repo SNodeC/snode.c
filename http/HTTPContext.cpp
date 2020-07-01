@@ -302,6 +302,7 @@ void HTTPContext::sendFile(const std::string& file, const std::function<void(int
                 });
         } else {
             response.responseStatus = 403;
+            errno = EACCES;
             this->end();
             if (onError) {
                 onError(EACCES);
@@ -309,6 +310,7 @@ void HTTPContext::sendFile(const std::string& file, const std::function<void(int
         }
     } else {
         response.responseStatus = 404;
+        errno = ENOENT;
         this->end();
         if (onError) {
             onError(ENOENT);
