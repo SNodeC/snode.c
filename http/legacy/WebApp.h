@@ -11,10 +11,10 @@ namespace legacy {
         explicit WebApp(const std::string& rootDir)
             : ::WebApp(rootDir){};
 
-        WebApp(const std::string& rootDir, const ::WebApp& webApp)
+        WebApp(const std::string& rootDir, const Router& router)
             : ::WebApp(rootDir) {
-            this->setRoute(webApp.getRoute());
-            this->setMountPoint(webApp.getMountPoint());
+            this->setRoute(router.getRoute());
+            this->setMountPoint(router.getMountPoint());
         }
 
         WebApp& operator=(const ::WebApp& webApp) {

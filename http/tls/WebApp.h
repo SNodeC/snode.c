@@ -15,13 +15,13 @@ namespace tls {
             , password(password){};
 
         WebApp(const std::string& rootDir, const std::string& cert, const std::string& key, const std::string& password,
-               const ::WebApp& webApp)
+               const Router& router)
             : ::WebApp(rootDir)
             , cert(cert)
             , key(key)
             , password(password) {
-            this->setRoute(webApp.getRoute());
-            this->setMountPoint(webApp.getMountPoint());
+            this->setRoute(router.getRoute());
+            this->setMountPoint(router.getMountPoint());
         }
 
         WebApp(const WebApp& webApp)
