@@ -4,6 +4,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <map>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
