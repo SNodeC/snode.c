@@ -17,74 +17,45 @@
 #define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c.key.encrypted.pem"
 #define KEYFPASS "snode.c"
 
-Router route() {
+#define SERVERROOT "/home/voc/projects/ServerVoc/build/html/"
+
+int simpleWebserver() {
     Router router;
-    router.get(
-        "/search", APPLICATION(req, res) {
+    router
+        .use("/", MIDDLEWARE(req, res, next) {
+            res.set("Connection", "Keep-Alive");
+            next();
+        })
+        .get("/search", APPLICATION(req, res) {
             VLOG(0) << "URL: " + req.originalUrl;
             res.sendFile(req.originalUrl, [&req](int ret) -> void {
                 if (ret != 0) {
                     PLOG(ERROR) << req.originalUrl;
                 }
             });
-        });
-
-
-    return router;
-}
-
-
-tls::WebApp sslMain() {
-    tls::WebApp sslApp("/home/voc/projects/ServerVoc/build/html/", CERTF, KEYF, KEYFPASS);
-    sslApp
-        .use(
-            "/",
-            MIDDLEWARE(req, res, next) {
-                res.set("Connection", "Keep-Alive");
-                next();
-            })
-        .get("/", route())
+        })
         .get("/", APPLICATION(req, res) {
-                std::string uri = req.originalUrl;
-                VLOG(0) << "URL: " + req.originalUrl;
-                if (uri == "/") {
-                    res.redirect("/index.html");
-                } else if (uri == "/end") {
-                    res.send("Bye, bye!\n");
-                    WebApp::stop();
-                } else {
-                    res.sendFile(uri, [uri, &req](int ret) -> void {
-                        if (ret != 0) {
-                            PLOG(ERROR) << uri;
-                        }
-                    });
-                }
-            });
-
-    return sslApp;
-}
-
-
-legacy::WebApp legacyMain() {
-    legacy::WebApp legacyApp("/home/voc/projects/ServerVoc/build/html/");
-    legacyApp.use("/", MIDDLEWARE(req, res, next) {
-            if (req.originalUrl == "/end") {
+            std::string uri = req.originalUrl;
+            VLOG(0) << "URL: " + req.originalUrl;
+            if (uri == "/") {
+                res.redirect("/index.html");
+            } else if (uri == "/end") {
                 res.send("Bye, bye!\n");
                 WebApp::stop();
             } else {
-                VLOG(0) << "Redirect: https://calisto.home.vchrist.at:8088" + req.originalUrl;
-                res.redirect("https://calisto.home.vchrist.at:8088" + req.originalUrl);
+                res.sendFile(uri, [uri, &req](int ret) -> void {
+                    if (ret != 0) {
+                        PLOG(ERROR) << uri;
+                    }
+                });
             }
         });
 
-    return legacyApp;
-}
+    legacy::WebApp legacyApp(SERVERROOT);
+    legacyApp.use("/", router);
 
-
-int simpleWebserver() {
-    legacy::WebApp legacyApp(legacyMain());
-
-    tls::WebApp sslApp(sslMain());
+    tls::WebApp sslApp(SERVERROOT, CERTF, KEYF, KEYFPASS);
+    sslApp.use("/", router);
 
     sslApp.listen(8088, [](int err) -> void {
         if (err != 0) {
