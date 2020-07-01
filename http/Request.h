@@ -32,6 +32,8 @@ namespace std {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+template <typename Attribute>
+concept RequestAttribute = std::copy_constructible<Attribute>and std::default_initializable<Attribute>and std::copyable<Attribute>;
 
 class HTTPContext;
 
@@ -59,7 +61,7 @@ public:
     int bodyLength{0};
 
 private:
-    template <typename Attribute>
+    template <RequestAttribute Attribute>
     class AttributeProxy {
     public:
         explicit AttributeProxy(const Attribute& attribute)
@@ -71,15 +73,11 @@ private:
         }
 
     private:
-        static_assert(std::is_copy_constructible<Attribute>::value, "Attribute requires capability \"copy_constructible\"");
-        static_assert(std::is_default_constructible<Attribute>::value, "Attribute requires capability \"default_constructible\"");
-        static_assert(std::is_assignable<Attribute&, Attribute>::value, "Attribute requires capability \"assignable\"");
-
         Attribute attribute;
     };
 
 public:
-    template <typename Attribute, std::basic_fixed_string key = "">
+    template <RequestAttribute Attribute, std::basic_fixed_string key = "">
     bool setAttribute(const Attribute& attribute, bool overwrite = false) const {
         bool inserted = false;
 
@@ -92,12 +90,12 @@ public:
         return inserted;
     }
 
-    template <typename Attribute, std::basic_fixed_string key = "">
+    template <RequestAttribute Attribute, std::basic_fixed_string key = "">
     bool hasAttribute() const {
         return attributes.find(typeid(Attribute).name() + std::string(key)) != attributes.end();
     }
 
-    template <typename Attribute, std::basic_fixed_string key = "">
+    template <RequestAttribute Attribute, std::basic_fixed_string key = "">
     Attribute getAttribute() const {
         Attribute attribute = Attribute(); // default constructor & copy constructor neccessary
 
@@ -109,7 +107,7 @@ public:
         return attribute;
     }
 
-    template <typename Attribute, std::basic_fixed_string key = "">
+    template <RequestAttribute Attribute, std::basic_fixed_string key = "">
     bool getAttribute(std::function<void(Attribute& attribute)> onFound) const {
         bool found = false;
 
@@ -121,7 +119,7 @@ public:
         return found;
     }
 
-    template <typename Attribute, std::basic_fixed_string key = "">
+    template <RequestAttribute Attribute, std::basic_fixed_string key = "">
     void getAttribute(std::function<void(Attribute& attribute)> onFound, std::function<void(const std::string&)> onNotFound) const {
         if (hasAttribute<Attribute, key>()) {
             std::map<std::string, std::shared_ptr<void>>::const_iterator it = attributes.find(typeid(Attribute).name() + std::string(key));
