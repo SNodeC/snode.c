@@ -39,6 +39,16 @@ set_target_properties(simpleserver PROPERTIES
             SOVERSION 1
 )
 
+add_executable(experiments experiments.cpp)
+target_compile_options(experiments PRIVATE --warn-conversion)
+target_link_libraries(experiments LINK_PUBLIC http)
+install(TARGETS experiments RUNTIME DESTINATION bin)
+set_target_properties(experiments PROPERTIES
+            CXX_STANDARD 20
+            CXX_EXTENSIONS OFF
+            SOVERSION 1
+)
+
 find_package(Doxygen)
 option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 
