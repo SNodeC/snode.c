@@ -26,14 +26,6 @@ int simpleWebserver() {
             res.set("Connection", "Keep-Alive");
             next();
         })
-        .get("/search", APPLICATION(req, res) {
-            VLOG(0) << "URL: " + req.originalUrl;
-            res.sendFile(req.originalUrl, [&req](int ret) -> void {
-                if (ret != 0) {
-                    PLOG(ERROR) << req.originalUrl;
-                }
-            });
-        })
         .get("/", APPLICATION(req, res) {
             std::string uri = req.originalUrl;
             VLOG(0) << "URL: " + req.originalUrl;
@@ -49,6 +41,14 @@ int simpleWebserver() {
                     }
                 });
             }
+        })
+        .get("/search", APPLICATION(req, res) {
+            VLOG(0) << "URL: " + req.originalUrl;
+            res.sendFile(req.originalUrl, [&req](int ret) -> void {
+                if (ret != 0) {
+                    PLOG(ERROR) << req.originalUrl;
+                }
+            });
         });
 
     legacy::WebApp legacyApp(SERVERROOT);
