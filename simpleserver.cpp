@@ -19,7 +19,9 @@
 
 #define SERVERROOT "/home/voc/projects/ServerVoc/build/html/"
 
-int simpleWebserver() {
+int main(int argc, char** argv) {
+    WebApp::init(argc, argv);
+
     Router router;
     router
         .use("/", MIDDLEWARE(req, res, next) {
@@ -27,17 +29,16 @@ int simpleWebserver() {
             next();
         })
         .get("/", APPLICATION(req, res) {
-            std::string uri = req.originalUrl;
             VLOG(0) << "URL: " + req.originalUrl;
-            if (uri == "/") {
+            if (req.originalUrl == "/") {
                 res.redirect("/index.html");
-            } else if (uri == "/end") {
+            } else if (req.originalUrl == "/end") {
                 res.send("Bye, bye!\n");
                 WebApp::stop();
             } else {
-                res.sendFile(uri, [uri, &req](int ret) -> void {
+                res.sendFile(req.originalUrl, [&req](int ret) -> void {
                     if (ret != 0) {
-                        PLOG(ERROR) << uri;
+                        PLOG(ERROR) << req.originalUrl;
                     }
                 });
             }
@@ -54,10 +55,10 @@ int simpleWebserver() {
     legacy::WebApp legacyApp(SERVERROOT);
     legacyApp.use("/", router);
 
-    tls::WebApp sslApp(SERVERROOT, CERTF, KEYF, KEYFPASS);
-    sslApp.use("/", router);
+    tls::WebApp tlsApp(SERVERROOT, CERTF, KEYF, KEYFPASS);
+    tlsApp.use("/", router);
 
-    sslApp.listen(8088, [](int err) -> void {
+    tlsApp.listen(8088, [](int err) -> void {
         if (err != 0) {
             PLOG(FATAL) << "listen on port 8088";
         } else {
@@ -76,11 +77,4 @@ int simpleWebserver() {
     WebApp::start();
 
     return 0;
-}
-
-
-int main(int argc, char** argv) {
-    WebApp::init(argc, argv);
-
-    return simpleWebserver();
 }
