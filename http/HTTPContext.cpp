@@ -10,6 +10,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "HTTPStatusCodes.h"
+#include "Logger.h"
 #include "MimeTypes.h"
 #include "WebApp.h"
 #include "file/FileReader.h"
@@ -37,7 +38,7 @@ void HTTPContext::onReadError(int errnum) {
     stopFileReader();
 
     if (errnum != 0 && errnum != ECONNRESET) {
-        perror("HTTPContext");
+        PLOG(ERROR) << "Connection: read";
     }
 }
 
@@ -46,7 +47,7 @@ void HTTPContext::onWriteError(int errnum) {
     stopFileReader();
 
     if (errnum != 0 && errnum != ECONNRESET) {
-        perror("HTTPContext");
+        PLOG(ERROR) << "Connection write:";
     }
 }
 
