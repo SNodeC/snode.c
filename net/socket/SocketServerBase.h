@@ -25,7 +25,7 @@ class SocketServerBase
 protected:
     SocketServerBase(const std::function<void(SocketConnectionBase* cs)>& onConnect,
                      const std::function<void(SocketConnectionBase* cs)>& onDisconnect,
-                     const std::function<void(SocketReaderBase* cs, const char* junk, ssize_t n)>& readProcessor,
+                     const std::function<void(typename SocketConnectionBase::ReaderType* cs, const char* junk, ssize_t n)>& readProcessor,
                      const std::function<void(SocketConnectionBase* cs, int errnum)>& onReadError,
                      const std::function<void(SocketConnectionBase* cs, int errnum)>& onWriteError)
         : Reader()
@@ -38,11 +38,12 @@ protected:
     }
 
 public:
-    static SocketServerBase* instance(const std::function<void(SocketConnectionBase* cs)>& onConnect,
-                                      const std::function<void(SocketConnectionBase* cs)>& onDisconnect,
-                                      const std::function<void(SocketReaderBase* cs, const char* junk, ssize_t n)>& readProcessor,
-                                      const std::function<void(SocketConnectionBase* cs, int errnum)>& onReadError,
-                                      const std::function<void(SocketConnectionBase* cs, int errnum)>& onWriteError) {
+    static SocketServerBase*
+    instance(const std::function<void(SocketConnectionBase* cs)>& onConnect,
+             const std::function<void(SocketConnectionBase* cs)>& onDisconnect,
+             const std::function<void(typename SocketConnectionBase::ReaderType* cs, const char* junk, ssize_t n)>& readProcessor,
+             const std::function<void(SocketConnectionBase* cs, int errnum)>& onReadError,
+             const std::function<void(SocketConnectionBase* cs, int errnum)>& onWriteError) {
         return new SocketServerBase(onConnect, onDisconnect, readProcessor, onReadError, onWriteError);
     }
 
@@ -133,10 +134,13 @@ private:
     std::function<void(SocketConnectionBase* cs)> onConnect;
     std::function<void(SocketConnectionBase* cs)> onDisconnect;
 
-    std::function<void(SocketReaderBase* cs, const char* junk, ssize_t n)> readProcessor;
+    std::function<void(typename SocketConnectionBase::ReaderType* cs, const char* junk, ssize_t n)> readProcessor;
 
     std::function<void(SocketConnectionBase* cs, int errnum)> onReadError;
     std::function<void(SocketConnectionBase* cs, int errnum)> onWriteError;
+
+public:
+    using SocketConnectionType = SocketConnectionBase;
 };
 
 

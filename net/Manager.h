@@ -110,6 +110,9 @@ private:
 
     std::list<ManagedDescriptor*> addedDescriptors;
     std::list<ManagedDescriptor*> removedDescriptors;
+
+public:
+    using ManagedDescriptorType = ManagedDescriptor;
 };
 
 #endif // MANAGER_H

@@ -40,7 +40,7 @@ public:
 
 public:
     SocketConnectionBase(int csFd, SocketServerBase<SocketConnectionBase>* serverSocket,
-                         const std::function<void(SocketReaderBase* cs, const char* junk, ssize_t n)>& readProcessor,
+                         const std::function<void(Reader* cs, const char* junk, ssize_t n)>& readProcessor,
                          const std::function<void(SocketConnectionBase* cs, int errnum)>& onReadError,
                          const std::function<void(SocketConnectionBase* cs, int errnum)>& onWriteError)
         : Reader(readProcessor,
@@ -62,6 +62,10 @@ private:
     SocketServerBase<SocketConnectionBase>* serverSocket;
 
     InetAddress remoteAddress{};
+
+public:
+    using ReaderType = Reader;
+    using WriterType = Writer;
 };
 
 #endif // SOCKETCONNECTIONBASE_H
