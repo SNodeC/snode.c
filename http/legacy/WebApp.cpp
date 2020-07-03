@@ -10,19 +10,19 @@ namespace legacy {
         errno = 0;
 
         legacy::SocketServer::instance(
-            [this](legacy::SocketConnection* connectedSocket) -> void {
+            [this](legacy::SocketConnection* connectedSocket) -> void { // onConnect
                 connectedSocket->setContext(new HTTPContext(*this, connectedSocket));
             },
-            [](legacy::SocketConnection* connectedSocket) -> void {
+            [](legacy::SocketConnection* connectedSocket) -> void { // onDisconnect
                 delete static_cast<HTTPContext*>(connectedSocket->getContext());
             },
-            [](legacy::SocketConnection* connectedSocket, const char* junk, ssize_t n) -> void {
+            [](legacy::SocketConnection* connectedSocket, const char* junk, ssize_t n) -> void { // readProcessor
                 static_cast<HTTPContext*>(connectedSocket->getContext())->receiveRequest(junk, n);
             },
-            [](legacy::SocketConnection* connectedSocket, int errnum) -> void {
+            [](legacy::SocketConnection* connectedSocket, int errnum) -> void { // onReadError
                 static_cast<HTTPContext*>(connectedSocket->getContext())->onReadError(errnum);
             },
-            [](legacy::SocketConnection* connectedSocket, int errnum) -> void {
+            [](legacy::SocketConnection* connectedSocket, int errnum) -> void { // onWriteError
                 static_cast<HTTPContext*>(connectedSocket->getContext())->onWriteError(errnum);
             })
             ->listen(port, 5, [&](int err) -> void {

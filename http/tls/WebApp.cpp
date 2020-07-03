@@ -10,19 +10,19 @@ namespace tls {
         errno = 0;
 
         tls::SocketServer::instance(
-            [this](tls::SocketConnection* connectedSocket) -> void {
+            [this](tls::SocketConnection* connectedSocket) -> void { // onConnect
                 connectedSocket->setContext(new HTTPContext(*this, connectedSocket));
             },
-            [](tls::SocketConnection* connectedSocket) -> void {
+            [](tls::SocketConnection* connectedSocket) -> void { // onDisconnect
                 delete static_cast<HTTPContext*>(connectedSocket->getContext());
             },
-            [](tls::SocketConnection* connectedSocket, const char* junk, ssize_t n) -> void {
+            [](tls::SocketConnection* connectedSocket, const char* junk, ssize_t n) -> void { // readProcessor
                 static_cast<HTTPContext*>(connectedSocket->getContext())->receiveRequest(junk, n);
             },
-            [](tls::SocketConnection* connectedSocket, int errnum) -> void {
+            [](tls::SocketConnection* connectedSocket, int errnum) -> void { // onReadError
                 static_cast<HTTPContext*>(connectedSocket->getContext())->onReadError(errnum);
             },
-            [](tls::SocketConnection* connectedSocket, int errnum) -> void {
+            [](tls::SocketConnection* connectedSocket, int errnum) -> void { // onWriteError
                 static_cast<HTTPContext*>(connectedSocket->getContext())->onWriteError(errnum);
             })
             ->listen(port, 5, cert, key, password, [&](int err) -> void {
