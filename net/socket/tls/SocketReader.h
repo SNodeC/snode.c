@@ -17,11 +17,10 @@ namespace tls {
         : public SocketReaderBase
         , virtual public tls::Socket {
     protected:
-        SocketReader(const std::function<void(tls::SocketReader* cs, const char* junk, ssize_t n)>& readProcessor,
-                     const std::function<void(int errnum)>& onError)
+        SocketReader(const std::function<void(const char* junk, ssize_t n)>& readProcessor, const std::function<void(int errnum)>& onError)
             : SocketReaderBase(
-                  [readProcessor](SocketReaderBase* cs, const char* junk, ssize_t n) -> void {
-                      readProcessor(dynamic_cast<tls::SocketReader*>(cs), junk, n);
+                  [readProcessor](const char* junk, ssize_t n) -> void {
+                      readProcessor(junk, n);
                   },
                   onError) {
         }

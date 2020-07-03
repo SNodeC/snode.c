@@ -18,7 +18,7 @@ namespace tls {
         : SocketServerBase<tls::SocketConnection>(
               [this, onConnect](tls::SocketConnection* cs) {
                   if (!cs->startSSL(ctx)) {
-                      Multiplexer::instance().getManagedReader().remove(dynamic_cast<tls::SocketConnection*>(cs));
+                      Multiplexer::instance().getManagedReader().remove(cs);
                   }
                   onConnect(cs);
               },

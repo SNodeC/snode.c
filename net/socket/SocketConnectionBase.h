@@ -43,12 +43,13 @@ public:
                          const std::function<void(SocketConnectionBase* cs, const char* junk, ssize_t n)>& readProcessor,
                          const std::function<void(SocketConnectionBase* cs, int errnum)>& onReadError,
                          const std::function<void(SocketConnectionBase* cs, int errnum)>& onWriteError)
-        : Reader([&](Reader* cs, const char* junk, ssize_t n) -> void {
-                     readProcessor(this, junk, n);
-                 },
-                 [&](int errnum) -> void {
-                     onReadError(this, errnum);
-                 })
+        : Reader(
+              [&](const char* junk, ssize_t n) -> void {
+                  readProcessor(this, junk, n);
+              },
+              [&](int errnum) -> void {
+                  onReadError(this, errnum);
+              })
         , Writer([&](int errnum) -> void {
             onWriteError(this, errnum);
         })

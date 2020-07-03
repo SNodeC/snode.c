@@ -15,8 +15,7 @@ public:
     void readEvent() override;
 
 protected:
-    SocketReaderBase(const std::function<void(SocketReaderBase* cs, const char* junk, ssize_t n)>& readProcessor,
-                     const std::function<void(int errnum)>& onError)
+    SocketReaderBase(const std::function<void(const char* junk, ssize_t n)>& readProcessor, const std::function<void(int errnum)>& onError)
         : readProcessor(readProcessor)
         , onError(onError) {
     }
@@ -24,10 +23,9 @@ protected:
     virtual ssize_t recv(char* junk, const ssize_t& junkSize) = 0;
 
 private:
-    std::function<void(SocketReaderBase* cs, const char* junk, ssize_t n)> readProcessor;
+    std::function<void(const char* junk, ssize_t n)> readProcessor;
 
     std::function<void(int errnum)> onError;
 };
 
 #endif // SOCKETREADERBASE_H
-

@@ -38,12 +38,11 @@ protected:
     }
 
 public:
-    static SocketServerBase*
-    instance(const std::function<void(SocketConnectionBase* cs)>& onConnect,
-             const std::function<void(SocketConnectionBase* cs)>& onDisconnect,
-             const std::function<void(SocketConnectionBase* cs, const char* junk, ssize_t n)>& readProcessor,
-             const std::function<void(SocketConnectionBase* cs, int errnum)>& onReadError,
-             const std::function<void(SocketConnectionBase* cs, int errnum)>& onWriteError) {
+    static SocketServerBase* instance(const std::function<void(SocketConnectionBase* cs)>& onConnect,
+                                      const std::function<void(SocketConnectionBase* cs)>& onDisconnect,
+                                      const std::function<void(SocketConnectionBase* cs, const char* junk, ssize_t n)>& readProcessor,
+                                      const std::function<void(SocketConnectionBase* cs, int errnum)>& onReadError,
+                                      const std::function<void(SocketConnectionBase* cs, int errnum)>& onWriteError) {
         return new SocketServerBase(onConnect, onDisconnect, readProcessor, onReadError, onWriteError);
     }
 

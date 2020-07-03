@@ -17,11 +17,10 @@ namespace legacy {
         : public SocketReaderBase
         , virtual public legacy::Socket {
     protected:
-        SocketReader(const std::function<void(legacy::SocketReader* cs, const char* junk, ssize_t n)>& readProcessor,
-                     const std::function<void(int errnum)>& onError)
+        SocketReader(const std::function<void(const char* junk, ssize_t n)>& readProcessor, const std::function<void(int errnum)>& onError)
             : SocketReaderBase(
-                  [readProcessor](SocketReaderBase* cs, const char* junk, ssize_t n) -> void {
-                      readProcessor(dynamic_cast<legacy::SocketReader*>(cs), junk, n);
+                  [readProcessor](const char* junk, ssize_t n) -> void {
+                      readProcessor(junk, n);
                   },
                   onError) {
         }
