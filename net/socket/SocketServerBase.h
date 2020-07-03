@@ -107,9 +107,8 @@ public:
     }
 
     void disconnect(SocketConnection* cs) override {
-        if (onDisconnect) {
-            onDisconnect(dynamic_cast<SocketConnectionBase*>(cs));
-        }
+        onDisconnect(dynamic_cast<SocketConnectionBase*>(cs));
+
         delete cs;
     }
 
