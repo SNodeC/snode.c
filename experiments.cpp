@@ -33,8 +33,7 @@ Router route() {
             req.setAttribute<std::string, "Hall">("juhu");
             VLOG(3) << "####################### " + req.getAttribute<std::string, "Hall">();
 
-            if (!req.getAttribute<std::string>(
-                [](std::string& hello) -> void {
+            if (!req.getAttribute<std::string>([](std::string& hello) -> void {
                     VLOG(3) << "String: --------- " + hello;
                 })) {
                 VLOG(3) << "++++++++++ Attribute String not found";
@@ -48,8 +47,7 @@ Router route() {
                     VLOG(3) << "++++++++++ Attribute " + type + " not found";
                 });
 
-            if (!req.getAttribute<int>(
-                [](int& i) -> void {
+            if (!req.getAttribute<int>([](int& i) -> void {
                     VLOG(3) << "Int: --------- " + std::to_string(i);
                 })) {
                 VLOG(3) << "++++++++++ Attribute int not found";
