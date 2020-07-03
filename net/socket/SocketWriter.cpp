@@ -2,7 +2,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "SocketWriterBase.h"
+#include "SocketWriter.h"
 
 #include "Multiplexer.h"
 #include "socket/SocketConnection.h"
@@ -10,7 +10,7 @@
 
 #define MAX_JUNKSIZE 4096
 
-void SocketWriterBase::writeEvent() {
+void SocketWriter::writeEvent() {
     errno = 0;
 
     ssize_t ret = send(writePuffer.c_str(), (writePuffer.size() < MAX_JUNKSIZE) ? writePuffer.size() : MAX_JUNKSIZE);

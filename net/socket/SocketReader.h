@@ -10,12 +10,12 @@
 #include "Reader.h"
 
 
-class SocketReaderBase : public Reader {
+class SocketReader : public Reader {
 public:
     void readEvent() override;
 
 protected:
-    SocketReaderBase(const std::function<void(const char* junk, ssize_t n)>& readProcessor, const std::function<void(int errnum)>& onError)
+    SocketReader(const std::function<void(const char* junk, ssize_t n)>& readProcessor, const std::function<void(int errnum)>& onError)
         : readProcessor(readProcessor)
         , onError(onError) {
     }

@@ -6,7 +6,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "socket/SocketConnectionBase.h"
-#include "socket/SocketServerBase.h"
+#include "socket/SocketServer.h"
 #include "socket/tls/SocketReader.h"
 #include "socket/tls/SocketWriter.h"
 
@@ -15,7 +15,7 @@ namespace tls {
 
     using SocketConnection = SocketConnectionBase<tls::SocketReader, tls::SocketWriter>;
 
-    class SocketServer : public SocketServerBase<tls::SocketConnection> {
+    class SocketServer : public ::SocketServer<tls::SocketConnection> {
     private:
         SocketServer(const std::function<void(tls::SocketConnection* cs)>& onConnect,
                      const std::function<void(tls::SocketConnection* cs)>& onDisconnect,
@@ -32,7 +32,7 @@ namespace tls {
         ~SocketServer() override;
 
     protected:
-        using SocketServerBase<tls::SocketConnection>::listen;
+        using ::SocketServer<tls::SocketConnection>::listen;
 
     public:
         void listen(in_port_t port, int backlog, const std::string& certChain, const std::string& keyPEM, const std::string& password,

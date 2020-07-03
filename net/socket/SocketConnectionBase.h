@@ -7,10 +7,8 @@
 
 #include "Multiplexer.h"
 #include "SocketConnection.h"
-#include "SocketServerBase.h"
+#include "SocketServer.h"
 
-
-class SocketServer;
 
 // typedef std::function<void(SocketConnection* cs, const char* junk, ssize_t n)> ReadProcessorr;
 // typedef std::function<void(SocketConnection* cs, int errnum)> OnError;
@@ -21,25 +19,7 @@ class SocketConnectionBase
     , public Reader
     , public Writer {
 public:
-    void enqueue(const char* buffer, int size) override {
-        Writer::writePuffer.append(buffer, size);
-        Multiplexer::instance().getManagedWriter().add(this);
-    }
-
-    void end() override {
-        Multiplexer::instance().getManagedReader().remove(this);
-    }
-
-    InetAddress& getRemoteAddress() override {
-        return remoteAddress;
-    }
-
-    void setRemoteAddress(const InetAddress& remoteAddress) override {
-        this->remoteAddress = remoteAddress;
-    }
-
-public:
-    SocketConnectionBase(int csFd, SocketServerBase<SocketConnectionBase>* serverSocket,
+    SocketConnectionBase(int csFd, SocketServer<SocketConnectionBase>* serverSocket,
                          const std::function<void(SocketConnectionBase* cs, const char* junk, ssize_t n)>& readProcessor,
                          const std::function<void(SocketConnectionBase* cs, int errnum)>& onReadError,
                          const std::function<void(SocketConnectionBase* cs, int errnum)>& onWriteError)
@@ -57,12 +37,29 @@ public:
         this->attachFd(csFd);
     }
 
+    void enqueue(const char* buffer, int size) override {
+        Writer::writePuffer.append(buffer, size);
+        Multiplexer::instance().getManagedWriter().add(this);
+    }
+
+    void end() override {
+        Multiplexer::instance().getManagedReader().remove(this);
+    }
+
+    InetAddress& getRemoteAddress() {
+        return remoteAddress;
+    }
+
+    void setRemoteAddress(const InetAddress& remoteAddress) {
+        this->remoteAddress = remoteAddress;
+    }
+
 private:
-    void unmanaged() override {
+    void unmanaged() {
         serverSocket->disconnect(this);
     }
 
-    SocketServerBase<SocketConnectionBase>* serverSocket;
+    SocketServer<SocketConnectionBase>* serverSocket;
 
     InetAddress remoteAddress{};
 
