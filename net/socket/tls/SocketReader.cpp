@@ -1,13 +1,11 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <sys/socket.h>
-#include <sys/types.h>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+#include "socket/tls/SocketReader.h"
 
 #include "Multiplexer.h"
 #include "socket/SocketConnection.h"
-#include "socket/tls/SocketReader.h"
 
 
 namespace tls {
