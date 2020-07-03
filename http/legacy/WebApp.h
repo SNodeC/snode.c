@@ -1,6 +1,10 @@
 #ifndef LEGACYWEBAPP_H
 #define LEGACYWEBAPP_H
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 #include "../WebApp.h"
 
 
