@@ -10,12 +10,12 @@
 #include <Writer.h>
 
 
-class SocketWriterBase : public Writer {
+class SocketWriter : public Writer {
 public:
     void writeEvent() override;
 
 protected:
-    explicit SocketWriterBase(const std::function<void(int errnum)>& onError)
+    explicit SocketWriter(const std::function<void(int errnum)>& onError)
         : onError(onError) {
     }
 

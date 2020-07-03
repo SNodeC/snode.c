@@ -7,18 +7,18 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/SocketReaderBase.h"
+#include "socket/SocketReader.h"
 #include "socket/tls/Socket.h"
 
 
 namespace tls {
 
     class SocketReader
-        : public SocketReaderBase
+        : public ::SocketReader
         , virtual public tls::Socket {
     protected:
         SocketReader(const std::function<void(const char* junk, ssize_t n)>& readProcessor, const std::function<void(int errnum)>& onError)
-            : SocketReaderBase(readProcessor, onError) {
+            : ::SocketReader(readProcessor, onError) {
         }
 
     private:

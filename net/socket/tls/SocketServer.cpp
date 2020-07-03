@@ -14,7 +14,7 @@ namespace tls {
                                const std::function<void(tls::SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
                                const std::function<void(tls::SocketConnection* cs, int errnum)>& onReadError,
                                const std::function<void(tls::SocketConnection* cs, int errnum)>& onWriteError)
-        : SocketServerBase<tls::SocketConnection>(
+        : ::SocketServer<tls::SocketConnection>(
               [this, onConnect](tls::SocketConnection* cs) {
                   if (!cs->startSSL(ctx)) {
                       Multiplexer::instance().getManagedReader().remove(cs);
@@ -48,7 +48,7 @@ namespace tls {
 
     void SocketServer::listen(in_port_t port, int backlog, const std::string& certChain, const std::string& keyPEM,
                               const std::string& password, const std::function<void(int err)>& onError) {
-        SocketServerBase<tls::SocketConnection>::listen(port, backlog, [this, &certChain, &keyPEM, &password, onError](int err) -> void {
+        ::SocketServer<tls::SocketConnection>::listen(port, backlog, [this, &certChain, &keyPEM, &password, onError](int err) -> void {
             if (!err) {
                 SSL_load_error_strings();
                 SSL_library_init();

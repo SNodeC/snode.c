@@ -28,9 +28,6 @@ public:
 
     virtual void end() = 0;
 
-    virtual InetAddress& getRemoteAddress() = 0;
-    virtual void setRemoteAddress(const InetAddress& remoteAddress) = 0;
-
 protected:
     SocketConnection() = default;
 

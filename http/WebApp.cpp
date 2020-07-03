@@ -5,6 +5,7 @@
 #include "WebApp.h"
 
 #include "HTTPContext.h"
+#include "Multiplexer.h"
 #include "socket/legacy/SocketServer.h"
 #include "socket/tls/SocketServer.h"
 
@@ -21,16 +22,16 @@ WebApp::WebApp(const std::string& rootDir) {
 
 
 void WebApp::init(int argc, char* argv[]) {
-    SocketServer::init(argc, argv);
+    Multiplexer::init(argc, argv);
     WebApp::initialized = true;
 }
 
 
 void WebApp::start() {
-    SocketServer::start();
+    Multiplexer::start();
 }
 
 
 void WebApp::stop() {
-    SocketServer::stop();
+    Multiplexer::stop();
 }

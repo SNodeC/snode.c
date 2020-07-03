@@ -7,18 +7,18 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/SocketWriterBase.h"
+#include "socket/SocketWriter.h"
 #include "socket/tls/Socket.h"
 
 
 namespace tls {
 
     class SocketWriter
-        : public SocketWriterBase
+        : public ::SocketWriter
         , virtual public tls::Socket {
     protected:
         explicit SocketWriter(const std::function<void(int errnum)>& onError)
-            : SocketWriterBase(onError) {
+            : ::SocketWriter(onError) {
         }
 
         ssize_t send(const char* junk, const ssize_t& junkSize) override;

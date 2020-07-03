@@ -15,9 +15,8 @@ add_library(net SHARED
     socket/ClientSocket.cpp
     socket/InetAddress.cpp
     socket/Socket.cpp
-    socket/SocketServer.cpp
-    socket/SocketReaderBase.cpp
-    socket/SocketWriterBase.cpp
+    socket/SocketReader.cpp
+    socket/SocketWriter.cpp
     socket/legacy/Socket.cpp
     socket/legacy/SocketReader.cpp
     socket/legacy/SocketWriter.cpp
