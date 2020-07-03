@@ -1,10 +1,10 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstring>
-#include <iostream>
-
 #include "legacy/WebApp.h"
 #include "tls/WebApp.h"
+
+#include <cstring>
+#include <iostream>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -18,33 +18,33 @@ int testPost() {
 
     legacyApp.get("/", [](const Request& req, const Response& res) -> void {
         res.send("<html>"
-                    "<head>"
-                        "<style>"
-                            "main {"
-                                "min-height: 30em;"
-                                "padding: 3em;"
-                                "background-image: repeating-radial-gradient( circle at 0 0, #fff, #ddd 50px);"
-                            "}"
-                            "input[type=\"file\"] {"
-                                "display: block;"
-                                "margin: 2em;"
-                                "padding: 2em;"
-                                "border: 1px dotted;"
-                            "}"
-                        "</style>"
-                    "</head>"
-                    "<body>"
-                        "<h1>Datei-Upload mit input type=\"file\"</h1>"
-                        "<main>"
-                            "<h2>Schicken Sie uns was Schickes!</h2>"
-                            "<form method=\"post\" enctype=\"multipart/form-data\">"
-                                "<label> Wählen Sie eine Textdatei (*.txt, *.html usw.) von Ihrem Rechner aus."
-                                    "<input name=\"datei\" type=\"file\" size=\"50\" accept=\"text/*\">"
-                                "</label>"
-                                "<button>… und ab geht die Post!</button>"
-                            "</form>"
-                        "</main>"
-                    "</body>"
+                 "<head>"
+                 "<style>"
+                 "main {"
+                 "min-height: 30em;"
+                 "padding: 3em;"
+                 "background-image: repeating-radial-gradient( circle at 0 0, #fff, #ddd 50px);"
+                 "}"
+                 "input[type=\"file\"] {"
+                 "display: block;"
+                 "margin: 2em;"
+                 "padding: 2em;"
+                 "border: 1px dotted;"
+                 "}"
+                 "</style>"
+                 "</head>"
+                 "<body>"
+                 "<h1>Datei-Upload mit input type=\"file\"</h1>"
+                 "<main>"
+                 "<h2>Schicken Sie uns was Schickes!</h2>"
+                 "<form method=\"post\" enctype=\"multipart/form-data\">"
+                 "<label> Wählen Sie eine Textdatei (*.txt, *.html usw.) von Ihrem Rechner aus."
+                 "<input name=\"datei\" type=\"file\" size=\"50\" accept=\"text/*\">"
+                 "</label>"
+                 "<button>… und ab geht die Post!</button>"
+                 "</form>"
+                 "</main>"
+                 "</body>"
                  "</html>");
     });
 
@@ -58,10 +58,10 @@ int testPost() {
         std::cout << "Body: " << std::endl;
         std::cout << body << std::endl;
         res.send("<html>"
-                    "<body>"
-                        "<h1>Thank you</h1>"
-                    "</body>"
-                "</html>");
+                 "<body>"
+                 "<h1>Thank you</h1>"
+                 "</body>"
+                 "</html>");
         delete[] body;
     });
 

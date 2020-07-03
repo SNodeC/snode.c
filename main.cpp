@@ -1,12 +1,11 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstring>
-#include <iostream>
-
+#include "legacy/WebApp.h"
 #include "timer/ContinousTimer.h"
 #include "timer/SingleshotTimer.h"
 
-#include "legacy/WebApp.h"
+#include <cstring>
+#include <iostream>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -27,7 +26,7 @@ int timerApp() {
         (struct timeval){1, 100000}, "Tack");
 
     bool canceled = false;
-    
+
     legacy::WebApp app("/home/voc/projects/ServerVoc/build/html");
 
     app.get("/", [&canceled, &tack](const Request& req, const Response& res) -> void {
@@ -36,37 +35,36 @@ int timerApp() {
         if (uri == "/") {
             res.redirect("/index.html");
         } else {
+            std::cout << "RCookie: " << req.cookie("doxygen_width") << std::endl;
+            std::cout << "RCookie: " << req.cookie("Test") << std::endl;
 
-        std::cout << "RCookie: " << req.cookie("doxygen_width") << std::endl;
-        std::cout << "RCookie: " << req.cookie("Test") << std::endl;
+            //            std::cout << "RHeader: " << req.header("Content-Length") << std::endl;
+            std::cout << "RHeader: " << req.header("Accept") << std::endl;
 
-        //            std::cout << "RHeader: " << req.header("Content-Length") << std::endl;
-        std::cout << "RHeader: " << req.header("Accept") << std::endl;
+            std::cout << "If-Modified: " << req.header("If-Modified-Since") << std::endl;
 
-        std::cout << "If-Modified: " << req.header("If-Modified-Since") << std::endl;
+            std::cout << "RQuery: " << req.query("Hallo") << std::endl;
 
-        std::cout << "RQuery: " << req.query("Hallo") << std::endl;
+            res.cookie("Test", "me", {{"Max-Age", "3600"}});
 
-        res.cookie("Test", "me", {{"Max-Age", "3600"}});
+            //            res.set("Connection", "close");
+            res.sendFile(uri, [uri](int ret) -> void {
+                if (ret != 0) {
+                    perror(uri.c_str());
+                    //                    std::cout << "Error: " << ret << ", " << uri << std::endl;
+                }
+            });
 
-        //            res.set("Connection", "close");
-        res.sendFile(uri, [uri](int ret) -> void {
-            if (ret != 0) {
-                perror(uri.c_str());
-                //                    std::cout << "Error: " << ret << ", " << uri << std::endl;
+            if (!canceled) {
+                tack.cancel();
+                canceled = true;
+                //                app.destroy();
             }
-        });
-
-        if (!canceled) {
-            tack.cancel();
-            canceled = true;
-            //                app.destroy();
-        }
-        //            Multiplexer::stop();
+            //            Multiplexer::stop();
         }
     });
-    
-    
+
+
     app.get("/search/", [&](const Request& req, const Response& res) -> void {
         //                  res.set({{"Content-Length", "7"}});
 
@@ -105,7 +103,7 @@ int timerApp() {
             std::cout << "snode.c listening on port 8080" << std::endl;
         }
     });
-    
+
     WebApp::start();
 
     return 0;
@@ -238,7 +236,7 @@ int simpleWebserver() {
     });
 
     WebApp::start();
-    
+
     return 0;
 }
 
@@ -248,33 +246,33 @@ int testPost() {
 
     app.get("/", [&](const Request& req, const Response& res) -> void {
         res.send("<html>"
-                    "<head>"
-                        "<style>"
-                            "main {"
-                                "min-height: 30em;"
-                                "padding: 3em;"
-                                "background-image: repeating-radial-gradient( circle at 0 0, #fff, #ddd 50px);"
-                            "}"
-                            "input[type=\"file\"] {"
-                                "display: block;"
-                                "margin: 2em;"
-                                "padding: 2em;"
-                                "border: 1px dotted;"
-                            "}"
-                        "</style>"
-                    "</head>"
-                    "<body>"
-                        "<h1>Datei-Upload mit input type=\"file\"</h1>"
-                        "<main>"
-                            "<h2>Schicken Sie uns was Schickes!</h2>"
-                            "<form method=\"post\" enctype=\"multipart/form-data\">"
-                                "<label> Wählen Sie eine Textdatei (*.txt, *.html usw.) von Ihrem Rechner aus."
-                                    "<input name=\"datei\" type=\"file\" size=\"50\" accept=\"text/*\">"
-                                "</label>"
-                                "<button>… und ab geht die Post!</button>"
-                            "</form>"
-                        "</main>"
-                    "</body>"
+                 "<head>"
+                 "<style>"
+                 "main {"
+                 "min-height: 30em;"
+                 "padding: 3em;"
+                 "background-image: repeating-radial-gradient( circle at 0 0, #fff, #ddd 50px);"
+                 "}"
+                 "input[type=\"file\"] {"
+                 "display: block;"
+                 "margin: 2em;"
+                 "padding: 2em;"
+                 "border: 1px dotted;"
+                 "}"
+                 "</style>"
+                 "</head>"
+                 "<body>"
+                 "<h1>Datei-Upload mit input type=\"file\"</h1>"
+                 "<main>"
+                 "<h2>Schicken Sie uns was Schickes!</h2>"
+                 "<form method=\"post\" enctype=\"multipart/form-data\">"
+                 "<label> Wählen Sie eine Textdatei (*.txt, *.html usw.) von Ihrem Rechner aus."
+                 "<input name=\"datei\" type=\"file\" size=\"50\" accept=\"text/*\">"
+                 "</label>"
+                 "<button>… und ab geht die Post!</button>"
+                 "</form>"
+                 "</main>"
+                 "</body>"
                  "</html>");
     });
 
@@ -288,11 +286,11 @@ int testPost() {
         std::cout << "Body: " << std::endl;
         std::cout << body << std::endl;
         res.send("<html>"
-                    "<body>"
-                        "<h1>Thank you</h1>"
-                    "</body>"
+                 "<body>"
+                 "<h1>Thank you</h1>"
+                 "</body>"
                  "</html>");
-        
+
         delete[] body;
     });
 
@@ -315,4 +313,3 @@ int main(int argc, char** argv) {
 
     return timerApp();
 }
-
