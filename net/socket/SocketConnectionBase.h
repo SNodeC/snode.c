@@ -50,10 +50,9 @@ public:
               [&](int errnum) -> void {
                   onReadError(this, errnum);
               })
-        , Writer(
-              [&](int errnum) -> void {
-                onWriteError(this, errnum);
-              })
+        , Writer([&](int errnum) -> void {
+            onWriteError(this, errnum);
+        })
         , serverSocket(serverSocket) {
         this->attachFd(csFd);
     }
