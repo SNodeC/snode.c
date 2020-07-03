@@ -22,6 +22,8 @@ namespace std {
         constexpr operator const CharT*() const {
             return m_data;
         }
+
+        using CharType = CharT;
     };
     template <typename CharT, std::size_t N>
     basic_fixed_string(const CharT (&str)[N]) -> basic_fixed_string<CharT, N>;
@@ -74,6 +76,9 @@ private:
 
     private:
         Attribute attribute;
+
+    public:
+        using AttributeType = Attribute;
     };
 
 public:
