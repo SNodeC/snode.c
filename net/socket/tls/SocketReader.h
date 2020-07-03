@@ -19,9 +19,7 @@ namespace tls {
     protected:
         SocketReader(const std::function<void(const char* junk, ssize_t n)>& readProcessor, const std::function<void(int errnum)>& onError)
             : SocketReaderBase(
-                  [readProcessor](const char* junk, ssize_t n) -> void {
-                      readProcessor(junk, n);
-                  },
+                  readProcessor,
                   onError) {
         }
 
