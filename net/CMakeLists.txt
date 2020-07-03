@@ -10,8 +10,6 @@ add_library(net SHARED
     ManagedTimer.cpp
     ManagedWriter.cpp
     Multiplexer.cpp
-    Reader.cpp
-    Writer.cpp
     file/File.cpp
     file/FileReader.cpp
     socket/ClientSocket.cpp
