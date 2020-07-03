@@ -16,8 +16,8 @@ namespace tls {
             [](tls::SocketConnection* connectedSocket) -> void {
                 delete static_cast<HTTPContext*>(connectedSocket->getContext());
             },
-            [](tls::SocketReader* socketReader, const char* junk, ssize_t n) -> void {
-                static_cast<HTTPContext*>(dynamic_cast<tls::SocketConnection*>(socketReader)->getContext())->receiveRequest(junk, n);
+            [](tls::SocketConnection* connectedSocket, const char* junk, ssize_t n) -> void {
+                static_cast<HTTPContext*>(connectedSocket->getContext())->receiveRequest(junk, n);
             },
             [](tls::SocketConnection* connectedSocket, int errnum) -> void {
                 static_cast<HTTPContext*>(connectedSocket->getContext())->onReadError(errnum);

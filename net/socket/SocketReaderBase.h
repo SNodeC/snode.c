@@ -30,3 +30,4 @@ private:
 };
 
 #endif // SOCKETREADERBASE_H
+
