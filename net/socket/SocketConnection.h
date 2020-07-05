@@ -5,7 +5,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Multiplexer.h"
 #include "SocketConnectionBase.h"
 #include "SocketServer.h"
 
@@ -35,12 +34,11 @@ public:
     }
 
     void enqueue(const char* buffer, int size) override {
-        Writer::writePuffer.append(buffer, size);
-        Multiplexer::instance().getManagedWriter().add(this);
+        this->Writer::enqueue(buffer, size);
     }
 
     void end() override {
-        Multiplexer::instance().getManagedReader().remove(this);
+        serverSocket->end(this);
     }
 
     InetAddress& getRemoteAddress() {

@@ -15,10 +15,6 @@ public:
     ~Writer() override = default;
 
     virtual void writeEvent() = 0;
-
-protected:
-    std::string writePuffer;
 };
-
 
 #endif // WRITER_H

@@ -107,6 +107,10 @@ public:
         }
     }
 
+    void end(SocketConnectionImpl* cs) {
+        Multiplexer::instance().getManagedReader().remove(cs);
+    }
+
     void disconnect(SocketConnectionImpl* cs) {
         onDisconnect(cs);
 

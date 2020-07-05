@@ -25,3 +25,9 @@ void SocketWriter::writeEvent() {
         Multiplexer::instance().getManagedWriter().remove(this);
     }
 }
+
+
+void SocketWriter::enqueue(const char* buffer, int size) {
+    writePuffer.append(buffer, size);
+    Multiplexer::instance().getManagedWriter().add(this);
+}
