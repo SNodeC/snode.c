@@ -12,7 +12,7 @@
 class HTTPContext;
 
 
-class Request : public utils::AttributeInjector {
+class Request : public utils::MultibleAttributeInjector {
 private:
     explicit Request();
 
