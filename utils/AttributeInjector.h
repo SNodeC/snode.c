@@ -7,7 +7,6 @@
 #include <map>
 #include <memory>
 
-
 namespace std {
 
     template <typename CharT, std::size_t N>
@@ -41,7 +40,6 @@ namespace utils {
     template <typename Attribute>
     concept InjectedAttribute = std::copy_constructible<Attribute>and std::default_initializable<Attribute>and std::copyable<Attribute>;
 
-
     class AttributeInjector {
     private:
         template <InjectedAttribute Attribute>
@@ -70,6 +68,11 @@ namespace utils {
             }
 
             return inserted;
+        }
+
+        template <InjectedAttribute Attribute, std::basic_fixed_string key = "">
+        bool delAttribute() const {
+            return attributes.erase(typeid(Attribute).name() + std::string(key)) > 0;
         }
 
         template <InjectedAttribute Attribute, std::basic_fixed_string key = "">
