@@ -4,9 +4,6 @@
 
 #include "socket/legacy/SocketReader.h"
 
-#include "Multiplexer.h"
-#include "socket/SocketConnection.h"
-
 
 namespace legacy {
 

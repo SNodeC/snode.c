@@ -8,7 +8,6 @@
 #include "ManagedTimer.h"
 #include "timer/ContinousTimer.h"
 #include "timer/SingleshotTimer.h"
-#include "timer/Timer.h"
 
 
 struct timeval ManagedTimer::getNextTimeout() {

@@ -14,7 +14,7 @@ class HTTPContext;
 
 class Request : public utils::AttributeInjector {
 private:
-    explicit Request(HTTPContext* httpContext);
+    explicit Request();
 
 public:
     const std::string& header(const std::string& key, int i = 0) const;
@@ -37,8 +37,6 @@ public:
 
 private:
     void reset();
-
-    HTTPContext* httpContext;
 
     std::string nullstr = "";
 

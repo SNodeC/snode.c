@@ -5,7 +5,6 @@
 #include "SocketWriter.h"
 
 #include "Multiplexer.h"
-#include "socket/SocketConnection.h"
 
 
 #define MAX_JUNKSIZE 4096
@@ -21,8 +20,8 @@ void SocketWriter::writeEvent() {
             Multiplexer::instance().getManagedWriter().remove(this);
         }
     } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
-        onError(errno);
         Multiplexer::instance().getManagedWriter().remove(this);
+        onError(errno);
     }
 }
 

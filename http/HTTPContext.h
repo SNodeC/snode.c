@@ -10,7 +10,7 @@
 
 #include "Request.h"
 #include "Response.h"
-#include "socket/SocketConnection.h"
+#include "socket/SocketConnectionBase.h"
 
 
 class FileReader;
@@ -69,7 +69,7 @@ private:
 
     bool requestInProgress{false};
 
-    Request request;
+    Request request{};
     Response response;
 
     friend class Response;
