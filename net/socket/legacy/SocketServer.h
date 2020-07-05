@@ -5,7 +5,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/SocketConnectionBase.h"
+#include "socket/SocketConnection.h"
 #include "socket/SocketServer.h"
 #include "socket/legacy/SocketReader.h"
 #include "socket/legacy/SocketWriter.h"
@@ -13,7 +13,7 @@
 
 namespace legacy {
 
-    using SocketConnection = SocketConnectionBase<legacy::SocketReader, legacy::SocketWriter>;
+    using SocketConnection = SocketConnection<legacy::SocketReader, legacy::SocketWriter>;
 
     class SocketServer : public ::SocketServer<legacy::SocketConnection> {};
 
