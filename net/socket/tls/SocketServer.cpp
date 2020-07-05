@@ -28,15 +28,6 @@ namespace tls {
     }
 
 
-    SocketServer* SocketServer::instance(const std::function<void(tls::SocketConnection* cs)>& onConnect,
-                                         const std::function<void(tls::SocketConnection* cs)>& onDisconnect,
-                                         const std::function<void(tls::SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
-                                         const std::function<void(tls::SocketConnection* cs, int errnum)>& onReadError,
-                                         const std::function<void(tls::SocketConnection* cs, int errnum)>& onWriteError) {
-        return new SocketServer(onConnect, onDisconnect, onRead, onReadError, onWriteError);
-    }
-
-
     SocketServer::~SocketServer() {
         if (ctx) {
             SSL_CTX_free(ctx);
