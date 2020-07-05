@@ -16,16 +16,16 @@
 
 class SocketReader;
 
-template <typename SocketConnectionBase>
+template <typename SocketConnectionImpl>
 class SocketServer
     : public Reader
     , public Socket {
 protected:
-    SocketServer(const std::function<void(SocketConnectionBase* cs)>& onConnect,
-                 const std::function<void(SocketConnectionBase* cs)>& onDisconnect,
-                 const std::function<void(SocketConnectionBase* cs, const char* junk, ssize_t n)>& readProcessor,
-                 const std::function<void(SocketConnectionBase* cs, int errnum)>& onReadError,
-                 const std::function<void(SocketConnectionBase* cs, int errnum)>& onWriteError)
+    SocketServer(const std::function<void(SocketConnectionImpl* cs)>& onConnect,
+                 const std::function<void(SocketConnectionImpl* cs)>& onDisconnect,
+                 const std::function<void(SocketConnectionImpl* cs, const char* junk, ssize_t n)>& readProcessor,
+                 const std::function<void(SocketConnectionImpl* cs, int errnum)>& onReadError,
+                 const std::function<void(SocketConnectionImpl* cs, int errnum)>& onWriteError)
         : Reader()
         , Socket()
         , onConnect(onConnect)
@@ -36,11 +36,11 @@ protected:
     }
 
 public:
-    static SocketServer* instance(const std::function<void(SocketConnectionBase* cs)>& onConnect,
-                                  const std::function<void(SocketConnectionBase* cs)>& onDisconnect,
-                                  const std::function<void(SocketConnectionBase* cs, const char* junk, ssize_t n)>& readProcessor,
-                                  const std::function<void(SocketConnectionBase* cs, int errnum)>& onReadError,
-                                  const std::function<void(SocketConnectionBase* cs, int errnum)>& onWriteError) {
+    static SocketServer* instance(const std::function<void(SocketConnectionImpl* cs)>& onConnect,
+                                  const std::function<void(SocketConnectionImpl* cs)>& onDisconnect,
+                                  const std::function<void(SocketConnectionImpl* cs, const char* junk, ssize_t n)>& readProcessor,
+                                  const std::function<void(SocketConnectionImpl* cs, int errnum)>& onReadError,
+                                  const std::function<void(SocketConnectionImpl* cs, int errnum)>& onWriteError) {
         return new SocketServer(onConnect, onDisconnect, readProcessor, onReadError, onWriteError);
     }
 
@@ -90,7 +90,7 @@ public:
             socklen_t addressLength = sizeof(localAddress);
 
             if (getsockname(csFd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
-                SocketConnectionBase* cs = new SocketConnectionBase(csFd, this, readProcessor, onReadError, onWriteError);
+                SocketConnectionImpl* cs = new SocketConnectionImpl(csFd, this, readProcessor, onReadError, onWriteError);
 
                 cs->setRemoteAddress(InetAddress(remoteAddress));
                 cs->setLocalAddress(InetAddress(localAddress));
@@ -107,7 +107,7 @@ public:
         }
     }
 
-    void disconnect(SocketConnectionBase* cs) {
+    void disconnect(SocketConnectionImpl* cs) {
         onDisconnect(cs);
 
         delete cs;
@@ -129,17 +129,16 @@ private:
         delete this;
     }
 
-    std::function<void(SocketConnectionBase* cs)> onConnect;
-    std::function<void(SocketConnectionBase* cs)> onDisconnect;
+    std::function<void(SocketConnectionImpl* cs)> onConnect;
+    std::function<void(SocketConnectionImpl* cs)> onDisconnect;
 
-    std::function<void(SocketConnectionBase* cs, const char* junk, ssize_t n)> readProcessor;
+    std::function<void(SocketConnectionImpl* cs, const char* junk, ssize_t n)> readProcessor;
 
-    std::function<void(SocketConnectionBase* cs, int errnum)> onReadError;
-    std::function<void(SocketConnectionBase* cs, int errnum)> onWriteError;
+    std::function<void(SocketConnectionImpl* cs, int errnum)> onReadError;
+    std::function<void(SocketConnectionImpl* cs, int errnum)> onWriteError;
 
 public:
-    using SocketConnectionType = SocketConnectionBase;
+    //    using SocketConnectionType = SocketConnectionImpl;
 };
-
 
 #endif // SOCKETSERVERBASE_H

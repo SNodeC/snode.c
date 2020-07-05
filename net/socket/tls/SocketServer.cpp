@@ -16,7 +16,7 @@ namespace tls {
                                const std::function<void(tls::SocketConnection* cs, int errnum)>& onWriteError)
         : ::SocketServer<tls::SocketConnection>(
               [this, onConnect](tls::SocketConnection* cs) {
-                  if (!cs->startSSL(ctx)) {
+                  if (!cs->startSSL(this->ctx)) {
                       Multiplexer::instance().getManagedReader().remove(cs);
                   }
                   onConnect(cs);
@@ -81,11 +81,11 @@ namespace tls {
 
 
     int SocketServer::passwordCallback(char* buf, int size, int rwflag, void* u) {
-        ::strncpy(buf, static_cast<char*>(u), size);
+        strncpy(buf, static_cast<char*>(u), size);
         buf[size - 1] = '\0';
 
-        ::memset(u, 0, ::strlen(static_cast<char*>(u))); // garble password
-        ::free(u);
+        memset(u, 0, ::strlen(static_cast<char*>(u))); // garble password
+        free(u);
 
         return ::strlen(buf);
     }

@@ -15,19 +15,27 @@ namespace legacy {
 
         legacy::SocketServer::instance(
             [this](legacy::SocketConnection* connectedSocket) -> void { // onConnect
-                connectedSocket->setContext(new HTTPContext(*this, connectedSocket));
+                connectedSocket->setAttribute<HTTPContext*>(new HTTPContext(*this, connectedSocket));
             },
             [](legacy::SocketConnection* connectedSocket) -> void { // onDisconnect
-                delete static_cast<HTTPContext*>(connectedSocket->getContext());
+                connectedSocket->getAttribute<HTTPContext*>([](HTTPContext*& context) -> void {
+                    delete context;
+                });
             },
             [](legacy::SocketConnection* connectedSocket, const char* junk, ssize_t n) -> void { // readProcessor
-                static_cast<HTTPContext*>(connectedSocket->getContext())->receiveRequest(junk, n);
+                connectedSocket->getAttribute<HTTPContext*>([&junk, &n](HTTPContext*& context) -> void {
+                    context->receiveData(junk, n);
+                });
             },
             [](legacy::SocketConnection* connectedSocket, int errnum) -> void { // onReadError
-                static_cast<HTTPContext*>(connectedSocket->getContext())->onReadError(errnum);
+                connectedSocket->getAttribute<HTTPContext*>([&errnum](HTTPContext*& context) -> void {
+                    context->onReadError(errnum);
+                });
             },
             [](legacy::SocketConnection* connectedSocket, int errnum) -> void { // onWriteError
-                static_cast<HTTPContext*>(connectedSocket->getContext())->onWriteError(errnum);
+                connectedSocket->getAttribute<HTTPContext*>([&errnum](HTTPContext*& context) -> void {
+                    context->onReadError(errnum);
+                });
             })
             ->listen(port, 5, [&](int err) -> void {
                 if (onError) {

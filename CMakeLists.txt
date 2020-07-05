@@ -5,9 +5,15 @@ set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "ON")
 
 project(snode.c)
 
+message("Your C++ compiler supports these C++ features:")
+foreach(i ${CMAKE_CXX_COMPILE_FEATURES})
+  message("${i}")
+endforeach()
+
 add_subdirectory(net)
 add_subdirectory(http)
 add_subdirectory(log)
+add_subdirectory(utils)
 
 add_executable(snode.c main.cpp)
 target_compile_options(snode.c PRIVATE --warn-conversion)
@@ -15,6 +21,7 @@ target_link_libraries(snode.c LINK_PUBLIC http)
 install(TARGETS snode.c RUNTIME DESTINATION bin)
 set_target_properties(snode.c PROPERTIES
             CXX_STANDARD 20
+            CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF
             SOVERSION 1
 )
@@ -25,6 +32,7 @@ target_link_libraries(posttest LINK_PUBLIC http)
 install(TARGETS posttest RUNTIME DESTINATION bin)
 set_target_properties(posttest PROPERTIES
             CXX_STANDARD 20
+            CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF
             SOVERSION 1
 )
@@ -35,6 +43,7 @@ target_link_libraries(simpleserver LINK_PUBLIC http)
 install(TARGETS simpleserver RUNTIME DESTINATION bin)
 set_target_properties(simpleserver PROPERTIES
             CXX_STANDARD 20
+            CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF
             SOVERSION 1
 )
@@ -45,6 +54,7 @@ target_link_libraries(experiments LINK_PUBLIC http)
 install(TARGETS experiments RUNTIME DESTINATION bin)
 set_target_properties(experiments PROPERTIES
             CXX_STANDARD 20
+            CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF
             SOVERSION 1
 )
@@ -79,6 +89,7 @@ FILE(GLOB_RECURSE
     net/legacy/*.[tch]pp net/legacy/*.h
     http/*.[tch]pp http/*.h
     log/*.[tch]pp log/*.h
+    utils/*.[tch]pp utils/*.h
 )
 INCLUDE("cmake/clang-cpp-checks.cmake")
 

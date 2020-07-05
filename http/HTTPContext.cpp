@@ -13,7 +13,6 @@
 #include "WebApp.h"
 #include "file/FileReader.h"
 #include "httputils.h"
-#include "socket/SocketConnection.h"
 
 
 HTTPContext::HTTPContext(const WebApp& webApp, SocketConnection* connectedSocket)
@@ -50,7 +49,7 @@ void HTTPContext::onWriteError(int errnum) {
 }
 
 
-void HTTPContext::receiveRequest(const char* junk, ssize_t junkLen) {
+void HTTPContext::receiveData(const char* junk, ssize_t junkLen) {
     if (requestInProgress) {
         this->connectedSocket->end();
     } else {
@@ -101,7 +100,7 @@ void HTTPContext::parseRequest(const char* junk, ssize_t junkLen, const std::fun
     if (requestState != requeststates::BODY) {
         int n = 0;
 
-        while (n < junkLen && requestState != ERROR && requestState != BODY) {
+        while (n < junkLen && requestState != requeststates::ERROR && requestState != requeststates::BODY) {
             const char& ch = junk[n++];
             if (ch != '\r') { // '\r' can be ignored completely as long as we are not receiving the body of the document
                 switch (lineState) {

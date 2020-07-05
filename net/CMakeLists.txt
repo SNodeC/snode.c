@@ -28,10 +28,11 @@ add_library(net SHARED
     timer/Timer.cpp
 )
 
-target_link_libraries(net LINK_PUBLIC logger ${OPENSSL_LIBRARIES})
+target_link_libraries(net LINK_PUBLIC logger utils ${OPENSSL_LIBRARIES})
 
 set_target_properties(net PROPERTIES
-            CXX_STANDARD 17
+            CXX_STANDARD 20
+            CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF
             SOVERSION 1
 )
