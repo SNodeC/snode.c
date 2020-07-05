@@ -23,7 +23,7 @@ private:
     enum struct linestate { READ, EOL } lineState{linestate::READ};
 
 public:
-    HTTPContext(const WebApp& webApp, SocketConnection* connectedSocket);
+    HTTPContext(const WebApp& webApp, SocketConnectionBase* connectedSocket);
 
     void receiveData(const char* junk, ssize_t junkLen);
     void onReadError(int errnum);
@@ -55,7 +55,7 @@ private:
     void enqueue(const char* buf, size_t len);
     void enqueue(const std::string& str);
 
-    SocketConnection* connectedSocket;
+    SocketConnectionBase* connectedSocket;
     FileReader* fileReader{nullptr};
     const WebApp& webApp;
 

@@ -15,7 +15,7 @@
 #include "httputils.h"
 
 
-HTTPContext::HTTPContext(const WebApp& webApp, SocketConnection* connectedSocket)
+HTTPContext::HTTPContext(const WebApp& webApp, SocketConnectionBase* connectedSocket)
     : connectedSocket(connectedSocket)
     , webApp(webApp)
     , request(this)

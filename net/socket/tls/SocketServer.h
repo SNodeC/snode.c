@@ -5,7 +5,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/SocketConnectionBase.h"
+#include "socket/SocketConnection.h"
 #include "socket/SocketServer.h"
 #include "socket/tls/SocketReader.h"
 #include "socket/tls/SocketWriter.h"
@@ -13,7 +13,7 @@
 
 namespace tls {
 
-    using SocketConnection = SocketConnectionBase<tls::SocketReader, tls::SocketWriter>;
+    using SocketConnection = SocketConnection<tls::SocketReader, tls::SocketWriter>;
 
     class SocketServer : public ::SocketServer<tls::SocketConnection> {
     private:

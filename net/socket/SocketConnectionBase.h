@@ -1,72 +1,26 @@
-#ifndef SOCKETCONNECTIONBASE_H
-#define SOCKETCONNECTIONBASE_H
+#ifndef SOCKETCONNECTION_H
+#define SOCKETCONNECTION_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "Multiplexer.h"
-#include "SocketConnection.h"
-#include "SocketServer.h"
-
-
-template <typename Reader, typename Writer>
-class SocketConnectionBase
-    : public SocketConnection
-    , public Reader
-    , public Writer {
-public:
-    SocketConnectionBase(int csFd, SocketServer<SocketConnectionBase>* serverSocket,
-                         const std::function<void(SocketConnectionBase* cs, const char* junk, ssize_t n)>& readProcessor,
-                         const std::function<void(SocketConnectionBase* cs, int errnum)>& onReadError,
-                         const std::function<void(SocketConnectionBase* cs, int errnum)>& onWriteError)
-        : Reader(
-              [&](const char* junk, ssize_t n) -> void {
-                  readProcessor(this, junk, n);
-              },
-              [&](int errnum) -> void {
-                  onReadError(this, errnum);
-              })
-        , Writer([&](int errnum) -> void {
-            onWriteError(this, errnum);
-        })
-        , serverSocket(serverSocket) {
-        this->attachFd(csFd);
-    }
-
-    void enqueue(const char* buffer, int size) override {
-        Writer::writePuffer.append(buffer, size);
-        Multiplexer::instance().getManagedWriter().add(this);
-    }
-
-    void end() override {
-        Multiplexer::instance().getManagedReader().remove(this);
-    }
-
-    InetAddress& getRemoteAddress() {
-        return remoteAddress;
-    }
-
-    void setRemoteAddress(const InetAddress& remoteAddress) {
-        this->remoteAddress = remoteAddress;
-    }
-
-private:
-    void unmanaged() override {
-        serverSocket->disconnect(this);
-    }
-
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-    SocketServer<SocketConnectionBase>* serverSocket;
+#include "AttributeInjector.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-    InetAddress remoteAddress{};
 
+class SocketConnectionBase : public utils::AttributeInjector {
 public:
-    using ReaderType = Reader;
-    using WriterType = Writer;
+    SocketConnectionBase(const SocketConnectionBase&) = delete;
+    SocketConnectionBase& operator=(const SocketConnectionBase&) = delete;
+
+    virtual ~SocketConnectionBase() = default;
+
+    virtual void enqueue(const char* buffer, int size) = 0;
+
+    virtual void end() = 0;
+
+protected:
+    SocketConnectionBase() = default;
 };
 
-#endif // SOCKETCONNECTIONBASE_H
+#endif // SOCKETCONNECTION_H
