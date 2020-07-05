@@ -19,9 +19,14 @@ protected:
         : onError(onError) {
     }
 
+    void enqueue(const char* buffer, int size);
+
     virtual ssize_t send(const char* junk, const ssize_t& junkSize) = 0;
 
     std::function<void(int errnum)> onError;
+
+protected:
+    std::string writePuffer;
 };
 
 #endif // SOCKETWRITERBASE_H
