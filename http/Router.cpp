@@ -57,11 +57,7 @@ private:
 
 class RouterRoute : public Dispatcher {
 public:
-    RouterRoute() = default;
-
-    RouterRoute& operator=(const RouterRoute&) = delete;
-
-    RouterRoute(const RouterRoute&) = delete;
+    explicit RouterRoute() = default;
 
     [[nodiscard]] bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req,
                                 const Response& res) const override;
@@ -75,10 +71,6 @@ private:
 
 class MiddlewareRoute : public Dispatcher {
 public:
-    MiddlewareRoute(const MiddlewareRoute&) = delete;
-
-    MiddlewareRoute& operator=(const MiddlewareRoute&) = delete;
-
     explicit MiddlewareRoute(
         const std::function<void(const Request& req, const Response& res, const std::function<void(void)>& next)>& dispatcher)
         : dispatcher(dispatcher) {
@@ -94,10 +86,6 @@ private:
 
 class DispatcherRoute : public Dispatcher {
 public:
-    DispatcherRoute(const DispatcherRoute&) = delete;
-
-    DispatcherRoute& operator=(const DispatcherRoute&) = delete;
-
     explicit DispatcherRoute(const std::function<void(const Request& req, const Response& res)>& dispatcher)
         : dispatcher(dispatcher) {
     }

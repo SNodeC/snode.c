@@ -87,7 +87,6 @@ protected:
         this->mountPoint = mountPoint;
     }
 
-protected:
     MountPoint mountPoint;
     std::shared_ptr<RouterRoute> routerRoute; // it can be shared by multiple routers
 
