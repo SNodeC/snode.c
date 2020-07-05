@@ -11,7 +11,10 @@
 
 namespace legacy {
 
-    class SocketServer : public ::SocketServer<legacy::SocketConnection> {};
+    class SocketServer : public ::SocketServer<legacy::SocketConnection> {
+    public:
+        using ::SocketServer<legacy::SocketConnection>::SocketServer;
+    };
 
 }; // namespace legacy
 

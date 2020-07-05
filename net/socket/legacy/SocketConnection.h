@@ -17,4 +17,3 @@ namespace legacy {
 } // namespace legacy
 
 #endif // TLS_SOCKETCONNECTION_H
-

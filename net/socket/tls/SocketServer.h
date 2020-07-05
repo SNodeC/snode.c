@@ -12,19 +12,12 @@
 namespace tls {
 
     class SocketServer : public ::SocketServer<tls::SocketConnection> {
-    private:
+    public:
         SocketServer(const std::function<void(tls::SocketConnection* cs)>& onConnect,
                      const std::function<void(tls::SocketConnection* cs)>& onDisconnect,
                      const std::function<void(tls::SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
                      const std::function<void(tls::SocketConnection* cs, int errnum)>& onReadError,
                      const std::function<void(tls::SocketConnection* cs, int errnum)>& onWriteError);
-
-    public:
-        static SocketServer* instance(const std::function<void(tls::SocketConnection* cs)>& onConnect,
-                                      const std::function<void(tls::SocketConnection* cs)>& onDisconnect,
-                                      const std::function<void(tls::SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
-                                      const std::function<void(tls::SocketConnection* cs, int errnum)>& onReadError,
-                                      const std::function<void(tls::SocketConnection* cs, int errnum)>& onWriteError);
 
         ~SocketServer() override;
 

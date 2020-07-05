@@ -20,7 +20,7 @@ template <typename SocketConnectionImpl>
 class SocketServer
     : public Reader
     , public Socket {
-protected:
+public:
     SocketServer(const std::function<void(SocketConnectionImpl* cs)>& onConnect,
                  const std::function<void(SocketConnectionImpl* cs)>& onDisconnect,
                  const std::function<void(SocketConnectionImpl* cs, const char* junk, ssize_t n)>& onRead,
@@ -33,15 +33,6 @@ protected:
         , onRead(onRead)
         , onReadError(onReadError)
         , onWriteError(onWriteError) {
-    }
-
-public:
-    static SocketServer* instance(const std::function<void(SocketConnectionImpl* cs)>& onConnect,
-                                  const std::function<void(SocketConnectionImpl* cs)>& onDisconnect,
-                                  const std::function<void(SocketConnectionImpl* cs, const char* junk, ssize_t n)>& onRead,
-                                  const std::function<void(SocketConnectionImpl* cs, int errnum)>& onReadError,
-                                  const std::function<void(SocketConnectionImpl* cs, int errnum)>& onWriteError) {
-        return new SocketServer(onConnect, onDisconnect, onRead, onReadError, onWriteError);
     }
 
     SocketServer(const SocketServer&) = delete;
