@@ -5,15 +5,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/SocketConnection.h"
 #include "socket/SocketServer.h"
-#include "socket/tls/SocketReader.h"
-#include "socket/tls/SocketWriter.h"
+#include "socket/tls/SocketConnection.h"
 
 
 namespace tls {
-
-    using SocketConnection = ::SocketConnection<tls::SocketReader, tls::SocketWriter>;
 
     class SocketServer : public ::SocketServer<tls::SocketConnection> {
     private:
