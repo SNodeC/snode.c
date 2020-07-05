@@ -8,7 +8,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 
-class SocketConnectionBase : public utils::AttributeInjector {
+class SocketConnectionBase : public utils::SingleAttributeInjector {
 public:
     SocketConnectionBase(const SocketConnectionBase&) = delete;
     SocketConnectionBase& operator=(const SocketConnectionBase&) = delete;

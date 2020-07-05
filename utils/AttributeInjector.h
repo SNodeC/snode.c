@@ -40,26 +40,93 @@ namespace utils {
     template <typename Attribute>
     concept InjectedAttribute = std::copy_constructible<Attribute>and std::default_initializable<Attribute>and std::copyable<Attribute>;
 
-    class AttributeInjector {
+
+    template <InjectedAttribute Attribute>
+    class AttributeProxy {
+    public:
+        explicit AttributeProxy(const Attribute& attribute)
+            : attribute(attribute) { // copy constructor neccessary
+        }
+
+        Attribute& operator*() {
+            return attribute;
+        }
+
     private:
+        Attribute attribute;
+    };
+
+
+    class SingleAttributeInjector {
+    public:
         template <InjectedAttribute Attribute>
-        class AttributeProxy {
-        public:
-            explicit AttributeProxy(const Attribute& attribute)
-                : attribute(attribute) { // copy constructor neccessary
+        bool setAttribute(const Attribute& attribute, bool overwrite = false) const {
+            bool inserted = false;
+
+            if (!this->attribute || overwrite) {
+                this->attributeType = typeid(Attribute).name();
+                this->attribute = std::shared_ptr<void>(new AttributeProxy<Attribute>(attribute));
+                inserted = true;
             }
 
-            Attribute& operator*() {
-                return attribute;
+            return inserted;
+        }
+
+        template <InjectedAttribute Attribute>
+        bool setAttribute(const Attribute&& attribute, bool overwrite = false) const {
+            bool inserted = false;
+
+            if (!this->attribute || overwrite) {
+                this->attributeType = typeid(Attribute).name();
+                this->attribute = std::shared_ptr<void>(new AttributeProxy<Attribute>(attribute));
+                inserted = true;
             }
 
-        private:
-            Attribute attribute;
-        };
+            return inserted;
+        }
 
+        template <InjectedAttribute Attribute>
+        bool getAttribute(std::function<void(Attribute& attribute)> onFound) const {
+            bool found = false;
+
+            if (this->attribute != nullptr && this->attributeType == typeid(Attribute).name()) {
+                onFound(**std::static_pointer_cast<AttributeProxy<Attribute>>(this->attribute));
+            }
+
+            return found;
+        }
+
+        template <InjectedAttribute Attribute>
+        void getAttribute(std::function<void(Attribute& attribute)> onFound, std::function<void(const std::string&)> onNotFound) const {
+            if (this->attribute != nullptr && this->attributeType == typeid(Attribute).name()) {
+                onFound(**std::static_pointer_cast<AttributeProxy<Attribute>>(this->attribute));
+            } else {
+                onNotFound(std::string(typeid(Attribute).name()));
+            }
+        }
+
+    private:
+        mutable std::shared_ptr<void> attribute{nullptr};
+        mutable std::string attributeType;
+    };
+
+
+    class MultibleAttributeInjector {
     public:
         template <InjectedAttribute Attribute, std::basic_fixed_string key = "">
         bool setAttribute(const Attribute& attribute, bool overwrite = false) const {
+            bool inserted = false;
+
+            if (attributes.find(typeid(Attribute).name() + std::string(key)) == attributes.end() || overwrite) {
+                attributes[typeid(Attribute).name() + std::string(key)] = std::shared_ptr<void>(new AttributeProxy<Attribute>(attribute));
+                inserted = true;
+            }
+
+            return inserted;
+        }
+
+        template <InjectedAttribute Attribute, std::basic_fixed_string key = "">
+        bool setAttribute(const Attribute&& attribute, bool overwrite = false) const {
             bool inserted = false;
 
             if (attributes.find(typeid(Attribute).name() + std::string(key)) == attributes.end() || overwrite) {
