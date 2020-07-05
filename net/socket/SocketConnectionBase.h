@@ -10,9 +10,6 @@
 #include "SocketServer.h"
 
 
-// typedef std::function<void(SocketConnection* cs, const char* junk, ssize_t n)> ReadProcessorr;
-// typedef std::function<void(SocketConnection* cs, int errnum)> OnError;
-
 template <typename Reader, typename Writer>
 class SocketConnectionBase
     : public SocketConnection
@@ -55,11 +52,15 @@ public:
     }
 
 private:
-    void unmanaged() {
+    void unmanaged() override {
         serverSocket->disconnect(this);
     }
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
     SocketServer<SocketConnectionBase>* serverSocket;
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
     InetAddress remoteAddress{};
 

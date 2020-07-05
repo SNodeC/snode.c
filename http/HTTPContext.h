@@ -10,23 +10,22 @@
 
 #include "Request.h"
 #include "Response.h"
+#include "socket/SocketConnection.h"
 
 
-class SocketConnection;
 class FileReader;
 class WebApp;
 
 class HTTPContext {
 private:
-    enum requeststates { REQUEST, HEADER, BODY, ERROR } requestState{REQUEST};
+    enum struct requeststates { REQUEST, HEADER, BODY, ERROR } requestState{requeststates::REQUEST};
 
-    enum linestate { READ, EOL } lineState{READ};
+    enum struct linestate { READ, EOL } lineState{linestate::READ};
 
 public:
     HTTPContext(const WebApp& webApp, SocketConnection* connectedSocket);
 
-    void receiveRequest(const char* junk, ssize_t junkLen);
-
+    void receiveData(const char* junk, ssize_t junkLen);
     void onReadError(int errnum);
     void onWriteError(int errnum);
 

@@ -3,26 +3,17 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
+#include "AttributeInjector.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/InetAddress.h"
 
-class SocketConnection {
+class SocketConnection : public utils::AttributeInjector {
 public:
     SocketConnection(const SocketConnection&) = delete;
     SocketConnection& operator=(const SocketConnection&) = delete;
 
     virtual ~SocketConnection() = default;
-
-    void setContext(void* context) {
-        this->context = context;
-    }
-
-    void* getContext() {
-        return this->context;
-    }
 
     virtual void enqueue(const char* buffer, int size) = 0;
 
@@ -30,9 +21,6 @@ public:
 
 protected:
     SocketConnection() = default;
-
-private:
-    void* context{nullptr};
 };
 
 #endif // SOCKETCONNECTION_H

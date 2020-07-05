@@ -10,6 +10,7 @@ add_library(logger STATIC
 
 set_target_properties(logger PROPERTIES
             CXX_STANDARD 17
+            CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF
             SOVERSION 1
             POSITION_INDEPENDENT_CODE ON

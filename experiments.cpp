@@ -31,7 +31,9 @@ Router route() {
             req.setAttribute<int>(3);
 
             req.setAttribute<std::string, "Hall">("juhu");
-            VLOG(3) << "####################### " + req.getAttribute<std::string, "Hall">();
+            VLOG(3) << "####################### " + req.getAttribute<std::string, "Hall">([](const std::string& attr) -> void {
+                    VLOG(3) << "String: --------- " + attr;
+            });
 
             if (!req.getAttribute<std::string>([](std::string& hello) -> void {
                     VLOG(3) << "String: --------- " + hello;

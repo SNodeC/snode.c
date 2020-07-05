@@ -17,10 +17,11 @@ add_library(http SHARED
     Router.cpp
 )
 
-target_link_libraries(http LINK_PUBLIC net logger ${LIBMAGIC_LIBRARIES})
+target_link_libraries(http LINK_PUBLIC net logger utils ${LIBMAGIC_LIBRARIES})
 
 set_target_properties(http PROPERTIES
             CXX_STANDARD 20
+            CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF
             SOVERSION 1
 )

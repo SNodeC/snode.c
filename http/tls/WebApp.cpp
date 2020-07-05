@@ -15,19 +15,27 @@ namespace tls {
 
         tls::SocketServer::instance(
             [this](tls::SocketConnection* connectedSocket) -> void { // onConnect
-                connectedSocket->setContext(new HTTPContext(*this, connectedSocket));
+                connectedSocket->setAttribute<HTTPContext*>(new HTTPContext(*this, connectedSocket));
             },
             [](tls::SocketConnection* connectedSocket) -> void { // onDisconnect
-                delete static_cast<HTTPContext*>(connectedSocket->getContext());
+                connectedSocket->getAttribute<HTTPContext*>([](HTTPContext*& context) -> void {
+                    delete context;
+                });
             },
             [](tls::SocketConnection* connectedSocket, const char* junk, ssize_t n) -> void { // readProcessor
-                static_cast<HTTPContext*>(connectedSocket->getContext())->receiveRequest(junk, n);
+                connectedSocket->getAttribute<HTTPContext*>([&junk, &n](HTTPContext*& context) -> void {
+                    context->receiveData(junk, n);
+                });
             },
             [](tls::SocketConnection* connectedSocket, int errnum) -> void { // onReadError
-                static_cast<HTTPContext*>(connectedSocket->getContext())->onReadError(errnum);
+                connectedSocket->getAttribute<HTTPContext*>([&errnum](HTTPContext*& context) -> void {
+                    context->onReadError(errnum);
+                });
             },
             [](tls::SocketConnection* connectedSocket, int errnum) -> void { // onWriteError
-                static_cast<HTTPContext*>(connectedSocket->getContext())->onWriteError(errnum);
+                connectedSocket->getAttribute<HTTPContext*>([&errnum](HTTPContext*& context) -> void {
+                    context->onReadError(errnum);
+                });
             })
             ->listen(port, 5, cert, key, password, [&](int err) -> void {
                 if (onError) {
