@@ -22,9 +22,9 @@ namespace tls {
                     delete context;
                 });
             },
-            [](tls::SocketConnection* connectedSocket, const char* junk, ssize_t n) -> void { // onRead
-                connectedSocket->getAttribute<HTTPContext*>([&junk, &n](HTTPContext*& context) -> void {
-                    context->receiveData(junk, n);
+            [](tls::SocketConnection* connectedSocket, const char* junk, ssize_t junkSize) -> void { // onRead
+                connectedSocket->getAttribute<HTTPContext*>([&junk, &junkSize](HTTPContext*& context) -> void {
+                    context->receiveData(junk, junkSize);
                 });
             },
             [](tls::SocketConnection* connectedSocket, int errnum) -> void { // onReadError

@@ -5,15 +5,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/SocketConnection.h"
 #include "socket/SocketServer.h"
-#include "socket/legacy/SocketReader.h"
-#include "socket/legacy/SocketWriter.h"
+#include "socket/legacy/SocketConnection.h"
 
 
 namespace legacy {
-
-    using SocketConnection = ::SocketConnection<legacy::SocketReader, legacy::SocketWriter>;
 
     class SocketServer : public ::SocketServer<legacy::SocketConnection> {};
 
