@@ -38,7 +38,7 @@ namespace std {
 namespace utils {
 
     template <typename Attribute>
-    concept InjectedAttribute = std::copy_constructible<Attribute>and std::default_initializable<Attribute>and std::copyable<Attribute>;
+    concept InjectedAttribute = std::copy_constructible<Attribute> and std::default_initializable<Attribute> and std::copyable<Attribute>;
 
     class AttributeInjector {
     private:
@@ -49,7 +49,7 @@ namespace utils {
                 : attribute(attribute) { // copy constructor neccessary
             }
 
-            Attribute& getAttribute() {
+            Attribute& operator*() {
                 return attribute;
             }
 
@@ -87,7 +87,7 @@ namespace utils {
             if ((found = hasAttribute<Attribute, key>())) {
                 std::map<std::string, std::shared_ptr<void>>::const_iterator it =
                     attributes.find(typeid(Attribute).name() + std::string(key));
-                onFound(std::static_pointer_cast<AttributeProxy<Attribute>>(it->second)->getAttribute());
+                onFound(**std::static_pointer_cast<AttributeProxy<Attribute>>(it->second));
             }
 
             return found;
@@ -98,7 +98,7 @@ namespace utils {
             if (hasAttribute<Attribute, key>()) {
                 std::map<std::string, std::shared_ptr<void>>::const_iterator it =
                     attributes.find(typeid(Attribute).name() + std::string(key));
-                onFound(std::static_pointer_cast<AttributeProxy<Attribute>>(it->second)->getAttribute());
+                onFound(**std::static_pointer_cast<AttributeProxy<Attribute>>(it->second));
             } else {
                 onNotFound(std::string(typeid(Attribute).name()) + std::string(key));
             }
