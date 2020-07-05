@@ -3,8 +3,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <csignal>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "ManagedExceptions.h"

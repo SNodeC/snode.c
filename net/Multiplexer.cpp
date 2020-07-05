@@ -1,6 +1,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cassert>
+#include <csignal>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
