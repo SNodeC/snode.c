@@ -17,8 +17,8 @@ namespace legacy {
         : public ::SocketReader
         , virtual public legacy::Socket {
     protected:
-        SocketReader(const std::function<void(const char* junk, ssize_t n)>& readProcessor, const std::function<void(int errnum)>& onError)
-            : ::SocketReader(readProcessor, onError) {
+        SocketReader(const std::function<void(const char* junk, ssize_t n)>& onRead, const std::function<void(int errnum)>& onError)
+            : ::SocketReader(onRead, onError) {
         }
 
     private:

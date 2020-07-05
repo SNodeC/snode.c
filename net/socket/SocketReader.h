@@ -15,15 +15,15 @@ public:
     void readEvent() override;
 
 protected:
-    SocketReader(const std::function<void(const char* junk, ssize_t n)>& readProcessor, const std::function<void(int errnum)>& onError)
-        : readProcessor(readProcessor)
+    SocketReader(const std::function<void(const char* junk, ssize_t n)>& onRead, const std::function<void(int errnum)>& onError)
+        : onRead(onRead)
         , onError(onError) {
     }
 
     virtual ssize_t recv(char* junk, const ssize_t& junkSize) = 0;
 
 private:
-    std::function<void(const char* junk, ssize_t n)> readProcessor;
+    std::function<void(const char* junk, ssize_t n)> onRead;
 
     std::function<void(int errnum)> onError;
 };

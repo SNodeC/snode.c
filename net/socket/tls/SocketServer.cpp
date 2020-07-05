@@ -9,7 +9,7 @@ namespace tls {
 
     SocketServer::SocketServer(const std::function<void(tls::SocketConnection* cs)>& onConnect,
                                const std::function<void(tls::SocketConnection* cs)>& onDisconnect,
-                               const std::function<void(tls::SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
+                               const std::function<void(tls::SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
                                const std::function<void(tls::SocketConnection* cs, int errnum)>& onReadError,
                                const std::function<void(tls::SocketConnection* cs, int errnum)>& onWriteError)
         : ::SocketServer<tls::SocketConnection>(
@@ -23,17 +23,17 @@ namespace tls {
                   cs->stopSSL();
                   onDisconnect(cs);
               },
-              readProcessor, onReadError, onWriteError)
+              onRead, onReadError, onWriteError)
         , ctx(nullptr) {
     }
 
 
     SocketServer* SocketServer::instance(const std::function<void(tls::SocketConnection* cs)>& onConnect,
                                          const std::function<void(tls::SocketConnection* cs)>& onDisconnect,
-                                         const std::function<void(tls::SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
+                                         const std::function<void(tls::SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
                                          const std::function<void(tls::SocketConnection* cs, int errnum)>& onReadError,
                                          const std::function<void(tls::SocketConnection* cs, int errnum)>& onWriteError) {
-        return new SocketServer(onConnect, onDisconnect, readProcessor, onReadError, onWriteError);
+        return new SocketServer(onConnect, onDisconnect, onRead, onReadError, onWriteError);
     }
 
 
