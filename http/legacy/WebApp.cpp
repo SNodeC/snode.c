@@ -22,7 +22,7 @@ namespace legacy {
                     delete context;
                 });
             },
-            [](legacy::SocketConnection* connectedSocket, const char* junk, ssize_t n) -> void { // readProcessor
+            [](legacy::SocketConnection* connectedSocket, const char* junk, ssize_t n) -> void { // onRead
                 connectedSocket->getAttribute<HTTPContext*>([&junk, &n](HTTPContext*& context) -> void {
                     context->receiveData(junk, n);
                 });

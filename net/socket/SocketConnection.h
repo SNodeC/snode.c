@@ -16,12 +16,12 @@ class SocketConnection
     , public Writer {
 public:
     SocketConnection(int csFd, SocketServer<SocketConnection>* serverSocket,
-                     const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& readProcessor,
+                     const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
                      const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
                      const std::function<void(SocketConnection* cs, int errnum)>& onWriteError)
         : Reader(
               [&](const char* junk, ssize_t n) -> void {
-                  readProcessor(this, junk, n);
+                  onRead(this, junk, n);
               },
               [&](int errnum) -> void {
                   onReadError(this, errnum);

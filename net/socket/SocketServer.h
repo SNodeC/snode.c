@@ -23,14 +23,14 @@ class SocketServer
 protected:
     SocketServer(const std::function<void(SocketConnectionImpl* cs)>& onConnect,
                  const std::function<void(SocketConnectionImpl* cs)>& onDisconnect,
-                 const std::function<void(SocketConnectionImpl* cs, const char* junk, ssize_t n)>& readProcessor,
+                 const std::function<void(SocketConnectionImpl* cs, const char* junk, ssize_t n)>& onRead,
                  const std::function<void(SocketConnectionImpl* cs, int errnum)>& onReadError,
                  const std::function<void(SocketConnectionImpl* cs, int errnum)>& onWriteError)
         : Reader()
         , Socket()
         , onConnect(onConnect)
         , onDisconnect(onDisconnect)
-        , readProcessor(readProcessor)
+        , onRead(onRead)
         , onReadError(onReadError)
         , onWriteError(onWriteError) {
     }
@@ -38,10 +38,10 @@ protected:
 public:
     static SocketServer* instance(const std::function<void(SocketConnectionImpl* cs)>& onConnect,
                                   const std::function<void(SocketConnectionImpl* cs)>& onDisconnect,
-                                  const std::function<void(SocketConnectionImpl* cs, const char* junk, ssize_t n)>& readProcessor,
+                                  const std::function<void(SocketConnectionImpl* cs, const char* junk, ssize_t n)>& onRead,
                                   const std::function<void(SocketConnectionImpl* cs, int errnum)>& onReadError,
                                   const std::function<void(SocketConnectionImpl* cs, int errnum)>& onWriteError) {
-        return new SocketServer(onConnect, onDisconnect, readProcessor, onReadError, onWriteError);
+        return new SocketServer(onConnect, onDisconnect, onRead, onReadError, onWriteError);
     }
 
     SocketServer(const SocketServer&) = delete;
@@ -90,7 +90,7 @@ public:
             socklen_t addressLength = sizeof(localAddress);
 
             if (getsockname(csFd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
-                SocketConnectionImpl* cs = new SocketConnectionImpl(csFd, this, readProcessor, onReadError, onWriteError);
+                SocketConnectionImpl* cs = new SocketConnectionImpl(csFd, this, onRead, onReadError, onWriteError);
 
                 cs->setRemoteAddress(InetAddress(remoteAddress));
                 cs->setLocalAddress(InetAddress(localAddress));
@@ -135,9 +135,7 @@ private:
 
     std::function<void(SocketConnectionImpl* cs)> onConnect;
     std::function<void(SocketConnectionImpl* cs)> onDisconnect;
-
-    std::function<void(SocketConnectionImpl* cs, const char* junk, ssize_t n)> readProcessor;
-
+    std::function<void(SocketConnectionImpl* cs, const char* junk, ssize_t n)> onRead;
     std::function<void(SocketConnectionImpl* cs, int errnum)> onReadError;
     std::function<void(SocketConnectionImpl* cs, int errnum)> onWriteError;
 

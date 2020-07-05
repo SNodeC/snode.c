@@ -17,7 +17,7 @@ void SocketReader::readEvent() {
     ssize_t ret = recv(junk, MAX_JUNKSIZE);
 
     if (ret > 0) {
-        readProcessor(junk, ret);
+        onRead(junk, ret);
     } else {
         if (ret == 0) {
             onError(0);
