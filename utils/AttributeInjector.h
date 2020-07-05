@@ -38,7 +38,7 @@ namespace std {
 namespace utils {
 
     template <typename Attribute>
-    concept InjectedAttribute = std::copy_constructible<Attribute> and std::default_initializable<Attribute> and std::copyable<Attribute>;
+    concept InjectedAttribute = std::copy_constructible<Attribute>and std::default_initializable<Attribute>and std::copyable<Attribute>;
 
     class AttributeInjector {
     private:
