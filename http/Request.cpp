@@ -4,12 +4,10 @@
 
 #include "Request.h"
 
-#include "HTTPContext.h"
 #include "httputils.h"
 
 
-Request::Request(HTTPContext* httpContext)
-    : httpContext(httpContext) {
+Request::Request() {
 }
 
 

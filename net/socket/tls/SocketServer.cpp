@@ -4,8 +4,6 @@
 
 #include "socket/tls/SocketServer.h"
 
-#include "Multiplexer.h"
-
 
 namespace tls {
 
@@ -17,7 +15,7 @@ namespace tls {
         : ::SocketServer<tls::SocketConnection>(
               [this, onConnect](tls::SocketConnection* cs) {
                   if (!cs->startSSL(this->ctx)) {
-                      Multiplexer::instance().getManagedReader().remove(cs);
+                      cs->end();
                   }
                   onConnect(cs);
               },

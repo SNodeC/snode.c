@@ -4,8 +4,6 @@
 
 #include "socket/legacy/SocketWriter.h"
 
-#include "Multiplexer.h"
-
 
 namespace legacy {
 

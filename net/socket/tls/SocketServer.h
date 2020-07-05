@@ -13,7 +13,7 @@
 
 namespace tls {
 
-    using SocketConnection = SocketConnection<tls::SocketReader, tls::SocketWriter>;
+    using SocketConnection = ::SocketConnection<tls::SocketReader, tls::SocketWriter>;
 
     class SocketServer : public ::SocketServer<tls::SocketConnection> {
     private:

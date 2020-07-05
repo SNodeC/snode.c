@@ -18,7 +18,6 @@
 HTTPContext::HTTPContext(const WebApp& webApp, SocketConnectionBase* connectedSocket)
     : connectedSocket(connectedSocket)
     , webApp(webApp)
-    , request(this)
     , response(this) {
     this->prepareForRequest();
 }

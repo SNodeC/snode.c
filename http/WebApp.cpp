@@ -1,13 +1,11 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <iostream>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "WebApp.h"
-
-#include "HTTPContext.h"
 #include "Multiplexer.h"
-#include "socket/legacy/SocketServer.h"
-#include "socket/tls/SocketServer.h"
+#include "WebApp.h"
 
 
 bool WebApp::initialized{false};

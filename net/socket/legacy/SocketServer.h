@@ -13,7 +13,7 @@
 
 namespace legacy {
 
-    using SocketConnection = SocketConnection<legacy::SocketReader, legacy::SocketWriter>;
+    using SocketConnection = ::SocketConnection<legacy::SocketReader, legacy::SocketWriter>;
 
     class SocketServer : public ::SocketServer<legacy::SocketConnection> {};
 
