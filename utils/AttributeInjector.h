@@ -15,7 +15,7 @@ namespace std {
             std::copy(std::begin(foo), std::end(foo), std::begin(m_data));
         }
 
-        auto operator<=>(const basic_fixed_string&) const = default;
+        constexpr auto operator<=>(const basic_fixed_string&) const = default;
 
         CharT m_data[N]{};
 
@@ -44,11 +44,11 @@ namespace utils {
     template <InjectedAttribute Attribute>
     class AttributeProxy {
     public:
-        explicit AttributeProxy(const Attribute& attribute)
+        explicit constexpr AttributeProxy(const Attribute& attribute)
             : attribute(attribute) { // copy constructor neccessary
         }
 
-        Attribute& operator*() {
+        constexpr Attribute& operator*() {
             return attribute;
         }
 
@@ -60,7 +60,7 @@ namespace utils {
     class SingleAttributeInjector {
     public:
         template <InjectedAttribute Attribute>
-        bool setAttribute(Attribute& attribute, bool overwrite = false) const {
+        constexpr bool setAttribute(Attribute& attribute, bool overwrite = false) const {
             bool inserted = false;
 
             if (!this->attribute || overwrite) {
@@ -73,7 +73,7 @@ namespace utils {
         }
 
         template <InjectedAttribute Attribute>
-        bool setAttribute(Attribute&& attribute, bool overwrite = false) const {
+        constexpr bool setAttribute(Attribute&& attribute, bool overwrite = false) const {
             bool inserted = false;
 
             if (!this->attribute || overwrite) {
@@ -86,7 +86,7 @@ namespace utils {
         }
 
         template <InjectedAttribute Attribute>
-        bool getAttribute(std::function<void(Attribute& attribute)> onFound) const {
+        constexpr bool getAttribute(std::function<void(Attribute& attribute)> onFound) const {
             bool found = false;
 
             if (this->attribute != nullptr && this->attributeType == typeid(Attribute).name()) {
@@ -97,7 +97,7 @@ namespace utils {
         }
 
         template <InjectedAttribute Attribute>
-        void getAttribute(std::function<void(Attribute& attribute)> onFound, std::function<void(const std::string&)> onNotFound) const {
+        constexpr void getAttribute(std::function<void(Attribute& attribute)> onFound, std::function<void(const std::string&)> onNotFound) const {
             if (this->attribute != nullptr && this->attributeType == typeid(Attribute).name()) {
                 onFound(**std::static_pointer_cast<AttributeProxy<Attribute>>(this->attribute));
             } else {
@@ -114,7 +114,7 @@ namespace utils {
     class MultibleAttributeInjector {
     public:
         template <InjectedAttribute Attribute, std::basic_fixed_string key = "">
-        bool setAttribute(Attribute& attribute, bool overwrite = false) const {
+        constexpr bool setAttribute(Attribute& attribute, bool overwrite = false) const {
             bool inserted = false;
 
             if (attributes.find(typeid(Attribute).name() + std::string(key)) == attributes.end() || overwrite) {
@@ -126,7 +126,7 @@ namespace utils {
         }
 
         template <InjectedAttribute Attribute, std::basic_fixed_string key = "">
-        bool setAttribute(Attribute&& attribute, bool overwrite = false) const {
+        constexpr bool setAttribute(Attribute&& attribute, bool overwrite = false) const {
             bool inserted = false;
 
             if (attributes.find(typeid(Attribute).name() + std::string(key)) == attributes.end() || overwrite) {
@@ -138,17 +138,17 @@ namespace utils {
         }
 
         template <InjectedAttribute Attribute, std::basic_fixed_string key = "">
-        bool delAttribute() const {
+        constexpr bool delAttribute() const {
             return attributes.erase(typeid(Attribute).name() + std::string(key)) > 0;
         }
 
         template <InjectedAttribute Attribute, std::basic_fixed_string key = "">
-        bool hasAttribute() const {
+        constexpr bool hasAttribute() const {
             return attributes.find(typeid(Attribute).name() + std::string(key)) != attributes.end();
         }
 
         template <InjectedAttribute Attribute, std::basic_fixed_string key = "">
-        bool getAttribute(std::function<void(Attribute&)> onFound) const {
+        constexpr bool getAttribute(std::function<void(Attribute&)> onFound) const {
             bool found = false;
 
             if ((found = hasAttribute<Attribute, key>())) {
@@ -161,7 +161,7 @@ namespace utils {
         }
 
         template <InjectedAttribute Attribute, std::basic_fixed_string key = "">
-        void getAttribute(std::function<void(Attribute&)> onFound, std::function<void(const std::string&)> onNotFound) const {
+        constexpr void getAttribute(std::function<void(Attribute&)> onFound, std::function<void(const std::string&)> onNotFound) const {
             if (hasAttribute<Attribute, key>()) {
                 std::map<std::string, std::shared_ptr<void>>::const_iterator it =
                     attributes.find(typeid(Attribute).name() + std::string(key));

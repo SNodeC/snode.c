@@ -20,30 +20,30 @@ public:
     virtual void end() = 0;
 
     template<utils::InjectedAttribute Attribute> const
-    void setProtocol(Attribute& attribute) const {
+    constexpr void setProtocol(Attribute& attribute) const {
         protocol.setAttribute<Attribute>(attribute);
     }
 
     template<utils::InjectedAttribute Attribute> const
-    void setProtocol(Attribute&& attribute) const {
+    constexpr void setProtocol(Attribute&& attribute) const {
        protocol.setAttribute<Attribute>(attribute);
     }
 
     template<utils::InjectedAttribute Attribute> const
-    bool getProtocol(std::function<void(Attribute&)> onFound) const {
+    constexpr bool getProtocol(std::function<void(Attribute&)> onFound) const {
         return protocol.getAttribute<Attribute>(
-            [onFound] (Attribute& attribute) -> void {
+            [&onFound] (Attribute& attribute) -> void {
                 onFound(attribute);
             });
     }
 
     template<utils::InjectedAttribute Attribute> const
-    void getProtocol(std::function<void(Attribute&)> onFound, std::function<void(const std::string&)> onNotFound) const {
+    constexpr void getProtocol(std::function<void(Attribute&)> onFound, std::function<void(const std::string&)> onNotFound) const {
         return protocol.getAttribute<Attribute>(
-            [onFound] (Attribute& attribute) -> void {
+            [&onFound] (Attribute& attribute) -> void {
                 onFound(attribute);
             },
-            [onNotFound] (const std::string& msg) -> void {
+            [&onNotFound] (const std::string& msg) -> void {
                 onNotFound(msg);
             });
     }
