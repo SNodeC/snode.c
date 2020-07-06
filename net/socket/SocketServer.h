@@ -3,7 +3,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
 #include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -86,7 +85,15 @@ public:
             socklen_t addressLength = sizeof(localAddress);
 
             if (getsockname(csFd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
-                SocketConnectionImpl* cs = new SocketConnectionImpl(csFd, this, onRead, onReadError, onWriteError);
+                SocketConnectionImpl* cs = new SocketConnectionImpl(
+                    csFd, onRead, onReadError, onWriteError,
+                    [](SocketConnectionImpl* cs) -> void { // onEnd
+                        Multiplexer::instance().getManagedReader().remove(cs);
+                    },
+                    [this](SocketConnectionImpl* cs) -> void { // onDisconnect
+                        this->onDisconnect(cs);
+                        delete cs;
+                    });
 
                 cs->setRemoteAddress(InetAddress(remoteAddress));
                 cs->setLocalAddress(InetAddress(localAddress));
@@ -101,16 +108,6 @@ public:
         } else if (errno != EINTR) {
             PLOG(ERROR) << "accept";
         }
-    }
-
-    void end(SocketConnectionImpl* cs) {
-        Multiplexer::instance().getManagedReader().remove(cs);
-    }
-
-    void disconnect(SocketConnectionImpl* cs) {
-        onDisconnect(cs);
-
-        delete cs;
     }
 
 protected:
