@@ -4,7 +4,6 @@ find_package(OpenSSL REQUIRED)
 
 add_library(net SHARED
     Descriptor.cpp
-    Exception.cpp
     ManagedExceptions.cpp
     ManagedReader.cpp
     ManagedTimer.cpp

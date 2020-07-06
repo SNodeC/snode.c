@@ -5,7 +5,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "ManagedReader.h"
-#include "Multiplexer.h"
 
 
 int ManagedReader::dispatch(const fd_set& fdSet, int count) {
