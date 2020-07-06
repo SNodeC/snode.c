@@ -97,7 +97,8 @@ namespace utils {
         }
 
         template <InjectedAttribute Attribute>
-        constexpr void getAttribute(std::function<void(Attribute& attribute)> onFound, std::function<void(const std::string&)> onNotFound) const {
+        constexpr void getAttribute(std::function<void(Attribute& attribute)> onFound,
+                                    std::function<void(const std::string&)> onNotFound) const {
             if (this->attribute != nullptr && this->attributeType == typeid(Attribute).name()) {
                 onFound(**std::static_pointer_cast<AttributeProxy<Attribute>>(this->attribute));
             } else {

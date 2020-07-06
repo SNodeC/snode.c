@@ -3,10 +3,11 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <functional>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "SocketConnectionBase.h"
-#include "SocketServer.h"
 
 
 template <typename Reader, typename Writer>
@@ -15,10 +16,10 @@ class SocketConnection
     , public Reader
     , public Writer {
 public:
-    SocketConnection(int csFd, SocketServer<SocketConnection>* serverSocket,
-                     const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
+    SocketConnection(int csFd, const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
                      const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
-                     const std::function<void(SocketConnection* cs, int errnum)>& onWriteError)
+                     const std::function<void(SocketConnection* cs, int errnum)>& onWriteError,
+                     const std::function<void(SocketConnection* cs)>& onEnd, const std::function<void(SocketConnection* cs)>& onDisconnect)
         : Reader(
               [&](const char* junk, ssize_t n) -> void {
                   onRead(this, junk, n);
@@ -29,7 +30,8 @@ public:
         , Writer([&](int errnum) -> void {
             onWriteError(this, errnum);
         })
-        , serverSocket(serverSocket) {
+        , onEnd(onEnd)
+        , onDisconnect(onDisconnect) {
         this->attachFd(csFd);
     }
 
@@ -38,7 +40,7 @@ public:
     }
 
     void end() override {
-        serverSocket->end(this);
+        onEnd(this);
     }
 
     InetAddress& getRemoteAddress() {
@@ -51,16 +53,12 @@ public:
 
 private:
     void unmanaged() override {
-        serverSocket->disconnect(this);
+        onDisconnect(this);
     }
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-    SocketServer<SocketConnection>* serverSocket;
-
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
     InetAddress remoteAddress{};
+    std::function<void(SocketConnection* cs)> onEnd;
+    std::function<void(SocketConnection* cs)> onDisconnect;
 
 public:
     using ReaderType = Reader;
