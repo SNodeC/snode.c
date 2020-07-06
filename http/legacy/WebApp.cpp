@@ -15,25 +15,25 @@ namespace legacy {
 
         (new legacy::SocketServer(
              [this](legacy::SocketConnection* connectedSocket) -> void { // onConnect
-                 connectedSocket->setAttribute<HTTPContext*>(new HTTPContext(*this, connectedSocket));
+                 connectedSocket->setProtocol<HTTPContext*>(new HTTPContext(*this, connectedSocket));
              },
              [](legacy::SocketConnection* connectedSocket) -> void { // onDisconnect
-                 connectedSocket->getAttribute<HTTPContext*>([](HTTPContext*& context) -> void {
+                 connectedSocket->getProtocol<HTTPContext*>([](HTTPContext*& context) -> void {
                      delete context;
                  });
              },
              [](legacy::SocketConnection* connectedSocket, const char* junk, ssize_t junkSize) -> void { // onRead
-                 connectedSocket->getAttribute<HTTPContext*>([&junk, &junkSize](HTTPContext*& context) -> void {
+                 connectedSocket->getProtocol<HTTPContext*>([&junk, &junkSize](HTTPContext*& context) -> void {
                      context->receiveData(junk, junkSize);
                  });
              },
              [](legacy::SocketConnection* connectedSocket, int errnum) -> void { // onReadError
-                 connectedSocket->getAttribute<HTTPContext*>([&errnum](HTTPContext*& context) -> void {
+                 connectedSocket->getProtocol<HTTPContext*>([&errnum](HTTPContext*& context) -> void {
                      context->onReadError(errnum);
                  });
              },
              [](legacy::SocketConnection* connectedSocket, int errnum) -> void { // onWriteError
-                 connectedSocket->getAttribute<HTTPContext*>([&errnum](HTTPContext*& context) -> void {
+                 connectedSocket->getProtocol<HTTPContext*>([&errnum](HTTPContext*& context) -> void {
                      context->onReadError(errnum);
                  });
              }))

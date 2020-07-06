@@ -35,6 +35,11 @@ public:
         , onWriteError(onWriteError) {
     }
 
+protected:
+    virtual ~SocketServer() {
+    }
+
+public:
     SocketServer(const SocketServer&) = delete;
     SocketServer& operator=(const SocketServer&) = delete;
 

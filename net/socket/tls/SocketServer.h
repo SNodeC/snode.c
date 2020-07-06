@@ -19,6 +19,7 @@ namespace tls {
                      const std::function<void(tls::SocketConnection* cs, int errnum)>& onReadError,
                      const std::function<void(tls::SocketConnection* cs, int errnum)>& onWriteError);
 
+    private:
         ~SocketServer() override;
 
     protected:

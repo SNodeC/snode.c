@@ -60,7 +60,7 @@ namespace utils {
     class SingleAttributeInjector {
     public:
         template <InjectedAttribute Attribute>
-        bool setAttribute(const Attribute& attribute, bool overwrite = false) const {
+        bool setAttribute(Attribute& attribute, bool overwrite = false) const {
             bool inserted = false;
 
             if (!this->attribute || overwrite) {
@@ -73,7 +73,7 @@ namespace utils {
         }
 
         template <InjectedAttribute Attribute>
-        bool setAttribute(const Attribute&& attribute, bool overwrite = false) const {
+        bool setAttribute(Attribute&& attribute, bool overwrite = false) const {
             bool inserted = false;
 
             if (!this->attribute || overwrite) {
@@ -114,7 +114,7 @@ namespace utils {
     class MultibleAttributeInjector {
     public:
         template <InjectedAttribute Attribute, std::basic_fixed_string key = "">
-        bool setAttribute(const Attribute& attribute, bool overwrite = false) const {
+        bool setAttribute(Attribute& attribute, bool overwrite = false) const {
             bool inserted = false;
 
             if (attributes.find(typeid(Attribute).name() + std::string(key)) == attributes.end() || overwrite) {
@@ -126,7 +126,7 @@ namespace utils {
         }
 
         template <InjectedAttribute Attribute, std::basic_fixed_string key = "">
-        bool setAttribute(const Attribute&& attribute, bool overwrite = false) const {
+        bool setAttribute(Attribute&& attribute, bool overwrite = false) const {
             bool inserted = false;
 
             if (attributes.find(typeid(Attribute).name() + std::string(key)) == attributes.end() || overwrite) {
@@ -148,7 +148,7 @@ namespace utils {
         }
 
         template <InjectedAttribute Attribute, std::basic_fixed_string key = "">
-        bool getAttribute(std::function<void(Attribute& attribute)> onFound) const {
+        bool getAttribute(std::function<void(Attribute&)> onFound) const {
             bool found = false;
 
             if ((found = hasAttribute<Attribute, key>())) {
@@ -161,7 +161,7 @@ namespace utils {
         }
 
         template <InjectedAttribute Attribute, std::basic_fixed_string key = "">
-        void getAttribute(std::function<void(Attribute& attribute)> onFound, std::function<void(const std::string&)> onNotFound) const {
+        void getAttribute(std::function<void(Attribute&)> onFound, std::function<void(const std::string&)> onNotFound) const {
             if (hasAttribute<Attribute, key>()) {
                 std::map<std::string, std::shared_ptr<void>>::const_iterator it =
                     attributes.find(typeid(Attribute).name() + std::string(key));
