@@ -1,10 +1,10 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <errno.h>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "SocketReader.h"
-
-#include "Multiplexer.h"
 
 
 #define MAX_JUNKSIZE 16384
@@ -19,11 +19,7 @@ void SocketReader::readEvent() {
     if (ret > 0) {
         onRead(junk, ret);
     } else {
-        if (ret == 0) {
-            onError(0);
-        } else {
-            onError(errno);
-        } // todo: do not disconnect on EAGIN EINTR
-        Multiplexer::instance().getManagedReader().remove(this);
+        Reader::stop();
+        this->onError(ret == 0 ? 0 : errno);
     }
 }

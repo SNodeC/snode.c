@@ -22,7 +22,7 @@ namespace tls {
         }
 
     private:
-        ssize_t recv(char* junk, const ssize_t& junkSize) override;
+        ssize_t recv(char* junk, size_t junkSize) override;
     };
 
 }; // namespace tls

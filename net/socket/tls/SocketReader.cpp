@@ -7,7 +7,7 @@
 
 namespace tls {
 
-    ssize_t SocketReader::recv(char* junk, const ssize_t& junkSize) {
+    ssize_t SocketReader::recv(char* junk, size_t junkSize) {
         ssize_t ret = err;
 
         if (err > 0) {

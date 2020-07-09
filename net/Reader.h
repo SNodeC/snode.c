@@ -15,6 +15,10 @@ public:
     ~Reader() override = default;
 
     virtual void readEvent() = 0;
+
+protected:
+    void start();
+    void stop();
 };
 
 

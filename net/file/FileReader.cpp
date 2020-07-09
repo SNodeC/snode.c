@@ -9,7 +9,6 @@
 #define MFREADSIZE 16384
 
 #include "FileReader.h"
-#include "Multiplexer.h"
 
 
 FileReader::FileReader(int fd, const std::function<void(char* data, int len)>& junkRead, const std::function<void(int err)>& onError)
@@ -17,6 +16,7 @@ FileReader::FileReader(int fd, const std::function<void(char* data, int len)>& j
     , onError(onError)
     , stopped(false) {
     this->attachFd(fd);
+    Reader::start();
 }
 
 
@@ -28,7 +28,6 @@ FileReader* FileReader::read(const std::string& path, const std::function<void(c
 
     if (fd >= 0) {
         fileReader = new FileReader(fd, junkRead, onError);
-        Multiplexer::instance().getManagedReader().add(fileReader);
     } else {
         onError(errno);
     }
@@ -39,7 +38,7 @@ FileReader* FileReader::read(const std::string& path, const std::function<void(c
 
 void FileReader::stop() {
     if (!stopped) {
-        Multiplexer::instance().getManagedReader().remove(this);
+        Reader::stop();
         this->onError(0);
         stopped = true;
     }
@@ -61,7 +60,7 @@ void FileReader::readEvent() {
             this->junkRead(buffer, ret);
         } else {
             stopped = true;
-            Multiplexer::instance().getManagedReader().remove(this);
+            Reader::stop();
             this->onError(ret == 0 ? 0 : errno);
         }
     }
