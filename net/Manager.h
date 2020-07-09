@@ -46,14 +46,14 @@ public:
         return it != listOfElements.end();
     }
 
-    void add(ManagedDescriptor* socket) {
+    void start(ManagedDescriptor* socket) {
         if (!contains(descriptors, socket) && !contains(addedDescriptors, socket)) {
             addedDescriptors.push_back(socket);
         }
     }
 
 
-    void remove(ManagedDescriptor* socket) {
+    void stop(ManagedDescriptor* socket) {
         if (contains(descriptors, socket) && !contains(removedDescriptors, socket)) {
             removedDescriptors.push_back(socket);
         }

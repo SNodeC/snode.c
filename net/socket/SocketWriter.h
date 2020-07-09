@@ -4,6 +4,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -21,7 +22,7 @@ protected:
 
     void enqueue(const char* buffer, int size);
 
-    virtual ssize_t send(const char* junk, const ssize_t& junkSize) = 0;
+    virtual ssize_t send(const char* junk, size_t junkSize) = 0;
 
     std::function<void(int errnum)> onError;
 

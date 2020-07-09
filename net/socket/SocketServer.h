@@ -8,7 +8,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Logger.h"
-#include "Multiplexer.h"
 #include "Reader.h"
 #include "Socket.h"
 
@@ -58,7 +57,7 @@ public:
                             } else {
                                 this->listen(backlog, [this, &onError](int errnum) -> void {
                                     if (errnum == 0) {
-                                        Multiplexer::instance().getManagedReader().add(this);
+                                        Reader::start();
                                     }
                                     onError(errnum);
                                 });
@@ -87,9 +86,6 @@ public:
             if (getsockname(csFd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
                 SocketConnectionImpl* cs = new SocketConnectionImpl(
                     csFd, onRead, onReadError, onWriteError,
-                    [](SocketConnectionImpl* cs) -> void { // onEnd
-                        Multiplexer::instance().getManagedReader().remove(cs);
-                    },
                     [this](SocketConnectionImpl* cs) -> void { // onDisconnect
                         this->onDisconnect(cs);
                         delete cs;
@@ -98,7 +94,6 @@ public:
                 cs->setRemoteAddress(InetAddress(remoteAddress));
                 cs->setLocalAddress(InetAddress(localAddress));
 
-                Multiplexer::instance().getManagedReader().add(cs);
                 onConnect(cs);
             } else {
                 PLOG(ERROR) << "getsockname";
@@ -108,6 +103,10 @@ public:
         } else if (errno != EINTR) {
             PLOG(ERROR) << "accept";
         }
+    }
+
+    void end() {
+        Reader::stop();
     }
 
 protected:

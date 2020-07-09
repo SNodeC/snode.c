@@ -19,7 +19,7 @@ public:
     SocketConnection(int csFd, const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
                      const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
                      const std::function<void(SocketConnection* cs, int errnum)>& onWriteError,
-                     const std::function<void(SocketConnection* cs)>& onEnd, const std::function<void(SocketConnection* cs)>& onDisconnect)
+                     const std::function<void(SocketConnection* cs)>& onDisconnect)
         : Reader(
               [&](const char* junk, ssize_t n) -> void {
                   onRead(this, junk, n);
@@ -30,7 +30,6 @@ public:
         , Writer([&](int errnum) -> void {
             onWriteError(this, errnum);
         })
-        , onEnd(onEnd)
         , onDisconnect(onDisconnect) {
         this->attachFd(csFd);
     }
@@ -40,7 +39,7 @@ public:
     }
 
     void end() override {
-        onEnd(this);
+        Reader::stop();
     }
 
     InetAddress& getRemoteAddress() {
@@ -57,7 +56,6 @@ private:
     }
 
     InetAddress remoteAddress{};
-    std::function<void(SocketConnection* cs)> onEnd;
     std::function<void(SocketConnection* cs)> onDisconnect;
 
 public:

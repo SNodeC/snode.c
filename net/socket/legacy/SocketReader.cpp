@@ -7,7 +7,7 @@
 
 namespace legacy {
 
-    ssize_t SocketReader::recv(char* junk, const ssize_t& junkSize) {
+    ssize_t SocketReader::recv(char* junk, size_t junkSize) {
         return ::recv(this->getFd(), junk, junkSize, 0);
         ;
     }

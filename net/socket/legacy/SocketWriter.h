@@ -21,7 +21,7 @@ namespace legacy {
             : ::SocketWriter(onError) {
         }
 
-        ssize_t send(const char* junk, const ssize_t& junkSize) override;
+        ssize_t send(const char* junk, const size_t junkSize) override;
     };
 
 }; // namespace legacy

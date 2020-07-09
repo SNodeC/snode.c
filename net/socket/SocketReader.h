@@ -18,13 +18,13 @@ protected:
     SocketReader(const std::function<void(const char* junk, ssize_t n)>& onRead, const std::function<void(int errnum)>& onError)
         : onRead(onRead)
         , onError(onError) {
+        Reader::start();
     }
 
-    virtual ssize_t recv(char* junk, const ssize_t& junkSize) = 0;
+    virtual ssize_t recv(char* junk, size_t junkSize) = 0;
 
 private:
     std::function<void(const char* junk, ssize_t n)> onRead;
-
     std::function<void(int errnum)> onError;
 };
 

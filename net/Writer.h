@@ -3,8 +3,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "ManagedDescriptor.h"
@@ -15,6 +13,10 @@ public:
     ~Writer() override = default;
 
     virtual void writeEvent() = 0;
+
+protected:
+    void start();
+    void stop();
 };
 
 #endif // WRITER_H
