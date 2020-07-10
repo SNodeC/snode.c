@@ -11,6 +11,7 @@
 
 class ManagedExceptions : public Manager<Exception> {
 public:
+    using Manager<Exception>::Manager;
     int dispatch(const fd_set& fdSet, int count) override;
 };
 

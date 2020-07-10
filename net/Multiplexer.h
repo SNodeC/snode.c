@@ -47,6 +47,10 @@ private:
 
     static Multiplexer multiplexer;
 
+    fd_set m_readfds;
+    fd_set m_writefds;
+    fd_set m_exceptionfds;
+
     ManagedReader managedReader;
     ManagedWriter managedWriter;
     ManagedExceptions managedExceptions;

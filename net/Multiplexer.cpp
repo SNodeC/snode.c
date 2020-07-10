@@ -14,7 +14,10 @@ bool Multiplexer::running = false;
 bool Multiplexer::stopped = false;
 
 
-Multiplexer::Multiplexer() {
+Multiplexer::Multiplexer()
+    : managedReader(m_readfds)
+    , managedWriter(m_writefds)
+    , managedExceptions(m_exceptionfds) {
     signal(SIGPIPE, SIG_IGN);
     signal(SIGHUP, SIG_IGN);
     signal(SIGINT, Multiplexer::stoponsig);
@@ -23,13 +26,13 @@ Multiplexer::Multiplexer() {
 
 
 void Multiplexer::tick() {
-    fd_set exceptfds = managedExceptions.getFdSet();
-    fd_set writefds = managedWriter.getFdSet();
-    fd_set readfds = managedReader.getFdSet();
-
     int maxFd = managedReader.getMaxFd();
     maxFd = managedWriter.getMaxFd() > maxFd ? managedWriter.getMaxFd() : maxFd;
     maxFd = managedExceptions.getMaxFd() > maxFd ? managedWriter.getMaxFd() : maxFd;
+
+    fd_set exceptfds = m_exceptionfds;
+    fd_set writefds = m_writefds;
+    fd_set readfds = m_readfds;
 
     struct timeval tv = managedTimer.getNextTimeout();
 
