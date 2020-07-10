@@ -11,6 +11,7 @@
 
 class ManagedWriter : public Manager<Writer> {
 public:
+    using Manager<Writer>::Manager;
     int dispatch(const fd_set& fdSet, int count) override;
 };
 

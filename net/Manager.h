@@ -14,10 +14,9 @@
 
 template <typename ManagedDescriptor>
 class Manager {
-protected:
-    Manager() = default;
-
 public:
+    Manager(fd_set& fdSet) : fdSet(fdSet) {}
+
     Manager(const Manager&) = delete;
     Manager& operator=(const Manager&) = delete;
 
@@ -61,6 +60,8 @@ public:
 
 
     int getMaxFd() {
+        updateFdSet();
+
         return maxFd;
     }
 
@@ -105,7 +106,7 @@ private:
     }
 
 
-    fd_set fdSet{0};
+    fd_set& fdSet;
     int maxFd{0};
 
     std::list<ManagedDescriptor*> addedDescriptors;
