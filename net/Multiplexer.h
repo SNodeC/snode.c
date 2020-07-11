@@ -7,6 +7,7 @@
 
 #include "ManagedExceptions.h"
 #include "ManagedReader.h"
+#include "ManagedServer.h"
 #include "ManagedTimer.h"
 #include "ManagedWriter.h"
 
@@ -22,6 +23,10 @@ public:
 
     ManagedReader& getManagedReader() {
         return managedReader;
+    }
+
+    ManagedServer& getManagedServer() {
+        return managedServer;
     }
 
     ManagedWriter& getManagedWriter() {
@@ -47,7 +52,12 @@ private:
 
     static Multiplexer multiplexer;
 
+    fd_set m_readfds;
+    fd_set m_writefds;
+    fd_set m_exceptionfds;
+
     ManagedReader managedReader;
+    ManagedServer managedServer;
     ManagedWriter managedWriter;
     ManagedExceptions managedExceptions;
     ManagedTimer managedTimer;

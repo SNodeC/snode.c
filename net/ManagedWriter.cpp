@@ -8,10 +8,10 @@
 
 
 int ManagedWriter::dispatch(const fd_set& fdSet, int count) {
-    for (Writer* writer : descriptors) {
-        if (FD_ISSET(dynamic_cast<Descriptor*>(writer)->getFd(), &fdSet)) {
+    for (std::pair<int, Writer*> writerPair : descriptors) {
+        if (FD_ISSET(dynamic_cast<Descriptor*>(writerPair.second)->getFd(), &fdSet)) {
             count--;
-            writer->writeEvent();
+            writerPair.second->writeEvent();
         }
     }
 
