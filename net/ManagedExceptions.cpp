@@ -8,10 +8,10 @@
 
 
 int ManagedExceptions::dispatch(const fd_set& fdSet, int count) {
-    for (Exception* exception : descriptors) {
-        if (FD_ISSET(dynamic_cast<Descriptor*>(exception)->getFd(), &fdSet)) {
+    for (std::pair<int, Exception*> exceptionPair : descriptors) {
+        if (FD_ISSET(dynamic_cast<Descriptor*>(exceptionPair.second)->getFd(), &fdSet)) {
             count--;
-            exception->exceptionEvent();
+            exceptionPair.second->exceptionEvent();
         }
     }
 

@@ -8,10 +8,10 @@
 
 
 int ManagedServer::dispatch(const fd_set& fdSet, int count) {
-    for (Server* server : descriptors) {
-        if (FD_ISSET(dynamic_cast<Descriptor*>(server)->getFd(), &fdSet)) {
+    for (std::pair<int, Server*> serverPair : descriptors) {
+        if (FD_ISSET(dynamic_cast<Descriptor*>(serverPair.second)->getFd(), &fdSet)) {
             count--;
-            server->acceptEvent();
+            serverPair.second->acceptEvent();
         }
     }
 
