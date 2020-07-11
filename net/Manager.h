@@ -35,34 +35,25 @@ public:
         }
     }
 
-
     void stop(ManagedDescriptor* socket) {
         if (socket->isManaged() && !contains(removedDescriptors, socket)) {
             removedDescriptors.push_back(socket);
         }
     }
 
-
     int getMaxFd() {
         int fd = 0;
 
-        updateFdSet();
+        addDescriptors();
+        removeDescriptors();
 
-        if (descriptors.rbegin() != descriptors.rend()) {
+        if (descriptors.size() > 0) {
             fd = dynamic_cast<Descriptor*>((*descriptors.rbegin()).second)->getFd();
         }
 
         return fd;
     }
 
-
-    virtual int dispatch(const fd_set& fdSet, int count) = 0;
-
-protected:
-    std::map<int, ManagedDescriptor*> descriptors;
-
-
-public:
     void addDescriptors() {
         if (!addedDescriptors.empty()) {
             for (ManagedDescriptor* descriptor : addedDescriptors) {
@@ -95,17 +86,17 @@ public:
         removeDescriptors();
     }
 
+    virtual int dispatch(const fd_set& fdSet, int count) = 0;
+
+protected:
+    std::map<int, ManagedDescriptor*> descriptors;
+
 private:
-    void updateFdSet() {
-        addDescriptors();
-        removeDescriptors();
-    }
+    std::list<ManagedDescriptor*> addedDescriptors;
+    std::list<ManagedDescriptor*> removedDescriptors;
 
     fd_set& fdSet;
     int maxFd{0};
-
-    std::list<ManagedDescriptor*> addedDescriptors;
-    std::list<ManagedDescriptor*> removedDescriptors;
 
 public:
     using ManagedDescriptorType = ManagedDescriptor;

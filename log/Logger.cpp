@@ -29,7 +29,6 @@ void Logger::init(int argc, char* argv[]) {
     */
 
     el::Configurations confFromFile("/home/voc/projects/ServerVoc/logger.conf");
-    el::Loggers::addFlag(el::LoggingFlag::DisableApplicationAbortOnFatalLog);
     el::Loggers::reconfigureAllLoggers(confFromFile);
 
     setLevel(2);
