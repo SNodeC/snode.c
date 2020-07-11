@@ -8,7 +8,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Logger.h"
-#include "Reader.h"
+#include "Server.h"
 #include "Socket.h"
 
 
@@ -16,7 +16,7 @@ class SocketReader;
 
 template <typename SocketConnectionImpl>
 class SocketServer
-    : public Reader
+    : public Server
     , public Socket {
 public:
     SocketServer(const std::function<void(SocketConnectionImpl* cs)>& onConnect,
@@ -24,7 +24,7 @@ public:
                  const std::function<void(SocketConnectionImpl* cs, const char* junk, ssize_t n)>& onRead,
                  const std::function<void(SocketConnectionImpl* cs, int errnum)>& onReadError,
                  const std::function<void(SocketConnectionImpl* cs, int errnum)>& onWriteError)
-        : Reader()
+        : Server()
         , Socket()
         , onConnect(onConnect)
         , onDisconnect(onDisconnect)
@@ -57,7 +57,7 @@ public:
                             } else {
                                 this->listen(backlog, [this, &onError](int errnum) -> void {
                                     if (errnum == 0) {
-                                        Reader::start();
+                                        Server::start();
                                     }
                                     onError(errnum);
                                 });
@@ -69,7 +69,7 @@ public:
         });
     }
 
-    void readEvent() override {
+    void acceptEvent() override {
         errno = 0;
 
         struct sockaddr_in remoteAddress {};
@@ -84,12 +84,11 @@ public:
             socklen_t addressLength = sizeof(localAddress);
 
             if (getsockname(csFd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
-                SocketConnectionImpl* cs = new SocketConnectionImpl(
-                    csFd, onRead, onReadError, onWriteError,
-                    [this](SocketConnectionImpl* cs) -> void { // onDisconnect
-                        this->onDisconnect(cs);
-                        delete cs;
-                    });
+                SocketConnectionImpl* cs = new SocketConnectionImpl(csFd, onRead, onReadError, onWriteError,
+                                                                    [this](SocketConnectionImpl* cs) -> void { // onDisconnect
+                                                                        this->onDisconnect(cs);
+                                                                        delete cs;
+                                                                    });
 
                 cs->setRemoteAddress(InetAddress(remoteAddress));
                 cs->setLocalAddress(InetAddress(localAddress));
@@ -106,7 +105,7 @@ public:
     }
 
     void end() {
-        Reader::stop();
+        Server::stop();
     }
 
 protected:

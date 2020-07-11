@@ -227,14 +227,6 @@ void HTTPContext::requestReady() {
     this->requestInProgress = true;
 
     webApp.dispatch(request, response);
-
-    if (request.requestHeader.find("connection") != request.requestHeader.end()) {
-        if (request.requestHeader.find("connection")->second == "Close") {
-            connectedSocket->end();
-        }
-    } else {
-        connectedSocket->end();
-    }
 }
 
 
@@ -244,6 +236,13 @@ void HTTPContext::enqueue(const char* buf, size_t len) {
     if (headerSend) {
         sendLen += len;
         if (sendLen == contentLength) {
+            if (request.requestHeader.find("connection") != request.requestHeader.end()) {
+                if (request.requestHeader.find("connection")->second == "Close") {
+                    connectedSocket->end();
+                }
+            } else {
+                connectedSocket->end();
+            }
             prepareForRequest();
         }
     }

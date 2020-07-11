@@ -15,7 +15,9 @@
 template <typename ManagedDescriptor>
 class Manager {
 public:
-    Manager(fd_set& fdSet) : fdSet(fdSet) {}
+    Manager(fd_set& fdSet)
+        : fdSet(fdSet) {
+    }
 
     Manager(const Manager&) = delete;
     Manager& operator=(const Manager&) = delete;
@@ -30,13 +32,6 @@ public:
 
         removedDescriptors = descriptors;
         updateFdSet();
-    }
-
-
-    fd_set& getFdSet() {
-        updateFdSet();
-
-        return fdSet;
     }
 
     bool contains(std::list<ManagedDescriptor*>& listOfElements, ManagedDescriptor*& element) {
