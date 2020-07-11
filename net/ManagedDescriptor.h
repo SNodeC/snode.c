@@ -20,16 +20,25 @@ public:
 
     void incManaged() {
         ManagedCounter::managedCounter++;
+        managed = true;
     }
 
     void decManaged() {
         ManagedCounter::managedCounter--;
+        managed = false;
         if (ManagedCounter::managedCounter == 0) {
             unmanaged();
         }
     }
 
+    bool isManaged() {
+        return managed;
+    }
+
     virtual void unmanaged() = 0;
+
+private:
+    bool managed{false};
 };
 
 #endif // MANAGEDDESCRIPTOR_H

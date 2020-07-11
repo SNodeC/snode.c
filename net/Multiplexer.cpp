@@ -78,6 +78,21 @@ void Multiplexer::start() {
         };
 
         Multiplexer::running = false;
+
+        Multiplexer::instance().getManagedReader().addDescriptors();
+        Multiplexer::instance().getManagedWriter().addDescriptors();
+        Multiplexer::instance().getManagedExceptions().addDescriptors();
+        Multiplexer::instance().getManagedServer().addDescriptors();
+
+        Multiplexer::instance().getManagedReader().removeDescriptors();
+        Multiplexer::instance().getManagedWriter().removeDescriptors();
+        Multiplexer::instance().getManagedExceptions().removeDescriptors();
+        Multiplexer::instance().getManagedServer().removeDescriptors();
+
+        Multiplexer::instance().getManagedReader().removeManagedDescriptors();
+        Multiplexer::instance().getManagedWriter().removeManagedDescriptors();
+        Multiplexer::instance().getManagedExceptions().removeManagedDescriptors();
+        Multiplexer::instance().getManagedServer().removeManagedDescriptors();
     }
 }
 
