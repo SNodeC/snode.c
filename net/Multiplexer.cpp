@@ -14,7 +14,11 @@ bool Multiplexer::running = false;
 bool Multiplexer::stopped = false;
 
 
-Multiplexer::Multiplexer() {
+Multiplexer::Multiplexer()
+    : managedReader(m_readfds)
+    , managedServer(m_readfds)
+    , managedWriter(m_writefds)
+    , managedExceptions(m_exceptionfds) {
     signal(SIGPIPE, SIG_IGN);
     signal(SIGHUP, SIG_IGN);
     signal(SIGINT, Multiplexer::stoponsig);
@@ -23,13 +27,14 @@ Multiplexer::Multiplexer() {
 
 
 void Multiplexer::tick() {
-    fd_set exceptfds = managedExceptions.getFdSet();
-    fd_set writefds = managedWriter.getFdSet();
-    fd_set readfds = managedReader.getFdSet();
-
     int maxFd = managedReader.getMaxFd();
+    maxFd = managedServer.getMaxFd() > maxFd ? managedServer.getMaxFd() : maxFd;
     maxFd = managedWriter.getMaxFd() > maxFd ? managedWriter.getMaxFd() : maxFd;
     maxFd = managedExceptions.getMaxFd() > maxFd ? managedWriter.getMaxFd() : maxFd;
+
+    fd_set exceptfds = m_exceptionfds;
+    fd_set writefds = m_writefds;
+    fd_set readfds = m_readfds;
 
     struct timeval tv = managedTimer.getNextTimeout();
 
@@ -39,6 +44,9 @@ void Multiplexer::tick() {
         managedTimer.dispatch();
         if (retval > 0) {
             retval = managedReader.dispatch(readfds, retval);
+        }
+        if (retval > 0) {
+            retval = managedServer.dispatch(readfds, retval);
         }
         if (retval > 0) {
             retval = managedWriter.dispatch(writefds, retval);
@@ -70,6 +78,21 @@ void Multiplexer::start() {
         };
 
         Multiplexer::running = false;
+
+        Multiplexer::instance().getManagedReader().addDescriptors();
+        Multiplexer::instance().getManagedWriter().addDescriptors();
+        Multiplexer::instance().getManagedExceptions().addDescriptors();
+        Multiplexer::instance().getManagedServer().addDescriptors();
+
+        Multiplexer::instance().getManagedReader().removeDescriptors();
+        Multiplexer::instance().getManagedWriter().removeDescriptors();
+        Multiplexer::instance().getManagedExceptions().removeDescriptors();
+        Multiplexer::instance().getManagedServer().removeDescriptors();
+
+        Multiplexer::instance().getManagedReader().removeManagedDescriptors();
+        Multiplexer::instance().getManagedWriter().removeManagedDescriptors();
+        Multiplexer::instance().getManagedExceptions().removeManagedDescriptors();
+        Multiplexer::instance().getManagedServer().removeManagedDescriptors();
     }
 }
 

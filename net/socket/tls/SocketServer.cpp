@@ -31,6 +31,7 @@ namespace tls {
     SocketServer::~SocketServer() {
         if (ctx) {
             SSL_CTX_free(ctx);
+            ctx = nullptr;
         }
     }
 

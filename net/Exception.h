@@ -14,6 +14,10 @@ public:
     ~Exception() override = default;
 
     virtual void exceptionEvent() = 0;
+
+protected:
+    void start();
+    void stop();
 };
 
 

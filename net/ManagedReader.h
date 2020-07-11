@@ -11,6 +11,7 @@
 
 class ManagedReader : public Manager<Reader> {
 public:
+    using Manager<Reader>::Manager;
     int dispatch(const fd_set& fdSet, int count) override;
 };
 

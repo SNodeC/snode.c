@@ -6,10 +6,13 @@ add_library(net SHARED
     Descriptor.cpp
     ManagedExceptions.cpp
     ManagedReader.cpp
+    ManagedServer.cpp
     ManagedTimer.cpp
     ManagedWriter.cpp
     Multiplexer.cpp
+    Exception.cpp
     Reader.cpp
+    Server.cpp
     Writer.cpp
     file/File.cpp
     file/FileReader.cpp

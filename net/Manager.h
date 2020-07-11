@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <list>
+#include <map>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -14,31 +15,13 @@
 
 template <typename ManagedDescriptor>
 class Manager {
-protected:
-    Manager() = default;
-
 public:
+    Manager(fd_set& fdSet)
+        : fdSet(fdSet) {
+    }
+
     Manager(const Manager&) = delete;
     Manager& operator=(const Manager&) = delete;
-
-    virtual ~Manager() {
-        stop();
-    }
-
-
-    void stop() {
-        updateFdSet();
-
-        removedDescriptors = descriptors;
-        updateFdSet();
-    }
-
-
-    fd_set& getFdSet() {
-        updateFdSet();
-
-        return fdSet;
-    }
 
     bool contains(std::list<ManagedDescriptor*>& listOfElements, ManagedDescriptor*& element) {
         typename std::list<ManagedDescriptor*>::iterator it = std::find(listOfElements.begin(), listOfElements.end(), element);
@@ -47,65 +30,78 @@ public:
     }
 
     void start(ManagedDescriptor* socket) {
-        if (!contains(descriptors, socket) && !contains(addedDescriptors, socket)) {
+        if (!socket->isManaged() && !contains(addedDescriptors, socket)) {
             addedDescriptors.push_back(socket);
         }
     }
 
 
     void stop(ManagedDescriptor* socket) {
-        if (contains(descriptors, socket) && !contains(removedDescriptors, socket)) {
+        if (socket->isManaged() && !contains(removedDescriptors, socket)) {
             removedDescriptors.push_back(socket);
         }
     }
 
 
     int getMaxFd() {
-        return maxFd;
+        int fd = 0;
+
+        updateFdSet();
+
+        if (descriptors.rbegin() != descriptors.rend()) {
+            fd = dynamic_cast<Descriptor*>((*descriptors.rbegin()).second)->getFd();
+        }
+
+        return fd;
     }
 
 
     virtual int dispatch(const fd_set& fdSet, int count) = 0;
 
 protected:
-    std::list<ManagedDescriptor*> descriptors;
+    std::map<int, ManagedDescriptor*> descriptors;
 
 
-private:
-    int updateMaxFd() {
-        maxFd = 0;
-
-        for (ManagedDescriptor* descriptor : descriptors) {
-            Descriptor* desc = dynamic_cast<Descriptor*>(descriptor);
-            maxFd = std::max(desc->getFd(), maxFd);
-        }
-
-        return maxFd;
-    }
-
-
-    void updateFdSet() {
-        if (!addedDescriptors.empty() || !removedDescriptors.empty()) {
+public:
+    void addDescriptors() {
+        if (!addedDescriptors.empty()) {
             for (ManagedDescriptor* descriptor : addedDescriptors) {
-                FD_SET(dynamic_cast<Descriptor*>(descriptor)->getFd(), &fdSet);
-                descriptors.push_back(descriptor);
+                int fd = dynamic_cast<Descriptor*>(descriptor)->getFd();
+                FD_SET(fd, &fdSet);
+                descriptors[fd] = descriptor;
                 descriptor->incManaged();
             }
             addedDescriptors.clear();
-
-            for (ManagedDescriptor* descriptor : removedDescriptors) {
-                FD_CLR(dynamic_cast<Descriptor*>(descriptor)->getFd(), &fdSet);
-                descriptors.remove(descriptor);
-                descriptor->decManaged();
-            }
-            removedDescriptors.clear();
-
-            updateMaxFd();
         }
     }
 
+    void removeDescriptors() {
+        if (!removedDescriptors.empty()) {
+            for (ManagedDescriptor* descriptor : removedDescriptors) {
+                int fd = dynamic_cast<Descriptor*>(descriptor)->getFd();
+                FD_CLR(fd, &fdSet);
+                descriptors.erase(fd);
+                descriptor->decManaged();
+            }
+            removedDescriptors.clear();
+        }
+    }
 
-    fd_set fdSet{0};
+    void removeManagedDescriptors() {
+        for (std::pair<int, ManagedDescriptor*> descriptor : descriptors) {
+            removedDescriptors.push_back(descriptor.second);
+        }
+
+        removeDescriptors();
+    }
+
+private:
+    void updateFdSet() {
+        addDescriptors();
+        removeDescriptors();
+    }
+
+    fd_set& fdSet;
     int maxFd{0};
 
     std::list<ManagedDescriptor*> addedDescriptors;
