@@ -16,6 +16,7 @@ bool Multiplexer::stopped = false;
 
 Multiplexer::Multiplexer()
     : managedReader(m_readfds)
+    , managedServer(m_readfds)
     , managedWriter(m_writefds)
     , managedExceptions(m_exceptionfds) {
     signal(SIGPIPE, SIG_IGN);
@@ -27,6 +28,7 @@ Multiplexer::Multiplexer()
 
 void Multiplexer::tick() {
     int maxFd = managedReader.getMaxFd();
+    maxFd = managedServer.getMaxFd() > maxFd ? managedServer.getMaxFd() : maxFd;
     maxFd = managedWriter.getMaxFd() > maxFd ? managedWriter.getMaxFd() : maxFd;
     maxFd = managedExceptions.getMaxFd() > maxFd ? managedWriter.getMaxFd() : maxFd;
 
@@ -42,6 +44,9 @@ void Multiplexer::tick() {
         managedTimer.dispatch();
         if (retval > 0) {
             retval = managedReader.dispatch(readfds, retval);
+        }
+        if (retval > 0) {
+            retval = managedServer.dispatch(readfds, retval);
         }
         if (retval > 0) {
             retval = managedWriter.dispatch(writefds, retval);

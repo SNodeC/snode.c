@@ -1,4 +1,5 @@
 #include "Writer.h"
+
 #include "Multiplexer.h"
 
 void Writer::start() {
@@ -8,4 +9,3 @@ void Writer::start() {
 void Writer::stop() {
     Multiplexer::instance().getManagedWriter().stop(this);
 }
-
