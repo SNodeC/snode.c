@@ -34,7 +34,7 @@ namespace tls {
              },
              [](tls::SocketConnection* connectedSocket, int errnum) -> void { // onWriteError
                  connectedSocket->getProtocol<HTTPContext*>([&errnum](HTTPContext*& protocol) -> void {
-                     protocol->onReadError(errnum);
+                     protocol->onWriteError(errnum);
                  });
              }))
             ->listen(port, 5, cert, key, password, [&](int err) -> void {
