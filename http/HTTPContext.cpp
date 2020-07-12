@@ -2,6 +2,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstring>
 #include <filesystem>
 #include <numeric>
 

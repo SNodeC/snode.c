@@ -1,5 +1,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <algorithm>
 #include <cassert>
 #include <csignal>
 
@@ -28,9 +29,9 @@ Multiplexer::Multiplexer()
 
 void Multiplexer::tick() {
     int maxFd = managedReader.getMaxFd();
-    maxFd = managedServer.getMaxFd() > maxFd ? managedServer.getMaxFd() : maxFd;
-    maxFd = managedWriter.getMaxFd() > maxFd ? managedWriter.getMaxFd() : maxFd;
-    maxFd = managedExceptions.getMaxFd() > maxFd ? managedWriter.getMaxFd() : maxFd;
+    maxFd = std::max(managedServer.getMaxFd(), maxFd);
+    maxFd = std::max(managedWriter.getMaxFd(), maxFd);
+    maxFd = std::max(managedExceptions.getMaxFd(), maxFd);
 
     fd_set exceptfds = m_exceptionfds;
     fd_set writefds = m_writefds;
