@@ -49,8 +49,8 @@ private:
         addDescriptors();
         removeDescriptors();
 
-        if (descriptors.size() > 0) {
-            fd = dynamic_cast<Descriptor*>(descriptors.rbegin()->second)->getFd();
+        if (!descriptors.empty()) {
+            fd = descriptors.rbegin()->first;
         }
 
         return fd;
