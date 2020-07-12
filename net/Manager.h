@@ -12,18 +12,19 @@
 #include "Descriptor.h"
 #include "ManagedDescriptor.h"
 
+class Multiplexer;
 
 template <typename ManagedDescriptor>
 class Manager {
 public:
-    Manager(fd_set& fdSet)
+    explicit Manager(fd_set& fdSet)
         : fdSet(fdSet) {
     }
 
     Manager(const Manager&) = delete;
     Manager& operator=(const Manager&) = delete;
 
-    bool contains(std::list<ManagedDescriptor*>& listOfElements, ManagedDescriptor*& element) {
+    bool contains(std::list<ManagedDescriptor*>& listOfElements, ManagedDescriptor*& element) const {
         typename std::list<ManagedDescriptor*>::iterator it = std::find(listOfElements.begin(), listOfElements.end(), element);
 
         return it != listOfElements.end();
@@ -41,6 +42,7 @@ public:
         }
     }
 
+private:
     int getMaxFd() {
         int fd = 0;
 
@@ -48,7 +50,7 @@ public:
         removeDescriptors();
 
         if (descriptors.size() > 0) {
-            fd = dynamic_cast<Descriptor*>((*descriptors.rbegin()).second)->getFd();
+            fd = dynamic_cast<Descriptor*>(descriptors.rbegin()->second)->getFd();
         }
 
         return fd;
@@ -86,9 +88,9 @@ public:
         removeDescriptors();
     }
 
+protected:
     virtual int dispatch(const fd_set& fdSet, int count) = 0;
 
-protected:
     std::map<int, ManagedDescriptor*> descriptors;
 
 private:
@@ -96,10 +98,11 @@ private:
     std::list<ManagedDescriptor*> removedDescriptors;
 
     fd_set& fdSet;
-    int maxFd{0};
 
 public:
     using ManagedDescriptorType = ManagedDescriptor;
+
+    friend class Multiplexer;
 };
 
 #endif // MANAGER_H
