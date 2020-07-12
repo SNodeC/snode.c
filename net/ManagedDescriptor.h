@@ -31,7 +31,7 @@ public:
         }
     }
 
-    bool isManaged() {
+    bool isManaged() const {
         return managed;
     }
 
