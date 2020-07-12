@@ -34,7 +34,7 @@ namespace legacy {
              },
              [](legacy::SocketConnection* connectedSocket, int errnum) -> void { // onWriteError
                  connectedSocket->getProtocol<HTTPContext*>([&errnum](HTTPContext*& protocol) -> void {
-                     protocol->onReadError(errnum);
+                     protocol->onWriteError(errnum);
                  });
              }))
             ->listen(port, 5, [&](int err) -> void {
