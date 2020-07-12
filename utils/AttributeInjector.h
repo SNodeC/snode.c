@@ -86,7 +86,7 @@ namespace utils {
         }
 
         template <InjectedAttribute Attribute>
-        constexpr bool getAttribute(std::function<void(Attribute& attribute)> onFound) const {
+        constexpr bool getAttribute(const std::function<void(Attribute& attribute)>& onFound) const {
             bool found = false;
 
             if (this->attribute != nullptr && this->attributeType == typeid(Attribute).name()) {
@@ -97,8 +97,8 @@ namespace utils {
         }
 
         template <InjectedAttribute Attribute>
-        constexpr void getAttribute(std::function<void(Attribute& attribute)> onFound,
-                                    std::function<void(const std::string&)> onNotFound) const {
+        constexpr void getAttribute(const std::function<void(Attribute& attribute)>& onFound,
+                                    const std::function<void(const std::string&)>& onNotFound) const {
             if (this->attribute != nullptr && this->attributeType == typeid(Attribute).name()) {
                 onFound(**std::static_pointer_cast<AttributeProxy<Attribute>>(this->attribute));
             } else {
@@ -149,7 +149,7 @@ namespace utils {
         }
 
         template <InjectedAttribute Attribute, std::basic_fixed_string key = "">
-        constexpr bool getAttribute(std::function<void(Attribute&)> onFound) const {
+        constexpr bool getAttribute(const std::function<void(Attribute&)>& onFound) const {
             bool found = false;
 
             if ((found = hasAttribute<Attribute, key>())) {
@@ -162,7 +162,8 @@ namespace utils {
         }
 
         template <InjectedAttribute Attribute, std::basic_fixed_string key = "">
-        constexpr void getAttribute(std::function<void(Attribute&)> onFound, std::function<void(const std::string&)> onNotFound) const {
+        constexpr void getAttribute(const std::function<void(Attribute&)>& onFound,
+                                    const std::function<void(const std::string&)>& onNotFound) const {
             if (hasAttribute<Attribute, key>()) {
                 std::map<std::string, std::shared_ptr<void>>::const_iterator it =
                     attributes.find(typeid(Attribute).name() + std::string(key));

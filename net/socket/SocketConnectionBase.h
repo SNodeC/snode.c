@@ -10,6 +10,7 @@
 
 class SocketConnectionBase {
 public:
+    SocketConnectionBase() = default;
     SocketConnectionBase(const SocketConnectionBase&) = delete;
     SocketConnectionBase& operator=(const SocketConnectionBase&) = delete;
 
@@ -46,9 +47,6 @@ public:
                 onNotFound(msg);
             });
     }
-
-protected:
-    SocketConnectionBase() = default;
 
 private:
     utils::SingleAttributeInjector protocol;
