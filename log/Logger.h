@@ -4,8 +4,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <easylogging++.h>
-#include <memory>
-#include <string_view>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
