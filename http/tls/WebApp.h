@@ -48,11 +48,8 @@ namespace tls {
         void listen(int port, const std::function<void(int err)>& onError = nullptr) override;
 
     private:
-        static void start() {
-        }
-
-        static void stop() {
-        }
+        using ::WebApp::start;
+        using ::WebApp::stop;
 
         std::string cert;
         std::string key;
