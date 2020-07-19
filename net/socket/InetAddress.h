@@ -21,7 +21,7 @@ public:
 
     InetAddress& operator=(const InetAddress& ina);
 
-    [[nodiscard]] const struct sockaddr_in& getSockAddr() const;
+    const struct sockaddr_in& getSockAddr() const;
 
 private:
     struct sockaddr_in addr {};
