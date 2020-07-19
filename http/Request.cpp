@@ -72,4 +72,5 @@ void Request::reset() {
         body = nullptr;
     }
     bodyLength = 0;
+    MultibleAttributeInjector::reset();
 }

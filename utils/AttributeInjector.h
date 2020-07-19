@@ -25,6 +25,7 @@ namespace std {
 
         using CharType = CharT;
     };
+
     template <typename CharT, std::size_t N>
     basic_fixed_string(const CharT (&str)[N]) -> basic_fixed_string<CharT, N>;
 
@@ -171,6 +172,10 @@ namespace utils {
             } else {
                 onNotFound(std::string(typeid(Attribute).name()) + std::string(key));
             }
+        }
+
+        void reset() {
+            attributes.clear();
         }
 
     private:
