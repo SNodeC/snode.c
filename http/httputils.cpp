@@ -55,7 +55,7 @@ namespace httputils {
     std::pair<std::string, std::string> str_split(const std::string& base, char c_middle) {
         std::pair<std::string, std::string> split;
 
-        int middle = base.find_first_of(c_middle);
+        unsigned long middle = base.find_first_of(c_middle);
 
         split.first = base.substr(0, middle);
 
@@ -70,7 +70,7 @@ namespace httputils {
     std::pair<std::string, std::string> str_split_last(const std::string& base, char c_middle) {
         std::pair<std::string, std::string> split;
 
-        int middle = base.find_last_of(c_middle);
+        unsigned long middle = base.find_last_of(c_middle);
 
         split.first = base.substr(0, middle);
 
