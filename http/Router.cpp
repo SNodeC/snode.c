@@ -55,9 +55,9 @@ private:
 };
 
 
-class RouterRoute : public Dispatcher {
+class RouterDispatcher : public Dispatcher {
 public:
-    explicit RouterRoute() = default;
+    explicit RouterDispatcher() = default;
 
     [[nodiscard]] bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req,
                                 const Response& res) const override;
@@ -69,9 +69,9 @@ private:
 };
 
 
-class MiddlewareRoute : public Dispatcher {
+class MiddlewareDispatcher : public Dispatcher {
 public:
-    explicit MiddlewareRoute(
+    explicit MiddlewareDispatcher(
         const std::function<void(const Request& req, const Response& res, const std::function<void(void)>& next)>& dispatcher)
         : dispatcher(dispatcher) {
     }
@@ -84,9 +84,9 @@ private:
 };
 
 
-class DispatcherRoute : public Dispatcher {
+class RouteDispatcher : public Dispatcher {
 public:
-    explicit DispatcherRoute(const std::function<void(const Request& req, const Response& res)>& dispatcher)
+    explicit RouteDispatcher(const std::function<void(const Request& req, const Response& res)>& dispatcher)
         : dispatcher(dispatcher) {
     }
 
@@ -103,7 +103,8 @@ bool Route::dispatch(const std::string& parentPath, const Request& req, const Re
 }
 
 
-bool RouterRoute::dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req, const Response& res) const {
+bool RouterDispatcher::dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req,
+                                const Response& res) const {
     bool next = true;
     std::string cpath = path_concat(parentPath, mountPoint.path);
 
@@ -126,7 +127,8 @@ bool RouterRoute::dispatch(const MountPoint& mountPoint, const std::string& pare
 }
 
 
-bool MiddlewareRoute::dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req, const Response& res) const {
+bool MiddlewareDispatcher::dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req,
+                                    const Response& res) const {
     bool next = true;
     std::string cpath = path_concat(parentPath, mountPoint.path);
 
@@ -147,7 +149,7 @@ bool MiddlewareRoute::dispatch(const MountPoint& mountPoint, const std::string& 
 }
 
 
-bool DispatcherRoute::dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req, const Response& res) const {
+bool RouteDispatcher::dispatch(const MountPoint& mountPoint, const std::string& parentPath, const Request& req, const Response& res) const {
     bool next = true;
     std::string cpath = path_concat(parentPath, mountPoint.path);
 
@@ -169,7 +171,7 @@ bool DispatcherRoute::dispatch(const MountPoint& mountPoint, const std::string& 
 
 Router::Router()
     : mountPoint("use", "/")
-    , routerRoute(new RouterRoute()) {
+    , routerRoute(new RouterDispatcher()) {
 }
 
 
@@ -180,12 +182,12 @@ void Router::dispatch(const Request& req, const Response& res) const {
 
 #define REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                                 \
     Router& Router::METHOD(const std::string& path, const std::function<void(const Request& req, const Response& res)>& dispatcher) {      \
-        routerRoute->routes.emplace_back(Route(this, HTTP_METHOD, path, std::make_shared<DispatcherRoute>(dispatcher)));                   \
+        routerRoute->routes.emplace_back(Route(this, HTTP_METHOD, path, std::make_shared<RouteDispatcher>(dispatcher)));                   \
         return *this;                                                                                                                      \
     };                                                                                                                                     \
                                                                                                                                            \
     Router& Router::METHOD(const std::function<void(const Request& req, const Response& res)>& dispatcher) {                               \
-        routerRoute->routes.emplace_back(Route(this, HTTP_METHOD, "", std::make_shared<DispatcherRoute>(dispatcher)));                     \
+        routerRoute->routes.emplace_back(Route(this, HTTP_METHOD, "", std::make_shared<RouteDispatcher>(dispatcher)));                     \
         return *this;                                                                                                                      \
     };                                                                                                                                     \
                                                                                                                                            \
@@ -202,13 +204,13 @@ void Router::dispatch(const Request& req, const Response& res) const {
     Router& Router::METHOD(                                                                                                                \
         const std::string& path,                                                                                                           \
         const std::function<void(const Request& req, const Response& res, const std::function<void(void)>& next)>& dispatcher) {           \
-        routerRoute->routes.emplace_back(Route(this, HTTP_METHOD, path, std::make_shared<MiddlewareRoute>(dispatcher)));                   \
+        routerRoute->routes.emplace_back(Route(this, HTTP_METHOD, path, std::make_shared<MiddlewareDispatcher>(dispatcher)));              \
         return *this;                                                                                                                      \
     };                                                                                                                                     \
                                                                                                                                            \
     Router& Router::METHOD(                                                                                                                \
         const std::function<void(const Request& req, const Response& res, const std::function<void(void)>& next)>& dispatcher) {           \
-        routerRoute->routes.emplace_back(Route(this, HTTP_METHOD, "", std::make_shared<MiddlewareRoute>(dispatcher)));                     \
+        routerRoute->routes.emplace_back(Route(this, HTTP_METHOD, "", std::make_shared<MiddlewareDispatcher>(dispatcher)));                \
         return *this;                                                                                                                      \
     };
 
