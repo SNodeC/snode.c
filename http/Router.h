@@ -36,13 +36,13 @@ private:
 
     friend class Route;
     friend class Router;
-    friend class DispatcherRoute;
-    friend class MiddlewareRoute;
-    friend class RouterRoute;
+    friend class RouteDispatcher;
+    friend class MiddlewareDispatcher;
+    friend class RouterDispatcher;
 };
 
 
-class RouterRoute;
+class RouterDispatcher;
 
 namespace tls {
     class WebApp;
@@ -70,17 +70,17 @@ public:
 
     void dispatch(const Request& req, const Response& res) const;
 
-protected:
-    const std::shared_ptr<RouterRoute>& getRoute() const {
+    const std::shared_ptr<RouterDispatcher>& getRoute() const {
         return routerRoute;
-    }
-
-    void setRoute(const std::shared_ptr<RouterRoute>& route) {
-        routerRoute = route;
     }
 
     const MountPoint& getMountPoint() const {
         return mountPoint;
+    }
+
+protected:
+    void setRoute(const std::shared_ptr<RouterDispatcher>& route) {
+        routerRoute = route;
     }
 
     void setMountPoint(const MountPoint& mountPoint) {
@@ -88,10 +88,7 @@ protected:
     }
 
     MountPoint mountPoint;
-    std::shared_ptr<RouterRoute> routerRoute; // it can be shared by multiple routers
-
-    friend class tls::WebApp;
-    friend class legacy::WebApp;
+    std::shared_ptr<RouterDispatcher> routerRoute; // it can be shared by multiple routers
 };
 
 #endif // NEWROUTER_H
