@@ -6,18 +6,34 @@ find_package(LibMagic REQUIRED)
 
 add_library(http SHARED
     WebApp.cpp
+    WebApp.h
     legacy/WebApp.cpp
+    legacy/WebApp.h
     tls/WebApp.cpp
+    tls/WebApp.h
     HTTPContext.cpp
+    HTTPContext.h
+    HTTPParser.cpp
+    HTTPParser.h
+    HTTPRequestParser.cpp
+    HTTPRequestParser.h
     HTTPStatusCodes.cpp
+    HTTPStatusCodes.h
     MimeTypes.cpp
+    MimeTypes.h
     Request.cpp
+    Request.h
     Response.cpp
+    Response.h
     httputils.cpp
+    httputils.h
     Router.cpp
+    Router.h
 )
 
 target_link_libraries(http LINK_PUBLIC net logger utils ${LIBMAGIC_LIBRARIES})
+
+target_compile_options(http PRIVATE --warn-all)
 
 set_target_properties(http PROPERTIES
             CXX_STANDARD 20

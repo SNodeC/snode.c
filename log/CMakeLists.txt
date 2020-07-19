@@ -6,6 +6,7 @@ find_package(EASYLOGGINGPP REQUIRED)
 
 add_library(logger STATIC
     Logger.cpp
+    Logger.h
 )
 
 set_target_properties(logger PROPERTIES
@@ -15,6 +16,8 @@ set_target_properties(logger PROPERTIES
             SOVERSION 1
             POSITION_INDEPENDENT_CODE ON
 )
+
+target_compile_options(logger PRIVATE --warn-all)
 
 FILE(GLOB includes "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
