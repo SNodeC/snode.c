@@ -22,7 +22,7 @@ public:
     static void start();
     static void stop();
 
-    [[nodiscard]] const std::string& getRootDir() const {
+    const std::string& getRootDir() const {
         return rootDir;
     }
 

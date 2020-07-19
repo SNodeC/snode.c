@@ -32,11 +32,8 @@ namespace legacy {
         void listen(int port, const std::function<void(int err)>& onError = nullptr) override;
 
     private:
-        static void start() {
-        }
-
-        static void stop() {
-        }
+        using ::WebApp::start;
+        using ::WebApp::stop;
     };
 
 } // namespace legacy
