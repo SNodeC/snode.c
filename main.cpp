@@ -11,7 +11,7 @@
 
 
 int timerApp() {
-    Timer& tick = Timer::continousTimer(
+    [[maybe_unused]] const Timer& tick = Timer::continousTimer(
         [](const void* arg) -> void {
             static int i = 0;
             std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
