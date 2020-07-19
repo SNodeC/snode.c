@@ -25,7 +25,7 @@ private:
 public:
     HTTPContext(const WebApp& webApp, SocketConnectionBase* connectedSocket);
 
-    void receiveData(const char* junk, ssize_t junkLen);
+    void receiveData(const char* junk, size_t junkLen);
     void onReadError(int errnum);
     void onWriteError(int errnum);
 
@@ -38,8 +38,8 @@ private:
 
     void sendHeader();
 
-    void parseRequest(const char* junk, ssize_t junkLen, const std::function<void(std::string&)>& lineRead,
-                      const std::function<void(const char* bodyJunk, int junkLength)>& bodyRead);
+    void parseRequest(const char* junk, size_t junkLen, const std::function<void(std::string&)>& lineRead,
+                      const std::function<void(const char* bodyJunk, int junkLength)>& readBody);
     void parseRequestLine(const std::string& line);
     void parseCookie(const std::string& value);
     void addRequestLine(const std::string& line);

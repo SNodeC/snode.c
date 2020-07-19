@@ -49,7 +49,7 @@ void HTTPContext::onWriteError(int errnum) {
 }
 
 
-void HTTPContext::receiveData(const char* junk, ssize_t junkLen) {
+void HTTPContext::receiveData(const char* junk, size_t junkLen) {
     if (requestInProgress) {
         this->connectedSocket->end();
     } else {
@@ -95,10 +95,10 @@ void HTTPContext::receiveData(const char* junk, ssize_t junkLen) {
 }
 
 
-void HTTPContext::parseRequest(const char* junk, ssize_t junkLen, const std::function<void(std::string&)>& lineRead,
+void HTTPContext::parseRequest(const char* junk, size_t junkLen, const std::function<void(std::string&)>& lineRead,
                                const std::function<void(const char* bodyJunk, int junkLength)>& readBody) {
     if (requestState != requeststates::BODY) {
-        int n = 0;
+        size_t n = 0;
 
         while (n < junkLen && requestState != requeststates::ERROR && requestState != requeststates::BODY) {
             const char& ch = junk[n++];
