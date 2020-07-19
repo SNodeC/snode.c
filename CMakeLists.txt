@@ -16,7 +16,7 @@ add_subdirectory(log)
 add_subdirectory(utils)
 
 add_executable(snode.c main.cpp)
-target_compile_options(snode.c PRIVATE --warn-conversion)
+target_compile_options(snode.c PRIVATE --warn-all)
 target_link_libraries(snode.c LINK_PUBLIC http)
 install(TARGETS snode.c RUNTIME DESTINATION bin)
 set_target_properties(snode.c PROPERTIES
@@ -27,7 +27,7 @@ set_target_properties(snode.c PROPERTIES
 )
 
 add_executable(posttest posttest.cpp)
-target_compile_options(posttest PRIVATE --warn-conversion)
+target_compile_options(posttest PRIVATE --warn-all)
 target_link_libraries(posttest LINK_PUBLIC http)
 install(TARGETS posttest RUNTIME DESTINATION bin)
 set_target_properties(posttest PROPERTIES
@@ -38,7 +38,7 @@ set_target_properties(posttest PROPERTIES
 )
 
 add_executable(simpleserver simpleserver.cpp)
-target_compile_options(simpleserver PRIVATE --warn-conversion)
+target_compile_options(simpleserver PRIVATE --warn-all)
 target_link_libraries(simpleserver LINK_PUBLIC http)
 install(TARGETS simpleserver RUNTIME DESTINATION bin)
 set_target_properties(simpleserver PROPERTIES
@@ -49,8 +49,8 @@ set_target_properties(simpleserver PROPERTIES
 )
 
 add_executable(experiments experiments.cpp)
-target_compile_options(experiments PRIVATE --warn-conversion)
-target_link_libraries(experiments LINK_PUBLIC http)
+target_compile_options(experiments PRIVATE --warn-all)
+target_link_libraries(experiments LINK_PUBLIC http utils)
 install(TARGETS experiments RUNTIME DESTINATION bin)
 set_target_properties(experiments PROPERTIES
             CXX_STANDARD 20
@@ -110,5 +110,10 @@ endif(CHECK_INCLUDES)
 if(CHECK_INCLUDES)
     set_property(TARGET simpleserver PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
 endif(CHECK_INCLUDES)
+
+#target_add_ide_support(net)
+#target_add_ide_support(http)
+#target_add_ide_support(utils)
+#target_add_ide_support(logger)
 
 #xargs rm < install_manifest.txt
