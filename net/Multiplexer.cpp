@@ -12,18 +12,14 @@
 
 Multiplexer Multiplexer::multiplexer;
 bool Multiplexer::running = false;
-bool Multiplexer::stopped = false;
+bool Multiplexer::stopped = true;
 
 
 Multiplexer::Multiplexer()
-    : managedReader(m_readfds)
-    , managedServer(m_readfds)
-    , managedWriter(m_writefds)
-    , managedExceptions(m_exceptionfds) {
-    signal(SIGPIPE, SIG_IGN);
-    signal(SIGHUP, SIG_IGN);
-    signal(SIGINT, Multiplexer::stoponsig);
-    signal(SIGTERM, Multiplexer::stoponsig);
+    : managedReader(readfds)
+    , managedServer(readfds)
+    , managedWriter(writefds)
+    , managedExceptions(exceptfds) {
 }
 
 
@@ -33,27 +29,27 @@ void Multiplexer::tick() {
     maxFd = std::max(managedWriter.getMaxFd(), maxFd);
     maxFd = std::max(managedExceptions.getMaxFd(), maxFd);
 
-    fd_set exceptfds = m_exceptionfds;
-    fd_set writefds = m_writefds;
-    fd_set readfds = m_readfds;
+    fd_set wExceptfds = exceptfds;
+    fd_set wWritefds = writefds;
+    fd_set wReadfds = readfds;
 
     struct timeval tv = managedTimer.getNextTimeout();
 
-    int retval = select(maxFd + 1, &readfds, &writefds, &exceptfds, &tv);
+    int retval = select(maxFd + 1, &wReadfds, &wWritefds, &wExceptfds, &tv);
 
     if (retval >= 0) {
         managedTimer.dispatch();
         if (retval > 0) {
-            retval = managedReader.dispatch(readfds, retval);
+            retval = managedReader.dispatch(wReadfds, retval);
         }
         if (retval > 0) {
-            retval = managedServer.dispatch(readfds, retval);
+            retval = managedServer.dispatch(wReadfds, retval);
         }
         if (retval > 0) {
-            retval = managedWriter.dispatch(writefds, retval);
+            retval = managedWriter.dispatch(wWritefds, retval);
         }
         if (retval > 0) {
-            retval = managedExceptions.dispatch(exceptfds, retval);
+            retval = managedExceptions.dispatch(wExceptfds, retval);
         }
         assert(retval == 0);
     } else if (errno != EINTR) {
@@ -64,6 +60,12 @@ void Multiplexer::tick() {
 
 
 void Multiplexer::init(int argc, char* argv[]) {
+    signal(SIGPIPE, SIG_IGN);
+    signal(SIGQUIT, Multiplexer::stoponsig);
+    signal(SIGHUP, Multiplexer::stoponsig);
+    signal(SIGINT, Multiplexer::stoponsig);
+    signal(SIGTERM, Multiplexer::stoponsig);
+
     Logger::init(argc, argv);
 }
 
@@ -103,6 +105,6 @@ void Multiplexer::stop() {
 }
 
 
-void Multiplexer::stoponsig(int sig) {
+void Multiplexer::stoponsig([[maybe_unused]] int sig) {
     stop();
 }
