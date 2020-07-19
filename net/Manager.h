@@ -24,20 +24,22 @@ public:
     Manager(const Manager&) = delete;
     Manager& operator=(const Manager&) = delete;
 
-    bool contains(std::list<ManagedDescriptor*>& listOfElements, ManagedDescriptor*& element) const {
+private:
+    static bool contains(std::list<ManagedDescriptor*>& listOfElements, ManagedDescriptor*& element) {
         typename std::list<ManagedDescriptor*>::iterator it = std::find(listOfElements.begin(), listOfElements.end(), element);
 
         return it != listOfElements.end();
     }
 
+public:
     void start(ManagedDescriptor* socket) {
-        if (!socket->isManaged() && !contains(addedDescriptors, socket)) {
+        if (!socket->isManaged() && !Manager<ManagedDescriptor>::contains(addedDescriptors, socket)) {
             addedDescriptors.push_back(socket);
         }
     }
 
     void stop(ManagedDescriptor* socket) {
-        if (socket->isManaged() && !contains(removedDescriptors, socket)) {
+        if (socket->isManaged() && !Manager<ManagedDescriptor>::contains(removedDescriptors, socket)) {
             removedDescriptors.push_back(socket);
         }
     }
