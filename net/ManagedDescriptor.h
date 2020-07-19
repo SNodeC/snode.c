@@ -35,6 +35,10 @@ public:
         return managed;
     }
 
+protected:
+    virtual void start() = 0;
+    virtual void stop() = 0;
+
     virtual void unmanaged() = 0;
 
 private:
