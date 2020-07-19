@@ -52,9 +52,9 @@ private:
 
     static Multiplexer multiplexer;
 
-    fd_set m_readfds{0};
-    fd_set m_writefds{0};
-    fd_set m_exceptionfds{0};
+    fd_set readfds{0};
+    fd_set writefds{0};
+    fd_set exceptfds{0};
 
     ManagedReader managedReader;
     ManagedServer managedServer;
