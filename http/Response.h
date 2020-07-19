@@ -17,7 +17,7 @@ private:
     explicit Response(HTTPContext* httpContext);
 
 public:
-    void send(const char* puffer, int n) const;
+    void send(const char* buffer, size_t size) const;
     void send(const std::string& text) const;
 
     void sendFile(const std::string& file, const std::function<void(int err)>& fn = nullptr) const;

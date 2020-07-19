@@ -71,8 +71,8 @@ const Response& Response::clearCookie(const std::string& name, const std::map<st
 }
 
 
-void Response::send(const char* puffer, int n) const {
-    this->httpContext->send(puffer, n);
+void Response::send(const char* buffer, size_t n) const {
+    this->httpContext->send(buffer, n);
 }
 
 
