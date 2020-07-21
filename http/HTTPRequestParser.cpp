@@ -8,7 +8,6 @@
 #include "HTTPRequestParser.h"
 #include "Logger.h"
 #include "httputils.h"
-#include "Logger.h"
 
 
 HTTPRequestParser::HTTPRequestParser(const std::function<void(std::string&, std::string&, std::string&)>& onRequest,
@@ -25,20 +24,6 @@ HTTPRequestParser::HTTPRequestParser(const std::function<void(std::string&, std:
     , onError(onError) {
 }
 
-/*
-HTTPRequestParser::HTTPRequestParser(std::function<void(std::string&, std::string&, std::string&)>&& onRequest,
-                                     std::function<void(const std::string&, const std::string&)>&& onHeader,
-                                     std::function<void(const std::string&, const std::string&)>&& onCookie,
-                                     std::function<void(char* body, size_t bodyLength)>&& onBody, std::function<void(void)>&& onParsed,
-                                     std::function<void(int status, const std::string& reason)>&& onError)
-    : onRequest(onRequest)
-    , onHeader(onHeader)
-    , onCookie(onCookie)
-    , onBody(onBody)
-    , onParsed(onParsed)
-    , onError(onError) {
-}
-*/
 
 void HTTPRequestParser::reset() {
     HTTPParser::reset();

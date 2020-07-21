@@ -196,6 +196,7 @@ void Response::sendFile(const std::string& file, const std::function<void(int er
             responseStatus = 403;
             errno = EACCES;
             this->end();
+            this->httpContext->end();
             if (onError) {
                 onError(EACCES);
             }
@@ -204,6 +205,7 @@ void Response::sendFile(const std::string& file, const std::function<void(int er
         responseStatus = 404;
         errno = ENOENT;
         this->end();
+        this->httpContext->end();
         if (onError) {
             onError(ENOENT);
         }
@@ -253,7 +255,18 @@ void Response::end() {
 }
 
 
-void Response::reset() {
+void Response::reset() {/*
+    if (sendLen == contentLength) {
+        if (httpContext->request.requestHeader.find("connection") != httpContext->request.requestHeader.end()) {
+            if (httpContext->request.requestHeader.find("connection")->second == "Close") {
+                httpContext->end();
+            } else {
+                httpContext->reset();
+            }
+        } else {
+            httpContext->end();
+        }
+    }*/
     headerSend = false;
     sendLen = 0;
     responseStatus = 200;
