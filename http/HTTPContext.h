@@ -8,20 +8,15 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "HTTPRequestParser.h"
 #include "Request.h"
 #include "Response.h"
 #include "socket/SocketConnectionBase.h"
 
 
-class FileReader;
 class WebApp;
 
 class HTTPContext {
-private:
-    enum struct requeststates { REQUEST, HEADER, BODY, ERROR } requestState{requeststates::REQUEST};
-
-    enum struct linestate { READ, EOL } lineState{linestate::READ};
-
 public:
     HTTPContext(const WebApp& webApp, SocketConnectionBase* connectedSocket);
 
@@ -29,50 +24,23 @@ public:
     void onReadError(int errnum);
     void onWriteError(int errnum);
 
-private:
-    void stopFileReader();
-
-    void send(const char* buffer, int size);
-    void send(const std::string& buffer);
-    void sendFile(const std::string& file, const std::function<void(int ret)>& onError = nullptr);
-
-    void sendHeader();
-
-    void parseRequest(const char* junk, size_t junkLen, const std::function<void(std::string&)>& lineRead,
-                      const std::function<void(const char* bodyJunk, int junkLength)>& readBody);
-    void parseRequestLine(const std::string& line);
-    void parseCookie(const std::string& value);
-    void addRequestLine(const std::string& line);
-
-    void headerRead();
-    void bodyRead();
-
     void requestReady();
-
-    void end();
-    void prepareForRequest();
-
     void enqueue(const char* buf, size_t len);
-    void enqueue(const std::string& str);
+    void reset();
+    void end();
 
+private:
     SocketConnectionBase* connectedSocket;
-    FileReader* fileReader{nullptr};
+    bool requestInProgress = false;
+
+public:
     const WebApp& webApp;
 
-    std::string headerLine;
-    int bodyPointer{0};
-
-    bool headerSend{false};
-
-    int contentLength{0};
-    int sendLen{0};
-
-    bool requestInProgress{false};
-
-    Request request{};
+    Request request;
     Response response;
 
-    friend class Response;
+private:
+    HTTPRequestParser parser;
 };
 
 #endif // HTTPCONTEXT_H

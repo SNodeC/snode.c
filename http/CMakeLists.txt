@@ -13,6 +13,10 @@ add_library(http SHARED
     tls/WebApp.h
     HTTPContext.cpp
     HTTPContext.h
+    HTTPParser.cpp
+    HTTPParser.h
+    HTTPRequestParser.cpp
+    HTTPRequestParser.h
     HTTPStatusCodes.cpp
     HTTPStatusCodes.h
     MimeTypes.cpp

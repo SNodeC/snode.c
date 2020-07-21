@@ -10,8 +10,8 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 
-#define MIDDLEWARE(req, res, next) [&](const Request&(req), const Response&(res), const std::function<void(void)>&(next)) -> void
-#define APPLICATION(req, res) [&](const Request&(req), const Response&(res)) -> void
+#define MIDDLEWARE(req, res, next) [&](Request&(req), Response&(res), const std::function<void(void)>&(next)) -> void
+#define APPLICATION(req, res) [&](Request&(req), Response&(res)) -> void
 
 #define CERTF "/home/voc/projects/ServerVoc/certs/calisto.home.vchrist.at_-_snode.c.pem"
 #define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c.key.encrypted.pem"
