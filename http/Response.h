@@ -11,11 +11,11 @@
 
 
 class FileReader;
-class HTTPContext;
+class HTTPServerContext;
 
 class Response {
 private:
-    explicit Response(HTTPContext* httpContext);
+    explicit Response(HTTPServerContext* httpContext);
 
 public:
     void send(const char* buffer, size_t size);
@@ -64,7 +64,7 @@ private:
         friend class Response;
     };
 
-    HTTPContext* httpContext;
+    HTTPServerContext* httpContext;
     FileReader* fileReader = nullptr;
 
     bool headerSend = false;
@@ -74,7 +74,7 @@ private:
     std::map<std::string, std::string> responseHeader;
     std::map<std::string, ResponseCookie> responseCookies;
 
-    friend class HTTPContext;
+    friend class HTTPServerContext;
 };
 
 

@@ -9,7 +9,7 @@
 
 #include "AttributeInjector.h"
 
-class HTTPContext;
+class HTTPServerContext;
 
 
 class Request : public utils::MultibleAttributeInjector {
@@ -41,7 +41,7 @@ protected:
 private:
     std::string nullstr = "";
 
-    friend class HTTPContext;
+    friend class HTTPServerContext;
     friend class Response;
 };
 
