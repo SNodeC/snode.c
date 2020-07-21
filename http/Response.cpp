@@ -251,6 +251,7 @@ void Response::sendStatus(int status) {
 void Response::end() {
     responseHeader.insert({"Content-Length", "0"});
     this->sendHeader();
+    this->httpContext->reset();
 }
 
 
