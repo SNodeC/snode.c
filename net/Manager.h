@@ -35,6 +35,7 @@ public:
     void start(ManagedDescriptor* socket) {
         if (!socket->isManaged() && !Manager<ManagedDescriptor>::contains(addedDescriptors, socket)) {
             addedDescriptors.push_back(socket);
+            socket->incManaged();
         }
     }
 
@@ -64,7 +65,6 @@ private:
                 int fd = dynamic_cast<Descriptor*>(descriptor)->getFd();
                 FD_SET(fd, &fdSet);
                 descriptors[fd] = descriptor;
-                descriptor->incManaged();
             }
             addedDescriptors.clear();
         }
