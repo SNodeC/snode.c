@@ -11,12 +11,12 @@ add_library(http SHARED
     legacy/WebApp.h
     tls/WebApp.cpp
     tls/WebApp.h
-    HTTPContext.cpp
-    HTTPContext.h
     HTTPParser.cpp
     HTTPParser.h
     HTTPRequestParser.cpp
     HTTPRequestParser.h
+    HTTPServerContext.cpp
+    HTTPServerContext.h
     HTTPStatusCodes.cpp
     HTTPStatusCodes.h
     MimeTypes.cpp

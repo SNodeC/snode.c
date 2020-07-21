@@ -3,9 +3,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "HTTPRequestParser.h"
@@ -16,9 +13,9 @@
 
 class WebApp;
 
-class HTTPContext {
+class HTTPServerContext {
 public:
-    HTTPContext(const WebApp& webApp, SocketConnectionBase* connectedSocket);
+    HTTPServerContext(const WebApp& webApp, SocketConnectionBase* connectedSocket);
 
     void receiveData(const char* junk, size_t junkLen);
     void onReadError(int errnum);

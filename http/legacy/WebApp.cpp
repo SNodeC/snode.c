@@ -4,7 +4,7 @@
 
 #include "WebApp.h"
 
-#include "HTTPContext.h"
+#include "HTTPServerContext.h"
 #include "socket/legacy/SocketServer.h"
 
 
@@ -15,25 +15,25 @@ namespace legacy {
 
         (new legacy::SocketServer(
              [this](legacy::SocketConnection* connectedSocket) -> void { // onConnect
-                 connectedSocket->setProtocol<HTTPContext*>(new HTTPContext(*this, connectedSocket));
+                 connectedSocket->setProtocol<HTTPServerContext*>(new HTTPServerContext(*this, connectedSocket));
              },
              [](legacy::SocketConnection* connectedSocket) -> void { // onDisconnect
-                 connectedSocket->getProtocol<HTTPContext*>([](HTTPContext*& protocol) -> void {
+                 connectedSocket->getProtocol<HTTPServerContext*>([](HTTPServerContext*& protocol) -> void {
                      delete protocol;
                  });
              },
              [](legacy::SocketConnection* connectedSocket, const char* junk, ssize_t junkSize) -> void { // onRead
-                 connectedSocket->getProtocol<HTTPContext*>([&junk, &junkSize](HTTPContext*& protocol) -> void {
+                 connectedSocket->getProtocol<HTTPServerContext*>([&junk, &junkSize](HTTPServerContext*& protocol) -> void {
                      protocol->receiveData(junk, junkSize);
                  });
              },
              [](legacy::SocketConnection* connectedSocket, int errnum) -> void { // onReadError
-                 connectedSocket->getProtocol<HTTPContext*>([&errnum](HTTPContext*& protocol) -> void {
+                 connectedSocket->getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
                      protocol->onReadError(errnum);
                  });
              },
              [](legacy::SocketConnection* connectedSocket, int errnum) -> void { // onWriteError
-                 connectedSocket->getProtocol<HTTPContext*>([&errnum](HTTPContext*& protocol) -> void {
+                 connectedSocket->getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
                      protocol->onWriteError(errnum);
                  });
              }))

@@ -1,9 +1,8 @@
-#include "HTTPContext.h"
+#include "HTTPServerContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstring>
-#include <tuple>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -12,7 +11,7 @@
 #include "httputils.h"
 
 
-HTTPContext::HTTPContext(const WebApp& webApp, SocketConnectionBase* connectedSocket)
+HTTPServerContext::HTTPServerContext(const WebApp& webApp, SocketConnectionBase* connectedSocket)
     : connectedSocket(connectedSocket)
     , webApp(webApp)
     , response(this)
@@ -59,7 +58,7 @@ HTTPContext::HTTPContext(const WebApp& webApp, SocketConnectionBase* connectedSo
 }
 
 
-void HTTPContext::onReadError(int errnum) {
+void HTTPServerContext::onReadError(int errnum) {
     response.stop();
 
     if (errnum != 0 && errnum != ECONNRESET) {
@@ -68,7 +67,7 @@ void HTTPContext::onReadError(int errnum) {
 }
 
 
-void HTTPContext::onWriteError(int errnum) {
+void HTTPServerContext::onWriteError(int errnum) {
     response.stop();
 
     if (errnum != 0 && errnum != ECONNRESET) {
@@ -77,31 +76,31 @@ void HTTPContext::onWriteError(int errnum) {
 }
 
 
-void HTTPContext::receiveData(const char* junk, size_t junkLen) {
+void HTTPServerContext::receiveData(const char* junk, size_t junkLen) {
     if (!requestInProgress) {
         parser.parse(junk, junkLen);
     }
 }
 
 
-void HTTPContext::requestReady() {
+void HTTPServerContext::requestReady() {
     this->requestInProgress = true;
 
     webApp.dispatch(request, response);
 }
 
 
-void HTTPContext::enqueue(const char* buf, size_t len) {
+void HTTPServerContext::enqueue(const char* buf, size_t len) {
     connectedSocket->enqueue(buf, len);
 }
 
 
-void HTTPContext::end() {
+void HTTPServerContext::end() {
     connectedSocket->end();
 }
 
 
-void HTTPContext::reset() {
+void HTTPServerContext::reset() {
     this->requestInProgress = false;
     parser.reset();
     request.reset();

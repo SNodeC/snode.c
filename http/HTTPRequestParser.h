@@ -3,7 +3,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <map>
+#include <functional>
 #include <set>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

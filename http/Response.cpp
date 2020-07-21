@@ -5,7 +5,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "HTTPContext.h"
+#include "HTTPServerContext.h"
 #include "HTTPStatusCodes.h"
 #include "MimeTypes.h"
 #include "Response.h"
@@ -14,7 +14,7 @@
 #include "httputils.h"
 
 
-Response::Response(HTTPContext* httpContext)
+Response::Response(HTTPServerContext* httpContext)
     : httpContext(httpContext) {
 }
 

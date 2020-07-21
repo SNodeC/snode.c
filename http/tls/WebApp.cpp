@@ -4,7 +4,7 @@
 
 #include "WebApp.h"
 
-#include "HTTPContext.h"
+#include "HTTPServerContext.h"
 #include "socket/tls/SocketServer.h"
 
 
@@ -15,25 +15,25 @@ namespace tls {
 
         (new tls::SocketServer(
              [this](tls::SocketConnection* connectedSocket) -> void { // onConnect
-                 connectedSocket->setProtocol<HTTPContext*>(new HTTPContext(*this, connectedSocket));
+                 connectedSocket->setProtocol<HTTPServerContext*>(new HTTPServerContext(*this, connectedSocket));
              },
              [](tls::SocketConnection* connectedSocket) -> void { // onDisconnect
-                 connectedSocket->getProtocol<HTTPContext*>([](HTTPContext*& protocol) -> void {
+                 connectedSocket->getProtocol<HTTPServerContext*>([](HTTPServerContext*& protocol) -> void {
                      delete protocol;
                  });
              },
              [](tls::SocketConnection* connectedSocket, const char* junk, ssize_t junkSize) -> void { // onRead
-                 connectedSocket->getProtocol<HTTPContext*>([&junk, &junkSize](HTTPContext*& protocol) -> void {
+                 connectedSocket->getProtocol<HTTPServerContext*>([&junk, &junkSize](HTTPServerContext*& protocol) -> void {
                      protocol->receiveData(junk, junkSize);
                  });
              },
              [](tls::SocketConnection* connectedSocket, int errnum) -> void { // onReadError
-                 connectedSocket->getProtocol<HTTPContext*>([&errnum](HTTPContext*& protocol) -> void {
+                 connectedSocket->getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
                      protocol->onReadError(errnum);
                  });
              },
              [](tls::SocketConnection* connectedSocket, int errnum) -> void { // onWriteError
-                 connectedSocket->getProtocol<HTTPContext*>([&errnum](HTTPContext*& protocol) -> void {
+                 connectedSocket->getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
                      protocol->onWriteError(errnum);
                  });
              }))
