@@ -42,10 +42,8 @@ void HTTPRequestParser::parseStartLine(std::string& line) {
 
         if (!methodSupported(method)) {
             parsingError(400, "Bad request method");
-            PAS = PAS::ERROR;
         } else if (remaining.empty()) {
             parsingError(400, "Malformed request");
-            PAS = PAS::ERROR;
         } else {
             std::tie(originalUrl, httpVersion) = httputils::str_split(remaining, ' ');
 
@@ -53,7 +51,6 @@ void HTTPRequestParser::parseStartLine(std::string& line) {
 
             if (originalUrl.front() != '/') {
                 parsingError(400, "Malformed URL");
-                PAS = PAS::ERROR;
             } else {
                 // HTTP/x.x
                 std::regex httpVersionRegex("^HTTP/([[:digit:]])\\.([[:digit:]])$");
@@ -61,7 +58,6 @@ void HTTPRequestParser::parseStartLine(std::string& line) {
 
                 if (!std::regex_match(httpVersion, match, httpVersionRegex)) {
                     parsingError(400, "Wrong protocol-version");
-                    PAS = PAS::ERROR;
                 } else {
                     httpMajor = std::stoi(match.str(1));
                     httpMinor = std::stoi(match.str(2));
@@ -135,4 +131,5 @@ void HTTPRequestParser::parsingFinished() {
 
 void HTTPRequestParser::parsingError(int code, const std::string& reason) {
     onError(code, reason);
+    PAS = PAS::ERROR;
 }
