@@ -10,6 +10,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 
+class FileReader;
 class HTTPContext;
 
 class Response {
@@ -20,10 +21,10 @@ public:
     void send(const char* buffer, size_t size) const;
     void send(const std::string& text) const;
 
-    void sendFile(const std::string& file, const std::function<void(int err)>& fn = nullptr) const;
+    void sendFile(const std::string& file, const std::function<void(int err)>& onError = nullptr) const;
 
-    void download(const std::string& file, const std::function<void(int err)>& fn = nullptr) const;
-    void download(const std::string& file, const std::string& name, const std::function<void(int err)>& fn = nullptr) const;
+    void download(const std::string& file, const std::function<void(int err)>& onError = nullptr) const;
+    void download(const std::string& file, const std::string& name, const std::function<void(int err)>& onError = nullptr) const;
 
     void redirect(const std::string& name) const;
     void redirect(int status, const std::string& name) const;
@@ -42,6 +43,12 @@ public:
 protected:
     mutable size_t contentLength;
 
+    void enqueue(const char* buf, size_t len) const;
+    void enqueue(const std::string& str) const;
+
+    void sendHeader() const;
+    void stopFileReader();
+
 private:
     class ResponseCookie {
     public:
@@ -50,17 +57,22 @@ private:
             , options(options) {
         }
 
-    private:
+    protected:
         std::string value;
         std::map<std::string, std::string> options;
 
         friend class HTTPContext;
+        friend class Response;
     };
 
     void reset();
 
     HTTPContext* httpContext;
+    mutable FileReader* fileReader = nullptr;
+    mutable bool headerSend = false;
+    mutable size_t sendLen = 0;
 
+    //    bool headerSend = false;
     mutable int responseStatus = 0;
     mutable std::map<std::string, std::string> responseHeader;
     mutable std::map<std::string, ResponseCookie> responseCookies;

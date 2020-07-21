@@ -1,16 +1,46 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#include <filesystem>
+#include <numeric>
 
-#include "Response.h"
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "HTTPContext.h"
 #include "HTTPStatusCodes.h"
+#include "MimeTypes.h"
+#include "Response.h"
+#include "WebApp.h"
+#include "file/FileReader.h"
 #include "httputils.h"
 
 
 Response::Response(HTTPContext* httpContext)
     : httpContext(httpContext) {
+}
+
+
+void Response::enqueue(const char* buf, size_t len) const {
+    httpContext->connectedSocket->enqueue(buf, len);
+
+    if (headerSend) {
+        sendLen += len;
+        if (sendLen == contentLength) {
+            if (httpContext->request.requestHeader.find("connection") != httpContext->request.requestHeader.end()) {
+                if (httpContext->request.requestHeader.find("connection")->second == "Close") {
+                    httpContext->connectedSocket->end();
+                } else {
+                    httpContext->prepareForRequest();
+                }
+            } else {
+                httpContext->connectedSocket->end();
+            }
+        }
+    }
+}
+
+
+void Response::enqueue(const std::string& str) const {
+    this->enqueue(str.c_str(), str.size());
 }
 
 
@@ -75,35 +105,120 @@ const Response& Response::clearCookie(const std::string& name, const std::map<st
 }
 
 
-void Response::send(const char* buffer, size_t n) const {
-    this->httpContext->send(buffer, n);
+void Response::send(const char* buffer, size_t size) const {
+    responseHeader.insert({"Content-Type", "application/octet-stream"});
+    responseHeader.insert({"Content-Length", std::to_string(size)});
+
+    this->sendHeader();
+    this->enqueue(buffer, size);
 }
 
 
 void Response::send(const std::string& text) const {
-    this->httpContext->send(text);
+    responseHeader.insert({"Content-Type", "text/html; charset=utf-8"});
+    this->send(text.c_str(), text.size());
 }
 
 
-void Response::sendFile(const std::string& file, const std::function<void(int err)>& fn) const {
-    this->httpContext->sendFile(file, fn);
+void Response::sendHeader() const {
+    if (!headerSend) {
+        this->enqueue("HTTP/1.1 " + std::to_string(responseStatus) + " " + HTTPStatusCode::reason(responseStatus) + "\r\n");
+        this->enqueue("Date: " + httputils::to_http_date() + "\r\n");
+
+        responseHeader.insert({"Cache-Control", "public, max-age=0"});
+        responseHeader.insert({"Accept-Ranges", "bytes"});
+        responseHeader.insert({"X-Powered-By", "snode.c"});
+
+        for (const std::pair<const std::string, std::string>& header : responseHeader) {
+            this->enqueue(header.first + ": " + header.second + "\r\n");
+        }
+
+        for (const std::pair<const std::string, Response::ResponseCookie>& cookie : responseCookies) {
+            std::string cookieString =
+                std::accumulate(cookie.second.options.begin(), cookie.second.options.end(), cookie.first + "=" + cookie.second.value,
+                                [](const std::string& str, const std::pair<const std::string&, const std::string&> option) -> std::string {
+                                    return str + "; " + option.first + (!option.second.empty() ? "=" + option.second : "");
+                                });
+            this->enqueue("Set-Cookie: " + cookieString + "\r\n");
+        }
+
+        this->enqueue("\r\n");
+
+        headerSend = true;
+
+        contentLength = std::stoi(responseHeader.find("Content-Length")->second);
+    }
 }
 
 
-void Response::download(const std::string& file, const std::function<void(int err)>& fn) const {
+void Response::stopFileReader() {
+    if (fileReader != nullptr) {
+        fileReader->stop();
+        fileReader = nullptr;
+    }
+}
+
+
+void Response::sendFile(const std::string& file, const std::function<void(int err)>& onError) const {
+    std::string absolutFileName = httpContext->webApp.getRootDir() + file;
+
+    if (std::filesystem::exists(absolutFileName)) {
+        std::error_code ec;
+        absolutFileName = std::filesystem::canonical(absolutFileName);
+
+        if (absolutFileName.rfind(httpContext->webApp.getRootDir(), 0) == 0 && std::filesystem::is_regular_file(absolutFileName, ec) &&
+            !ec) {
+            responseHeader.insert({"Content-Type", MimeTypes::contentType(absolutFileName)});
+            responseHeader.insert_or_assign("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
+            responseHeader.insert({"Last-Modified", httputils::file_mod_http_date(absolutFileName)});
+            this->sendHeader();
+
+            fileReader = FileReader::read(
+                absolutFileName,
+                [this](char* data, int length) -> void {
+                    this->enqueue(data, length);
+                },
+                [this, onError](int err) -> void {
+                    if (onError) {
+                        onError(err);
+                    }
+                    if (err != 0) {
+                        httpContext->connectedSocket->end();
+                    }
+                });
+        } else {
+            responseStatus = 403;
+            errno = EACCES;
+            this->end();
+            if (onError) {
+                onError(EACCES);
+            }
+        }
+    } else {
+        responseStatus = 404;
+        errno = ENOENT;
+        this->end();
+        if (onError) {
+            onError(ENOENT);
+        }
+    }
+}
+
+
+void Response::download(const std::string& file, const std::function<void(int err)>& onError) const {
     std::string name = file;
 
     if (name[0] == '/') {
         name.erase(0, 1);
     }
 
-    this->download(file, name, fn);
+    this->download(file, name, onError);
 }
 
 
-void Response::download(const std::string& file, const std::string& name, const std::function<void(int err)>& fn) const {
+void Response::download(const std::string& file, const std::string& name, const std::function<void(int err)>& onError) const {
     this->set({{"Content-Disposition", "attachment; filename=\"" + name + "\""}});
-    this->sendFile(file, fn);
+    this->sendFile(file, onError);
 }
 
 
@@ -133,13 +248,18 @@ const Response& Response::type(const std::string& type) const {
 
 
 void Response::end() const {
-    this->httpContext->end();
+    responseHeader.insert({"Content-Length", "0"});
+    this->sendHeader();
+    this->httpContext->prepareForRequest();
 }
 
 
 void Response::reset() {
+    headerSend = false;
+    sendLen = 0;
     responseStatus = 200;
     contentLength = 0;
     responseHeader.clear();
     responseCookies.clear();
+    stopFileReader();
 }
