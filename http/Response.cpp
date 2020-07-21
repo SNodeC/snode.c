@@ -19,39 +19,39 @@ Response::Response(HTTPContext* httpContext)
 }
 
 
-void Response::enqueue(const char* buf, size_t len) const {
-    httpContext->connectedSocket->enqueue(buf, len);
+void Response::enqueue(const char* buf, size_t len) {
+    httpContext->enqueue(buf, len);
 
     if (headerSend) {
         sendLen += len;
         if (sendLen == contentLength) {
             if (httpContext->request.requestHeader.find("connection") != httpContext->request.requestHeader.end()) {
                 if (httpContext->request.requestHeader.find("connection")->second == "Close") {
-                    httpContext->connectedSocket->end();
+                    httpContext->end();
                 } else {
-                    httpContext->prepareForRequest();
+                    httpContext->reset();
                 }
             } else {
-                httpContext->connectedSocket->end();
+                httpContext->end();
             }
         }
     }
 }
 
 
-void Response::enqueue(const std::string& str) const {
+void Response::enqueue(const std::string& str) {
     this->enqueue(str.c_str(), str.size());
 }
 
 
-const Response& Response::status(int status) const {
+Response& Response::status(int status) {
     this->responseStatus = status;
 
     return *this;
 }
 
 
-const Response& Response::append(const std::string& field, const std::string& value) const {
+Response& Response::append(const std::string& field, const std::string& value) {
     std::map<std::string, std::string>::iterator it = this->responseHeader.find(field);
 
     if (it != this->responseHeader.end()) {
@@ -64,7 +64,7 @@ const Response& Response::append(const std::string& field, const std::string& va
 }
 
 
-const Response& Response::set(const std::map<std::string, std::string>& map) const {
+Response& Response::set(const std::map<std::string, std::string>& map) {
     for (const std::pair<const std::string, std::string>& header : map) {
         this->set(header.first, header.second);
     }
@@ -73,7 +73,7 @@ const Response& Response::set(const std::map<std::string, std::string>& map) con
 }
 
 
-const Response& Response::set(const std::string& field, const std::string& value) const {
+Response& Response::set(const std::string& field, const std::string& value) {
     this->responseHeader.insert_or_assign(field, value);
 
     if (field == "Content-Length") {
@@ -84,15 +84,21 @@ const Response& Response::set(const std::string& field, const std::string& value
 }
 
 
-const Response& Response::cookie(const std::string& name, const std::string& value,
-                                 const std::map<std::string, std::string>& options) const {
+Response& Response::type(const std::string& type) {
+    this->set({{"Content-Type", type}});
+
+    return *this;
+}
+
+
+Response& Response::cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options) {
     this->responseCookies.insert({name, ResponseCookie(value, options)});
 
     return *this;
 }
 
 
-const Response& Response::clearCookie(const std::string& name, const std::map<std::string, std::string>& options) const {
+Response& Response::clearCookie(const std::string& name, const std::map<std::string, std::string>& options) {
     std::map<std::string, std::string> opts = options;
 
     opts.erase("Max-Age");
@@ -105,7 +111,7 @@ const Response& Response::clearCookie(const std::string& name, const std::map<st
 }
 
 
-void Response::send(const char* buffer, size_t size) const {
+void Response::send(const char* buffer, size_t size) {
     responseHeader.insert({"Content-Type", "application/octet-stream"});
     responseHeader.insert({"Content-Length", std::to_string(size)});
 
@@ -114,13 +120,13 @@ void Response::send(const char* buffer, size_t size) const {
 }
 
 
-void Response::send(const std::string& text) const {
+void Response::send(const std::string& text) {
     responseHeader.insert({"Content-Type", "text/html; charset=utf-8"});
     this->send(text.c_str(), text.size());
 }
 
 
-void Response::sendHeader() const {
+void Response::sendHeader() {
     if (!headerSend) {
         this->enqueue("HTTP/1.1 " + std::to_string(responseStatus) + " " + HTTPStatusCode::reason(responseStatus) + "\r\n");
         this->enqueue("Date: " + httputils::to_http_date() + "\r\n");
@@ -151,7 +157,7 @@ void Response::sendHeader() const {
 }
 
 
-void Response::stopFileReader() {
+void Response::stop() {
     if (fileReader != nullptr) {
         fileReader->stop();
         fileReader = nullptr;
@@ -159,7 +165,7 @@ void Response::stopFileReader() {
 }
 
 
-void Response::sendFile(const std::string& file, const std::function<void(int err)>& onError) const {
+void Response::sendFile(const std::string& file, const std::function<void(int err)>& onError) {
     std::string absolutFileName = httpContext->webApp.getRootDir() + file;
 
     if (std::filesystem::exists(absolutFileName)) {
@@ -183,7 +189,7 @@ void Response::sendFile(const std::string& file, const std::function<void(int er
                         onError(err);
                     }
                     if (err != 0) {
-                        httpContext->connectedSocket->end();
+                        httpContext->end();
                     }
                 });
         } else {
@@ -205,7 +211,7 @@ void Response::sendFile(const std::string& file, const std::function<void(int er
 }
 
 
-void Response::download(const std::string& file, const std::function<void(int err)>& onError) const {
+void Response::download(const std::string& file, const std::function<void(int err)>& onError) {
     std::string name = file;
 
     if (name[0] == '/') {
@@ -216,41 +222,34 @@ void Response::download(const std::string& file, const std::function<void(int er
 }
 
 
-void Response::download(const std::string& file, const std::string& name, const std::function<void(int err)>& onError) const {
+void Response::download(const std::string& file, const std::string& name, const std::function<void(int err)>& onError) {
     this->set({{"Content-Disposition", "attachment; filename=\"" + name + "\""}});
     this->sendFile(file, onError);
 }
 
 
-void Response::redirect(const std::string& name) const {
+void Response::redirect(const std::string& name) {
     this->redirect(302, name);
 }
 
 
-void Response::redirect(int status, const std::string& name) const {
+void Response::redirect(int status, const std::string& name) {
     this->status(status);
     this->set({{"Location", name}});
     this->end();
 }
 
 
-void Response::sendStatus(int status) const {
+void Response::sendStatus(int status) {
     this->status(status);
     this->send(HTTPStatusCode::reason(status));
 }
 
 
-const Response& Response::type(const std::string& type) const {
-    this->set({{"Content-Type", type}});
-
-    return *this;
-}
-
-
-void Response::end() const {
+void Response::end() {
     responseHeader.insert({"Content-Length", "0"});
     this->sendHeader();
-    this->httpContext->prepareForRequest();
+    this->httpContext->reset();
 }
 
 
@@ -261,5 +260,5 @@ void Response::reset() {
     contentLength = 0;
     responseHeader.clear();
     responseCookies.clear();
-    stopFileReader();
+    stop();
 }

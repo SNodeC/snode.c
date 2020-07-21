@@ -6,6 +6,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "HTTPRequestParser.h"
+#include "Logger.h"
 #include "httputils.h"
 #include "Logger.h"
 

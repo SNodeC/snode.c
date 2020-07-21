@@ -24,21 +24,23 @@ public:
     void onReadError(int errnum);
     void onWriteError(int errnum);
 
-private:
     void requestReady();
-    void prepareForRequest();
     void enqueue(const char* buf, size_t len);
+    void reset();
+    void end();
 
+private:
     SocketConnectionBase* connectedSocket;
-    const WebApp& webApp;
     bool requestInProgress = false;
 
-    Request request{};
+public:
+    const WebApp& webApp;
+
+    Request request;
     Response response;
 
+private:
     HTTPRequestParser parser;
-
-    friend class Response;
 };
 
 #endif // HTTPCONTEXT_H

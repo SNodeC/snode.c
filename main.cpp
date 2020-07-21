@@ -29,7 +29,7 @@ int timerApp() {
 
     legacy::WebApp app("/home/voc/projects/ServerVoc/build/html");
 
-    app.get("/", [&canceled, &tack](const Request& req, const Response& res) -> void {
+    app.get("/", [&canceled, &tack](Request& req, Response& res) -> void {
         std::string uri = req.originalUrl;
 
         if (uri == "/") {
@@ -65,7 +65,7 @@ int timerApp() {
     });
 
 
-    app.get("/search/", [&](const Request& req, const Response& res) -> void {
+    app.get("/search/", [&](Request& req, Response& res) -> void {
         //                  res.set({{"Content-Length", "7"}});
 
         std::string host = req.header("Host");
@@ -115,12 +115,12 @@ int simpleWebserver() {
 
     Router router;
 
-    router.get("/search/", [](const Request& req, const Response& res, const std::function<void(void)>& next) {
+    router.get("/search/", [](Request& req, Response& res, const std::function<void(void)>& next) {
         std::cout << "Route 3" << std::endl;
         next();
     });
 
-    router.get("/search/", [&](const Request& req, const Response& res) -> void {
+    router.get("/search/", [&](Request& req, Response& res) -> void {
         //                  res.set({{"Content-Length", "7"}});
 
         std::string host = req.header("Host");
@@ -151,17 +151,17 @@ int simpleWebserver() {
         }
     });
 
-    app.use("/", [](const Request& req, const Response& res, const std::function<void(void)>& next) {
+    app.use("/", [](Request& req, Response& res, const std::function<void(void)>& next) {
         std::cout << "Route 1" << std::endl;
         next();
     });
 
-    app.use("/", [](const Request& req, const Response& res, const std::function<void(void)>& next) {
+    app.use("/", [](Request& req, Response& res, const std::function<void(void)>& next) {
         std::cout << "Route 2" << std::endl;
         next();
     });
 
-    app.get("/", [&](const Request& req, const Response& res) -> void {
+    app.get("/", [&](Request& req, Response& res) -> void {
         res.cookie("Test", "me", {{"Max-Age", "3600"}});
 
         std::string host = req.header("Host");
@@ -244,7 +244,7 @@ int simpleWebserver() {
 int testPost() {
     legacy::WebApp app("/home/voc/projects/ServerVoc/build/html");
 
-    app.get("/", [&](const Request& req, const Response& res) -> void {
+    app.get("/", [&](Request& req, Response& res) -> void {
         res.send("<html>"
                  "<head>"
                  "<style>"
@@ -276,7 +276,7 @@ int testPost() {
                  "</html>");
     });
 
-    app.post("/", [&](const Request& req, const Response& res) -> void {
+    app.post("/", [&](Request& req, Response& res) -> void {
         std::cout << "Content-Type: " << req.header("Content-Type") << std::endl;
         std::cout << "Content-Length: " << req.header("Content-Length") << std::endl;
         char* body = new char[std::stoul(req.header("Content-Length")) + 1];

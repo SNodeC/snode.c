@@ -15,8 +15,8 @@ public:
     virtual void writeEvent() = 0;
 
 protected:
-    void start();
-    void stop();
+    void start() override;
+    void stop() override;
 };
 
 #endif // WRITER_H
