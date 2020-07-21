@@ -14,6 +14,8 @@
 class HTTPParser {
 public:
     HTTPParser() = default;
+    virtual ~HTTPParser() = default;
+    
     void parse(const char* buf, size_t count);
     virtual void reset();
 
@@ -47,6 +49,7 @@ protected:
 private:
     size_t readStartLine(const char* buf, size_t count);
     size_t readHeaderLine(const char* buf, size_t count);
+    void splitHeaderLine(const std::string& line);
     size_t readBodyData(const char* buf, size_t count);
 
     // Parseing data

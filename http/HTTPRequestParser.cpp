@@ -7,6 +7,7 @@
 
 #include "HTTPRequestParser.h"
 #include "httputils.h"
+#include "Logger.h"
 
 
 HTTPRequestParser::HTTPRequestParser(const std::function<void(std::string&, std::string&, std::string&)>& onRequest,
@@ -23,7 +24,7 @@ HTTPRequestParser::HTTPRequestParser(const std::function<void(std::string&, std:
     , onError(onError) {
 }
 
-
+/*
 HTTPRequestParser::HTTPRequestParser(std::function<void(std::string&, std::string&, std::string&)>&& onRequest,
                                      std::function<void(const std::string&, const std::string&)>&& onHeader,
                                      std::function<void(const std::string&, const std::string&)>&& onCookie,
@@ -36,7 +37,7 @@ HTTPRequestParser::HTTPRequestParser(std::function<void(std::string&, std::strin
     , onParsed(onParsed)
     , onError(onError) {
 }
-
+*/
 
 void HTTPRequestParser::reset() {
     HTTPParser::reset();
@@ -108,7 +109,7 @@ void HTTPRequestParser::parseStartLine(std::string& line) {
 
 
 void HTTPRequestParser::parseHeaderLine(const std::string& field, const std::string& value) {
-    std::cout << "++ Header or Cookie: " << field << " = " << value << std::endl;
+    VLOG(1) << "++ Header or Cookie: " << field << " = " << value;
     if (field != "cookie") {
         if (field == "content-length") {
             contentLength = std::stoi(value);
