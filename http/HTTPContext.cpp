@@ -27,6 +27,7 @@ HTTPContext::HTTPContext(const WebApp& webApp, SocketConnectionBase* connectedSo
 void HTTPContext::stopFileReader() {
     if (fileReader != nullptr) {
         fileReader->stop();
+        fileReader = nullptr;
     }
 }
 
