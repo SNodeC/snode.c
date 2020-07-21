@@ -24,6 +24,21 @@ HTTPRequestParser::HTTPRequestParser(const std::function<void(std::string&, std:
 }
 
 
+HTTPRequestParser::HTTPRequestParser(const std::function<void(std::string&, std::string&, std::string&)>&& onRequest,
+                                     const std::function<void(const std::string&, const std::string&)>&& onHeader,
+                                     const std::function<void(const std::string&, const std::string&)>&& onCookie,
+                                     const std::function<void(char* body, size_t bodyLength)>&& onBody,
+                                     const std::function<void(void)>&& onParsed,
+                                     const std::function<void(int status, const std::string& reason)>&& onError)
+    : onRequest(onRequest)
+    , onHeader(onHeader)
+    , onCookie(onCookie)
+    , onBody(onBody)
+    , onParsed(onParsed)
+    , onError(onError) {
+}
+
+
 void HTTPRequestParser::reset() {
     HTTPParser::reset();
     method.clear();
@@ -123,12 +138,12 @@ void HTTPRequestParser::parseBodyData(char* body, size_t size) {
 
 void HTTPRequestParser::parsingFinished() {
     onParsed();
-
     reset();
 }
 
 
 void HTTPRequestParser::parsingError(int code, const std::string& reason) {
-    onError(code, reason);
     PAS = PAS::ERROR;
+    onError(code, reason);
+    reset();
 }

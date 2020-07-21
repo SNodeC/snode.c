@@ -4,7 +4,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
-#include <list>
 #include <memory>
 #include <string>
 
