@@ -4,6 +4,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
+#include <stddef.h>    // for size_t
+#include <sys/types.h> // for ssize_t
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -17,7 +19,7 @@ namespace tls {
         : public ::SocketReader
         , virtual public tls::Socket {
     protected:
-        SocketReader(const std::function<void(const char* junk, ssize_t n)>& onRead, const std::function<void(int errnum)>& onError)
+        SocketReader(const std::function<void(const char* junk, size_t n)>& onRead, const std::function<void(int errnum)>& onError)
             : ::SocketReader(onRead, onError) {
         }
 

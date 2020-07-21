@@ -1,6 +1,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <algorithm>
+#include <map>     // for map
+#include <utility> // for pair
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

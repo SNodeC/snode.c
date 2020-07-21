@@ -5,6 +5,9 @@
 
 #include <functional>
 #include <set>
+#include <stddef.h> // for size_t
+#include <string>   // for string, basic_string, operator<
+#include <utility>  // for pair
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

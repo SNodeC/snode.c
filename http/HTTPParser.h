@@ -3,9 +3,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <stddef.h> // for size_t
 #include <string>
-#include <tuple>
-#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -19,7 +18,7 @@ public:
 
 protected:
     virtual void reset();
-    
+
     virtual void parseStartLine(std::string& line) = 0;
     virtual void parseHeaderLine(const std::string& field, const std::string& value) = 0;
     virtual void parseBodyData(char* body, size_t size) = 0;

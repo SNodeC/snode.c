@@ -1,6 +1,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cerrno>
+#include <netinet/in.h> // for sockaddr_in
 #include <sys/socket.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

@@ -3,6 +3,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <sys/select.h> // for fd_set
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "ManagedExceptions.h"

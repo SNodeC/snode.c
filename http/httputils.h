@@ -3,6 +3,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <bits/types/struct_tm.h> // for tm
 #include <string>
 #include <utility>
 

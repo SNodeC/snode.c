@@ -3,10 +3,8 @@
 #define ELPP_SYSLOG
 
 #include <easylogging++.cc>
-#include <iostream>
-#include <pwd.h>
-#include <sys/types.h>
-#include <unistd.h>
+#include <easylogging++.h>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
