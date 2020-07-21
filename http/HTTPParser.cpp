@@ -64,33 +64,6 @@ size_t HTTPParser::readStartLine(const char* buf, size_t count) {
 
 
 size_t HTTPParser::readHeaderLine(const char* buf, size_t count) {
-    static std::function<void(const std::string& line)> splitHeaderLine = [this](const std::string& line) -> void {
-        if (!line.empty()) {
-            std::string field;
-            std::string value;
-            std::tie(field, value) = httputils::str_split(line, ':');
-
-            if (field.empty()) {
-                parsingError(400, "Header-field empty");
-                PAS = PAS::ERROR;
-            } else if (std::isblank(field.back()) || std::isblank(field.front())) {
-                parsingError(400, "White space before or after header-field");
-                PAS = PAS::ERROR;
-            } else if (value.empty()) {
-                parsingError(400, "Header-value of field \"" + field + "\" empty");
-                PAS = PAS::ERROR;
-            } else {
-                httputils::str_trimm(value);
-                httputils::to_lower(field);
-
-                parseHeaderLine(field, value);
-            }
-        } else {
-            parsingError(400, "Header-line empty");
-            PAS = PAS::ERROR;
-        }
-    };
-
     size_t consumed = 0;
     while (consumed < count && PAS == PAS::HEADER) {
         char ch = buf[consumed];
@@ -108,7 +81,11 @@ size_t HTTPParser::readHeaderLine(const char* buf, size_t count) {
                     }
                     EOL = false;
                 } else {
-                    EOL = true;
+                    if (line.empty()) {
+                        parsingFinished();
+                    } else {
+                        EOL = true;
+                    }
                 }
             }
         } else if (EOL) {
@@ -132,6 +109,34 @@ size_t HTTPParser::readHeaderLine(const char* buf, size_t count) {
     }
 
     return consumed;
+}
+
+
+void HTTPParser::splitHeaderLine(const std::string& line) {
+    if (!line.empty()) {
+        std::string field;
+        std::string value;
+        std::tie(field, value) = httputils::str_split(line, ':');
+        
+        if (field.empty()) {
+            parsingError(400, "Header-field empty");
+            PAS = PAS::ERROR;
+        } else if (std::isblank(field.back()) || std::isblank(field.front())) {
+            parsingError(400, "White space before or after header-field");
+            PAS = PAS::ERROR;
+        } else if (value.empty()) {
+            parsingError(400, "Header-value of field \"" + field + "\" empty");
+            PAS = PAS::ERROR;
+        } else {
+            httputils::str_trimm(value);
+            httputils::to_lower(field);
+            
+            parseHeaderLine(field, value);
+        }
+    } else {
+        parsingError(400, "Header-line empty");
+        PAS = PAS::ERROR;
+    }
 }
 
 

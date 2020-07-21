@@ -16,15 +16,16 @@ public:
     HTTPRequestParser(const std::function<void(std::string&, std::string&, std::string&)>& onRequest,
                       const std::function<void(const std::string&, const std::string&)>& onHeader,
                       const std::function<void(const std::string&, const std::string&)>& onCookie,
-                      const std::function<void(char* body, size_t bodyLength)>& onBody, const std::function<void(void)>& onParsed,
+                      const std::function<void(char* body, size_t bodyLength)>& onBody,
+                      const std::function<void(void)>& onParsed,
                       const std::function<void(int status, const std::string& reason)>& onError);
-
+/*
     HTTPRequestParser(std::function<void(std::string&, std::string&, std::string&)>&& onRequest,
                       std::function<void(const std::string&, const std::string&)>&& onHeader,
                       std::function<void(const std::string&, const std::string&)>&& onCookie,
                       std::function<void(char* body, size_t bodyLength)>&& onBody, std::function<void(void)>&& onParsed,
                       std::function<void(int status, const std::string& reason)>&& onError);
-
+*/
     void reset() override;
 
 protected:
