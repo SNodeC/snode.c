@@ -14,7 +14,6 @@
 #include "socket/SocketConnectionBase.h"
 
 
-class FileReader;
 class WebApp;
 
 class HTTPContext {
@@ -26,30 +25,12 @@ public:
     void onWriteError(int errnum);
 
 private:
-    void stopFileReader();
-
-    void send(const char* buffer, int size);
-    void send(const std::string& buffer);
-    void sendFile(const std::string& file, const std::function<void(int ret)>& onError = nullptr);
-
-    void sendHeader();
-
     void requestReady();
-
-    void end();
     void prepareForRequest();
-
     void enqueue(const char* buf, size_t len);
-    void enqueue(const std::string& str);
 
     SocketConnectionBase* connectedSocket;
-    FileReader* fileReader = nullptr;
     const WebApp& webApp;
-
-    bool headerSend = false;
-
-    size_t sendLen = 0;
-
     bool requestInProgress = false;
 
     Request request{};

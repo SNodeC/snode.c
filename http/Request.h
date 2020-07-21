@@ -29,11 +29,13 @@ public:
     mutable std::string url;
     char* body{nullptr};
     std::string path;
+    std::string method;
+    int contentLength = 0;
+
+protected:
     std::map<std::string, std::string> queryMap;
     std::map<std::string, std::string> requestHeader;
     std::map<std::string, std::string> requestCookies;
-    std::string method;
-    int contentLength = 0;
 
 private:
     void reset();
@@ -41,6 +43,7 @@ private:
     std::string nullstr = "";
 
     friend class HTTPContext;
+    friend class Response;
 };
 
 #endif // REQUEST_H
