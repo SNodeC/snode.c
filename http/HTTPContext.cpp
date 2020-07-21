@@ -55,12 +55,12 @@ HTTPContext::HTTPContext(const WebApp& webApp, SocketConnectionBase* connectedSo
             response.end();
             this->connectedSocket->end();
         }) {
-    this->prepareForRequest();
+    this->reset();
 }
 
 
 void HTTPContext::onReadError(int errnum) {
-    response.stopFileReader();
+    response.stop();
 
     if (errnum != 0 && errnum != ECONNRESET) {
         PLOG(ERROR) << "Connection: read";
@@ -69,7 +69,7 @@ void HTTPContext::onReadError(int errnum) {
 
 
 void HTTPContext::onWriteError(int errnum) {
-    response.stopFileReader();
+    response.stop();
 
     if (errnum != 0 && errnum != ECONNRESET) {
         PLOG(ERROR) << "Connection write:";
@@ -96,9 +96,13 @@ void HTTPContext::enqueue(const char* buf, size_t len) {
 }
 
 
-void HTTPContext::prepareForRequest() {
-    this->requestInProgress = false;
+void HTTPContext::end() {
+    connectedSocket->end();
+}
 
+
+void HTTPContext::reset() {
+    this->requestInProgress = false;
     parser.reset();
     request.reset();
     response.reset();

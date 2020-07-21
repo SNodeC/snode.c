@@ -15,8 +15,8 @@ public:
     virtual void acceptEvent() = 0;
 
 protected:
-    void start();
-    void stop();
+    void start() override;
+    void stop() override;
 };
 
 

@@ -17,7 +17,7 @@
 int testPost() {
     legacy::WebApp legacyApp("/home/voc/projects/ServerVoc/build/html");
 
-    legacyApp.get("/", [](const Request& req, const Response& res) -> void {
+    legacyApp.get("/", [](Request& req, Response& res) -> void {
         res.send("<html>"
                  "<head>"
                  "<style>"
@@ -49,7 +49,7 @@ int testPost() {
                  "</html>");
     });
 
-    legacyApp.post("/", [](const Request& req, const Response& res) -> void {
+    legacyApp.post("/", [](Request& req, Response& res) -> void {
         std::cout << "Content-Type: " << req.header("Content-Type") << std::endl;
         std::cout << "Content-Length: " << req.header("Content-Length") << std::endl;
         char* body = new char[std::stoul(req.header("Content-Length")) + 1];
