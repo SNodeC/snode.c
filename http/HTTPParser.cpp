@@ -117,7 +117,7 @@ void HTTPParser::splitHeaderLine(const std::string& line) {
         std::string field;
         std::string value;
         std::tie(field, value) = httputils::str_split(line, ':');
-        
+
         if (field.empty()) {
             parsingError(400, "Header-field empty");
             PAS = PAS::ERROR;
@@ -130,7 +130,7 @@ void HTTPParser::splitHeaderLine(const std::string& line) {
         } else {
             httputils::str_trimm(value);
             httputils::to_lower(field);
-            
+
             parseHeaderLine(field, value);
         }
     } else {

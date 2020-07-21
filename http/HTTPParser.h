@@ -15,7 +15,7 @@ class HTTPParser {
 public:
     HTTPParser() = default;
     virtual ~HTTPParser() = default;
-    
+
     void parse(const char* buf, size_t count);
     virtual void reset();
 

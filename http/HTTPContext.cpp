@@ -17,44 +17,44 @@ HTTPContext::HTTPContext(const WebApp& webApp, SocketConnectionBase* connectedSo
     , webApp(webApp)
     , response(this)
     , parser(
-        [this](std::string& method, std::string& originalUrl, std::string& httpVersion) -> void {
-            VLOG(1) << "++ Request: " << method << " " << originalUrl << " " << httpVersion;
-            request.method = method;
-            request.originalUrl = originalUrl;
-            request.path = httputils::str_split_last(originalUrl, '/').first;
-            if (request.path.empty()) {
-                request.path = "/";
-            }
-            request.httpVersion = httpVersion;
-        },
-        [this](const std::string& field, const std::string& value) -> void {
-            if (request.requestHeader[field].empty()) {
-                VLOG(1) << "++ Header (insert): " << field << " = " << value;
-                request.requestHeader[field] = value;
-            } else {
-                VLOG(1) << "++ Header (append): " << field << " = " << value;
-                request.requestHeader[field] += "," + value;
-            }
-        },
-        [this](const std::string& name, const std::string& value) -> void {
-            VLOG(1) << "++ Cookie: " << name << " = " << value;
-            request.requestCookies[name] = value;
-        },
-        [this](char* body, size_t contentLength) -> void {
-            VLOG(1) << "++ Body: " << contentLength;
-            request.body = body;
-            request.contentLength = contentLength;
-        },
-        [this](void) -> void {
-            VLOG(1) << "++ Parsed ++";
-            this->requestReady();
-        },
-        [this](int status, [[maybe_unused]] const std::string& reason) -> void {
-            VLOG(1) << "++ Error: " << status << " : " << reason;
-            response.responseStatus = status;
-            response.end();
-            this->connectedSocket->end();
-        }) {
+          [this](std::string& method, std::string& originalUrl, std::string& httpVersion) -> void {
+              VLOG(1) << "++ Request: " << method << " " << originalUrl << " " << httpVersion;
+              request.method = method;
+              request.originalUrl = originalUrl;
+              request.path = httputils::str_split_last(originalUrl, '/').first;
+              if (request.path.empty()) {
+                  request.path = "/";
+              }
+              request.httpVersion = httpVersion;
+          },
+          [this](const std::string& field, const std::string& value) -> void {
+              if (request.requestHeader[field].empty()) {
+                  VLOG(1) << "++ Header (insert): " << field << " = " << value;
+                  request.requestHeader[field] = value;
+              } else {
+                  VLOG(1) << "++ Header (append): " << field << " = " << value;
+                  request.requestHeader[field] += "," + value;
+              }
+          },
+          [this](const std::string& name, const std::string& value) -> void {
+              VLOG(1) << "++ Cookie: " << name << " = " << value;
+              request.requestCookies[name] = value;
+          },
+          [this](char* body, size_t contentLength) -> void {
+              VLOG(1) << "++ Body: " << contentLength;
+              request.body = body;
+              request.contentLength = contentLength;
+          },
+          [this](void) -> void {
+              VLOG(1) << "++ Parsed ++";
+              this->requestReady();
+          },
+          [this](int status, [[maybe_unused]] const std::string& reason) -> void {
+              VLOG(1) << "++ Error: " << status << " : " << reason;
+              response.responseStatus = status;
+              response.send(reason);
+              this->connectedSocket->end();
+          }) {
     this->reset();
 }
 
