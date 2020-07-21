@@ -1,6 +1,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <regex>
+#include <tuple>  // for tie, tuple
+#include <vector> // for vector
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

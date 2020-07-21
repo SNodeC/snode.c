@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <cassert>
 #include <csignal>
+#include <errno.h>    // for EINTR, errno
+#include <sys/time.h> // for timeval
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

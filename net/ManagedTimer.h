@@ -4,6 +4,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <list>
+#include <sys/time.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

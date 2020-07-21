@@ -1,6 +1,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstring>
+#include <ctype.h> // for isblank
+#include <tuple>   // for tie, tuple
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

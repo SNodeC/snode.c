@@ -5,7 +5,6 @@
 #include <ctime>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

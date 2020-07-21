@@ -2,6 +2,7 @@
 
 #include <cstring>
 #include <netdb.h>
+#include <sys/socket.h> // for AF_INET
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

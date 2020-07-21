@@ -1,5 +1,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <sys/socket.h> // for send, MSG_DONTWAIT, MSG_NOSIGNAL
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "socket/legacy/SocketWriter.h"

@@ -1,5 +1,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <sys/socket.h> // for recv
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "socket/legacy/SocketReader.h"

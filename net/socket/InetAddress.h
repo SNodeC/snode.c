@@ -4,6 +4,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <netinet/in.h>
+#include <stdint.h> // for uint16_t
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

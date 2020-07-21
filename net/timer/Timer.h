@@ -3,7 +3,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <ctime>
 #include <functional>
 #include <sys/time.h>
 
