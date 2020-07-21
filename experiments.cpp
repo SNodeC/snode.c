@@ -224,21 +224,21 @@ int main(int argc, char** argv) {
     std::cout << "----------------------------------" << std::endl;
 
     parser.parse(http.c_str(), http.size());
-    parser.reset();
+//    parser.reset();
 
     std::cout << "++++++++++++++++++++++++++++++++++" << std::endl;
 //    std::cout << http << std::endl;
     std::cout << "----------------------------------" << std::endl;
 
     parser.parse(http.c_str(), http.size());
-    parser.reset();
+//    parser.reset();
 
     std::cout << "++++++++++++++++++++++++++++++++++" << std::endl;
 //    std::cout << http << std::endl;
     std::cout << "----------------------------------" << std::endl;
 
     parser.parse(http.c_str(), http.size());
-    parser.reset();
+//    parser.reset();
 
     //    std::cout << "HTTP: " << http << std::endl;
 

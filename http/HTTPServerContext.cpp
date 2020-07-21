@@ -102,7 +102,6 @@ void HTTPServerContext::end() {
 
 void HTTPServerContext::reset() {
     this->requestInProgress = false;
-    parser.reset();
     request.reset();
     response.reset();
 }

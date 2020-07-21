@@ -16,9 +16,10 @@ public:
     virtual ~HTTPParser() = default;
 
     void parse(const char* buf, size_t count);
-    virtual void reset();
 
 protected:
+    virtual void reset();
+    
     virtual void parseStartLine(std::string& line) = 0;
     virtual void parseHeaderLine(const std::string& field, const std::string& value) = 0;
     virtual void parseBodyData(char* body, size_t size) = 0;
