@@ -1,5 +1,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "Logger.h"
 #include "legacy/WebApp.h"
 #include "tls/WebApp.h"
 
@@ -68,9 +69,9 @@ int testPost() {
 
     legacyApp.listen(8080, [](int err) -> void {
         if (err != 0) {
-            perror("Listen");
+            PLOG(FATAL) << "listen on port 8080";
         } else {
-            std::cout << "snode.c listening on port 8080" << std::endl;
+            VLOG(0) << "snode.c listening on port 8080 for legacy connections";
         }
     });
 
@@ -81,9 +82,9 @@ int testPost() {
 
     tlsWebApp.listen(8088, [](int err) -> void {
         if (err != 0) {
-            perror("Listen");
+            PLOG(FATAL) << "listen on port 8088";
         } else {
-            std::cout << "snode.c listening on port 8088" << std::endl;
+            VLOG(0) << "snode.c listening on port 8088 for SSL/TLS connections";
         }
     });
 

@@ -8,6 +8,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "HTTPRequestParser.h"
 #include "Request.h"
 #include "Response.h"
 #include "socket/SocketConnectionBase.h"
@@ -17,11 +18,6 @@ class FileReader;
 class WebApp;
 
 class HTTPContext {
-private:
-    enum struct requeststates { REQUEST, HEADER, BODY, ERROR } requestState{requeststates::REQUEST};
-
-    enum struct linestate { READ, EOL } lineState{linestate::READ};
-
 public:
     HTTPContext(const WebApp& webApp, SocketConnectionBase* connectedSocket);
 
@@ -38,15 +34,6 @@ private:
 
     void sendHeader();
 
-    void parseRequest(const char* junk, size_t junkLen, const std::function<void(std::string&)>& lineRead,
-                      const std::function<void(const char* bodyJunk, int junkLength)>& readBody);
-    void parseRequestLine(const std::string& line);
-    void parseCookie(const std::string& value);
-    void addRequestLine(const std::string& line);
-
-    void headerRead();
-    void bodyRead();
-
     void requestReady();
 
     void end();
@@ -56,21 +43,19 @@ private:
     void enqueue(const std::string& str);
 
     SocketConnectionBase* connectedSocket;
-    FileReader* fileReader{nullptr};
+    FileReader* fileReader = nullptr;
     const WebApp& webApp;
 
-    std::string headerLine;
-    int bodyPointer{0};
+    bool headerSend = false;
 
-    bool headerSend{false};
+    size_t sendLen = 0;
 
-    int contentLength{0};
-    int sendLen{0};
-
-    bool requestInProgress{false};
+    bool requestInProgress = false;
 
     Request request{};
     Response response;
+
+    HTTPRequestParser parser;
 
     friend class Response;
 };

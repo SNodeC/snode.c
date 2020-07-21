@@ -39,6 +39,9 @@ public:
     const Response& clearCookie(const std::string& name, const std::map<std::string, std::string>& options = {}) const;
     const Response& type(const std::string& type) const;
 
+protected:
+    mutable size_t contentLength;
+
 private:
     class ResponseCookie {
     public:
@@ -58,7 +61,7 @@ private:
 
     HTTPContext* httpContext;
 
-    mutable int responseStatus{0};
+    mutable int responseStatus = 0;
     mutable std::map<std::string, std::string> responseHeader;
     mutable std::map<std::string, ResponseCookie> responseCookies;
 

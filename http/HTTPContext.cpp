@@ -5,6 +5,7 @@
 #include <cstring>
 #include <filesystem>
 #include <numeric>
+#include <tuple>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -19,7 +20,44 @@
 HTTPContext::HTTPContext(const WebApp& webApp, SocketConnectionBase* connectedSocket)
     : connectedSocket(connectedSocket)
     , webApp(webApp)
-    , response(this) {
+    , response(this)
+    , parser(
+          [this](std::string& method, std::string& originalUrl, std::string& httpVersion) -> void {
+              std::cout << "++ Request: " << method << " " << originalUrl << " " << httpVersion << std::endl;
+              request.method = method;
+              request.originalUrl = originalUrl;
+              request.path = httputils::str_split_last(originalUrl, '/').first;
+              if (request.path.empty()) {
+                  request.path = "/";
+              }
+              request.httpVersion = httpVersion;
+          },
+          [this](const std::string& field, const std::string& value) -> void {
+              std::cout << "++ Header: " << field << " = " << value << std::endl;
+              if (request.requestHeader[field].empty()) {
+                  request.requestHeader[field] = value;
+              } else {
+                  request.requestHeader[field] += "," + value;
+              }
+          },
+          [this](const std::string& name, const std::string& value) -> void {
+              std::cout << "++ Cookie: " << name << " = " << value << std::endl;
+              request.requestCookies[name] = value;
+          },
+          [this](char* body, size_t contentLength) -> void {
+              request.body = body;
+              request.contentLength = contentLength;
+          },
+          [this](void) -> void {
+              std::cout << "++ Parsed ++" << std::endl;
+              this->requestReady();
+          },
+          [this](int status, [[maybe_unused]] const std::string& reason) -> void {
+              std::cout << "++ Error: " << status << " : " << reason << std::endl;
+              response.responseStatus = 403;
+              this->end();
+              this->connectedSocket->end();
+          }) {
     this->prepareForRequest();
 }
 
@@ -51,177 +89,9 @@ void HTTPContext::onWriteError(int errnum) {
 
 
 void HTTPContext::receiveData(const char* junk, size_t junkLen) {
-    if (requestInProgress) {
-        this->connectedSocket->end();
-    } else {
-        parseRequest(
-            junk, junkLen,
-            [&](const std::string& line) -> void { // header data
-                switch (requestState) {
-                case requeststates::REQUEST:
-                    if (!line.empty()) {
-                        parseRequestLine(line);
-                        requestState = requeststates::HEADER;
-                    } else {
-                        response.responseStatus = 400;
-                        response.responseHeader.insert({"Connection", "Close"});
-                        this->end();
-                        connectedSocket->end();
-                        requestState = requeststates::ERROR;
-                    }
-                    break;
-                case requeststates::HEADER:
-                    if (!line.empty()) {
-                        this->addRequestLine(line);
-                    } else {
-                        headerRead();
-                    }
-                    break;
-                case requeststates::BODY:
-                case requeststates::ERROR:
-                    break;
-                }
-            },
-            [&](const char* bodyJunk, int junkLen) -> void { // body data
-                if (request.bodyLength - bodyPointer < junkLen) {
-                    junkLen = request.bodyLength - bodyPointer;
-                }
-                memcpy(request.body + bodyPointer, bodyJunk, junkLen);
-                bodyPointer += junkLen;
-                if (bodyPointer == request.bodyLength) {
-                    this->bodyRead();
-                }
-            });
+    if (!requestInProgress) {
+        parser.parse(junk, junkLen);
     }
-}
-
-
-void HTTPContext::parseRequest(const char* junk, size_t junkLen, const std::function<void(std::string&)>& lineRead,
-                               const std::function<void(const char* bodyJunk, int junkLength)>& readBody) {
-    if (requestState != requeststates::BODY) {
-        size_t n = 0;
-
-        while (n < junkLen && requestState != requeststates::ERROR && requestState != requeststates::BODY) {
-            const char& ch = junk[n++];
-            if (ch != '\r') { // '\r' can be ignored completely as long as we are not receiving the body of the document
-                switch (lineState) {
-                case linestate::READ:
-                    if (ch == '\n') {
-                        if (headerLine.empty()) {
-                            lineRead(headerLine);
-                        } else {
-                            lineState = linestate::EOL;
-                        }
-                    } else {
-                        headerLine += ch;
-                    }
-                    break;
-                case linestate::EOL:
-                    if (ch == '\n') {
-                        lineRead(headerLine);
-                        headerLine.clear();
-                        lineRead(headerLine);
-                    } else if (!isblank(ch)) {
-                        lineRead(headerLine);
-                        headerLine.clear();
-                        headerLine += ch;
-                    } else {
-                        headerLine += ch;
-                    }
-                    lineState = linestate::READ;
-                    break;
-                }
-            }
-        }
-        if (n != junkLen) {
-            readBody(junk + n, junkLen - n);
-        }
-    } else {
-        readBody(junk, junkLen);
-    }
-}
-
-
-void HTTPContext::parseRequestLine(const std::string& line) {
-    std::pair<std::string, std::string> pair;
-
-    pair = httputils::str_split(line, ' ');
-    request.method = pair.first;
-    httputils::to_lower(request.method);
-
-    pair = httputils::str_split(pair.second, ' ');
-    request.httpVersion = pair.second;
-
-    /** Belongs into url-parser middleware */
-    pair = httputils::str_split(httputils::url_decode(pair.first), '?');
-    request.originalUrl = pair.first;
-    request.path = httputils::str_split_last(pair.first, '/').first;
-
-    if (request.path.empty()) {
-        request.path = "/";
-    }
-
-    std::string queries = pair.second;
-
-    while (!queries.empty()) {
-        pair = httputils::str_split(queries, '&');
-        queries = pair.second;
-        pair = httputils::str_split(pair.first, '=');
-        request.queryMap.insert(pair);
-    }
-}
-
-
-void HTTPContext::addRequestLine(const std::string& line) {
-    if (!line.empty()) {
-        std::pair<std::string, std::string> splitted = httputils::str_split(line, ':');
-        httputils::str_trimm(splitted.first);
-        httputils::str_trimm(splitted.second);
-
-        httputils::to_lower(splitted.first);
-
-        if (!splitted.second.empty()) {
-            if (splitted.first == "cookie") {
-                parseCookie(splitted.second);
-            } else {
-                request.requestHeader.insert(splitted);
-            }
-        }
-    }
-}
-
-
-void HTTPContext::parseCookie(const std::string& value) {
-    std::istringstream cookyStream(value);
-
-    for (std::string cookie; std::getline(cookyStream, cookie, ';');) {
-        std::pair<std::string, std::string> splitted = httputils::str_split(cookie, '=');
-
-        httputils::str_trimm(splitted.first);
-        httputils::str_trimm(splitted.second);
-
-        request.requestCookies.insert(splitted);
-    }
-}
-
-
-void HTTPContext::headerRead() {
-    if (request.header("content-length") != "") {
-        request.bodyLength = std::stoi(request.header("content-length"));
-    }
-
-    if (request.bodyLength > 0) {
-        request.body = new char[request.bodyLength];
-        requestState = requeststates::BODY;
-    } else {
-        this->requestReady();
-        requestState = requeststates::REQUEST;
-    }
-}
-
-
-void HTTPContext::bodyRead() {
-    this->requestReady();
 }
 
 
@@ -237,15 +107,16 @@ void HTTPContext::enqueue(const char* buf, size_t len) {
 
     if (headerSend) {
         sendLen += len;
-        if (sendLen == contentLength) {
+        if (sendLen == response.contentLength) {
             if (request.requestHeader.find("connection") != request.requestHeader.end()) {
                 if (request.requestHeader.find("connection")->second == "Close") {
                     connectedSocket->end();
+                } else {
+                    prepareForRequest();
                 }
             } else {
                 connectedSocket->end();
             }
-            prepareForRequest();
         }
     }
 }
@@ -344,7 +215,7 @@ void HTTPContext::sendHeader() {
 
         headerSend = true;
 
-        contentLength = std::stoi(response.responseHeader.find("Content-Length")->second);
+        response.contentLength = std::stoi(response.responseHeader.find("Content-Length")->second);
     }
 }
 
@@ -357,16 +228,13 @@ void HTTPContext::end() {
 
 
 void HTTPContext::prepareForRequest() {
-    this->requestState = requeststates::REQUEST;
-    this->lineState = linestate::READ;
-    this->bodyPointer = 0;
     this->headerSend = false;
     this->sendLen = 0;
     this->stopFileReader();
-    this->contentLength = 0;
     this->fileReader = nullptr;
     this->requestInProgress = false;
 
+    parser.reset();
     request.reset();
     response.reset();
 }

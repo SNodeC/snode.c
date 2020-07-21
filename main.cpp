@@ -84,7 +84,7 @@ int timerApp() {
         } else {
             //                    std::cout << uri << std::endl;
 
-            if (req.bodySize() != 0) {
+            if (req.bodyLength() != 0) {
                 std::cout << "Body: " << req.body << std::endl;
             }
 
@@ -139,7 +139,7 @@ int simpleWebserver() {
         } else {
             //                    std::cout << uri << std::endl;
 
-            if (req.bodySize() != 0) {
+            if (req.bodyLength() != 0) {
                 std::cout << "Body: " << req.body << std::endl;
             }
 
@@ -180,7 +180,7 @@ int simpleWebserver() {
         } else {
             //                    std::cout << uri << std::endl;
 
-            if (req.bodySize() != 0) {
+            if (req.bodyLength() != 0) {
                 std::cout << "Body: " << req.body << std::endl;
             }
 
