@@ -46,6 +46,10 @@ const Response& Response::set(const std::map<std::string, std::string>& map) con
 const Response& Response::set(const std::string& field, const std::string& value) const {
     this->responseHeader.insert_or_assign(field, value);
 
+    if (field == "Content-Length") {
+        contentLength = std::stol(value);
+    }
+
     return *this;
 }
 
@@ -135,6 +139,7 @@ void Response::end() const {
 
 void Response::reset() {
     responseStatus = 200;
+    contentLength = 0;
     responseHeader.clear();
     responseCookies.clear();
 }

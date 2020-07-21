@@ -217,12 +217,12 @@ void Router::dispatch(const Request& req, const Response& res) const {
 
 REQUESTMETHOD(use, "use");
 REQUESTMETHOD(all, "all");
-REQUESTMETHOD(get, "get");
-REQUESTMETHOD(put, "put");
-REQUESTMETHOD(post, "post");
-REQUESTMETHOD(del, "delete");
-REQUESTMETHOD(connect, "connect");
-REQUESTMETHOD(options, "options");
-REQUESTMETHOD(trace, "trace");
-REQUESTMETHOD(patch, "patch");
-REQUESTMETHOD(head, "head");
+REQUESTMETHOD(get, "GET");
+REQUESTMETHOD(put, "PUT");
+REQUESTMETHOD(post, "POST");
+REQUESTMETHOD(del, "DELETE");
+REQUESTMETHOD(connect, "CONNECT");
+REQUESTMETHOD(options, "OPTIONS");
+REQUESTMETHOD(trace, "TRACE");
+REQUESTMETHOD(patch, "PATCH");
+REQUESTMETHOD(head, "HEAD");

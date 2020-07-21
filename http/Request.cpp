@@ -42,8 +42,8 @@ const std::string& Request::cookie(const std::string& key) const {
 }
 
 
-int Request::bodySize() const {
-    return bodyLength;
+int Request::bodyLength() const {
+    return contentLength;
 }
 
 
@@ -65,12 +65,8 @@ void Request::reset() {
     httpVersion.clear();
     path.clear();
     queryMap.clear();
-
     requestCookies.clear();
-    if (body != nullptr) {
-        delete[] body;
-        body = nullptr;
-    }
-    bodyLength = 0;
+    body = nullptr;
+    contentLength = 0;
     MultibleAttributeInjector::reset();
 }
