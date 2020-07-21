@@ -23,8 +23,8 @@ void Response::enqueue(const char* buf, size_t len) {
     httpContext->enqueue(buf, len);
 
     if (headerSend) {
-        sendLen += len;
-        if (sendLen == contentLength) {
+        contentSent += len;
+        if (contentSent == contentLength) {
             if (httpContext->request.requestHeader.find("connection") != httpContext->request.requestHeader.end()) {
                 if (httpContext->request.requestHeader.find("connection")->second == "Close") {
                     httpContext->end();
@@ -251,24 +251,12 @@ void Response::sendStatus(int status) {
 void Response::end() {
     responseHeader.insert({"Content-Length", "0"});
     this->sendHeader();
-    this->httpContext->reset();
 }
 
 
-void Response::reset() {/*
-    if (sendLen == contentLength) {
-        if (httpContext->request.requestHeader.find("connection") != httpContext->request.requestHeader.end()) {
-            if (httpContext->request.requestHeader.find("connection")->second == "Close") {
-                httpContext->end();
-            } else {
-                httpContext->reset();
-            }
-        } else {
-            httpContext->end();
-        }
-    }*/
+void Response::reset() {
     headerSend = false;
-    sendLen = 0;
+    contentSent = 0;
     responseStatus = 200;
     contentLength = 0;
     responseHeader.clear();
