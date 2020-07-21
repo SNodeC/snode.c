@@ -15,13 +15,13 @@
 
 
 #define DREQUESTMETHOD(METHOD)                                                                                                             \
-    Router& METHOD(const std::string& path, const std::function<void(const Request& req, const Response& res)>& dispatcher);               \
-    Router& METHOD(const std::function<void(const Request& req, const Response& res)>& dispatcher);                                        \
+    Router& METHOD(const std::string& path, const std::function<void(Request & req, Response & res)>& dispatcher);                         \
+    Router& METHOD(const std::function<void(Request & req, Response & res)>& dispatcher);                                                  \
     Router& METHOD(const std::string& path, const Router& router);                                                                         \
     Router& METHOD(const Router& router);                                                                                                  \
     Router& METHOD(const std::string& path,                                                                                                \
-                   const std::function<void(const Request& req, const Response& res, const std::function<void(void)>& next)>& dispatcher); \
-    Router& METHOD(const std::function<void(const Request& req, const Response& res, const std::function<void(void)>& next)>& dispatcher);
+                   const std::function<void(Request & req, Response & res, const std::function<void(void)>& next)>& dispatcher);           \
+    Router& METHOD(const std::function<void(Request & req, Response & res, const std::function<void(void)>& next)>& dispatcher);
 
 
 class MountPoint {
@@ -68,7 +68,7 @@ public:
     DREQUESTMETHOD(patch);
     DREQUESTMETHOD(head);
 
-    void dispatch(const Request& req, const Response& res) const;
+    void dispatch(Request& req, Response& res) const;
 
     const std::shared_ptr<RouterDispatcher>& getRoute() const {
         return routerRoute;

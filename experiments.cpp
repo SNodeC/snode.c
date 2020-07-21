@@ -1,5 +1,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "HTTPRequestParser.h"
 #include "Logger.h"
 #include "legacy/WebApp.h"
 #include "tls/WebApp.h"
@@ -10,8 +11,8 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 
-#define MIDDLEWARE(req, res, next) [&](const Request&(req), const Response&(res), const std::function<void(void)>&(next)) -> void
-#define APPLICATION(req, res) [&](const Request&(req), const Response&(res)) -> void
+#define MIDDLEWARE(req, res, next) [&](Request&(req), Response&(res), const std::function<void(void)>&(next)) -> void
+#define APPLICATION(req, res) [&](Request&(req), Response&(res)) -> void
 
 #define CERTF "/home/voc/projects/ServerVoc/certs/calisto.home.vchrist.at_-_snode.c.pem"
 #define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c.key.encrypted.pem"
@@ -25,14 +26,14 @@ Router route() {
             VLOG(3) << "Cookie 1: " + req.cookie("searchcookie");
 
             next();
-
+            
             req.setAttribute<std::string>("Hallo");
             req.setAttribute<std::string, "Key1">("World");
             req.setAttribute<int>(3);
 
             req.setAttribute<std::string, "Hall">("juhu");
             VLOG(3) << "####################### " + req.getAttribute<std::string, "Hall">([](const std::string& attr) -> void {
-                    VLOG(3) << "String: --------- " + attr;
+                VLOG(3) << "String: --------- " + attr;
             });
 
             if (!req.getAttribute<std::string>([](std::string& hello) -> void {
@@ -180,7 +181,69 @@ int simpleWebserver() {
 
 
 int main(int argc, char** argv) {
-    WebApp::init(argc, argv);
+    std::string http = "GET /admin/new/index.html?hihihi=3343&asdsf=2324 HTTP/1.1\r\n"
+                       "Field1: Value1\r\n"
+                       "Field2: Field2\r\n"
+                       "Field2: Field3\r\n" // is allowed and must be combined with a comma as separator
+//                       "Content-Length: 8\r\n"
+                       "Cookie: MyCookie1=MyValue1; MyCookie2=MyValue2\r\n"
+                       "\r\n"
+//                       "juhuhuhu"
+                       ;
 
-    return simpleWebserver();
+    HTTPRequestParser parser(
+        [](std::string& method, std::string& originalUrl, std::string& httpVersion) -> void {
+            std::cout << "++ Request: " << method << " " << originalUrl << " " << httpVersion << std::endl;
+        },
+        [](const std::string& field, const std::string& value) -> void {
+            std::cout << "++ Header: " << field << " = " << value << std::endl;
+        },
+        [](const std::string& name, const std::string& value) -> void {
+            std::cout << "++ Cookie: " << name << " = " << value << std::endl;
+        },
+        [](char* body, size_t bodyLength) -> void {
+            std::cout << "++ Body: " << bodyLength << " : " << body << std::endl;
+        },
+        [](void) -> void {
+            std::cout << "++ Parsed ++" << std::endl;
+        },
+        [](int status, const std::string& reason) -> void {
+            std::cout << "++ Error: " << status << " : " << reason << std::endl;
+        });
+
+    /*
+    std::function<void(std::string, std::string, std::string)> onRequest,
+    std::function<void(std::pair<std::string, std::string>)> onQuery,
+    std::function<void(std::pair<std::string, std::string>)> onHeader,
+    std::function<void(std::pair<std::string, std::string>)> onCookie,
+    std::function<void(char* body, size_t bodyLength)> onBody)
+    */
+
+    std::cout << "++++++++++++++++++++++++++++++++++" << std::endl;
+//    std::cout << http << std::endl;
+    std::cout << "----------------------------------" << std::endl;
+
+    parser.parse(http.c_str(), http.size());
+    parser.reset();
+
+    std::cout << "++++++++++++++++++++++++++++++++++" << std::endl;
+//    std::cout << http << std::endl;
+    std::cout << "----------------------------------" << std::endl;
+
+    parser.parse(http.c_str(), http.size());
+    parser.reset();
+
+    std::cout << "++++++++++++++++++++++++++++++++++" << std::endl;
+//    std::cout << http << std::endl;
+    std::cout << "----------------------------------" << std::endl;
+
+    parser.parse(http.c_str(), http.size());
+    parser.reset();
+
+    //    std::cout << "HTTP: " << http << std::endl;
+
+    return 0;
+    //    WebApp::init(argc, argv);
+
+    //    return simpleWebserver();
 }

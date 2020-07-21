@@ -20,27 +20,29 @@ public:
     const std::string& header(const std::string& key, int i = 0) const;
     const std::string& cookie(const std::string& key) const;
     const std::string& query(const std::string& key) const;
-    const std::string& fragment() const;
-    int bodySize() const;
+    int bodyLength() const;
 
     // Properties
-    std::string originalUrl{""};
-    std::string httpVersion{""};
-    mutable std::string url;
+    std::string originalUrl;
+    std::string httpVersion;
+    std::string url;
     char* body{nullptr};
     std::string path;
-    std::map<std::string, std::string> queryMap;
-    std::multimap<std::string, std::string> requestHeader;
-    std::map<std::string, std::string> requestCookies;
-    std::string method{""};
-    int bodyLength{0};
+    std::string method;
+    int contentLength = 0;
 
-private:
+protected:
     void reset();
 
+    std::map<std::string, std::string> queryMap;
+    std::map<std::string, std::string> requestHeader;
+    std::map<std::string, std::string> requestCookies;
+
+private:
     std::string nullstr = "";
 
     friend class HTTPContext;
+    friend class Response;
 };
 
 #endif // REQUEST_H
