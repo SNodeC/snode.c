@@ -5,6 +5,7 @@
 #include "Timer.h"
 
 #include "ContinousTimer.h"
+#include "ManagedTimer.h" // for ManagedTimer
 #include "Multiplexer.h"
 #include "SingleshotTimer.h"
 
