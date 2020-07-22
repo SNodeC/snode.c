@@ -50,8 +50,7 @@ HTTPServerContext::HTTPServerContext(const WebApp& webApp, SocketConnectionBase*
           },
           [this](int status, [[maybe_unused]] const std::string& reason) -> void {
               VLOG(1) << "++ Error: " << status << " : " << reason;
-              response.responseStatus = status;
-              response.send(reason);
+              response.status(status).send(reason);
               this->connectedSocket->end();
           }) {
     this->reset();
