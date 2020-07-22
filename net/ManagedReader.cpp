@@ -5,6 +5,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Descriptor.h" // for Descriptor
 #include "ManagedReader.h"
 
 
