@@ -27,7 +27,7 @@ HTTPServerContext::HTTPServerContext(const WebApp& webApp, SocketConnectionBase*
               request.httpVersion = httpVersion;
           },
           [this](const std::string& field, const std::string& value) -> void {
-              if (request.requestHeader[field].empty()) {
+              if (request.requestHeader.find(field) == request.requestHeader.end()) {
                   VLOG(1) << "++ Header (insert): " << field << " = " << value;
                   request.requestHeader[field] = value;
               } else {
