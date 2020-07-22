@@ -51,6 +51,9 @@ void HTTPRequestParser::reset() {
 }
 
 
+// HTTP/x.x
+static std::regex httpVersionRegex("^HTTP/([[:digit:]])\\.([[:digit:]])$");
+
 void HTTPRequestParser::parseStartLine(std::string& line) {
     if (!line.empty()) {
         std::string remaining;
@@ -68,8 +71,6 @@ void HTTPRequestParser::parseStartLine(std::string& line) {
             if (originalUrl.front() != '/') {
                 parsingError(400, "Malformed URL");
             } else {
-                // HTTP/x.x
-                std::regex httpVersionRegex("^HTTP/([[:digit:]])\\.([[:digit:]])$");
                 std::smatch match;
 
                 if (!std::regex_match(httpVersion, match, httpVersionRegex)) {
