@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
         .get("/", APPLICATION(req, res) {
             VLOG(0) << "URL: " + req.originalUrl;
             if (req.originalUrl == "/") {
-                res.redirect("/index.html");
+                res.redirect(308, "/index.html");
             } else if (req.originalUrl == "/end") {
                 res.send("Bye, bye!\n");
                 WebApp::stop();
