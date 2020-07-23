@@ -35,7 +35,7 @@ private:
 
     friend class Route;
     friend class Router;
-    friend class RouteDispatcher;
+    friend class ApplicationDispatcher;
     friend class MiddlewareDispatcher;
     friend class RouterDispatcher;
 };
@@ -70,7 +70,7 @@ public:
     void dispatch(Request& req, Response& res) const;
 
     const std::shared_ptr<RouterDispatcher>& getRoute() const {
-        return routerRoute;
+        return routerDispatcher;
     }
 
     const MountPoint& getMountPoint() const {
@@ -78,8 +78,8 @@ public:
     }
 
 protected:
-    void setRoute(const std::shared_ptr<RouterDispatcher>& route) {
-        routerRoute = route;
+    void setRoute(const std::shared_ptr<RouterDispatcher>& routerDispatcher) {
+        this->routerDispatcher = routerDispatcher;
     }
 
     void setMountPoint(const MountPoint& mountPoint) {
@@ -87,7 +87,7 @@ protected:
     }
 
     MountPoint mountPoint;
-    std::shared_ptr<RouterDispatcher> routerRoute; // it can be shared by multiple routers
+    std::shared_ptr<RouterDispatcher> routerDispatcher; // it can be shared by multiple routers
 };
 
 #endif // NEWROUTER_H
