@@ -30,7 +30,7 @@ int timerApp(int argc, char** argv) {
         (struct timeval) {1, 100000}, "Tack");
     
     bool canceled = false;
-    WebApp& app = WebApp::instance("/home/voc/projects/ServerVoc/build/html");
+    WebApp& app = WebApp::instance("/home/student/NDS/snode.c/build/html");
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
@@ -91,7 +91,7 @@ int timerApp(int argc, char** argv) {
 
 
 int simpleWebserver(int argc, char** argv) {
-    WebApp& app = WebApp::instance("/home/voc/projects/ServerVoc/build/html");
+    WebApp& app = WebApp::instance("/home/student/NDS/snode.c/build/html");
     
     Router router;
     
@@ -228,7 +228,7 @@ int simpleWebserver(int argc, char** argv) {
                 
                 
 int testPost(int argc, char* argv[]) {
-    WebApp& app = WebApp::instance("/home/voc/projects/ServerVoc/build/html");
+    WebApp& app = WebApp::instance("/home/student/NDS/snode.c/build/html");
     
     app.get("/",
             [&] (const Request& req, const Response& res) -> void {
