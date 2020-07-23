@@ -164,14 +164,15 @@ bool ApplicationDispatcher::dispatch(const MountPoint& mountPoint, const std::st
 }
 
 
+const MountPoint Router::mountPoint("use", "/");
+
 Router::Router()
-    : mountPoint("use", "/")
-    , routerDispatcher(new RouterDispatcher()) {
+    : routerDispatcher(new RouterDispatcher()) {
 }
 
 
 void Router::dispatch(Request& req, Response& res) const {
-    [[maybe_unused]] bool next = routerDispatcher->dispatch(mountPoint, "/", req, res);
+    [[maybe_unused]] bool next = routerDispatcher->dispatch(Router::mountPoint, "/", req, res);
 }
 
 

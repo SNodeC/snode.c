@@ -75,10 +75,8 @@ int testPost() {
         }
     });
 
-    tls::WebApp www("/home/voc/projects/ServerVoc/build/html", CERTF, KEYF, KEYFPASS);
-    WebApp::clone(www, legacyApp);
-
-    tls::WebApp tlsWebApp("/home/voc/projects/ServerVoc/build/html", CERTF, KEYF, KEYFPASS, legacyApp);
+    tls::WebApp tlsWebApp("/home/voc/projects/ServerVoc/build/html", CERTF, KEYF, KEYFPASS);
+    WebApp::clone(tlsWebApp, legacyApp);
 
     tlsWebApp.listen(8088, [](int err) -> void {
         if (err != 0) {

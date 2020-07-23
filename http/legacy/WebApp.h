@@ -15,19 +15,12 @@ namespace legacy {
         explicit WebApp(const std::string& rootDir)
             : ::WebApp(rootDir){};
 
-        WebApp(const std::string& rootDir, const Router& router)
-            : ::WebApp(rootDir) {
-            this->setRoute(router.getRoute());
-            this->setMountPoint(router.getMountPoint());
-        }
-
-        WebApp& operator=(const ::WebApp& webApp) {
-            this->setRootDir(webApp.getRootDir());
+        WebApp(const WebApp& webApp)
+            : ::WebApp(webApp.getRootDir()) {
             this->setRoute(webApp.getRoute());
-            this->setMountPoint(webApp.getMountPoint());
-
-            return *this;
         }
+
+        WebApp& operator=(const ::WebApp& webApp) = delete;
 
         void listen(int port, const std::function<void(int err)>& onError = nullptr) override;
 
