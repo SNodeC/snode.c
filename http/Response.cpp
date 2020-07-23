@@ -144,9 +144,7 @@ void Response::sendHeader() {
     this->enqueue("HTTP/1.1 " + std::to_string(responseStatus) + " " + HTTPStatusCode::reason(responseStatus) + "\r\n");
     this->enqueue("Date: " + httputils::to_http_date() + "\r\n");
 
-    responseHeader.insert({"Cache-Control", "public, max-age=0"});
-    responseHeader.insert({"Accept-Ranges", "bytes"});
-    responseHeader.insert({"X-Powered-By", "snode.c"});
+    responseHeader.insert({{"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}, {"X-Powered-By", "snode.c"}});
 
     for (const std::pair<const std::string, std::string>& header : responseHeader) {
         this->enqueue(header.first + ": " + header.second + "\r\n");
@@ -184,9 +182,9 @@ void Response::sendFile(const std::string& file, const std::function<void(int er
 
         if (absolutFileName.rfind(httpContext->webApp.getRootDir(), 0) == 0 && std::filesystem::is_regular_file(absolutFileName, ec) &&
             !ec) {
-            responseHeader.insert({"Content-Type", MimeTypes::contentType(absolutFileName)});
+            responseHeader.insert({{"Content-Type", MimeTypes::contentType(absolutFileName)},
+                                   {"Last-Modified", httputils::file_mod_http_date(absolutFileName)}});
             responseHeader.insert_or_assign("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
-            responseHeader.insert({"Last-Modified", httputils::file_mod_http_date(absolutFileName)});
 
             fileReader = FileReader::read(
                 absolutFileName,
