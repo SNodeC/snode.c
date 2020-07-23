@@ -20,9 +20,16 @@ Response::Response(HTTPServerContext* httpContext)
 
 
 void Response::enqueue(const char* buf, size_t len) {
+    if (!headersSent && !headersSentInProgress) {
+        headersSentInProgress = true;
+        sendHeader();
+        headersSentInProgress = false;
+        headersSent = true;
+    }
+
     httpContext->enqueue(buf, len);
 
-    if (headerSend) {
+    if (headersSent) {
         contentSent += len;
         if (contentSent == contentLength) {
             if (httpContext->request.requestHeader.find("connection") != httpContext->request.requestHeader.end()) {
@@ -64,17 +71,21 @@ Response& Response::append(const std::string& field, const std::string& value) {
 }
 
 
-Response& Response::set(const std::map<std::string, std::string>& map) {
+Response& Response::set(const std::map<std::string, std::string>& map, bool overwrite) {
     for (const std::pair<const std::string, std::string>& header : map) {
-        this->set(header.first, header.second);
+        this->set(header.first, header.second, overwrite);
     }
 
     return *this;
 }
 
 
-Response& Response::set(const std::string& field, const std::string& value) {
-    this->responseHeader.insert_or_assign(field, value);
+Response& Response::set(const std::string& field, const std::string& value, bool overwrite) {
+    if (overwrite) {
+        this->responseHeader.insert_or_assign(field, value);
+    } else {
+        this->responseHeader.insert({field, value});
+    }
 
     if (field == "Content-Length") {
         contentLength = std::stol(value);
@@ -112,48 +123,47 @@ Response& Response::clearCookie(const std::string& name, const std::map<std::str
 
 
 void Response::send(const char* buffer, size_t size) {
-    responseHeader.insert({"Content-Type", "application/octet-stream"});
-    responseHeader.insert({"Content-Length", std::to_string(size)});
+    if (size > 0) {
+        responseHeader.insert({"Content-Type", "application/octet-stream"});
+    }
+    responseHeader.insert_or_assign("Content-Length", std::to_string(size));
 
-    this->sendHeader();
     this->enqueue(buffer, size);
 }
 
 
 void Response::send(const std::string& text) {
-    responseHeader.insert({"Content-Type", "text/html; charset=utf-8"});
+    if (text.size() > 0) {
+        responseHeader.insert({"Content-Type", "text/html; charset=utf-8"});
+    }
     this->send(text.c_str(), text.size());
 }
 
 
 void Response::sendHeader() {
-    if (!headerSend) {
-        this->enqueue("HTTP/1.1 " + std::to_string(responseStatus) + " " + HTTPStatusCode::reason(responseStatus) + "\r\n");
-        this->enqueue("Date: " + httputils::to_http_date() + "\r\n");
+    this->enqueue("HTTP/1.1 " + std::to_string(responseStatus) + " " + HTTPStatusCode::reason(responseStatus) + "\r\n");
+    this->enqueue("Date: " + httputils::to_http_date() + "\r\n");
 
-        responseHeader.insert({"Cache-Control", "public, max-age=0"});
-        responseHeader.insert({"Accept-Ranges", "bytes"});
-        responseHeader.insert({"X-Powered-By", "snode.c"});
+    responseHeader.insert({"Cache-Control", "public, max-age=0"});
+    responseHeader.insert({"Accept-Ranges", "bytes"});
+    responseHeader.insert({"X-Powered-By", "snode.c"});
 
-        for (const std::pair<const std::string, std::string>& header : responseHeader) {
-            this->enqueue(header.first + ": " + header.second + "\r\n");
-        }
-
-        for (const std::pair<const std::string, Response::ResponseCookie>& cookie : responseCookies) {
-            std::string cookieString =
-                std::accumulate(cookie.second.options.begin(), cookie.second.options.end(), cookie.first + "=" + cookie.second.value,
-                                [](const std::string& str, const std::pair<const std::string&, const std::string&> option) -> std::string {
-                                    return str + "; " + option.first + (!option.second.empty() ? "=" + option.second : "");
-                                });
-            this->enqueue("Set-Cookie: " + cookieString + "\r\n");
-        }
-
-        this->enqueue("\r\n");
-
-        headerSend = true;
-
-        contentLength = std::stoi(responseHeader.find("Content-Length")->second);
+    for (const std::pair<const std::string, std::string>& header : responseHeader) {
+        this->enqueue(header.first + ": " + header.second + "\r\n");
     }
+
+    for (const std::pair<const std::string, Response::ResponseCookie>& cookie : responseCookies) {
+        std::string cookieString =
+            std::accumulate(cookie.second.options.begin(), cookie.second.options.end(), cookie.first + "=" + cookie.second.value,
+                            [](const std::string& str, const std::pair<const std::string&, const std::string&> option) -> std::string {
+                                return str + "; " + option.first + (!option.second.empty() ? "=" + option.second : "");
+                            });
+        this->enqueue("Set-Cookie: " + cookieString + "\r\n");
+    }
+
+    this->enqueue("\r\n");
+
+    contentLength = std::stoi(responseHeader.find("Content-Length")->second);
 }
 
 
@@ -177,7 +187,6 @@ void Response::sendFile(const std::string& file, const std::function<void(int er
             responseHeader.insert({"Content-Type", MimeTypes::contentType(absolutFileName)});
             responseHeader.insert_or_assign("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
             responseHeader.insert({"Last-Modified", httputils::file_mod_http_date(absolutFileName)});
-            this->sendHeader();
 
             fileReader = FileReader::read(
                 absolutFileName,
@@ -249,14 +258,14 @@ void Response::sendStatus(int status) {
 
 
 void Response::end() {
-    responseHeader.insert({"Content-Length", "0"});
-    this->sendHeader();
+    this->send("");
     this->httpContext->reset();
 }
 
 
 void Response::reset() {
-    headerSend = false;
+    headersSent = false;
+    headersSentInProgress = false;
     contentSent = 0;
     responseStatus = 200;
     contentLength = 0;
