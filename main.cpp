@@ -132,6 +132,12 @@ int simpleWebserver(int argc, char** argv) {
                       });
                   }
               });
+    
+    app.get("/test/:variable(\\d)/:uri", 
+              [&] (const Request& req, const Response& res) -> void {
+                  
+                  std::cout << "TEST" << std::endl;
+              });
 
     app.use("/", [] (const Request& req, const Response& res, const std::function<void (void)>& next) {
         std::cout << "Route 1" << std::endl;

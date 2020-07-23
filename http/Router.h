@@ -18,7 +18,7 @@ class Route {
 public:
     Route(const Router* parent, const std::string& method, const std::string& path) : parent(parent), method(method), path(path) {}
     virtual ~Route() {}
-
+    
     virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& req, const Response& res) const = 0;
 
 
@@ -99,7 +99,6 @@ public:
     bool dispatch(const std::list<const Route*>& nroute, const std::string& method, const std::string& mpath, const Request& request, const Response& response) const;
 
     virtual bool dispatch(const std::string& method, const std::string& mpath, const Request& request, const Response& response) const;
-
 
 protected:
     std::list<const Route*> routes;

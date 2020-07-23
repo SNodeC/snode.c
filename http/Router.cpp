@@ -1,7 +1,42 @@
 #include "Router.h"
 #include "Request.h"
 #include "Response.h"
+#include <regex>
+#include <iostream>
 
+#define PATH_REGEX ":[a-zA-Z0-9]+(\\(.+?\\))?"
+
+static const std::smatch matchResult(const std::string& cpath) {
+    std::smatch smatch;
+    std::regex_search(cpath, smatch, std::regex(PATH_REGEX));
+    return smatch;
+}
+
+static const bool hasResult(const std::string& cpath) {
+    std::smatch smatch;
+    return std::regex_search(cpath, smatch, std::regex(PATH_REGEX));
+}
+
+
+static const bool matchFunction(const std::string& cpath, const std::string& reqpath) {
+    //make smatch for each /substring
+    //nur wenn substing mit : startet
+    /*
+    ar[0] = "user";
+    ar[1] = ":userId(...)";
+    ar[1] = "(...)";
+    std::smatch smatch = matchResult(":");
+    */
+    
+    bool t = std::regex_match(reqpath, std::regex(""));
+    std::cout << t << std::endl;
+    return t;
+}
+
+static const bool checkForUrlMatch(const std::string& cpath, const std::string& reqpath) {
+    bool hasRegex = hasResult(cpath);
+    return (!hasRegex && cpath == reqpath) || (hasRegex && matchFunction(cpath, reqpath));
+}
 
 static const std::string path_concat(const std::string& first, const std::string& second) {
     std::string result;
@@ -26,12 +61,7 @@ bool RouterRoute::dispatch(const std::string& method, const std::string& mpath, 
     bool next = true;
 
     std::string cpath = path_concat(mpath, path);
-    /*
-    std::cout << "Router OriginalUrl: " << request.originalUrl << std::endl;
-    std::cout << "Router Path: " << path << std::endl;
-    std::cout << "Router MPath: " << mpath << std::endl;
-    std::cout << "Router CPath: " << cpath << std::endl;
-    */
+    
     if (request.path.rfind(cpath, 0) == 0 && method == this->method) {
         request.url = request.originalUrl.substr(cpath.length());
         if (request.url.front() != '/') {
@@ -48,14 +78,12 @@ bool DispatcherRoute::dispatch(const std::string& method, const std::string& mpa
     bool next = true;
 
     std::string cpath = path_concat(mpath, path);
-    /*
-    std::cout << "Dispatcher OriginalUrl: " << request.originalUrl << std::endl;
-    std::cout << "Dispatcher Path: " << path << std::endl;
-    std::cout << "Dispatcher MPath: " << mpath << std::endl;
-    std::cout << "Dispatcher CPath: " << cpath << std::endl;
-    */
-    if ((request.path.rfind(cpath, 0) == 0 && this->method == "use") || (cpath == request.path && (method == this->method || this->method == "all"))) {
-        request.url = request.originalUrl.substr(cpath.length());
+    
+    //cpath == request.path
+    if ((request.path.rfind(cpath, 0) == 0 && this->method == "use") || (checkForUrlMatch(cpath, request.path) && (method == this->method || this->method == "all"))) {
+        // request.url = request.originalUrl.substr(cpath.length());
+        /* TODO: change to substr */
+        request.url = request.originalUrl;
         if (request.url.front() != '/') {
             request.url.insert(0, "/");
         }
@@ -71,12 +99,7 @@ bool MiddlewareRoute::dispatch(const std::string& method, const std::string& mpa
     bool next = true;
 
     std::string cpath = path_concat(mpath, path);
-    /*
-    std::cout << "Middleware OriginalUrl: " << request.originalUrl << std::endl;
-    std::cout << "Middleware Path: " << path << std::endl;
-    std::cout << "Middleware MPath: " << mpath << std::endl;
-    std::cout << "Middleware CPath: " << cpath << std::endl;
-    */
+    
     if ((request.path.rfind(cpath, 0) == 0 && this->method == "use") || (cpath == request.path && (method == this->method || this->method == "all"))) {
         next = false;
         request.url = request.originalUrl.substr(cpath.length());
@@ -116,7 +139,6 @@ bool Router::dispatch(const std::list<const Route*>& nroutes, const std::string&
 
     return next;
 }
-
 
 bool Router::dispatch(const std::string& method, const std::string& path, const Request& request, const Response& response) const {
     bool next = dispatch(routes, method, path, request, response);
