@@ -18,29 +18,17 @@ namespace tls {
             , key(key)
             , password(password){};
 
-        WebApp(const std::string& rootDir, const std::string& cert, const std::string& key, const std::string& password,
-               const Router& router)
-            : ::WebApp(rootDir)
-            , cert(cert)
-            , key(key)
-            , password(password) {
-            this->setRoute(router.getRoute());
-            this->setMountPoint(router.getMountPoint());
-        }
-
         WebApp(const WebApp& webApp)
             : ::WebApp(webApp.getRootDir())
             , cert(webApp.cert)
             , key(webApp.key)
             , password(webApp.password) {
             this->setRoute(webApp.getRoute());
-            this->setMountPoint(webApp.getMountPoint());
         }
 
         WebApp& operator=(const ::WebApp& webApp) {
             this->setRootDir(webApp.getRootDir());
             this->setRoute(webApp.getRoute());
-            this->setMountPoint(webApp.getMountPoint());
 
             return *this;
         }

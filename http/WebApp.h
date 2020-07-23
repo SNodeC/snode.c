@@ -36,7 +36,6 @@ public:
     static void clone(WebApp& dest, const WebApp& src) {
         dest.rootDir = src.rootDir;
         dest.routerDispatcher = src.routerDispatcher;
-        dest.mountPoint = src.mountPoint;
     }
 
 private:

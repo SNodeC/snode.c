@@ -73,20 +73,12 @@ public:
         return routerDispatcher;
     }
 
-    const MountPoint& getMountPoint() const {
-        return mountPoint;
-    }
-
 protected:
     void setRoute(const std::shared_ptr<RouterDispatcher>& routerDispatcher) {
         this->routerDispatcher = routerDispatcher;
     }
 
-    void setMountPoint(const MountPoint& mountPoint) {
-        this->mountPoint = mountPoint;
-    }
-
-    MountPoint mountPoint;
+    static const MountPoint mountPoint;
     std::shared_ptr<RouterDispatcher> routerDispatcher; // it can be shared by multiple routers
 };
 
