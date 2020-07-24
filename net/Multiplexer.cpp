@@ -26,6 +26,11 @@ Multiplexer::Multiplexer()
 
 
 void Multiplexer::tick() {
+    Multiplexer::instance().getManagedReader().addDescriptors();
+    Multiplexer::instance().getManagedWriter().addDescriptors();
+    Multiplexer::instance().getManagedExceptions().addDescriptors();
+    Multiplexer::instance().getManagedServer().addDescriptors();
+
     int maxFd = managedReader.getMaxFd();
     maxFd = std::max(managedServer.getMaxFd(), maxFd);
     maxFd = std::max(managedWriter.getMaxFd(), maxFd);
@@ -58,6 +63,11 @@ void Multiplexer::tick() {
         PLOG(ERROR) << "select";
         stop();
     }
+
+    Multiplexer::instance().getManagedReader().removeDescriptors();
+    Multiplexer::instance().getManagedWriter().removeDescriptors();
+    Multiplexer::instance().getManagedExceptions().removeDescriptors();
+    Multiplexer::instance().getManagedServer().removeDescriptors();
 }
 
 
