@@ -18,21 +18,6 @@ namespace tls {
             , key(key)
             , password(password){};
 
-        WebApp(const WebApp& webApp)
-            : ::WebApp(webApp.getRootDir())
-            , cert(webApp.cert)
-            , key(webApp.key)
-            , password(webApp.password) {
-            this->setRoute(webApp.getRoute());
-        }
-
-        WebApp& operator=(const ::WebApp& webApp) {
-            this->setRootDir(webApp.getRootDir());
-            this->setRoute(webApp.getRoute());
-
-            return *this;
-        }
-
         void listen(int port, const std::function<void(int err)>& onError = nullptr) override;
 
     private:
