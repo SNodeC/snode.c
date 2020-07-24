@@ -133,10 +133,12 @@ int simpleWebserver(int argc, char** argv) {
                   }
               });
     
-    app.get("/test/:variable(\\d)/:uri", 
+    app.get("/account/:userId(\\d*)/:username", 
               [&] (const Request& req, const Response& res) -> void {
                   
-                  std::cout << "TEST" << std::endl;
+                  std::cout << "Show account of" << std::endl;
+                  std::cout << "userId: " << req.getAttribute<std::string>("userId") << std::endl;
+                  std::cout << "username: " << req.getAttribute<std::string>("username") << std::endl;
               });
 
     app.use("/", [] (const Request& req, const Response& res, const std::function<void (void)>& next) {

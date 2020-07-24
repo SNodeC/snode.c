@@ -6,6 +6,29 @@
 
 #define PATH_REGEX ":[a-zA-Z0-9]+(\\(.+?\\))?"
 
+static const std::string path_concat(const std::vector<std::string>& stringvec) {
+    std::string s;
+    for (int i = 0; i < stringvec.size(); i++) {
+        if (!stringvec[i].empty() && stringvec[i].front() != ' ') {
+            s += "\\/" + stringvec[i];
+        }
+    }
+    return s;
+}
+
+static const std::vector<std::string> explode(std::string const & s, char delim)
+{
+    std::vector<std::string> result;
+    std::istringstream iss(s);
+
+    for (std::string token; std::getline(iss, token, delim); )
+    {
+        result.push_back(std::move(token));
+    }
+
+    return result;
+}
+
 static const std::smatch matchResult(const std::string& cpath) {
     std::smatch smatch;
     std::regex_search(cpath, smatch, std::regex(PATH_REGEX));
@@ -19,18 +42,51 @@ static const bool hasResult(const std::string& cpath) {
 
 
 static const bool matchFunction(const std::string& cpath, const std::string& reqpath) {
-    //make smatch for each /substring
-    //nur wenn substing mit : startet
-    /*
-    ar[0] = "user";
-    ar[1] = ":userId(...)";
-    ar[1] = "(...)";
-    std::smatch smatch = matchResult(":");
-    */
+    std::vector<std::string> explodedString = explode(cpath, '/');
     
-    bool t = std::regex_match(reqpath, std::regex(""));
-    std::cout << t << std::endl;
+    for(int i = 0; i < explodedString.size(); i++) {
+        if (explodedString[i].front() == ':') {
+            std::smatch smatch = matchResult(explodedString[i]);
+            std::string regex = "(.*)";
+            if(smatch.size() > 1) {
+                if(smatch[1] != "") {
+                  regex = smatch[1];
+                }
+            } 
+            explodedString[i] = regex;
+        }
+    }
+    
+    std::string regexPath = path_concat(explodedString);
+    bool t = std::regex_match(reqpath, std::regex(regexPath));
     return t;
+}
+
+static const void setParams(const std::string& cpath, const Request& req) {
+    std::vector<std::string> explodedString = explode(cpath, '/');
+    std::vector<std::string> explodedReqString = explode(req.originalUrl, '/');
+    
+    for(int i = 0; i < explodedString.size(); i++) {
+        if (explodedString[i].front() == ':') {
+            std::smatch smatch = matchResult(explodedString[i]);
+            std::string regex = "(.*)";
+            if(smatch.size() > 1) {
+                if(smatch[1] != "") {
+                  regex = smatch[1];
+                }
+            } 
+            
+            if(std::regex_match(explodedReqString[i], std::regex(regex))) {
+                std::string attributeName = smatch[0];
+                attributeName.erase(0, 1);
+                attributeName.erase((attributeName.length()-smatch[1].length()), smatch[1].length());
+                
+                req.setAttribute<std::string>(explodedReqString[i], attributeName);
+            }
+        }
+    }
+    
+    std::string regexPath = path_concat(explodedString);
 }
 
 static const bool checkForUrlMatch(const std::string& cpath, const std::string& reqpath) {
@@ -57,6 +113,8 @@ static const std::string path_concat(const std::string& first, const std::string
 }
 
 
+
+
 bool RouterRoute::dispatch(const std::string& method, const std::string& mpath, const Request& request, const Response& response) const {
     bool next = true;
 
@@ -80,12 +138,16 @@ bool DispatcherRoute::dispatch(const std::string& method, const std::string& mpa
     std::string cpath = path_concat(mpath, path);
     
     //cpath == request.path
-    if ((request.path.rfind(cpath, 0) == 0 && this->method == "use") || (checkForUrlMatch(cpath, request.path) && (method == this->method || this->method == "all"))) {
+    if ((request.path.rfind(cpath, 0) == 0 && this->method == "use") || (checkForUrlMatch(cpath, request.originalUrl) && (method == this->method || this->method == "all"))) {
         // request.url = request.originalUrl.substr(cpath.length());
         /* TODO: change to substr */
         request.url = request.originalUrl;
         if (request.url.front() != '/') {
             request.url.insert(0, "/");
+        }
+        
+        if(hasResult(cpath)) {
+            setParams(cpath, request);
         }
         this->dispatcher(request, response);
         next = false;
