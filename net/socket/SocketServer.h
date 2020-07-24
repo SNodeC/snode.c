@@ -3,6 +3,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <functional>
 #include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -11,8 +12,6 @@
 #include "Server.h"
 #include "Socket.h"
 
-
-class SocketReader;
 
 template <typename SocketConnectionImpl>
 class SocketServer
