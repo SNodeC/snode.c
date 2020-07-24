@@ -13,23 +13,21 @@
 
 class Socket : virtual public Descriptor {
 public:
+    Socket(bool keepOpen = false);
     Socket(const Socket&) = delete;
+
     Socket& operator=(const Socket&) = delete;
 
     virtual ~Socket();
 
+    void open(const std::function<void(int errnum)>& onError);
     void bind(const InetAddress& localAddress, const std::function<void(int errnum)>& onError);
     void reuseAddress(const std::function<void(int errnum)>& onError);
 
     InetAddress& getLocalAddress();
-
     void setLocalAddress(const InetAddress& localAddress);
 
 protected:
-    Socket() = default;
-
-    void open(const std::function<void(int errnum)>& onError);
-
     InetAddress localAddress{};
 };
 
