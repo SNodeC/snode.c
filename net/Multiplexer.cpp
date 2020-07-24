@@ -15,6 +15,7 @@
 Multiplexer Multiplexer::multiplexer;
 bool Multiplexer::running = false;
 bool Multiplexer::stopped = true;
+bool Multiplexer::initialized = false;
 
 
 Multiplexer::Multiplexer()
@@ -79,10 +80,18 @@ void Multiplexer::init(int argc, char* argv[]) {
     signal(SIGTERM, Multiplexer::stoponsig);
 
     Logger::init(argc, argv);
+
+    Multiplexer::initialized = true;
 }
 
 
 void Multiplexer::start() {
+    if (!initialized) {
+        std::cerr << "ERROR: snode.c not initialized. Use Multiplexer::init(argc, argv) before creating a concrete WebApp object"
+                  << std::endl;
+        exit(1);
+    }
+
     Multiplexer::stopped = false;
 
     if (!Multiplexer::running) {

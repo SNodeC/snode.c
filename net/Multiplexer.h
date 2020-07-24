@@ -66,6 +66,7 @@ private:
 
     static bool running;
     static bool stopped;
+    static bool initialized;
 };
 
 
