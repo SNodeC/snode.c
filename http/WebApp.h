@@ -40,7 +40,6 @@ public:
 
 private:
     std::string rootDir;
-
     static bool initialized;
 };
 

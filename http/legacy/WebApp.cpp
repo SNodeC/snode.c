@@ -24,7 +24,7 @@ namespace legacy {
              },
              [](legacy::SocketConnection* connectedSocket, const char* junk, ssize_t junkSize) -> void { // onRead
                  connectedSocket->getProtocol<HTTPServerContext*>([&junk, &junkSize](HTTPServerContext*& protocol) -> void {
-                     protocol->receiveData(junk, junkSize);
+                     protocol->receiveRequestData(junk, junkSize);
                  });
              },
              [](legacy::SocketConnection* connectedSocket, int errnum) -> void { // onReadError

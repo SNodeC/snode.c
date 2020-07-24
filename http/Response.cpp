@@ -27,19 +27,19 @@ void Response::enqueue(const char* buf, size_t len) {
         headersSent = true;
     }
 
-    httpContext->enqueue(buf, len);
+    httpContext->sendResponseData(buf, len);
 
     if (headersSent) {
         contentSent += len;
         if (contentSent == contentLength) {
             if (httpContext->request.requestHeader.find("connection") != httpContext->request.requestHeader.end()) {
                 if (httpContext->request.requestHeader.find("connection")->second == "Close") {
-                    httpContext->end();
+                    httpContext->terminateConnection();
                 } else {
-                    httpContext->reset();
+                    httpContext->requestCompleted();
                 }
             } else {
-                httpContext->end();
+                httpContext->terminateConnection();
             }
         }
     }
@@ -196,14 +196,14 @@ void Response::sendFile(const std::string& file, const std::function<void(int er
                         onError(err);
                     }
                     if (err != 0) {
-                        httpContext->end();
+                        httpContext->terminateConnection();
                     }
                 });
         } else {
             responseStatus = 403;
             errno = EACCES;
             this->end();
-            this->httpContext->end();
+            this->httpContext->terminateConnection();
             if (onError) {
                 onError(EACCES);
             }
@@ -212,7 +212,7 @@ void Response::sendFile(const std::string& file, const std::function<void(int er
         responseStatus = 404;
         errno = ENOENT;
         this->end();
-        this->httpContext->end();
+        this->httpContext->terminateConnection();
         if (onError) {
             onError(ENOENT);
         }
@@ -232,8 +232,7 @@ void Response::download(const std::string& file, const std::function<void(int er
 
 
 void Response::download(const std::string& file, const std::string& name, const std::function<void(int err)>& onError) {
-    this->set({{"Content-Disposition", "attachment; filename=\"" + name + "\""}});
-    this->sendFile(file, onError);
+    this->set({{"Content-Disposition", "attachment; filename=\"" + name + "\""}}).sendFile(file, onError);
 }
 
 
@@ -243,21 +242,19 @@ void Response::redirect(const std::string& name) {
 
 
 void Response::redirect(int status, const std::string& name) {
-    this->status(status);
-    this->set({{"Location", name}});
+    this->status(status).set({{"Location", name}});
     this->end();
 }
 
 
 void Response::sendStatus(int status) {
-    this->status(status);
-    this->send(HTTPStatusCode::reason(status));
+    this->status(status).send(HTTPStatusCode::reason(status));
 }
 
 
 void Response::end() {
     this->send("");
-    this->httpContext->reset();
+    this->httpContext->requestCompleted();
 }
 
 

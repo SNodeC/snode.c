@@ -24,7 +24,7 @@ namespace tls {
              },
              [](tls::SocketConnection* connectedSocket, const char* junk, ssize_t junkSize) -> void { // onRead
                  connectedSocket->getProtocol<HTTPServerContext*>([&junk, &junkSize](HTTPServerContext*& protocol) -> void {
-                     protocol->receiveData(junk, junkSize);
+                     protocol->receiveRequestData(junk, junkSize);
                  });
              },
              [](tls::SocketConnection* connectedSocket, int errnum) -> void { // onReadError

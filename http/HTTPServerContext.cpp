@@ -53,7 +53,16 @@ HTTPServerContext::HTTPServerContext(const WebApp& webApp, SocketConnectionBase*
               response.status(status).send(reason);
               this->connectedSocket->end();
           }) {
-    this->reset();
+    this->requestCompleted();
+}
+
+
+void HTTPServerContext::receiveRequestData(const char* junk, size_t junkLen) {
+    if (!requestInProgress) {
+        parser.parse(junk, junkLen);
+    } else {
+        terminateConnection();
+    }
 }
 
 
@@ -66,18 +75,16 @@ void HTTPServerContext::onReadError(int errnum) {
 }
 
 
+void HTTPServerContext::sendResponseData(const char* buf, size_t len) {
+    connectedSocket->enqueue(buf, len);
+}
+
+
 void HTTPServerContext::onWriteError(int errnum) {
     response.stop();
 
     if (errnum != 0 && errnum != ECONNRESET) {
-        PLOG(ERROR) << "Connection write:";
-    }
-}
-
-
-void HTTPServerContext::receiveData(const char* junk, size_t junkLen) {
-    if (!requestInProgress) {
-        parser.parse(junk, junkLen);
+        PLOG(ERROR) << "Connection write";
     }
 }
 
@@ -89,18 +96,13 @@ void HTTPServerContext::requestReady() {
 }
 
 
-void HTTPServerContext::enqueue(const char* buf, size_t len) {
-    connectedSocket->enqueue(buf, len);
-}
-
-
-void HTTPServerContext::end() {
-    connectedSocket->end();
-}
-
-
-void HTTPServerContext::reset() {
+void HTTPServerContext::requestCompleted() {
     this->requestInProgress = false;
     request.reset();
     response.reset();
+}
+
+
+void HTTPServerContext::terminateConnection() {
+    connectedSocket->end();
 }

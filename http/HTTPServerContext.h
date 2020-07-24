@@ -17,14 +17,16 @@ class HTTPServerContext {
 public:
     HTTPServerContext(const WebApp& webApp, SocketConnectionBase* connectedSocket);
 
-    void receiveData(const char* junk, size_t junkLen);
+    void receiveRequestData(const char* junk, size_t junkLen);
     void onReadError(int errnum);
+
+    void sendResponseData(const char* buf, size_t len);
     void onWriteError(int errnum);
 
     void requestReady();
-    void enqueue(const char* buf, size_t len);
-    void reset();
-    void end();
+    void requestCompleted();
+
+    void terminateConnection();
 
 private:
     SocketConnectionBase* connectedSocket;

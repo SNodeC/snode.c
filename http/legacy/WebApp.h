@@ -15,11 +15,6 @@ namespace legacy {
         explicit WebApp(const std::string& rootDir)
             : ::WebApp(rootDir){};
 
-        WebApp(const WebApp& webApp)
-            : ::WebApp(webApp.getRootDir()) {
-            this->setRoute(webApp.getRoute());
-        }
-
         WebApp& operator=(const ::WebApp& webApp) = delete;
 
         void listen(int port, const std::function<void(int err)>& onError = nullptr) override;
