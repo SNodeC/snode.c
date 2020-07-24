@@ -38,6 +38,10 @@ public:
         this->Writer::enqueue(buffer, size);
     }
 
+    void enqueue(const std::string& data) override {
+        this->enqueue(data.c_str(), data.size());
+    }
+
     void end() override {
         Reader::stop();
     }
