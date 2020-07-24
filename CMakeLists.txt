@@ -59,6 +59,17 @@ set_target_properties(experiments PROPERTIES
             SOVERSION 1
 )
 
+add_executable(client client.cpp)
+target_compile_options(client PRIVATE --warn-all)
+target_link_libraries(client LINK_PUBLIC http utils)
+install(TARGETS client RUNTIME DESTINATION bin)
+set_target_properties(client PROPERTIES
+            CXX_STANDARD 20
+            CXX_STANDARD_REQUIRED ON
+            CXX_EXTENSIONS OFF
+            SOVERSION 1
+)
+
 find_package(Doxygen)
 option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 

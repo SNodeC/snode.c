@@ -29,12 +29,11 @@ add_library(net SHARED
     file/File.h
     file/FileReader.cpp
     file/FileReader.h
-    socket/ClientSocket.cpp
-    socket/ClientSocket.h
     socket/InetAddress.cpp
     socket/InetAddress.h
     socket/Socket.cpp
     socket/Socket.h
+    socket/SocketClient.h
     socket/SocketConnection.h
     socket/SocketConnectionBase.h
     socket/SocketReader.cpp
@@ -44,6 +43,8 @@ add_library(net SHARED
     socket/SocketServer.h
     socket/legacy/Socket.cpp
     socket/legacy/Socket.h
+    socket/legacy/SocketClient.cpp
+    socket/legacy/SocketClient.h
     socket/legacy/SocketConnection.h
     socket/legacy/SocketReader.cpp
     socket/legacy/SocketReader.h
