@@ -64,7 +64,7 @@ void Multiplexer::tick() {
         PLOG(ERROR) << "select";
         stop();
     }
-    
+
     managedReader.unobserveStopedDescriptors();
     managedWriter.unobserveStopedDescriptors();
     managedExceptions.unobserveStopedDescriptors();
