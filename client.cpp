@@ -35,15 +35,12 @@ int main(int argc, char* argv[]) {
 
     client.connect("localhost", 8080, [] (int err) -> void {
         if (err) {
-            std::cout << "Connect Error: " << err << std::endl;
-        } else {
-            Multiplexer::start();
+            std::cout << "Connect Error: " << strerror(err) << std::endl;
+            exit(-1);
         }
     });
     
-    
-//    Multiplexer::start();
-    
+    Multiplexer::start();
     
     return 0;
 }
