@@ -27,10 +27,10 @@ Multiplexer::Multiplexer()
 
 
 void Multiplexer::tick() {
-    Multiplexer::instance().getManagedReader().addDescriptors();
-    Multiplexer::instance().getManagedWriter().addDescriptors();
-    Multiplexer::instance().getManagedExceptions().addDescriptors();
-    Multiplexer::instance().getManagedServer().addDescriptors();
+    managedReader.observeStartedDescriptors();
+    managedWriter.observeStartedDescriptors();
+    managedExceptions.observeStartedDescriptors();
+    managedServer.observeStartedDescriptors();
 
     int maxFd = managedReader.getMaxFd();
     maxFd = std::max(managedServer.getMaxFd(), maxFd);
@@ -64,11 +64,11 @@ void Multiplexer::tick() {
         PLOG(ERROR) << "select";
         stop();
     }
-
-    Multiplexer::instance().getManagedReader().removeDescriptors();
-    Multiplexer::instance().getManagedWriter().removeDescriptors();
-    Multiplexer::instance().getManagedExceptions().removeDescriptors();
-    Multiplexer::instance().getManagedServer().removeDescriptors();
+    
+    managedReader.unobserveStopedDescriptors();
+    managedWriter.unobserveStopedDescriptors();
+    managedExceptions.unobserveStopedDescriptors();
+    managedServer.unobserveStopedDescriptors();
 }
 
 
@@ -103,15 +103,15 @@ void Multiplexer::start() {
 
         Multiplexer::running = false;
 
-        Multiplexer::instance().getManagedReader().addDescriptors();
-        Multiplexer::instance().getManagedWriter().addDescriptors();
-        Multiplexer::instance().getManagedExceptions().addDescriptors();
-        Multiplexer::instance().getManagedServer().addDescriptors();
+        Multiplexer::instance().getManagedReader().observeStartedDescriptors();
+        Multiplexer::instance().getManagedWriter().observeStartedDescriptors();
+        Multiplexer::instance().getManagedExceptions().observeStartedDescriptors();
+        Multiplexer::instance().getManagedServer().observeStartedDescriptors();
 
-        Multiplexer::instance().getManagedReader().removeDescriptors();
-        Multiplexer::instance().getManagedWriter().removeDescriptors();
-        Multiplexer::instance().getManagedExceptions().removeDescriptors();
-        Multiplexer::instance().getManagedServer().removeDescriptors();
+        Multiplexer::instance().getManagedReader().unobserveStopedDescriptors();
+        Multiplexer::instance().getManagedWriter().unobserveStopedDescriptors();
+        Multiplexer::instance().getManagedExceptions().unobserveStopedDescriptors();
+        Multiplexer::instance().getManagedServer().unobserveStopedDescriptors();
 
         Multiplexer::instance().getManagedReader().removeManagedDescriptors();
         Multiplexer::instance().getManagedWriter().removeManagedDescriptors();
