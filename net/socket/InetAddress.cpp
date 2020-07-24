@@ -9,6 +9,13 @@
 #include "socket/InetAddress.h"
 
 
+InetAddress::InetAddress() {
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(0);
+    addr.sin_addr.s_addr = htonl(INADDR_ANY);
+}
+
+
 InetAddress::InetAddress(const std::string& ipOrHostname, uint16_t port) {
     struct hostent* he = gethostbyname(ipOrHostname.c_str());
     addr.sin_family = AF_INET;
@@ -17,7 +24,15 @@ InetAddress::InetAddress(const std::string& ipOrHostname, uint16_t port) {
 }
 
 
-InetAddress::InetAddress(uint16_t port) {
+InetAddress::InetAddress(const std::string& ipOrHostname) {
+    struct hostent* he = gethostbyname(ipOrHostname.c_str());
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(0);
+    memcpy(&addr.sin_addr, he->h_addr_list[0], he->h_length);
+}
+
+
+InetAddress::InetAddress(in_port_t port) {
     addr.sin_family = AF_INET;
     addr.sin_port = htons(port);
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
