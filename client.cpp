@@ -4,9 +4,7 @@
 #include "socket/legacy/SocketClient.h"
 
 
-int main(int argc, char* argv[]) {
-    Multiplexer::init(argc, argv);
-    
+legacy::SocketClient client() {
     legacy::SocketClient client(
         [](legacy::SocketConnection* connectedSocket) -> void { // onConnect
             std::cout << "OnConnect" << std::endl;
@@ -40,7 +38,13 @@ int main(int argc, char* argv[]) {
         }
     });
     
-    Multiplexer::start();
+    return client;
+}
+
+int main(int argc, char* argv[]) {
+    Multiplexer::init(argc, argv);
     
-    return 0;
+    legacy::SocketClient sc = client();
+    
+    Multiplexer::start();
 }
