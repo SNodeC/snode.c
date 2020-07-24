@@ -58,6 +58,11 @@ InetAddress& InetAddress::operator=(const InetAddress& ina) {
 }
 
 
+in_port_t InetAddress::port() {
+    return (ntohs(addr.sin_port));
+}
+
+
 const struct sockaddr_in& InetAddress::getSockAddr() const {
     return this->addr;
 }
