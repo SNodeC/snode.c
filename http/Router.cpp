@@ -58,8 +58,7 @@ static const bool matchFunction(const std::string& cpath, const std::string& req
     }
     
     std::string regexPath = path_concat(explodedString);
-    bool t = std::regex_match(reqpath, std::regex(regexPath));
-    return t;
+    return std::regex_match(reqpath, std::regex(regexPath));
 }
 
 static const void setParams(const std::string& cpath, const Request& req) {
@@ -85,8 +84,6 @@ static const void setParams(const std::string& cpath, const Request& req) {
             }
         }
     }
-    
-    std::string regexPath = path_concat(explodedString);
 }
 
 static const bool checkForUrlMatch(const std::string& cpath, const std::string& reqpath) {
@@ -125,6 +122,7 @@ bool RouterRoute::dispatch(const std::string& method, const std::string& mpath, 
         if (request.url.front() != '/') {
             request.url.insert(0, "/");
         }
+    
         next = router.dispatch(method, cpath, request, response);
     }
 
@@ -137,7 +135,6 @@ bool DispatcherRoute::dispatch(const std::string& method, const std::string& mpa
 
     std::string cpath = path_concat(mpath, path);
     
-    //cpath == request.path
     if ((request.path.rfind(cpath, 0) == 0 && this->method == "use") || (checkForUrlMatch(cpath, request.originalUrl) && (method == this->method || this->method == "all"))) {
         // request.url = request.originalUrl.substr(cpath.length());
         /* TODO: change to substr */
@@ -149,6 +146,7 @@ bool DispatcherRoute::dispatch(const std::string& method, const std::string& mpa
         if(hasResult(cpath)) {
             setParams(cpath, request);
         }
+        
         this->dispatcher(request, response);
         next = false;
     }
@@ -162,12 +160,19 @@ bool MiddlewareRoute::dispatch(const std::string& method, const std::string& mpa
 
     std::string cpath = path_concat(mpath, path);
     
-    if ((request.path.rfind(cpath, 0) == 0 && this->method == "use") || (cpath == request.path && (method == this->method || this->method == "all"))) {
+    if ((request.path.rfind(cpath, 0) == 0 && this->method == "use") || (checkForUrlMatch(cpath, request.originalUrl) && (method == this->method || this->method == "all"))) {
         next = false;
-        request.url = request.originalUrl.substr(cpath.length());
+        // request.url = request.originalUrl.substr(cpath.length());
+        /* TODO: change to substr */
+        request.url = request.originalUrl;
         if (request.url.front() != '/') {
             request.url.insert(0, "/");
         }
+        
+        if(hasResult(cpath)) {
+            setParams(cpath, request);
+        }
+        
         this->dispatcher(request, response, [&next] (void) -> void {
             next = true;
         });
