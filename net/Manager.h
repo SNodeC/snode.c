@@ -59,7 +59,7 @@ private:
         return fd;
     }
 
-    void addDescriptors() {
+    void observeStartedDescriptors() {
         if (!addedDescriptors.empty()) {
             for (ManagedDescriptor* descriptor : addedDescriptors) {
                 int fd = dynamic_cast<Descriptor*>(descriptor)->getFd();
@@ -70,7 +70,7 @@ private:
         }
     }
 
-    void removeDescriptors() {
+    void unobserveStopedDescriptors() {
         if (!removedDescriptors.empty()) {
             for (ManagedDescriptor* descriptor : removedDescriptors) {
                 int fd = dynamic_cast<Descriptor*>(descriptor)->getFd();
@@ -87,7 +87,7 @@ private:
             removedDescriptors.push_back(descriptor.second);
         }
 
-        removeDescriptors();
+        unobserveStopedDescriptors();
     }
 
 protected:
