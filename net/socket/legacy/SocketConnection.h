@@ -1,5 +1,5 @@
-#ifndef TLS_SOCKETCONNECTION_H
-#define TLS_SOCKETCONNECTION_H
+#ifndef LEGACY_SOCKETCONNECTION_H
+#define LEGACY_SOCKETCONNECTION_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -16,4 +16,4 @@ namespace legacy {
 
 } // namespace legacy
 
-#endif // TLS_SOCKETCONNECTION_H
+#endif // LEGACY_SOCKETCONNECTION_H

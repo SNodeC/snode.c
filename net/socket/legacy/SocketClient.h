@@ -1,5 +1,5 @@
-#ifndef SOCKETCLIENT_H
-#define SOCKETCLIENT_H
+#ifndef LEGACY_SOCKETCLIENT_H
+#define LEGACY_SOCKETCLIENT_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -16,4 +16,5 @@ namespace legacy {
     };
 
 } // namespace legacy
-#endif // SOCKETCLIENT_H
+
+#endif // LEGACY_SOCKETCLIENT_H
