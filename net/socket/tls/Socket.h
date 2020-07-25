@@ -22,10 +22,11 @@ namespace tls {
     public:
         bool startSSL(SSL_CTX* ctx);
         void stopSSL();
+        SSL* getSSL();
 
     protected:
-        SSL* ssl{nullptr};
-        int err{0};
+        SSL* ssl = nullptr;
+        int err = 0;
     };
 
 }; // namespace tls

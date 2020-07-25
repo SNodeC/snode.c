@@ -46,4 +46,9 @@ namespace tls {
         SSL_free(ssl);
     }
 
+
+    SSL* Socket::getSSL() {
+        return ssl;
+    }
+
 }; // namespace tls
