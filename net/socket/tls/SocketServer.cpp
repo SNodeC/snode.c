@@ -21,6 +21,7 @@ namespace tls {
                   SSL* ssl = cs->startSSL(this->ctx);
 
                   int err = SSL_accept(ssl);
+                  std::cout << "After accept" << std::endl;
 
                   int sslerr = SSL_ERROR_NONE;
                   if (err < 1) {
@@ -28,7 +29,7 @@ namespace tls {
                   }
 
                   if (sslerr != SSL_ERROR_NONE) {
-                      this->end();
+                      cs->end();
                   } else {
                       /*
                       X509* client_cert = SSL_get_peer_certificate(ssl);
