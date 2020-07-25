@@ -20,8 +20,9 @@ namespace tls {
               [this, onConnect](tls::SocketConnection* cs) {
                   if (!cs->startSSL(this->ctx)) {
                       cs->end();
+                  } else {
+                      onConnect(cs);
                   }
-                  onConnect(cs);
               },
               [onDisconnect](tls::SocketConnection* cs) {
                   cs->stopSSL();
