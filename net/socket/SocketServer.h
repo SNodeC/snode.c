@@ -40,16 +40,15 @@ public:
     SocketServer(const SocketServer&) = delete;
     SocketServer& operator=(const SocketServer&) = delete;
 
-    void listen(in_port_t port, int backlog, const std::function<void(int err)>& onError) {
-        this->open([this, &port, &backlog, &onError](int errnum) -> void {
+    void listen(const InetAddress& localAddress, int backlog, const std::function<void(int err)>& onError) {
+        this->open([this, &localAddress, &backlog, &onError](int errnum) -> void {
             if (errnum > 0) {
                 onError(errnum);
             } else {
-                this->reuseAddress([this, &port, &backlog, &onError](int errnum) -> void {
+                this->reuseAddress([this, &localAddress, &backlog, &onError](int errnum) -> void {
                     if (errnum != 0) {
                         onError(errnum);
                     } else {
-                        localAddress = InetAddress(port);
                         this->bind(localAddress, [this, &backlog, &onError](int errnum) -> void {
                             if (errnum > 0) {
                                 onError(errnum);
@@ -66,6 +65,14 @@ public:
                 });
             }
         });
+    }
+
+    void listen(in_port_t port, int backlog, const std::function<void(int err)>& onError) {
+        listen(InetAddress(port), backlog, onError);
+    }
+
+    void listen(const std::string& ipOrHostname, uint16_t port, int backlog, const std::function<void(int err)>& onError) {
+        listen(InetAddress(ipOrHostname, port), backlog, onError);
     }
 
     void acceptEvent() override {
