@@ -8,7 +8,7 @@
 
 class Descriptor {
 protected:
-    Descriptor(bool keepOpen = false);
+    Descriptor() = default;
 
 public:
     Descriptor(const Descriptor& d) = delete;
@@ -18,9 +18,6 @@ public:
     void attachFd(int fd);
 
     int getFd() const;
-
-protected:
-    bool keepOpen = false;
 
 private:
     int fd{-1};

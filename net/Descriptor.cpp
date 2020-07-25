@@ -8,15 +8,8 @@
 #include "Descriptor.h"
 
 
-Descriptor::Descriptor(bool keepOpen)
-    : keepOpen(keepOpen) {
-}
-
-
 Descriptor::~Descriptor() {
-    if (!keepOpen) {
-        ::close(fd);
-    }
+    ::close(fd);
 }
 
 

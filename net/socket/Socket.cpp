@@ -9,15 +9,8 @@
 #include "Socket.h"
 
 
-Socket::Socket(bool keepOpen)
-    : Descriptor(keepOpen) {
-}
-
-
 Socket::~Socket() {
-    if (!keepOpen) {
-        ::shutdown(this->getFd(), SHUT_RDWR);
-    }
+    ::shutdown(this->getFd(), SHUT_RDWR);
 }
 
 
