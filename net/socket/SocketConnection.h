@@ -34,6 +34,13 @@ public:
         this->attachFd(csFd);
     }
 
+    SocketConnection(const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
+                     const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
+                     const std::function<void(SocketConnection* cs, int errnum)>& onWriteError,
+                     const std::function<void(SocketConnection* cs)>& onDisconnect)
+        : SocketConnection(0, onRead, onReadError, onWriteError, onDisconnect) {
+    }
+
     void enqueue(const char* buffer, int size) override {
         this->Writer::enqueue(buffer, size);
     }
