@@ -29,46 +29,63 @@ public:
     }
 
 
-    void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError) {
-        Socket socket(true);
-
-        socket.open([this, &socket, &host, &port, &onError](int err) -> void {
+    void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
+                 const InetAddress& localAddress = InetAddress()) {
+        SocketConnectionImpl* cs = new SocketConnectionImpl(onRead, onReadError, onWriteError,
+                                                            [this](SocketConnectionImpl* cs) -> void { // onDisconnect
+                                                                this->onDisconnect(cs);
+                                                                delete cs;
+                                                            });
+        cs->open([this, &cs, &host, &port, &localAddress, &onError](int err) -> void {
             if (err) {
+                delete cs;
                 onError(err);
             } else {
-                socket.bind(InetAddress(), [this, &socket, &host, &port, &onError](int err) -> void {
-                    InetAddress server(host, port);
-                    errno = 0;
-                    int ret =
-                        ::connect(socket.getFd(), reinterpret_cast<const sockaddr*>(&server.getSockAddr()), sizeof(server.getSockAddr()));
-                    if (ret == 0) {
-                        struct sockaddr_in localAddress {};
-                        socklen_t addressLength = sizeof(localAddress);
-
-                        if (getsockname(socket.getFd(), reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
-                            SocketConnectionImpl* cs = new SocketConnectionImpl(socket.getFd(), onRead, onReadError, onWriteError,
-                                                                                [this](SocketConnectionImpl* cs) -> void { // onDisconnect
-                                                                                    this->onDisconnect(cs);
-                                                                                    delete cs;
-                                                                                });
-                            cs->setRemoteAddress(server);
-                            cs->setLocalAddress(InetAddress(localAddress));
-
-                            onConnect(cs);
-                            onError(0);
-                        } else {
-                            int _errno = errno;
-                            PLOG(ERROR) << "getsockname";
-                            shutdown(socket.getFd(), SHUT_RDWR);
-                            ::close(socket.getFd());
-                            onError(_errno);
-                        }
+                cs->bind(localAddress, [this, &cs, &host, &port, &onError](int err) -> void {
+                    if (err) {
+                        delete cs;
+                        onError(err);
                     } else {
-                        onError(errno);
+                        errno = 0;
+                        InetAddress server(host, port);
+                        int ret =
+                            ::connect(cs->getFd(), reinterpret_cast<const sockaddr*>(&server.getSockAddr()), sizeof(server.getSockAddr()));
+                        if (ret == 0) {
+                            struct sockaddr_in localAddress {};
+                            socklen_t addressLength = sizeof(localAddress);
+                            if (getsockname(cs->getFd(), reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
+                                cs->setRemoteAddress(server);
+                                cs->setLocalAddress(InetAddress(localAddress));
+
+                                onConnect(cs);
+                                onError(0);
+                            } else {
+                                int _errno = errno;
+                                PLOG(ERROR) << "getsockname";
+                                delete cs;
+                                onError(_errno);
+                            }
+                        } else {
+                            delete cs;
+                            onError(errno);
+                        }
                     }
                 });
             }
         });
+    }
+
+    void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, in_port_t lPort) {
+        connect(host, port, onError, InetAddress(lPort));
+    }
+
+    void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, const std::string lHost) {
+        connect(host, port, onError, InetAddress(lHost));
+    }
+
+    void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, const std::string lHost,
+                 in_port_t lPort) {
+        connect(host, port, onError, InetAddress(lHost, lPort));
     }
 
 
