@@ -29,7 +29,7 @@ public:
     }
 
 
-    void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
+    virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
                  const InetAddress& localAddress = InetAddress()) {
         SocketConnectionImpl* cs = new SocketConnectionImpl(onRead, onReadError, onWriteError,
                                                             [this](SocketConnectionImpl* cs) -> void { // onDisconnect
@@ -75,15 +75,15 @@ public:
         });
     }
 
-    void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, in_port_t lPort) {
+    virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, in_port_t lPort) {
         connect(host, port, onError, InetAddress(lPort));
     }
 
-    void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, const std::string lHost) {
+    virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, const std::string lHost) {
         connect(host, port, onError, InetAddress(lHost));
     }
 
-    void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, const std::string lHost,
+    virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, const std::string lHost,
                  in_port_t lPort) {
         connect(host, port, onError, InetAddress(lHost, lPort));
     }

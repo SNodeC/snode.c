@@ -22,7 +22,7 @@ namespace tls {
         explicit SocketWriter(const std::function<void(int errnum)>& onError)
             : ::SocketWriter(onError) {
         }
-
+    public:
         ssize_t send(const char* junk, const size_t junkSize) override;
     };
 
