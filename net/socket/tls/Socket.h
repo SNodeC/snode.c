@@ -20,13 +20,11 @@ namespace tls {
 
     class Socket : public ::Socket {
     public:
-        bool startSSL(SSL_CTX* ctx);
+        SSL* startSSL(SSL_CTX* ctx);
         void stopSSL();
-        SSL* getSSL();
 
     protected:
         SSL* ssl = nullptr;
-        int err = 0;
     };
 
 }; // namespace tls
