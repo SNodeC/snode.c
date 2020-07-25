@@ -18,9 +18,38 @@ namespace tls {
                                const std::function<void(tls::SocketConnection* cs, int errnum)>& onWriteError)
         : ::SocketServer<tls::SocketConnection>(
               [this, onConnect](tls::SocketConnection* cs) {
-                  if (!cs->startSSL(this->ctx)) {
-                      cs->end();
+                  SSL* ssl = cs->startSSL(this->ctx);
+
+                  int err = SSL_accept(ssl);
+
+                  int sslerr = SSL_ERROR_NONE;
+                  if (err < 1) {
+                      sslerr = SSL_get_error(ssl, err);
+                  }
+
+                  if (sslerr != SSL_ERROR_NONE) {
+                      this->end();
                   } else {
+                      /*
+                      X509* client_cert = SSL_get_peer_certificate(ssl);
+                      if (client_cert != NULL) {
+                          printf("Client certificate:\n");
+
+                          char* str = X509_NAME_oneline(X509_get_subject_name(client_cert), 0, 0);
+                          printf("\t subject: %s\n", str);
+                          OPENSSL_free(str);
+
+                          str = X509_NAME_oneline(X509_get_issuer_name(client_cert), 0, 0);
+                          printf("\t issuer: %s\n", str);
+                          OPENSSL_free(str);
+
+                          // We could do all sorts of certificate verification stuff here before deallocating the certificate.
+
+                          X509_free(client_cert);
+                      } else {
+                          printf("Client does not have certificate.\n");
+                      }
+                      */
                       onConnect(cs);
                   }
               },
