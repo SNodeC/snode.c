@@ -1,7 +1,5 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <netinet/tcp.h>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "socket/tls/SocketClient.h"
@@ -16,29 +14,16 @@ namespace tls {
                                const std::function<void(tls::SocketConnection* cs, int errnum)>& onWriteError)
         : ::SocketClient<tls::SocketConnection>(
               [this, onConnect](tls::SocketConnection* cs) -> void {
-                  std::cout << "OnConnect2" << std::endl;
                   SSL* ssl = cs->startSSL(this->ctx);
-                  
-                  std::cout << "OnConnect2" << std::endl;
-                  
-                  int err = SSL_connect(ssl);
-                  
-                  X509* cert = SSL_get_peer_certificate(ssl);
-                  
-                  std::cout << "OnConnect3" << std::endl;
-                  
-                  int sslerr = SSL_ERROR_NONE;
-                  sslerr = SSL_get_error(ssl, err);
-                  if (err < 1) {
-                      std::cout << "OnConnect4" << std::endl;
-                      sslerr = SSL_get_error(ssl, err);
-                      std::cout << "OnConnect5" << std::endl;
-                  }
 
-                  if (sslerr != SSL_ERROR_NONE) {
-                      std::cout << "OnConnect6" << std::endl;
+                  int err = 0;
+                  do {
+                      err = SSL_connect(ssl);
+
+                  } while (SSL_get_error(ssl, err) == SSL_ERROR_WANT_READ || SSL_get_error(ssl, err) == SSL_ERROR_WANT_WRITE);
+
+                  if (SSL_get_error(ssl, err) != SSL_ERROR_NONE) {
                       cs->end();
-                      std::cout << "OnConnect7" << std::endl;
                   } else {
                       /*
                        *   X509* client_cert = SSL_get_peer_certificate(ssl);
@@ -65,7 +50,18 @@ namespace tls {
                       std::cout << "OnConnect9" << std::endl;
                   }
               },
-              onDisconnect, onRead, onReadError, onWriteError) {
+              [onDisconnect](tls::SocketConnection* cs) -> void {
+                  cs->stopSSL();
+                  onDisconnect(cs);
+              },
+              onRead, onReadError, onWriteError) {
+    }
+
+    SocketClient::~SocketClient() {
+        if (ctx) {
+            SSL_CTX_free(ctx);
+            ctx = nullptr;
+        }
     }
 
 }; // namespace tls

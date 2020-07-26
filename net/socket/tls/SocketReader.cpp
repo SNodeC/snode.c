@@ -10,7 +10,6 @@
 namespace tls {
 
     ssize_t SocketReader::recv(char* junk, size_t junkSize) {
-        std::cout << "SSL_read" << std::endl;
         return ::SSL_read(ssl, junk, junkSize);
     }
 

@@ -98,6 +98,7 @@ public:
 
                 cs->setRemoteAddress(InetAddress(remoteAddress));
                 cs->setLocalAddress(InetAddress(localAddress));
+                cs->setNonBlocking();
 
                 onConnect(cs);
             } else {
