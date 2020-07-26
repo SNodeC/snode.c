@@ -29,8 +29,8 @@ public:
     }
 
 
-    void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
-                 const InetAddress& localAddress = InetAddress()) {
+    virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
+                         const InetAddress& localAddress = InetAddress()) {
         SocketConnectionImpl* cs = new SocketConnectionImpl(onRead, onReadError, onWriteError,
                                                             [this](SocketConnectionImpl* cs) -> void { // onDisconnect
                                                                 this->onDisconnect(cs);
@@ -43,8 +43,8 @@ public:
             } else {
                 cs->bind(localAddress, [this, &cs, &host, &port, &onError](int err) -> void {
                     if (err) {
-                        delete cs;
                         onError(err);
+                        delete cs;
                     } else {
                         errno = 0;
                         InetAddress server(host, port);
@@ -56,18 +56,19 @@ public:
                             if (getsockname(cs->getFd(), reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
                                 cs->setRemoteAddress(server);
                                 cs->setLocalAddress(InetAddress(localAddress));
+                                cs->setNonBlocking();
 
                                 onConnect(cs);
                                 onError(0);
                             } else {
                                 int _errno = errno;
                                 PLOG(ERROR) << "getsockname";
-                                delete cs;
                                 onError(_errno);
+                                delete cs;
                             }
                         } else {
-                            delete cs;
                             onError(errno);
+                            delete cs;
                         }
                     }
                 });
@@ -75,16 +76,16 @@ public:
         });
     }
 
-    void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, in_port_t lPort) {
+    virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, in_port_t lPort) {
         connect(host, port, onError, InetAddress(lPort));
     }
 
-    void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, const std::string lHost) {
+    virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, const std::string lHost) {
         connect(host, port, onError, InetAddress(lHost));
     }
 
-    void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, const std::string lHost,
-                 in_port_t lPort) {
+    virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, const std::string lHost,
+                         in_port_t lPort) {
         connect(host, port, onError, InetAddress(lHost, lPort));
     }
 
