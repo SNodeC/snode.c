@@ -1,8 +1,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstring>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
+
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -17,18 +17,16 @@ namespace tls {
                                const std::function<void(tls::SocketConnection* cs, int errnum)>& onReadError,
                                const std::function<void(tls::SocketConnection* cs, int errnum)>& onWriteError)
         : ::SocketServer<tls::SocketConnection>(
-              [this, onConnect](tls::SocketConnection* cs) {
+              [this, onConnect](tls::SocketConnection* cs) -> void {
                   SSL* ssl = cs->startSSL(this->ctx);
 
-                  int err = SSL_accept(ssl);
-                  std::cout << "After accept" << std::endl;
+                  int err = 0;
+                  do {
+                      err = SSL_accept(ssl);
 
-                  int sslerr = SSL_ERROR_NONE;
-                  if (err < 1) {
-                      sslerr = SSL_get_error(ssl, err);
-                  }
+                  } while (SSL_get_error(ssl, err) == SSL_ERROR_WANT_READ || SSL_get_error(ssl, err) == SSL_ERROR_WANT_WRITE);
 
-                  if (sslerr != SSL_ERROR_NONE) {
+                  if (SSL_get_error(ssl, err) != SSL_ERROR_NONE) {
                       cs->end();
                   } else {
                       /*
@@ -54,7 +52,7 @@ namespace tls {
                       onConnect(cs);
                   }
               },
-              [onDisconnect](tls::SocketConnection* cs) {
+              [onDisconnect](tls::SocketConnection* cs) -> void {
                   cs->stopSSL();
                   onDisconnect(cs);
               },

@@ -22,6 +22,12 @@ protected:
         : onError(onError) {
     }
 
+    ~SocketWriter() {
+        if (isManaged()) {
+            Writer::stop();
+        }
+    }
+
     void enqueue(const char* buffer, int size);
 
     virtual ssize_t send(const char* junk, size_t junkSize) = 0;

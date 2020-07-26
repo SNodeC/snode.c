@@ -87,8 +87,7 @@ void Multiplexer::init(int argc, char* argv[]) {
 
 void Multiplexer::start() {
     if (!initialized) {
-        std::cerr << "ERROR: snode.c not initialized. Use Multiplexer::init(argc, argv) before creating a concrete WebApp object"
-                  << std::endl;
+        std::cerr << "ERROR: snode.c not initialized. Use Multiplexer::init(argc, argv) before Multiplexer::start()." << std::endl;
         exit(1);
     }
 
