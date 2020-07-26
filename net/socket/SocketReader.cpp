@@ -19,7 +19,9 @@ void SocketReader::readEvent() {
     if (ret > 0) {
         onRead(junk, ret);
     } else {
-        Reader::stop();
+        if (errno != EAGAIN) {
+            Reader::stop();
+        }
         this->onError(ret == 0 ? 0 : errno);
     }
 }

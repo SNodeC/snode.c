@@ -19,8 +19,10 @@ public:
 
     int getFd() const;
 
+    void setNonBlocking();
+
 private:
-    int fd{-1};
+    int fd = -1;
 };
 
 #endif // DESCRIPTOR_H
