@@ -67,7 +67,6 @@ public:
                                     getsockname(cs->getFd(), reinterpret_cast<sockaddr*>(&localAddress), &addressLength);
                                     cs->setRemoteAddress(server);
                                     cs->setLocalAddress(InetAddress(localAddress));
-                                    cs->setNonBlocking();
 
                                     onConnect(cs);
                                     cs->::Reader::start();
