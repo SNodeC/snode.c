@@ -15,13 +15,9 @@
 
 namespace legacy {
 
-    class SocketReader
-        : public ::SocketReader
-        , virtual public legacy::Socket {
+    class SocketReader : public ::SocketReader<legacy::Socket> {
     protected:
-        SocketReader(const std::function<void(const char* junk, ssize_t n)>& onRead, const std::function<void(int errnum)>& onError)
-            : ::SocketReader(onRead, onError) {
-        }
+        using ::SocketReader<legacy::Socket>::SocketReader;
 
     private:
         ssize_t recv(char* junk, size_t junkSize) override;

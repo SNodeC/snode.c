@@ -15,13 +15,9 @@
 
 namespace legacy {
 
-    class SocketWriter
-        : public ::SocketWriter
-        , virtual public legacy::Socket {
+    class SocketWriter : public ::SocketWriter<legacy::Socket> {
     protected:
-        explicit SocketWriter(const std::function<void(int errnum)>& onError)
-            : ::SocketWriter(onError) {
-        }
+        using ::SocketWriter<legacy::Socket>::SocketWriter;
 
         ssize_t send(const char* junk, const size_t junkSize) override;
     };

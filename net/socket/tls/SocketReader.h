@@ -15,13 +15,9 @@
 
 namespace tls {
 
-    class SocketReader
-        : public ::SocketReader
-        , virtual public tls::Socket {
+    class SocketReader : public ::SocketReader<tls::Socket> {
     protected:
-        SocketReader(const std::function<void(const char* junk, size_t n)>& onRead, const std::function<void(int errnum)>& onError)
-            : ::SocketReader(onRead, onError) {
-        }
+        using ::SocketReader<tls::Socket>::SocketReader;
 
     private:
         ssize_t recv(char* junk, size_t junkSize) override;

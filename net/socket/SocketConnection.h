@@ -10,24 +10,24 @@
 #include "SocketConnectionBase.h"
 
 
-template <typename Reader, typename Writer>
+template <typename SocketReader, typename SocketWriter>
 class SocketConnection
     : public SocketConnectionBase
-    , public Reader
-    , public Writer {
+    , public SocketReader
+    , public SocketWriter {
 public:
     SocketConnection(int csFd, const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
                      const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
                      const std::function<void(SocketConnection* cs, int errnum)>& onWriteError,
                      const std::function<void(SocketConnection* cs)>& onDisconnect)
-        : Reader(
+        : SocketReader(
               [&](const char* junk, ssize_t n) -> void {
                   onRead(this, junk, n);
               },
               [&](int errnum) -> void {
                   onReadError(this, errnum);
               })
-        , Writer([&](int errnum) -> void {
+        , SocketWriter([&](int errnum) -> void {
             onWriteError(this, errnum);
         })
         , onDisconnect(onDisconnect) {
@@ -42,7 +42,7 @@ public:
     }
 
     void enqueue(const char* buffer, int size) override {
-        this->Writer::enqueue(buffer, size);
+        this->SocketWriter::enqueue(buffer, size);
     }
 
     void enqueue(const std::string& data) override {
@@ -50,7 +50,7 @@ public:
     }
 
     void end() override {
-        Reader::stop();
+        SocketReader::stop();
     }
 
     InetAddress& getRemoteAddress() {
@@ -70,8 +70,8 @@ private:
     std::function<void(SocketConnection* cs)> onDisconnect;
 
 public:
-    using ReaderType = Reader;
-    using WriterType = Writer;
+    using ReaderType = SocketReader;
+    using WriterType = SocketWriter;
 };
 
 #endif // SOCKETCONNECTIONBASE_H

@@ -15,13 +15,9 @@
 
 namespace tls {
 
-    class SocketWriter
-        : public ::SocketWriter
-        , virtual public tls::Socket {
+    class SocketWriter : public ::SocketWriter<tls::Socket> {
     protected:
-        explicit SocketWriter(const std::function<void(int errnum)>& onError)
-            : ::SocketWriter(onError) {
-        }
+        using ::SocketWriter<tls::Socket>::SocketWriter;
 
         ssize_t send(const char* junk, const size_t junkSize) override;
     };
