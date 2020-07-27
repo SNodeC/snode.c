@@ -14,7 +14,7 @@ class ContinousTimer;
 
 class Timer {
 protected:
-    Timer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg);
+    Timer(const std::function<bool(const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg);
 
     virtual ~Timer() = default;
 
@@ -22,9 +22,9 @@ public:
     Timer(const Timer&) = delete;
     Timer& operator=(const Timer& timer) = delete;
 
-    static ContinousTimer& continousTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout,
+    static ContinousTimer& continousTimer(const std::function<bool(const void* arg)>& dispatcher, const struct timeval& timeout,
                                           const void* arg);
-    static SingleshotTimer& singleshotTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout,
+    static SingleshotTimer& singleshotTimer(const std::function<bool(const void* arg)>& dispatcher, const struct timeval& timeout,
                                             const void* arg);
 
     struct timeval& timeout();
@@ -40,7 +40,7 @@ private:
     struct timeval absoluteTimeout {};
     struct timeval delay;
 
-    std::function<void(const void* arg)> dispatcher;
+    std::function<bool(const void* arg)> dispatcher;
     const void* arg;
 };
 
