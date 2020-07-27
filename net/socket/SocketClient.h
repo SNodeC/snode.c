@@ -53,39 +53,41 @@ public:
                         int ret =
                             ::connect(cs->getFd(), reinterpret_cast<const sockaddr*>(&server.getSockAddr()), sizeof(server.getSockAddr()));
 
-                        if (ret == 0 || (ret < 0 && errno == EINPROGRESS)) {
-                            [[maybe_unused]] Timer& ct = Timer::continousTimer(
-                                [this, cs, server, onError](const void* arg) -> bool {
-                                    bool proceed = false;
-                                    errno = 0;
-                                    int ret = ::connect(cs->getFd(), reinterpret_cast<const sockaddr*>(&server.getSockAddr()),
-                                                        sizeof(server.getSockAddr()));
-                                    if (ret < 0 && errno == EINPROGRESS) {
-                                        proceed = true;
-                                    } else if (ret == 0) {
-                                        struct sockaddr_in localAddress {};
-                                        socklen_t addressLength = sizeof(localAddress);
-                                        getsockname(cs->getFd(), reinterpret_cast<sockaddr*>(&localAddress), &addressLength);
-                                        cs->setRemoteAddress(server);
-                                        cs->setLocalAddress(InetAddress(localAddress));
-                                        cs->setNonBlocking();
+                        [[maybe_unused]] Timer& ct = Timer::continousTimer(
+                            [this, cs, server, onError](const void* arg) -> bool {
+                                bool proceed = false;
+                                errno = 0;
+                                int ret = ::connect(cs->getFd(), reinterpret_cast<const sockaddr*>(&server.getSockAddr()),
+                                                    sizeof(server.getSockAddr()));
+                                if (ret < 0 && errno == EINPROGRESS) {
+                                    proceed = true;
+                                } else if (ret == 0) {
+                                    struct sockaddr_in localAddress {};
+                                    socklen_t addressLength = sizeof(localAddress);
+                                    getsockname(cs->getFd(), reinterpret_cast<sockaddr*>(&localAddress), &addressLength);
+                                    cs->setRemoteAddress(server);
+                                    cs->setLocalAddress(InetAddress(localAddress));
+                                    cs->setNonBlocking();
 
-                                        onConnect(cs);
-                                        cs->::Reader::start();
-                                        proceed = false;
-                                    } else {
-                                        onError(errno);
-                                        delete cs;
-                                        proceed = false;
-                                    }
-                                    return proceed;
-                                },
-                                (struct timeval){0, 0}, "Connect");
-                        } if (ret == 0) {
-                            onError(0);
-                        } else {
+                                    onConnect(cs);
+                                    cs->::Reader::start();
+                                    proceed = false;
+                                } else {
+                                    onError(errno);
+                                    delete cs;
+                                    proceed = false;
+                                }
+                                return proceed;
+                            },
+                            (struct timeval){0, 0}, "Connect");
+
+                        if (ret < 0 && errno != EINPROGRESS) {
+                            ct.cancel();
                             onError(errno);
-//                            delete cs;
+                            delete cs;
+                        } else if (ret == 0) {
+                            ct.cancel();
+                            onError(0);
                         }
                     }
                 });

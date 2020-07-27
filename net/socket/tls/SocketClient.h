@@ -24,7 +24,7 @@ namespace tls {
         ~SocketClient();
 
         void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
-                     const InetAddress& localAddress = InetAddress()) override ;
+                     const InetAddress& localAddress = InetAddress()) override;
 
         void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, in_port_t lPort) override {
             connect(host, port, onError, InetAddress(lPort));
