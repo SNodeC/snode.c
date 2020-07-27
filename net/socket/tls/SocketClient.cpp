@@ -14,7 +14,6 @@ namespace tls {
                                const std::function<void(tls::SocketConnection* cs, int errnum)>& onWriteError)
         : ::SocketClient<tls::SocketConnection>(
               [this, onConnect](tls::SocketConnection* cs) -> void {
-                  std::cout << "StartSSL" << std::endl;
                   SSL* ssl = cs->startSSL(this->ctx);
 
                   int err = 0;
