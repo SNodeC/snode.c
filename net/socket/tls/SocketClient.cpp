@@ -61,33 +61,33 @@ namespace tls {
             ctx = nullptr;
         }
     }
-    
+
     void SocketClient::connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
-                 const InetAddress& localAddress) {
-                     SSL_load_error_strings();
-                     SSL_library_init();
-                     OpenSSL_add_ssl_algorithms();
-                     
-                     ctx = SSL_CTX_new(TLS_client_method());
-                     [[maybe_unused]] unsigned long sslErr = 0;
-                     if (!ctx) {
-                         ERR_print_errors_fp(stderr);
-                         sslErr = ERR_get_error();
-                         onError(10); // TODO: Error handling
-                     } else {         /*
-                         SSL_CTX_set_default_passwd_cb(ctx, SocketServer::passwordCallback);
-                         SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(password.c_str()));
-                         if (SSL_CTX_use_certificate_chain_file(ctx, certChain.c_str()) <= 0) {
-                             ERR_print_errors_fp(stderr);
-                             sslErr = ERR_get_error();
-                     } else if (SSL_CTX_use_PrivateKey_file(ctx, keyPEM.c_str(), SSL_FILETYPE_PEM) <= 0) {
-                         ERR_print_errors_fp(stderr);
-                         sslErr = ERR_get_error();
-                     } else if (!SSL_CTX_check_private_key(ctx)) {
-                         sslErr = ERR_get_error();
-                     }*/
-                     }
-                     ::SocketClient<tls::SocketConnection>::connect(host, port, onError, localAddress);
-                 }
+                               const InetAddress& localAddress) {
+        SSL_load_error_strings();
+        SSL_library_init();
+        OpenSSL_add_ssl_algorithms();
+
+        ctx = SSL_CTX_new(TLS_client_method());
+        [[maybe_unused]] unsigned long sslErr = 0;
+        if (!ctx) {
+            ERR_print_errors_fp(stderr);
+            sslErr = ERR_get_error();
+            onError(10); // TODO: Error handling
+        } else {         /*
+            SSL_CTX_set_default_passwd_cb(ctx, SocketServer::passwordCallback);
+            SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(password.c_str()));
+            if (SSL_CTX_use_certificate_chain_file(ctx, certChain.c_str()) <= 0) {
+                ERR_print_errors_fp(stderr);
+                sslErr = ERR_get_error();
+        } else if (SSL_CTX_use_PrivateKey_file(ctx, keyPEM.c_str(), SSL_FILETYPE_PEM) <= 0) {
+            ERR_print_errors_fp(stderr);
+            sslErr = ERR_get_error();
+        } else if (!SSL_CTX_check_private_key(ctx)) {
+            sslErr = ERR_get_error();
+        }*/
+        }
+        ::SocketClient<tls::SocketConnection>::connect(host, port, onError, localAddress);
+    }
 
 }; // namespace tls

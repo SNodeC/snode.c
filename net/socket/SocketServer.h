@@ -85,7 +85,7 @@ public:
         int csFd = -1;
 
         csFd = ::accept4(this->getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &addrlen, 0);
-        
+
         if (csFd >= 0) {
             struct sockaddr_in localAddress {};
             socklen_t addressLength = sizeof(localAddress);
