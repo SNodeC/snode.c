@@ -8,7 +8,7 @@ tls::SocketClient client() {
     tls::SocketClient client(
         [](tls::SocketConnection* connectedSocket) -> void { // onConnect
             std::cout << "OnConnect" << std::endl;
-            connectedSocket->enqueue("GET /index.html HTTP/1.1\r\nConnection:keep-alive\r\n\r\n");
+            connectedSocket->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); //Connection:keep-alive\r\n\r\n");
         },
         [](tls::SocketConnection* connectedSocket) -> void { // onDisconnect
             std::cout << "OnDisConnect" << std::endl;
@@ -31,7 +31,7 @@ tls::SocketClient client() {
             std::cout << "OnWriteError: " << errnum << std::endl;
         });
 
-    client.connect("localhost", 8088, [&client] (int err) -> void {
+    client.connect("localhost", 8088, [] (int err) -> void {
         if (err) {
             std::cout << "Connect Error: " << strerror(err) << std::endl;
             Multiplexer::stop();
