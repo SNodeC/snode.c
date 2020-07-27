@@ -34,6 +34,7 @@ tls::SocketClient client() {
     client.connect("localhost", 8088, [&client] (int err) -> void {
         if (err) {
             std::cout << "Connect Error: " << strerror(err) << std::endl;
+            Multiplexer::stop();
         }
     });
     
