@@ -12,16 +12,18 @@
 
 int timerApp() {
     [[maybe_unused]] const Timer& tick = Timer::continousTimer(
-        [](const void* arg) -> void {
+        [](const void* arg) -> bool {
             static int i = 0;
             std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
+            return true;
         },
         (struct timeval){0, 500000}, "Tick");
 
     Timer& tack = Timer::continousTimer(
-        [](const void* arg) -> void {
+        [](const void* arg) -> bool {
             static int i = 0;
             std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
+            return true;
         },
         (struct timeval){1, 100000}, "Tack");
 

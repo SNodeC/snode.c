@@ -10,7 +10,7 @@
 
 class SingleshotTimer : public Timer {
 public:
-    SingleshotTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg)
+    SingleshotTimer(const std::function<bool(const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg)
         : Timer(dispatcher, timeout, arg) {
     }
 

@@ -31,10 +31,9 @@ tls::SocketClient client() {
             std::cout << "OnWriteError: " << errnum << std::endl;
         });
 
-    client.connect("localhost", 8088, [] (int err) -> void {
+    client.connect("localhost", 8088, [&client] (int err) -> void {
         if (err) {
             std::cout << "Connect Error: " << strerror(err) << std::endl;
-            exit(1);
         }
     });
     

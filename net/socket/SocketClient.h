@@ -10,7 +10,9 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Logger.h"
+#include "Reader.h"
 #include "Socket.h"
+#include "timer/ContinousTimer.h"
 
 
 template <typename SocketConnectionImpl>
@@ -38,37 +40,52 @@ public:
                                                             });
         cs->open([this, &cs, &host, &port, &localAddress, &onError](int err) -> void {
             if (err) {
-                delete cs;
                 onError(err);
+                delete cs;
             } else {
                 cs->bind(localAddress, [this, &cs, &host, &port, &onError](int err) -> void {
                     if (err) {
                         onError(err);
-                        delete cs;
                     } else {
                         errno = 0;
                         InetAddress server(host, port);
+                        cs->setNonBlocking();
                         int ret =
                             ::connect(cs->getFd(), reinterpret_cast<const sockaddr*>(&server.getSockAddr()), sizeof(server.getSockAddr()));
-                        if (ret == 0) {
-                            struct sockaddr_in localAddress {};
-                            socklen_t addressLength = sizeof(localAddress);
-                            if (getsockname(cs->getFd(), reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
-                                cs->setRemoteAddress(server);
-                                cs->setLocalAddress(InetAddress(localAddress));
-                                cs->setNonBlocking();
 
-                                onConnect(cs);
-                                onError(0);
-                            } else {
-                                int _errno = errno;
-                                PLOG(ERROR) << "getsockname";
-                                onError(_errno);
-                                delete cs;
-                            }
+                        if (ret == 0 || (ret < 0 && errno == EINPROGRESS)) {
+                            [[maybe_unused]] Timer& ct = Timer::continousTimer(
+                                [this, cs, server, onError](const void* arg) -> bool {
+                                    bool proceed = false;
+                                    errno = 0;
+                                    int ret = ::connect(cs->getFd(), reinterpret_cast<const sockaddr*>(&server.getSockAddr()),
+                                                        sizeof(server.getSockAddr()));
+                                    if (ret < 0 && errno == EINPROGRESS) {
+                                        proceed = true;
+                                    } else if (ret == 0) {
+                                        struct sockaddr_in localAddress {};
+                                        socklen_t addressLength = sizeof(localAddress);
+                                        getsockname(cs->getFd(), reinterpret_cast<sockaddr*>(&localAddress), &addressLength);
+                                        cs->setRemoteAddress(server);
+                                        cs->setLocalAddress(InetAddress(localAddress));
+                                        cs->setNonBlocking();
+
+                                        onConnect(cs);
+                                        cs->::Reader::start();
+                                        proceed = false;
+                                    } else {
+                                        onError(errno);
+                                        delete cs;
+                                        proceed = false;
+                                    }
+                                    return proceed;
+                                },
+                                (struct timeval){0, 0}, "Connect");
+                        } if (ret == 0) {
+                            onError(0);
                         } else {
                             onError(errno);
-                            delete cs;
+//                            delete cs;
                         }
                     }
                 });
