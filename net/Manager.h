@@ -48,10 +48,7 @@ public:
 private:
     int getMaxFd() {
         int fd = 0;
-        /*
-                addDescriptors();
-                removeDescriptors();
-        */
+
         if (!descriptors.empty()) {
             fd = descriptors.rbegin()->first;
         }
