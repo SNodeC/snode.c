@@ -22,6 +22,8 @@ public:
     void remove(Timer* timer);
     void add(Timer* timer);
 
+    bool empty();
+
 private:
     std::list<Timer*> timerList;
     std::list<Timer*> addedList;
