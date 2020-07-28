@@ -63,6 +63,8 @@ add_library(net SHARED
     socket/tls/SocketWriter.h
     socket/tls/SocketServer.cpp
     socket/tls/SocketServer.h
+    timer/IntervalTimer.h
+    timer/SingleshotTimer.h
     timer/Timer.cpp
     timer/Timer.h
 )

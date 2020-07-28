@@ -116,6 +116,8 @@ void Multiplexer::start() {
         Multiplexer::instance().getManagedWriter().removeManagedDescriptors();
         Multiplexer::instance().getManagedExceptions().removeManagedDescriptors();
         Multiplexer::instance().getManagedServer().removeManagedDescriptors();
+
+        Multiplexer::instance().getManagedTimer().getNextTimeout();
     }
 }
 

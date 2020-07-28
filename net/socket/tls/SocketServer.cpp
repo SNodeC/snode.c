@@ -23,11 +23,10 @@ namespace tls {
                   int err = 0;
                   do {
                       err = SSL_accept(ssl);
-
                   } while (SSL_get_error(ssl, err) == SSL_ERROR_WANT_READ || SSL_get_error(ssl, err) == SSL_ERROR_WANT_WRITE);
 
                   if (SSL_get_error(ssl, err) != SSL_ERROR_NONE) {
-                      cs->end();
+                      std::cout << "Error in SSL accept" << std::endl;
                   } else {
                       /*
                       X509* client_cert = SSL_get_peer_certificate(ssl);
@@ -78,7 +77,7 @@ namespace tls {
                 OpenSSL_add_ssl_algorithms();
 
                 ctx = SSL_CTX_new(TLS_server_method());
-                unsigned long sslErr{};
+                unsigned long sslErr = 0;
                 if (!ctx) {
                     ERR_print_errors_fp(stderr);
                     sslErr = ERR_get_error();

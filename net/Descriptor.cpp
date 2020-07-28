@@ -1,6 +1,5 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <fcntl.h>
 #include <iostream>
 #include <unistd.h>
 
@@ -10,22 +9,14 @@
 
 
 Descriptor::~Descriptor() {
-    ::close(fd);
+    if (!dontClose) {
+        ::close(fd);
+    }
 }
 
 
 void Descriptor::attachFd(int fd) {
     this->fd = fd;
-}
-
-
-void Descriptor::setNonBlocking() {
-    int flags = fcntl(fd, F_GETFL, 0);
-    if (flags < 0) {
-    }
-
-    if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) < 0) {
-    }
 }
 
 

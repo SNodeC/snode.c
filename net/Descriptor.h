@@ -8,7 +8,9 @@
 
 class Descriptor {
 protected:
-    Descriptor() = default;
+    Descriptor(bool dontClose = false)
+        : dontClose(dontClose) {
+    }
 
 public:
     Descriptor(const Descriptor& d) = delete;
@@ -19,7 +21,8 @@ public:
 
     int getFd() const;
 
-    void setNonBlocking();
+protected:
+    bool dontClose = false;
 
 private:
     int fd = -1;
