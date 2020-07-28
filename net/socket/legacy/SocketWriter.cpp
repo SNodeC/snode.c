@@ -10,7 +10,7 @@
 namespace legacy {
 
     ssize_t SocketWriter::send(const char* junk, const size_t junkSize) {
-        return ::send(this->getFd(), junk, junkSize, MSG_DONTWAIT | MSG_NOSIGNAL);
+        return ::send(this->getFd(), junk, junkSize, MSG_NOSIGNAL);
     }
 
 }; // namespace legacy
