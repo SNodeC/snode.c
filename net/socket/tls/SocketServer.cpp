@@ -18,38 +18,100 @@ namespace tls {
                                const std::function<void(tls::SocketConnection* cs, int errnum)>& onWriteError)
         : ::SocketServer<tls::SocketConnection>(
               [this, onConnect](tls::SocketConnection* cs) -> void {
-                  SSL* ssl = cs->startSSL(this->ctx);
+                  class SSLAccept
+                      : public Reader
+                      , public Writer
+                      , public Socket {
+                  public:
+                      SSLAccept(tls::SocketConnection* cs, SSL_CTX* ctx, const std::function<void(tls::SocketConnection* cs)>& onConnect)
+                          : Descriptor(true)
+                          , cs(cs)
+                          , ssl(cs->startSSL(ctx))
+                          , onConnect(onConnect) {
+                          this->attachFd(cs->getFd());
 
-                  int err = 0;
-                  do {
-                      err = SSL_accept(ssl);
-                  } while (SSL_get_error(ssl, err) == SSL_ERROR_WANT_READ || SSL_get_error(ssl, err) == SSL_ERROR_WANT_WRITE);
+                          int err = SSL_accept(ssl);
+                          int sslErr = SSL_get_error(ssl, err);
 
-                  if (SSL_get_error(ssl, err) != SSL_ERROR_NONE) {
-                      std::cout << "Error in SSL accept" << std::endl;
-                  } else {
-                      /*
-                      X509* client_cert = SSL_get_peer_certificate(ssl);
-                      if (client_cert != NULL) {
-                          printf("Client certificate:\n");
-
-                          char* str = X509_NAME_oneline(X509_get_subject_name(client_cert), 0, 0);
-                          printf("\t subject: %s\n", str);
-                          OPENSSL_free(str);
-
-                          str = X509_NAME_oneline(X509_get_issuer_name(client_cert), 0, 0);
-                          printf("\t issuer: %s\n", str);
-                          OPENSSL_free(str);
-
-                          // We could do all sorts of certificate verification stuff here before deallocating the certificate.
-
-                          X509_free(client_cert);
-                      } else {
-                          printf("Client does not have certificate.\n");
+                          if (sslErr == SSL_ERROR_WANT_READ) {
+                              ::Reader::start();
+                          } else if (sslErr == SSL_ERROR_WANT_WRITE) {
+                              ::Writer::start();
+                          } else if (sslErr == SSL_ERROR_NONE) {
+                              this->onConnect(cs);
+                              delete this;
+                          }
                       }
-                      */
-                      onConnect(cs);
+
+                      void readEvent() override {
+                          int err = SSL_accept(ssl);
+                          int sslErr = SSL_get_error(ssl, err);
+
+                          if (sslErr != SSL_ERROR_WANT_READ) {
+                              if (sslErr == SSL_ERROR_WANT_WRITE) {
+                                  ::Reader::stop();
+                                  ::Writer::start();
+                              } else if (sslErr == SSL_ERROR_NONE) {
+                                  ::Reader::stop();
+                                  cs->Reader::start();
+                                  this->onConnect(cs);
+                              } else {
+                                  ::Reader::stop();
+                                  delete cs;
+                              }
+                          }
+                      }
+
+                      void writeEvent() override {
+                          int err = SSL_accept(ssl);
+                          int sslErr = SSL_get_error(ssl, err);
+
+                          if (sslErr != SSL_ERROR_WANT_WRITE) {
+                              if (sslErr == SSL_ERROR_WANT_READ) {
+                                  ::Writer::stop();
+                                  ::Reader::start();
+                              } else if (sslErr == SSL_ERROR_NONE) {
+                                  ::Writer::stop();
+                                  cs->Reader::start();
+                                  this->onConnect(cs);
+                              } else {
+                                  ::Writer::stop();
+                                  delete cs;
+                              }
+                          }
+                      }
+
+                      void unmanaged() override {
+                          delete this;
+                      }
+
+                  private:
+                      tls::SocketConnection* cs = nullptr;
+                      SSL* ssl = nullptr;
+                      std::function<void(tls::SocketConnection* cs)> onConnect;
+                  };
+
+                  new SSLAccept(cs, ctx, onConnect);
+                  /*
+                  X509* client_cert = SSL_get_peer_certificate(ssl);
+                  if (client_cert != NULL) {
+                      printf("Client certificate:\n");
+
+                      char* str = X509_NAME_oneline(X509_get_subject_name(client_cert), 0, 0);
+                      printf("\t subject: %s\n", str);
+                      OPENSSL_free(str);
+
+                      str = X509_NAME_oneline(X509_get_issuer_name(client_cert), 0, 0);
+                      printf("\t issuer: %s\n", str);
+                      OPENSSL_free(str);
+
+                      // We could do all sorts of certificate verification stuff here before deallocating the certificate.
+
+                      X509_free(client_cert);
+                  } else {
+                      printf("Client does not have certificate.\n");
                   }
+                  */
               },
               [onDisconnect](tls::SocketConnection* cs) -> void {
                   cs->stopSSL();
