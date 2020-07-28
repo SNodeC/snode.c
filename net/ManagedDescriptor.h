@@ -26,6 +26,9 @@ public:
     void decManaged() {
         ManagedCounter::managedCounter--;
         managed = false;
+    }
+
+    void checkDangling() {
         if (ManagedCounter::managedCounter == 0) {
             unmanaged();
         }
