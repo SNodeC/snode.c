@@ -59,7 +59,10 @@ public:
                                 errno = 0;
                                 int ret = ::connect(cs->getFd(), reinterpret_cast<const sockaddr*>(&server.getSockAddr()),
                                                     sizeof(server.getSockAddr()));
-                                if (ret < 0 && errno == EINPROGRESS) {
+                                if (ret < 0 && errno != EINPROGRESS) {
+                                    onError(errno);
+                                    delete cs;
+                                    stop();
                                 } else if (ret == 0) {
                                     struct sockaddr_in localAddress {};
                                     socklen_t addressLength = sizeof(localAddress);
@@ -69,10 +72,6 @@ public:
 
                                     onConnect(cs);
                                     cs->::Reader::start();
-                                    stop();
-                                } else {
-                                    onError(errno);
-                                    delete cs;
                                     stop();
                                 }
                             },
