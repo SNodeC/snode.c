@@ -10,16 +10,15 @@
 #include "SingleshotTimer.h"
 
 
-Timer::Timer(const std::function<bool(const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg)
-    : delay(timeout)
-    , dispatcher(dispatcher)
-    , arg(arg) {
+Timer::Timer(const struct timeval& timeout, const void* arg)
+    : arg(arg)
+    , delay(timeout) {
     gettimeofday(&absoluteTimeout, nullptr);
     update();
 }
 
 
-SingleshotTimer& Timer::singleshotTimer(const std::function<bool(const void* arg)>& dispatcher, const struct timeval& timeout,
+SingleshotTimer& Timer::singleshotTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout,
                                         const void* arg) {
     SingleshotTimer* st = new SingleshotTimer(dispatcher, timeout, arg);
 
@@ -29,7 +28,17 @@ SingleshotTimer& Timer::singleshotTimer(const std::function<bool(const void* arg
 }
 
 
-ContinousTimer& Timer::continousTimer(const std::function<bool(const void* arg)>& dispatcher, const struct timeval& timeout,
+ContinousTimer& Timer::continousTimer(const std::function<void(const void* arg, const std::function<void()>& stop)>& dispatcher,
+                                      const struct timeval& timeout, const void* arg) {
+    ContinousTimer* ct = new ContinousTimer(dispatcher, timeout, arg);
+
+    Multiplexer::instance().getManagedTimer().add(ct);
+
+    return *ct;
+}
+
+
+ContinousTimer& Timer::continousTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout,
                                       const void* arg) {
     ContinousTimer* ct = new ContinousTimer(dispatcher, timeout, arg);
 
@@ -48,13 +57,13 @@ void Timer::update() {
     absoluteTimeout = absoluteTimeout + delay;
 }
 
-
+/*
 void Timer::dispatch() {
     if (!dispatcher(arg)) {
         Multiplexer::instance().getManagedTimer().remove(this);
     }
 }
-
+*/
 
 void Timer::destroy() {
     delete this;

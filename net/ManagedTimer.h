@@ -34,7 +34,7 @@ private:
         }
     };
 
-    bool timerListDirty{false};
+    bool timerListDirty = false;
 };
 
 #endif // MANAGEDTIMER_H

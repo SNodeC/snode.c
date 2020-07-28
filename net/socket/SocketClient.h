@@ -47,20 +47,19 @@ public:
                     if (err) {
                         onError(err);
                     } else {
-                        errno = 0;
-                        InetAddress server(host, port);
                         cs->setNonBlocking();
+
+                        InetAddress server(host, port);
+                        errno = 0;
                         int ret =
                             ::connect(cs->getFd(), reinterpret_cast<const sockaddr*>(&server.getSockAddr()), sizeof(server.getSockAddr()));
 
                         [[maybe_unused]] Timer& ct = Timer::continousTimer(
-                            [this, cs, server, onError](const void* arg) -> bool {
-                                bool proceed = false;
+                            [this, cs, server, onError]([[maybe_unused]] const void* arg, const std::function<void()>& stop) -> void {
                                 errno = 0;
                                 int ret = ::connect(cs->getFd(), reinterpret_cast<const sockaddr*>(&server.getSockAddr()),
                                                     sizeof(server.getSockAddr()));
                                 if (ret < 0 && errno == EINPROGRESS) {
-                                    proceed = true;
                                 } else if (ret == 0) {
                                     struct sockaddr_in localAddress {};
                                     socklen_t addressLength = sizeof(localAddress);
@@ -70,13 +69,12 @@ public:
 
                                     onConnect(cs);
                                     cs->::Reader::start();
-                                    proceed = false;
+                                    stop();
                                 } else {
                                     onError(errno);
                                     delete cs;
-                                    proceed = false;
+                                    stop();
                                 }
-                                return proceed;
                             },
                             (struct timeval){0, 0}, "Connect");
 
