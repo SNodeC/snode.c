@@ -23,7 +23,6 @@ public:
 
     void open(const std::function<void(int errnum)>& onError, int flags = 0);
     void bind(const InetAddress& localAddress, const std::function<void(int errnum)>& onError);
-    void reuseAddress(const std::function<void(int errnum)>& onError);
 
     InetAddress& getLocalAddress();
     void setLocalAddress(const InetAddress& localAddress);
