@@ -1,7 +1,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "legacy/WebApp.h"
-#include "timer/ContinousTimer.h"
+#include "timer/IntervalTimer.h"
 #include "timer/SingleshotTimer.h"
 
 #include <cstring>

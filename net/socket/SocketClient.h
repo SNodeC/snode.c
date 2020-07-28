@@ -12,7 +12,7 @@
 #include "Logger.h"
 #include "Reader.h"
 #include "Socket.h"
-#include "timer/ContinousTimer.h"
+#include "timer/IntervalTimer.h"
 
 
 template <typename SocketConnectionImpl>

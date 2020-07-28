@@ -4,7 +4,7 @@
 
 #include "Timer.h"
 
-#include "ContinousTimer.h"
+#include "IntervalTimer.h"
 #include "ManagedTimer.h" // for ManagedTimer
 #include "Multiplexer.h"
 #include "SingleshotTimer.h"
@@ -28,9 +28,9 @@ SingleshotTimer& Timer::singleshotTimer(const std::function<void(const void* arg
 }
 
 
-ContinousTimer& Timer::continousTimer(const std::function<void(const void* arg, const std::function<void()>& stop)>& dispatcher,
-                                      const struct timeval& timeout, const void* arg) {
-    ContinousTimer* ct = new ContinousTimer(dispatcher, timeout, arg);
+IntervalTimer& Timer::continousTimer(const std::function<void(const void* arg, const std::function<void()>& stop)>& dispatcher,
+                                     const struct timeval& timeout, const void* arg) {
+    IntervalTimer* ct = new IntervalTimer(dispatcher, timeout, arg);
 
     Multiplexer::instance().getManagedTimer().add(ct);
 
@@ -38,9 +38,9 @@ ContinousTimer& Timer::continousTimer(const std::function<void(const void* arg, 
 }
 
 
-ContinousTimer& Timer::continousTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout,
-                                      const void* arg) {
-    ContinousTimer* ct = new ContinousTimer(dispatcher, timeout, arg);
+IntervalTimer& Timer::continousTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout,
+                                     const void* arg) {
+    IntervalTimer* ct = new IntervalTimer(dispatcher, timeout, arg);
 
     Multiplexer::instance().getManagedTimer().add(ct);
 
