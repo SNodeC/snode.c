@@ -30,7 +30,6 @@ public:
         , onWriteError(onWriteError) {
     }
 
-
     virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
                          const InetAddress& localAddress = InetAddress()) {
         SocketConnectionImpl* cs = new SocketConnectionImpl(onRead, onReadError, onWriteError,
@@ -107,7 +106,6 @@ public:
                          in_port_t lPort) {
         connect(host, port, onError, InetAddress(lHost, lPort));
     }
-
 
 protected:
     virtual ~SocketClient() {
