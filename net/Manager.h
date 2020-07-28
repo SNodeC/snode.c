@@ -40,8 +40,13 @@ public:
     }
 
     void stop(ManagedDescriptor* socket) {
-        if (socket->isManaged() && !Manager<ManagedDescriptor>::contains(removedDescriptors, socket)) {
-            removedDescriptors.push_back(socket);
+        if (socket->isManaged()) {
+            if (Manager<ManagedDescriptor>::contains(addedDescriptors, socket)) {
+                addedDescriptors.remove(socket);
+                socket->decManaged();
+            } else if (!Manager<ManagedDescriptor>::contains(removedDescriptors, socket)) {
+                removedDescriptors.push_back(socket);
+            }
         }
     }
 
