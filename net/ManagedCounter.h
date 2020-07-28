@@ -8,7 +8,7 @@
 
 class ManagedCounter {
 protected:
-    int managedCounter{0};
+    int managedCounter = 0;
 };
 
 #endif // MANAGEDCOUNTER_H
