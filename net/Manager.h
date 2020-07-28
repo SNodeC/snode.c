@@ -64,6 +64,8 @@ private:
                 std::tie(std::ignore, inserted) = descriptors.insert({fd, descriptor});
                 if (inserted) {
                     FD_SET(fd, &fdSet);
+                } else {
+                    descriptor->decManaged();
                 }
             }
             addedDescriptors.clear();
@@ -77,6 +79,7 @@ private:
                 FD_CLR(fd, &fdSet);
                 descriptors.erase(fd);
                 descriptor->decManaged();
+                descriptor->checkDangling();
             }
             removedDescriptors.clear();
         }
