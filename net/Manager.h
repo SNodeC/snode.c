@@ -41,10 +41,10 @@ public:
 
     void stop(ManagedDescriptor* socket) {
         if (socket->isManaged()) {
-            if (Manager<ManagedDescriptor>::contains(addedDescriptors, socket)) {
+            if (Manager<ManagedDescriptor>::contains(addedDescriptors, socket)) { // stop() on same tick as start()
                 addedDescriptors.remove(socket);
                 socket->decManaged();
-            } else if (!Manager<ManagedDescriptor>::contains(removedDescriptors, socket)) {
+            } else if (!Manager<ManagedDescriptor>::contains(removedDescriptors, socket)) { // stop() asynchronously
                 removedDescriptors.push_back(socket);
             }
         }
