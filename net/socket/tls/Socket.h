@@ -20,6 +20,8 @@ namespace tls {
 
     class Socket : public ::Socket {
     public:
+        using ::Socket::Socket;
+        
         SSL* startSSL(SSL_CTX* ctx);
         void stopSSL();
 
