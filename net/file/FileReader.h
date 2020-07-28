@@ -22,7 +22,7 @@ public:
     static FileReader* read(const std::string& path, const std::function<void(char* data, int len)>& junkRead,
                             const std::function<void(int err)>& onError);
 
-    void stop();
+    void stop() override;
 
     void readEvent() override;
 
