@@ -60,8 +60,11 @@ private:
         if (!addedDescriptors.empty()) {
             for (ManagedDescriptor* descriptor : addedDescriptors) {
                 int fd = dynamic_cast<Descriptor*>(descriptor)->getFd();
-                FD_SET(fd, &fdSet);
-                descriptors[fd] = descriptor;
+                bool inserted = false;
+                std::tie(std::ignore, inserted) = descriptors.insert({fd, descriptor});
+                if (inserted) {
+                    FD_SET(fd, &fdSet);
+                }
             }
             addedDescriptors.clear();
         }
