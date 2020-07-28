@@ -16,11 +16,11 @@ public:
     Socket() = default;
     Socket(const Socket&) = delete;
 
-    Socket& operator=(const Socket&) = delete;
-
     virtual ~Socket();
 
-    void open(const std::function<void(int errnum)>& onError);
+    Socket& operator=(const Socket&) = delete;
+
+    void open(const std::function<void(int errnum)>& onError, int flags = 0);
     void bind(const InetAddress& localAddress, const std::function<void(int errnum)>& onError);
     void reuseAddress(const std::function<void(int errnum)>& onError);
 

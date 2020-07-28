@@ -19,8 +19,6 @@ public:
 
     int getFd() const;
 
-    void setNonBlocking();
-
 private:
     int fd = -1;
 };

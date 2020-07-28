@@ -84,7 +84,7 @@ public:
 
         int csFd = -1;
 
-        csFd = ::accept4(this->getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &addrlen, 0);
+        csFd = ::accept4(this->getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &addrlen, SOCK_NONBLOCK);
 
         if (csFd >= 0) {
             struct sockaddr_in localAddress {};
@@ -99,7 +99,6 @@ public:
 
                 cs->setRemoteAddress(InetAddress(remoteAddress));
                 cs->setLocalAddress(InetAddress(localAddress));
-                cs->setNonBlocking();
 
                 onConnect(cs);
                 cs->::Reader::start();
