@@ -9,6 +9,7 @@
 #include "Logger.h"
 #include "WebApp.h"
 #include "httputils.h"
+#include "socket/SocketConnectionBase.h"
 
 
 HTTPServerContext::HTTPServerContext(const WebApp& webApp, SocketConnectionBase* connectedSocket)

@@ -8,10 +8,10 @@
 #include "HTTPRequestParser.h"
 #include "Request.h"
 #include "Response.h"
-#include "socket/SocketConnectionBase.h"
 
 
 class WebApp;
+class SocketConnectionBase;
 
 class HTTPServerContext {
 public:
