@@ -132,20 +132,22 @@ namespace tls {
             ERR_print_errors_fp(stderr);
             sslErr = ERR_get_error();
             onError(10); // TODO: Error handling
-        } else {         /*
+        } else {
+            /*
             SSL_CTX_set_default_passwd_cb(ctx, SocketServer::passwordCallback);
             SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(password.c_str()));
             if (SSL_CTX_use_certificate_chain_file(ctx, certChain.c_str()) <= 0) {
                 ERR_print_errors_fp(stderr);
                 sslErr = ERR_get_error();
-        } else if (SSL_CTX_use_PrivateKey_file(ctx, keyPEM.c_str(), SSL_FILETYPE_PEM) <= 0) {
-            ERR_print_errors_fp(stderr);
-            sslErr = ERR_get_error();
-        } else if (!SSL_CTX_check_private_key(ctx)) {
-            sslErr = ERR_get_error();
-        }*/
+            } else if (SSL_CTX_use_PrivateKey_file(ctx, keyPEM.c_str(), SSL_FILETYPE_PEM) <= 0) {
+                ERR_print_errors_fp(stderr);
+                sslErr = ERR_get_error();
+            } else if (!SSL_CTX_check_private_key(ctx)) {
+                sslErr = ERR_get_error();
+            }
+            */
+            ::SocketClient<tls::SocketConnection>::connect(host, port, onError, localAddress);
         }
-        ::SocketClient<tls::SocketConnection>::connect(host, port, onError, localAddress);
     }
 
 }; // namespace tls
