@@ -12,7 +12,7 @@ tls::SocketClient tlsClient() {
             connectedSocket->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); //Connection:keep-alive\r\n\r\n");
         },
         []([[maybe_unused]] tls::SocketConnection* connectedSocket) -> void { // onDisconnect
-            std::cout << "OnDisConnect" << std::endl;
+            std::cout << "OnDisconnect" << std::endl;
         },
         []([[maybe_unused]] tls::SocketConnection* connectedSocket, const char* junk, ssize_t junkSize) -> void { // onRead
             std::cout << "OnRead" << std::endl;
@@ -49,7 +49,7 @@ legacy::SocketClient legacyClient() {
             connectedSocket->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); //Connection:keep-alive\r\n\r\n");
         },
         []([[maybe_unused]] legacy::SocketConnection* connectedSocket) -> void { // onDisconnect
-            std::cout << "OnDisConnect" << std::endl;
+            std::cout << "OnDisconnect" << std::endl;
         },
         []([[maybe_unused]] legacy::SocketConnection* connectedSocket, const char* junk, ssize_t junkSize) -> void { // onRead
             std::cout << "OnRead" << std::endl;
