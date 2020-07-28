@@ -25,6 +25,7 @@ namespace tls {
                           , ssl(cs->startSSL(ctx))
                           , onConnect(onConnect) {
                           this->attachFd(cs->getFd());
+
                           int err = SSL_connect(ssl);
                           int sslErr = SSL_get_error(ssl, err);
 
@@ -32,9 +33,7 @@ namespace tls {
                               ::Reader::start();
                           } else if (sslErr == SSL_ERROR_WANT_WRITE) {
                               ::Writer::start();
-                          } else if (sslErr != SSL_ERROR_NONE) {
-                              delete cs;
-                          } else {
+                          } else if (sslErr == SSL_ERROR_NONE) {
                               this->onConnect(cs);
                               delete this;
                           }
@@ -53,6 +52,7 @@ namespace tls {
                                   cs->Reader::start();
                                   this->onConnect(cs);
                               } else {
+                                  ::Reader::stop();
                                   delete cs;
                               }
                           }
@@ -71,6 +71,7 @@ namespace tls {
                                   cs->Reader::start();
                                   this->onConnect(cs);
                               } else {
+                                  ::Writer::stop();
                                   delete cs;
                               }
                           }
@@ -80,6 +81,7 @@ namespace tls {
                           delete this;
                       }
 
+                  private:
                       tls::SocketConnection* cs = nullptr;
                       SSL* ssl = nullptr;
                       std::function<void(tls::SocketConnection* cs)> onConnect;
