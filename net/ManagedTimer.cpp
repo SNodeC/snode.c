@@ -5,7 +5,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "ManagedTimer.h"
-#include "timer/ContinousTimer.h"
+#include "timer/IntervalTimer.h"
 #include "timer/SingleshotTimer.h"
 
 

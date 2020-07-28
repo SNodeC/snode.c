@@ -8,22 +8,22 @@
 #include "Timer.h"
 
 
-class ContinousTimer : public Timer {
+class IntervalTimer : public Timer {
 public:
-    ContinousTimer(const std::function<void(const void* arg, const std::function<void()>& stop)>& dispatcher, const struct timeval& timeout,
-                   const void* arg)
+    IntervalTimer(const std::function<void(const void* arg, const std::function<void()>& stop)>& dispatcher, const struct timeval& timeout,
+                  const void* arg)
         : Timer(timeout, arg)
         , dispatcherS(dispatcher) {
     }
 
-    ContinousTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg)
+    IntervalTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg)
         : Timer(timeout, arg)
         , dispatcherC(dispatcher) {
     }
 
-    ~ContinousTimer() override = default;
+    ~IntervalTimer() override = default;
 
-    ContinousTimer& operator=(const ContinousTimer& timer) = delete;
+    IntervalTimer& operator=(const IntervalTimer& timer) = delete;
 
     bool dispatch() override {
         bool stop = false;

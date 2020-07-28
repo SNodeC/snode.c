@@ -10,7 +10,7 @@
 
 
 class SingleshotTimer;
-class ContinousTimer;
+class IntervalTimer;
 
 class Timer {
 protected:
@@ -22,11 +22,11 @@ public:
     Timer(const Timer&) = delete;
     Timer& operator=(const Timer& timer) = delete;
 
-    static ContinousTimer& continousTimer(const std::function<void(const void* arg, const std::function<void()>& stop)>& dispatcher,
-                                          const struct timeval& timeout, const void* arg);
+    static IntervalTimer& continousTimer(const std::function<void(const void* arg, const std::function<void()>& stop)>& dispatcher,
+                                         const struct timeval& timeout, const void* arg);
 
-    static ContinousTimer& continousTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout,
-                                          const void* arg);
+    static IntervalTimer& continousTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout,
+                                         const void* arg);
 
     static SingleshotTimer& singleshotTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout,
                                             const void* arg);
