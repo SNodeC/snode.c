@@ -23,7 +23,7 @@ public:
 
 protected:
     bool dontClose = false;
-    
+
 private:
     int fd = -1;
 };
