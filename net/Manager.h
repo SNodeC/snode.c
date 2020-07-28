@@ -52,7 +52,7 @@ public:
 
 private:
     int getMaxFd() {
-        int fd = 0;
+        int fd = -1;
 
         if (!descriptors.empty()) {
             fd = descriptors.rbegin()->first;
