@@ -14,7 +14,6 @@ public:
 
     virtual void exceptionEvent() = 0;
 
-protected:
     void start() override;
     void stop() override;
 };

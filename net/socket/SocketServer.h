@@ -9,6 +9,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Logger.h"
+#include "Reader.h"
 #include "Server.h"
 #include "Socket.h"
 
@@ -83,7 +84,7 @@ public:
 
         int csFd = -1;
 
-        csFd = ::accept4(this->getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &addrlen, 0);
+        csFd = ::accept4(this->getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &addrlen, SOCK_NONBLOCK);
 
         if (csFd >= 0) {
             struct sockaddr_in localAddress {};
@@ -98,9 +99,9 @@ public:
 
                 cs->setRemoteAddress(InetAddress(remoteAddress));
                 cs->setLocalAddress(InetAddress(localAddress));
-                cs->setNonBlocking();
 
                 onConnect(cs);
+                cs->::Reader::start();
             } else {
                 PLOG(ERROR) << "getsockname";
                 shutdown(csFd, SHUT_RDWR);

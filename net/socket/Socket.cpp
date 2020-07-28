@@ -10,12 +10,14 @@
 
 
 Socket::~Socket() {
-    ::shutdown(this->getFd(), SHUT_RDWR);
+    if (!dontClose) {
+        ::shutdown(this->getFd(), SHUT_RDWR);
+    }
 }
 
 
-void Socket::open(const std::function<void(int errnum)>& onError) {
-    int fd = ::socket(AF_INET, SOCK_STREAM, 0);
+void Socket::open(const std::function<void(int errnum)>& onError, int flags) {
+    int fd = ::socket(AF_INET, SOCK_STREAM | flags, 0);
 
     if (fd >= 0) {
         this->attachFd(fd);

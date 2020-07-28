@@ -40,8 +40,13 @@ public:
     }
 
     void stop(ManagedDescriptor* socket) {
-        if (socket->isManaged() && !Manager<ManagedDescriptor>::contains(removedDescriptors, socket)) {
-            removedDescriptors.push_back(socket);
+        if (socket->isManaged()) {
+            if (Manager<ManagedDescriptor>::contains(addedDescriptors, socket)) { // stop() on same tick as start()
+                addedDescriptors.remove(socket);
+                socket->decManaged();
+            } else if (!Manager<ManagedDescriptor>::contains(removedDescriptors, socket)) { // stop() asynchronously
+                removedDescriptors.push_back(socket);
+            }
         }
     }
 
@@ -60,8 +65,13 @@ private:
         if (!addedDescriptors.empty()) {
             for (ManagedDescriptor* descriptor : addedDescriptors) {
                 int fd = dynamic_cast<Descriptor*>(descriptor)->getFd();
-                FD_SET(fd, &fdSet);
-                descriptors[fd] = descriptor;
+                bool inserted = false;
+                std::tie(std::ignore, inserted) = descriptors.insert({fd, descriptor});
+                if (inserted) {
+                    FD_SET(fd, &fdSet);
+                } else {
+                    descriptor->decManaged();
+                }
             }
             addedDescriptors.clear();
         }
@@ -74,6 +84,7 @@ private:
                 FD_CLR(fd, &fdSet);
                 descriptors.erase(fd);
                 descriptor->decManaged();
+                descriptor->checkDangling();
             }
             removedDescriptors.clear();
         }

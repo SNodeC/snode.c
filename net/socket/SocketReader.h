@@ -29,19 +29,16 @@ public:
 
         if (ret > 0) {
             onRead(junk, ret);
-        } else {
-            if (errno != EAGAIN) {
-                Reader::stop();
-            }
+        } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
+            Reader::stop();
             this->onError(ret == 0 ? 0 : errno);
-        };
+        }
     }
 
 protected:
     explicit SocketReader(const std::function<void(const char* junk, ssize_t n)>& onRead, const std::function<void(int errnum)>& onError)
         : onRead(onRead)
         , onError(onError) {
-        Reader::start();
     }
 
     ~SocketReader() {

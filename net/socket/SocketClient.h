@@ -10,7 +10,9 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Logger.h"
+#include "Reader.h"
 #include "Socket.h"
+#include "timer/IntervalTimer.h"
 
 
 template <typename SocketConnectionImpl>
@@ -36,44 +38,61 @@ public:
                                                                 this->onDisconnect(cs);
                                                                 delete cs;
                                                             });
-        cs->open([this, &cs, &host, &port, &localAddress, &onError](int err) -> void {
-            if (err) {
-                delete cs;
-                onError(err);
-            } else {
-                cs->bind(localAddress, [this, &cs, &host, &port, &onError](int err) -> void {
-                    if (err) {
-                        onError(err);
-                        delete cs;
-                    } else {
-                        errno = 0;
-                        InetAddress server(host, port);
-                        int ret =
-                            ::connect(cs->getFd(), reinterpret_cast<const sockaddr*>(&server.getSockAddr()), sizeof(server.getSockAddr()));
-                        if (ret == 0) {
-                            struct sockaddr_in localAddress {};
-                            socklen_t addressLength = sizeof(localAddress);
-                            if (getsockname(cs->getFd(), reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
-                                cs->setRemoteAddress(server);
-                                cs->setLocalAddress(InetAddress(localAddress));
-                                cs->setNonBlocking();
-
-                                onConnect(cs);
-                                onError(0);
-                            } else {
-                                int _errno = errno;
-                                PLOG(ERROR) << "getsockname";
-                                onError(_errno);
-                                delete cs;
-                            }
+        cs->open(
+            [this, &cs, &host, &port, &localAddress, &onError](int err) -> void {
+                if (err) {
+                    onError(err);
+                    delete cs;
+                } else {
+                    cs->bind(localAddress, [this, &cs, &host, &port, &onError](int err) -> void {
+                        if (err) {
+                            onError(err);
                         } else {
-                            onError(errno);
-                            delete cs;
+                            InetAddress server(host, port);
+                            errno = 0;
+                            int ret = ::connect(cs->getFd(), reinterpret_cast<const sockaddr*>(&server.getSockAddr()),
+                                                sizeof(server.getSockAddr()));
+
+                            [[maybe_unused]] Timer& ct = Timer::continousTimer(
+                                [this, cs, server, onError]([[maybe_unused]] const void* arg, const std::function<void()>& stop) -> void {
+                                    errno = 0;
+                                    int ret = ::connect(cs->getFd(), reinterpret_cast<const sockaddr*>(&server.getSockAddr()),
+                                                        sizeof(server.getSockAddr()));
+                                    if (ret < 0 && errno != EINPROGRESS) {
+                                        onError(errno);
+                                        delete cs;
+                                        stop();
+                                    } else if (ret == 0) {
+                                        struct sockaddr_in localAddress {};
+                                        socklen_t addressLength = sizeof(localAddress);
+                                        getsockname(cs->getFd(), reinterpret_cast<sockaddr*>(&localAddress), &addressLength);
+                                        cs->setRemoteAddress(server);
+                                        cs->setLocalAddress(InetAddress(localAddress));
+
+                                        onError(0);
+                                        onConnect(cs);
+                                        cs->::Reader::start();
+                                        stop();
+                                    }
+                                },
+                                (struct timeval){0, 0}, "Connect");
+
+                            if (ret < 0) {
+                                onError(errno);
+                                if (errno != EINPROGRESS) {
+                                    ct.cancel();
+                                    delete cs;
+                                }
+                            } else if (ret == 0) {
+                                ct.cancel();
+                                cs->::Reader::start();
+                                onError(0);
+                            }
                         }
-                    }
-                });
-            }
-        });
+                    });
+                }
+            },
+            SOCK_NONBLOCK);
     }
 
     virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, in_port_t lPort) {

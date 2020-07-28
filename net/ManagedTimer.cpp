@@ -5,7 +5,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "ManagedTimer.h"
-#include "timer/ContinousTimer.h"
+#include "timer/IntervalTimer.h"
 #include "timer/SingleshotTimer.h"
 
 
@@ -65,13 +65,7 @@ void ManagedTimer::dispatch() {
 
     for (Timer* timer : timerList) {
         if (timer->timeout() <= currentTime) {
-            timer->dispatch();
-            if (dynamic_cast<SingleshotTimer*>(timer) != nullptr) {
-                remove(timer);
-            } else if (dynamic_cast<ContinousTimer*>(timer) != nullptr) {
-                timer->update();
-                timerListDirty = true;
-            }
+            timerListDirty = timer->dispatch();
         } else {
             break;
         }

@@ -14,7 +14,6 @@ public:
 
     virtual void readEvent() = 0;
 
-protected:
     void start() override;
     void stop() override;
 };
