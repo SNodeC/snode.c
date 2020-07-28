@@ -126,8 +126,18 @@ protected:
             onError(0);
         }
     }
-
+    
 private:
+    void reuseAddress(const std::function<void(int errnum)>& onError) {
+        int sockopt = 1;
+        
+        if (setsockopt(this->getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
+            onError(errno);
+        } else {
+            onError(0);
+        }
+    }
+
     void unmanaged() override {
         delete this;
     }
