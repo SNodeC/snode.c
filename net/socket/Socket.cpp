@@ -10,7 +10,9 @@
 
 
 Socket::~Socket() {
-    ::shutdown(this->getFd(), SHUT_RDWR);
+    if (!dontClose) {
+        ::shutdown(this->getFd(), SHUT_RDWR);
+    }
 }
 
 

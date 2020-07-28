@@ -9,7 +9,9 @@
 
 
 Descriptor::~Descriptor() {
-    ::close(fd);
+    if (!dontClose) {
+        ::close(fd);
+    }
 }
 
 

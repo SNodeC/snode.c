@@ -13,7 +13,10 @@
 
 class Socket : virtual public Descriptor {
 public:
-    Socket() = default;
+    Socket(bool dontClose = false)
+        : Descriptor(dontClose) {
+    }
+
     Socket(const Socket&) = delete;
 
     virtual ~Socket();
