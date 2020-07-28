@@ -77,12 +77,10 @@ public:
                                 (struct timeval){0, 0}, "Connect");
 
                             if (ret < 0) {
+                                onError(errno);
                                 if (errno != EINPROGRESS) {
                                     ct.cancel();
-                                    onError(errno);
                                     delete cs;
-                                } else {
-                                    onError(0);
                                 }
                             } else if (ret == 0) {
                                 ct.cancel();
