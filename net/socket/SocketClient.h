@@ -69,6 +69,7 @@ public:
                                         cs->setRemoteAddress(server);
                                         cs->setLocalAddress(InetAddress(localAddress));
 
+                                        onError(0);
                                         onConnect(cs);
                                         cs->::Reader::start();
                                         stop();
