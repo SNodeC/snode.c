@@ -13,7 +13,6 @@ tls::SocketClient tlsClient() {
         },
         []([[maybe_unused]] tls::SocketConnection* connectedSocket) -> void { // onDisconnect
             std::cout << "OnDisConnect" << std::endl;
-            Multiplexer::stop();
         },
         []([[maybe_unused]] tls::SocketConnection* connectedSocket, const char* junk, ssize_t junkSize) -> void { // onRead
             std::cout << "OnRead" << std::endl;
@@ -52,7 +51,6 @@ legacy::SocketClient legacyClient() {
         },
         []([[maybe_unused]] legacy::SocketConnection* connectedSocket) -> void { // onDisconnect
             std::cout << "OnDisConnect" << std::endl;
-            Multiplexer::stop();
         },
         []([[maybe_unused]] legacy::SocketConnection* connectedSocket, const char* junk, ssize_t junkSize) -> void { // onRead
             std::cout << "OnRead" << std::endl;
