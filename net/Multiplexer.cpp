@@ -43,26 +43,30 @@ void Multiplexer::tick() {
 
     struct timeval tv = managedTimer.getNextTimeout();
 
-    int retval = select(maxFd + 1, &wReadfds, &wWritefds, &wExceptfds, &tv);
+    if (maxFd >= 0 || !managedTimer.empty()) {
+        int retval = select(maxFd + 1, &wReadfds, &wWritefds, &wExceptfds, &tv);
 
-    if (retval >= 0) {
-        managedTimer.dispatch();
-        if (retval > 0) {
-            retval = managedReader.dispatch(wReadfds, retval);
+        if (retval >= 0) {
+            managedTimer.dispatch();
+            if (retval > 0) {
+                retval = managedReader.dispatch(wReadfds, retval);
+            }
+            if (retval > 0) {
+                retval = managedServer.dispatch(wReadfds, retval);
+            }
+            if (retval > 0) {
+                retval = managedWriter.dispatch(wWritefds, retval);
+            }
+            if (retval > 0) {
+                retval = managedExceptions.dispatch(wExceptfds, retval);
+            }
+            assert(retval == 0);
+        } else if (errno != EINTR) {
+            PLOG(ERROR) << "select";
+            stop();
         }
-        if (retval > 0) {
-            retval = managedServer.dispatch(wReadfds, retval);
-        }
-        if (retval > 0) {
-            retval = managedWriter.dispatch(wWritefds, retval);
-        }
-        if (retval > 0) {
-            retval = managedExceptions.dispatch(wExceptfds, retval);
-        }
-        assert(retval == 0);
-    } else if (errno != EINTR) {
-        PLOG(ERROR) << "select";
-        stop();
+    } else {
+        Multiplexer::stopped = true;
     }
 
     managedReader.unobserveStopedDescriptors();

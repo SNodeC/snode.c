@@ -81,3 +81,8 @@ void ManagedTimer::remove(Timer* timer) {
 void ManagedTimer::add(Timer* timer) {
     addedList.push_back(timer);
 }
+
+
+bool ManagedTimer::empty() {
+    return timerList.empty();
+}
