@@ -134,10 +134,6 @@ namespace tls {
                               const std::string& password, const std::function<void(int err)>& onError) {
         ::SocketServer<tls::SocketConnection>::listen(port, backlog, [this, &certChain, &keyPEM, &password, onError](int err) -> void {
             if (!err) {
-                SSL_load_error_strings();
-                SSL_library_init();
-                OpenSSL_add_ssl_algorithms();
-
                 ctx = SSL_CTX_new(TLS_server_method());
                 unsigned long sslErr = 0;
                 if (!ctx) {

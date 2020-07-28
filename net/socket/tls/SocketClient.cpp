@@ -126,10 +126,6 @@ namespace tls {
 
     void SocketClient::connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
                                const InetAddress& localAddress) {
-        SSL_load_error_strings();
-        SSL_library_init();
-        OpenSSL_add_ssl_algorithms();
-
         ctx = SSL_CTX_new(TLS_client_method());
         [[maybe_unused]] unsigned long sslErr = 0;
         if (!ctx) {
