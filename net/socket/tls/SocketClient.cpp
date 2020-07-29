@@ -63,12 +63,11 @@ namespace tls {
                                   ::Writer::start();
                               } else {
                                   timeOut.cancel();
+                                  ::Reader::stop();
                                   if (sslErr == SSL_ERROR_NONE) {
-                                      ::Reader::stop();
                                       cs->Reader::start();
                                       this->onConnect(cs);
                                   } else {
-                                      ::Reader::stop();
                                       cs->stopSSL();
                                       delete cs;
                                   }
@@ -86,12 +85,11 @@ namespace tls {
                                   ::Reader::start();
                               } else {
                                   timeOut.cancel();
+                                  ::Writer::stop();
                                   if (sslErr == SSL_ERROR_NONE) {
-                                      ::Writer::stop();
                                       cs->Reader::start();
                                       this->onConnect(cs);
                                   } else {
-                                      ::Writer::stop();
                                       cs->stopSSL();
                                       delete cs;
                                   }
