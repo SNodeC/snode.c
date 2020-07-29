@@ -46,6 +46,7 @@ public:
                     cs->bind(localAddress, [this, &cs, &host, &port, &onError](int err) -> void {
                         if (err) {
                             onError(err);
+                            delete cs;
                         } else {
                             InetAddress server(host, port);
                             errno = 0;
