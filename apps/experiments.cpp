@@ -11,8 +11,8 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 
-#define MIDDLEWARE(req, res, next) [&](Request&(req), Response&(res), const std::function<void(void)>&(next)) -> void
-#define APPLICATION(req, res) [&](Request&(req), Response&(res)) -> void
+#define MIDDLEWARE(req, res, next) [&](Request & (req), Response & (res), const std::function<void(void)>&(next)) -> void
+#define APPLICATION(req, res) [&](Request & (req), Response & (res)) -> void
 
 #define CERTF "/home/voc/projects/ServerVoc/certs/calisto.home.vchrist.at_-_snode.c.pem"
 #define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c.key.encrypted.pem"
@@ -26,7 +26,7 @@ Router route() {
             VLOG(3) << "Cookie 1: " + req.cookie("searchcookie");
 
             next();
-            
+
             req.setAttribute<std::string>("Hallo");
             req.setAttribute<std::string, "Key1">("World");
             req.setAttribute<int>(3);
@@ -185,11 +185,11 @@ int main(int argc, char** argv) {
                        "Field1: Value1\r\n"
                        "Field2: Field2\r\n"
                        "Field2: Field3\r\n" // is allowed and must be combined with a comma as separator
-//                       "Content-Length: 8\r\n"
+                                            //                       "Content-Length: 8\r\n"
                        "Cookie: MyCookie1=MyValue1; MyCookie2=MyValue2\r\n"
                        "\r\n"
-//                       "juhuhuhu"
-                       ;
+        //                       "juhuhuhu"
+        ;
 
     HTTPRequestParser parser(
         [](std::string& method, std::string& originalUrl, std::string& httpVersion) -> void {
@@ -220,25 +220,25 @@ int main(int argc, char** argv) {
     */
 
     std::cout << "++++++++++++++++++++++++++++++++++" << std::endl;
-//    std::cout << http << std::endl;
+    //    std::cout << http << std::endl;
     std::cout << "----------------------------------" << std::endl;
 
     parser.parse(http.c_str(), http.size());
-//    parser.reset();
+    //    parser.reset();
 
     std::cout << "++++++++++++++++++++++++++++++++++" << std::endl;
-//    std::cout << http << std::endl;
+    //    std::cout << http << std::endl;
     std::cout << "----------------------------------" << std::endl;
 
     parser.parse(http.c_str(), http.size());
-//    parser.reset();
+    //    parser.reset();
 
     std::cout << "++++++++++++++++++++++++++++++++++" << std::endl;
-//    std::cout << http << std::endl;
+    //    std::cout << http << std::endl;
     std::cout << "----------------------------------" << std::endl;
 
     parser.parse(http.c_str(), http.size());
-//    parser.reset();
+    //    parser.reset();
 
     //    std::cout << "HTTP: " << http << std::endl;
 
