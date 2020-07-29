@@ -8,7 +8,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-
 MimeTypes MimeTypes::mimeTypes;
 
 magic_t MimeTypes::magic;
@@ -208,11 +207,9 @@ MimeTypes::MimeTypes() {
     }
 }
 
-
 MimeTypes::~MimeTypes() {
     magic_close(MimeTypes::magic);
 }
-
 
 std::string MimeTypes::contentType(const std::string& file) {
     std::map<std::string, std::string>::iterator it = mimeType.find(std::filesystem::path(file).extension());

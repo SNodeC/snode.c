@@ -41,7 +41,6 @@ namespace utils {
     template <typename Attribute>
     concept InjectedAttribute = std::copy_constructible<Attribute>and std::default_initializable<Attribute>and std::copyable<Attribute>;
 
-
     template <InjectedAttribute Attribute>
     class AttributeProxy {
     public:
@@ -56,7 +55,6 @@ namespace utils {
     private:
         Attribute attribute;
     };
-
 
     class SingleAttributeInjector {
     public:
@@ -111,7 +109,6 @@ namespace utils {
         mutable std::shared_ptr<void> attribute{nullptr};
         mutable std::string attributeType;
     };
-
 
     class MultibleAttributeInjector {
     public:

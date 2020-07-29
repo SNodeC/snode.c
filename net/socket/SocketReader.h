@@ -12,7 +12,6 @@
 
 #include "Reader.h"
 
-
 #define MAX_READ_JUNKSIZE 16384
 
 template <typename SocketImpl>

@@ -7,7 +7,6 @@
 
 #include "Timer.h"
 
-
 class IntervalTimer : public Timer {
 public:
     IntervalTimer(const std::function<void(const void* arg, const std::function<void()>& stop)>& dispatcher, const struct timeval& timeout,

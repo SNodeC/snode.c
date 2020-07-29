@@ -6,7 +6,6 @@
 
 #include "socket/legacy/SocketReader.h"
 
-
 namespace legacy {
 
     ssize_t SocketReader::recv(char* junk, size_t junkSize) {

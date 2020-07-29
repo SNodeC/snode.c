@@ -8,7 +8,6 @@
 #include "socket/SocketServer.h"
 #include "socket/legacy/SocketConnection.h"
 
-
 namespace legacy {
 
     class SocketServer : public ::SocketServer<legacy::SocketConnection> {

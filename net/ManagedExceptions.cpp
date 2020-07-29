@@ -8,7 +8,6 @@
 #include "Descriptor.h" // for Descriptor
 #include "ManagedExceptions.h"
 
-
 int ManagedExceptions::dispatch(const fd_set& fdSet, int count) {
     for (std::pair<int, Exception*> exceptionPair : descriptors) {
         if (FD_ISSET(dynamic_cast<Descriptor*>(exceptionPair.second)->getFd(), &fdSet)) {

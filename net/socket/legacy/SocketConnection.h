@@ -9,7 +9,6 @@
 #include "socket/legacy/SocketReader.h"
 #include "socket/legacy/SocketWriter.h"
 
-
 namespace legacy {
 
     using SocketConnection = ::SocketConnection<legacy::SocketReader, legacy::SocketWriter>;

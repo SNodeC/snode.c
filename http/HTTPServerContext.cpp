@@ -11,7 +11,6 @@
 #include "httputils.h"
 #include "socket/SocketConnectionBase.h"
 
-
 HTTPServerContext::HTTPServerContext(const WebApp& webApp, SocketConnectionBase* connectedSocket)
     : connectedSocket(connectedSocket)
     , webApp(webApp)
@@ -57,7 +56,6 @@ HTTPServerContext::HTTPServerContext(const WebApp& webApp, SocketConnectionBase*
     this->requestCompleted();
 }
 
-
 void HTTPServerContext::receiveRequestData(const char* junk, size_t junkLen) {
     if (!requestInProgress) {
         parser.parse(junk, junkLen);
@@ -65,7 +63,6 @@ void HTTPServerContext::receiveRequestData(const char* junk, size_t junkLen) {
         terminateConnection();
     }
 }
-
 
 void HTTPServerContext::onReadError(int errnum) {
     response.stop();
@@ -75,11 +72,9 @@ void HTTPServerContext::onReadError(int errnum) {
     }
 }
 
-
 void HTTPServerContext::sendResponseData(const char* buf, size_t len) {
     connectedSocket->enqueue(buf, len);
 }
-
 
 void HTTPServerContext::onWriteError(int errnum) {
     response.stop();
@@ -89,20 +84,17 @@ void HTTPServerContext::onWriteError(int errnum) {
     }
 }
 
-
 void HTTPServerContext::requestReady() {
     this->requestInProgress = true;
 
     webApp.dispatch(request, response);
 }
 
-
 void HTTPServerContext::requestCompleted() {
     this->requestInProgress = false;
     request.reset();
     response.reset();
 }
-
 
 void HTTPServerContext::terminateConnection() {
     connectedSocket->end();

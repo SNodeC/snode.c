@@ -6,7 +6,6 @@
 
 #include "socket/legacy/SocketWriter.h"
 
-
 namespace legacy {
 
     ssize_t SocketWriter::send(const char* junk, const size_t junkSize) {

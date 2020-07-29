@@ -13,7 +13,6 @@
 
 #include "HTTPParser.h"
 
-
 class HTTPRequestParser : public HTTPParser {
 public:
     HTTPRequestParser(const std::function<void(std::string&, std::string&, std::string&)>& onRequest,

@@ -10,7 +10,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-
 #define MIDDLEWARE(req, res, next) [&](Request & (req), Response & (res), const std::function<void(void)>&(next)) -> void
 #define APPLICATION(req, res) [&](Request & (req), Response & (res)) -> void
 
@@ -86,10 +85,8 @@ Router route() {
             });
         });
 
-
     return router;
 }
-
 
 tls::WebApp sslMain() {
     tls::WebApp sslApp("/home/voc/projects/ServerVoc/build/html/", CERTF, KEYF, KEYFPASS);
@@ -133,7 +130,6 @@ tls::WebApp sslMain() {
     return sslApp;
 }
 
-
 legacy::WebApp legacyMain() {
     legacy::WebApp legacyApp("/home/voc/projects/ServerVoc/build/html/");
     legacyApp.use(
@@ -149,7 +145,6 @@ legacy::WebApp legacyMain() {
 
     return legacyApp;
 }
-
 
 int simpleWebserver() {
     legacy::WebApp legacyApp(legacyMain());
@@ -178,7 +173,6 @@ int simpleWebserver() {
 
     return 0;
 }
-
 
 int main(int argc, char** argv) {
     std::string http = "GET /admin/new/index.html?hihihi=3343&asdsf=2324 HTTP/1.1\r\n"

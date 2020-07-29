@@ -11,12 +11,10 @@
 #include "Logger.h"
 #include "Multiplexer.h"
 
-
 Multiplexer Multiplexer::multiplexer;
 bool Multiplexer::running = false;
 bool Multiplexer::stopped = true;
 bool Multiplexer::initialized = false;
-
 
 Multiplexer::Multiplexer()
     : managedReader(readfds)
@@ -24,7 +22,6 @@ Multiplexer::Multiplexer()
     , managedWriter(writefds)
     , managedExceptions(exceptfds) {
 }
-
 
 void Multiplexer::tick() {
     managedReader.observeStartedDescriptors();
@@ -75,7 +72,6 @@ void Multiplexer::tick() {
     managedServer.unobserveStopedDescriptors();
 }
 
-
 void Multiplexer::init(int argc, char* argv[]) {
     signal(SIGPIPE, SIG_IGN);
     signal(SIGQUIT, Multiplexer::stoponsig);
@@ -87,7 +83,6 @@ void Multiplexer::init(int argc, char* argv[]) {
 
     Multiplexer::initialized = true;
 }
-
 
 void Multiplexer::start() {
     if (!initialized) {
@@ -125,11 +120,9 @@ void Multiplexer::start() {
     }
 }
 
-
 void Multiplexer::stop() {
     Multiplexer::stopped = true;
 }
-
 
 void Multiplexer::stoponsig([[maybe_unused]] int sig) {
     stop();

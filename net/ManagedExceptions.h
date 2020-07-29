@@ -10,7 +10,6 @@
 #include "Exception.h"
 #include "Manager.h"
 
-
 class ManagedExceptions : public Manager<Exception> {
 public:
     using Manager<Exception>::Manager;

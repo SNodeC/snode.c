@@ -7,7 +7,6 @@
 
 #include "ManagedDescriptor.h"
 
-
 class Writer : public ManagedDescriptor {
 public:
     ~Writer() override = default;

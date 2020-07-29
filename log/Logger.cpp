@@ -10,7 +10,6 @@
 
 #include "Logger.h"
 
-
 INITIALIZE_EASYLOGGINGPP
 
 void Logger::init(int argc, char* argv[]) {
@@ -31,7 +30,6 @@ void Logger::init(int argc, char* argv[]) {
 
     setLevel(2);
 }
-
 
 void Logger::setLevel(int level) {
     el::Configurations defaultConf;
@@ -60,7 +58,6 @@ void Logger::setLevel(int level) {
     el::Loggers::reconfigureLogger("default", defaultConf);
 }
 
-
 void Logger::logToFile(bool yes) {
     el::Configurations defaultConf;
 
@@ -75,7 +72,6 @@ void Logger::logToFile(bool yes) {
 
     el::Loggers::reconfigureLogger("default", defaultConf);
 }
-
 
 void Logger::logToStdOut(bool yes) {
     el::Configurations defaultConf;

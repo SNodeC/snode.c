@@ -10,7 +10,6 @@
 #include "Manager.h"
 #include "Writer.h"
 
-
 class ManagedWriter : public Manager<Writer> {
 public:
     using Manager<Writer>::Manager;

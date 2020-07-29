@@ -6,7 +6,6 @@
 
 #include "socket/tls/Socket.h"
 
-
 namespace tls {
 
     SSL* Socket::startSSL(SSL_CTX* ctx) {
@@ -15,7 +14,6 @@ namespace tls {
 
         return ssl;
     }
-
 
     void Socket::stopSSL() {
         SSL_shutdown(ssl);

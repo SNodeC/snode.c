@@ -25,5 +25,4 @@ protected:
     Level level{INFO};
 };
 
-
 #endif // SNLOGGER_H

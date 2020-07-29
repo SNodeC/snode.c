@@ -12,7 +12,6 @@
 #include "socket/SocketReader.h"
 #include "socket/tls/Socket.h"
 
-
 namespace tls {
 
     class SocketReader : public ::SocketReader<tls::Socket> {

@@ -12,7 +12,6 @@
 #include "socket/SocketReader.h"
 #include "socket/legacy/Socket.h"
 
-
 namespace legacy {
 
     class SocketReader : public ::SocketReader<legacy::Socket> {

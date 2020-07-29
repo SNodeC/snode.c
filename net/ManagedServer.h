@@ -10,7 +10,6 @@
 #include "Manager.h"
 #include "Server.h"
 
-
 class ManagedServer : public Manager<Server> {
 public:
     using Manager<Server>::Manager;

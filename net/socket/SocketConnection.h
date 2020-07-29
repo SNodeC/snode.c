@@ -9,7 +9,6 @@
 
 #include "SocketConnectionBase.h"
 
-
 template <typename SocketReader, typename SocketWriter>
 class SocketConnection
     : public SocketConnectionBase

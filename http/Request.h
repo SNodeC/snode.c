@@ -11,7 +11,6 @@
 
 class HTTPServerContext;
 
-
 class Request : public utils::MultibleAttributeInjector {
 private:
     explicit Request();

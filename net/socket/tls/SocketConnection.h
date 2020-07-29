@@ -9,7 +9,6 @@
 #include "socket/tls/SocketReader.h"
 #include "socket/tls/SocketWriter.h"
 
-
 namespace tls {
 
     using SocketConnection = ::SocketConnection<tls::SocketReader, tls::SocketWriter>;

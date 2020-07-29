@@ -8,7 +8,6 @@
 #include "Descriptor.h" // for Descriptor
 #include "ManagedReader.h"
 
-
 int ManagedReader::dispatch(const fd_set& fdSet, int count) {
     for (std::pair<int, Reader*> readerPair : descriptors) {
         if (FD_ISSET(dynamic_cast<Descriptor*>(readerPair.second)->getFd(), &fdSet)) {

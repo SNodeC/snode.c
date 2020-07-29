@@ -12,7 +12,6 @@
 #include "socket/SocketWriter.h"
 #include "socket/legacy/Socket.h"
 
-
 namespace legacy {
 
     class SocketWriter : public ::SocketWriter<legacy::Socket> {

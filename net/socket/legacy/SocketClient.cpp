@@ -4,5 +4,4 @@
 
 #include "socket/legacy/SocketClient.h"
 
-
 namespace legacy {}; // namespace legacy

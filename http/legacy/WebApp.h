@@ -7,7 +7,6 @@
 
 #include "../WebApp.h"
 
-
 namespace legacy {
 
     class WebApp : public ::WebApp {

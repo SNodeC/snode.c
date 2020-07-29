@@ -8,7 +8,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-
 class HTTPStatusCode {
 public:
     static std::string reason(int status) {

@@ -8,7 +8,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-
 class SingleshotTimer;
 class IntervalTimer;
 
@@ -30,7 +29,6 @@ public:
 
     static SingleshotTimer& singleshotTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout,
                                             const void* arg);
-
 
     void cancel();
 
@@ -61,6 +59,5 @@ bool operator==(const struct timeval& tv1, const struct timeval& tv2);
 
 struct timeval operator+(const struct timeval& tv1, const struct timeval& tv2);
 struct timeval operator-(const struct timeval& tv1, const struct timeval& tv2);
-
 
 #endif // TIMER_H

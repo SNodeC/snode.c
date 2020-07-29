@@ -9,7 +9,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-
 class MimeTypes {
 public:
     MimeTypes(const MimeTypes&) = delete;

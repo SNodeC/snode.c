@@ -10,7 +10,6 @@
 
 #include "timer/Timer.h"
 
-
 class ManagedTimer {
 public:
     ManagedTimer() = default;

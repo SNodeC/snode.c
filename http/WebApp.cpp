@@ -7,7 +7,6 @@
 #include "Multiplexer.h"
 #include "WebApp.h"
 
-
 bool WebApp::initialized{false};
 
 WebApp::WebApp(const std::string& rootDir) {
@@ -18,17 +17,14 @@ WebApp::WebApp(const std::string& rootDir) {
     this->setRootDir(rootDir);
 }
 
-
 void WebApp::init(int argc, char* argv[]) {
     Multiplexer::init(argc, argv);
     WebApp::initialized = true;
 }
 
-
 void WebApp::start() {
     Multiplexer::start();
 }
-
 
 void WebApp::stop() {
     Multiplexer::stop();

@@ -13,7 +13,6 @@
 #include "ManagedTimer.h"
 #include "ManagedWriter.h"
 
-
 class Multiplexer {
 private:
     Multiplexer();
@@ -68,6 +67,5 @@ private:
     static bool stopped;
     static bool initialized;
 };
-
 
 #endif // MULTIPLEXER_H

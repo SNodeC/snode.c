@@ -12,7 +12,6 @@
 #include "Request.h"
 #include "Response.h"
 
-
 #define DREQUESTMETHOD(METHOD)                                                                                                             \
     Router& METHOD(const std::string& path, const std::function<void(Request & req, Response & res)>& dispatcher);                         \
     Router& METHOD(const std::function<void(Request & req, Response & res)>& dispatcher);                                                  \
@@ -21,7 +20,6 @@
     Router& METHOD(const std::string& path,                                                                                                \
                    const std::function<void(Request & req, Response & res, const std::function<void(void)>& next)>& dispatcher);           \
     Router& METHOD(const std::function<void(Request & req, Response & res, const std::function<void(void)>& next)>& dispatcher);
-
 
 class MountPoint {
 private:
@@ -39,7 +37,6 @@ private:
     friend class MiddlewareDispatcher;
     friend class RouterDispatcher;
 };
-
 
 class RouterDispatcher;
 

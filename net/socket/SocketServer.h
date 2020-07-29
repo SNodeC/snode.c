@@ -13,7 +13,6 @@
 #include "Server.h"
 #include "Socket.h"
 
-
 template <typename SocketConnectionImpl>
 class SocketServer
     : public Server

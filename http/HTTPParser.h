@@ -8,7 +8,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-
 class HTTPParser {
 public:
     HTTPParser() = default;

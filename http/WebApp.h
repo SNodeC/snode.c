@@ -10,7 +10,6 @@
 
 #include "Router.h"
 
-
 class WebApp : public Router {
 protected:
     explicit WebApp(const std::string& rootDir = "./");

@@ -9,7 +9,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-
 int timerApp() {
     [[maybe_unused]] const Timer& tick = Timer::continousTimer(
         [](const void* arg, const std::function<void()>& stop) -> void {
@@ -64,7 +63,6 @@ int timerApp() {
         }
     });
 
-
     app.get("/search/", [&](Request& req, Response& res) -> void {
         //                  res.set({{"Content-Length", "7"}});
 
@@ -108,7 +106,6 @@ int timerApp() {
 
     return 0;
 }
-
 
 int simpleWebserver() {
     legacy::WebApp app("/home/voc/projects/ServerVoc/build/html");
@@ -192,9 +189,7 @@ int simpleWebserver() {
         }
     });
 
-
     app.get("/", router);
-
 
     /*
     app.get("/search",
@@ -239,7 +234,6 @@ int simpleWebserver() {
 
     return 0;
 }
-
 
 int testPost() {
     legacy::WebApp app("/home/voc/projects/ServerVoc/build/html");
@@ -306,7 +300,6 @@ int testPost() {
 
     return 0;
 }
-
 
 int main(int argc, char** argv) {
     WebApp::init(argc, argv);

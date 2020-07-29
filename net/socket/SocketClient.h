@@ -14,7 +14,6 @@
 #include "Socket.h"
 #include "timer/IntervalTimer.h"
 
-
 template <typename SocketConnectionImpl>
 class SocketClient {
 public:
@@ -116,6 +115,5 @@ private:
     std::function<void(SocketConnectionImpl* cs, int errnum)> onReadError;
     std::function<void(SocketConnectionImpl* cs, int errnum)> onWriteError;
 };
-
 
 #endif // SOCKETCLIENTBASE_H
