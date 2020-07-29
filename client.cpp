@@ -38,7 +38,15 @@ tls::SocketClient tlsClient() {
             std::cout << "Connected" << std::endl;
         }
     });
-    
+
+    client.connect("localhost", 8088, [] (int err) -> void {
+        if (err) {
+            std::cout << "Connect: " << strerror(err) << std::endl;
+        } else {
+            std::cout << "Connected" << std::endl;
+        }
+    });
+
     return client;
 }
 
@@ -75,7 +83,15 @@ legacy::SocketClient legacyClient() {
             std::cout << "Connected" << std::endl;
         }
     });
-    
+
+    legacyClient.connect("localhost", 8080, [] (int err) -> void {
+        if (err) {
+            std::cout << "Connect: " << strerror(err) << std::endl;
+        } else {
+            std::cout << "Connected" << std::endl;
+        }
+    });
+
     return legacyClient;
 }
 
