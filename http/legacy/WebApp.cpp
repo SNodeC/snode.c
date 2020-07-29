@@ -7,7 +7,6 @@
 #include "HTTPServerContext.h"
 #include "socket/legacy/SocketServer.h"
 
-
 namespace legacy {
 
     void WebApp::listen(int port, const std::function<void(int err)>& onError) {

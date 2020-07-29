@@ -10,7 +10,6 @@
 #include "Manager.h"
 #include "Reader.h"
 
-
 class ManagedReader : public Manager<Reader> {
 public:
     using Manager<Reader>::Manager;

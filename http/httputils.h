@@ -9,7 +9,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-
 namespace httputils {
 
     std::string url_decode(const std::string& text);

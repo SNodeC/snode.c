@@ -11,7 +11,6 @@
 #include "File.h"
 #include "Reader.h"
 
-
 class FileReader
     : public Reader
     , virtual public File {

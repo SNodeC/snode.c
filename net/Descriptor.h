@@ -5,7 +5,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-
 class Descriptor {
 protected:
     Descriptor(bool dontClose = false)

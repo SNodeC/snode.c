@@ -7,7 +7,6 @@
 
 #include "ManagedDescriptor.h"
 
-
 class Exception : public ManagedDescriptor {
 public:
     ~Exception() override = default;
@@ -17,6 +16,5 @@ public:
     void start() override;
     void stop() override;
 };
-
 
 #endif // EXCEPTION_H

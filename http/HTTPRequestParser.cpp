@@ -10,7 +10,6 @@
 #include "Logger.h"
 #include "httputils.h"
 
-
 HTTPRequestParser::HTTPRequestParser(const std::function<void(std::string&, std::string&, std::string&)>& onRequest,
                                      const std::function<void(const std::string&, const std::string&)>& onHeader,
                                      const std::function<void(const std::string&, const std::string&)>& onCookie,
@@ -24,7 +23,6 @@ HTTPRequestParser::HTTPRequestParser(const std::function<void(std::string&, std:
     , onParsed(onParsed)
     , onError(onError) {
 }
-
 
 HTTPRequestParser::HTTPRequestParser(const std::function<void(std::string&, std::string&, std::string&)>&& onRequest,
                                      const std::function<void(const std::string&, const std::string&)>&& onHeader,
@@ -40,7 +38,6 @@ HTTPRequestParser::HTTPRequestParser(const std::function<void(std::string&, std:
     , onError(onError) {
 }
 
-
 void HTTPRequestParser::reset() {
     HTTPParser::reset();
     method.clear();
@@ -49,7 +46,6 @@ void HTTPRequestParser::reset() {
     httpMajor = 0;
     httpMinor = 0;
 }
-
 
 // HTTP/x.x
 static std::regex httpVersionRegex("^HTTP/([[:digit:]])\\.([[:digit:]])$");
@@ -106,7 +102,6 @@ void HTTPRequestParser::parseStartLine(std::string& line) {
     }
 }
 
-
 void HTTPRequestParser::parseHeaderLine(const std::string& field, const std::string& value) {
     VLOG(1) << "++ Header or Cookie: " << field << " = " << value;
     if (field != "cookie") {
@@ -133,17 +128,14 @@ void HTTPRequestParser::parseHeaderLine(const std::string& field, const std::str
     }
 }
 
-
 void HTTPRequestParser::parseBodyData(char* body, size_t size) {
     onBody(body, size);
 }
-
 
 void HTTPRequestParser::parsingFinished() {
     onParsed();
     reset();
 }
-
 
 void HTTPRequestParser::parsingError(int code, const std::string& reason) {
     PAS = PAS::ERROR;

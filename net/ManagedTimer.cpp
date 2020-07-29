@@ -8,7 +8,6 @@
 #include "timer/IntervalTimer.h"
 #include "timer/SingleshotTimer.h"
 
-
 struct timeval ManagedTimer::getNextTimeout() {
     struct timeval tv {
         0, 0
@@ -56,7 +55,6 @@ struct timeval ManagedTimer::getNextTimeout() {
     return tv;
 }
 
-
 void ManagedTimer::dispatch() {
     struct timeval currentTime {
         0, 0
@@ -72,16 +70,13 @@ void ManagedTimer::dispatch() {
     }
 }
 
-
 void ManagedTimer::remove(Timer* timer) {
     removedList.push_back(timer);
 }
 
-
 void ManagedTimer::add(Timer* timer) {
     addedList.push_back(timer);
 }
-
 
 bool ManagedTimer::empty() {
     return timerList.empty();

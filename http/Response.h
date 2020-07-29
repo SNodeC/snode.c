@@ -9,7 +9,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-
 class FileReader;
 class HTTPServerContext;
 
@@ -78,6 +77,5 @@ private:
 
     friend class HTTPServerContext;
 };
-
 
 #endif // RESPONSE_H

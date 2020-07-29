@@ -8,7 +8,6 @@
 #include "socket/SocketServer.h"
 #include "socket/tls/SocketConnection.h"
 
-
 namespace tls {
 
     class SocketServer : public ::SocketServer<tls::SocketConnection> {

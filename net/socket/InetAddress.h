@@ -9,7 +9,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-
 class InetAddress {
 public:
     InetAddress();
@@ -20,7 +19,6 @@ public:
     explicit InetAddress(const struct sockaddr_in& addr);
 
     in_port_t port();
-
 
     ~InetAddress() = default;
 

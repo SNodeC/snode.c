@@ -6,7 +6,6 @@
 
 #include "timer/SingleshotTimer.h"
 
-
 namespace tls {
 
     SocketClient::SocketClient(const std::function<void(tls::SocketConnection* cs)>& onConnect,

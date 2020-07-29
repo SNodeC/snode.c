@@ -12,7 +12,6 @@
 #include "socket/SocketWriter.h"
 #include "socket/tls/Socket.h"
 
-
 namespace tls {
 
     class SocketWriter : public ::SocketWriter<tls::Socket> {

@@ -7,7 +7,6 @@
 
 #include "socket/Socket.h"
 
-
 namespace legacy {
 
     using Socket = ::Socket;

@@ -10,13 +10,11 @@
 
 #include "httputils.h"
 
-
 namespace httputils {
 
     static int from_hex(int ch) {
         return isdigit(ch) ? ch - '0' : tolower(ch) - 'a' + 10;
     }
-
 
     std::string url_decode(const std::string& text) {
         int h;
@@ -42,14 +40,12 @@ namespace httputils {
         return escaped;
     }
 
-
     std::string& str_trimm(std::string& text) {
         text.erase(text.find_last_not_of(" \t") + 1);
         text.erase(0, text.find_first_not_of(" \t"));
 
         return text;
     }
-
 
     std::pair<std::string, std::string> str_split(const std::string& base, char c_middle) {
         std::pair<std::string, std::string> split;
@@ -65,7 +61,6 @@ namespace httputils {
         return split;
     }
 
-
     std::pair<std::string, std::string> str_split_last(const std::string& base, char c_middle) {
         std::pair<std::string, std::string> split;
 
@@ -80,7 +75,6 @@ namespace httputils {
         return split;
     }
 
-
     std::string str_substr_char(const std::string& string, char c, std::string::size_type* pos) {
         std::string::size_type rpos = string.find_first_of(c, *pos);
 
@@ -93,7 +87,6 @@ namespace httputils {
 
         return result;
     }
-
 
     std::string to_http_date(struct tm* tm) {
         char buf[100];
@@ -111,7 +104,6 @@ namespace httputils {
         return std::string(buf);
     }
 
-
     struct tm from_http_date(const std::string& http_date) {
         struct tm tm {};
 
@@ -120,7 +112,6 @@ namespace httputils {
 
         return tm;
     }
-
 
     std::string file_mod_http_date(const std::string& filePath) {
         char buf[100];
@@ -132,7 +123,6 @@ namespace httputils {
 
         return std::string(buf);
     }
-
 
     std::string::iterator to_lower(std::string& string) {
         return std::transform(string.begin(), string.end(), string.begin(), ::tolower);

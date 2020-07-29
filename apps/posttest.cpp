@@ -9,7 +9,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-
 #define CERTF "/home/voc/projects/ServerVoc/certs/calisto.home.vchrist.at_-_snode.c.pem"
 #define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c.key.encrypted.pem"
 #define KEYFPASS "snode.c"
@@ -66,7 +65,6 @@ int testPost() {
         delete[] body;
     });
 
-
     legacyApp.listen(8080, [](int err) -> void {
         if (err != 0) {
             PLOG(FATAL) << "listen on port 8080";
@@ -90,7 +88,6 @@ int testPost() {
 
     return 0;
 }
-
 
 int main(int argc, char** argv) {
     WebApp::init(argc, argv);

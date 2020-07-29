@@ -4,7 +4,6 @@
 
 #include <iostream>
 
-
 tls::SocketClient tlsClient() {
     tls::SocketClient client(
         []([[maybe_unused]] tls::SocketConnection* connectedSocket) -> void { // onConnect
@@ -41,7 +40,6 @@ tls::SocketClient tlsClient() {
 
     return client;
 }
-
 
 legacy::SocketClient legacyClient() {
     legacy::SocketClient legacyClient(
@@ -80,13 +78,11 @@ legacy::SocketClient legacyClient() {
     return legacyClient;
 }
 
-
 int main(int argc, char* argv[]) {
     Multiplexer::init(argc, argv);
 
     tls::SocketClient sc = tlsClient();
     legacy::SocketClient lc = legacyClient();
-
 
     lc.connect("localhost", 8080, [](int err) -> void {
         if (err) {

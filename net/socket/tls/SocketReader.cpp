@@ -6,7 +6,6 @@
 
 #include "socket/tls/SocketReader.h"
 
-
 namespace tls {
 
     ssize_t SocketReader::recv(char* junk, size_t junkSize) {

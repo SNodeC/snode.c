@@ -6,7 +6,6 @@
 
 #include "Router.h"
 
-
 static inline std::string path_concat(const std::string& first, const std::string& second) {
     std::string result;
 
@@ -25,7 +24,6 @@ static inline std::string path_concat(const std::string& first, const std::strin
     return result;
 }
 
-
 class Dispatcher {
 public:
     Dispatcher() = default;
@@ -37,7 +35,6 @@ public:
 
     [[nodiscard]] virtual bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, Request& req, Response& res) const = 0;
 };
-
 
 class Route {
 public:
@@ -55,7 +52,6 @@ private:
     std::shared_ptr<Dispatcher> dispatcher;
 };
 
-
 class RouterDispatcher : public Dispatcher {
 public:
     explicit RouterDispatcher() = default;
@@ -67,7 +63,6 @@ private:
 
     friend class Router;
 };
-
 
 class MiddlewareDispatcher : public Dispatcher {
 public:
@@ -81,7 +76,6 @@ private:
     const std::function<void(Request& req, Response& res, std::function<void(void)>)> dispatcher;
 };
 
-
 class ApplicationDispatcher : public Dispatcher {
 public:
     explicit ApplicationDispatcher(const std::function<void(Request& req, Response& res)>& dispatcher)
@@ -94,11 +88,9 @@ protected:
     const std::function<void(Request& req, Response& res)> dispatcher;
 };
 
-
 bool Route::dispatch(const std::string& parentPath, Request& req, Response& res) const {
     return dispatcher->dispatch(mountPoint, parentPath, req, res);
 }
-
 
 bool RouterDispatcher::dispatch(const MountPoint& mountPoint, const std::string& parentPath, Request& req, Response& res) const {
     bool next = true;
@@ -122,7 +114,6 @@ bool RouterDispatcher::dispatch(const MountPoint& mountPoint, const std::string&
     return next;
 }
 
-
 bool MiddlewareDispatcher::dispatch(const MountPoint& mountPoint, const std::string& parentPath, Request& req, Response& res) const {
     bool next = true;
     std::string cpath = path_concat(parentPath, mountPoint.path);
@@ -143,7 +134,6 @@ bool MiddlewareDispatcher::dispatch(const MountPoint& mountPoint, const std::str
     return next;
 }
 
-
 bool ApplicationDispatcher::dispatch(const MountPoint& mountPoint, const std::string& parentPath, Request& req, Response& res) const {
     bool next = true;
     std::string cpath = path_concat(parentPath, mountPoint.path);
@@ -163,18 +153,15 @@ bool ApplicationDispatcher::dispatch(const MountPoint& mountPoint, const std::st
     return next;
 }
 
-
 const MountPoint Router::mountPoint("use", "/");
 
 Router::Router()
     : routerDispatcher(new RouterDispatcher()) {
 }
 
-
 void Router::dispatch(Request& req, Response& res) const {
     [[maybe_unused]] bool next = routerDispatcher->dispatch(Router::mountPoint, "/", req, res);
 }
-
 
 #define REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                                 \
     Router& Router::METHOD(const std::string& path, const std::function<void(Request & req, Response & res)>& dispatcher) {                \
@@ -207,7 +194,6 @@ void Router::dispatch(Request& req, Response& res) const {
         routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, "", std::make_shared<MiddlewareDispatcher>(dispatcher)));           \
         return *this;                                                                                                                      \
     };
-
 
 REQUESTMETHOD(use, "use");
 REQUESTMETHOD(all, "all");

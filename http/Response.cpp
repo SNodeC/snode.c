@@ -13,11 +13,9 @@
 #include "file/FileReader.h"
 #include "httputils.h"
 
-
 Response::Response(HTTPServerContext* httpContext)
     : httpContext(httpContext) {
 }
-
 
 void Response::enqueue(const char* buf, size_t len) {
     if (!headersSent && !headersSentInProgress) {
@@ -45,18 +43,15 @@ void Response::enqueue(const char* buf, size_t len) {
     }
 }
 
-
 void Response::enqueue(const std::string& str) {
     this->enqueue(str.c_str(), str.size());
 }
-
 
 Response& Response::status(int status) {
     this->responseStatus = status;
 
     return *this;
 }
-
 
 Response& Response::append(const std::string& field, const std::string& value) {
     std::map<std::string, std::string>::iterator it = this->responseHeader.find(field);
@@ -70,7 +65,6 @@ Response& Response::append(const std::string& field, const std::string& value) {
     return *this;
 }
 
-
 Response& Response::set(const std::map<std::string, std::string>& map, bool overwrite) {
     for (const std::pair<const std::string, std::string>& header : map) {
         this->set(header.first, header.second, overwrite);
@@ -78,7 +72,6 @@ Response& Response::set(const std::map<std::string, std::string>& map, bool over
 
     return *this;
 }
-
 
 Response& Response::set(const std::string& field, const std::string& value, bool overwrite) {
     if (overwrite) {
@@ -94,20 +87,17 @@ Response& Response::set(const std::string& field, const std::string& value, bool
     return *this;
 }
 
-
 Response& Response::type(const std::string& type) {
     this->set({{"Content-Type", type}});
 
     return *this;
 }
 
-
 Response& Response::cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options) {
     this->responseCookies.insert({name, ResponseCookie(value, options)});
 
     return *this;
 }
-
 
 Response& Response::clearCookie(const std::string& name, const std::map<std::string, std::string>& options) {
     std::map<std::string, std::string> opts = options;
@@ -121,7 +111,6 @@ Response& Response::clearCookie(const std::string& name, const std::map<std::str
     return *this;
 }
 
-
 void Response::send(const char* buffer, size_t size) {
     if (size > 0) {
         responseHeader.insert({"Content-Type", "application/octet-stream"});
@@ -131,14 +120,12 @@ void Response::send(const char* buffer, size_t size) {
     this->enqueue(buffer, size);
 }
 
-
 void Response::send(const std::string& text) {
     if (text.size() > 0) {
         responseHeader.insert({"Content-Type", "text/html; charset=utf-8"});
     }
     this->send(text.c_str(), text.size());
 }
-
 
 void Response::sendHeader() {
     this->enqueue("HTTP/1.1 " + std::to_string(responseStatus) + " " + HTTPStatusCode::reason(responseStatus) + "\r\n");
@@ -164,14 +151,12 @@ void Response::sendHeader() {
     contentLength = std::stoi(responseHeader.find("Content-Length")->second);
 }
 
-
 void Response::stop() {
     if (fileReader != nullptr) {
         fileReader->stop();
         fileReader = nullptr;
     }
 }
-
 
 void Response::sendFile(const std::string& file, const std::function<void(int err)>& onError) {
     std::string absolutFileName = httpContext->webApp.getRootDir() + file;
@@ -219,7 +204,6 @@ void Response::sendFile(const std::string& file, const std::function<void(int er
     }
 }
 
-
 void Response::download(const std::string& file, const std::function<void(int err)>& onError) {
     std::string name = file;
 
@@ -230,33 +214,27 @@ void Response::download(const std::string& file, const std::function<void(int er
     this->download(file, name, onError);
 }
 
-
 void Response::download(const std::string& file, const std::string& name, const std::function<void(int err)>& onError) {
     this->set({{"Content-Disposition", "attachment; filename=\"" + name + "\""}}).sendFile(file, onError);
 }
 
-
 void Response::redirect(const std::string& name) {
     this->redirect(302, name);
 }
-
 
 void Response::redirect(int status, const std::string& name) {
     this->status(status).set({{"Location", name}});
     this->end();
 }
 
-
 void Response::sendStatus(int status) {
     this->status(status).send(HTTPStatusCode::reason(status));
 }
-
 
 void Response::end() {
     this->send("");
     this->httpContext->requestCompleted();
 }
-
 
 void Response::reset() {
     headersSent = false;

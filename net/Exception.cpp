@@ -3,7 +3,6 @@
 #include "ManagedExceptions.h" // for ManagedExceptions
 #include "Multiplexer.h"
 
-
 void Exception::start() {
     Multiplexer::instance().getManagedExceptions().start(this);
 }

@@ -7,7 +7,6 @@
 
 #include "ManagedDescriptor.h"
 
-
 class Reader : public ManagedDescriptor {
 public:
     ~Reader() override = default;
@@ -17,6 +16,5 @@ public:
     void start() override;
     void stop() override;
 };
-
 
 #endif // READER_H

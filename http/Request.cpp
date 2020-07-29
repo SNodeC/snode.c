@@ -6,10 +6,8 @@
 
 #include "httputils.h"
 
-
 Request::Request() {
 }
-
 
 const std::string& Request::header(const std::string& key, int i) const {
     std::string tmpKey = key;
@@ -30,7 +28,6 @@ const std::string& Request::header(const std::string& key, int i) const {
     }
 }
 
-
 const std::string& Request::cookie(const std::string& key) const {
     std::map<std::string, std::string>::const_iterator it;
 
@@ -41,11 +38,9 @@ const std::string& Request::cookie(const std::string& key) const {
     }
 }
 
-
 int Request::bodyLength() const {
     return contentLength;
 }
-
 
 const std::string& Request::query(const std::string& key) const {
     std::map<std::string, std::string>::const_iterator it;
@@ -56,7 +51,6 @@ const std::string& Request::query(const std::string& key) const {
         return nullstr;
     }
 }
-
 
 void Request::reset() {
     requestHeader.clear();

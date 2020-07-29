@@ -9,7 +9,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-
 #define MIDDLEWARE(req, res, next) [&](Request & (req), Response & (res), const std::function<void(void)>&(next)) -> void
 #define APPLICATION(req, res) [&](Request & (req), Response & (res)) -> void
 

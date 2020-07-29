@@ -7,18 +7,15 @@
 
 #include "Descriptor.h"
 
-
 Descriptor::~Descriptor() {
     if (!dontClose) {
         ::close(fd);
     }
 }
 
-
 void Descriptor::attachFd(int fd) {
     this->fd = fd;
 }
-
 
 int Descriptor::getFd() const {
     if (fd < 0) {

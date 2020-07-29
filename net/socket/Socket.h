@@ -10,7 +10,6 @@
 #include "Descriptor.h"
 #include "socket/InetAddress.h"
 
-
 class Socket : virtual public Descriptor {
 public:
     Socket() = default;

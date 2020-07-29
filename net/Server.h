@@ -7,7 +7,6 @@
 
 #include "ManagedDescriptor.h"
 
-
 class Server : public ManagedDescriptor {
 public:
     ~Server() override = default;
@@ -17,6 +16,5 @@ public:
     void start() override;
     void stop() override;
 };
-
 
 #endif // SERVER_H

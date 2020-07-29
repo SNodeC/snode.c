@@ -8,13 +8,11 @@
 
 #include "Socket.h"
 
-
 Socket::~Socket() {
     if (!dontClose) {
         ::shutdown(this->getFd(), SHUT_RDWR);
     }
 }
-
 
 void Socket::open(const std::function<void(int errnum)>& onError, int flags) {
     int fd = ::socket(AF_INET, SOCK_STREAM | flags, 0);
@@ -27,11 +25,9 @@ void Socket::open(const std::function<void(int errnum)>& onError, int flags) {
     }
 }
 
-
 InetAddress& Socket::getLocalAddress() {
     return localAddress;
 }
-
 
 void Socket::bind(const InetAddress& localAddress, const std::function<void(int errnum)>& onError) {
     socklen_t addrlen = sizeof(struct sockaddr_in);
@@ -44,7 +40,6 @@ void Socket::bind(const InetAddress& localAddress, const std::function<void(int 
         onError(0);
     }
 }
-
 
 void Socket::setLocalAddress(const InetAddress& localAddress) {
     this->localAddress = localAddress;

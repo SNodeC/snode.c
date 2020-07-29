@@ -5,7 +5,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-
 class ManagedCounter {
 protected:
     int managedCounter = 0;

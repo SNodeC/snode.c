@@ -7,7 +7,6 @@
 #include "HTTPServerContext.h"
 #include "socket/tls/SocketServer.h"
 
-
 namespace tls {
 
     void WebApp::listen(int port, const std::function<void(int err)>& onError) {

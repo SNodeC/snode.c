@@ -3,12 +3,10 @@
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "socket/tls/SocketServer.h"
 #include "timer/SingleshotTimer.h"
-
 
 namespace tls {
 
@@ -141,14 +139,12 @@ namespace tls {
         , ctx(nullptr) {
     }
 
-
     SocketServer::~SocketServer() {
         if (ctx) {
             SSL_CTX_free(ctx);
             ctx = nullptr;
         }
     }
-
 
     void SocketServer::listen(in_port_t port, int backlog, const std::string& certChain, const std::string& keyPEM,
                               const std::string& password, const std::function<void(int err)>& onError) {
@@ -178,7 +174,6 @@ namespace tls {
             }
         });
     }
-
 
     int SocketServer::passwordCallback(char* buf, int size, int rwflag, void* u) {
         strncpy(buf, static_cast<char*>(u), size);

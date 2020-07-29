@@ -6,7 +6,6 @@
 
 #include "socket/tls/SocketWriter.h"
 
-
 namespace tls {
 
     ssize_t SocketWriter::send(const char* junk, const size_t junkSize) {

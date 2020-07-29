@@ -9,7 +9,6 @@
 #include "HTTPParser.h"
 #include "httputils.h"
 
-
 void HTTPParser::reset() {
     PAS = PAS::FIRSTLINE;
     contentLength = 0;
@@ -18,7 +17,6 @@ void HTTPParser::reset() {
         bodyData = nullptr;
     }
 }
-
 
 void HTTPParser::parse(const char* buf, size_t count) {
     size_t processed = 0;
@@ -39,7 +37,6 @@ void HTTPParser::parse(const char* buf, size_t count) {
         };
     }
 }
-
 
 size_t HTTPParser::readStartLine(const char* buf, size_t count) {
     size_t consumed = 0;
@@ -62,7 +59,6 @@ size_t HTTPParser::readStartLine(const char* buf, size_t count) {
 
     return consumed;
 }
-
 
 size_t HTTPParser::readHeaderLine(const char* buf, size_t count) {
     size_t consumed = 0;
@@ -111,7 +107,6 @@ size_t HTTPParser::readHeaderLine(const char* buf, size_t count) {
     return consumed;
 }
 
-
 void HTTPParser::splitHeaderLine(const std::string& line) {
     if (!line.empty()) {
         std::string field;
@@ -134,7 +129,6 @@ void HTTPParser::splitHeaderLine(const std::string& line) {
         parsingError(400, "Header-line empty");
     }
 }
-
 
 size_t HTTPParser::readBodyData(const char* buf, size_t count) {
     if (contentRead == 0) {
@@ -164,7 +158,6 @@ size_t HTTPParser::readBodyData(const char* buf, size_t count) {
 
     return count;
 }
-
 
 enum HTTPParser::HTTPCompliance operator|(const enum HTTPParser::HTTPCompliance& c1, const enum HTTPParser::HTTPCompliance& c2) {
     return static_cast<enum HTTPParser::HTTPCompliance>(static_cast<unsigned short>(c1) | static_cast<unsigned short>(c2));

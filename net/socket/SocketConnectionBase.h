@@ -7,7 +7,6 @@
 
 #include "AttributeInjector.h"
 
-
 class SocketConnectionBase {
 public:
     SocketConnectionBase() = default;

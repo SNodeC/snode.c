@@ -7,7 +7,6 @@
 
 #include "../WebApp.h"
 
-
 namespace tls {
 
     class WebApp : public ::WebApp {

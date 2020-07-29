@@ -10,7 +10,6 @@
 
 #include "FileReader.h"
 
-
 FileReader::FileReader(int fd, const std::function<void(char* data, int len)>& junkRead, const std::function<void(int err)>& onError)
     : junkRead(junkRead)
     , onError(onError)
@@ -18,7 +17,6 @@ FileReader::FileReader(int fd, const std::function<void(char* data, int len)>& j
     this->attachFd(fd);
     Reader::start();
 }
-
 
 FileReader* FileReader::read(const std::string& path, const std::function<void(char* data, int len)>& junkRead,
                              const std::function<void(int err)>& onError) {
@@ -35,7 +33,6 @@ FileReader* FileReader::read(const std::string& path, const std::function<void(c
     return fileReader;
 }
 
-
 void FileReader::stop() {
     if (!stopped) {
         Reader::stop();
@@ -44,11 +41,9 @@ void FileReader::stop() {
     }
 }
 
-
 void FileReader::unmanaged() {
     delete this;
 }
-
 
 void FileReader::readEvent() {
     static char buffer[MFREADSIZE];

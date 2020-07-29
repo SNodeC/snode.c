@@ -7,7 +7,6 @@
 
 #include "ManagedCounter.h"
 
-
 class ManagedDescriptor : virtual public ManagedCounter {
 public:
     ManagedDescriptor() = default;
