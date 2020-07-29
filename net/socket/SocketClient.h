@@ -68,6 +68,7 @@ public:
                                           },
                                           (struct timeval){10, 0}, nullptr)) {
                                     this->attachFd(cs->getFd());
+
                                     errno = 0;
                                     int ret = ::connect(cs->getFd(), reinterpret_cast<const sockaddr*>(&server.getSockAddr()),
                                                         sizeof(server.getSockAddr()));
