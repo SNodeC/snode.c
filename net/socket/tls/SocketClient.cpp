@@ -4,6 +4,8 @@
 
 #include "socket/tls/SocketClient.h"
 
+#include "timer/SingleshotTimer.h"
+
 
 namespace tls {
 
@@ -23,7 +25,16 @@ namespace tls {
                           : Descriptor(true)
                           , cs(cs)
                           , ssl(cs->startSSL(ctx))
-                          , onConnect(onConnect) {
+                          , onConnect(onConnect)
+                          , timeOut(Timer::singleshotTimer(
+                                [this]([[maybe_unused]] const void* arg) -> void {
+                                    std::cout << "Timeout triggered" << std::endl;
+                                    this->::Reader::stop();
+                                    this->::Writer::stop();
+                                    this->cs->stopSSL();
+                                    delete this->cs;
+                                },
+                                (struct timeval){10, 0}, nullptr)) {
                           this->attachFd(cs->getFd());
 
                           int err = SSL_connect(ssl);
@@ -33,8 +44,11 @@ namespace tls {
                               ::Reader::start();
                           } else if (sslErr == SSL_ERROR_WANT_WRITE) {
                               ::Writer::start();
-                          } else if (sslErr == SSL_ERROR_NONE) {
-                              this->onConnect(cs);
+                          } else {
+                              if (sslErr == SSL_ERROR_NONE) {
+                                  onConnect(cs);
+                              }
+                              timeOut.cancel();
                               delete this;
                           }
                       }
@@ -47,13 +61,17 @@ namespace tls {
                               if (sslErr == SSL_ERROR_WANT_WRITE) {
                                   ::Reader::stop();
                                   ::Writer::start();
-                              } else if (sslErr == SSL_ERROR_NONE) {
-                                  ::Reader::stop();
-                                  cs->Reader::start();
-                                  this->onConnect(cs);
                               } else {
-                                  ::Reader::stop();
-                                  delete cs;
+                                  timeOut.cancel();
+                                  if (sslErr == SSL_ERROR_NONE) {
+                                      ::Reader::stop();
+                                      cs->Reader::start();
+                                      this->onConnect(cs);
+                                  } else {
+                                      ::Reader::stop();
+                                      cs->stopSSL();
+                                      delete cs;
+                                  }
                               }
                           }
                       }
@@ -66,13 +84,17 @@ namespace tls {
                               if (sslErr == SSL_ERROR_WANT_READ) {
                                   ::Writer::stop();
                                   ::Reader::start();
-                              } else if (sslErr == SSL_ERROR_NONE) {
-                                  ::Writer::stop();
-                                  cs->Reader::start();
-                                  this->onConnect(cs);
                               } else {
-                                  ::Writer::stop();
-                                  delete cs;
+                                  timeOut.cancel();
+                                  if (sslErr == SSL_ERROR_NONE) {
+                                      ::Writer::stop();
+                                      cs->Reader::start();
+                                      this->onConnect(cs);
+                                  } else {
+                                      ::Writer::stop();
+                                      cs->stopSSL();
+                                      delete cs;
+                                  }
                               }
                           }
                       }
@@ -85,6 +107,7 @@ namespace tls {
                       tls::SocketConnection* cs = nullptr;
                       SSL* ssl = nullptr;
                       std::function<void(tls::SocketConnection* cs)> onConnect;
+                      Timer& timeOut;
                   };
 
                   new SSLConnect(cs, ctx, onConnect);
