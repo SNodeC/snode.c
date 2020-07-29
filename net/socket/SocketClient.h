@@ -32,11 +32,8 @@ public:
 
     virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
                          const InetAddress& localAddress = InetAddress()) {
-        SocketConnectionImpl* cs = new SocketConnectionImpl(onRead, onReadError, onWriteError,
-                                                            [this](SocketConnectionImpl* cs) -> void { // onDisconnect
-                                                                this->onDisconnect(cs);
-                                                                delete cs;
-                                                            });
+        SocketConnectionImpl* cs = SocketConnectionImpl::create(onRead, onReadError, onWriteError, onDisconnect);
+
         cs->open(
             [this, &cs, &host, &port, &localAddress, &onError](int err) -> void {
                 if (err) {

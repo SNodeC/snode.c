@@ -91,11 +91,7 @@ public:
             socklen_t addressLength = sizeof(localAddress);
 
             if (getsockname(csFd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
-                SocketConnectionImpl* cs = new SocketConnectionImpl(csFd, onRead, onReadError, onWriteError,
-                                                                    [this](SocketConnectionImpl* cs) -> void { // onDisconnect
-                                                                        this->onDisconnect(cs);
-                                                                        delete cs;
-                                                                    });
+                SocketConnectionImpl* cs = SocketConnectionImpl::create(csFd, onRead, onReadError, onWriteError, onDisconnect);
 
                 cs->setRemoteAddress(InetAddress(remoteAddress));
                 cs->setLocalAddress(InetAddress(localAddress));
