@@ -21,8 +21,10 @@ namespace tls {
                       , public Writer
                       , public Socket {
                   public:
-                      TLSConnect(tls::SocketConnection* cs, SSL_CTX* ctx, const std::function<void(tls::SocketConnection* cs)>& onConnect)
+                      TLSConnect(tls::SocketClient* sc, tls::SocketConnection* cs, SSL_CTX* ctx,
+                                 const std::function<void(tls::SocketConnection* cs)>& onConnect)
                           : Descriptor(true)
+                          , sc(sc)
                           , cs(cs)
                           , ssl(cs->startSSL(ctx))
                           , onConnect(onConnect)
@@ -46,7 +48,10 @@ namespace tls {
                               ::Writer::start();
                           } else {
                               if (sslErr == SSL_ERROR_NONE) {
+                                  sc->onError(0);
                                   onConnect(cs);
+                              } else {
+                                  sc->onError(-sslErr);
                               }
                               timeOut.cancel();
                               delete this;
@@ -66,8 +71,10 @@ namespace tls {
                                   ::Reader::stop();
                                   if (sslErr == SSL_ERROR_NONE) {
                                       cs->Reader::start();
+                                      sc->onError(0);
                                       this->onConnect(cs);
                                   } else {
+                                      sc->onError(-sslErr);
                                       cs->stopSSL();
                                       delete cs;
                                   }
@@ -88,8 +95,10 @@ namespace tls {
                                   ::Writer::stop();
                                   if (sslErr == SSL_ERROR_NONE) {
                                       cs->Reader::start();
+                                      sc->onError(0);
                                       this->onConnect(cs);
                                   } else {
+                                      sc->onError(-sslErr);
                                       cs->stopSSL();
                                       delete cs;
                                   }
@@ -102,13 +111,14 @@ namespace tls {
                       }
 
                   private:
+                      tls::SocketClient* sc = nullptr;
                       tls::SocketConnection* cs = nullptr;
                       SSL* ssl = nullptr;
                       std::function<void(tls::SocketConnection* cs)> onConnect;
                       Timer& timeOut;
                   };
 
-                  new TLSConnect(cs, ctx, onConnect);
+                  new TLSConnect(this, cs, ctx, onConnect);
 
                   /*
                    *   X509* client_cert = SSL_get_peer_certificate(ssl);
@@ -164,6 +174,19 @@ namespace tls {
             SSL_CTX_free(ctx);
             ctx = nullptr;
         }
+    }
+
+    void SocketClient::connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
+                               const InetAddress& localAddress) {
+        this->onError = onError;
+        ::SocketClient<tls::SocketConnection>::connect(
+            host, port,
+            [this](int err) -> void {
+                if (err) {
+                    this->onError(err);
+                }
+            },
+            localAddress);
     }
 
 }; // namespace tls

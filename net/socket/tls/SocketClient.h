@@ -23,6 +23,9 @@ namespace tls {
 
         ~SocketClient();
 
+        void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
+                     const InetAddress& localAddress = InetAddress()) override;
+
     private:
         SSL_CTX* ctx;
 
@@ -32,6 +35,8 @@ namespace tls {
         std::function<void(tls::SocketConnection* cs, const char* junk, ssize_t n)> onRead;
         std::function<void(tls::SocketConnection* cs, int errnum)> onReadError;
         std::function<void(tls::SocketConnection* cs, int errnum)> onWriteError;
+
+        std::function<void(int err)> onError;
     };
 
 } // namespace tls
