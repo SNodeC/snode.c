@@ -16,12 +16,12 @@ namespace tls {
                                const std::function<void(tls::SocketConnection* cs, int errnum)>& onWriteError)
         : ::SocketClient<tls::SocketConnection>(
               [this, onConnect](tls::SocketConnection* cs) -> void {
-                  class SSLConnect
+                  class TLSConnect
                       : public Reader
                       , public Writer
                       , public Socket {
                   public:
-                      SSLConnect(tls::SocketConnection* cs, SSL_CTX* ctx, const std::function<void(tls::SocketConnection* cs)>& onConnect)
+                      TLSConnect(tls::SocketConnection* cs, SSL_CTX* ctx, const std::function<void(tls::SocketConnection* cs)>& onConnect)
                           : Descriptor(true)
                           , cs(cs)
                           , ssl(cs->startSSL(ctx))
@@ -110,7 +110,7 @@ namespace tls {
                       Timer& timeOut;
                   };
 
-                  new SSLConnect(cs, ctx, onConnect);
+                  new TLSConnect(cs, ctx, onConnect);
 
                   /*
                    *   X509* client_cert = SSL_get_peer_certificate(ssl);
