@@ -29,9 +29,6 @@ namespace tls {
     private:
         SSL_CTX* ctx;
 
-    protected:
-        using ::SocketClient<tls::SocketConnection>::connect;
-
     private:
         std::function<void(tls::SocketConnection* cs)> onConnect;
         std::function<void(tls::SocketConnection* cs)> onDisconnect;
