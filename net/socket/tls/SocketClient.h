@@ -23,23 +23,6 @@ namespace tls {
 
         ~SocketClient();
 
-        void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
-                     const InetAddress& localAddress = InetAddress()) override;
-
-        void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, in_port_t lPort) override {
-            connect(host, port, onError, InetAddress(lPort));
-        }
-
-        void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
-                     const std::string lHost) override {
-            connect(host, port, onError, InetAddress(lHost));
-        }
-
-        void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, const std::string lHost,
-                     in_port_t lPort) override {
-            connect(host, port, onError, InetAddress(lHost, lPort));
-        }
-
     private:
         SSL_CTX* ctx;
 
