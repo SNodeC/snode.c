@@ -39,16 +39,9 @@ tls::SocketClient tlsClient() {
         }
     });
 
-    client.connect("localhost", 8088, [](int err) -> void {
-        if (err) {
-            std::cout << "Connect: " << strerror(err) << std::endl;
-        } else {
-            std::cout << "Connected" << std::endl;
-        }
-    });
-
     return client;
 }
+
 
 legacy::SocketClient legacyClient() {
     legacy::SocketClient legacyClient(
@@ -84,14 +77,6 @@ legacy::SocketClient legacyClient() {
         }
     });
 
-    legacyClient.connect("localhost", 8080, [](int err) -> void {
-        if (err) {
-            std::cout << "Connect: " << strerror(err) << std::endl;
-        } else {
-            std::cout << "Connected" << std::endl;
-        }
-    });
-
     return legacyClient;
 }
 
@@ -101,6 +86,23 @@ int main(int argc, char* argv[]) {
 
     tls::SocketClient sc = tlsClient();
     legacy::SocketClient lc = legacyClient();
+    
+    
+    lc.connect("localhost", 8080, [](int err) -> void {
+        if (err) {
+            std::cout << "Connect: " << strerror(err) << std::endl;
+        } else {
+            std::cout << "Connected" << std::endl;
+        }
+    });
+    
+    sc.connect("localhost", 8088, [](int err) -> void {
+        if (err) {
+            std::cout << "Connect: " << strerror(err) << std::endl;
+        } else {
+            std::cout << "Connected" << std::endl;
+        }
+    });
 
     Multiplexer::start();
 
