@@ -32,6 +32,7 @@ namespace tls {
                                     std::cout << "Timeout triggered" << std::endl;
                                     this->::Reader::stop();
                                     this->::Writer::stop();
+                                    this->sc->onError(ETIMEDOUT);
                                     this->cs->stopSSL();
                                     delete this->cs;
                                 },

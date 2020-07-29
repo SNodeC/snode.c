@@ -12,7 +12,8 @@
 #include "Logger.h"
 #include "Reader.h"
 #include "Socket.h"
-#include "timer/IntervalTimer.h"
+#include "Writer.h"
+#include "timer/SingleshotTimer.h"
 
 template <typename SocketConnectionImpl>
 class SocketClient {
@@ -46,19 +47,65 @@ public:
                         } else {
                             InetAddress server(host, port);
                             errno = 0;
-                            int ret = ::connect(cs->getFd(), reinterpret_cast<const sockaddr*>(&server.getSockAddr()),
-                                                sizeof(server.getSockAddr()));
 
-                            [[maybe_unused]] Timer& ct = Timer::continousTimer(
-                                [this, cs, server, onError]([[maybe_unused]] const void* arg, const std::function<void()>& stop) -> void {
+                            class Connect
+                                : public Writer
+                                , public Socket {
+                            public:
+                                Connect(SocketConnectionImpl* cs, InetAddress server,
+                                        const std::function<void(SocketConnectionImpl* cs)>& onConnect,
+                                        const std::function<void(int err)>& onError)
+                                    : Descriptor(true)
+                                    , cs(cs)
+                                    , server(server)
+                                    , onConnect(onConnect)
+                                    , onError(onError)
+                                    , timeOut(Timer::singleshotTimer(
+                                          [this]([[maybe_unused]] const void* arg) -> void {
+                                              this->onError(ETIMEDOUT);
+                                              this->::Writer::stop();
+                                              delete this->cs;
+                                          },
+                                          (struct timeval){10, 0}, nullptr)) {
+                                    this->attachFd(cs->getFd());
                                     errno = 0;
                                     int ret = ::connect(cs->getFd(), reinterpret_cast<const sockaddr*>(&server.getSockAddr()),
                                                         sizeof(server.getSockAddr()));
-                                    if (ret < 0 && errno != EINPROGRESS) {
-                                        onError(errno);
+
+                                    if (ret == 0) {
+                                        timeOut.cancel();
+                                        onConnect(cs);
+                                        cs->::Reader::start();
+                                        delete this;
+                                    } else {
+                                        if (errno == EINPROGRESS) {
+                                            ::Writer::start();
+                                        } else {
+                                            timeOut.cancel();
+                                            onError(errno);
+                                            delete cs;
+                                            delete this;
+                                        }
+                                    }
+                                }
+
+                                void writeEvent() override {
+                                    int cErrno;
+                                    int err;
+                                    socklen_t cErrnoLen = sizeof(cErrno);
+
+                                    err = getsockopt(cs->getFd(), SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);
+
+                                    timeOut.cancel();
+                                    ::Writer::stop();
+
+                                    if (err < 0) {
+                                        onError(err);
                                         delete cs;
-                                        stop();
-                                    } else if (ret == 0) {
+                                    } else if (cErrno != 0) {
+                                        onError(cErrno);
+                                        delete cs;
+                                    } else {
                                         struct sockaddr_in localAddress {};
                                         socklen_t addressLength = sizeof(localAddress);
                                         getsockname(cs->getFd(), reinterpret_cast<sockaddr*>(&localAddress), &addressLength);
@@ -68,22 +115,22 @@ public:
                                         onError(0);
                                         onConnect(cs);
                                         cs->::Reader::start();
-                                        stop();
                                     }
-                                },
-                                (struct timeval){0, 0}, "Connect");
-
-                            if (ret < 0) {
-                                onError(errno);
-                                if (errno != EINPROGRESS) {
-                                    ct.cancel();
-                                    delete cs;
                                 }
-                            } else if (ret == 0) {
-                                ct.cancel();
-                                cs->::Reader::start();
-                                onError(0);
-                            }
+
+                                void unmanaged() override {
+                                    delete this;
+                                }
+
+                            private:
+                                SocketConnectionImpl* cs = nullptr;
+                                InetAddress server;
+                                std::function<void(SocketConnectionImpl* cs)> onConnect;
+                                std::function<void(int err)> onError;
+                                Timer& timeOut;
+                            };
+
+                            new Connect(cs, server, onConnect, onError);
                         }
                     });
                 }
