@@ -128,13 +128,13 @@ namespace tls {
              *   if (SSL_CTX_use_certificate_chain_file(ctx, certChain.c_str()) <= 0) {
              *       ERR_print_errors_fp(stderr);
              *       sslErr = ERR_get_error();
-        } else if (SSL_CTX_use_PrivateKey_file(ctx, keyPEM.c_str(), SSL_FILETYPE_PEM) <= 0) {
-            ERR_print_errors_fp(stderr);
-            sslErr = ERR_get_error();
-        } else if (!SSL_CTX_check_private_key(ctx)) {
-            sslErr = ERR_get_error();
-        }
-        */
+             *   } else if (SSL_CTX_use_PrivateKey_file(ctx, keyPEM.c_str(), SSL_FILETYPE_PEM) <= 0) {
+             *       ERR_print_errors_fp(stderr);
+             *       sslErr = ERR_get_error();
+             *   } else if (!SSL_CTX_check_private_key(ctx)) {
+             *       sslErr = ERR_get_error();
+             *   }
+             */
         }
     }
 
