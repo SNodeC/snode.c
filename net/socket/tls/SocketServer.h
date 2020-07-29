@@ -17,16 +17,16 @@ namespace tls {
                      const std::function<void(tls::SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
                      const std::function<void(tls::SocketConnection* cs, int errnum)>& onReadError,
                      const std::function<void(tls::SocketConnection* cs, int errnum)>& onWriteError);
-
+        
     private:
         ~SocketServer() override;
-
-    protected:
-        using ::SocketServer<tls::SocketConnection>::listen;
-
+        
     public:
         void listen(in_port_t port, int backlog, const std::string& certChain, const std::string& keyPEM, const std::string& password,
                     const std::function<void(int err)>& onError);
+
+    protected:
+        using ::SocketServer<tls::SocketConnection>::listen;
 
     private:
         SSL_CTX* ctx;

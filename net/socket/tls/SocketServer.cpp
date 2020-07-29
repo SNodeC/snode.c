@@ -29,7 +29,6 @@ namespace tls {
                           , onConnect(onConnect)
                           , timeOut(Timer::singleshotTimer(
                                 [this]([[maybe_unused]] const void* arg) -> void {
-                                    std::cout << "Timeout triggered" << std::endl;
                                     this->::Reader::stop();
                                     this->::Writer::stop();
                                     this->cs->stopSSL();
