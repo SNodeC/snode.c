@@ -15,7 +15,7 @@ class SocketConnection
     : public SocketConnectionBase
     , public SocketReader
     , public SocketWriter {
-public:
+protected:
     SocketConnection(int csFd, const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
                      const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
                      const std::function<void(SocketConnection* cs, int errnum)>& onWriteError,
@@ -34,13 +34,28 @@ public:
         this->attachFd(csFd);
     }
 
-    SocketConnection(const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
-                     const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
-                     const std::function<void(SocketConnection* cs, int errnum)>& onWriteError,
-                     const std::function<void(SocketConnection* cs)>& onDisconnect)
-        : SocketConnection(0, onRead, onReadError, onWriteError, onDisconnect) {
+public:
+    static SocketConnection* create(int csFd, const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
+                                    const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
+                                    const std::function<void(SocketConnection* cs, int errnum)>& onWriteError,
+                                    const std::function<void(SocketConnection* cs)>& onDisconnect) {
+        return new SocketConnection(csFd, onRead, onReadError, onWriteError, onDisconnect);
     }
 
+    static SocketConnection* create(const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
+                                    const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
+                                    const std::function<void(SocketConnection* cs, int errnum)>& onWriteError,
+                                    const std::function<void(SocketConnection* cs)>& onDisconnect) {
+        return SocketConnection::create(0, onRead, onReadError, onWriteError, onDisconnect);
+    }
+
+private:
+    void unmanaged() override {
+        onDisconnect(this);
+        delete this;
+    }
+
+public:
     void enqueue(const char* buffer, int size) override {
         this->SocketWriter::enqueue(buffer, size);
     }
@@ -62,10 +77,6 @@ public:
     }
 
 private:
-    void unmanaged() override {
-        onDisconnect(this);
-    }
-
     InetAddress remoteAddress{};
     std::function<void(SocketConnection* cs)> onDisconnect;
 
