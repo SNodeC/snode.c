@@ -45,7 +45,7 @@ int Request::bodyLength() const {
 const std::string& Request::query(const std::string& key) const {
     std::map<std::string, std::string>::const_iterator it;
 
-    if ((it = queryMap.find(key)) != queryMap.end()) {
+    if ((it = queries->find(key)) != queries->end()) {
         return it->second;
     } else {
         return nullstr;
@@ -57,7 +57,6 @@ void Request::reset() {
     originalUrl.clear();
     httpVersion.clear();
     path.clear();
-    queryMap.clear();
     body = nullptr;
     contentLength = 0;
     MultibleAttributeInjector::reset();

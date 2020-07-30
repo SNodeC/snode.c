@@ -11,7 +11,7 @@
 #include "httputils.h"
 
 HTTPRequestParser::HTTPRequestParser(
-    const std::function<void(std::string&, std::string&, std::string&)>& onRequest,
+    const std::function<void(std::string&, std::string&, std::string&, const std::map<std::string, std::string>&)>& onRequest,
     const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>& onHeader,
     const std::function<void(char*, size_t)>& onContent, const std::function<void(void)>& onParsed,
     const std::function<void(int status, const std::string& reason)>& onError)
@@ -23,7 +23,7 @@ HTTPRequestParser::HTTPRequestParser(
 }
 
 HTTPRequestParser::HTTPRequestParser(
-    const std::function<void(std::string&, std::string&, std::string&)>&& onRequest,
+    const std::function<void(std::string&, std::string&, std::string&, const std::map<std::string, std::string>&)>&& onRequest,
     const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>&& onHeader,
     const std::function<void(char*, size_t)>&& onContent, const std::function<void(void)>&& onParsed,
     const std::function<void(int status, const std::string& reason)>&& onError)
@@ -39,6 +39,7 @@ void HTTPRequestParser::reset() {
     method.clear();
     originalUrl.clear();
     httpVersion.clear();
+    queries.clear();
     cookies.clear();
     httpMajor = 0;
     httpMinor = 0;
@@ -75,24 +76,23 @@ enum HTTPParser::PAS HTTPRequestParser::parseStartLine(std::string& line) {
                     httpMajor = std::stoi(match.str(1));
                     httpMinor = std::stoi(match.str(2));
 
-                    onRequest(method, originalUrl, httpVersion);
-                    /*
-                    std::string queries;
-                    std::tie(std::ignore, queries) = httputils::str_split_last(originalUrl, '?');
+                    /* BEGIN: Belongs to default queryParser */
+                    std::string queriesLine;
+                    std::tie(std::ignore, queriesLine) = httputils::str_split_last(originalUrl, '?');
 
-                    while (!queries.empty()) {
+                    while (!queriesLine.empty()) {
                         std::string query;
-                        std::tie(query, queries) = httputils::str_split(queries, '&');
+                        std::tie(query, queriesLine) = httputils::str_split(queriesLine, '&');
 
-                        onQuery(httputils::str_split(query, '='));
                         std::string key;
                         std::string value;
                         std::tie(key, value) = httputils::str_split(query, '=');
 
-                        requestQueries[key] = value;
-
+                        queries.insert({key, value});
                     }
-                    */
+                    /* END: Belongs to default queryParser */
+
+                    onRequest(method, originalUrl, httpVersion, queries);
                 }
             }
         }

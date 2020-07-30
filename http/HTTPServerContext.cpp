@@ -16,11 +16,13 @@ HTTPServerContext::HTTPServerContext(const WebApp& webApp, SocketConnectionBase*
     , webApp(webApp)
     , response(this)
     , parser(
-          [this](std::string& method, std::string& originalUrl, std::string& httpVersion) -> void {
+          [this](std::string& method, std::string& originalUrl, std::string& httpVersion,
+                 const std::map<std::string, std::string>& queries) -> void {
               VLOG(1) << "++ Request: " << method << " " << originalUrl << " " << httpVersion;
               request.method = method;
               request.originalUrl = originalUrl;
               request.path = httputils::str_split_last(originalUrl, '/').first;
+              request.queries = &queries;
               if (request.path.empty()) {
                   request.path = "/";
               }
