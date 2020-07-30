@@ -4,6 +4,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
+#include <map>
 #include <set>
 #include <stddef.h> // for size_t
 #include <string>   // for string, basic_string, operator<
@@ -41,6 +42,7 @@ protected:
     void parseBodyData(char* body, size_t size) override;
 
     // Exits
+    enum HTTPParser::PAS parseHeader() override;
     void parsingFinished() override;
     void parsingError(int code, const std::string& reason) override;
 
@@ -51,6 +53,7 @@ protected:
     std::string method;
     std::string originalUrl;
     std::string httpVersion;
+    std::map<std::string, std::string> header;
     int httpMajor = 0;
     int httpMinor = 0;
 
