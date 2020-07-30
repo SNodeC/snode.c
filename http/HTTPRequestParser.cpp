@@ -167,6 +167,6 @@ void HTTPRequestParser::parsingFinished() {
 enum HTTPParser::PAS HTTPRequestParser::parsingError(int code, const std::string& reason) {
     onError(code, reason);
     reset();
-    
+
     return PAS::ERROR;
 }
