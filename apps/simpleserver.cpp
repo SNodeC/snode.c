@@ -35,23 +35,23 @@ int main(int argc, char** argv) {
                 VLOG(0) << "URL: " + req.originalUrl;
                 if (req.originalUrl == "/") {
                     res.redirect(308, "/index.html");
-                } else if (req.originalUrl == "/end") {
+                } else if (req.url == "/end") {
                     res.send("Bye, bye!\n");
                     WebApp::stop();
                 } else {
-                    res.sendFile(req.originalUrl, [&req](int ret) -> void {
+                    res.sendFile(req.url, [&req](int ret) -> void {
                         if (ret != 0) {
-                            PLOG(ERROR) << req.originalUrl;
+                            PLOG(ERROR) << req.url;
                         }
                     });
                 }
             })
         .get(
             "/search", APPLICATION(req, res) {
-                VLOG(0) << "URL: " + req.originalUrl;
-                res.sendFile(req.originalUrl, [&req](int ret) -> void {
+                VLOG(0) << "URL: " + req.url;
+                res.sendFile(req.url, [&req](int ret) -> void {
                     if (ret != 0) {
-                        PLOG(ERROR) << req.originalUrl;
+                        PLOG(ERROR) << req.url;
                     }
                 });
             });
