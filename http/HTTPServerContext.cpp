@@ -24,6 +24,7 @@ HTTPServerContext::HTTPServerContext(const WebApp& webApp, SocketConnectionBase*
               if (request.path.empty()) {
                   request.path = "/";
               }
+              request.url = httputils::str_split_last(originalUrl, '?').first;
               request.httpVersion = httpVersion;
           },
           [this](const std::string& field, const std::string& value) -> void {

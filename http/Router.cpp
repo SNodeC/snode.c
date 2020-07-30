@@ -97,12 +97,6 @@ bool RouterDispatcher::dispatch(const MountPoint& mountPoint, const std::string&
     std::string cpath = path_concat(parentPath, mountPoint.path);
 
     if (req.path.rfind(cpath, 0) == 0 && (mountPoint.method == req.method || mountPoint.method == "use")) {
-        req.url = req.originalUrl.substr(cpath.length());
-
-        if (req.url.front() != '/') {
-            req.url.insert(0, "/");
-        }
-
         std::list<Route>::const_iterator route = routes.begin();
         std::list<Route>::const_iterator end = routes.end();
 
@@ -120,12 +114,6 @@ bool MiddlewareDispatcher::dispatch(const MountPoint& mountPoint, const std::str
 
     if ((req.path.rfind(cpath, 0) == 0 && mountPoint.method == "use") ||
         (cpath == req.path && (req.method == mountPoint.method || mountPoint.method == "all"))) {
-        req.url = req.originalUrl.substr(cpath.length());
-
-        if (req.url.front() != '/') {
-            req.url.insert(0, "/");
-        }
-
         next = false;
         this->dispatcher(req, res, [&next]() -> void {
             next = true;
@@ -139,12 +127,6 @@ bool ApplicationDispatcher::dispatch(const MountPoint& mountPoint, const std::st
     std::string cpath = path_concat(parentPath, mountPoint.path);
 
     if (cpath == req.path && (req.method == mountPoint.method || mountPoint.method == "all")) {
-        req.url = req.originalUrl.substr(cpath.length());
-
-        if (req.url.front() != '/') {
-            req.url.insert(0, "/");
-        }
-
         this->dispatcher(req, res);
 
         next = false;
