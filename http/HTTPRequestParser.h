@@ -19,13 +19,13 @@ public:
     HTTPRequestParser(const std::function<void(std::string&, std::string&, std::string&)>& onRequest,
                       const std::function<void(const std::map<std::string, std::string>&)>& onHeader,
                       const std::function<void(const std::map<std::string, std::string>&)>& onCookies,
-                      const std::function<void(char* body, size_t bodyLength)>& onBody, const std::function<void(void)>& onParsed,
+                      const std::function<void(char*, size_t)>& onContent, const std::function<void(void)>& onParsed,
                       const std::function<void(int status, const std::string& reason)>& onError);
 
     HTTPRequestParser(const std::function<void(std::string&, std::string&, std::string&)>&& onRequest,
                       const std::function<void(const std::map<std::string, std::string>&)>&& onHeader,
                       const std::function<void(const std::map<std::string, std::string>&)>&& onCookies,
-                      const std::function<void(char* body, size_t bodyLength)>&& onBody, const std::function<void(void)>&& onParsed,
+                      const std::function<void(char*, size_t)>&& onContent, const std::function<void(void)>&& onParsed,
                       const std::function<void(int status, const std::string& reason)>&& onError);
 
 protected:
@@ -39,7 +39,7 @@ protected:
     // Parsers and Validators
     enum HTTPParser::PAS parseStartLine(std::string& line) override;
     enum HTTPParser::PAS parseHeader() override;
-    enum HTTPParser::PAS parseBodyData(char* body, size_t size) override;
+    enum HTTPParser::PAS parseContent(char* content, size_t size) override;
 
     // Exits
     void parsingFinished();
@@ -61,7 +61,7 @@ protected:
     // std::function<void(const std::pair<std::string, std::string>&)> onQuery;
     std::function<void(const std::map<std::string, std::string>&)> onHeader;
     std::function<void(const std::map<std::string, std::string>&)> onCookies;
-    std::function<void(char* body, size_t bodyLength)> onBody;
+    std::function<void(char*, size_t)> onContent;
     std::function<void(void)> onParsed;
     std::function<void(int status, const std::string& reason)> onError;
 };

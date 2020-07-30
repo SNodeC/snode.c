@@ -25,7 +25,7 @@ public:
     std::string originalUrl;
     std::string httpVersion;
     std::string url;
-    char* body{nullptr};
+    char* body = nullptr;
     std::string path;
     std::string method;
     int contentLength = 0;

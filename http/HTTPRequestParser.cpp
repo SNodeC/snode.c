@@ -13,13 +13,12 @@
 HTTPRequestParser::HTTPRequestParser(const std::function<void(std::string&, std::string&, std::string&)>& onRequest,
                                      const std::function<void(const std::map<std::string, std::string>&)>& onHeader,
                                      const std::function<void(const std::map<std::string, std::string>&)>& onCookies,
-                                     const std::function<void(char* body, size_t bodyLength)>& onBody,
-                                     const std::function<void(void)>& onParsed,
+                                     const std::function<void(char*, size_t)>& onContent, const std::function<void(void)>& onParsed,
                                      const std::function<void(int status, const std::string& reason)>& onError)
     : onRequest(onRequest)
     , onHeader(onHeader)
     , onCookies(onCookies)
-    , onBody(onBody)
+    , onContent(onContent)
     , onParsed(onParsed)
     , onError(onError) {
 }
@@ -27,13 +26,12 @@ HTTPRequestParser::HTTPRequestParser(const std::function<void(std::string&, std:
 HTTPRequestParser::HTTPRequestParser(const std::function<void(std::string&, std::string&, std::string&)>&& onRequest,
                                      const std::function<void(const std::map<std::string, std::string>&)>&& onHeader,
                                      const std::function<void(const std::map<std::string, std::string>&)>&& onCookies,
-                                     const std::function<void(char* body, size_t bodyLength)>&& onBody,
-                                     const std::function<void(void)>&& onParsed,
+                                     const std::function<void(char*, size_t)>&& onContent, const std::function<void(void)>&& onParsed,
                                      const std::function<void(int status, const std::string& reason)>&& onError)
     : onRequest(onRequest)
     , onHeader(onHeader)
     , onCookies(onCookies)
-    , onBody(onBody)
+    , onContent(onContent)
     , onParsed(onParsed)
     , onError(onError) {
 }
@@ -152,8 +150,8 @@ enum HTTPParser::PAS HTTPRequestParser::parseHeader() {
     return PAS;
 }
 
-enum HTTPParser::PAS HTTPRequestParser::parseBodyData(char* body, size_t size) {
-    onBody(body, size);
+enum HTTPParser::PAS HTTPRequestParser::parseContent(char* content, size_t size) {
+    onContent(content, size);
     parsingFinished();
 
     return PAS::FIRSTLINE;

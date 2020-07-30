@@ -24,7 +24,7 @@ protected:
 
     virtual enum PAS parseStartLine(std::string& line) = 0;
     virtual enum PAS parseHeader() = 0;
-    virtual enum PAS parseBodyData(char* body, size_t size) = 0;
+    virtual enum PAS parseContent(char* content, size_t size) = 0;
     virtual enum PAS parsingError(int code, const std::string& reason) = 0;
 
     enum struct HTTPCompliance : unsigned short {
@@ -42,7 +42,7 @@ protected:
     } HTTPCompliance{HTTPCompliance::RFC2616 | HTTPCompliance::RFC7230};
 
     // Data common to all HTTP messages (Request/Response)
-    char* bodyData = nullptr;
+    char* content = nullptr;
     size_t contentLength = 0;
     std::map<std::string, std::string> header;
 
@@ -50,7 +50,7 @@ private:
     size_t readStartLine(const char* buf, size_t count);
     size_t readHeaderLine(const char* buf, size_t count);
     void splitHeaderLine(const std::string& line);
-    size_t readBodyData(const char* buf, size_t count);
+    size_t readContent(const char* buf, size_t count);
 
     // Line state
     bool EOL{false};

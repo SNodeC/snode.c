@@ -35,9 +35,9 @@ HTTPServerContext::HTTPServerContext(const WebApp& webApp, SocketConnectionBase*
               VLOG(1) << "++ Cookies";
               request.requestCookies = &cookies;
           },
-          [this](char* body, size_t contentLength) -> void {
-              VLOG(1) << "++ Body: " << contentLength;
-              request.body = body;
+          [this](char* content, size_t contentLength) -> void {
+              VLOG(1) << "++ Content: " << contentLength;
+              request.body = content;
               request.contentLength = contentLength;
           },
           [this](void) -> void {

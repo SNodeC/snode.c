@@ -14,9 +14,9 @@ void HTTPParser::reset() {
     PAS = PAS::FIRSTLINE;
     header.clear();
     contentLength = 0;
-    if (bodyData != nullptr) {
-        delete[] bodyData;
-        bodyData = nullptr;
+    if (content != nullptr) {
+        delete[] content;
+        content = nullptr;
     }
 }
 
@@ -32,7 +32,7 @@ void HTTPParser::parse(const char* buf, size_t count) {
             processed += readHeaderLine(buf + processed, count - processed);
             break;
         case PAS::BODY:
-            processed += readBodyData(buf + processed, count - processed);
+            processed += readContent(buf + processed, count - processed);
             break;
         case PAS::ERROR:
             break;
@@ -135,28 +135,28 @@ void HTTPParser::splitHeaderLine(const std::string& line) {
     }
 }
 
-size_t HTTPParser::readBodyData(const char* buf, size_t count) {
+size_t HTTPParser::readContent(const char* buf, size_t count) {
     if (contentRead == 0) {
-        bodyData = new char[contentLength];
+        content = new char[contentLength];
     }
 
     if (contentRead + count <= contentLength) {
-        memcpy(bodyData + contentRead, buf, count);
+        memcpy(content + contentRead, buf, count);
 
         contentRead += count;
         if (contentRead == contentLength) {
-            PAS = parseBodyData(bodyData, contentLength);
+            PAS = parseContent(content, contentLength);
 
-            delete[] bodyData;
-            bodyData = nullptr;
+            delete[] content;
+            content = nullptr;
             contentRead = 0;
         }
     } else {
         PAS = parsingError(400, "Content to long");
 
-        if (bodyData != nullptr) {
-            delete[] bodyData;
-            bodyData = nullptr;
+        if (content != nullptr) {
+            delete[] content;
+            content = nullptr;
         }
     }
 
