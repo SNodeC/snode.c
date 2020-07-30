@@ -27,11 +27,9 @@ HTTPServerContext::HTTPServerContext(const WebApp& webApp, SocketConnectionBase*
               request.url = httputils::str_split_last(originalUrl, '?').first;
               request.httpVersion = httpVersion;
           },
-          [this](const std::map<std::string, std::string>& header) -> void {
+          [this](const std::map<std::string, std::string>& header, const std::map<std::string, std::string>& cookies) -> void {
               VLOG(1) << "++ Header:";
               request.requestHeader = &header;
-          },
-          [this](const std::map<std::string, std::string>& cookies) -> void {
               VLOG(1) << "++ Cookies";
               request.requestCookies = &cookies;
           },

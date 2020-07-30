@@ -10,27 +10,25 @@
 #include "Logger.h"
 #include "httputils.h"
 
-HTTPRequestParser::HTTPRequestParser(const std::function<void(std::string&, std::string&, std::string&)>& onRequest,
-                                     const std::function<void(const std::map<std::string, std::string>&)>& onHeader,
-                                     const std::function<void(const std::map<std::string, std::string>&)>& onCookies,
-                                     const std::function<void(char*, size_t)>& onContent, const std::function<void(void)>& onParsed,
-                                     const std::function<void(int status, const std::string& reason)>& onError)
+HTTPRequestParser::HTTPRequestParser(
+    const std::function<void(std::string&, std::string&, std::string&)>& onRequest,
+    const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>& onHeader,
+    const std::function<void(char*, size_t)>& onContent, const std::function<void(void)>& onParsed,
+    const std::function<void(int status, const std::string& reason)>& onError)
     : onRequest(onRequest)
     , onHeader(onHeader)
-    , onCookies(onCookies)
     , onContent(onContent)
     , onParsed(onParsed)
     , onError(onError) {
 }
 
-HTTPRequestParser::HTTPRequestParser(const std::function<void(std::string&, std::string&, std::string&)>&& onRequest,
-                                     const std::function<void(const std::map<std::string, std::string>&)>&& onHeader,
-                                     const std::function<void(const std::map<std::string, std::string>&)>&& onCookies,
-                                     const std::function<void(char*, size_t)>&& onContent, const std::function<void(void)>&& onParsed,
-                                     const std::function<void(int status, const std::string& reason)>&& onError)
+HTTPRequestParser::HTTPRequestParser(
+    const std::function<void(std::string&, std::string&, std::string&)>&& onRequest,
+    const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>&& onHeader,
+    const std::function<void(char*, size_t)>&& onContent, const std::function<void(void)>&& onParsed,
+    const std::function<void(int status, const std::string& reason)>&& onError)
     : onRequest(onRequest)
     , onHeader(onHeader)
-    , onCookies(onCookies)
     , onContent(onContent)
     , onParsed(onParsed)
     , onError(onError) {
@@ -137,8 +135,7 @@ enum HTTPParser::PAS HTTPRequestParser::parseHeader() {
 
     header.erase("cookie");
 
-    onHeader(header);
-    onCookies(cookies);
+    onHeader(header, cookies);
 
     enum HTTPParser::PAS PAS = HTTPParser::PAS::BODY;
 
