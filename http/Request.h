@@ -33,7 +33,7 @@ public:
 protected:
     void reset();
 
-    std::map<std::string, std::string> queryMap;
+    const std::map<std::string, std::string>* queries;
     const std::map<std::string, std::string>* requestHeader = nullptr;
     const std::map<std::string, std::string>* requestCookies = nullptr;
 
