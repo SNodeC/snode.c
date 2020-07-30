@@ -10,6 +10,8 @@ foreach(i ${CMAKE_CXX_COMPILE_FEATURES})
   message("${i}")
 endforeach()
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra")
+
 add_subdirectory(net)
 add_subdirectory(http)
 add_subdirectory(log)

@@ -174,7 +174,7 @@ namespace tls {
         });
     }
 
-    int SocketServer::passwordCallback(char* buf, int size, int rwflag, void* u) {
+    int SocketServer::passwordCallback(char* buf, int size, [[maybe_unused]] int rwflag, void* u) {
         strncpy(buf, static_cast<char*>(u), size);
         buf[size - 1] = '\0';
 

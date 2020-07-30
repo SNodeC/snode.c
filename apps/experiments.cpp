@@ -10,8 +10,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define MIDDLEWARE(req, res, next) [&](Request & (req), Response & (res), const std::function<void(void)>&(next)) -> void
-#define APPLICATION(req, res) [&](Request & (req), Response & (res)) -> void
+#define MIDDLEWARE(req, res, next)                                                                                                         \
+    [&]([[maybe_unused]] Request & (req), [[maybe_unused]] Response & (res),                                                               \
+        [[maybe_unused]] const std::function<void(void)>&(next)) -> void
+#define APPLICATION(req, res) [&]([[maybe_unused]] Request & (req), [[maybe_unused]] Response & (res)) -> void
 
 #define CERTF "/home/voc/projects/ServerVoc/certs/calisto.home.vchrist.at_-_snode.c.pem"
 #define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c.key.encrypted.pem"
@@ -174,7 +176,7 @@ int simpleWebserver() {
     return 0;
 }
 
-int main(int argc, char** argv) {
+int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     std::string http = "GET /admin/new/index.html?hihihi=3343&asdsf=2324 HTTP/1.1\r\n"
                        "Field1: Value1\r\n"
                        "Field2: Field2\r\n"
