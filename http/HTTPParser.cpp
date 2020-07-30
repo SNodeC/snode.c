@@ -34,8 +34,6 @@ void HTTPParser::parse(const char* buf, size_t count) {
         case PAS::BODY:
             processed += readBodyData(buf + processed, count - processed);
             break;
-        case PAS::COMPLETE:
-            break;
         case PAS::ERROR:
             break;
         };
@@ -76,9 +74,7 @@ size_t HTTPParser::readHeaderLine(const char* buf, size_t count) {
                     line.clear();
 
                     PAS = parseHeader();
-                    if (PAS == PAS::COMPLETE) {
-                        //                        parsingFinished();
-                    }
+
                     EOL = false;
                 } else {
                     if (line.empty()) {
@@ -91,7 +87,7 @@ size_t HTTPParser::readHeaderLine(const char* buf, size_t count) {
         } else if (EOL) {
             if (std::isblank(ch)) {
                 if ((HTTPCompliance & HTTPCompliance::RFC7230) == HTTPCompliance::RFC7230) {
-                    parsingError(400, "Header Folding");
+                    PAS = parsingError(400, "Header Folding");
                 } else {
                     line += ch;
                     consumed++;
@@ -117,11 +113,11 @@ void HTTPParser::splitHeaderLine(const std::string& line) {
         std::tie(field, value) = httputils::str_split(line, ':');
 
         if (field.empty()) {
-            parsingError(400, "Header-field empty");
+            PAS = parsingError(400, "Header-field empty");
         } else if (std::isblank(field.back()) || std::isblank(field.front())) {
-            parsingError(400, "White space before or after header-field");
+            PAS = parsingError(400, "White space before or after header-field");
         } else if (value.empty()) {
-            parsingError(400, "Header-value of field \"" + field + "\" empty");
+            PAS = parsingError(400, "Header-value of field \"" + field + "\" empty");
         } else {
             httputils::str_trimm(value);
             httputils::to_lower(field);
@@ -135,7 +131,7 @@ void HTTPParser::splitHeaderLine(const std::string& line) {
             }
         }
     } else {
-        parsingError(400, "Header-line empty");
+        PAS = parsingError(400, "Header-line empty");
     }
 }
 
@@ -149,15 +145,14 @@ size_t HTTPParser::readBodyData(const char* buf, size_t count) {
 
         contentRead += count;
         if (contentRead == contentLength) {
-            parseBodyData(bodyData, contentLength);
-            //            parsingFinished();
+            PAS = parseBodyData(bodyData, contentLength);
 
             delete[] bodyData;
             bodyData = nullptr;
             contentRead = 0;
         }
     } else {
-        parsingError(400, "Content to long");
+        PAS = parsingError(400, "Content to long");
 
         if (bodyData != nullptr) {
             delete[] bodyData;

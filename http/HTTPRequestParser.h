@@ -37,18 +37,18 @@ protected:
     }
 
     // Parsers and Validators
-    enum HTTPParser::PAS parseStartLine(std::string& line) override;
-    enum HTTPParser::PAS parseHeader() override;
-    void parseBodyData(char* body, size_t size) override;
+    [[nodiscard]] enum HTTPParser::PAS parseStartLine(std::string& line) override;
+    [[nodiscard]] enum HTTPParser::PAS parseHeader() override;
+    [[nodiscard]] enum HTTPParser::PAS parseBodyData(char* body, size_t size) override;
 
     // Exits
     void parsingFinished();
-    void parsingError(int code, const std::string& reason) override;
+    [[nodiscard]] enum HTTPParser::PAS parsingError(int code, const std::string& reason) override;
 
     // Supported http-methods
     std::set<std::string> supportedMethods{"GET", "PUT", "POST", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH", "HEAD"};
 
-    // Parsing results
+    // Data specific to HTTP request messages
     std::string method;
     std::string originalUrl;
     std::string httpVersion;
@@ -56,8 +56,9 @@ protected:
     int httpMajor = 0;
     int httpMinor = 0;
 
+    // Callbacks
     std::function<void(std::string&, std::string&, std::string&)> onRequest;
-    std::function<void(const std::pair<std::string, std::string>&)> onQuery;
+    // std::function<void(const std::pair<std::string, std::string>&)> onQuery;
     std::function<void(const std::map<std::string, std::string>&)> onHeader;
     std::function<void(const std::map<std::string, std::string>&)> onCookies;
     std::function<void(char* body, size_t bodyLength)> onBody;
