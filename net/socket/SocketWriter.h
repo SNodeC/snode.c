@@ -12,7 +12,7 @@
 
 #include "Writer.h"
 
-#define MAX_SEND_JUNKSIZE 4096
+#define MAX_SEND_JUNKSIZE 16384
 
 template <typename SocketImpl>
 class SocketWriter
