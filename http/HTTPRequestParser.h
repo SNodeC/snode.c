@@ -37,13 +37,13 @@ protected:
     }
 
     // Parsers and Validators
-    [[nodiscard]] enum HTTPParser::PAS parseStartLine(std::string& line) override;
-    [[nodiscard]] enum HTTPParser::PAS parseHeader() override;
-    [[nodiscard]] enum HTTPParser::PAS parseBodyData(char* body, size_t size) override;
+    enum HTTPParser::PAS parseStartLine(std::string& line) override;
+    enum HTTPParser::PAS parseHeader() override;
+    enum HTTPParser::PAS parseBodyData(char* body, size_t size) override;
 
     // Exits
     void parsingFinished();
-    [[nodiscard]] enum HTTPParser::PAS parsingError(int code, const std::string& reason) override;
+    enum HTTPParser::PAS parsingError(int code, const std::string& reason) override;
 
     // Supported http-methods
     std::set<std::string> supportedMethods{"GET", "PUT", "POST", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH", "HEAD"};

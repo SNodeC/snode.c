@@ -18,14 +18,14 @@ public:
 
 protected:
     // Parser state
-    enum struct PAS { FIRSTLINE, HEADER, BODY, ERROR } PAS = PAS::FIRSTLINE;
+    enum struct [[nodiscard]] PAS{FIRSTLINE, HEADER, BODY, ERROR} PAS = PAS::FIRSTLINE;
 
     virtual void reset();
 
-    [[nodiscard]] virtual enum PAS parseStartLine(std::string& line) = 0;
-    [[nodiscard]] virtual enum PAS parseHeader() = 0;
-    [[nodiscard]] virtual enum PAS parseBodyData(char* body, size_t size) = 0;
-    [[nodiscard]] virtual enum PAS parsingError(int code, const std::string& reason) = 0;
+    virtual enum PAS parseStartLine(std::string& line) = 0;
+    virtual enum PAS parseHeader() = 0;
+    virtual enum PAS parseBodyData(char* body, size_t size) = 0;
+    virtual enum PAS parsingError(int code, const std::string& reason) = 0;
 
     enum struct HTTPCompliance : unsigned short {
         RFC1945 = 0x01 << 0, // HTTP 1.0
