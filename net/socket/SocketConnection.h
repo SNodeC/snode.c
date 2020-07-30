@@ -14,6 +14,21 @@ class SocketConnection
     : public SocketConnectionBase
     , public SocketReader
     , public SocketWriter {
+public:
+    void* operator new(size_t size) {
+        SocketConnection* sc = reinterpret_cast<SocketConnection*>(malloc(size));
+        sc->isDynamic = true;
+
+        return sc;
+    }
+
+    void operator delete(void* sc_v) {
+        SocketConnection* sc = reinterpret_cast<SocketConnection*>(sc_v);
+        if (sc->isDynamic) {
+            free(sc_v);
+        }
+    }
+
 protected:
     SocketConnection(int csFd, const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
                      const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
@@ -51,7 +66,10 @@ public:
 private:
     void unmanaged() override {
         onDisconnect(this);
-        delete this;
+
+        if (this->isDynamic) {
+            delete this;
+        }
     }
 
 public:
@@ -82,6 +100,12 @@ private:
 public:
     using ReaderType = SocketReader;
     using WriterType = SocketWriter;
+
+private:
+    SocketConnection() {
+    }
+
+    bool isDynamic;
 };
 
 #endif // SOCKETCONNECTIONBASE_H

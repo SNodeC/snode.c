@@ -36,6 +36,7 @@ public:
     }
 
 protected:
+    SocketWriter() = default;
     explicit SocketWriter(const std::function<void(int errnum)>& onError)
         : onError(onError) {
     }

@@ -33,6 +33,8 @@ public:
     }
 
 protected:
+    SocketServer() {
+    }
     virtual ~SocketServer() {
     }
 
