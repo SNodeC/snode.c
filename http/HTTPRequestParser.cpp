@@ -60,21 +60,21 @@ enum HTTPParser::PAS HTTPRequestParser::parseStartLine(std::string& line) {
         std::tie(method, remaining) = httputils::str_split(line, ' '); // if split not found second will be empty
 
         if (!methodSupported(method)) {
-            parsingError(400, "Bad request method");
+            PAS = parsingError(400, "Bad request method");
         } else if (remaining.empty()) {
-            parsingError(400, "Malformed request");
+            PAS = parsingError(400, "Malformed request");
         } else {
             std::tie(originalUrl, httpVersion) = httputils::str_split(remaining, ' ');
 
             originalUrl = httputils::url_decode(originalUrl);
 
             if (originalUrl.front() != '/') {
-                parsingError(400, "Malformed URL");
+                PAS = parsingError(400, "Malformed URL");
             } else {
                 std::smatch match;
 
                 if (!std::regex_match(httpVersion, match, httpVersionRegex)) {
-                    parsingError(400, "Wrong protocol-version");
+                    PAS = parsingError(400, "Wrong protocol-version");
                 } else {
                     httpMajor = std::stoi(match.str(1));
                     httpMinor = std::stoi(match.str(2));
@@ -101,8 +101,7 @@ enum HTTPParser::PAS HTTPRequestParser::parseStartLine(std::string& line) {
             }
         }
     } else {
-        parsingError(400, "Request-line empty");
-        PAS = PAS::ERROR;
+        PAS = parsingError(400, "Request-line empty");
     }
 
     return PAS;
@@ -153,9 +152,11 @@ enum HTTPParser::PAS HTTPRequestParser::parseHeader() {
     return PAS;
 }
 
-void HTTPRequestParser::parseBodyData(char* body, size_t size) {
+enum HTTPParser::PAS HTTPRequestParser::parseBodyData(char* body, size_t size) {
     onBody(body, size);
     parsingFinished();
+
+    return PAS::FIRSTLINE;
 }
 
 void HTTPRequestParser::parsingFinished() {
@@ -163,8 +164,9 @@ void HTTPRequestParser::parsingFinished() {
     reset();
 }
 
-void HTTPRequestParser::parsingError(int code, const std::string& reason) {
-    PAS = PAS::ERROR;
+enum HTTPParser::PAS HTTPRequestParser::parsingError(int code, const std::string& reason) {
     onError(code, reason);
     reset();
+    
+    return PAS::ERROR;
 }

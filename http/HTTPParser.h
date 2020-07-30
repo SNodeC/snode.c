@@ -18,16 +18,14 @@ public:
 
 protected:
     // Parser state
-    enum struct PAS { FIRSTLINE, HEADER, BODY, COMPLETE, ERROR } PAS = PAS::FIRSTLINE;
+    enum struct PAS { FIRSTLINE, HEADER, BODY, ERROR } PAS = PAS::FIRSTLINE;
 
     virtual void reset();
 
-    virtual enum PAS parseStartLine(std::string& line) = 0;
-    virtual enum PAS parseHeader() = 0;
-    virtual void parseBodyData(char* body, size_t size) = 0;
-    virtual void parsingError(int code, const std::string& reason) = 0;
-
-    std::map<std::string, std::string> header;
+    [[nodiscard]] virtual enum PAS parseStartLine(std::string& line) = 0;
+    [[nodiscard]] virtual enum PAS parseHeader() = 0;
+    [[nodiscard]] virtual enum PAS parseBodyData(char* body, size_t size) = 0;
+    [[nodiscard]] virtual enum PAS parsingError(int code, const std::string& reason) = 0;
 
     enum struct HTTPCompliance : unsigned short {
         RFC1945 = 0x01 << 0, // HTTP 1.0
@@ -43,9 +41,10 @@ protected:
 
     } HTTPCompliance{HTTPCompliance::RFC2616 | HTTPCompliance::RFC7230};
 
-protected:
-    bool EOL{false};
+    // Data common to all HTTP messages (Request/Response)
+    char* bodyData = nullptr;
     size_t contentLength = 0;
+    std::map<std::string, std::string> header;
 
 private:
     size_t readStartLine(const char* buf, size_t count);
@@ -53,10 +52,12 @@ private:
     void splitHeaderLine(const std::string& line);
     size_t readBodyData(const char* buf, size_t count);
 
-    // Parseing data
+    // Line state
+    bool EOL{false};
+
+    // Used during parseing data
     std::string line;
     size_t contentRead = 0;
-    char* bodyData = nullptr;
 
     friend enum HTTPCompliance operator|(const enum HTTPCompliance& c1, const enum HTTPCompliance& c2);
     friend enum HTTPCompliance operator&(const enum HTTPCompliance& c1, const enum HTTPCompliance& c2);
