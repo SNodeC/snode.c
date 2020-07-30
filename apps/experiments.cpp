@@ -191,12 +191,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
         [](std::string& method, std::string& originalUrl, std::string& httpVersion) -> void {
             std::cout << "++ Request: " << method << " " << originalUrl << " " << httpVersion << std::endl;
         },
-        [](const std::map<std::string, std::string>& header) -> void {
+        [](const std::map<std::string, std::string>& header, const std::map<std::string, std::string>& cookies) -> void {
             for (std::pair<std::string, std::string> headerField : header) {
                 std::cout << "++ Header: " << headerField.first << " = " << headerField.second << std::endl;
             }
-        },
-        [](const std::map<std::string, std::string>& cookies) -> void {
             for (std::pair<std::string, std::string> cookie : cookies) {
                 std::cout << "++ Cookie: " << cookie.first << " = " << cookie.second << std::endl;
             }
