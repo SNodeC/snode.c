@@ -16,10 +16,14 @@ public:
     void parse(const char* buf, size_t count);
 
 protected:
+    // Parser state
+    enum struct PAS { FIRSTLINE, HEADER, BODY, COMPLETE, ERROR } PAS = PAS::FIRSTLINE;
+
     virtual void reset();
 
     virtual void parseStartLine(std::string& line) = 0;
     virtual void parseHeaderLine(const std::string& field, const std::string& value) = 0;
+    virtual enum PAS parseHeader() = 0;
     virtual void parseBodyData(char* body, size_t size) = 0;
     virtual void parsingFinished() = 0;
     virtual void parsingError(int code, const std::string& reason) = 0;
@@ -39,8 +43,6 @@ protected:
     } HTTPCompliance{HTTPCompliance::RFC2616 | HTTPCompliance::RFC7230};
 
 protected:
-    // Parser state
-    enum struct PAS { FIRSTLINE, HEADER, BODY, ERROR } PAS = PAS::FIRSTLINE;
     bool EOL{false};
     size_t contentLength = 0;
 

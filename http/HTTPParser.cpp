@@ -32,6 +32,8 @@ void HTTPParser::parse(const char* buf, size_t count) {
         case PAS::BODY:
             processed += readBodyData(buf + processed, count - processed);
             break;
+        case PAS::COMPLETE:
+            break;
         case PAS::ERROR:
             break;
         };
@@ -71,10 +73,10 @@ size_t HTTPParser::readHeaderLine(const char* buf, size_t count) {
                 if (EOL) {
                     splitHeaderLine(line);
                     line.clear();
-                    if (contentLength == 0) {
+
+                    PAS = parseHeader();
+                    if (PAS == PAS::COMPLETE) {
                         parsingFinished();
-                    } else {
-                        PAS = PAS::BODY;
                     }
                     EOL = false;
                 } else {

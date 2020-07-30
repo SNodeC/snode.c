@@ -43,6 +43,7 @@ void HTTPRequestParser::reset() {
     method.clear();
     originalUrl.clear();
     httpVersion.clear();
+    header.clear();
     httpMajor = 0;
     httpMinor = 0;
 }
@@ -104,28 +105,39 @@ void HTTPRequestParser::parseStartLine(std::string& line) {
 
 void HTTPRequestParser::parseHeaderLine(const std::string& field, const std::string& value) {
     VLOG(1) << "++ Header or Cookie: " << field << " = " << value;
-    if (field != "cookie") {
-        if (field == "content-length") {
-            contentLength = std::stoi(value);
-        }
-        onHeader(field, value);
-    } else {
-        std::string cookies = value;
+    header.insert({field, value});
+}
 
-        while (!cookies.empty()) {
-            std::string cookie;
-            std::tie(cookie, cookies) = httputils::str_split(cookies, ';');
+enum HTTPParser::PAS HTTPRequestParser::parseHeader() {
+    for (std::pair<std::string, std::string> headerField : header) {
+        std::string& field = headerField.first;
+        std::string& value = headerField.second;
+        VLOG(1) << "++ Parse header field: " << field << " = " << value;
+        if (field != "cookie") {
+            if (field == "content-length") {
+                contentLength = std::stoi(value);
+            }
+            onHeader(field, value);
+        } else {
+            std::string cookies = value;
 
-            std::string name;
-            std::string value;
-            std::tie(name, value) = httputils::str_split(cookie, '=');
+            while (!cookies.empty()) {
+                std::string cookie;
+                std::tie(cookie, cookies) = httputils::str_split(cookies, ';');
 
-            httputils::str_trimm(name);
-            httputils::str_trimm(value);
+                std::string name;
+                std::string value;
+                std::tie(name, value) = httputils::str_split(cookie, '=');
 
-            onCookie(name, value);
+                httputils::str_trimm(name);
+                httputils::str_trimm(value);
+
+                onCookie(name, value);
+            }
         }
     }
+
+    return (contentLength > 0) ? PAS::BODY : PAS::COMPLETE;
 }
 
 void HTTPRequestParser::parseBodyData(char* body, size_t size) {
