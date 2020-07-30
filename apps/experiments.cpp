@@ -189,11 +189,15 @@ int main(int argc, char** argv) {
         [](std::string& method, std::string& originalUrl, std::string& httpVersion) -> void {
             std::cout << "++ Request: " << method << " " << originalUrl << " " << httpVersion << std::endl;
         },
-        [](const std::string& field, const std::string& value) -> void {
-            std::cout << "++ Header: " << field << " = " << value << std::endl;
+        [](const std::map<std::string, std::string>& header) -> void {
+            for (std::pair<std::string, std::string> headerField : header) {
+                std::cout << "++ Header: " << headerField.first << " = " << headerField.second << std::endl;
+            }
         },
-        [](const std::string& name, const std::string& value) -> void {
-            std::cout << "++ Cookie: " << name << " = " << value << std::endl;
+        [](const std::map<std::string, std::string>& cookies) -> void {
+            for (std::pair<std::string, std::string> cookie : cookies) {
+                std::cout << "++ Cookie: " << cookie.first << " = " << cookie.second << std::endl;
+            }
         },
         [](char* body, size_t bodyLength) -> void {
             std::cout << "++ Body: " << bodyLength << " : " << body << std::endl;
