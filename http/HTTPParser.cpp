@@ -7,10 +7,12 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "HTTPParser.h"
+#include "Logger.h"
 #include "httputils.h"
 
 void HTTPParser::reset() {
     PAS = PAS::FIRSTLINE;
+    header.clear();
     contentLength = 0;
     if (bodyData != nullptr) {
         delete[] bodyData;
@@ -49,9 +51,8 @@ size_t HTTPParser::readStartLine(const char* buf, size_t count) {
         if (ch == '\r' || ch == '\n') {
             consumed++;
             if (ch == '\n') {
-                parseStartLine(line);
+                PAS = parseStartLine(line);
                 line.clear();
-                PAS = PAS::HEADER;
             }
         } else {
             line += ch;
@@ -76,12 +77,12 @@ size_t HTTPParser::readHeaderLine(const char* buf, size_t count) {
 
                     PAS = parseHeader();
                     if (PAS == PAS::COMPLETE) {
-                        parsingFinished();
+                        //                        parsingFinished();
                     }
                     EOL = false;
                 } else {
                     if (line.empty()) {
-                        parsingFinished();
+                        PAS = parseHeader();
                     } else {
                         EOL = true;
                     }
@@ -125,7 +126,13 @@ void HTTPParser::splitHeaderLine(const std::string& line) {
             httputils::str_trimm(value);
             httputils::to_lower(field);
 
-            parseHeaderLine(field, value);
+            if (header.find(field) == header.end()) {
+                VLOG(1) << "++ Header (insert): " << field << " = " << value;
+                header.insert({field, value});
+            } else {
+                VLOG(1) << "++ Header (append): " << field << " = " << value;
+                header[field] += "," + value;
+            }
         }
     } else {
         parsingError(400, "Header-line empty");
@@ -143,7 +150,7 @@ size_t HTTPParser::readBodyData(const char* buf, size_t count) {
         contentRead += count;
         if (contentRead == contentLength) {
             parseBodyData(bodyData, contentLength);
-            parsingFinished();
+            //            parsingFinished();
 
             delete[] bodyData;
             bodyData = nullptr;

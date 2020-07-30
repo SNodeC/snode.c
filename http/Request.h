@@ -34,8 +34,8 @@ protected:
     void reset();
 
     std::map<std::string, std::string> queryMap;
-    std::map<std::string, std::string> requestHeader;
-    std::map<std::string, std::string> requestCookies;
+    const std::map<std::string, std::string>* requestHeader = nullptr;
+    const std::map<std::string, std::string>* requestCookies = nullptr;
 
 private:
     std::string nullstr = "";

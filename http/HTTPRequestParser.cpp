@@ -11,28 +11,28 @@
 #include "httputils.h"
 
 HTTPRequestParser::HTTPRequestParser(const std::function<void(std::string&, std::string&, std::string&)>& onRequest,
-                                     const std::function<void(const std::string&, const std::string&)>& onHeader,
-                                     const std::function<void(const std::string&, const std::string&)>& onCookie,
+                                     const std::function<void(const std::map<std::string, std::string>&)>& onHeader,
+                                     const std::function<void(const std::map<std::string, std::string>&)>& onCookies,
                                      const std::function<void(char* body, size_t bodyLength)>& onBody,
                                      const std::function<void(void)>& onParsed,
                                      const std::function<void(int status, const std::string& reason)>& onError)
     : onRequest(onRequest)
     , onHeader(onHeader)
-    , onCookie(onCookie)
+    , onCookies(onCookies)
     , onBody(onBody)
     , onParsed(onParsed)
     , onError(onError) {
 }
 
 HTTPRequestParser::HTTPRequestParser(const std::function<void(std::string&, std::string&, std::string&)>&& onRequest,
-                                     const std::function<void(const std::string&, const std::string&)>&& onHeader,
-                                     const std::function<void(const std::string&, const std::string&)>&& onCookie,
+                                     const std::function<void(const std::map<std::string, std::string>&)>&& onHeader,
+                                     const std::function<void(const std::map<std::string, std::string>&)>&& onCookies,
                                      const std::function<void(char* body, size_t bodyLength)>&& onBody,
                                      const std::function<void(void)>&& onParsed,
                                      const std::function<void(int status, const std::string& reason)>&& onError)
     : onRequest(onRequest)
     , onHeader(onHeader)
-    , onCookie(onCookie)
+    , onCookies(onCookies)
     , onBody(onBody)
     , onParsed(onParsed)
     , onError(onError) {
@@ -43,7 +43,7 @@ void HTTPRequestParser::reset() {
     method.clear();
     originalUrl.clear();
     httpVersion.clear();
-    header.clear();
+    cookies.clear();
     httpMajor = 0;
     httpMinor = 0;
 }
@@ -51,9 +51,12 @@ void HTTPRequestParser::reset() {
 // HTTP/x.x
 static std::regex httpVersionRegex("^HTTP/([[:digit:]])\\.([[:digit:]])$");
 
-void HTTPRequestParser::parseStartLine(std::string& line) {
+enum HTTPParser::PAS HTTPRequestParser::parseStartLine(std::string& line) {
+    enum HTTPParser::PAS PAS = HTTPParser::PAS::HEADER;
+
     if (!line.empty()) {
         std::string remaining;
+
         std::tie(method, remaining) = httputils::str_split(line, ' '); // if split not found second will be empty
 
         if (!methodSupported(method)) {
@@ -101,11 +104,8 @@ void HTTPRequestParser::parseStartLine(std::string& line) {
         parsingError(400, "Request-line empty");
         PAS = PAS::ERROR;
     }
-}
 
-void HTTPRequestParser::parseHeaderLine(const std::string& field, const std::string& value) {
-    VLOG(1) << "++ Header or Cookie: " << field << " = " << value;
-    header.insert({field, value});
+    return PAS;
 }
 
 enum HTTPParser::PAS HTTPRequestParser::parseHeader() {
@@ -117,13 +117,12 @@ enum HTTPParser::PAS HTTPRequestParser::parseHeader() {
             if (field == "content-length") {
                 contentLength = std::stoi(value);
             }
-            onHeader(field, value);
         } else {
-            std::string cookies = value;
+            std::string cookiesLine = value;
 
-            while (!cookies.empty()) {
+            while (!cookiesLine.empty()) {
                 std::string cookie;
-                std::tie(cookie, cookies) = httputils::str_split(cookies, ';');
+                std::tie(cookie, cookiesLine) = httputils::str_split(cookiesLine, ';');
 
                 std::string name;
                 std::string value;
@@ -132,16 +131,31 @@ enum HTTPParser::PAS HTTPRequestParser::parseHeader() {
                 httputils::str_trimm(name);
                 httputils::str_trimm(value);
 
-                onCookie(name, value);
+                VLOG(1) << "++ Cookie: " << name << " = " << value;
+
+                cookies.insert({name, value});
             }
         }
     }
 
-    return (contentLength > 0) ? PAS::BODY : PAS::COMPLETE;
+    header.erase("cookie");
+
+    onHeader(header);
+    onCookies(cookies);
+
+    enum HTTPParser::PAS PAS = HTTPParser::PAS::BODY;
+
+    if (contentLength == 0) {
+        parsingFinished();
+        PAS = PAS::FIRSTLINE;
+    }
+
+    return PAS;
 }
 
 void HTTPRequestParser::parseBodyData(char* body, size_t size) {
     onBody(body, size);
+    parsingFinished();
 }
 
 void HTTPRequestParser::parsingFinished() {
