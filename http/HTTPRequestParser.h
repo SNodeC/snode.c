@@ -17,14 +17,14 @@
 class HTTPRequestParser : public HTTPParser {
 public:
     HTTPRequestParser(const std::function<void(std::string&, std::string&, std::string&)>& onRequest,
-                      const std::function<void(const std::string&, const std::string&)>& onHeader,
-                      const std::function<void(const std::string&, const std::string&)>& onCookie,
+                      const std::function<void(const std::map<std::string, std::string>&)>& onHeader,
+                      const std::function<void(const std::map<std::string, std::string>&)>& onCookies,
                       const std::function<void(char* body, size_t bodyLength)>& onBody, const std::function<void(void)>& onParsed,
                       const std::function<void(int status, const std::string& reason)>& onError);
 
     HTTPRequestParser(const std::function<void(std::string&, std::string&, std::string&)>&& onRequest,
-                      const std::function<void(const std::string&, const std::string&)>&& onHeader,
-                      const std::function<void(const std::string&, const std::string&)>&& onCookie,
+                      const std::function<void(const std::map<std::string, std::string>&)>&& onHeader,
+                      const std::function<void(const std::map<std::string, std::string>&)>&& onCookies,
                       const std::function<void(char* body, size_t bodyLength)>&& onBody, const std::function<void(void)>&& onParsed,
                       const std::function<void(int status, const std::string& reason)>&& onError);
 
@@ -37,13 +37,12 @@ protected:
     }
 
     // Parsers and Validators
-    void parseStartLine(std::string& line) override;
-    void parseHeaderLine(const std::string& field, const std::string& value) override;
+    enum HTTPParser::PAS parseStartLine(std::string& line) override;
+    enum HTTPParser::PAS parseHeader() override;
     void parseBodyData(char* body, size_t size) override;
 
     // Exits
-    enum HTTPParser::PAS parseHeader() override;
-    void parsingFinished() override;
+    void parsingFinished();
     void parsingError(int code, const std::string& reason) override;
 
     // Supported http-methods
@@ -53,14 +52,14 @@ protected:
     std::string method;
     std::string originalUrl;
     std::string httpVersion;
-    std::map<std::string, std::string> header;
+    std::map<std::string, std::string> cookies;
     int httpMajor = 0;
     int httpMinor = 0;
 
     std::function<void(std::string&, std::string&, std::string&)> onRequest;
     std::function<void(const std::pair<std::string, std::string>&)> onQuery;
-    std::function<void(const std::string& field, const std::string& value)> onHeader;
-    std::function<void(const std::string& name, const std::string& value)> onCookie;
+    std::function<void(const std::map<std::string, std::string>&)> onHeader;
+    std::function<void(const std::map<std::string, std::string>&)> onCookies;
     std::function<void(char* body, size_t bodyLength)> onBody;
     std::function<void(void)> onParsed;
     std::function<void(int status, const std::string& reason)> onError;

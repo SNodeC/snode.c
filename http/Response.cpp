@@ -30,8 +30,8 @@ void Response::enqueue(const char* buf, size_t len) {
     if (headersSent) {
         contentSent += len;
         if (contentSent == contentLength) {
-            if (httpContext->request.requestHeader.find("connection") != httpContext->request.requestHeader.end()) {
-                if (httpContext->request.requestHeader.find("connection")->second == "Close") {
+            if (httpContext->request.requestHeader->find("connection") != httpContext->request.requestHeader->end()) {
+                if (httpContext->request.requestHeader->find("connection")->second == "Close") {
                     httpContext->terminateConnection();
                 } else {
                     httpContext->requestCompleted();

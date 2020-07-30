@@ -27,18 +27,13 @@ HTTPServerContext::HTTPServerContext(const WebApp& webApp, SocketConnectionBase*
               request.url = httputils::str_split_last(originalUrl, '?').first;
               request.httpVersion = httpVersion;
           },
-          [this](const std::string& field, const std::string& value) -> void {
-              if (request.requestHeader.find(field) == request.requestHeader.end()) {
-                  VLOG(1) << "++ Header (insert): " << field << " = " << value;
-                  request.requestHeader.insert({field, value});
-              } else {
-                  VLOG(1) << "++ Header (append): " << field << " = " << value;
-                  request.requestHeader[field] += "," + value;
-              }
+          [this](const std::map<std::string, std::string>& header) -> void {
+              VLOG(1) << "++ Header:";
+              request.requestHeader = &header;
           },
-          [this](const std::string& name, const std::string& value) -> void {
-              VLOG(1) << "++ Cookie: " << name << " = " << value;
-              request.requestCookies.insert({name, value});
+          [this](const std::map<std::string, std::string>& cookies) -> void {
+              VLOG(1) << "++ Cookies";
+              request.requestCookies = &cookies;
           },
           [this](char* body, size_t contentLength) -> void {
               VLOG(1) << "++ Body: " << contentLength;

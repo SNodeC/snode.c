@@ -13,9 +13,9 @@ const std::string& Request::header(const std::string& key, int i) const {
     std::string tmpKey = key;
     httputils::to_lower(tmpKey);
 
-    if (requestHeader.find(tmpKey) != requestHeader.end()) {
+    if (requestHeader->find(tmpKey) != requestHeader->end()) {
         std::pair<std::multimap<std::string, std::string>::const_iterator, std::multimap<std::string, std::string>::const_iterator> range =
-            requestHeader.equal_range(tmpKey);
+            requestHeader->equal_range(tmpKey);
 
         if (std::distance(range.first, range.second) >= i) {
             std::advance(range.first, i);
@@ -31,7 +31,7 @@ const std::string& Request::header(const std::string& key, int i) const {
 const std::string& Request::cookie(const std::string& key) const {
     std::map<std::string, std::string>::const_iterator it;
 
-    if ((it = requestCookies.find(key)) != requestCookies.end()) {
+    if ((it = requestCookies->find(key)) != requestCookies->end()) {
         return it->second;
     } else {
         return nullstr;
@@ -53,13 +53,11 @@ const std::string& Request::query(const std::string& key) const {
 }
 
 void Request::reset() {
-    requestHeader.clear();
     method.clear();
     originalUrl.clear();
     httpVersion.clear();
     path.clear();
     queryMap.clear();
-    requestCookies.clear();
     body = nullptr;
     contentLength = 0;
     MultibleAttributeInjector::reset();

@@ -3,7 +3,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <stddef.h> // for size_t
+#include <cstddef> // for size_t
+#include <map>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -21,12 +22,12 @@ protected:
 
     virtual void reset();
 
-    virtual void parseStartLine(std::string& line) = 0;
-    virtual void parseHeaderLine(const std::string& field, const std::string& value) = 0;
+    virtual enum PAS parseStartLine(std::string& line) = 0;
     virtual enum PAS parseHeader() = 0;
     virtual void parseBodyData(char* body, size_t size) = 0;
-    virtual void parsingFinished() = 0;
     virtual void parsingError(int code, const std::string& reason) = 0;
+
+    std::map<std::string, std::string> header;
 
     enum struct HTTPCompliance : unsigned short {
         RFC1945 = 0x01 << 0, // HTTP 1.0
