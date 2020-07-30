@@ -16,7 +16,7 @@
 int testPost() {
     legacy::WebApp legacyApp("/home/voc/projects/ServerVoc/build/html");
 
-    legacyApp.get("/", [](Request& req, Response& res) -> void {
+    legacyApp.get("/", []([[maybe_unused]] Request& req, Response& res) -> void {
         res.send("<html>"
                  "<head>"
                  "<style>"

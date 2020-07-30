@@ -11,14 +11,14 @@
 
 int timerApp() {
     [[maybe_unused]] const Timer& tick = Timer::continousTimer(
-        [](const void* arg, const std::function<void()>& stop) -> void {
+        []([[maybe_unused]] const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
             static int i = 0;
             std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
         },
         (struct timeval){0, 500000}, "Tick");
 
     Timer& tack = Timer::continousTimer(
-        [](const void* arg, const std::function<void()>& stop) -> void {
+        []([[maybe_unused]] const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
             static int i = 0;
             std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
         },
@@ -112,7 +112,7 @@ int simpleWebserver() {
 
     Router router;
 
-    router.get("/search/", [](Request& req, Response& res, const std::function<void(void)>& next) {
+    router.get("/search/", []([[maybe_unused]] Request& req, [[maybe_unused]] Response& res, const std::function<void(void)>& next) {
         std::cout << "Route 3" << std::endl;
         next();
     });
@@ -148,17 +148,17 @@ int simpleWebserver() {
         }
     });
 
-    app.use("/", [](Request& req, Response& res, const std::function<void(void)>& next) {
+    app.use("/", []([[maybe_unused]] Request& req, [[maybe_unused]] Response& res, const std::function<void(void)>& next) {
         std::cout << "Route 1" << std::endl;
         next();
     });
 
-    app.use("/", [](Request& req, Response& res, const std::function<void(void)>& next) {
+    app.use("/", []([[maybe_unused]] Request& req, [[maybe_unused]] Response& res, const std::function<void(void)>& next) {
         std::cout << "Route 2" << std::endl;
         next();
     });
 
-    app.get("/", [&](Request& req, Response& res) -> void {
+    app.get("/", [&]([[maybe_unused]] Request& req, Response& res) -> void {
         res.cookie("Test", "me", {{"Max-Age", "3600"}});
 
         std::string host = req.header("Host");
@@ -238,7 +238,7 @@ int simpleWebserver() {
 int testPost() {
     legacy::WebApp app("/home/voc/projects/ServerVoc/build/html");
 
-    app.get("/", [&](Request& req, Response& res) -> void {
+    app.get("/", [&]([[maybe_unused]] Request& req, Response& res) -> void {
         res.send("<html>"
                  "<head>"
                  "<style>"
