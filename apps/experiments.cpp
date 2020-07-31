@@ -28,6 +28,8 @@ Router route() {
 
             next();
 
+            VLOG(0) << "Queries: " << req.query("query");
+            
             req.setAttribute<std::string>("Hallo");
             req.setAttribute<std::string, "Key1">("World");
             req.setAttribute<int>(3);
@@ -177,7 +179,7 @@ int simpleWebserver() {
 }
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
-    std::string http = "GET /admin/new/index.html?hihihi=3343&asdsf=2324 HTTP/1.1\r\n"
+    std::string http = "GET /admin/new/index.html?hihihi=3343&query=2324 HTTP/1.1\r\n"
                        "Field1: Value1\r\n"
                        "Field2: Field2\r\n"
                        "Field2: Field3\r\n" // is allowed and must be combined with a comma as separator
