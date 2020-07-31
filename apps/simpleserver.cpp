@@ -28,6 +28,7 @@ int main(int argc, char** argv) {
             "/",
             MIDDLEWARE(req, res, next) {
                 res.set("Connection", "Keep-Alive");
+                VLOG(0) << "Queries: " << req.query("query");
                 next();
             })
         .get(
