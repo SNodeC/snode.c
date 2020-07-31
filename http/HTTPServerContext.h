@@ -29,7 +29,9 @@ public:
 
 private:
     SocketConnectionBase* connectedSocket;
+
     bool requestInProgress = false;
+    bool keepAliveFlag = false;
 
 public:
     const WebApp& webApp;

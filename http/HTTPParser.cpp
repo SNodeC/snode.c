@@ -119,8 +119,9 @@ void HTTPParser::splitHeaderLine(const std::string& line) {
         } else if (value.empty()) {
             PAS = parsingError(400, "Header-value of field \"" + field + "\" empty");
         } else {
-            httputils::str_trimm(value);
             httputils::to_lower(field);
+            httputils::str_trimm(value);
+            httputils::to_lower(value);
 
             if (header.find(field) == header.end()) {
                 VLOG(1) << "++ Header (insert): " << field << " = " << value;

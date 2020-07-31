@@ -32,6 +32,11 @@ HTTPServerContext::HTTPServerContext(const WebApp& webApp, SocketConnectionBase*
           [this](const std::map<std::string, std::string>& header, const std::map<std::string, std::string>& cookies) -> void {
               VLOG(1) << "++ Header:";
               request.requestHeader = &header;
+              for (std::pair<std::string, std::string> headerField : header) {
+                  if (headerField.first == "connection" && headerField.second == "keep-alive") {
+                      keepAliveFlag = true;
+                  }
+              }
               VLOG(1) << "++ Cookies";
               request.requestCookies = &cookies;
           },
@@ -49,7 +54,9 @@ HTTPServerContext::HTTPServerContext(const WebApp& webApp, SocketConnectionBase*
               response.status(status).send(reason);
               this->connectedSocket->end();
           }) {
-    this->requestCompleted();
+    parser.reset();
+    request.reset();
+    response.reset();
 }
 
 void HTTPServerContext::receiveRequestData(const char* junk, size_t junkLen) {
@@ -87,9 +94,16 @@ void HTTPServerContext::requestReady() {
 }
 
 void HTTPServerContext::requestCompleted() {
-    this->requestInProgress = false;
+    if (!this->keepAliveFlag) {
+        terminateConnection();
+    }
+
+    parser.reset();
     request.reset();
     response.reset();
+
+    this->requestInProgress = false;
+    this->keepAliveFlag = false;
 }
 
 void HTTPServerContext::terminateConnection() {
