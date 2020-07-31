@@ -155,7 +155,6 @@ enum HTTPParser::PAS HTTPRequestParser::parseContent(char* content, size_t size)
 
 void HTTPRequestParser::parsingFinished() {
     onParsed();
-    reset();
 }
 
 enum HTTPParser::PAS HTTPRequestParser::parsingError(int code, const std::string& reason) {
