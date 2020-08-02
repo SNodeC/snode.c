@@ -72,8 +72,8 @@ private:
     bool headersSentInProgress = false;
 
     int responseStatus = 0;
-    std::map<std::string, std::string> responseHeader;
-    std::map<std::string, ResponseCookie> responseCookies;
+    std::map<std::string, std::string> headers;
+    std::map<std::string, ResponseCookie> cookies;
 
     friend class HTTPServerContext;
 };

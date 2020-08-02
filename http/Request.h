@@ -33,9 +33,9 @@ public:
 protected:
     void reset();
 
-    const std::map<std::string, std::string>* queries;
-    const std::map<std::string, std::string>* requestHeader = nullptr;
-    const std::map<std::string, std::string>* requestCookies = nullptr;
+    const std::map<std::string, std::string>* queries = nullptr;
+    const std::map<std::string, std::string>* headers = nullptr;
+    const std::map<std::string, std::string>* cookies = nullptr;
 
 private:
     std::string nullstr = "";

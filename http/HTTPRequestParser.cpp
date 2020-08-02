@@ -104,7 +104,7 @@ enum HTTPParser::PAS HTTPRequestParser::parseStartLine(std::string& line) {
 }
 
 enum HTTPParser::PAS HTTPRequestParser::parseHeader() {
-    for (std::pair<std::string, std::string> headerField : HTTPParser::header) {
+    for (std::pair<std::string, std::string> headerField : HTTPParser::headers) {
         std::string& field = headerField.first;
         std::string& value = headerField.second;
         VLOG(1) << "++ Parse header field: " << field << " = " << value;
@@ -133,9 +133,9 @@ enum HTTPParser::PAS HTTPRequestParser::parseHeader() {
         }
     }
 
-    HTTPParser::header.erase("cookie");
+    HTTPParser::headers.erase("cookie");
 
-    onHeader(HTTPParser::header, cookies);
+    onHeader(HTTPParser::headers, cookies);
 
     enum HTTPParser::PAS PAS = HTTPParser::PAS::BODY;
     if (contentLength == 0) {

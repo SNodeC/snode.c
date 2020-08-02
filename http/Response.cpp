@@ -46,9 +46,9 @@ Response& Response::status(int status) {
 }
 
 Response& Response::append(const std::string& field, const std::string& value) {
-    std::map<std::string, std::string>::iterator it = this->responseHeader.find(field);
+    std::map<std::string, std::string>::iterator it = this->headers.find(field);
 
-    if (it != this->responseHeader.end()) {
+    if (it != this->headers.end()) {
         it->second += ", " + value;
     } else {
         this->set(field, value);
@@ -67,9 +67,9 @@ Response& Response::set(const std::map<std::string, std::string>& map, bool over
 
 Response& Response::set(const std::string& field, const std::string& value, bool overwrite) {
     if (overwrite) {
-        this->responseHeader.insert_or_assign(field, value);
+        this->headers.insert_or_assign(field, value);
     } else {
-        this->responseHeader.insert({field, value});
+        this->headers.insert({field, value});
     }
 
     if (field == "Content-Length") {
@@ -86,7 +86,7 @@ Response& Response::type(const std::string& type) {
 }
 
 Response& Response::cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options) {
-    this->responseCookies.insert({name, ResponseCookie(value, options)});
+    this->cookies.insert({name, ResponseCookie(value, options)});
 
     return *this;
 }
@@ -105,16 +105,16 @@ Response& Response::clearCookie(const std::string& name, const std::map<std::str
 
 void Response::send(const char* buffer, size_t size) {
     if (size > 0) {
-        responseHeader.insert({"Content-Type", "application/octet-stream"});
+        headers.insert({"Content-Type", "application/octet-stream"});
     }
-    responseHeader.insert_or_assign("Content-Length", std::to_string(size));
+    headers.insert_or_assign("Content-Length", std::to_string(size));
 
     this->enqueue(buffer, size);
 }
 
 void Response::send(const std::string& text) {
     if (text.size() > 0) {
-        responseHeader.insert({"Content-Type", "text/html; charset=utf-8"});
+        headers.insert({"Content-Type", "text/html; charset=utf-8"});
     }
     this->send(text.c_str(), text.size());
 }
@@ -123,13 +123,13 @@ void Response::sendHeader() {
     this->enqueue("HTTP/1.1 " + std::to_string(responseStatus) + " " + HTTPStatusCode::reason(responseStatus) + "\r\n");
     this->enqueue("Date: " + httputils::to_http_date() + "\r\n");
 
-    responseHeader.insert({{"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}, {"X-Powered-By", "snode.c"}});
+    headers.insert({{"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}, {"X-Powered-By", "snode.c"}});
 
-    for (const std::pair<const std::string, std::string>& header : responseHeader) {
+    for (const std::pair<const std::string, std::string>& header : headers) {
         this->enqueue(header.first + ": " + header.second + "\r\n");
     }
 
-    for (const std::pair<const std::string, Response::ResponseCookie>& cookie : responseCookies) {
+    for (const std::pair<const std::string, Response::ResponseCookie>& cookie : cookies) {
         std::string cookieString =
             std::accumulate(cookie.second.options.begin(), cookie.second.options.end(), cookie.first + "=" + cookie.second.value,
                             [](const std::string& str, const std::pair<const std::string&, const std::string&> option) -> std::string {
@@ -140,7 +140,7 @@ void Response::sendHeader() {
 
     this->enqueue("\r\n");
 
-    contentLength = std::stoi(responseHeader.find("Content-Length")->second);
+    contentLength = std::stoi(headers.find("Content-Length")->second);
 }
 
 void Response::stop() {
@@ -159,9 +159,9 @@ void Response::sendFile(const std::string& file, const std::function<void(int er
 
         if (absolutFileName.rfind(httpContext->webApp.getRootDir(), 0) == 0 && std::filesystem::is_regular_file(absolutFileName, ec) &&
             !ec) {
-            responseHeader.insert({{"Content-Type", MimeTypes::contentType(absolutFileName)},
+            headers.insert({{"Content-Type", MimeTypes::contentType(absolutFileName)},
                                    {"Last-Modified", httputils::file_mod_http_date(absolutFileName)}});
-            responseHeader.insert_or_assign("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
+            headers.insert_or_assign("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
 
             fileReader = FileReader::read(
                 absolutFileName,
@@ -234,7 +234,7 @@ void Response::reset() {
     contentSent = 0;
     responseStatus = 200;
     contentLength = 0;
-    responseHeader.clear();
-    responseCookies.clear();
+    headers.clear();
+    cookies.clear();
     stop();
 }

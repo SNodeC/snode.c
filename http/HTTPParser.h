@@ -44,7 +44,7 @@ protected:
     // Data common to all HTTP messages (Request/Response)
     char* content = nullptr;
     size_t contentLength = 0;
-    std::map<std::string, std::string> header;
+    std::map<std::string, std::string> headers;
 
 private:
     size_t readStartLine(const char* buf, size_t count);
