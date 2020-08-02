@@ -12,7 +12,7 @@
 
 void HTTPParser::reset() {
     PAS = PAS::FIRSTLINE;
-    header.clear();
+    headers.clear();
     contentLength = 0;
     if (content != nullptr) {
         delete[] content;
@@ -123,12 +123,12 @@ void HTTPParser::splitHeaderLine(const std::string& line) {
             httputils::str_trimm(value);
             httputils::to_lower(value);
 
-            if (header.find(field) == header.end()) {
+            if (headers.find(field) == headers.end()) {
                 VLOG(1) << "++ Header (insert): " << field << " = " << value;
-                header.insert({field, value});
+                headers.insert({field, value});
             } else {
                 VLOG(1) << "++ Header (append): " << field << " = " << value;
-                header[field] += "," + value;
+                headers[field] += "," + value;
             }
         }
     } else {

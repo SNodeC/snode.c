@@ -31,14 +31,14 @@ HTTPServerContext::HTTPServerContext(const WebApp& webApp, SocketConnectionBase*
           },
           [this](const std::map<std::string, std::string>& header, const std::map<std::string, std::string>& cookies) -> void {
               VLOG(1) << "++ Header:";
-              request.requestHeader = &header;
+              request.headers = &header;
               for (std::pair<std::string, std::string> headerField : header) {
                   if (headerField.first == "connection" && headerField.second == "keep-alive") {
                       keepAliveFlag = true;
                   }
               }
               VLOG(1) << "++ Cookies";
-              request.requestCookies = &cookies;
+              request.cookies = &cookies;
           },
           [this](char* content, size_t contentLength) -> void {
               VLOG(1) << "++ Content: " << contentLength;

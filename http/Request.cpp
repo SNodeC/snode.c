@@ -13,9 +13,9 @@ const std::string& Request::header(const std::string& key, int i) const {
     std::string tmpKey = key;
     httputils::to_lower(tmpKey);
 
-    if (requestHeader->find(tmpKey) != requestHeader->end()) {
+    if (headers->find(tmpKey) != headers->end()) {
         std::pair<std::multimap<std::string, std::string>::const_iterator, std::multimap<std::string, std::string>::const_iterator> range =
-            requestHeader->equal_range(tmpKey);
+            headers->equal_range(tmpKey);
 
         if (std::distance(range.first, range.second) >= i) {
             std::advance(range.first, i);
@@ -31,7 +31,7 @@ const std::string& Request::header(const std::string& key, int i) const {
 const std::string& Request::cookie(const std::string& key) const {
     std::map<std::string, std::string>::const_iterator it;
 
-    if ((it = requestCookies->find(key)) != requestCookies->end()) {
+    if ((it = cookies->find(key)) != cookies->end()) {
         return it->second;
     } else {
         return nullstr;
