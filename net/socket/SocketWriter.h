@@ -12,13 +12,13 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Writer.h"
+#include "WriteEvent.h"
 
 #define MAX_SEND_JUNKSIZE 16384
 
 template <typename SocketImpl>
 class SocketWriter
-    : public Writer
+    : public WriteEvent
     , virtual public SocketImpl {
 public:
     SocketWriter() = delete;
@@ -29,7 +29,7 @@ public:
 
     ~SocketWriter() override {
         if (isManaged()) {
-            Writer::stop();
+            WriteEvent::stop();
         }
     }
 
@@ -42,17 +42,17 @@ public:
             writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + ret);
 
             if (writeBuffer.empty()) {
-                Writer::stop();
+                WriteEvent::stop();
             }
         } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
-            Writer::stop();
+            WriteEvent::stop();
             onError(errno);
         }
     }
 
     void enqueue(const char* buffer, size_t size) {
         writeBuffer.insert(writeBuffer.end(), buffer, buffer + size);
-        Writer::start();
+        WriteEvent::start();
     }
 
 protected:

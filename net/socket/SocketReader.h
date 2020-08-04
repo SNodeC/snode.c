@@ -10,13 +10,13 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Reader.h"
+#include "ReaderEvent.h"
 
 #define MAX_READ_JUNKSIZE 16384
 
 template <typename SocketImpl>
 class SocketReader
-    : public Reader
+    : public ReadEvent
     , virtual public SocketImpl {
 public:
     SocketReader() = delete;
@@ -28,7 +28,7 @@ public:
 
     ~SocketReader() override {
         if (isManaged()) {
-            Reader::stop();
+            ReadEvent::stop();
         }
     }
 
@@ -43,7 +43,7 @@ public:
         if (ret > 0) {
             onRead(junk, ret);
         } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
-            Reader::stop();
+            ReadEvent::stop();
             this->onError(ret == 0 ? 0 : errno);
         }
     }

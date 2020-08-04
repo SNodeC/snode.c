@@ -9,10 +9,10 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "File.h"
-#include "Reader.h"
+#include "ReaderEvent.h"
 
 class FileReader
-    : public Reader
+    : public ReadEvent
     , virtual public File {
 protected:
     FileReader(int fd, const std::function<void(char* data, int len)>& junkRead, const std::function<void(int err)>& onError);

@@ -17,14 +17,14 @@ add_library(net SHARED
     ManagedWriter.h
     Multiplexer.cpp
     Multiplexer.h
-    Exception.cpp
-    Exception.h
-    Reader.cpp
-    Reader.h
-    Server.cpp
-    Server.h
-    Writer.cpp
-    Writer.h
+    OutOfBandEvent.cpp
+    OutOfBandEvent.h
+    ReaderEvent.cpp
+    ReaderEvent.h
+    AcceptEvent.cpp
+    AcceptEvent.h
+    WriteEvent.cpp
+    WriteEvent.h
     file/File.cpp
     file/File.h
     file/FileReader.cpp

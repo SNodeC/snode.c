@@ -18,8 +18,8 @@ namespace tls {
         : ::SocketServer<tls::SocketConnection>(
               [this, onConnect](tls::SocketConnection* cs) -> void {
                   class TLSAccept
-                      : public Reader
-                      , public Writer
+                      : public ReadEvent
+                      , public WriteEvent
                       , public Socket {
                   public:
                       TLSAccept(tls::SocketConnection* cs, SSL_CTX* ctx, const std::function<void(tls::SocketConnection* cs)>& onConnect)
@@ -29,8 +29,8 @@ namespace tls {
                           , onConnect(onConnect)
                           , timeOut(Timer::singleshotTimer(
                                 [this]([[maybe_unused]] const void* arg) -> void {
-                                    this->::Reader::stop();
-                                    this->::Writer::stop();
+                                    this->::ReadEvent::stop();
+                                    this->::WriteEvent::stop();
                                     this->cs->stopSSL();
                                     delete this->cs;
                                 },
@@ -41,9 +41,9 @@ namespace tls {
                           int sslErr = SSL_get_error(ssl, err);
 
                           if (sslErr == SSL_ERROR_WANT_READ) {
-                              ::Reader::start();
+                              ::ReadEvent::start();
                           } else if (sslErr == SSL_ERROR_WANT_WRITE) {
-                              ::Writer::start();
+                              ::WriteEvent::start();
                           } else {
                               if (sslErr == SSL_ERROR_NONE) {
                                   onConnect(cs);
@@ -59,13 +59,13 @@ namespace tls {
 
                           if (sslErr != SSL_ERROR_WANT_READ) {
                               if (sslErr == SSL_ERROR_WANT_WRITE) {
-                                  ::Reader::stop();
-                                  ::Writer::start();
+                                  ::ReadEvent::stop();
+                                  ::WriteEvent::start();
                               } else {
                                   timeOut.cancel();
-                                  ::Reader::stop();
+                                  ::ReadEvent::stop();
                                   if (sslErr == SSL_ERROR_NONE) {
-                                      cs->Reader::start();
+                                      cs->ReadEvent::start();
                                       this->onConnect(cs);
                                   } else {
                                       cs->stopSSL();
@@ -81,13 +81,13 @@ namespace tls {
 
                           if (sslErr != SSL_ERROR_WANT_WRITE) {
                               if (sslErr == SSL_ERROR_WANT_READ) {
-                                  ::Writer::stop();
-                                  ::Reader::start();
+                                  ::WriteEvent::stop();
+                                  ::ReadEvent::start();
                               } else {
                                   timeOut.cancel();
-                                  ::Writer::stop();
+                                  ::WriteEvent::stop();
                                   if (sslErr == SSL_ERROR_NONE) {
-                                      cs->Reader::start();
+                                      cs->ReadEvent::start();
                                       this->onConnect(cs);
                                   } else {
                                       cs->stopSSL();
