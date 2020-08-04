@@ -3,13 +3,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-//#include <openssl/crypto.h>
-//#include <openssl/err.h>
-#include <openssl/ossl_typ.h> // for SSL, SSL_CTX
-//#include <openssl/pem.h>
-//#include <openssl/rsa.h>
-//#include <openssl/ssl.h>
-//#include <openssl/x509.h>
+#include <openssl/ssl.h> // IWYU pragma: keep // for SSL, SSL_CTX
+
+// IWYU pragma: no_include <openssl/ossl_typ.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

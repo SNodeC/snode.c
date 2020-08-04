@@ -7,7 +7,8 @@
 
 #include "Descriptor.h" // for Descriptor
 #include "ManagedServer.h"
-#include "Server.h"
+
+// IWYU pragma: no_include "Server.h"
 
 int ManagedServer::dispatch(const fd_set& fdSet, int count) {
     for (std::pair<int, Server*> serverPair : descriptors) {

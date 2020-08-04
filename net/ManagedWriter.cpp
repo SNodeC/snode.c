@@ -7,7 +7,8 @@
 
 #include "Descriptor.h" // for Descriptor
 #include "ManagedWriter.h"
-#include "Writer.h"
+
+// IWYU pragma: no_include "Writer.h"
 
 int ManagedWriter::dispatch(const fd_set& fdSet, int count) {
     for (std::pair<int, Writer*> writerPair : descriptors) {
