@@ -8,7 +8,7 @@
 
 namespace legacy {
 
-    ssize_t SocketWriter::send(const char* junk, const size_t junkSize) {
+    ssize_t SocketWriter::send(const char* junk, size_t junkSize) {
         return ::send(this->getFd(), junk, junkSize, MSG_NOSIGNAL);
     }
 

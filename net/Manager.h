@@ -17,11 +17,12 @@ class Multiplexer;
 template <typename ManagedDescriptor>
 class Manager {
 public:
-    explicit Manager(fd_set& fdSet)
+    explicit Manager(fd_set& fdSet) // NOLINT(google-runtime-references)
         : fdSet(fdSet) {
     }
 
     Manager(const Manager&) = delete;
+
     Manager& operator=(const Manager&) = delete;
 
 private:

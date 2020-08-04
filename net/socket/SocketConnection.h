@@ -15,6 +15,9 @@ class SocketConnection
     , public SocketReader
     , public SocketWriter {
 public:
+    // NOLINT(cppcoreguidelines-pro-type-member-init)
+    SocketConnection() = delete;
+
     void* operator new(size_t size) {
         SocketConnection* sc = reinterpret_cast<SocketConnection*>(malloc(size));
         sc->isDynamic = true;
@@ -30,6 +33,7 @@ public:
     }
 
 protected:
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
     SocketConnection(int csFd, const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
                      const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
                      const std::function<void(SocketConnection* cs, int errnum)>& onWriteError,
@@ -54,14 +58,14 @@ public:
                                     const std::function<void(SocketConnection* cs, int errnum)>& onWriteError,
                                     const std::function<void(SocketConnection* cs)>& onDisconnect) {
         return new SocketConnection(csFd, onRead, onReadError, onWriteError, onDisconnect);
-    }
+    } // NOLINT(cppcoreguidelines-pro-type-member-init)
 
     static SocketConnection* create(const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
                                     const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
                                     const std::function<void(SocketConnection* cs, int errnum)>& onWriteError,
                                     const std::function<void(SocketConnection* cs)>& onDisconnect) {
         return SocketConnection::create(0, onRead, onReadError, onWriteError, onDisconnect);
-    }
+    } // NOLINT(cppcoreguidelines-pro-type-member-init)
 
 private:
     void unmanaged() override {
@@ -96,16 +100,11 @@ public:
 private:
     InetAddress remoteAddress{};
     std::function<void(SocketConnection* cs)> onDisconnect;
+    bool isDynamic;
 
 public:
     using ReaderType = SocketReader;
     using WriterType = SocketWriter;
-
-private:
-    SocketConnection() {
-    }
-
-    bool isDynamic;
 };
 
 #endif // SOCKETCONNECTIONBASE_H

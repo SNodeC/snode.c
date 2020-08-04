@@ -27,7 +27,7 @@ public:
         : onError(onError) {
     }
 
-    virtual ~SocketWriter() {
+    ~SocketWriter() override {
         if (isManaged()) {
             Writer::stop();
         }
@@ -60,7 +60,6 @@ protected:
 
     std::function<void(int errnum)> onError;
 
-protected:
     std::vector<char> writeBuffer;
 };
 

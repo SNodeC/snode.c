@@ -7,7 +7,7 @@
 
 class Descriptor {
 protected:
-    Descriptor(bool dontClose = false)
+    explicit Descriptor(bool dontClose = false)
         : dontClose(dontClose) {
     }
 

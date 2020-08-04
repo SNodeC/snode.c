@@ -75,6 +75,7 @@ void Multiplexer::tick() {
     managedServer.unobserveStopedDescriptors();
 }
 
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
 void Multiplexer::init(int argc, char* argv[]) {
     signal(SIGPIPE, SIG_IGN);
     signal(SIGQUIT, Multiplexer::stoponsig);

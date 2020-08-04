@@ -50,7 +50,7 @@ InetAddress& InetAddress::operator=(const InetAddress& ina) {
     return *this;
 }
 
-in_port_t InetAddress::port() {
+in_port_t InetAddress::port() const {
     return (ntohs(addr.sin_port));
 }
 

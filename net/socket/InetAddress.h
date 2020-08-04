@@ -3,8 +3,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstdint> // for uint16_t
 #include <netinet/in.h>
-#include <stdint.h> // for uint16_t
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -18,7 +18,7 @@ public:
     explicit InetAddress(in_port_t port);
     explicit InetAddress(const struct sockaddr_in& addr);
 
-    in_port_t port();
+    in_port_t port() const;
 
     ~InetAddress() = default;
 
