@@ -3,10 +3,10 @@
 #include "ManagedWriter.h" // for ManagedExceptions
 #include "Multiplexer.h"
 
-void WriteEvent::start() {
+void WriteEvent::enable() {
     Multiplexer::instance().getManagedWriter().start(this);
 }
 
-void WriteEvent::stop() {
+void WriteEvent::disable() {
     Multiplexer::instance().getManagedWriter().stop(this);
 }

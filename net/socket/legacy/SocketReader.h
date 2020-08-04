@@ -18,7 +18,7 @@ namespace legacy {
         using ::SocketReader<legacy::Socket>::SocketReader;
 
     private:
-        ssize_t recv(char* junk, size_t junkSize) override;
+        ssize_t read(char* junk, size_t junkSize) override;
     };
 
 }; // namespace legacy

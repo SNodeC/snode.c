@@ -67,7 +67,7 @@ void HTTPServerContext::receiveRequestData(const char* junk, size_t junkLen) {
 }
 
 void HTTPServerContext::onReadError(int errnum) {
-    response.stop();
+    response.disable();
 
     if (errnum != 0 && errnum != ECONNRESET) {
         PLOG(ERROR) << "Connection: read";
@@ -79,7 +79,7 @@ void HTTPServerContext::sendResponseData(const char* buf, size_t len) {
 }
 
 void HTTPServerContext::onWriteError(int errnum) {
-    response.stop();
+    response.disable();
 
     if (errnum != 0 && errnum != ECONNRESET) {
         PLOG(ERROR) << "Connection write";

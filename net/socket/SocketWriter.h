@@ -29,34 +29,34 @@ public:
 
     ~SocketWriter() override {
         if (isManaged()) {
-            WriteEvent::stop();
+            WriteEvent::disable();
         }
     }
 
     void writeEvent() override {
         errno = 0;
 
-        ssize_t ret = send(writeBuffer.data(), (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE);
+        ssize_t ret = write(writeBuffer.data(), (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE);
 
         if (ret >= 0) {
             writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + ret);
 
             if (writeBuffer.empty()) {
-                WriteEvent::stop();
+                WriteEvent::disable();
             }
         } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
-            WriteEvent::stop();
+            WriteEvent::disable();
             onError(errno);
         }
     }
 
     void enqueue(const char* buffer, size_t size) {
         writeBuffer.insert(writeBuffer.end(), buffer, buffer + size);
-        WriteEvent::start();
+        WriteEvent::enable();
     }
 
 protected:
-    virtual ssize_t send(const char* junk, size_t junkSize) = 0;
+    virtual ssize_t write(const char* junk, size_t junkSize) = 0;
 
     std::function<void(int errnum)> onError;
 

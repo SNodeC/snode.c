@@ -17,7 +17,7 @@ namespace legacy {
     protected:
         using ::SocketWriter<legacy::Socket>::SocketWriter;
 
-        ssize_t send(const char* junk, size_t junkSize) override;
+        ssize_t write(const char* junk, size_t junkSize) override;
     };
 
 }; // namespace legacy

@@ -86,7 +86,7 @@ public:
     }
 
     void end() override {
-        SocketReader::stop();
+        SocketReader::disable();
     }
 
     InetAddress& getRemoteAddress() {

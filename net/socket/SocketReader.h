@@ -28,7 +28,7 @@ public:
 
     ~SocketReader() override {
         if (isManaged()) {
-            ReadEvent::stop();
+            ReadEvent::disable();
         }
     }
 
@@ -38,18 +38,18 @@ public:
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
         static char junk[MAX_READ_JUNKSIZE];
 
-        ssize_t ret = recv(junk, MAX_READ_JUNKSIZE);
+        ssize_t ret = read(junk, MAX_READ_JUNKSIZE);
 
         if (ret > 0) {
             onRead(junk, ret);
         } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
-            ReadEvent::stop();
+            ReadEvent::disable();
             this->onError(ret == 0 ? 0 : errno);
         }
     }
 
 protected:
-    virtual ssize_t recv(char* junk, size_t junkSize) = 0;
+    virtual ssize_t read(char* junk, size_t junkSize) = 0;
 
 private:
     std::function<void(const char* junk, ssize_t n)> onRead;

@@ -13,8 +13,8 @@ public:
 
     virtual void exceptionEvent() = 0;
 
-    void start() override;
-    void stop() override;
+    void enable() override;
+    void disable() override;
 };
 
 #endif // EXCEPTION_H
