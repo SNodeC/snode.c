@@ -47,7 +47,7 @@ protected:
     void enqueue(const std::string& str);
 
     void sendHeader();
-    void stop();
+    void disable();
     void reset();
 
 private:

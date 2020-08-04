@@ -64,7 +64,7 @@ public:
                                     , timeOut(Timer::singleshotTimer(
                                           [this]([[maybe_unused]] const void* arg) -> void {
                                               this->onError(ETIMEDOUT);
-                                              this->::WriteEvent::stop();
+                                              this->WriteEvent::disable();
                                               delete this->cs;
                                           },
                                           (struct timeval){10, 0}, nullptr)) {
@@ -77,11 +77,11 @@ public:
                                     if (ret == 0) {
                                         timeOut.cancel();
                                         onConnect(cs);
-                                        cs->::ReadEvent::start();
+                                        cs->ReadEvent::enable();
                                         delete this;
                                     } else {
                                         if (errno == EINPROGRESS) {
-                                            ::WriteEvent::start();
+                                            this->WriteEvent::enable();
                                         } else {
                                             timeOut.cancel();
                                             onError(errno);
@@ -98,7 +98,7 @@ public:
                                     int err = getsockopt(cs->getFd(), SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);
 
                                     timeOut.cancel();
-                                    ::WriteEvent::stop();
+                                    this->WriteEvent::disable();
 
                                     if (err < 0) {
                                         onError(err);
@@ -115,7 +115,7 @@ public:
 
                                         onError(0);
                                         onConnect(cs);
-                                        cs->::ReadEvent::start();
+                                        cs->ReadEvent::enable();
                                     }
                                 }
 

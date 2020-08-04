@@ -3,10 +3,10 @@
 #include "ManagedReader.h" // for ManagedExceptions
 #include "Multiplexer.h"
 
-void ReadEvent::start() {
+void ReadEvent::enable() {
     Multiplexer::instance().getManagedReader().start(this);
 }
 
-void ReadEvent::stop() {
+void ReadEvent::disable() {
     Multiplexer::instance().getManagedReader().stop(this);
 }

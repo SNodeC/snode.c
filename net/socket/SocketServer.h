@@ -19,6 +19,20 @@ class SocketServer
     : public AcceptEvent
     , public Socket {
 public:
+    void* operator new(size_t size) {
+        SocketServer* ss = reinterpret_cast<SocketServer*>(malloc(size));
+        ss->isDynamic = true;
+
+        return ss;
+    }
+
+    void operator delete(void* ss_v) {
+        SocketServer* ss = reinterpret_cast<SocketServer*>(ss_v);
+        if (ss->isDynamic) {
+            free(ss_v);
+        }
+    }
+
     SocketServer() = delete;
 
     SocketServer(const std::function<void(SocketConnectionImpl* cs)>& onConnect,
@@ -55,7 +69,7 @@ public:
                             } else {
                                 this->listen(backlog, [this, &onError](int errnum) -> void {
                                     if (errnum == 0) {
-                                        AcceptEvent::start();
+                                        AcceptEvent::enable();
                                     }
                                     onError(errnum);
                                 });
@@ -96,7 +110,7 @@ public:
                 cs->setLocalAddress(InetAddress(localAddress));
 
                 onConnect(cs);
-                cs->::ReadEvent::start();
+                cs->ReadEvent::enable();
             } else {
                 PLOG(ERROR) << "getsockname";
                 shutdown(csFd, SHUT_RDWR);
@@ -108,7 +122,7 @@ public:
     }
 
     void end() {
-        AcceptEvent::stop();
+        AcceptEvent::disable();
     }
 
 protected:
@@ -134,7 +148,9 @@ private:
     }
 
     void unmanaged() override {
-        delete this;
+        if (isDynamic) {
+            delete this;
+        }
     }
 
     std::function<void(SocketConnectionImpl* cs)> onConnect;
@@ -142,6 +158,8 @@ private:
     std::function<void(SocketConnectionImpl* cs, const char* junk, ssize_t n)> onRead;
     std::function<void(SocketConnectionImpl* cs, int errnum)> onReadError;
     std::function<void(SocketConnectionImpl* cs, int errnum)> onWriteError;
+
+    bool isDynamic;
 
 public:
     //    using SocketConnectionType = SocketConnectionImpl;

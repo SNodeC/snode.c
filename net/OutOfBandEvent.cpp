@@ -3,10 +3,10 @@
 #include "ManagedExceptions.h" // for ManagedExceptions
 #include "Multiplexer.h"
 
-void OutOfBandEvent::start() {
+void OutOfBandEvent::enable() {
     Multiplexer::instance().getManagedExceptions().start(this);
 }
 
-void OutOfBandEvent::stop() {
+void OutOfBandEvent::disable() {
     Multiplexer::instance().getManagedExceptions().stop(this);
 }

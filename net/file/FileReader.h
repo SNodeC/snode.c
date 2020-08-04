@@ -21,7 +21,7 @@ public:
     static FileReader* read(const std::string& path, const std::function<void(char* data, int len)>& junkRead,
                             const std::function<void(int err)>& onError);
 
-    void stop() override;
+    void disable() override;
 
     void readEvent() override;
 

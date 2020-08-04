@@ -143,9 +143,9 @@ void Response::sendHeader() {
     contentLength = std::stoi(headers.find("Content-Length")->second);
 }
 
-void Response::stop() {
+void Response::disable() {
     if (fileReader != nullptr) {
-        fileReader->stop();
+        fileReader->disable();
         fileReader = nullptr;
     }
 }
@@ -236,5 +236,5 @@ void Response::reset() {
     contentLength = 0;
     headers.clear();
     cookies.clear();
-    stop();
+    disable();
 }
