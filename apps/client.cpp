@@ -1,8 +1,13 @@
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include "Multiplexer.h"
 #include "socket/legacy/SocketClient.h"
 #include "socket/tls/SocketClient.h"
 
+#include <cstring>
 #include <iostream>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 tls::SocketClient tlsClient() {
     tls::SocketClient client(

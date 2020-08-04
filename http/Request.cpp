@@ -6,9 +6,6 @@
 
 #include "httputils.h"
 
-Request::Request() {
-}
-
 const std::string& Request::header(const std::string& key, int i) const {
     std::string tmpKey = key;
     httputils::to_lower(tmpKey);

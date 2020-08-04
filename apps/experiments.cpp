@@ -5,6 +5,7 @@
 #include "legacy/WebApp.h"
 #include "tls/WebApp.h"
 
+#include <easylogging++.h>
 #include <iostream>
 #include <unistd.h>
 
@@ -29,7 +30,7 @@ Router route() {
             next();
 
             VLOG(0) << "Queries: " << req.query("query");
-            
+
             req.setAttribute<std::string>("Hallo");
             req.setAttribute<std::string, "Key1">("World");
             req.setAttribute<int>(3);

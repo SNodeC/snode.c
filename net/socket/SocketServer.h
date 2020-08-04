@@ -3,6 +3,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <easylogging++.h>
 #include <functional>
 #include <unistd.h>
 

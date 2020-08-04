@@ -7,6 +7,7 @@
 
 #include "Descriptor.h" // for Descriptor
 #include "ManagedReader.h"
+#include "Reader.h"
 
 int ManagedReader::dispatch(const fd_set& fdSet, int count) {
     for (std::pair<int, Reader*> readerPair : descriptors) {

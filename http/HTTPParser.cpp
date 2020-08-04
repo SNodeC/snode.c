@@ -1,13 +1,13 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cctype> // for isblank
 #include <cstring>
-#include <ctype.h> // for isblank
-#include <tuple>   // for tie, tuple
+#include <easylogging++.h>
+#include <tuple> // for tie, tuple
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "HTTPParser.h"
-#include "Logger.h"
 #include "httputils.h"
 
 void HTTPParser::reset() {

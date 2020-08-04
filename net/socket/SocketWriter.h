@@ -3,8 +3,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cerrno>
+#include <cstddef> // for size_t
 #include <functional>
-#include <stddef.h> // for size_t
 #include <string>
 #include <sys/types.h> // for ssize_t
 

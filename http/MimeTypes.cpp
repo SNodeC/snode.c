@@ -1,5 +1,3 @@
-#include "MimeTypes.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <filesystem>
@@ -7,6 +5,8 @@
 #include <utility> // for pair
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+#include "MimeTypes.h"
 
 MimeTypes MimeTypes::mimeTypes;
 

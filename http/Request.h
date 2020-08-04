@@ -13,7 +13,7 @@ class HTTPServerContext;
 
 class Request : public utils::MultibleAttributeInjector {
 private:
-    explicit Request();
+    explicit Request() = default;
 
 public:
     const std::string& header(const std::string& key, int i = 0) const;
