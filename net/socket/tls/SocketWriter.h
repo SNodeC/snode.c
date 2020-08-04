@@ -11,6 +11,8 @@
 #include "socket/SocketWriter.h"
 #include "socket/tls/Socket.h"
 
+// IWYU pragma: no_forward_declare tls::Socket
+
 namespace tls {
 
     class SocketWriter : public ::SocketWriter<tls::Socket> {

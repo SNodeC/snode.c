@@ -10,6 +10,8 @@
 #include "Manager.h"
 #include "Reader.h"
 
+// IWYU pragma: no_forward_declare Reader
+
 class ManagedReader : public Manager<Reader> {
 public:
     using Manager<Reader>::Manager;

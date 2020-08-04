@@ -10,6 +10,8 @@
 #include "Manager.h"
 #include "Server.h"
 
+// IWYU pragma: no_forward_declare Server
+
 class ManagedServer : public Manager<Server> {
 public:
     using Manager<Server>::Manager;

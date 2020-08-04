@@ -10,6 +10,8 @@
 #include "Exception.h"
 #include "Manager.h"
 
+// IWYU pragma: no_forward_declare Exception
+
 class ManagedExceptions : public Manager<Exception> {
 public:
     using Manager<Exception>::Manager;

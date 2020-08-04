@@ -10,6 +10,8 @@
 #include "Manager.h"
 #include "Writer.h"
 
+// IWYU pragma: no_forward_declare Writer
+
 class ManagedWriter : public Manager<Writer> {
 public:
     using Manager<Writer>::Manager;

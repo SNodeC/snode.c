@@ -6,8 +6,9 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Descriptor.h" // for Descriptor
-#include "Exception.h"
 #include "ManagedExceptions.h"
+
+// IWYU pragma: no_include "Exception.h"
 
 int ManagedExceptions::dispatch(const fd_set& fdSet, int count) {
     for (std::pair<int, Exception*> exceptionPair : descriptors) {
