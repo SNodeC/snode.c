@@ -125,7 +125,7 @@ public:
 
                             private:
                                 SocketConnectionImpl* cs = nullptr;
-                                const InetAddress& server;
+                                InetAddress server;
                                 std::function<void(SocketConnectionImpl* cs)> onConnect;
                                 std::function<void(int err)> onError;
                                 Timer& timeOut;
