@@ -11,10 +11,10 @@
 // IWYU pragma: no_include "Writer.h"
 
 int ManagedWriter::dispatch(const fd_set& fdSet, int count) {
-    for (std::pair<int, Writer*> writerPair : descriptors) {
-        if (FD_ISSET(dynamic_cast<Descriptor*>(writerPair.second)->getFd(), &fdSet)) {
+    for (auto [fd, writer] : descriptors) {
+        if (FD_ISSET(fd, &fdSet)) {
             count--;
-            writerPair.second->writeEvent();
+            writer->writeEvent();
         }
     }
 

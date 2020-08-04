@@ -11,10 +11,10 @@
 // IWYU pragma: no_include "Server.h"
 
 int ManagedServer::dispatch(const fd_set& fdSet, int count) {
-    for (std::pair<int, Server*> serverPair : descriptors) {
-        if (FD_ISSET(dynamic_cast<Descriptor*>(serverPair.second)->getFd(), &fdSet)) {
+    for (auto [fd, server] : descriptors) {
+        if (FD_ISSET(fd, &fdSet)) {
             count--;
-            serverPair.second->acceptEvent();
+            server->acceptEvent();
         }
     }
 

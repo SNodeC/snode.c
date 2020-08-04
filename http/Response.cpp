@@ -57,9 +57,9 @@ Response& Response::append(const std::string& field, const std::string& value) {
     return *this;
 }
 
-Response& Response::set(const std::map<std::string, std::string>& map, bool overwrite) {
-    for (const std::pair<const std::string, std::string>& header : map) {
-        this->set(header.first, header.second, overwrite);
+Response& Response::set(const std::map<std::string, std::string>& headers, bool overwrite) {
+    for (auto& [field, value] : headers) {
+        this->set(field, value, overwrite);
     }
 
     return *this;
@@ -125,13 +125,13 @@ void Response::sendHeader() {
 
     headers.insert({{"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}, {"X-Powered-By", "snode.c"}});
 
-    for (const std::pair<const std::string, std::string>& header : headers) {
-        this->enqueue(header.first + ": " + header.second + "\r\n");
+    for (auto& [field, value] : headers) {
+        this->enqueue(field + ": " + value + "\r\n");
     }
 
-    for (const std::pair<const std::string, Response::ResponseCookie>& cookie : cookies) {
+    for (auto& [cookie, cookieValue] : cookies) {
         std::string cookieString =
-            std::accumulate(cookie.second.options.begin(), cookie.second.options.end(), cookie.first + "=" + cookie.second.value,
+            std::accumulate(cookieValue.options.begin(), cookieValue.options.end(), cookie + "=" + cookieValue.value,
                             [](const std::string& str, const std::pair<const std::string&, const std::string&> option) -> std::string {
                                 return str + "; " + option.first + (!option.second.empty() ? "=" + option.second : "");
                             });

@@ -105,20 +105,18 @@ enum HTTPParser::PAS HTTPRequestParser::parseStartLine(std::string& line) {
 }
 
 enum HTTPParser::PAS HTTPRequestParser::parseHeader() {
-    for (std::pair<std::string, std::string> headerField : HTTPParser::headers) {
-        std::string& field = headerField.first;
-        std::string& value = headerField.second;
+    for (auto& [field, value] : HTTPParser::headers) {
         VLOG(1) << "++ Parse header field: " << field << " = " << value;
         if (field != "cookie") {
             if (field == "content-length") {
                 HTTPParser::contentLength = std::stoi(value);
             }
         } else {
-            std::string cookiesLine = value;
+            std::string cookieLine = value;
 
-            while (!cookiesLine.empty()) {
+            while (!cookieLine.empty()) {
                 std::string cookie;
-                std::tie(cookie, cookiesLine) = httputils::str_split(cookiesLine, ';');
+                std::tie(cookie, cookieLine) = httputils::str_split(cookieLine, ';');
 
                 std::string name;
                 std::string value;
