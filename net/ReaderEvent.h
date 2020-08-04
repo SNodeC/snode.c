@@ -1,5 +1,5 @@
-#ifndef WRITER_H
-#define WRITER_H
+#ifndef READER_H
+#define READER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -7,14 +7,14 @@
 
 #include "ManagedDescriptor.h"
 
-class Writer : public ManagedDescriptor {
+class ReadEvent : public ManagedDescriptor {
 public:
-    ~Writer() override = default;
+    ~ReadEvent() override = default;
 
-    virtual void writeEvent() = 0;
+    virtual void readEvent() = 0;
 
     void start() override;
     void stop() override;
 };
 
-#endif // WRITER_H
+#endif // READER_H

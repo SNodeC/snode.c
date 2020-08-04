@@ -7,9 +7,9 @@
 
 #include "ManagedDescriptor.h"
 
-class Server : public ManagedDescriptor {
+class AcceptEvent : public ManagedDescriptor {
 public:
-    ~Server() override = default;
+    ~AcceptEvent() override = default;
 
     virtual void acceptEvent() = 0;
 

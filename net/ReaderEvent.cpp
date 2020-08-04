@@ -1,12 +1,12 @@
-#include "Reader.h"
+#include "ReaderEvent.h"
 
 #include "ManagedReader.h" // for ManagedExceptions
 #include "Multiplexer.h"
 
-void Reader::start() {
+void ReadEvent::start() {
     Multiplexer::instance().getManagedReader().start(this);
 }
 
-void Reader::stop() {
+void ReadEvent::stop() {
     Multiplexer::instance().getManagedReader().stop(this);
 }

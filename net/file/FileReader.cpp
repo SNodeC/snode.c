@@ -15,7 +15,7 @@ FileReader::FileReader(int fd, const std::function<void(char* data, int len)>& j
     , onError(onError)
     , stopped(false) {
     this->attachFd(fd);
-    Reader::start();
+    ReadEvent::start();
 }
 
 FileReader* FileReader::read(const std::string& path, const std::function<void(char* data, int len)>& junkRead,
@@ -35,7 +35,7 @@ FileReader* FileReader::read(const std::string& path, const std::function<void(c
 
 void FileReader::stop() {
     if (!stopped) {
-        Reader::stop();
+        ReadEvent::stop();
         this->onError(0);
         stopped = true;
     }
@@ -56,7 +56,7 @@ void FileReader::readEvent() {
             this->junkRead(buffer, ret);
         } else {
             stopped = true;
-            Reader::stop();
+            ReadEvent::stop();
             this->onError(ret == 0 ? 0 : errno);
         }
     }

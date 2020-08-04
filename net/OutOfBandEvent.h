@@ -7,9 +7,9 @@
 
 #include "ManagedDescriptor.h"
 
-class Exception : public ManagedDescriptor {
+class OutOfBandEvent : public ManagedDescriptor {
 public:
-    ~Exception() override = default;
+    ~OutOfBandEvent() override = default;
 
     virtual void exceptionEvent() = 0;
 

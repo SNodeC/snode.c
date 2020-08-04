@@ -9,14 +9,14 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "AcceptEvent.h"
 #include "Logger.h"
-#include "Reader.h"
-#include "Server.h"
+#include "ReaderEvent.h"
 #include "Socket.h"
 
 template <typename SocketConnectionImpl>
 class SocketServer
-    : public Server
+    : public AcceptEvent
     , public Socket {
 public:
     SocketServer() = delete;
@@ -26,7 +26,7 @@ public:
                  const std::function<void(SocketConnectionImpl* cs, const char* junk, ssize_t n)>& onRead,
                  const std::function<void(SocketConnectionImpl* cs, int errnum)>& onReadError,
                  const std::function<void(SocketConnectionImpl* cs, int errnum)>& onWriteError)
-        : Server()
+        : AcceptEvent()
         , Socket()
         , onConnect(onConnect)
         , onDisconnect(onDisconnect)
@@ -55,7 +55,7 @@ public:
                             } else {
                                 this->listen(backlog, [this, &onError](int errnum) -> void {
                                     if (errnum == 0) {
-                                        Server::start();
+                                        AcceptEvent::start();
                                     }
                                     onError(errnum);
                                 });
@@ -96,7 +96,7 @@ public:
                 cs->setLocalAddress(InetAddress(localAddress));
 
                 onConnect(cs);
-                cs->::Reader::start();
+                cs->::ReadEvent::start();
             } else {
                 PLOG(ERROR) << "getsockname";
                 shutdown(csFd, SHUT_RDWR);
@@ -108,7 +108,7 @@ public:
     }
 
     void end() {
-        Server::stop();
+        AcceptEvent::stop();
     }
 
 protected:
