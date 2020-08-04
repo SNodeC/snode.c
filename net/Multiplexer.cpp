@@ -4,6 +4,9 @@
 #include <cassert>
 #include <cerrno> // for EINTR, errno
 #include <csignal>
+#include <cstdlib>
+#include <easylogging++.h>
+#include <iostream>
 #include <sys/time.h> // for timeval
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

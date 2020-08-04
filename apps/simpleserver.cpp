@@ -1,16 +1,17 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "Logger.h"
 #include "legacy/WebApp.h"
 #include "tls/WebApp.h"
 
+#include <easylogging++.h>
 #include <iostream>
 #include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define MIDDLEWARE(req, res, next)                                                                                                         \
-    [&]([[maybe_unused]] Request & (req), [[maybe_unused]] Response & (res), const std::function<void(void)>&(next)) -> void
+    [&]([[maybe_unused]] Request & (req), [[maybe_unused]] Response & (res),                                                               \
+        [[maybe_unused]] const std::function<void(void)>&(next)) -> void
 #define APPLICATION(req, res) [&]([[maybe_unused]] Request & (req), [[maybe_unused]] Response & (res)) -> void
 
 #define CERTF "/home/voc/projects/ServerVoc/certs/calisto.home.vchrist.at_-_snode.c.pem"
@@ -28,7 +29,6 @@ int main(int argc, char** argv) {
             "/",
             MIDDLEWARE(req, res, next) {
                 res.set("Connection", "Keep-Alive");
-                VLOG(0) << "Queries: " << req.query("query");
                 next();
             })
         .get(

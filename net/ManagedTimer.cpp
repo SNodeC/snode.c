@@ -5,8 +5,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "ManagedTimer.h"
-#include "timer/IntervalTimer.h"
-#include "timer/SingleshotTimer.h"
 
 struct timeval ManagedTimer::getNextTimeout() {
     struct timeval tv {

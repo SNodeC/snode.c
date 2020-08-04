@@ -160,7 +160,7 @@ void Response::sendFile(const std::string& file, const std::function<void(int er
         if (absolutFileName.rfind(httpContext->webApp.getRootDir(), 0) == 0 && std::filesystem::is_regular_file(absolutFileName, ec) &&
             !ec) {
             headers.insert({{"Content-Type", MimeTypes::contentType(absolutFileName)},
-                                   {"Last-Modified", httputils::file_mod_http_date(absolutFileName)}});
+                            {"Last-Modified", httputils::file_mod_http_date(absolutFileName)}});
             headers.insert_or_assign("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
 
             fileReader = FileReader::read(

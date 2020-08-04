@@ -3,8 +3,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
-#include <stddef.h>    // for size_t
+#include <cstddef>     // for size_t
 #include <sys/types.h> // for ssize_t
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

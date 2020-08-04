@@ -1,13 +1,14 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <easylogging++.h>
 #include <regex>
-#include <tuple>  // for tie, tuple
+#include <tuple> // for tie, tuple
+#include <utility>
 #include <vector> // for vector
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "HTTPRequestParser.h"
-#include "Logger.h"
 #include "httputils.h"
 
 HTTPRequestParser::HTTPRequestParser(

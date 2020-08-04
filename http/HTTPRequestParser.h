@@ -3,12 +3,11 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef> // for size_t
 #include <functional>
 #include <map>
 #include <set>
-#include <stddef.h> // for size_t
-#include <string>   // for string, basic_string, operator<
-#include <utility>  // for pair
+#include <string> // for string, basic_string, operator<
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -58,7 +57,7 @@ protected:
     int httpMinor = 0;
 
     // Callbacks
-    std::function<void(std::string&, std::string&, std::string&, const std::map<std::string, std::string>& queries)> onRequest;
+    std::function<void(std::string&, std::string&, std::string&, const std::map<std::string, std::string>&)> onRequest;
     std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)> onHeader;
     std::function<void(char*, size_t)> onContent;
     std::function<void(void)> onParsed;

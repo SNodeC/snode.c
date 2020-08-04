@@ -2,11 +2,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
+#include <easylogging++.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Logger.h"
 #include "WebApp.h"
 #include "httputils.h"
 #include "socket/SocketConnectionBase.h"
@@ -49,7 +48,7 @@ HTTPServerContext::HTTPServerContext(const WebApp& webApp, SocketConnectionBase*
               VLOG(1) << "++ Parsed ++";
               this->requestReady();
           },
-          [this](int status, [[maybe_unused]] const std::string& reason) -> void {
+          [this](int status, const std::string& reason) -> void {
               VLOG(1) << "++ Error: " << status << " : " << reason;
               response.status(status).send(reason);
               this->connectedSocket->end();
