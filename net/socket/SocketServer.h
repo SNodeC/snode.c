@@ -34,10 +34,9 @@ public:
     }
 
 protected:
-    SocketServer() {
-    }
-    virtual ~SocketServer() {
-    }
+    SocketServer() = delete;
+    
+    virtual ~SocketServer() = default;
 
 public:
     SocketServer(const SocketServer&) = delete;

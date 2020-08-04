@@ -35,13 +35,13 @@ public:
     }
 
 protected:
-    SocketReader() = default;
+    SocketReader() = delete;
     explicit SocketReader(const std::function<void(const char* junk, ssize_t n)>& onRead, const std::function<void(int errnum)>& onError)
         : onRead(onRead)
         , onError(onError) {
     }
 
-    ~SocketReader() {
+    virtual ~SocketReader() {
         if (isManaged()) {
             Reader::stop();
         }
