@@ -21,6 +21,18 @@ class SocketWriter
     : public Writer
     , virtual public SocketImpl {
 public:
+    SocketWriter() = delete;
+
+    explicit SocketWriter(const std::function<void(int errnum)>& onError)
+        : onError(onError) {
+    }
+
+    virtual ~SocketWriter() {
+        if (isManaged()) {
+            Writer::stop();
+        }
+    }
+
     void writeEvent() override {
         errno = 0;
 
@@ -38,23 +50,12 @@ public:
         }
     }
 
-protected:
-    SocketWriter() = delete;
-    explicit SocketWriter(const std::function<void(int errnum)>& onError)
-        : onError(onError) {
-    }
-
-    virtual ~SocketWriter() {
-        if (isManaged()) {
-            Writer::stop();
-        }
-    }
-
     void enqueue(const char* buffer, size_t size) {
         writeBuffer.insert(writeBuffer.end(), buffer, buffer + size);
         Writer::start();
     }
 
+protected:
     virtual ssize_t send(const char* junk, size_t junkSize) = 0;
 
     std::function<void(int errnum)> onError;
