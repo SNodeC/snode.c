@@ -39,12 +39,12 @@ public:
     }
 
 protected:
-    SocketWriter() = default;
+    SocketWriter() = delete;
     explicit SocketWriter(const std::function<void(int errnum)>& onError)
         : onError(onError) {
     }
 
-    ~SocketWriter() {
+    virtual ~SocketWriter() {
         if (isManaged()) {
             Writer::stop();
         }
