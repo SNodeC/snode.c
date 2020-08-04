@@ -31,8 +31,8 @@ HTTPServerContext::HTTPServerContext(const WebApp& webApp, SocketConnectionBase*
           [this](const std::map<std::string, std::string>& header, const std::map<std::string, std::string>& cookies) -> void {
               VLOG(1) << "++ Header:";
               request.headers = &header;
-              for (std::pair<std::string, std::string> headerField : header) {
-                  if (headerField.first == "connection" && headerField.second == "keep-alive") {
+              for (auto& [field, value] : header) {
+                  if (field == "connection" && value == "keep-alive") {
                       keepAliveFlag = true;
                   }
               }

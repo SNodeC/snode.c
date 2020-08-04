@@ -11,10 +11,10 @@
 // IWYU pragma: no_include "Exception.h"
 
 int ManagedExceptions::dispatch(const fd_set& fdSet, int count) {
-    for (std::pair<int, Exception*> exceptionPair : descriptors) {
-        if (FD_ISSET(dynamic_cast<Descriptor*>(exceptionPair.second)->getFd(), &fdSet)) {
+    for (auto [fd, exception] : descriptors) {
+        if (FD_ISSET(fd, &fdSet)) {
             count--;
-            exceptionPair.second->exceptionEvent();
+            exception->exceptionEvent();
         }
     }
 

@@ -1,6 +1,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <map>     // for map
+#include <map> // for map
+#include <tuple>
 #include <utility> // for pair
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -11,10 +12,10 @@
 // IWYU pragma: no_include "Reader.h"
 
 int ManagedReader::dispatch(const fd_set& fdSet, int count) {
-    for (std::pair<int, Reader*> readerPair : descriptors) {
-        if (FD_ISSET(dynamic_cast<Descriptor*>(readerPair.second)->getFd(), &fdSet)) {
+    for (auto [fd, reader] : descriptors) {
+        if (FD_ISSET(fd, &fdSet)) {
             count--;
-            readerPair.second->readEvent();
+            reader->readEvent();
         }
     }
 

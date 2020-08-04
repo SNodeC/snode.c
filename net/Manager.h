@@ -91,10 +91,9 @@ private:
     }
 
     void removeManagedDescriptors() {
-        for (std::pair<int, ManagedDescriptor*> descriptor : descriptors) {
-            removedDescriptors.push_back(descriptor.second);
+        for (auto& [fd, descriptor] : descriptors) {
+            removedDescriptors.push_back(descriptor);
         }
-
         unobserveStopedDescriptors();
     }
 
