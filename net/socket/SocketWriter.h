@@ -6,8 +6,9 @@
 #include <cerrno>
 #include <cstddef> // for size_t
 #include <functional>
-#include <string>
+#include <iostream>
 #include <sys/types.h> // for ssize_t
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -23,11 +24,12 @@ public:
     void writeEvent() override {
         errno = 0;
 
-        ssize_t ret = send(writePuffer.c_str(), (writePuffer.size() < MAX_SEND_JUNKSIZE) ? writePuffer.size() : MAX_SEND_JUNKSIZE);
+        ssize_t ret = send(writeBuffer.data(), (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE);
 
         if (ret >= 0) {
-            writePuffer.erase(0, ret);
-            if (writePuffer.empty()) {
+            writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + ret);
+
+            if (writeBuffer.empty()) {
                 Writer::stop();
             }
         } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
@@ -48,8 +50,8 @@ protected:
         }
     }
 
-    void enqueue(const char* buffer, int size) {
-        writePuffer.append(buffer, size);
+    void enqueue(const char* buffer, size_t size) {
+        writeBuffer.insert(writeBuffer.end(), buffer, buffer + size);
         Writer::start();
     }
 
@@ -58,7 +60,7 @@ protected:
     std::function<void(int errnum)> onError;
 
 protected:
-    std::string writePuffer;
+    std::vector<char> writeBuffer;
 };
 
 #endif // SOCKETWRITERBASE_H
