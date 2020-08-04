@@ -19,6 +19,8 @@ class SocketServer
     : public Server
     , public Socket {
 public:
+    SocketServer() = delete;
+
     SocketServer(const std::function<void(SocketConnectionImpl* cs)>& onConnect,
                  const std::function<void(SocketConnectionImpl* cs)>& onDisconnect,
                  const std::function<void(SocketConnectionImpl* cs, const char* junk, ssize_t n)>& onRead,
@@ -33,12 +35,8 @@ public:
         , onWriteError(onWriteError) {
     }
 
-protected:
-    SocketServer() = delete;
-    
     virtual ~SocketServer() = default;
 
-public:
     SocketServer(const SocketServer&) = delete;
     SocketServer& operator=(const SocketServer&) = delete;
 
