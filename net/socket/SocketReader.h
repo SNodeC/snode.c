@@ -26,7 +26,7 @@ public:
         , onError(onError) {
     }
 
-    virtual ~SocketReader() {
+    ~SocketReader() override {
         if (isManaged()) {
             Reader::stop();
         }
@@ -35,6 +35,7 @@ public:
     void readEvent() override {
         errno = 0;
 
+        // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
         static char junk[MAX_READ_JUNKSIZE];
 
         ssize_t ret = recv(junk, MAX_READ_JUNKSIZE);

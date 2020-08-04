@@ -15,8 +15,7 @@ namespace legacy {
         using ::SocketServer<legacy::SocketConnection>::SocketServer;
 
     private:
-        ~SocketServer() override {
-        }
+        ~SocketServer() override = default;
     };
 
 }; // namespace legacy

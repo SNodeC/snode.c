@@ -46,6 +46,7 @@ void FileReader::unmanaged() {
 }
 
 void FileReader::readEvent() {
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
     static char buffer[MFREADSIZE];
 
     int ret = ::read(this->getFd(), buffer, MFREADSIZE);

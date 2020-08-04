@@ -21,15 +21,15 @@ namespace tls {
                      const std::function<void(tls::SocketConnection* cs, int errnum)>& onReadError,
                      const std::function<void(tls::SocketConnection* cs, int errnum)>& onWriteError);
 
-        ~SocketClient();
+        ~SocketClient() override;
 
+        // NOLINTNEXTLINE(google-default-arguments)
         void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
                      const InetAddress& localAddress = InetAddress()) override;
 
     private:
         SSL_CTX* ctx;
 
-    private:
         std::function<void(tls::SocketConnection* cs)> onConnect;
         std::function<void(tls::SocketConnection* cs)> onDisconnect;
         std::function<void(tls::SocketConnection* cs, const char* junk, ssize_t n)> onRead;

@@ -35,7 +35,7 @@ public:
         , onWriteError(onWriteError) {
     }
 
-    virtual ~SocketServer() = default;
+    ~SocketServer() override = default;
 
     SocketServer(const SocketServer&) = delete;
     SocketServer& operator=(const SocketServer&) = delete;

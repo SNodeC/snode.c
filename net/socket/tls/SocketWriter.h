@@ -19,7 +19,7 @@ namespace tls {
     protected:
         using ::SocketWriter<tls::Socket>::SocketWriter;
 
-        ssize_t send(const char* junk, const size_t junkSize) override;
+        ssize_t send(const char* junk, size_t junkSize) override;
     };
 
 }; // namespace tls

@@ -30,6 +30,7 @@ public:
         , onWriteError(onWriteError) {
     }
 
+    // NOLINTNEXTLINE(google-default-arguments)
     virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
                          const InetAddress& localAddress = InetAddress()) {
         SocketConnectionImpl* cs = SocketConnectionImpl::create(onRead, onReadError, onWriteError, onDisconnect);
@@ -52,7 +53,7 @@ public:
                                 : public Writer
                                 , public Socket {
                             public:
-                                Connect(SocketConnectionImpl* cs, InetAddress server,
+                                Connect(SocketConnectionImpl* cs, const InetAddress& server,
                                         const std::function<void(SocketConnectionImpl* cs)>& onConnect,
                                         const std::function<void(int err)>& onError)
                                     : Descriptor(true)
@@ -91,11 +92,10 @@ public:
                                 }
 
                                 void writeEvent() override {
-                                    int cErrno;
-                                    int err;
+                                    int cErrno = 0;
                                     socklen_t cErrnoLen = sizeof(cErrno);
 
-                                    err = getsockopt(cs->getFd(), SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);
+                                    int err = getsockopt(cs->getFd(), SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);
 
                                     timeOut.cancel();
                                     ::Writer::stop();
@@ -125,7 +125,7 @@ public:
 
                             private:
                                 SocketConnectionImpl* cs = nullptr;
-                                InetAddress server;
+                                const InetAddress& server;
                                 std::function<void(SocketConnectionImpl* cs)> onConnect;
                                 std::function<void(int err)> onError;
                                 Timer& timeOut;
@@ -143,18 +143,17 @@ public:
         connect(host, port, onError, InetAddress(lPort));
     }
 
-    virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, const std::string lHost) {
+    virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, const std::string& lHost) {
         connect(host, port, onError, InetAddress(lHost));
     }
 
-    virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, const std::string lHost,
+    virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, const std::string& lHost,
                          in_port_t lPort) {
         connect(host, port, onError, InetAddress(lHost, lPort));
     }
 
 protected:
-    virtual ~SocketClient() {
-    }
+    virtual ~SocketClient() = default;
 
 private:
     std::function<void(SocketConnectionImpl* cs)> onConnect;
