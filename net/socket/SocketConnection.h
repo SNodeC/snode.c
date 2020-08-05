@@ -68,7 +68,7 @@ public:
     } // NOLINT(cppcoreguidelines-pro-type-member-init)
 
 private:
-    void unmanaged() override {
+    void unobserved() override {
         onDisconnect(this);
 
         if (this->isDynamic) {

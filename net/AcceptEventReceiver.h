@@ -5,11 +5,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "ManagedDescriptor.h"
+#include "EventReceiver.h"
 
-class AcceptEvent : public ManagedDescriptor {
+class AcceptEventReceiver : public EventReceiver {
 public:
-    ~AcceptEvent() override = default;
+    ~AcceptEventReceiver() override = default;
 
     virtual void acceptEvent() = 0;
 

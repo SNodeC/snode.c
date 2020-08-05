@@ -7,14 +7,15 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "AcceptEvent.h"
-#include "Manager.h"
+#include "AcceptEventReceiver.h"
+#include "EventDispatcher.h"
 
 // IWYU pragma: no_forward_declare Server
 
-class ManagedServer : public Manager<AcceptEvent> {
+class AcceptEventDispatcher : public EventDispatcher<AcceptEventReceiver> {
 public:
-    using Manager<AcceptEvent>::Manager;
+    using EventDispatcher<AcceptEventReceiver>::EventDispatcher;
+
     int dispatch(const fd_set& fdSet, int count) override;
 };
 

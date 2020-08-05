@@ -48,7 +48,7 @@ private:
     struct timeval absoluteTimeout {};
     struct timeval delay;
 
-    friend class ManagedTimer;
+    friend class TimerEventDispatcher;
 };
 
 bool operator<(const struct timeval& tv1, const struct timeval& tv2);

@@ -4,7 +4,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Multiplexer.h"
+#include "EventLoop.h"
 #include "WebApp.h"
 
 bool WebApp::initialized{false};
@@ -18,14 +18,14 @@ WebApp::WebApp(const std::string& rootDir) {
 }
 
 void WebApp::init(int argc, char* argv[]) {
-    Multiplexer::init(argc, argv);
+    EventLoop::init(argc, argv);
     WebApp::initialized = true;
 }
 
 void WebApp::start() {
-    Multiplexer::start();
+    EventLoop::start();
 }
 
 void WebApp::stop() {
-    Multiplexer::stop();
+    EventLoop::stop();
 }

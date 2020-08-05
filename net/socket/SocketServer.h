@@ -9,14 +9,14 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "AcceptEvent.h"
+#include "AcceptEventReceiver.h"
 #include "Logger.h"
-#include "ReaderEvent.h"
+#include "ReadEventReceiver.h"
 #include "Socket.h"
 
-template <typename SocketConnectionImpl>
+template <typename SocketConnection>
 class SocketServer
-    : public AcceptEvent
+    : public AcceptEventReceiver
     , public Socket {
 public:
     void* operator new(size_t size) {
@@ -35,12 +35,11 @@ public:
 
     SocketServer() = delete;
 
-    SocketServer(const std::function<void(SocketConnectionImpl* cs)>& onConnect,
-                 const std::function<void(SocketConnectionImpl* cs)>& onDisconnect,
-                 const std::function<void(SocketConnectionImpl* cs, const char* junk, ssize_t n)>& onRead,
-                 const std::function<void(SocketConnectionImpl* cs, int errnum)>& onReadError,
-                 const std::function<void(SocketConnectionImpl* cs, int errnum)>& onWriteError)
-        : AcceptEvent()
+    SocketServer(const std::function<void(SocketConnection* cs)>& onConnect, const std::function<void(SocketConnection* cs)>& onDisconnect,
+                 const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
+                 const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
+                 const std::function<void(SocketConnection* cs, int errnum)>& onWriteError)
+        : AcceptEventReceiver()
         , Socket()
         , onConnect(onConnect)
         , onDisconnect(onDisconnect)
@@ -69,7 +68,7 @@ public:
                             } else {
                                 this->listen(backlog, [this, &onError](int errnum) -> void {
                                     if (errnum == 0) {
-                                        AcceptEvent::enable();
+                                        AcceptEventReceiver::enable();
                                     }
                                     onError(errnum);
                                 });
@@ -104,13 +103,13 @@ public:
             socklen_t addressLength = sizeof(localAddress);
 
             if (getsockname(csFd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
-                SocketConnectionImpl* cs = SocketConnectionImpl::create(csFd, onRead, onReadError, onWriteError, onDisconnect);
+                SocketConnection* cs = SocketConnection::create(csFd, onRead, onReadError, onWriteError, onDisconnect);
 
                 cs->setRemoteAddress(InetAddress(remoteAddress));
                 cs->setLocalAddress(InetAddress(localAddress));
 
                 onConnect(cs);
-                cs->ReadEvent::enable();
+                cs->ReadEventReceiver::enable();
             } else {
                 PLOG(ERROR) << "getsockname";
                 shutdown(csFd, SHUT_RDWR);
@@ -122,7 +121,7 @@ public:
     }
 
     void end() {
-        AcceptEvent::disable();
+        AcceptEventReceiver::disable();
     }
 
 protected:
@@ -147,17 +146,17 @@ private:
         }
     }
 
-    void unmanaged() override {
+    void unobserved() override {
         if (isDynamic) {
             delete this;
         }
     }
 
-    std::function<void(SocketConnectionImpl* cs)> onConnect;
-    std::function<void(SocketConnectionImpl* cs)> onDisconnect;
-    std::function<void(SocketConnectionImpl* cs, const char* junk, ssize_t n)> onRead;
-    std::function<void(SocketConnectionImpl* cs, int errnum)> onReadError;
-    std::function<void(SocketConnectionImpl* cs, int errnum)> onWriteError;
+    std::function<void(SocketConnection* cs)> onConnect;
+    std::function<void(SocketConnection* cs)> onDisconnect;
+    std::function<void(SocketConnection* cs, const char* junk, ssize_t n)> onRead;
+    std::function<void(SocketConnection* cs, int errnum)> onReadError;
+    std::function<void(SocketConnection* cs, int errnum)> onWriteError;
 
     bool isDynamic;
 

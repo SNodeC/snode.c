@@ -1,6 +1,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "Multiplexer.h"
+#include "EventLoop.h"
 #include "socket/legacy/SocketClient.h"
 #include "socket/tls/SocketClient.h"
 
@@ -84,7 +84,7 @@ legacy::SocketClient legacyClient() {
 }
 
 int main(int argc, char* argv[]) {
-    Multiplexer::init(argc, argv);
+    EventLoop::init(argc, argv);
 
     tls::SocketClient sc = tlsClient();
     legacy::SocketClient lc = legacyClient();
@@ -105,7 +105,7 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    Multiplexer::start();
+    EventLoop::start();
 
     return 0;
 }
