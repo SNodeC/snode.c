@@ -110,7 +110,7 @@ void HTTPServerContext::requestReady() {
     webApp.dispatch(request, response);
 }
 
-void HTTPServerContext::requestCompleted() {
+void HTTPServerContext::responseCompleted() {
     if (!this->keepAliveFlag) {
         terminateConnection();
     }

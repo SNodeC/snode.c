@@ -36,10 +36,10 @@ Response::Response(HTTPServerContext* httpContext)
 }
 
 void Response::enqueue(const char* buf, size_t len) {
-    if (!headersSent && !headersSentInProgress) {
-        headersSentInProgress = true;
+    if (!headersSent && !sendHeaderInProgress) {
+        sendHeaderInProgress = true;
         sendHeader();
-        headersSentInProgress = false;
+        sendHeaderInProgress = false;
         headersSent = true;
     }
 
@@ -48,7 +48,7 @@ void Response::enqueue(const char* buf, size_t len) {
     if (headersSent) {
         contentSent += len;
         if (contentSent == contentLength) {
-            httpContext->requestCompleted();
+            httpContext->responseCompleted();
         }
     }
 }
@@ -243,12 +243,12 @@ void Response::sendStatus(int status) {
 
 void Response::end() {
     this->send("");
-    this->httpContext->requestCompleted();
+    this->httpContext->responseCompleted();
 }
 
 void Response::reset() {
     headersSent = false;
-    headersSentInProgress = false;
+    sendHeaderInProgress = false;
     contentSent = 0;
     responseStatus = 200;
     contentLength = 0;

@@ -33,6 +33,8 @@
 #include "WriteEventReceiver.h"
 #include "timer/SingleshotTimer.h"
 
+#define CONNECT_TIMEOUT 10
+
 template <typename SocketConnection>
 class SocketClient {
 public:
@@ -84,7 +86,7 @@ public:
                                               this->WriteEventReceiver::disable();
                                               delete this->cs;
                                           },
-                                          (struct timeval){10, 0}, nullptr)) {
+                                          (struct timeval){CONNECT_TIMEOUT, 0}, nullptr)) {
                                     this->attachFd(cs->getFd());
 
                                     errno = 0;

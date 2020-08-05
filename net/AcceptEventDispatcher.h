@@ -28,7 +28,7 @@
 #include "AcceptEventReceiver.h"
 #include "EventDispatcher.h"
 
-// IWYU pragma: no_forward_declare Server
+// IWYU pragma: no_forward_declare AcceptEventReceiver
 
 class AcceptEventDispatcher : public EventDispatcher<AcceptEventReceiver> {
 public:

@@ -24,7 +24,16 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 class ObservationCounter {
+public:
+    void destructIfUnobserved() {
+        if (observationCounter == 0) {
+            unobserved();
+        }
+    }
+
 protected:
+    virtual void unobserved() = 0;
+
     int observationCounter = 0;
 };
 
@@ -38,34 +47,26 @@ public:
 
     virtual ~EventReceiver() = default;
 
-    void observe() {
+    void enabled() {
         observationCounter++;
-        enabled = true;
+        _enabled = true;
     }
 
-    void unobserve() {
+    void disabled() {
         observationCounter--;
-        enabled = false;
-    }
-
-    void checkObserved() {
-        if (observationCounter == 0) {
-            unobserved();
-        }
+        _enabled = false;
     }
 
     bool isEnabled() const {
-        return enabled;
+        return _enabled;
     }
 
 protected:
     virtual void enable() = 0;
     virtual void disable() = 0;
 
-    virtual void unobserved() = 0;
-
 private:
-    bool enabled = false;
+    bool _enabled = false;
 };
 
 #endif // MANAGEDDESCRIPTOR_H

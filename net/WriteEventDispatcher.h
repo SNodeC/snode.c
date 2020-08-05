@@ -28,7 +28,7 @@
 #include "EventDispatcher.h"
 #include "WriteEventReceiver.h"
 
-// IWYU pragma: no_forward_declare Writer
+// IWYU pragma: no_forward_declare WriteEventReceiver
 
 class WriteEventDispatcher : public EventDispatcher<WriteEventReceiver> {
 public:

@@ -80,6 +80,10 @@ set_target_properties(net PROPERTIES
             SOVERSION 1
 )
 
+add_custom_command(TARGET net PRE_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy
+                   ${CMAKE_SOURCE_DIR}/logger.conf ${CMAKE_BINARY_DIR}/apps/.logger.conf)
+
 target_compile_options(net PRIVATE --warn-all)
 
 FILE(GLOB includes "${CMAKE_CURRENT_SOURCE_DIR}/*.h")

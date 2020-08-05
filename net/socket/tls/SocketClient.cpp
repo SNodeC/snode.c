@@ -24,6 +24,8 @@
 
 #include "timer/SingleshotTimer.h"
 
+#define TLSCONNECT_TIMEOUT 10
+
 namespace tls {
 
     SocketClient::SocketClient(const std::function<void(tls::SocketConnection* cs)>& onConnect,
@@ -33,13 +35,13 @@ namespace tls {
                                const std::function<void(tls::SocketConnection* cs, int errnum)>& onWriteError)
         : ::SocketClient<tls::SocketConnection>(
               [this, onConnect](tls::SocketConnection* cs) -> void {
-                  class TLSConnect
+                  class TLSConnector
                       : public ReadEventReceiver
                       , public WriteEventReceiver
                       , public Socket {
                   public:
-                      TLSConnect(tls::SocketClient* sc, tls::SocketConnection* cs, SSL_CTX* ctx,
-                                 const std::function<void(tls::SocketConnection* cs)>& onConnect)
+                      TLSConnector(tls::SocketClient* sc, tls::SocketConnection* cs, SSL_CTX* ctx,
+                                   const std::function<void(tls::SocketConnection* cs)>& onConnect)
                           : Descriptor(true)
                           , sc(sc)
                           , cs(cs)
@@ -53,7 +55,7 @@ namespace tls {
                                     this->cs->stopSSL();
                                     delete this->cs;
                                 },
-                                (struct timeval){10, 0}, nullptr)) {
+                                (struct timeval){TLSCONNECT_TIMEOUT, 0}, nullptr)) {
                           this->attachFd(cs->getFd());
 
                           int err = SSL_connect(ssl);
@@ -135,7 +137,7 @@ namespace tls {
                       Timer& timeOut;
                   };
 
-                  new TLSConnect(this, cs, ctx, onConnect);
+                  new TLSConnector(this, cs, ctx, onConnect);
 
                   /*
                    *   X509* client_cert = SSL_get_peer_certificate(ssl);

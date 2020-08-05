@@ -87,7 +87,7 @@ private:
     FileReader* fileReader = nullptr;
 
     size_t contentSent = 0;
-    bool headersSentInProgress = false;
+    bool sendHeaderInProgress = false;
 
     int responseStatus = 0;
     std::map<std::string, std::string> headers;
