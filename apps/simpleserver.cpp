@@ -27,12 +27,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define MIDDLEWARE(req, res, next)                                                                                                         \
-    [&]([[maybe_unused]] Request & (req), [[maybe_unused]] Response & (res),                                                               \
-        [[maybe_unused]] const std::function<void(void)>&(next)) -> void
-
-#define APPLICATION(req, res) [&]([[maybe_unused]] Request & (req), [[maybe_unused]] Response & (res)) -> void
-
 #define CERTF "/home/voc/projects/ServerVoc/certs/calisto.home.vchrist.at_-_snode.c.pem"
 #define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c.key.encrypted.pem"
 #define KEYFPASS "snode.c"

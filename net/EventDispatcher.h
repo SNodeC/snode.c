@@ -32,7 +32,7 @@
 
 class EventLoop;
 
-template <typename Event>
+template <typename EventReceiver>
 class EventDispatcher {
 public:
     explicit EventDispatcher(fd_set& fdSet) // NOLINT(google-runtime-references)
@@ -44,33 +44,33 @@ public:
     EventDispatcher& operator=(const EventDispatcher&) = delete;
 
 private:
-    static bool contains(std::list<Event*>& events, Event*& event) {
-        typename std::list<Event*>::iterator it = std::find(events.begin(), events.end(), event);
+    static bool contains(std::list<EventReceiver*>& events, EventReceiver*& event) {
+        typename std::list<EventReceiver*>::iterator it = std::find(events.begin(), events.end(), event);
 
         return it != events.end();
     }
 
 public:
-    void enable(Event* event) {
-        if (!event->isEnabled() && !EventDispatcher<Event>::contains(enabledEventReceiver, event)) {
-            enabledEventReceiver.push_back(event);
-            event->observe();
+    void enable(EventReceiver* eventReceiver) {
+        if (!eventReceiver->isEnabled() && !EventDispatcher<EventReceiver>::contains(enabledEventReceiver, eventReceiver)) {
+            enabledEventReceiver.push_back(eventReceiver);
+            eventReceiver->enabled();
         }
     }
 
-    void disable(Event* event) {
-        if (event->isEnabled()) {
-            if (EventDispatcher<Event>::contains(enabledEventReceiver, event)) { // stop() on same tick as start()
-                enabledEventReceiver.remove(event);
-                event->unobserve();
-            } else if (!EventDispatcher<Event>::contains(disabledEventReceiver, event)) { // stop() asynchronously
-                disabledEventReceiver.push_back(event);
+    void disable(EventReceiver* eventReceiver) {
+        if (eventReceiver->isEnabled()) {
+            if (EventDispatcher<EventReceiver>::contains(enabledEventReceiver, eventReceiver)) { // stop() on same tick as start()
+                enabledEventReceiver.remove(eventReceiver);
+                eventReceiver->disabled();
+            } else if (!EventDispatcher<EventReceiver>::contains(disabledEventReceiver, eventReceiver)) { // stop() asynchronously
+                disabledEventReceiver.push_back(eventReceiver);
             }
         }
     }
 
 private:
-    int getMaxFd() {
+    int getLargestFd() {
         int fd = -1;
 
         if (!observedEvents.empty()) {
@@ -81,26 +81,26 @@ private:
     }
 
     void observeEnabledEvents() {
-        for (Event* eventReceiver : enabledEventReceiver) {
+        for (EventReceiver* eventReceiver : enabledEventReceiver) {
             int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
             bool inserted = false;
             std::tie(std::ignore, inserted) = observedEvents.insert({fd, eventReceiver});
             if (inserted) {
                 FD_SET(fd, &fdSet);
             } else {
-                eventReceiver->unobserve();
+                eventReceiver->disabled();
             }
         }
         enabledEventReceiver.clear();
     }
 
     void unobserveDisabledEvents() {
-        for (Event* eventReceiver : disabledEventReceiver) {
+        for (EventReceiver* eventReceiver : disabledEventReceiver) {
             int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
             FD_CLR(fd, &fdSet);
             observedEvents.erase(fd);
-            eventReceiver->unobserve();
-            eventReceiver->checkObserved();
+            eventReceiver->disabled();
+            eventReceiver->destructIfUnobserved();
         }
         disabledEventReceiver.clear();
     }
@@ -113,18 +113,18 @@ private:
     }
 
 protected:
-    virtual int dispatch(const fd_set& fdSet, int count) = 0;
+    virtual int dispatch(const fd_set& fdSet, int counter) = 0;
 
-    std::map<int, Event*> observedEvents;
+    std::map<int, EventReceiver*> observedEvents;
 
 private:
-    std::list<Event*> enabledEventReceiver;
-    std::list<Event*> disabledEventReceiver;
+    std::list<EventReceiver*> enabledEventReceiver;
+    std::list<EventReceiver*> disabledEventReceiver;
 
     fd_set& fdSet;
 
 public:
-    using EventType = Event;
+    using EventType = EventReceiver;
 
     friend class EventLoop;
 };

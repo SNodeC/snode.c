@@ -21,6 +21,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstdlib>
 #include <functional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -103,8 +104,11 @@ public:
         this->enqueue(data.c_str(), data.size());
     }
 
-    void end() override {
+    void end(bool instantly = false) override {
         SocketReader::disable();
+        if (instantly) {
+            SocketWriter::disable();
+        }
     }
 
     InetAddress& getRemoteAddress() {

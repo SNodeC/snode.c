@@ -28,7 +28,7 @@
 #include "EventDispatcher.h"
 #include "OutOfBandEventReceiver.h"
 
-// IWYU pragma: no_forward_declare Exception
+// IWYU pragma: no_forward_declare OutOfBandEventReceiver
 
 class OutOfBandEventDispatcher : public EventDispatcher<OutOfBandEventReceiver> {
 public:

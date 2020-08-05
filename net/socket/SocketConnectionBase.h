@@ -36,7 +36,7 @@ public:
     virtual void enqueue(const char* buffer, int size) = 0;
     virtual void enqueue(const std::string& data) = 0;
 
-    virtual void end() = 0;
+    virtual void end(bool instantly = false) = 0;
 
     template <utils::InjectedAttribute Attribute>
     constexpr void setProtocol(Attribute& attribute) const {

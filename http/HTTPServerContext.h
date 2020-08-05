@@ -41,7 +41,7 @@ public:
     void onWriteError(int errnum);
 
     void requestReady();
-    void requestCompleted();
+    void responseCompleted();
 
     void terminateConnection();
 

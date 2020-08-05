@@ -43,17 +43,17 @@ void HTTPParser::parse(const char* buf, size_t count) {
 
     while (processed < count && PAS != PAS::ERROR) {
         switch (PAS) {
-        case PAS::FIRSTLINE:
-            processed += readStartLine(buf + processed, count - processed);
-            break;
-        case PAS::HEADER:
-            processed += readHeaderLine(buf + processed, count - processed);
-            break;
-        case PAS::BODY:
-            processed += readContent(buf + processed, count - processed);
-            break;
-        case PAS::ERROR:
-            break;
+            case PAS::FIRSTLINE:
+                processed += readStartLine(buf + processed, count - processed);
+                break;
+            case PAS::HEADER:
+                processed += readHeaderLine(buf + processed, count - processed);
+                break;
+            case PAS::BODY:
+                processed += readContent(buf + processed, count - processed);
+                break;
+            case PAS::ERROR:
+                break;
         };
     }
 }

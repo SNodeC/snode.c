@@ -18,28 +18,26 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <map>     // for map
-#include <utility> // for pair
+#include <map> // for map
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Descriptor.h" // for Descriptor
 #include "WriteEventDispatcher.h"
 
 // IWYU pragma: no_include "Writer.h"
 
-int WriteEventDispatcher::dispatch(const fd_set& fdSet, int count) {
-    if (count > 0) {
+int WriteEventDispatcher::dispatch(const fd_set& fdSet, int counter) {
+    if (counter > 0) {
         for (auto [fd, eventReceiver] : observedEvents) {
-            if (count == 0) {
+            if (counter == 0) {
                 break;
             }
             if (FD_ISSET(fd, &fdSet)) {
-                count--;
+                counter--;
                 eventReceiver->writeEvent();
             }
         }
     }
 
-    return count;
+    return counter;
 }

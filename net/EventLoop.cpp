@@ -47,30 +47,30 @@ EventLoop::EventLoop()
 void EventLoop::tick() {
     readEventDispatcher.observeEnabledEvents();
     writeEventDispatcher.observeEnabledEvents();
-    outOfBandEventDispatcher.observeEnabledEvents();
     acceptEventDispatcher.observeEnabledEvents();
+    outOfBandEventDispatcher.observeEnabledEvents();
 
-    int maxFd = readEventDispatcher.getMaxFd();
-    maxFd = std::max(acceptEventDispatcher.getMaxFd(), maxFd);
-    maxFd = std::max(writeEventDispatcher.getMaxFd(), maxFd);
-    maxFd = std::max(outOfBandEventDispatcher.getMaxFd(), maxFd);
+    int maxFd = readEventDispatcher.getLargestFd();
+    maxFd = std::max(writeEventDispatcher.getLargestFd(), maxFd);
+    maxFd = std::max(acceptEventDispatcher.getLargestFd(), maxFd);
+    maxFd = std::max(outOfBandEventDispatcher.getLargestFd(), maxFd);
 
-    fd_set wExceptfds = exceptfds;
-    fd_set wWritefds = writefds;
-    fd_set wReadfds = readfds;
+    fd_set _exceptfds = exceptfds;
+    fd_set _writefds = writefds;
+    fd_set _readfds = readfds;
 
     struct timeval tv = timerEventDispatcher.getNextTimeout();
 
     if (maxFd >= 0 || !timerEventDispatcher.empty()) {
-        int retval = select(maxFd + 1, &wReadfds, &wWritefds, &wExceptfds, &tv);
+        int counter = select(maxFd + 1, &_readfds, &_writefds, &_exceptfds, &tv);
 
-        if (retval >= 0) {
+        if (counter >= 0) {
             timerEventDispatcher.dispatch();
-            retval = readEventDispatcher.dispatch(wReadfds, retval);
-            retval = acceptEventDispatcher.dispatch(wReadfds, retval);
-            retval = writeEventDispatcher.dispatch(wWritefds, retval);
-            retval = outOfBandEventDispatcher.dispatch(wExceptfds, retval);
-            assert(retval == 0);
+            counter = readEventDispatcher.dispatch(_readfds, counter);
+            counter = writeEventDispatcher.dispatch(_writefds, counter);
+            counter = acceptEventDispatcher.dispatch(_readfds, counter);
+            counter = outOfBandEventDispatcher.dispatch(_exceptfds, counter);
+            assert(counter == 0);
         } else if (errno != EINTR) {
             PLOG(ERROR) << "select";
             stop();
@@ -81,8 +81,8 @@ void EventLoop::tick() {
 
     readEventDispatcher.unobserveDisabledEvents();
     writeEventDispatcher.unobserveDisabledEvents();
-    outOfBandEventDispatcher.unobserveDisabledEvents();
     acceptEventDispatcher.unobserveDisabledEvents();
+    outOfBandEventDispatcher.unobserveDisabledEvents();
 }
 
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
@@ -113,24 +113,24 @@ void EventLoop::start() {
             eventLoop.tick();
         };
 
-        running = false;
-
         eventLoop.readEventDispatcher.observeEnabledEvents();
         eventLoop.writeEventDispatcher.observeEnabledEvents();
-        eventLoop.outOfBandEventDispatcher.observeEnabledEvents();
         eventLoop.acceptEventDispatcher.observeEnabledEvents();
+        eventLoop.outOfBandEventDispatcher.observeEnabledEvents();
 
         eventLoop.readEventDispatcher.unobserveDisabledEvents();
         eventLoop.writeEventDispatcher.unobserveDisabledEvents();
-        eventLoop.outOfBandEventDispatcher.unobserveDisabledEvents();
         eventLoop.acceptEventDispatcher.unobserveDisabledEvents();
+        eventLoop.outOfBandEventDispatcher.unobserveDisabledEvents();
 
         eventLoop.readEventDispatcher.unobserveObservedEvents();
         eventLoop.writeEventDispatcher.unobserveObservedEvents();
-        eventLoop.outOfBandEventDispatcher.unobserveObservedEvents();
         eventLoop.acceptEventDispatcher.unobserveObservedEvents();
+        eventLoop.outOfBandEventDispatcher.unobserveObservedEvents();
 
         eventLoop.timerEventDispatcher.getNextTimeout();
+
+        running = false;
     }
 }
 

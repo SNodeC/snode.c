@@ -28,7 +28,7 @@
 #include "EventDispatcher.h"
 #include "ReadEventReceiver.h"
 
-// IWYU pragma: no_forward_declare Reader
+// IWYU pragma: no_forward_declare ReadEventReceiver
 
 class ReadEventDispatcher : public EventDispatcher<ReadEventReceiver> {
 public:

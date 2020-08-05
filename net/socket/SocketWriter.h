@@ -24,7 +24,6 @@
 #include <cerrno>
 #include <cstddef> // for size_t
 #include <functional>
-#include <iostream>
 #include <sys/types.h> // for ssize_t
 #include <vector>
 
