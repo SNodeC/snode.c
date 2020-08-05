@@ -7,14 +7,15 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Manager.h"
-#include "OutOfBandEvent.h"
+#include "EventDispatcher.h"
+#include "OutOfBandEventReceiver.h"
 
 // IWYU pragma: no_forward_declare Exception
 
-class ManagedExceptions : public Manager<OutOfBandEvent> {
+class OutOfBandEventDispatcher : public EventDispatcher<OutOfBandEventReceiver> {
 public:
-    using Manager<OutOfBandEvent>::Manager;
+    using EventDispatcher<OutOfBandEventReceiver>::EventDispatcher;
+
     int dispatch(const fd_set& fdSet, int count) override;
 };
 

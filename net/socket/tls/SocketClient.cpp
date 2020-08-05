@@ -16,8 +16,8 @@ namespace tls {
         : ::SocketClient<tls::SocketConnection>(
               [this, onConnect](tls::SocketConnection* cs) -> void {
                   class TLSConnect
-                      : public ReadEvent
-                      , public WriteEvent
+                      : public ReadEventReceiver
+                      , public WriteEventReceiver
                       , public Socket {
                   public:
                       TLSConnect(tls::SocketClient* sc, tls::SocketConnection* cs, SSL_CTX* ctx,
@@ -29,8 +29,8 @@ namespace tls {
                           , onConnect(onConnect)
                           , timeOut(Timer::singleshotTimer(
                                 [this]([[maybe_unused]] const void* arg) -> void {
-                                    this->ReadEvent::disable();
-                                    this->WriteEvent::disable();
+                                    this->ReadEventReceiver::disable();
+                                    this->WriteEventReceiver::disable();
                                     this->sc->onError(ETIMEDOUT);
                                     this->cs->stopSSL();
                                     delete this->cs;
@@ -42,9 +42,9 @@ namespace tls {
                           int sslErr = SSL_get_error(ssl, err);
 
                           if (sslErr == SSL_ERROR_WANT_READ) {
-                              this->ReadEvent::enable();
+                              this->ReadEventReceiver::enable();
                           } else if (sslErr == SSL_ERROR_WANT_WRITE) {
-                              this->WriteEvent::enable();
+                              this->WriteEventReceiver::enable();
                           } else {
                               if (sslErr == SSL_ERROR_NONE) {
                                   sc->onError(0);
@@ -63,13 +63,13 @@ namespace tls {
 
                           if (sslErr != SSL_ERROR_WANT_READ) {
                               if (sslErr == SSL_ERROR_WANT_WRITE) {
-                                  this->ReadEvent::disable();
-                                  this->WriteEvent::enable();
+                                  this->ReadEventReceiver::disable();
+                                  this->WriteEventReceiver::enable();
                               } else {
                                   timeOut.cancel();
-                                  this->ReadEvent::disable();
+                                  this->ReadEventReceiver::disable();
                                   if (sslErr == SSL_ERROR_NONE) {
-                                      cs->ReadEvent::enable();
+                                      cs->ReadEventReceiver::enable();
                                       sc->onError(0);
                                       this->onConnect(cs);
                                   } else {
@@ -87,13 +87,13 @@ namespace tls {
 
                           if (sslErr != SSL_ERROR_WANT_WRITE) {
                               if (sslErr == SSL_ERROR_WANT_READ) {
-                                  this->WriteEvent::disable();
-                                  this->ReadEvent::enable();
+                                  this->WriteEventReceiver::disable();
+                                  this->ReadEventReceiver::enable();
                               } else {
                                   timeOut.cancel();
-                                  this->WriteEvent::disable();
+                                  this->WriteEventReceiver::disable();
                                   if (sslErr == SSL_ERROR_NONE) {
-                                      cs->ReadEvent::enable();
+                                      cs->ReadEventReceiver::enable();
                                       sc->onError(0);
                                       this->onConnect(cs);
                                   } else {
@@ -105,7 +105,7 @@ namespace tls {
                           }
                       }
 
-                      void unmanaged() override {
+                      void unobserved() override {
                           delete this;
                       }
 

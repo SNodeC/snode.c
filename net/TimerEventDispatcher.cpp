@@ -4,9 +4,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "ManagedTimer.h"
+#include "TimerEventDispatcher.h"
 
-struct timeval ManagedTimer::getNextTimeout() {
+struct timeval TimerEventDispatcher::getNextTimeout() {
     struct timeval tv {
         0, 0
     };
@@ -53,7 +53,7 @@ struct timeval ManagedTimer::getNextTimeout() {
     return tv;
 }
 
-void ManagedTimer::dispatch() {
+void TimerEventDispatcher::dispatch() {
     struct timeval currentTime {
         0, 0
     };
@@ -68,14 +68,14 @@ void ManagedTimer::dispatch() {
     }
 }
 
-void ManagedTimer::remove(Timer* timer) {
+void TimerEventDispatcher::remove(Timer* timer) {
     removedList.push_back(timer);
 }
 
-void ManagedTimer::add(Timer* timer) {
+void TimerEventDispatcher::add(Timer* timer) {
     addedList.push_back(timer);
 }
 
-bool ManagedTimer::empty() {
+bool TimerEventDispatcher::empty() {
     return timerList.empty();
 }

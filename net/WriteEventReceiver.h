@@ -5,11 +5,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "ManagedDescriptor.h"
+#include "EventReceiver.h"
 
-class WriteEvent : public ManagedDescriptor {
+class WriteEventReceiver : public EventReceiver {
 public:
-    ~WriteEvent() override = default;
+    ~WriteEventReceiver() override = default;
 
     virtual void writeEvent() = 0;
 

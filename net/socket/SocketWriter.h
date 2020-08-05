@@ -12,14 +12,14 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "WriteEvent.h"
+#include "WriteEventReceiver.h"
 
 #define MAX_SEND_JUNKSIZE 16384
 
-template <typename SocketImpl>
+template <typename Socket>
 class SocketWriter
-    : public WriteEvent
-    , virtual public SocketImpl {
+    : public WriteEventReceiver
+    , virtual public Socket {
 public:
     SocketWriter() = delete;
 
@@ -28,8 +28,8 @@ public:
     }
 
     ~SocketWriter() override {
-        if (isManaged()) {
-            WriteEvent::disable();
+        if (WriteEventReceiver::isEnabled()) {
+            WriteEventReceiver::disable();
         }
     }
 
@@ -42,17 +42,17 @@ public:
             writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + ret);
 
             if (writeBuffer.empty()) {
-                WriteEvent::disable();
+                WriteEventReceiver::disable();
             }
         } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
-            WriteEvent::disable();
+            WriteEventReceiver::disable();
             onError(errno);
         }
     }
 
     void enqueue(const char* buffer, size_t size) {
         writeBuffer.insert(writeBuffer.end(), buffer, buffer + size);
-        WriteEvent::enable();
+        WriteEventReceiver::enable();
     }
 
 protected:

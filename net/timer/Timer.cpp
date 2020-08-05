@@ -4,10 +4,10 @@
 
 #include "Timer.h"
 
+#include "EventLoop.h"
 #include "IntervalTimer.h"
-#include "ManagedTimer.h" // for ManagedTimer
-#include "Multiplexer.h"
 #include "SingleshotTimer.h"
+#include "TimerEventDispatcher.h" // for ManagedTimer
 
 Timer::Timer(const struct timeval& timeout, const void* arg)
     : arg(arg)
@@ -20,7 +20,7 @@ SingleshotTimer& Timer::singleshotTimer(const std::function<void(const void* arg
                                         const void* arg) {
     SingleshotTimer* st = new SingleshotTimer(dispatcher, timeout, arg);
 
-    Multiplexer::instance().getManagedTimer().add(st);
+    EventLoop::instance().getTimerEventDispatcher().add(st);
 
     return *st;
 }
@@ -29,7 +29,7 @@ IntervalTimer& Timer::continousTimer(const std::function<void(const void* arg, c
                                      const struct timeval& timeout, const void* arg) {
     IntervalTimer* ct = new IntervalTimer(dispatcher, timeout, arg);
 
-    Multiplexer::instance().getManagedTimer().add(ct);
+    EventLoop::instance().getTimerEventDispatcher().add(ct);
 
     return *ct;
 }
@@ -38,26 +38,18 @@ IntervalTimer& Timer::continousTimer(const std::function<void(const void* arg)>&
                                      const void* arg) {
     IntervalTimer* ct = new IntervalTimer(dispatcher, timeout, arg);
 
-    Multiplexer::instance().getManagedTimer().add(ct);
+    EventLoop::instance().getTimerEventDispatcher().add(ct);
 
     return *ct;
 }
 
 void Timer::cancel() {
-    Multiplexer::instance().getManagedTimer().remove(this);
+    EventLoop::instance().getTimerEventDispatcher().remove(this);
 }
 
 void Timer::update() {
     absoluteTimeout = absoluteTimeout + delay;
 }
-
-/*
-void Timer::dispatch() {
-    if (!dispatcher(arg)) {
-        Multiplexer::instance().getManagedTimer().remove(this);
-    }
-}
-*/
 
 void Timer::destroy() {
     delete this;

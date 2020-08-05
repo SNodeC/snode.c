@@ -10,9 +10,9 @@
 
 #include "timer/Timer.h"
 
-class ManagedTimer {
+class TimerEventDispatcher {
 public:
-    ManagedTimer() = default;
+    TimerEventDispatcher() = default;
 
     struct timeval getNextTimeout();
 

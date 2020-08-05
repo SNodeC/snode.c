@@ -7,14 +7,15 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Manager.h"
-#include "WriteEvent.h"
+#include "EventDispatcher.h"
+#include "WriteEventReceiver.h"
 
 // IWYU pragma: no_forward_declare Writer
 
-class ManagedWriter : public Manager<WriteEvent> {
+class WriteEventDispatcher : public EventDispatcher<WriteEventReceiver> {
 public:
-    using Manager<WriteEvent>::Manager;
+    using EventDispatcher<WriteEventReceiver>::EventDispatcher;
+
     int dispatch(const fd_set& fdSet, int count) override;
 };
 
