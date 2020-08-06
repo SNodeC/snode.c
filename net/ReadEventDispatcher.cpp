@@ -34,7 +34,7 @@ int ReadEventDispatcher::dispatch(const fd_set& fdSet, int counter) {
             }
             if (FD_ISSET(fd, &fdSet)) {
                 counter--;
-                eventReceiver->readEvent();
+                eventReceiver.front()->readEvent();
             }
         }
     }

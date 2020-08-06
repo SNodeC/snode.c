@@ -107,7 +107,7 @@ int main(int argc, char* argv[]) {
     tls::SocketClient sc = tlsClient();
     legacy::SocketClient lc = legacyClient();
 
-    lc.connect("localhost", 8080, [](int err) -> void {
+    lc.connect("localhost", 8080, [](int err) -> void { // example.com:81 simulate connnect timeout
         if (err) {
             std::cout << "Connect: " << strerror(err) << std::endl;
         } else {
