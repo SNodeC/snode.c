@@ -40,6 +40,8 @@ public:
     void add(Timer* timer);
 
     bool empty();
+    
+    void cancelAll();
 
 private:
     std::list<Timer*> timerList;

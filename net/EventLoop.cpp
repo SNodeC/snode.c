@@ -129,6 +129,7 @@ void EventLoop::start() {
         eventLoop.outOfBandEventDispatcher.unobserveObservedEvents();
 
         eventLoop.timerEventDispatcher.getNextTimeout();
+        eventLoop.timerEventDispatcher.cancelAll();
 
         running = false;
     }

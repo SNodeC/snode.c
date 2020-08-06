@@ -36,7 +36,6 @@ struct timeval TimerEventDispatcher::getNextTimeout() {
         timerList.push_back(timer);
         timerListDirty = true;
     }
-
     addedList.clear();
 
     for (Timer* timer : removedList) {
@@ -44,7 +43,6 @@ struct timeval TimerEventDispatcher::getNextTimeout() {
         timer->destroy();
         timerListDirty = true;
     }
-
     removedList.clear();
 
     if (!timerList.empty()) {
@@ -96,4 +94,11 @@ void TimerEventDispatcher::add(Timer* timer) {
 
 bool TimerEventDispatcher::empty() {
     return timerList.empty();
+}
+
+void TimerEventDispatcher::cancelAll() {
+    for (Timer* timer : timerList) {
+        removedList.push_back(timer);
+    }
+    getNextTimeout();
 }
