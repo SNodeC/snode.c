@@ -28,13 +28,13 @@
 
 int AcceptEventDispatcher::dispatch(const fd_set& fdSet, int conter) {
     if (conter > 0) {
-        for (auto [fd, eventReceiver] : observedEvents) {
+        for (auto [fd, eventReceivers] : observedEvents) {
             if (conter == 0) {
                 break;
             }
             if (FD_ISSET(fd, &fdSet)) {
                 conter--;
-                eventReceiver.front()->acceptEvent();
+                eventReceivers.front()->acceptEvent();
             }
         }
     }

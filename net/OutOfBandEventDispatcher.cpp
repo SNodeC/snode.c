@@ -28,13 +28,13 @@
 
 int OutOfBandEventDispatcher::dispatch(const fd_set& fdSet, int counter) {
     if (counter > 0) {
-        for (auto [fd, eventReceiver] : observedEvents) {
+        for (auto [fd, eventReceivers] : observedEvents) {
             if (counter == 0) {
                 break;
             }
             if (FD_ISSET(fd, &fdSet)) {
                 counter--;
-                eventReceiver.front()->outOfBandEvent();
+                eventReceivers.front()->outOfBandEvent();
             }
         }
     }
