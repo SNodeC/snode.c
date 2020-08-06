@@ -1,3 +1,21 @@
+/*
+ * snode.c - a slim toolkit for network communication
+ * Copyright (C) 2020  Volker Christian <me@vchrist.at>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <openssl/err.h>
@@ -8,6 +26,8 @@
 #include "socket/tls/SocketServer.h"
 #include "timer/SingleshotTimer.h"
 
+#define TLSACCEPT_TIMEOUT 10
+
 namespace tls {
 
     SocketServer::SocketServer(const std::function<void(tls::SocketConnection* cs)>& onConnect,
@@ -17,33 +37,33 @@ namespace tls {
                                const std::function<void(tls::SocketConnection* cs, int errnum)>& onWriteError)
         : ::SocketServer<tls::SocketConnection>(
               [this, onConnect](tls::SocketConnection* cs) -> void {
-                  class TLSAccept
-                      : public Reader
-                      , public Writer
+                  class TLSAcceptor
+                      : public ReadEventReceiver
+                      , public WriteEventReceiver
                       , public Socket {
                   public:
-                      TLSAccept(tls::SocketConnection* cs, SSL_CTX* ctx, const std::function<void(tls::SocketConnection* cs)>& onConnect)
+                      TLSAcceptor(tls::SocketConnection* cs, SSL_CTX* ctx, const std::function<void(tls::SocketConnection* cs)>& onConnect)
                           : Descriptor(true)
                           , cs(cs)
                           , ssl(cs->startSSL(ctx))
                           , onConnect(onConnect)
                           , timeOut(Timer::singleshotTimer(
                                 [this]([[maybe_unused]] const void* arg) -> void {
-                                    this->::Reader::stop();
-                                    this->::Writer::stop();
+                                    this->ReadEventReceiver::disable();
+                                    this->WriteEventReceiver::disable();
                                     this->cs->stopSSL();
                                     delete this->cs;
                                 },
-                                (struct timeval){10, 0}, nullptr)) {
+                                (struct timeval){TLSACCEPT_TIMEOUT, 0}, nullptr)) {
                           this->attachFd(cs->getFd());
 
                           int err = SSL_accept(ssl);
                           int sslErr = SSL_get_error(ssl, err);
 
                           if (sslErr == SSL_ERROR_WANT_READ) {
-                              ::Reader::start();
+                              this->ReadEventReceiver::enable();
                           } else if (sslErr == SSL_ERROR_WANT_WRITE) {
-                              ::Writer::start();
+                              this->WriteEventReceiver::enable();
                           } else {
                               if (sslErr == SSL_ERROR_NONE) {
                                   onConnect(cs);
@@ -59,13 +79,13 @@ namespace tls {
 
                           if (sslErr != SSL_ERROR_WANT_READ) {
                               if (sslErr == SSL_ERROR_WANT_WRITE) {
-                                  ::Reader::stop();
-                                  ::Writer::start();
+                                  this->ReadEventReceiver::disable();
+                                  this->WriteEventReceiver::enable();
                               } else {
                                   timeOut.cancel();
-                                  ::Reader::stop();
+                                  this->ReadEventReceiver::disable();
                                   if (sslErr == SSL_ERROR_NONE) {
-                                      cs->Reader::start();
+                                      cs->ReadEventReceiver::enable();
                                       this->onConnect(cs);
                                   } else {
                                       cs->stopSSL();
@@ -81,13 +101,13 @@ namespace tls {
 
                           if (sslErr != SSL_ERROR_WANT_WRITE) {
                               if (sslErr == SSL_ERROR_WANT_READ) {
-                                  ::Writer::stop();
-                                  ::Reader::start();
+                                  this->WriteEventReceiver::disable();
+                                  this->ReadEventReceiver::enable();
                               } else {
                                   timeOut.cancel();
-                                  ::Writer::stop();
+                                  this->WriteEventReceiver::disable();
                                   if (sslErr == SSL_ERROR_NONE) {
-                                      cs->Reader::start();
+                                      cs->ReadEventReceiver::enable();
                                       this->onConnect(cs);
                                   } else {
                                       cs->stopSSL();
@@ -97,7 +117,7 @@ namespace tls {
                           }
                       }
 
-                      void unmanaged() override {
+                      void unobserved() override {
                           delete this;
                       }
 
@@ -108,7 +128,7 @@ namespace tls {
                       Timer& timeOut;
                   };
 
-                  new TLSAccept(cs, ctx, onConnect);
+                  new TLSAcceptor(cs, ctx, onConnect);
                   /*
                   X509* client_cert = SSL_get_peer_certificate(ssl);
                   if (client_cert != NULL) {

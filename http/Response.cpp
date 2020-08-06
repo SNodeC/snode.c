@@ -1,3 +1,21 @@
+/*
+ * snode.c - a slim toolkit for network communication
+ * Copyright (C) 2020  Volker Christian <me@vchrist.at>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <filesystem>
@@ -18,10 +36,10 @@ Response::Response(HTTPServerContext* httpContext)
 }
 
 void Response::enqueue(const char* buf, size_t len) {
-    if (!headersSent && !headersSentInProgress) {
-        headersSentInProgress = true;
+    if (!headersSent && !sendHeaderInProgress) {
+        sendHeaderInProgress = true;
         sendHeader();
-        headersSentInProgress = false;
+        sendHeaderInProgress = false;
         headersSent = true;
     }
 
@@ -30,7 +48,7 @@ void Response::enqueue(const char* buf, size_t len) {
     if (headersSent) {
         contentSent += len;
         if (contentSent == contentLength) {
-            httpContext->requestCompleted();
+            httpContext->responseCompleted();
         }
     }
 }
@@ -57,9 +75,9 @@ Response& Response::append(const std::string& field, const std::string& value) {
     return *this;
 }
 
-Response& Response::set(const std::map<std::string, std::string>& map, bool overwrite) {
-    for (const std::pair<const std::string, std::string>& header : map) {
-        this->set(header.first, header.second, overwrite);
+Response& Response::set(const std::map<std::string, std::string>& headers, bool overwrite) {
+    for (auto& [field, value] : headers) {
+        this->set(field, value, overwrite);
     }
 
     return *this;
@@ -125,13 +143,13 @@ void Response::sendHeader() {
 
     headers.insert({{"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}, {"X-Powered-By", "snode.c"}});
 
-    for (const std::pair<const std::string, std::string>& header : headers) {
-        this->enqueue(header.first + ": " + header.second + "\r\n");
+    for (auto& [field, value] : headers) {
+        this->enqueue(field + ": " + value + "\r\n");
     }
 
-    for (const std::pair<const std::string, Response::ResponseCookie>& cookie : cookies) {
+    for (auto& [cookie, cookieValue] : cookies) {
         std::string cookieString =
-            std::accumulate(cookie.second.options.begin(), cookie.second.options.end(), cookie.first + "=" + cookie.second.value,
+            std::accumulate(cookieValue.options.begin(), cookieValue.options.end(), cookie + "=" + cookieValue.value,
                             [](const std::string& str, const std::pair<const std::string&, const std::string&> option) -> std::string {
                                 return str + "; " + option.first + (!option.second.empty() ? "=" + option.second : "");
                             });
@@ -143,9 +161,9 @@ void Response::sendHeader() {
     contentLength = std::stoi(headers.find("Content-Length")->second);
 }
 
-void Response::stop() {
+void Response::disable() {
     if (fileReader != nullptr) {
-        fileReader->stop();
+        fileReader->disable();
         fileReader = nullptr;
     }
 }
@@ -225,16 +243,16 @@ void Response::sendStatus(int status) {
 
 void Response::end() {
     this->send("");
-    this->httpContext->requestCompleted();
+    this->httpContext->responseCompleted();
 }
 
 void Response::reset() {
     headersSent = false;
-    headersSentInProgress = false;
+    sendHeaderInProgress = false;
     contentSent = 0;
     responseStatus = 200;
     contentLength = 0;
     headers.clear();
     cookies.clear();
-    stop();
+    disable();
 }

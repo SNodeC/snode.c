@@ -1,12 +1,30 @@
+/*
+ * snode.c - a slim toolkit for network communication
+ * Copyright (C) 2020  Volker Christian <me@vchrist.at>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <sys/time.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "ManagedTimer.h"
+#include "TimerEventDispatcher.h"
 
-struct timeval ManagedTimer::getNextTimeout() {
+struct timeval TimerEventDispatcher::getNextTimeout() {
     struct timeval tv {
         0, 0
     };
@@ -18,7 +36,6 @@ struct timeval ManagedTimer::getNextTimeout() {
         timerList.push_back(timer);
         timerListDirty = true;
     }
-
     addedList.clear();
 
     for (Timer* timer : removedList) {
@@ -26,7 +43,6 @@ struct timeval ManagedTimer::getNextTimeout() {
         timer->destroy();
         timerListDirty = true;
     }
-
     removedList.clear();
 
     if (!timerList.empty()) {
@@ -53,7 +69,7 @@ struct timeval ManagedTimer::getNextTimeout() {
     return tv;
 }
 
-void ManagedTimer::dispatch() {
+void TimerEventDispatcher::dispatch() {
     struct timeval currentTime {
         0, 0
     };
@@ -68,14 +84,21 @@ void ManagedTimer::dispatch() {
     }
 }
 
-void ManagedTimer::remove(Timer* timer) {
+void TimerEventDispatcher::remove(Timer* timer) {
     removedList.push_back(timer);
 }
 
-void ManagedTimer::add(Timer* timer) {
+void TimerEventDispatcher::add(Timer* timer) {
     addedList.push_back(timer);
 }
 
-bool ManagedTimer::empty() {
+bool TimerEventDispatcher::empty() {
     return timerList.empty();
+}
+
+void TimerEventDispatcher::cancelAll() {
+    for (Timer* timer : timerList) {
+        removedList.push_back(timer);
+    }
+    getNextTimeout();
 }

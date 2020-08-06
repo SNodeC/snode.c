@@ -1,3 +1,21 @@
+/*
+ * snode.c - a slim toolkit for network communication
+ * Copyright (C) 2020  Volker Christian <me@vchrist.at>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #ifndef TLS_SOCKETCLIENT_H
 #define TLS_SOCKETCLIENT_H
 
@@ -21,15 +39,15 @@ namespace tls {
                      const std::function<void(tls::SocketConnection* cs, int errnum)>& onReadError,
                      const std::function<void(tls::SocketConnection* cs, int errnum)>& onWriteError);
 
-        ~SocketClient();
+        ~SocketClient() override;
 
+        // NOLINTNEXTLINE(google-default-arguments)
         void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
                      const InetAddress& localAddress = InetAddress()) override;
 
     private:
         SSL_CTX* ctx;
 
-    private:
         std::function<void(tls::SocketConnection* cs)> onConnect;
         std::function<void(tls::SocketConnection* cs)> onDisconnect;
         std::function<void(tls::SocketConnection* cs, const char* junk, ssize_t n)> onRead;

@@ -1,3 +1,21 @@
+/*
+ * snode.c - a slim toolkit for network communication
+ * Copyright (C) 2020  Volker Christian <me@vchrist.at>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #ifndef SOCKETCLIENTBASE_H
 #define SOCKETCLIENTBASE_H
 
@@ -10,19 +28,20 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Logger.h"
-#include "Reader.h"
+#include "ReadEventReceiver.h"
 #include "Socket.h"
-#include "Writer.h"
+#include "WriteEventReceiver.h"
 #include "timer/SingleshotTimer.h"
 
-template <typename SocketConnectionImpl>
+#define CONNECT_TIMEOUT 10
+
+template <typename SocketConnection>
 class SocketClient {
 public:
-    SocketClient(const std::function<void(SocketConnectionImpl* cs)>& onConnect,
-                 const std::function<void(SocketConnectionImpl* cs)>& onDisconnect,
-                 const std::function<void(SocketConnectionImpl* cs, const char* junk, ssize_t n)>& onRead,
-                 const std::function<void(SocketConnectionImpl* cs, int errnum)>& onReadError,
-                 const std::function<void(SocketConnectionImpl* cs, int errnum)>& onWriteError)
+    SocketClient(const std::function<void(SocketConnection* cs)>& onConnect, const std::function<void(SocketConnection* cs)>& onDisconnect,
+                 const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
+                 const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
+                 const std::function<void(SocketConnection* cs, int errnum)>& onWriteError)
         : onConnect(onConnect)
         , onDisconnect(onDisconnect)
         , onRead(onRead)
@@ -30,9 +49,10 @@ public:
         , onWriteError(onWriteError) {
     }
 
+    // NOLINTNEXTLINE(google-default-arguments)
     virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
                          const InetAddress& localAddress = InetAddress()) {
-        SocketConnectionImpl* cs = SocketConnectionImpl::create(onRead, onReadError, onWriteError, onDisconnect);
+        SocketConnection* cs = SocketConnection::create(onRead, onReadError, onWriteError, onDisconnect);
 
         cs->open(
             [this, &cs, &host, &port, &localAddress, &onError](int err) -> void {
@@ -49,11 +69,11 @@ public:
                             errno = 0;
 
                             class Connect
-                                : public Writer
+                                : public WriteEventReceiver
                                 , public Socket {
                             public:
-                                Connect(SocketConnectionImpl* cs, InetAddress server,
-                                        const std::function<void(SocketConnectionImpl* cs)>& onConnect,
+                                Connect(SocketConnection* cs, const InetAddress& server,
+                                        const std::function<void(SocketConnection* cs)>& onConnect,
                                         const std::function<void(int err)>& onError)
                                     : Descriptor(true)
                                     , cs(cs)
@@ -63,10 +83,10 @@ public:
                                     , timeOut(Timer::singleshotTimer(
                                           [this]([[maybe_unused]] const void* arg) -> void {
                                               this->onError(ETIMEDOUT);
-                                              this->::Writer::stop();
+                                              this->WriteEventReceiver::disable();
                                               delete this->cs;
                                           },
-                                          (struct timeval){10, 0}, nullptr)) {
+                                          (struct timeval){CONNECT_TIMEOUT, 0}, nullptr)) {
                                     this->attachFd(cs->getFd());
 
                                     errno = 0;
@@ -76,11 +96,11 @@ public:
                                     if (ret == 0) {
                                         timeOut.cancel();
                                         onConnect(cs);
-                                        cs->::Reader::start();
+                                        cs->ReadEventReceiver::enable();
                                         delete this;
                                     } else {
                                         if (errno == EINPROGRESS) {
-                                            ::Writer::start();
+                                            this->WriteEventReceiver::enable();
                                         } else {
                                             timeOut.cancel();
                                             onError(errno);
@@ -91,14 +111,13 @@ public:
                                 }
 
                                 void writeEvent() override {
-                                    int cErrno;
-                                    int err;
+                                    int cErrno = 0;
                                     socklen_t cErrnoLen = sizeof(cErrno);
 
-                                    err = getsockopt(cs->getFd(), SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);
+                                    int err = getsockopt(cs->getFd(), SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);
 
                                     timeOut.cancel();
-                                    ::Writer::stop();
+                                    this->WriteEventReceiver::disable();
 
                                     if (err < 0) {
                                         onError(err);
@@ -115,18 +134,18 @@ public:
 
                                         onError(0);
                                         onConnect(cs);
-                                        cs->::Reader::start();
+                                        cs->ReadEventReceiver::enable();
                                     }
                                 }
 
-                                void unmanaged() override {
+                                void unobserved() override {
                                     delete this;
                                 }
 
                             private:
-                                SocketConnectionImpl* cs = nullptr;
+                                SocketConnection* cs = nullptr;
                                 InetAddress server;
-                                std::function<void(SocketConnectionImpl* cs)> onConnect;
+                                std::function<void(SocketConnection* cs)> onConnect;
                                 std::function<void(int err)> onError;
                                 Timer& timeOut;
                             };
@@ -143,25 +162,24 @@ public:
         connect(host, port, onError, InetAddress(lPort));
     }
 
-    virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, const std::string lHost) {
+    virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, const std::string& lHost) {
         connect(host, port, onError, InetAddress(lHost));
     }
 
-    virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, const std::string lHost,
+    virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, const std::string& lHost,
                          in_port_t lPort) {
         connect(host, port, onError, InetAddress(lHost, lPort));
     }
 
 protected:
-    virtual ~SocketClient() {
-    }
+    virtual ~SocketClient() = default;
 
 private:
-    std::function<void(SocketConnectionImpl* cs)> onConnect;
-    std::function<void(SocketConnectionImpl* cs)> onDisconnect;
-    std::function<void(SocketConnectionImpl* cs, const char* junk, ssize_t n)> onRead;
-    std::function<void(SocketConnectionImpl* cs, int errnum)> onReadError;
-    std::function<void(SocketConnectionImpl* cs, int errnum)> onWriteError;
+    std::function<void(SocketConnection* cs)> onConnect;
+    std::function<void(SocketConnection* cs)> onDisconnect;
+    std::function<void(SocketConnection* cs, const char* junk, ssize_t n)> onRead;
+    std::function<void(SocketConnection* cs, int errnum)> onReadError;
+    std::function<void(SocketConnection* cs, int errnum)> onWriteError;
 };
 
 #endif // SOCKETCLIENTBASE_H
