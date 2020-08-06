@@ -95,6 +95,8 @@ public:
 
                                     if (ret == 0) {
                                         timeOut.cancel();
+
+                                        onError(0);
                                         onConnect(cs);
                                         cs->ReadEventReceiver::enable();
                                         delete this;

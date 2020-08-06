@@ -34,7 +34,7 @@ int AcceptEventDispatcher::dispatch(const fd_set& fdSet, int conter) {
             }
             if (FD_ISSET(fd, &fdSet)) {
                 conter--;
-                eventReceiver->acceptEvent();
+                eventReceiver.front()->acceptEvent();
             }
         }
     }

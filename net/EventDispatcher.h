@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <list>
 #include <map>
+#include <stack>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -83,13 +84,17 @@ private:
     void observeEnabledEvents() {
         for (EventReceiver* eventReceiver : enabledEventReceiver) {
             int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
-            bool inserted = false;
-            std::tie(std::ignore, inserted) = observedEvents.insert({fd, eventReceiver});
-            if (inserted) {
-                FD_SET(fd, &fdSet);
-            } else {
-                eventReceiver->disabled();
-            }
+            //            bool inserted = false;
+            observedEvents[fd].push_back(eventReceiver);
+            FD_SET(fd, &fdSet);
+            /*
+                        std::tie(std::ignore, inserted) = observedEvents.insert({fd, eventReceiver});
+                        if (inserted) {
+                            FD_SET(fd, &fdSet);
+                        } else {
+                            eventReceiver->disabled();
+                        }
+            */
         }
         enabledEventReceiver.clear();
     }
@@ -97,8 +102,11 @@ private:
     void unobserveDisabledEvents() {
         for (EventReceiver* eventReceiver : disabledEventReceiver) {
             int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
-            FD_CLR(fd, &fdSet);
-            observedEvents.erase(fd);
+            observedEvents[fd].remove(eventReceiver);
+            if (observedEvents[fd].empty()) {
+                observedEvents.erase(fd);
+                FD_CLR(fd, &fdSet);
+            }
             eventReceiver->disabled();
             eventReceiver->destructIfUnobserved();
         }
@@ -106,8 +114,10 @@ private:
     }
 
     void unobserveObservedEvents() {
-        for (auto& [fd, eventReceiver] : observedEvents) {
-            disabledEventReceiver.push_back(eventReceiver);
+        for (auto& [fd, eventReceivers] : observedEvents) {
+            for (EventReceiver* eventReceiver : eventReceivers) {
+                disabledEventReceiver.push_back(eventReceiver);
+            }
         }
         unobserveDisabledEvents();
     }
@@ -115,7 +125,7 @@ private:
 protected:
     virtual int dispatch(const fd_set& fdSet, int counter) = 0;
 
-    std::map<int, EventReceiver*> observedEvents;
+    std::map<int, std::list<EventReceiver*>> observedEvents;
 
 private:
     std::list<EventReceiver*> enabledEventReceiver;

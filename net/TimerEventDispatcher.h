@@ -40,7 +40,7 @@ public:
     void add(Timer* timer);
 
     bool empty();
-    
+
     void cancelAll();
 
 private:
