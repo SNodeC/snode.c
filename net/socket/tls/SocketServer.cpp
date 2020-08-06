@@ -51,8 +51,7 @@ namespace tls {
                                 [this]([[maybe_unused]] const void* arg) -> void {
                                     this->ReadEventReceiver::disable();
                                     this->WriteEventReceiver::disable();
-                                    this->cs->stopSSL();
-                                    delete this->cs;
+                                    this->cs->ReadEventReceiver::disable();
                                 },
                                 (struct timeval){TLSACCEPT_TIMEOUT, 0}, nullptr)) {
                           this->attachFd(cs->getFd());
@@ -85,11 +84,9 @@ namespace tls {
                                   timeOut.cancel();
                                   this->ReadEventReceiver::disable();
                                   if (sslErr == SSL_ERROR_NONE) {
-                                      cs->ReadEventReceiver::enable();
                                       this->onConnect(cs);
                                   } else {
-                                      cs->stopSSL();
-                                      delete cs;
+                                      cs->ReadEventReceiver::disable();
                                   }
                               }
                           }
@@ -107,11 +104,9 @@ namespace tls {
                                   timeOut.cancel();
                                   this->WriteEventReceiver::disable();
                                   if (sslErr == SSL_ERROR_NONE) {
-                                      cs->ReadEventReceiver::enable();
                                       this->onConnect(cs);
                                   } else {
-                                      cs->stopSSL();
-                                      delete cs;
+                                      cs->ReadEventReceiver::disable();
                                   }
                               }
                           }
