@@ -84,17 +84,8 @@ private:
     void observeEnabledEvents() {
         for (EventReceiver* eventReceiver : enabledEventReceiver) {
             int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
-            //            bool inserted = false;
             observedEvents[fd].push_back(eventReceiver);
             FD_SET(fd, &fdSet);
-            /*
-                        std::tie(std::ignore, inserted) = observedEvents.insert({fd, eventReceiver});
-                        if (inserted) {
-                            FD_SET(fd, &fdSet);
-                        } else {
-                            eventReceiver->disabled();
-                        }
-            */
         }
         enabledEventReceiver.clear();
     }
