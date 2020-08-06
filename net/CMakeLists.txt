@@ -5,26 +5,28 @@ find_package(OpenSSL REQUIRED)
 add_library(net SHARED
     Descriptor.cpp
     Descriptor.h
-    ManagedExceptions.cpp
-    ManagedExceptions.h
-    ManagedReader.cpp
-    ManagedReader.h
-    ManagedServer.cpp
-    ManagedServer.h
-    ManagedTimer.cpp
-    ManagedTimer.h
-    ManagedWriter.cpp
-    ManagedWriter.h
-    Multiplexer.cpp
-    Multiplexer.h
-    Exception.cpp
-    Exception.h
-    Reader.cpp
-    Reader.h
-    Server.cpp
-    Server.h
-    Writer.cpp
-    Writer.h
+    OutOfBandEventDispatcher.cpp
+    OutOfBandEventDispatcher.h
+    ReadEventDispatcher.cpp
+    ReadEventDispatcher.h
+    AcceptEventDispatcher.cpp
+    AcceptEventDispatcher.h
+    TimerEventDispatcher.cpp
+    TimerEventDispatcher.h
+    WriteEventDispatcher.cpp
+    WriteEventDispatcher.h
+    EventDispatcher.h
+    EventReceiver.h
+    EventLoop.cpp
+    EventLoop.h
+    OutOfBandEventReceiver.cpp
+    OutOfBandEventReceiver.h
+    ReadEventReceiver.cpp
+    ReadEventReceiver.h
+    AcceptEventReceiver.cpp
+    AcceptEventReceiver.h
+    WriteEventReceiver.cpp
+    WriteEventReceiver.h
     file/File.cpp
     file/File.h
     file/FileReader.cpp
@@ -77,6 +79,10 @@ set_target_properties(net PROPERTIES
             CXX_EXTENSIONS OFF
             SOVERSION 1
 )
+
+add_custom_command(TARGET net PRE_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy
+                   ${CMAKE_SOURCE_DIR}/logger.conf ${CMAKE_BINARY_DIR}/apps/.logger.conf)
 
 target_compile_options(net PRIVATE --warn-all)
 

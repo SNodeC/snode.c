@@ -1,3 +1,21 @@
+/*
+ * snode.c - a slim toolkit for network communication
+ * Copyright (C) 2020  Volker Christian <me@vchrist.at>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #ifndef RESPONSE_H
 #define RESPONSE_H
 
@@ -33,7 +51,7 @@ public:
     Response& status(int status);
     Response& append(const std::string& field, const std::string& value);
     Response& set(const std::string& field, const std::string& value, bool overwrite = false);
-    Response& set(const std::map<std::string, std::string>& map, bool overwrite = false);
+    Response& set(const std::map<std::string, std::string>& headers, bool overwrite = false);
     Response& cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options = {});
     Response& clearCookie(const std::string& name, const std::map<std::string, std::string>& options = {});
     Response& type(const std::string& type);
@@ -47,7 +65,7 @@ protected:
     void enqueue(const std::string& str);
 
     void sendHeader();
-    void stop();
+    void disable();
     void reset();
 
 private:
@@ -69,7 +87,7 @@ private:
     FileReader* fileReader = nullptr;
 
     size_t contentSent = 0;
-    bool headersSentInProgress = false;
+    bool sendHeaderInProgress = false;
 
     int responseStatus = 0;
     std::map<std::string, std::string> headers;
