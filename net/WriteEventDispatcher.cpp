@@ -34,7 +34,7 @@ int WriteEventDispatcher::dispatch(const fd_set& fdSet, int counter) {
             }
             if (FD_ISSET(fd, &fdSet)) {
                 counter--;
-                eventReceiver->writeEvent();
+                eventReceiver.front()->writeEvent();
             }
         }
     }

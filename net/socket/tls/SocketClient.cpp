@@ -52,8 +52,7 @@ namespace tls {
                                     this->ReadEventReceiver::disable();
                                     this->WriteEventReceiver::disable();
                                     this->sc->onError(ETIMEDOUT);
-                                    this->cs->stopSSL();
-                                    delete this->cs;
+                                    this->cs->ReadEventReceiver::disable();
                                 },
                                 (struct timeval){TLSCONNECT_TIMEOUT, 0}, nullptr)) {
                           this->attachFd(cs->getFd());
@@ -89,13 +88,11 @@ namespace tls {
                                   timeOut.cancel();
                                   this->ReadEventReceiver::disable();
                                   if (sslErr == SSL_ERROR_NONE) {
-                                      cs->ReadEventReceiver::enable();
                                       sc->onError(0);
                                       this->onConnect(cs);
                                   } else {
                                       sc->onError(-sslErr);
-                                      cs->stopSSL();
-                                      delete cs;
+                                      cs->ReadEventReceiver::disable();
                                   }
                               }
                           }
@@ -113,13 +110,11 @@ namespace tls {
                                   timeOut.cancel();
                                   this->WriteEventReceiver::disable();
                                   if (sslErr == SSL_ERROR_NONE) {
-                                      cs->ReadEventReceiver::enable();
                                       sc->onError(0);
                                       this->onConnect(cs);
                                   } else {
                                       sc->onError(-sslErr);
-                                      cs->stopSSL();
-                                      delete cs;
+                                      cs->ReadEventReceiver::disable();
                                   }
                               }
                           }
