@@ -97,8 +97,11 @@ bool TimerEventDispatcher::empty() {
 }
 
 void TimerEventDispatcher::cancelAll() {
+    getNextTimeout();
+
     for (Timer* timer : timerList) {
         removedList.push_back(timer);
     }
+
     getNextTimeout();
 }
