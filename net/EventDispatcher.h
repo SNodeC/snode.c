@@ -53,20 +53,24 @@ private:
 
 public:
     void enable(EventReceiver* eventReceiver) {
-        if (!eventReceiver->isEnabled() && !EventDispatcher<EventReceiver>::contains(enabledEventReceiver, eventReceiver)) {
+        if (EventDispatcher<EventReceiver>::contains(disabledEventReceiver, eventReceiver)) {
+            // same tick
+            disabledEventReceiver.remove(eventReceiver);
+        } else if (!eventReceiver->isEnabled() && !EventDispatcher<EventReceiver>::contains(enabledEventReceiver, eventReceiver)) {
+            // normal
             enabledEventReceiver.push_back(eventReceiver);
             eventReceiver->enabled();
         }
     }
 
     void disable(EventReceiver* eventReceiver) {
-        if (eventReceiver->isEnabled()) {
-            if (EventDispatcher<EventReceiver>::contains(enabledEventReceiver, eventReceiver)) { // stop() on same tick as start()
-                enabledEventReceiver.remove(eventReceiver);
-                eventReceiver->disabled();
-            } else if (!EventDispatcher<EventReceiver>::contains(disabledEventReceiver, eventReceiver)) { // stop() asynchronously
-                disabledEventReceiver.push_back(eventReceiver);
-            }
+        if (EventDispatcher<EventReceiver>::contains(enabledEventReceiver, eventReceiver)) {
+            // same tick
+            enabledEventReceiver.remove(eventReceiver);
+            eventReceiver->disabled();
+        } else if (eventReceiver->isEnabled() && !EventDispatcher<EventReceiver>::contains(disabledEventReceiver, eventReceiver)) {
+            // normal
+            disabledEventReceiver.push_back(eventReceiver);
         }
     }
 
