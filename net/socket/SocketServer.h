@@ -127,8 +127,9 @@ public:
                 cs->setRemoteAddress(InetAddress(remoteAddress));
                 cs->setLocalAddress(InetAddress(localAddress));
 
-                onConnect(cs);
                 cs->ReadEventReceiver::enable();
+
+                onConnect(cs);
             } else {
                 PLOG(ERROR) << "getsockname";
                 shutdown(csFd, SHUT_RDWR);

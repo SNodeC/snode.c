@@ -68,13 +68,13 @@ public:
                             InetAddress server(host, port);
                             errno = 0;
 
-                            class Connect
+                            class Connector
                                 : public WriteEventReceiver
                                 , public Socket {
                             public:
-                                Connect(SocketConnection* cs, const InetAddress& server,
-                                        const std::function<void(SocketConnection* cs)>& onConnect,
-                                        const std::function<void(int err)>& onError)
+                                Connector(SocketConnection* cs, const InetAddress& server,
+                                          const std::function<void(SocketConnection* cs)>& onConnect,
+                                          const std::function<void(int err)>& onError)
                                     : Descriptor(true)
                                     , cs(cs)
                                     , server(server)
@@ -96,9 +96,16 @@ public:
                                     if (ret == 0) {
                                         timeOut.cancel();
 
+                                        struct sockaddr_in localAddress {};
+                                        socklen_t addressLength = sizeof(localAddress);
+                                        getsockname(cs->getFd(), reinterpret_cast<sockaddr*>(&localAddress), &addressLength);
+                                        cs->setLocalAddress(InetAddress(localAddress));
+                                        cs->setRemoteAddress(server);
+
+                                        cs->ReadEventReceiver::enable();
+
                                         onError(0);
                                         onConnect(cs);
-                                        cs->ReadEventReceiver::enable();
                                         delete this;
                                     } else {
                                         if (errno == EINPROGRESS) {
@@ -131,12 +138,13 @@ public:
                                         struct sockaddr_in localAddress {};
                                         socklen_t addressLength = sizeof(localAddress);
                                         getsockname(cs->getFd(), reinterpret_cast<sockaddr*>(&localAddress), &addressLength);
-                                        cs->setRemoteAddress(server);
                                         cs->setLocalAddress(InetAddress(localAddress));
+                                        cs->setRemoteAddress(server);
+
+                                        cs->ReadEventReceiver::enable();
 
                                         onError(0);
                                         onConnect(cs);
-                                        cs->ReadEventReceiver::enable();
                                     }
                                 }
 
@@ -152,7 +160,7 @@ public:
                                 Timer& timeOut;
                             };
 
-                            new Connect(cs, server, onConnect, onError);
+                            new Connector(cs, server, onConnect, onError);
                         }
                     });
                 }
