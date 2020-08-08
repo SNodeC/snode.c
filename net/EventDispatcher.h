@@ -88,7 +88,7 @@ private:
     void observeEnabledEvents() {
         for (EventReceiver* eventReceiver : enabledEventReceiver) {
             int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
-            observedEvents[fd].push_back(eventReceiver);
+            observedEvents[fd].push_front(eventReceiver);
             FD_SET(fd, &fdSet);
         }
         enabledEventReceiver.clear();
