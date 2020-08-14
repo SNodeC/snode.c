@@ -27,6 +27,13 @@
 
 namespace tls {
 
+    WebApp::WebApp(const std::string& rootDir, const std::string& cert, const std::string& key, const std::string& password)
+        : ::WebApp(rootDir)
+        , cert(cert)
+        , key(key)
+        , password(password) {
+    }
+
     void WebApp::listen(int port, const std::function<void(int err)>& onError) {
         errno = 0;
 
@@ -53,8 +60,9 @@ namespace tls {
                  connectedSocket->getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
                      protocol->onWriteError(errnum);
                  });
-             }))
-            ->listen(port, 5, cert, key, password, [&](int err) -> void {
+             },
+             cert, key, password))
+            ->listen(port, 5, [&](int err) -> void {
                 if (onError) {
                     onError(err);
                 }

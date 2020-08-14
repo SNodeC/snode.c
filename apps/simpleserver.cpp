@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
         .get(
             "/",
             APPLICATION(req, res) {
-                VLOG(0) << "URL: " + req.originalUrl;
+                VLOG(0) << "URL: " + req.url;
                 if (req.originalUrl == "/") {
                     res.redirect(308, "/index.html");
                 } else if (req.url == "/end") {

@@ -47,6 +47,7 @@ namespace tls {
 
     private:
         SSL_CTX* ctx;
+        unsigned long sslErr = 0;
 
         std::function<void(tls::SocketConnection* cs)> onConnect;
         std::function<void(tls::SocketConnection* cs)> onDisconnect;
