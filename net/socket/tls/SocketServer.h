@@ -34,20 +34,24 @@ namespace tls {
                      const std::function<void(tls::SocketConnection* cs)>& onDisconnect,
                      const std::function<void(tls::SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
                      const std::function<void(tls::SocketConnection* cs, int errnum)>& onReadError,
-                     const std::function<void(tls::SocketConnection* cs, int errnum)>& onWriteError);
+                     const std::function<void(tls::SocketConnection* cs, int errnum)>& onWriteError, const std::string& certChain,
+                     const std::string& keyPEM, const std::string& password);
+
+    protected:
+        using ::SocketServer<tls::SocketConnection>::SocketServer;
 
     private:
         ~SocketServer() override;
 
     public:
-        void listen(in_port_t port, int backlog, const std::string& certChain, const std::string& keyPEM, const std::string& password,
-                    const std::function<void(int err)>& onError);
+        void listen(in_port_t port, int backlog, const std::function<void(int err)>& onError);
 
     protected:
         using ::SocketServer<tls::SocketConnection>::listen;
 
     private:
         SSL_CTX* ctx;
+        unsigned long sslErr = 0;
         static int passwordCallback(char* buf, int size, int rwflag, void* u);
     };
 

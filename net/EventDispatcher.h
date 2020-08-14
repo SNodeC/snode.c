@@ -24,7 +24,6 @@
 #include <algorithm>
 #include <list>
 #include <map>
-#include <stack>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

@@ -29,11 +29,7 @@ namespace tls {
 
     class WebApp : public ::WebApp {
     public:
-        WebApp(const std::string& rootDir, const std::string& cert, const std::string& key, const std::string& password)
-            : ::WebApp(rootDir)
-            , cert(cert)
-            , key(key)
-            , password(password){};
+        WebApp(const std::string& rootDir, const std::string& cert, const std::string& key, const std::string& password);
 
         void listen(int port, const std::function<void(int err)>& onError = nullptr) override;
 

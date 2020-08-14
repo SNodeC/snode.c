@@ -59,7 +59,7 @@ public:
     bool headersSent = false;
 
 protected:
-    mutable size_t contentLength;
+    mutable size_t contentLength = 0;
 
     void enqueue(const char* buf, size_t len);
     void enqueue(const std::string& str);

@@ -34,7 +34,8 @@ namespace tls {
                                const std::function<void(tls::SocketConnection* cs)>& onDisconnect,
                                const std::function<void(tls::SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
                                const std::function<void(tls::SocketConnection* cs, int errnum)>& onReadError,
-                               const std::function<void(tls::SocketConnection* cs, int errnum)>& onWriteError)
+                               const std::function<void(tls::SocketConnection* cs, int errnum)>& onWriteError, const std::string& certChain,
+                               const std::string& keyPEM, const std::string& password)
         : ::SocketServer<tls::SocketConnection>(
               [this, onConnect](tls::SocketConnection* cs) -> void {
                   class TLSAcceptor
@@ -151,6 +152,23 @@ namespace tls {
               },
               onRead, onReadError, onWriteError)
         , ctx(nullptr) {
+        ctx = SSL_CTX_new(TLS_server_method());
+        if (!ctx) {
+            ERR_print_errors_fp(stderr);
+            sslErr = ERR_get_error();
+        } else {
+            SSL_CTX_set_default_passwd_cb(ctx, SocketServer::passwordCallback);
+            SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(password.c_str()));
+            if (SSL_CTX_use_certificate_chain_file(ctx, certChain.c_str()) <= 0) {
+                ERR_print_errors_fp(stderr);
+                sslErr = ERR_get_error();
+            } else if (SSL_CTX_use_PrivateKey_file(ctx, keyPEM.c_str(), SSL_FILETYPE_PEM) <= 0) {
+                ERR_print_errors_fp(stderr);
+                sslErr = ERR_get_error();
+            } else if (!SSL_CTX_check_private_key(ctx)) {
+                sslErr = ERR_get_error();
+            }
+        }
     }
 
     SocketServer::~SocketServer() {
@@ -160,33 +178,14 @@ namespace tls {
         }
     }
 
-    void SocketServer::listen(in_port_t port, int backlog, const std::string& certChain, const std::string& keyPEM,
-                              const std::string& password, const std::function<void(int err)>& onError) {
-        ::SocketServer<tls::SocketConnection>::listen(port, backlog, [this, &certChain, &keyPEM, &password, onError](int err) -> void {
-            if (!err) {
-                ctx = SSL_CTX_new(TLS_server_method());
-                unsigned long sslErr = 0;
-                if (!ctx) {
-                    ERR_print_errors_fp(stderr);
-                    sslErr = ERR_get_error();
-                } else {
-                    SSL_CTX_set_default_passwd_cb(ctx, SocketServer::passwordCallback);
-                    SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(password.c_str()));
-                    if (SSL_CTX_use_certificate_chain_file(ctx, certChain.c_str()) <= 0) {
-                        ERR_print_errors_fp(stderr);
-                        sslErr = ERR_get_error();
-                    } else if (SSL_CTX_use_PrivateKey_file(ctx, keyPEM.c_str(), SSL_FILETYPE_PEM) <= 0) {
-                        ERR_print_errors_fp(stderr);
-                        sslErr = ERR_get_error();
-                    } else if (!SSL_CTX_check_private_key(ctx)) {
-                        sslErr = ERR_get_error();
-                    }
-                }
-                onError(-ERR_GET_REASON(sslErr));
-            } else {
+    void SocketServer::listen(in_port_t port, int backlog, const std::function<void(int err)>& onError) {
+        if (sslErr != 0) {
+            onError(-sslErr);
+        } else {
+            ::SocketServer<tls::SocketConnection>::listen(port, backlog, [&onError](int err) -> void {
                 onError(err);
-            }
-        });
+            });
+        }
     }
 
     int SocketServer::passwordCallback(char* buf, int size, [[maybe_unused]] int rwflag, void* u) {

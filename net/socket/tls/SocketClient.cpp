@@ -161,11 +161,9 @@ namespace tls {
               },
               onRead, onReadError, onWriteError) {
         ctx = SSL_CTX_new(TLS_client_method());
-        [[maybe_unused]] unsigned long sslErr = 0;
         if (!ctx) {
             ERR_print_errors_fp(stderr);
             sslErr = ERR_get_error();
-            exit(2); // TODO(voc): Error handling
         } else {
             /*
              *   SSL_CTX_set_default_passwd_cb(ctx, SocketServer::passwordCallback);
@@ -194,14 +192,18 @@ namespace tls {
     void SocketClient::connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
                                const InetAddress& localAddress) {
         this->onError = onError;
-        ::SocketClient<tls::SocketConnection>::connect(
-            host, port,
-            [this](int err) -> void {
-                if (err) {
-                    this->onError(err);
-                }
-            },
-            localAddress);
+        if (sslErr != 0) {
+            onError(-sslErr);
+        } else {
+            ::SocketClient<tls::SocketConnection>::connect(
+                host, port,
+                [this](int err) -> void {
+                    if (err) {
+                        this->onError(err);
+                    }
+                },
+                localAddress);
+        }
     }
 
 }; // namespace tls
