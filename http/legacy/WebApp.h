@@ -24,16 +24,20 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "../WebApp.h"
+#include "HTTPServer.h"
 
 namespace legacy {
 
     class WebApp : public ::WebApp {
     public:
-        explicit WebApp() = default;
+        explicit WebApp();
 
         WebApp& operator=(const ::WebApp& webApp) = delete;
 
-        void listen(int port, const std::function<void(int err)>& onError = nullptr) override;
+        void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr) override;
+
+    protected:
+        HTTPServer httpServer;
 
     private:
         using ::WebApp::start;

@@ -26,6 +26,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "InetAddress.h"
 #include "SocketConnectionBase.h"
 
 template <typename SocketReader, typename SocketWriter>

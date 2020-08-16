@@ -7,8 +7,12 @@ find_package(LibMagic REQUIRED)
 add_library(http SHARED
     WebApp.cpp
     WebApp.h
+    legacy/HTTPServer.cpp
+    legacy/HTTPServer.h
     legacy/WebApp.cpp
     legacy/WebApp.h
+    tls/HTTPServer.cpp
+    tls/HTTPServer.h
     tls/WebApp.cpp
     tls/WebApp.h
     HTTPParser.cpp
