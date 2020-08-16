@@ -22,6 +22,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
+#include <netinet/in.h>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -32,7 +33,7 @@ class WebApp : public Router {
 protected:
     explicit WebApp();
 
-    virtual void listen(int port, const std::function<void(int err)>& onError = nullptr) = 0;
+    virtual void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr) = 0;
 
 public:
     static void init(int argc, char* argv[]);

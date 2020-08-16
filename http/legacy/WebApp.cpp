@@ -26,42 +26,14 @@
 #include "socket/legacy/SocketServer.h"
 
 namespace legacy {
+    WebApp::WebApp()
+        : httpServer([this](Request& req, Response& res) {
+            this->dispatch(req, res);
+        }) {
+    }
 
-    void WebApp::listen(int port, const std::function<void(int err)>& onError) {
-        errno = 0;
-
-        (new legacy::SocketServer(
-             [this](legacy::SocketConnection* connectedSocket) -> void { // onConnect
-                 connectedSocket->setProtocol<HTTPServerContext*>(
-                     new HTTPServerContext(connectedSocket, [this](Request& req, Response& res) -> void {
-                         this->dispatch(req, res);
-                     }));
-             },
-             [](legacy::SocketConnection* connectedSocket) -> void { // onDisconnect
-                 connectedSocket->getProtocol<HTTPServerContext*>([](HTTPServerContext*& protocol) -> void {
-                     delete protocol;
-                 });
-             },
-             [](legacy::SocketConnection* connectedSocket, const char* junk, ssize_t junkSize) -> void { // onRead
-                 connectedSocket->getProtocol<HTTPServerContext*>([&junk, &junkSize](HTTPServerContext*& protocol) -> void {
-                     protocol->receiveRequestData(junk, junkSize);
-                 });
-             },
-             [](legacy::SocketConnection* connectedSocket, int errnum) -> void { // onReadError
-                 connectedSocket->getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
-                     protocol->onReadError(errnum);
-                 });
-             },
-             [](legacy::SocketConnection* connectedSocket, int errnum) -> void { // onWriteError
-                 connectedSocket->getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
-                     protocol->onWriteError(errnum);
-                 });
-             }))
-            ->listen(port, 5, [&](int err) -> void {
-                if (onError) {
-                    onError(err);
-                }
-            });
+    void WebApp::listen(in_port_t port, const std::function<void(int err)>& onError) {
+        httpServer.listen(port, onError);
     }
 
 } // namespace legacy
