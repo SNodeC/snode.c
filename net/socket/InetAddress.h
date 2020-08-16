@@ -37,6 +37,9 @@ public:
     explicit InetAddress(const struct sockaddr_in& addr);
 
     in_port_t port() const;
+    std::string host() const;
+    std::string ip() const;
+    std::string serv() const;
 
     ~InetAddress() = default;
 

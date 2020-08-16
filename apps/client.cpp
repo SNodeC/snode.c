@@ -55,6 +55,12 @@ tls::SocketClient tlsClient() {
             } else {
                 printf("Client does not have certificate.\n");
             }
+            std::cout << connectedSocket->getRemoteAddress().port() << std::endl;
+            std::cout << connectedSocket->getLocalAddress().port() << std::endl;
+            std::cout << connectedSocket->getRemoteAddress().host() << std::endl;
+            std::cout << connectedSocket->getLocalAddress().host() << std::endl;
+            std::cout << connectedSocket->getRemoteAddress().ip() << std::endl;
+            std::cout << connectedSocket->getLocalAddress().ip() << std::endl;
 
         },
         []([[maybe_unused]] tls::SocketConnection* connectedSocket) -> void { // onDisconnect
@@ -78,7 +84,7 @@ tls::SocketClient tlsClient() {
         },
         CERTF, KEYF, KEYFPASS);
 
-    client.connect("localhost", 8088, [&client](int err) -> void {
+    client.connect("calisto.home.vchrist.at", 8088, [&client](int err) -> void {
         if (err) {
             std::cout << "Connect: " << strerror(err) << std::endl;
         } else {
@@ -94,6 +100,13 @@ legacy::SocketClient legacyClient() {
         []([[maybe_unused]] legacy::SocketConnection* connectedSocket) -> void { // onConnect
             std::cout << "OnConnect" << std::endl;
             connectedSocket->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); // Connection:keep-alive\r\n\r\n");
+
+            std::cout << connectedSocket->getRemoteAddress().port() << std::endl;
+            std::cout << connectedSocket->getLocalAddress().port() << std::endl;
+            std::cout << connectedSocket->getRemoteAddress().host() << std::endl;
+            std::cout << connectedSocket->getLocalAddress().host() << std::endl;
+            std::cout << connectedSocket->getRemoteAddress().ip() << std::endl;
+            std::cout << connectedSocket->getLocalAddress().ip() << std::endl;
         },
         []([[maybe_unused]] legacy::SocketConnection* connectedSocket) -> void { // onDisconnect
             std::cout << "OnDisconnect" << std::endl;
@@ -115,7 +128,7 @@ legacy::SocketClient legacyClient() {
             std::cout << "OnWriteError: " << errnum << std::endl;
         });
 
-    legacyClient.connect("localhost", 8080, [](int err) -> void {
+    legacyClient.connect("calisto.home.vchrist.at", 8080, [](int err) -> void {
         if (err) {
             std::cout << "Connect: " << strerror(err) << std::endl;
         } else {
@@ -132,7 +145,7 @@ int main(int argc, char* argv[]) {
     tls::SocketClient sc = tlsClient();
     legacy::SocketClient lc = legacyClient();
 
-    lc.connect("localhost", 8080, [](int err) -> void { // example.com:81 simulate connnect timeout
+    lc.connect("calisto.home.vchrist.at", 8080, [](int err) -> void { // example.com:81 simulate connnect timeout
         if (err) {
             std::cout << "Connect: " << strerror(err) << std::endl;
         } else {
@@ -140,7 +153,7 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    sc.connect("localhost", 8088, [](int err) -> void {
+    sc.connect("calisto.home.vchrist.at", 8088, [](int err) -> void {
         if (err) {
             std::cout << "Connect: " << strerror(err) << std::endl;
         } else {
