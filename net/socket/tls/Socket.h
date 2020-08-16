@@ -35,6 +35,7 @@ namespace tls {
     public:
         SSL* startSSL(SSL_CTX* ctx);
         void stopSSL();
+        SSL* getSSL();
 
     protected:
         SSL* ssl = nullptr;

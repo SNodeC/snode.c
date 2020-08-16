@@ -27,9 +27,8 @@
 
 namespace tls {
 
-    WebApp::WebApp(const std::string& rootDir, const std::string& cert, const std::string& key, const std::string& password)
-        : ::WebApp(rootDir)
-        , cert(cert)
+    WebApp::WebApp(const std::string& cert, const std::string& key, const std::string& password)
+        : cert(cert)
         , key(key)
         , password(password) {
     }
@@ -39,7 +38,10 @@ namespace tls {
 
         (new tls::SocketServer(
              [this](tls::SocketConnection* connectedSocket) -> void { // onConnect
-                 connectedSocket->setProtocol<HTTPServerContext*>(new HTTPServerContext(*this, connectedSocket));
+                 connectedSocket->setProtocol<HTTPServerContext*>(
+                     new HTTPServerContext(connectedSocket, [this](Request& req, Response& res) -> void {
+                         this->dispatch(req, res);
+                     }));
              },
              [](tls::SocketConnection* connectedSocket) -> void { // onDisconnect
                  connectedSocket->getProtocol<HTTPServerContext*>([](HTTPServerContext*& protocol) -> void {

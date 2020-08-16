@@ -33,7 +33,7 @@
 #define KEYFPASS "snode.c"
 
 int testPost() {
-    legacy::WebApp legacyApp("/home/voc/projects/ServerVoc/build/html");
+    legacy::WebApp legacyApp;
 
     legacyApp.get("/", []([[maybe_unused]] Request& req, Response& res) -> void {
         res.send("<html>"
@@ -93,8 +93,8 @@ int testPost() {
         }
     });
 
-    tls::WebApp tlsWebApp("/home/voc/projects/ServerVoc/build/html", CERTF, KEYF, KEYFPASS);
-    WebApp::clone(tlsWebApp, legacyApp);
+    tls::WebApp tlsWebApp(CERTF, KEYF, KEYFPASS);
+    tlsWebApp.use(legacyApp);
 
     tlsWebApp.listen(8088, [](int err) -> void {
         if (err != 0) {

@@ -27,11 +27,35 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#define CERTF "/home/voc/projects/ServerVoc/certs/calisto.home.vchrist.at_-_snode.c_-_client.pem"
+#define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c_-_client.key.encrypted.pem"
+#define KEYFPASS "snode.c"
+
 tls::SocketClient tlsClient() {
     tls::SocketClient client(
         []([[maybe_unused]] tls::SocketConnection* connectedSocket) -> void { // onConnect
             std::cout << "OnConnect" << std::endl;
             connectedSocket->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); // Connection:keep-alive\r\n\r\n");
+
+            X509* client_cert = SSL_get_peer_certificate(connectedSocket->getSSL());
+            if (client_cert != NULL) {
+                std::cout << "Server certificate" << std::endl;
+
+                char* str = X509_NAME_oneline(X509_get_subject_name(client_cert), 0, 0);
+                std::cout << "\t subject: " << str << std::endl;
+                OPENSSL_free(str);
+
+                str = X509_NAME_oneline(X509_get_issuer_name(client_cert), 0, 0);
+                std::cout << "\t issuer: " << str << std::endl;
+                OPENSSL_free(str);
+
+                // We could do all sorts of certificate verification stuff here before deallocating the certificate.
+
+                X509_free(client_cert);
+            } else {
+                printf("Client does not have certificate.\n");
+            }
+
         },
         []([[maybe_unused]] tls::SocketConnection* connectedSocket) -> void { // onDisconnect
             std::cout << "OnDisconnect" << std::endl;
@@ -51,9 +75,10 @@ tls::SocketClient tlsClient() {
         },
         []([[maybe_unused]] tls::SocketConnection* connectedSocket, int errnum) -> void { // onWriteError
             std::cout << "OnWriteError: " << errnum << std::endl;
-        });
+        },
+        CERTF, KEYF, KEYFPASS);
 
-    client.connect("localhost", 8088, [](int err) -> void {
+    client.connect("localhost", 8088, [&client](int err) -> void {
         if (err) {
             std::cout << "Connect: " << strerror(err) << std::endl;
         } else {

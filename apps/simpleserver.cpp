@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
                     res.send("Bye, bye!\n");
                     WebApp::stop();
                 } else {
-                    res.sendFile(req.url, [&req](int ret) -> void {
+                    res.sendFile("/home/voc/projects/ServerVoc/build/html/" + req.url, [&req](int ret) -> void {
                         if (ret != 0) {
                             PLOG(ERROR) << req.url;
                         }
@@ -64,17 +64,17 @@ int main(int argc, char** argv) {
         .get(
             "/search", APPLICATION(req, res) {
                 VLOG(0) << "URL: " + req.url;
-                res.sendFile(req.url, [&req](int ret) -> void {
+                res.sendFile("/home/voc/projects/ServerVoc/build/html/" + req.url, [&req](int ret) -> void {
                     if (ret != 0) {
                         PLOG(ERROR) << req.url;
                     }
                 });
             });
 
-    legacy::WebApp legacyApp(SERVERROOT);
+    legacy::WebApp legacyApp;
     legacyApp.use("/", router);
 
-    tls::WebApp tlsApp(SERVERROOT, CERTF, KEYF, KEYFPASS);
+    tls::WebApp tlsApp(CERTF, KEYF, KEYFPASS);
     tlsApp.use("/", router);
 
     tlsApp.listen(8088, [](int err) -> void {

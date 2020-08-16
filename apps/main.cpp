@@ -44,7 +44,7 @@ int timerApp() {
 
     bool canceled = false;
 
-    legacy::WebApp app("/home/voc/projects/ServerVoc/build/html");
+    legacy::WebApp app;
 
     app.get("/", [&canceled, &tack](Request& req, Response& res) -> void {
         std::string uri = req.originalUrl;
@@ -126,7 +126,7 @@ int timerApp() {
 }
 
 int simpleWebserver() {
-    legacy::WebApp app("/home/voc/projects/ServerVoc/build/html");
+    legacy::WebApp app;
 
     Router router;
 
@@ -254,7 +254,7 @@ int simpleWebserver() {
 }
 
 int testPost() {
-    legacy::WebApp app("/home/voc/projects/ServerVoc/build/html");
+    legacy::WebApp app;
 
     app.get("/", [&]([[maybe_unused]] Request& req, Response& res) -> void {
         res.send("<html>"

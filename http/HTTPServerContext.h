@@ -32,7 +32,7 @@ class SocketConnectionBase;
 
 class HTTPServerContext {
 public:
-    HTTPServerContext(const WebApp& webApp, SocketConnectionBase* connectedSocket);
+    HTTPServerContext(SocketConnectionBase* connectedSocket, std::function<void(Request& req, Response& res)> onRequest);
 
     void receiveRequestData(const char* junk, size_t junkLen);
     void onReadError(int errnum);
@@ -52,7 +52,7 @@ private:
     bool keepAliveFlag = false;
 
 public:
-    const WebApp& webApp;
+    std::function<void(Request& req, Response& res)> onRequest;
 
     Request request;
     Response response;

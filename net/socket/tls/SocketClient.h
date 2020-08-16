@@ -39,6 +39,13 @@ namespace tls {
                      const std::function<void(tls::SocketConnection* cs, int errnum)>& onReadError,
                      const std::function<void(tls::SocketConnection* cs, int errnum)>& onWriteError);
 
+        SocketClient(const std::function<void(tls::SocketConnection* cs)>& onConnect,
+                     const std::function<void(tls::SocketConnection* cs)>& onDisconnect,
+                     const std::function<void(tls::SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
+                     const std::function<void(tls::SocketConnection* cs, int errnum)>& onReadError,
+                     const std::function<void(tls::SocketConnection* cs, int errnum)>& onWriteError, const std::string& certChain,
+                     const std::string& keyPEM, const std::string& password);
+
         ~SocketClient() override;
 
         // NOLINTNEXTLINE(google-default-arguments)
@@ -48,6 +55,7 @@ namespace tls {
     private:
         SSL_CTX* ctx;
         unsigned long sslErr = 0;
+        static int passwordCallback(char* buf, int size, int rwflag, void* u);
 
         std::function<void(tls::SocketConnection* cs)> onConnect;
         std::function<void(tls::SocketConnection* cs)> onDisconnect;
