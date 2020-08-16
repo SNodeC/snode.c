@@ -96,7 +96,7 @@ Router route() {
         "/search", APPLICATION(req, res) {
             VLOG(0) << "URL: " + req.originalUrl;
             VLOG(2) << "SearchCookie: " + req.cookie("searchcookie");
-            res.sendFile(req.originalUrl, [&req](int ret) -> void {
+            res.sendFile("/home/voc/projects/ServerVoc/build/html" + req.url, [&req](int ret) -> void {
                 if (ret != 0) {
                     PLOG(ERROR) << req.originalUrl;
                 }
@@ -137,7 +137,7 @@ tls::WebApp sslMain() {
                     res.send("Bye, bye!\n");
                     WebApp::stop();
                 } else {
-                    res.sendFile(uri, [uri, &req](int ret) -> void {
+                    res.sendFile("/home/voc/projects/ServerVoc/build/html" + uri, [uri, &req](int ret) -> void {
                         if (ret != 0) {
                             PLOG(ERROR) << uri;
                         }
