@@ -32,7 +32,10 @@ namespace legacy {
 
         (new legacy::SocketServer(
              [this](legacy::SocketConnection* connectedSocket) -> void { // onConnect
-                 connectedSocket->setProtocol<HTTPServerContext*>(new HTTPServerContext(*this, connectedSocket));
+                 connectedSocket->setProtocol<HTTPServerContext*>(
+                     new HTTPServerContext(connectedSocket, [this](Request& req, Response& res) -> void {
+                         this->dispatch(req, res);
+                     }));
              },
              [](legacy::SocketConnection* connectedSocket) -> void { // onDisconnect
                  connectedSocket->getProtocol<HTTPServerContext*>([](HTTPServerContext*& protocol) -> void {

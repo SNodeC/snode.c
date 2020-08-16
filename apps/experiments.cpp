@@ -107,7 +107,7 @@ Router route() {
 }
 
 tls::WebApp sslMain() {
-    tls::WebApp sslApp("/home/voc/projects/ServerVoc/build/html/", CERTF, KEYF, KEYFPASS);
+    tls::WebApp sslApp(CERTF, KEYF, KEYFPASS);
     sslApp
         .use(
             "/",
@@ -149,7 +149,7 @@ tls::WebApp sslMain() {
 }
 
 legacy::WebApp legacyMain() {
-    legacy::WebApp legacyApp("/home/voc/projects/ServerVoc/build/html/");
+    legacy::WebApp legacyApp;
     legacyApp.use(
         "/", MIDDLEWARE(req, res, next) {
             if (req.originalUrl == "/end") {

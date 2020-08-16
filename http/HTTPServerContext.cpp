@@ -24,13 +24,12 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "WebApp.h"
 #include "httputils.h"
 #include "socket/SocketConnectionBase.h"
 
-HTTPServerContext::HTTPServerContext(const WebApp& webApp, SocketConnectionBase* connectedSocket)
+HTTPServerContext::HTTPServerContext(SocketConnectionBase* connectedSocket, std::function<void(Request& req, Response& res)> onRequest)
     : connectedSocket(connectedSocket)
-    , webApp(webApp)
+    , onRequest(onRequest)
     , response(this)
     , parser(
           [this](std::string& method, std::string& originalUrl, std::string& httpVersion,
@@ -107,7 +106,7 @@ void HTTPServerContext::onWriteError(int errnum) {
 void HTTPServerContext::requestReady() {
     this->requestInProgress = true;
 
-    webApp.dispatch(request, response);
+    onRequest(request, response);
 }
 
 void HTTPServerContext::responseCompleted() {

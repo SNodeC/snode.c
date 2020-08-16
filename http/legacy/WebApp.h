@@ -29,8 +29,7 @@ namespace legacy {
 
     class WebApp : public ::WebApp {
     public:
-        explicit WebApp(const std::string& rootDir)
-            : ::WebApp(rootDir){};
+        explicit WebApp() = default;
 
         WebApp& operator=(const ::WebApp& webApp) = delete;
 

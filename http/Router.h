@@ -88,13 +88,14 @@ public:
     DREQUESTMETHOD(patch);
     DREQUESTMETHOD(head);
 
+protected:
     void dispatch(Request& req, Response& res) const;
 
     const std::shared_ptr<RouterDispatcher>& getRoute() const {
         return routerDispatcher;
     }
 
-protected:
+private:
     static const MountPoint mountPoint;
     std::shared_ptr<RouterDispatcher> routerDispatcher; // it can be shared by multiple routers
 };
