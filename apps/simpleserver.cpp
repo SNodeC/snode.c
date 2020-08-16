@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
                     res.send("Bye, bye!\n");
                     WebApp::stop();
                 } else {
-                    res.sendFile("/home/voc/projects/ServerVoc/build/html/" + req.url, [&req](int ret) -> void {
+                    res.sendFile("/home/voc/projects/ServerVoc/build/html" + req.url, [&req](int ret) -> void {
                         if (ret != 0) {
                             PLOG(ERROR) << req.url;
                         }
@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
         .get(
             "/search", APPLICATION(req, res) {
                 VLOG(0) << "URL: " + req.url;
-                res.sendFile("/home/voc/projects/ServerVoc/build/html/" + req.url, [&req](int ret) -> void {
+                res.sendFile("/home/voc/projects/ServerVoc/build/html" + req.url, [&req](int ret) -> void {
                     if (ret != 0) {
                         PLOG(ERROR) << req.url;
                     }
