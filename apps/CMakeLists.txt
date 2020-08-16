@@ -54,3 +54,10 @@ set_target_properties(client PROPERTIES
             CXX_EXTENSIONS OFF
             SOVERSION 1
 )
+
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/logger.conf"
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/logger.conf" "${CMAKE_CURRENT_BINARY_DIR}"
+            DEPENDS "${CMAKE_SOURCE_DIR}/logger.conf"
+)
+
+add_custom_target(copy_logger.conf ALL DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/logger.conf")
