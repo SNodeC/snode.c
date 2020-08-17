@@ -16,34 +16,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LEGACYWEBAPP_H
-#define LEGACYWEBAPP_H
+#ifndef TLSWEBAPP_H
+#define TLSWEBAPP_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "../WebApp.h"
-#include "HTTPServer.h"
+#include "tls/HTTPServer.h"
 
-namespace legacy {
+namespace tls {
 
     class WebApp : public ::WebApp {
     public:
-        explicit WebApp();
+        explicit WebApp(const std::string& cert, const std::string& key, const std::string& password);
 
         WebApp& operator=(const ::WebApp& webApp) = delete;
 
         void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr) override;
 
     protected:
-        legacy::HTTPServer httpServer;
+        tls::HTTPServer httpServer;
 
     private:
         using ::WebApp::start;
         using ::WebApp::stop;
     };
 
-} // namespace legacy
+} // namespace tls
 
-#endif // LEGACYWEBAPP_H
+#endif // TLSWEBAPP_H

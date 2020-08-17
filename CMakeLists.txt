@@ -14,6 +14,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra")
 
 add_subdirectory(net)
 add_subdirectory(http)
+add_subdirectory(express)
 add_subdirectory(log)
 add_subdirectory(utils)
 add_subdirectory(apps)

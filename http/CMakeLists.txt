@@ -5,16 +5,10 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
 find_package(LibMagic REQUIRED)
 
 add_library(http SHARED
-    WebApp.cpp
-    WebApp.h
     legacy/HTTPServer.cpp
     legacy/HTTPServer.h
-    legacy/WebApp.cpp
-    legacy/WebApp.h
     tls/HTTPServer.cpp
     tls/HTTPServer.h
-    tls/WebApp.cpp
-    tls/WebApp.h
     HTTPParser.cpp
     HTTPParser.h
     HTTPRequestParser.cpp
@@ -31,8 +25,6 @@ add_library(http SHARED
     Response.h
     httputils.cpp
     httputils.h
-    Router.cpp
-    Router.h
 )
 
 target_link_libraries(http LINK_PUBLIC net logger utils ${LIBMAGIC_LIBRARIES})

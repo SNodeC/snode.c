@@ -50,17 +50,15 @@ public:
     bool keepAlive = false;
 
 protected:
-    void reset();
+    virtual void reset();
 
     const std::map<std::string, std::string>* queries = nullptr;
     const std::map<std::string, std::string>* headers = nullptr;
     const std::map<std::string, std::string>* cookies = nullptr;
 
-private:
     std::string nullstr = "";
 
     friend class HTTPServerContext;
-    friend class Response;
 };
 
 #endif // REQUEST_H
