@@ -31,65 +31,66 @@
 #define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem"
 #define KEYFPASS "snode.c"
 
-#define SERVERROOT "/home/voc/projects/ServerVoc/build/html/"
+#define SERVERROOT "/home/voc/projects/ServerVoc/build/html"
+
+class StaticMiddleware : public Router {
+public:
+    explicit StaticMiddleware(const std::string& root)
+        : root(root) {
+        this->use(MIDDLEWARE(req, res, next) {
+            if (req.method == "GET") {
+                res.set("Connection", "Keep-Alive");
+                next();
+            } else {
+                res.keepAlive = false;
+                res.sendStatus(400);
+            }
+        });
+        this->use(MIDDLEWARE(req, res, next) {
+            if (req.url == "/") {
+                res.redirect(308, "/index.html");
+            } else {
+                next();
+            }
+        });
+        this->use(APPLICATION(req, res) {
+            VLOG(0) << "URLSend: " + req.url + " -> " + this->root + req.url + " - " + req.method;
+            res.sendFile(this->root + req.url, [&req](int ret) -> void {
+                if (ret != 0) {
+                    PLOG(ERROR) << req.url << std::endl;
+                }
+            });
+        });
+    }
+
+protected:
+    std::string root;
+};
 
 int main(int argc, char** argv) {
     WebApp::init(argc, argv);
 
-    Router router;
-    router
-        .use(
-            "/",
-            MIDDLEWARE(req, res, next) {
-                res.set("Connection", "Keep-Alive");
-                next();
-            })
-        .get(
-            "/",
-            APPLICATION(req, res) {
-                VLOG(0) << "URL: " + req.url;
-                if (req.originalUrl == "/") {
-                    res.redirect(308, "/index.html");
-                } else if (req.url == "/end") {
-                    res.send("Bye, bye!\n");
-                    WebApp::stop();
-                } else {
-                    res.sendFile("/home/voc/projects/ServerVoc/build/html" + req.url, [&req](int ret) -> void {
-                        if (ret != 0) {
-                            PLOG(ERROR) << req.url;
-                        }
-                    });
-                }
-            })
-        .get(
-            "/search", APPLICATION(req, res) {
-                VLOG(0) << "URL: " + req.url;
-                res.sendFile("/home/voc/projects/ServerVoc/build/html" + req.url, [&req](int ret) -> void {
-                    if (ret != 0) {
-                        PLOG(ERROR) << req.url;
-                    }
-                });
-            });
+    StaticMiddleware staticMiddleware(SERVERROOT);
 
     legacy::WebApp legacyApp;
-    legacyApp.use("/", router);
-
     tls::WebApp tlsApp(CERTF, KEYF, KEYFPASS);
-    tlsApp.use("/", router);
 
-    tlsApp.listen(8088, [](int err) -> void {
-        if (err != 0) {
-            PLOG(FATAL) << "listen on port 8088";
-        } else {
-            VLOG(0) << "snode.c listening on port 8088 for SSL/TLS connections";
-        }
-    });
+    legacyApp.use(staticMiddleware);
+    tlsApp.use(staticMiddleware);
 
     legacyApp.listen(8080, [](int err) -> void {
         if (err != 0) {
             PLOG(FATAL) << "listen on port 8080";
         } else {
             VLOG(0) << "snode.c listening on port 8080 for legacy connections";
+        }
+    });
+
+    tlsApp.listen(8088, [](int err) -> void {
+        if (err != 0) {
+            PLOG(FATAL) << "listen on port 8088";
+        } else {
+            VLOG(0) << "snode.c listening on port 8088 for SSL/TLS connections";
         }
     });
 

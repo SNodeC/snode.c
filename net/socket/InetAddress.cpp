@@ -74,7 +74,6 @@ in_port_t InetAddress::port() const {
 
 std::string InetAddress::host() const {
     char host[256];
-    //    char serv[256];
     getnameinfo(reinterpret_cast<const sockaddr*>(&addr), sizeof(addr), host, 256, NULL, 0, 0);
 
     return std::string(host);
@@ -82,14 +81,12 @@ std::string InetAddress::host() const {
 
 std::string InetAddress::ip() const {
     char host[256];
-    //    char serv[256];
     getnameinfo(reinterpret_cast<const sockaddr*>(&addr), sizeof(addr), host, 256, NULL, 0, NI_NUMERICHOST);
 
     return std::string(host);
 }
 
 std::string InetAddress::serv() const {
-    //    char host[256];
     char serv[256];
     getnameinfo(reinterpret_cast<const sockaddr*>(&addr), sizeof(addr), NULL, 0, serv, 256, NI_NUMERICHOST);
 

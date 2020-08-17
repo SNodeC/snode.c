@@ -49,7 +49,6 @@ private:
     SocketConnectionBase* connectedSocket;
 
     bool requestInProgress = false;
-    bool keepAliveFlag = false;
 
 public:
     std::function<void(Request& req, Response& res)> onRequest;

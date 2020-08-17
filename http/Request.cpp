@@ -74,5 +74,6 @@ void Request::reset() {
     path.clear();
     body = nullptr;
     contentLength = 0;
+    keepAlive = false;
     MultibleAttributeInjector::reset();
 }

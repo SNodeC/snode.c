@@ -47,6 +47,8 @@ namespace httputils {
 
     std::string::iterator to_lower(std::string& string);
 
+    bool ci_comp(const std::string& str1, const std::string& str2);
+
 } // namespace httputils
 
 #endif // HTTPUTILS_H

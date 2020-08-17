@@ -144,10 +144,10 @@ bool ApplicationDispatcher::dispatch(const MountPoint& mountPoint, const std::st
     bool next = true;
     std::string cpath = path_concat(parentPath, mountPoint.path);
 
-    if (cpath == req.path && (req.method == mountPoint.method || mountPoint.method == "all")) {
-        this->dispatcher(req, res);
-
+    if ((req.path.rfind(cpath, 0) == 0 && mountPoint.method == "use") ||
+        (cpath == req.path && (req.method == mountPoint.method || mountPoint.method == "all"))) {
         next = false;
+        this->dispatcher(req, res);
     }
 
     return next;
