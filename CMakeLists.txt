@@ -45,12 +45,18 @@ endif(BUILD_DOCUMENTATION)
 FILE(GLOB_RECURSE
     CHECK_CXX_SOURCE_FILES
     net/*.[tch]pp net/*.h
-    net/ssl/*.[tch]pp net/ssl/*.h
+    net/tls/*.[tch]pp net/tls/*.h
     net/legacy/*.[tch]pp net/legacy/*.h
     http/*.[tch]pp http/*.h
+    http/tls/*.[tch]pp http/tls/*.h
+    http/legacy/*.[tch]pp http/legacy/*.h
     log/*.[tch]pp log/*.h
     utils/*.[tch]pp utils/*.h
     apps/*.[tch]pp apps/*.h
+    express/*.[tch]pp express/*.h
+    express/tls/*.[tch]pp express/tls/*.h
+    express/legacy/*.[tch]pp express/legacy/*.h
+    express/middleware/*.[tch]pp express/middleware/*.h
 )
 INCLUDE("cmake/clang-cpp-checks.cmake")
 

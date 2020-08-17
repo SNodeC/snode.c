@@ -13,6 +13,8 @@ add_library(express SHARED
     tls/WebApp.h
     Router.cpp
     Router.h
+    middleware/StaticMiddleware.cpp
+    middleware/StaticMiddleware.h
 )
 
 target_link_libraries(express LINK_PUBLIC http net logger utils ${LIBMAGIC_LIBRARIES})

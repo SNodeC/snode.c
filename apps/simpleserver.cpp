@@ -19,6 +19,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "legacy/WebApp.h"
+#include "middleware/StaticMiddleware.h"
 #include "tls/WebApp.h"
 
 #include <easylogging++.h>
@@ -32,39 +33,6 @@
 #define KEYFPASS "snode.c"
 
 #define SERVERROOT "/home/voc/projects/ServerVoc/build/html"
-
-class StaticMiddleware : public Router {
-public:
-    explicit StaticMiddleware(const std::string& root)
-        : root(root) {
-        this->use(MIDDLEWARE(req, res, next) {
-            if (req.method == "GET") {
-                res.set("Connection", "Keep-Alive");
-                next();
-            } else {
-                res.set("Connection", "Close").sendStatus(400);
-            }
-        });
-        this->use(MIDDLEWARE(req, res, next) {
-            if (req.url == "/") {
-                res.redirect(308, "/index.html");
-            } else {
-                next();
-            }
-        });
-        this->use(APPLICATION(req, res) {
-            VLOG(0) << "GET " + req.url + " -> " + this->root + req.url;
-            res.sendFile(this->root + req.url, [&req](int ret) -> void {
-                if (ret != 0) {
-                    PLOG(ERROR) << req.url;
-                }
-            });
-        });
-    }
-
-protected:
-    std::string root;
-};
 
 int main(int argc, char** argv) {
     WebApp::init(argc, argv);
