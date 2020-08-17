@@ -42,8 +42,7 @@ public:
                 res.set("Connection", "Keep-Alive");
                 next();
             } else {
-                res.keepAlive = false;
-                res.sendStatus(400);
+                res.set("Connection", "Close").sendStatus(400);
             }
         });
         this->use(MIDDLEWARE(req, res, next) {
@@ -54,10 +53,10 @@ public:
             }
         });
         this->use(APPLICATION(req, res) {
-            VLOG(0) << "URLSend: " + req.url + " -> " + this->root + req.url + " - " + req.method;
+            VLOG(0) << "GET " + req.url + " -> " + this->root + req.url;
             res.sendFile(this->root + req.url, [&req](int ret) -> void {
                 if (ret != 0) {
-                    PLOG(ERROR) << req.url << std::endl;
+                    PLOG(ERROR) << req.url;
                 }
             });
         });
