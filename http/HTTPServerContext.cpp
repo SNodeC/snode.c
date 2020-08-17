@@ -50,7 +50,7 @@ HTTPServerContext::HTTPServerContext(SocketConnectionBase* connectedSocket, std:
               request.headers = &header;
               for (auto& [field, value] : header) {
                   if (field == "connection" && value == "keep-alive") {
-                      keepAliveFlag = true;
+                      request.keepAlive = true;
                   }
               }
               VLOG(1) << "++ Cookies";
@@ -110,7 +110,7 @@ void HTTPServerContext::requestReady() {
 }
 
 void HTTPServerContext::responseCompleted() {
-    if (!this->keepAliveFlag) {
+    if (!request.keepAlive || !response.keepAlive) {
         terminateConnection();
     }
 
@@ -119,7 +119,6 @@ void HTTPServerContext::responseCompleted() {
     response.reset();
 
     this->requestInProgress = false;
-    this->keepAliveFlag = false;
 }
 
 void HTTPServerContext::terminateConnection() {

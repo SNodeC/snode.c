@@ -27,7 +27,6 @@
 #include "HTTPStatusCodes.h"
 #include "MimeTypes.h"
 #include "Response.h"
-#include "WebApp.h"
 #include "file/FileReader.h"
 #include "httputils.h"
 
@@ -92,6 +91,8 @@ Response& Response::set(const std::string& field, const std::string& value, bool
 
     if (field == "Content-Length") {
         contentLength = std::stol(value);
+    } else if (field == "Connection" && httputils::ci_comp(value, "close")) {
+        keepAlive = false;
     }
 
     return *this;
@@ -251,6 +252,7 @@ void Response::reset() {
     contentSent = 0;
     responseStatus = 200;
     contentLength = 0;
+    keepAlive = true;
     headers.clear();
     cookies.clear();
     disable();

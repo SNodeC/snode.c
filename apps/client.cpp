@@ -84,7 +84,7 @@ tls::SocketClient tlsClient() {
         },
         CERTF, KEYF, KEYFPASS);
 
-    client.connect("calisto.home.vchrist.at", 8088, [&client](int err) -> void {
+    client.connect("calisto.home.vchrist.at", 8088, [](int err) -> void {
         if (err) {
             std::cout << "Connect: " << strerror(err) << std::endl;
         } else {

@@ -26,6 +26,7 @@
 #include "socket/legacy/SocketServer.h"
 
 namespace legacy {
+
     WebApp::WebApp()
         : httpServer([this](Request& req, Response& res) {
             this->dispatch(req, res);

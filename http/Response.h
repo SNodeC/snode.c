@@ -57,6 +57,7 @@ public:
     Response& type(const std::string& type);
 
     bool headersSent = false;
+    bool keepAlive = true;
 
 protected:
     mutable size_t contentLength = 0;

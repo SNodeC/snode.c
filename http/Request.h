@@ -47,6 +47,7 @@ public:
     std::string path;
     std::string method;
     int contentLength = 0;
+    bool keepAlive = false;
 
 protected:
     void reset();
