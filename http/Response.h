@@ -64,10 +64,10 @@ protected:
 
     void enqueue(const char* buf, size_t len);
     void enqueue(const std::string& str);
-
     void sendHeader();
-    void disable();
-    void reset();
+
+    virtual void disable();
+    virtual void reset();
 
 private:
     class ResponseCookie {
