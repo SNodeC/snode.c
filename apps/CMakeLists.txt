@@ -46,7 +46,7 @@ set_target_properties(experiments PROPERTIES
 
 add_executable(client client.cpp)
 target_compile_options(client PRIVATE --warn-all)
-target_link_libraries(client LINK_PUBLIC express)
+target_link_libraries(client LINK_PUBLIC http)
 install(TARGETS client RUNTIME DESTINATION bin)
 set_target_properties(client PROPERTIES
             CXX_STANDARD 20

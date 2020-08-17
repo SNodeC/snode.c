@@ -5,14 +5,14 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
 find_package(LibMagic REQUIRED)
 
 add_library(express SHARED
+    Router.cpp
+    Router.h
     WebApp.cpp
     WebApp.h
     legacy/WebApp.cpp
     legacy/WebApp.h
     tls/WebApp.cpp
     tls/WebApp.h
-    Router.cpp
-    Router.h
     middleware/StaticMiddleware.cpp
     middleware/StaticMiddleware.h
 )
