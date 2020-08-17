@@ -37,7 +37,7 @@ namespace legacy {
         void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr) override;
 
     protected:
-        HTTPServer httpServer;
+        legacy::HTTPServer httpServer;
 
     private:
         using ::WebApp::start;
