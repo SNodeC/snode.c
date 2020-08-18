@@ -33,7 +33,7 @@ public:
 
     virtual ~SocketConnectionBase() = default;
 
-    virtual void enqueue(const char* buffer, int size) = 0;
+    virtual void enqueue(const char* buffer, size_t size) = 0;
     virtual void enqueue(const std::string& data) = 0;
 
     virtual void end(bool instantly = false) = 0;

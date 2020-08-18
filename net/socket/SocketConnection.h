@@ -97,7 +97,7 @@ private:
     }
 
 public:
-    void enqueue(const char* buffer, int size) override {
+    void enqueue(const char* buffer, size_t size) override {
         this->SocketWriter::enqueue(buffer, size);
     }
 
