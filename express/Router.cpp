@@ -123,6 +123,7 @@ bool RouterDispatcher::dispatch(const MountPoint& mountPoint, const std::string&
             ++route;
         }
     }
+
     return next;
 }
 
@@ -137,6 +138,7 @@ bool MiddlewareDispatcher::dispatch(const MountPoint& mountPoint, const std::str
             next = true;
         });
     }
+
     return next;
 }
 
