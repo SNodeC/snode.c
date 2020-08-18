@@ -52,8 +52,6 @@ public:
         }
     }
 
-    SocketServer() = delete;
-
     SocketServer(const std::function<void(SocketConnection* cs)>& onConnect, const std::function<void(SocketConnection* cs)>& onDisconnect,
                  const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
                  const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
@@ -67,10 +65,10 @@ public:
         , onWriteError(onWriteError) {
     }
 
-    ~SocketServer() override = default;
-
-    SocketServer(const SocketServer&) = delete;
+    SocketServer() = delete;
     SocketServer& operator=(const SocketServer&) = delete;
+
+    ~SocketServer() = default;
 
     void listen(const InetAddress& localAddress, int backlog, const std::function<void(int err)>& onError) {
         this->open([this, &localAddress, &backlog, &onError](int errnum) -> void {

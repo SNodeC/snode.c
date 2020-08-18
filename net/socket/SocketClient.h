@@ -49,6 +49,11 @@ public:
         , onWriteError(onWriteError) {
     }
 
+    SocketClient() = delete;
+    const SocketClient& operator=(const SocketClient&) = delete;
+
+    virtual ~SocketClient() = default;
+
     // NOLINTNEXTLINE(google-default-arguments)
     virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
                          const InetAddress& localAddress = InetAddress()) {
@@ -180,9 +185,6 @@ public:
                          in_port_t lPort) {
         connect(host, port, onError, InetAddress(lHost, lPort));
     }
-
-protected:
-    virtual ~SocketClient() = default;
 
 private:
     std::function<void(SocketConnection* cs)> onConnect;

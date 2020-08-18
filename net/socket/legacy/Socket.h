@@ -27,7 +27,10 @@
 
 namespace legacy {
 
-    using Socket = ::Socket;
+    class Socket : public ::Socket {
+    public:
+        using ::Socket::Socket;
+    };
 
 }; // namespace legacy
 
