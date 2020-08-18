@@ -23,8 +23,6 @@
 #include "tls/WebApp.h"
 
 #include <easylogging++.h>
-#include <iostream>
-#include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
