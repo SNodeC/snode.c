@@ -64,14 +64,6 @@ private:
 
 class RouterDispatcher;
 
-namespace tls {
-    class WebApp;
-} // namespace tls
-
-namespace legacy {
-    class WebApp;
-} // namespace legacy
-
 class Router {
 public:
     Router();
