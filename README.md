@@ -1,5 +1,5 @@
 # snode.c
-snode.c is a slim C++-toolkit for web applications
+snode.c is a slim C++-toolkit for web applications still in heavy development
 
 _Requirements:_
 * gcc version 10
