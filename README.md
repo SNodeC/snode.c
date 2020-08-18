@@ -1,5 +1,6 @@
 # snode.c
 snode.c is a slim C++-toolkit for web applications still in heavy development
+
 Copyright: GNU LESSER GENERAL PUBLIC LICENSE
 
 _Requirements:_
