@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SOCKETSERVERBASE_H
-#define SOCKETSERVERBASE_H
+#ifndef SOCKETSERVER_H
+#define SOCKETSERVER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -184,4 +184,4 @@ public:
     //    using SocketConnectionType = SocketConnectionImpl;
 };
 
-#endif // SOCKETSERVERBASE_H
+#endif // SOCKETSERVER_H

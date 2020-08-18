@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SNLOGGER_H
-#define SNLOGGER_H
+#ifndef LOGGER_H
+#define LOGGER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -42,4 +42,4 @@ protected:
     Level level{INFO};
 };
 
-#endif // SNLOGGER_H
+#endif // LOGGER_H

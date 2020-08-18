@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HTTPCONTEXT_H
-#define HTTPCONTEXT_H
+#ifndef HTTPSERVERCONTEXT_H
+#define HTTPSERVERCONTEXT_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -60,4 +60,4 @@ private:
     HTTPRequestParser parser;
 };
 
-#endif // HTTPCONTEXT_H
+#endif // HTTPSERVERCONTEXT_H

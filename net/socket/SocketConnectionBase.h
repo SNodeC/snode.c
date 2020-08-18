@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SOCKETCONNECTION_H
-#define SOCKETCONNECTION_H
+#ifndef SOCKETCONNECTIONBASE_H
+#define SOCKETCONNECTIONBASE_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -70,4 +70,4 @@ private:
     utils::SingleAttributeInjector protocol;
 };
 
-#endif // SOCKETCONNECTION_H
+#endif // SOCKETCONNECTIONBASE_H

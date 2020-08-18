@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WRITER_H
-#define WRITER_H
+#ifndef WRITEEVENTRECEIVER_H
+#define WRITEEVENTRECEIVER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -35,4 +35,4 @@ public:
     void disable() override;
 };
 
-#endif // WRITER_H
+#endif // WRITEEVENTRECEIVER_H

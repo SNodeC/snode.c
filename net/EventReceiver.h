@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MANAGEDDESCRIPTOR_H
-#define MANAGEDDESCRIPTOR_H
+#ifndef EVENTRECEIVER_H
+#define EVENTRECEIVER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -69,4 +69,4 @@ private:
     bool _enabled = false;
 };
 
-#endif // MANAGEDDESCRIPTOR_H
+#endif // EVENTRECEIVER_H

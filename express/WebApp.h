@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HTTPSERVER_H
-#define HTTPSERVER_H
+#ifndef WEBAPP_H
+#define WEBAPP_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -44,4 +44,4 @@ private:
     static bool initialized;
 };
 
-#endif // HTTPSERVER_H
+#endif // WEBAPP_H

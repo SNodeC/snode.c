@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MANAGEDWRITER_H
-#define MANAGEDWRITER_H
+#ifndef WRITEEVENTDISPATCHER_H
+#define WRITEEVENTDISPATCHER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -37,4 +37,4 @@ public:
     int dispatch(const fd_set& fdSet, int count) override;
 };
 
-#endif // MANAGEDWRITER_H
+#endif // WRITEEVENTDISPATCHER_H
