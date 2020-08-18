@@ -60,7 +60,7 @@ const class StaticMiddleware& StaticMiddleware::instance(const std::string& root
     return *staticMiddlewares[root];
 }
 
-// "Constructor" of static middleware
+// "Constructor" of StaticMiddleware
 const class StaticMiddleware& StaticMiddleware(const std::string& root) {
     return StaticMiddleware::instance(root);
 }

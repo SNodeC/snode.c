@@ -24,7 +24,7 @@
 class StaticMiddleware : public Router {
 protected:
     StaticMiddleware(const std::string& root);
-    static const StaticMiddleware& instance(const std::string& root);
+    static const class StaticMiddleware& instance(const std::string& root);
 
 public:
     StaticMiddleware(const StaticMiddleware&) = delete;
