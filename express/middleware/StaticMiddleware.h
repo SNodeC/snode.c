@@ -22,11 +22,20 @@
 #include "Router.h"
 
 class StaticMiddleware : public Router {
+protected:
+    StaticMiddleware(const std::string& root);
+    static const StaticMiddleware& instance(const std::string& root);
+
 public:
-    explicit StaticMiddleware(const std::string& root);
+    StaticMiddleware(const StaticMiddleware&) = delete;
+    StaticMiddleware& operator=(const StaticMiddleware&) = delete;
 
 protected:
     std::string root;
+
+    friend const class StaticMiddleware& StaticMiddleware(const std::string& root);
 };
+
+const class StaticMiddleware& StaticMiddleware(const std::string& root);
 
 #endif // STATICMIDDLEWARE_H

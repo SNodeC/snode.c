@@ -37,13 +37,11 @@
 int main(int argc, char** argv) {
     WebApp::init(argc, argv);
 
-    StaticMiddleware staticMiddleware(SERVERROOT);
-
     legacy::WebApp legacyApp;
     tls::WebApp tlsApp(CERTF, KEYF, KEYFPASS);
 
-    legacyApp.use(staticMiddleware);
-    tlsApp.use(staticMiddleware);
+    legacyApp.use(StaticMiddleware(SERVERROOT));
+    tlsApp.use(StaticMiddleware(SERVERROOT));
 
     legacyApp.listen(8080, [](int err) -> void {
         if (err != 0) {
