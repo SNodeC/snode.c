@@ -16,11 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "StaticMiddleware.h"
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "easylogging++.h"
-
+#include <easylogging++.h>
 #include <map>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+#include "StaticMiddleware.h"
 
 StaticMiddleware::StaticMiddleware(const std::string& root)
     : root(root) {

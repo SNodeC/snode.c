@@ -19,6 +19,9 @@
 #ifndef STATICMIDDLEWARE_H
 #define STATICMIDDLEWARE_H
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 #include "Router.h"
 
 class StaticMiddleware : public Router {

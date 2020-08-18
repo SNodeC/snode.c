@@ -22,7 +22,6 @@
 
 #include "WebApp.h"
 
-#include "HTTPServerContext.h"
 #include "socket/tls/SocketServer.h"
 
 namespace tls {
