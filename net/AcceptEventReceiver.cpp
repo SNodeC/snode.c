@@ -18,7 +18,6 @@
 
 #include "AcceptEventReceiver.h"
 
-#include "AcceptEventDispatcher.h" // for ManagedExceptions
 #include "EventLoop.h"
 
 void AcceptEventReceiver::enable() {

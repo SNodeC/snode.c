@@ -27,7 +27,6 @@
 #include "Request.h"
 #include "Response.h"
 
-class WebApp;
 class SocketConnectionBase;
 
 class HTTPServerContext {

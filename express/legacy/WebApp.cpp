@@ -22,7 +22,6 @@
 
 #include "WebApp.h"
 
-#include "HTTPServerContext.h"
 #include "socket/legacy/SocketServer.h"
 
 namespace legacy {
