@@ -20,6 +20,8 @@
 
 #include "easylogging++.h"
 
+#include <map>
+
 StaticMiddleware::StaticMiddleware(const std::string& root)
     : root(root) {
     this->use(MIDDLEWARE(req, res, next) {
@@ -45,4 +47,20 @@ StaticMiddleware::StaticMiddleware(const std::string& root)
             }
         });
     });
+}
+
+// Keep all created static middlewares alive
+static std::map<const std::string, std::shared_ptr<class StaticMiddleware>> staticMiddlewares;
+
+const class StaticMiddleware& StaticMiddleware::instance(const std::string& root) {
+    if (!staticMiddlewares.contains(root)) {
+        staticMiddlewares[root] = std::shared_ptr<StaticMiddleware>(new StaticMiddleware(root));
+    }
+
+    return *staticMiddlewares[root];
+}
+
+// "Constructor" of static middleware
+const class StaticMiddleware& StaticMiddleware(const std::string& root) {
+    return StaticMiddleware::instance(root);
 }
