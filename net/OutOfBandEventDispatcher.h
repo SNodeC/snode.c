@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MANAGEDEXCEPTIONS_H
-#define MANAGEDEXCEPTIONS_H
+#ifndef OUTOFBANDEVENTDISPATCHER_H
+#define OUTOFBANDEVENTDISPATCHER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -37,4 +37,4 @@ public:
     int dispatch(const fd_set& fdSet, int count) override;
 };
 
-#endif // MANAGEDEXCEPTIONS_H
+#endif // OUTOFBANDEVENTDISPATCHER_H

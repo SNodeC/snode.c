@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MULTIPLEXER_H
-#define MULTIPLEXER_H
+#ifndef EVENTLOOP_H
+#define EVENTLOOP_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -86,4 +86,4 @@ private:
     static bool initialized;
 };
 
-#endif // MULTIPLEXER_H
+#endif // EVENTLOOP_H

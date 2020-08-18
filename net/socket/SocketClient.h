@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SOCKETCLIENTBASE_H
-#define SOCKETCLIENTBASE_H
+#ifndef SOCKETCLIENT_H
+#define SOCKETCLIENT_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -192,4 +192,4 @@ private:
     std::function<void(SocketConnection* cs, int errnum)> onWriteError;
 };
 
-#endif // SOCKETCLIENTBASE_H
+#endif // SOCKETCLIENT_H

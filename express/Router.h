@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NEWROUTER_H
-#define NEWROUTER_H
+#ifndef ROUTER_H
+#define ROUTER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -100,4 +100,4 @@ private:
     std::shared_ptr<RouterDispatcher> routerDispatcher; // it can be shared by multiple routers
 };
 
-#endif // NEWROUTER_H
+#endif // ROUTER_H

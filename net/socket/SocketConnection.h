@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SOCKETCONNECTIONBASE_H
-#define SOCKETCONNECTIONBASE_H
+#ifndef SOCKETCONNECTION_H
+#define SOCKETCONNECTION_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -130,4 +130,4 @@ public:
     using WriterType = SocketWriter;
 };
 
-#endif // SOCKETCONNECTIONBASE_H
+#endif // SOCKETCONNECTION_H

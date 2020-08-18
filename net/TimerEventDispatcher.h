@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MANAGEDTIMER_H
-#define MANAGEDTIMER_H
+#ifndef TIMEREVENTDISPATCHER_H
+#define TIMEREVENTDISPATCHER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -58,4 +58,4 @@ private:
     bool timerListDirty = false;
 };
 
-#endif // MANAGEDTIMER_H
+#endif // TIMEREVENTDISPATCHER_H

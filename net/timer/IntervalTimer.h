@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CONTINOUSTIMER_H
-#define CONTINOUSTIMER_H
+#ifndef INTERVALTIMER_H
+#define INTERVALTIMER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -67,4 +67,4 @@ private:
     std::function<void(const void* arg)> dispatcherC = nullptr;
 };
 
-#endif // CONTINOUSTIMER_H
+#endif // INTERVALTIMER_H

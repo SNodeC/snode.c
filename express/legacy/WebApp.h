@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LEGACYWEBAPP_H
-#define LEGACYWEBAPP_H
+#ifndef LEGACY_WEBAPP_H
+#define LEGACY_WEBAPP_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -46,4 +46,4 @@ namespace legacy {
 
 } // namespace legacy
 
-#endif // LEGACYWEBAPP_H
+#endif // LEGACY_WEBAPP_H

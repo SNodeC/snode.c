@@ -55,6 +55,7 @@ tls::SocketClient tlsClient() {
             } else {
                 printf("Client does not have certificate.\n");
             }
+
             std::cout << connectedSocket->getRemoteAddress().port() << std::endl;
             std::cout << connectedSocket->getLocalAddress().port() << std::endl;
             std::cout << connectedSocket->getRemoteAddress().host() << std::endl;

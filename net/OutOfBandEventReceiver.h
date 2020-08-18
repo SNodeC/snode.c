@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EXCEPTION_H
-#define EXCEPTION_H
+#ifndef OUTOFBANDEVENTRECEIVER_H
+#define OUTOFBANDEVENTRECEIVER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -35,4 +35,4 @@ public:
     void disable() override;
 };
 
-#endif // EXCEPTION_H
+#endif // OUTOFBANDEVENTRECEIVER_H

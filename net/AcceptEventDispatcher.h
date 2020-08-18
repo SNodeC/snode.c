@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MANAGEDSERVER_H
-#define MANAGEDSERVER_H
+#ifndef ACCEPTEVENTDISPATCHER_H
+#define ACCEPTEVENTDISPATCHER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -37,4 +37,4 @@ public:
     int dispatch(const fd_set& fdSet, int count) override;
 };
 
-#endif // MANAGEDSERVER_H
+#endif // ACCEPTEVENTDISPATCHER_H

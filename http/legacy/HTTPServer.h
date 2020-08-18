@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LEGACYHTTPSERVER_H
-#define LEGACYHTTPSERVER_H
+#ifndef LEGACY_HTTPSERVER_H
+#define LEGACY_HTTPSERVER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -45,4 +45,4 @@ namespace legacy {
 
 } // namespace legacy
 
-#endif // LEGACYHTTPSERVER_H
+#endif // LEGACY_HTTPSERVER_H

@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TLSWEBAPP_H
-#define TLSWEBAPP_H
+#ifndef TLS_WEBAPP_H
+#define TLS_WEBAPP_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -46,4 +46,4 @@ namespace tls {
 
 } // namespace tls
 
-#endif // TLSWEBAPP_H
+#endif // TLS_WEBAPP_H

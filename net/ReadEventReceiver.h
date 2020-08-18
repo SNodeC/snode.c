@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef READER_H
-#define READER_H
+#ifndef READEVENTRECEIVER_H
+#define READEVENTRECEIVER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -35,4 +35,4 @@ public:
     void disable() override;
 };
 
-#endif // READER_H
+#endif // READEVENTRECEIVER_H

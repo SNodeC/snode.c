@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SOCKETWRITERBASE_H
-#define SOCKETWRITERBASE_H
+#ifndef SOCKETWRITER_H
+#define SOCKETWRITER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -80,4 +80,4 @@ protected:
     std::vector<char> writeBuffer;
 };
 
-#endif // SOCKETWRITERBASE_H
+#endif // SOCKETWRITER_H

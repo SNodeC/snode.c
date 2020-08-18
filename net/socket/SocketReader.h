@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SOCKETREADERBASE_H
-#define SOCKETREADERBASE_H
+#ifndef SOCKETREADER_H
+#define SOCKETREADER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -74,4 +74,4 @@ private:
     std::function<void(int errnum)> onError;
 };
 
-#endif // SOCKETREADERBASE_H
+#endif // SOCKETREADER_H

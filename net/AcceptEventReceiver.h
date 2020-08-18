@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SERVER_H
-#define SERVER_H
+#ifndef ACCEPTEVENTRECEIVER_H
+#define ACCEPTEVENTRECEIVER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -35,4 +35,4 @@ public:
     void disable() override;
 };
 
-#endif // SERVER_H
+#endif // ACCEPTEVENTRECEIVER_H
