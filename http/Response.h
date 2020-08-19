@@ -28,73 +28,80 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 class FileReader;
-class HTTPServerContext;
 
-class Response {
-private:
-    explicit Response(HTTPServerContext* httpContext);
+namespace http {
 
-public:
-    void send(const char* buffer, size_t size);
-    void send(const std::string& text);
+    class HTTPServerContext;
 
-    void sendFile(const std::string& file, const std::function<void(int err)>& onError = nullptr);
-    void download(const std::string& file, const std::function<void(int err)>& onError = nullptr);
-    void download(const std::string& file, const std::string& name, const std::function<void(int err)>& onError = nullptr);
+    class Response {
+    protected:
+        explicit Response(HTTPServerContext* httpContext);
+        virtual ~Response() = default;
 
-    void redirect(const std::string& name);
-    void redirect(int status, const std::string& name);
-
-    void sendStatus(int status);
-    void end();
-
-    Response& status(int status);
-    Response& append(const std::string& field, const std::string& value);
-    Response& set(const std::string& field, const std::string& value, bool overwrite = false);
-    Response& set(const std::map<std::string, std::string>& headers, bool overwrite = false);
-    Response& cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options = {});
-    Response& clearCookie(const std::string& name, const std::map<std::string, std::string>& options = {});
-    Response& type(const std::string& type);
-
-    bool headersSent = false;
-    bool keepAlive = true;
-
-protected:
-    mutable size_t contentLength = 0;
-
-    void enqueue(const char* buf, size_t len);
-    void enqueue(const std::string& str);
-    void sendHeader();
-
-    virtual void disable();
-    virtual void reset();
-
-private:
-    class ResponseCookie {
     public:
-        ResponseCookie(const std::string& value, const std::map<std::string, std::string>& options)
-            : value(value)
-            , options(options) {
-        }
+        void send(const char* buffer, size_t size);
+        void send(const std::string& text);
+
+        void sendFile(const std::string& file, const std::function<void(int err)>& onError = nullptr);
+        void download(const std::string& file, const std::function<void(int err)>& onError = nullptr);
+        void download(const std::string& file, const std::string& name, const std::function<void(int err)>& onError = nullptr);
+
+        void redirect(const std::string& name);
+        void redirect(int status, const std::string& name);
+
+        void sendStatus(int status);
+        void end();
+
+        Response& status(int status);
+        Response& append(const std::string& field, const std::string& value);
+        Response& set(const std::string& field, const std::string& value, bool overwrite = false);
+        Response& set(const std::map<std::string, std::string>& headers, bool overwrite = false);
+        Response& cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options = {});
+        Response& clearCookie(const std::string& name, const std::map<std::string, std::string>& options = {});
+        Response& type(const std::string& type);
+
+        bool headersSent = false;
+        bool keepAlive = true;
 
     protected:
-        std::string value;
-        std::map<std::string, std::string> options;
+        mutable size_t contentLength = 0;
 
-        friend class Response;
+        void enqueue(const char* buf, size_t len);
+        void enqueue(const std::string& str);
+        void sendHeader();
+
+        virtual void disable();
+        virtual void reset();
+
+    private:
+        class ResponseCookie {
+        public:
+            ResponseCookie(const std::string& value, const std::map<std::string, std::string>& options)
+                : value(value)
+                , options(options) {
+            }
+
+        protected:
+            std::string value;
+            std::map<std::string, std::string> options;
+
+            friend class Response;
+        };
+
+    protected:
+        HTTPServerContext* httpContext;
+        FileReader* fileReader = nullptr;
+
+        size_t contentSent = 0;
+        bool sendHeaderInProgress = false;
+
+        int responseStatus = 0;
+        std::map<std::string, std::string> headers;
+        std::map<std::string, ResponseCookie> cookies;
+
+        friend class HTTPServerContext;
     };
 
-    HTTPServerContext* httpContext;
-    FileReader* fileReader = nullptr;
-
-    size_t contentSent = 0;
-    bool sendHeaderInProgress = false;
-
-    int responseStatus = 0;
-    std::map<std::string, std::string> headers;
-    std::map<std::string, ResponseCookie> cookies;
-
-    friend class HTTPServerContext;
-};
+} // namespace http
 
 #endif // RESPONSE_H

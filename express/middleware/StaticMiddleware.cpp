@@ -23,6 +23,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Request.h"
+#include "Response.h"
 #include "StaticMiddleware.h"
 
 StaticMiddleware::StaticMiddleware(const std::string& root)

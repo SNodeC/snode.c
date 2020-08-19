@@ -28,53 +28,57 @@
 #include "socket/tls/SocketConnection.h"
 #include "socket/tls/SocketServer.h"
 
-namespace tls {
+namespace http {
 
-    HTTPServer::HTTPServer(const std::string& cert, const std::string& key, const std::string& password,
-                           const std::function<void(Request& req, Response& res)>& onRequest)
-        : onRequest(onRequest)
-        , cert(cert)
-        , key(key)
-        , password(password) {
-    }
+    namespace tls {
 
-    void HTTPServer::listen(in_port_t port, const std::function<void(int err)>& onError) {
-        errno = 0;
+        HTTPServer::HTTPServer(const std::string& cert, const std::string& key, const std::string& password,
+                               const std::function<void(Request& req, Response& res)>& onRequest)
+            : onRequest(onRequest)
+            , cert(cert)
+            , key(key)
+            , password(password) {
+        }
 
-        (new tls::SocketServer(
-             [this](tls::SocketConnection* connectedSocket) -> void { // onConnect
-                 connectedSocket->setProtocol<HTTPServerContext*>(
-                     new HTTPServerContext(connectedSocket, [this](Request& req, Response& res) -> void {
-                         onRequest(req, res);
-                     }));
-                 ;
-             },
-             [](tls::SocketConnection* connectedSocket) -> void { // onDisconnect
-                 connectedSocket->getProtocol<HTTPServerContext*>([](HTTPServerContext*& protocol) -> void {
-                     delete protocol;
-                 });
-             },
-             [](tls::SocketConnection* connectedSocket, const char* junk, ssize_t junkSize) -> void { // onRead
-                 connectedSocket->getProtocol<HTTPServerContext*>([&junk, &junkSize](HTTPServerContext*& protocol) -> void {
-                     protocol->receiveRequestData(junk, junkSize);
-                 });
-             },
-             [](tls::SocketConnection* connectedSocket, int errnum) -> void { // onReadError
-                 connectedSocket->getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
-                     protocol->onReadError(errnum);
-                 });
-             },
-             [](tls::SocketConnection* connectedSocket, int errnum) -> void { // onWriteError
-                 connectedSocket->getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
-                     protocol->onWriteError(errnum);
-                 });
-             },
-             cert, key, password))
-            ->listen(port, 5, [&](int err) -> void {
-                if (onError) {
-                    onError(err);
-                }
-            });
-    }
+        void HTTPServer::listen(in_port_t port, const std::function<void(int err)>& onError) {
+            errno = 0;
 
-} // namespace tls
+            (new ::tls::SocketServer(
+                 [this](::tls::SocketConnection* connectedSocket) -> void { // onConnect
+                     connectedSocket->setProtocol<HTTPServerContext*>(
+                         new HTTPServerContext(connectedSocket, [this](Request& req, Response& res) -> void {
+                             onRequest(req, res);
+                         }));
+                     ;
+                 },
+                 [](::tls::SocketConnection* connectedSocket) -> void { // onDisconnect
+                     connectedSocket->getProtocol<HTTPServerContext*>([](HTTPServerContext*& protocol) -> void {
+                         delete protocol;
+                     });
+                 },
+                 [](::tls::SocketConnection* connectedSocket, const char* junk, ssize_t junkSize) -> void { // onRead
+                     connectedSocket->getProtocol<HTTPServerContext*>([&junk, &junkSize](HTTPServerContext*& protocol) -> void {
+                         protocol->receiveRequestData(junk, junkSize);
+                     });
+                 },
+                 [](::tls::SocketConnection* connectedSocket, int errnum) -> void { // onReadError
+                     connectedSocket->getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
+                         protocol->onReadError(errnum);
+                     });
+                 },
+                 [](::tls::SocketConnection* connectedSocket, int errnum) -> void { // onWriteError
+                     connectedSocket->getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
+                         protocol->onWriteError(errnum);
+                     });
+                 },
+                 cert, key, password))
+                ->listen(port, 5, [&](int err) -> void {
+                    if (onError) {
+                        onError(err);
+                    }
+                });
+        }
+
+    } // namespace tls
+
+} // namespace http

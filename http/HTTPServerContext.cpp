@@ -27,100 +27,104 @@
 #include "httputils.h"
 #include "socket/SocketConnectionBase.h"
 
-HTTPServerContext::HTTPServerContext(SocketConnectionBase* connectedSocket, std::function<void(Request& req, Response& res)> onRequest)
-    : connectedSocket(connectedSocket)
-    , onRequest(onRequest)
-    , response(this)
-    , parser(
-          [this](std::string& method, std::string& originalUrl, std::string& httpVersion,
-                 const std::map<std::string, std::string>& queries) -> void {
-              VLOG(1) << "++ Request: " << method << " " << originalUrl << " " << httpVersion;
-              request.method = method;
-              request.originalUrl = originalUrl;
-              request.path = httputils::str_split_last(originalUrl, '/').first;
-              request.queries = &queries;
-              if (request.path.empty()) {
-                  request.path = "/";
-              }
-              request.url = httputils::str_split_last(originalUrl, '?').first;
-              request.httpVersion = httpVersion;
-          },
-          [this](const std::map<std::string, std::string>& header, const std::map<std::string, std::string>& cookies) -> void {
-              VLOG(1) << "++ Header:";
-              request.headers = &header;
-              for (auto& [field, value] : header) {
-                  if (field == "connection" && value == "keep-alive") {
-                      request.keepAlive = true;
+namespace http {
+
+    HTTPServerContext::HTTPServerContext(SocketConnectionBase* connectedSocket, std::function<void(Request& req, Response& res)> onRequest)
+        : connectedSocket(connectedSocket)
+        , onRequest(onRequest)
+        , response(this)
+        , parser(
+              [this](std::string& method, std::string& originalUrl, std::string& httpVersion,
+                     const std::map<std::string, std::string>& queries) -> void {
+                  VLOG(1) << "++ Request: " << method << " " << originalUrl << " " << httpVersion;
+                  request.method = method;
+                  request.originalUrl = originalUrl;
+                  request.path = httputils::str_split_last(originalUrl, '/').first;
+                  request.queries = &queries;
+                  if (request.path.empty()) {
+                      request.path = "/";
                   }
-              }
-              VLOG(1) << "++ Cookies";
-              request.cookies = &cookies;
-          },
-          [this](char* content, size_t contentLength) -> void {
-              VLOG(1) << "++ Content: " << contentLength;
-              request.body = content;
-              request.contentLength = contentLength;
-          },
-          [this](void) -> void {
-              VLOG(1) << "++ Parsed ++";
-              this->requestReady();
-          },
-          [this](int status, const std::string& reason) -> void {
-              VLOG(1) << "++ Error: " << status << " : " << reason;
-              response.status(status).send(reason);
-              this->connectedSocket->end();
-          }) {
-    parser.reset();
-    request.reset();
-    response.reset();
-}
-
-void HTTPServerContext::receiveRequestData(const char* junk, size_t junkLen) {
-    if (!requestInProgress) {
-        parser.parse(junk, junkLen);
-    } else {
-        terminateConnection();
-    }
-}
-
-void HTTPServerContext::onReadError(int errnum) {
-    response.disable();
-
-    if (errnum != 0 && errnum != ECONNRESET) {
-        PLOG(ERROR) << "Connection: read";
-    }
-}
-
-void HTTPServerContext::sendResponseData(const char* buf, size_t len) {
-    connectedSocket->enqueue(buf, len);
-}
-
-void HTTPServerContext::onWriteError(int errnum) {
-    response.disable();
-
-    if (errnum != 0 && errnum != ECONNRESET) {
-        PLOG(ERROR) << "Connection write";
-    }
-}
-
-void HTTPServerContext::requestReady() {
-    this->requestInProgress = true;
-
-    onRequest(request, response);
-}
-
-void HTTPServerContext::responseCompleted() {
-    if (!request.keepAlive || !response.keepAlive) {
-        terminateConnection();
+                  request.url = httputils::str_split_last(originalUrl, '?').first;
+                  request.httpVersion = httpVersion;
+              },
+              [this](const std::map<std::string, std::string>& header, const std::map<std::string, std::string>& cookies) -> void {
+                  VLOG(1) << "++ Header:";
+                  request.headers = &header;
+                  for (auto& [field, value] : header) {
+                      if (field == "connection" && value == "keep-alive") {
+                          request.keepAlive = true;
+                      }
+                  }
+                  VLOG(1) << "++ Cookies";
+                  request.cookies = &cookies;
+              },
+              [this](char* content, size_t contentLength) -> void {
+                  VLOG(1) << "++ Content: " << contentLength;
+                  request.body = content;
+                  request.contentLength = contentLength;
+              },
+              [this](void) -> void {
+                  VLOG(1) << "++ Parsed ++";
+                  this->requestReady();
+              },
+              [this](int status, const std::string& reason) -> void {
+                  VLOG(1) << "++ Error: " << status << " : " << reason;
+                  response.status(status).send(reason);
+                  this->connectedSocket->end();
+              }) {
+        parser.reset();
+        request.reset();
+        response.reset();
     }
 
-    parser.reset();
-    request.reset();
-    response.reset();
+    void HTTPServerContext::receiveRequestData(const char* junk, size_t junkLen) {
+        if (!requestInProgress) {
+            parser.parse(junk, junkLen);
+        } else {
+            terminateConnection();
+        }
+    }
 
-    this->requestInProgress = false;
-}
+    void HTTPServerContext::onReadError(int errnum) {
+        response.disable();
 
-void HTTPServerContext::terminateConnection() {
-    connectedSocket->end();
-}
+        if (errnum != 0 && errnum != ECONNRESET) {
+            PLOG(ERROR) << "Connection: read";
+        }
+    }
+
+    void HTTPServerContext::sendResponseData(const char* buf, size_t len) {
+        connectedSocket->enqueue(buf, len);
+    }
+
+    void HTTPServerContext::onWriteError(int errnum) {
+        response.disable();
+
+        if (errnum != 0 && errnum != ECONNRESET) {
+            PLOG(ERROR) << "Connection write";
+        }
+    }
+
+    void HTTPServerContext::requestReady() {
+        this->requestInProgress = true;
+
+        onRequest(request, response);
+    }
+
+    void HTTPServerContext::responseCompleted() {
+        if (!request.keepAlive || !response.keepAlive) {
+            terminateConnection();
+        }
+
+        parser.reset();
+        request.reset();
+        response.reset();
+
+        this->requestInProgress = false;
+    }
+
+    void HTTPServerContext::terminateConnection() {
+        connectedSocket->end();
+    }
+
+} // namespace http

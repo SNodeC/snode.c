@@ -27,29 +27,33 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-class Request;
-class Response;
+namespace http {
 
-namespace tls {
+    class Request;
+    class Response;
 
-    class HTTPServer {
-    public:
-        explicit HTTPServer(const std::string& cert, const std::string& key, const std::string& password,
-                            const std::function<void(Request& req, Response& res)>& onRequest);
+    namespace tls {
 
-        HTTPServer& operator=(const HTTPServer& webApp) = delete;
+        class HTTPServer {
+        public:
+            explicit HTTPServer(const std::string& cert, const std::string& key, const std::string& password,
+                                const std::function<void(Request& req, Response& res)>& onRequest);
 
-        void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr);
+            HTTPServer& operator=(const HTTPServer& webApp) = delete;
 
-    protected:
-        std::function<void(Request& req, Response& res)> onRequest;
+            void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr);
 
-    private:
-        std::string cert;
-        std::string key;
-        std::string password;
-    };
+        protected:
+            std::function<void(Request& req, Response& res)> onRequest;
 
-} // namespace tls
+        private:
+            std::string cert;
+            std::string key;
+            std::string password;
+        };
+
+    } // namespace tls
+
+} // namespace http
 
 #endif // TLS_HTTPSERVER_H
