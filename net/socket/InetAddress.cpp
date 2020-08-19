@@ -26,73 +26,77 @@
 
 #include "socket/InetAddress.h"
 
-InetAddress::InetAddress() {
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(0);
-    addr.sin_addr.s_addr = htonl(INADDR_ANY);
-}
+namespace net::socket {
 
-InetAddress::InetAddress(const std::string& ipOrHostname, uint16_t port) {
-    struct hostent* he = gethostbyname(ipOrHostname.c_str());
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(port);
-    memcpy(&addr.sin_addr, he->h_addr_list[0], he->h_length);
-}
+    InetAddress::InetAddress() {
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(0);
+        addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    }
 
-InetAddress::InetAddress(const std::string& ipOrHostname) {
-    struct hostent* he = gethostbyname(ipOrHostname.c_str());
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(0);
-    memcpy(&addr.sin_addr, he->h_addr_list[0], he->h_length);
-}
+    InetAddress::InetAddress(const std::string& ipOrHostname, uint16_t port) {
+        struct hostent* he = gethostbyname(ipOrHostname.c_str());
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(port);
+        memcpy(&addr.sin_addr, he->h_addr_list[0], he->h_length);
+    }
 
-InetAddress::InetAddress(in_port_t port) {
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(port);
-    addr.sin_addr.s_addr = htonl(INADDR_ANY);
-}
+    InetAddress::InetAddress(const std::string& ipOrHostname) {
+        struct hostent* he = gethostbyname(ipOrHostname.c_str());
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(0);
+        memcpy(&addr.sin_addr, he->h_addr_list[0], he->h_length);
+    }
 
-InetAddress::InetAddress(const struct sockaddr_in& addr) {
-    memcpy(&this->addr, &addr, sizeof(struct sockaddr_in));
-}
+    InetAddress::InetAddress(in_port_t port) {
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(port);
+        addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    }
 
-InetAddress::InetAddress(const InetAddress& ina) {
-    memcpy(&this->addr, &ina.addr, sizeof(struct sockaddr_in));
-}
+    InetAddress::InetAddress(const struct sockaddr_in& addr) {
+        memcpy(&this->addr, &addr, sizeof(struct sockaddr_in));
+    }
 
-InetAddress& InetAddress::operator=(const InetAddress& ina) {
-    if (this != &ina) {
+    InetAddress::InetAddress(const InetAddress& ina) {
         memcpy(&this->addr, &ina.addr, sizeof(struct sockaddr_in));
     }
 
-    return *this;
-}
+    InetAddress& InetAddress::operator=(const InetAddress& ina) {
+        if (this != &ina) {
+            memcpy(&this->addr, &ina.addr, sizeof(struct sockaddr_in));
+        }
 
-in_port_t InetAddress::port() const {
-    return (ntohs(addr.sin_port));
-}
+        return *this;
+    }
 
-std::string InetAddress::host() const {
-    char host[256];
-    getnameinfo(reinterpret_cast<const sockaddr*>(&addr), sizeof(addr), host, 256, NULL, 0, 0);
+    in_port_t InetAddress::port() const {
+        return (ntohs(addr.sin_port));
+    }
 
-    return std::string(host);
-}
+    std::string InetAddress::host() const {
+        char host[256];
+        getnameinfo(reinterpret_cast<const sockaddr*>(&addr), sizeof(addr), host, 256, NULL, 0, 0);
 
-std::string InetAddress::ip() const {
-    char host[256];
-    getnameinfo(reinterpret_cast<const sockaddr*>(&addr), sizeof(addr), host, 256, NULL, 0, NI_NUMERICHOST);
+        return std::string(host);
+    }
 
-    return std::string(host);
-}
+    std::string InetAddress::ip() const {
+        char host[256];
+        getnameinfo(reinterpret_cast<const sockaddr*>(&addr), sizeof(addr), host, 256, NULL, 0, NI_NUMERICHOST);
 
-std::string InetAddress::serv() const {
-    char serv[256];
-    getnameinfo(reinterpret_cast<const sockaddr*>(&addr), sizeof(addr), NULL, 0, serv, 256, NI_NUMERICHOST);
+        return std::string(host);
+    }
 
-    return std::string(serv);
-}
+    std::string InetAddress::serv() const {
+        char serv[256];
+        getnameinfo(reinterpret_cast<const sockaddr*>(&addr), sizeof(addr), NULL, 0, serv, 256, NI_NUMERICHOST);
 
-const struct sockaddr_in& InetAddress::getSockAddr() const {
-    return this->addr;
-}
+        return std::string(serv);
+    }
+
+    const struct sockaddr_in& InetAddress::getSockAddr() const {
+        return this->addr;
+    }
+
+} // namespace net::socket

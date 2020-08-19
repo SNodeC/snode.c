@@ -23,26 +23,30 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-class Descriptor {
-protected:
-    explicit Descriptor(bool dontClose = false)
-        : dontClose(dontClose) {
-    }
+namespace net {
 
-public:
-    Descriptor(const Descriptor& d) = delete;
-    Descriptor& operator=(const Descriptor& descriptor) = delete;
-    ~Descriptor();
+    class Descriptor {
+    protected:
+        explicit Descriptor(bool dontClose = false)
+            : dontClose(dontClose) {
+        }
 
-    void attachFd(int fd);
+    public:
+        Descriptor(const Descriptor& d) = delete;
+        Descriptor& operator=(const Descriptor& descriptor) = delete;
+        ~Descriptor();
 
-    int getFd() const;
+        void attachFd(int fd);
 
-protected:
-    bool dontClose = false;
+        int getFd() const;
 
-private:
-    int fd = -1;
-};
+    protected:
+        bool dontClose = false;
+
+    private:
+        int fd = -1;
+    };
+
+} // namespace net
 
 #endif // DESCRIPTOR_H

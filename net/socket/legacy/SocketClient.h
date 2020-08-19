@@ -26,13 +26,13 @@
 #include "socket/SocketClient.h"
 #include "socket/legacy/SocketConnection.h"
 
-namespace legacy {
+namespace net::socket::legacy {
 
-    class SocketClient : public ::SocketClient<legacy::SocketConnection> {
+    class SocketClient : public net::socket::SocketClient<legacy::SocketConnection> {
     public:
-        using ::SocketClient<legacy::SocketConnection>::SocketClient;
+        using net::socket::SocketClient<legacy::SocketConnection>::SocketClient;
     };
 
-} // namespace legacy
+} // namespace net::socket::legacy
 
 #endif // LEGACY_SOCKETCLIENT_H

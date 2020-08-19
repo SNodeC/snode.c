@@ -28,24 +28,28 @@
 #include "Descriptor.h"
 #include "socket/InetAddress.h"
 
-class Socket : virtual public Descriptor {
-public:
-    Socket() = default;
+namespace net::socket {
 
-    Socket(const Socket&) = delete;
+    class Socket : virtual public net::Descriptor {
+    public:
+        Socket() = default;
 
-    virtual ~Socket();
+        Socket(const Socket&) = delete;
 
-    Socket& operator=(const Socket&) = delete;
+        virtual ~Socket();
 
-    void open(const std::function<void(int errnum)>& onError, int flags = 0);
-    void bind(const InetAddress& localAddress, const std::function<void(int errnum)>& onError);
+        Socket& operator=(const Socket&) = delete;
 
-    InetAddress& getLocalAddress();
-    void setLocalAddress(const InetAddress& localAddress);
+        void open(const std::function<void(int errnum)>& onError, int flags = 0);
+        void bind(const InetAddress& localAddress, const std::function<void(int errnum)>& onError);
 
-protected:
-    InetAddress localAddress{};
-};
+        InetAddress& getLocalAddress();
+        void setLocalAddress(const InetAddress& localAddress);
+
+    protected:
+        InetAddress localAddress{};
+    };
+
+} // namespace net::socket
 
 #endif // SOCKET_H

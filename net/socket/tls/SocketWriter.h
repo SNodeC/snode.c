@@ -31,15 +31,15 @@
 
 // IWYU pragma: no_forward_declare tls::Socket
 
-namespace tls {
+namespace net::socket::tls {
 
-    class SocketWriter : public ::SocketWriter<tls::Socket> {
+    class SocketWriter : public net::socket::SocketWriter<tls::Socket> {
     protected:
-        using ::SocketWriter<tls::Socket>::SocketWriter;
+        using net::socket::SocketWriter<tls::Socket>::SocketWriter;
 
         ssize_t write(const char* junk, size_t junkSize) override;
     };
 
-}; // namespace tls
+}; // namespace net::socket::tls
 
 #endif // TLS_SOCKETWRITER_H

@@ -29,9 +29,9 @@
 
 #include "socket/Socket.h"
 
-namespace tls {
+namespace net::socket::tls {
 
-    class Socket : public ::Socket {
+    class Socket : public net::socket::Socket {
     public:
         SSL* startSSL(SSL_CTX* ctx);
         void stopSSL();
@@ -41,6 +41,6 @@ namespace tls {
         SSL* ssl = nullptr;
     };
 
-}; // namespace tls
+}; // namespace net::socket::tls
 
 #endif // TLS_SOCKET_H

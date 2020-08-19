@@ -31,59 +31,64 @@
 #include "TimerEventDispatcher.h"
 #include "WriteEventDispatcher.h"
 
-class EventLoop {
-private:
-    EventLoop();
+namespace net {
 
-public:
-    static EventLoop& instance() {
-        return eventLoop;
-    }
+    class EventLoop {
+    private:
+        EventLoop();
 
-    ReadEventDispatcher& getReadEventDispatcher() {
-        return readEventDispatcher;
-    }
+    public:
+        static EventLoop& instance() {
+            return eventLoop;
+        }
 
-    AcceptEventDispatcher& getAcceptEventDispatcher() {
-        return acceptEventDispatcher;
-    }
+        ReadEventDispatcher& getReadEventDispatcher() {
+            return readEventDispatcher;
+        }
 
-    WriteEventDispatcher& getWriteEventDispatcher() {
-        return writeEventDispatcher;
-    }
+        AcceptEventDispatcher& getAcceptEventDispatcher() {
+            return acceptEventDispatcher;
+        }
 
-    OutOfBandEventDispatcher& getOutOfBandEventDispatcher() {
-        return outOfBandEventDispatcher;
-    }
+        WriteEventDispatcher& getWriteEventDispatcher() {
+            return writeEventDispatcher;
+        }
 
-    TimerEventDispatcher& getTimerEventDispatcher() {
-        return timerEventDispatcher;
-    }
+        OutOfBandEventDispatcher& getOutOfBandEventDispatcher() {
+            return outOfBandEventDispatcher;
+        }
 
-    static void init(int argc, char* argv[]); // NOLINT(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
-    static void start();
-    static void stop();
+        TimerEventDispatcher& getTimerEventDispatcher() {
+            return timerEventDispatcher;
+        }
 
-private:
-    static void stoponsig(int sig);
+        static void init(int argc,
+                         char* argv[]); // NOLINT(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
+        static void start();
+        static void stop();
 
-    inline void tick();
+    private:
+        static void stoponsig(int sig);
 
-    static EventLoop eventLoop;
+        inline void tick();
 
-    fd_set readfds{0};
-    fd_set writefds{0};
-    fd_set exceptfds{0};
+        static EventLoop eventLoop;
 
-    ReadEventDispatcher readEventDispatcher;
-    AcceptEventDispatcher acceptEventDispatcher;
-    WriteEventDispatcher writeEventDispatcher;
-    OutOfBandEventDispatcher outOfBandEventDispatcher;
-    TimerEventDispatcher timerEventDispatcher;
+        fd_set readfds{0};
+        fd_set writefds{0};
+        fd_set exceptfds{0};
 
-    static bool running;
-    static bool stopped;
-    static bool initialized;
-};
+        ReadEventDispatcher readEventDispatcher;
+        AcceptEventDispatcher acceptEventDispatcher;
+        WriteEventDispatcher writeEventDispatcher;
+        OutOfBandEventDispatcher outOfBandEventDispatcher;
+        TimerEventDispatcher timerEventDispatcher;
+
+        static bool running;
+        static bool stopped;
+        static bool initialized;
+    };
+
+} // namespace net
 
 #endif // EVENTLOOP_H

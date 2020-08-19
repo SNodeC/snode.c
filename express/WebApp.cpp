@@ -35,14 +35,14 @@ WebApp::WebApp() {
 }
 
 void WebApp::init(int argc, char* argv[]) {
-    EventLoop::init(argc, argv);
+    net::EventLoop::init(argc, argv);
     WebApp::initialized = true;
 }
 
 void WebApp::start() {
-    EventLoop::start();
+    net::EventLoop::start();
 }
 
 void WebApp::stop() {
-    EventLoop::stop();
+    net::EventLoop::stop();
 }

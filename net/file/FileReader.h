@@ -30,7 +30,7 @@
 #include "ReadEventReceiver.h"
 
 class FileReader
-    : public ReadEventReceiver
+    : public net::ReadEventReceiver
     , virtual public File {
 protected:
     FileReader(int fd, const std::function<void(char* data, int len)>& junkRead, const std::function<void(int err)>& onError);

@@ -25,14 +25,18 @@
 
 #include "EventReceiver.h"
 
-class ReadEventReceiver : public EventReceiver {
-public:
-    ~ReadEventReceiver() override = default;
+namespace net {
 
-    virtual void readEvent() = 0;
+    class ReadEventReceiver : public EventReceiver {
+    public:
+        ~ReadEventReceiver() override = default;
 
-    void enable() override;
-    void disable() override;
-};
+        virtual void readEvent() = 0;
+
+        void enable() override;
+        void disable() override;
+    };
+
+} // namespace net
 
 #endif // READEVENTRECEIVER_H

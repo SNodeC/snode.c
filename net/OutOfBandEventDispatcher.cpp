@@ -27,18 +27,22 @@
 
 // IWYU pragma: no_include "Exception.h"
 
-int OutOfBandEventDispatcher::dispatch(const fd_set& fdSet, int counter) {
-    if (counter > 0) {
-        for (auto [fd, eventReceivers] : observedEvents) {
-            if (counter == 0) {
-                break;
-            }
-            if (FD_ISSET(fd, &fdSet)) {
-                counter--;
-                eventReceivers.front()->outOfBandEvent();
+namespace net {
+
+    int OutOfBandEventDispatcher::dispatch(const fd_set& fdSet, int counter) {
+        if (counter > 0) {
+            for (auto [fd, eventReceivers] : observedEvents) {
+                if (counter == 0) {
+                    break;
+                }
+                if (FD_ISSET(fd, &fdSet)) {
+                    counter--;
+                    eventReceivers.front()->outOfBandEvent();
+                }
             }
         }
+
+        return counter;
     }
 
-    return counter;
-}
+} // namespace net

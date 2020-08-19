@@ -25,25 +25,29 @@
 
 #include "Timer.h"
 
-class SingleshotTimer : public Timer {
-public:
-    SingleshotTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg)
-        : Timer(timeout, arg)
-        , dispatcher(dispatcher) {
-    }
+namespace net::timer {
 
-    ~SingleshotTimer() override = default;
+    class SingleshotTimer : public Timer {
+    public:
+        SingleshotTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg)
+            : Timer(timeout, arg)
+            , dispatcher(dispatcher) {
+        }
 
-    bool dispatch() override {
-        dispatcher(arg);
-        cancel();
-        return false;
-    }
+        ~SingleshotTimer() override = default;
 
-    SingleshotTimer& operator=(const SingleshotTimer& timer) = delete;
+        bool dispatch() override {
+            dispatcher(arg);
+            cancel();
+            return false;
+        }
 
-private:
-    std::function<void(const void* arg)> dispatcher;
-};
+        SingleshotTimer& operator=(const SingleshotTimer& timer) = delete;
+
+    private:
+        std::function<void(const void* arg)> dispatcher;
+    };
+
+} // namespace net::timer
 
 #endif // SINGLESHOTTIMER_H

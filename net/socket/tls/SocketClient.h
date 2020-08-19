@@ -29,28 +29,28 @@
 #include "socket/SocketClient.h"
 #include "socket/tls/SocketConnection.h"
 
-namespace tls {
+namespace net::socket::tls {
 
-    class SocketClient : public ::SocketClient<tls::SocketConnection> {
+    class SocketClient : public net::socket::SocketClient<net::socket::tls::SocketConnection> {
     public:
-        SocketClient(const std::function<void(tls::SocketConnection* cs)>& onConnect,
-                     const std::function<void(tls::SocketConnection* cs)>& onDisconnect,
-                     const std::function<void(tls::SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
-                     const std::function<void(tls::SocketConnection* cs, int errnum)>& onReadError,
-                     const std::function<void(tls::SocketConnection* cs, int errnum)>& onWriteError);
+        SocketClient(const std::function<void(net::socket::tls::SocketConnection* cs)>& onConnect,
+                     const std::function<void(net::socket::tls::SocketConnection* cs)>& onDisconnect,
+                     const std::function<void(net::socket::tls::SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
+                     const std::function<void(net::socket::tls::SocketConnection* cs, int errnum)>& onReadError,
+                     const std::function<void(net::socket::tls::SocketConnection* cs, int errnum)>& onWriteError);
 
-        SocketClient(const std::function<void(tls::SocketConnection* cs)>& onConnect,
-                     const std::function<void(tls::SocketConnection* cs)>& onDisconnect,
-                     const std::function<void(tls::SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
-                     const std::function<void(tls::SocketConnection* cs, int errnum)>& onReadError,
-                     const std::function<void(tls::SocketConnection* cs, int errnum)>& onWriteError, const std::string& certChain,
-                     const std::string& keyPEM, const std::string& password);
+        SocketClient(const std::function<void(net::socket::tls::SocketConnection* cs)>& onConnect,
+                     const std::function<void(net::socket::tls::SocketConnection* cs)>& onDisconnect,
+                     const std::function<void(net::socket::tls::SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
+                     const std::function<void(net::socket::tls::SocketConnection* cs, int errnum)>& onReadError,
+                     const std::function<void(net::socket::tls::SocketConnection* cs, int errnum)>& onWriteError,
+                     const std::string& certChain, const std::string& keyPEM, const std::string& password);
 
         ~SocketClient() override;
 
         // NOLINTNEXTLINE(google-default-arguments)
         void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
-                     const InetAddress& localAddress = InetAddress()) override;
+                     const net::socket::InetAddress& localAddress = net::socket::InetAddress()) override;
 
     private:
         SSL_CTX* ctx;
@@ -66,6 +66,6 @@ namespace tls {
         std::function<void(int err)> onError;
     };
 
-} // namespace tls
+} // namespace net::socket::tls
 
 #endif // TLS_SOCKETCLIENT_H

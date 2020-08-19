@@ -26,16 +26,16 @@
 #include "socket/SocketServer.h"
 #include "socket/legacy/SocketConnection.h"
 
-namespace legacy {
+namespace net::socket::legacy {
 
-    class SocketServer : public ::SocketServer<legacy::SocketConnection> {
+    class SocketServer : public net::socket::SocketServer<legacy::SocketConnection> {
     public:
-        using ::SocketServer<legacy::SocketConnection>::SocketServer;
+        using net::socket::SocketServer<legacy::SocketConnection>::SocketServer;
 
     private:
         ~SocketServer() override = default;
     };
 
-}; // namespace legacy
+}; // namespace net::socket::legacy
 
 #endif // LEGACY_SOCKETSERVER_H

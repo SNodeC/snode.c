@@ -26,10 +26,10 @@
 
 #include "socket/tls/SocketReader.h"
 
-namespace tls {
+namespace net::socket::tls {
 
     ssize_t SocketReader::read(char* junk, size_t junkSize) {
         return ::SSL_read(ssl, junk, junkSize);
     }
 
-}; // namespace tls
+}; // namespace net::socket::tls

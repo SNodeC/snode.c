@@ -20,10 +20,14 @@
 
 #include "EventLoop.h"
 
-void WriteEventReceiver::enable() {
-    EventLoop::instance().getWriteEventDispatcher().enable(this);
-}
+namespace net {
 
-void WriteEventReceiver::disable() {
-    EventLoop::instance().getWriteEventDispatcher().disable(this);
-}
+    void WriteEventReceiver::enable() {
+        EventLoop::instance().getWriteEventDispatcher().enable(this);
+    }
+
+    void WriteEventReceiver::disable() {
+        EventLoop::instance().getWriteEventDispatcher().disable(this);
+    }
+
+} // namespace net

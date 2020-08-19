@@ -25,14 +25,18 @@
 
 #include "EventReceiver.h"
 
-class OutOfBandEventReceiver : public EventReceiver {
-public:
-    ~OutOfBandEventReceiver() override = default;
+namespace net {
 
-    virtual void outOfBandEvent() = 0;
+    class OutOfBandEventReceiver : public EventReceiver {
+    public:
+        ~OutOfBandEventReceiver() override = default;
 
-    void enable() override;
-    void disable() override;
-};
+        virtual void outOfBandEvent() = 0;
+
+        void enable() override;
+        void disable() override;
+    };
+
+} // namespace net
 
 #endif // OUTOFBANDEVENTRECEIVER_H

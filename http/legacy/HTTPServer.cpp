@@ -32,37 +32,48 @@ namespace http {
 
     namespace legacy {
 
-        HTTPServer::HTTPServer(const std::function<void(Request& req, Response& res)>& onRequest)
-            : onRequest(onRequest) {
+        HTTPServer::HTTPServer(const std::function<void(net::socket::legacy::SocketConnection*)>& onConnect,
+                               const std::function<void(Request& req, Response& res)>& onRequestReady,
+                               const std::function<void(Request& req, Response& res)>& onResponseFinished,
+                               const std::function<void(net::socket::legacy::SocketConnection*)>& onDisconnect)
+            : onConnect(onConnect)
+            , onRequestReady(onRequestReady)
+            , onResponseFinished(onResponseFinished)
+            , onDisconnect(onDisconnect) {
         }
 
         void HTTPServer::listen(in_port_t port, const std::function<void(int err)>& onError) {
             errno = 0;
 
-            (new ::legacy::SocketServer(
-                 [this](::legacy::SocketConnection* connectedSocket) -> void { // onConnect
-                     connectedSocket->setProtocol<HTTPServerContext*>(
-                         new HTTPServerContext(connectedSocket, [this](Request& req, Response& res) -> void {
-                             onRequest(req, res);
+            (new net::socket::legacy::SocketServer(
+                 [this](net::socket::legacy::SocketConnection* connectedSocket) -> void { // onConnect
+                     onConnect(connectedSocket);
+                     connectedSocket->setProtocol<HTTPServerContext*>(new HTTPServerContext(
+                         connectedSocket,
+                         [this](Request& req, Response& res) -> void {
+                             onRequestReady(req, res);
+                         },
+                         [this]([[maybe_unused]] Request& req, [[maybe_unused]] Response& res) -> void {
+                             onResponseFinished(req, res);
                          }));
-                     ;
                  },
-                 [](::legacy::SocketConnection* connectedSocket) -> void { // onDisconnect
+                 [this](net::socket::legacy::SocketConnection* connectedSocket) -> void { // onDisconnect
+                     onDisconnect(connectedSocket);
                      connectedSocket->getProtocol<HTTPServerContext*>([](HTTPServerContext*& protocol) -> void {
                          delete protocol;
                      });
                  },
-                 [](::legacy::SocketConnection* connectedSocket, const char* junk, ssize_t junkSize) -> void { // onRead
+                 [](net::socket::legacy::SocketConnection* connectedSocket, const char* junk, ssize_t junkSize) -> void { // onRead
                      connectedSocket->getProtocol<HTTPServerContext*>([&junk, &junkSize](HTTPServerContext*& protocol) -> void {
                          protocol->receiveRequestData(junk, junkSize);
                      });
                  },
-                 [](::legacy::SocketConnection* connectedSocket, int errnum) -> void { // onReadError
+                 [](net::socket::legacy::SocketConnection* connectedSocket, int errnum) -> void { // onReadError
                      connectedSocket->getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
                          protocol->onReadError(errnum);
                      });
                  },
-                 [](::legacy::SocketConnection* connectedSocket, int errnum) -> void { // onWriteError
+                 [](net::socket::legacy::SocketConnection* connectedSocket, int errnum) -> void { // onWriteError
                      connectedSocket->getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
                          protocol->onWriteError(errnum);
                      });

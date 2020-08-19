@@ -24,84 +24,88 @@
 
 #include "TimerEventDispatcher.h"
 
-struct timeval TimerEventDispatcher::getNextTimeout() {
-    struct timeval tv {
-        0, 0
-    };
+namespace net {
 
-    tv.tv_sec = 20L;
-    tv.tv_usec = 0L;
+    struct timeval TimerEventDispatcher::getNextTimeout() {
+        struct timeval tv {
+            0, 0
+        };
 
-    for (Timer* timer : addedList) {
-        timerList.push_back(timer);
-        timerListDirty = true;
-    }
-    addedList.clear();
+        tv.tv_sec = 20L;
+        tv.tv_usec = 0L;
 
-    for (Timer* timer : removedList) {
-        timerList.remove(timer);
-        timer->destroy();
-        timerListDirty = true;
-    }
-    removedList.clear();
+        for (timer::Timer* timer : addedList) {
+            timerList.push_back(timer);
+            timerListDirty = true;
+        }
+        addedList.clear();
 
-    if (!timerList.empty()) {
-        if (timerListDirty) {
-            timerList.sort(timernode_lt());
-            timerListDirty = false;
+        for (timer::Timer* timer : removedList) {
+            timerList.remove(timer);
+            timer->destroy();
+            timerListDirty = true;
+        }
+        removedList.clear();
+
+        if (!timerList.empty()) {
+            if (timerListDirty) {
+                timerList.sort(timernode_lt());
+                timerListDirty = false;
+            }
+
+            tv = (*(timerList.begin()))->timeout();
+
+            struct timeval currentTime {
+                0, 0
+            };
+            gettimeofday(&currentTime, nullptr);
+
+            if (tv < currentTime) {
+                tv.tv_sec = 0;
+                tv.tv_usec = 0;
+            } else {
+                tv = tv - currentTime;
+            }
         }
 
-        tv = (*(timerList.begin()))->timeout();
+        return tv;
+    }
 
+    void TimerEventDispatcher::dispatch() {
         struct timeval currentTime {
             0, 0
         };
         gettimeofday(&currentTime, nullptr);
 
-        if (tv < currentTime) {
-            tv.tv_sec = 0;
-            tv.tv_usec = 0;
-        } else {
-            tv = tv - currentTime;
+        for (timer::Timer* timer : timerList) {
+            if (timer->timeout() <= currentTime) {
+                timerListDirty = timer->dispatch();
+            } else {
+                break;
+            }
         }
     }
 
-    return tv;
-}
-
-void TimerEventDispatcher::dispatch() {
-    struct timeval currentTime {
-        0, 0
-    };
-    gettimeofday(&currentTime, nullptr);
-
-    for (Timer* timer : timerList) {
-        if (timer->timeout() <= currentTime) {
-            timerListDirty = timer->dispatch();
-        } else {
-            break;
-        }
-    }
-}
-
-void TimerEventDispatcher::remove(Timer* timer) {
-    removedList.push_back(timer);
-}
-
-void TimerEventDispatcher::add(Timer* timer) {
-    addedList.push_back(timer);
-}
-
-bool TimerEventDispatcher::empty() {
-    return timerList.empty();
-}
-
-void TimerEventDispatcher::cancelAll() {
-    getNextTimeout();
-
-    for (Timer* timer : timerList) {
+    void TimerEventDispatcher::remove(timer::Timer* timer) {
         removedList.push_back(timer);
     }
 
-    getNextTimeout();
-}
+    void TimerEventDispatcher::add(timer::Timer* timer) {
+        addedList.push_back(timer);
+    }
+
+    bool TimerEventDispatcher::empty() {
+        return timerList.empty();
+    }
+
+    void TimerEventDispatcher::cancelAll() {
+        getNextTimeout();
+
+        for (timer::Timer* timer : timerList) {
+            removedList.push_back(timer);
+        }
+
+        getNextTimeout();
+    }
+
+} // namespace net

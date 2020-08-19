@@ -31,16 +31,16 @@
 
 // IWYU pragma: no_forward_declare tls::Socket
 
-namespace tls {
+namespace net::socket::tls {
 
-    class SocketReader : public ::SocketReader<tls::Socket> {
+    class SocketReader : public net::socket::SocketReader<tls::Socket> {
     protected:
-        using ::SocketReader<tls::Socket>::SocketReader;
+        using net::socket::SocketReader<tls::Socket>::SocketReader;
 
     private:
         ssize_t read(char* junk, size_t junkSize) override;
     };
 
-}; // namespace tls
+}; // namespace net::socket::tls
 
 #endif // TLS_SOCKETREADER_H

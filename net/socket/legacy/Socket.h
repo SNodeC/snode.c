@@ -25,13 +25,13 @@
 
 #include "socket/Socket.h"
 
-namespace legacy {
+namespace net::socket::legacy {
 
-    class Socket : public ::Socket {
+    class Socket : public net::socket::Socket {
     public:
-        using ::Socket::Socket;
+        using net::socket::Socket::Socket;
     };
 
-}; // namespace legacy
+}; // namespace net::socket::legacy
 
 #endif // LEGACY_SOCKET_H

@@ -24,10 +24,10 @@
 
 #include "socket/legacy/SocketWriter.h"
 
-namespace legacy {
+namespace net::socket::legacy {
 
     ssize_t SocketWriter::write(const char* junk, size_t junkSize) {
         return ::send(this->getFd(), junk, junkSize, MSG_NOSIGNAL);
     }
 
-}; // namespace legacy
+}; // namespace net::socket::legacy

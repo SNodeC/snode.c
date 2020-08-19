@@ -27,28 +27,32 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-class InetAddress {
-public:
-    InetAddress();
-    InetAddress(const InetAddress& ina);
-    explicit InetAddress(const std::string& ipOrHostname);
-    explicit InetAddress(const std::string& ipOrHostname, uint16_t port);
-    explicit InetAddress(in_port_t port);
-    explicit InetAddress(const struct sockaddr_in& addr);
+namespace net::socket {
 
-    in_port_t port() const;
-    std::string host() const;
-    std::string ip() const;
-    std::string serv() const;
+    class InetAddress {
+    public:
+        InetAddress();
+        InetAddress(const InetAddress& ina);
+        explicit InetAddress(const std::string& ipOrHostname);
+        explicit InetAddress(const std::string& ipOrHostname, uint16_t port);
+        explicit InetAddress(in_port_t port);
+        explicit InetAddress(const struct sockaddr_in& addr);
 
-    ~InetAddress() = default;
+        in_port_t port() const;
+        std::string host() const;
+        std::string ip() const;
+        std::string serv() const;
 
-    InetAddress& operator=(const InetAddress& ina);
+        ~InetAddress() = default;
 
-    const struct sockaddr_in& getSockAddr() const;
+        InetAddress& operator=(const InetAddress& ina);
 
-private:
-    struct sockaddr_in addr {};
-};
+        const struct sockaddr_in& getSockAddr() const;
+
+    private:
+        struct sockaddr_in addr {};
+    };
+
+} // namespace net::socket
 
 #endif // INETADDRESS_H
