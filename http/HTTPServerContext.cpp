@@ -29,9 +29,12 @@
 
 namespace http {
 
-    HTTPServerContext::HTTPServerContext(SocketConnectionBase* connectedSocket, std::function<void(Request& req, Response& res)> onRequest)
+    HTTPServerContext::HTTPServerContext(SocketConnectionBase* connectedSocket,
+                                         const std::function<void(Request& req, Response& res)>& onRequestReady,
+                                         const std::function<void(Request& req, Response& res)>& onResponseFinished)
         : connectedSocket(connectedSocket)
-        , onRequest(onRequest)
+        , onRequestReady(onRequestReady)
+        , onResponseFinished(onResponseFinished)
         , response(this)
         , parser(
               [this](std::string& method, std::string& originalUrl, std::string& httpVersion,
@@ -108,10 +111,12 @@ namespace http {
     void HTTPServerContext::requestReady() {
         this->requestInProgress = true;
 
-        onRequest(request, response);
+        onRequestReady(request, response);
     }
 
     void HTTPServerContext::responseCompleted() {
+        onResponseFinished(request, response);
+
         if (!request.keepAlive || !response.keepAlive) {
             terminateConnection();
         }
