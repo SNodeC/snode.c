@@ -26,23 +26,27 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-class Request;
-class Response;
+namespace http {
 
-namespace legacy {
+    class Request;
+    class Response;
 
-    class HTTPServer {
-    public:
-        explicit HTTPServer(const std::function<void(Request& req, Response& res)>& onRequest);
+    namespace legacy {
 
-        HTTPServer& operator=(const HTTPServer& webApp) = delete;
+        class HTTPServer {
+        public:
+            explicit HTTPServer(const std::function<void(Request& req, Response& res)>& onRequest);
 
-        void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr);
+            HTTPServer& operator=(const HTTPServer& webApp) = delete;
 
-    protected:
-        std::function<void(Request& req, Response& res)> onRequest;
-    };
+            void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr);
 
-} // namespace legacy
+        protected:
+            std::function<void(Request& req, Response& res)> onRequest;
+        };
+
+    } // namespace legacy
+
+} // namespace http
 
 #endif // LEGACY_HTTPSERVER_H

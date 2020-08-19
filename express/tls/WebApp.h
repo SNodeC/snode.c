@@ -37,7 +37,7 @@ namespace tls {
         void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr) override;
 
     protected:
-        tls::HTTPServer httpServer;
+        http::tls::HTTPServer httpServer;
 
     private:
         using ::WebApp::start;

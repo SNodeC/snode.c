@@ -31,55 +31,59 @@
 
 #include "HTTPParser.h"
 
-class HTTPRequestParser : public HTTPParser {
-public:
-    HTTPRequestParser(
-        const std::function<void(std::string&, std::string&, std::string&, const std::map<std::string, std::string>&)>& onRequest,
-        const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>& onHeader,
-        const std::function<void(char*, size_t)>& onContent, const std::function<void(void)>& onParsed,
-        const std::function<void(int status, const std::string& reason)>& onError);
+namespace http {
 
-    HTTPRequestParser(
-        const std::function<void(std::string&, std::string&, std::string&, const std::map<std::string, std::string>&)>&& onRequest,
-        const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>&& onHeader,
-        const std::function<void(char*, size_t)>&& onContent, const std::function<void(void)>&& onParsed,
-        const std::function<void(int status, const std::string& reason)>&& onError);
+    class HTTPRequestParser : public HTTPParser {
+    public:
+        HTTPRequestParser(
+            const std::function<void(std::string&, std::string&, std::string&, const std::map<std::string, std::string>&)>& onRequest,
+            const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>& onHeader,
+            const std::function<void(char*, size_t)>& onContent, const std::function<void(void)>& onParsed,
+            const std::function<void(int status, const std::string& reason)>& onError);
 
-    void reset() override;
+        HTTPRequestParser(
+            const std::function<void(std::string&, std::string&, std::string&, const std::map<std::string, std::string>&)>&& onRequest,
+            const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>&& onHeader,
+            const std::function<void(char*, size_t)>&& onContent, const std::function<void(void)>&& onParsed,
+            const std::function<void(int status, const std::string& reason)>&& onError);
 
-protected:
-    // Check if request method is supported
-    virtual bool methodSupported(const std::string& method) {
-        return supportedMethods.contains(method);
-    }
+        void reset() override;
 
-    // Parsers and Validators
-    enum HTTPParser::PAS parseStartLine(std::string& line) override;
-    enum HTTPParser::PAS parseHeader() override;
-    enum HTTPParser::PAS parseContent(char* content, size_t size) override;
+    protected:
+        // Check if request method is supported
+        virtual bool methodSupported(const std::string& method) {
+            return supportedMethods.contains(method);
+        }
 
-    // Exits
-    void parsingFinished();
-    enum HTTPParser::PAS parsingError(int code, const std::string& reason) override;
+        // Parsers and Validators
+        enum HTTPParser::PAS parseStartLine(std::string& line) override;
+        enum HTTPParser::PAS parseHeader() override;
+        enum HTTPParser::PAS parseContent(char* content, size_t size) override;
 
-    // Supported http-methods
-    std::set<std::string> supportedMethods{"GET", "PUT", "POST", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH", "HEAD"};
+        // Exits
+        void parsingFinished();
+        enum HTTPParser::PAS parsingError(int code, const std::string& reason) override;
 
-    // Data specific to HTTP request messages
-    std::string method;
-    std::string originalUrl;
-    std::string httpVersion;
-    std::map<std::string, std::string> cookies;
-    std::map<std::string, std::string> queries;
-    int httpMajor = 0;
-    int httpMinor = 0;
+        // Supported http-methods
+        std::set<std::string> supportedMethods{"GET", "PUT", "POST", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH", "HEAD"};
 
-    // Callbacks
-    std::function<void(std::string&, std::string&, std::string&, const std::map<std::string, std::string>&)> onRequest;
-    std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)> onHeader;
-    std::function<void(char*, size_t)> onContent;
-    std::function<void(void)> onParsed;
-    std::function<void(int status, const std::string& reason)> onError;
-};
+        // Data specific to HTTP request messages
+        std::string method;
+        std::string originalUrl;
+        std::string httpVersion;
+        std::map<std::string, std::string> cookies;
+        std::map<std::string, std::string> queries;
+        int httpMajor = 0;
+        int httpMinor = 0;
+
+        // Callbacks
+        std::function<void(std::string&, std::string&, std::string&, const std::map<std::string, std::string>&)> onRequest;
+        std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)> onHeader;
+        std::function<void(char*, size_t)> onContent;
+        std::function<void(void)> onParsed;
+        std::function<void(int status, const std::string& reason)> onError;
+    };
+
+} // namespace http
 
 #endif // HTTPREQUESTPARSER_H

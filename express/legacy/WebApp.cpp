@@ -27,7 +27,7 @@
 namespace legacy {
 
     WebApp::WebApp()
-        : httpServer([this](Request& req, Response& res) {
+        : httpServer([this](http::Request& req, http::Response& res) {
             this->dispatch(req, res);
         }) {
     }
