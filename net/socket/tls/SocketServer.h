@@ -26,9 +26,9 @@
 #include "socket/SocketServer.h"
 #include "socket/tls/SocketConnection.h"
 
-namespace tls {
+namespace net::socket::tls {
 
-    class SocketServer : public ::SocketServer<tls::SocketConnection> {
+    class SocketServer : public net::socket::SocketServer<tls::SocketConnection> {
     public:
         SocketServer(const std::function<void(tls::SocketConnection* cs)>& onConnect,
                      const std::function<void(tls::SocketConnection* cs)>& onDisconnect,
@@ -38,7 +38,7 @@ namespace tls {
                      const std::string& keyPEM, const std::string& password);
 
     protected:
-        using ::SocketServer<tls::SocketConnection>::SocketServer;
+        using net::socket::SocketServer<tls::SocketConnection>::SocketServer;
 
     private:
         ~SocketServer() override;
@@ -47,7 +47,7 @@ namespace tls {
         void listen(in_port_t port, int backlog, const std::function<void(int err)>& onError);
 
     protected:
-        using ::SocketServer<tls::SocketConnection>::listen;
+        using net::socket::SocketServer<tls::SocketConnection>::listen;
 
     private:
         SSL_CTX* ctx;
@@ -55,6 +55,6 @@ namespace tls {
         static int passwordCallback(char* buf, int size, int rwflag, void* u);
     };
 
-}; // namespace tls
+}; // namespace net::socket::tls
 
 #endif // TLS_SOCKETSERVER_H

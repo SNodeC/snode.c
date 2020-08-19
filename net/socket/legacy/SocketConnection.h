@@ -27,10 +27,10 @@
 #include "socket/legacy/SocketReader.h"
 #include "socket/legacy/SocketWriter.h"
 
-namespace legacy {
+namespace net::socket::legacy {
 
-    using SocketConnection = ::SocketConnection<legacy::SocketReader, legacy::SocketWriter>;
+    using SocketConnection = net::socket::SocketConnection<legacy::SocketReader, legacy::SocketWriter>;
 
-} // namespace legacy
+} // namespace net::socket::legacy
 
 #endif // LEGACY_SOCKETCONNECTION_H

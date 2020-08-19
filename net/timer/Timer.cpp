@@ -27,59 +27,63 @@
 #include "SingleshotTimer.h"
 #include "TimerEventDispatcher.h" // for ManagedTimer
 
-Timer::Timer(const struct timeval& timeout, const void* arg)
-    : arg(arg)
-    , delay(timeout) {
-    gettimeofday(&absoluteTimeout, nullptr);
-    update();
-}
+namespace net::timer {
 
-SingleshotTimer& Timer::singleshotTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout,
-                                        const void* arg) {
-    SingleshotTimer* st = new SingleshotTimer(dispatcher, timeout, arg);
+    Timer::Timer(const struct timeval& timeout, const void* arg)
+        : arg(arg)
+        , delay(timeout) {
+        gettimeofday(&absoluteTimeout, nullptr);
+        update();
+    }
 
-    EventLoop::instance().getTimerEventDispatcher().add(st);
+    SingleshotTimer& Timer::singleshotTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout,
+                                            const void* arg) {
+        SingleshotTimer* st = new SingleshotTimer(dispatcher, timeout, arg);
 
-    return *st;
-}
+        EventLoop::instance().getTimerEventDispatcher().add(st);
 
-IntervalTimer& Timer::continousTimer(const std::function<void(const void* arg, const std::function<void()>& stop)>& dispatcher,
-                                     const struct timeval& timeout, const void* arg) {
-    IntervalTimer* ct = new IntervalTimer(dispatcher, timeout, arg);
+        return *st;
+    }
 
-    EventLoop::instance().getTimerEventDispatcher().add(ct);
+    IntervalTimer& Timer::continousTimer(const std::function<void(const void* arg, const std::function<void()>& stop)>& dispatcher,
+                                         const struct timeval& timeout, const void* arg) {
+        IntervalTimer* ct = new IntervalTimer(dispatcher, timeout, arg);
 
-    return *ct;
-}
+        EventLoop::instance().getTimerEventDispatcher().add(ct);
 
-IntervalTimer& Timer::continousTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout,
-                                     const void* arg) {
-    IntervalTimer* ct = new IntervalTimer(dispatcher, timeout, arg);
+        return *ct;
+    }
 
-    EventLoop::instance().getTimerEventDispatcher().add(ct);
+    IntervalTimer& Timer::continousTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout,
+                                         const void* arg) {
+        IntervalTimer* ct = new IntervalTimer(dispatcher, timeout, arg);
 
-    return *ct;
-}
+        EventLoop::instance().getTimerEventDispatcher().add(ct);
 
-void Timer::cancel() {
-    EventLoop::instance().getTimerEventDispatcher().remove(this);
-}
+        return *ct;
+    }
 
-void Timer::update() {
-    absoluteTimeout = absoluteTimeout + delay;
-}
+    void Timer::cancel() {
+        EventLoop::instance().getTimerEventDispatcher().remove(this);
+    }
 
-void Timer::destroy() {
-    delete this;
-}
+    void Timer::update() {
+        absoluteTimeout = absoluteTimeout + delay;
+    }
 
-struct timeval& Timer::timeout() {
-    return absoluteTimeout;
-}
+    void Timer::destroy() {
+        delete this;
+    }
 
-Timer::operator struct timeval() const {
-    return absoluteTimeout;
-}
+    struct timeval& Timer::timeout() {
+        return absoluteTimeout;
+    }
+
+    Timer::operator struct timeval() const {
+        return absoluteTimeout;
+    }
+
+} // namespace net::timer
 
 bool operator<(const struct timeval& tv1, const struct timeval& tv2) {
     return (tv1.tv_sec < tv2.tv_sec) || ((tv1.tv_sec == tv2.tv_sec) && (tv1.tv_usec < tv2.tv_usec));

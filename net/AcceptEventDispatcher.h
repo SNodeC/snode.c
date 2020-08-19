@@ -29,12 +29,15 @@
 #include "EventDispatcher.h"
 
 // IWYU pragma: no_forward_declare AcceptEventReceiver
+namespace net {
 
-class AcceptEventDispatcher : public EventDispatcher<AcceptEventReceiver> {
-public:
-    using EventDispatcher<AcceptEventReceiver>::EventDispatcher;
+    class AcceptEventDispatcher : public EventDispatcher<AcceptEventReceiver> {
+    public:
+        using EventDispatcher<AcceptEventReceiver>::EventDispatcher;
 
-    int dispatch(const fd_set& fdSet, int count) override;
-};
+        int dispatch(const fd_set& fdSet, int count) override;
+    };
+
+} // namespace net
 
 #endif // ACCEPTEVENTDISPATCHER_H

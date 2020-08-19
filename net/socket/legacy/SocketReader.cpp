@@ -24,10 +24,10 @@
 
 #include "socket/legacy/SocketReader.h"
 
-namespace legacy {
+namespace net::socket::legacy {
 
     ssize_t SocketReader::read(char* junk, size_t junkSize) {
         return ::recv(this->getFd(), junk, junkSize, 0);
     }
 
-}; // namespace legacy
+}; // namespace net::socket::legacy

@@ -27,18 +27,22 @@
 
 // IWYU pragma: no_include "Writer.h"
 
-int WriteEventDispatcher::dispatch(const fd_set& fdSet, int counter) {
-    if (counter > 0) {
-        for (auto [fd, eventReceivers] : observedEvents) {
-            if (counter == 0) {
-                break;
-            }
-            if (FD_ISSET(fd, &fdSet)) {
-                counter--;
-                eventReceivers.front()->writeEvent();
+namespace net {
+
+    int WriteEventDispatcher::dispatch(const fd_set& fdSet, int counter) {
+        if (counter > 0) {
+            for (auto [fd, eventReceivers] : observedEvents) {
+                if (counter == 0) {
+                    break;
+                }
+                if (FD_ISSET(fd, &fdSet)) {
+                    counter--;
+                    eventReceivers.front()->writeEvent();
+                }
             }
         }
+
+        return counter;
     }
 
-    return counter;
-}
+} // namespace net

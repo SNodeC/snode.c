@@ -28,7 +28,7 @@
 
 #define TLSACCEPT_TIMEOUT 10
 
-namespace tls {
+namespace net::socket::tls {
 
     SocketServer::SocketServer(const std::function<void(tls::SocketConnection* cs)>& onConnect,
                                const std::function<void(tls::SocketConnection* cs)>& onDisconnect,
@@ -36,11 +36,11 @@ namespace tls {
                                const std::function<void(tls::SocketConnection* cs, int errnum)>& onReadError,
                                const std::function<void(tls::SocketConnection* cs, int errnum)>& onWriteError, const std::string& certChain,
                                const std::string& keyPEM, const std::string& password)
-        : ::SocketServer<tls::SocketConnection>(
+        : net::socket::SocketServer<tls::SocketConnection>(
               [this, onConnect](tls::SocketConnection* cs) -> void {
                   class TLSAcceptor
-                      : public ReadEventReceiver
-                      , public WriteEventReceiver
+                      : public net::ReadEventReceiver
+                      , public net::WriteEventReceiver
                       , public Socket {
                   public:
                       TLSAcceptor(tls::SocketConnection* cs, SSL_CTX* ctx, const std::function<void(tls::SocketConnection* cs)>& onConnect)
@@ -48,11 +48,11 @@ namespace tls {
                           , cs(cs)
                           , ssl(cs->startSSL(ctx))
                           , onConnect(onConnect)
-                          , timeOut(Timer::singleshotTimer(
+                          , timeOut(net::timer::Timer::singleshotTimer(
                                 [this]([[maybe_unused]] const void* arg) -> void {
-                                    this->ReadEventReceiver::disable();
-                                    this->WriteEventReceiver::disable();
-                                    this->cs->ReadEventReceiver::disable();
+                                    this->net::ReadEventReceiver::disable();
+                                    this->net::WriteEventReceiver::disable();
+                                    this->cs->net::ReadEventReceiver::disable();
                                 },
                                 (struct timeval){TLSACCEPT_TIMEOUT, 0}, nullptr)) {
                           this->attachFd(cs->getFd());
@@ -121,7 +121,7 @@ namespace tls {
                       tls::SocketConnection* cs = nullptr;
                       SSL* ssl = nullptr;
                       std::function<void(tls::SocketConnection* cs)> onConnect;
-                      Timer& timeOut;
+                      net::timer::Timer& timeOut;
                   };
 
                   new TLSAcceptor(cs, ctx, onConnect);
@@ -159,7 +159,7 @@ namespace tls {
         if (sslErr != 0) {
             onError(-sslErr);
         } else {
-            ::SocketServer<tls::SocketConnection>::listen(port, backlog, [&onError](int err) -> void {
+            net::socket::SocketServer<tls::SocketConnection>::listen(port, backlog, [&onError](int err) -> void {
                 onError(err);
             });
         }
@@ -175,4 +175,4 @@ namespace tls {
         return ::strlen(buf);
     }
 
-}; // namespace tls
+}; // namespace net::socket::tls

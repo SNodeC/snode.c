@@ -29,7 +29,7 @@
 
 namespace http {
 
-    HTTPServerContext::HTTPServerContext(SocketConnectionBase* connectedSocket,
+    HTTPServerContext::HTTPServerContext(net::socket::SocketConnectionBase* connectedSocket,
                                          const std::function<void(Request& req, Response& res)>& onRequestReady,
                                          const std::function<void(Request& req, Response& res)>& onResponseFinished)
         : connectedSocket(connectedSocket)

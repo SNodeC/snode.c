@@ -30,11 +30,15 @@
 
 // IWYU pragma: no_forward_declare OutOfBandEventReceiver
 
-class OutOfBandEventDispatcher : public EventDispatcher<OutOfBandEventReceiver> {
-public:
-    using EventDispatcher<OutOfBandEventReceiver>::EventDispatcher;
+namespace net {
 
-    int dispatch(const fd_set& fdSet, int count) override;
-};
+    class OutOfBandEventDispatcher : public EventDispatcher<OutOfBandEventReceiver> {
+    public:
+        using EventDispatcher<OutOfBandEventReceiver>::EventDispatcher;
+
+        int dispatch(const fd_set& fdSet, int count) override;
+    };
+
+} // namespace net
 
 #endif // OUTOFBANDEVENTDISPATCHER_H

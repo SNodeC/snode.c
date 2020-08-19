@@ -27,18 +27,22 @@
 
 // IWYU pragma: no_include "Server.h"
 
-int AcceptEventDispatcher::dispatch(const fd_set& fdSet, int conter) {
-    if (conter > 0) {
-        for (auto [fd, eventReceivers] : observedEvents) {
-            if (conter == 0) {
-                break;
-            }
-            if (FD_ISSET(fd, &fdSet)) {
-                conter--;
-                eventReceivers.front()->acceptEvent();
+namespace net {
+
+    int AcceptEventDispatcher::dispatch(const fd_set& fdSet, int conter) {
+        if (conter > 0) {
+            for (auto [fd, eventReceivers] : observedEvents) {
+                if (conter == 0) {
+                    break;
+                }
+                if (FD_ISSET(fd, &fdSet)) {
+                    conter--;
+                    eventReceivers.front()->acceptEvent();
+                }
             }
         }
+
+        return conter;
     }
 
-    return conter;
-}
+} // namespace net

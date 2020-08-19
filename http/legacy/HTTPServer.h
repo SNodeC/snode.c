@@ -37,20 +37,20 @@ namespace http {
 
         class HTTPServer {
         public:
-            explicit HTTPServer(const std::function<void(::legacy::SocketConnection*)>& onConnect,
+            explicit HTTPServer(const std::function<void(net::socket::legacy::SocketConnection*)>& onConnect,
                                 const std::function<void(Request& req, Response& res)>& onRequestReady,
                                 const std::function<void(Request& req, Response& res)>& onResponseFinished,
-                                const std::function<void(::legacy::SocketConnection*)>& onDisconnect);
+                                const std::function<void(net::socket::legacy::SocketConnection*)>& onDisconnect);
 
             HTTPServer& operator=(const HTTPServer& webApp) = delete;
 
             void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr);
 
         protected:
-            std::function<void(::legacy::SocketConnection*)> onConnect;
+            std::function<void(net::socket::legacy::SocketConnection*)> onConnect;
             std::function<void(Request& req, Response& res)> onRequestReady;
             std::function<void(Request& req, Response& res)> onResponseFinished;
-            std::function<void(::legacy::SocketConnection*)> onDisconnect;
+            std::function<void(net::socket::legacy::SocketConnection*)> onDisconnect;
         };
 
     } // namespace legacy

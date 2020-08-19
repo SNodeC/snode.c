@@ -27,10 +27,10 @@
 #include "socket/tls/SocketReader.h"
 #include "socket/tls/SocketWriter.h"
 
-namespace tls {
+namespace net::socket::tls {
 
-    using SocketConnection = ::SocketConnection<tls::SocketReader, tls::SocketWriter>;
+    using SocketConnection = net::socket::SocketConnection<net::socket::tls::SocketReader, net::socket::tls::SocketWriter>;
 
-} // namespace tls
+} // namespace net::socket::tls
 
 #endif // TLS_SOCKETCONNECTION_H

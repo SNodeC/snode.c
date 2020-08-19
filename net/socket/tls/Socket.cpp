@@ -26,7 +26,7 @@
 
 #include "socket/tls/Socket.h"
 
-namespace tls {
+namespace net::socket::tls {
 
     SSL* Socket::startSSL(SSL_CTX* ctx) {
         this->ssl = SSL_new(ctx);
@@ -44,4 +44,4 @@ namespace tls {
         return ssl;
     }
 
-}; // namespace tls
+}; // namespace net::socket::tls

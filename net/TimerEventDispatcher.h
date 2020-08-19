@@ -28,34 +28,38 @@
 
 #include "timer/Timer.h"
 
-class TimerEventDispatcher {
-public:
-    TimerEventDispatcher() = default;
+namespace net {
 
-    struct timeval getNextTimeout();
-
-    void dispatch();
-
-    void remove(Timer* timer);
-    void add(Timer* timer);
-
-    bool empty();
-
-    void cancelAll();
-
-private:
-    std::list<Timer*> timerList;
-    std::list<Timer*> addedList;
-    std::list<Timer*> removedList;
-
-    class timernode_lt {
+    class TimerEventDispatcher {
     public:
-        bool operator()(const Timer* t1, const Timer* t2) const {
-            return static_cast<timeval>(*t1) < static_cast<timeval>(*t2);
-        }
+        TimerEventDispatcher() = default;
+
+        struct timeval getNextTimeout();
+
+        void dispatch();
+
+        void remove(timer::Timer* timer);
+        void add(timer::Timer* timer);
+
+        bool empty();
+
+        void cancelAll();
+
+    private:
+        std::list<timer::Timer*> timerList;
+        std::list<timer::Timer*> addedList;
+        std::list<timer::Timer*> removedList;
+
+        class timernode_lt {
+        public:
+            bool operator()(const timer::Timer* t1, const timer::Timer* t2) const {
+                return static_cast<timeval>(*t1) < static_cast<timeval>(*t2);
+            }
+        };
+
+        bool timerListDirty = false;
     };
 
-    bool timerListDirty = false;
-};
+} // namespace net
 
 #endif // TIMEREVENTDISPATCHER_H

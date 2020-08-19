@@ -30,11 +30,15 @@
 
 // IWYU pragma: no_forward_declare ReadEventReceiver
 
-class ReadEventDispatcher : public EventDispatcher<ReadEventReceiver> {
-public:
-    using EventDispatcher<ReadEventReceiver>::EventDispatcher;
+namespace net {
 
-    int dispatch(const fd_set& fdSet, int count) override;
-};
+    class ReadEventDispatcher : public EventDispatcher<ReadEventReceiver> {
+    public:
+        using EventDispatcher<ReadEventReceiver>::EventDispatcher;
+
+        int dispatch(const fd_set& fdSet, int count) override;
+    };
+
+} // namespace net
 
 #endif // READEVENTDISPATCHER_H
