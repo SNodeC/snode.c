@@ -27,9 +27,16 @@
 namespace legacy {
 
     WebApp::WebApp()
-        : httpServer([this](http::Request& req, http::Response& res) {
-            this->dispatch(req, res);
-        }) {
+        : httpServer(
+              []([[maybe_unused]] ::legacy::SocketConnection* sc) -> void {
+              },
+              [this](http::Request& req, http::Response& res) -> void {
+                  this->dispatch(req, res);
+              },
+              []([[maybe_unused]] http::Request& req, [[maybe_unused]] http::Response& res) -> void {
+              },
+              []([[maybe_unused]] ::legacy::SocketConnection* sc) -> void {
+              }) {
     }
 
     void WebApp::listen(in_port_t port, const std::function<void(int err)>& onError) {

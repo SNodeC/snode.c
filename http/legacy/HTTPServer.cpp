@@ -32,8 +32,14 @@ namespace http {
 
     namespace legacy {
 
-        HTTPServer::HTTPServer(const std::function<void(Request& req, Response& res)>& onRequest)
-            : onRequest(onRequest) {
+        HTTPServer::HTTPServer(const std::function<void(::legacy::SocketConnection*)>& onConnect,
+                               const std::function<void(Request& req, Response& res)>& onRequestReady,
+                               const std::function<void(Request& req, Response& res)>& onResponseFinished,
+                               const std::function<void(::legacy::SocketConnection*)>& onDisconnect)
+            : onConnect(onConnect)
+            , onRequestReady(onRequestReady)
+            , onResponseFinished(onResponseFinished)
+            , onDisconnect(onDisconnect) {
         }
 
         void HTTPServer::listen(in_port_t port, const std::function<void(int err)>& onError) {
@@ -41,13 +47,18 @@ namespace http {
 
             (new ::legacy::SocketServer(
                  [this](::legacy::SocketConnection* connectedSocket) -> void { // onConnect
-                     connectedSocket->setProtocol<HTTPServerContext*>(
-                         new HTTPServerContext(connectedSocket, [this](Request& req, Response& res) -> void {
-                             onRequest(req, res);
+                     onConnect(connectedSocket);
+                     connectedSocket->setProtocol<HTTPServerContext*>(new HTTPServerContext(
+                         connectedSocket,
+                         [this](Request& req, Response& res) -> void {
+                             onRequestReady(req, res);
+                         },
+                         [this]([[maybe_unused]] Request& req, [[maybe_unused]] Response& res) -> void {
+                             onResponseFinished(req, res);
                          }));
-                     ;
                  },
-                 [](::legacy::SocketConnection* connectedSocket) -> void { // onDisconnect
+                 [this](::legacy::SocketConnection* connectedSocket) -> void { // onDisconnect
+                     onDisconnect(connectedSocket);
                      connectedSocket->getProtocol<HTTPServerContext*>([](HTTPServerContext*& protocol) -> void {
                          delete protocol;
                      });

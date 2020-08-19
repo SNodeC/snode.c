@@ -33,8 +33,14 @@ namespace http {
     namespace tls {
 
         HTTPServer::HTTPServer(const std::string& cert, const std::string& key, const std::string& password,
-                               const std::function<void(Request& req, Response& res)>& onRequest)
-            : onRequest(onRequest)
+                               const std::function<void(::tls::SocketConnection*)>& onConnect,
+                               const std::function<void(Request& req, Response& res)>& onRequestReady,
+                               const std::function<void(Request& req, Response& res)>& onResponseFinished,
+                               const std::function<void(::tls::SocketConnection*)>& onDisconnect)
+            : onConnect(onConnect)
+            , onRequestReady(onRequestReady)
+            , onResponseFinished(onResponseFinished)
+            , onDisconnect(onDisconnect)
             , cert(cert)
             , key(key)
             , password(password) {
@@ -45,13 +51,18 @@ namespace http {
 
             (new ::tls::SocketServer(
                  [this](::tls::SocketConnection* connectedSocket) -> void { // onConnect
-                     connectedSocket->setProtocol<HTTPServerContext*>(
-                         new HTTPServerContext(connectedSocket, [this](Request& req, Response& res) -> void {
-                             onRequest(req, res);
+                     onConnect(connectedSocket);
+                     connectedSocket->setProtocol<HTTPServerContext*>(new HTTPServerContext(
+                         connectedSocket,
+                         [this](Request& req, Response& res) -> void {
+                             onRequestReady(req, res);
+                         },
+                         [this](Request& req, Response& res) -> void {
+                             onResponseFinished(req, res);
                          }));
-                     ;
                  },
-                 [](::tls::SocketConnection* connectedSocket) -> void { // onDisconnect
+                 [this](::tls::SocketConnection* connectedSocket) -> void { // onDisconnect
+                     onDisconnect(connectedSocket);
                      connectedSocket->getProtocol<HTTPServerContext*>([](HTTPServerContext*& protocol) -> void {
                          delete protocol;
                      });
