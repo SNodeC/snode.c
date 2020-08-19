@@ -29,154 +29,158 @@
 #include "HTTPRequestParser.h"
 #include "httputils.h"
 
-HTTPRequestParser::HTTPRequestParser(
-    const std::function<void(std::string&, std::string&, std::string&, const std::map<std::string, std::string>&)>& onRequest,
-    const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>& onHeader,
-    const std::function<void(char*, size_t)>& onContent, const std::function<void(void)>& onParsed,
-    const std::function<void(int status, const std::string& reason)>& onError)
-    : onRequest(onRequest)
-    , onHeader(onHeader)
-    , onContent(onContent)
-    , onParsed(onParsed)
-    , onError(onError) {
-}
+namespace http {
 
-HTTPRequestParser::HTTPRequestParser(
-    const std::function<void(std::string&, std::string&, std::string&, const std::map<std::string, std::string>&)>&& onRequest,
-    const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>&& onHeader,
-    const std::function<void(char*, size_t)>&& onContent, const std::function<void(void)>&& onParsed,
-    const std::function<void(int status, const std::string& reason)>&& onError)
-    : onRequest(onRequest)
-    , onHeader(onHeader)
-    , onContent(onContent)
-    , onParsed(onParsed)
-    , onError(onError) {
-}
+    HTTPRequestParser::HTTPRequestParser(
+        const std::function<void(std::string&, std::string&, std::string&, const std::map<std::string, std::string>&)>& onRequest,
+        const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>& onHeader,
+        const std::function<void(char*, size_t)>& onContent, const std::function<void(void)>& onParsed,
+        const std::function<void(int status, const std::string& reason)>& onError)
+        : onRequest(onRequest)
+        , onHeader(onHeader)
+        , onContent(onContent)
+        , onParsed(onParsed)
+        , onError(onError) {
+    }
 
-void HTTPRequestParser::reset() {
-    HTTPParser::reset();
-    method.clear();
-    originalUrl.clear();
-    httpVersion.clear();
-    queries.clear();
-    cookies.clear();
-    httpMajor = 0;
-    httpMinor = 0;
-}
+    HTTPRequestParser::HTTPRequestParser(
+        const std::function<void(std::string&, std::string&, std::string&, const std::map<std::string, std::string>&)>&& onRequest,
+        const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>&& onHeader,
+        const std::function<void(char*, size_t)>&& onContent, const std::function<void(void)>&& onParsed,
+        const std::function<void(int status, const std::string& reason)>&& onError)
+        : onRequest(onRequest)
+        , onHeader(onHeader)
+        , onContent(onContent)
+        , onParsed(onParsed)
+        , onError(onError) {
+    }
 
-// HTTP/x.x
-static std::regex httpVersionRegex("^HTTP/([[:digit:]])\\.([[:digit:]])$");
+    void HTTPRequestParser::reset() {
+        HTTPParser::reset();
+        method.clear();
+        originalUrl.clear();
+        httpVersion.clear();
+        queries.clear();
+        cookies.clear();
+        httpMajor = 0;
+        httpMinor = 0;
+    }
 
-enum HTTPParser::PAS HTTPRequestParser::parseStartLine(std::string& line) {
-    enum HTTPParser::PAS PAS = HTTPParser::PAS::HEADER;
+    // HTTP/x.x
+    static std::regex httpVersionRegex("^HTTP/([[:digit:]])\\.([[:digit:]])$");
 
-    if (!line.empty()) {
-        std::string remaining;
+    enum HTTPParser::PAS HTTPRequestParser::parseStartLine(std::string& line) {
+        enum HTTPParser::PAS PAS = HTTPParser::PAS::HEADER;
 
-        std::tie(method, remaining) = httputils::str_split(line, ' '); // if split not found second will be empty
+        if (!line.empty()) {
+            std::string remaining;
 
-        if (!methodSupported(method)) {
-            PAS = parsingError(400, "Bad request method");
-        } else if (remaining.empty()) {
-            PAS = parsingError(400, "Malformed request");
-        } else {
-            std::tie(originalUrl, httpVersion) = httputils::str_split(remaining, ' ');
+            std::tie(method, remaining) = httputils::str_split(line, ' '); // if split not found second will be empty
 
-            originalUrl = httputils::url_decode(originalUrl);
-
-            if (originalUrl.front() != '/') {
-                PAS = parsingError(400, "Malformed URL");
+            if (!methodSupported(method)) {
+                PAS = parsingError(400, "Bad request method");
+            } else if (remaining.empty()) {
+                PAS = parsingError(400, "Malformed request");
             } else {
-                std::smatch match;
+                std::tie(originalUrl, httpVersion) = httputils::str_split(remaining, ' ');
 
-                if (!std::regex_match(httpVersion, match, httpVersionRegex)) {
-                    PAS = parsingError(400, "Wrong protocol-version");
+                originalUrl = httputils::url_decode(originalUrl);
+
+                if (originalUrl.front() != '/') {
+                    PAS = parsingError(400, "Malformed URL");
                 } else {
-                    httpMajor = std::stoi(match.str(1));
-                    httpMinor = std::stoi(match.str(2));
+                    std::smatch match;
 
-                    /* BEGIN: Belongs to default queryParser */
-                    std::string queriesLine;
-                    std::tie(std::ignore, queriesLine) = httputils::str_split_last(originalUrl, '?');
+                    if (!std::regex_match(httpVersion, match, httpVersionRegex)) {
+                        PAS = parsingError(400, "Wrong protocol-version");
+                    } else {
+                        httpMajor = std::stoi(match.str(1));
+                        httpMinor = std::stoi(match.str(2));
 
-                    while (!queriesLine.empty()) {
-                        std::string query;
-                        std::tie(query, queriesLine) = httputils::str_split(queriesLine, '&');
+                        /* BEGIN: Belongs to default queryParser */
+                        std::string queriesLine;
+                        std::tie(std::ignore, queriesLine) = httputils::str_split_last(originalUrl, '?');
 
-                        std::string key;
-                        std::string value;
-                        std::tie(key, value) = httputils::str_split(query, '=');
+                        while (!queriesLine.empty()) {
+                            std::string query;
+                            std::tie(query, queriesLine) = httputils::str_split(queriesLine, '&');
 
-                        queries.insert({key, value});
+                            std::string key;
+                            std::string value;
+                            std::tie(key, value) = httputils::str_split(query, '=');
+
+                            queries.insert({key, value});
+                        }
+                        /* END: Belongs to default queryParser */
+
+                        onRequest(method, originalUrl, httpVersion, queries);
                     }
-                    /* END: Belongs to default queryParser */
+                }
+            }
+        } else {
+            PAS = parsingError(400, "Request-line empty");
+        }
 
-                    onRequest(method, originalUrl, httpVersion, queries);
+        return PAS;
+    }
+
+    enum HTTPParser::PAS HTTPRequestParser::parseHeader() {
+        for (auto& [field, value] : HTTPParser::headers) {
+            VLOG(1) << "++ Parse header field: " << field << " = " << value;
+            if (field != "cookie") {
+                if (field == "content-length") {
+                    HTTPParser::contentLength = std::stoi(value);
+                }
+            } else {
+                std::string cookieLine = value;
+
+                while (!cookieLine.empty()) {
+                    std::string cookie;
+                    std::tie(cookie, cookieLine) = httputils::str_split(cookieLine, ';');
+
+                    std::string name;
+                    std::string value;
+                    std::tie(name, value) = httputils::str_split(cookie, '=');
+
+                    httputils::str_trimm(name);
+                    httputils::str_trimm(value);
+
+                    VLOG(1) << "++ Cookie: " << name << " = " << value;
+
+                    cookies.insert({name, value});
                 }
             }
         }
-    } else {
-        PAS = parsingError(400, "Request-line empty");
-    }
 
-    return PAS;
-}
+        HTTPParser::headers.erase("cookie");
 
-enum HTTPParser::PAS HTTPRequestParser::parseHeader() {
-    for (auto& [field, value] : HTTPParser::headers) {
-        VLOG(1) << "++ Parse header field: " << field << " = " << value;
-        if (field != "cookie") {
-            if (field == "content-length") {
-                HTTPParser::contentLength = std::stoi(value);
-            }
-        } else {
-            std::string cookieLine = value;
+        onHeader(HTTPParser::headers, cookies);
 
-            while (!cookieLine.empty()) {
-                std::string cookie;
-                std::tie(cookie, cookieLine) = httputils::str_split(cookieLine, ';');
-
-                std::string name;
-                std::string value;
-                std::tie(name, value) = httputils::str_split(cookie, '=');
-
-                httputils::str_trimm(name);
-                httputils::str_trimm(value);
-
-                VLOG(1) << "++ Cookie: " << name << " = " << value;
-
-                cookies.insert({name, value});
-            }
+        enum HTTPParser::PAS PAS = HTTPParser::PAS::BODY;
+        if (contentLength == 0) {
+            parsingFinished();
+            PAS = PAS::FIRSTLINE;
         }
+
+        return PAS;
     }
 
-    HTTPParser::headers.erase("cookie");
-
-    onHeader(HTTPParser::headers, cookies);
-
-    enum HTTPParser::PAS PAS = HTTPParser::PAS::BODY;
-    if (contentLength == 0) {
+    enum HTTPParser::PAS HTTPRequestParser::parseContent(char* content, size_t size) {
+        onContent(content, size);
         parsingFinished();
-        PAS = PAS::FIRSTLINE;
+
+        return PAS::FIRSTLINE;
     }
 
-    return PAS;
-}
+    void HTTPRequestParser::parsingFinished() {
+        onParsed();
+    }
 
-enum HTTPParser::PAS HTTPRequestParser::parseContent(char* content, size_t size) {
-    onContent(content, size);
-    parsingFinished();
+    enum HTTPParser::PAS HTTPRequestParser::parsingError(int code, const std::string& reason) {
+        onError(code, reason);
+        reset();
 
-    return PAS::FIRSTLINE;
-}
+        return PAS::ERROR;
+    }
 
-void HTTPRequestParser::parsingFinished() {
-    onParsed();
-}
-
-enum HTTPParser::PAS HTTPRequestParser::parsingError(int code, const std::string& reason) {
-    onError(code, reason);
-    reset();
-
-    return PAS::ERROR;
-}
+} // namespace http

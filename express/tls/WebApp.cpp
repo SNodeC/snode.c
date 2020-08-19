@@ -27,7 +27,7 @@
 namespace tls {
 
     WebApp::WebApp(const std::string& cert, const std::string& key, const std::string& password)
-        : httpServer(cert, key, password, [this](Request& req, Response& res) {
+        : httpServer(cert, key, password, [this](http::Request& req, http::Response& res) {
             this->dispatch(req, res);
         }) {
     }
