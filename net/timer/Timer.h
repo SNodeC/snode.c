@@ -26,48 +26,58 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-class SingleshotTimer;
-class IntervalTimer;
+namespace net {
 
-class Timer {
-protected:
-    Timer(const struct timeval& timeout, const void* arg);
+    class TimerEventDispatcher;
 
-    virtual ~Timer() = default;
+    namespace timer {
 
-public:
-    Timer(const Timer&) = delete;
-    Timer& operator=(const Timer& timer) = delete;
+        class SingleshotTimer;
+        class IntervalTimer;
 
-    static IntervalTimer& continousTimer(const std::function<void(const void* arg, const std::function<void()>& stop)>& dispatcher,
-                                         const struct timeval& timeout, const void* arg);
+        class Timer {
+        protected:
+            Timer(const struct timeval& timeout, const void* arg);
 
-    static IntervalTimer& continousTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout,
-                                         const void* arg);
+            virtual ~Timer() = default;
 
-    static SingleshotTimer& singleshotTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout,
-                                            const void* arg);
+        public:
+            Timer(const Timer&) = delete;
+            Timer& operator=(const Timer& timer) = delete;
 
-    void cancel();
+            static IntervalTimer& continousTimer(const std::function<void(const void* arg, const std::function<void()>& stop)>& dispatcher,
+                                                 const struct timeval& timeout, const void* arg);
 
-protected:
-    const void* arg;
+            static IntervalTimer& continousTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout,
+                                                 const void* arg);
 
-    void update();
-    void destroy();
+            static SingleshotTimer& singleshotTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout,
+                                                    const void* arg);
 
-    virtual bool dispatch() = 0;
+            void cancel();
 
-    struct timeval& timeout();
+        protected:
+            const void* arg;
 
-    explicit operator struct timeval() const;
+            void update();
+            void destroy();
 
-private:
-    struct timeval absoluteTimeout {};
-    struct timeval delay;
+            virtual bool dispatch() = 0;
 
-    friend class TimerEventDispatcher;
-};
+            struct timeval& timeout();
+
+            explicit operator struct timeval() const;
+
+        private:
+            struct timeval absoluteTimeout {};
+            struct timeval delay;
+
+            friend class net::TimerEventDispatcher;
+        };
+
+    } // namespace timer
+
+} // namespace net
 
 bool operator<(const struct timeval& tv1, const struct timeval& tv2);
 bool operator>(const struct timeval& tv1, const struct timeval& tv2);

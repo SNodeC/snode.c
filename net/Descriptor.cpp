@@ -25,20 +25,24 @@
 
 #include "Descriptor.h"
 
-Descriptor::~Descriptor() {
-    if (!dontClose) {
-        ::close(fd);
-    }
-}
+namespace net {
 
-void Descriptor::attachFd(int fd) {
-    this->fd = fd;
-}
-
-int Descriptor::getFd() const {
-    if (fd < 0) {
-        std::cout << "Descriptor not initialized" << std::endl;
+    Descriptor::~Descriptor() {
+        if (!dontClose) {
+            ::close(fd);
+        }
     }
 
-    return fd;
-}
+    void Descriptor::attachFd(int fd) {
+        this->fd = fd;
+    }
+
+    int Descriptor::getFd() const {
+        if (fd < 0) {
+            std::cout << "Descriptor not initialized" << std::endl;
+        }
+
+        return fd;
+    }
+
+} // namespace net

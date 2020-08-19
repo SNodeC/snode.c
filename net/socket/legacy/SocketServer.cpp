@@ -22,4 +22,4 @@
 
 #include "socket/legacy/SocketServer.h"
 
-namespace legacy {}; // namespace legacy
+namespace net::socket::legacy {}; // namespace net::socket::legacy

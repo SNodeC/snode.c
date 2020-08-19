@@ -28,14 +28,14 @@ namespace legacy {
 
     WebApp::WebApp()
         : httpServer(
-              []([[maybe_unused]] ::legacy::SocketConnection* sc) -> void {
+              []([[maybe_unused]] net::socket::legacy::SocketConnection* sc) -> void { // onConnect
               },
-              [this](http::Request& req, http::Response& res) -> void {
+              [this](http::Request& req, http::Response& res) -> void { // onRequestReady
                   this->dispatch(req, res);
               },
-              []([[maybe_unused]] http::Request& req, [[maybe_unused]] http::Response& res) -> void {
+              []([[maybe_unused]] http::Request& req, [[maybe_unused]] http::Response& res) -> void { // onResponseFinished
               },
-              []([[maybe_unused]] ::legacy::SocketConnection* sc) -> void {
+              []([[maybe_unused]] net::socket::legacy::SocketConnection* sc) -> void { // onDisconnect
               }) {
     }
 

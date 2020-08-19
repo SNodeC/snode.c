@@ -26,10 +26,10 @@
 
 #include "socket/tls/SocketWriter.h"
 
-namespace tls {
+namespace net::socket::tls {
 
     ssize_t SocketWriter::write(const char* junk, size_t junkSize) {
         return ::SSL_write(ssl, junk, junkSize);
     }
 
-}; // namespace tls
+}; // namespace net::socket::tls

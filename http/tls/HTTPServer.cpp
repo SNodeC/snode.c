@@ -33,10 +33,10 @@ namespace http {
     namespace tls {
 
         HTTPServer::HTTPServer(const std::string& cert, const std::string& key, const std::string& password,
-                               const std::function<void(::tls::SocketConnection*)>& onConnect,
+                               const std::function<void(net::socket::tls::SocketConnection*)>& onConnect,
                                const std::function<void(Request& req, Response& res)>& onRequestReady,
                                const std::function<void(Request& req, Response& res)>& onResponseFinished,
-                               const std::function<void(::tls::SocketConnection*)>& onDisconnect)
+                               const std::function<void(net::socket::tls::SocketConnection*)>& onDisconnect)
             : onConnect(onConnect)
             , onRequestReady(onRequestReady)
             , onResponseFinished(onResponseFinished)
@@ -49,8 +49,8 @@ namespace http {
         void HTTPServer::listen(in_port_t port, const std::function<void(int err)>& onError) {
             errno = 0;
 
-            (new ::tls::SocketServer(
-                 [this](::tls::SocketConnection* connectedSocket) -> void { // onConnect
+            (new net::socket::tls::SocketServer(
+                 [this](net::socket::tls::SocketConnection* connectedSocket) -> void { // onConnect
                      onConnect(connectedSocket);
                      connectedSocket->setProtocol<HTTPServerContext*>(new HTTPServerContext(
                          connectedSocket,
@@ -61,23 +61,23 @@ namespace http {
                              onResponseFinished(req, res);
                          }));
                  },
-                 [this](::tls::SocketConnection* connectedSocket) -> void { // onDisconnect
+                 [this](net::socket::tls::SocketConnection* connectedSocket) -> void { // onDisconnect
                      onDisconnect(connectedSocket);
                      connectedSocket->getProtocol<HTTPServerContext*>([](HTTPServerContext*& protocol) -> void {
                          delete protocol;
                      });
                  },
-                 [](::tls::SocketConnection* connectedSocket, const char* junk, ssize_t junkSize) -> void { // onRead
+                 [](net::socket::tls::SocketConnection* connectedSocket, const char* junk, ssize_t junkSize) -> void { // onRead
                      connectedSocket->getProtocol<HTTPServerContext*>([&junk, &junkSize](HTTPServerContext*& protocol) -> void {
                          protocol->receiveRequestData(junk, junkSize);
                      });
                  },
-                 [](::tls::SocketConnection* connectedSocket, int errnum) -> void { // onReadError
+                 [](net::socket::tls::SocketConnection* connectedSocket, int errnum) -> void { // onReadError
                      connectedSocket->getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
                          protocol->onReadError(errnum);
                      });
                  },
-                 [](::tls::SocketConnection* connectedSocket, int errnum) -> void { // onWriteError
+                 [](net::socket::tls::SocketConnection* connectedSocket, int errnum) -> void { // onWriteError
                      connectedSocket->getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
                          protocol->onWriteError(errnum);
                      });

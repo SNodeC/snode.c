@@ -20,10 +20,14 @@
 
 #include "EventLoop.h"
 
-void OutOfBandEventReceiver::enable() {
-    EventLoop::instance().getOutOfBandEventDispatcher().enable(this);
-}
+namespace net {
 
-void OutOfBandEventReceiver::disable() {
-    EventLoop::instance().getOutOfBandEventDispatcher().disable(this);
-}
+    void OutOfBandEventReceiver::enable() {
+        EventLoop::instance().getOutOfBandEventDispatcher().enable(this);
+    }
+
+    void OutOfBandEventReceiver::disable() {
+        EventLoop::instance().getOutOfBandEventDispatcher().disable(this);
+    }
+
+} // namespace net

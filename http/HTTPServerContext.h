@@ -27,13 +27,16 @@
 #include "Request.h"
 #include "Response.h"
 
-class SocketConnectionBase;
+namespace net::socket {
+    class SocketConnectionBase;
+}
 
 namespace http {
 
     class HTTPServerContext {
     public:
-        HTTPServerContext(SocketConnectionBase* connectedSocket, const std::function<void(Request& req, Response& res)>& onRequestReady,
+        HTTPServerContext(net::socket::SocketConnectionBase* connectedSocket,
+                          const std::function<void(Request& req, Response& res)>& onRequestReady,
                           const std::function<void(Request& req, Response& res)>& onResponseFinished);
 
         void receiveRequestData(const char* junk, size_t junkLen);
@@ -48,7 +51,7 @@ namespace http {
         void terminateConnection();
 
     private:
-        SocketConnectionBase* connectedSocket;
+        net::socket::SocketConnectionBase* connectedSocket;
 
         bool requestInProgress = false;
 
