@@ -25,49 +25,53 @@
 
 #include "AttributeInjector.h"
 
-class SocketConnectionBase {
-public:
-    SocketConnectionBase() = default;
-    SocketConnectionBase(const SocketConnectionBase&) = delete;
-    SocketConnectionBase& operator=(const SocketConnectionBase&) = delete;
+namespace net::socket {
 
-    virtual ~SocketConnectionBase() = default;
+    class SocketConnectionBase {
+    public:
+        SocketConnectionBase() = default;
+        SocketConnectionBase(const SocketConnectionBase&) = delete;
+        SocketConnectionBase& operator=(const SocketConnectionBase&) = delete;
 
-    virtual void enqueue(const char* buffer, size_t size) = 0;
-    virtual void enqueue(const std::string& data) = 0;
+        virtual ~SocketConnectionBase() = default;
 
-    virtual void end(bool instantly = false) = 0;
+        virtual void enqueue(const char* buffer, size_t size) = 0;
+        virtual void enqueue(const std::string& data) = 0;
 
-    template <utils::InjectedAttribute Attribute>
-    constexpr void setProtocol(Attribute& attribute) const {
-        protocol.setAttribute<Attribute>(attribute);
-    }
+        virtual void end(bool instantly = false) = 0;
 
-    template <utils::InjectedAttribute Attribute>
-    constexpr void setProtocol(Attribute&& attribute) const {
-        protocol.setAttribute<Attribute>(attribute);
-    }
+        template <utils::InjectedAttribute Attribute>
+        constexpr void setProtocol(Attribute& attribute) const {
+            protocol.setAttribute<Attribute>(attribute);
+        }
 
-    template <utils::InjectedAttribute Attribute>
-    constexpr bool getProtocol(std::function<void(Attribute&)> onFound) const {
-        return protocol.getAttribute<Attribute>([&onFound](Attribute& attribute) -> void {
-            onFound(attribute);
-        });
-    }
+        template <utils::InjectedAttribute Attribute>
+        constexpr void setProtocol(Attribute&& attribute) const {
+            protocol.setAttribute<Attribute>(attribute);
+        }
 
-    template <utils::InjectedAttribute Attribute>
-    constexpr void getProtocol(std::function<void(Attribute&)> onFound, std::function<void(const std::string&)> onNotFound) const {
-        return protocol.getAttribute<Attribute>(
-            [&onFound](Attribute& attribute) -> void {
+        template <utils::InjectedAttribute Attribute>
+        constexpr bool getProtocol(std::function<void(Attribute&)> onFound) const {
+            return protocol.getAttribute<Attribute>([&onFound](Attribute& attribute) -> void {
                 onFound(attribute);
-            },
-            [&onNotFound](const std::string& msg) -> void {
-                onNotFound(msg);
             });
-    }
+        }
 
-private:
-    utils::SingleAttributeInjector protocol;
-};
+        template <utils::InjectedAttribute Attribute>
+        constexpr void getProtocol(std::function<void(Attribute&)> onFound, std::function<void(const std::string&)> onNotFound) const {
+            return protocol.getAttribute<Attribute>(
+                [&onFound](Attribute& attribute) -> void {
+                    onFound(attribute);
+                },
+                [&onNotFound](const std::string& msg) -> void {
+                    onNotFound(msg);
+                });
+        }
+
+    private:
+        utils::SingleAttributeInjector protocol;
+    };
+
+} // namespace net::socket
 
 #endif // SOCKETCONNECTIONBASE_H

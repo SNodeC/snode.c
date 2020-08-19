@@ -29,16 +29,16 @@
 #include "socket/SocketReader.h"
 #include "socket/legacy/Socket.h"
 
-namespace legacy {
+namespace net::socket::legacy {
 
-    class SocketReader : public ::SocketReader<legacy::Socket> {
+    class SocketReader : public net::socket::SocketReader<legacy::Socket> {
     protected:
-        using ::SocketReader<legacy::Socket>::SocketReader;
+        using net::socket::SocketReader<legacy::Socket>::SocketReader;
 
     private:
         ssize_t read(char* junk, size_t junkSize) override;
     };
 
-}; // namespace legacy
+}; // namespace net::socket::legacy
 
 #endif // LEGACY_SOCKETREADER_H

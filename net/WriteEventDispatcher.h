@@ -30,11 +30,15 @@
 
 // IWYU pragma: no_forward_declare WriteEventReceiver
 
-class WriteEventDispatcher : public EventDispatcher<WriteEventReceiver> {
-public:
-    using EventDispatcher<WriteEventReceiver>::EventDispatcher;
+namespace net {
 
-    int dispatch(const fd_set& fdSet, int count) override;
-};
+    class WriteEventDispatcher : public EventDispatcher<WriteEventReceiver> {
+    public:
+        using EventDispatcher<WriteEventReceiver>::EventDispatcher;
+
+        int dispatch(const fd_set& fdSet, int count) override;
+    };
+
+} // namespace net
 
 #endif // WRITEEVENTDISPATCHER_H

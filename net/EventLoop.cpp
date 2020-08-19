@@ -31,113 +31,117 @@
 #include "EventLoop.h"
 #include "Logger.h"
 
-EventLoop EventLoop::eventLoop;
+namespace net {
 
-bool EventLoop::running = false;
-bool EventLoop::stopped = true;
-bool EventLoop::initialized = false;
+    EventLoop EventLoop::eventLoop;
 
-EventLoop::EventLoop()
-    : readEventDispatcher(readfds)
-    , acceptEventDispatcher(readfds)
-    , writeEventDispatcher(writefds)
-    , outOfBandEventDispatcher(exceptfds) {
-}
+    bool EventLoop::running = false;
+    bool EventLoop::stopped = true;
+    bool EventLoop::initialized = false;
 
-void EventLoop::tick() {
-    readEventDispatcher.observeEnabledEvents();
-    writeEventDispatcher.observeEnabledEvents();
-    acceptEventDispatcher.observeEnabledEvents();
-    outOfBandEventDispatcher.observeEnabledEvents();
+    EventLoop::EventLoop()
+        : readEventDispatcher(readfds)
+        , acceptEventDispatcher(readfds)
+        , writeEventDispatcher(writefds)
+        , outOfBandEventDispatcher(exceptfds) {
+    }
 
-    int maxFd = readEventDispatcher.getLargestFd();
-    maxFd = std::max(writeEventDispatcher.getLargestFd(), maxFd);
-    maxFd = std::max(acceptEventDispatcher.getLargestFd(), maxFd);
-    maxFd = std::max(outOfBandEventDispatcher.getLargestFd(), maxFd);
+    void EventLoop::tick() {
+        readEventDispatcher.observeEnabledEvents();
+        writeEventDispatcher.observeEnabledEvents();
+        acceptEventDispatcher.observeEnabledEvents();
+        outOfBandEventDispatcher.observeEnabledEvents();
 
-    fd_set _exceptfds = exceptfds;
-    fd_set _writefds = writefds;
-    fd_set _readfds = readfds;
+        int maxFd = readEventDispatcher.getLargestFd();
+        maxFd = std::max(writeEventDispatcher.getLargestFd(), maxFd);
+        maxFd = std::max(acceptEventDispatcher.getLargestFd(), maxFd);
+        maxFd = std::max(outOfBandEventDispatcher.getLargestFd(), maxFd);
 
-    struct timeval tv = timerEventDispatcher.getNextTimeout();
+        fd_set _exceptfds = exceptfds;
+        fd_set _writefds = writefds;
+        fd_set _readfds = readfds;
 
-    if (maxFd >= 0 || !timerEventDispatcher.empty()) {
-        int counter = select(maxFd + 1, &_readfds, &_writefds, &_exceptfds, &tv);
+        struct timeval tv = timerEventDispatcher.getNextTimeout();
 
-        if (counter >= 0) {
-            timerEventDispatcher.dispatch();
-            counter = readEventDispatcher.dispatch(_readfds, counter);
-            counter = writeEventDispatcher.dispatch(_writefds, counter);
-            counter = acceptEventDispatcher.dispatch(_readfds, counter);
-            counter = outOfBandEventDispatcher.dispatch(_exceptfds, counter);
-            assert(counter == 0);
-        } else if (errno != EINTR) {
-            PLOG(ERROR) << "select";
-            stop();
+        if (maxFd >= 0 || !timerEventDispatcher.empty()) {
+            int counter = select(maxFd + 1, &_readfds, &_writefds, &_exceptfds, &tv);
+
+            if (counter >= 0) {
+                timerEventDispatcher.dispatch();
+                counter = readEventDispatcher.dispatch(_readfds, counter);
+                counter = writeEventDispatcher.dispatch(_writefds, counter);
+                counter = acceptEventDispatcher.dispatch(_readfds, counter);
+                counter = outOfBandEventDispatcher.dispatch(_exceptfds, counter);
+                assert(counter == 0);
+            } else if (errno != EINTR) {
+                PLOG(ERROR) << "select";
+                stop();
+            }
+        } else {
+            EventLoop::stopped = true;
         }
-    } else {
-        EventLoop::stopped = true;
+
+        readEventDispatcher.unobserveDisabledEvents();
+        writeEventDispatcher.unobserveDisabledEvents();
+        acceptEventDispatcher.unobserveDisabledEvents();
+        outOfBandEventDispatcher.unobserveDisabledEvents();
     }
 
-    readEventDispatcher.unobserveDisabledEvents();
-    writeEventDispatcher.unobserveDisabledEvents();
-    acceptEventDispatcher.unobserveDisabledEvents();
-    outOfBandEventDispatcher.unobserveDisabledEvents();
-}
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
+    void EventLoop::init(int argc, char* argv[]) {
+        signal(SIGPIPE, SIG_IGN);
+        signal(SIGQUIT, EventLoop::stoponsig);
+        signal(SIGHUP, EventLoop::stoponsig);
+        signal(SIGINT, EventLoop::stoponsig);
+        signal(SIGTERM, EventLoop::stoponsig);
 
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
-void EventLoop::init(int argc, char* argv[]) {
-    signal(SIGPIPE, SIG_IGN);
-    signal(SIGQUIT, EventLoop::stoponsig);
-    signal(SIGHUP, EventLoop::stoponsig);
-    signal(SIGINT, EventLoop::stoponsig);
-    signal(SIGTERM, EventLoop::stoponsig);
+        Logger::init(argc, argv);
 
-    Logger::init(argc, argv);
-
-    EventLoop::initialized = true;
-}
-
-void EventLoop::start() {
-    if (!initialized) {
-        PLOG(ERROR) << "snode.c not initialized. Use Multiplexer::init(argc, argv) before Multiplexer::start().";
-        exit(1);
+        EventLoop::initialized = true;
     }
 
-    stopped = false;
+    void EventLoop::start() {
+        if (!initialized) {
+            PLOG(ERROR) << "snode.c not initialized. Use Multiplexer::init(argc, argv) before Multiplexer::start().";
+            exit(1);
+        }
 
-    if (!running) {
-        running = true;
+        stopped = false;
 
-        while (!stopped) {
-            eventLoop.tick();
-        };
+        if (!running) {
+            running = true;
 
-        eventLoop.readEventDispatcher.observeEnabledEvents();
-        eventLoop.writeEventDispatcher.observeEnabledEvents();
-        eventLoop.acceptEventDispatcher.observeEnabledEvents();
-        eventLoop.outOfBandEventDispatcher.observeEnabledEvents();
+            while (!stopped) {
+                eventLoop.tick();
+            };
 
-        eventLoop.readEventDispatcher.unobserveDisabledEvents();
-        eventLoop.writeEventDispatcher.unobserveDisabledEvents();
-        eventLoop.acceptEventDispatcher.unobserveDisabledEvents();
-        eventLoop.outOfBandEventDispatcher.unobserveDisabledEvents();
+            eventLoop.readEventDispatcher.observeEnabledEvents();
+            eventLoop.writeEventDispatcher.observeEnabledEvents();
+            eventLoop.acceptEventDispatcher.observeEnabledEvents();
+            eventLoop.outOfBandEventDispatcher.observeEnabledEvents();
 
-        eventLoop.readEventDispatcher.unobserveObservedEvents();
-        eventLoop.writeEventDispatcher.unobserveObservedEvents();
-        eventLoop.acceptEventDispatcher.unobserveObservedEvents();
-        eventLoop.outOfBandEventDispatcher.unobserveObservedEvents();
+            eventLoop.readEventDispatcher.unobserveDisabledEvents();
+            eventLoop.writeEventDispatcher.unobserveDisabledEvents();
+            eventLoop.acceptEventDispatcher.unobserveDisabledEvents();
+            eventLoop.outOfBandEventDispatcher.unobserveDisabledEvents();
 
-        eventLoop.timerEventDispatcher.cancelAll();
+            eventLoop.readEventDispatcher.unobserveObservedEvents();
+            eventLoop.writeEventDispatcher.unobserveObservedEvents();
+            eventLoop.acceptEventDispatcher.unobserveObservedEvents();
+            eventLoop.outOfBandEventDispatcher.unobserveObservedEvents();
 
-        running = false;
+            eventLoop.timerEventDispatcher.cancelAll();
+
+            running = false;
+        }
     }
-}
 
-void EventLoop::stop() {
-    stopped = true;
-}
+    void EventLoop::stop() {
+        stopped = true;
+    }
 
-void EventLoop::stoponsig([[maybe_unused]] int sig) {
-    stop();
-}
+    void EventLoop::stoponsig([[maybe_unused]] int sig) {
+        stop();
+    }
+
+} // namespace net

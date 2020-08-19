@@ -29,15 +29,15 @@
 #include "socket/SocketWriter.h"
 #include "socket/legacy/Socket.h"
 
-namespace legacy {
+namespace net::socket::legacy {
 
-    class SocketWriter : public ::SocketWriter<legacy::Socket> {
+    class SocketWriter : public net::socket::SocketWriter<legacy::Socket> {
     protected:
-        using ::SocketWriter<legacy::Socket>::SocketWriter;
+        using net::socket::SocketWriter<legacy::Socket>::SocketWriter;
 
         ssize_t write(const char* junk, size_t junkSize) override;
     };
 
-}; // namespace legacy
+}; // namespace net::socket::legacy
 
 #endif // LEGACY_SOCKETWRITER_H

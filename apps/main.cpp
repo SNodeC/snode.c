@@ -28,14 +28,14 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 int timerApp() {
-    [[maybe_unused]] const Timer& tick = Timer::continousTimer(
+    [[maybe_unused]] const net::timer::Timer& tick = net::timer::Timer::continousTimer(
         []([[maybe_unused]] const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
             static int i = 0;
             std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
         },
         (struct timeval){0, 500000}, "Tick");
 
-    Timer& tack = Timer::continousTimer(
+    net::timer::Timer& tack = net::timer::Timer::continousTimer(
         []([[maybe_unused]] const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
             static int i = 0;
             std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;

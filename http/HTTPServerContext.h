@@ -27,13 +27,17 @@
 #include "Request.h"
 #include "Response.h"
 
-class SocketConnectionBase;
+namespace net::socket {
+    class SocketConnectionBase;
+}
 
 namespace http {
 
     class HTTPServerContext {
     public:
-        HTTPServerContext(SocketConnectionBase* connectedSocket, std::function<void(Request& req, Response& res)> onRequest);
+        HTTPServerContext(net::socket::SocketConnectionBase* connectedSocket,
+                          const std::function<void(Request& req, Response& res)>& onRequestReady,
+                          const std::function<void(Request& req, Response& res)>& onResponseFinished);
 
         void receiveRequestData(const char* junk, size_t junkLen);
         void onReadError(int errnum);
@@ -47,12 +51,13 @@ namespace http {
         void terminateConnection();
 
     private:
-        SocketConnectionBase* connectedSocket;
+        net::socket::SocketConnectionBase* connectedSocket;
 
         bool requestInProgress = false;
 
     public:
-        std::function<void(Request& req, Response& res)> onRequest;
+        std::function<void(Request& req, Response& res)> onRequestReady;
+        std::function<void(Request& req, Response& res)> onResponseFinished;
 
         Request request;
         Response response;

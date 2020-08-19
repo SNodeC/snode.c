@@ -24,15 +24,18 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "EventReceiver.h"
+namespace net {
 
-class AcceptEventReceiver : public EventReceiver {
-public:
-    ~AcceptEventReceiver() override = default;
+    class AcceptEventReceiver : public EventReceiver {
+    public:
+        ~AcceptEventReceiver() override = default;
 
-    virtual void acceptEvent() = 0;
+        virtual void acceptEvent() = 0;
 
-    void enable() override;
-    void disable() override;
-};
+        void enable() override;
+        void disable() override;
+    };
+
+} // namespace net
 
 #endif // ACCEPTEVENTRECEIVER_H

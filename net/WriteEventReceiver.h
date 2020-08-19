@@ -25,14 +25,18 @@
 
 #include "EventReceiver.h"
 
-class WriteEventReceiver : public EventReceiver {
-public:
-    ~WriteEventReceiver() override = default;
+namespace net {
 
-    virtual void writeEvent() = 0;
+    class WriteEventReceiver : public EventReceiver {
+    public:
+        ~WriteEventReceiver() override = default;
 
-    void enable() override;
-    void disable() override;
-};
+        virtual void writeEvent() = 0;
+
+        void enable() override;
+        void disable() override;
+    };
+
+} // namespace net
 
 #endif // WRITEEVENTRECEIVER_H

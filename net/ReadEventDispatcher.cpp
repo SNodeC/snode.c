@@ -27,18 +27,22 @@
 
 // IWYU pragma: no_include "Reader.h"
 
-int ReadEventDispatcher::dispatch(const fd_set& fdSet, int counter) {
-    if (counter > 0) {
-        for (auto [fd, eventReceivers] : observedEvents) {
-            if (counter == 0) {
-                break;
-            }
-            if (FD_ISSET(fd, &fdSet)) {
-                counter--;
-                eventReceivers.front()->readEvent();
+namespace net {
+
+    int ReadEventDispatcher::dispatch(const fd_set& fdSet, int counter) {
+        if (counter > 0) {
+            for (auto [fd, eventReceivers] : observedEvents) {
+                if (counter == 0) {
+                    break;
+                }
+                if (FD_ISSET(fd, &fdSet)) {
+                    counter--;
+                    eventReceivers.front()->readEvent();
+                }
             }
         }
+
+        return counter;
     }
 
-    return counter;
-}
+} // namespace net

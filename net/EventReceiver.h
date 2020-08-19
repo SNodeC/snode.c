@@ -23,50 +23,54 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-class ObservationCounter {
-public:
-    void destructIfUnobserved() {
-        if (observationCounter == 0) {
-            unobserved();
+namespace net {
+
+    class ObservationCounter {
+    public:
+        void destructIfUnobserved() {
+            if (observationCounter == 0) {
+                unobserved();
+            }
         }
-    }
 
-protected:
-    virtual void unobserved() = 0;
+    protected:
+        virtual void unobserved() = 0;
 
-    int observationCounter = 0;
-};
+        int observationCounter = 0;
+    };
 
-class EventReceiver : virtual public ObservationCounter {
-public:
-    EventReceiver() = default;
+    class EventReceiver : virtual public ObservationCounter {
+    public:
+        EventReceiver() = default;
 
-    EventReceiver(const EventReceiver&) = delete;
+        EventReceiver(const EventReceiver&) = delete;
 
-    EventReceiver& operator=(const EventReceiver&) = delete;
+        EventReceiver& operator=(const EventReceiver&) = delete;
 
-    virtual ~EventReceiver() = default;
+        virtual ~EventReceiver() = default;
 
-    void enabled() {
-        observationCounter++;
-        _enabled = true;
-    }
+        void enabled() {
+            observationCounter++;
+            _enabled = true;
+        }
 
-    void disabled() {
-        observationCounter--;
-        _enabled = false;
-    }
+        void disabled() {
+            observationCounter--;
+            _enabled = false;
+        }
 
-    bool isEnabled() const {
-        return _enabled;
-    }
+        bool isEnabled() const {
+            return _enabled;
+        }
 
-protected:
-    virtual void enable() = 0;
-    virtual void disable() = 0;
+    protected:
+        virtual void enable() = 0;
+        virtual void disable() = 0;
 
-private:
-    bool _enabled = false;
-};
+    private:
+        bool _enabled = false;
+    };
+
+} // namespace net
 
 #endif // EVENTRECEIVER_H

@@ -21,3 +21,5 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "SocketReader.h"
+
+namespace net::socket {}

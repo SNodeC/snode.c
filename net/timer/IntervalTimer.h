@@ -25,46 +25,50 @@
 
 #include "Timer.h"
 
-class IntervalTimer : public Timer {
-public:
-    IntervalTimer(const std::function<void(const void* arg, const std::function<void()>& stop)>& dispatcher, const struct timeval& timeout,
-                  const void* arg)
-        : Timer(timeout, arg)
-        , dispatcherS(dispatcher) {
-    }
+namespace net::timer {
 
-    IntervalTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg)
-        : Timer(timeout, arg)
-        , dispatcherC(dispatcher) {
-    }
-
-    ~IntervalTimer() override = default;
-
-    IntervalTimer& operator=(const IntervalTimer& timer) = delete;
-
-    bool dispatch() override {
-        bool stop = false;
-
-        if (dispatcherS) {
-            dispatcherS(arg, [&stop]() -> void {
-                stop = true;
-            });
-            if (stop) {
-                cancel();
-            } else {
-                update();
-            }
-        } else if (dispatcherC) {
-            dispatcherC(arg);
-            update();
+    class IntervalTimer : public Timer {
+    public:
+        IntervalTimer(const std::function<void(const void* arg, const std::function<void()>& stop)>& dispatcher,
+                      const struct timeval& timeout, const void* arg)
+            : Timer(timeout, arg)
+            , dispatcherS(dispatcher) {
         }
 
-        return !stop;
-    }
+        IntervalTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg)
+            : Timer(timeout, arg)
+            , dispatcherC(dispatcher) {
+        }
 
-private:
-    std::function<void(const void* arg, const std::function<void()>& stop)> dispatcherS = nullptr;
-    std::function<void(const void* arg)> dispatcherC = nullptr;
-};
+        ~IntervalTimer() override = default;
+
+        IntervalTimer& operator=(const IntervalTimer& timer) = delete;
+
+        bool dispatch() override {
+            bool stop = false;
+
+            if (dispatcherS) {
+                dispatcherS(arg, [&stop]() -> void {
+                    stop = true;
+                });
+                if (stop) {
+                    cancel();
+                } else {
+                    update();
+                }
+            } else if (dispatcherC) {
+                dispatcherC(arg);
+                update();
+            }
+
+            return !stop;
+        }
+
+    private:
+        std::function<void(const void* arg, const std::function<void()>& stop)> dispatcherS = nullptr;
+        std::function<void(const void* arg)> dispatcherC = nullptr;
+    };
+
+} // namespace net::timer
 
 #endif // INTERVALTIMER_H
