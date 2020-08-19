@@ -22,6 +22,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
+#include <iostream>
 #include <memory>
 #include <string>
 
@@ -29,6 +30,9 @@
 
 #include "Request.h"
 #include "Response.h"
+
+using Request = http::Request;
+using Response = http::Response;
 
 #define MIDDLEWARE(req, res, next)                                                                                                         \
     [&]([[maybe_unused]] Request & (req), [[maybe_unused]] Response & (res),                                                               \

@@ -27,58 +27,62 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-class HTTPParser {
-public:
-    HTTPParser() = default;
-    virtual ~HTTPParser() = default;
+namespace http {
 
-    void parse(const char* buf, size_t count);
+    class HTTPParser {
+    public:
+        HTTPParser() = default;
+        virtual ~HTTPParser() = default;
 
-protected:
-    // Parser state
-    enum struct [[nodiscard]] PAS{FIRSTLINE, HEADER, BODY, ERROR} PAS = PAS::FIRSTLINE;
+        void parse(const char* buf, size_t count);
 
-    virtual void reset();
+    protected:
+        // Parser state
+        enum struct [[nodiscard]] PAS{FIRSTLINE, HEADER, BODY, ERROR} PAS = PAS::FIRSTLINE;
 
-    virtual enum PAS parseStartLine(std::string& line) = 0;
-    virtual enum PAS parseHeader() = 0;
-    virtual enum PAS parseContent(char* content, size_t size) = 0;
-    virtual enum PAS parsingError(int code, const std::string& reason) = 0;
+        virtual void reset();
 
-    enum struct HTTPCompliance : unsigned short {
-        RFC1945 = 0x01 << 0, // HTTP 1.0
-        RFC2616 = 0x01 << 1, // HTTP 1.1
-        RFC7230 = 0x01 << 2, // Message Syntax and Routing
-        RFC7231 = 0x01 << 3, // Semantics and Content
-        RFC7232 = 0x01 << 4, // Conditional Requests
-        RFC7233 = 0x01 << 5, // Range Requests
-        RFC7234 = 0x01 << 6, // Caching
-        RFC7235 = 0x01 << 7, // Authentication
-        RFC7540 = 0x01 << 8, // HTTP 2.0
-        RFC7541 = 0x01 << 9  // Header Compression
+        virtual enum PAS parseStartLine(std::string& line) = 0;
+        virtual enum PAS parseHeader() = 0;
+        virtual enum PAS parseContent(char* content, size_t size) = 0;
+        virtual enum PAS parsingError(int code, const std::string& reason) = 0;
 
-    } HTTPCompliance{HTTPCompliance::RFC2616 | HTTPCompliance::RFC7230};
+        enum struct HTTPCompliance : unsigned short {
+            RFC1945 = 0x01 << 0, // HTTP 1.0
+            RFC2616 = 0x01 << 1, // HTTP 1.1
+            RFC7230 = 0x01 << 2, // Message Syntax and Routing
+            RFC7231 = 0x01 << 3, // Semantics and Content
+            RFC7232 = 0x01 << 4, // Conditional Requests
+            RFC7233 = 0x01 << 5, // Range Requests
+            RFC7234 = 0x01 << 6, // Caching
+            RFC7235 = 0x01 << 7, // Authentication
+            RFC7540 = 0x01 << 8, // HTTP 2.0
+            RFC7541 = 0x01 << 9  // Header Compression
 
-    // Data common to all HTTP messages (Request/Response)
-    char* content = nullptr;
-    size_t contentLength = 0;
-    std::map<std::string, std::string> headers;
+        } HTTPCompliance{HTTPCompliance::RFC2616 | HTTPCompliance::RFC7230};
 
-private:
-    size_t readStartLine(const char* buf, size_t count);
-    size_t readHeaderLine(const char* buf, size_t count);
-    void splitHeaderLine(const std::string& line);
-    size_t readContent(const char* buf, size_t count);
+        // Data common to all HTTP messages (Request/Response)
+        char* content = nullptr;
+        size_t contentLength = 0;
+        std::map<std::string, std::string> headers;
 
-    // Line state
-    bool EOL{false};
+    private:
+        size_t readStartLine(const char* buf, size_t count);
+        size_t readHeaderLine(const char* buf, size_t count);
+        void splitHeaderLine(const std::string& line);
+        size_t readContent(const char* buf, size_t count);
 
-    // Used during parseing data
-    std::string line;
-    size_t contentRead = 0;
+        // Line state
+        bool EOL{false};
 
-    friend enum HTTPCompliance operator|(const enum HTTPCompliance& c1, const enum HTTPCompliance& c2);
-    friend enum HTTPCompliance operator&(const enum HTTPCompliance& c1, const enum HTTPCompliance& c2);
-};
+        // Used during parseing data
+        std::string line;
+        size_t contentRead = 0;
+
+        friend enum HTTPCompliance operator|(const enum HTTPCompliance& c1, const enum HTTPCompliance& c2);
+        friend enum HTTPCompliance operator&(const enum HTTPCompliance& c1, const enum HTTPCompliance& c2);
+    };
+
+} // namespace http
 
 #endif // HTTPPARSER_H

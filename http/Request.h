@@ -27,38 +27,43 @@
 
 #include "AttributeInjector.h"
 
-class HTTPServerContext;
+namespace http {
 
-class Request : public utils::MultibleAttributeInjector {
-private:
-    explicit Request() = default;
+    class HTTPServerContext;
 
-public:
-    const std::string& header(const std::string& key, int i = 0) const;
-    const std::string& cookie(const std::string& key) const;
-    const std::string& query(const std::string& key) const;
-    int bodyLength() const;
+    class Request : public utils::MultibleAttributeInjector {
+    protected:
+        explicit Request() = default;
+        virtual ~Request() = default;
 
-    // Properties
-    std::string originalUrl;
-    std::string httpVersion;
-    std::string url;
-    char* body = nullptr;
-    std::string path;
-    std::string method;
-    int contentLength = 0;
-    bool keepAlive = false;
+    public:
+        const std::string& header(const std::string& key, int i = 0) const;
+        const std::string& cookie(const std::string& key) const;
+        const std::string& query(const std::string& key) const;
+        int bodyLength() const;
 
-protected:
-    virtual void reset();
+        // Properties
+        std::string originalUrl;
+        std::string httpVersion;
+        std::string url;
+        char* body = nullptr;
+        std::string path;
+        std::string method;
+        int contentLength = 0;
+        bool keepAlive = false;
 
-    const std::map<std::string, std::string>* queries = nullptr;
-    const std::map<std::string, std::string>* headers = nullptr;
-    const std::map<std::string, std::string>* cookies = nullptr;
+    protected:
+        virtual void reset();
 
-    std::string nullstr = "";
+        const std::map<std::string, std::string>* queries = nullptr;
+        const std::map<std::string, std::string>* headers = nullptr;
+        const std::map<std::string, std::string>* cookies = nullptr;
 
-    friend class HTTPServerContext;
-};
+        std::string nullstr = "";
+
+        friend class HTTPServerContext;
+    };
+
+} // namespace http
 
 #endif // REQUEST_H

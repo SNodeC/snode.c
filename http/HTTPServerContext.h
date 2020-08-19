@@ -29,34 +29,38 @@
 
 class SocketConnectionBase;
 
-class HTTPServerContext {
-public:
-    HTTPServerContext(SocketConnectionBase* connectedSocket, std::function<void(Request& req, Response& res)> onRequest);
+namespace http {
 
-    void receiveRequestData(const char* junk, size_t junkLen);
-    void onReadError(int errnum);
+    class HTTPServerContext {
+    public:
+        HTTPServerContext(SocketConnectionBase* connectedSocket, std::function<void(Request& req, Response& res)> onRequest);
 
-    void sendResponseData(const char* buf, size_t len);
-    void onWriteError(int errnum);
+        void receiveRequestData(const char* junk, size_t junkLen);
+        void onReadError(int errnum);
 
-    void requestReady();
-    void responseCompleted();
+        void sendResponseData(const char* buf, size_t len);
+        void onWriteError(int errnum);
 
-    void terminateConnection();
+        void requestReady();
+        void responseCompleted();
 
-private:
-    SocketConnectionBase* connectedSocket;
+        void terminateConnection();
 
-    bool requestInProgress = false;
+    private:
+        SocketConnectionBase* connectedSocket;
 
-public:
-    std::function<void(Request& req, Response& res)> onRequest;
+        bool requestInProgress = false;
 
-    Request request;
-    Response response;
+    public:
+        std::function<void(Request& req, Response& res)> onRequest;
 
-private:
-    HTTPRequestParser parser;
-};
+        Request request;
+        Response response;
+
+    private:
+        HTTPRequestParser parser;
+    };
+
+} // namespace http
 
 #endif // HTTPSERVERCONTEXT_H
