@@ -19,7 +19,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstring>
-#include <iostream>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -35,8 +34,8 @@ namespace net::socket::tls {
                                const std::function<void(net::socket::tls::SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
                                const std::function<void(net::socket::tls::SocketConnection* cs, int errnum)>& onReadError,
                                const std::function<void(net::socket::tls::SocketConnection* cs, int errnum)>& onWriteError)
-        : net::socket::SocketClient<tls::SocketConnection>(
-              [this, onConnect](tls::SocketConnection* cs) -> void {
+        : net::socket::SocketClient<net::socket::tls::SocketConnection>(
+              [this, onConnect](net::socket::tls::SocketConnection* cs) -> void {
                   class TLSConnector
                       : public net::ReadEventReceiver
                       , public net::WriteEventReceiver
@@ -130,7 +129,7 @@ namespace net::socket::tls {
                       net::socket::tls::SocketClient* sc = nullptr;
                       net::socket::tls::SocketConnection* cs = nullptr;
                       SSL* ssl = nullptr;
-                      std::function<void(tls::SocketConnection* cs)> onConnect;
+                      std::function<void(net::socket::tls::SocketConnection* cs)> onConnect;
                       net::timer::Timer& timeOut;
                   };
 

@@ -18,7 +18,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <iostream>
+#include <easylogging++.h>
 #include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -39,7 +39,7 @@ namespace net {
 
     int Descriptor::getFd() const {
         if (fd < 0) {
-            std::cout << "Descriptor not initialized" << std::endl;
+            LOG(FATAL) << "Descriptor not initialized";
         }
 
         return fd;
