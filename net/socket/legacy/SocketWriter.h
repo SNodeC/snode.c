@@ -31,9 +31,9 @@
 
 namespace net::socket::legacy {
 
-    class SocketWriter : public net::socket::SocketWriter<legacy::Socket> {
+    class SocketWriter : public net::socket::SocketWriter<net::socket::legacy::Socket> {
     protected:
-        using net::socket::SocketWriter<legacy::Socket>::SocketWriter;
+        using net::socket::SocketWriter<net::socket::legacy::Socket>::SocketWriter;
 
         ssize_t write(const char* junk, size_t junkSize) override;
     };

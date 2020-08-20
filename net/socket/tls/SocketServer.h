@@ -30,15 +30,15 @@ namespace net::socket::tls {
 
     class SocketServer : public net::socket::SocketServer<tls::SocketConnection> {
     public:
-        SocketServer(const std::function<void(tls::SocketConnection* cs)>& onConnect,
-                     const std::function<void(tls::SocketConnection* cs)>& onDisconnect,
-                     const std::function<void(tls::SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
-                     const std::function<void(tls::SocketConnection* cs, int errnum)>& onReadError,
-                     const std::function<void(tls::SocketConnection* cs, int errnum)>& onWriteError, const std::string& certChain,
-                     const std::string& keyPEM, const std::string& password);
+        SocketServer(const std::function<void(net::socket::tls::SocketConnection* cs)>& onConnect,
+                     const std::function<void(net::socket::tls::SocketConnection* cs)>& onDisconnect,
+                     const std::function<void(net::socket::tls::SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
+                     const std::function<void(net::socket::tls::SocketConnection* cs, int errnum)>& onReadError,
+                     const std::function<void(net::socket::tls::SocketConnection* cs, int errnum)>& onWriteError,
+                     const std::string& certChain, const std::string& keyPEM, const std::string& password);
 
     protected:
-        using net::socket::SocketServer<tls::SocketConnection>::SocketServer;
+        using net::socket::SocketServer<net::socket::tls::SocketConnection>::SocketServer;
 
     private:
         ~SocketServer() override;
@@ -47,7 +47,7 @@ namespace net::socket::tls {
         void listen(in_port_t port, int backlog, const std::function<void(int err)>& onError);
 
     protected:
-        using net::socket::SocketServer<tls::SocketConnection>::listen;
+        using net::socket::SocketServer<net::socket::tls::SocketConnection>::listen;
 
     private:
         SSL_CTX* ctx;

@@ -47,8 +47,8 @@ namespace net::socket {
         }
 
         ~SocketWriter() override {
-            if (WriteEventReceiver::isEnabled()) {
-                WriteEventReceiver::disable();
+            if (net::WriteEventReceiver::isEnabled()) {
+                net::WriteEventReceiver::disable();
             }
         }
 
@@ -61,17 +61,17 @@ namespace net::socket {
                 writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + ret);
 
                 if (writeBuffer.empty()) {
-                    WriteEventReceiver::disable();
+                    net::WriteEventReceiver::disable();
                 }
             } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
-                WriteEventReceiver::disable();
+                net::WriteEventReceiver::disable();
                 onError(errno);
             }
         }
 
         void enqueue(const char* buffer, size_t size) {
             writeBuffer.insert(writeBuffer.end(), buffer, buffer + size);
-            WriteEventReceiver::enable();
+            net::WriteEventReceiver::enable();
         }
 
     protected:

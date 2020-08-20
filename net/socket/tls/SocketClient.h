@@ -57,11 +57,11 @@ namespace net::socket::tls {
         unsigned long sslErr = 0;
         static int passwordCallback(char* buf, int size, int rwflag, void* u);
 
-        std::function<void(tls::SocketConnection* cs)> onConnect;
-        std::function<void(tls::SocketConnection* cs)> onDisconnect;
-        std::function<void(tls::SocketConnection* cs, const char* junk, ssize_t n)> onRead;
-        std::function<void(tls::SocketConnection* cs, int errnum)> onReadError;
-        std::function<void(tls::SocketConnection* cs, int errnum)> onWriteError;
+        std::function<void(net::socket::tls::SocketConnection* cs)> onConnect;
+        std::function<void(net::socket::tls::SocketConnection* cs)> onDisconnect;
+        std::function<void(net::socket::tls::SocketConnection* cs, const char* junk, ssize_t n)> onRead;
+        std::function<void(net::socket::tls::SocketConnection* cs, int errnum)> onReadError;
+        std::function<void(net::socket::tls::SocketConnection* cs, int errnum)> onWriteError;
 
         std::function<void(int err)> onError;
     };
