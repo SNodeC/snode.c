@@ -26,13 +26,13 @@
 #include "../WebApp.h"
 #include "tls/HTTPServer.h"
 
-namespace tls {
+namespace express::tls {
 
-    class WebApp : public ::WebApp {
+    class WebApp : public express::WebApp {
     public:
         explicit WebApp(const std::string& cert, const std::string& key, const std::string& password);
 
-        WebApp& operator=(const ::WebApp& webApp) = delete;
+        WebApp& operator=(const express::WebApp& webApp) = delete;
 
         void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr) override;
 
@@ -40,10 +40,10 @@ namespace tls {
         http::tls::HTTPServer httpServer;
 
     private:
-        using ::WebApp::start;
-        using ::WebApp::stop;
+        using express::WebApp::start;
+        using express::WebApp::stop;
     };
 
-} // namespace tls
+} // namespace express::tls
 
 #endif // TLS_WEBAPP_H
