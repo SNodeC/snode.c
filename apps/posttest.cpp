@@ -32,6 +32,8 @@
 #define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem"
 #define KEYFPASS "snode.c"
 
+using namespace express;
+
 int testPost() {
     legacy::WebApp legacyApp;
 

@@ -33,6 +33,8 @@
 #define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem"
 #define KEYFPASS "snode.c"
 
+using namespace express;
+
 Router route() {
     Router router;
     router.use(

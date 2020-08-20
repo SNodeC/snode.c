@@ -27,6 +27,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+using namespace express;
+
 int timerApp() {
     [[maybe_unused]] const net::timer::Timer& tick = net::timer::Timer::continousTimer(
         []([[maybe_unused]] const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {

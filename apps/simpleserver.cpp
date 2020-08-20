@@ -32,6 +32,8 @@
 
 #define SERVERROOT "/home/voc/projects/ServerVoc/build/html"
 
+using namespace express;
+
 int main(int argc, char** argv) {
     WebApp::init(argc, argv);
 

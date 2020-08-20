@@ -24,7 +24,7 @@
 
 #include "socket/tls/SocketServer.h"
 
-namespace tls {
+namespace express::tls {
 
     WebApp::WebApp(const std::string& cert, const std::string& key, const std::string& password)
         : httpServer(
@@ -44,4 +44,4 @@ namespace tls {
         httpServer.listen(port, onError);
     }
 
-} // namespace tls
+} // namespace express::tls
