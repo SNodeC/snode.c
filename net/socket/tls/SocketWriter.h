@@ -33,9 +33,9 @@
 
 namespace net::socket::tls {
 
-    class SocketWriter : public net::socket::SocketWriter<tls::Socket> {
+    class SocketWriter : public net::socket::SocketWriter<net::socket::tls::Socket> {
     protected:
-        using net::socket::SocketWriter<tls::Socket>::SocketWriter;
+        using net::socket::SocketWriter<net::socket::tls::Socket>::SocketWriter;
 
         ssize_t write(const char* junk, size_t junkSize) override;
     };

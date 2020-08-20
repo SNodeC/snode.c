@@ -88,7 +88,7 @@ namespace net::socket {
                                 } else {
                                     this->listen(backlog, [this, &onError](int errnum) -> void {
                                         if (errnum == 0) {
-                                            AcceptEventReceiver::enable();
+                                            net::AcceptEventReceiver::enable();
                                         }
                                         onError(errnum);
                                     });
@@ -142,7 +142,7 @@ namespace net::socket {
         }
 
         void end() {
-            AcceptEventReceiver::disable();
+            net::AcceptEventReceiver::disable();
         }
 
     protected:

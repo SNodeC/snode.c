@@ -31,9 +31,9 @@
 
 namespace net::socket::legacy {
 
-    class SocketReader : public net::socket::SocketReader<legacy::Socket> {
+    class SocketReader : public net::socket::SocketReader<net::socket::legacy::Socket> {
     protected:
-        using net::socket::SocketReader<legacy::Socket>::SocketReader;
+        using net::socket::SocketReader<net::socket::legacy::Socket>::SocketReader;
 
     private:
         ssize_t read(char* junk, size_t junkSize) override;

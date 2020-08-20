@@ -48,8 +48,8 @@ namespace net::socket {
         }
 
         ~SocketReader() override {
-            if (ReadEventReceiver::isEnabled()) {
-                ReadEventReceiver::disable();
+            if (net::ReadEventReceiver::isEnabled()) {
+                net::ReadEventReceiver::disable();
             }
         }
 
@@ -64,7 +64,7 @@ namespace net::socket {
             if (ret > 0) {
                 onRead(junk, ret);
             } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
-                ReadEventReceiver::disable();
+                net::ReadEventReceiver::disable();
                 this->onError(ret == 0 ? 0 : errno);
             }
         }

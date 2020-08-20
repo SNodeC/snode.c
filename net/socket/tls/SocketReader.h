@@ -33,9 +33,9 @@
 
 namespace net::socket::tls {
 
-    class SocketReader : public net::socket::SocketReader<tls::Socket> {
+    class SocketReader : public net::socket::SocketReader<net::socket::tls::Socket> {
     protected:
-        using net::socket::SocketReader<tls::Socket>::SocketReader;
+        using net::socket::SocketReader<net::socket::tls::Socket>::SocketReader;
 
     private:
         ssize_t read(char* junk, size_t junkSize) override;
