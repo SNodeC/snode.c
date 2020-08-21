@@ -34,11 +34,11 @@ namespace http {
 
         HTTPServer::HTTPServer(const std::function<void(net::socket::legacy::SocketConnection*)>& onConnect,
                                const std::function<void(Request& req, Response& res)>& onRequestReady,
-                               const std::function<void(Request& req, Response& res)>& onResponseFinished,
+                               const std::function<void(Request& req, Response& res)>& onResponseCompleted,
                                const std::function<void(net::socket::legacy::SocketConnection*)>& onDisconnect)
             : onConnect(onConnect)
             , onRequestReady(onRequestReady)
-            , onResponseFinished(onResponseFinished)
+            , onResponseCompleted(onResponseCompleted)
             , onDisconnect(onDisconnect) {
         }
 
@@ -54,7 +54,7 @@ namespace http {
                              onRequestReady(req, res);
                          },
                          [this]([[maybe_unused]] Request& req, [[maybe_unused]] Response& res) -> void {
-                             onResponseFinished(req, res);
+                             onResponseCompleted(req, res);
                          }));
                  },
                  [this](net::socket::legacy::SocketConnection* socketConnection) -> void { // onDisconnect
