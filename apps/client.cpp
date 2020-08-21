@@ -31,9 +31,11 @@
 #define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c_-_client.key.encrypted.pem"
 #define KEYFPASS "snode.c"
 
-net::socket::tls::SocketClient tlsClient() {
-    net::socket::tls::SocketClient client(
-        []([[maybe_unused]] net::socket::tls::SocketConnection* connectedSocket) -> void { // onConnect
+using namespace net::socket;
+
+tls::SocketClient tlsClient() {
+    tls::SocketClient client(
+        []([[maybe_unused]] tls::SocketConnection* connectedSocket) -> void { // onConnect
             std::cout << "OnConnect" << std::endl;
             connectedSocket->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); // Connection:keep-alive\r\n\r\n");
 
@@ -64,10 +66,10 @@ net::socket::tls::SocketClient tlsClient() {
             std::cout << connectedSocket->getLocalAddress().ip() << std::endl;
 
         },
-        []([[maybe_unused]] net::socket::tls::SocketConnection* connectedSocket) -> void { // onDisconnect
+        []([[maybe_unused]] tls::SocketConnection* connectedSocket) -> void { // onDisconnect
             std::cout << "OnDisconnect" << std::endl;
         },
-        []([[maybe_unused]] net::socket::tls::SocketConnection* connectedSocket, const char* junk, ssize_t junkSize) -> void { // onRead
+        []([[maybe_unused]] tls::SocketConnection* connectedSocket, const char* junk, ssize_t junkSize) -> void { // onRead
             std::cout << "OnRead" << std::endl;
             char* buf = new char[junkSize + 1];
             memcpy(buf, junk, junkSize);
@@ -77,10 +79,10 @@ net::socket::tls::SocketClient tlsClient() {
             std::cout << "------------ end data" << std::endl;
             delete[] buf;
         },
-        []([[maybe_unused]] net::socket::tls::SocketConnection* connectedSocket, int errnum) -> void { // onReadError
+        []([[maybe_unused]] tls::SocketConnection* connectedSocket, int errnum) -> void { // onReadError
             std::cout << "OnReadError: " << errnum << std::endl;
         },
-        []([[maybe_unused]] net::socket::tls::SocketConnection* connectedSocket, int errnum) -> void { // onWriteError
+        []([[maybe_unused]] tls::SocketConnection* connectedSocket, int errnum) -> void { // onWriteError
             std::cout << "OnWriteError: " << errnum << std::endl;
         },
         CERTF, KEYF, KEYFPASS);
@@ -96,9 +98,9 @@ net::socket::tls::SocketClient tlsClient() {
     return client;
 }
 
-net::socket::legacy::SocketClient legacyClient() {
-    net::socket::legacy::SocketClient legacyClient(
-        []([[maybe_unused]] net::socket::legacy::SocketConnection* connectedSocket) -> void { // onConnect
+legacy::SocketClient legacyClient() {
+    legacy::SocketClient legacyClient(
+        []([[maybe_unused]] legacy::SocketConnection* connectedSocket) -> void { // onConnect
             std::cout << "OnConnect" << std::endl;
             connectedSocket->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); // Connection:keep-alive\r\n\r\n");
 
@@ -109,10 +111,10 @@ net::socket::legacy::SocketClient legacyClient() {
             std::cout << connectedSocket->getRemoteAddress().ip() << std::endl;
             std::cout << connectedSocket->getLocalAddress().ip() << std::endl;
         },
-        []([[maybe_unused]] net::socket::legacy::SocketConnection* connectedSocket) -> void { // onDisconnect
+        []([[maybe_unused]] legacy::SocketConnection* connectedSocket) -> void { // onDisconnect
             std::cout << "OnDisconnect" << std::endl;
         },
-        []([[maybe_unused]] net::socket::legacy::SocketConnection* connectedSocket, const char* junk, ssize_t junkSize) -> void { // onRead
+        []([[maybe_unused]] legacy::SocketConnection* connectedSocket, const char* junk, ssize_t junkSize) -> void { // onRead
             std::cout << "OnRead" << std::endl;
             char* buf = new char[junkSize + 1];
             memcpy(buf, junk, junkSize);
@@ -122,10 +124,10 @@ net::socket::legacy::SocketClient legacyClient() {
             std::cout << "------------ end data" << std::endl;
             delete[] buf;
         },
-        []([[maybe_unused]] net::socket::legacy::SocketConnection* connectedSocket, int errnum) -> void { // onReadError
+        []([[maybe_unused]] legacy::SocketConnection* connectedSocket, int errnum) -> void { // onReadError
             std::cout << "OnReadError: " << errnum << std::endl;
         },
-        []([[maybe_unused]] net::socket::legacy::SocketConnection* connectedSocket, int errnum) -> void { // onWriteError
+        []([[maybe_unused]] legacy::SocketConnection* connectedSocket, int errnum) -> void { // onWriteError
             std::cout << "OnWriteError: " << errnum << std::endl;
         });
 
@@ -143,8 +145,8 @@ net::socket::legacy::SocketClient legacyClient() {
 int main(int argc, char* argv[]) {
     net::EventLoop::init(argc, argv);
 
-    net::socket::tls::SocketClient sc = tlsClient();
-    net::socket::legacy::SocketClient lc = legacyClient();
+    tls::SocketClient sc = tlsClient();
+    legacy::SocketClient lc = legacyClient();
 
     lc.connect("calisto.home.vchrist.at", 8080, [](int err) -> void { // example.com:81 simulate connnect timeout
         if (err) {
