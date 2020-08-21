@@ -29,7 +29,7 @@
 
 namespace net::socket::legacy {
 
-    using SocketConnection = net::socket::SocketConnection<net::socket::legacy::SocketReader, net::socket::legacy::SocketWriter>;
+    using SocketConnection = net::socket::SocketConnection<SocketReader, SocketWriter>;
 
 } // namespace net::socket::legacy
 

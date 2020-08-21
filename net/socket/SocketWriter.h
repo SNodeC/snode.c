@@ -37,7 +37,7 @@ namespace net::socket {
 
     template <typename Socket>
     class SocketWriter
-        : public net::WriteEventReceiver
+        : public WriteEventReceiver
         , virtual public Socket {
     public:
         SocketWriter() = delete;
@@ -47,8 +47,8 @@ namespace net::socket {
         }
 
         ~SocketWriter() override {
-            if (net::WriteEventReceiver::isEnabled()) {
-                net::WriteEventReceiver::disable();
+            if (WriteEventReceiver::isEnabled()) {
+                WriteEventReceiver::disable();
             }
         }
 
@@ -61,17 +61,17 @@ namespace net::socket {
                 writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + ret);
 
                 if (writeBuffer.empty()) {
-                    net::WriteEventReceiver::disable();
+                    WriteEventReceiver::disable();
                 }
             } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
-                net::WriteEventReceiver::disable();
+                WriteEventReceiver::disable();
                 onError(errno);
             }
         }
 
         void enqueue(const char* buffer, size_t size) {
             writeBuffer.insert(writeBuffer.end(), buffer, buffer + size);
-            net::WriteEventReceiver::enable();
+            WriteEventReceiver::enable();
         }
 
     protected:
