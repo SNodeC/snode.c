@@ -32,11 +32,11 @@ namespace http {
 
     namespace tls {
 
-        HTTPServer::HTTPServer(const std::string& cert, const std::string& key, const std::string& password,
-                               const std::function<void(net::socket::tls::SocketConnection*)>& onConnect,
+        HTTPServer::HTTPServer(const std::function<void(net::socket::tls::SocketConnection*)>& onConnect,
                                const std::function<void(Request& req, Response& res)>& onRequestReady,
                                const std::function<void(Request& req, Response& res)>& onResponseFinished,
-                               const std::function<void(net::socket::tls::SocketConnection*)>& onDisconnect)
+                               const std::function<void(net::socket::tls::SocketConnection*)>& onDisconnect, const std::string& cert,
+                               const std::string& key, const std::string& password)
             : onConnect(onConnect)
             , onRequestReady(onRequestReady)
             , onResponseFinished(onResponseFinished)
