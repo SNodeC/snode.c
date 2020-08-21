@@ -92,7 +92,6 @@ namespace net::socket {
                                               [this]([[maybe_unused]] const void* arg) -> void {
                                                   this->onError(ETIMEDOUT);
                                                   this->WriteEventReceiver::disable();
-                                                  delete this->cs;
                                               },
                                               (struct timeval){CONNECT_TIMEOUT, 0}, nullptr)) {
                                         this->attachFd(cs->getFd());
@@ -114,16 +113,13 @@ namespace net::socket {
 
                                             onError(0);
                                             onConnect(cs);
-                                            delete this;
+                                            unobserved();
+                                        } else if (errno == EINPROGRESS) {
+                                            this->WriteEventReceiver::enable();
                                         } else {
-                                            if (errno == EINPROGRESS) {
-                                                this->WriteEventReceiver::enable();
-                                            } else {
-                                                timeOut.cancel();
-                                                onError(errno);
-                                                delete cs;
-                                                delete this;
-                                            }
+                                            timeOut.cancel();
+                                            onError(errno);
+                                            unobserved();
                                         }
                                     }
 
@@ -138,10 +134,8 @@ namespace net::socket {
 
                                         if (err < 0) {
                                             onError(err);
-                                            delete cs;
                                         } else if (cErrno != 0) {
                                             onError(cErrno);
-                                            delete cs;
                                         } else {
                                             struct sockaddr_in localAddress {};
                                             socklen_t addressLength = sizeof(localAddress);
@@ -157,6 +151,9 @@ namespace net::socket {
                                     }
 
                                     void unobserved() override {
+                                        if (!cs->isObserved()) {
+                                            delete cs;
+                                        }
                                         delete this;
                                     }
 

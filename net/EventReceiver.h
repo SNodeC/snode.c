@@ -33,6 +33,10 @@ namespace net {
             }
         }
 
+        bool isObserved() {
+            return observationCounter > 0;
+        }
+
     protected:
         virtual void unobserved() = 0;
 
