@@ -31,7 +31,7 @@ namespace net {
 
     int WriteEventDispatcher::dispatch(const fd_set& fdSet, int counter) {
         if (counter > 0) {
-            for (auto [fd, eventReceivers] : observedEvents) {
+            for (const auto& [fd, eventReceivers] : observedEvents) {
                 if (counter == 0) {
                     break;
                 }

@@ -30,7 +30,9 @@
 #define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem"
 #define KEYFPASS "snode.c"
 
-#define SERVERROOT "/home/voc/projects/ServerVoc/build/html"
+#define SERVERROOT "/home/voc/projects/ServerVoc/doc/html"
+
+using namespace express;
 
 int main(int argc, char** argv) {
     WebApp::init(argc, argv);

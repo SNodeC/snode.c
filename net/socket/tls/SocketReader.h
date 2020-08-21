@@ -27,15 +27,15 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "socket/SocketReader.h"
-#include "socket/tls/Socket.h"
+#include "socket/tls/Socket.h" // IWYU pragma: keep
 
 // IWYU pragma: no_forward_declare tls::Socket
 
 namespace net::socket::tls {
 
-    class SocketReader : public net::socket::SocketReader<tls::Socket> {
+    class SocketReader : public net::socket::SocketReader<Socket> {
     protected:
-        using net::socket::SocketReader<tls::Socket>::SocketReader;
+        using net::socket::SocketReader<Socket>::SocketReader;
 
     private:
         ssize_t read(char* junk, size_t junkSize) override;

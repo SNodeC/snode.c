@@ -27,13 +27,13 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "socket/SocketWriter.h"
-#include "socket/legacy/Socket.h"
+#include "socket/legacy/Socket.h" // IWYU pragma: keep
 
 namespace net::socket::legacy {
 
-    class SocketWriter : public net::socket::SocketWriter<legacy::Socket> {
+    class SocketWriter : public net::socket::SocketWriter<Socket> {
     protected:
-        using net::socket::SocketWriter<legacy::Socket>::SocketWriter;
+        using net::socket::SocketWriter<Socket>::SocketWriter;
 
         ssize_t write(const char* junk, size_t junkSize) override;
     };

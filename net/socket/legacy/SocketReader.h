@@ -27,13 +27,13 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "socket/SocketReader.h"
-#include "socket/legacy/Socket.h"
+#include "socket/legacy/Socket.h" // IWYU pragma: keep
 
 namespace net::socket::legacy {
 
-    class SocketReader : public net::socket::SocketReader<legacy::Socket> {
+    class SocketReader : public net::socket::SocketReader<Socket> {
     protected:
-        using net::socket::SocketReader<legacy::Socket>::SocketReader;
+        using net::socket::SocketReader<Socket>::SocketReader;
 
     private:
         ssize_t read(char* junk, size_t junkSize) override;

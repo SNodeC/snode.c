@@ -29,7 +29,7 @@
 
 namespace net::socket::tls {
 
-    using SocketConnection = net::socket::SocketConnection<net::socket::tls::SocketReader, net::socket::tls::SocketWriter>;
+    using SocketConnection = net::socket::SocketConnection<SocketReader, SocketWriter>;
 
 } // namespace net::socket::tls
 

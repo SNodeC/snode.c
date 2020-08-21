@@ -29,19 +29,23 @@
 
 #include "Router.h"
 
-class WebApp : public Router {
-protected:
-    explicit WebApp();
+namespace express {
 
-    virtual void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr) = 0;
+    class WebApp : public Router {
+    protected:
+        explicit WebApp();
 
-public:
-    static void init(int argc, char* argv[]);
-    static void start();
-    static void stop();
+        virtual void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr) = 0;
 
-private:
-    static bool initialized;
-};
+    public:
+        static void init(int argc, char* argv[]);
+        static void start();
+        static void stop();
+
+    private:
+        static bool initialized;
+    };
+
+} // namespace express
 
 #endif // WEBAPP_H

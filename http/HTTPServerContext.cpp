@@ -29,10 +29,10 @@
 
 namespace http {
 
-    HTTPServerContext::HTTPServerContext(net::socket::SocketConnectionBase* connectedSocket,
+    HTTPServerContext::HTTPServerContext(net::socket::SocketConnectionBase* socketConnection,
                                          const std::function<void(Request& req, Response& res)>& onRequestReady,
                                          const std::function<void(Request& req, Response& res)>& onResponseFinished)
-        : connectedSocket(connectedSocket)
+        : socketConnection(socketConnection)
         , onRequestReady(onRequestReady)
         , onResponseFinished(onResponseFinished)
         , response(this)
@@ -73,7 +73,7 @@ namespace http {
               [this](int status, const std::string& reason) -> void {
                   VLOG(1) << "++ Error: " << status << " : " << reason;
                   response.status(status).send(reason);
-                  this->connectedSocket->end();
+                  this->socketConnection->end();
               }) {
         parser.reset();
         request.reset();
@@ -97,7 +97,7 @@ namespace http {
     }
 
     void HTTPServerContext::sendResponseData(const char* buf, size_t len) {
-        connectedSocket->enqueue(buf, len);
+        socketConnection->enqueue(buf, len);
     }
 
     void HTTPServerContext::onWriteError(int errnum) {
@@ -129,7 +129,7 @@ namespace http {
     }
 
     void HTTPServerContext::terminateConnection() {
-        connectedSocket->end();
+        socketConnection->end();
     }
 
 } // namespace http

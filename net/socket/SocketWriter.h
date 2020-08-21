@@ -37,7 +37,7 @@ namespace net::socket {
 
     template <typename Socket>
     class SocketWriter
-        : public net::WriteEventReceiver
+        : public WriteEventReceiver
         , virtual public Socket {
     public:
         SocketWriter() = delete;

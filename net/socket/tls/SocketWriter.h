@@ -27,15 +27,15 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "socket/SocketWriter.h"
-#include "socket/tls/Socket.h"
+#include "socket/tls/Socket.h" // IWYU pragma: keep
 
 // IWYU pragma: no_forward_declare tls::Socket
 
 namespace net::socket::tls {
 
-    class SocketWriter : public net::socket::SocketWriter<tls::Socket> {
+    class SocketWriter : public net::socket::SocketWriter<Socket> {
     protected:
-        using net::socket::SocketWriter<tls::Socket>::SocketWriter;
+        using net::socket::SocketWriter<Socket>::SocketWriter;
 
         ssize_t write(const char* junk, size_t junkSize) override;
     };

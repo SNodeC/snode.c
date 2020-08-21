@@ -18,31 +18,35 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <iostream>
+#include <easylogging++.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "EventLoop.h"
 #include "WebApp.h"
 
-bool WebApp::initialized{false};
+namespace express {
 
-WebApp::WebApp() {
-    if (!initialized) {
-        std::cerr << "ERROR: WebApp not initialized. Use WebApp::init(argc, argv) before creating a concrete WebApp object" << std::endl;
-        exit(1);
+    bool WebApp::initialized{false};
+
+    WebApp::WebApp() {
+        if (!initialized) {
+            LOG(FATAL) << "ERROR: WebApp not initialized. Use WebApp::init(argc, argv) before creating a concrete WebApp object";
+            exit(1);
+        }
     }
-}
 
-void WebApp::init(int argc, char* argv[]) {
-    net::EventLoop::init(argc, argv);
-    WebApp::initialized = true;
-}
+    void WebApp::init(int argc, char* argv[]) {
+        net::EventLoop::init(argc, argv);
+        WebApp::initialized = true;
+    }
 
-void WebApp::start() {
-    net::EventLoop::start();
-}
+    void WebApp::start() {
+        net::EventLoop::start();
+    }
 
-void WebApp::stop() {
-    net::EventLoop::stop();
-}
+    void WebApp::stop() {
+        net::EventLoop::stop();
+    }
+
+} // namespace express
