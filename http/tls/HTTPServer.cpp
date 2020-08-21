@@ -34,12 +34,12 @@ namespace http {
 
         HTTPServer::HTTPServer(const std::function<void(net::socket::tls::SocketConnection*)>& onConnect,
                                const std::function<void(Request& req, Response& res)>& onRequestReady,
-                               const std::function<void(Request& req, Response& res)>& onResponseFinished,
+                               const std::function<void(Request& req, Response& res)>& onResponseCompleted,
                                const std::function<void(net::socket::tls::SocketConnection*)>& onDisconnect, const std::string& cert,
                                const std::string& key, const std::string& password)
             : onConnect(onConnect)
             , onRequestReady(onRequestReady)
-            , onResponseFinished(onResponseFinished)
+            , onResponseCompleted(onResponseCompleted)
             , onDisconnect(onDisconnect)
             , cert(cert)
             , key(key)
@@ -58,7 +58,7 @@ namespace http {
                              onRequestReady(req, res);
                          },
                          [this](Request& req, Response& res) -> void {
-                             onResponseFinished(req, res);
+                             onResponseCompleted(req, res);
                          }));
                  },
                  [this](net::socket::tls::SocketConnection* socketConnection) -> void { // onDisconnect
