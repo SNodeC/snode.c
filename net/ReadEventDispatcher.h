@@ -28,7 +28,7 @@
 #include "EventDispatcher.h"
 #include "ReadEventReceiver.h"
 
-// IWYU pragma: no_forward_declare ReadEventReceiver
+// IWYU pragma: no_forward_declare net::ReadEventReceiver
 
 namespace net {
 
