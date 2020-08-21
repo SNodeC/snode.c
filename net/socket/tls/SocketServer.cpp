@@ -30,32 +30,33 @@
 
 namespace net::socket::tls {
 
-    SocketServer::SocketServer(const std::function<void(SocketConnection* cs)>& onConnect,
-                               const std::function<void(SocketConnection* cs)>& onDisconnect,
-                               const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
-                               const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
-                               const std::function<void(SocketConnection* cs, int errnum)>& onWriteError, const std::string& certChain,
-                               const std::string& keyPEM, const std::string& password)
+    SocketServer::SocketServer(const std::function<void(SocketConnection* socketConnection)>& onConnect,
+                               const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
+                               const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t n)>& onRead,
+                               const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
+                               const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
+                               const std::string& certChain, const std::string& keyPEM, const std::string& password)
         : net::socket::SocketServer<SocketConnection>(
-              [this, onConnect](SocketConnection* cs) -> void {
+              [this, onConnect](SocketConnection* socketConnection) -> void {
                   class TLSAcceptor
                       : public ReadEventReceiver
                       , public WriteEventReceiver
                       , public Socket {
                   public:
-                      TLSAcceptor(SocketConnection* cs, SSL_CTX* ctx, const std::function<void(SocketConnection* cs)>& onConnect)
+                      TLSAcceptor(SocketConnection* socketConnection, SSL_CTX* ctx,
+                                  const std::function<void(SocketConnection* socketConnection)>& onConnect)
                           : Descriptor(true)
-                          , cs(cs)
-                          , ssl(cs->startSSL(ctx))
+                          , socketConnection(socketConnection)
+                          , ssl(socketConnection->startSSL(ctx))
                           , onConnect(onConnect)
                           , timeOut(net::timer::Timer::singleshotTimer(
                                 [this]([[maybe_unused]] const void* arg) -> void {
                                     this->ReadEventReceiver::disable();
                                     this->WriteEventReceiver::disable();
-                                    this->cs->ReadEventReceiver::disable();
+                                    this->socketConnection->ReadEventReceiver::disable();
                                 },
                                 (struct timeval){TLSACCEPT_TIMEOUT, 0}, nullptr)) {
-                          this->attachFd(cs->getFd());
+                          this->attachFd(socketConnection->getFd());
 
                           int err = SSL_accept(ssl);
                           int sslErr = SSL_get_error(ssl, err);
@@ -66,7 +67,7 @@ namespace net::socket::tls {
                               this->WriteEventReceiver::enable();
                           } else {
                               if (sslErr == SSL_ERROR_NONE) {
-                                  onConnect(cs);
+                                  onConnect(socketConnection);
                               }
                               timeOut.cancel();
                               delete this;
@@ -85,9 +86,9 @@ namespace net::socket::tls {
                                   timeOut.cancel();
                                   this->ReadEventReceiver::disable();
                                   if (sslErr == SSL_ERROR_NONE) {
-                                      this->onConnect(cs);
+                                      this->onConnect(socketConnection);
                                   } else {
-                                      cs->ReadEventReceiver::disable();
+                                      socketConnection->ReadEventReceiver::disable();
                                   }
                               }
                           }
@@ -105,9 +106,9 @@ namespace net::socket::tls {
                                   timeOut.cancel();
                                   this->WriteEventReceiver::disable();
                                   if (sslErr == SSL_ERROR_NONE) {
-                                      this->onConnect(cs);
+                                      this->onConnect(socketConnection);
                                   } else {
-                                      cs->ReadEventReceiver::disable();
+                                      socketConnection->ReadEventReceiver::disable();
                                   }
                               }
                           }
@@ -118,17 +119,17 @@ namespace net::socket::tls {
                       }
 
                   private:
-                      tls::SocketConnection* cs = nullptr;
+                      tls::SocketConnection* socketConnection = nullptr;
                       SSL* ssl = nullptr;
-                      std::function<void(SocketConnection* cs)> onConnect;
+                      std::function<void(SocketConnection* socketConnection)> onConnect;
                       net::timer::Timer& timeOut;
                   };
 
-                  new TLSAcceptor(cs, ctx, onConnect);
+                  new TLSAcceptor(socketConnection, ctx, onConnect);
               },
-              [onDisconnect](SocketConnection* cs) -> void {
-                  cs->stopSSL();
-                  onDisconnect(cs);
+              [onDisconnect](SocketConnection* socketConnection) -> void {
+                  socketConnection->stopSSL();
+                  onDisconnect(socketConnection);
               },
               onRead, onReadError, onWriteError)
         , ctx(nullptr) {
