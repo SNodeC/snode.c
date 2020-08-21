@@ -19,6 +19,7 @@
 #include "ReadEventReceiver.h"
 
 #include "EventLoop.h"
+#include "ReadEventDispatcher.h"
 
 namespace net {
 

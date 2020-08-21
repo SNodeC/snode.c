@@ -19,6 +19,7 @@
 #include "OutOfBandEventReceiver.h"
 
 #include "EventLoop.h"
+#include "OutOfBandEventDispatcher.h"
 
 namespace net {
 

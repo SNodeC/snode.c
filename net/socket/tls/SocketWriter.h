@@ -27,7 +27,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "socket/SocketWriter.h"
-#include "socket/tls/Socket.h"
+#include "socket/tls/Socket.h" // IWYU pragma: keep
 
 // IWYU pragma: no_forward_declare tls::Socket
 

@@ -27,7 +27,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "socket/SocketWriter.h"
-#include "socket/legacy/Socket.h"
+#include "socket/legacy/Socket.h" // IWYU pragma: keep
 
 namespace net::socket::legacy {
 
