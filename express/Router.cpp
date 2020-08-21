@@ -163,16 +163,6 @@ namespace express {
         return next;
     }
 
-    const MountPoint Router::mountPoint("use", "/");
-
-    Router::Router()
-        : routerDispatcher(new RouterDispatcher()) {
-    }
-
-    void Router::dispatch(Request& req, Response& res) const {
-        [[maybe_unused]] bool next = routerDispatcher->dispatch(Router::mountPoint, "/", req, res);
-    }
-
 #define REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                                 \
     Router& Router::METHOD(const std::string& path, const Router& router) {                                                                \
         routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, path, router.routerDispatcher));                                    \
@@ -204,6 +194,16 @@ namespace express {
         routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, "", std::make_shared<ApplicationDispatcher>(dispatcher)));          \
         return *this;                                                                                                                      \
     };
+
+    const MountPoint Router::mountPoint("use", "/");
+
+    Router::Router()
+        : routerDispatcher(new RouterDispatcher()) {
+    }
+
+    void Router::dispatch(Request& req, Response& res) const {
+        [[maybe_unused]] bool next = routerDispatcher->dispatch(Router::mountPoint, "/", req, res);
+    }
 
     REQUESTMETHOD(use, "use");
     REQUESTMETHOD(all, "all");
