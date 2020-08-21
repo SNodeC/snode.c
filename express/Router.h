@@ -22,7 +22,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
-#include <iostream>
 #include <memory>
 #include <string>
 
@@ -31,8 +30,10 @@
 #include "Request.h"
 #include "Response.h"
 
-using Request = http::Request;
-using Response = http::Response;
+namespace express {
+
+    using Request = http::Request;
+    using Response = http::Response;
 
 #define MIDDLEWARE(req, res, next)                                                                                                         \
     [&]([[maybe_unused]] Request & (req), [[maybe_unused]] Response & (res),                                                               \
@@ -49,51 +50,53 @@ using Response = http::Response;
                    const std::function<void(Request & req, Response & res, const std::function<void(void)>& next)>& dispatcher);           \
     Router& METHOD(const std::function<void(Request & req, Response & res, const std::function<void(void)>& next)>& dispatcher);
 
-class MountPoint {
-private:
-    MountPoint(const std::string& method, const std::string& path)
-        : method(method)
-        , path(path) {
-    }
+    class MountPoint {
+    private:
+        MountPoint(const std::string& method, const std::string& path)
+            : method(method)
+            , path(path) {
+        }
 
-    std::string method;
-    std::string path;
+        std::string method;
+        std::string path;
 
-    friend class Route;
-    friend class Router;
-    friend class ApplicationDispatcher;
-    friend class MiddlewareDispatcher;
-    friend class RouterDispatcher;
-};
+        friend class Route;
+        friend class Router;
+        friend class ApplicationDispatcher;
+        friend class MiddlewareDispatcher;
+        friend class RouterDispatcher;
+    };
 
-class RouterDispatcher;
+    class RouterDispatcher;
 
-class Router {
-public:
-    Router();
+    class Router {
+    public:
+        Router();
 
-    DREQUESTMETHOD(use);
-    DREQUESTMETHOD(all);
-    DREQUESTMETHOD(get);
-    DREQUESTMETHOD(put);
-    DREQUESTMETHOD(post);
-    DREQUESTMETHOD(del);
-    DREQUESTMETHOD(connect);
-    DREQUESTMETHOD(options);
-    DREQUESTMETHOD(trace);
-    DREQUESTMETHOD(patch);
-    DREQUESTMETHOD(head);
+        DREQUESTMETHOD(use);
+        DREQUESTMETHOD(all);
+        DREQUESTMETHOD(get);
+        DREQUESTMETHOD(put);
+        DREQUESTMETHOD(post);
+        DREQUESTMETHOD(del);
+        DREQUESTMETHOD(connect);
+        DREQUESTMETHOD(options);
+        DREQUESTMETHOD(trace);
+        DREQUESTMETHOD(patch);
+        DREQUESTMETHOD(head);
 
-protected:
-    void dispatch(Request& req, Response& res) const;
+    protected:
+        void dispatch(Request& req, Response& res) const;
 
-    const std::shared_ptr<RouterDispatcher>& getRoute() const {
-        return routerDispatcher;
-    }
+        const std::shared_ptr<RouterDispatcher>& getRoute() const {
+            return routerDispatcher;
+        }
 
-private:
-    static const MountPoint mountPoint;
-    std::shared_ptr<RouterDispatcher> routerDispatcher; // it can be shared by multiple routers
-};
+    private:
+        static const MountPoint mountPoint;
+        std::shared_ptr<RouterDispatcher> routerDispatcher; // it can be shared by multiple routers
+    };
+
+} // namespace express
 
 #endif // ROUTER_H

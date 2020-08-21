@@ -28,7 +28,7 @@
 #include "EventDispatcher.h"
 #include "OutOfBandEventReceiver.h"
 
-// IWYU pragma: no_forward_declare OutOfBandEventReceiver
+// IWYU pragma: no_forward_declare net::OutOfBandEventReceiver
 
 namespace net {
 

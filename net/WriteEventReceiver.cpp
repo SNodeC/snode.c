@@ -19,6 +19,7 @@
 #include "WriteEventReceiver.h"
 
 #include "EventLoop.h"
+#include "WriteEventDispatcher.h"
 
 namespace net {
 

@@ -38,11 +38,11 @@ namespace http {
 
         class HTTPServer {
         public:
-            explicit HTTPServer(const std::string& cert, const std::string& key, const std::string& password,
-                                const std::function<void(net::socket::tls::SocketConnection*)>& onConnect,
+            explicit HTTPServer(const std::function<void(net::socket::tls::SocketConnection*)>& onConnect,
                                 const std::function<void(Request& req, Response& res)>& onRequestReady,
-                                const std::function<void(Request& req, Response& res)>& onResponseFinished,
-                                const std::function<void(net::socket::tls::SocketConnection*)>& onDisconnect);
+                                const std::function<void(Request& req, Response& res)>& onResponseCompleted,
+                                const std::function<void(net::socket::tls::SocketConnection*)>& onDisconnect, const std::string& cert,
+                                const std::string& key, const std::string& password);
 
             HTTPServer& operator=(const HTTPServer& webApp) = delete;
 
@@ -51,7 +51,7 @@ namespace http {
         protected:
             std::function<void(net::socket::tls::SocketConnection*)> onConnect;
             std::function<void(Request& req, Response& res)> onRequestReady;
-            std::function<void(Request& req, Response& res)> onResponseFinished;
+            std::function<void(Request& req, Response& res)> onResponseCompleted;
             std::function<void(net::socket::tls::SocketConnection*)> onDisconnect;
 
         private:

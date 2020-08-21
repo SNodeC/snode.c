@@ -36,7 +36,7 @@ namespace net::socket {
 
     template <typename Socket>
     class SocketReader
-        : public net::ReadEventReceiver
+        : public ReadEventReceiver
         , virtual public Socket {
     public:
         SocketReader() = delete;

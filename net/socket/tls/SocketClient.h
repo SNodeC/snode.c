@@ -31,20 +31,20 @@
 
 namespace net::socket::tls {
 
-    class SocketClient : public net::socket::SocketClient<net::socket::tls::SocketConnection> {
+    class SocketClient : public net::socket::SocketClient<SocketConnection> {
     public:
-        SocketClient(const std::function<void(net::socket::tls::SocketConnection* cs)>& onConnect,
-                     const std::function<void(net::socket::tls::SocketConnection* cs)>& onDisconnect,
-                     const std::function<void(net::socket::tls::SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
-                     const std::function<void(net::socket::tls::SocketConnection* cs, int errnum)>& onReadError,
-                     const std::function<void(net::socket::tls::SocketConnection* cs, int errnum)>& onWriteError);
+        SocketClient(const std::function<void(SocketConnection* socketConnection)>& onConnect,
+                     const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
+                     const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t n)>& onRead,
+                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
+                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError);
 
-        SocketClient(const std::function<void(net::socket::tls::SocketConnection* cs)>& onConnect,
-                     const std::function<void(net::socket::tls::SocketConnection* cs)>& onDisconnect,
-                     const std::function<void(net::socket::tls::SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
-                     const std::function<void(net::socket::tls::SocketConnection* cs, int errnum)>& onReadError,
-                     const std::function<void(net::socket::tls::SocketConnection* cs, int errnum)>& onWriteError,
-                     const std::string& certChain, const std::string& keyPEM, const std::string& password);
+        SocketClient(const std::function<void(SocketConnection* socketConnection)>& onConnect,
+                     const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
+                     const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t n)>& onRead,
+                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
+                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError, const std::string& certChain,
+                     const std::string& keyPEM, const std::string& password);
 
         ~SocketClient() override;
 
@@ -57,11 +57,11 @@ namespace net::socket::tls {
         unsigned long sslErr = 0;
         static int passwordCallback(char* buf, int size, int rwflag, void* u);
 
-        std::function<void(tls::SocketConnection* cs)> onConnect;
-        std::function<void(tls::SocketConnection* cs)> onDisconnect;
-        std::function<void(tls::SocketConnection* cs, const char* junk, ssize_t n)> onRead;
-        std::function<void(tls::SocketConnection* cs, int errnum)> onReadError;
-        std::function<void(tls::SocketConnection* cs, int errnum)> onWriteError;
+        std::function<void(SocketConnection* socketConnection)> onConnect;
+        std::function<void(SocketConnection* socketConnection)> onDisconnect;
+        std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t n)> onRead;
+        std::function<void(SocketConnection* socketConnection, int errnum)> onReadError;
+        std::function<void(SocketConnection* socketConnection, int errnum)> onWriteError;
 
         std::function<void(int err)> onError;
     };

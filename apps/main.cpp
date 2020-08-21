@@ -27,15 +27,18 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+using namespace express;
+using namespace net::timer;
+
 int timerApp() {
-    [[maybe_unused]] const net::timer::Timer& tick = net::timer::Timer::continousTimer(
+    [[maybe_unused]] const Timer& tick = Timer::continousTimer(
         []([[maybe_unused]] const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
             static int i = 0;
             std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
         },
         (struct timeval){0, 500000}, "Tick");
 
-    net::timer::Timer& tack = net::timer::Timer::continousTimer(
+    Timer& tack = Timer::continousTimer(
         []([[maybe_unused]] const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
             static int i = 0;
             std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
@@ -65,7 +68,7 @@ int timerApp() {
             res.cookie("Test", "me", {{"Max-Age", "3600"}});
 
             //            res.set("Connection", "close");
-            res.sendFile("/home/voc/projects/ServerVoc/build/html" + uri, [uri](int ret) -> void {
+            res.sendFile("/home/voc/projects/ServerVoc/doc/html" + uri, [uri](int ret) -> void {
                 if (ret != 0) {
                     perror(uri.c_str());
                     //                    std::cout << "Error: " << ret << ", " << uri << std::endl;
@@ -104,7 +107,7 @@ int timerApp() {
                 std::cout << "Body: " << req.body << std::endl;
             }
 
-            res.sendFile("/home/voc/projects/ServerVoc/build/html" + uri, [uri](int ret) -> void {
+            res.sendFile("/home/voc/projects/ServerVoc/doc/html" + uri, [uri](int ret) -> void {
                 if (ret != 0) {
                     std::cerr << uri << ": " << strerror(ret) << std::endl;
                 }
@@ -158,7 +161,7 @@ int simpleWebserver() {
                 std::cout << "Body: " << req.body << std::endl;
             }
 
-            res.sendFile("/home/voc/projects/ServerVoc/build/html" + uri, [uri](int ret) -> void {
+            res.sendFile("/home/voc/projects/ServerVoc/doc/html" + uri, [uri](int ret) -> void {
                 if (ret != 0) {
                     std::cerr << uri << ": " << strerror(ret) << std::endl;
                 }
@@ -199,7 +202,7 @@ int simpleWebserver() {
                 std::cout << "Body: " << req.body << std::endl;
             }
 
-            res.sendFile("/home/voc/projects/ServerVoc/build/html" + uri, [uri](int ret) -> void {
+            res.sendFile("/home/voc/projects/ServerVoc/doc/html" + uri, [uri](int ret) -> void {
                 if (ret != 0) {
                     std::cerr << uri << ": " << strerror(ret) << std::endl;
                 }
@@ -232,7 +235,7 @@ int simpleWebserver() {
                         std::cout << "Body: " << req.body << std::endl;
                     }
 
-                    res.sendFile("/home/voc/projects/ServerVoc/build/html" + uri, [uri] (int ret) -> void {
+                    res.sendFile("/home/voc/projects/ServerVoc/doc/html" + uri, [uri] (int ret) -> void {
                         if (ret != 0) {
                             std::cerr << uri << ": " << strerror(ret) << std::endl;
                         }

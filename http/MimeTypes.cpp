@@ -18,9 +18,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <easylogging++.h>
 #include <filesystem>
-#include <iostream>
-#include <utility> // for pair
+#include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -219,7 +219,7 @@ MimeTypes::MimeTypes() {
     MimeTypes::magic = magic_open(MAGIC_MIME);
 
     if (magic_load(magic, nullptr) != 0) {
-        std::cerr << "cannot load magic database - " << magic_error(magic) << std::endl;
+        LOG(INFO) << "cannot load magic database - " + std::string(magic_error(magic));
         magic_close(magic);
         magic = nullptr;
     }

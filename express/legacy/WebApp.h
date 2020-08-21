@@ -26,13 +26,13 @@
 #include "../WebApp.h"
 #include "legacy/HTTPServer.h"
 
-namespace legacy {
+namespace express::legacy {
 
-    class WebApp : public ::WebApp {
+    class WebApp : public express::WebApp {
     public:
         explicit WebApp();
 
-        WebApp& operator=(const ::WebApp& webApp) = delete;
+        WebApp& operator=(const express::WebApp& webApp) = delete;
 
         void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr) override;
 
@@ -40,10 +40,10 @@ namespace legacy {
         http::legacy::HTTPServer httpServer;
 
     private:
-        using ::WebApp::start;
-        using ::WebApp::stop;
+        using express::WebApp::start;
+        using express::WebApp::stop;
     };
 
-} // namespace legacy
+} // namespace express::legacy
 
 #endif // LEGACY_WEBAPP_H

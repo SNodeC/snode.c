@@ -34,11 +34,11 @@ namespace http {
 
         HTTPServer::HTTPServer(const std::function<void(net::socket::legacy::SocketConnection*)>& onConnect,
                                const std::function<void(Request& req, Response& res)>& onRequestReady,
-                               const std::function<void(Request& req, Response& res)>& onResponseFinished,
+                               const std::function<void(Request& req, Response& res)>& onResponseCompleted,
                                const std::function<void(net::socket::legacy::SocketConnection*)>& onDisconnect)
             : onConnect(onConnect)
             , onRequestReady(onRequestReady)
-            , onResponseFinished(onResponseFinished)
+            , onResponseCompleted(onResponseCompleted)
             , onDisconnect(onDisconnect) {
         }
 
@@ -46,35 +46,35 @@ namespace http {
             errno = 0;
 
             (new net::socket::legacy::SocketServer(
-                 [this](net::socket::legacy::SocketConnection* connectedSocket) -> void { // onConnect
-                     onConnect(connectedSocket);
-                     connectedSocket->setProtocol<HTTPServerContext*>(new HTTPServerContext(
-                         connectedSocket,
+                 [this](net::socket::legacy::SocketConnection* socketConnection) -> void { // onConnect
+                     onConnect(socketConnection);
+                     socketConnection->setProtocol<HTTPServerContext*>(new HTTPServerContext(
+                         socketConnection,
                          [this](Request& req, Response& res) -> void {
                              onRequestReady(req, res);
                          },
                          [this]([[maybe_unused]] Request& req, [[maybe_unused]] Response& res) -> void {
-                             onResponseFinished(req, res);
+                             onResponseCompleted(req, res);
                          }));
                  },
-                 [this](net::socket::legacy::SocketConnection* connectedSocket) -> void { // onDisconnect
-                     onDisconnect(connectedSocket);
-                     connectedSocket->getProtocol<HTTPServerContext*>([](HTTPServerContext*& protocol) -> void {
+                 [this](net::socket::legacy::SocketConnection* socketConnection) -> void { // onDisconnect
+                     onDisconnect(socketConnection);
+                     socketConnection->getProtocol<HTTPServerContext*>([](HTTPServerContext*& protocol) -> void {
                          delete protocol;
                      });
                  },
-                 [](net::socket::legacy::SocketConnection* connectedSocket, const char* junk, ssize_t junkSize) -> void { // onRead
-                     connectedSocket->getProtocol<HTTPServerContext*>([&junk, &junkSize](HTTPServerContext*& protocol) -> void {
+                 [](net::socket::legacy::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
+                     socketConnection->getProtocol<HTTPServerContext*>([&junk, &junkSize](HTTPServerContext*& protocol) -> void {
                          protocol->receiveRequestData(junk, junkSize);
                      });
                  },
-                 [](net::socket::legacy::SocketConnection* connectedSocket, int errnum) -> void { // onReadError
-                     connectedSocket->getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
+                 [](net::socket::legacy::SocketConnection* socketConnection, int errnum) -> void { // onReadError
+                     socketConnection->getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
                          protocol->onReadError(errnum);
                      });
                  },
-                 [](net::socket::legacy::SocketConnection* connectedSocket, int errnum) -> void { // onWriteError
-                     connectedSocket->getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
+                 [](net::socket::legacy::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
+                     socketConnection->getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
                          protocol->onWriteError(errnum);
                      });
                  }))

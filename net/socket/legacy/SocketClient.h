@@ -28,9 +28,9 @@
 
 namespace net::socket::legacy {
 
-    class SocketClient : public net::socket::SocketClient<legacy::SocketConnection> {
+    class SocketClient : public net::socket::SocketClient<SocketConnection> {
     public:
-        using net::socket::SocketClient<legacy::SocketConnection>::SocketClient;
+        using net::socket::SocketClient<SocketConnection>::SocketClient;
     };
 
 } // namespace net::socket::legacy

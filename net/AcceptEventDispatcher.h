@@ -28,7 +28,8 @@
 #include "AcceptEventReceiver.h"
 #include "EventDispatcher.h"
 
-// IWYU pragma: no_forward_declare AcceptEventReceiver
+// IWYU pragma: no_forward_declare net::AcceptEventReceiver
+
 namespace net {
 
     class AcceptEventDispatcher : public EventDispatcher<AcceptEventReceiver> {

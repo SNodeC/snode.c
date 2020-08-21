@@ -24,7 +24,7 @@
 
 #include "socket/legacy/SocketServer.h"
 
-namespace legacy {
+namespace express::legacy {
 
     WebApp::WebApp()
         : httpServer(
@@ -43,4 +43,4 @@ namespace legacy {
         httpServer.listen(port, onError);
     }
 
-} // namespace legacy
+} // namespace express::legacy
