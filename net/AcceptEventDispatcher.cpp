@@ -31,7 +31,7 @@ namespace net {
 
     int AcceptEventDispatcher::dispatch(const fd_set& fdSet, int conter) {
         if (conter > 0) {
-            for (auto [fd, eventReceivers] : observedEvents) {
+            for (const auto& [fd, eventReceivers] : observedEvents) {
                 if (conter == 0) {
                     break;
                 }

@@ -24,6 +24,7 @@
 #include <cstddef> // for size_t
 #include <functional>
 #include <map>
+#include <regex>
 #include <set>
 #include <string> // for string, basic_string, operator<
 
@@ -66,6 +67,7 @@ namespace http {
 
         // Supported http-methods
         std::set<std::string> supportedMethods{"GET", "PUT", "POST", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH", "HEAD"};
+        static std::regex httpVersionRegex;
 
         // Data specific to HTTP request messages
         std::string method;

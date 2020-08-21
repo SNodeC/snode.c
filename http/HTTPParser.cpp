@@ -162,7 +162,7 @@ namespace http {
         }
 
         if (contentRead + count <= contentLength) {
-            memcpy(content + contentRead, buf, count);
+            memcpy(content + contentRead, buf, count); // NOLINT(clang-analyzer-core.NonNullParamChecker)
 
             contentRead += count;
             if (contentRead == contentLength) {
