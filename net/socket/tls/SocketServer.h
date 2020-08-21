@@ -30,11 +30,11 @@ namespace net::socket::tls {
 
     class SocketServer : public net::socket::SocketServer<tls::SocketConnection> {
     public:
-        SocketServer(const std::function<void(SocketConnection* cs)>& onConnect,
-                     const std::function<void(SocketConnection* cs)>& onDisconnect,
-                     const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
-                     const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
-                     const std::function<void(SocketConnection* cs, int errnum)>& onWriteError, const std::string& certChain,
+        SocketServer(const std::function<void(SocketConnection* socketConnection)>& onConnect,
+                     const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
+                     const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t n)>& onRead,
+                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
+                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError, const std::string& certChain,
                      const std::string& keyPEM, const std::string& password);
 
     protected:

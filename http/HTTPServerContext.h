@@ -35,7 +35,7 @@ namespace http {
 
     class HTTPServerContext {
     public:
-        HTTPServerContext(net::socket::SocketConnectionBase* connectedSocket,
+        HTTPServerContext(net::socket::SocketConnectionBase* socketConnection,
                           const std::function<void(Request& req, Response& res)>& onRequestReady,
                           const std::function<void(Request& req, Response& res)>& onResponseFinished);
 
@@ -51,7 +51,7 @@ namespace http {
         void terminateConnection();
 
     private:
-        net::socket::SocketConnectionBase* connectedSocket;
+        net::socket::SocketConnectionBase* socketConnection;
 
         bool requestInProgress = false;
 

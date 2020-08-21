@@ -54,11 +54,11 @@ namespace net::socket {
             }
         }
 
-        SocketServer(const std::function<void(SocketConnection* cs)>& onConnect,
-                     const std::function<void(SocketConnection* cs)>& onDisconnect,
-                     const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
-                     const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
-                     const std::function<void(SocketConnection* cs, int errnum)>& onWriteError)
+        SocketServer(const std::function<void(SocketConnection* socketConnection)>& onConnect,
+                     const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
+                     const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t n)>& onRead,
+                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
+                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError)
             : AcceptEventReceiver()
             , Socket()
             , onConnect(onConnect)
@@ -123,14 +123,14 @@ namespace net::socket {
                 socklen_t addressLength = sizeof(localAddress);
 
                 if (getsockname(csFd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
-                    SocketConnection* cs = SocketConnection::create(csFd, onRead, onReadError, onWriteError, onDisconnect);
+                    SocketConnection* socketConnection = SocketConnection::create(csFd, onRead, onReadError, onWriteError, onDisconnect);
 
-                    cs->setRemoteAddress(InetAddress(remoteAddress));
-                    cs->setLocalAddress(InetAddress(localAddress));
+                    socketConnection->setRemoteAddress(InetAddress(remoteAddress));
+                    socketConnection->setLocalAddress(InetAddress(localAddress));
 
-                    cs->net::ReadEventReceiver::enable();
+                    socketConnection->net::ReadEventReceiver::enable();
 
-                    onConnect(cs);
+                    onConnect(socketConnection);
                 } else {
                     PLOG(ERROR) << "getsockname";
                     shutdown(csFd, SHUT_RDWR);
@@ -173,11 +173,11 @@ namespace net::socket {
             }
         }
 
-        std::function<void(SocketConnection* cs)> onConnect;
-        std::function<void(SocketConnection* cs)> onDisconnect;
-        std::function<void(SocketConnection* cs, const char* junk, ssize_t n)> onRead;
-        std::function<void(SocketConnection* cs, int errnum)> onReadError;
-        std::function<void(SocketConnection* cs, int errnum)> onWriteError;
+        std::function<void(SocketConnection* socketConnection)> onConnect;
+        std::function<void(SocketConnection* socketConnection)> onDisconnect;
+        std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t n)> onRead;
+        std::function<void(SocketConnection* socketConnection, int errnum)> onReadError;
+        std::function<void(SocketConnection* socketConnection, int errnum)> onWriteError;
 
         bool isDynamic;
 

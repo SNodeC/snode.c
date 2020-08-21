@@ -41,25 +41,26 @@ namespace net::socket {
         SocketConnection() = delete;
 
         void* operator new(size_t size) {
-            SocketConnection* sc = reinterpret_cast<SocketConnection*>(malloc(size));
-            sc->isDynamic = true;
+            SocketConnection* socketConnection = reinterpret_cast<SocketConnection*>(malloc(size));
+            socketConnection->isDynamic = true;
 
-            return sc;
+            return socketConnection;
         }
 
-        void operator delete(void* sc_v) {
-            SocketConnection* sc = reinterpret_cast<SocketConnection*>(sc_v);
-            if (sc->isDynamic) {
-                free(sc_v);
+        void operator delete(void* socketConnection_v) {
+            SocketConnection* socketConnection = reinterpret_cast<SocketConnection*>(socketConnection_v);
+            if (socketConnection->isDynamic) {
+                free(socketConnection_v);
             }
         }
 
     protected:
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
-        SocketConnection(int csFd, const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
-                         const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
-                         const std::function<void(SocketConnection* cs, int errnum)>& onWriteError,
-                         const std::function<void(SocketConnection* cs)>& onDisconnect)
+        SocketConnection(int socketConnectionFd,
+                         const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t n)>& onRead,
+                         const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
+                         const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
+                         const std::function<void(SocketConnection* socketConnection)>& onDisconnect)
             : SocketReader(
                   [&](const char* junk, ssize_t n) -> void {
                       onRead(this, junk, n);
@@ -71,21 +72,22 @@ namespace net::socket {
                 onWriteError(this, errnum);
             })
             , onDisconnect(onDisconnect) {
-            this->attachFd(csFd);
+            this->attachFd(socketConnectionFd);
         }
 
     public:
-        static SocketConnection* create(int csFd, const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
-                                        const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
-                                        const std::function<void(SocketConnection* cs, int errnum)>& onWriteError,
-                                        const std::function<void(SocketConnection* cs)>& onDisconnect) {
-            return new SocketConnection(csFd, onRead, onReadError, onWriteError, onDisconnect);
+        static SocketConnection* create(int socketConnectionFd,
+                                        const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t n)>& onRead,
+                                        const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
+                                        const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
+                                        const std::function<void(SocketConnection* socketConnection)>& onDisconnect) {
+            return new SocketConnection(socketConnectionFd, onRead, onReadError, onWriteError, onDisconnect);
         } // NOLINT(cppcoreguidelines-pro-type-member-init)
 
-        static SocketConnection* create(const std::function<void(SocketConnection* cs, const char* junk, ssize_t n)>& onRead,
-                                        const std::function<void(SocketConnection* cs, int errnum)>& onReadError,
-                                        const std::function<void(SocketConnection* cs, int errnum)>& onWriteError,
-                                        const std::function<void(SocketConnection* cs)>& onDisconnect) {
+        static SocketConnection* create(const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t n)>& onRead,
+                                        const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
+                                        const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
+                                        const std::function<void(SocketConnection* socketConnection)>& onDisconnect) {
             return SocketConnection::create(0, onRead, onReadError, onWriteError, onDisconnect);
         } // NOLINT(cppcoreguidelines-pro-type-member-init)
 
@@ -124,7 +126,7 @@ namespace net::socket {
 
     private:
         InetAddress remoteAddress{};
-        std::function<void(SocketConnection* cs)> onDisconnect;
+        std::function<void(SocketConnection* socketConnection)> onDisconnect;
         bool isDynamic;
 
     public:
