@@ -19,7 +19,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <easylogging++.h>
-#include <regex>
 #include <tuple> // for tie, tuple
 #include <utility>
 #include <vector> // for vector
@@ -67,7 +66,7 @@ namespace http {
     }
 
     // HTTP/x.x
-    static std::regex httpVersionRegex("^HTTP/([[:digit:]])\\.([[:digit:]])$");
+    std::regex HTTPRequestParser::httpVersionRegex("^HTTP/([[:digit:]])\\.([[:digit:]])$");
 
     enum HTTPParser::PAS HTTPRequestParser::parseStartLine(std::string& line) {
         enum HTTPParser::PAS PAS = HTTPParser::PAS::HEADER;
