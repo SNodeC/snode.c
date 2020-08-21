@@ -50,6 +50,8 @@ namespace http {
             contentSent += len;
             if (contentSent == contentLength) {
                 httpContext->responseCompleted();
+            } else if (contentSent > contentLength) {
+                httpContext->terminateConnection();
             }
         }
     }
