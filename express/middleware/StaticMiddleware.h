@@ -24,7 +24,9 @@
 
 #include "Router.h"
 
-class StaticMiddleware : public express::Router {
+using namespace express;
+
+class StaticMiddleware : public Router {
 protected:
     StaticMiddleware(const std::string& root);
     static const class StaticMiddleware& instance(const std::string& root);

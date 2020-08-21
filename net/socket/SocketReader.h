@@ -36,7 +36,7 @@ namespace net::socket {
 
     template <typename Socket>
     class SocketReader
-        : public net::ReadEventReceiver
+        : public ReadEventReceiver
         , virtual public Socket {
     public:
         SocketReader() = delete;
@@ -48,8 +48,8 @@ namespace net::socket {
         }
 
         ~SocketReader() override {
-            if (net::ReadEventReceiver::isEnabled()) {
-                net::ReadEventReceiver::disable();
+            if (ReadEventReceiver::isEnabled()) {
+                ReadEventReceiver::disable();
             }
         }
 
@@ -64,7 +64,7 @@ namespace net::socket {
             if (ret > 0) {
                 onRead(junk, ret);
             } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
-                net::ReadEventReceiver::disable();
+                ReadEventReceiver::disable();
                 this->onError(ret == 0 ? 0 : errno);
             }
         }

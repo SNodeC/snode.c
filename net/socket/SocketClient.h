@@ -77,7 +77,7 @@ namespace net::socket {
                                 errno = 0;
 
                                 class Connector
-                                    : public net::WriteEventReceiver
+                                    : public WriteEventReceiver
                                     , public Socket {
                                 public:
                                     Connector(SocketConnection* cs, const InetAddress& server,
@@ -91,7 +91,7 @@ namespace net::socket {
                                         , timeOut(net::timer::Timer::singleshotTimer(
                                               [this]([[maybe_unused]] const void* arg) -> void {
                                                   this->onError(ETIMEDOUT);
-                                                  this->net::WriteEventReceiver::disable();
+                                                  this->WriteEventReceiver::disable();
                                                   delete this->cs;
                                               },
                                               (struct timeval){CONNECT_TIMEOUT, 0}, nullptr)) {
@@ -110,14 +110,14 @@ namespace net::socket {
                                             cs->setLocalAddress(InetAddress(localAddress));
                                             cs->setRemoteAddress(server);
 
-                                            cs->net::ReadEventReceiver::enable();
+                                            cs->ReadEventReceiver::enable();
 
                                             onError(0);
                                             onConnect(cs);
                                             delete this;
                                         } else {
                                             if (errno == EINPROGRESS) {
-                                                this->net::WriteEventReceiver::enable();
+                                                this->WriteEventReceiver::enable();
                                             } else {
                                                 timeOut.cancel();
                                                 onError(errno);
@@ -134,7 +134,7 @@ namespace net::socket {
                                         int err = getsockopt(cs->getFd(), SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);
 
                                         timeOut.cancel();
-                                        this->net::WriteEventReceiver::disable();
+                                        this->WriteEventReceiver::disable();
 
                                         if (err < 0) {
                                             onError(err);
@@ -149,7 +149,7 @@ namespace net::socket {
                                             cs->setLocalAddress(InetAddress(localAddress));
                                             cs->setRemoteAddress(server);
 
-                                            cs->net::ReadEventReceiver::enable();
+                                            cs->ReadEventReceiver::enable();
 
                                             onError(0);
                                             onConnect(cs);

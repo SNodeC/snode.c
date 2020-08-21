@@ -37,7 +37,7 @@ namespace net::socket {
 
     template <typename SocketConnection>
     class SocketServer
-        : public net::AcceptEventReceiver
+        : public AcceptEventReceiver
         , public Socket {
     public:
         void* operator new(size_t size) {
@@ -88,7 +88,7 @@ namespace net::socket {
                                 } else {
                                     this->listen(backlog, [this, &onError](int errnum) -> void {
                                         if (errnum == 0) {
-                                            net::AcceptEventReceiver::enable();
+                                            AcceptEventReceiver::enable();
                                         }
                                         onError(errnum);
                                     });
@@ -142,7 +142,7 @@ namespace net::socket {
         }
 
         void end() {
-            net::AcceptEventReceiver::disable();
+            AcceptEventReceiver::disable();
         }
 
     protected:

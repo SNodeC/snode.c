@@ -27,6 +27,8 @@
 #include "Response.h"
 #include "StaticMiddleware.h"
 
+using namespace express;
+
 StaticMiddleware::StaticMiddleware(const std::string& root)
     : root(root) {
     this->use(MIDDLEWARE(req, res, next) {

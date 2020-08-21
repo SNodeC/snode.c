@@ -36,10 +36,10 @@ namespace express {
     using Response = http::Response;
 
 #define MIDDLEWARE(req, res, next)                                                                                                         \
-    [&]([[maybe_unused]] express::Request & (req), [[maybe_unused]] express::Response & (res),                                             \
+    [&]([[maybe_unused]] Request & (req), [[maybe_unused]] Response & (res),                                                               \
         [[maybe_unused]] const std::function<void(void)>&(next)) -> void
 
-#define APPLICATION(req, res) [&]([[maybe_unused]] express::Request & (req), [[maybe_unused]] express::Response & (res)) -> void
+#define APPLICATION(req, res) [&]([[maybe_unused]] Request & (req), [[maybe_unused]] Response & (res)) -> void
 
 #define DREQUESTMETHOD(METHOD)                                                                                                             \
     Router& METHOD(const std::string& path, const std::function<void(Request & req, Response & res)>& dispatcher);                         \
