@@ -42,7 +42,7 @@ namespace http {
                                 const std::function<void(Request& req, Response& res)>& onRequestReady,
                                 const std::function<void(Request& req, Response& res)>& onResponseCompleted,
                                 const std::function<void(net::socket::tls::SocketConnection*)>& onDisconnect, const std::string& cert,
-                                const std::string& key, const std::string& password);
+                                const std::string& key, const std::string& password, const std::string& caFile = "");
 
             HTTPServer& operator=(const HTTPServer& webApp) = delete;
 
@@ -58,6 +58,7 @@ namespace http {
             std::string cert;
             std::string key;
             std::string password;
+            std::string caFile;
         };
 
     } // namespace tls

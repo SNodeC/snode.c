@@ -39,21 +39,21 @@ tls::SocketClient tlsClient() {
             std::cout << "OnConnect" << std::endl;
             connectedSocket->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); // Connection:keep-alive\r\n\r\n");
 
-            X509* client_cert = SSL_get_peer_certificate(connectedSocket->getSSL());
-            if (client_cert != NULL) {
+            X509* server_cert = SSL_get_peer_certificate(connectedSocket->getSSL());
+            if (server_cert != NULL) {
                 std::cout << "Server certificate" << std::endl;
 
-                char* str = X509_NAME_oneline(X509_get_subject_name(client_cert), 0, 0);
+                char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), 0, 0);
                 std::cout << "\t subject: " << str << std::endl;
                 OPENSSL_free(str);
 
-                str = X509_NAME_oneline(X509_get_issuer_name(client_cert), 0, 0);
+                str = X509_NAME_oneline(X509_get_issuer_name(server_cert), 0, 0);
                 std::cout << "\t issuer: " << str << std::endl;
                 OPENSSL_free(str);
 
                 // We could do all sorts of certificate verification stuff here before deallocating the certificate.
 
-                X509_free(client_cert);
+                X509_free(server_cert);
             } else {
                 printf("Client does not have certificate.\n");
             }

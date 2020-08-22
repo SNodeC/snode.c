@@ -28,14 +28,20 @@ namespace express::legacy {
 
     WebApp::WebApp()
         : httpServer(
-              []([[maybe_unused]] net::socket::legacy::SocketConnection* sc) -> void { // onConnect
+              [this]([[maybe_unused]] net::socket::legacy::SocketConnection* socketConnection) -> void { // onConnect
+                  if (_onConnect != nullptr) {
+                      _onConnect(socketConnection);
+                  }
               },
               [this](http::Request& req, http::Response& res) -> void { // onRequestReady
                   this->dispatch(req, res);
               },
               []([[maybe_unused]] http::Request& req, [[maybe_unused]] http::Response& res) -> void { // onResponseFinished
               },
-              []([[maybe_unused]] net::socket::legacy::SocketConnection* sc) -> void { // onDisconnect
+              [this]([[maybe_unused]] net::socket::legacy::SocketConnection* socketConnection) -> void { // onDisconnect
+                  if (_onDisconnect != nullptr) {
+                      _onDisconnect(socketConnection);
+                  }
               }) {
     }
 

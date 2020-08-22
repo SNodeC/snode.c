@@ -29,6 +29,7 @@
 #define CERTF "/home/voc/projects/ServerVoc/certs/calisto.home.vchrist.at_-_snode.c_-_server.pem"
 #define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem"
 #define KEYFPASS "snode.c"
+#define CLIENTCAFILE "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Root_CA.crt"
 
 #define SERVERROOT "/home/voc/projects/ServerVoc/doc/html"
 
@@ -38,10 +39,8 @@ int main(int argc, char** argv) {
     WebApp::init(argc, argv);
 
     legacy::WebApp legacyApp;
-    tls::WebApp tlsApp(CERTF, KEYF, KEYFPASS);
 
     legacyApp.use(StaticMiddleware(SERVERROOT));
-    tlsApp.use(StaticMiddleware(SERVERROOT));
 
     legacyApp.listen(8080, [](int err) -> void {
         if (err != 0) {
@@ -51,12 +50,55 @@ int main(int argc, char** argv) {
         }
     });
 
+    legacyApp.onConnect([](net::socket::legacy::SocketConnection* socketConnection) -> void {
+        VLOG(0) << "Connect: " + socketConnection->getRemoteAddress().host();
+        VLOG(0) << "Connect: " + std::to_string(socketConnection->getRemoteAddress().port());
+    });
+
+    legacyApp.onDisconnect([](net::socket::legacy::SocketConnection* socketConnection) -> void {
+        VLOG(0) << "Disconnect: " + socketConnection->getRemoteAddress().host();
+        VLOG(0) << "Disconnect: " + std::to_string(socketConnection->getRemoteAddress().port());
+    });
+
+    tls::WebApp tlsApp(CERTF, KEYF, KEYFPASS); //, CLIENTCAFILE);
+
+    tlsApp.use(StaticMiddleware(SERVERROOT));
+
     tlsApp.listen(8088, [](int err) -> void {
         if (err != 0) {
             PLOG(FATAL) << "listen on port 8088";
         } else {
             VLOG(0) << "snode.c listening on port 8088 for SSL/TLS connections";
         }
+    });
+
+    tlsApp.onConnect([](net::socket::tls::SocketConnection* socketConnection) -> void {
+        VLOG(0) << "Connect: " + socketConnection->getRemoteAddress().host();
+        VLOG(0) << "Connect: " + std::to_string(socketConnection->getRemoteAddress().port());
+
+        X509* client_cert = SSL_get_peer_certificate(socketConnection->getSSL());
+        if (client_cert != NULL) {
+            std::cout << "Client certificate" << std::endl;
+
+            char* str = X509_NAME_oneline(X509_get_subject_name(client_cert), 0, 0);
+            std::cout << "\t subject: " << str << std::endl;
+            OPENSSL_free(str);
+
+            str = X509_NAME_oneline(X509_get_issuer_name(client_cert), 0, 0);
+            std::cout << "\t issuer: " << str << std::endl;
+            OPENSSL_free(str);
+
+            // We could do all sorts of certificate verification stuff here before deallocating the certificate.
+
+            X509_free(client_cert);
+        } else {
+            printf("Client does not have certificate.\n");
+        }
+    });
+
+    tlsApp.onDisconnect([](net::socket::tls::SocketConnection* socketConnection) -> void {
+        VLOG(0) << "Disconnect: " + socketConnection->getRemoteAddress().host();
+        VLOG(0) << "Disconnect: " + std::to_string(socketConnection->getRemoteAddress().port());
     });
 
     WebApp::start();

@@ -36,7 +36,18 @@ namespace express::legacy {
 
         void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr) override;
 
+        void onConnect(const std::function<void(net::socket::legacy::SocketConnection*)>& onConnect) {
+            _onConnect = onConnect;
+        }
+
+        void onDisconnect(const std::function<void(net::socket::legacy::SocketConnection*)>& onDisconnect) {
+            _onDisconnect = onDisconnect;
+        }
+
     protected:
+        std::function<void(net::socket::legacy::SocketConnection*)> _onConnect = nullptr;
+        std::function<void(net::socket::legacy::SocketConnection*)> _onDisconnect = nullptr;
+
         http::legacy::HTTPServer httpServer;
 
     private:
