@@ -153,6 +153,10 @@ namespace net::socket::tls {
                 if (!SSL_CTX_load_verify_locations(ctx, caFile.c_str(), nullptr)) {
                     sslErr = ERR_peek_error();
                 }
+            } else {
+                if (!SSL_CTX_set_default_verify_paths(ctx)) {
+                    sslErr = ERR_peek_error();
+                }
             }
         } else {
             sslErr = ERR_peek_error();
