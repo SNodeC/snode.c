@@ -31,7 +31,7 @@ using namespace express;
 
 StaticMiddleware::StaticMiddleware(const std::string& root)
     : root(root) {
-    this->use(MIDDLEWARE(req, res, next) {
+    this->use([] MIDDLEWARE(req, res, next) {
         if (req.method == "GET") {
             res.set("Connection", "Keep-Alive");
             next();
@@ -39,14 +39,14 @@ StaticMiddleware::StaticMiddleware(const std::string& root)
             res.set("Connection", "Close").sendStatus(400);
         }
     });
-    this->use(MIDDLEWARE(req, res, next) {
+    this->use([] MIDDLEWARE(req, res, next) {
         if (req.url == "/") {
             res.redirect(308, "/index.html");
         } else {
             next();
         }
     });
-    this->use(APPLICATION(req, res) {
+    this->use([this] APPLICATION(req, res) {
         VLOG(0) << "GET " + req.url + " -> " + this->root + req.url;
         res.sendFile(this->root + req.url, [&req](int ret) -> void {
             if (ret != 0) {

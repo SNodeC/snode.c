@@ -37,7 +37,7 @@ using namespace express;
 int testPost() {
     legacy::WebApp legacyApp;
 
-    legacyApp.get("/", []([[maybe_unused]] Request& req, Response& res) -> void {
+    legacyApp.get("/", [] APPLICATION(req, res) {
         res.send("<html>"
                  "    <head>"
                  "        <style>"
@@ -69,7 +69,7 @@ int testPost() {
                  "</html>");
     });
 
-    legacyApp.post("/", [](Request& req, Response& res) -> void {
+    legacyApp.post("/", [] APPLICATION(req, res) {
         std::cout << "Content-Type: " << req.header("Content-Type") << std::endl;
         std::cout << "Content-Length: " << req.header("Content-Length") << std::endl;
         char* body = new char[std::stoul(req.header("Content-Length")) + 1];
