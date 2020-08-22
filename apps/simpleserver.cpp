@@ -51,13 +51,13 @@ int main(int argc, char** argv) {
     });
 
     legacyApp.onConnect([](net::socket::legacy::SocketConnection* socketConnection) -> void {
-        VLOG(0) << "Connect: " + socketConnection->getRemoteAddress().host();
-        VLOG(0) << "Connect: " + std::to_string(socketConnection->getRemoteAddress().port());
+        VLOG(0) << "Connect: " + socketConnection->getRemoteAddress().host() + ":" +
+                       std::to_string(socketConnection->getRemoteAddress().port());
     });
 
     legacyApp.onDisconnect([](net::socket::legacy::SocketConnection* socketConnection) -> void {
-        VLOG(0) << "Disconnect: " + socketConnection->getRemoteAddress().host();
-        VLOG(0) << "Disconnect: " + std::to_string(socketConnection->getRemoteAddress().port());
+        VLOG(0) << "Disconnect: " + socketConnection->getRemoteAddress().host() + ":" +
+                       std::to_string(socketConnection->getRemoteAddress().port());
     });
 
     tls::WebApp tlsApp(CERTF, KEYF, KEYFPASS); //, CLIENTCAFILE);
@@ -73,8 +73,8 @@ int main(int argc, char** argv) {
     });
 
     tlsApp.onConnect([](net::socket::tls::SocketConnection* socketConnection) -> void {
-        VLOG(0) << "Connect: " + socketConnection->getRemoteAddress().host();
-        VLOG(0) << "Connect: " + std::to_string(socketConnection->getRemoteAddress().port());
+        VLOG(0) << "Connect: " + socketConnection->getRemoteAddress().host() + ":" +
+                       std::to_string(socketConnection->getRemoteAddress().port());
 
         X509* client_cert = SSL_get_peer_certificate(socketConnection->getSSL());
         if (client_cert != NULL) {
@@ -92,13 +92,13 @@ int main(int argc, char** argv) {
 
             X509_free(client_cert);
         } else {
-            printf("Client does not have certificate.\n");
+            VLOG(0) << "Client \"" + socketConnection->getRemoteAddress().host() + "\" does not have certificate.";
         }
     });
 
     tlsApp.onDisconnect([](net::socket::tls::SocketConnection* socketConnection) -> void {
-        VLOG(0) << "Disconnect: " + socketConnection->getRemoteAddress().host();
-        VLOG(0) << "Disconnect: " + std::to_string(socketConnection->getRemoteAddress().port());
+        VLOG(0) << "Disconnect: " + socketConnection->getRemoteAddress().host() + ":" +
+                       std::to_string(socketConnection->getRemoteAddress().port());
     });
 
     WebApp::start();
