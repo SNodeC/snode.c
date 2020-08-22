@@ -30,7 +30,8 @@ namespace express::tls {
 
     class WebApp : public express::WebApp {
     public:
-        explicit WebApp(const std::string& cert, const std::string& key, const std::string& password, const std::string& caFile = "");
+        explicit WebApp(const std::string& cert, const std::string& key, const std::string& password, const std::string& caFile = "",
+                        const std::string& caDir = "");
 
         WebApp& operator=(const express::WebApp& webApp) = delete;
 

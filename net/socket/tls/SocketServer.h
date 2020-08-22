@@ -35,7 +35,7 @@ namespace net::socket::tls {
                      const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t n)>& onRead,
                      const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                      const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError, const std::string& certChain,
-                     const std::string& keyPEM, const std::string& password, const std::string& caFile = "");
+                     const std::string& keyPEM, const std::string& password, const std::string& caFile = "", const std::string& caDir = "");
 
     protected:
         using net::socket::SocketServer<SocketConnection>::SocketServer;
