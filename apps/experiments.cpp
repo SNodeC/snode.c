@@ -190,7 +190,7 @@ int simpleWebserver() {
 }
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
-    std::string http = "GET /admin/new/index.html?hihihi=3343&query=2324 HTTP/1.1\r\n"
+    std::string http = "GET /admin/new/index.html?hihihi=3343&query=2324#fragment HTTP/1.1\r\n"
                        "Field1: Value1\r\n"
                        "Field2: Field2\r\n"
                        "Field2: Field3\r\n" // is allowed and must be combined with a comma as separator
@@ -201,9 +201,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
         ;
 
     http::HTTPRequestParser parser(
-        [](std::string& method, std::string& originalUrl, std::string& httpVersion,
+        [](std::string& method, std::string& originalUrl, std::string& fragment, std::string& httpVersion,
            [[maybe_unused]] const std::map<std::string, std::string>& queries) -> void {
-            std::cout << "++ Request: " << method << " " << originalUrl << " " << httpVersion << std::endl;
+            std::cout << "++ Request: " << method << " " << originalUrl << " "
+                      << " " << httpVersion << std::endl;
+            for (std::pair<std::string, std::string> query : queries) {
+                std::cout << "++    Query: " << query.first << " = " << query.second << std::endl;
+            }
+            std::cout << "++    Fragment: " << fragment << std::endl;
         },
         [](const std::map<std::string, std::string>& header, const std::map<std::string, std::string>& cookies) -> void {
             for (std::pair<std::string, std::string> headerField : header) {

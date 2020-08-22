@@ -31,7 +31,8 @@
 namespace http {
 
     HTTPRequestParser::HTTPRequestParser(
-        const std::function<void(std::string&, std::string&, std::string&, const std::map<std::string, std::string>&)>& onRequest,
+        const std::function<void(std::string&, std::string&, std::string&, std::string&, const std::map<std::string, std::string>&)>&
+            onRequest,
         const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>& onHeader,
         const std::function<void(char*, size_t)>& onContent, const std::function<void(void)>& onParsed,
         const std::function<void(int status, const std::string& reason)>& onError)
@@ -43,7 +44,8 @@ namespace http {
     }
 
     HTTPRequestParser::HTTPRequestParser(
-        const std::function<void(std::string&, std::string&, std::string&, const std::map<std::string, std::string>&)>&& onRequest,
+        const std::function<void(std::string&, std::string&, std::string&, std::string&, const std::map<std::string, std::string>&)>&&
+            onRequest,
         const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>&& onHeader,
         const std::function<void(char*, size_t)>&& onContent, const std::function<void(void)>&& onParsed,
         const std::function<void(int status, const std::string& reason)>&& onError)
@@ -58,6 +60,7 @@ namespace http {
         HTTPParser::reset();
         method.clear();
         originalUrl.clear();
+        fragment.clear();
         httpVersion.clear();
         queries.clear();
         cookies.clear();
@@ -98,7 +101,7 @@ namespace http {
 
                         /* BEGIN: Belongs to default queryParser */
                         std::string queriesLine;
-                        std::tie(std::ignore, queriesLine) = httputils::str_split_last(originalUrl, '?');
+                        std::tie(queriesLine, std::ignore) = httputils::str_split(httputils::str_split(originalUrl, '?').second, '#');
 
                         while (!queriesLine.empty()) {
                             std::string query;
@@ -112,7 +115,9 @@ namespace http {
                         }
                         /* END: Belongs to default queryParser */
 
-                        onRequest(method, originalUrl, httpVersion, queries);
+                        std::tie(std::ignore, fragment) = httputils::str_split(originalUrl, '#');
+
+                        onRequest(method, originalUrl, fragment, httpVersion, queries);
                     }
                 }
             }
