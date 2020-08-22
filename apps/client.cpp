@@ -23,6 +23,7 @@
 #include "socket/tls/SocketClient.h"
 
 #include <cstring>
+#include <easylogging++.h>
 #include <iostream>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -30,68 +31,69 @@
 #define CERTF "/home/voc/projects/ServerVoc/certs/calisto.home.vchrist.at_-_snode.c_-_client.pem"
 #define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c_-_client.key.encrypted.pem"
 #define KEYFPASS "snode.c"
+#define SERVERCAFILE "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Root_CA.crt"
 
 using namespace net::socket;
 
 tls::SocketClient tlsClient() {
     tls::SocketClient client(
-        []([[maybe_unused]] tls::SocketConnection* connectedSocket) -> void { // onConnect
-            std::cout << "OnConnect" << std::endl;
-            connectedSocket->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); // Connection:keep-alive\r\n\r\n");
+        []([[maybe_unused]] tls::SocketConnection* socketConnection) -> void { // onConnect
+            VLOG(0) << "OnConnect";
+            socketConnection->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); // Connection:keep-alive\r\n\r\n");
 
-            X509* server_cert = SSL_get_peer_certificate(connectedSocket->getSSL());
+            VLOG(0) << "Server: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
+                           "):" + std::to_string(socketConnection->getRemoteAddress().port());
+            VLOG(0) << "Client: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
+                           "):" + std::to_string(socketConnection->getLocalAddress().port());
+
+            X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
             if (server_cert != NULL) {
-                std::cout << "Server certificate" << std::endl;
+                VLOG(0) << "Server certificate";
 
                 char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), 0, 0);
-                std::cout << "\t subject: " << str << std::endl;
+                VLOG(0) << "\t subject: " + std::string(str);
                 OPENSSL_free(str);
 
                 str = X509_NAME_oneline(X509_get_issuer_name(server_cert), 0, 0);
-                std::cout << "\t issuer: " << str << std::endl;
+                VLOG(0) << "\t issuer: " + std::string(str);
                 OPENSSL_free(str);
 
                 // We could do all sorts of certificate verification stuff here before deallocating the certificate.
 
                 X509_free(server_cert);
+
+                int verifyErr = SSL_get_verify_result(socketConnection->getSSL());
+                VLOG(0) << "Certificate verify result: " + std::string(X509_verify_cert_error_string(verifyErr));
             } else {
                 printf("Client does not have certificate.\n");
             }
-
-            std::cout << connectedSocket->getRemoteAddress().port() << std::endl;
-            std::cout << connectedSocket->getLocalAddress().port() << std::endl;
-            std::cout << connectedSocket->getRemoteAddress().host() << std::endl;
-            std::cout << connectedSocket->getLocalAddress().host() << std::endl;
-            std::cout << connectedSocket->getRemoteAddress().ip() << std::endl;
-            std::cout << connectedSocket->getLocalAddress().ip() << std::endl;
-
         },
-        []([[maybe_unused]] tls::SocketConnection* connectedSocket) -> void { // onDisconnect
-            std::cout << "OnDisconnect" << std::endl;
+        []([[maybe_unused]] tls::SocketConnection* socketConnection) -> void { // onDisconnect
+            VLOG(0) << "OnDisconnect";
         },
-        []([[maybe_unused]] tls::SocketConnection* connectedSocket, const char* junk, ssize_t junkSize) -> void { // onRead
-            std::cout << "OnRead" << std::endl;
+        []([[maybe_unused]] tls::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
+            VLOG(0) << "OnRead";
             char* buf = new char[junkSize + 1];
             memcpy(buf, junk, junkSize);
             buf[junkSize] = 0;
-            std::cout << "------------ begin data" << std::endl;
-            std::cout << buf;
-            std::cout << "------------ end data" << std::endl;
+            VLOG(0) << "------------ begin data";
+            VLOG(0) << buf;
+            VLOG(0) << "------------ end data";
             delete[] buf;
         },
-        []([[maybe_unused]] tls::SocketConnection* connectedSocket, int errnum) -> void { // onReadError
-            std::cout << "OnReadError: " << errnum << std::endl;
+        []([[maybe_unused]] tls::SocketConnection* socketConnection, int errnum) -> void { // onReadError
+            VLOG(0) << "OnReadError: " + std::to_string(errnum);
         },
-        []([[maybe_unused]] tls::SocketConnection* connectedSocket, int errnum) -> void { // onWriteError
-            std::cout << "OnWriteError: " << errnum << std::endl;
+        []([[maybe_unused]] tls::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
+            VLOG(0) << "OnWriteError: " + std::to_string(errnum);
         },
-        CERTF, KEYF, KEYFPASS);
+        CERTF, KEYF, KEYFPASS, SERVERCAFILE);
 
     client.connect("calisto.home.vchrist.at", 8088, [](int err) -> void {
         if (err) {
-            std::cout << "Connect: " << strerror(err) << std::endl;
+            VLOG(0) << "Connect: " + std::string(strerror(err));
         } else {
-            std::cout << "Connected" << std::endl;
+            VLOG(0) << "Connected";
         }
     });
 
@@ -100,42 +102,40 @@ tls::SocketClient tlsClient() {
 
 legacy::SocketClient legacyClient() {
     legacy::SocketClient legacyClient(
-        []([[maybe_unused]] legacy::SocketConnection* connectedSocket) -> void { // onConnect
-            std::cout << "OnConnect" << std::endl;
-            connectedSocket->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); // Connection:keep-alive\r\n\r\n");
+        []([[maybe_unused]] legacy::SocketConnection* socketConnection) -> void { // onConnect
+            VLOG(0) << "OnConnect";
+            socketConnection->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); // Connection:keep-alive\r\n\r\n");
 
-            std::cout << connectedSocket->getRemoteAddress().port() << std::endl;
-            std::cout << connectedSocket->getLocalAddress().port() << std::endl;
-            std::cout << connectedSocket->getRemoteAddress().host() << std::endl;
-            std::cout << connectedSocket->getLocalAddress().host() << std::endl;
-            std::cout << connectedSocket->getRemoteAddress().ip() << std::endl;
-            std::cout << connectedSocket->getLocalAddress().ip() << std::endl;
+            VLOG(0) << "Server: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
+                           "):" + std::to_string(socketConnection->getRemoteAddress().port());
+            VLOG(0) << "Client: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
+                           "):" + std::to_string(socketConnection->getLocalAddress().port());
         },
-        []([[maybe_unused]] legacy::SocketConnection* connectedSocket) -> void { // onDisconnect
-            std::cout << "OnDisconnect" << std::endl;
+        []([[maybe_unused]] legacy::SocketConnection* socketConnection) -> void { // onDisconnect
+            VLOG(0) << "OnDisconnect";
         },
-        []([[maybe_unused]] legacy::SocketConnection* connectedSocket, const char* junk, ssize_t junkSize) -> void { // onRead
-            std::cout << "OnRead" << std::endl;
+        []([[maybe_unused]] legacy::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
+            VLOG(0) << "OnRead";
             char* buf = new char[junkSize + 1];
             memcpy(buf, junk, junkSize);
             buf[junkSize] = 0;
-            std::cout << "------------ begin data" << std::endl;
-            std::cout << buf;
-            std::cout << "------------ end data" << std::endl;
+            VLOG(0) << "------------ begin data";
+            VLOG(0) << buf;
+            VLOG(0) << "------------ end data";
             delete[] buf;
         },
-        []([[maybe_unused]] legacy::SocketConnection* connectedSocket, int errnum) -> void { // onReadError
-            std::cout << "OnReadError: " << errnum << std::endl;
+        []([[maybe_unused]] legacy::SocketConnection* socketConnection, int errnum) -> void { // onReadError
+            VLOG(0) << "OnReadError: " << errnum;
         },
-        []([[maybe_unused]] legacy::SocketConnection* connectedSocket, int errnum) -> void { // onWriteError
-            std::cout << "OnWriteError: " << errnum << std::endl;
+        []([[maybe_unused]] legacy::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
+            VLOG(0) << "OnWriteError: " << errnum;
         });
 
     legacyClient.connect("calisto.home.vchrist.at", 8080, [](int err) -> void {
         if (err) {
-            std::cout << "Connect: " << strerror(err) << std::endl;
+            VLOG(0) << "Connect: " << strerror(err);
         } else {
-            std::cout << "Connected" << std::endl;
+            VLOG(0) << "Connected";
         }
     });
 
@@ -148,18 +148,18 @@ int main(int argc, char* argv[]) {
     legacy::SocketClient lc = legacyClient();
     lc.connect("calisto.home.vchrist.at", 8080, [](int err) -> void { // example.com:81 simulate connnect timeout
         if (err) {
-            std::cout << "Connect: " << strerror(err) << std::endl;
+            VLOG(0) << "Connect: " << strerror(err);
         } else {
-            std::cout << "Connected" << std::endl;
+            VLOG(0) << "Connected";
         }
     });
 
     tls::SocketClient sc = tlsClient();
     sc.connect("calisto.home.vchrist.at", 8088, [](int err) -> void {
         if (err) {
-            std::cout << "Connect: " << strerror(err) << std::endl;
+            VLOG(0) << "Connect: " << strerror(err);
         } else {
-            std::cout << "Connected" << std::endl;
+            VLOG(0) << "Connected";
         }
     });
 
