@@ -128,7 +128,7 @@ namespace net::socket {
                     socketConnection->setRemoteAddress(InetAddress(remoteAddress));
                     socketConnection->setLocalAddress(InetAddress(localAddress));
 
-                    socketConnection->net::ReadEventReceiver::enable();
+                    socketConnection->ReadEventReceiver::enable();
 
                     onConnect(socketConnection);
                 } else {
