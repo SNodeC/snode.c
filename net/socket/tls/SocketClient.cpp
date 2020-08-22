@@ -78,6 +78,7 @@ namespace net::socket::tls {
                               }
                           } else {
                               socketClient->onError(-ERR_peek_error());
+                              socketConnection->ReadEventReceiver::disable();
                               unobserved();
                           }
                       }

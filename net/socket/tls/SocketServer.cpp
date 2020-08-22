@@ -76,6 +76,7 @@ namespace net::socket::tls {
                                   unobserved();
                               }
                           } else {
+                              socketConnection->ReadEventReceiver::disable();
                               unobserved();
                           }
                       }
