@@ -80,29 +80,28 @@ int main(int argc, char** argv) {
 
     tlsApp.onConnect([](net::socket::tls::SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnConnect:";
-        VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
-                       "):" + std::to_string(socketConnection->getRemoteAddress().port());
         VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                        "):" + std::to_string(socketConnection->getLocalAddress().port());
+        VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
+                       "):" + std::to_string(socketConnection->getRemoteAddress().port());
 
         X509* client_cert = SSL_get_peer_certificate(socketConnection->getSSL());
         if (client_cert != NULL) {
-            VLOG(0) << "Client certificate";
+            int verifyErr = SSL_get_verify_result(socketConnection->getSSL());
+
+            VLOG(0) << "\tClient certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
 
             char* str = X509_NAME_oneline(X509_get_subject_name(client_cert), 0, 0);
-            VLOG(0) << "\tsubject: " + std::string(str);
+            VLOG(0) << "\t   subject: " + std::string(str);
             OPENSSL_free(str);
 
             str = X509_NAME_oneline(X509_get_issuer_name(client_cert), 0, 0);
-            VLOG(0) << "\tissuer: " + std::string(str);
+            VLOG(0) << "\t   issuer: " + std::string(str);
             OPENSSL_free(str);
 
             // We could do all sorts of certificate verification stuff here before deallocating the certificate.
 
             X509_free(client_cert);
-
-            int verifyErr = SSL_get_verify_result(socketConnection->getSSL());
-            VLOG(0) << "\tCertificate verify result: " + std::string(X509_verify_cert_error_string(verifyErr));
         } else {
             VLOG(0) << "Client \"" + socketConnection->getRemoteAddress().host() + "\" does not have certificate.";
         }
@@ -110,10 +109,10 @@ int main(int argc, char** argv) {
 
     tlsApp.onDisconnect([](net::socket::tls::SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnDisconnect:";
-        VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
-                       "):" + std::to_string(socketConnection->getRemoteAddress().port());
         VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                        "):" + std::to_string(socketConnection->getLocalAddress().port());
+        VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
+                       "):" + std::to_string(socketConnection->getRemoteAddress().port());
     });
 
     WebApp::start();

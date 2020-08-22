@@ -41,39 +41,38 @@ tls::SocketClient tlsClient() {
             VLOG(0) << "OnConnect";
             socketConnection->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); // Connection:keep-alive\r\n\r\n");
 
-            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
-                           "):" + std::to_string(socketConnection->getRemoteAddress().port());
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
+            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
+                           "):" + std::to_string(socketConnection->getRemoteAddress().port());
 
             X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
             if (server_cert != NULL) {
-                VLOG(0) << "Server certificate";
+                int verifyErr = SSL_get_verify_result(socketConnection->getSSL());
+
+                VLOG(0) << "\tServer certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
 
                 char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), 0, 0);
-                VLOG(0) << "\tsubject: " + std::string(str);
+                VLOG(0) << "\t   subject: " + std::string(str);
                 OPENSSL_free(str);
 
                 str = X509_NAME_oneline(X509_get_issuer_name(server_cert), 0, 0);
-                VLOG(0) << "\tissuer: " + std::string(str);
+                VLOG(0) << "\t   issuer: " + std::string(str);
                 OPENSSL_free(str);
 
                 // We could do all sorts of certificate verification stuff here before deallocating the certificate.
 
                 X509_free(server_cert);
-
-                int verifyErr = SSL_get_verify_result(socketConnection->getSSL());
-                VLOG(0) << "\tCertificate verify result: " + std::string(X509_verify_cert_error_string(verifyErr));
             } else {
                 printf("Client does not have certificate.\n");
             }
         },
         []([[maybe_unused]] tls::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
-            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
-                           "):" + std::to_string(socketConnection->getRemoteAddress().port());
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
+            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
+                           "):" + std::to_string(socketConnection->getRemoteAddress().port());
         },
         []([[maybe_unused]] tls::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
             VLOG(0) << "OnRead";
