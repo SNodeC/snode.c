@@ -113,11 +113,12 @@ namespace utils {
     class MultibleAttributeInjector {
     public:
         template <InjectedAttribute Attribute, std::basic_fixed_string key = "">
-        constexpr bool setAttribute(Attribute& attribute, bool overwrite = false) const {
+        constexpr bool setAttribute(Attribute& attribute, const std::string& subKey = "", bool overwrite = false) const {
             bool inserted = false;
 
-            if (attributes.find(typeid(Attribute).name() + std::string(key)) == attributes.end() || overwrite) {
-                attributes[typeid(Attribute).name() + std::string(key)] = std::shared_ptr<void>(new AttributeProxy<Attribute>(attribute));
+            if (attributes.find(typeid(Attribute).name() + std::string(key) + subKey) == attributes.end() || overwrite) {
+                attributes[typeid(Attribute).name() + std::string(key) + subKey] =
+                    std::shared_ptr<void>(new AttributeProxy<Attribute>(attribute));
                 inserted = true;
             }
 
@@ -125,11 +126,12 @@ namespace utils {
         }
 
         template <InjectedAttribute Attribute, std::basic_fixed_string key = "">
-        constexpr bool setAttribute(Attribute&& attribute, bool overwrite = false) const {
+        constexpr bool setAttribute(Attribute&& attribute, const std::string& subKey = "", bool overwrite = false) const {
             bool inserted = false;
 
-            if (attributes.find(typeid(Attribute).name() + std::string(key)) == attributes.end() || overwrite) {
-                attributes[typeid(Attribute).name() + std::string(key)] = std::shared_ptr<void>(new AttributeProxy<Attribute>(attribute));
+            if (attributes.find(typeid(Attribute).name() + std::string(key) + subKey) == attributes.end() || overwrite) {
+                attributes[typeid(Attribute).name() + std::string(key) + subKey] =
+                    std::shared_ptr<void>(new AttributeProxy<Attribute>(attribute));
                 inserted = true;
             }
 
@@ -137,22 +139,22 @@ namespace utils {
         }
 
         template <InjectedAttribute Attribute, std::basic_fixed_string key = "">
-        constexpr bool delAttribute() const {
-            return attributes.erase(typeid(Attribute).name() + std::string(key)) > 0;
+        constexpr bool delAttribute(const std::string& subKey = "") const {
+            return attributes.erase(typeid(Attribute).name() + std::string(key) + subKey) > 0;
         }
 
         template <InjectedAttribute Attribute, std::basic_fixed_string key = "">
-        constexpr bool hasAttribute() const {
-            return attributes.find(typeid(Attribute).name() + std::string(key)) != attributes.end();
+        constexpr bool hasAttribute(const std::string& subKey = "") const {
+            return attributes.find(typeid(Attribute).name() + std::string(key) + subKey) != attributes.end();
         }
 
         template <InjectedAttribute Attribute, std::basic_fixed_string key = "">
-        constexpr bool getAttribute(const std::function<void(Attribute&)>& onFound) const {
+        constexpr bool getAttribute(const std::function<void(Attribute&)>& onFound, const std::string& subKey = "") const {
             bool found = false;
 
-            if ((found = hasAttribute<Attribute, key>())) {
+            if ((found = hasAttribute<Attribute, key>(subKey))) {
                 std::map<std::string, std::shared_ptr<void>>::const_iterator it =
-                    attributes.find(typeid(Attribute).name() + std::string(key));
+                    attributes.find(typeid(Attribute).name() + std::string(key) + subKey);
                 onFound(**std::static_pointer_cast<AttributeProxy<Attribute>>(it->second));
             }
 
@@ -161,10 +163,10 @@ namespace utils {
 
         template <InjectedAttribute Attribute, std::basic_fixed_string key = "">
         constexpr void getAttribute(const std::function<void(Attribute&)>& onFound,
-                                    const std::function<void(const std::string&)>& onNotFound) const {
-            if (hasAttribute<Attribute, key>()) {
+                                    const std::function<void(const std::string&)>& onNotFound, const std::string& subKey = "") const {
+            if (hasAttribute<Attribute, key>(subKey)) {
                 std::map<std::string, std::shared_ptr<void>>::const_iterator it =
-                    attributes.find(typeid(Attribute).name() + std::string(key));
+                    attributes.find(typeid(Attribute).name() + std::string(key) + subKey);
                 onFound(**std::static_pointer_cast<AttributeProxy<Attribute>>(it->second));
             } else {
                 onNotFound(std::string(typeid(Attribute).name()) + std::string(key));
