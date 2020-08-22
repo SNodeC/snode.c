@@ -150,7 +150,9 @@ namespace net::socket::tls {
         ctx = SSL_CTX_new(TLS_client_method());
         if (ctx) {
             if (!caFile.empty()) {
-                SSL_CTX_load_verify_locations(ctx, caFile.c_str(), nullptr);
+                if (!SSL_CTX_load_verify_locations(ctx, caFile.c_str(), nullptr)) {
+                    sslErr = ERR_peek_error();
+                }
             }
         } else {
             sslErr = ERR_peek_error();
