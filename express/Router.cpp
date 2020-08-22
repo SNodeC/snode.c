@@ -123,12 +123,12 @@ namespace express {
 
         if ((req.path.rfind(cpath, 0) == 0 &&
              (mountPoint.method == "use" || req.method == mountPoint.method || mountPoint.method == "all"))) {
-            std::list<Route>::const_iterator route = routes.begin();
-            std::list<Route>::const_iterator end = routes.end();
-
-            while (route != end && next) { // todo: to be exchanged by an stl-algorithm
-                next = route->dispatch(cpath, req, res);
-                ++route;
+            for (const Route& route : routes) {
+                if (next) {
+                    next = route.dispatch(cpath, req, res);
+                } else {
+                    break;
+                }
             }
         }
 
