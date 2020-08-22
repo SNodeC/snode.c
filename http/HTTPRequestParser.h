@@ -37,13 +37,15 @@ namespace http {
     class HTTPRequestParser : public HTTPParser {
     public:
         HTTPRequestParser(
-            const std::function<void(std::string&, std::string&, std::string&, const std::map<std::string, std::string>&)>& onRequest,
+            const std::function<void(std::string&, std::string&, std::string&, std::string&, const std::map<std::string, std::string>&)>&
+                onRequest,
             const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>& onHeader,
             const std::function<void(char*, size_t)>& onContent, const std::function<void(void)>& onParsed,
             const std::function<void(int status, const std::string& reason)>& onError);
 
         HTTPRequestParser(
-            const std::function<void(std::string&, std::string&, std::string&, const std::map<std::string, std::string>&)>&& onRequest,
+            const std::function<void(std::string&, std::string&, std::string&, std::string&, const std::map<std::string, std::string>&)>&&
+                onRequest,
             const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>&& onHeader,
             const std::function<void(char*, size_t)>&& onContent, const std::function<void(void)>&& onParsed,
             const std::function<void(int status, const std::string& reason)>&& onError);
@@ -72,6 +74,7 @@ namespace http {
         // Data specific to HTTP request messages
         std::string method;
         std::string originalUrl;
+        std::string fragment;
         std::string httpVersion;
         std::map<std::string, std::string> cookies;
         std::map<std::string, std::string> queries;
@@ -79,7 +82,7 @@ namespace http {
         int httpMinor = 0;
 
         // Callbacks
-        std::function<void(std::string&, std::string&, std::string&, const std::map<std::string, std::string>&)> onRequest;
+        std::function<void(std::string&, std::string&, std::string&, std::string&, const std::map<std::string, std::string>&)> onRequest;
         std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)> onHeader;
         std::function<void(char*, size_t)> onContent;
         std::function<void(void)> onParsed;

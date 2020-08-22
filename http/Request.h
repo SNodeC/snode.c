@@ -45,6 +45,7 @@ namespace http {
         // Properties
         std::string originalUrl;
         std::string httpVersion;
+        std::string fragment;
         std::string url;
         char* body = nullptr;
         std::string path;

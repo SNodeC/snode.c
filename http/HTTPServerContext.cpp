@@ -37,11 +37,12 @@ namespace http {
         , onResponseFinished(onResponseFinished)
         , response(this)
         , parser(
-              [this](std::string& method, std::string& originalUrl, std::string& httpVersion,
+              [this](std::string& method, std::string& originalUrl, std::string& fragment, std::string& httpVersion,
                      const std::map<std::string, std::string>& queries) -> void {
                   VLOG(1) << "++ Request: " << method << " " << originalUrl << " " << httpVersion;
                   request.method = method;
                   request.originalUrl = originalUrl;
+                  request.fragment = fragment;
                   request.path = httputils::str_split_last(originalUrl, '/').first;
                   request.queries = &queries;
                   if (request.path.empty()) {
