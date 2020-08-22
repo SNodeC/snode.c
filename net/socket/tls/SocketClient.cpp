@@ -33,7 +33,8 @@ namespace net::socket::tls {
                                const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
                                const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t n)>& onRead,
                                const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
-                               const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError)
+                               const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
+                               const std::string& caFile)
         : socket::SocketClient<SocketConnection>(
               [this, onConnect](SocketConnection* socketConnection) -> void {
                   class TLSConnector
@@ -147,7 +148,11 @@ namespace net::socket::tls {
               },
               onRead, onReadError, onWriteError) {
         ctx = SSL_CTX_new(TLS_client_method());
-        if (!ctx) {
+        if (ctx) {
+            if (!caFile.empty()) {
+                SSL_CTX_load_verify_locations(ctx, caFile.c_str(), nullptr);
+            }
+        } else {
             sslErr = ERR_peek_error();
         }
     }
@@ -157,8 +162,9 @@ namespace net::socket::tls {
                                const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t n)>& onRead,
                                const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                                const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
-                               const std::string& certChain, const std::string& keyPEM, const std::string& password)
-        : SocketClient(onConnect, onDisconnect, onRead, onReadError, onWriteError) {
+                               const std::string& certChain, const std::string& keyPEM, const std::string& password,
+                               const std::string& caFile)
+        : SocketClient(onConnect, onDisconnect, onRead, onReadError, onWriteError, caFile) {
         if (sslErr == SSL_ERROR_NONE) {
             SSL_CTX_set_default_passwd_cb(ctx, SocketClient::passwordCallback);
             SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(password.c_str()));

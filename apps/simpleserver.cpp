@@ -78,19 +78,22 @@ int main(int argc, char** argv) {
 
         X509* client_cert = SSL_get_peer_certificate(socketConnection->getSSL());
         if (client_cert != NULL) {
-            std::cout << "Client certificate" << std::endl;
+            VLOG(0) << "Client certificate";
 
             char* str = X509_NAME_oneline(X509_get_subject_name(client_cert), 0, 0);
-            std::cout << "\t subject: " << str << std::endl;
+            VLOG(0) << "\t subject: " + std::string(str);
             OPENSSL_free(str);
 
             str = X509_NAME_oneline(X509_get_issuer_name(client_cert), 0, 0);
-            std::cout << "\t issuer: " << str << std::endl;
+            VLOG(0) << "\t issuer: " + std::string(str);
             OPENSSL_free(str);
 
             // We could do all sorts of certificate verification stuff here before deallocating the certificate.
 
             X509_free(client_cert);
+
+            int verifyErr = SSL_get_verify_result(socketConnection->getSSL());
+            VLOG(0) << "Certificate verify result: " + std::string(X509_verify_cert_error_string(verifyErr));
         } else {
             VLOG(0) << "Client \"" + socketConnection->getRemoteAddress().host() + "\" does not have certificate.";
         }
