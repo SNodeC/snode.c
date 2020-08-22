@@ -42,25 +42,27 @@ namespace http {
                   VLOG(1) << "++ Request: " << method << " " << originalUrl << " " << httpVersion;
                   request.method = method;
                   request.originalUrl = originalUrl;
-                  request.fragment = fragment;
-                  request.path = httputils::str_split_last(originalUrl, '/').first;
                   request.queries = &queries;
+                  request.fragment = fragment;
+                  request.httpVersion = httpVersion;
+
+                  request.url = httputils::str_split_last(originalUrl, '?').first;
+                  request.path = httputils::str_split_last(request.url, '/').first;
                   if (request.path.empty()) {
                       request.path = "/";
                   }
-                  request.url = httputils::str_split_last(originalUrl, '?').first;
-                  request.httpVersion = httpVersion;
               },
               [this](const std::map<std::string, std::string>& header, const std::map<std::string, std::string>& cookies) -> void {
                   VLOG(1) << "++ Header:";
                   request.headers = &header;
+                  VLOG(1) << "++ Cookies";
+                  request.cookies = &cookies;
+
                   for (auto& [field, value] : header) {
                       if (field == "connection" && value == "keep-alive") {
                           request.keepAlive = true;
                       }
                   }
-                  VLOG(1) << "++ Cookies";
-                  request.cookies = &cookies;
               },
               [this](char* content, size_t contentLength) -> void {
                   VLOG(1) << "++ Content: " << contentLength;
