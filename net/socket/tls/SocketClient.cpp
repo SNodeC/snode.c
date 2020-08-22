@@ -56,23 +56,28 @@ namespace net::socket::tls {
                                     this->socketConnection->ReadEventReceiver::disable();
                                 },
                                 (struct timeval){TLSCONNECT_TIMEOUT, 0}, nullptr)) {
-                          this->attachFd(socketConnection->getFd());
+                          if (ssl) {
+                              this->attachFd(socketConnection->getFd());
 
-                          int err = SSL_connect(ssl);
-                          int sslErr = SSL_get_error(ssl, err);
+                              int err = SSL_connect(ssl);
+                              int sslErr = SSL_get_error(ssl, err);
 
-                          if (sslErr == SSL_ERROR_WANT_READ) {
-                              this->ReadEventReceiver::enable();
-                          } else if (sslErr == SSL_ERROR_WANT_WRITE) {
-                              this->WriteEventReceiver::enable();
-                          } else {
-                              if (sslErr == SSL_ERROR_NONE) {
-                                  socketClient->onError(0);
-                                  onConnect(socketConnection);
+                              if (sslErr == SSL_ERROR_WANT_READ) {
+                                  this->ReadEventReceiver::enable();
+                              } else if (sslErr == SSL_ERROR_WANT_WRITE) {
+                                  this->WriteEventReceiver::enable();
                               } else {
-                                  socketClient->onError(-sslErr);
+                                  if (sslErr == SSL_ERROR_NONE) {
+                                      socketClient->onError(0);
+                                      onConnect(socketConnection);
+                                  } else {
+                                      socketClient->onError(-ERR_peek_error());
+                                  }
+                                  timeOut.cancel();
+                                  unobserved();
                               }
-                              timeOut.cancel();
+                          } else {
+                              socketClient->onError(-ERR_peek_error());
                               unobserved();
                           }
                       }
@@ -92,7 +97,7 @@ namespace net::socket::tls {
                                       socketClient->onError(0);
                                       this->onConnect(socketConnection);
                                   } else {
-                                      socketClient->onError(-sslErr);
+                                      socketClient->onError(-ERR_peek_error());
                                       socketConnection->ReadEventReceiver::disable();
                                   }
                               }
@@ -114,7 +119,7 @@ namespace net::socket::tls {
                                       socketClient->onError(0);
                                       this->onConnect(socketConnection);
                                   } else {
-                                      socketClient->onError(-sslErr);
+                                      socketClient->onError(-ERR_peek_error());
                                       socketConnection->ReadEventReceiver::disable();
                                   }
                               }
