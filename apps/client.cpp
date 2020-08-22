@@ -64,7 +64,7 @@ tls::SocketClient tlsClient() {
 
                 X509_free(server_cert);
             } else {
-                printf("Client does not have certificate.\n");
+                VLOG(0) << "\tServer certificate: no certificate";
             }
         },
         []([[maybe_unused]] tls::SocketConnection* socketConnection) -> void { // onDisconnect
@@ -92,7 +92,7 @@ tls::SocketClient tlsClient() {
         },
         CERTF, KEYF, KEYFPASS, SERVERCAFILE);
 
-    client.connect("calisto.home.vchrist.at", 8088, [](int err) -> void {
+    client.connect("localhost", 8088, [](int err) -> void {
         if (err) {
             VLOG(0) << "Connect: " + std::string(strerror(err));
         } else {
@@ -138,7 +138,7 @@ legacy::SocketClient legacyClient() {
             VLOG(0) << "OnWriteError: " << errnum;
         });
 
-    legacyClient.connect("calisto.home.vchrist.at", 8080, [](int err) -> void {
+    legacyClient.connect("localhost", 8080, [](int err) -> void {
         if (err) {
             VLOG(0) << "Connect: " << strerror(err);
         } else {
@@ -153,7 +153,7 @@ int main(int argc, char* argv[]) {
     net::EventLoop::init(argc, argv);
 
     legacy::SocketClient lc = legacyClient();
-    lc.connect("calisto.home.vchrist.at", 8080, [](int err) -> void { // example.com:81 simulate connnect timeout
+    lc.connect("localhost", 8080, [](int err) -> void { // example.com:81 simulate connnect timeout
         if (err) {
             VLOG(0) << "Connect: " << strerror(err);
         } else {
@@ -162,7 +162,7 @@ int main(int argc, char* argv[]) {
     });
 
     tls::SocketClient sc = tlsClient();
-    sc.connect("calisto.home.vchrist.at", 8088, [](int err) -> void {
+    sc.connect("localhost", 8088, [](int err) -> void {
         if (err) {
             VLOG(0) << "Connect: " << strerror(err);
         } else {
