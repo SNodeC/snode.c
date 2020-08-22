@@ -72,7 +72,7 @@ int main(int argc, char** argv) {
 
     tlsApp.listen(8088, [](int err) -> void {
         if (err != 0) {
-            PLOG(FATAL) << "listen on port 8088";
+            PLOG(FATAL) << "listen on port 8088 " << std::to_string(err);
         } else {
             VLOG(0) << "snode.c listening on port 8088 for SSL/TLS connections";
         }
