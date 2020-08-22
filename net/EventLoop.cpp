@@ -94,6 +94,7 @@ namespace net {
         signal(SIGHUP, EventLoop::stoponsig);
         signal(SIGINT, EventLoop::stoponsig);
         signal(SIGTERM, EventLoop::stoponsig);
+        signal(SIGABRT, EventLoop::stoponsig);
 
         Logger::init(argc, argv);
 
