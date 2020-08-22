@@ -37,55 +37,54 @@ using namespace express;
 
 Router route() {
     Router router;
-    router.use(
-        "/", MIDDLEWARE(req, res, next) {
-            VLOG(3) << Logger::INFO << "Middleware 1 " + req.originalUrl;
-            VLOG(3) << "Cookie 1: " + req.cookie("searchcookie");
+    router.use("/", [] MIDDLEWARE(req, res, next) {
+        VLOG(3) << Logger::INFO << "Middleware 1 " + req.originalUrl;
+        VLOG(3) << "Cookie 1: " + req.cookie("searchcookie");
 
-            next();
+        next();
 
-            VLOG(0) << "Queries: " << req.query("query");
+        VLOG(0) << "Queries: " << req.query("query");
 
-            req.setAttribute<std::string>("Hallo");
-            req.setAttribute<std::string, "Key1">("World");
-            req.setAttribute<int>(3);
+        req.setAttribute<std::string>("Hallo");
+        req.setAttribute<std::string, "Key1">("World");
+        req.setAttribute<int>(3);
 
-            req.setAttribute<std::string, "Hall">("juhu");
-            VLOG(3) << "####################### " + req.getAttribute<std::string, "Hall">([](const std::string& attr) -> void {
-                VLOG(3) << "String: --------- " + attr;
-            });
-
-            if (!req.getAttribute<std::string>([](std::string& hello) -> void {
-                    VLOG(3) << "String: --------- " + hello;
-                })) {
-                VLOG(3) << "++++++++++ Attribute String not found";
-            }
-
-            req.getAttribute<std::string, "Key1">(
-                [](std::string& world) -> void {
-                    VLOG(3) << "String + Key1: --------- " + world;
-                },
-                [](const std::string& type) {
-                    VLOG(3) << "++++++++++ Attribute " + type + " not found";
-                });
-
-            if (!req.getAttribute<int>([](int& i) -> void {
-                    VLOG(3) << "Int: --------- " + std::to_string(i);
-                })) {
-                VLOG(3) << "++++++++++ Attribute int not found";
-            }
-
-            req.getAttribute<float>(
-                [](float& f) -> void {
-                    VLOG(3) << "Float: --------- " + std::to_string(f);
-                },
-                [](const std::string& type) {
-                    VLOG(3) << "++++++++++ Attribute " + type + " not found";
-                });
+        req.setAttribute<std::string, "Hall">("juhu");
+        VLOG(3) << "####################### " + req.getAttribute<std::string, "Hall">([](const std::string& attr) -> void {
+            VLOG(3) << "String: --------- " + attr;
         });
 
+        if (!req.getAttribute<std::string>([](std::string& hello) -> void {
+                VLOG(3) << "String: --------- " + hello;
+            })) {
+            VLOG(3) << "++++++++++ Attribute String not found";
+        }
+
+        req.getAttribute<std::string, "Key1">(
+            [](std::string& world) -> void {
+                VLOG(3) << "String + Key1: --------- " + world;
+            },
+            [](const std::string& type) {
+                VLOG(3) << "++++++++++ Attribute " + type + " not found";
+            });
+
+        if (!req.getAttribute<int>([](int& i) -> void {
+                VLOG(3) << "Int: --------- " + std::to_string(i);
+            })) {
+            VLOG(3) << "++++++++++ Attribute int not found";
+        }
+
+        req.getAttribute<float>(
+            [](float& f) -> void {
+                VLOG(3) << "Float: --------- " + std::to_string(f);
+            },
+            [](const std::string& type) {
+                VLOG(3) << "++++++++++ Attribute " + type + " not found";
+            });
+    });
+
     Router r;
-    r.use(MIDDLEWARE(req, res, next) {
+    r.use([] MIDDLEWARE(req, res, next) {
         VLOG(3) << "Middleware 2 " + req.originalUrl;
         VLOG(3) << "Cookie 2: " + req.cookie("searchcookie");
 
@@ -94,16 +93,15 @@ Router route() {
 
     router.use("/", r);
 
-    router.get(
-        "/search", APPLICATION(req, res) {
-            VLOG(0) << "URL: " + req.originalUrl;
-            VLOG(2) << "SearchCookie: " + req.cookie("searchcookie");
-            res.sendFile("/home/voc/projects/ServerVoc/doc/html" + req.url, [&req](int ret) -> void {
-                if (ret != 0) {
-                    PLOG(ERROR) << req.originalUrl;
-                }
-            });
+    router.get("/search", [] APPLICATION(req, res) {
+        VLOG(0) << "URL: " + req.originalUrl;
+        VLOG(2) << "SearchCookie: " + req.cookie("searchcookie");
+        res.sendFile("/home/voc/projects/ServerVoc/doc/html" + req.url, [&req](int ret) -> void {
+            if (ret != 0) {
+                PLOG(ERROR) << req.originalUrl;
+            }
         });
+    });
 
     return router;
 }
@@ -111,57 +109,54 @@ Router route() {
 tls::WebApp sslMain() {
     tls::WebApp sslApp(CERTF, KEYF, KEYFPASS);
     sslApp
-        .use(
-            "/",
-            MIDDLEWARE(req, res, next) {
-                res.set("Connection", "Keep-Alive");
-                next();
-            })
+        .use("/",
+             [] MIDDLEWARE(req, res, next) {
+                 res.set("Connection", "Keep-Alive");
+                 next();
+             })
         .get("/", route())
-        .get(
-            "/", APPLICATION(req, res) {
-                std::string uri = req.originalUrl;
-                VLOG(0) << "URL: " + uri;
-                VLOG(2) << "RootCookie: " + req.cookie("rootcookie");
+        .get("/", [] APPLICATION(req, res) {
+            std::string uri = req.originalUrl;
+            VLOG(0) << "URL: " + uri;
+            VLOG(2) << "RootCookie: " + req.cookie("rootcookie");
 
-                res.cookie("searchcookie", "searchcookievalue", {{"Max-Age", "3600"}, {"Path", "/search"}});
-                if (req.cookie("rootcookie") == "rootcookievalue") {
-                    VLOG(2) << "Clear rootcookie";
-                    res.clearCookie("rootcookie");
-                } else {
-                    VLOG(2) << "Set rootcookie";
-                    res.cookie("rootcookie", "rootcookievalue", {{"Max-Age", "3600"}, {"Path", "/"}});
-                }
+            res.cookie("searchcookie", "searchcookievalue", {{"Max-Age", "3600"}, {"Path", "/search"}});
+            if (req.cookie("rootcookie") == "rootcookievalue") {
+                VLOG(2) << "Clear rootcookie";
+                res.clearCookie("rootcookie");
+            } else {
+                VLOG(2) << "Set rootcookie";
+                res.cookie("rootcookie", "rootcookievalue", {{"Max-Age", "3600"}, {"Path", "/"}});
+            }
 
-                if (uri == "/") {
-                    res.redirect("/index.html");
-                } else if (uri == "/end") {
-                    res.send("Bye, bye!\n");
-                    WebApp::stop();
-                } else {
-                    res.sendFile("/home/voc/projects/ServerVoc/doc/html" + uri, [uri, &req](int ret) -> void {
-                        if (ret != 0) {
-                            PLOG(ERROR) << uri;
-                        }
-                    });
-                }
-            });
+            if (uri == "/") {
+                res.redirect("/index.html");
+            } else if (uri == "/end") {
+                res.send("Bye, bye!\n");
+                WebApp::stop();
+            } else {
+                res.sendFile("/home/voc/projects/ServerVoc/doc/html" + uri, [uri, &req](int ret) -> void {
+                    if (ret != 0) {
+                        PLOG(ERROR) << uri;
+                    }
+                });
+            }
+        });
 
     return sslApp;
 }
 
 legacy::WebApp legacyMain() {
     legacy::WebApp legacyApp;
-    legacyApp.use(
-        "/", MIDDLEWARE(req, res, next) {
-            if (req.originalUrl == "/end") {
-                res.send("Bye, bye!\n");
-                WebApp::stop();
-            } else {
-                VLOG(1) << "Redirect: https://calisto.home.vchrist.at:8088" + req.originalUrl;
-                res.redirect("https://calisto.home.vchrist.at:8088" + req.originalUrl);
-            }
-        });
+    legacyApp.use("/", [] MIDDLEWARE(req, res, next) {
+        if (req.originalUrl == "/end") {
+            res.send("Bye, bye!\n");
+            WebApp::stop();
+        } else {
+            VLOG(1) << "Redirect: https://calisto.home.vchrist.at:8088" + req.originalUrl;
+            res.redirect("https://calisto.home.vchrist.at:8088" + req.originalUrl);
+        }
+    });
 
     return legacyApp;
 }
