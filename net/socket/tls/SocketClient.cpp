@@ -153,7 +153,7 @@ namespace net::socket::tls {
                                const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                                const std::string& certChain, const std::string& keyPEM, const std::string& password)
         : SocketClient(onConnect, onDisconnect, onRead, onReadError, onWriteError) {
-        if (sslErr == 0) {
+        if (sslErr == SSL_ERROR_NONE) {
             SSL_CTX_set_default_passwd_cb(ctx, SocketClient::passwordCallback);
             SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(password.c_str()));
             if (SSL_CTX_use_certificate_chain_file(ctx, certChain.c_str()) <= 0) {

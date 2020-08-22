@@ -30,13 +30,24 @@ namespace express::tls {
 
     class WebApp : public express::WebApp {
     public:
-        explicit WebApp(const std::string& cert, const std::string& key, const std::string& password);
+        explicit WebApp(const std::string& cert, const std::string& key, const std::string& password, const std::string& caFile = "");
 
         WebApp& operator=(const express::WebApp& webApp) = delete;
 
         void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr) override;
 
+        void onConnect(const std::function<void(net::socket::tls::SocketConnection*)>& onConnect) {
+            _onConnect = onConnect;
+        }
+
+        void onDisconnect(const std::function<void(net::socket::tls::SocketConnection*)>& onDisconnect) {
+            _onDisconnect = onDisconnect;
+        }
+
     protected:
+        std::function<void(net::socket::tls::SocketConnection*)> _onConnect = nullptr;
+        std::function<void(net::socket::tls::SocketConnection*)> _onDisconnect = nullptr;
+
         http::tls::HTTPServer httpServer;
 
     private:
