@@ -145,9 +145,7 @@ legacy::SocketClient legacyClient() {
 int main(int argc, char* argv[]) {
     net::EventLoop::init(argc, argv);
 
-    tls::SocketClient sc = tlsClient();
     legacy::SocketClient lc = legacyClient();
-
     lc.connect("calisto.home.vchrist.at", 8080, [](int err) -> void { // example.com:81 simulate connnect timeout
         if (err) {
             std::cout << "Connect: " << strerror(err) << std::endl;
@@ -156,6 +154,7 @@ int main(int argc, char* argv[]) {
         }
     });
 
+    tls::SocketClient sc = tlsClient();
     sc.connect("calisto.home.vchrist.at", 8088, [](int err) -> void {
         if (err) {
             std::cout << "Connect: " << strerror(err) << std::endl;
