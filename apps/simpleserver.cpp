@@ -103,7 +103,7 @@ int main(int argc, char** argv) {
 
             // We could do all sorts of certificate verification stuff here before deallocating the certificate.
 
-            GENERAL_NAMES* subjectAltNames = (GENERAL_NAMES*) X509_get_ext_d2i(client_cert, NID_subject_alt_name, NULL, NULL);
+            GENERAL_NAMES* subjectAltNames = static_cast<GENERAL_NAMES*>(X509_get_ext_d2i(client_cert, NID_subject_alt_name, NULL, NULL));
 
             int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
             VLOG(0) << "\t   Subject alternative name count: " << altNameCount;
@@ -122,6 +122,7 @@ int main(int argc, char** argv) {
                     VLOG(0) << "\t      SAN (Type): '" + std::to_string(generalName->type);
                 }
             }
+            sk_GENERAL_NAME_pop_free(subjectAltNames, GENERAL_NAME_free);
 
             X509_free(client_cert);
         } else {
