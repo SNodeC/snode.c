@@ -90,11 +90,11 @@ int main(int argc, char** argv) {
             VLOG(0) << "Client certificate";
 
             char* str = X509_NAME_oneline(X509_get_subject_name(client_cert), 0, 0);
-            VLOG(0) << "\t subject: " + std::string(str);
+            VLOG(0) << "\tsubject: " + std::string(str);
             OPENSSL_free(str);
 
             str = X509_NAME_oneline(X509_get_issuer_name(client_cert), 0, 0);
-            VLOG(0) << "\t issuer: " + std::string(str);
+            VLOG(0) << "\tissuer: " + std::string(str);
             OPENSSL_free(str);
 
             // We could do all sorts of certificate verification stuff here before deallocating the certificate.
@@ -102,7 +102,7 @@ int main(int argc, char** argv) {
             X509_free(client_cert);
 
             int verifyErr = SSL_get_verify_result(socketConnection->getSSL());
-            VLOG(0) << "Certificate verify result: " + std::string(X509_verify_cert_error_string(verifyErr));
+            VLOG(0) << "\tCertificate verify result: " + std::string(X509_verify_cert_error_string(verifyErr));
         } else {
             VLOG(0) << "Client \"" + socketConnection->getRemoteAddress().host() + "\" does not have certificate.";
         }
