@@ -34,7 +34,7 @@ namespace net::socket::tls {
                                const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t n)>& onRead,
                                const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                                const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
-                               const std::string& caFile, const std::string& caDir)
+                               const std::string& caFile, const std::string& caDir, bool useDefaultCADir)
         : socket::SocketClient<SocketConnection>(
               [this, onConnect](SocketConnection* socketConnection) -> void {
                   class TLSConnector
@@ -153,7 +153,8 @@ namespace net::socket::tls {
                                                    !caDir.empty() ? caDir.c_str() : nullptr)) {
                     sslErr = ERR_peek_error();
                 }
-            } else {
+            }
+            if (sslErr == 0 && useDefaultCADir) {
                 if (!SSL_CTX_set_default_verify_paths(ctx)) {
                     sslErr = ERR_peek_error();
                 }
@@ -169,8 +170,8 @@ namespace net::socket::tls {
                                const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                                const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                                const std::string& certChain, const std::string& keyPEM, const std::string& password,
-                               const std::string& caFile, const std::string& caDir)
-        : SocketClient(onConnect, onDisconnect, onRead, onReadError, onWriteError, caFile, caDir) {
+                               const std::string& caFile, const std::string& caDir, bool useDefaultCADir)
+        : SocketClient(onConnect, onDisconnect, onRead, onReadError, onWriteError, caFile, caDir, useDefaultCADir) {
         if (sslErr == SSL_ERROR_NONE) {
             SSL_CTX_set_default_passwd_cb(ctx, SocketClient::passwordCallback);
             SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(password.c_str()));
