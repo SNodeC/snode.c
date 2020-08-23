@@ -27,7 +27,7 @@
 namespace express::tls {
 
     WebApp::WebApp(const std::string& cert, const std::string& key, const std::string& password, const std::string& caFile,
-                   const std::string& caDir)
+                   const std::string& caDir, bool useDefaultCADir)
         : httpServer(
               [this]([[maybe_unused]] net::socket::tls::SocketConnection* socketConnection) -> void { // onConnect
                   if (_onConnect != nullptr) {
@@ -44,7 +44,7 @@ namespace express::tls {
                       _onDisconnect(socketConnection);
                   }
               },
-              cert, key, password, caFile, caDir) {
+              cert, key, password, caFile, caDir, useDefaultCADir) {
     }
 
     void WebApp::listen(in_port_t port, const std::function<void(int err)>& onError) {

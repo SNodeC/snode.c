@@ -36,7 +36,8 @@ namespace http {
                                const std::function<void(Request& req, Response& res)>& onRequestReady,
                                const std::function<void(Request& req, Response& res)>& onResponseCompleted,
                                const std::function<void(net::socket::tls::SocketConnection*)>& onDisconnect, const std::string& cert,
-                               const std::string& key, const std::string& password, const std::string& caFile, const std::string& caDir)
+                               const std::string& key, const std::string& password, const std::string& caFile, const std::string& caDir,
+                               bool useDefaultCADir)
             : onConnect(onConnect)
             , onRequestReady(onRequestReady)
             , onResponseCompleted(onResponseCompleted)
@@ -45,7 +46,8 @@ namespace http {
             , key(key)
             , password(password)
             , caFile(caFile)
-            , caDir(caDir) {
+            , caDir(caDir)
+            , useDefaultCADir(useDefaultCADir) {
         }
 
         void HTTPServer::listen(in_port_t port, const std::function<void(int err)>& onError) {
@@ -84,7 +86,7 @@ namespace http {
                          protocol->onWriteError(errnum);
                      });
                  },
-                 cert, key, password, caFile, caDir))
+                 cert, key, password, caFile, caDir, useDefaultCADir))
                 ->listen(port, 5, [&](int err) -> void {
                     if (onError) {
                         onError(err);
