@@ -134,8 +134,8 @@ namespace net::socket::tls {
                   new TLSAcceptor(socketConnection, ctx, onConnect);
               },
               [onDisconnect](SocketConnection* socketConnection) -> void {
-                  socketConnection->stopSSL();
                   onDisconnect(socketConnection);
+                  socketConnection->stopSSL();
               },
               onRead, onReadError, onWriteError)
         , ctx(nullptr) {

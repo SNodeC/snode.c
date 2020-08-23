@@ -93,7 +93,7 @@ namespace net::socket {
                                                   this->WriteEventReceiver::disable();
                                               },
                                               (struct timeval){CONNECT_TIMEOUT, 0}, nullptr)) {
-                                        this->open(socketConnection->getFd(), FLAGS::dontClose);
+                                        open(socketConnection->getFd(), FLAGS::dontClose);
                                         errno = 0;
                                         int ret =
                                             ::connect(socketConnection->getFd(), reinterpret_cast<const sockaddr*>(&server.getSockAddr()),
