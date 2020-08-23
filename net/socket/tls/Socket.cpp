@@ -30,7 +30,10 @@ namespace net::socket::tls {
 
     SSL* Socket::startSSL(SSL_CTX* ctx) {
         ssl = SSL_new(ctx);
-        SSL_set_fd(ssl, getFd());
+
+        if (ssl != nullptr) {
+            SSL_set_fd(ssl, getFd());
+        }
 
         return ssl;
     }
