@@ -29,7 +29,7 @@
 namespace net::socket::tls {
 
     SSL* Socket::startSSL(SSL_CTX* ctx) {
-        this->ssl = SSL_new(ctx);
+        ssl = SSL_new(ctx);
         SSL_set_fd(ssl, getFd());
 
         return ssl;
@@ -38,6 +38,7 @@ namespace net::socket::tls {
     void Socket::stopSSL() {
         SSL_shutdown(ssl);
         SSL_free(ssl);
+        ssl = nullptr;
     }
 
     SSL* Socket::getSSL() {

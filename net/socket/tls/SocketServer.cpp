@@ -58,7 +58,7 @@ namespace net::socket::tls {
                                 (struct timeval){TLSACCEPT_TIMEOUT, 0}, nullptr)) {
                           open(socketConnection->getFd(), FLAGS::dontClose);
                           ssl = socketConnection->startSSL(ctx);
-                          if (ssl) {
+                          if (ssl != nullptr) {
                               int err = SSL_accept(ssl);
                               int sslErr = SSL_get_error(ssl, err);
 
@@ -140,9 +140,7 @@ namespace net::socket::tls {
               onRead, onReadError, onWriteError)
         , ctx(nullptr) {
         ctx = SSL_CTX_new(TLS_server_method());
-        if (!ctx) {
-            sslErr = ERR_peek_error();
-        } else {
+        if (ctx != nullptr) {
             SSL_CTX_set_default_passwd_cb(ctx, SocketServer::passwordCallback);
             SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(password.c_str()));
             if (SSL_CTX_use_certificate_chain_file(ctx, certChain.c_str()) <= 0) {
@@ -165,11 +163,13 @@ namespace net::socket::tls {
                     SSL_CTX_set_verify(ctx, SSL_VERIFY_FLAGS, NULL);
                 }
             }
+        } else {
+            sslErr = ERR_peek_error();
         }
     }
 
     SocketServer::~SocketServer() {
-        if (ctx) {
+        if (ctx != nullptr) {
             SSL_CTX_free(ctx);
             ctx = nullptr;
         }
