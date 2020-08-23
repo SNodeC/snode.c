@@ -56,7 +56,7 @@ namespace net::socket {
 
     protected:
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
-        SocketConnection(int scFd, const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t n)>& onRead,
+        SocketConnection(const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t n)>& onRead,
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                          const std::function<void(SocketConnection* socketConnection)>& onDisconnect)
@@ -71,23 +71,14 @@ namespace net::socket {
                 onWriteError(this, errnum);
             })
             , onDisconnect(onDisconnect) {
-            this->attachFd(scFd);
         }
 
     public:
-        static SocketConnection* create(int socketConnectionFd,
-                                        const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t n)>& onRead,
-                                        const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
-                                        const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
-                                        const std::function<void(SocketConnection* socketConnection)>& onDisconnect) {
-            return new SocketConnection(socketConnectionFd, onRead, onReadError, onWriteError, onDisconnect);
-        } // NOLINT(cppcoreguidelines-pro-type-member-init)
-
         static SocketConnection* create(const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t n)>& onRead,
                                         const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                                         const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                                         const std::function<void(SocketConnection* socketConnection)>& onDisconnect) {
-            return SocketConnection::create(0, onRead, onReadError, onWriteError, onDisconnect);
+            return new SocketConnection(onRead, onReadError, onWriteError, onDisconnect);
         } // NOLINT(cppcoreguidelines-pro-type-member-init)
 
     private:

@@ -33,10 +33,6 @@ namespace net {
         }
     }
 
-    void Descriptor::attachFd(int fd) {
-        this->fd = fd;
-    }
-
     int Descriptor::getFd() const {
         if (fd < 0) {
             LOG(FATAL) << "Descriptor not initialized";

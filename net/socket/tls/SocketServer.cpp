@@ -47,7 +47,7 @@ namespace net::socket::tls {
                   public:
                       TLSAcceptor(SocketConnection* socketConnection, SSL_CTX* ctx,
                                   const std::function<void(SocketConnection* socketConnection)>& onConnect)
-                          : Descriptor(true)
+                          : Descriptor(socketConnection->getFd(), true)
                           , socketConnection(socketConnection)
                           , ssl(socketConnection->startSSL(ctx))
                           , onConnect(onConnect)
@@ -59,8 +59,6 @@ namespace net::socket::tls {
                                 },
                                 (struct timeval){TLSACCEPT_TIMEOUT, 0}, nullptr)) {
                           if (ssl) {
-                              attachFd(socketConnection->getFd());
-
                               int err = SSL_accept(ssl);
                               int sslErr = SSL_get_error(ssl, err);
 

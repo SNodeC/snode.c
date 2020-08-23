@@ -123,7 +123,9 @@ namespace net::socket {
                 socklen_t addressLength = sizeof(localAddress);
 
                 if (getsockname(scFd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
-                    SocketConnection* socketConnection = SocketConnection::create(scFd, onRead, onReadError, onWriteError, onDisconnect);
+                    SocketConnection* socketConnection = SocketConnection::create(onRead, onReadError, onWriteError, onDisconnect);
+
+                    socketConnection->open(scFd);
 
                     socketConnection->setRemoteAddress(InetAddress(remoteAddress));
                     socketConnection->setLocalAddress(InetAddress(localAddress));
