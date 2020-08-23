@@ -142,8 +142,8 @@ namespace net::socket::tls {
                   new TLSConnector(this, socketConnection, ctx, onConnect);
               },
               [onDisconnect](SocketConnection* socketConnection) -> void {
-                  socketConnection->stopSSL();
                   onDisconnect(socketConnection);
+                  socketConnection->stopSSL();
               },
               onRead, onReadError, onWriteError) {
         ctx = SSL_CTX_new(TLS_client_method());
