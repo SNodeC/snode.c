@@ -59,12 +59,12 @@ namespace net::socket {
     }
 
     InetAddress::InetAddress(const InetAddress& ina) {
-        memcpy(&this->addr, &ina.addr, sizeof(struct sockaddr_in));
+        memcpy(&addr, &ina.addr, sizeof(struct sockaddr_in));
     }
 
     InetAddress& InetAddress::operator=(const InetAddress& ina) {
         if (this != &ina) {
-            memcpy(&this->addr, &ina.addr, sizeof(struct sockaddr_in));
+            memcpy(&addr, &ina.addr, sizeof(struct sockaddr_in));
         }
 
         return *this;
@@ -96,7 +96,7 @@ namespace net::socket {
     }
 
     const struct sockaddr_in& InetAddress::getSockAddr() const {
-        return this->addr;
+        return addr;
     }
 
 } // namespace net::socket

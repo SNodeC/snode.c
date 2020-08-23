@@ -56,8 +56,7 @@ namespace net::socket {
 
     protected:
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
-        SocketConnection(int socketConnectionFd,
-                         const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t n)>& onRead,
+        SocketConnection(int scFd, const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t n)>& onRead,
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                          const std::function<void(SocketConnection* socketConnection)>& onDisconnect)
@@ -72,7 +71,7 @@ namespace net::socket {
                 onWriteError(this, errnum);
             })
             , onDisconnect(onDisconnect) {
-            this->attachFd(socketConnectionFd);
+            this->attachFd(scFd);
         }
 
     public:
@@ -95,18 +94,18 @@ namespace net::socket {
         void unobserved() override {
             onDisconnect(this);
 
-            if (this->isDynamic) {
+            if (isDynamic) {
                 delete this;
             }
         }
 
     public:
         void enqueue(const char* buffer, size_t size) override {
-            this->SocketWriter::enqueue(buffer, size);
+            SocketWriter::enqueue(buffer, size);
         }
 
         void enqueue(const std::string& data) override {
-            this->enqueue(data.c_str(), data.size());
+            enqueue(data.c_str(), data.size());
         }
 
         void end(bool instantly = false) override {

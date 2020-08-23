@@ -142,7 +142,7 @@ namespace express {
         if ((req.path.rfind(cpath, 0) == 0 && mountPoint.method == "use") ||
             (cpath == req.path && (req.method == mountPoint.method || mountPoint.method == "all"))) {
             next = false;
-            this->dispatcher(req, res, [&next]() -> void {
+            dispatcher(req, res, [&next]() -> void {
                 next = true;
             });
         }
@@ -157,7 +157,7 @@ namespace express {
         if ((req.path.rfind(cpath, 0) == 0 && mountPoint.method == "use") ||
             (cpath == req.path && (req.method == mountPoint.method || mountPoint.method == "all"))) {
             next = false;
-            this->dispatcher(req, res);
+            dispatcher(req, res);
         }
 
         return next;

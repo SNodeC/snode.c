@@ -57,22 +57,22 @@ namespace http {
     }
 
     void Response::enqueue(const std::string& str) {
-        this->enqueue(str.c_str(), str.size());
+        enqueue(str.c_str(), str.size());
     }
 
     Response& Response::status(int status) {
-        this->responseStatus = status;
+        responseStatus = status;
 
         return *this;
     }
 
     Response& Response::append(const std::string& field, const std::string& value) {
-        std::map<std::string, std::string>::iterator it = this->headers.find(field);
+        std::map<std::string, std::string>::iterator it = headers.find(field);
 
-        if (it != this->headers.end()) {
+        if (it != headers.end()) {
             it->second += ", " + value;
         } else {
-            this->set(field, value);
+            set(field, value);
         }
 
         return *this;
@@ -80,7 +80,7 @@ namespace http {
 
     Response& Response::set(const std::map<std::string, std::string>& headers, bool overwrite) {
         for (auto& [field, value] : headers) {
-            this->set(field, value, overwrite);
+            set(field, value, overwrite);
         }
 
         return *this;
@@ -88,9 +88,9 @@ namespace http {
 
     Response& Response::set(const std::string& field, const std::string& value, bool overwrite) {
         if (overwrite) {
-            this->headers.insert_or_assign(field, value);
+            headers.insert_or_assign(field, value);
         } else {
-            this->headers.insert({field, value});
+            headers.insert({field, value});
         }
 
         if (field == "Content-Length") {
@@ -103,13 +103,13 @@ namespace http {
     }
 
     Response& Response::type(const std::string& type) {
-        this->set({{"Content-Type", type}});
+        set({{"Content-Type", type}});
 
         return *this;
     }
 
     Response& Response::cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options) {
-        this->cookies.insert({name, ResponseCookie(value, options)});
+        cookies.insert({name, ResponseCookie(value, options)});
 
         return *this;
     }
@@ -121,7 +121,7 @@ namespace http {
         time_t time = 0;
         opts["Expires"] = httputils::to_http_date(gmtime(&time));
 
-        this->cookie(name, "", opts);
+        cookie(name, "", opts);
 
         return *this;
     }
@@ -132,24 +132,24 @@ namespace http {
         }
         headers.insert_or_assign("Content-Length", std::to_string(size));
 
-        this->enqueue(buffer, size);
+        enqueue(buffer, size);
     }
 
     void Response::send(const std::string& text) {
         if (text.size() > 0) {
             headers.insert({"Content-Type", "text/html; charset=utf-8"});
         }
-        this->send(text.c_str(), text.size());
+        send(text.c_str(), text.size());
     }
 
     void Response::sendHeader() {
-        this->enqueue("HTTP/1.1 " + std::to_string(responseStatus) + " " + HTTPStatusCode::reason(responseStatus) + "\r\n");
-        this->enqueue("Date: " + httputils::to_http_date() + "\r\n");
+        enqueue("HTTP/1.1 " + std::to_string(responseStatus) + " " + HTTPStatusCode::reason(responseStatus) + "\r\n");
+        enqueue("Date: " + httputils::to_http_date() + "\r\n");
 
         headers.insert({{"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}, {"X-Powered-By", "snode.c"}});
 
         for (auto& [field, value] : headers) {
-            this->enqueue(field + ": " + value + "\r\n");
+            enqueue(field + ": " + value + "\r\n");
         }
 
         for (auto& [cookie, cookieValue] : cookies) {
@@ -158,10 +158,10 @@ namespace http {
                                 [](const std::string& str, const std::pair<const std::string&, const std::string&> option) -> std::string {
                                     return str + "; " + option.first + (!option.second.empty() ? "=" + option.second : "");
                                 });
-            this->enqueue("Set-Cookie: " + cookieString + "\r\n");
+            enqueue("Set-Cookie: " + cookieString + "\r\n");
         }
 
-        this->enqueue("\r\n");
+        enqueue("\r\n");
 
         contentLength = std::stoi(headers.find("Content-Length")->second);
     }
@@ -188,7 +188,7 @@ namespace http {
                 fileReader = FileReader::read(
                     absolutFileName,
                     [this](char* data, int length) -> void {
-                        this->enqueue(data, length);
+                        enqueue(data, length);
                     },
                     [this, onError](int err) -> void {
                         if (onError) {
@@ -201,8 +201,8 @@ namespace http {
             } else {
                 responseStatus = 403;
                 errno = EACCES;
-                this->end();
-                this->httpContext->terminateConnection();
+                end();
+                httpContext->terminateConnection();
                 if (onError) {
                     onError(EACCES);
                 }
@@ -210,8 +210,8 @@ namespace http {
         } else {
             responseStatus = 404;
             errno = ENOENT;
-            this->end();
-            this->httpContext->terminateConnection();
+            end();
+            httpContext->terminateConnection();
             if (onError) {
                 onError(ENOENT);
             }
@@ -225,20 +225,20 @@ namespace http {
             name.erase(0, 1);
         }
 
-        this->download(file, name, onError);
+        download(file, name, onError);
     }
 
     void Response::download(const std::string& file, const std::string& name, const std::function<void(int err)>& onError) {
-        this->set({{"Content-Disposition", "attachment; filename=\"" + name + "\""}}).sendFile(file, onError);
+        set({{"Content-Disposition", "attachment; filename=\"" + name + "\""}}).sendFile(file, onError);
     }
 
     void Response::redirect(const std::string& name) {
-        this->redirect(302, name);
+        redirect(302, name);
     }
 
     void Response::redirect(int status, const std::string& name) {
         this->status(status).set({{"Location", name}});
-        this->end();
+        end();
     }
 
     void Response::sendStatus(int status) {
@@ -246,8 +246,8 @@ namespace http {
     }
 
     void Response::end() {
-        this->send("");
-        this->httpContext->responseCompleted();
+        send("");
+        httpContext->responseCompleted();
     }
 
     void Response::reset() {

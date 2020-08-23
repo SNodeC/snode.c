@@ -65,7 +65,7 @@ namespace net::socket {
                 onRead(junk, ret);
             } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
                 ReadEventReceiver::disable();
-                this->onError(ret == 0 ? 0 : errno);
+                onError(ret == 0 ? 0 : errno);
             }
         }
 

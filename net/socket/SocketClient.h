@@ -94,7 +94,7 @@ namespace net::socket {
                                                   this->WriteEventReceiver::disable();
                                               },
                                               (struct timeval){CONNECT_TIMEOUT, 0}, nullptr)) {
-                                        this->attachFd(socketConnection->getFd());
+                                        attachFd(socketConnection->getFd());
 
                                         errno = 0;
                                         int ret =
@@ -117,7 +117,7 @@ namespace net::socket {
                                             onConnect(socketConnection);
                                             unobserved();
                                         } else if (errno == EINPROGRESS) {
-                                            this->WriteEventReceiver::enable();
+                                            WriteEventReceiver::enable();
                                         } else {
                                             timeOut.cancel();
                                             onError(errno);
@@ -132,7 +132,7 @@ namespace net::socket {
                                         int err = getsockopt(socketConnection->getFd(), SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);
 
                                         timeOut.cancel();
-                                        this->WriteEventReceiver::disable();
+                                        WriteEventReceiver::disable();
 
                                         if (err < 0) {
                                             onError(err);
