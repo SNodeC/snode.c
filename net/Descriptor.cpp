@@ -27,10 +27,18 @@
 
 namespace net {
 
+    Descriptor::Descriptor(bool dontClose)
+        : dontClose(dontClose) {
+    }
+
     Descriptor::~Descriptor() {
         if (!dontClose) {
             ::close(fd);
         }
+    }
+
+    void Descriptor::open(int fd) {
+        this->fd = fd;
     }
 
     int Descriptor::getFd() const {

@@ -54,7 +54,7 @@ namespace net::socket::tls {
                      const net::socket::InetAddress& localAddress = net::socket::InetAddress()) override;
 
     private:
-        SSL_CTX* ctx;
+        SSL_CTX* ctx = nullptr;
         unsigned long sslErr = 0;
         static int passwordCallback(char* buf, int size, int rwflag, void* u);
 

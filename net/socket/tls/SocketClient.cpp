@@ -44,10 +44,9 @@ namespace net::socket::tls {
                   public:
                       TLSConnector(SocketClient* socketClient, SocketConnection* socketConnection, SSL_CTX* ctx,
                                    const std::function<void(SocketConnection* socketConnection)>& onConnect)
-                          : Descriptor(socketConnection->getFd(), true)
+                          : Descriptor(true)
                           , socketClient(socketClient)
                           , socketConnection(socketConnection)
-                          , ssl(socketConnection->startSSL(ctx))
                           , onConnect(onConnect)
                           , timeOut(timer::Timer::singleshotTimer(
                                 [this]([[maybe_unused]] const void* arg) -> void {
@@ -57,6 +56,8 @@ namespace net::socket::tls {
                                     this->socketConnection->ReadEventReceiver::disable();
                                 },
                                 (struct timeval){TLSCONNECT_TIMEOUT, 0}, nullptr)) {
+                          open(socketConnection->getFd());
+                          ssl = socketConnection->startSSL(ctx);
                           if (ssl) {
                               int err = SSL_connect(ssl);
                               int sslErr = SSL_get_error(ssl, err);

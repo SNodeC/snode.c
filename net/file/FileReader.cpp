@@ -29,10 +29,10 @@
 #include "FileReader.h"
 
 FileReader::FileReader(int fd, const std::function<void(char* data, int len)>& junkRead, const std::function<void(int err)>& onError)
-    : Descriptor(fd)
-    , junkRead(junkRead)
+    : junkRead(junkRead)
     , onError(onError)
     , stopped(false) {
+    open(fd);
     ReadEventReceiver::enable();
 }
 
