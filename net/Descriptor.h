@@ -27,22 +27,28 @@ namespace net {
 
     class Descriptor {
     protected:
-        explicit Descriptor(bool dontClose = false);
+        Descriptor() = default;
 
     public:
         Descriptor(const Descriptor& d) = delete;
         Descriptor& operator=(const Descriptor& descriptor) = delete;
         ~Descriptor();
 
-        void open(int fd);
+        enum struct FLAGS : unsigned short {
+            none = 0,
+            dontClose = 0x01 << 0 // do not close sys-descriptor in case of desctruction
+        } flags{FLAGS::none};
 
+        void open(int fd, FLAGS flags = FLAGS::none);
         int getFd() const;
+        bool dontClose() const;
 
     private:
         int fd = -1;
 
     protected:
-        bool dontClose = false;
+        friend enum FLAGS operator|(const enum FLAGS& f1, const enum FLAGS& f2);
+        friend enum FLAGS operator&(const enum FLAGS& f1, const enum FLAGS& f2);
     };
 
 } // namespace net

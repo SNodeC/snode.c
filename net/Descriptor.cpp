@@ -27,18 +27,15 @@
 
 namespace net {
 
-    Descriptor::Descriptor(bool dontClose)
-        : dontClose(dontClose) {
-    }
-
     Descriptor::~Descriptor() {
-        if (!dontClose) {
+        if (!dontClose()) {
             ::close(fd);
         }
     }
 
-    void Descriptor::open(int fd) {
+    void Descriptor::open(int fd, FLAGS flags) {
         this->fd = fd;
+        this->flags = flags;
     }
 
     int Descriptor::getFd() const {
@@ -47,6 +44,18 @@ namespace net {
         }
 
         return fd;
+    }
+
+    bool Descriptor::dontClose() const {
+        return (flags & FLAGS::dontClose) == FLAGS::dontClose;
+    }
+
+    enum Descriptor::FLAGS operator|(const enum Descriptor::FLAGS& f1, const enum Descriptor::FLAGS& f2) {
+        return static_cast<enum Descriptor::FLAGS>(static_cast<unsigned short>(f1) | static_cast<unsigned short>(f2));
+    }
+
+    enum Descriptor::FLAGS operator&(const enum Descriptor::FLAGS& f1, const enum Descriptor::FLAGS& f2) {
+        return static_cast<enum Descriptor::FLAGS>(static_cast<unsigned short>(f1) & static_cast<unsigned short>(f2));
     }
 
 } // namespace net
