@@ -57,7 +57,7 @@ namespace net::socket::tls {
                                 (struct timeval){TLSCONNECT_TIMEOUT, 0}, nullptr)) {
                           open(socketConnection->getFd(), FLAGS::dontClose);
                           ssl = socketConnection->startSSL(ctx);
-                          if (ssl) {
+                          if (ssl != nullptr) {
                               int err = SSL_connect(ssl);
                               int sslErr = SSL_get_error(ssl, err);
 
@@ -147,7 +147,7 @@ namespace net::socket::tls {
               },
               onRead, onReadError, onWriteError) {
         ctx = SSL_CTX_new(TLS_client_method());
-        if (ctx) {
+        if (ctx != nullptr) {
             if (!caFile.empty() || !caDir.empty()) {
                 if (!SSL_CTX_load_verify_locations(ctx, !caFile.empty() ? caFile.c_str() : nullptr,
                                                    !caDir.empty() ? caDir.c_str() : nullptr)) {
@@ -185,7 +185,7 @@ namespace net::socket::tls {
     }
 
     SocketClient::~SocketClient() {
-        if (ctx) {
+        if (ctx != nullptr) {
             SSL_CTX_free(ctx);
             ctx = nullptr;
         }
