@@ -29,7 +29,7 @@
 namespace net::socket {
 
     Socket::~Socket() {
-        if (!dontClose) {
+        if (!dontClose()) {
             ::shutdown(getFd(), SHUT_RDWR);
         }
     }
