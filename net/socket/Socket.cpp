@@ -34,11 +34,15 @@ namespace net::socket {
         }
     }
 
+    void Socket::open(int fd) {
+        this->fd = fd;
+    }
+
     void Socket::open(const std::function<void(int errnum)>& onError, int flags) {
         int fd = ::socket(AF_INET, SOCK_STREAM | flags, 0);
 
         if (fd >= 0) {
-            attachFd(fd);
+            open(fd);
             onError(0);
         } else {
             onError(errno);

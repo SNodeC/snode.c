@@ -40,6 +40,7 @@ namespace net::socket {
 
         Socket& operator=(const Socket&) = delete;
 
+        void open(int fd);
         void open(const std::function<void(int errnum)>& onError, int flags = 0);
         void bind(const InetAddress& localAddress, const std::function<void(int errnum)>& onError);
 
