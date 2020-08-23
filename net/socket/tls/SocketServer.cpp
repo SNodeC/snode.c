@@ -37,7 +37,7 @@ namespace net::socket::tls {
                                const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                                const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                                const std::string& certChain, const std::string& keyPEM, const std::string& password,
-                               const std::string& caFile, const std::string& caDir)
+                               const std::string& caFile, const std::string& caDir, bool useDefaultCADir)
         : net::socket::SocketServer<SocketConnection>(
               [this, onConnect](SocketConnection* socketConnection) -> void {
                   class TLSAcceptor
@@ -149,17 +149,19 @@ namespace net::socket::tls {
                 sslErr = ERR_peek_error();
             } else if (!SSL_CTX_check_private_key(ctx)) {
                 sslErr = ERR_peek_error();
-            } else if (!caFile.empty() || !caDir.empty()) {
-                if (!SSL_CTX_load_verify_locations(ctx, !caFile.empty() ? caFile.c_str() : nullptr,
-                                                   !caDir.empty() ? caDir.c_str() : nullptr)) {
-                    sslErr = ERR_peek_error();
-                } else {
-                    SSL_CTX_set_verify(ctx, SSL_VERIFY_FLAGS, NULL);
-                }
             } else {
-                if (!SSL_CTX_set_default_verify_paths(ctx)) {
-                    sslErr = ERR_peek_error();
-                } else {
+                if (!caFile.empty() || !caDir.empty()) {
+                    if (!SSL_CTX_load_verify_locations(ctx, !caFile.empty() ? caFile.c_str() : nullptr,
+                                                       !caDir.empty() ? caDir.c_str() : nullptr)) {
+                        sslErr = ERR_peek_error();
+                    }
+                }
+                if (sslErr == 0 && useDefaultCADir) {
+                    if (!SSL_CTX_set_default_verify_paths(ctx)) {
+                        sslErr = ERR_peek_error();
+                    }
+                }
+                if (sslErr == 0 && (useDefaultCADir || !caFile.empty() || !caDir.empty())) {
                     SSL_CTX_set_verify(ctx, SSL_VERIFY_FLAGS, NULL);
                 }
             }
@@ -194,5 +196,4 @@ namespace net::socket::tls {
 
         return ::strlen(buf);
     }
-
 }; // namespace net::socket::tls
