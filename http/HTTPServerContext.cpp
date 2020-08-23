@@ -71,7 +71,7 @@ namespace http {
               },
               [this](void) -> void {
                   VLOG(1) << "++ Parsed ++";
-                  this->requestReady();
+                  requestReady();
               },
               [this](int status, const std::string& reason) -> void {
                   VLOG(1) << "++ Error: " << status << " : " << reason;
@@ -112,7 +112,7 @@ namespace http {
     }
 
     void HTTPServerContext::requestReady() {
-        this->requestInProgress = true;
+        requestInProgress = true;
 
         onRequestReady(request, response);
     }
@@ -128,7 +128,7 @@ namespace http {
         request.reset();
         response.reset();
 
-        this->requestInProgress = false;
+        requestInProgress = false;
     }
 
     void HTTPServerContext::terminateConnection() {

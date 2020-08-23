@@ -63,7 +63,7 @@ namespace utils {
             bool inserted = false;
 
             if (!this->attribute || overwrite) {
-                this->attributeType = typeid(Attribute).name();
+                attributeType = typeid(Attribute).name();
                 this->attribute = std::shared_ptr<void>(new AttributeProxy<Attribute>(attribute));
                 inserted = true;
             }
@@ -76,7 +76,7 @@ namespace utils {
             bool inserted = false;
 
             if (!this->attribute || overwrite) {
-                this->attributeType = typeid(Attribute).name();
+                attributeType = typeid(Attribute).name();
                 this->attribute = std::shared_ptr<void>(new AttributeProxy<Attribute>(attribute));
                 inserted = true;
             }
@@ -88,8 +88,8 @@ namespace utils {
         constexpr bool getAttribute(const std::function<void(Attribute& attribute)>& onFound) const {
             bool found = false;
 
-            if (this->attribute != nullptr && this->attributeType == typeid(Attribute).name()) {
-                onFound(**std::static_pointer_cast<AttributeProxy<Attribute>>(this->attribute));
+            if (attribute != nullptr && attributeType == typeid(Attribute).name()) {
+                onFound(**std::static_pointer_cast<AttributeProxy<Attribute>>(attribute));
             }
 
             return found;
@@ -98,8 +98,8 @@ namespace utils {
         template <InjectedAttribute Attribute>
         constexpr void getAttribute(const std::function<void(Attribute& attribute)>& onFound,
                                     const std::function<void(const std::string&)>& onNotFound) const {
-            if (this->attribute != nullptr && this->attributeType == typeid(Attribute).name()) {
-                onFound(**std::static_pointer_cast<AttributeProxy<Attribute>>(this->attribute));
+            if (attribute != nullptr && attributeType == typeid(Attribute).name()) {
+                onFound(**std::static_pointer_cast<AttributeProxy<Attribute>>(attribute));
             } else {
                 onNotFound(std::string(typeid(Attribute).name()));
             }

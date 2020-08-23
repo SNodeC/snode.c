@@ -74,19 +74,19 @@ namespace net::socket {
         ~SocketServer() = default;
 
         void listen(const InetAddress& localAddress, int backlog, const std::function<void(int err)>& onError) {
-            this->open([this, &localAddress, &backlog, &onError](int errnum) -> void {
+            open([this, &localAddress, &backlog, &onError](int errnum) -> void {
                 if (errnum > 0) {
                     onError(errnum);
                 } else {
-                    this->reuseAddress([this, &localAddress, &backlog, &onError](int errnum) -> void {
+                    reuseAddress([this, &localAddress, &backlog, &onError](int errnum) -> void {
                         if (errnum != 0) {
                             onError(errnum);
                         } else {
-                            this->bind(localAddress, [this, &backlog, &onError](int errnum) -> void {
+                            bind(localAddress, [this, &backlog, &onError](int errnum) -> void {
                                 if (errnum > 0) {
                                     onError(errnum);
                                 } else {
-                                    this->listen(backlog, [this, &onError](int errnum) -> void {
+                                    listen(backlog, [this, &onError](int errnum) -> void {
                                         if (errnum == 0) {
                                             AcceptEventReceiver::enable();
                                         }
@@ -114,16 +114,16 @@ namespace net::socket {
             struct sockaddr_in remoteAddress {};
             socklen_t addrlen = sizeof(remoteAddress);
 
-            int csFd = -1;
+            int scFd = -1;
 
-            csFd = ::accept4(this->getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &addrlen, SOCK_NONBLOCK);
+            scFd = ::accept4(getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &addrlen, SOCK_NONBLOCK);
 
-            if (csFd >= 0) {
+            if (scFd >= 0) {
                 struct sockaddr_in localAddress {};
                 socklen_t addressLength = sizeof(localAddress);
 
-                if (getsockname(csFd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
-                    SocketConnection* socketConnection = SocketConnection::create(csFd, onRead, onReadError, onWriteError, onDisconnect);
+                if (getsockname(scFd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
+                    SocketConnection* socketConnection = SocketConnection::create(scFd, onRead, onReadError, onWriteError, onDisconnect);
 
                     socketConnection->setRemoteAddress(InetAddress(remoteAddress));
                     socketConnection->setLocalAddress(InetAddress(localAddress));
@@ -133,8 +133,8 @@ namespace net::socket {
                     onConnect(socketConnection);
                 } else {
                     PLOG(ERROR) << "getsockname";
-                    shutdown(csFd, SHUT_RDWR);
-                    ::close(csFd);
+                    shutdown(scFd, SHUT_RDWR);
+                    ::close(scFd);
                 }
             } else if (errno != EINTR) {
                 PLOG(ERROR) << "accept";
@@ -147,7 +147,7 @@ namespace net::socket {
 
     protected:
         void listen(int backlog, const std::function<void(int errnum)>& onError) {
-            int ret = ::listen(this->getFd(), backlog);
+            int ret = ::listen(getFd(), backlog);
 
             if (ret < 0) {
                 onError(errno);
@@ -160,7 +160,7 @@ namespace net::socket {
         void reuseAddress(const std::function<void(int errnum)>& onError) {
             int sockopt = 1;
 
-            if (setsockopt(this->getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
+            if (setsockopt(getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
                 onError(errno);
             } else {
                 onError(0);

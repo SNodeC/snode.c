@@ -35,7 +35,7 @@ namespace express::tls {
                   }
               },
               [this](http::Request& req, http::Response& res) -> void { // onRequestReady
-                  this->dispatch(req, res);
+                  dispatch(req, res);
               },
               []([[maybe_unused]] http::Request& req, [[maybe_unused]] http::Response& res) -> void { // onResponseFinished
               },

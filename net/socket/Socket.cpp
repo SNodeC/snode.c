@@ -30,7 +30,7 @@ namespace net::socket {
 
     Socket::~Socket() {
         if (!dontClose) {
-            ::shutdown(this->getFd(), SHUT_RDWR);
+            ::shutdown(getFd(), SHUT_RDWR);
         }
     }
 
@@ -38,7 +38,7 @@ namespace net::socket {
         int fd = ::socket(AF_INET, SOCK_STREAM | flags, 0);
 
         if (fd >= 0) {
-            this->attachFd(fd);
+            attachFd(fd);
             onError(0);
         } else {
             onError(errno);
@@ -52,7 +52,7 @@ namespace net::socket {
     void Socket::bind(const InetAddress& localAddress, const std::function<void(int errnum)>& onError) {
         socklen_t addrlen = sizeof(struct sockaddr_in);
 
-        int ret = ::bind(this->getFd(), reinterpret_cast<const struct sockaddr*>(&localAddress.getSockAddr()), addrlen);
+        int ret = ::bind(getFd(), reinterpret_cast<const struct sockaddr*>(&localAddress.getSockAddr()), addrlen);
 
         if (ret < 0) {
             onError(errno);

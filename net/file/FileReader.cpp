@@ -32,7 +32,7 @@ FileReader::FileReader(int fd, const std::function<void(char* data, int len)>& j
     : junkRead(junkRead)
     , onError(onError)
     , stopped(false) {
-    this->attachFd(fd);
+    attachFd(fd);
     ReadEventReceiver::enable();
 }
 
@@ -54,7 +54,7 @@ FileReader* FileReader::read(const std::string& path, const std::function<void(c
 void FileReader::disable() {
     if (!stopped) {
         ReadEventReceiver::disable();
-        this->onError(0);
+        onError(0);
         stopped = true;
     }
 }
@@ -67,15 +67,15 @@ void FileReader::readEvent() {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
     static char buffer[MFREADSIZE];
 
-    int ret = ::read(this->getFd(), buffer, MFREADSIZE);
+    int ret = ::read(getFd(), buffer, MFREADSIZE);
 
     if (!stopped) {
         if (ret > 0) {
-            this->junkRead(buffer, ret);
+            junkRead(buffer, ret);
         } else {
             stopped = true;
             ReadEventReceiver::disable();
-            this->onError(ret == 0 ? 0 : errno);
+            onError(ret == 0 ? 0 : errno);
         }
     }
 }
