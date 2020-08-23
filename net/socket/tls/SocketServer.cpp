@@ -196,4 +196,5 @@ namespace net::socket::tls {
 
         return ::strlen(buf);
     }
+
 }; // namespace net::socket::tls
