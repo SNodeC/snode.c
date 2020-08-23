@@ -27,23 +27,21 @@ namespace net {
 
     class Descriptor {
     protected:
-        explicit Descriptor(int fd, bool dontClose = false)
-            : fd(fd)
-            , dontClose(dontClose) {
-        }
-        explicit Descriptor(bool dontClose = false)
-            : dontClose(dontClose) {
-        }
+        explicit Descriptor(bool dontClose = false);
 
     public:
         Descriptor(const Descriptor& d) = delete;
         Descriptor& operator=(const Descriptor& descriptor) = delete;
         ~Descriptor();
 
+        void open(int fd);
+
         int getFd() const;
 
-    protected:
+    private:
         int fd = -1;
+
+    protected:
         bool dontClose = false;
     };
 

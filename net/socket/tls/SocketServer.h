@@ -50,7 +50,7 @@ namespace net::socket::tls {
         using net::socket::SocketServer<SocketConnection>::listen;
 
     private:
-        SSL_CTX* ctx;
+        SSL_CTX* ctx = nullptr;
         unsigned long sslErr = 0;
         static int passwordCallback(char* buf, int size, int rwflag, void* u);
     };

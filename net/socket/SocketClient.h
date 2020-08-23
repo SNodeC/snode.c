@@ -83,7 +83,7 @@ namespace net::socket {
                                     Connector(SocketConnection* socketConnection, const InetAddress& server,
                                               const std::function<void(SocketConnection* socketConnection)>& onConnect,
                                               const std::function<void(int err)>& onError)
-                                        : Descriptor(socketConnection->getFd(), true)
+                                        : Descriptor(true)
                                         , socketConnection(socketConnection)
                                         , server(server)
                                         , onConnect(onConnect)
@@ -94,6 +94,7 @@ namespace net::socket {
                                                   this->WriteEventReceiver::disable();
                                               },
                                               (struct timeval){CONNECT_TIMEOUT, 0}, nullptr)) {
+                                        this->open(socketConnection->getFd());
                                         errno = 0;
                                         int ret =
                                             ::connect(socketConnection->getFd(), reinterpret_cast<const sockaddr*>(&server.getSockAddr()),
