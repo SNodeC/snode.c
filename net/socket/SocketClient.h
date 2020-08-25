@@ -130,24 +130,28 @@ namespace net::socket {
                                         int err = getsockopt(socketConnection->getFd(), SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);
 
                                         timeOut.cancel();
-                                        WriteEventReceiver::disable();
 
-                                        if (err < 0) {
-                                            onError(err);
-                                        } else if (cErrno != 0) {
-                                            onError(cErrno);
-                                        } else {
-                                            struct sockaddr_in localAddress {};
-                                            socklen_t addressLength = sizeof(localAddress);
-                                            getsockname(socketConnection->getFd(), reinterpret_cast<sockaddr*>(&localAddress),
-                                                        &addressLength);
-                                            socketConnection->setLocalAddress(InetAddress(localAddress));
-                                            socketConnection->setRemoteAddress(server);
+                                        if (cErrno != EINPROGRESS) {
+                                            WriteEventReceiver::disable();
 
-                                            socketConnection->ReadEventReceiver::enable();
+                                            if (err < 0) {
+                                                onError(errno);
+                                            } else if (cErrno != 0) {
+                                                errno = cErrno;
+                                                onError(cErrno);
+                                            } else {
+                                                struct sockaddr_in localAddress {};
+                                                socklen_t addressLength = sizeof(localAddress);
+                                                getsockname(socketConnection->getFd(), reinterpret_cast<sockaddr*>(&localAddress),
+                                                            &addressLength);
+                                                socketConnection->setLocalAddress(InetAddress(localAddress));
+                                                socketConnection->setRemoteAddress(server);
 
-                                            onError(0);
-                                            onConnect(socketConnection);
+                                                socketConnection->ReadEventReceiver::enable();
+
+                                                onError(0);
+                                                onConnect(socketConnection);
+                                            }
                                         }
                                     }
 
