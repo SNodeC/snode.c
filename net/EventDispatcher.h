@@ -69,6 +69,7 @@ namespace net {
                 // same tick
                 enabledEventReceiver.remove(eventReceiver);
                 eventReceiver->disabled();
+                eventReceiver->destructIfUnobserved();
             } else if (eventReceiver->isEnabled() && !EventDispatcher<EventReceiver>::contains(disabledEventReceiver, eventReceiver)) {
                 // normal
                 disabledEventReceiver.push_back(eventReceiver);
