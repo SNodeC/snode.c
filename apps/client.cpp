@@ -119,7 +119,7 @@ tls::SocketClient tlsClient() {
 
     client.connect("localhost", 8088, [](int err) -> void {
         if (err) {
-            VLOG(0) << "Connect: " + std::string(strerror(err));
+            PLOG(ERROR) << "Connect: " + std::to_string(err);
         } else {
             VLOG(0) << "Connected";
         }
@@ -165,7 +165,7 @@ legacy::SocketClient legacyClient() {
 
     legacyClient.connect("localhost", 8080, [](int err) -> void {
         if (err) {
-            VLOG(0) << "Connect: " << strerror(err);
+            PLOG(ERROR) << "Connect: " << std::to_string(err);
         } else {
             VLOG(0) << "Connected";
         }
@@ -180,7 +180,7 @@ int main(int argc, char* argv[]) {
     legacy::SocketClient lc = legacyClient();
     lc.connect("localhost", 8080, [](int err) -> void { // example.com:81 simulate connnect timeout
         if (err) {
-            VLOG(0) << "Connect: " << strerror(err);
+            PLOG(ERROR) << "Connect: " << std::to_string(err);
         } else {
             VLOG(0) << "Connected";
         }
@@ -189,7 +189,7 @@ int main(int argc, char* argv[]) {
     tls::SocketClient sc = tlsClient();
     sc.connect("localhost", 8088, [](int err) -> void {
         if (err) {
-            VLOG(0) << "Connect: " << strerror(err);
+            PLOG(ERROR) << "Connect: " << std::to_string(err);
         } else {
             VLOG(0) << "Connected";
         }
