@@ -74,6 +74,7 @@ namespace net::socket::tls {
                                   unobserved();
                               }
                           } else {
+                              onConnect(socketConnection);
                               socketConnection->ReadEventReceiver::disable();
                               timeOut.cancel();
                               unobserved();
