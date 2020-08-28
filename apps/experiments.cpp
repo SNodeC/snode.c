@@ -19,6 +19,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "HTTPRequestParser.h"
+#include "HTTPResponseParser.h"
 #include "Logger.h"
 #include "legacy/WebApp.h"
 #include "tls/WebApp.h"
@@ -135,7 +136,7 @@ tls::WebApp sslMain() {
                 res.send("Bye, bye!\n");
                 WebApp::stop();
             } else {
-                res.sendFile("/home/voc/projects/ServerVoc/doc/html" + uri, [uri, &req](int ret) -> void {
+                res.sendFile("/home/voc/projects/ServerVoc/doc/html" + uri, [uri](int ret) -> void {
                     if (ret != 0) {
                         PLOG(ERROR) << uri;
                     }
@@ -194,13 +195,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
                        "Field1: Value1\r\n"
                        "Field2: Field2\r\n"
                        "Field2: Field3\r\n" // is allowed and must be combined with a comma as separator
-                                            //                       "Content-Length: 8\r\n"
+                       "Content-Length: 8\r\n"
                        "Cookie: MyCookie1=MyValue1; MyCookie2=MyValue2\r\n"
+                       "Cookie: MyCookie3=MyValue3\r\n"
+                       "Cookie: MyCookie4=MyValue4\r\n"
+                       "Cookie: MyCookie5=MyValue5; MyCookie6=MyValue6\r\n"
                        "\r\n"
-        //                       "juhuhuhu"
-        ;
+                       "juhuhuhu";
 
-    http::HTTPRequestParser parser(
+    http::HTTPRequestParser requestParser(
         [](const std::string& method, const std::string& originalUrl, const std::string& fragment, const std::string& httpVersion,
            [[maybe_unused]] const std::map<std::string, std::string>& queries) -> void {
             std::cout << "++ Request: " << method << " " << originalUrl << " "
@@ -218,8 +221,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
                 std::cout << "++ Cookie: " << cookie.first << " = " << cookie.second << std::endl;
             }
         },
-        [](char* body, size_t bodyLength) -> void {
-            std::cout << "++ Body: " << bodyLength << " : " << body << std::endl;
+        [](char* content, size_t contentLength) -> void {
+            char* strContent = new char[contentLength + 1];
+            memcpy(strContent, content, contentLength);
+            strContent[contentLength] = 0;
+            VLOG(0) << "++ Content: " << contentLength << " : " << strContent;
+            delete[] strContent;
         },
         [](void) -> void {
             std::cout << "++ Parsed ++" << std::endl;
@@ -228,36 +235,67 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
             std::cout << "++ Error: " << status << " : " << reason << std::endl;
         });
 
-    /*
-    std::function<void(std::string, std::string, std::string)> onRequest,
-    std::function<void(std::pair<std::string, std::string>)> onQuery,
-    std::function<void(std::pair<std::string, std::string>)> onHeader,
-    std::function<void(std::pair<std::string, std::string>)> onCookie,
-    std::function<void(char* body, size_t bodyLength)> onBody)
-    */
-
     std::cout << "++++++++++++++++++++++++++++++++++" << std::endl;
-    //    std::cout << http << std::endl;
+    std::cout << http << std::endl;
     std::cout << "----------------------------------" << std::endl;
 
-    parser.parse(http.c_str(), http.size());
-    //    parser.reset();
+    requestParser.parse(http.c_str(), http.size());
+    requestParser.reset();
 
     std::cout << "++++++++++++++++++++++++++++++++++" << std::endl;
-    //    std::cout << http << std::endl;
+    std::cout << http << std::endl;
     std::cout << "----------------------------------" << std::endl;
 
-    parser.parse(http.c_str(), http.size());
-    //    parser.reset();
+    requestParser.parse(http.c_str(), http.size());
+    requestParser.reset();
 
-    std::cout << "++++++++++++++++++++++++++++++++++" << std::endl;
-    //    std::cout << http << std::endl;
-    std::cout << "----------------------------------" << std::endl;
+    http::HTTPResponseParser responseParser(
+        [](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
+            VLOG(0) << "HTTP Version: " + httpVersion;
+            VLOG(0) << "Status Code: " + statusCode;
+            VLOG(0) << "Reason: " + reason;
+        },
+        [](const std::map<std::string, std::string>& headers, const std::map<std::string, http::ResponseCookie>& cookies) -> void {
+            VLOG(0) << "++ Headers";
+            for (auto [field, value] : headers) {
+                VLOG(0) << "    ++ " << field + " = " + value;
+            }
 
-    parser.parse(http.c_str(), http.size());
-    //    parser.reset();
+            VLOG(0) << "++ Cookies";
+            for (auto [name, cookie] : cookies) {
+                VLOG(0) << "    +++ " + name + " = " + cookie.getValue();
+                for (auto [option, value] : cookie.getOptions()) {
+                    VLOG(0) << "        ++ " + option + " = " + value;
+                }
+            }
+        },
+        [](char* content, size_t contentLength) -> void {
+            char* strContent = new char[contentLength + 1];
+            memcpy(strContent, content, contentLength);
+            strContent[contentLength] = 0;
+            VLOG(0) << "++ Content: " << contentLength << " : " << strContent;
+            delete[] strContent;
+        },
+        []() -> void {
+            VLOG(0) << "++ OnParsed";
+        },
+        [](int status, const std::string& reason) -> void {
+            VLOG(0) << " ++ OnError: " + std::to_string(status) + " - " + reason;
+        });
 
-    //    std::cout << "HTTP: " << http << std::endl;
+    std::string httpResponse = "HTTP/1.1 200 OK\r\n"
+                               "Field: Value\r\n"
+                               "Set-Cookie: CookieName = CookieValue; OptionName = OptionValue\r\n"
+                               "Set-Cookie: CookieName1 = CookieValue1; OptionName1 = OptionValue1; OptionName2 = OptionValue2;\r\n"
+                               "Content-Length: 8\r\n"
+                               "\r\n"
+                               "juhuhuhu";
+
+    responseParser.parse(httpResponse.c_str(), httpResponse.size());
+    responseParser.reset();
+
+    responseParser.parse(httpResponse.c_str(), httpResponse.size());
+    responseParser.reset();
 
     return 0;
     //    WebApp::init(argc, argv);
