@@ -23,6 +23,7 @@
 
 #include <cstddef> // for size_t
 #include <map>
+#include <regex>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -39,6 +40,7 @@ namespace http {
     protected:
         // Parser state
         enum struct [[nodiscard]] PAS{FIRSTLINE, HEADER, BODY, ERROR} PAS = PAS::FIRSTLINE;
+        static std::regex httpVersionRegex;
 
         virtual void reset();
 

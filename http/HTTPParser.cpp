@@ -30,6 +30,9 @@
 
 namespace http {
 
+    // HTTP/x.x
+    std::regex HTTPParser::httpVersionRegex("^HTTP/([[:digit:]])\\.([[:digit:]])$");
+
     void HTTPParser::reset() {
         PAS = PAS::FIRSTLINE;
         headers.clear();
