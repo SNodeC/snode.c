@@ -41,6 +41,14 @@ namespace http {
             options[name] = value;
         }
 
+        std::map<std::string, std::string> getOptions() {
+            return options;
+        }
+
+        std::string& getValue() {
+            return value;
+        }
+
     protected:
         std::string value;
         std::map<std::string, std::string> options;
@@ -52,13 +60,13 @@ namespace http {
     public:
         HTTPResponseParser(
             const std::function<void(const std::string&, const std::string&, const std::string&)>& onResponse,
-            const std::function<void(const std::map<std::string, std::string>&, std::map<std::string, ResponseCookie>&)>& onHeader,
+            const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, ResponseCookie>&)>& onHeader,
             const std::function<void(char*, size_t)>& onContent, const std::function<void(void)>& onParsed,
             const std::function<void(int status, const std::string& reason)>& onError);
 
         HTTPResponseParser(
             const std::function<void(const std::string&, const std::string&, const std::string&)>&& onResponse,
-            const std::function<void(const std::map<std::string, std::string>&, std::map<std::string, ResponseCookie>&)>&& onHeader,
+            const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, ResponseCookie>&)>&& onHeader,
             const std::function<void(char*, size_t)>&& onContent, const std::function<void(void)>&& onParsed,
             const std::function<void(int status, const std::string& reason)>&& onError);
 
@@ -78,7 +86,7 @@ namespace http {
         std::map<std::string, ResponseCookie> cookies;
 
         std::function<void(const std::string&, const std::string&, const std::string&)> onResponse;
-        std::function<void(const std::map<std::string, std::string>&, std::map<std::string, ResponseCookie>&)> onHeader;
+        std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, ResponseCookie>&)> onHeader;
         std::function<void(char*, size_t)> onContent;
         std::function<void(void)> onParsed;
         std::function<void(int status, const std::string& reason)> onError;
