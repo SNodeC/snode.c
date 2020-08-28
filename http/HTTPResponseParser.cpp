@@ -60,7 +60,7 @@ namespace http {
         cookies.clear();
     }
 
-    enum HTTPParser::PAS HTTPResponseParser::parseStartLine([[maybe_unused]] std::string& line) {
+    enum HTTPParser::PAS HTTPResponseParser::parseStartLine(std::string& line) {
         enum HTTPParser::PAS PAS = HTTPParser::PAS::HEADER;
 
         if (!line.empty()) {
@@ -131,14 +131,14 @@ namespace http {
 
         return PAS;
     }
-    enum HTTPParser::PAS HTTPResponseParser::parseContent([[maybe_unused]] char* content, [[maybe_unused]] size_t size) {
+    enum HTTPParser::PAS HTTPResponseParser::parseContent(char* content, size_t size) {
         onContent(content, size);
         parsingFinished();
 
         return PAS::FIRSTLINE;
     }
 
-    enum HTTPParser::PAS HTTPResponseParser::parsingError([[maybe_unused]] int code, [[maybe_unused]] const std::string& reason) {
+    enum HTTPParser::PAS HTTPResponseParser::parsingError(int code, const std::string& reason) {
         onError(code, reason);
         reset();
 
