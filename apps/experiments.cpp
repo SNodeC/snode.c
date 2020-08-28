@@ -201,7 +201,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
         ;
 
     http::HTTPRequestParser parser(
-        [](std::string& method, std::string& originalUrl, std::string& fragment, std::string& httpVersion,
+        [](const std::string& method, const std::string& originalUrl, const std::string& fragment, const std::string& httpVersion,
            [[maybe_unused]] const std::map<std::string, std::string>& queries) -> void {
             std::cout << "++ Request: " << method << " " << originalUrl << " "
                       << " " << httpVersion << std::endl;

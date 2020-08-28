@@ -37,7 +37,7 @@ namespace http {
         , onResponseFinished(onResponseFinished)
         , response(this)
         , parser(
-              [this](std::string& method, std::string& originalUrl, std::string& fragment, std::string& httpVersion,
+              [this](const std::string& method, const std::string& originalUrl, const std::string& fragment, const std::string& httpVersion,
                      const std::map<std::string, std::string>& queries) -> void {
                   VLOG(1) << "++ Request: " << method << " " << originalUrl << " " << httpVersion;
                   request.method = method;

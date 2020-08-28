@@ -13,6 +13,8 @@ add_library(http SHARED
     HTTPParser.h
     HTTPRequestParser.cpp
     HTTPRequestParser.h
+    HTTPResponseParser.cpp
+    HTTPResponseParser.h
     HTTPServerContext.cpp
     HTTPServerContext.h
     HTTPStatusCodes.cpp
