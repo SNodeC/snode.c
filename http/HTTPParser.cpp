@@ -95,9 +95,7 @@ namespace http {
                     if (EOL) {
                         splitHeaderLine(line);
                         line.clear();
-
                         PAS = parseHeader();
-
                         EOL = false;
                     } else {
                         if (line.empty()) {
