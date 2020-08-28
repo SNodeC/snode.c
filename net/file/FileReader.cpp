@@ -28,7 +28,7 @@
 
 #include "FileReader.h"
 
-FileReader::FileReader(int fd, const std::function<void(char* data, int len)>& junkRead, const std::function<void(int err)>& onError)
+FileReader::FileReader(int fd, const std::function<void(char* junk, int junkLen)>& junkRead, const std::function<void(int err)>& onError)
     : junkRead(junkRead)
     , onError(onError)
     , stopped(false) {
@@ -36,7 +36,7 @@ FileReader::FileReader(int fd, const std::function<void(char* data, int len)>& j
     ReadEventReceiver::enable();
 }
 
-FileReader* FileReader::read(const std::string& path, const std::function<void(char* data, int len)>& junkRead,
+FileReader* FileReader::read(const std::string& path, const std::function<void(char* junk, int junkLen)>& junkRead,
                              const std::function<void(int err)>& onError) {
     FileReader* fileReader = nullptr;
 
@@ -65,13 +65,13 @@ void FileReader::unobserved() {
 
 void FileReader::readEvent() {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
-    static char buffer[MFREADSIZE];
+    static char junk[MFREADSIZE];
 
-    int ret = ::read(getFd(), buffer, MFREADSIZE);
+    int ret = ::read(getFd(), junk, MFREADSIZE);
 
     if (!stopped) {
         if (ret > 0) {
-            junkRead(buffer, ret);
+            junkRead(junk, ret);
         } else {
             stopped = true;
             ReadEventReceiver::disable();

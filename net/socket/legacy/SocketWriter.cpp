@@ -26,8 +26,8 @@
 
 namespace net::socket::legacy {
 
-    ssize_t SocketWriter::write(const char* junk, size_t junkSize) {
-        return ::send(getFd(), junk, junkSize, MSG_NOSIGNAL);
+    ssize_t SocketWriter::write(const char* junk, size_t junkLen) {
+        return ::send(getFd(), junk, junkLen, MSG_NOSIGNAL);
     }
 
 }; // namespace net::socket::legacy

@@ -69,8 +69,8 @@ namespace net::socket {
             }
         }
 
-        void enqueue(const char* buffer, size_t size) {
-            writeBuffer.insert(writeBuffer.end(), buffer, buffer + size);
+        void enqueue(const char* junk, size_t junkLen) {
+            writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
             WriteEventReceiver::enable();
         }
 

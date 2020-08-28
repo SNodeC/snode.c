@@ -26,8 +26,8 @@
 
 namespace net::socket::legacy {
 
-    ssize_t SocketReader::read(char* junk, size_t junkSize) {
-        return ::recv(getFd(), junk, junkSize, 0);
+    ssize_t SocketReader::read(char* junk, size_t junkLen) {
+        return ::recv(getFd(), junk, junkLen, 0);
     }
 
 }; // namespace net::socket::legacy

@@ -56,13 +56,13 @@ namespace net::socket {
 
     protected:
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
-        SocketConnection(const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t n)>& onRead,
+        SocketConnection(const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                          const std::function<void(SocketConnection* socketConnection)>& onDisconnect)
             : SocketReader(
-                  [&](const char* junk, ssize_t n) -> void {
-                      onRead(this, junk, n);
+                  [&](const char* junk, ssize_t junkLen) -> void {
+                      onRead(this, junk, junkLen);
                   },
                   [&](int errnum) -> void {
                       onReadError(this, errnum);
@@ -74,10 +74,11 @@ namespace net::socket {
         }
 
     public:
-        static SocketConnection* create(const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t n)>& onRead,
-                                        const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
-                                        const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
-                                        const std::function<void(SocketConnection* socketConnection)>& onDisconnect) {
+        static SocketConnection*
+        create(const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
+               const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
+               const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
+               const std::function<void(SocketConnection* socketConnection)>& onDisconnect) {
             return new SocketConnection(onRead, onReadError, onWriteError, onDisconnect);
         } // NOLINT(cppcoreguidelines-pro-type-member-init)
 
@@ -91,8 +92,8 @@ namespace net::socket {
         }
 
     public:
-        void enqueue(const char* buffer, size_t size) override {
-            SocketWriter::enqueue(buffer, size);
+        void enqueue(const char* junk, size_t junkLen) override {
+            SocketWriter::enqueue(junk, junkLen);
         }
 
         void enqueue(const std::string& data) override {

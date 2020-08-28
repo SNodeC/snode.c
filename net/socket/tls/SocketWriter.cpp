@@ -28,8 +28,8 @@
 
 namespace net::socket::tls {
 
-    ssize_t SocketWriter::write(const char* junk, size_t junkSize) {
-        return ::SSL_write(ssl, junk, junkSize);
+    ssize_t SocketWriter::write(const char* junk, size_t junkLen) {
+        return ::SSL_write(ssl, junk, junkLen);
     }
 
 }; // namespace net::socket::tls

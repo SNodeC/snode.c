@@ -31,8 +31,25 @@
 namespace http {
 
     class HTTPParser {
+    protected:
+        enum struct HTTPCompliance : unsigned short {
+            RFC1945 = 0x01 << 0, // HTTP 1.0
+            RFC2616 = 0x01 << 1, // HTTP 1.1
+            RFC7230 = 0x01 << 2, // Message Syntax and Routing
+            RFC7231 = 0x01 << 3, // Semantics and Content
+            RFC7232 = 0x01 << 4, // Conditional Requests
+            RFC7233 = 0x01 << 5, // Range Requests
+            RFC7234 = 0x01 << 6, // Caching
+            RFC7235 = 0x01 << 7, // Authentication
+            RFC7540 = 0x01 << 8, // HTTP 2.0
+            RFC7541 = 0x01 << 9  // Header Compression
+
+        } HTTPCompliance;
+
     public:
-        HTTPParser() = default;
+        HTTPParser(enum HTTPCompliance compliance = HTTPCompliance::RFC2616 | HTTPCompliance::RFC7230)
+            : HTTPCompliance(compliance) {
+        }
         virtual ~HTTPParser() = default;
 
         void parse(const char* buf, size_t count);
@@ -48,20 +65,6 @@ namespace http {
         virtual enum PAS parseHeader() = 0;
         virtual enum PAS parseContent(char* content, size_t size) = 0;
         virtual enum PAS parsingError(int code, const std::string& reason) = 0;
-
-        enum struct HTTPCompliance : unsigned short {
-            RFC1945 = 0x01 << 0, // HTTP 1.0
-            RFC2616 = 0x01 << 1, // HTTP 1.1
-            RFC7230 = 0x01 << 2, // Message Syntax and Routing
-            RFC7231 = 0x01 << 3, // Semantics and Content
-            RFC7232 = 0x01 << 4, // Conditional Requests
-            RFC7233 = 0x01 << 5, // Range Requests
-            RFC7234 = 0x01 << 6, // Caching
-            RFC7235 = 0x01 << 7, // Authentication
-            RFC7540 = 0x01 << 8, // HTTP 2.0
-            RFC7541 = 0x01 << 9  // Header Compression
-
-        } HTTPCompliance{HTTPCompliance::RFC2616 | HTTPCompliance::RFC7230};
 
         // Data common to all HTTP messages (Request/Response)
         char* content = nullptr;
