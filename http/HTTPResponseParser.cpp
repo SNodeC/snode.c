@@ -30,7 +30,7 @@ namespace http {
 
     HTTPResponseParser::HTTPResponseParser(
         const std::function<void(const std::string&, const std::string&, const std::string&)>& onResponse,
-        const std::function<void(const std::map<std::string, std::string>&, std::map<std::string, ResponseCookie>&)>& onHeader,
+        const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, ResponseCookie>&)>& onHeader,
         const std::function<void(char*, size_t)>& onContent, const std::function<void(void)>& onParsed,
         const std::function<void(int status, const std::string& reason)>& onError)
         : onResponse(onResponse)
@@ -42,7 +42,7 @@ namespace http {
 
     HTTPResponseParser::HTTPResponseParser(
         const std::function<void(const std::string&, const std::string&, const std::string&)>&& onResponse,
-        const std::function<void(const std::map<std::string, std::string>&, std::map<std::string, ResponseCookie>&)>&& onHeader,
+        const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, ResponseCookie>&)>&& onHeader,
         const std::function<void(char*, size_t)>&& onContent, const std::function<void(void)>&& onParsed,
         const std::function<void(int status, const std::string& reason)>&& onError)
         : onResponse(onResponse)
@@ -85,38 +85,41 @@ namespace http {
                     HTTPParser::contentLength = std::stoi(value);
                 }
             } else {
-                std::string cookieLine = value;
+                std::string cookiesLine = value;
 
-                std::string cookieOptions;
-                std::string cookie;
-                std::tie(cookie, cookieOptions) = httputils::str_split(cookieLine, ';');
+                while (!cookiesLine.empty()) {
+                    std::string cookieLine;
+                    std::tie(cookieLine, cookiesLine) = httputils::str_split(cookiesLine, ',');
 
-                std::string name;
-                std::string value;
-                std::tie(name, value) = httputils::str_split(cookie, '=');
-                httputils::str_trimm(name);
-                httputils::str_trimm(value);
-
-                VLOG(1) << "++ Cookie: " << name << " = " << value;
-
-                std::map<std::string, ResponseCookie>::iterator cookieElement;
-                bool inserted;
-                std::tie(cookieElement, inserted) = cookies.insert({name, ResponseCookie(value)});
-
-                while (!cookieOptions.empty()) {
-                    std::string option;
-                    std::tie(option, cookieOptions) = httputils::str_split(cookieOptions, ';');
+                    std::string cookieOptions;
+                    std::string cookie;
+                    std::tie(cookie, cookieOptions) = httputils::str_split(cookieLine, ';');
 
                     std::string name;
                     std::string value;
-                    std::tie(name, value) = httputils::str_split(option, '=');
+                    std::tie(name, value) = httputils::str_split(cookie, '=');
                     httputils::str_trimm(name);
                     httputils::str_trimm(value);
 
-                    VLOG(1) << "    ++ CookieOption: " << name << " = " << value;
-                    cookieElement->second.setOption(name, value);
+                    VLOG(1) << "++ Cookie: " << name << " = " << value;
 
-                    cookies.insert({name, value});
+                    std::map<std::string, ResponseCookie>::iterator cookieElement;
+                    bool inserted;
+                    std::tie(cookieElement, inserted) = cookies.insert({name, ResponseCookie(value)});
+
+                    while (!cookieOptions.empty()) {
+                        std::string option;
+                        std::tie(option, cookieOptions) = httputils::str_split(cookieOptions, ';');
+
+                        std::string name;
+                        std::string value;
+                        std::tie(name, value) = httputils::str_split(option, '=');
+                        httputils::str_trimm(name);
+                        httputils::str_trimm(value);
+
+                        VLOG(1) << "    ++ CookieOption: " << name << " = " << value;
+                        cookieElement->second.setOption(name, value);
+                    }
                 }
             }
         }
