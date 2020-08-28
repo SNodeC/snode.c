@@ -19,7 +19,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <easylogging++.h>
-#include <tuple> // for tie, tuple
+#include <tuple>   // for tie, tuple
+#include <utility> // for tuple_element<>::type, pair
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
