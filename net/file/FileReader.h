@@ -33,10 +33,10 @@ class FileReader
     : public net::ReadEventReceiver
     , virtual public File {
 protected:
-    FileReader(int fd, const std::function<void(char* data, int len)>& junkRead, const std::function<void(int err)>& onError);
+    FileReader(int fd, const std::function<void(char* junk, int junkLen)>& junkRead, const std::function<void(int err)>& onError);
 
 public:
-    static FileReader* read(const std::string& path, const std::function<void(char* data, int len)>& junkRead,
+    static FileReader* read(const std::string& path, const std::function<void(char* junk, int junkLen)>& junkRead,
                             const std::function<void(int err)>& onError);
 
     void disable() override;

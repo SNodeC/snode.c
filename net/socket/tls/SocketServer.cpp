@@ -33,7 +33,7 @@ namespace net::socket::tls {
 
     SocketServer::SocketServer(const std::function<void(SocketConnection* socketConnection)>& onConnect,
                                const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
-                               const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t n)>& onRead,
+                               const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
                                const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                                const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                                const std::string& certChain, const std::string& keyPEM, const std::string& password,

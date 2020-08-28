@@ -28,8 +28,8 @@
 
 namespace net::socket::tls {
 
-    ssize_t SocketReader::read(char* junk, size_t junkSize) {
-        return ::SSL_read(ssl, junk, junkSize);
+    ssize_t SocketReader::read(char* junk, size_t junkLen) {
+        return ::SSL_read(ssl, junk, junkLen);
     }
 
 }; // namespace net::socket::tls

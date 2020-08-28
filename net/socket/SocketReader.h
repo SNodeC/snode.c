@@ -41,7 +41,7 @@ namespace net::socket {
     public:
         SocketReader() = delete;
 
-        explicit SocketReader(const std::function<void(const char* junk, ssize_t n)>& onRead,
+        explicit SocketReader(const std::function<void(const char* junk, ssize_t junkLen)>& onRead,
                               const std::function<void(int errnum)>& onError)
             : onRead(onRead)
             , onError(onError) {
@@ -70,10 +70,10 @@ namespace net::socket {
         }
 
     protected:
-        virtual ssize_t read(char* junk, size_t junkSize) = 0;
+        virtual ssize_t read(char* junk, size_t junkLen) = 0;
 
     private:
-        std::function<void(const char* junk, ssize_t n)> onRead;
+        std::function<void(const char* junk, ssize_t junkLen)> onRead;
         std::function<void(int errnum)> onError;
     };
 

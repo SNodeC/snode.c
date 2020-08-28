@@ -41,22 +41,22 @@ namespace net::socket {
         , public Socket {
     public:
         void* operator new(size_t size) {
-            SocketServer* ss = reinterpret_cast<SocketServer*>(malloc(size));
-            ss->isDynamic = true;
+            SocketServer* serverSocket = reinterpret_cast<SocketServer*>(malloc(size));
+            serverSocket->isDynamic = true;
 
-            return ss;
+            return serverSocket;
         }
 
-        void operator delete(void* ss_v) {
-            SocketServer* ss = reinterpret_cast<SocketServer*>(ss_v);
-            if (ss->isDynamic) {
-                free(ss_v);
+        void operator delete(void* serverSocket_v) {
+            SocketServer* serverSocket = reinterpret_cast<SocketServer*>(serverSocket_v);
+            if (serverSocket->isDynamic) {
+                free(serverSocket_v);
             }
         }
 
         SocketServer(const std::function<void(SocketConnection* socketConnection)>& onConnect,
                      const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
-                     const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t n)>& onRead,
+                     const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
                      const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                      const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError)
             : AcceptEventReceiver()
@@ -177,7 +177,7 @@ namespace net::socket {
 
         std::function<void(SocketConnection* socketConnection)> onConnect;
         std::function<void(SocketConnection* socketConnection)> onDisconnect;
-        std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t n)> onRead;
+        std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)> onRead;
         std::function<void(SocketConnection* socketConnection, int errnum)> onReadError;
         std::function<void(SocketConnection* socketConnection, int errnum)> onWriteError;
 
