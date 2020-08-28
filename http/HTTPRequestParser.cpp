@@ -134,21 +134,26 @@ namespace http {
                     HTTPParser::contentLength = std::stoi(value);
                 }
             } else {
-                std::string cookieLine = value;
+                std::string cookiesLine = value;
 
-                while (!cookieLine.empty()) {
-                    std::string cookie;
-                    std::tie(cookie, cookieLine) = httputils::str_split(cookieLine, ';');
+                while (!cookiesLine.empty()) {
+                    std::string cookieLine;
+                    std::tie(cookieLine, cookiesLine) = httputils::str_split(cookiesLine, ',');
 
-                    std::string name;
-                    std::string value;
-                    std::tie(name, value) = httputils::str_split(cookie, '=');
-                    httputils::str_trimm(name);
-                    httputils::str_trimm(value);
+                    while (!cookieLine.empty()) {
+                        std::string cookie;
+                        std::tie(cookie, cookieLine) = httputils::str_split(cookieLine, ';');
 
-                    VLOG(1) << "++ Cookie: " << name << " = " << value;
+                        std::string name;
+                        std::string value;
+                        std::tie(name, value) = httputils::str_split(cookie, '=');
+                        httputils::str_trimm(name);
+                        httputils::str_trimm(value);
 
-                    cookies.insert({name, value});
+                        VLOG(1) << "++ Cookie: " << name << " = " << value;
+
+                        cookies.insert({name, value});
+                    }
                 }
             }
         }
