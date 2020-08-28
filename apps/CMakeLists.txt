@@ -33,11 +33,11 @@ set_target_properties(simpleserver PROPERTIES
             SOVERSION 1
 )
 
-add_executable(experiments experiments.cpp)
-target_compile_options(experiments PRIVATE --warn-all)
-target_link_libraries(experiments LINK_PUBLIC express)
-install(TARGETS experiments RUNTIME DESTINATION bin)
-set_target_properties(experiments PROPERTIES
+add_executable(testparser testparsers.cpp)
+target_compile_options(testparser PRIVATE --warn-all)
+target_link_libraries(testparser LINK_PUBLIC express)
+install(TARGETS testparser RUNTIME DESTINATION bin)
+set_target_properties(testparser PROPERTIES
             CXX_STANDARD 20
             CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF

@@ -134,6 +134,7 @@ namespace http {
 
         return PAS;
     }
+
     enum HTTPParser::PAS HTTPResponseParser::parseContent(char* content, size_t size) {
         onContent(content, size);
         parsingFinished();
