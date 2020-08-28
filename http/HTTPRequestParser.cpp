@@ -143,7 +143,6 @@ namespace http {
                     std::string name;
                     std::string value;
                     std::tie(name, value) = httputils::str_split(cookie, '=');
-
                     httputils::str_trimm(name);
                     httputils::str_trimm(value);
 
