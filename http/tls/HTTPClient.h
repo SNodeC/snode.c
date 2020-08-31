@@ -26,6 +26,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "socket/tls/SocketClient.h"
 #include "socket/tls/SocketConnection.h"
 
 namespace http {
@@ -51,6 +52,8 @@ namespace http {
             std::string caFile;
             std::string caDir;
             bool useDefaultCADir;
+
+            net::socket::tls::SocketClient socketClient;
         };
 
     } // namespace tls

@@ -134,8 +134,7 @@ tls::SocketClient tlsClient() {
             }
             socketConnection->setProtocol<http::HTTPResponseParser*>(getResponseParser());
         },
-        []([[maybe_unused]] tls::SocketClient* socketClient,
-           [[maybe_unused]] tls::SocketConnection* socketConnection) -> void { // onDisconnect
+        []([[maybe_unused]] tls::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
