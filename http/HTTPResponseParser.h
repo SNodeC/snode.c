@@ -64,13 +64,13 @@ namespace http {
         HTTPResponseParser(
             const std::function<void(const std::string&, const std::string&, const std::string&)>& onResponse,
             const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, ResponseCookie>&)>& onHeader,
-            const std::function<void(char*, size_t)>& onContent, const std::function<void(void)>& onParsed,
+            const std::function<void(char*, size_t)>& onContent, const std::function<void(HTTPResponseParser&)>& onParsed,
             const std::function<void(int status, const std::string& reason)>& onError);
 
         HTTPResponseParser(
             const std::function<void(const std::string&, const std::string&, const std::string&)>&& onResponse,
             const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, ResponseCookie>&)>&& onHeader,
-            const std::function<void(char*, size_t)>&& onContent, const std::function<void(void)>&& onParsed,
+            const std::function<void(char*, size_t)>&& onContent, const std::function<void(HTTPResponseParser&)>&& onParsed,
             const std::function<void(int status, const std::string& reason)>&& onError);
 
         enum HTTPParser::PAS parseStartLine(std::string& line) override;
@@ -91,7 +91,7 @@ namespace http {
         std::function<void(const std::string&, const std::string&, const std::string&)> onResponse;
         std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, ResponseCookie>&)> onHeader;
         std::function<void(char*, size_t)> onContent;
-        std::function<void(void)> onParsed;
+        std::function<void(HTTPResponseParser&)> onParsed;
         std::function<void(int status, const std::string& reason)> onError;
     };
 

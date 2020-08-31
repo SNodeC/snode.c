@@ -69,7 +69,7 @@ namespace http {
                   request.body = content;
                   request.contentLength = contentLength;
               },
-              [this](void) -> void {
+              [this]([[maybe_unused]] http::HTTPRequestParser& requestParser) -> void {
                   VLOG(1) << "++ Parsed ++";
                   requestReady();
               },
