@@ -29,11 +29,18 @@
 namespace http {
 
     namespace tls {
-
         HTTPClient::HTTPClient(const std::function<void(net::socket::tls::SocketConnection*)>& onConnect,
                                const std::function<void(ClientResponse& clientResponse)> onResponseReady,
                                const std::function<void(net::socket::tls::SocketConnection*)> onDisconnect, const std::string& caFile,
                                const std::string& caDir, bool useDefaultCADir)
+            : HTTPClient(onConnect, onResponseReady, onDisconnect, "", "", "", caFile, caDir, useDefaultCADir) {
+        }
+
+        HTTPClient::HTTPClient(const std::function<void(net::socket::tls::SocketConnection*)>& onConnect,
+                               const std::function<void(ClientResponse& clientResponse)> onResponseReady,
+                               const std::function<void(net::socket::tls::SocketConnection*)> onDisconnect, const std::string& certChain,
+                               const std::string& keyPEM, const std::string& password, const std::string& caFile, const std::string& caDir,
+                               bool useDefaultCADir)
             : onConnect(onConnect)
             , onResponseReady(onResponseReady)
             , onDisconnect(onDisconnect)
@@ -69,7 +76,7 @@ namespace http {
                   []([[maybe_unused]] net::socket::tls::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
                       VLOG(0) << "OnWriteError: " << errnum;
                   },
-                  caFile, caDir, useDefaultCADir)) {
+                  certChain, keyPEM, password, caFile, caDir, useDefaultCADir)) {
         }
 
         void HTTPClient::connect([[maybe_unused]] const std::string& server, [[maybe_unused]] in_port_t port,
