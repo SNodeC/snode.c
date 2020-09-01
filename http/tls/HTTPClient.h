@@ -55,10 +55,6 @@ namespace http {
             std::function<void(ClientResponse& clientResponse)> onResponseReady;
             std::function<void(net::socket::tls::SocketConnection*)> onDisconnect;
 
-            std::string caFile;
-            std::string caDir;
-            bool useDefaultCADir;
-
             net::socket::tls::SocketClient socketClient;
         };
 

@@ -44,9 +44,6 @@ namespace http {
             : onConnect(onConnect)
             , onResponseReady(onResponseReady)
             , onDisconnect(onDisconnect)
-            , caFile(caFile)
-            , caDir(caDir)
-            , useDefaultCADir(useDefaultCADir)
             , socketClient(net::socket::tls::SocketClient(
                   [this](net::socket::tls::SocketConnection* socketConnection) -> void { // onConnect
                       this->onConnect(socketConnection);
