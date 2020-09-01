@@ -88,6 +88,50 @@ int main(int argc, char* argv[]) {
                            "):" + std::to_string(socketConnection->getRemoteAddress().port());
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
+            X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
+            if (server_cert != NULL) {
+                int verifyErr = SSL_get_verify_result(socketConnection->getSSL());
+
+                VLOG(0) << "\tServer certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
+
+                char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), 0, 0);
+                VLOG(0) << "\t   Subject: " + std::string(str);
+                OPENSSL_free(str);
+
+                str = X509_NAME_oneline(X509_get_issuer_name(server_cert), 0, 0);
+                VLOG(0) << "\t   Issuer: " + std::string(str);
+                OPENSSL_free(str);
+
+                // We could do all sorts of certificate verification stuff here before deallocating the certificate.
+
+                GENERAL_NAMES* subjectAltNames =
+                    static_cast<GENERAL_NAMES*>(X509_get_ext_d2i(server_cert, NID_subject_alt_name, NULL, NULL));
+
+                int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
+                VLOG(0) << "\t   Subject alternative name count: " << altNameCount;
+                for (int32_t i = 0; i < altNameCount; ++i) {
+                    GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
+                    if (generalName->type == GEN_URI) {
+                        std::string subjectAltName =
+                            std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
+                                        ASN1_STRING_length(generalName->d.uniformResourceIdentifier));
+                        VLOG(0) << "\t      SAN (URI): '" + subjectAltName;
+                    } else if (generalName->type == GEN_DNS) {
+                        std::string subjectAltName =
+                            std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
+                                        ASN1_STRING_length(generalName->d.dNSName));
+                        VLOG(0) << "\t      SAN (DNS): '" + subjectAltName;
+                    } else {
+                        VLOG(0) << "\t      SAN (Type): '" + std::to_string(generalName->type);
+                    }
+                    //                    sk_GENERAL_NAME_free(generalName);
+                }
+                sk_GENERAL_NAME_pop_free(subjectAltNames, GENERAL_NAME_free);
+
+                X509_free(server_cert);
+            } else {
+                VLOG(0) << "\tServer certificate: no certificate";
+            }
         },
         [](const http::ClientResponse& clientResponse) -> void {
             VLOG(0) << "-- OnResponse";
@@ -102,7 +146,7 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
         },
-        SERVERCAFILE);
+        CERTF, KEYF, KEYFPASS, SERVERCAFILE);
 
     tlsClient.connect("localhost", 8088, [](int err) -> void {
         if (err != 0) {
