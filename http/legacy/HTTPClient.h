@@ -26,6 +26,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "socket/legacy/SocketClient.h"
 #include "socket/legacy/SocketConnection.h"
 
 namespace http {
@@ -46,6 +47,8 @@ namespace http {
             std::function<void(net::socket::legacy::SocketConnection*)> onConnect;
             std::function<void(ClientResponse& clientResponse)> onResponseReady;
             std::function<void(net::socket::legacy::SocketConnection*)> onDisconnect;
+
+            net::socket::legacy::SocketClient socketClient;
         };
 
     } // namespace legacy
