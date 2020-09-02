@@ -19,6 +19,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstring>
+#include <easylogging++.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -30,7 +31,7 @@
 namespace net::socket::tls {
 
     SocketClient::SocketClient(const std::function<void(SocketConnection* socketConnection)>& onConnect,
-                               const std::function<void(SocketClient* socketClient, SocketConnection* socketConnection)>& onDisconnect,
+                               const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
                                const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
                                const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                                const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
@@ -141,8 +142,8 @@ namespace net::socket::tls {
 
                   new TLSConnector(this, socketConnection, ctx, onConnect);
               },
-              [this, onDisconnect](SocketConnection* socketConnection) -> void {
-                  onDisconnect(this, socketConnection);
+              [onDisconnect](SocketConnection* socketConnection) -> void {
+                  onDisconnect(socketConnection);
                   socketConnection->stopSSL();
               },
               onRead, onReadError, onWriteError) {
@@ -165,7 +166,7 @@ namespace net::socket::tls {
     }
 
     SocketClient::SocketClient(const std::function<void(SocketConnection* socketConnection)>& onConnect,
-                               const std::function<void(SocketClient* socketClient, SocketConnection* socketConnection)>& onDisconnect,
+                               const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
                                const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
                                const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                                const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
