@@ -77,8 +77,8 @@ static http::HTTPResponseParser* getResponseParser() {
     return responseParser;
 }
 
-tls::SocketClient tlsClient() {
-    tls::SocketClient client(
+tls::SocketClient getTlsClient() {
+    tls::SocketClient tlsClient(
         []([[maybe_unused]] tls::SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnect";
             socketConnection->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); // Connection:keep-alive\r\n\r\n");
@@ -159,7 +159,7 @@ tls::SocketClient tlsClient() {
         },
         CERTF, KEYF, KEYFPASS, SERVERCAFILE);
 
-    client.connect("localhost", 8088, [](int err) -> void {
+    tlsClient.connect("localhost", 8088, [](int err) -> void {
         if (err) {
             PLOG(ERROR) << "Connect: " + std::to_string(err);
         } else {
@@ -167,10 +167,10 @@ tls::SocketClient tlsClient() {
         }
     });
 
-    return client;
+    return tlsClient;
 }
 
-legacy::SocketClient legacyClient() {
+legacy::SocketClient getLegacyClient() {
     legacy::SocketClient legacyClient(
         []([[maybe_unused]] legacy::SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnect";
@@ -219,8 +219,8 @@ legacy::SocketClient legacyClient() {
 int main(int argc, char* argv[]) {
     net::EventLoop::init(argc, argv);
 
-    legacy::SocketClient lc = legacyClient();
-    lc.connect("localhost", 8080, [](int err) -> void { // example.com:81 simulate connnect timeout
+    legacy::SocketClient legacyClient = getLegacyClient();
+    legacyClient.connect("localhost", 8080, [](int err) -> void { // example.com:81 simulate connnect timeout
         if (err) {
             PLOG(ERROR) << "Connect: " << std::to_string(err);
         } else {
@@ -228,8 +228,8 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    tls::SocketClient sc = tlsClient();
-    sc.connect("localhost", 8088, [](int err) -> void {
+    tls::SocketClient tlsClient = getTlsClient();
+    tlsClient.connect("localhost", 8088, [](int err) -> void {
         if (err) {
             PLOG(ERROR) << "Connect: " << std::to_string(err);
         } else {
