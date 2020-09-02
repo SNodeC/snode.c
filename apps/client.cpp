@@ -43,7 +43,7 @@ using namespace net::socket;
 int main(int argc, char* argv[]) {
     net::EventLoop::init(argc, argv);
 
-    http::legacy::HTTPClient client(
+    http::legacy::HTTPClient legacyClient(
         [](net::socket::legacy::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnConnect";
             socketConnection->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); // Connection:keep-alive\r\n\r\n");
@@ -67,13 +67,13 @@ int main(int argc, char* argv[]) {
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
         });
 
-    client.connect("localhost", 8080, [](int err) -> void {
+    legacyClient.connect("localhost", 8080, [](int err) -> void {
         if (err != 0) {
             PLOG(ERROR) << "OnError: " << err;
         }
     });
 
-    client.connect("localhost", 8080, [](int err) -> void {
+    legacyClient.connect("localhost", 8080, [](int err) -> void {
         if (err != 0) {
             PLOG(ERROR) << "OnError: " << err;
         }
