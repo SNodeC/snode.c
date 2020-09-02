@@ -62,7 +62,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
             VLOG(0) << "++    OnContent: " << contentLength << " : " << strContent;
             delete[] strContent;
         },
-        [](void) -> void {
+        [](http::HTTPRequestParser&) -> void {
             VLOG(0) << "++    OnParsed";
         },
         [](int status, const std::string& reason) -> void {
@@ -120,8 +120,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
             VLOG(0) << "++   OnContent: " << contentLength << " : " << strContent;
             delete[] strContent;
         },
-        []() -> void {
+        [](http::HTTPResponseParser& parser) -> void {
             VLOG(0) << "++   OnParsed";
+            parser.reset();
         },
         [](int status, const std::string& reason) -> void {
             VLOG(0) << "++   OnError: " + std::to_string(status) + " - " + reason;
