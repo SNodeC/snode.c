@@ -61,13 +61,13 @@ namespace net::socket {
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                          const std::function<void(SocketConnection* socketConnection)>& onDisconnect)
             : SocketReader(
-                  [&](const char* junk, ssize_t junkLen) -> void {
+                  [this, onRead](const char* junk, ssize_t junkLen) -> void {
                       onRead(this, junk, junkLen);
                   },
-                  [&](int errnum) -> void {
+                  [this, onReadError](int errnum) -> void {
                       onReadError(this, errnum);
                   })
-            , SocketWriter([&](int errnum) -> void {
+            , SocketWriter([this, onWriteError](int errnum) -> void {
                 onWriteError(this, errnum);
             })
             , onDisconnect(onDisconnect) {

@@ -18,9 +18,13 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "ClientResponse.h"
 #include "EventLoop.h"
+#include "HTTPResponseParser.h"
+#include "legacy/HTTPClient.h"
 #include "socket/legacy/SocketClient.h"
 #include "socket/tls/SocketClient.h"
+#include "tls/HTTPClient.h"
 
 #include <cstring>
 #include <easylogging++.h>
@@ -36,17 +40,54 @@
 
 using namespace net::socket;
 
-tls::SocketClient tlsClient() {
-    tls::SocketClient client(
-        []([[maybe_unused]] tls::SocketConnection* socketConnection) -> void { // onConnect
-            VLOG(0) << "OnConnect";
+int main(int argc, char* argv[]) {
+    net::EventLoop::init(argc, argv);
+
+    http::legacy::HTTPClient client(
+        [](net::socket::legacy::SocketConnection* socketConnection) -> void {
+            VLOG(0) << "-- OnConnect";
             socketConnection->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); // Connection:keep-alive\r\n\r\n");
 
-            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
-                           "):" + std::to_string(socketConnection->getLocalAddress().port());
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                            "):" + std::to_string(socketConnection->getRemoteAddress().port());
+            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
+                           "):" + std::to_string(socketConnection->getLocalAddress().port());
+        },
+        [](const http::ClientResponse& clientResponse) -> void {
+            VLOG(0) << "-- OnResponse";
+            VLOG(0) << "-- " << clientResponse.httpVersion;
+            VLOG(0) << "-- " << clientResponse.statusCode;
+            VLOG(0) << "-- " << clientResponse.reason;
+        },
+        []([[maybe_unused]] net::socket::legacy::SocketConnection* socketConnection) -> void {
+            VLOG(0) << "-- OnDisconnect";
+            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
+                           "):" + std::to_string(socketConnection->getRemoteAddress().port());
+            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
+                           "):" + std::to_string(socketConnection->getLocalAddress().port());
+        });
 
+    client.connect("localhost", 8080, [](int err) -> void {
+        if (err != 0) {
+            PLOG(ERROR) << "OnError: " << err;
+        }
+    });
+
+    client.connect("localhost", 8080, [](int err) -> void {
+        if (err != 0) {
+            PLOG(ERROR) << "OnError: " << err;
+        }
+    });
+
+    http::tls::HTTPClient tlsClient(
+        [](net::socket::tls::SocketConnection* socketConnection) -> void {
+            VLOG(0) << "-- OnConnect";
+            socketConnection->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); // Connection:keep-alive\r\n\r\n");
+
+            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
+                           "):" + std::to_string(socketConnection->getRemoteAddress().port());
+            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
+                           "):" + std::to_string(socketConnection->getLocalAddress().port());
             X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
             if (server_cert != NULL) {
                 int verifyErr = SSL_get_verify_result(socketConnection->getSSL());
@@ -92,106 +133,30 @@ tls::SocketClient tlsClient() {
                 VLOG(0) << "\tServer certificate: no certificate";
             }
         },
-        []([[maybe_unused]] tls::SocketConnection* socketConnection) -> void { // onDisconnect
-            VLOG(0) << "OnDisconnect";
-            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
-                           "):" + std::to_string(socketConnection->getLocalAddress().port());
+        [](const http::ClientResponse& clientResponse) -> void {
+            VLOG(0) << "-- OnResponse";
+            VLOG(0) << "-- " << clientResponse.httpVersion;
+            VLOG(0) << "-- " << clientResponse.statusCode;
+            VLOG(0) << "-- " << clientResponse.reason;
+        },
+        []([[maybe_unused]] net::socket::tls::SocketConnection* socketConnection) -> void {
+            VLOG(0) << "-- OnDisconnect";
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                            "):" + std::to_string(socketConnection->getRemoteAddress().port());
-        },
-        []([[maybe_unused]] tls::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
-            VLOG(0) << "OnRead";
-            char* buf = new char[junkSize + 1];
-            memcpy(buf, junk, junkSize);
-            buf[junkSize] = 0;
-            VLOG(0) << "------------ begin data";
-            VLOG(0) << buf;
-            VLOG(0) << "------------ end data";
-            delete[] buf;
-        },
-        []([[maybe_unused]] tls::SocketConnection* socketConnection, int errnum) -> void { // onReadError
-            VLOG(0) << "OnReadError: " + std::to_string(errnum);
-        },
-        []([[maybe_unused]] tls::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
-            VLOG(0) << "OnWriteError: " + std::to_string(errnum);
+            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
+                           "):" + std::to_string(socketConnection->getLocalAddress().port());
         },
         CERTF, KEYF, KEYFPASS, SERVERCAFILE);
 
-    client.connect("localhost", 8088, [](int err) -> void {
-        if (err) {
-            PLOG(ERROR) << "Connect: " + std::to_string(err);
-        } else {
-            VLOG(0) << "Connected";
+    tlsClient.connect("localhost", 8088, [](int err) -> void {
+        if (err != 0) {
+            PLOG(ERROR) << "OnError: " << err;
         }
     });
 
-    return client;
-}
-
-legacy::SocketClient legacyClient() {
-    legacy::SocketClient legacyClient(
-        []([[maybe_unused]] legacy::SocketConnection* socketConnection) -> void { // onConnect
-            VLOG(0) << "OnConnect";
-            socketConnection->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); // Connection:keep-alive\r\n\r\n");
-
-            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
-                           "):" + std::to_string(socketConnection->getRemoteAddress().port());
-            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
-                           "):" + std::to_string(socketConnection->getLocalAddress().port());
-        },
-        []([[maybe_unused]] legacy::SocketConnection* socketConnection) -> void { // onDisconnect
-            VLOG(0) << "OnDisconnect";
-            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
-                           "):" + std::to_string(socketConnection->getRemoteAddress().port());
-            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
-                           "):" + std::to_string(socketConnection->getLocalAddress().port());
-        },
-        []([[maybe_unused]] legacy::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
-            VLOG(0) << "OnRead";
-            char* buf = new char[junkSize + 1];
-            memcpy(buf, junk, junkSize);
-            buf[junkSize] = 0;
-            VLOG(0) << "------------ begin data";
-            VLOG(0) << buf;
-            VLOG(0) << "------------ end data";
-            delete[] buf;
-        },
-        []([[maybe_unused]] legacy::SocketConnection* socketConnection, int errnum) -> void { // onReadError
-            VLOG(0) << "OnReadError: " << errnum;
-        },
-        []([[maybe_unused]] legacy::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
-            VLOG(0) << "OnWriteError: " << errnum;
-        });
-
-    legacyClient.connect("localhost", 8080, [](int err) -> void {
-        if (err) {
-            PLOG(ERROR) << "Connect: " << std::to_string(err);
-        } else {
-            VLOG(0) << "Connected";
-        }
-    });
-
-    return legacyClient;
-}
-
-int main(int argc, char* argv[]) {
-    net::EventLoop::init(argc, argv);
-
-    legacy::SocketClient lc = legacyClient();
-    lc.connect("localhost", 8080, [](int err) -> void { // example.com:81 simulate connnect timeout
-        if (err) {
-            PLOG(ERROR) << "Connect: " << std::to_string(err);
-        } else {
-            VLOG(0) << "Connected";
-        }
-    });
-
-    tls::SocketClient sc = tlsClient();
-    sc.connect("localhost", 8088, [](int err) -> void {
-        if (err) {
-            PLOG(ERROR) << "Connect: " << std::to_string(err);
-        } else {
-            VLOG(0) << "Connected";
+    tlsClient.connect("localhost", 8088, [](int err) -> void {
+        if (err != 0) {
+            PLOG(ERROR) << "OnError: " << err;
         }
     });
 
