@@ -58,6 +58,28 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "-- " << clientResponse.httpVersion;
             VLOG(0) << "-- " << clientResponse.statusCode;
             VLOG(0) << "-- " << clientResponse.reason;
+
+            VLOG(0) << "--   Headers:";
+            for (auto [field, value] : *clientResponse.headers) {
+                VLOG(0) << "--       " << field + " = " + value;
+            }
+
+            VLOG(0) << "--   Cookies:";
+            for (auto [name, cookie] : *clientResponse.cookies) {
+                VLOG(0) << "--     " + name + " = " + cookie.getValue();
+                for (auto [option, value] : cookie.getOptions()) {
+                    VLOG(0) << "--       " + option + " = " + value;
+                }
+            }
+
+            char* body = new char[clientResponse.contentLength + 1];
+            memcpy(body, clientResponse.body, clientResponse.contentLength);
+            body[clientResponse.contentLength] = 0;
+
+            VLOG(1) << "--   Body;";
+            VLOG(1) << body;
+
+            delete[] body;
         },
         []([[maybe_unused]] net::socket::legacy::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnDisconnect";
@@ -139,6 +161,28 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "-- " << clientResponse.httpVersion;
             VLOG(0) << "-- " << clientResponse.statusCode;
             VLOG(0) << "-- " << clientResponse.reason;
+
+            VLOG(0) << "--   Headers:";
+            for (auto [field, value] : *clientResponse.headers) {
+                VLOG(0) << "--       " << field + " = " + value;
+            }
+
+            VLOG(0) << "--   Cookies:";
+            for (auto [name, cookie] : *clientResponse.cookies) {
+                VLOG(0) << "--     " + name + " = " + cookie.getValue();
+                for (auto [option, value] : cookie.getOptions()) {
+                    VLOG(0) << "--       " + option + " = " + value;
+                }
+            }
+
+            char* body = new char[clientResponse.contentLength + 1];
+            memcpy(body, clientResponse.body, clientResponse.contentLength);
+            body[clientResponse.contentLength] = 0;
+
+            VLOG(1) << "--   Body;";
+            VLOG(1) << body;
+
+            delete[] body;
         },
         []([[maybe_unused]] net::socket::tls::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnDisconnect";
