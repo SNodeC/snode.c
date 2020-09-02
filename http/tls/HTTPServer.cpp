@@ -54,18 +54,18 @@ namespace http {
             errno = 0;
 
             (new net::socket::tls::SocketServer(
-                 [this](net::socket::tls::SocketConnection* socketConnection) -> void { // onConnect
+                 [*this](net::socket::tls::SocketConnection* socketConnection) -> void { // onConnect
                      onConnect(socketConnection);
                      socketConnection->setProtocol<HTTPServerContext*>(new HTTPServerContext(
                          socketConnection,
-                         [this](Request& req, Response& res) -> void {
+                         [*this](Request& req, Response& res) -> void {
                              onRequestReady(req, res);
                          },
-                         [this](Request& req, Response& res) -> void {
+                         [*this](Request& req, Response& res) -> void {
                              onResponseCompleted(req, res);
                          }));
                  },
-                 [this](net::socket::tls::SocketConnection* socketConnection) -> void { // onDisconnect
+                 [*this](net::socket::tls::SocketConnection* socketConnection) -> void { // onDisconnect
                      onDisconnect(socketConnection);
                      socketConnection->getProtocol<HTTPServerContext*>([](HTTPServerContext*& protocol) -> void {
                          delete protocol;
