@@ -58,10 +58,8 @@ namespace http {
                          []([[maybe_unused]] int status, [[maybe_unused]] const std::string& reason) -> void {
                          }));
                  },
-                 [this](net::socket::tls::SocketClient* socketClient,
-                        net::socket::tls::SocketConnection* socketConnection) -> void { // onDisconnect
+                 [this](net::socket::tls::SocketConnection* socketConnection) -> void { // onDisconnect
                      this->onDisconnect(socketConnection);
-                     delete socketClient;
                      socketConnection->getProtocol<http::HTTPClientContext*>([](http::HTTPClientContext*& httpClientContext) -> void {
                          delete httpClientContext;
                      });
