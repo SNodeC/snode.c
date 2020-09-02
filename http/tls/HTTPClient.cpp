@@ -48,17 +48,17 @@ namespace http {
             errno = 0;
 
             (new net::socket::tls::SocketClient(
-                 [this](net::socket::tls::SocketConnection* socketConnection) -> void { // onConnect
+                 [*this](net::socket::tls::SocketConnection* socketConnection) -> void { // onConnect
                      this->onConnect(socketConnection);
                      socketConnection->setProtocol<http::HTTPClientContext*>(new HTTPClientContext(
                          socketConnection,
-                         [this]([[maybe_unused]] ClientResponse& clientResponse) -> void {
+                         [*this]([[maybe_unused]] ClientResponse& clientResponse) -> void {
                              this->onResponseReady(clientResponse);
                          },
                          []([[maybe_unused]] int status, [[maybe_unused]] const std::string& reason) -> void {
                          }));
                  },
-                 [this](net::socket::tls::SocketConnection* socketConnection) -> void { // onDisconnect
+                 [*this](net::socket::tls::SocketConnection* socketConnection) -> void { // onDisconnect
                      this->onDisconnect(socketConnection);
                      socketConnection->getProtocol<http::HTTPClientContext*>([](http::HTTPClientContext*& httpClientContext) -> void {
                          delete httpClientContext;

@@ -46,18 +46,18 @@ namespace http {
             errno = 0;
 
             (new net::socket::legacy::SocketServer(
-                 [this](net::socket::legacy::SocketConnection* socketConnection) -> void { // onConnect
+                 [*this](net::socket::legacy::SocketConnection* socketConnection) -> void { // onConnect
                      onConnect(socketConnection);
                      socketConnection->setProtocol<HTTPServerContext*>(new HTTPServerContext(
                          socketConnection,
-                         [this](Request& req, Response& res) -> void {
+                         [*this](Request& req, Response& res) -> void {
                              onRequestReady(req, res);
                          },
-                         [this]([[maybe_unused]] Request& req, [[maybe_unused]] Response& res) -> void {
+                         [*this]([[maybe_unused]] Request& req, [[maybe_unused]] Response& res) -> void {
                              onResponseCompleted(req, res);
                          }));
                  },
-                 [this](net::socket::legacy::SocketConnection* socketConnection) -> void { // onDisconnect
+                 [*this](net::socket::legacy::SocketConnection* socketConnection) -> void { // onDisconnect
                      onDisconnect(socketConnection);
                      socketConnection->getProtocol<HTTPServerContext*>([](HTTPServerContext*& protocol) -> void {
                          delete protocol;
