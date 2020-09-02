@@ -55,20 +55,20 @@ int main(int argc, char* argv[]) {
         },
         [](const http::ClientResponse& clientResponse) -> void {
             VLOG(0) << "-- OnResponse";
-            VLOG(0) << "-- " << clientResponse.httpVersion;
-            VLOG(0) << "-- " << clientResponse.statusCode;
-            VLOG(0) << "-- " << clientResponse.reason;
+            VLOG(0) << "     " << clientResponse.httpVersion;
+            VLOG(0) << "     " << clientResponse.statusCode;
+            VLOG(0) << "     " << clientResponse.reason;
 
             VLOG(0) << "--   Headers:";
             for (auto [field, value] : *clientResponse.headers) {
-                VLOG(0) << "--       " << field + " = " + value;
+                VLOG(0) << "       " << field + " = " + value;
             }
 
             VLOG(0) << "--   Cookies:";
             for (auto [name, cookie] : *clientResponse.cookies) {
-                VLOG(0) << "--     " + name + " = " + cookie.getValue();
+                VLOG(0) << "       " + name + " = " + cookie.getValue();
                 for (auto [option, value] : cookie.getOptions()) {
-                    VLOG(0) << "--       " + option + " = " + value;
+                    VLOG(0) << "         " + option + " = " + value;
                 }
             }
 
@@ -76,8 +76,7 @@ int main(int argc, char* argv[]) {
             memcpy(body, clientResponse.body, clientResponse.contentLength);
             body[clientResponse.contentLength] = 0;
 
-            VLOG(1) << "--   Body;";
-            VLOG(1) << body;
+            VLOG(1) << "--   Body:\n----------- start body -----------\n" << body << "------------ end body ------------";
 
             delete[] body;
         },
@@ -164,14 +163,14 @@ int main(int argc, char* argv[]) {
 
             VLOG(0) << "--   Headers:";
             for (auto [field, value] : *clientResponse.headers) {
-                VLOG(0) << "--       " << field + " = " + value;
+                VLOG(0) << "       " << field + " = " + value;
             }
 
             VLOG(0) << "--   Cookies:";
             for (auto [name, cookie] : *clientResponse.cookies) {
-                VLOG(0) << "--     " + name + " = " + cookie.getValue();
+                VLOG(0) << "       " + name + " = " + cookie.getValue();
                 for (auto [option, value] : cookie.getOptions()) {
-                    VLOG(0) << "--       " + option + " = " + value;
+                    VLOG(0) << "         " + option + " = " + value;
                 }
             }
 
@@ -179,8 +178,7 @@ int main(int argc, char* argv[]) {
             memcpy(body, clientResponse.body, clientResponse.contentLength);
             body[clientResponse.contentLength] = 0;
 
-            VLOG(1) << "--   Body;";
-            VLOG(1) << body;
+            VLOG(1) << "--   Body:\n----------- start body -----------\n" << body << "------------ end body ------------";
 
             delete[] body;
         },
