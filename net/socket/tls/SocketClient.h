@@ -29,6 +29,19 @@
 #include "socket/SocketClient.h"
 #include "socket/tls/SocketConnection.h"
 
+struct SSLDeleter {
+    void operator()(SSL* _p) {
+        SSL_shutdown(_p);
+        SSL_free(_p);
+    }
+
+    void operator()([[maybe_unused]] SSL_CTX* _p) {
+        if (_p != nullptr) {
+            SSL_CTX_free(_p);
+        }
+    }
+};
+
 namespace net::socket::tls {
 
     class SocketClient : public net::socket::SocketClient<SocketConnection> {
@@ -50,6 +63,10 @@ namespace net::socket::tls {
 
         ~SocketClient() override;
 
+    protected:
+        using net::socket::SocketClient<SocketConnection>::SocketClient;
+
+    public:
         // NOLINTNEXTLINE(google-default-arguments)
         void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
                      const net::socket::InetAddress& localAddress = net::socket::InetAddress()) override;
@@ -58,12 +75,6 @@ namespace net::socket::tls {
         SSL_CTX* ctx = nullptr;
         unsigned long sslErr = 0;
         static int passwordCallback(char* buf, int size, int rwflag, void* u);
-
-        std::function<void(SocketConnection* socketConnection)> onConnect;
-        std::function<void(SocketConnection* socketConnection)> onDisconnect;
-        std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)> onRead;
-        std::function<void(SocketConnection* socketConnection, int errnum)> onReadError;
-        std::function<void(SocketConnection* socketConnection, int errnum)> onWriteError;
 
         std::function<void(int err)> onError;
     };

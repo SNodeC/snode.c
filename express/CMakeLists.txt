@@ -37,5 +37,5 @@ target_include_directories(express PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${LIBMAGIC
 install(TARGETS http LIBRARY DESTINATION lib NAMELINK_COMPONENT libhttp.so.1)
 
 if(CHECK_INCLUDES)
-    set_property(TARGET http PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
+    set_property(TARGET express PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
 endif(CHECK_INCLUDES)

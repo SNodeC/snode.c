@@ -21,6 +21,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <easylogging++.h>
 #include <functional>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -40,6 +41,16 @@ namespace net::socket {
     template <typename SocketConnection>
     class SocketClient {
     public:
+        void* operator new(size_t size) {
+            SocketClient<SocketConnection>::lastAllocAddress = malloc(size);
+
+            return SocketClient<SocketConnection>::lastAllocAddress;
+        }
+
+        void operator delete(void* socketClient_v) {
+            free(socketClient_v);
+        }
+
         SocketClient(const std::function<void(SocketConnection* socketConnection)>& onConnect,
                      const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
                      const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
@@ -49,7 +60,9 @@ namespace net::socket {
             , onDisconnect(onDisconnect)
             , onRead(onRead)
             , onReadError(onReadError)
-            , onWriteError(onWriteError) {
+            , onWriteError(onWriteError)
+            , isDynamic(this == SocketClient<SocketConnection>::lastAllocAddress) {
+            SocketClient<SocketConnection>::lastAllocAddress = nullptr;
         }
 
         SocketClient() = delete;
@@ -60,17 +73,28 @@ namespace net::socket {
         // NOLINTNEXTLINE(google-default-arguments)
         virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
                              const InetAddress& localAddress = InetAddress()) {
-            SocketConnection* socketConnection = SocketConnection::create(onRead, onReadError, onWriteError, onDisconnect);
+            connectionCounter++;
+
+            SocketConnection* socketConnection = SocketConnection::create(
+                onRead, onReadError, onWriteError, [this]([[maybe_unused]] SocketConnection* socketConnection) -> void {
+                    onDisconnect(socketConnection);
+                    this->connectionCounter--;
+                    if (this->isDynamic && this->connectionCounter == 0) {
+                        delete this;
+                    }
+                });
 
             socketConnection->open(
                 [this, &socketConnection, &host, &port, &localAddress, &onError](int err) -> void {
                     if (err) {
                         onError(err);
+                        this->connectionCounter--;
                         delete socketConnection;
                     } else {
                         socketConnection->bind(localAddress, [this, &socketConnection, &host, &port, &onError](int err) -> void {
                             if (err) {
                                 onError(err);
+                                this->connectionCounter--;
                                 delete socketConnection;
                             } else {
                                 InetAddress server(host, port);
@@ -80,10 +104,11 @@ namespace net::socket {
                                     : public WriteEventReceiver
                                     , public Socket {
                                 public:
-                                    Connector(SocketConnection* socketConnection, const InetAddress& server,
+                                    Connector(SocketClient* socketClient, SocketConnection* socketConnection, const InetAddress& server,
                                               const std::function<void(SocketConnection* socketConnection)>& onConnect,
                                               const std::function<void(int err)>& onError)
-                                        : socketConnection(socketConnection)
+                                        : socketClient(socketClient)
+                                        , socketConnection(socketConnection)
                                         , server(server)
                                         , onConnect(onConnect)
                                         , onError(onError)
@@ -157,12 +182,14 @@ namespace net::socket {
 
                                     void unobserved() override {
                                         if (!socketConnection->isObserved()) {
+                                            socketClient->connectionCounter--;
                                             delete socketConnection;
                                         }
                                         delete this;
                                     }
 
                                 private:
+                                    SocketClient* socketClient = nullptr;
                                     SocketConnection* socketConnection = nullptr;
                                     InetAddress server;
                                     std::function<void(SocketConnection* socketConnection)> onConnect;
@@ -170,7 +197,7 @@ namespace net::socket {
                                     net::timer::Timer& timeOut;
                                 };
 
-                                new Connector(socketConnection, server, onConnect, onError);
+                                new Connector(this, socketConnection, server, onConnect, onError);
                             }
                         });
                     }
@@ -198,7 +225,17 @@ namespace net::socket {
         std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)> onRead;
         std::function<void(SocketConnection* socketConnection, int errnum)> onReadError;
         std::function<void(SocketConnection* socketConnection, int errnum)> onWriteError;
+
+    protected:
+        bool isDynamic = false;
+
+        int connectionCounter = 0;
+
+        static void* lastAllocAddress;
     };
+
+    template <typename SocketConnection>
+    void* SocketClient<SocketConnection>::lastAllocAddress = nullptr;
 
 } // namespace net::socket
 

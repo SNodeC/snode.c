@@ -38,7 +38,8 @@ namespace http {
         public:
             HTTPClient(const std::function<void(net::socket::tls::SocketConnection*)>& onConnect,
                        const std::function<void(ClientResponse& clientResponse)> onResponseReady,
-                       const std::function<void(net::socket::tls::SocketConnection*)> onDisconnect);
+                       const std::function<void(net::socket::tls::SocketConnection*)> onDisconnect, const std::string& caFile = "",
+                       const std::string& caDir = "", bool useDefaultCADir = false);
 
             void connect(const std::string& server, in_port_t port, const std::function<void(int err)>& onError);
 
@@ -46,6 +47,10 @@ namespace http {
             std::function<void(net::socket::tls::SocketConnection*)> onConnect;
             std::function<void(ClientResponse& clientResponse)> onResponseReady;
             std::function<void(net::socket::tls::SocketConnection*)> onDisconnect;
+
+            std::string caFile;
+            std::string caDir;
+            bool useDefaultCADir;
         };
 
     } // namespace tls
