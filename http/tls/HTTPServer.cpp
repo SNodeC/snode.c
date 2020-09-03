@@ -23,9 +23,6 @@
 #include "HTTPServer.h"
 
 #include "HTTPServerContext.h"
-#include "Request.h"
-#include "Response.h"
-#include "socket/tls/SocketConnection.h"
 #include "socket/tls/SocketServer.h"
 
 namespace http {
