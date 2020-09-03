@@ -18,13 +18,16 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "HTTPRequestParser.h"
-#include "HTTPResponseParser.h"
-#include "Logger.h"
+#include "HTTPRequestParser.h"  // for HTTPRequestParser
+#include "HTTPResponseParser.h" // for HTTPResponseParser, ResponseCookie
+#include "Logger.h"             // for Logger
 
-#include <easylogging++.h>
-#include <iostream>
-#include <unistd.h>
+#include <cstring>         // for memcpy, size_t
+#include <easylogging++.h> // for Writer, Storage, VLOG
+#include <functional>      // for function
+#include <map>             // for map
+#include <string>          // for allocator, string, operator+, char_t...
+#include <utility>         // for pair, tuple_element<>::type
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
