@@ -44,32 +44,32 @@ struct SSLDeleter {
 
 namespace net::socket::tls {
 
-    class SocketClient : public net::socket::SocketClient<SocketConnection> {
+    class SocketClient : public socket::SocketClient<tls::SocketConnection> {
     public:
-        SocketClient(const std::function<void(SocketConnection* socketConnection)>& onConnect,
-                     const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
-                     const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
-                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
-                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
+        SocketClient(const std::function<void(tls::SocketConnection* socketConnection)>& onConnect,
+                     const std::function<void(tls::SocketConnection* socketConnection)>& onDisconnect,
+                     const std::function<void(tls::SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
+                     const std::function<void(tls::SocketConnection* socketConnection, int errnum)>& onReadError,
+                     const std::function<void(tls::SocketConnection* socketConnection, int errnum)>& onWriteError,
                      const std::string& caFile = "", const std::string& caDir = "", bool useDefaultCADir = false);
 
-        SocketClient(const std::function<void(SocketConnection* socketConnection)>& onConnect,
-                     const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
-                     const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
-                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
-                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError, const std::string& certChain,
-                     const std::string& keyPEM, const std::string& password, const std::string& caFile = "", const std::string& caDir = "",
-                     bool useDefaultCADir = false);
+        SocketClient(const std::function<void(tls::SocketConnection* socketConnection)>& onConnect,
+                     const std::function<void(tls::SocketConnection* socketConnection)>& onDisconnect,
+                     const std::function<void(tls::SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
+                     const std::function<void(tls::SocketConnection* socketConnection, int errnum)>& onReadError,
+                     const std::function<void(tls::SocketConnection* socketConnection, int errnum)>& onWriteError,
+                     const std::string& certChain, const std::string& keyPEM, const std::string& password, const std::string& caFile = "",
+                     const std::string& caDir = "", bool useDefaultCADir = false);
 
         ~SocketClient() override;
 
     protected:
-        using net::socket::SocketClient<SocketConnection>::SocketClient;
+        using socket::SocketClient<tls::SocketConnection>::SocketClient;
 
     public:
         // NOLINTNEXTLINE(google-default-arguments)
         void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
-                     const net::socket::InetAddress& localAddress = net::socket::InetAddress()) override;
+                     const socket::InetAddress& localAddress = socket::InetAddress()) override;
 
     private:
         SSL_CTX* ctx = nullptr;
