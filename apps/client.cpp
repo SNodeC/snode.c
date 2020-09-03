@@ -53,9 +53,10 @@ int main(int argc, char* argv[]) {
         },
         [](const http::ClientResponse& clientResponse) -> void {
             VLOG(0) << "-- OnResponse";
-            VLOG(0) << "     " << clientResponse.httpVersion;
-            VLOG(0) << "     " << clientResponse.statusCode;
-            VLOG(0) << "     " << clientResponse.reason;
+            VLOG(0) << "--   Status:";
+            VLOG(0) << "       " << clientResponse.httpVersion;
+            VLOG(0) << "       " << clientResponse.statusCode;
+            VLOG(0) << "       " << clientResponse.reason;
 
             VLOG(0) << "--   Headers:";
             for (auto [field, value] : *clientResponse.headers) {
@@ -141,9 +142,10 @@ int main(int argc, char* argv[]) {
         },
         [](const http::ClientResponse& clientResponse) -> void {
             VLOG(0) << "-- OnResponse";
-            VLOG(0) << "-- " << clientResponse.httpVersion;
-            VLOG(0) << "-- " << clientResponse.statusCode;
-            VLOG(0) << "-- " << clientResponse.reason;
+            VLOG(0) << "--   Status:";
+            VLOG(0) << "       " << clientResponse.httpVersion;
+            VLOG(0) << "       " << clientResponse.statusCode;
+            VLOG(0) << "       " << clientResponse.reason;
 
             VLOG(0) << "--   Headers:";
             for (auto [field, value] : *clientResponse.headers) {
