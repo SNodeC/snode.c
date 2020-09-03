@@ -26,6 +26,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "HTTPClientT.h"
 #include "socket/legacy/SocketConnection.h"
 
 namespace http {
@@ -40,12 +41,24 @@ namespace http {
                        const std::function<void(ClientResponse& clientResponse)> onResponseReady,
                        const std::function<void(net::socket::legacy::SocketConnection*)> onDisconnect);
 
+        protected:
             void connect(const std::string& server, in_port_t port, const std::function<void(int err)>& onError);
+
+        public:
+            void get(const std::map<std::string, std::string>& options, const std::function<void(int err)>& onError);
 
         protected:
             std::function<void(net::socket::legacy::SocketConnection*)> onConnect;
             std::function<void(ClientResponse& clientResponse)> onResponseReady;
             std::function<void(net::socket::legacy::SocketConnection*)> onDisconnect;
+
+            std::string request;
+
+            std::map<std::string, std::string> options;
+
+            std::string host;
+            std::string path;
+            in_port_t port;
         };
 
     } // namespace legacy

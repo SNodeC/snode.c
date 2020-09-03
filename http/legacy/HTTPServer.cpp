@@ -23,8 +23,6 @@
 #include "HTTPServer.h"
 
 #include "HTTPServerContext.h"
-#include "Request.h"
-#include "Response.h"
 #include "socket/legacy/SocketConnection.h"
 #include "socket/legacy/SocketServer.h"
 

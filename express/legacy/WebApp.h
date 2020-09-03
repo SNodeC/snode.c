@@ -24,7 +24,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "../WebApp.h"
-#include "legacy/HTTPServer.h"
+#include "legacy/HTTPServerT.h"
 
 namespace express::legacy {
 
@@ -48,7 +48,7 @@ namespace express::legacy {
         std::function<void(net::socket::legacy::SocketConnection*)> _onConnect = nullptr;
         std::function<void(net::socket::legacy::SocketConnection*)> _onDisconnect = nullptr;
 
-        http::legacy::HTTPServer httpServer;
+        http::legacy::HTTPServerT httpServer;
 
     private:
         using express::WebApp::start;

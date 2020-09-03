@@ -22,10 +22,12 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
+#include <map>
 #include <netinet/in.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "HTTPClientT.h"
 #include "socket/tls/SocketConnection.h"
 
 namespace http {
@@ -41,7 +43,11 @@ namespace http {
                        const std::function<void(net::socket::tls::SocketConnection*)> onDisconnect, const std::string& caFile = "",
                        const std::string& caDir = "", bool useDefaultCADir = false);
 
+        protected:
             void connect(const std::string& server, in_port_t port, const std::function<void(int err)>& onError);
+
+        public:
+            void get(const std::map<std::string, std::string>& options, const std::function<void(int err)>& onError);
 
         protected:
             std::function<void(net::socket::tls::SocketConnection*)> onConnect;
@@ -51,6 +57,14 @@ namespace http {
             std::string caFile;
             std::string caDir;
             bool useDefaultCADir;
+
+            std::string request;
+
+            std::map<std::string, std::string> options;
+
+            std::string host;
+            std::string path;
+            in_port_t port;
         };
 
     } // namespace tls
