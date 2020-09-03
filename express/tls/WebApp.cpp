@@ -22,8 +22,6 @@
 
 #include "WebApp.h"
 
-#include "socket/tls/SocketServer.h"
-
 namespace express::tls {
 
     WebApp::WebApp(const std::string& cert, const std::string& key, const std::string& password, const std::string& caFile,

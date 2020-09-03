@@ -18,6 +18,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstdlib>
 #include <easylogging++.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

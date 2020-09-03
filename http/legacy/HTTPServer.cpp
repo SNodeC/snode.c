@@ -23,7 +23,6 @@
 #include "HTTPServer.h"
 
 #include "HTTPServerContext.h"
-#include "socket/legacy/SocketConnection.h"
 #include "socket/legacy/SocketServer.h"
 
 namespace http {

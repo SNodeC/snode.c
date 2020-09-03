@@ -26,7 +26,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "HTTPClientT.h"
 #include "socket/legacy/SocketConnection.h"
 
 namespace http {

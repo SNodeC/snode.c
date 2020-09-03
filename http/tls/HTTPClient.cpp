@@ -25,7 +25,6 @@
 #include "HTTPClient.h"
 #include "HTTPClientContext.h"
 #include "socket/tls/SocketClient.h"
-#include "socket/tls/SocketConnection.h"
 
 namespace http {
 

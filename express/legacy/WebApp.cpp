@@ -22,8 +22,6 @@
 
 #include "WebApp.h"
 
-#include "socket/legacy/SocketServer.h"
-
 namespace express::legacy {
 
     WebApp::WebApp()
