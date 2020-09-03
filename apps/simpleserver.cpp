@@ -18,6 +18,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "legacy/HTTPServerT.h"
 #include "legacy/WebApp.h"
 #include "middleware/StaticMiddleware.h"
 #include "tls/WebApp.h"

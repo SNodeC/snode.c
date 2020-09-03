@@ -16,71 +16,78 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef HTTPCLIENTT_H
+#define HTTPCLIENTT_H
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <easylogging++.h>
+#include <functional>
+#include <map>
+#include <netinet/in.h>
+#include <string>
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#include "HTTPClient.h"
 #include "HTTPClientContext.h"
-#include "socket/tls/SocketClient.h"
-#include "socket/tls/SocketConnection.h"
 
 namespace http {
 
-    namespace tls {
+    class ClientResponse;
 
-        HTTPClient::HTTPClient(const std::function<void(net::socket::tls::SocketConnection*)>& onConnect,
-                               const std::function<void(ClientResponse& clientResponse)> onResponseReady,
-                               const std::function<void(net::socket::tls::SocketConnection*)> onDisconnect, const std::string& caFile,
-                               const std::string& caDir, bool useDefaultCADir)
+    template <typename SocketClient>
+    class HTTPClientT {
+    public:
+        HTTPClientT(const std::function<void(typename SocketClient::SocketConnectionType*)>& onConnect,
+                    const std::function<void(ClientResponse& clientResponse)> onResponseReady,
+                    const std::function<void(typename SocketClient::SocketConnectionType*)> onDisconnect)
             : onConnect(onConnect)
             , onResponseReady(onResponseReady)
-            , onDisconnect(onDisconnect)
-            , caFile(caFile)
-            , caDir(caDir)
-            , useDefaultCADir(useDefaultCADir) {
+            , onDisconnect(onDisconnect) {
         }
 
-        void HTTPClient::connect(const std::string& server, in_port_t port, const std::function<void(int err)>& onError) {
+    protected:
+        void connect(const std::string& server, in_port_t port, const std::function<void(int err)>& onError) {
             errno = 0;
 
-            (new net::socket::tls::SocketClient(
-                 [*this](net::socket::tls::SocketConnection* socketConnection) -> void { // onConnect
+            (new SocketClient(
+                 [*this](typename SocketClient::SocketConnectionType* socketConnection) -> void { // onConnect
                      this->onConnect(socketConnection);
-                     socketConnection->setProtocol<http::HTTPClientContext*>(new HTTPClientContext(
+
+                     socketConnection->template setProtocol<http::HTTPClientContext*>(new HTTPClientContext(
                          socketConnection,
                          [*this]([[maybe_unused]] ClientResponse& clientResponse) -> void {
                              this->onResponseReady(clientResponse);
                          },
                          []([[maybe_unused]] int status, [[maybe_unused]] const std::string& reason) -> void {
                          }));
+
                      socketConnection->enqueue(request);
                  },
-                 [*this](net::socket::tls::SocketConnection* socketConnection) -> void { // onDisconnect
+                 [*this](typename SocketClient::SocketConnectionType* socketConnection) -> void { // onDisconnect
                      this->onDisconnect(socketConnection);
-                     socketConnection->getProtocol<http::HTTPClientContext*>([](http::HTTPClientContext*& httpClientContext) -> void {
-                         delete httpClientContext;
-                     });
+                     socketConnection->template getProtocol<http::HTTPClientContext*>(
+                         [](http::HTTPClientContext*& httpClientContext) -> void {
+                             delete httpClientContext;
+                         });
                  },
-                 [](net::socket::tls::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
-                     socketConnection->getProtocol<http::HTTPClientContext*>(
+                 [](typename SocketClient::SocketConnectionType* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
+                     socketConnection->template getProtocol<http::HTTPClientContext*>(
                          [junk, junkSize]([[maybe_unused]] http::HTTPClientContext*& clientContext) -> void {
                              clientContext->receiveResponseData(junk, junkSize);
                          });
                  },
-                 []([[maybe_unused]] net::socket::tls::SocketConnection* socketConnection, int errnum) -> void { // onReadError
+                 []([[maybe_unused]] typename SocketClient::SocketConnectionType* socketConnection, int errnum) -> void { // onReadError
                      VLOG(0) << "OnReadError: " << errnum;
                  },
-                 []([[maybe_unused]] net::socket::tls::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
+                 []([[maybe_unused]] typename SocketClient::SocketConnectionType* socketConnection, int errnum) -> void { // onWriteError
                      VLOG(0) << "OnWriteError: " << errnum;
-                 },
-                 caFile, caDir, useDefaultCADir))
+                 }))
                 ->connect(server, port, onError);
         }
 
-        void HTTPClient::get(const std::map<std::string, std::string>& options, const std::function<void(int err)>& onError) {
+    public:
+        void get(const std::map<std::string, std::string>& options, const std::function<void(int err)>& onError) {
             this->options = options;
             for (auto& [name, value] : options) {
                 if (name == "host") {
@@ -97,6 +104,20 @@ namespace http {
             this->connect(host, port, onError);
         }
 
-    } // namespace tls
+    protected:
+        std::function<void(typename SocketClient::SocketConnectionType*)> onConnect;
+        std::function<void(ClientResponse& clientResponse)> onResponseReady;
+        std::function<void(typename SocketClient::SocketConnectionType*)> onDisconnect;
+
+        std::string request;
+
+        std::map<std::string, std::string> options;
+
+        std::string host;
+        std::string path;
+        in_port_t port;
+    };
 
 } // namespace http
+
+#endif // HTTPCLIENTT_H

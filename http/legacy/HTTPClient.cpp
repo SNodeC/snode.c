@@ -52,6 +52,7 @@ namespace http {
                          },
                          []([[maybe_unused]] int status, [[maybe_unused]] const std::string& reason) -> void {
                          }));
+                     socketConnection->enqueue(request);
                  },
                  [*this](net::socket::legacy::SocketConnection* socketConnection) -> void { // onDisconnect
                      this->onDisconnect(socketConnection);
@@ -72,6 +73,23 @@ namespace http {
                      VLOG(0) << "OnWriteError: " << errnum;
                  }))
                 ->connect(server, port, onError);
+        }
+
+        void HTTPClient::get(const std::map<std::string, std::string>& options, const std::function<void(int err)>& onError) {
+            this->options = options;
+            for (auto& [name, value] : options) {
+                if (name == "host") {
+                    this->host = value;
+                } else if (name == "port") {
+                    this->port = std::stoi(value);
+                } else if (name == "path") {
+                    this->path = value;
+                }
+            }
+
+            this->request = "GET " + this->path + " HTTP/1.1\r\n\r\n";
+
+            this->connect(host, port, onError);
         }
 
     } // namespace legacy

@@ -232,6 +232,9 @@ namespace net::socket {
         int connectionCounter = 0;
 
         static void* lastAllocAddress;
+
+    public:
+        using SocketConnectionType = SocketConnection;
     };
 
     template <typename SocketConnection>

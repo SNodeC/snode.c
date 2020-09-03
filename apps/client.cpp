@@ -21,7 +21,7 @@
 #include "ClientResponse.h"
 #include "EventLoop.h"
 #include "HTTPResponseParser.h"
-#include "legacy/HTTPClient.h"
+#include "legacy/HTTPClientT.h"
 #include "socket/legacy/SocketClient.h"
 #include "socket/tls/SocketClient.h"
 #include "tls/HTTPClient.h"
@@ -43,11 +43,9 @@ using namespace net::socket;
 int main(int argc, char* argv[]) {
     net::EventLoop::init(argc, argv);
 
-    http::legacy::HTTPClient legacyClient(
+    http::legacy::HTTPClientT legacyClient(
         [](net::socket::legacy::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnConnect";
-            socketConnection->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); // Connection:keep-alive\r\n\r\n");
-
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                            "):" + std::to_string(socketConnection->getRemoteAddress().port());
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
@@ -88,23 +86,9 @@ int main(int argc, char* argv[]) {
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
         });
 
-    legacyClient.connect("localhost", 8080, [](int err) -> void {
-        if (err != 0) {
-            PLOG(ERROR) << "OnError: " << err;
-        }
-    });
-
-    legacyClient.connect("localhost", 8080, [](int err) -> void {
-        if (err != 0) {
-            PLOG(ERROR) << "OnError: " << err;
-        }
-    });
-
     http::tls::HTTPClient tlsClient(
         [](net::socket::tls::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnConnect";
-            socketConnection->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); // Connection:keep-alive\r\n\r\n");
-
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                            "):" + std::to_string(socketConnection->getRemoteAddress().port());
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
@@ -191,17 +175,29 @@ int main(int argc, char* argv[]) {
         },
         SERVERCAFILE);
 
-    tlsClient.connect("localhost", 8088, [](int err) -> void {
+    legacyClient.get({{"path", "/index.html"}, {"host", "localhost"}, {"port", "8080"}}, [](int err) -> void {
         if (err != 0) {
             PLOG(ERROR) << "OnError: " << err;
         }
-    });
+    }); // Connection:keep-alive\r\n\r\n"
 
-    tlsClient.connect("localhost", 8088, [](int err) -> void {
+    legacyClient.get({{"path", "/index.html"}, {"host", "localhost"}, {"port", "8080"}}, [](int err) -> void {
         if (err != 0) {
             PLOG(ERROR) << "OnError: " << err;
         }
-    });
+    }); // Connection:keep-alive\r\n\r\n"
+
+    tlsClient.get({{"path", "/index.html"}, {"host", "localhost"}, {"port", "8088"}}, [](int err) -> void {
+        if (err != 0) {
+            PLOG(ERROR) << "OnError: " << err;
+        }
+    }); // Connection:keep-alive\r\n\r\n"
+
+    tlsClient.get({{"path", "/index.html"}, {"host", "localhost"}, {"port", "8088"}}, [](int err) -> void {
+        if (err != 0) {
+            PLOG(ERROR) << "OnError: " << err;
+        }
+    }); // Connection:keep-alive\r\n\r\n"
 
     net::EventLoop::start();
 

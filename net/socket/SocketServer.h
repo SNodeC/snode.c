@@ -182,6 +182,9 @@ namespace net::socket {
         std::function<void(SocketConnection* socketConnection, int errnum)> onWriteError;
 
         bool isDynamic;
+
+    public:
+        using SocketConnectionType = SocketConnection;
     };
 
 } // namespace net::socket
