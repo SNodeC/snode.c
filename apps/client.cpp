@@ -38,8 +38,6 @@
 #define KEYFPASS "snode.c"
 #define SERVERCAFILE "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Root_CA.crt"
 
-using namespace net::socket;
-
 int main(int argc, char* argv[]) {
     net::EventLoop::init(argc, argv);
 
