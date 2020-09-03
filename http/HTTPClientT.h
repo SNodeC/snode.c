@@ -38,9 +38,9 @@ namespace http {
     template <typename SocketClient>
     class HTTPClientT {
     public:
-        HTTPClientT(const std::function<void(typename SocketClient::SocketConnectionType*)>& onConnect,
+        HTTPClientT(const std::function<void(typename SocketClient::SocketConnection*)>& onConnect,
                     const std::function<void(ClientResponse& clientResponse)> onResponseReady,
-                    const std::function<void(typename SocketClient::SocketConnectionType*)> onDisconnect)
+                    const std::function<void(typename SocketClient::SocketConnection*)> onDisconnect)
             : onConnect(onConnect)
             , onResponseReady(onResponseReady)
             , onDisconnect(onDisconnect) {
@@ -51,7 +51,7 @@ namespace http {
             errno = 0;
 
             (new SocketClient(
-                 [*this](typename SocketClient::SocketConnectionType* socketConnection) -> void { // onConnect
+                 [*this](typename SocketClient::SocketConnection* socketConnection) -> void { // onConnect
                      this->onConnect(socketConnection);
 
                      socketConnection->template setProtocol<http::HTTPClientContext*>(new HTTPClientContext(
@@ -64,23 +64,23 @@ namespace http {
 
                      socketConnection->enqueue(request);
                  },
-                 [*this](typename SocketClient::SocketConnectionType* socketConnection) -> void { // onDisconnect
+                 [*this](typename SocketClient::SocketConnection* socketConnection) -> void { // onDisconnect
                      this->onDisconnect(socketConnection);
                      socketConnection->template getProtocol<http::HTTPClientContext*>(
                          [](http::HTTPClientContext*& httpClientContext) -> void {
                              delete httpClientContext;
                          });
                  },
-                 [](typename SocketClient::SocketConnectionType* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
+                 [](typename SocketClient::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
                      socketConnection->template getProtocol<http::HTTPClientContext*>(
                          [junk, junkSize]([[maybe_unused]] http::HTTPClientContext*& clientContext) -> void {
                              clientContext->receiveResponseData(junk, junkSize);
                          });
                  },
-                 []([[maybe_unused]] typename SocketClient::SocketConnectionType* socketConnection, int errnum) -> void { // onReadError
+                 []([[maybe_unused]] typename SocketClient::SocketConnection* socketConnection, int errnum) -> void { // onReadError
                      VLOG(0) << "OnReadError: " << errnum;
                  },
-                 []([[maybe_unused]] typename SocketClient::SocketConnectionType* socketConnection, int errnum) -> void { // onWriteError
+                 []([[maybe_unused]] typename SocketClient::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
                      VLOG(0) << "OnWriteError: " << errnum;
                  }))
                 ->connect(server, port, onError);
@@ -105,9 +105,9 @@ namespace http {
         }
 
     protected:
-        std::function<void(typename SocketClient::SocketConnectionType*)> onConnect;
+        std::function<void(typename SocketClient::SocketConnection*)> onConnect;
         std::function<void(ClientResponse& clientResponse)> onResponseReady;
-        std::function<void(typename SocketClient::SocketConnectionType*)> onDisconnect;
+        std::function<void(typename SocketClient::SocketConnection*)> onDisconnect;
 
         std::string request;
 

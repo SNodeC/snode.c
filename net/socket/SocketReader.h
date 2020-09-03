@@ -34,11 +34,13 @@
 
 namespace net::socket {
 
-    template <typename Socket>
+    template <typename SocketT>
     class SocketReader
         : public ReadEventReceiver
-        , virtual public Socket {
+        , virtual public SocketT {
     public:
+        using Socket = SocketT;
+
         SocketReader() = delete;
 
         explicit SocketReader(const std::function<void(const char* junk, ssize_t junkLen)>& onRead,

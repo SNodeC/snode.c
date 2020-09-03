@@ -21,10 +21,10 @@ namespace http {
     template <typename SocketServer>
     class HTTPServerT {
     public:
-        explicit HTTPServerT(const std::function<void(typename SocketServer::SocketConnectionType*)>& onConnect,
+        explicit HTTPServerT(const std::function<void(typename SocketServer::SocketConnection*)>& onConnect,
                              const std::function<void(Request& req, Response& res)>& onRequestReady,
                              const std::function<void(Request& req, Response& res)>& onResponseCompleted,
-                             const std::function<void(typename SocketServer::SocketConnectionType*)>& onDisconnect)
+                             const std::function<void(typename SocketServer::SocketConnection*)>& onDisconnect)
             : onConnect(onConnect)
             , onRequestReady(onRequestReady)
             , onResponseCompleted(onResponseCompleted)
@@ -37,7 +37,7 @@ namespace http {
             errno = 0;
 
             (new SocketServer(
-                 [*this](typename SocketServer::SocketConnectionType* socketConnection) -> void { // onConnect
+                 [*this](typename SocketServer::SocketConnection* socketConnection) -> void { // onConnect
                      onConnect(socketConnection);
                      socketConnection->template setProtocol<HTTPServerContext*>(new HTTPServerContext(
                          socketConnection,
@@ -48,23 +48,23 @@ namespace http {
                              onResponseCompleted(req, res);
                          }));
                  },
-                 [*this](typename SocketServer::SocketConnectionType* socketConnection) -> void { // onDisconnect
+                 [*this](typename SocketServer::SocketConnection* socketConnection) -> void { // onDisconnect
                      onDisconnect(socketConnection);
                      socketConnection->template getProtocol<HTTPServerContext*>([](HTTPServerContext*& protocol) -> void {
                          delete protocol;
                      });
                  },
-                 [](typename SocketServer::SocketConnectionType* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
+                 [](typename SocketServer::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
                      socketConnection->template getProtocol<HTTPServerContext*>([&junk, &junkSize](HTTPServerContext*& protocol) -> void {
                          protocol->receiveRequestData(junk, junkSize);
                      });
                  },
-                 [](typename SocketServer::SocketConnectionType* socketConnection, int errnum) -> void { // onReadError
+                 [](typename SocketServer::SocketConnection* socketConnection, int errnum) -> void { // onReadError
                      socketConnection->template getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
                          protocol->onReadError(errnum);
                      });
                  },
-                 [](typename SocketServer::SocketConnectionType* socketConnection, int errnum) -> void { // onWriteError
+                 [](typename SocketServer::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
                      socketConnection->template getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
                          protocol->onWriteError(errnum);
                      });
@@ -77,10 +77,10 @@ namespace http {
         }
 
     protected:
-        std::function<void(typename SocketServer::SocketConnectionType*)> onConnect;
+        std::function<void(typename SocketServer::SocketConnection*)> onConnect;
         std::function<void(Request& req, Response& res)> onRequestReady;
         std::function<void(Request& req, Response& res)> onResponseCompleted;
-        std::function<void(typename SocketServer::SocketConnectionType*)> onDisconnect;
+        std::function<void(typename SocketServer::SocketConnection*)> onDisconnect;
     };
 
 } // namespace http

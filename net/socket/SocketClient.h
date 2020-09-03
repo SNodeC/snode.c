@@ -38,9 +38,11 @@
 
 namespace net::socket {
 
-    template <typename SocketConnection>
+    template <typename SocketConnectionT>
     class SocketClient {
     public:
+        using SocketConnection = SocketConnectionT;
+
         void* operator new(size_t size) {
             SocketClient<SocketConnection>::lastAllocAddress = malloc(size);
 
@@ -232,9 +234,6 @@ namespace net::socket {
         int connectionCounter = 0;
 
         static void* lastAllocAddress;
-
-    public:
-        using SocketConnectionType = SocketConnection;
     };
 
     template <typename SocketConnection>

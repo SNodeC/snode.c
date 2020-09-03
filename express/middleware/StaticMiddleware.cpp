@@ -34,6 +34,7 @@ StaticMiddleware::StaticMiddleware(const std::string& root)
     use([] MIDDLEWARE(req, res, next) {
         if (req.method == "GET") {
             res.set("Connection", "Keep-Alive");
+            res.cookie("CookieName", "CookieValue");
             next();
         } else {
             res.set("Connection", "Close").sendStatus(400);
