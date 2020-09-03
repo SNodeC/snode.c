@@ -35,11 +35,13 @@
 
 namespace net::socket {
 
-    template <typename SocketConnection>
+    template <typename SocketConnectionT>
     class SocketServer
         : public AcceptEventReceiver
         , public Socket {
     public:
+        using SocketConnection = SocketConnectionT;
+
         void* operator new(size_t size) {
             SocketServer* serverSocket = reinterpret_cast<SocketServer*>(malloc(size));
             serverSocket->isDynamic = true;
@@ -182,9 +184,6 @@ namespace net::socket {
         std::function<void(SocketConnection* socketConnection, int errnum)> onWriteError;
 
         bool isDynamic;
-
-    public:
-        using SocketConnectionType = SocketConnection;
     };
 
 } // namespace net::socket

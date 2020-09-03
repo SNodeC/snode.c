@@ -31,12 +31,15 @@
 
 namespace net::socket {
 
-    template <typename SocketReader, typename SocketWriter>
+    template <typename SocketReaderT, typename SocketWriterT>
     class SocketConnection
         : public SocketConnectionBase
-        , public SocketReader
-        , public SocketWriter {
+        , public SocketReaderT
+        , public SocketWriterT {
     public:
+        using SocketReader = SocketReaderT;
+        using SocketWriter = SocketWriterT;
+
         // NOLINT(cppcoreguidelines-pro-type-member-init)
         SocketConnection() = delete;
 
@@ -93,7 +96,7 @@ namespace net::socket {
 
     public:
         void enqueue(const char* junk, size_t junkLen) override {
-            SocketWriter::enqueue(junk, junkLen);
+            SocketWriterT::enqueue(junk, junkLen);
         }
 
         void enqueue(const std::string& data) override {
@@ -101,9 +104,9 @@ namespace net::socket {
         }
 
         void end(bool instantly = false) override {
-            SocketReader::disable();
+            SocketReaderT::disable();
             if (instantly) {
-                SocketWriter::disable();
+                SocketWriterT::disable();
             }
         }
 
@@ -119,10 +122,6 @@ namespace net::socket {
         InetAddress remoteAddress{};
         std::function<void(SocketConnection* socketConnection)> onDisconnect;
         bool isDynamic;
-
-    public:
-        using ReaderType = SocketReader;
-        using WriterType = SocketWriter;
     };
 
 } // namespace net::socket
