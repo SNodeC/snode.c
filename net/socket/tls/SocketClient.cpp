@@ -158,22 +158,16 @@ namespace net::socket::tls {
         for (auto& [name, value] : options) {
             if (name == "certChain") {
                 certChain = std::any_cast<const char*>(value);
-                VLOG(0) << certChain;
             } else if (name == "keyPEM") {
                 keyPEM = std::any_cast<const char*>(value);
-                VLOG(0) << keyPEM;
             } else if (name == "password") {
                 password = std::any_cast<const char*>(value);
-                VLOG(0) << password;
             } else if (name == "caFile") {
                 caFile = std::any_cast<const char*>(value);
-                VLOG(0) << caFile;
             } else if (name == "caDir") {
                 caDir = std::any_cast<const char*>(value);
-                VLOG(0) << caDir;
             } else if (name == "useDefaultCADir") {
                 useDefaultCADir = std::any_cast<bool>(value);
-                VLOG(0) << useDefaultCADir;
             }
         }
         ctx = SSL_CTX_new(TLS_client_method());
@@ -184,30 +178,30 @@ namespace net::socket::tls {
                     sslErr = ERR_peek_error();
                 }
             }
-            if (sslErr == 0 && useDefaultCADir) {
+            if (sslErr == SSL_ERROR_NONE && useDefaultCADir) {
                 if (!SSL_CTX_set_default_verify_paths(ctx)) {
                     sslErr = ERR_peek_error();
                 }
             }
-        } else {
-            sslErr = ERR_peek_error();
-        }
-        if (sslErr == SSL_ERROR_NONE) {
-            if (!certChain.empty()) {
-                if (SSL_CTX_use_certificate_chain_file(ctx, certChain.c_str()) <= 0) {
-                    sslErr = ERR_peek_error();
-                }
-            } else if (!keyPEM.empty()) {
-                if (!password.empty()) {
-                    SSL_CTX_set_default_passwd_cb(ctx, SocketClient::passwordCallback);
-                    SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(password.c_str()));
-                }
-                if (SSL_CTX_use_PrivateKey_file(ctx, keyPEM.c_str(), SSL_FILETYPE_PEM) <= 0) {
-                    sslErr = ERR_peek_error();
-                } else if (!SSL_CTX_check_private_key(ctx)) {
-                    sslErr = ERR_peek_error();
+            if (sslErr == SSL_ERROR_NONE) {
+                if (!certChain.empty()) {
+                    if (SSL_CTX_use_certificate_chain_file(ctx, certChain.c_str()) <= 0) {
+                        sslErr = ERR_peek_error();
+                    } else if (!keyPEM.empty()) {
+                        if (!password.empty()) {
+                            SSL_CTX_set_default_passwd_cb(ctx, SocketClient::passwordCallback);
+                            SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(password.c_str()));
+                        }
+                        if (SSL_CTX_use_PrivateKey_file(ctx, keyPEM.c_str(), SSL_FILETYPE_PEM) <= 0) {
+                            sslErr = ERR_peek_error();
+                        } else if (!SSL_CTX_check_private_key(ctx)) {
+                            sslErr = ERR_peek_error();
+                        }
+                    }
                 }
             }
+        } else {
+            sslErr = ERR_peek_error();
         }
     }
 

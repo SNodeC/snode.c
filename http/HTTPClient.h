@@ -37,12 +37,12 @@ namespace http {
     class ClientResponse;
 
     template <typename SocketClient>
-    class HTTPClientT {
+    class HTTPClient {
     public:
-        HTTPClientT(const std::function<void(typename SocketClient::SocketConnection*)>& onConnect,
-                    const std::function<void(ClientResponse& clientResponse)> onResponseReady,
-                    const std::function<void(typename SocketClient::SocketConnection*)> onDisconnect,
-                    const std::map<std::string, std::any>& options = {{}})
+        HTTPClient(const std::function<void(typename SocketClient::SocketConnection*)>& onConnect,
+                   const std::function<void(ClientResponse& clientResponse)> onResponseReady,
+                   const std::function<void(typename SocketClient::SocketConnection*)> onDisconnect,
+                   const std::map<std::string, std::any>& options = {{}})
             : onConnect(onConnect)
             , onResponseReady(onResponseReady)
             , onDisconnect(onDisconnect)
@@ -59,7 +59,7 @@ namespace http {
 
                      socketConnection->template setProtocol<http::HTTPClientContext*>(new HTTPClientContext(
                          socketConnection,
-                         [*this]([[maybe_unused]] ClientResponse& clientResponse) -> void {
+                         [*this](ClientResponse& clientResponse) -> void {
                              this->onResponseReady(clientResponse);
                          },
                          []([[maybe_unused]] int status, [[maybe_unused]] const std::string& reason) -> void {

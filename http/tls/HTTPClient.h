@@ -28,41 +28,14 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "HTTPClientT.h"
-#include "socket/tls/SocketConnection.h"
+#include "../HTTPClient.h"
+#include "socket/tls/SocketClient.h"
 
 namespace http {
 
-    class ClientResponse;
-
     namespace tls {
 
-        class HTTPClient {
-        public:
-            HTTPClient(const std::function<void(net::socket::tls::SocketConnection*)>& onConnect,
-                       const std::function<void(ClientResponse& clientResponse)> onResponseReady,
-                       const std::function<void(net::socket::tls::SocketConnection*)> onDisconnect,
-                       const std::map<std::string, std::any>& options = {{}});
-
-        protected:
-            void connect(const std::string& server, in_port_t port, const std::function<void(int err)>& onError);
-
-        public:
-            void get(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError);
-
-        protected:
-            std::function<void(net::socket::tls::SocketConnection*)> onConnect;
-            std::function<void(ClientResponse& clientResponse)> onResponseReady;
-            std::function<void(net::socket::tls::SocketConnection*)> onDisconnect;
-
-            std::string request;
-
-            std::map<std::string, std::any> options;
-
-            std::string host;
-            std::string path;
-            in_port_t port;
-        };
+        using HTTPClient = http::HTTPClient<net::socket::tls::SocketClient>;
 
     } // namespace tls
 

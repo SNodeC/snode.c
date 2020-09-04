@@ -21,10 +21,10 @@
 #include "ClientResponse.h"
 #include "EventLoop.h"
 #include "HTTPResponseParser.h"
-#include "legacy/HTTPClient.h"
+//#include "legacy/HTTPClient.h"
 #include "socket/legacy/SocketClient.h"
 #include "socket/tls/SocketClient.h"
-#include "tls/HTTPClient.h"
+//#include "tls/HTTPClientT.h"
 
 #include <cstring>
 #include <easylogging++.h>

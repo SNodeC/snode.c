@@ -21,11 +21,10 @@
 #include "ClientResponse.h"
 #include "EventLoop.h"
 #include "HTTPResponseParser.h"
-#include "legacy/HTTPClientT.h"
+#include "legacy/HTTPClient.h"
 #include "socket/legacy/SocketClient.h"
 #include "socket/tls/SocketClient.h"
 #include "tls/HTTPClient.h"
-#include "tls/HTTPClientT.h"
 
 #include <cstring>
 #include <easylogging++.h>
@@ -42,7 +41,7 @@
 int main(int argc, char* argv[]) {
     net::EventLoop::init(argc, argv);
 
-    http::legacy::HTTPClientT legacyClient(
+    http::legacy::HTTPClient legacyClient(
         [](net::socket::legacy::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnConnect";
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
@@ -86,7 +85,7 @@ int main(int argc, char* argv[]) {
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
         });
 
-    http::tls::HTTPClientT tlsClient(
+    http::tls::HTTPClient tlsClient(
         [](net::socket::tls::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnConnect";
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
