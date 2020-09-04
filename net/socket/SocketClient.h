@@ -213,7 +213,6 @@ namespace net::socket {
                                     std::function<void(int err)> onError;
                                     net::timer::Timer& timeOut;
                                 };
-
                                 new Connector(this, socketConnection, server, onConnect, onError);
                             }
                         });
@@ -221,20 +220,7 @@ namespace net::socket {
                 },
                 SOCK_NONBLOCK);
         }
-        /*
-                virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, in_port_t lPort)
-           { connect(host, port, onError, InetAddress(lPort));
-                }
 
-                virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
-                                     const std::string& lHost) {
-                    connect(host, port, onError, InetAddress(lHost));
-                }
-
-                virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, const
-           std::string& lHost, in_port_t lPort) { connect(host, port, onError, InetAddress(lHost, lPort));
-                }
-        */
     private:
         std::function<void(SocketConnection* socketConnection)> onConnect;
         std::function<void(SocketConnection* socketConnection)> onDisconnect;

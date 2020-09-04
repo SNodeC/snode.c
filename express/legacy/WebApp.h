@@ -35,6 +35,7 @@ namespace express::legacy {
         WebApp& operator=(const express::WebApp& webApp) = delete;
 
         void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr) override;
+        void listen(const std::string& host, in_port_t port, const std::function<void(int err)>& onError = nullptr) override;
 
         void onConnect(const std::function<void(net::socket::legacy::SocketConnection*)>& onConnect) {
             _onConnect = onConnect;
