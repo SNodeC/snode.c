@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TLS_HTTPCLIEN_H
-#define TLS_HTTPCLIEN_H
+#ifndef TLS_HTTPCLIENT_H
+#define TLS_HTTPCLIENT_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -36,4 +36,4 @@ namespace http {
 
 } // namespace http
 
-#endif // TLS_HTTPCLIEN_H
+#endif // TLS_HTTPCLIENT_H

@@ -46,7 +46,6 @@ struct SSLDeleter {
 };
 
 namespace net::socket::tls {
-
     class SocketClient : public socket::SocketClient<tls::SocketConnection> {
     public:
         SocketClient(const std::function<void(tls::SocketConnection* socketConnection)>& onConnect,
@@ -63,7 +62,7 @@ namespace net::socket::tls {
 
     public:
         // NOLINTNEXTLINE(google-default-arguments)
-        void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
+        void connect(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError,
                      const socket::InetAddress& localAddress = socket::InetAddress()) override;
 
     private:
