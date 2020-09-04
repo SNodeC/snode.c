@@ -30,18 +30,16 @@ namespace net::socket::tls {
 
     class SocketServer : public socket::SocketServer<tls::SocketConnection> {
     public:
-        SocketServer(const std::function<void(tls::SocketConnection* socketConnection)>& onConnect,
-                     const std::function<void(tls::SocketConnection* socketConnection)>& onDisconnect,
-                     const std::function<void(tls::SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
-                     const std::function<void(tls::SocketConnection* socketConnection, int errnum)>& onReadError,
-                     const std::function<void(tls::SocketConnection* socketConnection, int errnum)>& onWriteError,
+        SocketServer(const std::function<void(SocketServer::SocketConnection* socketConnection)>& onConnect,
+                     const std::function<void(SocketServer::SocketConnection* socketConnection)>& onDisconnect,
+                     const std::function<void(SocketServer::SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
+                     const std::function<void(SocketServer::SocketConnection* socketConnection, int errnum)>& onReadError,
+                     const std::function<void(SocketServer::SocketConnection* socketConnection, int errnum)>& onWriteError,
                      const std::string& certChain, const std::string& keyPEM, const std::string& password, const std::string& caFile = "",
                      const std::string& caDir = "", bool useDefaultCADir = false);
 
     protected:
-        using socket::SocketServer<tls::SocketConnection>::SocketServer;
-
-    private:
+        using socket::SocketServer<SocketServer::SocketConnection>::SocketServer;
         ~SocketServer() override;
 
     public:
@@ -49,7 +47,7 @@ namespace net::socket::tls {
         void listen(const std::string& host, in_port_t port, int backlog, const std::function<void(int err)>& onError);
 
     protected:
-        using socket::SocketServer<tls::SocketConnection>::listen;
+        using socket::SocketServer<SocketServer::SocketConnection>::listen;
 
     private:
         SSL_CTX* ctx = nullptr;

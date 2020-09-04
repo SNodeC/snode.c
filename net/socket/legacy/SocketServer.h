@@ -31,9 +31,6 @@ namespace net::socket::legacy {
     class SocketServer : public socket::SocketServer<legacy::SocketConnection> {
     public:
         using socket::SocketServer<legacy::SocketConnection>::SocketServer;
-
-    private:
-        ~SocketServer() override = default;
     };
 
 }; // namespace net::socket::legacy

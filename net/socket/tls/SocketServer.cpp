@@ -32,21 +32,21 @@
 namespace net::socket::tls {
 
     SocketServer::SocketServer(
-        const std::function<void(tls::SocketConnection* socketConnection)>& onConnect,
-        const std::function<void(tls::SocketConnection* socketConnection)>& onDisconnect,
-        const std::function<void(tls::SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
-        const std::function<void(tls::SocketConnection* socketConnection, int errnum)>& onReadError,
-        const std::function<void(tls::SocketConnection* socketConnection, int errnum)>& onWriteError, const std::string& certChain,
+        const std::function<void(SocketServer::SocketConnection* socketConnection)>& onConnect,
+        const std::function<void(SocketServer::SocketConnection* socketConnection)>& onDisconnect,
+        const std::function<void(SocketServer::SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
+        const std::function<void(SocketServer::SocketConnection* socketConnection, int errnum)>& onReadError,
+        const std::function<void(SocketServer::SocketConnection* socketConnection, int errnum)>& onWriteError, const std::string& certChain,
         const std::string& keyPEM, const std::string& password, const std::string& caFile, const std::string& caDir, bool useDefaultCADir)
-        : socket::SocketServer<tls::SocketConnection>(
-              [this, onConnect](tls::SocketConnection* socketConnection) -> void {
+        : socket::SocketServer<SocketServer::SocketConnection>(
+              [this, onConnect](SocketServer::SocketConnection* socketConnection) -> void {
                   class TLSAcceptor
                       : public ReadEventReceiver
                       , public WriteEventReceiver
                       , public Socket {
                   public:
-                      TLSAcceptor(tls::SocketConnection* socketConnection, SSL_CTX* ctx,
-                                  const std::function<void(tls::SocketConnection* socketConnection)>& onConnect)
+                      TLSAcceptor(SocketServer::SocketConnection* socketConnection, SSL_CTX* ctx,
+                                  const std::function<void(SocketServer::SocketConnection* socketConnection)>& onConnect)
                           : socketConnection(socketConnection)
                           , onConnect(onConnect)
                           , timeOut(net::timer::Timer::singleshotTimer(
@@ -126,15 +126,15 @@ namespace net::socket::tls {
                       }
 
                   private:
-                      tls::SocketConnection* socketConnection = nullptr;
+                      SocketServer::SocketConnection* socketConnection = nullptr;
                       SSL* ssl = nullptr;
-                      std::function<void(tls::SocketConnection* socketConnection)> onConnect;
+                      std::function<void(SocketServer::SocketConnection* socketConnection)> onConnect;
                       net::timer::Timer& timeOut;
                   };
 
                   new TLSAcceptor(socketConnection, ctx, onConnect);
               },
-              [onDisconnect](tls::SocketConnection* socketConnection) -> void {
+              [onDisconnect](SocketServer::SocketConnection* socketConnection) -> void {
                   onDisconnect(socketConnection);
                   socketConnection->stopSSL();
               },
@@ -182,7 +182,7 @@ namespace net::socket::tls {
         if (sslErr != 0) {
             onError(-sslErr);
         } else {
-            socket::SocketServer<tls::SocketConnection>::listen(port, backlog, [&onError](int err) -> void {
+            socket::SocketServer<SocketServer::SocketConnection>::listen(port, backlog, [&onError](int err) -> void {
                 onError(err);
             });
         }
@@ -192,7 +192,7 @@ namespace net::socket::tls {
         if (sslErr != 0) {
             onError(-sslErr);
         } else {
-            socket::SocketServer<tls::SocketConnection>::listen(host, port, backlog, [&onError](int err) -> void {
+            socket::SocketServer<SocketServer::SocketConnection>::listen(host, port, backlog, [&onError](int err) -> void {
                 onError(err);
             });
         }
