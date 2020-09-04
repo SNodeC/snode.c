@@ -235,7 +235,6 @@ namespace net::socket {
         int connectionCounter = 0;
 
         bool isDynamic = false;
-
         static void* lastAllocAddress;
     };
 
