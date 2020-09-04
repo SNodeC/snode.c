@@ -115,7 +115,7 @@ namespace net::socket::tls {
                                   if (sslErr == SSL_ERROR_NONE) {
                                       onConnect(socketConnection);
                                   } else {
-                                      socketConnection->ReadEventReceiver::disable();
+                                      socketConnection->WriteEventReceiver::disable();
                                   }
                               }
                           }
