@@ -23,6 +23,7 @@
 
 #include <functional>
 #include <netinet/in.h>
+#include <string> // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

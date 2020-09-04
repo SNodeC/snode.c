@@ -21,7 +21,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint> // for uint16_t
+#include <cstdint>   // for uint16_t
+#include <exception> // for exception
 #include <netinet/in.h>
 #include <string>
 

@@ -19,7 +19,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstring>
-#include <exception>
 #include <netdb.h>
 #include <sys/socket.h> // for AF_INET
 

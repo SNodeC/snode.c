@@ -54,12 +54,12 @@ namespace net {
         virtual ~EventReceiver() = default;
 
         void enabled() {
-            observationCounter++;
+            ObservationCounter::observationCounter++;
             _enabled = true;
         }
 
         void disabled() {
-            observationCounter--;
+            ObservationCounter::observationCounter--;
             _enabled = false;
         }
 

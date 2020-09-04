@@ -120,7 +120,6 @@ namespace net::socket {
         std::function<void(SocketConnection* socketConnection)> onDisconnect;
 
         bool isDynamic;
-
         static void* lastAllocAddress;
     };
 

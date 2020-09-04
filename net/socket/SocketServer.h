@@ -181,7 +181,6 @@ namespace net::socket {
         std::function<void(SocketConnection* socketConnection, int errnum)> onWriteError;
 
         bool isDynamic;
-
         static void* lastAllocAddress;
     };
 
