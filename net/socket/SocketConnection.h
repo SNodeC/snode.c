@@ -40,22 +40,18 @@ namespace net::socket {
         using SocketReader = SocketReaderT;
         using SocketWriter = SocketWriterT;
 
-        // NOLINT(cppcoreguidelines-pro-type-member-init)
-        SocketConnection() = delete;
-
         void* operator new(size_t size) {
-            SocketConnection* socketConnection = reinterpret_cast<SocketConnection*>(malloc(size));
-            socketConnection->isDynamic = true;
+            SocketConnection<SocketReader, SocketWriter>::lastAllocAddress = malloc(size);
 
-            return socketConnection;
+            return SocketConnection<SocketReader, SocketWriter>::lastAllocAddress;
         }
 
         void operator delete(void* socketConnection_v) {
-            SocketConnection* socketConnection = reinterpret_cast<SocketConnection*>(socketConnection_v);
-            if (socketConnection->isDynamic) {
-                free(socketConnection_v);
-            }
+            free(socketConnection_v);
         }
+
+        // NOLINT(cppcoreguidelines-pro-type-member-init)
+        SocketConnection() = delete;
 
     protected:
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
@@ -73,7 +69,8 @@ namespace net::socket {
             , SocketWriter([this, onWriteError](int errnum) -> void {
                 onWriteError(this, errnum);
             })
-            , onDisconnect(onDisconnect) {
+            , onDisconnect(onDisconnect)
+            , isDynamic(this == lastAllocAddress) {
         }
 
     public:
@@ -121,8 +118,14 @@ namespace net::socket {
     private:
         InetAddress remoteAddress{};
         std::function<void(SocketConnection* socketConnection)> onDisconnect;
+
         bool isDynamic;
+
+        static void* lastAllocAddress;
     };
+
+    template <typename SocketReaderT, typename SocketWriterT>
+    void* SocketConnection<SocketReaderT, SocketWriterT>::lastAllocAddress = nullptr;
 
 } // namespace net::socket
 
