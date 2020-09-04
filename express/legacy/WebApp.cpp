@@ -47,4 +47,8 @@ namespace express::legacy {
         httpServer.listen(port, onError);
     }
 
+    void WebApp::listen(const std::string& host, in_port_t port, const std::function<void(int err)>& onError) {
+        httpServer.listen(host, port, onError);
+    }
+
 } // namespace express::legacy

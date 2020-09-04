@@ -45,6 +45,7 @@ namespace http {
             HTTPServer& operator=(const HTTPServer& webApp) = delete;
 
             void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr);
+            void listen(const std::string& host, in_port_t port, const std::function<void(int err)>& onError = nullptr);
 
         protected:
             std::function<void(net::socket::legacy::SocketConnection*)> onConnect;

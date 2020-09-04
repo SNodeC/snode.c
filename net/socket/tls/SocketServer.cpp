@@ -188,6 +188,16 @@ namespace net::socket::tls {
         }
     }
 
+    void SocketServer::listen(const std::string& host, in_port_t port, int backlog, const std::function<void(int err)>& onError) {
+        if (sslErr != 0) {
+            onError(-sslErr);
+        } else {
+            socket::SocketServer<tls::SocketConnection>::listen(host, port, backlog, [&onError](int err) -> void {
+                onError(err);
+            });
+        }
+    }
+
     int SocketServer::passwordCallback(char* buf, int size, [[maybe_unused]] int rwflag, void* u) {
         strncpy(buf, static_cast<char*>(u), size);
         buf[size - 1] = '\0';

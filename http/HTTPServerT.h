@@ -76,6 +76,49 @@ namespace http {
                 });
         }
 
+        void listen(const std::string host, in_port_t port, const std::function<void(int err)>& onError = nullptr) {
+            errno = 0;
+
+            (new SocketServer(
+                 [*this](typename SocketServer::SocketConnection* socketConnection) -> void { // onConnect
+                     onConnect(socketConnection);
+                     socketConnection->template setProtocol<HTTPServerContext*>(new HTTPServerContext(
+                         socketConnection,
+                         [*this]([[maybe_unused]] Request& req, [[maybe_unused]] Response& res) -> void {
+                             onRequestReady(req, res);
+                         },
+                         [*this]([[maybe_unused]] Request& req, [[maybe_unused]] Response& res) -> void {
+                             onResponseCompleted(req, res);
+                         }));
+                 },
+                 [*this](typename SocketServer::SocketConnection* socketConnection) -> void { // onDisconnect
+                     onDisconnect(socketConnection);
+                     socketConnection->template getProtocol<HTTPServerContext*>([](HTTPServerContext*& protocol) -> void {
+                         delete protocol;
+                     });
+                 },
+                 [](typename SocketServer::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
+                     socketConnection->template getProtocol<HTTPServerContext*>([&junk, &junkSize](HTTPServerContext*& protocol) -> void {
+                         protocol->receiveRequestData(junk, junkSize);
+                     });
+                 },
+                 [](typename SocketServer::SocketConnection* socketConnection, int errnum) -> void { // onReadError
+                     socketConnection->template getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
+                         protocol->onReadError(errnum);
+                     });
+                 },
+                 [](typename SocketServer::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
+                     socketConnection->template getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
+                         protocol->onWriteError(errnum);
+                     });
+                 }))
+                ->listen(host, port, 5, [&](int err) -> void {
+                    if (onError) {
+                        onError(err);
+                    }
+                });
+        }
+
     protected:
         std::function<void(typename SocketServer::SocketConnection*)> onConnect;
         std::function<void(Request& req, Response& res)> onRequestReady;

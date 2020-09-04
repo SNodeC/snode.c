@@ -29,6 +29,20 @@
 
 namespace net::socket {
 
+    class bad_hostname : public std::exception {
+    public:
+        explicit bad_hostname(const std::string& hostName) {
+            bad_hostname::message = "Bad hostname \"" + hostName + "\"";
+        }
+
+        virtual const char* what() const noexcept override {
+            return bad_hostname::message.c_str();
+        }
+
+    protected:
+        static std::string message;
+    };
+
     class InetAddress {
     public:
         InetAddress();

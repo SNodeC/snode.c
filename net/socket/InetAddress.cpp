@@ -19,6 +19,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstring>
+#include <exception>
 #include <netdb.h>
 #include <sys/socket.h> // for AF_INET
 
@@ -28,6 +29,8 @@
 
 namespace net::socket {
 
+    std::string bad_hostname::message = "";
+
     InetAddress::InetAddress() {
         addr.sin_family = AF_INET;
         addr.sin_port = htons(0);
@@ -36,6 +39,11 @@ namespace net::socket {
 
     InetAddress::InetAddress(const std::string& ipOrHostname, uint16_t port) {
         struct hostent* he = gethostbyname(ipOrHostname.c_str());
+
+        if (he == nullptr) {
+            throw bad_hostname(ipOrHostname);
+        }
+
         addr.sin_family = AF_INET;
         addr.sin_port = htons(port);
         memcpy(&addr.sin_addr, he->h_addr_list[0], he->h_length);
@@ -43,6 +51,11 @@ namespace net::socket {
 
     InetAddress::InetAddress(const std::string& ipOrHostname) {
         struct hostent* he = gethostbyname(ipOrHostname.c_str());
+
+        if (he == nullptr) {
+            throw bad_hostname(ipOrHostname);
+        }
+
         addr.sin_family = AF_INET;
         addr.sin_port = htons(0);
         memcpy(&addr.sin_addr, he->h_addr_list[0], he->h_length);
@@ -82,15 +95,15 @@ namespace net::socket {
     }
 
     std::string InetAddress::ip() const {
-        char host[256];
-        getnameinfo(reinterpret_cast<const sockaddr*>(&addr), sizeof(addr), host, 256, NULL, 0, NI_NUMERICHOST);
+        char ip[256];
+        getnameinfo(reinterpret_cast<const sockaddr*>(&addr), sizeof(addr), ip, 256, NULL, 0, NI_NUMERICHOST);
 
-        return std::string(host);
+        return std::string(ip);
     }
 
     std::string InetAddress::serv() const {
         char serv[256];
-        getnameinfo(reinterpret_cast<const sockaddr*>(&addr), sizeof(addr), NULL, 0, serv, 256, NI_NUMERICHOST);
+        getnameinfo(reinterpret_cast<const sockaddr*>(&addr), sizeof(addr), NULL, 0, serv, 256, 0);
 
         return std::string(serv);
     }

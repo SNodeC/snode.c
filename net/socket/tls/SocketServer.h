@@ -46,6 +46,7 @@ namespace net::socket::tls {
 
     public:
         void listen(in_port_t port, int backlog, const std::function<void(int err)>& onError);
+        void listen(const std::string& host, in_port_t port, int backlog, const std::function<void(int err)>& onError);
 
     protected:
         using socket::SocketServer<tls::SocketConnection>::listen;
