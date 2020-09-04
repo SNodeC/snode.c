@@ -16,15 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LEGACY_HTTPCLIENT_H
-#define LEGACY_HTTPCLIENT_H
+#ifndef LEGACY_HTTPCLIEN_H
+#define LEGACY_HTTPCLIEN_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <any>
-#include <functional>
-#include <map>
-#include <netinet/in.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -41,4 +36,4 @@ namespace http {
 
 } // namespace http
 
-#endif // LEGACY_HTTPCLIENT_H
+#endif // LEGACY_HTTPCLIEN_H
