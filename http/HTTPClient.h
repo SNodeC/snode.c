@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HTTPCLIENTT_H
-#define HTTPCLIENTT_H
+#ifndef HTTPCLIENT_H
+#define HTTPCLIENT_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -123,4 +123,4 @@ namespace http {
 
 } // namespace http
 
-#endif // HTTPCLIENTT_H
+#endif // HTTPCLIENT_H
