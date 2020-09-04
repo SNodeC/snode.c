@@ -21,8 +21,11 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <any>
+#include <map>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -51,15 +54,7 @@ namespace net::socket::tls {
                      const std::function<void(tls::SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
                      const std::function<void(tls::SocketConnection* socketConnection, int errnum)>& onReadError,
                      const std::function<void(tls::SocketConnection* socketConnection, int errnum)>& onWriteError,
-                     const std::string& caFile = "", const std::string& caDir = "", bool useDefaultCADir = false);
-
-        SocketClient(const std::function<void(tls::SocketConnection* socketConnection)>& onConnect,
-                     const std::function<void(tls::SocketConnection* socketConnection)>& onDisconnect,
-                     const std::function<void(tls::SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
-                     const std::function<void(tls::SocketConnection* socketConnection, int errnum)>& onReadError,
-                     const std::function<void(tls::SocketConnection* socketConnection, int errnum)>& onWriteError,
-                     const std::string& certChain, const std::string& keyPEM, const std::string& password, const std::string& caFile = "",
-                     const std::string& caDir = "", bool useDefaultCADir = false);
+                     const std::map<std::string, std::any>& options = {{}});
 
         ~SocketClient() override;
 

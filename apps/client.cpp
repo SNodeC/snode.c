@@ -25,6 +25,7 @@
 #include "socket/legacy/SocketClient.h"
 #include "socket/tls/SocketClient.h"
 #include "tls/HTTPClient.h"
+#include "tls/HTTPClientT.h"
 
 #include <cstring>
 #include <easylogging++.h>
@@ -85,7 +86,7 @@ int main(int argc, char* argv[]) {
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
         });
 
-    http::tls::HTTPClient tlsClient(
+    http::tls::HTTPClientT tlsClient(
         [](net::socket::tls::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnConnect";
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
@@ -173,27 +174,27 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
         },
-        SERVERCAFILE);
+        {{"caFile", SERVERCAFILE}});
 
-    legacyClient.get({{"path", "/index.html"}, {"host", "localhost"}, {"port", "8080"}}, [](int err) -> void {
+    legacyClient.get({{"host", "localhost"}, {"port", 8080}, {"path", "/index.html"}}, [](int err) -> void {
         if (err != 0) {
             PLOG(ERROR) << "OnError: " << err;
         }
     }); // Connection:keep-alive\r\n\r\n"
 
-    legacyClient.get({{"path", "/index.html"}, {"host", "localhost"}, {"port", "8080"}}, [](int err) -> void {
+    legacyClient.get({{"host", "localhost"}, {"port", 8080}, {"path", "/index.html"}}, [](int err) -> void {
         if (err != 0) {
             PLOG(ERROR) << "OnError: " << err;
         }
     }); // Connection:keep-alive\r\n\r\n"
 
-    tlsClient.get({{"path", "/index.html"}, {"host", "localhost"}, {"port", "8088"}}, [](int err) -> void {
+    tlsClient.get({{"host", "localhost"}, {"port", 8088}, {"path", "/index.html"}}, [](int err) -> void {
         if (err != 0) {
             PLOG(ERROR) << "OnError: " << err;
         }
     }); // Connection:keep-alive\r\n\r\n"
 
-    tlsClient.get({{"path", "/index.html"}, {"host", "localhost"}, {"port", "8088"}}, [](int err) -> void {
+    tlsClient.get({{"host", "localhost"}, {"port", 8088}, {"path", "/index.html"}}, [](int err) -> void {
         if (err != 0) {
             PLOG(ERROR) << "OnError: " << err;
         }

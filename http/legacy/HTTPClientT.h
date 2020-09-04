@@ -3,7 +3,6 @@
 
 #include "../HTTPClientT.h"
 #include "socket/legacy/SocketClient.h"
-#include "socket/legacy/SocketConnection.h"
 
 namespace http {
 

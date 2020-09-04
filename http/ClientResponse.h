@@ -33,7 +33,7 @@ namespace http {
 
     class ClientResponse {
     public:
-        ClientResponse();
+        ClientResponse() = default;
 
         // switch to protected later on
     public:

@@ -21,8 +21,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <any>
 #include <easylogging++.h>
 #include <functional>
+#include <map>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -57,12 +59,14 @@ namespace net::socket {
                      const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
                      const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
                      const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
-                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError)
+                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
+                     const std::map<std::string, std::any>& options = {{}})
             : onConnect(onConnect)
             , onDisconnect(onDisconnect)
             , onRead(onRead)
             , onReadError(onReadError)
             , onWriteError(onWriteError)
+            , options(options)
             , isDynamic(this == SocketClient<SocketConnection>::lastAllocAddress) {
             SocketClient<SocketConnection>::lastAllocAddress = nullptr;
         }
@@ -229,6 +233,8 @@ namespace net::socket {
         std::function<void(SocketConnection* socketConnection, int errnum)> onWriteError;
 
     protected:
+        std::map<std::string, std::any> options;
+
         bool isDynamic = false;
 
         int connectionCounter = 0;

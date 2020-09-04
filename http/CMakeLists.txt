@@ -10,6 +10,7 @@ add_library(http SHARED
     legacy/HTTPClientT.h
     tls/HTTPClient.cpp
     tls/HTTPClient.h
+    tls/HTTPClientT.h
     legacy/HTTPServer.cpp
     legacy/HTTPServer.h
     legacy/HTTPServerT.h
