@@ -28,40 +28,14 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/legacy/SocketConnection.h"
+#include "../HTTPClient.h"
+#include "socket/legacy/SocketClient.h"
 
 namespace http {
 
-    class ClientResponse;
-
     namespace legacy {
 
-        class HTTPClient {
-        public:
-            HTTPClient(const std::function<void(net::socket::legacy::SocketConnection*)>& onConnect,
-                       const std::function<void(ClientResponse& clientResponse)> onResponseReady,
-                       const std::function<void(net::socket::legacy::SocketConnection*)> onDisconnect,
-                       const std::map<std::string, std::any>& options);
-
-        protected:
-            void connect(const std::string& server, in_port_t port, const std::function<void(int err)>& onError);
-
-        public:
-            void get(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError);
-
-        protected:
-            std::function<void(net::socket::legacy::SocketConnection*)> onConnect;
-            std::function<void(ClientResponse& clientResponse)> onResponseReady;
-            std::function<void(net::socket::legacy::SocketConnection*)> onDisconnect;
-
-            std::string request;
-
-            std::map<std::string, std::any> options;
-
-            std::string host;
-            std::string path;
-            in_port_t port;
-        };
+        using HTTPClient = http::HTTPClient<net::socket::legacy::SocketClient>;
 
     } // namespace legacy
 
