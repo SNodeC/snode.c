@@ -232,9 +232,9 @@ namespace net::socket {
     protected:
         std::map<std::string, std::any> options;
 
-        bool isDynamic = false;
-
         int connectionCounter = 0;
+
+        bool isDynamic = false;
 
         static void* lastAllocAddress;
     };
