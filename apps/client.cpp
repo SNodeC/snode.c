@@ -44,24 +44,24 @@ int main(int argc, char* argv[]) {
     http::legacy::HTTPClient legacyClient(
         [](net::socket::legacy::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnConnect";
-            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
+            VLOG(0) << "     Server: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                            "):" + std::to_string(socketConnection->getRemoteAddress().port());
-            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
+            VLOG(0) << "     Client: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
         },
         [](const http::ClientResponse& clientResponse) -> void {
             VLOG(0) << "-- OnResponse";
-            VLOG(0) << "--   Status:";
+            VLOG(0) << "     Status:";
             VLOG(0) << "       " << clientResponse.httpVersion;
             VLOG(0) << "       " << clientResponse.statusCode;
             VLOG(0) << "       " << clientResponse.reason;
 
-            VLOG(0) << "--   Headers:";
+            VLOG(0) << "     Headers:";
             for (auto [field, value] : *clientResponse.headers) {
                 VLOG(0) << "       " << field + " = " + value;
             }
 
-            VLOG(0) << "--   Cookies:";
+            VLOG(0) << "     Cookies:";
             for (auto [name, cookie] : *clientResponse.cookies) {
                 VLOG(0) << "       " + name + " = " + cookie.getValue();
                 for (auto [option, value] : cookie.getOptions()) {
@@ -73,38 +73,38 @@ int main(int argc, char* argv[]) {
             memcpy(body, clientResponse.body, clientResponse.contentLength);
             body[clientResponse.contentLength] = 0;
 
-            VLOG(1) << "--   Body:\n----------- start body -----------\n" << body << "------------ end body ------------";
+            VLOG(1) << "     Body:\n----------- start body -----------\n" << body << "------------ end body ------------";
 
             delete[] body;
         },
         []([[maybe_unused]] net::socket::legacy::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnDisconnect";
-            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
+            VLOG(0) << "     Server: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                            "):" + std::to_string(socketConnection->getRemoteAddress().port());
-            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
+            VLOG(0) << "     Client: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
         });
 
     http::tls::HTTPClient tlsClient(
         [](net::socket::tls::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnConnect";
-            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
+            VLOG(0) << "     Server: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                            "):" + std::to_string(socketConnection->getRemoteAddress().port());
-            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
+            VLOG(0) << "     Client: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
 
             X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
             if (server_cert != NULL) {
                 int verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
-                VLOG(0) << "\tServer certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
+                VLOG(0) << "     Server certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
 
                 char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), 0, 0);
-                VLOG(0) << "\t   Subject: " + std::string(str);
+                VLOG(0) << "        Subject: " + std::string(str);
                 OPENSSL_free(str);
 
                 str = X509_NAME_oneline(X509_get_issuer_name(server_cert), 0, 0);
-                VLOG(0) << "\t   Issuer: " + std::string(str);
+                VLOG(0) << "        Issuer: " + std::string(str);
                 OPENSSL_free(str);
 
                 // We could do all sorts of certificate verification stuff here before deallocating the certificate.
@@ -113,44 +113,43 @@ int main(int argc, char* argv[]) {
                     static_cast<GENERAL_NAMES*>(X509_get_ext_d2i(server_cert, NID_subject_alt_name, NULL, NULL));
 
                 int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
-                VLOG(0) << "\t   Subject alternative name count: " << altNameCount;
+                VLOG(0) << "        Subject alternative name count: " << altNameCount;
                 for (int32_t i = 0; i < altNameCount; ++i) {
                     GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
                     if (generalName->type == GEN_URI) {
                         std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
                                         ASN1_STRING_length(generalName->d.uniformResourceIdentifier));
-                        VLOG(0) << "\t      SAN (URI): '" + subjectAltName;
+                        VLOG(0) << "           SAN (URI): '" + subjectAltName;
                     } else if (generalName->type == GEN_DNS) {
                         std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                         ASN1_STRING_length(generalName->d.dNSName));
-                        VLOG(0) << "\t      SAN (DNS): '" + subjectAltName;
+                        VLOG(0) << "           SAN (DNS): '" + subjectAltName;
                     } else {
-                        VLOG(0) << "\t      SAN (Type): '" + std::to_string(generalName->type);
+                        VLOG(0) << "           SAN (Type): '" + std::to_string(generalName->type);
                     }
-                    //                    sk_GENERAL_NAME_free(generalName);
                 }
                 sk_GENERAL_NAME_pop_free(subjectAltNames, GENERAL_NAME_free);
 
                 X509_free(server_cert);
             } else {
-                VLOG(0) << "\tServer certificate: no certificate";
+                VLOG(0) << "     Server certificate: no certificate";
             }
         },
         [](const http::ClientResponse& clientResponse) -> void {
             VLOG(0) << "-- OnResponse";
-            VLOG(0) << "--   Status:";
+            VLOG(0) << "     Status:";
             VLOG(0) << "       " << clientResponse.httpVersion;
             VLOG(0) << "       " << clientResponse.statusCode;
             VLOG(0) << "       " << clientResponse.reason;
 
-            VLOG(0) << "--   Headers:";
+            VLOG(0) << "     Headers:";
             for (auto [field, value] : *clientResponse.headers) {
                 VLOG(0) << "       " << field + " = " + value;
             }
 
-            VLOG(0) << "--   Cookies:";
+            VLOG(0) << "     Cookies:";
             for (auto [name, cookie] : *clientResponse.cookies) {
                 VLOG(0) << "       " + name + " = " + cookie.getValue();
                 for (auto [option, value] : cookie.getOptions()) {
@@ -162,15 +161,15 @@ int main(int argc, char* argv[]) {
             memcpy(body, clientResponse.body, clientResponse.contentLength);
             body[clientResponse.contentLength] = 0;
 
-            VLOG(1) << "--   Body:\n----------- start body -----------\n" << body << "------------ end body ------------";
+            VLOG(1) << "     Body:\n----------- start body -----------\n" << body << "------------ end body ------------";
 
             delete[] body;
         },
         []([[maybe_unused]] net::socket::tls::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnDisconnect";
-            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
+            VLOG(0) << "     Server: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                            "):" + std::to_string(socketConnection->getRemoteAddress().port());
-            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
+            VLOG(0) << "     Client: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
         },
         {{"caFile", SERVERCAFILE}});
