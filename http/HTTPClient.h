@@ -31,6 +31,7 @@
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 #include "HTTPClientContext.h"
+#include "socket/InetAddress.h"
 
 namespace http {
 
@@ -49,7 +50,8 @@ namespace http {
             , options(options) {
         }
 
-        void get(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError) {
+        void get(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError,
+                 const net::socket::InetAddress& localHost = net::socket::InetAddress()) {
             std::string path = "";
 
             for (auto& [name, value] : options) {
@@ -60,11 +62,12 @@ namespace http {
 
             this->request = "GET " + path + " HTTP/1.1\r\n\r\n";
 
-            this->connect(options, onError);
+            this->connect(options, onError, localHost);
         }
 
     protected:
-        void connect(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError) {
+        void connect(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError,
+                     const net::socket::InetAddress& localHost = net::socket::InetAddress()) {
             errno = 0;
 
             (new SocketClient(
@@ -101,7 +104,7 @@ namespace http {
                      VLOG(0) << "OnWriteError: " << errnum;
                  },
                  this->options))
-                ->connect(options, onError);
+                ->connect(options, onError, localHost);
         }
 
         std::function<void(typename SocketClient::SocketConnection*)> onConnect;
