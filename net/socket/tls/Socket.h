@@ -33,8 +33,6 @@ namespace net::socket::tls {
 
     class Socket : public socket::Socket {
     public:
-        using socket::Socket::Socket;
-
         SSL* startSSL(SSL_CTX* ctx);
         void stopSSL();
         SSL* getSSL();
