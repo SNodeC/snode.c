@@ -29,6 +29,10 @@
 
 #include "socket/tls/SocketConnection.h"
 
+namespace net::socket::tls {
+    class SocketServer;
+}
+
 namespace http {
 
     class Request;
@@ -47,6 +51,10 @@ namespace http {
 
             HTTPServer& operator=(const HTTPServer& webApp) = delete;
 
+        protected:
+            net::socket::tls::SocketServer* socketServer();
+
+        public:
             void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr);
             void listen(const std::string& host, in_port_t port, const std::function<void(int err)>& onError = nullptr);
 
