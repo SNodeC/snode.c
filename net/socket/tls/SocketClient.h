@@ -32,33 +32,20 @@
 #include "socket/SocketClient.h"
 #include "socket/tls/SocketConnection.h"
 
-struct SSLDeleter {
-    void operator()(SSL* _p) {
-        SSL_shutdown(_p);
-        SSL_free(_p);
-    }
-
-    void operator()([[maybe_unused]] SSL_CTX* _p) {
-        if (_p != nullptr) {
-            SSL_CTX_free(_p);
-        }
-    }
-};
-
 namespace net::socket::tls {
+
     class SocketClient : public socket::SocketClient<tls::SocketConnection> {
     public:
-        SocketClient(const std::function<void(tls::SocketConnection* socketConnection)>& onConnect,
-                     const std::function<void(tls::SocketConnection* socketConnection)>& onDisconnect,
-                     const std::function<void(tls::SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
-                     const std::function<void(tls::SocketConnection* socketConnection, int errnum)>& onReadError,
-                     const std::function<void(tls::SocketConnection* socketConnection, int errnum)>& onWriteError,
+        SocketClient(const std::function<void(SocketClient::SocketConnection* socketConnection)>& onConnect,
+                     const std::function<void(SocketClient::SocketConnection* socketConnection)>& onDisconnect,
+                     const std::function<void(SocketClient::SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
+                     const std::function<void(SocketClient::SocketConnection* socketConnection, int errnum)>& onReadError,
+                     const std::function<void(SocketClient::SocketConnection* socketConnection, int errnum)>& onWriteError,
                      const std::map<std::string, std::any>& options = {{}});
 
         ~SocketClient() override;
 
-    protected:
-        using socket::SocketClient<tls::SocketConnection>::SocketClient;
+        using socket::SocketClient<SocketClient::SocketConnection>::SocketClient;
 
     public:
         // NOLINTNEXTLINE(google-default-arguments)

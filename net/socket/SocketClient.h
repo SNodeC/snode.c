@@ -76,6 +76,7 @@ namespace net::socket {
 
         virtual ~SocketClient() = default;
 
+    public:
         // NOLINTNEXTLINE(google-default-arguments)
         virtual void connect(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError,
                              const InetAddress& localAddress = InetAddress()) {
