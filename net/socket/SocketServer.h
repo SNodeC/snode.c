@@ -43,17 +43,13 @@ namespace net::socket {
         using SocketConnection = SocketConnectionT;
 
         void* operator new(size_t size) {
-            SocketServer* serverSocket = reinterpret_cast<SocketServer*>(malloc(size));
-            serverSocket->isDynamic = true;
+            SocketServer<SocketConnection>::lastAllocAddress = malloc(size);
 
-            return serverSocket;
+            return SocketServer<SocketConnection>::lastAllocAddress;
         }
 
-        void operator delete(void* serverSocket_v) {
-            SocketServer* serverSocket = reinterpret_cast<SocketServer*>(serverSocket_v);
-            if (serverSocket->isDynamic) {
-                free(serverSocket_v);
-            }
+        void operator delete(void* socketServer_v) {
+            free(socketServer_v);
         }
 
         SocketServer(const std::function<void(SocketConnection* socketConnection)>& onConnect,
@@ -67,7 +63,8 @@ namespace net::socket {
             , onDisconnect(onDisconnect)
             , onRead(onRead)
             , onReadError(onReadError)
-            , onWriteError(onWriteError) {
+            , onWriteError(onWriteError)
+            , isDynamic(this == SocketServer::lastAllocAddress) {
         }
 
         SocketServer() = delete;
@@ -184,7 +181,12 @@ namespace net::socket {
         std::function<void(SocketConnection* socketConnection, int errnum)> onWriteError;
 
         bool isDynamic;
+
+        static void* lastAllocAddress;
     };
+
+    template <typename SocketConnection>
+    void* SocketServer<SocketConnection>::lastAllocAddress = nullptr;
 
 } // namespace net::socket
 
