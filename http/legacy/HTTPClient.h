@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LEGACY_HTTPCLIEN_H
-#define LEGACY_HTTPCLIEN_H
+#ifndef LEGACY_HTTPCLIENT_H
+#define LEGACY_HTTPCLIENT_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -36,4 +36,4 @@ namespace http {
 
 } // namespace http
 
-#endif // LEGACY_HTTPCLIEN_H
+#endif // LEGACY_HTTPCLIENT_H

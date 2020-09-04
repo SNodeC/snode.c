@@ -213,14 +213,14 @@ namespace net::socket::tls {
     }
 
     // NOLINTNEXTLINE(google-default-arguments)
-    void SocketClient::connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
+    void SocketClient::connect(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError,
                                const socket::InetAddress& localAddress) {
         this->onError = onError;
         if (sslErr != 0) {
             onError(-sslErr);
         } else {
             socket::SocketClient<tls::SocketConnection>::connect(
-                host, port,
+                options,
                 [this](int err) -> void {
                     if (err) {
                         this->onError(err);

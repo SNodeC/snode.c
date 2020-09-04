@@ -77,8 +77,19 @@ namespace net::socket {
         virtual ~SocketClient() = default;
 
         // NOLINTNEXTLINE(google-default-arguments)
-        virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
+        virtual void connect(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError,
                              const InetAddress& localAddress = InetAddress()) {
+            std::string host = "";
+            in_port_t port = 0;
+
+            for (auto& [name, value] : options) {
+                if (name == "host") {
+                    host = std::any_cast<const char*>(value);
+                } else if (name == "port") {
+                    port = std::any_cast<int>(value);
+                }
+            }
+
             connectionCounter++;
 
             SocketConnection* socketConnection = SocketConnection::create(
@@ -210,21 +221,20 @@ namespace net::socket {
                 },
                 SOCK_NONBLOCK);
         }
+        /*
+                virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, in_port_t lPort)
+           { connect(host, port, onError, InetAddress(lPort));
+                }
 
-        virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, in_port_t lPort) {
-            connect(host, port, onError, InetAddress(lPort));
-        }
+                virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
+                                     const std::string& lHost) {
+                    connect(host, port, onError, InetAddress(lHost));
+                }
 
-        virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
-                             const std::string& lHost) {
-            connect(host, port, onError, InetAddress(lHost));
-        }
-
-        virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, const std::string& lHost,
-                             in_port_t lPort) {
-            connect(host, port, onError, InetAddress(lHost, lPort));
-        }
-
+                virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, const
+           std::string& lHost, in_port_t lPort) { connect(host, port, onError, InetAddress(lHost, lPort));
+                }
+        */
     private:
         std::function<void(SocketConnection* socketConnection)> onConnect;
         std::function<void(SocketConnection* socketConnection)> onDisconnect;

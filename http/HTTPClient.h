@@ -49,8 +49,22 @@ namespace http {
             , options(options) {
         }
 
+        void get(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError) {
+            std::string path = "";
+
+            for (auto& [name, value] : options) {
+                if (name == "path") {
+                    path = std::any_cast<const char*>(value);
+                }
+            }
+
+            this->request = "GET " + path + " HTTP/1.1\r\n\r\n";
+
+            this->connect(options, onError);
+        }
+
     protected:
-        void connect(const std::string& server, in_port_t port, const std::function<void(int err)>& onError) {
+        void connect(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError) {
             errno = 0;
 
             (new SocketClient(
@@ -86,32 +100,10 @@ namespace http {
                  []([[maybe_unused]] typename SocketClient::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
                      VLOG(0) << "OnWriteError: " << errnum;
                  },
-                 options))
-                ->connect(server, port, onError);
+                 this->options))
+                ->connect(options, onError);
         }
 
-    public:
-        void get(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError) {
-            std::string host = "";
-            std::string path = "";
-            in_port_t port = 0;
-
-            for (auto& [name, value] : options) {
-                if (name == "host") {
-                    host = std::any_cast<const char*>(value);
-                } else if (name == "port") {
-                    port = std::any_cast<int>(value);
-                } else if (name == "path") {
-                    path = std::any_cast<const char*>(value);
-                }
-            }
-
-            this->request = "GET " + path + " HTTP/1.1\r\n\r\n";
-
-            this->connect(host, port, onError);
-        }
-
-    protected:
         std::function<void(typename SocketClient::SocketConnection*)> onConnect;
         std::function<void(ClientResponse& clientResponse)> onResponseReady;
         std::function<void(typename SocketClient::SocketConnection*)> onDisconnect;

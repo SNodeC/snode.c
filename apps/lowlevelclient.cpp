@@ -159,7 +159,7 @@ tls::SocketClient getTlsClient() {
         },
         {{"certChain", CERTF}, {"keyPEM", KEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}});
 
-    tlsClient.connect("localhost", 8088, [](int err) -> void {
+    tlsClient.connect({{"host", "localhost"}, {"port", 8088}}, [](int err) -> void {
         if (err) {
             PLOG(ERROR) << "Connect: " + std::to_string(err);
         } else {
@@ -206,7 +206,7 @@ legacy::SocketClient getLegacyClient() {
         },
         {{}});
 
-    legacyClient.connect("localhost", 8080, [](int err) -> void {
+    legacyClient.connect({{"host", "localhost"}, {"port", 8080}}, [](int err) -> void {
         if (err) {
             PLOG(ERROR) << "Connect: " << std::to_string(err);
         } else {
@@ -221,7 +221,7 @@ int main(int argc, char* argv[]) {
     net::EventLoop::init(argc, argv);
 
     legacy::SocketClient legacyClient = getLegacyClient();
-    legacyClient.connect("localhost", 8080, [](int err) -> void { // example.com:81 simulate connnect timeout
+    legacyClient.connect({{"host", "localhost"}, {"port", 8080}}, [](int err) -> void { // example.com:81 simulate connnect timeout
         if (err) {
             PLOG(ERROR) << "Connect: " << std::to_string(err);
         } else {
@@ -230,7 +230,7 @@ int main(int argc, char* argv[]) {
     });
 
     tls::SocketClient tlsClient = getTlsClient();
-    tlsClient.connect("localhost", 8088, [](int err) -> void {
+    tlsClient.connect({{"host", "localhost"}, {"port", 8088}}, [](int err) -> void {
         if (err) {
             PLOG(ERROR) << "Connect: " << std::to_string(err);
         } else {
