@@ -23,11 +23,9 @@ namespace http {
     public:
         explicit HTTPServerT(const std::function<void(typename SocketServer::SocketConnection*)>& onConnect,
                              const std::function<void(Request& req, Response& res)>& onRequestReady,
-                             const std::function<void(Request& req, Response& res)>& onResponseCompleted,
                              const std::function<void(typename SocketServer::SocketConnection*)>& onDisconnect)
             : onConnect(onConnect)
             , onRequestReady(onRequestReady)
-            , onResponseCompleted(onResponseCompleted)
             , onDisconnect(onDisconnect) {
         }
 
@@ -39,12 +37,8 @@ namespace http {
                 [*this](typename SocketServer::SocketConnection* socketConnection) -> void { // onConnect
                     onConnect(socketConnection);
                     socketConnection->template setProtocol<HTTPServerContext*>(new HTTPServerContext(
-                        socketConnection,
-                        [*this]([[maybe_unused]] Request& req, [[maybe_unused]] Response& res) -> void {
+                        socketConnection, [*this]([[maybe_unused]] Request& req, [[maybe_unused]] Response& res) -> void {
                             onRequestReady(req, res);
-                        },
-                        [*this]([[maybe_unused]] Request& req, [[maybe_unused]] Response& res) -> void {
-                            onResponseCompleted(req, res);
                         }));
                 },
                 [*this](typename SocketServer::SocketConnection* socketConnection) -> void { // onDisconnect
@@ -94,7 +88,6 @@ namespace http {
     protected:
         std::function<void(typename SocketServer::SocketConnection*)> onConnect;
         std::function<void(Request& req, Response& res)> onRequestReady;
-        std::function<void(Request& req, Response& res)> onResponseCompleted;
         std::function<void(typename SocketServer::SocketConnection*)> onDisconnect;
     };
 

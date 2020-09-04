@@ -33,8 +33,6 @@ namespace http {
                                          const std::function<void(ClientResponse&)>& onResponse,
                                          const std::function<void(int status, const std::string& reason)>& onError)
         : socketConnection(socketConnection)
-        , onResponse(onResponse)
-        , onError(onError)
         , parser(
               [this](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
                   clientResponse.httpVersion = httpVersion;
@@ -50,12 +48,12 @@ namespace http {
                   clientResponse.body = content;
                   clientResponse.contentLength = contentLength;
               },
-              [this](http::HTTPResponseParser& parser) -> void {
-                  this->onResponse(clientResponse);
+              [this, onResponse](http::HTTPResponseParser& parser) -> void {
+                  onResponse(clientResponse);
                   parser.reset();
               },
-              [this](int status, const std::string& reason) -> void {
-                  this->onError(status, reason);
+              [onError](int status, const std::string& reason) -> void {
+                  onError(status, reason);
               }) {
     }
 
