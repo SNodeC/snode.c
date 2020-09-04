@@ -157,7 +157,7 @@ tls::SocketClient getTlsClient() {
         []([[maybe_unused]] tls::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
             VLOG(0) << "OnWriteError: " + std::to_string(errnum);
         },
-        CERTF, KEYF, KEYFPASS, SERVERCAFILE);
+        {{"certChain", CERTF}, {"keyPEM", KEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}});
 
     tlsClient.connect("localhost", 8088, [](int err) -> void {
         if (err) {
@@ -203,7 +203,8 @@ legacy::SocketClient getLegacyClient() {
         },
         []([[maybe_unused]] legacy::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
             VLOG(0) << "OnWriteError: " << errnum;
-        });
+        },
+        {{}});
 
     legacyClient.connect("localhost", 8080, [](int err) -> void {
         if (err) {

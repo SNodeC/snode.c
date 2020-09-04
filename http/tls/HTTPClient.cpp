@@ -30,16 +30,15 @@ namespace http {
 
     namespace tls {
 
-        HTTPClient::HTTPClient(const std::function<void(net::socket::tls::SocketConnection*)>& onConnect,
-                               const std::function<void(ClientResponse& clientResponse)> onResponseReady,
-                               const std::function<void(net::socket::tls::SocketConnection*)> onDisconnect, const std::string& caFile,
-                               const std::string& caDir, bool useDefaultCADir)
+        HTTPClient::HTTPClient(
+            const std::function<void(net::socket::tls::SocketConnection*)>& onConnect,
+            const std::function<void(ClientResponse& clientResponse)> onResponseReady,
+            const std::function<void(net::socket::tls::SocketConnection*)> onDisconnect,
+            const std::map<std::string, std::any>& options) // , const std::string& caFile, const std::string& caDir, bool useDefaultCADir)
             : onConnect(onConnect)
             , onResponseReady(onResponseReady)
             , onDisconnect(onDisconnect)
-            , caFile(caFile)
-            , caDir(caDir)
-            , useDefaultCADir(useDefaultCADir) {
+            , options(options) {
         }
 
         void HTTPClient::connect(const std::string& server, in_port_t port, const std::function<void(int err)>& onError) {
@@ -75,19 +74,18 @@ namespace http {
                  []([[maybe_unused]] net::socket::tls::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
                      VLOG(0) << "OnWriteError: " << errnum;
                  },
-                 caFile, caDir, useDefaultCADir))
+                 options))
                 ->connect(server, port, onError);
         }
 
-        void HTTPClient::get(const std::map<std::string, std::string>& options, const std::function<void(int err)>& onError) {
-            this->options = options;
+        void HTTPClient::get(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError) {
             for (auto& [name, value] : options) {
                 if (name == "host") {
-                    this->host = value;
+                    this->host = std::any_cast<const char*>(value);
                 } else if (name == "port") {
-                    this->port = std::stoi(value);
+                    this->port = std::any_cast<int>(value);
                 } else if (name == "path") {
-                    this->path = value;
+                    this->path = std::any_cast<const char*>(value);
                 }
             }
 

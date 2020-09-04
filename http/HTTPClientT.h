@@ -21,6 +21,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <any>
 #include <easylogging++.h>
 #include <functional>
 #include <map>
@@ -40,10 +41,12 @@ namespace http {
     public:
         HTTPClientT(const std::function<void(typename SocketClient::SocketConnection*)>& onConnect,
                     const std::function<void(ClientResponse& clientResponse)> onResponseReady,
-                    const std::function<void(typename SocketClient::SocketConnection*)> onDisconnect)
+                    const std::function<void(typename SocketClient::SocketConnection*)> onDisconnect,
+                    const std::map<std::string, std::any>& options = {{}})
             : onConnect(onConnect)
             , onResponseReady(onResponseReady)
-            , onDisconnect(onDisconnect) {
+            , onDisconnect(onDisconnect)
+            , options(options) {
         }
 
     protected:
@@ -82,24 +85,28 @@ namespace http {
                  },
                  []([[maybe_unused]] typename SocketClient::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
                      VLOG(0) << "OnWriteError: " << errnum;
-                 }))
+                 },
+                 options))
                 ->connect(server, port, onError);
         }
 
     public:
-        void get(const std::map<std::string, std::string>& options, const std::function<void(int err)>& onError) {
-            this->options = options;
+        void get(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError) {
+            std::string host = "";
+            std::string path = "";
+            in_port_t port = 0;
+
             for (auto& [name, value] : options) {
                 if (name == "host") {
-                    this->host = value;
+                    host = std::any_cast<const char*>(value);
                 } else if (name == "port") {
-                    this->port = std::stoi(value);
+                    port = std::any_cast<int>(value);
                 } else if (name == "path") {
-                    this->path = value;
+                    path = std::any_cast<const char*>(value);
                 }
             }
 
-            this->request = "GET " + this->path + " HTTP/1.1\r\n\r\n";
+            this->request = "GET " + path + " HTTP/1.1\r\n\r\n";
 
             this->connect(host, port, onError);
         }
@@ -111,11 +118,7 @@ namespace http {
 
         std::string request;
 
-        std::map<std::string, std::string> options;
-
-        std::string host;
-        std::string path;
-        in_port_t port;
+        std::map<std::string, std::any> options;
     };
 
 } // namespace http

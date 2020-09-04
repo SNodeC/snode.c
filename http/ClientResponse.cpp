@@ -18,9 +18,4 @@
 
 #include "ClientResponse.h"
 
-namespace http {
-
-    ClientResponse::ClientResponse() {
-    }
-
-} // namespace http
+namespace http {} // namespace http

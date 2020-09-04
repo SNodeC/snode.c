@@ -35,8 +35,8 @@ namespace net::socket::tls {
         const std::function<void(tls::SocketConnection* socketConnection)>& onDisconnect,
         const std::function<void(tls::SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
         const std::function<void(tls::SocketConnection* socketConnection, int errnum)>& onReadError,
-        const std::function<void(tls::SocketConnection* socketConnection, int errnum)>& onWriteError, const std::string& caFile,
-        const std::string& caDir, bool useDefaultCADir)
+        const std::function<void(tls::SocketConnection* socketConnection, int errnum)>& onWriteError,
+        const std::map<std::string, std::any>& options)
         : socket::SocketClient<tls::SocketConnection>(
               [this, onConnect](tls::SocketConnection* socketConnection) -> void {
                   class TLSConnector
@@ -147,7 +147,35 @@ namespace net::socket::tls {
                   onDisconnect(socketConnection);
                   socketConnection->stopSSL();
               },
-              onRead, onReadError, onWriteError) {
+              onRead, onReadError, onWriteError, options) {
+        std::string certChain = "";
+        std::string keyPEM = "";
+        std::string password = "";
+        std::string caFile = "";
+        std::string caDir = "";
+        bool useDefaultCADir = false;
+
+        for (auto& [name, value] : options) {
+            if (name == "certChain") {
+                certChain = std::any_cast<const char*>(value);
+                VLOG(0) << certChain;
+            } else if (name == "keyPEM") {
+                keyPEM = std::any_cast<const char*>(value);
+                VLOG(0) << keyPEM;
+            } else if (name == "password") {
+                password = std::any_cast<const char*>(value);
+                VLOG(0) << password;
+            } else if (name == "caFile") {
+                caFile = std::any_cast<const char*>(value);
+                VLOG(0) << caFile;
+            } else if (name == "caDir") {
+                caDir = std::any_cast<const char*>(value);
+                VLOG(0) << caDir;
+            } else if (name == "useDefaultCADir") {
+                useDefaultCADir = std::any_cast<bool>(value);
+                VLOG(0) << useDefaultCADir;
+            }
+        }
         ctx = SSL_CTX_new(TLS_client_method());
         if (ctx != nullptr) {
             if (!caFile.empty() || !caDir.empty()) {
@@ -164,25 +192,21 @@ namespace net::socket::tls {
         } else {
             sslErr = ERR_peek_error();
         }
-    }
-
-    SocketClient::SocketClient(
-        const std::function<void(tls::SocketConnection* socketConnection)>& onConnect,
-        const std::function<void(tls::SocketConnection* socketConnection)>& onDisconnect,
-        const std::function<void(tls::SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
-        const std::function<void(tls::SocketConnection* socketConnection, int errnum)>& onReadError,
-        const std::function<void(tls::SocketConnection* socketConnection, int errnum)>& onWriteError, const std::string& certChain,
-        const std::string& keyPEM, const std::string& password, const std::string& caFile, const std::string& caDir, bool useDefaultCADir)
-        : SocketClient(onConnect, onDisconnect, onRead, onReadError, onWriteError, caFile, caDir, useDefaultCADir) {
         if (sslErr == SSL_ERROR_NONE) {
-            SSL_CTX_set_default_passwd_cb(ctx, SocketClient::passwordCallback);
-            SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(password.c_str()));
-            if (SSL_CTX_use_certificate_chain_file(ctx, certChain.c_str()) <= 0) {
-                sslErr = ERR_peek_error();
-            } else if (SSL_CTX_use_PrivateKey_file(ctx, keyPEM.c_str(), SSL_FILETYPE_PEM) <= 0) {
-                sslErr = ERR_peek_error();
-            } else if (!SSL_CTX_check_private_key(ctx)) {
-                sslErr = ERR_peek_error();
+            if (!certChain.empty()) {
+                if (SSL_CTX_use_certificate_chain_file(ctx, certChain.c_str()) <= 0) {
+                    sslErr = ERR_peek_error();
+                }
+            } else if (!keyPEM.empty()) {
+                if (!password.empty()) {
+                    SSL_CTX_set_default_passwd_cb(ctx, SocketClient::passwordCallback);
+                    SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(password.c_str()));
+                }
+                if (SSL_CTX_use_PrivateKey_file(ctx, keyPEM.c_str(), SSL_FILETYPE_PEM) <= 0) {
+                    sslErr = ERR_peek_error();
+                } else if (!SSL_CTX_check_private_key(ctx)) {
+                    sslErr = ERR_peek_error();
+                }
             }
         }
     }

@@ -32,10 +32,12 @@ namespace http {
 
         HTTPClient::HTTPClient(const std::function<void(net::socket::legacy::SocketConnection*)>& onConnect,
                                const std::function<void(ClientResponse& clientResponse)> onResponseReady,
-                               const std::function<void(net::socket::legacy::SocketConnection*)> onDisconnect)
+                               const std::function<void(net::socket::legacy::SocketConnection*)> onDisconnect,
+                               const std::map<std::string, std::any>& options)
             : onConnect(onConnect)
             , onResponseReady(onResponseReady)
-            , onDisconnect(onDisconnect) {
+            , onDisconnect(onDisconnect)
+            , options(options) {
         }
 
         void HTTPClient::connect(const std::string& server, in_port_t port, const std::function<void(int err)>& onError) {
@@ -70,19 +72,19 @@ namespace http {
                  },
                  []([[maybe_unused]] net::socket::legacy::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
                      VLOG(0) << "OnWriteError: " << errnum;
-                 }))
+                 },
+                 options))
                 ->connect(server, port, onError);
         }
 
-        void HTTPClient::get(const std::map<std::string, std::string>& options, const std::function<void(int err)>& onError) {
-            this->options = options;
+        void HTTPClient::get(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError) {
             for (auto& [name, value] : options) {
                 if (name == "host") {
-                    this->host = value;
+                    this->host = std::any_cast<std::string>(value);
                 } else if (name == "port") {
-                    this->port = std::stoi(value);
+                    this->port = std::any_cast<in_port_t>(value);
                 } else if (name == "path") {
-                    this->path = value;
+                    this->path = std::any_cast<std::string>(value);
                 }
             }
 
