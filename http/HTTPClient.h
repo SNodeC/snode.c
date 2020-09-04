@@ -97,11 +97,13 @@ namespace http {
                              clientContext->receiveResponseData(junk, junkSize);
                          });
                  },
-                 []([[maybe_unused]] typename SocketClient::SocketConnection* socketConnection, int errnum) -> void { // onReadError
-                     VLOG(0) << "OnReadError: " << errnum;
+                 [onError]([[maybe_unused]] typename SocketClient::SocketConnection* socketConnection,
+                           [[maybe_unused]] int errnum) -> void { // onReadError
+                     PLOG(ERROR) << "Server \"" << socketConnection->getRemoteAddress().host() << "\"";
                  },
-                 []([[maybe_unused]] typename SocketClient::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
-                     VLOG(0) << "OnWriteError: " << errnum;
+                 [onError]([[maybe_unused]] typename SocketClient::SocketConnection* socketConnection,
+                           [[maybe_unused]] int errnum) -> void { // onWriteError
+                     PLOG(ERROR) << "Server: " << socketConnection->getRemoteAddress().host();
                  },
                  this->options))
                 ->connect(options, onError, localHost);
