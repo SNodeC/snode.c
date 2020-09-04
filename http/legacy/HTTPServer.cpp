@@ -31,11 +31,9 @@ namespace http {
 
         HTTPServer::HTTPServer(const std::function<void(net::socket::legacy::SocketConnection*)>& onConnect,
                                const std::function<void(Request& req, Response& res)>& onRequestReady,
-                               const std::function<void(Request& req, Response& res)>& onResponseCompleted,
                                const std::function<void(net::socket::legacy::SocketConnection*)>& onDisconnect)
             : onConnect(onConnect)
             , onRequestReady(onRequestReady)
-            , onResponseCompleted(onResponseCompleted)
             , onDisconnect(onDisconnect) {
         }
 
@@ -45,13 +43,9 @@ namespace http {
             (new net::socket::legacy::SocketServer(
                  [*this](net::socket::legacy::SocketConnection* socketConnection) -> void { // onConnect
                      onConnect(socketConnection);
-                     socketConnection->setProtocol<HTTPServerContext*>(new HTTPServerContext(
-                         socketConnection,
-                         [*this](Request& req, Response& res) -> void {
+                     socketConnection->setProtocol<HTTPServerContext*>(
+                         new HTTPServerContext(socketConnection, [*this](Request& req, Response& res) -> void {
                              onRequestReady(req, res);
-                         },
-                         [*this]([[maybe_unused]] Request& req, [[maybe_unused]] Response& res) -> void {
-                             onResponseCompleted(req, res);
                          }));
                  },
                  [*this](net::socket::legacy::SocketConnection* socketConnection) -> void { // onDisconnect
@@ -88,13 +82,9 @@ namespace http {
             (new net::socket::legacy::SocketServer(
                  [*this](net::socket::legacy::SocketConnection* socketConnection) -> void { // onConnect
                      onConnect(socketConnection);
-                     socketConnection->setProtocol<HTTPServerContext*>(new HTTPServerContext(
-                         socketConnection,
-                         [*this](Request& req, Response& res) -> void {
+                     socketConnection->setProtocol<HTTPServerContext*>(
+                         new HTTPServerContext(socketConnection, [*this](Request& req, Response& res) -> void {
                              onRequestReady(req, res);
-                         },
-                         [*this]([[maybe_unused]] Request& req, [[maybe_unused]] Response& res) -> void {
-                             onResponseCompleted(req, res);
                          }));
                  },
                  [*this](net::socket::legacy::SocketConnection* socketConnection) -> void { // onDisconnect

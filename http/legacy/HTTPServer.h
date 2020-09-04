@@ -39,7 +39,6 @@ namespace http {
         public:
             explicit HTTPServer(const std::function<void(net::socket::legacy::SocketConnection*)>& onConnect,
                                 const std::function<void(Request& req, Response& res)>& onRequestReady,
-                                const std::function<void(Request& req, Response& res)>& onResponseCompleted,
                                 const std::function<void(net::socket::legacy::SocketConnection*)>& onDisconnect);
 
             HTTPServer& operator=(const HTTPServer& webApp) = delete;
@@ -50,7 +49,6 @@ namespace http {
         protected:
             std::function<void(net::socket::legacy::SocketConnection*)> onConnect;
             std::function<void(Request& req, Response& res)> onRequestReady;
-            std::function<void(Request& req, Response& res)> onResponseCompleted;
             std::function<void(net::socket::legacy::SocketConnection*)> onDisconnect;
         };
 

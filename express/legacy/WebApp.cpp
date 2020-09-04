@@ -34,8 +34,6 @@ namespace express::legacy {
               [this](http::Request& req, http::Response& res) -> void { // onRequestReady
                   dispatch(req, res);
               },
-              []([[maybe_unused]] http::Request& req, [[maybe_unused]] http::Response& res) -> void { // onResponseFinished
-              },
               [this]([[maybe_unused]] net::socket::legacy::SocketConnection* socketConnection) -> void { // onDisconnect
                   if (_onDisconnect != nullptr) {
                       _onDisconnect(socketConnection);

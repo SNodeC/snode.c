@@ -44,19 +44,6 @@ namespace http {
         , onError(onError) {
     }
 
-    HTTPRequestParser::HTTPRequestParser(
-        const std::function<void(const std::string&, const std::string&, const std::string&, const std::string&,
-                                 const std::map<std::string, std::string>&)>&& onRequest,
-        const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>&& onHeader,
-        const std::function<void(char*, size_t)>&& onContent, const std::function<void(HTTPRequestParser&)>&& onParsed,
-        const std::function<void(int status, const std::string& reason)>&& onError)
-        : onRequest(onRequest)
-        , onHeader(onHeader)
-        , onContent(onContent)
-        , onParsed(onParsed)
-        , onError(onError) {
-    }
-
     void HTTPRequestParser::reset() {
         HTTPParser::reset();
         method.clear();
