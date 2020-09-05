@@ -21,9 +21,11 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <any>
 #include <cstdlib>
 #include <easylogging++.h>
 #include <functional>
+#include <map>
 #include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -56,7 +58,8 @@ namespace net::socket {
                      const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
                      const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
                      const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
-                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError)
+                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
+                     const std::map<std::string, std::any>& options = {{}})
             : AcceptEventReceiver()
             , Socket()
             , onConnect(onConnect)
@@ -64,6 +67,7 @@ namespace net::socket {
             , onRead(onRead)
             , onReadError(onReadError)
             , onWriteError(onWriteError)
+            , options(options)
             , isDynamic(this == SocketServer::lastAllocAddress) {
         }
 
@@ -179,6 +183,9 @@ namespace net::socket {
         std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)> onRead;
         std::function<void(SocketConnection* socketConnection, int errnum)> onReadError;
         std::function<void(SocketConnection* socketConnection, int errnum)> onWriteError;
+
+    protected:
+        std::map<std::string, std::any> options;
 
         bool isDynamic;
         static void* lastAllocAddress;

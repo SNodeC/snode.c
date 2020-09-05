@@ -36,8 +36,8 @@ namespace net::socket::tls {
         const std::function<void(SocketServer::SocketConnection* socketConnection)>& onDisconnect,
         const std::function<void(SocketServer::SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
         const std::function<void(SocketServer::SocketConnection* socketConnection, int errnum)>& onReadError,
-        const std::function<void(SocketServer::SocketConnection* socketConnection, int errnum)>& onWriteError, const std::string& certChain,
-        const std::string& keyPEM, const std::string& password, const std::string& caFile, const std::string& caDir, bool useDefaultCADir)
+        const std::function<void(SocketServer::SocketConnection* socketConnection, int errnum)>& onWriteError,
+        const std::map<std::string, std::any>& options)
         : socket::SocketServer<SocketServer::SocketConnection>(
               [this, onConnect](SocketServer::SocketConnection* socketConnection) -> void {
                   class TLSAcceptor
@@ -138,8 +138,31 @@ namespace net::socket::tls {
                   onDisconnect(socketConnection);
                   socketConnection->stopSSL();
               },
-              onRead, onReadError, onWriteError)
+              onRead, onReadError, onWriteError, options)
         , ctx(nullptr) {
+        std::string certChain = "";
+        std::string keyPEM = "";
+        std::string password = "";
+        std::string caFile = "";
+        std::string caDir = "";
+        bool useDefaultCADir = false;
+
+        for (auto& [name, value] : options) {
+            if (name == "certChain") {
+                certChain = std::any_cast<const char*>(value);
+            } else if (name == "keyPEM") {
+                keyPEM = std::any_cast<const char*>(value);
+            } else if (name == "password") {
+                password = std::any_cast<const char*>(value);
+            } else if (name == "caFile") {
+                caFile = std::any_cast<const char*>(value);
+            } else if (name == "caDir") {
+                caDir = std::any_cast<const char*>(value);
+            } else if (name == "useDefaultCADir") {
+                useDefaultCADir = std::any_cast<bool>(value);
+            }
+        }
+
         ctx = SSL_CTX_new(TLS_server_method());
         if (ctx != nullptr) {
             SSL_CTX_set_default_passwd_cb(ctx, SocketServer::passwordCallback);

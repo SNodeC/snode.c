@@ -170,6 +170,7 @@ namespace net::socket::tls {
                 useDefaultCADir = std::any_cast<bool>(value);
             }
         }
+
         ctx = SSL_CTX_new(TLS_client_method());
         if (ctx != nullptr) {
             if (!caFile.empty() || !caDir.empty()) {
