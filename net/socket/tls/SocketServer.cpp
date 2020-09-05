@@ -24,10 +24,10 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "socket/tls/SocketServer.h"
+#include "socket/tls/ssl_utils.h"
 #include "timer/SingleshotTimer.h"
 
 #define TLSACCEPT_TIMEOUT 10
-#define SSL_VERIFY_FLAGS SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE
 
 namespace net::socket::tls {
 
@@ -140,58 +140,8 @@ namespace net::socket::tls {
               },
               onRead, onReadError, onWriteError, options)
         , ctx(nullptr) {
-        std::string certChain = "";
-        std::string keyPEM = "";
-        std::string password = "";
-        std::string caFile = "";
-        std::string caDir = "";
-        bool useDefaultCADir = false;
-
-        for (auto& [name, value] : options) {
-            if (name == "certChain") {
-                certChain = std::any_cast<const char*>(value);
-            } else if (name == "keyPEM") {
-                keyPEM = std::any_cast<const char*>(value);
-            } else if (name == "password") {
-                password = std::any_cast<const char*>(value);
-            } else if (name == "caFile") {
-                caFile = std::any_cast<const char*>(value);
-            } else if (name == "caDir") {
-                caDir = std::any_cast<const char*>(value);
-            } else if (name == "useDefaultCADir") {
-                useDefaultCADir = std::any_cast<bool>(value);
-            }
-        }
-
         ctx = SSL_CTX_new(TLS_server_method());
-        if (ctx != nullptr) {
-            SSL_CTX_set_default_passwd_cb(ctx, SocketServer::passwordCallback);
-            SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(password.c_str()));
-            if (SSL_CTX_use_certificate_chain_file(ctx, certChain.c_str()) <= 0) {
-                sslErr = ERR_peek_error();
-            } else if (SSL_CTX_use_PrivateKey_file(ctx, keyPEM.c_str(), SSL_FILETYPE_PEM) <= 0) {
-                sslErr = ERR_peek_error();
-            } else if (!SSL_CTX_check_private_key(ctx)) {
-                sslErr = ERR_peek_error();
-            } else {
-                if (!caFile.empty() || !caDir.empty()) {
-                    if (!SSL_CTX_load_verify_locations(ctx, !caFile.empty() ? caFile.c_str() : nullptr,
-                                                       !caDir.empty() ? caDir.c_str() : nullptr)) {
-                        sslErr = ERR_peek_error();
-                    }
-                }
-                if (sslErr == 0 && useDefaultCADir) {
-                    if (!SSL_CTX_set_default_verify_paths(ctx)) {
-                        sslErr = ERR_peek_error();
-                    }
-                }
-                if (sslErr == 0 && (useDefaultCADir || !caFile.empty() || !caDir.empty())) {
-                    SSL_CTX_set_verify(ctx, SSL_VERIFY_FLAGS, NULL);
-                }
-            }
-        } else {
-            sslErr = ERR_peek_error();
-        }
+        sslErr = net::socket::tls::ssl_init_ctx(ctx, options, true);
     }
 
     SocketServer::~SocketServer() {
