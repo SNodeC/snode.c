@@ -45,7 +45,7 @@ namespace http {
             , useDefaultCADir(useDefaultCADir) {
         }
 
-        net::socket::tls::SocketServer* HTTPServer::socketServer() {
+        net::socket::tls::SocketServer* HTTPServer::socketServer() const {
             return new net::socket::tls::SocketServer(
                 [*this](net::socket::tls::SocketConnection* socketConnection) -> void { // onConnect
                     onConnect(socketConnection);
@@ -78,7 +78,7 @@ namespace http {
                 cert, key, password, caFile, caDir, useDefaultCADir);
         }
 
-        void HTTPServer::listen(in_port_t port, const std::function<void(int err)>& onError) {
+        void HTTPServer::listen(in_port_t port, const std::function<void(int err)>& onError) const {
             errno = 0;
 
             socketServer()->listen(port, 5, [&](int err) -> void {
@@ -88,7 +88,7 @@ namespace http {
             });
         }
 
-        void HTTPServer::listen(const std::string& host, in_port_t port, const std::function<void(int err)>& onError) {
+        void HTTPServer::listen(const std::string& host, in_port_t port, const std::function<void(int err)>& onError) const {
             errno = 0;
 
             socketServer()->listen(host, port, 5, [&](int err) -> void {

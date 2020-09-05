@@ -32,7 +32,7 @@ namespace http {
         HTTPServerT& operator=(const HTTPServerT& webApp) = delete;
 
     protected:
-        SocketServer* socketServer() {
+        SocketServer* socketServer() const {
             return new SocketServer(
                 [*this](typename SocketServer::SocketConnection* socketConnection) -> void { // onConnect
                     onConnect(socketConnection);
@@ -65,7 +65,7 @@ namespace http {
         }
 
     public:
-        void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr) {
+        void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr) const {
             errno = 0;
 
             socketServer()->listen(port, 5, [&](int err) -> void {
@@ -75,7 +75,7 @@ namespace http {
             });
         }
 
-        void listen(const std::string host, in_port_t port, const std::function<void(int err)>& onError = nullptr) {
+        void listen(const std::string host, in_port_t port, const std::function<void(int err)>& onError = nullptr) const {
             errno = 0;
 
             socketServer()->listen(host, port, 5, [&](int err) -> void {
