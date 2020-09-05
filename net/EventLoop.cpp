@@ -74,25 +74,29 @@ namespace net {
             int counter = select(maxFd + 1, &_readfds, &_writefds, &_exceptfds, &tv);
 
             if (counter >= 0) {
-                timerEventDispatcher.dispatch();
+                time_t currentTime = time(nullptr);
                 time_t timeout;
                 nextInactivityTimeout = {-1, 0};
-                std::tie(counter, timeout) = readEventDispatcher.dispatch(_readfds, counter);
+
+                timerEventDispatcher.dispatch();
+
+                std::tie(counter, timeout) = readEventDispatcher.dispatch(_readfds, counter, currentTime);
                 if (timeout >= 0) {
                     nextInactivityTimeout.tv_sec = timeout;
                 }
-                std::tie(counter, timeout) = writeEventDispatcher.dispatch(_writefds, counter);
+                std::tie(counter, timeout) = writeEventDispatcher.dispatch(_writefds, counter, currentTime);
                 if (timeout >= 0) {
                     nextInactivityTimeout.tv_sec = std::min(timeout, nextInactivityTimeout.tv_sec);
                 }
-                std::tie(counter, timeout) = acceptEventDispatcher.dispatch(_readfds, counter);
+                std::tie(counter, timeout) = acceptEventDispatcher.dispatch(_readfds, counter, currentTime);
                 if (timeout >= 0) {
                     nextInactivityTimeout.tv_sec = std::min(timeout, nextInactivityTimeout.tv_sec);
                 }
-                std::tie(counter, timeout) = outOfBandEventDispatcher.dispatch(_exceptfds, counter);
+                std::tie(counter, timeout) = outOfBandEventDispatcher.dispatch(_exceptfds, counter, currentTime);
                 if (timeout >= 0) {
                     nextInactivityTimeout.tv_sec = std::min(timeout, nextInactivityTimeout.tv_sec);
                 }
+
                 assert(counter == 0);
             } else if (errno != EINTR) {
                 PLOG(ERROR) << "select";

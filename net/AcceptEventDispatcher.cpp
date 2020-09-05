@@ -30,7 +30,7 @@
 
 namespace net {
 
-    std::tuple<int, int> AcceptEventDispatcher::dispatch(const fd_set& fdSet, int counter) {
+    std::tuple<int, int> AcceptEventDispatcher::dispatch(const fd_set& fdSet, int counter, [[maybe_unused]] time_t currentTime) {
         if (counter > 0) {
             for (const auto& [fd, eventReceivers] : observedEvents) {
                 if (counter == 0) {
