@@ -21,9 +21,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <sys/select.h>
-#include <tuple> // for tuple
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "AcceptEventReceiver.h"

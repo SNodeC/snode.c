@@ -23,8 +23,6 @@
 
 #include <any>
 #include <map>
-#include <openssl/err.h>
-#include <openssl/ssl.h>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

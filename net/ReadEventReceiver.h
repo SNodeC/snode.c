@@ -27,8 +27,6 @@
 
 namespace net {
 
-    class ReadEventDispatcher;
-
     class ReadEventReceiver : public EventReceiver {
     protected:
         virtual void readEvent() = 0;
