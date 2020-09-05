@@ -133,18 +133,19 @@ namespace net {
             time_t nextInactivityTimeout = -1;
 
             for (const auto& [fd, eventReceivers] : observedEvents) {
+                EventReceiver* eventReceiver = eventReceivers.front();
                 if (FD_ISSET(fd, &fdSet)) {
                     counter--;
-                    dispatch(eventReceivers.front());
-                    eventReceivers.front()->lastTriggered = currentTime;
+                    dispatchEventTo(eventReceiver);
+                    eventReceiver->lastTriggered = currentTime;
                     if (nextInactivityTimeout == -1 && maxInactivity > 0) {
                         nextInactivityTimeout = maxInactivity;
                     }
                 } else {
                     if (maxInactivity > 0) {
-                        time_t inactivity = currentTime - eventReceivers.front()->lastTriggered;
+                        time_t inactivity = currentTime - eventReceiver->lastTriggered;
                         if (inactivity >= maxInactivity) {
-                            eventReceivers.front()->disable();
+                            eventReceiver->disable();
                         } else {
                             if (nextInactivityTimeout == -1) {
                                 nextInactivityTimeout = maxInactivity - inactivity;
@@ -160,7 +161,7 @@ namespace net {
         }
 
     private:
-        virtual void dispatch(EventReceiver*) = 0;
+        virtual void dispatchEventTo(EventReceiver*) = 0;
 
         std::map<int, std::list<EventReceiver*>> observedEvents;
 

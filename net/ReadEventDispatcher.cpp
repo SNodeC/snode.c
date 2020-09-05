@@ -31,7 +31,7 @@
 
 namespace net {
 
-    void ReadEventDispatcher::dispatch(ReadEventReceiver* eventReceiver) {
+    void ReadEventDispatcher::dispatchEventTo(ReadEventReceiver* eventReceiver) {
         eventReceiver->readEvent();
     }
 

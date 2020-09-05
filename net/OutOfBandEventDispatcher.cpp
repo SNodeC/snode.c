@@ -31,7 +31,7 @@
 
 namespace net {
 
-    void OutOfBandEventDispatcher::dispatch(OutOfBandEventReceiver* eventReceiver) {
+    void OutOfBandEventDispatcher::dispatchEventTo(OutOfBandEventReceiver* eventReceiver) {
         eventReceiver->outOfBandEvent();
     }
 

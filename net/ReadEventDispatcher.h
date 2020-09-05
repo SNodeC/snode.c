@@ -38,7 +38,7 @@ namespace net {
         using EventDispatcher<ReadEventReceiver>::EventDispatcher;
 
     private:
-        void dispatch(ReadEventReceiver*) override;
+        void dispatchEventTo(ReadEventReceiver*) override;
     };
 
 } // namespace net
