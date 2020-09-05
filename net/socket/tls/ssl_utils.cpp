@@ -1,7 +1,13 @@
 #include "ssl_utils.h"
 
+#include <cstdlib> // for free
 #include <cstring>
+#include <openssl/err.h> // for ERR_peek_error
+#include <openssl/ssl.h> // IWYU pragma: keep, for SSL_CTX_check_private_key, SSL_CTX_load_ve...
 #include <string>
+#include <utility> // for tuple_element<>::type
+
+// IWYU pragma: no_include <openssl/ssl3.h>
 
 namespace net::socket::tls {
 

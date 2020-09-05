@@ -27,8 +27,6 @@
 
 namespace net {
 
-    class OutOfBandEventDispatcher;
-
     class OutOfBandEventReceiver : public EventReceiver {
     protected:
         virtual void outOfBandEvent() = 0;
@@ -37,7 +35,7 @@ namespace net {
         void enable() override;
         void disable() override;
 
-        friend OutOfBandEventDispatcher;
+        friend class OutOfBandEventDispatcher;
     };
 
 } // namespace net

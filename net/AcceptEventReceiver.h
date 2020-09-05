@@ -27,8 +27,6 @@
 
 namespace net {
 
-    class AcceptEventDispatcher;
-
     class AcceptEventReceiver : public EventReceiver {
     protected:
         virtual void acceptEvent() = 0;
@@ -37,7 +35,7 @@ namespace net {
         void enable() override;
         void disable() override;
 
-        friend AcceptEventDispatcher;
+        friend class AcceptEventDispatcher;
     };
 
 } // namespace net

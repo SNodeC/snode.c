@@ -18,8 +18,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstring>
-#include <easylogging++.h>
+#include <openssl/err.h>
+#include <openssl/ssl.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

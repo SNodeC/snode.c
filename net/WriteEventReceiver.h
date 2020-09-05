@@ -27,8 +27,6 @@
 
 namespace net {
 
-    class WriteEventDispatcher;
-
     class WriteEventReceiver : public EventReceiver {
     protected:
         virtual void writeEvent() = 0;
@@ -37,7 +35,7 @@ namespace net {
         void enable() override;
         void disable() override;
 
-        friend WriteEventDispatcher;
+        friend class WriteEventDispatcher;
     };
 
 } // namespace net

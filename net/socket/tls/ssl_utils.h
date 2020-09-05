@@ -3,8 +3,7 @@
 
 #include <any>
 #include <map>
-#include <openssl/err.h>
-#include <openssl/ssl.h>
+#include <openssl/ossl_typ.h> // for SSL_CTX
 #include <string>
 
 namespace net::socket::tls {

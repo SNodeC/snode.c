@@ -18,10 +18,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <map>    // for map
-#include <time.h> // for time
-#include <type_traits>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "AcceptEventDispatcher.h"

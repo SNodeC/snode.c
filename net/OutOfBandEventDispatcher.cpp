@@ -18,11 +18,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <algorithm>   // for min
-#include <map>         // for map
-#include <time.h>      // for time
-#include <type_traits> // for __strip_reference_wrapper<>::__type, add_cons...
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "OutOfBandEventDispatcher.h"
