@@ -33,19 +33,19 @@
 
 namespace net {
 
-    std::tuple<int, int> OutOfBandEventDispatcher::dispatch(const fd_set& fdSet, int counter) {
+    std::tuple<int, int> OutOfBandEventDispatcher::dispatch(const fd_set& fdSet, int counter, time_t currentTime) {
         time_t nextInactivityTimeout = -1;
 
         for (const auto& [fd, eventReceivers] : observedEvents) {
             if (FD_ISSET(fd, &fdSet)) {
                 counter--;
                 eventReceivers.front()->outOfBandEvent();
-                eventReceivers.front()->lastTriggered = time(nullptr);
+                eventReceivers.front()->lastTriggered = currentTime;
                 if (nextInactivityTimeout == -1) {
                     nextInactivityTimeout = MAX_OUTOFBAND_INACTIVITY;
                 }
             } else {
-                time_t inactivity = time(nullptr) - eventReceivers.front()->lastTriggered;
+                time_t inactivity = currentTime - eventReceivers.front()->lastTriggered;
                 if (inactivity >= MAX_OUTOFBAND_INACTIVITY) {
                     eventReceivers.front()->disable();
                 } else {

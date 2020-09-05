@@ -22,6 +22,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
+#include <ctime>
 #include <list>
 #include <map>
 #include <tuple>
@@ -123,7 +124,7 @@ namespace net {
         }
 
     protected:
-        virtual std::tuple<int, int> dispatch(const fd_set& fdSet, int counter) = 0;
+        virtual std::tuple<int, int> dispatch(const fd_set& fdSet, int counter, time_t currentTime) = 0;
 
         std::map<int, std::list<EventReceiver*>> observedEvents;
 
