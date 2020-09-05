@@ -85,7 +85,7 @@ namespace net {
         OutOfBandEventDispatcher outOfBandEventDispatcher;
         TimerEventDispatcher timerEventDispatcher;
 
-        struct timeval nextInactivityTimeout;
+        struct timeval nextInactivityTimeout = {-1, 0};
 
         static bool running;
         static bool stopped;

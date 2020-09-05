@@ -23,9 +23,9 @@ namespace http {
     class HTTPServer {
     public:
         explicit HTTPServer(const std::function<void(typename SocketServer::SocketConnection*)>& onConnect,
-                             const std::function<void(Request& req, Response& res)>& onRequestReady,
-                             const std::function<void(typename SocketServer::SocketConnection*)>& onDisconnect,
-                             const std::map<std::string, std::any>& options = {{}})
+                            const std::function<void(Request& req, Response& res)>& onRequestReady,
+                            const std::function<void(typename SocketServer::SocketConnection*)>& onDisconnect,
+                            const std::map<std::string, std::any>& options = {{}})
             : onConnect(onConnect)
             , onRequestReady(onRequestReady)
             , onDisconnect(onDisconnect)
