@@ -18,8 +18,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <map> // for map
-#include <type_traits>
+#include <algorithm>   // for min
+#include <map>         // for map
+#include <time.h>      // for time
+#include <type_traits> // for __strip_reference_wrapper<>::__type, add_cons...
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -27,22 +29,36 @@
 
 // IWYU pragma: no_include "Exception.h"
 
+#define MAX_OUTOFBAND_INACTIVITY 90
+
 namespace net {
 
-    int OutOfBandEventDispatcher::dispatch(const fd_set& fdSet, int counter) {
-        if (counter > 0) {
-            for (const auto& [fd, eventReceivers] : observedEvents) {
-                if (counter == 0) {
-                    break;
+    std::tuple<int, int> OutOfBandEventDispatcher::dispatch(const fd_set& fdSet, int counter) {
+        time_t nextInactivityTimeout = -1;
+
+        for (const auto& [fd, eventReceivers] : observedEvents) {
+            if (FD_ISSET(fd, &fdSet)) {
+                counter--;
+                eventReceivers.front()->outOfBandEvent();
+                eventReceivers.front()->lastTriggered = time(nullptr);
+                if (nextInactivityTimeout == -1) {
+                    nextInactivityTimeout = MAX_OUTOFBAND_INACTIVITY;
                 }
-                if (FD_ISSET(fd, &fdSet)) {
-                    counter--;
-                    eventReceivers.front()->outOfBandEvent();
+            } else {
+                time_t inactivity = time(nullptr) - eventReceivers.front()->lastTriggered;
+                if (inactivity >= MAX_OUTOFBAND_INACTIVITY) {
+                    eventReceivers.front()->disable();
+                } else {
+                    if (nextInactivityTimeout == -1) {
+                        nextInactivityTimeout = MAX_OUTOFBAND_INACTIVITY - inactivity;
+                    } else {
+                        nextInactivityTimeout = std::min(MAX_OUTOFBAND_INACTIVITY - inactivity, nextInactivityTimeout);
+                    }
                 }
             }
         }
 
-        return counter;
+        return std::make_tuple(counter, nextInactivityTimeout);
     }
 
 } // namespace net
