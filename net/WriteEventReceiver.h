@@ -29,8 +29,6 @@ namespace net {
 
     class WriteEventReceiver : public EventReceiver {
     public:
-        ~WriteEventReceiver() override = default;
-
         virtual void writeEvent() = 0;
 
         void enable() override;

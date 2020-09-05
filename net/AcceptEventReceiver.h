@@ -28,8 +28,6 @@ namespace net {
 
     class AcceptEventReceiver : public EventReceiver {
     public:
-        ~AcceptEventReceiver() override = default;
-
         virtual void acceptEvent() = 0;
 
         void enable() override;

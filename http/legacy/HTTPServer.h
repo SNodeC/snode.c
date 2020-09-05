@@ -21,37 +21,16 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
-#include <netinet/in.h>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/legacy/SocketConnection.h"
+#include "../HTTPServer.h"
+#include "socket/legacy/SocketServer.h"
 
 namespace http {
 
-    class Request;
-    class Response;
-
     namespace legacy {
 
-        class HTTPServer {
-        public:
-            explicit HTTPServer(const std::function<void(net::socket::legacy::SocketConnection*)>& onConnect,
-                                const std::function<void(Request& req, Response& res)>& onRequestReady,
-                                const std::function<void(Request& req, Response& res)>& onResponseCompleted,
-                                const std::function<void(net::socket::legacy::SocketConnection*)>& onDisconnect);
-
-            HTTPServer& operator=(const HTTPServer& webApp) = delete;
-
-            void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr);
-
-        protected:
-            std::function<void(net::socket::legacy::SocketConnection*)> onConnect;
-            std::function<void(Request& req, Response& res)> onRequestReady;
-            std::function<void(Request& req, Response& res)> onResponseCompleted;
-            std::function<void(net::socket::legacy::SocketConnection*)> onDisconnect;
-        };
+        using HTTPServer = http::HTTPServer<net::socket::legacy::SocketServer>;
 
     } // namespace legacy
 

@@ -30,21 +30,22 @@
 
 namespace net::socket::tls {
 
-    SocketClient::SocketClient(const std::function<void(SocketConnection* socketConnection)>& onConnect,
-                               const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
-                               const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
-                               const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
-                               const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
-                               const std::string& caFile, const std::string& caDir, bool useDefaultCADir)
-        : socket::SocketClient<SocketConnection>(
-              [this, onConnect](SocketConnection* socketConnection) -> void {
+    SocketClient::SocketClient(
+        const std::function<void(SocketClient::SocketConnection* socketConnection)>& onConnect,
+        const std::function<void(SocketClient::SocketConnection* socketConnection)>& onDisconnect,
+        const std::function<void(SocketClient::SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
+        const std::function<void(SocketClient::SocketConnection* socketConnection, int errnum)>& onReadError,
+        const std::function<void(SocketClient::SocketConnection* socketConnection, int errnum)>& onWriteError,
+        const std::map<std::string, std::any>& options)
+        : socket::SocketClient<SocketClient::SocketConnection>(
+              [this, onConnect](SocketClient::SocketConnection* socketConnection) -> void {
                   class TLSConnector
                       : public ReadEventReceiver
                       , public WriteEventReceiver
                       , public Socket {
                   public:
-                      TLSConnector(SocketClient* socketClient, SocketConnection* socketConnection, SSL_CTX* ctx,
-                                   const std::function<void(SocketConnection* socketConnection)>& onConnect)
+                      TLSConnector(tls::SocketClient* socketClient, SocketClient::SocketConnection* socketConnection, SSL_CTX* ctx,
+                                   const std::function<void(tls::SocketConnection* socketConnection)>& onConnect)
                           : socketClient(socketClient)
                           , socketConnection(socketConnection)
                           , onConnect(onConnect)
@@ -133,20 +134,43 @@ namespace net::socket::tls {
                       }
 
                   private:
-                      SocketClient* socketClient = nullptr;
-                      SocketConnection* socketConnection = nullptr;
+                      tls::SocketClient* socketClient = nullptr;
+                      tls::SocketConnection* socketConnection = nullptr;
                       SSL* ssl = nullptr;
-                      std::function<void(SocketConnection* socketConnection)> onConnect;
+                      std::function<void(SocketClient::SocketConnection* socketConnection)> onConnect;
                       timer::Timer& timeOut;
                   };
 
                   new TLSConnector(this, socketConnection, ctx, onConnect);
               },
-              [onDisconnect](SocketConnection* socketConnection) -> void {
+              [onDisconnect](SocketClient::SocketConnection* socketConnection) -> void {
                   onDisconnect(socketConnection);
                   socketConnection->stopSSL();
               },
-              onRead, onReadError, onWriteError) {
+              onRead, onReadError, onWriteError, options) {
+        std::string certChain = "";
+        std::string keyPEM = "";
+        std::string password = "";
+        std::string caFile = "";
+        std::string caDir = "";
+        bool useDefaultCADir = false;
+
+        for (auto& [name, value] : options) {
+            if (name == "certChain") {
+                certChain = std::any_cast<const char*>(value);
+            } else if (name == "keyPEM") {
+                keyPEM = std::any_cast<const char*>(value);
+            } else if (name == "password") {
+                password = std::any_cast<const char*>(value);
+            } else if (name == "caFile") {
+                caFile = std::any_cast<const char*>(value);
+            } else if (name == "caDir") {
+                caDir = std::any_cast<const char*>(value);
+            } else if (name == "useDefaultCADir") {
+                useDefaultCADir = std::any_cast<bool>(value);
+            }
+        }
+
         ctx = SSL_CTX_new(TLS_client_method());
         if (ctx != nullptr) {
             if (!caFile.empty() || !caDir.empty()) {
@@ -155,34 +179,30 @@ namespace net::socket::tls {
                     sslErr = ERR_peek_error();
                 }
             }
-            if (sslErr == 0 && useDefaultCADir) {
+            if (sslErr == SSL_ERROR_NONE && useDefaultCADir) {
                 if (!SSL_CTX_set_default_verify_paths(ctx)) {
                     sslErr = ERR_peek_error();
                 }
             }
+            if (sslErr == SSL_ERROR_NONE) {
+                if (!certChain.empty()) {
+                    if (SSL_CTX_use_certificate_chain_file(ctx, certChain.c_str()) <= 0) {
+                        sslErr = ERR_peek_error();
+                    } else if (!keyPEM.empty()) {
+                        if (!password.empty()) {
+                            SSL_CTX_set_default_passwd_cb(ctx, SocketClient::passwordCallback);
+                            SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(password.c_str()));
+                        }
+                        if (SSL_CTX_use_PrivateKey_file(ctx, keyPEM.c_str(), SSL_FILETYPE_PEM) <= 0) {
+                            sslErr = ERR_peek_error();
+                        } else if (!SSL_CTX_check_private_key(ctx)) {
+                            sslErr = ERR_peek_error();
+                        }
+                    }
+                }
+            }
         } else {
             sslErr = ERR_peek_error();
-        }
-    }
-
-    SocketClient::SocketClient(const std::function<void(SocketConnection* socketConnection)>& onConnect,
-                               const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
-                               const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
-                               const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
-                               const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
-                               const std::string& certChain, const std::string& keyPEM, const std::string& password,
-                               const std::string& caFile, const std::string& caDir, bool useDefaultCADir)
-        : SocketClient(onConnect, onDisconnect, onRead, onReadError, onWriteError, caFile, caDir, useDefaultCADir) {
-        if (sslErr == SSL_ERROR_NONE) {
-            SSL_CTX_set_default_passwd_cb(ctx, SocketClient::passwordCallback);
-            SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(password.c_str()));
-            if (SSL_CTX_use_certificate_chain_file(ctx, certChain.c_str()) <= 0) {
-                sslErr = ERR_peek_error();
-            } else if (SSL_CTX_use_PrivateKey_file(ctx, keyPEM.c_str(), SSL_FILETYPE_PEM) <= 0) {
-                sslErr = ERR_peek_error();
-            } else if (!SSL_CTX_check_private_key(ctx)) {
-                sslErr = ERR_peek_error();
-            }
         }
     }
 
@@ -194,14 +214,14 @@ namespace net::socket::tls {
     }
 
     // NOLINTNEXTLINE(google-default-arguments)
-    void SocketClient::connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
+    void SocketClient::connect(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError,
                                const socket::InetAddress& localAddress) {
         this->onError = onError;
         if (sslErr != 0) {
             onError(-sslErr);
         } else {
-            socket::SocketClient<SocketConnection>::connect(
-                host, port,
+            socket::SocketClient<SocketClient::SocketConnection>::connect(
+                options,
                 [this](int err) -> void {
                     if (err) {
                         this->onError(err);

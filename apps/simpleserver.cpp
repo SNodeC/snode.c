@@ -18,6 +18,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "legacy/HTTPServer.h"
 #include "legacy/WebApp.h"
 #include "middleware/StaticMiddleware.h"
 #include "tls/WebApp.h"
@@ -67,7 +68,7 @@ int main(int argc, char** argv) {
                        "):" + std::to_string(socketConnection->getLocalAddress().port());
     });
 
-    tls::WebApp tlsApp(CERTF, KEYF, KEYFPASS);
+    tls::WebApp tlsApp({{"certChain", CERTF}, {"keyPEM", KEYF}, {"password", KEYFPASS}});
 
     tlsApp.use(StaticMiddleware(SERVERROOT));
 

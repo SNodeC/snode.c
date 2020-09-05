@@ -27,8 +27,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Request.h"
-#include "Response.h"
+namespace http {
+    class Request;
+    class Response;
+} // namespace http
 
 namespace express {
 
@@ -40,7 +42,7 @@ namespace express {
 
 #define APPLICATION(req, res) ([[maybe_unused]] Request & (req), [[maybe_unused]] Response & (res))->void
 
-#define DREQUESTMETHOD(METHOD)                                                                                                             \
+#define DECLARE_REQUESTMETHOD(METHOD)                                                                                                      \
     Router& METHOD(const std::string& path, const std::function<void(Request & req, Response & res)>& dispatcher);                         \
     Router& METHOD(const std::function<void(Request & req, Response & res)>& dispatcher);                                                  \
     Router& METHOD(const std::string& path, const Router& router);                                                                         \
@@ -72,17 +74,17 @@ namespace express {
     public:
         Router();
 
-        DREQUESTMETHOD(use);
-        DREQUESTMETHOD(all);
-        DREQUESTMETHOD(get);
-        DREQUESTMETHOD(put);
-        DREQUESTMETHOD(post);
-        DREQUESTMETHOD(del);
-        DREQUESTMETHOD(connect);
-        DREQUESTMETHOD(options);
-        DREQUESTMETHOD(trace);
-        DREQUESTMETHOD(patch);
-        DREQUESTMETHOD(head);
+        DECLARE_REQUESTMETHOD(use);
+        DECLARE_REQUESTMETHOD(all);
+        DECLARE_REQUESTMETHOD(get);
+        DECLARE_REQUESTMETHOD(put);
+        DECLARE_REQUESTMETHOD(post);
+        DECLARE_REQUESTMETHOD(del);
+        DECLARE_REQUESTMETHOD(connect);
+        DECLARE_REQUESTMETHOD(options);
+        DECLARE_REQUESTMETHOD(trace);
+        DECLARE_REQUESTMETHOD(patch);
+        DECLARE_REQUESTMETHOD(head);
 
     protected:
         void dispatch(Request& req, Response& res) const;

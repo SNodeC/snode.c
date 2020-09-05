@@ -10,6 +10,9 @@ set_target_properties(snode.c PROPERTIES
             CXX_EXTENSIONS OFF
             SOVERSION 1
 )
+if(CHECK_INCLUDES)
+    set_property(TARGET snode.c PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
+endif(CHECK_INCLUDES)
 
 add_executable(posttest posttest.cpp)
 target_compile_options(posttest PRIVATE --warn-all)
@@ -21,6 +24,9 @@ set_target_properties(posttest PROPERTIES
             CXX_EXTENSIONS OFF
             SOVERSION 1
 )
+if(CHECK_INCLUDES)
+    set_property(TARGET posttest PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
+endif(CHECK_INCLUDES)
 
 add_executable(simpleserver simpleserver.cpp)
 target_compile_options(simpleserver PRIVATE --warn-all)
@@ -32,6 +38,9 @@ set_target_properties(simpleserver PROPERTIES
             CXX_EXTENSIONS OFF
             SOVERSION 1
 )
+if(CHECK_INCLUDES)
+    set_property(TARGET simpleserver PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
+endif(CHECK_INCLUDES)
 
 add_executable(testparser testparsers.cpp)
 target_compile_options(testparser PRIVATE --warn-all)
@@ -43,6 +52,9 @@ set_target_properties(testparser PROPERTIES
             CXX_EXTENSIONS OFF
             SOVERSION 1
 )
+if(CHECK_INCLUDES)
+    set_property(TARGET testparser PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
+endif(CHECK_INCLUDES)
 
 add_executable(client client.cpp)
 target_compile_options(client PRIVATE --warn-all)
@@ -54,6 +66,9 @@ set_target_properties(client PROPERTIES
             CXX_EXTENSIONS OFF
             SOVERSION 1
 )
+if(CHECK_INCLUDES)
+    set_property(TARGET client PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
+endif(CHECK_INCLUDES)
 
 add_executable(lowlevelclient lowlevelclient.cpp)
 target_compile_options(lowlevelclient PRIVATE --warn-all)
@@ -65,6 +80,9 @@ set_target_properties(lowlevelclient PROPERTIES
             CXX_EXTENSIONS OFF
             SOVERSION 1
 )
+if(CHECK_INCLUDES)
+    set_property(TARGET lowlevelclient PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
+endif(CHECK_INCLUDES)
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/.logger.conf"
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/logger.conf" "${CMAKE_CURRENT_BINARY_DIR}/.logger.conf"

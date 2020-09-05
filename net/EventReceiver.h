@@ -44,22 +44,22 @@ namespace net {
     };
 
     class EventReceiver : virtual public ObservationCounter {
-    public:
+    protected:
         EventReceiver() = default;
 
         EventReceiver(const EventReceiver&) = delete;
-
         EventReceiver& operator=(const EventReceiver&) = delete;
 
         virtual ~EventReceiver() = default;
 
+    public:
         void enabled() {
-            observationCounter++;
+            ObservationCounter::observationCounter++;
             _enabled = true;
         }
 
         void disabled() {
-            observationCounter--;
+            ObservationCounter::observationCounter--;
             _enabled = false;
         }
 

@@ -21,9 +21,11 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <any>
 #include <cstdlib>
 #include <easylogging++.h>
 #include <functional>
+#include <map>
 #include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -35,37 +37,38 @@
 
 namespace net::socket {
 
-    template <typename SocketConnection>
+    template <typename SocketConnectionT>
     class SocketServer
         : public AcceptEventReceiver
         , public Socket {
     public:
-        void* operator new(size_t size) {
-            SocketServer* serverSocket = reinterpret_cast<SocketServer*>(malloc(size));
-            serverSocket->isDynamic = true;
+        using SocketConnection = SocketConnectionT;
 
-            return serverSocket;
+        void* operator new(size_t size) {
+            SocketServer<SocketConnection>::lastAllocAddress = malloc(size);
+
+            return SocketServer<SocketConnection>::lastAllocAddress;
         }
 
-        void operator delete(void* serverSocket_v) {
-            SocketServer* serverSocket = reinterpret_cast<SocketServer*>(serverSocket_v);
-            if (serverSocket->isDynamic) {
-                free(serverSocket_v);
-            }
+        void operator delete(void* socketServer_v) {
+            free(socketServer_v);
         }
 
         SocketServer(const std::function<void(SocketConnection* socketConnection)>& onConnect,
                      const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
                      const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
                      const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
-                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError)
+                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
+                     const std::map<std::string, std::any>& options = {{}})
             : AcceptEventReceiver()
             , Socket()
             , onConnect(onConnect)
             , onDisconnect(onDisconnect)
             , onRead(onRead)
             , onReadError(onReadError)
-            , onWriteError(onWriteError) {
+            , onWriteError(onWriteError)
+            , options(options)
+            , isDynamic(this == SocketServer::lastAllocAddress) {
         }
 
         SocketServer() = delete;
@@ -181,8 +184,15 @@ namespace net::socket {
         std::function<void(SocketConnection* socketConnection, int errnum)> onReadError;
         std::function<void(SocketConnection* socketConnection, int errnum)> onWriteError;
 
+    protected:
+        std::map<std::string, std::any> options;
+
         bool isDynamic;
+        static void* lastAllocAddress;
     };
+
+    template <typename SocketConnection>
+    void* SocketServer<SocketConnection>::lastAllocAddress = nullptr;
 
 } // namespace net::socket
 
