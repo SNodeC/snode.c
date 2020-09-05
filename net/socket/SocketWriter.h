@@ -35,11 +35,13 @@
 
 namespace net::socket {
 
-    template <typename Socket>
+    template <typename SocketT>
     class SocketWriter
         : public WriteEventReceiver
-        , virtual public Socket {
+        , virtual public SocketT {
     public:
+        using Socket = SocketT;
+
         SocketWriter() = delete;
 
         explicit SocketWriter(const std::function<void(int errnum)>& onError)

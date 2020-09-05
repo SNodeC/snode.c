@@ -21,37 +21,16 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
-#include <netinet/in.h>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/tls/SocketConnection.h"
+#include "../HTTPClient.h"
+#include "socket/tls/SocketClient.h"
 
 namespace http {
 
-    class ClientResponse;
-
     namespace tls {
 
-        class HTTPClient {
-        public:
-            HTTPClient(const std::function<void(net::socket::tls::SocketConnection*)>& onConnect,
-                       const std::function<void(ClientResponse& clientResponse)> onResponseReady,
-                       const std::function<void(net::socket::tls::SocketConnection*)> onDisconnect, const std::string& caFile = "",
-                       const std::string& caDir = "", bool useDefaultCADir = false);
-
-            void connect(const std::string& server, in_port_t port, const std::function<void(int err)>& onError);
-
-        protected:
-            std::function<void(net::socket::tls::SocketConnection*)> onConnect;
-            std::function<void(ClientResponse& clientResponse)> onResponseReady;
-            std::function<void(net::socket::tls::SocketConnection*)> onDisconnect;
-
-            std::string caFile;
-            std::string caDir;
-            bool useDefaultCADir;
-        };
+        using HTTPClient = http::HTTPClient<net::socket::tls::SocketClient>;
 
     } // namespace tls
 

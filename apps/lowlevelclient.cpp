@@ -21,10 +21,10 @@
 #include "ClientResponse.h"
 #include "EventLoop.h"
 #include "HTTPResponseParser.h"
-#include "legacy/HTTPClient.h"
+//#include "legacy/HTTPClient.h"
 #include "socket/legacy/SocketClient.h"
 #include "socket/tls/SocketClient.h"
-#include "tls/HTTPClient.h"
+//#include "tls/HTTPClientT.h"
 
 #include <cstring>
 #include <easylogging++.h>
@@ -157,9 +157,9 @@ tls::SocketClient getTlsClient() {
         []([[maybe_unused]] tls::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
             VLOG(0) << "OnWriteError: " + std::to_string(errnum);
         },
-        CERTF, KEYF, KEYFPASS, SERVERCAFILE);
+        {{"certChain", CERTF}, {"keyPEM", KEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}});
 
-    tlsClient.connect("localhost", 8088, [](int err) -> void {
+    tlsClient.connect({{"host", "localhost"}, {"port", 8088}}, [](int err) -> void {
         if (err) {
             PLOG(ERROR) << "Connect: " + std::to_string(err);
         } else {
@@ -203,9 +203,10 @@ legacy::SocketClient getLegacyClient() {
         },
         []([[maybe_unused]] legacy::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
             VLOG(0) << "OnWriteError: " << errnum;
-        });
+        },
+        {{}});
 
-    legacyClient.connect("localhost", 8080, [](int err) -> void {
+    legacyClient.connect({{"host", "localhost"}, {"port", 8080}}, [](int err) -> void {
         if (err) {
             PLOG(ERROR) << "Connect: " << std::to_string(err);
         } else {
@@ -220,7 +221,7 @@ int main(int argc, char* argv[]) {
     net::EventLoop::init(argc, argv);
 
     legacy::SocketClient legacyClient = getLegacyClient();
-    legacyClient.connect("localhost", 8080, [](int err) -> void { // example.com:81 simulate connnect timeout
+    legacyClient.connect({{"host", "localhost"}, {"port", 8080}}, [](int err) -> void { // example.com:81 simulate connnect timeout
         if (err) {
             PLOG(ERROR) << "Connect: " << std::to_string(err);
         } else {
@@ -229,7 +230,7 @@ int main(int argc, char* argv[]) {
     });
 
     tls::SocketClient tlsClient = getTlsClient();
-    tlsClient.connect("localhost", 8088, [](int err) -> void {
+    tlsClient.connect({{"host", "localhost"}, {"port", 8088}}, [](int err) -> void {
         if (err) {
             PLOG(ERROR) << "Connect: " << std::to_string(err);
         } else {

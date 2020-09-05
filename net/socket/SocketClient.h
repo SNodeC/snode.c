@@ -21,8 +21,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <any>
 #include <easylogging++.h>
 #include <functional>
+#include <map>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -38,9 +40,11 @@
 
 namespace net::socket {
 
-    template <typename SocketConnection>
+    template <typename SocketConnectionT>
     class SocketClient {
     public:
+        using SocketConnection = SocketConnectionT;
+
         void* operator new(size_t size) {
             SocketClient<SocketConnection>::lastAllocAddress = malloc(size);
 
@@ -55,12 +59,14 @@ namespace net::socket {
                      const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
                      const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
                      const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
-                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError)
+                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
+                     const std::map<std::string, std::any>& options = {{}})
             : onConnect(onConnect)
             , onDisconnect(onDisconnect)
             , onRead(onRead)
             , onReadError(onReadError)
             , onWriteError(onWriteError)
+            , options(options)
             , isDynamic(this == SocketClient<SocketConnection>::lastAllocAddress) {
             SocketClient<SocketConnection>::lastAllocAddress = nullptr;
         }
@@ -70,9 +76,21 @@ namespace net::socket {
 
         virtual ~SocketClient() = default;
 
+    public:
         // NOLINTNEXTLINE(google-default-arguments)
-        virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
+        virtual void connect(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError,
                              const InetAddress& localAddress = InetAddress()) {
+            std::string host = "";
+            in_port_t port = 0;
+
+            for (auto& [name, value] : options) {
+                if (name == "host") {
+                    host = std::any_cast<const char*>(value);
+                } else if (name == "port") {
+                    port = std::any_cast<int>(value);
+                }
+            }
+
             connectionCounter++;
 
             SocketConnection* socketConnection = SocketConnection::create(
@@ -196,27 +214,12 @@ namespace net::socket {
                                     std::function<void(int err)> onError;
                                     net::timer::Timer& timeOut;
                                 };
-
                                 new Connector(this, socketConnection, server, onConnect, onError);
                             }
                         });
                     }
                 },
                 SOCK_NONBLOCK);
-        }
-
-        virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, in_port_t lPort) {
-            connect(host, port, onError, InetAddress(lPort));
-        }
-
-        virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
-                             const std::string& lHost) {
-            connect(host, port, onError, InetAddress(lHost));
-        }
-
-        virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, const std::string& lHost,
-                             in_port_t lPort) {
-            connect(host, port, onError, InetAddress(lHost, lPort));
         }
 
     private:
@@ -227,10 +230,11 @@ namespace net::socket {
         std::function<void(SocketConnection* socketConnection, int errnum)> onWriteError;
 
     protected:
-        bool isDynamic = false;
+        std::map<std::string, std::any> options;
 
         int connectionCounter = 0;
 
+        bool isDynamic = false;
         static void* lastAllocAddress;
     };
 

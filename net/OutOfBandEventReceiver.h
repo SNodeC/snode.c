@@ -29,8 +29,6 @@ namespace net {
 
     class OutOfBandEventReceiver : public EventReceiver {
     public:
-        ~OutOfBandEventReceiver() override = default;
-
         virtual void outOfBandEvent() = 0;
 
         void enable() override;

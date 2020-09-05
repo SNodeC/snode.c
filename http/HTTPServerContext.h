@@ -36,8 +36,7 @@ namespace http {
     class HTTPServerContext {
     public:
         HTTPServerContext(net::socket::SocketConnectionBase* socketConnection,
-                          const std::function<void(Request& req, Response& res)>& onRequestReady,
-                          const std::function<void(Request& req, Response& res)>& onResponseFinished);
+                          const std::function<void(Request& req, Response& res)>& onRequestReady);
 
         void receiveRequestData(const char* junk, size_t junkLen);
         void onReadError(int errnum);
@@ -45,7 +44,6 @@ namespace http {
         void sendResponseData(const char* buf, size_t len);
         void onWriteError(int errnum);
 
-        void requestReady();
         void responseCompleted();
 
         void terminateConnection();
@@ -56,9 +54,6 @@ namespace http {
         bool requestInProgress = false;
 
     public:
-        std::function<void(Request& req, Response& res)> onRequestReady;
-        std::function<void(Request& req, Response& res)> onResponseFinished;
-
         Request request;
         Response response;
 

@@ -34,9 +34,11 @@ namespace net {
 
     class EventLoop;
 
-    template <typename EventReceiver>
+    template <typename EventReceiverT>
     class EventDispatcher {
     public:
+        using EventReceiver = EventReceiverT;
+
         explicit EventDispatcher(fd_set& fdSet) // NOLINT(google-runtime-references)
             : fdSet(fdSet) {
         }
@@ -129,9 +131,6 @@ namespace net {
         std::list<EventReceiver*> disabledEventReceiver;
 
         fd_set& fdSet;
-
-    public:
-        using EventType = EventReceiver;
 
         friend class EventLoop;
     };

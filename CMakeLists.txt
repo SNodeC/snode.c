@@ -66,18 +66,6 @@ if(NOT iwyu_path)
 endif()
 option(CHECK_INCLUDES "Check used headers" ${iwyu_path}})
 
-if(CHECK_INCLUDES)
-    set_property(TARGET snode.c PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
-endif(CHECK_INCLUDES)
-
-if(CHECK_INCLUDES)
-    set_property(TARGET posttest PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
-endif(CHECK_INCLUDES)
-
-if(CHECK_INCLUDES)
-    set_property(TARGET simpleserver PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
-endif(CHECK_INCLUDES)
-
 #target_add_ide_support(net)
 #target_add_ide_support(http)
 #target_add_ide_support(utils)

@@ -29,8 +29,6 @@ namespace net {
 
     class ReadEventReceiver : public EventReceiver {
     public:
-        ~ReadEventReceiver() override = default;
-
         virtual void readEvent() = 0;
 
         void enable() override;

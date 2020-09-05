@@ -22,12 +22,9 @@
 
 #include "WebApp.h"
 
-#include "socket/tls/SocketServer.h"
-
 namespace express::tls {
 
-    WebApp::WebApp(const std::string& cert, const std::string& key, const std::string& password, const std::string& caFile,
-                   const std::string& caDir, bool useDefaultCADir)
+    WebApp::WebApp(const std::map<std::string, std::any>& options)
         : httpServer(
               [this]([[maybe_unused]] net::socket::tls::SocketConnection* socketConnection) -> void { // onConnect
                   if (_onConnect != nullptr) {
@@ -37,18 +34,20 @@ namespace express::tls {
               [this](http::Request& req, http::Response& res) -> void { // onRequestReady
                   dispatch(req, res);
               },
-              []([[maybe_unused]] http::Request& req, [[maybe_unused]] http::Response& res) -> void { // onResponseFinished
-              },
               [this]([[maybe_unused]] net::socket::tls::SocketConnection* socketConnection) -> void { // onDisconnect
                   if (_onDisconnect != nullptr) {
                       _onDisconnect(socketConnection);
                   }
               },
-              cert, key, password, caFile, caDir, useDefaultCADir) {
+              options) {
     }
 
     void WebApp::listen(in_port_t port, const std::function<void(int err)>& onError) {
         httpServer.listen(port, onError);
+    }
+
+    void WebApp::listen(const std::string& host, in_port_t port, const std::function<void(int err)>& onError) {
+        httpServer.listen(host, port, onError);
     }
 
 } // namespace express::tls
