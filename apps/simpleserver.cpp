@@ -68,8 +68,6 @@ int main(int argc, char** argv) {
                        "):" + std::to_string(socketConnection->getLocalAddress().port());
     });
 
-    //    tls::WebApp tlsApp(CERTF, KEYF, KEYFPASS);
-
     tls::WebApp tlsApp({{"certChain", CERTF}, {"keyPEM", KEYF}, {"password", KEYFPASS}});
 
     tlsApp.use(StaticMiddleware(SERVERROOT));
