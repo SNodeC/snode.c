@@ -35,6 +35,7 @@
 #include "timer/Timer.h" // for operator<
 
 #define MAX_READ_INACTIVITY 90
+#define MAX_ACCEPT_INACTIVITY 0
 #define MAX_WRITE_INACTIVITY 90
 #define MAX_OUTOFBAND_INACTIVITY 90
 
@@ -48,7 +49,7 @@ namespace net {
 
     EventLoop::EventLoop()
         : readEventDispatcher(readfds, MAX_READ_INACTIVITY)
-        , acceptEventDispatcher(readfds, 0)
+        , acceptEventDispatcher(readfds, MAX_ACCEPT_INACTIVITY)
         , writeEventDispatcher(writefds, MAX_WRITE_INACTIVITY)
         , outOfBandEventDispatcher(exceptfds, MAX_OUTOFBAND_INACTIVITY) {
     }

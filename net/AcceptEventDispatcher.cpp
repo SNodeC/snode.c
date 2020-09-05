@@ -30,7 +30,7 @@
 
 namespace net {
 
-    void AcceptEventDispatcher::dispatch(AcceptEventReceiver* eventReceiver) {
+    void AcceptEventDispatcher::dispatchEventTo(AcceptEventReceiver* eventReceiver) {
         eventReceiver->acceptEvent();
     }
 

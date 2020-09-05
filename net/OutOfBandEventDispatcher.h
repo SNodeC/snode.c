@@ -38,7 +38,7 @@ namespace net {
         using EventDispatcher<OutOfBandEventReceiver>::EventDispatcher;
 
     private:
-        void dispatch(OutOfBandEventReceiver*) override;
+        void dispatchEventTo(OutOfBandEventReceiver*) override;
     };
 
 } // namespace net

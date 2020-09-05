@@ -31,7 +31,7 @@
 
 namespace net {
 
-    void WriteEventDispatcher::dispatch(WriteEventReceiver* eventReceiver) {
+    void WriteEventDispatcher::dispatchEventTo(WriteEventReceiver* eventReceiver) {
         eventReceiver->writeEvent();
     }
 
