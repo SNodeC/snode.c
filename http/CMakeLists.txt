@@ -31,8 +31,8 @@ add_library(http SHARED
     Request.h
     Response.cpp
     Response.h
-    httputils.cpp
-    httputils.h
+    http_utils.cpp
+    http_utils.h
 )
 
 target_link_libraries(http LINK_PUBLIC net logger utils ${LIBMAGIC_LIBRARIES})
