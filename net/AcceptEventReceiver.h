@@ -24,14 +24,20 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "EventReceiver.h"
+
 namespace net {
 
+    class AcceptEventDispatcher;
+
     class AcceptEventReceiver : public EventReceiver {
-    public:
+    protected:
         virtual void acceptEvent() = 0;
 
+    public:
         void enable() override;
         void disable() override;
+
+        friend AcceptEventDispatcher;
     };
 
 } // namespace net

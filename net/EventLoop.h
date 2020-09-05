@@ -22,6 +22,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <sys/select.h> // for fd_set
+#include <sys/time.h>   // for timeval
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -83,6 +84,8 @@ namespace net {
         WriteEventDispatcher writeEventDispatcher;
         OutOfBandEventDispatcher outOfBandEventDispatcher;
         TimerEventDispatcher timerEventDispatcher;
+
+        struct timeval nextInactivityTimeout = {-1, 0};
 
         static bool running;
         static bool stopped;
