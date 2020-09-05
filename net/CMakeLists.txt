@@ -54,6 +54,8 @@ add_library(net SHARED
     socket/legacy/SocketWriter.h
     socket/legacy/SocketServer.cpp
     socket/legacy/SocketServer.h
+    socket/tls/ssl_utils.cpp
+    socket/tls/ssl_utils.h
     socket/tls/Socket.cpp
     socket/tls/Socket.h
     socket/tls/SocketClient.cpp
