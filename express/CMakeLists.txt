@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.0)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
 
-find_package(LibMagic REQUIRED)
-
 add_library(express SHARED
     Router.cpp
     Router.h
