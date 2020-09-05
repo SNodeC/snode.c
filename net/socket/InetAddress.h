@@ -22,9 +22,10 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>   // for uint16_t
-#include <exception> // for exception
+#include <exception> // IWYU pragma: keep
 #include <netinet/in.h>
 #include <string>
+// IWYU pragma: no_include <bits/exception.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
