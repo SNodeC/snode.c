@@ -7,8 +7,8 @@ find_package(LibMagic REQUIRED)
 add_library(http SHARED
     legacy/HTTPClient.h
     tls/HTTPClient.h
-    legacy/HTTPServerT.h
-    tls/HTTPServerT.h
+    legacy/HTTPServer.h
+    tls/HTTPServer.h
     ClientResponse.cpp
     ClientResponse.h
     HTTPClient.h
@@ -22,7 +22,7 @@ add_library(http SHARED
     HTTPResponseParser.h
     HTTPServerContext.cpp
     HTTPServerContext.h
-    HTTPServerT.h
+    HTTPServer.h
     HTTPStatusCodes.cpp
     HTTPStatusCodes.h
     MimeTypes.cpp
