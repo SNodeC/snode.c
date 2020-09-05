@@ -18,7 +18,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <map> // for map
+#include <map>    // for map
+#include <time.h> // for time
 #include <type_traits>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -29,20 +30,21 @@
 
 namespace net {
 
-    int AcceptEventDispatcher::dispatch(const fd_set& fdSet, int conter) {
-        if (conter > 0) {
+    std::tuple<int, int> AcceptEventDispatcher::dispatch(const fd_set& fdSet, int counter) {
+        if (counter > 0) {
             for (const auto& [fd, eventReceivers] : observedEvents) {
-                if (conter == 0) {
+                if (counter == 0) {
                     break;
                 }
                 if (FD_ISSET(fd, &fdSet)) {
-                    conter--;
+                    counter--;
                     eventReceivers.front()->acceptEvent();
+                    eventReceivers.front()->lastTriggered = time(nullptr);
                 }
             }
         }
 
-        return conter;
+        return std::make_tuple(counter, -1);
     }
 
 } // namespace net

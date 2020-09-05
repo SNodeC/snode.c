@@ -21,6 +21,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <ctime>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net {
@@ -56,6 +58,7 @@ namespace net {
         void enabled() {
             ObservationCounter::observationCounter++;
             _enabled = true;
+            lastTriggered = time(nullptr);
         }
 
         void disabled() {
@@ -73,6 +76,9 @@ namespace net {
 
     private:
         bool _enabled = false;
+
+    public:
+        time_t lastTriggered = 0;
     };
 
 } // namespace net

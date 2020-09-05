@@ -23,13 +23,16 @@
 #include <cerrno> // for EINTR, errno
 #include <csignal>
 #include <cstdlib>
+#include <ctime>
 #include <easylogging++.h>
 #include <sys/time.h> // for timeval
+#include <tuple>      // for tie, tuple
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "EventLoop.h"
 #include "Logger.h"
+#include "timer/Timer.h" // for operator<
 
 namespace net {
 
@@ -63,15 +66,35 @@ namespace net {
 
         struct timeval tv = timerEventDispatcher.getNextTimeout();
 
+        if (nextInactivityTimeout.tv_sec >= 0) {
+            tv = std::min(tv, nextInactivityTimeout);
+        }
+
         if (maxFd >= 0 || !timerEventDispatcher.empty()) {
             int counter = select(maxFd + 1, &_readfds, &_writefds, &_exceptfds, &tv);
 
             if (counter >= 0) {
                 timerEventDispatcher.dispatch();
-                counter = readEventDispatcher.dispatch(_readfds, counter);
-                counter = writeEventDispatcher.dispatch(_writefds, counter);
-                counter = acceptEventDispatcher.dispatch(_readfds, counter);
-                counter = outOfBandEventDispatcher.dispatch(_exceptfds, counter);
+                time_t timeout;
+                time_t minInactiveTimeout = -1;
+                std::tie(counter, timeout) = readEventDispatcher.dispatch(_readfds, counter);
+                if (timeout >= 0) {
+                    minInactiveTimeout = timeout;
+                }
+                std::tie(counter, timeout) = writeEventDispatcher.dispatch(_writefds, counter);
+                if (timeout >= 0) {
+                    minInactiveTimeout = std::min(timeout, minInactiveTimeout);
+                }
+                std::tie(counter, timeout) = acceptEventDispatcher.dispatch(_readfds, counter);
+                if (timeout >= 0) {
+                    minInactiveTimeout = std::min(timeout, minInactiveTimeout);
+                }
+                std::tie(counter, timeout) = outOfBandEventDispatcher.dispatch(_exceptfds, counter);
+                if (timeout >= 0) {
+                    minInactiveTimeout = std::min(timeout, minInactiveTimeout);
+                }
+                nextInactivityTimeout.tv_sec = minInactiveTimeout;
+                nextInactivityTimeout.tv_usec = 0;
                 assert(counter == 0);
             } else if (errno != EINTR) {
                 PLOG(ERROR) << "select";
