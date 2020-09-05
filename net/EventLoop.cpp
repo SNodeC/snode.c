@@ -34,10 +34,10 @@
 #include "Logger.h"
 #include "timer/Timer.h" // for operator<
 
-#define MAX_READ_INACTIVITY 90
+#define MAX_READ_INACTIVITY 60
 #define MAX_ACCEPT_INACTIVITY 0
-#define MAX_WRITE_INACTIVITY 90
-#define MAX_OUTOFBAND_INACTIVITY 90
+#define MAX_WRITE_INACTIVITY 60
+#define MAX_OUTOFBAND_INACTIVITY 60
 
 namespace net {
 
