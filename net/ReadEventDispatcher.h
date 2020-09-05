@@ -37,7 +37,8 @@ namespace net {
     public:
         using EventDispatcher<ReadEventReceiver>::EventDispatcher;
 
-        std::tuple<int, int> dispatch(const fd_set& fdSet, int count, time_t currentTime) override;
+    private:
+        void dispatch(ReadEventReceiver*) override;
     };
 
 } // namespace net

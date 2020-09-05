@@ -129,7 +129,38 @@ namespace net {
         }
 
     protected:
-        virtual std::tuple<int, int> dispatch(const fd_set& fdSet, int counter, time_t currentTime) = 0;
+        std::tuple<int, int> dispatchEvents(const fd_set& fdSet, int counter, time_t currentTime) {
+            time_t nextInactivityTimeout = -1;
+
+            for (const auto& [fd, eventReceivers] : observedEvents) {
+                if (FD_ISSET(fd, &fdSet)) {
+                    counter--;
+                    dispatch(eventReceivers.front());
+                    eventReceivers.front()->lastTriggered = currentTime;
+                    if (nextInactivityTimeout == -1 && maxInactivity > 0) {
+                        nextInactivityTimeout = maxInactivity;
+                    }
+                } else {
+                    if (maxInactivity > 0) {
+                        time_t inactivity = currentTime - eventReceivers.front()->lastTriggered;
+                        if (inactivity >= maxInactivity) {
+                            eventReceivers.front()->disable();
+                        } else {
+                            if (nextInactivityTimeout == -1) {
+                                nextInactivityTimeout = maxInactivity - inactivity;
+                            } else {
+                                nextInactivityTimeout = std::min(maxInactivity - inactivity, nextInactivityTimeout);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return std::make_tuple(counter, nextInactivityTimeout);
+        }
+
+    private:
+        virtual void dispatch(EventReceiver*) = 0;
 
         std::map<int, std::list<EventReceiver*>> observedEvents;
 

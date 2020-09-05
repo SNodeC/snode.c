@@ -27,12 +27,17 @@
 
 namespace net {
 
+    class ReadEventDispatcher;
+
     class ReadEventReceiver : public EventReceiver {
-    public:
+    protected:
         virtual void readEvent() = 0;
 
+    public:
         void enable() override;
         void disable() override;
+
+        friend class ReadEventDispatcher;
     };
 
 } // namespace net
