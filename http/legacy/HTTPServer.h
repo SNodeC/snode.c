@@ -26,18 +26,11 @@
 #include "../HTTPServer.h"
 #include "socket/legacy/SocketServer.h"
 
-namespace net::socket::legacy {
-    class SocketServer;
-}
-
 namespace http {
 
     namespace legacy {
 
-        class HTTPServer : public http::HTTPServer<net::socket::legacy::SocketServer> {
-        public:
-            using http::HTTPServer<net::socket::legacy::SocketServer>::HTTPServer;
-        };
+        using HTTPServer = http::HTTPServer<net::socket::legacy::SocketServer>;
 
     } // namespace legacy
 
