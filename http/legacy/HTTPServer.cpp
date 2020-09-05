@@ -37,82 +37,56 @@ namespace http {
             , onDisconnect(onDisconnect) {
         }
 
-        void HTTPServer::listen(in_port_t port, const std::function<void(int err)>& onError) {
-            errno = 0;
-
-            (new net::socket::legacy::SocketServer(
-                 [*this](net::socket::legacy::SocketConnection* socketConnection) -> void { // onConnect
-                     onConnect(socketConnection);
-                     socketConnection->setProtocol<HTTPServerContext*>(
-                         new HTTPServerContext(socketConnection, [*this](Request& req, Response& res) -> void {
-                             onRequestReady(req, res);
-                         }));
-                 },
-                 [*this](net::socket::legacy::SocketConnection* socketConnection) -> void { // onDisconnect
-                     onDisconnect(socketConnection);
-                     socketConnection->getProtocol<HTTPServerContext*>([](HTTPServerContext*& protocol) -> void {
-                         delete protocol;
-                     });
-                 },
-                 [](net::socket::legacy::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
-                     socketConnection->getProtocol<HTTPServerContext*>([&junk, &junkSize](HTTPServerContext*& protocol) -> void {
-                         protocol->receiveRequestData(junk, junkSize);
-                     });
-                 },
-                 [](net::socket::legacy::SocketConnection* socketConnection, int errnum) -> void { // onReadError
-                     socketConnection->getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
-                         protocol->onReadError(errnum);
-                     });
-                 },
-                 [](net::socket::legacy::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
-                     socketConnection->getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
-                         protocol->onWriteError(errnum);
-                     });
-                 }))
-                ->listen(port, 5, [&](int err) -> void {
-                    if (onError) {
-                        onError(err);
-                    }
+        net::socket::legacy::SocketServer* HTTPServer::socketServer() const {
+            return new net::socket::legacy::SocketServer(
+                [*this](net::socket::legacy::SocketConnection* socketConnection) -> void { // onConnect
+                    onConnect(socketConnection);
+                    socketConnection->setProtocol<HTTPServerContext*>(
+                        new HTTPServerContext(socketConnection, [*this](Request& req, Response& res) -> void {
+                            onRequestReady(req, res);
+                        }));
+                },
+                [*this](net::socket::legacy::SocketConnection* socketConnection) -> void { // onDisconnect
+                    onDisconnect(socketConnection);
+                    socketConnection->getProtocol<HTTPServerContext*>([](HTTPServerContext*& protocol) -> void {
+                        delete protocol;
+                    });
+                },
+                [](net::socket::legacy::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
+                    socketConnection->getProtocol<HTTPServerContext*>([&junk, &junkSize](HTTPServerContext*& protocol) -> void {
+                        protocol->receiveRequestData(junk, junkSize);
+                    });
+                },
+                [](net::socket::legacy::SocketConnection* socketConnection, int errnum) -> void { // onReadError
+                    socketConnection->getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
+                        protocol->onReadError(errnum);
+                    });
+                },
+                [](net::socket::legacy::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
+                    socketConnection->getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
+                        protocol->onWriteError(errnum);
+                    });
                 });
         }
 
-        void HTTPServer::listen(const std::string& host, in_port_t port, const std::function<void(int err)>& onError) {
+        void HTTPServer::listen(in_port_t port, const std::function<void(int err)>& onError) const {
             errno = 0;
 
-            (new net::socket::legacy::SocketServer(
-                 [*this](net::socket::legacy::SocketConnection* socketConnection) -> void { // onConnect
-                     onConnect(socketConnection);
-                     socketConnection->setProtocol<HTTPServerContext*>(
-                         new HTTPServerContext(socketConnection, [*this](Request& req, Response& res) -> void {
-                             onRequestReady(req, res);
-                         }));
-                 },
-                 [*this](net::socket::legacy::SocketConnection* socketConnection) -> void { // onDisconnect
-                     onDisconnect(socketConnection);
-                     socketConnection->getProtocol<HTTPServerContext*>([](HTTPServerContext*& protocol) -> void {
-                         delete protocol;
-                     });
-                 },
-                 [](net::socket::legacy::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
-                     socketConnection->getProtocol<HTTPServerContext*>([&junk, &junkSize](HTTPServerContext*& protocol) -> void {
-                         protocol->receiveRequestData(junk, junkSize);
-                     });
-                 },
-                 [](net::socket::legacy::SocketConnection* socketConnection, int errnum) -> void { // onReadError
-                     socketConnection->getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
-                         protocol->onReadError(errnum);
-                     });
-                 },
-                 [](net::socket::legacy::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
-                     socketConnection->getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
-                         protocol->onWriteError(errnum);
-                     });
-                 }))
-                ->listen(host, port, 5, [&](int err) -> void {
-                    if (onError) {
-                        onError(err);
-                    }
-                });
+            socketServer()->listen(port, 5, [&](int err) -> void {
+                if (onError) {
+                    onError(err);
+                }
+            });
+        }
+
+        void HTTPServer::listen(const std::string& host, in_port_t port, const std::function<void(int err)>& onError) const {
+            errno = 0;
+
+            socketServer()->listen(host, port, 5, [&](int err) -> void {
+                if (onError) {
+                    onError(err);
+                }
+            });
         }
 
     } // namespace legacy
