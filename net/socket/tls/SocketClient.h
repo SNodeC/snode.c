@@ -53,7 +53,6 @@ namespace net::socket::tls {
     private:
         SSL_CTX* ctx = nullptr;
         unsigned long sslErr = 0;
-        static int passwordCallback(char* buf, int size, int rwflag, void* u);
 
         std::function<void(int err)> onError;
     };

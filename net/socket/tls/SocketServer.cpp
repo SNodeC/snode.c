@@ -171,14 +171,4 @@ namespace net::socket::tls {
         }
     }
 
-    int SocketServer::passwordCallback(char* buf, int size, [[maybe_unused]] int rwflag, void* u) {
-        strncpy(buf, static_cast<char*>(u), size);
-        buf[size - 1] = '\0';
-
-        memset(u, 0, ::strlen(static_cast<char*>(u))); // garble password
-        free(u);
-
-        return ::strlen(buf);
-    }
-
 }; // namespace net::socket::tls
