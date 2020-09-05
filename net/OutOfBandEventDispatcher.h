@@ -22,6 +22,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <sys/select.h>
+#include <tuple> // for tuple
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -36,7 +37,8 @@ namespace net {
     public:
         using EventDispatcher<OutOfBandEventReceiver>::EventDispatcher;
 
-        int dispatch(const fd_set& fdSet, int count) override;
+    private:
+        void dispatchEventTo(OutOfBandEventReceiver*) override;
     };
 
 } // namespace net

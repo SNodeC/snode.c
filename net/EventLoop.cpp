@@ -23,13 +23,21 @@
 #include <cerrno> // for EINTR, errno
 #include <csignal>
 #include <cstdlib>
+#include <ctime>
 #include <easylogging++.h>
 #include <sys/time.h> // for timeval
+#include <tuple>      // for tie, tuple
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "EventLoop.h"
 #include "Logger.h"
+#include "timer/Timer.h" // for operator<
+
+#define MAX_READ_INACTIVITY 60
+#define MAX_ACCEPT_INACTIVITY 0
+#define MAX_WRITE_INACTIVITY 60
+#define MAX_OUTOFBAND_INACTIVITY 60
 
 namespace net {
 
@@ -40,10 +48,10 @@ namespace net {
     bool EventLoop::initialized = false;
 
     EventLoop::EventLoop()
-        : readEventDispatcher(readfds)
-        , acceptEventDispatcher(readfds)
-        , writeEventDispatcher(writefds)
-        , outOfBandEventDispatcher(exceptfds) {
+        : readEventDispatcher(readfds, MAX_READ_INACTIVITY)
+        , acceptEventDispatcher(readfds, MAX_ACCEPT_INACTIVITY)
+        , writeEventDispatcher(writefds, MAX_WRITE_INACTIVITY)
+        , outOfBandEventDispatcher(exceptfds, MAX_OUTOFBAND_INACTIVITY) {
     }
 
     void EventLoop::tick() {
@@ -63,15 +71,37 @@ namespace net {
 
         struct timeval tv = timerEventDispatcher.getNextTimeout();
 
+        if (nextInactivityTimeout.tv_sec >= 0) {
+            tv = std::min(tv, nextInactivityTimeout);
+        }
+
         if (maxFd >= 0 || !timerEventDispatcher.empty()) {
             int counter = select(maxFd + 1, &_readfds, &_writefds, &_exceptfds, &tv);
 
             if (counter >= 0) {
+                time_t currentTime = time(nullptr);
+                time_t timeout;
+                nextInactivityTimeout = {-1, 0};
+
                 timerEventDispatcher.dispatch();
-                counter = readEventDispatcher.dispatch(_readfds, counter);
-                counter = writeEventDispatcher.dispatch(_writefds, counter);
-                counter = acceptEventDispatcher.dispatch(_readfds, counter);
-                counter = outOfBandEventDispatcher.dispatch(_exceptfds, counter);
+
+                std::tie(counter, timeout) = readEventDispatcher.dispatchEvents(_readfds, counter, currentTime);
+                if (timeout >= 0) {
+                    nextInactivityTimeout.tv_sec = timeout;
+                }
+                std::tie(counter, timeout) = writeEventDispatcher.dispatchEvents(_writefds, counter, currentTime);
+                if (timeout >= 0) {
+                    nextInactivityTimeout.tv_sec = std::min(timeout, nextInactivityTimeout.tv_sec);
+                }
+                std::tie(counter, timeout) = acceptEventDispatcher.dispatchEvents(_readfds, counter, currentTime);
+                if (timeout >= 0) {
+                    nextInactivityTimeout.tv_sec = std::min(timeout, nextInactivityTimeout.tv_sec);
+                }
+                std::tie(counter, timeout) = outOfBandEventDispatcher.dispatchEvents(_exceptfds, counter, currentTime);
+                if (timeout >= 0) {
+                    nextInactivityTimeout.tv_sec = std::min(timeout, nextInactivityTimeout.tv_sec);
+                }
+
                 assert(counter == 0);
             } else if (errno != EINTR) {
                 PLOG(ERROR) << "select";

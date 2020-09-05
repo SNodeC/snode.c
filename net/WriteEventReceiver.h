@@ -27,12 +27,17 @@
 
 namespace net {
 
+    class WriteEventDispatcher;
+
     class WriteEventReceiver : public EventReceiver {
-    public:
+    protected:
         virtual void writeEvent() = 0;
 
+    public:
         void enable() override;
         void disable() override;
+
+        friend WriteEventDispatcher;
     };
 
 } // namespace net

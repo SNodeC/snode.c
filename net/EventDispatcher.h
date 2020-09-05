@@ -22,8 +22,10 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
+#include <ctime>
 #include <list>
 #include <map>
+#include <tuple>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -39,8 +41,9 @@ namespace net {
     public:
         using EventReceiver = EventReceiverT;
 
-        explicit EventDispatcher(fd_set& fdSet) // NOLINT(google-runtime-references)
-            : fdSet(fdSet) {
+        explicit EventDispatcher(fd_set& fdSet, long maxInactivity) // NOLINT(google-runtime-references)
+            : fdSet(fdSet)
+            , maxInactivity(maxInactivity) {
         }
 
         EventDispatcher(const EventDispatcher&) = delete;
@@ -76,6 +79,10 @@ namespace net {
                 // normal
                 disabledEventReceiver.push_back(eventReceiver);
             }
+        }
+
+        void setInactivityTimeout(long maxInactivity) {
+            this->maxInactivity = maxInactivity;
         }
 
     private:
@@ -122,7 +129,39 @@ namespace net {
         }
 
     protected:
-        virtual int dispatch(const fd_set& fdSet, int counter) = 0;
+        std::tuple<int, int> dispatchEvents(const fd_set& fdSet, int counter, time_t currentTime) {
+            time_t nextInactivityTimeout = -1;
+
+            for (const auto& [fd, eventReceivers] : observedEvents) {
+                EventReceiver* eventReceiver = eventReceivers.front();
+                if (FD_ISSET(fd, &fdSet)) {
+                    counter--;
+                    dispatchEventTo(eventReceiver);
+                    eventReceiver->lastTriggered = currentTime;
+                    if (nextInactivityTimeout == -1 && maxInactivity > 0) {
+                        nextInactivityTimeout = maxInactivity;
+                    }
+                } else {
+                    if (maxInactivity > 0) {
+                        time_t inactivity = currentTime - eventReceiver->lastTriggered;
+                        if (inactivity >= maxInactivity) {
+                            eventReceiver->disable();
+                        } else {
+                            if (nextInactivityTimeout == -1) {
+                                nextInactivityTimeout = maxInactivity - inactivity;
+                            } else {
+                                nextInactivityTimeout = std::min(maxInactivity - inactivity, nextInactivityTimeout);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return std::make_tuple(counter, nextInactivityTimeout);
+        }
+
+    private:
+        virtual void dispatchEventTo(EventReceiver*) = 0;
 
         std::map<int, std::list<EventReceiver*>> observedEvents;
 
@@ -131,6 +170,9 @@ namespace net {
         std::list<EventReceiver*> disabledEventReceiver;
 
         fd_set& fdSet;
+
+    protected:
+        long maxInactivity;
 
         friend class EventLoop;
     };
