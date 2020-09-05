@@ -28,6 +28,10 @@
 
 #include "socket/legacy/SocketConnection.h"
 
+namespace net::socket::legacy {
+    class SocketServer;
+}
+
 namespace http {
 
     class Request;
@@ -43,10 +47,12 @@ namespace http {
 
             HTTPServer& operator=(const HTTPServer& webApp) = delete;
 
-            void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr);
-            void listen(const std::string& host, in_port_t port, const std::function<void(int err)>& onError = nullptr);
-
         protected:
+            net::socket::legacy::SocketServer* socketServer() const;
+
+            void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr) const;
+            void listen(const std::string& host, in_port_t port, const std::function<void(int err)>& onError = nullptr) const;
+
             std::function<void(net::socket::legacy::SocketConnection*)> onConnect;
             std::function<void(Request& req, Response& res)> onRequestReady;
             std::function<void(net::socket::legacy::SocketConnection*)> onDisconnect;

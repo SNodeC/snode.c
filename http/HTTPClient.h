@@ -53,21 +53,25 @@ namespace http {
         void get(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError,
                  const net::socket::InetAddress& localHost = net::socket::InetAddress()) {
             std::string path = "";
+            std::string host = "";
 
             for (auto& [name, value] : options) {
                 if (name == "path") {
                     path = std::any_cast<const char*>(value);
                 }
+                if (name == "host") {
+                    host = std::any_cast<const char*>(value);
+                }
             }
 
-            this->request = "GET " + path + " HTTP/1.1\r\n\r\n";
+            this->request = "GET " + path + " HTTP/1.1\r\nHost: " + host + "\r\n\r\n";
 
             this->connect(options, onError, localHost);
         }
 
     protected:
         void connect(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError,
-                     const net::socket::InetAddress& localHost = net::socket::InetAddress()) {
+                     const net::socket::InetAddress& localHost = net::socket::InetAddress()) const {
             errno = 0;
 
             (new SocketClient(
