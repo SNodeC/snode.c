@@ -41,8 +41,9 @@ namespace net {
     public:
         using EventReceiver = EventReceiverT;
 
-        explicit EventDispatcher(fd_set& fdSet) // NOLINT(google-runtime-references)
-            : fdSet(fdSet) {
+        explicit EventDispatcher(fd_set& fdSet, long maxInactivity) // NOLINT(google-runtime-references)
+            : fdSet(fdSet)
+            , maxInactivity(maxInactivity) {
         }
 
         EventDispatcher(const EventDispatcher&) = delete;
@@ -78,6 +79,10 @@ namespace net {
                 // normal
                 disabledEventReceiver.push_back(eventReceiver);
             }
+        }
+
+        void setInactivityTimeout(long maxInactivity) {
+            this->maxInactivity = maxInactivity;
         }
 
     private:
@@ -133,6 +138,9 @@ namespace net {
         std::list<EventReceiver*> disabledEventReceiver;
 
         fd_set& fdSet;
+
+    protected:
+        long maxInactivity;
 
         friend class EventLoop;
     };

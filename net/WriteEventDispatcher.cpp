@@ -29,8 +29,6 @@
 
 // IWYU pragma: no_include "Writer.h"
 
-#define MAX_WRITE_INACTIVITY 90
-
 namespace net {
 
     std::tuple<int, int> WriteEventDispatcher::dispatch(const fd_set& fdSet, int counter, time_t currentTime) {
@@ -41,18 +39,20 @@ namespace net {
                 counter--;
                 eventReceivers.front()->writeEvent();
                 eventReceivers.front()->lastTriggered = currentTime;
-                if (nextInactivityTimeout == -1) {
-                    nextInactivityTimeout = MAX_WRITE_INACTIVITY;
+                if (nextInactivityTimeout == -1 && maxInactivity > 0) {
+                    nextInactivityTimeout = maxInactivity;
                 }
             } else {
-                time_t inactivity = currentTime - eventReceivers.front()->lastTriggered;
-                if (inactivity >= MAX_WRITE_INACTIVITY) {
-                    eventReceivers.front()->disable();
-                } else {
-                    if (nextInactivityTimeout == -1) {
-                        nextInactivityTimeout = MAX_WRITE_INACTIVITY - inactivity;
+                if (maxInactivity > 0) {
+                    time_t inactivity = currentTime - eventReceivers.front()->lastTriggered;
+                    if (inactivity >= maxInactivity) {
+                        eventReceivers.front()->disable();
                     } else {
-                        nextInactivityTimeout = std::min(MAX_WRITE_INACTIVITY - inactivity, nextInactivityTimeout);
+                        if (nextInactivityTimeout == -1) {
+                            nextInactivityTimeout = maxInactivity - inactivity;
+                        } else {
+                            nextInactivityTimeout = std::min(maxInactivity - inactivity, nextInactivityTimeout);
+                        }
                     }
                 }
             }

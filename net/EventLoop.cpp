@@ -34,6 +34,10 @@
 #include "Logger.h"
 #include "timer/Timer.h" // for operator<
 
+#define MAX_READ_INACTIVITY 90
+#define MAX_WRITE_INACTIVITY 90
+#define MAX_OUTOFBAND_INACTIVITY 90
+
 namespace net {
 
     EventLoop EventLoop::eventLoop;
@@ -43,10 +47,10 @@ namespace net {
     bool EventLoop::initialized = false;
 
     EventLoop::EventLoop()
-        : readEventDispatcher(readfds)
-        , acceptEventDispatcher(readfds)
-        , writeEventDispatcher(writefds)
-        , outOfBandEventDispatcher(exceptfds) {
+        : readEventDispatcher(readfds, MAX_READ_INACTIVITY)
+        , acceptEventDispatcher(readfds, 0)
+        , writeEventDispatcher(writefds, MAX_WRITE_INACTIVITY)
+        , outOfBandEventDispatcher(exceptfds, MAX_OUTOFBAND_INACTIVITY) {
     }
 
     void EventLoop::tick() {
