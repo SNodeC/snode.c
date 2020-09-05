@@ -30,21 +30,8 @@
 
 namespace net {
 
-    std::tuple<int, int> AcceptEventDispatcher::dispatch(const fd_set& fdSet, int counter, [[maybe_unused]] time_t currentTime) {
-        if (counter > 0) {
-            for (const auto& [fd, eventReceivers] : observedEvents) {
-                if (counter == 0) {
-                    break;
-                }
-                if (FD_ISSET(fd, &fdSet)) {
-                    counter--;
-                    eventReceivers.front()->acceptEvent();
-                    eventReceivers.front()->lastTriggered = time(nullptr);
-                }
-            }
-        }
-
-        return std::make_tuple(counter, -1);
+    void AcceptEventDispatcher::dispatch(AcceptEventReceiver* eventReceiver) {
+        eventReceiver->acceptEvent();
     }
 
 } // namespace net

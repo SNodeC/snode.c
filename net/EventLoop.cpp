@@ -84,19 +84,19 @@ namespace net {
 
                 timerEventDispatcher.dispatch();
 
-                std::tie(counter, timeout) = readEventDispatcher.dispatch(_readfds, counter, currentTime);
+                std::tie(counter, timeout) = readEventDispatcher.dispatchEvents(_readfds, counter, currentTime);
                 if (timeout >= 0) {
                     nextInactivityTimeout.tv_sec = timeout;
                 }
-                std::tie(counter, timeout) = writeEventDispatcher.dispatch(_writefds, counter, currentTime);
+                std::tie(counter, timeout) = writeEventDispatcher.dispatchEvents(_writefds, counter, currentTime);
                 if (timeout >= 0) {
                     nextInactivityTimeout.tv_sec = std::min(timeout, nextInactivityTimeout.tv_sec);
                 }
-                std::tie(counter, timeout) = acceptEventDispatcher.dispatch(_readfds, counter, currentTime);
+                std::tie(counter, timeout) = acceptEventDispatcher.dispatchEvents(_readfds, counter, currentTime);
                 if (timeout >= 0) {
                     nextInactivityTimeout.tv_sec = std::min(timeout, nextInactivityTimeout.tv_sec);
                 }
-                std::tie(counter, timeout) = outOfBandEventDispatcher.dispatch(_exceptfds, counter, currentTime);
+                std::tie(counter, timeout) = outOfBandEventDispatcher.dispatchEvents(_exceptfds, counter, currentTime);
                 if (timeout >= 0) {
                     nextInactivityTimeout.tv_sec = std::min(timeout, nextInactivityTimeout.tv_sec);
                 }

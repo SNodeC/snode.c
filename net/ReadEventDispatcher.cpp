@@ -31,34 +31,8 @@
 
 namespace net {
 
-    std::tuple<int, int> ReadEventDispatcher::dispatch(const fd_set& fdSet, int counter, time_t currentTime) {
-        time_t nextInactivityTimeout = -1;
-
-        for (const auto& [fd, eventReceivers] : observedEvents) {
-            if (FD_ISSET(fd, &fdSet)) {
-                counter--;
-                eventReceivers.front()->readEvent();
-                eventReceivers.front()->lastTriggered = currentTime;
-                if (nextInactivityTimeout == -1 && maxInactivity > 0) {
-                    nextInactivityTimeout = maxInactivity;
-                }
-            } else {
-                if (maxInactivity > 0) {
-                    time_t inactivity = currentTime - eventReceivers.front()->lastTriggered;
-                    if (inactivity >= maxInactivity) {
-                        eventReceivers.front()->disable();
-                    } else {
-                        if (nextInactivityTimeout == -1) {
-                            nextInactivityTimeout = maxInactivity - inactivity;
-                        } else {
-                            nextInactivityTimeout = std::min(maxInactivity - inactivity, nextInactivityTimeout);
-                        }
-                    }
-                }
-            }
-        }
-
-        return std::make_tuple(counter, nextInactivityTimeout);
+    void ReadEventDispatcher::dispatch(ReadEventReceiver* eventReceiver) {
+        eventReceiver->readEvent();
     }
 
 } // namespace net
