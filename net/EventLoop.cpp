@@ -76,25 +76,23 @@ namespace net {
             if (counter >= 0) {
                 timerEventDispatcher.dispatch();
                 time_t timeout;
-                time_t minInactiveTimeout = -1;
+                nextInactivityTimeout = {-1, 0};
                 std::tie(counter, timeout) = readEventDispatcher.dispatch(_readfds, counter);
                 if (timeout >= 0) {
-                    minInactiveTimeout = timeout;
+                    nextInactivityTimeout.tv_sec = timeout;
                 }
                 std::tie(counter, timeout) = writeEventDispatcher.dispatch(_writefds, counter);
                 if (timeout >= 0) {
-                    minInactiveTimeout = std::min(timeout, minInactiveTimeout);
+                    nextInactivityTimeout.tv_sec = std::min(timeout, nextInactivityTimeout.tv_sec);
                 }
                 std::tie(counter, timeout) = acceptEventDispatcher.dispatch(_readfds, counter);
                 if (timeout >= 0) {
-                    minInactiveTimeout = std::min(timeout, minInactiveTimeout);
+                    nextInactivityTimeout.tv_sec = std::min(timeout, nextInactivityTimeout.tv_sec);
                 }
                 std::tie(counter, timeout) = outOfBandEventDispatcher.dispatch(_exceptfds, counter);
                 if (timeout >= 0) {
-                    minInactiveTimeout = std::min(timeout, minInactiveTimeout);
+                    nextInactivityTimeout.tv_sec = std::min(timeout, nextInactivityTimeout.tv_sec);
                 }
-                nextInactivityTimeout.tv_sec = minInactiveTimeout;
-                nextInactivityTimeout.tv_usec = 0;
                 assert(counter == 0);
             } else if (errno != EINTR) {
                 PLOG(ERROR) << "select";
