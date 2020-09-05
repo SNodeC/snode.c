@@ -21,16 +21,19 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <any>
+#include <map>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "../WebApp.h"
-#include "legacy/HTTPServerT.h"
+#include "legacy/HTTPServer.h"
 
 namespace express::legacy {
 
     class WebApp : public express::WebApp {
     public:
-        explicit WebApp();
+        explicit WebApp(const std::map<std::string, std::any>& options = {{}});
 
         WebApp& operator=(const express::WebApp& webApp) = delete;
 
@@ -49,7 +52,7 @@ namespace express::legacy {
         std::function<void(net::socket::legacy::SocketConnection*)> _onConnect = nullptr;
         std::function<void(net::socket::legacy::SocketConnection*)> _onDisconnect = nullptr;
 
-        http::legacy::HTTPServerT httpServer;
+        http::legacy::HTTPServer httpServer;
 
     private:
         using express::WebApp::start;

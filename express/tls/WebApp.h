@@ -21,6 +21,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <any>
+#include <map>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "../WebApp.h"
@@ -30,8 +33,7 @@ namespace express::tls {
 
     class WebApp : public express::WebApp {
     public:
-        explicit WebApp(const std::string& cert, const std::string& key, const std::string& password, const std::string& caFile = "",
-                        const std::string& caDir = "", bool useDefaultCADir = false);
+        explicit WebApp(const std::map<std::string, std::any>& options = {{}});
 
         WebApp& operator=(const express::WebApp& webApp) = delete;
 

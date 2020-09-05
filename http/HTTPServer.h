@@ -3,6 +3,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <any>
 #include <easylogging++.h>
 #include <functional>
 #include <map>
@@ -19,17 +20,19 @@ namespace http {
     class Response;
 
     template <typename SocketServer>
-    class HTTPServerT {
+    class HTTPServer {
     public:
-        explicit HTTPServerT(const std::function<void(typename SocketServer::SocketConnection*)>& onConnect,
+        explicit HTTPServer(const std::function<void(typename SocketServer::SocketConnection*)>& onConnect,
                              const std::function<void(Request& req, Response& res)>& onRequestReady,
-                             const std::function<void(typename SocketServer::SocketConnection*)>& onDisconnect)
+                             const std::function<void(typename SocketServer::SocketConnection*)>& onDisconnect,
+                             const std::map<std::string, std::any>& options = {{}})
             : onConnect(onConnect)
             , onRequestReady(onRequestReady)
-            , onDisconnect(onDisconnect) {
+            , onDisconnect(onDisconnect)
+            , options(options) {
         }
 
-        HTTPServerT& operator=(const HTTPServerT& webApp) = delete;
+        HTTPServer& operator=(const HTTPServer& webApp) = delete;
 
     protected:
         SocketServer* socketServer() const {
@@ -61,7 +64,8 @@ namespace http {
                     socketConnection->template getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
                         protocol->onWriteError(errnum);
                     });
-                });
+                },
+                options);
         }
 
     public:
@@ -89,6 +93,8 @@ namespace http {
         std::function<void(typename SocketServer::SocketConnection*)> onConnect;
         std::function<void(Request& req, Response& res)> onRequestReady;
         std::function<void(typename SocketServer::SocketConnection*)> onDisconnect;
+
+        std::map<std::string, std::any> options;
     };
 
 } // namespace http

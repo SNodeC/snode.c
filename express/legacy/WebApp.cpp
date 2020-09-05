@@ -24,7 +24,7 @@
 
 namespace express::legacy {
 
-    WebApp::WebApp()
+    WebApp::WebApp(const std::map<std::string, std::any>& options)
         : httpServer(
               [this]([[maybe_unused]] net::socket::legacy::SocketConnection* socketConnection) -> void { // onConnect
                   if (_onConnect != nullptr) {
@@ -38,7 +38,8 @@ namespace express::legacy {
                   if (_onDisconnect != nullptr) {
                       _onDisconnect(socketConnection);
                   }
-              }) {
+              },
+              options) {
     }
 
     void WebApp::listen(in_port_t port, const std::function<void(int err)>& onError) {
