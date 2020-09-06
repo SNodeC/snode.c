@@ -97,7 +97,7 @@ namespace net {
             return fd;
         }
 
-        long observeEvents() {
+        long observeEnabledEvents() {
             long nextTimeout = LONG_MAX;
 
             for (EventReceiver* eventReceiver : enabledEventReceiver) {
@@ -111,7 +111,7 @@ namespace net {
             return nextTimeout;
         }
 
-        long dispatchEvents(const fd_set& fdSet, int& counter, time_t currentTime) {
+        long dispatchActiveEvents(const fd_set& fdSet, int& counter, time_t currentTime) {
             long nextInactivityTimeout = LONG_MAX;
 
             for (const auto& [fd, eventReceivers] : observedEventReceiver) {
@@ -135,7 +135,7 @@ namespace net {
             return nextInactivityTimeout;
         }
 
-        void unobserveEvents() {
+        void unobserveDisabledEvents() {
             for (EventReceiver* eventReceiver : disabledEventReceiver) {
                 int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
                 observedEventReceiver[fd].remove(eventReceiver);
@@ -149,13 +149,12 @@ namespace net {
             disabledEventReceiver.clear();
         }
 
-        void unobserveObservedEvents() {
+        void disableObservedEvents() {
             for (auto& [fd, eventReceivers] : observedEventReceiver) {
                 for (EventReceiver* eventReceiver : eventReceivers) {
                     disabledEventReceiver.push_back(eventReceiver);
                 }
             }
-            unobserveEvents();
         }
 
         virtual void dispatchEventTo(EventReceiver*) = 0;

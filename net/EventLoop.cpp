@@ -53,16 +53,16 @@ namespace net {
     }
 
     void EventLoop::tick() {
-        long nextTimeout = readEventDispatcher.observeEvents();
+        long nextTimeout = readEventDispatcher.observeEnabledEvents();
         nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
 
-        nextTimeout = writeEventDispatcher.observeEvents();
+        nextTimeout = writeEventDispatcher.observeEnabledEvents();
         nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
 
-        nextTimeout = acceptEventDispatcher.observeEvents();
+        nextTimeout = acceptEventDispatcher.observeEnabledEvents();
         nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
 
-        nextTimeout = outOfBandEventDispatcher.observeEvents();
+        nextTimeout = outOfBandEventDispatcher.observeEnabledEvents();
         nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
 
         int maxFd = readEventDispatcher.getLargestFd();
@@ -89,16 +89,16 @@ namespace net {
                 time_t currentTime = time(nullptr);
                 nextInactivityTimeout = {LONG_MAX, 0};
 
-                nextTimeout = readEventDispatcher.dispatchEvents(_readfds, counter, currentTime);
+                nextTimeout = readEventDispatcher.dispatchActiveEvents(_readfds, counter, currentTime);
                 nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
 
-                nextTimeout = writeEventDispatcher.dispatchEvents(_writefds, counter, currentTime);
+                nextTimeout = writeEventDispatcher.dispatchActiveEvents(_writefds, counter, currentTime);
                 nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
 
-                nextTimeout = acceptEventDispatcher.dispatchEvents(_readfds, counter, currentTime);
+                nextTimeout = acceptEventDispatcher.dispatchActiveEvents(_readfds, counter, currentTime);
                 nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
 
-                nextTimeout = outOfBandEventDispatcher.dispatchEvents(_exceptfds, counter, currentTime);
+                nextTimeout = outOfBandEventDispatcher.dispatchActiveEvents(_exceptfds, counter, currentTime);
                 nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
 
                 assert(counter == 0);
@@ -110,10 +110,10 @@ namespace net {
             EventLoop::stopped = true;
         }
 
-        readEventDispatcher.unobserveEvents();
-        writeEventDispatcher.unobserveEvents();
-        acceptEventDispatcher.unobserveEvents();
-        outOfBandEventDispatcher.unobserveEvents();
+        readEventDispatcher.unobserveDisabledEvents();
+        writeEventDispatcher.unobserveDisabledEvents();
+        acceptEventDispatcher.unobserveDisabledEvents();
+        outOfBandEventDispatcher.unobserveDisabledEvents();
     }
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
@@ -145,20 +145,20 @@ namespace net {
                 eventLoop.tick();
             };
 
-            eventLoop.readEventDispatcher.observeEvents();
-            eventLoop.writeEventDispatcher.observeEvents();
-            eventLoop.acceptEventDispatcher.observeEvents();
-            eventLoop.outOfBandEventDispatcher.observeEvents();
+            eventLoop.readEventDispatcher.observeEnabledEvents();
+            eventLoop.writeEventDispatcher.observeEnabledEvents();
+            eventLoop.acceptEventDispatcher.observeEnabledEvents();
+            eventLoop.outOfBandEventDispatcher.observeEnabledEvents();
 
-            eventLoop.readEventDispatcher.unobserveEvents();
-            eventLoop.writeEventDispatcher.unobserveEvents();
-            eventLoop.acceptEventDispatcher.unobserveEvents();
-            eventLoop.outOfBandEventDispatcher.unobserveEvents();
+            eventLoop.readEventDispatcher.disableObservedEvents();
+            eventLoop.writeEventDispatcher.disableObservedEvents();
+            eventLoop.acceptEventDispatcher.disableObservedEvents();
+            eventLoop.outOfBandEventDispatcher.disableObservedEvents();
 
-            eventLoop.readEventDispatcher.unobserveObservedEvents();
-            eventLoop.writeEventDispatcher.unobserveObservedEvents();
-            eventLoop.acceptEventDispatcher.unobserveObservedEvents();
-            eventLoop.outOfBandEventDispatcher.unobserveObservedEvents();
+            eventLoop.readEventDispatcher.unobserveDisabledEvents();
+            eventLoop.writeEventDispatcher.unobserveDisabledEvents();
+            eventLoop.acceptEventDispatcher.unobserveDisabledEvents();
+            eventLoop.outOfBandEventDispatcher.unobserveDisabledEvents();
 
             eventLoop.timerEventDispatcher.cancelAll();
 
