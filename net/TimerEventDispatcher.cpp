@@ -18,7 +18,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <sys/time.h>
+#include <algorithm>  // for copy
+#include <iterator>   // for back_insert_iterator, back_inserter
+#include <sys/time.h> // for timeval, gettimeofday
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -101,9 +103,7 @@ namespace net {
     void TimerEventDispatcher::cancelAll() {
         getNextTimeout();
 
-        for (timer::Timer* timer : timerList) {
-            removedList.push_back(timer);
-        }
+        std::copy(timerList.begin(), timerList.end(), std::back_inserter(removedList));
 
         getNextTimeout();
     }
