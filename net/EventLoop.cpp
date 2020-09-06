@@ -25,7 +25,6 @@
 #include <cstdlib>         // for exit
 #include <ctime>           // for time, time_t
 #include <easylogging++.h> // for PErrorWriter, CERROR, PLOG, Writer
-#include <tuple>           // for tie, tuple
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -100,28 +99,27 @@ namespace net {
                 timerEventDispatcher.dispatch();
 
                 time_t currentTime = time(nullptr);
-                time_t timeout;
                 nextInactivityTimeout = {-1, 0};
 
-                std::tie(counter, timeout) = readEventDispatcher.dispatchEvents(_readfds, counter, currentTime);
-                if (timeout >= 0) {
+                nextTimeout = readEventDispatcher.dispatchEvents(_readfds, counter, currentTime);
+                if (nextTimeout >= 0) {
                     nextInactivityTimeout.tv_sec =
-                        nextInactivityTimeout.tv_sec >= 0 ? std::min(timeout, nextInactivityTimeout.tv_sec) : timeout;
+                        nextInactivityTimeout.tv_sec >= 0 ? std::min(nextTimeout, nextInactivityTimeout.tv_sec) : nextTimeout;
                 }
-                std::tie(counter, timeout) = writeEventDispatcher.dispatchEvents(_writefds, counter, currentTime);
-                if (timeout >= 0) {
+                nextTimeout = writeEventDispatcher.dispatchEvents(_writefds, counter, currentTime);
+                if (nextTimeout >= 0) {
                     nextInactivityTimeout.tv_sec =
-                        nextInactivityTimeout.tv_sec >= 0 ? std::min(timeout, nextInactivityTimeout.tv_sec) : timeout;
+                        nextInactivityTimeout.tv_sec >= 0 ? std::min(nextTimeout, nextInactivityTimeout.tv_sec) : nextTimeout;
                 }
-                std::tie(counter, timeout) = acceptEventDispatcher.dispatchEvents(_readfds, counter, currentTime);
-                if (timeout >= 0) {
+                nextTimeout = acceptEventDispatcher.dispatchEvents(_readfds, counter, currentTime);
+                if (nextTimeout >= 0) {
                     nextInactivityTimeout.tv_sec =
-                        nextInactivityTimeout.tv_sec >= 0 ? std::min(timeout, nextInactivityTimeout.tv_sec) : timeout;
+                        nextInactivityTimeout.tv_sec >= 0 ? std::min(nextTimeout, nextInactivityTimeout.tv_sec) : nextTimeout;
                 }
-                std::tie(counter, timeout) = outOfBandEventDispatcher.dispatchEvents(_exceptfds, counter, currentTime);
-                if (timeout >= 0) {
+                nextTimeout = outOfBandEventDispatcher.dispatchEvents(_exceptfds, counter, currentTime);
+                if (nextTimeout >= 0) {
                     nextInactivityTimeout.tv_sec =
-                        nextInactivityTimeout.tv_sec >= 0 ? std::min(timeout, nextInactivityTimeout.tv_sec) : timeout;
+                        nextInactivityTimeout.tv_sec >= 0 ? std::min(nextTimeout, nextInactivityTimeout.tv_sec) : nextTimeout;
                 }
 
                 assert(counter == 0);

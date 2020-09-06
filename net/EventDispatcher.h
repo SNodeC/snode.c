@@ -134,8 +134,8 @@ namespace net {
         }
 
     protected:
-        std::tuple<int, int> dispatchEvents(const fd_set& fdSet, int counter, time_t currentTime) {
-            time_t nextInactivityTimeout = -1;
+        long dispatchEvents(const fd_set& fdSet, int& counter, time_t currentTime) {
+            long nextInactivityTimeout = -1;
 
             for (const auto& [fd, eventReceivers] : observedEvents) {
                 EventReceiver* eventReceiver = eventReceivers.front();
@@ -163,7 +163,7 @@ namespace net {
                 }
             }
 
-            return std::make_tuple(counter, nextInactivityTimeout);
+            return nextInactivityTimeout;
         }
 
     private:
