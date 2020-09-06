@@ -93,5 +93,7 @@ target_include_directories (net PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${OPENSSL_INC
 install(TARGETS net LIBRARY DESTINATION lib)
 
 if(CHECK_INCLUDES)
-    set_property(TARGET net PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
+    set_property(TARGET net PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path} ${iwyu_options})
 endif(CHECK_INCLUDES)
+
+message(STATUS ${iwyu_path} ${iwyu_options})

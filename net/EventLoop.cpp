@@ -18,20 +18,19 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <algorithm>
-#include <cassert>
-#include <cerrno> // for EINTR, errno
-#include <csignal>
-#include <cstdlib>
-#include <ctime>
-#include <easylogging++.h>
-#include <sys/time.h> // for timeval
-#include <tuple>      // for tie, tuple
+#include <algorithm>       // for min, max
+#include <cassert>         // for assert
+#include <cerrno>          // for EINTR, errno
+#include <csignal>         // for signal, SIGABRT, SIGHUP, SIGINT, SIGPIPE
+#include <cstdlib>         // for exit
+#include <ctime>           // for time, time_t
+#include <easylogging++.h> // for PErrorWriter, CERROR, PLOG, Writer
+#include <tuple>           // for tie, tuple
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "EventLoop.h"
-#include "Logger.h"
+#include "EventLoop.h"   // for EventLoop
+#include "Logger.h"      // for Logger
 #include "timer/Timer.h" // for operator<
 
 #define MAX_READ_INACTIVITY 60

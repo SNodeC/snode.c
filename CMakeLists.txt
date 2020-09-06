@@ -64,7 +64,9 @@ find_program(iwyu_path NAMES include-what-you-use iwyu)
 if(NOT iwyu_path)
   message(FATAL_ERROR "Could not find the program include-what-you-use")
 endif()
-option(CHECK_INCLUDES "Check used headers" ${iwyu_path}})
+option(CHECK_INCLUDES "Check used headers")
+
+set(iwyu_options -Xiwyu --verbose=1 CACHE STRING "Path to iwyu with options" FORCE)
 
 #target_add_ide_support(net)
 #target_add_ide_support(http)
