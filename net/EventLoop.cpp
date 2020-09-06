@@ -33,7 +33,7 @@
 #include "timer/Timer.h" // for operator<
 
 #define MAX_READ_INACTIVITY 60
-#define MAX_ACCEPT_INACTIVITY -1
+#define MAX_ACCEPT_INACTIVITY LONG_MAX
 #define MAX_WRITE_INACTIVITY 60
 #define MAX_OUTOFBAND_INACTIVITY 60
 
@@ -54,28 +54,16 @@ namespace net {
 
     void EventLoop::tick() {
         long nextTimeout = readEventDispatcher.observeEnabledEvents();
-        if (nextTimeout >= 0) {
-            nextInactivityTimeout.tv_sec =
-                nextInactivityTimeout.tv_sec >= 0 ? std::min(nextTimeout, nextInactivityTimeout.tv_sec) : nextTimeout;
-        }
+        nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
 
         nextTimeout = writeEventDispatcher.observeEnabledEvents();
-        if (nextTimeout >= 0) {
-            nextInactivityTimeout.tv_sec =
-                nextInactivityTimeout.tv_sec >= 0 ? std::min(nextTimeout, nextInactivityTimeout.tv_sec) : nextTimeout;
-        }
+        nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
 
         nextTimeout = acceptEventDispatcher.observeEnabledEvents();
-        if (nextTimeout >= 0) {
-            nextInactivityTimeout.tv_sec =
-                nextInactivityTimeout.tv_sec >= 0 ? std::min(nextTimeout, nextInactivityTimeout.tv_sec) : nextTimeout;
-        }
+        nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
 
         nextTimeout = outOfBandEventDispatcher.observeEnabledEvents();
-        if (nextTimeout >= 0) {
-            nextInactivityTimeout.tv_sec =
-                nextInactivityTimeout.tv_sec >= 0 ? std::min(nextTimeout, nextInactivityTimeout.tv_sec) : nextTimeout;
-        }
+        nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
 
         int maxFd = readEventDispatcher.getLargestFd();
         maxFd = std::max(writeEventDispatcher.getLargestFd(), maxFd);
@@ -99,28 +87,19 @@ namespace net {
                 timerEventDispatcher.dispatch();
 
                 time_t currentTime = time(nullptr);
-                nextInactivityTimeout = {-1, 0};
+                nextInactivityTimeout = {LONG_MAX, 0};
 
                 nextTimeout = readEventDispatcher.dispatchEvents(_readfds, counter, currentTime);
-                if (nextTimeout >= 0) {
-                    nextInactivityTimeout.tv_sec =
-                        nextInactivityTimeout.tv_sec >= 0 ? std::min(nextTimeout, nextInactivityTimeout.tv_sec) : nextTimeout;
-                }
+                nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
+
                 nextTimeout = writeEventDispatcher.dispatchEvents(_writefds, counter, currentTime);
-                if (nextTimeout >= 0) {
-                    nextInactivityTimeout.tv_sec =
-                        nextInactivityTimeout.tv_sec >= 0 ? std::min(nextTimeout, nextInactivityTimeout.tv_sec) : nextTimeout;
-                }
+                nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
+
                 nextTimeout = acceptEventDispatcher.dispatchEvents(_readfds, counter, currentTime);
-                if (nextTimeout >= 0) {
-                    nextInactivityTimeout.tv_sec =
-                        nextInactivityTimeout.tv_sec >= 0 ? std::min(nextTimeout, nextInactivityTimeout.tv_sec) : nextTimeout;
-                }
+                nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
+
                 nextTimeout = outOfBandEventDispatcher.dispatchEvents(_exceptfds, counter, currentTime);
-                if (nextTimeout >= 0) {
-                    nextInactivityTimeout.tv_sec =
-                        nextInactivityTimeout.tv_sec >= 0 ? std::min(nextTimeout, nextInactivityTimeout.tv_sec) : nextTimeout;
-                }
+                nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
 
                 assert(counter == 0);
             } else if (errno != EINTR) {

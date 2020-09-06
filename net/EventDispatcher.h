@@ -22,6 +22,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
+#include <climits>
 #include <ctime>
 #include <list>
 #include <map>
@@ -97,13 +98,13 @@ namespace net {
         }
 
         long observeEnabledEvents() {
-            long nextTimeout = -1;
+            long nextTimeout = LONG_MAX;
 
             for (EventReceiver* eventReceiver : enabledEventReceiver) {
                 int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
                 observedEvents[fd].push_front(eventReceiver);
                 FD_SET(fd, &fdSet);
-                nextTimeout = nextTimeout == -1 ? eventReceiver->getTimeout() : std::min(nextTimeout, eventReceiver->getTimeout());
+                nextTimeout = std::min(nextTimeout, eventReceiver->getTimeout());
             }
             enabledEventReceiver.clear();
 
@@ -135,7 +136,7 @@ namespace net {
 
     protected:
         long dispatchEvents(const fd_set& fdSet, int& counter, time_t currentTime) {
-            long nextInactivityTimeout = -1;
+            long nextInactivityTimeout = LONG_MAX;
 
             for (const auto& [fd, eventReceivers] : observedEvents) {
                 EventReceiver* eventReceiver = eventReceivers.front();
@@ -144,21 +145,13 @@ namespace net {
                     counter--;
                     dispatchEventTo(eventReceiver);
                     eventReceiver->lastTriggered = currentTime;
-                    if (nextInactivityTimeout == -1 && maxInactivity >= 0) {
-                        nextInactivityTimeout = maxInactivity;
-                    }
+                    nextInactivityTimeout = std::min(nextInactivityTimeout, maxInactivity);
                 } else {
-                    if (maxInactivity >= 0) {
-                        time_t inactivity = currentTime - eventReceiver->lastTriggered;
-                        if (inactivity >= maxInactivity) {
-                            eventReceiver->disable();
-                        } else {
-                            if (nextInactivityTimeout == -1) {
-                                nextInactivityTimeout = maxInactivity - inactivity;
-                            } else {
-                                nextInactivityTimeout = std::min(maxInactivity - inactivity, nextInactivityTimeout);
-                            }
-                        }
+                    long inactivity = currentTime - eventReceiver->lastTriggered;
+                    if (inactivity >= maxInactivity) {
+                        eventReceiver->disable();
+                    } else {
+                        nextInactivityTimeout = std::min(maxInactivity - inactivity, nextInactivityTimeout);
                     }
                 }
             }
