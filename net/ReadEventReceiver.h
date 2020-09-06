@@ -29,10 +29,14 @@ namespace net {
 
     class ReadEventReceiver : public EventReceiver {
     protected:
+        ReadEventReceiver();
+
         virtual void readEvent() = 0;
 
     public:
-        void enable() override;
+        void setTimeout(long timeout = TIMEOUT::DEFAULT);
+
+        void enable(long timeout = TIMEOUT::IGNORE) override;
         void disable() override;
 
         friend class ReadEventDispatcher;

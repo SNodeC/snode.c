@@ -47,7 +47,16 @@ namespace net {
 
     class EventReceiver : virtual public ObservationCounter {
     protected:
-        EventReceiver() = default;
+        class TIMEOUT {
+        public:
+            static const long IGNORE = -3;
+            static const long DEFAULT = -2;
+            static const long DISABLE = -1;
+        };
+
+        EventReceiver(long timeout)
+            : maxInactivity(timeout) {
+        }
 
         EventReceiver(const EventReceiver&) = delete;
         EventReceiver& operator=(const EventReceiver&) = delete;
@@ -70,9 +79,25 @@ namespace net {
             return _enabled;
         }
 
+        long getTimeout() const {
+            return maxInactivity;
+        }
+
     protected:
-        virtual void enable() = 0;
+        void setTimeout(long timeout, long defaultTimeout) { // -3: do not change, -2: set default, -1 disable, ...
+            if (timeout != TIMEOUT::IGNORE) {
+                if (timeout != TIMEOUT::DEFAULT) {
+                    this->maxInactivity = timeout;
+                } else {
+                    this->maxInactivity = defaultTimeout;
+                }
+            }
+        }
+
+        virtual void enable(long timeout) = 0;
         virtual void disable() = 0;
+
+        long maxInactivity = -1;
 
     private:
         bool _enabled = false;

@@ -23,8 +23,17 @@
 
 namespace net {
 
-    void OutOfBandEventReceiver::enable() {
+    OutOfBandEventReceiver::OutOfBandEventReceiver()
+        : EventReceiver(EventLoop::instance().getOutOfBandEventDispatcher().getTimeout()) {
+    }
+
+    void OutOfBandEventReceiver::setTimeout(long timeout) {
+        EventReceiver::setTimeout(timeout, EventLoop::instance().getOutOfBandEventDispatcher().getTimeout());
+    }
+
+    void OutOfBandEventReceiver::enable(long timeout) {
         EventLoop::instance().getOutOfBandEventDispatcher().enable(this);
+        setTimeout(timeout);
     }
 
     void OutOfBandEventReceiver::disable() {

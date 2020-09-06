@@ -23,8 +23,17 @@
 
 namespace net {
 
-    void AcceptEventReceiver::enable() {
+    AcceptEventReceiver::AcceptEventReceiver()
+        : EventReceiver(EventLoop::instance().getAcceptEventDispatcher().getTimeout()) {
+    }
+
+    void AcceptEventReceiver::setTimeout(long timeout) {
+        EventReceiver::setTimeout(timeout, EventLoop::instance().getAcceptEventDispatcher().getTimeout());
+    }
+
+    void AcceptEventReceiver::enable(long timeout) {
         EventLoop::instance().getAcceptEventDispatcher().enable(this);
+        setTimeout(timeout);
     }
 
     void AcceptEventReceiver::disable() {
