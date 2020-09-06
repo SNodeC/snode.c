@@ -53,16 +53,16 @@ namespace net {
     }
 
     void EventLoop::tick() {
-        long nextTimeout = readEventDispatcher.observeEnabledEvents();
+        long nextTimeout = readEventDispatcher.observeEvents();
         nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
 
-        nextTimeout = writeEventDispatcher.observeEnabledEvents();
+        nextTimeout = writeEventDispatcher.observeEvents();
         nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
 
-        nextTimeout = acceptEventDispatcher.observeEnabledEvents();
+        nextTimeout = acceptEventDispatcher.observeEvents();
         nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
 
-        nextTimeout = outOfBandEventDispatcher.observeEnabledEvents();
+        nextTimeout = outOfBandEventDispatcher.observeEvents();
         nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
 
         int maxFd = readEventDispatcher.getLargestFd();
@@ -110,10 +110,10 @@ namespace net {
             EventLoop::stopped = true;
         }
 
-        readEventDispatcher.unobserveDisabledEvents();
-        writeEventDispatcher.unobserveDisabledEvents();
-        acceptEventDispatcher.unobserveDisabledEvents();
-        outOfBandEventDispatcher.unobserveDisabledEvents();
+        readEventDispatcher.unobserveEvents();
+        writeEventDispatcher.unobserveEvents();
+        acceptEventDispatcher.unobserveEvents();
+        outOfBandEventDispatcher.unobserveEvents();
     }
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
@@ -145,15 +145,15 @@ namespace net {
                 eventLoop.tick();
             };
 
-            eventLoop.readEventDispatcher.observeEnabledEvents();
-            eventLoop.writeEventDispatcher.observeEnabledEvents();
-            eventLoop.acceptEventDispatcher.observeEnabledEvents();
-            eventLoop.outOfBandEventDispatcher.observeEnabledEvents();
+            eventLoop.readEventDispatcher.observeEvents();
+            eventLoop.writeEventDispatcher.observeEvents();
+            eventLoop.acceptEventDispatcher.observeEvents();
+            eventLoop.outOfBandEventDispatcher.observeEvents();
 
-            eventLoop.readEventDispatcher.unobserveDisabledEvents();
-            eventLoop.writeEventDispatcher.unobserveDisabledEvents();
-            eventLoop.acceptEventDispatcher.unobserveDisabledEvents();
-            eventLoop.outOfBandEventDispatcher.unobserveDisabledEvents();
+            eventLoop.readEventDispatcher.unobserveEvents();
+            eventLoop.writeEventDispatcher.unobserveEvents();
+            eventLoop.acceptEventDispatcher.unobserveEvents();
+            eventLoop.outOfBandEventDispatcher.unobserveEvents();
 
             eventLoop.readEventDispatcher.unobserveObservedEvents();
             eventLoop.writeEventDispatcher.unobserveObservedEvents();
