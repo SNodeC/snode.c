@@ -21,6 +21,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <climits>
 #include <ctime>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -49,9 +50,9 @@ namespace net {
     protected:
         class TIMEOUT {
         public:
-            static const long IGNORE = -3;
-            static const long DEFAULT = -2;
-            static const long DISABLE = -1;
+            static const long IGNORE = -2;
+            static const long DEFAULT = -1;
+            static const long DISABLE = LONG_MAX;
         };
 
         EventReceiver(long timeout)
