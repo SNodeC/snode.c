@@ -23,8 +23,17 @@
 
 namespace net {
 
-    void ReadEventReceiver::enable() {
+    ReadEventReceiver::ReadEventReceiver()
+        : EventReceiver(EventLoop::instance().getReadEventDispatcher().getTimeout()) {
+    }
+
+    void ReadEventReceiver::setTimeout(long timeout) {
+        EventReceiver::setTimeout(timeout, EventLoop::instance().getReadEventDispatcher().getTimeout());
+    }
+
+    void ReadEventReceiver::enable(long timeout) {
         EventLoop::instance().getReadEventDispatcher().enable(this);
+        setTimeout(timeout);
     }
 
     void ReadEventReceiver::disable() {

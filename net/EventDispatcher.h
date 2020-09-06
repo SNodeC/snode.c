@@ -81,8 +81,8 @@ namespace net {
             }
         }
 
-        void setInactivityTimeout(long maxInactivity) {
-            this->maxInactivity = maxInactivity;
+        long getTimeout() const {
+            return maxInactivity;
         }
 
     private:
@@ -96,13 +96,18 @@ namespace net {
             return fd;
         }
 
-        void observeEnabledEvents() {
+        long observeEnabledEvents() {
+            long nextTimeout = -1;
+
             for (EventReceiver* eventReceiver : enabledEventReceiver) {
                 int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
                 observedEvents[fd].push_front(eventReceiver);
                 FD_SET(fd, &fdSet);
+                nextTimeout = nextTimeout == -1 ? eventReceiver->getTimeout() : std::min(nextTimeout, eventReceiver->getTimeout());
             }
             enabledEventReceiver.clear();
+
+            return nextTimeout;
         }
 
         void unobserveDisabledEvents() {
@@ -134,15 +139,16 @@ namespace net {
 
             for (const auto& [fd, eventReceivers] : observedEvents) {
                 EventReceiver* eventReceiver = eventReceivers.front();
+                long maxInactivity = eventReceiver->getTimeout();
                 if (FD_ISSET(fd, &fdSet)) {
                     counter--;
                     dispatchEventTo(eventReceiver);
                     eventReceiver->lastTriggered = currentTime;
-                    if (nextInactivityTimeout == -1 && maxInactivity > 0) {
+                    if (nextInactivityTimeout == -1 && maxInactivity >= 0) {
                         nextInactivityTimeout = maxInactivity;
                     }
                 } else {
-                    if (maxInactivity > 0) {
+                    if (maxInactivity >= 0) {
                         time_t inactivity = currentTime - eventReceiver->lastTriggered;
                         if (inactivity >= maxInactivity) {
                             eventReceiver->disable();
