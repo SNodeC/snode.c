@@ -43,11 +43,11 @@ namespace http {
             options[name] = value;
         }
 
-        std::map<std::string, std::string> getOptions() {
+        const std::map<std::string, std::string>& getOptions() const {
             return options;
         }
 
-        std::string& getValue() {
+        const std::string& getValue() const {
             return value;
         }
 

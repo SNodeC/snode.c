@@ -24,16 +24,22 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "EventReceiver.h"
+
 namespace net {
 
     class AcceptEventReceiver : public EventReceiver {
-    public:
-        ~AcceptEventReceiver() override = default;
+    protected:
+        AcceptEventReceiver();
 
         virtual void acceptEvent() = 0;
 
-        void enable() override;
+    public:
+        void setTimeout(long timeout = TIMEOUT::DEFAULT);
+
+        void enable(long timeout = TIMEOUT::IGNORE) override;
         void disable() override;
+
+        friend class AcceptEventDispatcher;
     };
 
 } // namespace net

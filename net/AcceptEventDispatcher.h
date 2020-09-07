@@ -21,8 +21,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <sys/select.h>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "AcceptEventReceiver.h"
@@ -36,7 +34,8 @@ namespace net {
     public:
         using EventDispatcher<AcceptEventReceiver>::EventDispatcher;
 
-        int dispatch(const fd_set& fdSet, int count) override;
+    private:
+        void dispatchEventTo(AcceptEventReceiver*) override;
     };
 
 } // namespace net

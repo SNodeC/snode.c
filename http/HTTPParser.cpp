@@ -26,7 +26,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "HTTPParser.h"
-#include "httputils.h"
+#include "http_utils.h"
 
 namespace http {
 

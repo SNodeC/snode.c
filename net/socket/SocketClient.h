@@ -21,7 +21,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <any>
+#include <easylogging++.h>
 #include <functional>
+#include <map>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -37,19 +40,35 @@
 
 namespace net::socket {
 
-    template <typename SocketConnection>
+    template <typename SocketConnectionT>
     class SocketClient {
     public:
+        using SocketConnection = SocketConnectionT;
+
+        void* operator new(size_t size) {
+            SocketClient<SocketConnection>::lastAllocAddress = malloc(size);
+
+            return SocketClient<SocketConnection>::lastAllocAddress;
+        }
+
+        void operator delete(void* socketClient_v) {
+            free(socketClient_v);
+        }
+
         SocketClient(const std::function<void(SocketConnection* socketConnection)>& onConnect,
                      const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
                      const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
                      const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
-                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError)
+                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
+                     const std::map<std::string, std::any>& options = {{}})
             : onConnect(onConnect)
             , onDisconnect(onDisconnect)
             , onRead(onRead)
             , onReadError(onReadError)
-            , onWriteError(onWriteError) {
+            , onWriteError(onWriteError)
+            , options(options)
+            , isDynamic(this == SocketClient<SocketConnection>::lastAllocAddress) {
+            SocketClient<SocketConnection>::lastAllocAddress = nullptr;
         }
 
         SocketClient() = delete;
@@ -57,20 +76,43 @@ namespace net::socket {
 
         virtual ~SocketClient() = default;
 
+    public:
         // NOLINTNEXTLINE(google-default-arguments)
-        virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
+        virtual void connect(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError,
                              const InetAddress& localAddress = InetAddress()) {
-            SocketConnection* socketConnection = SocketConnection::create(onRead, onReadError, onWriteError, onDisconnect);
+            std::string host = "";
+            in_port_t port = 0;
+
+            for (auto& [name, value] : options) {
+                if (name == "host") {
+                    host = std::any_cast<const char*>(value);
+                } else if (name == "port") {
+                    port = std::any_cast<int>(value);
+                }
+            }
+
+            connectionCounter++;
+
+            SocketConnection* socketConnection = SocketConnection::create(
+                onRead, onReadError, onWriteError, [this]([[maybe_unused]] SocketConnection* socketConnection) -> void {
+                    onDisconnect(socketConnection);
+                    this->connectionCounter--;
+                    if (this->isDynamic && this->connectionCounter == 0) {
+                        delete this;
+                    }
+                });
 
             socketConnection->open(
                 [this, &socketConnection, &host, &port, &localAddress, &onError](int err) -> void {
                     if (err) {
                         onError(err);
+                        this->connectionCounter--;
                         delete socketConnection;
                     } else {
                         socketConnection->bind(localAddress, [this, &socketConnection, &host, &port, &onError](int err) -> void {
                             if (err) {
                                 onError(err);
+                                this->connectionCounter--;
                                 delete socketConnection;
                             } else {
                                 InetAddress server(host, port);
@@ -80,10 +122,11 @@ namespace net::socket {
                                     : public WriteEventReceiver
                                     , public Socket {
                                 public:
-                                    Connector(SocketConnection* socketConnection, const InetAddress& server,
+                                    Connector(SocketClient* socketClient, SocketConnection* socketConnection, const InetAddress& server,
                                               const std::function<void(SocketConnection* socketConnection)>& onConnect,
                                               const std::function<void(int err)>& onError)
-                                        : socketConnection(socketConnection)
+                                        : socketClient(socketClient)
+                                        , socketConnection(socketConnection)
                                         , server(server)
                                         , onConnect(onConnect)
                                         , onError(onError)
@@ -157,39 +200,26 @@ namespace net::socket {
 
                                     void unobserved() override {
                                         if (!socketConnection->isObserved()) {
+                                            socketClient->connectionCounter--;
                                             delete socketConnection;
                                         }
                                         delete this;
                                     }
 
                                 private:
+                                    SocketClient* socketClient = nullptr;
                                     SocketConnection* socketConnection = nullptr;
                                     InetAddress server;
                                     std::function<void(SocketConnection* socketConnection)> onConnect;
                                     std::function<void(int err)> onError;
                                     net::timer::Timer& timeOut;
                                 };
-
-                                new Connector(socketConnection, server, onConnect, onError);
+                                new Connector(this, socketConnection, server, onConnect, onError);
                             }
                         });
                     }
                 },
                 SOCK_NONBLOCK);
-        }
-
-        virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, in_port_t lPort) {
-            connect(host, port, onError, InetAddress(lPort));
-        }
-
-        virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
-                             const std::string& lHost) {
-            connect(host, port, onError, InetAddress(lHost));
-        }
-
-        virtual void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError, const std::string& lHost,
-                             in_port_t lPort) {
-            connect(host, port, onError, InetAddress(lHost, lPort));
         }
 
     private:
@@ -198,7 +228,18 @@ namespace net::socket {
         std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)> onRead;
         std::function<void(SocketConnection* socketConnection, int errnum)> onReadError;
         std::function<void(SocketConnection* socketConnection, int errnum)> onWriteError;
+
+    protected:
+        std::map<std::string, std::any> options;
+
+        int connectionCounter = 0;
+
+        bool isDynamic = false;
+        static void* lastAllocAddress;
     };
+
+    template <typename SocketConnection>
+    void* SocketClient<SocketConnection>::lastAllocAddress = nullptr;
 
 } // namespace net::socket
 

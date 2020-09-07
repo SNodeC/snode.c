@@ -16,28 +16,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AcceptEventReceiver.h"
+#ifndef SSL_UTILS_H
+#define SSL_UTILS_H
 
-#include "AcceptEventDispatcher.h"
-#include "EventLoop.h"
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net {
+#include <any>
+#include <map>
+#include <openssl/ossl_typ.h> // for SSL_CTX
+#include <string>
 
-    AcceptEventReceiver::AcceptEventReceiver()
-        : EventReceiver(EventLoop::instance().getAcceptEventDispatcher().getTimeout()) {
-    }
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-    void AcceptEventReceiver::setTimeout(long timeout) {
-        EventReceiver::setTimeout(timeout, EventLoop::instance().getAcceptEventDispatcher().getTimeout());
-    }
+namespace net::socket::tls {
+    unsigned long ssl_init_ctx(SSL_CTX* ctx, const std::map<std::string, std::any>& options, bool server = false);
+}
 
-    void AcceptEventReceiver::enable(long timeout) {
-        EventLoop::instance().getAcceptEventDispatcher().enable(this);
-        setTimeout(timeout);
-    }
-
-    void AcceptEventReceiver::disable() {
-        EventLoop::instance().getAcceptEventDispatcher().disable(this);
-    }
-
-} // namespace net
+#endif // SSL_UTILS_H

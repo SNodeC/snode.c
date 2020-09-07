@@ -24,17 +24,14 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "httputils.h"
+#include "http_utils.h"
 #include "socket/SocketConnectionBase.h"
 
 namespace http {
 
     HTTPServerContext::HTTPServerContext(net::socket::SocketConnectionBase* socketConnection,
-                                         const std::function<void(Request& req, Response& res)>& onRequestReady,
-                                         const std::function<void(Request& req, Response& res)>& onResponseFinished)
+                                         const std::function<void(Request& req, Response& res)>& onRequestReady)
         : socketConnection(socketConnection)
-        , onRequestReady(onRequestReady)
-        , onResponseFinished(onResponseFinished)
         , response(this)
         , parser(
               [this](const std::string& method, const std::string& originalUrl, const std::string& fragment, const std::string& httpVersion,
@@ -69,9 +66,10 @@ namespace http {
                   request.body = content;
                   request.contentLength = contentLength;
               },
-              [this]([[maybe_unused]] http::HTTPRequestParser& requestParser) -> void {
+              [this, onRequestReady]([[maybe_unused]] http::HTTPRequestParser& requestParser) -> void {
                   VLOG(1) << "++ Parsed ++";
-                  requestReady();
+                  requestInProgress = true;
+                  onRequestReady(request, response);
               },
               [this](int status, const std::string& reason) -> void {
                   VLOG(1) << "++ Error: " << status << " : " << reason;
@@ -111,15 +109,7 @@ namespace http {
         }
     }
 
-    void HTTPServerContext::requestReady() {
-        requestInProgress = true;
-
-        onRequestReady(request, response);
-    }
-
     void HTTPServerContext::responseCompleted() {
-        onResponseFinished(request, response);
-
         if (!request.keepAlive || !response.keepAlive) {
             terminateConnection();
         }

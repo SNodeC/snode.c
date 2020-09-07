@@ -18,18 +18,24 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <algorithm>
-#include <cassert>
-#include <cerrno> // for EINTR, errno
-#include <csignal>
-#include <cstdlib>
-#include <easylogging++.h>
-#include <sys/time.h> // for timeval
+#include <algorithm>       // for min, max
+#include <cassert>         // for assert
+#include <cerrno>          // for EINTR, errno
+#include <csignal>         // for signal, SIGABRT, SIGHUP, SIGINT, SIGPIPE
+#include <cstdlib>         // for exit
+#include <ctime>           // for time, time_t
+#include <easylogging++.h> // for PErrorWriter, CERROR, PLOG, Writer
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "EventLoop.h"
-#include "Logger.h"
+#include "EventLoop.h"   // for EventLoop
+#include "Logger.h"      // for Logger
+#include "timer/Timer.h" // for operator<
+
+#define MAX_READ_INACTIVITY 60
+#define MAX_ACCEPT_INACTIVITY LONG_MAX
+#define MAX_WRITE_INACTIVITY 60
+#define MAX_OUTOFBAND_INACTIVITY 60
 
 namespace net {
 
@@ -40,17 +46,24 @@ namespace net {
     bool EventLoop::initialized = false;
 
     EventLoop::EventLoop()
-        : readEventDispatcher(readfds)
-        , acceptEventDispatcher(readfds)
-        , writeEventDispatcher(writefds)
-        , outOfBandEventDispatcher(exceptfds) {
+        : readEventDispatcher(readfds, MAX_READ_INACTIVITY)
+        , acceptEventDispatcher(readfds, MAX_ACCEPT_INACTIVITY)
+        , writeEventDispatcher(writefds, MAX_WRITE_INACTIVITY)
+        , outOfBandEventDispatcher(exceptfds, MAX_OUTOFBAND_INACTIVITY) {
     }
 
     void EventLoop::tick() {
-        readEventDispatcher.observeEnabledEvents();
-        writeEventDispatcher.observeEnabledEvents();
-        acceptEventDispatcher.observeEnabledEvents();
-        outOfBandEventDispatcher.observeEnabledEvents();
+        long nextTimeout = readEventDispatcher.observeEnabledEvents();
+        nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
+
+        nextTimeout = writeEventDispatcher.observeEnabledEvents();
+        nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
+
+        nextTimeout = acceptEventDispatcher.observeEnabledEvents();
+        nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
+
+        nextTimeout = outOfBandEventDispatcher.observeEnabledEvents();
+        nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
 
         int maxFd = readEventDispatcher.getLargestFd();
         maxFd = std::max(writeEventDispatcher.getLargestFd(), maxFd);
@@ -63,15 +76,31 @@ namespace net {
 
         struct timeval tv = timerEventDispatcher.getNextTimeout();
 
+        if (nextInactivityTimeout.tv_sec >= 0) {
+            tv = std::min(tv, nextInactivityTimeout);
+        }
+
         if (maxFd >= 0 || !timerEventDispatcher.empty()) {
             int counter = select(maxFd + 1, &_readfds, &_writefds, &_exceptfds, &tv);
 
             if (counter >= 0) {
                 timerEventDispatcher.dispatch();
-                counter = readEventDispatcher.dispatch(_readfds, counter);
-                counter = writeEventDispatcher.dispatch(_writefds, counter);
-                counter = acceptEventDispatcher.dispatch(_readfds, counter);
-                counter = outOfBandEventDispatcher.dispatch(_exceptfds, counter);
+
+                time_t currentTime = time(nullptr);
+                nextInactivityTimeout = {LONG_MAX, 0};
+
+                nextTimeout = readEventDispatcher.dispatchActiveEvents(_readfds, counter, currentTime);
+                nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
+
+                nextTimeout = writeEventDispatcher.dispatchActiveEvents(_writefds, counter, currentTime);
+                nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
+
+                nextTimeout = acceptEventDispatcher.dispatchActiveEvents(_readfds, counter, currentTime);
+                nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
+
+                nextTimeout = outOfBandEventDispatcher.dispatchActiveEvents(_exceptfds, counter, currentTime);
+                nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
+
                 assert(counter == 0);
             } else if (errno != EINTR) {
                 PLOG(ERROR) << "select";
@@ -121,15 +150,15 @@ namespace net {
             eventLoop.acceptEventDispatcher.observeEnabledEvents();
             eventLoop.outOfBandEventDispatcher.observeEnabledEvents();
 
+            eventLoop.readEventDispatcher.disableObservedEvents();
+            eventLoop.writeEventDispatcher.disableObservedEvents();
+            eventLoop.acceptEventDispatcher.disableObservedEvents();
+            eventLoop.outOfBandEventDispatcher.disableObservedEvents();
+
             eventLoop.readEventDispatcher.unobserveDisabledEvents();
             eventLoop.writeEventDispatcher.unobserveDisabledEvents();
             eventLoop.acceptEventDispatcher.unobserveDisabledEvents();
             eventLoop.outOfBandEventDispatcher.unobserveDisabledEvents();
-
-            eventLoop.readEventDispatcher.unobserveObservedEvents();
-            eventLoop.writeEventDispatcher.unobserveObservedEvents();
-            eventLoop.acceptEventDispatcher.unobserveObservedEvents();
-            eventLoop.outOfBandEventDispatcher.unobserveObservedEvents();
 
             eventLoop.timerEventDispatcher.cancelAll();
 

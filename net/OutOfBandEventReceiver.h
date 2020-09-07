@@ -28,13 +28,18 @@
 namespace net {
 
     class OutOfBandEventReceiver : public EventReceiver {
-    public:
-        ~OutOfBandEventReceiver() override = default;
+    protected:
+        OutOfBandEventReceiver();
 
         virtual void outOfBandEvent() = 0;
 
-        void enable() override;
+    public:
+        void setTimeout(long timeout = TIMEOUT::DEFAULT);
+
+        void enable(long timeout = TIMEOUT::IGNORE) override;
         void disable() override;
+
+        friend class OutOfBandEventDispatcher;
     };
 
 } // namespace net

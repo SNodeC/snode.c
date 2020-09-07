@@ -22,8 +22,11 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
+#include <climits>
+#include <ctime>
 #include <list>
 #include <map>
+#include <tuple>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -34,11 +37,14 @@ namespace net {
 
     class EventLoop;
 
-    template <typename EventReceiver>
+    template <typename EventReceiverT>
     class EventDispatcher {
     public:
-        explicit EventDispatcher(fd_set& fdSet) // NOLINT(google-runtime-references)
-            : fdSet(fdSet) {
+        using EventReceiver = EventReceiverT;
+
+        explicit EventDispatcher(fd_set& fdSet, long maxInactivity) // NOLINT(google-runtime-references)
+            : fdSet(fdSet)
+            , maxInactivity(maxInactivity) {
         }
 
         EventDispatcher(const EventDispatcher&) = delete;
@@ -76,32 +82,65 @@ namespace net {
             }
         }
 
+        long getTimeout() const {
+            return maxInactivity;
+        }
+
     private:
         int getLargestFd() {
             int fd = -1;
 
-            if (!observedEvents.empty()) {
-                fd = observedEvents.rbegin()->first;
+            if (!observedEventReceiver.empty()) {
+                fd = observedEventReceiver.rbegin()->first;
             }
 
             return fd;
         }
 
-        void observeEnabledEvents() {
+        long observeEnabledEvents() {
+            long nextTimeout = LONG_MAX;
+
             for (EventReceiver* eventReceiver : enabledEventReceiver) {
                 int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
-                observedEvents[fd].push_front(eventReceiver);
+                observedEventReceiver[fd].push_front(eventReceiver);
                 FD_SET(fd, &fdSet);
+                nextTimeout = std::min(nextTimeout, eventReceiver->getTimeout());
             }
             enabledEventReceiver.clear();
+
+            return nextTimeout;
+        }
+
+        long dispatchActiveEvents(const fd_set& fdSet, int& counter, time_t currentTime) {
+            long nextInactivityTimeout = LONG_MAX;
+
+            for (const auto& [fd, eventReceivers] : observedEventReceiver) {
+                EventReceiver* eventReceiver = eventReceivers.front();
+                long maxInactivity = eventReceiver->getTimeout();
+                if (FD_ISSET(fd, &fdSet)) {
+                    counter--;
+                    dispatchEventTo(eventReceiver);
+                    eventReceiver->lastTriggered = currentTime;
+                    nextInactivityTimeout = std::min(nextInactivityTimeout, maxInactivity);
+                } else {
+                    long inactivity = currentTime - eventReceiver->lastTriggered;
+                    if (inactivity >= maxInactivity) {
+                        eventReceiver->disable();
+                    } else {
+                        nextInactivityTimeout = std::min(maxInactivity - inactivity, nextInactivityTimeout);
+                    }
+                }
+            }
+
+            return nextInactivityTimeout;
         }
 
         void unobserveDisabledEvents() {
             for (EventReceiver* eventReceiver : disabledEventReceiver) {
                 int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
-                observedEvents[fd].remove(eventReceiver);
-                if (observedEvents[fd].empty()) {
-                    observedEvents.erase(fd);
+                observedEventReceiver[fd].remove(eventReceiver);
+                if (observedEventReceiver[fd].empty()) {
+                    observedEventReceiver.erase(fd);
                     FD_CLR(fd, &fdSet);
                 }
                 eventReceiver->disabled();
@@ -110,28 +149,24 @@ namespace net {
             disabledEventReceiver.clear();
         }
 
-        void unobserveObservedEvents() {
-            for (auto& [fd, eventReceivers] : observedEvents) {
+        void disableObservedEvents() {
+            for (auto& [fd, eventReceivers] : observedEventReceiver) {
                 for (EventReceiver* eventReceiver : eventReceivers) {
                     disabledEventReceiver.push_back(eventReceiver);
                 }
             }
-            unobserveDisabledEvents();
         }
 
-    protected:
-        virtual int dispatch(const fd_set& fdSet, int counter) = 0;
+        virtual void dispatchEventTo(EventReceiver*) = 0;
 
-        std::map<int, std::list<EventReceiver*>> observedEvents;
+        std::map<int, std::list<EventReceiver*>> observedEventReceiver;
 
-    private:
         std::list<EventReceiver*> enabledEventReceiver;
         std::list<EventReceiver*> disabledEventReceiver;
 
         fd_set& fdSet;
 
-    public:
-        using EventType = EventReceiver;
+        long maxInactivity;
 
         friend class EventLoop;
     };

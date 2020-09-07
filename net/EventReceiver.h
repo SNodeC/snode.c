@@ -21,6 +21,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <climits>
+#include <ctime>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net {
@@ -44,22 +47,32 @@ namespace net {
     };
 
     class EventReceiver : virtual public ObservationCounter {
-    public:
-        EventReceiver() = default;
+    protected:
+        class TIMEOUT {
+        public:
+            static const long IGNORE = -2;
+            static const long DEFAULT = -1;
+            static const long DISABLE = LONG_MAX;
+        };
+
+        EventReceiver(long timeout)
+            : maxInactivity(timeout) {
+        }
 
         EventReceiver(const EventReceiver&) = delete;
-
         EventReceiver& operator=(const EventReceiver&) = delete;
 
         virtual ~EventReceiver() = default;
 
+    public:
         void enabled() {
-            observationCounter++;
+            ObservationCounter::observationCounter++;
             _enabled = true;
+            lastTriggered = time(nullptr);
         }
 
         void disabled() {
-            observationCounter--;
+            ObservationCounter::observationCounter--;
             _enabled = false;
         }
 
@@ -67,12 +80,31 @@ namespace net {
             return _enabled;
         }
 
+        long getTimeout() const {
+            return maxInactivity;
+        }
+
     protected:
-        virtual void enable() = 0;
+        void setTimeout(long timeout, long defaultTimeout) { // -3: do not change, -2: set default, -1 disable, ...
+            if (timeout != TIMEOUT::IGNORE) {
+                if (timeout != TIMEOUT::DEFAULT) {
+                    this->maxInactivity = timeout;
+                } else {
+                    this->maxInactivity = defaultTimeout;
+                }
+            }
+        }
+
+        virtual void enable(long timeout) = 0;
         virtual void disable() = 0;
+
+        long maxInactivity = -1;
 
     private:
         bool _enabled = false;
+
+    public:
+        time_t lastTriggered = 0;
     };
 
 } // namespace net

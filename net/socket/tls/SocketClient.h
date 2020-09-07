@@ -21,60 +21,38 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <openssl/err.h>
-#include <openssl/ssl.h>
+#include <any>
+#include <map>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "socket/SocketClient.h"
 #include "socket/tls/SocketConnection.h"
 
-struct SSLDeleter {
-    void operator()(SSL* _p) {
-        SSL_shutdown(_p);
-        SSL_free(_p);
-    }
-
-    void operator()([[maybe_unused]] SSL_CTX* _p) {
-        if (_p != nullptr) {
-            SSL_CTX_free(_p);
-        }
-    }
-};
-
 namespace net::socket::tls {
 
-    class SocketClient : public net::socket::SocketClient<SocketConnection> {
+    class SocketClient : public socket::SocketClient<tls::SocketConnection> {
     public:
-        SocketClient(const std::function<void(SocketConnection* socketConnection)>& onConnect,
-                     const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
-                     const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
-                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
-                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
-                     const std::string& caFile = "", const std::string& caDir = "", bool useDefaultCADir = false);
-
-        SocketClient(const std::function<void(SocketConnection* socketConnection)>& onConnect,
-                     const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
-                     const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
-                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
-                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError, const std::string& certChain,
-                     const std::string& keyPEM, const std::string& password, const std::string& caFile = "", const std::string& caDir = "",
-                     bool useDefaultCADir = false);
+        SocketClient(const std::function<void(SocketClient::SocketConnection* socketConnection)>& onConnect,
+                     const std::function<void(SocketClient::SocketConnection* socketConnection)>& onDisconnect,
+                     const std::function<void(SocketClient::SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
+                     const std::function<void(SocketClient::SocketConnection* socketConnection, int errnum)>& onReadError,
+                     const std::function<void(SocketClient::SocketConnection* socketConnection, int errnum)>& onWriteError,
+                     const std::map<std::string, std::any>& options = {{}});
 
         ~SocketClient() override;
 
-    protected:
-        using net::socket::SocketClient<SocketConnection>::SocketClient;
+        using socket::SocketClient<SocketClient::SocketConnection>::SocketClient;
 
     public:
         // NOLINTNEXTLINE(google-default-arguments)
-        void connect(const std::string& host, in_port_t port, const std::function<void(int err)>& onError,
-                     const net::socket::InetAddress& localAddress = net::socket::InetAddress()) override;
+        void connect(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError,
+                     const socket::InetAddress& localAddress = socket::InetAddress()) override;
 
     private:
         SSL_CTX* ctx = nullptr;
         unsigned long sslErr = 0;
-        static int passwordCallback(char* buf, int size, int rwflag, void* u);
 
         std::function<void(int err)> onError;
     };

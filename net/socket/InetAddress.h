@@ -21,13 +21,29 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint> // for uint16_t
+#include <cstdint>   // for uint16_t
+#include <exception> // IWYU pragma: keep
 #include <netinet/in.h>
 #include <string>
+// IWYU pragma: no_include <bits/exception.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::socket {
+
+    class bad_hostname : public std::exception {
+    public:
+        explicit bad_hostname(const std::string& hostName) {
+            bad_hostname::message = "Bad hostname \"" + hostName + "\"";
+        }
+
+        virtual const char* what() const noexcept override {
+            return bad_hostname::message.c_str();
+        }
+
+    protected:
+        static std::string message;
+    };
 
     class InetAddress {
     public:

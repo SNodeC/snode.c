@@ -21,21 +21,19 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
 #include <map>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "HTTPResponseParser.h"
-
 namespace http {
 
     class HTTPClientContext;
+    class ResponseCookie;
 
     class ClientResponse {
     public:
-        ClientResponse();
+        ClientResponse() = default;
 
         // switch to protected later on
     public:

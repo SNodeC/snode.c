@@ -27,10 +27,7 @@
 
 namespace net::socket::legacy {
 
-    class Socket : public net::socket::Socket {
-    public:
-        using net::socket::Socket::Socket;
-    };
+    class Socket : public socket::Socket {};
 
 }; // namespace net::socket::legacy
 

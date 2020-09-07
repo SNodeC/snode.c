@@ -21,48 +21,16 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
-#include <netinet/in.h>
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/tls/SocketConnection.h"
+#include "../HTTPServer.h"
+#include "socket/tls/SocketServer.h"
 
 namespace http {
 
-    class Request;
-    class Response;
-
     namespace tls {
 
-        class HTTPServer {
-        public:
-            explicit HTTPServer(const std::function<void(net::socket::tls::SocketConnection*)>& onConnect,
-                                const std::function<void(Request& req, Response& res)>& onRequestReady,
-                                const std::function<void(Request& req, Response& res)>& onResponseCompleted,
-                                const std::function<void(net::socket::tls::SocketConnection*)>& onDisconnect, const std::string& cert,
-                                const std::string& key, const std::string& password, const std::string& caFile = "",
-                                const std::string& caDir = "", bool useDefaultCADir = false);
-
-            HTTPServer& operator=(const HTTPServer& webApp) = delete;
-
-            void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr);
-
-        protected:
-            std::function<void(net::socket::tls::SocketConnection*)> onConnect;
-            std::function<void(Request& req, Response& res)> onRequestReady;
-            std::function<void(Request& req, Response& res)> onResponseCompleted;
-            std::function<void(net::socket::tls::SocketConnection*)> onDisconnect;
-
-        private:
-            std::string cert;
-            std::string key;
-            std::string password;
-            std::string caFile;
-            std::string caDir;
-            bool useDefaultCADir;
-        };
+        using HTTPServer = http::HTTPServer<net::socket::tls::SocketServer>;
 
     } // namespace tls
 
