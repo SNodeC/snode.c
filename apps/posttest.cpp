@@ -95,7 +95,8 @@ int testPost() {
         }
     });
 
-    tls::WebApp tlsWebApp(CERTF, KEYF, KEYFPASS);
+    //    tls::WebApp tlsWebApp(CERTF, KEYF, KEYFPASS);
+    tls::WebApp tlsWebApp({{"certChain", CERTF}, {"keyPEM", KEYF}, {"password", KEYFPASS}});
     tlsWebApp.use(legacyApp);
 
     tlsWebApp.listen(8088, [](int err) -> void {

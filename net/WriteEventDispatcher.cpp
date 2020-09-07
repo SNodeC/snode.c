@@ -18,9 +18,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <map> // for map
-#include <type_traits>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "WriteEventDispatcher.h"
@@ -29,20 +26,8 @@
 
 namespace net {
 
-    int WriteEventDispatcher::dispatch(const fd_set& fdSet, int counter) {
-        if (counter > 0) {
-            for (const auto& [fd, eventReceivers] : observedEvents) {
-                if (counter == 0) {
-                    break;
-                }
-                if (FD_ISSET(fd, &fdSet)) {
-                    counter--;
-                    eventReceivers.front()->writeEvent();
-                }
-            }
-        }
-
-        return counter;
+    void WriteEventDispatcher::dispatchEventTo(WriteEventReceiver* eventReceiver) {
+        eventReceiver->writeEvent();
     }
 
 } // namespace net

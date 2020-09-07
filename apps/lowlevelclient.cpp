@@ -21,10 +21,10 @@
 #include "ClientResponse.h"
 #include "EventLoop.h"
 #include "HTTPResponseParser.h"
-#include "legacy/HTTPClient.h"
+//#include "legacy/HTTPClient.h"
 #include "socket/legacy/SocketClient.h"
 #include "socket/tls/SocketClient.h"
-#include "tls/HTTPClient.h"
+//#include "tls/HTTPClientT.h"
 
 #include <cstring>
 #include <easylogging++.h>
@@ -77,8 +77,8 @@ static http::HTTPResponseParser* getResponseParser() {
     return responseParser;
 }
 
-tls::SocketClient tlsClient() {
-    tls::SocketClient client(
+tls::SocketClient getTlsClient() {
+    tls::SocketClient tlsClient(
         []([[maybe_unused]] tls::SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnect";
             socketConnection->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); // Connection:keep-alive\r\n\r\n");
@@ -157,9 +157,9 @@ tls::SocketClient tlsClient() {
         []([[maybe_unused]] tls::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
             VLOG(0) << "OnWriteError: " + std::to_string(errnum);
         },
-        CERTF, KEYF, KEYFPASS, SERVERCAFILE);
+        {{"certChain", CERTF}, {"keyPEM", KEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}});
 
-    client.connect("localhost", 8088, [](int err) -> void {
+    tlsClient.connect({{"host", "localhost"}, {"port", 8088}}, [](int err) -> void {
         if (err) {
             PLOG(ERROR) << "Connect: " + std::to_string(err);
         } else {
@@ -167,10 +167,10 @@ tls::SocketClient tlsClient() {
         }
     });
 
-    return client;
+    return tlsClient;
 }
 
-legacy::SocketClient legacyClient() {
+legacy::SocketClient getLegacyClient() {
     legacy::SocketClient legacyClient(
         []([[maybe_unused]] legacy::SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnect";
@@ -203,9 +203,10 @@ legacy::SocketClient legacyClient() {
         },
         []([[maybe_unused]] legacy::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
             VLOG(0) << "OnWriteError: " << errnum;
-        });
+        },
+        {{}});
 
-    legacyClient.connect("localhost", 8080, [](int err) -> void {
+    legacyClient.connect({{"host", "localhost"}, {"port", 8080}}, [](int err) -> void {
         if (err) {
             PLOG(ERROR) << "Connect: " << std::to_string(err);
         } else {
@@ -219,8 +220,8 @@ legacy::SocketClient legacyClient() {
 int main(int argc, char* argv[]) {
     net::EventLoop::init(argc, argv);
 
-    legacy::SocketClient lc = legacyClient();
-    lc.connect("localhost", 8080, [](int err) -> void { // example.com:81 simulate connnect timeout
+    legacy::SocketClient legacyClient = getLegacyClient();
+    legacyClient.connect({{"host", "localhost"}, {"port", 8080}}, [](int err) -> void { // example.com:81 simulate connnect timeout
         if (err) {
             PLOG(ERROR) << "Connect: " << std::to_string(err);
         } else {
@@ -228,8 +229,8 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    tls::SocketClient sc = tlsClient();
-    sc.connect("localhost", 8088, [](int err) -> void {
+    tls::SocketClient tlsClient = getTlsClient();
+    tlsClient.connect({{"host", "localhost"}, {"port", 8088}}, [](int err) -> void {
         if (err) {
             PLOG(ERROR) << "Connect: " << std::to_string(err);
         } else {

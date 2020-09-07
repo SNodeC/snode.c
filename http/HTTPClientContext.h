@@ -43,8 +43,6 @@ namespace http {
 
     protected:
         net::socket::SocketConnectionBase* socketConnection;
-        std::function<void(ClientResponse&)> onResponse;
-        std::function<void(int status, const std::string& reason)> onError;
 
         ClientResponse clientResponse;
 

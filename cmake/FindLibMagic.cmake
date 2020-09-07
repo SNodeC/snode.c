@@ -73,7 +73,7 @@ if (NOT LIBMAGIC_FOUND)
   ##____________________________________________________________________________
   ## Actions taken when all components have been found
 
-  find_package_handle_standard_args (LIBMAGIC DEFAULT_MSG LIBMAGIC_LIBRARIES LIBMAGIC_INCLUDES)
+  find_package_handle_standard_args (LibMagic DEFAULT_MSG LIBMAGIC_LIBRARIES LIBMAGIC_INCLUDES)
 
   if (LIBMAGIC_FOUND)
     if (NOT LIBMAGIC_FIND_QUIETLY)

@@ -21,7 +21,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdlib>
 #include <functional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -31,28 +30,27 @@
 
 namespace net::socket {
 
-    template <typename SocketReader, typename SocketWriter>
+    template <typename SocketReaderT, typename SocketWriterT>
     class SocketConnection
         : public SocketConnectionBase
-        , public SocketReader
-        , public SocketWriter {
+        , public SocketReaderT
+        , public SocketWriterT {
     public:
-        // NOLINT(cppcoreguidelines-pro-type-member-init)
-        SocketConnection() = delete;
+        using SocketReader = SocketReaderT;
+        using SocketWriter = SocketWriterT;
 
         void* operator new(size_t size) {
-            SocketConnection* socketConnection = reinterpret_cast<SocketConnection*>(malloc(size));
-            socketConnection->isDynamic = true;
+            SocketConnection<SocketReader, SocketWriter>::lastAllocAddress = malloc(size);
 
-            return socketConnection;
+            return SocketConnection<SocketReader, SocketWriter>::lastAllocAddress;
         }
 
         void operator delete(void* socketConnection_v) {
-            SocketConnection* socketConnection = reinterpret_cast<SocketConnection*>(socketConnection_v);
-            if (socketConnection->isDynamic) {
-                free(socketConnection_v);
-            }
+            free(socketConnection_v);
         }
+
+        // NOLINT(cppcoreguidelines-pro-type-member-init)
+        SocketConnection() = delete;
 
     protected:
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
@@ -70,7 +68,8 @@ namespace net::socket {
             , SocketWriter([this, onWriteError](int errnum) -> void {
                 onWriteError(this, errnum);
             })
-            , onDisconnect(onDisconnect) {
+            , onDisconnect(onDisconnect)
+            , isDynamic(this == lastAllocAddress) {
         }
 
     public:
@@ -93,7 +92,7 @@ namespace net::socket {
 
     public:
         void enqueue(const char* junk, size_t junkLen) override {
-            SocketWriter::enqueue(junk, junkLen);
+            SocketWriterT::enqueue(junk, junkLen);
         }
 
         void enqueue(const std::string& data) override {
@@ -101,9 +100,9 @@ namespace net::socket {
         }
 
         void end(bool instantly = false) override {
-            SocketReader::disable();
+            SocketReaderT::disable();
             if (instantly) {
-                SocketWriter::disable();
+                SocketWriterT::disable();
             }
         }
 
@@ -118,12 +117,13 @@ namespace net::socket {
     private:
         InetAddress remoteAddress{};
         std::function<void(SocketConnection* socketConnection)> onDisconnect;
-        bool isDynamic;
 
-    public:
-        using ReaderType = SocketReader;
-        using WriterType = SocketWriter;
+        bool isDynamic;
+        static void* lastAllocAddress;
     };
+
+    template <typename SocketReaderT, typename SocketWriterT>
+    void* SocketConnection<SocketReaderT, SocketWriterT>::lastAllocAddress = nullptr;
 
 } // namespace net::socket
 

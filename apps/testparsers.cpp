@@ -18,13 +18,17 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "HTTPRequestParser.h"
-#include "HTTPResponseParser.h"
-#include "Logger.h"
+#include "HTTPRequestParser.h"  // for HTTPRequestParser
+#include "HTTPResponseParser.h" // for HTTPResponseParser, ResponseCookie
+#include "Logger.h"             // for Logger
 
-#include <easylogging++.h>
-#include <iostream>
-#include <unistd.h>
+#include <cstring>         // for memcpy, size_t
+#include <easylogging++.h> // for Writer, Storage, VLOG
+#include <functional>      // for function
+#include <map>             // for map
+#include <string>          // for allocator, string, operator+, char_t...
+#include <type_traits>     // for add_const<>::type
+#include <utility>         // for pair, tuple_element<>::type
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -40,18 +44,18 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
            [[maybe_unused]] const std::map<std::string, std::string>& queries) -> void {
             VLOG(0) << "++ Request: " << method << " " << originalUrl << " "
                     << " " << httpVersion;
-            for (std::pair<std::string, std::string> query : queries) {
+            for (const std::pair<std::string, std::string>& query : queries) {
                 VLOG(0) << "++    Query: " << query.first << " = " << query.second;
             }
             VLOG(0) << "++    Fragment: " << fragment;
         },
         [](const std::map<std::string, std::string>& header, const std::map<std::string, std::string>& cookies) -> void {
             VLOG(0) << "++    Header: ";
-            for (std::pair<std::string, std::string> headerField : header) {
+            for (const std::pair<std::string, std::string>& headerField : header) {
                 VLOG(0) << "++      " << headerField.first << " = " << headerField.second;
             }
             VLOG(0) << "++    Cookie: ";
-            for (std::pair<std::string, std::string> cookie : cookies) {
+            for (const std::pair<std::string, std::string>& cookie : cookies) {
                 VLOG(0) << "++      " << cookie.first << " = " << cookie.second;
             }
         },
@@ -101,14 +105,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
         },
         [](const std::map<std::string, std::string>& headers, const std::map<std::string, http::ResponseCookie>& cookies) -> void {
             VLOG(0) << "++   Headers:";
-            for (auto [field, value] : headers) {
+            for (const auto& [field, value] : headers) {
                 VLOG(0) << "++       " << field + " = " + value;
             }
 
             VLOG(0) << "++   Cookies:";
-            for (auto [name, cookie] : cookies) {
+            for (const auto& [name, cookie] : cookies) {
                 VLOG(0) << "++     " + name + " = " + cookie.getValue();
-                for (auto [option, value] : cookie.getOptions()) {
+                for (const auto& [option, value] : cookie.getOptions()) {
                     VLOG(0) << "++       " + option + " = " + value;
                 }
             }

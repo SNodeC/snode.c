@@ -22,6 +22,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Request.h"
+#include "Response.h"
 #include "Router.h"
 
 namespace express {
@@ -163,7 +165,7 @@ namespace express {
         return next;
     }
 
-#define REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                                 \
+#define IMPLEMENT_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                       \
     Router& Router::METHOD(const std::string& path, const Router& router) {                                                                \
         routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, path, router.routerDispatcher));                                    \
         return *this;                                                                                                                      \
@@ -205,16 +207,16 @@ namespace express {
         [[maybe_unused]] bool next = routerDispatcher->dispatch(Router::mountPoint, "/", req, res);
     }
 
-    REQUESTMETHOD(use, "use");
-    REQUESTMETHOD(all, "all");
-    REQUESTMETHOD(get, "GET");
-    REQUESTMETHOD(put, "PUT");
-    REQUESTMETHOD(post, "POST");
-    REQUESTMETHOD(del, "DELETE");
-    REQUESTMETHOD(connect, "CONNECT");
-    REQUESTMETHOD(options, "OPTIONS");
-    REQUESTMETHOD(trace, "TRACE");
-    REQUESTMETHOD(patch, "PATCH");
-    REQUESTMETHOD(head, "HEAD");
+    IMPLEMENT_REQUESTMETHOD(use, "use");
+    IMPLEMENT_REQUESTMETHOD(all, "all");
+    IMPLEMENT_REQUESTMETHOD(get, "GET");
+    IMPLEMENT_REQUESTMETHOD(put, "PUT");
+    IMPLEMENT_REQUESTMETHOD(post, "POST");
+    IMPLEMENT_REQUESTMETHOD(del, "DELETE");
+    IMPLEMENT_REQUESTMETHOD(connect, "CONNECT");
+    IMPLEMENT_REQUESTMETHOD(options, "OPTIONS");
+    IMPLEMENT_REQUESTMETHOD(trace, "TRACE");
+    IMPLEMENT_REQUESTMETHOD(patch, "PATCH");
+    IMPLEMENT_REQUESTMETHOD(head, "HEAD");
 
 } // namespace express
