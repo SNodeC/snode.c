@@ -98,7 +98,7 @@ namespace net {
         virtual void enable(long timeout) = 0;
         virtual void disable() = 0;
 
-        long maxInactivity = -1;
+        long maxInactivity = LONG_MAX;
 
     private:
         bool _enabled = false;
