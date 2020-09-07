@@ -27,12 +27,12 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define CERTF "/home/voc/projects/ServerVoc/certs/calisto.home.vchrist.at_-_snode.c_-_server.pem"
-#define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem"
+#define CERTF "/home/student/nds/snode.c/certs/calisto.home.vchrist.at_-_snode.c_-_server.pem"
+#define KEYF "/home/student/nds/snode.c/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem"
 #define KEYFPASS "snode.c"
-#define CLIENTCAFILE "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Root_CA.crt"
+#define CLIENTCAFILE "/home/student/nds/snode.c/certs/Volker_Christian_-_Root_CA.crt"
 
-#define SERVERROOT "/home/voc/projects/ServerVoc/doc/html"
+#define SERVERROOT "/home/student/nds/snode.c/doc/html"
 
 using namespace express;
 
