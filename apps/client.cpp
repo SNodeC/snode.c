@@ -172,6 +172,7 @@ int main(int argc, char* argv[]) {
         },
         {{"caFile", SERVERCAFILE}});
 
+    /*
     legacyClient.get({{"host", "localhost"}, {"port", 8080}, {"path", "/index.html"}}, [](int err) -> void {
         if (err != 0) {
             PLOG(ERROR) << "OnError: " << err;
@@ -191,6 +192,15 @@ int main(int argc, char* argv[]) {
     }); // Connection:keep-alive\r\n\r\n"
 
     tlsClient.get({{"host", "localhost"}, {"port", 8088}, {"path", "/index.html"}}, [](int err) -> void {
+        if (err != 0) {
+            PLOG(ERROR) << "OnError: " << err;
+        }
+    }); // Connection:keep-alive\r\n\r\n"
+    */
+
+    legacyClient.post({{"host", "localhost"}, {"port", 8080}, {"path", "/index.html"},
+                        {"body", "{\"userId\":1,\"id\":1,\"schnitzel\":\"gut\"}"}},
+                    [](int err) -> void {
         if (err != 0) {
             PLOG(ERROR) << "OnError: " << err;
         }

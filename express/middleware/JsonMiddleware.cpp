@@ -32,7 +32,7 @@ using namespace express;
 JsonMiddleware::JsonMiddleware(const std::string& root)
     : root(root) {
     use([] MIDDLEWARE(req, res, next) {
-        if (req.method == "GET") {
+        if (req.method == "POST") {
             res.set("Connection", "Keep-Alive");
             res.cookie("CookieName", "CookieValue");
             next();
@@ -45,7 +45,10 @@ JsonMiddleware::JsonMiddleware(const std::string& root)
             res.redirect(308, "/index.html");
         } else {
 
-            VLOG(0) << "json middleware should act here";
+            std::string s(req.body, req.contentLength);
+            // VLOG(0) << "body: " << req.body;
+            VLOG(0) << "clength: " << std::to_string(req.contentLength);
+            VLOG(0) << "json middleware should act here: " << s;
 
             // json library should parse req.body string
             // store it as type json from nlohmann library
@@ -56,7 +59,7 @@ JsonMiddleware::JsonMiddleware(const std::string& root)
         }
     });
     use([this] APPLICATION(req, res) {
-        VLOG(0) << "GET " + req.url + " -> " + this->root + req.url;
+        VLOG(0) << "POST " + req.url + " -> " + this->root + req.url;
         res.sendFile(this->root + req.url, [&req](int ret) -> void {
             if (ret != 0) {
                 PLOG(ERROR) << req.url;
