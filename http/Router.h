@@ -7,12 +7,17 @@
 #include <list>
 #include <map>
 #include <string>
+#include <regex>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 class Request;
 class Response;
 class Router;
+
+#define PATH_REGEX ":[a-zA-Z0-9]+(\\(.+?\\))?"
+
+static std::regex pathregex = std::regex(PATH_REGEX);
 
 class Route {
 public:

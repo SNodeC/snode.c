@@ -1,10 +1,7 @@
 #include "Router.h"
 #include "Request.h"
 #include "Response.h"
-#include <regex>
 #include <iostream>
-
-#define PATH_REGEX ":[a-zA-Z0-9]+(\\(.+?\\))?"
 
 static const std::string path_concat(const std::vector<std::string>& stringvec) {
     std::string s;
@@ -31,13 +28,13 @@ static const std::vector<std::string> explode(std::string const & s, char delim)
 
 static const std::smatch matchResult(const std::string& cpath) {
     std::smatch smatch;
-    std::regex_search(cpath, smatch, std::regex(PATH_REGEX));
+    std::regex_search(cpath, smatch, pathregex);
     return smatch;
 }
 
 static const bool hasResult(const std::string& cpath) {
     std::smatch smatch;
-    return std::regex_search(cpath, smatch, std::regex(PATH_REGEX));
+    return std::regex_search(cpath, smatch, pathregex);
 }
 
 
