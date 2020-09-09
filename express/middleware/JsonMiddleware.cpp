@@ -48,27 +48,17 @@ JsonMiddleware::JsonMiddleware(const std::string& root)
         } else {
             // convert req.body char* to string
             std::string s(req.body, req.contentLength);
-            VLOG(0) << "json middleware should act here: " << s;
+            VLOG(0) << "JsonMiddleware is parsing body: " << s;
 
             // parse body string with json library
             // store it as type json from nlohmann library
             json j = json::parse(s);
-            VLOG(0) << j.dump(4); // pretty print json with 4 space indent
 
             // set all the json data as attributes in the request object
             req.setAttribute<json>(j);
 
             next();
         }
-    });
-    use([this] APPLICATION(req, res) {
-        VLOG(0) << "POST " + req.url + " -> " + this->root + req.url;
-        
-        res.sendFile(this->root + req.url, [&req](int ret) -> void {
-            if (ret != 0) {
-                PLOG(ERROR) << req.url;
-            }
-        });
     });
 }
 
