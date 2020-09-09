@@ -20,7 +20,6 @@
 
 #include "legacy/WebApp.h"
 #include "middleware/StaticMiddleware.h"
-#include "middleware/JsonMiddleware.h"
 #include "tls/WebApp.h"
 
 #include <easylogging++.h>
@@ -28,12 +27,12 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define CERTF "/home/student/nds/snode.c/certs/calisto.home.vchrist.at_-_snode.c_-_server.pem"
-#define KEYF "/home/student/nds/snode.c/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem"
+#define CERTF "/home/voc/projects/ServerVoc/certs/calisto.home.vchrist.at_-_snode.c_-_server.pem"
+#define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem"
 #define KEYFPASS "snode.c"
-#define CLIENTCAFILE "/home/student/nds/snode.c/certs/Volker_Christian_-_Root_CA.crt"
+#define CLIENTCAFILE "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Root_CA.crt"
 
-#define SERVERROOT "/home/student/nds/snode.c/doc/html"
+#define SERVERROOT "/home/voc/projects/ServerVoc/doc/html"
 
 using namespace express;
 
@@ -42,9 +41,7 @@ int main(int argc, char** argv) {
 
     legacy::WebApp legacyApp;
 
-    // legacyApp.use(StaticMiddleware(SERVERROOT));
-
-    legacyApp.use(JsonMiddleware(SERVERROOT));
+    legacyApp.use(StaticMiddleware(SERVERROOT));
 
     legacyApp.listen(8080, [](int err) -> void {
         if (err != 0) {
@@ -72,9 +69,7 @@ int main(int argc, char** argv) {
 
     tls::WebApp tlsApp({{"certChain", CERTF}, {"keyPEM", KEYF}, {"password", KEYFPASS}});
 
-    // tlsApp.use(StaticMiddleware(SERVERROOT));
-
-    tlsApp.use(JsonMiddleware(SERVERROOT));
+    tlsApp.use(StaticMiddleware(SERVERROOT));
 
     tlsApp.listen(8088, [](int err) -> void {
         if (err != 0) {

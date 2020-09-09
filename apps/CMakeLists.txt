@@ -42,6 +42,34 @@ if(CHECK_INCLUDES)
     set_property(TARGET simpleserver PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
 endif(CHECK_INCLUDES)
 
+add_executable(jsonserver jsonserver.cpp)
+target_compile_options(jsonserver PRIVATE --warn-all)
+target_link_libraries(jsonserver LINK_PUBLIC express)
+install(TARGETS jsonserver RUNTIME DESTINATION bin)
+set_target_properties(jsonserver PROPERTIES
+            CXX_STANDARD 20
+            CXX_STANDARD_REQUIRED ON
+            CXX_EXTENSIONS OFF
+            SOVERSION 1
+)
+if(CHECK_INCLUDES)
+    set_property(TARGET jsonserver PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
+endif(CHECK_INCLUDES)
+
+add_executable(jsonclient jsonclient.cpp)
+target_compile_options(jsonclient PRIVATE --warn-all)
+target_link_libraries(jsonclient LINK_PUBLIC express)
+install(TARGETS jsonclient RUNTIME DESTINATION bin)
+set_target_properties(jsonclient PROPERTIES
+            CXX_STANDARD 20
+            CXX_STANDARD_REQUIRED ON
+            CXX_EXTENSIONS OFF
+            SOVERSION 1
+)
+if(CHECK_INCLUDES)
+    set_property(TARGET jsonclient PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
+endif(CHECK_INCLUDES)
+
 add_executable(testparser testparsers.cpp)
 target_compile_options(testparser PRIVATE --warn-all)
 target_link_libraries(testparser LINK_PUBLIC express)

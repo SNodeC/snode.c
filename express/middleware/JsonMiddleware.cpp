@@ -56,7 +56,7 @@ JsonMiddleware::JsonMiddleware(const std::string& root)
             VLOG(0) << j.dump(4); // pretty print json with 4 space indent
 
             // set all the json data as attributes in the request object
-            req.setAttribute<json, "jsondata">(j);
+            req.setAttribute<json>(j);
 
             next();
         }
@@ -64,15 +64,6 @@ JsonMiddleware::JsonMiddleware(const std::string& root)
     use([this] APPLICATION(req, res) {
         VLOG(0) << "POST " + req.url + " -> " + this->root + req.url;
         
-        VLOG(0) << "has attribute " << req.hasAttribute<json, "jsondata">();
-
-        req.getAttribute<json, "jsondata">([](json& j) -> void {
-            VLOG(0) << j.dump(4);
-        },
-        [](const std::string& key) -> void {
-            VLOG(0) << key << " attribute not found";
-        });
-
         res.sendFile(this->root + req.url, [&req](int ret) -> void {
             if (ret != 0) {
                 PLOG(ERROR) << req.url;
@@ -81,15 +72,15 @@ JsonMiddleware::JsonMiddleware(const std::string& root)
     });
 }
 
-// Keep all created json middlewares alive
-static std::map<const std::string, std::shared_ptr<class JsonMiddleware>> jsonMiddlewares;
+// Keep the created json middleware alive
+static std::shared_ptr<class JsonMiddleware> jsonMiddleware = nullptr;
 
 const class JsonMiddleware& JsonMiddleware::instance(const std::string& root) {
-    if (!jsonMiddlewares.contains(root)) {
-        jsonMiddlewares[root] = std::shared_ptr<JsonMiddleware>(new JsonMiddleware(root));
+    if (jsonMiddleware==nullptr) {
+        jsonMiddleware = std::shared_ptr<JsonMiddleware>(new JsonMiddleware(root));
     }
 
-    return *jsonMiddlewares[root];
+    return *jsonMiddleware;
 }
 
 // "Constructor" of JsonMiddleware

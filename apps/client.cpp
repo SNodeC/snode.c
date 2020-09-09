@@ -32,10 +32,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define CERTF "/home/student/nds/snode.c/certs/calisto.home.vchrist.at_-_snode.c_-_client.pem"
-#define KEYF "/home/student/nds/snode.c/certs/Volker_Christian_-_Web_-_snode.c_-_client.key.encrypted.pem"
+#define CERTF "/home/voc/projects/ServerVoc/certs/calisto.home.vchrist.at_-_snode.c_-_client.pem"
+#define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c_-_client.key.encrypted.pem"
 #define KEYFPASS "snode.c"
-#define SERVERCAFILE "/home/student/nds/snode.c/certs/Volker_Christian_-_Root_CA.crt"
+#define SERVERCAFILE "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Root_CA.crt"
 
 int main(int argc, char* argv[]) {
     net::EventLoop::init(argc, argv);
@@ -91,6 +91,7 @@ int main(int argc, char* argv[]) {
                            "):" + std::to_string(socketConnection->getRemoteAddress().port());
             VLOG(0) << "     Client: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
+
             X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
             if (server_cert != NULL) {
                 int verifyErr = SSL_get_verify_result(socketConnection->getSSL());
@@ -172,7 +173,6 @@ int main(int argc, char* argv[]) {
         },
         {{"caFile", SERVERCAFILE}});
 
-    /*
     legacyClient.get({{"host", "localhost"}, {"port", 8080}, {"path", "/index.html"}}, [](int err) -> void {
         if (err != 0) {
             PLOG(ERROR) << "OnError: " << err;
@@ -192,15 +192,6 @@ int main(int argc, char* argv[]) {
     }); // Connection:keep-alive\r\n\r\n"
 
     tlsClient.get({{"host", "localhost"}, {"port", 8088}, {"path", "/index.html"}}, [](int err) -> void {
-        if (err != 0) {
-            PLOG(ERROR) << "OnError: " << err;
-        }
-    }); // Connection:keep-alive\r\n\r\n"
-    */
-
-    legacyClient.post({{"host", "localhost"}, {"port", 8080}, {"path", "/index.html"},
-                        {"body", "{\"userId\":1,\"id\":1,\"schnitzel\":\"gut\"}"}},
-                    [](int err) -> void {
         if (err != 0) {
             PLOG(ERROR) << "OnError: " << err;
         }
