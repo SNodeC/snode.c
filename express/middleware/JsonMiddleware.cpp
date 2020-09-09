@@ -21,7 +21,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <easylogging++.h>
-#include <map>
 #include <./json.hpp>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -33,8 +32,7 @@
 using namespace express;
 using json = nlohmann::json;
 
-JsonMiddleware::JsonMiddleware(const std::string& root)
-    : root(root) {
+JsonMiddleware::JsonMiddleware() {
     use([] MIDDLEWARE(req, res, next) {
         if (req.method == "POST") {
             res.set("Connection", "Keep-Alive");
@@ -67,15 +65,15 @@ JsonMiddleware::JsonMiddleware(const std::string& root)
 // Keep the created json middleware alive
 static std::shared_ptr<class JsonMiddleware> jsonMiddleware = nullptr;
 
-const class JsonMiddleware& JsonMiddleware::instance(const std::string& root) {
+const class JsonMiddleware& JsonMiddleware::instance() {
     if (jsonMiddleware==nullptr) {
-        jsonMiddleware = std::shared_ptr<JsonMiddleware>(new JsonMiddleware(root));
+        jsonMiddleware = std::shared_ptr<JsonMiddleware>(new JsonMiddleware());
     }
 
     return *jsonMiddleware;
 }
 
 // "Constructor" of JsonMiddleware
-const class JsonMiddleware& JsonMiddleware(const std::string& root) {
-    return JsonMiddleware::instance(root);
+const class JsonMiddleware& JsonMiddleware() {
+    return JsonMiddleware::instance();
 }

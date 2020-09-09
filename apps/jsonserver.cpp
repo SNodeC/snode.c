@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
 
     legacy::WebApp legacyApp;
 
-    legacyApp.use(JsonMiddleware(SERVERROOT));
+    legacyApp.use(JsonMiddleware());
 
     legacyApp.listen(8080, [](int err) -> void {
         if (err != 0) {
