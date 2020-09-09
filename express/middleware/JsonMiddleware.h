@@ -28,19 +28,17 @@ using namespace express;
 
 class JsonMiddleware : public Router {
 protected:
-    JsonMiddleware(const std::string& root);
-    static const class JsonMiddleware& instance(const std::string& root);
+    JsonMiddleware();
+    static const class JsonMiddleware& instance();
 
 public:
     JsonMiddleware(const JsonMiddleware&) = delete;
     JsonMiddleware& operator=(const JsonMiddleware&) = delete;
 
 protected:
-    std::string root;
-
-    friend const class JsonMiddleware& JsonMiddleware(const std::string& root);
+    friend const class JsonMiddleware& JsonMiddleware();
 };
 
-const class JsonMiddleware& JsonMiddleware(const std::string& root);
+const class JsonMiddleware& JsonMiddleware();
 
 #endif // JSONMIDDLEWARE_H
