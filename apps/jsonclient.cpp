@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
 
 
     jsonClient.post({{"host", "localhost"}, {"port", 8080}, {"path", "/index.html"},
-                        {"body", "{\"userId\":1,\"id\":1,\"schnitzel\":\"gut\"}"}},
+                        {"body", "{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}"}},
                     [](int err) -> void {
         if (err != 0) {
             PLOG(ERROR) << "OnError: " << err;
