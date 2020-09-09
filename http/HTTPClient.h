@@ -89,8 +89,6 @@ namespace http {
                 }
             }
 
-            VLOG(0) << "BODY: " << body << " length: " << std::to_string(contentLength);
-
             this->request = "POST " + path + " HTTP/1.1\r\nHost: " + host
                             + "\r\nContent-Length: " + std::to_string(contentLength) + "\r\n\r\n" + body;
 
