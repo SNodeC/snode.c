@@ -11,7 +11,7 @@ set_target_properties(snode.c PROPERTIES
             SOVERSION 1
 )
 if(CHECK_INCLUDES)
-    set_property(TARGET snode.c PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
+    set_property(TARGET snode.c PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path_and_options})
 endif(CHECK_INCLUDES)
 
 add_executable(posttest posttest.cpp)
@@ -25,7 +25,7 @@ set_target_properties(posttest PROPERTIES
             SOVERSION 1
 )
 if(CHECK_INCLUDES)
-    set_property(TARGET posttest PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
+    set_property(TARGET posttest PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path_and_options})
 endif(CHECK_INCLUDES)
 
 add_executable(simpleserver simpleserver.cpp)
@@ -39,7 +39,7 @@ set_target_properties(simpleserver PROPERTIES
             SOVERSION 1
 )
 if(CHECK_INCLUDES)
-    set_property(TARGET simpleserver PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
+    set_property(TARGET simpleserver PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path_and_options})
 endif(CHECK_INCLUDES)
 
 add_executable(testparser testparsers.cpp)
@@ -53,7 +53,7 @@ set_target_properties(testparser PROPERTIES
             SOVERSION 1
 )
 if(CHECK_INCLUDES)
-    set_property(TARGET testparser PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
+    set_property(TARGET testparser PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path_and_options})
 endif(CHECK_INCLUDES)
 
 add_executable(client client.cpp)
@@ -67,7 +67,7 @@ set_target_properties(client PROPERTIES
             SOVERSION 1
 )
 if(CHECK_INCLUDES)
-    set_property(TARGET client PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
+    set_property(TARGET client PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path_and_options})
 endif(CHECK_INCLUDES)
 
 add_executable(lowlevelclient lowlevelclient.cpp)
@@ -81,7 +81,7 @@ set_target_properties(lowlevelclient PROPERTIES
             SOVERSION 1
 )
 if(CHECK_INCLUDES)
-    set_property(TARGET lowlevelclient PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
+    set_property(TARGET lowlevelclient PROPERTY CXX_INCLUDE_WHAT_YOU_USE  ${iwyu_path_and_options})
 endif(CHECK_INCLUDES)
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/.logger.conf"
