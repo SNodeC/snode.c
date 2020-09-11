@@ -32,6 +32,8 @@ namespace express {
 
 #define PATH_REGEX ":[a-zA-Z0-9]+(\\(.+?\\))?"
 
+    static std::regex pathregex = std::regex(PATH_REGEX);
+
     static const std::string path_concat(const std::vector<std::string>& stringvec) {
         std::string s;
         for (std::vector<std::string>::size_type i = 0; i < stringvec.size(); i++) {
@@ -55,13 +57,13 @@ namespace express {
 
     static const std::smatch matchResult(const std::string& cpath) {
         std::smatch smatch;
-        std::regex_search(cpath, smatch, std::regex(PATH_REGEX));
+        std::regex_search(cpath, smatch, pathregex);
         return smatch;
     }
 
     static bool hasResult(const std::string& cpath) {
         std::smatch smatch;
-        return std::regex_search(cpath, smatch, std::regex(PATH_REGEX));
+        return std::regex_search(cpath, smatch, pathregex);
     }
 
     static bool matchFunction(const std::string& cpath, const std::string& reqpath) {
