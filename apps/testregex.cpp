@@ -36,12 +36,139 @@
 
 using namespace express;
 
+Router routes() {
+    Router router;
+
+    router.get("/test/:variable(\\d)/:uri", [] APPLICATION(req, res) {
+        std::cout << "TEST" << std::endl;
+    });
+
+    // http://localhost:8080/account/123/perfectNDSgroup
+    router.get("/account/:userId(\\d*)/:username", [] APPLICATION(req, res) {
+        std::cout << "Show account of" << std::endl;
+
+        std::string userId = "";
+        std::string userName = "";
+
+        req.getAttribute<std::string, "params">(
+            [&userId](const std::string& regex) -> void {
+                userId = regex;
+                VLOG(0) << "UserID: " << regex;
+            },
+            [](const std::string& reason) -> void {
+                VLOG(0) << "UserID not found: " << reason;
+            },
+            "userId");
+
+        req.getAttribute<std::string, "params">(
+            [&userName](const std::string& regex) -> void {
+                userName = regex;
+                VLOG(0) << "Username: " << regex;
+            },
+            [](const std::string& reason) -> void {
+                VLOG(0) << "Username not found: " << reason;
+            },
+            "username");
+
+        std::string response = "<html>"
+                               "  <head>"
+                               "    <title>Response from snode.c</title>"
+                               "  </head"
+                               "  <body>"
+                               "    <h1>Regex return</h1>"
+                               "    <ul>"
+                               "      <li>UserId: " +
+                               userId +
+                               "      </li>"
+
+                               "      <li>UserName: " +
+                               userName +
+                               "      </li>"
+                               "    </ul>"
+                               "  </body>"
+                               "</html>";
+
+        res.send(response);
+    });
+
+    // http://localhost:8080/asdf/d123e/jklö/hallo
+    router.get("/asdf/:testRegex1(d\\d{3}e)/jklö/:testRegex2", [] APPLICATION(req, res) {
+        std::cout << "Testing Regex" << std::endl;
+
+        std::string regex1 = "";
+        std::string regex2 = "";
+
+        req.getAttribute<std::string, "params">(
+            [&regex1](const std::string& regex) -> void {
+                regex1 = regex;
+                VLOG(0) << "Regex1: " << regex;
+            },
+            [](const std::string& reason) -> void {
+                VLOG(0) << "Regex1 not found: " << reason;
+            },
+            "testRegex1");
+
+        req.getAttribute<std::string, "params">(
+            [&regex2](const std::string& regex) -> void {
+                regex2 = regex;
+                VLOG(0) << "Regex1: " << regex;
+            },
+            [](const std::string& reason) -> void {
+                VLOG(0) << "Regex1 not found: " << reason;
+            },
+            "testRegex2");
+
+        std::string response = "<html>"
+                               "  <head>"
+                               "    <title>Response from snode.c</title>"
+                               "  </head"
+                               "  <body>"
+                               "    <h1>Regex return</h1>"
+                               "    <ul>"
+                               "      <li>Regex 1: " +
+                               regex1 +
+                               "      </li>"
+
+                               "      <li>Regex 2: " +
+                               regex2 +
+                               "      </li>"
+                               "    </ul>"
+                               "  </body>"
+                               "</html>";
+
+        res.send(response);
+    });
+
+    // http://localhost:8080/search/buxtehude123
+    router.get("/search/:search", [] MIDDLEWARE(req, res, next) {
+        std::cout << "Show Search of" << std::endl;
+
+        std::string search;
+        req.getAttribute<std::string, "params">(
+            [&search](const std::string& regex) -> void {
+                search = regex;
+                VLOG(0) << "Search: " << regex;
+            },
+            [](const std::string& reason) -> void {
+                VLOG(0) << "Search not found: " << reason;
+            },
+            "search");
+
+        res.send(search);
+
+        std::cout << "--------------------------------" << std::endl;
+        //        next();
+    });
+
+    return router;
+}
+
 int main(int argc, char** argv) {
     WebApp::init(argc, argv);
 
     legacy::WebApp legacyApp;
 
-    legacyApp.use(StaticMiddleware(SERVERROOT));
+    legacyApp.use(routes());
 
     legacyApp.listen(8080, [](int err) -> void {
         if (err != 0) {
@@ -69,7 +196,7 @@ int main(int argc, char** argv) {
 
     tls::WebApp tlsApp({{"certChain", CERTF}, {"keyPEM", KEYF}, {"password", KEYFPASS}});
 
-    tlsApp.use(StaticMiddleware(SERVERROOT));
+    tlsApp.use(routes());
 
     tlsApp.listen(8088, [](int err) -> void {
         if (err != 0) {

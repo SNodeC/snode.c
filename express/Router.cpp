@@ -57,12 +57,15 @@ namespace express {
 
     static const std::smatch matchResult(const std::string& cpath) {
         std::smatch smatch;
+
         std::regex_search(cpath, smatch, pathregex);
+
         return smatch;
     }
 
     static bool hasResult(const std::string& cpath) {
         std::smatch smatch;
+
         return std::regex_search(cpath, smatch, pathregex);
     }
 
@@ -73,11 +76,13 @@ namespace express {
             if (explodedString[i].front() == ':') {
                 std::smatch smatch = matchResult(explodedString[i]);
                 std::string regex = "(.*)";
+
                 if (smatch.size() > 1) {
                     if (smatch[1] != "") {
                         regex = smatch[1];
                     }
                 }
+
                 explodedString[i] = regex;
             }
         }
@@ -87,7 +92,7 @@ namespace express {
         return std::regex_match(reqpath, std::regex(regexPath));
     }
 
-    [[maybe_unused]] static void setParams(const std::string& cpath, const Request& req) {
+    static void setParams(const std::string& cpath, const Request& req) {
         std::vector<std::string> explodedString = explode(cpath, '/');
         std::vector<std::string> explodedReqString = explode(req.originalUrl, '/');
 
@@ -95,6 +100,7 @@ namespace express {
             if (explodedString[i].front() == ':') {
                 std::smatch smatch = matchResult(explodedString[i]);
                 std::string regex = "(.*)";
+
                 if (smatch.size() > 1) {
                     if (smatch[1] != "") {
                         regex = smatch[1];
@@ -106,18 +112,18 @@ namespace express {
                     attributeName.erase(0, 1);
                     attributeName.erase((attributeName.length() - smatch[1].length()), smatch[1].length());
 
-                    req.setAttribute<std::string>(explodedReqString[i], attributeName);
+                    req.setAttribute<std::string, "params">(explodedReqString[i], attributeName);
                 }
             }
         }
     }
 
-    [[maybe_unused]] static bool checkForUrlMatch(const std::string& cpath, const std::string& reqpath) {
+    static bool checkForUrlMatch(const std::string& cpath, const std::string& reqpath) {
         bool hasRegex = hasResult(cpath);
         return (!hasRegex && cpath == reqpath) || (hasRegex && matchFunction(cpath, reqpath));
     }
 
-    [[maybe_unused]] static inline std::string path_concat(const std::string& first, const std::string& second) {
+    static inline std::string path_concat(const std::string& first, const std::string& second) {
         std::string result;
 
         if (first.back() == '/' && second.front() == '/') {
@@ -158,7 +164,7 @@ namespace express {
 
         [[nodiscard]] bool dispatch(const std::string& parentPath, Request& req, Response& res) const;
 
-    private:
+    protected:
         Router* parent;
         MountPoint mountPoint;
         std::shared_ptr<Dispatcher> dispatcher;

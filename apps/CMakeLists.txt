@@ -84,6 +84,20 @@ if(CHECK_INCLUDES)
     set_property(TARGET lowlevelclient PROPERTY CXX_INCLUDE_WHAT_YOU_USE  ${iwyu_path_and_options})
 endif(CHECK_INCLUDES)
 
+add_executable(testregex testregex.cpp)
+target_compile_options(testregex PRIVATE --warn-all)
+target_link_libraries(testregex LINK_PUBLIC express)
+install(TARGETS testregex RUNTIME DESTINATION bin)
+set_target_properties(testregex PROPERTIES
+            CXX_STANDARD 20
+            CXX_STANDARD_REQUIRED ON
+            CXX_EXTENSIONS OFF
+            SOVERSION 1
+)
+if(CHECK_INCLUDES)
+    set_property(TARGET testregex PROPERTY CXX_INCLUDE_WHAT_YOU_USE  ${iwyu_path_and_options})
+endif(CHECK_INCLUDES)
+
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/.logger.conf"
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/logger.conf" "${CMAKE_CURRENT_BINARY_DIR}/.logger.conf"
             DEPENDS "${CMAKE_SOURCE_DIR}/logger.conf"
