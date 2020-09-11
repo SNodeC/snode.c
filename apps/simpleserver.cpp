@@ -41,7 +41,82 @@ int main(int argc, char** argv) {
 
     legacy::WebApp legacyApp;
 
-    legacyApp.use(StaticMiddleware(SERVERROOT));
+    //    legacyApp.use(StaticMiddleware(SERVERROOT));
+
+    legacyApp.get("/test/:variable(\\d)/:uri", [&]([[maybe_unused]] const Request& req, [[maybe_unused]] const Response& res) -> void {
+        std::cout << "TEST" << std::endl;
+    });
+
+    // http://localhost:8080/account/123/perfectNDSgroup
+    legacyApp.get("/account/:userId(\\d*)/:username",
+                  [&]([[maybe_unused]] const Request& req, [[maybe_unused]] const Response& res) -> void {
+                      std::cout << "Show account of" << std::endl;
+                      //        std::cout << "userId: " << req.getAttribute<std::string>("userId") << std::endl;
+                      //        std::cout << "username: " << req.getAttribute<std::string>("username") << std::endl;
+
+                      req.getAttribute<std::string>(
+                          [](const std::string& regex) -> void {
+                              VLOG(0) << "UserID: " << regex;
+                          },
+                          [](const std::string& reason) -> void {
+                              VLOG(0) << "UserID not found: " << reason;
+                          },
+                          "userId");
+
+                      req.getAttribute<std::string>(
+                          [](const std::string& regex) -> void {
+                              VLOG(0) << "Username: " << regex;
+                          },
+                          [](const std::string& reason) -> void {
+                              VLOG(0) << "Username not found: " << reason;
+                          },
+                          "username");
+                  });
+
+    // http://localhost:8080/asdf/d123e/jklö/hallo
+    legacyApp.get("/asdf/:testRegex1(d\\d{3}e)/jklö/:testRegex2",
+                  [&]([[maybe_unused]] const Request& req, [[maybe_unused]] const Response& res) -> void {
+                      std::cout << "Testing Regex" << std::endl;
+                      //        std::cout << "testRegex1: " << req.getAttribute<std::string>("testRegex1") << std::endl;
+                      //        std::cout << "testRegex2: " << req.getAttribute<std::string>("testRegex2") << std::endl;
+                      req.getAttribute<std::string>(
+                          [](const std::string& regex) -> void {
+                              VLOG(0) << "Regex1: " << regex;
+                          },
+                          [](const std::string& reason) -> void {
+                              VLOG(0) << "Regex1 not found: " << reason;
+                          },
+                          "testRegex1");
+
+                      req.getAttribute<std::string>(
+                          [](const std::string& regex) -> void {
+                              VLOG(0) << "Regex1: " << regex;
+                          },
+                          [](const std::string& reason) -> void {
+                              VLOG(0) << "Regex1 not found: " << reason;
+                          },
+                          "testRegex2");
+                      std::cout << "--------------------------------" << std::endl;
+                  });
+
+    // http://localhost:8080/search/buxtehude123
+    legacyApp.get("/search/:search",
+                  []([[maybe_unused]] const Request& req, [[maybe_unused]] const Response& res, const std::function<void(void)>& next) {
+                      std::cout << "Show Search of" << std::endl;
+                      //        std::cout << "search: " << req.getAttribute<std::string>("search") << std::endl;
+
+                      req.getAttribute<std::string>(
+                          [](const std::string& regex) -> void {
+                              VLOG(0) << "Search: " << regex;
+                          },
+                          [](const std::string& reason) -> void {
+                              VLOG(0) << "Search not found: " << reason;
+                          },
+                          "search");
+
+                      std::cout << "--------------------------------" << std::endl;
+                      next();
+                  });
 
     legacyApp.listen(8080, [](int err) -> void {
         if (err != 0) {
@@ -69,8 +144,63 @@ int main(int argc, char** argv) {
 
     tls::WebApp tlsApp({{"certChain", CERTF}, {"keyPEM", KEYF}, {"password", KEYFPASS}});
 
-    tlsApp.use(StaticMiddleware(SERVERROOT));
+    //    tlsApp.use(StaticMiddleware(SERVERROOT));
 
+    tlsApp.get("/test/:variable(\\d)/:uri", [&]([[maybe_unused]] const Request& req, [[maybe_unused]] const Response& res) -> void {
+        std::cout << "TEST" << std::endl;
+    });
+
+    // http://localhost:8080/account/123/perfectNDSgroup
+    tlsApp.get("/account/:userId(\\d*)/:username", [&]([[maybe_unused]] const Request& req, [[maybe_unused]] const Response& res) -> void {
+        std::cout << "Show account of" << std::endl;
+        //        std::cout << "userId: " << req.getAttribute<std::string>("userId") << std::endl;
+        //        std::cout << "username: " << req.getAttribute<std::string>("username") << std::endl;
+    });
+
+    // http://localhost:8080/asdf/d123e/jklö/hallo
+    tlsApp.get("/asdf/:testRegex1(d\\d{3}e)/jklö/:testRegex2",
+               [&]([[maybe_unused]] const Request& req, [[maybe_unused]] const Response& res) -> void {
+                   std::cout << "Testing Regex" << std::endl;
+                   //        std::cout << "testRegex1: " << req.getAttribute<std::string>("testRegex1") << std::endl;
+                   //        std::cout << "testRegex2: " << req.getAttribute<std::string>("testRegex2") << std::endl;
+                   req.getAttribute<std::string>(
+                       [](const std::string& regex) -> void {
+                           VLOG(0) << "Regex1: " << regex;
+                       },
+                       [](const std::string& reason) -> void {
+                           VLOG(0) << "Regex1 not found: " << reason;
+                       },
+                       "testRegex1");
+
+                   req.getAttribute<std::string>(
+                       [](const std::string& regex) -> void {
+                           VLOG(0) << "Regex1: " << regex;
+                       },
+                       [](const std::string& reason) -> void {
+                           VLOG(0) << "Regex1 not found: " << reason;
+                       },
+                       "testRegex2");
+                   std::cout << "--------------------------------" << std::endl;
+               });
+
+    // http://localhost:8080/search/buxtehude123
+    tlsApp.get("/search/:search",
+               []([[maybe_unused]] const Request& req, [[maybe_unused]] const Response& res, const std::function<void(void)>& next) {
+                   std::cout << "Show Search of" << std::endl;
+                   //        std::cout << "search: " << req.getAttribute<std::string>("search") << std::endl;
+
+                   req.getAttribute<std::string>(
+                       [](const std::string& regex) -> void {
+                           VLOG(0) << "Search: " << regex;
+                       },
+                       [](const std::string& reason) -> void {
+                           VLOG(0) << "Search not found: " << reason;
+                       },
+                       "search");
+
+                   std::cout << "--------------------------------" << std::endl;
+                   next();
+               });
     tlsApp.listen(8088, [](int err) -> void {
         if (err != 0) {
             PLOG(FATAL) << "listen on port 8088 " << std::to_string(err);

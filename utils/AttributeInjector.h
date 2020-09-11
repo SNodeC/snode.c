@@ -169,7 +169,7 @@ namespace utils {
                     attributes.find(typeid(Attribute).name() + std::string(key) + subKey);
                 onFound(**std::static_pointer_cast<AttributeProxy<Attribute>>(it->second));
             } else {
-                onNotFound(std::string(typeid(Attribute).name()) + std::string(key));
+                onNotFound(std::string(typeid(Attribute).name()) + std::string(key) + subKey);
             }
         }
 

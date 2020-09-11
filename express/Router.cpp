@@ -19,6 +19,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <list>
+#include <regex>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -28,7 +30,92 @@
 
 namespace express {
 
-    static inline std::string path_concat(const std::string& first, const std::string& second) {
+#define PATH_REGEX ":[a-zA-Z0-9]+(\\(.+?\\))?"
+
+    static const std::string path_concat(const std::vector<std::string>& stringvec) {
+        std::string s;
+        for (std::vector<std::string>::size_type i = 0; i < stringvec.size(); i++) {
+            if (!stringvec[i].empty() && stringvec[i].front() != ' ') {
+                s += "\\/" + stringvec[i];
+            }
+        }
+        return s;
+    }
+
+    static const std::vector<std::string> explode(const std::string& s, char delim) {
+        std::vector<std::string> result;
+        std::istringstream iss(s);
+
+        for (std::string token; std::getline(iss, token, delim);) {
+            result.push_back(std::move(token));
+        }
+
+        return result;
+    }
+
+    static const std::smatch matchResult(const std::string& cpath) {
+        std::smatch smatch;
+        std::regex_search(cpath, smatch, std::regex(PATH_REGEX));
+        return smatch;
+    }
+
+    static bool hasResult(const std::string& cpath) {
+        std::smatch smatch;
+        return std::regex_search(cpath, smatch, std::regex(PATH_REGEX));
+    }
+
+    static bool matchFunction(const std::string& cpath, const std::string& reqpath) {
+        std::vector<std::string> explodedString = explode(cpath, '/');
+
+        for (std::vector<std::string>::size_type i = 0; i < explodedString.size(); i++) {
+            if (explodedString[i].front() == ':') {
+                std::smatch smatch = matchResult(explodedString[i]);
+                std::string regex = "(.*)";
+                if (smatch.size() > 1) {
+                    if (smatch[1] != "") {
+                        regex = smatch[1];
+                    }
+                }
+                explodedString[i] = regex;
+            }
+        }
+
+        std::string regexPath = path_concat(explodedString);
+
+        return std::regex_match(reqpath, std::regex(regexPath));
+    }
+
+    [[maybe_unused]] static void setParams(const std::string& cpath, const Request& req) {
+        std::vector<std::string> explodedString = explode(cpath, '/');
+        std::vector<std::string> explodedReqString = explode(req.originalUrl, '/');
+
+        for (std::vector<std::string>::size_type i = 0; i < explodedString.size(); i++) {
+            if (explodedString[i].front() == ':') {
+                std::smatch smatch = matchResult(explodedString[i]);
+                std::string regex = "(.*)";
+                if (smatch.size() > 1) {
+                    if (smatch[1] != "") {
+                        regex = smatch[1];
+                    }
+                }
+
+                if (std::regex_match(explodedReqString[i], std::regex(regex))) {
+                    std::string attributeName = smatch[0];
+                    attributeName.erase(0, 1);
+                    attributeName.erase((attributeName.length() - smatch[1].length()), smatch[1].length());
+
+                    req.setAttribute<std::string>(explodedReqString[i], attributeName);
+                }
+            }
+        }
+    }
+
+    [[maybe_unused]] static bool checkForUrlMatch(const std::string& cpath, const std::string& reqpath) {
+        bool hasRegex = hasResult(cpath);
+        return (!hasRegex && cpath == reqpath) || (hasRegex && matchFunction(cpath, reqpath));
+    }
+
+    [[maybe_unused]] static inline std::string path_concat(const std::string& first, const std::string& second) {
         std::string result;
 
         if (first.back() == '/' && second.front() == '/') {
@@ -133,7 +220,6 @@ namespace express {
                 }
             }
         }
-
         return next;
     }
 
@@ -142,8 +228,13 @@ namespace express {
         std::string cpath = path_concat(parentPath, mountPoint.path);
 
         if ((req.path.rfind(cpath, 0) == 0 && mountPoint.method == "use") ||
-            (cpath == req.path && (req.method == mountPoint.method || mountPoint.method == "all"))) {
+            (checkForUrlMatch(cpath, req.originalUrl) && (req.method == mountPoint.method || mountPoint.method == "all"))) {
             next = false;
+
+            if (hasResult(cpath)) {
+                setParams(cpath, req);
+            }
+
             dispatcher(req, res, [&next]() -> void {
                 next = true;
             });
@@ -157,8 +248,13 @@ namespace express {
         std::string cpath = path_concat(parentPath, mountPoint.path);
 
         if ((req.path.rfind(cpath, 0) == 0 && mountPoint.method == "use") ||
-            (cpath == req.path && (req.method == mountPoint.method || mountPoint.method == "all"))) {
+            (checkForUrlMatch(cpath, req.originalUrl) && (req.method == mountPoint.method || mountPoint.method == "all"))) {
             next = false;
+
+            if (hasResult(cpath)) {
+                setParams(cpath, req);
+            }
+
             dispatcher(req, res);
         }
 
