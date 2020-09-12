@@ -92,7 +92,7 @@ namespace express {
 
     static void setParams(const std::string& cpath, Request& req) {
         std::vector<std::string> explodedString = explode(cpath, '/');
-        std::vector<std::string> explodedReqString = explode(req.originalUrl, '/');
+        std::vector<std::string> explodedReqString = explode(req.url, '/');
 
         for (std::vector<std::string>::size_type i = 0; i < explodedString.size(); i++) {
             if (explodedString[i].front() == ':') {
@@ -234,7 +234,7 @@ namespace express {
         std::string cpath = path_concat(parentPath, mountPoint.path);
 
         if ((req.path.rfind(cpath, 0) == 0 && mountPoint.method == "use") ||
-            (checkForUrlMatch(cpath, req.originalUrl) && (req.method == mountPoint.method || mountPoint.method == "all"))) {
+            (checkForUrlMatch(cpath, req.url) && (req.method == mountPoint.method || mountPoint.method == "all"))) {
             next = false;
 
             if (hasResult(cpath)) {
@@ -254,7 +254,7 @@ namespace express {
         std::string cpath = path_concat(parentPath, mountPoint.path);
 
         if ((req.path.rfind(cpath, 0) == 0 && mountPoint.method == "use") ||
-            (checkForUrlMatch(cpath, req.originalUrl) && (req.method == mountPoint.method || mountPoint.method == "all"))) {
+            (checkForUrlMatch(cpath, req.url) && (req.method == mountPoint.method || mountPoint.method == "all"))) {
             next = false;
 
             if (hasResult(cpath)) {

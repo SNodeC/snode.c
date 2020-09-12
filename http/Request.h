@@ -44,10 +44,10 @@ namespace http {
 
         // Properties
         std::string method;
+        std::string url;
         std::string httpVersion;
         std::string fragment;
 
-        std::string url;
         char* body = nullptr;
         int contentLength = 0;
         bool keepAlive = false;
