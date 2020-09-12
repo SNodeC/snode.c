@@ -28,8 +28,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Request.h"
-#include "Response.h"
+#include "../http/Request.h"
+#include "../http/Response.h"
 #include "http_utils.h"
 
 #define MIDDLEWARE(req, res, next)                                                                                                         \
