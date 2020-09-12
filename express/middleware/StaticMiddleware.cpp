@@ -27,50 +27,52 @@
 #include "Response.h"
 #include "StaticMiddleware.h"
 
-using namespace express;
+namespace express::middleware {
 
-StaticMiddleware::StaticMiddleware(const std::string& root)
-    : root(root) {
-    use([] MIDDLEWARE(req, res, next) {
-        if (req.method == "GET") {
-            res.set("Connection", "Keep-Alive");
-            next();
-        } else {
-            res.set("Connection", "Close");
-            res.sendStatus(400);
-        }
-    });
-
-    use([] MIDDLEWARE(req, res, next) {
-        if (req.url == "/") {
-            res.redirect(308, "/index.html");
-        } else {
-            next();
-        }
-    });
-
-    use([this] APPLICATION(req, res) {
-        VLOG(0) << "GET " + req.url + " -> " + this->root + req.url;
-        res.sendFile(this->root + req.url, [&req](int ret) -> void {
-            if (ret != 0) {
-                PLOG(ERROR) << req.url;
+    StaticMiddleware::StaticMiddleware(const std::string& root)
+        : root(root) {
+        use([] MIDDLEWARE(req, res, next) {
+            if (req.method == "GET") {
+                res.set("Connection", "Keep-Alive");
+                next();
+            } else {
+                res.set("Connection", "Close");
+                res.sendStatus(400);
             }
         });
-    });
-}
 
-// Keep all created static middlewares alive
-static std::map<const std::string, std::shared_ptr<class StaticMiddleware>> staticMiddlewares;
+        use([] MIDDLEWARE(req, res, next) {
+            if (req.url == "/") {
+                res.redirect(308, "/index.html");
+            } else {
+                next();
+            }
+        });
 
-const class StaticMiddleware& StaticMiddleware::instance(const std::string& root) {
-    if (!staticMiddlewares.contains(root)) {
-        staticMiddlewares[root] = std::shared_ptr<StaticMiddleware>(new StaticMiddleware(root));
+        use([this] APPLICATION(req, res) {
+            VLOG(0) << "GET " + req.url + " -> " + this->root + req.url;
+            res.sendFile(this->root + req.url, [&req](int ret) -> void {
+                if (ret != 0) {
+                    PLOG(ERROR) << req.url;
+                }
+            });
+        });
     }
 
-    return *staticMiddlewares[root];
-}
+    // Keep all created static middlewares alive
+    static std::map<const std::string, std::shared_ptr<class StaticMiddleware>> staticMiddlewares;
 
-// "Constructor" of StaticMiddleware
-const class StaticMiddleware& StaticMiddleware(const std::string& root) {
-    return StaticMiddleware::instance(root);
-}
+    const class StaticMiddleware& StaticMiddleware::instance(const std::string& root) {
+        if (!staticMiddlewares.contains(root)) {
+            staticMiddlewares[root] = std::shared_ptr<StaticMiddleware>(new StaticMiddleware(root));
+        }
+
+        return *staticMiddlewares[root];
+    }
+
+    // "Constructor" of StaticMiddleware
+    const class StaticMiddleware& StaticMiddleware(const std::string& root) {
+        return StaticMiddleware::instance(root);
+    }
+
+} // namespace express::middleware

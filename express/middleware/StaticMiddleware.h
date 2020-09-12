@@ -24,23 +24,25 @@
 
 #include "Router.h"
 
-using namespace express;
+namespace express::middleware {
 
-class StaticMiddleware : public Router {
-protected:
-    StaticMiddleware(const std::string& root);
-    static const class StaticMiddleware& instance(const std::string& root);
+    class StaticMiddleware : public Router {
+    protected:
+        StaticMiddleware(const std::string& root);
+        static const class StaticMiddleware& instance(const std::string& root);
 
-public:
-    StaticMiddleware(const StaticMiddleware&) = delete;
-    StaticMiddleware& operator=(const StaticMiddleware&) = delete;
+    public:
+        StaticMiddleware(const StaticMiddleware&) = delete;
+        StaticMiddleware& operator=(const StaticMiddleware&) = delete;
 
-protected:
-    std::string root;
+    protected:
+        std::string root;
 
-    friend const class StaticMiddleware& StaticMiddleware(const std::string& root);
-};
+        friend const class StaticMiddleware& StaticMiddleware(const std::string& root);
+    };
 
-const class StaticMiddleware& StaticMiddleware(const std::string& root);
+    const class StaticMiddleware& StaticMiddleware(const std::string& root);
+
+} // namespace express::middleware
 
 #endif // STATICMIDDLEWARE_H

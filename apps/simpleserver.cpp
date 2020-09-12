@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
 
     legacy::WebApp legacyApp;
 
-    legacyApp.use(StaticMiddleware(SERVERROOT));
+    legacyApp.use(middleware::StaticMiddleware(SERVERROOT));
 
     legacyApp.listen(8080, [](int err) -> void {
         if (err != 0) {
@@ -69,7 +69,7 @@ int main(int argc, char** argv) {
 
     tls::WebApp tlsApp({{"certChain", CERTF}, {"keyPEM", KEYF}, {"password", KEYFPASS}});
 
-    tlsApp.use(StaticMiddleware(SERVERROOT));
+    tlsApp.use(middleware::StaticMiddleware(SERVERROOT));
 
     tlsApp.listen(8088, [](int err) -> void {
         if (err != 0) {
