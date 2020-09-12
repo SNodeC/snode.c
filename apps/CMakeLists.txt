@@ -14,11 +14,11 @@ if(CHECK_INCLUDES)
     set_property(TARGET snode.c PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path_and_options})
 endif(CHECK_INCLUDES)
 
-add_executable(posttest posttest.cpp)
-target_compile_options(posttest PRIVATE --warn-all)
-target_link_libraries(posttest LINK_PUBLIC express)
-install(TARGETS posttest RUNTIME DESTINATION bin)
-set_target_properties(posttest PROPERTIES
+add_executable(testpost testpost.cpp)
+target_compile_options(testpost PRIVATE --warn-all)
+target_link_libraries(testpost LINK_PUBLIC express)
+install(TARGETS testpost RUNTIME DESTINATION bin)
+set_target_properties(testpost PROPERTIES
             CXX_STANDARD 20
             CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF
