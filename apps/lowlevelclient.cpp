@@ -132,7 +132,7 @@ tls::SocketClient getTlsClient() {
             } else {
                 VLOG(0) << "\tServer certificate: no certificate";
             }
-            socketConnection->setProtocol<http::HTTPResponseParser*>(getResponseParser());
+            socketConnection->setContext<http::HTTPResponseParser*>(getResponseParser());
         },
         []([[maybe_unused]] tls::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
@@ -141,13 +141,13 @@ tls::SocketClient getTlsClient() {
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                            "):" + std::to_string(socketConnection->getRemoteAddress().port());
 
-            socketConnection->getProtocol<http::HTTPResponseParser*>([](http::HTTPResponseParser*& responseParser) -> void {
+            socketConnection->getContext<http::HTTPResponseParser*>([](http::HTTPResponseParser*& responseParser) -> void {
                 delete responseParser;
             });
         },
         []([[maybe_unused]] tls::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
             VLOG(0) << "OnRead";
-            socketConnection->getProtocol<http::HTTPResponseParser*>([junk, junkSize](http::HTTPResponseParser*& responseParser) -> void {
+            socketConnection->getContext<http::HTTPResponseParser*>([junk, junkSize](http::HTTPResponseParser*& responseParser) -> void {
                 responseParser->parse(junk, junkSize);
             });
         },
@@ -180,7 +180,7 @@ legacy::SocketClient getLegacyClient() {
                            "):" + std::to_string(socketConnection->getRemoteAddress().port());
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
-            socketConnection->setProtocol<http::HTTPResponseParser*>(getResponseParser());
+            socketConnection->setContext<http::HTTPResponseParser*>(getResponseParser());
         },
         []([[maybe_unused]] legacy::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
@@ -188,13 +188,13 @@ legacy::SocketClient getLegacyClient() {
                            "):" + std::to_string(socketConnection->getRemoteAddress().port());
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
-            socketConnection->getProtocol<http::HTTPResponseParser*>([](http::HTTPResponseParser*& responseParser) -> void {
+            socketConnection->getContext<http::HTTPResponseParser*>([](http::HTTPResponseParser*& responseParser) -> void {
                 delete responseParser;
             });
         },
         []([[maybe_unused]] legacy::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
             VLOG(0) << "OnRead";
-            socketConnection->getProtocol<http::HTTPResponseParser*>([junk, junkSize](http::HTTPResponseParser*& responseParser) -> void {
+            socketConnection->getContext<http::HTTPResponseParser*>([junk, junkSize](http::HTTPResponseParser*& responseParser) -> void {
                 responseParser->parse(junk, junkSize);
             });
         },

@@ -81,7 +81,7 @@ namespace http {
         };
 
     protected:
-        HTTPServerContext* httpContext;
+        HTTPServerContext* httpServerContext;
 
         size_t contentSent = 0;
         bool sendHeaderInProgress = false;

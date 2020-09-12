@@ -43,7 +43,7 @@ namespace http {
             return new SocketServer(
                 [*this](typename SocketServer::SocketConnection* socketConnection) -> void { // onConnect
                     onConnect(socketConnection);
-                    socketConnection->template setProtocol<HTTPServerContext*>(new HTTPServerContext(
+                    socketConnection->template setContext<HTTPServerContext*>(new HTTPServerContext(
                         socketConnection,
                         [*this](Request& req, Response& res) -> void {
                             onRequestReady(req, res);
@@ -54,22 +54,22 @@ namespace http {
                 },
                 [*this](typename SocketServer::SocketConnection* socketConnection) -> void { // onDisconnect
                     onDisconnect(socketConnection);
-                    socketConnection->template getProtocol<HTTPServerContext*>([](HTTPServerContext*& protocol) -> void {
+                    socketConnection->template getContext<HTTPServerContext*>([](HTTPServerContext*& protocol) -> void {
                         delete protocol;
                     });
                 },
                 [](typename SocketServer::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
-                    socketConnection->template getProtocol<HTTPServerContext*>([&junk, &junkSize](HTTPServerContext*& protocol) -> void {
+                    socketConnection->template getContext<HTTPServerContext*>([&junk, &junkSize](HTTPServerContext*& protocol) -> void {
                         protocol->receiveRequestData(junk, junkSize);
                     });
                 },
                 [](typename SocketServer::SocketConnection* socketConnection, int errnum) -> void { // onReadError
-                    socketConnection->template getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
+                    socketConnection->template getContext<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
                         protocol->onReadError(errnum);
                     });
                 },
                 [](typename SocketServer::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
-                    socketConnection->template getProtocol<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
+                    socketConnection->template getContext<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
                         protocol->onWriteError(errnum);
                     });
                 },

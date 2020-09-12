@@ -41,24 +41,24 @@ namespace net::socket {
         virtual void end(bool instantly = false) = 0;
 
         template <utils::InjectedAttribute Attribute>
-        constexpr void setProtocol(Attribute& attribute) const {
+        constexpr void setContext(Attribute& attribute) const {
             protocol.setAttribute<Attribute>(attribute);
         }
 
         template <utils::InjectedAttribute Attribute>
-        constexpr void setProtocol(Attribute&& attribute) const {
+        constexpr void setContext(Attribute&& attribute) const {
             protocol.setAttribute<Attribute>(attribute);
         }
 
         template <utils::InjectedAttribute Attribute>
-        constexpr bool getProtocol(std::function<void(Attribute&)> onFound) const {
+        constexpr bool getContext(std::function<void(Attribute&)> onFound) const {
             return protocol.getAttribute<Attribute>([&onFound](Attribute& attribute) -> void {
                 onFound(attribute);
             });
         }
 
         template <utils::InjectedAttribute Attribute>
-        constexpr void getProtocol(std::function<void(Attribute&)> onFound, std::function<void(const std::string&)> onNotFound) const {
+        constexpr void getContext(std::function<void(Attribute&)> onFound, std::function<void(const std::string&)> onNotFound) const {
             return protocol.getAttribute<Attribute>(
                 [&onFound](Attribute& attribute) -> void {
                     onFound(attribute);

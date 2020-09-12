@@ -78,7 +78,7 @@ namespace http {
                  [*this](typename SocketClient::SocketConnection* socketConnection) -> void { // onConnect
                      this->onConnect(socketConnection);
 
-                     socketConnection->template setProtocol<http::HTTPClientContext*>(new HTTPClientContext(
+                     socketConnection->template setContext<http::HTTPClientContext*>(new HTTPClientContext(
                          socketConnection,
                          [*this](ClientResponse& clientResponse) -> void {
                              this->onResponseReady(clientResponse);
@@ -90,13 +90,13 @@ namespace http {
                  },
                  [*this](typename SocketClient::SocketConnection* socketConnection) -> void { // onDisconnect
                      this->onDisconnect(socketConnection);
-                     socketConnection->template getProtocol<http::HTTPClientContext*>(
+                     socketConnection->template getContext<http::HTTPClientContext*>(
                          [](http::HTTPClientContext*& httpClientContext) -> void {
                              delete httpClientContext;
                          });
                  },
                  [](typename SocketClient::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
-                     socketConnection->template getProtocol<http::HTTPClientContext*>(
+                     socketConnection->template getContext<http::HTTPClientContext*>(
                          [junk, junkSize]([[maybe_unused]] http::HTTPClientContext*& clientContext) -> void {
                              clientContext->receiveResponseData(junk, junkSize);
                          });

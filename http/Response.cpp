@@ -32,7 +32,7 @@
 namespace http {
 
     Response::Response(HTTPServerContext* httpContext)
-        : httpContext(httpContext) {
+        : httpServerContext(httpContext) {
     }
 
     void Response::enqueue(const char* buf, size_t len) {
@@ -43,14 +43,14 @@ namespace http {
             headersSent = true;
         }
 
-        httpContext->sendResponseData(buf, len);
+        httpServerContext->sendResponseData(buf, len);
 
         if (headersSent) {
             contentSent += len;
             if (contentSent == contentLength) {
-                httpContext->responseCompleted();
+                httpServerContext->responseCompleted();
             } else if (contentSent > contentLength) {
-                httpContext->terminateConnection();
+                httpServerContext->terminateConnection();
             }
         }
     }
