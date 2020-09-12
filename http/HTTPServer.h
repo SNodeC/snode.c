@@ -24,10 +24,12 @@ namespace http {
     public:
         explicit HTTPServer(const std::function<void(typename SocketServer::SocketConnection*)>& onConnect,
                             const std::function<void(Request& req, Response& res)>& onRequestReady,
+                            const std::function<void(Request& req, Response& res)>& onRequestCompleted,
                             const std::function<void(typename SocketServer::SocketConnection*)>& onDisconnect,
                             const std::map<std::string, std::any>& options = {{}})
             : onConnect(onConnect)
             , onRequestReady(onRequestReady)
+            , onRequestCompleted(onRequestCompleted)
             , onDisconnect(onDisconnect)
             , options(options) {
         }
@@ -40,8 +42,12 @@ namespace http {
                 [*this](typename SocketServer::SocketConnection* socketConnection) -> void { // onConnect
                     onConnect(socketConnection);
                     socketConnection->template setProtocol<HTTPServerContext*>(new HTTPServerContext(
-                        socketConnection, [*this]([[maybe_unused]] Request& req, [[maybe_unused]] Response& res) -> void {
+                        socketConnection,
+                        [*this](Request& req, Response& res) -> void {
                             onRequestReady(req, res);
+                        },
+                        [*this](Request& req, Response& res) -> void {
+                            onRequestCompleted(req, res);
                         }));
                 },
                 [*this](typename SocketServer::SocketConnection* socketConnection) -> void { // onDisconnect
@@ -92,6 +98,7 @@ namespace http {
     protected:
         std::function<void(typename SocketServer::SocketConnection*)> onConnect;
         std::function<void(Request& req, Response& res)> onRequestReady;
+        std::function<void(Request& req, Response& res)> onRequestCompleted;
         std::function<void(typename SocketServer::SocketConnection*)> onDisconnect;
 
         std::map<std::string, std::any> options;

@@ -22,25 +22,46 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
+#include <map>
 #include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http {
-    class Request;
-    class Response;
-} // namespace http
-
-namespace express {
-
-    using Request = http::Request;
-    using Response = http::Response;
+#include "Request.h"
+#include "Response.h"
+#include "http_utils.h"
 
 #define MIDDLEWARE(req, res, next)                                                                                                         \
     ([[maybe_unused]] Request & (req), [[maybe_unused]] Response & (res), [[maybe_unused]] const std::function<void(void)>&(next))->void
 
 #define APPLICATION(req, res) ([[maybe_unused]] Request & (req), [[maybe_unused]] Response & (res))->void
+
+namespace express {
+
+    class Request : public http::Request {
+    public:
+        Request() = delete;
+        Request(const Request&) = delete;
+
+        Request(const http::Request& req);
+
+        Request& operator=(const Request&) = delete;
+
+        std::string originalUrl;
+        std::string path;
+        std::map<std::string, std::string> params;
+    };
+
+    class Response : public http::Response {
+    public:
+        Response() = delete;
+        Response(const Response&) = delete;
+
+        Response(const http::Response& res);
+
+        Response& operator=(const Response&) = delete;
+    };
 
 #define DECLARE_REQUESTMETHOD(METHOD)                                                                                                      \
     Router& METHOD(const std::string& path, const std::function<void(Request & req, Response & res)>& dispatcher);                         \
@@ -51,8 +72,7 @@ namespace express {
                    const std::function<void(Request & req, Response & res, const std::function<void(void)>& next)>& dispatcher);           \
     Router& METHOD(const std::function<void(Request & req, Response & res, const std::function<void(void)>& next)>& dispatcher);
 
-    class MountPoint {
-    private:
+    struct MountPoint {
         MountPoint(const std::string& method, const std::string& path)
             : method(method)
             , path(path) {
@@ -60,12 +80,6 @@ namespace express {
 
         std::string method;
         std::string path;
-
-        friend class Route;
-        friend class Router;
-        friend class ApplicationDispatcher;
-        friend class MiddlewareDispatcher;
-        friend class RouterDispatcher;
     };
 
     class RouterDispatcher;
@@ -73,6 +87,8 @@ namespace express {
     class Router {
     public:
         Router();
+        Router(const Router& router);
+        Router& operator=(const Router& router);
 
         DECLARE_REQUESTMETHOD(use);
         DECLARE_REQUESTMETHOD(all);
@@ -87,13 +103,12 @@ namespace express {
         DECLARE_REQUESTMETHOD(head);
 
     protected:
-        void dispatch(Request& req, Response& res) const;
-
-        const std::shared_ptr<RouterDispatcher>& getRoute() const {
-            return routerDispatcher;
-        }
+        void dispatch(const http::Request& req, const http::Response& res);
+        void completed(const http::Request& req, const http::Response& res);
 
     private:
+        std::map<const http::Request*, Request*> reqestMap;
+        std::map<const http::Response*, Response*> responseMap;
         static const MountPoint mountPoint;
         std::shared_ptr<RouterDispatcher> routerDispatcher; // it can be shared by multiple routers
     };

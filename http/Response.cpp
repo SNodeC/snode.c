@@ -201,20 +201,20 @@ namespace http {
             } else {
                 responseStatus = 403;
                 errno = EACCES;
-                end();
                 httpContext->terminateConnection();
                 if (onError) {
                     onError(EACCES);
                 }
+                end();
             }
         } else {
             responseStatus = 404;
             errno = ENOENT;
-            end();
             httpContext->terminateConnection();
             if (onError) {
                 onError(ENOENT);
             }
+            end();
         }
     }
 
@@ -247,7 +247,6 @@ namespace http {
 
     void Response::end() {
         send("");
-        httpContext->responseCompleted();
     }
 
     void Response::reset() {

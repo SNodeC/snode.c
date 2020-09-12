@@ -45,30 +45,9 @@ Router routes() {
 
     // http://localhost:8080/account/123/perfectNDSgroup
     router.get("/account/:userId(\\d*)/:username", [] APPLICATION(req, res) {
-        std::cout << "Show account of" << std::endl;
-
-        std::string userId = "";
-        std::string userName = "";
-
-        req.getAttribute<std::string, "params">(
-            [&userId](const std::string& regex) -> void {
-                userId = regex;
-                VLOG(0) << "UserID: " << regex;
-            },
-            [](const std::string& reason) -> void {
-                VLOG(0) << "UserID not found: " << reason;
-            },
-            "userId");
-
-        req.getAttribute<std::string, "params">(
-            [&userName](const std::string& regex) -> void {
-                userName = regex;
-                VLOG(0) << "Username: " << regex;
-            },
-            [](const std::string& reason) -> void {
-                VLOG(0) << "Username not found: " << reason;
-            },
-            "username");
+        VLOG(0) << "Show account of";
+        VLOG(0) << "UserId: " << req.params["userId"];
+        VLOG(0) << "UserName: " << req.params["userName"];
 
         std::string response = "<html>"
                                "  <head>"
@@ -78,11 +57,11 @@ Router routes() {
                                "    <h1>Regex return</h1>"
                                "    <ul>"
                                "      <li>UserId: " +
-                               userId +
+                               req.params["userId"] +
                                "      </li>"
 
                                "      <li>UserName: " +
-                               userName +
+                               req.params["userName"] +
                                "      </li>"
                                "    </ul>"
                                "  </body>"
@@ -93,30 +72,9 @@ Router routes() {
 
     // http://localhost:8080/asdf/d123e/jklö/hallo
     router.get("/asdf/:testRegex1(d\\d{3}e)/jklö/:testRegex2", [] APPLICATION(req, res) {
-        std::cout << "Testing Regex" << std::endl;
-
-        std::string regex1 = "";
-        std::string regex2 = "";
-
-        req.getAttribute<std::string, "params">(
-            [&regex1](const std::string& regex) -> void {
-                regex1 = regex;
-                VLOG(0) << "Regex1: " << regex;
-            },
-            [](const std::string& reason) -> void {
-                VLOG(0) << "Regex1 not found: " << reason;
-            },
-            "testRegex1");
-
-        req.getAttribute<std::string, "params">(
-            [&regex2](const std::string& regex) -> void {
-                regex2 = regex;
-                VLOG(0) << "Regex1: " << regex;
-            },
-            [](const std::string& reason) -> void {
-                VLOG(0) << "Regex1 not found: " << reason;
-            },
-            "testRegex2");
+        VLOG(0) << "Testing Regex";
+        VLOG(0) << "Regex1: " << req.params["testRegex1"];
+        VLOG(0) << "Regex2: " << req.params["testRegex2"];
 
         std::string response = "<html>"
                                "  <head>"
@@ -126,11 +84,11 @@ Router routes() {
                                "    <h1>Regex return</h1>"
                                "    <ul>"
                                "      <li>Regex 1: " +
-                               regex1 +
+                               req.params["testRegex1"] +
                                "      </li>"
 
                                "      <li>Regex 2: " +
-                               regex2 +
+                               req.params["testRegex2"] +
                                "      </li>"
                                "    </ul>"
                                "  </body>"
@@ -141,20 +99,10 @@ Router routes() {
 
     // http://localhost:8080/search/buxtehude123
     router.get("/search/:search", [] MIDDLEWARE(req, res, next) {
-        std::cout << "Show Search of" << std::endl;
+        VLOG(0) << "Show Search of";
+        VLOG(0) << "Search: " << req.params["testRegex2"];
 
-        std::string search;
-        req.getAttribute<std::string, "params">(
-            [&search](const std::string& regex) -> void {
-                search = regex;
-                VLOG(0) << "Search: " << regex;
-            },
-            [](const std::string& reason) -> void {
-                VLOG(0) << "Search not found: " << reason;
-            },
-            "search");
-
-        res.send(search);
+        res.send(req.params["search"]);
 
         std::cout << "--------------------------------" << std::endl;
         //        next();

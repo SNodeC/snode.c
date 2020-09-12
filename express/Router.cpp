@@ -24,8 +24,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Request.h"
-#include "Response.h"
 #include "Router.h"
 
 namespace express {
@@ -92,7 +90,7 @@ namespace express {
         return std::regex_match(reqpath, std::regex(regexPath));
     }
 
-    static void setParams(const std::string& cpath, const Request& req) {
+    static void setParams(const std::string& cpath, Request& req) {
         std::vector<std::string> explodedString = explode(cpath, '/');
         std::vector<std::string> explodedReqString = explode(req.originalUrl, '/');
 
@@ -112,7 +110,7 @@ namespace express {
                     attributeName.erase(0, 1);
                     attributeName.erase((attributeName.length() - smatch[1].length()), smatch[1].length());
 
-                    req.setAttribute<std::string, "params">(explodedReqString[i], attributeName);
+                    req.params[attributeName] = explodedReqString[i];
                 }
             }
         }
@@ -301,14 +299,48 @@ namespace express {
         return *this;                                                                                                                      \
     };
 
+    Request::Request(const http::Request& req)
+        : http::Request(req)
+        , originalUrl(req.url) {
+        url = httputils::str_split_last(originalUrl, '?').first;
+        path = httputils::str_split_last(url, '/').first;
+        if (path.empty()) {
+            path = "/";
+        }
+    }
+
+    Response::Response(const http::Response& res)
+        : http::Response(res) {
+    }
+
     const MountPoint Router::mountPoint("use", "/");
 
     Router::Router()
         : routerDispatcher(new RouterDispatcher()) {
     }
 
-    void Router::dispatch(Request& req, Response& res) const {
-        [[maybe_unused]] bool next = routerDispatcher->dispatch(Router::mountPoint, "/", req, res);
+    Router::Router(const Router& router)
+        : routerDispatcher(router.routerDispatcher) {
+    }
+
+    Router& Router::operator=(const Router& router) {
+        routerDispatcher = router.routerDispatcher;
+        return *this;
+    }
+
+    void Router::dispatch(const http::Request& req, const http::Response& res) {
+        Request* expressReq = reqestMap[&req] = new Request(req);
+        Response* expressRes = responseMap[&res] = new Response(res);
+
+        static_cast<void>(routerDispatcher->dispatch(Router::mountPoint, "/", *expressReq, *expressRes));
+    }
+
+    void Router::completed(const http::Request& req, const http::Response& res) {
+        delete reqestMap[&req];
+        reqestMap.erase(&req);
+
+        delete responseMap[&res];
+        responseMap.erase(&res);
     }
 
     IMPLEMENT_REQUESTMETHOD(use, "use");

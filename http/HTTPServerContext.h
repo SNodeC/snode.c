@@ -36,7 +36,8 @@ namespace http {
     class HTTPServerContext {
     public:
         HTTPServerContext(net::socket::SocketConnectionBase* socketConnection,
-                          const std::function<void(Request& req, Response& res)>& onRequestReady);
+                          const std::function<void(Request& req, Response& res)>& onRequestReady,
+                          const std::function<void(Request& req, Response& res)>& onRequestCompleted);
 
         void receiveRequestData(const char* junk, size_t junkLen);
         void onReadError(int errnum);
@@ -58,6 +59,8 @@ namespace http {
         Response response;
 
     private:
+        std::function<void(Request& req, Response& res)> onRequestCompleted;
+
         HTTPRequestParser parser;
     };
 

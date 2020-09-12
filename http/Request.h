@@ -43,13 +43,12 @@ namespace http {
         int bodyLength() const;
 
         // Properties
-        std::string originalUrl;
+        std::string method;
         std::string httpVersion;
         std::string fragment;
+
         std::string url;
         char* body = nullptr;
-        std::string path;
-        std::string method;
         int contentLength = 0;
         bool keepAlive = false;
 

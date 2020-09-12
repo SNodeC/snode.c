@@ -30,24 +30,20 @@
 namespace http {
 
     HTTPServerContext::HTTPServerContext(net::socket::SocketConnectionBase* socketConnection,
-                                         const std::function<void(Request& req, Response& res)>& onRequestReady)
+                                         const std::function<void(Request& req, Response& res)>& onRequestReady,
+                                         const std::function<void(Request& req, Response& res)>& onRequestCompleted)
         : socketConnection(socketConnection)
         , response(this)
+        , onRequestCompleted(onRequestCompleted)
         , parser(
-              [this](const std::string& method, const std::string& originalUrl, const std::string& fragment, const std::string& httpVersion,
+              [this](const std::string& method, const std::string& url, const std::string& fragment, const std::string& httpVersion,
                      const std::map<std::string, std::string>& queries) -> void {
-                  VLOG(1) << "++ Request: " << method << " " << originalUrl << " " << httpVersion;
+                  VLOG(1) << "++ Request: " << method << " " << url << " " << httpVersion;
                   request.method = method;
-                  request.originalUrl = originalUrl;
+                  request.url = url;
                   request.queries = &queries;
                   request.fragment = fragment;
                   request.httpVersion = httpVersion;
-
-                  request.url = httputils::str_split_last(originalUrl, '?').first;
-                  request.path = httputils::str_split_last(request.url, '/').first;
-                  if (request.path.empty()) {
-                      request.path = "/";
-                  }
               },
               [this](const std::map<std::string, std::string>& header, const std::map<std::string, std::string>& cookies) -> void {
                   VLOG(1) << "++ Header:";
@@ -110,6 +106,8 @@ namespace http {
     }
 
     void HTTPServerContext::responseCompleted() {
+        onRequestCompleted(request, response);
+
         if (!request.keepAlive || !response.keepAlive) {
             terminateConnection();
         }

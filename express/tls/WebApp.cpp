@@ -34,6 +34,9 @@ namespace express::tls {
               [this](http::Request& req, http::Response& res) -> void { // onRequestReady
                   dispatch(req, res);
               },
+              [this](http::Request& req, http::Response& res) -> void { // onRequestCompleted
+                  completed(req, res);
+              },
               [this]([[maybe_unused]] net::socket::tls::SocketConnection* socketConnection) -> void { // onDisconnect
                   if (_onDisconnect != nullptr) {
                       _onDisconnect(socketConnection);

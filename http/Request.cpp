@@ -71,13 +71,15 @@ namespace http {
 
     void Request::reset() {
         method.clear();
-        originalUrl.clear();
+        url.clear();
         fragment.clear();
         httpVersion.clear();
-        path.clear();
         body = nullptr;
         contentLength = 0;
         keepAlive = false;
+        headers = nullptr;
+        cookies = nullptr;
+        queries = nullptr;
         MultibleAttributeInjector::reset();
     }
 
