@@ -98,14 +98,12 @@ Router routes() {
     });
 
     // http://localhost:8080/search/buxtehude123
-    router.get("/search/:search", [] MIDDLEWARE(req, res, next) {
+    router.get("/search/:search", [] APPLICATION(req, res) {
         VLOG(0) << "Show Search of";
-        VLOG(0) << "Search: " << req.params["testRegex2"];
+        VLOG(0) << "Search: " << req.params["search"];
+        VLOG(0) << "Queries: " << req.query("test");
 
         res.send(req.params["search"]);
-
-        std::cout << "--------------------------------" << std::endl;
-        //        next();
     });
 
     return router;
