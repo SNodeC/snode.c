@@ -86,7 +86,6 @@ namespace express {
     private:
         std::map<const http::Request*, Request*> reqestMap;
         std::map<const http::Response*, Response*> responseMap;
-        static const MountPoint mountPoint;
         std::shared_ptr<RouterDispatcher> routerDispatcher; // it can be shared by multiple routers
     };
 

@@ -300,8 +300,6 @@ namespace express {
         return *this;                                                                                                                      \
     };
 
-    const MountPoint Router::mountPoint("use", "/");
-
     Router::Router()
         : routerDispatcher(new RouterDispatcher()) {
     }
@@ -319,7 +317,7 @@ namespace express {
         Request* expressReq = reqestMap[&req] = new Request(req);
         Response* expressRes = responseMap[&res] = new Response(res);
 
-        static_cast<void>(routerDispatcher->dispatch(Router::mountPoint, "/", *expressReq, *expressRes));
+        static_cast<void>(routerDispatcher->dispatch(MountPoint("use", "/"), "/", *expressReq, *expressRes));
     }
 
     void Router::completed(const http::Request& req, const http::Response& res) {
