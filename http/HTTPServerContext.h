@@ -39,6 +39,8 @@ namespace http {
                           const std::function<void(Request& req, Response& res)>& onRequestReady,
                           const std::function<void(Request& req, Response& res)>& onRequestCompleted);
 
+        ~HTTPServerContext();
+
         void receiveRequestData(const char* junk, size_t junkLen);
         void onReadError(int errnum);
 

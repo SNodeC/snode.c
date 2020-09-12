@@ -77,6 +77,12 @@ namespace http {
         response.reset();
     }
 
+    HTTPServerContext::~HTTPServerContext() {
+        if (requestInProgress) {
+            onRequestCompleted(request, response);
+        }
+    }
+
     void HTTPServerContext::receiveRequestData(const char* junk, size_t junkLen) {
         if (!requestInProgress) {
             parser.parse(junk, junkLen);
