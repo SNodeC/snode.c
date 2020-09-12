@@ -37,8 +37,10 @@ namespace http {
 
     class ClientResponse;
 
-    template <typename SocketClient>
+    template <typename SocketClientT>
     class HTTPClient {
+        using SocketClient = SocketClientT;
+
     public:
         HTTPClient(const std::function<void(typename SocketClient::SocketConnection*)>& onConnect,
                    const std::function<void(ClientResponse& clientResponse)> onResponseReady,
