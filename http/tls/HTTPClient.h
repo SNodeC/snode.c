@@ -26,14 +26,10 @@
 #include "../HTTPClient.h"
 #include "socket/tls/SocketClient.h"
 
-namespace http {
+namespace http::tls {
 
-    namespace tls {
+    using HTTPClient = http::HTTPClient<net::socket::tls::SocketClient>;
 
-        using HTTPClient = http::HTTPClient<net::socket::tls::SocketClient>;
-
-    } // namespace tls
-
-} // namespace http
+} // namespace http::tls
 
 #endif // TLS_HTTPCLIENT_H

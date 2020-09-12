@@ -26,14 +26,10 @@
 #include "../HTTPServer.h"
 #include "socket/tls/SocketServer.h"
 
-namespace http {
+namespace http::tls {
 
-    namespace tls {
+    using HTTPServer = http::HTTPServer<net::socket::tls::SocketServer>;
 
-        using HTTPServer = http::HTTPServer<net::socket::tls::SocketServer>;
-
-    } // namespace tls
-
-} // namespace http
+} // namespace http::tls
 
 #endif // TLS_HTTPSERVER_H

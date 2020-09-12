@@ -26,14 +26,10 @@
 #include "../HTTPServer.h"
 #include "socket/legacy/SocketServer.h"
 
-namespace http {
+namespace http::legacy {
 
-    namespace legacy {
+    using HTTPServer = http::HTTPServer<net::socket::legacy::SocketServer>;
 
-        using HTTPServer = http::HTTPServer<net::socket::legacy::SocketServer>;
-
-    } // namespace legacy
-
-} // namespace http
+} // namespace http::legacy
 
 #endif // LEGACY_HTTPSERVER_H

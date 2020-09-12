@@ -26,14 +26,10 @@
 #include "../HTTPClient.h"
 #include "socket/legacy/SocketClient.h"
 
-namespace http {
+namespace http::legacy {
 
-    namespace legacy {
+    using HTTPClient = http::HTTPClient<net::socket::legacy::SocketClient>;
 
-        using HTTPClient = http::HTTPClient<net::socket::legacy::SocketClient>;
-
-    } // namespace legacy
-
-} // namespace http
+} // namespace http::legacy
 
 #endif // LEGACY_HTTPCLIENT_H

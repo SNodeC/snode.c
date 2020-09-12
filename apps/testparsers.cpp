@@ -36,10 +36,12 @@
 #define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem"
 #define KEYFPASS "snode.c"
 
+using namespace http;
+
 int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     Logger::init(argc, argv);
 
-    http::HTTPRequestParser requestParser(
+    HTTPRequestParser requestParser(
         [](const std::string& method, const std::string& originalUrl, const std::string& fragment, const std::string& httpVersion,
            [[maybe_unused]] const std::map<std::string, std::string>& queries) -> void {
             VLOG(0) << "++ Request: " << method << " " << originalUrl << " "
@@ -99,11 +101,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     requestParser.parse(httpRequest.c_str(), httpRequest.size());
     requestParser.reset();
 
-    http::HTTPResponseParser responseParser(
+    HTTPResponseParser responseParser(
         [](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
             VLOG(0) << "++ Response: " << httpVersion << " " << statusCode << " " << reason;
         },
-        [](const std::map<std::string, std::string>& headers, const std::map<std::string, http::ResponseCookie>& cookies) -> void {
+        [](const std::map<std::string, std::string>& headers, const std::map<std::string, ResponseCookie>& cookies) -> void {
             VLOG(0) << "++   Headers:";
             for (const auto& [field, value] : headers) {
                 VLOG(0) << "++       " << field + " = " + value;
@@ -124,7 +126,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
             VLOG(0) << "++   OnContent: " << contentLength << " : " << strContent;
             delete[] strContent;
         },
-        [](http::HTTPResponseParser& parser) -> void {
+        [](HTTPResponseParser& parser) -> void {
             VLOG(0) << "++   OnParsed";
             parser.reset();
         },

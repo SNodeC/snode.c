@@ -268,38 +268,6 @@ namespace express {
         return next;
     }
 
-#define IMPLEMENT_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                       \
-    Router& Router::METHOD(const std::string& path, const Router& router) {                                                                \
-        routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, path, router.routerDispatcher));                                    \
-        return *this;                                                                                                                      \
-    };                                                                                                                                     \
-                                                                                                                                           \
-    Router& Router::METHOD(const Router& router) {                                                                                         \
-        routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, "", router.routerDispatcher));                                      \
-        return *this;                                                                                                                      \
-    };                                                                                                                                     \
-                                                                                                                                           \
-    Router& Router::METHOD(const std::string& path,                                                                                        \
-                           const std::function<void(Request & req, Response & res, const std::function<void(void)>& next)>& dispatcher) {  \
-        routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, path, std::make_shared<MiddlewareDispatcher>(dispatcher)));         \
-        return *this;                                                                                                                      \
-    };                                                                                                                                     \
-                                                                                                                                           \
-    Router& Router::METHOD(const std::function<void(Request & req, Response & res, const std::function<void(void)>& next)>& dispatcher) {  \
-        routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, "", std::make_shared<MiddlewareDispatcher>(dispatcher)));           \
-        return *this;                                                                                                                      \
-    };                                                                                                                                     \
-                                                                                                                                           \
-    Router& Router::METHOD(const std::string& path, const std::function<void(Request & req, Response & res)>& dispatcher) {                \
-        routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, path, std::make_shared<ApplicationDispatcher>(dispatcher)));        \
-        return *this;                                                                                                                      \
-    };                                                                                                                                     \
-                                                                                                                                           \
-    Router& Router::METHOD(const std::function<void(Request & req, Response & res)>& dispatcher) {                                         \
-        routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, "", std::make_shared<ApplicationDispatcher>(dispatcher)));          \
-        return *this;                                                                                                                      \
-    };
-
     Router::Router()
         : routerDispatcher(new RouterDispatcher()) {
     }
@@ -328,16 +296,16 @@ namespace express {
         responseMap.erase(&res);
     }
 
-    IMPLEMENT_REQUESTMETHOD(use, "use");
-    IMPLEMENT_REQUESTMETHOD(all, "all");
-    IMPLEMENT_REQUESTMETHOD(get, "GET");
-    IMPLEMENT_REQUESTMETHOD(put, "PUT");
-    IMPLEMENT_REQUESTMETHOD(post, "POST");
-    IMPLEMENT_REQUESTMETHOD(del, "DELETE");
-    IMPLEMENT_REQUESTMETHOD(connect, "CONNECT");
-    IMPLEMENT_REQUESTMETHOD(options, "OPTIONS");
-    IMPLEMENT_REQUESTMETHOD(trace, "TRACE");
-    IMPLEMENT_REQUESTMETHOD(patch, "PATCH");
-    IMPLEMENT_REQUESTMETHOD(head, "HEAD");
+    DEFINE_REQUESTMETHOD(use, "use");
+    DEFINE_REQUESTMETHOD(all, "all");
+    DEFINE_REQUESTMETHOD(get, "GET");
+    DEFINE_REQUESTMETHOD(put, "PUT");
+    DEFINE_REQUESTMETHOD(post, "POST");
+    DEFINE_REQUESTMETHOD(del, "DELETE");
+    DEFINE_REQUESTMETHOD(connect, "CONNECT");
+    DEFINE_REQUESTMETHOD(options, "OPTIONS");
+    DEFINE_REQUESTMETHOD(trace, "TRACE");
+    DEFINE_REQUESTMETHOD(patch, "PATCH");
+    DEFINE_REQUESTMETHOD(head, "HEAD");
 
 } // namespace express
