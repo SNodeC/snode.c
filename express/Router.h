@@ -30,7 +30,8 @@
 
 #include "../http/Request.h"
 #include "../http/Response.h"
-#include "http_utils.h"
+#include "Request.h"
+#include "Response.h"
 
 #define MIDDLEWARE(req, res, next)                                                                                                         \
     ([[maybe_unused]] Request & (req), [[maybe_unused]] Response & (res), [[maybe_unused]] const std::function<void(void)>&(next))->void
@@ -38,30 +39,6 @@
 #define APPLICATION(req, res) ([[maybe_unused]] Request & (req), [[maybe_unused]] Response & (res))->void
 
 namespace express {
-
-    class Request : public http::Request {
-    public:
-        Request() = delete;
-        Request(const Request&) = delete;
-
-        Request(const http::Request& req);
-
-        Request& operator=(const Request&) = delete;
-
-        std::string originalUrl;
-        std::string path;
-        std::map<std::string, std::string> params;
-    };
-
-    class Response : public http::Response {
-    public:
-        Response() = delete;
-        Response(const Response&) = delete;
-
-        Response(const http::Response& res);
-
-        Response& operator=(const Response&) = delete;
-    };
 
 #define DECLARE_REQUESTMETHOD(METHOD)                                                                                                      \
     Router& METHOD(const std::string& path, const std::function<void(Request & req, Response & res)>& dispatcher);                         \

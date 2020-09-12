@@ -42,14 +42,6 @@ namespace http {
         void send(const char* buffer, size_t size);
         void send(const std::string& text);
 
-        void sendFile(const std::string& file, const std::function<void(int err)>& onError = nullptr);
-        void download(const std::string& file, const std::function<void(int err)>& onError = nullptr);
-        void download(const std::string& file, const std::string& name, const std::function<void(int err)>& onError = nullptr);
-
-        void redirect(const std::string& name);
-        void redirect(int status, const std::string& name);
-
-        void sendStatus(int status);
         void end();
 
         Response& status(int status);
@@ -90,7 +82,6 @@ namespace http {
 
     protected:
         HTTPServerContext* httpContext;
-        FileReader* fileReader = nullptr;
 
         size_t contentSent = 0;
         bool sendHeaderInProgress = false;

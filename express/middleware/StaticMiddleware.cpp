@@ -37,9 +37,11 @@ StaticMiddleware::StaticMiddleware(const std::string& root)
             res.cookie("CookieName", "CookieValue");
             next();
         } else {
-            res.set("Connection", "Close").sendStatus(400);
+            res.set("Connection", "Close");
+            res.sendStatus(400);
         }
     });
+
     use([] MIDDLEWARE(req, res, next) {
         if (req.url == "/") {
             res.redirect(308, "/index.html");
@@ -47,6 +49,7 @@ StaticMiddleware::StaticMiddleware(const std::string& root)
             next();
         }
     });
+
     use([this] APPLICATION(req, res) {
         VLOG(0) << "GET " + req.url + " -> " + this->root + req.url;
         res.sendFile(this->root + req.url, [&req](int ret) -> void {

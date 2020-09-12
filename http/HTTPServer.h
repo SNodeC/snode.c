@@ -19,8 +19,10 @@ namespace http {
     class Request;
     class Response;
 
-    template <typename SocketServer>
+    template <typename SocketServerT>
     class HTTPServer {
+        using SocketServer = SocketServerT;
+
     public:
         explicit HTTPServer(const std::function<void(typename SocketServer::SocketConnection*)>& onConnect,
                             const std::function<void(Request& req, Response& res)>& onRequestReady,

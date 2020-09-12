@@ -25,7 +25,6 @@
 
 #include "HTTPServerContext.h"
 #include "HTTPStatusCodes.h"
-#include "MimeTypes.h"
 #include "Response.h"
 #include "file/FileReader.h"
 #include "http_utils.h"
@@ -167,82 +166,6 @@ namespace http {
     }
 
     void Response::disable() {
-        if (fileReader != nullptr) {
-            fileReader->disable();
-            fileReader = nullptr;
-        }
-    }
-
-    void Response::sendFile(const std::string& file, const std::function<void(int err)>& onError) {
-        std::string absolutFileName = file;
-
-        if (std::filesystem::exists(absolutFileName)) {
-            std::error_code ec;
-            absolutFileName = std::filesystem::canonical(absolutFileName);
-
-            if (std::filesystem::is_regular_file(absolutFileName, ec) && !ec) {
-                headers.insert({{"Content-Type", MimeTypes::contentType(absolutFileName)},
-                                {"Last-Modified", httputils::file_mod_http_date(absolutFileName)}});
-                headers.insert_or_assign("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
-
-                fileReader = FileReader::read(
-                    absolutFileName,
-                    [this](char* data, int length) -> void {
-                        enqueue(data, length);
-                    },
-                    [this, onError](int err) -> void {
-                        if (onError) {
-                            onError(err);
-                        }
-                        if (err != 0) {
-                            httpContext->terminateConnection();
-                        }
-                    });
-            } else {
-                responseStatus = 403;
-                errno = EACCES;
-                httpContext->terminateConnection();
-                if (onError) {
-                    onError(EACCES);
-                }
-                end();
-            }
-        } else {
-            responseStatus = 404;
-            errno = ENOENT;
-            httpContext->terminateConnection();
-            if (onError) {
-                onError(ENOENT);
-            }
-            end();
-        }
-    }
-
-    void Response::download(const std::string& file, const std::function<void(int err)>& onError) {
-        std::string name = file;
-
-        if (name[0] == '/') {
-            name.erase(0, 1);
-        }
-
-        download(file, name, onError);
-    }
-
-    void Response::download(const std::string& file, const std::string& name, const std::function<void(int err)>& onError) {
-        set({{"Content-Disposition", "attachment; filename=\"" + name + "\""}}).sendFile(file, onError);
-    }
-
-    void Response::redirect(const std::string& name) {
-        redirect(302, name);
-    }
-
-    void Response::redirect(int status, const std::string& name) {
-        this->status(status).set({{"Location", name}});
-        end();
-    }
-
-    void Response::sendStatus(int status) {
-        this->status(status).send(HTTPStatusCode::reason(status));
     }
 
     void Response::end() {

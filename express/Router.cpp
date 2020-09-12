@@ -18,6 +18,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <filesystem>
 #include <list>
 #include <regex>
 #include <vector>
@@ -298,20 +299,6 @@ namespace express {
         routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, "", std::make_shared<ApplicationDispatcher>(dispatcher)));          \
         return *this;                                                                                                                      \
     };
-
-    Request::Request(const http::Request& req)
-        : http::Request(req)
-        , originalUrl(req.url) {
-        url = httputils::str_split_last(originalUrl, '?').first;
-        path = httputils::str_split_last(url, '/').first;
-        if (path.empty()) {
-            path = "/";
-        }
-    }
-
-    Response::Response(const http::Response& res)
-        : http::Response(res) {
-    }
 
     const MountPoint Router::mountPoint("use", "/");
 
