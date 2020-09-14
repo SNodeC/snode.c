@@ -18,6 +18,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "HTTPParser.h"
 #include "HTTPRequestParser.h"  // for HTTPRequestParser
 #include "HTTPResponseParser.h" // for HTTPResponseParser, ResponseCookie
 #include "Logger.h"             // for Logger
@@ -68,7 +69,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
             VLOG(0) << "++    OnContent: " << contentLength << " : " << strContent;
             delete[] strContent;
         },
-        [](http::HTTPRequestParser&) -> void {
+        [](HTTPRequestParser&) -> void {
             VLOG(0) << "++    OnParsed";
         },
         [](int status, const std::string& reason) -> void {

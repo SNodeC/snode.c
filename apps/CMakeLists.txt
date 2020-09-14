@@ -25,7 +25,7 @@ set_target_properties(testpost PROPERTIES
             SOVERSION 1
 )
 if(CHECK_INCLUDES)
-    set_property(TARGET posttest PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path_and_options})
+    set_property(TARGET testpost PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path_and_options})
 endif(CHECK_INCLUDES)
 
 add_executable(simpleserver simpleserver.cpp)
