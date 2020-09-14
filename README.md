@@ -19,3 +19,9 @@ _Components:_
 * libhttp (directory http) low level http server and client
 * libexpress (directory express) high level web-api similar to node.js's express module
 * example applications (directory apps)
+
+_TODOs:_
+* Add better error processing in HTTPResponseParser
+* Improve regex-match in Router
+* Add some more complex example apps
+* Fix HTTPRequestParser to be compliant with the standard
