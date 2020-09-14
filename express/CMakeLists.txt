@@ -11,6 +11,7 @@ add_library(express SHARED
     Router.h
     WebApp.cpp
     WebApp.h
+    WebAppT.h
     legacy/WebApp.cpp
     legacy/WebApp.h
     tls/WebApp.cpp

@@ -21,9 +21,9 @@ namespace http {
 
     template <typename SocketServerT>
     class HTTPServer {
+    public:
         using SocketServer = SocketServerT;
 
-    public:
         explicit HTTPServer(const std::function<void(typename SocketServer::SocketConnection*)>& onConnect,
                             const std::function<void(Request& req, Response& res)>& onRequestReady,
                             const std::function<void(Request& req, Response& res)>& onRequestCompleted,

@@ -22,35 +22,4 @@
 
 #include "WebApp.h"
 
-namespace express::tls {
-
-    WebApp::WebApp(const std::map<std::string, std::any>& options)
-        : httpServer(
-              [this]([[maybe_unused]] net::socket::tls::SocketConnection* socketConnection) -> void { // onConnect
-                  if (_onConnect != nullptr) {
-                      _onConnect(socketConnection);
-                  }
-              },
-              [this](http::Request& req, http::Response& res) -> void { // onRequestReady
-                  dispatch(req, res);
-              },
-              [this](http::Request& req, http::Response& res) -> void { // onRequestCompleted
-                  completed(req, res);
-              },
-              [this]([[maybe_unused]] net::socket::tls::SocketConnection* socketConnection) -> void { // onDisconnect
-                  if (_onDisconnect != nullptr) {
-                      _onDisconnect(socketConnection);
-                  }
-              },
-              options) {
-    }
-
-    void WebApp::listen(in_port_t port, const std::function<void(int err)>& onError) {
-        httpServer.listen(port, onError);
-    }
-
-    void WebApp::listen(const std::string& host, in_port_t port, const std::function<void(int err)>& onError) {
-        httpServer.listen(host, port, onError);
-    }
-
-} // namespace express::tls
+namespace express::tls {} // namespace express::tls

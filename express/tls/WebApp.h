@@ -26,38 +26,12 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "../WebApp.h"
+#include "../WebAppT.h"
 #include "tls/HTTPServer.h"
 
 namespace express::tls {
 
-    class WebApp : public express::WebApp {
-    public:
-        explicit WebApp(const std::map<std::string, std::any>& options = {{}});
-
-        WebApp& operator=(const express::WebApp& webApp) = delete;
-
-        void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr) override;
-        void listen(const std::string& host, in_port_t port, const std::function<void(int err)>& onError = nullptr) override;
-
-        void onConnect(const std::function<void(net::socket::tls::SocketConnection*)>& onConnect) {
-            _onConnect = onConnect;
-        }
-
-        void onDisconnect(const std::function<void(net::socket::tls::SocketConnection*)>& onDisconnect) {
-            _onDisconnect = onDisconnect;
-        }
-
-    protected:
-        std::function<void(net::socket::tls::SocketConnection*)> _onConnect = nullptr;
-        std::function<void(net::socket::tls::SocketConnection*)> _onDisconnect = nullptr;
-
-        http::tls::HTTPServer httpServer;
-
-    private:
-        using express::WebApp::start;
-        using express::WebApp::stop;
-    };
+    using WebApp = WebAppT<http::tls::HTTPServer>;
 
 } // namespace express::tls
 
