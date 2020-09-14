@@ -1,7 +1,7 @@
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020  Volker Christian <me@vchrist.at>
- * Json Middleware 2020 Marlene Mayr, Anna Moser, Matteo Prock, Eric Thalhammer 
+ * Json Middleware 2020 Marlene Mayr, Anna Moser, Matteo Prock, Eric Thalhammer
  * Github <MarleneMayr><moseranna><MatteoMatteoMatteo><peregrin-tuk>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,13 +21,12 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "legacy/WebApp.h"
-#include "middleware/StaticMiddleware.h"
 #include "middleware/JsonMiddleware.h"
+#include "middleware/StaticMiddleware.h"
 #include "tls/WebApp.h"
 
-#include <./json.hpp>
-
 #include <easylogging++.h>
+#include <nlohmann/json.hpp>
 #include <openssl/x509v3.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -57,13 +56,14 @@ int main(int argc, char** argv) {
         }
     });
 
-    legacyApp.post("/", [] APPLICATION(req,res){
-        req.getAttribute<json>([](json& j) -> void {
-            VLOG(0) << "Application received body: " << j.dump(4);
-        },
-        [](const std::string& key) -> void {
-            VLOG(0) << key << " attribute not found";
-        });
+    legacyApp.post("/", [] APPLICATION(req, res) {
+        req.getAttribute<json>(
+            [](json& j) -> void {
+                VLOG(0) << "Application received body: " << j.dump(4);
+            },
+            [](const std::string& key) -> void {
+                VLOG(0) << key << " attribute not found";
+            });
 
         res.sendFile(SERVERROOT + req.url, [&req](int ret) -> void {
             if (ret != 0) {
@@ -86,7 +86,7 @@ int main(int argc, char** argv) {
                        "):" + std::to_string(socketConnection->getRemoteAddress().port());
         VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                        "):" + std::to_string(socketConnection->getLocalAddress().port());
-    });    
+    });
 
     WebApp::start();
 

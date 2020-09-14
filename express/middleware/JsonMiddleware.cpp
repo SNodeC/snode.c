@@ -20,8 +20,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <./json.hpp>
 #include <easylogging++.h>
+#include <nlohmann/json.hpp>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
