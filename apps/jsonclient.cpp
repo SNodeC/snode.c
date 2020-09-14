@@ -1,7 +1,7 @@
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020  Volker Christian <me@vchrist.at>
- * Json Middleware 2020 Marlene Mayr, Anna Moser, Matteo Prock, Eric Thalhammer 
+ * Json Middleware 2020 Marlene Mayr, Anna Moser, Matteo Prock, Eric Thalhammer
  * Github <MarleneMayr><moseranna><MatteoMatteoMatteo><peregrin-tuk>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -86,14 +86,15 @@ int main(int argc, char* argv[]) {
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
         });
 
-
-    jsonClient.post({{"host", "localhost"}, {"port", 8080}, {"path", "/index.html"},
-                        {"body", "{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}"}},
+    jsonClient.post({{"host", "localhost"},
+                     {"port", 8080},
+                     {"path", "/index.html"},
+                     {"body", "{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}"}},
                     [](int err) -> void {
-        if (err != 0) {
-            PLOG(ERROR) << "OnError: " << err;
-        }
-    }); // Connection:keep-alive\r\n\r\n"
+                        if (err != 0) {
+                            PLOG(ERROR) << "OnError: " << err;
+                        }
+                    }); // Connection:keep-alive\r\n\r\n"
 
     net::EventLoop::start();
 
