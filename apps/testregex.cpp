@@ -104,6 +104,10 @@ Router routes() {
         res.send(req.params["search"]);
     });
 
+    router.use([] APPLICATION(req, res) {
+        res.status(404).send("Not found: " + req.url);
+    });
+
     return router;
 }
 
