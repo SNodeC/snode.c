@@ -36,4 +36,8 @@ namespace express {
         }
     }
 
+    std::string& Request::param(const std::string& id) {
+        return params[id];
+    }
+
 } // namespace express

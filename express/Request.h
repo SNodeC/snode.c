@@ -38,6 +38,8 @@ namespace express {
 
         Request& operator=(const Request&) = delete;
 
+        std::string& param(const std::string& id);
+
         std::string originalUrl;
         std::string path;
         std::map<std::string, std::string> params;
