@@ -34,32 +34,17 @@ using json = nlohmann::json;
 
 JsonMiddleware::JsonMiddleware() {
     use([] MIDDLEWARE(req, res, next) {
-        if (req.method == "POST") {
-            res.set("Connection", "Keep-Alive");
-            res.cookie("CookieName", "CookieValue");
-            next();
-        } else {
-            res.set("Connection", "Close");
-            res.sendStatus(400);
-        }
-    });
-    use([] MIDDLEWARE(req, res, next) {
-        if (req.url == "/") {
-            res.redirect(308, "/index.html");
-        } else {
-            // convert req.body char* to string
-            std::string s(req.body, req.contentLength);
-            VLOG(0) << "JsonMiddleware is parsing body: " << s;
+        // convert req.body char* to string
+        std::string s(req.body, req.contentLength);
 
-            // parse body string with json library
-            // store it as type json from nlohmann library
-            json j = json::parse(s);
+        // parse body string with json library
+        // store it as type json from nlohmann library
+        json j = json::parse(s);
 
-            // set all the json data as attributes in the request object
-            req.setAttribute<json>(j);
+        // set all the json data as attributes in the request object
+        req.setAttribute<json>(j);
 
-            next();
-        }
+        next();
     });
 }
 

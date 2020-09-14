@@ -57,19 +57,18 @@ int main(int argc, char** argv) {
     });
 
     legacyApp.post("/", [] APPLICATION(req, res) {
+        std::string jsonString = "";
+
         req.getAttribute<json>(
-            [](json& j) -> void {
-                VLOG(0) << "Application received body: " << j.dump(4);
+            [&jsonString](json& j) -> void {
+                jsonString = j.dump(4);
+                VLOG(0) << "Application received body: " << jsonString;
             },
             [](const std::string& key) -> void {
                 VLOG(0) << key << " attribute not found";
             });
 
-        res.sendFile(SERVERROOT + req.url, [&req](int ret) -> void {
-            if (ret != 0) {
-                PLOG(ERROR) << req.url;
-            }
-        });
+        res.send(jsonString);
     });
 
     legacyApp.onConnect([](net::socket::legacy::SocketConnection* socketConnection) -> void {
