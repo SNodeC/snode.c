@@ -145,10 +145,10 @@ namespace http {
                 httputils::to_lower(value);
 
                 if (headers.find(field) == headers.end()) {
-                    VLOG(1) << "++ Header (insert): " << field << " = " << value;
+                    VLOG(2) << "++ Header (insert): " << field << " = " << value;
                     headers.insert({field, value});
                 } else {
-                    VLOG(1) << "++ Header (append): " << field << " = " << value;
+                    VLOG(2) << "++ Header (append): " << field << " = " << value;
                     headers[field] += "," + value;
                 }
             }

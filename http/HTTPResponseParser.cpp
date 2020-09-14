@@ -79,7 +79,7 @@ namespace http {
 
     enum HTTPParser::PAS HTTPResponseParser::parseHeader() {
         for (auto& [field, value] : HTTPParser::headers) {
-            VLOG(1) << "++ Parse header field: " << field << " = " << value;
+            VLOG(2) << "++ Parse header field: " << field << " = " << value;
             if (field != "set-cookie") {
                 if (field == "content-length") {
                     HTTPParser::contentLength = std::stoi(value);
@@ -101,7 +101,7 @@ namespace http {
                     httputils::str_trimm(name);
                     httputils::str_trimm(value);
 
-                    VLOG(1) << "++ Cookie: " << name << " = " << value;
+                    VLOG(2) << "++ Cookie: " << name << " = " << value;
 
                     std::map<std::string, ResponseCookie>::iterator cookieElement;
                     bool inserted;
@@ -117,7 +117,7 @@ namespace http {
                         httputils::str_trimm(name);
                         httputils::str_trimm(value);
 
-                        VLOG(1) << "    ++ CookieOption: " << name << " = " << value;
+                        VLOG(2) << "    ++ CookieOption: " << name << " = " << value;
                         cookieElement->second.setOption(name, value);
                     }
                 }
