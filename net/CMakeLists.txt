@@ -43,16 +43,13 @@ add_library(net SHARED
     socket/SocketWriter.cpp
     socket/SocketWriter.h
     socket/SocketServer.h
-    socket/legacy/Socket.cpp
     socket/legacy/Socket.h
-    socket/legacy/SocketClient.cpp
     socket/legacy/SocketClient.h
     socket/legacy/SocketConnection.h
     socket/legacy/SocketReader.cpp
     socket/legacy/SocketReader.h
     socket/legacy/SocketWriter.cpp
     socket/legacy/SocketWriter.h
-    socket/legacy/SocketServer.cpp
     socket/legacy/SocketServer.h
     socket/tls/ssl_utils.cpp
     socket/tls/ssl_utils.h

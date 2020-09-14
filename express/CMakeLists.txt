@@ -12,9 +12,7 @@ add_library(express SHARED
     WebApp.cpp
     WebApp.h
     WebAppT.h
-    legacy/WebApp.cpp
     legacy/WebApp.h
-    tls/WebApp.cpp
     tls/WebApp.h
     middleware/JsonMiddleware.cpp
     middleware/JsonMiddleware.h
