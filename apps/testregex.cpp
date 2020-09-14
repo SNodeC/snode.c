@@ -59,7 +59,6 @@ Router routes() {
                                "      <li>UserId: " +
                                req.params["userId"] +
                                "      </li>"
-
                                "      <li>UserName: " +
                                req.params["userName"] +
                                "      </li>"
@@ -86,7 +85,6 @@ Router routes() {
                                "      <li>Regex 1: " +
                                req.params["testRegex1"] +
                                "      </li>"
-
                                "      <li>Regex 2: " +
                                req.params["testRegex2"] +
                                "      </li>"

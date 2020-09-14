@@ -107,7 +107,7 @@ namespace net {
                 stop();
             }
         } else {
-            EventLoop::stopped = true;
+            stop();
         }
 
         readEventDispatcher.unobserveDisabledEvents();
