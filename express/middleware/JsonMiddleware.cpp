@@ -1,7 +1,7 @@
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020  Volker Christian <me@vchrist.at>
- * Json Middleware 2020 Marlene Mayr, Anna Moser, Matteo Prock, Eric Thalhammer 
+ * Json Middleware 2020 Marlene Mayr, Anna Moser, Matteo Prock, Eric Thalhammer
  * Github <MarleneMayr><moseranna><MatteoMatteoMatteo><peregrin-tuk>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,14 +20,14 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <easylogging++.h>
 #include <./json.hpp>
+#include <easylogging++.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "JsonMiddleware.h"
 #include "Request.h"
 #include "Response.h"
-#include "JsonMiddleware.h"
 
 using namespace express;
 using json = nlohmann::json;
@@ -39,7 +39,8 @@ JsonMiddleware::JsonMiddleware() {
             res.cookie("CookieName", "CookieValue");
             next();
         } else {
-            res.set("Connection", "Close").sendStatus(400);
+            res.set("Connection", "Close");
+            res.sendStatus(400);
         }
     });
     use([] MIDDLEWARE(req, res, next) {
@@ -66,7 +67,7 @@ JsonMiddleware::JsonMiddleware() {
 static std::shared_ptr<class JsonMiddleware> jsonMiddleware = nullptr;
 
 const class JsonMiddleware& JsonMiddleware::instance() {
-    if (jsonMiddleware==nullptr) {
+    if (jsonMiddleware == nullptr) {
         jsonMiddleware = std::shared_ptr<JsonMiddleware>(new JsonMiddleware());
     }
 
