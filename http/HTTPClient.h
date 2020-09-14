@@ -71,6 +71,32 @@ namespace http {
             this->connect(options, onError, localHost);
         }
 
+        void post(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError,
+                 const net::socket::InetAddress& localHost = net::socket::InetAddress()) {
+            std::string path = "";
+            std::string host = "";
+            std::string body = "";
+            int contentLength = 0;
+
+            for (auto& [name, value] : options) {
+                if (name == "path") {
+                    path = std::any_cast<const char*>(value);
+                }
+                if (name == "host") {
+                    host = std::any_cast<const char*>(value);
+                }
+                if (name == "body") {
+                    body = std::any_cast<const char*>(value);
+                    contentLength = body.length();
+                }
+            }
+
+            this->request = "POST " + path + " HTTP/1.1\r\nHost: " + host
+                            + "\r\nContent-Length: " + std::to_string(contentLength) + "\r\n\r\n" + body;
+
+            this->connect(options, onError, localHost);
+        }
+
     protected:
         void connect(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError,
                      const net::socket::InetAddress& localHost = net::socket::InetAddress()) const {
