@@ -32,16 +32,14 @@
 JsonMiddleware::JsonMiddleware() {
     use([] MIDDLEWARE(req, res, next) {
         try {
-            // convert req.body char* to string
-            std::string body(req.body, req.contentLength);
-
             // parse body string with json library
             // store it as type json from nlohmann library
-            nlohmann::json json = nlohmann::json::parse(body);
+            nlohmann::json json = nlohmann::json::parse(req.body, req.body + req.contentLength);
 
             // set all the json data as attributes in the request object
             req.setAttribute<nlohmann::json>(json);
         } catch (nlohmann::detail::parse_error& error) {
+            // silently fail if body is not json
         }
 
         next();
