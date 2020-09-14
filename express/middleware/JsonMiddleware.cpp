@@ -29,20 +29,20 @@
 #include "Request.h"
 #include "Response.h"
 
-using namespace express;
-using json = nlohmann::json;
-
 JsonMiddleware::JsonMiddleware() {
     use([] MIDDLEWARE(req, res, next) {
-        // convert req.body char* to string
-        std::string s(req.body, req.contentLength);
+        try {
+            // convert req.body char* to string
+            std::string body(req.body, req.contentLength);
 
-        // parse body string with json library
-        // store it as type json from nlohmann library
-        json j = json::parse(s);
+            // parse body string with json library
+            // store it as type json from nlohmann library
+            nlohmann::json json = nlohmann::json::parse(body);
 
-        // set all the json data as attributes in the request object
-        req.setAttribute<json>(j);
+            // set all the json data as attributes in the request object
+            req.setAttribute<nlohmann::json>(json);
+        } catch (nlohmann::detail::parse_error& error) {
+        }
 
         next();
     });
