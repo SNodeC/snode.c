@@ -237,7 +237,7 @@ namespace express {
 
         // TODO: Fix regex-match
         if ((req.path.rfind(cpath, 0) == 0 && mountPoint.method == "use") ||
-            ((cpath == req.path || checkForUrlMatch(cpath, req.path)) && (req.method == mountPoint.method || mountPoint.method == "all"))) {
+            ((cpath == req.path || checkForUrlMatch(cpath, req.url)) && (req.method == mountPoint.method || mountPoint.method == "all"))) {
             next = false;
 
             if (hasResult(cpath)) {
@@ -258,7 +258,7 @@ namespace express {
 
         // TODO: Fix regex-match
         if ((req.path.rfind(cpath, 0) == 0 && mountPoint.method == "use") ||
-            ((cpath == req.path || checkForUrlMatch(cpath, req.path)) && (req.method == mountPoint.method || mountPoint.method == "all"))) {
+            ((cpath == req.path || checkForUrlMatch(cpath, req.url)) && (req.method == mountPoint.method || mountPoint.method == "all"))) {
             next = false;
 
             if (hasResult(cpath)) {
