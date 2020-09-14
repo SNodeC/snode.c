@@ -217,6 +217,7 @@ namespace express {
         bool next = true;
         std::string cpath = path_concat(parentPath, mountPoint.path);
 
+        // TODO: Fix regex-match
         if ((req.path.rfind(cpath, 0) == 0 &&
              (mountPoint.method == "use" || req.method == mountPoint.method || mountPoint.method == "all"))) {
             for (const Route& route : routes) {
@@ -234,8 +235,9 @@ namespace express {
         bool next = true;
         std::string cpath = path_concat(parentPath, mountPoint.path);
 
+        // TODO: Fix regex-match
         if ((req.path.rfind(cpath, 0) == 0 && mountPoint.method == "use") ||
-            (checkForUrlMatch(cpath, req.url) && (req.method == mountPoint.method || mountPoint.method == "all"))) {
+            ((cpath == req.path || checkForUrlMatch(cpath, req.path)) && (req.method == mountPoint.method || mountPoint.method == "all"))) {
             next = false;
 
             if (hasResult(cpath)) {
@@ -254,8 +256,9 @@ namespace express {
         bool next = true;
         std::string cpath = path_concat(parentPath, mountPoint.path);
 
+        // TODO: Fix regex-match
         if ((req.path.rfind(cpath, 0) == 0 && mountPoint.method == "use") ||
-            (checkForUrlMatch(cpath, req.url) && (req.method == mountPoint.method || mountPoint.method == "all"))) {
+            ((cpath == req.path || checkForUrlMatch(cpath, req.path)) && (req.method == mountPoint.method || mountPoint.method == "all"))) {
             next = false;
 
             if (hasResult(cpath)) {
