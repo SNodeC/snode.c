@@ -12,6 +12,7 @@ _Requirements:_
 * iwyu
 * libmagic
 * clang-format
+* nlohmann-json3-dev
 
 _Components:_
 * libnet (directory net) low level multiplexed network-layer (server/client) with event-loop supporting legacy- and tls-connections
