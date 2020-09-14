@@ -15,6 +15,8 @@ add_library(express SHARED
     legacy/WebApp.h
     tls/WebApp.cpp
     tls/WebApp.h
+    middleware/JsonMiddleware.cpp
+    middleware/JsonMiddleware.h
     middleware/StaticMiddleware.cpp
     middleware/StaticMiddleware.h
 )
