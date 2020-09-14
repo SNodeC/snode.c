@@ -67,9 +67,8 @@ namespace http {
         if (!line.empty()) {
             std::string remaining;
 
-            std::tie(httpVersion, remaining) = httputils::str_split(line, ' '); // if split not found second will be empty
-            std::tie(statusCode, remaining) = httputils::str_split(remaining, ' ');
-            std::tie(reason, std::ignore) = httputils::str_split(remaining, ' ');
+            std::tie(httpVersion, remaining) = httputils::str_split(line, ' ');
+            std::tie(statusCode, reason) = httputils::str_split(remaining, ' ');
 
             onResponse(httpVersion, statusCode, reason);
         } else {
