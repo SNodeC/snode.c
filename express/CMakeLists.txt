@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.0)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
 
+find_package(nlohmann_json 3.9.0 REQUIRED)
+
 add_library(express SHARED
     Response.cpp
     Response.h
@@ -21,6 +23,7 @@ add_library(express SHARED
 )
 
 target_link_libraries(express LINK_PUBLIC http net logger utils ${LIBMAGIC_LIBRARIES})
+target_link_libraries(express PRIVATE nlohmann_json::nlohmann_json)
 
 target_compile_options(express PRIVATE --warn-all)
 
