@@ -95,7 +95,7 @@ namespace express {
         std::vector<std::string> explodedString = explode(cpath, '/');
         std::vector<std::string> explodedReqString = explode(req.url, '/');
 
-        for (std::vector<std::string>::size_type i = 0; i < explodedString.size(); i++) {
+        for (std::vector<std::string>::size_type i = 0; i < explodedString.size() && i < explodedReqString.size(); i++) {
             if (explodedString[i].front() == ':') {
                 std::smatch smatch = matchResult(explodedString[i]);
                 std::string regex = "(.*)";
