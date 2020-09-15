@@ -38,9 +38,7 @@ add_library(net SHARED
     socket/SocketClient.h
     socket/SocketConnection.h
     socket/SocketConnectionBase.h
-    socket/SocketReader.cpp
     socket/SocketReader.h
-    socket/SocketWriter.cpp
     socket/SocketWriter.h
     socket/SocketServer.h
     socket/legacy/Socket.h
