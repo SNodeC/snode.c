@@ -72,7 +72,6 @@ namespace http {
     void Request::reset() {
         method.clear();
         url.clear();
-        fragment.clear();
         httpVersion.clear();
         body = nullptr;
         contentLength = 0;

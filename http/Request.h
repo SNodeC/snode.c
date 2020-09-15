@@ -46,10 +46,9 @@ namespace http {
         std::string method;
         std::string url;
         std::string httpVersion;
-        std::string fragment;
-
         char* body = nullptr;
         int contentLength = 0;
+
         bool keepAlive = false;
 
     protected:

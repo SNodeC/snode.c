@@ -29,7 +29,7 @@ namespace express {
     Request::Request(const http::Request& req)
         : http::Request(req)
         , originalUrl(req.url) {
-        url = httputils::str_split_last(originalUrl, '?').first;
+        url = httputils::url_decode(httputils::str_split_last(originalUrl, '?').first);
         path = httputils::str_split_last(url, '/').first;
         if (path.empty()) {
             path = "/";

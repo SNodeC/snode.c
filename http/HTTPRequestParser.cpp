@@ -32,8 +32,8 @@
 namespace http {
 
     HTTPRequestParser::HTTPRequestParser(
-        const std::function<void(const std::string&, const std::string&, const std::string&, const std::string&,
-                                 const std::map<std::string, std::string>&)>& onRequest,
+        const std::function<void(const std::string&, const std::string&, const std::string&, const std::map<std::string, std::string>&)>&
+            onRequest,
         const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>& onHeader,
         const std::function<void(char*, size_t)>& onContent, const std::function<void(HTTPRequestParser&)>& onParsed,
         const std::function<void(int status, const std::string& reason)>& onError)
@@ -47,8 +47,7 @@ namespace http {
     void HTTPRequestParser::reset() {
         HTTPParser::reset();
         method.clear();
-        originalUrl.clear();
-        fragment.clear();
+        url.clear();
         httpVersion.clear();
         queries.clear();
         cookies.clear();
@@ -62,48 +61,36 @@ namespace http {
         if (!line.empty()) {
             std::string remaining;
 
-            std::tie(method, remaining) = httputils::str_split(line, ' '); // if split not found second will be empty
+            std::tie(method, remaining) = httputils::str_split(line, ' ');
+            std::tie(url, httpVersion) = httputils::str_split(remaining, ' ');
+
+            std::string queriesLine;
+            std::tie(std::ignore, queriesLine) = httputils::str_split(url, '?');
 
             if (!methodSupported(method)) {
                 PAS = parsingError(400, "Bad request method");
-            } else if (remaining.empty()) {
+            } else if (url.empty() || url.front() != '/') {
                 PAS = parsingError(400, "Malformed request");
             } else {
-                std::tie(originalUrl, httpVersion) = httputils::str_split(remaining, ' ');
-
-                originalUrl = httputils::url_decode(originalUrl);
-
-                if (originalUrl.front() != '/') {
-                    PAS = parsingError(400, "Malformed URL");
+                std::smatch httpVersionMatch;
+                if (!std::regex_match(httpVersion, httpVersionMatch, httpVersionRegex)) {
+                    PAS = parsingError(400, "Wrong protocol-version");
                 } else {
-                    std::smatch match;
+                    httpMajor = std::stoi(httpVersionMatch.str(1));
+                    httpMinor = std::stoi(httpVersionMatch.str(2));
 
-                    if (!std::regex_match(httpVersion, match, httpVersionRegex)) {
-                        PAS = parsingError(400, "Wrong protocol-version");
-                    } else {
-                        httpMajor = std::stoi(match.str(1));
-                        httpMinor = std::stoi(match.str(2));
+                    while (!queriesLine.empty()) {
+                        std::string query;
+                        std::tie(query, queriesLine) = httputils::str_split(queriesLine, '&');
 
-                        /* BEGIN: Belongs to default queryParser */
-                        std::string queriesLine;
-                        std::tie(queriesLine, std::ignore) = httputils::str_split(httputils::str_split(originalUrl, '?').second, '#');
+                        std::string key;
+                        std::string value;
+                        std::tie(key, value) = httputils::str_split(query, '=');
 
-                        while (!queriesLine.empty()) {
-                            std::string query;
-                            std::tie(query, queriesLine) = httputils::str_split(queriesLine, '&');
-
-                            std::string key;
-                            std::string value;
-                            std::tie(key, value) = httputils::str_split(query, '=');
-
-                            queries.insert({key, value});
-                        }
-                        /* END: Belongs to default queryParser */
-
-                        std::tie(std::ignore, fragment) = httputils::str_split(originalUrl, '#');
-
-                        onRequest(method, originalUrl, fragment, httpVersion, queries);
+                        queries.insert({key, value});
                     }
+
+                    onRequest(method, url, httpVersion, queries);
                 }
             }
         } else {

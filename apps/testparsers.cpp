@@ -43,14 +43,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     Logger::init(argc, argv);
 
     HTTPRequestParser requestParser(
-        [](const std::string& method, const std::string& originalUrl, const std::string& fragment, const std::string& httpVersion,
+        [](const std::string& method, const std::string& originalUrl, const std::string& httpVersion,
            [[maybe_unused]] const std::map<std::string, std::string>& queries) -> void {
             VLOG(0) << "++ Request: " << method << " " << originalUrl << " "
                     << " " << httpVersion;
             for (const std::pair<std::string, std::string>& query : queries) {
                 VLOG(0) << "++    Query: " << query.first << " = " << query.second;
             }
-            VLOG(0) << "++    Fragment: " << fragment;
         },
         [](const std::map<std::string, std::string>& header, const std::map<std::string, std::string>& cookies) -> void {
             VLOG(0) << "++    Header: ";
