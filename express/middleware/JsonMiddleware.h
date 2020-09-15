@@ -26,21 +26,23 @@
 
 #include "Router.h"
 
-using namespace express;
+namespace express::middleware {
 
-class JsonMiddleware : public Router {
-protected:
-    JsonMiddleware();
-    static const class JsonMiddleware& instance();
+    class JsonMiddleware : public Router {
+    protected:
+        JsonMiddleware();
+        static const class JsonMiddleware& instance();
 
-public:
-    JsonMiddleware(const JsonMiddleware&) = delete;
-    JsonMiddleware& operator=(const JsonMiddleware&) = delete;
+    public:
+        JsonMiddleware(const JsonMiddleware&) = delete;
+        JsonMiddleware& operator=(const JsonMiddleware&) = delete;
 
-protected:
-    friend const class JsonMiddleware& JsonMiddleware();
-};
+    protected:
+        friend const class JsonMiddleware& JsonMiddleware();
+    };
 
-const class JsonMiddleware& JsonMiddleware();
+    const class JsonMiddleware& JsonMiddleware();
+
+} // namespace express::middleware
 
 #endif // JSONMIDDLEWARE_H

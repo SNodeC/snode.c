@@ -29,7 +29,6 @@
 
 #include <cstring>
 #include <easylogging++.h>
-#include <iostream>
 #include <openssl/x509v3.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

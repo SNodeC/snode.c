@@ -37,7 +37,6 @@ namespace net::socket::tls {
     protected:
         using socket::SocketReader<tls::Socket>::SocketReader;
 
-    private:
         ssize_t read(char* junk, size_t junkLen) override;
     };
 

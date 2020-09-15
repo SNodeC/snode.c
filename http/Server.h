@@ -23,12 +23,12 @@ namespace http {
     class Server {
     public:
         using SocketServer = SocketServerT;
+        using SocketConnection = typename SocketServer::SocketConnection;
 
-        explicit Server(const std::function<void(typename SocketServer::SocketConnection*)>& onConnect,
+        explicit Server(const std::function<void(SocketConnection*)>& onConnect,
                         const std::function<void(Request& req, Response& res)>& onRequestReady,
                         const std::function<void(Request& req, Response& res)>& onRequestCompleted,
-                        const std::function<void(typename SocketServer::SocketConnection*)>& onDisconnect,
-                        const std::map<std::string, std::any>& options = {{}})
+                        const std::function<void(SocketConnection*)>& onDisconnect, const std::map<std::string, std::any>& options = {{}})
             : onConnect(onConnect)
             , onRequestReady(onRequestReady)
             , onRequestCompleted(onRequestCompleted)
@@ -41,7 +41,7 @@ namespace http {
     protected:
         SocketServer* socketServer() const {
             return new SocketServer(
-                [*this](typename SocketServer::SocketConnection* socketConnection) -> void { // onConnect
+                [*this](SocketConnection* socketConnection) -> void { // onConnect
                     onConnect(socketConnection);
                     socketConnection->template setContext<ServerContext*>(new ServerContext(
                         socketConnection,
@@ -52,23 +52,23 @@ namespace http {
                             onRequestCompleted(req, res);
                         }));
                 },
-                [*this](typename SocketServer::SocketConnection* socketConnection) -> void { // onDisconnect
+                [*this](SocketConnection* socketConnection) -> void { // onDisconnect
                     onDisconnect(socketConnection);
                     socketConnection->template getContext<ServerContext*>([](ServerContext*& protocol) -> void {
                         delete protocol;
                     });
                 },
-                [](typename SocketServer::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
+                [](SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
                     socketConnection->template getContext<ServerContext*>([&junk, &junkSize](ServerContext*& protocol) -> void {
                         protocol->receiveRequestData(junk, junkSize);
                     });
                 },
-                [](typename SocketServer::SocketConnection* socketConnection, int errnum) -> void { // onReadError
+                [](SocketConnection* socketConnection, int errnum) -> void { // onReadError
                     socketConnection->template getContext<ServerContext*>([&errnum](ServerContext*& protocol) -> void {
                         protocol->onReadError(errnum);
                     });
                 },
-                [](typename SocketServer::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
+                [](SocketConnection* socketConnection, int errnum) -> void { // onWriteError
                     socketConnection->template getContext<ServerContext*>([&errnum](ServerContext*& protocol) -> void {
                         protocol->onWriteError(errnum);
                     });
@@ -98,10 +98,10 @@ namespace http {
         }
 
     protected:
-        std::function<void(typename SocketServer::SocketConnection*)> onConnect;
+        std::function<void(SocketConnection*)> onConnect;
         std::function<void(Request& req, Response& res)> onRequestReady;
         std::function<void(Request& req, Response& res)> onRequestCompleted;
-        std::function<void(typename SocketServer::SocketConnection*)> onDisconnect;
+        std::function<void(SocketConnection*)> onDisconnect;
 
         std::map<std::string, std::any> options;
     };

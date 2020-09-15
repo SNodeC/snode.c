@@ -35,8 +35,9 @@ namespace http {
 
     class ServerContext {
     public:
-        ServerContext(net::socket::SocketConnectionBase* socketConnection,
-                      const std::function<void(Request& req, Response& res)>& onRequestReady,
+        using SocketConnection = net::socket::SocketConnectionBase;
+
+        ServerContext(SocketConnection* socketConnection, const std::function<void(Request& req, Response& res)>& onRequestReady,
                       const std::function<void(Request& req, Response& res)>& onRequestCompleted);
 
         ~ServerContext();
@@ -52,7 +53,7 @@ namespace http {
         void terminateConnection();
 
     private:
-        net::socket::SocketConnectionBase* socketConnection;
+        SocketConnection* socketConnection;
 
         bool requestInProgress = false;
 

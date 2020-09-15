@@ -40,13 +40,13 @@ namespace net::socket::tls {
         const std::map<std::string, std::any>& options)
         : socket::SocketClient<SocketClient::SocketConnection>(
               [this, onConnect](SocketClient::SocketConnection* socketConnection) -> void {
-                  class TLSConnector
+                  class Connector
                       : public ReadEventReceiver
                       , public WriteEventReceiver
                       , public Socket {
                   public:
-                      TLSConnector(tls::SocketClient* socketClient, SocketClient::SocketConnection* socketConnection, SSL_CTX* ctx,
-                                   const std::function<void(tls::SocketConnection* socketConnection)>& onConnect)
+                      Connector(tls::SocketClient* socketClient, SocketClient::SocketConnection* socketConnection, SSL_CTX* ctx,
+                                const std::function<void(tls::SocketConnection* socketConnection)>& onConnect)
                           : socketClient(socketClient)
                           , socketConnection(socketConnection)
                           , onConnect(onConnect)
@@ -142,7 +142,7 @@ namespace net::socket::tls {
                       timer::Timer& timeOut;
                   };
 
-                  new TLSConnector(this, socketConnection, ctx, onConnect);
+                  new Connector(this, socketConnection, ctx, onConnect);
               },
               [onDisconnect](SocketClient::SocketConnection* socketConnection) -> void {
                   onDisconnect(socketConnection);

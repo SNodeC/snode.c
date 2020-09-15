@@ -29,8 +29,7 @@
 
 namespace http {
 
-    ServerContext::ServerContext(net::socket::SocketConnectionBase* socketConnection,
-                                 const std::function<void(Request& req, Response& res)>& onRequestReady,
+    ServerContext::ServerContext(SocketConnection* socketConnection, const std::function<void(Request& req, Response& res)>& onRequestReady,
                                  const std::function<void(Request& req, Response& res)>& onRequestCompleted)
         : socketConnection(socketConnection)
         , response(this)
@@ -50,7 +49,7 @@ namespace http {
                   VLOG(1) << "++ Cookies";
                   request.cookies = &cookies;
 
-                  for (auto& [field, value] : header) {
+                  for (auto [field, value] : header) {
                       if (field == "connection" && value == "keep-alive") {
                           request.keepAlive = true;
                       }

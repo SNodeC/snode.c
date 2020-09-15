@@ -21,6 +21,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <map>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -32,11 +33,8 @@ namespace express {
     class Request : public http::Request {
     public:
         Request() = delete;
-        Request(const Request&) = delete;
 
         Request(const http::Request& req);
-
-        Request& operator=(const Request&) = delete;
 
         std::string& param(const std::string& id);
 

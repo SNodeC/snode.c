@@ -79,6 +79,7 @@ namespace net::socket {
     protected:
         virtual ssize_t write(const char* junk, size_t junkSize) = 0;
 
+    private:
         std::function<void(int errnum)> onError;
 
         std::vector<char> writeBuffer;

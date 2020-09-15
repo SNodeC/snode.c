@@ -33,14 +33,16 @@
 
 namespace express {
 
-    template <typename HTTPServerT>
+    template <typename ServerT>
     class WebAppT : public WebApp {
     public:
-        using HTTPServer = HTTPServerT;
+        using Server = ServerT;
+        using SocketServer = typename Server::SocketServer;
+        using SocketConnection = typename SocketServer::SocketConnection;
 
-        explicit WebAppT(const std::map<std::string, std::any>& options = {{}})
-            : httpServer(
-                  [this]([[maybe_unused]] typename HTTPServer::SocketServer::SocketConnection* socketConnection) -> void { // onConnect
+        WebAppT(const std::map<std::string, std::any>& options = {{}})
+            : server(
+                  [this]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnect
                       if (_onConnect != nullptr) {
                           _onConnect(socketConnection);
                       }
@@ -51,7 +53,7 @@ namespace express {
                   [this](http::Request& req, http::Response& res) -> void { // onRequestCompleted
                       completed(req, res);
                   },
-                  [this]([[maybe_unused]] typename HTTPServer::SocketServer::SocketConnection* socketConnection) -> void { // onDisconnect
+                  [this]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onDisconnect
                       if (_onDisconnect != nullptr) {
                           _onDisconnect(socketConnection);
                       }
@@ -59,29 +61,29 @@ namespace express {
                   options) {
         }
 
-        WebAppT& operator=(const express::WebAppT<HTTPServer>& webApp) = delete;
+        WebAppT& operator=(const express::WebAppT<Server>& webApp) = delete;
 
         void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr) override {
-            httpServer.listen(port, onError);
+            server.listen(port, onError);
         }
 
         void listen(const std::string& host, in_port_t port, const std::function<void(int err)>& onError = nullptr) override {
-            httpServer.listen(host, port, onError);
+            server.listen(host, port, onError);
         }
 
-        void onConnect(const std::function<void(typename HTTPServer::SocketServer::SocketConnection*)>& onConnect) {
+        void onConnect(const std::function<void(SocketConnection*)>& onConnect) {
             _onConnect = onConnect;
         }
 
-        void onDisconnect(const std::function<void(typename HTTPServer::SocketServer::SocketConnection*)>& onDisconnect) {
+        void onDisconnect(const std::function<void(SocketConnection*)>& onDisconnect) {
             _onDisconnect = onDisconnect;
         }
 
     protected:
-        std::function<void(typename HTTPServer::SocketServer::SocketConnection*)> _onConnect = nullptr;
-        std::function<void(typename HTTPServer::SocketServer::SocketConnection*)> _onDisconnect = nullptr;
+        std::function<void(SocketConnection*)> _onConnect = nullptr;
+        std::function<void(SocketConnection*)> _onDisconnect = nullptr;
 
-        HTTPServer httpServer;
+        Server server;
 
     private:
         using express::WebApp::init;

@@ -29,35 +29,39 @@
 #include "Request.h"
 #include "Response.h"
 
-JsonMiddleware::JsonMiddleware() {
-    use([] MIDDLEWARE(req, res, next) {
-        try {
-            // parse body string with json library
-            // store it as type json from nlohmann library
-            nlohmann::json json = nlohmann::json::parse(req.body, req.body + req.contentLength);
+namespace express::middleware {
 
-            // set all the json data as attributes in the request object
-            req.setAttribute<nlohmann::json>(json);
-        } catch (nlohmann::detail::parse_error& error) {
-            // silently fail if body is not json
-        }
+    JsonMiddleware::JsonMiddleware() {
+        use([] MIDDLEWARE(req, res, next) {
+            try {
+                // parse body string with json library
+                // store it as type json from nlohmann library
+                nlohmann::json json = nlohmann::json::parse(req.body, req.body + req.contentLength);
 
-        next();
-    });
-}
+                // set all the json data as attributes in the request object
+                req.setAttribute<nlohmann::json>(json);
+            } catch (nlohmann::detail::parse_error& error) {
+                // silently fail if body is not json
+            }
 
-// Keep the created json middleware alive
-static std::shared_ptr<class JsonMiddleware> jsonMiddleware = nullptr;
-
-const class JsonMiddleware& JsonMiddleware::instance() {
-    if (jsonMiddleware == nullptr) {
-        jsonMiddleware = std::shared_ptr<JsonMiddleware>(new JsonMiddleware());
+            next();
+        });
     }
 
-    return *jsonMiddleware;
-}
+    // Keep the created json middleware alive
+    static std::shared_ptr<class JsonMiddleware> jsonMiddleware = nullptr;
 
-// "Constructor" of JsonMiddleware
-const class JsonMiddleware& JsonMiddleware() {
-    return JsonMiddleware::instance();
-}
+    const class JsonMiddleware& JsonMiddleware::instance() {
+        if (jsonMiddleware == nullptr) {
+            jsonMiddleware = std::shared_ptr<JsonMiddleware>(new JsonMiddleware());
+        }
+
+        return *jsonMiddleware;
+    }
+
+    // "Constructor" of JsonMiddleware
+    const class JsonMiddleware& JsonMiddleware() {
+        return JsonMiddleware::instance();
+    }
+
+} // namespace express::middleware
