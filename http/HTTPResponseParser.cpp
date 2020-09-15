@@ -105,7 +105,7 @@ namespace http {
 
                     std::map<std::string, ResponseCookie>::iterator cookieElement;
                     bool inserted;
-                    std::tie(cookieElement, inserted) = cookies.insert({name, ResponseCookie(name, value)});
+                    std::tie(cookieElement, inserted) = cookies.insert({name, ResponseCookie(value)});
 
                     while (!cookieOptions.empty()) {
                         std::string option;

@@ -34,9 +34,8 @@ namespace http {
 
     class ResponseCookie {
     public:
-        ResponseCookie(const std::string& name, const std::string& value)
-            : name(name)
-            , value(value) {
+        ResponseCookie(const std::string& value)
+            : value(value) {
         }
 
         void setOption(const std::string& name, const std::string& value) {
@@ -52,7 +51,6 @@ namespace http {
         }
 
     protected:
-        std::string name;
         std::string value;
         std::map<std::string, std::string> options;
 
