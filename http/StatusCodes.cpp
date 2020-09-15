@@ -20,9 +20,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "HTTPStatusCodes.h"
+#include "StatusCodes.h"
 
-std::map<int, std::string> HTTPStatusCode::statusCode = {{100, "Continue"},
+std::map<int, std::string> StatusCode::statusCode = {{100, "Continue"},
                                                          {101, "Switching Protocols"},
                                                          {102, "Processing"},
                                                          {103, "Early Hints"},

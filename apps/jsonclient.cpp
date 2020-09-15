@@ -22,10 +22,10 @@
 
 #include "ClientResponse.h"
 #include "EventLoop.h"
-#include "legacy/HTTPClient.h"
+#include "legacy/Client.h"
 #include "socket/legacy/SocketClient.h"
 #include "socket/tls/SocketClient.h"
-#include "tls/HTTPClient.h"
+#include "tls/Client.h"
 
 #include <cstring>
 #include <easylogging++.h>
@@ -42,7 +42,7 @@
 int main(int argc, char* argv[]) {
     net::EventLoop::init(argc, argv);
 
-    http::legacy::HTTPClient jsonClient(
+    http::legacy::Client jsonClient(
         [](net::socket::legacy::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnConnect";
             VLOG(0) << "     Server: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +

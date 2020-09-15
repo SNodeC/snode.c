@@ -1,5 +1,5 @@
-#ifndef HTTPSERVERT_H
-#define HTTPSERVERT_H
+#ifndef SERVERT_H
+#define SERVERT_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -12,7 +12,7 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#include "HTTPServerContext.h"
+#include "ServerContext.h"
 
 namespace http {
 
@@ -20,15 +20,15 @@ namespace http {
     class Response;
 
     template <typename SocketServerT>
-    class HTTPServer {
+    class Server {
     public:
         using SocketServer = SocketServerT;
 
-        explicit HTTPServer(const std::function<void(typename SocketServer::SocketConnection*)>& onConnect,
-                            const std::function<void(Request& req, Response& res)>& onRequestReady,
-                            const std::function<void(Request& req, Response& res)>& onRequestCompleted,
-                            const std::function<void(typename SocketServer::SocketConnection*)>& onDisconnect,
-                            const std::map<std::string, std::any>& options = {{}})
+        explicit Server(const std::function<void(typename SocketServer::SocketConnection*)>& onConnect,
+                        const std::function<void(Request& req, Response& res)>& onRequestReady,
+                        const std::function<void(Request& req, Response& res)>& onRequestCompleted,
+                        const std::function<void(typename SocketServer::SocketConnection*)>& onDisconnect,
+                        const std::map<std::string, std::any>& options = {{}})
             : onConnect(onConnect)
             , onRequestReady(onRequestReady)
             , onRequestCompleted(onRequestCompleted)
@@ -36,14 +36,14 @@ namespace http {
             , options(options) {
         }
 
-        HTTPServer& operator=(const HTTPServer& webApp) = delete;
+        Server& operator=(const Server& webApp) = delete;
 
     protected:
         SocketServer* socketServer() const {
             return new SocketServer(
                 [*this](typename SocketServer::SocketConnection* socketConnection) -> void { // onConnect
                     onConnect(socketConnection);
-                    socketConnection->template setContext<HTTPServerContext*>(new HTTPServerContext(
+                    socketConnection->template setContext<ServerContext*>(new ServerContext(
                         socketConnection,
                         [*this](Request& req, Response& res) -> void {
                             onRequestReady(req, res);
@@ -54,22 +54,22 @@ namespace http {
                 },
                 [*this](typename SocketServer::SocketConnection* socketConnection) -> void { // onDisconnect
                     onDisconnect(socketConnection);
-                    socketConnection->template getContext<HTTPServerContext*>([](HTTPServerContext*& protocol) -> void {
+                    socketConnection->template getContext<ServerContext*>([](ServerContext*& protocol) -> void {
                         delete protocol;
                     });
                 },
                 [](typename SocketServer::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
-                    socketConnection->template getContext<HTTPServerContext*>([&junk, &junkSize](HTTPServerContext*& protocol) -> void {
+                    socketConnection->template getContext<ServerContext*>([&junk, &junkSize](ServerContext*& protocol) -> void {
                         protocol->receiveRequestData(junk, junkSize);
                     });
                 },
                 [](typename SocketServer::SocketConnection* socketConnection, int errnum) -> void { // onReadError
-                    socketConnection->template getContext<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
+                    socketConnection->template getContext<ServerContext*>([&errnum](ServerContext*& protocol) -> void {
                         protocol->onReadError(errnum);
                     });
                 },
                 [](typename SocketServer::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
-                    socketConnection->template getContext<HTTPServerContext*>([&errnum](HTTPServerContext*& protocol) -> void {
+                    socketConnection->template getContext<ServerContext*>([&errnum](ServerContext*& protocol) -> void {
                         protocol->onWriteError(errnum);
                     });
                 },
@@ -108,4 +108,4 @@ namespace http {
 
 } // namespace http
 
-#endif // HTTPSERVERT_H
+#endif // SERVERT_H

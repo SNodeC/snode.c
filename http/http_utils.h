@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HTTPUTILS_H
-#define HTTPUTILS_H
+#ifndef UTILS_H
+#define UTILS_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -51,4 +51,4 @@ namespace httputils {
 
 } // namespace httputils
 
-#endif // HTTPUTILS_H
+#endif // UTILS_H

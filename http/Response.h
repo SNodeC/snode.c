@@ -31,11 +31,11 @@ class FileReader;
 
 namespace http {
 
-    class HTTPServerContext;
+    class ServerContext;
 
     class Response {
     protected:
-        explicit Response(HTTPServerContext* httpContext);
+        explicit Response(ServerContext* httpContext);
         virtual ~Response() = default;
 
     public:
@@ -81,7 +81,7 @@ namespace http {
         };
 
     protected:
-        HTTPServerContext* httpServerContext;
+        ServerContext* httpServerContext;
 
         size_t contentSent = 0;
         bool sendHeaderInProgress = false;
@@ -90,7 +90,7 @@ namespace http {
         std::map<std::string, std::string> headers;
         std::map<std::string, ResponseCookie> cookies;
 
-        friend class HTTPServerContext;
+        friend class ServerContext;
     };
 
 } // namespace http

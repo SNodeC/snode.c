@@ -24,11 +24,11 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "../WebAppT.h"
-#include "tls/HTTPServer.h"
+#include "tls/Server.h"
 
 namespace express::tls {
 
-    using WebApp = WebAppT<http::tls::HTTPServer>;
+    using WebApp = WebAppT<http::tls::Server>;
 
 } // namespace express::tls
 

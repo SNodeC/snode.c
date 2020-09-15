@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HTTPREQUESTPARSER_H
-#define HTTPREQUESTPARSER_H
+#ifndef REQUESTPARSER_H
+#define REQUESTPARSER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,17 +29,17 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "HTTPParser.h"
+#include "Parser.h"
 
 namespace http {
 
-    class HTTPRequestParser : public HTTPParser {
+    class RequestParser : public Parser {
     public:
-        HTTPRequestParser(
+        RequestParser(
             const std::function<void(const std::string&, const std::string&, const std::string&,
                                      const std::map<std::string, std::string>&)>& onRequest,
             const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>& onHeader,
-            const std::function<void(char*, size_t)>& onContent, const std::function<void(HTTPRequestParser&)>& onParsed,
+            const std::function<void(char*, size_t)>& onContent, const std::function<void(RequestParser&)>& onParsed,
             const std::function<void(int status, const std::string& reason)>& onError);
 
         void reset() override;
@@ -51,13 +51,13 @@ namespace http {
         }
 
         // Parsers and Validators
-        enum HTTPParser::PAS parseStartLine(std::string& line) override;
-        enum HTTPParser::PAS parseHeader() override;
-        enum HTTPParser::PAS parseContent(char* content, size_t size) override;
+        enum Parser::PAS parseStartLine(std::string& line) override;
+        enum Parser::PAS parseHeader() override;
+        enum Parser::PAS parseContent(char* content, size_t size) override;
 
         // Exits
         void parsingFinished();
-        enum HTTPParser::PAS parsingError(int code, const std::string& reason) override;
+        enum Parser::PAS parsingError(int code, const std::string& reason) override;
 
         // Supported http-methods
         std::set<std::string> supportedMethods{"GET", "PUT", "POST", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH", "HEAD"};
@@ -76,10 +76,10 @@ namespace http {
             onRequest;
         std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)> onHeader;
         std::function<void(char*, size_t)> onContent;
-        std::function<void(HTTPRequestParser&)> onParsed;
+        std::function<void(RequestParser&)> onParsed;
         std::function<void(int status, const std::string& reason)> onError;
     };
 
 } // namespace http
 
-#endif // HTTPREQUESTPARSER_H
+#endif // REQUESTPARSER_H

@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "HTTPServerContext.h"
+#include "ServerContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,9 +29,9 @@
 
 namespace http {
 
-    HTTPServerContext::HTTPServerContext(net::socket::SocketConnectionBase* socketConnection,
-                                         const std::function<void(Request& req, Response& res)>& onRequestReady,
-                                         const std::function<void(Request& req, Response& res)>& onRequestCompleted)
+    ServerContext::ServerContext(net::socket::SocketConnectionBase* socketConnection,
+                                 const std::function<void(Request& req, Response& res)>& onRequestReady,
+                                 const std::function<void(Request& req, Response& res)>& onRequestCompleted)
         : socketConnection(socketConnection)
         , response(this)
         , onRequestCompleted(onRequestCompleted)
@@ -61,7 +61,7 @@ namespace http {
                   request.body = content;
                   request.contentLength = contentLength;
               },
-              [this, onRequestReady]([[maybe_unused]] http::HTTPRequestParser& requestParser) -> void {
+              [this, onRequestReady]([[maybe_unused]] http::RequestParser& requestParser) -> void {
                   VLOG(1) << "++ Parsed ++";
                   requestInProgress = true;
                   onRequestReady(request, response);
@@ -76,13 +76,13 @@ namespace http {
         response.reset();
     }
 
-    HTTPServerContext::~HTTPServerContext() {
+    ServerContext::~ServerContext() {
         if (requestInProgress) {
             onRequestCompleted(request, response);
         }
     }
 
-    void HTTPServerContext::receiveRequestData(const char* junk, size_t junkLen) {
+    void ServerContext::receiveRequestData(const char* junk, size_t junkLen) {
         if (!requestInProgress) {
             parser.parse(junk, junkLen);
         } else {
@@ -90,7 +90,7 @@ namespace http {
         }
     }
 
-    void HTTPServerContext::onReadError(int errnum) {
+    void ServerContext::onReadError(int errnum) {
         response.disable();
 
         if (errnum != 0 && errnum != ECONNRESET) {
@@ -98,11 +98,11 @@ namespace http {
         }
     }
 
-    void HTTPServerContext::sendResponseData(const char* buf, size_t len) {
+    void ServerContext::sendResponseData(const char* buf, size_t len) {
         socketConnection->enqueue(buf, len);
     }
 
-    void HTTPServerContext::onWriteError(int errnum) {
+    void ServerContext::onWriteError(int errnum) {
         response.disable();
 
         if (errnum != 0 && errnum != ECONNRESET) {
@@ -110,7 +110,7 @@ namespace http {
         }
     }
 
-    void HTTPServerContext::responseCompleted() {
+    void ServerContext::responseCompleted() {
         onRequestCompleted(request, response);
 
         if (!request.keepAlive || !response.keepAlive) {
@@ -124,7 +124,7 @@ namespace http {
         requestInProgress = false;
     }
 
-    void HTTPServerContext::terminateConnection() {
+    void ServerContext::terminateConnection() {
         socketConnection->end();
     }
 

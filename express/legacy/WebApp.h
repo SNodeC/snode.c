@@ -24,11 +24,11 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "../WebAppT.h"
-#include "legacy/HTTPServer.h"
+#include "legacy/Server.h"
 
 namespace express::legacy {
 
-    using WebApp = WebAppT<http::legacy::HTTPServer>;
+    using WebApp = WebAppT<http::legacy::Server>;
 
 } // namespace express::legacy
 

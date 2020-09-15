@@ -16,20 +16,42 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TLS_HTTPCLIENT_H
-#define TLS_HTTPCLIENT_H
+#ifndef CLIENTCONTEXT_H
+#define CLIENTCONTEXT_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
+#include <functional>
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "../HTTPClient.h"
-#include "socket/tls/SocketClient.h"
+#include "ClientResponse.h"
+#include "ResponseParser.h"
 
-namespace http::tls {
+namespace net::socket {
+    class SocketConnectionBase;
+}
 
-    using HTTPClient = http::HTTPClient<net::socket::tls::SocketClient>;
+namespace http {
 
-} // namespace http::tls
+    class ClientContext {
+    public:
+        ClientContext(net::socket::SocketConnectionBase* socketConnection, const std::function<void(ClientResponse&)>& onResponse,
+                      const std::function<void(int status, const std::string& reason)>& onError);
 
-#endif // TLS_HTTPCLIENT_H
+        void receiveResponseData(const char* junk, size_t junkLen);
+
+    protected:
+        net::socket::SocketConnectionBase* socketConnection;
+
+        ClientResponse clientResponse;
+
+    private:
+        ResponseParser parser;
+    };
+
+} // namespace http
+
+#endif // CLIENTCONTEXT_H

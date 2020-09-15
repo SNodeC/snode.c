@@ -26,16 +26,16 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "HTTPRequestParser.h"
+#include "RequestParser.h"
 #include "http_utils.h"
 
 namespace http {
 
-    HTTPRequestParser::HTTPRequestParser(
+    RequestParser::RequestParser(
         const std::function<void(const std::string&, const std::string&, const std::string&, const std::map<std::string, std::string>&)>&
             onRequest,
         const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>& onHeader,
-        const std::function<void(char*, size_t)>& onContent, const std::function<void(HTTPRequestParser&)>& onParsed,
+        const std::function<void(char*, size_t)>& onContent, const std::function<void(RequestParser&)>& onParsed,
         const std::function<void(int status, const std::string& reason)>& onError)
         : onRequest(onRequest)
         , onHeader(onHeader)
@@ -44,8 +44,8 @@ namespace http {
         , onError(onError) {
     }
 
-    void HTTPRequestParser::reset() {
-        HTTPParser::reset();
+    void RequestParser::reset() {
+        Parser::reset();
         method.clear();
         url.clear();
         httpVersion.clear();
@@ -55,8 +55,8 @@ namespace http {
         httpMinor = 0;
     }
 
-    enum HTTPParser::PAS HTTPRequestParser::parseStartLine(std::string& line) {
-        enum HTTPParser::PAS PAS = HTTPParser::PAS::HEADER;
+    enum Parser::PAS RequestParser::parseStartLine(std::string& line) {
+        enum Parser::PAS PAS = Parser::PAS::HEADER;
 
         if (!line.empty()) {
             std::string remaining;
@@ -100,12 +100,12 @@ namespace http {
         return PAS;
     }
 
-    enum HTTPParser::PAS HTTPRequestParser::parseHeader() {
-        for (auto& [field, value] : HTTPParser::headers) {
+    enum Parser::PAS RequestParser::parseHeader() {
+        for (auto& [field, value] : Parser::headers) {
             VLOG(2) << "++ Parse header field: " << field << " = " << value;
             if (field != "cookie") {
                 if (field == "content-length") {
-                    HTTPParser::contentLength = std::stoi(value);
+                    Parser::contentLength = std::stoi(value);
                 }
             } else {
                 std::string cookiesLine = value;
@@ -132,11 +132,11 @@ namespace http {
             }
         }
 
-        HTTPParser::headers.erase("cookie");
+        Parser::headers.erase("cookie");
 
-        onHeader(HTTPParser::headers, cookies);
+        onHeader(Parser::headers, cookies);
 
-        enum HTTPParser::PAS PAS = HTTPParser::PAS::BODY;
+        enum Parser::PAS PAS = Parser::PAS::BODY;
         if (contentLength == 0) {
             parsingFinished();
             PAS = PAS::FIRSTLINE;
@@ -145,18 +145,18 @@ namespace http {
         return PAS;
     }
 
-    enum HTTPParser::PAS HTTPRequestParser::parseContent(char* content, size_t size) {
+    enum Parser::PAS RequestParser::parseContent(char* content, size_t size) {
         onContent(content, size);
         parsingFinished();
 
         return PAS::FIRSTLINE;
     }
 
-    void HTTPRequestParser::parsingFinished() {
+    void RequestParser::parsingFinished() {
         onParsed(*this);
     }
 
-    enum HTTPParser::PAS HTTPRequestParser::parsingError(int code, const std::string& reason) {
+    enum Parser::PAS RequestParser::parsingError(int code, const std::string& reason) {
         onError(code, reason);
         reset();
 

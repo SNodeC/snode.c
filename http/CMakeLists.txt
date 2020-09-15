@@ -5,26 +5,26 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
 find_package(LibMagic REQUIRED)
 
 add_library(http SHARED
-    legacy/HTTPClient.h
-    tls/HTTPClient.h
-    legacy/HTTPServer.h
-    tls/HTTPServer.h
+    legacy/Client.h
+    tls/Client.h
+    legacy/Server.h
+    tls/Server.h
     ClientResponse.cpp
     ClientResponse.h
-    HTTPClient.h
-    HTTPClientContext.cpp
-    HTTPClientContext.h
-    HTTPParser.cpp
-    HTTPParser.h
-    HTTPRequestParser.cpp
-    HTTPRequestParser.h
-    HTTPResponseParser.cpp
-    HTTPResponseParser.h
-    HTTPServerContext.cpp
-    HTTPServerContext.h
-    HTTPServer.h
-    HTTPStatusCodes.cpp
-    HTTPStatusCodes.h
+    Client.h
+    ClientContext.cpp
+    ClientContext.h
+    Parser.cpp
+    Parser.h
+    RequestParser.cpp
+    RequestParser.h
+    ResponseParser.cpp
+    ResponseParser.h
+    ServerContext.cpp
+    ServerContext.h
+    Server.h
+    StatusCodes.cpp
+    StatusCodes.h
     MimeTypes.cpp
     MimeTypes.h
     Request.cpp

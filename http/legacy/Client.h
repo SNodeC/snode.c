@@ -16,24 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HTTPSTATUSCODES_H
-#define HTTPSTATUSCODES_H
+#ifndef LEGACY_CLIENT_H
+#define LEGACY_CLIENT_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <map>
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-class HTTPStatusCode {
-public:
-    static std::string reason(int status) {
-        return statusCode[status];
-    }
+#include "../Client.h"
+#include "socket/legacy/SocketClient.h"
 
-private:
-    static std::map<int, std::string> statusCode;
-};
+namespace http::legacy {
 
-#endif // HTTPSTATUSCODES_H
+    using Client = http::Client<net::socket::legacy::SocketClient>;
+
+} // namespace http::legacy
+
+#endif // LEGACY_CLIENT_H

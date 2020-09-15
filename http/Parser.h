@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HTTPPARSER_H
-#define HTTPPARSER_H
+#ifndef PARSER_H
+#define PARSER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,7 +30,7 @@
 
 namespace http {
 
-    class HTTPParser {
+    class Parser {
     protected:
         enum struct HTTPCompliance : unsigned short {
             RFC1945 = 0x01 << 0, // HTTP 1.0
@@ -47,10 +47,10 @@ namespace http {
         } HTTPCompliance;
 
     public:
-        HTTPParser(enum HTTPCompliance compliance = HTTPCompliance::RFC2616 | HTTPCompliance::RFC7230)
+        Parser(enum HTTPCompliance compliance = HTTPCompliance::RFC2616 | HTTPCompliance::RFC7230)
             : HTTPCompliance(compliance) {
         }
-        virtual ~HTTPParser() = default;
+        virtual ~Parser() = default;
 
         void parse(const char* buf, size_t count);
 
@@ -90,4 +90,4 @@ namespace http {
 
 } // namespace http
 
-#endif // HTTPPARSER_H
+#endif // PARSER_H

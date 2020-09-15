@@ -23,15 +23,15 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "HTTPServerContext.h"
-#include "HTTPStatusCodes.h"
+#include "ServerContext.h"
+#include "StatusCodes.h"
 #include "Response.h"
 #include "file/FileReader.h"
 #include "http_utils.h"
 
 namespace http {
 
-    Response::Response(HTTPServerContext* httpContext)
+    Response::Response(ServerContext* httpContext)
         : httpServerContext(httpContext) {
     }
 
@@ -142,7 +142,7 @@ namespace http {
     }
 
     void Response::sendHeader() {
-        enqueue("HTTP/1.1 " + std::to_string(responseStatus) + " " + HTTPStatusCode::reason(responseStatus) + "\r\n");
+        enqueue("HTTP/1.1 " + std::to_string(responseStatus) + " " + StatusCode::reason(responseStatus) + "\r\n");
         enqueue("Date: " + httputils::to_http_date() + "\r\n");
 
         headers.insert({{"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}, {"X-Powered-By", "snode.c"}});

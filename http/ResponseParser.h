@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HTTPRESPONSEPARSER_H
-#define HTTPRESPONSEPARSER_H
+#ifndef RESPONSEPARSER_H
+#define RESPONSEPARSER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,7 +28,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "HTTPParser.h"
+#include "Parser.h"
 
 namespace http {
 
@@ -54,27 +54,27 @@ namespace http {
         std::string value;
         std::map<std::string, std::string> options;
 
-        friend class HTTPResponseParser;
+        friend class ResponseParser;
     };
 
-    class HTTPResponseParser : public HTTPParser {
+    class ResponseParser : public Parser {
     public:
-        HTTPResponseParser(
+        ResponseParser(
             const std::function<void(const std::string&, const std::string&, const std::string&)>& onResponse,
             const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, ResponseCookie>&)>& onHeader,
-            const std::function<void(char*, size_t)>& onContent, const std::function<void(HTTPResponseParser&)>& onParsed,
+            const std::function<void(char*, size_t)>& onContent, const std::function<void(ResponseParser&)>& onParsed,
             const std::function<void(int status, const std::string& reason)>& onError);
 
-        HTTPResponseParser(
+        ResponseParser(
             const std::function<void(const std::string&, const std::string&, const std::string&)>&& onResponse,
             const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, ResponseCookie>&)>&& onHeader,
-            const std::function<void(char*, size_t)>&& onContent, const std::function<void(HTTPResponseParser&)>&& onParsed,
+            const std::function<void(char*, size_t)>&& onContent, const std::function<void(ResponseParser&)>&& onParsed,
             const std::function<void(int status, const std::string& reason)>&& onError);
 
-        enum HTTPParser::PAS parseStartLine(std::string& line) override;
-        enum HTTPParser::PAS parseHeader() override;
-        enum HTTPParser::PAS parseContent(char* content, size_t size) override;
-        enum HTTPParser::PAS parsingError(int code, const std::string& reason) override;
+        enum Parser::PAS parseStartLine(std::string& line) override;
+        enum Parser::PAS parseHeader() override;
+        enum Parser::PAS parseContent(char* content, size_t size) override;
+        enum Parser::PAS parsingError(int code, const std::string& reason) override;
 
         void reset() override;
 
@@ -89,10 +89,10 @@ namespace http {
         std::function<void(const std::string&, const std::string&, const std::string&)> onResponse;
         std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, ResponseCookie>&)> onHeader;
         std::function<void(char*, size_t)> onContent;
-        std::function<void(HTTPResponseParser&)> onParsed;
+        std::function<void(ResponseParser&)> onParsed;
         std::function<void(int status, const std::string& reason)> onError;
     };
 
 } // namespace http
 
-#endif // HTTPRESPONSEPARSER_H
+#endif // RESPONSEPARSER_H

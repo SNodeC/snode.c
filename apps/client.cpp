@@ -18,12 +18,13 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "tls/Client.h"
+
 #include "ClientResponse.h"
 #include "EventLoop.h"
-#include "legacy/HTTPClient.h"
+#include "legacy/Client.h"
 #include "socket/legacy/SocketClient.h"
 #include "socket/tls/SocketClient.h"
-#include "tls/HTTPClient.h"
 
 #include <cstring>
 #include <easylogging++.h>
@@ -40,7 +41,7 @@
 int main(int argc, char* argv[]) {
     net::EventLoop::init(argc, argv);
 
-    http::legacy::HTTPClient legacyClient(
+    http::legacy::Client legacyClient(
         [](net::socket::legacy::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnConnect";
             VLOG(0) << "     Server: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
@@ -84,7 +85,7 @@ int main(int argc, char* argv[]) {
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
         });
 
-    http::tls::HTTPClient tlsClient(
+    http::tls::Client tlsClient(
         [](net::socket::tls::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnConnect";
             VLOG(0) << "     Server: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +

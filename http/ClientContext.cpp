@@ -23,13 +23,13 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "HTTPClientContext.h"
+#include "ClientContext.h"
 
 namespace http {
 
-    HTTPClientContext::HTTPClientContext(net::socket::SocketConnectionBase* socketConnection,
-                                         const std::function<void(ClientResponse&)>& onResponse,
-                                         const std::function<void(int status, const std::string& reason)>& onError)
+    ClientContext::ClientContext(net::socket::SocketConnectionBase* socketConnection,
+                                 const std::function<void(ClientResponse&)>& onResponse,
+                                 const std::function<void(int status, const std::string& reason)>& onError)
         : socketConnection(socketConnection)
         , parser(
               [this](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
@@ -46,7 +46,7 @@ namespace http {
                   clientResponse.body = content;
                   clientResponse.contentLength = contentLength;
               },
-              [this, onResponse](http::HTTPResponseParser& parser) -> void {
+              [this, onResponse](http::ResponseParser& parser) -> void {
                   onResponse(clientResponse);
                   parser.reset();
               },
@@ -55,7 +55,7 @@ namespace http {
               }) {
     }
 
-    void HTTPClientContext::receiveResponseData(const char* junk, size_t junkLen) {
+    void ClientContext::receiveResponseData(const char* junk, size_t junkLen) {
         parser.parse(junk, junkLen);
     }
 

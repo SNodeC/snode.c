@@ -16,20 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LEGACY_HTTPSERVER_H
-#define LEGACY_HTTPSERVER_H
+#ifndef TLS_CLIENT_H
+#define TLS_CLIENT_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "../HTTPServer.h"
-#include "socket/legacy/SocketServer.h"
+#include "../Client.h"
+#include "socket/tls/SocketClient.h"
 
-namespace http::legacy {
+namespace http::tls {
 
-    using HTTPServer = http::HTTPServer<net::socket::legacy::SocketServer>;
+    using Client = http::Client<net::socket::tls::SocketClient>;
 
-} // namespace http::legacy
+} // namespace http::tls
 
-#endif // LEGACY_HTTPSERVER_H
+#endif // TLS_CLIENT_H

@@ -22,8 +22,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "HTTPServerContext.h"
-#include "HTTPStatusCodes.h"
+#include "ServerContext.h"
+#include "StatusCodes.h"
 #include "MimeTypes.h"
 #include "Response.h"
 #include "file/FileReader.h"
@@ -105,7 +105,7 @@ namespace express {
     }
 
     void Response::sendStatus(int status) {
-        this->status(status).send(HTTPStatusCode::reason(status));
+        this->status(status).send(StatusCode::reason(status));
     }
 
     void Response::disable() {

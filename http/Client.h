@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HTTPCLIENT_H
-#define HTTPCLIENT_H
+#ifndef CLIENT_H
+#define CLIENT_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,7 +30,7 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#include "HTTPClientContext.h"
+#include "ClientContext.h"
 #include "socket/InetAddress.h"
 
 namespace http {
@@ -38,14 +38,14 @@ namespace http {
     class ClientResponse;
 
     template <typename SocketClientT>
-    class HTTPClient {
+    class Client {
         using SocketClient = SocketClientT;
 
     public:
-        HTTPClient(const std::function<void(typename SocketClient::SocketConnection*)>& onConnect,
-                   const std::function<void(ClientResponse& clientResponse)> onResponseReady,
-                   const std::function<void(typename SocketClient::SocketConnection*)> onDisconnect,
-                   const std::map<std::string, std::any>& options = {{}})
+        Client(const std::function<void(typename SocketClient::SocketConnection*)>& onConnect,
+               const std::function<void(ClientResponse& clientResponse)> onResponseReady,
+               const std::function<void(typename SocketClient::SocketConnection*)> onDisconnect,
+               const std::map<std::string, std::any>& options = {{}})
             : onConnect(onConnect)
             , onResponseReady(onResponseReady)
             , onDisconnect(onDisconnect)
@@ -106,7 +106,7 @@ namespace http {
                  [*this](typename SocketClient::SocketConnection* socketConnection) -> void { // onConnect
                      this->onConnect(socketConnection);
 
-                     socketConnection->template setContext<http::HTTPClientContext*>(new HTTPClientContext(
+                     socketConnection->template setContext<http::ClientContext*>(new ClientContext(
                          socketConnection,
                          [*this](ClientResponse& clientResponse) -> void {
                              this->onResponseReady(clientResponse);
@@ -118,14 +118,13 @@ namespace http {
                  },
                  [*this](typename SocketClient::SocketConnection* socketConnection) -> void { // onDisconnect
                      this->onDisconnect(socketConnection);
-                     socketConnection->template getContext<http::HTTPClientContext*>(
-                         [](http::HTTPClientContext*& httpClientContext) -> void {
-                             delete httpClientContext;
-                         });
+                     socketConnection->template getContext<http::ClientContext*>([](http::ClientContext*& httpClientContext) -> void {
+                         delete httpClientContext;
+                     });
                  },
                  [](typename SocketClient::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
-                     socketConnection->template getContext<http::HTTPClientContext*>(
-                         [junk, junkSize]([[maybe_unused]] http::HTTPClientContext*& clientContext) -> void {
+                     socketConnection->template getContext<http::ClientContext*>(
+                         [junk, junkSize]([[maybe_unused]] http::ClientContext*& clientContext) -> void {
                              clientContext->receiveResponseData(junk, junkSize);
                          });
                  },
@@ -152,4 +151,4 @@ namespace http {
 
 } // namespace http
 
-#endif // HTTPCLIENT_H
+#endif // CLIENT_H

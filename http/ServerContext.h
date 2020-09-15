@@ -16,19 +16,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HTTPCLIENTCONTEXT_H
-#define HTTPCLIENTCONTEXT_H
+#ifndef SERVERCONTEXT_H
+#define SERVERCONTEXT_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
-#include <functional>
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "ClientResponse.h"
-#include "HTTPResponseParser.h"
+#include "Request.h"
+#include "RequestParser.h"
+#include "Response.h"
 
 namespace net::socket {
     class SocketConnectionBase;
@@ -36,22 +33,39 @@ namespace net::socket {
 
 namespace http {
 
-    class HTTPClientContext {
+    class ServerContext {
     public:
-        HTTPClientContext(net::socket::SocketConnectionBase* socketConnection, const std::function<void(ClientResponse&)>& onResponse,
-                          const std::function<void(int status, const std::string& reason)>& onError);
+        ServerContext(net::socket::SocketConnectionBase* socketConnection,
+                      const std::function<void(Request& req, Response& res)>& onRequestReady,
+                      const std::function<void(Request& req, Response& res)>& onRequestCompleted);
 
-        void receiveResponseData(const char* junk, size_t junkLen);
+        ~ServerContext();
 
-    protected:
-        net::socket::SocketConnectionBase* socketConnection;
+        void receiveRequestData(const char* junk, size_t junkLen);
+        void onReadError(int errnum);
 
-        ClientResponse clientResponse;
+        void sendResponseData(const char* buf, size_t len);
+        void onWriteError(int errnum);
+
+        void responseCompleted();
+
+        void terminateConnection();
 
     private:
-        HTTPResponseParser parser;
+        net::socket::SocketConnectionBase* socketConnection;
+
+        bool requestInProgress = false;
+
+    public:
+        Request request;
+        Response response;
+
+    private:
+        std::function<void(Request& req, Response& res)> onRequestCompleted;
+
+        RequestParser parser;
     };
 
 } // namespace http
 
-#endif // HTTPCLIENTCONTEXT_H
+#endif // SERVERCONTEXT_H

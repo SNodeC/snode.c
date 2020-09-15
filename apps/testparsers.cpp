@@ -18,10 +18,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "HTTPParser.h"
-#include "HTTPRequestParser.h"  // for HTTPRequestParser
-#include "HTTPResponseParser.h" // for HTTPResponseParser, ResponseCookie
-#include "Logger.h"             // for Logger
+#include "Logger.h" // for Logger
+#include "Parser.h"
+#include "RequestParser.h"  // for RequestParser
+#include "ResponseParser.h" // for HTTPResponseParser, ResponseCookie
 
 #include <cstring>         // for memcpy, size_t
 #include <easylogging++.h> // for Writer, Storage, VLOG
@@ -42,7 +42,7 @@ using namespace http;
 int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     Logger::init(argc, argv);
 
-    HTTPRequestParser requestParser(
+    RequestParser requestParser(
         [](const std::string& method, const std::string& originalUrl, const std::string& httpVersion,
            [[maybe_unused]] const std::map<std::string, std::string>& queries) -> void {
             VLOG(0) << "++ Request: " << method << " " << originalUrl << " "
@@ -68,7 +68,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
             VLOG(0) << "++    OnContent: " << contentLength << " : " << strContent;
             delete[] strContent;
         },
-        [](HTTPRequestParser&) -> void {
+        [](RequestParser&) -> void {
             VLOG(0) << "++    OnParsed";
         },
         [](int status, const std::string& reason) -> void {
@@ -101,7 +101,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     requestParser.parse(httpRequest.c_str(), httpRequest.size());
     requestParser.reset();
 
-    HTTPResponseParser responseParser(
+    ResponseParser responseParser(
         [](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
             VLOG(0) << "++ Response: " << httpVersion << " " << statusCode << " " << reason;
         },
@@ -126,7 +126,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
             VLOG(0) << "++   OnContent: " << contentLength << " : " << strContent;
             delete[] strContent;
         },
-        [](HTTPResponseParser& parser) -> void {
+        [](ResponseParser& parser) -> void {
             VLOG(0) << "++   OnParsed";
             parser.reset();
         },

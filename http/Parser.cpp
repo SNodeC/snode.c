@@ -25,15 +25,15 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "HTTPParser.h"
+#include "Parser.h"
 #include "http_utils.h"
 
 namespace http {
 
     // HTTP/x.x
-    std::regex HTTPParser::httpVersionRegex("^HTTP/([[:digit:]])\\.([[:digit:]])$");
+    std::regex Parser::httpVersionRegex("^HTTP/([[:digit:]])\\.([[:digit:]])$");
 
-    void HTTPParser::reset() {
+    void Parser::reset() {
         PAS = PAS::FIRSTLINE;
         headers.clear();
         contentLength = 0;
@@ -43,7 +43,7 @@ namespace http {
         }
     }
 
-    void HTTPParser::parse(const char* buf, size_t count) {
+    void Parser::parse(const char* buf, size_t count) {
         size_t processed = 0;
 
         while (processed < count && PAS != PAS::ERROR) {
@@ -63,7 +63,7 @@ namespace http {
         }
     }
 
-    size_t HTTPParser::readStartLine(const char* buf, size_t count) {
+    size_t Parser::readStartLine(const char* buf, size_t count) {
         size_t consumed = 0;
 
         while (consumed < count && PAS == PAS::FIRSTLINE) {
@@ -84,7 +84,7 @@ namespace http {
         return consumed;
     }
 
-    size_t HTTPParser::readHeaderLine(const char* buf, size_t count) {
+    size_t Parser::readHeaderLine(const char* buf, size_t count) {
         size_t consumed = 0;
         while (consumed < count && PAS == PAS::HEADER) {
             char ch = buf[consumed];
@@ -127,7 +127,7 @@ namespace http {
         return consumed;
     }
 
-    void HTTPParser::splitHeaderLine(const std::string& line) {
+    void Parser::splitHeaderLine(const std::string& line) {
         if (!line.empty()) {
             std::string field;
             std::string value;
@@ -157,7 +157,7 @@ namespace http {
         }
     }
 
-    size_t HTTPParser::readContent(const char* buf, size_t count) {
+    size_t Parser::readContent(const char* buf, size_t count) {
         if (contentRead == 0) {
             content = new char[contentLength];
         }
@@ -185,12 +185,12 @@ namespace http {
         return count;
     }
 
-    enum HTTPParser::HTTPCompliance operator|(const enum HTTPParser::HTTPCompliance& c1, const enum HTTPParser::HTTPCompliance& c2) {
-        return static_cast<enum HTTPParser::HTTPCompliance>(static_cast<unsigned short>(c1) | static_cast<unsigned short>(c2));
+    enum Parser::HTTPCompliance operator|(const enum Parser::HTTPCompliance& c1, const enum Parser::HTTPCompliance& c2) {
+        return static_cast<enum Parser::HTTPCompliance>(static_cast<unsigned short>(c1) | static_cast<unsigned short>(c2));
     }
 
-    enum HTTPParser::HTTPCompliance operator&(const enum HTTPParser::HTTPCompliance& c1, const enum HTTPParser::HTTPCompliance& c2) {
-        return static_cast<enum HTTPParser::HTTPCompliance>(static_cast<unsigned short>(c1) & static_cast<unsigned short>(c2));
+    enum Parser::HTTPCompliance operator&(const enum Parser::HTTPCompliance& c1, const enum Parser::HTTPCompliance& c2) {
+        return static_cast<enum Parser::HTTPCompliance>(static_cast<unsigned short>(c1) & static_cast<unsigned short>(c2));
     }
 
 } // namespace http
