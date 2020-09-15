@@ -47,33 +47,6 @@
                    const std::function<void(Request & req, Response & res, const std::function<void(void)>& next)>& dispatcher);           \
     Router& METHOD(const std::function<void(Request & req, Response & res, const std::function<void(void)>& next)>& dispatcher);
 
-#define DEFINE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                          \
-    Router& Router::METHOD(const std::string& path, const Router& router) {                                                                \
-        routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, path, router.routerDispatcher));                                    \
-        return *this;                                                                                                                      \
-    };                                                                                                                                     \
-    Router& Router::METHOD(const Router& router) {                                                                                         \
-        routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, "", router.routerDispatcher));                                      \
-        return *this;                                                                                                                      \
-    };                                                                                                                                     \
-    Router& Router::METHOD(const std::string& path,                                                                                        \
-                           const std::function<void(Request & req, Response & res, const std::function<void(void)>& next)>& dispatcher) {  \
-        routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, path, std::make_shared<MiddlewareDispatcher>(dispatcher)));         \
-        return *this;                                                                                                                      \
-    };                                                                                                                                     \
-    Router& Router::METHOD(const std::function<void(Request & req, Response & res, const std::function<void(void)>& next)>& dispatcher) {  \
-        routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, "", std::make_shared<MiddlewareDispatcher>(dispatcher)));           \
-        return *this;                                                                                                                      \
-    };                                                                                                                                     \
-    Router& Router::METHOD(const std::string& path, const std::function<void(Request & req, Response & res)>& dispatcher) {                \
-        routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, path, std::make_shared<ApplicationDispatcher>(dispatcher)));        \
-        return *this;                                                                                                                      \
-    };                                                                                                                                     \
-    Router& Router::METHOD(const std::function<void(Request & req, Response & res)>& dispatcher) {                                         \
-        routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, "", std::make_shared<ApplicationDispatcher>(dispatcher)));          \
-        return *this;                                                                                                                      \
-    };
-
 namespace express {
 
     struct MountPoint {
