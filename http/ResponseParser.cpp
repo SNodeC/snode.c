@@ -31,7 +31,7 @@ namespace http {
 
     ResponseParser::ResponseParser(
         const std::function<void(const std::string&, const std::string&, const std::string&)>& onResponse,
-        const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, ResponseCookie>&)>& onHeader,
+        const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, CookieOptions>&)>& onHeader,
         const std::function<void(char*, size_t)>& onContent, const std::function<void(ResponseParser&)>& onParsed,
         const std::function<void(int status, const std::string& reason)>& onError)
         : onResponse(onResponse)
@@ -43,7 +43,7 @@ namespace http {
 
     ResponseParser::ResponseParser(
         const std::function<void(const std::string&, const std::string&, const std::string&)>&& onResponse,
-        const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, ResponseCookie>&)>&& onHeader,
+        const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, CookieOptions>&)>&& onHeader,
         const std::function<void(char*, size_t)>&& onContent, const std::function<void(ResponseParser&)>&& onParsed,
         const std::function<void(int status, const std::string& reason)>&& onError)
         : onResponse(onResponse)
@@ -103,9 +103,9 @@ namespace http {
 
                     VLOG(2) << "++ Cookie: " << name << " = " << value;
 
-                    std::map<std::string, ResponseCookie>::iterator cookieElement;
+                    std::map<std::string, CookieOptions>::iterator cookieElement;
                     bool inserted;
-                    std::tie(cookieElement, inserted) = cookies.insert({name, ResponseCookie(value)});
+                    std::tie(cookieElement, inserted) = cookies.insert({name, CookieOptions(value)});
 
                     while (!cookieOptions.empty()) {
                         std::string option;

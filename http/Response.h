@@ -27,6 +27,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "CookieOptions.h"
+
 class FileReader;
 
 namespace http {
@@ -65,21 +67,21 @@ namespace http {
         virtual void disable();
         virtual void reset();
 
-    private:
-        class ResponseCookie {
-        public:
-            ResponseCookie(const std::string& value, const std::map<std::string, std::string>& options)
-                : value(value)
-                , options(options) {
-            }
+    private: /*
+         class ResponseCookie {
+         public:
+             ResponseCookie(const std::string& value, const std::map<std::string, std::string>& options)
+                 : value(value)
+                 , options(options) {
+             }
 
-        protected:
-            std::string value;
-            std::map<std::string, std::string> options;
+         protected:
+             std::string value;
+             std::map<std::string, std::string> options;
 
-            friend class Response;
-        };
-
+             friend class Response;
+         };
+ */
     protected:
         ServerContext* httpServerContext;
 
@@ -88,7 +90,7 @@ namespace http {
 
         int responseStatus = 0;
         std::map<std::string, std::string> headers;
-        std::map<std::string, ResponseCookie> cookies;
+        std::map<std::string, CookieOptions> cookies;
 
         friend class ServerContext;
     };

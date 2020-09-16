@@ -14,6 +14,7 @@ add_library(http SHARED
     Client.h
     ClientContext.cpp
     ClientContext.h
+    CookieOptions.h
     Parser.cpp
     Parser.h
     RequestParser.cpp

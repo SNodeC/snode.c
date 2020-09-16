@@ -28,46 +28,22 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "CookieOptions.h"
 #include "Parser.h"
 
 namespace http {
-
-    class ResponseCookie {
-    public:
-        ResponseCookie(const std::string& value)
-            : value(value) {
-        }
-
-        void setOption(const std::string& name, const std::string& value) {
-            options[name] = value;
-        }
-
-        const std::map<std::string, std::string>& getOptions() const {
-            return options;
-        }
-
-        const std::string& getValue() const {
-            return value;
-        }
-
-    protected:
-        std::string value;
-        std::map<std::string, std::string> options;
-
-        friend class ResponseParser;
-    };
 
     class ResponseParser : public Parser {
     public:
         ResponseParser(
             const std::function<void(const std::string&, const std::string&, const std::string&)>& onResponse,
-            const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, ResponseCookie>&)>& onHeader,
+            const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, CookieOptions>&)>& onHeader,
             const std::function<void(char*, size_t)>& onContent, const std::function<void(ResponseParser&)>& onParsed,
             const std::function<void(int status, const std::string& reason)>& onError);
 
         ResponseParser(
             const std::function<void(const std::string&, const std::string&, const std::string&)>&& onResponse,
-            const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, ResponseCookie>&)>&& onHeader,
+            const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, CookieOptions>&)>&& onHeader,
             const std::function<void(char*, size_t)>&& onContent, const std::function<void(ResponseParser&)>&& onParsed,
             const std::function<void(int status, const std::string& reason)>&& onError);
 
@@ -84,10 +60,10 @@ namespace http {
         std::string httpVersion;
         std::string statusCode;
         std::string reason;
-        std::map<std::string, ResponseCookie> cookies;
+        std::map<std::string, CookieOptions> cookies;
 
         std::function<void(const std::string&, const std::string&, const std::string&)> onResponse;
-        std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, ResponseCookie>&)> onHeader;
+        std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, CookieOptions>&)> onHeader;
         std::function<void(char*, size_t)> onContent;
         std::function<void(ResponseParser&)> onParsed;
         std::function<void(int status, const std::string& reason)> onError;

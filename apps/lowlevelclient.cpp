@@ -45,7 +45,7 @@ static http::ResponseParser* getResponseParser() {
         [](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
             VLOG(0) << "++ Response: " << httpVersion << " " << statusCode << " " << reason;
         },
-        [](const std::map<std::string, std::string>& headers, const std::map<std::string, http::ResponseCookie>& cookies) -> void {
+        [](const std::map<std::string, std::string>& headers, const std::map<std::string, http::CookieOptions>& cookies) -> void {
             VLOG(0) << "++   Headers:";
             for (auto [field, value] : headers) {
                 VLOG(0) << "++       " << field + " = " + value;

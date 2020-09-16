@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CLIENTRESPONSE_H
-#define CLIENTRESPONSE_H
+#ifndef COOKIEOPTIONS_H
+#define COOKIEOPTIONS_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,26 +28,34 @@
 
 namespace http {
 
-    class ClientContext;
-    class CookieOptions;
-
-    class ClientResponse {
+    class CookieOptions {
     public:
-        ClientResponse() = default;
+        CookieOptions(const std::string& value, const std::map<std::string, std::string>& options)
+            : value(value)
+            , options(options) {
+        }
 
-        // switch to protected later on
-    public:
-        std::string httpVersion;
-        std::string statusCode;
-        std::string reason;
-        char* body = nullptr;
-        int contentLength = 0;
-        const std::map<std::string, std::string>* headers = nullptr;
-        const std::map<std::string, CookieOptions>* cookies = nullptr;
+        CookieOptions(const std::string& value)
+            : value(value) {
+        }
 
-        friend http::ClientContext;
+        void setOption(const std::string& optionName, const std::string& optionValue) {
+            options[optionName] = optionValue;
+        }
+
+        const std::map<std::string, std::string>& getOptions() const {
+            return options;
+        }
+
+        const std::string& getValue() const {
+            return value;
+        }
+
+    protected:
+        std::string value;
+        std::map<std::string, std::string> options;
     };
 
 } // namespace http
 
-#endif // CLIENTRESPONSE_H
+#endif // COOKIEOPTIONS_H

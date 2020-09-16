@@ -23,9 +23,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Response.h"
 #include "ServerContext.h"
 #include "StatusCodes.h"
-#include "Response.h"
 #include "file/FileReader.h"
 #include "http_utils.h"
 
@@ -108,7 +108,7 @@ namespace http {
     }
 
     Response& Response::cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options) {
-        cookies.insert({name, ResponseCookie(value, options)});
+        cookies.insert({name, CookieOptions(value, options)});
 
         return *this;
     }
@@ -153,7 +153,7 @@ namespace http {
 
         for (auto& [cookie, cookieValue] : cookies) {
             std::string cookieString =
-                std::accumulate(cookieValue.options.begin(), cookieValue.options.end(), cookie + "=" + cookieValue.value,
+                std::accumulate(cookieValue.getOptions().begin(), cookieValue.getOptions().end(), cookie + "=" + cookieValue.getValue(),
                                 [](const std::string& str, const std::pair<const std::string&, const std::string&> option) -> std::string {
                                     return str + "; " + option.first + (!option.second.empty() ? "=" + option.second : "");
                                 });

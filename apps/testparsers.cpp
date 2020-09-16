@@ -105,7 +105,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
         [](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
             VLOG(0) << "++ Response: " << httpVersion << " " << statusCode << " " << reason;
         },
-        [](const std::map<std::string, std::string>& headers, const std::map<std::string, ResponseCookie>& cookies) -> void {
+        [](const std::map<std::string, std::string>& headers, const std::map<std::string, CookieOptions>& cookies) -> void {
             VLOG(0) << "++   Headers:";
             for (const auto& [field, value] : headers) {
                 VLOG(0) << "++       " << field + " = " + value;

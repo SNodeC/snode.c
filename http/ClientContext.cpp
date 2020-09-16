@@ -37,8 +37,7 @@ namespace http {
                   clientResponse.statusCode = statusCode;
                   clientResponse.reason = reason;
               },
-              [this](const std::map<std::string, std::string>& headers,
-                     const std::map<std::string, http::ResponseCookie>& cookies) -> void {
+              [this](const std::map<std::string, std::string>& headers, const std::map<std::string, http::CookieOptions>& cookies) -> void {
                   clientResponse.headers = &headers;
                   clientResponse.cookies = &cookies;
               },
