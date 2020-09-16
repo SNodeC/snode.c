@@ -39,7 +39,6 @@ namespace net::socket::tls {
                      const std::function<void(SocketServer::SocketConnection* socketConnection, int errnum)>& onWriteError,
                      const std::map<std::string, std::any>& options = {{}});
 
-    protected:
         ~SocketServer() override;
 
     public:

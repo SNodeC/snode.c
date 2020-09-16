@@ -77,24 +77,16 @@ namespace http {
         }
 
     public:
-        void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr) const {
+        void listen(in_port_t port, const std::function<void(int err)>& onError) const {
             errno = 0;
 
-            socketServer()->listen(port, 5, [&](int err) -> void {
-                if (onError) {
-                    onError(err);
-                }
-            });
+            socketServer()->listen(port, 5, onError);
         }
 
-        void listen(const std::string host, in_port_t port, const std::function<void(int err)>& onError = nullptr) const {
+        void listen(const std::string host, in_port_t port, const std::function<void(int err)>& onError) const {
             errno = 0;
 
-            socketServer()->listen(host, port, 5, [&](int err) -> void {
-                if (onError) {
-                    onError(err);
-                }
-            });
+            socketServer()->listen(host, port, 5, onError);
         }
 
     protected:

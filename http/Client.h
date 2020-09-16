@@ -98,46 +98,49 @@ namespace http {
         }
 
     protected:
+        SocketClient* socketClient() const {
+            return new SocketClient(
+                [*this](SocketConnection* socketConnection) -> void { // onConnect
+                    this->onConnect(socketConnection);
+
+                    socketConnection->template setContext<http::ClientContext*>(new ClientContext(
+                        socketConnection,
+                        [*this](ClientResponse& clientResponse) -> void {
+                            this->onResponseReady(clientResponse);
+                        },
+                        []([[maybe_unused]] int status, [[maybe_unused]] const std::string& reason) -> void {
+                        }));
+
+                    socketConnection->enqueue(request);
+                },
+                [*this](SocketConnection* socketConnection) -> void { // onDisconnect
+                    this->onDisconnect(socketConnection);
+                    socketConnection->template getContext<http::ClientContext*>([](http::ClientContext*& httpClientContext) -> void {
+                        delete httpClientContext;
+                    });
+                },
+                [](SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
+                    socketConnection->template getContext<http::ClientContext*>(
+                        [junk, junkSize]([[maybe_unused]] http::ClientContext*& clientContext) -> void {
+                            clientContext->receiveResponseData(junk, junkSize);
+                        });
+                },
+                []([[maybe_unused]] SocketConnection* socketConnection,
+                   [[maybe_unused]] int errnum) -> void { // onReadError
+                    PLOG(ERROR) << "Server: " << socketConnection->getRemoteAddress().host();
+                },
+                []([[maybe_unused]] SocketConnection* socketConnection,
+                   [[maybe_unused]] int errnum) -> void { // onWriteError
+                    PLOG(ERROR) << "Server: " << socketConnection->getRemoteAddress().host();
+                },
+                options);
+        }
+
         void connect(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError,
                      const net::socket::InetAddress& localHost = net::socket::InetAddress()) const {
             errno = 0;
 
-            (new SocketClient(
-                 [*this](SocketConnection* socketConnection) -> void { // onConnect
-                     this->onConnect(socketConnection);
-
-                     socketConnection->template setContext<http::ClientContext*>(new ClientContext(
-                         socketConnection,
-                         [*this](ClientResponse& clientResponse) -> void {
-                             this->onResponseReady(clientResponse);
-                         },
-                         []([[maybe_unused]] int status, [[maybe_unused]] const std::string& reason) -> void {
-                         }));
-
-                     socketConnection->enqueue(request);
-                 },
-                 [*this](SocketConnection* socketConnection) -> void { // onDisconnect
-                     this->onDisconnect(socketConnection);
-                     socketConnection->template getContext<http::ClientContext*>([](http::ClientContext*& httpClientContext) -> void {
-                         delete httpClientContext;
-                     });
-                 },
-                 [](SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
-                     socketConnection->template getContext<http::ClientContext*>(
-                         [junk, junkSize]([[maybe_unused]] http::ClientContext*& clientContext) -> void {
-                             clientContext->receiveResponseData(junk, junkSize);
-                         });
-                 },
-                 [onError]([[maybe_unused]] SocketConnection* socketConnection,
-                           [[maybe_unused]] int errnum) -> void { // onReadError
-                     PLOG(ERROR) << "Server \"" << socketConnection->getRemoteAddress().host() << "\"";
-                 },
-                 [onError]([[maybe_unused]] SocketConnection* socketConnection,
-                           [[maybe_unused]] int errnum) -> void { // onWriteError
-                     PLOG(ERROR) << "Server: " << socketConnection->getRemoteAddress().host();
-                 },
-                 this->options))
-                ->connect(options, onError, localHost);
+            socketClient()->connect(options, onError, localHost);
         }
 
         std::function<void(SocketConnection*)> onConnect;
