@@ -23,7 +23,7 @@ _Components:_
 _TODOs:_
 * Add better error processing in HTTPResponseParser
 * Improve regex-match in Router (path-to-regex in JS)
-* Add some more complex example apps (maybe a Game)
+* Add some more complex example apps (Game, Skill for Alexa, ...)
 * Add WebSocket support for server and client, legacy and tls
 * Add support for Template-Engines (similar to express)
 * Add additional transport protocols (udp, bluetooth, local, ipv6, ...)
