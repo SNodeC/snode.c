@@ -28,25 +28,25 @@
 namespace http {
 
     ClientContext::ClientContext(net::socket::SocketConnectionBase* socketConnection,
-                                 const std::function<void(ClientResponse&)>& onResponse,
+                                 const std::function<void(ServerResponse&)>& onResponse,
                                  const std::function<void(int status, const std::string& reason)>& onError)
         : socketConnection(socketConnection)
         , parser(
               [this](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
-                  clientResponse.httpVersion = httpVersion;
-                  clientResponse.statusCode = statusCode;
-                  clientResponse.reason = reason;
+                  serverResponse.httpVersion = httpVersion;
+                  serverResponse.statusCode = statusCode;
+                  serverResponse.reason = reason;
               },
               [this](const std::map<std::string, std::string>& headers, const std::map<std::string, http::CookieOptions>& cookies) -> void {
-                  clientResponse.headers = &headers;
-                  clientResponse.cookies = &cookies;
+                  serverResponse.headers = &headers;
+                  serverResponse.cookies = &cookies;
               },
               [this](char* content, size_t contentLength) -> void {
-                  clientResponse.body = content;
-                  clientResponse.contentLength = contentLength;
+                  serverResponse.body = content;
+                  serverResponse.contentLength = contentLength;
               },
               [this, onResponse](http::ResponseParser& parser) -> void {
-                  onResponse(clientResponse);
+                  onResponse(serverResponse);
                   parser.reset();
               },
               [onError](int status, const std::string& reason) -> void {

@@ -20,8 +20,8 @@
 
 #include "tls/Client.h"
 
-#include "ClientResponse.h"
 #include "EventLoop.h"
+#include "ServerResponse.h"
 #include "legacy/Client.h"
 #include "socket/legacy/SocketClient.h"
 #include "socket/tls/SocketClient.h"
@@ -49,29 +49,29 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "     Client: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
         },
-        [](const http::ClientResponse& clientResponse) -> void {
+        [](const http::ServerResponse& serverResponse) -> void {
             VLOG(0) << "-- OnResponse";
             VLOG(0) << "     Status:";
-            VLOG(0) << "       " << clientResponse.httpVersion;
-            VLOG(0) << "       " << clientResponse.statusCode;
-            VLOG(0) << "       " << clientResponse.reason;
+            VLOG(0) << "       " << serverResponse.httpVersion;
+            VLOG(0) << "       " << serverResponse.statusCode;
+            VLOG(0) << "       " << serverResponse.reason;
 
             VLOG(0) << "     Headers:";
-            for (auto [field, value] : *clientResponse.headers) {
+            for (auto [field, value] : *serverResponse.headers) {
                 VLOG(0) << "       " << field + " = " + value;
             }
 
             VLOG(0) << "     Cookies:";
-            for (auto [name, cookie] : *clientResponse.cookies) {
+            for (auto [name, cookie] : *serverResponse.cookies) {
                 VLOG(0) << "       " + name + " = " + cookie.getValue();
                 for (auto [option, value] : cookie.getOptions()) {
                     VLOG(0) << "         " + option + " = " + value;
                 }
             }
 
-            char* body = new char[clientResponse.contentLength + 1];
-            memcpy(body, clientResponse.body, clientResponse.contentLength);
-            body[clientResponse.contentLength] = 0;
+            char* body = new char[serverResponse.contentLength + 1];
+            memcpy(body, serverResponse.body, serverResponse.contentLength);
+            body[serverResponse.contentLength] = 0;
 
             VLOG(1) << "     Body:\n----------- start body -----------\n" << body << "------------ end body ------------";
 
@@ -137,29 +137,29 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "     Server certificate: no certificate";
             }
         },
-        [](const http::ClientResponse& clientResponse) -> void {
+        [](const http::ServerResponse& serverResponse) -> void {
             VLOG(0) << "-- OnResponse";
             VLOG(0) << "     Status:";
-            VLOG(0) << "       " << clientResponse.httpVersion;
-            VLOG(0) << "       " << clientResponse.statusCode;
-            VLOG(0) << "       " << clientResponse.reason;
+            VLOG(0) << "       " << serverResponse.httpVersion;
+            VLOG(0) << "       " << serverResponse.statusCode;
+            VLOG(0) << "       " << serverResponse.reason;
 
             VLOG(0) << "     Headers:";
-            for (auto [field, value] : *clientResponse.headers) {
+            for (auto [field, value] : *serverResponse.headers) {
                 VLOG(0) << "       " << field + " = " + value;
             }
 
             VLOG(0) << "     Cookies:";
-            for (auto [name, cookie] : *clientResponse.cookies) {
+            for (auto [name, cookie] : *serverResponse.cookies) {
                 VLOG(0) << "       " + name + " = " + cookie.getValue();
                 for (auto [option, value] : cookie.getOptions()) {
                     VLOG(0) << "         " + option + " = " + value;
                 }
             }
 
-            char* body = new char[clientResponse.contentLength + 1];
-            memcpy(body, clientResponse.body, clientResponse.contentLength);
-            body[clientResponse.contentLength] = 0;
+            char* body = new char[serverResponse.contentLength + 1];
+            memcpy(body, serverResponse.body, serverResponse.contentLength);
+            body[serverResponse.contentLength] = 0;
 
             VLOG(1) << "     Body:\n----------- start body -----------\n" << body << "------------ end body ------------";
 

@@ -27,8 +27,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "ClientResponse.h"
 #include "ResponseParser.h"
+#include "ServerResponse.h"
 
 namespace net::socket {
     class SocketConnectionBase;
@@ -38,7 +38,7 @@ namespace http {
 
     class ClientContext {
     public:
-        ClientContext(net::socket::SocketConnectionBase* socketConnection, const std::function<void(ClientResponse&)>& onResponse,
+        ClientContext(net::socket::SocketConnectionBase* socketConnection, const std::function<void(ServerResponse&)>& onResponse,
                       const std::function<void(int status, const std::string& reason)>& onError);
 
         void receiveResponseData(const char* junk, size_t junkLen);
@@ -46,7 +46,7 @@ namespace http {
     protected:
         net::socket::SocketConnectionBase* socketConnection;
 
-        ClientResponse clientResponse;
+        ServerResponse serverResponse;
 
     private:
         ResponseParser parser;

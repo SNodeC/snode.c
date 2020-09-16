@@ -18,7 +18,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "ClientResponse.h"
+#include "ServerResponse.h"
 #include "EventLoop.h"
 #include "ResponseParser.h"
 //#include "legacy/HTTPClient.h"

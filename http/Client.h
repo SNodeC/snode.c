@@ -35,7 +35,7 @@
 
 namespace http {
 
-    class ClientResponse;
+    class ServerResponse;
 
     template <typename SocketClientT>
     class Client {
@@ -43,8 +43,7 @@ namespace http {
         using SocketConnection = typename SocketClient::SocketConnection;
 
     public:
-        Client(const std::function<void(SocketConnection*)>& onConnect,
-               const std::function<void(ClientResponse& clientResponse)> onResponseReady,
+        Client(const std::function<void(SocketConnection*)>& onConnect, const std::function<void(ServerResponse&)> onResponseReady,
                const std::function<void(SocketConnection*)> onDisconnect, const std::map<std::string, std::any>& options = {{}})
             : onConnect(onConnect)
             , onResponseReady(onResponseReady)
@@ -105,7 +104,7 @@ namespace http {
 
                     socketConnection->template setContext<http::ClientContext*>(new ClientContext(
                         socketConnection,
-                        [*this](ClientResponse& clientResponse) -> void {
+                        [*this](ServerResponse& clientResponse) -> void {
                             this->onResponseReady(clientResponse);
                         },
                         []([[maybe_unused]] int status, [[maybe_unused]] const std::string& reason) -> void {
@@ -144,7 +143,7 @@ namespace http {
         }
 
         std::function<void(SocketConnection*)> onConnect;
-        std::function<void(ClientResponse& clientResponse)> onResponseReady;
+        std::function<void(ServerResponse&)> onResponseReady;
         std::function<void(SocketConnection*)> onDisconnect;
 
         std::string request;

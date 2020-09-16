@@ -20,8 +20,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "ClientResponse.h"
 #include "EventLoop.h"
+#include "ServerResponse.h"
 #include "legacy/Client.h"
 #include "socket/legacy/SocketClient.h"
 #include "socket/tls/SocketClient.h"
@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "     Client: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
         },
-        [](const http::ClientResponse& clientResponse) -> void {
+        [](const http::ServerResponse& clientResponse) -> void {
             VLOG(0) << "-- OnResponse";
             VLOG(0) << "     Status:";
             VLOG(0) << "       " << clientResponse.httpVersion;

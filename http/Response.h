@@ -67,21 +67,6 @@ namespace http {
         virtual void disable();
         virtual void reset();
 
-    private: /*
-         class ResponseCookie {
-         public:
-             ResponseCookie(const std::string& value, const std::map<std::string, std::string>& options)
-                 : value(value)
-                 , options(options) {
-             }
-
-         protected:
-             std::string value;
-             std::map<std::string, std::string> options;
-
-             friend class Response;
-         };
- */
     protected:
         ServerContext* httpServerContext;
 

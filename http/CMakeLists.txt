@@ -9,8 +9,6 @@ add_library(http SHARED
     tls/Client.h
     legacy/Server.h
     tls/Server.h
-    ClientResponse.cpp
-    ClientResponse.h
     Client.h
     ClientContext.cpp
     ClientContext.h
@@ -21,9 +19,11 @@ add_library(http SHARED
     RequestParser.h
     ResponseParser.cpp
     ResponseParser.h
+    Server.h
     ServerContext.cpp
     ServerContext.h
-    Server.h
+    ServerResponse.cpp
+    ServerResponse.h
     StatusCodes.cpp
     StatusCodes.h
     MimeTypes.cpp

@@ -16,38 +16,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CLIENTRESPONSE_H
-#define CLIENTRESPONSE_H
+#include "ServerResponse.h"
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <map>
-#include <string>
-
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-namespace http {
-
-    class ClientContext;
-    class CookieOptions;
-
-    class ClientResponse {
-    public:
-        ClientResponse() = default;
-
-        // switch to protected later on
-    public:
-        std::string httpVersion;
-        std::string statusCode;
-        std::string reason;
-        char* body = nullptr;
-        int contentLength = 0;
-        const std::map<std::string, std::string>* headers = nullptr;
-        const std::map<std::string, CookieOptions>* cookies = nullptr;
-
-        friend http::ClientContext;
-    };
-
-} // namespace http
-
-#endif // CLIENTRESPONSE_H
+namespace http {} // namespace http
