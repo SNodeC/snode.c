@@ -22,10 +22,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "ServerContext.h"
-#include "StatusCodes.h"
 #include "MimeTypes.h"
 #include "Response.h"
+#include "ServerContext.h"
+#include "StatusCodes.h"
 #include "file/FileReader.h"
 #include "http_utils.h"
 

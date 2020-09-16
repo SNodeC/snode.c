@@ -25,10 +25,10 @@ namespace http {
         using SocketServer = SocketServerT;
         using SocketConnection = typename SocketServer::SocketConnection;
 
-        explicit Server(const std::function<void(SocketConnection*)>& onConnect,
-                        const std::function<void(Request& req, Response& res)>& onRequestReady,
-                        const std::function<void(Request& req, Response& res)>& onRequestCompleted,
-                        const std::function<void(SocketConnection*)>& onDisconnect, const std::map<std::string, std::any>& options = {{}})
+        Server(const std::function<void(SocketConnection*)>& onConnect,
+               const std::function<void(Request& req, Response& res)>& onRequestReady,
+               const std::function<void(Request& req, Response& res)>& onRequestCompleted,
+               const std::function<void(SocketConnection*)>& onDisconnect, const std::map<std::string, std::any>& options = {{}})
             : onConnect(onConnect)
             , onRequestReady(onRequestReady)
             , onRequestCompleted(onRequestCompleted)

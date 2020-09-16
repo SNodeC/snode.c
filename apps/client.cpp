@@ -18,13 +18,11 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "tls/Client.h"
+#include "legacy/Client.h"
 
 #include "EventLoop.h"
 #include "ServerResponse.h"
-#include "legacy/Client.h"
-#include "socket/legacy/SocketClient.h"
-#include "socket/tls/SocketClient.h"
+#include "tls/Client.h"
 
 #include <cstring>
 #include <easylogging++.h>
