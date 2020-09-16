@@ -22,6 +22,13 @@ _Components:_
 
 _TODOs:_
 * Add better error processing in HTTPResponseParser
-* Improve regex-match in Router
-* Add some more complex example apps
-* Fix HTTPRequestParser to be compliant with the standard
+* Improve regex-match in Router (path-to-regex in JS)
+* Add some more complex example apps (maybe a Game)
+* Add WebSocket support for server and client, legacy and tls
+* Add support for Template-Engines (similar to express)
+* Add additional transport protocols (udp, bluetooth, local, ipv6, ...)
+* Implement other protocols (contexts) than http (e.g. mqtt, ftp would be interresting, telnet, smtp)
+* Finalize cmake-rules to support install
+* Add cmake description files
+* Add "logical" events
+* Support "promisses"
