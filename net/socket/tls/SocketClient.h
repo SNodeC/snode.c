@@ -34,6 +34,8 @@ namespace net::socket::tls {
 
     class SocketClient : public socket::SocketClient<tls::SocketConnection> {
     public:
+        using socket::SocketClient<SocketClient::SocketConnection>::SocketClient;
+
         SocketClient(const std::function<void(SocketClient::SocketConnection* socketConnection)>& onConnect,
                      const std::function<void(SocketClient::SocketConnection* socketConnection)>& onDisconnect,
                      const std::function<void(SocketClient::SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
@@ -42,8 +44,6 @@ namespace net::socket::tls {
                      const std::map<std::string, std::any>& options = {{}});
 
         ~SocketClient() override;
-
-        using socket::SocketClient<SocketClient::SocketConnection>::SocketClient;
 
     public:
         // NOLINTNEXTLINE(google-default-arguments)

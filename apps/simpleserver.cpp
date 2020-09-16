@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
 
     legacyApp.listen(8080, [](int err) -> void {
         if (err != 0) {
-            PLOG(FATAL) << "listen on port 8080 " << std::to_string(err);
+            PLOG(FATAL) << "listen on port 8080";
         } else {
             VLOG(0) << "snode.c listening on port 8080 for legacy connections";
         }
@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
 
     tlsApp.listen(8088, [](int err) -> void {
         if (err != 0) {
-            PLOG(FATAL) << "listen on port 8088 " << std::to_string(err);
+            PLOG(FATAL) << "listen on port 8088";
         } else {
             VLOG(0) << "snode.c listening on port 8088 for SSL/TLS connections";
         }

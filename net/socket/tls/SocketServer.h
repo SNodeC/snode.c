@@ -30,6 +30,8 @@ namespace net::socket::tls {
 
     class SocketServer : public socket::SocketServer<tls::SocketConnection> {
     public:
+        using socket::SocketServer<SocketServer::SocketConnection>::SocketServer;
+
         SocketServer(const std::function<void(SocketServer::SocketConnection* socketConnection)>& onConnect,
                      const std::function<void(SocketServer::SocketConnection* socketConnection)>& onDisconnect,
                      const std::function<void(SocketServer::SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
@@ -38,7 +40,6 @@ namespace net::socket::tls {
                      const std::map<std::string, std::any>& options = {{}});
 
     protected:
-        using socket::SocketServer<SocketServer::SocketConnection>::SocketServer;
         ~SocketServer() override;
 
     public:
