@@ -54,11 +54,17 @@ namespace http {
         Response& clearCookie(const std::string& name, const std::map<std::string, std::string>& options = {});
         Response& type(const std::string& type);
 
-        bool headersSent = false;
-        bool keepAlive = true;
-
     protected:
-        mutable size_t contentLength = 0;
+        ServerContext* httpServerContext;
+
+        bool keepAlive = true;
+        bool sendHeaderInProgress = false;
+        bool headersSent = false;
+
+        int responseStatus = 0;
+
+        size_t contentSent = 0;
+        size_t contentLength = 0;
 
         void enqueue(const char* buf, size_t len);
         void enqueue(const std::string& str);
@@ -67,13 +73,6 @@ namespace http {
         virtual void disable();
         virtual void reset();
 
-    protected:
-        ServerContext* httpServerContext;
-
-        size_t contentSent = 0;
-        bool sendHeaderInProgress = false;
-
-        int responseStatus = 0;
         std::map<std::string, std::string> headers;
         std::map<std::string, CookieOptions> cookies;
 
