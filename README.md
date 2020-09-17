@@ -32,3 +32,4 @@ _TODOs:_
 * Add cmake description files
 * Add "logical" events
 * Support "promisses"
+* Add OAUTH2 server/client authentification
