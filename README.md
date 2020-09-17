@@ -33,3 +33,4 @@ _TODOs:_
 * Add "logical" events
 * Support "promisses"
 * Add OAUTH2 server/client authentification
+* Write unit tests
