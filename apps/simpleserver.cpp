@@ -36,12 +36,18 @@
 
 using namespace express;
 
+Router getRouter() {
+    Router router;
+
+    router.use(middleware::StaticMiddleware(SERVERROOT));
+
+    return router;
+}
+
 int main(int argc, char** argv) {
     WebApp::init(argc, argv);
 
-    legacy::WebApp legacyApp;
-
-    legacyApp.use(middleware::StaticMiddleware(SERVERROOT));
+    legacy::WebApp legacyApp(getRouter());
 
     legacyApp.listen(8080, [](int err) -> void {
         if (err != 0) {
@@ -67,9 +73,7 @@ int main(int argc, char** argv) {
                        "):" + std::to_string(socketConnection->getLocalAddress().port());
     });
 
-    tls::WebApp tlsApp({{"certChain", CERTF}, {"keyPEM", KEYF}, {"password", KEYFPASS}});
-
-    tlsApp.use(middleware::StaticMiddleware(SERVERROOT));
+    tls::WebApp tlsApp(getRouter(), {{"certChain", CERTF}, {"keyPEM", KEYF}, {"password", KEYFPASS}});
 
     tlsApp.listen(8088, [](int err) -> void {
         if (err != 0) {

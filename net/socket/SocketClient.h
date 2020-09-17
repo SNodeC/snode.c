@@ -72,7 +72,6 @@ namespace net::socket {
         }
 
         SocketClient() = delete;
-        const SocketClient& operator=(const SocketClient&) = delete;
 
         virtual ~SocketClient() = default;
 

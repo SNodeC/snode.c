@@ -18,7 +18,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdlib>
 #include <easylogging++.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -35,6 +34,10 @@ namespace express {
             LOG(FATAL) << "ERROR: WebApp not initialized. Use WebApp::init(argc, argv) before creating a concrete WebApp object";
             exit(1);
         }
+    }
+
+    WebApp::WebApp(const Router& router)
+        : Router(router) {
     }
 
     void WebApp::init(int argc, char* argv[]) {

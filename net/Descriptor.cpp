@@ -39,10 +39,6 @@ namespace net {
     }
 
     int Descriptor::getFd() const {
-        if (fd < 0) {
-            LOG(FATAL) << "Descriptor not initialized";
-        }
-
         return fd;
     }
 

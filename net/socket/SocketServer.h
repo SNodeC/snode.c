@@ -22,6 +22,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <any>
+#include <cerrno>
 #include <cstdlib>
 #include <easylogging++.h>
 #include <functional>
@@ -72,35 +73,41 @@ namespace net::socket {
         }
 
         SocketServer() = delete;
+        SocketServer(const SocketServer&) = delete;
+
         SocketServer& operator=(const SocketServer&) = delete;
 
-        ~SocketServer() = default;
+        virtual ~SocketServer() = default;
 
         void listen(const InetAddress& localAddress, int backlog, const std::function<void(int err)>& onError) {
-            open([this, &localAddress, &backlog, &onError](int errnum) -> void {
-                if (errnum > 0) {
-                    onError(errnum);
-                } else {
-                    reuseAddress([this, &localAddress, &backlog, &onError](int errnum) -> void {
-                        if (errnum != 0) {
-                            onError(errnum);
-                        } else {
-                            bind(localAddress, [this, &backlog, &onError](int errnum) -> void {
-                                if (errnum > 0) {
-                                    onError(errnum);
-                                } else {
-                                    listen(backlog, [this, &onError](int errnum) -> void {
-                                        if (errnum == 0) {
-                                            AcceptEventReceiver::enable();
-                                        }
+            if (getFd() < 0) {
+                open([this, &localAddress, &backlog, &onError](int errnum) -> void {
+                    if (errnum > 0) {
+                        onError(errnum);
+                    } else {
+                        reuseAddress([this, &localAddress, &backlog, &onError](int errnum) -> void {
+                            if (errnum != 0) {
+                                onError(errnum);
+                            } else {
+                                bind(localAddress, [this, &backlog, &onError](int errnum) -> void {
+                                    if (errnum > 0) {
                                         onError(errnum);
-                                    });
-                                }
-                            });
-                        }
-                    });
-                }
-            });
+                                    } else {
+                                        listen(backlog, [this, &onError](int errnum) -> void {
+                                            if (errnum == 0) {
+                                                AcceptEventReceiver::enable();
+                                            }
+                                            onError(errnum);
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            } else {
+                onError(EISCONN);
+            }
         }
 
         void listen(in_port_t port, int backlog, const std::function<void(int err)>& onError) {

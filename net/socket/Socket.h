@@ -35,10 +35,9 @@ namespace net::socket {
         Socket() = default;
 
         Socket(const Socket&) = delete;
+        Socket& operator=(const Socket&) = delete;
 
         virtual ~Socket();
-
-        Socket& operator=(const Socket&) = delete;
 
         using net::Descriptor::open;
         void open(const std::function<void(int errnum)>& onError, int flags = 0);

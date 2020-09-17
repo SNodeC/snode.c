@@ -61,7 +61,27 @@ namespace express {
                   options) {
         }
 
-        WebAppT& operator=(const express::WebAppT<Server>& webApp) = delete;
+        WebAppT(const Router& router, const std::map<std::string, std::any>& options = {{}})
+            : WebApp(router)
+            , server(
+                  [this]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnect
+                      if (_onConnect != nullptr) {
+                          _onConnect(socketConnection);
+                      }
+                  },
+                  [this](http::Request& req, http::Response& res) -> void { // onRequestReady
+                      dispatch(req, res);
+                  },
+                  [this](http::Request& req, http::Response& res) -> void { // onRequestCompleted
+                      completed(req, res);
+                  },
+                  [this]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onDisconnect
+                      if (_onDisconnect != nullptr) {
+                          _onDisconnect(socketConnection);
+                      }
+                  },
+                  options) {
+        }
 
         void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr) override {
             server.listen(port, onError);
@@ -80,10 +100,10 @@ namespace express {
         }
 
     protected:
+        Server server;
+
         std::function<void(SocketConnection*)> _onConnect = nullptr;
         std::function<void(SocketConnection*)> _onDisconnect = nullptr;
-
-        Server server;
 
     private:
         using express::WebApp::init;

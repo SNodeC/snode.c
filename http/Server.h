@@ -36,23 +36,21 @@ namespace http {
             , options(options) {
         }
 
-        Server& operator=(const Server& webApp) = delete;
-
     protected:
         SocketServer* socketServer() const {
             return new SocketServer(
-                [*this](SocketConnection* socketConnection) -> void { // onConnect
+                [this](SocketConnection* socketConnection) -> void { // onConnect
                     onConnect(socketConnection);
                     socketConnection->template setContext<ServerContext*>(new ServerContext(
                         socketConnection,
-                        [*this](Request& req, Response& res) -> void {
+                        [this](Request& req, Response& res) -> void {
                             onRequestReady(req, res);
                         },
-                        [*this](Request& req, Response& res) -> void {
+                        [this](Request& req, Response& res) -> void {
                             onRequestCompleted(req, res);
                         }));
                 },
-                [*this](SocketConnection* socketConnection) -> void { // onDisconnect
+                [this](SocketConnection* socketConnection) -> void { // onDisconnect
                     onDisconnect(socketConnection);
                     socketConnection->template getContext<ServerContext*>([](ServerContext*& protocol) -> void {
                         delete protocol;

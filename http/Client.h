@@ -99,21 +99,21 @@ namespace http {
     protected:
         SocketClient* socketClient() const {
             return new SocketClient(
-                [*this](SocketConnection* socketConnection) -> void { // onConnect
-                    this->onConnect(socketConnection);
+                [this](SocketConnection* socketConnection) -> void { // onConnect
+                    onConnect(socketConnection);
 
                     socketConnection->template setContext<http::ClientContext*>(new ClientContext(
                         socketConnection,
-                        [*this](ServerResponse& clientResponse) -> void {
-                            this->onResponseReady(clientResponse);
+                        [this](ServerResponse& clientResponse) -> void {
+                            onResponseReady(clientResponse);
                         },
                         []([[maybe_unused]] int status, [[maybe_unused]] const std::string& reason) -> void {
                         }));
 
                     socketConnection->enqueue(request);
                 },
-                [*this](SocketConnection* socketConnection) -> void { // onDisconnect
-                    this->onDisconnect(socketConnection);
+                [this](SocketConnection* socketConnection) -> void { // onDisconnect
+                    onDisconnect(socketConnection);
                     socketConnection->template getContext<http::ClientContext*>([](http::ClientContext*& httpClientContext) -> void {
                         delete httpClientContext;
                     });
