@@ -34,3 +34,5 @@ _TODOs:_
 * Support "promisses"
 * Add OAUTH2 server/client authentification
 * Write unit tests
+* Porting snode.c to MS-Windows
+* Porting snode.c to macOS
