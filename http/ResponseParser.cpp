@@ -41,18 +41,6 @@ namespace http {
         , onError(onError) {
     }
 
-    ResponseParser::ResponseParser(
-        const std::function<void(const std::string&, const std::string&, const std::string&)>&& onResponse,
-        const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, CookieOptions>&)>&& onHeader,
-        const std::function<void(char*, size_t)>&& onContent, const std::function<void(ResponseParser&)>&& onParsed,
-        const std::function<void(int status, const std::string& reason)>&& onError)
-        : onResponse(onResponse)
-        , onHeader(onHeader)
-        , onContent(onContent)
-        , onParsed(onParsed)
-        , onError(onError) {
-    }
-
     void ResponseParser::reset() {
         Parser::reset();
         httpVersion.clear();

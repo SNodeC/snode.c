@@ -41,12 +41,6 @@ namespace http {
             const std::function<void(char*, size_t)>& onContent, const std::function<void(ResponseParser&)>& onParsed,
             const std::function<void(int status, const std::string& reason)>& onError);
 
-        ResponseParser(
-            const std::function<void(const std::string&, const std::string&, const std::string&)>&& onResponse,
-            const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, CookieOptions>&)>&& onHeader,
-            const std::function<void(char*, size_t)>&& onContent, const std::function<void(ResponseParser&)>&& onParsed,
-            const std::function<void(int status, const std::string& reason)>&& onError);
-
         enum Parser::PAS parseStartLine(std::string& line) override;
         enum Parser::PAS parseHeader() override;
         enum Parser::PAS parseContent(char* content, size_t size) override;
