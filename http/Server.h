@@ -41,14 +41,8 @@ namespace http {
             return new SocketServer(
                 [this](SocketConnection* socketConnection) -> void { // onConnect
                     onConnect(socketConnection);
-                    socketConnection->template setContext<ServerContext*>(new ServerContext(
-                        socketConnection,
-                        [this](Request& req, Response& res) -> void {
-                            onRequestReady(req, res);
-                        },
-                        [this](Request& req, Response& res) -> void {
-                            onRequestCompleted(req, res);
-                        }));
+                    socketConnection->template setContext<ServerContext*>(
+                        new ServerContext(socketConnection, onRequestReady, onRequestCompleted));
                 },
                 [this](SocketConnection* socketConnection) -> void { // onDisconnect
                     onDisconnect(socketConnection);
@@ -89,8 +83,8 @@ namespace http {
 
     protected:
         std::function<void(SocketConnection*)> onConnect;
-        std::function<void(Request& req, Response& res)> onRequestReady;
-        std::function<void(Request& req, Response& res)> onRequestCompleted;
+        std::function<void(Request&, Response&)> onRequestReady;
+        std::function<void(Request&, Response&)> onRequestCompleted;
         std::function<void(SocketConnection*)> onDisconnect;
 
         std::map<std::string, std::any> options;

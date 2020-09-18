@@ -44,9 +44,11 @@ namespace http {
 
     public:
         Client(const std::function<void(SocketConnection*)>& onConnect, const std::function<void(ServerResponse&)> onResponseReady,
+               const std::function<void(int, const std::string&)> onResponseError,
                const std::function<void(SocketConnection*)> onDisconnect, const std::map<std::string, std::any>& options = {{}})
             : onConnect(onConnect)
             , onResponseReady(onResponseReady)
+            , onResponseError(onResponseError)
             , onDisconnect(onDisconnect)
             , options(options) {
         }
@@ -102,14 +104,8 @@ namespace http {
                 [this](SocketConnection* socketConnection) -> void { // onConnect
                     onConnect(socketConnection);
 
-                    socketConnection->template setContext<http::ClientContext*>(new ClientContext(
-                        socketConnection,
-                        [this](ServerResponse& clientResponse) -> void {
-                            onResponseReady(clientResponse);
-                        },
-                        []([[maybe_unused]] int status, [[maybe_unused]] const std::string& reason) -> void {
-                        }));
-
+                    socketConnection->template setContext<http::ClientContext*>(
+                        new ClientContext(socketConnection, onResponseReady, onResponseError));
                     socketConnection->enqueue(request);
                 },
                 [this](SocketConnection* socketConnection) -> void { // onDisconnect
@@ -144,6 +140,7 @@ namespace http {
 
         std::function<void(SocketConnection*)> onConnect;
         std::function<void(ServerResponse&)> onResponseReady;
+        std::function<void(int, const std::string&)> onResponseError;
         std::function<void(SocketConnection*)> onDisconnect;
 
         std::string request;
