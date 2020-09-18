@@ -37,6 +37,10 @@
 #define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem"
 #define KEYFPASS "snode.c"
 
+namespace http {
+    class CookieOptions;
+}
+
 using namespace http;
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {

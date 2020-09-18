@@ -75,6 +75,11 @@ int main(int argc, char* argv[]) {
 
             delete[] body;
         },
+        [](int status, const std::string& reason) -> void {
+            VLOG(0) << "-- OnResponseError";
+            VLOG(0) << "     Status: " << status;
+            VLOG(0) << "     Reason: " << reason;
+        },
         []([[maybe_unused]] net::socket::legacy::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnDisconnect";
             VLOG(0) << "     Server: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
@@ -162,6 +167,11 @@ int main(int argc, char* argv[]) {
             VLOG(1) << "     Body:\n----------- start body -----------\n" << body << "------------ end body ------------";
 
             delete[] body;
+        },
+        [](int status, const std::string& reason) -> void {
+            VLOG(0) << "-- OnResponseError";
+            VLOG(0) << "     Status: " << status;
+            VLOG(0) << "     Reason: " << reason;
         },
         []([[maybe_unused]] net::socket::tls::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnDisconnect";

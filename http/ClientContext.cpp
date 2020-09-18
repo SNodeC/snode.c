@@ -26,6 +26,7 @@
 #include "ClientContext.h"
 
 namespace http {
+    class CookieOptions;
 
     ClientContext::ClientContext(net::socket::SocketConnectionBase* socketConnection,
                                  const std::function<void(ServerResponse&)>& onResponse,
