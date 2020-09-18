@@ -56,14 +56,21 @@ namespace net {
 
         virtual ~EventReceiver() = default;
 
-    private:
-        void destructIfUnobserved1() {
-            if (observationCounter == 0) {
-                unobserved();
+        void setTimeout(long timeout, long defaultTimeout) { // -3: do not change, -2: set default, -1 disable, ...
+            if (timeout != TIMEOUT::IGNORE) {
+                if (timeout != TIMEOUT::DEFAULT) {
+                    this->maxInactivity = timeout;
+                } else {
+                    this->maxInactivity = defaultTimeout;
+                }
             }
         }
 
-    public:
+        bool isEnabled() const {
+            return _enabled;
+        }
+
+    private:
         void enabled() {
             ObservationCounter::observationCounter++;
             _enabled = true;
@@ -73,11 +80,9 @@ namespace net {
         void disabled() {
             ObservationCounter::observationCounter--;
             _enabled = false;
-            destructIfUnobserved1();
-        }
-
-        bool isEnabled() const {
-            return _enabled;
+            if (observationCounter == 0) {
+                unobserved();
+            }
         }
 
         long getTimeout() const {
@@ -92,27 +97,18 @@ namespace net {
             lastTriggered = _lastTriggered;
         }
 
-    protected:
-        void setTimeout(long timeout, long defaultTimeout) { // -3: do not change, -2: set default, -1 disable, ...
-            if (timeout != TIMEOUT::IGNORE) {
-                if (timeout != TIMEOUT::DEFAULT) {
-                    this->maxInactivity = timeout;
-                } else {
-                    this->maxInactivity = defaultTimeout;
-                }
-            }
-        }
-
-    private:
-        bool _enabled = false;
-
         virtual void enable(long timeout) = 0;
         virtual void disable() = 0;
 
         virtual void unobserved() = 0;
 
+        bool _enabled = false;
+
         long maxInactivity = LONG_MAX;
         time_t lastTriggered = 0;
+
+        template <typename EventReceiver>
+        friend class EventDispatcher;
     };
 
 } // namespace net

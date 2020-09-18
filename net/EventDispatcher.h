@@ -37,6 +37,13 @@ namespace net {
     class EventLoop;
 
     template <typename EventReceiverT>
+    static bool contains(std::list<EventReceiverT*>& eventReceivers, EventReceiverT*& eventReceiver) {
+        typename std::list<EventReceiverT*>::iterator it = std::find(eventReceivers.begin(), eventReceivers.end(), eventReceiver);
+
+        return it != eventReceivers.end();
+    }
+
+    template <typename EventReceiverT>
     class EventDispatcher {
     public:
         using EventReceiver = EventReceiverT;
@@ -50,19 +57,11 @@ namespace net {
 
         EventDispatcher& operator=(const EventDispatcher&) = delete;
 
-    private:
-        static bool contains(std::list<EventReceiver*>& events, EventReceiver*& event) {
-            typename std::list<EventReceiver*>::iterator it = std::find(events.begin(), events.end(), event);
-
-            return it != events.end();
-        }
-
-    public:
         void enable(EventReceiver* eventReceiver) {
-            if (EventDispatcher<EventReceiver>::contains(disabledEventReceiver, eventReceiver)) {
+            if (contains(disabledEventReceiver, eventReceiver)) {
                 // same tick
                 disabledEventReceiver.remove(eventReceiver);
-            } else if (!eventReceiver->isEnabled() && !EventDispatcher<EventReceiver>::contains(enabledEventReceiver, eventReceiver)) {
+            } else if (!eventReceiver->isEnabled() && !contains(enabledEventReceiver, eventReceiver)) {
                 // normal
                 enabledEventReceiver.push_back(eventReceiver);
                 eventReceiver->enabled();
@@ -70,12 +69,12 @@ namespace net {
         }
 
         void disable(EventReceiver* eventReceiver) {
-            if (EventDispatcher<EventReceiver>::contains(enabledEventReceiver, eventReceiver)) {
+            if (contains(enabledEventReceiver, eventReceiver)) {
                 // same tick
                 enabledEventReceiver.remove(eventReceiver);
                 eventReceiver->disabled();
                 //                eventReceiver->destructIfUnobserved();
-            } else if (eventReceiver->isEnabled() && !EventDispatcher<EventReceiver>::contains(disabledEventReceiver, eventReceiver)) {
+            } else if (eventReceiver->isEnabled() && !contains(disabledEventReceiver, eventReceiver)) {
                 // normal
                 disabledEventReceiver.push_back(eventReceiver);
             }

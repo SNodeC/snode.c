@@ -44,6 +44,11 @@ namespace net {
             return eventLoop;
         }
 
+        static void init(int argc,
+                         char* argv[]); // NOLINT(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
+        static void start();
+        static void stop();
+
         ReadEventDispatcher& getReadEventDispatcher() {
             return readEventDispatcher;
         }
@@ -63,11 +68,6 @@ namespace net {
         TimerEventDispatcher& getTimerEventDispatcher() {
             return timerEventDispatcher;
         }
-
-        static void init(int argc,
-                         char* argv[]); // NOLINT(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
-        static void start();
-        static void stop();
 
     private:
         static void stoponsig(int sig);
