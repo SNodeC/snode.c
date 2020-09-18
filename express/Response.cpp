@@ -57,13 +57,13 @@ namespace express {
                             onError(err);
                         }
                         if (err != 0) {
-                            httpServerContext->terminateConnection();
+                            serverContext->terminateConnection();
                         }
                     });
             } else {
                 responseStatus = 403;
                 errno = EACCES;
-                httpServerContext->terminateConnection();
+                serverContext->terminateConnection();
                 if (onError) {
                     onError(EACCES);
                 }
@@ -72,7 +72,7 @@ namespace express {
         } else {
             responseStatus = 404;
             errno = ENOENT;
-            httpServerContext->terminateConnection();
+            serverContext->terminateConnection();
             if (onError) {
                 onError(ENOENT);
             }

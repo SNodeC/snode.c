@@ -37,7 +37,7 @@ namespace http {
 
     class Response {
     protected:
-        explicit Response(ServerContext* httpContext);
+        explicit Response(ServerContext* serverContext);
         virtual ~Response() = default;
 
     public:
@@ -55,7 +55,7 @@ namespace http {
         Response& type(const std::string& type);
 
     protected:
-        ServerContext* httpServerContext;
+        ServerContext* serverContext;
 
         bool keepAlive = true;
         bool sendHeaderInProgress = false;

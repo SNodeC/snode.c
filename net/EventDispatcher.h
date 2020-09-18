@@ -26,7 +26,6 @@
 #include <ctime>
 #include <list>
 #include <map>
-#include <tuple>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -75,7 +74,7 @@ namespace net {
                 // same tick
                 enabledEventReceiver.remove(eventReceiver);
                 eventReceiver->disabled();
-                eventReceiver->destructIfUnobserved();
+                //                eventReceiver->destructIfUnobserved();
             } else if (eventReceiver->isEnabled() && !EventDispatcher<EventReceiver>::contains(disabledEventReceiver, eventReceiver)) {
                 // normal
                 disabledEventReceiver.push_back(eventReceiver);
@@ -120,10 +119,10 @@ namespace net {
                 if (FD_ISSET(fd, &fdSet)) {
                     counter--;
                     dispatchEventTo(eventReceiver);
-                    eventReceiver->lastTriggered = currentTime;
+                    eventReceiver->setLastTriggered(currentTime);
                     nextInactivityTimeout = std::min(nextInactivityTimeout, maxInactivity);
                 } else {
-                    long inactivity = currentTime - eventReceiver->lastTriggered;
+                    long inactivity = currentTime - eventReceiver->getLastTriggered();
                     if (inactivity >= maxInactivity) {
                         eventReceiver->disable();
                     } else {
@@ -144,7 +143,7 @@ namespace net {
                     FD_CLR(fd, &fdSet);
                 }
                 eventReceiver->disabled();
-                eventReceiver->destructIfUnobserved();
+                //                eventReceiver->destructIfUnobserved();
             }
             disabledEventReceiver.clear();
         }

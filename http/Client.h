@@ -110,8 +110,8 @@ namespace http {
                 },
                 [this](SocketConnection* socketConnection) -> void { // onDisconnect
                     onDisconnect(socketConnection);
-                    socketConnection->template getContext<http::ClientContext*>([](http::ClientContext*& httpClientContext) -> void {
-                        delete httpClientContext;
+                    socketConnection->template getContext<http::ClientContext*>([](http::ClientContext*& clientContext) -> void {
+                        delete clientContext;
                     });
                 },
                 [](SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead

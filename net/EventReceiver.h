@@ -30,19 +30,11 @@ namespace net {
 
     class ObservationCounter {
     public:
-        void destructIfUnobserved() {
-            if (observationCounter == 0) {
-                unobserved();
-            }
-        }
-
         bool isObserved() {
             return observationCounter > 0;
         }
 
     protected:
-        virtual void unobserved() = 0;
-
         int observationCounter = 0;
     };
 
@@ -64,6 +56,13 @@ namespace net {
 
         virtual ~EventReceiver() = default;
 
+    private:
+        void destructIfUnobserved1() {
+            if (observationCounter == 0) {
+                unobserved();
+            }
+        }
+
     public:
         void enabled() {
             ObservationCounter::observationCounter++;
@@ -74,6 +73,7 @@ namespace net {
         void disabled() {
             ObservationCounter::observationCounter--;
             _enabled = false;
+            destructIfUnobserved1();
         }
 
         bool isEnabled() const {
@@ -82,6 +82,14 @@ namespace net {
 
         long getTimeout() const {
             return maxInactivity;
+        }
+
+        time_t getLastTriggered() {
+            return lastTriggered;
+        }
+
+        void setLastTriggered(time_t _lastTriggered) {
+            lastTriggered = _lastTriggered;
         }
 
     protected:
@@ -95,15 +103,15 @@ namespace net {
             }
         }
 
-        virtual void enable(long timeout) = 0;
-        virtual void disable() = 0;
-
-        long maxInactivity = LONG_MAX;
-
     private:
         bool _enabled = false;
 
-    public:
+        virtual void enable(long timeout) = 0;
+        virtual void disable() = 0;
+
+        virtual void unobserved() = 0;
+
+        long maxInactivity = LONG_MAX;
         time_t lastTriggered = 0;
     };
 

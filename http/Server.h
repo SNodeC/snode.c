@@ -46,23 +46,23 @@ namespace http {
                 },
                 [this](SocketConnection* socketConnection) -> void { // onDisconnect
                     onDisconnect(socketConnection);
-                    socketConnection->template getContext<ServerContext*>([](ServerContext*& protocol) -> void {
-                        delete protocol;
+                    socketConnection->template getContext<ServerContext*>([](ServerContext*& serverContext) -> void {
+                        delete serverContext;
                     });
                 },
                 [](SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
-                    socketConnection->template getContext<ServerContext*>([&junk, &junkSize](ServerContext*& protocol) -> void {
-                        protocol->receiveRequestData(junk, junkSize);
+                    socketConnection->template getContext<ServerContext*>([&junk, &junkSize](ServerContext*& serverContext) -> void {
+                        serverContext->receiveRequestData(junk, junkSize);
                     });
                 },
                 [](SocketConnection* socketConnection, int errnum) -> void { // onReadError
-                    socketConnection->template getContext<ServerContext*>([&errnum](ServerContext*& protocol) -> void {
-                        protocol->onReadError(errnum);
+                    socketConnection->template getContext<ServerContext*>([&errnum](ServerContext*& serverContext) -> void {
+                        serverContext->onReadError(errnum);
                     });
                 },
                 [](SocketConnection* socketConnection, int errnum) -> void { // onWriteError
-                    socketConnection->template getContext<ServerContext*>([&errnum](ServerContext*& protocol) -> void {
-                        protocol->onWriteError(errnum);
+                    socketConnection->template getContext<ServerContext*>([&errnum](ServerContext*& serverContext) -> void {
+                        serverContext->onWriteError(errnum);
                     });
                 },
                 options);
