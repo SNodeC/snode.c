@@ -28,7 +28,16 @@
 
 namespace net::socket::tls {
 
-    SSL* Socket::startSSL(SSL_CTX* ctx) {
+    Socket::~Socket() {
+        stopSSL();
+    }
+
+    void Socket::setCTX(SSL_CTX* ctx) {
+        SSL_CTX_up_ref(ctx);
+        this->ctx = ctx;
+    }
+
+    SSL* Socket::startSSL() {
         ssl = SSL_new(ctx);
 
         if (ssl != nullptr) {
@@ -39,9 +48,15 @@ namespace net::socket::tls {
     }
 
     void Socket::stopSSL() {
-        SSL_shutdown(ssl);
-        SSL_free(ssl);
-        ssl = nullptr;
+        if (ssl != nullptr) {
+            SSL_shutdown(ssl);
+            SSL_free(ssl);
+            ssl = nullptr;
+        }
+
+        if (ctx != nullptr) {
+            SSL_CTX_free(ctx);
+        }
     }
 
     SSL* Socket::getSSL() {

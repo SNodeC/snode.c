@@ -55,13 +55,15 @@ namespace net::socket {
             free(socketClient_v);
         }
 
-        SocketClient(const std::function<void(SocketConnection* socketConnection)>& onConnect,
+        SocketClient(const std::function<void(SocketConnection* socketConnection)>& onStart,
+                     const std::function<void(SocketConnection* socketConnection)>& onConnect,
                      const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
                      const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
                      const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                      const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                      const std::map<std::string, std::any>& options = {{}})
-            : onConnect(onConnect)
+            : onStart(onStart)
+            , onConnect(onConnect)
             , onDisconnect(onDisconnect)
             , onRead(onRead)
             , onReadError(onReadError)
@@ -90,12 +92,12 @@ namespace net::socket {
                 }
             }
 
-            std::function<void(SocketConnection * socketConnection)> onConnect = this->onConnect;
-
             SocketConnection* socketConnection = SocketConnection::create(onRead, onReadError, onWriteError, onDisconnect);
 
+            onStart(socketConnection);
+
             socketConnection->open(
-                [&socketConnection, &host, &port, &localAddress, &onConnect, &onError](int err) -> void {
+                [&socketConnection, &host, &port, &localAddress, &onConnect = this->onConnect, &onError](int err) -> void {
                     if (err) {
                         onError(err);
                         delete socketConnection;
@@ -146,13 +148,14 @@ namespace net::socket {
 
                                             onError(0);
                                             onConnect(socketConnection);
-                                            unobserved();
+                                            delete this;
                                         } else if (errno == EINPROGRESS) {
                                             WriteEventReceiver::enable();
                                         } else {
                                             timeOut.cancel();
                                             onError(errno);
-                                            unobserved();
+                                            delete socketConnection;
+                                            delete this;
                                         }
                                     }
 
@@ -168,8 +171,10 @@ namespace net::socket {
                                             WriteEventReceiver::disable();
 
                                             if (err < 0) {
+                                                delete socketConnection;
                                                 onError(errno);
                                             } else if (cErrno != 0) {
+                                                delete socketConnection;
                                                 errno = cErrno;
                                                 onError(cErrno);
                                             } else {
@@ -189,9 +194,6 @@ namespace net::socket {
                                     }
 
                                     void unobserved() override {
-                                        if (!socketConnection->isObserved()) {
-                                            delete socketConnection;
-                                        }
                                         delete this;
                                     }
 
@@ -212,6 +214,7 @@ namespace net::socket {
         }
 
     private:
+        std::function<void(SocketConnection* socketConnection)> onStart;
         std::function<void(SocketConnection* socketConnection)> onConnect;
         std::function<void(SocketConnection* socketConnection)> onDisconnect;
         std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)> onRead;

@@ -47,6 +47,9 @@ namespace http {
                const std::function<void(int, const std::string&)> onResponseError,
                const std::function<void(SocketConnection*)> onDisconnect, const std::map<std::string, std::any>& options = {{}})
             : socketClient(
+                  [this]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onStart
+                      // socketConnection->setAttribute<std::string, "request">(request);
+                  },
                   [this, onConnect, onResponseReady, onResponseError](SocketConnection* socketConnection) -> void { // onConnect
                       onConnect(socketConnection);
 

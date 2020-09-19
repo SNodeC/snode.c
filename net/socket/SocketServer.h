@@ -54,13 +54,15 @@ namespace net::socket {
             free(socketServer_v);
         }
 
-        SocketServer(const std::function<void(SocketConnection* socketConnection)>& onConnect,
+        SocketServer(const std::function<void(SocketConnection* socketConnection)>& onStart,
+                     const std::function<void(SocketConnection* socketConnection)>& onConnect,
                      const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
                      const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
                      const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                      const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                      const std::map<std::string, std::any>& options = {{}})
-            : onConnect(onConnect)
+            : onStart(onStart)
+            , onConnect(onConnect)
             , onDisconnect(onDisconnect)
             , onRead(onRead)
             , onReadError(onReadError)
@@ -76,9 +78,10 @@ namespace net::socket {
 
         virtual ~SocketServer() = default;
 
+    public:
         void listen(const InetAddress& localAddress, int backlog, const std::function<void(int err)>& onError) {
             SocketListener<SocketConnection>* socketListener =
-                new SocketListener<SocketConnection>(onConnect, onDisconnect, onRead, onReadError, onWriteError);
+                new SocketListener<SocketConnection>(onStart, onConnect, onDisconnect, onRead, onReadError, onWriteError);
 
             socketListener->open([&socketListener, &localAddress, &backlog, &onError](int errnum) -> void {
                 if (errnum > 0) {
@@ -117,6 +120,7 @@ namespace net::socket {
         }
 
     private:
+        std::function<void(SocketConnection* socketConnection)> onStart;
         std::function<void(SocketConnection* socketConnection)> onConnect;
         std::function<void(SocketConnection* socketConnection)> onDisconnect;
         std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)> onRead;

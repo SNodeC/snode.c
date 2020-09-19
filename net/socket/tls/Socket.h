@@ -33,12 +33,16 @@ namespace net::socket::tls {
 
     class Socket : public socket::Socket {
     public:
-        SSL* startSSL(SSL_CTX* ctx);
+        ~Socket() override;
+
+        void setCTX(SSL_CTX* ctx);
+        SSL* startSSL();
         void stopSSL();
         SSL* getSSL();
 
     protected:
         SSL* ssl = nullptr;
+        SSL_CTX* ctx = nullptr;
     };
 
 }; // namespace net::socket::tls
