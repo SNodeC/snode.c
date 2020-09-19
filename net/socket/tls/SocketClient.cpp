@@ -18,6 +18,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <easylogging++.h>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 
@@ -135,13 +136,14 @@ namespace net::socket::tls {
                       }
 
                   private:
-                      tls::SocketClient* socketClient = nullptr;
+                      tls::SocketClient* socketClient;
                       tls::SocketConnection* socketConnection = nullptr;
                       SSL* ssl = nullptr;
                       std::function<void(SocketClient::SocketConnection* socketConnection)> onConnect;
                       timer::Timer& timeOut;
                   };
 
+                  VLOG(0) << "---------------------";
                   new Connector(this, socketConnection, ctx, onConnect);
               },
               [onDisconnect](SocketClient::SocketConnection* socketConnection) -> void {

@@ -90,28 +90,19 @@ namespace net::socket {
                 }
             }
 
-            connectionCounter++;
+            std::function<void(SocketConnection * socketConnection)> onConnect = this->onConnect;
 
-            SocketConnection* socketConnection = SocketConnection::create(
-                onRead, onReadError, onWriteError, [this]([[maybe_unused]] SocketConnection* socketConnection) -> void {
-                    onDisconnect(socketConnection);
-                    this->connectionCounter--;
-                    if (this->isDynamic && this->connectionCounter == 0) {
-                        delete this;
-                    }
-                });
+            SocketConnection* socketConnection = SocketConnection::create(onRead, onReadError, onWriteError, onDisconnect);
 
             socketConnection->open(
-                [this, &socketConnection, &host, &port, &localAddress, &onError](int err) -> void {
+                [&socketConnection, &host, &port, &localAddress, &onConnect, &onError](int err) -> void {
                     if (err) {
                         onError(err);
-                        this->connectionCounter--;
                         delete socketConnection;
                     } else {
-                        socketConnection->bind(localAddress, [this, &socketConnection, &host, &port, &onError](int err) -> void {
+                        socketConnection->bind(localAddress, [&socketConnection, &host, &port, &onConnect, &onError](int err) -> void {
                             if (err) {
                                 onError(err);
-                                this->connectionCounter--;
                                 delete socketConnection;
                             } else {
                                 InetAddress server(host, port);
@@ -199,7 +190,6 @@ namespace net::socket {
 
                                     void unobserved() override {
                                         if (!socketConnection->isObserved()) {
-                                            socketClient->connectionCounter--;
                                             delete socketConnection;
                                         }
                                         delete this;
@@ -213,7 +203,7 @@ namespace net::socket {
                                     std::function<void(int err)> onError;
                                     net::timer::Timer& timeOut;
                                 };
-                                new Connector(this, socketConnection, server, onConnect, onError);
+                                new Connector(nullptr, socketConnection, server, onConnect, onError);
                             }
                         });
                     }
@@ -230,8 +220,6 @@ namespace net::socket {
 
     protected:
         std::map<std::string, std::any> options;
-
-        int connectionCounter = 0;
 
         bool isDynamic = false;
         static void* lastAllocAddress;

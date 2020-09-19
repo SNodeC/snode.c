@@ -38,6 +38,7 @@ add_library(net SHARED
     socket/SocketClient.h
     socket/SocketConnection.h
     socket/SocketConnectionBase.h
+    socket/SocketListener.h
     socket/SocketReader.h
     socket/SocketWriter.h
     socket/SocketServer.h
