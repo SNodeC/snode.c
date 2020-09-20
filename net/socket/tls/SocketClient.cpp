@@ -41,7 +41,7 @@ namespace net::socket::tls {
         const std::function<void(SocketClient::SocketConnection* socketConnection, int errnum)>& onWriteError,
         const std::map<std::string, std::any>& options)
         : socket::SocketClient<SocketClient::SocketConnection>(
-              [this, onStart](SocketClient::SocketConnection* socketConnection) -> void {
+              [&ctx = this->ctx, onStart](SocketClient::SocketConnection* socketConnection) -> void {
                   socketConnection->startSSL(ctx);
                   onStart(socketConnection);
               },

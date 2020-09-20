@@ -39,7 +39,7 @@ namespace net::socket::tls {
                                    const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                                    const std::map<std::string, std::any>& options)
         : net::socket::SocketListener<SocketConnection>(
-              [this, onConnect](SocketConnection* socketConnection) -> void {
+              [&ctx = this->ctx, onConnect](SocketConnection* socketConnection) -> void {
                   socketConnection->startSSL(ctx);
                   class Acceptor
                       : public ReadEventReceiver
