@@ -41,6 +41,7 @@ namespace net::socket::tls {
         : net::socket::SocketListener<SocketConnection>(
               [&ctx = this->ctx, onConnect](SocketConnection* socketConnection) -> void {
                   socketConnection->startSSL(ctx);
+
                   class Acceptor
                       : public ReadEventReceiver
                       , public WriteEventReceiver
