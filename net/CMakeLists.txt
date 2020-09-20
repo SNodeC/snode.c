@@ -45,6 +45,7 @@ add_library(net SHARED
     socket/legacy/Socket.h
     socket/legacy/SocketClient.h
     socket/legacy/SocketConnection.h
+    socket/legacy/SocketListener.h
     socket/legacy/SocketReader.cpp
     socket/legacy/SocketReader.h
     socket/legacy/SocketWriter.cpp
@@ -57,11 +58,12 @@ add_library(net SHARED
     socket/tls/SocketClient.cpp
     socket/tls/SocketClient.h
     socket/tls/SocketConnection.h
+    socket/tls/SocketListener.cpp
+    socket/tls/SocketListener.h
     socket/tls/SocketReader.cpp
     socket/tls/SocketReader.h
     socket/tls/SocketWriter.cpp
     socket/tls/SocketWriter.h
-    socket/tls/SocketServer.cpp
     socket/tls/SocketServer.h
     timer/IntervalTimer.h
     timer/SingleshotTimer.h

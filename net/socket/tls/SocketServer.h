@@ -23,34 +23,15 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "SocketListener.h"
 #include "socket/SocketServer.h"
 #include "socket/tls/SocketConnection.h"
 
 namespace net::socket::tls {
 
-    class SocketServer : public socket::SocketServer<tls::SocketConnection> {
+    class SocketServer : public socket::SocketServer<tls::SocketListener> {
     public:
-        using socket::SocketServer<SocketServer::SocketConnection>::SocketServer;
-
-        SocketServer(const std::function<void(SocketServer::SocketConnection* socketConnection)>& onConnect,
-                     const std::function<void(SocketServer::SocketConnection* socketConnection)>& onDisconnect,
-                     const std::function<void(SocketServer::SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
-                     const std::function<void(SocketServer::SocketConnection* socketConnection, int errnum)>& onReadError,
-                     const std::function<void(SocketServer::SocketConnection* socketConnection, int errnum)>& onWriteError,
-                     const std::map<std::string, std::any>& options = {{}});
-
-        ~SocketServer() override;
-
-    public:
-        void listen(in_port_t port, int backlog, const std::function<void(int err)>& onError);
-        void listen(const std::string& host, in_port_t port, int backlog, const std::function<void(int err)>& onError);
-
-    protected:
-        using socket::SocketServer<SocketServer::SocketConnection>::listen;
-
-    private:
-        SSL_CTX* ctx = nullptr;
-        unsigned long sslErr = 0;
+        using socket::SocketServer<tls::SocketListener>::SocketServer;
     };
 
 }; // namespace net::socket::tls

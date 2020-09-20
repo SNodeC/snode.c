@@ -16,24 +16,25 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LEGACY_SOCKETSERVER_H
-#define LEGACY_SOCKETSERVER_H
+#ifndef LEGACY_SOCKETLISTENER_H
+#define LEGACY_SOCKETLISTENER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "SocketListener.h"
-#include "socket/SocketServer.h"
-#include "socket/legacy/SocketConnection.h"
+#include "../SocketListener.h"
+#include "SocketConnection.h"
 
 namespace net::socket::legacy {
 
-    class SocketServer : public socket::SocketServer<legacy::SocketListener> {
+    class SocketListener : public net::socket::SocketListener<net::socket::legacy::SocketConnection> {
     public:
-        using socket::SocketServer<legacy::SocketListener>::SocketServer;
+        using SocketConnection = net::socket::legacy::SocketConnection;
+
+        using net::socket::SocketListener<net::socket::legacy::SocketConnection>::SocketListener;
     };
 
-}; // namespace net::socket::legacy
+} // namespace net::socket::legacy
 
-#endif // LEGACY_SOCKETSERVER_H
+#endif // LEGACY_SOCKETLISTENER_H

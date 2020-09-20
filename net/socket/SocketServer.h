@@ -1,3 +1,4 @@
+
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020 Volker Christian <me@vchrist.at>
@@ -16,18 +17,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SOCKETSERVER_H
-#define SOCKETSERVER_H
+#ifndef SOCKETSERVERNEW_H
+#define SOCKETSERVERNEW_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <any>
 #include <cerrno>
-#include <cstdlib>
 #include <easylogging++.h>
 #include <functional>
 #include <map>
-#include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -39,15 +38,16 @@
 
 namespace net::socket {
 
-    template <typename SocketConnectionT>
+    template <typename SocketListenerT>
     class SocketServer {
     public:
-        using SocketConnection = SocketConnectionT;
+        using SocketListener = SocketListenerT;
+        using SocketConnection = typename SocketListener::SocketConnection;
 
         void* operator new(size_t size) {
-            SocketServer<SocketConnection>::lastAllocAddress = malloc(size);
+            SocketServer<SocketListener>::lastAllocAddress = malloc(size);
 
-            return SocketServer<SocketConnection>::lastAllocAddress;
+            return SocketServer<SocketListener>::lastAllocAddress;
         }
 
         void operator delete(void* socketServer_v) {
@@ -78,35 +78,9 @@ namespace net::socket {
 
     public:
         void listen(const InetAddress& localAddress, int backlog, const std::function<void(int err)>& onError) {
-            SocketListener<SocketConnection>* socketListener =
-                new SocketListener<SocketConnection>(onConnect, onDisconnect, onRead, onReadError, onWriteError);
+            SocketListener* socketListener = new SocketListener(onConnect, onDisconnect, onRead, onReadError, onWriteError, options);
 
-            socketListener->open([&socketListener, &localAddress, &backlog, &onError](int errnum) -> void {
-                if (errnum > 0) {
-                    onError(errnum);
-                } else {
-                    socketListener->reuseAddress([&socketListener, &localAddress, &backlog, &onError](int errnum) -> void {
-                        if (errnum != 0) {
-                            onError(errnum);
-                        } else {
-                            socketListener->bind(localAddress, [&socketListener, &backlog, &onError](int errnum) -> void {
-                                if (errnum > 0) {
-                                    onError(errnum);
-                                } else {
-                                    int ret = ::listen(socketListener->getFd(), backlog);
-
-                                    if (ret < 0) {
-                                        onError(errno);
-                                    } else {
-                                        socketListener->AcceptEventReceiver::enable();
-                                        onError(0);
-                                    }
-                                }
-                            });
-                        }
-                    });
-                }
-            });
+            socketListener->listen(localAddress, backlog, onError);
         }
 
         void listen(in_port_t port, int backlog, const std::function<void(int err)>& onError) {
@@ -131,9 +105,9 @@ namespace net::socket {
         static void* lastAllocAddress;
     };
 
-    template <typename SocketConnection>
-    void* SocketServer<SocketConnection>::lastAllocAddress = nullptr;
+    template <typename SocketListener>
+    void* SocketServer<SocketListener>::lastAllocAddress = nullptr;
 
 } // namespace net::socket
 
-#endif // SOCKETSERVER_H
+#endif // SOCKETSERVERNEW_H
