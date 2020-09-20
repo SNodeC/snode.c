@@ -125,6 +125,7 @@ namespace net::socket {
                                                   [this]([[maybe_unused]] const void* arg) -> void {
                                                       this->onError(ETIMEDOUT);
                                                       this->WriteEventReceiver::disable();
+                                                      delete this->socketConnection;
                                                   },
                                                   (struct timeval){CONNECT_TIMEOUT, 0}, nullptr)) {
                                             open(socketConnection->getFd(), FLAGS::dontClose);
