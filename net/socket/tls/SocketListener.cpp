@@ -1,3 +1,4 @@
+
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020 Volker Christian <me@vchrist.at>
@@ -18,35 +19,35 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <openssl/err.h>
-#include <openssl/ssl.h>
+#include <any>
+#include <functional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/tls/SocketServer.h"
-#include "socket/tls/ssl_utils.h"
+#include "SocketListener.h"
+#include "ssl_utils.h"
 #include "timer/SingleshotTimer.h"
 
 #define TLSACCEPT_TIMEOUT 10
 
 namespace net::socket::tls {
 
-    SocketServer::SocketServer(
-        const std::function<void(SocketServer::SocketConnection* socketConnection)>& onConnect,
-        const std::function<void(SocketServer::SocketConnection* socketConnection)>& onDisconnect,
-        const std::function<void(SocketServer::SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
-        const std::function<void(SocketServer::SocketConnection* socketConnection, int errnum)>& onReadError,
-        const std::function<void(SocketServer::SocketConnection* socketConnection, int errnum)>& onWriteError,
-        const std::map<std::string, std::any>& options)
-        : socket::SocketServer<SocketServer::SocketConnection>(
-              [this, onConnect](SocketServer::SocketConnection* socketConnection) -> void {
+    SocketListener::SocketListener(const std::function<void(SocketConnection* socketConnection)>& onConnect,
+                                   const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
+                                   const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
+                                   const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
+                                   const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
+                                   const std::map<std::string, std::any>& options)
+        : net::socket::SocketListener<SocketConnection>(
+              [this, onConnect](SocketConnection* socketConnection) -> void {
+                  socketConnection->startSSL(ctx);
                   class Acceptor
                       : public ReadEventReceiver
                       , public WriteEventReceiver
                       , public Socket {
                   public:
-                      Acceptor(SocketServer::SocketConnection* socketConnection, SSL_CTX* ctx,
-                               const std::function<void(SocketServer::SocketConnection* socketConnection)>& onConnect)
+                      Acceptor(SocketConnection* socketConnection, [[maybe_unused]] SSL_CTX* ctx,
+                               const std::function<void(SocketConnection* socketConnection)>& onConnect)
                           : socketConnection(socketConnection)
                           , onConnect(onConnect)
                           , timeOut(net::timer::Timer::singleshotTimer(
@@ -57,7 +58,7 @@ namespace net::socket::tls {
                                 },
                                 (struct timeval){TLSACCEPT_TIMEOUT, 0}, nullptr)) {
                           open(socketConnection->getFd(), FLAGS::dontClose);
-                          ssl = socketConnection->startSSL(ctx);
+                          ssl = socketConnection->getSSL();
                           if (ssl != nullptr) {
                               int err = SSL_accept(ssl);
                               int sslErr = SSL_get_error(ssl, err);
@@ -126,49 +127,24 @@ namespace net::socket::tls {
                       }
 
                   private:
-                      SocketServer::SocketConnection* socketConnection = nullptr;
+                      SocketConnection* socketConnection = nullptr;
                       SSL* ssl = nullptr;
-                      std::function<void(SocketServer::SocketConnection* socketConnection)> onConnect;
+                      std::function<void(SocketConnection* socketConnection)> onConnect;
                       net::timer::Timer& timeOut;
                   };
 
                   new Acceptor(socketConnection, ctx, onConnect);
               },
-              [onDisconnect](SocketServer::SocketConnection* socketConnection) -> void {
-                  onDisconnect(socketConnection);
-                  socketConnection->stopSSL();
-              },
-              onRead, onReadError, onWriteError, options)
+              onDisconnect, onRead, onReadError, onWriteError, options)
         , ctx(nullptr) {
         ctx = SSL_CTX_new(TLS_server_method());
         sslErr = net::socket::tls::ssl_init_ctx(ctx, options, true);
     }
 
-    SocketServer::~SocketServer() {
+    SocketListener::~SocketListener() {
         if (ctx != nullptr) {
             SSL_CTX_free(ctx);
-            ctx = nullptr;
         }
     }
 
-    void SocketServer::listen(in_port_t port, int backlog, const std::function<void(int err)>& onError) {
-        if (sslErr != 0) {
-            onError(-sslErr);
-        } else {
-            socket::SocketServer<SocketServer::SocketConnection>::listen(port, backlog, [&onError](int err) -> void {
-                onError(err);
-            });
-        }
-    }
-
-    void SocketServer::listen(const std::string& host, in_port_t port, int backlog, const std::function<void(int err)>& onError) {
-        if (sslErr != 0) {
-            onError(-sslErr);
-        } else {
-            socket::SocketServer<SocketServer::SocketConnection>::listen(host, port, backlog, [&onError](int err) -> void {
-                onError(err);
-            });
-        }
-    }
-
-}; // namespace net::socket::tls
+} // namespace net::socket::tls

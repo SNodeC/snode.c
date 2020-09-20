@@ -16,35 +16,25 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CLIENTRESPONSE_H
-#define CLIENTRESPONSE_H
+#ifndef LEGACY_SOCKETLISTENER_H
+#define LEGACY_SOCKETLISTENER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <map>
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http {
+#include "../SocketListener.h"
+#include "SocketConnection.h"
 
-    class CookieOptions;
+namespace net::socket::legacy {
 
-    class ServerResponse {
+    class SocketListener : public net::socket::SocketListener<net::socket::legacy::SocketConnection> {
     public:
-        ServerResponse() = default;
+        using SocketConnection = net::socket::legacy::SocketConnection;
 
-        // switch to protected later on
-    public:
-        std::string httpVersion;
-        std::string statusCode;
-        std::string reason;
-        char* body = nullptr;
-        int contentLength = 0;
-        const std::map<std::string, std::string>* headers = nullptr;
-        const std::map<std::string, CookieOptions>* cookies = nullptr;
+        using net::socket::SocketListener<net::socket::legacy::SocketConnection>::SocketListener;
     };
 
-} // namespace http
+} // namespace net::socket::legacy
 
-#endif // CLIENTRESPONSE_H
+#endif // LEGACY_SOCKETLISTENER_H

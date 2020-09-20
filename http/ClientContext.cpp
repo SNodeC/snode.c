@@ -59,4 +59,12 @@ namespace http {
         parser.parse(junk, junkLen);
     }
 
+    void ClientContext::setRequest(const std::string& request) {
+        this->request = request;
+    }
+
+    const std::string& ClientContext::getRequest() {
+        return request;
+    }
+
 } // namespace http

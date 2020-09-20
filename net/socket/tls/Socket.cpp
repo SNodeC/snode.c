@@ -28,20 +28,29 @@
 
 namespace net::socket::tls {
 
-    SSL* Socket::startSSL(SSL_CTX* ctx) {
-        ssl = SSL_new(ctx);
-
+    Socket::~Socket() {
         if (ssl != nullptr) {
-            SSL_set_fd(ssl, getFd());
+            SSL_shutdown(ssl);
+            SSL_free(ssl);
+            ssl = nullptr;
         }
 
-        return ssl;
+        if (ctx != nullptr) {
+            SSL_CTX_free(ctx);
+        }
     }
 
-    void Socket::stopSSL() {
-        SSL_shutdown(ssl);
-        SSL_free(ssl);
-        ssl = nullptr;
+    void Socket::startSSL(SSL_CTX* ctx) {
+        if (ctx != nullptr) {
+            this->ctx = ctx;
+
+            SSL_CTX_up_ref(ctx);
+            ssl = SSL_new(ctx);
+
+            if (ssl != nullptr) {
+                SSL_set_fd(ssl, getFd());
+            }
+        }
     }
 
     SSL* Socket::getSSL() {

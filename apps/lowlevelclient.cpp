@@ -77,6 +77,9 @@ static http::ResponseParser* getResponseParser() {
 
 tls::SocketClient getTlsClient() {
     tls::SocketClient tlsClient(
+        []([[maybe_unused]] tls::SocketConnection* socketConnection) -> void { // onStart
+            socketConnection->setContext<http::ResponseParser*>(getResponseParser());
+        },
         []([[maybe_unused]] tls::SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnect";
             socketConnection->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); // Connection:keep-alive\r\n\r\n");
@@ -130,7 +133,6 @@ tls::SocketClient getTlsClient() {
             } else {
                 VLOG(0) << "\tServer certificate: no certificate";
             }
-            socketConnection->setContext<http::ResponseParser*>(getResponseParser());
         },
         []([[maybe_unused]] tls::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
@@ -170,6 +172,9 @@ tls::SocketClient getTlsClient() {
 
 legacy::SocketClient getLegacyClient() {
     legacy::SocketClient legacyClient(
+        []([[maybe_unused]] legacy::SocketConnection* socketConnection) -> void {
+            socketConnection->setContext<http::ResponseParser*>(getResponseParser());
+        },
         []([[maybe_unused]] legacy::SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnect";
             socketConnection->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); // Connection:keep-alive\r\n\r\n");
@@ -178,7 +183,6 @@ legacy::SocketClient getLegacyClient() {
                            "):" + std::to_string(socketConnection->getRemoteAddress().port());
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
-            socketConnection->setContext<http::ResponseParser*>(getResponseParser());
         },
         []([[maybe_unused]] legacy::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
@@ -218,23 +222,25 @@ legacy::SocketClient getLegacyClient() {
 int main(int argc, char* argv[]) {
     net::EventLoop::init(argc, argv);
 
-    legacy::SocketClient legacyClient = getLegacyClient();
-    legacyClient.connect({{"host", "localhost"}, {"port", 8080}}, [](int err) -> void { // example.com:81 simulate connnect timeout
-        if (err) {
-            PLOG(ERROR) << "Connect: " << std::to_string(err);
-        } else {
-            VLOG(0) << "Connected";
-        }
-    });
+    {
+        legacy::SocketClient legacyClient = getLegacyClient();
+        legacyClient.connect({{"host", "localhost"}, {"port", 8080}}, [](int err) -> void { // example.com:81 simulate connnect timeout
+            if (err) {
+                PLOG(ERROR) << "Connect: " << std::to_string(err);
+            } else {
+                VLOG(0) << "Connected";
+            }
+        });
 
-    tls::SocketClient tlsClient = getTlsClient();
-    tlsClient.connect({{"host", "localhost"}, {"port", 8088}}, [](int err) -> void {
-        if (err) {
-            PLOG(ERROR) << "Connect: " << std::to_string(err);
-        } else {
-            VLOG(0) << "Connected";
-        }
-    });
+        tls::SocketClient tlsClient = getTlsClient();
+        tlsClient.connect({{"host", "localhost"}, {"port", 8088}}, [](int err) -> void {
+            if (err) {
+                PLOG(ERROR) << "Connect: " << std::to_string(err);
+            } else {
+                VLOG(0) << "Connected";
+            }
+        });
+    }
 
     net::EventLoop::start();
 

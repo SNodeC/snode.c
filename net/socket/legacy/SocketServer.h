@@ -23,14 +23,15 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "SocketListener.h"
 #include "socket/SocketServer.h"
 #include "socket/legacy/SocketConnection.h"
 
 namespace net::socket::legacy {
 
-    class SocketServer : public socket::SocketServer<legacy::SocketConnection> {
+    class SocketServer : public socket::SocketServer<legacy::SocketListener> {
     public:
-        using socket::SocketServer<legacy::SocketConnection>::SocketServer;
+        using socket::SocketServer<legacy::SocketListener>::SocketServer;
     };
 
 }; // namespace net::socket::legacy

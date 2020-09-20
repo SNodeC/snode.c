@@ -46,11 +46,41 @@ namespace http {
         Client(const std::function<void(SocketConnection*)>& onConnect, const std::function<void(ServerResponse&)> onResponseReady,
                const std::function<void(int, const std::string&)> onResponseError,
                const std::function<void(SocketConnection*)> onDisconnect, const std::map<std::string, std::any>& options = {{}})
-            : onConnect(onConnect)
-            , onResponseReady(onResponseReady)
-            , onResponseError(onResponseError)
-            , onDisconnect(onDisconnect)
-            , options(options) {
+            : socketClient(
+                  [this, onResponseReady, onResponseError](SocketConnection* socketConnection) -> void { // onStart
+                      http::ClientContext* clientContext = new ClientContext(socketConnection, onResponseReady, onResponseError);
+                      clientContext->setRequest(request);
+                      socketConnection->template setContext<http::ClientContext*>(clientContext);
+                  },
+                  [this, onConnect](SocketConnection* socketConnection) -> void { // onConnect
+                      onConnect(socketConnection);
+
+                      socketConnection->template getContext<http::ClientContext*>(
+                          [&socketConnection](http::ClientContext*& clientContext) -> void {
+                              socketConnection->enqueue(clientContext->getRequest());
+                          });
+                  },
+                  [this, onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
+                      onDisconnect(socketConnection);
+                      socketConnection->template getContext<http::ClientContext*>([](http::ClientContext*& clientContext) -> void {
+                          delete clientContext;
+                      });
+                  },
+                  [](SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
+                      socketConnection->template getContext<http::ClientContext*>(
+                          [junk, junkSize]([[maybe_unused]] http::ClientContext*& clientContext) -> void {
+                              clientContext->receiveResponseData(junk, junkSize);
+                          });
+                  },
+                  []([[maybe_unused]] SocketConnection* socketConnection,
+                     [[maybe_unused]] int errnum) -> void { // onReadError
+                      PLOG(ERROR) << "Server: " << socketConnection->getRemoteAddress().host();
+                  },
+                  []([[maybe_unused]] SocketConnection* socketConnection,
+                     [[maybe_unused]] int errnum) -> void { // onWriteError
+                      PLOG(ERROR) << "Server: " << socketConnection->getRemoteAddress().host();
+                  },
+                  options) {
         }
 
         void get(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError,
@@ -99,53 +129,16 @@ namespace http {
         }
 
     protected:
-        SocketClient* socketClient() const {
-            return new SocketClient(
-                [this](SocketConnection* socketConnection) -> void { // onConnect
-                    onConnect(socketConnection);
-
-                    socketConnection->template setContext<http::ClientContext*>(
-                        new ClientContext(socketConnection, onResponseReady, onResponseError));
-                    socketConnection->enqueue(request);
-                },
-                [this](SocketConnection* socketConnection) -> void { // onDisconnect
-                    onDisconnect(socketConnection);
-                    socketConnection->template getContext<http::ClientContext*>([](http::ClientContext*& clientContext) -> void {
-                        delete clientContext;
-                    });
-                },
-                [](SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
-                    socketConnection->template getContext<http::ClientContext*>(
-                        [junk, junkSize]([[maybe_unused]] http::ClientContext*& clientContext) -> void {
-                            clientContext->receiveResponseData(junk, junkSize);
-                        });
-                },
-                []([[maybe_unused]] SocketConnection* socketConnection,
-                   [[maybe_unused]] int errnum) -> void { // onReadError
-                    PLOG(ERROR) << "Server: " << socketConnection->getRemoteAddress().host();
-                },
-                []([[maybe_unused]] SocketConnection* socketConnection,
-                   [[maybe_unused]] int errnum) -> void { // onWriteError
-                    PLOG(ERROR) << "Server: " << socketConnection->getRemoteAddress().host();
-                },
-                options);
-        }
-
         void connect(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError,
-                     const net::socket::InetAddress& localHost = net::socket::InetAddress()) const {
+                     const net::socket::InetAddress& localHost = net::socket::InetAddress()) {
             errno = 0;
 
-            socketClient()->connect(options, onError, localHost);
+            socketClient.connect(options, onError, localHost);
         }
-
-        std::function<void(SocketConnection*)> onConnect;
-        std::function<void(ServerResponse&)> onResponseReady;
-        std::function<void(int, const std::string&)> onResponseError;
-        std::function<void(SocketConnection*)> onDisconnect;
 
         std::string request;
 
-        std::map<std::string, std::any> options;
+        SocketClient socketClient;
     };
 
 } // namespace http
