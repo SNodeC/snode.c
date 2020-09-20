@@ -28,7 +28,10 @@
 
 namespace http::legacy {
 
-    using Server = http::Server<net::socket::legacy::SocketServer>;
+    class Server : public http::Server<net::socket::legacy::SocketServer> {
+    public:
+        using http::Server<net::socket::legacy::SocketServer>::Server;
+    };
 
 } // namespace http::legacy
 

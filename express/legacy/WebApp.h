@@ -28,7 +28,10 @@
 
 namespace express::legacy {
 
-    using WebApp = WebAppT<http::legacy::Server>;
+    class WebApp : public WebAppT<http::legacy::Server> {
+    public:
+        using WebAppT<http::legacy::Server>::WebAppT;
+    };
 
 } // namespace express::legacy
 

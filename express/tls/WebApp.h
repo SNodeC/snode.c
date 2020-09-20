@@ -28,7 +28,10 @@
 
 namespace express::tls {
 
-    using WebApp = WebAppT<http::tls::Server>;
+    class WebApp : public WebAppT<http::tls::Server> {
+    public:
+        using WebAppT<http::tls::Server>::WebAppT;
+    };
 
 } // namespace express::tls
 

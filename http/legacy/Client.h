@@ -28,7 +28,10 @@
 
 namespace http::legacy {
 
-    using Client = http::Client<net::socket::legacy::SocketClient>;
+    class Client : public http::Client<net::socket::legacy::SocketClient> {
+    public:
+        using http::Client<net::socket::legacy::SocketClient>::Client;
+    };
 
 } // namespace http::legacy
 

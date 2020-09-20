@@ -28,7 +28,10 @@
 
 namespace http::tls {
 
-    using Server = http::Server<net::socket::tls::SocketServer>;
+    class Server : public http::Server<net::socket::tls::SocketServer> {
+    public:
+        using http::Server<net::socket::tls::SocketServer>::Server;
+    };
 
 } // namespace http::tls
 

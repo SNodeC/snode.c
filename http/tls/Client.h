@@ -28,7 +28,10 @@
 
 namespace http::tls {
 
-    using Client = http::Client<net::socket::tls::SocketClient>;
+    class Client : public http::Client<net::socket::tls::SocketClient> {
+    public:
+        using http::Client<net::socket::tls::SocketClient>::Client;
+    };
 
 } // namespace http::tls
 
