@@ -32,7 +32,6 @@
 namespace net::socket::tls {
 
     SocketServer::SocketServer(
-        const std::function<void(SocketConnection* socketConnection)>& onStart,
         const std::function<void(SocketServer::SocketConnection* socketConnection)>& onConnect,
         const std::function<void(SocketServer::SocketConnection* socketConnection)>& onDisconnect,
         const std::function<void(SocketServer::SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
@@ -40,11 +39,8 @@ namespace net::socket::tls {
         const std::function<void(SocketServer::SocketConnection* socketConnection, int errnum)>& onWriteError,
         const std::map<std::string, std::any>& options)
         : socket::SocketServer<SocketServer::SocketConnection>(
-              [this, onStart](SocketServer::SocketConnection* socketConnection) -> void {
-                  socketConnection->setCTX(ctx);
-                  onStart(socketConnection);
-              },
               [this, onConnect](SocketServer::SocketConnection* socketConnection) -> void {
+                  socketConnection->startSSL(ctx);
                   class Acceptor
                       : public ReadEventReceiver
                       , public WriteEventReceiver
@@ -62,8 +58,7 @@ namespace net::socket::tls {
                                 },
                                 (struct timeval){TLSACCEPT_TIMEOUT, 0}, nullptr)) {
                           open(socketConnection->getFd(), FLAGS::dontClose);
-                          //                          ssl = socketConnection->startSSL(ctx);
-                          ssl = socketConnection->startSSL();
+                          ssl = socketConnection->getSSL();
                           if (ssl != nullptr) {
                               int err = SSL_accept(ssl);
                               int sslErr = SSL_get_error(ssl, err);

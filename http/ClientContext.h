@@ -43,9 +43,13 @@ namespace http {
 
         void receiveResponseData(const char* junk, size_t junkLen);
 
+        void setRequest(const std::string& request);
+        const std::string& getRequest();
+
     protected:
         net::socket::SocketConnectionBase* socketConnection;
 
+        std::string request;
         ServerResponse serverResponse;
 
     private:

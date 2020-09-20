@@ -30,15 +30,13 @@ namespace net::socket {
             free(socketListener_v);
         }
 
-        SocketListener(const std::function<void(SocketConnection* socketConnection)>& onStart,
-                       const std::function<void(SocketConnection* socketConnection)>& onConnect,
+        SocketListener(const std::function<void(SocketConnection* socketConnection)>& onConnect,
                        const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
                        const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
                        const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                        const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError)
             : AcceptEventReceiver()
             , Socket()
-            , onStart(onStart)
             , onConnect(onConnect)
             , onDisconnect(onDisconnect)
             , onRead(onRead)
@@ -81,8 +79,6 @@ namespace net::socket {
                 if (getsockname(scFd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
                     SocketConnection* socketConnection = SocketConnection::create(onRead, onReadError, onWriteError, onDisconnect);
 
-                    onStart(socketConnection);
-
                     socketConnection->open(scFd);
 
                     socketConnection->setRemoteAddress(InetAddress(remoteAddress));
@@ -112,7 +108,6 @@ namespace net::socket {
             }
         }
 
-        std::function<void(SocketConnection* socketConnection)> onStart;
         std::function<void(SocketConnection* socketConnection)> onConnect;
         std::function<void(SocketConnection* socketConnection)> onDisconnect;
         std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)> onRead;

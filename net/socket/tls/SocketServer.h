@@ -32,8 +32,7 @@ namespace net::socket::tls {
     public:
         using socket::SocketServer<SocketServer::SocketConnection>::SocketServer;
 
-        SocketServer(const std::function<void(SocketConnection* socketConnection)>& onStart,
-                     const std::function<void(SocketServer::SocketConnection* socketConnection)>& onConnect,
+        SocketServer(const std::function<void(SocketServer::SocketConnection* socketConnection)>& onConnect,
                      const std::function<void(SocketServer::SocketConnection* socketConnection)>& onDisconnect,
                      const std::function<void(SocketServer::SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
                      const std::function<void(SocketServer::SocketConnection* socketConnection, int errnum)>& onReadError,

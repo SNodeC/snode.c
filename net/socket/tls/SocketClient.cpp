@@ -42,7 +42,7 @@ namespace net::socket::tls {
         const std::map<std::string, std::any>& options)
         : socket::SocketClient<SocketClient::SocketConnection>(
               [this, onStart](SocketClient::SocketConnection* socketConnection) -> void {
-                  socketConnection->setCTX(ctx);
+                  socketConnection->startSSL(ctx);
                   onStart(socketConnection);
               },
               [this, onConnect](SocketClient::SocketConnection* socketConnection) -> void {
@@ -65,7 +65,7 @@ namespace net::socket::tls {
                                 },
                                 (struct timeval){TLSCONNECT_TIMEOUT, 0}, nullptr)) {
                           open(socketConnection->getFd(), FLAGS::dontClose);
-                          ssl = socketConnection->startSSL();
+                          ssl = socketConnection->getSSL();
                           if (ssl != nullptr) {
                               int err = SSL_connect(ssl);
                               int sslErr = SSL_get_error(ssl, err);

@@ -47,15 +47,18 @@ namespace http {
                const std::function<void(int, const std::string&)> onResponseError,
                const std::function<void(SocketConnection*)> onDisconnect, const std::map<std::string, std::any>& options = {{}})
             : socketClient(
-                  [this]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onStart
-                      // socketConnection->setAttribute<std::string, "request">(request);
+                  [this, onResponseReady, onResponseError](SocketConnection* socketConnection) -> void { // onStart
+                      http::ClientContext* clientContext = new ClientContext(socketConnection, onResponseReady, onResponseError);
+                      clientContext->setRequest(request);
+                      socketConnection->template setContext<http::ClientContext*>(clientContext);
                   },
-                  [this, onConnect, onResponseReady, onResponseError](SocketConnection* socketConnection) -> void { // onConnect
+                  [this, onConnect](SocketConnection* socketConnection) -> void { // onConnect
                       onConnect(socketConnection);
 
-                      socketConnection->template setContext<http::ClientContext*>(
-                          new ClientContext(socketConnection, onResponseReady, onResponseError));
-                      socketConnection->enqueue(request);
+                      socketConnection->template getContext<http::ClientContext*>(
+                          [&socketConnection](http::ClientContext*& clientContext) -> void {
+                              socketConnection->enqueue(clientContext->getRequest());
+                          });
                   },
                   [this, onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
                       onDisconnect(socketConnection);

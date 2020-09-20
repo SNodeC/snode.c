@@ -77,7 +77,8 @@ static http::ResponseParser* getResponseParser() {
 
 tls::SocketClient getTlsClient() {
     tls::SocketClient tlsClient(
-        []([[maybe_unused]] tls::SocketConnection* socketConnection) -> void {
+        []([[maybe_unused]] tls::SocketConnection* socketConnection) -> void { // onStart
+            socketConnection->setContext<http::ResponseParser*>(getResponseParser());
         },
         []([[maybe_unused]] tls::SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnect";
@@ -132,7 +133,6 @@ tls::SocketClient getTlsClient() {
             } else {
                 VLOG(0) << "\tServer certificate: no certificate";
             }
-            socketConnection->setContext<http::ResponseParser*>(getResponseParser());
         },
         []([[maybe_unused]] tls::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
@@ -173,6 +173,7 @@ tls::SocketClient getTlsClient() {
 legacy::SocketClient getLegacyClient() {
     legacy::SocketClient legacyClient(
         []([[maybe_unused]] legacy::SocketConnection* socketConnection) -> void {
+            socketConnection->setContext<http::ResponseParser*>(getResponseParser());
         },
         []([[maybe_unused]] legacy::SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnect";
@@ -182,7 +183,6 @@ legacy::SocketClient getLegacyClient() {
                            "):" + std::to_string(socketConnection->getRemoteAddress().port());
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
-            socketConnection->setContext<http::ResponseParser*>(getResponseParser());
         },
         []([[maybe_unused]] legacy::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";

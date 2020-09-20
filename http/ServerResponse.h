@@ -28,7 +28,6 @@
 
 namespace http {
 
-    class ClientContext;
     class CookieOptions;
 
     class ServerResponse {
@@ -44,8 +43,6 @@ namespace http {
         int contentLength = 0;
         const std::map<std::string, std::string>* headers = nullptr;
         const std::map<std::string, CookieOptions>* cookies = nullptr;
-
-        friend http::ClientContext;
     };
 
 } // namespace http

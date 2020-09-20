@@ -30,12 +30,10 @@ namespace http {
                const std::function<void(Request& req, Response& res)>& onRequestCompleted,
                const std::function<void(SocketConnection*)>& onDisconnect, const std::map<std::string, std::any>& options = {{}})
             : socketServer(
-                  []([[maybe_unused]] SocketConnection* socketConnection) { // onStart
-                  },
                   [onConnect, onRequestReady, onRequestCompleted](SocketConnection* socketConnection) -> void { // onConnect
-                      onConnect(socketConnection);
                       socketConnection->template setContext<ServerContext*>(
                           new ServerContext(socketConnection, onRequestReady, onRequestCompleted));
+                      onConnect(socketConnection);
                   },
                   [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
                       onDisconnect(socketConnection);
