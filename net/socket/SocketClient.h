@@ -82,7 +82,7 @@ namespace net::socket {
         virtual void connect(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError,
                              const InetAddress& localAddress = InetAddress()) {
             std::string host = "";
-            in_port_t port = 0;
+            unsigned short port = 0;
 
             for (auto& [name, value] : options) {
                 if (name == "host") {

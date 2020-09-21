@@ -51,10 +51,10 @@ namespace net::socket {
         InetAddress(const InetAddress& ina);
         explicit InetAddress(const std::string& ipOrHostname);
         explicit InetAddress(const std::string& ipOrHostname, uint16_t port);
-        explicit InetAddress(in_port_t port);
+        explicit InetAddress(unsigned short port);
         explicit InetAddress(const struct sockaddr_in& addr);
 
-        in_port_t port() const;
+        unsigned short port() const;
         std::string host() const;
         std::string ip() const;
         std::string serv() const;

@@ -60,7 +60,7 @@ namespace net::socket {
         memcpy(&addr.sin_addr, he->h_addr_list[0], he->h_length);
     }
 
-    InetAddress::InetAddress(in_port_t port) {
+    InetAddress::InetAddress(unsigned short port) {
         addr.sin_family = AF_INET;
         addr.sin_port = htons(port);
         addr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -82,7 +82,7 @@ namespace net::socket {
         return *this;
     }
 
-    in_port_t InetAddress::port() const {
+    unsigned short InetAddress::port() const {
         return (ntohs(addr.sin_port));
     }
 

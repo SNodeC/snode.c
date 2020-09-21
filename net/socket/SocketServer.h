@@ -83,7 +83,7 @@ namespace net::socket {
             socketListener->listen(localAddress, backlog, onError);
         }
 
-        void listen(in_port_t port, int backlog, const std::function<void(int err)>& onError) {
+        void listen(unsigned short port, int backlog, const std::function<void(int err)>& onError) {
             listen(InetAddress(port), backlog, onError);
         }
 
