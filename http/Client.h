@@ -43,9 +43,11 @@ namespace http {
         using SocketConnection = typename SocketClient::SocketConnection;
 
     public:
-        Client(const std::function<void(SocketConnection*)>& onConnect, const std::function<void(ServerResponse&)> onResponseReady,
+        Client(const std::function<void(SocketConnection*)>& onConnect,
+               const std::function<void(ServerResponse&)> onResponseReady,
                const std::function<void(int, const std::string&)> onResponseError,
-               const std::function<void(SocketConnection*)> onDisconnect, const std::map<std::string, std::any>& options = {{}})
+               const std::function<void(SocketConnection*)> onDisconnect,
+               const std::map<std::string, std::any>& options = {{}})
             : socketClient(
                   [this, onResponseReady, onResponseError](SocketConnection* socketConnection) -> void { // onStart
                       http::ClientContext* clientContext = new ClientContext(socketConnection, onResponseReady, onResponseError);
@@ -68,22 +70,21 @@ namespace http {
                   },
                   [](SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
                       socketConnection->template getContext<http::ClientContext*>(
-                          [junk, junkSize]([[maybe_unused]] http::ClientContext*& clientContext) -> void {
+                          [junk, junkSize](http::ClientContext*& clientContext) -> void {
                               clientContext->receiveResponseData(junk, junkSize);
                           });
                   },
-                  []([[maybe_unused]] SocketConnection* socketConnection,
-                     [[maybe_unused]] int errnum) -> void { // onReadError
-                      PLOG(ERROR) << "Server: " << socketConnection->getRemoteAddress().host();
+                  [](SocketConnection* socketConnection, int errnum) -> void { // onReadError
+                      PLOG(ERROR) << "Server: " << socketConnection->getRemoteAddress().host() << " (" << errnum << ")";
                   },
-                  []([[maybe_unused]] SocketConnection* socketConnection,
-                     [[maybe_unused]] int errnum) -> void { // onWriteError
-                      PLOG(ERROR) << "Server: " << socketConnection->getRemoteAddress().host();
+                  [](SocketConnection* socketConnection, int errnum) -> void { // onWriteError
+                      PLOG(ERROR) << "Server: " << socketConnection->getRemoteAddress().host() << " (" << errnum << ")";
                   },
                   options) {
         }
 
-        void get(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError,
+        void get(const std::map<std::string, std::any>& options,
+                 const std::function<void(int err)>& onError,
                  const net::socket::InetAddress& localHost = net::socket::InetAddress()) {
             std::string path = "";
             std::string host = "";
@@ -102,7 +103,8 @@ namespace http {
             this->connect(options, onError, localHost);
         }
 
-        void post(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError,
+        void post(const std::map<std::string, std::any>& options,
+                  const std::function<void(int err)>& onError,
                   const net::socket::InetAddress& localHost = net::socket::InetAddress()) {
             std::string path = "";
             std::string host = "";
@@ -129,7 +131,8 @@ namespace http {
         }
 
     protected:
-        void connect(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError,
+        void connect(const std::map<std::string, std::any>& options,
+                     const std::function<void(int err)>& onError,
                      const net::socket::InetAddress& localHost = net::socket::InetAddress()) {
             errno = 0;
 

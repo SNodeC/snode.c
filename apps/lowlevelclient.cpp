@@ -77,10 +77,10 @@ static http::ResponseParser* getResponseParser() {
 
 tls::SocketClient getTlsClient() {
     tls::SocketClient tlsClient(
-        []([[maybe_unused]] tls::SocketConnection* socketConnection) -> void { // onStart
+        [](tls::SocketConnection* socketConnection) -> void { // onStart
             socketConnection->setContext<http::ResponseParser*>(getResponseParser());
         },
-        []([[maybe_unused]] tls::SocketConnection* socketConnection) -> void { // onConnect
+        [](tls::SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnect";
             socketConnection->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); // Connection:keep-alive\r\n\r\n");
 
@@ -134,7 +134,7 @@ tls::SocketClient getTlsClient() {
                 VLOG(0) << "\tServer certificate: no certificate";
             }
         },
-        []([[maybe_unused]] tls::SocketConnection* socketConnection) -> void { // onDisconnect
+        [](tls::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
@@ -145,7 +145,7 @@ tls::SocketClient getTlsClient() {
                 delete responseParser;
             });
         },
-        []([[maybe_unused]] tls::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
+        [](tls::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
             VLOG(0) << "OnRead";
             socketConnection->getContext<http::ResponseParser*>([junk, junkSize](http::ResponseParser*& responseParser) -> void {
                 responseParser->parse(junk, junkSize);
@@ -172,10 +172,10 @@ tls::SocketClient getTlsClient() {
 
 legacy::SocketClient getLegacyClient() {
     legacy::SocketClient legacyClient(
-        []([[maybe_unused]] legacy::SocketConnection* socketConnection) -> void {
+        [](legacy::SocketConnection* socketConnection) -> void {
             socketConnection->setContext<http::ResponseParser*>(getResponseParser());
         },
-        []([[maybe_unused]] legacy::SocketConnection* socketConnection) -> void { // onConnect
+        [](legacy::SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnect";
             socketConnection->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); // Connection:keep-alive\r\n\r\n");
 
@@ -184,7 +184,7 @@ legacy::SocketClient getLegacyClient() {
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
         },
-        []([[maybe_unused]] legacy::SocketConnection* socketConnection) -> void { // onDisconnect
+        [](legacy::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                            "):" + std::to_string(socketConnection->getRemoteAddress().port());
@@ -194,7 +194,7 @@ legacy::SocketClient getLegacyClient() {
                 delete responseParser;
             });
         },
-        []([[maybe_unused]] legacy::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
+        [](legacy::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
             VLOG(0) << "OnRead";
             socketConnection->getContext<http::ResponseParser*>([junk, junkSize](http::ResponseParser*& responseParser) -> void {
                 responseParser->parse(junk, junkSize);

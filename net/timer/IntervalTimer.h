@@ -30,7 +30,8 @@ namespace net::timer {
     class IntervalTimer : public Timer {
     public:
         IntervalTimer(const std::function<void(const void* arg, const std::function<void()>& stop)>& dispatcher,
-                      const struct timeval& timeout, const void* arg)
+                      const struct timeval& timeout,
+                      const void* arg)
             : Timer(timeout, arg)
             , dispatcherS(dispatcher) {
         }

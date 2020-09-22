@@ -36,3 +36,4 @@ _TODOs:_
 * Write unit tests
 * Porting snode.c to MS-Windows
 * Porting snode.c to macOS
+* Add onSSLConnect callback

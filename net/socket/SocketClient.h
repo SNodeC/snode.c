@@ -79,7 +79,8 @@ namespace net::socket {
 
     public:
         // NOLINTNEXTLINE(google-default-arguments)
-        virtual void connect(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError,
+        virtual void connect(const std::map<std::string, std::any>& options,
+                             const std::function<void(int err)>& onError,
                              const InetAddress& localAddress = InetAddress()) {
             std::string host = "";
             unsigned short port = 0;
@@ -95,8 +96,8 @@ namespace net::socket {
             SocketConnection* socketConnection = SocketConnection::create(onRead, onReadError, onWriteError, onDisconnect);
 
             socketConnection->open(
-                [this, &socketConnection, &host, &port, &localAddress, &onStart = this->onStart, &onConnect = this->onConnect,
-                 &onError](int err) -> void {
+                [this, &socketConnection, &host, &port, &localAddress, &onStart = this->onStart, &onConnect = this->onConnect, &onError](
+                    int err) -> void {
                     if (err) {
                         onError(err);
                         delete socketConnection;
@@ -113,7 +114,9 @@ namespace net::socket {
                                         : public WriteEventReceiver
                                         , public Socket {
                                     public:
-                                        Connector(SocketClient* socketClient, SocketConnection* socketConnection, const InetAddress& server,
+                                        Connector(SocketClient* socketClient,
+                                                  SocketConnection* socketConnection,
+                                                  const InetAddress& server,
                                                   const std::function<void(SocketConnection* socketConnection)>& onStart,
                                                   const std::function<void(SocketConnection* socketConnection)>& onConnect,
                                                   const std::function<void(int err)>& onError)
@@ -122,12 +125,13 @@ namespace net::socket {
                                             , onConnect(onConnect)
                                             , onError(onError)
                                             , timeOut(net::timer::Timer::singleshotTimer(
-                                                  [this]([[maybe_unused]] const void* arg) -> void {
+                                                  [this](const void*) -> void {
                                                       this->onError(ETIMEDOUT);
                                                       this->WriteEventReceiver::disable();
                                                       delete this->socketConnection;
                                                   },
-                                                  (struct timeval){CONNECT_TIMEOUT, 0}, nullptr)) {
+                                                  (struct timeval){CONNECT_TIMEOUT, 0},
+                                                  nullptr)) {
                                             open(socketConnection->getFd(), FLAGS::dontClose);
                                             errno = 0;
                                             int ret = ::connect(socketConnection->getFd(),
@@ -137,8 +141,8 @@ namespace net::socket {
                                             if (ret == 0 || errno == EINPROGRESS) {
                                                 struct sockaddr_in localAddress {};
                                                 socklen_t addressLength = sizeof(localAddress);
-                                                getsockname(socketConnection->getFd(), reinterpret_cast<sockaddr*>(&localAddress),
-                                                            &addressLength);
+                                                getsockname(
+                                                    socketConnection->getFd(), reinterpret_cast<sockaddr*>(&localAddress), &addressLength);
                                                 socketConnection->setLocalAddress(InetAddress(localAddress));
                                                 socketConnection->setRemoteAddress(server);
 

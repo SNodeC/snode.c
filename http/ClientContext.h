@@ -38,7 +38,8 @@ namespace http {
 
     class ClientContext {
     public:
-        ClientContext(net::socket::SocketConnectionBase* socketConnection, const std::function<void(ServerResponse&)>& onResponse,
+        ClientContext(net::socket::SocketConnectionBase* socketConnection,
+                      const std::function<void(ServerResponse&)>& onResponse,
                       const std::function<void(int status, const std::string& reason)>& onError);
 
         void receiveResponseData(const char* junk, size_t junkLen);

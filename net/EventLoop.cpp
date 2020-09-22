@@ -170,7 +170,8 @@ namespace net {
         stopped = true;
     }
 
-    void EventLoop::stoponsig([[maybe_unused]] int sig) {
+    void EventLoop::stoponsig(int sig) {
+        VLOG(1) << "Stopped due to signal " << sig;
         stop();
     }
 

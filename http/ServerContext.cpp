@@ -29,13 +29,16 @@
 
 namespace http {
 
-    ServerContext::ServerContext(SocketConnection* socketConnection, const std::function<void(Request& req, Response& res)>& onRequestReady,
+    ServerContext::ServerContext(SocketConnection* socketConnection,
+                                 const std::function<void(Request& req, Response& res)>& onRequestReady,
                                  const std::function<void(Request& req, Response& res)>& onRequestCompleted)
         : socketConnection(socketConnection)
         , response(this)
         , onRequestCompleted(onRequestCompleted)
         , parser(
-              [this](const std::string& method, const std::string& url, const std::string& httpVersion,
+              [this](const std::string& method,
+                     const std::string& url,
+                     const std::string& httpVersion,
                      const std::map<std::string, std::string>& queries) -> void {
                   VLOG(1) << "++ Request: " << method << " " << url << " " << httpVersion;
                   request.method = method;
@@ -60,7 +63,7 @@ namespace http {
                   request.body = content;
                   request.contentLength = contentLength;
               },
-              [this, onRequestReady]([[maybe_unused]] http::RequestParser& requestParser) -> void {
+              [this, onRequestReady]() -> void {
                   VLOG(1) << "++ Parsed ++";
                   requestInProgress = true;
                   onRequestReady(request, response);

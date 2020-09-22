@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "     Status: " << status;
             VLOG(0) << "     Reason: " << reason;
         },
-        []([[maybe_unused]] net::socket::legacy::SocketConnection* socketConnection) -> void {
+        [](net::socket::legacy::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnDisconnect";
             VLOG(0) << "     Server: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                            "):" + std::to_string(socketConnection->getRemoteAddress().port());

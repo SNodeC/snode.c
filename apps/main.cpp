@@ -32,18 +32,20 @@ using namespace net::timer;
 
 int timerApp() {
     [[maybe_unused]] const Timer& tick = Timer::continousTimer(
-        []([[maybe_unused]] const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
+        [](const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
             static int i = 0;
             std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
         },
-        (struct timeval){0, 500000}, "Tick");
+        (struct timeval){0, 500000},
+        "Tick");
 
     Timer& tack = Timer::continousTimer(
-        []([[maybe_unused]] const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
+        [](const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
             static int i = 0;
             std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
         },
-        (struct timeval){1, 100000}, "Tack");
+        (struct timeval){1, 100000},
+        "Tack");
 
     bool canceled = false;
 
@@ -179,7 +181,7 @@ int simpleWebserver() {
         next();
     });
 
-    app.get("/", [&]([[maybe_unused]] Request& req, Response& res) -> void {
+    app.get("/", [&](Request& req, Response& res) -> void {
         res.cookie("Test", "me", {{"Max-Age", "3600"}});
 
         std::string host = req.header("Host");

@@ -35,7 +35,7 @@ namespace net::socket::tls {
 
 #define SSL_VERIFY_FLAGS SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE
 
-    static int password_callback(char* buf, int size, [[maybe_unused]] int rwflag, void* u) {
+    static int password_callback(char* buf, int size, int, void* u) {
         strncpy(buf, static_cast<char*>(u), size);
         buf[size - 1] = '\0';
 
@@ -73,8 +73,8 @@ namespace net::socket::tls {
 
         if (ctx != nullptr) {
             if (!caFile.empty() || !caDir.empty()) {
-                if (!SSL_CTX_load_verify_locations(ctx, !caFile.empty() ? caFile.c_str() : nullptr,
-                                                   !caDir.empty() ? caDir.c_str() : nullptr)) {
+                if (!SSL_CTX_load_verify_locations(
+                        ctx, !caFile.empty() ? caFile.c_str() : nullptr, !caDir.empty() ? caDir.c_str() : nullptr)) {
                     sslErr = ERR_peek_error();
                 }
             }

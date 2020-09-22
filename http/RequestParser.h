@@ -36,10 +36,11 @@ namespace http {
     class RequestParser : public Parser {
     public:
         RequestParser(
-            const std::function<void(const std::string&, const std::string&, const std::string&,
-                                     const std::map<std::string, std::string>&)>& onRequest,
+            const std::function<
+                void(const std::string&, const std::string&, const std::string&, const std::map<std::string, std::string>&)>& onRequest,
             const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>& onHeader,
-            const std::function<void(char*, size_t)>& onContent, const std::function<void(RequestParser&)>& onParsed,
+            const std::function<void(char*, size_t)>& onContent,
+            const std::function<void()>& onParsed,
             const std::function<void(int status, const std::string& reason)>& onError);
 
         void reset() override;
@@ -76,7 +77,7 @@ namespace http {
             onRequest;
         std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)> onHeader;
         std::function<void(char*, size_t)> onContent;
-        std::function<void(RequestParser&)> onParsed;
+        std::function<void()> onParsed;
         std::function<void(int status, const std::string& reason)> onError;
     };
 

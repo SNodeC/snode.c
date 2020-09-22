@@ -57,7 +57,7 @@ namespace net::socket {
                        const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
                        const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                        const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
-                       [[maybe_unused]] const std::map<std::string, std::any>& options)
+                       const std::map<std::string, std::any>& options)
             : AcceptEventReceiver()
             , Socket()
             , onConnect(onConnect)
@@ -65,6 +65,7 @@ namespace net::socket {
             , onRead(onRead)
             , onReadError(onReadError)
             , onWriteError(onWriteError)
+            , options(options)
             , isDynamic(this == SocketListener::lastAllocAddress) {
         }
 
@@ -167,6 +168,8 @@ namespace net::socket {
         std::function<void(SocketConnection* socketConnection, int errnum)> onWriteError;
 
     protected:
+        std::map<std::string, std::any> options;
+
         bool isDynamic;
         static void* lastAllocAddress;
     };

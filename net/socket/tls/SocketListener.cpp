@@ -47,17 +47,17 @@ namespace net::socket::tls {
                       , public WriteEventReceiver
                       , public Socket {
                   public:
-                      Acceptor(SocketConnection* socketConnection, [[maybe_unused]] SSL_CTX* ctx,
-                               const std::function<void(SocketConnection* socketConnection)>& onConnect)
+                      Acceptor(SocketConnection* socketConnection, const std::function<void(SocketConnection* socketConnection)>& onConnect)
                           : socketConnection(socketConnection)
                           , onConnect(onConnect)
                           , timeOut(net::timer::Timer::singleshotTimer(
-                                [this]([[maybe_unused]] const void* arg) -> void {
+                                [this](const void*) -> void {
                                     ReadEventReceiver::disable();
                                     WriteEventReceiver::disable();
                                     this->socketConnection->ReadEventReceiver::disable();
                                 },
-                                (struct timeval){TLSACCEPT_TIMEOUT, 0}, nullptr)) {
+                                (struct timeval){TLSACCEPT_TIMEOUT, 0},
+                                nullptr)) {
                           open(socketConnection->getFd(), FLAGS::dontClose);
                           ssl = socketConnection->getSSL();
                           if (ssl != nullptr) {
@@ -134,9 +134,13 @@ namespace net::socket::tls {
                       net::timer::Timer& timeOut;
                   };
 
-                  new Acceptor(socketConnection, ctx, onConnect);
+                  new Acceptor(socketConnection, onConnect);
               },
-              onDisconnect, onRead, onReadError, onWriteError, options)
+              onDisconnect,
+              onRead,
+              onReadError,
+              onWriteError,
+              options)
         , ctx(nullptr) {
         ctx = SSL_CTX_new(TLS_server_method());
         sslErr = net::socket::tls::ssl_init_ctx(ctx, options, true);

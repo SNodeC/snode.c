@@ -153,7 +153,9 @@ namespace http {
 
         for (auto& [cookie, cookieValue] : cookies) {
             std::string cookieString =
-                std::accumulate(cookieValue.getOptions().begin(), cookieValue.getOptions().end(), cookie + "=" + cookieValue.getValue(),
+                std::accumulate(cookieValue.getOptions().begin(),
+                                cookieValue.getOptions().end(),
+                                cookie + "=" + cookieValue.getValue(),
                                 [](const std::string& str, const std::pair<const std::string&, const std::string&> option) -> std::string {
                                     return str + "; " + option.first + (!option.second.empty() ? "=" + option.second : "");
                                 });

@@ -163,7 +163,8 @@ namespace utils {
 
         template <InjectedAttribute Attribute, std::basic_fixed_string key = "">
         constexpr void getAttribute(const std::function<void(Attribute&)>& onFound,
-                                    const std::function<void(const std::string&)>& onNotFound, const std::string& subKey = "") const {
+                                    const std::function<void(const std::string&)>& onNotFound,
+                                    const std::string& subKey = "") const {
             if (hasAttribute<Attribute, key>(subKey)) {
                 std::map<std::string, std::shared_ptr<void>>::const_iterator it =
                     attributes.find(typeid(Attribute).name() + std::string(key) + subKey);

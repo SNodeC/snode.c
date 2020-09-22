@@ -51,19 +51,21 @@ namespace net::socket::tls {
                       , public WriteEventReceiver
                       , public Socket {
                   public:
-                      Connector(tls::SocketClient* socketClient, SocketClient::SocketConnection* socketConnection,
+                      Connector(tls::SocketClient* socketClient,
+                                SocketClient::SocketConnection* socketConnection,
                                 const std::function<void(tls::SocketConnection* socketConnection)>& onConnect)
                           : socketClient(socketClient)
                           , socketConnection(socketConnection)
                           , onConnect(onConnect)
                           , timeOut(timer::Timer::singleshotTimer(
-                                [this]([[maybe_unused]] const void* arg) -> void {
+                                [this](const void*) -> void {
                                     ReadEventReceiver::disable();
                                     WriteEventReceiver::disable();
                                     this->socketClient->onError(ETIMEDOUT);
                                     this->socketConnection->ReadEventReceiver::disable();
                                 },
-                                (struct timeval){TLSCONNECT_TIMEOUT, 0}, nullptr)) {
+                                (struct timeval){TLSCONNECT_TIMEOUT, 0},
+                                nullptr)) {
                           open(socketConnection->getFd(), FLAGS::dontClose);
                           ssl = socketConnection->getSSL();
                           if (ssl != nullptr) {
@@ -150,7 +152,11 @@ namespace net::socket::tls {
 
                   new Connector(this, socketConnection, onConnect);
               },
-              onDisconnect, onRead, onReadError, onWriteError, options) {
+              onDisconnect,
+              onRead,
+              onReadError,
+              onWriteError,
+              options) {
         ctx = SSL_CTX_new(TLS_client_method());
         sslErr = net::socket::tls::ssl_init_ctx(ctx, options, false);
     }
@@ -162,7 +168,8 @@ namespace net::socket::tls {
     }
 
     // NOLINTNEXTLINE(google-default-arguments)
-    void SocketClient::connect(const std::map<std::string, std::any>& options, const std::function<void(int err)>& onError,
+    void SocketClient::connect(const std::map<std::string, std::any>& options,
+                               const std::function<void(int err)>& onError,
                                const socket::InetAddress& localAddress) {
         this->onError = onError;
         if (sslErr != 0) {

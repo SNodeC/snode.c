@@ -28,7 +28,8 @@ namespace http {
         Server(const std::function<void(SocketConnection*)>& onConnect,
                const std::function<void(Request& req, Response& res)>& onRequestReady,
                const std::function<void(Request& req, Response& res)>& onRequestCompleted,
-               const std::function<void(SocketConnection*)>& onDisconnect, const std::map<std::string, std::any>& options = {{}})
+               const std::function<void(SocketConnection*)>& onDisconnect,
+               const std::map<std::string, std::any>& options = {{}})
             : socketServer(
                   [onConnect, onRequestReady, onRequestCompleted](SocketConnection* socketConnection) -> void { // onConnect
                       socketConnection->template setContext<ServerContext*>(

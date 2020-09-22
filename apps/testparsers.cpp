@@ -43,12 +43,14 @@ namespace http {
 
 using namespace http;
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
+int main(int argc, char** argv) {
     Logger::init(argc, argv);
 
     RequestParser requestParser(
-        [](const std::string& method, const std::string& originalUrl, const std::string& httpVersion,
-           [[maybe_unused]] const std::map<std::string, std::string>& queries) -> void {
+        [](const std::string& method,
+           const std::string& originalUrl,
+           const std::string& httpVersion,
+           const std::map<std::string, std::string>& queries) -> void {
             VLOG(0) << "++ Request: " << method << " " << originalUrl << " "
                     << " " << httpVersion;
             for (const std::pair<std::string, std::string>& query : queries) {
@@ -72,7 +74,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
             VLOG(0) << "++    OnContent: " << contentLength << " : " << strContent;
             delete[] strContent;
         },
-        [](RequestParser&) -> void {
+        []() -> void {
             VLOG(0) << "++    OnParsed";
         },
         [](int status, const std::string& reason) -> void {

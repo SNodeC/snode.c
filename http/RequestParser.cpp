@@ -35,7 +35,8 @@ namespace http {
         const std::function<void(const std::string&, const std::string&, const std::string&, const std::map<std::string, std::string>&)>&
             onRequest,
         const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>& onHeader,
-        const std::function<void(char*, size_t)>& onContent, const std::function<void(RequestParser&)>& onParsed,
+        const std::function<void(char*, size_t)>& onContent,
+        const std::function<void()>& onParsed,
         const std::function<void(int status, const std::string& reason)>& onError)
         : onRequest(onRequest)
         , onHeader(onHeader)
@@ -153,7 +154,7 @@ namespace http {
     }
 
     void RequestParser::parsingFinished() {
-        onParsed(*this);
+        onParsed();
     }
 
     enum Parser::PAS RequestParser::parsingError(int code, const std::string& reason) {

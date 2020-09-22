@@ -36,8 +36,8 @@ namespace net::timer {
         update();
     }
 
-    SingleshotTimer& Timer::singleshotTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout,
-                                            const void* arg) {
+    SingleshotTimer&
+    Timer::singleshotTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg) {
         SingleshotTimer* st = new SingleshotTimer(dispatcher, timeout, arg);
 
         EventLoop::instance().getTimerEventDispatcher().add(st);
@@ -46,7 +46,8 @@ namespace net::timer {
     }
 
     IntervalTimer& Timer::continousTimer(const std::function<void(const void* arg, const std::function<void()>& stop)>& dispatcher,
-                                         const struct timeval& timeout, const void* arg) {
+                                         const struct timeval& timeout,
+                                         const void* arg) {
         IntervalTimer* ct = new IntervalTimer(dispatcher, timeout, arg);
 
         EventLoop::instance().getTimerEventDispatcher().add(ct);
@@ -54,8 +55,8 @@ namespace net::timer {
         return *ct;
     }
 
-    IntervalTimer& Timer::continousTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout,
-                                         const void* arg) {
+    IntervalTimer&
+    Timer::continousTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg) {
         IntervalTimer* ct = new IntervalTimer(dispatcher, timeout, arg);
 
         EventLoop::instance().getTimerEventDispatcher().add(ct);

@@ -37,7 +37,8 @@ namespace http {
     public:
         using SocketConnection = net::socket::SocketConnectionBase;
 
-        ServerContext(SocketConnection* socketConnection, const std::function<void(Request& req, Response& res)>& onRequestReady,
+        ServerContext(SocketConnection* socketConnection,
+                      const std::function<void(Request& req, Response& res)>& onRequestReady,
                       const std::function<void(Request& req, Response& res)>& onRequestCompleted);
 
         ~ServerContext();

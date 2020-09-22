@@ -46,13 +46,14 @@ namespace net {
             Timer& operator=(const Timer& timer) = delete;
 
             static IntervalTimer& continousTimer(const std::function<void(const void* arg, const std::function<void()>& stop)>& dispatcher,
-                                                 const struct timeval& timeout, const void* arg);
-
-            static IntervalTimer& continousTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout,
+                                                 const struct timeval& timeout,
                                                  const void* arg);
 
-            static SingleshotTimer& singleshotTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout,
-                                                    const void* arg);
+            static IntervalTimer&
+            continousTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg);
+
+            static SingleshotTimer&
+            singleshotTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg);
 
             void cancel();
 
