@@ -100,14 +100,14 @@ namespace http {
                         std::string option;
                         std::tie(option, cookieOptions) = httputils::str_split(cookieOptions, ';');
 
-                        std::string name;
-                        std::string value;
-                        std::tie(name, value) = httputils::str_split(option, '=');
-                        httputils::str_trimm(name);
-                        httputils::str_trimm(value);
+                        std::string optionName;
+                        std::string optionValue;
+                        std::tie(optionName, optionValue) = httputils::str_split(option, '=');
+                        httputils::str_trimm(optionName);
+                        httputils::str_trimm(optionValue);
 
-                        VLOG(2) << "    ++ CookieOption: " << name << " = " << value;
-                        cookieElement->second.setOption(name, value);
+                        VLOG(2) << "    ++ CookieOption: " << optionName << " = " << optionValue;
+                        cookieElement->second.setOption(optionName, optionValue);
                     }
                 }
             }
