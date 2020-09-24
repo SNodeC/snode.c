@@ -88,7 +88,7 @@ set_target_properties(net PROPERTIES PUBLIC_HEADER "${includes}")
 
 target_include_directories (net PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${OPENSSL_INCLUDE_DIR})
 
-install(TARGETS net LIBRARY DESTINATION lib)
+install(TARGETS net LIBRARY DESTINATION lib NAMELINK_COMPONENT libnet.so.1)
 
 if(CHECK_INCLUDES)
     set_property(TARGET net PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path_and_options})
