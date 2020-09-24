@@ -42,10 +42,10 @@ namespace http {
             const std::function<void(ResponseParser&)>& onParsed,
             const std::function<void(int status, const std::string& reason)>& onError);
 
-        enum Parser::PAS parseStartLine(std::string& line) override;
-        enum Parser::PAS parseHeader() override;
-        enum Parser::PAS parseContent(char* content, size_t size) override;
-        enum Parser::PAS parsingError(int code, const std::string& reason) override;
+        enum Parser::ParserState parseStartLine(std::string& line) override;
+        enum Parser::ParserState parseHeader() override;
+        enum Parser::ParserState parseContent(char* content, size_t size) override;
+        enum Parser::ParserState parsingError(int code, const std::string& reason) override;
 
         void reset() override;
 

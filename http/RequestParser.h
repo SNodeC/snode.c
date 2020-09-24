@@ -52,13 +52,13 @@ namespace http {
         }
 
         // Parsers and Validators
-        enum Parser::PAS parseStartLine(std::string& line) override;
-        enum Parser::PAS parseHeader() override;
-        enum Parser::PAS parseContent(char* content, size_t size) override;
+        enum Parser::ParserState parseStartLine(std::string& line) override;
+        enum Parser::ParserState parseHeader() override;
+        enum Parser::ParserState parseContent(char* content, size_t size) override;
 
         // Exits
         void parsingFinished();
-        enum Parser::PAS parsingError(int code, const std::string& reason) override;
+        enum Parser::ParserState parsingError(int code, const std::string& reason) override;
 
         // Supported http-methods
         std::set<std::string> supportedMethods{"GET", "PUT", "POST", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH", "HEAD"};

@@ -50,8 +50,8 @@ namespace http {
         cookies.clear();
     }
 
-    enum Parser::PAS ResponseParser::parseStartLine(std::string& line) {
-        enum Parser::PAS PAS = Parser::PAS::HEADER;
+    enum Parser::ParserState ResponseParser::parseStartLine(std::string& line) {
+        enum Parser::ParserState parserState = Parser::ParserState::HEADER;
 
         if (!line.empty()) {
             std::string remaining;
@@ -61,12 +61,12 @@ namespace http {
 
             onResponse(httpVersion, statusCode, reason);
         } else {
-            PAS = parsingError(400, "Response-line empty");
+            parserState = parsingError(400, "Response-line empty");
         }
-        return PAS;
+        return parserState;
     }
 
-    enum Parser::PAS ResponseParser::parseHeader() {
+    enum Parser::ParserState ResponseParser::parseHeader() {
         for (auto& [field, value] : Parser::headers) {
             VLOG(2) << "++ Parse header field: " << field << " = " << value;
             if (field != "set-cookie") {
@@ -117,27 +117,27 @@ namespace http {
 
         onHeader(Parser::headers, cookies);
 
-        enum Parser::PAS PAS = Parser::PAS::BODY;
+        enum Parser::ParserState parserState = Parser::ParserState::BODY;
         if (contentLength == 0) {
             parsingFinished();
-            PAS = PAS::FIRSTLINE;
+            parserState = ParserState::FIRSTLINE;
         }
 
-        return PAS;
+        return parserState;
     }
 
-    enum Parser::PAS ResponseParser::parseContent(char* content, size_t size) {
+    enum Parser::ParserState ResponseParser::parseContent(char* content, size_t size) {
         onContent(content, size);
         parsingFinished();
 
-        return PAS::FIRSTLINE;
+        return ParserState::FIRSTLINE;
     }
 
-    enum Parser::PAS ResponseParser::parsingError(int code, const std::string& reason) {
+    enum Parser::ParserState ResponseParser::parsingError(int code, const std::string& reason) {
         onError(code, reason);
         reset();
 
-        return PAS::ERROR;
+        return ParserState::ERROR;
     }
 
     void ResponseParser::parsingFinished() {

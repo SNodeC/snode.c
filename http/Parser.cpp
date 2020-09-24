@@ -34,7 +34,7 @@ namespace http {
     std::regex Parser::httpVersionRegex("^HTTP/([[:digit:]])\\.([[:digit:]])$");
 
     void Parser::reset() {
-        PAS = PAS::FIRSTLINE;
+        parserState = ParserState::FIRSTLINE;
         headers.clear();
         contentLength = 0;
         if (content != nullptr) {
@@ -46,18 +46,18 @@ namespace http {
     void Parser::parse(const char* buf, size_t count) {
         size_t processed = 0;
 
-        while (processed < count && PAS != PAS::ERROR) {
-            switch (PAS) {
-                case PAS::FIRSTLINE:
+        while (processed < count && parserState != ParserState::ERROR) {
+            switch (parserState) {
+                case ParserState::FIRSTLINE:
                     processed += readStartLine(buf + processed, count - processed);
                     break;
-                case PAS::HEADER:
+                case ParserState::HEADER:
                     processed += readHeaderLine(buf + processed, count - processed);
                     break;
-                case PAS::BODY:
+                case ParserState::BODY:
                     processed += readContent(buf + processed, count - processed);
                     break;
-                case PAS::ERROR:
+                case ParserState::ERROR:
                     break;
             };
         }
@@ -66,13 +66,13 @@ namespace http {
     size_t Parser::readStartLine(const char* buf, size_t count) {
         size_t consumed = 0;
 
-        while (consumed < count && PAS == PAS::FIRSTLINE) {
+        while (consumed < count && parserState == ParserState::FIRSTLINE) {
             char ch = buf[consumed];
 
             if (ch == '\r' || ch == '\n') {
                 consumed++;
                 if (ch == '\n') {
-                    PAS = parseStartLine(line);
+                    parserState = parseStartLine(line);
                     line.clear();
                 }
             } else {
@@ -86,7 +86,7 @@ namespace http {
 
     size_t Parser::readHeaderLine(const char* buf, size_t count) {
         size_t consumed = 0;
-        while (consumed < count && PAS == PAS::HEADER) {
+        while (consumed < count && parserState == ParserState::HEADER) {
             char ch = buf[consumed];
 
             if (ch == '\r' || ch == '\n') {
@@ -95,11 +95,11 @@ namespace http {
                     if (EOL) {
                         splitHeaderLine(line);
                         line.clear();
-                        PAS = parseHeader();
+                        parserState = parseHeader();
                         EOL = false;
                     } else {
                         if (line.empty()) {
-                            PAS = parseHeader();
+                            parserState = parseHeader();
                         } else {
                             EOL = true;
                         }
@@ -108,7 +108,7 @@ namespace http {
             } else if (EOL) {
                 if (std::isblank(ch)) {
                     if ((HTTPCompliance & HTTPCompliance::RFC7230) == HTTPCompliance::RFC7230) {
-                        PAS = parsingError(400, "Header Folding");
+                        parserState = parsingError(400, "Header Folding");
                     } else {
                         line += ch;
                         consumed++;
@@ -134,11 +134,11 @@ namespace http {
             std::tie(field, value) = httputils::str_split(line, ':');
 
             if (field.empty()) {
-                PAS = parsingError(400, "Header-field empty");
+                parserState = parsingError(400, "Header-field empty");
             } else if (std::isblank(field.back()) || std::isblank(field.front())) {
-                PAS = parsingError(400, "White space before or after header-field");
+                parserState = parsingError(400, "White space before or after header-field");
             } else if (value.empty()) {
-                PAS = parsingError(400, "Header-value of field \"" + field + "\" empty");
+                parserState = parsingError(400, "Header-value of field \"" + field + "\" empty");
             } else {
                 httputils::to_lower(field);
                 httputils::str_trimm(value);
@@ -153,7 +153,7 @@ namespace http {
                 }
             }
         } else {
-            PAS = parsingError(400, "Header-line empty");
+            parserState = parsingError(400, "Header-line empty");
         }
     }
 
@@ -167,14 +167,14 @@ namespace http {
 
             contentRead += count;
             if (contentRead == contentLength) {
-                PAS = parseContent(content, contentLength);
+                parserState = parseContent(content, contentLength);
 
                 delete[] content;
                 content = nullptr;
                 contentRead = 0;
             }
         } else {
-            PAS = parsingError(400, "Content to long");
+            parserState = parsingError(400, "Content to long");
 
             if (content != nullptr) {
                 delete[] content;

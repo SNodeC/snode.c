@@ -56,15 +56,15 @@ namespace http {
 
     protected:
         // Parser state
-        enum struct [[nodiscard]] PAS{FIRSTLINE, HEADER, BODY, ERROR} PAS = PAS::FIRSTLINE;
+        enum struct [[nodiscard]] ParserState{FIRSTLINE, HEADER, BODY, ERROR} parserState = ParserState::FIRSTLINE;
         static std::regex httpVersionRegex;
 
         virtual void reset();
 
-        virtual enum PAS parseStartLine(std::string& line) = 0;
-        virtual enum PAS parseHeader() = 0;
-        virtual enum PAS parseContent(char* content, size_t size) = 0;
-        virtual enum PAS parsingError(int code, const std::string& reason) = 0;
+        virtual enum ParserState parseStartLine(std::string& line) = 0;
+        virtual enum ParserState parseHeader() = 0;
+        virtual enum ParserState parseContent(char* content, size_t size) = 0;
+        virtual enum ParserState parsingError(int code, const std::string& reason) = 0;
 
         // Data common to all HTTP messages (Request/Response)
         char* content = nullptr;

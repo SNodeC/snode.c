@@ -56,8 +56,8 @@ namespace http {
         httpMinor = 0;
     }
 
-    enum Parser::PAS RequestParser::parseStartLine(std::string& line) {
-        enum Parser::PAS PAS = Parser::PAS::HEADER;
+    enum Parser::ParserState RequestParser::parseStartLine(std::string& line) {
+        enum Parser::ParserState parserState = Parser::ParserState::HEADER;
 
         if (!line.empty()) {
             std::string remaining;
@@ -69,13 +69,13 @@ namespace http {
             std::tie(std::ignore, queriesLine) = httputils::str_split(url, '?');
 
             if (!methodSupported(method)) {
-                PAS = parsingError(400, "Bad request method");
+                parserState = parsingError(400, "Bad request method");
             } else if (url.empty() || url.front() != '/') {
-                PAS = parsingError(400, "Malformed request");
+                parserState = parsingError(400, "Malformed request");
             } else {
                 std::smatch httpVersionMatch;
                 if (!std::regex_match(httpVersion, httpVersionMatch, httpVersionRegex)) {
-                    PAS = parsingError(400, "Wrong protocol-version");
+                    parserState = parsingError(400, "Wrong protocol-version");
                 } else {
                     httpMajor = std::stoi(httpVersionMatch.str(1));
                     httpMinor = std::stoi(httpVersionMatch.str(2));
@@ -95,13 +95,13 @@ namespace http {
                 }
             }
         } else {
-            PAS = parsingError(400, "Request-line empty");
+            parserState = parsingError(400, "Request-line empty");
         }
 
-        return PAS;
+        return parserState;
     }
 
-    enum Parser::PAS RequestParser::parseHeader() {
+    enum Parser::ParserState RequestParser::parseHeader() {
         for (auto& [field, value] : Parser::headers) {
             VLOG(2) << "++ Parse header field: " << field << " = " << value;
             if (field != "cookie") {
@@ -137,31 +137,31 @@ namespace http {
 
         onHeader(Parser::headers, cookies);
 
-        enum Parser::PAS PAS = Parser::PAS::BODY;
+        enum Parser::ParserState parserState = Parser::ParserState::BODY;
         if (contentLength == 0) {
             parsingFinished();
-            PAS = PAS::FIRSTLINE;
+            parserState = ParserState::FIRSTLINE;
         }
 
-        return PAS;
+        return parserState;
     }
 
-    enum Parser::PAS RequestParser::parseContent(char* content, size_t size) {
+    enum Parser::ParserState RequestParser::parseContent(char* content, size_t size) {
         onContent(content, size);
         parsingFinished();
 
-        return PAS::FIRSTLINE;
+        return ParserState::FIRSTLINE;
     }
 
     void RequestParser::parsingFinished() {
         onParsed();
     }
 
-    enum Parser::PAS RequestParser::parsingError(int code, const std::string& reason) {
+    enum Parser::ParserState RequestParser::parsingError(int code, const std::string& reason) {
         onError(code, reason);
         reset();
 
-        return PAS::ERROR;
+        return ParserState::ERROR;
     }
 
 } // namespace http
