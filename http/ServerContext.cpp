@@ -16,14 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ServerContext.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <easylogging++.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "ServerContext.h"
 #include "http_utils.h"
 #include "socket/SocketConnectionBase.h"
 

@@ -23,8 +23,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "../SocketListener.h"
 #include "SocketConnection.h"
+#include "socket/SocketListener.h"
 
 namespace net::socket::tls {
 
