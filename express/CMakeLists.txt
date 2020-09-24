@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
 
-find_package(nlohmann_json 3.9.0 REQUIRED)
+find_package(nlohmann_json 3.7.0 REQUIRED)
 
 add_library(express SHARED
     Response.cpp
@@ -22,7 +22,7 @@ add_library(express SHARED
     middleware/StaticMiddleware.h
 )
 
-target_link_libraries(express LINK_PUBLIC http net logger utils ${LIBMAGIC_LIBRARIES})
+target_link_libraries(express LINK_PUBLIC http)
 target_link_libraries(express PRIVATE nlohmann_json::nlohmann_json)
 
 target_compile_options(express PRIVATE --warn-all)
@@ -38,9 +38,9 @@ FILE(GLOB includes "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
 set_target_properties(express PROPERTIES PUBLIC_HEADER "${includes}")
 
-target_include_directories(express PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${LIBMAGIC_INCLUDES})
+target_include_directories(express PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-install(TARGETS http LIBRARY DESTINATION lib NAMELINK_COMPONENT libhttp.so.1)
+install(TARGETS express LIBRARY DESTINATION lib NAMELINK_COMPONENT libexpress.so.1)
 
 if(CHECK_INCLUDES)
     set_property(TARGET express PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path_and_options})
