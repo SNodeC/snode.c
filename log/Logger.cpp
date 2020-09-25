@@ -53,16 +53,22 @@ void Logger::setLevel(int level) {
     switch (level) {
         case 6:
             defaultConf.set(el::Level::Trace, el::ConfigurationType::Enabled, "true");
+            [[fallthrough]];
         case 5:
             defaultConf.set(el::Level::Debug, el::ConfigurationType::Enabled, "true");
+            [[fallthrough]];
         case 4:
             defaultConf.set(el::Level::Info, el::ConfigurationType::Enabled, "true");
+            [[fallthrough]];
         case 3:
             defaultConf.set(el::Level::Warning, el::ConfigurationType::Enabled, "true");
+            [[fallthrough]];
         case 2:
             defaultConf.set(el::Level::Error, el::ConfigurationType::Enabled, "true");
+            [[fallthrough]];
         case 1:
             defaultConf.set(el::Level::Fatal, el::ConfigurationType::Enabled, "true");
+            [[fallthrough]];
         case 0:
         default:;
     };
