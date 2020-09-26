@@ -1,7 +1,7 @@
 # snode.c
 - [snode.c](#snodec)
   * [What is snode.c](#what-is-snodec)
-  * [Feature List (not complete)](#feature-list--not-complete-)
+  * [Feature List (not complete)](#feature-list-not-complete)
   * [Copyright](#copyright)
     + [Initiator and Main developer](#initiator-and-main-developer)
     + [Contributors (Students)](#contributors-students)
