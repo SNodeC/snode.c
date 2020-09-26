@@ -5,3 +5,5 @@
 /GRTAGS
 /GTAGS
 *.txt.user
+/doc/xml/
+*.md
