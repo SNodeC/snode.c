@@ -319,9 +319,7 @@ int testPost() {
         }
     });
 
-    WebApp::start();
-
-    return 0;
+    return WebApp::start();
 }
 
 int main(int argc, char** argv) {

@@ -87,7 +87,5 @@ int main(int argc, char** argv) {
                        "):" + std::to_string(socketConnection->getLocalAddress().port());
     });
 
-    WebApp::start();
-
-    return 0;
+    return WebApp::start();
 }

@@ -46,7 +46,7 @@ namespace net {
 
         static void init(int argc,
                          char* argv[]); // NOLINT(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
-        static void start();
+        static int start();
         static void stop();
 
         ReadEventDispatcher& getReadEventDispatcher() {
@@ -90,6 +90,7 @@ namespace net {
 
         static bool running;
         static bool stopped;
+        static int stopsig;
         static bool initialized;
     };
 

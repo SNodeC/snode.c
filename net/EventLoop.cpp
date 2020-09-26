@@ -43,6 +43,7 @@ namespace net {
 
     bool EventLoop::running = false;
     bool EventLoop::stopped = true;
+    int EventLoop::stopsig = 0;
     bool EventLoop::initialized = false;
 
     EventLoop::EventLoop()
@@ -130,7 +131,7 @@ namespace net {
         EventLoop::initialized = true;
     }
 
-    void EventLoop::start() {
+    int EventLoop::start() {
         if (!initialized) {
             PLOG(ERROR) << "snode.c not initialized. Use Multiplexer::init(argc, argv) before Multiplexer::start().";
             exit(1);
@@ -164,6 +165,14 @@ namespace net {
 
             running = false;
         }
+
+        int returnReason = 0;
+
+        if (stopsig != 0) {
+            returnReason = -1;
+        }
+
+        return returnReason;
     }
 
     void EventLoop::stop() {
@@ -171,7 +180,7 @@ namespace net {
     }
 
     void EventLoop::stoponsig(int sig) {
-        VLOG(1) << "Stopped due to signal " << sig;
+        stopsig = sig;
         stop();
     }
 

@@ -36,7 +36,7 @@
 
 using namespace express;
 
-Router routes() {
+Router router() {
     Router router;
 
     router.get("/test/:variable(\\d)/:uri", [] APPLICATION(req, res) {
@@ -52,7 +52,7 @@ Router routes() {
         std::string response = "<html>"
                                "  <head>"
                                "    <title>Response from snode.c</title>"
-                               "  </head"
+                               "  </head>"
                                "  <body>"
                                "    <h1>Regex return</h1>"
                                "    <ul>"
@@ -78,7 +78,7 @@ Router routes() {
         std::string response = "<html>"
                                "  <head>"
                                "    <title>Response from snode.c</title>"
-                               "  </head"
+                               "  </head>"
                                "  <body>"
                                "    <h1>Regex return</h1>"
                                "    <ul>"
@@ -116,7 +116,7 @@ int main(int argc, char** argv) {
 
     legacy::WebApp legacyApp;
 
-    legacyApp.use(routes());
+    legacyApp.use(router());
 
     legacyApp.listen(8080, [](int err) -> void {
         if (err != 0) {
@@ -144,7 +144,7 @@ int main(int argc, char** argv) {
 
     tls::WebApp tlsApp({{"certChain", CERTF}, {"keyPEM", KEYF}, {"password", KEYFPASS}});
 
-    tlsApp.use(routes());
+    tlsApp.use(router());
 
     tlsApp.listen(8088, [](int err) -> void {
         if (err != 0) {
@@ -213,7 +213,5 @@ int main(int argc, char** argv) {
                        "):" + std::to_string(socketConnection->getRemoteAddress().port());
     });
 
-    WebApp::start();
-
-    return 0;
+    return WebApp::start();
 }

@@ -45,8 +45,8 @@ namespace express {
         WebApp::initialized = true;
     }
 
-    void WebApp::start() {
-        net::EventLoop::start();
+    int WebApp::start() {
+        return net::EventLoop::start();
     }
 
     void WebApp::stop() {

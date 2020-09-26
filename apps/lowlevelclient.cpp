@@ -242,7 +242,5 @@ int main(int argc, char* argv[]) {
         });
     }
 
-    net::EventLoop::start();
-
-    return 0;
+    return net::EventLoop::start();
 }

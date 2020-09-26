@@ -161,6 +161,4 @@ int main(int argc, char** argv) {
     responseParser.reset();
 
     return 0;
-
-    //    return simpleWebserver();
 }
