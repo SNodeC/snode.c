@@ -4,7 +4,7 @@
   * [Feature List (not complete)](#feature-list--not-complete-)
   * [Copyright](#copyright)
     + [Initiator and Main developer](#initiator-and-main-developer)
-    + [Contributors (Students)](#contributors--students-)
+    + [Contributors (Students)](#contributors-students-)
       - [Json Middleware](#json-middleware)
       - [Regular-Expression Route-Mapping](#regular-expression-route-mapping)
       - [Runtime Module Loading](#runtime-module-loading)
