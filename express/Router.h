@@ -32,9 +32,11 @@
 #include "Response.h"
 
 #define MIDDLEWARE(req, res, next)                                                                                                         \
-    ([[maybe_unused]] Request & (req), [[maybe_unused]] Response & (res), [[maybe_unused]] const std::function<void(void)>&(next))->void
+    ([[maybe_unused]] express::Request & (req),                                                                                            \
+     [[maybe_unused]] express::Response & (res),                                                                                           \
+     [[maybe_unused]] const std::function<void(void)>&(next))
 
-#define APPLICATION(req, res) ([[maybe_unused]] Request & (req), [[maybe_unused]] Response & (res))->void
+#define APPLICATION(req, res) ([[maybe_unused]] express::Request & (req), [[maybe_unused]] express::Response & (res))
 
 #define DECLARE_REQUESTMETHOD(METHOD)                                                                                                      \
     Router& METHOD(const std::string& path, const std::function<void(Request & req, Response & res)>& dispatcher);                         \
