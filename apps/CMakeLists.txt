@@ -42,6 +42,21 @@ if(CHECK_INCLUDES)
     set_property(TARGET simpleserver PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path_and_options})
 endif(CHECK_INCLUDES)
 
+
+add_executable(verysimpleserver verysimpleserver.cpp)
+target_compile_options(verysimpleserver PRIVATE --warn-all)
+target_link_libraries(verysimpleserver LINK_PUBLIC express)
+install(TARGETS verysimpleserver RUNTIME DESTINATION bin)
+set_target_properties(verysimpleserver PROPERTIES
+            CXX_STANDARD 20
+            CXX_STANDARD_REQUIRED ON
+            CXX_EXTENSIONS OFF
+            SOVERSION 1
+)
+if(CHECK_INCLUDES)
+    set_property(TARGET verysimpleserver PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path_and_options})
+endif(CHECK_INCLUDES)
+
 add_executable(jsonserver jsonserver.cpp)
 target_compile_options(jsonserver PRIVATE --warn-all)
 target_link_libraries(jsonserver LINK_PUBLIC express)
