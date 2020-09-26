@@ -1,26 +1,7 @@
 # snode.c
+
 [TOC]
 
-## Copyright
-(C) GNU LESSER GENERAL PUBLIC LICENSE
-
-### Initiator and Main developer
-- Volker Christian (me_AT_vchrist.at, volker.christian_AT_fh-hagenberg.at)
-
-### Contributors (Students)
-_Json Middleware_
-- Marlene Mayr
-- Anna Moser
-- Matteo Prock
-- Eric Thalhammer
-
-_Regular-Expression Route-Mapping_
-- Joelle Helgert
-- Julia Gruber
-- Patrick Brandstätter
-- Fabian Mohr
-
-_Runtime Module Loading_
 
 ## What is snode.c
 snode.c (Simple NODE in C\+\+) is a lean, highly extendable, high-performance layer-based framework for network applications (servers and clients) in the spirit of node.js written entirely in C\+\+.
@@ -28,7 +9,7 @@ The development of the  framework has started during the summer semester 2020 in
 Main focus (but not only) of the framework is "Machine to Machine" (M2M) communication and here especially the field of "Internet of Things" (IoT).
 Keep in mind, that the framework is still in heavy development, APIs can break from commit to commit. But the highest level API (express) is considered stable.
 
-### Feature List (not complete)
+## Feature List (not complete)
 - Non-blocking, event-driven (asynchronous), single threaded, single tasking, layer based design supporting timer (single-shot, interval) and network communication (TCP/IPv4).
 - Application protocol independent TCP server and TCP client functionality. Application protocols (HTTP, ...) can be connected easily and modularly.
 - TLS/SSL encryption for server and client.
@@ -36,7 +17,29 @@ Keep in mind, that the framework is still in heavy development, APIs can break f
 - Fully implemented HTTP(S) application protocol layer (server and client) to which application logic can be connected easily.
 - High-Level Web API layer with JSON support similar to the API of node.js/express. (Speedup compared to node.js/express approx. 40)
 
-### Requirements
+## Copyright
+GNU Lesser General Public License
+
+### Initiator and Main developer
+- Volker Christian (me_AT_vchrist.at, volker.christian_AT_fh-hagenberg.at)
+
+### Contributors (Students)
+#### Json Middleware
+- Marlene Mayr
+- Anna Moser
+- Matteo Prock
+- Eric Thalhammer
+
+#### Regular-Expression Route-Mapping
+- Joelle Helgert
+- Julia Gruber
+- Patrick Brandstätter
+- Fabian Mohr
+
+#### Runtime Module Loading
+
+
+## Requirements
 - GCC Version 10: As snode.c uses most recent C++-20 language features
 - libeasyloggingpp: For logging
 - openssl: For SSL/TLS support
@@ -47,13 +50,13 @@ Keep in mind, that the framework is still in heavy development, APIs can break f
 - clang-format: To format the sourcecode consistently
 - nlohmann-json3-dev: For JSON support
 
-### Components
+## Components
 - libnet (directory net) low level multiplexed network-layer (server/client) with event-loop supporting legacy- and tls-connections
 - libhttp (directory http) low level http server and client
 - libexpress (directory express) high level web-api similar to node.js's express module
 - example applications (directory apps)
 
-### TODOs
+## TODOs
 - Add better error processing in HTTPResponseParser
 - Extend regex-match in Router (path-to-regex in JS)
 - Add some more complex example apps (Game, Skill for Alexa, ...)
@@ -212,7 +215,7 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-### Extracting Server- and Client-Informations (Hostname, IP, Port, SSL/TLS-Infos)
+### Extract Server and Client Information (host name, IP, port, SSL/TLS information)
 ```cpp
 #include <easylogging++.h>
 #include <openssl/x509v3.h>
@@ -315,8 +318,7 @@ int main(int argc, char** argv) {
             for (int32_t i = 0; i < altNameCount; ++i) {
                 GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
                 if (generalName->type == GEN_URI) {
-                    std::string subjectAltName =
-                        std::string(reinterpret_cast<const char*> (ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)), ASN1_STRING_length(generalName->d.uniformResourceIdentifier));
+                    std::string subjectAltName = std::string(reinterpret_cast<const char*> (ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)), ASN1_STRING_length(generalName->d.uniformResourceIdentifier));
                     VLOG(0) << "\t      SAN (URI): '" + subjectAltName;
                 } else if (generalName->type == GEN_DNS) {
                     std::string subjectAltName = std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)), ASN1_STRING_length(generalName->d.dNSName));
@@ -346,5 +348,76 @@ int main(int argc, char** argv) {
     WebApp::start();
 
     return 0;
+}
+```
+
+### Using Regular Expressions in Routes
+```cpp
+#include "legacy/WebApp.h"
+#include "tls/WebApp.h"
+
+#include <easylogging++.h>
+
+using namespace express;
+
+Router router() {
+    Router router;
+
+    // http://localhost:8080/account/123/username
+    router.get("/account/:userId(\\d*)/:username", [] APPLICATION(req, res) {
+        VLOG(0) << "Show account of";
+        VLOG(0) << "UserId: " << req.params["userId"];
+        VLOG(0) << "UserName: " << req.params["userName"];
+
+        std::string response = "<html>"
+                               "  <head>"
+                               "    <title>Response from snode.c</title>"
+                               "  </head>"
+                               "  <body>"
+                               "    <h1>Regex return</h1>"
+                               "    <ul>"
+                               "      <li>UserId: " + req.params["userId"] + </li>"
+                               "      <li>UserName: " + req.params["userName"] + </li>"
+                               "    </ul>"
+                               "  </body>"
+                               "</html>";
+        res.send(response);
+    });
+
+    // http://localhost:8080/asdf/d123e/jklm/hallo
+    router.get("/asdf/:regex1(d\\d{3}e)/jklm/:regex2", [] APPLICATION(req, res) {
+        VLOG(0) << "Testing Regex";
+        VLOG(0) << "Regex1: " << req.params["regex1"];
+        VLOG(0) << "Regex2: " << req.params["regex2"];
+
+        std::string response = "<html>"
+                               "  <head>"
+                               "    <title>Response from snode.c</title>"
+                               "  </head>"
+                               "  <body>"
+                               "    <h1>Regex return</h1>"
+                               "    <ul>"
+                               "      <li>Regex 1: " + req.params["regex1"] + </li>"
+                               "      <li>Regex 2: " + req.params["regex2"] + </li>"
+                               "    </ul>"
+                               "  </body>"
+                               "</html>";
+
+        res.send(response);
+    });
+
+    // http://localhost:8080/search/QueryString
+    router.get("/search/:search", [] APPLICATION(req, res) {
+        VLOG(0) << "Show Search of";
+        VLOG(0) << "Search: " + req.params["search"];
+
+        res.send(req.params["search"]);
+    });
+
+    router.use([] APPLICATION(req, res) {
+        res.status(404).send("Not found: " + req.url);
+    });
+
+    return router;
 }
 ```
