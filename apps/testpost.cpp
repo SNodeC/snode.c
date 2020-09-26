@@ -22,9 +22,7 @@
 #include "legacy/WebApp.h"
 #include "tls/WebApp.h"
 
-#include <cstring>
 #include <easylogging++.h>
-#include <iostream>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -32,11 +30,10 @@
 #define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem"
 #define KEYFPASS "snode.c"
 
-using namespace express;
+int main(int argc, char** argv) {
+    express::WebApp::init(argc, argv);
 
-int testPost() {
-    legacy::WebApp legacyApp;
-
+    express::legacy::WebApp legacyApp;
     legacyApp.get("/", [] APPLICATION(req, res) {
         res.send("<html>"
                  "    <head>"
@@ -70,14 +67,14 @@ int testPost() {
     });
 
     legacyApp.post("/", [] APPLICATION(req, res) {
-        std::cout << "Content-Type: " << req.header("Content-Type") << std::endl;
-        std::cout << "Content-Length: " << req.header("Content-Length") << std::endl;
+        VLOG(0) << "Content-Type: " << req.header("Content-Type");
+        VLOG(0) << "Content-Length: " << req.header("Content-Length");
         char* body = new char[std::stoul(req.header("Content-Length")) + 1];
         memcpy(body, req.body, std::stoul(req.header("Content-Length")));
         body[std::stoi(req.header("Content-Length"))] = 0;
 
-        std::cout << "Body: " << std::endl;
-        std::cout << body << std::endl;
+        VLOG(0) << "Body: ";
+        VLOG(0) << body;
         res.send("<html>"
                  "    <body>"
                  "        <h1>Thank you</h1>"
@@ -87,6 +84,9 @@ int testPost() {
         delete[] body;
     });
 
+    express::tls::WebApp tlsWebApp({{"certChain", CERTF}, {"keyPEM", KEYF}, {"password", KEYFPASS}});
+    tlsWebApp.use(legacyApp);
+
     legacyApp.listen(8080, [](int err) -> void {
         if (err != 0) {
             PLOG(FATAL) << "listen on port 8080";
@@ -94,10 +94,6 @@ int testPost() {
             VLOG(0) << "snode.c listening on port 8080 for legacy connections";
         }
     });
-
-    //    tls::WebApp tlsWebApp(CERTF, KEYF, KEYFPASS);
-    tls::WebApp tlsWebApp({{"certChain", CERTF}, {"keyPEM", KEYF}, {"password", KEYFPASS}});
-    tlsWebApp.use(legacyApp);
 
     tlsWebApp.listen(8088, [](int err) -> void {
         if (err != 0) {
@@ -107,13 +103,7 @@ int testPost() {
         }
     });
 
-    WebApp::start();
+    express::WebApp::start();
 
     return 0;
-}
-
-int main(int argc, char** argv) {
-    WebApp::init(argc, argv);
-
-    return testPost();
 }
