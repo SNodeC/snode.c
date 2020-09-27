@@ -38,7 +38,7 @@ if(BUILD_DOCUMENTATION)
 
         configure_file(${DOXYFILE_IN} ${DOXYFILE} @ONLY)
 
-        add_custom_target(BuildDocumentation
+        add_custom_target(doc
                         COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE_IN}
                         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/doc
                         COMMENT "Generating API documentation with Doxygen"

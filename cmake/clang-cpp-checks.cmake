@@ -10,7 +10,7 @@ ENDIF()
 FIND_PROGRAM(CLANG_FORMAT "clang-format")
 IF(CLANG_FORMAT)
     ADD_CUSTOM_TARGET(
-        FormatSource
+        format
         COMMAND
         ${CLANG_FORMAT}
         -i
