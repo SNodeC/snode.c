@@ -35,8 +35,6 @@
 
 namespace http {
 
-    class ServerResponse;
-
     template <typename SocketClientT>
     class Client {
         using SocketClient = SocketClientT;
@@ -49,12 +47,12 @@ namespace http {
                const std::function<void(SocketConnection*)> onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
             : socketClient(
-                  [this, onResponseReady, onResponseError](SocketConnection* socketConnection) -> void { // onStart
+                  [&request = this->request, onResponseReady, onResponseError](SocketConnection* socketConnection) -> void { // onStart
                       http::ClientContext* clientContext = new ClientContext(socketConnection, onResponseReady, onResponseError);
                       clientContext->setRequest(request);
                       socketConnection->template setContext<http::ClientContext*>(clientContext);
                   },
-                  [this, onConnect](SocketConnection* socketConnection) -> void { // onConnect
+                  [onConnect](SocketConnection* socketConnection) -> void { // onConnect
                       onConnect(socketConnection);
 
                       socketConnection->template getContext<http::ClientContext*>(
@@ -62,7 +60,7 @@ namespace http {
                               socketConnection->enqueue(clientContext->getRequest());
                           });
                   },
-                  [this, onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
+                  [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
                       onDisconnect(socketConnection);
                       socketConnection->template getContext<http::ClientContext*>([](http::ClientContext*& clientContext) -> void {
                           delete clientContext;

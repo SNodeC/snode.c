@@ -25,7 +25,6 @@
 
 #include "SocketListener.h"
 #include "socket/SocketServer.h"
-#include "socket/tls/SocketConnection.h"
 
 namespace net::socket::tls {
 

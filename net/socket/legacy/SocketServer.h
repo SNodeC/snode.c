@@ -25,7 +25,6 @@
 
 #include "SocketListener.h"
 #include "socket/SocketServer.h"
-#include "socket/legacy/SocketConnection.h"
 
 namespace net::socket::legacy {
 

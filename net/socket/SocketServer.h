@@ -30,10 +30,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "AcceptEventReceiver.h"
 #include "Logger.h"
-#include "ReadEventReceiver.h"
-#include "Socket.h"
 #include "SocketListener.h"
 
 namespace net::socket {
