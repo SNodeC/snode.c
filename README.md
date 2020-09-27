@@ -18,17 +18,17 @@
 
 
 ## What is snode.c
-snode.c (Simple NODE in C\+\+) is a lean, highly extendable, high-performance layer-based framework for network applications (servers and clients) in the spirit of node.js written entirely in C\+\+.
-The development of the  framework has started during the summer semester 2020 in the context of the course **Network and Distributed Systems** of the master's program [**Interactive Media**](https://www.fh-ooe.at/en/hagenberg-campus/studiengaenge/master/interactive-media/) at the departement [**Informatics, Communications and Media**](https://www.fh-ooe.at/en/hagenberg-campus/) at the [**University of Applied Sciences Upper Austria, Campus Hagenberg**](https://www.fh-ooe.at/en/) to give students an insight into the fundamental techniques of network- and web-frameworks.
+snode.c (Simple NODE in C\+\+) is a lightweight, highly extendable, high-performance layer-based framework for network applications (servers and clients) in the spirit of node.js written entirely in C\+\+.
+The development of the  framework started during the summer semester 2020 in the context of the course **Network and Distributed Systems** of the masters program [**Interactive Media**](https://www.fh-ooe.at/en/hagenberg-campus/studiengaenge/master/interactive-media/) at the departement [**Informatics, Communications and Media**](https://www.fh-ooe.at/en/hagenberg-campus/) at the [**University of Applied Sciences Upper Austria, Campus Hagenberg**](https://www.fh-ooe.at/en/) to give students an insight into the fundamental techniques of network and web frameworks.
 Main focus (but not only) of the framework is "Machine to Machine" (M2M) communication and here especially the field of "Internet of Things" (IoT).
 Keep in mind, that the framework is still in heavy development, APIs can break from commit to commit. But the highest level API (express) is considered stable.
 
 ## Feature List (not complete)
-- Non-blocking, event-driven (asynchronous), single threaded, single tasking, layer based design supporting timer (single-shot, interval) and network communication (TCP/IPv4).
-- Application protocol independent TCP server and TCP client functionality. Application protocols (HTTP, ...) can be connected easily and modularly.
+- Non-blocking, event-driven (asynchronous), single-threaded, single-tasking, layer-based design that supports timer (single-shot, interval) and network communication (TCP/IPv4).
+- Application protocol independent TCP server and TCP client functionality. Application protocols (HTTP, ...) can be easily and modularly connected.
 - TLS/SSL encryption for server and client.
 - Support of X.509 certificates. TLS/SSL connections can be protected and authenticated using certificates.
-- Fully implemented HTTP(S) application protocol layer (server and client) to which application logic can be connected easily.
+- Fully implemented HTTP(S) application protocol layer (server and client) to which the application logic can be easily connected.
 - High-Level Web API layer with JSON support similar to the API of node.js/express. (Speedup compared to node.js/express approx. 40)
 
 ## Copyright
@@ -134,7 +134,7 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-### Receive Data by HTTP-Post Request
+### Receive Data via HTTP-Post Request
 ```cpp
 #include <easylogging++.h>
 
