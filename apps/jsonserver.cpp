@@ -31,7 +31,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define CERTF "/home/student/nds/snode.c/certs/calisto.home.vchrist.at_-_snode.c_-_server.pem"
+#define CERTF "/home/student/nds/snode.c/certs/snode.c_-_server.pem"
 #define KEYF "/home/student/nds/snode.c/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem"
 #define KEYFPASS "snode.c"
 #define CLIENTCAFILE "/home/student/nds/snode.c/certs/Volker_Christian_-_Root_CA.crt"
