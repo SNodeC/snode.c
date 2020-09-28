@@ -16,23 +16,23 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TLS_SERVER_H
-#define TLS_SERVER_H
+#ifndef TLS_SOCKETSERVER_H
+#define TLS_SOCKETSERVER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "../Server.h"
-#include "socket/tcp/tls/SocketServer.h"
+#include "SocketListener.h"
+#include "socket/tcp/SocketServer.h"
 
-namespace http::tls {
+namespace net::socket::tcp::tls {
 
-    class Server : public http::Server<net::socket::tcp::tls::SocketServer> {
+    class SocketServer : public socket::tcp::SocketServer<tls::SocketListener> {
     public:
-        using http::Server<net::socket::tcp::tls::SocketServer>::Server;
+        using socket::tcp::SocketServer<tls::SocketListener>::SocketServer;
     };
 
-} // namespace http::tls
+}; // namespace net::socket::tcp::tls
 
-#endif // TLS_SERVER_H
+#endif // TLS_SOCKETSERVER_H

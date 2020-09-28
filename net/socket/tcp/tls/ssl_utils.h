@@ -16,23 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TLS_SERVER_H
-#define TLS_SERVER_H
+#ifndef SSL_UTILS_H
+#define SSL_UTILS_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <any>
+#include <map>
+#include <openssl/ossl_typ.h> // for SSL_CTX
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "../Server.h"
-#include "socket/tcp/tls/SocketServer.h"
+namespace net::socket::tcp::tls {
+    unsigned long ssl_init_ctx(SSL_CTX* ctx, const std::map<std::string, std::any>& options, bool server = false);
+}
 
-namespace http::tls {
-
-    class Server : public http::Server<net::socket::tcp::tls::SocketServer> {
-    public:
-        using http::Server<net::socket::tcp::tls::SocketServer>::Server;
-    };
-
-} // namespace http::tls
-
-#endif // TLS_SERVER_H
+#endif // SSL_UTILS_H

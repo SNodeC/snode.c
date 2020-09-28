@@ -126,7 +126,7 @@ int main(int argc, char** argv) {
         }
     });
 
-    legacyApp.onConnect([](net::socket::legacy::SocketConnection* socketConnection) -> void {
+    legacyApp.onConnect([](net::socket::tcp::legacy::SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnConnect:";
         VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                        "):" + std::to_string(socketConnection->getRemoteAddress().port());
@@ -134,7 +134,7 @@ int main(int argc, char** argv) {
                        "):" + std::to_string(socketConnection->getLocalAddress().port());
     });
 
-    legacyApp.onDisconnect([](net::socket::legacy::SocketConnection* socketConnection) -> void {
+    legacyApp.onDisconnect([](net::socket::tcp::legacy::SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnDisconnect:";
         VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                        "):" + std::to_string(socketConnection->getRemoteAddress().port());
@@ -154,7 +154,7 @@ int main(int argc, char** argv) {
         }
     });
 
-    tlsApp.onConnect([](net::socket::tls::SocketConnection* socketConnection) -> void {
+    tlsApp.onConnect([](net::socket::tcp::tls::SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnConnect:";
         VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                        "):" + std::to_string(socketConnection->getLocalAddress().port());
@@ -205,7 +205,7 @@ int main(int argc, char** argv) {
         }
     });
 
-    tlsApp.onDisconnect([](net::socket::tls::SocketConnection* socketConnection) -> void {
+    tlsApp.onDisconnect([](net::socket::tcp::tls::SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnDisconnect:";
         VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                        "):" + std::to_string(socketConnection->getLocalAddress().port());

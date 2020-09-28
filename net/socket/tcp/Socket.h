@@ -16,49 +16,40 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CLIENTCONTEXT_H
-#define CLIENTCONTEXT_H
+#ifndef SOCKET_H
+#define SOCKET_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
 #include <functional>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "ResponseParser.h"
-#include "ServerResponse.h"
+#include "Descriptor.h"
+#include "socket/InetAddress.h"
 
 namespace net::socket::tcp {
-    class SocketConnectionBase;
-}
 
-namespace http {
-
-    class ClientContext {
+    class Socket : virtual public net::Descriptor {
     public:
-        using SocketConnection = net::socket::tcp::SocketConnectionBase;
+        Socket() = default;
 
-        ClientContext(SocketConnection* socketConnection,
-                      const std::function<void(ServerResponse&)>& onResponse,
-                      const std::function<void(int status, const std::string& reason)>& onError);
+        Socket(const Socket&) = delete;
+        Socket& operator=(const Socket&) = delete;
 
-        void receiveResponseData(const char* junk, size_t junkLen);
+        virtual ~Socket();
 
-        void setRequest(const std::string& request);
-        const std::string& getRequest();
+        using net::Descriptor::open;
+        void open(const std::function<void(int errnum)>& onError, int flags = 0);
+        void bind(const InetAddress& localAddress, const std::function<void(int errnum)>& onError);
+
+        InetAddress& getLocalAddress();
+        void setLocalAddress(const InetAddress& localAddress);
 
     protected:
-        SocketConnection* socketConnection;
-
-        std::string request;
-        ServerResponse serverResponse;
-
-    private:
-        ResponseParser parser;
+        InetAddress localAddress{};
     };
 
-} // namespace http
+} // namespace net::socket::tcp
 
-#endif // CLIENTCONTEXT_H
+#endif // SOCKET_H

@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
         res.send(jsonString);
     });
 
-    legacyApp.onConnect([](net::socket::legacy::SocketConnection* socketConnection) -> void {
+    legacyApp.onConnect([](net::socket::tcp::legacy::SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnConnect:";
         VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                        "):" + std::to_string(socketConnection->getRemoteAddress().port());
@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
                        "):" + std::to_string(socketConnection->getLocalAddress().port());
     });
 
-    legacyApp.onDisconnect([](net::socket::legacy::SocketConnection* socketConnection) -> void {
+    legacyApp.onDisconnect([](net::socket::tcp::legacy::SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnDisconnect:";
         VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                        "):" + std::to_string(socketConnection->getRemoteAddress().port());

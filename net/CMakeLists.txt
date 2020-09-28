@@ -33,38 +33,38 @@ add_library(net SHARED
     file/FileReader.h
     socket/InetAddress.cpp
     socket/InetAddress.h
-    socket/Socket.cpp
-    socket/Socket.h
-    socket/SocketClient.h
-    socket/SocketConnection.h
-    socket/SocketConnectionBase.h
-    socket/SocketListener.h
-    socket/SocketReader.h
-    socket/SocketWriter.h
-    socket/SocketServer.h
-    socket/legacy/Socket.h
-    socket/legacy/SocketClient.h
-    socket/legacy/SocketConnection.h
-    socket/legacy/SocketListener.h
-    socket/legacy/SocketReader.cpp
-    socket/legacy/SocketReader.h
-    socket/legacy/SocketWriter.cpp
-    socket/legacy/SocketWriter.h
-    socket/legacy/SocketServer.h
-    socket/tls/ssl_utils.cpp
-    socket/tls/ssl_utils.h
-    socket/tls/Socket.cpp
-    socket/tls/Socket.h
-    socket/tls/SocketClient.cpp
-    socket/tls/SocketClient.h
-    socket/tls/SocketConnection.h
-    socket/tls/SocketListener.cpp
-    socket/tls/SocketListener.h
-    socket/tls/SocketReader.cpp
-    socket/tls/SocketReader.h
-    socket/tls/SocketWriter.cpp
-    socket/tls/SocketWriter.h
-    socket/tls/SocketServer.h
+    socket/tcp/Socket.cpp
+    socket/tcp/Socket.h
+    socket/tcp/SocketClient.h
+    socket/tcp/SocketConnection.h
+    socket/tcp/SocketConnectionBase.h
+    socket/tcp/SocketListener.h
+    socket/tcp/SocketReader.h
+    socket/tcp/SocketWriter.h
+    socket/tcp/SocketServer.h
+    socket/tcp/legacy/Socket.h
+    socket/tcp/legacy/SocketClient.h
+    socket/tcp/legacy/SocketConnection.h
+    socket/tcp/legacy/SocketListener.h
+    socket/tcp/legacy/SocketReader.cpp
+    socket/tcp/legacy/SocketReader.h
+    socket/tcp/legacy/SocketWriter.cpp
+    socket/tcp/legacy/SocketWriter.h
+    socket/tcp/legacy/SocketServer.h
+    socket/tcp/tls/ssl_utils.cpp
+    socket/tcp/tls/ssl_utils.h
+    socket/tcp/tls/Socket.cpp
+    socket/tcp/tls/Socket.h
+    socket/tcp/tls/SocketClient.cpp
+    socket/tcp/tls/SocketClient.h
+    socket/tcp/tls/SocketConnection.h
+    socket/tcp/tls/SocketListener.cpp
+    socket/tcp/tls/SocketListener.h
+    socket/tcp/tls/SocketReader.cpp
+    socket/tcp/tls/SocketReader.h
+    socket/tcp/tls/SocketWriter.cpp
+    socket/tcp/tls/SocketWriter.h
+    socket/tcp/tls/SocketServer.h
     timer/IntervalTimer.h
     timer/SingleshotTimer.h
     timer/Timer.cpp

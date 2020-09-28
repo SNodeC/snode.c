@@ -16,23 +16,45 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TLS_SERVER_H
-#define TLS_SERVER_H
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <openssl/ssl.h> // IWYU pragma: keep // for SSL_accept, SSL_free, SSL_get_error, SSL_new
+
+// IWYU pragma: no_include <openssl/ssl3.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "../Server.h"
-#include "socket/tcp/tls/SocketServer.h"
+#include "socket/tcp/tls/Socket.h"
 
-namespace http::tls {
+namespace net::socket::tcp::tls {
 
-    class Server : public http::Server<net::socket::tcp::tls::SocketServer> {
-    public:
-        using http::Server<net::socket::tcp::tls::SocketServer>::Server;
-    };
+    Socket::~Socket() {
+        if (ssl != nullptr) {
+            SSL_shutdown(ssl);
+            SSL_free(ssl);
+            ssl = nullptr;
+        }
 
-} // namespace http::tls
+        if (ctx != nullptr) {
+            SSL_CTX_free(ctx);
+        }
+    }
 
-#endif // TLS_SERVER_H
+    void Socket::startSSL(SSL_CTX* ctx) {
+        if (ctx != nullptr) {
+            this->ctx = ctx;
+
+            SSL_CTX_up_ref(ctx);
+            ssl = SSL_new(ctx);
+
+            if (ssl != nullptr) {
+                SSL_set_fd(ssl, getFd());
+            }
+        }
+    }
+
+    SSL* Socket::getSSL() {
+        return ssl;
+    }
+
+}; // namespace net::socket::tcp::tls

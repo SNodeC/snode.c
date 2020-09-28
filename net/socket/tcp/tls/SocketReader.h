@@ -16,23 +16,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TLS_SERVER_H
-#define TLS_SERVER_H
+#ifndef TLS_SOCKETREADER_H
+#define TLS_SOCKETREADER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>     // for size_t
+#include <sys/types.h> // for ssize_t
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "../Server.h"
-#include "socket/tcp/tls/SocketServer.h"
+#include "socket/tcp/SocketReader.h"
+#include "socket/tcp/tls/Socket.h" // IWYU pragma: keep
 
-namespace http::tls {
+// IWYU pragma: no_forward_declare tls::Socket
 
-    class Server : public http::Server<net::socket::tcp::tls::SocketServer> {
-    public:
-        using http::Server<net::socket::tcp::tls::SocketServer>::Server;
+namespace net::socket::tcp::tls {
+
+    class SocketReader : public socket::tcp::SocketReader<tls::Socket> {
+    protected:
+        using socket::tcp::SocketReader<tls::Socket>::SocketReader;
+
+        ssize_t read(char* junk, size_t junkLen) override;
     };
 
-} // namespace http::tls
+}; // namespace net::socket::tcp::tls
 
-#endif // TLS_SERVER_H
+#endif // TLS_SOCKETREADER_H

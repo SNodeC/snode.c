@@ -16,23 +16,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TLS_SERVER_H
-#define TLS_SERVER_H
+#ifndef LEGACY_SOCKETREADER_H
+#define LEGACY_SOCKETREADER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>     // for size_t
+#include <sys/types.h> // for ssize_t
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "../Server.h"
-#include "socket/tcp/tls/SocketServer.h"
+#include "socket/tcp/SocketReader.h"
+#include "socket/tcp/legacy/Socket.h" // IWYU pragma: keep
 
-namespace http::tls {
+namespace net::socket::tcp::legacy {
 
-    class Server : public http::Server<net::socket::tcp::tls::SocketServer> {
-    public:
-        using http::Server<net::socket::tcp::tls::SocketServer>::Server;
+    class SocketReader : public socket::tcp::SocketReader<legacy::Socket> {
+    protected:
+        using socket::tcp::SocketReader<legacy::Socket>::SocketReader;
+
+        ssize_t read(char* junk, size_t junkLen) override;
     };
 
-} // namespace http::tls
+}; // namespace net::socket::tcp::legacy
 
-#endif // TLS_SERVER_H
+#endif // LEGACY_SOCKETREADER_H
