@@ -172,14 +172,15 @@ namespace net::socket::tcp::tls {
                                const std::function<void(int err)>& onError,
                                const socket::InetAddress& localAddress) {
         this->onError = onError;
+
         if (sslErr != 0) {
             onError(-sslErr);
         } else {
             socket::tcp::SocketClient<SocketClient::SocketConnection>::connect(
                 options,
-                [this](int err) -> void {
+                [onError](int err) -> void {
                     if (err) {
-                        this->onError(err);
+                        onError(err);
                     }
                 },
                 localAddress);
