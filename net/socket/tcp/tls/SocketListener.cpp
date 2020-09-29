@@ -152,4 +152,12 @@ namespace net::socket::tcp::tls {
         }
     }
 
+    void SocketListener::listen(const InetAddress& localAddress, int backlog, const std::function<void(int err)>& onError) {
+        if (sslErr != 0) {
+            onError(-sslErr);
+        } else {
+            socket::tcp::SocketListener<SocketConnection>::listen(localAddress, backlog, onError);
+        }
+    }
+
 } // namespace net::socket::tcp::tls

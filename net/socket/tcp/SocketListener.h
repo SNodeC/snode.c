@@ -76,7 +76,7 @@ namespace net::socket::tcp {
 
         virtual ~SocketListener() = default;
 
-        void listen(const InetAddress& localAddress, int backlog, const std::function<void(int err)>& onError) {
+        virtual void listen(const InetAddress& localAddress, int backlog, const std::function<void(int err)>& onError) {
             open([this, &localAddress, &backlog, &onError](int errnum) -> void {
                 if (errnum > 0) {
                     onError(errnum);
