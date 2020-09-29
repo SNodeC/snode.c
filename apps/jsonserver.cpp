@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
         }
     });
 
-    legacyApp.post("/", [] APPLICATION(req, res) {
+    legacyApp.post("/index.html", [] APPLICATION(req, res) {
         std::string jsonString = "";
 
         req.getAttribute<json>(
@@ -69,6 +69,10 @@ int main(int argc, char** argv) {
             });
 
         res.send(jsonString);
+    });
+
+    legacyApp.post([] APPLICATION(req, res) {
+        res.send("Wrong Url");
     });
 
     legacyApp.onConnect([](net::socket::tcp::legacy::SocketConnection* socketConnection) -> void {
