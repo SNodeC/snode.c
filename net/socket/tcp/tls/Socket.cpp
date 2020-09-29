@@ -29,14 +29,16 @@
 namespace net::socket::tcp::tls {
 
     Socket::~Socket() {
-        if (ssl != nullptr) {
-            SSL_shutdown(ssl);
-            SSL_free(ssl);
-            ssl = nullptr;
-        }
+        if (!dontClose()) {
+            if (ssl != nullptr) {
+                SSL_shutdown(ssl);
+                SSL_free(ssl);
+                ssl = nullptr;
+            }
 
-        if (ctx != nullptr) {
-            SSL_CTX_free(ctx);
+            if (ctx != nullptr) {
+                SSL_CTX_free(ctx);
+            }
         }
     }
 
@@ -53,7 +55,7 @@ namespace net::socket::tcp::tls {
         }
     }
 
-    SSL* Socket::getSSL() {
+    SSL* Socket::getSSL() const {
         return ssl;
     }
 
