@@ -45,7 +45,7 @@ namespace net::socket::tcp {
         }
     }
 
-    InetAddress& Socket::getLocalAddress() {
+    const InetAddress& Socket::getLocalAddress() const {
         return localAddress;
     }
 

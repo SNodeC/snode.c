@@ -43,7 +43,7 @@ namespace net::socket::tcp {
         void open(const std::function<void(int errnum)>& onError, int flags = 0);
         void bind(const InetAddress& localAddress, const std::function<void(int errnum)>& onError);
 
-        InetAddress& getLocalAddress();
+        const InetAddress& getLocalAddress() const;
         void setLocalAddress(const InetAddress& localAddress);
 
     protected:

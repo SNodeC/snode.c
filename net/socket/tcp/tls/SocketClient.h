@@ -46,7 +46,6 @@ namespace net::socket::tcp::tls {
 
         ~SocketClient() override;
 
-    public:
         // NOLINTNEXTLINE(google-default-arguments)
         void connect(const std::map<std::string, std::any>& options,
                      const std::function<void(int err)>& onError,

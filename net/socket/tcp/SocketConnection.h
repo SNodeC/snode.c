@@ -52,7 +52,6 @@ namespace net::socket::tcp {
         // NOLINT(cppcoreguidelines-pro-type-member-init)
         SocketConnection() = delete;
 
-    public:
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
         SocketConnection(const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
@@ -97,7 +96,7 @@ namespace net::socket::tcp {
             }
         }
 
-        InetAddress& getRemoteAddress() {
+        const InetAddress& getRemoteAddress() const {
             return remoteAddress;
         }
 
