@@ -24,13 +24,13 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "../Client.h"
-#include "socket/tls/SocketClient.h"
+#include "socket/tcp/tls/SocketClient.h"
 
 namespace http::tls {
 
-    class Client : public http::Client<net::socket::tls::SocketClient> {
+    class Client : public http::Client<net::socket::tcp::tls::SocketClient> {
     public:
-        using http::Client<net::socket::tls::SocketClient>::Client;
+        using http::Client<net::socket::tcp::tls::SocketClient>::Client;
     };
 
 } // namespace http::tls

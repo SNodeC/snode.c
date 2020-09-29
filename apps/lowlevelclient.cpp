@@ -21,8 +21,8 @@
 #include "EventLoop.h"
 #include "ResponseParser.h"
 #include "ServerResponse.h"
-#include "socket/legacy/SocketClient.h"
-#include "socket/tls/SocketClient.h"
+#include "socket/tcp/legacy/SocketClient.h"
+#include "socket/tcp/tls/SocketClient.h"
 
 #include <cstring>
 #include <easylogging++.h>
@@ -36,7 +36,7 @@
 #define KEYFPASS "snode.c"
 #define SERVERCAFILE "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Root_CA.crt"
 
-using namespace net::socket;
+using namespace net::socket::tcp;
 
 static http::ResponseParser* getResponseParser() {
     http::ResponseParser* responseParser = new http::ResponseParser(

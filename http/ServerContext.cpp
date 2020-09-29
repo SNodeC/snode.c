@@ -24,7 +24,7 @@
 
 #include "ServerContext.h"
 #include "http_utils.h"
-#include "socket/SocketConnectionBase.h"
+#include "socket/tcp/SocketConnectionBase.h"
 
 namespace http {
 

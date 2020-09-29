@@ -24,13 +24,13 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "../Server.h"
-#include "socket/legacy/SocketServer.h"
+#include "socket/tcp/legacy/SocketServer.h"
 
 namespace http::legacy {
 
-    class Server : public http::Server<net::socket::legacy::SocketServer> {
+    class Server : public http::Server<net::socket::tcp::legacy::SocketServer> {
     public:
-        using http::Server<net::socket::legacy::SocketServer>::Server;
+        using http::Server<net::socket::tcp::legacy::SocketServer>::Server;
     };
 
 } // namespace http::legacy
