@@ -19,6 +19,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #define ELPP_SYSLOG
+#define ELPP_NO_DEFAULT_LOG_FILE
 
 #include <easylogging++.cc>
 #include <easylogging++.h>
