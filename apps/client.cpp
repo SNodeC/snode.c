@@ -21,11 +21,11 @@
 #include "legacy/Client.h"
 
 #include "EventLoop.h"
+#include "Logger.h"
 #include "ServerResponse.h"
 #include "tls/Client.h"
 
 #include <cstring>
-#include <easylogging++.h>
 #include <iostream>
 #include <openssl/x509v3.h>
 

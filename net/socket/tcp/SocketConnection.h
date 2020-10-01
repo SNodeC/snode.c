@@ -49,10 +49,8 @@ namespace net::socket::tcp {
             free(socketConnection_v);
         }
 
-        // NOLINT(cppcoreguidelines-pro-type-member-init)
         SocketConnection() = delete;
 
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
         SocketConnection(const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,

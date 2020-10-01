@@ -20,12 +20,12 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <easylogging++.h>
 #include <nlohmann/json.hpp>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "JsonMiddleware.h"
+#include "Logger.h"
 #include "Request.h"
 #include "Response.h"
 

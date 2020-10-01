@@ -18,28 +18,34 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#define ELPP_SYSLOG
-#define ELPP_NO_DEFAULT_LOG_FILE
-
-#include <easylogging++.cc>
-#include <easylogging++.h>
 #include <filesystem>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "../net/EventLoop.h"
 #include "Logger.h"
 
 INITIALIZE_EASYLOGGINGPP
+
+std::string getTickCounter([[maybe_unused]] const el::LogMessage* logMessage) {
+    std::string tick = std::to_string(net::EventLoop::instance().getTickCounter());
+
+    if (tick.length() < 10) {
+        tick.insert(0, 10 - tick.length(), '0');
+    }
+
+    return tick;
+}
 
 void Logger::init(int argc, char* argv[]) {
     START_EASYLOGGINGPP(argc, argv);
 
     std::string dir = weakly_canonical(std::filesystem::path(argv[0])).parent_path();
 
-    el::Configurations confFromFile(dir + "/.logger.conf");
+    el::Helpers::installCustomFormatSpecifier(el::CustomFormatSpecifier("%tick", getTickCounter));
 
-    el::Loggers::reconfigureAllLoggers(confFromFile);
+    el::Loggers::reconfigureAllLoggers(el::Configurations(dir + "/.logger.conf"));
 
     setLevel(2);
 }

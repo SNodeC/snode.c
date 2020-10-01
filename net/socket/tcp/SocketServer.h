@@ -24,7 +24,6 @@
 
 #include <any>
 #include <cerrno>
-#include <easylogging++.h>
 #include <functional>
 #include <map>
 

@@ -22,8 +22,6 @@
 #include "legacy/WebApp.h"
 #include "tls/WebApp.h"
 
-#include <easylogging++.h>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define CERTF "/home/voc/projects/ServerVoc/certs/snode.c_-_server.pem"

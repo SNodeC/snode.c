@@ -22,7 +22,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <any>
-#include <easylogging++.h>
 #include <functional>
 #include <map>
 #include <netinet/in.h>
@@ -31,6 +30,7 @@
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 #include "ClientContext.h"
+#include "Logger.h"
 #include "socket/InetAddress.h"
 
 namespace http {

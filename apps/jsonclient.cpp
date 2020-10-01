@@ -21,6 +21,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "EventLoop.h"
+#include "Logger.h"
 #include "ServerResponse.h"
 #include "legacy/Client.h"
 #include "socket/tcp/legacy/SocketClient.h"
@@ -28,7 +29,6 @@
 #include "tls/Client.h"
 
 #include <cstring>
-#include <easylogging++.h>
 #include <openssl/x509v3.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

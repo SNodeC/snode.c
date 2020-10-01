@@ -18,18 +18,17 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "Logger.h" // for Logger
+#include "Logger.h" // for Writer, Storage, VLOG
 #include "Parser.h"
 #include "RequestParser.h"  // for RequestParser
 #include "ResponseParser.h" // for HTTPResponseParser, ResponseCookie
 
-#include <cstring>         // for memcpy, size_t
-#include <easylogging++.h> // for Writer, Storage, VLOG
-#include <functional>      // for function
-#include <map>             // for map
-#include <string>          // for allocator, string, operator+, char_t...
-#include <type_traits>     // for add_const<>::type
-#include <utility>         // for pair, tuple_element<>::type
+#include <cstring>     // for memcpy, size_t
+#include <functional>  // for function
+#include <map>         // for map
+#include <string>      // for allocator, string, operator+, char_t...
+#include <type_traits> // for add_const<>::type
+#include <utility>     // for pair, tuple_element<>::type
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

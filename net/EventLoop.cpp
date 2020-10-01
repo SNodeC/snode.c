@@ -18,13 +18,12 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <algorithm>       // for min, max
-#include <cassert>         // for assert
-#include <cerrno>          // for EINTR, errno
-#include <csignal>         // for signal, SIGABRT, SIGHUP, SIGINT, SIGPIPE
-#include <cstdlib>         // for exit
-#include <ctime>           // for time, time_t
-#include <easylogging++.h> // for PErrorWriter, CERROR, PLOG, Writer
+#include <algorithm> // for min, max
+#include <cassert>   // for assert
+#include <cerrno>    // for EINTR, errno
+#include <csignal>   // for signal, SIGABRT, SIGHUP, SIGINT, SIGPIPE
+#include <cstdlib>   // for exit
+#include <ctime>     // for time, time_t
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -85,6 +84,7 @@ namespace net {
             int counter = select(maxFd + 1, &_readfds, &_writefds, &_exceptfds, &tv);
 
             if (counter >= 0) {
+                tickCounter++;
                 timerEventDispatcher.dispatch();
 
                 time_t currentTime = time(nullptr);

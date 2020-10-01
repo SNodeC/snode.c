@@ -20,11 +20,11 @@
 
 #include <cctype> // for isblank
 #include <cstring>
-#include <easylogging++.h>
 #include <tuple> // for tie, tuple
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Logger.h"
 #include "Parser.h"
 #include "http_utils.h"
 

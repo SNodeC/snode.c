@@ -18,12 +18,12 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <easylogging++.h>
 #include <filesystem>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Logger.h"
 #include "MimeTypes.h"
 
 MimeTypes MimeTypes::mimeTypes;

@@ -18,11 +18,11 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <easylogging++.h>
 #include <map>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Logger.h"
 #include "Request.h"
 #include "Response.h"
 #include "StaticMiddleware.h"

@@ -21,6 +21,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "easyloggingpp/easylogging++.h" // IWYU pragma: export
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 class Logger {

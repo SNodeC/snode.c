@@ -44,8 +44,8 @@ namespace net {
             return eventLoop;
         }
 
-        static void init(int argc,
-                         char* argv[]); // NOLINT(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
+        // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
+        static void init(int argc, char* argv[]);
         static int start();
         static void stop();
 
@@ -67,6 +67,15 @@ namespace net {
 
         TimerEventDispatcher& getTimerEventDispatcher() {
             return timerEventDispatcher;
+        }
+
+        unsigned long getEventCounter() {
+            return readEventDispatcher.getEventCounter() + writeEventDispatcher.getEventCounter() +
+                   acceptEventDispatcher.getEventCounter() + outOfBandEventDispatcher.getEventCounter();
+        }
+
+        unsigned long getTickCounter() {
+            return tickCounter;
         }
 
     private:
@@ -92,6 +101,8 @@ namespace net {
         static bool stopped;
         static int stopsig;
         static bool initialized;
+
+        unsigned long tickCounter = 0;
     };
 
 } // namespace net

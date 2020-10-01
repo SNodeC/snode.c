@@ -20,12 +20,12 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "Logger.h"
 #include "legacy/WebApp.h"
 #include "middleware/JsonMiddleware.h"
 #include "middleware/StaticMiddleware.h"
 #include "tls/WebApp.h"
 
-#include <easylogging++.h>
 #include <nlohmann/json.hpp>
 #include <openssl/x509v3.h>
 

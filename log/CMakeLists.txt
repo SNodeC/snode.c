@@ -2,9 +2,40 @@ cmake_minimum_required(VERSION 3.0)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
 
-find_package(EASYLOGGINGPP REQUIRED)
+################################################################################
+# Easylogging++
+################################################################################
+if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/easyloggingpp/easylogging++.h)
+    file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/downloads ${CMAKE_CURRENT_SOURCE_DIR}/easyloggingpp)
+    message(STATUS "Start download of https://github.com/amrayn/easyloggingpp/archive/v9.96.7.tar.gz")
+    file(DOWNLOAD
+        https://github.com/amrayn/easyloggingpp/archive/v9.96.7.tar.gz
+        ${CMAKE_CURRENT_SOURCE_DIR}/downloads/easyloggingpp-9.96.7.tar.gz
+        STATUS DOWNLOAD_STATUS TIMEOUT 3)
+    list(GET DOWNLOAD_STATUS 0 STATUS_CODE)
+    list(GET DOWNLOAD_STATUS 1 ERROR_MESSAGE)
+    if(${STATUS_CODE} EQUAL 0)
+        message(STATUS "SUCESS: Download of easyloggingpp-9.96.7.tar.gz")
+        execute_process(COMMAND tar --directory=${CMAKE_CURRENT_SOURCE_DIR}/downloads
+            --extract --file=${CMAKE_CURRENT_SOURCE_DIR}/downloads/easyloggingpp-9.96.7.tar.gz
+            RESULT_VARIABLE ret)
+        if(${ret} EQUAL 0)
+            message(STATUS "SUCESS: Extracting easyloggingpp-9.96.7.tar.gz")
+            file(GLOB easyloggingpp_files ${CMAKE_CURRENT_SOURCE_DIR}/downloads/easyloggingpp-9.96.7/src/easylogging++.*)
+            file(COPY ${easyloggingpp_files} DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/easyloggingpp)
+        else()
+            file(REMOVE_RECURSE ${CMAKE_CURRENT_SOURCE_DIR}/downloads ${CMAKE_CURRENT_SOURCE_DIR}/easyloggingpp)
+            message(FATAL_ERROR "FAILURE: Extracting easyloggingpp-9.96.7.tar.gz")
+        endif()
+    else()
+        file(REMOVE_RECURSE ${CMAKE_CURRENT_SOURCE_DIR}/downloads ${CMAKE_CURRENT_SOURCE_DIR}/easyloggingpp)
+        message(FATAL_ERROR "Couldn't download\nhttps://github.com/amrayn/easyloggingpp/archive/v9.96.7.tar.gz\nno internet connection?")
+    endif()
+endif()
 
 add_library(logger STATIC
+    easyloggingpp/easylogging++.cc
+    easyloggingpp/easylogging++.h
     Logger.cpp
     Logger.h
 )
@@ -17,7 +48,8 @@ set_target_properties(logger PROPERTIES
             POSITION_INDEPENDENT_CODE ON
 )
 
-target_compile_options(logger PRIVATE --warn-all)
+target_compile_options(logger PRIVATE --warn-all -Wno-unused-parameter)
+target_compile_definitions(logger PRIVATE ELPP_NO_DEFAULT_LOG_FILE)
 
 FILE(GLOB includes "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 

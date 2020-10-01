@@ -22,7 +22,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <any>
-#include <easylogging++.h>
 #include <functional>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -30,6 +29,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "AcceptEventReceiver.h"
+#include "Logger.h"
 #include "ReadEventReceiver.h"
 #include "Socket.h"
 

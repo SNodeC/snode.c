@@ -18,12 +18,12 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <easylogging++.h>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "EventLoop.h"
 #include "WebApp.h"
+
+#include "EventLoop.h"
+#include "Logger.h"
 
 namespace express {
 

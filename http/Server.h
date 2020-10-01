@@ -4,7 +4,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <any>
-#include <easylogging++.h>
 #include <functional>
 #include <map>
 #include <netinet/in.h>
@@ -12,6 +11,7 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
+#include "Logger.h"
 #include "ServerContext.h"
 
 namespace http {

@@ -73,7 +73,6 @@ namespace net {
                 // same tick
                 enabledEventReceiver.remove(eventReceiver);
                 eventReceiver->disabled();
-                //                eventReceiver->destructIfUnobserved();
             } else if (eventReceiver->isEnabled() && !contains(disabledEventReceiver, eventReceiver)) {
                 // normal
                 disabledEventReceiver.push_back(eventReceiver);
@@ -82,6 +81,10 @@ namespace net {
 
         long getTimeout() const {
             return maxInactivity;
+        }
+
+        unsigned long getEventCounter() {
+            return eventCounter;
         }
 
     private:
@@ -116,6 +119,7 @@ namespace net {
                 EventReceiver* eventReceiver = eventReceivers.front();
                 long maxInactivity = eventReceiver->getTimeout();
                 if (FD_ISSET(fd, &fdSet)) {
+                    eventCounter++;
                     counter--;
                     dispatchEventTo(eventReceiver);
                     eventReceiver->setLastTriggered(currentTime);
@@ -165,6 +169,8 @@ namespace net {
         fd_set& fdSet;
 
         long maxInactivity;
+
+        unsigned long eventCounter = 0;
 
         friend class EventLoop;
     };

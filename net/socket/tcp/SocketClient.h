@@ -22,7 +22,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <any>
-#include <easylogging++.h>
 #include <functional>
 #include <map>
 #include <sys/socket.h>

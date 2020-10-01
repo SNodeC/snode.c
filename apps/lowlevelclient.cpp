@@ -19,13 +19,13 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "EventLoop.h"
+#include "Logger.h"
 #include "ResponseParser.h"
 #include "ServerResponse.h"
 #include "socket/tcp/legacy/SocketClient.h"
 #include "socket/tcp/tls/SocketClient.h"
 
 #include <cstring>
-#include <easylogging++.h>
 #include <iostream>
 #include <openssl/x509v3.h>
 

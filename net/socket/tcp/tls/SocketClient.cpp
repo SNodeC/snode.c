@@ -18,12 +18,12 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <easylogging++.h>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Logger.h"
 #include "socket/tcp/tls/SocketClient.h"
 #include "socket/tcp/tls/ssl_utils.h"
 #include "timer/SingleshotTimer.h"
@@ -167,7 +167,6 @@ namespace net::socket::tcp::tls {
         }
     }
 
-    // NOLINTNEXTLINE(google-default-arguments)
     void SocketClient::connect(const std::map<std::string, std::any>& options,
                                const std::function<void(int err)>& onError,
                                const socket::InetAddress& localAddress) {

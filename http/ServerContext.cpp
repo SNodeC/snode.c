@@ -18,11 +18,11 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <easylogging++.h>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "ServerContext.h"
+
+#include "Logger.h"
 #include "http_utils.h"
 #include "socket/tcp/SocketConnectionBase.h"
 
