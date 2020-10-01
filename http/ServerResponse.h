@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CLIENTRESPONSE_H
-#define CLIENTRESPONSE_H
+#ifndef SERVERRESPONSE_H
+#define SERVERRESPONSE_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -47,4 +47,4 @@ namespace http {
 
 } // namespace http
 
-#endif // CLIENTRESPONSE_H
+#endif // SERVERRESPONSE_H
