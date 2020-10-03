@@ -16,34 +16,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LOGGER_H
-#define LOGGER_H
+#ifndef SERVERREQUEST_H
+#define SERVERREQUEST_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "easyloggingpp/easylogging++.h" // IWYU pragma: export
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-class Logger {
-public:
-    enum Level { INFO, DEBUG, WARNING, ERROR, FATAL };
+namespace http {
 
-    virtual ~Logger() = default;
+    class ServerRequest {
+    public:
+        void setRequest(const std::string& request);
 
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
-    static void init(int argc, char* argv[]);
+        const std::string& getRequest() const;
 
-    static void setLevel(int level);
+    protected:
+        std::string request;
+    };
 
-    static void logToFile(bool yes = true);
+} // namespace http
 
-    static void logToStdOut(bool yes = true);
-
-protected:
-    Level level{INFO};
-
-    static el::Configurations conf;
-};
-
-#endif // LOGGER_H
+#endif // SERVERREQUEST_H

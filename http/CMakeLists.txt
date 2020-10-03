@@ -22,6 +22,8 @@ add_library(http SHARED
     Server.h
     ServerContext.cpp
     ServerContext.h
+    ServerRequest.cpp
+    ServerRequest.h
     ServerResponse.cpp
     ServerResponse.h
     StatusCodes.cpp

@@ -42,15 +42,18 @@ namespace http {
 
     public:
         Client(const std::function<void(SocketConnection*)>& onConnect,
+               const std::function<void(ServerRequest&)> onRequestBegin,
                const std::function<void(ServerResponse&)> onResponseReady,
                const std::function<void(int, const std::string&)> onResponseError,
                const std::function<void(SocketConnection*)> onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
             : socketClient(
-                  [&request = this->request, onResponseReady, onResponseError](SocketConnection* socketConnection) -> void { // onStart
+                  [&request = this->request, onRequestBegin, onResponseReady, onResponseError](
+                      SocketConnection* socketConnection) -> void { // onStart
                       http::ClientContext* clientContext = new ClientContext(socketConnection, onResponseReady, onResponseError);
                       clientContext->setRequest(request);
                       socketConnection->template setContext<http::ClientContext*>(clientContext);
+                      onRequestBegin(clientContext->serverRequest);
                   },
                   [onConnect](SocketConnection* socketConnection) -> void { // onConnect
                       onConnect(socketConnection);
@@ -73,10 +76,18 @@ namespace http {
                           });
                   },
                   [](SocketConnection* socketConnection, int errnum) -> void { // onReadError
-                      PLOG(ERROR) << "Server: " << socketConnection->getRemoteAddress().host() << " (" << errnum << ")";
+                      if (errnum != 0) {
+                          PLOG(ERROR) << "Server: " << socketConnection->getRemoteAddress().host() << " (" << errnum << ")";
+                      } else {
+                          VLOG(0) << "Server: EOF";
+                      }
                   },
                   [](SocketConnection* socketConnection, int errnum) -> void { // onWriteError
-                      PLOG(ERROR) << "Server: " << socketConnection->getRemoteAddress().host() << " (" << errnum << ")";
+                      if (errnum != 0) {
+                          PLOG(ERROR) << "Server: " << socketConnection->getRemoteAddress().host() << " (" << errnum << ")";
+                      } else {
+                          VLOG(0) << "Server: EOR";
+                      }
                   },
                   options) {
         }

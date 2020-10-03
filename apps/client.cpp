@@ -47,6 +47,8 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "     Client: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                                "):" + std::to_string(socketConnection->getLocalAddress().port());
             },
+            []([[maybe_unused]] const http::ServerRequest& serverRequest) -> void {
+            },
             [](const http::ServerResponse& serverResponse) -> void {
                 VLOG(0) << "-- OnResponse";
                 VLOG(0) << "     Status:";
@@ -140,6 +142,8 @@ int main(int argc, char* argv[]) {
                     VLOG(0) << "     Server certificate: no certificate";
                 }
             },
+            []([[maybe_unused]] const http::ServerRequest& serverRequest) -> void {
+            },
             [](const http::ServerResponse& serverResponse) -> void {
                 VLOG(0) << "-- OnResponse";
                 VLOG(0) << "     Status:";
@@ -208,4 +212,24 @@ int main(int argc, char* argv[]) {
     }
 
     return net::EventLoop::start();
+}
+
+struct A {
+    int a;
+    int b;
+    int c = 4;
+    std::string d;
+};
+
+struct B {
+    std::string e;
+    std::string f;
+    A a;
+};
+
+void f([[maybe_unused]] B a) {
+}
+
+void g() {
+    f({.e = "hihi", .f = "lkjlkj", .a = {.a = 3, .b = 4, .c = 5, .d = "hihi"}});
 }
