@@ -52,7 +52,9 @@ namespace net::socket::tcp {
             free(socketListener_v);
         }
 
-        SocketListener(const std::function<void(SocketConnection* socketConnection)>& onConnect,
+        SocketListener(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
+                       const std::function<void(SocketConnection* socketConnection)>& onDestruct,
+                       const std::function<void(SocketConnection* socketConnection)>& onConnect,
                        const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
                        const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
                        const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
@@ -60,6 +62,8 @@ namespace net::socket::tcp {
                        const std::map<std::string, std::any>& options)
             : AcceptEventReceiver()
             , Socket()
+            , onConstruct(onConstruct)
+            , onDestruct(onDestruct)
             , onConnect(onConnect)
             , onDisconnect(onDisconnect)
             , onRead(onRead)
@@ -130,7 +134,8 @@ namespace net::socket::tcp {
                 socklen_t addressLength = sizeof(localAddress);
 
                 if (getsockname(scFd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
-                    SocketConnection* socketConnection = new SocketConnection(onRead, onReadError, onWriteError, onDisconnect);
+                    SocketConnection* socketConnection =
+                        new SocketConnection(onConstruct, onDestruct, onRead, onReadError, onWriteError, onDisconnect);
 
                     socketConnection->open(scFd);
 
@@ -161,6 +166,8 @@ namespace net::socket::tcp {
             }
         }
 
+        std::function<void(SocketConnection* socketConnection)> onConstruct;
+        std::function<void(SocketConnection* socketConnection)> onDestruct;
         std::function<void(SocketConnection* socketConnection)> onConnect;
         std::function<void(SocketConnection* socketConnection)> onDisconnect;
         std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)> onRead;

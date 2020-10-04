@@ -49,11 +49,16 @@ namespace http {
                const std::map<std::string, std::any>& options = {{}})
             : socketClient(
                   [&request = this->request, onRequestBegin, onResponseReady, onResponseError](
-                      SocketConnection* socketConnection) -> void { // onStart
+                      SocketConnection* socketConnection) -> void { // onConstruct
                       http::ClientContext* clientContext = new ClientContext(socketConnection, onResponseReady, onResponseError);
                       clientContext->setRequest(request);
                       socketConnection->template setContext<http::ClientContext*>(clientContext);
                       onRequestBegin(clientContext->serverRequest);
+                  },
+                  [](SocketConnection* socketConnection) -> void { // onDestruct
+                      socketConnection->template getContext<http::ClientContext*>([](http::ClientContext*& clientContext) -> void {
+                          delete clientContext;
+                      });
                   },
                   [onConnect](SocketConnection* socketConnection) -> void { // onConnect
                       onConnect(socketConnection);
@@ -65,9 +70,6 @@ namespace http {
                   },
                   [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
                       onDisconnect(socketConnection);
-                      socketConnection->template getContext<http::ClientContext*>([](http::ClientContext*& clientContext) -> void {
-                          delete clientContext;
-                      });
                   },
                   [](SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
                       socketConnection->template getContext<http::ClientContext*>(

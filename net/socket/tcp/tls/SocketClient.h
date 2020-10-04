@@ -36,7 +36,8 @@ namespace net::socket::tcp::tls {
     public:
         using socket::tcp::SocketClient<SocketClient::SocketConnection>::SocketClient;
 
-        SocketClient(const std::function<void(SocketClient::SocketConnection* socketConnection)>& onStart,
+        SocketClient(const std::function<void(SocketClient::SocketConnection* socketConnection)>& onConstruct,
+                     const std::function<void(SocketClient::SocketConnection* socketConnection)>& onDestruct,
                      const std::function<void(SocketClient::SocketConnection* socketConnection)>& onConnect,
                      const std::function<void(SocketClient::SocketConnection* socketConnection)>& onDisconnect,
                      const std::function<void(SocketClient::SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,

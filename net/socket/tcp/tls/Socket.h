@@ -35,7 +35,8 @@ namespace net::socket::tcp::tls {
     public:
         ~Socket() override;
 
-        void startSSL(SSL_CTX* ctx);
+        void setCTX(SSL_CTX* ctx);
+        void startSSL();
         SSL* getSSL() const;
 
     protected:

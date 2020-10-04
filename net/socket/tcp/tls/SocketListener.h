@@ -32,7 +32,9 @@ namespace net::socket::tcp::tls {
     public:
         using SocketConnection = net::socket::tcp::tls::SocketConnection;
 
-        SocketListener(const std::function<void(SocketConnection* socketConnection)>& onConnect,
+        SocketListener(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
+                       const std::function<void(SocketConnection* socketConnection)>& onDestruct,
+                       const std::function<void(SocketConnection* socketConnection)>& onConnect,
                        const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
                        const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
                        const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,

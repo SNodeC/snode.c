@@ -35,18 +35,22 @@ namespace net::socket::tcp::tls {
                 SSL_free(ssl);
                 ssl = nullptr;
             }
+        }
 
-            if (ctx != nullptr) {
-                SSL_CTX_free(ctx);
-            }
+        if (ctx != nullptr) {
+            SSL_CTX_free(ctx);
         }
     }
 
-    void Socket::startSSL(SSL_CTX* ctx) {
+    void Socket::setCTX(SSL_CTX* ctx) {
         if (ctx != nullptr) {
             this->ctx = ctx;
-
             SSL_CTX_up_ref(ctx);
+        }
+    }
+
+    void Socket::startSSL() {
+        if (ctx != nullptr) {
             ssl = SSL_new(ctx);
 
             if (ssl != nullptr) {

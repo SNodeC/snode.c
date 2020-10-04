@@ -32,20 +32,27 @@
 
 namespace net::socket::tcp::tls {
 
-    SocketListener::SocketListener(const std::function<void(SocketConnection* socketConnection)>& onConnect,
+    SocketListener::SocketListener(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
+                                   const std::function<void(SocketConnection* socketConnection)>& onDestruct,
+                                   const std::function<void(SocketConnection* socketConnection)>& onConnect,
                                    const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
                                    const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
                                    const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                                    const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                                    const std::map<std::string, std::any>& options)
         : net::socket::tcp::SocketListener<SocketConnection>(
-              [&ctx = this->ctx, onConnect](SocketConnection* socketConnection) -> void {
-                  socketConnection->startSSL(ctx);
+              [&ctx = this->ctx, onConstruct](SocketConnection* socketConnection) -> void {
+                  socketConnection->setCTX(ctx);
+                  onConstruct(socketConnection);
+              },
+              onDestruct,
+              [onConnect](SocketConnection* socketConnection) -> void {
+                  socketConnection->startSSL();
 
                   class Acceptor
                       : public ReadEventReceiver
                       , public WriteEventReceiver
-                      , public Socket {
+                      , public Descriptor {
                   public:
                       Acceptor(SocketConnection* socketConnection, const std::function<void(SocketConnection* socketConnection)>& onConnect)
                           : socketConnection(socketConnection)
