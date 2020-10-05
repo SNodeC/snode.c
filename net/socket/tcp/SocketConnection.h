@@ -119,8 +119,8 @@ namespace net::socket::tcp {
         static void* lastAllocAddress;
     };
 
-    template <typename SocketReaderT, typename SocketWriterT>
-    void* SocketConnection<SocketReaderT, SocketWriterT>::lastAllocAddress = nullptr;
+    template <typename SocketReader, typename SocketWriter>
+    void* SocketConnection<SocketReader, SocketWriter>::lastAllocAddress = nullptr;
 
 } // namespace net::socket::tcp
 
