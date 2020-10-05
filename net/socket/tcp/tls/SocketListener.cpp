@@ -42,20 +42,26 @@ namespace net::socket::tcp::tls {
                                    const std::map<std::string, std::any>& options)
         : net::socket::tcp::SocketListener<SocketConnection>(
               [&ctx = this->ctx, onConstruct](SocketConnection* socketConnection) -> void {
-                  socketConnection->setCTX(ctx);
+                  socketConnection->setSSL_CTX(ctx);
                   onConstruct(socketConnection);
               },
-              onDestruct,
+              [onDestruct](SocketConnection* socketConnection) -> void {
+                  socketConnection->clearSSL_CTX();
+                  onDestruct(socketConnection);
+              },
               [onConnect](SocketConnection* socketConnection) -> void {
-                  socketConnection->startSSL();
+                  SSL* ssl = socketConnection->startSSL();
 
                   class Acceptor
                       : public ReadEventReceiver
                       , public WriteEventReceiver
                       , public Descriptor {
                   public:
-                      Acceptor(SocketConnection* socketConnection, const std::function<void(SocketConnection* socketConnection)>& onConnect)
+                      Acceptor(SocketConnection* socketConnection,
+                               SSL* ssl,
+                               const std::function<void(SocketConnection* socketConnection)>& onConnect)
                           : socketConnection(socketConnection)
+                          , ssl(ssl)
                           , onConnect(onConnect)
                           , timeOut(net::timer::Timer::singleshotTimer(
                                 [this](const void*) -> void {
@@ -66,7 +72,7 @@ namespace net::socket::tcp::tls {
                                 (struct timeval){TLSACCEPT_TIMEOUT, 0},
                                 nullptr)) {
                           open(socketConnection->getFd(), FLAGS::dontClose);
-                          ssl = socketConnection->getSSL();
+
                           if (ssl != nullptr) {
                               int err = SSL_accept(ssl);
                               int sslErr = SSL_get_error(ssl, err);
@@ -141,9 +147,12 @@ namespace net::socket::tcp::tls {
                       net::timer::Timer& timeOut;
                   };
 
-                  new Acceptor(socketConnection, onConnect);
+                  new Acceptor(socketConnection, ssl, onConnect);
               },
-              onDisconnect,
+              [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
+                  socketConnection->stopSSL();
+                  onDisconnect(socketConnection);
+              },
               onRead,
               onReadError,
               onWriteError,
