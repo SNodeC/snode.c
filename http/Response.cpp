@@ -167,9 +167,6 @@ namespace http {
         contentLength = std::stoi(headers.find("Content-Length")->second);
     }
 
-    void Response::disable() {
-    }
-
     void Response::end() {
         send("");
     }
@@ -183,7 +180,6 @@ namespace http {
         keepAlive = true;
         headers.clear();
         cookies.clear();
-        disable();
     }
 
 } // namespace http
