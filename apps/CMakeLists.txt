@@ -144,9 +144,6 @@ if(CHECK_INCLUDES)
     set_property(TARGET testregex PROPERTY CXX_INCLUDE_WHAT_YOU_USE  ${iwyu_path_and_options})
 endif(CHECK_INCLUDES)
 
-
-
-
 add_executable(warema-jalousien warema-jalousien.cpp)
 target_compile_options(warema-jalousien PRIVATE --warn-all)
 target_link_libraries(warema-jalousien LINK_PUBLIC express)
@@ -160,8 +157,6 @@ set_target_properties(warema-jalousien PROPERTIES
 if(CHECK_INCLUDES)
     set_property(TARGET warema-jalousien PROPERTY CXX_INCLUDE_WHAT_YOU_USE  ${iwyu_path_and_options})
 endif(CHECK_INCLUDES)
-
-
 
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/.logger.conf"
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/logger.conf" "${CMAKE_CURRENT_BINARY_DIR}/.logger.conf"
