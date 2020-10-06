@@ -84,6 +84,8 @@ namespace net::socket::tcp::tls {
                               } else {
                                   if (sslErr == SSL_ERROR_NONE) {
                                       onConnect(socketConnection);
+                                  } else {
+                                      socketConnection->ReadEventReceiver::disable();
                                   }
                                   timeOut.cancel();
                                   unobserved();

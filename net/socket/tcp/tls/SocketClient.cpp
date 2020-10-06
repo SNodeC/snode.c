@@ -90,6 +90,7 @@ namespace net::socket::tcp::tls {
                                       onConnect(socketConnection);
                                   } else {
                                       onError(-ERR_peek_error());
+                                      socketConnection->ReadEventReceiver::disable();
                                   }
                                   timeOut.cancel();
                                   delete this;
