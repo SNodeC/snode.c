@@ -33,14 +33,14 @@ if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/easyloggingpp/easylogging++.h)
     endif()
 endif()
 
-add_library(easylogging++ SHARED
+add_library(easylogging++ STATIC
 #    /usr/include/easylogging++.cc
 #    /usr/include/easylogging++.h
     easyloggingpp/easylogging++.cc
     easyloggingpp/easylogging++.h
 )
 
-target_compile_options(easylogging++ PRIVATE --warn-all -Wno-unused-parameter)
+target_compile_options(easylogging++ PRIVATE -fPIC --warn-all -Wno-unused-parameter)
 target_compile_definitions(easylogging++ PRIVATE ELPP_NO_DEFAULT_LOG_FILE)
 
 add_library(logger SHARED
