@@ -32,7 +32,7 @@
 #define KEYFPASS "snode.c"
 #define CLIENTCAFILE "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Root_CA.crt"
 
-#define SERVERROOT "/home/voc/projects/ServerVoc/doc/html"
+#define SERVERROOT "/home/voc/projects/ServerVoc/docs"
 
 using namespace express;
 
