@@ -22,7 +22,6 @@
 #include "Parser.h"
 #include "RequestParser.h"  // for RequestParser
 #include "ResponseParser.h" // for HTTPResponseParser, ResponseCookie
-#include "config.h"         // just for this example app
 
 #include <cstring>     // for memcpy, size_t
 #include <functional>  // for function

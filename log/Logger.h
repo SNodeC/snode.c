@@ -29,7 +29,8 @@ class Logger {
 public:
     enum Level { INFO, DEBUG, WARNING, ERROR, FATAL };
 
-    virtual ~Logger() = default;
+    Logger() = delete;
+    ~Logger() = delete;
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
     static void init(int argc, char* argv[]);
