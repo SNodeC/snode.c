@@ -33,13 +33,13 @@ option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation 
 
 if(BUILD_DOCUMENTATION)
     if (DOXYGEN_FOUND)
-        set(DOXYFILE_IN ${CMAKE_SOURCE_DIR}/doc/Doxygen.in)
-        set(DOXYFILE ${CMAKE_SOURCE_DIR}/doc/Doxyfile)
+        set(DOXYFILE_IN ${CMAKE_SOURCE_DIR}/docs/Doxygen.in)
+        set(DOXYFILE ${CMAKE_SOURCE_DIR}/docs/Doxyfile)
 
         configure_file(${DOXYFILE_IN} ${DOXYFILE} @ONLY)
 
         add_custom_target(doc
-                        COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE_IN}
+                        COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE}
                         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
                         COMMENT "Generating API documentation with Doxygen"
                         VERBATIM)
