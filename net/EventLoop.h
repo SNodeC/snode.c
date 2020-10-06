@@ -22,6 +22,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <climits>
+#include <string>
 #include <sys/select.h> // for fd_set
 #include <sys/time.h>   // for timeval
 
@@ -32,6 +33,12 @@
 #include "ReadEventDispatcher.h"
 #include "TimerEventDispatcher.h"
 #include "WriteEventDispatcher.h"
+
+namespace el {
+
+    class LogMessage;
+
+} // namespace el
 
 namespace net {
 
@@ -74,11 +81,21 @@ namespace net {
                    acceptEventDispatcher.getEventCounter() + outOfBandEventDispatcher.getEventCounter();
         }
 
+    private:
         unsigned long getTickCounter() {
             return tickCounter;
         }
 
-    private:
+        static std::string getTickCounterAsString([[maybe_unused]] const el::LogMessage* logMessage) {
+            std::string tick = std::to_string(EventLoop::instance().getTickCounter());
+
+            if (tick.length() < 10) {
+                tick.insert(0, 10 - tick.length(), '0');
+            }
+
+            return tick;
+        }
+
         static void stoponsig(int sig);
 
         inline void tick();

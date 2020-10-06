@@ -49,6 +49,8 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "     Client: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
         },
+        []([[maybe_unused]] const http::ServerRequest& clientRequest) -> void {
+        },
         [](const http::ServerResponse& clientResponse) -> void {
             VLOG(0) << "-- OnResponse";
             VLOG(0) << "     Status:";

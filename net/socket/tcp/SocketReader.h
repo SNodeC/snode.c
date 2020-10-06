@@ -30,7 +30,9 @@
 
 #include "ReadEventReceiver.h"
 
+#ifndef MAX_READ_JUNKSIZE
 #define MAX_READ_JUNKSIZE 16384
+#endif
 
 namespace net::socket::tcp {
 

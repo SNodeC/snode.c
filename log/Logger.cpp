@@ -23,92 +23,78 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "../net/EventLoop.h"
 #include "Logger.h"
 
 INITIALIZE_EASYLOGGINGPP
 
-std::string getTickCounter([[maybe_unused]] const el::LogMessage* logMessage) {
-    std::string tick = std::to_string(net::EventLoop::instance().getTickCounter());
-
-    if (tick.length() < 10) {
-        tick.insert(0, 10 - tick.length(), '0');
-    }
-
-    return tick;
-}
+el::Configurations Logger::conf;
 
 void Logger::init(int argc, char* argv[]) {
     START_EASYLOGGINGPP(argc, argv);
 
     std::string dir = weakly_canonical(std::filesystem::path(argv[0])).parent_path();
 
-    el::Helpers::installCustomFormatSpecifier(el::CustomFormatSpecifier("%tick", getTickCounter));
+    conf = el::Configurations(el::Configurations(dir + "/.logger.conf"));
 
-    el::Loggers::reconfigureAllLoggers(el::Configurations(dir + "/.logger.conf"));
+    el::Loggers::reconfigureAllLoggers(conf);
 
     setLevel(2);
 }
 
-void Logger::setLevel(int level) {
-    el::Configurations defaultConf;
-    defaultConf.setGlobally(el::ConfigurationType::Enabled, "false");
+void Logger::setCustomFormatSpec(const char* format, const el::FormatSpecifierValueResolver& resolver) {
+    el::Helpers::installCustomFormatSpecifier(el::CustomFormatSpecifier(format, resolver));
+}
 
-    bool verboseEnabled = el::Loggers::getLogger("default")->typedConfigurations()->enabled(el::Level::Verbose);
-    defaultConf.set(el::Level::Verbose, el::ConfigurationType::Enabled, verboseEnabled ? "true" : "false");
+void Logger::setLevel(int level) {
+    conf.set(el::Level::Trace, el::ConfigurationType::Enabled, "false");
+    conf.set(el::Level::Debug, el::ConfigurationType::Enabled, "false");
+    conf.set(el::Level::Info, el::ConfigurationType::Enabled, "false");
+    conf.set(el::Level::Warning, el::ConfigurationType::Enabled, "false");
+    conf.set(el::Level::Error, el::ConfigurationType::Enabled, "false");
+    conf.set(el::Level::Fatal, el::ConfigurationType::Enabled, "false");
 
     switch (level) {
         case 6:
-            defaultConf.set(el::Level::Trace, el::ConfigurationType::Enabled, "true");
+            conf.set(el::Level::Trace, el::ConfigurationType::Enabled, "true");
             [[fallthrough]];
         case 5:
-            defaultConf.set(el::Level::Debug, el::ConfigurationType::Enabled, "true");
+            conf.set(el::Level::Debug, el::ConfigurationType::Enabled, "true");
             [[fallthrough]];
         case 4:
-            defaultConf.set(el::Level::Info, el::ConfigurationType::Enabled, "true");
+            conf.set(el::Level::Info, el::ConfigurationType::Enabled, "true");
             [[fallthrough]];
         case 3:
-            defaultConf.set(el::Level::Warning, el::ConfigurationType::Enabled, "true");
+            conf.set(el::Level::Warning, el::ConfigurationType::Enabled, "true");
             [[fallthrough]];
         case 2:
-            defaultConf.set(el::Level::Error, el::ConfigurationType::Enabled, "true");
+            conf.set(el::Level::Error, el::ConfigurationType::Enabled, "true");
             [[fallthrough]];
         case 1:
-            defaultConf.set(el::Level::Fatal, el::ConfigurationType::Enabled, "true");
+            conf.set(el::Level::Fatal, el::ConfigurationType::Enabled, "true");
             [[fallthrough]];
         case 0:
         default:;
     };
 
-    el::Loggers::reconfigureLogger("default", defaultConf);
+    el::Loggers::reconfigureLogger("default", conf);
 }
 
 void Logger::logToFile(bool yes) {
-    el::Configurations defaultConf;
-
-    bool verboseEnabled = el::Loggers::getLogger("default")->typedConfigurations()->enabled(el::Level::Verbose);
-    defaultConf.set(el::Level::Verbose, el::ConfigurationType::Enabled, verboseEnabled ? "true" : "false");
-
     if (yes) {
-        defaultConf.set(el::Level::Global, el::ConfigurationType::ToFile, "true");
+        conf.set(el::Level::Global, el::ConfigurationType::ToFile, "true");
     } else {
-        defaultConf.set(el::Level::Global, el::ConfigurationType::ToFile, "false");
+        conf.set(el::Level::Global, el::ConfigurationType::ToFile, "false");
     }
 
-    el::Loggers::reconfigureLogger("default", defaultConf);
+    el::Loggers::reconfigureLogger("default", conf);
 }
 
 void Logger::logToStdOut(bool yes) {
-    el::Configurations defaultConf;
-
-    bool verboseEnabled = el::Loggers::getLogger("default")->typedConfigurations()->enabled(el::Level::Verbose);
-    defaultConf.set(el::Level::Verbose, el::ConfigurationType::Enabled, verboseEnabled ? "true" : "false");
-
     if (yes) {
-        defaultConf.set(el::Level::Global, el::ConfigurationType::ToStandardOutput, "true");
+        conf.set(el::Level::Global, el::ConfigurationType::ToStandardOutput, "true");
     } else {
-        defaultConf.set(el::Level::Global, el::ConfigurationType::ToStandardOutput, "false");
+        conf.set(el::Level::Global, el::ConfigurationType::ToStandardOutput, "false");
     }
 
-    el::Loggers::reconfigureLogger("default", defaultConf);
+    el::Loggers::reconfigureLogger("default", conf);
 }

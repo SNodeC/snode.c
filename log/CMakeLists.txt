@@ -33,12 +33,22 @@ if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/easyloggingpp/easylogging++.h)
     endif()
 endif()
 
-add_library(logger STATIC
+add_library(easylogging++ STATIC
+#    /usr/include/easylogging++.cc
+#    /usr/include/easylogging++.h
     easyloggingpp/easylogging++.cc
     easyloggingpp/easylogging++.h
+)
+
+target_compile_options(easylogging++ PRIVATE -fPIC --warn-all -Wno-unused-parameter)
+target_compile_definitions(easylogging++ PRIVATE ELPP_NO_DEFAULT_LOG_FILE)
+
+add_library(logger SHARED
     Logger.cpp
     Logger.h
 )
+
+target_link_libraries(logger LINK_PUBLIC easylogging++)
 
 set_target_properties(logger PROPERTIES
             CXX_STANDARD 17
@@ -47,9 +57,6 @@ set_target_properties(logger PROPERTIES
             SOVERSION 1
             POSITION_INDEPENDENT_CODE ON
 )
-
-target_compile_options(logger PRIVATE --warn-all -Wno-unused-parameter)
-target_compile_definitions(logger PRIVATE ELPP_NO_DEFAULT_LOG_FILE)
 
 FILE(GLOB includes "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 

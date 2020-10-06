@@ -16,36 +16,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TLS_SOCKET_H
-#define TLS_SOCKET_H
+#ifndef SERVERREQUEST_H
+#define SERVERREQUEST_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <openssl/ssl.h> // IWYU pragma: keep // for SSL, SSL_CTX
-
-// IWYU pragma: no_include <openssl/ossl_typ.h>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/tcp/Socket.h"
+namespace http {
 
-namespace net::socket::tcp::tls {
-
-    class Socket : public socket::tcp::Socket {
+    class ServerRequest {
     public:
-        void setSSL_CTX(SSL_CTX* ctx);
-        void clearSSL_CTX();
+        void setRequest(const std::string& request);
 
-        SSL* startSSL();
-        void stopSSL();
-
-        SSL* getSSL() const;
+        const std::string& getRequest() const;
 
     protected:
-        SSL* ssl = nullptr;
-        SSL_CTX* ctx = nullptr;
+        std::string request;
     };
 
-}; // namespace net::socket::tcp::tls
+} // namespace http
 
-#endif // TLS_SOCKET_H
+#endif // SERVERREQUEST_H

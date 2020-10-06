@@ -92,8 +92,6 @@ namespace http {
     }
 
     void ServerContext::onReadError(int errnum) {
-        response.disable();
-
         if (errnum != 0 && errnum != ECONNRESET) {
             PLOG(ERROR) << "Connection: read";
         }
@@ -104,8 +102,6 @@ namespace http {
     }
 
     void ServerContext::onWriteError(int errnum) {
-        response.disable();
-
         if (errnum != 0 && errnum != ECONNRESET) {
             PLOG(ERROR) << "Connection write";
         }

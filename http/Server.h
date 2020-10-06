@@ -31,16 +31,20 @@ namespace http {
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
             : socketServer(
-                  [onConnect, onRequestReady, onRequestCompleted](SocketConnection* socketConnection) -> void { // onConnect
+                  [onRequestReady, onRequestCompleted]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConstruct
                       socketConnection->template setContext<ServerContext*>(
                           new ServerContext(socketConnection, onRequestReady, onRequestCompleted));
+                  },
+                  [](SocketConnection* socketConnection) -> void { // onDestruct
+                      socketConnection->template getContext<ServerContext*>([](ServerContext*& serverContext) -> void {
+                          delete serverContext;
+                      });
+                  },
+                  [onConnect](SocketConnection* socketConnection) -> void { // onConnect
                       onConnect(socketConnection);
                   },
                   [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
                       onDisconnect(socketConnection);
-                      socketConnection->template getContext<ServerContext*>([](ServerContext*& serverContext) -> void {
-                          delete serverContext;
-                      });
                   },
                   [](SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
                       socketConnection->template getContext<ServerContext*>([&junk, &junkSize](ServerContext*& serverContext) -> void {

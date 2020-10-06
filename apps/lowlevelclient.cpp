@@ -77,8 +77,10 @@ static http::ResponseParser* getResponseParser() {
 
 tls::SocketClient getTlsClient() {
     tls::SocketClient tlsClient(
-        [](tls::SocketConnection* socketConnection) -> void { // onStart
+        [](tls::SocketConnection* socketConnection) -> void { // onConstruct
             socketConnection->setContext<http::ResponseParser*>(getResponseParser());
+        },
+        []([[maybe_unused]] tls::SocketConnection* socketConnection) -> void { // onDestruct
         },
         [](tls::SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnect";
@@ -174,6 +176,8 @@ legacy::SocketClient getLegacyClient() {
     legacy::SocketClient legacyClient(
         [](legacy::SocketConnection* socketConnection) -> void {
             socketConnection->setContext<http::ResponseParser*>(getResponseParser());
+        },
+        []([[maybe_unused]] legacy::SocketConnection* socketConnection) -> void { // onDestruct
         },
         [](legacy::SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnect";

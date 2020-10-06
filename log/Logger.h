@@ -36,12 +36,14 @@ public:
 
     static void setLevel(int level);
 
-    static void logToFile(bool yes);
+    static void logToFile(bool yes = true);
 
-    static void logToStdOut(bool yes);
+    static void logToStdOut(bool yes = true);
+
+    static void setCustomFormatSpec(const char* format, const el::FormatSpecifierValueResolver& resolver);
 
 protected:
-    Level level{INFO};
+    static el::Configurations conf;
 };
 
 #endif // LOGGER_H

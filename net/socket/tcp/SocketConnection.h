@@ -51,7 +51,9 @@ namespace net::socket::tcp {
 
         SocketConnection() = delete;
 
-        SocketConnection(const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
+        SocketConnection(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
+                         const std::function<void(SocketConnection* socketConnection)>& onDestruct,
+                         const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                          const std::function<void(SocketConnection* socketConnection)>& onDisconnect)
@@ -65,8 +67,14 @@ namespace net::socket::tcp {
             , SocketWriter([this, onWriteError](int errnum) -> void {
                 onWriteError(this, errnum);
             })
+            , onDestruct(onDestruct)
             , onDisconnect(onDisconnect)
             , isDynamic(this == lastAllocAddress) {
+            onConstruct(this);
+        }
+
+        ~SocketConnection() override {
+            onDestruct(this);
         }
 
     private:
@@ -104,14 +112,15 @@ namespace net::socket::tcp {
 
     private:
         InetAddress remoteAddress{};
+        std::function<void(SocketConnection* socketConnection)> onDestruct;
         std::function<void(SocketConnection* socketConnection)> onDisconnect;
 
         bool isDynamic;
         static void* lastAllocAddress;
     };
 
-    template <typename SocketReaderT, typename SocketWriterT>
-    void* SocketConnection<SocketReaderT, SocketWriterT>::lastAllocAddress = nullptr;
+    template <typename SocketReader, typename SocketWriter>
+    void* SocketConnection<SocketReader, SocketWriter>::lastAllocAddress = nullptr;
 
 } // namespace net::socket::tcp
 

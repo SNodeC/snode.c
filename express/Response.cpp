@@ -80,6 +80,13 @@ namespace express {
         }
     }
 
+    Response::~Response() {
+        if (fileReader != nullptr) {
+            fileReader->disable();
+            fileReader = nullptr;
+        }
+    }
+
     void Response::download(const std::string& file, const std::function<void(int err)>& onError) {
         std::string name = file;
 
@@ -106,14 +113,6 @@ namespace express {
 
     void Response::sendStatus(int status) {
         this->status(status).send(StatusCode::reason(status));
-    }
-
-    void Response::disable() {
-        http::Response::disable();
-        if (fileReader != nullptr) {
-            fileReader->disable();
-            fileReader = nullptr;
-        }
     }
 
 } // namespace express

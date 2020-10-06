@@ -28,6 +28,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "ResponseParser.h"
+#include "ServerRequest.h"
 #include "ServerResponse.h"
 
 namespace net::socket::tcp {
@@ -53,6 +54,9 @@ namespace http {
         SocketConnection* socketConnection;
 
         std::string request;
+
+    public:
+        ServerRequest serverRequest;
         ServerResponse serverResponse;
 
     private:

@@ -33,8 +33,9 @@ namespace express {
     class Response : public http::Response {
     public:
         Response() = delete;
-
         Response(const http::Response& res);
+
+        ~Response() override;
 
         void sendFile(const std::string& file, const std::function<void(int err)>& onError = nullptr);
         void download(const std::string& file, const std::function<void(int err)>& onError = nullptr);
@@ -46,8 +47,6 @@ namespace express {
         void sendStatus(int status);
 
     protected:
-        void disable() override;
-
         FileReader* fileReader = nullptr;
     };
 

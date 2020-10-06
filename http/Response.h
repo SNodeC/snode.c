@@ -70,7 +70,6 @@ namespace http {
         void enqueue(const std::string& str);
         void sendHeader();
 
-        virtual void disable();
         virtual void reset();
 
         std::map<std::string, std::string> headers;
