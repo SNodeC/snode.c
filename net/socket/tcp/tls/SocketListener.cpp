@@ -41,7 +41,7 @@ namespace net::socket::tcp::tls {
                                    const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                                    const std::map<std::string, std::any>& options)
         : net::socket::tcp::SocketListener<SocketConnection>(
-              [&ctx = this->ctx, onConstruct](SocketConnection* socketConnection) -> void {
+              [onConstruct, &ctx = this->ctx](SocketConnection* socketConnection) -> void {
                   socketConnection->setSSL_CTX(ctx);
                   onConstruct(socketConnection);
               },
@@ -64,10 +64,10 @@ namespace net::socket::tcp::tls {
                           , ssl(ssl)
                           , onConnect(onConnect)
                           , timeOut(net::timer::Timer::singleshotTimer(
-                                [this](const void*) -> void {
+                                [this, socketConnection](const void*) -> void {
                                     ReadEventReceiver::disable();
                                     WriteEventReceiver::disable();
-                                    this->socketConnection->ReadEventReceiver::disable();
+                                    socketConnection->ReadEventReceiver::disable();
                                 },
                                 (struct timeval){TLSACCEPT_TIMEOUT, 0},
                                 nullptr)) {

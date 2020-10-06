@@ -41,7 +41,7 @@ namespace net::socket::tcp::tls {
                                const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                                const std::map<std::string, std::any>& options)
         : socket::tcp::SocketClient<SocketConnection>(
-              [&ctx = this->ctx, onConstruct](SocketConnection* socketConnection) -> void { // onConstruct
+              [onConstruct, &ctx = this->ctx](SocketConnection* socketConnection) -> void { // onConstruct
                   socketConnection->setSSL_CTX(ctx);
                   onConstruct(socketConnection);
               },
@@ -49,7 +49,7 @@ namespace net::socket::tcp::tls {
                   socketConnection->clearSSL_CTX();
                   onDestruct(socketConnection);
               },
-              [this, onConnect](SocketConnection* socketConnection) -> void { // onConnect
+              [onConnect, &onError = this->onError](SocketConnection* socketConnection) -> void { // onConnect
                   SSL* ssl = socketConnection->startSSL();
 
                   class Connector
@@ -57,20 +57,20 @@ namespace net::socket::tcp::tls {
                       , public WriteEventReceiver
                       , public Descriptor {
                   public:
-                      Connector(tls::SocketClient* socketClient,
-                                SocketConnection* socketConnection,
+                      Connector(SocketConnection* socketConnection,
                                 SSL* ssl,
-                                const std::function<void(SocketConnection* socketConnection)>& onConnect)
-                          : socketClient(socketClient)
-                          , socketConnection(socketConnection)
+                                const std::function<void(SocketConnection* socketConnection)>& onConnect,
+                                const std::function<void(int err)>& onError)
+                          : socketConnection(socketConnection)
                           , ssl(ssl)
                           , onConnect(onConnect)
+                          , onError(onError)
                           , timeOut(timer::Timer::singleshotTimer(
-                                [this](const void*) -> void {
+                                [this, socketConnection, onError](const void*) -> void {
                                     ReadEventReceiver::disable();
                                     WriteEventReceiver::disable();
-                                    this->socketClient->onError(ETIMEDOUT);
-                                    this->socketConnection->ReadEventReceiver::disable();
+                                    onError(ETIMEDOUT);
+                                    socketConnection->ReadEventReceiver::disable();
                                 },
                                 (struct timeval){TLSCONNECT_TIMEOUT, 0},
                                 nullptr)) {
@@ -86,16 +86,16 @@ namespace net::socket::tcp::tls {
                                   WriteEventReceiver::enable();
                               } else {
                                   if (sslErr == SSL_ERROR_NONE) {
-                                      socketClient->onError(0);
+                                      onError(0);
                                       onConnect(socketConnection);
                                   } else {
-                                      socketClient->onError(-ERR_peek_error());
+                                      onError(-ERR_peek_error());
                                   }
                                   timeOut.cancel();
                                   delete this;
                               }
                           } else {
-                              socketClient->onError(-ERR_peek_error());
+                              onError(-ERR_peek_error());
                               socketConnection->ReadEventReceiver::disable();
                               timeOut.cancel();
                               delete this;
@@ -114,10 +114,10 @@ namespace net::socket::tcp::tls {
                                   timeOut.cancel();
                                   ReadEventReceiver::disable();
                                   if (sslErr == SSL_ERROR_NONE) {
-                                      socketClient->onError(0);
+                                      onError(0);
                                       onConnect(socketConnection);
                                   } else {
-                                      socketClient->onError(-ERR_peek_error());
+                                      onError(-ERR_peek_error());
                                       socketConnection->ReadEventReceiver::disable();
                                   }
                               }
@@ -136,10 +136,10 @@ namespace net::socket::tcp::tls {
                                   timeOut.cancel();
                                   WriteEventReceiver::disable();
                                   if (sslErr == SSL_ERROR_NONE) {
-                                      socketClient->onError(0);
+                                      onError(0);
                                       onConnect(socketConnection);
                                   } else {
-                                      socketClient->onError(-ERR_peek_error());
+                                      onError(-ERR_peek_error());
                                       socketConnection->ReadEventReceiver::disable();
                                   }
                               }
@@ -151,14 +151,14 @@ namespace net::socket::tcp::tls {
                       }
 
                   private:
-                      SocketClient* socketClient;
                       SocketConnection* socketConnection = nullptr;
                       SSL* ssl = nullptr;
                       std::function<void(SocketConnection* socketConnection)> onConnect;
+                      std::function<void(int err)> onError;
                       timer::Timer& timeOut;
                   };
 
-                  new Connector(this, socketConnection, ssl, onConnect);
+                  new Connector(socketConnection, ssl, onConnect, onError);
               },
               [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
                   socketConnection->stopSSL();
