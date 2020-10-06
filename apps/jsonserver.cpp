@@ -60,8 +60,8 @@ int main(int argc, char** argv) {
         std::string jsonString = "";
 
         req.getAttribute<json>(
-            [&jsonString](json& j) -> void {
-                jsonString = j.dump(4);
+            [&jsonString](json& json) -> void {
+                jsonString = json.dump(4);
                 VLOG(0) << "Application received body: " << jsonString;
             },
             [](const std::string& key) -> void {
