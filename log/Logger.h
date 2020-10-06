@@ -40,9 +40,9 @@ public:
 
     static void logToStdOut(bool yes = true);
 
-protected:
-    Level level{INFO};
+    static void setCustomFormatSpec(const char* format, const el::FormatSpecifierValueResolver& resolver);
 
+protected:
     static el::Configurations conf;
 };
 

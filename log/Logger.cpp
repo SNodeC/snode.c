@@ -23,23 +23,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "../net/EventLoop.h"
 #include "Logger.h"
 
 INITIALIZE_EASYLOGGINGPP
 
 el::Configurations Logger::conf;
-
-// TODO: Belongs to EventLoop
-std::string getTickCounter([[maybe_unused]] const el::LogMessage* logMessage) {
-    std::string tick = std::to_string(net::EventLoop::instance().getTickCounter());
-
-    if (tick.length() < 10) {
-        tick.insert(0, 10 - tick.length(), '0');
-    }
-
-    return tick;
-}
 
 void Logger::init(int argc, char* argv[]) {
     START_EASYLOGGINGPP(argc, argv);
@@ -50,9 +38,11 @@ void Logger::init(int argc, char* argv[]) {
 
     el::Loggers::reconfigureAllLoggers(conf);
 
-    el::Helpers::installCustomFormatSpecifier(el::CustomFormatSpecifier("%tick", getTickCounter));
-
     setLevel(2);
+}
+
+void Logger::setCustomFormatSpec(const char* format, const el::FormatSpecifierValueResolver& resolver) {
+    el::Helpers::installCustomFormatSpecifier(el::CustomFormatSpecifier(format, resolver));
 }
 
 void Logger::setLevel(int level) {

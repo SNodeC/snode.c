@@ -128,6 +128,8 @@ namespace net {
 
         Logger::init(argc, argv);
 
+        Logger::setCustomFormatSpec("%tick", EventLoop::getTickCounterAsString);
+
         EventLoop::initialized = true;
     }
 
