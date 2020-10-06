@@ -29,7 +29,7 @@
 #define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem"
 #define KEYFPASS "snode.c"
 
-#define SERVERROOT "/home/voc/projects/ServerVoc/docs"
+#define SERVERROOT "/home/voc/projects/ServerVoc/docs/html"
 
 int main(int argc, char* argv[]) {
     express::WebApp::init(argc, argv);
