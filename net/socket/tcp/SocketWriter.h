@@ -31,7 +31,9 @@
 
 #include "WriteEventReceiver.h"
 
+#ifndef MAX_SEND_JUNKSIZE
 #define MAX_SEND_JUNKSIZE 16384
+#endif
 
 namespace net::socket::tcp {
 
