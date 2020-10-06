@@ -23,6 +23,7 @@
 #include "EventLoop.h"
 #include "Logger.h"
 #include "ServerResponse.h"
+#include "config.h" // just for this example app
 #include "legacy/Client.h"
 #include "socket/tcp/legacy/SocketClient.h"
 #include "socket/tcp/tls/SocketClient.h"
@@ -32,11 +33,6 @@
 #include <openssl/x509v3.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#define CERTF "/home/student/nds/snode.c/certs/snode.c_-_client.pem"
-#define KEYF "/home/student/nds/snode.c/certs/Volker_Christian_-_Web_-_snode.c_-_client.key.encrypted.pem"
-#define KEYFPASS "snode.c"
-#define SERVERCAFILE "/home/student/nds/snode.c/certs/Volker_Christian_-_Root_CA.crt"
 
 int main(int argc, char* argv[]) {
     net::EventLoop::init(argc, argv);

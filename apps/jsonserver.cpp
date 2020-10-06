@@ -21,6 +21,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "Logger.h"
+#include "config.h" // just for this example app
 #include "legacy/WebApp.h"
 #include "middleware/JsonMiddleware.h"
 #include "middleware/StaticMiddleware.h"
@@ -30,13 +31,6 @@
 #include <openssl/x509v3.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#define CERTF "/home/student/nds/snode.c/certs/snode.c_-_server.pem"
-#define KEYF "/home/student/nds/snode.c/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem"
-#define KEYFPASS "snode.c"
-#define CLIENTCAFILE "/home/student/nds/snode.c/certs/Volker_Christian_-_Root_CA.crt"
-
-#define SERVERROOT "/home/voc/projects/ServerVoc/docs/html"
 
 using namespace express;
 using json = nlohmann::json;

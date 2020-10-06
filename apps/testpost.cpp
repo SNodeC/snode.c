@@ -19,14 +19,11 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "Logger.h"
+#include "config.h" // just for this example app
 #include "legacy/WebApp.h"
 #include "tls/WebApp.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#define CERTF "/home/voc/projects/ServerVoc/certs/snode.c_-_server.pem"
-#define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem"
-#define KEYFPASS "snode.c"
 
 int main(int argc, char** argv) {
     express::WebApp::init(argc, argv);

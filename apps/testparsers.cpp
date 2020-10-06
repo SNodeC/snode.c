@@ -22,6 +22,7 @@
 #include "Parser.h"
 #include "RequestParser.h"  // for RequestParser
 #include "ResponseParser.h" // for HTTPResponseParser, ResponseCookie
+#include "config.h"         // just for this example app
 
 #include <cstring>     // for memcpy, size_t
 #include <functional>  // for function
@@ -31,10 +32,6 @@
 #include <utility>     // for pair, tuple_element<>::type
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#define CERTF "/home/voc/projects/ServerVoc/certs/calisto.home.vchrist.at_-_snode.c_-_server.pem"
-#define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c_-_server.key.encrypted.pem"
-#define KEYFPASS "snode.c"
 
 namespace http {
     class CookieOptions;

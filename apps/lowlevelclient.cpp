@@ -22,6 +22,7 @@
 #include "Logger.h"
 #include "ResponseParser.h"
 #include "ServerResponse.h"
+#include "config.h" // just for this example app
 #include "socket/tcp/legacy/SocketClient.h"
 #include "socket/tcp/tls/SocketClient.h"
 
@@ -30,11 +31,6 @@
 #include <openssl/x509v3.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#define CERTF "/home/voc/projects/ServerVoc/certs/snode.c_-_client.pem"
-#define KEYF "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Web_-_snode.c_-_client.key.encrypted.pem"
-#define KEYFPASS "snode.c"
-#define SERVERCAFILE "/home/voc/projects/ServerVoc/certs/Volker_Christian_-_Root_CA.crt"
 
 using namespace net::socket::tcp;
 

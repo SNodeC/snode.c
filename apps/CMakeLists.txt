@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 
+configure_file(config.h.in config.h @ONLY)
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+
 add_executable(snode.c main.cpp)
 target_compile_options(snode.c PRIVATE --warn-all)
 target_link_libraries(snode.c LINK_PUBLIC express)
