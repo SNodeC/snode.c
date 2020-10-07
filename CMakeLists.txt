@@ -75,19 +75,12 @@ endif(BUILD_DOCUMENTATION)
 #Set the source files to clang - format
 FILE(GLOB_RECURSE
     CHECK_CXX_SOURCE_FILES
-    net/*.[tch]pp net/*.h
-    net/tls/*.[tch]pp net/tls/*.h
-    net/legacy/*.[tch]pp net/legacy/*.h
-    http/*.[tch]pp http/*.h
-    http/tls/*.[tch]pp http/tls/*.h
-    http/legacy/*.[tch]pp http/legacy/*.h
-    log/*.[tch]pp log/*.h
-    utils/*.[tch]pp utils/*.h
-    apps/*.[tch]pp apps/*.h
-    express/*.[tch]pp express/*.h
-    express/tls/*.[tch]pp express/tls/*.h
-    express/legacy/*.[tch]pp express/legacy/*.h
-    express/middleware/*.[tch]pp express/middleware/*.h
+    ${CMAKE_SOURCE_DIR}/net/*.[tch]pp ${CMAKE_SOURCE_DIR}/net/*.h
+    ${CMAKE_SOURCE_DIR}/http/*.[tch]pp ${CMAKE_SOURCE_DIR}/http/*.h
+    ${CMAKE_SOURCE_DIR}/express/*.[tch]pp ${CMAKE_SOURCE_DIR}/express/*.h
+    ${CMAKE_SOURCE_DIR}/apps/*.[tch]pp ${CMAKE_SOURCE_DIR}/apps/*.h
+    ${CMAKE_SOURCE_DIR}/utils/*.[tch]pp ${CMAKE_SOURCE_DIR}/utils/*.h
+    ${CMAKE_SOURCE_DIR}/log/*.[tch]pp ${CMAKE_SOURCE_DIR}/log/*.h
 )
 INCLUDE("cmake/clang-cpp-checks.cmake")
 
