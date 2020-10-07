@@ -155,7 +155,7 @@ tls::SocketClient getTlsClient() {
         []([[maybe_unused]] tls::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
             VLOG(0) << "OnWriteError: " + std::to_string(errnum);
         },
-        {{"certChain", CERTF}, {"keyPEM", KEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}});
+        {{"certChain", CLIENTCERTF}, {"keyPEM", CLIENTKEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}});
 
     tlsClient.connect({{"host", "localhost"}, {"port", 8088}}, [](int err) -> void {
         if (err) {

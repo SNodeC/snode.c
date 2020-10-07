@@ -21,7 +21,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "Logger.h"
-#include "config.h" // just for this example app
 #include "legacy/WebApp.h"
 #include "middleware/JsonMiddleware.h"
 #include "middleware/StaticMiddleware.h"

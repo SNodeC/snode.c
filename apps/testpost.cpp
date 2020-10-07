@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
         delete[] body;
     });
 
-    express::tls::WebApp tlsApp({{"certChain", CERTF}, {"keyPEM", KEYF}, {"password", KEYFPASS}});
+    express::tls::WebApp tlsApp({{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
     tlsApp.use(legacyApp);
 
     legacyApp.listen(8080, [](int err) -> void {

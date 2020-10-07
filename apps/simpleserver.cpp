@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
                        "):" + std::to_string(socketConnection->getLocalAddress().port());
     });
 
-    tls::WebApp tlsApp(getRouter(), {{"certChain", CERTF}, {"keyPEM", KEYF}, {"password", KEYFPASS}});
+    tls::WebApp tlsApp(getRouter(), {{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
 
     tlsApp.listen(8088, [](int err) -> void {
         if (err != 0) {

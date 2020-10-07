@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
     express::legacy::WebApp legacyApp;
     legacyApp.use(express::middleware::StaticMiddleware(SERVERROOT));
 
-    express::tls::WebApp tlsApp({{"certChain", CERTF}, {"keyPEM", KEYF}, {"password", KEYFPASS}});
+    express::tls::WebApp tlsApp({{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}, {"caFile", CLIENTCAFILE}});
     tlsApp.use(express::middleware::StaticMiddleware(SERVERROOT));
 
     legacyApp.listen(8080, [](int err) {
