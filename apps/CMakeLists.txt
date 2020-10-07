@@ -11,7 +11,6 @@ set_target_properties(snode.c PROPERTIES
             CXX_STANDARD 20
             CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF
-            SOVERSION 1
 )
 if(CHECK_INCLUDES)
     set_property(TARGET snode.c PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path_and_options})
@@ -25,7 +24,6 @@ set_target_properties(testpost PROPERTIES
             CXX_STANDARD 20
             CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF
-            SOVERSION 1
 )
 if(CHECK_INCLUDES)
     set_property(TARGET testpost PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path_and_options})
@@ -39,7 +37,6 @@ set_target_properties(simpleserver PROPERTIES
             CXX_STANDARD 20
             CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF
-            SOVERSION 1
 )
 if(CHECK_INCLUDES)
     set_property(TARGET simpleserver PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path_and_options})
@@ -54,7 +51,6 @@ set_target_properties(verysimpleserver PROPERTIES
             CXX_STANDARD 20
             CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF
-            SOVERSION 1
 )
 if(CHECK_INCLUDES)
     set_property(TARGET verysimpleserver PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path_and_options})
@@ -68,7 +64,6 @@ set_target_properties(jsonserver PROPERTIES
             CXX_STANDARD 20
             CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF
-            SOVERSION 1
 )
 if(CHECK_INCLUDES)
     set_property(TARGET jsonserver PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
@@ -82,7 +77,6 @@ set_target_properties(jsonclient PROPERTIES
             CXX_STANDARD 20
             CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF
-            SOVERSION 1
 )
 if(CHECK_INCLUDES)
     set_property(TARGET jsonclient PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
@@ -96,7 +90,6 @@ set_target_properties(testparser PROPERTIES
             CXX_STANDARD 20
             CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF
-            SOVERSION 1
 )
 if(CHECK_INCLUDES)
     set_property(TARGET testparser PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path_and_options})
@@ -110,7 +103,6 @@ set_target_properties(client PROPERTIES
             CXX_STANDARD 20
             CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF
-            SOVERSION 1
 )
 if(CHECK_INCLUDES)
     set_property(TARGET client PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path_and_options})
@@ -124,7 +116,6 @@ set_target_properties(lowlevelclient PROPERTIES
             CXX_STANDARD 20
             CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF
-            SOVERSION 1
 )
 if(CHECK_INCLUDES)
     set_property(TARGET lowlevelclient PROPERTY CXX_INCLUDE_WHAT_YOU_USE  ${iwyu_path_and_options})
@@ -138,7 +129,6 @@ set_target_properties(testregex PROPERTIES
             CXX_STANDARD 20
             CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF
-            SOVERSION 1
 )
 if(CHECK_INCLUDES)
     set_property(TARGET testregex PROPERTY CXX_INCLUDE_WHAT_YOU_USE  ${iwyu_path_and_options})
@@ -152,7 +142,6 @@ set_target_properties(warema-jalousien PROPERTIES
             CXX_STANDARD 20
             CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF
-            SOVERSION 1
 )
 if(CHECK_INCLUDES)
     set_property(TARGET warema-jalousien PROPERTY CXX_INCLUDE_WHAT_YOU_USE  ${iwyu_path_and_options})
@@ -162,5 +151,7 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/.logger.conf"
             COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/logger.conf" "${CMAKE_CURRENT_BINARY_DIR}/.logger.conf"
             DEPENDS "${CMAKE_SOURCE_DIR}/logger.conf"
 )
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/.logger.conf DESTINATION bin)
 
 add_custom_target(copy_logger.conf ALL DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/.logger.conf")

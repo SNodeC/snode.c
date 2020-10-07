@@ -65,11 +65,10 @@ set_target_properties(logger PROPERTIES
 
 target_link_libraries(logger LINK_PUBLIC easylogging++)
 
-FILE(GLOB includes "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
-
-set_target_properties(logger PROPERTIES PUBLIC_HEADER "${includes}")
-
 target_include_directories (logger PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${EASYLOGGINGPP_INCLUDE_DIR})
+
+install(TARGETS logger LIBRARY DESTINATION lib NAMELINK_COMPONENT liblogger.so.1)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ DESTINATION include/snode.c/log FILES_MATCHING PATTERN "*.h" PATTERN "cmake" EXCLUDE PATTERN "downloads" EXCLUDE PATTERN "easyloggingpp" EXCLUDE)
 
 if(CHECK_INCLUDES)
     set_property(TARGET logger PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})

@@ -1,9 +1,31 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
-set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "ON")
-
 project(snode.c)
+
+option(SET_RPATH "Set rpath on all binaries and libraries" ON)
+if(SET_RPATH)
+    set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
+    set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "ON")
+
+    # use, i.e. don't skip the full RPATH for the build tree
+    set(CMAKE_SKIP_BUILD_RPATH FALSE)
+
+    # when building, don't use the install RPATH already
+    # (but later on when installing)
+    set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+
+    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+endif("SET_RPATH")
+
+# add the automatically determined parts of the RPATH
+# which point to directories outside the build tree to the install RPATH
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+# the RPATH to be used when installing, but only if it's not a system directory
+list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
+if("${isSystemDir}" STREQUAL "-1")
+    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+endif("${isSystemDir}" STREQUAL "-1")
 
 message("Your C++ compiler supports these C++ features:")
 foreach(i ${CMAKE_CXX_COMPILE_FEATURES})
@@ -44,7 +66,7 @@ if(BUILD_DOCUMENTATION)
                         COMMENT "Generating API documentation with Doxygen"
                         VERBATIM)
 
-        install(DIRECTORY ${CMAKE_SOURCE_DIR}/doc/html DESTINATION share/doc)
+        install(DIRECTORY ${CMAKE_SOURCE_DIR}/docs/html DESTINATION share/doc/snode.c)
     else (DOXYGEN_FOUND)
         message(FATAL_ERROR "Doxygen is needed to build the documentation.")
     endif (DOXYGEN_FOUND)
@@ -69,9 +91,13 @@ FILE(GLOB_RECURSE
 )
 INCLUDE("cmake/clang-cpp-checks.cmake")
 
-#target_add_ide_support(net)
-#target_add_ide_support(http)
-#target_add_ide_support(utils)
-#target_add_ide_support(logger)
+ADD_CUSTOM_TARGET(
+    uninstall
+    COMMAND
+    xargs rm < install_manifest.txt
+    COMMAND
+    xargs -L1 dirname < install_manifest.txt | sort | uniq | xargs rmdir --ignore-fail-on-non-empty -p
+    COMMENT "Uninstall project"
+)
 
 #xargs rm < install_manifest.txt
