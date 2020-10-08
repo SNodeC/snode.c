@@ -44,18 +44,18 @@ namespace http {
     }
 
     void Parser::parse(const char* buf, size_t count) {
-        size_t processed = 0;
+        size_t consumed = 0;
 
-        while (processed < count && parserState != ParserState::ERROR) {
+        while (consumed < count && parserState != ParserState::ERROR) {
             switch (parserState) {
                 case ParserState::FIRSTLINE:
-                    processed += readStartLine(buf + processed, count - processed);
+                    consumed += readStartLine(buf + consumed, count - consumed);
                     break;
                 case ParserState::HEADER:
-                    processed += readHeaderLine(buf + processed, count - processed);
+                    consumed += readHeaderLine(buf + consumed, count - consumed);
                     break;
                 case ParserState::BODY:
-                    processed += readContent(buf + processed, count - processed);
+                    consumed += readContent(buf + consumed, count - consumed);
                     break;
                 case ParserState::ERROR:
                     break;
@@ -67,17 +67,15 @@ namespace http {
         size_t consumed = 0;
 
         while (consumed < count && parserState == ParserState::FIRSTLINE) {
-            char ch = buf[consumed];
+            char ch = buf[consumed++];
 
             if (ch == '\r' || ch == '\n') {
-                consumed++;
                 if (ch == '\n') {
                     parserState = parseStartLine(line);
                     line.clear();
                 }
             } else {
                 line += ch;
-                consumed++;
             }
         }
 
@@ -86,6 +84,7 @@ namespace http {
 
     size_t Parser::readHeaderLine(const char* buf, size_t count) {
         size_t consumed = 0;
+
         while (consumed < count && parserState == ParserState::HEADER) {
             char ch = buf[consumed];
 

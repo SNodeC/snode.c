@@ -38,6 +38,16 @@
 
 namespace net {
 
+    static std::string getTickCounterAsString([[maybe_unused]] const el::LogMessage* logMessage) {
+        std::string tick = std::to_string(EventLoop::instance().getTickCounter());
+
+        if (tick.length() < 10) {
+            tick.insert(0, 10 - tick.length(), '0');
+        }
+
+        return tick;
+    }
+
     EventLoop EventLoop::eventLoop;
 
     bool EventLoop::running = false;
@@ -128,7 +138,7 @@ namespace net {
 
         Logger::init(argc, argv);
 
-        Logger::setCustomFormatSpec("%tick", EventLoop::getTickCounterAsString);
+        Logger::setCustomFormatSpec("%tick", net::getTickCounterAsString);
 
         EventLoop::initialized = true;
     }

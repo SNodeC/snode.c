@@ -35,6 +35,13 @@ namespace express {
         : http::Response(res) {
     }
 
+    Response::~Response() {
+        if (fileReader != nullptr) {
+            fileReader->disable();
+            fileReader = nullptr;
+        }
+    }
+
     void Response::sendFile(const std::string& file, const std::function<void(int err)>& onError) {
         std::string absolutFileName = file;
 
@@ -77,13 +84,6 @@ namespace express {
                 onError(ENOENT);
             }
             end();
-        }
-    }
-
-    Response::~Response() {
-        if (fileReader != nullptr) {
-            fileReader->disable();
-            fileReader = nullptr;
         }
     }
 

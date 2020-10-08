@@ -36,7 +36,7 @@ namespace http {
                           new ServerContext(socketConnection, onRequestReady, onRequestCompleted));
                   },
                   [](SocketConnection* socketConnection) -> void { // onDestruct
-                      socketConnection->template getContext<ServerContext*>([](ServerContext*& serverContext) -> void {
+                      socketConnection->template getContext<ServerContext*>([](ServerContext* serverContext) -> void {
                           delete serverContext;
                       });
                   },
@@ -47,17 +47,17 @@ namespace http {
                       onDisconnect(socketConnection);
                   },
                   [](SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
-                      socketConnection->template getContext<ServerContext*>([&junk, &junkSize](ServerContext*& serverContext) -> void {
+                      socketConnection->template getContext<ServerContext*>([&junk, &junkSize](ServerContext* serverContext) -> void {
                           serverContext->receiveRequestData(junk, junkSize);
                       });
                   },
                   [](SocketConnection* socketConnection, int errnum) -> void { // onReadError
-                      socketConnection->template getContext<ServerContext*>([&errnum](ServerContext*& serverContext) -> void {
+                      socketConnection->template getContext<ServerContext*>([&errnum](ServerContext* serverContext) -> void {
                           serverContext->onReadError(errnum);
                       });
                   },
                   [](SocketConnection* socketConnection, int errnum) -> void { // onWriteError
-                      socketConnection->template getContext<ServerContext*>([&errnum](ServerContext*& serverContext) -> void {
+                      socketConnection->template getContext<ServerContext*>([&errnum](ServerContext* serverContext) -> void {
                           serverContext->onWriteError(errnum);
                       });
                   },

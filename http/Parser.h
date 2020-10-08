@@ -43,7 +43,6 @@ namespace http {
             RFC7235 = 0x01 << 7, // Authentication
             RFC7540 = 0x01 << 8, // HTTP 2.0
             RFC7541 = 0x01 << 9  // Header Compression
-
         } HTTPCompliance;
 
     public:

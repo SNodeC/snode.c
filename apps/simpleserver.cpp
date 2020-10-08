@@ -53,18 +53,18 @@ int main(int argc, char** argv) {
 
     legacyApp.onConnect([](net::socket::tcp::legacy::SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnConnect:";
-        VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
-                       "):" + std::to_string(socketConnection->getRemoteAddress().port());
         VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                        "):" + std::to_string(socketConnection->getLocalAddress().port());
+        VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
+                       "):" + std::to_string(socketConnection->getRemoteAddress().port());
     });
 
     legacyApp.onDisconnect([](net::socket::tcp::legacy::SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnDisconnect:";
-        VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
-                       "):" + std::to_string(socketConnection->getRemoteAddress().port());
         VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                        "):" + std::to_string(socketConnection->getLocalAddress().port());
+        VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
+                       "):" + std::to_string(socketConnection->getRemoteAddress().port());
     });
 
     tls::WebApp tlsApp(getRouter(), {{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});

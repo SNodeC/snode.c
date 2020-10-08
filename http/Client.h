@@ -56,7 +56,7 @@ namespace http {
                       onRequestBegin(clientContext->serverRequest);
                   },
                   [](SocketConnection* socketConnection) -> void { // onDestruct
-                      socketConnection->template getContext<http::ClientContext*>([](http::ClientContext*& clientContext) -> void {
+                      socketConnection->template getContext<http::ClientContext*>([](http::ClientContext* clientContext) -> void {
                           delete clientContext;
                       });
                   },
@@ -64,7 +64,7 @@ namespace http {
                       onConnect(socketConnection);
 
                       socketConnection->template getContext<http::ClientContext*>(
-                          [&socketConnection](http::ClientContext*& clientContext) -> void {
+                          [&socketConnection](http::ClientContext* clientContext) -> void {
                               socketConnection->enqueue(clientContext->getRequest());
                           });
                   },
@@ -73,7 +73,7 @@ namespace http {
                   },
                   [](SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
                       socketConnection->template getContext<http::ClientContext*>(
-                          [junk, junkSize](http::ClientContext*& clientContext) -> void {
+                          [junk, junkSize](http::ClientContext* clientContext) -> void {
                               clientContext->receiveResponseData(junk, junkSize);
                           });
                   },
