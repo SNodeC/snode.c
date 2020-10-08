@@ -84,12 +84,14 @@ FILE(GLOB_RECURSE
 )
 INCLUDE("cmake/clang-cpp-checks.cmake")
 
+install(FILES cmake/FindSnodeC.cmake DESTINATION lib/cmake/SnodeC RENAME SnodeCConfig.cmake)
+
 ADD_CUSTOM_TARGET(
     uninstall
     COMMAND
-    xargs rm < install_manifest.txt
+    xargs rm -v < install_manifest.txt
     COMMAND
-    xargs -L1 dirname < install_manifest.txt | sort | uniq | xargs rmdir --ignore-fail-on-non-empty -p
+    xargs -L1 dirname < install_manifest.txt | sort | uniq | xargs rmdir -v --ignore-fail-on-non-empty -p
     COMMENT "Uninstall project"
 )
 
