@@ -28,9 +28,13 @@
 
 namespace net::socket::tcp::legacy {
 
-    class SocketClient : public socket::tcp::SocketClient<legacy::SocketConnection> {
+    template <typename SocketT>
+    class SocketClient : public socket::tcp::SocketClient<legacy::SocketConnection<SocketT>> {
     public:
-        using socket::tcp::SocketClient<legacy::SocketConnection>::SocketClient;
+        using Socket = SocketT;
+        using SocketConnection = net::socket::tcp::legacy::SocketConnection<Socket>;
+
+        using socket::tcp::SocketClient<SocketConnection>::SocketClient;
     };
 
 } // namespace net::socket::tcp::legacy

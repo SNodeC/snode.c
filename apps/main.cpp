@@ -20,6 +20,7 @@
 
 #include "config.h" // just for this example app
 #include "legacy/WebApp.h"
+#include "socket/ipv4/tcp/legacy/SocketServer.h"
 #include "timer/IntervalTimer.h"
 #include "timer/SingleshotTimer.h"
 

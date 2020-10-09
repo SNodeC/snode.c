@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LEGACY_SOCKET_H
-#define LEGACY_SOCKET_H
+#ifndef LEGACY_TCP_SOCKET_H
+#define LEGACY_TCP_SOCKET_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,4 +31,4 @@ namespace net::socket::ipv4::tcp::legacy {
 
 }; // namespace net::socket::ipv4::tcp::legacy
 
-#endif // LEGACY_SOCKET_H
+#endif // LEGACY_TCP_SOCKET_H

@@ -28,9 +28,14 @@
 
 namespace http::tls {
 
-    class Client : public http::Client<net::socket::tcp::tls::SocketClient> {
+    template <typename SocketT>
+    class Client : public http::Client<net::socket::tcp::tls::SocketClient<SocketT>> {
     public:
-        using http::Client<net::socket::tcp::tls::SocketClient>::Client;
+        using Socket = SocketT;
+        using SocketClient = typename net::socket::tcp::tls::SocketClient<Socket>;
+        using SocketConnection = typename SocketClient::SocketConnection;
+
+        using http::Client<net::socket::tcp::tls::SocketClient<Socket>>::Client;
     };
 
 } // namespace http::tls

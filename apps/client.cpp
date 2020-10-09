@@ -23,6 +23,8 @@
 #include "Logger.h"
 #include "ServerResponse.h"
 #include "config.h" // just for this example app
+#include "socket/ipv4/tcp/legacy/Socket.h"
+#include "socket/ipv4/tcp/tls/Socket.h"
 #include "tls/Client.h"
 
 #include <cstring>
@@ -34,8 +36,8 @@
 int main(int argc, char* argv[]) {
     net::EventLoop::init(argc, argv);
     {
-        http::legacy::Client legacyClient(
-            [](net::socket::tcp::legacy::SocketConnection* socketConnection) -> void {
+        http::legacy::Client<net::socket::ipv4::tcp::legacy::Socket> legacyClient(
+            [](http::legacy::Client<net::socket::ipv4::tcp::legacy::Socket>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnConnect";
                 VLOG(0) << "     Server: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                                "):" + std::to_string(socketConnection->getRemoteAddress().port());
@@ -77,7 +79,7 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "     Status: " << status;
                 VLOG(0) << "     Reason: " << reason;
             },
-            [](net::socket::tcp::legacy::SocketConnection* socketConnection) -> void {
+            [](http::legacy::Client<net::socket::ipv4::tcp::legacy::Socket>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnDisconnect";
                 VLOG(0) << "     Server: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                                "):" + std::to_string(socketConnection->getRemoteAddress().port());
@@ -85,8 +87,8 @@ int main(int argc, char* argv[]) {
                                "):" + std::to_string(socketConnection->getLocalAddress().port());
             });
 
-        http::tls::Client tlsClient(
-            [](net::socket::tcp::tls::SocketConnection* socketConnection) -> void {
+        http::tls::Client<net::socket::ipv4::tcp::tls::Socket> tlsClient(
+            [](http::tls::Client<net::socket::ipv4::tcp::tls::Socket>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnConnect";
                 VLOG(0) << "     Server: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                                "):" + std::to_string(socketConnection->getRemoteAddress().port());
@@ -172,7 +174,7 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "     Status: " << status;
                 VLOG(0) << "     Reason: " << reason;
             },
-            [](net::socket::tcp::tls::SocketConnection* socketConnection) -> void {
+            [](http::tls::Client<net::socket::ipv4::tcp::tls::Socket>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnDisconnect";
                 VLOG(0) << "     Server: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                                "):" + std::to_string(socketConnection->getRemoteAddress().port());

@@ -25,6 +25,7 @@
 
 #include "WebAppT.h"
 #include "legacy/Server.h"
+#include "socket/ipv4/tcp/legacy/Socket.h"
 
 namespace express::legacy {
 

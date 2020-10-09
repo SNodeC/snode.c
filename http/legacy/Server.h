@@ -24,13 +24,18 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "../Server.h"
-#include "socket/tcp/legacy/SocketServer.h"
+#include "socket/ipv4/tcp/legacy/SocketServer.h"
 
 namespace http::legacy {
 
-    class Server : public http::Server<net::socket::tcp::legacy::SocketServer> {
+    class Server : public http::Server<net::socket::ipv4::tcp::legacy::SocketServer> {
     public:
-        using http::Server<net::socket::tcp::legacy::SocketServer>::Server;
+        using SocketServer = net::socket::ipv4::tcp::legacy::SocketServer;
+        using SocketListener = typename SocketServer::SocketListener;
+        using SocketConnection = typename SocketListener::SocketConnection;
+        using Socket = typename SocketServer::Socket;
+
+        using http::Server<net::socket::ipv4::tcp::legacy::SocketServer>::Server;
     };
 
 } // namespace http::legacy

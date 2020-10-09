@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TLS_SOCKET_H
-#define TLS_SOCKET_H
+#ifndef TLS_TCP_SOCKET_H
+#define TLS_TCP_SOCKET_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -48,4 +48,4 @@ namespace net::socket::ipv4::tcp::tls {
 
 }; // namespace net::socket::ipv4::tcp::tls
 
-#endif // TLS_SOCKET_H
+#endif // TLS_TCP_SOCKET_H

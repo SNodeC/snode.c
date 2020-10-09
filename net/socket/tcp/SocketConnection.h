@@ -88,7 +88,7 @@ namespace net::socket::tcp {
 
     public:
         void enqueue(const char* junk, size_t junkLen) override {
-            SocketWriterT::enqueue(junk, junkLen);
+            SocketWriter::enqueue(junk, junkLen);
         }
 
         void enqueue(const std::string& data) override {
@@ -96,9 +96,9 @@ namespace net::socket::tcp {
         }
 
         void end(bool instantly = false) override {
-            SocketReaderT::disable();
+            SocketReader::disable();
             if (instantly) {
-                SocketWriterT::disable();
+                SocketWriter::disable();
             }
         }
 

@@ -29,7 +29,9 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::socket::tcp::tls {
+
     unsigned long ssl_init_ctx(SSL_CTX* ctx, const std::map<std::string, std::any>& options, bool server = false);
+
 }
 
 #endif // SSL_UTILS_H

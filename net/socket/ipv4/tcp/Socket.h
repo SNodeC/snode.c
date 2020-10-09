@@ -25,8 +25,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "../InetAddress.h"
+#include "Descriptor.h" // for Descriptor
 #include "socket/Socket.h"
+#include "socket/ipv4/InetAddress.h" // IWYU pragma: keep
 
 namespace net::socket::ipv4::tcp {
 

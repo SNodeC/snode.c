@@ -19,7 +19,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cerrno>
-#include <netinet/in.h> // for sockaddr_in
 #include <sys/socket.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -39,4 +38,4 @@ namespace net::socket::ipv4::tcp {
         }
     }
 
-} // namespace net::socket::ipv4
+} // namespace net::socket::ipv4::tcp

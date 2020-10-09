@@ -31,11 +31,16 @@
 
 namespace net::socket::tcp::legacy {
 
-    class SocketWriter : public socket::tcp::SocketWriter<socket::ipv4::tcp::legacy::Socket> {
+    template <typename SocketT>
+    class SocketWriter : public socket::tcp::SocketWriter<SocketT> {
     protected:
-        using socket::tcp::SocketWriter<socket::ipv4::tcp::legacy::Socket>::SocketWriter;
+        using Socket = SocketT;
 
-        ssize_t write(const char* junk, size_t junkLen) override;
+        using socket::tcp::SocketWriter<Socket>::SocketWriter;
+
+        ssize_t write(const char* junk, size_t junkLen) override {
+            return ::send(Socket::getFd(), junk, junkLen, MSG_NOSIGNAL);
+        }
     };
 
 }; // namespace net::socket::tcp::legacy

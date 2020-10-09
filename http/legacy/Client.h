@@ -28,9 +28,14 @@
 
 namespace http::legacy {
 
-    class Client : public http::Client<net::socket::tcp::legacy::SocketClient> {
+    template <typename SocketT>
+    class Client : public http::Client<net::socket::tcp::legacy::SocketClient<SocketT>> {
     public:
-        using http::Client<net::socket::tcp::legacy::SocketClient>::Client;
+        using Socket = SocketT;
+        using SocketClient = typename net::socket::tcp::legacy::SocketClient<Socket>;
+        using SocketConnection = typename net::socket::tcp::legacy::SocketClient<Socket>::SocketConnection;
+
+        using http::Client<net::socket::tcp::legacy::SocketClient<Socket>>::Client;
     };
 
 } // namespace http::legacy

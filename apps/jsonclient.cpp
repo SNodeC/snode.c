@@ -37,8 +37,8 @@
 int main(int argc, char* argv[]) {
     net::EventLoop::init(argc, argv);
 
-    http::legacy::Client jsonClient(
-        [](net::socket::tcp::legacy::SocketConnection* socketConnection) -> void {
+    http::legacy::Client<net::socket::ipv4::tcp::legacy::Socket> jsonClient(
+        [](http::legacy::Client<net::socket::ipv4::tcp::legacy::Socket>::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnConnect";
             VLOG(0) << "     Server: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                            "):" + std::to_string(socketConnection->getRemoteAddress().port());
@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "     Status: " << status;
             VLOG(0) << "     Reason: " << reason;
         },
-        [](net::socket::tcp::legacy::SocketConnection* socketConnection) -> void {
+        [](http::legacy::Client<net::socket::ipv4::tcp::legacy::Socket>::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnDisconnect";
             VLOG(0) << "     Server: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                            "):" + std::to_string(socketConnection->getRemoteAddress().port());

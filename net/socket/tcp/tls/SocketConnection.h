@@ -29,7 +29,8 @@
 
 namespace net::socket::tcp::tls {
 
-    using SocketConnection = socket::tcp::SocketConnection<tls::SocketReader, tls::SocketWriter>;
+    template <typename SocketT>
+    using SocketConnection = socket::tcp::SocketConnection<tls::SocketReader<SocketT>, tls::SocketWriter<SocketT>>;
 
 } // namespace net::socket::tcp::tls
 

@@ -24,13 +24,18 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "SocketListener.h"
+#include "socket/ipv4/tcp/legacy/Socket.h"
 #include "socket/tcp/SocketServer.h"
 
 namespace net::socket::tcp::legacy {
 
-    class SocketServer : public socket::tcp::SocketServer<legacy::SocketListener> {
+    template <typename SocketT>
+    class SocketServer : public socket::tcp::SocketServer<legacy::SocketListener<SocketT>> {
     public:
-        using socket::tcp::SocketServer<legacy::SocketListener>::SocketServer;
+        using Socket = SocketT;
+        using SocketConnection = net::socket::tcp::legacy::SocketConnection<Socket>;
+
+        using socket::tcp::SocketServer<legacy::SocketListener<Socket>>::SocketServer;
     };
 
 }; // namespace net::socket::tcp::legacy

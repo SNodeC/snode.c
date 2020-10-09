@@ -33,11 +33,16 @@
 
 namespace net::socket::tcp::tls {
 
-    class SocketWriter : public socket::tcp::SocketWriter<net::socket::ipv4::tcp::tls::Socket> {
+    template <typename SocketT>
+    class SocketWriter : public socket::tcp::SocketWriter<SocketT> {
     protected:
-        using socket::tcp::SocketWriter<net::socket::ipv4::tcp::tls::Socket>::SocketWriter;
+        using Socket = SocketT;
 
-        ssize_t write(const char* junk, size_t junkLen) override;
+        using socket::tcp::SocketWriter<Socket>::SocketWriter;
+
+        ssize_t write(const char* junk, size_t junkLen) override {
+            return ::SSL_write(Socket::ssl, junk, junkLen);
+        }
     };
 
 }; // namespace net::socket::tcp::tls

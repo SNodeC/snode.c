@@ -36,8 +36,10 @@ add_library(net SHARED
     socket/ipv4/tcp/Socket.cpp
     socket/ipv4/tcp/Socket.h
     socket/ipv4/tcp/legacy/Socket.h
+    socket/ipv4/tcp/legacy/SocketServer.h
     socket/ipv4/tcp/tls/Socket.cpp
     socket/ipv4/tcp/tls/Socket.h
+    socket/ipv4/tcp/tls/SocketServer.h
     socket/Socket.h
     socket/SocketAddress.h
     socket/tcp/SocketClient.h
@@ -50,21 +52,15 @@ add_library(net SHARED
     socket/tcp/legacy/SocketClient.h
     socket/tcp/legacy/SocketConnection.h
     socket/tcp/legacy/SocketListener.h
-    socket/tcp/legacy/SocketReader.cpp
     socket/tcp/legacy/SocketReader.h
-    socket/tcp/legacy/SocketWriter.cpp
     socket/tcp/legacy/SocketWriter.h
     socket/tcp/legacy/SocketServer.h
     socket/tcp/tls/ssl_utils.cpp
     socket/tcp/tls/ssl_utils.h
-    socket/tcp/tls/SocketClient.cpp
     socket/tcp/tls/SocketClient.h
     socket/tcp/tls/SocketConnection.h
-    socket/tcp/tls/SocketListener.cpp
     socket/tcp/tls/SocketListener.h
-    socket/tcp/tls/SocketReader.cpp
     socket/tcp/tls/SocketReader.h
-    socket/tcp/tls/SocketWriter.cpp
     socket/tcp/tls/SocketWriter.h
     socket/tcp/tls/SocketServer.h
     timer/IntervalTimer.h

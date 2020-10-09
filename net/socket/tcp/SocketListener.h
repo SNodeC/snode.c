@@ -183,8 +183,8 @@ namespace net::socket::tcp {
         static void* lastAllocAddress;
     };
 
-    template <typename SocketConnection>
-    void* SocketListener<SocketConnection>::lastAllocAddress = nullptr;
+    template <typename SocketConnectionT>
+    void* SocketListener<SocketConnectionT>::lastAllocAddress = nullptr;
 
 } // namespace net::socket::tcp
 

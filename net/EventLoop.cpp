@@ -24,6 +24,7 @@
 #include <csignal>   // for signal, SIGABRT, SIGHUP, SIGINT, SIGPIPE
 #include <cstdlib>   // for exit
 #include <ctime>     // for time, time_t
+#include <string>    // for string, to_string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

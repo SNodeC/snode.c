@@ -31,11 +31,16 @@
 
 namespace net::socket::tcp::legacy {
 
-    class SocketReader : public socket::tcp::SocketReader<socket::ipv4::tcp::legacy::Socket> {
+    template <typename SocketT>
+    class SocketReader : public socket::tcp::SocketReader<SocketT> {
     protected:
-        using socket::tcp::SocketReader<socket::ipv4::tcp::legacy::Socket>::SocketReader;
+        using Socket = SocketT;
 
-        ssize_t read(char* junk, size_t junkLen) override;
+        using socket::tcp::SocketReader<Socket>::SocketReader;
+
+        ssize_t read(char* junk, size_t junkLen) override {
+            return ::recv(Socket::getFd(), junk, junkLen, 0);
+        }
     };
 
 }; // namespace net::socket::tcp::legacy
