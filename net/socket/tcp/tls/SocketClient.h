@@ -50,7 +50,8 @@ namespace net::socket::tcp::tls {
         // NOLINTNEXTLINE(google-default-arguments)
         void connect(const std::map<std::string, std::any>& options,
                      const std::function<void(int err)>& onError,
-                     const socket::InetAddress& localAddress = socket::InetAddress()) override;
+                     const typename SocketConnection::Socket::SocketAddress& localAddress =
+                         typename SocketConnection::Socket::SocketAddress()) override;
 
     private:
         SSL_CTX* ctx = nullptr;

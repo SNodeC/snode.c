@@ -170,7 +170,9 @@ namespace net::socket::tcp::tls {
         }
     }
 
-    void SocketListener::listen(const InetAddress& localAddress, int backlog, const std::function<void(int err)>& onError) {
+    void SocketListener::listen(const typename SocketConnection::Socket::SocketAddress& localAddress,
+                                int backlog,
+                                const std::function<void(int err)>& onError) {
         if (sslErr != 0) {
             onError(-sslErr);
         } else {

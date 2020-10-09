@@ -27,11 +27,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/tcp/Socket.h"
+#include "socket/ipv4/Socket.h"
 
 namespace net::socket::tcp::tls {
 
-    class Socket : public socket::tcp::Socket {
+    class Socket : public socket::ipv4::Socket {
     public:
         void setSSL_CTX(SSL_CTX* ctx);
         void clearSSL_CTX();

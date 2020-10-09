@@ -29,9 +29,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Descriptor.h"
 #include "Logger.h"
 #include "ReadEventReceiver.h"
-#include "Socket.h"
 #include "WriteEventReceiver.h"
 #include "timer/SingleshotTimer.h"
 
@@ -80,9 +80,10 @@ namespace net::socket::tcp {
 
     public:
         // NOLINTNEXTLINE(google-default-arguments)
-        virtual void connect(const std::map<std::string, std::any>& options,
-                             const std::function<void(int err)>& onError,
-                             const InetAddress& localAddress = InetAddress()) {
+        virtual void
+        connect(const std::map<std::string, std::any>& options,
+                const std::function<void(int err)>& onError,
+                const typename SocketConnection::Socket::SocketAddress& localAddress = typename SocketConnection::Socket::SocketAddress()) {
             std::string host = "";
             unsigned short port = 0;
 
@@ -108,14 +109,14 @@ namespace net::socket::tcp {
                                 onError(err);
                                 delete socketConnection;
                             } else {
-                                InetAddress server(host, port);
+                                typename SocketConnection::Socket::SocketAddress server(host, port);
 
                                 class Connector
                                     : public WriteEventReceiver
-                                    , public Socket {
+                                    , public Descriptor {
                                 public:
                                     Connector(SocketConnection* socketConnection,
-                                              const InetAddress& server,
+                                              const typename SocketConnection::Socket::SocketAddress& server,
                                               const std::function<void(SocketConnection* socketConnection)>& onConnect,
                                               const std::function<void(int err)>& onError)
                                         : socketConnection(socketConnection)
@@ -131,16 +132,15 @@ namespace net::socket::tcp {
                                               nullptr)) {
                                         open(socketConnection->getFd(), FLAGS::dontClose);
                                         errno = 0;
-                                        int ret = ::connect(socketConnection->getFd(),
-                                                            reinterpret_cast<const sockaddr*>(&server.getSockAddr()),
-                                                            sizeof(server.getSockAddr()));
+                                        int ret = ::connect(socketConnection->getFd(), &server.getSockAddr(), server.getSockAddrLen());
 
                                         if (ret == 0 || errno == EINPROGRESS) {
-                                            struct sockaddr_in localAddress {};
+                                            typename SocketConnection::Socket::SocketAddress::SockAddr localAddress{};
                                             socklen_t addressLength = sizeof(localAddress);
                                             getsockname(
                                                 socketConnection->getFd(), reinterpret_cast<sockaddr*>(&localAddress), &addressLength);
-                                            socketConnection->setLocalAddress(InetAddress(localAddress));
+                                            socketConnection->setLocalAddress(
+                                                typename SocketConnection::Socket::SocketAddress(localAddress));
                                             socketConnection->setRemoteAddress(server);
                                         }
 

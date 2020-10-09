@@ -181,7 +181,7 @@ namespace net::socket::tcp::tls {
 
     void SocketClient::connect(const std::map<std::string, std::any>& options,
                                const std::function<void(int err)>& onError,
-                               const socket::InetAddress& localAddress) {
+                               const typename SocketConnection::Socket::SocketAddress& localAddress) {
         this->onError = onError;
 
         if (sslErr != 0) {

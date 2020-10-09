@@ -77,7 +77,9 @@ namespace net::socket::tcp {
         virtual ~SocketServer() = default;
 
     public:
-        void listen(const InetAddress& localAddress, int backlog, const std::function<void(int err)>& onError) {
+        void listen(const typename SocketConnection::Socket::SocketAddress& localAddress,
+                    int backlog,
+                    const std::function<void(int err)>& onError) {
             SocketListener* socketListener =
                 new SocketListener(onConstruct, onDestruct, onConnect, onDisconnect, onRead, onReadError, onWriteError, options);
 
@@ -85,11 +87,11 @@ namespace net::socket::tcp {
         }
 
         void listen(unsigned short port, int backlog, const std::function<void(int err)>& onError) {
-            listen(InetAddress(port), backlog, onError);
+            listen(typename SocketConnection::Socket::SocketAddress(port), backlog, onError);
         }
 
         void listen(const std::string& ipOrHostname, uint16_t port, int backlog, const std::function<void(int err)>& onError) {
-            listen(InetAddress(ipOrHostname, port), backlog, onError);
+            listen(typename SocketConnection::Socket::SocketAddress(ipOrHostname, port), backlog, onError);
         }
 
     private:

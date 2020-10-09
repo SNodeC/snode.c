@@ -31,12 +31,12 @@ add_library(net SHARED
     file/File.h
     file/FileReader.cpp
     file/FileReader.h
-    socket/InetAddress.cpp
-    socket/InetAddress.h
-    socket/Socket.cpp
+    socket/ipv4/InetAddress.cpp
+    socket/ipv4/InetAddress.h
+    socket/ipv4/Socket.cpp
+    socket/ipv4/Socket.h
     socket/Socket.h
-    socket/tcp/Socket.cpp
-    socket/tcp/Socket.h
+    socket/SocketAddress.h
     socket/tcp/SocketClient.h
     socket/tcp/SocketConnection.h
     socket/tcp/SocketConnectionBase.h

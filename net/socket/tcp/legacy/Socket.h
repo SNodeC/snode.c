@@ -23,11 +23,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/tcp/Socket.h"
+#include "socket/ipv4/Socket.h"
 
 namespace net::socket::tcp::legacy {
 
-    class Socket : public socket::tcp::Socket {};
+    class Socket : public socket::ipv4::Socket {};
 
 }; // namespace net::socket::tcp::legacy
 

@@ -16,27 +16,36 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef SOCKETADDRESS_H
+#define SOCKETADDRESS_H
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cerrno>
-#include <netinet/in.h> // for sockaddr_in
 #include <sys/socket.h>
+#include <sys/types.h>
+// IWYU pragma: no_include <bits/exception.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Socket.h"
+namespace net::socket {
 
-namespace net::socket::tcp {
+    template <typename SockAddrT>
+    class SocketAddress {
+    public:
+        using SockAddr = SockAddrT;
 
-    void Socket::open(const std::function<void(int errnum)>& onError, int flags) {
-        int fd = ::socket(AF_INET, SOCK_STREAM | flags, 0);
-
-        if (fd >= 0) {
-            open(fd);
-            onError(0);
-        } else {
-            onError(errno);
+        const struct sockaddr& getSockAddr() const {
+            return reinterpret_cast<const struct sockaddr&>(addr);
         }
-    }
 
-} // namespace net::socket::tcp
+        socklen_t getSockAddrLen() const {
+            return sizeof(getSockAddr());
+        }
+
+    protected:
+        SockAddr addr{};
+    };
+
+} // namespace net::socket
+
+#endif // SOCKETADDRESS_H

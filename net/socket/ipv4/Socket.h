@@ -25,12 +25,12 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/InetAddress.h"
+#include "InetAddress.h"
 #include "socket/Socket.h"
 
-namespace net::socket::tcp {
+namespace net::socket::ipv4 {
 
-    class Socket : public net::socket::Socket {
+    class Socket : public net::socket::Socket<net::socket::ipv4::InetAddress> {
     public:
         Socket() = default;
 
@@ -41,6 +41,6 @@ namespace net::socket::tcp {
         void open(const std::function<void(int errnum)>& onError, int flags = 0) override;
     };
 
-} // namespace net::socket::tcp
+} // namespace net::socket::ipv4
 
 #endif // TCP_SOCKET_H

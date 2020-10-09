@@ -21,32 +21,55 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cerrno>
 #include <functional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Descriptor.h"
-#include "socket/InetAddress.h"
+#include "socket/SocketAddress.h"
 
 namespace net::socket {
 
+    template <typename SocketAddressT>
     class Socket : virtual public net::Descriptor {
     public:
+        using SocketAddress = SocketAddressT;
+
         Socket() = default;
 
         Socket(const Socket&) = delete;
         Socket& operator=(const Socket&) = delete;
 
-        ~Socket();
-
+        ~Socket() {
+            if (!dontClose()) {
+                ::shutdown(getFd(), SHUT_RDWR);
+            }
+        }
         virtual void open(const std::function<void(int errnum)>& onError, int flags = 0) = 0;
-        void bind(const InetAddress& localAddress, const std::function<void(int errnum)>& onError);
 
-        const InetAddress& getLocalAddress() const;
-        void setLocalAddress(const InetAddress& localAddress);
+        void bind(const SocketAddress& localAddress, const std::function<void(int errnum)>& onError) {
+            socklen_t addrlen = sizeof(typename SocketAddress::SockAddr);
+
+            int ret = ::bind(getFd(), &localAddress.getSockAddr(), addrlen);
+
+            if (ret < 0) {
+                onError(errno);
+            } else {
+                onError(0);
+            }
+        }
+
+        const SocketAddress& getLocalAddress() const {
+            return localAddress;
+        }
+
+        void setLocalAddress(const SocketAddress& localAddress) {
+            this->localAddress = localAddress;
+        }
 
     protected:
-        InetAddress localAddress{};
+        SocketAddress localAddress{};
     };
 
 } // namespace net::socket

@@ -31,7 +31,6 @@
 
 #include "ClientContext.h"
 #include "Logger.h"
-#include "socket/InetAddress.h"
 
 namespace http {
 
@@ -96,7 +95,7 @@ namespace http {
 
         void get(const std::map<std::string, std::any>& options,
                  const std::function<void(int err)>& onError,
-                 const net::socket::InetAddress& localHost = net::socket::InetAddress()) {
+                 const typename SocketConnection::Socket::SocketAddress& localHost = typename SocketConnection::Socket::SocketAddress()) {
             std::string path = "";
             std::string host = "";
 
@@ -116,7 +115,7 @@ namespace http {
 
         void post(const std::map<std::string, std::any>& options,
                   const std::function<void(int err)>& onError,
-                  const net::socket::InetAddress& localHost = net::socket::InetAddress()) {
+                  const typename SocketConnection::Socket::SocketAddress& localHost = typename SocketConnection::Socket::SocketAddress()) {
             std::string path = "";
             std::string host = "";
             std::string body = "";
@@ -142,9 +141,10 @@ namespace http {
         }
 
     protected:
-        void connect(const std::map<std::string, std::any>& options,
-                     const std::function<void(int err)>& onError,
-                     const net::socket::InetAddress& localHost = net::socket::InetAddress()) {
+        void
+        connect(const std::map<std::string, std::any>& options,
+                const std::function<void(int err)>& onError,
+                const typename SocketConnection::Socket::SocketAddress& localHost = typename SocketConnection::Socket::SocketAddress()) {
             errno = 0;
 
             socketClient.connect(options, onError, localHost);

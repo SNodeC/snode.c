@@ -43,7 +43,9 @@ namespace net::socket::tcp::tls {
 
         ~SocketListener() override;
 
-        void listen(const InetAddress& localAddress, int backlog, const std::function<void(int err)>& onError) override;
+        void listen(const typename SocketConnection::Socket::SocketAddress& localAddress,
+                    int backlog,
+                    const std::function<void(int err)>& onError) override;
 
     private:
         SSL_CTX* ctx = nullptr;

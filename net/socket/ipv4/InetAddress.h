@@ -29,7 +29,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket {
+#include "socket/SocketAddress.h"
+
+namespace net::socket::ipv4 {
 
     class bad_hostname : public std::exception {
     public:
@@ -45,7 +47,7 @@ namespace net::socket {
         static std::string message;
     };
 
-    class InetAddress {
+    class InetAddress : public SocketAddress<struct sockaddr_in> {
     public:
         InetAddress();
         InetAddress(const InetAddress& ina);
@@ -63,12 +65,9 @@ namespace net::socket {
 
         InetAddress& operator=(const InetAddress& ina);
 
-        const struct sockaddr_in& getSockAddr() const;
-
-    private:
-        struct sockaddr_in addr {};
+        const struct sockaddr_in& getSockAddrIn() const;
     };
 
-} // namespace net::socket
+} // namespace net::socket::ipv4
 
 #endif // INETADDRESS_H
