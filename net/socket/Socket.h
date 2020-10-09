@@ -16,27 +16,39 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef SOCKET_H
+#define SOCKET_H
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cerrno>
-#include <netinet/in.h> // for sockaddr_in
-#include <sys/socket.h>
+#include <functional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Socket.h"
+#include "Descriptor.h"
+#include "socket/InetAddress.h"
 
-namespace net::socket::tcp {
+namespace net::socket {
 
-    void Socket::open(const std::function<void(int errnum)>& onError, int flags) {
-        int fd = ::socket(AF_INET, SOCK_STREAM | flags, 0);
+    class Socket : virtual public net::Descriptor {
+    public:
+        Socket() = default;
 
-        if (fd >= 0) {
-            open(fd);
-            onError(0);
-        } else {
-            onError(errno);
-        }
-    }
+        Socket(const Socket&) = delete;
+        Socket& operator=(const Socket&) = delete;
 
-} // namespace net::socket::tcp
+        ~Socket();
+
+        virtual void open(const std::function<void(int errnum)>& onError, int flags = 0) = 0;
+        void bind(const InetAddress& localAddress, const std::function<void(int errnum)>& onError);
+
+        const InetAddress& getLocalAddress() const;
+        void setLocalAddress(const InetAddress& localAddress);
+
+    protected:
+        InetAddress localAddress{};
+    };
+
+} // namespace net::socket
+
+#endif // SOCKET_H

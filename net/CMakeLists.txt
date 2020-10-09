@@ -33,6 +33,8 @@ add_library(net SHARED
     file/FileReader.h
     socket/InetAddress.cpp
     socket/InetAddress.h
+    socket/Socket.cpp
+    socket/Socket.h
     socket/tcp/Socket.cpp
     socket/tcp/Socket.h
     socket/tcp/SocketClient.h

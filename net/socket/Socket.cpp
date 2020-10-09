@@ -26,17 +26,32 @@
 
 #include "Socket.h"
 
-namespace net::socket::tcp {
+namespace net::socket {
 
-    void Socket::open(const std::function<void(int errnum)>& onError, int flags) {
-        int fd = ::socket(AF_INET, SOCK_STREAM | flags, 0);
-
-        if (fd >= 0) {
-            open(fd);
-            onError(0);
-        } else {
-            onError(errno);
+    Socket::~Socket() {
+        if (!dontClose()) {
+            ::shutdown(getFd(), SHUT_RDWR);
         }
     }
 
-} // namespace net::socket::tcp
+    void Socket::bind(const InetAddress& localAddress, const std::function<void(int errnum)>& onError) {
+        socklen_t addrlen = sizeof(struct sockaddr_in);
+
+        int ret = ::bind(getFd(), reinterpret_cast<const struct sockaddr*>(&localAddress.getSockAddr()), addrlen);
+
+        if (ret < 0) {
+            onError(errno);
+        } else {
+            onError(0);
+        }
+    }
+
+    void Socket::setLocalAddress(const InetAddress& localAddress) {
+        this->localAddress = localAddress;
+    }
+
+    const InetAddress& Socket::getLocalAddress() const {
+        return localAddress;
+    }
+
+} // namespace net::socket
