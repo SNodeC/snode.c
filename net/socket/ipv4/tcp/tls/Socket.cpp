@@ -24,9 +24,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/tcp/tls/Socket.h"
+#include "Socket.h"
 
-namespace net::socket::tcp::tls {
+namespace net::socket::ipv4::tcp::tls {
 
     void Socket::setSSL_CTX(SSL_CTX* ctx) {
         if (ctx != nullptr) {

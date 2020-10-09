@@ -33,8 +33,11 @@ add_library(net SHARED
     file/FileReader.h
     socket/ipv4/InetAddress.cpp
     socket/ipv4/InetAddress.h
-    socket/ipv4/Socket.cpp
-    socket/ipv4/Socket.h
+    socket/ipv4/tcp/Socket.cpp
+    socket/ipv4/tcp/Socket.h
+    socket/ipv4/tcp/legacy/Socket.h
+    socket/ipv4/tcp/tls/Socket.cpp
+    socket/ipv4/tcp/tls/Socket.h
     socket/Socket.h
     socket/SocketAddress.h
     socket/tcp/SocketClient.h
@@ -44,7 +47,6 @@ add_library(net SHARED
     socket/tcp/SocketReader.h
     socket/tcp/SocketWriter.h
     socket/tcp/SocketServer.h
-    socket/tcp/legacy/Socket.h
     socket/tcp/legacy/SocketClient.h
     socket/tcp/legacy/SocketConnection.h
     socket/tcp/legacy/SocketListener.h
@@ -55,8 +57,6 @@ add_library(net SHARED
     socket/tcp/legacy/SocketServer.h
     socket/tcp/tls/ssl_utils.cpp
     socket/tcp/tls/ssl_utils.h
-    socket/tcp/tls/Socket.cpp
-    socket/tcp/tls/Socket.h
     socket/tcp/tls/SocketClient.cpp
     socket/tcp/tls/SocketClient.h
     socket/tcp/tls/SocketConnection.h

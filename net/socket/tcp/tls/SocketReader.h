@@ -26,16 +26,16 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "socket/ipv4/tcp/tls/Socket.h" // IWYU pragma: keep
 #include "socket/tcp/SocketReader.h"
-#include "socket/tcp/tls/Socket.h" // IWYU pragma: keep
 
 // IWYU pragma: no_forward_declare tls::Socket
 
 namespace net::socket::tcp::tls {
 
-    class SocketReader : public socket::tcp::SocketReader<tls::Socket> {
+    class SocketReader : public socket::tcp::SocketReader<net::socket::ipv4::tcp::tls::Socket> {
     protected:
-        using socket::tcp::SocketReader<tls::Socket>::SocketReader;
+        using socket::tcp::SocketReader<net::socket::ipv4::tcp::tls::Socket>::SocketReader;
 
         ssize_t read(char* junk, size_t junkLen) override;
     };

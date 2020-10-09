@@ -26,14 +26,14 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "socket/ipv4/tcp/legacy/Socket.h" // IWYU pragma: keep
 #include "socket/tcp/SocketReader.h"
-#include "socket/tcp/legacy/Socket.h" // IWYU pragma: keep
 
 namespace net::socket::tcp::legacy {
 
-    class SocketReader : public socket::tcp::SocketReader<legacy::Socket> {
+    class SocketReader : public socket::tcp::SocketReader<socket::ipv4::tcp::legacy::Socket> {
     protected:
-        using socket::tcp::SocketReader<legacy::Socket>::SocketReader;
+        using socket::tcp::SocketReader<socket::ipv4::tcp::legacy::Socket>::SocketReader;
 
         ssize_t read(char* junk, size_t junkLen) override;
     };

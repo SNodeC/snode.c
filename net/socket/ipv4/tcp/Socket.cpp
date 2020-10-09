@@ -16,36 +16,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TLS_SOCKET_H
-#define TLS_SOCKET_H
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <openssl/ssl.h> // IWYU pragma: keep // for SSL, SSL_CTX
-
-// IWYU pragma: no_include <openssl/ossl_typ.h>
+#include <cerrno>
+#include <netinet/in.h> // for sockaddr_in
+#include <sys/socket.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/ipv4/Socket.h"
+#include "Socket.h"
 
-namespace net::socket::tcp::tls {
+namespace net::socket::ipv4::tcp {
 
-    class Socket : public socket::ipv4::Socket {
-    public:
-        void setSSL_CTX(SSL_CTX* ctx);
-        void clearSSL_CTX();
+    void Socket::open(const std::function<void(int errnum)>& onError, int flags) {
+        int fd = ::socket(AF_INET, SOCK_STREAM | flags, 0);
 
-        SSL* startSSL();
-        void stopSSL();
+        if (fd >= 0) {
+            open(fd);
+            onError(0);
+        } else {
+            onError(errno);
+        }
+    }
 
-        SSL* getSSL() const;
-
-    protected:
-        SSL* ssl = nullptr;
-        SSL_CTX* ctx = nullptr;
-    };
-
-}; // namespace net::socket::tcp::tls
-
-#endif // TLS_SOCKET_H
+} // namespace net::socket::ipv4

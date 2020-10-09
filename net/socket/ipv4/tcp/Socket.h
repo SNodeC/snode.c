@@ -16,19 +16,31 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LEGACY_SOCKET_H
-#define LEGACY_SOCKET_H
+#ifndef TCP_SOCKET_H
+#define TCP_SOCKET_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <functional>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/ipv4/Socket.h"
+#include "../InetAddress.h"
+#include "socket/Socket.h"
 
-namespace net::socket::tcp::legacy {
+namespace net::socket::ipv4::tcp {
 
-    class Socket : public socket::ipv4::Socket {};
+    class Socket : public net::socket::Socket<net::socket::ipv4::InetAddress> {
+    public:
+        Socket() = default;
 
-}; // namespace net::socket::tcp::legacy
+        Socket(const Socket&) = delete;
+        Socket& operator=(const Socket&) = delete;
 
-#endif // LEGACY_SOCKET_H
+        using net::Descriptor::open;
+        void open(const std::function<void(int errnum)>& onError, int flags = 0) override;
+    };
+
+} // namespace net::socket::ipv4::tcp
+
+#endif // TCP_SOCKET_H

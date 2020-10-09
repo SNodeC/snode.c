@@ -26,16 +26,16 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "socket/ipv4/tcp/tls/Socket.h" // IWYU pragma: keep
 #include "socket/tcp/SocketWriter.h"
-#include "socket/tcp/tls/Socket.h" // IWYU pragma: keep
 
 // IWYU pragma: no_forward_declare tls::Socket
 
 namespace net::socket::tcp::tls {
 
-    class SocketWriter : public socket::tcp::SocketWriter<tls::Socket> {
+    class SocketWriter : public socket::tcp::SocketWriter<net::socket::ipv4::tcp::tls::Socket> {
     protected:
-        using socket::tcp::SocketWriter<tls::Socket>::SocketWriter;
+        using socket::tcp::SocketWriter<net::socket::ipv4::tcp::tls::Socket>::SocketWriter;
 
         ssize_t write(const char* junk, size_t junkLen) override;
     };

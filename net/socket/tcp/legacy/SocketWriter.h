@@ -26,14 +26,14 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "socket/ipv4/tcp/legacy/Socket.h" // IWYU pragma: keep
 #include "socket/tcp/SocketWriter.h"
-#include "socket/tcp/legacy/Socket.h" // IWYU pragma: keep
 
 namespace net::socket::tcp::legacy {
 
-    class SocketWriter : public socket::tcp::SocketWriter<legacy::Socket> {
+    class SocketWriter : public socket::tcp::SocketWriter<socket::ipv4::tcp::legacy::Socket> {
     protected:
-        using socket::tcp::SocketWriter<legacy::Socket>::SocketWriter;
+        using socket::tcp::SocketWriter<socket::ipv4::tcp::legacy::Socket>::SocketWriter;
 
         ssize_t write(const char* junk, size_t junkLen) override;
     };
