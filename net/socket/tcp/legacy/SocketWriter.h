@@ -21,21 +21,26 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>     // for size_t
+#include <cstddef> // for size_t
+#include <sys/socket.h>
 #include <sys/types.h> // for ssize_t
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "socket/tcp/SocketWriter.h"
-#include "socket/tcp/legacy/Socket.h" // IWYU pragma: keep
 
 namespace net::socket::tcp::legacy {
 
-    class SocketWriter : public socket::tcp::SocketWriter<legacy::Socket> {
+    template <typename SocketT>
+    class SocketWriter : public socket::tcp::SocketWriter<SocketT> {
     protected:
-        using socket::tcp::SocketWriter<legacy::Socket>::SocketWriter;
+        using Socket = SocketT;
 
-        ssize_t write(const char* junk, size_t junkLen) override;
+        using socket::tcp::SocketWriter<Socket>::SocketWriter;
+
+        ssize_t write(const char* junk, size_t junkLen) override {
+            return ::send(Socket::getFd(), junk, junkLen, MSG_NOSIGNAL);
+        }
     };
 
 }; // namespace net::socket::tcp::legacy

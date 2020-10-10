@@ -16,28 +16,36 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LEGACY_SERVER_H
-#define LEGACY_SERVER_H
+#ifndef NET_SOCKET_IPV4_TCP_TLS_SOCKET_H
+#define NET_SOCKET_IPV4_TCP_TLS_SOCKET_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <openssl/ssl.h> // IWYU pragma: keep // for SSL, SSL_CTX
+
+// IWYU pragma: no_include <openssl/ossl_typ.h>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "../Server.h"
-#include "socket/ipv4/tcp/legacy/SocketServer.h"
+#include "socket/ipv4/tcp/Socket.h"
 
-namespace http::legacy {
+namespace net::socket::ipv4::tcp::tls {
 
-    class Server : public http::Server<net::socket::ipv4::tcp::legacy::SocketServer> {
+    class Socket : public socket::ipv4::tcp::Socket {
     public:
-        using SocketServer = net::socket::ipv4::tcp::legacy::SocketServer;
-        using SocketListener = typename SocketServer::SocketListener;
-        using SocketConnection = typename SocketListener::SocketConnection;
-        using Socket = typename SocketServer::Socket;
+        void setSSL_CTX(SSL_CTX* ctx);
+        void clearSSL_CTX();
 
-        using http::Server<net::socket::ipv4::tcp::legacy::SocketServer>::Server;
+        SSL* startSSL();
+        void stopSSL();
+
+        SSL* getSSL() const;
+
+    protected:
+        SSL* ssl = nullptr;
+        SSL_CTX* ctx = nullptr;
     };
 
-} // namespace http::legacy
+}; // namespace net::socket::ipv4::tcp::tls
 
-#endif // LEGACY_SERVER_H
+#endif // NET_SOCKET_IPV4_TCP_TLS_SOCKET_H

@@ -16,36 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TLS_SOCKET_H
-#define TLS_SOCKET_H
+#ifndef NET_SOCKET_IPV4_TCP_LEGACY_SOCKETCLIENT_H
+#define NET_SOCKET_IPV4_TCP_LEGACY_SOCKETCLIENT_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <openssl/ssl.h> // IWYU pragma: keep // for SSL, SSL_CTX
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-// IWYU pragma: no_include <openssl/ossl_typ.h>
+#include "Socket.h"
+#include "socket/tcp/legacy/SocketClient.h"
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+namespace net::socket::ipv4::tcp::legacy {
 
-#include "socket/tcp/Socket.h"
+    using SocketClient = net::socket::tcp::legacy::SocketClient<net::socket::ipv4::tcp::legacy::Socket>;
 
-namespace net::socket::tcp::tls {
+} // namespace net::socket::ipv4::tcp::legacy
 
-    class Socket : public socket::tcp::Socket {
-    public:
-        void setSSL_CTX(SSL_CTX* ctx);
-        void clearSSL_CTX();
-
-        SSL* startSSL();
-        void stopSSL();
-
-        SSL* getSSL() const;
-
-    protected:
-        SSL* ssl = nullptr;
-        SSL_CTX* ctx = nullptr;
-    };
-
-}; // namespace net::socket::tcp::tls
-
-#endif // TLS_SOCKET_H
+#endif // NET_SOCKET_IPV4_TCP_LEGACY_SOCKETCLIENT_H

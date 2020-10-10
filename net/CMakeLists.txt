@@ -31,10 +31,19 @@ add_library(net SHARED
     file/File.h
     file/FileReader.cpp
     file/FileReader.h
-    socket/InetAddress.cpp
-    socket/InetAddress.h
-    socket/tcp/Socket.cpp
-    socket/tcp/Socket.h
+    socket/ipv4/InetAddress.cpp
+    socket/ipv4/InetAddress.h
+    socket/ipv4/tcp/Socket.cpp
+    socket/ipv4/tcp/Socket.h
+    socket/ipv4/tcp/legacy/Socket.h
+    socket/ipv4/tcp/legacy/SocketClient.h
+    socket/ipv4/tcp/legacy/SocketServer.h
+    socket/ipv4/tcp/tls/Socket.cpp
+    socket/ipv4/tcp/tls/Socket.h
+    socket/ipv4/tcp/tls/SocketClient.h
+    socket/ipv4/tcp/tls/SocketServer.h
+    socket/Socket.h
+    socket/SocketAddress.h
     socket/tcp/SocketClient.h
     socket/tcp/SocketConnection.h
     socket/tcp/SocketConnectionBase.h
@@ -42,27 +51,18 @@ add_library(net SHARED
     socket/tcp/SocketReader.h
     socket/tcp/SocketWriter.h
     socket/tcp/SocketServer.h
-    socket/tcp/legacy/Socket.h
     socket/tcp/legacy/SocketClient.h
     socket/tcp/legacy/SocketConnection.h
     socket/tcp/legacy/SocketListener.h
-    socket/tcp/legacy/SocketReader.cpp
     socket/tcp/legacy/SocketReader.h
-    socket/tcp/legacy/SocketWriter.cpp
     socket/tcp/legacy/SocketWriter.h
     socket/tcp/legacy/SocketServer.h
     socket/tcp/tls/ssl_utils.cpp
     socket/tcp/tls/ssl_utils.h
-    socket/tcp/tls/Socket.cpp
-    socket/tcp/tls/Socket.h
-    socket/tcp/tls/SocketClient.cpp
     socket/tcp/tls/SocketClient.h
     socket/tcp/tls/SocketConnection.h
-    socket/tcp/tls/SocketListener.cpp
     socket/tcp/tls/SocketListener.h
-    socket/tcp/tls/SocketReader.cpp
     socket/tcp/tls/SocketReader.h
-    socket/tcp/tls/SocketWriter.cpp
     socket/tcp/tls/SocketWriter.h
     socket/tcp/tls/SocketServer.h
     timer/IntervalTimer.h

@@ -24,6 +24,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "WebAppT.h"
+#include "socket/ipv4/tcp/tls/Socket.h"
 #include "tls/Server.h"
 
 namespace express::tls {

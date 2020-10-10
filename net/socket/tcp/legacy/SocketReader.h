@@ -21,21 +21,26 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>     // for size_t
+#include <cstddef> // for size_t
+#include <sys/socket.h>
 #include <sys/types.h> // for ssize_t
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "socket/tcp/SocketReader.h"
-#include "socket/tcp/legacy/Socket.h" // IWYU pragma: keep
 
 namespace net::socket::tcp::legacy {
 
-    class SocketReader : public socket::tcp::SocketReader<legacy::Socket> {
+    template <typename SocketT>
+    class SocketReader : public socket::tcp::SocketReader<SocketT> {
     protected:
-        using socket::tcp::SocketReader<legacy::Socket>::SocketReader;
+        using Socket = SocketT;
 
-        ssize_t read(char* junk, size_t junkLen) override;
+        using socket::tcp::SocketReader<Socket>::SocketReader;
+
+        ssize_t read(char* junk, size_t junkLen) override {
+            return ::recv(Socket::getFd(), junk, junkLen, 0);
+        }
     };
 
 }; // namespace net::socket::tcp::legacy

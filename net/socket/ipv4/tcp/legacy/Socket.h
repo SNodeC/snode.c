@@ -16,19 +16,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LEGACY_SOCKET_H
-#define LEGACY_SOCKET_H
+#ifndef NET_SOCKET_IPV4_TCP_LEGACY_SOCKET_H
+#define NET_SOCKET_IPV4_TCP_LEGACY_SOCKET_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/tcp/Socket.h"
+#include "socket/ipv4/tcp/Socket.h"
 
-namespace net::socket::tcp::legacy {
+namespace net::socket::ipv4::tcp::legacy {
 
-    class Socket : public socket::tcp::Socket {};
+    class Socket : public socket::ipv4::tcp::Socket {};
 
-}; // namespace net::socket::tcp::legacy
+}; // namespace net::socket::ipv4::tcp::legacy
 
-#endif // LEGACY_SOCKET_H
+#endif // NET_SOCKET_IPV4_TCP_LEGACY_SOCKET_H

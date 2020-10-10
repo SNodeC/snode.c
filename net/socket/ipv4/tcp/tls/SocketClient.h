@@ -16,18 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef NET_SOCKET_IPV4_TCP_TLS_SOCKETCLIENT_H
+#define NET_SOCKET_IPV4_TCP_TLS_SOCKETCLIENT_H
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <sys/socket.h> // for send, MSG_DONTWAIT, MSG_NOSIGNAL
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#include "Socket.h"
+#include "socket/tcp/tls/SocketClient.h"
 
-#include "socket/tcp/legacy/SocketWriter.h"
+namespace net::socket::ipv4::tcp::tls {
 
-namespace net::socket::tcp::legacy {
+    using SocketClient = net::socket::tcp::tls::SocketClient<net::socket::ipv4::tcp::tls::Socket>;
 
-    ssize_t SocketWriter::write(const char* junk, size_t junkLen) {
-        return ::send(getFd(), junk, junkLen, MSG_NOSIGNAL);
-    }
+}
 
-}; // namespace net::socket::tcp::legacy
+#endif // NET_SOCKET_IPV4_TCP_TLS_SOCKETCLIENT_H

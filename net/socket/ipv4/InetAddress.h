@@ -21,15 +21,17 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint>   // for uint16_t
-#include <exception> // IWYU pragma: keep
-#include <netinet/in.h>
+#include <cstdint>      // for uint16_t
+#include <exception>    // IWYU pragma: keep
+#include <netinet/in.h> // IWYU pragma: keep
 #include <string>
 // IWYU pragma: no_include <bits/exception.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket {
+#include "socket/SocketAddress.h"
+
+namespace net::socket::ipv4 {
 
     class bad_hostname : public std::exception {
     public:
@@ -45,16 +47,16 @@ namespace net::socket {
         static std::string message;
     };
 
-    class InetAddress {
+    class InetAddress : public SocketAddress<struct sockaddr_in> {
     public:
         InetAddress();
         InetAddress(const InetAddress& ina);
         explicit InetAddress(const std::string& ipOrHostname);
         explicit InetAddress(const std::string& ipOrHostname, uint16_t port);
-        explicit InetAddress(unsigned short port);
+        explicit InetAddress(uint16_t port);
         explicit InetAddress(const struct sockaddr_in& addr);
 
-        unsigned short port() const;
+        uint16_t port() const;
         std::string host() const;
         std::string ip() const;
         std::string serv() const;
@@ -63,12 +65,9 @@ namespace net::socket {
 
         InetAddress& operator=(const InetAddress& ina);
 
-        const struct sockaddr_in& getSockAddr() const;
-
-    private:
-        struct sockaddr_in addr {};
+        const struct sockaddr_in& getSockAddrIn() const;
     };
 
-} // namespace net::socket
+} // namespace net::socket::ipv4
 
 #endif // INETADDRESS_H

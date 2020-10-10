@@ -19,20 +19,13 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cerrno>
-#include <netinet/in.h> // for sockaddr_in
 #include <sys/socket.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Socket.h"
 
-namespace net::socket::tcp {
-
-    Socket::~Socket() {
-        if (!dontClose()) {
-            ::shutdown(getFd(), SHUT_RDWR);
-        }
-    }
+namespace net::socket::ipv4::tcp {
 
     void Socket::open(const std::function<void(int errnum)>& onError, int flags) {
         int fd = ::socket(AF_INET, SOCK_STREAM | flags, 0);
@@ -45,24 +38,4 @@ namespace net::socket::tcp {
         }
     }
 
-    const InetAddress& Socket::getLocalAddress() const {
-        return localAddress;
-    }
-
-    void Socket::bind(const InetAddress& localAddress, const std::function<void(int errnum)>& onError) {
-        socklen_t addrlen = sizeof(struct sockaddr_in);
-
-        int ret = ::bind(getFd(), reinterpret_cast<const struct sockaddr*>(&localAddress.getSockAddr()), addrlen);
-
-        if (ret < 0) {
-            onError(errno);
-        } else {
-            onError(0);
-        }
-    }
-
-    void Socket::setLocalAddress(const InetAddress& localAddress) {
-        this->localAddress = localAddress;
-    }
-
-} // namespace net::socket::tcp
+} // namespace net::socket::ipv4::tcp

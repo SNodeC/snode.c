@@ -29,7 +29,8 @@
 
 namespace net::socket::tcp::legacy {
 
-    using SocketConnection = socket::tcp::SocketConnection<legacy::SocketReader, legacy::SocketWriter>;
+    template <typename SocketT>
+    using SocketConnection = socket::tcp::SocketConnection<legacy::SocketReader<SocketT>, legacy::SocketWriter<SocketT>>;
 
 } // namespace net::socket::tcp::legacy
 

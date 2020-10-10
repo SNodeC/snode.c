@@ -28,11 +28,14 @@
 
 namespace net::socket::tcp::legacy {
 
-    class SocketListener : public net::socket::tcp::SocketListener<net::socket::tcp::legacy::SocketConnection> {
+    template <typename SocketT>
+    class SocketListener : public net::socket::tcp::SocketListener<net::socket::tcp::legacy::SocketConnection<SocketT>> {
     public:
-        using SocketConnection = net::socket::tcp::legacy::SocketConnection;
+        using Socket = SocketT;
+        using SocketConnection =
+            typename net::socket::tcp::SocketListener<net::socket::tcp::legacy::SocketConnection<Socket>>::SocketConnection;
 
-        using net::socket::tcp::SocketListener<net::socket::tcp::legacy::SocketConnection>::SocketListener;
+        using net::socket::tcp::SocketListener<net::socket::tcp::legacy::SocketConnection<Socket>>::SocketListener;
     };
 
 } // namespace net::socket::tcp::legacy

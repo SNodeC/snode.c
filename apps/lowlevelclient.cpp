@@ -23,6 +23,8 @@
 #include "ResponseParser.h"
 #include "ServerResponse.h"
 #include "config.h" // just for this example app
+#include "socket/ipv4/tcp/legacy/Socket.h"
+#include "socket/ipv4/tcp/tls/Socket.h"
 #include "socket/tcp/legacy/SocketClient.h"
 #include "socket/tcp/tls/SocketClient.h"
 
@@ -71,14 +73,15 @@ static http::ResponseParser* getResponseParser() {
     return responseParser;
 }
 
-tls::SocketClient getTlsClient() {
-    tls::SocketClient tlsClient(
-        [](tls::SocketConnection* socketConnection) -> void { // onConstruct
+tls::SocketClient<net::socket::ipv4::tcp::tls::Socket> getTlsClient() {
+    tls::SocketClient<net::socket::ipv4::tcp::tls::Socket> tlsClient(
+        [](tls::SocketClient<net::socket::ipv4::tcp::tls::Socket>::SocketConnection* socketConnection) -> void { // onConstruct
             socketConnection->setContext<http::ResponseParser*>(getResponseParser());
         },
-        []([[maybe_unused]] tls::SocketConnection* socketConnection) -> void { // onDestruct
+        []([[maybe_unused]] tls::SocketClient<net::socket::ipv4::tcp::tls::Socket>::SocketConnection* socketConnection)
+            -> void { // onDestruct
         },
-        [](tls::SocketConnection* socketConnection) -> void { // onConnect
+        [](tls::SocketClient<net::socket::ipv4::tcp::tls::Socket>::SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnect";
             socketConnection->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); // Connection:keep-alive\r\n\r\n");
 
@@ -132,7 +135,7 @@ tls::SocketClient getTlsClient() {
                 VLOG(0) << "\tServer certificate: no certificate";
             }
         },
-        [](tls::SocketConnection* socketConnection) -> void { // onDisconnect
+        [](tls::SocketClient<net::socket::ipv4::tcp::tls::Socket>::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
@@ -143,16 +146,22 @@ tls::SocketClient getTlsClient() {
                 delete responseParser;
             });
         },
-        [](tls::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
+        [](tls::SocketClient<net::socket::ipv4::tcp::tls::Socket>::SocketConnection* socketConnection,
+           const char* junk,
+           ssize_t junkSize) -> void { // onRead
             VLOG(0) << "OnRead";
+
             socketConnection->getContext<http::ResponseParser*>([junk, junkSize](http::ResponseParser*& responseParser) -> void {
                 responseParser->parse(junk, junkSize);
             });
+
         },
-        []([[maybe_unused]] tls::SocketConnection* socketConnection, int errnum) -> void { // onReadError
+        []([[maybe_unused]] tls::SocketConnection<net::socket::ipv4::tcp::tls::Socket>* socketConnection,
+           int errnum) -> void { // onReadError
             VLOG(0) << "OnReadError: " + std::to_string(errnum);
         },
-        []([[maybe_unused]] tls::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
+        []([[maybe_unused]] tls::SocketConnection<net::socket::ipv4::tcp::tls::Socket>* socketConnection,
+           int errnum) -> void { // onWriteError
             VLOG(0) << "OnWriteError: " + std::to_string(errnum);
         },
         {{"certChain", CLIENTCERTF}, {"keyPEM", CLIENTKEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}});
@@ -168,14 +177,15 @@ tls::SocketClient getTlsClient() {
     return tlsClient;
 }
 
-legacy::SocketClient getLegacyClient() {
-    legacy::SocketClient legacyClient(
-        [](legacy::SocketConnection* socketConnection) -> void {
+legacy::SocketClient<net::socket::ipv4::tcp::legacy::Socket> getLegacyClient() {
+    legacy::SocketClient<net::socket::ipv4::tcp::legacy::Socket> legacyClient(
+        [](legacy::SocketClient<net::socket::ipv4::tcp::legacy::Socket>::SocketConnection* socketConnection) -> void {
             socketConnection->setContext<http::ResponseParser*>(getResponseParser());
         },
-        []([[maybe_unused]] legacy::SocketConnection* socketConnection) -> void { // onDestruct
+        []([[maybe_unused]] legacy::SocketClient<net::socket::ipv4::tcp::legacy::Socket>::SocketConnection* socketConnection)
+            -> void { // onDestruct
         },
-        [](legacy::SocketConnection* socketConnection) -> void { // onConnect
+        [](legacy::SocketClient<net::socket::ipv4::tcp::legacy::Socket>::SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnect";
             socketConnection->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); // Connection:keep-alive\r\n\r\n");
 
@@ -184,26 +194,32 @@ legacy::SocketClient getLegacyClient() {
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
         },
-        [](legacy::SocketConnection* socketConnection) -> void { // onDisconnect
+        [](legacy::SocketClient<net::socket::ipv4::tcp::legacy::Socket>::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                            "):" + std::to_string(socketConnection->getRemoteAddress().port());
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
+
             socketConnection->getContext<http::ResponseParser*>([](http::ResponseParser*& responseParser) -> void {
                 delete responseParser;
             });
         },
-        [](legacy::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
+        [](legacy::SocketClient<net::socket::ipv4::tcp::legacy::Socket>::SocketConnection* socketConnection,
+           const char* junk,
+           ssize_t junkSize) -> void { // onRead
             VLOG(0) << "OnRead";
+
             socketConnection->getContext<http::ResponseParser*>([junk, junkSize](http::ResponseParser*& responseParser) -> void {
                 responseParser->parse(junk, junkSize);
             });
         },
-        []([[maybe_unused]] legacy::SocketConnection* socketConnection, int errnum) -> void { // onReadError
+        []([[maybe_unused]] legacy::SocketClient<net::socket::ipv4::tcp::legacy::Socket>::SocketConnection* socketConnection,
+           int errnum) -> void { // onReadError
             VLOG(0) << "OnReadError: " << errnum;
         },
-        []([[maybe_unused]] legacy::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
+        []([[maybe_unused]] legacy::SocketClient<net::socket::ipv4::tcp::legacy::Socket>::SocketConnection* socketConnection,
+           int errnum) -> void { // onWriteError
             VLOG(0) << "OnWriteError: " << errnum;
         },
         {{}});

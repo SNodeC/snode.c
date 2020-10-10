@@ -24,13 +24,17 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "../Client.h"
-#include "socket/tcp/legacy/SocketClient.h"
+#include "socket/ipv4/tcp/legacy/SocketClient.h"
 
 namespace http::legacy {
 
-    class Client : public http::Client<net::socket::tcp::legacy::SocketClient> {
+    class Client : public http::Client<net::socket::ipv4::tcp::legacy::SocketClient> {
     public:
-        using http::Client<net::socket::tcp::legacy::SocketClient>::Client;
+        using SocketClient = net::socket::ipv4::tcp::legacy::SocketClient;
+        using SocketConnection = typename SocketClient::SocketConnection;
+        using Socket = typename SocketClient::Socket;
+
+        using http::Client<net::socket::ipv4::tcp::legacy::SocketClient>::Client;
     };
 
 } // namespace http::legacy

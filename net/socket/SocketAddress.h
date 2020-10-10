@@ -16,18 +16,36 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef SOCKETADDRESS_H
+#define SOCKETADDRESS_H
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <sys/socket.h> // for recv
+#include <sys/socket.h>
+#include <sys/types.h>
+// IWYU pragma: no_include <bits/exception.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/tcp/legacy/SocketReader.h"
+namespace net::socket {
 
-namespace net::socket::tcp::legacy {
+    template <typename SockAddrT>
+    class SocketAddress {
+    public:
+        using SockAddr = SockAddrT;
 
-    ssize_t SocketReader::read(char* junk, size_t junkLen) {
-        return ::recv(getFd(), junk, junkLen, 0);
-    }
+        const struct sockaddr& getSockAddr() const {
+            return reinterpret_cast<const struct sockaddr&>(addr);
+        }
 
-}; // namespace net::socket::tcp::legacy
+        socklen_t getSockAddrLen() const {
+            return sizeof(getSockAddr());
+        }
+
+    protected:
+        SockAddr addr{};
+    };
+
+} // namespace net::socket
+
+#endif // SOCKETADDRESS_H

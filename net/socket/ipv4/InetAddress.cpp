@@ -24,9 +24,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/InetAddress.h"
+#include "InetAddress.h"
 
-namespace net::socket {
+namespace net::socket::ipv4 {
 
     std::string bad_hostname::message = "";
 
@@ -107,8 +107,8 @@ namespace net::socket {
         return std::string(serv);
     }
 
-    const struct sockaddr_in& InetAddress::getSockAddr() const {
+    const struct sockaddr_in& InetAddress::getSockAddrIn() const {
         return addr;
     }
 
-} // namespace net::socket
+} // namespace net::socket::ipv4

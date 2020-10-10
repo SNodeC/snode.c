@@ -21,7 +21,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "easylogging++.h" // IWYU pragma: export
+#include <easylogging++.h> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

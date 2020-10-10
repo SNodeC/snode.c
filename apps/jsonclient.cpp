@@ -25,8 +25,6 @@
 #include "ServerResponse.h"
 #include "config.h" // just for this example app
 #include "legacy/Client.h"
-#include "socket/tcp/legacy/SocketClient.h"
-#include "socket/tcp/tls/SocketClient.h"
 #include "tls/Client.h"
 
 #include <cstring>
@@ -38,7 +36,7 @@ int main(int argc, char* argv[]) {
     net::EventLoop::init(argc, argv);
 
     http::legacy::Client jsonClient(
-        [](net::socket::tcp::legacy::SocketConnection* socketConnection) -> void {
+        [](http::legacy::Client::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnConnect";
             VLOG(0) << "     Server: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                            "):" + std::to_string(socketConnection->getRemoteAddress().port());
@@ -80,7 +78,7 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "     Status: " << status;
             VLOG(0) << "     Reason: " << reason;
         },
-        [](net::socket::tcp::legacy::SocketConnection* socketConnection) -> void {
+        [](http::legacy::Client::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnDisconnect";
             VLOG(0) << "     Server: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                            "):" + std::to_string(socketConnection->getRemoteAddress().port());

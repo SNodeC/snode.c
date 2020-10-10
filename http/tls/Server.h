@@ -24,13 +24,18 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "../Server.h"
-#include "socket/tcp/tls/SocketServer.h"
+#include "socket/ipv4/tcp/tls/SocketServer.h"
 
 namespace http::tls {
 
-    class Server : public http::Server<net::socket::tcp::tls::SocketServer> {
+    class Server : public http::Server<net::socket::ipv4::tcp::tls::SocketServer> {
     public:
-        using http::Server<net::socket::tcp::tls::SocketServer>::Server;
+        using SocketServer = net::socket::ipv4::tcp::tls::SocketServer;
+        using SocketListener = typename SocketServer::SocketListener;
+        using SocketConnection = typename SocketListener::SocketConnection;
+        using Socket = typename SocketServer::Socket;
+
+        using http::Server<net::socket::ipv4::tcp::tls::SocketServer>::Server;
     };
 
 } // namespace http::tls

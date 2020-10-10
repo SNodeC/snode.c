@@ -16,20 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef NET_SOCKET_IPV4_TCP_LEGACY_SOCKETSERVER_H
+#define NET_SOCKET_IPV4_TCP_LEGACY_SOCKETSERVER_H
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <openssl/ssl.h> // IWYU pragma: keep for SSL_accept, SSL_free, SSL_get_error, SSL_new
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-// IWYU pragma: no_include <openssl/ssl3.h>
+#include "Socket.h"
+#include "socket/tcp/legacy/SocketServer.h"
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+namespace net::socket::ipv4::tcp::legacy {
 
-#include "socket/tcp/tls/SocketReader.h"
+    using SocketServer = net::socket::tcp::legacy::SocketServer<net::socket::ipv4::tcp::legacy::Socket>;
 
-namespace net::socket::tcp::tls {
+} // namespace net::socket::ipv4::tcp::legacy
 
-    ssize_t SocketReader::read(char* junk, size_t junkLen) {
-        return ::SSL_read(ssl, junk, junkLen);
-    }
-
-}; // namespace net::socket::tcp::tls
+#endif // NET_SOCKET_IPV4_TCP_LEGACY_SOCKETSERVER_H

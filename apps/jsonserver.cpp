@@ -37,11 +37,11 @@ using json = nlohmann::json;
 int main(int argc, char** argv) {
     WebApp::init(argc, argv);
 
-    legacy::WebApp legacyApp;
+    tls::WebApp tlsApp;
 
-    legacyApp.use(middleware::JsonMiddleware());
+    tlsApp.use(middleware::JsonMiddleware());
 
-    legacyApp.listen(8080, [](int err) -> void {
+    tlsApp.listen(8080, [](int err) -> void {
         if (err != 0) {
             PLOG(FATAL) << "listen on port 8080 " << std::to_string(err);
         } else {
@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
         }
     });
 
-    legacyApp.post("/index.html", [] APPLICATION(req, res) {
+    tlsApp.post("/index.html", [] APPLICATION(req, res) {
         std::string jsonString = "";
 
         req.getAttribute<json>(
@@ -64,11 +64,11 @@ int main(int argc, char** argv) {
         res.send(jsonString);
     });
 
-    legacyApp.post([] APPLICATION(req, res) {
+    tlsApp.post([] APPLICATION(req, res) {
         res.send("Wrong Url");
     });
 
-    legacyApp.onConnect([](net::socket::tcp::legacy::SocketConnection* socketConnection) -> void {
+    tlsApp.onConnect([](tls::WebApp::SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnConnect:";
         VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                        "):" + std::to_string(socketConnection->getRemoteAddress().port());
@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
                        "):" + std::to_string(socketConnection->getLocalAddress().port());
     });
 
-    legacyApp.onDisconnect([](net::socket::tcp::legacy::SocketConnection* socketConnection) -> void {
+    tlsApp.onDisconnect([](tls::WebApp::SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnDisconnect:";
         VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                        "):" + std::to_string(socketConnection->getRemoteAddress().port());

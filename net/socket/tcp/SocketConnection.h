@@ -25,8 +25,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/InetAddress.h"
-#include "socket/tcp/SocketConnectionBase.h"
+#include "SocketConnectionBase.h"
 
 namespace net::socket::tcp {
 
@@ -38,6 +37,7 @@ namespace net::socket::tcp {
     public:
         using SocketReader = SocketReaderT;
         using SocketWriter = SocketWriterT;
+        using Socket = typename SocketReader::Socket;
 
         void* operator new(size_t size) {
             SocketConnection<SocketReader, SocketWriter>::lastAllocAddress = malloc(size);
@@ -88,7 +88,7 @@ namespace net::socket::tcp {
 
     public:
         void enqueue(const char* junk, size_t junkLen) override {
-            SocketWriterT::enqueue(junk, junkLen);
+            SocketWriter::enqueue(junk, junkLen);
         }
 
         void enqueue(const std::string& data) override {
@@ -96,22 +96,22 @@ namespace net::socket::tcp {
         }
 
         void end(bool instantly = false) override {
-            SocketReaderT::disable();
+            SocketReader::disable();
             if (instantly) {
-                SocketWriterT::disable();
+                SocketWriter::disable();
             }
         }
 
-        const InetAddress& getRemoteAddress() const {
+        const typename Socket::SocketAddress& getRemoteAddress() const {
             return remoteAddress;
         }
 
-        void setRemoteAddress(const InetAddress& remoteAddress) {
+        void setRemoteAddress(const typename Socket::SocketAddress& remoteAddress) {
             this->remoteAddress = remoteAddress;
         }
 
     private:
-        InetAddress remoteAddress{};
+        typename Socket::SocketAddress remoteAddress{};
         std::function<void(SocketConnection* socketConnection)> onDestruct;
         std::function<void(SocketConnection* socketConnection)> onDisconnect;
 

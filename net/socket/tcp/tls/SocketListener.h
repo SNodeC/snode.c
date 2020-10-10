@@ -25,12 +25,19 @@
 
 #include "SocketConnection.h"
 #include "socket/tcp/SocketListener.h"
+#include "ssl_utils.h"
+#include "timer/SingleshotTimer.h"
+
+#define TLSACCEPT_TIMEOUT 10
 
 namespace net::socket::tcp::tls {
 
-    class SocketListener : public net::socket::tcp::SocketListener<net::socket::tcp::tls::SocketConnection> {
+    template <typename SocketT>
+    class SocketListener : public net::socket::tcp::SocketListener<net::socket::tcp::tls::SocketConnection<SocketT>> {
     public:
-        using SocketConnection = net::socket::tcp::tls::SocketConnection;
+        using Socket = SocketT;
+        using SocketConnection =
+            typename net::socket::tcp::SocketListener<net::socket::tcp::tls::SocketConnection<Socket>>::SocketConnection;
 
         SocketListener(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
                        const std::function<void(SocketConnection* socketConnection)>& onDestruct,
@@ -39,11 +46,146 @@ namespace net::socket::tcp::tls {
                        const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
                        const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                        const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
-                       const std::map<std::string, std::any>& options);
+                       const std::map<std::string, std::any>& options)
+            : net::socket::tcp::SocketListener<SocketConnection>(
+                  [onConstruct, &ctx = this->ctx](SocketConnection* socketConnection) -> void {
+                      socketConnection->setSSL_CTX(ctx);
+                      onConstruct(socketConnection);
+                  },
+                  [onDestruct](SocketConnection* socketConnection) -> void {
+                      socketConnection->clearSSL_CTX();
+                      onDestruct(socketConnection);
+                  },
+                  [onConnect](SocketConnection* socketConnection) -> void {
+                      SSL* ssl = socketConnection->startSSL();
 
-        ~SocketListener() override;
+                      class Acceptor
+                          : public ReadEventReceiver
+                          , public WriteEventReceiver
+                          , public Descriptor {
+                      public:
+                          Acceptor(SocketConnection* socketConnection,
+                                   SSL* ssl,
+                                   const std::function<void(SocketConnection* socketConnection)>& onConnect)
+                              : socketConnection(socketConnection)
+                              , ssl(ssl)
+                              , onConnect(onConnect)
+                              , timeOut(net::timer::Timer::singleshotTimer(
+                                    [this, socketConnection](const void*) -> void {
+                                        ReadEventReceiver::disable();
+                                        WriteEventReceiver::disable();
+                                        socketConnection->ReadEventReceiver::disable();
+                                    },
+                                    (struct timeval){TLSACCEPT_TIMEOUT, 0},
+                                    nullptr)) {
+                              open(socketConnection->getFd(), FLAGS::dontClose);
 
-        void listen(const InetAddress& localAddress, int backlog, const std::function<void(int err)>& onError) override;
+                              if (ssl != nullptr) {
+                                  int err = SSL_accept(ssl);
+                                  int sslErr = SSL_get_error(ssl, err);
+
+                                  if (sslErr == SSL_ERROR_WANT_READ) {
+                                      ReadEventReceiver::enable();
+                                  } else if (sslErr == SSL_ERROR_WANT_WRITE) {
+                                      WriteEventReceiver::enable();
+                                  } else {
+                                      if (sslErr == SSL_ERROR_NONE) {
+                                          onConnect(socketConnection);
+                                      } else {
+                                          socketConnection->ReadEventReceiver::disable();
+                                      }
+                                      timeOut.cancel();
+                                      unobserved();
+                                  }
+                              } else {
+                                  onConnect(socketConnection);
+                                  socketConnection->ReadEventReceiver::disable();
+                                  timeOut.cancel();
+                                  unobserved();
+                              }
+                          }
+
+                          void readEvent() override {
+                              int err = SSL_accept(ssl);
+                              int sslErr = SSL_get_error(ssl, err);
+
+                              if (sslErr != SSL_ERROR_WANT_READ) {
+                                  if (sslErr == SSL_ERROR_WANT_WRITE) {
+                                      ReadEventReceiver::disable();
+                                      WriteEventReceiver::enable();
+                                  } else {
+                                      timeOut.cancel();
+                                      ReadEventReceiver::disable();
+                                      if (sslErr == SSL_ERROR_NONE) {
+                                          onConnect(socketConnection);
+                                      } else {
+                                          socketConnection->ReadEventReceiver::disable();
+                                      }
+                                  }
+                              }
+                          }
+
+                          void writeEvent() override {
+                              int err = SSL_accept(ssl);
+                              int sslErr = SSL_get_error(ssl, err);
+
+                              if (sslErr != SSL_ERROR_WANT_WRITE) {
+                                  if (sslErr == SSL_ERROR_WANT_READ) {
+                                      WriteEventReceiver::disable();
+                                      ReadEventReceiver::enable();
+                                  } else {
+                                      timeOut.cancel();
+                                      WriteEventReceiver::disable();
+                                      if (sslErr == SSL_ERROR_NONE) {
+                                          onConnect(socketConnection);
+                                      } else {
+                                          socketConnection->WriteEventReceiver::disable();
+                                      }
+                                  }
+                              }
+                          }
+
+                          void unobserved() override {
+                              delete this;
+                          }
+
+                      private:
+                          SocketConnection* socketConnection = nullptr;
+                          SSL* ssl = nullptr;
+                          std::function<void(SocketConnection* socketConnection)> onConnect;
+                          net::timer::Timer& timeOut;
+                      };
+
+                      new Acceptor(socketConnection, ssl, onConnect);
+                  },
+                  [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
+                      socketConnection->stopSSL();
+                      onDisconnect(socketConnection);
+                  },
+                  onRead,
+                  onReadError,
+                  onWriteError,
+                  options)
+            , ctx(nullptr) {
+            ctx = SSL_CTX_new(TLS_server_method());
+            sslErr = net::socket::tcp::tls::ssl_init_ctx(ctx, options, true);
+        }
+
+        ~SocketListener() override {
+            if (ctx != nullptr) {
+                SSL_CTX_free(ctx);
+            }
+        }
+
+        void listen(const typename SocketConnection::Socket::SocketAddress& localAddress,
+                    int backlog,
+                    const std::function<void(int err)>& onError) override {
+            if (sslErr != 0) {
+                onError(-sslErr);
+            } else {
+                socket::tcp::SocketListener<SocketConnection>::listen(localAddress, backlog, onError);
+            }
+        }
 
     private:
         SSL_CTX* ctx = nullptr;
