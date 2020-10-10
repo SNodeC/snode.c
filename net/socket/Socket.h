@@ -50,9 +50,7 @@ namespace net::socket {
         virtual void open(const std::function<void(int errnum)>& onError, int flags = 0) = 0;
 
         void bind(const SocketAddress& localAddress, const std::function<void(int errnum)>& onError) {
-            socklen_t addrlen = sizeof(typename SocketAddress::SockAddr);
-
-            int ret = ::bind(getFd(), &localAddress.getSockAddr(), addrlen);
+            int ret = ::bind(getFd(), &localAddress.getSockAddr(), sizeof(typename SocketAddress::SockAddr));
 
             if (ret < 0) {
                 onError(errno);
