@@ -24,7 +24,7 @@ namespace http {
     public:
         using SocketServer = SocketServerT;
         using SocketListener = typename SocketServer::SocketListener;
-        using SocketConnection = typename SocketListener::SocketConnection;
+        using SocketConnection = typename SocketServer::SocketConnection;
 
         Server(const std::function<void(SocketConnection*)>& onConnect,
                const std::function<void(Request& req, Response& res)>& onRequestReady,
@@ -32,7 +32,7 @@ namespace http {
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
             : socketServer(
-                  [onRequestReady, onRequestCompleted]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConstruct
+                  [onRequestReady, onRequestCompleted](SocketConnection* socketConnection) -> void { // onConstruct
                       socketConnection->template setContext<ServerContext*>(
                           new ServerContext(socketConnection, onRequestReady, onRequestCompleted));
                   },

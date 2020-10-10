@@ -23,6 +23,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Descriptor.h"
 #include "SocketConnection.h"
 #include "socket/tcp/SocketListener.h"
 #include "ssl_utils.h"
