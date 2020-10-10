@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TCP_SOCKET_H
-#define TCP_SOCKET_H
+#ifndef NET_SOCKET_IPV4_TCP_SOCKET_H
+#define NET_SOCKET_IPV4_TCP_SOCKET_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -44,4 +44,4 @@ namespace net::socket::ipv4::tcp {
 
 } // namespace net::socket::ipv4::tcp
 
-#endif // TCP_SOCKET_H
+#endif // NET_SOCKET_IPV4_TCP_SOCKET_H
