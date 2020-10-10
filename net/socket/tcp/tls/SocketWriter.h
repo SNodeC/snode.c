@@ -21,12 +21,12 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>     // for size_t
+#include <cstddef> // for size_t
+#include <openssl/ssl.h>
 #include <sys/types.h> // for ssize_t
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/ipv4/tcp/tls/Socket.h" // IWYU pragma: keep
 #include "socket/tcp/SocketWriter.h"
 
 // IWYU pragma: no_forward_declare tls::Socket

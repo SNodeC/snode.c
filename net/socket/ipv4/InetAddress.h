@@ -53,10 +53,10 @@ namespace net::socket::ipv4 {
         InetAddress(const InetAddress& ina);
         explicit InetAddress(const std::string& ipOrHostname);
         explicit InetAddress(const std::string& ipOrHostname, uint16_t port);
-        explicit InetAddress(unsigned short port);
+        explicit InetAddress(uint16_t port);
         explicit InetAddress(const struct sockaddr_in& addr);
 
-        unsigned short port() const;
+        uint16_t port() const;
         std::string host() const;
         std::string ip() const;
         std::string serv() const;

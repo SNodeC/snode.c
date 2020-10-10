@@ -24,7 +24,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "SocketListener.h"
-#include "socket/ipv4/tcp/legacy/Socket.h"
 #include "socket/tcp/SocketServer.h"
 
 namespace net::socket::tcp::legacy {

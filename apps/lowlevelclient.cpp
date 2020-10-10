@@ -23,6 +23,8 @@
 #include "ResponseParser.h"
 #include "ServerResponse.h"
 #include "config.h" // just for this example app
+#include "socket/ipv4/tcp/legacy/Socket.h"
+#include "socket/ipv4/tcp/tls/Socket.h"
 #include "socket/tcp/legacy/SocketClient.h"
 #include "socket/tcp/tls/SocketClient.h"
 

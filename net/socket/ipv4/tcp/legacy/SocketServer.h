@@ -2,7 +2,6 @@
 #define NET_SOCKET_IPV4_TCP_LEGACY_SOCKETSERVER_H
 
 #include "Socket.h"
-#include "socket/tcp/legacy/SocketListener.h"
 #include "socket/tcp/legacy/SocketServer.h"
 
 namespace net::socket::ipv4::tcp::legacy {

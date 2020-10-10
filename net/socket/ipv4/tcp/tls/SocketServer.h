@@ -2,7 +2,6 @@
 #define NET_SOCKET_IPV4_TCP_TLS_SOCKETSERVER_H
 
 #include "Socket.h"
-#include "socket/tcp/tls/SocketListener.h"
 #include "socket/tcp/tls/SocketServer.h"
 
 namespace net::socket::ipv4::tcp::tls {
