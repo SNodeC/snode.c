@@ -16,27 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LEGACY_CLIENT_H
-#define LEGACY_CLIENT_H
+#ifndef NET_SOCKET_IPV4_TCP_LEGACY_SOCKETCLIENT_H
+#define NET_SOCKET_IPV4_TCP_LEGACY_SOCKETCLIENT_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#include "../Client.h"
-#include "socket/ipv4/tcp/legacy/SocketClient.h"
+#include "Socket.h"
+#include "socket/tcp/legacy/SocketClient.h"
 
-namespace http::legacy {
+namespace net::socket::ipv4::tcp::legacy {
 
-    class Client : public http::Client<net::socket::ipv4::tcp::legacy::SocketClient> {
-    public:
-        using SocketClient = net::socket::ipv4::tcp::legacy::SocketClient;
-        using SocketConnection = typename SocketClient::SocketConnection;
-        using Socket = typename SocketClient::Socket;
+    using SocketClient = net::socket::tcp::legacy::SocketClient<net::socket::ipv4::tcp::legacy::Socket>;
 
-        using http::Client<net::socket::ipv4::tcp::legacy::SocketClient>::Client;
-    };
+} // namespace net::socket::ipv4::tcp::legacy
 
-} // namespace http::legacy
-
-#endif // LEGACY_CLIENT_H
+#endif // NET_SOCKET_IPV4_TCP_LEGACY_SOCKETCLIENT_H

@@ -36,9 +36,11 @@ add_library(net SHARED
     socket/ipv4/tcp/Socket.cpp
     socket/ipv4/tcp/Socket.h
     socket/ipv4/tcp/legacy/Socket.h
+    socket/ipv4/tcp/legacy/SocketClient.h
     socket/ipv4/tcp/legacy/SocketServer.h
     socket/ipv4/tcp/tls/Socket.cpp
     socket/ipv4/tcp/tls/Socket.h
+    socket/ipv4/tcp/tls/SocketClient.h
     socket/ipv4/tcp/tls/SocketServer.h
     socket/Socket.h
     socket/SocketAddress.h

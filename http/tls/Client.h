@@ -24,18 +24,17 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "../Client.h"
-#include "socket/tcp/tls/SocketClient.h"
+#include "socket/ipv4/tcp/tls/SocketClient.h"
 
 namespace http::tls {
 
-    template <typename SocketT>
-    class Client : public http::Client<net::socket::tcp::tls::SocketClient<SocketT>> {
+    class Client : public http::Client<net::socket::ipv4::tcp::tls::SocketClient> {
     public:
-        using Socket = SocketT;
-        using SocketClient = typename net::socket::tcp::tls::SocketClient<Socket>;
+        using SocketClient = net::socket::ipv4::tcp::tls::SocketClient;
         using SocketConnection = typename SocketClient::SocketConnection;
+        using Socket = typename SocketClient::Socket;
 
-        using http::Client<net::socket::tcp::tls::SocketClient<Socket>>::Client;
+        using http::Client<net::socket::ipv4::tcp::tls::SocketClient>::Client;
     };
 
 } // namespace http::tls
