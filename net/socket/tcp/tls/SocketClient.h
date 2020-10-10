@@ -29,9 +29,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "SocketConnection.h"
 #include "socket/tcp/SocketClient.h"
-#include "socket/tcp/tls/SocketConnection.h"
-#include "socket/tcp/tls/ssl_utils.h"
+#include "ssl_utils.h"
 #include "timer/SingleshotTimer.h"
 
 #define TLSCONNECT_TIMEOUT 10

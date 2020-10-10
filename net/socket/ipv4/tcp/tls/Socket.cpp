@@ -70,4 +70,4 @@ namespace net::socket::ipv4::tcp::tls {
         return ssl;
     }
 
-}; // namespace net::socket::tcp::tls
+}; // namespace net::socket::ipv4::tcp::tls

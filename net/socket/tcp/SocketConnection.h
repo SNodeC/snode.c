@@ -25,7 +25,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/tcp/SocketConnectionBase.h"
+#include "SocketConnectionBase.h"
 
 namespace net::socket::tcp {
 
