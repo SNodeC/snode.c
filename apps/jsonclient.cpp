@@ -25,10 +25,6 @@
 #include "ServerResponse.h"
 #include "config.h" // just for this example app
 #include "legacy/Client.h"
-#include "socket/ipv4/tcp/legacy/Socket.h"
-#include "socket/ipv4/tcp/tls/Socket.h"
-#include "socket/tcp/legacy/SocketClient.h"
-#include "socket/tcp/tls/SocketClient.h"
 #include "tls/Client.h"
 
 #include <cstring>

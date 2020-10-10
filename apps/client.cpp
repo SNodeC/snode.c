@@ -17,14 +17,13 @@
  */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include "legacy/Client.h"
 
 #include "EventLoop.h"
 #include "Logger.h"
 #include "ServerResponse.h"
 #include "config.h" // just for this example app
-#include "socket/ipv4/tcp/legacy/Socket.h"
-#include "socket/ipv4/tcp/tls/Socket.h"
 #include "tls/Client.h"
 
 #include <cstring>

@@ -24,7 +24,6 @@
 #include "legacy/WebApp.h"
 #include "middleware/JsonMiddleware.h"
 #include "middleware/StaticMiddleware.h"
-#include "socket/ipv4/tcp/tls/Socket.h"
 #include "tls/WebApp.h"
 
 #include <nlohmann/json.hpp>

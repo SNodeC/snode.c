@@ -22,8 +22,6 @@
 #include "config.h" // just for this example app
 #include "legacy/WebApp.h"
 #include "middleware/StaticMiddleware.h"
-#include "socket/ipv4/tcp/legacy/Socket.h"
-#include "socket/ipv4/tcp/tls/Socket.h"
 #include "tls/WebApp.h"
 
 #include <openssl/x509v3.h>
