@@ -28,7 +28,10 @@
 
 namespace net::socket::ipv4::tcp::legacy {
 
-    using SocketServer = net::socket::stream::legacy::SocketServer<net::socket::ipv4::tcp::legacy::Socket>;
+    class SocketServer : public net::socket::stream::legacy::SocketServer<net::socket::ipv4::tcp::legacy::Socket> {
+    public:
+        using net::socket::stream::legacy::SocketServer<net::socket::ipv4::tcp::legacy::Socket>::SocketServer;
+    };
 
 } // namespace net::socket::ipv4::tcp::legacy
 

@@ -28,7 +28,10 @@
 
 namespace net::socket::ipv4::tcp::legacy {
 
-    using SocketClient = net::socket::stream::legacy::SocketClient<net::socket::ipv4::tcp::legacy::Socket>;
+    class SocketClient : public net::socket::stream::legacy::SocketClient<net::socket::ipv4::tcp::legacy::Socket> {
+    public:
+        using net::socket::stream::legacy::SocketClient<net::socket::ipv4::tcp::legacy::Socket>::SocketClient;
+    };
 
 } // namespace net::socket::ipv4::tcp::legacy
 
