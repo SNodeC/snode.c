@@ -22,7 +22,7 @@ namespace net::socket::ipv6 {
 
         /* We only care about IPV6 results */
         hints.ai_family = AF_INET6;
-        hints.ai_socktype = SOCK_STREAM;
+        hints.ai_socktype = 0;
         hints.ai_flags = AI_ADDRCONFIG | AI_V4MAPPED;
 
         int err = getaddrinfo(ipOrHostname.c_str(), NULL, &hints, &res);
