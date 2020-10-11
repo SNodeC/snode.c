@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SOCKETCONNECTION_H
-#define SOCKETCONNECTION_H
+#ifndef NET_SOCKET_SOCK_STREAM_SOCKETCONNECTION_H
+#define NET_SOCKET_SOCK_STREAM_SOCKETCONNECTION_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -124,4 +124,4 @@ namespace net::socket::stream {
 
 } // namespace net::socket::stream
 
-#endif // SOCKETCONNECTION_H
+#endif // NET_SOCKET_SOCK_STREAM_SOCKETCONNECTION_H

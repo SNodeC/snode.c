@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LEGACY_SOCKETWRITER_H
-#define LEGACY_SOCKETWRITER_H
+#ifndef NET_SOCKET_SOCK_STREAM_LEGACY_SOCKETWRITER_H
+#define NET_SOCKET_SOCK_STREAM_LEGACY_SOCKETWRITER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -45,4 +45,4 @@ namespace net::socket::stream::legacy {
 
 }; // namespace net::socket::stream::legacy
 
-#endif // LEGACY_SOCKETWRITER_H
+#endif // NET_SOCKET_SOCK_STREAM_LEGACY_SOCKETWRITER_H

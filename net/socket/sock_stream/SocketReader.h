@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SOCKETREADER_H
-#define SOCKETREADER_H
+#ifndef NET_SOCKET_SOCK_STREAM_SOCKETREADER_H
+#define NET_SOCKET_SOCK_STREAM_SOCKETREADER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -83,4 +83,4 @@ namespace net::socket::stream {
 
 } // namespace net::socket::stream
 
-#endif // SOCKETREADER_H
+#endif // NET_SOCKET_SOCK_STREAM_SOCKETREADER_H

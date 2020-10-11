@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SSL_UTILS_H
-#define SSL_UTILS_H
+#ifndef NET_SOCKET_SOCK_STREAM_TLS_SSL_UTILS_H
+#define NET_SOCKET_SOCK_STREAM_TLS_SSL_UTILS_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -34,4 +34,4 @@ namespace net::socket::stream::tls {
 
 }
 
-#endif // SSL_UTILS_H
+#endif // NET_SOCKET_SOCK_STREAM_TLS_SSL_UTILS_H

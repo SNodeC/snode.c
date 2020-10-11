@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LEGACY_SOCKETCONNECTION_H
-#define LEGACY_SOCKETCONNECTION_H
+#ifndef NET_SOCKET_SOCK_STREAM_LEGACY_SOCKETCONNECTION_H
+#define NET_SOCKET_SOCK_STREAM_LEGACY_SOCKETCONNECTION_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -34,4 +34,22 @@ namespace net::socket::stream::legacy {
 
 } // namespace net::socket::stream::legacy
 
-#endif // LEGACY_SOCKETCONNECTION_H
+#endif // NET_SOCKET_SOCK_STREAM_LEGACY_SOCKETCONNECTION_H
+
+/*
+If using inheritance, try to call as (subclass)
+std::function<void(net::socket::stream::tls::SocketConnection<net::socket::ipv4::tcp::tls::Socket>*)>&,
+std::function<void(net::socket::stream::tls::SocketConnection<net::socket::ipv4::tcp::tls::Socket>*)>&,
+std::function<void(net::socket::stream::tls::SocketConnection<net::socket::ipv4::tcp::tls::Socket>*, const char*, long int)>&,
+std::function<void(net::socket::stream::tls::SocketConnection<net::socket::ipv4::tcp::tls::Socket>*, int)>&,
+std::function<void(net::socket::stream::tls::SocketConnection<net::socket::ipv4::tcp::tls::Socket>*, int)>&,
+std::function<void(net::socket::stream::tls::SocketConnection<net::socket::ipv4::tcp::tls::Socket>*)>&)’
+
+to (baseclass)
+const std::function<void(net::socket::stream::SocketConnection<SocketReaderT, SocketWriterT>*)>&,
+const std::function<void(net::socket::stream::SocketConnection<SocketReaderT, SocketWriterT>*)>&,
+const std::function<void(net::socket::stream::SocketConnection<SocketReaderT, SocketWriterT>*, const char*, long int)>&,
+const std::function<void(net::socket::stream::SocketConnection<SocketReaderT, SocketWriterT>*, int)>&,
+const std::function<void(net::socket::stream::SocketConnection<SocketReaderT, SocketWriterT>*, int)>&,
+const std::function<void(net::socket::stream::SocketConnection<SocketReaderT, SocketWriterT>*)>&)
+*/

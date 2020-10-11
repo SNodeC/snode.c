@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TLS_SOCKETSERVER_H
-#define TLS_SOCKETSERVER_H
+#ifndef NET_SOCKET_SOCK_STREAM_TLS_SOCKETSERVER_H
+#define NET_SOCKET_SOCK_STREAM_TLS_SOCKETSERVER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -39,4 +39,4 @@ namespace net::socket::stream::tls {
 
 }; // namespace net::socket::stream::tls
 
-#endif // TLS_SOCKETSERVER_H
+#endif // NET_SOCKET_SOCK_STREAM_TLS_SOCKETSERVER_H
