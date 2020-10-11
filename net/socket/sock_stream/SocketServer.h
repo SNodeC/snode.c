@@ -40,16 +40,6 @@ namespace net::socket::stream {
         using SocketListener = SocketListenerT;
         using SocketConnection = typename SocketListener::SocketConnection;
 
-        void* operator new(size_t size) {
-            SocketServer<SocketListener>::lastAllocAddress = malloc(size);
-
-            return SocketServer<SocketListener>::lastAllocAddress;
-        }
-
-        void operator delete(void* socketServer_v) {
-            free(socketServer_v);
-        }
-
         SocketServer(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
                      const std::function<void(SocketConnection* socketConnection)>& onDestruct,
                      const std::function<void(SocketConnection* socketConnection)>& onConnect,
@@ -65,8 +55,7 @@ namespace net::socket::stream {
             , onRead(onRead)
             , onReadError(onReadError)
             , onWriteError(onWriteError)
-            , options(options)
-            , isDynamic(this == SocketServer::lastAllocAddress) {
+            , options(options) {
         }
 
         SocketServer() = delete;
@@ -105,13 +94,7 @@ namespace net::socket::stream {
 
     protected:
         std::map<std::string, std::any> options;
-
-        bool isDynamic;
-        static void* lastAllocAddress;
     };
-
-    template <typename SocketListener>
-    void* SocketServer<SocketListener>::lastAllocAddress = nullptr;
 
 } // namespace net::socket::stream
 
