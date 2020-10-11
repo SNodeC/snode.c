@@ -27,7 +27,7 @@
 
 #include "SocketConnectionBase.h"
 
-namespace net::socket::tcp {
+namespace net::socket::stream {
 
     template <typename SocketReaderT, typename SocketWriterT>
     class SocketConnection
@@ -122,6 +122,6 @@ namespace net::socket::tcp {
     template <typename SocketReader, typename SocketWriter>
     void* SocketConnection<SocketReader, SocketWriter>::lastAllocAddress = nullptr;
 
-} // namespace net::socket::tcp
+} // namespace net::socket::stream
 
 #endif // SOCKETCONNECTION_H

@@ -16,34 +16,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TLS_SOCKETREADER_H
-#define TLS_SOCKETREADER_H
+#ifndef LEGACY_SOCKETCONNECTION_H
+#define LEGACY_SOCKETCONNECTION_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <openssl/ssl.h>
-#include <sys/types.h> // for ssize_t
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/tcp/SocketReader.h"
+#include "socket/sock_stream/SocketConnection.h"
+#include "socket/sock_stream/legacy/SocketReader.h"
+#include "socket/sock_stream/legacy/SocketWriter.h"
 
-// IWYU pragma: no_forward_declare tls::Socket
-
-namespace net::socket::tcp::tls {
+namespace net::socket::stream::legacy {
 
     template <typename SocketT>
-    class SocketReader : public socket::tcp::SocketReader<SocketT> {
-    protected:
-        using Socket = SocketT;
+    using SocketConnection = socket::stream::SocketConnection<legacy::SocketReader<SocketT>, legacy::SocketWriter<SocketT>>;
 
-        using socket::tcp::SocketReader<Socket>::SocketReader;
+} // namespace net::socket::stream::legacy
 
-        ssize_t read(char* junk, size_t junkLen) override {
-            return ::SSL_read(Socket::ssl, junk, junkLen);
-        }
-    };
-
-}; // namespace net::socket::tcp::tls
-
-#endif // TLS_SOCKETREADER_H
+#endif // LEGACY_SOCKETCONNECTION_H

@@ -27,7 +27,7 @@
 #include "RequestParser.h"
 #include "Response.h"
 
-namespace net::socket::tcp {
+namespace net::socket::stream {
     class SocketConnectionBase;
 }
 
@@ -35,7 +35,7 @@ namespace http {
 
     class ServerContext {
     public:
-        using SocketConnection = net::socket::tcp::SocketConnectionBase;
+        using SocketConnection = net::socket::stream::SocketConnectionBase;
 
         ServerContext(SocketConnection* socketConnection,
                       const std::function<void(Request& req, Response& res)>& onRequestReady,

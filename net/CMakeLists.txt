@@ -55,27 +55,27 @@ add_library(net SHARED
     socket/ipv6/tcp/tls/SocketServer.h
     socket/Socket.h
     socket/SocketAddress.h
-    socket/tcp/SocketClient.h
-    socket/tcp/SocketConnection.h
-    socket/tcp/SocketConnectionBase.h
-    socket/tcp/SocketListener.h
-    socket/tcp/SocketReader.h
-    socket/tcp/SocketWriter.h
-    socket/tcp/SocketServer.h
-    socket/tcp/legacy/SocketClient.h
-    socket/tcp/legacy/SocketConnection.h
-    socket/tcp/legacy/SocketListener.h
-    socket/tcp/legacy/SocketReader.h
-    socket/tcp/legacy/SocketWriter.h
-    socket/tcp/legacy/SocketServer.h
-    socket/tcp/tls/ssl_utils.cpp
-    socket/tcp/tls/ssl_utils.h
-    socket/tcp/tls/SocketClient.h
-    socket/tcp/tls/SocketConnection.h
-    socket/tcp/tls/SocketListener.h
-    socket/tcp/tls/SocketReader.h
-    socket/tcp/tls/SocketWriter.h
-    socket/tcp/tls/SocketServer.h
+    socket/sock_stream/SocketClient.h
+    socket/sock_stream/SocketConnection.h
+    socket/sock_stream/SocketConnectionBase.h
+    socket/sock_stream/SocketListener.h
+    socket/sock_stream/SocketReader.h
+    socket/sock_stream/SocketWriter.h
+    socket/sock_stream/SocketServer.h
+    socket/sock_stream/legacy/SocketClient.h
+    socket/sock_stream/legacy/SocketConnection.h
+    socket/sock_stream/legacy/SocketListener.h
+    socket/sock_stream/legacy/SocketReader.h
+    socket/sock_stream/legacy/SocketWriter.h
+    socket/sock_stream/legacy/SocketServer.h
+    socket/sock_stream/tls/ssl_utils.cpp
+    socket/sock_stream/tls/ssl_utils.h
+    socket/sock_stream/tls/SocketClient.h
+    socket/sock_stream/tls/SocketConnection.h
+    socket/sock_stream/tls/SocketListener.h
+    socket/sock_stream/tls/SocketReader.h
+    socket/sock_stream/tls/SocketWriter.h
+    socket/sock_stream/tls/SocketServer.h
     timer/IntervalTimer.h
     timer/SingleshotTimer.h
     timer/Timer.cpp

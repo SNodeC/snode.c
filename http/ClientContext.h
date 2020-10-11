@@ -31,7 +31,7 @@
 #include "ServerRequest.h"
 #include "ServerResponse.h"
 
-namespace net::socket::tcp {
+namespace net::socket::stream {
     class SocketConnectionBase;
 }
 
@@ -39,7 +39,7 @@ namespace http {
 
     class ClientContext {
     public:
-        using SocketConnection = net::socket::tcp::SocketConnectionBase;
+        using SocketConnection = net::socket::stream::SocketConnectionBase;
 
         ClientContext(SocketConnection* socketConnection,
                       const std::function<void(ServerResponse&)>& onResponse,

@@ -25,7 +25,7 @@
 
 #include "AttributeInjector.h"
 
-namespace net::socket::tcp {
+namespace net::socket::stream {
 
     class SocketConnectionBase {
     public:
@@ -72,6 +72,6 @@ namespace net::socket::tcp {
         utils::SingleAttributeInjector protocol;
     };
 
-} // namespace net::socket::tcp
+} // namespace net::socket::stream
 
 #endif // SOCKETCONNECTIONBASE_H

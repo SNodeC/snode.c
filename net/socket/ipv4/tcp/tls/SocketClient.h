@@ -24,11 +24,11 @@
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 #include "Socket.h"
-#include "socket/tcp/tls/SocketClient.h"
+#include "socket/sock_stream/tls/SocketClient.h"
 
 namespace net::socket::ipv4::tcp::tls {
 
-    using SocketClient = net::socket::tcp::tls::SocketClient<net::socket::ipv4::tcp::tls::Socket>;
+    using SocketClient = net::socket::stream::tls::SocketClient<net::socket::ipv4::tcp::tls::Socket>;
 
 }
 

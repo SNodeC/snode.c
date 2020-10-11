@@ -16,22 +16,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TLS_SOCKETCONNECTION_H
-#define TLS_SOCKETCONNECTION_H
+#ifndef SSL_UTILS_H
+#define SSL_UTILS_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <any>
+#include <map>
+#include <openssl/ossl_typ.h> // for SSL_CTX
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/tcp/SocketConnection.h"
-#include "socket/tcp/tls/SocketReader.h"
-#include "socket/tcp/tls/SocketWriter.h"
+namespace net::socket::stream::tls {
 
-namespace net::socket::tcp::tls {
+    unsigned long ssl_init_ctx(SSL_CTX* ctx, const std::map<std::string, std::any>& options, bool server = false);
 
-    template <typename SocketT>
-    using SocketConnection = socket::tcp::SocketConnection<tls::SocketReader<SocketT>, tls::SocketWriter<SocketT>>;
+}
 
-} // namespace net::socket::tcp::tls
-
-#endif // TLS_SOCKETCONNECTION_H
+#endif // SSL_UTILS_H

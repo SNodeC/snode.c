@@ -31,7 +31,7 @@
 
 #include "ssl_utils.h"
 
-namespace net::socket::tcp::tls {
+namespace net::socket::stream::tls {
 
 #define SSL_VERIFY_FLAGS SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE
 
@@ -110,4 +110,4 @@ namespace net::socket::tcp::tls {
         return sslErr;
     };
 
-} // namespace net::socket::tcp::tls
+} // namespace net::socket::stream::tls

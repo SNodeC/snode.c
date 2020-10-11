@@ -16,28 +16,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LEGACY_SOCKETLISTENER_H
-#define LEGACY_SOCKETLISTENER_H
+#ifndef TLS_SOCKETSERVER_H
+#define TLS_SOCKETSERVER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "SocketConnection.h"
-#include "socket/tcp/SocketListener.h"
+#include "SocketListener.h"
+#include "socket/sock_stream/SocketServer.h"
 
-namespace net::socket::tcp::legacy {
+namespace net::socket::stream::tls {
 
     template <typename SocketT>
-    class SocketListener : public net::socket::tcp::SocketListener<net::socket::tcp::legacy::SocketConnection<SocketT>> {
+    class SocketServer : public socket::stream::SocketServer<tls::SocketListener<SocketT>> {
     public:
         using Socket = SocketT;
-        using SocketConnection =
-            typename net::socket::tcp::SocketListener<net::socket::tcp::legacy::SocketConnection<Socket>>::SocketConnection;
+        using SocketConnection = net::socket::stream::tls::SocketConnection<Socket>;
 
-        using net::socket::tcp::SocketListener<net::socket::tcp::legacy::SocketConnection<Socket>>::SocketListener;
+        using socket::stream::SocketServer<tls::SocketListener<Socket>>::SocketServer;
     };
 
-} // namespace net::socket::tcp::legacy
+}; // namespace net::socket::stream::tls
 
-#endif // LEGACY_SOCKETLISTENER_H
+#endif // TLS_SOCKETSERVER_H

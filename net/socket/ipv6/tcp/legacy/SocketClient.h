@@ -24,12 +24,12 @@
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 #include "Socket.h"
-#include "socket/tcp/legacy/SocketClient.h"
+#include "socket/sock_stream/legacy/SocketClient.h"
 
 namespace net::socket::ipv6::tcp::legacy {
 
-    using SocketClient = net::socket::tcp::legacy::SocketClient<net::socket::ipv6::tcp::legacy::Socket>;
+    using SocketClient = net::socket::stream::legacy::SocketClient<net::socket::ipv6::tcp::legacy::Socket>;
 
-} // namespace net::socket::ipv4::tcp::legacy
+} // namespace net::socket::ipv6::tcp::legacy
 
 #endif // NET_SOCKET_IPV6_TCP_LEGACY_SOCKETCLIENT_H

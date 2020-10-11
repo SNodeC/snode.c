@@ -37,7 +37,7 @@
 
 #define CONNECT_TIMEOUT 10
 
-namespace net::socket::tcp {
+namespace net::socket::stream {
 
     template <typename SocketConnectionT>
     class SocketClient {
@@ -230,6 +230,6 @@ namespace net::socket::tcp {
     template <typename SocketConnection>
     void* SocketClient<SocketConnection>::lastAllocAddress = nullptr;
 
-} // namespace net::socket::tcp
+} // namespace net::socket::stream
 
 #endif // SOCKETCLIENT_H

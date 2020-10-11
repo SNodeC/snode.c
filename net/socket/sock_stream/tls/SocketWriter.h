@@ -27,24 +27,24 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/tcp/SocketWriter.h"
+#include "socket/sock_stream/SocketWriter.h"
 
 // IWYU pragma: no_forward_declare tls::Socket
 
-namespace net::socket::tcp::tls {
+namespace net::socket::stream::tls {
 
     template <typename SocketT>
-    class SocketWriter : public socket::tcp::SocketWriter<SocketT> {
+    class SocketWriter : public socket::stream::SocketWriter<SocketT> {
     protected:
         using Socket = SocketT;
 
-        using socket::tcp::SocketWriter<Socket>::SocketWriter;
+        using socket::stream::SocketWriter<Socket>::SocketWriter;
 
         ssize_t write(const char* junk, size_t junkLen) override {
             return ::SSL_write(Socket::ssl, junk, junkLen);
         }
     };
 
-}; // namespace net::socket::tcp::tls
+}; // namespace net::socket::stream::tls
 
 #endif // TLS_SOCKETWRITER_H

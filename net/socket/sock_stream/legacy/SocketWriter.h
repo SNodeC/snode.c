@@ -16,27 +16,33 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TLS_SOCKETSERVER_H
-#define TLS_SOCKETSERVER_H
+#ifndef LEGACY_SOCKETWRITER_H
+#define LEGACY_SOCKETWRITER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef> // for size_t
+#include <sys/socket.h>
+#include <sys/types.h> // for ssize_t
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "SocketListener.h"
-#include "socket/tcp/SocketServer.h"
+#include "socket/sock_stream/SocketWriter.h"
 
-namespace net::socket::tcp::tls {
+namespace net::socket::stream::legacy {
 
     template <typename SocketT>
-    class SocketServer : public socket::tcp::SocketServer<tls::SocketListener<SocketT>> {
-    public:
+    class SocketWriter : public socket::stream::SocketWriter<SocketT> {
+    protected:
         using Socket = SocketT;
-        using SocketConnection = net::socket::tcp::tls::SocketConnection<Socket>;
 
-        using socket::tcp::SocketServer<tls::SocketListener<Socket>>::SocketServer;
+        using socket::stream::SocketWriter<Socket>::SocketWriter;
+
+        ssize_t write(const char* junk, size_t junkLen) override {
+            return ::send(Socket::getFd(), junk, junkLen, MSG_NOSIGNAL);
+        }
     };
 
-}; // namespace net::socket::tcp::tls
+}; // namespace net::socket::stream::legacy
 
-#endif // TLS_SOCKETSERVER_H
+#endif // LEGACY_SOCKETWRITER_H

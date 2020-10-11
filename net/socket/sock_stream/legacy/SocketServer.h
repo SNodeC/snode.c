@@ -16,22 +16,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LEGACY_SOCKETCONNECTION_H
-#define LEGACY_SOCKETCONNECTION_H
+#ifndef LEGACY_SOCKETSERVER_H
+#define LEGACY_SOCKETSERVER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/tcp/SocketConnection.h"
-#include "socket/tcp/legacy/SocketReader.h"
-#include "socket/tcp/legacy/SocketWriter.h"
+#include "SocketListener.h"
+#include "socket/sock_stream/SocketServer.h"
 
-namespace net::socket::tcp::legacy {
+namespace net::socket::stream::legacy {
 
     template <typename SocketT>
-    using SocketConnection = socket::tcp::SocketConnection<legacy::SocketReader<SocketT>, legacy::SocketWriter<SocketT>>;
+    class SocketServer : public socket::stream::SocketServer<legacy::SocketListener<SocketT>> {
+    public:
+        using Socket = SocketT;
+        using SocketConnection = net::socket::stream::legacy::SocketConnection<Socket>;
 
-} // namespace net::socket::tcp::legacy
+        using socket::stream::SocketServer<legacy::SocketListener<Socket>>::SocketServer;
+    };
 
-#endif // LEGACY_SOCKETCONNECTION_H
+}; // namespace net::socket::stream::legacy
+
+#endif // LEGACY_SOCKETSERVER_H

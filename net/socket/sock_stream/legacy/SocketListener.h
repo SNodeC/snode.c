@@ -16,33 +16,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LEGACY_SOCKETREADER_H
-#define LEGACY_SOCKETREADER_H
+#ifndef LEGACY_SOCKETLISTENER_H
+#define LEGACY_SOCKETLISTENER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // for size_t
-#include <sys/socket.h>
-#include <sys/types.h> // for ssize_t
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/tcp/SocketReader.h"
+#include "SocketConnection.h"
+#include "socket/sock_stream/SocketListener.h"
 
-namespace net::socket::tcp::legacy {
+namespace net::socket::stream::legacy {
 
     template <typename SocketT>
-    class SocketReader : public socket::tcp::SocketReader<SocketT> {
-    protected:
+    class SocketListener : public net::socket::stream::SocketListener<net::socket::stream::legacy::SocketConnection<SocketT>> {
+    public:
         using Socket = SocketT;
+        using SocketConnection =
+            typename net::socket::stream::SocketListener<net::socket::stream::legacy::SocketConnection<Socket>>::SocketConnection;
 
-        using socket::tcp::SocketReader<Socket>::SocketReader;
-
-        ssize_t read(char* junk, size_t junkLen) override {
-            return ::recv(Socket::getFd(), junk, junkLen, 0);
-        }
+        using net::socket::stream::SocketListener<net::socket::stream::legacy::SocketConnection<Socket>>::SocketListener;
     };
 
-}; // namespace net::socket::tcp::legacy
+} // namespace net::socket::stream::legacy
 
-#endif // LEGACY_SOCKETREADER_H
+#endif // LEGACY_SOCKETLISTENER_H

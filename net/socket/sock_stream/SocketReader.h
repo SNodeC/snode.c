@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SOCKETWRITER_H
-#define SOCKETWRITER_H
+#ifndef SOCKETREADER_H
+#define SOCKETREADER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -25,68 +25,62 @@
 #include <cstddef> // for size_t
 #include <functional>
 #include <sys/types.h> // for ssize_t
-#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "WriteEventReceiver.h"
+#include "ReadEventReceiver.h"
 
-#ifndef MAX_SEND_JUNKSIZE
-#define MAX_SEND_JUNKSIZE 16384
+#ifndef MAX_READ_JUNKSIZE
+#define MAX_READ_JUNKSIZE 16384
 #endif
 
-namespace net::socket::tcp {
+namespace net::socket::stream {
 
     template <typename SocketT>
-    class SocketWriter
-        : public WriteEventReceiver
+    class SocketReader
+        : public ReadEventReceiver
         , virtual public SocketT {
     public:
         using Socket = SocketT;
 
-        SocketWriter() = delete;
+        SocketReader() = delete;
 
-        explicit SocketWriter(const std::function<void(int errnum)>& onError)
-            : onError(onError) {
+        explicit SocketReader(const std::function<void(const char* junk, ssize_t junkLen)>& onRead,
+                              const std::function<void(int errnum)>& onError)
+            : onRead(onRead)
+            , onError(onError) {
         }
 
-        ~SocketWriter() override {
-            if (WriteEventReceiver::isEnabled()) {
-                WriteEventReceiver::disable();
+        ~SocketReader() override {
+            if (ReadEventReceiver::isEnabled()) {
+                ReadEventReceiver::disable();
             }
         }
 
-        void writeEvent() override {
+        void readEvent() override {
             errno = 0;
 
-            ssize_t ret = write(writeBuffer.data(), (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE);
+            // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
+            static char junk[MAX_READ_JUNKSIZE];
 
-            if (ret >= 0) {
-                writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + ret);
+            ssize_t ret = read(junk, MAX_READ_JUNKSIZE);
 
-                if (writeBuffer.empty()) {
-                    WriteEventReceiver::disable();
-                }
+            if (ret > 0) {
+                onRead(junk, ret);
             } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
-                WriteEventReceiver::disable();
-                onError(errno);
+                ReadEventReceiver::disable();
+                onError(ret == 0 ? 0 : errno);
             }
-        }
-
-        void enqueue(const char* junk, size_t junkLen) {
-            writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
-            WriteEventReceiver::enable();
         }
 
     protected:
-        virtual ssize_t write(const char* junk, size_t junkSize) = 0;
+        virtual ssize_t read(char* junk, size_t junkLen) = 0;
 
     private:
+        std::function<void(const char* junk, ssize_t junkLen)> onRead;
         std::function<void(int errnum)> onError;
-
-        std::vector<char> writeBuffer;
     };
 
-} // namespace net::socket::tcp
+} // namespace net::socket::stream
 
-#endif // SOCKETWRITER_H
+#endif // SOCKETREADER_H

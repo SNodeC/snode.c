@@ -24,7 +24,7 @@
 
 #include "Logger.h"
 #include "http_utils.h"
-#include "socket/tcp/SocketConnectionBase.h"
+#include "socket/sock_stream/SocketConnectionBase.h"
 
 namespace http {
 

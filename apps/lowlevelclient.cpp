@@ -25,8 +25,8 @@
 #include "config.h" // just for this example app
 #include "socket/ipv4/tcp/legacy/Socket.h"
 #include "socket/ipv4/tcp/tls/Socket.h"
-#include "socket/tcp/legacy/SocketClient.h"
-#include "socket/tcp/tls/SocketClient.h"
+#include "socket/sock_stream/legacy/SocketClient.h"
+#include "socket/sock_stream/tls/SocketClient.h"
 
 #include <cstring>
 #include <iostream>
@@ -34,7 +34,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-using namespace net::socket::tcp;
+using namespace net::socket::stream;
 
 static http::ResponseParser* getResponseParser() {
     http::ResponseParser* responseParser = new http::ResponseParser(

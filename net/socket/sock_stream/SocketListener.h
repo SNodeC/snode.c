@@ -32,7 +32,7 @@
 #include "Logger.h"
 #include "ReadEventReceiver.h"
 
-namespace net::socket::tcp {
+namespace net::socket::stream {
 
     template <typename SocketConnectionT>
     class SocketListener
@@ -186,6 +186,6 @@ namespace net::socket::tcp {
     template <typename SocketConnectionT>
     void* SocketListener<SocketConnectionT>::lastAllocAddress = nullptr;
 
-} // namespace net::socket::tcp
+} // namespace net::socket::stream
 
 #endif // SOCKETLISTENER_H
