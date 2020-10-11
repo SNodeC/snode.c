@@ -25,6 +25,7 @@
 
 #include "../Client.h"
 #include "socket/ipv4/tcp/legacy/SocketClient.h"
+#include "socket/ipv6/tcp/legacy/SocketClient.h"
 
 namespace http::legacy {
 
@@ -35,6 +36,15 @@ namespace http::legacy {
         using Socket = typename SocketClient::Socket;
 
         using http::Client<net::socket::ipv4::tcp::legacy::SocketClient>::Client;
+    };
+
+    class Client6 : public http::Client<net::socket::ipv6::tcp::legacy::SocketClient> {
+    public:
+        using SocketClient = net::socket::ipv6::tcp::legacy::SocketClient;
+        using SocketConnection = typename SocketClient::SocketConnection;
+        using Socket = typename SocketClient::Socket;
+
+        using http::Client<net::socket::ipv6::tcp::legacy::SocketClient>::Client;
     };
 
 } // namespace http::legacy

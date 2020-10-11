@@ -16,28 +16,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LEGACY_WEBAPP_H
-#define LEGACY_WEBAPP_H
+#ifndef NET_SOCKET_IPV6_TCP_LEGACY_SOCKET_H
+#define NET_SOCKET_IPV6_TCP_LEGACY_SOCKET_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "WebAppT.h"
-#include "legacy/Server.h"
+#include "socket/ipv6/tcp/Socket.h"
 
-namespace express::legacy {
+namespace net::socket::ipv6::tcp::legacy {
 
-    class WebApp : public WebAppT<http::legacy::Server> {
-    public:
-        using WebAppT<http::legacy::Server>::WebAppT;
-    };
+    class Socket : public socket::ipv6::tcp::Socket {};
 
-    class WebApp6 : public WebAppT<http::legacy::Server6> {
-    public:
-        using WebAppT<http::legacy::Server6>::WebAppT;
-    };
+}; // namespace net::socket::ipv4::tcp::legacy
 
-} // namespace express::legacy
-
-#endif // LEGACY_WEBAPP_H
+#endif // NET_SOCKET_IPV4_TCP_LEGACY_SOCKET_H

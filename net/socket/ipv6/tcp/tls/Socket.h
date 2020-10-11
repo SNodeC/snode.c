@@ -16,28 +16,36 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LEGACY_WEBAPP_H
-#define LEGACY_WEBAPP_H
+#ifndef NET_SOCKET_IPV6_TCP_TLS_SOCKET_H
+#define NET_SOCKET_IPV6_TCP_TLS_SOCKET_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <openssl/ssl.h> // IWYU pragma: keep // for SSL, SSL_CTX
+
+// IWYU pragma: no_include <openssl/ossl_typ.h>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "WebAppT.h"
-#include "legacy/Server.h"
+#include "socket/ipv6/tcp/Socket.h"
 
-namespace express::legacy {
+namespace net::socket::ipv6::tcp::tls {
 
-    class WebApp : public WebAppT<http::legacy::Server> {
+    class Socket : public socket::ipv6::tcp::Socket {
     public:
-        using WebAppT<http::legacy::Server>::WebAppT;
+        void setSSL_CTX(SSL_CTX* ctx);
+        void clearSSL_CTX();
+
+        SSL* startSSL();
+        void stopSSL();
+
+        SSL* getSSL() const;
+
+    protected:
+        SSL* ssl = nullptr;
+        SSL_CTX* ctx = nullptr;
     };
 
-    class WebApp6 : public WebAppT<http::legacy::Server6> {
-    public:
-        using WebAppT<http::legacy::Server6>::WebAppT;
-    };
+}; // namespace net::socket::ipv4::tcp::tls
 
-} // namespace express::legacy
-
-#endif // LEGACY_WEBAPP_H
+#endif // NET_SOCKET_IPV6_TCP_TLS_SOCKET_H

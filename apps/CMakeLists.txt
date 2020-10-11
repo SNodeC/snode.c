@@ -42,6 +42,18 @@ if(CHECK_INCLUDES)
     set_property(TARGET simpleserver PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path_and_options})
 endif(CHECK_INCLUDES)
 
+add_executable(simpleserver6 simpleserver6.cpp)
+target_compile_options(simpleserver6 PRIVATE --warn-all)
+target_link_libraries(simpleserver6 LINK_PUBLIC express)
+install(TARGETS simpleserver6 RUNTIME DESTINATION bin)
+set_target_properties(simpleserver6 PROPERTIES
+            CXX_STANDARD 20
+            CXX_STANDARD_REQUIRED ON
+            CXX_EXTENSIONS OFF
+)
+if(CHECK_INCLUDES)
+    set_property(TARGET simpleserver6 PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path_and_options})
+endif(CHECK_INCLUDES)
 
 add_executable(verysimpleserver verysimpleserver.cpp)
 target_compile_options(verysimpleserver PRIVATE --warn-all)
@@ -106,6 +118,19 @@ set_target_properties(client PROPERTIES
 )
 if(CHECK_INCLUDES)
     set_property(TARGET client PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path_and_options})
+endif(CHECK_INCLUDES)
+
+add_executable(client6 client6.cpp)
+target_compile_options(client6 PRIVATE --warn-all)
+target_link_libraries(client6 LINK_PUBLIC http)
+install(TARGETS client6 RUNTIME DESTINATION bin)
+set_target_properties(client6 PROPERTIES
+            CXX_STANDARD 20
+            CXX_STANDARD_REQUIRED ON
+            CXX_EXTENSIONS OFF
+)
+if(CHECK_INCLUDES)
+    set_property(TARGET client6 PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path_and_options})
 endif(CHECK_INCLUDES)
 
 add_executable(lowlevelclient lowlevelclient.cpp)

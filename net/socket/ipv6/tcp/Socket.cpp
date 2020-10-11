@@ -16,28 +16,26 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LEGACY_WEBAPP_H
-#define LEGACY_WEBAPP_H
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <cerrno>
+#include <sys/socket.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "WebAppT.h"
-#include "legacy/Server.h"
+#include "Socket.h"
 
-namespace express::legacy {
+namespace net::socket::ipv6::tcp {
 
-    class WebApp : public WebAppT<http::legacy::Server> {
-    public:
-        using WebAppT<http::legacy::Server>::WebAppT;
-    };
+    void Socket::open(const std::function<void(int errnum)>& onError, int flags) {
+        int fd = ::socket(AF_INET6, SOCK_STREAM | flags, 0);
 
-    class WebApp6 : public WebAppT<http::legacy::Server6> {
-    public:
-        using WebAppT<http::legacy::Server6>::WebAppT;
-    };
+        if (fd >= 0) {
+            open(fd);
+            onError(0);
+        } else {
+            onError(errno);
+        }
+    }
 
-} // namespace express::legacy
-
-#endif // LEGACY_WEBAPP_H
+} // namespace net::socket::ipv4::tcp

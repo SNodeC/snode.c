@@ -24,7 +24,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "WebAppT.h"
-#include "socket/ipv4/tcp/tls/Socket.h"
 #include "tls/Server.h"
 
 namespace express::tls {
@@ -32,6 +31,11 @@ namespace express::tls {
     class WebApp : public WebAppT<http::tls::Server> {
     public:
         using WebAppT<http::tls::Server>::WebAppT;
+    };
+
+    class WebApp6 : public WebAppT<http::tls::Server6> {
+    public:
+        using WebAppT<http::tls::Server6>::WebAppT;
     };
 
 } // namespace express::tls

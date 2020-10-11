@@ -25,6 +25,7 @@
 
 #include "../Server.h"
 #include "socket/ipv4/tcp/legacy/SocketServer.h"
+#include "socket/ipv6/tcp/legacy/SocketServer.h"
 
 namespace http::legacy {
 
@@ -36,6 +37,16 @@ namespace http::legacy {
         using Socket = typename SocketServer::Socket;
 
         using http::Server<net::socket::ipv4::tcp::legacy::SocketServer>::Server;
+    };
+
+    class Server6 : public http::Server<net::socket::ipv6::tcp::legacy::SocketServer> {
+    public:
+        using SocketServer = net::socket::ipv6::tcp::legacy::SocketServer;
+        using SocketListener = typename SocketServer::SocketListener;
+        using SocketConnection = typename SocketListener::SocketConnection;
+        using Socket = typename SocketServer::Socket;
+
+        using http::Server<net::socket::ipv6::tcp::legacy::SocketServer>::Server;
     };
 
 } // namespace http::legacy

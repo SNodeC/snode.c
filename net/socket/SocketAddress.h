@@ -35,15 +35,15 @@ namespace net::socket {
         using SockAddr = SockAddrT;
 
         const struct sockaddr& getSockAddr() const {
-            return reinterpret_cast<const struct sockaddr&>(addr);
+            return reinterpret_cast<const struct sockaddr&>(sockAddr);
         }
 
         socklen_t getSockAddrLen() const {
-            return sizeof(getSockAddr());
+            return sizeof(SockAddr);
         }
 
     protected:
-        SockAddr addr{};
+        SockAddr sockAddr{};
     };
 
 } // namespace net::socket

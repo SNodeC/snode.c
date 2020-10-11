@@ -25,6 +25,7 @@
 
 #include "../Server.h"
 #include "socket/ipv4/tcp/tls/SocketServer.h"
+#include "socket/ipv6/tcp/tls/SocketServer.h"
 
 namespace http::tls {
 
@@ -36,6 +37,16 @@ namespace http::tls {
         using Socket = typename SocketServer::Socket;
 
         using http::Server<net::socket::ipv4::tcp::tls::SocketServer>::Server;
+    };
+
+    class Server6 : public http::Server<net::socket::ipv6::tcp::tls::SocketServer> {
+    public:
+        using SocketServer = net::socket::ipv6::tcp::tls::SocketServer;
+        using SocketListener = typename SocketServer::SocketListener;
+        using SocketConnection = typename SocketListener::SocketConnection;
+        using Socket = typename SocketServer::Socket;
+
+        using http::Server<net::socket::ipv6::tcp::tls::SocketServer>::Server;
     };
 
 } // namespace http::tls

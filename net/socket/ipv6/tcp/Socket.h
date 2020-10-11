@@ -16,28 +16,32 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LEGACY_WEBAPP_H
-#define LEGACY_WEBAPP_H
+#ifndef NET_SOCKET_IPV6_TCP_SOCKET_H
+#define NET_SOCKET_IPV6_TCP_SOCKET_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <functional>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "WebAppT.h"
-#include "legacy/Server.h"
+#include "Descriptor.h" // for Descriptor
+#include "socket/Socket.h"
+#include "socket/ipv6/InetAddress.h" // IWYU pragma: keep
 
-namespace express::legacy {
+namespace net::socket::ipv6::tcp {
 
-    class WebApp : public WebAppT<http::legacy::Server> {
+    class Socket : public net::socket::Socket<net::socket::ipv6::InetAddress> {
     public:
-        using WebAppT<http::legacy::Server>::WebAppT;
+        Socket() = default;
+
+        Socket(const Socket&) = delete;
+        Socket& operator=(const Socket&) = delete;
+
+        using net::Descriptor::open;
+        void open(const std::function<void(int errnum)>& onError, int flags = 0) override;
     };
 
-    class WebApp6 : public WebAppT<http::legacy::Server6> {
-    public:
-        using WebAppT<http::legacy::Server6>::WebAppT;
-    };
+} // namespace net::socket::ipv4::tcp
 
-} // namespace express::legacy
-
-#endif // LEGACY_WEBAPP_H
+#endif // NET_SOCKET_IPV6_TCP_SOCKET_H
