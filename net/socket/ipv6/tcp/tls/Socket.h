@@ -46,6 +46,6 @@ namespace net::socket::ipv6::tcp::tls {
         SSL_CTX* ctx = nullptr;
     };
 
-}; // namespace net::socket::ipv4::tcp::tls
+}; // namespace net::socket::ipv6::tcp::tls
 
 #endif // NET_SOCKET_IPV6_TCP_TLS_SOCKET_H

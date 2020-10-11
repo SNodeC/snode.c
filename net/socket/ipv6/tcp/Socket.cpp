@@ -38,4 +38,4 @@ namespace net::socket::ipv6::tcp {
         }
     }
 
-} // namespace net::socket::ipv4::tcp
+} // namespace net::socket::ipv6::tcp

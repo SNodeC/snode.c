@@ -29,6 +29,6 @@ namespace net::socket::ipv6::tcp::legacy {
 
     class Socket : public socket::ipv6::tcp::Socket {};
 
-}; // namespace net::socket::ipv4::tcp::legacy
+}; // namespace net::socket::ipv6::tcp::legacy
 
 #endif // NET_SOCKET_IPV4_TCP_LEGACY_SOCKET_H

@@ -42,6 +42,6 @@ namespace net::socket::ipv6::tcp {
         void open(const std::function<void(int errnum)>& onError, int flags = 0) override;
     };
 
-} // namespace net::socket::ipv4::tcp
+} // namespace net::socket::ipv6::tcp
 
 #endif // NET_SOCKET_IPV6_TCP_SOCKET_H
