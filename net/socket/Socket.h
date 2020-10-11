@@ -47,6 +47,7 @@ namespace net::socket {
                 ::shutdown(getFd(), SHUT_RDWR);
             }
         }
+
         virtual void open(const std::function<void(int errnum)>& onError, int flags = 0) = 0;
 
         void bind(const SocketAddress& localAddress, const std::function<void(int errnum)>& onError) {
