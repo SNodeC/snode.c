@@ -3,7 +3,6 @@
 #include <cstring>
 #include <netdb.h>
 #include <sys/socket.h>
-#include <sys/types.h>
 
 namespace net::socket::ipv6 {
 
