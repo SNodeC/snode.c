@@ -28,8 +28,11 @@
 
 namespace net::socket::ipv6::tcp::tls {
 
-    using SocketServer = net::socket::stream::tls::SocketServer<net::socket::ipv6::tcp::tls::Socket>;
+    class SocketServer : public net::socket::stream::tls::SocketServer<net::socket::ipv6::tcp::tls::Socket> {
+    public:
+        using net::socket::stream::tls::SocketServer<net::socket::ipv6::tcp::tls::Socket>::SocketServer;
+    };
 
-}
+} // namespace net::socket::ipv6::tcp::tls
 
 #endif // NET_SOCKET_IPV6_TCP_TLS_SOCKETSERVER_H
