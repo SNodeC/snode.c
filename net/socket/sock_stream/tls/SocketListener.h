@@ -37,8 +37,7 @@ namespace net::socket::stream::tls {
     class SocketListener : public net::socket::stream::SocketListener<net::socket::stream::tls::SocketConnection<SocketT>> {
     public:
         using Socket = SocketT;
-        using SocketConnection =
-            typename net::socket::stream::SocketListener<net::socket::stream::tls::SocketConnection<Socket>>::SocketConnection;
+        using SocketConnection = net::socket::stream::tls::SocketConnection<Socket>;
 
         SocketListener(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
                        const std::function<void(SocketConnection* socketConnection)>& onDestruct,
@@ -49,9 +48,12 @@ namespace net::socket::stream::tls {
                        const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                        const std::map<std::string, std::any>& options)
             : net::socket::stream::SocketListener<SocketConnection>(
-                  [onConstruct, &ctx = this->ctx](SocketConnection* socketConnection) -> void {
+                  [onConstruct, &ctx = this->ctx, onDestruct, onRead, onReadError, onWriteError, onDisconnect](
+                      SocketConnection* socketConnection) -> void {
                       socketConnection->setSSL_CTX(ctx);
                       onConstruct(socketConnection);
+                      [[maybe_unused]] SocketConnection* ssocketConnection =
+                          new SocketConnection(onConstruct, onDestruct, onRead, onReadError, onWriteError, onDisconnect);
                   },
                   [onDestruct](SocketConnection* socketConnection) -> void {
                       socketConnection->clearSSL_CTX();

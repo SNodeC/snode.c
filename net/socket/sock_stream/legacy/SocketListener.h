@@ -32,8 +32,7 @@ namespace net::socket::stream::legacy {
     class SocketListener : public net::socket::stream::SocketListener<net::socket::stream::legacy::SocketConnection<SocketT>> {
     public:
         using Socket = SocketT;
-        using SocketConnection =
-            typename net::socket::stream::SocketListener<net::socket::stream::legacy::SocketConnection<Socket>>::SocketConnection;
+        using SocketConnection = net::socket::stream::legacy::SocketConnection<Socket>;
 
         using net::socket::stream::SocketListener<net::socket::stream::legacy::SocketConnection<Socket>>::SocketListener;
     };
