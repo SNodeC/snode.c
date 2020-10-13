@@ -41,7 +41,7 @@ namespace net::socket::stream::tls {
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                          const std::function<void(SocketConnection* socketConnection)>& onDisconnect)
-            : stream::SocketConnection<tls::SocketReader<Socket>, tls::SocketWriter<Socket>>::SocketConnection(
+            : SocketConnectionSuper::SocketConnection(
                   []([[maybe_unused]] SocketConnectionSuper* socketConnection) -> void {
                   },
                   [onDestruct](SocketConnectionSuper* socketConnection) -> void {
@@ -84,8 +84,8 @@ namespace net::socket::stream::tls {
 
                 if (ssl != nullptr) {
                     ret = SSL_set_fd(ssl, Socket::getFd());
-                    tls::SocketReader<Socket>::ssl = ssl;
-                    tls::SocketWriter<Socket>::ssl = ssl;
+                    SocketReader<Socket>::ssl = ssl;
+                    SocketWriter<Socket>::ssl = ssl;
                 }
             }
 

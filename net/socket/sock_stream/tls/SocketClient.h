@@ -182,7 +182,7 @@ namespace net::socket::stream::tls {
                   onWriteError, // onWriteError
                   options) {
             ctx = SSL_CTX_new(TLS_client_method());
-            sslErr = net::socket::stream::tls::ssl_init_ctx(ctx, options, false);
+            sslErr = ssl_init_ctx(ctx, options, false);
         }
 
         ~SocketClient() override {

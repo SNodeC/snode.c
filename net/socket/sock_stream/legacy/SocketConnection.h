@@ -41,7 +41,7 @@ namespace net::socket::stream::legacy {
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                          const std::function<void(SocketConnection* socketConnection)>& onDisconnect)
-            : stream::SocketConnection<legacy::SocketReader<Socket>, legacy::SocketWriter<Socket>>::SocketConnection(
+            : SocketConnectionSuper::SocketConnection(
                   []([[maybe_unused]] SocketConnectionSuper* socketConnection) -> void {
                   },
                   [onDestruct](SocketConnectionSuper* socketConnection) -> void {

@@ -168,7 +168,7 @@ namespace net::socket::stream::tls {
                   onWriteError,
                   options) {
             ctx = SSL_CTX_new(TLS_server_method());
-            sslErr = net::socket::stream::tls::ssl_init_ctx(ctx, options, true);
+            sslErr = ssl_init_ctx(ctx, options, true);
         }
 
         ~SocketListener() override {
