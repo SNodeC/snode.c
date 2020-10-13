@@ -31,20 +31,7 @@
 
 namespace net::socket::ipv4::tcp::tls {
 
-    class Socket : public socket::ipv4::tcp::Socket {
-    public:
-        void setSSL_CTX(SSL_CTX* ctx);
-        void clearSSL_CTX();
-
-        SSL* startSSL();
-        void stopSSL();
-
-        SSL* getSSL() const;
-
-    protected:
-        SSL* ssl = nullptr;
-        SSL_CTX* ctx = nullptr;
-    };
+    class Socket : public socket::ipv4::tcp::Socket {};
 
 }; // namespace net::socket::ipv4::tcp::tls
 

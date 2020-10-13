@@ -166,8 +166,7 @@ namespace net::socket::stream::tls {
                   onRead,
                   onReadError,
                   onWriteError,
-                  options)
-            , ctx(nullptr) {
+                  options) {
             ctx = SSL_CTX_new(TLS_server_method());
             sslErr = net::socket::stream::tls::ssl_init_ctx(ctx, options, true);
         }

@@ -30,10 +30,10 @@
 namespace net::socket::stream::legacy {
 
     template <typename SocketT>
-    class SocketConnection : public socket::stream::SocketConnection<legacy::SocketReader<SocketT>, legacy::SocketWriter<SocketT>> {
+    class SocketConnection : public stream::SocketConnection<legacy::SocketReader<SocketT>, legacy::SocketWriter<SocketT>> {
     public:
         using Socket = SocketT;
-        using SocketConnectionSuper = socket::stream::SocketConnection<legacy::SocketReader<Socket>, legacy::SocketWriter<Socket>>;
+        using SocketConnectionSuper = stream::SocketConnection<legacy::SocketReader<Socket>, legacy::SocketWriter<Socket>>;
 
         SocketConnection(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
                          const std::function<void(SocketConnection* socketConnection)>& onDestruct,
@@ -41,9 +41,8 @@ namespace net::socket::stream::legacy {
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                          const std::function<void(SocketConnection* socketConnection)>& onDisconnect)
-            : socket::stream::SocketConnection<legacy::SocketReader<Socket>, legacy::SocketWriter<Socket>>::SocketConnection(
-                  [onConstruct](SocketConnectionSuper* socketConnection) -> void {
-                      onConstruct(static_cast<SocketConnection*>(socketConnection));
+            : stream::SocketConnection<legacy::SocketReader<Socket>, legacy::SocketWriter<Socket>>::SocketConnection(
+                  []([[maybe_unused]] SocketConnectionSuper* socketConnection) -> void {
                   },
                   [onDestruct](SocketConnectionSuper* socketConnection) -> void {
                       onDestruct(static_cast<SocketConnection*>(socketConnection));
@@ -51,36 +50,19 @@ namespace net::socket::stream::legacy {
                   [onRead](SocketConnectionSuper* socketConnection, const char* junk, ssize_t junkLen) -> void {
                       onRead(static_cast<SocketConnection*>(socketConnection), junk, junkLen);
                   },
-                  [onReadError](SocketConnectionSuper* socketConnection, [[maybe_unused]] int errnum) -> void {
+                  [onReadError](SocketConnectionSuper* socketConnection, int errnum) -> void {
                       onReadError(static_cast<SocketConnection*>(socketConnection), errnum);
                   },
-                  [onWriteError](SocketConnectionSuper* socketConnection, [[maybe_unused]] int errnum) -> void {
+                  [onWriteError](SocketConnectionSuper* socketConnection, int errnum) -> void {
                       onWriteError(static_cast<SocketConnection*>(socketConnection), errnum);
                   },
                   [onDisconnect](SocketConnectionSuper* socketConnection) -> void {
                       onDisconnect(static_cast<SocketConnection*>(socketConnection));
                   }) {
+            onConstruct(this);
         }
     };
 
 } // namespace net::socket::stream::legacy
 
 #endif // NET_SOCKET_SOCK_STREAM_LEGACY_SOCKETCONNECTION_H
-
-/*
-If using inheritance, try to call as (subclass)
-std::function<void(net::socket::stream::tls::SocketConnection<net::socket::ipv4::tcp::tls::Socket>*)>&,
-std::function<void(net::socket::stream::tls::SocketConnection<net::socket::ipv4::tcp::tls::Socket>*)>&,
-std::function<void(net::socket::stream::tls::SocketConnection<net::socket::ipv4::tcp::tls::Socket>*, const char*, long int)>&,
-std::function<void(net::socket::stream::tls::SocketConnection<net::socket::ipv4::tcp::tls::Socket>*, int)>&,
-std::function<void(net::socket::stream::tls::SocketConnection<net::socket::ipv4::tcp::tls::Socket>*, int)>&,
-std::function<void(net::socket::stream::tls::SocketConnection<net::socket::ipv4::tcp::tls::Socket>*)>&)’
-
-to (baseclass)
-const std::function<void(net::socket::stream::SocketConnection<SocketReaderT, SocketWriterT>*)>&,
-const std::function<void(net::socket::stream::SocketConnection<SocketReaderT, SocketWriterT>*)>&,
-const std::function<void(net::socket::stream::SocketConnection<SocketReaderT, SocketWriterT>*, const char*, long int)>&,
-const std::function<void(net::socket::stream::SocketConnection<SocketReaderT, SocketWriterT>*, int)>&,
-const std::function<void(net::socket::stream::SocketConnection<SocketReaderT, SocketWriterT>*, int)>&,
-const std::function<void(net::socket::stream::SocketConnection<SocketReaderT, SocketWriterT>*)>&)
-*/

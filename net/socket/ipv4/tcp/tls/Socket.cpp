@@ -26,48 +26,4 @@
 
 #include "Socket.h"
 
-namespace net::socket::ipv4::tcp::tls {
-
-    void Socket::setSSL_CTX(SSL_CTX* ctx) {
-        if (ctx != nullptr) {
-            this->ctx = ctx;
-            SSL_CTX_up_ref(ctx);
-        }
-    }
-
-    void Socket::clearSSL_CTX() {
-        if (ctx != nullptr) {
-            SSL_CTX_free(ctx);
-            ctx = nullptr;
-        }
-    }
-
-    SSL* Socket::startSSL() {
-        int ret = 0;
-
-        if (ctx != nullptr) {
-            ssl = SSL_new(ctx);
-
-            if (ssl != nullptr) {
-                ret = SSL_set_fd(ssl, getFd());
-            }
-        }
-
-        return ret == 1 ? ssl : nullptr;
-    }
-
-    void Socket::stopSSL() {
-        if (!dontClose()) {
-            if (ssl != nullptr) {
-                SSL_shutdown(ssl);
-                SSL_free(ssl);
-                ssl = nullptr;
-            }
-        }
-    }
-
-    SSL* Socket::getSSL() const {
-        return ssl;
-    }
-
-}; // namespace net::socket::ipv4::tcp::tls
+namespace net::socket::ipv4::tcp::tls {}; // namespace net::socket::ipv4::tcp::tls
