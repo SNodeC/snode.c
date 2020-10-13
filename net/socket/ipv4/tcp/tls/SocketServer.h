@@ -23,14 +23,14 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#include "Socket.h"
+#include "socket/ipv4/tcp/Socket.h"
 #include "socket/sock_stream/tls/SocketServer.h"
 
 namespace net::socket::ipv4::tcp::tls {
 
-    class SocketServer : public net::socket::stream::tls::SocketServer<net::socket::ipv4::tcp::tls::Socket> {
+    class SocketServer : public net::socket::stream::tls::SocketServer<net::socket::ipv4::tcp::Socket> {
     public:
-        using net::socket::stream::tls::SocketServer<net::socket::ipv4::tcp::tls::Socket>::SocketServer;
+        using net::socket::stream::tls::SocketServer<net::socket::ipv4::tcp::Socket>::SocketServer;
     };
 
 } // namespace net::socket::ipv4::tcp::tls

@@ -23,14 +23,14 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#include "Socket.h"
+#include "socket/ipv6/tcp/Socket.h"
 #include "socket/sock_stream/legacy/SocketServer.h"
 
 namespace net::socket::ipv6::tcp::legacy {
 
-    class SocketServer : public net::socket::stream::legacy::SocketServer<net::socket::ipv6::tcp::legacy::Socket> {
+    class SocketServer : public net::socket::stream::legacy::SocketServer<net::socket::ipv6::tcp::Socket> {
     public:
-        using net::socket::stream::legacy::SocketServer<net::socket::ipv6::tcp::legacy::Socket>::SocketServer;
+        using net::socket::stream::legacy::SocketServer<net::socket::ipv6::tcp::Socket>::SocketServer;
     };
 
 } // namespace net::socket::ipv6::tcp::legacy

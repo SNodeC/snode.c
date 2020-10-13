@@ -41,8 +41,11 @@ namespace net::socket::stream::tls {
         using socket::stream::SocketWriter<Socket>::SocketWriter;
 
         ssize_t write(const char* junk, size_t junkLen) override {
-            return ::SSL_write(Socket::ssl, junk, junkLen);
+            return ::SSL_write(ssl, junk, junkLen);
         }
+
+    protected:
+        SSL* ssl = nullptr;
     };
 
 }; // namespace net::socket::stream::tls

@@ -40,8 +40,11 @@ namespace net::socket::stream::tls {
         using socket::stream::SocketReader<Socket>::SocketReader;
 
         ssize_t read(char* junk, size_t junkLen) override {
-            return ::SSL_read(Socket::ssl, junk, junkLen);
+            return ::SSL_read(ssl, junk, junkLen);
         }
+
+    protected:
+        SSL* ssl = nullptr;
     };
 
 }; // namespace net::socket::stream::tls

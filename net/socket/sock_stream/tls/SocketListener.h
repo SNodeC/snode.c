@@ -52,8 +52,6 @@ namespace net::socket::stream::tls {
                       SocketConnection* socketConnection) -> void {
                       socketConnection->setSSL_CTX(ctx);
                       onConstruct(socketConnection);
-                      [[maybe_unused]] SocketConnection* ssocketConnection =
-                          new SocketConnection(onConstruct, onDestruct, onRead, onReadError, onWriteError, onDisconnect);
                   },
                   [onDestruct](SocketConnection* socketConnection) -> void {
                       socketConnection->clearSSL_CTX();
@@ -168,8 +166,7 @@ namespace net::socket::stream::tls {
                   onRead,
                   onReadError,
                   onWriteError,
-                  options)
-            , ctx(nullptr) {
+                  options) {
             ctx = SSL_CTX_new(TLS_server_method());
             sslErr = net::socket::stream::tls::ssl_init_ctx(ctx, options, true);
         }

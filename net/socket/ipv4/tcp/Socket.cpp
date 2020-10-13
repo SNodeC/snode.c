@@ -28,7 +28,7 @@
 namespace net::socket::ipv4::tcp {
 
     void Socket::open(const std::function<void(int errnum)>& onError, int flags) {
-        int fd = ::socket(AF_INET, SOCK_STREAM | flags, 0);
+        int fd = ::socket(PF_INET, SOCK_STREAM | flags, 0);
 
         if (fd >= 0) {
             open(fd);
