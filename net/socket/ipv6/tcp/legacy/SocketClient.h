@@ -23,14 +23,14 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#include "Socket.h"
+#include "socket/ipv6/tcp/Socket.h"
 #include "socket/sock_stream/legacy/SocketClient.h"
 
 namespace net::socket::ipv6::tcp::legacy {
 
-    class SocketClient : public net::socket::stream::legacy::SocketClient<net::socket::ipv6::tcp::legacy::Socket> {
+    class SocketClient : public net::socket::stream::legacy::SocketClient<net::socket::ipv6::tcp::Socket> {
     public:
-        using net::socket::stream::legacy::SocketClient<net::socket::ipv6::tcp::legacy::Socket>::SocketClient;
+        using net::socket::stream::legacy::SocketClient<net::socket::ipv6::tcp::Socket>::SocketClient;
     };
 
 } // namespace net::socket::ipv6::tcp::legacy
