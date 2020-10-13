@@ -1,4 +1,3 @@
-
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020 Volker Christian <me@vchrist.at>
