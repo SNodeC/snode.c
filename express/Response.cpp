@@ -70,7 +70,6 @@ namespace express {
             } else {
                 responseStatus = 403;
                 errno = EACCES;
-                serverContext->terminateConnection();
                 if (onError) {
                     onError(EACCES);
                 }
@@ -79,7 +78,6 @@ namespace express {
         } else {
             responseStatus = 404;
             errno = ENOENT;
-            serverContext->terminateConnection();
             if (onError) {
                 onError(ENOENT);
             }
