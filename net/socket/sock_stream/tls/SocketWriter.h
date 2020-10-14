@@ -22,6 +22,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef> // for size_t
+#include <openssl/err.h>
 #include <openssl/ssl.h>
 #include <sys/types.h> // for ssize_t
 
@@ -41,7 +42,26 @@ namespace net::socket::stream::tls {
         using socket::stream::SocketWriter<Socket>::SocketWriter;
 
         ssize_t write(const char* junk, size_t junkLen) override {
-            return ::SSL_write(ssl, junk, junkLen);
+            int ret = ::SSL_write(ssl, junk, junkLen);
+
+            if (ret <= 0) {
+                switch (SSL_get_error(ssl, ret)) {
+                    case SSL_ERROR_WANT_WRITE:
+                    case SSL_ERROR_WANT_READ:
+                        errno = EAGAIN;
+                        [[fallthrough]];
+                    case SSL_ERROR_NONE:
+                    case SSL_ERROR_ZERO_RETURN:
+                    case SSL_ERROR_SYSCALL:
+                        ret = 0;
+                        break;
+                    default:
+                        ret = -ERR_peek_error();
+                        break;
+                }
+            }
+
+            return ret;
         }
 
     protected:

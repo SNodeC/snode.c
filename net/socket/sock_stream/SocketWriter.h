@@ -61,7 +61,7 @@ namespace net::socket::stream {
 
             ssize_t ret = write(writeBuffer.data(), (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE);
 
-            if (ret >= 0) {
+            if (ret > 0) {
                 writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + ret);
 
                 if (writeBuffer.empty()) {
@@ -69,7 +69,7 @@ namespace net::socket::stream {
                 }
             } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
                 WriteEventReceiver::disable();
-                onError(errno);
+                onError(ret < 0 ? ret : errno);
             }
         }
 
