@@ -29,7 +29,7 @@
 
 namespace net::socket::stream {
 
-    template <typename SocketReaderT, typename SocketWriterT>
+    template <typename SocketReaderT, typename SocketWriterT, typename SocketAddressT>
     class SocketConnection
         : public SocketConnectionBase
         , public SocketReaderT
@@ -37,12 +37,12 @@ namespace net::socket::stream {
     public:
         using SocketReader = SocketReaderT;
         using SocketWriter = SocketWriterT;
-        using Socket = typename SocketReader::Socket;
+        using SocketAddress = SocketAddressT;
 
         void* operator new(size_t size) {
-            SocketConnection<SocketReader, SocketWriter>::lastAllocAddress = malloc(size);
+            SocketConnection<SocketReader, SocketWriter, SocketAddress>::lastAllocAddress = malloc(size);
 
-            return SocketConnection<SocketReader, SocketWriter>::lastAllocAddress;
+            return SocketConnection<SocketReader, SocketWriter, SocketAddress>::lastAllocAddress;
         }
 
         void operator delete(void* socketConnection_v) {
@@ -102,16 +102,16 @@ namespace net::socket::stream {
             }
         }
 
-        const typename Socket::SocketAddress& getRemoteAddress() const {
+        const SocketAddress& getRemoteAddress() const {
             return remoteAddress;
         }
 
-        void setRemoteAddress(const typename Socket::SocketAddress& remoteAddress) {
+        void setRemoteAddress(const SocketAddress& remoteAddress) {
             this->remoteAddress = remoteAddress;
         }
 
     private:
-        typename Socket::SocketAddress remoteAddress{};
+        SocketAddress remoteAddress{};
         std::function<void(SocketConnection* socketConnection)> onDestruct;
         std::function<void(SocketConnection* socketConnection)> onDisconnect;
 
@@ -119,8 +119,8 @@ namespace net::socket::stream {
         static void* lastAllocAddress;
     };
 
-    template <typename SocketReader, typename SocketWriter>
-    void* SocketConnection<SocketReader, SocketWriter>::lastAllocAddress = nullptr;
+    template <typename SocketReader, typename SocketWriter, typename SocketAddress>
+    void* SocketConnection<SocketReader, SocketWriter, SocketAddress>::lastAllocAddress = nullptr;
 
 } // namespace net::socket::stream
 

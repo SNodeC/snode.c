@@ -30,10 +30,12 @@
 namespace net::socket::stream::tls {
 
     template <typename SocketT>
-    class SocketConnection : public stream::SocketConnection<tls::SocketReader<SocketT>, tls::SocketWriter<SocketT>> {
+    class SocketConnection
+        : public stream::SocketConnection<tls::SocketReader<SocketT>, tls::SocketWriter<SocketT>, typename SocketT::SocketAddress> {
     public:
         using Socket = SocketT;
-        using SocketConnectionSuper = stream::SocketConnection<tls::SocketReader<Socket>, tls::SocketWriter<Socket>>;
+        using SocketConnectionSuper =
+            stream::SocketConnection<tls::SocketReader<Socket>, tls::SocketWriter<Socket>, typename Socket::SocketAddress>;
 
         SocketConnection(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
                          const std::function<void(SocketConnection* socketConnection)>& onDestruct,
@@ -98,6 +100,8 @@ namespace net::socket::stream::tls {
                     SSL_shutdown(ssl);
                     SSL_free(ssl);
                     ssl = nullptr;
+                    SocketReader<Socket>::ssl = ssl;
+                    SocketWriter<Socket>::ssl = ssl;
                 }
             }
         }

@@ -30,10 +30,12 @@
 namespace net::socket::stream::legacy {
 
     template <typename SocketT>
-    class SocketConnection : public stream::SocketConnection<legacy::SocketReader<SocketT>, legacy::SocketWriter<SocketT>> {
+    class SocketConnection
+        : public stream::SocketConnection<legacy::SocketReader<SocketT>, legacy::SocketWriter<SocketT>, typename SocketT::SocketAddress> {
     public:
         using Socket = SocketT;
-        using SocketConnectionSuper = stream::SocketConnection<legacy::SocketReader<Socket>, legacy::SocketWriter<Socket>>;
+        using SocketConnectionSuper =
+            stream::SocketConnection<legacy::SocketReader<Socket>, legacy::SocketWriter<Socket>, typename Socket::SocketAddress>;
 
         SocketConnection(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
                          const std::function<void(SocketConnection* socketConnection)>& onDestruct,
