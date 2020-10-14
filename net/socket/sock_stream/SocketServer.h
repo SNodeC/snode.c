@@ -58,9 +58,6 @@ namespace net::socket::stream {
         }
 
         SocketServer() = delete;
-        SocketServer(const SocketServer&) = delete;
-
-        SocketServer& operator=(const SocketServer&) = delete;
 
         virtual ~SocketServer() = default;
 
