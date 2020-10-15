@@ -36,6 +36,7 @@ namespace net {
 
     protected:
         int observationCounter = 0;
+        time_t lastTriggered = 0;
     };
 
     class EventReceiver : virtual public ObservationCounter {
@@ -105,7 +106,6 @@ namespace net {
         bool _enabled = false;
 
         long maxInactivity = LONG_MAX;
-        time_t lastTriggered = 0;
 
         template <typename EventReceiver>
         friend class EventDispatcher;
