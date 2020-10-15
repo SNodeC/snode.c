@@ -121,8 +121,10 @@ namespace net::socket::stream::tls {
                         [[fallthrough]];
                     case SSL_ERROR_NONE:
                     case SSL_ERROR_ZERO_RETURN:
-                    case SSL_ERROR_SYSCALL:
                         ret = 0;
+                        break;
+                    case SSL_ERROR_SYSCALL:
+                        ret = -1;
                         break;
                     default:
                         ret = -ERR_peek_error();
