@@ -28,6 +28,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Descriptor.h"
+#include "WriteEventReceiver.h"
 #include "socket/sock_stream/SocketReader.h"
 
 // IWYU pragma: no_forward_declare tls::Socket
@@ -45,11 +47,77 @@ namespace net::socket::stream::tls {
             int ret = ::SSL_read(ssl, junk, junkLen);
 
             if (ret <= 0) {
-                switch (SSL_get_error(ssl, ret)) {
+                int sslErr = SSL_get_error(ssl, ret);
+
+                switch (sslErr) {
                     case SSL_ERROR_WANT_WRITE:
                     case SSL_ERROR_WANT_READ:
+                        class Renegotiator
+                            : public ReadEventReceiver
+                            , public WriteEventReceiver
+                            , public Descriptor {
+                        public:
+                            Renegotiator(SocketReader* socketReader, SSL* ssl, int sslErr)
+                                : socketReader(socketReader)
+                                , ssl(ssl) {
+                                this->open(socketReader->getFd(), FLAGS::dontClose);
+
+                                switch (sslErr) {
+                                    case SSL_ERROR_WANT_READ:
+                                        ReadEventReceiver::enable();
+                                        break;
+                                    case SSL_ERROR_WANT_WRITE:
+                                        WriteEventReceiver::enable();
+                                        break;
+                                }
+                            }
+
+                            void readEvent() override {
+                                int ret = SSL_read(ssl, nullptr, 0);
+                                int sslErr = SSL_get_error(ssl, ret);
+
+                                switch (sslErr) {
+                                    case SSL_ERROR_WANT_WRITE:
+                                        ReadEventReceiver::disable();
+                                        WriteEventReceiver::enable();
+                                        break;
+                                    case SSL_ERROR_WANT_READ:
+                                        break;
+                                    default:
+                                        ReadEventReceiver::disable();
+                                        break;
+                                }
+                            }
+
+                            void writeEvent() override {
+                                int ret = SSL_read(ssl, nullptr, 0);
+                                int sslErr = SSL_get_error(ssl, ret);
+
+                                switch (sslErr) {
+                                    case SSL_ERROR_WANT_READ:
+                                        WriteEventReceiver::disable();
+                                        ReadEventReceiver::enable();
+                                        break;
+                                    case SSL_ERROR_WANT_WRITE:
+                                        break;
+                                    default:
+                                        WriteEventReceiver::disable();
+                                        break;
+                                }
+                            }
+
+                            void unobserved() override {
+                                delete this;
+                            }
+
+                        private:
+                            SocketReader* socketReader = nullptr;
+                            SSL* ssl;
+                        };
+
+                        new Renegotiator(this, ssl, sslErr);
+
                         errno = EAGAIN;
-                        ret = 0;
                         [[fallthrough]];
                     case SSL_ERROR_NONE:
                     case SSL_ERROR_ZERO_RETURN:
@@ -68,7 +136,6 @@ namespace net::socket::stream::tls {
     protected:
         SSL* ssl = nullptr;
     };
-
 }; // namespace net::socket::stream::tls
 
 #endif // NET_SOCKET_SOCK_STREAM_TLS_SOCKETREADER_H
