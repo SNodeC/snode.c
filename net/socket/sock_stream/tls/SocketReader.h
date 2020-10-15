@@ -29,6 +29,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Descriptor.h"
+#include "Logger.h"
 #include "WriteEventReceiver.h"
 #include "socket/sock_stream/SocketReader.h"
 
@@ -57,11 +58,9 @@ namespace net::socket::stream::tls {
                             , public WriteEventReceiver
                             , public Descriptor {
                         public:
-                            Renegotiator(SocketReader* socketReader, SSL* ssl, int sslErr)
-                                : socketReader(socketReader)
-                                , ssl(ssl) {
-                                this->open(socketReader->getFd(), FLAGS::dontClose);
-
+                            Renegotiator(SSL* ssl, int sslErr)
+                                : ssl(ssl) {
+                                this->open(SSL_get_fd(ssl), FLAGS::dontClose);
                                 switch (sslErr) {
                                     case SSL_ERROR_WANT_READ:
                                         ReadEventReceiver::enable();
@@ -111,11 +110,10 @@ namespace net::socket::stream::tls {
                             }
 
                         private:
-                            SocketReader* socketReader = nullptr;
                             SSL* ssl;
                         };
 
-                        new Renegotiator(this, ssl, sslErr);
+                        new Renegotiator(ssl, sslErr);
 
                         errno = EAGAIN;
                         [[fallthrough]];

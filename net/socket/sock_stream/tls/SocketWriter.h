@@ -57,10 +57,9 @@ namespace net::socket::stream::tls {
                             , public WriteEventReceiver
                             , public Descriptor {
                         public:
-                            Renegotiator(SocketWriter* socketWriter, SSL* ssl, int sslErr)
-                                : socketWriter(socketWriter)
-                                , ssl(ssl) {
-                                this->open(socketWriter->getFd(), FLAGS::dontClose);
+                            Renegotiator(SSL* ssl, int sslErr)
+                                : ssl(ssl) {
+                                this->open(SSL_get_fd(ssl), FLAGS::dontClose);
 
                                 switch (sslErr) {
                                     case SSL_ERROR_WANT_READ:
@@ -111,11 +110,10 @@ namespace net::socket::stream::tls {
                             }
 
                         private:
-                            SocketWriter* socketWriter = nullptr;
                             SSL* ssl;
                         };
 
-                        new Renegotiator(this, ssl, sslErr);
+                        new Renegotiator(ssl, sslErr);
 
                         errno = EAGAIN;
                         [[fallthrough]];
