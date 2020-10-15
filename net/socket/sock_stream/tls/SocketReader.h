@@ -68,6 +68,8 @@ namespace net::socket::stream::tls {
                                     case SSL_ERROR_WANT_WRITE:
                                         WriteEventReceiver::enable();
                                         break;
+                                    default:
+                                        delete this;
                                 }
                             }
 

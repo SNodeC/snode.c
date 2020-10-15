@@ -67,7 +67,6 @@ namespace net::socket::stream::tls {
                               const std::function<void(SocketConnection* socketConnection)>& onConnect,
                               const std::function<void(int err)>& onError)
                               : socketConnection(socketConnection)
-                              , ssl(socketConnection->startSSL())
                               , onConnect(onConnect)
                               , onError(onError)
                               , timeOut(net::timer::Timer::singleshotTimer(
@@ -79,6 +78,8 @@ namespace net::socket::stream::tls {
                                     (struct timeval){TLSACCEPT_TIMEOUT, 0},
                                     nullptr)) {
                               open(socketConnection->getFd(), FLAGS::dontClose);
+
+                              ssl = socketConnection->startSSL();
 
                               if (ssl != nullptr) {
                                   int err = SSL_accept(ssl);
