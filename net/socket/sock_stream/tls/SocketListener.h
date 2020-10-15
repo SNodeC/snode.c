@@ -58,19 +58,18 @@ namespace net::socket::stream::tls {
                       onDestruct(socketConnection);
                   },
                   [onConnect](SocketConnection* socketConnection) -> void {
-                      SSL* ssl = socketConnection->startSSL();
-
-                      class Acceptor
+                      class TLS
                           : public ReadEventReceiver
                           , public WriteEventReceiver
                           , public Descriptor {
                       public:
-                          Acceptor(SocketConnection* socketConnection,
-                                   SSL* ssl,
-                                   const std::function<void(SocketConnection* socketConnection)>& onConnect)
+                          TLS(SocketConnection* socketConnection,
+                              const std::function<void(SocketConnection* socketConnection)>& onConnect,
+                              const std::function<void(int err)>& onError)
                               : socketConnection(socketConnection)
-                              , ssl(ssl)
+                              , ssl(socketConnection->startSSL())
                               , onConnect(onConnect)
+                              , onError(onError)
                               , timeOut(net::timer::Timer::singleshotTimer(
                                     [this, socketConnection](const void*) -> void {
                                         ReadEventReceiver::disable();
@@ -91,18 +90,20 @@ namespace net::socket::stream::tls {
                                       WriteEventReceiver::enable();
                                   } else {
                                       if (sslErr == SSL_ERROR_NONE) {
+                                          onError(0);
                                           onConnect(socketConnection);
                                       } else {
+                                          onError(-ERR_peek_error());
                                           socketConnection->ReadEventReceiver::disable();
                                       }
                                       timeOut.cancel();
-                                      unobserved();
+                                      delete this;
                                   }
                               } else {
-                                  onConnect(socketConnection);
+                                  onError(-ERR_peek_error());
                                   socketConnection->ReadEventReceiver::disable();
                                   timeOut.cancel();
-                                  unobserved();
+                                  delete this;
                               }
                           }
 
@@ -118,8 +119,10 @@ namespace net::socket::stream::tls {
                                       timeOut.cancel();
                                       ReadEventReceiver::disable();
                                       if (sslErr == SSL_ERROR_NONE) {
+                                          onError(0);
                                           onConnect(socketConnection);
                                       } else {
+                                          onError(-ERR_peek_error());
                                           socketConnection->ReadEventReceiver::disable();
                                       }
                                   }
@@ -138,8 +141,10 @@ namespace net::socket::stream::tls {
                                       timeOut.cancel();
                                       WriteEventReceiver::disable();
                                       if (sslErr == SSL_ERROR_NONE) {
+                                          onError(0);
                                           onConnect(socketConnection);
                                       } else {
+                                          onError(-ERR_peek_error());
                                           socketConnection->WriteEventReceiver::disable();
                                       }
                                   }
@@ -150,14 +155,23 @@ namespace net::socket::stream::tls {
                               delete this;
                           }
 
+                          static void start(SocketConnection* socketConnection,
+                                            const std::function<void(SocketConnection* socketConnection)>& onConnect,
+                                            const std::function<void(int err)>& onError) {
+                              new TLS(socketConnection, onConnect, onError);
+                          }
+
                       private:
                           SocketConnection* socketConnection = nullptr;
                           SSL* ssl = nullptr;
                           std::function<void(SocketConnection* socketConnection)> onConnect;
+                          std::function<void(int err)> onError;
                           net::timer::Timer& timeOut;
                       };
 
-                      new Acceptor(socketConnection, ssl, onConnect);
+                      TLS::start(socketConnection, onConnect, []([[maybe_unused]] int err) -> void {
+                          PLOG(INFO) << "TLS connection not accepted";
+                      });
                   },
                   [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
                       socketConnection->stopSSL();

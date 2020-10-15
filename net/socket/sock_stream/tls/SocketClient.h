@@ -62,19 +62,16 @@ namespace net::socket::stream::tls {
                       onDestruct(socketConnection);
                   },
                   [onConnect, &onError = this->onError](SocketConnection* socketConnection) -> void { // onConnect
-                      SSL* ssl = socketConnection->startSSL();
-
-                      class Connector
+                      class TLS
                           : public ReadEventReceiver
                           , public WriteEventReceiver
                           , public Descriptor {
                       public:
-                          Connector(SocketConnection* socketConnection,
-                                    SSL* ssl,
-                                    const std::function<void(SocketConnection* socketConnection)>& onConnect,
-                                    const std::function<void(int err)>& onError)
+                          TLS(SocketConnection* socketConnection,
+                              const std::function<void(SocketConnection* socketConnection)>& onConnect,
+                              const std::function<void(int err)>& onError)
                               : socketConnection(socketConnection)
-                              , ssl(ssl)
+                              , ssl(socketConnection->startSSL())
                               , onConnect(onConnect)
                               , onError(onError)
                               , timeOut(timer::Timer::singleshotTimer(
@@ -163,6 +160,12 @@ namespace net::socket::stream::tls {
                               delete this;
                           }
 
+                          static void start(SocketConnection* socketConnection,
+                                            const std::function<void(SocketConnection* socketConnection)>& onConnect,
+                                            const std::function<void(int err)>& onError) {
+                              new TLS(socketConnection, onConnect, onError);
+                          }
+
                       private:
                           SocketConnection* socketConnection = nullptr;
                           SSL* ssl = nullptr;
@@ -171,7 +174,7 @@ namespace net::socket::stream::tls {
                           timer::Timer& timeOut;
                       };
 
-                      new Connector(socketConnection, ssl, onConnect, onError);
+                      TLS::start(socketConnection, onConnect, onError);
                   },
                   [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
                       socketConnection->stopSSL();
