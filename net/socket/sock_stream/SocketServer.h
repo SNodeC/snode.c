@@ -62,13 +62,13 @@ namespace net::socket::stream {
         virtual ~SocketServer() = default;
 
     public:
-        void listen(const typename SocketConnection::Socket::SocketAddress& localAddress,
+        void listen(const typename SocketConnection::Socket::SocketAddress& bindAddress,
                     int backlog,
                     const std::function<void(int err)>& onError) {
             SocketListener* socketListener =
                 new SocketListener(onConstruct, onDestruct, onConnect, onDisconnect, onRead, onReadError, onWriteError, options);
 
-            socketListener->listen(localAddress, backlog, onError);
+            socketListener->listen(bindAddress, backlog, onError);
         }
 
         void listen(unsigned short port, int backlog, const std::function<void(int err)>& onError) {

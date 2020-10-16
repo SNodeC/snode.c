@@ -71,7 +71,7 @@ namespace net::socket::stream {
         virtual void
         connect(const std::map<std::string, std::any>& options,
                 const std::function<void(int err)>& onError,
-                const typename SocketConnection::Socket::SocketAddress& localAddress = typename SocketConnection::Socket::SocketAddress()) {
+                const typename SocketConnection::Socket::SocketAddress& bindAddress = typename SocketConnection::Socket::SocketAddress()) {
             std::string host = "";
             unsigned short port = 0;
 
@@ -87,12 +87,12 @@ namespace net::socket::stream {
                 new SocketConnection(onConstruct, onDestruct, onRead, onReadError, onWriteError, onDisconnect);
 
             socketConnection->open(
-                [socketConnection, &host, &port, &localAddress, &onConnect = this->onConnect, &onError](int err) -> void {
+                [socketConnection, &host, &port, &bindAddress, &onConnect = this->onConnect, &onError](int err) -> void {
                     if (err) {
                         onError(err);
                         delete socketConnection;
                     } else {
-                        socketConnection->bind(localAddress, [socketConnection, &host, &port, &onConnect, &onError](int err) -> void {
+                        socketConnection->bind(bindAddress, [socketConnection, &host, &port, &onConnect, &onError](int err) -> void {
                             if (err) {
                                 onError(err);
                                 delete socketConnection;
@@ -119,6 +119,7 @@ namespace net::socket::stream {
                                               (struct timeval){CONNECT_TIMEOUT, 0},
                                               nullptr)) {
                                         open(socketConnection->getFd(), FLAGS::dontClose);
+
                                         errno = 0;
                                         int ret = ::connect(socketConnection->getFd(), &server.getSockAddr(), server.getSockAddrLen());
 

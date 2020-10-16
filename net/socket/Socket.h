@@ -56,21 +56,21 @@ namespace net::socket {
             if (ret < 0) {
                 onError(errno);
             } else {
-                this->boundAddress = bindAddress;
+                this->bindAddress = bindAddress;
                 onError(0);
             }
         }
 
-        const SocketAddress& getBoundAddress() const {
-            return boundAddress;
+        const SocketAddress& getBindAddress() const {
+            return bindAddress;
         }
 
-        void setBoundAddress(const SocketAddress& boundAddress) {
-            this->boundAddress = boundAddress;
+        void setBindAddress(const SocketAddress& bindAddress) {
+            this->bindAddress = bindAddress;
         }
 
     protected:
-        SocketAddress boundAddress{};
+        SocketAddress bindAddress{};
     };
 
 } // namespace net::socket
