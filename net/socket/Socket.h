@@ -50,26 +50,27 @@ namespace net::socket {
 
         virtual void open(const std::function<void(int errnum)>& onError, int flags = 0) = 0;
 
-        void bind(const SocketAddress& localAddress, const std::function<void(int errnum)>& onError) {
-            int ret = ::bind(getFd(), &localAddress.getSockAddr(), sizeof(typename SocketAddress::SockAddr));
+        void bind(const SocketAddress& bindAddress, const std::function<void(int errnum)>& onError) {
+            int ret = ::bind(getFd(), &bindAddress.getSockAddr(), sizeof(typename SocketAddress::SockAddr));
 
             if (ret < 0) {
                 onError(errno);
             } else {
+                this->boundAddress = bindAddress;
                 onError(0);
             }
         }
 
-        const SocketAddress& getLocalAddress() const {
-            return localAddress;
+        const SocketAddress& getBoundAddress() const {
+            return boundAddress;
         }
 
-        void setLocalAddress(const SocketAddress& localAddress) {
-            this->localAddress = localAddress;
+        void setBoundAddress(const SocketAddress& boundAddress) {
+            this->boundAddress = boundAddress;
         }
 
     protected:
-        SocketAddress localAddress{};
+        SocketAddress boundAddress{};
     };
 
 } // namespace net::socket

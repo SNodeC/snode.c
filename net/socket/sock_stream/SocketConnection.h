@@ -110,8 +110,18 @@ namespace net::socket::stream {
             this->remoteAddress = remoteAddress;
         }
 
+        const SocketAddress& getLocalAddress() const {
+            return localAddress;
+        }
+
+        void setLocalAddress(const SocketAddress& localAddress) {
+            this->localAddress = localAddress;
+        }
+
     private:
         SocketAddress remoteAddress{};
+        SocketAddress localAddress{};
+
         std::function<void(SocketConnection* socketConnection)> onDestruct;
         std::function<void(SocketConnection* socketConnection)> onDisconnect;
 
