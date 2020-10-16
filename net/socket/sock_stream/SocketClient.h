@@ -130,19 +130,19 @@ namespace net::socket::stream {
                                             socketConnection->setLocalAddress(
                                                 typename SocketConnection::Socket::SocketAddress(localAddress));
                                             socketConnection->setRemoteAddress(server);
-                                        }
 
-                                        if (ret == 0) {
-                                            timeOut.cancel();
+                                            if (ret == 0) {
+                                                timeOut.cancel();
 
-                                            socketConnection->ReadEventReceiver::enable();
+                                                socketConnection->ReadEventReceiver::enable();
 
-                                            onError(0);
-                                            onConnect(socketConnection);
+                                                onError(0);
+                                                onConnect(socketConnection);
 
-                                            delete this;
-                                        } else if (errno == EINPROGRESS) {
-                                            WriteEventReceiver::enable();
+                                                delete this;
+                                            } else if (errno == EINPROGRESS) {
+                                                WriteEventReceiver::enable();
+                                            }
                                         } else {
                                             timeOut.cancel();
                                             onError(errno);
