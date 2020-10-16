@@ -110,6 +110,10 @@ namespace net::socket::stream::tls {
             return ssl;
         }
 
+        SSL_CTX* getSSL_CTX() const {
+            return ctx;
+        }
+
     protected:
         SSL* ssl = nullptr;
         SSL_CTX* ctx = nullptr;
