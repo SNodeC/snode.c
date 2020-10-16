@@ -4,76 +4,24 @@ find_package(OpenSSL REQUIRED)
 
 add_library(net SHARED
     Descriptor.cpp
-    Descriptor.h
     OutOfBandEventDispatcher.cpp
-    OutOfBandEventDispatcher.h
     ReadEventDispatcher.cpp
-    ReadEventDispatcher.h
     AcceptEventDispatcher.cpp
-    AcceptEventDispatcher.h
     TimerEventDispatcher.cpp
-    TimerEventDispatcher.h
     WriteEventDispatcher.cpp
-    WriteEventDispatcher.h
-    EventDispatcher.h
-    EventReceiver.h
     EventLoop.cpp
-    EventLoop.h
     OutOfBandEventReceiver.cpp
-    OutOfBandEventReceiver.h
     ReadEventReceiver.cpp
-    ReadEventReceiver.h
     AcceptEventReceiver.cpp
-    AcceptEventReceiver.h
     WriteEventReceiver.cpp
-    WriteEventReceiver.h
     file/File.cpp
-    file/File.h
     file/FileReader.cpp
-    file/FileReader.h
     socket/ipv4/InetAddress.cpp
-    socket/ipv4/InetAddress.h
     socket/ipv4/tcp/Socket.cpp
-    socket/ipv4/tcp/Socket.h
-    socket/ipv4/tcp/legacy/SocketClient.h
-    socket/ipv4/tcp/legacy/SocketServer.h
-    socket/ipv4/tcp/tls/SocketClient.h
-    socket/ipv4/tcp/tls/SocketServer.h
     socket/ipv6/InetAddress.cpp
-    socket/ipv6/InetAddress.h
     socket/ipv6/tcp/Socket.cpp
-    socket/ipv6/tcp/Socket.h
-    socket/ipv6/tcp/legacy/SocketClient.h
-    socket/ipv6/tcp/legacy/SocketServer.h
-    socket/ipv6/tcp/tls/SocketClient.h
-    socket/ipv6/tcp/tls/SocketServer.h
-    socket/Socket.h
-    socket/SocketAddress.h
-    socket/sock_stream/SocketClient.h
-    socket/sock_stream/SocketConnection.h
-    socket/sock_stream/SocketConnectionBase.h
-    socket/sock_stream/SocketListener.h
-    socket/sock_stream/SocketReader.h
-    socket/sock_stream/SocketWriter.h
-    socket/sock_stream/SocketServer.h
-    socket/sock_stream/legacy/SocketClient.h
-    socket/sock_stream/legacy/SocketConnection.h
-    socket/sock_stream/legacy/SocketListener.h
-    socket/sock_stream/legacy/SocketReader.h
-    socket/sock_stream/legacy/SocketWriter.h
-    socket/sock_stream/legacy/SocketServer.h
     socket/sock_stream/tls/ssl_utils.cpp
-    socket/sock_stream/tls/ssl_utils.h
-    socket/sock_stream/tls/SocketClient.h
-    socket/sock_stream/tls/SocketConnection.h
-    socket/sock_stream/tls/SocketListener.h
-    socket/sock_stream/tls/SocketReader.h
-    socket/sock_stream/tls/SocketWriter.h
-    socket/sock_stream/tls/SocketServer.h
-    timer/IntervalTimer.h
-    timer/SingleshotTimer.h
     timer/Timer.cpp
-    timer/Timer.h
 )
 
 target_link_libraries(net LINK_PUBLIC logger utils ${OPENSSL_LIBRARIES})

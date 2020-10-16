@@ -52,7 +52,6 @@ target_compile_definitions(easylogging++ PRIVATE ELPP_NO_DEFAULT_LOG_FILE)
 
 add_library(logger SHARED
     Logger.cpp
-    Logger.h
 )
 
 set_target_properties(logger PROPERTIES

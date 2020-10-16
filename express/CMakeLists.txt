@@ -6,20 +6,11 @@ find_package(nlohmann_json 3.7.0 REQUIRED)
 
 add_library(express SHARED
     Response.cpp
-    Response.h
     Request.cpp
-    Request.h
     Router.cpp
-    Router.h
     WebApp.cpp
-    WebApp.h
-    WebAppT.h
-    legacy/WebApp.h
-    tls/WebApp.h
     middleware/JsonMiddleware.cpp
-    middleware/JsonMiddleware.h
     middleware/StaticMiddleware.cpp
-    middleware/StaticMiddleware.h
 )
 
 target_link_libraries(express LINK_PUBLIC http)
