@@ -34,7 +34,7 @@ namespace http::tls {
         using SocketServer = net::socket::ipv4::tcp::tls::SocketServer;
         using SocketListener = typename SocketServer::SocketListener;
         using SocketConnection = typename SocketListener::SocketConnection;
-        using Socket = typename SocketServer::Socket;
+        using Socket = typename SocketConnection::Socket;
 
         using http::Server<net::socket::ipv4::tcp::tls::SocketServer>::Server;
     };
@@ -44,7 +44,7 @@ namespace http::tls {
         using SocketServer = net::socket::ipv6::tcp::tls::SocketServer;
         using SocketListener = typename SocketServer::SocketListener;
         using SocketConnection = typename SocketListener::SocketConnection;
-        using Socket = typename SocketServer::Socket;
+        using Socket = typename SocketConnection::Socket;
 
         using http::Server<net::socket::ipv6::tcp::tls::SocketServer>::Server;
     };

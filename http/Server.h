@@ -23,7 +23,6 @@ namespace http {
     class Server {
     public:
         using SocketServer = SocketServerT;
-        using SocketListener = typename SocketServer::SocketListener;
         using SocketConnection = typename SocketServer::SocketConnection;
 
         Server(const std::function<void(SocketConnection*)>& onConnect,

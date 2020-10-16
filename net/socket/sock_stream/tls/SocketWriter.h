@@ -38,11 +38,10 @@ namespace net::socket::stream::tls {
 
     template <typename SocketT>
     class SocketWriter : public socket::stream::SocketWriter<SocketT> {
+    public:
+        using socket::stream::SocketWriter<SocketT>::SocketWriter;
+
     protected:
-        using Socket = SocketT;
-
-        using socket::stream::SocketWriter<Socket>::SocketWriter;
-
         ssize_t write(const char* junk, size_t junkLen) override {
             int ret = ::SSL_write(ssl, junk, junkLen);
 

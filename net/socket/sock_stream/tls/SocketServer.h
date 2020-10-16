@@ -31,10 +31,7 @@ namespace net::socket::stream::tls {
     template <typename SocketT>
     class SocketServer : public socket::stream::SocketServer<tls::SocketListener<SocketT>> {
     public:
-        using Socket = SocketT;
-        using SocketConnection = net::socket::stream::tls::SocketConnection<Socket>;
-
-        using socket::stream::SocketServer<tls::SocketListener<Socket>>::SocketServer;
+        using socket::stream::SocketServer<tls::SocketListener<SocketT>>::SocketServer;
     };
 
 }; // namespace net::socket::stream::tls

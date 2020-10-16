@@ -36,10 +36,10 @@ namespace http {
 
     template <typename SocketClientT>
     class Client {
+    public:
         using SocketClient = SocketClientT;
         using SocketConnection = typename SocketClient::SocketConnection;
 
-    public:
         Client(const std::function<void(SocketConnection*)>& onConnect,
                const std::function<void(ServerRequest&)> onRequestBegin,
                const std::function<void(ServerResponse&)> onResponseReady,

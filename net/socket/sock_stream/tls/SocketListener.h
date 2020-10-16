@@ -36,8 +36,7 @@ namespace net::socket::stream::tls {
     template <typename SocketT>
     class SocketListener : public net::socket::stream::SocketListener<net::socket::stream::tls::SocketConnection<SocketT>> {
     public:
-        using Socket = SocketT;
-        using SocketConnection = net::socket::stream::tls::SocketConnection<Socket>;
+        using SocketConnection = net::socket::stream::tls::SocketConnection<SocketT>;
 
         SocketListener(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
                        const std::function<void(SocketConnection* socketConnection)>& onDestruct,
