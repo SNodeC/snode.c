@@ -16,35 +16,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_SOCK_STREAM_LEGACY_SOCKETREADER_H
-#define NET_SOCKET_SOCK_STREAM_LEGACY_SOCKETREADER_H
+#ifndef NET_SOCKET_SOCK_STREAM_TLS_SOCKETCLIENTNEW_H
+#define NET_SOCKET_SOCK_STREAM_TLS_SOCKETCLIENTNEW_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // for size_t
-#include <sys/socket.h>
-#include <sys/types.h> // for ssize_t
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/sock_stream/SocketReader.h"
+#include "SocketConnector.h"
+#include "socket/sock_stream/SocketClientNew.h"
 
-namespace net::socket::stream::legacy {
+namespace net::socket::stream::tls {
 
     template <typename SocketT>
-    class SocketReader : public socket::stream::SocketReader<SocketT> {
+    class SocketClientNew : public socket::stream::SocketClientNew<tls::SocketConnector<SocketT>> {
     public:
-        using Socket = SocketT;
-
-    protected:
-        using socket::stream::SocketReader<Socket>::SocketReader;
-
-        ssize_t read(char* junk, size_t junkLen) override {
-            ::recv(Socket::getFd(), nullptr, 0, 0);
-            return ::recv(Socket::getFd(), junk, junkLen, 0);
-        }
+        using socket::stream::SocketClientNew<tls::SocketConnector<SocketT>>::SocketClientNew;
     };
 
-}; // namespace net::socket::stream::legacy
+} // namespace net::socket::stream::tls
 
-#endif // NET_SOCKET_SOCK_STREAM_LEGACY_SOCKETREADER_H
+#endif // NET_SOCKET_SOCK_STREAM_TLS_SOCKETCLIENTNEW_H

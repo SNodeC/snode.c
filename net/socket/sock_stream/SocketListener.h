@@ -40,6 +40,7 @@ namespace net::socket::stream {
         , public SocketConnectionT::Socket {
     public:
         using SocketConnection = SocketConnectionT;
+        using Socket = typename SocketConnection::Socket;
 
         void* operator new(size_t size) {
             SocketListener<SocketConnection>::lastAllocAddress = malloc(size);
@@ -79,10 +80,8 @@ namespace net::socket::stream {
 
         virtual ~SocketListener() = default;
 
-        virtual void listen(const typename SocketConnection::Socket::SocketAddress& localAddress,
-                            int backlog,
-                            const std::function<void(int err)>& onError) {
-            SocketConnection::Socket::open([this, &localAddress, &backlog, &onError](int errnum) -> void {
+        virtual void listen(const typename Socket::SocketAddress& localAddress, int backlog, const std::function<void(int err)>& onError) {
+            Socket::open([this, &localAddress, &backlog, &onError](int errnum) -> void {
                 if (errnum > 0) {
                     onError(errnum);
                 } else {
@@ -90,11 +89,11 @@ namespace net::socket::stream {
                         if (errnum != 0) {
                             onError(errnum);
                         } else {
-                            SocketConnection::Socket::bind(localAddress, [this, &backlog, &onError](int errnum) -> void {
+                            Socket::bind(localAddress, [this, &backlog, &onError](int errnum) -> void {
                                 if (errnum > 0) {
                                     onError(errnum);
                                 } else {
-                                    int ret = ::listen(SocketConnection::Socket::getFd(), backlog);
+                                    int ret = ::listen(Socket::getFd(), backlog);
 
                                     if (ret < 0) {
                                         onError(errno);
@@ -113,7 +112,7 @@ namespace net::socket::stream {
         void reuseAddress(const std::function<void(int errnum)>& onError) {
             int sockopt = 1;
 
-            if (setsockopt(SocketConnection::Socket::getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
+            if (setsockopt(Socket::getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
                 onError(errno);
             } else {
                 onError(0);
@@ -123,16 +122,15 @@ namespace net::socket::stream {
         void acceptEvent() override {
             errno = 0;
 
-            typename SocketConnection::Socket::SocketAddress::SockAddr remoteAddress{};
+            typename Socket::SocketAddress::SockAddr remoteAddress{};
             socklen_t addrlen = sizeof(remoteAddress);
 
             int scFd = -1;
 
-            scFd =
-                ::accept4(SocketConnection::Socket::getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &addrlen, SOCK_NONBLOCK);
+            scFd = ::accept4(Socket::getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &addrlen, SOCK_NONBLOCK);
 
             if (scFd >= 0) {
-                typename SocketConnection::Socket::SocketAddress::SockAddr localAddress{};
+                typename Socket::SocketAddress::SockAddr localAddress{};
                 socklen_t addressLength = sizeof(localAddress);
 
                 if (getsockname(scFd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
@@ -141,8 +139,8 @@ namespace net::socket::stream {
 
                     socketConnection->open(scFd);
 
-                    socketConnection->setRemoteAddress(typename SocketConnection::Socket::SocketAddress(remoteAddress));
-                    socketConnection->setLocalAddress(typename SocketConnection::Socket::SocketAddress(localAddress));
+                    socketConnection->setRemoteAddress(typename Socket::SocketAddress(remoteAddress));
+                    socketConnection->setLocalAddress(typename Socket::SocketAddress(localAddress));
 
                     socketConnection->ReadEventReceiver::enable();
 

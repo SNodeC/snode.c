@@ -16,35 +16,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_SOCK_STREAM_LEGACY_SOCKETREADER_H
-#define NET_SOCKET_SOCK_STREAM_LEGACY_SOCKETREADER_H
+#ifndef CONNECTEVENTDISPATCHER_H
+#define CONNECTEVENTDISPATCHER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // for size_t
-#include <sys/socket.h>
-#include <sys/types.h> // for ssize_t
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/sock_stream/SocketReader.h"
+#include "ConnectEventReceiver.h"
+#include "EventDispatcher.h"
 
-namespace net::socket::stream::legacy {
+// IWYU pragma: no_forward_declare net::AcceptEventReceiver
 
-    template <typename SocketT>
-    class SocketReader : public socket::stream::SocketReader<SocketT> {
+namespace net {
+
+    class ConnectEventDispatcher : public EventDispatcher<ConnectEventReceiver> {
     public:
-        using Socket = SocketT;
+        using EventDispatcher<ConnectEventReceiver>::EventDispatcher;
 
-    protected:
-        using socket::stream::SocketReader<Socket>::SocketReader;
-
-        ssize_t read(char* junk, size_t junkLen) override {
-            ::recv(Socket::getFd(), nullptr, 0, 0);
-            return ::recv(Socket::getFd(), junk, junkLen, 0);
-        }
+    private:
+        void dispatchEventTo(ConnectEventReceiver*) override;
     };
 
-}; // namespace net::socket::stream::legacy
+} // namespace net
 
-#endif // NET_SOCKET_SOCK_STREAM_LEGACY_SOCKETREADER_H
+#endif // CONNECTEVENTDISPATCHER_H

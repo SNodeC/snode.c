@@ -9,11 +9,13 @@ add_library(net SHARED
     AcceptEventDispatcher.cpp
     TimerEventDispatcher.cpp
     WriteEventDispatcher.cpp
+    ConnectEventDispatcher.cpp
     EventLoop.cpp
     OutOfBandEventReceiver.cpp
     ReadEventReceiver.cpp
     AcceptEventReceiver.cpp
     WriteEventReceiver.cpp
+    ConnectEventReceiver.cpp
     file/File.cpp
     file/FileReader.cpp
     socket/ipv4/InetAddress.cpp

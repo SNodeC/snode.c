@@ -146,6 +146,20 @@ if(CHECK_INCLUDES)
     set_property(TARGET lowlevelclient PROPERTY CXX_INCLUDE_WHAT_YOU_USE  ${iwyu_path_and_options})
 endif(CHECK_INCLUDES)
 
+add_executable(newlowlevelclient newlowlevelclient.cpp)
+target_compile_options(newlowlevelclient PRIVATE --warn-all)
+target_link_libraries(newlowlevelclient LINK_PUBLIC http)
+install(TARGETS newlowlevelclient RUNTIME DESTINATION bin)
+set_target_properties(newlowlevelclient PROPERTIES
+            CXX_STANDARD 20
+            CXX_STANDARD_REQUIRED ON
+            CXX_EXTENSIONS OFF
+)
+if(CHECK_INCLUDES)
+    set_property(TARGET newlowlevelclient PROPERTY CXX_INCLUDE_WHAT_YOU_USE  ${iwyu_path_and_options})
+endif(CHECK_INCLUDES)
+
+
 add_executable(testregex testregex.cpp)
 target_compile_options(testregex PRIVATE --warn-all)
 target_link_libraries(testregex LINK_PUBLIC express)
