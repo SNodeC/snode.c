@@ -95,14 +95,12 @@ namespace net::socket::stream::tls {
         }
 
         void stopSSL() {
-            if (!Socket::dontClose()) {
-                if (ssl != nullptr) {
-                    SSL_shutdown(ssl);
-                    SSL_free(ssl);
-                    ssl = nullptr;
-                    SocketReader<Socket>::ssl = ssl;
-                    SocketWriter<Socket>::ssl = ssl;
-                }
+            if (ssl != nullptr) {
+                SSL_shutdown(ssl);
+                SSL_free(ssl);
+                ssl = nullptr;
+                SocketReader<Socket>::ssl = ssl;
+                SocketWriter<Socket>::ssl = ssl;
             }
         }
 

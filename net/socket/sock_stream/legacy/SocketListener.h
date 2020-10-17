@@ -33,6 +33,7 @@ namespace net::socket::stream::legacy {
     public:
         using SocketConnection = net::socket::stream::legacy::SocketConnection<SocketT>;
 
+    protected:
         using net::socket::stream::SocketListener<net::socket::stream::legacy::SocketConnection<SocketT>>::SocketListener;
     };
 

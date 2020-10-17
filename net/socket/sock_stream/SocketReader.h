@@ -40,7 +40,7 @@ namespace net::socket::stream {
     class SocketReader
         : public ReadEventReceiver
         , virtual public SocketT {
-    public:
+    protected:
         using Socket = SocketT;
 
         SocketReader() = delete;
@@ -73,7 +73,6 @@ namespace net::socket::stream {
             }
         }
 
-    protected:
         virtual ssize_t read(char* junk, size_t junkLen) = 0;
 
     private:

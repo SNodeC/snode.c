@@ -61,7 +61,6 @@ namespace net::socket::stream {
 
         virtual ~SocketServer() = default;
 
-    public:
         void listen(const typename SocketConnection::Socket::SocketAddress& bindAddress,
                     int backlog,
                     const std::function<void(int err)>& onError) {
@@ -88,7 +87,6 @@ namespace net::socket::stream {
         std::function<void(SocketConnection* socketConnection, int errnum)> onReadError;
         std::function<void(SocketConnection* socketConnection, int errnum)> onWriteError;
 
-    protected:
         std::map<std::string, std::any> options;
     };
 

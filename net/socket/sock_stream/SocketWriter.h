@@ -41,7 +41,7 @@ namespace net::socket::stream {
     class SocketWriter
         : public WriteEventReceiver
         , virtual public SocketT {
-    public:
+    protected:
         using Socket = SocketT;
 
         SocketWriter() = delete;
@@ -78,7 +78,6 @@ namespace net::socket::stream {
             WriteEventReceiver::enable();
         }
 
-    protected:
         virtual ssize_t write(const char* junk, size_t junkSize) = 0;
 
     private:

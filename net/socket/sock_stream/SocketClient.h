@@ -22,27 +22,22 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <any>
+#include <cerrno>
 #include <functional>
 #include <map>
-#include <sys/socket.h>
-#include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Descriptor.h"
 #include "Logger.h"
-#include "ReadEventReceiver.h"
-#include "WriteEventReceiver.h"
-#include "timer/SingleshotTimer.h"
-
-#define CONNECT_TIMEOUT 10
+#include "SocketConnector.h"
 
 namespace net::socket::stream {
 
-    template <typename SocketConnectionT>
+    template <typename SocketConnectorT>
     class SocketClient {
     public:
-        using SocketConnection = SocketConnectionT;
+        using SocketConnector = SocketConnectorT;
+        using SocketConnection = typename SocketConnector::SocketConnection;
 
         SocketClient(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
                      const std::function<void(SocketConnection* socketConnection)>& onDestruct,
@@ -66,138 +61,14 @@ namespace net::socket::stream {
 
         virtual ~SocketClient() = default;
 
-    public:
-        // NOLINTNEXTLINE(google-default-arguments)
-        virtual void
+        void
         connect(const std::map<std::string, std::any>& options,
                 const std::function<void(int err)>& onError,
                 const typename SocketConnection::Socket::SocketAddress& bindAddress = typename SocketConnection::Socket::SocketAddress()) {
-            std::string host = "";
-            unsigned short port = 0;
+            SocketConnector* socketConnector =
+                new SocketConnector(onConstruct, onDestruct, onConnect, onDisconnect, onRead, onReadError, onWriteError, this->options);
 
-            for (auto& [name, value] : options) {
-                if (name == "host") {
-                    host = std::any_cast<const char*>(value);
-                } else if (name == "port") {
-                    port = std::any_cast<int>(value);
-                }
-            }
-
-            SocketConnection* socketConnection =
-                new SocketConnection(onConstruct, onDestruct, onRead, onReadError, onWriteError, onDisconnect);
-
-            socketConnection->open(
-                [socketConnection, &host, &port, &bindAddress, &onConnect = this->onConnect, &onError](int err) -> void {
-                    if (err) {
-                        onError(err);
-                        delete socketConnection;
-                    } else {
-                        socketConnection->bind(bindAddress, [socketConnection, &host, &port, &onConnect, &onError](int err) -> void {
-                            if (err) {
-                                onError(err);
-                                delete socketConnection;
-                            } else {
-                                typename SocketConnection::Socket::SocketAddress server(host, port);
-
-                                class Connector
-                                    : public WriteEventReceiver
-                                    , public Descriptor {
-                                public:
-                                    Connector(SocketConnection* socketConnection,
-                                              const typename SocketConnection::Socket::SocketAddress& server,
-                                              const std::function<void(SocketConnection* socketConnection)>& onConnect,
-                                              const std::function<void(int err)>& onError)
-                                        : socketConnection(socketConnection)
-                                        , onConnect(onConnect)
-                                        , onError(onError)
-                                        , timeOut(net::timer::Timer::singleshotTimer(
-                                              [this, socketConnection, onError](const void*) -> void {
-                                                  onError(ETIMEDOUT);
-                                                  WriteEventReceiver::disable();
-                                                  delete socketConnection;
-                                              },
-                                              (struct timeval){CONNECT_TIMEOUT, 0},
-                                              nullptr)) {
-                                        open(socketConnection->getFd(), FLAGS::dontClose);
-
-                                        errno = 0;
-                                        int ret = ::connect(socketConnection->getFd(), &server.getSockAddr(), server.getSockAddrLen());
-
-                                        if (ret == 0 || errno == EINPROGRESS) {
-                                            typename SocketConnection::Socket::SocketAddress::SockAddr localAddress{};
-                                            socklen_t addressLength = sizeof(localAddress);
-                                            getsockname(
-                                                socketConnection->getFd(), reinterpret_cast<sockaddr*>(&localAddress), &addressLength);
-                                            socketConnection->setLocalAddress(
-                                                typename SocketConnection::Socket::SocketAddress(localAddress));
-                                            socketConnection->setRemoteAddress(server);
-
-                                            if (ret == 0) {
-                                                timeOut.cancel();
-
-                                                socketConnection->ReadEventReceiver::enable();
-
-                                                onError(0);
-                                                onConnect(socketConnection);
-
-                                                delete this;
-                                            } else if (errno == EINPROGRESS) {
-                                                WriteEventReceiver::enable();
-                                            }
-                                        } else {
-                                            timeOut.cancel();
-                                            onError(errno);
-                                            delete socketConnection;
-                                            delete this;
-                                        }
-                                    }
-
-                                    void writeEvent() override {
-                                        int cErrno = 0;
-                                        socklen_t cErrnoLen = sizeof(cErrno);
-
-                                        int err = getsockopt(socketConnection->getFd(), SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);
-
-                                        if (cErrno != EINPROGRESS) {
-                                            timeOut.cancel();
-
-                                            WriteEventReceiver::disable();
-
-                                            if (err < 0) {
-                                                delete socketConnection;
-                                                onError(errno);
-                                            } else if (cErrno != 0) {
-                                                delete socketConnection;
-                                                errno = cErrno;
-                                                onError(cErrno);
-                                            } else {
-                                                socketConnection->ReadEventReceiver::enable();
-
-                                                onError(0);
-                                                onConnect(socketConnection);
-                                            }
-                                        }
-                                    }
-
-                                    void unobserved() override {
-                                        delete this;
-                                    }
-
-                                private:
-                                    SocketConnection* socketConnection = nullptr;
-                                    std::function<void(SocketConnection* socketConnection)> onConnect;
-                                    std::function<void(int err)> onError;
-                                    net::timer::Timer& timeOut;
-                                };
-
-                                errno = 0;
-
-                                new Connector(socketConnection, server, onConnect, onError);
-                            }
-                        });
-                    }
-                },
-                SOCK_NONBLOCK);
+            socketConnector->connect(options, onError, bindAddress);
         }
 
     private:
@@ -209,7 +80,6 @@ namespace net::socket::stream {
         std::function<void(SocketConnection* socketConnection, int errnum)> onReadError;
         std::function<void(SocketConnection* socketConnection, int errnum)> onWriteError;
 
-    protected:
         std::map<std::string, std::any> options;
     };
 

@@ -36,6 +36,7 @@
 #define MAX_ACCEPT_INACTIVITY LONG_MAX
 #define MAX_WRITE_INACTIVITY 60
 #define MAX_OUTOFBAND_INACTIVITY 60
+#define MAX_CONNECT_INACTIVITY 10
 
 namespace net {
 
@@ -60,7 +61,8 @@ namespace net {
         : readEventDispatcher(readfds, MAX_READ_INACTIVITY)
         , acceptEventDispatcher(readfds, MAX_ACCEPT_INACTIVITY)
         , writeEventDispatcher(writefds, MAX_WRITE_INACTIVITY)
-        , outOfBandEventDispatcher(exceptfds, MAX_OUTOFBAND_INACTIVITY) {
+        , outOfBandEventDispatcher(exceptfds, MAX_OUTOFBAND_INACTIVITY)
+        , connectEventDispatcher(writefds, MAX_CONNECT_INACTIVITY) {
     }
 
     void EventLoop::tick() {
@@ -73,12 +75,16 @@ namespace net {
         nextTimeout = acceptEventDispatcher.observeEnabledEvents();
         nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
 
+        nextTimeout = connectEventDispatcher.observeEnabledEvents();
+        nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
+
         nextTimeout = outOfBandEventDispatcher.observeEnabledEvents();
         nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
 
         int maxFd = readEventDispatcher.getLargestFd();
         maxFd = std::max(writeEventDispatcher.getLargestFd(), maxFd);
         maxFd = std::max(acceptEventDispatcher.getLargestFd(), maxFd);
+        maxFd = std::max(connectEventDispatcher.getLargestFd(), maxFd);
         maxFd = std::max(outOfBandEventDispatcher.getLargestFd(), maxFd);
 
         fd_set _exceptfds = exceptfds;
@@ -110,6 +116,9 @@ namespace net {
                 nextTimeout = acceptEventDispatcher.dispatchActiveEvents(_readfds, counter, currentTime);
                 nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
 
+                nextTimeout = connectEventDispatcher.dispatchActiveEvents(_writefds, counter, currentTime);
+                nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
+
                 nextTimeout = outOfBandEventDispatcher.dispatchActiveEvents(_exceptfds, counter, currentTime);
                 nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
 
@@ -125,6 +134,7 @@ namespace net {
         readEventDispatcher.unobserveDisabledEvents();
         writeEventDispatcher.unobserveDisabledEvents();
         acceptEventDispatcher.unobserveDisabledEvents();
+        connectEventDispatcher.unobserveDisabledEvents();
         outOfBandEventDispatcher.unobserveDisabledEvents();
     }
 
@@ -163,16 +173,19 @@ namespace net {
             eventLoop.writeEventDispatcher.observeEnabledEvents();
             eventLoop.acceptEventDispatcher.observeEnabledEvents();
             eventLoop.outOfBandEventDispatcher.observeEnabledEvents();
+            eventLoop.connectEventDispatcher.observeEnabledEvents();
 
             eventLoop.readEventDispatcher.disableObservedEvents();
             eventLoop.writeEventDispatcher.disableObservedEvents();
             eventLoop.acceptEventDispatcher.disableObservedEvents();
             eventLoop.outOfBandEventDispatcher.disableObservedEvents();
+            eventLoop.connectEventDispatcher.disableObservedEvents();
 
             eventLoop.readEventDispatcher.unobserveDisabledEvents();
             eventLoop.writeEventDispatcher.unobserveDisabledEvents();
             eventLoop.acceptEventDispatcher.unobserveDisabledEvents();
             eventLoop.outOfBandEventDispatcher.unobserveDisabledEvents();
+            eventLoop.connectEventDispatcher.unobserveDisabledEvents();
 
             eventLoop.timerEventDispatcher.cancelAll();
 

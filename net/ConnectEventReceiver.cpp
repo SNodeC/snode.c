@@ -16,31 +16,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_SOCK_STREAM_LEGACY_SOCKETREADER_H
-#define NET_SOCKET_SOCK_STREAM_LEGACY_SOCKETREADER_H
+#include "ConnectEventReceiver.h"
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#include "ConnectEventDispatcher.h"
+#include "EventLoop.h"
 
-#include <cstddef> // for size_t
-#include <sys/socket.h>
-#include <sys/types.h> // for ssize_t
+namespace net {
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+    ConnectEventReceiver::ConnectEventReceiver()
+        : EventReceiver(EventLoop::instance().getConnectEventDispatcher().getTimeout()) {
+    }
 
-#include "socket/sock_stream/SocketReader.h"
+    void ConnectEventReceiver::setTimeout(long timeout) {
+        EventReceiver::setTimeout(timeout, EventLoop::instance().getConnectEventDispatcher().getTimeout());
+    }
 
-namespace net::socket::stream::legacy {
+    void ConnectEventReceiver::enable(long timeout) {
+        EventLoop::instance().getConnectEventDispatcher().enable(this);
+        setTimeout(timeout);
+    }
 
-    template <typename SocketT>
-    class SocketReader : public socket::stream::SocketReader<SocketT> {
-    protected:
-        using socket::stream::SocketReader<SocketT>::SocketReader;
+    void ConnectEventReceiver::disable() {
+        EventLoop::instance().getConnectEventDispatcher().disable(this);
+    }
 
-        ssize_t read(char* junk, size_t junkLen) override {
-            return ::recv(this->getFd(), junk, junkLen, 0);
-        }
-    };
-
-}; // namespace net::socket::stream::legacy
-
-#endif // NET_SOCKET_SOCK_STREAM_LEGACY_SOCKETREADER_H
+} // namespace net

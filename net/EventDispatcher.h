@@ -144,9 +144,10 @@ namespace net {
                 if (observedEventReceiver[fd].empty()) {
                     observedEventReceiver.erase(fd);
                     FD_CLR(fd, &fdSet);
+                } else {
+                    observedEventReceiver[fd].front()->setLastTriggered(time(nullptr));
                 }
                 eventReceiver->disabled();
-                //                eventReceiver->destructIfUnobserved();
             }
             disabledEventReceiver.clear();
         }
