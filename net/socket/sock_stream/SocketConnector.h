@@ -32,6 +32,7 @@
 #include "Descriptor.h"
 #include "Logger.h"
 #include "ReadEventReceiver.h"
+#include "SocketClient.h"
 
 namespace net::socket::stream {
 
@@ -40,7 +41,7 @@ namespace net::socket::stream {
         : public ConnectEventReceiver
         , public ReadEventReceiver
         , public SocketConnectionT::Socket {
-    public:
+    protected:
         using SocketConnection = SocketConnectionT;
         using Socket = typename SocketConnection::Socket;
 
@@ -107,17 +108,24 @@ namespace net::socket::stream {
                 [this, &bindAddress, &server, &onError](int errnum) -> void {
                     if (errnum > 0) {
                         onError(errnum);
+                        delete this;
                     } else {
                         Socket::bind(bindAddress, [this, &server, &onError](int errnum) -> void {
                             if (errnum > 0) {
                                 onError(errnum);
+                                delete this;
                             } else {
                                 int ret = ::connect(Socket::getFd(), &server.getSockAddr(), server.getSockAddrLen());
 
                                 if (ret == 0 || errno == EINPROGRESS) {
                                     ConnectEventReceiver::enable();
+
+                                    socketConnection =
+                                        new SocketConnection(onConstruct, onDestruct, onRead, onReadError, onWriteError, onDisconnect);
+
                                 } else {
                                     onError(errno);
+                                    delete this;
                                 }
                             }
                         });
@@ -148,9 +156,6 @@ namespace net::socket::stream {
                             if (getpeername(Socket::getFd(), reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) == 0) {
                                 ReadEventReceiver::enable();
 
-                                SocketConnection* socketConnection =
-                                    new SocketConnection(onConstruct, onDestruct, onRead, onReadError, onWriteError, onDisconnect);
-
                                 socketConnection->open(Socket::getFd(), Descriptor::FLAGS::dontClose);
 
                                 socketConnection->setRemoteAddress(typename Socket::SocketAddress(remoteAddress));
@@ -160,6 +165,8 @@ namespace net::socket::stream {
 
                                 onError(0);
                                 onConnect(socketConnection);
+
+                                connected = true;
                             } else {
                                 onError(errno);
                             }
@@ -180,8 +187,11 @@ namespace net::socket::stream {
             ReadEventReceiver::disable();
         }
 
-    private:
         void unobserved() override {
+            if (!connected) {
+                delete socketConnection;
+            }
+
             if (isDynamic) {
                 delete this;
             }
@@ -195,12 +205,19 @@ namespace net::socket::stream {
         std::function<void(SocketConnection* socketConnection, int errnum)> onReadError;
         std::function<void(SocketConnection* socketConnection, int errnum)> onWriteError;
 
-    protected:
         std::function<void(int err)> onError;
+
+    private:
+        SocketConnection* socketConnection = nullptr;
+        bool connected = false;
+
         std::map<std::string, std::any> options;
 
         bool isDynamic;
         static void* lastAllocAddress;
+
+        template <typename SocketConnectorT>
+        friend class SocketClient;
     };
 
     template <typename SocketConnectionT>

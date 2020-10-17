@@ -33,10 +33,9 @@ namespace net::socket::stream::legacy {
 
     template <typename SocketT>
     class SocketWriter : public socket::stream::SocketWriter<SocketT> {
-    public:
+    protected:
         using socket::stream::SocketWriter<SocketT>::SocketWriter;
 
-    protected:
         ssize_t write(const char* junk, size_t junkLen) override {
             return ::send(this->getFd(), junk, junkLen, MSG_NOSIGNAL);
         }

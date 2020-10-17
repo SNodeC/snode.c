@@ -23,17 +23,14 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "SocketConnection.h"
+#include "SocketConnector.h"
 #include "socket/sock_stream/SocketClient.h"
 
 namespace net::socket::stream::legacy {
 
     template <typename SocketT>
-    class SocketClient : public socket::stream::SocketClient<legacy::SocketConnection<SocketT>> {
-    public:
-        using SocketConnection = net::socket::stream::legacy::SocketConnection<SocketT>;
-
-        using socket::stream::SocketClient<SocketConnection>::SocketClient;
+    class SocketClient : public socket::stream::SocketClient<legacy::SocketConnector<SocketT>> {
+        using socket::stream::SocketClient<legacy::SocketConnector<SocketT>>::SocketClient;
     };
 
 } // namespace net::socket::stream::legacy

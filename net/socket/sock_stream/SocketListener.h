@@ -52,6 +52,7 @@ namespace net::socket::stream {
             free(socketListener_v);
         }
 
+    protected:
         SocketListener(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
                        const std::function<void(SocketConnection* socketConnection)>& onDestruct,
                        const std::function<void(SocketConnection* socketConnection)>& onConnect,
@@ -84,19 +85,23 @@ namespace net::socket::stream {
             Socket::open([this, &localAddress, &backlog, &onError](int errnum) -> void {
                 if (errnum > 0) {
                     onError(errnum);
+                    delete this;
                 } else {
                     reuseAddress([this, &localAddress, &backlog, &onError](int errnum) -> void {
                         if (errnum != 0) {
                             onError(errnum);
+                            delete this;
                         } else {
                             Socket::bind(localAddress, [this, &backlog, &onError](int errnum) -> void {
                                 if (errnum > 0) {
                                     onError(errnum);
+                                    delete this;
                                 } else {
                                     int ret = ::listen(Socket::getFd(), backlog);
 
                                     if (ret < 0) {
                                         onError(errno);
+                                        delete this;
                                     } else {
                                         AcceptEventReceiver::enable();
                                         onError(0);
@@ -174,15 +179,17 @@ namespace net::socket::stream {
         std::function<void(SocketConnection* socketConnection, int errnum)> onReadError;
         std::function<void(SocketConnection* socketConnection, int errnum)> onWriteError;
 
-    protected:
         std::map<std::string, std::any> options;
 
         bool isDynamic;
         static void* lastAllocAddress;
+
+        template <typename SocketConnectorT>
+        friend class SocketServer;
     };
 
-    template <typename SocketConnectionT>
-    void* SocketListener<SocketConnectionT>::lastAllocAddress = nullptr;
+    template <typename SocketListenerT>
+    void* SocketListener<SocketListenerT>::lastAllocAddress = nullptr;
 
 } // namespace net::socket::stream
 

@@ -39,10 +39,9 @@ namespace net::socket::stream::tls {
 
     template <typename SocketT>
     class SocketReader : public socket::stream::SocketReader<SocketT> {
-    public:
+    protected:
         using socket::stream::SocketReader<SocketT>::SocketReader;
 
-    protected:
         ssize_t read(char* junk, size_t junkLen) override {
             int ret = ::SSL_read(ssl, junk, junkLen);
 
@@ -134,7 +133,6 @@ namespace net::socket::stream::tls {
             return ret;
         }
 
-    protected:
         SSL* ssl = nullptr;
     };
 }; // namespace net::socket::stream::tls

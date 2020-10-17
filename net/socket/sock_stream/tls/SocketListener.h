@@ -38,6 +38,7 @@ namespace net::socket::stream::tls {
     public:
         using SocketConnection = net::socket::stream::tls::SocketConnection<SocketT>;
 
+    protected:
         SocketListener(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
                        const std::function<void(SocketConnection* socketConnection)>& onDestruct,
                        const std::function<void(SocketConnection* socketConnection)>& onConnect,
@@ -204,6 +205,9 @@ namespace net::socket::stream::tls {
     private:
         SSL_CTX* ctx = nullptr;
         unsigned long sslErr = 0;
+
+        template <typename SocketListenerT>
+        friend class net::socket::stream::SocketServer;
     };
 
 } // namespace net::socket::stream::tls

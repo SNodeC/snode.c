@@ -30,7 +30,6 @@ namespace net::socket::stream::tls {
 
     template <typename SocketT>
     class SocketServer : public socket::stream::SocketServer<tls::SocketListener<SocketT>> {
-    public:
         using socket::stream::SocketServer<tls::SocketListener<SocketT>>::SocketServer;
     };
 

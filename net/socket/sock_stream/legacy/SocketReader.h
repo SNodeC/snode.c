@@ -33,15 +33,11 @@ namespace net::socket::stream::legacy {
 
     template <typename SocketT>
     class SocketReader : public socket::stream::SocketReader<SocketT> {
-    public:
-        using Socket = SocketT;
-
     protected:
-        using socket::stream::SocketReader<Socket>::SocketReader;
+        using socket::stream::SocketReader<SocketT>::SocketReader;
 
         ssize_t read(char* junk, size_t junkLen) override {
-            ::recv(Socket::getFd(), nullptr, 0, 0);
-            return ::recv(Socket::getFd(), junk, junkLen, 0);
+            return ::recv(this->getFd(), junk, junkLen, 0);
         }
     };
 

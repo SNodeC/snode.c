@@ -30,7 +30,6 @@ namespace net::socket::stream::legacy {
 
     template <typename SocketT>
     class SocketServer : public socket::stream::SocketServer<legacy::SocketListener<SocketT>> {
-    public:
         using socket::stream::SocketServer<legacy::SocketListener<SocketT>>::SocketServer;
     };
 

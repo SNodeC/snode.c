@@ -23,6 +23,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Descriptor.h"
 #include "SocketConnection.h"
 #include "socket/sock_stream/SocketConnector.h"
 #include "ssl_utils.h"
@@ -34,9 +35,8 @@ namespace net::socket::stream::tls {
 
     template <typename SocketT>
     class SocketConnector : public net::socket::stream::SocketConnector<net::socket::stream::tls::SocketConnection<SocketT>> {
-    public:
+    protected:
         using SocketConnection = net::socket::stream::tls::SocketConnection<SocketT>;
-
         SocketConnector(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
                         const std::function<void(SocketConnection* socketConnection)>& onDestruct,
                         const std::function<void(SocketConnection* socketConnection)>& onConnect,
@@ -199,11 +199,11 @@ namespace net::socket::stream::tls {
             }
         }
 
-    private:
         SSL_CTX* ctx = nullptr;
         unsigned long sslErr = 0;
 
-        //        std::function<void(int err)> onError;
+        template <typename SocketConnectorT>
+        friend class net::socket::stream::SocketClient;
     };
 
 } // namespace net::socket::stream::tls
