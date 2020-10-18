@@ -58,11 +58,11 @@ namespace net {
     bool EventLoop::initialized = false;
 
     EventLoop::EventLoop()
-        : readEventDispatcher(readfds, MAX_READ_INACTIVITY)
-        , acceptEventDispatcher(readfds, MAX_ACCEPT_INACTIVITY)
-        , writeEventDispatcher(writefds, MAX_WRITE_INACTIVITY)
-        , outOfBandEventDispatcher(exceptfds, MAX_OUTOFBAND_INACTIVITY)
-        , connectEventDispatcher(writefds, MAX_CONNECT_INACTIVITY) {
+        : readEventDispatcher(readFdSet, MAX_READ_INACTIVITY)
+        , acceptEventDispatcher(readFdSet, MAX_ACCEPT_INACTIVITY)
+        , writeEventDispatcher(writeFdSet, MAX_WRITE_INACTIVITY)
+        , outOfBandEventDispatcher(exceptFdSet, MAX_OUTOFBAND_INACTIVITY)
+        , connectEventDispatcher(writeFdSet, MAX_CONNECT_INACTIVITY) {
     }
 
     void EventLoop::tick() {
@@ -87,10 +87,6 @@ namespace net {
         maxFd = std::max(connectEventDispatcher.getLargestFd(), maxFd);
         maxFd = std::max(outOfBandEventDispatcher.getLargestFd(), maxFd);
 
-        fd_set _exceptfds = exceptfds;
-        fd_set _writefds = writefds;
-        fd_set _readfds = readfds;
-
         struct timeval tv = timerEventDispatcher.getNextTimeout();
 
         if (nextInactivityTimeout.tv_sec >= 0) {
@@ -98,7 +94,11 @@ namespace net {
         }
 
         if (maxFd >= 0 || !timerEventDispatcher.empty()) {
-            int counter = select(maxFd + 1, &_readfds, &_writefds, &_exceptfds, &tv);
+            readFdSet.prepare();
+            writeFdSet.prepare();
+            exceptFdSet.prepare();
+
+            int counter = select(maxFd + 1, &readFdSet.get(), &writeFdSet.get(), &exceptFdSet.get(), &tv);
 
             if (counter >= 0) {
                 tickCounter++;
@@ -107,19 +107,19 @@ namespace net {
                 time_t currentTime = time(nullptr);
                 nextInactivityTimeout = {LONG_MAX, 0};
 
-                nextTimeout = readEventDispatcher.dispatchActiveEvents(_readfds, counter, currentTime);
+                nextTimeout = readEventDispatcher.dispatchActiveEvents(counter, currentTime);
                 nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
 
-                nextTimeout = writeEventDispatcher.dispatchActiveEvents(_writefds, counter, currentTime);
+                nextTimeout = writeEventDispatcher.dispatchActiveEvents(counter, currentTime);
                 nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
 
-                nextTimeout = acceptEventDispatcher.dispatchActiveEvents(_readfds, counter, currentTime);
+                nextTimeout = acceptEventDispatcher.dispatchActiveEvents(counter, currentTime);
                 nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
 
-                nextTimeout = connectEventDispatcher.dispatchActiveEvents(_writefds, counter, currentTime);
+                nextTimeout = connectEventDispatcher.dispatchActiveEvents(counter, currentTime);
                 nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
 
-                nextTimeout = outOfBandEventDispatcher.dispatchActiveEvents(_exceptfds, counter, currentTime);
+                nextTimeout = outOfBandEventDispatcher.dispatchActiveEvents(counter, currentTime);
                 nextInactivityTimeout.tv_sec = std::min(nextTimeout, nextInactivityTimeout.tv_sec);
 
                 assert(counter == 0);

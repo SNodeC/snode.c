@@ -29,6 +29,7 @@
 
 #include "AcceptEventDispatcher.h"
 #include "ConnectEventDispatcher.h"
+#include "FdSet.h"
 #include "OutOfBandEventDispatcher.h"
 #include "ReadEventDispatcher.h"
 #include "TimerEventDispatcher.h"
@@ -91,9 +92,9 @@ namespace net {
 
         static EventLoop eventLoop;
 
-        fd_set readfds{0};
-        fd_set writefds{0};
-        fd_set exceptfds{0};
+        FdSet readFdSet;
+        FdSet writeFdSet;
+        FdSet exceptFdSet;
 
         ReadEventDispatcher readEventDispatcher;
         AcceptEventDispatcher acceptEventDispatcher;

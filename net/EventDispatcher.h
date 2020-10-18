@@ -31,6 +31,7 @@
 
 #include "Descriptor.h"
 #include "EventReceiver.h"
+#include "FdSet.h"
 
 namespace net {
 
@@ -48,7 +49,7 @@ namespace net {
     public:
         using EventReceiver = EventReceiverT;
 
-        explicit EventDispatcher(fd_set& fdSet, long maxInactivity) // NOLINT(google-runtime-references)
+        explicit EventDispatcher(FdSet& fdSet, long maxInactivity) // NOLINT(google-runtime-references)
             : fdSet(fdSet)
             , maxInactivity(maxInactivity) {
         }
@@ -104,7 +105,7 @@ namespace net {
             for (EventReceiver* eventReceiver : enabledEventReceiver) {
                 int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
                 observedEventReceiver[fd].push_front(eventReceiver);
-                FD_SET(fd, &fdSet);
+                fdSet.set(fd);
                 nextTimeout = std::min(nextTimeout, eventReceiver->getTimeout());
             }
             enabledEventReceiver.clear();
@@ -112,13 +113,13 @@ namespace net {
             return nextTimeout;
         }
 
-        long dispatchActiveEvents(const fd_set& fdSet, int& counter, time_t currentTime) {
+        long dispatchActiveEvents(int& counter, time_t currentTime) {
             long nextInactivityTimeout = LONG_MAX;
 
             for (const auto& [fd, eventReceivers] : observedEventReceiver) {
                 EventReceiver* eventReceiver = eventReceivers.front();
                 long maxInactivity = eventReceiver->getTimeout();
-                if (FD_ISSET(fd, &fdSet)) {
+                if (fdSet.isSet(fd)) {
                     eventCounter++;
                     counter--;
                     dispatchEventTo(eventReceiver);
@@ -143,7 +144,7 @@ namespace net {
                 observedEventReceiver[fd].remove(eventReceiver);
                 if (observedEventReceiver[fd].empty()) {
                     observedEventReceiver.erase(fd);
-                    FD_CLR(fd, &fdSet);
+                    fdSet.clr(fd);
                 } else {
                     observedEventReceiver[fd].front()->setLastTriggered(time(nullptr));
                 }
@@ -167,7 +168,8 @@ namespace net {
         std::list<EventReceiver*> enabledEventReceiver;
         std::list<EventReceiver*> disabledEventReceiver;
 
-        fd_set& fdSet;
+        //        fd_set& fdSet;
+        FdSet& fdSet;
 
         long maxInactivity;
 
