@@ -22,8 +22,6 @@
 
 #include "AcceptEventDispatcher.h"
 
-// IWYU pragma: no_include "Server.h"
-
 namespace net {
 
     void AcceptEventDispatcher::dispatchEventTo(AcceptEventReceiver* eventReceiver) {

@@ -22,8 +22,6 @@
 
 #include "WriteEventDispatcher.h"
 
-// IWYU pragma: no_include "Writer.h"
-
 namespace net {
 
     void WriteEventDispatcher::dispatchEventTo(WriteEventReceiver* eventReceiver) {

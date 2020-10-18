@@ -22,8 +22,6 @@
 
 #include "ConnectEventDispatcher.h"
 
-// IWYU pragma: no_include "Server.h"
-
 namespace net {
 
     void ConnectEventDispatcher::dispatchEventTo(ConnectEventReceiver* eventReceiver) {

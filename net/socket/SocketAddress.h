@@ -23,7 +23,6 @@
 
 #include <sys/socket.h>
 #include <sys/types.h>
-// IWYU pragma: no_include <bits/exception.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

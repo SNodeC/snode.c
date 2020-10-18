@@ -22,8 +22,6 @@
 
 #include "ReadEventDispatcher.h"
 
-// IWYU pragma: no_include "Reader.h"
-
 namespace net {
 
     void ReadEventDispatcher::dispatchEventTo(ReadEventReceiver* eventReceiver) {

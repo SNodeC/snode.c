@@ -33,8 +33,6 @@
 #include "WriteEventReceiver.h"
 #include "socket/sock_stream/SocketReader.h"
 
-// IWYU pragma: no_forward_declare tls::Socket
-
 namespace net::socket::stream::tls {
 
     template <typename SocketT>

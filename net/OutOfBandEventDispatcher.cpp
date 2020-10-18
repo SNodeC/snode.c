@@ -22,8 +22,6 @@
 
 #include "OutOfBandEventDispatcher.h"
 
-// IWYU pragma: no_include "Exception.h"
-
 namespace net {
 
     void OutOfBandEventDispatcher::dispatchEventTo(OutOfBandEventReceiver* eventReceiver) {
