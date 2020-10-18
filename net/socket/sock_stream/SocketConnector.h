@@ -104,6 +104,7 @@ namespace net::socket::stream {
             typename Socket::SocketAddress remoteAddress(host, port);
 
             errno = 0;
+
             Socket::open(
                 [this, &bindAddress, &remoteAddress, &onError](int errnum) -> void {
                     if (errnum > 0) {
@@ -133,6 +134,7 @@ namespace net::socket::stream {
         void connectEvent() override {
             errno = 0;
             int cErrno = 0;
+
             socklen_t cErrnoLen = sizeof(cErrno);
 
             int err = getsockopt(Socket::getFd(), SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);

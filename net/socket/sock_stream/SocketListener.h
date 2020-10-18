@@ -82,6 +82,8 @@ namespace net::socket::stream {
         virtual ~SocketListener() = default;
 
         virtual void listen(const typename Socket::SocketAddress& localAddress, int backlog, const std::function<void(int err)>& onError) {
+            errno = 0;
+
             Socket::open([this, &localAddress, &backlog, &onError](int errnum) -> void {
                 if (errnum > 0) {
                     onError(errnum);

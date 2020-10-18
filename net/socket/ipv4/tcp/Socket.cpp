@@ -28,6 +28,8 @@
 namespace net::socket::ipv4::tcp {
 
     void Socket::open(const std::function<void(int errnum)>& onError, int flags) {
+        errno = 0;
+
         int fd = ::socket(PF_INET, SOCK_STREAM | flags, 0);
 
         if (fd >= 0) {

@@ -51,6 +51,8 @@ namespace net::socket {
         virtual void open(const std::function<void(int errnum)>& onError, int flags = 0) = 0;
 
         void bind(const SocketAddress& bindAddress, const std::function<void(int errnum)>& onError) {
+            errno = 0;
+
             int ret = ::bind(getFd(), &bindAddress.getSockAddr(), sizeof(typename SocketAddress::SockAddr));
 
             if (ret < 0) {
