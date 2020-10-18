@@ -32,7 +32,8 @@ namespace http::legacy {
     class Client : public http::Client<net::socket::ipv4::tcp::legacy::SocketClient> {
     public:
         using SocketClient = net::socket::ipv4::tcp::legacy::SocketClient;
-        using SocketConnection = typename SocketClient::SocketConnection;
+        using SocketConnector = typename SocketClient::SocketConnector;
+        using SocketConnection = typename SocketConnector::SocketConnection;
         using Socket = typename SocketConnection::Socket;
 
         using http::Client<net::socket::ipv4::tcp::legacy::SocketClient>::Client;
@@ -41,7 +42,8 @@ namespace http::legacy {
     class Client6 : public http::Client<net::socket::ipv6::tcp::legacy::SocketClient> {
     public:
         using SocketClient = net::socket::ipv6::tcp::legacy::SocketClient;
-        using SocketConnection = typename SocketClient::SocketConnection;
+        using SocketConnector = typename SocketClient::SocketConnector;
+        using SocketConnection = typename SocketConnector::SocketConnection;
         using Socket = typename SocketConnection::Socket;
 
         using http::Client<net::socket::ipv6::tcp::legacy::SocketClient>::Client;

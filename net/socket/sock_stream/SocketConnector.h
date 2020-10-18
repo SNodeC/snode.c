@@ -29,10 +29,8 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "ConnectEventReceiver.h"
-#include "Descriptor.h"
 #include "Logger.h"
 #include "ReadEventReceiver.h"
-#include "SocketClient.h"
 
 namespace net::socket::stream {
 
@@ -41,10 +39,11 @@ namespace net::socket::stream {
         : public ConnectEventReceiver
         , public ReadEventReceiver
         , public SocketConnectionT::Socket {
-    protected:
+    public:
         using SocketConnection = SocketConnectionT;
         using Socket = typename SocketConnection::Socket;
 
+    protected:
         void* operator new(size_t size) {
             SocketConnector<SocketConnection>::lastAllocAddress = malloc(size);
 

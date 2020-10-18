@@ -58,15 +58,18 @@ namespace net::socket::stream::tls {
                       onDestruct(socketConnection);
                   },
                   [onConnect](SocketConnection* socketConnection) -> void {
-                      class TLS
+                      class TLSHandshaker
                           : public ReadEventReceiver
                           , public WriteEventReceiver
                           , public Descriptor {
                       public:
-                          TLS(SocketConnection* socketConnection,
-                              const std::function<void(SocketConnection* socketConnection)>& onConnect,
-                              const std::function<void(int err)>& onError)
-                              : socketConnection(socketConnection)
+                          TLSHandshaker(SSL* ssl,
+                                        int sslErr,
+                                        SocketConnection* socketConnection,
+                                        const std::function<void(SocketConnection* socketConnection)>& onConnect,
+                                        const std::function<void(int err)>& onError)
+                              : ssl(ssl)
+                              , socketConnection(socketConnection)
                               , onConnect(onConnect)
                               , onError(onError)
                               , timeOut(net::timer::Timer::singleshotTimer(
@@ -79,12 +82,7 @@ namespace net::socket::stream::tls {
                                     nullptr)) {
                               open(socketConnection->getFd(), FLAGS::dontClose);
 
-                              ssl = socketConnection->startSSL();
-
                               if (ssl != nullptr) {
-                                  int err = SSL_accept(ssl);
-                                  int sslErr = SSL_get_error(ssl, err);
-
                                   if (sslErr == SSL_ERROR_WANT_READ) {
                                       ReadEventReceiver::enable();
                                   } else if (sslErr == SSL_ERROR_WANT_WRITE) {
@@ -109,8 +107,8 @@ namespace net::socket::stream::tls {
                           }
 
                           void readEvent() override {
-                              int err = SSL_accept(ssl);
-                              int sslErr = SSL_get_error(ssl, err);
+                              int ret = SSL_do_handshake(ssl);
+                              int sslErr = SSL_get_error(ssl, ret);
 
                               if (sslErr != SSL_ERROR_WANT_READ) {
                                   if (sslErr == SSL_ERROR_WANT_WRITE) {
@@ -131,8 +129,8 @@ namespace net::socket::stream::tls {
                           }
 
                           void writeEvent() override {
-                              int err = SSL_accept(ssl);
-                              int sslErr = SSL_get_error(ssl, err);
+                              int ret = SSL_do_handshake(ssl);
+                              int sslErr = SSL_get_error(ssl, ret);
 
                               if (sslErr != SSL_ERROR_WANT_WRITE) {
                                   if (sslErr == SSL_ERROR_WANT_READ) {
@@ -156,21 +154,26 @@ namespace net::socket::stream::tls {
                               delete this;
                           }
 
-                          static void start(SocketConnection* socketConnection,
-                                            const std::function<void(SocketConnection* socketConnection)>& onConnect,
-                                            const std::function<void(int err)>& onError) {
-                              new TLS(socketConnection, onConnect, onError);
+                          static void doHandshake(SSL* ssl,
+                                                  int sslErr,
+                                                  SocketConnection* socketConnection,
+                                                  const std::function<void(SocketConnection* socketConnection)>& onConnect,
+                                                  const std::function<void(int err)>& onError) {
+                              new TLSHandshaker(ssl, sslErr, socketConnection, onConnect, onError);
                           }
 
                       private:
-                          SocketConnection* socketConnection = nullptr;
                           SSL* ssl = nullptr;
+                          SocketConnection* socketConnection = nullptr;
                           std::function<void(SocketConnection* socketConnection)> onConnect;
                           std::function<void(int err)> onError;
                           net::timer::Timer& timeOut;
                       };
 
-                      TLS::start(socketConnection, onConnect, []([[maybe_unused]] int err) -> void {
+                      SSL* ssl = socketConnection->startSSL();
+                      int sslErr = SSL_get_error(ssl, SSL_accept(ssl));
+
+                      TLSHandshaker::doHandshake(ssl, sslErr, socketConnection, onConnect, []([[maybe_unused]] int err) -> void {
                           PLOG(INFO) << "TLS connection not accepted";
                       });
                   },

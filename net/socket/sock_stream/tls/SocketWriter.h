@@ -48,12 +48,12 @@ namespace net::socket::stream::tls {
                 switch (sslErr) {
                     case SSL_ERROR_WANT_WRITE:
                     case SSL_ERROR_WANT_READ:
-                        class Renegotiator
+                        class TLSHandshaker
                             : public ReadEventReceiver
                             , public WriteEventReceiver
                             , public Descriptor {
                         public:
-                            Renegotiator(SSL* ssl, int sslErr)
+                            TLSHandshaker(SSL* ssl, int sslErr)
                                 : ssl(ssl) {
                                 this->open(SSL_get_fd(ssl), FLAGS::dontClose);
 
@@ -70,7 +70,7 @@ namespace net::socket::stream::tls {
                             }
 
                             void readEvent() override {
-                                int ret = SSL_write(ssl, nullptr, 0);
+                                int ret = SSL_do_handshake(ssl);
                                 int sslErr = SSL_get_error(ssl, ret);
 
                                 switch (sslErr) {
@@ -87,7 +87,7 @@ namespace net::socket::stream::tls {
                             }
 
                             void writeEvent() override {
-                                int ret = SSL_write(ssl, nullptr, 0);
+                                int ret = SSL_do_handshake(ssl);
                                 int sslErr = SSL_get_error(ssl, ret);
 
                                 switch (sslErr) {
@@ -107,11 +107,15 @@ namespace net::socket::stream::tls {
                                 delete this;
                             }
 
+                            static void doHandshake(SSL* ssl, int sslErr) {
+                                new TLSHandshaker(ssl, sslErr);
+                            }
+
                         private:
                             SSL* ssl;
                         };
 
-                        new Renegotiator(ssl, sslErr);
+                        TLSHandshaker::doHandshake(ssl, sslErr);
 
                         errno = EAGAIN;
                         [[fallthrough]];
