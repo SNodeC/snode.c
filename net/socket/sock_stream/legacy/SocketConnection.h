@@ -34,9 +34,12 @@ namespace net::socket::stream::legacy {
         : public stream::SocketConnection<legacy::SocketReader<SocketT>, legacy::SocketWriter<SocketT>, typename SocketT::SocketAddress> {
     public:
         using Socket = SocketT;
+
+    private:
         using SocketConnectionSuper =
             stream::SocketConnection<legacy::SocketReader<Socket>, legacy::SocketWriter<Socket>, typename Socket::SocketAddress>;
 
+    public:
         SocketConnection(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
                          const std::function<void(SocketConnection* socketConnection)>& onDestruct,
                          const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,

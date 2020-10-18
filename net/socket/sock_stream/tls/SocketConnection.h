@@ -34,9 +34,12 @@ namespace net::socket::stream::tls {
         : public stream::SocketConnection<tls::SocketReader<SocketT>, tls::SocketWriter<SocketT>, typename SocketT::SocketAddress> {
     public:
         using Socket = SocketT;
+
+    private:
         using SocketConnectionSuper =
             stream::SocketConnection<tls::SocketReader<Socket>, tls::SocketWriter<Socket>, typename Socket::SocketAddress>;
 
+    public:
         SocketConnection(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
                          const std::function<void(SocketConnection* socketConnection)>& onDestruct,
                          const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
