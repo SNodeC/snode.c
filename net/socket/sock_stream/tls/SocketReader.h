@@ -120,7 +120,11 @@ namespace net::socket::stream::tls {
                         ret = 0;
                         break;
                     case SSL_ERROR_SYSCALL:
-                        ret = -1;
+                        if (errno == 0) {
+                            ret = 0;
+                        } else {
+                            ret = -1;
+                        }
                         break;
                     default:
                         ret = -ERR_peek_error();
