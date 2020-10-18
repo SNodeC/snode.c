@@ -41,56 +41,17 @@ namespace http {
         using SocketConnection = typename SocketClient::SocketConnection;
 
         Client(const std::function<void(SocketConnection*)>& onConnect,
-               const std::function<void(ServerRequest&)> onRequestBegin,
-               const std::function<void(ServerResponse&)> onResponseReady,
-               const std::function<void(int, const std::string&)> onResponseError,
-               const std::function<void(SocketConnection*)> onDisconnect,
+               const std::function<void(ServerRequest&)>& onRequestBegin,
+               const std::function<void(ServerResponse&)>& onResponseReady,
+               const std::function<void(int, const std::string&)>& onResponseError,
+               const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
-            : socketClient(
-                  [&request = this->request, onRequestBegin, onResponseReady, onResponseError](
-                      SocketConnection* socketConnection) -> void { // onConstruct
-                      http::ClientContext* clientContext = new ClientContext(socketConnection, onResponseReady, onResponseError);
-                      clientContext->setRequest(request);
-                      socketConnection->template setContext<http::ClientContext*>(clientContext);
-                      onRequestBegin(clientContext->serverRequest);
-                  },
-                  [](SocketConnection* socketConnection) -> void { // onDestruct
-                      socketConnection->template getContext<http::ClientContext*>([](http::ClientContext* clientContext) -> void {
-                          delete clientContext;
-                      });
-                  },
-                  [onConnect](SocketConnection* socketConnection) -> void { // onConnect
-                      onConnect(socketConnection);
-
-                      socketConnection->template getContext<http::ClientContext*>(
-                          [&socketConnection](http::ClientContext* clientContext) -> void {
-                              socketConnection->enqueue(clientContext->getRequest());
-                          });
-                  },
-                  [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
-                      onDisconnect(socketConnection);
-                  },
-                  [](SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
-                      socketConnection->template getContext<http::ClientContext*>(
-                          [junk, junkSize](http::ClientContext* clientContext) -> void {
-                              clientContext->receiveResponseData(junk, junkSize);
-                          });
-                  },
-                  [](SocketConnection* socketConnection, int errnum) -> void { // onReadError
-                      if (errnum != 0) {
-                          PLOG(ERROR) << "Server: " << socketConnection->getRemoteAddress().host() << " (" << errnum << ")";
-                      } else {
-                          VLOG(0) << "Server: EOF";
-                      }
-                  },
-                  [](SocketConnection* socketConnection, int errnum) -> void { // onWriteError
-                      if (errnum != 0) {
-                          PLOG(ERROR) << "Server: " << socketConnection->getRemoteAddress().host() << " (" << errnum << ")";
-                      } else {
-                          VLOG(0) << "Server: EOR";
-                      }
-                  },
-                  options) {
+            : onConnect(onConnect)
+            , onRequestBegin(onRequestBegin)
+            , onResponseReady(onResponseReady)
+            , onResponseError(onResponseError)
+            , onDisconnect(onDisconnect)
+            , options(options) {
         }
 
         void get(const std::map<std::string, std::any>& options,
@@ -108,9 +69,9 @@ namespace http {
                 }
             }
 
-            this->request = "GET " + path + " HTTP/1.1\r\nHost: " + host + "\r\n\r\n";
+            std::string request = "GET " + path + " HTTP/1.1\r\nHost: " + host + "\r\n\r\n";
 
-            this->connect(options, onError, localHost);
+            connect(request, options, onError, localHost);
         }
 
         void post(const std::map<std::string, std::any>& options,
@@ -134,25 +95,76 @@ namespace http {
                 }
             }
 
-            this->request =
+            std::string request =
                 "POST " + path + " HTTP/1.1\r\nHost: " + host + "\r\nContent-Length: " + std::to_string(contentLength) + "\r\n\r\n" + body;
 
-            this->connect(options, onError, localHost);
+            connect(request, options, onError, localHost);
         }
 
-    protected:
         void
-        connect(const std::map<std::string, std::any>& options,
+        connect(const std::string& request,
+                const std::map<std::string, std::any>& options,
                 const std::function<void(int err)>& onError,
                 const typename SocketConnection::Socket::SocketAddress& localHost = typename SocketConnection::Socket::SocketAddress()) {
             errno = 0;
 
+            SocketClient socketClient(
+                [request,
+                 onRequestBegin = this->onRequestBegin,
+                 onResponseReady = this->onResponseReady,
+                 onResponseError = this->onResponseError](SocketConnection* socketConnection) -> void { // onConstruct
+                    http::ClientContext* clientContext = new ClientContext(socketConnection, onResponseReady, onResponseError);
+                    clientContext->setRequest(request);
+                    socketConnection->template setContext<http::ClientContext*>(clientContext);
+                    onRequestBegin(clientContext->serverRequest);
+                },
+                [](SocketConnection* socketConnection) -> void { // onDestruct
+                    socketConnection->template getContext<http::ClientContext*>([](http::ClientContext* clientContext) -> void {
+                        delete clientContext;
+                    });
+                },
+                [onConnect = this->onConnect](SocketConnection* socketConnection) -> void { // onConnect
+                    onConnect(socketConnection);
+
+                    socketConnection->template getContext<http::ClientContext*>(
+                        [&socketConnection](http::ClientContext* clientContext) -> void {
+                            socketConnection->enqueue(clientContext->getRequest());
+                        });
+                },
+                [onDisconnect = this->onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
+                    onDisconnect(socketConnection);
+                },
+                [](SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
+                    socketConnection->template getContext<http::ClientContext*>(
+                        [junk, junkSize](http::ClientContext* clientContext) -> void {
+                            clientContext->receiveResponseData(junk, junkSize);
+                        });
+                },
+                [](SocketConnection* socketConnection, int errnum) -> void { // onReadError
+                    if (errnum != 0) {
+                        PLOG(ERROR) << "Server: " << socketConnection->getRemoteAddress().host() << " (" << errnum << ")";
+                    } else {
+                        VLOG(0) << "Server: EOF";
+                    }
+                },
+                [](SocketConnection* socketConnection, int errnum) -> void { // onWriteError
+                    if (errnum != 0) {
+                        PLOG(ERROR) << "Server: " << socketConnection->getRemoteAddress().host() << " (" << errnum << ")";
+                    } else {
+                        VLOG(0) << "Server: EOF";
+                    }
+                },
+                this->options);
+
             socketClient.connect(options, onError, localHost);
         }
 
-        std::string request;
-
-        SocketClient socketClient;
+        std::function<void(SocketConnection*)> onConnect;
+        std::function<void(ServerRequest&)> onRequestBegin;
+        std::function<void(ServerResponse&)> onResponseReady;
+        std::function<void(int, const std::string&)> onResponseError;
+        std::function<void(SocketConnection*)> onDisconnect;
+        std::map<std::string, std::any> options;
     };
 
 } // namespace http
