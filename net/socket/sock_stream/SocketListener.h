@@ -85,23 +85,23 @@ namespace net::socket::stream {
             Socket::open([this, &localAddress, &backlog, &onError](int errnum) -> void {
                 if (errnum > 0) {
                     onError(errnum);
-                    delete this;
+                    destruct();
                 } else {
                     reuseAddress([this, &localAddress, &backlog, &onError](int errnum) -> void {
                         if (errnum != 0) {
                             onError(errnum);
-                            delete this;
+                            destruct();
                         } else {
                             Socket::bind(localAddress, [this, &backlog, &onError](int errnum) -> void {
                                 if (errnum > 0) {
                                     onError(errnum);
-                                    delete this;
+                                    destruct();
                                 } else {
                                     int ret = ::listen(Socket::getFd(), backlog);
 
                                     if (ret < 0) {
                                         onError(errno);
-                                        delete this;
+                                        destruct();
                                     } else {
                                         AcceptEventReceiver::enable();
                                         onError(0);
@@ -128,11 +128,11 @@ namespace net::socket::stream {
             errno = 0;
 
             typename Socket::SocketAddress::SockAddr remoteAddress{};
-            socklen_t addrlen = sizeof(remoteAddress);
+            socklen_t remoteAddressLength = sizeof(remoteAddress);
 
             int scFd = -1;
 
-            scFd = ::accept4(Socket::getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &addrlen, SOCK_NONBLOCK);
+            scFd = ::accept4(Socket::getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &remoteAddressLength, SOCK_NONBLOCK);
 
             if (scFd >= 0) {
                 typename Socket::SocketAddress::SockAddr localAddress{};
@@ -150,6 +150,7 @@ namespace net::socket::stream {
                     socketConnection->ReadEventReceiver::enable();
 
                     onConnect(socketConnection);
+
                 } else {
                     PLOG(ERROR) << "getsockname";
                     shutdown(scFd, SHUT_RDWR);
@@ -166,6 +167,10 @@ namespace net::socket::stream {
 
     private:
         void unobserved() override {
+            destruct();
+        }
+
+        void destruct() {
             if (isDynamic) {
                 delete this;
             }
