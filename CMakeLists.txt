@@ -89,9 +89,9 @@ install(FILES cmake/FindSnodeC.cmake DESTINATION lib/cmake/SnodeC RENAME SnodeCC
 ADD_CUSTOM_TARGET(
     uninstall
     COMMAND
-    xargs rm -v < install_manifest.txt
+    sudo xargs rm -v < install_manifest.txt
     COMMAND
-    xargs -L1 dirname < install_manifest.txt | sort | uniq | xargs rmdir -v --ignore-fail-on-non-empty -p
+    sudo xargs -L1 dirname < install_manifest.txt | sort | uniq | sudo xargs rmdir -v --ignore-fail-on-non-empty -p
     COMMENT "Uninstall project"
 )
 
