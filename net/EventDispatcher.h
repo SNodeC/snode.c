@@ -32,6 +32,7 @@
 #include "Descriptor.h"
 #include "EventReceiver.h"
 #include "FdSet.h"
+#include "timer/Timer.h"
 
 namespace net {
 
@@ -89,18 +90,18 @@ namespace net {
         }
 
     private:
-        int getLargestFd() {
-            int fd = -1;
+        int getMaxFd() {
+            int maxFd = -1;
 
             if (!observedEventReceiver.empty()) {
-                fd = observedEventReceiver.rbegin()->first;
+                maxFd = observedEventReceiver.rbegin()->first;
             }
 
-            return fd;
+            return maxFd;
         }
 
-        long observeEnabledEvents() {
-            long nextTimeout = LONG_MAX;
+        struct timeval observeEnabledEvents() {
+            struct timeval nextTimeout = {LONG_MAX, 0};
 
             for (EventReceiver* eventReceiver : enabledEventReceiver) {
                 int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
@@ -110,15 +111,19 @@ namespace net {
             }
             enabledEventReceiver.clear();
 
+            fdSet.prepare();
+
             return nextTimeout;
         }
 
-        long dispatchActiveEvents(int& counter, time_t currentTime) {
-            long nextInactivityTimeout = LONG_MAX;
+        struct timeval dispatchActiveEvents(int& counter, struct timeval currentTime) {
+            struct timeval nextInactivityTimeout {
+                LONG_MAX, 0
+            };
 
             for (const auto& [fd, eventReceivers] : observedEventReceiver) {
                 EventReceiver* eventReceiver = eventReceivers.front();
-                long maxInactivity = eventReceiver->getTimeout();
+                struct timeval maxInactivity = eventReceiver->getTimeout();
                 if (fdSet.isSet(fd)) {
                     eventCounter++;
                     counter--;
@@ -126,7 +131,7 @@ namespace net {
                     eventReceiver->setLastTriggered(currentTime);
                     nextInactivityTimeout = std::min(nextInactivityTimeout, maxInactivity);
                 } else {
-                    long inactivity = currentTime - eventReceiver->getLastTriggered();
+                    struct timeval inactivity = currentTime - eventReceiver->getLastTriggered();
                     if (inactivity >= maxInactivity) {
                         eventReceiver->disable();
                     } else {
@@ -146,7 +151,7 @@ namespace net {
                     observedEventReceiver.erase(fd);
                     fdSet.clr(fd);
                 } else {
-                    observedEventReceiver[fd].front()->setLastTriggered(time(nullptr));
+                    observedEventReceiver[fd].front()->setLastTriggered({time(nullptr), 0});
                 }
                 eventReceiver->disabled();
             }
@@ -168,7 +173,6 @@ namespace net {
         std::list<EventReceiver*> enabledEventReceiver;
         std::list<EventReceiver*> disabledEventReceiver;
 
-        //        fd_set& fdSet;
         FdSet& fdSet;
 
         long maxInactivity;

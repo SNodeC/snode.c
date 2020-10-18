@@ -36,7 +36,7 @@ namespace net {
 
     protected:
         int observationCounter = 0;
-        time_t lastTriggered = 0;
+        struct timeval lastTriggered {};
     };
 
     class EventReceiver : virtual public ObservationCounter {
@@ -75,7 +75,7 @@ namespace net {
         void enabled() {
             ObservationCounter::observationCounter++;
             _enabled = true;
-            lastTriggered = time(nullptr);
+            lastTriggered = {time(nullptr), 0};
         }
 
         void disabled() {
@@ -86,15 +86,15 @@ namespace net {
             }
         }
 
-        long getTimeout() const {
-            return maxInactivity;
+        struct timeval getTimeout() const {
+            return {maxInactivity, 0};
         }
 
-        time_t getLastTriggered() {
+        struct timeval getLastTriggered() {
             return lastTriggered;
         }
 
-        void setLastTriggered(time_t _lastTriggered) {
+        void setLastTriggered(struct timeval _lastTriggered) {
             lastTriggered = _lastTriggered;
         }
 

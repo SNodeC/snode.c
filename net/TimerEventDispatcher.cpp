@@ -18,7 +18,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <algorithm>  // for copy
+#include <algorithm> // for copy
+#include <climits>
 #include <iterator>   // for back_insert_iterator, back_inserter
 #include <sys/time.h> // for timeval, gettimeofday
 
@@ -30,11 +31,8 @@ namespace net {
 
     struct timeval TimerEventDispatcher::getNextTimeout() {
         struct timeval tv {
-            0, 0
+            LONG_MAX, 0
         };
-
-        tv.tv_sec = 20L;
-        tv.tv_usec = 0L;
 
         for (timer::Timer* timer : addedList) {
             timerList.push_back(timer);

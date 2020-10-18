@@ -22,8 +22,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <climits>
-#include <sys/select.h> // for fd_set
-#include <sys/time.h>   // for timeval
+#include <sys/time.h> // for timeval
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
