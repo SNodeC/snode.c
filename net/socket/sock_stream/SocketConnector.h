@@ -101,31 +101,27 @@ namespace net::socket::stream {
                 }
             }
 
-            typename SocketConnection::Socket::SocketAddress server(host, port);
+            typename Socket::SocketAddress remoteAddress(host, port);
 
             errno = 0;
             Socket::open(
-                [this, &bindAddress, &server, &onError](int errnum) -> void {
+                [this, &bindAddress, &remoteAddress, &onError](int errnum) -> void {
                     if (errnum > 0) {
                         onError(errnum);
-                        delete this;
+                        destruct();
                     } else {
-                        Socket::bind(bindAddress, [this, &server, &onError](int errnum) -> void {
+                        Socket::bind(bindAddress, [this, &remoteAddress, &onError](int errnum) -> void {
                             if (errnum > 0) {
                                 onError(errnum);
-                                delete this;
+                                destruct();
                             } else {
-                                int ret = ::connect(Socket::getFd(), &server.getSockAddr(), server.getSockAddrLen());
+                                int ret = ::connect(Socket::getFd(), &remoteAddress.getSockAddr(), remoteAddress.getSockAddrLen());
 
                                 if (ret == 0 || errno == EINPROGRESS) {
                                     ConnectEventReceiver::enable();
-
-                                    socketConnection =
-                                        new SocketConnection(onConstruct, onDestruct, onRead, onReadError, onWriteError, onDisconnect);
-
                                 } else {
                                     onError(errno);
-                                    delete this;
+                                    destruct();
                                 }
                             }
                         });
@@ -152,24 +148,22 @@ namespace net::socket::stream {
                         typename Socket::SocketAddress::SockAddr remoteAddress{};
                         socklen_t remoteAddressLength = sizeof(remoteAddress);
 
-                        if (getsockname(Socket::getFd(), reinterpret_cast<sockaddr*>(&localAddress), &localAddressLength) == 0) {
-                            if (getpeername(Socket::getFd(), reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) == 0) {
-                                ReadEventReceiver::enable();
+                        if (getsockname(Socket::getFd(), reinterpret_cast<sockaddr*>(&localAddress), &localAddressLength) == 0 &&
+                            getpeername(Socket::getFd(), reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) == 0) {
+                            ReadEventReceiver::enable();
 
-                                socketConnection->open(Socket::getFd(), Descriptor::FLAGS::dontClose);
+                            socketConnection =
+                                new SocketConnection(onConstruct, onDestruct, onRead, onReadError, onWriteError, onDisconnect);
 
-                                socketConnection->setRemoteAddress(typename Socket::SocketAddress(remoteAddress));
-                                socketConnection->setLocalAddress(typename Socket::SocketAddress(localAddress));
+                            socketConnection->open(Socket::getFd(), Descriptor::FLAGS::dontClose);
 
-                                socketConnection->ReadEventReceiver::enable();
+                            socketConnection->setRemoteAddress(typename Socket::SocketAddress(remoteAddress));
+                            socketConnection->setLocalAddress(typename Socket::SocketAddress(localAddress));
 
-                                onError(0);
-                                onConnect(socketConnection);
+                            socketConnection->ReadEventReceiver::enable();
 
-                                connected = true;
-                            } else {
-                                onError(errno);
-                            }
+                            onError(0);
+                            onConnect(socketConnection);
                         } else {
                             onError(errno);
                         }
@@ -188,10 +182,10 @@ namespace net::socket::stream {
         }
 
         void unobserved() override {
-            if (!connected) {
-                delete socketConnection;
-            }
+            destruct();
+        }
 
+        void destruct() {
             if (isDynamic) {
                 delete this;
             }
@@ -209,7 +203,6 @@ namespace net::socket::stream {
 
     private:
         SocketConnection* socketConnection = nullptr;
-        bool connected = false;
 
         std::map<std::string, std::any> options;
 
