@@ -50,14 +50,12 @@ namespace net::socket::stream::tls {
                         const std::map<std::string, std::any>& options)
             : net::socket::stream::SocketConnector<SocketConnection>(
                   [onConstruct, &ctx = this->ctx](SocketConnection* socketConnection) -> void { // onConstruct
-                      socketConnection->setSSL_CTX(ctx);
                       onConstruct(socketConnection);
                   },
                   [onDestruct](SocketConnection* socketConnection) -> void { // onDestruct
-                      socketConnection->clearSSL_CTX();
                       onDestruct(socketConnection);
                   },
-                  [onConnect, &onError = this->onError](SocketConnection* socketConnection) -> void { // onConnect
+                  [onConnect, &ctx = this->ctx, &onError = this->onError](SocketConnection* socketConnection) -> void { // onConnect
                       class TLSHandshaker
                           : public ReadEventReceiver
                           , public WriteEventReceiver
@@ -171,7 +169,7 @@ namespace net::socket::stream::tls {
                           timer::Timer& timeOut;
                       };
 
-                      SSL* ssl = socketConnection->startSSL();
+                      SSL* ssl = socketConnection->startSSL(ctx);
                       int sslErr = SSL_get_error(ssl, SSL_connect(ssl));
 
                       TLSHandshaker::doHandshake(ssl, sslErr, socketConnection, onConnect, onError);
@@ -208,7 +206,7 @@ namespace net::socket::stream::tls {
         SSL_CTX* ctx = nullptr;
         unsigned long sslErr = 0;
 
-        template <typename SocketConnectorT>
+        template <typename SocketConnector>
         friend class net::socket::stream::SocketClient;
     };
 

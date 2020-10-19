@@ -67,43 +67,32 @@ namespace net::socket::stream::tls {
             onConstruct(this);
         }
 
-        void setSSL_CTX(SSL_CTX* ctx) {
-            if (ctx != nullptr) {
-                this->ctx = ctx;
-                SSL_CTX_up_ref(ctx);
-            }
-        }
-
-        void clearSSL_CTX() {
-            if (ctx != nullptr) {
-                SSL_CTX_free(ctx);
-                ctx = nullptr;
-            }
-        }
-
-        SSL* startSSL() {
-            int ret = 0;
-
+        SSL* startSSL(SSL_CTX* ctx) {
             if (ctx != nullptr) {
                 ssl = SSL_new(ctx);
 
                 if (ssl != nullptr) {
-                    ret = SSL_set_fd(ssl, Socket::getFd());
-                    SocketReader<Socket>::ssl = ssl;
-                    SocketWriter<Socket>::ssl = ssl;
+                    if (SSL_set_fd(ssl, Socket::getFd()) == 1) {
+                        SocketReader<Socket>::ssl = ssl;
+                        SocketWriter<Socket>::ssl = ssl;
+                    } else {
+                        SSL_free(ssl);
+                        ssl = nullptr;
+                    }
                 }
             }
 
-            return ret == 1 ? ssl : nullptr;
+            return ssl;
         }
 
         void stopSSL() {
             if (ssl != nullptr) {
                 SSL_shutdown(ssl);
                 SSL_free(ssl);
+
                 ssl = nullptr;
-                SocketReader<Socket>::ssl = ssl;
-                SocketWriter<Socket>::ssl = ssl;
+                SocketReader<Socket>::ssl = nullptr;
+                SocketWriter<Socket>::ssl = nullptr;
             }
         }
 
@@ -111,13 +100,8 @@ namespace net::socket::stream::tls {
             return ssl;
         }
 
-        SSL_CTX* getSSL_CTX() const {
-            return ctx;
-        }
-
     protected:
         SSL* ssl = nullptr;
-        SSL_CTX* ctx = nullptr;
     };
 
 } // namespace net::socket::stream::tls

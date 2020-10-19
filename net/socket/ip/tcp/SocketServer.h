@@ -34,13 +34,14 @@ namespace net::socket::ip::tcp {
         using SocketServerSuper::SocketServerSuper;
 
         using SocketConnection = typename SocketServerSuper::SocketConnection;
+        using Socket = typename SocketConnection::Socket;
 
         void listen(unsigned short port, int backlog, const std::function<void(int err)>& onError) const {
-            SocketServerSuper::listen(typename SocketConnection::Socket::SocketAddress(port), backlog, onError);
+            SocketServerSuper::listen(typename Socket::SocketAddress(port), backlog, onError);
         }
 
         void listen(const std::string& ipOrHostname, uint16_t port, int backlog, const std::function<void(int err)>& onError) const {
-            SocketServerSuper::listen(typename SocketConnection::Socket::SocketAddress(ipOrHostname, port), backlog, onError);
+            SocketServerSuper::listen(typename Socket::SocketAddress(ipOrHostname, port), backlog, onError);
         }
     };
 
