@@ -91,7 +91,7 @@ namespace http {
         }
     }
 
-    void ServerContext::onReadError(int errnum) {
+    void ServerContext::onReadError(int errnum) const {
         if (errnum != 0 && errnum != ECONNRESET) {
             PLOG(ERROR) << "Connection: read";
         }
@@ -101,7 +101,7 @@ namespace http {
         socketConnection->enqueue(buf, len);
     }
 
-    void ServerContext::onWriteError(int errnum) {
+    void ServerContext::onWriteError(int errnum) const {
         if (errnum != 0 && errnum != ECONNRESET) {
             PLOG(ERROR) << "Connection write";
         }

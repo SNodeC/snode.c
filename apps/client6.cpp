@@ -33,6 +33,7 @@
 
 int main(int argc, char* argv[]) {
     net::EventLoop::init(argc, argv);
+
     {
         http::legacy::Client6 legacyClient(
             [](http::legacy::Client6::SocketConnection* socketConnection) -> void {

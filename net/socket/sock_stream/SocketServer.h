@@ -63,18 +63,18 @@ namespace net::socket::stream {
 
         void listen(const typename SocketConnection::Socket::SocketAddress& bindAddress,
                     int backlog,
-                    const std::function<void(int err)>& onError) {
+                    const std::function<void(int err)>& onError) const {
             SocketListener* socketListener =
                 new SocketListener(onConstruct, onDestruct, onConnect, onDisconnect, onRead, onReadError, onWriteError, options);
 
             socketListener->listen(bindAddress, backlog, onError);
         }
 
-        void listen(unsigned short port, int backlog, const std::function<void(int err)>& onError) {
+        void listen(unsigned short port, int backlog, const std::function<void(int err)>& onError) const {
             listen(typename SocketConnection::Socket::SocketAddress(port), backlog, onError);
         }
 
-        void listen(const std::string& ipOrHostname, uint16_t port, int backlog, const std::function<void(int err)>& onError) {
+        void listen(const std::string& ipOrHostname, uint16_t port, int backlog, const std::function<void(int err)>& onError) const {
             listen(typename SocketConnection::Socket::SocketAddress(ipOrHostname, port), backlog, onError);
         }
 

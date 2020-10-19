@@ -65,13 +65,13 @@ namespace http {
         }
 
     public:
-        void listen(unsigned short port, const std::function<void(int err)>& onError) {
+        void listen(unsigned short port, const std::function<void(int err)>& onError) const {
             errno = 0;
 
             socketServer.listen(port, 5, onError);
         }
 
-        void listen(const std::string host, unsigned short port, const std::function<void(int err)>& onError) {
+        void listen(const std::string host, unsigned short port, const std::function<void(int err)>& onError) const {
             errno = 0;
 
             socketServer.listen(host, port, 5, onError);

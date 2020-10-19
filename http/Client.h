@@ -54,9 +54,10 @@ namespace http {
             , options(options) {
         }
 
-        void get(const std::map<std::string, std::any>& options,
-                 const std::function<void(int err)>& onError,
-                 const typename SocketConnection::Socket::SocketAddress& localHost = typename SocketConnection::Socket::SocketAddress()) {
+        void
+        get(const std::map<std::string, std::any>& options,
+            const std::function<void(int err)>& onError,
+            const typename SocketConnection::Socket::SocketAddress& localHost = typename SocketConnection::Socket::SocketAddress()) const {
             std::string path = "";
             std::string host = "";
 
@@ -74,9 +75,10 @@ namespace http {
             connect(request, options, onError, localHost);
         }
 
-        void post(const std::map<std::string, std::any>& options,
-                  const std::function<void(int err)>& onError,
-                  const typename SocketConnection::Socket::SocketAddress& localHost = typename SocketConnection::Socket::SocketAddress()) {
+        void
+        post(const std::map<std::string, std::any>& options,
+             const std::function<void(int err)>& onError,
+             const typename SocketConnection::Socket::SocketAddress& localHost = typename SocketConnection::Socket::SocketAddress()) const {
             std::string path = "";
             std::string host = "";
             std::string body = "";
@@ -101,11 +103,11 @@ namespace http {
             connect(request, options, onError, localHost);
         }
 
-        void
-        connect(const std::string& request,
-                const std::map<std::string, std::any>& options,
-                const std::function<void(int err)>& onError,
-                const typename SocketConnection::Socket::SocketAddress& localHost = typename SocketConnection::Socket::SocketAddress()) {
+        void connect(
+            const std::string& request,
+            const std::map<std::string, std::any>& options,
+            const std::function<void(int err)>& onError,
+            const typename SocketConnection::Socket::SocketAddress& localHost = typename SocketConnection::Socket::SocketAddress()) const {
             errno = 0;
 
             SocketClient socketClient(

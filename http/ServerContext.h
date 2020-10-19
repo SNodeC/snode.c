@@ -44,10 +44,10 @@ namespace http {
         ~ServerContext();
 
         void receiveRequestData(const char* junk, size_t junkLen);
-        void onReadError(int errnum);
+        void onReadError(int errnum) const;
 
         void sendResponseData(const char* buf, size_t len);
-        void onWriteError(int errnum);
+        void onWriteError(int errnum) const;
 
         void responseCompleted();
 
