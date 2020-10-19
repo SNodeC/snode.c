@@ -165,7 +165,9 @@ tls::SocketClient<net::socket::ip::tcp::ipv4::Socket> getTlsClient() {
         },
         {{"certChain", CLIENTCERTF}, {"keyPEM", CLIENTKEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}});
 
-    tlsClient.connect({{"host", "localhost"}, {"port", 8088}}, [](int err) -> void {
+    typename net::socket::ip::tcp::ipv4::Socket::SocketAddress remoteAddress("localhost", 8088);
+
+    tlsClient.connect(remoteAddress, [](int err) -> void {
         if (err) {
             PLOG(ERROR) << "Connect: " + std::to_string(err);
         } else {
@@ -223,7 +225,9 @@ legacy::SocketClient<net::socket::ip::tcp::ipv4::Socket> getLegacyClient() {
         },
         {{}});
 
-    legacyClient.connect({{"host", "localhost"}, {"port", 8080}}, [](int err) -> void {
+    typename net::socket::ip::tcp::ipv4::Socket::SocketAddress remoteAddress("localhost", 8080);
+
+    legacyClient.connect(remoteAddress, [](int err) -> void {
         if (err) {
             PLOG(ERROR) << "Connect: " << std::to_string(err);
         } else {
@@ -239,7 +243,10 @@ int main(int argc, char* argv[]) {
 
     {
         legacy::SocketClient legacyClient = getLegacyClient();
-        legacyClient.connect({{"host", "localhost"}, {"port", 8080}}, [](int err) -> void { // example.com:81 simulate connnect timeout
+
+        typename net::socket::ip::tcp::ipv4::Socket::SocketAddress remoteAddress("localhost", 8080);
+
+        legacyClient.connect(remoteAddress, [](int err) -> void { // example.com:81 simulate connnect timeout
             if (err) {
                 PLOG(ERROR) << "Connect: " << std::to_string(err);
             } else {
@@ -248,7 +255,8 @@ int main(int argc, char* argv[]) {
         });
 
         tls::SocketClient tlsClient = getTlsClient();
-        tlsClient.connect({{"host", "localhost"}, {"port", 8088}}, [](int err) -> void {
+
+        tlsClient.connect(remoteAddress, [](int err) -> void {
             if (err) {
                 PLOG(ERROR) << "Connect: " << std::to_string(err);
             } else {

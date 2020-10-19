@@ -31,7 +31,6 @@ namespace net::socket::ip::tcp::ipv6::tls {
 
     class SocketClient
         : public net::socket::ip::tcp::SocketClient<net::socket::stream::tls::SocketClient<net::socket::ip::tcp::ipv6::Socket>> {
-    public:
         using net::socket::ip::tcp::SocketClient<net::socket::stream::tls::SocketClient<net::socket::ip::tcp::ipv6::Socket>>::SocketClient;
     };
 

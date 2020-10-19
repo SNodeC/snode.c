@@ -21,7 +21,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <any>
 #include <functional>
+#include <map>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -34,6 +36,26 @@ namespace net::socket::ip::tcp {
         using SocketClientSuper::SocketClientSuper;
 
         using SocketConnection = typename SocketClientSuper::SocketConnection;
+        using Socket = typename SocketConnection::Socket;
+
+        virtual void
+        connect(const std::map<std::string, std::any>& options,
+                const std::function<void(int err)>& onError,
+                const typename SocketConnection::Socket::SocketAddress& bindAddress = typename SocketConnection::Socket::SocketAddress()) {
+            std::string host = "";
+            unsigned short port = 0;
+
+            for (auto& [name, value] : options) {
+                if (name == "host") {
+                    host = std::any_cast<const char*>(value);
+                } else if (name == "port") {
+                    port = std::any_cast<int>(value);
+                }
+            }
+            typename Socket::SocketAddress remoteAddress(host, port);
+
+            SocketClientSuper::connect(remoteAddress, onError, bindAddress);
+        }
     };
 
 } // namespace net::socket::ip::tcp

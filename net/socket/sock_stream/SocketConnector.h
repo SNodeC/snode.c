@@ -82,25 +82,29 @@ namespace net::socket::stream {
         SocketConnector& operator=(const SocketConnector&) = delete;
 
         virtual ~SocketConnector() = default;
+        /*
+                virtual void
+                connect(const std::map<std::string, std::any>& options,
+                        const std::function<void(int err)>& onError,
+                        const typename SocketConnection::Socket::SocketAddress& bindAddress = typename
+           SocketConnection::Socket::SocketAddress()) { this->onError = onError;
 
+                    std::string host = "";
+                    unsigned short port = 0;
+
+                    for (auto& [name, value] : options) {
+                        if (name == "host") {
+                            host = std::any_cast<const char*>(value);
+                        } else if (name == "port") {
+                            port = std::any_cast<int>(value);
+                        }
+                    }
+                    */
         virtual void
-        connect(const std::map<std::string, std::any>& options,
+        connect(const typename SocketConnection::Socket::SocketAddress& remoteAddress,
                 const std::function<void(int err)>& onError,
                 const typename SocketConnection::Socket::SocketAddress& bindAddress = typename SocketConnection::Socket::SocketAddress()) {
             this->onError = onError;
-
-            std::string host = "";
-            unsigned short port = 0;
-
-            for (auto& [name, value] : options) {
-                if (name == "host") {
-                    host = std::any_cast<const char*>(value);
-                } else if (name == "port") {
-                    port = std::any_cast<int>(value);
-                }
-            }
-
-            typename Socket::SocketAddress remoteAddress(host, port);
 
             errno = 0;
 

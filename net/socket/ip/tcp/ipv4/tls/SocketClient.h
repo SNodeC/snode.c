@@ -31,7 +31,6 @@ namespace net::socket::ip::tcp::ipv4::tls {
 
     class SocketClient
         : public net::socket::ip::tcp::SocketClient<net::socket::stream::tls::SocketClient<net::socket::ip::tcp::ipv4::Socket>> {
-    public:
         using net::socket::ip::tcp::SocketClient<net::socket::stream::tls::SocketClient<net::socket::ip::tcp::ipv4::Socket>>::SocketClient;
     };
 
