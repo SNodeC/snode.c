@@ -194,14 +194,14 @@ namespace net::socket::stream::tls {
             }
         }
 
-        void connect(const std::map<std::string, std::any>& options,
+        void connect(const typename SocketConnection::Socket::SocketAddress& remoteAddress,
                      const std::function<void(int err)>& onError,
                      const typename SocketConnection::Socket::SocketAddress& bindAddress =
                          typename SocketConnection::Socket::SocketAddress()) override {
             if (sslErr != 0) {
                 onError(-sslErr);
             } else {
-                socket::stream::SocketConnector<SocketConnection>::connect(options, onError, bindAddress);
+                socket::stream::SocketConnector<SocketConnection>::connect(remoteAddress, onError, bindAddress);
             }
         }
 

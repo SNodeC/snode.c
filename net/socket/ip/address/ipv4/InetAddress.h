@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_IPV6_INETADDRESS_H
-#define NET_SOCKET_IPV6_INETADDRESS_H
+#ifndef NET_SOCKET_IP_ADDRESS_IPV4_INETADDRESS_H
+#define NET_SOCKET_IP_ADDRESS_IPV4_INETADDRESS_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,7 +31,7 @@
 
 #include "socket/SocketAddress.h"
 
-namespace net::socket::ipv6 {
+namespace net::socket::ip::address::ipv4 {
 
     class bad_hostname : public std::exception {
     public:
@@ -47,14 +47,14 @@ namespace net::socket::ipv6 {
         static std::string message;
     };
 
-    class InetAddress : public SocketAddress<struct sockaddr_in6> {
+    class InetAddress : public SocketAddress<struct sockaddr_in> {
     public:
         InetAddress();
         InetAddress(const InetAddress& ina);
         explicit InetAddress(const std::string& ipOrHostname);
         explicit InetAddress(const std::string& ipOrHostname, uint16_t port);
         explicit InetAddress(uint16_t port);
-        explicit InetAddress(const struct sockaddr_in6& addr);
+        explicit InetAddress(const struct sockaddr_in& addr);
 
         uint16_t port() const;
         std::string host() const;
@@ -63,9 +63,9 @@ namespace net::socket::ipv6 {
 
         InetAddress& operator=(const InetAddress& ina);
 
-        const struct sockaddr_in6& getSockAddrIn6() const;
+        const struct sockaddr_in& getSockAddrIn() const;
     };
 
-} // namespace net::socket::ipv6
+} // namespace net::socket::ip::address::ipv4
 
-#endif // NET_SOCKET_IPV6_INETADDRESS_H
+#endif // NET_SOCKET_IP_ADDRESS_IPV4_INETADDRESS_H

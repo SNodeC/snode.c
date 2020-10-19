@@ -16,32 +16,25 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_IPV4_TCP_SOCKET_H
-#define NET_SOCKET_IPV4_TCP_SOCKET_H
+#ifndef NET_SOCKET_IP_TCP_IPV4_LEGACY_SOCKETCLIENT_H
+#define NET_SOCKET_IP_TCP_IPV4_LEGACY_SOCKETCLIENT_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#include "socket/ip/tcp/SocketClient.h"
+#include "socket/ip/tcp/ipv4/Socket.h"
+#include "socket/sock_stream/legacy/SocketClient.h"
 
-#include "Descriptor.h" // for Descriptor
-#include "socket/Socket.h"
-#include "socket/ipv4/InetAddress.h" // IWYU pragma: keep
+namespace net::socket::ip::tcp::ipv4::legacy {
 
-namespace net::socket::ipv4::tcp {
-
-    class Socket : public net::socket::Socket<net::socket::ipv4::InetAddress> {
-    public:
-        Socket() = default;
-
-        Socket(const Socket&) = delete;
-        Socket& operator=(const Socket&) = delete;
-
-        using net::Descriptor::open;
-        void open(const std::function<void(int errnum)>& onError, int flags = 0) override;
+    class SocketClient
+        : public net::socket::ip::tcp::SocketClient<net::socket::stream::legacy::SocketClient<net::socket::ip::tcp::ipv4::Socket>> {
+        using net::socket::ip::tcp::SocketClient<
+            net::socket::stream::legacy::SocketClient<net::socket::ip::tcp::ipv4::Socket>>::SocketClient;
     };
 
-} // namespace net::socket::ipv4::tcp
+} // namespace net::socket::ip::tcp::ipv4::legacy
 
-#endif // NET_SOCKET_IPV4_TCP_SOCKET_H
+#endif // NET_SOCKET_IP_TCP_IPV4_LEGACY_SOCKETCLIENT_H

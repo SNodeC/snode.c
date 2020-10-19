@@ -4,7 +4,7 @@
 #include <netdb.h>
 #include <sys/socket.h>
 
-namespace net::socket::ipv6 {
+namespace net::socket::ip::address::ipv6 {
 
     std::string bad_hostname::message = "";
 
@@ -139,4 +139,4 @@ namespace net::socket::ipv6 {
         return sockAddr;
     }
 
-} // namespace net::socket::ipv6
+} // namespace net::socket::ip::address::ipv6

@@ -30,10 +30,6 @@ namespace net::socket::stream::legacy {
 
     template <typename SocketT>
     class SocketListener : public net::socket::stream::SocketListener<net::socket::stream::legacy::SocketConnection<SocketT>> {
-    public:
-        using SocketConnection = net::socket::stream::legacy::SocketConnection<SocketT>;
-
-    protected:
         using net::socket::stream::SocketListener<net::socket::stream::legacy::SocketConnection<SocketT>>::SocketListener;
     };
 

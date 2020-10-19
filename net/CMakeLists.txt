@@ -19,10 +19,10 @@ add_library(net SHARED
     ConnectEventReceiver.cpp
     file/File.cpp
     file/FileReader.cpp
-    socket/ipv4/InetAddress.cpp
-    socket/ipv4/tcp/Socket.cpp
-    socket/ipv6/InetAddress.cpp
-    socket/ipv6/tcp/Socket.cpp
+    socket/ip/address/ipv4/InetAddress.cpp
+    socket/ip/tcp/ipv4/Socket.cpp
+    socket/ip/address/ipv6/InetAddress.cpp
+    socket/ip/tcp/ipv6/Socket.cpp
     socket/sock_stream/tls/ssl_utils.cpp
     timer/Timer.cpp
 )

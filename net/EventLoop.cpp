@@ -86,6 +86,10 @@ namespace net {
         maxFd = std::max(outOfBandEventDispatcher.getMaxFd(), maxFd);
 
         if (maxFd >= 0 || !timerEventDispatcher.empty()) {
+            if (nextInactivityTimeout < timeval({0, 0})) {
+                nextInactivityTimeout = {0, 0};
+            }
+
             int counter = select(maxFd + 1, &readFdSet.get(), &writeFdSet.get(), &exceptFdSet.get(), &nextInactivityTimeout);
 
             if (counter >= 0) {
@@ -95,15 +99,15 @@ namespace net {
                 struct timeval currentTime = {time(nullptr), 0};
                 nextInactivityTimeout = {LONG_MAX, 0};
 
-                nextTimeout = readEventDispatcher.dispatchActiveEvents(counter, currentTime);
+                nextTimeout = readEventDispatcher.dispatchActiveEvents(currentTime);
                 nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
-                nextTimeout = writeEventDispatcher.dispatchActiveEvents(counter, currentTime);
+                nextTimeout = writeEventDispatcher.dispatchActiveEvents(currentTime);
                 nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
-                nextTimeout = acceptEventDispatcher.dispatchActiveEvents(counter, currentTime);
+                nextTimeout = acceptEventDispatcher.dispatchActiveEvents(currentTime);
                 nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
-                nextTimeout = connectEventDispatcher.dispatchActiveEvents(counter, currentTime);
+                nextTimeout = connectEventDispatcher.dispatchActiveEvents(currentTime);
                 nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
-                nextTimeout = outOfBandEventDispatcher.dispatchActiveEvents(counter, currentTime);
+                nextTimeout = outOfBandEventDispatcher.dispatchActiveEvents(currentTime);
                 nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
             } else if (errno != EINTR) {
                 PLOG(ERROR) << "select";
