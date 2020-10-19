@@ -64,8 +64,8 @@ namespace net::socket::stream::tls {
                                 , onSuccess(onSuccess)
                                 , onTimeout(onTimeout)
                                 , onError(onError) {
-                                this->ReadEventReceiver::setTimeout(TLSHANDSHAKE_TIMEOUT);
-                                this->WriteEventReceiver::setTimeout(TLSHANDSHAKE_TIMEOUT);
+                                ReadEventReceiver::setTimeout(TLSHANDSHAKE_TIMEOUT);
+                                WriteEventReceiver::setTimeout(TLSHANDSHAKE_TIMEOUT);
 
                                 this->open(SSL_get_fd(ssl), FLAGS::dontClose);
 
@@ -80,7 +80,6 @@ namespace net::socket::stream::tls {
                                         WriteEventReceiver::enable();
                                         break;
                                     case SSL_ERROR_NONE:
-                                        ReadEventReceiver::disable();
                                         onSuccess();
                                         delete this;
                                         break;

@@ -76,8 +76,8 @@ namespace net::socket::stream::tls {
                               , onSuccess(onSuccess)
                               , onTimeout(onTimeout)
                               , onError(onError) {
-                              this->ReadEventReceiver::setTimeout(TLSHANDSHAKE_TIMEOUT);
-                              this->WriteEventReceiver::setTimeout(TLSHANDSHAKE_TIMEOUT);
+                              ReadEventReceiver::setTimeout(TLSHANDSHAKE_TIMEOUT);
+                              WriteEventReceiver::setTimeout(TLSHANDSHAKE_TIMEOUT);
 
                               open(SSL_get_fd(ssl), FLAGS::dontClose);
 
@@ -170,7 +170,8 @@ namespace net::socket::stream::tls {
                       SSL* ssl = socketConnection->startSSL(ctx);
 
                       if (ssl != nullptr) {
-                          int sslErr = SSL_get_error(ssl, SSL_accept(ssl));
+                          int ret = SSL_accept(ssl);
+                          int sslErr = SSL_get_error(ssl, ret);
 
                           if (sslErr == SSL_ERROR_WANT_READ || sslErr == SSL_ERROR_WANT_WRITE) {
                               TLSHandshaker::doHandshake(
@@ -186,6 +187,8 @@ namespace net::socket::stream::tls {
                                       socketConnection->ReadEventReceiver::disable();
                                       PLOG(ERROR) << "TLS handshake failed: " << ERR_error_string(sslErr, nullptr);
                                   });
+                          } else if (sslErr == SSL_ERROR_NONE) {
+                              onConnect(socketConnection);
                           } else {
                               socketConnection->ReadEventReceiver::disable();
                               PLOG(ERROR) << "TLS accept failed: " << ERR_error_string(ERR_get_error(), nullptr);
