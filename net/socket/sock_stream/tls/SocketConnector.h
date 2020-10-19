@@ -69,7 +69,6 @@ namespace net::socket::stream::tls {
                           , public Descriptor {
                       public:
                           TLSHandshaker(SSL* ssl,
-                                        int sslErr,
                                         const std::function<void(void)>& onSuccess,
                                         const std::function<void(void)>& onTimeout,
                                         const std::function<void(int err)>& onError)
@@ -81,6 +80,9 @@ namespace net::socket::stream::tls {
                               this->WriteEventReceiver::setTimeout(TLSHANDSHAKE_TIMEOUT);
 
                               open(SSL_get_fd(ssl), FLAGS::dontClose);
+
+                              int ret = SSL_do_handshake(ssl);
+                              int sslErr = SSL_get_error(ssl, ret);
 
                               switch (sslErr) {
                                   case SSL_ERROR_WANT_READ:
@@ -152,11 +154,10 @@ namespace net::socket::stream::tls {
                           }
 
                           static void doHandshake(SSL* ssl,
-                                                  int sslErr,
                                                   const std::function<void(void)>& onSuccess,
                                                   const std::function<void(void)>& onTimeout,
                                                   const std::function<void(int err)>& onError) {
-                              new TLSHandshaker(ssl, sslErr, onSuccess, onTimeout, onError);
+                              new TLSHandshaker(ssl, onSuccess, onTimeout, onError);
                           }
 
                       private:
@@ -171,21 +172,26 @@ namespace net::socket::stream::tls {
                       if (ssl != nullptr) {
                           int sslErr = SSL_get_error(ssl, SSL_connect(ssl));
 
-                          TLSHandshaker::doHandshake(
-                              ssl,
-                              sslErr,
-                              [&onConnect, socketConnection](void) -> void {
-                                  onConnect(socketConnection);
-                              },
-                              [socketConnection](void) -> void {
-                                  socketConnection->ReadEventReceiver::disable();
-                                  PLOG(ERROR) << "TLS handshake timeout";
-                              },
-                              [socketConnection, &onError](int sslErr) -> void {
-                                  socketConnection->ReadEventReceiver::disable();
-                                  PLOG(ERROR) << "TLS handshake failed: " << ERR_error_string(sslErr, nullptr);
-                                  onError(-sslErr);
-                              });
+                          if (sslErr == SSL_ERROR_WANT_READ || sslErr == SSL_ERROR_WANT_WRITE) {
+                              TLSHandshaker::doHandshake(
+                                  ssl,
+                                  [&onConnect, socketConnection](void) -> void {
+                                      onConnect(socketConnection);
+                                  },
+                                  [socketConnection](void) -> void {
+                                      socketConnection->ReadEventReceiver::disable();
+                                      PLOG(ERROR) << "TLS handshake timeout";
+                                  },
+                                  [socketConnection, &onError](int sslErr) -> void {
+                                      socketConnection->ReadEventReceiver::disable();
+                                      PLOG(ERROR) << "TLS handshake failed: " << ERR_error_string(sslErr, nullptr);
+                                      onError(-sslErr);
+                                  });
+                          } else {
+                              socketConnection->ReadEventReceiver::disable();
+                              PLOG(ERROR) << "TLS connect failed: " << ERR_error_string(ERR_get_error(), nullptr);
+                              onError(-sslErr);
+                          }
                       } else {
                           socketConnection->ReadEventReceiver::disable();
                           unsigned long sslErr = ERR_get_error();

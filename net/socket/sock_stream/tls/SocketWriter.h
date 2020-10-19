@@ -57,7 +57,6 @@ namespace net::socket::stream::tls {
                             , public Descriptor {
                         public:
                             TLSHandshaker(SSL* ssl,
-                                          int sslErr,
                                           const std::function<void(void)>& onSuccess,
                                           const std::function<void(void)>& onTimeout,
                                           const std::function<void(unsigned long)>& onError)
@@ -69,6 +68,9 @@ namespace net::socket::stream::tls {
                                 this->WriteEventReceiver::setTimeout(TLSHANDSHAKE_TIMEOUT);
 
                                 this->open(SSL_get_fd(ssl), FLAGS::dontClose);
+
+                                int ret = SSL_do_handshake(ssl);
+                                int sslErr = SSL_get_error(ssl, ret);
 
                                 switch (sslErr) {
                                     case SSL_ERROR_WANT_READ:
@@ -141,11 +143,10 @@ namespace net::socket::stream::tls {
                             }
 
                             static void doHandshake(SSL* ssl,
-                                                    int sslErr,
                                                     const std::function<void(void)>& onSuccess,
                                                     const std::function<void(void)>& onTimeout,
                                                     const std::function<void(unsigned long)>& onError) {
-                                new TLSHandshaker(ssl, sslErr, onSuccess, onTimeout, onError);
+                                new TLSHandshaker(ssl, onSuccess, onTimeout, onError);
                             }
 
                         private:
@@ -158,15 +159,15 @@ namespace net::socket::stream::tls {
 
                         TLSHandshaker::doHandshake(
                             ssl,
-                            sslErr,
                             [this](void) -> void {
-                                WriteEventReceiver::disable();
                             },
                             [this](void) -> void {
                                 WriteEventReceiver::disable();
+                                PLOG(ERROR) << "TLS handshake timeout";
                             },
-                            []([[maybe_unused]] unsigned long sslErr) -> void {
-                                PLOG(INFO) << "TLS handshake failed: " << ERR_error_string(sslErr, nullptr);
+                            [this](unsigned long sslErr) -> void {
+                                WriteEventReceiver::disable();
+                                PLOG(ERROR) << "TLS handshake failed: " << ERR_error_string(sslErr, nullptr);
                             });
 
                         errno = EAGAIN;
