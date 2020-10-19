@@ -26,7 +26,7 @@
 
 #include "InetAddress.h"
 
-namespace net::socket::ip::v4 {
+namespace net::socket::ip::address::ipv4 {
 
     std::string bad_hostname::message = "";
 
@@ -111,4 +111,4 @@ namespace net::socket::ip::v4 {
         return sockAddr;
     }
 
-} // namespace net::socket::ipv4
+} // namespace net::socket::ip::address::ipv4

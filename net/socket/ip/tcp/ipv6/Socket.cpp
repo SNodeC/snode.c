@@ -16,23 +16,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_IPV4_TCP_LEGACY_SOCKETCLIENT_H
-#define NET_SOCKET_IPV4_TCP_LEGACY_SOCKETCLIENT_H
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+#include <cerrno>
+#include <sys/socket.h>
 
-#include "socket/ip/v4/tcp/Socket.h"
-#include "socket/sock_stream/legacy/SocketClient.h"
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::ip::v4::tcp::legacy {
+#include "Socket.h"
 
-    class SocketClient : public net::socket::stream::legacy::SocketClient<net::socket::ip::v4::tcp::Socket> {
-    public:
-        using net::socket::stream::legacy::SocketClient<net::socket::ip::v4::tcp::Socket>::SocketClient;
-    };
+namespace net::socket::ip::tcp::ipv6 {
 
-} // namespace net::socket::ip::v4::tcp::legacy
+    void Socket::open(const std::function<void(int errnum)>& onError, int flags) {
+        errno = 0;
 
-#endif // NET_SOCKET_IPV4_TCP_LEGACY_SOCKETCLIENT_H
+        int fd = ::socket(PF_INET6, SOCK_STREAM | flags, 0);
+
+        if (fd >= 0) {
+            open(fd);
+            onError(0);
+        } else {
+            onError(errno);
+        }
+    }
+
+} // namespace net::socket::ip::tcp::ipv6

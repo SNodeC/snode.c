@@ -16,26 +16,26 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_IPV6_TCP_LEGACY_SOCKETSERVER_H
-#define NET_SOCKET_IPV6_TCP_LEGACY_SOCKETSERVER_H
+#ifndef NET_SOCKET_IP_TCP_IPV6_LEGACY_SOCKETCLIENT_H
+#define NET_SOCKET_IP_TCP_IPV6_LEGACY_SOCKETCLIENT_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#include "socket/ip/v6/tcp/Socket.h"
-#include "socket/ip/v6/tcp/SocketServer.h"
-#include "socket/sock_stream/legacy/SocketServer.h"
+#include "socket/ip/tcp/SocketClient.h"
+#include "socket/ip/tcp/ipv6/Socket.h"
+#include "socket/sock_stream/legacy/SocketClient.h"
 
-namespace net::socket::ip::v6::tcp::legacy {
+namespace net::socket::ip::tcp::ipv6::legacy {
 
-    class SocketServer
-        : public net::socket::ip::v6::tcp::SocketServer<net::socket::stream::legacy::SocketServer<net::socket::ip::v6::tcp::Socket>> {
+    class SocketClient
+        : public net::socket::ip::tcp::SocketClient<net::socket::stream::legacy::SocketClient<net::socket::ip::tcp::ipv6::Socket>> {
     public:
-        using net::socket::ip::v6::tcp::SocketServer<
-            net::socket::stream::legacy::SocketServer<net::socket::ip::v6::tcp::Socket>>::SocketServer;
+        using net::socket::ip::tcp::SocketClient<
+            net::socket::stream::legacy::SocketClient<net::socket::ip::tcp::ipv6::Socket>>::SocketClient;
     };
 
-} // namespace net::socket::ip::v6::tcp::legacy
+} // namespace net::socket::ip::tcp::ipv6::legacy
 
-#endif // NET_SOCKET_IPV6_TCP_LEGACY_SOCKETSERVER_H
+#endif // NET_SOCKET_IP_TCP_IPV6_LEGACY_SOCKETCLIENT_H

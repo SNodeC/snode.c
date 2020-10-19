@@ -16,26 +16,25 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_IPV6_TCP_TLS_SOCKETSERVER_H
-#define NET_SOCKET_IPV6_TCP_TLS_SOCKETSERVER_H
+#ifndef NET_SOCKET_IP_TCP_IPV4_TLS_SOCKETSERVER_H
+#define NET_SOCKET_IP_TCP_IPV4_TLS_SOCKETSERVER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#include "socket/ip/v6/tcp/Socket.h"
-#include "socket/ip/v6/tcp/SocketServer.h"
+#include "socket/ip/tcp/SocketServer.h"
+#include "socket/ip/tcp/ipv4/Socket.h"
 #include "socket/sock_stream/tls/SocketServer.h"
 
-namespace net::socket::ip::v6::tcp::tls {
+namespace net::socket::ip::tcp::ipv4::tls {
 
     class SocketServer
-        : public net::socket::ip::v6::tcp::SocketServer<net::socket::stream::tls::SocketServer<net::socket::ip::v6::tcp::Socket>> {
+        : public net::socket::ip::tcp::SocketServer<net::socket::stream::tls::SocketServer<net::socket::ip::tcp::ipv4::Socket>> {
     public:
-        using net::socket::ip::v6::tcp::SocketServer<
-            net::socket::stream::tls::SocketServer<net::socket::ip::v6::tcp::Socket>>::SocketServer;
+        using net::socket::ip::tcp::SocketServer<net::socket::stream::tls::SocketServer<net::socket::ip::tcp::ipv4::Socket>>::SocketServer;
     };
 
-} // namespace net::socket::ip::v6::tcp::tls
+} // namespace net::socket::ip::tcp::ipv4::tls
 
-#endif // NET_SOCKET_IPV6_TCP_TLS_SOCKETSERVER_H
+#endif // NET_SOCKET_IP_TCP_IPV4_TLS_SOCKETSERVER_H

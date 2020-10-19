@@ -16,32 +16,26 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_IPV6_TCP_SOCKET_H
-#define NET_SOCKET_IPV6_TCP_SOCKET_H
+#ifndef NET_SOCKET_IP_TCP_SOCKETCLIENT_H
+#define NET_SOCKET_IP_TCP_SOCKETCLIENT_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Descriptor.h" // for Descriptor
-#include "socket/Socket.h"
-#include "socket/ip/v6/InetAddress.h" // IWYU pragma: keep
+namespace net::socket::ip::tcp {
 
-namespace net::socket::ip::v6::tcp {
-
-    class Socket : public net::socket::Socket<net::socket::ip::v6::InetAddress> {
+    template <typename SocketClientSuper>
+    class SocketClient : public SocketClientSuper {
     public:
-        Socket() = default;
+        using SocketClientSuper::SocketClientSuper;
 
-        Socket(const Socket&) = delete;
-        Socket& operator=(const Socket&) = delete;
-
-        using net::Descriptor::open;
-        void open(const std::function<void(int errnum)>& onError, int flags = 0) override;
+        using SocketConnection = typename SocketClientSuper::SocketConnection;
     };
 
-} // namespace net::socket::ip::v6::tcp
+} // namespace net::socket::ip::tcp
 
-#endif // NET_SOCKET_IPV6_TCP_SOCKET_H
+#endif // NET_SOCKET_IP_TCP_SOCKETCLIENT_H

@@ -16,28 +16,26 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef NET_SOCKET_IP_TCP_IPV6_LEGACY_SOCKETSERVER_H
+#define NET_SOCKET_IP_TCP_IPV6_LEGACY_SOCKETSERVER_H
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cerrno>
-#include <sys/socket.h>
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#include "socket/ip/tcp/SocketServer.h"
+#include "socket/ip/tcp/ipv6/Socket.h"
+#include "socket/sock_stream/legacy/SocketServer.h"
 
-#include "Socket.h"
+namespace net::socket::ip::tcp::ipv6::legacy {
 
-namespace net::socket::ip::v6::tcp {
+    class SocketServer
+        : public net::socket::ip::tcp::SocketServer<net::socket::stream::legacy::SocketServer<net::socket::ip::tcp::ipv6::Socket>> {
+    public:
+        using net::socket::ip::tcp::SocketServer<
+            net::socket::stream::legacy::SocketServer<net::socket::ip::tcp::ipv6::Socket>>::SocketServer;
+    };
 
-    void Socket::open(const std::function<void(int errnum)>& onError, int flags) {
-        errno = 0;
+} // namespace net::socket::ip::tcp::ipv6::legacy
 
-        int fd = ::socket(PF_INET6, SOCK_STREAM | flags, 0);
-
-        if (fd >= 0) {
-            open(fd);
-            onError(0);
-        } else {
-            onError(errno);
-        }
-    }
-
-} // namespace net::socket::ipv6::tcp
+#endif // NET_SOCKET_IP_TCP_IPV6_LEGACY_SOCKETSERVER_H

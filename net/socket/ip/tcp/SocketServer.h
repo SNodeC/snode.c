@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_IPV6_TCP_SOCKETSERVER_H
-#define NET_SOCKET_IPV6_TCP_SOCKETSERVER_H
+#ifndef NET_SOCKET_IP_TCP_SOCKETSERVER_H
+#define NET_SOCKET_IP_TCP_SOCKETSERVER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,7 +26,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::ip::v6::tcp {
+namespace net::socket::ip::tcp {
 
     template <typename SocketServerSuper>
     class SocketServer : public SocketServerSuper {
@@ -44,6 +44,6 @@ namespace net::socket::ip::v6::tcp {
         }
     };
 
-} // namespace net::socket::ip::v6::tcp
+} // namespace net::socket::ip::tcp
 
-#endif // NET_SOCKET_IPV6_TCP_SOCKETSERVER_H
+#endif // NET_SOCKET_IP_TCP_SOCKETSERVER_H

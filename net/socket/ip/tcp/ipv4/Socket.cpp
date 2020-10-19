@@ -16,26 +16,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_IPV4_TCP_LEGACY_SOCKETSERVER_H
-#define NET_SOCKET_IPV4_TCP_LEGACY_SOCKETSERVER_H
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif // DOXYGEN_SHOULD_SKIP_THIS
+#include <cerrno>
+#include <sys/socket.h>
 
-#include "socket/ip/v4/tcp/Socket.h"
-#include "socket/ip/v4/tcp/SocketServer.h"
-#include "socket/sock_stream/legacy/SocketServer.h"
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::ip::v4::tcp::legacy {
+#include "Socket.h"
 
-    class SocketServer
-        : public net::socket::ip::v4::tcp::SocketServer<net::socket::stream::legacy::SocketServer<net::socket::ip::v4::tcp::Socket>> {
-    public:
-        using net::socket::ip::v4::tcp::SocketServer<
-            net::socket::stream::legacy::SocketServer<net::socket::ip::v4::tcp::Socket>>::SocketServer;
-    };
+namespace net::socket::ip::tcp::ipv4 {
 
-} // namespace net::socket::ip::v4::tcp::legacy
+    void Socket::open(const std::function<void(int errnum)>& onError, int flags) {
+        errno = 0;
 
-#endif // NET_SOCKET_IPV4_TCP_LEGACY_SOCKETSERVER_H
+        int fd = ::socket(PF_INET, SOCK_STREAM | flags, 0);
+
+        if (fd >= 0) {
+            open(fd);
+            onError(0);
+        } else {
+            onError(errno);
+        }
+    }
+
+} // namespace net::socket::ip::tcp::ipv4

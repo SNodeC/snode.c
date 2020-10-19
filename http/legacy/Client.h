@@ -24,29 +24,29 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "../Client.h"
-#include "socket/ip/v4/tcp/legacy/SocketClient.h"
-#include "socket/ip/v6/tcp/legacy/SocketClient.h"
+#include "socket/ip/tcp/ipv4/legacy/SocketClient.h"
+#include "socket/ip/tcp/ipv6/legacy/SocketClient.h"
 
 namespace http::legacy {
 
-    class Client : public http::Client<net::socket::ip::v4::tcp::legacy::SocketClient> {
+    class Client : public http::Client<net::socket::ip::tcp::ipv4::legacy::SocketClient> {
     public:
-        using SocketClient = net::socket::ip::v4::tcp::legacy::SocketClient;
+        using SocketClient = net::socket::ip::tcp::ipv4::legacy::SocketClient;
         using SocketConnector = typename SocketClient::SocketConnector;
         using SocketConnection = typename SocketConnector::SocketConnection;
         using Socket = typename SocketConnection::Socket;
 
-        using http::Client<net::socket::ip::v4::tcp::legacy::SocketClient>::Client;
+        using http::Client<net::socket::ip::tcp::ipv4::legacy::SocketClient>::Client;
     };
 
-    class Client6 : public http::Client<net::socket::ip::v6::tcp::legacy::SocketClient> {
+    class Client6 : public http::Client<net::socket::ip::tcp::ipv6::legacy::SocketClient> {
     public:
-        using SocketClient = net::socket::ip::v6::tcp::legacy::SocketClient;
+        using SocketClient = net::socket::ip::tcp::ipv6::legacy::SocketClient;
         using SocketConnector = typename SocketClient::SocketConnector;
         using SocketConnection = typename SocketConnector::SocketConnection;
         using Socket = typename SocketConnection::Socket;
 
-        using http::Client<net::socket::ip::v6::tcp::legacy::SocketClient>::Client;
+        using http::Client<net::socket::ip::tcp::ipv6::legacy::SocketClient>::Client;
     };
 
 } // namespace http::legacy
