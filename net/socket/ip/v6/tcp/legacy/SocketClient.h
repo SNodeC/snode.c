@@ -16,23 +16,23 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_IPV4_TCP_TLS_SOCKETSERVER_H
-#define NET_SOCKET_IPV4_TCP_TLS_SOCKETSERVER_H
+#ifndef NET_SOCKET_IPV6_TCP_LEGACY_SOCKETCLIENT_H
+#define NET_SOCKET_IPV6_TCP_LEGACY_SOCKETCLIENT_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#include "socket/ipv4/tcp/Socket.h"
-#include "socket/sock_stream/tls/SocketServer.h"
+#include "socket/ip/v6/tcp/Socket.h"
+#include "socket/sock_stream/legacy/SocketClient.h"
 
-namespace net::socket::ipv4::tcp::tls {
+namespace net::socket::ip::v6::tcp::legacy {
 
-    class SocketServer : public net::socket::stream::tls::SocketServer<net::socket::ipv4::tcp::Socket> {
+    class SocketClient : public net::socket::stream::legacy::SocketClient<net::socket::ip::v6::tcp::Socket> {
     public:
-        using net::socket::stream::tls::SocketServer<net::socket::ipv4::tcp::Socket>::SocketServer;
+        using net::socket::stream::legacy::SocketClient<net::socket::ip::v6::tcp::Socket>::SocketClient;
     };
 
-} // namespace net::socket::ipv4::tcp::tls
+} // namespace net::socket::ip::v6::tcp::legacy
 
-#endif // NET_SOCKET_IPV4_TCP_TLS_SOCKETSERVER_H
+#endif // NET_SOCKET_IPV6_TCP_LEGACY_SOCKETCLIENT_H

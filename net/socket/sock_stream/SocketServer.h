@@ -70,14 +70,6 @@ namespace net::socket::stream {
             socketListener->listen(bindAddress, backlog, onError);
         }
 
-        void listen(unsigned short port, int backlog, const std::function<void(int err)>& onError) const {
-            listen(typename SocketConnection::Socket::SocketAddress(port), backlog, onError);
-        }
-
-        void listen(const std::string& ipOrHostname, uint16_t port, int backlog, const std::function<void(int err)>& onError) const {
-            listen(typename SocketConnection::Socket::SocketAddress(ipOrHostname, port), backlog, onError);
-        }
-
     private:
         std::function<void(SocketConnection* socketConnection)> onConstruct;
         std::function<void(SocketConnection* socketConnection)> onDestruct;

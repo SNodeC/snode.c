@@ -24,29 +24,29 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "../Server.h"
-#include "socket/ipv4/tcp/legacy/SocketServer.h"
-#include "socket/ipv6/tcp/legacy/SocketServer.h"
+#include "socket/ip/v4/tcp/legacy/SocketServer.h"
+#include "socket/ip/v6/tcp/legacy/SocketServer.h"
 
 namespace http::legacy {
 
-    class Server : public http::Server<net::socket::ipv4::tcp::legacy::SocketServer> {
+    class Server : public http::Server<net::socket::ip::v4::tcp::legacy::SocketServer> {
     public:
-        using SocketServer = net::socket::ipv4::tcp::legacy::SocketServer;
+        using SocketServer = net::socket::ip::v4::tcp::legacy::SocketServer;
         using SocketListener = typename SocketServer::SocketListener;
         using SocketConnection = typename SocketListener::SocketConnection;
         using Socket = typename SocketConnection::Socket;
 
-        using http::Server<net::socket::ipv4::tcp::legacy::SocketServer>::Server;
+        using http::Server<net::socket::ip::v4::tcp::legacy::SocketServer>::Server;
     };
 
-    class Server6 : public http::Server<net::socket::ipv6::tcp::legacy::SocketServer> {
+    class Server6 : public http::Server<net::socket::ip::v6::tcp::legacy::SocketServer> {
     public:
-        using SocketServer = net::socket::ipv6::tcp::legacy::SocketServer;
+        using SocketServer = net::socket::ip::v6::tcp::legacy::SocketServer;
         using SocketListener = typename SocketServer::SocketListener;
         using SocketConnection = typename SocketListener::SocketConnection;
         using Socket = typename SocketConnection::Socket;
 
-        using http::Server<net::socket::ipv6::tcp::legacy::SocketServer>::Server;
+        using http::Server<net::socket::ip::v6::tcp::legacy::SocketServer>::Server;
     };
 
 } // namespace http::legacy

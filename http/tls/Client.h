@@ -24,29 +24,29 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "../Client.h"
-#include "socket/ipv4/tcp/tls/SocketClient.h"
-#include "socket/ipv6/tcp/tls/SocketClient.h"
+#include "socket/ip/v4/tcp/tls/SocketClient.h"
+#include "socket/ip/v6/tcp/tls/SocketClient.h"
 
 namespace http::tls {
 
-    class Client : public http::Client<net::socket::ipv4::tcp::tls::SocketClient> {
+    class Client : public http::Client<net::socket::ip::v4::tcp::tls::SocketClient> {
     public:
-        using SocketClient = net::socket::ipv4::tcp::tls::SocketClient;
+        using SocketClient = net::socket::ip::v4::tcp::tls::SocketClient;
         using SocketConnector = typename SocketClient::SocketConnector;
         using SocketConnection = typename SocketConnector::SocketConnection;
         using Socket = typename SocketConnection::Socket;
 
-        using http::Client<net::socket::ipv4::tcp::tls::SocketClient>::Client;
+        using http::Client<net::socket::ip::v4::tcp::tls::SocketClient>::Client;
     };
 
-    class Client6 : public http::Client<net::socket::ipv6::tcp::tls::SocketClient> {
+    class Client6 : public http::Client<net::socket::ip::v6::tcp::tls::SocketClient> {
     public:
-        using SocketClient = net::socket::ipv6::tcp::tls::SocketClient;
+        using SocketClient = net::socket::ip::v6::tcp::tls::SocketClient;
         using SocketConnector = typename SocketClient::SocketConnector;
         using SocketConnection = typename SocketConnector::SocketConnection;
         using Socket = typename SocketConnection::Socket;
 
-        using http::Client<net::socket::ipv6::tcp::tls::SocketClient>::Client;
+        using http::Client<net::socket::ip::v6::tcp::tls::SocketClient>::Client;
     };
 
 } // namespace http::tls

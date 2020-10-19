@@ -31,7 +31,7 @@
 
 #include "socket/SocketAddress.h"
 
-namespace net::socket::ipv4 {
+namespace net::socket::ip::v4 {
 
     class bad_hostname : public std::exception {
     public:
@@ -66,6 +66,6 @@ namespace net::socket::ipv4 {
         const struct sockaddr_in& getSockAddrIn() const;
     };
 
-} // namespace net::socket::ipv4
+} // namespace net::socket::ip::v4
 
 #endif // NET_SOCKET_IPV4_INETADDRESS_H

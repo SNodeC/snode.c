@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_IPV6_TCP_SOCKET_H
-#define NET_SOCKET_IPV6_TCP_SOCKET_H
+#ifndef NET_SOCKET_IPV4_TCP_SOCKET_H
+#define NET_SOCKET_IPV4_TCP_SOCKET_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,11 +27,11 @@
 
 #include "Descriptor.h" // for Descriptor
 #include "socket/Socket.h"
-#include "socket/ipv6/InetAddress.h" // IWYU pragma: keep
+#include "socket/ip/v4/InetAddress.h" // IWYU pragma: keep
 
-namespace net::socket::ipv6::tcp {
+namespace net::socket::ip::v4::tcp {
 
-    class Socket : public net::socket::Socket<net::socket::ipv6::InetAddress> {
+    class Socket : public net::socket::Socket<net::socket::ip::v4::InetAddress> {
     public:
         Socket() = default;
 
@@ -42,6 +42,6 @@ namespace net::socket::ipv6::tcp {
         void open(const std::function<void(int errnum)>& onError, int flags = 0) override;
     };
 
-} // namespace net::socket::ipv6::tcp
+} // namespace net::socket::ip::v4::tcp
 
-#endif // NET_SOCKET_IPV6_TCP_SOCKET_H
+#endif // NET_SOCKET_IPV4_TCP_SOCKET_H

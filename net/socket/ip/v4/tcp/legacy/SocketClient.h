@@ -16,23 +16,23 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_IPV4_TCP_TLS_SOCKETCLIENT_H
-#define NET_SOCKET_IPV4_TCP_TLS_SOCKETCLIENT_H
+#ifndef NET_SOCKET_IPV4_TCP_LEGACY_SOCKETCLIENT_H
+#define NET_SOCKET_IPV4_TCP_LEGACY_SOCKETCLIENT_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#include "socket/ipv4/tcp/Socket.h"
-#include "socket/sock_stream/tls/SocketClient.h"
+#include "socket/ip/v4/tcp/Socket.h"
+#include "socket/sock_stream/legacy/SocketClient.h"
 
-namespace net::socket::ipv4::tcp::tls {
+namespace net::socket::ip::v4::tcp::legacy {
 
-    class SocketClient : public net::socket::stream::tls::SocketClient<net::socket::ipv4::tcp::Socket> {
+    class SocketClient : public net::socket::stream::legacy::SocketClient<net::socket::ip::v4::tcp::Socket> {
     public:
-        using net::socket::stream::tls::SocketClient<net::socket::ipv4::tcp::Socket>::SocketClient;
+        using net::socket::stream::legacy::SocketClient<net::socket::ip::v4::tcp::Socket>::SocketClient;
     };
 
-} // namespace net::socket::ipv4::tcp::tls
+} // namespace net::socket::ip::v4::tcp::legacy
 
-#endif // NET_SOCKET_IPV4_TCP_TLS_SOCKETCLIENT_H
+#endif // NET_SOCKET_IPV4_TCP_LEGACY_SOCKETCLIENT_H

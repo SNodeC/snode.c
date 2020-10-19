@@ -16,32 +16,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_IPV4_TCP_SOCKET_H
-#define NET_SOCKET_IPV4_TCP_SOCKET_H
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
+#include <cerrno>
+#include <sys/socket.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Descriptor.h" // for Descriptor
-#include "socket/Socket.h"
-#include "socket/ipv4/InetAddress.h" // IWYU pragma: keep
+#include "Socket.h"
 
-namespace net::socket::ipv4::tcp {
+namespace net::socket::ip::v4::tcp {
 
-    class Socket : public net::socket::Socket<net::socket::ipv4::InetAddress> {
-    public:
-        Socket() = default;
+    void Socket::open(const std::function<void(int errnum)>& onError, int flags) {
+        errno = 0;
 
-        Socket(const Socket&) = delete;
-        Socket& operator=(const Socket&) = delete;
+        int fd = ::socket(PF_INET, SOCK_STREAM | flags, 0);
 
-        using net::Descriptor::open;
-        void open(const std::function<void(int errnum)>& onError, int flags = 0) override;
-    };
+        if (fd >= 0) {
+            open(fd);
+            onError(0);
+        } else {
+            onError(errno);
+        }
+    }
 
 } // namespace net::socket::ipv4::tcp
-
-#endif // NET_SOCKET_IPV4_TCP_SOCKET_H

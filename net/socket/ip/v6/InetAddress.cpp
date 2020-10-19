@@ -4,7 +4,7 @@
 #include <netdb.h>
 #include <sys/socket.h>
 
-namespace net::socket::ipv6 {
+namespace net::socket::ip::v6 {
 
     std::string bad_hostname::message = "";
 

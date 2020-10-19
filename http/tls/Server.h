@@ -24,29 +24,29 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "../Server.h"
-#include "socket/ipv4/tcp/tls/SocketServer.h"
-#include "socket/ipv6/tcp/tls/SocketServer.h"
+#include "socket/ip/v4/tcp/tls/SocketServer.h"
+#include "socket/ip/v6/tcp/tls/SocketServer.h"
 
 namespace http::tls {
 
-    class Server : public http::Server<net::socket::ipv4::tcp::tls::SocketServer> {
+    class Server : public http::Server<net::socket::ip::v4::tcp::tls::SocketServer> {
     public:
-        using SocketServer = net::socket::ipv4::tcp::tls::SocketServer;
+        using SocketServer = net::socket::ip::v4::tcp::tls::SocketServer;
         using SocketListener = typename SocketServer::SocketListener;
         using SocketConnection = typename SocketListener::SocketConnection;
         using Socket = typename SocketConnection::Socket;
 
-        using http::Server<net::socket::ipv4::tcp::tls::SocketServer>::Server;
+        using http::Server<net::socket::ip::v4::tcp::tls::SocketServer>::Server;
     };
 
-    class Server6 : public http::Server<net::socket::ipv6::tcp::tls::SocketServer> {
+    class Server6 : public http::Server<net::socket::ip::v6::tcp::tls::SocketServer> {
     public:
-        using SocketServer = net::socket::ipv6::tcp::tls::SocketServer;
+        using SocketServer = net::socket::ip::v6::tcp::tls::SocketServer;
         using SocketListener = typename SocketServer::SocketListener;
         using SocketConnection = typename SocketListener::SocketConnection;
         using Socket = typename SocketConnection::Socket;
 
-        using http::Server<net::socket::ipv6::tcp::tls::SocketServer>::Server;
+        using http::Server<net::socket::ip::v6::tcp::tls::SocketServer>::Server;
     };
 
 } // namespace http::tls

@@ -16,28 +16,23 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef NET_SOCKET_IPV6_TCP_TLS_SOCKETCLIENT_H
+#define NET_SOCKET_IPV6_TCP_TLS_SOCKETCLIENT_H
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cerrno>
-#include <sys/socket.h>
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#include "socket/ip/v6/tcp/Socket.h"
+#include "socket/sock_stream/tls/SocketClient.h"
 
-#include "Socket.h"
+namespace net::socket::ip::v6::tcp::tls {
 
-namespace net::socket::ipv6::tcp {
+    class SocketClient : public net::socket::stream::tls::SocketClient<net::socket::ip::v6::tcp::Socket> {
+    public:
+        using net::socket::stream::tls::SocketClient<net::socket::ip::v6::tcp::Socket>::SocketClient;
+    };
 
-    void Socket::open(const std::function<void(int errnum)>& onError, int flags) {
-        errno = 0;
+} // namespace net::socket::ip::v6::tcp::tls
 
-        int fd = ::socket(PF_INET6, SOCK_STREAM | flags, 0);
-
-        if (fd >= 0) {
-            open(fd);
-            onError(0);
-        } else {
-            onError(errno);
-        }
-    }
-
-} // namespace net::socket::ipv6::tcp
+#endif // NET_SOCKET_IPV4_TCP_TLS_SOCKETCLIENT_H
