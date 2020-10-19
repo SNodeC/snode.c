@@ -71,6 +71,9 @@ namespace net {
             return _enabled;
         }
 
+        virtual void timeoutEvent() {
+        }
+
     private:
         void enabled() {
             ObservationCounter::observationCounter++;

@@ -132,6 +132,7 @@ namespace net {
                 } else {
                     struct timeval inactivity = currentTime - eventReceiver->getLastTriggered();
                     if (inactivity >= maxInactivity) {
+                        eventReceiver->timeoutEvent();
                         eventReceiver->disable();
                     } else {
                         nextInactivityTimeout = std::min(maxInactivity - inactivity, nextInactivityTimeout);
