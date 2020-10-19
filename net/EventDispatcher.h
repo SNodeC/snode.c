@@ -116,7 +116,7 @@ namespace net {
             return nextTimeout;
         }
 
-        struct timeval dispatchActiveEvents(int& counter, struct timeval currentTime) {
+        struct timeval dispatchActiveEvents(struct timeval currentTime) {
             struct timeval nextInactivityTimeout {
                 LONG_MAX, 0
             };
@@ -126,7 +126,6 @@ namespace net {
                 struct timeval maxInactivity = eventReceiver->getTimeout();
                 if (fdSet.isSet(fd)) {
                     eventCounter++;
-                    counter--;
                     dispatchEventTo(eventReceiver);
                     eventReceiver->setLastTriggered(currentTime);
                     nextInactivityTimeout = std::min(nextInactivityTimeout, maxInactivity);
