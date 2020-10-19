@@ -22,9 +22,10 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
-#include <sys/time.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+#include "Timeval.h"
 
 namespace net {
 
@@ -79,14 +80,5 @@ namespace net {
     } // namespace timer
 
 } // namespace net
-
-bool operator<(const struct timeval& tv1, const struct timeval& tv2);
-bool operator>(const struct timeval& tv1, const struct timeval& tv2);
-bool operator<=(const struct timeval& tv1, const struct timeval& tv2);
-bool operator>=(const struct timeval& tv1, const struct timeval& tv2);
-bool operator==(const struct timeval& tv1, const struct timeval& tv2);
-
-struct timeval operator+(const struct timeval& tv1, const struct timeval& tv2);
-struct timeval operator-(const struct timeval& tv1, const struct timeval& tv2);
 
 #endif // TIMER_H

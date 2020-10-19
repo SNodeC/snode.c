@@ -20,8 +20,7 @@
 
 #include <algorithm> // for copy
 #include <climits>
-#include <iterator>   // for back_insert_iterator, back_inserter
-#include <sys/time.h> // for timeval, gettimeofday
+#include <iterator> // for back_insert_iterator, back_inserter
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

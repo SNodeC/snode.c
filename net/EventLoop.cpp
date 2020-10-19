@@ -28,9 +28,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "EventLoop.h"   // for EventLoop
-#include "Logger.h"      // for Logger
-#include "timer/Timer.h" // for operator<
+#include "EventLoop.h" // for EventLoop
+#include "Logger.h"    // for Logger
 
 #define MAX_READ_INACTIVITY 60
 #define MAX_ACCEPT_INACTIVITY LONG_MAX
