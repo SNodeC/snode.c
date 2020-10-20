@@ -39,6 +39,9 @@ namespace net {
         void enable(long timeout = TIMEOUT::IGNORE) override;
         void disable() override;
 
+        void suspend() override;
+        void resume() override;
+
         friend class OutOfBandEventDispatcher;
     };
 

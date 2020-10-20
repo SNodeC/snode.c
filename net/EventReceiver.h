@@ -71,6 +71,10 @@ namespace net {
             return _enabled;
         }
 
+        bool isSuspended() const {
+            return _suspended;
+        }
+
         virtual void timeoutEvent() {
         }
 
@@ -89,6 +93,14 @@ namespace net {
             }
         }
 
+        void suspended() {
+            _suspended = true;
+        }
+
+        void resumed() {
+            _suspended = false;
+        }
+
         struct timeval getTimeout() const {
             return {maxInactivity, 0};
         }
@@ -104,9 +116,13 @@ namespace net {
         virtual void enable(long timeout) = 0;
         virtual void disable() = 0;
 
+        virtual void suspend() = 0;
+        virtual void resume() = 0;
+
         virtual void unobserved() = 0;
 
         bool _enabled = false;
+        bool _suspended = false;
 
         long maxInactivity = LONG_MAX;
 

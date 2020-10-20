@@ -29,8 +29,8 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "ConnectEventReceiver.h"
-#include "Logger.h"
 #include "ReadEventReceiver.h"
+#include "socket/Socket.h"
 
 namespace net::socket::stream {
 
@@ -143,7 +143,7 @@ namespace net::socket::stream {
                             socketConnection =
                                 new SocketConnection(onConstruct, onDestruct, onRead, onReadError, onWriteError, onDisconnect);
 
-                            socketConnection->open(Socket::getFd(), Descriptor::FLAGS::dontClose);
+                            socketConnection->open(Socket::getFd(), Socket::FLAGS::dontClose);
 
                             socketConnection->setRemoteAddress(typename Socket::SocketAddress(remoteAddress));
                             socketConnection->setLocalAddress(typename Socket::SocketAddress(localAddress));

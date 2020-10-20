@@ -55,13 +55,13 @@ namespace net::socket::stream::tls {
                         const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                         const std::map<std::string, std::any>& options)
             : net::socket::stream::SocketConnector<SocketConnection>(
-                  [onConstruct, &ctx = this->ctx](SocketConnection* socketConnection) -> void { // onConstruct
+                  [onConstruct](SocketConnection* socketConnection) -> void { // onConstruct
                       onConstruct(socketConnection);
                   },
                   [onDestruct](SocketConnection* socketConnection) -> void { // onDestruct
                       onDestruct(socketConnection);
                   },
-                  [onConnect, &ctx = this->ctx, &onError = this->onError](SocketConnection* socketConnection) -> void { // onConnect
+                  [onConnect, &onError = this->onError, &ctx = this->ctx](SocketConnection* socketConnection) -> void { // onConnect
                       SSL* ssl = socketConnection->startSSL(ctx);
 
                       if (ssl != nullptr) {
@@ -69,9 +69,12 @@ namespace net::socket::stream::tls {
                           int sslErr = SSL_get_error(ssl, ret);
 
                           if (sslErr == SSL_ERROR_WANT_READ || sslErr == SSL_ERROR_WANT_WRITE) {
+                              socketConnection->ReadEventReceiver::suspend();
+
                               TLSHandshake::doHandshake(
                                   ssl,
                                   [&onConnect, socketConnection](void) -> void {
+                                      socketConnection->ReadEventReceiver::resume();
                                       onConnect(socketConnection);
                                   },
                                   [socketConnection](void) -> void {

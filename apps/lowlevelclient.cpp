@@ -82,7 +82,7 @@ tls::SocketClient<net::socket::ip::tcp::ipv4::Socket> getTlsClient() {
         },
         [](tls::SocketClient<net::socket::ip::tcp::ipv4::Socket>::SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnect";
-            socketConnection->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); // Connection:keep-alive\r\n\r\n");
+            socketConnection->enqueue("GET /indexx.html HTTP/1.1\r\n\r\n"); // Connection:keep-alive\r\n\r\n");
 
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
@@ -164,16 +164,16 @@ tls::SocketClient<net::socket::ip::tcp::ipv4::Socket> getTlsClient() {
             VLOG(0) << "OnWriteError: " + std::to_string(errnum);
         },
         {{"certChain", CLIENTCERTF}, {"keyPEM", CLIENTKEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}});
+    /*
+        typename net::socket::ip::tcp::ipv4::Socket::SocketAddress remoteAddress("localhost", 8088);
 
-    typename net::socket::ip::tcp::ipv4::Socket::SocketAddress remoteAddress("localhost", 8088);
-
-    tlsClient.connect(remoteAddress, [](int err) -> void {
-        if (err) {
-            PLOG(ERROR) << "Connect: " + std::to_string(err);
-        } else {
-            VLOG(0) << "Connected";
-        }
-    });
+        tlsClient.connect(remoteAddress, [](int err) -> void {
+            if (err) {
+                PLOG(ERROR) << "Connect: " + std::to_string(err);
+            } else {
+                VLOG(0) << "Connected";
+            }
+        });*/
 
     return tlsClient;
 }
@@ -242,17 +242,18 @@ int main(int argc, char* argv[]) {
     net::EventLoop::init(argc, argv);
 
     {
-        legacy::SocketClient legacyClient = getLegacyClient();
+        typename net::socket::ip::tcp::ipv4::Socket::SocketAddress remoteAddress("localhost", 8088);
+        /*
+                legacy::SocketClient legacyClient = getLegacyClient();
 
-        typename net::socket::ip::tcp::ipv4::Socket::SocketAddress remoteAddress("localhost", 8080);
-
-        legacyClient.connect(remoteAddress, [](int err) -> void { // example.com:81 simulate connnect timeout
-            if (err) {
-                PLOG(ERROR) << "Connect: " << std::to_string(err);
-            } else {
-                VLOG(0) << "Connected";
-            }
-        });
+                legacyClient.connect(remoteAddress, [](int err) -> void { // example.com:81 simulate connnect timeout
+                    if (err) {
+                        PLOG(ERROR) << "Connect: " << std::to_string(err);
+                    } else {
+                        VLOG(0) << "Connected";
+                    }
+                });
+                */
 
         tls::SocketClient tlsClient = getTlsClient();
 

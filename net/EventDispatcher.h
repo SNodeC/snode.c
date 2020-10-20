@@ -81,6 +81,23 @@ namespace net {
             }
         }
 
+        void suspend(EventReceiver* eventReceiver) {
+            eventReceiver->suspended();
+            int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
+            if (observedEventReceiver[fd].front() == eventReceiver) {
+                fdSet.clr(fd);
+            }
+        }
+
+        void resume(EventReceiver* eventReceiver) {
+            eventReceiver->resumed();
+            int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
+            if (observedEventReceiver[fd].front() == eventReceiver) {
+                fdSet.set(fd);
+                eventReceiver->setLastTriggered({time(nullptr), 0});
+            }
+        }
+
         long getTimeout() const {
             return maxInactivity;
         }
@@ -106,8 +123,10 @@ namespace net {
             for (EventReceiver* eventReceiver : enabledEventReceiver) {
                 int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
                 observedEventReceiver[fd].push_front(eventReceiver);
-                fdSet.set(fd);
-                nextTimeout = std::min(nextTimeout, eventReceiver->getTimeout());
+                if (!eventReceiver->isSuspended()) {
+                    fdSet.set(fd);
+                    nextTimeout = std::min(nextTimeout, eventReceiver->getTimeout());
+                }
             }
             enabledEventReceiver.clear();
 
@@ -147,8 +166,10 @@ namespace net {
             for (EventReceiver* eventReceiver : disabledEventReceiver) {
                 int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
                 observedEventReceiver[fd].remove(eventReceiver);
-                if (observedEventReceiver[fd].empty()) {
-                    observedEventReceiver.erase(fd);
+                if (observedEventReceiver[fd].empty() || observedEventReceiver[fd].front()->isSuspended()) {
+                    if (observedEventReceiver[fd].empty()) {
+                        observedEventReceiver.erase(fd);
+                    }
                     fdSet.clr(fd);
                 } else {
                     observedEventReceiver[fd].front()->setLastTriggered({time(nullptr), 0});
@@ -164,6 +185,18 @@ namespace net {
                     disabledEventReceiver.push_back(eventReceiver);
                 }
             }
+        }
+
+        bool allSuspended1(int fd) {
+            bool allSuspended = true;
+
+            for (EventReceiver* eventReceiver : observedEventReceiver[fd]) {
+                if (!eventReceiver->isSuspended()) {
+                    allSuspended = false;
+                }
+            }
+
+            return allSuspended;
         }
 
         virtual void dispatchEventTo(EventReceiver*) = 0;

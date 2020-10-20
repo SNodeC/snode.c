@@ -219,7 +219,7 @@ MimeTypes::MimeTypes() {
     MimeTypes::magic = magic_open(MAGIC_MIME);
 
     if (magic_load(magic, nullptr) != 0) {
-        LOG(INFO) << "cannot load magic database - " + std::string(magic_error(magic));
+        LOG(WARNING) << "cannot load magic database - " + std::string(magic_error(magic));
         magic_close(magic);
         magic = nullptr;
     }

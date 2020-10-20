@@ -40,4 +40,12 @@ namespace net {
         EventLoop::instance().getAcceptEventDispatcher().disable(this);
     }
 
+    void AcceptEventReceiver::suspend() {
+        EventLoop::instance().getAcceptEventDispatcher().suspend(this);
+    }
+
+    void AcceptEventReceiver::resume() {
+        EventLoop::instance().getAcceptEventDispatcher().resume(this);
+    }
+
 } // namespace net

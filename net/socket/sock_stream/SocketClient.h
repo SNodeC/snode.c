@@ -28,7 +28,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Logger.h"
 #include "SocketConnector.h"
 
 namespace net::socket::stream {
