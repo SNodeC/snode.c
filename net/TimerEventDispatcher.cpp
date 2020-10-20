@@ -33,13 +33,13 @@ namespace net {
             LONG_MAX, 0
         };
 
-        for (timer::Timer* timer : addedList) {
+        for (TimerEventReceiver* timer : addedList) {
             timerList.push_back(timer);
             timerListDirty = true;
         }
         addedList.clear();
 
-        for (timer::Timer* timer : removedList) {
+        for (TimerEventReceiver* timer : removedList) {
             timerList.remove(timer);
             timer->destroy();
             timerListDirty = true;
@@ -76,7 +76,7 @@ namespace net {
         };
         gettimeofday(&currentTime, nullptr);
 
-        for (timer::Timer* timer : timerList) {
+        for (TimerEventReceiver* timer : timerList) {
             if (timer->timeout() <= currentTime) {
                 timerListDirty = timer->dispatch();
             } else {
@@ -85,11 +85,11 @@ namespace net {
         }
     }
 
-    void TimerEventDispatcher::remove(timer::Timer* timer) {
+    void TimerEventDispatcher::remove(TimerEventReceiver* timer) {
         removedList.push_back(timer);
     }
 
-    void TimerEventDispatcher::add(timer::Timer* timer) {
+    void TimerEventDispatcher::add(TimerEventReceiver* timer) {
         addedList.push_back(timer);
     }
 

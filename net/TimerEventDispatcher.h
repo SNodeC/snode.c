@@ -25,8 +25,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "TimerEventReceiver.h"
 #include "Timeval.h"
-#include "timer/Timer.h"
 
 namespace net {
 
@@ -38,22 +38,22 @@ namespace net {
 
         void dispatch();
 
-        void remove(timer::Timer* timer);
-        void add(timer::Timer* timer);
+        void remove(TimerEventReceiver* timer);
+        void add(TimerEventReceiver* timer);
 
         bool empty();
 
         void cancelAll();
 
     private:
-        std::list<timer::Timer*> timerList;
-        std::list<timer::Timer*> addedList;
-        std::list<timer::Timer*> removedList;
+        std::list<TimerEventReceiver*> timerList;
+        std::list<TimerEventReceiver*> addedList;
+        std::list<TimerEventReceiver*> removedList;
 
         class timernode_lt {
         public:
-            bool operator()(const timer::Timer* t1, const timer::Timer* t2) const {
-                return static_cast<timeval>(*t1) < static_cast<timeval>(*t2);
+            bool operator()(const TimerEventReceiver* t1, const TimerEventReceiver* t2) const {
+                return static_cast<struct timeval>(*t1) < static_cast<struct timeval>(*t2);
             }
         };
 

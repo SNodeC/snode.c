@@ -25,6 +25,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "TimerEventReceiver.h"
 #include "Timeval.h"
 
 namespace net {
@@ -36,7 +37,7 @@ namespace net {
         class SingleshotTimer;
         class IntervalTimer;
 
-        class Timer {
+        class Timer : public TimerEventReceiver {
         protected:
             Timer(const struct timeval& timeout, const void* arg);
 
@@ -62,13 +63,11 @@ namespace net {
             const void* arg;
 
             void update();
-            void destroy();
+            void destroy() override;
 
-            virtual bool dispatch() = 0;
+            struct timeval& timeout() override;
 
-            struct timeval& timeout();
-
-            explicit operator struct timeval() const;
+            explicit operator struct timeval() const override;
 
         private:
             struct timeval absoluteTimeout {};
