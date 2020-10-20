@@ -26,10 +26,9 @@
 #include "Descriptor.h"
 #include "Logger.h"
 #include "SocketConnection.h"
+#include "TLSHandshake.h"
 #include "socket/sock_stream/SocketListener.h"
 #include "ssl_utils.h"
-
-#define TLSHANDSHAKE_TIMEOUT 10
 
 namespace net::socket::stream {
 
@@ -63,110 +62,6 @@ namespace net::socket::stream::tls {
                       onDestruct(socketConnection);
                   },
                   [onConnect, &ctx = this->ctx](SocketConnection* socketConnection) -> void {
-                      class TLSHandshaker
-                          : public ReadEventReceiver
-                          , public WriteEventReceiver
-                          , public Descriptor {
-                      public:
-                          TLSHandshaker(SSL* ssl,
-                                        const std::function<void(void)>& onSuccess,
-                                        const std::function<void(void)>& onTimeout,
-                                        const std::function<void(int err)>& onError)
-                              : ssl(ssl)
-                              , onSuccess(onSuccess)
-                              , onTimeout(onTimeout)
-                              , onError(onError) {
-                              ReadEventReceiver::setTimeout(TLSHANDSHAKE_TIMEOUT);
-                              WriteEventReceiver::setTimeout(TLSHANDSHAKE_TIMEOUT);
-
-                              open(SSL_get_fd(ssl), FLAGS::dontClose);
-
-                              int ret = SSL_do_handshake(ssl);
-                              int sslErr = SSL_get_error(ssl, ret);
-
-                              switch (sslErr) {
-                                  case SSL_ERROR_WANT_READ:
-                                      ReadEventReceiver::enable();
-                                      break;
-                                  case SSL_ERROR_WANT_WRITE:
-                                      WriteEventReceiver::enable();
-                                      break;
-                                  case SSL_ERROR_NONE:
-                                      onSuccess();
-                                      delete this;
-                                      break;
-                                  default:
-                                      onError(ERR_peek_error());
-                                      delete this;
-                              }
-                          }
-
-                          void readEvent() override {
-                              int ret = SSL_do_handshake(ssl);
-                              int sslErr = SSL_get_error(ssl, ret);
-
-                              switch (sslErr) {
-                                  case SSL_ERROR_WANT_WRITE:
-                                  case SSL_ERROR_WANT_READ:
-                                      break;
-                                      ReadEventReceiver::disable();
-                                      WriteEventReceiver::enable();
-                                      break;
-                                  case SSL_ERROR_NONE:
-                                      ReadEventReceiver::disable();
-                                      onSuccess();
-                                      break;
-                                  default:
-                                      ReadEventReceiver::disable();
-                                      onError(ERR_peek_error());
-                                      break;
-                              }
-                          }
-
-                          void writeEvent() override {
-                              int ret = SSL_do_handshake(ssl);
-                              int sslErr = SSL_get_error(ssl, ret);
-
-                              switch (sslErr) {
-                                  case SSL_ERROR_WANT_READ:
-                                      WriteEventReceiver::disable();
-                                      ReadEventReceiver::enable();
-                                      break;
-                                  case SSL_ERROR_WANT_WRITE:
-                                      break;
-                                  case SSL_ERROR_NONE:
-                                      ReadEventReceiver::disable();
-                                      onSuccess();
-                                      break;
-                                  default:
-                                      WriteEventReceiver::disable();
-                                      onError(ERR_peek_error());
-                                      break;
-                              }
-                          }
-
-                          void timeoutEvent() override {
-                              onTimeout();
-                          }
-
-                          void unobserved() override {
-                              delete this;
-                          }
-
-                          static void doHandshake(SSL* ssl,
-                                                  const std::function<void(void)>& onSuccess,
-                                                  const std::function<void(void)>& onTimeout,
-                                                  const std::function<void(int err)>& onError) {
-                              new TLSHandshaker(ssl, onSuccess, onTimeout, onError);
-                          }
-
-                      private:
-                          SSL* ssl = nullptr;
-                          std::function<void(void)> onSuccess;
-                          std::function<void(void)> onTimeout;
-                          std::function<void(int err)> onError;
-                      };
-
                       SSL* ssl = socketConnection->startSSL(ctx);
 
                       if (ssl != nullptr) {
@@ -174,7 +69,7 @@ namespace net::socket::stream::tls {
                           int sslErr = SSL_get_error(ssl, ret);
 
                           if (sslErr == SSL_ERROR_WANT_READ || sslErr == SSL_ERROR_WANT_WRITE) {
-                              TLSHandshaker::doHandshake(
+                              TLSHandshake::doHandshake(
                                   ssl,
                                   [&onConnect, socketConnection](void) -> void {
                                       onConnect(socketConnection);
