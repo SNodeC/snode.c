@@ -94,11 +94,11 @@ namespace net::socket::stream::tls {
                                 int sslErr = SSL_get_error(ssl, ret);
 
                                 switch (sslErr) {
+                                    case SSL_ERROR_WANT_READ:
+                                        break;
                                     case SSL_ERROR_WANT_WRITE:
                                         ReadEventReceiver::disable();
                                         WriteEventReceiver::enable();
-                                        break;
-                                    case SSL_ERROR_WANT_READ:
                                         break;
                                     case SSL_ERROR_NONE:
                                         ReadEventReceiver::disable();

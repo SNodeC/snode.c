@@ -107,10 +107,10 @@ namespace net::socket::stream::tls {
 
                               switch (sslErr) {
                                   case SSL_ERROR_WANT_WRITE:
+                                  case SSL_ERROR_WANT_READ:
+                                      break;
                                       ReadEventReceiver::disable();
                                       WriteEventReceiver::enable();
-                                      break;
-                                  case SSL_ERROR_WANT_READ:
                                       break;
                                   case SSL_ERROR_NONE:
                                       ReadEventReceiver::disable();
