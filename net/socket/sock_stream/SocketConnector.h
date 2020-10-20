@@ -23,6 +23,8 @@
 
 #include <any>
 #include <functional>
+#include <map>
+#include <string>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -157,10 +159,11 @@ namespace net::socket::stream {
                         }
                     } else {
                         errno = cErrno;
-                        onError(cErrno);
+                        onError(errno);
                     }
                 }
             } else {
+                ConnectEventReceiver::disable();
                 onError(errno);
             }
         }

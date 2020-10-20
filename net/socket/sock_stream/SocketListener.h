@@ -23,6 +23,8 @@
 
 #include <any>
 #include <functional>
+#include <map>
+#include <string>
 #include <sys/socket.h>
 #include <unistd.h>
 
