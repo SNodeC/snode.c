@@ -29,7 +29,9 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Descriptor.h"
+#include "Logger.h"
 #include "ReadEventReceiver.h"
+#include "TLSHandshake.h"
 #include "socket/sock_stream/SocketWriter.h"
 
 namespace net::socket::stream::tls {
@@ -48,74 +50,18 @@ namespace net::socket::stream::tls {
                 switch (sslErr) {
                     case SSL_ERROR_WANT_WRITE:
                     case SSL_ERROR_WANT_READ:
-                        class TLSHandshaker
-                            : public ReadEventReceiver
-                            , public WriteEventReceiver
-                            , public Descriptor {
-                        public:
-                            TLSHandshaker(SSL* ssl, int sslErr)
-                                : ssl(ssl) {
-                                this->open(SSL_get_fd(ssl), FLAGS::dontClose);
-
-                                switch (sslErr) {
-                                    case SSL_ERROR_WANT_READ:
-                                        ReadEventReceiver::enable();
-                                        break;
-                                    case SSL_ERROR_WANT_WRITE:
-                                        WriteEventReceiver::enable();
-                                        break;
-                                    default:
-                                        delete this;
-                                }
-                            }
-
-                            void readEvent() override {
-                                int ret = SSL_do_handshake(ssl);
-                                int sslErr = SSL_get_error(ssl, ret);
-
-                                switch (sslErr) {
-                                    case SSL_ERROR_WANT_WRITE:
-                                        ReadEventReceiver::disable();
-                                        WriteEventReceiver::enable();
-                                        break;
-                                    case SSL_ERROR_WANT_READ:
-                                        break;
-                                    default:
-                                        ReadEventReceiver::disable();
-                                        break;
-                                }
-                            }
-
-                            void writeEvent() override {
-                                int ret = SSL_do_handshake(ssl);
-                                int sslErr = SSL_get_error(ssl, ret);
-
-                                switch (sslErr) {
-                                    case SSL_ERROR_WANT_READ:
-                                        WriteEventReceiver::disable();
-                                        ReadEventReceiver::enable();
-                                        break;
-                                    case SSL_ERROR_WANT_WRITE:
-                                        break;
-                                    default:
-                                        WriteEventReceiver::disable();
-                                        break;
-                                }
-                            }
-
-                            void unobserved() override {
-                                delete this;
-                            }
-
-                            static void doHandshake(SSL* ssl, int sslErr) {
-                                new TLSHandshaker(ssl, sslErr);
-                            }
-
-                        private:
-                            SSL* ssl;
-                        };
-
-                        TLSHandshaker::doHandshake(ssl, sslErr);
+                        TLSHandshake::doHandshake(
+                            ssl,
+                            [this](void) -> void {
+                            },
+                            [this](void) -> void {
+                                WriteEventReceiver::disable();
+                                PLOG(ERROR) << "TLS handshake timeout";
+                            },
+                            [this](unsigned long sslErr) -> void {
+                                WriteEventReceiver::disable();
+                                PLOG(ERROR) << "TLS handshake failed: " << ERR_error_string(sslErr, nullptr);
+                            });
 
                         errno = EAGAIN;
                         [[fallthrough]];

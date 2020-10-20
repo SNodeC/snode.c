@@ -24,12 +24,18 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Descriptor.h"
+#include "Logger.h"
 #include "SocketConnection.h"
+#include "TLSHandshake.h"
 #include "socket/sock_stream/SocketConnector.h"
 #include "ssl_utils.h"
-#include "timer/SingleshotTimer.h"
 
-#define TLSCONNECT_TIMEOUT 10
+namespace net::socket::stream {
+
+    template <typename SocketConnector>
+    class SocketClient;
+
+}
 
 namespace net::socket::stream::tls {
 
@@ -56,123 +62,40 @@ namespace net::socket::stream::tls {
                       onDestruct(socketConnection);
                   },
                   [onConnect, &ctx = this->ctx, &onError = this->onError](SocketConnection* socketConnection) -> void { // onConnect
-                      class TLSHandshaker
-                          : public ReadEventReceiver
-                          , public WriteEventReceiver
-                          , public Descriptor {
-                      public:
-                          TLSHandshaker(SSL* ssl,
-                                        int sslErr,
-                                        SocketConnection* socketConnection,
-                                        const std::function<void(SocketConnection* socketConnection)>& onConnect,
-                                        const std::function<void(int err)>& onError)
-                              : ssl(ssl)
-                              , socketConnection(socketConnection)
-                              , onConnect(onConnect)
-                              , onError(onError)
-                              , timeOut(timer::Timer::singleshotTimer(
-                                    [this, socketConnection, onError](const void*) -> void {
-                                        ReadEventReceiver::disable();
-                                        WriteEventReceiver::disable();
-                                        onError(ETIMEDOUT);
-                                        socketConnection->ReadEventReceiver::disable();
-                                    },
-                                    (struct timeval){TLSCONNECT_TIMEOUT, 0},
-                                    nullptr)) {
-                              open(socketConnection->getFd(), FLAGS::dontClose);
-
-                              if (ssl != nullptr) {
-                                  if (sslErr == SSL_ERROR_WANT_READ) {
-                                      ReadEventReceiver::enable();
-                                  } else if (sslErr == SSL_ERROR_WANT_WRITE) {
-                                      WriteEventReceiver::enable();
-                                  } else {
-                                      if (sslErr == SSL_ERROR_NONE) {
-                                          onError(0);
-                                          onConnect(socketConnection);
-                                      } else {
-                                          onError(-ERR_peek_error());
-                                          socketConnection->ReadEventReceiver::disable();
-                                      }
-                                      timeOut.cancel();
-                                      delete this;
-                                  }
-                              } else {
-                                  onError(-ERR_peek_error());
-                                  socketConnection->ReadEventReceiver::disable();
-                                  timeOut.cancel();
-                                  delete this;
-                              }
-                          }
-
-                          void readEvent() override {
-                              int ret = SSL_do_handshake(ssl);
-                              int sslErr = SSL_get_error(ssl, ret);
-
-                              if (sslErr != SSL_ERROR_WANT_READ) {
-                                  if (sslErr == SSL_ERROR_WANT_WRITE) {
-                                      ReadEventReceiver::disable();
-                                      WriteEventReceiver::enable();
-                                  } else {
-                                      timeOut.cancel();
-                                      ReadEventReceiver::disable();
-                                      if (sslErr == SSL_ERROR_NONE) {
-                                          onError(0);
-                                          onConnect(socketConnection);
-                                      } else {
-                                          onError(-ERR_peek_error());
-                                          socketConnection->ReadEventReceiver::disable();
-                                      }
-                                  }
-                              }
-                          }
-
-                          void writeEvent() override {
-                              int ret = SSL_do_handshake(ssl);
-                              int sslErr = SSL_get_error(ssl, ret);
-
-                              if (sslErr != SSL_ERROR_WANT_WRITE) {
-                                  if (sslErr == SSL_ERROR_WANT_READ) {
-                                      WriteEventReceiver::disable();
-                                      ReadEventReceiver::enable();
-                                  } else {
-                                      timeOut.cancel();
-                                      WriteEventReceiver::disable();
-                                      if (sslErr == SSL_ERROR_NONE) {
-                                          onError(0);
-                                          onConnect(socketConnection);
-                                      } else {
-                                          onError(-ERR_peek_error());
-                                          socketConnection->ReadEventReceiver::disable();
-                                      }
-                                  }
-                              }
-                          }
-
-                          void unobserved() override {
-                              delete this;
-                          }
-
-                          static void doHandshake(SSL* ssl,
-                                                  int sslErr,
-                                                  SocketConnection* socketConnection,
-                                                  const std::function<void(SocketConnection* socketConnection)>& onConnect,
-                                                  const std::function<void(int err)>& onError) {
-                              new TLSHandshaker(ssl, sslErr, socketConnection, onConnect, onError);
-                          }
-
-                      private:
-                          SSL* ssl = nullptr;
-                          SocketConnection* socketConnection = nullptr;
-                          std::function<void(SocketConnection* socketConnection)> onConnect;
-                          std::function<void(int err)> onError;
-                          timer::Timer& timeOut;
-                      };
-
                       SSL* ssl = socketConnection->startSSL(ctx);
-                      int sslErr = SSL_get_error(ssl, SSL_connect(ssl));
 
-                      TLSHandshaker::doHandshake(ssl, sslErr, socketConnection, onConnect, onError);
+                      if (ssl != nullptr) {
+                          int ret = SSL_connect(ssl);
+                          int sslErr = SSL_get_error(ssl, ret);
+
+                          if (sslErr == SSL_ERROR_WANT_READ || sslErr == SSL_ERROR_WANT_WRITE) {
+                              TLSHandshake::doHandshake(
+                                  ssl,
+                                  [&onConnect, socketConnection](void) -> void {
+                                      onConnect(socketConnection);
+                                  },
+                                  [socketConnection](void) -> void {
+                                      socketConnection->ReadEventReceiver::disable();
+                                      PLOG(ERROR) << "TLS handshake timeout";
+                                  },
+                                  [socketConnection, &onError](int sslErr) -> void {
+                                      socketConnection->ReadEventReceiver::disable();
+                                      PLOG(ERROR) << "TLS handshake failed: " << ERR_error_string(sslErr, nullptr);
+                                      onError(-sslErr);
+                                  });
+                          } else if (sslErr == SSL_ERROR_NONE) {
+                              onConnect(socketConnection);
+                          } else {
+                              socketConnection->ReadEventReceiver::disable();
+                              PLOG(ERROR) << "TLS connect failed: " << ERR_error_string(ERR_get_error(), nullptr);
+                              onError(-sslErr);
+                          }
+                      } else {
+                          socketConnection->ReadEventReceiver::disable();
+                          unsigned long sslErr = ERR_get_error();
+                          PLOG(ERROR) << "TLS handshake failed: " << ERR_error_string(sslErr, nullptr);
+                          onError(-sslErr);
+                      }
                   },
                   [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
                       socketConnection->stopSSL();
