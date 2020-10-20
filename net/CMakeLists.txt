@@ -15,7 +15,6 @@ add_library(net SHARED
     ReadEventDispatcher.cpp
     ReadEventReceiver.cpp
     TimerEventDispatcher.cpp
-    TimerEventReceiver.cpp
     WriteEventDispatcher.cpp
     WriteEventReceiver.cpp
     file/File.cpp
