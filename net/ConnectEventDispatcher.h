@@ -33,9 +33,6 @@ namespace net {
     class ConnectEventDispatcher : public EventDispatcher<ConnectEventReceiver> {
     public:
         using EventDispatcher<ConnectEventReceiver>::EventDispatcher;
-
-    private:
-        void dispatchEventTo(ConnectEventReceiver*) override;
     };
 
 } // namespace net

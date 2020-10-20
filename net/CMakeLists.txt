@@ -3,19 +3,14 @@ cmake_minimum_required(VERSION 3.0)
 find_package(OpenSSL REQUIRED)
 
 add_library(net SHARED
-    AcceptEventDispatcher.cpp
     AcceptEventReceiver.cpp
-    ConnectEventDispatcher.cpp
     ConnectEventReceiver.cpp
     Descriptor.cpp
     EventLoop.cpp
     FdSet.cpp
-    OutOfBandEventDispatcher.cpp
     OutOfBandEventReceiver.cpp
-    ReadEventDispatcher.cpp
     ReadEventReceiver.cpp
     TimerEventDispatcher.cpp
-    WriteEventDispatcher.cpp
     WriteEventReceiver.cpp
     file/File.cpp
     file/FileReader.cpp

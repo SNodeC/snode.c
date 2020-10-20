@@ -33,6 +33,10 @@ namespace net {
 
         virtual void outOfBandEvent() = 0;
 
+        void dispatchEvent() override {
+            outOfBandEvent();
+        }
+
     public:
         void setTimeout(long timeout = TIMEOUT::DEFAULT);
 
@@ -42,7 +46,8 @@ namespace net {
         void suspend() override;
         void resume() override;
 
-        friend class OutOfBandEventDispatcher;
+        template <typename OutOfBandEventReceiver>
+        friend class EventDispatcher;
     };
 
 } // namespace net

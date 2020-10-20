@@ -33,6 +33,10 @@ namespace net {
 
         virtual void acceptEvent() = 0;
 
+        void dispatchEvent() override {
+            acceptEvent();
+        }
+
     public:
         void setTimeout(long timeout = TIMEOUT::DEFAULT);
 
@@ -42,7 +46,8 @@ namespace net {
         void suspend() override;
         void resume() override;
 
-        friend class AcceptEventDispatcher;
+        template <typename AcceptEventReceiver>
+        friend class EventDispatcher;
     };
 
 } // namespace net

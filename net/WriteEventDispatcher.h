@@ -33,9 +33,6 @@ namespace net {
     class WriteEventDispatcher : public EventDispatcher<WriteEventReceiver> {
     public:
         using EventDispatcher<WriteEventReceiver>::EventDispatcher;
-
-    private:
-        void dispatchEventTo(WriteEventReceiver*) override;
     };
 
 } // namespace net

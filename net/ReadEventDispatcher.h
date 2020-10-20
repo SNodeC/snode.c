@@ -33,9 +33,6 @@ namespace net {
     class ReadEventDispatcher : public EventDispatcher<ReadEventReceiver> {
     public:
         using EventDispatcher<ReadEventReceiver>::EventDispatcher;
-
-    private:
-        void dispatchEventTo(ReadEventReceiver*) override;
     };
 
 } // namespace net

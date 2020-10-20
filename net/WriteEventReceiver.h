@@ -33,6 +33,10 @@ namespace net {
 
         virtual void writeEvent() = 0;
 
+        void dispatchEvent() override {
+            writeEvent();
+        }
+
     public:
         void setTimeout(long timeout = TIMEOUT::DEFAULT);
 
@@ -42,7 +46,8 @@ namespace net {
         void suspend() override;
         void resume() override;
 
-        friend class WriteEventDispatcher;
+        template <typename WriteEventReceiver>
+        friend class EventDispatcher;
     };
 
 } // namespace net

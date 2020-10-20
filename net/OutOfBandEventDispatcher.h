@@ -33,9 +33,6 @@ namespace net {
     class OutOfBandEventDispatcher : public EventDispatcher<OutOfBandEventReceiver> {
     public:
         using EventDispatcher<OutOfBandEventReceiver>::EventDispatcher;
-
-    private:
-        void dispatchEventTo(OutOfBandEventReceiver*) override;
     };
 
 } // namespace net

@@ -51,12 +51,6 @@ namespace net::socket::stream {
             , onError(onError) {
         }
 
-        ~SocketReader() override {
-            if (ReadEventReceiver::isEnabled()) {
-                ReadEventReceiver::disable();
-            }
-        }
-
         void readEvent() override {
             errno = 0;
 

@@ -33,9 +33,6 @@ namespace net {
     class AcceptEventDispatcher : public EventDispatcher<AcceptEventReceiver> {
     public:
         using EventDispatcher<AcceptEventReceiver>::EventDispatcher;
-
-    private:
-        void dispatchEventTo(AcceptEventReceiver*) override;
     };
 
 } // namespace net

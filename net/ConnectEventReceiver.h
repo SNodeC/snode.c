@@ -33,6 +33,10 @@ namespace net {
 
         virtual void connectEvent() = 0;
 
+        void dispatchEvent() override {
+            connectEvent();
+        }
+
     public:
         void setTimeout(long timeout = TIMEOUT::DEFAULT);
 
@@ -42,7 +46,8 @@ namespace net {
         void suspend() override;
         void resume() override;
 
-        friend class ConnectEventDispatcher;
+        template <typename ConnectEventReceiver>
+        friend class EventDispatcher;
     };
 
 } // namespace net

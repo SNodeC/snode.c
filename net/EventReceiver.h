@@ -75,10 +75,12 @@ namespace net {
             return _suspended;
         }
 
+    private:
+        virtual void dispatchEvent() = 0;
+
         virtual void timeoutEvent() {
         }
 
-    private:
         void enabled() {
             ObservationCounter::observationCounter++;
             _enabled = true;
@@ -99,6 +101,7 @@ namespace net {
 
         void resumed() {
             _suspended = false;
+            lastTriggered = {time(nullptr), 0};
         }
 
         struct timeval getTimeout() const {

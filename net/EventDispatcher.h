@@ -84,7 +84,8 @@ namespace net {
         void suspend(EventReceiver* eventReceiver) {
             eventReceiver->suspended();
             int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
-            if (observedEventReceiver[fd].front() == eventReceiver) {
+
+            if (observedEventReceiver.find(fd) != observedEventReceiver.end() && observedEventReceiver[fd].front() == eventReceiver) {
                 fdSet.clr(fd);
             }
         }
@@ -92,9 +93,9 @@ namespace net {
         void resume(EventReceiver* eventReceiver) {
             eventReceiver->resumed();
             int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
-            if (observedEventReceiver[fd].front() == eventReceiver) {
+
+            if (observedEventReceiver.find(fd) != observedEventReceiver.end() && observedEventReceiver[fd].front() == eventReceiver) {
                 fdSet.set(fd);
-                eventReceiver->setLastTriggered({time(nullptr), 0});
             }
         }
 
@@ -126,6 +127,8 @@ namespace net {
                 if (!eventReceiver->isSuspended()) {
                     fdSet.set(fd);
                     nextTimeout = std::min(nextTimeout, eventReceiver->getTimeout());
+                } else {
+                    fdSet.clr(fd);
                 }
             }
             enabledEventReceiver.clear();
@@ -145,7 +148,7 @@ namespace net {
                 struct timeval maxInactivity = eventReceiver->getTimeout();
                 if (fdSet.isSet(fd)) {
                     eventCounter++;
-                    dispatchEventTo(eventReceiver);
+                    eventReceiver->dispatchEvent();
                     eventReceiver->setLastTriggered(currentTime);
                     nextInactivityTimeout = std::min(nextInactivityTimeout, maxInactivity);
                 } else {
@@ -172,6 +175,7 @@ namespace net {
                     }
                     fdSet.clr(fd);
                 } else {
+                    fdSet.set(fd);
                     observedEventReceiver[fd].front()->setLastTriggered({time(nullptr), 0});
                 }
                 eventReceiver->disabled();
@@ -199,8 +203,6 @@ namespace net {
             return allSuspended;
         }
 
-        virtual void dispatchEventTo(EventReceiver*) = 0;
-
         std::map<int, std::list<EventReceiver*>> observedEventReceiver;
 
         std::list<EventReceiver*> enabledEventReceiver;
@@ -213,7 +215,7 @@ namespace net {
         unsigned long eventCounter = 0;
 
         friend class EventLoop;
-    };
+    }; // namespace net
 
 } // namespace net
 

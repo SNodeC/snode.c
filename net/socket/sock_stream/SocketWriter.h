@@ -50,12 +50,6 @@ namespace net::socket::stream {
             : onError(onError) {
         }
 
-        ~SocketWriter() override {
-            if (WriteEventReceiver::isEnabled()) {
-                WriteEventReceiver::disable();
-            }
-        }
-
         void writeEvent() override {
             errno = 0;
 
