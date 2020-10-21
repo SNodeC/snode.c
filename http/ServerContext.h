@@ -70,7 +70,6 @@ namespace http {
         void onWriteError(int errnum) const override;
 
         void responseCompleted() override;
-
         void terminateConnection() override;
 
     private:
