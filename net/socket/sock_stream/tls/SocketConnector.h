@@ -63,34 +63,25 @@ namespace net::socket::stream {
                           SSL* ssl = socketConnection->startSSL(ctx);
 
                           if (ssl != nullptr) {
-                              int ret = SSL_connect(ssl);
-                              int sslErr = SSL_get_error(ssl, ret);
+                              socketConnection->ReadEventReceiver::suspend();
 
-                              if (sslErr == SSL_ERROR_WANT_READ || sslErr == SSL_ERROR_WANT_WRITE) {
-                                  socketConnection->ReadEventReceiver::suspend();
+                              SSL_set_connect_state(ssl);
 
-                                  TLSHandshake::doHandshake(
-                                      ssl,
-                                      [&onConnect, socketConnection](void) -> void {
-                                          socketConnection->ReadEventReceiver::resume();
-                                          onConnect(socketConnection);
-                                      },
-                                      [socketConnection](void) -> void {
-                                          socketConnection->ReadEventReceiver::disable();
-                                          PLOG(ERROR) << "TLS handshake timeout";
-                                      },
-                                      [socketConnection, &onError](int sslErr) -> void {
-                                          socketConnection->ReadEventReceiver::disable();
-                                          PLOG(ERROR) << "TLS handshake failed: " << ERR_error_string(sslErr, nullptr);
-                                          onError(-sslErr);
-                                      });
-                              } else if (sslErr == SSL_ERROR_NONE) {
-                                  onConnect(socketConnection);
-                              } else {
-                                  socketConnection->ReadEventReceiver::disable();
-                                  PLOG(ERROR) << "TLS connect failed: " << ERR_error_string(ERR_get_error(), nullptr);
-                                  onError(-sslErr);
-                              }
+                              TLSHandshake::doHandshake(
+                                  ssl,
+                                  [&onConnect, socketConnection](void) -> void {
+                                      socketConnection->ReadEventReceiver::resume();
+                                      onConnect(socketConnection);
+                                  },
+                                  [socketConnection](void) -> void {
+                                      socketConnection->ReadEventReceiver::disable();
+                                      PLOG(ERROR) << "TLS handshake timeout";
+                                  },
+                                  [socketConnection, &onError](int sslErr) -> void {
+                                      socketConnection->ReadEventReceiver::disable();
+                                      PLOG(ERROR) << "TLS handshake failed: " << ERR_error_string(sslErr, nullptr);
+                                      onError(-sslErr);
+                                  });
                           } else {
                               socketConnection->ReadEventReceiver::disable();
                               unsigned long sslErr = ERR_get_error();
