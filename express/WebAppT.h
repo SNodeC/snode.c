@@ -29,6 +29,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Logger.h"
 #include "WebApp.h"
 
 namespace express {
@@ -49,10 +50,10 @@ namespace express {
                           _onConnect(socketConnection);
                       }
                   },
-                  [this](http::Request& req, http::Response& res) -> void { // onRequestReady
+                  [this](express::Request& req, express::Response& res) -> void { // onRequestReady
                       dispatch(req, res);
                   },
-                  [this](http::Request& req, http::Response& res) -> void { // onRequestCompleted
+                  [this](express::Request& req, express::Response& res) -> void { // onRequestCompleted
                       completed(req, res);
                   },
                   [this](SocketConnection* socketConnection) -> void { // onDisconnect
@@ -71,10 +72,10 @@ namespace express {
                           _onConnect(socketConnection);
                       }
                   },
-                  [this](http::Request& req, http::Response& res) -> void { // onRequestReady
+                  [this](express::Request& req, express::Response& res) -> void { // onRequestReady
                       dispatch(req, res);
                   },
-                  [this](http::Request& req, http::Response& res) -> void { // onRequestCompleted
+                  [this](express::Request& req, express::Response& res) -> void { // onRequestCompleted
                       completed(req, res);
                   },
                   [this](SocketConnection* socketConnection) -> void { // onDisconnect

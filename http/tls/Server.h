@@ -29,7 +29,8 @@
 
 namespace http::tls {
 
-    class Server : public http::Server<net::socket::ip::tcp::ipv4::tls::SocketServer> {
+    template <typename Request = http::Request, typename Response = http::Response>
+    class Server : public http::Server<net::socket::ip::tcp::ipv4::tls::SocketServer, Request, Response> {
     public:
         using SocketServer = net::socket::ip::tcp::ipv4::tls::SocketServer;
         using SocketListener = typename SocketServer::SocketListener;
@@ -37,10 +38,11 @@ namespace http::tls {
         using Socket = typename SocketConnection::Socket;
         using SocketAddress = typename Socket::SocketAddress;
 
-        using http::Server<SocketServer>::Server;
+        using http::Server<SocketServer, Request, Response>::Server;
     };
 
-    class Server6 : public http::Server<net::socket::ip::tcp::ipv6::tls::SocketServer> {
+    template <typename Request = http::Request, typename Response = http::Response>
+    class Server6 : public http::Server<net::socket::ip::tcp::ipv6::tls::SocketServer, Request, Response> {
     public:
         using SocketServer = net::socket::ip::tcp::ipv6::tls::SocketServer;
         using SocketListener = typename SocketServer::SocketListener;
@@ -48,7 +50,7 @@ namespace http::tls {
         using Socket = typename SocketConnection::Socket;
         using SocketAddress = typename Socket::SocketAddress;
 
-        using http::Server<SocketServer>::Server;
+        using http::Server<SocketServer, Request, Response>::Server;
     };
 
 } // namespace http::tls

@@ -26,6 +26,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Router.h"
+#include "http_utils.h"
 
 namespace express {
 
@@ -284,19 +285,18 @@ namespace express {
         return *this;
     }
 
-    void Router::dispatch(const http::Request& req, const http::Response& res) {
-        Request* expressReq = reqestMap[&req] = new Request(req);
-        Response* expressRes = responseMap[&res] = new Response(res);
+    void Router::dispatch(express::Request& req, express::Response& res) {
+        req.originalUrl = req.url;
+        req.url = httputils::url_decode(httputils::str_split_last(req.originalUrl, '?').first);
+        req.path = httputils::str_split_last(req.url, '/').first;
+        if (req.path.empty()) {
+            req.path = "/";
+        }
 
-        static_cast<void>(routerDispatcher->dispatch(MountPoint("use", "/"), "/", *expressReq, *expressRes));
+        static_cast<void>(routerDispatcher->dispatch(MountPoint("use", "/"), "/", req, res));
     }
 
-    void Router::completed(const http::Request& req, const http::Response& res) {
-        delete reqestMap[&req];
-        reqestMap.erase(&req);
-
-        delete responseMap[&res];
-        responseMap.erase(&res);
+    void Router::completed([[maybe_unused]] const express::Request& req, [[maybe_unused]] const express::Response& res) {
     }
 
 #define DEFINE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                          \

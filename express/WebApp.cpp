@@ -24,6 +24,7 @@
 
 #include "EventLoop.h"
 #include "Logger.h"
+#include "ServerContext.hpp"
 
 namespace express {
 
@@ -54,3 +55,5 @@ namespace express {
     }
 
 } // namespace express
+
+template class http::ServerContext<express::Request, express::Response>;

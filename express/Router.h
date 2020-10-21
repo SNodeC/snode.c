@@ -80,8 +80,8 @@ namespace express {
         DECLARE_REQUESTMETHOD(head);
 
     protected:
-        void dispatch(const http::Request& req, const http::Response& res);
-        void completed(const http::Request& req, const http::Response& res);
+        void dispatch(express::Request& req, express::Response& res);
+        void completed(const express::Request& req, const express::Response& res);
 
     private:
         std::map<const http::Request*, Request*> reqestMap;

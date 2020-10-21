@@ -32,9 +32,7 @@ namespace express {
 
     class Request : public http::Request {
     public:
-        Request() = delete;
-
-        Request(const http::Request& req);
+        Request();
 
         std::string& param(const std::string& id);
 

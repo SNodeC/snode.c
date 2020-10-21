@@ -32,8 +32,7 @@ namespace express {
 
     class Response : public http::Response {
     public:
-        Response() = delete;
-        Response(const http::Response& res);
+        Response(http::ServerContextBase* serverContext);
 
         ~Response() override;
 
@@ -45,6 +44,8 @@ namespace express {
         void redirect(int status, const std::string& name);
 
         void sendStatus(int status);
+
+        void reset() override;
 
     protected:
         FileReader* fileReader = nullptr;

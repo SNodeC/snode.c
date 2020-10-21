@@ -20,17 +20,17 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "ServerContext.h"
-
 #include "Logger.h"
+#include "ServerContext.h"
 #include "http_utils.h"
 #include "socket/sock_stream/SocketConnectionBase.h"
 
 namespace http {
 
-    ServerContext::ServerContext(SocketConnection* socketConnection,
-                                 const std::function<void(Request& req, Response& res)>& onRequestReady,
-                                 const std::function<void(Request& req, Response& res)>& onRequestCompleted)
+    template <typename Request, typename Response>
+    ServerContext<Request, Response>::ServerContext(SocketConnection* socketConnection,
+                                                    const std::function<void(Request& req, Response& res)>& onRequestReady,
+                                                    const std::function<void(Request& req, Response& res)>& onRequestCompleted)
         : socketConnection(socketConnection)
         , response(this)
         , onRequestCompleted(onRequestCompleted)
@@ -77,13 +77,15 @@ namespace http {
         response.reset();
     }
 
-    ServerContext::~ServerContext() {
+    template <typename Request, typename Response>
+    ServerContext<Request, Response>::~ServerContext() {
         if (requestInProgress) {
             onRequestCompleted(request, response);
         }
     }
 
-    void ServerContext::receiveRequestData(const char* junk, size_t junkLen) {
+    template <typename Request, typename Response>
+    void ServerContext<Request, Response>::receiveRequestData(const char* junk, size_t junkLen) {
         if (!requestInProgress) {
             parser.parse(junk, junkLen);
         } else {
@@ -91,23 +93,27 @@ namespace http {
         }
     }
 
-    void ServerContext::onReadError(int errnum) const {
+    template <typename Request, typename Response>
+    void ServerContext<Request, Response>::onReadError(int errnum) const {
         if (errnum != 0 && errnum != ECONNRESET) {
             PLOG(ERROR) << "Connection: read";
         }
     }
 
-    void ServerContext::sendResponseData(const char* buf, size_t len) {
+    template <typename Request, typename Response>
+    void ServerContext<Request, Response>::sendResponseData(const char* buf, size_t len) {
         socketConnection->enqueue(buf, len);
     }
 
-    void ServerContext::onWriteError(int errnum) const {
+    template <typename Request, typename Response>
+    void ServerContext<Request, Response>::onWriteError(int errnum) const {
         if (errnum != 0 && errnum != ECONNRESET) {
             PLOG(ERROR) << "Connection write";
         }
     }
 
-    void ServerContext::responseCompleted() {
+    template <typename Request, typename Response>
+    void ServerContext<Request, Response>::responseCompleted() {
         onRequestCompleted(request, response);
 
         if (!request.keepAlive || !response.keepAlive) {
@@ -121,7 +127,8 @@ namespace http {
         requestInProgress = false;
     }
 
-    void ServerContext::terminateConnection() {
+    template <typename Request, typename Response>
+    void ServerContext<Request, Response>::terminateConnection() {
         socketConnection->end();
     }
 

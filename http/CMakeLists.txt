@@ -9,7 +9,6 @@ add_library(http SHARED
     Parser.cpp
     RequestParser.cpp
     ResponseParser.cpp
-    ServerContext.cpp
     ServerRequest.cpp
     ServerResponse.cpp
     StatusCodes.cpp
