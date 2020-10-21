@@ -284,19 +284,22 @@ namespace express {
         return *this;
     }
 
-    void Router::dispatch(const http::Request& req, const http::Response& res) {
-        Request* expressReq = reqestMap[&req] = new Request(req);
-        Response* expressRes = responseMap[&res] = new Response(res);
+    void Router::dispatch(express::Request& req, express::Response& res) {
+        //        Request* expressReq = reqestMap[&req] = new Request(req);
+        //        Response* expressRes = responseMap[&res] = new Response(res);
 
-        static_cast<void>(routerDispatcher->dispatch(MountPoint("use", "/"), "/", *expressReq, *expressRes));
+        //        static_cast<void>(routerDispatcher->dispatch(MountPoint("use", "/"), "/", *expressReq, *expressRes));
+        static_cast<void>(routerDispatcher->dispatch(MountPoint("use", "/"), "/", req, res));
     }
 
-    void Router::completed(const http::Request& req, const http::Response& res) {
+    void Router::completed([[maybe_unused]] const express::Request& req, [[maybe_unused]] const express::Response& res) {
+        /*
         delete reqestMap[&req];
         reqestMap.erase(&req);
 
         delete responseMap[&res];
         responseMap.erase(&res);
+        */
     }
 
 #define DEFINE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                          \

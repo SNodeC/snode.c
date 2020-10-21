@@ -29,24 +29,26 @@
 
 namespace http::tls {
 
-    class Server : public http::Server<net::socket::ip::tcp::ipv4::tls::SocketServer> {
+    template <typename Request = http::Request, typename Response = http::Response>
+    class Server : public http::Server<net::socket::ip::tcp::ipv4::tls::SocketServer, Request, Response> {
     public:
         using SocketServer = net::socket::ip::tcp::ipv4::tls::SocketServer;
         using SocketListener = typename SocketServer::SocketListener;
         using SocketConnection = typename SocketListener::SocketConnection;
         using Socket = typename SocketConnection::Socket;
 
-        using http::Server<net::socket::ip::tcp::ipv4::tls::SocketServer>::Server;
+        using http::Server<net::socket::ip::tcp::ipv4::tls::SocketServer, Request, Response>::Server;
     };
 
-    class Server6 : public http::Server<net::socket::ip::tcp::ipv6::tls::SocketServer> {
+    template <typename Request = http::Request, typename Response = http::Response>
+    class Server6 : public http::Server<net::socket::ip::tcp::ipv6::tls::SocketServer, Request, Response> {
     public:
         using SocketServer = net::socket::ip::tcp::ipv6::tls::SocketServer;
         using SocketListener = typename SocketServer::SocketListener;
         using SocketConnection = typename SocketListener::SocketConnection;
         using Socket = typename SocketConnection::Socket;
 
-        using http::Server<net::socket::ip::tcp::ipv6::tls::SocketServer>::Server;
+        using http::Server<net::socket::ip::tcp::ipv6::tls::SocketServer, Request, Response>::Server;
     };
 
 } // namespace http::tls

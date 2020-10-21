@@ -31,7 +31,7 @@
 
 namespace http {
 
-    Response::Response(ServerContext* serverContext)
+    Response::Response(ServerContextBase* serverContext)
         : serverContext(serverContext) {
     }
 

@@ -29,7 +29,7 @@
 
 namespace http {
 
-    class ServerContext;
+    class ServerContextBase;
 
     class Request : public utils::MultibleAttributeInjector {
     protected:
@@ -60,6 +60,7 @@ namespace http {
 
         std::string nullstr = "";
 
+        template <typename Request, typename Response>
         friend class ServerContext;
     };
 

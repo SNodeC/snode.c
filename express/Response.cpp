@@ -31,8 +31,8 @@
 
 namespace express {
 
-    Response::Response(const http::Response& res)
-        : http::Response(res) {
+    Response::Response(http::ServerContextBase* serverContext)
+        : http::Response(serverContext) {
     }
 
     Response::~Response() {
@@ -65,6 +65,8 @@ namespace express {
                         }
                         if (err != 0) {
                             serverContext->terminateConnection();
+                        } else {
+                            fileReader = nullptr;
                         }
                     });
             } else {
@@ -111,6 +113,10 @@ namespace express {
 
     void Response::sendStatus(int status) {
         this->status(status).send(StatusCode::reason(status));
+    }
+
+    void Response::reset() {
+        http::Response::reset();
     }
 
 } // namespace express

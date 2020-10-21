@@ -33,9 +33,29 @@ namespace net::socket::stream {
 
 namespace http {
 
-    class ServerContext {
+    class ServerContextBase {
+    public:
+        virtual ~ServerContextBase() = default;
+
+        virtual void receiveRequestData(const char* junk, size_t junkLen) = 0;
+
+        virtual void sendResponseData(const char* buf, size_t len) = 0;
+
+        virtual void responseCompleted() = 0;
+
+        virtual void terminateConnection() = 0;
+
+        virtual void onWriteError(int errnum) const = 0;
+
+        virtual void onReadError(int errnum) const = 0;
+    };
+
+    template <typename RequestT, typename ResponseT>
+    class ServerContext : public ServerContextBase {
     public:
         using SocketConnection = net::socket::stream::SocketConnectionBase;
+        using Request = RequestT;
+        using Response = ResponseT;
 
         ServerContext(SocketConnection* socketConnection,
                       const std::function<void(Request& req, Response& res)>& onRequestReady,
@@ -43,15 +63,15 @@ namespace http {
 
         ~ServerContext();
 
-        void receiveRequestData(const char* junk, size_t junkLen);
+        void receiveRequestData(const char* junk, size_t junkLen) override;
         void onReadError(int errnum) const;
 
-        void sendResponseData(const char* buf, size_t len);
-        void onWriteError(int errnum) const;
+        void sendResponseData(const char* buf, size_t len) override;
+        void onWriteError(int errnum) const override;
 
-        void responseCompleted();
+        void responseCompleted() override;
 
-        void terminateConnection();
+        void terminateConnection() override;
 
     private:
         SocketConnection* socketConnection;

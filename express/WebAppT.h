@@ -29,7 +29,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Logger.h"
 #include "WebApp.h"
+#include "http_utils.h"
 
 namespace express {
 
@@ -47,10 +49,11 @@ namespace express {
                           _onConnect(socketConnection);
                       }
                   },
-                  [this](http::Request& req, http::Response& res) -> void { // onRequestReady
+                  [this](express::Request& req, express::Response& res) -> void { // onRequestReady
+                      VLOG(0) << "Dispatch ---------------------";
                       dispatch(req, res);
                   },
-                  [this](http::Request& req, http::Response& res) -> void { // onRequestCompleted
+                  [this](express::Request& req, express::Response& res) -> void { // onRequestCompleted
                       completed(req, res);
                   },
                   [this](SocketConnection* socketConnection) -> void { // onDisconnect
@@ -69,10 +72,16 @@ namespace express {
                           _onConnect(socketConnection);
                       }
                   },
-                  [this](http::Request& req, http::Response& res) -> void { // onRequestReady
+                  [this](express::Request& req, express::Response& res) -> void { // onRequestReady
+                      req.originalUrl = req.url;
+                      req.url = httputils::url_decode(httputils::str_split_last(req.originalUrl, '?').first);
+                      req.path = httputils::str_split_last(req.url, '/').first;
+                      if (req.path.empty()) {
+                          req.path = "/";
+                      }
                       dispatch(req, res);
                   },
-                  [this](http::Request& req, http::Response& res) -> void { // onRequestCompleted
+                  [this](express::Request& req, express::Response& res) -> void { // onRequestCompleted
                       completed(req, res);
                   },
                   [this](SocketConnection* socketConnection) -> void { // onDisconnect

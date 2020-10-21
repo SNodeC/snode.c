@@ -12,18 +12,20 @@
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 #include "Logger.h"
-#include "ServerContext.h"
+#include "ServerContext.hpp"
 
 namespace http {
 
     class Request;
     class Response;
 
-    template <typename SocketServerT>
+    template <typename SocketServerT, typename RequestT = Request, typename ResponseT = Response>
     class Server {
     public:
         using SocketServer = SocketServerT;
         using SocketConnection = typename SocketServer::SocketConnection;
+        using Request = RequestT;
+        using Response = ResponseT;
 
         Server(const std::function<void(SocketConnection*)>& onConnect,
                const std::function<void(Request& req, Response& res)>& onRequestReady,
@@ -32,11 +34,11 @@ namespace http {
                const std::map<std::string, std::any>& options = {{}})
             : socketServer(
                   [onRequestReady, onRequestCompleted](SocketConnection* socketConnection) -> void { // onConstruct
-                      socketConnection->template setContext<ServerContext*>(
-                          new ServerContext(socketConnection, onRequestReady, onRequestCompleted));
+                      socketConnection->template setContext<ServerContextBase*>(
+                          new ServerContext<Request, Response>(socketConnection, onRequestReady, onRequestCompleted));
                   },
                   [](SocketConnection* socketConnection) -> void { // onDestruct
-                      socketConnection->template getContext<ServerContext*>([](ServerContext* serverContext) -> void {
+                      socketConnection->template getContext<ServerContextBase*>([](ServerContextBase* serverContext) -> void {
                           delete serverContext;
                       });
                   },
@@ -47,17 +49,18 @@ namespace http {
                       onDisconnect(socketConnection);
                   },
                   [](SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
-                      socketConnection->template getContext<ServerContext*>([&junk, &junkSize](ServerContext* serverContext) -> void {
-                          serverContext->receiveRequestData(junk, junkSize);
-                      });
+                      socketConnection->template getContext<ServerContextBase*>(
+                          [&junk, &junkSize](ServerContextBase* serverContext) -> void {
+                              serverContext->receiveRequestData(junk, junkSize);
+                          });
                   },
                   [](SocketConnection* socketConnection, int errnum) -> void { // onReadError
-                      socketConnection->template getContext<ServerContext*>([&errnum](ServerContext* serverContext) -> void {
+                      socketConnection->template getContext<ServerContextBase*>([&errnum](ServerContextBase* serverContext) -> void {
                           serverContext->onReadError(errnum);
                       });
                   },
                   [](SocketConnection* socketConnection, int errnum) -> void { // onWriteError
-                      socketConnection->template getContext<ServerContext*>([&errnum](ServerContext* serverContext) -> void {
+                      socketConnection->template getContext<ServerContextBase*>([&errnum](ServerContextBase* serverContext) -> void {
                           serverContext->onWriteError(errnum);
                       });
                   },
@@ -80,6 +83,8 @@ namespace http {
     protected:
         SocketServer socketServer;
     };
+
+    template class ServerContext<http::Request, http::Response>;
 
 } // namespace http
 
