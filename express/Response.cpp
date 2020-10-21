@@ -117,6 +117,7 @@ namespace express {
 
     void Response::reset() {
         http::Response::reset();
+        fileReader = nullptr;
     }
 
 } // namespace express

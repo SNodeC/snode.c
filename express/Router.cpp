@@ -26,6 +26,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Router.h"
+#include "ServerContext.hpp"
 #include "http_utils.h"
 
 namespace express {
@@ -339,3 +340,5 @@ namespace express {
     DEFINE_REQUESTMETHOD(head, "HEAD");
 
 } // namespace express
+
+template class http::ServerContext<express::Request, express::Response>;
