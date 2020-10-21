@@ -32,8 +32,11 @@ namespace net {
         FD_SET(fd, &registered);
     }
 
-    void FdSet::clr(int fd) {
+    void FdSet::clr(int fd, bool immediate) {
         FD_CLR(fd, &registered);
+        if (immediate) {
+            FD_CLR(fd, &active);
+        }
     }
 
     int FdSet::isSet(int fd) const {

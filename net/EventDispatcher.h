@@ -86,7 +86,7 @@ namespace net {
             int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
 
             if (observedEventReceiver.find(fd) != observedEventReceiver.end() && observedEventReceiver[fd].front() == eventReceiver) {
-                fdSet.clr(fd);
+                fdSet.clr(fd, true);
             }
         }
 

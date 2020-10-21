@@ -32,7 +32,7 @@ namespace net {
         FdSet();
 
         void set(int fd);
-        void clr(int fd);
+        void clr(int fd, bool immediate = false);
         int isSet(int fd) const;
         void zero();
         void prepare();
