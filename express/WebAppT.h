@@ -39,6 +39,8 @@ namespace express {
         using Server = ServerT;
         using SocketServer = typename Server::SocketServer;
         using SocketConnection = typename SocketServer::SocketConnection;
+        using Socket = typename SocketConnection::Socket;
+        using SocketAddress = typename Socket::SocketAddress;
 
         WebAppT(const std::map<std::string, std::any>& options = {{}})
             : server(

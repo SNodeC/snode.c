@@ -29,9 +29,8 @@
 
 namespace net::socket::ip::tcp::ipv4::tls {
 
-    class SocketServer
-        : public net::socket::ip::tcp::SocketServer<net::socket::stream::tls::SocketServer<net::socket::ip::tcp::ipv4::Socket>> {
-        using net::socket::ip::tcp::SocketServer<net::socket::stream::tls::SocketServer<net::socket::ip::tcp::ipv4::Socket>>::SocketServer;
+    class SocketServer : public tcp::SocketServer<stream::tls::SocketServer<ipv4::Socket>> {
+        using tcp::SocketServer<stream::tls::SocketServer<ipv4::Socket>>::SocketServer;
     };
 
 } // namespace net::socket::ip::tcp::ipv4::tls

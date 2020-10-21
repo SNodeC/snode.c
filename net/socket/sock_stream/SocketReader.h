@@ -40,9 +40,10 @@ namespace net::socket::stream {
     class SocketReader
         : public ReadEventReceiver
         , virtual public SocketT {
-    protected:
+    public:
         using Socket = SocketT;
 
+    protected:
         SocketReader() = delete;
 
         explicit SocketReader(const std::function<void(const char* junk, ssize_t junkLen)>& onRead,
@@ -50,6 +51,9 @@ namespace net::socket::stream {
             : onRead(onRead)
             , onError(onError) {
         }
+
+    private:
+        virtual ssize_t read(char* junk, size_t junkLen) = 0;
 
         void readEvent() override {
             errno = 0;
@@ -67,9 +71,6 @@ namespace net::socket::stream {
             }
         }
 
-        virtual ssize_t read(char* junk, size_t junkLen) = 0;
-
-    private:
         std::function<void(const char* junk, ssize_t junkLen)> onRead;
         std::function<void(int errnum)> onError;
     };

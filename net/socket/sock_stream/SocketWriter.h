@@ -41,14 +41,23 @@ namespace net::socket::stream {
     class SocketWriter
         : public WriteEventReceiver
         , virtual public SocketT {
-    protected:
+    public:
         using Socket = SocketT;
 
+    protected:
         SocketWriter() = delete;
 
         explicit SocketWriter(const std::function<void(int errnum)>& onError)
             : onError(onError) {
         }
+
+        void enqueue(const char* junk, size_t junkLen) {
+            writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
+            WriteEventReceiver::enable();
+        }
+
+    private:
+        virtual ssize_t write(const char* junk, size_t junkSize) = 0;
 
         void writeEvent() override {
             errno = 0;
@@ -67,14 +76,6 @@ namespace net::socket::stream {
             }
         }
 
-        void enqueue(const char* junk, size_t junkLen) {
-            writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
-            WriteEventReceiver::enable();
-        }
-
-        virtual ssize_t write(const char* junk, size_t junkSize) = 0;
-
-    private:
         std::function<void(int errnum)> onError;
 
         std::vector<char> writeBuffer;

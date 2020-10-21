@@ -29,9 +29,8 @@
 
 namespace net::socket::ip::tcp::ipv4::tls {
 
-    class SocketClient
-        : public net::socket::ip::tcp::SocketClient<net::socket::stream::tls::SocketClient<net::socket::ip::tcp::ipv4::Socket>> {
-        using net::socket::ip::tcp::SocketClient<net::socket::stream::tls::SocketClient<net::socket::ip::tcp::ipv4::Socket>>::SocketClient;
+    class SocketClient : public tcp::SocketClient<stream::tls::SocketClient<ipv4::Socket>> {
+        using tcp::SocketClient<stream::tls::SocketClient<ipv4::Socket>>::SocketClient;
     };
 
 } // namespace net::socket::ip::tcp::ipv4::tls

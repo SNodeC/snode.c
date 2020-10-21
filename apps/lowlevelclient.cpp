@@ -165,7 +165,7 @@ tls::SocketClient<net::socket::ip::tcp::ipv4::Socket> getTlsClient() {
         },
         {{"certChain", CLIENTCERTF}, {"keyPEM", CLIENTKEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}});
 
-    typename net::socket::ip::tcp::ipv4::Socket::SocketAddress remoteAddress("localhost", 8088);
+    net::socket::ip::address::ipv4::InetAddress remoteAddress("localhost", 8088);
 
     tlsClient.connect(remoteAddress, [](int err) -> void {
         if (err) {
@@ -225,7 +225,7 @@ legacy::SocketClient<net::socket::ip::tcp::ipv4::Socket> getLegacyClient() {
         },
         {{}});
 
-    typename net::socket::ip::tcp::ipv4::Socket::SocketAddress remoteAddress("localhost", 8080);
+    net::socket::ip::address::ipv4::InetAddress remoteAddress("localhost", 8080);
 
     legacyClient.connect(remoteAddress, [](int err) -> void {
         if (err) {
@@ -242,7 +242,7 @@ int main(int argc, char* argv[]) {
     net::EventLoop::init(argc, argv);
 
     {
-        typename net::socket::ip::tcp::ipv4::Socket::SocketAddress remoteAddress("localhost", 8080);
+        net::socket::ip::address::ipv4::InetAddress remoteAddress("localhost", 8080);
 
         legacy::SocketClient legacyClient = getLegacyClient();
 
@@ -254,7 +254,7 @@ int main(int argc, char* argv[]) {
             }
         });
 
-        remoteAddress = typename net::socket::ip::tcp::ipv4::Socket::SocketAddress("localhost", 8088);
+        net::socket::ip::address::ipv4::InetAddress SocketAddress("localhost", 8088);
 
         tls::SocketClient tlsClient = getTlsClient();
 

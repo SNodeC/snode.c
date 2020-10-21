@@ -35,8 +35,9 @@ namespace http::tls {
         using SocketConnector = typename SocketClient::SocketConnector;
         using SocketConnection = typename SocketConnector::SocketConnection;
         using Socket = typename SocketConnection::Socket;
+        using SocketAddress = typename Socket::SocketAddress;
 
-        using http::Client<net::socket::ip::tcp::ipv4::tls::SocketClient>::Client;
+        using http::Client<SocketClient>::Client;
     };
 
     class Client6 : public http::Client<net::socket::ip::tcp::ipv6::tls::SocketClient> {
@@ -45,8 +46,9 @@ namespace http::tls {
         using SocketConnector = typename SocketClient::SocketConnector;
         using SocketConnection = typename SocketConnector::SocketConnection;
         using Socket = typename SocketConnection::Socket;
+        using SocketAddress = typename Socket::SocketAddress;
 
-        using http::Client<net::socket::ip::tcp::ipv6::tls::SocketClient>::Client;
+        using http::Client<SocketClient>::Client;
     };
 
 } // namespace http::tls

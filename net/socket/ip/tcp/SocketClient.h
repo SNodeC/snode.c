@@ -37,11 +37,11 @@ namespace net::socket::ip::tcp {
 
         using SocketConnection = typename SocketClientSuper::SocketConnection;
         using Socket = typename SocketConnection::Socket;
+        using SocketAddress = typename Socket::SocketAddress;
 
         virtual void connect(const std::map<std::string, std::any>& options,
                              const std::function<void(int err)>& onError,
-                             const typename SocketConnection::Socket::SocketAddress& bindAddress =
-                                 typename SocketConnection::Socket::SocketAddress()) const {
+                             const SocketAddress& bindAddress = SocketAddress()) const {
             std::string host = "";
             unsigned short port = 0;
 

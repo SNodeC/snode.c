@@ -31,7 +31,7 @@
 
 namespace net::socket::ip::tcp::ipv4 {
 
-    class Socket : public net::socket::Socket<net::socket::ip::address::ipv4::InetAddress> {
+    class Socket : public socket::Socket<address::ipv4::InetAddress> {
     public:
         Socket() = default;
 

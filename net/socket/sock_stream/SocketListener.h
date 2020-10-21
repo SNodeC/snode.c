@@ -44,6 +44,7 @@ namespace net::socket::stream {
         using SocketConnection = SocketConnectionT;
         using Socket = typename SocketConnection::Socket;
 
+    protected:
         void* operator new(size_t size) {
             SocketListener<SocketConnection>::lastAllocAddress = malloc(size);
 
@@ -54,7 +55,6 @@ namespace net::socket::stream {
             free(socketListener_v);
         }
 
-    protected:
         SocketListener(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
                        const std::function<void(SocketConnection* socketConnection)>& onDestruct,
                        const std::function<void(SocketConnection* socketConnection)>& onConnect,
@@ -118,6 +118,7 @@ namespace net::socket::stream {
             });
         }
 
+    private:
         void reuseAddress(const std::function<void(int errnum)>& onError) {
             int sockopt = 1;
 
@@ -169,7 +170,6 @@ namespace net::socket::stream {
             AcceptEventReceiver::disable();
         }
 
-    private:
         void unobserved() override {
             destruct();
         }

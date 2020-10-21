@@ -37,6 +37,7 @@ namespace net::socket::stream {
     public:
         using SocketListener = SocketListenerT;
         using SocketConnection = typename SocketListener::SocketConnection;
+        using SocketAddress = typename SocketConnection::Socket::SocketAddress;
 
         SocketServer(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
                      const std::function<void(SocketConnection* socketConnection)>& onDestruct,
@@ -60,9 +61,7 @@ namespace net::socket::stream {
 
         virtual ~SocketServer() = default;
 
-        void listen(const typename SocketConnection::Socket::SocketAddress& bindAddress,
-                    int backlog,
-                    const std::function<void(int err)>& onError) const {
+        void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int err)>& onError) const {
             SocketListener* socketListener =
                 new SocketListener(onConstruct, onDestruct, onConnect, onDisconnect, onRead, onReadError, onWriteError, options);
 

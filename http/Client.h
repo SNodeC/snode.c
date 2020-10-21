@@ -39,6 +39,8 @@ namespace http {
     public:
         using SocketClient = SocketClientT;
         using SocketConnection = typename SocketClient::SocketConnection;
+        using Socket = typename SocketConnection::Socket;
+        using SocketAddress = typename Socket::SocketAddress;
 
         Client(const std::function<void(SocketConnection*)>& onConnect,
                const std::function<void(ServerRequest&)>& onRequestBegin,
@@ -75,10 +77,9 @@ namespace http {
             connect(request, options, onError, localHost);
         }
 
-        void
-        post(const std::map<std::string, std::any>& options,
-             const std::function<void(int err)>& onError,
-             const typename SocketConnection::Socket::SocketAddress& localHost = typename SocketConnection::Socket::SocketAddress()) const {
+        void post(const std::map<std::string, std::any>& options,
+                  const std::function<void(int err)>& onError,
+                  const SocketAddress& localHost = SocketAddress()) const {
             std::string path = "";
             std::string host = "";
             std::string body = "";
@@ -103,11 +104,10 @@ namespace http {
             connect(request, options, onError, localHost);
         }
 
-        void connect(
-            const std::string& request,
-            const std::map<std::string, std::any>& options,
-            const std::function<void(int err)>& onError,
-            const typename SocketConnection::Socket::SocketAddress& localHost = typename SocketConnection::Socket::SocketAddress()) const {
+        void connect(const std::string& request,
+                     const std::map<std::string, std::any>& options,
+                     const std::function<void(int err)>& onError,
+                     const SocketAddress& localHost = SocketAddress()) const {
             errno = 0;
 
             SocketClient socketClient(

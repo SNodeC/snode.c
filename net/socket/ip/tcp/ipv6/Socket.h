@@ -31,7 +31,7 @@
 
 namespace net::socket::ip::tcp::ipv6 {
 
-    class Socket : public net::socket::Socket<net::socket::ip::address::ipv6::InetAddress> {
+    class Socket : public socket::Socket<address::ipv6::InetAddress> {
     public:
         Socket() = default;
 

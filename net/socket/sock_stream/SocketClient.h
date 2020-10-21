@@ -37,6 +37,7 @@ namespace net::socket::stream {
     public:
         using SocketConnector = SocketConnectorT;
         using SocketConnection = typename SocketConnector::SocketConnection;
+        using SocketAddress = typename SocketConnection::Socket::SocketAddress;
 
         SocketClient(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
                      const std::function<void(SocketConnection* socketConnection)>& onDestruct,
@@ -60,10 +61,9 @@ namespace net::socket::stream {
 
         virtual ~SocketClient() = default;
 
-        void connect(const typename SocketConnection::Socket::SocketAddress& remoteAddress,
+        void connect(const SocketAddress& remoteAddress,
                      const std::function<void(int err)>& onError,
-                     const typename SocketConnection::Socket::SocketAddress& bindAddress =
-                         typename SocketConnection::Socket::SocketAddress()) const {
+                     const SocketAddress& bindAddress = SocketAddress()) const {
             SocketConnector* socketConnector =
                 new SocketConnector(onConstruct, onDestruct, onConnect, onDisconnect, onRead, onReadError, onWriteError, this->options);
 

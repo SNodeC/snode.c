@@ -44,6 +44,7 @@ namespace net::socket::stream {
     public:
         using SocketConnection = SocketConnectionT;
         using Socket = typename SocketConnection::Socket;
+        using SocketAddress = typename Socket::SocketAddress;
 
     protected:
         void* operator new(size_t size) {
@@ -85,10 +86,9 @@ namespace net::socket::stream {
 
         virtual ~SocketConnector() = default;
 
-        virtual void
-        connect(const typename SocketConnection::Socket::SocketAddress& remoteAddress,
-                const std::function<void(int err)>& onError,
-                const typename SocketConnection::Socket::SocketAddress& bindAddress = typename SocketConnection::Socket::SocketAddress()) {
+        virtual void connect(const SocketAddress& remoteAddress,
+                             const std::function<void(int err)>& onError,
+                             const SocketAddress& bindAddress = SocketAddress()) {
             this->onError = onError;
 
             errno = 0;
@@ -119,6 +119,10 @@ namespace net::socket::stream {
                 SOCK_NONBLOCK);
         }
 
+    protected:
+        std::function<void(int err)> onError;
+
+    private:
         void connectEvent() override {
             errno = 0;
             int cErrno = 0;
@@ -190,9 +194,6 @@ namespace net::socket::stream {
         std::function<void(SocketConnection* socketConnection, int errnum)> onReadError;
         std::function<void(SocketConnection* socketConnection, int errnum)> onWriteError;
 
-        std::function<void(int err)> onError;
-
-    private:
         SocketConnection* socketConnection = nullptr;
 
         std::map<std::string, std::any> options;
