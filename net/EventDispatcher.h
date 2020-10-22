@@ -61,9 +61,10 @@ namespace net {
         EventDispatcher& operator=(const EventDispatcher&) = delete;
 
         void enable(EventReceiver* eventReceiver) {
-            if (contains(disabledEventReceiver, eventReceiver)) {
+            if (contains(disabledEventReceiver, eventReceiver)) { // disable was a "normal" tick
                 // same tick
                 disabledEventReceiver.remove(eventReceiver);
+                enabledEventReceiver.push_back(eventReceiver);
             } else if (!eventReceiver->isEnabled() && !contains(enabledEventReceiver, eventReceiver)) {
                 // normal
                 enabledEventReceiver.push_back(eventReceiver);
@@ -75,10 +76,7 @@ namespace net {
             if (contains(enabledEventReceiver, eventReceiver)) {
                 // same tick
                 enabledEventReceiver.remove(eventReceiver);
-                eventReceiver->disabled();
-                if (eventReceiver->observationCounter == 0) {
-                    unobservedEventReceiver.push_back(eventReceiver);
-                }
+                disabledEventReceiver.push_back(eventReceiver);
             } else if (eventReceiver->isEnabled() && !contains(disabledEventReceiver, eventReceiver)) {
                 // normal
                 disabledEventReceiver.push_back(eventReceiver);
@@ -160,6 +158,7 @@ namespace net {
                     if (inactivity >= maxInactivity) {
                         eventReceiver->timeoutEvent();
                         eventReceiver->disable();
+                        eventReceiver->suspend();
                     } else {
                         nextInactivityTimeout = std::min(maxInactivity - inactivity, nextInactivityTimeout);
                     }

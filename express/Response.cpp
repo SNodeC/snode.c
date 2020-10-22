@@ -36,15 +36,6 @@ namespace express {
         : http::Response(serverContext) {
     }
 
-    Response::~Response() {
-        VLOG(1) << "Response::~Response() " << this << " " << fileReader;
-        if (fileReader != nullptr) {
-            // Possible Crash
-            //            fileReader->disable();
-            fileReader = nullptr;
-        }
-    }
-
     void Response::sendFile(const std::string& file, const std::function<void(int err)>& onError) {
         std::string absolutFileName = file;
 
@@ -69,12 +60,9 @@ namespace express {
                         if (err != 0) {
                             serverContext->terminateConnection();
                         } else {
-                            // Possible Crash
-                            VLOG(1) << "FileReader::~onError() " << this << " " << fileReader;
                             fileReader = nullptr;
                         }
                     });
-                VLOG(1) << "Response::sendFild: " << this << " " << fileReader;
             } else {
                 responseStatus = 403;
                 errno = EACCES;
@@ -122,13 +110,12 @@ namespace express {
     }
 
     void Response::reset() {
-        VLOG(1) << "Response::reset() " << this << " " << fileReader;
         http::Response::reset();
         if (fileReader != nullptr) {
             fileReader->ReadEventReceiver::disable();
             fileReader->ReadEventReceiver::suspend();
+            fileReader = nullptr;
         }
-        fileReader = nullptr;
     }
 
 } // namespace express

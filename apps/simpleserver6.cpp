@@ -52,18 +52,18 @@ int main(int argc, char** argv) {
     });
 
     legacyApp.onConnect([](legacy::WebApp6::SocketConnection* socketConnection) -> void {
-        VLOG(1) << "OnConnect:";
-        VLOG(1) << "\tServer: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
+        VLOG(0) << "OnConnect:";
+        VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                        "):" + std::to_string(socketConnection->getLocalAddress().port());
-        VLOG(1) << "\tClient: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
+        VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                        "):" + std::to_string(socketConnection->getRemoteAddress().port());
     });
 
     legacyApp.onDisconnect([](legacy::WebApp6::SocketConnection* socketConnection) -> void {
-        VLOG(1) << "OnDisconnect:";
-        VLOG(1) << "\tServer: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
+        VLOG(0) << "OnDisconnect:";
+        VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                        "):" + std::to_string(socketConnection->getLocalAddress().port());
-        VLOG(1) << "\tClient: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
+        VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                        "):" + std::to_string(socketConnection->getRemoteAddress().port());
     });
     tls::WebApp6 tlsApp(getRouter(), {{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
@@ -77,10 +77,10 @@ int main(int argc, char** argv) {
     });
 
     tlsApp.onConnect([](tls::WebApp6::SocketConnection* socketConnection) -> void {
-        VLOG(1) << "OnConnect:";
-        VLOG(1) << "\tServer: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
+        VLOG(0) << "OnConnect:";
+        VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                        "):" + std::to_string(socketConnection->getLocalAddress().port());
-        VLOG(1) << "\tClient: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
+        VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                        "):" + std::to_string(socketConnection->getRemoteAddress().port());
 
         X509* client_cert = SSL_get_peer_certificate(socketConnection->getSSL());
@@ -88,14 +88,14 @@ int main(int argc, char** argv) {
         if (client_cert != NULL) {
             int verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
-            VLOG(2) << "\tClient certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
+            VLOG(0) << "\tClient certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
 
             char* str = X509_NAME_oneline(X509_get_subject_name(client_cert), 0, 0);
-            VLOG(2) << "\t   Subject: " + std::string(str);
+            VLOG(0) << "\t   Subject: " + std::string(str);
             OPENSSL_free(str);
 
             str = X509_NAME_oneline(X509_get_issuer_name(client_cert), 0, 0);
-            VLOG(2) << "\t   Issuer: " + std::string(str);
+            VLOG(0) << "\t   Issuer: " + std::string(str);
             OPENSSL_free(str);
 
             // We could do all sorts of certificate verification stuff here before deallocating the certificate.
@@ -103,35 +103,35 @@ int main(int argc, char** argv) {
             GENERAL_NAMES* subjectAltNames = static_cast<GENERAL_NAMES*>(X509_get_ext_d2i(client_cert, NID_subject_alt_name, NULL, NULL));
 
             int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
-            VLOG(2) << "\t   Subject alternative name count: " << altNameCount;
+            VLOG(0) << "\t   Subject alternative name count: " << altNameCount;
             for (int32_t i = 0; i < altNameCount; ++i) {
                 GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
                 if (generalName->type == GEN_URI) {
                     std::string subjectAltName =
                         std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
                                     ASN1_STRING_length(generalName->d.uniformResourceIdentifier));
-                    VLOG(2) << "\t      SAN (URI): '" + subjectAltName;
+                    VLOG(0) << "\t      SAN (URI): '" + subjectAltName;
                 } else if (generalName->type == GEN_DNS) {
                     std::string subjectAltName = std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                                              ASN1_STRING_length(generalName->d.dNSName));
-                    VLOG(2) << "\t      SAN (DNS): '" + subjectAltName;
+                    VLOG(0) << "\t      SAN (DNS): '" + subjectAltName;
                 } else {
-                    VLOG(2) << "\t      SAN (Type): '" + std::to_string(generalName->type);
+                    VLOG(0) << "\t      SAN (Type): '" + std::to_string(generalName->type);
                 }
             }
             sk_GENERAL_NAME_pop_free(subjectAltNames, GENERAL_NAME_free);
 
             X509_free(client_cert);
         } else {
-            VLOG(2) << "\tClient certificate: no certificate";
+            VLOG(0) << "\tClient certificate: no certificate";
         }
     });
 
     tlsApp.onDisconnect([](tls::WebApp6::SocketConnection* socketConnection) -> void {
-        VLOG(1) << "OnDisconnect:";
-        VLOG(1) << "\tServer: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
+        VLOG(0) << "OnDisconnect:";
+        VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                        "):" + std::to_string(socketConnection->getLocalAddress().port());
-        VLOG(1) << "\tClient: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
+        VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                        "):" + std::to_string(socketConnection->getRemoteAddress().port());
     });
 

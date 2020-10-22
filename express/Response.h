@@ -34,8 +34,6 @@ namespace express {
     public:
         Response(http::ServerContextBase* serverContext);
 
-        ~Response() override;
-
         void sendFile(const std::string& file, const std::function<void(int err)>& onError = nullptr);
         void download(const std::string& file, const std::function<void(int err)>& onError = nullptr);
         void download(const std::string& file, const std::string& name, const std::function<void(int err)>& onError = nullptr);

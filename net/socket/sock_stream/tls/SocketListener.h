@@ -60,7 +60,6 @@ namespace net::socket::stream {
                           onDestruct(socketConnection);
                       },
                       [onConnect, &ctx = this->ctx](SocketConnection* socketConnection) -> void {
-                          VLOG(0) << "OnConnect: " << socketConnection;
                           SSL* ssl = socketConnection->startSSL(ctx);
 
                           if (ssl != nullptr) {
@@ -90,7 +89,6 @@ namespace net::socket::stream {
                           }
                       },
                       [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
-                          VLOG(0) << "OnDisconnect: " << socketConnection;
                           socketConnection->stopSSL();
                           onDisconnect(socketConnection);
                       },

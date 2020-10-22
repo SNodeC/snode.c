@@ -42,8 +42,6 @@ public:
                             const std::function<void(char* junk, int junkLen)>& junkRead,
                             const std::function<void(int err)>& onError);
 
-    void disable() override;
-
     void readEvent() override;
 
 private:
@@ -52,8 +50,6 @@ private:
     std::function<void(char* data, int len)> junkRead;
 
     std::function<void(int errnum)> onError;
-
-    bool stopped;
 };
 
 #endif // FILEREADER_H

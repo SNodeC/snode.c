@@ -50,7 +50,7 @@ namespace express::middleware {
         });
 
         use([this] APPLICATION(req, res) {
-            //            VLOG(0) << "GET " + req.url + " -> " + this->root + req.url;
+            VLOG(0) << "GET " + req.url + " -> " + this->root + req.url;
             res.sendFile(this->root + req.url, [&req](int ret) -> void {
                 if (ret != 0) {
                     PLOG(ERROR) << req.url;
