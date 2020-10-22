@@ -11,14 +11,13 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
+#include "Request.h"
+#include "Response.h"
 #include "ServerContext.hpp"
 
 namespace http {
 
-    class Request;
-    class Response;
-
-    template <typename SocketServerT, typename RequestT = Request, typename ResponseT = Response>
+    template <typename SocketServerT, typename RequestT = http::Request, typename ResponseT = http::Response>
     class Server {
     public:
         using SocketServer = SocketServerT;

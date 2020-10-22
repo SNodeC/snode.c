@@ -38,15 +38,11 @@ namespace http {
         virtual ~ServerContextBase() = default;
 
         virtual void receiveRequestData(const char* junk, size_t junkLen) = 0;
-
         virtual void sendResponseData(const char* buf, size_t len) = 0;
-
         virtual void responseCompleted() = 0;
-
         virtual void terminateConnection() = 0;
 
         virtual void onWriteError(int errnum) = 0;
-
         virtual void onReadError(int errnum) = 0;
     };
 
