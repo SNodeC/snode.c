@@ -18,6 +18,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cerrno>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Logger.h"
@@ -94,9 +96,10 @@ namespace http {
     }
 
     template <typename Request, typename Response>
-    void ServerContext<Request, Response>::onReadError(int errnum) const {
+    void ServerContext<Request, Response>::onReadError(int errnum) {
         if (errnum != 0 && errnum != ECONNRESET) {
             PLOG(ERROR) << "Connection: read";
+            responseCompleted();
         }
     }
 
@@ -106,9 +109,10 @@ namespace http {
     }
 
     template <typename Request, typename Response>
-    void ServerContext<Request, Response>::onWriteError(int errnum) const {
+    void ServerContext<Request, Response>::onWriteError(int errnum) {
         if (errnum != 0 && errnum != ECONNRESET) {
             PLOG(ERROR) << "Connection write";
+            responseCompleted();
         }
     }
 

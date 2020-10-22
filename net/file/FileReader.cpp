@@ -27,6 +27,7 @@
 #define MFREADSIZE 16384
 
 #include "FileReader.h"
+#include "Logger.h"
 
 FileReader::FileReader(int fd, const std::function<void(char* junk, int junkLen)>& junkRead, const std::function<void(int err)>& onError)
     : junkRead(junkRead)
@@ -34,6 +35,10 @@ FileReader::FileReader(int fd, const std::function<void(char* junk, int junkLen)
     , stopped(false) {
     open(fd);
     ReadEventReceiver::enable();
+}
+
+FileReader::~FileReader() {
+    VLOG(1) << "FileReader::~FileReader¨(): " << this;
 }
 
 FileReader* FileReader::read(const std::string& path,
@@ -55,12 +60,14 @@ FileReader* FileReader::read(const std::string& path,
 void FileReader::disable() {
     if (!stopped) {
         ReadEventReceiver::disable();
+        ReadEventReceiver::suspend();
         onError(0);
         stopped = true;
     }
 }
 
 void FileReader::unobserved() {
+    VLOG(1) << "FileReader::unobserved(): " << this;
     delete this;
 }
 
@@ -76,6 +83,7 @@ void FileReader::readEvent() {
         } else {
             stopped = true;
             ReadEventReceiver::disable();
+            ReadEventReceiver::suspend();
             onError(ret == 0 ? 0 : errno);
         }
     }

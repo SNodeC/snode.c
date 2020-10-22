@@ -32,6 +32,7 @@
 #include "Descriptor.h"
 #include "EventReceiver.h"
 #include "FdSet.h"
+#include "Logger.h"
 #include "Timeval.h"
 
 namespace net {
@@ -75,6 +76,9 @@ namespace net {
                 // same tick
                 enabledEventReceiver.remove(eventReceiver);
                 eventReceiver->disabled();
+                if (eventReceiver->observationCounter == 0) {
+                    unobservedEventReceiver.push_back(eventReceiver);
+                }
             } else if (eventReceiver->isEnabled() && !contains(disabledEventReceiver, eventReceiver)) {
                 // normal
                 disabledEventReceiver.push_back(eventReceiver);
@@ -179,8 +183,18 @@ namespace net {
                     observedEventReceiver[fd].front()->setLastTriggered({time(nullptr), 0});
                 }
                 eventReceiver->disabled();
+                if (eventReceiver->observationCounter == 0) {
+                    unobservedEventReceiver.push_back(eventReceiver);
+                }
             }
             disabledEventReceiver.clear();
+        }
+
+        void unobserveDisabledEventReceiver() {
+            for (EventReceiver* eventReceiver : unobservedEventReceiver) {
+                eventReceiver->unobserved();
+            }
+            unobservedEventReceiver.clear();
         }
 
         void disableObservedEvents() {
@@ -191,22 +205,11 @@ namespace net {
             }
         }
 
-        bool allSuspended1(int fd) {
-            bool allSuspended = true;
-
-            for (EventReceiver* eventReceiver : observedEventReceiver[fd]) {
-                if (!eventReceiver->isSuspended()) {
-                    allSuspended = false;
-                }
-            }
-
-            return allSuspended;
-        }
-
         std::map<int, std::list<EventReceiver*>> observedEventReceiver;
 
         std::list<EventReceiver*> enabledEventReceiver;
         std::list<EventReceiver*> disabledEventReceiver;
+        std::list<EventReceiver*> unobservedEventReceiver;
 
         FdSet& fdSet;
 

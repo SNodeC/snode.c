@@ -60,6 +60,7 @@ namespace net::socket::stream {
                           onDestruct(socketConnection);
                       },
                       [onConnect, &ctx = this->ctx](SocketConnection* socketConnection) -> void {
+                          VLOG(0) << "OnConnect: " << socketConnection;
                           SSL* ssl = socketConnection->startSSL(ctx);
 
                           if (ssl != nullptr) {
@@ -77,9 +78,11 @@ namespace net::socket::stream {
                                       socketConnection->ReadEventReceiver::disable();
                                       PLOG(ERROR) << "TLS handshake timeout";
                                   },
-                                  [socketConnection](int sslErr) -> void {
+                                  [socketConnection]([[maybe_unused]] int sslErr) -> void {
+                                      socketConnection->ReadEventReceiver::resume();
                                       socketConnection->ReadEventReceiver::disable();
-                                      PLOG(ERROR) << "TLS handshake failed: " << ERR_error_string(sslErr, nullptr);
+                                      PLOG(ERROR)
+                                          << "TLS handshake failed: " << socketConnection << " " << ERR_error_string(sslErr, nullptr);
                                   });
                           } else {
                               socketConnection->ReadEventReceiver::disable();
@@ -87,6 +90,7 @@ namespace net::socket::stream {
                           }
                       },
                       [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
+                          VLOG(0) << "OnDisconnect: " << socketConnection;
                           socketConnection->stopSSL();
                           onDisconnect(socketConnection);
                       },
