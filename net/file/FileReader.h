@@ -36,11 +36,11 @@ protected:
     FileReader(int fd, const std::function<void(char* junk, int junkLen)>& junkRead, const std::function<void(int err)>& onError);
 
 public:
+    ~FileReader();
+
     static FileReader* read(const std::string& path,
                             const std::function<void(char* junk, int junkLen)>& junkRead,
                             const std::function<void(int err)>& onError);
-
-    void disable() override;
 
     void readEvent() override;
 
@@ -50,8 +50,6 @@ private:
     std::function<void(char* data, int len)> junkRead;
 
     std::function<void(int errnum)> onError;
-
-    bool stopped;
 };
 
 #endif // FILEREADER_H

@@ -32,6 +32,7 @@
 #include "Descriptor.h"
 #include "EventReceiver.h"
 #include "FdSet.h"
+#include "Logger.h"
 #include "Timeval.h"
 
 namespace net {
@@ -60,9 +61,10 @@ namespace net {
         EventDispatcher& operator=(const EventDispatcher&) = delete;
 
         void enable(EventReceiver* eventReceiver) {
-            if (contains(disabledEventReceiver, eventReceiver)) {
+            if (contains(disabledEventReceiver, eventReceiver)) { // disable was a "normal" tick
                 // same tick
                 disabledEventReceiver.remove(eventReceiver);
+                enabledEventReceiver.push_back(eventReceiver);
             } else if (!eventReceiver->isEnabled() && !contains(enabledEventReceiver, eventReceiver)) {
                 // normal
                 enabledEventReceiver.push_back(eventReceiver);
@@ -74,7 +76,7 @@ namespace net {
             if (contains(enabledEventReceiver, eventReceiver)) {
                 // same tick
                 enabledEventReceiver.remove(eventReceiver);
-                eventReceiver->disabled();
+                disabledEventReceiver.push_back(eventReceiver);
             } else if (eventReceiver->isEnabled() && !contains(disabledEventReceiver, eventReceiver)) {
                 // normal
                 disabledEventReceiver.push_back(eventReceiver);
@@ -156,6 +158,7 @@ namespace net {
                     if (inactivity >= maxInactivity) {
                         eventReceiver->timeoutEvent();
                         eventReceiver->disable();
+                        eventReceiver->suspend();
                     } else {
                         nextInactivityTimeout = std::min(maxInactivity - inactivity, nextInactivityTimeout);
                     }
@@ -179,8 +182,18 @@ namespace net {
                     observedEventReceiver[fd].front()->setLastTriggered({time(nullptr), 0});
                 }
                 eventReceiver->disabled();
+                if (eventReceiver->observationCounter == 0) {
+                    unobservedEventReceiver.push_back(eventReceiver);
+                }
             }
             disabledEventReceiver.clear();
+        }
+
+        void unobserveDisabledEventReceiver() {
+            for (EventReceiver* eventReceiver : unobservedEventReceiver) {
+                eventReceiver->unobserved();
+            }
+            unobservedEventReceiver.clear();
         }
 
         void disableObservedEvents() {
@@ -191,22 +204,11 @@ namespace net {
             }
         }
 
-        bool allSuspended1(int fd) {
-            bool allSuspended = true;
-
-            for (EventReceiver* eventReceiver : observedEventReceiver[fd]) {
-                if (!eventReceiver->isSuspended()) {
-                    allSuspended = false;
-                }
-            }
-
-            return allSuspended;
-        }
-
         std::map<int, std::list<EventReceiver*>> observedEventReceiver;
 
         std::list<EventReceiver*> enabledEventReceiver;
         std::list<EventReceiver*> disabledEventReceiver;
+        std::list<EventReceiver*> unobservedEventReceiver;
 
         FdSet& fdSet;
 

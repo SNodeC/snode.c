@@ -22,6 +22,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Logger.h"
 #include "MimeTypes.h"
 #include "Response.h"
 #include "ServerContext.h"
@@ -33,13 +34,6 @@ namespace express {
 
     Response::Response(http::ServerContextBase* serverContext)
         : http::Response(serverContext) {
-    }
-
-    Response::~Response() {
-        if (fileReader != nullptr) {
-            fileReader->disable();
-            fileReader = nullptr;
-        }
     }
 
     void Response::sendFile(const std::string& file, const std::function<void(int err)>& onError) {
@@ -59,7 +53,7 @@ namespace express {
                     [this](char* data, int length) -> void {
                         enqueue(data, length);
                     },
-                    [this, onError](int err) -> void {
+                    [this, &fileReader = this->fileReader, onError](int err) -> void {
                         if (onError) {
                             onError(err);
                         }
@@ -117,7 +111,11 @@ namespace express {
 
     void Response::reset() {
         http::Response::reset();
-        fileReader = nullptr;
+        if (fileReader != nullptr) {
+            fileReader->ReadEventReceiver::disable();
+            fileReader->ReadEventReceiver::suspend();
+            fileReader = nullptr;
+        }
     }
 
 } // namespace express

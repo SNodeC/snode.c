@@ -77,9 +77,11 @@ namespace net::socket::stream {
                                       socketConnection->ReadEventReceiver::disable();
                                       PLOG(ERROR) << "TLS handshake timeout";
                                   },
-                                  [socketConnection](int sslErr) -> void {
+                                  [socketConnection]([[maybe_unused]] int sslErr) -> void {
+                                      socketConnection->ReadEventReceiver::resume();
                                       socketConnection->ReadEventReceiver::disable();
-                                      PLOG(ERROR) << "TLS handshake failed: " << ERR_error_string(sslErr, nullptr);
+                                      PLOG(ERROR)
+                                          << "TLS handshake failed: " << socketConnection << " " << ERR_error_string(sslErr, nullptr);
                                   });
                           } else {
                               socketConnection->ReadEventReceiver::disable();

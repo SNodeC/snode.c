@@ -90,9 +90,6 @@ namespace net {
         void disabled() {
             ObservationCounter::observationCounter--;
             _enabled = false;
-            if (observationCounter == 0) {
-                unobserved();
-            }
         }
 
         void suspended() {

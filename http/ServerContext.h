@@ -45,9 +45,9 @@ namespace http {
 
         virtual void terminateConnection() = 0;
 
-        virtual void onWriteError(int errnum) const = 0;
+        virtual void onWriteError(int errnum) = 0;
 
-        virtual void onReadError(int errnum) const = 0;
+        virtual void onReadError(int errnum) = 0;
     };
 
     template <typename RequestT, typename ResponseT>
@@ -64,10 +64,10 @@ namespace http {
         ~ServerContext();
 
         void receiveRequestData(const char* junk, size_t junkLen) override;
-        void onReadError(int errnum) const;
+        void onReadError(int errnum);
 
         void sendResponseData(const char* buf, size_t len) override;
-        void onWriteError(int errnum) const override;
+        void onWriteError(int errnum) override;
 
         void responseCompleted() override;
         void terminateConnection() override;
