@@ -57,7 +57,7 @@ namespace net::socket::stream::tls {
                 delete this;
                 break;
             default:
-                errorEvent(sslErr);
+                onError(-sslErr);
                 delete this;
         }
     }
@@ -79,7 +79,7 @@ namespace net::socket::stream::tls {
                 break;
             default:
                 ReadEventReceiver::disable();
-                errorEvent(sslErr);
+                onError(-sslErr);
                 break;
         }
     }
@@ -101,22 +101,15 @@ namespace net::socket::stream::tls {
                 break;
             default:
                 WriteEventReceiver::disable();
-                errorEvent(sslErr);
+                onError(-sslErr);
                 break;
         }
     }
 
     void TLSHandshake::timeoutEvent() {
-        PLOG(ERROR) << "SSL/TLS handshake timeout";
-
         ReadEventReceiver::suspend();
         WriteEventReceiver::suspend();
         onTimeout();
-    }
-
-    void TLSHandshake::errorEvent(int sslErr) {
-        PLOG(ERROR) << "SSL/TLS handshake failed: " << ERR_error_string(sslErr, nullptr);
-        onError(-ERR_get_error());
     }
 
     void TLSHandshake::unobserved() {

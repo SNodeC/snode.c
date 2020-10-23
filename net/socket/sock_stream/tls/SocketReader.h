@@ -33,6 +33,7 @@
 #include "TLSHandshake.h"
 #include "WriteEventReceiver.h"
 #include "socket/sock_stream/SocketReader.h"
+#include "ssl_utils.h"
 
 namespace net::socket::stream::tls {
 
@@ -58,11 +59,10 @@ namespace net::socket::stream::tls {
                                 ReadEventReceiver::disable();
                                 PLOG(ERROR) << "TLS handshake timeout";
                             },
-                            [this](unsigned long sslErr) -> void {
+                            [this]([[maybe_unused]] int sslErr) -> void {
+                                ssl_log_error("SSL/TLS handshake failed:");
                                 ReadEventReceiver::disable();
-                                PLOG(ERROR) << "TLS handshake failed: " << ERR_error_string(sslErr, nullptr);
                             });
-
                         errno = EAGAIN;
                         [[fallthrough]];
                     case SSL_ERROR_NONE:

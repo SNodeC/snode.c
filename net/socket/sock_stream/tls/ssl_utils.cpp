@@ -29,6 +29,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Logger.h"
 #include "ssl_utils.h"
 
 namespace net::socket::stream::tls {
@@ -109,5 +110,13 @@ namespace net::socket::stream::tls {
 
         return sslErr;
     };
+
+    void ssl_log_error(const std::string& message) {
+        PLOG(ERROR) << message;
+        long e;
+        while ((e = ERR_get_error()) != 0) {
+            LOG(ERROR) << "|-- " << ERR_error_string(e, nullptr);
+        }
+    }
 
 } // namespace net::socket::stream::tls

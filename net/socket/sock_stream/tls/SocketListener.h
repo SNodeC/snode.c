@@ -74,14 +74,16 @@ namespace net::socket::stream {
                                       onConnect(socketConnection);
                                   },
                                   [socketConnection](void) -> void { // onTimeout
+                                      PLOG(ERROR) << "SSL/TLS handshake timeout";
                                       socketConnection->ReadEventReceiver::disable();
                                   },
                                   [socketConnection]([[maybe_unused]] int sslErr) -> void { // onError
+                                      ssl_log_error("SSL/TLS handshake failed:");
                                       socketConnection->ReadEventReceiver::disable();
                                   });
                           } else {
                               socketConnection->ReadEventReceiver::disable();
-                              PLOG(ERROR) << "SSL/TLS initialization failed: " << ERR_error_string(ERR_get_error(), nullptr);
+                              ssl_log_error("SSL/TLS initialization failed:");
                           }
                       },
                       [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect

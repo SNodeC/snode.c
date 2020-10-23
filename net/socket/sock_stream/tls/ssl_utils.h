@@ -32,6 +32,8 @@ namespace net::socket::stream::tls {
 
     unsigned long ssl_init_ctx(SSL_CTX* ctx, const std::map<std::string, std::any>& options, bool server = false);
 
-}
+    void ssl_log_error(const std::string& message);
+
+} // namespace net::socket::stream::tls
 
 #endif // NET_SOCKET_SOCK_STREAM_TLS_SSL_UTILS_H
