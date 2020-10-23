@@ -3,9 +3,6 @@ cmake_minimum_required(VERSION 3.0)
 project(snode.c)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
-set(CMAKE_VERBOSE_MAKEFILE
-    ON
-    CACHE BOOL "ON")
 
 option(SET_RPATH "Set rpath on all binaries and libraries" ON)
 if(SET_RPATH)
@@ -108,8 +105,6 @@ if(CLANG_FORMAT)
     COMMENT "Auto formatting of all CMakeLists.txt files")
 endif(CLANG_FORMAT)
 
-message("${CMAKELISTS_TXT_FILES}")
-
 add_custom_target(
   uninstall
   COMMAND sudo xargs rm -v < install_manifest.txt
@@ -122,4 +117,4 @@ install(
   DESTINATION lib/cmake/SnodeC
   RENAME SnodeCConfig.cmake)
 
-# xargs rm < install_manifest.txt
+# xargs rm < install_manifest.txt 140
