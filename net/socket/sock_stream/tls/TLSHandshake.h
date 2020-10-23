@@ -45,11 +45,9 @@ namespace net::socket::stream::tls {
                      const std::function<void(int err)>& onError);
 
         void readEvent() override;
-
         void writeEvent() override;
-
         void timeoutEvent() override;
-
+        void errorEvent(int sslErr);
         void unobserved() override;
 
         static void doHandshake(SSL* ssl,

@@ -61,7 +61,7 @@ namespace net {
         EventDispatcher& operator=(const EventDispatcher&) = delete;
 
         void enable(EventReceiver* eventReceiver) {
-            if (contains(disabledEventReceiver, eventReceiver)) { // disable was a "normal" tick
+            if (contains(disabledEventReceiver, eventReceiver)) {
                 // same tick
                 disabledEventReceiver.remove(eventReceiver);
                 enabledEventReceiver.push_back(eventReceiver);

@@ -69,23 +69,21 @@ namespace net::socket::stream {
 
                               TLSHandshake::doHandshake(
                                   ssl,
-                                  [&onConnect, socketConnection](void) -> void {
+                                  [&onConnect, socketConnection](void) -> void { // onSuccess
                                       socketConnection->ReadEventReceiver::resume();
                                       onConnect(socketConnection);
                                   },
-                                  [socketConnection](void) -> void {
+                                  [socketConnection](void) -> void { // onTimeout
                                       socketConnection->ReadEventReceiver::disable();
-                                      PLOG(ERROR) << "TLS handshake timeout";
                                   },
-                                  [socketConnection, &onError](int sslErr) -> void {
+                                  [socketConnection, &onError](int sslErr) -> void { // onError
                                       socketConnection->ReadEventReceiver::disable();
-                                      PLOG(ERROR) << "TLS handshake failed: " << ERR_error_string(sslErr, nullptr);
                                       onError(-sslErr);
                                   });
                           } else {
                               socketConnection->ReadEventReceiver::disable();
                               unsigned long sslErr = ERR_get_error();
-                              PLOG(ERROR) << "TLS handshake failed: " << ERR_error_string(sslErr, nullptr);
+                              PLOG(ERROR) << "SSL/TLS initialization failed: " << ERR_error_string(sslErr, nullptr);
                               onError(-sslErr);
                           }
                       },

@@ -24,6 +24,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Logger.h"
 #include "TLSHandshake.h"
 
 namespace net::socket::stream::tls {
@@ -56,7 +57,7 @@ namespace net::socket::stream::tls {
                 delete this;
                 break;
             default:
-                onError(ERR_peek_error());
+                errorEvent(sslErr);
                 delete this;
         }
     }
@@ -78,7 +79,7 @@ namespace net::socket::stream::tls {
                 break;
             default:
                 ReadEventReceiver::disable();
-                onError(ERR_peek_error());
+                errorEvent(sslErr);
                 break;
         }
     }
@@ -100,13 +101,22 @@ namespace net::socket::stream::tls {
                 break;
             default:
                 WriteEventReceiver::disable();
-                onError(ERR_peek_error());
+                errorEvent(sslErr);
                 break;
         }
     }
 
     void TLSHandshake::timeoutEvent() {
+        PLOG(ERROR) << "SSL/TLS handshake timeout";
+
+        ReadEventReceiver::suspend();
+        WriteEventReceiver::suspend();
         onTimeout();
+    }
+
+    void TLSHandshake::errorEvent(int sslErr) {
+        PLOG(ERROR) << "SSL/TLS handshake failed: " << ERR_error_string(sslErr, nullptr);
+        onError(-ERR_get_error());
     }
 
     void TLSHandshake::unobserved() {
