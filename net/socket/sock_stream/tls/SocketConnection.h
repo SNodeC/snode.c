@@ -55,10 +55,12 @@ namespace net::socket::stream::tls {
                   [onRead](SocketConnectionSuper* socketConnection, const char* junk, ssize_t junkLen) -> void {
                       onRead(static_cast<SocketConnection*>(socketConnection), junk, junkLen);
                   },
-                  [onReadError](SocketConnectionSuper* socketConnection, int errnum) -> void {
+                  [onReadError, &sslErr = this->sslErr](SocketConnectionSuper* socketConnection, int errnum) -> void {
+                      sslErr = errnum < 0 ? -errnum : 0;
                       onReadError(static_cast<SocketConnection*>(socketConnection), errnum);
                   },
-                  [onWriteError](SocketConnectionSuper* socketConnection, int errnum) -> void {
+                  [onWriteError, &sslErr = this->sslErr](SocketConnectionSuper* socketConnection, int errnum) -> void {
+                      sslErr = errnum < 0 ? -errnum : 0;
                       onWriteError(static_cast<SocketConnection*>(socketConnection), errnum);
                   },
                   [onDisconnect](SocketConnectionSuper* socketConnection) -> void {
@@ -87,7 +89,9 @@ namespace net::socket::stream::tls {
 
         void stopSSL() {
             if (ssl != nullptr) {
-                SSL_shutdown(ssl);
+                if (sslErr != SSL_ERROR_SYSCALL) {
+                    SSL_shutdown(ssl);
+                }
                 SSL_free(ssl);
 
                 ssl = nullptr;
@@ -102,6 +106,8 @@ namespace net::socket::stream::tls {
 
     protected:
         SSL* ssl = nullptr;
+
+        int sslErr = SSL_ERROR_NONE;
     };
 
 } // namespace net::socket::stream::tls

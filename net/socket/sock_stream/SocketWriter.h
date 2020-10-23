@@ -72,9 +72,12 @@ namespace net::socket::stream {
                 }
             } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
                 WriteEventReceiver::disable();
-                onError(ret < 0 ? ret : errno);
+                WriteEventReceiver::suspend();
+                onError(getError());
             }
         }
+
+        virtual int getError() = 0;
 
         std::function<void(int errnum)> onError;
 

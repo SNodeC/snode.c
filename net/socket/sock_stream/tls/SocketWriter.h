@@ -46,7 +46,7 @@ namespace net::socket::stream::tls {
             int ret = ::SSL_write(ssl, junk, junkLen);
 
             if (ret <= 0) {
-                int sslErr = SSL_get_error(ssl, ret);
+                sslErr = SSL_get_error(ssl, ret);
 
                 switch (sslErr) {
                     case SSL_ERROR_WANT_WRITE:
@@ -57,27 +57,24 @@ namespace net::socket::stream::tls {
                             },
                             [this](void) -> void {
                                 WriteEventReceiver::disable();
+                                WriteEventReceiver::suspend();
                                 PLOG(ERROR) << "TLS handshake timeout";
                             },
                             [this]([[maybe_unused]] int sslErr) -> void {
-                                ssl_log_error("SSL/TLS handshake failed:");
                                 WriteEventReceiver::disable();
+                                WriteEventReceiver::suspend();
+                                ssl_log_error("SSL/TLS handshake failed");
                             });
                         errno = EAGAIN;
-                        [[fallthrough]];
-                    case SSL_ERROR_NONE:
+                        break;
                     case SSL_ERROR_ZERO_RETURN:
                         ret = 0;
                         break;
                     case SSL_ERROR_SYSCALL:
-                        if (errno == 0) {
-                            ret = 0;
-                        } else {
-                            ret = -1;
-                        }
+                        ssl_log_error("SSL/TLS write maybe failed");
                         break;
                     default:
-                        ret = -ERR_peek_error();
+                        ssl_log_error("SSL/TLS write failed");
                         break;
                 }
             }
@@ -85,8 +82,21 @@ namespace net::socket::stream::tls {
             return ret;
         }
 
+        int getError() override {
+            int ret = errno;
+
+            if (sslErr != SSL_ERROR_SYSCALL) {
+                ret = -sslErr;
+            }
+
+            sslErr = 0;
+            return ret;
+        }
+
     protected:
         SSL* ssl = nullptr;
+
+        int sslErr = SSL_ERROR_NONE;
     };
 
 }; // namespace net::socket::stream::tls

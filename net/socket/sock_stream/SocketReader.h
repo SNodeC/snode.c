@@ -67,9 +67,12 @@ namespace net::socket::stream {
                 onRead(junk, ret);
             } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
                 ReadEventReceiver::disable();
-                onError(ret < 0 ? ret : errno);
+                ReadEventReceiver::suspend();
+                onError(getError());
             }
         }
+
+        virtual int getError() = 0;
 
         std::function<void(const char* junk, ssize_t junkLen)> onRead;
         std::function<void(int errnum)> onError;

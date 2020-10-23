@@ -39,6 +39,10 @@ namespace net::socket::stream::legacy {
         ssize_t write(const char* junk, size_t junkLen) override {
             return ::send(this->getFd(), junk, junkLen, MSG_NOSIGNAL);
         }
+
+        int getError() override {
+            return errno;
+        }
     };
 
 }; // namespace net::socket::stream::legacy

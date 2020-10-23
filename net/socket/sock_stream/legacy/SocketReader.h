@@ -39,6 +39,10 @@ namespace net::socket::stream::legacy {
         ssize_t read(char* junk, size_t junkLen) override {
             return ::recv(this->getFd(), junk, junkLen, 0);
         }
+
+        int getError() override {
+            return errno;
+        }
     };
 
 }; // namespace net::socket::stream::legacy

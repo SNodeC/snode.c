@@ -115,7 +115,7 @@ namespace net::socket::stream::tls {
         PLOG(ERROR) << message;
         long e;
         while ((e = ERR_get_error()) != 0) {
-            LOG(ERROR) << "|-- " << ERR_error_string(e, nullptr);
+            LOG(ERROR) << "|-- with SSL " << ERR_error_string(e, nullptr);
         }
     }
 
