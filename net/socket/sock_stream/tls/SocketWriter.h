@@ -88,8 +88,8 @@ namespace net::socket::stream::tls {
             if (sslErr != SSL_ERROR_SYSCALL) {
                 ret = -sslErr;
             }
-
             sslErr = 0;
+
             return ret;
         }
 

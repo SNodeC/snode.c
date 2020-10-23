@@ -79,6 +79,7 @@ namespace net::socket::stream {
                                   },
                                   [socketConnection]([[maybe_unused]] int sslErr) -> void { // onError
                                       ssl_log_error("SSL/TLS handshake failed");
+                                      socketConnection->setSSLError(-sslErr);
                                       socketConnection->ReadEventReceiver::disable();
                                   });
                           } else {

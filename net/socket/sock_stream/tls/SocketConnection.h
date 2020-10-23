@@ -104,6 +104,10 @@ namespace net::socket::stream::tls {
             return ssl;
         }
 
+        void setSSLError(int sslErr) {
+            this->sslErr = sslErr;
+        }
+
     protected:
         SSL* ssl = nullptr;
 
