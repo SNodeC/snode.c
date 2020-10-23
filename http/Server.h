@@ -17,7 +17,7 @@
 
 namespace http {
 
-    template <typename SocketServerT, typename RequestT = http::Request, typename ResponseT = http::Response>
+    template <typename SocketServerT, typename RequestT = Request, typename ResponseT = Response>
     class Server {
     public:
         using SocketServer = SocketServerT;
