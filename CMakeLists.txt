@@ -2,29 +2,33 @@ cmake_minimum_required(VERSION 3.0)
 
 project(snode.c)
 
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
-set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "ON")
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+set(CMAKE_VERBOSE_MAKEFILE
+    ON
+    CACHE BOOL "ON")
 
 option(SET_RPATH "Set rpath on all binaries and libraries" ON)
 if(SET_RPATH)
-    # use, i.e. don't skip the full RPATH for the build tree
-    set(CMAKE_SKIP_BUILD_RPATH FALSE)
+  # use, i.e. don't skip the full RPATH for the build tree
+  set(CMAKE_SKIP_BUILD_RPATH FALSE)
 
-    # when building, don't use the install RPATH already
-    # (but later on when installing)
-    set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+  # when building, don't use the install RPATH already (but later on when
+  # installing)
+  set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 
-    # set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+  # set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
-    # add the automatically determined parts of the RPATH
-    # which point to directories outside the build tree to the install RPATH
-    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+  # add the automatically determined parts of the RPATH which point to
+  # directories outside the build tree to the install RPATH
+  set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-    # the RPATH to be used when installing, but only if it's not a system directory
-    list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
-    if("${isSystemDir}" STREQUAL "-1")
-        set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-    endif("${isSystemDir}" STREQUAL "-1")
+  # the RPATH to be used when installing, but only if it's not a system
+  # directory
+  list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES
+       "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
+  if("${isSystemDir}" STREQUAL "-1")
+    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+  endif("${isSystemDir}" STREQUAL "-1")
 endif(SET_RPATH)
 
 message("Your C++ compiler supports these C++ features:")
@@ -51,48 +55,71 @@ add_subdirectory(utils)
 add_subdirectory(apps)
 
 find_package(Doxygen)
-option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
+option(BUILD_DOCUMENTATION
+       "Create and install the HTML based API documentation (requires Doxygen)"
+       ${DOXYGEN_FOUND})
 
 if(BUILD_DOCUMENTATION)
-    if (DOXYGEN_FOUND)
-        set(DOXYFILE_IN ${CMAKE_SOURCE_DIR}/docs/Doxygen.in)
-        set(DOXYFILE ${CMAKE_SOURCE_DIR}/docs/Doxyfile)
+  if(DOXYGEN_FOUND)
+    set(DOXYFILE_IN ${CMAKE_SOURCE_DIR}/docs/Doxygen.in)
+    set(DOXYFILE ${CMAKE_SOURCE_DIR}/docs/Doxyfile)
 
-        configure_file(${DOXYFILE_IN} ${DOXYFILE} @ONLY)
+    configure_file(${DOXYFILE_IN} ${DOXYFILE} @ONLY)
 
-        add_custom_target(doc
-                        COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE}
-                        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-                        COMMENT "Generating API documentation with Doxygen"
-                        VERBATIM)
+    add_custom_target(
+      doc
+      COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE}
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+      COMMENT "Generating API documentation with Doxygen"
+      VERBATIM)
 
-        install(DIRECTORY ${CMAKE_SOURCE_DIR}/docs/html DESTINATION share/doc/snode.c)
-    else (DOXYGEN_FOUND)
-        message(FATAL_ERROR "Doxygen is needed to build the documentation.")
-    endif (DOXYGEN_FOUND)
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/docs/html
+            DESTINATION share/doc/snode.c)
+  else(DOXYGEN_FOUND)
+    message(FATAL_ERROR "Doxygen is needed to build the documentation.")
+  endif(DOXYGEN_FOUND)
 endif(BUILD_DOCUMENTATION)
 
-#Set the source files to clang - format
-FILE(GLOB_RECURSE
-    CHECK_CXX_SOURCE_FILES
-    ${CMAKE_SOURCE_DIR}/net/*.[tch]pp ${CMAKE_SOURCE_DIR}/net/*.h
-    ${CMAKE_SOURCE_DIR}/http/*.[tch]pp ${CMAKE_SOURCE_DIR}/http/*.h
-    ${CMAKE_SOURCE_DIR}/express/*.[tch]pp ${CMAKE_SOURCE_DIR}/express/*.h
-    ${CMAKE_SOURCE_DIR}/apps/*.[tch]pp ${CMAKE_SOURCE_DIR}/apps/*.h
-    ${CMAKE_SOURCE_DIR}/utils/*.[tch]pp ${CMAKE_SOURCE_DIR}/utils/*.h
-    ${CMAKE_SOURCE_DIR}/log/*.[tch]pp ${CMAKE_SOURCE_DIR}/log/*.h
-)
-INCLUDE("cmake/clang-cpp-checks.cmake")
+# Set the source files to clang - format
+file(
+  GLOB_RECURSE
+  CHECK_CXX_SOURCE_FILES
+  ${CMAKE_SOURCE_DIR}/net/*.[tch]pp
+  ${CMAKE_SOURCE_DIR}/net/*.h
+  ${CMAKE_SOURCE_DIR}/http/*.[tch]pp
+  ${CMAKE_SOURCE_DIR}/http/*.h
+  ${CMAKE_SOURCE_DIR}/express/*.[tch]pp
+  ${CMAKE_SOURCE_DIR}/express/*.h
+  ${CMAKE_SOURCE_DIR}/apps/*.[tch]pp
+  ${CMAKE_SOURCE_DIR}/apps/*.h
+  ${CMAKE_SOURCE_DIR}/utils/*.[tch]pp
+  ${CMAKE_SOURCE_DIR}/utils/*.h
+  ${CMAKE_SOURCE_DIR}/log/*.[tch]pp
+  ${CMAKE_SOURCE_DIR}/log/*.h)
+include("cmake/clang-cpp-checks.cmake")
 
-install(FILES cmake/FindSnodeC.cmake DESTINATION lib/cmake/SnodeC RENAME SnodeCConfig.cmake)
+file(GLOB_RECURSE CMAKELISTS_TXT_FILES CMakeLists.txt)
 
-ADD_CUSTOM_TARGET(
-    uninstall
-    COMMAND
-    sudo xargs rm -v < install_manifest.txt
-    COMMAND
-    sudo xargs -L1 dirname < install_manifest.txt | sort | uniq | sudo xargs rmdir -v --ignore-fail-on-non-empty -p
-    COMMENT "Uninstall project"
-)
+find_program(CMAKE_FORMAT "cmake-format")
+if(CLANG_FORMAT)
+  add_custom_target(
+    format-cmake
+    COMMAND ${CMAKE_FORMAT} -i ${CMAKELISTS_TXT_FILES}
+    COMMENT "Auto formatting of all CMakeLists.txt files")
+endif(CLANG_FORMAT)
 
-#xargs rm < install_manifest.txt
+message("${CMAKELISTS_TXT_FILES}")
+
+add_custom_target(
+  uninstall
+  COMMAND sudo xargs rm -v < install_manifest.txt
+  COMMAND sudo xargs -L1 dirname < install_manifest.txt | sort | uniq | sudo
+          xargs rmdir -v --ignore-fail-on-non-empty -p
+  COMMENT "Uninstall project")
+
+install(
+  FILES cmake/FindSnodeC.cmake
+  DESTINATION lib/cmake/SnodeC
+  RENAME SnodeCConfig.cmake)
+
+# xargs rm < install_manifest.txt
