@@ -67,6 +67,7 @@ namespace http {
               [this, onRequestReady]() -> void {
                   VLOG(1) << "++ Parsed ++";
                   requestInProgress = true;
+                  request.extend();
                   onRequestReady(request, response);
               },
               [this](int status, const std::string& reason) -> void {

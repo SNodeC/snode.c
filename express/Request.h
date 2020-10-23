@@ -28,17 +28,26 @@
 
 #include "../http/Request.h"
 
+namespace http {
+    template <typename Request, typename Response>
+    class ServerContext;
+}
+
 namespace express {
 
     class Request : public http::Request {
     public:
-        Request();
-
         std::string& param(const std::string& id);
 
         std::string originalUrl;
         std::string path;
         std::map<std::string, std::string> params;
+
+    protected:
+        void extend() override;
+
+        template <typename Request, typename Response>
+        friend class http::ServerContext;
     };
 
 } // namespace express

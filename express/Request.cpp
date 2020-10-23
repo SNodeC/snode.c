@@ -26,11 +26,17 @@
 
 namespace express {
 
-    Request::Request() {
-    }
-
     std::string& Request::param(const std::string& id) {
         return params[id];
+    }
+
+    void Request::extend() {
+        originalUrl = url;
+        url = httputils::url_decode(httputils::str_split_last(originalUrl, '?').first);
+        path = httputils::str_split_last(url, '/').first;
+        if (path.empty()) {
+            path = "/";
+        }
     }
 
 } // namespace express

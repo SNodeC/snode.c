@@ -52,6 +52,9 @@ namespace http {
         bool keepAlive = false;
 
     protected:
+        virtual void extend() {
+        }
+
         virtual void reset();
 
         const std::map<std::string, std::string>* queries = nullptr;

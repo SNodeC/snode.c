@@ -287,13 +287,6 @@ namespace express {
     }
 
     void Router::dispatch(express::Request& req, express::Response& res) {
-        req.originalUrl = req.url;
-        req.url = httputils::url_decode(httputils::str_split_last(req.originalUrl, '?').first);
-        req.path = httputils::str_split_last(req.url, '/').first;
-        if (req.path.empty()) {
-            req.path = "/";
-        }
-
         static_cast<void>(routerDispatcher->dispatch(MountPoint("use", "/"), "/", req, res));
     }
 
