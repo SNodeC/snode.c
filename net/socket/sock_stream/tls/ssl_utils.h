@@ -33,6 +33,7 @@ namespace net::socket::stream::tls {
     unsigned long ssl_init_ctx(SSL_CTX* ctx, const std::map<std::string, std::any>& options, bool server = false);
 
     void ssl_log_error(const std::string& message);
+    void ssl_log_warning(const std::string& message);
 
 } // namespace net::socket::stream::tls
 

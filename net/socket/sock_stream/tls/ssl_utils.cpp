@@ -118,5 +118,12 @@ namespace net::socket::stream::tls {
             LOG(ERROR) << "|-- with SSL " << ERR_error_string(e, nullptr);
         }
     }
+    void ssl_log_warning(const std::string& message) {
+        PLOG(WARNING) << message;
+        long e;
+        while ((e = ERR_get_error()) != 0) {
+            LOG(WARNING) << "|-- with SSL " << ERR_error_string(e, nullptr);
+        }
+    }
 
 } // namespace net::socket::stream::tls

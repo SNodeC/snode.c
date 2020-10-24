@@ -99,7 +99,7 @@ namespace http {
     template <typename Request, typename Response>
     void ServerContext<Request, Response>::onReadError(int errnum) {
         if (errnum != 0 && errnum != ECONNRESET) {
-            PLOG(ERROR) << "Connection: read";
+            PLOG(ERROR) << "Connection read: " << errnum;
             responseCompleted();
         }
     }
@@ -112,7 +112,7 @@ namespace http {
     template <typename Request, typename Response>
     void ServerContext<Request, Response>::onWriteError(int errnum) {
         if (errnum != 0 && errnum != ECONNRESET) {
-            PLOG(ERROR) << "Connection write";
+            PLOG(ERROR) << "Connection write: " << errnum;
             responseCompleted();
         }
     }

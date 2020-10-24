@@ -38,7 +38,7 @@ void Logger::init(int argc, char* argv[]) {
 
     el::Loggers::reconfigureAllLoggers(conf);
 
-    setLevel(2);
+    setLevel(6);
 }
 
 void Logger::setCustomFormatSpec(const char* format, const el::FormatSpecifierValueResolver& resolver) {

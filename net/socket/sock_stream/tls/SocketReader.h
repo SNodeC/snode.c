@@ -69,7 +69,7 @@ namespace net::socket::stream::tls {
                         ret = 0;
                         break;
                     case SSL_ERROR_SYSCALL:
-                        ssl_log_error("SSL/TLS read maybe failed");
+                        ssl_log_warning("SSL/TLS read maybe failed");
                         break;
                     default:
                         ssl_log_error("SSL/TLS read failed");

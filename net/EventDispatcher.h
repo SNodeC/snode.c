@@ -58,7 +58,7 @@ namespace net {
             int fd;
         };
 
-        static bool contains(std::list<EventReceiverFdPair>& eventReceivers, EventReceiverT*& eventReceiver) {
+        static bool contains(std::list<EventReceiverFdPair>& eventReceivers, EventReceiver* eventReceiver) {
             return std::find(eventReceivers.begin(), eventReceivers.end(), eventReceiver) != eventReceivers.end();
         }
 
