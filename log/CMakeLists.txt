@@ -31,15 +31,18 @@ find_package(EASYLOGGINGPP REQUIRED)
 # download\nhttps://github.com/amrayn/easyloggingpp/archive/v9.96.7.tar.gz\nno
 # internet connection?") endif() endif()
 
-add_library(easylogging++ STATIC ${EASYLOGGINGPP_INCLUDE_DIR}/easylogging++.cc
-                                 ${EASYLOGGINGPP_INCLUDE_DIR}/easylogging++.h)
+add_library(
+    easylogging++ STATIC ${EASYLOGGINGPP_INCLUDE_DIR}/easylogging++.cc
+                         ${EASYLOGGINGPP_INCLUDE_DIR}/easylogging++.h
+)
 
 set_target_properties(
-  easylogging++
-  PROPERTIES CXX_STANDARD 20
-             CXX_STANDARD_REQUIRED ON
-             CXX_EXTENSIONS OFF
-             POSITION_INDEPENDENT_CODE ON)
+    easylogging++
+    PROPERTIES CXX_STANDARD 20
+               CXX_STANDARD_REQUIRED ON
+               CXX_EXTENSIONS OFF
+               POSITION_INDEPENDENT_CODE ON
+)
 
 target_compile_options(easylogging++ PRIVATE --warn-all -Wno-unused-parameter)
 target_compile_definitions(easylogging++ PRIVATE ELPP_NO_DEFAULT_LOG_FILE)
@@ -47,29 +50,33 @@ target_compile_definitions(easylogging++ PRIVATE ELPP_NO_DEFAULT_LOG_FILE)
 add_library(logger SHARED Logger.cpp)
 
 set_target_properties(
-  logger
-  PROPERTIES CXX_STANDARD 20
-             CXX_STANDARD_REQUIRED ON
-             CXX_EXTENSIONS OFF
-             SOVERSION 1
-             POSITION_INDEPENDENT_CODE ON)
+    logger
+    PROPERTIES CXX_STANDARD 20
+               CXX_STANDARD_REQUIRED ON
+               CXX_EXTENSIONS OFF
+               SOVERSION 1
+               POSITION_INDEPENDENT_CODE ON
+)
 
 target_link_libraries(logger LINK_PUBLIC easylogging++)
 
-target_include_directories(logger PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
-                                         ${EASYLOGGINGPP_INCLUDE_DIR})
+target_include_directories(
+    logger PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${EASYLOGGINGPP_INCLUDE_DIR}
+)
 
 install(TARGETS logger LIBRARY DESTINATION lib
-                               NAMELINK_COMPONENT liblogger.so.1)
+                               NAMELINK_COMPONENT liblogger.so.1
+)
 install(
-  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-  DESTINATION include/snode.c/log
-  FILES_MATCHING
-  PATTERN "*.h"
-  PATTERN "cmake" EXCLUDE
-  PATTERN "downloads" EXCLUDE
-  PATTERN "easyloggingpp" EXCLUDE)
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+    DESTINATION include/snode.c/log
+    FILES_MATCHING
+    PATTERN "*.h"
+    PATTERN "cmake" EXCLUDE
+    PATTERN "downloads" EXCLUDE
+    PATTERN "easyloggingpp" EXCLUDE
+)
 
 if(CHECK_INCLUDES)
-  set_property(TARGET logger PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
+    set_property(TARGET logger PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
 endif(CHECK_INCLUDES)
