@@ -59,6 +59,8 @@ namespace net::socket::stream::tls {
         std::function<void(void)> onSuccess;
         std::function<void(void)> onTimeout;
         std::function<void(int err)> onError;
+
+        int fd = -1;
     };
 
 } // namespace net::socket::stream::tls

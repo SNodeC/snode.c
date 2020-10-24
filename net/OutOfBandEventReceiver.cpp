@@ -31,21 +31,21 @@ namespace net {
         EventReceiver::setTimeout(timeout, EventLoop::instance().getOutOfBandEventDispatcher().getTimeout());
     }
 
-    void OutOfBandEventReceiver::enable(long timeout) {
-        EventLoop::instance().getOutOfBandEventDispatcher().enable(this);
+    void OutOfBandEventReceiver::enable(int fd, long timeout) {
+        EventLoop::instance().getOutOfBandEventDispatcher().enable(this, fd);
         setTimeout(timeout);
     }
 
-    void OutOfBandEventReceiver::disable() {
-        EventLoop::instance().getOutOfBandEventDispatcher().disable(this);
+    void OutOfBandEventReceiver::disable(int fd) {
+        EventLoop::instance().getOutOfBandEventDispatcher().disable(this, fd);
     }
 
-    void OutOfBandEventReceiver::suspend() {
-        EventLoop::instance().getOutOfBandEventDispatcher().suspend(this);
+    void OutOfBandEventReceiver::suspend(int fd) {
+        EventLoop::instance().getOutOfBandEventDispatcher().suspend(this, fd);
     }
 
-    void OutOfBandEventReceiver::resume() {
-        EventLoop::instance().getOutOfBandEventDispatcher().resume(this);
+    void OutOfBandEventReceiver::resume(int fd) {
+        EventLoop::instance().getOutOfBandEventDispatcher().resume(this, fd);
     }
 
 } // namespace net

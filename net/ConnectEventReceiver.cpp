@@ -31,21 +31,21 @@ namespace net {
         EventReceiver::setTimeout(timeout, EventLoop::instance().getConnectEventDispatcher().getTimeout());
     }
 
-    void ConnectEventReceiver::enable(long timeout) {
-        EventLoop::instance().getConnectEventDispatcher().enable(this);
+    void ConnectEventReceiver::enable(int fd, long timeout) {
+        EventLoop::instance().getConnectEventDispatcher().enable(this, fd);
         setTimeout(timeout);
     }
 
-    void ConnectEventReceiver::disable() {
-        EventLoop::instance().getConnectEventDispatcher().disable(this);
+    void ConnectEventReceiver::disable(int fd) {
+        EventLoop::instance().getConnectEventDispatcher().disable(this, fd);
     }
 
-    void ConnectEventReceiver::suspend() {
-        EventLoop::instance().getConnectEventDispatcher().suspend(this);
+    void ConnectEventReceiver::suspend(int fd) {
+        EventLoop::instance().getConnectEventDispatcher().suspend(this, fd);
     }
 
-    void ConnectEventReceiver::resume() {
-        EventLoop::instance().getConnectEventDispatcher().resume(this);
+    void ConnectEventReceiver::resume(int fd) {
+        EventLoop::instance().getConnectEventDispatcher().resume(this, fd);
     }
 
 } // namespace net

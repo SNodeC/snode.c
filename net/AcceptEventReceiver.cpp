@@ -31,21 +31,21 @@ namespace net {
         EventReceiver::setTimeout(timeout, EventLoop::instance().getAcceptEventDispatcher().getTimeout());
     }
 
-    void AcceptEventReceiver::enable(long timeout) {
-        EventLoop::instance().getAcceptEventDispatcher().enable(this);
+    void AcceptEventReceiver::enable(int fd, long timeout) {
+        EventLoop::instance().getAcceptEventDispatcher().enable(this, fd);
         setTimeout(timeout);
     }
 
-    void AcceptEventReceiver::disable() {
-        EventLoop::instance().getAcceptEventDispatcher().disable(this);
+    void AcceptEventReceiver::disable(int fd) {
+        EventLoop::instance().getAcceptEventDispatcher().disable(this, fd);
     }
 
-    void AcceptEventReceiver::suspend() {
-        EventLoop::instance().getAcceptEventDispatcher().suspend(this);
+    void AcceptEventReceiver::suspend(int fd) {
+        EventLoop::instance().getAcceptEventDispatcher().suspend(this, fd);
     }
 
-    void AcceptEventReceiver::resume() {
-        EventLoop::instance().getAcceptEventDispatcher().resume(this);
+    void AcceptEventReceiver::resume(int fd) {
+        EventLoop::instance().getAcceptEventDispatcher().resume(this, fd);
     }
 
 } // namespace net

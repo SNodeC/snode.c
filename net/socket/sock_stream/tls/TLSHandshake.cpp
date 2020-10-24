@@ -38,17 +38,18 @@ namespace net::socket::stream::tls {
         ReadEventReceiver::setTimeout(TLSHANDSHAKE_TIMEOUT);
         WriteEventReceiver::setTimeout(TLSHANDSHAKE_TIMEOUT);
 
-        open(SSL_get_fd(ssl), FLAGS::dontClose);
+        fd = SSL_get_fd(ssl);
+        open(fd, FLAGS::dontClose);
 
         int ret = SSL_do_handshake(ssl);
         int sslErr = SSL_get_error(ssl, ret);
 
         switch (sslErr) {
             case SSL_ERROR_WANT_READ:
-                ReadEventReceiver::enable();
+                ReadEventReceiver::enable(fd);
                 break;
             case SSL_ERROR_WANT_WRITE:
-                WriteEventReceiver::enable();
+                WriteEventReceiver::enable(fd);
                 break;
             case SSL_ERROR_NONE:
                 onSuccess();
@@ -68,15 +69,15 @@ namespace net::socket::stream::tls {
             case SSL_ERROR_WANT_READ:
                 break;
             case SSL_ERROR_WANT_WRITE:
-                ReadEventReceiver::disable();
-                WriteEventReceiver::enable();
+                ReadEventReceiver::disable(fd);
+                WriteEventReceiver::enable(fd);
                 break;
             case SSL_ERROR_NONE:
-                ReadEventReceiver::disable();
+                ReadEventReceiver::disable(fd);
                 onSuccess();
                 break;
             default:
-                ReadEventReceiver::disable();
+                ReadEventReceiver::disable(fd);
                 onError(-sslErr);
                 break;
         }
@@ -88,25 +89,25 @@ namespace net::socket::stream::tls {
 
         switch (sslErr) {
             case SSL_ERROR_WANT_READ:
-                WriteEventReceiver::disable();
-                ReadEventReceiver::enable();
+                WriteEventReceiver::disable(fd);
+                ReadEventReceiver::enable(fd);
                 break;
             case SSL_ERROR_WANT_WRITE:
                 break;
             case SSL_ERROR_NONE:
-                ReadEventReceiver::disable();
+                ReadEventReceiver::disable(fd);
                 onSuccess();
                 break;
             default:
-                WriteEventReceiver::disable();
+                WriteEventReceiver::disable(fd);
                 onError(-sslErr);
                 break;
         }
     }
 
     void TLSHandshake::timeoutEvent() {
-        ReadEventReceiver::suspend();
-        WriteEventReceiver::suspend();
+        ReadEventReceiver::suspend(fd);
+        WriteEventReceiver::suspend(fd);
         onTimeout();
     }
 

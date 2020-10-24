@@ -107,7 +107,7 @@ namespace net::socket::stream {
                                         onError(errno);
                                         destruct();
                                     } else {
-                                        AcceptEventReceiver::enable();
+                                        AcceptEventReceiver::enable(Socket::getFd());
                                         onError(0);
                                     }
                                 }
@@ -152,7 +152,7 @@ namespace net::socket::stream {
                     socketConnection->setRemoteAddress(typename Socket::SocketAddress(remoteAddress));
                     socketConnection->setLocalAddress(typename Socket::SocketAddress(localAddress));
 
-                    socketConnection->ReadEventReceiver::enable();
+                    socketConnection->ReadEventReceiver::enable(scFd);
 
                     onConnect(socketConnection);
 
@@ -167,7 +167,7 @@ namespace net::socket::stream {
         }
 
         void end() {
-            AcceptEventReceiver::disable();
+            AcceptEventReceiver::disable(Socket::getFd());
         }
 
         void unobserved() override {
