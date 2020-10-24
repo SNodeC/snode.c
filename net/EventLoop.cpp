@@ -147,7 +147,7 @@ namespace net {
 
     int EventLoop::start() {
         if (!initialized) {
-            PLOG(ERROR) << "snode.c not initialized. Use Multiplexer::init(argc, argv) before Multiplexer::start().";
+            PLOG(ERROR) << "snode.c not initialized. Use EventLoop::init(argc, argv) before EventLoop::start().";
             exit(1);
         }
 
