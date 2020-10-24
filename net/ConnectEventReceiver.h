@@ -43,8 +43,8 @@ namespace net {
         void enable(int fd, long timeout = TIMEOUT::IGNORE) override;
         void disable(int fd) override;
 
-        void suspend() override;
-        void resume() override;
+        void suspend(int fd) override;
+        void resume(int fd) override;
 
         template <typename ConnectEventReceiver>
         friend class EventDispatcher;

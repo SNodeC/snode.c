@@ -40,12 +40,12 @@ namespace net {
         EventLoop::instance().getConnectEventDispatcher().disable(this, fd);
     }
 
-    void ConnectEventReceiver::suspend() {
-        EventLoop::instance().getConnectEventDispatcher().suspend(this);
+    void ConnectEventReceiver::suspend(int fd) {
+        EventLoop::instance().getConnectEventDispatcher().suspend(this, fd);
     }
 
-    void ConnectEventReceiver::resume() {
-        EventLoop::instance().getConnectEventDispatcher().resume(this);
+    void ConnectEventReceiver::resume(int fd) {
+        EventLoop::instance().getConnectEventDispatcher().resume(this, fd);
     }
 
 } // namespace net

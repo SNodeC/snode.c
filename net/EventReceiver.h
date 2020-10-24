@@ -115,12 +115,9 @@ namespace net {
 
         virtual void enable(int fd, long timeout) = 0;
         virtual void disable(int fd) = 0;
-        /*
-                virtual void enable(int fd, long timeout) = 0;
-                virtual void disable(int fd) = 0;
-        */
-        virtual void suspend() = 0;
-        virtual void resume() = 0;
+
+        virtual void suspend(int fd) = 0;
+        virtual void resume(int fd) = 0;
 
         virtual void unobserved() = 0;
 

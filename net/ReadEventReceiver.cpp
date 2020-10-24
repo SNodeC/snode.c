@@ -40,12 +40,12 @@ namespace net {
         EventLoop::instance().getReadEventDispatcher().disable(this, fd);
     }
 
-    void ReadEventReceiver::suspend() {
-        EventLoop::instance().getReadEventDispatcher().suspend(this);
+    void ReadEventReceiver::suspend(int fd) {
+        EventLoop::instance().getReadEventDispatcher().suspend(this, fd);
     }
 
-    void ReadEventReceiver::resume() {
-        EventLoop::instance().getReadEventDispatcher().resume(this);
+    void ReadEventReceiver::resume(int fd) {
+        EventLoop::instance().getReadEventDispatcher().resume(this, fd);
     }
 
 } // namespace net

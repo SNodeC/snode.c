@@ -63,14 +63,14 @@ namespace net::socket::stream {
                           SSL* ssl = socketConnection->startSSL(ctx);
 
                           if (ssl != nullptr) {
-                              socketConnection->ReadEventReceiver::suspend();
+                              socketConnection->ReadEventReceiver::suspend(socketConnection->getFd());
 
                               SSL_set_connect_state(ssl);
 
                               TLSHandshake::doHandshake(
                                   ssl,
                                   [&onConnect, socketConnection](void) -> void { // onSuccess
-                                      socketConnection->ReadEventReceiver::resume();
+                                      socketConnection->ReadEventReceiver::resume(socketConnection->getFd());
                                       onConnect(socketConnection);
                                   },
                                   [socketConnection](void) -> void { // onTimeout

@@ -113,7 +113,7 @@ namespace express {
         http::Response::reset();
         if (fileReader != nullptr) {
             fileReader->ReadEventReceiver::disable(fileReader->getFd());
-            fileReader->ReadEventReceiver::suspend();
+            fileReader->ReadEventReceiver::suspend(fileReader->getFd());
             fileReader = nullptr;
         }
     }

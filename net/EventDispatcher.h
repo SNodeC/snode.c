@@ -80,18 +80,16 @@ namespace net {
             }
         }
 
-        void suspend(EventReceiver* eventReceiver) {
+        void suspend(EventReceiver* eventReceiver, int fd) {
             eventReceiver->suspended();
-            int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
 
             if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
                 fdSet.clr(fd, true);
             }
         }
 
-        void resume(EventReceiver* eventReceiver) {
+        void resume(EventReceiver* eventReceiver, int fd) {
             eventReceiver->resumed();
-            int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
 
             if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
                 fdSet.set(fd);
@@ -202,6 +200,7 @@ namespace net {
 
         std::multimap<EventReceiver*, int> enabledEventReceiver;
         std::multimap<EventReceiver*, int> disabledEventReceiver;
+
         std::list<EventReceiver*> unobservedEventReceiver;
 
         FdSet& fdSet;

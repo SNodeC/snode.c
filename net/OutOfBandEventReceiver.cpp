@@ -40,12 +40,12 @@ namespace net {
         EventLoop::instance().getOutOfBandEventDispatcher().disable(this, fd);
     }
 
-    void OutOfBandEventReceiver::suspend() {
-        EventLoop::instance().getOutOfBandEventDispatcher().suspend(this);
+    void OutOfBandEventReceiver::suspend(int fd) {
+        EventLoop::instance().getOutOfBandEventDispatcher().suspend(this, fd);
     }
 
-    void OutOfBandEventReceiver::resume() {
-        EventLoop::instance().getOutOfBandEventDispatcher().resume(this);
+    void OutOfBandEventReceiver::resume(int fd) {
+        EventLoop::instance().getOutOfBandEventDispatcher().resume(this, fd);
     }
 
 } // namespace net
