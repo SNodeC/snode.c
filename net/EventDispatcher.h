@@ -130,7 +130,7 @@ namespace net {
                     fdSet.set(fd);
                     nextTimeout = std::min(nextTimeout, eventReceiver->getTimeout());
                 } else {
-                    fdSet.clr(fd);
+                    fdSet.clr(fd, true);
                 }
             }
             enabledEventReceiver.clear();
@@ -158,7 +158,6 @@ namespace net {
                     if (inactivity >= maxInactivity) {
                         eventReceiver->timeoutEvent();
                         eventReceiver->disable();
-                        eventReceiver->suspend();
                     } else {
                         nextInactivityTimeout = std::min(maxInactivity - inactivity, nextInactivityTimeout);
                     }
@@ -176,7 +175,7 @@ namespace net {
                     if (observedEventReceiver[fd].empty()) {
                         observedEventReceiver.erase(fd);
                     }
-                    fdSet.clr(fd);
+                    fdSet.clr(fd, true);
                 } else {
                     fdSet.set(fd);
                     observedEventReceiver[fd].front()->setLastTriggered({time(nullptr), 0});

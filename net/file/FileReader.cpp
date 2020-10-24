@@ -65,6 +65,7 @@ void FileReader::readEvent() {
     if (ret > 0) {
         junkRead(junk, ret);
     } else {
+        ReadEventReceiver::disable();
         onError(ret == 0 ? 0 : errno);
     }
 }

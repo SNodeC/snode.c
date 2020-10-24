@@ -72,7 +72,6 @@ namespace net::socket::stream {
                 }
             } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
                 WriteEventReceiver::disable();
-                WriteEventReceiver::suspend();
                 onError(getError());
             }
         }
