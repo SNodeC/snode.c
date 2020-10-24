@@ -34,6 +34,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 using namespace net::socket::stream;
+using namespace net::socket::ip::address::ipv4;
 
 static http::ResponseParser* getResponseParser() {
     http::ResponseParser* responseParser = new http::ResponseParser(
@@ -165,7 +166,7 @@ tls::SocketClient<net::socket::ip::tcp::ipv4::Socket> getTlsClient() {
         },
         {{"certChain", CLIENTCERTF}, {"keyPEM", CLIENTKEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}});
 
-    net::socket::ip::address::ipv4::InetAddress remoteAddress("localhost", 8088);
+    InetAddress remoteAddress("localhost", 8088);
 
     tlsClient.connect(remoteAddress, [](int err) -> void {
         if (err) {
@@ -225,7 +226,7 @@ legacy::SocketClient<net::socket::ip::tcp::ipv4::Socket> getLegacyClient() {
         },
         {{}});
 
-    net::socket::ip::address::ipv4::InetAddress remoteAddress("localhost", 8080);
+    InetAddress remoteAddress("localhost", 8080);
 
     legacyClient.connect(remoteAddress, [](int err) -> void {
         if (err) {
@@ -242,7 +243,7 @@ int main(int argc, char* argv[]) {
     net::EventLoop::init(argc, argv);
 
     {
-        net::socket::ip::address::ipv4::InetAddress remoteAddress("localhost", 8080);
+        InetAddress remoteAddress("localhost", 8080);
 
         legacy::SocketClient legacyClient = getLegacyClient();
 
@@ -254,7 +255,7 @@ int main(int argc, char* argv[]) {
             }
         });
 
-        remoteAddress = net::socket::ip::address::ipv4::InetAddress("localhost", 8088);
+        remoteAddress = InetAddress("localhost", 8088);
 
         tls::SocketClient tlsClient = getTlsClient();
 
