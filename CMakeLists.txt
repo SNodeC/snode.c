@@ -95,15 +95,7 @@ file(
   ${CMAKE_SOURCE_DIR}/log/*.h)
 include("cmake/clang-cpp-checks.cmake")
 
-file(GLOB_RECURSE CMAKELISTS_TXT_FILES CMakeLists.txt)
-
-find_program(CMAKE_FORMAT "cmake-format")
-if(CLANG_FORMAT)
-  add_custom_target(
-    format-cmake
-    COMMAND ${CMAKE_FORMAT} -i ${CMAKELISTS_TXT_FILES}
-    COMMENT "Auto formatting of all CMakeLists.txt files")
-endif(CLANG_FORMAT)
+include("cmake/cmake-format.cmake")
 
 add_custom_target(
   uninstall
