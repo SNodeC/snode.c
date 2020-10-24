@@ -12,8 +12,9 @@ endif()
 # Adding clang-format check and formatter if found
 find_program(CLANG_FORMAT "clang-format")
 if(CLANG_FORMAT)
-  add_custom_target(
-    format
+  add_custom_command(
+    OUTPUT format-cmds
+    APPEND
     COMMAND ${CLANG_FORMAT} -i ${CHECK_CXX_SOURCE_FILES}
     COMMENT "Auto formatting of all source files")
 

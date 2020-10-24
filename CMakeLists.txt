@@ -77,6 +77,11 @@ if(BUILD_DOCUMENTATION)
   endif(DOXYGEN_FOUND)
 endif(BUILD_DOCUMENTATION)
 
+add_custom_target(format DEPENDS format-cmds)
+add_custom_command(OUTPUT format-cmds
+                   COMMENT "Auto formatting of all source and all cmake files")
+set_source_files_properties(test-cmd PROPERTIES SYMBOLIC "true")
+
 # Set the source files to clang - format
 file(
   GLOB_RECURSE
@@ -93,7 +98,6 @@ file(
   ${CMAKE_SOURCE_DIR}/utils/*.h
   ${CMAKE_SOURCE_DIR}/log/*.[tch]pp
   ${CMAKE_SOURCE_DIR}/log/*.h)
-include("cmake/clang-cpp-checks.cmake")
 
 include("cmake/cmake-format.cmake")
 
