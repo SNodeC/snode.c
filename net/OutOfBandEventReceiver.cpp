@@ -32,12 +32,14 @@ namespace net {
     }
 
     void OutOfBandEventReceiver::enable(long timeout) {
-        EventLoop::instance().getOutOfBandEventDispatcher().enable(this);
+        int fd = dynamic_cast<Descriptor*>(this)->getFd();
+        EventLoop::instance().getOutOfBandEventDispatcher().enable(this, fd);
         setTimeout(timeout);
     }
 
     void OutOfBandEventReceiver::disable() {
-        EventLoop::instance().getOutOfBandEventDispatcher().disable(this);
+        int fd = dynamic_cast<Descriptor*>(this)->getFd();
+        EventLoop::instance().getOutOfBandEventDispatcher().disable(this, fd);
     }
 
     void OutOfBandEventReceiver::suspend() {

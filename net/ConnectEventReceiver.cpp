@@ -32,12 +32,14 @@ namespace net {
     }
 
     void ConnectEventReceiver::enable(long timeout) {
-        EventLoop::instance().getConnectEventDispatcher().enable(this);
+        int fd = dynamic_cast<Descriptor*>(this)->getFd();
+        EventLoop::instance().getConnectEventDispatcher().enable(this, fd);
         setTimeout(timeout);
     }
 
     void ConnectEventReceiver::disable() {
-        EventLoop::instance().getConnectEventDispatcher().disable(this);
+        int fd = dynamic_cast<Descriptor*>(this)->getFd();
+        EventLoop::instance().getConnectEventDispatcher().disable(this, fd);
     }
 
     void ConnectEventReceiver::suspend() {

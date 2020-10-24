@@ -58,26 +58,26 @@ namespace net {
 
         EventDispatcher& operator=(const EventDispatcher&) = delete;
 
-        void enable(EventReceiver* eventReceiver) {
+        void enable(EventReceiver* eventReceiver, int fd) {
             if (disabledEventReceiver.contains(eventReceiver)) {
                 // same tick
                 disabledEventReceiver.erase(eventReceiver);
             } else if (!eventReceiver->isEnabled() && !enabledEventReceiver.contains(eventReceiver)) {
                 // normal
-                int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
+                //                int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
                 enabledEventReceiver.emplace(eventReceiver, fd);
                 eventReceiver->enabled();
             }
         }
 
-        void disable(EventReceiver* eventReceiver) {
+        void disable(EventReceiver* eventReceiver, int fd) {
             if (enabledEventReceiver.contains(eventReceiver)) {
                 // same tick
                 enabledEventReceiver.erase(eventReceiver);
                 eventReceiver->disable();
             } else if (eventReceiver->isEnabled() && !disabledEventReceiver.contains(eventReceiver)) {
                 // normal
-                int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
+                //                int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
                 disabledEventReceiver.emplace(eventReceiver, fd);
             }
         }
