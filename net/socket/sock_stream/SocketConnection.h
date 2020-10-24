@@ -96,9 +96,9 @@ namespace net::socket::stream {
         }
 
         void end(bool instantly = false) override {
-            SocketReader::disable();
+            SocketReader::disable(SocketReader::getFd());
             if (instantly) {
-                SocketWriter::disable();
+                SocketWriter::disable(SocketWriter::getFd());
             }
         }
 

@@ -64,7 +64,6 @@ namespace net {
                 disabledEventReceiver.erase(eventReceiver);
             } else if (!eventReceiver->isEnabled() && !enabledEventReceiver.contains(eventReceiver)) {
                 // normal
-                //                int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
                 enabledEventReceiver.emplace(eventReceiver, fd);
                 eventReceiver->enabled();
             }
@@ -74,10 +73,9 @@ namespace net {
             if (enabledEventReceiver.contains(eventReceiver)) {
                 // same tick
                 enabledEventReceiver.erase(eventReceiver);
-                eventReceiver->disable();
+                eventReceiver->disabled();
             } else if (eventReceiver->isEnabled() && !disabledEventReceiver.contains(eventReceiver)) {
                 // normal
-                //                int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
                 disabledEventReceiver.emplace(eventReceiver, fd);
             }
         }
@@ -86,7 +84,7 @@ namespace net {
             eventReceiver->suspended();
             int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
 
-            if (observedEventReceiver.find(fd) != observedEventReceiver.end() && observedEventReceiver[fd].front() == eventReceiver) {
+            if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
                 fdSet.clr(fd, true);
             }
         }
@@ -95,7 +93,7 @@ namespace net {
             eventReceiver->resumed();
             int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
 
-            if (observedEventReceiver.find(fd) != observedEventReceiver.end() && observedEventReceiver[fd].front() == eventReceiver) {
+            if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
                 fdSet.set(fd);
             }
         }
@@ -155,7 +153,7 @@ namespace net {
                     struct timeval inactivity = currentTime - eventReceiver->getLastTriggered();
                     if (inactivity >= maxInactivity) {
                         eventReceiver->timeoutEvent();
-                        eventReceiver->disable();
+                        eventReceiver->disable(fd);
                     } else {
                         nextInactivityTimeout = std::min(maxInactivity - inactivity, nextInactivityTimeout);
                     }

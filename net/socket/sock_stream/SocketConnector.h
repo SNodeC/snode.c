@@ -107,7 +107,7 @@ namespace net::socket::stream {
                                 int ret = ::connect(Socket::getFd(), &remoteAddress.getSockAddr(), remoteAddress.getSockAddrLen());
 
                                 if (ret == 0 || errno == EINPROGRESS) {
-                                    ConnectEventReceiver::enable();
+                                    ConnectEventReceiver::enable(Socket::getFd());
                                 } else {
                                     onError(errno);
                                     destruct();
@@ -133,7 +133,7 @@ namespace net::socket::stream {
 
             if (err == 0) {
                 if (cErrno != EINPROGRESS) {
-                    ConnectEventReceiver::disable();
+                    ConnectEventReceiver::disable(Socket::getFd());
 
                     if (cErrno == 0) {
                         typename Socket::SocketAddress::SockAddr localAddress{};
@@ -144,7 +144,7 @@ namespace net::socket::stream {
 
                         if (getsockname(Socket::getFd(), reinterpret_cast<sockaddr*>(&localAddress), &localAddressLength) == 0 &&
                             getpeername(Socket::getFd(), reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) == 0) {
-                            ReadEventReceiver::enable();
+                            ReadEventReceiver::enable(Socket::getFd());
 
                             socketConnection =
                                 new SocketConnection(onConstruct, onDestruct, onRead, onReadError, onWriteError, onDisconnect);
@@ -154,7 +154,7 @@ namespace net::socket::stream {
                             socketConnection->setRemoteAddress(typename Socket::SocketAddress(remoteAddress));
                             socketConnection->setLocalAddress(typename Socket::SocketAddress(localAddress));
 
-                            socketConnection->ReadEventReceiver::enable();
+                            socketConnection->ReadEventReceiver::enable(Socket::getFd());
 
                             onError(0);
                             onConnect(socketConnection);
@@ -167,13 +167,13 @@ namespace net::socket::stream {
                     }
                 }
             } else {
-                ConnectEventReceiver::disable();
+                ConnectEventReceiver::disable(Socket::getFd());
                 onError(errno);
             }
         }
 
         void readEvent() override {
-            ReadEventReceiver::disable();
+            ReadEventReceiver::disable(Socket::getFd());
         }
 
         void unobserved() override {

@@ -113,8 +113,8 @@ namespace net {
             lastTriggered = _lastTriggered;
         }
 
-        virtual void enable(long timeout) = 0;
-        virtual void disable() = 0;
+        virtual void enable(int fd, long timeout) = 0;
+        virtual void disable(int fd) = 0;
         /*
                 virtual void enable(int fd, long timeout) = 0;
                 virtual void disable(int fd) = 0;

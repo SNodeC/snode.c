@@ -31,14 +31,12 @@ namespace net {
         EventReceiver::setTimeout(timeout, EventLoop::instance().getAcceptEventDispatcher().getTimeout());
     }
 
-    void AcceptEventReceiver::enable(long timeout) {
-        int fd = dynamic_cast<Descriptor*>(this)->getFd();
+    void AcceptEventReceiver::enable(int fd, long timeout) {
         EventLoop::instance().getAcceptEventDispatcher().enable(this, fd);
         setTimeout(timeout);
     }
 
-    void AcceptEventReceiver::disable() {
-        int fd = dynamic_cast<Descriptor*>(this)->getFd();
+    void AcceptEventReceiver::disable(int fd) {
         EventLoop::instance().getAcceptEventDispatcher().disable(this, fd);
     }
 

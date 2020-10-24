@@ -56,11 +56,11 @@ namespace net::socket::stream::tls {
                             [](void) -> void {
                             },
                             [this](void) -> void {
-                                ReadEventReceiver::disable();
+                                ReadEventReceiver::disable(SocketReader::getFd());
                                 PLOG(ERROR) << "TLS handshake timeout";
                             },
                             [this]([[maybe_unused]] int sslErr) -> void {
-                                ReadEventReceiver::disable();
+                                ReadEventReceiver::disable(SocketReader::getFd());
                                 ssl_log_error("SSL/TLS handshake failed");
                             });
                         errno = EAGAIN;

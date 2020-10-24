@@ -33,7 +33,7 @@ FileReader::FileReader(int fd, const std::function<void(char* junk, int junkLen)
     : junkRead(junkRead)
     , onError(onError) {
     open(fd);
-    ReadEventReceiver::enable();
+    ReadEventReceiver::enable(fd);
 }
 
 FileReader::~FileReader() {
@@ -65,7 +65,7 @@ void FileReader::readEvent() {
     if (ret > 0) {
         junkRead(junk, ret);
     } else {
-        ReadEventReceiver::disable();
+        ReadEventReceiver::disable(getFd());
         onError(ret == 0 ? 0 : errno);
     }
 }

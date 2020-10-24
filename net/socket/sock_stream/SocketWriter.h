@@ -53,7 +53,7 @@ namespace net::socket::stream {
 
         void enqueue(const char* junk, size_t junkLen) {
             writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
-            WriteEventReceiver::enable();
+            WriteEventReceiver::enable(Socket::getFd());
         }
 
     private:
@@ -68,10 +68,10 @@ namespace net::socket::stream {
                 writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + ret);
 
                 if (writeBuffer.empty()) {
-                    WriteEventReceiver::disable();
+                    WriteEventReceiver::disable(Socket::getFd());
                 }
             } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
-                WriteEventReceiver::disable();
+                WriteEventReceiver::disable(Socket::getFd());
                 onError(getError());
             }
         }
