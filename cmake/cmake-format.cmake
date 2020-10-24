@@ -2,7 +2,8 @@
 
 find_program(CMAKE_FORMAT "cmake-format")
 if(CMAKE_FORMAT)
-  file(GLOB_RECURSE CMAKELISTS_TXT_FILES CMakeLists.txt cmake/*.cmake)
+  file(GLOB_RECURSE CMAKELISTS_TXT_FILES ${CMAKE_SOURCE_DIR}/CMakeLists.txt
+       ${CMAKE_SOURCE_DIR}/cmake/*.cmake)
   add_custom_command(
     OUTPUT format-cmds
     APPEND
