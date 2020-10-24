@@ -64,7 +64,6 @@ namespace net {
             if (contains(disabledEventReceiver, eventReceiver)) {
                 // same tick
                 disabledEventReceiver.remove(eventReceiver);
-                enabledEventReceiver.push_back(eventReceiver);
             } else if (!eventReceiver->isEnabled() && !contains(enabledEventReceiver, eventReceiver)) {
                 // normal
                 enabledEventReceiver.push_back(eventReceiver);
@@ -76,7 +75,7 @@ namespace net {
             if (contains(enabledEventReceiver, eventReceiver)) {
                 // same tick
                 enabledEventReceiver.remove(eventReceiver);
-                disabledEventReceiver.push_back(eventReceiver);
+                eventReceiver->disable();
             } else if (eventReceiver->isEnabled() && !contains(disabledEventReceiver, eventReceiver)) {
                 // normal
                 disabledEventReceiver.push_back(eventReceiver);
