@@ -254,7 +254,7 @@ int main(int argc, char* argv[]) {
             }
         });
 
-        net::socket::ip::address::ipv4::InetAddress SocketAddress("localhost", 8088);
+        remoteAddress = net::socket::ip::address::ipv4::InetAddress("localhost", 8088);
 
         tls::SocketClient tlsClient = getTlsClient();
 
