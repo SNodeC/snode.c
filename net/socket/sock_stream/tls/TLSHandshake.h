@@ -36,8 +36,7 @@ namespace net::socket::stream::tls {
 
     class TLSHandshake
         : public ReadEventReceiver
-        , public WriteEventReceiver
-        , public Descriptor {
+        , public WriteEventReceiver {
     public:
         TLSHandshake(SSL* ssl,
                      const std::function<void(void)>& onSuccess,

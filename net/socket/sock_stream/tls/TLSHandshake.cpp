@@ -39,7 +39,6 @@ namespace net::socket::stream::tls {
         WriteEventReceiver::setTimeout(TLSHANDSHAKE_TIMEOUT);
 
         fd = SSL_get_fd(ssl);
-        open(fd, FLAGS::dontClose);
 
         int ret = SSL_do_handshake(ssl);
         int sslErr = SSL_get_error(ssl, ret);
