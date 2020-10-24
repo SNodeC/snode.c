@@ -41,9 +41,7 @@ namespace net {
 
     template <typename EventReceiverT>
     static bool contains(std::list<EventReceiverT*>& eventReceivers, EventReceiverT*& eventReceiver) {
-        typename std::list<EventReceiverT*>::iterator it = std::find(eventReceivers.begin(), eventReceivers.end(), eventReceiver);
-
-        return it != eventReceivers.end();
+        return std::find(eventReceivers.begin(), eventReceivers.end(), eventReceiver) != eventReceivers.end();
     }
 
     template <typename EventReceiverT>
@@ -61,24 +59,26 @@ namespace net {
         EventDispatcher& operator=(const EventDispatcher&) = delete;
 
         void enable(EventReceiver* eventReceiver) {
-            if (contains(disabledEventReceiver, eventReceiver)) {
+            if (disabledEventReceiver.contains(eventReceiver)) {
                 // same tick
-                disabledEventReceiver.remove(eventReceiver);
-            } else if (!eventReceiver->isEnabled() && !contains(enabledEventReceiver, eventReceiver)) {
+                disabledEventReceiver.erase(eventReceiver);
+            } else if (!eventReceiver->isEnabled() && !enabledEventReceiver.contains(eventReceiver)) {
                 // normal
-                enabledEventReceiver.push_back(eventReceiver);
+                int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
+                enabledEventReceiver.emplace(eventReceiver, fd);
                 eventReceiver->enabled();
             }
         }
 
         void disable(EventReceiver* eventReceiver) {
-            if (contains(enabledEventReceiver, eventReceiver)) {
+            if (enabledEventReceiver.contains(eventReceiver)) {
                 // same tick
-                enabledEventReceiver.remove(eventReceiver);
+                enabledEventReceiver.erase(eventReceiver);
                 eventReceiver->disable();
-            } else if (eventReceiver->isEnabled() && !contains(disabledEventReceiver, eventReceiver)) {
+            } else if (eventReceiver->isEnabled() && !disabledEventReceiver.contains(eventReceiver)) {
                 // normal
-                disabledEventReceiver.push_back(eventReceiver);
+                int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
+                disabledEventReceiver.emplace(eventReceiver, fd);
             }
         }
 
@@ -122,8 +122,7 @@ namespace net {
         struct timeval observeEnabledEvents() {
             struct timeval nextTimeout = {LONG_MAX, 0};
 
-            for (EventReceiver* eventReceiver : enabledEventReceiver) {
-                int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
+            for (auto [eventReceiver, fd] : enabledEventReceiver) {
                 observedEventReceiver[fd].push_front(eventReceiver);
                 if (!eventReceiver->isSuspended()) {
                     fdSet.set(fd);
@@ -167,8 +166,7 @@ namespace net {
         }
 
         void unobserveDisabledEvents() {
-            for (EventReceiver* eventReceiver : disabledEventReceiver) {
-                int fd = dynamic_cast<Descriptor*>(eventReceiver)->getFd();
+            for (auto [eventReceiver, fd] : disabledEventReceiver) {
                 observedEventReceiver[fd].remove(eventReceiver);
                 if (observedEventReceiver[fd].empty() || observedEventReceiver[fd].front()->isSuspended()) {
                     if (observedEventReceiver[fd].empty()) {
@@ -197,15 +195,15 @@ namespace net {
         void disableObservedEvents() {
             for (auto& [fd, eventReceivers] : observedEventReceiver) {
                 for (EventReceiver* eventReceiver : eventReceivers) {
-                    disabledEventReceiver.push_back(eventReceiver);
+                    disabledEventReceiver.emplace(eventReceiver, fd);
                 }
             }
         }
 
         std::map<int, std::list<EventReceiver*>> observedEventReceiver;
 
-        std::list<EventReceiver*> enabledEventReceiver;
-        std::list<EventReceiver*> disabledEventReceiver;
+        std::multimap<EventReceiver*, int> enabledEventReceiver;
+        std::multimap<EventReceiver*, int> disabledEventReceiver;
         std::list<EventReceiver*> unobservedEventReceiver;
 
         FdSet& fdSet;
