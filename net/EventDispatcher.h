@@ -40,14 +40,27 @@ namespace net {
     class EventLoop;
 
     template <typename EventReceiverT>
-    static bool contains(std::list<EventReceiverT*>& eventReceivers, EventReceiverT*& eventReceiver) {
-        return std::find(eventReceivers.begin(), eventReceivers.end(), eventReceiver) != eventReceivers.end();
-    }
-
-    template <typename EventReceiverT>
     class EventDispatcher {
     public:
         using EventReceiver = EventReceiverT;
+
+        struct EventReceiverFdPair {
+            EventReceiverFdPair(EventReceiver* eventReceiver, int fd)
+                : eventReceiver(eventReceiver)
+                , fd(fd) {
+            }
+
+            bool operator==(const EventReceiver* eventReceiver) const {
+                return this->eventReceiver == eventReceiver;
+            }
+
+            EventReceiverT* eventReceiver;
+            int fd;
+        };
+
+        static bool contains(std::list<EventReceiverFdPair>& eventReceivers, EventReceiverT*& eventReceiver) {
+            return std::find(eventReceivers.begin(), eventReceivers.end(), eventReceiver) != eventReceivers.end();
+        }
 
         explicit EventDispatcher(FdSet& fdSet, long maxInactivity) // NOLINT(google-runtime-references)
             : fdSet(fdSet)
@@ -59,24 +72,28 @@ namespace net {
         EventDispatcher& operator=(const EventDispatcher&) = delete;
 
         void enable(EventReceiver* eventReceiver, int fd) {
-            if (disabledEventReceiver.contains(eventReceiver)) {
+            if (contains(disabledEventReceiver, eventReceiver)) {
                 // same tick
-                disabledEventReceiver.erase(eventReceiver);
-            } else if (!eventReceiver->isEnabled() && !enabledEventReceiver.contains(eventReceiver)) {
+                disabledEventReceiver.remove_if([eventReceiver](const EventReceiverFdPair& eventReceiverEntry) {
+                    return eventReceiverEntry.eventReceiver == eventReceiver;
+                });
+            } else if (!eventReceiver->isEnabled() && !contains(enabledEventReceiver, eventReceiver)) {
                 // normal
-                enabledEventReceiver.emplace(eventReceiver, fd);
+                enabledEventReceiver.push_back(EventReceiverFdPair(eventReceiver, fd));
                 eventReceiver->enabled();
             }
         }
 
         void disable(EventReceiver* eventReceiver, int fd) {
-            if (enabledEventReceiver.contains(eventReceiver)) {
+            if (contains(enabledEventReceiver, eventReceiver)) {
                 // same tick
-                enabledEventReceiver.erase(eventReceiver);
+                enabledEventReceiver.remove_if([eventReceiver](const EventReceiverFdPair& eventReceiverEntry) {
+                    return eventReceiverEntry.eventReceiver == eventReceiver;
+                });
                 eventReceiver->disabled();
-            } else if (eventReceiver->isEnabled() && !disabledEventReceiver.contains(eventReceiver)) {
+            } else if (eventReceiver->isEnabled() && !contains(disabledEventReceiver, eventReceiver)) {
                 // normal
-                disabledEventReceiver.emplace(eventReceiver, fd);
+                disabledEventReceiver.push_back(EventReceiverFdPair(eventReceiver, fd));
             }
         }
 
@@ -118,7 +135,10 @@ namespace net {
         struct timeval observeEnabledEvents() {
             struct timeval nextTimeout = {LONG_MAX, 0};
 
-            for (auto [eventReceiver, fd] : enabledEventReceiver) {
+            for (EventReceiverFdPair& eventReceiverEntry : enabledEventReceiver) {
+                EventReceiver* eventReceiver = eventReceiverEntry.eventReceiver;
+                int fd = eventReceiverEntry.fd;
+
                 observedEventReceiver[fd].push_front(eventReceiver);
                 if (!eventReceiver->isSuspended()) {
                     fdSet.set(fd);
@@ -162,7 +182,10 @@ namespace net {
         }
 
         void unobserveDisabledEvents() {
-            for (auto [eventReceiver, fd] : disabledEventReceiver) {
+            for (EventReceiverFdPair& eventReceiverEntry : disabledEventReceiver) {
+                EventReceiver* eventReceiver = eventReceiverEntry.eventReceiver;
+                int fd = eventReceiverEntry.fd;
+
                 observedEventReceiver[fd].remove(eventReceiver);
                 if (observedEventReceiver[fd].empty() || observedEventReceiver[fd].front()->isSuspended()) {
                     if (observedEventReceiver[fd].empty()) {
@@ -191,15 +214,15 @@ namespace net {
         void disableObservedEvents() {
             for (auto& [fd, eventReceivers] : observedEventReceiver) {
                 for (EventReceiver* eventReceiver : eventReceivers) {
-                    disabledEventReceiver.emplace(eventReceiver, fd);
+                    disabledEventReceiver.push_back(EventReceiverFdPair(eventReceiver, fd));
                 }
             }
         }
 
         std::map<int, std::list<EventReceiver*>> observedEventReceiver;
 
-        std::multimap<EventReceiver*, int> enabledEventReceiver;
-        std::multimap<EventReceiver*, int> disabledEventReceiver;
+        std::list<EventReceiverFdPair> enabledEventReceiver;
+        std::list<EventReceiverFdPair> disabledEventReceiver;
 
         std::list<EventReceiver*> unobservedEventReceiver;
 
