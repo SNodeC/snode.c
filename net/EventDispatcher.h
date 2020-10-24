@@ -44,6 +44,7 @@ namespace net {
     public:
         using EventReceiver = EventReceiverT;
 
+    private:
         struct EventReceiverFdPair {
             EventReceiverFdPair(EventReceiver* eventReceiver, int fd)
                 : eventReceiver(eventReceiver)
@@ -62,6 +63,7 @@ namespace net {
             return std::find(eventReceivers.begin(), eventReceivers.end(), eventReceiver) != eventReceivers.end();
         }
 
+    public:
         explicit EventDispatcher(FdSet& fdSet, long maxInactivity) // NOLINT(google-runtime-references)
             : fdSet(fdSet)
             , maxInactivity(maxInactivity) {
