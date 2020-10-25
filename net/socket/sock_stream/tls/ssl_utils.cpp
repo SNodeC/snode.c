@@ -113,6 +113,7 @@ namespace net::socket::stream::tls {
 
     void ssl_log_error(const std::string& message) {
         PLOG(ERROR) << message;
+
         long errorCode;
         while ((errorCode = ERR_get_error()) != 0) {
             LOG(ERROR) << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
@@ -121,6 +122,7 @@ namespace net::socket::stream::tls {
 
     void ssl_log_warning(const std::string& message) {
         PLOG(WARNING) << message;
+
         long errorCode;
         while ((errorCode = ERR_get_error()) != 0) {
             LOG(WARNING) << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
