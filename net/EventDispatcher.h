@@ -26,7 +26,6 @@
 #include <ctime>
 #include <list>
 #include <map>
-#include <memory>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

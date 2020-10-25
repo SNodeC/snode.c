@@ -22,11 +22,11 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
+#include <sys/time.h> // for timeval
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "TimerEventReceiver.h"
-#include "Timeval.h"
 
 namespace net {
 

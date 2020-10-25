@@ -26,6 +26,7 @@
 #include "IntervalTimer.h"
 #include "SingleshotTimer.h"
 #include "TimerEventDispatcher.h" // for ManagedTimer
+#include "Timeval.h"              // for operator+
 
 namespace net::timer {
 

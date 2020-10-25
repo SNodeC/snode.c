@@ -22,6 +22,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <climits>
+#include <sys/time.h> // for timeval
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -31,7 +32,6 @@
 #include "OutOfBandEventDispatcher.h"
 #include "ReadEventDispatcher.h"
 #include "TimerEventDispatcher.h"
-#include "Timeval.h"
 #include "WriteEventDispatcher.h"
 
 namespace net {
