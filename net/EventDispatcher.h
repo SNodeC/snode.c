@@ -26,6 +26,7 @@
 #include <ctime>
 #include <list>
 #include <map>
+#include <memory>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -45,9 +46,16 @@ namespace net {
         using EventReceiver = EventReceiverT;
 
     private:
-        static bool contains(std::list<EventReceiver*>& eventReceivers, EventReceiver* eventReceiver) {
-            return std::find(eventReceivers.begin(), eventReceivers.end(), eventReceiver) != eventReceivers.end();
-        }
+        class EventReceiverList : public std::list<EventReceiver*> {
+        public:
+            using std::list<EventReceiver*>::front;
+            using std::list<EventReceiver*>::begin;
+            using std::list<EventReceiver*>::end;
+
+            bool contains(EventReceiver* eventReceiver) {
+                return std::find(std::list<EventReceiver*>::begin(), end(), eventReceiver) != end();
+            }
+        };
 
     public:
         explicit EventDispatcher(FdSet& fdSet, long maxInactivity) // NOLINT(google-runtime-references)
@@ -60,11 +68,11 @@ namespace net {
         EventDispatcher& operator=(const EventDispatcher&) = delete;
 
         void enable(EventReceiver* eventReceiver, int fd) {
-            if (contains(disabledEventReceiver[fd], eventReceiver)) {
+            if (disabledEventReceiver[fd].contains(eventReceiver)) {
                 // same tick
                 disabledEventReceiver[fd].remove(eventReceiver);
             } else if (!eventReceiver->isEnabled() &&
-                       (!enabledEventReceiver.contains(fd) || !contains(enabledEventReceiver[fd], eventReceiver))) {
+                       (!enabledEventReceiver.contains(fd) || !enabledEventReceiver[fd].contains(eventReceiver))) {
                 // normal
                 enabledEventReceiver[fd].push_back(eventReceiver);
                 eventReceiver->enabled(fd);
@@ -74,12 +82,12 @@ namespace net {
         }
 
         void disable(EventReceiver* eventReceiver, int fd) {
-            if (contains(enabledEventReceiver[fd], eventReceiver)) {
+            if (enabledEventReceiver[fd].contains(eventReceiver)) {
                 // same tick
                 enabledEventReceiver[fd].remove(eventReceiver);
                 eventReceiver->disabled();
             } else if (eventReceiver->isEnabled() &&
-                       (!disabledEventReceiver.contains(fd) || !contains(disabledEventReceiver[fd], eventReceiver))) {
+                       (!disabledEventReceiver.contains(fd) || !disabledEventReceiver[fd].contains(eventReceiver))) {
                 // normal
                 disabledEventReceiver[fd].push_back(eventReceiver);
             } else {
@@ -90,7 +98,6 @@ namespace net {
         void suspend(EventReceiver* eventReceiver, int fd) {
             if (!eventReceiver->isSuspended()) {
                 eventReceiver->suspended();
-
                 if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
                     fdSet.clr(fd, true);
                 }
@@ -102,7 +109,6 @@ namespace net {
         void resume(EventReceiver* eventReceiver, int fd) {
             if (eventReceiver->isSuspended()) {
                 eventReceiver->resumed();
-
                 if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
                     fdSet.set(fd);
                 }
@@ -214,12 +220,11 @@ namespace net {
                     disabledEventReceiver[fd].push_back(eventReceiver);
                 }
             }
-            observedEventReceiver.clear();
         }
 
-        std::map<int, std::list<EventReceiver*>> enabledEventReceiver;
-        std::map<int, std::list<EventReceiver*>> observedEventReceiver;
-        std::map<int, std::list<EventReceiver*>> disabledEventReceiver;
+        std::map<int, EventReceiverList> enabledEventReceiver;
+        std::map<int, EventReceiverList> observedEventReceiver;
+        std::map<int, EventReceiverList> disabledEventReceiver;
         std::list<EventReceiver*> unobservedEventReceiver;
 
         FdSet& fdSet;
