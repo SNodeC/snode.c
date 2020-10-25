@@ -41,10 +41,10 @@ namespace net {
         void setTimeout(long timeout = TIMEOUT::DEFAULT);
 
         void enable(int fd, long timeout = TIMEOUT::IGNORE) override;
-        void disable(int fd) override;
+        void disable() override;
 
-        void suspend(int fd) override;
-        void resume(int fd) override;
+        void suspend() override;
+        void resume() override;
 
         template <typename ReadEventReceiver>
         friend class EventDispatcher;

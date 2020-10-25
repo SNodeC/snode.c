@@ -75,19 +75,23 @@ namespace net {
             return _suspended;
         }
 
+        int fd = -1;
+
     private:
         virtual void dispatchEvent() = 0;
 
         virtual void timeoutEvent() {
         }
 
-        void enabled() {
+        void enabled(int fd) {
+            this->fd = fd;
             ObservationCounter::observationCounter++;
             _enabled = true;
             lastTriggered = {time(nullptr), 0};
         }
 
         void disabled() {
+            this->fd = -1;
             ObservationCounter::observationCounter--;
             _enabled = false;
         }
@@ -114,10 +118,10 @@ namespace net {
         }
 
         virtual void enable(int fd, long timeout) = 0;
-        virtual void disable(int fd) = 0;
+        virtual void disable() = 0;
 
-        virtual void suspend(int fd) = 0;
-        virtual void resume(int fd) = 0;
+        virtual void suspend() = 0;
+        virtual void resume() = 0;
 
         virtual void unobserved() = 0;
 

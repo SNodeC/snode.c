@@ -36,15 +36,15 @@ namespace net {
         setTimeout(timeout);
     }
 
-    void ConnectEventReceiver::disable(int fd) {
+    void ConnectEventReceiver::disable() {
         EventLoop::instance().getConnectEventDispatcher().disable(this, fd);
     }
 
-    void ConnectEventReceiver::suspend(int fd) {
+    void ConnectEventReceiver::suspend() {
         EventLoop::instance().getConnectEventDispatcher().suspend(this, fd);
     }
 
-    void ConnectEventReceiver::resume(int fd) {
+    void ConnectEventReceiver::resume() {
         EventLoop::instance().getConnectEventDispatcher().resume(this, fd);
     }
 

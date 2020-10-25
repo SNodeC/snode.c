@@ -68,15 +68,15 @@ namespace net::socket::stream::tls {
             case SSL_ERROR_WANT_READ:
                 break;
             case SSL_ERROR_WANT_WRITE:
-                ReadEventReceiver::disable(fd);
+                ReadEventReceiver::disable();
                 WriteEventReceiver::enable(fd);
                 break;
             case SSL_ERROR_NONE:
-                ReadEventReceiver::disable(fd);
+                ReadEventReceiver::disable();
                 onSuccess();
                 break;
             default:
-                ReadEventReceiver::disable(fd);
+                ReadEventReceiver::disable();
                 onError(-sslErr);
                 break;
         }
@@ -88,25 +88,25 @@ namespace net::socket::stream::tls {
 
         switch (sslErr) {
             case SSL_ERROR_WANT_READ:
-                WriteEventReceiver::disable(fd);
+                WriteEventReceiver::disable();
                 ReadEventReceiver::enable(fd);
                 break;
             case SSL_ERROR_WANT_WRITE:
                 break;
             case SSL_ERROR_NONE:
-                ReadEventReceiver::disable(fd);
+                ReadEventReceiver::disable();
                 onSuccess();
                 break;
             default:
-                WriteEventReceiver::disable(fd);
+                WriteEventReceiver::disable();
                 onError(-sslErr);
                 break;
         }
     }
 
     void TLSHandshake::timeoutEvent() {
-        ReadEventReceiver::suspend(fd);
-        WriteEventReceiver::suspend(fd);
+        ReadEventReceiver::suspend();
+        WriteEventReceiver::suspend();
         onTimeout();
     }
 

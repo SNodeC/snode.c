@@ -63,27 +63,27 @@ namespace net::socket::stream {
                           SSL* ssl = socketConnection->startSSL(ctx);
 
                           if (ssl != nullptr) {
-                              socketConnection->ReadEventReceiver::suspend(socketConnection->getFd());
+                              socketConnection->ReadEventReceiver::suspend();
 
                               SSL_set_accept_state(ssl);
 
                               TLSHandshake::doHandshake(
                                   ssl,
                                   [&onConnect, socketConnection](void) -> void { // onSuccess
-                                      socketConnection->ReadEventReceiver::resume(socketConnection->getFd());
+                                      socketConnection->ReadEventReceiver::resume();
                                       onConnect(socketConnection);
                                   },
                                   [socketConnection](void) -> void { // onTimeout
                                       PLOG(ERROR) << "SSL/TLS handshake timeout";
-                                      socketConnection->ReadEventReceiver::disable(socketConnection->getFd());
+                                      socketConnection->ReadEventReceiver::disable();
                                   },
                                   [socketConnection]([[maybe_unused]] int sslErr) -> void { // onError
                                       ssl_log_error("SSL/TLS handshake failed");
                                       socketConnection->setSSLError(-sslErr);
-                                      socketConnection->ReadEventReceiver::disable(socketConnection->getFd());
+                                      socketConnection->ReadEventReceiver::disable();
                                   });
                           } else {
-                              socketConnection->ReadEventReceiver::disable(socketConnection->getFd());
+                              socketConnection->ReadEventReceiver::disable();
                               ssl_log_error("SSL/TLS initialization failed");
                           }
                       },

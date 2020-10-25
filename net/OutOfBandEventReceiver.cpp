@@ -36,15 +36,15 @@ namespace net {
         setTimeout(timeout);
     }
 
-    void OutOfBandEventReceiver::disable(int fd) {
+    void OutOfBandEventReceiver::disable() {
         EventLoop::instance().getOutOfBandEventDispatcher().disable(this, fd);
     }
 
-    void OutOfBandEventReceiver::suspend(int fd) {
+    void OutOfBandEventReceiver::suspend() {
         EventLoop::instance().getOutOfBandEventDispatcher().suspend(this, fd);
     }
 
-    void OutOfBandEventReceiver::resume(int fd) {
+    void OutOfBandEventReceiver::resume() {
         EventLoop::instance().getOutOfBandEventDispatcher().resume(this, fd);
     }
 

@@ -36,15 +36,15 @@ namespace net {
         setTimeout(timeout);
     }
 
-    void AcceptEventReceiver::disable(int fd) {
+    void AcceptEventReceiver::disable() {
         EventLoop::instance().getAcceptEventDispatcher().disable(this, fd);
     }
 
-    void AcceptEventReceiver::suspend(int fd) {
+    void AcceptEventReceiver::suspend() {
         EventLoop::instance().getAcceptEventDispatcher().suspend(this, fd);
     }
 
-    void AcceptEventReceiver::resume(int fd) {
+    void AcceptEventReceiver::resume() {
         EventLoop::instance().getAcceptEventDispatcher().resume(this, fd);
     }
 

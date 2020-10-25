@@ -95,10 +95,10 @@ namespace net::socket::stream {
             enqueue(data.c_str(), data.size());
         }
 
-        void end(bool instantly = false) override {
-            SocketReader::disable(SocketReader::getFd());
+        void close(bool instantly = false) final {
+            SocketReader::disable();
             if (instantly) {
-                SocketWriter::disable(SocketWriter::getFd());
+                SocketWriter::disable();
             }
         }
 

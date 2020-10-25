@@ -38,7 +38,7 @@ namespace net::socket::stream {
         virtual void enqueue(const char* junk, size_t junkLen) = 0;
         virtual void enqueue(const std::string& data) = 0;
 
-        virtual void end(bool instantly = false) = 0;
+        virtual void close(bool instantly = false) = 0;
 
         template <utils::InjectableAttribute Attribute>
         constexpr void setContext(Attribute& attribute) const {

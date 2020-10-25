@@ -133,7 +133,7 @@ namespace net::socket::stream {
 
             if (err == 0) {
                 if (cErrno != EINPROGRESS) {
-                    ConnectEventReceiver::disable(Socket::getFd());
+                    ConnectEventReceiver::disable();
 
                     if (cErrno == 0) {
                         typename Socket::SocketAddress::SockAddr localAddress{};
@@ -167,13 +167,13 @@ namespace net::socket::stream {
                     }
                 }
             } else {
-                ConnectEventReceiver::disable(Socket::getFd());
+                ConnectEventReceiver::disable();
                 onError(errno);
             }
         }
 
         void readEvent() override {
-            ReadEventReceiver::disable(Socket::getFd());
+            ReadEventReceiver::disable();
         }
 
         void unobserved() override {
