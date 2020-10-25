@@ -105,7 +105,6 @@ namespace net {
 
                 if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
                     fdSet.set(fd);
-                    eventReceiver->triggered();
                 }
             } else {
                 LOG(WARNING) << "EventReceiver double resume";

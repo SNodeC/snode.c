@@ -102,6 +102,7 @@ namespace net {
 
         void resumed() {
             _suspended = false;
+            lastTriggered = {time(nullptr), 0};
         }
 
         struct timeval getTimeout() const {
