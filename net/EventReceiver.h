@@ -102,7 +102,6 @@ namespace net {
 
         void resumed() {
             _suspended = false;
-            lastTriggered = {time(nullptr), 0};
         }
 
         struct timeval getTimeout() const {
@@ -113,7 +112,7 @@ namespace net {
             return lastTriggered;
         }
 
-        void setLastTriggered(struct timeval _lastTriggered) {
+        void triggered(struct timeval _lastTriggered = {time(nullptr), 0}) {
             lastTriggered = _lastTriggered;
         }
 

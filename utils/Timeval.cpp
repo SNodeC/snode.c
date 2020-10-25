@@ -16,6 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <sys/time.h> // IWYU pragma: export
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 #include "Timeval.h"
 
 bool operator<(const struct timeval& tv1, const struct timeval& tv2) {

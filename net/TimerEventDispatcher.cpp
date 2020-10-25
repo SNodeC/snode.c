@@ -20,7 +20,8 @@
 
 #include <algorithm> // for copy
 #include <climits>
-#include <iterator> // for back_insert_iterator, back_inserter
+#include <iterator>   // for back_insert_iterator, back_inserter
+#include <sys/time.h> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

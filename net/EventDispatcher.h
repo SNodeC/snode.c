@@ -105,6 +105,7 @@ namespace net {
 
                 if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
                     fdSet.set(fd);
+                    eventReceiver->triggered();
                 }
             } else {
                 LOG(WARNING) << "EventReceiver double resume";
@@ -162,7 +163,7 @@ namespace net {
                 if (fdSet.isSet(fd)) {
                     eventCounter++;
                     eventReceiver->dispatchEvent();
-                    eventReceiver->setLastTriggered(currentTime);
+                    eventReceiver->triggered(currentTime);
                     nextInactivityTimeout = std::min(nextInactivityTimeout, maxInactivity);
                 } else {
                     struct timeval inactivity = currentTime - eventReceiver->getLastTriggered();
@@ -189,7 +190,7 @@ namespace net {
                         fdSet.clr(fd, true);
                     } else {
                         fdSet.set(fd);
-                        observedEventReceiver[fd].front()->setLastTriggered({time(nullptr), 0});
+                        observedEventReceiver[fd].front()->triggered();
                     }
                     eventReceiver->disabled();
                     if (eventReceiver->observationCounter == 0) {
