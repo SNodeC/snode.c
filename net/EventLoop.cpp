@@ -51,10 +51,10 @@ namespace net {
 
     EventLoop EventLoop::eventLoop;
 
+    bool EventLoop::initialized = false;
     bool EventLoop::running = false;
     bool EventLoop::stopped = true;
     int EventLoop::stopsig = 0;
-    bool EventLoop::initialized = false;
 
     EventLoop::EventLoop()
         : readEventDispatcher(readFdSet, MAX_READ_INACTIVITY)
