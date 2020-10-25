@@ -80,6 +80,8 @@ namespace http {
     private:
         std::function<void(Request& req, Response& res)> onRequestCompleted;
 
+        void reset();
+
         RequestParser parser;
 
         bool connectionTerminated = false;
