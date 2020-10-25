@@ -52,7 +52,7 @@ namespace net {
             using std::list<EventReceiver*>::end;
 
             bool contains(EventReceiver* eventReceiver) {
-                return std::find(std::list<EventReceiver*>::begin(), end(), eventReceiver) != end();
+                return std::find(begin(), end(), eventReceiver) != end();
             }
         };
 
