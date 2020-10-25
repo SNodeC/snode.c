@@ -81,6 +81,8 @@ namespace http {
         std::function<void(Request& req, Response& res)> onRequestCompleted;
 
         RequestParser parser;
+
+        bool connectionTerminated = false;
     };
 
 } // namespace http

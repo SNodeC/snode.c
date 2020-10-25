@@ -73,7 +73,7 @@ namespace http {
               [this](int status, const std::string& reason) -> void {
                   VLOG(1) << "++ Error: " << status << " : " << reason;
                   response.status(status).send(reason);
-                  this->socketConnection->close();
+                  terminateConnection();
               }) {
         parser.reset();
         request.reset();
@@ -134,7 +134,10 @@ namespace http {
 
     template <typename Request, typename Response>
     void ServerContext<Request, Response>::terminateConnection() {
-        socketConnection->close();
+        if (!connectionTerminated) {
+            socketConnection->close();
+            connectionTerminated = true;
+        }
     }
 
 } // namespace http
