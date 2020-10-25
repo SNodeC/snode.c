@@ -104,7 +104,7 @@ namespace net::socket::stream::tls {
         }
     }
 
-    void TLSHandshake::timeoutEvent() {
+    void TLSHandshake::timeout() {
         ReadEventReceiver::suspend();
         WriteEventReceiver::suspend();
         onTimeout();

@@ -80,7 +80,7 @@ namespace net {
     private:
         virtual void dispatchEvent() = 0;
 
-        virtual void timeoutEvent() {
+        virtual void timeout() {
         }
 
         void enabled(int fd) {
