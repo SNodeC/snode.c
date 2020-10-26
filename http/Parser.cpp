@@ -24,7 +24,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Logger.h"
 #include "Parser.h"
 #include "http_utils.h"
 

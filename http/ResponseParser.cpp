@@ -23,7 +23,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Logger.h"
 #include "ResponseParser.h"
 #include "http_utils.h"
 

@@ -27,7 +27,6 @@
 #define MFREADSIZE 16384
 
 #include "FileReader.h"
-#include "Logger.h"
 
 FileReader::FileReader(int fd, const std::function<void(char* junk, int junkLen)>& junkRead, const std::function<void(int err)>& onError)
     : junkRead(junkRead)
