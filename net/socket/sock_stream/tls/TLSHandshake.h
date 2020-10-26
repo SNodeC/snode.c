@@ -29,8 +29,6 @@
 #include "ReadEventReceiver.h"
 #include "WriteEventReceiver.h"
 
-#define TLSHANDSHAKE_TIMEOUT 10
-
 namespace net::socket::stream::tls {
 
     class TLSHandshake

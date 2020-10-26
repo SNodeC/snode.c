@@ -25,6 +25,8 @@
 
 #include "TLSHandshake.h"
 
+#define TLSHANDSHAKE_TIMEOUT 10
+
 namespace net::socket::stream::tls {
 
     TLSHandshake::TLSHandshake(SSL* ssl,
