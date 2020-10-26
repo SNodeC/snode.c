@@ -59,6 +59,7 @@ namespace net::socket::stream::tls {
             default:
                 onError(-sslErr);
                 delete this;
+                break;
         }
     }
 
