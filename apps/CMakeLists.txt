@@ -71,6 +71,23 @@ if(CHECK_INCLUDES)
     )
 endif(CHECK_INCLUDES)
 
+add_executable(simpleserver6clientcert simpleserver6clientcert.cpp)
+target_compile_options(simpleserver6clientcert PRIVATE --warn-all)
+target_link_libraries(simpleserver6clientcert LINK_PUBLIC express)
+install(TARGETS simpleserver6clientcert RUNTIME DESTINATION bin)
+set_target_properties(
+    simpleserver6clientcert
+    PROPERTIES CXX_STANDARD 20
+               CXX_STANDARD_REQUIRED ON
+               CXX_EXTENSIONS OFF
+)
+if(CHECK_INCLUDES)
+    set_property(
+        TARGET simpleserver6clientcert PROPERTY CXX_INCLUDE_WHAT_YOU_USE
+                                                ${iwyu_path_and_options}
+    )
+endif(CHECK_INCLUDES)
+
 add_executable(verysimpleserver verysimpleserver.cpp)
 target_compile_options(verysimpleserver PRIVATE --warn-all)
 target_link_libraries(verysimpleserver LINK_PUBLIC express)
@@ -168,6 +185,23 @@ if(CHECK_INCLUDES)
     set_property(
         TARGET client6 PROPERTY CXX_INCLUDE_WHAT_YOU_USE
                                 ${iwyu_path_and_options}
+    )
+endif(CHECK_INCLUDES)
+
+add_executable(client6clientcert client6clientcert.cpp)
+target_compile_options(client6clientcert PRIVATE --warn-all)
+target_link_libraries(client6clientcert LINK_PUBLIC http)
+install(TARGETS client6clientcert RUNTIME DESTINATION bin)
+set_target_properties(
+    client6clientcert
+    PROPERTIES CXX_STANDARD 20
+               CXX_STANDARD_REQUIRED ON
+               CXX_EXTENSIONS OFF
+)
+if(CHECK_INCLUDES)
+    set_property(
+        TARGET client6clientcert PROPERTY CXX_INCLUDE_WHAT_YOU_USE
+                                          ${iwyu_path_and_options}
     )
 endif(CHECK_INCLUDES)
 
