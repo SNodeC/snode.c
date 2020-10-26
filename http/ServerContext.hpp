@@ -41,16 +41,16 @@ namespace http {
                      const std::string& url,
                      const std::string& httpVersion,
                      const std::map<std::string, std::string>& queries) -> void {
-                  VLOG(1) << "++ Request: " << method << " " << url << " " << httpVersion;
+                  VLOG(3) << "++ Request: " << method << " " << url << " " << httpVersion;
                   request.method = method;
                   request.url = url;
                   request.queries = &queries;
                   request.httpVersion = httpVersion;
               },
               [this](const std::map<std::string, std::string>& header, const std::map<std::string, std::string>& cookies) -> void {
-                  VLOG(1) << "++ Header:";
+                  VLOG(3) << "++ Header:";
                   request.headers = &header;
-                  VLOG(1) << "++ Cookies";
+                  VLOG(3) << "++ Cookies";
                   request.cookies = &cookies;
 
                   for (auto [field, value] : header) {
@@ -60,18 +60,18 @@ namespace http {
                   }
               },
               [this](char* content, size_t contentLength) -> void {
-                  VLOG(1) << "++ Content: " << contentLength;
+                  VLOG(3) << "++ Content: " << contentLength;
                   request.body = content;
                   request.contentLength = contentLength;
               },
               [this, onRequestReady]() -> void {
-                  VLOG(1) << "++ Parsed ++";
+                  VLOG(3) << "++ Parsed ++";
                   requestInProgress = true;
                   request.extend();
                   onRequestReady(request, response);
               },
               [this](int status, const std::string& reason) -> void {
-                  VLOG(1) << "++ Error: " << status << " : " << reason;
+                  VLOG(3) << "++ Error: " << status << " : " << reason;
                   response.status(status).send(reason);
                   terminateConnection();
               }) {

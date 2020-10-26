@@ -103,7 +103,6 @@ namespace http {
 
     enum Parser::ParserState RequestParser::parseHeader() {
         for (auto& [field, value] : Parser::headers) {
-            VLOG(2) << "++ Parse header field: " << field << " = " << value;
             if (field != "cookie") {
                 if (field == "content-length") {
                     Parser::contentLength = std::stoi(value);
@@ -124,8 +123,6 @@ namespace http {
                         std::tie(name, value) = httputils::str_split(cookie, '=');
                         httputils::str_trimm(name);
                         httputils::str_trimm(value);
-
-                        VLOG(2) << "++ Cookie: " << name << " = " << value;
 
                         cookies.insert({name, value});
                     }
