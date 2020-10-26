@@ -75,6 +75,9 @@ namespace net {
                 // normal
                 enabledEventReceiver[fd].push_back(eventReceiver);
                 eventReceiver->enabled(fd);
+                if (unobservedEventReceiver.contains(eventReceiver)) {
+                    unobservedEventReceiver.remove(eventReceiver);
+                }
             } else {
                 LOG(WARNING) << "EventReceiver double enable";
             }
@@ -85,6 +88,9 @@ namespace net {
                 // same tick
                 enabledEventReceiver[fd].remove(eventReceiver);
                 eventReceiver->disabled();
+                if (eventReceiver->observationCounter == 0) {
+                    unobservedEventReceiver.push_back(eventReceiver);
+                }
             } else if (eventReceiver->isEnabled() &&
                        (!disabledEventReceiver.contains(fd) || !disabledEventReceiver[fd].contains(eventReceiver))) {
                 // normal
@@ -224,7 +230,7 @@ namespace net {
         std::map<int, EventReceiverList> enabledEventReceiver;
         std::map<int, EventReceiverList> observedEventReceiver;
         std::map<int, EventReceiverList> disabledEventReceiver;
-        std::list<EventReceiver*> unobservedEventReceiver;
+        EventReceiverList unobservedEventReceiver;
 
         FdSet& fdSet;
 
