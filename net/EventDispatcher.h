@@ -47,9 +47,9 @@ namespace net {
     private:
         class EventReceiverList : public std::list<EventReceiver*> {
         public:
-            using std::list<EventReceiver*>::front;
             using std::list<EventReceiver*>::begin;
             using std::list<EventReceiver*>::end;
+            using std::list<EventReceiver*>::front;
 
             bool contains(EventReceiver* eventReceiver) {
                 return std::find(begin(), end(), eventReceiver) != end();
