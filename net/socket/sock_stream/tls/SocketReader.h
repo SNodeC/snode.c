@@ -51,9 +51,11 @@ namespace net::socket::stream::tls {
                 switch (sslErr) {
                     case SSL_ERROR_WANT_WRITE:
                     case SSL_ERROR_WANT_READ:
+                        ReadEventReceiver::suspend();
                         TLSHandshake::doHandshake(
                             ssl,
-                            [](void) -> void {
+                            [this](void) -> void {
+                                ReadEventReceiver::resume();
                             },
                             [this](void) -> void {
                                 ReadEventReceiver::disable();
@@ -83,7 +85,7 @@ namespace net::socket::stream::tls {
         int getError() override {
             int ret = errno;
 
-            if (sslErr != SSL_ERROR_SYSCALL) {
+            if (sslErr != SSL_ERROR_SYSCALL && sslErr != SSL_ERROR_ZERO_RETURN) {
                 ret = -sslErr;
             }
             sslErr = 0;
