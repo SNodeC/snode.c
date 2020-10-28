@@ -38,14 +38,14 @@ void Logger::init(int argc, char* argv[]) {
 
     el::Loggers::reconfigureAllLoggers(conf);
 
-    setLevel(6);
+    setLogLevel(6);
 }
 
 void Logger::setCustomFormatSpec(const char* format, const el::FormatSpecifierValueResolver& resolver) {
     el::Helpers::installCustomFormatSpecifier(el::CustomFormatSpecifier(format, resolver));
 }
 
-void Logger::setLevel(int level) {
+void Logger::setLogLevel(int level) {
     conf.set(el::Level::Trace, el::ConfigurationType::Enabled, "false");
     conf.set(el::Level::Debug, el::ConfigurationType::Enabled, "false");
     conf.set(el::Level::Info, el::ConfigurationType::Enabled, "false");
@@ -77,6 +77,10 @@ void Logger::setLevel(int level) {
     };
 
     el::Loggers::reconfigureLogger("default", conf);
+}
+
+void Logger::setVerboseLevel(int level) {
+    el::Loggers::setVerboseLevel(level);
 }
 
 void Logger::logToFile(bool yes) {

@@ -35,7 +35,9 @@ public:
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
     static void init(int argc, char* argv[]);
 
-    static void setLevel(int level);
+    static void setLogLevel(int level);
+
+    static void setVerboseLevel(int level);
 
     static void logToFile(bool yes = true);
 
