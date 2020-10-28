@@ -34,7 +34,7 @@
 using namespace express;
 using json = nlohmann::json;
 
-int main(int argc, char** argv) {
+int main(int argc, char* argv[]) {
     WebApp::init(argc, argv);
 
     tls::WebApp tlsApp;

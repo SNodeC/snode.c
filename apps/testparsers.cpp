@@ -38,7 +38,7 @@ namespace http {
 
 using namespace http;
 
-int main(int argc, char** argv) {
+int main(int argc, char* argv[]) {
     Logger::init(argc, argv);
 
     RequestParser requestParser(

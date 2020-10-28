@@ -105,7 +105,7 @@ Router router() {
     return router;
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char* argv[]) {
     WebApp::init(argc, argv);
 
     legacy::WebApp legacyApp;

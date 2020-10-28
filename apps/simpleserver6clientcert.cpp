@@ -38,7 +38,9 @@ Router getRouter() {
     return router;
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char* argv[]) {
+    Logger::setVerboseLevel(2);
+
     WebApp::init(argc, argv);
 
     legacy::WebApp6 legacyApp(getRouter());

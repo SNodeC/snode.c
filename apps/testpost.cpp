@@ -25,7 +25,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-int main(int argc, char** argv) {
+int main(int argc, char* argv[]) {
     express::WebApp::init(argc, argv);
 
     express::legacy::WebApp legacyApp;
