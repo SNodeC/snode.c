@@ -97,7 +97,7 @@ namespace net::socket::stream::tls {
             case SSL_ERROR_WANT_WRITE:
                 break;
             case SSL_ERROR_NONE:
-                ReadEventReceiver::disable();
+                WriteEventReceiver::disable();
                 onSuccess();
                 break;
             default:
