@@ -61,9 +61,9 @@ namespace net::socket::stream::tls {
                                 ReadEventReceiver::disable();
                                 PLOG(ERROR) << "TLS handshake timeout";
                             },
-                            [this]([[maybe_unused]] int sslErr) -> void {
+                            [this](int sslErr) -> void {
                                 ReadEventReceiver::disable();
-                                ssl_log_error("SSL/TLS handshake failed");
+                                ssl_log("SSL/TLS handshake failed", -sslErr);
                             });
                         errno = EAGAIN;
                         break;
@@ -71,10 +71,10 @@ namespace net::socket::stream::tls {
                         ret = 0;
                         break;
                     case SSL_ERROR_SYSCALL:
-                        ssl_log_warning("SSL/TLS read maybe failed");
+                        ssl_log("SSL/TLS read maybe failed", sslErr);
                         break;
                     default:
-                        ssl_log_error("SSL/TLS read failed");
+                        ssl_log("SSL/TLS read failed", sslErr);
                         break;
                 }
             }
@@ -85,9 +85,18 @@ namespace net::socket::stream::tls {
         int getError() override {
             int ret = errno;
 
-            if (sslErr != SSL_ERROR_SYSCALL && sslErr != SSL_ERROR_ZERO_RETURN) {
-                ret = -sslErr;
-            }
+            switch (sslErr) {
+                case SSL_ERROR_NONE:
+                case SSL_ERROR_ZERO_RETURN:
+                    ret = 0;
+                    break;
+                case SSL_ERROR_SYSCALL:
+                    break;
+                default:
+                    ret = -sslErr;
+                    break;
+            };
+
             sslErr = 0;
 
             return ret;

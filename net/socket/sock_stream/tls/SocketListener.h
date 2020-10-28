@@ -77,8 +77,8 @@ namespace net::socket::stream {
                                       PLOG(ERROR) << "SSL/TLS handshake timeout";
                                       socketConnection->ReadEventReceiver::disable();
                                   },
-                                  [socketConnection]([[maybe_unused]] int sslErr) -> void { // onError
-                                      ssl_log_error("SSL/TLS handshake failed");
+                                  [socketConnection](int sslErr) -> void { // onError
+                                      ssl_log("SSL/TLS handshake failed", -sslErr);
                                       socketConnection->setSSLError(-sslErr);
                                       socketConnection->ReadEventReceiver::disable();
                                   });
@@ -96,6 +96,8 @@ namespace net::socket::stream {
                       onWriteError,
                       options) {
                 ctx = SSL_CTX_new(TLS_server_method());
+                SSL_CTX_set_session_id_context(ctx, (const unsigned char*) &sslSessionCtxId, sizeof(sslSessionCtxId));
+                sslSessionCtxId++;
                 sslErr = ssl_init_ctx(ctx, options, true);
             }
 
@@ -117,9 +119,14 @@ namespace net::socket::stream {
             SSL_CTX* ctx = nullptr;
             unsigned long sslErr = 0;
 
+            static int sslSessionCtxId;
+
             template <typename SocketListener>
             friend class stream::SocketServer;
         };
+
+        template <typename Socket>
+        int SocketListener<Socket>::sslSessionCtxId = 1;
 
     } // namespace tls
 

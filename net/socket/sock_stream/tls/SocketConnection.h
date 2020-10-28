@@ -56,11 +56,11 @@ namespace net::socket::stream::tls {
                       onRead(static_cast<SocketConnection*>(socketConnection), junk, junkLen);
                   },
                   [onReadError, &sslErr = this->sslErr](SocketConnectionSuper* socketConnection, int errnum) -> void {
-                      sslErr = errnum < 0 ? -errnum : 0;
+                      sslErr = errnum <= 0 ? -errnum : SSL_ERROR_SYSCALL;
                       onReadError(static_cast<SocketConnection*>(socketConnection), errnum);
                   },
                   [onWriteError, &sslErr = this->sslErr](SocketConnectionSuper* socketConnection, int errnum) -> void {
-                      sslErr = errnum < 0 ? -errnum : 0;
+                      sslErr = errnum <= 0 ? -errnum : SSL_ERROR_SYSCALL;
                       onWriteError(static_cast<SocketConnection*>(socketConnection), errnum);
                   },
                   [onDisconnect](SocketConnectionSuper* socketConnection) -> void {
@@ -89,8 +89,10 @@ namespace net::socket::stream::tls {
 
         void stopSSL() {
             if (ssl != nullptr) {
-                if (sslErr != SSL_ERROR_SYSCALL) {
+                if (sslErr == 0) {
                     SSL_shutdown(ssl);
+                } else {
+                    SSL_set_shutdown(ssl, SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN);
                 }
                 SSL_free(ssl);
 

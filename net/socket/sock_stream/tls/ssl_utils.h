@@ -34,6 +34,8 @@ namespace net::socket::stream::tls {
 
     void ssl_log_error(const std::string& message);
     void ssl_log_warning(const std::string& message);
+    void ssl_log_info(const std::string& message);
+    void ssl_log(const std::string& message, int sslErr);
 
 } // namespace net::socket::stream::tls
 

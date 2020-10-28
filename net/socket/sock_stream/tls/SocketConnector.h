@@ -78,10 +78,10 @@ namespace net::socket::stream {
                                       socketConnection->ReadEventReceiver::disable();
                                   },
                                   [socketConnection, &onError](int sslErr) -> void { // onError
-                                      ssl_log_error("SSL/TLS handshake failed");
+                                      ssl_log("SSL/TLS handshake failed", -sslErr);
                                       socketConnection->setSSLError(-sslErr);
                                       socketConnection->ReadEventReceiver::disable();
-                                      onError(-sslErr);
+                                      onError(sslErr);
                                   });
                           } else {
                               socketConnection->ReadEventReceiver::disable();
