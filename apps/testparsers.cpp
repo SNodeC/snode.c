@@ -42,6 +42,8 @@ int main(int argc, char* argv[]) {
     Logger::init(argc, argv);
 
     RequestParser requestParser(
+        [](void) -> void {
+        },
         [](const std::string& method,
            const std::string& originalUrl,
            const std::string& httpVersion,
@@ -103,6 +105,8 @@ int main(int argc, char* argv[]) {
     requestParser.reset();
 
     ResponseParser responseParser(
+        [](void) -> void {
+        },
         [](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
             VLOG(0) << "++ Response: " << httpVersion << " " << statusCode << " " << reason;
         },

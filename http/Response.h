@@ -61,7 +61,7 @@ namespace http {
         bool sendHeaderInProgress = false;
         bool headersSent = false;
 
-        int responseStatus = 0;
+        int responseStatus = 200;
 
         size_t contentSent = 0;
         size_t contentLength = 0;

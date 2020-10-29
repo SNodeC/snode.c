@@ -53,15 +53,14 @@ namespace express {
                     [this](char* data, int length) -> void {
                         enqueue(data, length);
                     },
-                    [this, &fileReader = this->fileReader, onError](int err) -> void {
+                    [this, onError](int err) -> void {
                         if (onError) {
                             onError(err);
                         }
                         if (err != 0) {
                             serverContext->terminateConnection();
-                        } else {
-                            fileReader = nullptr;
                         }
+                        this->fileReader = nullptr;
                     });
             } else {
                 responseStatus = 403;

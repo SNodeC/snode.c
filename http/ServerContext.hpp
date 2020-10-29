@@ -34,22 +34,33 @@ namespace http {
                                                     const std::function<void(Request& req, Response& res)>& onRequestReady,
                                                     const std::function<void(Request& req, Response& res)>& onRequestCompleted)
         : socketConnection(socketConnection)
-        , response(this)
+        , onRequestReady(onRequestReady)
         , onRequestCompleted(onRequestCompleted)
         , parser(
+              [this](void) -> void {
+                  VLOG(3) << "++ BEGIN:";
+
+                  requestContexts.emplace_back(RequestContext(this));
+              },
               [this](const std::string& method,
                      const std::string& url,
                      const std::string& httpVersion,
                      const std::map<std::string, std::string>& queries) -> void {
                   VLOG(3) << "++ Request: " << method << " " << url << " " << httpVersion;
+
+                  Request& request = requestContexts.back().request;
+
                   request.method = method;
                   request.url = url;
                   request.queries = &queries;
                   request.httpVersion = httpVersion;
               },
               [this](const std::map<std::string, std::string>& header, const std::map<std::string, std::string>& cookies) -> void {
+                  Request& request = requestContexts.back().request;
+
                   VLOG(3) << "++ Header:";
                   request.headers = &header;
+
                   VLOG(3) << "++ Cookies";
                   request.cookies = &cookies;
 
@@ -61,39 +72,47 @@ namespace http {
               },
               [this](char* content, size_t contentLength) -> void {
                   VLOG(3) << "++ Content: " << contentLength;
+
+                  Request& request = requestContexts.back().request;
+
                   request.body = content;
                   request.contentLength = contentLength;
               },
               [this, onRequestReady]() -> void {
                   VLOG(3) << "++ Parsed ++";
-                  requestInProgress = true;
-                  request.extend();
-                  onRequestReady(request, response);
+
+                  RequestContext& requestContext = requestContexts.back();
+
+                  requestContext.request.extend();
+                  requestContext.ready = true;
+
+                  requestParsed();
               },
               [this](int status, const std::string& reason) -> void {
                   VLOG(3) << "++ Error: " << status << " : " << reason;
-                  response.status(status).send(reason);
-                  terminateConnection();
+
+                  RequestContext& requestContext = requestContexts.back();
+
+                  requestContext.status = status;
+                  requestContext.reason = reason;
+                  requestContext.ready = true;
+
+                  requestParsed();
               }) {
-        parser.reset();
-        request.reset();
-        response.reset();
     }
 
     template <typename Request, typename Response>
     ServerContext<Request, Response>::~ServerContext() {
         if (requestInProgress) {
-            onRequestCompleted(request, response);
+            RequestContext& requestContext = requestContexts.front();
+
+            onRequestCompleted(requestContext.request, requestContext.response);
         }
     }
 
     template <typename Request, typename Response>
     void ServerContext<Request, Response>::receiveRequestData(const char* junk, size_t junkLen) {
-        if (!requestInProgress) {
-            parser.parse(junk, junkLen);
-        } else {
-            terminateConnection();
-        }
+        parser.parse(junk, junkLen);
     }
 
     template <typename Request, typename Response>
@@ -118,21 +137,56 @@ namespace http {
     }
 
     template <typename Request, typename Response>
-    void ServerContext<Request, Response>::responseCompleted() {
-        onRequestCompleted(request, response);
+    void ServerContext<Request, Response>::requestParsed() {
+        if (requestContexts.size() == 1) {
+            RequestContext& requestContext = requestContexts.front();
 
-        if (!request.keepAlive || !response.keepAlive) {
-            terminateConnection();
+            requestInProgress = true;
+            if (requestContext.status == 0) {
+                onRequestReady(requestContext.request, requestContext.response);
+            } else {
+                requestContext.response.status(requestContext.status).send(requestContext.reason);
+                terminateConnection();
+            }
         }
+    }
+
+    template <typename Request, typename Response>
+    void ServerContext<Request, Response>::responseCompleted() {
+        RequestContext& requestContext = requestContexts.front();
+
+        onRequestCompleted(requestContext.request, requestContext.response);
+
+        bool keepAlive = requestContext.request.keepAlive && requestContext.response.keepAlive;
 
         reset();
+
+        if (!keepAlive) {
+            terminateConnection();
+        } else {
+            requestContexts.pop_front();
+
+            if (!requestContexts.empty() && requestContexts.front().ready) {
+                RequestContext& requestContext = requestContexts.front();
+
+                requestInProgress = true;
+                if (requestContext.status == 0) {
+                    onRequestReady(requestContext.request, requestContext.response);
+                } else {
+                    requestContext.response.status(requestContext.status).send(requestContext.reason);
+                    terminateConnection();
+                }
+            }
+        }
     }
 
     template <typename Request, typename Response>
     void ServerContext<Request, Response>::reset() {
-        parser.reset();
-        request.reset();
-        response.reset();
+        if (!requestContexts.empty()) {
+            RequestContext& requestContext = requestContexts.front();
+            requestContext.request.reset();
+            requestContext.response.reset();
+        }
 
         requestInProgress = false;
     }

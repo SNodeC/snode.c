@@ -33,7 +33,7 @@ namespace http {
     std::regex Parser::httpVersionRegex("^HTTP/([[:digit:]])\\.([[:digit:]])$");
 
     void Parser::reset() {
-        parserState = ParserState::FIRSTLINE;
+        parserState = ParserState::BEGIN;
         headers.clear();
         contentLength = 0;
         if (content != nullptr) {
@@ -47,6 +47,10 @@ namespace http {
 
         while (consumed < count && parserState != ParserState::ERROR) {
             switch (parserState) {
+                case ParserState::BEGIN:
+                    parserState = ParserState::FIRSTLINE;
+                    beginRequest();
+                    [[fallthrough]];
                 case ParserState::FIRSTLINE:
                     consumed += readStartLine(buf + consumed, count - consumed);
                     break;
