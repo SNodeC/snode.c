@@ -157,13 +157,11 @@ namespace http {
 
         onRequestCompleted(requestContext.request, requestContext.response);
 
-        bool keepAlive = requestContext.request.keepAlive && requestContext.response.keepAlive;
-
-        reset();
-
-        if (!keepAlive) {
+        if (!requestContext.request.keepAlive && requestContext.response.keepAlive) {
             terminateConnection();
         } else {
+            reset();
+
             requestContexts.pop_front();
 
             if (!requestContexts.empty() && requestContexts.front().ready) {
@@ -197,6 +195,8 @@ namespace http {
             socketConnection->close();
             connectionTerminated = true;
         }
+
+        reset();
     }
 
 } // namespace http

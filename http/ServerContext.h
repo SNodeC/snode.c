@@ -89,24 +89,19 @@ namespace http {
     private:
         SocketConnection* socketConnection;
 
-        bool requestInProgress = false;
-
-    private:
-        void requestParsed();
-
         std::function<void(Request& req, Response& res)> onRequestReady;
         std::function<void(Request& req, Response& res)> onRequestCompleted;
-
-        void reset();
 
         RequestParser parser;
 
         std::list<RequestContext> requestContexts;
 
-        RequestContext* currentNewRequestContext;
-        RequestContext* currentProcessedRequestContext;
-
+        bool requestInProgress = false;
         bool connectionTerminated = false;
+
+        void requestParsed();
+
+        void reset();
     };
 
 } // namespace http

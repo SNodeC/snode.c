@@ -56,54 +56,6 @@ namespace http {
             , options(options) {
         }
 
-        void
-        get(const std::map<std::string, std::any>& options,
-            const std::function<void(int err)>& onError,
-            const typename SocketConnection::Socket::SocketAddress& localHost = typename SocketConnection::Socket::SocketAddress()) const {
-            std::string path = "";
-            std::string host = "";
-
-            for (auto& [name, value] : options) {
-                if (name == "path") {
-                    path = std::any_cast<const char*>(value);
-                }
-                if (name == "host") {
-                    host = std::any_cast<const char*>(value);
-                }
-            }
-
-            std::string request = "GET " + path + " HTTP/1.1\r\nHost: " + host + "\r\n\r\n";
-
-            connect(request, options, onError, localHost);
-        }
-
-        void post(const std::map<std::string, std::any>& options,
-                  const std::function<void(int err)>& onError,
-                  const SocketAddress& localHost = SocketAddress()) const {
-            std::string path = "";
-            std::string host = "";
-            std::string body = "";
-            int contentLength = 0;
-
-            for (auto& [name, value] : options) {
-                if (name == "path") {
-                    path = std::any_cast<const char*>(value);
-                }
-                if (name == "host") {
-                    host = std::any_cast<const char*>(value);
-                }
-                if (name == "body") {
-                    body = std::any_cast<const char*>(value);
-                    contentLength = body.length();
-                }
-            }
-
-            std::string request =
-                "POST " + path + " HTTP/1.1\r\nHost: " + host + "\r\nContent-Length: " + std::to_string(contentLength) + "\r\n\r\n" + body;
-
-            connect(request, options, onError, localHost);
-        }
-
         void connect(const std::string& request,
                      const std::map<std::string, std::any>& options,
                      const std::function<void(int err)>& onError,
@@ -161,6 +113,54 @@ namespace http {
             socketClient.connect(options, onError, localHost);
         }
 
+        void get(const std::map<std::string, std::any>& options,
+                 const std::function<void(int err)>& onError,
+                 const SocketAddress& localHost = SocketAddress()) const {
+            std::string path = "";
+            std::string host = "";
+
+            for (auto& [name, value] : options) {
+                if (name == "path") {
+                    path = std::any_cast<const char*>(value);
+                }
+                if (name == "host") {
+                    host = std::any_cast<const char*>(value);
+                }
+            }
+
+            std::string request = "GET " + path + " HTTP/1.1\r\nHost: " + host + "\r\n\r\n";
+
+            connect(request, options, onError, localHost);
+        }
+
+        void post(const std::map<std::string, std::any>& options,
+                  const std::function<void(int err)>& onError,
+                  const SocketAddress& localHost = SocketAddress()) const {
+            std::string path = "";
+            std::string host = "";
+            std::string body = "";
+            int contentLength = 0;
+
+            for (auto& [name, value] : options) {
+                if (name == "path") {
+                    path = std::any_cast<const char*>(value);
+                }
+                if (name == "host") {
+                    host = std::any_cast<const char*>(value);
+                }
+                if (name == "body") {
+                    body = std::any_cast<const char*>(value);
+                    contentLength = body.length();
+                }
+            }
+
+            std::string request =
+                "POST " + path + " HTTP/1.1\r\nHost: " + host + "\r\nContent-Length: " + std::to_string(contentLength) + "\r\n\r\n" + body;
+
+            connect(request, options, onError, localHost);
+        }
+
+    protected:
         std::function<void(SocketConnection*)> onConnect;
         std::function<void(ServerRequest&)> onRequestBegin;
         std::function<void(ServerResponse&)> onResponseReady;
