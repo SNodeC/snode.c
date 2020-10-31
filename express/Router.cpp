@@ -333,5 +333,3 @@ namespace express {
     DEFINE_REQUESTMETHOD(head, "HEAD");
 
 } // namespace express
-
-template class http::ServerContext<express::Request, express::Response>;
