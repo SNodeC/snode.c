@@ -36,6 +36,13 @@ endforeach()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra")
 
+option(CXX_INSTRUMENT_METHODS "Instrument methods and functions")
+mark_as_advanced(FORCE CXX_INSTRUMENT_METHODS)
+
+if(CXX_INSTRUMENT_METHODS)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -finstrument-functions")
+endif(CXX_INSTRUMENT_METHODS)
+
 find_program(iwyu_path NAMES include-what-you-use iwyu)
 if(NOT iwyu_path)
     message(FATAL_ERROR "Could not find the program include-what-you-use")

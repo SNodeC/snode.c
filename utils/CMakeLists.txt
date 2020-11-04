@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-add_library(utils SHARED Timeval.cpp)
+add_library(utils SHARED Timeval.cpp instrumentation.cpp)
 
 set_target_properties(
     utils
@@ -11,6 +11,8 @@ set_target_properties(
 )
 
 target_include_directories(utils PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+target_link_libraries(utils PUBLIC dl)
 
 install(TARGETS utils LIBRARY DESTINATION lib NAMELINK_COMPONENT libutils.so.1)
 install(
