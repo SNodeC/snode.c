@@ -20,8 +20,9 @@
 
 #include <cstdlib> // for free
 #include <cstring>
+#include <errno.h>       // for errno
 #include <openssl/err.h> // for ERR_peek_error
-#include <openssl/ssl.h> // IWYU pragma: keep, for SSL_CTX_check_private_key, SSL_CTX_load_ve...
+#include <openssl/ssl.h> // IWYU pragma: keep
 #include <string>
 #include <utility> // for tuple_element<>::type
 
