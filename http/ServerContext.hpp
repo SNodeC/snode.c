@@ -22,6 +22,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "ConnectionState.h"
 #include "Logger.h"
 #include "ServerContext.h"
 #include "http_utils.h"
@@ -45,6 +46,8 @@ namespace http {
               [this](const std::string& method,
                      const std::string& url,
                      const std::string& httpVersion,
+                     int httpMajor,
+                     int httpMinor,
                      const std::map<std::string, std::string>& queries) -> void {
                   VLOG(3) << "++ Request: " << method << " " << url << " " << httpVersion;
 
@@ -54,6 +57,8 @@ namespace http {
                   request.url = url;
                   request.queries = &queries;
                   request.httpVersion = httpVersion;
+                  request.httpMajor = httpMajor;
+                  request.httpMinor = httpMinor;
               },
               [this](const std::map<std::string, std::string>& header, const std::map<std::string, std::string>& cookies) -> void {
                   Request& request = requestContexts.back().request;
@@ -61,14 +66,17 @@ namespace http {
                   VLOG(3) << "++ Header:";
                   request.headers = &header;
 
+                  for (auto [field, value] : header) {
+                      if (field == "connection" && value == "close") {
+                          request.connectionState = ConnectionState::Close;
+                      } else if (field == "connection" && value == "keep-alive") {
+                          request.connectionState = ConnectionState::Keep;
+                      }
+                      VLOG(4) << "     " << field << ": " << value;
+                  }
+
                   VLOG(3) << "++ Cookies";
                   request.cookies = &cookies;
-
-                  for (auto [field, value] : header) {
-                      if (field == "connection" && value == "keep-alive") {
-                          request.keepAlive = true;
-                      }
-                  }
               },
               [this](char* content, size_t contentLength) -> void {
                   VLOG(3) << "++ Content: " << contentLength;
@@ -138,7 +146,7 @@ namespace http {
 
     template <typename Request, typename Response>
     void ServerContext<Request, Response>::requestParsed() {
-        if (requestContexts.size() == 1) {
+        if (!requestInProgress) {
             RequestContext& requestContext = requestContexts.front();
 
             requestInProgress = true;
@@ -157,7 +165,15 @@ namespace http {
 
         onRequestCompleted(requestContext.request, requestContext.response);
 
-        if (!requestContext.request.keepAlive && requestContext.response.keepAlive) {
+        // if 0.9 => terminate
+        // if 1.0 && (request != Keep || contentLength = -1) => terminate
+        // if 1.1 && (request == Close || contentLength = -1) => terminate
+
+        if ((requestContext.request.httpMajor == 0 && requestContext.request.httpMinor == 9) ||
+            (requestContext.request.httpMajor == 1 && requestContext.request.httpMinor == 0 &&
+             requestContext.request.connectionState != ConnectionState::Keep) ||
+            (requestContext.request.httpMajor == 1 && requestContext.request.httpMinor == 1 &&
+             requestContext.request.connectionState == ConnectionState::Close)) {
             terminateConnection();
         } else {
             reset();

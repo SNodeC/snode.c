@@ -32,8 +32,8 @@ namespace http {
 
     RequestParser::RequestParser(
         const std::function<void(void)>& onStart,
-        const std::function<void(const std::string&, const std::string&, const std::string&, const std::map<std::string, std::string>&)>&
-            onRequest,
+        const std::function<void(
+            const std::string&, const std::string&, const std::string&, int, int, const std::map<std::string, std::string>&)>& onRequest,
         const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>& onHeader,
         const std::function<void(char*, size_t)>& onContent,
         const std::function<void()>& onParsed,
@@ -97,7 +97,7 @@ namespace http {
                         queries.insert({key, value});
                     }
 
-                    onRequest(method, url, httpVersion, queries);
+                    onRequest(method, url, httpVersion, httpMajor, httpMinor, queries);
                 }
             }
         } else {

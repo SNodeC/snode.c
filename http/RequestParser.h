@@ -38,7 +38,8 @@ namespace http {
         RequestParser(
             const std::function<void(void)>& onStart,
             const std::function<
-                void(const std::string&, const std::string&, const std::string&, const std::map<std::string, std::string>&)>& onRequest,
+                void(const std::string&, const std::string&, const std::string&, int, int, const std::map<std::string, std::string>&)>&
+                onRequest,
             const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>& onHeader,
             const std::function<void(char*, size_t)>& onContent,
             const std::function<void()>& onParsed,
@@ -78,7 +79,7 @@ namespace http {
 
         // Callbacks
         std::function<void(void)> onStart;
-        std::function<void(const std::string&, const std::string&, const std::string&, const std::map<std::string, std::string>&)>
+        std::function<void(const std::string&, const std::string&, const std::string&, int, int, const std::map<std::string, std::string>&)>
             onRequest;
         std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)> onHeader;
         std::function<void(char*, size_t)> onContent;

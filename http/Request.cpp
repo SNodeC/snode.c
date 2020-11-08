@@ -73,9 +73,11 @@ namespace http {
         method.clear();
         url.clear();
         httpVersion.clear();
+        httpMajor = 0;
+        httpMinor = 0;
         body = nullptr;
         contentLength = 0;
-        keepAlive = false;
+        connectionState = ConnectionState::Default;
         headers = nullptr;
         cookies = nullptr;
         queries = nullptr;

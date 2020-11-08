@@ -33,7 +33,11 @@ namespace express::middleware {
         : root(root) {
         use([] MIDDLEWARE(req, res, next) {
             if (req.method == "GET") {
-                res.set("Connection", "Keep-Alive");
+                if (req.connectionState != ConnectionState::Close) {
+                    res.set("Connection", "Keep-Alive");
+                } else {
+                    res.set("Connection", "Close");
+                }
                 next();
             } else {
                 res.set("Connection", "Close");
