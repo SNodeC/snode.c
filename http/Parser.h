@@ -55,11 +55,12 @@ namespace http {
 
     protected:
         // Parser state
-        enum struct [[nodiscard]] ParserState{FIRSTLINE, HEADER, BODY, ERROR} parserState = ParserState::FIRSTLINE;
+        enum struct [[nodiscard]] ParserState{BEGIN, FIRSTLINE, HEADER, BODY, ERROR} parserState = ParserState::BEGIN;
         static std::regex httpVersionRegex;
 
         virtual void reset();
 
+        virtual void beginRequest() = 0;
         virtual enum ParserState parseStartLine(std::string& line) = 0;
         virtual enum ParserState parseHeader() = 0;
         virtual enum ParserState parseContent(char* content, size_t size) = 0;

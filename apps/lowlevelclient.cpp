@@ -38,6 +38,8 @@ using namespace net::socket::ip::address::ipv4;
 
 static http::ResponseParser* getResponseParser() {
     http::ResponseParser* responseParser = new http::ResponseParser(
+        [](void) -> void {
+        },
         [](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
             VLOG(0) << "++ Response: " << httpVersion << " " << statusCode << " " << reason;
         },

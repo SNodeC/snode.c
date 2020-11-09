@@ -95,7 +95,9 @@ namespace http {
         if (field == "Content-Length") {
             contentLength = std::stol(value);
         } else if (field == "Connection" && httputils::ci_comp(value, "close")) {
-            keepAlive = false;
+            connectionState = ConnectionState::Close;
+        } else if (field == "Connection" && httputils::ci_comp(value, "keep-alive")) {
+            connectionState = ConnectionState::Keep;
         }
 
         return *this;
@@ -177,7 +179,7 @@ namespace http {
         contentSent = 0;
         responseStatus = 200;
         contentLength = 0;
-        keepAlive = true;
+        connectionState = ConnectionState::Default;
         headers.clear();
         cookies.clear();
     }

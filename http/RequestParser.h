@@ -36,8 +36,10 @@ namespace http {
     class RequestParser : public Parser {
     public:
         RequestParser(
+            const std::function<void(void)>& onStart,
             const std::function<
-                void(const std::string&, const std::string&, const std::string&, const std::map<std::string, std::string>&)>& onRequest,
+                void(const std::string&, const std::string&, const std::string&, int, int, const std::map<std::string, std::string>&)>&
+                onRequest,
             const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>& onHeader,
             const std::function<void(char*, size_t)>& onContent,
             const std::function<void()>& onParsed,
@@ -50,6 +52,9 @@ namespace http {
         virtual bool methodSupported(const std::string& method) {
             return supportedMethods.contains(method);
         }
+
+        // Entrence
+        void beginRequest() override;
 
         // Parsers and Validators
         enum Parser::ParserState parseStartLine(std::string& line) override;
@@ -73,7 +78,8 @@ namespace http {
         int httpMinor = 0;
 
         // Callbacks
-        std::function<void(const std::string&, const std::string&, const std::string&, const std::map<std::string, std::string>&)>
+        std::function<void(void)> onStart;
+        std::function<void(const std::string&, const std::string&, const std::string&, int, int, const std::map<std::string, std::string>&)>
             onRequest;
         std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)> onHeader;
         std::function<void(char*, size_t)> onContent;

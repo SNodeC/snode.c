@@ -65,7 +65,6 @@ namespace http {
                   options) {
         }
 
-    public:
         void listen(unsigned short port, const std::function<void(int err)>& onError) const {
             errno = 0;
 
@@ -81,8 +80,6 @@ namespace http {
     protected:
         SocketServer socketServer;
     };
-
-    template class ServerContext<http::Request, http::Response>;
 
 } // namespace http
 

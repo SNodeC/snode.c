@@ -29,12 +29,14 @@
 namespace http {
 
     ResponseParser::ResponseParser(
+        const std::function<void(void)>& onStart,
         const std::function<void(const std::string&, const std::string&, const std::string&)>& onResponse,
         const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, CookieOptions>&)>& onHeader,
         const std::function<void(char*, size_t)>& onContent,
         const std::function<void(ResponseParser&)>& onParsed,
         const std::function<void(int status, const std::string& reason)>& onError)
-        : onResponse(onResponse)
+        : onStart(onStart)
+        , onResponse(onResponse)
         , onHeader(onHeader)
         , onContent(onContent)
         , onParsed(onParsed)
@@ -47,6 +49,10 @@ namespace http {
         statusCode.clear();
         reason.clear();
         cookies.clear();
+    }
+
+    void ResponseParser::beginRequest() {
+        onStart();
     }
 
     enum Parser::ParserState ResponseParser::parseStartLine(std::string& line) {
@@ -115,7 +121,7 @@ namespace http {
         enum Parser::ParserState parserState = Parser::ParserState::BODY;
         if (contentLength == 0) {
             parsingFinished();
-            parserState = ParserState::FIRSTLINE;
+            parserState = ParserState::BEGIN;
         }
 
         return parserState;
@@ -125,7 +131,7 @@ namespace http {
         onContent(content, size);
         parsingFinished();
 
-        return ParserState::FIRSTLINE;
+        return ParserState::BEGIN;
     }
 
     enum Parser::ParserState ResponseParser::parsingError(int code, const std::string& reason) {

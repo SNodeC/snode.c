@@ -31,17 +31,20 @@
 namespace http {
 
     RequestParser::RequestParser(
-        const std::function<void(const std::string&, const std::string&, const std::string&, const std::map<std::string, std::string>&)>&
-            onRequest,
+        const std::function<void(void)>& onStart,
+        const std::function<void(
+            const std::string&, const std::string&, const std::string&, int, int, const std::map<std::string, std::string>&)>& onRequest,
         const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>& onHeader,
         const std::function<void(char*, size_t)>& onContent,
         const std::function<void()>& onParsed,
         const std::function<void(int status, const std::string& reason)>& onError)
-        : onRequest(onRequest)
+        : onStart(onStart)
+        , onRequest(onRequest)
         , onHeader(onHeader)
         , onContent(onContent)
         , onParsed(onParsed)
         , onError(onError) {
+        reset();
     }
 
     void RequestParser::reset() {
@@ -53,6 +56,10 @@ namespace http {
         cookies.clear();
         httpMajor = 0;
         httpMinor = 0;
+    }
+
+    void RequestParser::beginRequest() {
+        onStart();
     }
 
     enum Parser::ParserState RequestParser::parseStartLine(std::string& line) {
@@ -90,7 +97,7 @@ namespace http {
                         queries.insert({key, value});
                     }
 
-                    onRequest(method, url, httpVersion, queries);
+                    onRequest(method, url, httpVersion, httpMajor, httpMinor, queries);
                 }
             }
         } else {
@@ -136,7 +143,7 @@ namespace http {
         enum Parser::ParserState parserState = Parser::ParserState::BODY;
         if (contentLength == 0) {
             parsingFinished();
-            parserState = ParserState::FIRSTLINE;
+            parserState = ParserState::BEGIN;
         }
 
         return parserState;
@@ -146,11 +153,12 @@ namespace http {
         onContent(content, size);
         parsingFinished();
 
-        return ParserState::FIRSTLINE;
+        return ParserState::BEGIN;
     }
 
     void RequestParser::parsingFinished() {
         onParsed();
+        reset();
     }
 
     enum Parser::ParserState RequestParser::parsingError(int code, const std::string& reason) {

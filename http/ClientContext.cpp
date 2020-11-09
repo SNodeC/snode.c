@@ -34,6 +34,8 @@ namespace http {
                                  const std::function<void(int status, const std::string& reason)>& onError)
         : socketConnection(socketConnection)
         , parser(
+              [](void) -> void {
+              },
               [this](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
                   serverResponse.httpVersion = httpVersion;
                   serverResponse.statusCode = statusCode;

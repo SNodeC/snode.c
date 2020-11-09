@@ -42,12 +42,16 @@ int main(int argc, char* argv[]) {
     Logger::init(argc, argv);
 
     RequestParser requestParser(
+        [](void) -> void {
+        },
         [](const std::string& method,
            const std::string& originalUrl,
            const std::string& httpVersion,
+           int httpMajor,
+           int httpMinor,
            const std::map<std::string, std::string>& queries) -> void {
             VLOG(0) << "++ Request: " << method << " " << originalUrl << " "
-                    << " " << httpVersion;
+                    << " " << httpVersion << " " << httpMajor << " " << httpMinor;
             for (const std::pair<std::string, std::string>& query : queries) {
                 VLOG(0) << "++    Query: " << query.first << " = " << query.second;
             }
@@ -103,6 +107,8 @@ int main(int argc, char* argv[]) {
     requestParser.reset();
 
     ResponseParser responseParser(
+        [](void) -> void {
+        },
         [](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
             VLOG(0) << "++ Response: " << httpVersion << " " << statusCode << " " << reason;
         },

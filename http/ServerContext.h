@@ -21,6 +21,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <list>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Request.h"
@@ -53,6 +55,22 @@ namespace http {
         using Request = RequestT;
         using Response = ResponseT;
 
+        struct RequestContext {
+            RequestContext(ServerContext<Request, Response>* serverContext)
+                : response(serverContext)
+                , ready(false)
+                , status(0) {
+            }
+
+            Request request;
+            Response response;
+
+            bool ready;
+
+            int status;
+            std::string reason;
+        };
+
         ServerContext(SocketConnection* socketConnection,
                       const std::function<void(Request& req, Response& res)>& onRequestReady,
                       const std::function<void(Request& req, Response& res)>& onRequestCompleted);
@@ -71,20 +89,19 @@ namespace http {
     private:
         SocketConnection* socketConnection;
 
-        bool requestInProgress = false;
-
-    public:
-        Request request;
-        Response response;
-
-    private:
+        std::function<void(Request& req, Response& res)> onRequestReady;
         std::function<void(Request& req, Response& res)> onRequestCompleted;
-
-        void reset();
 
         RequestParser parser;
 
+        std::list<RequestContext> requestContexts;
+
+        bool requestInProgress = false;
         bool connectionTerminated = false;
+
+        void requestParsed();
+
+        void reset();
     };
 
 } // namespace http

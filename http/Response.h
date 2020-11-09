@@ -27,6 +27,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "ConnectionState.h"
 #include "CookieOptions.h"
 
 class FileReader;
@@ -57,11 +58,12 @@ namespace http {
     protected:
         ServerContextBase* serverContext;
 
-        bool keepAlive = true;
+        ConnectionState connectionState = ConnectionState::Default;
+
         bool sendHeaderInProgress = false;
         bool headersSent = false;
 
-        int responseStatus = 0;
+        int responseStatus = 200;
 
         size_t contentSent = 0;
         size_t contentLength = 0;

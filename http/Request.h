@@ -26,6 +26,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "AttributeInjector.h"
+#include "ConnectionState.h"
 
 namespace http {
 
@@ -46,10 +47,12 @@ namespace http {
         std::string method;
         std::string url;
         std::string httpVersion;
+        int httpMajor;
+        int httpMinor;
         char* body = nullptr;
         int contentLength = 0;
 
-        bool keepAlive = false;
+        ConnectionState connectionState = ConnectionState::Default;
 
     protected:
         virtual void extend() {
