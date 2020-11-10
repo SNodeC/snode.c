@@ -85,7 +85,7 @@ tls::SocketClient<net::socket::ip::tcp::ipv4::Socket> getTlsClient() {
         },
         [](tls::SocketClient<net::socket::ip::tcp::ipv4::Socket>::SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnect";
-            socketConnection->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); // Connection:keep-alive\r\n\r\n");
+            socketConnection->enqueue("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
 
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
@@ -191,7 +191,7 @@ legacy::SocketClient<net::socket::ip::tcp::ipv4::Socket> getLegacyClient() {
         },
         [](legacy::SocketClient<net::socket::ip::tcp::ipv4::Socket>::SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnect";
-            socketConnection->enqueue("GET /index.html HTTP/1.1\r\n\r\n"); // Connection:keep-alive\r\n\r\n");
+            socketConnection->enqueue("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
 
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                            "):" + std::to_string(socketConnection->getRemoteAddress().port());

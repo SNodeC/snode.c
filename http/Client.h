@@ -128,7 +128,7 @@ namespace http {
                 }
             }
 
-            std::string request = "GET " + path + " HTTP/1.1\r\nHost: " + host + "\r\n\r\n";
+            std::string request = "GET " + path + " HTTP/1.1\r\nHost: " + host + "\r\nConnection: close\r\n\r\n";
 
             connect(request, options, onError, localHost);
         }
@@ -154,8 +154,8 @@ namespace http {
                 }
             }
 
-            std::string request =
-                "POST " + path + " HTTP/1.1\r\nHost: " + host + "\r\nContent-Length: " + std::to_string(contentLength) + "\r\n\r\n" + body;
+            std::string request = "POST " + path + " HTTP/1.1\r\nHost: " + host + "\r\nContent-Length: " + std::to_string(contentLength) +
+                                  "\r\nConnection: close\r\n\r\n" + body;
 
             connect(request, options, onError, localHost);
         }
