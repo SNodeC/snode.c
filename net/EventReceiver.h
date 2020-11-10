@@ -48,13 +48,15 @@ namespace net {
             static const long DISABLE = LONG_MAX;
         };
 
-        EventReceiver(long timeout)
+        explicit EventReceiver(long timeout)
             : maxInactivity(timeout) {
         }
 
+    public:
         EventReceiver(const EventReceiver&) = delete;
         EventReceiver& operator=(const EventReceiver&) = delete;
 
+    protected:
         virtual ~EventReceiver() = default;
 
         void setTimeout(long timeout, long defaultTimeout) { // -3: do not change, -2: set default, -1 disable, ...
