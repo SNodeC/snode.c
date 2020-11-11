@@ -77,6 +77,10 @@ namespace http {
 
                   VLOG(3) << "++ Cookies";
                   request.cookies = &cookies;
+
+                  for (auto [cookie, value] : cookies) {
+                      VLOG(4) << "     " << cookie << ": " << value;
+                  }
               },
               [this](char* content, size_t contentLength) -> void {
                   VLOG(3) << "++ Content: " << contentLength;
