@@ -173,7 +173,8 @@ namespace http {
             (requestContext.request.httpMajor == 1 && requestContext.request.httpMinor == 0 &&
              requestContext.request.connectionState != ConnectionState::Keep) ||
             (requestContext.request.httpMajor == 1 && requestContext.request.httpMinor == 1 &&
-             requestContext.request.connectionState == ConnectionState::Close)) {
+             requestContext.request.connectionState == ConnectionState::Close) ||
+            (requestContext.response.connectionState == ConnectionState::Close)) {
             terminateConnection();
         } else {
             reset();
