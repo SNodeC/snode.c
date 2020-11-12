@@ -39,7 +39,7 @@ namespace net::socket::ip::address::ipv4 {
             bad_hostname::message = "Bad hostname \"" + hostName + "\"";
         }
 
-        virtual const char* what() const noexcept override {
+        const char* what() const noexcept override {
             return bad_hostname::message.c_str();
         }
 

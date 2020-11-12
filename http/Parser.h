@@ -46,7 +46,7 @@ namespace http {
         } HTTPCompliance;
 
     public:
-        Parser(enum HTTPCompliance compliance = HTTPCompliance::RFC2616 | HTTPCompliance::RFC7230)
+        explicit Parser(enum HTTPCompliance compliance = HTTPCompliance::RFC2616 | HTTPCompliance::RFC7230)
             : HTTPCompliance(compliance) {
         }
         virtual ~Parser() = default;
@@ -61,7 +61,7 @@ namespace http {
         virtual void reset();
 
         virtual void beginRequest() = 0;
-        virtual enum ParserState parseStartLine(std::string& line) = 0;
+        virtual enum ParserState parseStartLine(const std::string& line) = 0;
         virtual enum ParserState parseHeader() = 0;
         virtual enum ParserState parseContent(char* content, size_t size) = 0;
         virtual enum ParserState parsingError(int code, const std::string& reason) = 0;

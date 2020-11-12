@@ -35,7 +35,7 @@ namespace http {
             , options(options) {
         }
 
-        CookieOptions(const std::string& value)
+        explicit CookieOptions(const std::string& value)
             : value(value) {
         }
 

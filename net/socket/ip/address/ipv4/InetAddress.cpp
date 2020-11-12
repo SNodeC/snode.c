@@ -28,7 +28,7 @@
 
 namespace net::socket::ip::address::ipv4 {
 
-    std::string bad_hostname::message = "";
+    std::string bad_hostname::message;
 
     InetAddress::InetAddress() {
         sockAddr.sin_family = AF_INET;
@@ -88,21 +88,21 @@ namespace net::socket::ip::address::ipv4 {
 
     std::string InetAddress::host() const {
         char host[256];
-        getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), host, 256, NULL, 0, 0);
+        getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), host, 256, nullptr, 0, 0);
 
         return std::string(host);
     }
 
     std::string InetAddress::ip() const {
         char ip[256];
-        getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), ip, 256, NULL, 0, NI_NUMERICHOST);
+        getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), ip, 256, nullptr, 0, NI_NUMERICHOST);
 
         return std::string(ip);
     }
 
     std::string InetAddress::serv() const {
         char serv[256];
-        getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), NULL, 0, serv, 256, 0);
+        getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), nullptr, 0, serv, 256, 0);
 
         return std::string(serv);
     }

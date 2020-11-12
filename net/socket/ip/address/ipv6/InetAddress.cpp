@@ -6,7 +6,7 @@
 
 namespace net::socket::ip::address::ipv6 {
 
-    std::string bad_hostname::message = "";
+    std::string bad_hostname::message;
 
     InetAddress::InetAddress() {
         sockAddr.sin6_family = AF_INET6;
@@ -15,7 +15,9 @@ namespace net::socket::ip::address::ipv6 {
     }
 
     InetAddress::InetAddress(const std::string& ipOrHostname) {
-        struct addrinfo hints, *res, *resalloc;
+        struct addrinfo hints {};
+        struct addrinfo* res;
+        struct addrinfo* resalloc;
 
         memset(&hints, 0, sizeof(hints));
         memset(&sockAddr, 0, sizeof(struct sockaddr_in6));
@@ -52,7 +54,9 @@ namespace net::socket::ip::address::ipv6 {
     }
 
     InetAddress::InetAddress(const std::string& ipOrHostname, uint16_t port) {
-        struct addrinfo hints, *res, *resalloc;
+        struct addrinfo hints {};
+        struct addrinfo* res;
+        struct addrinfo* resalloc;
 
         memset(&hints, 0, sizeof(hints));
         memset(&sockAddr, 0, sizeof(struct sockaddr_in6));
@@ -116,21 +120,21 @@ namespace net::socket::ip::address::ipv6 {
 
     std::string InetAddress::host() const {
         char host[256];
-        getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), host, 256, NULL, 0, 0);
+        getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), host, 256, nullptr, 0, 0);
 
         return std::string(host);
     }
 
     std::string InetAddress::ip() const {
         char ip[256];
-        getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), ip, 256, NULL, 0, NI_NUMERICHOST);
+        getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), ip, 256, nullptr, 0, NI_NUMERICHOST);
 
         return std::string(ip);
     }
 
     std::string InetAddress::serv() const {
         char serv[256];
-        getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), NULL, 0, serv, 256, 0);
+        getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), nullptr, 0, serv, 256, 0);
 
         return std::string(serv);
     }

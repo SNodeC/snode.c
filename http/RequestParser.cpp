@@ -62,7 +62,7 @@ namespace http {
         onStart();
     }
 
-    enum Parser::ParserState RequestParser::parseStartLine(std::string& line) {
+    enum Parser::ParserState RequestParser::parseStartLine(const std::string& line) {
         enum Parser::ParserState parserState = Parser::ParserState::HEADER;
 
         if (!line.empty()) {

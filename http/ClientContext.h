@@ -33,7 +33,7 @@
 
 namespace net::socket::stream {
     class SocketConnectionBase;
-}
+} // namespace net::socket::stream
 
 namespace http {
 

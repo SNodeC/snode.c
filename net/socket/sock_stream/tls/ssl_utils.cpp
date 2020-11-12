@@ -18,9 +18,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cerrno>  // for errno
 #include <cstdlib> // for free
 #include <cstring>
-#include <errno.h>       // for errno
 #include <openssl/err.h> // for ERR_peek_error
 #include <openssl/ssl.h> // IWYU pragma: keep
 #include <string>
@@ -35,7 +35,7 @@
 
 namespace net::socket::stream::tls {
 
-#define SSL_VERIFY_FLAGS SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE
+#define SSL_VERIFY_FLAGS (SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE)
 
     static int password_callback(char* buf, int size, int, void* u) {
         strncpy(buf, static_cast<char*>(u), size);
@@ -54,11 +54,11 @@ namespace net::socket::stream::tls {
     unsigned long ssl_init_ctx(SSL_CTX* ctx, const std::map<std::string, std::any>& options, bool server) {
         unsigned long sslErr = 0;
 
-        std::string certChain = "";
-        std::string keyPEM = "";
-        std::string password = "";
-        std::string caFile = "";
-        std::string caDir = "";
+        std::string certChain;
+        std::string keyPEM;
+        std::string password;
+        std::string caFile;
+        std::string caDir;
         bool useDefaultCADir = false;
 
         for (auto& [name, value] : options) {
@@ -139,7 +139,7 @@ namespace net::socket::stream::tls {
     void ssl_log_error(const std::string& message) {
         PLOG(ERROR) << message;
 
-        long errorCode;
+        unsigned long errorCode;
         while ((errorCode = ERR_get_error()) != 0) {
             LOG(ERROR) << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
         }
@@ -148,7 +148,7 @@ namespace net::socket::stream::tls {
     void ssl_log_warning(const std::string& message) {
         PLOG(WARNING) << message;
 
-        long errorCode;
+        unsigned long errorCode;
         while ((errorCode = ERR_get_error()) != 0) {
             LOG(WARNING) << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
         }
@@ -157,7 +157,7 @@ namespace net::socket::stream::tls {
     void ssl_log_info(const std::string& message) {
         PLOG(INFO) << message;
 
-        long errorCode;
+        unsigned long errorCode;
         while ((errorCode = ERR_get_error()) != 0) {
             LOG(INFO) << "|-- with SSL " << ERR_error_string(errorCode, nullptr);
         }

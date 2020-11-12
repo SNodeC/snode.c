@@ -46,7 +46,7 @@ namespace http {
         // Entrence
         void beginRequest() override;
 
-        enum Parser::ParserState parseStartLine(std::string& line) override;
+        enum Parser::ParserState parseStartLine(const std::string& line) override;
         enum Parser::ParserState parseHeader() override;
         enum Parser::ParserState parseContent(char* content, size_t size) override;
         enum Parser::ParserState parsingError(int code, const std::string& reason) override;

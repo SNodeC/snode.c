@@ -77,7 +77,7 @@ namespace utils {
     class SingleAttributeInjector {
     public:
         template <InjectableAttribute Attribute>
-        constexpr bool setAttribute(Attribute& attribute, bool overwrite = false) const {
+        constexpr bool setAttribute(const Attribute& attribute, bool overwrite = false) const {
             bool inserted = false;
 
             if (!this->attribute || overwrite) {
@@ -90,7 +90,7 @@ namespace utils {
         }
 
         template <InjectableAttribute Attribute>
-        constexpr bool setAttribute(Attribute&& attribute, bool overwrite = false) const {
+        constexpr bool setAttribute(const Attribute&& attribute, bool overwrite = false) const {
             bool inserted = false;
 
             if (!this->attribute || overwrite) {
