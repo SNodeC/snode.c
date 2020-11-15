@@ -57,11 +57,11 @@ void FileReader::readEvent() {
 
     int ret = ::read(getFd(), junk, MFREADSIZE);
 
-    if (ret > 0) {
+    if (ret >= 0) {
         junkRead(junk, ret);
     } else {
         ReadEventReceiver::disable();
-        onError(ret == 0 ? 0 : errno);
+        onError(errno);
     }
 }
 
