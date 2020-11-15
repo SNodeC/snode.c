@@ -54,28 +54,20 @@ namespace express {
                         enqueue(data, length);
                     },
                     [this, onError](int err) -> void {
-                        if (onError) {
-                            onError(err);
-                        }
-                        if (err != 0) {
-                            serverContext->terminateConnection();
-                        }
-                        this->fileReader = nullptr;
+                        onError(err);
+                        serverContext->terminateConnection();
+                        fileReader = nullptr;
                     });
             } else {
                 responseStatus = 403;
                 errno = EACCES;
-                if (onError) {
-                    onError(EACCES);
-                }
+                onError(errno);
                 end();
             }
         } else {
             responseStatus = 404;
             errno = ENOENT;
-            if (onError) {
-                onError(ENOENT);
-            }
+            onError(errno);
             end();
         }
     }
