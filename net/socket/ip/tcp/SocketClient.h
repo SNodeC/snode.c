@@ -52,7 +52,7 @@ namespace net::socket::ip::tcp {
                     port = std::any_cast<int>(value);
                 }
             }
-            typename Socket::SocketAddress remoteAddress(host, port);
+            SocketAddress remoteAddress(host, port);
 
             SocketClientSuper::connect(remoteAddress, onError, bindAddress);
         }
