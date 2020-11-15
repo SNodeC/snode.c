@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
 find_package(OpenSSL REQUIRED)
+pkg_check_modules(BLUEZ REQUIRED bluez)
 
 add_library(
     net SHARED
@@ -15,6 +16,8 @@ add_library(
     WriteEventReceiver.cpp
     file/File.cpp
     file/FileReader.cpp
+    socket/bluetooth/address/BtAddress.cpp
+    socket/bluetooth/rfcomm/Socket.cpp
     socket/ip/address/ipv4/InetAddress.cpp
     socket/ip/address/ipv6/InetAddress.cpp
     socket/ip/tcp/ipv4/Socket.cpp
@@ -24,7 +27,9 @@ add_library(
     timer/Timer.cpp
 )
 
-target_link_libraries(net LINK_PUBLIC logger utils ${OPENSSL_LIBRARIES})
+target_link_libraries(
+    net LINK_PUBLIC logger utils ${OPENSSL_LIBRARIES} ${BLUEZ_LIBRARIES}
+)
 
 set_target_properties(
     net
@@ -37,7 +42,7 @@ set_target_properties(
 target_compile_options(net PRIVATE --warn-all)
 
 target_include_directories(
-    net PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${OPENSSL_INCLUDE_DIR}
+    net PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${OPENSSL_INCLUDE_DIRS} ${BLUEZ_INCLUDE_DIRS}
 )
 
 install(TARGETS net LIBRARY DESTINATION lib NAMELINK_COMPONENT libnet.so.1)
