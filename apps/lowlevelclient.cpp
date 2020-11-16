@@ -27,8 +27,6 @@
 #include "socket/sock_stream/legacy/SocketClient.h"
 #include "socket/sock_stream/tls/SocketClient.h"
 
-#include <cstring>
-#include <iostream>
 #include <openssl/x509v3.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
