@@ -47,6 +47,12 @@ namespace net::socket::bluetooth::address {
         sockAddr.rc_channel = (uint8_t) 0;
     }
 
+    BtAddress::BtAddress(uint8_t channel) {
+        sockAddr.rc_family = AF_BLUETOOTH;
+        sockAddr.rc_bdaddr = {{0, 0, 0, 0, 0, 0}};
+        sockAddr.rc_channel = channel;
+    }
+
     BtAddress::BtAddress(const std::string& btAddress, uint8_t channel) {
         sockAddr.rc_family = AF_BLUETOOTH;
         str2ba(btAddress.c_str(), &sockAddr.rc_bdaddr);

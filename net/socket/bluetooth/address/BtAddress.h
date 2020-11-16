@@ -41,6 +41,7 @@ namespace net::socket::bluetooth::address {
 
         explicit BtAddress(const std::string& btAddress);
         explicit BtAddress(const std::string& btAddress, uint8_t channel);
+        explicit BtAddress(uint8_t port);
         explicit BtAddress(const struct sockaddr_rc& addr);
 
         uint8_t channel() const;
