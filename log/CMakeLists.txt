@@ -51,14 +51,17 @@ add_library(logger SHARED Logger.cpp)
 
 set_target_properties(
     logger
-    PROPERTIES CXX_STANDARD 20
-               CXX_STANDARD_REQUIRED ON
-               CXX_EXTENSIONS OFF
-               SOVERSION 1
-               POSITION_INDEPENDENT_CODE ON
-               LINK_FLAGS
-               "-Llog -Wl,--whole-archive,-leasylogging++,--no-whole-archive"
+    PROPERTIES
+        CXX_STANDARD 20
+        CXX_STANDARD_REQUIRED ON
+        CXX_EXTENSIONS OFF
+        SOVERSION 1
+        POSITION_INDEPENDENT_CODE ON
+        LINK_FLAGS
+        "-Llog -Wl,--whole-archive -leasylogging++ -Wl,--no-whole-archive"
 )
+
+add_dependencies(logger easylogging++)
 
 target_include_directories(
     logger INTERFACE ${CMAKE_CURRENT_SOURCE_DIR} ${EASYLOGGINGPP_INCLUDE_DIR}
@@ -67,6 +70,7 @@ target_include_directories(
 install(TARGETS logger LIBRARY DESTINATION lib
                                NAMELINK_COMPONENT liblogger.so.1
 )
+
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION include/snode.c/log
