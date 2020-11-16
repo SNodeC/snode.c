@@ -28,7 +28,7 @@ add_library(
 )
 
 target_link_libraries(
-    net LINK_PUBLIC logger utils ${OPENSSL_LIBRARIES} ${BLUEZ_LIBRARIES}
+    net LINK_PUBLIC utils logger ${OPENSSL_LIBRARIES} ${BLUEZ_LIBRARIES}
 )
 
 set_target_properties(

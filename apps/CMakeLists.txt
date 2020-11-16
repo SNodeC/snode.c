@@ -275,7 +275,7 @@ endif(CHECK_INCLUDES)
 
 add_executable(btlowlevelserver btlowlevelserver.cpp)
 target_compile_options(btlowlevelserver PRIVATE --warn-all)
-target_link_libraries(btlowlevelserver LINK_PUBLIC http)
+target_link_libraries(btlowlevelserver LINK_PUBLIC net)
 install(TARGETS btlowlevelserver RUNTIME DESTINATION bin)
 set_target_properties(
     btlowlevelserver

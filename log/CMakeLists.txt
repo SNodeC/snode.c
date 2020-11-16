@@ -56,12 +56,12 @@ set_target_properties(
                CXX_EXTENSIONS OFF
                SOVERSION 1
                POSITION_INDEPENDENT_CODE ON
+               LINK_FLAGS
+               "-Llog -Wl,--whole-archive,-leasylogging++,--no-whole-archive"
 )
 
-target_link_libraries(logger LINK_PUBLIC easylogging++)
-
 target_include_directories(
-    logger PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${EASYLOGGINGPP_INCLUDE_DIR}
+    logger INTERFACE ${CMAKE_CURRENT_SOURCE_DIR} ${EASYLOGGINGPP_INCLUDE_DIR}
 )
 
 install(TARGETS logger LIBRARY DESTINATION lib

@@ -19,7 +19,7 @@ add_library(
     http_utils.cpp
 )
 
-target_link_libraries(http LINK_PUBLIC net logger utils ${LIBMAGIC_LIBRARIES})
+target_link_libraries(http LINK_PUBLIC net ${LIBMAGIC_LIBRARIES})
 
 target_compile_options(http PRIVATE --warn-all)
 
