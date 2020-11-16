@@ -256,9 +256,6 @@ if(CHECK_INCLUDES)
     )
 endif(CHECK_INCLUDES)
 
-
-
-
 add_executable(btlowlevelclient btlowlevelclient.cpp)
 target_compile_options(btlowlevelclient PRIVATE --warn-all)
 target_link_libraries(btlowlevelclient LINK_PUBLIC http)
@@ -272,12 +269,9 @@ set_target_properties(
 if(CHECK_INCLUDES)
     set_property(
         TARGET btlowlevelclient PROPERTY CXX_INCLUDE_WHAT_YOU_USE
-                                       ${iwyu_path_and_options}
+                                         ${iwyu_path_and_options}
     )
 endif(CHECK_INCLUDES)
-
-
-
 
 add_custom_command(
     OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/.logger.conf"

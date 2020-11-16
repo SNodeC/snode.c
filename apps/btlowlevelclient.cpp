@@ -29,6 +29,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 using namespace net::socket::stream;
+using namespace net::socket::bluetooth;
 using namespace net::socket::bluetooth::address;
 
 static http::ResponseParser* getResponseParser() {
@@ -71,14 +72,13 @@ static http::ResponseParser* getResponseParser() {
 }
 
 legacy::SocketClient<net::socket::bluetooth::rfcomm::Socket> getBtClient() {
-    legacy::SocketClient<net::socket::bluetooth::rfcomm::Socket> btClient(
-        [](legacy::SocketClient<net::socket::bluetooth::rfcomm::Socket>::SocketConnection* socketConnection) -> void {
+    legacy::SocketClient<rfcomm::Socket> btClient(
+        [](legacy::SocketClient<rfcomm::Socket>::SocketConnection* socketConnection) -> void { // onConstruct
             socketConnection->setContext<http::ResponseParser*>(getResponseParser());
         },
-        []([[maybe_unused]] legacy::SocketClient<net::socket::bluetooth::rfcomm::Socket>::SocketConnection* socketConnection)
-            -> void { // onDestruct
+        []([[maybe_unused]] legacy::SocketClient<rfcomm::Socket>::SocketConnection* socketConnection) -> void { // onDestruct
         },
-        [](legacy::SocketClient<net::socket::bluetooth::rfcomm::Socket>::SocketConnection* socketConnection) -> void { // onConnect
+        [](legacy::SocketClient<rfcomm::Socket>::SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnect";
             socketConnection->enqueue("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
 
@@ -88,7 +88,7 @@ legacy::SocketClient<net::socket::bluetooth::rfcomm::Socket> getBtClient() {
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().address() + "(" + socketConnection->getLocalAddress().address() +
                            "):" + std::to_string(socketConnection->getLocalAddress().channel());
         },
-        [](legacy::SocketClient<net::socket::bluetooth::rfcomm::Socket>::SocketConnection* socketConnection) -> void { // onDisconnect
+        [](legacy::SocketClient<rfcomm::Socket>::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().address() + "(" +
                            socketConnection->getRemoteAddress().address() +
@@ -100,7 +100,7 @@ legacy::SocketClient<net::socket::bluetooth::rfcomm::Socket> getBtClient() {
                 delete responseParser;
             });
         },
-        [](legacy::SocketClient<net::socket::bluetooth::rfcomm::Socket>::SocketConnection* socketConnection,
+        [](legacy::SocketClient<rfcomm::Socket>::SocketConnection* socketConnection,
            const char* junk,
            ssize_t junkSize) -> void { // onRead
             VLOG(0) << "OnRead";
@@ -109,11 +109,11 @@ legacy::SocketClient<net::socket::bluetooth::rfcomm::Socket> getBtClient() {
                 responseParser->parse(junk, junkSize);
             });
         },
-        []([[maybe_unused]] legacy::SocketClient<net::socket::bluetooth::rfcomm::Socket>::SocketConnection* socketConnection,
+        []([[maybe_unused]] legacy::SocketClient<rfcomm::Socket>::SocketConnection* socketConnection,
            int errnum) -> void { // onReadError
             VLOG(0) << "OnReadError: " << errnum;
         },
-        []([[maybe_unused]] legacy::SocketClient<net::socket::bluetooth::rfcomm::Socket>::SocketConnection* socketConnection,
+        []([[maybe_unused]] legacy::SocketClient<rfcomm::Socket>::SocketConnection* socketConnection,
            int errnum) -> void { // onWriteError
             VLOG(0) << "OnWriteError: " << errnum;
         },

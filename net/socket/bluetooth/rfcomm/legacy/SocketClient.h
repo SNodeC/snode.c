@@ -33,6 +33,6 @@ namespace net::socket::bluetooth::rfcomm::legacy {
         using rfcomm::SocketClient<stream::legacy::SocketClient<rfcomm::Socket>>::SocketClient;
     };
 
-} // namespace net::socket::bluetooth::rfcomm::tls
+} // namespace net::socket::bluetooth::rfcomm::legacy
 
 #endif // NET_SOCKET_BLUETOOTH_RFCOMM_LEGACY_SOCKETCLIENT_H
