@@ -32,36 +32,21 @@ find_package(EASYLOGGINGPP REQUIRED)
 # internet connection?") endif() endif()
 
 add_library(
-    easylogging++ STATIC ${EASYLOGGINGPP_INCLUDE_DIR}/easylogging++.cc
-                         ${EASYLOGGINGPP_INCLUDE_DIR}/easylogging++.h
+    logger SHARED Logger.cpp ${EASYLOGGINGPP_INCLUDE_DIR}/easylogging++.cc
 )
-
-set_target_properties(
-    easylogging++
-    PROPERTIES CXX_STANDARD 20
-               CXX_STANDARD_REQUIRED ON
-               CXX_EXTENSIONS OFF
-               POSITION_INDEPENDENT_CODE ON
-)
-
-target_compile_options(easylogging++ PRIVATE --warn-all -Wno-unused-parameter)
-target_compile_definitions(easylogging++ PRIVATE ELPP_NO_DEFAULT_LOG_FILE)
-
-add_library(logger SHARED Logger.cpp)
 
 set_target_properties(
     logger
-    PROPERTIES
-        CXX_STANDARD 20
-        CXX_STANDARD_REQUIRED ON
-        CXX_EXTENSIONS OFF
-        SOVERSION 1
-        POSITION_INDEPENDENT_CODE ON
-        LINK_FLAGS
-        "-Llog -Wl,--whole-archive -leasylogging++ -Wl,--no-whole-archive"
+    PROPERTIES CXX_STANDARD 20
+               CXX_STANDARD_REQUIRED ON
+               CXX_EXTENSIONS OFF
+               SOVERSION 1
+               POSITION_INDEPENDENT_CODE ON
 )
 
-add_dependencies(logger easylogging++)
+target_compile_options(logger PRIVATE --warn-all -Wno-unused-parameter)
+
+target_compile_definitions(logger PRIVATE ELPP_NO_DEFAULT_LOG_FILE)
 
 target_include_directories(
     logger INTERFACE ${CMAKE_CURRENT_SOURCE_DIR} ${EASYLOGGINGPP_INCLUDE_DIR}
