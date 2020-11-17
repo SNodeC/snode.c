@@ -18,7 +18,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <netdb.h>
+#include <cstring> // for memcpy
 #include <sys/socket.h>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS

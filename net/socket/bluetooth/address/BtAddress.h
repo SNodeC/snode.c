@@ -21,10 +21,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/rfcomm.h>
-#include <cstdint>   // for uint16_t
-#include <exception> // IWYU pragma: keep
+#include <bluetooth/bluetooth.h> // IWYU pragma: keep, for str2ba, ba2str, bdaddr_t
+#include <bluetooth/rfcomm.h>    // IWYU pragma: keep, for sockaddr_rc
+#include <cstdint>               // for uint16_t
+#include <exception>             // IWYU pragma: keep
 #include <string>
 // IWYU pragma: no_include <bits/exception.h>
 
