@@ -126,8 +126,8 @@ int main(int argc, char* argv[]) {
     net::EventLoop::init(argc, argv);
 
     {
-        BtAddress remoteAddress("B8:27:EB:6C:98:9E", 1); // kleinebeere
-        BtAddress bindAddress("5C:C5:D4:B8:3C:AA");      // calisto
+        RfCommAddress remoteAddress("B8:27:EB:6C:98:9E", 1); // kleinebeere
+        RfCommAddress bindAddress("5C:C5:D4:B8:3C:AA");      // calisto
 
         legacy::SocketClient legacyClient = getBtClient();
 

@@ -27,11 +27,11 @@
 
 #include "Descriptor.h" // for Descriptor
 #include "socket/Socket.h"
-#include "socket/bluetooth/address/BtAddress.h" // IWYU pragma: keep
+#include "socket/bluetooth/address/RfCommAddress.h" // IWYU pragma: keep
 
 namespace net::socket::bluetooth::rfcomm {
 
-    class Socket : public socket::Socket<address::BtAddress> {
+    class Socket : public socket::Socket<address::RfCommAddress> {
     public:
         Socket() = default;
 

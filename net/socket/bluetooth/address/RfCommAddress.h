@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_BLUETOOTH_ADDRESS_BTADDRESS_H
-#define NET_SOCKET_BLUETOOTH_ADDRESS_BTADDRESS_H
+#ifndef NET_SOCKET_BLUETOOTH_ADDRESS_RFCOMMADDRESS_H
+#define NET_SOCKET_BLUETOOTH_ADDRESS_RFCOMMADDRESS_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -34,24 +34,24 @@
 
 namespace net::socket::bluetooth::address {
 
-    class BtAddress : public SocketAddress<struct sockaddr_rc> {
+    class RfCommAddress : public SocketAddress<struct sockaddr_rc> {
     public:
-        BtAddress();
-        BtAddress(const BtAddress& bta);
+        RfCommAddress();
+        RfCommAddress(const RfCommAddress& bta);
 
-        explicit BtAddress(const std::string& btAddress);
-        explicit BtAddress(const std::string& btAddress, uint8_t channel);
-        explicit BtAddress(uint8_t port);
-        explicit BtAddress(const struct sockaddr_rc& addr);
+        explicit RfCommAddress(const std::string& btAddress);
+        RfCommAddress(const std::string& btAddress, uint8_t channel);
+        explicit RfCommAddress(uint8_t port);
+        explicit RfCommAddress(const struct sockaddr_rc& addr);
 
         uint8_t channel() const;
         std::string address() const;
 
-        BtAddress& operator=(const BtAddress& bta);
+        RfCommAddress& operator=(const RfCommAddress& bta);
 
         const struct sockaddr_rc& getSockAddrRc() const;
     };
 
 } // namespace net::socket::bluetooth::address
 
-#endif // NET_SOCKET_BLUETOOTH_ADDRESS_BTADDRESS_H
+#endif // NET_SOCKET_BLUETOOTH_ADDRESS_RFCOMMADDRESS_H

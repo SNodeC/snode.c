@@ -23,62 +23,62 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#include "BtAddress.h"
+#include "RfCommAddress.h"
 
 namespace net::socket::bluetooth::address {
 
-    BtAddress::BtAddress() {
+    RfCommAddress::RfCommAddress() {
         sockAddr.rc_family = AF_BLUETOOTH;
         sockAddr.rc_bdaddr = {{0, 0, 0, 0, 0, 0}};
         sockAddr.rc_channel = (uint8_t) 0;
     }
 
-    BtAddress::BtAddress(const BtAddress& bta) {
-        memcpy(&sockAddr, &bta.sockAddr, sizeof(struct sockaddr_rc));
+    RfCommAddress::RfCommAddress(const RfCommAddress& bta) {
+        memcpy(&sockAddr, &bta.sockAddr, sizeof(sockAddr));
     }
 
-    BtAddress::BtAddress(const struct sockaddr_rc& addr) {
-        memcpy(&sockAddr, &addr, sizeof(struct sockaddr_rc));
+    RfCommAddress::RfCommAddress(const struct sockaddr_rc& addr) {
+        memcpy(&sockAddr, &addr, sizeof(sockAddr));
     }
 
-    BtAddress::BtAddress(const std::string& btAddress) {
+    RfCommAddress::RfCommAddress(const std::string& btAddress) {
         sockAddr.rc_family = AF_BLUETOOTH;
         str2ba(btAddress.c_str(), &sockAddr.rc_bdaddr);
         sockAddr.rc_channel = (uint8_t) 0;
     }
 
-    BtAddress::BtAddress(uint8_t channel) {
+    RfCommAddress::RfCommAddress(uint8_t channel) {
         sockAddr.rc_family = AF_BLUETOOTH;
         sockAddr.rc_bdaddr = {{0, 0, 0, 0, 0, 0}};
         sockAddr.rc_channel = channel;
     }
 
-    BtAddress::BtAddress(const std::string& btAddress, uint8_t channel) {
+    RfCommAddress::RfCommAddress(const std::string& btAddress, uint8_t channel) {
         sockAddr.rc_family = AF_BLUETOOTH;
         str2ba(btAddress.c_str(), &sockAddr.rc_bdaddr);
         sockAddr.rc_channel = channel;
     }
 
-    uint8_t BtAddress::channel() const {
+    uint8_t RfCommAddress::channel() const {
         return sockAddr.rc_channel;
     }
 
-    std::string BtAddress::address() const {
+    std::string RfCommAddress::address() const {
         char ip[256];
         ba2str(&sockAddr.rc_bdaddr, ip);
 
         return std::string(ip);
     }
 
-    BtAddress& BtAddress::operator=(const BtAddress& bta) {
+    RfCommAddress& RfCommAddress::operator=(const RfCommAddress& bta) {
         if (this != &bta) {
-            memcpy(&sockAddr, &bta.sockAddr, sizeof(struct sockaddr_rc));
+            memcpy(&sockAddr, &bta.sockAddr, sizeof(sockAddr));
         }
 
         return *this;
     }
 
-    const struct sockaddr_rc& BtAddress::getSockAddrRc() const {
+    const struct sockaddr_rc& RfCommAddress::getSockAddrRc() const {
         return sockAddr;
     }
 
