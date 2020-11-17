@@ -133,7 +133,7 @@ int main(int argc, char* argv[]) {
 
         legacyClient.connect(
             remoteAddress,
-            [](int err) -> void { // example.com:81 simulate connnect timeout
+            [](int err) -> void {
                 if (err) {
                     PLOG(ERROR) << "Connect: " << std::to_string(err);
                 } else {
