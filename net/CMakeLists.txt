@@ -16,7 +16,9 @@ add_library(
     WriteEventReceiver.cpp
     file/File.cpp
     file/FileReader.cpp
-    socket/bluetooth/address/BtAddress.cpp
+    socket/bluetooth/address/L2CapAddress.cpp
+    socket/bluetooth/address/RfCommAddress.cpp
+    socket/bluetooth/l2cap/Socket.cpp
     socket/bluetooth/rfcomm/Socket.cpp
     socket/ip/address/ipv4/InetAddress.cpp
     socket/ip/address/ipv6/InetAddress.cpp
