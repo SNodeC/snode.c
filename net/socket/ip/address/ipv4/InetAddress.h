@@ -52,7 +52,7 @@ namespace net::socket::ip::address::ipv4 {
         InetAddress();
         InetAddress(const InetAddress& ina);
         explicit InetAddress(const std::string& ipOrHostname);
-        explicit InetAddress(const std::string& ipOrHostname, uint16_t port);
+        InetAddress(const std::string& ipOrHostname, uint16_t port);
         explicit InetAddress(uint16_t port);
         explicit InetAddress(const struct sockaddr_in& addr);
 

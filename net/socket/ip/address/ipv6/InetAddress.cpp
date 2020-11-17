@@ -20,7 +20,7 @@ namespace net::socket::ip::address::ipv6 {
         struct addrinfo* resalloc;
 
         memset(&hints, 0, sizeof(hints));
-        memset(&sockAddr, 0, sizeof(struct sockaddr_in6));
+        memset(&sockAddr, 0, sizeof(sockAddr));
 
         /* We only care about IPV6 results */
         hints.ai_family = AF_INET6;
@@ -59,7 +59,7 @@ namespace net::socket::ip::address::ipv6 {
         struct addrinfo* resalloc;
 
         memset(&hints, 0, sizeof(hints));
-        memset(&sockAddr, 0, sizeof(struct sockaddr_in6));
+        memset(&sockAddr, 0, sizeof(sockAddr));
 
         /* We only care about IPV6 results */
         hints.ai_family = AF_INET6;
@@ -99,16 +99,16 @@ namespace net::socket::ip::address::ipv6 {
     }
 
     InetAddress::InetAddress(const struct sockaddr_in6& addr) {
-        memcpy(&this->sockAddr, &addr, sizeof(struct sockaddr_in6));
+        memcpy(&this->sockAddr, &addr, sizeof(sockAddr));
     }
 
     InetAddress::InetAddress(const InetAddress& ina) {
-        memcpy(&sockAddr, &ina.sockAddr, sizeof(struct sockaddr_in6));
+        memcpy(&sockAddr, &ina.sockAddr, sizeof(sockAddr));
     }
 
     InetAddress& InetAddress::operator=(const InetAddress& ina) {
         if (this != &ina) {
-            memcpy(&sockAddr, &ina.sockAddr, sizeof(struct sockaddr_in6));
+            memcpy(&sockAddr, &ina.sockAddr, sizeof(sockAddr));
         }
 
         return *this;

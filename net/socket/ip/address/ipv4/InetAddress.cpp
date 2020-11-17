@@ -67,16 +67,16 @@ namespace net::socket::ip::address::ipv4 {
     }
 
     InetAddress::InetAddress(const struct sockaddr_in& addr) {
-        memcpy(&this->sockAddr, &addr, sizeof(struct sockaddr_in));
+        memcpy(&this->sockAddr, &addr, sizeof(sockAddr));
     }
 
     InetAddress::InetAddress(const InetAddress& ina) {
-        memcpy(&sockAddr, &ina.sockAddr, sizeof(struct sockaddr_in));
+        memcpy(&sockAddr, &ina.sockAddr, sizeof(sockAddr));
     }
 
     InetAddress& InetAddress::operator=(const InetAddress& ina) {
         if (this != &ina) {
-            memcpy(&sockAddr, &ina.sockAddr, sizeof(struct sockaddr_in));
+            memcpy(&sockAddr, &ina.sockAddr, sizeof(sockAddr));
         }
 
         return *this;
