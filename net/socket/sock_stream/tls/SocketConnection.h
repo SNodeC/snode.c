@@ -69,6 +69,7 @@ namespace net::socket::stream::tls {
             onConstruct(this);
         }
 
+    protected:
         SSL* startSSL(SSL_CTX* ctx) {
             if (ctx != nullptr) {
                 ssl = SSL_new(ctx);
@@ -102,18 +103,25 @@ namespace net::socket::stream::tls {
             }
         }
 
+    public:
         SSL* getSSL() const {
             return ssl;
         }
 
+    protected:
         void setSSLError(int sslErr) {
             this->sslErr = sslErr;
         }
 
-    protected:
         SSL* ssl = nullptr;
 
         int sslErr = SSL_ERROR_NONE;
+
+        template <typename Socket>
+        friend class SocketListener;
+
+        template <typename Socket>
+        friend class SocketConnector;
     };
 
 } // namespace net::socket::stream::tls
