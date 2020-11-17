@@ -41,7 +41,6 @@ set_target_properties(
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
                SOVERSION 1
-               POSITION_INDEPENDENT_CODE ON
 )
 
 target_compile_options(logger PRIVATE --warn-all -Wno-unused-parameter)
