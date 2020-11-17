@@ -39,9 +39,10 @@ int main(int argc, char* argv[]) {
         },
         []([[maybe_unused]] SocketServer::SocketConnection* socketConnection) -> void { // onDisconnect
         },
-        []([[maybe_unused]] SocketServer::SocketConnection* socketConnection,
-           [[maybe_unused]] const char* junk,
-           [[maybe_unused]] ssize_t junkLen) -> void { // onRead
+        []([[maybe_unused]] SocketServer::SocketConnection* socketConnection, const char* junk, ssize_t junkLen) -> void { // onRead
+            std::string data(junk, junkLen);
+            VLOG(0) << "Data to reflect: " << data;
+            socketConnection->enqueue(data);
         },
         []([[maybe_unused]] SocketServer::SocketConnection* socketConnection, [[maybe_unused]] int errnum) -> void { // onReadError
         },
