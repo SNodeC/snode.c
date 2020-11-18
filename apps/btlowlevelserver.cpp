@@ -35,21 +35,34 @@ int main(int argc, char* argv[]) {
         },
         []([[maybe_unused]] SocketServer::SocketConnection* socketConnection) -> void { // onDestruct
         },
-        []([[maybe_unused]] SocketServer::SocketConnection* socketConnection) -> void { // onConnect
+        [](SocketServer::SocketConnection* socketConnection) -> void { // onConnect
+            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().address() + "(" +
+                           socketConnection->getRemoteAddress().address() +
+                           "):" + std::to_string(socketConnection->getRemoteAddress().channel());
+            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().address() + "(" + socketConnection->getLocalAddress().address() +
+                           "):" + std::to_string(socketConnection->getLocalAddress().channel());
         },
-        []([[maybe_unused]] SocketServer::SocketConnection* socketConnection) -> void { // onDisconnect
+        [](SocketServer::SocketConnection* socketConnection) -> void { // onDisconnect
+            VLOG(0) << "OnDisconnect";
+            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().address() + "(" +
+                           socketConnection->getRemoteAddress().address() +
+                           "):" + std::to_string(socketConnection->getRemoteAddress().channel());
+            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().address() + "(" + socketConnection->getLocalAddress().address() +
+                           "):" + std::to_string(socketConnection->getLocalAddress().channel());
         },
-        []([[maybe_unused]] SocketServer::SocketConnection* socketConnection, const char* junk, ssize_t junkLen) -> void { // onRead
+        [](SocketServer::SocketConnection* socketConnection, const char* junk, ssize_t junkLen) -> void { // onRead
             std::string data(junk, junkLen);
             VLOG(0) << "Data to reflect: " << data;
             socketConnection->enqueue(data);
         },
         []([[maybe_unused]] SocketServer::SocketConnection* socketConnection, [[maybe_unused]] int errnum) -> void { // onReadError
+            VLOG(0) << "OnReadError: " << errnum;
         },
         []([[maybe_unused]] SocketServer::SocketConnection* socketConnection, [[maybe_unused]] int errnum) -> void { // onWriteError
+            VLOG(0) << "OnWriteError: " << errnum;
         });
 
-    btServer.listen("5C:C5:D4:B8:3C:AA", 1, 5, [](int errnum) -> void {
+    btServer.listen("5C:C5:D4:B8:3C:AA", 1, 5, [](int errnum) -> void { // calisto
         if (errnum != 0) {
             LOG(ERROR) << "BT listen: " << errnum;
         } else {
