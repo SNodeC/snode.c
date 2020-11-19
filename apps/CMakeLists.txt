@@ -283,11 +283,45 @@ set_target_properties(
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
 )
-
 if(CHECK_INCLUDES)
     set_property(
         TARGET btlowlevelserver PROPERTY CXX_INCLUDE_WHAT_YOU_USE
                                          ${iwyu_path_and_options}
+    )
+endif(CHECK_INCLUDES)
+
+add_executable(btlowleveltlsclient btlowleveltlsclient.cpp)
+target_compile_options(btlowleveltlsclient PRIVATE --warn-all)
+target_link_libraries(btlowleveltlsclient LINK_PUBLIC http)
+install(TARGETS btlowleveltlsclient RUNTIME DESTINATION bin)
+set_target_properties(
+    btlowleveltlsclient
+    PROPERTIES CXX_STANDARD 20
+               CXX_STANDARD_REQUIRED ON
+               CXX_EXTENSIONS OFF
+)
+if(CHECK_INCLUDES)
+    set_property(
+        TARGET btlowleveltlsclient PROPERTY CXX_INCLUDE_WHAT_YOU_USE
+                                            ${iwyu_path_and_options}
+    )
+endif(CHECK_INCLUDES)
+
+add_executable(btlowleveltlsserver btlowleveltlsserver.cpp)
+target_compile_options(btlowleveltlsserver PRIVATE --warn-all)
+target_link_libraries(btlowleveltlsserver LINK_PUBLIC net)
+install(TARGETS btlowleveltlsserver RUNTIME DESTINATION bin)
+set_target_properties(
+    btlowleveltlsserver
+    PROPERTIES CXX_STANDARD 20
+               CXX_STANDARD_REQUIRED ON
+               CXX_EXTENSIONS OFF
+)
+
+if(CHECK_INCLUDES)
+    set_property(
+        TARGET btlowleveltlsserver PROPERTY CXX_INCLUDE_WHAT_YOU_USE
+                                            ${iwyu_path_and_options}
     )
 endif(CHECK_INCLUDES)
 
