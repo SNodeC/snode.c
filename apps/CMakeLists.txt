@@ -317,7 +317,6 @@ set_target_properties(
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
 )
-
 if(CHECK_INCLUDES)
     set_property(
         TARGET btlowleveltlsserver PROPERTY CXX_INCLUDE_WHAT_YOU_USE
