@@ -40,7 +40,7 @@ legacy::SocketClient<net::socket::bluetooth::l2cap::Socket> getBtClient() {
         },
         [](legacy::SocketClient<l2cap::Socket>::SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnect";
-            socketConnection->enqueue("Hello rfcomm connection!");
+            socketConnection->enqueue("Hello l2cap connection!");
 
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().address() + "(" +
                            socketConnection->getRemoteAddress().address() +
