@@ -324,6 +324,40 @@ if(CHECK_INCLUDES)
     )
 endif(CHECK_INCLUDES)
 
+add_executable(l2lowlevelclient l2lowlevelclient.cpp)
+target_compile_options(l2lowlevelclient PRIVATE --warn-all)
+target_link_libraries(l2lowlevelclient LINK_PUBLIC http)
+install(TARGETS l2lowlevelclient RUNTIME DESTINATION bin)
+set_target_properties(
+    l2lowlevelclient
+    PROPERTIES CXX_STANDARD 20
+               CXX_STANDARD_REQUIRED ON
+               CXX_EXTENSIONS OFF
+)
+if(CHECK_INCLUDES)
+    set_property(
+        TARGET l2lowlevelclient PROPERTY CXX_INCLUDE_WHAT_YOU_USE
+                                         ${iwyu_path_and_options}
+    )
+endif(CHECK_INCLUDES)
+
+add_executable(l2lowlevelserver l2lowlevelserver.cpp)
+target_compile_options(l2lowlevelserver PRIVATE --warn-all)
+target_link_libraries(l2lowlevelserver LINK_PUBLIC net)
+install(TARGETS l2lowlevelserver RUNTIME DESTINATION bin)
+set_target_properties(
+    l2lowlevelserver
+    PROPERTIES CXX_STANDARD 20
+               CXX_STANDARD_REQUIRED ON
+               CXX_EXTENSIONS OFF
+)
+if(CHECK_INCLUDES)
+    set_property(
+        TARGET l2lowlevelserver PROPERTY CXX_INCLUDE_WHAT_YOU_USE
+                                         ${iwyu_path_and_options}
+    )
+endif(CHECK_INCLUDES)
+
 add_custom_command(
     OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/.logger.conf"
     COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/logger.conf"
