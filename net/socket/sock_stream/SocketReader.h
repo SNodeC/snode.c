@@ -52,6 +52,14 @@ namespace net::socket::stream {
             , onError(onError) {
         }
 
+        void shutdown() {
+            if (!isEnabled()) {
+                Socket::shutdown(Socket::shut::RD);
+            } else {
+                markShutdown = true;
+            }
+        }
+
     private:
         virtual ssize_t read(char* junk, size_t junkLen) = 0;
 
@@ -67,6 +75,9 @@ namespace net::socket::stream {
                 onRead(junk, ret);
             } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
                 ReadEventReceiver::disable();
+                if (markShutdown) {
+                    Socket::shutdown(Socket::shut::RD);
+                }
                 onError(getError());
             }
         }
@@ -75,6 +86,8 @@ namespace net::socket::stream {
 
         std::function<void(const char* junk, ssize_t junkLen)> onRead;
         std::function<void(int errnum)> onError;
+
+        bool markShutdown = false;
     };
 
 } // namespace net::socket::stream

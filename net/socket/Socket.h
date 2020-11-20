@@ -63,6 +63,12 @@ namespace net::socket {
             }
         }
 
+        enum shut { WR = SHUT_WR, RD = SHUT_RD, RDWR = SHUT_RDWR };
+
+        void shutdown(int how) {
+            ::shutdown(getFd(), how);
+        }
+
         const SocketAddress& getBindAddress() const {
             return bindAddress;
         }

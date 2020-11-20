@@ -59,6 +59,14 @@ namespace net::socket::stream {
             }
         }
 
+        void shutdown() {
+            if (!isEnabled()) {
+                Socket::shutdown(Socket::shut::WR);
+            } else {
+                markShutdown = true;
+            }
+        }
+
     private:
         virtual ssize_t write(const char* junk, size_t junkSize) = 0;
 
@@ -72,9 +80,15 @@ namespace net::socket::stream {
 
                 if (writeBuffer.empty()) {
                     WriteEventReceiver::disable();
+                    if (markShutdown) {
+                        Socket::shutdown(Socket::shut::WR);
+                    }
                 }
             } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
                 WriteEventReceiver::disable();
+                if (markShutdown) {
+                    Socket::shutdown(Socket::shut::WR);
+                }
                 onError(getError());
             }
         }
@@ -84,6 +98,8 @@ namespace net::socket::stream {
         std::function<void(int errnum)> onError;
 
         std::vector<char> writeBuffer;
+
+        bool markShutdown = false;
     };
 
 } // namespace net::socket::stream
