@@ -108,12 +108,12 @@ namespace net::socket::stream {
             }
 
             void connect(const SocketAddress& remoteAddress,
-                         const std::function<void(int err)>& onError,
-                         const SocketAddress& bindAddress = SocketAddress()) override {
+                         const SocketAddress& bindAddress,
+                         const std::function<void(int err)>& onError) override {
                 if (sslErr != 0) {
                     onError(-sslErr);
                 } else {
-                    stream::SocketConnector<SocketConnection>::connect(remoteAddress, onError, bindAddress);
+                    stream::SocketConnector<SocketConnection>::connect(remoteAddress, bindAddress, onError);
                 }
             }
 

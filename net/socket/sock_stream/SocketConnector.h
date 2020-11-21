@@ -86,9 +86,8 @@ namespace net::socket::stream {
 
         virtual ~SocketConnector() = default;
 
-        virtual void connect(const SocketAddress& remoteAddress,
-                             const std::function<void(int err)>& onError,
-                             const SocketAddress& bindAddress = SocketAddress()) {
+        virtual void
+        connect(const SocketAddress& remoteAddress, const SocketAddress& bindAddress, const std::function<void(int err)>& onError) {
             this->onError = onError;
 
             errno = 0;

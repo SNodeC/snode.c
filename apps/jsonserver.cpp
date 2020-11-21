@@ -24,7 +24,6 @@
 #include "legacy/WebApp.h"
 #include "middleware/JsonMiddleware.h"
 #include "middleware/StaticMiddleware.h"
-#include "tls/WebApp.h"
 
 #include <nlohmann/json.hpp>
 #include <openssl/x509v3.h>
@@ -37,11 +36,11 @@ using json = nlohmann::json;
 int main(int argc, char* argv[]) {
     WebApp::init(argc, argv);
 
-    tls::WebApp tlsApp;
+    legacy::WebApp legacyApp;
 
-    tlsApp.use(middleware::JsonMiddleware());
+    legacyApp.use(middleware::JsonMiddleware());
 
-    tlsApp.listen(8080, [](int err) -> void {
+    legacyApp.listen(8080, [](int err) -> void {
         if (err != 0) {
             PLOG(FATAL) << "listen on port 8080 " << std::to_string(err);
         } else {
@@ -49,7 +48,7 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    tlsApp.post("/index.html", [] APPLICATION(req, res) {
+    legacyApp.post("/index.html", [] APPLICATION(req, res) {
         std::string jsonString = "";
 
         req.getAttribute<json>(
@@ -64,11 +63,11 @@ int main(int argc, char* argv[]) {
         res.send(jsonString);
     });
 
-    tlsApp.post([] APPLICATION(req, res) {
+    legacyApp.post([] APPLICATION(req, res) {
         res.send("Wrong Url");
     });
 
-    tlsApp.onConnect([](tls::WebApp::SocketConnection* socketConnection) -> void {
+    legacyApp.onConnect([](legacy::WebApp::SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnConnect:";
         VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                        "):" + std::to_string(socketConnection->getRemoteAddress().port());
@@ -76,7 +75,7 @@ int main(int argc, char* argv[]) {
                        "):" + std::to_string(socketConnection->getLocalAddress().port());
     });
 
-    tlsApp.onDisconnect([](tls::WebApp::SocketConnection* socketConnection) -> void {
+    legacyApp.onDisconnect([](legacy::WebApp::SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnDisconnect:";
         VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
                        "):" + std::to_string(socketConnection->getRemoteAddress().port());

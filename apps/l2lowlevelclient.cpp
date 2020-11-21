@@ -81,16 +81,13 @@ int main(int argc, char* argv[]) {
 
         legacy::SocketClient legacyClient = getBtClient();
 
-        legacyClient.connect(
-            remoteAddress,
-            [](int err) -> void {
-                if (err) {
-                    PLOG(ERROR) << "Connect: " << std::to_string(err);
-                } else {
-                    VLOG(0) << "Connected";
-                }
-            },
-            bindAddress);
+        legacyClient.connect(remoteAddress, bindAddress, [](int err) -> void {
+            if (err) {
+                PLOG(ERROR) << "Connect: " << std::to_string(err);
+            } else {
+                VLOG(0) << "Connected";
+            }
+        });
     }
 
     return net::EventLoop::start();

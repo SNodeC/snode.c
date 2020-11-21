@@ -184,25 +184,25 @@ int main(int argc, char* argv[]) {
             },
             {{"certChain", CLIENTCERTF}, {"keyPEM", CLIENTKEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}});
 
-        legacyClient.get({{"host", "localhost"}, {"port", 8080}, {"path", "/index.html"}}, [](int err) -> void {
+        legacyClient.get("localhost", 8080, "/index.html", [](int err) -> void {
             if (err != 0) {
                 PLOG(ERROR) << "OnError: " << err;
             }
         }); // Connection:keep-alive\r\n\r\n"
 
-        legacyClient.get({{"host", "localhost"}, {"port", 8080}, {"path", "/index.html"}}, [](int err) -> void {
+        legacyClient.get("localhost", 8080, "/index.html", [](int err) -> void {
             if (err != 0) {
                 PLOG(ERROR) << "OnError: " << err;
             }
         }); // Connection:keep-alive\r\n\r\n"
 
-        tlsClient.get({{"host", "localhost"}, {"port", 8088}, {"path", "/index.html"}}, [](int err) -> void {
+        tlsClient.get("localhost", 8088, "/index.html", [](int err) -> void {
             if (err != 0) {
                 PLOG(ERROR) << "OnError: " << err;
             }
         }); // Connection:keep-alive\r\n\r\n"
 
-        tlsClient.get({{"host", "localhost"}, {"port", 8088}, {"path", "/index.html"}}, [](int err) -> void {
+        tlsClient.get("localhost", 8088, "/index.html", [](int err) -> void {
             if (err != 0) {
                 PLOG(ERROR) << "OnError: " << err;
             }

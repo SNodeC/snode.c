@@ -22,6 +22,7 @@ namespace http {
     public:
         using SocketServer = SocketServerT;
         using SocketConnection = typename SocketServer::SocketConnection;
+        using SocketAddress = typename SocketConnection::SocketAddress;
         using Request = RequestT;
         using Response = ResponseT;
 
@@ -68,13 +69,13 @@ namespace http {
         void listen(unsigned short port, const std::function<void(int err)>& onError) const {
             errno = 0;
 
-            socketServer.listen(port, 5, onError);
+            socketServer.listen(SocketAddress(port), 5, onError);
         }
 
-        void listen(const std::string host, unsigned short port, const std::function<void(int err)>& onError) const {
+        void listen(const std::string& host, unsigned short port, const std::function<void(int err)>& onError) const {
             errno = 0;
 
-            socketServer.listen(host, port, 5, onError);
+            socketServer.listen(SocketAddress(host, port), 5, onError);
         }
 
     protected:

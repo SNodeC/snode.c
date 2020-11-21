@@ -56,10 +56,7 @@ namespace http {
             , options(options) {
         }
 
-        void connect(const std::string& request,
-                     const std::map<std::string, std::any>& options,
-                     const std::function<void(int err)>& onError,
-                     const SocketAddress& localHost = SocketAddress()) const {
+        void connect(const std::string& request, const SocketAddress& remoteAddress, const std::function<void(int err)>& onError) const {
             errno = 0;
 
             SocketClient socketClient(
@@ -110,54 +107,31 @@ namespace http {
                 },
                 this->options);
 
-            socketClient.connect(options, onError, localHost);
+            socketClient.connect(remoteAddress, onError);
         }
 
-        void get(const std::map<std::string, std::any>& options,
-                 const std::function<void(int err)>& onError,
-                 const SocketAddress& localHost = SocketAddress()) const {
-            std::string path = "";
-            std::string host = "";
+        void
+        get(const std::string& ipOrHostname, unsigned short port, const std::string& path, const std::function<void(int err)>& onError) {
+            std::string request = "GET " + path + " HTTP/1.1\r\nHost: " + ipOrHostname + "\r\nConnection: close\r\n\r\n";
 
-            for (auto& [name, value] : options) {
-                if (name == "path") {
-                    path = std::any_cast<const char*>(value);
-                }
-                if (name == "host") {
-                    host = std::any_cast<const char*>(value);
-                }
-            }
+            SocketAddress remoteAddress(ipOrHostname, port);
 
-            std::string request = "GET " + path + " HTTP/1.1\r\nHost: " + host + "\r\nConnection: close\r\n\r\n";
-
-            connect(request, options, onError, localHost);
+            connect(request, remoteAddress, onError);
         }
 
-        void post(const std::map<std::string, std::any>& options,
-                  const std::function<void(int err)>& onError,
-                  const SocketAddress& localHost = SocketAddress()) const {
-            std::string path = "";
-            std::string host = "";
-            std::string body = "";
-            int contentLength = 0;
+        void post(const std::string& ipOrHostname,
+                  unsigned short port,
+                  const std::string& path,
+                  const std::string& body,
+                  const std::function<void(int err)>& onError) {
+            int contentLength = body.length();
 
-            for (auto& [name, value] : options) {
-                if (name == "path") {
-                    path = std::any_cast<const char*>(value);
-                }
-                if (name == "host") {
-                    host = std::any_cast<const char*>(value);
-                }
-                if (name == "body") {
-                    body = std::any_cast<const char*>(value);
-                    contentLength = body.length();
-                }
-            }
+            std::string request = "POST " + path + " HTTP/1.1\r\nHost: " + ipOrHostname +
+                                  "\r\nContent-Length: " + std::to_string(contentLength) + "\r\nConnection: close\r\n\r\n" + body;
 
-            std::string request = "POST " + path + " HTTP/1.1\r\nHost: " + host + "\r\nContent-Length: " + std::to_string(contentLength) +
-                                  "\r\nConnection: close\r\n\r\n" + body;
+            SocketAddress remoteAddress(ipOrHostname, port);
 
-            connect(request, options, onError, localHost);
+            connect(request, remoteAddress, onError);
         }
 
     protected:

@@ -86,15 +86,11 @@ int main(int argc, char* argv[]) {
                            "):" + std::to_string(socketConnection->getLocalAddress().port());
         });
 
-    jsonClient.post({{"host", "localhost"},
-                     {"port", 8080},
-                     {"path", "/index.html"},
-                     {"body", "{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}"}},
-                    [](int err) -> void {
-                        if (err != 0) {
-                            PLOG(ERROR) << "OnError: " << err;
-                        }
-                    }); // Connection:keep-alive\r\n\r\n"
+    jsonClient.post("localhost", 8080, "/index.html", "{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}", [](int err) -> void {
+        if (err != 0) {
+            PLOG(ERROR) << "OnError: " << err;
+        }
+    });
 
     return net::EventLoop::start();
 }

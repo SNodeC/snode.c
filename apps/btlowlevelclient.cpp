@@ -75,23 +75,18 @@ legacy::SocketClient<net::socket::bluetooth::rfcomm::Socket> getBtClient() {
 int main(int argc, char* argv[]) {
     net::EventLoop::init(argc, argv);
 
-    {
-        RfCommAddress remoteAddress("5C:C5:D4:B8:3C:AA", 1); // calisto
-        RfCommAddress bindAddress("44:01:BB:A3:63:32");      // mpow
+    RfCommAddress remoteAddress("5C:C5:D4:B8:3C:AA", 1); // calisto
+    RfCommAddress bindAddress("44:01:BB:A3:63:32");      // mpow
 
-        legacy::SocketClient legacyClient = getBtClient();
+    legacy::SocketClient legacyClient = getBtClient();
 
-        legacyClient.connect(
-            remoteAddress,
-            [](int err) -> void {
-                if (err) {
-                    PLOG(ERROR) << "Connect: " << std::to_string(err);
-                } else {
-                    VLOG(0) << "Connected";
-                }
-            },
-            bindAddress);
-    }
+    legacyClient.connect(remoteAddress, bindAddress, [](int err) -> void {
+        if (err) {
+            PLOG(ERROR) << "Connect: " << std::to_string(err);
+        } else {
+            VLOG(0) << "Connected";
+        }
+    });
 
     return net::EventLoop::start();
 }

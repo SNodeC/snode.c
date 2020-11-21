@@ -39,22 +39,15 @@ namespace net::socket::ip::tcp {
         using Socket = typename SocketConnection::Socket;
         using SocketAddress = typename Socket::SocketAddress;
 
-        virtual void connect(const std::map<std::string, std::any>& options,
-                             const std::function<void(int err)>& onError,
-                             const SocketAddress& bindAddress = SocketAddress()) const {
-            std::string host = "";
-            unsigned short port = 0;
+        virtual void connect(const SocketAddress& remoteAddress, const std::function<void(int err)>& onError) const {
+            SocketAddress bindAddress;
 
-            for (auto& [name, value] : options) {
-                if (name == "host") {
-                    host = std::any_cast<const char*>(value);
-                } else if (name == "port") {
-                    port = std::any_cast<int>(value);
-                }
-            }
-            SocketAddress remoteAddress(host, port);
+            SocketClientSuper::connect(remoteAddress, bindAddress, onError);
+        }
 
-            SocketClientSuper::connect(remoteAddress, onError, bindAddress);
+        virtual void
+        connect(const SocketAddress& remoteAddress, const SocketAddress& bindAddress, const std::function<void(int err)>& onError) const {
+            SocketClientSuper::connect(remoteAddress, bindAddress, onError);
         }
     };
 
