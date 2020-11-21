@@ -52,10 +52,10 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "Data to reflect: " << data;
             socketConnection->enqueue(data);
         },
-        []([[maybe_unused]] SocketServer::SocketConnection* socketConnection, [[maybe_unused]] int errnum) -> void { // onReadError
+        []([[maybe_unused]] SocketServer::SocketConnection* socketConnection, int errnum) -> void { // onReadError
             VLOG(0) << "OnReadError: " << errnum;
         },
-        []([[maybe_unused]] SocketServer::SocketConnection* socketConnection, [[maybe_unused]] int errnum) -> void { // onWriteError
+        []([[maybe_unused]] SocketServer::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
             VLOG(0) << "OnWriteError: " << errnum;
         });
 
