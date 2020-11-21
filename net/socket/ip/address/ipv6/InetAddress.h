@@ -61,6 +61,8 @@ namespace net::socket::ip::address::ipv6 {
         std::string ip() const;
         std::string serv() const;
 
+        std::string toString() const override;
+
         InetAddress& operator=(const InetAddress& ina);
 
         const struct sockaddr_in6& getSockAddrIn6() const;

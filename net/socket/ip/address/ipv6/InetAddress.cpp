@@ -139,6 +139,10 @@ namespace net::socket::ip::address::ipv6 {
         return std::string(serv);
     }
 
+    std::string InetAddress::toString() const {
+        return host() + "(" + ip() + "):" + std::to_string(port());
+    }
+
     const struct sockaddr_in6& InetAddress::getSockAddrIn6() const {
         return sockAddr;
     }

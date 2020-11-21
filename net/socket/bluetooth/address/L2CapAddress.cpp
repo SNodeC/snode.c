@@ -78,6 +78,10 @@ namespace net::socket::bluetooth::address {
         return *this;
     }
 
+    std::string L2CapAddress::toString() const {
+        return address() + "(" + address() + "):" + std::to_string(psm());
+    }
+
     const struct sockaddr_l2& L2CapAddress::getSockAddrRc() const {
         return sockAddr;
     }

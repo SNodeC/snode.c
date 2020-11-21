@@ -41,10 +41,9 @@ int main(int argc, char* argv[]) {
         http::legacy::Client legacyClient(
             [](http::legacy::Client::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnConnect";
-                VLOG(0) << "     Server: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
-                               "):" + std::to_string(socketConnection->getRemoteAddress().port());
-                VLOG(0) << "     Client: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
-                               "):" + std::to_string(socketConnection->getLocalAddress().port());
+
+                VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+                VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
             },
             []([[maybe_unused]] const http::ServerRequest& serverRequest) -> void {
             },
@@ -83,19 +82,17 @@ int main(int argc, char* argv[]) {
             },
             [](http::legacy::Client::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnDisconnect";
-                VLOG(0) << "     Server: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
-                               "):" + std::to_string(socketConnection->getRemoteAddress().port());
-                VLOG(0) << "     Client: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
-                               "):" + std::to_string(socketConnection->getLocalAddress().port());
+
+                VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+                VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
             });
 
         http::tls::Client tlsClient(
             [](http::tls::Client::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnConnect";
-                VLOG(0) << "     Server: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
-                               "):" + std::to_string(socketConnection->getRemoteAddress().port());
-                VLOG(0) << "     Client: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
-                               "):" + std::to_string(socketConnection->getLocalAddress().port());
+
+                VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+                VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
 
                 X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
                 if (server_cert != NULL) {
@@ -178,10 +175,9 @@ int main(int argc, char* argv[]) {
             },
             [](http::tls::Client::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnDisconnect";
-                VLOG(0) << "     Server: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
-                               "):" + std::to_string(socketConnection->getRemoteAddress().port());
-                VLOG(0) << "     Client: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
-                               "):" + std::to_string(socketConnection->getLocalAddress().port());
+
+                VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+                VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
             },
             {{"caFile", SERVERCAFILE}});
 

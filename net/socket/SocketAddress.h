@@ -21,6 +21,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string>
 #include <sys/socket.h>
 #include <sys/types.h>
 
@@ -40,6 +41,8 @@ namespace net::socket {
         socklen_t getSockAddrLen() const {
             return sizeof(SockAddr);
         }
+
+        virtual std::string toString() const = 0;
 
     protected:
         SockAddr sockAddr{};

@@ -69,18 +69,16 @@ int main(int argc, char* argv[]) {
 
     legacyApp.onConnect([](legacy::WebApp::SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnConnect:";
-        VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
-                       "):" + std::to_string(socketConnection->getRemoteAddress().port());
-        VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
-                       "):" + std::to_string(socketConnection->getLocalAddress().port());
+
+        VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+        VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
     });
 
     legacyApp.onDisconnect([](legacy::WebApp::SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnDisconnect:";
-        VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
-                       "):" + std::to_string(socketConnection->getRemoteAddress().port());
-        VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
-                       "):" + std::to_string(socketConnection->getLocalAddress().port());
+
+        VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+        VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
     });
 
     return WebApp::start();

@@ -40,13 +40,12 @@ SocketClient getClient() {
         },
         [](SocketClient::SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnect";
+
+            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+
             socketConnection->enqueue("Hello rfcomm connection!");
 
-            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().address() + "(" +
-                           socketConnection->getRemoteAddress().address() +
-                           "):" + std::to_string(socketConnection->getRemoteAddress().channel());
-            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().address() + "(" + socketConnection->getLocalAddress().address() +
-                           "):" + std::to_string(socketConnection->getLocalAddress().channel());
             X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
             if (server_cert != NULL) {
                 int verifyErr = SSL_get_verify_result(socketConnection->getSSL());
@@ -93,11 +92,9 @@ SocketClient getClient() {
         },
         [](SocketClient::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
-            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().address() + "(" +
-                           socketConnection->getRemoteAddress().address() +
-                           "):" + std::to_string(socketConnection->getRemoteAddress().channel());
-            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().address() + "(" + socketConnection->getLocalAddress().address() +
-                           "):" + std::to_string(socketConnection->getLocalAddress().channel());
+
+            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
         },
         [](SocketClient::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
             std::string data(junk, junkSize);

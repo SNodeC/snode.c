@@ -47,6 +47,8 @@ namespace net::socket::bluetooth::address {
         uint8_t channel() const;
         std::string address() const;
 
+        std::string toString() const override;
+
         RfCommAddress& operator=(const RfCommAddress& bta);
 
         const struct sockaddr_rc& getSockAddrRc() const;

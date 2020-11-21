@@ -47,6 +47,8 @@ namespace net::socket::bluetooth::address {
         uint16_t psm() const;
         std::string address() const;
 
+        std::string toString() const override;
+
         L2CapAddress& operator=(const L2CapAddress& bta);
 
         const struct sockaddr_l2& getSockAddrRc() const;

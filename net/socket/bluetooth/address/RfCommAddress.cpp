@@ -78,6 +78,10 @@ namespace net::socket::bluetooth::address {
         return *this;
     }
 
+    std::string RfCommAddress::toString() const {
+        return address() + "(" + address() + "):" + std::to_string(channel());
+    }
+
     const struct sockaddr_rc& RfCommAddress::getSockAddrRc() const {
         return sockAddr;
     }

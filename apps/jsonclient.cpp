@@ -38,10 +38,9 @@ int main(int argc, char* argv[]) {
     http::legacy::Client jsonClient(
         [](http::legacy::Client::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnConnect";
-            VLOG(0) << "     Server: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
-                           "):" + std::to_string(socketConnection->getRemoteAddress().port());
-            VLOG(0) << "     Client: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
-                           "):" + std::to_string(socketConnection->getLocalAddress().port());
+
+            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
         },
         []([[maybe_unused]] const http::ServerRequest& clientRequest) -> void {
         },
@@ -80,10 +79,9 @@ int main(int argc, char* argv[]) {
         },
         [](http::legacy::Client::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnDisconnect";
-            VLOG(0) << "     Server: " + socketConnection->getRemoteAddress().host() + "(" + socketConnection->getRemoteAddress().ip() +
-                           "):" + std::to_string(socketConnection->getRemoteAddress().port());
-            VLOG(0) << "     Client: " + socketConnection->getLocalAddress().host() + "(" + socketConnection->getLocalAddress().ip() +
-                           "):" + std::to_string(socketConnection->getLocalAddress().port());
+
+            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
         });
 
     jsonClient.post("localhost", 8080, "/index.html", "{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}", [](int err) -> void {

@@ -38,21 +38,17 @@ SocketClient getClient() {
         },
         [](SocketClient::SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnect";
-            socketConnection->enqueue("Hello rfcomm connection!");
 
-            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().address() + "(" +
-                           socketConnection->getRemoteAddress().address() +
-                           "):" + std::to_string(socketConnection->getRemoteAddress().psm());
-            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().address() + "(" + socketConnection->getLocalAddress().address() +
-                           "):" + std::to_string(socketConnection->getLocalAddress().psm());
+            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+
+            socketConnection->enqueue("Hello rfcomm connection!");
         },
         [](SocketClient::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
-            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().address() + "(" +
-                           socketConnection->getRemoteAddress().address() +
-                           "):" + std::to_string(socketConnection->getRemoteAddress().psm());
-            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().address() + "(" + socketConnection->getLocalAddress().address() +
-                           "):" + std::to_string(socketConnection->getLocalAddress().psm());
+
+            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
         },
         [](SocketClient::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
             std::string data(junk, junkSize);

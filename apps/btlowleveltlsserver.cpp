@@ -39,11 +39,10 @@ int main(int argc, char* argv[]) {
         },
         [](SocketServer::SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnect";
-            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().address() + "(" +
-                           socketConnection->getRemoteAddress().address() +
-                           "):" + std::to_string(socketConnection->getRemoteAddress().channel());
-            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().address() + "(" + socketConnection->getLocalAddress().address() +
-                           "):" + std::to_string(socketConnection->getLocalAddress().channel());
+
+            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+
             X509* client_cert = SSL_get_peer_certificate(socketConnection->getSSL());
 
             if (client_cert != NULL) {
@@ -91,11 +90,9 @@ int main(int argc, char* argv[]) {
         },
         [](SocketServer::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
-            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().address() + "(" +
-                           socketConnection->getRemoteAddress().address() +
-                           "):" + std::to_string(socketConnection->getRemoteAddress().channel());
-            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().address() + "(" + socketConnection->getLocalAddress().address() +
-                           "):" + std::to_string(socketConnection->getLocalAddress().channel());
+
+            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
         },
         [](SocketServer::SocketConnection* socketConnection, const char* junk, ssize_t junkLen) -> void { // onRead
             std::string data(junk, junkLen);
