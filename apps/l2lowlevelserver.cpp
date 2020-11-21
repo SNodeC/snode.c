@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "OnWriteError: " << errnum;
         });
 
-    btServer.listen(SocketServer::SocketConnection::SocketAddress("5C:C5:D4:B8:3C:AA", 0x1021), 5, [](int errnum) -> void { // calisto
+    btServer.listen(SocketServer::SocketAddress("5C:C5:D4:B8:3C:AA", 0x1021), 5, [](int errnum) -> void { // calisto
         if (errnum != 0) {
             LOG(ERROR) << "BT listen: " << errnum;
         } else {

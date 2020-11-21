@@ -70,8 +70,8 @@ int main(int argc, char* argv[]) {
     net::EventLoop::init(argc, argv);
 
     {
-        L2CapAddress remoteAddress("5C:C5:D4:B8:3C:AA", 0x1021); // calisto
-        L2CapAddress bindAddress("44:01:BB:A3:63:32");           // mpow
+        SocketClient::SocketAddress remoteAddress("5C:C5:D4:B8:3C:AA", 0x1021); // calisto
+        SocketClient::SocketAddress bindAddress("44:01:BB:A3:63:32");           // mpow
 
         SocketClient client = getClient();
 

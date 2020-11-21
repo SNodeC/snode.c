@@ -115,8 +115,8 @@ SocketClient getClient() {
 int main(int argc, char* argv[]) {
     net::EventLoop::init(argc, argv);
 
-    RfCommAddress remoteAddress("5C:C5:D4:B8:3C:AA", 1); // calisto
-    RfCommAddress bindAddress("44:01:BB:A3:63:32");      // mpow
+    SocketClient::SocketAddress remoteAddress("5C:C5:D4:B8:3C:AA", 1); // calisto
+    SocketClient::SocketAddress bindAddress("44:01:BB:A3:63:32");      // mpow
 
     SocketClient client = getClient();
 
