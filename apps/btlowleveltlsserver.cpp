@@ -110,7 +110,7 @@ int main(int argc, char* argv[]) {
         },
         {{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}, {"caFile", CLIENTCAFILE}});
 
-    btServer.listen("5C:C5:D4:B8:3C:AA", 1, 5, [](int errnum) -> void { // calisto
+    btServer.listen(SocketServer::SocketConnection::SocketAddress("5C:C5:D4:B8:3C:AA", 1), 5, [](int errnum) -> void { // calisto
         if (errnum != 0) {
             LOG(ERROR) << "BT listen: " << errnum;
         } else {

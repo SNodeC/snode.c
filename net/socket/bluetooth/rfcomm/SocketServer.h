@@ -36,14 +36,6 @@ namespace net::socket::bluetooth::rfcomm {
         using SocketConnection = typename SocketServerSuper::SocketConnection;
         using Socket = typename SocketConnection::Socket;
         using SocketAddress = typename Socket::SocketAddress;
-
-        void listen(uint8_t channel, int backlog, const std::function<void(int err)>& onError) const {
-            SocketServerSuper::listen(SocketAddress(channel), backlog, onError);
-        }
-
-        void listen(const std::string& btAddress, uint8_t channel, int backlog, const std::function<void(int err)>& onError) const {
-            SocketServerSuper::listen(SocketAddress(btAddress, channel), backlog, onError);
-        }
     };
 
 } // namespace net::socket::bluetooth::rfcomm

@@ -37,14 +37,6 @@ namespace net::socket::bluetooth::l2cap {
 
         using SocketConnection = typename stream::legacy::SocketServer<l2cap::Socket>::SocketConnection;
         using SocketAddress = typename Socket::SocketAddress;
-
-        void listen(uint16_t psm, int backlog, const std::function<void(int err)>& onError) const {
-            stream::legacy::SocketServer<Socket>::listen(SocketAddress(psm), backlog, onError);
-        }
-
-        void listen(const std::string& btAddress, uint16_t psm, int backlog, const std::function<void(int err)>& onError) const {
-            stream::legacy::SocketServer<Socket>::listen(SocketAddress(btAddress, psm), backlog, onError);
-        }
     };
 
 } // namespace net::socket::bluetooth::l2cap

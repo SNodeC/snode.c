@@ -23,24 +23,22 @@
 #include "ResponseParser.h"
 #include "ServerResponse.h"
 #include "config.h" // just for this example app
-#include "socket/bluetooth/l2cap/Socket.h"
-#include "socket/sock_stream/legacy/SocketClient.h"
+#include "socket/bluetooth/l2cap/SocketClient.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-using namespace net::socket::stream;
-using namespace net::socket::bluetooth;
 using namespace net::socket::bluetooth::address;
+using namespace net::socket::bluetooth::l2cap;
 
-legacy::SocketClient<net::socket::bluetooth::l2cap::Socket> getBtClient() {
-    legacy::SocketClient<l2cap::Socket> btClient(
-        []([[maybe_unused]] legacy::SocketClient<l2cap::Socket>::SocketConnection* socketConnection) -> void { // onConstruct
+SocketClient getClient() {
+    SocketClient client(
+        []([[maybe_unused]] SocketClient::SocketConnection* socketConnection) -> void { // onConstruct
         },
-        []([[maybe_unused]] legacy::SocketClient<l2cap::Socket>::SocketConnection* socketConnection) -> void { // onDestruct
+        []([[maybe_unused]] SocketClient::SocketConnection* socketConnection) -> void { // onDestruct
         },
-        [](legacy::SocketClient<l2cap::Socket>::SocketConnection* socketConnection) -> void { // onConnect
+        [](SocketClient::SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnect";
-            socketConnection->enqueue("Hello l2cap connection!");
+            socketConnection->enqueue("Hello rfcomm connection!");
 
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().address() + "(" +
                            socketConnection->getRemoteAddress().address() +
@@ -48,7 +46,7 @@ legacy::SocketClient<net::socket::bluetooth::l2cap::Socket> getBtClient() {
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().address() + "(" + socketConnection->getLocalAddress().address() +
                            "):" + std::to_string(socketConnection->getLocalAddress().psm());
         },
-        [](legacy::SocketClient<l2cap::Socket>::SocketConnection* socketConnection) -> void { // onDisconnect
+        [](SocketClient::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().address() + "(" +
                            socketConnection->getRemoteAddress().address() +
@@ -56,20 +54,20 @@ legacy::SocketClient<net::socket::bluetooth::l2cap::Socket> getBtClient() {
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().address() + "(" + socketConnection->getLocalAddress().address() +
                            "):" + std::to_string(socketConnection->getLocalAddress().psm());
         },
-        [](legacy::SocketClient<l2cap::Socket>::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
+        [](SocketClient::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
             std::string data(junk, junkSize);
             VLOG(0) << "Data to reflect: " << data;
             socketConnection->enqueue(data);
         },
-        []([[maybe_unused]] legacy::SocketClient<l2cap::Socket>::SocketConnection* socketConnection, int errnum) -> void { // onReadError
+        []([[maybe_unused]] SocketClient::SocketConnection* socketConnection, int errnum) -> void { // onReadError
             VLOG(0) << "OnReadError: " << errnum;
         },
-        []([[maybe_unused]] legacy::SocketClient<l2cap::Socket>::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
+        []([[maybe_unused]] SocketClient::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
             VLOG(0) << "OnWriteError: " << errnum;
         },
         {{}});
 
-    return btClient;
+    return client;
 }
 
 int main(int argc, char* argv[]) {
@@ -79,9 +77,9 @@ int main(int argc, char* argv[]) {
         L2CapAddress remoteAddress("5C:C5:D4:B8:3C:AA", 0x1021); // calisto
         L2CapAddress bindAddress("44:01:BB:A3:63:32");           // mpow
 
-        legacy::SocketClient legacyClient = getBtClient();
+        SocketClient client = getClient();
 
-        legacyClient.connect(remoteAddress, bindAddress, [](int err) -> void {
+        client.connect(remoteAddress, bindAddress, [](int err) -> void {
             if (err) {
                 PLOG(ERROR) << "Connect: " << std::to_string(err);
             } else {

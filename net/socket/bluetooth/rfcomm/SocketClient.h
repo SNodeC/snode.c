@@ -38,24 +38,6 @@ namespace net::socket::bluetooth::rfcomm {
         using SocketConnection = typename SocketClientSuper::SocketConnection;
         using Socket = typename SocketConnection::Socket;
         using SocketAddress = typename Socket::SocketAddress;
-
-        virtual void connect(const std::map<std::string, std::any>& options,
-                             const std::function<void(int err)>& onError,
-                             const SocketAddress& bindAddress = SocketAddress()) const {
-            std::string btAddress = "";
-            uint8_t channel = 0;
-
-            for (auto& [name, value] : options) {
-                if (name == "address") {
-                    btAddress = std::any_cast<const char*>(value);
-                } else if (name == "channel") {
-                    channel = std::any_cast<int>(value);
-                }
-            }
-            SocketAddress remoteAddress(btAddress, channel);
-
-            SocketClientSuper::connect(remoteAddress, onError, bindAddress);
-        }
     };
 
 } // namespace net::socket::bluetooth::rfcomm

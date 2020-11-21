@@ -38,17 +38,6 @@ namespace net::socket::ip::tcp {
         using SocketConnection = typename SocketClientSuper::SocketConnection;
         using Socket = typename SocketConnection::Socket;
         using SocketAddress = typename Socket::SocketAddress;
-
-        virtual void connect(const SocketAddress& remoteAddress, const std::function<void(int err)>& onError) const {
-            SocketAddress bindAddress;
-
-            SocketClientSuper::connect(remoteAddress, bindAddress, onError);
-        }
-
-        virtual void
-        connect(const SocketAddress& remoteAddress, const SocketAddress& bindAddress, const std::function<void(int err)>& onError) const {
-            SocketClientSuper::connect(remoteAddress, bindAddress, onError);
-        }
     };
 
 } // namespace net::socket::ip::tcp

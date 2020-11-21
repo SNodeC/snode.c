@@ -40,24 +40,6 @@ namespace net::socket::bluetooth::l2cap {
         using SocketConnection = typename stream::legacy::SocketClient<l2cap::Socket>::SocketConnection;
         using Socket = typename SocketConnection::Socket;
         using SocketAddress = typename Socket::SocketAddress;
-
-        virtual void connect(const std::map<std::string, std::any>& options,
-                             const std::function<void(int err)>& onError,
-                             const SocketAddress& bindAddress = SocketAddress()) const {
-            std::string btAddress = "";
-            uint16_t psm = 0;
-
-            for (auto& [name, value] : options) {
-                if (name == "address") {
-                    btAddress = std::any_cast<const char*>(value);
-                } else if (name == "psm") {
-                    psm = std::any_cast<int>(value);
-                }
-            }
-            SocketAddress remoteAddress(btAddress, psm);
-
-            stream::legacy::SocketClient<l2cap::Socket>::connect(remoteAddress, onError, bindAddress);
-        }
     };
 
 } // namespace net::socket::bluetooth::l2cap
