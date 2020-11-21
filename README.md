@@ -26,8 +26,9 @@ Keep in mind, that the framework is still in heavy development, APIs can break f
 ## Feature List (not complete)
 - Non-blocking, event-driven (asynchronous), single-threaded, single-tasking, layer-based design that supports timer (single-shot, interval) and network communication (TCP/IPv4).
 - Application protocol independent TCP server and TCP client functionality. Application protocols (HTTP, ...) can be easily and modularly connected.
-- TLS/SSL encryption for server and client.
-- Support of X.509 certificates. TLS/SSL connections can be protected and authenticated using certificates.
+- Application protocol independent bluetooth RFCOMM and L2CAP server and client functionality. Application protocols can be easily and modularly connected.
+- TLS/SSL encryption for server and client (TCP, RFCOMM).
+- Support of X.509 certificates. TLS/SSL connections can be protected and authenticated using certificates (TCP, RFCOMM).
 - Fully implemented HTTP(S) application protocol layer (server and client) to which the application logic can be easily connected.
 - High-Level Web API layer with JSON support similar to the API of node.js/express. (Speedup compared to node.js/express approx. 40)
 
