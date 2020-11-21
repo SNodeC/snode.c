@@ -39,17 +39,23 @@ namespace net::socket {
         }
 
         SocketAddress(const SocketAddress& socketAddress) {
-            memcpy(&sockAddr, &socketAddress.sockAddr, sizeof(sockAddr));
+            *this = socketAddress;
         }
 
         explicit SocketAddress(const SockAddr& sockAddr) {
-            memcpy(&this->sockAddr, &sockAddr, sizeof(sockAddr));
+            *this = sockAddr;
         }
 
-        SocketAddress& operator=(const SocketAddress& sa) {
-            if (this != &sa) {
-                memcpy(&sockAddr, &sa.sockAddr, sizeof(sockAddr));
+        SocketAddress& operator=(const SocketAddress& socketAddress) {
+            if (this != &socketAddress) {
+                *this = socketAddress.sockAddr;
             }
+
+            return *this;
+        }
+
+        SocketAddress& operator=(const SockAddr& sockAddr) {
+            memcpy(&this->sockAddr, &sockAddr, sizeof(SockAddr));
 
             return *this;
         }
