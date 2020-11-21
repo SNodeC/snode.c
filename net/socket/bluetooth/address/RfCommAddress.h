@@ -36,22 +36,17 @@ namespace net::socket::bluetooth::address {
 
     class RfCommAddress : public SocketAddress<struct sockaddr_rc> {
     public:
-        RfCommAddress();
-        RfCommAddress(const RfCommAddress& bta);
+        using SocketAddress<struct sockaddr_rc>::SocketAddress;
 
+        RfCommAddress();
         explicit RfCommAddress(const std::string& btAddress);
         RfCommAddress(const std::string& btAddress, uint8_t channel);
         explicit RfCommAddress(uint8_t port);
-        explicit RfCommAddress(const struct sockaddr_rc& addr);
 
         uint8_t channel() const;
         std::string address() const;
 
         std::string toString() const override;
-
-        RfCommAddress& operator=(const RfCommAddress& bta);
-
-        const struct sockaddr_rc& getSockAddrRc() const;
     };
 
 } // namespace net::socket::bluetooth::address

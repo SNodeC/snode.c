@@ -49,12 +49,12 @@ namespace net::socket::ip::address::ipv6 {
 
     class InetAddress : public SocketAddress<struct sockaddr_in6> {
     public:
+        using SocketAddress<struct sockaddr_in6>::SocketAddress;
+
         InetAddress();
-        InetAddress(const InetAddress& ina);
         explicit InetAddress(const std::string& ipOrHostname);
         InetAddress(const std::string& ipOrHostname, uint16_t port);
         explicit InetAddress(uint16_t port);
-        explicit InetAddress(const struct sockaddr_in6& addr);
 
         uint16_t port() const;
         std::string host() const;
@@ -62,10 +62,6 @@ namespace net::socket::ip::address::ipv6 {
         std::string serv() const;
 
         std::string toString() const override;
-
-        InetAddress& operator=(const InetAddress& ina);
-
-        const struct sockaddr_in6& getSockAddrIn6() const;
     };
 
 } // namespace net::socket::ip::address::ipv6

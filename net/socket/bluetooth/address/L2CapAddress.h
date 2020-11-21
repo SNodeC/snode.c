@@ -36,22 +36,17 @@ namespace net::socket::bluetooth::address {
 
     class L2CapAddress : public SocketAddress<struct sockaddr_l2> {
     public:
-        L2CapAddress();
-        L2CapAddress(const L2CapAddress& bta);
+        using SocketAddress<struct sockaddr_l2>::SocketAddress;
 
+        L2CapAddress();
         explicit L2CapAddress(const std::string& btAddress);
         L2CapAddress(const std::string& btAddress, uint16_t psm);
         explicit L2CapAddress(uint16_t psm);
-        explicit L2CapAddress(const struct sockaddr_l2& addr);
 
         uint16_t psm() const;
         std::string address() const;
 
         std::string toString() const override;
-
-        L2CapAddress& operator=(const L2CapAddress& bta);
-
-        const struct sockaddr_l2& getSockAddrRc() const;
     };
 
 } // namespace net::socket::bluetooth::address

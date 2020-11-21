@@ -33,14 +33,6 @@ namespace net::socket::bluetooth::address {
         sockAddr.rc_channel = (uint8_t) 0;
     }
 
-    RfCommAddress::RfCommAddress(const RfCommAddress& bta) {
-        memcpy(&sockAddr, &bta.sockAddr, sizeof(sockAddr));
-    }
-
-    RfCommAddress::RfCommAddress(const struct sockaddr_rc& addr) {
-        memcpy(&sockAddr, &addr, sizeof(sockAddr));
-    }
-
     RfCommAddress::RfCommAddress(const std::string& btAddress) {
         sockAddr.rc_family = AF_BLUETOOTH;
         str2ba(btAddress.c_str(), &sockAddr.rc_bdaddr);
@@ -64,26 +56,14 @@ namespace net::socket::bluetooth::address {
     }
 
     std::string RfCommAddress::address() const {
-        char ip[256];
-        ba2str(&sockAddr.rc_bdaddr, ip);
+        char address[256];
+        ba2str(&sockAddr.rc_bdaddr, address);
 
-        return std::string(ip);
-    }
-
-    RfCommAddress& RfCommAddress::operator=(const RfCommAddress& bta) {
-        if (this != &bta) {
-            memcpy(&sockAddr, &bta.sockAddr, sizeof(sockAddr));
-        }
-
-        return *this;
+        return address;
     }
 
     std::string RfCommAddress::toString() const {
         return address() + "(" + address() + "):" + std::to_string(channel());
-    }
-
-    const struct sockaddr_rc& RfCommAddress::getSockAddrRc() const {
-        return sockAddr;
     }
 
 } // namespace net::socket::bluetooth::address

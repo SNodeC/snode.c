@@ -34,8 +34,28 @@ namespace net::socket {
     public:
         using SockAddr = SockAddrT;
 
-        const struct sockaddr& getSockAddr() const {
-            return reinterpret_cast<const struct sockaddr&>(sockAddr);
+        SocketAddress()
+            : sockAddr{} {
+        }
+
+        SocketAddress(const SocketAddress& socketAddress) {
+            memcpy(&sockAddr, &socketAddress.sockAddr, sizeof(sockAddr));
+        }
+
+        explicit SocketAddress(const SockAddr& sockAddr) {
+            memcpy(&this->sockAddr, &sockAddr, sizeof(sockAddr));
+        }
+
+        SocketAddress& operator=(const SocketAddress& sa) {
+            if (this != &sa) {
+                memcpy(&sockAddr, &sa.sockAddr, sizeof(sockAddr));
+            }
+
+            return *this;
+        }
+
+        const sockaddr& getSockAddr() const {
+            return reinterpret_cast<const sockaddr&>(sockAddr);
         }
 
         socklen_t getSockAddrLen() const {
@@ -45,7 +65,7 @@ namespace net::socket {
         virtual std::string toString() const = 0;
 
     protected:
-        SockAddr sockAddr{};
+        SockAddr sockAddr;
     };
 
 } // namespace net::socket

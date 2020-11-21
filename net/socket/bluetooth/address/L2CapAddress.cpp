@@ -33,14 +33,6 @@ namespace net::socket::bluetooth::address {
         sockAddr.l2_psm = htobs(0);
     }
 
-    L2CapAddress::L2CapAddress(const L2CapAddress& bta) {
-        memcpy(&sockAddr, &bta.sockAddr, sizeof(sockAddr));
-    }
-
-    L2CapAddress::L2CapAddress(const struct sockaddr_l2& addr) {
-        memcpy(&sockAddr, &addr, sizeof(sockAddr));
-    }
-
     L2CapAddress::L2CapAddress(const std::string& btAddress) {
         sockAddr.l2_family = AF_BLUETOOTH;
         str2ba(btAddress.c_str(), &sockAddr.l2_bdaddr);
@@ -64,26 +56,14 @@ namespace net::socket::bluetooth::address {
     }
 
     std::string L2CapAddress::address() const {
-        char ip[256];
-        ba2str(&sockAddr.l2_bdaddr, ip);
+        char address[256];
+        ba2str(&sockAddr.l2_bdaddr, address);
 
-        return std::string(ip);
-    }
-
-    L2CapAddress& L2CapAddress::operator=(const L2CapAddress& bta) {
-        if (this != &bta) {
-            memcpy(&sockAddr, &bta.sockAddr, sizeof(sockAddr));
-        }
-
-        return *this;
+        return address;
     }
 
     std::string L2CapAddress::toString() const {
         return address() + "(" + address() + "):" + std::to_string(psm());
-    }
-
-    const struct sockaddr_l2& L2CapAddress::getSockAddrRc() const {
-        return sockAddr;
     }
 
 } // namespace net::socket::bluetooth::address
