@@ -91,9 +91,7 @@ int main(int argc, char* argv[]) {
             [](const http::ServerResponse& serverResponse) -> void {
                 VLOG(0) << "-- OnResponse";
                 VLOG(0) << "     Status:";
-                VLOG(0) << "       " << serverResponse.httpVersion;
-                VLOG(0) << "       " << serverResponse.statusCode;
-                VLOG(0) << "       " << serverResponse.reason;
+                VLOG(0) << "       " << serverResponse.httpVersion << " " << serverResponse.statusCode << " " << serverResponse.reason;
 
                 VLOG(0) << "     Headers:";
                 for (auto [field, value] : *serverResponse.headers) {
