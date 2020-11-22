@@ -46,7 +46,11 @@ namespace express {
         void reset() override;
 
     protected:
-        FileReader* fileReader = nullptr;
+        void pipe(net::stream::ReadStream& readStream, const char* junk, size_t junkLen) override;
+
+        void pipeEOF([[maybe_unused]] net::stream::ReadStream& readStream) override;
+
+        void pipeError(net::stream::ReadStream& readStream, int errnum) override;
     };
 
 } // namespace express

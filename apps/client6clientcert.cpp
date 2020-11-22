@@ -35,55 +35,6 @@ int main(int argc, char* argv[]) {
     net::EventLoop::init(argc, argv);
 
     {
-        http::legacy::Client6 legacyClient(
-            [](http::legacy::Client6::SocketConnection* socketConnection) -> void {
-                VLOG(0) << "-- OnConnect";
-
-                VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-                VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
-            },
-            []([[maybe_unused]] const http::ServerRequest& serverRequest) -> void {
-            },
-            [](const http::ServerResponse& serverResponse) -> void {
-                VLOG(0) << "-- OnResponse";
-                VLOG(0) << "     Status:";
-                VLOG(0) << "       " << serverResponse.httpVersion;
-                VLOG(0) << "       " << serverResponse.statusCode;
-                VLOG(0) << "       " << serverResponse.reason;
-
-                VLOG(0) << "     Headers:";
-                for (auto [field, value] : *serverResponse.headers) {
-                    VLOG(0) << "       " << field + " = " + value;
-                }
-
-                VLOG(0) << "     Cookies:";
-                for (auto [name, cookie] : *serverResponse.cookies) {
-                    VLOG(0) << "       " + name + " = " + cookie.getValue();
-                    for (auto [option, value] : cookie.getOptions()) {
-                        VLOG(0) << "         " + option + " = " + value;
-                    }
-                }
-
-                char* body = new char[serverResponse.contentLength + 1];
-                memcpy(body, serverResponse.body, serverResponse.contentLength);
-                body[serverResponse.contentLength] = 0;
-
-                VLOG(1) << "     Body:\n----------- start body -----------\n" << body << "------------ end body ------------";
-
-                delete[] body;
-            },
-            [](int status, const std::string& reason) -> void {
-                VLOG(0) << "-- OnResponseError";
-                VLOG(0) << "     Status: " << status;
-                VLOG(0) << "     Reason: " << reason;
-            },
-            [](http::legacy::Client6::SocketConnection* socketConnection) -> void {
-                VLOG(0) << "-- OnDisconnect";
-
-                VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-                VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
-            });
-
         http::tls::Client6 tlsClient(
             [](http::tls::Client6::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnConnect";
@@ -177,18 +128,6 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
             },
             {{"certChain", CLIENTCERTF}, {"keyPEM", CLIENTKEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}});
-
-        legacyClient.get("localhost", 8080, "/index.html", [](int err) -> void {
-            if (err != 0) {
-                PLOG(ERROR) << "OnError: " << err;
-            }
-        }); // Connection:keep-alive\r\n\r\n"
-
-        legacyClient.get("localhost", 8080, "/index.html", [](int err) -> void {
-            if (err != 0) {
-                PLOG(ERROR) << "OnError: " << err;
-            }
-        }); // Connection:keep-alive\r\n\r\n"
 
         tlsClient.get("localhost", 8088, "/index.html", [](int err) -> void {
             if (err != 0) {

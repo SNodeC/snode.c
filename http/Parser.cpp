@@ -24,6 +24,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Logger.h"
 #include "Parser.h"
 #include "http_utils.h"
 
@@ -162,6 +163,7 @@ namespace http {
             content = new char[contentLength];
         }
 
+        VLOG(0) << "ContentLength: " << contentLength << ", ContentRead: " << contentRead << ", Count: " << count;
         if (contentRead + count <= contentLength) {
             memcpy(content + contentRead, buf, count); // NOLINT(clang-analyzer-core.NonNullParamChecker)
 
@@ -175,6 +177,7 @@ namespace http {
             }
         } else {
             parserState = parsingError(400, "Content to long");
+            VLOG(0) << std::string(buf, count);
 
             if (content != nullptr) {
                 delete[] content;

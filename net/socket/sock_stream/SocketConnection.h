@@ -39,16 +39,6 @@ namespace net::socket::stream {
         using SocketWriter = SocketWriterT;
         using SocketAddress = SocketAddressT;
 
-        void* operator new(size_t size) {
-            SocketConnection<SocketReader, SocketWriter, SocketAddress>::lastAllocAddress = malloc(size);
-
-            return SocketConnection<SocketReader, SocketWriter, SocketAddress>::lastAllocAddress;
-        }
-
-        void operator delete(void* socketConnection_v) {
-            free(socketConnection_v);
-        }
-
         SocketConnection() = delete;
 
         SocketConnection(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
@@ -68,11 +58,11 @@ namespace net::socket::stream {
                 onWriteError(this, errnum);
             })
             , onDestruct(onDestruct)
-            , onDisconnect(onDisconnect)
-            , isDynamic(this == lastAllocAddress) {
+            , onDisconnect(onDisconnect) {
             onConstruct(this);
         }
 
+    protected:
         ~SocketConnection() override {
             onDestruct(this);
         }
@@ -81,9 +71,7 @@ namespace net::socket::stream {
         void unobserved() override {
             onDisconnect(this);
 
-            if (isDynamic) {
-                delete this;
-            }
+            delete this;
         }
 
     public:
@@ -124,13 +112,7 @@ namespace net::socket::stream {
 
         std::function<void(SocketConnection* socketConnection)> onDestruct;
         std::function<void(SocketConnection* socketConnection)> onDisconnect;
-
-        bool isDynamic;
-        static void* lastAllocAddress;
     };
-
-    template <typename SocketReader, typename SocketWriter, typename SocketAddress>
-    void* SocketConnection<SocketReader, SocketWriter, SocketAddress>::lastAllocAddress = nullptr;
 
 } // namespace net::socket::stream
 

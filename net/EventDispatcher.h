@@ -212,7 +212,7 @@ namespace net {
             disabledEventReceiver.clear();
         }
 
-        void unobserveDisabledEventReceiver() {
+        void releaseUnobservedEvents() {
             for (EventReceiver* eventReceiver : unobservedEventReceiver) {
                 eventReceiver->unobserved();
             }

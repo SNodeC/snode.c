@@ -48,16 +48,12 @@ namespace express {
                                 {"Last-Modified", httputils::file_mod_http_date(absolutFileName)}});
                 headers.insert_or_assign("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
 
-                fileReader = FileReader::read(
-                    absolutFileName,
-                    [this](char* data, int length) -> void {
-                        enqueue(data, length);
-                    },
-                    [this, onError](int err) -> void {
-                        onError(err);
+                FileReader::pipe(absolutFileName, *this, [this, onError](int err) -> void {
+                    if (err != 0) {
                         serverContext->terminateConnection();
-                        fileReader = nullptr;
-                    });
+                    }
+                    onError(err);
+                });
             } else {
                 responseStatus = 403;
                 errno = EACCES;
@@ -100,13 +96,20 @@ namespace express {
         this->status(status).send(StatusCode::reason(status));
     }
 
+    void Response::pipe([[maybe_unused]] net::stream::ReadStream& readStream, const char* junk, size_t junkLen) {
+        enqueue(junk, junkLen);
+    }
+
+    void Response::pipeEOF([[maybe_unused]] net::stream::ReadStream& readStream) {
+        LOG(INFO) << "Pipe EOF";
+    }
+
+    void Response::pipeError([[maybe_unused]] net::stream::ReadStream& readStream, [[maybe_unused]] int errnum) {
+        PLOG(ERROR) << "Pipe error: ";
+    }
+
     void Response::reset() {
         http::Response::reset();
-        if (fileReader != nullptr) {
-            fileReader->ReadEventReceiver::disable();
-            fileReader->ReadEventReceiver::suspend();
-            fileReader = nullptr;
-        }
     }
 
 } // namespace express

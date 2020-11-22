@@ -166,7 +166,11 @@ namespace http {
 
         enqueue("\r\n");
 
-        contentLength = std::stoi(headers.find("Content-Length")->second);
+        if (headers.find("Content-Length") != headers.end()) {
+            contentLength = std::stoi(headers.find("Content-Length")->second);
+        } else {
+            contentLength = 0;
+        }
     }
 
     void Response::end() {

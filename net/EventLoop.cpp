@@ -123,11 +123,11 @@ namespace net {
         connectEventDispatcher.unobserveDisabledEvents();
         outOfBandEventDispatcher.unobserveDisabledEvents();
 
-        readEventDispatcher.unobserveDisabledEventReceiver();
-        writeEventDispatcher.unobserveDisabledEventReceiver();
-        acceptEventDispatcher.unobserveDisabledEventReceiver();
-        connectEventDispatcher.unobserveDisabledEventReceiver();
-        outOfBandEventDispatcher.unobserveDisabledEventReceiver();
+        readEventDispatcher.releaseUnobservedEvents();
+        writeEventDispatcher.releaseUnobservedEvents();
+        acceptEventDispatcher.releaseUnobservedEvents();
+        connectEventDispatcher.releaseUnobservedEvents();
+        outOfBandEventDispatcher.releaseUnobservedEvents();
     }
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
@@ -179,11 +179,11 @@ namespace net {
             eventLoop.outOfBandEventDispatcher.unobserveDisabledEvents();
             eventLoop.connectEventDispatcher.unobserveDisabledEvents();
 
-            eventLoop.readEventDispatcher.unobserveDisabledEventReceiver();
-            eventLoop.writeEventDispatcher.unobserveDisabledEventReceiver();
-            eventLoop.acceptEventDispatcher.unobserveDisabledEventReceiver();
-            eventLoop.connectEventDispatcher.unobserveDisabledEventReceiver();
-            eventLoop.outOfBandEventDispatcher.unobserveDisabledEventReceiver();
+            eventLoop.readEventDispatcher.releaseUnobservedEvents();
+            eventLoop.writeEventDispatcher.releaseUnobservedEvents();
+            eventLoop.acceptEventDispatcher.releaseUnobservedEvents();
+            eventLoop.connectEventDispatcher.releaseUnobservedEvents();
+            eventLoop.outOfBandEventDispatcher.releaseUnobservedEvents();
 
             eventLoop.timerEventDispatcher.cancelAll();
 

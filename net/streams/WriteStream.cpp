@@ -16,40 +16,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FILEREADER_H
-#define FILEREADER_H
+#include "WriteStream.h"
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <functional>
-#include <string>
-
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "File.h"
-#include "ReadEventReceiver.h"
-#include "streams/ReadStream.h"
+#include "ReadStream.h"
 
 namespace net::stream {
-    class WriteStream;
-}
 
-class FileReader
-    : public net::ReadEventReceiver
-    , public net::stream::ReadStream
-    , virtual public File {
-protected:
-    FileReader(int fd, net::stream::WriteStream& writeStream);
+    WriteStream::WriteStream() {
+    }
 
-public:
-    static FileReader* pipe(const std::string& path, net::stream::WriteStream& writeStream, const std::function<void(int err)>& onError);
+    WriteStream::~WriteStream() {
+        for (ReadStream* readStream : readStreams) {
+            readStream->unPipe(*this);
+        }
+    }
 
-    void readEvent() override;
+    void WriteStream::sourceStream(ReadStream& readStream) {
+        readStreams.push_back(&readStream);
+    }
 
-private:
-    void unobserved() override;
+    void WriteStream::unSourceStream(ReadStream& readStream) {
+        readStreams.remove(&readStream);
+    }
 
-    std::function<void(char* data, int len)> junkRead;
-};
-
-#endif // FILEREADER_H
+} // namespace net::stream
