@@ -31,7 +31,6 @@
 
 #include "Logger.h"
 #include "WriteEventReceiver.h"
-#include "streams/WriteStream.h"
 
 #ifndef MAX_SEND_JUNKSIZE
 #define MAX_SEND_JUNKSIZE 16384
@@ -42,7 +41,6 @@ namespace net::socket::stream {
     template <typename SocketT>
     class SocketWriter
         : public WriteEventReceiver
-        , public net::stream::WriteStream
         , virtual public SocketT {
     public:
         using Socket = SocketT;
@@ -68,18 +66,6 @@ namespace net::socket::stream {
             } else {
                 markShutdown = true;
             }
-        }
-
-        void pipe([[maybe_unused]] net::stream::ReadStream& readStream, const char* junk, size_t junkLen) override {
-            enqueue(junk, junkLen);
-        }
-
-        void pipeEOF([[maybe_unused]] net::stream::ReadStream& readStream) override {
-            LOG(INFO) << "Pipe EOF";
-        }
-
-        void pipeError([[maybe_unused]] net::stream::ReadStream& readStream, int errnum) override {
-            PLOG(ERROR) << "Pipe error: " << errnum;
         }
 
     private:

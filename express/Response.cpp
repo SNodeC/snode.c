@@ -49,9 +49,7 @@ namespace express {
                 headers.insert_or_assign("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
 
                 FileReader::pipe(absolutFileName, *this, [this, onError](int err) -> void {
-                    if (err != 0) {
-                        serverContext->terminateConnection();
-                    }
+                    serverContext->terminateConnection();
                     onError(err);
                 });
             } else {
@@ -106,6 +104,7 @@ namespace express {
 
     void Response::pipeError([[maybe_unused]] net::stream::ReadStream& readStream, [[maybe_unused]] int errnum) {
         PLOG(ERROR) << "Pipe error: ";
+        serverContext->terminateConnection();
     }
 
     void Response::reset() {

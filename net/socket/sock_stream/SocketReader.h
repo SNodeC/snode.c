@@ -29,7 +29,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "ReadEventReceiver.h"
-#include "streams/ReadStream.h"
 
 #ifndef MAX_READ_JUNKSIZE
 #define MAX_READ_JUNKSIZE 16384
@@ -40,7 +39,6 @@ namespace net::socket::stream {
     template <typename SocketT>
     class SocketReader
         : public ReadEventReceiver
-        , public net::stream::ReadStream
         , virtual public SocketT {
     public:
         using Socket = SocketT;
