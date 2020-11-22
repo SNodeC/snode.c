@@ -32,8 +32,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 int main(int argc, char* argv[]) {
-    Logger::setVerboseLevel(2);
-
     net::EventLoop::init(argc, argv);
 
     {

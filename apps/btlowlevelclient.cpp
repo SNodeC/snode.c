@@ -28,7 +28,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 using namespace net::socket::bluetooth::rfcomm::legacy;
-using namespace net::socket::bluetooth::address;
 
 SocketClient getClient() {
     SocketClient client(

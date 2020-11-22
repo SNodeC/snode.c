@@ -20,7 +20,6 @@
 
 #include "Logger.h"
 #include "config.h" // just for this example app
-#include "legacy/WebApp.h"
 #include "middleware/StaticMiddleware.h"
 #include "tls/WebApp.h"
 
@@ -43,29 +42,6 @@ int main(int argc, char* argv[]) {
 
     WebApp::init(argc, argv);
 
-    legacy::WebApp6 legacyApp(getRouter());
-
-    legacyApp.listen(8080, [](int err) -> void {
-        if (err != 0) {
-            PLOG(FATAL) << "listen on port 8080";
-        } else {
-            VLOG(0) << "snode.c listening on port 8080 for legacy connections";
-        }
-    });
-
-    legacyApp.onConnect([](legacy::WebApp6::SocketConnection* socketConnection) -> void {
-        VLOG(0) << "OnConnect:";
-
-        VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-        VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
-    });
-
-    legacyApp.onDisconnect([](legacy::WebApp6::SocketConnection* socketConnection) -> void {
-        VLOG(0) << "OnDisconnect:";
-
-        VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-        VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
-    });
     tls::WebApp6 tlsApp(getRouter(),
                         {{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}, {"caFile", CLIENTCAFILE}});
 
@@ -124,6 +100,7 @@ int main(int argc, char* argv[]) {
             X509_free(client_cert);
         } else {
             VLOG(2) << "\tClient certificate: no certificate";
+            socketConnection->close();
         }
     });
 

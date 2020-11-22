@@ -27,7 +27,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-using namespace net::socket::bluetooth::address;
 using namespace net::socket::bluetooth::l2cap;
 
 SocketClient getClient() {

@@ -31,9 +31,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-using namespace net::socket::stream;
 using namespace net::socket::ip;
 using namespace net::socket::ip::address::ipv4;
+using namespace net::socket::stream;
 
 static http::ResponseParser* getResponseParser() {
     http::ResponseParser* responseParser = new http::ResponseParser(
