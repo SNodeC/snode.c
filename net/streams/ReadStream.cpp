@@ -50,12 +50,10 @@ namespace net::stream {
             writeStream->pipe(*this, junk, junkLen);
         }
         dispatching = false;
-        if (unPipedStreams.size() > 0) {
-            for (WriteStream* writeStream : unPipedStreams) {
-                writeStreams.remove(writeStream);
-            }
-            unPipedStreams.clear();
+        for (WriteStream* writeStream : unPipedStreams) {
+            writeStreams.remove(writeStream);
         }
+        unPipedStreams.clear();
     }
 
     void ReadStream::dispatchError(int errnum) {
@@ -64,12 +62,10 @@ namespace net::stream {
             writeStream->pipeError(*this, errnum);
         }
         dispatching = false;
-        if (unPipedStreams.size() > 0) {
-            for (WriteStream* writeStream : unPipedStreams) {
-                writeStreams.remove(writeStream);
-            }
-            unPipedStreams.clear();
+        for (WriteStream* writeStream : unPipedStreams) {
+            writeStreams.remove(writeStream);
         }
+        unPipedStreams.clear();
     }
 
     void ReadStream::dispatchEOF() {
@@ -78,12 +74,10 @@ namespace net::stream {
             writeStream->pipeEOF(*this);
         }
         dispatching = false;
-        if (unPipedStreams.size() > 0) {
-            for (WriteStream* writeStream : unPipedStreams) {
-                writeStreams.remove(writeStream);
-            }
-            unPipedStreams.clear();
+        for (WriteStream* writeStream : unPipedStreams) {
+            writeStreams.remove(writeStream);
         }
+        unPipedStreams.clear();
     }
 
 } // namespace net::stream
