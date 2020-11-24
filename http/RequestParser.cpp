@@ -58,7 +58,7 @@ namespace http {
         httpMinor = 0;
     }
 
-    void RequestParser::beginRequest() {
+    void RequestParser::begin() {
         onStart();
     }
 
