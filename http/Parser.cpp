@@ -49,7 +49,7 @@ namespace http {
             switch (parserState) {
                 case ParserState::BEGIN:
                     parserState = ParserState::FIRSTLINE;
-                    beginRequest();
+                    begin();
                     [[fallthrough]];
                 case ParserState::FIRSTLINE:
                     consumed += readStartLine(buf + consumed, count - consumed);

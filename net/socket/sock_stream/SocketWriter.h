@@ -29,6 +29,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Logger.h"
 #include "WriteEventReceiver.h"
 
 #ifndef MAX_SEND_JUNKSIZE

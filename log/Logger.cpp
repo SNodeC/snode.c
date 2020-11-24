@@ -45,13 +45,15 @@ void Logger::setCustomFormatSpec(const char* format, const el::FormatSpecifierVa
     el::Helpers::installCustomFormatSpecifier(el::CustomFormatSpecifier(format, resolver));
 }
 
+// Application logging should be done with VLOG(loglevel)
+// Framework logging should use one of the following levels
 void Logger::setLogLevel(int level) {
-    conf.set(el::Level::Trace, el::ConfigurationType::Enabled, "false");
-    conf.set(el::Level::Debug, el::ConfigurationType::Enabled, "false");
-    conf.set(el::Level::Info, el::ConfigurationType::Enabled, "false");
-    conf.set(el::Level::Warning, el::ConfigurationType::Enabled, "false");
-    conf.set(el::Level::Error, el::ConfigurationType::Enabled, "false");
-    conf.set(el::Level::Fatal, el::ConfigurationType::Enabled, "false");
+    conf.set(el::Level::Trace, el::ConfigurationType::Enabled, "false");   // trace method/function calling
+    conf.set(el::Level::Debug, el::ConfigurationType::Enabled, "false");   // typical assert messages - but we can go on
+    conf.set(el::Level::Info, el::ConfigurationType::Enabled, "false");    // additional infos - what 's going on
+    conf.set(el::Level::Warning, el::ConfigurationType::Enabled, "false"); // not that serious but mentioning
+    conf.set(el::Level::Error, el::ConfigurationType::Enabled, "false");   // serious errors - but we can go on
+    conf.set(el::Level::Fatal, el::ConfigurationType::Enabled, "false");   // asserts - stop - we can not go on
 
     switch (level) {
         case 6:

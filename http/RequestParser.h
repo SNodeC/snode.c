@@ -54,7 +54,7 @@ namespace http {
         }
 
         // Entrence
-        void beginRequest() override;
+        void begin() override;
 
         // Parsers and Validators
         enum Parser::ParserState parseStartLine(const std::string& line) override;

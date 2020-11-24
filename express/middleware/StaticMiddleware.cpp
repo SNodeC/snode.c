@@ -42,6 +42,7 @@ namespace express::middleware {
                 }
                 next();
             } else {
+                LOG(DEBUG) << "Wrong method " << req.method;
                 res.set("Connection", "Close");
                 res.sendStatus(400);
             }
@@ -49,6 +50,7 @@ namespace express::middleware {
 
         use([] MIDDLEWARE(req, res, next) {
             if (req.url == "/") {
+                LOG(INFO) << "REDIRECT " + req.url + " -> " + "/index.html";
                 res.redirect(308, "/index.html");
             } else {
                 next();
@@ -56,7 +58,7 @@ namespace express::middleware {
         });
 
         use([this] APPLICATION(req, res) {
-            VLOG(1) << "GET " + req.url + " -> " + this->root + req.url;
+            LOG(INFO) << "GET " + req.url + " -> " + this->root + req.url;
             res.sendFile(this->root + req.url, [&req](int ret) -> void {
                 if (ret != 0) {
                     PLOG(ERROR) << req.url;

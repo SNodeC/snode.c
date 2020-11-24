@@ -33,8 +33,10 @@ namespace net::socket::stream {
         SocketConnectionBase(const SocketConnectionBase&) = delete;
         SocketConnectionBase& operator=(const SocketConnectionBase&) = delete;
 
+    protected:
         virtual ~SocketConnectionBase() = default;
 
+    public:
         virtual void enqueue(const char* junk, size_t junkLen) = 0;
         virtual void enqueue(const std::string& data) = 0;
 

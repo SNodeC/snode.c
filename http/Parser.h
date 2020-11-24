@@ -60,7 +60,7 @@ namespace http {
 
         virtual void reset();
 
-        virtual void beginRequest() = 0;
+        virtual void begin() = 0;
         virtual enum ParserState parseStartLine(const std::string& line) = 0;
         virtual enum ParserState parseHeader() = 0;
         virtual enum ParserState parseContent(char* content, size_t size) = 0;

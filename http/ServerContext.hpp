@@ -214,6 +214,7 @@ namespace http {
     void ServerContext<Request, Response>::terminateConnection() {
         if (!connectionTerminated) {
             socketConnection->close();
+            requestContexts.clear();
             connectionTerminated = true;
         }
 

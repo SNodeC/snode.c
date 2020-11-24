@@ -23,6 +23,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Logger.h"
 #include "Response.h"
 #include "ServerContext.h"
 #include "StatusCodes.h"
@@ -166,11 +167,28 @@ namespace http {
 
         enqueue("\r\n");
 
-        contentLength = std::stoi(headers.find("Content-Length")->second);
+        if (headers.find("Content-Length") != headers.end()) {
+            contentLength = std::stoi(headers.find("Content-Length")->second);
+        } else {
+            contentLength = 0;
+        }
     }
 
     void Response::end() {
         send("");
+    }
+
+    void Response::pipe([[maybe_unused]] net::stream::ReadStream& readStream, const char* junk, size_t junkLen) {
+        enqueue(junk, junkLen);
+    }
+
+    void Response::pipeEOF([[maybe_unused]] net::stream::ReadStream& readStream) {
+        LOG(INFO) << "Pipe EOF";
+    }
+
+    void Response::pipeError([[maybe_unused]] net::stream::ReadStream& readStream, [[maybe_unused]] int errnum) {
+        PLOG(ERROR) << "Pipe error: ";
+        serverContext->terminateConnection();
     }
 
     void Response::reset() {

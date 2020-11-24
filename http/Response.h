@@ -29,6 +29,7 @@
 
 #include "ConnectionState.h"
 #include "CookieOptions.h"
+#include "streams/WriteStream.h"
 
 class FileReader;
 
@@ -36,10 +37,9 @@ namespace http {
 
     class ServerContextBase;
 
-    class Response {
+    class Response : public net::stream::WriteStream {
     protected:
         explicit Response(ServerContextBase* serverContext);
-        virtual ~Response() = default;
 
     public:
         void send(const char* buffer, size_t size);
@@ -71,6 +71,10 @@ namespace http {
         void enqueue(const char* buf, size_t len);
         void enqueue(const std::string& str);
         void sendHeader();
+
+        void pipe(net::stream::ReadStream& readStream, const char* junk, size_t junkLen) override;
+        void pipeEOF([[maybe_unused]] net::stream::ReadStream& readStream) override;
+        void pipeError(net::stream::ReadStream& readStream, int errnum) override;
 
         virtual void reset();
 

@@ -22,7 +22,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Logger.h"
 #include "MimeTypes.h"
 #include "Response.h"
 #include "ServerContext.h"
@@ -48,16 +47,10 @@ namespace express {
                                 {"Last-Modified", httputils::file_mod_http_date(absolutFileName)}});
                 headers.insert_or_assign("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
 
-                fileReader = FileReader::read(
-                    absolutFileName,
-                    [this](char* data, int length) -> void {
-                        enqueue(data, length);
-                    },
-                    [this, onError](int err) -> void {
-                        onError(err);
-                        serverContext->terminateConnection();
-                        fileReader = nullptr;
-                    });
+                FileReader::pipe(absolutFileName, *this, [this, onError](int err) -> void {
+                    serverContext->terminateConnection();
+                    onError(err);
+                });
             } else {
                 responseStatus = 403;
                 errno = EACCES;
@@ -102,11 +95,6 @@ namespace express {
 
     void Response::reset() {
         http::Response::reset();
-        if (fileReader != nullptr) {
-            fileReader->ReadEventReceiver::disable();
-            fileReader->ReadEventReceiver::suspend();
-            fileReader = nullptr;
-        }
     }
 
 } // namespace express

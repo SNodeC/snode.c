@@ -44,9 +44,6 @@ namespace express {
         void sendStatus(int status);
 
         void reset() override;
-
-    protected:
-        FileReader* fileReader = nullptr;
     };
 
 } // namespace express

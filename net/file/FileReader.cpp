@@ -28,22 +28,19 @@
 
 #include "FileReader.h"
 
-FileReader::FileReader(int fd, const std::function<void(char* junk, int junkLen)>& junkRead, const std::function<void(int err)>& onError)
-    : junkRead(junkRead)
-    , onError(onError) {
+FileReader::FileReader(int fd, net::stream::WriteStream& writeStream) {
     open(fd);
     ReadEventReceiver::enable(fd);
+    this->ReadStream::pipe(writeStream);
 }
 
-FileReader* FileReader::read(const std::string& path,
-                             const std::function<void(char* junk, int junkLen)>& junkRead,
-                             const std::function<void(int err)>& onError) {
+FileReader* FileReader::pipe(const std::string& path, net::stream::WriteStream& writeStream, const std::function<void(int err)>& onError) {
     FileReader* fileReader = nullptr;
 
     int fd = ::open(path.c_str(), O_RDONLY);
 
     if (fd >= 0) {
-        fileReader = new FileReader(fd, junkRead, onError);
+        fileReader = new FileReader(fd, writeStream);
     } else {
         onError(errno);
     }
@@ -57,11 +54,15 @@ void FileReader::readEvent() {
 
     int ret = ::read(getFd(), junk, MFREADSIZE);
 
-    if (ret >= 0) {
-        junkRead(junk, ret);
+    if (ret > 0) {
+        this->ReadStream::dispatch(junk, ret);
     } else {
         ReadEventReceiver::disable();
-        onError(errno);
+        if (ret == 0) {
+            this->ReadStream::dispatchEOF();
+        } else {
+            this->ReadStream::dispatchError(errno);
+        }
     }
 }
 

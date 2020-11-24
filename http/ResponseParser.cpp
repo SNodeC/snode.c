@@ -51,7 +51,7 @@ namespace http {
         cookies.clear();
     }
 
-    void ResponseParser::beginRequest() {
+    void ResponseParser::begin() {
         onStart();
     }
 
