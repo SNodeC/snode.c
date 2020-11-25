@@ -127,7 +127,7 @@ namespace net::socket::stream::tls {
                 if (errno != 0) {
                     ssl_log_warning(message);
                 } else {
-                    ssl_log_info(message + ". Unexpected syscall-error");
+                    ssl_log_info(message + "- syscall error");
                 }
                 break;
             default:
