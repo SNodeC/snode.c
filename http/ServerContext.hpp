@@ -72,14 +72,14 @@ namespace http {
                       } else if (field == "connection" && value == "keep-alive") {
                           request.connectionState = ConnectionState::Keep;
                       }
-                      VLOG(4) << "     " << field << ": " << value;
+                      VLOG(3) << "     " << field << ": " << value;
                   }
 
                   VLOG(3) << "++ Cookies";
                   request.cookies = &cookies;
 
                   for (auto [cookie, value] : cookies) {
-                      VLOG(4) << "     " << cookie << ": " << value;
+                      VLOG(3) << "     " << cookie << ": " << value;
                   }
               },
               [this](char* content, size_t contentLength) -> void {
