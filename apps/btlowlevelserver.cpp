@@ -53,15 +53,15 @@ int main(int argc, char* argv[]) {
             socketConnection->enqueue(data);
         },
         []([[maybe_unused]] SocketServer::SocketConnection* socketConnection, int errnum) -> void { // onReadError
-            VLOG(0) << "OnReadError: " << errnum;
+            PLOG(ERROR) << "OnReadError: " << errnum;
         },
         []([[maybe_unused]] SocketServer::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
-            VLOG(0) << "OnWriteError: " << errnum;
+            PLOG(ERROR) << "OnWriteError: " << errnum;
         });
 
     btServer.listen(SocketServer::SocketAddress("5C:C5:D4:B8:3C:AA", 1), 5, [](int errnum) -> void { // calisto
         if (errnum != 0) {
-            LOG(ERROR) << "BT listen: " << errnum;
+            PLOG(ERROR) << "BT listen: " << errnum;
         } else {
             LOG(INFO) << "BT listening on channel 1";
         }

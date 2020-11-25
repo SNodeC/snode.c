@@ -101,10 +101,10 @@ SocketClient getClient() {
             socketConnection->enqueue(data);
         },
         []([[maybe_unused]] SocketClient::SocketConnection* socketConnection, int errnum) -> void { // onReadError
-            VLOG(0) << "OnReadError: " << errnum;
+            PLOG(ERROR) << "OnReadError: " << errnum;
         },
         []([[maybe_unused]] SocketClient::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
-            VLOG(0) << "OnWriteError: " << errnum;
+            PLOG(ERROR) << "OnWriteError: " << errnum;
         },
         {{"certChain", CLIENTCERTF}, {"keyPEM", CLIENTKEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}});
 
