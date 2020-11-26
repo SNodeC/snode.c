@@ -88,3 +88,54 @@ namespace http {
 } // namespace http
 
 #endif // RESPONSE_H
+
+/* https://de.wikipedia.org/wiki/Liste_der_HTTP-Headerfelder
+
+Valid response header fields
+============================
+X-                              https://tools.ietf.org/html/rfc6648
+Accept-Ranges
+Age
+Allow
+Cache-Control
+Connection
+Content-Encoding
+Content-Language
+Content-Length
+Content-Location
+Content-MD5
+Content-Disposition
+Content-Disposition:
+Content-Range
+Content-Security-Policy
+Content-Type
+Date
+ETag
+Expires
+Last-Modified
+Link
+Location
+P3P
+Pragma
+Proxy-Authenticate
+Refresh
+Retry-After
+Server
+Set-Cookie
+Trailer
+Transfer-Encoding
+Vary
+Via
+Warning
+WWW-Authenticate
+
+Non standard response header fields
+===================================
+X-Frame-Options
+X-XSS-Protection
+X-Content-Type-Options
+X-Powered-By
+X-UA-Compatible
+X-Robots-Tag
+Referrer-Policy
+*/
