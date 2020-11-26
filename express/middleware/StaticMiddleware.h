@@ -29,19 +29,26 @@ namespace express::middleware {
     class StaticMiddleware : public Router {
     protected:
         StaticMiddleware(const std::string& root);
-        static const class StaticMiddleware& instance(const std::string& root);
+        static class StaticMiddleware& instance(const std::string& root);
 
     public:
         StaticMiddleware(const StaticMiddleware&) = delete;
         StaticMiddleware& operator=(const StaticMiddleware&) = delete;
 
+        StaticMiddleware& setStdHeaders(const std::map<std::string, std::string>& stdHeaders);
+        StaticMiddleware& appendStdHeaders(const std::map<std::string, std::string>& stdHeaders);
+        StaticMiddleware& alwaysClose();
+
     protected:
         std::string root;
+        std::map<std::string, std::string> stdHeaders = {
+            {"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}, {"X-Powered-By", "snode.c"}};
+        bool forceClose = false;
 
-        friend const class StaticMiddleware& StaticMiddleware(const std::string& root);
+        friend class StaticMiddleware& StaticMiddleware(const std::string& root);
     };
 
-    const class StaticMiddleware& StaticMiddleware(const std::string& root);
+    class StaticMiddleware& StaticMiddleware(const std::string& root);
 
 } // namespace express::middleware
 

@@ -31,15 +31,16 @@ namespace express::middleware {
 
     StaticMiddleware::StaticMiddleware(const std::string& root)
         : root(root) {
-        use([] MIDDLEWARE(req, res, next) {
+        use([&stdHeaders = this->stdHeaders, &forceClose = this->forceClose] MIDDLEWARE(req, res, next) {
             if (req.method == "GET") {
-                if ((req.connectionState == ConnectionState::Close) || (req.httpMajor == 0 && req.httpMinor == 9) ||
-                    (req.httpMajor == 1 && req.httpMinor == 0 && req.connectionState != ConnectionState::Keep) ||
-                    (req.httpMajor == 1 && req.httpMinor == 1 && req.connectionState == ConnectionState::Close)) {
+                if (forceClose || ((req.connectionState == ConnectionState::Close) || (req.httpMajor == 0 && req.httpMinor == 9) ||
+                                   (req.httpMajor == 1 && req.httpMinor == 0 && req.connectionState != ConnectionState::Keep) ||
+                                   (req.httpMajor == 1 && req.httpMinor == 1 && req.connectionState == ConnectionState::Close))) {
                     res.set("Connection", "Close");
                 } else {
                     res.set("Connection", "Keep-Alive");
                 }
+                res.set(stdHeaders);
                 next();
             } else {
                 LOG(DEBUG) << "Wrong method " << req.method;
@@ -67,10 +68,28 @@ namespace express::middleware {
         });
     }
 
+    class StaticMiddleware& StaticMiddleware::setStdHeaders(const std::map<std::string, std::string>& stdHeaders) {
+        this->stdHeaders = stdHeaders;
+
+        return *this;
+    }
+
+    class StaticMiddleware& StaticMiddleware::appendStdHeaders(const std::map<std::string, std::string>& stdHeaders) {
+        this->stdHeaders.insert(stdHeaders.begin(), stdHeaders.end());
+
+        return *this;
+    }
+
+    class StaticMiddleware& StaticMiddleware::alwaysClose() {
+        this->forceClose = true;
+
+        return *this;
+    }
+
     // Keep all created static middlewares alive
     static std::map<const std::string, std::shared_ptr<class StaticMiddleware>> staticMiddlewares;
 
-    const class StaticMiddleware& StaticMiddleware::instance(const std::string& root) {
+    class StaticMiddleware& StaticMiddleware::instance(const std::string& root) {
         if (!staticMiddlewares.contains(root)) {
             staticMiddlewares[root] = std::shared_ptr<StaticMiddleware>(new StaticMiddleware(root));
         }
@@ -79,7 +98,7 @@ namespace express::middleware {
     }
 
     // "Constructor" of StaticMiddleware
-    const class StaticMiddleware& StaticMiddleware(const std::string& root) {
+    class StaticMiddleware& StaticMiddleware(const std::string& root) {
         return StaticMiddleware::instance(root);
     }
 
