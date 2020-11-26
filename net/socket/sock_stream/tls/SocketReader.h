@@ -43,7 +43,7 @@ namespace net::socket::stream::tls {
 
     private:
         ssize_t read(char* junk, size_t junkLen) override {
-            int ret = ::SSL_read(ssl, junk, junkLen);
+            int ret = SSL_read(ssl, junk, junkLen);
 
             if (ret <= 0) {
                 sslErr = SSL_get_error(ssl, ret);
