@@ -24,13 +24,12 @@
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 #include "socket/bluetooth/rfcomm/Socket.h"
-#include "socket/bluetooth/rfcomm/SocketClient.h"
 #include "socket/sock_stream/legacy/SocketClient.h"
 
 namespace net::socket::bluetooth::rfcomm::legacy {
 
-    class SocketClient : public rfcomm::SocketClient<stream::legacy::SocketClient<rfcomm::Socket>> {
-        using rfcomm::SocketClient<stream::legacy::SocketClient<rfcomm::Socket>>::SocketClient;
+    class SocketClient : public stream::legacy::SocketClient<rfcomm::Socket> {
+        using stream::legacy::SocketClient<rfcomm::Socket>::SocketClient;
     };
 
 } // namespace net::socket::bluetooth::rfcomm::legacy

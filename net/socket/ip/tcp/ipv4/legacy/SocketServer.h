@@ -23,14 +23,13 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#include "socket/ip/tcp/SocketServer.h"
 #include "socket/ip/tcp/ipv4/Socket.h"
 #include "socket/sock_stream/legacy/SocketServer.h"
 
 namespace net::socket::ip::tcp::ipv4::legacy {
 
-    class SocketServer : public tcp::SocketServer<stream::legacy::SocketServer<ipv4::Socket>> {
-        using tcp::SocketServer<stream::legacy::SocketServer<ipv4::Socket>>::SocketServer;
+    class SocketServer : public stream::legacy::SocketServer<ipv4::Socket> {
+        using stream::legacy::SocketServer<ipv4::Socket>::SocketServer;
     };
 
 } // namespace net::socket::ip::tcp::ipv4::legacy

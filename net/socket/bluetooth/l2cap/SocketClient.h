@@ -36,10 +36,6 @@ namespace net::socket::bluetooth::l2cap {
     class SocketClient : public stream::legacy::SocketClient<l2cap::Socket> {
     public:
         using stream::legacy::SocketClient<l2cap::Socket>::SocketClient;
-
-        using SocketConnection = typename stream::legacy::SocketClient<l2cap::Socket>::SocketConnection;
-        using Socket = typename SocketConnection::Socket;
-        using SocketAddress = typename Socket::SocketAddress;
     };
 
 } // namespace net::socket::bluetooth::l2cap

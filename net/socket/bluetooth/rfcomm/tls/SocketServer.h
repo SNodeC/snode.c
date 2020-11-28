@@ -24,13 +24,12 @@
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 #include "socket/bluetooth/rfcomm/Socket.h"
-#include "socket/bluetooth/rfcomm/SocketServer.h"
 #include "socket/sock_stream/tls/SocketServer.h"
 
 namespace net::socket::bluetooth::rfcomm::tls {
 
-    class SocketServer : public rfcomm::SocketServer<stream::tls::SocketServer<rfcomm::Socket>> {
-        using rfcomm::SocketServer<stream::tls::SocketServer<rfcomm::Socket>>::SocketServer;
+    class SocketServer : public stream::tls::SocketServer<rfcomm::Socket> {
+        using stream::tls::SocketServer<rfcomm::Socket>::SocketServer;
     };
 
 } // namespace net::socket::bluetooth::rfcomm::tls
