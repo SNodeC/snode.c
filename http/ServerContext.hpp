@@ -172,6 +172,7 @@ namespace http {
         // if 0.9 => terminate
         // if 1.0 && (request != Keep || contentLength = -1) => terminate
         // if 1.1 && (request == Close || contentLength = -1) => terminate
+        // if (request == Close) => terminate
 
         if ((requestContext.request.httpMajor == 0 && requestContext.request.httpMinor == 9) ||
             (requestContext.request.httpMajor == 1 && requestContext.request.httpMinor == 0 &&
