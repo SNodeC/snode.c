@@ -35,14 +35,21 @@ namespace express::middleware {
         StaticMiddleware(const StaticMiddleware&) = delete;
         StaticMiddleware& operator=(const StaticMiddleware&) = delete;
 
+        StaticMiddleware& clearStdHeaders();
         StaticMiddleware& setStdHeaders(const std::map<std::string, std::string>& stdHeaders);
         StaticMiddleware& appendStdHeaders(const std::map<std::string, std::string>& stdHeaders);
+        StaticMiddleware& appendStdHeaders(const std::string& field, const std::string& value);
+
+        StaticMiddleware&
+        appendStdCookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options = {});
+
         StaticMiddleware& alwaysClose();
 
     protected:
         std::string root;
         std::map<std::string, std::string> stdHeaders = {
             {"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}, {"X-Powered-By", "snode.c"}};
+        std::map<std::string, http::CookieOptions> stdCookies = {};
         bool forceClose = false;
 
         friend class StaticMiddleware& StaticMiddleware(const std::string& root);

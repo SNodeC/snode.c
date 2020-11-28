@@ -31,7 +31,7 @@ namespace express::middleware {
 
     StaticMiddleware::StaticMiddleware(const std::string& root)
         : root(root) {
-        use([&stdHeaders = this->stdHeaders, &forceClose = this->forceClose] MIDDLEWARE(req, res, next) {
+        use([&stdHeaders = this->stdHeaders, &stdCookies = this->stdCookies, &forceClose = this->forceClose] MIDDLEWARE(req, res, next) {
             if (req.method == "GET") {
                 if (forceClose || ((req.connectionState == ConnectionState::Close) || (req.httpMajor == 0 && req.httpMinor == 9) ||
                                    (req.httpMajor == 1 && req.httpMinor == 0 && req.connectionState != ConnectionState::Keep) ||
@@ -41,6 +41,9 @@ namespace express::middleware {
                     res.set("Connection", "Keep-Alive");
                 }
                 res.set(stdHeaders);
+                for (const auto& [value, options] : stdCookies) {
+                    res.cookie(value, options.getValue(), options.getOptions());
+                }
                 next();
             } else {
                 LOG(DEBUG) << "Wrong method " << req.method;
@@ -68,6 +71,12 @@ namespace express::middleware {
         });
     }
 
+    class StaticMiddleware& StaticMiddleware::clearStdHeaders() {
+        this->stdHeaders.clear();
+
+        return *this;
+    }
+
     class StaticMiddleware& StaticMiddleware::setStdHeaders(const std::map<std::string, std::string>& stdHeaders) {
         this->stdHeaders = stdHeaders;
 
@@ -76,6 +85,20 @@ namespace express::middleware {
 
     class StaticMiddleware& StaticMiddleware::appendStdHeaders(const std::map<std::string, std::string>& stdHeaders) {
         this->stdHeaders.insert(stdHeaders.begin(), stdHeaders.end());
+
+        return *this;
+    }
+
+    class StaticMiddleware& StaticMiddleware::appendStdHeaders(const std::string& field, const std::string& value) {
+        this->stdHeaders[field] = value;
+
+        return *this;
+    }
+
+    class StaticMiddleware& StaticMiddleware::appendStdCookie(const std::string& name,
+                                                              const std::string& value,
+                                                              const std::map<std::string, std::string>& options) {
+        this->stdCookies.insert({name, http::CookieOptions(value, options)});
 
         return *this;
     }
