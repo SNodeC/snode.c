@@ -23,7 +23,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "EventDispatcher.h"
+#include "EventDispatcher.hpp"
 #include "OutOfBandEventReceiver.h"
 
 // IWYU pragma: no_forward_declare net::OutOfBandEventReceiver

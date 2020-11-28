@@ -24,7 +24,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "ConnectEventReceiver.h"
-#include "EventDispatcher.h"
+#include "EventDispatcher.hpp"
 
 // IWYU pragma: no_forward_declare net::ConnectEventReceiver
 

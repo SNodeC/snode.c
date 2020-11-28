@@ -22,7 +22,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
-#include <climits>
 #include <ctime>
 #include <list>
 #include <map>
@@ -51,181 +50,31 @@ namespace net {
             using std::list<EventReceiver*>::end;
             using std::list<EventReceiver*>::front;
 
-            bool contains(EventReceiver* eventReceiver) {
-                return std::find(begin(), end(), eventReceiver) != end();
-            }
+            bool contains(EventReceiver* eventReceiver);
         };
 
     public:
-        explicit EventDispatcher(FdSet& fdSet, long maxInactivity) // NOLINT(google-runtime-references)
-            : fdSet(fdSet)
-            , maxInactivity(maxInactivity) {
-        }
-
+        explicit EventDispatcher(FdSet& fdSet, long maxInactivity); // NOLINT(google-runtime-references)
         EventDispatcher(const EventDispatcher&) = delete;
 
         EventDispatcher& operator=(const EventDispatcher&) = delete;
 
-        void enable(EventReceiver* eventReceiver, int fd) {
-            if (disabledEventReceiver[fd].contains(eventReceiver)) {
-                // same tick
-                disabledEventReceiver[fd].remove(eventReceiver);
-            } else if (!eventReceiver->isEnabled() &&
-                       (!enabledEventReceiver.contains(fd) || !enabledEventReceiver[fd].contains(eventReceiver))) {
-                // normal
-                enabledEventReceiver[fd].push_back(eventReceiver);
-                eventReceiver->enabled(fd);
-                if (unobservedEventReceiver.contains(eventReceiver)) {
-                    unobservedEventReceiver.remove(eventReceiver);
-                }
-            } else {
-                LOG(WARNING) << "EventReceiver double enable";
-            }
-        }
+        void enable(EventReceiver* eventReceiver, int fd);
+        void disable(EventReceiver* eventReceiver, int fd);
+        void suspend(EventReceiver* eventReceiver, int fd);
+        void resume(EventReceiver* eventReceiver, int fd);
 
-        void disable(EventReceiver* eventReceiver, int fd) {
-            if (enabledEventReceiver[fd].contains(eventReceiver)) {
-                // same tick
-                enabledEventReceiver[fd].remove(eventReceiver);
-                eventReceiver->disabled();
-                if (eventReceiver->observationCounter == 0) {
-                    unobservedEventReceiver.push_back(eventReceiver);
-                }
-            } else if (eventReceiver->isEnabled() &&
-                       (!disabledEventReceiver.contains(fd) || !disabledEventReceiver[fd].contains(eventReceiver))) {
-                // normal
-                disabledEventReceiver[fd].push_back(eventReceiver);
-            } else {
-                LOG(WARNING) << "EventReceiver double disable";
-            }
-        }
-
-        void suspend(EventReceiver* eventReceiver, int fd) {
-            if (!eventReceiver->isSuspended()) {
-                eventReceiver->suspended();
-                if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
-                    fdSet.clr(fd, true);
-                }
-            } else {
-                LOG(WARNING) << "EventReceiver double suspend";
-            }
-        }
-
-        void resume(EventReceiver* eventReceiver, int fd) {
-            if (eventReceiver->isSuspended()) {
-                eventReceiver->resumed();
-                if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
-                    fdSet.set(fd);
-                }
-            } else {
-                LOG(WARNING) << "EventReceiver double resume";
-            }
-        }
-
-        long getTimeout() const {
-            return maxInactivity;
-        }
-
-        unsigned long getEventCounter() {
-            return eventCounter;
-        }
+        unsigned long getEventCounter() const;
+        long getTimeout() const;
 
     private:
-        int getMaxFd() {
-            int maxFd = -1;
+        int getMaxFd() const;
 
-            if (!observedEventReceiver.empty()) {
-                maxFd = observedEventReceiver.rbegin()->first;
-            }
-
-            return maxFd;
-        }
-
-        struct timeval observeEnabledEvents() {
-            struct timeval nextTimeout = {LONG_MAX, 0};
-
-            for (auto [fd, eventReceivers] : enabledEventReceiver) {
-                for (EventReceiver* eventReceiver : eventReceivers) {
-                    observedEventReceiver[fd].push_front(eventReceiver);
-                    if (!eventReceiver->isSuspended()) {
-                        fdSet.set(fd);
-                        nextTimeout = std::min(nextTimeout, eventReceiver->getTimeout());
-                    } else {
-                        fdSet.clr(fd, true);
-                    }
-                }
-            }
-            enabledEventReceiver.clear();
-
-            fdSet.prepare();
-
-            return nextTimeout;
-        }
-
-        struct timeval dispatchActiveEvents(struct timeval currentTime) {
-            struct timeval nextInactivityTimeout {
-                LONG_MAX, 0
-            };
-
-            for (const auto& [fd, eventReceivers] : observedEventReceiver) {
-                EventReceiver* eventReceiver = eventReceivers.front();
-                struct timeval maxInactivity = eventReceiver->getTimeout();
-                if (fdSet.isSet(fd)) {
-                    eventCounter++;
-                    eventReceiver->dispatchEvent();
-                    eventReceiver->triggered(currentTime);
-                    nextInactivityTimeout = std::min(nextInactivityTimeout, maxInactivity);
-                } else {
-                    struct timeval inactivity = currentTime - eventReceiver->getLastTriggered();
-                    if (inactivity >= maxInactivity) {
-                        eventReceiver->timeout();
-                        eventReceiver->disable();
-                    } else {
-                        nextInactivityTimeout = std::min(maxInactivity - inactivity, nextInactivityTimeout);
-                    }
-                }
-            }
-
-            return nextInactivityTimeout;
-        }
-
-        void unobserveDisabledEvents() {
-            for (auto [fd, eventReceivers] : disabledEventReceiver) {
-                for (EventReceiver* eventReceiver : eventReceivers) {
-                    observedEventReceiver[fd].remove(eventReceiver);
-                    if (observedEventReceiver[fd].empty() || observedEventReceiver[fd].front()->isSuspended()) {
-                        if (observedEventReceiver[fd].empty()) {
-                            observedEventReceiver.erase(fd);
-                        }
-                        fdSet.clr(fd, true);
-                    } else {
-                        fdSet.set(fd);
-                        observedEventReceiver[fd].front()->triggered();
-                    }
-                    eventReceiver->disabled();
-                    if (eventReceiver->observationCounter == 0) {
-                        unobservedEventReceiver.push_back(eventReceiver);
-                    }
-                    eventReceiver->fd = -1;
-                }
-            }
-            disabledEventReceiver.clear();
-        }
-
-        void releaseUnobservedEvents() {
-            for (EventReceiver* eventReceiver : unobservedEventReceiver) {
-                eventReceiver->unobserved();
-            }
-            unobservedEventReceiver.clear();
-        }
-
-        void disableObservedEvents() {
-            for (auto& [fd, eventReceivers] : observedEventReceiver) {
-                for (EventReceiver* eventReceiver : eventReceivers) {
-                    disabledEventReceiver[fd].push_back(eventReceiver);
-                }
-            }
-        }
+        struct timeval observeEnabledEvents();
+        struct timeval dispatchActiveEvents(struct timeval currentTime);
+        void unobserveDisabledEvents();
+        void releaseUnobservedEvents();
+        void disableObservedEvents();
 
         std::map<int, EventReceiverList> enabledEventReceiver;
         std::map<int, EventReceiverList> observedEventReceiver;
