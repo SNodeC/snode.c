@@ -32,25 +32,13 @@ namespace http::legacy {
     template <typename Request = http::Request, typename Response = http::Response>
     class Server : public http::Server<net::socket::ip::tcp::ipv4::legacy::SocketServer, Request, Response> {
     public:
-        using SocketServer = net::socket::ip::tcp::ipv4::legacy::SocketServer;
-        using SocketListener = typename SocketServer::SocketListener;
-        using SocketConnection = typename SocketListener::SocketConnection;
-        using Socket = typename SocketConnection::Socket;
-        using SocketAddress = typename Socket::SocketAddress;
-
-        using http::Server<SocketServer, Request, Response>::Server;
+        using http::Server<net::socket::ip::tcp::ipv4::legacy::SocketServer, Request, Response>::Server;
     };
 
     template <typename Request = http::Request, typename Response = http::Response>
     class Server6 : public http::Server<net::socket::ip::tcp ::ipv6::legacy::SocketServer, Request, Response> {
     public:
-        using SocketServer = net::socket::ip::tcp::ipv6::legacy::SocketServer;
-        using SocketListener = typename SocketServer::SocketListener;
-        using SocketConnection = typename SocketListener::SocketConnection;
-        using Socket = typename SocketConnection::Socket;
-        using SocketAddress = typename Socket::SocketAddress;
-
-        using http::Server<SocketServer, Request, Response>::Server;
+        using http::Server<net::socket::ip::tcp::ipv6::legacy::SocketServer, Request, Response>::Server;
     };
 
 } // namespace http::legacy

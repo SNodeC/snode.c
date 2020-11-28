@@ -64,32 +64,30 @@ namespace http {
                  onRequestBegin = this->onRequestBegin,
                  onResponseReady = this->onResponseReady,
                  onResponseError = this->onResponseError](SocketConnection* socketConnection) -> void { // onConstruct
-                    http::ClientContext* clientContext = new ClientContext(socketConnection, onResponseReady, onResponseError);
+                    ClientContext* clientContext = new ClientContext(socketConnection, onResponseReady, onResponseError);
                     clientContext->setRequest(request);
-                    socketConnection->template setContext<http::ClientContext*>(clientContext);
+                    socketConnection->template setContext<ClientContext*>(clientContext);
                     onRequestBegin(clientContext->serverRequest);
                 },
                 [](SocketConnection* socketConnection) -> void { // onDestruct
-                    socketConnection->template getContext<http::ClientContext*>([](http::ClientContext* clientContext) -> void {
+                    socketConnection->template getContext<ClientContext*>([](ClientContext* clientContext) -> void {
                         delete clientContext;
                     });
                 },
                 [onConnect = this->onConnect](SocketConnection* socketConnection) -> void { // onConnect
                     onConnect(socketConnection);
 
-                    socketConnection->template getContext<http::ClientContext*>(
-                        [&socketConnection](http::ClientContext* clientContext) -> void {
-                            socketConnection->enqueue(clientContext->getRequest());
-                        });
+                    socketConnection->template getContext<ClientContext*>([&socketConnection](ClientContext* clientContext) -> void {
+                        socketConnection->enqueue(clientContext->getRequest());
+                    });
                 },
                 [onDisconnect = this->onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
                     onDisconnect(socketConnection);
                 },
                 [](SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
-                    socketConnection->template getContext<http::ClientContext*>(
-                        [junk, junkSize](http::ClientContext* clientContext) -> void {
-                            clientContext->receiveResponseData(junk, junkSize);
-                        });
+                    socketConnection->template getContext<ClientContext*>([junk, junkSize](ClientContext* clientContext) -> void {
+                        clientContext->receiveResponseData(junk, junkSize);
+                    });
                 },
                 [](SocketConnection* socketConnection, int errnum) -> void { // onReadError
                     if (errnum != 0) {
