@@ -43,11 +43,11 @@ namespace net {
     template <typename EventReceiver>
     void EventDispatcher<EventReceiver>::enable(EventReceiver* eventReceiver, int fd) {
         if (disabledEventReceiver[fd].contains(eventReceiver)) {
-            // same tick
+            // same tick as disable
             disabledEventReceiver[fd].remove(eventReceiver);
         } else if (!eventReceiver->isEnabled() &&
                    (!enabledEventReceiver.contains(fd) || !enabledEventReceiver[fd].contains(eventReceiver))) {
-            // normal
+            // next tick as disable
             enabledEventReceiver[fd].push_back(eventReceiver);
             eventReceiver->enabled(fd);
             if (unobservedEventReceiver.contains(eventReceiver)) {
@@ -61,7 +61,7 @@ namespace net {
     template <typename EventReceiver>
     void EventDispatcher<EventReceiver>::disable(EventReceiver* eventReceiver, int fd) {
         if (enabledEventReceiver[fd].contains(eventReceiver)) {
-            // same tick
+            // same tick as enable
             enabledEventReceiver[fd].remove(eventReceiver);
             eventReceiver->disabled();
             if (eventReceiver->observationCounter == 0) {
@@ -69,7 +69,7 @@ namespace net {
             }
         } else if (eventReceiver->isEnabled() &&
                    (!disabledEventReceiver.contains(fd) || !disabledEventReceiver[fd].contains(eventReceiver))) {
-            // normal
+            // next tick as enable
             disabledEventReceiver[fd].push_back(eventReceiver);
         } else {
             LOG(WARNING) << "EventReceiver double disable";
