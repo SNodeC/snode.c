@@ -51,9 +51,9 @@ namespace net::socket::stream::tls {
         return 1;
     }
 
-    unsigned long ssl_init_ctx(SSL_CTX* ctx, const std::map<std::string, std::any>& options, bool server) {
-        unsigned long sslErr = 0;
+    static int sslSessionCtxId = 1;
 
+    SSL_CTX* ssl_ctx_new(const std::map<std::string, std::any>& options, bool server) {
         std::string certChain;
         std::string keyPEM;
         std::string password;
@@ -77,45 +77,70 @@ namespace net::socket::stream::tls {
             }
         }
 
+        SSL_CTX* ctx = SSL_CTX_new(server ? TLS_server_method() : TLS_client_method());
+
         if (ctx != nullptr) {
+            bool sslErr = false;
+
+            if (server) {
+                SSL_CTX_set_session_id_context(ctx, (const unsigned char*) &sslSessionCtxId, sizeof(sslSessionCtxId));
+                sslSessionCtxId++;
+            }
             if (!caFile.empty() || !caDir.empty()) {
                 if (!SSL_CTX_load_verify_locations(
                         ctx, !caFile.empty() ? caFile.c_str() : nullptr, !caDir.empty() ? caDir.c_str() : nullptr)) {
-                    sslErr = ERR_peek_error();
+                    ssl_log_error("Can not load CA file or non default CA directory");
+                    sslErr = true;
                 }
             }
-            if (sslErr == SSL_ERROR_NONE && useDefaultCADir) {
+            if (!sslErr && useDefaultCADir) {
                 if (!SSL_CTX_set_default_verify_paths(ctx)) {
-                    sslErr = ERR_peek_error();
+                    ssl_log_error("Can not load default CA directory");
+                    sslErr = true;
                 }
             }
-            if (server && sslErr == 0 && (useDefaultCADir || !caFile.empty() || !caDir.empty())) {
-                SSL_CTX_set_verify_depth(ctx, 5);
-                SSL_CTX_set_verify(ctx, SSL_VERIFY_FLAGS, verify_callback);
-            }
-            if (sslErr == SSL_ERROR_NONE) {
+            if (!sslErr) {
+                if (server && (useDefaultCADir || !caFile.empty() || !caDir.empty())) {
+                    SSL_CTX_set_verify_depth(ctx, 5);
+                    SSL_CTX_set_verify(ctx, SSL_VERIFY_FLAGS, verify_callback);
+                }
                 if (!certChain.empty()) {
-                    if (SSL_CTX_use_certificate_chain_file(ctx, certChain.c_str()) <= 0) {
-                        sslErr = ERR_peek_error();
+                    if (SSL_CTX_use_certificate_chain_file(ctx, certChain.c_str()) != 1) {
+                        ssl_log_error("Can not load certificate chain");
+                        sslErr = true;
                     } else if (!keyPEM.empty()) {
                         if (!password.empty()) {
                             SSL_CTX_set_default_passwd_cb(ctx, password_callback);
                             SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(password.c_str()));
                         }
-                        if (SSL_CTX_use_PrivateKey_file(ctx, keyPEM.c_str(), SSL_FILETYPE_PEM) <= 0) {
-                            sslErr = ERR_peek_error();
+                        if (SSL_CTX_use_PrivateKey_file(ctx, keyPEM.c_str(), SSL_FILETYPE_PEM) != 1) {
+                            errno = EINVAL;
+                            ssl_log_error("Can not load private key");
+                            sslErr = true;
                         } else if (!SSL_CTX_check_private_key(ctx)) {
-                            sslErr = ERR_peek_error();
+                            errno = EINVAL;
+                            ssl_log_error("Private key not consistent with CA files");
+                            sslErr = true;
                         }
                     }
                 }
             }
+            if (sslErr) {
+                SSL_CTX_free(ctx);
+                ctx = nullptr;
+            }
         } else {
-            sslErr = ERR_peek_error();
+            ssl_log_error("SSL CTX not created");
         }
 
-        return sslErr;
+        return ctx;
     };
+
+    void ssl_ctx_free(SSL_CTX* ctx) {
+        if (ctx != nullptr) {
+            SSL_CTX_free(ctx);
+        }
+    }
 
     void ssl_log(const std::string& message, int sslErr) {
         switch (sslErr) {

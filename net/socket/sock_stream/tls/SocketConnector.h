@@ -97,28 +97,25 @@ namespace net::socket::stream {
                       onReadError,  // onReadError
                       onWriteError, // onWriteError
                       options) {
-                ctx = SSL_CTX_new(TLS_client_method());
-                sslErr = ssl_init_ctx(ctx, options, false);
+                ctx = ssl_ctx_new(options, false);
             }
 
             ~SocketConnector() override {
-                if (ctx != nullptr) {
-                    SSL_CTX_free(ctx);
-                }
+                ssl_ctx_free(ctx);
             }
 
             void connect(const SocketAddress& remoteAddress,
                          const SocketAddress& bindAddress,
                          const std::function<void(int err)>& onError) override {
-                if (sslErr != 0) {
-                    onError(-sslErr);
+                if (ctx == nullptr) {
+                    errno = EINVAL;
+                    onError(EINVAL);
                 } else {
                     stream::SocketConnector<SocketConnection>::connect(remoteAddress, bindAddress, onError);
                 }
             }
 
             SSL_CTX* ctx = nullptr;
-            unsigned long sslErr = 0;
 
             template <typename SocketConnector>
             friend class stream::SocketClient;

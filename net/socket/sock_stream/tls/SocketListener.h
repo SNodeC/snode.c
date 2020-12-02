@@ -95,21 +95,17 @@ namespace net::socket::stream {
                       onReadError,
                       onWriteError,
                       options) {
-                ctx = SSL_CTX_new(TLS_server_method());
-                SSL_CTX_set_session_id_context(ctx, (const unsigned char*) &sslSessionCtxId, sizeof(sslSessionCtxId));
-                sslSessionCtxId++;
-                sslErr = ssl_init_ctx(ctx, options, true);
+                ctx = ssl_ctx_new(options, true);
             }
 
             ~SocketListener() override {
-                if (ctx != nullptr) {
-                    SSL_CTX_free(ctx);
-                }
+                ssl_ctx_free(ctx);
             }
 
             void listen(const SocketAddress& localAddress, int backlog, const std::function<void(int err)>& onError) override {
-                if (sslErr != 0) {
-                    onError(-sslErr);
+                if (ctx == nullptr) {
+                    errno = EINVAL;
+                    onError(EINVAL);
                 } else {
                     stream::SocketListener<SocketConnection>::listen(localAddress, backlog, onError);
                 }
@@ -117,7 +113,6 @@ namespace net::socket::stream {
 
         private:
             SSL_CTX* ctx = nullptr;
-            unsigned long sslErr = 0;
 
             static int sslSessionCtxId;
 
