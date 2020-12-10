@@ -1,3 +1,5 @@
+# ssl-dev nlohman libmagic-dev libbluetooth-dev iwyu clang-format cmake-format
+
 cmake_minimum_required(VERSION 3.0)
 
 project(snode.c)
