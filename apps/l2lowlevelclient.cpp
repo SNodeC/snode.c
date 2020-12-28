@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
     net::EventLoop::init(argc, argv);
 
     {
-        SocketClient::SocketAddress remoteAddress("5C:C5:D4:B8:3C:AA", 0x1021); // calisto
+        SocketClient::SocketAddress remoteAddress("A4:B1:C1:2C:82:37", 0x1023); // titan
         SocketClient::SocketAddress bindAddress("44:01:BB:A3:63:32");           // mpow
 
         SocketClient client = getClient();

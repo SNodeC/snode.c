@@ -53,9 +53,7 @@ namespace net::socket::stream {
                        const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                        const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                        const std::map<std::string, std::any>& options)
-            : AcceptEventReceiver()
-            , SocketConnection::Socket()
-            , onConstruct(onConstruct)
+            : onConstruct(onConstruct)
             , onDestruct(onDestruct)
             , onConnect(onConnect)
             , onDisconnect(onDisconnect)

@@ -25,6 +25,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "InetAddress.h"
+#include "Logger.h"
 
 namespace net::socket::ip::address::ipv6 {
 

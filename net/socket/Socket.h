@@ -63,9 +63,9 @@ namespace net::socket {
             }
         }
 
-        enum shut { WR = SHUT_WR, RD = SHUT_RD, RDWR = SHUT_RDWR };
+        enum shutdown { WR = SHUT_WR, RD = SHUT_RD, RDWR = SHUT_RDWR };
 
-        void shutdown(int how) {
+        void shutdown(shutdown how) {
             ::shutdown(getFd(), how);
         }
 

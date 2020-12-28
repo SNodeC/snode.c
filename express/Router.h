@@ -38,15 +38,6 @@
 
 #define APPLICATION(req, res) ([[maybe_unused]] express::Request & (req), [[maybe_unused]] express::Response & (res))
 
-#define DECLARE_REQUESTMETHOD(METHOD)                                                                                                      \
-    Router& METHOD(const std::string& path, const std::function<void(Request & req, Response & res)>& dispatcher);                         \
-    Router& METHOD(const std::function<void(Request & req, Response & res)>& dispatcher);                                                  \
-    Router& METHOD(const std::string& path, const Router& router);                                                                         \
-    Router& METHOD(const Router& router);                                                                                                  \
-    Router& METHOD(const std::string& path,                                                                                                \
-                   const std::function<void(Request & req, Response & res, const std::function<void(void)>& next)>& dispatcher);           \
-    Router& METHOD(const std::function<void(Request & req, Response & res, const std::function<void(void)>& next)>& dispatcher);
-
 namespace express {
 
     struct MountPoint {
@@ -66,6 +57,15 @@ namespace express {
         Router();
         Router(const Router& router);
         Router& operator=(const Router& router);
+
+#define DECLARE_REQUESTMETHOD(METHOD)                                                                                                      \
+    Router& METHOD(const std::string& path, const std::function<void(Request & req, Response & res)>& dispatcher);                         \
+    Router& METHOD(const std::function<void(Request & req, Response & res)>& dispatcher);                                                  \
+    Router& METHOD(const std::string& path, const Router& router);                                                                         \
+    Router& METHOD(const Router& router);                                                                                                  \
+    Router& METHOD(const std::string& path,                                                                                                \
+                   const std::function<void(Request & req, Response & res, const std::function<void(void)>& next)>& dispatcher);           \
+    Router& METHOD(const std::function<void(Request & req, Response & res, const std::function<void(void)>& next)>& dispatcher);
 
         DECLARE_REQUESTMETHOD(use);
         DECLARE_REQUESTMETHOD(all);

@@ -55,9 +55,6 @@ namespace http {
         ConnectionState connectionState = ConnectionState::Default;
 
     protected:
-        virtual void extend() {
-        }
-
         virtual void reset();
 
         const std::map<std::string, std::string>* queries = nullptr;

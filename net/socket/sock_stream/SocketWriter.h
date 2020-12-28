@@ -82,13 +82,13 @@ namespace net::socket::stream {
                 if (writeBuffer.empty()) {
                     WriteEventReceiver::disable();
                     if (markShutdown) {
-                        Socket::shutdown(Socket::shut::WR);
+                        Socket::shutdown(Socket::shutdown::WR);
                     }
                 }
             } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
                 WriteEventReceiver::disable();
                 if (markShutdown) {
-                    Socket::shutdown(Socket::shut::WR);
+                    Socket::shutdown(Socket::shutdown::WR);
                 }
                 onError(getError());
             }

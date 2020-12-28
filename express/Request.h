@@ -44,10 +44,10 @@ namespace express {
         std::map<std::string, std::string> params;
 
     protected:
-        void extend() override;
+        void extend();
 
-        template <typename Request, typename Response>
-        friend class http::ServerContext;
+        template <typename ServerT>
+        friend class WebAppT;
     };
 
 } // namespace express

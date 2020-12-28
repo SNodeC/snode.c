@@ -38,14 +38,14 @@ int main(int argc, char* argv[]) {
         [](SocketServer::SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnect";
 
-            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+            VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
+            VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
         },
         [](SocketServer::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
 
-            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+            VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
+            VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
         },
         [](SocketServer::SocketConnection* socketConnection, const char* junk, ssize_t junkLen) -> void { // onRead
             std::string data(junk, junkLen);
@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
             PLOG(ERROR) << "OnWriteError: " << errnum;
         });
 
-    btServer.listen(SocketServer::SocketAddress("5C:C5:D4:B8:3C:AA", 1), 5, [](int errnum) -> void { // calisto
+    btServer.listen(SocketServer::SocketAddress("A4:B1:C1:2C:82:37", 1), 5, [](int errnum) -> void { // titan
         if (errnum != 0) {
             PLOG(ERROR) << "BT listen: " << errnum;
         } else {

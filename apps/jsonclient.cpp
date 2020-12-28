@@ -25,10 +25,8 @@
 #include "ServerResponse.h"
 #include "config.h" // just for this example app
 #include "legacy/Client.h"
-#include "tls/Client.h"
 
 #include <cstring>
-#include <openssl/x509v3.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

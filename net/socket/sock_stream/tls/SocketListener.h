@@ -53,12 +53,8 @@ namespace net::socket::stream {
                            const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                            const std::map<std::string, std::any>& options)
                 : stream::SocketListener<SocketConnection>(
-                      [onConstruct](SocketConnection* socketConnection) -> void {
-                          onConstruct(socketConnection);
-                      },
-                      [onDestruct](SocketConnection* socketConnection) -> void {
-                          onDestruct(socketConnection);
-                      },
+                      onConstruct,
+                      onDestruct,
                       [onConnect, &ctx = this->ctx](SocketConnection* socketConnection) -> void {
                           SSL* ssl = socketConnection->startSSL(ctx);
 

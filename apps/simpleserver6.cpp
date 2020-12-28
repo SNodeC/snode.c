@@ -56,15 +56,15 @@ int main(int argc, char* argv[]) {
     legacyApp.onConnect([](legacy::WebApp6::SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnConnect:";
 
-        VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-        VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+        VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
+        VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
     });
 
     legacyApp.onDisconnect([](legacy::WebApp6::SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnDisconnect:";
 
-        VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-        VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+        VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
+        VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
     });
 
     tls::WebApp6 tlsApp(getRouter(), {{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
@@ -80,15 +80,15 @@ int main(int argc, char* argv[]) {
     tlsApp.onConnect([](tls::WebApp6::SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnConnect:";
 
-        VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-        VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+        VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
+        VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
     });
 
     tlsApp.onDisconnect([](tls::WebApp6::SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnDisconnect:";
 
-        VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-        VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+        VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
+        VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
     });
 
     return WebApp::start();

@@ -26,7 +26,6 @@
 #include "middleware/StaticMiddleware.h"
 
 #include <nlohmann/json.hpp>
-#include <openssl/x509v3.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -70,15 +69,15 @@ int main(int argc, char* argv[]) {
     legacyApp.onConnect([](legacy::WebApp::SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnConnect:";
 
-        VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-        VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+        VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
+        VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
     });
 
     legacyApp.onDisconnect([](legacy::WebApp::SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnDisconnect:";
 
-        VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-        VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+        VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
+        VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
     });
 
     return WebApp::start();

@@ -55,10 +55,7 @@ namespace net::socket::stream {
                         const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                         const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                         const std::map<std::string, std::any>& options)
-            : ConnectEventReceiver()
-            , ReadEventReceiver()
-            , SocketConnection::Socket()
-            , onConstruct(onConstruct)
+            : onConstruct(onConstruct)
             , onDestruct(onDestruct)
             , onConnect(onConnect)
             , onDisconnect(onDisconnect)
@@ -114,7 +111,6 @@ namespace net::socket::stream {
         void connectEvent() override {
             errno = 0;
             int cErrno = 0;
-
             socklen_t cErrnoLen = sizeof(cErrno);
 
             int err = getsockopt(Socket::getFd(), SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);

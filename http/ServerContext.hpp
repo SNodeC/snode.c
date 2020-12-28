@@ -95,7 +95,7 @@ namespace http {
 
                   RequestContext& requestContext = requestContexts.back();
 
-                  requestContext.request.extend();
+                  //                  requestContext.request.extend();
                   requestContext.ready = true;
 
                   requestParsed();

@@ -29,13 +29,6 @@ namespace express {
 
     bool WebApp::initialized{false};
 
-    WebApp::WebApp() {
-        if (!initialized) {
-            LOG(FATAL) << "ERROR: WebApp not initialized. Use WebApp::init(argc, argv) before creating a concrete WebApp object";
-            exit(1);
-        }
-    }
-
     WebApp::WebApp(const Router& router)
         : Router(router) {
     }

@@ -24,7 +24,6 @@
 #include <any>
 #include <functional>
 #include <map>
-#include <netinet/in.h>
 #include <string> // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -44,24 +43,7 @@ namespace express {
         using SocketAddress = typename Socket::SocketAddress;
 
         WebAppT(const std::map<std::string, std::any>& options = {{}})
-            : server(
-                  [this](SocketConnection* socketConnection) -> void { // onConnect
-                      if (_onConnect != nullptr) {
-                          _onConnect(socketConnection);
-                      }
-                  },
-                  [this](express::Request& req, express::Response& res) -> void { // onRequestReady
-                      dispatch(req, res);
-                  },
-                  [this](express::Request& req, express::Response& res) -> void { // onRequestCompleted
-                      completed(req, res);
-                  },
-                  [this](SocketConnection* socketConnection) -> void { // onDisconnect
-                      if (_onDisconnect != nullptr) {
-                          _onDisconnect(socketConnection);
-                      }
-                  },
-                  options) {
+            : WebAppT(Router(), options) {
         }
 
         WebAppT(const Router& router, const std::map<std::string, std::any>& options = {{}})
@@ -73,6 +55,7 @@ namespace express {
                       }
                   },
                   [this](express::Request& req, express::Response& res) -> void { // onRequestReady
+                      req.extend();
                       dispatch(req, res);
                   },
                   [this](express::Request& req, express::Response& res) -> void { // onRequestCompleted
@@ -86,11 +69,11 @@ namespace express {
                   options) {
         }
 
-        void listen(unsigned short port, const std::function<void(int err)>& onError = nullptr) override {
+        void listen(in_port_t port, const std::function<void(int err)>& onError = nullptr) override {
             server.listen(port, onError);
         }
 
-        void listen(const std::string& host, unsigned short port, const std::function<void(int err)>& onError = nullptr) override {
+        void listen(const std::string& host, in_port_t port, const std::function<void(int err)>& onError = nullptr) override {
             server.listen(host, port, onError);
         }
 

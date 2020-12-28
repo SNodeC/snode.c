@@ -76,7 +76,7 @@ namespace net::socket::stream {
             } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
                 ReadEventReceiver::disable();
                 if (markShutdown) {
-                    Socket::shutdown(Socket::shut::RD);
+                    Socket::shutdown(Socket::shutdown::RD);
                 }
                 onError(getError());
             }

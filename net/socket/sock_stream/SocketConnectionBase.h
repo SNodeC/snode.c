@@ -54,20 +54,12 @@ namespace net::socket::stream {
 
         template <utils::InjectableAttribute Attribute>
         constexpr bool getContext(std::function<void(Attribute&)> onFound) const {
-            return protocol.getAttribute<Attribute>([&onFound](Attribute& attribute) -> void {
-                onFound(attribute);
-            });
+            return protocol.getAttribute<Attribute>(onFound);
         }
 
         template <utils::InjectableAttribute Attribute>
         constexpr void getContext(std::function<void(Attribute&)> onFound, std::function<void(const std::string&)> onNotFound) const {
-            return protocol.getAttribute<Attribute>(
-                [&onFound](Attribute& attribute) -> void {
-                    onFound(attribute);
-                },
-                [&onNotFound](const std::string& msg) -> void {
-                    onNotFound(msg);
-                });
+            return protocol.getAttribute<Attribute>(onFound, onNotFound);
         }
 
     private:
