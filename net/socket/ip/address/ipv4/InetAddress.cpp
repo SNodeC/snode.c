@@ -36,7 +36,7 @@ namespace net::socket::ip::address::ipv4 {
         sockAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     }
 
-    InetAddress::InetAddress(const std::string& ipOrHostname, uint16_t port) {
+    InetAddress::InetAddress(const std::string& ipOrHostname, in_port_t port) {
         struct hostent* he = gethostbyname(ipOrHostname.c_str());
 
         if (he == nullptr) {
@@ -60,32 +60,32 @@ namespace net::socket::ip::address::ipv4 {
         memcpy(&sockAddr.sin_addr, he->h_addr_list[0], he->h_length);
     }
 
-    InetAddress::InetAddress(unsigned short port) {
+    InetAddress::InetAddress(in_port_t port) {
         sockAddr.sin_family = AF_INET;
         sockAddr.sin_port = htons(port);
         sockAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     }
 
-    unsigned short InetAddress::port() const {
+    in_port_t InetAddress::port() const {
         return (ntohs(sockAddr.sin_port));
     }
 
     std::string InetAddress::host() const {
-        char host[256];
+        char host[NI_MAXHOST];
         getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), host, 256, nullptr, 0, 0);
 
         return host;
     }
 
     std::string InetAddress::ip() const {
-        char ip[256];
+        char ip[NI_MAXHOST];
         getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), ip, 256, nullptr, 0, NI_NUMERICHOST);
 
         return ip;
     }
 
     std::string InetAddress::serv() const {
-        char serv[256];
+        char serv[NI_MAXSERV];
         getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), nullptr, 0, serv, 256, 0);
 
         return serv;

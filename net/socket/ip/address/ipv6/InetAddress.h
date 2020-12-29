@@ -53,10 +53,10 @@ namespace net::socket::ip::address::ipv6 {
 
         InetAddress();
         explicit InetAddress(const std::string& ipOrHostname);
-        InetAddress(const std::string& ipOrHostname, uint16_t port);
-        explicit InetAddress(uint16_t port);
+        InetAddress(const std::string& ipOrHostname, in_port_t port);
+        explicit InetAddress(in_port_t port);
 
-        uint16_t port() const;
+        in_port_t port() const;
         std::string host() const;
         std::string ip() const;
         std::string serv() const;

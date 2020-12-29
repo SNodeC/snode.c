@@ -50,7 +50,7 @@ namespace net::socket::ip::address::ipv6 {
         hints.ai_socktype = 0;
         hints.ai_flags = AI_ADDRCONFIG | AI_V4MAPPED;
 
-        int err = getaddrinfo(ipOrHostname.c_str(), NULL, &hints, &res);
+        int err = getaddrinfo(ipOrHostname.c_str(), nullptr, &hints, &res);
 
         if (err != 0) {
             throw bad_hostname(ipOrHostname);
@@ -76,7 +76,7 @@ namespace net::socket::ip::address::ipv6 {
         freeaddrinfo(resalloc);
     }
 
-    InetAddress::InetAddress(const std::string& ipOrHostname, uint16_t port) {
+    InetAddress::InetAddress(const std::string& ipOrHostname, in_port_t port) {
         struct addrinfo hints {};
         struct addrinfo* res;
         struct addrinfo* resalloc;
@@ -89,7 +89,7 @@ namespace net::socket::ip::address::ipv6 {
         hints.ai_socktype = 0;
         hints.ai_flags = AI_ADDRCONFIG | AI_V4MAPPED;
 
-        int err = getaddrinfo(ipOrHostname.c_str(), NULL, &hints, &res);
+        int err = getaddrinfo(ipOrHostname.c_str(), nullptr, &hints, &res);
 
         if (err != 0) {
             throw bad_hostname(ipOrHostname);
@@ -115,32 +115,32 @@ namespace net::socket::ip::address::ipv6 {
         freeaddrinfo(resalloc);
     }
 
-    InetAddress::InetAddress(uint16_t port) {
+    InetAddress::InetAddress(in_port_t port) {
         sockAddr.sin6_family = AF_INET6;
         sockAddr.sin6_addr = in6addr_any;
         sockAddr.sin6_port = htons(port);
     }
 
-    unsigned short InetAddress::port() const {
+    in_port_t InetAddress::port() const {
         return (ntohs(sockAddr.sin6_port));
     }
 
     std::string InetAddress::host() const {
-        char host[256];
+        char host[NI_MAXHOST];
         getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), host, 256, nullptr, 0, 0);
 
         return host;
     }
 
     std::string InetAddress::ip() const {
-        char ip[256];
+        char ip[NI_MAXHOST];
         getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), ip, 256, nullptr, 0, NI_NUMERICHOST);
 
         return ip;
     }
 
     std::string InetAddress::serv() const {
-        char serv[256];
+        char serv[NI_MAXSERV];
         getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), nullptr, 0, serv, 256, 0);
 
         return serv;
