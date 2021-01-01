@@ -36,7 +36,7 @@ namespace http {
         : serverContext(serverContext) {
     }
 
-    void Response::enqueue(const char* buf, size_t len) {
+    void Response::enqueue(const char* buf, std::size_t len) {
         if (!headersSent && !sendHeaderInProgress) {
             sendHeaderInProgress = true;
             sendHeader();
@@ -128,7 +128,7 @@ namespace http {
         return *this;
     }
 
-    void Response::send(const char* buffer, size_t size) {
+    void Response::send(const char* buffer, std::size_t size) {
         if (size > 0) {
             headers.insert({"Content-Type", "application/octet-stream"});
         }
@@ -178,7 +178,7 @@ namespace http {
         send("");
     }
 
-    void Response::pipe([[maybe_unused]] net::stream::ReadStream& readStream, const char* junk, size_t junkLen) {
+    void Response::pipe([[maybe_unused]] net::stream::ReadStream& readStream, const char* junk, std::size_t junkLen) {
         enqueue(junk, junkLen);
     }
 

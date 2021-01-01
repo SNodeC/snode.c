@@ -52,7 +52,7 @@ void FileReader::readEvent() {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
     static char junk[MFREADSIZE];
 
-    int ret = ::read(getFd(), junk, MFREADSIZE);
+    ssize_t ret = ::read(getFd(), junk, MFREADSIZE);
 
     if (ret > 0) {
         this->ReadStream::dispatch(junk, ret);

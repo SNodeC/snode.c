@@ -44,7 +44,7 @@ namespace net::stream {
         }
     }
 
-    void ReadStream::dispatch(const char* junk, size_t junkLen) {
+    void ReadStream::dispatch(const char* junk, std::size_t junkLen) {
         dispatching = true;
         for (WriteStream* writeStream : writeStreams) {
             writeStream->pipe(*this, junk, junkLen);

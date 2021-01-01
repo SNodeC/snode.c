@@ -21,7 +21,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // for size_t
+#include <cstddef> // for std::size_t
 #include <map>
 #include <regex>
 #include <string>
@@ -51,7 +51,7 @@ namespace http {
         }
         virtual ~Parser() = default;
 
-        void parse(const char* buf, size_t count);
+        void parse(const char* buf, std::size_t count);
 
     protected:
         // Parser state
@@ -63,26 +63,26 @@ namespace http {
         virtual void begin() = 0;
         virtual enum ParserState parseStartLine(const std::string& line) = 0;
         virtual enum ParserState parseHeader() = 0;
-        virtual enum ParserState parseContent(char* content, size_t size) = 0;
+        virtual enum ParserState parseContent(char* content, std::size_t size) = 0;
         virtual enum ParserState parsingError(int code, const std::string& reason) = 0;
 
         // Data common to all HTTP messages (Request/Response)
         char* content = nullptr;
-        size_t contentLength = 0;
+        std::size_t contentLength = 0;
         std::map<std::string, std::string> headers;
 
     private:
-        size_t readStartLine(const char* buf, size_t count);
-        size_t readHeaderLine(const char* buf, size_t count);
+        std::size_t readStartLine(const char* buf, std::size_t count);
+        std::size_t readHeaderLine(const char* buf, std::size_t count);
         void splitHeaderLine(const std::string& line);
-        size_t readContent(const char* buf, size_t count);
+        std::size_t readContent(const char* buf, std::size_t count);
 
         // Line state
         bool EOL{false};
 
         // Used during parseing data
         std::string line;
-        size_t contentRead = 0;
+        std::size_t contentRead = 0;
 
         friend enum HTTPCompliance operator|(const enum HTTPCompliance& c1, const enum HTTPCompliance& c2);
         friend enum HTTPCompliance operator&(const enum HTTPCompliance& c1, const enum HTTPCompliance& c2);

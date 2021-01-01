@@ -21,7 +21,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // for size_t
+#include <cstddef> // for std::size_t
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 #include <sys/types.h> // for ssize_t
@@ -42,7 +42,7 @@ namespace net::socket::stream::tls {
         using stream::SocketReader<SocketT>::SocketReader;
 
     private:
-        ssize_t read(char* junk, size_t junkLen) override {
+        ssize_t read(char* junk, std::size_t junkLen) override {
             int ret = SSL_read(ssl, junk, junkLen);
 
             if (ret <= 0) {

@@ -42,7 +42,7 @@ namespace http {
         explicit Response(ServerContextBase* serverContext);
 
     public:
-        void send(const char* buffer, size_t size);
+        void send(const char* buffer, std::size_t size);
         void send(const std::string& text);
 
         void end();
@@ -65,14 +65,14 @@ namespace http {
 
         int responseStatus = 200;
 
-        size_t contentSent = 0;
-        size_t contentLength = 0;
+        std::size_t contentSent = 0;
+        std::size_t contentLength = 0;
 
-        void enqueue(const char* buf, size_t len);
+        void enqueue(const char* buf, std::size_t len);
         void enqueue(const std::string& str);
         void sendHeader();
 
-        void pipe(net::stream::ReadStream& readStream, const char* junk, size_t junkLen) override;
+        void pipe(net::stream::ReadStream& readStream, const char* junk, std::size_t junkLen) override;
         void pipeEOF([[maybe_unused]] net::stream::ReadStream& readStream) override;
         void pipeError(net::stream::ReadStream& readStream, int errnum) override;
 

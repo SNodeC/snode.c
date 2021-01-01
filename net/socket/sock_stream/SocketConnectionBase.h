@@ -37,7 +37,7 @@ namespace net::socket::stream {
         virtual ~SocketConnectionBase() = default;
 
     public:
-        virtual void enqueue(const char* junk, size_t junkLen) = 0;
+        virtual void enqueue(const char* junk, std::size_t junkLen) = 0;
         virtual void enqueue(const std::string& data) = 0;
 
         virtual void close(bool instantly = false) = 0;

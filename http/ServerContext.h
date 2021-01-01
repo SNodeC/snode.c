@@ -39,8 +39,8 @@ namespace http {
     public:
         virtual ~ServerContextBase() = default;
 
-        virtual void receiveRequestData(const char* junk, size_t junkLen) = 0;
-        virtual void sendResponseData(const char* buf, size_t len) = 0;
+        virtual void receiveRequestData(const char* junk, std::size_t junkLen) = 0;
+        virtual void sendResponseData(const char* buf, std::size_t len) = 0;
         virtual void responseCompleted() = 0;
         virtual void terminateConnection() = 0;
 
@@ -77,10 +77,10 @@ namespace http {
 
         ~ServerContext();
 
-        void receiveRequestData(const char* junk, size_t junkLen) override;
+        void receiveRequestData(const char* junk, std::size_t junkLen) override;
         void onReadError(int errnum);
 
-        void sendResponseData(const char* buf, size_t len) override;
+        void sendResponseData(const char* buf, std::size_t len) override;
         void onWriteError(int errnum) override;
 
         void responseCompleted() override;

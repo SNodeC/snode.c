@@ -56,7 +56,7 @@ static http::ResponseParser* getResponseParser() {
                 }
             }
         },
-        [](char* content, size_t contentLength) -> void {
+        [](char* content, std::size_t contentLength) -> void {
             char* strContent = new char[contentLength + 1];
             memcpy(strContent, content, contentLength);
             strContent[contentLength] = 0;

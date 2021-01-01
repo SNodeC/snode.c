@@ -45,7 +45,7 @@ namespace http {
                   serverResponse.headers = &headers;
                   serverResponse.cookies = &cookies;
               },
-              [this](char* content, size_t contentLength) -> void {
+              [this](char* content, std::size_t contentLength) -> void {
                   serverResponse.body = content;
                   serverResponse.contentLength = contentLength;
               },
@@ -58,7 +58,7 @@ namespace http {
               }) {
     }
 
-    void ClientContext::receiveResponseData(const char* junk, size_t junkLen) {
+    void ClientContext::receiveResponseData(const char* junk, std::size_t junkLen) {
         parser.parse(junk, junkLen);
     }
 

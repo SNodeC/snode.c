@@ -42,8 +42,8 @@ namespace http {
         }
     }
 
-    void Parser::parse(const char* buf, size_t count) {
-        size_t consumed = 0;
+    void Parser::parse(const char* buf, std::size_t count) {
+        std::size_t consumed = 0;
 
         while (consumed < count && parserState != ParserState::ERROR) {
             switch (parserState) {
@@ -66,8 +66,8 @@ namespace http {
         }
     }
 
-    size_t Parser::readStartLine(const char* buf, size_t count) {
-        size_t consumed = 0;
+    std::size_t Parser::readStartLine(const char* buf, std::size_t count) {
+        std::size_t consumed = 0;
 
         while (consumed < count && parserState == ParserState::FIRSTLINE) {
             char ch = buf[consumed++];
@@ -85,8 +85,8 @@ namespace http {
         return consumed;
     }
 
-    size_t Parser::readHeaderLine(const char* buf, size_t count) {
-        size_t consumed = 0;
+    std::size_t Parser::readHeaderLine(const char* buf, std::size_t count) {
+        std::size_t consumed = 0;
 
         while (consumed < count && parserState == ParserState::HEADER) {
             char ch = buf[consumed];
@@ -157,7 +157,7 @@ namespace http {
         }
     }
 
-    size_t Parser::readContent(const char* buf, size_t count) {
+    std::size_t Parser::readContent(const char* buf, std::size_t count) {
         if (contentRead == 0) {
             content = new char[contentLength];
         }

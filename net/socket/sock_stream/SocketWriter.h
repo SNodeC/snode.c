@@ -22,7 +22,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cerrno>
-#include <cstddef> // for size_t
+#include <cstddef> // for std::size_t
 #include <functional>
 #include <sys/types.h> // for ssize_t
 #include <vector>
@@ -52,7 +52,7 @@ namespace net::socket::stream {
             : onError(onError) {
         }
 
-        void enqueue(const char* junk, size_t junkLen) {
+        void enqueue(const char* junk, std::size_t junkLen) {
             writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
 
             if (!WriteEventReceiver::isEnabled()) {
@@ -69,7 +69,7 @@ namespace net::socket::stream {
         }
 
     private:
-        virtual ssize_t write(const char* junk, size_t junkSize) = 0;
+        virtual ssize_t write(const char* junk, std::size_t junkSize) = 0;
 
         void writeEvent() override {
             errno = 0;

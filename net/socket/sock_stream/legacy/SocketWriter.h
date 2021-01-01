@@ -21,7 +21,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // for size_t
+#include <cstddef> // for std::size_t
 #include <sys/socket.h>
 #include <sys/types.h> // for ssize_t
 
@@ -36,7 +36,7 @@ namespace net::socket::stream::legacy {
         using stream::SocketWriter<SocketT>::SocketWriter;
 
     private:
-        ssize_t write(const char* junk, size_t junkLen) override {
+        ssize_t write(const char* junk, std::size_t junkLen) override {
             return ::send(this->getFd(), junk, junkLen, MSG_NOSIGNAL);
         }
 

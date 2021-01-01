@@ -22,7 +22,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cerrno>
-#include <cstddef> // for size_t
+#include <cstddef> // for std::size_t
 #include <functional>
 #include <sys/types.h> // for ssize_t
 
@@ -61,7 +61,7 @@ namespace net::socket::stream {
         }
 
     private:
-        virtual ssize_t read(char* junk, size_t junkLen) = 0;
+        virtual ssize_t read(char* junk, std::size_t junkLen) = 0;
 
         void readEvent() override {
             errno = 0;

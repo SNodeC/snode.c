@@ -39,7 +39,7 @@ namespace http {
             const std::function<void(void)>& onStart,
             const std::function<void(const std::string&, const std::string&, const std::string&)>& onResponse,
             const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, CookieOptions>&)>& onHeader,
-            const std::function<void(char*, size_t)>& onContent,
+            const std::function<void(char*, std::size_t)>& onContent,
             const std::function<void(ResponseParser&)>& onParsed,
             const std::function<void(int status, const std::string& reason)>& onError);
 
@@ -48,7 +48,7 @@ namespace http {
 
         enum Parser::ParserState parseStartLine(const std::string& line) override;
         enum Parser::ParserState parseHeader() override;
-        enum Parser::ParserState parseContent(char* content, size_t size) override;
+        enum Parser::ParserState parseContent(char* content, std::size_t size) override;
         enum Parser::ParserState parsingError(int code, const std::string& reason) override;
 
         void reset() override;
@@ -64,7 +64,7 @@ namespace http {
         std::function<void(void)> onStart;
         std::function<void(const std::string&, const std::string&, const std::string&)> onResponse;
         std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, CookieOptions>&)> onHeader;
-        std::function<void(char*, size_t)> onContent;
+        std::function<void(char*, std::size_t)> onContent;
         std::function<void(ResponseParser&)> onParsed;
         std::function<void(int status, const std::string& reason)> onError;
     };

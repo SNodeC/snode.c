@@ -23,7 +23,7 @@
 #include "RequestParser.h"  // for RequestParser
 #include "ResponseParser.h" // for HTTPResponseParser, ResponseCookie
 
-#include <cstring>     // for memcpy, size_t
+#include <cstring>     // for memcpy, std::size_t
 #include <functional>  // for function
 #include <map>         // for map
 #include <string>      // for allocator, string, operator+, char_t...
@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "++      " << cookie.first << " = " << cookie.second;
             }
         },
-        [](char* content, size_t contentLength) -> void {
+        [](char* content, std::size_t contentLength) -> void {
             char* strContent = new char[contentLength + 1];
             memcpy(strContent, content, contentLength);
             strContent[contentLength] = 0;
@@ -126,7 +126,7 @@ int main(int argc, char* argv[]) {
                 }
             }
         },
-        [](char* content, size_t contentLength) -> void {
+        [](char* content, std::size_t contentLength) -> void {
             char* strContent = new char[contentLength + 1];
             memcpy(strContent, content, contentLength);
             strContent[contentLength] = 0;

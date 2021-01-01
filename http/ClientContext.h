@@ -45,7 +45,7 @@ namespace http {
                       const std::function<void(ServerResponse&)>& onResponse,
                       const std::function<void(int status, const std::string& reason)>& onError);
 
-        void receiveResponseData(const char* junk, size_t junkLen);
+        void receiveResponseData(const char* junk, std::size_t junkLen);
 
         void setRequest(const std::string& request);
         const std::string& getRequest();

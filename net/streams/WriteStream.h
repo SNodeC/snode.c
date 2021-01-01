@@ -21,8 +21,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
 #include <list>
-#include <stddef.h> // for size_t
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -35,7 +35,7 @@ namespace net::stream {
         WriteStream();
         virtual ~WriteStream();
 
-        virtual void pipe(ReadStream& readStream, const char* junk, size_t junkLen) = 0;
+        virtual void pipe(ReadStream& readStream, const char* junk, std::size_t junkLen) = 0;
         virtual void pipeEOF(ReadStream& readStream) = 0;
         virtual void pipeError(ReadStream& readStream, [[maybe_unused]] int errnum) = 0;
 

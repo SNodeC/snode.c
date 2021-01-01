@@ -48,8 +48,6 @@ public:
 
 private:
     void unobserved() override;
-
-    std::function<void(char* data, int len)> junkRead;
 };
 
 #endif // FILEREADER_H

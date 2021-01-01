@@ -82,7 +82,7 @@ namespace http {
                       VLOG(3) << "     " << cookie << ": " << value;
                   }
               },
-              [this](char* content, size_t contentLength) -> void {
+              [this](char* content, std::size_t contentLength) -> void {
                   VLOG(3) << "++ Content: " << contentLength;
 
                   Request& request = requestContexts.back().request;
@@ -123,7 +123,7 @@ namespace http {
     }
 
     template <typename Request, typename Response>
-    void ServerContext<Request, Response>::receiveRequestData(const char* junk, size_t junkLen) {
+    void ServerContext<Request, Response>::receiveRequestData(const char* junk, std::size_t junkLen) {
         parser.parse(junk, junkLen);
     }
 
@@ -136,7 +136,7 @@ namespace http {
     }
 
     template <typename Request, typename Response>
-    void ServerContext<Request, Response>::sendResponseData(const char* buf, size_t len) {
+    void ServerContext<Request, Response>::sendResponseData(const char* buf, std::size_t len) {
         socketConnection->enqueue(buf, len);
     }
 

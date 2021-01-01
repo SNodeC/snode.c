@@ -21,7 +21,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // for size_t
+#include <cstddef> // for std::size_t
 #include <functional>
 #include <map>
 #include <set>
@@ -41,7 +41,7 @@ namespace http {
                 void(const std::string&, const std::string&, const std::string&, int, int, const std::map<std::string, std::string>&)>&
                 onRequest,
             const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>& onHeader,
-            const std::function<void(char*, size_t)>& onContent,
+            const std::function<void(char*, std::size_t)>& onContent,
             const std::function<void()>& onParsed,
             const std::function<void(int status, const std::string& reason)>& onError);
 
@@ -59,7 +59,7 @@ namespace http {
         // Parsers and Validators
         enum Parser::ParserState parseStartLine(const std::string& line) override;
         enum Parser::ParserState parseHeader() override;
-        enum Parser::ParserState parseContent(char* content, size_t size) override;
+        enum Parser::ParserState parseContent(char* content, std::size_t size) override;
 
         // Exits
         void parsingFinished();
@@ -82,7 +82,7 @@ namespace http {
         std::function<void(const std::string&, const std::string&, const std::string&, int, int, const std::map<std::string, std::string>&)>
             onRequest;
         std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)> onHeader;
-        std::function<void(char*, size_t)> onContent;
+        std::function<void(char*, std::size_t)> onContent;
         std::function<void()> onParsed;
         std::function<void(int status, const std::string& reason)> onError;
     };

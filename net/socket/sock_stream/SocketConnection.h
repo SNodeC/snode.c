@@ -75,7 +75,7 @@ namespace net::socket::stream {
         }
 
     public:
-        void enqueue(const char* junk, size_t junkLen) override {
+        void enqueue(const char* junk, std::size_t junkLen) override {
             SocketWriter::enqueue(junk, junkLen);
         }
 
