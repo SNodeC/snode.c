@@ -33,11 +33,6 @@ namespace net::socket::ip::tcp::ipv6 {
 
     class Socket : public socket::Socket<address::ipv6::InetAddress> {
     public:
-        Socket() = default;
-
-        Socket(const Socket&) = delete;
-        Socket& operator=(const Socket&) = delete;
-
         using net::Descriptor::open;
         void open(const std::function<void(int errnum)>& onError, int flags = 0) override;
     };

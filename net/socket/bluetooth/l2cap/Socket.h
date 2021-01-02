@@ -33,11 +33,6 @@ namespace net::socket::bluetooth::l2cap {
 
     class Socket : public socket::Socket<address::L2CapAddress> {
     public:
-        Socket() = default;
-
-        Socket(const Socket&) = delete;
-        Socket& operator=(const Socket&) = delete;
-
         using net::Descriptor::open;
         void open(const std::function<void(int errnum)>& onError, int flags = 0) override;
     };
