@@ -18,7 +18,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cerrno>
 #include <sys/socket.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -27,17 +26,8 @@
 
 namespace net::socket::ip::tcp::ipv4 {
 
-    void Socket::open(const std::function<void(int errnum)>& onError, int flags) {
-        errno = 0;
-
-        int fd = ::socket(PF_INET, SOCK_STREAM | flags, 0);
-
-        if (fd >= 0) {
-            open(fd);
-            onError(0);
-        } else {
-            onError(errno);
-        }
+    int Socket::create(int flags) {
+        return ::socket(PF_INET, SOCK_STREAM | flags, 0);
     }
 
 } // namespace net::socket::ip::tcp::ipv4

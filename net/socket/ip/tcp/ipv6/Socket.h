@@ -21,20 +21,16 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Descriptor.h" // for Descriptor
 #include "socket/Socket.h"
 #include "socket/ip/address/ipv6/InetAddress.h" // IWYU pragma: keep
 
 namespace net::socket::ip::tcp::ipv6 {
 
     class Socket : public socket::Socket<address::ipv6::InetAddress> {
-    public:
-        using net::Descriptor::open;
-        void open(const std::function<void(int errnum)>& onError, int flags = 0) override;
+    protected:
+        int create(int flags) override;
     };
 
 } // namespace net::socket::ip::tcp::ipv6

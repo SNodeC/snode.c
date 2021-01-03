@@ -21,20 +21,16 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Descriptor.h" // for Descriptor
 #include "socket/Socket.h"
 #include "socket/bluetooth/address/RfCommAddress.h" // IWYU pragma: keep
 
 namespace net::socket::bluetooth::rfcomm {
 
     class Socket : public socket::Socket<address::RfCommAddress> {
-    public:
-        using net::Descriptor::open;
-        void open(const std::function<void(int errnum)>& onError, int flags = 0) override;
+    protected:
+        int create(int flags) override;
     };
 
 } // namespace net::socket::bluetooth::rfcomm

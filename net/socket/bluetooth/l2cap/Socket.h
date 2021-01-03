@@ -21,11 +21,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Descriptor.h" // for Descriptor
 #include "socket/Socket.h"
 #include "socket/bluetooth/address/L2CapAddress.h" // IWYU pragma: keep
 
@@ -33,8 +30,7 @@ namespace net::socket::bluetooth::l2cap {
 
     class Socket : public socket::Socket<address::L2CapAddress> {
     public:
-        using net::Descriptor::open;
-        void open(const std::function<void(int errnum)>& onError, int flags = 0) override;
+        int create(int flags = 0) override;
     };
 
 } // namespace net::socket::bluetooth::l2cap

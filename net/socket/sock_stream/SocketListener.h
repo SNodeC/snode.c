@@ -134,7 +134,7 @@ namespace net::socket::stream {
                     SocketConnection* socketConnection =
                         new SocketConnection(onConstruct, onDestruct, onRead, onReadError, onWriteError, onDisconnect);
 
-                    socketConnection->open(scFd);
+                    socketConnection->attach(scFd);
 
                     socketConnection->setRemoteAddress(typename Socket::SocketAddress(remoteAddress));
                     socketConnection->setLocalAddress(typename Socket::SocketAddress(localAddress));

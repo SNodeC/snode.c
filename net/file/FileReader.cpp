@@ -29,7 +29,7 @@
 #include "FileReader.h"
 
 FileReader::FileReader(int fd, net::stream::WriteStream& writeStream) {
-    open(fd);
+    attach(fd);
     ReadEventReceiver::enable(fd);
     this->ReadStream::pipe(writeStream);
 }

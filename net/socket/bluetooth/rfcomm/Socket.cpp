@@ -19,7 +19,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <bluetooth/bluetooth.h> // for BTPROTO_RFCOMM
-#include <errno.h>               // for errno
 #include <sys/socket.h>          // for socket, PF_BLUETOOTH, SOCK_STREAM
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -28,17 +27,8 @@
 
 namespace net::socket::bluetooth::rfcomm {
 
-    void Socket::open(const std::function<void(int errnum)>& onError, int flags) {
-        errno = 0;
-
-        int fd = ::socket(PF_BLUETOOTH, SOCK_STREAM | flags, BTPROTO_RFCOMM);
-
-        if (fd >= 0) {
-            open(fd);
-            onError(0);
-        } else {
-            onError(errno);
-        }
+    int Socket::create(int flags) {
+        return ::socket(PF_BLUETOOTH, SOCK_STREAM | flags, BTPROTO_RFCOMM);
     }
 
 } // namespace net::socket::bluetooth::rfcomm

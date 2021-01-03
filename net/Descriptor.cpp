@@ -32,7 +32,7 @@ namespace net {
         }
     }
 
-    void Descriptor::open(int fd, FLAGS flags) {
+    void Descriptor::attach(int fd, FLAGS flags) {
         this->fd = fd;
         this->flags = flags;
     }

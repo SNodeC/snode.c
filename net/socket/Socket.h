@@ -48,7 +48,18 @@ namespace net::socket {
             }
         }
 
-        virtual void open(const std::function<void(int errnum)>& onError, int flags = 0) = 0;
+        void open(const std::function<void(int errnum)>& onError, int flags = 0) {
+            errno = 0;
+
+            int fd = create(flags);
+
+            if (fd >= 0) {
+                attach(fd);
+                onError(0);
+            } else {
+                onError(errno);
+            }
+        }
 
         void bind(const SocketAddress& bindAddress, const std::function<void(int errnum)>& onError) {
             errno = 0;
@@ -78,6 +89,8 @@ namespace net::socket {
         }
 
     protected:
+        virtual int create(int flags) = 0;
+
         SocketAddress bindAddress{};
     };
 
