@@ -55,32 +55,33 @@ namespace net::socket::stream {
                 : stream::SocketConnector<SocketConnection>(
                       onConstruct,
                       onDestruct,
-                      [onConnect, &onError = this->onError, &ctx = this->ctx](SocketConnection* socketConnection) -> void { // onConnect
+                      [onConnect, &onError = this->onError, &ctx = this->ctx, this](
+                          SocketConnection* socketConnection) -> void { // onConnect
                           SSL* ssl = socketConnection->startSSL(ctx);
 
                           if (ssl != nullptr) {
-                              socketConnection->ReadEventReceiver::suspend();
+                              socketConnection->SocketConnection::SocketReader::suspend();
 
                               SSL_set_connect_state(ssl);
 
                               TLSHandshake::doHandshake(
                                   ssl,
-                                  [&onConnect, socketConnection](void) -> void { // onSuccess
+                                  [&onConnect, socketConnection, this](void) -> void { // onSuccess
                                       socketConnection->ReadEventReceiver::resume();
                                       onConnect(socketConnection);
                                   },
-                                  [socketConnection](void) -> void { // onTimeout
+                                  [socketConnection, this](void) -> void { // onTimeout
                                       PLOG(ERROR) << "SSL/TLS handshake timeout";
-                                      socketConnection->ReadEventReceiver::disable();
+                                      socketConnection->SocketConnection::SocketReader::disable();
                                   },
-                                  [socketConnection, &onError](int sslErr) -> void { // onError
+                                  [socketConnection, &onError, this](int sslErr) -> void { // onError
                                       ssl_log("SSL/TLS handshake failed", -sslErr);
                                       socketConnection->setSSLError(-sslErr);
-                                      socketConnection->ReadEventReceiver::disable();
+                                      socketConnection->SocketConnection::SocketReader::disable();
                                       onError(sslErr);
                                   });
                           } else {
-                              socketConnection->ReadEventReceiver::disable();
+                              socketConnection->SocketConnection::SocketReader::disable();
                               ssl_log_error("SSL/TLS initialization failed");
                               onError(-SSL_ERROR_SSL);
                           }

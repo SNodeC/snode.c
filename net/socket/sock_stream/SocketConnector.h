@@ -120,10 +120,10 @@ namespace net::socket::stream {
                     ConnectEventReceiver::disable();
 
                     if (cErrno == 0) {
-                        typename Socket::SocketAddress::SockAddr localAddress{};
+                        typename SocketAddress::SockAddr localAddress{};
                         socklen_t localAddressLength = sizeof(localAddress);
 
-                        typename Socket::SocketAddress::SockAddr remoteAddress{};
+                        typename SocketAddress::SockAddr remoteAddress{};
                         socklen_t remoteAddressLength = sizeof(remoteAddress);
 
                         if (getsockname(Socket::getFd(), reinterpret_cast<sockaddr*>(&localAddress), &localAddressLength) == 0 &&
@@ -135,10 +135,10 @@ namespace net::socket::stream {
 
                             socketConnection->attach(Socket::getFd(), Socket::FLAGS::dontClose);
 
-                            socketConnection->setRemoteAddress(typename Socket::SocketAddress(remoteAddress));
-                            socketConnection->setLocalAddress(typename Socket::SocketAddress(localAddress));
+                            socketConnection->setRemoteAddress(SocketAddress(remoteAddress));
+                            socketConnection->setLocalAddress(SocketAddress(localAddress));
 
-                            socketConnection->ReadEventReceiver::enable(Socket::getFd());
+                            socketConnection->SocketConnection::SocketReader::enable(Socket::getFd());
 
                             onError(0);
                             onConnect(socketConnection);

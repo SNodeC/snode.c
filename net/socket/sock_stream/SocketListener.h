@@ -43,6 +43,7 @@ namespace net::socket::stream {
     public:
         using SocketConnection = SocketConnectionT;
         using Socket = typename SocketConnection::Socket;
+        using SocketAddress = typename Socket::SocketAddress;
 
     protected:
         SocketListener(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
@@ -70,7 +71,7 @@ namespace net::socket::stream {
 
         virtual ~SocketListener() = default;
 
-        virtual void listen(const typename Socket::SocketAddress& localAddress, int backlog, const std::function<void(int err)>& onError) {
+        virtual void listen(const SocketAddress& localAddress, int backlog, const std::function<void(int err)>& onError) {
             errno = 0;
 
             Socket::open([this, &localAddress, &backlog, &onError](int errnum) -> void {
@@ -119,7 +120,7 @@ namespace net::socket::stream {
         void acceptEvent() override {
             errno = 0;
 
-            typename Socket::SocketAddress::SockAddr remoteAddress{};
+            typename SocketAddress::SockAddr remoteAddress{};
             socklen_t remoteAddressLength = sizeof(remoteAddress);
 
             int scFd = -1;
@@ -127,7 +128,7 @@ namespace net::socket::stream {
             scFd = ::accept4(Socket::getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &remoteAddressLength, SOCK_NONBLOCK);
 
             if (scFd >= 0) {
-                typename Socket::SocketAddress::SockAddr localAddress{};
+                typename SocketAddress::SockAddr localAddress{};
                 socklen_t addressLength = sizeof(localAddress);
 
                 if (getsockname(scFd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
@@ -136,10 +137,10 @@ namespace net::socket::stream {
 
                     socketConnection->attach(scFd);
 
-                    socketConnection->setRemoteAddress(typename Socket::SocketAddress(remoteAddress));
-                    socketConnection->setLocalAddress(typename Socket::SocketAddress(localAddress));
+                    socketConnection->setRemoteAddress(SocketAddress(remoteAddress));
+                    socketConnection->setLocalAddress(SocketAddress(localAddress));
 
-                    socketConnection->ReadEventReceiver::enable(scFd);
+                    socketConnection->SocketConnection::SocketReader::enable(scFd);
 
                     onConnect(socketConnection);
 
