@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
 
                 X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
-                if (server_cert != NULL) {
+                if (server_cert != nullptr) {
                     int verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
                     VLOG(0) << "     Server certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
@@ -107,7 +107,7 @@ int main(int argc, char* argv[]) {
                     // We could do all sorts of certificate verification stuff here before deallocating the certificate.
 
                     GENERAL_NAMES* subjectAltNames =
-                        static_cast<GENERAL_NAMES*>(X509_get_ext_d2i(server_cert, NID_subject_alt_name, NULL, NULL));
+                        static_cast<GENERAL_NAMES*>(X509_get_ext_d2i(server_cert, NID_subject_alt_name, nullptr, nullptr));
 
                     int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
                     VLOG(0) << "        Subject alternative name count: " << altNameCount;
