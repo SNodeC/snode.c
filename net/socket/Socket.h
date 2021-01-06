@@ -48,13 +48,13 @@ namespace net::socket {
             }
         }
 
-        void open(const std::function<void(int errnum)>& onError, int flags = 0) {
+        void open(const std::function<void(int errnum)>& onError, int flags = 0, FLAGS flags1 = FLAGS::none) {
             errno = 0;
 
             int fd = create(flags);
 
             if (fd >= 0) {
-                attach(fd);
+                attach(fd, flags1);
                 onError(0);
             } else {
                 onError(errno);

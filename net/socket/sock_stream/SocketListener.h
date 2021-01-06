@@ -22,6 +22,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <any>
+#include <cstddef>
 #include <functional>
 #include <map>
 #include <string>
@@ -45,12 +46,11 @@ namespace net::socket::stream {
         using Socket = typename SocketConnection::Socket;
         using SocketAddress = typename Socket::SocketAddress;
 
-    protected:
         SocketListener(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
                        const std::function<void(SocketConnection* socketConnection)>& onDestruct,
                        const std::function<void(SocketConnection* socketConnection)>& onConnect,
                        const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
-                       const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
+                       const std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)>& onRead,
                        const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                        const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                        const std::map<std::string, std::any>& options)
@@ -170,14 +170,11 @@ namespace net::socket::stream {
         std::function<void(SocketConnection* socketConnection)> onDestruct;
         std::function<void(SocketConnection* socketConnection)> onConnect;
         std::function<void(SocketConnection* socketConnection)> onDisconnect;
-        std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)> onRead;
+        std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)> onRead;
         std::function<void(SocketConnection* socketConnection, int errnum)> onReadError;
         std::function<void(SocketConnection* socketConnection, int errnum)> onWriteError;
 
         std::map<std::string, std::any> options;
-
-        template <typename SocketConnectorT>
-        friend class SocketServer;
     };
 
 } // namespace net::socket::stream

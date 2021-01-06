@@ -33,6 +33,7 @@ namespace net {
 
         virtual void readEvent() = 0;
 
+    private:
         void dispatchEvent() override {
             readEvent();
         }

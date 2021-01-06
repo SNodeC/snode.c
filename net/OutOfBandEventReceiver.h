@@ -33,6 +33,7 @@ namespace net {
 
         virtual void outOfBandEvent() = 0;
 
+    private:
         void dispatchEvent() override {
             outOfBandEvent();
         }

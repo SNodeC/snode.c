@@ -23,6 +23,7 @@
 #include "config.h" // just for this example app
 #include "socket/bluetooth/rfcomm/tls/SocketServer.h"
 
+#include <cstddef>
 #include <openssl/x509v3.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -94,7 +95,7 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
             VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
         },
-        [](SocketServer::SocketConnection* socketConnection, const char* junk, ssize_t junkLen) -> void { // onRead
+        [](SocketServer::SocketConnection* socketConnection, const char* junk, std::size_t junkLen) -> void { // onRead
             std::string data(junk, junkLen);
             VLOG(0) << "Data to reflect: " << data;
             socketConnection->enqueue(data);

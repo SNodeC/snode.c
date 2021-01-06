@@ -146,7 +146,7 @@ tls::SocketClient<tcp::ipv4::Socket> getTlsClient() {
         },
         [](tls::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection,
            const char* junk,
-           ssize_t junkSize) -> void { // onRead
+           std::size_t junkSize) -> void { // onRead
             VLOG(0) << "OnRead";
 
             socketConnection->getContext<http::ResponseParser*>([junk, junkSize](http::ResponseParser*& responseParser) -> void {
@@ -204,7 +204,7 @@ legacy::SocketClient<tcp::ipv4::Socket> getLegacyClient() {
         },
         [](legacy::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection,
            const char* junk,
-           ssize_t junkSize) -> void { // onRead
+           std::size_t junkSize) -> void { // onRead
             VLOG(0) << "OnRead";
 
             socketConnection->getContext<http::ResponseParser*>([junk, junkSize](http::ResponseParser*& responseParser) -> void {

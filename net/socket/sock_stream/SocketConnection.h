@@ -21,6 +21,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
 #include <functional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -43,12 +44,12 @@ namespace net::socket::stream {
 
         SocketConnection(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
                          const std::function<void(SocketConnection* socketConnection)>& onDestruct,
-                         const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
+                         const std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)>& onRead,
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                          const std::function<void(SocketConnection* socketConnection)>& onDisconnect)
             : SocketReader(
-                  [this, onRead](const char* junk, ssize_t junkLen) -> void {
+                  [this, onRead](const char* junk, std::size_t junkLen) -> void {
                       onRead(this, junk, junkLen);
                   },
                   [this, onReadError](int errnum) -> void {

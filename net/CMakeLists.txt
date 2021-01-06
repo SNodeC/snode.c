@@ -56,6 +56,7 @@ install(
     DESTINATION include/snode.c/net
     FILES_MATCHING
     PATTERN "*.h"
+    PATTERN "*.hpp"
     PATTERN "cmake" EXCLUDE
 )
 

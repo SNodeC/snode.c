@@ -22,6 +22,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <any>
+#include <cstddef>
 #include <functional>
 #include <map>
 #include <string>
@@ -31,7 +32,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "ConnectEventReceiver.h"
-#include "ReadEventReceiver.h"
 #include "socket/Socket.h"
 
 namespace net::socket::stream {
@@ -39,19 +39,17 @@ namespace net::socket::stream {
     template <typename SocketConnectionT>
     class SocketConnector
         : public ConnectEventReceiver
-        , public ReadEventReceiver
         , public SocketConnectionT::Socket {
     public:
         using SocketConnection = SocketConnectionT;
         using Socket = typename SocketConnection::Socket;
         using SocketAddress = typename Socket::SocketAddress;
 
-    protected:
         SocketConnector(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
                         const std::function<void(SocketConnection* socketConnection)>& onDestruct,
                         const std::function<void(SocketConnection* socketConnection)>& onConnect,
                         const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
-                        const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
+                        const std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)>& onRead,
                         const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                         const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                         const std::map<std::string, std::any>& options)
@@ -101,24 +99,22 @@ namespace net::socket::stream {
                         });
                     }
                 },
-                SOCK_NONBLOCK);
+                SOCK_NONBLOCK,
+                Descriptor::FLAGS::dontClose);
         }
 
     protected:
         std::function<void(int err)> onError;
 
-    private:
-        void connectEvent() override {
+        int tryToCompleteConnect() {
             errno = 0;
-            int cErrno = 0;
+            int cErrno = -1;
             socklen_t cErrnoLen = sizeof(cErrno);
 
             int err = getsockopt(Socket::getFd(), SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);
 
             if (err == 0) {
                 if (cErrno != EINPROGRESS) {
-                    ConnectEventReceiver::disable();
-
                     if (cErrno == 0) {
                         typename SocketAddress::SockAddr localAddress{};
                         socklen_t localAddressLength = sizeof(localAddress);
@@ -128,12 +124,10 @@ namespace net::socket::stream {
 
                         if (getsockname(Socket::getFd(), reinterpret_cast<sockaddr*>(&localAddress), &localAddressLength) == 0 &&
                             getpeername(Socket::getFd(), reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) == 0) {
-                            ReadEventReceiver::enable(Socket::getFd());
-
                             socketConnection =
                                 new SocketConnection(onConstruct, onDestruct, onRead, onReadError, onWriteError, onDisconnect);
 
-                            socketConnection->attach(Socket::getFd(), Socket::FLAGS::dontClose);
+                            socketConnection->attach(Socket::getFd());
 
                             socketConnection->setRemoteAddress(SocketAddress(remoteAddress));
                             socketConnection->setLocalAddress(SocketAddress(localAddress));
@@ -151,15 +145,18 @@ namespace net::socket::stream {
                     }
                 }
             } else {
-                ConnectEventReceiver::disable();
                 onError(errno);
             }
+
+            return cErrno;
         }
 
-        void readEvent() override {
-            ReadEventReceiver::disable();
+    private:
+        void connectEvent() override {
+            if (tryToCompleteConnect() != EINPROGRESS) {
+                ConnectEventReceiver::disable();
+            }
         }
-
         void unobserved() override {
             destruct();
         }
@@ -172,16 +169,13 @@ namespace net::socket::stream {
         std::function<void(SocketConnection* socketConnection)> onDestruct;
         std::function<void(SocketConnection* socketConnection)> onConnect;
         std::function<void(SocketConnection* socketConnection)> onDisconnect;
-        std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)> onRead;
+        std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)> onRead;
         std::function<void(SocketConnection* socketConnection, int errnum)> onReadError;
         std::function<void(SocketConnection* socketConnection, int errnum)> onWriteError;
 
         SocketConnection* socketConnection = nullptr;
 
         std::map<std::string, std::any> options;
-
-        template <typename SocketConnectorT>
-        friend class SocketClient;
     };
 
 } // namespace net::socket::stream

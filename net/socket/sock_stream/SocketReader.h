@@ -24,7 +24,6 @@
 #include <cerrno>
 #include <cstddef> // for std::size_t
 #include <functional>
-#include <sys/types.h> // for ssize_t
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -46,7 +45,7 @@ namespace net::socket::stream {
     protected:
         SocketReader() = delete;
 
-        explicit SocketReader(const std::function<void(const char* junk, ssize_t junkLen)>& onRead,
+        explicit SocketReader(const std::function<void(const char* junk, std::size_t junkLen)>& onRead,
                               const std::function<void(int errnum)>& onError)
             : onRead(onRead)
             , onError(onError) {
@@ -84,7 +83,7 @@ namespace net::socket::stream {
 
         virtual int getError() = 0;
 
-        std::function<void(const char* junk, ssize_t junkLen)> onRead;
+        std::function<void(const char* junk, std::size_t junkLen)> onRead;
         std::function<void(int errnum)> onError;
 
         bool markShutdown = false;

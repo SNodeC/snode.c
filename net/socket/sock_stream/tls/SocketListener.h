@@ -21,6 +21,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Logger.h"
@@ -43,12 +45,11 @@ namespace net::socket::stream {
             using Socket = typename SocketConnection::Socket;
             using SocketAddress = typename Socket::SocketAddress;
 
-        protected:
             SocketListener(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
                            const std::function<void(SocketConnection* socketConnection)>& onDestruct,
                            const std::function<void(SocketConnection* socketConnection)>& onConnect,
                            const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
-                           const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
+                           const std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)>& onRead,
                            const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                            const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                            const std::map<std::string, std::any>& options)
@@ -92,6 +93,10 @@ namespace net::socket::stream {
                       onWriteError,
                       options) {
                 ctx = ssl_ctx_new(options, true);
+                if (ctx != nullptr) {
+                    SSL_CTX_set_session_id_context(ctx, reinterpret_cast<unsigned char*>(&sslSessionCtxId), sizeof(sslSessionCtxId));
+                    sslSessionCtxId++;
+                }
             }
 
             ~SocketListener() override {
@@ -111,9 +116,6 @@ namespace net::socket::stream {
             SSL_CTX* ctx = nullptr;
 
             static int sslSessionCtxId;
-
-            template <typename SocketListener>
-            friend class stream::SocketServer;
         };
 
         template <typename Socket>

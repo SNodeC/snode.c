@@ -21,6 +21,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "socket/sock_stream/SocketConnection.h"
@@ -42,7 +44,7 @@ namespace net::socket::stream::legacy {
     public:
         SocketConnection(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
                          const std::function<void(SocketConnection* socketConnection)>& onDestruct,
-                         const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
+                         const std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)>& onRead,
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                          const std::function<void(SocketConnection* socketConnection)>& onDisconnect)
@@ -52,7 +54,7 @@ namespace net::socket::stream::legacy {
                   [onDestruct](SocketConnectionSuper* socketConnection) -> void {
                       onDestruct(static_cast<SocketConnection*>(socketConnection));
                   },
-                  [onRead](SocketConnectionSuper* socketConnection, const char* junk, ssize_t junkLen) -> void {
+                  [onRead](SocketConnectionSuper* socketConnection, const char* junk, std::size_t junkLen) -> void {
                       onRead(static_cast<SocketConnection*>(socketConnection), junk, junkLen);
                   },
                   [onReadError](SocketConnectionSuper* socketConnection, int errnum) -> void {

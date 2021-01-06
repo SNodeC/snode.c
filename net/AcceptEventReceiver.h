@@ -33,6 +33,7 @@ namespace net {
 
         virtual void acceptEvent() = 0;
 
+    private:
         void dispatchEvent() override {
             acceptEvent();
         }

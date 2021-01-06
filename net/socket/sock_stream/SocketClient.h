@@ -23,6 +23,7 @@
 
 #include <any>
 #include <cerrno>
+#include <cstddef>
 #include <functional>
 #include <map>
 
@@ -43,7 +44,7 @@ namespace net::socket::stream {
                      const std::function<void(SocketConnection* socketConnection)>& onDestruct,
                      const std::function<void(SocketConnection* socketConnection)>& onConnect,
                      const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
-                     const std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)>& onRead,
+                     const std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)>& onRead,
                      const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                      const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                      const std::map<std::string, std::any>& options = {{}})
@@ -80,7 +81,7 @@ namespace net::socket::stream {
         std::function<void(SocketConnection* socketConnection)> onDestruct;
         std::function<void(SocketConnection* socketConnection)> onConnect;
         std::function<void(SocketConnection* socketConnection)> onDisconnect;
-        std::function<void(SocketConnection* socketConnection, const char* junk, ssize_t junkLen)> onRead;
+        std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)> onRead;
         std::function<void(SocketConnection* socketConnection, int errnum)> onReadError;
         std::function<void(SocketConnection* socketConnection, int errnum)> onWriteError;
 

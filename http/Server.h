@@ -4,6 +4,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <any>
+#include <cstddef>
 #include <functional>
 #include <map>
 #include <netinet/in.h>
@@ -47,7 +48,7 @@ namespace http {
                   [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
                       onDisconnect(socketConnection);
                   },
-                  [](SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
+                  [](SocketConnection* socketConnection, const char* junk, std::size_t junkSize) -> void { // onRead
                       socketConnection->template getContext<ServerContextBase*>(
                           [&junk, &junkSize](ServerContextBase* serverContext) -> void {
                               serverContext->receiveRequestData(junk, junkSize);

@@ -25,6 +25,8 @@
 #include "config.h" // just for this example app
 #include "socket/bluetooth/rfcomm/legacy/SocketClient.h"
 
+#include <cstddef>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 using namespace net::socket::bluetooth::rfcomm::legacy;
@@ -49,7 +51,7 @@ SocketClient getClient() {
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
         },
-        [](SocketClient::SocketConnection* socketConnection, const char* junk, ssize_t junkSize) -> void { // onRead
+        [](SocketClient::SocketConnection* socketConnection, const char* junk, std::size_t junkSize) -> void { // onRead
             std::string data(junk, junkSize);
             VLOG(0) << "Data to reflect: " << data;
             socketConnection->enqueue(data);

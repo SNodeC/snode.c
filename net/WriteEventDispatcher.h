@@ -23,7 +23,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "EventDispatcher.hpp"
+#include "EventDispatcher.hpp" // IWYU pragma: export
 #include "WriteEventReceiver.h"
 
 // IWYU pragma: no_forward_declare net::WriteEventReceiver

@@ -33,6 +33,7 @@ namespace net {
 
         virtual void writeEvent() = 0;
 
+    private:
         void dispatchEvent() override {
             writeEvent();
         }

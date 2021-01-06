@@ -23,6 +23,7 @@
 #include "RequestParser.h"  // for RequestParser
 #include "ResponseParser.h" // for HTTPResponseParser, ResponseCookie
 
+#include <cstddef>
 #include <cstring>     // for memcpy, std::size_t
 #include <functional>  // for function
 #include <map>         // for map
@@ -52,17 +53,17 @@ int main(int argc, char* argv[]) {
            const std::map<std::string, std::string>& queries) -> void {
             VLOG(0) << "++ Request: " << method << " " << originalUrl << " "
                     << " " << httpVersion << " " << httpMajor << " " << httpMinor;
-            for (const std::pair<std::string, std::string>& query : queries) {
+            for (std::pair<std::string, std::string> query : queries) {
                 VLOG(0) << "++    Query: " << query.first << " = " << query.second;
             }
         },
         [](const std::map<std::string, std::string>& header, const std::map<std::string, std::string>& cookies) -> void {
             VLOG(0) << "++    Header: ";
-            for (const std::pair<std::string, std::string>& headerField : header) {
+            for (std::pair<std::string, std::string> headerField : header) {
                 VLOG(0) << "++      " << headerField.first << " = " << headerField.second;
             }
             VLOG(0) << "++    Cookie: ";
-            for (const std::pair<std::string, std::string>& cookie : cookies) {
+            for (std::pair<std::string, std::string> cookie : cookies) {
                 VLOG(0) << "++      " << cookie.first << " = " << cookie.second;
             }
         },

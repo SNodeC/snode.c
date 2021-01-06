@@ -21,7 +21,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint>      // for uint16_t
 #include <exception>    // IWYU pragma: keep
 #include <netinet/in.h> // IWYU pragma: keep
 #include <string>
