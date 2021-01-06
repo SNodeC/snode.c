@@ -44,7 +44,6 @@ namespace http {
         , onContent(onContent)
         , onParsed(onParsed)
         , onError(onError) {
-        reset();
     }
 
     void RequestParser::reset() {
