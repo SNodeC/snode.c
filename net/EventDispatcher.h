@@ -70,8 +70,9 @@ namespace net {
     private:
         int getMaxFd() const;
 
-        struct timeval observeEnabledEvents();
         struct timeval dispatchActiveEvents(struct timeval currentTime);
+
+        struct timeval observeEnabledEvents();
         void unobserveDisabledEvents();
         void releaseUnobservedEvents();
         void disableObservedEvents();

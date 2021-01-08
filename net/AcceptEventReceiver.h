@@ -34,9 +34,7 @@ namespace net {
         virtual void acceptEvent() = 0;
 
     private:
-        void dispatchEvent() override {
-            acceptEvent();
-        }
+        void dispatchEvent() override;
 
     public:
         void setTimeout(long timeout = TIMEOUT::DEFAULT);

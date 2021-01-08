@@ -30,9 +30,9 @@
 
 namespace net {
 
-    class WriteEventDispatcher : public EventDispatcher<WriteEventReceiver> {
+    class WriteEventDispatcher : public EventDispatcher<EventReceiver> {
     public:
-        using EventDispatcher<WriteEventReceiver>::EventDispatcher;
+        using EventDispatcher<EventReceiver>::EventDispatcher;
     };
 
 } // namespace net

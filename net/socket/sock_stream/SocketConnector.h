@@ -99,8 +99,7 @@ namespace net::socket::stream {
                         });
                     }
                 },
-                SOCK_NONBLOCK,
-                Descriptor::FLAGS::dontClose);
+                SOCK_NONBLOCK);
         }
 
     protected:
@@ -133,6 +132,7 @@ namespace net::socket::stream {
                             socketConnection->setLocalAddress(SocketAddress(localAddress));
 
                             socketConnection->SocketConnection::SocketReader::enable(Socket::getFd());
+                            SocketConnector::dontClose(true);
 
                             onError(0);
                             onConnect(socketConnection);

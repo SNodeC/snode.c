@@ -18,34 +18,40 @@
 
 #include "ConnectEventReceiver.h"
 
-#include "ConnectEventDispatcher.h"
+#include "EventDispatcher.h"
 #include "EventLoop.h"
+
+#define MAX_CONNECT_INACTIVITY 10
 
 namespace net {
 
     ConnectEventReceiver::ConnectEventReceiver()
-        : EventReceiver(EventLoop::instance().getConnectEventDispatcher().getTimeout()) {
+        : EventReceiver(MAX_CONNECT_INACTIVITY) {
     }
 
     void ConnectEventReceiver::setTimeout(long timeout) {
-        EventReceiver::setTimeout(timeout, EventLoop::instance().getConnectEventDispatcher().getTimeout());
+        EventReceiver::setTimeout(timeout, MAX_CONNECT_INACTIVITY);
+    }
+
+    void ConnectEventReceiver::dispatchEvent() {
+        connectEvent();
     }
 
     void ConnectEventReceiver::enable(int fd, long timeout) {
-        EventLoop::instance().getConnectEventDispatcher().enable(this, fd);
+        EventLoop::instance().getWriteEventDispatcher().enable(this, fd);
         setTimeout(timeout);
     }
 
     void ConnectEventReceiver::disable() {
-        EventLoop::instance().getConnectEventDispatcher().disable(this, fd);
+        EventLoop::instance().getWriteEventDispatcher().disable(this, fd);
     }
 
     void ConnectEventReceiver::suspend() {
-        EventLoop::instance().getConnectEventDispatcher().suspend(this, fd);
+        EventLoop::instance().getWriteEventDispatcher().suspend(this, fd);
     }
 
     void ConnectEventReceiver::resume() {
-        EventLoop::instance().getConnectEventDispatcher().resume(this, fd);
+        EventLoop::instance().getWriteEventDispatcher().resume(this, fd);
     }
 
 } // namespace net

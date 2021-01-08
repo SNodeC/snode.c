@@ -18,8 +18,8 @@
 
 #include "OutOfBandEventReceiver.h"
 
+#include "EventDispatcher.h"
 #include "EventLoop.h"
-#include "OutOfBandEventDispatcher.h"
 
 namespace net {
 
@@ -29,6 +29,10 @@ namespace net {
 
     void OutOfBandEventReceiver::setTimeout(long timeout) {
         EventReceiver::setTimeout(timeout, EventLoop::instance().getOutOfBandEventDispatcher().getTimeout());
+    }
+
+    void OutOfBandEventReceiver::dispatchEvent() {
+        outOfBandEvent();
     }
 
     void OutOfBandEventReceiver::enable(int fd, long timeout) {

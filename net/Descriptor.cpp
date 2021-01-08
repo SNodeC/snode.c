@@ -32,13 +32,17 @@ namespace net {
         }
     }
 
-    void Descriptor::attach(int fd, FLAGS flags) {
+    void Descriptor::attach(int fd) {
         this->fd = fd;
-        this->flags = flags;
+        //        this->flags = flags;
     }
 
     int Descriptor::getFd() const {
         return fd;
+    }
+
+    void Descriptor::dontClose(bool dontClose) {
+        this->flags = dontClose ? FLAGS::dontClose : FLAGS::none;
     }
 
     bool Descriptor::dontClose() const {

@@ -30,9 +30,9 @@
 
 namespace net {
 
-    class OutOfBandEventDispatcher : public EventDispatcher<OutOfBandEventReceiver> {
+    class OutOfBandEventDispatcher : public EventDispatcher<EventReceiver> {
     public:
-        using EventDispatcher<OutOfBandEventReceiver>::EventDispatcher;
+        using EventDispatcher<EventReceiver>::EventDispatcher;
     };
 
 } // namespace net

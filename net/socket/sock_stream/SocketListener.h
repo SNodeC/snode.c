@@ -91,12 +91,12 @@ namespace net::socket::stream {
                                 } else {
                                     int ret = ::listen(Socket::getFd(), backlog);
 
-                                    if (ret < 0) {
-                                        onError(errno);
-                                        destruct();
-                                    } else {
+                                    if (ret == 0) {
                                         AcceptEventReceiver::enable(Socket::getFd());
                                         onError(0);
+                                    } else {
+                                        onError(errno);
+                                        destruct();
                                     }
                                 }
                             });
@@ -143,7 +143,6 @@ namespace net::socket::stream {
                     socketConnection->SocketConnection::SocketReader::enable(scFd);
 
                     onConnect(socketConnection);
-
                 } else {
                     PLOG(ERROR) << "getsockname";
                     shutdown(scFd, SHUT_RDWR);

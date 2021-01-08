@@ -18,8 +18,8 @@
 
 #include "WriteEventReceiver.h"
 
+#include "EventDispatcher.h"
 #include "EventLoop.h"
-#include "WriteEventDispatcher.h"
 
 namespace net {
 
@@ -29,6 +29,10 @@ namespace net {
 
     void WriteEventReceiver::setTimeout(long timeout) {
         EventReceiver::setTimeout(timeout, EventLoop::instance().getWriteEventDispatcher().getTimeout());
+    }
+
+    void WriteEventReceiver::dispatchEvent() {
+        writeEvent();
     }
 
     void WriteEventReceiver::enable(int fd, long timeout) {

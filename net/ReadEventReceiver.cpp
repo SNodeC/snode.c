@@ -18,8 +18,8 @@
 
 #include "ReadEventReceiver.h"
 
+#include "EventDispatcher.h"
 #include "EventLoop.h"
-#include "ReadEventDispatcher.h"
 
 namespace net {
 
@@ -29,6 +29,10 @@ namespace net {
 
     void ReadEventReceiver::setTimeout(long timeout) {
         EventReceiver::setTimeout(timeout, EventLoop::instance().getReadEventDispatcher().getTimeout());
+    }
+
+    void ReadEventReceiver::dispatchEvent() {
+        readEvent();
     }
 
     void ReadEventReceiver::enable(int fd, long timeout) {

@@ -26,8 +26,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "AcceptEventDispatcher.h"
-#include "ConnectEventDispatcher.h"
 #include "FdSet.h"
 #include "OutOfBandEventDispatcher.h"
 #include "ReadEventDispatcher.h"
@@ -54,14 +52,6 @@ namespace net {
             return readEventDispatcher;
         }
 
-        AcceptEventDispatcher& getAcceptEventDispatcher() {
-            return acceptEventDispatcher;
-        }
-
-        ConnectEventDispatcher& getConnectEventDispatcher() {
-            return connectEventDispatcher;
-        }
-
         WriteEventDispatcher& getWriteEventDispatcher() {
             return writeEventDispatcher;
         }
@@ -76,8 +66,7 @@ namespace net {
 
         unsigned long getEventCounter() {
             return readEventDispatcher.getEventCounter() + writeEventDispatcher.getEventCounter() +
-                   acceptEventDispatcher.getEventCounter() + outOfBandEventDispatcher.getEventCounter() +
-                   connectEventDispatcher.getEventCounter();
+                   outOfBandEventDispatcher.getEventCounter();
         }
 
         unsigned long getTickCounter() {
@@ -96,10 +85,8 @@ namespace net {
         FdSet exceptFdSet;
 
         ReadEventDispatcher readEventDispatcher;
-        AcceptEventDispatcher acceptEventDispatcher;
         WriteEventDispatcher writeEventDispatcher;
         OutOfBandEventDispatcher outOfBandEventDispatcher;
-        ConnectEventDispatcher connectEventDispatcher;
         TimerEventDispatcher timerEventDispatcher;
 
         struct timeval nextInactivityTimeout = {LONG_MAX, 0};

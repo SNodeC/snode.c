@@ -16,36 +16,47 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AcceptEventReceiver.h"
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "AcceptEventDispatcher.h"
+#include <climits>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+#include "AcceptEventReceiver.h"
+#include "EventDispatcher.h"
 #include "EventLoop.h"
+
+#define MAX_ACCEPT_INACTIVITY LONG_MAX
 
 namespace net {
 
     AcceptEventReceiver::AcceptEventReceiver()
-        : EventReceiver(EventLoop::instance().getAcceptEventDispatcher().getTimeout()) {
+        : EventReceiver(MAX_ACCEPT_INACTIVITY) {
     }
 
     void AcceptEventReceiver::setTimeout(long timeout) {
-        EventReceiver::setTimeout(timeout, EventLoop::instance().getAcceptEventDispatcher().getTimeout());
+        EventReceiver::setTimeout(timeout, MAX_ACCEPT_INACTIVITY);
+    }
+
+    void AcceptEventReceiver::dispatchEvent() {
+        acceptEvent();
     }
 
     void AcceptEventReceiver::enable(int fd, long timeout) {
-        EventLoop::instance().getAcceptEventDispatcher().enable(this, fd);
+        EventLoop::instance().getReadEventDispatcher().enable(this, fd);
         setTimeout(timeout);
     }
 
     void AcceptEventReceiver::disable() {
-        EventLoop::instance().getAcceptEventDispatcher().disable(this, fd);
+        EventLoop::instance().getReadEventDispatcher().disable(this, fd);
     }
 
     void AcceptEventReceiver::suspend() {
-        EventLoop::instance().getAcceptEventDispatcher().suspend(this, fd);
+        EventLoop::instance().getReadEventDispatcher().suspend(this, fd);
     }
 
     void AcceptEventReceiver::resume() {
-        EventLoop::instance().getAcceptEventDispatcher().resume(this, fd);
+        EventLoop::instance().getReadEventDispatcher().resume(this, fd);
     }
 
 } // namespace net

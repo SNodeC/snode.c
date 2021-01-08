@@ -34,9 +34,7 @@ namespace net {
         virtual void outOfBandEvent() = 0;
 
     private:
-        void dispatchEvent() override {
-            outOfBandEvent();
-        }
+        void dispatchEvent() override;
 
     public:
         void setTimeout(long timeout = TIMEOUT::DEFAULT);

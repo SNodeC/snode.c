@@ -34,9 +34,7 @@ namespace net {
         virtual void connectEvent() = 0;
 
     private:
-        void dispatchEvent() override {
-            connectEvent();
-        }
+        void dispatchEvent() override;
 
     public:
         void setTimeout(long timeout = TIMEOUT::DEFAULT);

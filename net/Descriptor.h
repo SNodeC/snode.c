@@ -39,8 +39,9 @@ namespace net {
             dontClose = 0x01 << 0 // do not close sys-descriptor in case of desctruction
         } flags{FLAGS::none};
 
-        void attach(int fd, FLAGS flags = FLAGS::none);
+        void attach(int fd);
         int getFd() const;
+        void dontClose(bool dontClose);
         bool dontClose() const;
 
     private:
