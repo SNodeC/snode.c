@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_SOCK_STREAM_TLS_SOCKETCONNECTION_H
-#define NET_SOCKET_SOCK_STREAM_TLS_SOCKETCONNECTION_H
+#ifndef NET_SOCKET_stream_TLS_SOCKETCONNECTION_H
+#define NET_SOCKET_stream_TLS_SOCKETCONNECTION_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -25,9 +25,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/sock_stream/SocketConnection.h"
-#include "socket/sock_stream/tls/SocketReader.h"
-#include "socket/sock_stream/tls/SocketWriter.h"
+#include "socket/stream/SocketConnection.h"
+#include "socket/stream/tls/SocketReader.h"
+#include "socket/stream/tls/SocketWriter.h"
 
 namespace net::socket::stream::tls {
 
@@ -128,4 +128,4 @@ namespace net::socket::stream::tls {
 
 } // namespace net::socket::stream::tls
 
-#endif // NET_SOCKET_SOCK_STREAM_TLS_SOCKETCONNECTION_H
+#endif // NET_SOCKET_stream_TLS_SOCKETCONNECTION_H

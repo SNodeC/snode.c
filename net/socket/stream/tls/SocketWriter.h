@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_SOCK_STREAM_TLS_SOCKETWRITER_H
-#define NET_SOCKET_SOCK_STREAM_TLS_SOCKETWRITER_H
+#ifndef NET_SOCKET_stream_TLS_SOCKETWRITER_H
+#define NET_SOCKET_stream_TLS_SOCKETWRITER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,7 +32,7 @@
 #include "Logger.h"
 #include "ReadEventReceiver.h"
 #include "TLSHandshake.h"
-#include "socket/sock_stream/SocketWriter.h"
+#include "socket/stream/SocketWriter.h"
 #include "ssl_utils.h"
 
 namespace net::socket::stream::tls {
@@ -110,4 +110,4 @@ namespace net::socket::stream::tls {
 
 }; // namespace net::socket::stream::tls
 
-#endif // NET_SOCKET_SOCK_STREAM_TLS_SOCKETWRITER_H
+#endif // NET_SOCKET_stream_TLS_SOCKETWRITER_H

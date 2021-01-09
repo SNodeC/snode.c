@@ -19,7 +19,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <bluetooth/bluetooth.h> // for BTPROTO_RFCOMM
-#include <sys/socket.h>          // for socket, PF_BLUETOOTH, SOCK_STREAM
+#include <sys/socket.h>          // for socket, PF_BLUETOOTH, stream
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

@@ -24,7 +24,7 @@
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 #include "socket/bluetooth/rfcomm/Socket.h"
-#include "socket/sock_stream/tls/SocketServer.h"
+#include "socket/stream/tls/SocketServer.h"
 
 namespace net::socket::bluetooth::rfcomm::tls {
 

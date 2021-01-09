@@ -24,7 +24,7 @@
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 #include "socket/ip/tcp/ipv4/Socket.h"
-#include "socket/sock_stream/legacy/SocketServer.h"
+#include "socket/stream/legacy/SocketServer.h"
 
 namespace net::socket::ip::tcp::ipv4::legacy {
 

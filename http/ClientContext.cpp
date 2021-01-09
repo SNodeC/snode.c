@@ -24,7 +24,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "ClientContext.h"
-#include "socket/sock_stream/SocketConnectionBase.h"
+#include "socket/stream/SocketConnectionBase.h"
 
 namespace http {
     class CookieOptions;

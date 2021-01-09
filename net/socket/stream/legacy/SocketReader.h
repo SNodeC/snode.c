@@ -16,23 +16,35 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_SOCK_STREAM_LEGACY_SOCKETLISTENER_H
-#define NET_SOCKET_SOCK_STREAM_LEGACY_SOCKETLISTENER_H
+#ifndef NET_SOCKET_stream_LEGACY_SOCKETREADER_H
+#define NET_SOCKET_stream_LEGACY_SOCKETREADER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef> // for std::size_t
+#include <sys/socket.h>
+#include <sys/types.h> // for ssize_t
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "SocketConnection.h"
-#include "socket/sock_stream/SocketListener.h"
+#include "socket/stream/SocketReader.h"
 
 namespace net::socket::stream::legacy {
 
     template <typename SocketT>
-    class SocketListener : public stream::SocketListener<stream::legacy::SocketConnection<SocketT>> {
-        using stream::SocketListener<stream::legacy::SocketConnection<SocketT>>::SocketListener;
+    class SocketReader : public stream::SocketReader<SocketT> {
+        using stream::SocketReader<SocketT>::SocketReader;
+
+    private:
+        ssize_t read(char* junk, std::size_t junkLen) override {
+            return ::recv(this->getFd(), junk, junkLen, 0);
+        }
+
+        int getError() override {
+            return errno;
+        }
     };
 
-} // namespace net::socket::stream::legacy
+}; // namespace net::socket::stream::legacy
 
-#endif // NET_SOCKET_SOCK_STREAM_LEGACY_SOCKETLISTENER_H
+#endif // NET_SOCKET_stream_LEGACY_SOCKETREADER_H

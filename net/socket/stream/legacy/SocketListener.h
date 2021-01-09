@@ -16,23 +16,23 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_SOCK_STREAM_TLS_SOCKETSERVER_H
-#define NET_SOCKET_SOCK_STREAM_TLS_SOCKETSERVER_H
+#ifndef NET_SOCKET_stream_LEGACY_SOCKETLISTENER_H
+#define NET_SOCKET_stream_LEGACY_SOCKETLISTENER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "SocketListener.h"
-#include "socket/sock_stream/SocketServer.h"
+#include "SocketConnection.h"
+#include "socket/stream/SocketListener.h"
 
-namespace net::socket::stream::tls {
+namespace net::socket::stream::legacy {
 
     template <typename SocketT>
-    class SocketServer : public stream::SocketServer<tls::SocketListener<SocketT>> {
-        using stream::SocketServer<tls::SocketListener<SocketT>>::SocketServer;
+    class SocketListener : public stream::SocketListener<stream::legacy::SocketConnection<SocketT>> {
+        using stream::SocketListener<stream::legacy::SocketConnection<SocketT>>::SocketListener;
     };
 
-}; // namespace net::socket::stream::tls
+} // namespace net::socket::stream::legacy
 
-#endif // NET_SOCKET_SOCK_STREAM_TLS_SOCKETSERVER_H
+#endif // NET_SOCKET_stream_LEGACY_SOCKETLISTENER_H

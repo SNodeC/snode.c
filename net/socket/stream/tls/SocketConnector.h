@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_SOCK_STREAM_TLS_SOCKETCONNECTOR_H
-#define NET_SOCKET_SOCK_STREAM_TLS_SOCKETCONNECTOR_H
+#ifndef NET_SOCKET_stream_TLS_SOCKETCONNECTOR_H
+#define NET_SOCKET_stream_TLS_SOCKETCONNECTOR_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,7 +28,7 @@
 #include "Logger.h"
 #include "SocketConnection.h"
 #include "TLSHandshake.h"
-#include "socket/sock_stream/SocketConnector.h"
+#include "socket/stream/SocketConnector.h"
 #include "ssl_utils.h"
 
 namespace net::socket::stream {
@@ -136,4 +136,4 @@ namespace net::socket::stream {
 
 } // namespace net::socket::stream
 
-#endif // NET_SOCKET_SOCK_STREAM_TLS_SOCKETCONNECTOR_H
+#endif // NET_SOCKET_stream_TLS_SOCKETCONNECTOR_H

@@ -24,8 +24,8 @@
 #include "ServerResponse.h"
 #include "config.h" // just for this example app
 #include "socket/ip/tcp/ipv4/Socket.h"
-#include "socket/sock_stream/legacy/SocketClient.h"
-#include "socket/sock_stream/tls/SocketClient.h"
+#include "socket/stream/legacy/SocketClient.h"
+#include "socket/stream/tls/SocketClient.h"
 
 #include <openssl/x509v3.h>
 

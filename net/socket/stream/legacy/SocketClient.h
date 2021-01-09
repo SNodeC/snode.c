@@ -16,23 +16,23 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_SOCK_STREAM_LEGACY_SOCKETCONNECTOR_H
-#define NET_SOCKET_SOCK_STREAM_LEGACY_SOCKETCONNECTOR_H
+#ifndef NET_SOCKET_stream_LEGACY_SOCKETCLIENT_H
+#define NET_SOCKET_stream_LEGACY_SOCKETCLIENT_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "SocketConnection.h"
-#include "socket/sock_stream/SocketConnector.h"
+#include "SocketConnector.h"
+#include "socket/stream/SocketClient.h"
 
 namespace net::socket::stream::legacy {
 
     template <typename SocketT>
-    class SocketConnector : public stream::SocketConnector<stream::legacy::SocketConnection<SocketT>> {
-        using stream::SocketConnector<stream::legacy::SocketConnection<SocketT>>::SocketConnector;
+    class SocketClient : public stream::SocketClient<legacy::SocketConnector<SocketT>> {
+        using stream::SocketClient<legacy::SocketConnector<SocketT>>::SocketClient;
     };
 
 } // namespace net::socket::stream::legacy
 
-#endif // NET_SOCKET_SOCK_STREAM_LEGACY_SOCKETCONNECTOR_H
+#endif // NET_SOCKET_stream_LEGACY_SOCKETCLIENT_H

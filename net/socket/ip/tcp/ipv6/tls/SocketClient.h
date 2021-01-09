@@ -24,7 +24,7 @@
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 #include "socket/ip/tcp/ipv6/Socket.h"
-#include "socket/sock_stream/tls/SocketClient.h"
+#include "socket/stream/tls/SocketClient.h"
 
 namespace net::socket::ip::tcp::ipv6::tls {
 

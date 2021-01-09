@@ -16,28 +16,23 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_SOCK_STREAM_TLS_SSL_UTILS_H
-#define NET_SOCKET_SOCK_STREAM_TLS_SSL_UTILS_H
+#ifndef NET_SOCKET_stream_TLS_SOCKETCLIENT_H
+#define NET_SOCKET_stream_TLS_SOCKETCLIENT_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <any>
-#include <map>
-#include <openssl/ossl_typ.h> // for SSL_CTX
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+#include "SocketConnector.h"
+#include "socket/stream/SocketClient.h"
 
 namespace net::socket::stream::tls {
 
-    SSL_CTX* ssl_ctx_new(const std::map<std::string, std::any>& options, bool server = false);
-    void ssl_ctx_free(SSL_CTX* ctx);
-
-    void ssl_log_error(const std::string& message);
-    void ssl_log_warning(const std::string& message);
-    void ssl_log_info(const std::string& message);
-    void ssl_log(const std::string& message, int sslErr);
+    template <typename SocketT>
+    class SocketClient : public stream::SocketClient<tls::SocketConnector<SocketT>> {
+        using stream::SocketClient<tls::SocketConnector<SocketT>>::SocketClient;
+    };
 
 } // namespace net::socket::stream::tls
 
-#endif // NET_SOCKET_SOCK_STREAM_TLS_SSL_UTILS_H
+#endif // NET_SOCKET_stream_TLS_SOCKETCLIENT_H

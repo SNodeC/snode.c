@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_SOCK_STREAM_LEGACY_SOCKETCONNECTION_H
-#define NET_SOCKET_SOCK_STREAM_LEGACY_SOCKETCONNECTION_H
+#ifndef NET_SOCKET_stream_LEGACY_SOCKETCONNECTION_H
+#define NET_SOCKET_stream_LEGACY_SOCKETCONNECTION_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -25,9 +25,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/sock_stream/SocketConnection.h"
-#include "socket/sock_stream/legacy/SocketReader.h"
-#include "socket/sock_stream/legacy/SocketWriter.h"
+#include "socket/stream/SocketConnection.h"
+#include "socket/stream/legacy/SocketReader.h"
+#include "socket/stream/legacy/SocketWriter.h"
 
 namespace net::socket::stream::legacy {
 
@@ -72,4 +72,4 @@ namespace net::socket::stream::legacy {
 
 } // namespace net::socket::stream::legacy
 
-#endif // NET_SOCKET_SOCK_STREAM_LEGACY_SOCKETCONNECTION_H
+#endif // NET_SOCKET_stream_LEGACY_SOCKETCONNECTION_H
