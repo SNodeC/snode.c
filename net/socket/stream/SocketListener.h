@@ -135,11 +135,10 @@ namespace net::socket::stream {
                     SocketConnection* socketConnection =
                         new SocketConnection(onConstruct, onDestruct, onRead, onReadError, onWriteError, onDisconnect);
 
-                    socketConnection->attach(scFd);
-
                     socketConnection->setRemoteAddress(SocketAddress(remoteAddress));
                     socketConnection->setLocalAddress(SocketAddress(localAddress));
 
+                    socketConnection->attach(scFd);
                     socketConnection->SocketConnection::SocketReader::enable(scFd);
 
                     onConnect(socketConnection);

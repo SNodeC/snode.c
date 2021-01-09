@@ -44,10 +44,14 @@ namespace net::socket {
 
         ~Socket() {
             if (!dontClose()) {
-                ::shutdown(getFd(), SHUT_RDWR);
+                shutdown(shutdown::RDWR);
             }
         }
 
+    protected:
+        virtual int create(int flags) = 0;
+
+    public:
         void open(const std::function<void(int errnum)>& onError, int flags = 0) {
             errno = 0;
 
@@ -89,8 +93,6 @@ namespace net::socket {
         }
 
     protected:
-        virtual int create(int flags) = 0;
-
         SocketAddress bindAddress{};
     };
 

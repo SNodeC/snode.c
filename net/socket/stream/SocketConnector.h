@@ -126,13 +126,14 @@ namespace net::socket::stream {
                             socketConnection =
                                 new SocketConnection(onConstruct, onDestruct, onRead, onReadError, onWriteError, onDisconnect);
 
-                            socketConnection->attach(Socket::getFd());
-
                             socketConnection->setRemoteAddress(SocketAddress(remoteAddress));
                             socketConnection->setLocalAddress(SocketAddress(localAddress));
 
+                            socketConnection->attach(Socket::getFd());
                             socketConnection->SocketConnection::SocketReader::enable(Socket::getFd());
+
                             SocketConnector::dontClose(true);
+                            stream::SocketConnector<SocketConnection>::ConnectEventReceiver::suspend();
 
                             onError(0);
                             onConnect(socketConnection);

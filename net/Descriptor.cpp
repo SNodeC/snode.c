@@ -34,7 +34,6 @@ namespace net {
 
     void Descriptor::attach(int fd) {
         this->fd = fd;
-        //        this->flags = flags;
     }
 
     int Descriptor::getFd() const {
