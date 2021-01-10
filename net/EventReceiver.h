@@ -132,7 +132,7 @@ namespace net {
 
         long maxInactivity = LONG_MAX;
 
-        friend class EventDispatcher;
+        friend class DescriptorEventDispatcher;
     };
 
 } // namespace net

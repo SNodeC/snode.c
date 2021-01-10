@@ -18,7 +18,7 @@
 
 #include "ConnectEventReceiver.h"
 
-#include "EventDispatcher.h"
+#include "DescriptorEventDispatcher.h"
 #include "EventLoop.h"
 
 #define MAX_CONNECT_INACTIVITY 10

@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EVENTDISPATCHER_H
-#define EVENTDISPATCHER_H
+#ifndef DESCRIPTOREVENTDISPATCHER_H
+#define DESCRIPTOREVENTDISPATCHER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -38,7 +38,7 @@ namespace net {
     class EventLoop;
     class EventReceiver;
 
-    class EventDispatcher {
+    class DescriptorEventDispatcher {
     public:
     private:
         class EventReceiverList : public std::list<EventReceiver*> {
@@ -51,10 +51,10 @@ namespace net {
         };
 
     public:
-        explicit EventDispatcher(FdSet& fdSet, long maxInactivity); // NOLINT(google-runtime-references)
-        EventDispatcher(const EventDispatcher&) = delete;
+        explicit DescriptorEventDispatcher(FdSet& fdSet, long maxInactivity); // NOLINT(google-runtime-references)
+        DescriptorEventDispatcher(const DescriptorEventDispatcher&) = delete;
 
-        EventDispatcher& operator=(const EventDispatcher&) = delete;
+        DescriptorEventDispatcher& operator=(const DescriptorEventDispatcher&) = delete;
 
         void enable(EventReceiver* eventReceiver, int fd);
         void disable(EventReceiver* eventReceiver, int fd);
@@ -90,4 +90,4 @@ namespace net {
 
 } // namespace net
 
-#endif // EVENTDISPATCHER_H
+#endif // DESCRIPTOREVENTDISPATCHER_H

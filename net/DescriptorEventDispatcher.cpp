@@ -25,20 +25,20 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "EventDispatcher.h"
+#include "DescriptorEventDispatcher.h"
 #include "EventReceiver.h"
 
 namespace net {
-    bool EventDispatcher::EventReceiverList::contains(EventReceiver* eventReceiver) {
+    bool DescriptorEventDispatcher::EventReceiverList::contains(EventReceiver* eventReceiver) {
         return std::find(begin(), end(), eventReceiver) != end();
     }
 
-    EventDispatcher::EventDispatcher(FdSet& fdSet, long maxInactivity) // NOLINT(google-runtime-references)
+    DescriptorEventDispatcher::DescriptorEventDispatcher(FdSet& fdSet, long maxInactivity) // NOLINT(google-runtime-references)
         : fdSet(fdSet)
         , maxInactivity(maxInactivity) {
     }
 
-    void EventDispatcher::enable(EventReceiver* eventReceiver, int fd) {
+    void DescriptorEventDispatcher::enable(EventReceiver* eventReceiver, int fd) {
         if (disabledEventReceiver[fd].contains(eventReceiver)) {
             // same tick as disable
             disabledEventReceiver[fd].remove(eventReceiver);
@@ -55,7 +55,7 @@ namespace net {
         }
     }
 
-    void EventDispatcher::disable(EventReceiver* eventReceiver, int fd) {
+    void DescriptorEventDispatcher::disable(EventReceiver* eventReceiver, int fd) {
         if (enabledEventReceiver[fd].contains(eventReceiver)) {
             // same tick as enable
             enabledEventReceiver[fd].remove(eventReceiver);
@@ -72,7 +72,7 @@ namespace net {
         }
     }
 
-    void EventDispatcher::suspend(EventReceiver* eventReceiver, int fd) {
+    void DescriptorEventDispatcher::suspend(EventReceiver* eventReceiver, int fd) {
         if (!eventReceiver->isSuspended()) {
             eventReceiver->suspended();
             if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
@@ -83,7 +83,7 @@ namespace net {
         }
     }
 
-    void EventDispatcher::resume(EventReceiver* eventReceiver, int fd) {
+    void DescriptorEventDispatcher::resume(EventReceiver* eventReceiver, int fd) {
         if (eventReceiver->isSuspended()) {
             eventReceiver->resumed();
             if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
@@ -94,15 +94,15 @@ namespace net {
         }
     }
 
-    long EventDispatcher::getTimeout() const {
+    long DescriptorEventDispatcher::getTimeout() const {
         return maxInactivity;
     }
 
-    unsigned long EventDispatcher::getEventCounter() const {
+    unsigned long DescriptorEventDispatcher::getEventCounter() const {
         return eventCounter;
     }
 
-    int EventDispatcher::getMaxFd() const {
+    int DescriptorEventDispatcher::getMaxFd() const {
         int maxFd = -1;
 
         if (!observedEventReceiver.empty()) {
@@ -112,7 +112,7 @@ namespace net {
         return maxFd;
     }
 
-    struct timeval EventDispatcher::observeEnabledEvents() {
+    struct timeval DescriptorEventDispatcher::observeEnabledEvents() {
         struct timeval nextTimeout = {LONG_MAX, 0};
 
         for (auto [fd, eventReceivers] : enabledEventReceiver) {
@@ -133,7 +133,7 @@ namespace net {
         return nextTimeout;
     }
 
-    struct timeval EventDispatcher::dispatchActiveEvents(struct timeval currentTime) {
+    struct timeval DescriptorEventDispatcher::dispatchActiveEvents(struct timeval currentTime) {
         struct timeval nextInactivityTimeout {
             LONG_MAX, 0
         };
@@ -160,7 +160,7 @@ namespace net {
         return nextInactivityTimeout;
     }
 
-    void EventDispatcher::unobserveDisabledEvents() {
+    void DescriptorEventDispatcher::unobserveDisabledEvents() {
         for (auto [fd, eventReceivers] : disabledEventReceiver) {
             for (EventReceiver* eventReceiver : eventReceivers) {
                 observedEventReceiver[fd].remove(eventReceiver);
@@ -183,14 +183,14 @@ namespace net {
         disabledEventReceiver.clear();
     }
 
-    void EventDispatcher::releaseUnobservedEvents() {
+    void DescriptorEventDispatcher::releaseUnobservedEvents() {
         for (EventReceiver* eventReceiver : unobservedEventReceiver) {
             eventReceiver->unobserved();
         }
         unobservedEventReceiver.clear();
     }
 
-    void EventDispatcher::disableObservedEvents() {
+    void DescriptorEventDispatcher::disableObservedEvents() {
         for (auto& [fd, eventReceivers] : observedEventReceiver) {
             for (EventReceiver* eventReceiver : eventReceivers) {
                 disabledEventReceiver[fd].push_back(eventReceiver);

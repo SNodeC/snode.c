@@ -28,7 +28,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "EventDispatcher.h"
+#include "DescriptorEventDispatcher.h"
 #include "EventLoop.h" // for EventLoop
 #include "Logger.h"    // for Logger
 #include "TimerEventDispatcher.h"
@@ -58,9 +58,9 @@ namespace net {
     int EventLoop::stopsig = 0;
 
     EventLoop::EventLoop()
-        : readEventDispatcher(new EventDispatcher(readFdSet, MAX_READ_INACTIVITY))
-        , writeEventDispatcher(new EventDispatcher(writeFdSet, MAX_WRITE_INACTIVITY))
-        , outOfBandEventDispatcher(new EventDispatcher(exceptFdSet, MAX_OUTOFBAND_INACTIVITY))
+        : readEventDispatcher(new DescriptorEventDispatcher(readFdSet, MAX_READ_INACTIVITY))
+        , writeEventDispatcher(new DescriptorEventDispatcher(writeFdSet, MAX_WRITE_INACTIVITY))
+        , outOfBandEventDispatcher(new DescriptorEventDispatcher(exceptFdSet, MAX_OUTOFBAND_INACTIVITY))
         , timerEventDispatcher(new TimerEventDispatcher()) {
     }
 
