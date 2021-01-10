@@ -122,7 +122,7 @@ namespace net {
     struct timeval DescriptorEventDispatcher::observeEnabledEvents() {
         struct timeval nextTimeout = {LONG_MAX, 0};
 
-        for (auto [fd, eventReceivers] : enabledEventReceiver) {
+        for (const auto& [fd, eventReceivers] : enabledEventReceiver) {
             for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
                 observedEventReceiver[fd].push_front(eventReceiver);
                 if (!eventReceiver->isSuspended()) {
@@ -168,7 +168,7 @@ namespace net {
     }
 
     void DescriptorEventDispatcher::unobserveDisabledEvents() {
-        for (auto [fd, eventReceivers] : disabledEventReceiver) {
+        for (const auto& [fd, eventReceivers] : disabledEventReceiver) {
             for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
                 observedEventReceiver[fd].remove(eventReceiver);
                 if (observedEventReceiver[fd].empty() || observedEventReceiver[fd].front()->isSuspended()) {
