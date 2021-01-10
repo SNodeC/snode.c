@@ -29,7 +29,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Descriptor.h"
-#include "EventReceiver.h"
 #include "FdSet.h"
 #include "Logger.h"
 #include "Timeval.h"
@@ -37,12 +36,10 @@
 namespace net {
 
     class EventLoop;
+    class EventReceiver;
 
-    template <typename EventReceiverT>
     class EventDispatcher {
     public:
-        using EventReceiver = EventReceiverT;
-
     private:
         class EventReceiverList : public std::list<EventReceiver*> {
         public:

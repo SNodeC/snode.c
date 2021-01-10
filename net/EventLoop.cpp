@@ -28,13 +28,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "EventDispatcher.h"
 #include "EventLoop.h" // for EventLoop
 #include "Logger.h"    // for Logger
-#include "OutOfBandEventDispatcher.h"
-#include "ReadEventDispatcher.h"
 #include "TimerEventDispatcher.h"
 #include "Timeval.h" // for operator<
-#include "WriteEventDispatcher.h"
 
 #define MAX_READ_INACTIVITY 60
 #define MAX_WRITE_INACTIVITY 60
@@ -60,9 +58,9 @@ namespace net {
     int EventLoop::stopsig = 0;
 
     EventLoop::EventLoop()
-        : readEventDispatcher(new ReadEventDispatcher(readFdSet, MAX_READ_INACTIVITY))
-        , writeEventDispatcher(new WriteEventDispatcher(writeFdSet, MAX_WRITE_INACTIVITY))
-        , outOfBandEventDispatcher(new OutOfBandEventDispatcher(exceptFdSet, MAX_OUTOFBAND_INACTIVITY))
+        : readEventDispatcher(new EventDispatcher(readFdSet, MAX_READ_INACTIVITY))
+        , writeEventDispatcher(new EventDispatcher(writeFdSet, MAX_WRITE_INACTIVITY))
+        , outOfBandEventDispatcher(new EventDispatcher(exceptFdSet, MAX_OUTOFBAND_INACTIVITY))
         , timerEventDispatcher(new TimerEventDispatcher()) {
     }
 

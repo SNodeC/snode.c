@@ -8,6 +8,7 @@ add_library(
     AcceptEventReceiver.cpp
     ConnectEventReceiver.cpp
     Descriptor.cpp
+    EventDispatcher.cpp
     EventLoop.cpp
     FdSet.cpp
     OutOfBandEventReceiver.cpp

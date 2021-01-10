@@ -23,8 +23,8 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "AcceptEventReceiver.h"
+#include "EventDispatcher.h"
 #include "EventLoop.h"
-#include "ReadEventDispatcher.h"
 
 #define MAX_ACCEPT_INACTIVITY LONG_MAX
 

@@ -44,9 +44,6 @@ namespace net {
 
         void suspend() override;
         void resume() override;
-
-        template <typename ConnectEventReceiver>
-        friend class EventDispatcher;
     };
 
 } // namespace net

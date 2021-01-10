@@ -30,10 +30,8 @@
 
 namespace net {
 
-    class OutOfBandEventDispatcher;
-    class ReadEventDispatcher;
+    class EventDispatcher;
     class TimerEventDispatcher;
-    class WriteEventDispatcher;
 
     class EventLoop {
     private:
@@ -55,15 +53,15 @@ namespace net {
         static int start();
         static void stop();
 
-        ReadEventDispatcher& getReadEventDispatcher() {
+        EventDispatcher& getReadEventDispatcher() {
             return *readEventDispatcher;
         }
 
-        WriteEventDispatcher& getWriteEventDispatcher() {
+        EventDispatcher& getWriteEventDispatcher() {
             return *writeEventDispatcher;
         }
 
-        OutOfBandEventDispatcher& getOutOfBandEventDispatcher() {
+        EventDispatcher& getOutOfBandEventDispatcher() {
             return *outOfBandEventDispatcher;
         }
 
@@ -88,9 +86,9 @@ namespace net {
         FdSet writeFdSet;
         FdSet exceptFdSet;
 
-        ReadEventDispatcher* readEventDispatcher;
-        WriteEventDispatcher* writeEventDispatcher;
-        OutOfBandEventDispatcher* outOfBandEventDispatcher;
+        EventDispatcher* readEventDispatcher;
+        EventDispatcher* writeEventDispatcher;
+        EventDispatcher* outOfBandEventDispatcher;
         TimerEventDispatcher* timerEventDispatcher;
 
         struct timeval nextInactivityTimeout = {LONG_MAX, 0};

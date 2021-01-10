@@ -132,7 +132,6 @@ namespace net {
 
         long maxInactivity = LONG_MAX;
 
-        template <typename EventReceiver>
         friend class EventDispatcher;
     };
 

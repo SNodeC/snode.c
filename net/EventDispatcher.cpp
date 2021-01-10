@@ -26,22 +26,19 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "EventDispatcher.h"
+#include "EventReceiver.h"
 
 namespace net {
-
-    template <typename EventReceiver>
-    bool EventDispatcher<EventReceiver>::EventReceiverList::contains(EventReceiver* eventReceiver) {
+    bool EventDispatcher::EventReceiverList::contains(EventReceiver* eventReceiver) {
         return std::find(begin(), end(), eventReceiver) != end();
     }
 
-    template <typename EventReceiver>
-    EventDispatcher<EventReceiver>::EventDispatcher(FdSet& fdSet, long maxInactivity) // NOLINT(google-runtime-references)
+    EventDispatcher::EventDispatcher(FdSet& fdSet, long maxInactivity) // NOLINT(google-runtime-references)
         : fdSet(fdSet)
         , maxInactivity(maxInactivity) {
     }
 
-    template <typename EventReceiver>
-    void EventDispatcher<EventReceiver>::enable(EventReceiver* eventReceiver, int fd) {
+    void EventDispatcher::enable(EventReceiver* eventReceiver, int fd) {
         if (disabledEventReceiver[fd].contains(eventReceiver)) {
             // same tick as disable
             disabledEventReceiver[fd].remove(eventReceiver);
@@ -58,8 +55,7 @@ namespace net {
         }
     }
 
-    template <typename EventReceiver>
-    void EventDispatcher<EventReceiver>::disable(EventReceiver* eventReceiver, int fd) {
+    void EventDispatcher::disable(EventReceiver* eventReceiver, int fd) {
         if (enabledEventReceiver[fd].contains(eventReceiver)) {
             // same tick as enable
             enabledEventReceiver[fd].remove(eventReceiver);
@@ -76,8 +72,7 @@ namespace net {
         }
     }
 
-    template <typename EventReceiver>
-    void EventDispatcher<EventReceiver>::suspend(EventReceiver* eventReceiver, int fd) {
+    void EventDispatcher::suspend(EventReceiver* eventReceiver, int fd) {
         if (!eventReceiver->isSuspended()) {
             eventReceiver->suspended();
             if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
@@ -88,8 +83,7 @@ namespace net {
         }
     }
 
-    template <typename EventReceiver>
-    void EventDispatcher<EventReceiver>::resume(EventReceiver* eventReceiver, int fd) {
+    void EventDispatcher::resume(EventReceiver* eventReceiver, int fd) {
         if (eventReceiver->isSuspended()) {
             eventReceiver->resumed();
             if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
@@ -100,18 +94,15 @@ namespace net {
         }
     }
 
-    template <typename EventReceiver>
-    long EventDispatcher<EventReceiver>::getTimeout() const {
+    long EventDispatcher::getTimeout() const {
         return maxInactivity;
     }
 
-    template <typename EventReceiver>
-    unsigned long EventDispatcher<EventReceiver>::getEventCounter() const {
+    unsigned long EventDispatcher::getEventCounter() const {
         return eventCounter;
     }
 
-    template <typename EventReceiver>
-    int EventDispatcher<EventReceiver>::getMaxFd() const {
+    int EventDispatcher::getMaxFd() const {
         int maxFd = -1;
 
         if (!observedEventReceiver.empty()) {
@@ -121,8 +112,7 @@ namespace net {
         return maxFd;
     }
 
-    template <typename EventReceiver>
-    struct timeval EventDispatcher<EventReceiver>::observeEnabledEvents() {
+    struct timeval EventDispatcher::observeEnabledEvents() {
         struct timeval nextTimeout = {LONG_MAX, 0};
 
         for (auto [fd, eventReceivers] : enabledEventReceiver) {
@@ -143,8 +133,7 @@ namespace net {
         return nextTimeout;
     }
 
-    template <typename EventReceiver>
-    struct timeval EventDispatcher<EventReceiver>::dispatchActiveEvents(struct timeval currentTime) {
+    struct timeval EventDispatcher::dispatchActiveEvents(struct timeval currentTime) {
         struct timeval nextInactivityTimeout {
             LONG_MAX, 0
         };
@@ -171,8 +160,7 @@ namespace net {
         return nextInactivityTimeout;
     }
 
-    template <typename EventReceiver>
-    void EventDispatcher<EventReceiver>::unobserveDisabledEvents() {
+    void EventDispatcher::unobserveDisabledEvents() {
         for (auto [fd, eventReceivers] : disabledEventReceiver) {
             for (EventReceiver* eventReceiver : eventReceivers) {
                 observedEventReceiver[fd].remove(eventReceiver);
@@ -195,16 +183,14 @@ namespace net {
         disabledEventReceiver.clear();
     }
 
-    template <typename EventReceiver>
-    void EventDispatcher<EventReceiver>::releaseUnobservedEvents() {
+    void EventDispatcher::releaseUnobservedEvents() {
         for (EventReceiver* eventReceiver : unobservedEventReceiver) {
             eventReceiver->unobserved();
         }
         unobservedEventReceiver.clear();
     }
 
-    template <typename EventReceiver>
-    void EventDispatcher<EventReceiver>::disableObservedEvents() {
+    void EventDispatcher::disableObservedEvents() {
         for (auto& [fd, eventReceivers] : observedEventReceiver) {
             for (EventReceiver* eventReceiver : eventReceivers) {
                 disabledEventReceiver[fd].push_back(eventReceiver);
