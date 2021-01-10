@@ -21,12 +21,19 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <algorithm> // for min, find
 #include <climits>
+#include <iterator>    // for reverse_iterator
+#include <type_traits> // for add_const<>::type
+#include <utility>     // for tuple_element<>::type, pair
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "DescriptorEventDispatcher.h"
 #include "EventReceiver.h"
+#include "FdSet.h"   // for FdSet
+#include "Logger.h"  // for Writer, CWARNING, LOG
+#include "Timeval.h" // for operator-, operator<, operator>=
 
 namespace net {
     bool DescriptorEventDispatcher::EventReceiverList::contains(EventReceiver* eventReceiver) {

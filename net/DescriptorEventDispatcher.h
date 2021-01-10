@@ -21,22 +21,16 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <algorithm>
-#include <ctime>
 #include <list>
 #include <map>
+#include <sys/time.h> // for timeval
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Descriptor.h"
-#include "FdSet.h"
-#include "Logger.h"
-#include "Timeval.h"
-
 namespace net {
 
-    class EventLoop;
     class EventReceiver;
+    class FdSet;
 
     class DescriptorEventDispatcher {
     public:
