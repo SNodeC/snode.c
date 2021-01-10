@@ -29,19 +29,19 @@
 
 namespace net {
 
-    class EventReceiver;
+    class DescriptorEventReceiver;
     class FdSet;
 
     class DescriptorEventDispatcher {
     public:
     private:
-        class EventReceiverList : public std::list<EventReceiver*> {
+        class DescriptorEventReceiverList : public std::list<DescriptorEventReceiver*> {
         public:
-            using std::list<EventReceiver*>::begin;
-            using std::list<EventReceiver*>::end;
-            using std::list<EventReceiver*>::front;
+            using std::list<DescriptorEventReceiver*>::begin;
+            using std::list<DescriptorEventReceiver*>::end;
+            using std::list<DescriptorEventReceiver*>::front;
 
-            bool contains(EventReceiver* eventReceiver);
+            bool contains(DescriptorEventReceiver* descriptorEventReceiver);
         };
 
     public:
@@ -50,10 +50,10 @@ namespace net {
 
         DescriptorEventDispatcher& operator=(const DescriptorEventDispatcher&) = delete;
 
-        void enable(EventReceiver* eventReceiver, int fd);
-        void disable(EventReceiver* eventReceiver, int fd);
-        void suspend(EventReceiver* eventReceiver, int fd);
-        void resume(EventReceiver* eventReceiver, int fd);
+        void enable(DescriptorEventReceiver* eventReceiver, int fd);
+        void disable(DescriptorEventReceiver* eventReceiver, int fd);
+        void suspend(DescriptorEventReceiver* eventReceiver, int fd);
+        void resume(DescriptorEventReceiver* eventReceiver, int fd);
 
         unsigned long getEventCounter() const;
         long getTimeout() const;
@@ -68,10 +68,10 @@ namespace net {
         void releaseUnobservedEvents();
         void disableObservedEvents();
 
-        std::map<int, EventReceiverList> enabledEventReceiver;
-        std::map<int, EventReceiverList> observedEventReceiver;
-        std::map<int, EventReceiverList> disabledEventReceiver;
-        EventReceiverList unobservedEventReceiver;
+        std::map<int, DescriptorEventReceiverList> enabledEventReceiver;
+        std::map<int, DescriptorEventReceiverList> observedEventReceiver;
+        std::map<int, DescriptorEventReceiverList> disabledEventReceiver;
+        DescriptorEventReceiverList unobservedEventReceiver;
 
         FdSet& fdSet;
 

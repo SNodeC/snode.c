@@ -31,11 +31,11 @@
 namespace net {
 
     AcceptEventReceiver::AcceptEventReceiver()
-        : EventReceiver(MAX_ACCEPT_INACTIVITY) {
+        : DescriptorEventReceiver(MAX_ACCEPT_INACTIVITY) {
     }
 
     void AcceptEventReceiver::setTimeout(long timeout) {
-        EventReceiver::setTimeout(timeout, MAX_ACCEPT_INACTIVITY);
+        DescriptorEventReceiver::setTimeout(timeout, MAX_ACCEPT_INACTIVITY);
     }
 
     void AcceptEventReceiver::dispatchEvent() {

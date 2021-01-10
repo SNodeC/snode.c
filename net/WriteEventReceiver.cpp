@@ -24,11 +24,11 @@
 namespace net {
 
     WriteEventReceiver::WriteEventReceiver()
-        : EventReceiver(EventLoop::instance().getWriteEventDispatcher().getTimeout()) {
+        : DescriptorEventReceiver(EventLoop::instance().getWriteEventDispatcher().getTimeout()) {
     }
 
     void WriteEventReceiver::setTimeout(long timeout) {
-        EventReceiver::setTimeout(timeout, EventLoop::instance().getWriteEventDispatcher().getTimeout());
+        DescriptorEventReceiver::setTimeout(timeout, EventLoop::instance().getWriteEventDispatcher().getTimeout());
     }
 
     void WriteEventReceiver::dispatchEvent() {

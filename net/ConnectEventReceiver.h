@@ -23,11 +23,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "EventReceiver.h"
+#include "DescriptorEventReceiver.h"
 
 namespace net {
 
-    class ConnectEventReceiver : public EventReceiver {
+    class ConnectEventReceiver : public DescriptorEventReceiver {
     protected:
         ConnectEventReceiver();
 

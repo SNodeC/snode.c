@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EVENTRECEIVER_H
-#define EVENTRECEIVER_H
+#ifndef DESCRIPTOREVENTRECEIVER_H
+#define DESCRIPTOREVENTRECEIVER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -39,7 +39,7 @@ namespace net {
         struct timeval lastTriggered {};
     };
 
-    class EventReceiver : virtual public ObservationCounter {
+    class DescriptorEventReceiver : virtual public ObservationCounter {
     protected:
         class TIMEOUT {
         public:
@@ -48,16 +48,16 @@ namespace net {
             static const long DISABLE = LONG_MAX;
         };
 
-        explicit EventReceiver(long timeout)
+        explicit DescriptorEventReceiver(long timeout)
             : maxInactivity(timeout) {
         }
 
     public:
-        EventReceiver(const EventReceiver&) = delete;
-        EventReceiver& operator=(const EventReceiver&) = delete;
+        DescriptorEventReceiver(const DescriptorEventReceiver&) = delete;
+        DescriptorEventReceiver& operator=(const DescriptorEventReceiver&) = delete;
 
     protected:
-        virtual ~EventReceiver() = default;
+        virtual ~DescriptorEventReceiver() = default;
 
         void setTimeout(long timeout, long defaultTimeout) { // -3: do not change, -2: set default, -1 disable, ...
             if (timeout != TIMEOUT::IGNORE) {
@@ -130,11 +130,11 @@ namespace net {
         bool _enabled = false;
         bool _suspended = false;
 
-        long maxInactivity = LONG_MAX;
+        long long maxInactivity = LONG_MAX;
 
         friend class DescriptorEventDispatcher;
     };
 
 } // namespace net
 
-#endif // EVENTRECEIVER_H
+#endif // DESCRIPTOREVENTRECEIVER_H

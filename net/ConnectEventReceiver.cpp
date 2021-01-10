@@ -26,11 +26,11 @@
 namespace net {
 
     ConnectEventReceiver::ConnectEventReceiver()
-        : EventReceiver(MAX_CONNECT_INACTIVITY) {
+        : DescriptorEventReceiver(MAX_CONNECT_INACTIVITY) {
     }
 
     void ConnectEventReceiver::setTimeout(long timeout) {
-        EventReceiver::setTimeout(timeout, MAX_CONNECT_INACTIVITY);
+        DescriptorEventReceiver::setTimeout(timeout, MAX_CONNECT_INACTIVITY);
     }
 
     void ConnectEventReceiver::dispatchEvent() {

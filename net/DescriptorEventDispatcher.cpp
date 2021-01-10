@@ -30,13 +30,13 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "DescriptorEventDispatcher.h"
-#include "EventReceiver.h"
+#include "DescriptorEventReceiver.h"
 #include "FdSet.h"   // for FdSet
 #include "Logger.h"  // for Writer, CWARNING, LOG
 #include "Timeval.h" // for operator-, operator<, operator>=
 
 namespace net {
-    bool DescriptorEventDispatcher::EventReceiverList::contains(EventReceiver* eventReceiver) {
+    bool DescriptorEventDispatcher::DescriptorEventReceiverList::contains(DescriptorEventReceiver* eventReceiver) {
         return std::find(begin(), end(), eventReceiver) != end();
     }
 
@@ -45,7 +45,7 @@ namespace net {
         , maxInactivity(maxInactivity) {
     }
 
-    void DescriptorEventDispatcher::enable(EventReceiver* eventReceiver, int fd) {
+    void DescriptorEventDispatcher::enable(DescriptorEventReceiver* eventReceiver, int fd) {
         if (disabledEventReceiver[fd].contains(eventReceiver)) {
             // same tick as disable
             disabledEventReceiver[fd].remove(eventReceiver);
@@ -62,7 +62,7 @@ namespace net {
         }
     }
 
-    void DescriptorEventDispatcher::disable(EventReceiver* eventReceiver, int fd) {
+    void DescriptorEventDispatcher::disable(DescriptorEventReceiver* eventReceiver, int fd) {
         if (enabledEventReceiver[fd].contains(eventReceiver)) {
             // same tick as enable
             enabledEventReceiver[fd].remove(eventReceiver);
@@ -79,7 +79,7 @@ namespace net {
         }
     }
 
-    void DescriptorEventDispatcher::suspend(EventReceiver* eventReceiver, int fd) {
+    void DescriptorEventDispatcher::suspend(DescriptorEventReceiver* eventReceiver, int fd) {
         if (!eventReceiver->isSuspended()) {
             eventReceiver->suspended();
             if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
@@ -90,7 +90,7 @@ namespace net {
         }
     }
 
-    void DescriptorEventDispatcher::resume(EventReceiver* eventReceiver, int fd) {
+    void DescriptorEventDispatcher::resume(DescriptorEventReceiver* eventReceiver, int fd) {
         if (eventReceiver->isSuspended()) {
             eventReceiver->resumed();
             if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
@@ -123,7 +123,7 @@ namespace net {
         struct timeval nextTimeout = {LONG_MAX, 0};
 
         for (auto [fd, eventReceivers] : enabledEventReceiver) {
-            for (EventReceiver* eventReceiver : eventReceivers) {
+            for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
                 observedEventReceiver[fd].push_front(eventReceiver);
                 if (!eventReceiver->isSuspended()) {
                     fdSet.set(fd);
@@ -146,7 +146,7 @@ namespace net {
         };
 
         for (const auto& [fd, eventReceivers] : observedEventReceiver) {
-            EventReceiver* eventReceiver = eventReceivers.front();
+            DescriptorEventReceiver* eventReceiver = eventReceivers.front();
             struct timeval maxInactivity = eventReceiver->getTimeout();
             if (fdSet.isSet(fd)) {
                 eventCounter++;
@@ -169,7 +169,7 @@ namespace net {
 
     void DescriptorEventDispatcher::unobserveDisabledEvents() {
         for (auto [fd, eventReceivers] : disabledEventReceiver) {
-            for (EventReceiver* eventReceiver : eventReceivers) {
+            for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
                 observedEventReceiver[fd].remove(eventReceiver);
                 if (observedEventReceiver[fd].empty() || observedEventReceiver[fd].front()->isSuspended()) {
                     if (observedEventReceiver[fd].empty()) {
@@ -191,7 +191,7 @@ namespace net {
     }
 
     void DescriptorEventDispatcher::releaseUnobservedEvents() {
-        for (EventReceiver* eventReceiver : unobservedEventReceiver) {
+        for (DescriptorEventReceiver* eventReceiver : unobservedEventReceiver) {
             eventReceiver->unobserved();
         }
         unobservedEventReceiver.clear();
@@ -199,7 +199,7 @@ namespace net {
 
     void DescriptorEventDispatcher::disableObservedEvents() {
         for (auto& [fd, eventReceivers] : observedEventReceiver) {
-            for (EventReceiver* eventReceiver : eventReceivers) {
+            for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
                 disabledEventReceiver[fd].push_back(eventReceiver);
             }
         }
