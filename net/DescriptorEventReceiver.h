@@ -130,7 +130,7 @@ namespace net {
         bool _enabled = false;
         bool _suspended = false;
 
-        long long maxInactivity = LONG_MAX;
+        long maxInactivity = LONG_MAX;
 
         friend class DescriptorEventDispatcher;
     };
