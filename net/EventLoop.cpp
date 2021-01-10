@@ -30,7 +30,11 @@
 
 #include "EventLoop.h" // for EventLoop
 #include "Logger.h"    // for Logger
-#include "Timeval.h"   // for operator<
+#include "OutOfBandEventDispatcher.h"
+#include "ReadEventDispatcher.h"
+#include "TimerEventDispatcher.h"
+#include "Timeval.h" // for operator<
+#include "WriteEventDispatcher.h"
 
 #define MAX_READ_INACTIVITY 60
 #define MAX_WRITE_INACTIVITY 60
@@ -56,26 +60,34 @@ namespace net {
     int EventLoop::stopsig = 0;
 
     EventLoop::EventLoop()
-        : readEventDispatcher(readFdSet, MAX_READ_INACTIVITY)
-        , writeEventDispatcher(writeFdSet, MAX_WRITE_INACTIVITY)
-        , outOfBandEventDispatcher(exceptFdSet, MAX_OUTOFBAND_INACTIVITY) {
+        : readEventDispatcher(new ReadEventDispatcher(readFdSet, MAX_READ_INACTIVITY))
+        , writeEventDispatcher(new WriteEventDispatcher(writeFdSet, MAX_WRITE_INACTIVITY))
+        , outOfBandEventDispatcher(new OutOfBandEventDispatcher(exceptFdSet, MAX_OUTOFBAND_INACTIVITY))
+        , timerEventDispatcher(new TimerEventDispatcher()) {
+    }
+
+    EventLoop::~EventLoop() {
+        delete readEventDispatcher;
+        delete writeEventDispatcher;
+        delete outOfBandEventDispatcher;
+        delete timerEventDispatcher;
     }
 
     void EventLoop::tick() {
-        struct timeval nextTimeout = readEventDispatcher.observeEnabledEvents();
+        struct timeval nextTimeout = readEventDispatcher->observeEnabledEvents();
         nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
-        nextTimeout = writeEventDispatcher.observeEnabledEvents();
+        nextTimeout = writeEventDispatcher->observeEnabledEvents();
         nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
-        nextTimeout = outOfBandEventDispatcher.observeEnabledEvents();
+        nextTimeout = outOfBandEventDispatcher->observeEnabledEvents();
         nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
-        nextTimeout = timerEventDispatcher.getNextTimeout();
+        nextTimeout = timerEventDispatcher->getNextTimeout();
         nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
 
-        int maxFd = readEventDispatcher.getMaxFd();
-        maxFd = std::max(writeEventDispatcher.getMaxFd(), maxFd);
-        maxFd = std::max(outOfBandEventDispatcher.getMaxFd(), maxFd);
+        int maxFd = readEventDispatcher->getMaxFd();
+        maxFd = std::max(writeEventDispatcher->getMaxFd(), maxFd);
+        maxFd = std::max(outOfBandEventDispatcher->getMaxFd(), maxFd);
 
-        if (maxFd >= 0 || !timerEventDispatcher.empty()) {
+        if (maxFd >= 0 || !timerEventDispatcher->empty()) {
             if (nextInactivityTimeout < timeval({0, 0})) {
                 nextInactivityTimeout = {0, 0};
             }
@@ -84,16 +96,16 @@ namespace net {
 
             if (counter >= 0) {
                 tickCounter++;
-                timerEventDispatcher.dispatch();
+                timerEventDispatcher->dispatch();
 
                 struct timeval currentTime = {time(nullptr), 0};
                 nextInactivityTimeout = {LONG_MAX, 0};
 
-                nextTimeout = readEventDispatcher.dispatchActiveEvents(currentTime);
+                nextTimeout = readEventDispatcher->dispatchActiveEvents(currentTime);
                 nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
-                nextTimeout = writeEventDispatcher.dispatchActiveEvents(currentTime);
+                nextTimeout = writeEventDispatcher->dispatchActiveEvents(currentTime);
                 nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
-                nextTimeout = outOfBandEventDispatcher.dispatchActiveEvents(currentTime);
+                nextTimeout = outOfBandEventDispatcher->dispatchActiveEvents(currentTime);
                 nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
             } else if (errno != EINTR) {
                 PLOG(ERROR) << "select";
@@ -103,13 +115,13 @@ namespace net {
             stop();
         }
 
-        readEventDispatcher.unobserveDisabledEvents();
-        writeEventDispatcher.unobserveDisabledEvents();
-        outOfBandEventDispatcher.unobserveDisabledEvents();
+        readEventDispatcher->unobserveDisabledEvents();
+        writeEventDispatcher->unobserveDisabledEvents();
+        outOfBandEventDispatcher->unobserveDisabledEvents();
 
-        readEventDispatcher.releaseUnobservedEvents();
-        writeEventDispatcher.releaseUnobservedEvents();
-        outOfBandEventDispatcher.releaseUnobservedEvents();
+        readEventDispatcher->releaseUnobservedEvents();
+        writeEventDispatcher->releaseUnobservedEvents();
+        outOfBandEventDispatcher->releaseUnobservedEvents();
     }
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
@@ -143,23 +155,23 @@ namespace net {
                 eventLoop.tick();
             };
 
-            eventLoop.readEventDispatcher.observeEnabledEvents();
-            eventLoop.writeEventDispatcher.observeEnabledEvents();
-            eventLoop.outOfBandEventDispatcher.observeEnabledEvents();
+            eventLoop.readEventDispatcher->observeEnabledEvents();
+            eventLoop.writeEventDispatcher->observeEnabledEvents();
+            eventLoop.outOfBandEventDispatcher->observeEnabledEvents();
 
-            eventLoop.readEventDispatcher.disableObservedEvents();
-            eventLoop.writeEventDispatcher.disableObservedEvents();
-            eventLoop.outOfBandEventDispatcher.disableObservedEvents();
+            eventLoop.readEventDispatcher->disableObservedEvents();
+            eventLoop.writeEventDispatcher->disableObservedEvents();
+            eventLoop.outOfBandEventDispatcher->disableObservedEvents();
 
-            eventLoop.readEventDispatcher.unobserveDisabledEvents();
-            eventLoop.writeEventDispatcher.unobserveDisabledEvents();
-            eventLoop.outOfBandEventDispatcher.unobserveDisabledEvents();
+            eventLoop.readEventDispatcher->unobserveDisabledEvents();
+            eventLoop.writeEventDispatcher->unobserveDisabledEvents();
+            eventLoop.outOfBandEventDispatcher->unobserveDisabledEvents();
 
-            eventLoop.readEventDispatcher.releaseUnobservedEvents();
-            eventLoop.writeEventDispatcher.releaseUnobservedEvents();
-            eventLoop.outOfBandEventDispatcher.releaseUnobservedEvents();
+            eventLoop.readEventDispatcher->releaseUnobservedEvents();
+            eventLoop.writeEventDispatcher->releaseUnobservedEvents();
+            eventLoop.outOfBandEventDispatcher->releaseUnobservedEvents();
 
-            eventLoop.timerEventDispatcher.cancelAll();
+            eventLoop.timerEventDispatcher->cancelAll();
 
             running = false;
         }
@@ -180,6 +192,11 @@ namespace net {
     void EventLoop::stoponsig(int sig) {
         stopsig = sig;
         stop();
+    }
+
+    unsigned long EventLoop::getEventCounter() {
+        return readEventDispatcher->getEventCounter() + writeEventDispatcher->getEventCounter() +
+               outOfBandEventDispatcher->getEventCounter();
     }
 
 } // namespace net

@@ -27,16 +27,23 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "FdSet.h"
-#include "OutOfBandEventDispatcher.h"
-#include "ReadEventDispatcher.h"
-#include "TimerEventDispatcher.h"
-#include "WriteEventDispatcher.h"
 
 namespace net {
+
+    class OutOfBandEventDispatcher;
+    class ReadEventDispatcher;
+    class TimerEventDispatcher;
+    class WriteEventDispatcher;
 
     class EventLoop {
     private:
         EventLoop();
+
+        EventLoop(const EventLoop& eventLoop) = delete;
+
+        EventLoop& operator=(const EventLoop& eventLoop) = delete;
+
+        ~EventLoop();
 
     public:
         static EventLoop& instance() {
@@ -49,25 +56,22 @@ namespace net {
         static void stop();
 
         ReadEventDispatcher& getReadEventDispatcher() {
-            return readEventDispatcher;
+            return *readEventDispatcher;
         }
 
         WriteEventDispatcher& getWriteEventDispatcher() {
-            return writeEventDispatcher;
+            return *writeEventDispatcher;
         }
 
         OutOfBandEventDispatcher& getOutOfBandEventDispatcher() {
-            return outOfBandEventDispatcher;
+            return *outOfBandEventDispatcher;
         }
 
         TimerEventDispatcher& getTimerEventDispatcher() {
-            return timerEventDispatcher;
+            return *timerEventDispatcher;
         }
 
-        unsigned long getEventCounter() {
-            return readEventDispatcher.getEventCounter() + writeEventDispatcher.getEventCounter() +
-                   outOfBandEventDispatcher.getEventCounter();
-        }
+        unsigned long getEventCounter();
 
         unsigned long getTickCounter() {
             return tickCounter;
@@ -84,10 +88,10 @@ namespace net {
         FdSet writeFdSet;
         FdSet exceptFdSet;
 
-        ReadEventDispatcher readEventDispatcher;
-        WriteEventDispatcher writeEventDispatcher;
-        OutOfBandEventDispatcher outOfBandEventDispatcher;
-        TimerEventDispatcher timerEventDispatcher;
+        ReadEventDispatcher* readEventDispatcher;
+        WriteEventDispatcher* writeEventDispatcher;
+        OutOfBandEventDispatcher* outOfBandEventDispatcher;
+        TimerEventDispatcher* timerEventDispatcher;
 
         struct timeval nextInactivityTimeout = {LONG_MAX, 0};
 
