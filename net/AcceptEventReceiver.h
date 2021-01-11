@@ -25,11 +25,13 @@
 
 #include "DescriptorEventReceiver.h"
 
+#define MAX_ACCEPT_INACTIVITY LONG_MAX
+
 namespace net {
 
     class AcceptEventReceiver : public DescriptorEventReceiver {
     protected:
-        AcceptEventReceiver();
+        AcceptEventReceiver(long timeout = MAX_ACCEPT_INACTIVITY);
 
         virtual void acceptEvent() = 0;
 
@@ -39,7 +41,7 @@ namespace net {
     public:
         void setTimeout(long timeout = TIMEOUT::DEFAULT);
 
-        void enable(int fd, long timeout = TIMEOUT::IGNORE) override;
+        void enable(int fd) override;
         void disable() override;
 
         void suspend() override;

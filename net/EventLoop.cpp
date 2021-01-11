@@ -58,9 +58,9 @@ namespace net {
     int EventLoop::stopsig = 0;
 
     EventLoop::EventLoop()
-        : readEventDispatcher(new DescriptorEventDispatcher(readFdSet, MAX_READ_INACTIVITY))
-        , writeEventDispatcher(new DescriptorEventDispatcher(writeFdSet, MAX_WRITE_INACTIVITY))
-        , outOfBandEventDispatcher(new DescriptorEventDispatcher(exceptFdSet, MAX_OUTOFBAND_INACTIVITY))
+        : readEventDispatcher(new DescriptorEventDispatcher(readFdSet))
+        , writeEventDispatcher(new DescriptorEventDispatcher(writeFdSet))
+        , outOfBandEventDispatcher(new DescriptorEventDispatcher(exceptFdSet))
         , timerEventDispatcher(new TimerEventDispatcher()) {
     }
 

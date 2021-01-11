@@ -45,7 +45,7 @@ namespace net {
         };
 
     public:
-        explicit DescriptorEventDispatcher(FdSet& fdSet, long maxInactivity); // NOLINT(google-runtime-references)
+        explicit DescriptorEventDispatcher(FdSet& fdSet); // NOLINT(google-runtime-references)
         DescriptorEventDispatcher(const DescriptorEventDispatcher&) = delete;
 
         DescriptorEventDispatcher& operator=(const DescriptorEventDispatcher&) = delete;
@@ -56,7 +56,6 @@ namespace net {
         void resume(DescriptorEventReceiver* eventReceiver, int fd);
 
         unsigned long getEventCounter() const;
-        long getTimeout() const;
 
     private:
         int getMaxFd() const;
@@ -74,8 +73,6 @@ namespace net {
         DescriptorEventReceiverList unobservedEventReceiver;
 
         FdSet& fdSet;
-
-        long maxInactivity;
 
         unsigned long eventCounter = 0;
 

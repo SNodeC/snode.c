@@ -30,21 +30,20 @@
 
 namespace net {
 
-    AcceptEventReceiver::AcceptEventReceiver()
-        : DescriptorEventReceiver(MAX_ACCEPT_INACTIVITY) {
+    AcceptEventReceiver::AcceptEventReceiver(long timeout)
+        : DescriptorEventReceiver(timeout) {
     }
 
     void AcceptEventReceiver::setTimeout(long timeout) {
-        DescriptorEventReceiver::setTimeout(timeout, MAX_ACCEPT_INACTIVITY);
+        DescriptorEventReceiver::setTimeout(timeout);
     }
 
     void AcceptEventReceiver::dispatchEvent() {
         acceptEvent();
     }
 
-    void AcceptEventReceiver::enable(int fd, long timeout) {
+    void AcceptEventReceiver::enable(int fd) {
         EventLoop::instance().getReadEventDispatcher().enable(this, fd);
-        setTimeout(timeout);
     }
 
     void AcceptEventReceiver::disable() {

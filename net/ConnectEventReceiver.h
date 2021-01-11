@@ -25,11 +25,13 @@
 
 #include "DescriptorEventReceiver.h"
 
+#define MAX_CONNECT_INACTIVITY 10
+
 namespace net {
 
     class ConnectEventReceiver : public DescriptorEventReceiver {
     protected:
-        ConnectEventReceiver();
+        ConnectEventReceiver(long timeout = MAX_CONNECT_INACTIVITY);
 
         virtual void connectEvent() = 0;
 
@@ -39,7 +41,7 @@ namespace net {
     public:
         void setTimeout(long timeout = TIMEOUT::DEFAULT);
 
-        void enable(int fd, long timeout = TIMEOUT::IGNORE) override;
+        void enable(int fd) override;
         void disable() override;
 
         void suspend() override;

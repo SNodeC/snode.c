@@ -25,11 +25,13 @@
 
 #include "DescriptorEventReceiver.h"
 
+#define MAX_WRITE_INACTIVITY 60
+
 namespace net {
 
     class WriteEventReceiver : public DescriptorEventReceiver {
     protected:
-        WriteEventReceiver();
+        WriteEventReceiver(long timeout = MAX_WRITE_INACTIVITY);
 
         virtual void writeEvent() = 0;
 
@@ -39,7 +41,7 @@ namespace net {
     public:
         void setTimeout(long timeout = TIMEOUT::DEFAULT);
 
-        void enable(int fd, long timeout = TIMEOUT::IGNORE) override;
+        void enable(int fd) override;
         void disable() override;
 
         void suspend() override;

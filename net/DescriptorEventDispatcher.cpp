@@ -40,9 +40,8 @@ namespace net {
         return std::find(begin(), end(), eventReceiver) != end();
     }
 
-    DescriptorEventDispatcher::DescriptorEventDispatcher(FdSet& fdSet, long maxInactivity) // NOLINT(google-runtime-references)
-        : fdSet(fdSet)
-        , maxInactivity(maxInactivity) {
+    DescriptorEventDispatcher::DescriptorEventDispatcher(FdSet& fdSet) // NOLINT(google-runtime-references)
+        : fdSet(fdSet) {
     }
 
     void DescriptorEventDispatcher::enable(DescriptorEventReceiver* eventReceiver, int fd) {
@@ -99,10 +98,6 @@ namespace net {
         } else {
             LOG(WARNING) << "EventReceiver double resume";
         }
-    }
-
-    long DescriptorEventDispatcher::getTimeout() const {
-        return maxInactivity;
     }
 
     unsigned long DescriptorEventDispatcher::getEventCounter() const {

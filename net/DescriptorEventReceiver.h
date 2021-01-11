@@ -36,7 +36,7 @@ namespace net {
 
     protected:
         int observationCounter = 0;
-        struct timeval lastTriggered {};
+        struct timeval lastTriggered = {0, 0};
     };
 
     class DescriptorEventReceiver : virtual public ObservationCounter {
@@ -48,8 +48,9 @@ namespace net {
             static const long DISABLE = LONG_MAX;
         };
 
-        explicit DescriptorEventReceiver(long timeout)
-            : maxInactivity(timeout) {
+        explicit DescriptorEventReceiver(long timeout = TIMEOUT::DISABLE)
+            : maxInactivity(timeout)
+            , initialTimeout(timeout) {
         }
 
     public:
@@ -59,12 +60,12 @@ namespace net {
     protected:
         virtual ~DescriptorEventReceiver() = default;
 
-        void setTimeout(long timeout, long defaultTimeout) { // -3: do not change, -2: set default, -1 disable, ...
+        void setTimeout(long timeout) { // -3: do not change, -2: set default, -1 disable, ...
             if (timeout != TIMEOUT::IGNORE) {
                 if (timeout != TIMEOUT::DEFAULT) {
                     this->maxInactivity = timeout;
                 } else {
-                    this->maxInactivity = defaultTimeout;
+                    this->maxInactivity = initialTimeout;
                 }
             }
         }
@@ -119,7 +120,7 @@ namespace net {
             lastTriggered = _lastTriggered;
         }
 
-        virtual void enable(int fd, long timeout) = 0;
+        virtual void enable(int fd) = 0;
         virtual void disable() = 0;
 
         virtual void suspend() = 0;
@@ -131,6 +132,7 @@ namespace net {
         bool _suspended = false;
 
         long maxInactivity = LONG_MAX;
+        long initialTimeout = LONG_MAX;
 
         friend class DescriptorEventDispatcher;
     };

@@ -21,25 +21,22 @@
 #include "DescriptorEventDispatcher.h"
 #include "EventLoop.h"
 
-#define MAX_CONNECT_INACTIVITY 10
-
 namespace net {
 
-    ConnectEventReceiver::ConnectEventReceiver()
-        : DescriptorEventReceiver(MAX_CONNECT_INACTIVITY) {
+    ConnectEventReceiver::ConnectEventReceiver(long timeout)
+        : DescriptorEventReceiver(timeout) {
     }
 
     void ConnectEventReceiver::setTimeout(long timeout) {
-        DescriptorEventReceiver::setTimeout(timeout, MAX_CONNECT_INACTIVITY);
+        DescriptorEventReceiver::setTimeout(timeout);
     }
 
     void ConnectEventReceiver::dispatchEvent() {
         connectEvent();
     }
 
-    void ConnectEventReceiver::enable(int fd, long timeout) {
+    void ConnectEventReceiver::enable(int fd) {
         EventLoop::instance().getWriteEventDispatcher().enable(this, fd);
-        setTimeout(timeout);
     }
 
     void ConnectEventReceiver::disable() {

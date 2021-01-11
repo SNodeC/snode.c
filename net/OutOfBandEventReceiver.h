@@ -25,11 +25,13 @@
 
 #include "DescriptorEventReceiver.h"
 
+#define MAX_OUTOFBAND_INACTIVITY 60
+
 namespace net {
 
     class OutOfBandEventReceiver : public DescriptorEventReceiver {
     protected:
-        OutOfBandEventReceiver();
+        OutOfBandEventReceiver(long timeout = MAX_OUTOFBAND_INACTIVITY);
 
         virtual void outOfBandEvent() = 0;
 
@@ -39,7 +41,7 @@ namespace net {
     public:
         void setTimeout(long timeout = TIMEOUT::DEFAULT);
 
-        void enable(int fd, long timeout = TIMEOUT::IGNORE) override;
+        void enable(int fd) override;
         void disable() override;
 
         void suspend() override;

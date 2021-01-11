@@ -34,13 +34,12 @@ namespace net::socket::stream::tls {
                                const std::function<void(void)>& onSuccess,
                                const std::function<void(void)>& onTimeout,
                                const std::function<void(int err)>& onError)
-        : ssl(ssl)
+        : ReadEventReceiver(TLSHANDSHAKE_TIMEOUT)
+        , WriteEventReceiver(TLSHANDSHAKE_TIMEOUT)
+        , ssl(ssl)
         , onSuccess(onSuccess)
         , onTimeout(onTimeout)
         , onError(onError) {
-        ReadEventReceiver::setTimeout(TLSHANDSHAKE_TIMEOUT);
-        WriteEventReceiver::setTimeout(TLSHANDSHAKE_TIMEOUT);
-
         fd = SSL_get_fd(ssl);
 
         int ret = SSL_do_handshake(ssl);
