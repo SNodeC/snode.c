@@ -198,7 +198,7 @@ namespace net {
     }
 
     void DescriptorEventDispatcher::disableObservedEvents() {
-        for (auto& [fd, eventReceivers] : observedEventReceiver) {
+        for (const auto& [fd, eventReceivers] : observedEventReceiver) {
             for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
                 disabledEventReceiver[fd].push_back(eventReceiver);
             }
