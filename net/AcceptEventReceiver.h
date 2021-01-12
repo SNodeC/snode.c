@@ -21,6 +21,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <climits> // for LONG_MAX
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "DescriptorEventReceiver.h"
