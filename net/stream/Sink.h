@@ -35,15 +35,15 @@ namespace net::stream {
         Sink();
         virtual ~Sink();
 
-        virtual void pipe(Source& Source, const char* junk, std::size_t junkLen) = 0;
-        virtual void pipeEOF(Source& Source) = 0;
-        virtual void pipeError(Source& Source, [[maybe_unused]] int errnum) = 0;
+        virtual void receive(Source& source, const char* junk, std::size_t junkLen) = 0;
+        virtual void eof(Source& source) = 0;
+        virtual void error(Source& source, [[maybe_unused]] int errnum) = 0;
 
-        void sourceStream(Source& Source);
-        void unSourceStream(Source& Source);
+        void connect(Source& source);
+        void disconnect(Source& source);
 
     protected:
-        std::list<Source*> Sources;
+        std::list<Source*> sources;
     };
 
 } // namespace net::stream

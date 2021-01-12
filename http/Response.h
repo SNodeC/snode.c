@@ -72,9 +72,9 @@ namespace http {
         void enqueue(const std::string& str);
         void sendHeader();
 
-        void pipe(net::stream::Source& Source, const char* junk, std::size_t junkLen) override;
-        void pipeEOF([[maybe_unused]] net::stream::Source& Source) override;
-        void pipeError(net::stream::Source& Source, int errnum) override;
+        void receive(net::stream::Source& source, const char* junk, std::size_t junkLen) override;
+        void eof([[maybe_unused]] net::stream::Source& source) override;
+        void error(net::stream::Source& source, int errnum) override;
 
         virtual void reset();
 

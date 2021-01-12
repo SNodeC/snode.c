@@ -18,6 +18,7 @@
 
 #include "Sink.h"
 
+#include "Logger.h"
 #include "Source.h"
 
 namespace net::stream {
@@ -26,17 +27,17 @@ namespace net::stream {
     }
 
     Sink::~Sink() {
-        for (Source* Source : Sources) {
-            Source->unPipe(*this);
+        for (Source* source : sources) {
+            source->disconnect(*this);
         }
     }
 
-    void Sink::sourceStream(Source& Source) {
-        Sources.push_back(&Source);
+    void Sink::connect(Source& source) {
+        sources.push_back(&source);
     }
 
-    void Sink::unSourceStream(Source& Source) {
-        Sources.remove(&Source);
+    void Sink::disconnect(Source& source) {
+        sources.remove(&source);
     }
 
 } // namespace net::stream

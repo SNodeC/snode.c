@@ -36,18 +36,18 @@ namespace net::stream {
 
         virtual ~Source();
 
-        void pipe(Sink& writeStream);
-        void unPipe(Sink& writeStream);
+        void connect(Sink& sink);
+        void disconnect(Sink& sink);
 
-        void dispatch(const char* junk, std::size_t junkLen);
-        void dispatchEOF();
-        void dispatchError(int errnum);
+        void send(const char* junk, std::size_t junkLen);
+        void eof();
+        void error(int errnum);
 
     protected:
-        std::list<Sink*> writeStreams;
+        std::list<Sink*> sinks;
 
     private:
-        std::list<Sink*> unPipedStreams;
+        std::list<Sink*> disconnectedSinks;
 
         bool dispatching = false;
     };

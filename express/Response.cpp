@@ -47,7 +47,7 @@ namespace express {
                                 {"Last-Modified", httputils::file_mod_http_date(absolutFileName)}});
                 headers.insert_or_assign("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
 
-                FileReader::pipe(absolutFileName, *this, [this, onError](int err) -> void {
+                FileReader::connect(absolutFileName, *this, [this, onError](int err) -> void {
                     serverContext->terminateConnection();
                     onError(err);
                 });

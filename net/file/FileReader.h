@@ -42,7 +42,7 @@ protected:
     FileReader(int fd, net::stream::Sink& writeStream);
 
 public:
-    static FileReader* pipe(const std::string& path, net::stream::Sink& writeStream, const std::function<void(int err)>& onError);
+    static FileReader* connect(const std::string& path, net::stream::Sink& writeStream, const std::function<void(int err)>& onError);
 
     void readEvent() override;
 

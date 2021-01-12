@@ -26,58 +26,58 @@ namespace net::stream {
     }
 
     Source::~Source() {
-        for (Sink* writeStream : writeStreams) {
-            writeStream->unSourceStream(*this);
+        for (Sink* sink : sinks) {
+            sink->disconnect(*this);
         }
     }
 
-    void Source::pipe(Sink& writeStream) {
-        writeStreams.push_back(&writeStream);
-        writeStream.sourceStream(*this);
+    void Source::connect(Sink& sink) {
+        sinks.push_back(&sink);
+        sink.connect(*this);
     }
 
-    void Source::unPipe(Sink& writeStream) {
+    void Source::disconnect(Sink& sink) {
         if (dispatching) {
-            unPipedStreams.push_back(&writeStream);
+            disconnectedSinks.push_back(&sink);
         } else {
-            writeStreams.remove(&writeStream);
+            sinks.remove(&sink);
         }
     }
 
-    void Source::dispatch(const char* junk, std::size_t junkLen) {
+    void Source::send(const char* junk, std::size_t junkLen) {
         dispatching = true;
-        for (Sink* writeStream : writeStreams) {
-            writeStream->pipe(*this, junk, junkLen);
+        for (Sink* sink : sinks) {
+            sink->receive(*this, junk, junkLen);
         }
         dispatching = false;
-        for (Sink* writeStream : unPipedStreams) {
-            writeStreams.remove(writeStream);
+        for (Sink* sink : disconnectedSinks) {
+            sinks.remove(sink);
         }
-        unPipedStreams.clear();
+        disconnectedSinks.clear();
     }
 
-    void Source::dispatchError(int errnum) {
+    void Source::error(int errnum) {
         dispatching = true;
-        for (Sink* writeStream : writeStreams) {
-            writeStream->pipeError(*this, errnum);
+        for (Sink* sink : sinks) {
+            sink->error(*this, errnum);
         }
         dispatching = false;
-        for (Sink* writeStream : unPipedStreams) {
-            writeStreams.remove(writeStream);
+        for (Sink* sink : disconnectedSinks) {
+            sinks.remove(sink);
         }
-        unPipedStreams.clear();
+        disconnectedSinks.clear();
     }
 
-    void Source::dispatchEOF() {
+    void Source::eof() {
         dispatching = true;
-        for (Sink* writeStream : writeStreams) {
-            writeStream->pipeEOF(*this);
+        for (Sink* sink : sinks) {
+            sink->eof(*this);
         }
         dispatching = false;
-        for (Sink* writeStream : unPipedStreams) {
-            writeStreams.remove(writeStream);
+        for (Sink* sink : disconnectedSinks) {
+            sinks.remove(sink);
         }
-        unPipedStreams.clear();
+        disconnectedSinks.clear();
     }
 
 } // namespace net::stream
