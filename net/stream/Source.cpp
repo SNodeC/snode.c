@@ -16,27 +16,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ReadStream.h"
+#include "Source.h"
 
-#include "WriteStream.h"
+#include "Sink.h"
 
 namespace net::stream {
 
-    ReadStream::ReadStream() {
+    Source::Source() {
     }
 
-    ReadStream::~ReadStream() {
-        for (WriteStream* writeStream : writeStreams) {
+    Source::~Source() {
+        for (Sink* writeStream : writeStreams) {
             writeStream->unSourceStream(*this);
         }
     }
 
-    void ReadStream::pipe(WriteStream& writeStream) {
+    void Source::pipe(Sink& writeStream) {
         writeStreams.push_back(&writeStream);
         writeStream.sourceStream(*this);
     }
 
-    void ReadStream::unPipe(WriteStream& writeStream) {
+    void Source::unPipe(Sink& writeStream) {
         if (dispatching) {
             unPipedStreams.push_back(&writeStream);
         } else {
@@ -44,37 +44,37 @@ namespace net::stream {
         }
     }
 
-    void ReadStream::dispatch(const char* junk, std::size_t junkLen) {
+    void Source::dispatch(const char* junk, std::size_t junkLen) {
         dispatching = true;
-        for (WriteStream* writeStream : writeStreams) {
+        for (Sink* writeStream : writeStreams) {
             writeStream->pipe(*this, junk, junkLen);
         }
         dispatching = false;
-        for (WriteStream* writeStream : unPipedStreams) {
+        for (Sink* writeStream : unPipedStreams) {
             writeStreams.remove(writeStream);
         }
         unPipedStreams.clear();
     }
 
-    void ReadStream::dispatchError(int errnum) {
+    void Source::dispatchError(int errnum) {
         dispatching = true;
-        for (WriteStream* writeStream : writeStreams) {
+        for (Sink* writeStream : writeStreams) {
             writeStream->pipeError(*this, errnum);
         }
         dispatching = false;
-        for (WriteStream* writeStream : unPipedStreams) {
+        for (Sink* writeStream : unPipedStreams) {
             writeStreams.remove(writeStream);
         }
         unPipedStreams.clear();
     }
 
-    void ReadStream::dispatchEOF() {
+    void Source::dispatchEOF() {
         dispatching = true;
-        for (WriteStream* writeStream : writeStreams) {
+        for (Sink* writeStream : writeStreams) {
             writeStream->pipeEOF(*this);
         }
         dispatching = false;
-        for (WriteStream* writeStream : unPipedStreams) {
+        for (Sink* writeStream : unPipedStreams) {
             writeStreams.remove(writeStream);
         }
         unPipedStreams.clear();

@@ -178,15 +178,15 @@ namespace http {
         send("");
     }
 
-    void Response::pipe([[maybe_unused]] net::stream::ReadStream& readStream, const char* junk, std::size_t junkLen) {
+    void Response::pipe([[maybe_unused]] net::stream::Source& Source, const char* junk, std::size_t junkLen) {
         enqueue(junk, junkLen);
     }
 
-    void Response::pipeEOF([[maybe_unused]] net::stream::ReadStream& readStream) {
+    void Response::pipeEOF([[maybe_unused]] net::stream::Source& Source) {
         LOG(INFO) << "Pipe EOF";
     }
 
-    void Response::pipeError([[maybe_unused]] net::stream::ReadStream& readStream, [[maybe_unused]] int errnum) {
+    void Response::pipeError([[maybe_unused]] net::stream::Source& Source, [[maybe_unused]] int errnum) {
         PLOG(ERROR) << "Pipe error: ";
         serverContext->terminateConnection();
     }

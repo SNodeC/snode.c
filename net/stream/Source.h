@@ -16,27 +16,42 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "WriteStream.h"
+#ifndef READSTREAM_H
+#define READSTREAM_H
 
-#include "ReadStream.h"
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <cstddef> // for std::size_t
+#include <list>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::stream {
 
-    WriteStream::WriteStream() {
-    }
+    class Sink;
 
-    WriteStream::~WriteStream() {
-        for (ReadStream* readStream : readStreams) {
-            readStream->unPipe(*this);
-        }
-    }
+    class Source {
+    public:
+        Source();
 
-    void WriteStream::sourceStream(ReadStream& readStream) {
-        readStreams.push_back(&readStream);
-    }
+        virtual ~Source();
 
-    void WriteStream::unSourceStream(ReadStream& readStream) {
-        readStreams.remove(&readStream);
-    }
+        void pipe(Sink& writeStream);
+        void unPipe(Sink& writeStream);
+
+        void dispatch(const char* junk, std::size_t junkLen);
+        void dispatchEOF();
+        void dispatchError(int errnum);
+
+    protected:
+        std::list<Sink*> writeStreams;
+
+    private:
+        std::list<Sink*> unPipedStreams;
+
+        bool dispatching = false;
+    };
 
 } // namespace net::stream
+
+#endif // READSTREAM_H

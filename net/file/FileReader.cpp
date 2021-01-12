@@ -28,13 +28,13 @@
 
 #include "FileReader.h"
 
-FileReader::FileReader(int fd, net::stream::WriteStream& writeStream) {
+FileReader::FileReader(int fd, net::stream::Sink& writeStream) {
     attach(fd);
     ReadEventReceiver::enable(fd);
-    this->ReadStream::pipe(writeStream);
+    this->Source::pipe(writeStream);
 }
 
-FileReader* FileReader::pipe(const std::string& path, net::stream::WriteStream& writeStream, const std::function<void(int err)>& onError) {
+FileReader* FileReader::pipe(const std::string& path, net::stream::Sink& writeStream, const std::function<void(int err)>& onError) {
     FileReader* fileReader = nullptr;
 
     int fd = ::open(path.c_str(), O_RDONLY);
@@ -55,13 +55,13 @@ void FileReader::readEvent() {
     ssize_t ret = ::read(getFd(), junk, MFREADSIZE);
 
     if (ret > 0) {
-        this->ReadStream::dispatch(junk, ret);
+        this->Source::dispatch(junk, ret);
     } else {
         ReadEventReceiver::disable();
         if (ret == 0) {
-            this->ReadStream::dispatchEOF();
+            this->Source::dispatchEOF();
         } else {
-            this->ReadStream::dispatchError(errno);
+            this->Source::dispatchError(errno);
         }
     }
 }

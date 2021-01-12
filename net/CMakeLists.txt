@@ -27,8 +27,8 @@ add_library(
     socket/ip/tcp/ipv6/Socket.cpp
     socket/stream/tls/ssl_utils.cpp
     socket/stream/tls/TLSHandshake.cpp
-    streams/ReadStream.cpp
-    streams/WriteStream.cpp
+    stream/Source.cpp
+    stream/Sink.cpp
     timer/Timer.cpp
 )
 

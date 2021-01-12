@@ -28,21 +28,21 @@
 
 #include "File.h"
 #include "ReadEventReceiver.h"
-#include "streams/ReadStream.h"
+#include "stream/Source.h"
 
 namespace net::stream {
-    class WriteStream;
+    class Sink;
 }
 
 class FileReader
     : public net::ReadEventReceiver
-    , public net::stream::ReadStream
+    , public net::stream::Source
     , virtual public File {
 protected:
-    FileReader(int fd, net::stream::WriteStream& writeStream);
+    FileReader(int fd, net::stream::Sink& writeStream);
 
 public:
-    static FileReader* pipe(const std::string& path, net::stream::WriteStream& writeStream, const std::function<void(int err)>& onError);
+    static FileReader* pipe(const std::string& path, net::stream::Sink& writeStream, const std::function<void(int err)>& onError);
 
     void readEvent() override;
 
