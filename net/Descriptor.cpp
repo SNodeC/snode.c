@@ -26,14 +26,20 @@
 
 namespace net {
 
+    Descriptor::Descriptor(int fd, enum Descriptor::FLAGS flags) {
+        this->fd = fd;
+        this->flags = flags;
+    }
+
     Descriptor::~Descriptor() {
         if (!dontClose()) {
             ::close(fd);
         }
     }
 
-    void Descriptor::attach(int fd) {
+    void Descriptor::attach(int fd, enum Descriptor::FLAGS flags) {
         this->fd = fd;
+        this->flags = flags;
     }
 
     int Descriptor::getFd() const {

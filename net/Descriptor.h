@@ -26,20 +26,21 @@
 namespace net {
 
     class Descriptor {
+    public:
+        enum struct FLAGS : unsigned short {
+            none = 0,
+            dontClose = 0x01 << 0 // do not close sys-descriptor in case of desctruction
+        } flags{FLAGS::none};
+
     protected:
-        Descriptor() = default;
+        Descriptor(int fd = -1, enum Descriptor::FLAGS flags = FLAGS::none);
 
     public:
         Descriptor(const Descriptor& d) = delete;
         Descriptor& operator=(const Descriptor& descriptor) = delete;
         ~Descriptor();
 
-        enum struct FLAGS : unsigned short {
-            none = 0,
-            dontClose = 0x01 << 0 // do not close sys-descriptor in case of desctruction
-        } flags{FLAGS::none};
-
-        void attach(int fd);
+        void attach(int fd, enum Descriptor::FLAGS flags = FLAGS::none);
         int getFd() const;
         void dontClose(bool dontClose);
         bool dontClose() const;
