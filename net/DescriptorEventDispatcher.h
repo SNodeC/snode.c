@@ -41,7 +41,7 @@ namespace net {
             using std::list<DescriptorEventReceiver*>::end;
             using std::list<DescriptorEventReceiver*>::front;
 
-            bool contains(DescriptorEventReceiver* descriptorEventReceiver);
+            bool contains(DescriptorEventReceiver* descriptorEventReceiver) const;
         };
 
     public:

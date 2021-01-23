@@ -23,7 +23,7 @@
 
 #include <algorithm> // for min, find
 #include <climits>
-#include <ranges>
+#include <range/v3/all.hpp>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -34,7 +34,7 @@
 #include "Timeval.h" // for operator-, operator<, operator>=
 
 namespace net {
-    bool DescriptorEventDispatcher::DescriptorEventReceiverList::contains(DescriptorEventReceiver* eventReceiver) {
+    bool DescriptorEventDispatcher::DescriptorEventReceiverList::contains(DescriptorEventReceiver* eventReceiver) const {
         return std::find(begin(), end(), eventReceiver) != end();
     }
 
@@ -103,7 +103,7 @@ namespace net {
     }
 
     int DescriptorEventDispatcher::getMaxFd() const {
-        auto&& activeObservedEventReceivers = observedEventReceiver | std::views::reverse | std::views::filter([](const auto& pair) {
+        auto&& activeObservedEventReceivers = observedEventReceiver | ranges::views::reverse | ranges::views::filter([](const auto& pair) {
                                                   return !pair.second.front()->isSuspended();
                                               });
 
