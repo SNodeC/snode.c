@@ -41,8 +41,6 @@ namespace net {
         void dispatchEvent() override;
 
     public:
-        void setTimeout(long timeout = TIMEOUT::DEFAULT);
-
         void enable(int fd) override;
         void disable() override;
 

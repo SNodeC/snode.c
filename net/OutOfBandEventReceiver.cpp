@@ -27,10 +27,6 @@ namespace net {
         : DescriptorEventReceiver(timeout) {
     }
 
-    void OutOfBandEventReceiver::setTimeout(long timeout) {
-        DescriptorEventReceiver::setTimeout(timeout);
-    }
-
     void OutOfBandEventReceiver::dispatchEvent() {
         outOfBandEvent();
     }

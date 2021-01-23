@@ -27,10 +27,6 @@ namespace net {
         : DescriptorEventReceiver(timeout) {
     }
 
-    void ReadEventReceiver::setTimeout(long timeout) {
-        DescriptorEventReceiver::setTimeout(timeout);
-    }
-
     void ReadEventReceiver::dispatchEvent() {
         readEvent();
     }

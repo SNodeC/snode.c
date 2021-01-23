@@ -27,10 +27,6 @@ namespace net {
         : DescriptorEventReceiver(timeout) {
     }
 
-    void ConnectEventReceiver::setTimeout(long timeout) {
-        DescriptorEventReceiver::setTimeout(timeout);
-    }
-
     void ConnectEventReceiver::dispatchEvent() {
         connectEvent();
     }
