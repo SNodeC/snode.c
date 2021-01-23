@@ -358,6 +358,23 @@ if(CHECK_INCLUDES)
     )
 endif(CHECK_INCLUDES)
 
+add_executable(testpipe testpipe.cpp)
+target_compile_options(testpipe PRIVATE --warn-all)
+target_link_libraries(testpipe LINK_PUBLIC net)
+install(TARGETS testpipe RUNTIME DESTINATION bin)
+set_target_properties(
+    testpipe
+    PROPERTIES CXX_STANDARD 20
+               CXX_STANDARD_REQUIRED ON
+               CXX_EXTENSIONS OFF
+)
+if(CHECK_INCLUDES)
+    set_property(
+        TARGET testpipe PROPERTY CXX_INCLUDE_WHAT_YOU_USE
+                                         ${iwyu_path_and_options}
+    )
+endif(CHECK_INCLUDES)
+
 add_custom_command(
     OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/.logger.conf"
     COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/logger.conf"

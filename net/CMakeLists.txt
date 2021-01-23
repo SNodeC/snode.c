@@ -29,6 +29,9 @@ add_library(
     socket/stream/tls/TLSHandshake.cpp
     stream/Source.cpp
     stream/Sink.cpp
+    stream/Pipe.cpp
+    stream/PipeSink.cpp
+    stream/PipeSource.cpp
     timer/Timer.cpp
 )
 
