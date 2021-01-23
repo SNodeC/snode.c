@@ -16,13 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SINK_H
-#define SINK_H
+#ifndef STREAM_SINK_H
+#define STREAM_SINK_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
-#include <list>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -35,17 +34,17 @@ namespace net::stream {
         Sink();
         virtual ~Sink();
 
-        virtual void receive(Source& source, const char* junk, std::size_t junkLen) = 0;
-        virtual void eof(Source& source) = 0;
-        virtual void error(Source& source, [[maybe_unused]] int errnum) = 0;
+        virtual void receive(const char* junk, std::size_t junkLen) = 0;
+        virtual void eof() = 0;
+        virtual void error(int errnum) = 0;
 
         void connect(Source& source);
         void disconnect(Source& source);
 
     protected:
-        std::list<Source*> sources;
+        Source* source;
     };
 
 } // namespace net::stream
 
-#endif // SINK_H
+#endif // STREAM_SINK_H

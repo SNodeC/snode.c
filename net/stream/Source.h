@@ -16,13 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef READSTREAM_H
-#define READSTREAM_H
+#ifndef STREAM_SOURCE_H
+#define STREAM_SOURCE_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef> // for std::size_t
-#include <list>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -33,7 +32,6 @@ namespace net::stream {
     class Source {
     public:
         Source();
-
         virtual ~Source();
 
         void connect(Sink& sink);
@@ -44,14 +42,9 @@ namespace net::stream {
         void error(int errnum);
 
     protected:
-        std::list<Sink*> sinks;
-
-    private:
-        std::list<Sink*> disconnectedSinks;
-
-        bool dispatching = false;
+        Sink* sink;
     };
 
 } // namespace net::stream
 
-#endif // READSTREAM_H
+#endif // STREAM_SOURCE_H
