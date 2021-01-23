@@ -178,15 +178,15 @@ namespace http {
         send("");
     }
 
-    void Response::receive([[maybe_unused]] net::stream::Source& source, const char* junk, std::size_t junkLen) {
+    void Response::receive(const char* junk, std::size_t junkLen) {
         enqueue(junk, junkLen);
     }
 
-    void Response::eof([[maybe_unused]] net::stream::Source& source) {
+    void Response::eof() {
         LOG(INFO) << "Stream EOF";
     }
 
-    void Response::error([[maybe_unused]] net::stream::Source& source, [[maybe_unused]] int errnum) {
+    void Response::error([[maybe_unused]] int errnum) {
         PLOG(ERROR) << "Stream error: ";
         serverContext->terminateConnection();
     }
