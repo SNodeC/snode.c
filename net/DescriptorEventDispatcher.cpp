@@ -23,7 +23,7 @@
 
 #include <algorithm> // for min, find
 #include <climits>
-#include <range/v3/all.hpp>
+#include <range/v3/view.hpp>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

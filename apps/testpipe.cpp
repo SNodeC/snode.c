@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
                 PLOG(ERROR) << "PipeSource";
             });
 
-            pipeSource.send("Hallo Hallo");
+            pipeSource.send("Hello World!");
         },
         []([[maybe_unused]] int errnum) -> void {
             PLOG(ERROR) << "Pipe not created";
