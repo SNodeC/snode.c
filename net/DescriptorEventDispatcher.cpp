@@ -23,9 +23,7 @@
 
 #include <algorithm> // for min, find
 #include <climits>
-#include <iterator>    // for reverse_iterator
-#include <type_traits> // for add_const<>::type
-#include <utility>     // for tuple_element<>::type, pair
+#include <ranges>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -105,13 +103,11 @@ namespace net {
     }
 
     int DescriptorEventDispatcher::getMaxFd() const {
-        int maxFd = -1;
+        auto&& activeObservedEventReceivers = observedEventReceiver | std::views::reverse | std::views::filter([](const auto& pair) {
+                                                  return !pair.second.front()->isSuspended();
+                                              });
 
-        if (!observedEventReceiver.empty()) {
-            maxFd = observedEventReceiver.rbegin()->first;
-        }
-
-        return maxFd;
+        return !activeObservedEventReceivers.empty() ? activeObservedEventReceivers.front().first : -1;
     }
 
     struct timeval DescriptorEventDispatcher::observeEnabledEvents() {
