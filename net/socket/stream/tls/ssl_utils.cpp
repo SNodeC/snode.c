@@ -150,9 +150,9 @@ namespace net::socket::stream::tls {
                 break;
             case SSL_ERROR_SYSCALL:
                 if (errno != 0) {
-                    ssl_log_warning(message);
+                    ssl_log_error(message);
                 } else {
-                    ssl_log_info(message + " - syscall error");
+                    ssl_log_warning(message + " - syscall error");
                 }
                 break;
             default:
