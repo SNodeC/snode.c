@@ -45,7 +45,7 @@ set_target_properties(
 
 target_compile_options(logger PRIVATE --warn-all -Wno-unused-parameter)
 
-target_compile_definitions(logger PRIVATE ELPP_NO_DEFAULT_LOG_FILE)
+target_compile_definitions(logger PRIVATE ELPP_NO_DEFAULT_LOG_FILE ELPP_CUSTOM_COUT=std::cerr)
 
 target_include_directories(
     logger INTERFACE ${CMAKE_CURRENT_SOURCE_DIR} ${EASYLOGGINGPP_INCLUDE_DIR}

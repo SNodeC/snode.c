@@ -39,9 +39,9 @@ public:
 
     static void setVerboseLevel(int level);
 
-    static void logToFile(bool yes = true);
+    static void logToFile(const std::string& logFile = "");
 
-    static void logToStdOut(bool yes = true);
+    static void quiet();
 
     static void setCustomFormatSpec(const char* format, const el::FormatSpecifierValueResolver& resolver);
 

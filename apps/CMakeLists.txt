@@ -374,16 +374,3 @@ if(CHECK_INCLUDES)
                                          ${iwyu_path_and_options}
     )
 endif(CHECK_INCLUDES)
-
-add_custom_command(
-    OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/.logger.conf"
-    COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/logger.conf"
-            "${CMAKE_CURRENT_BINARY_DIR}/.logger.conf"
-    DEPENDS "${CMAKE_SOURCE_DIR}/logger.conf"
-)
-
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/.logger.conf DESTINATION bin)
-
-add_custom_target(
-    copy_logger.conf ALL DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/.logger.conf"
-)

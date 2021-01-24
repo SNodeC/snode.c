@@ -32,11 +32,29 @@ el::Configurations Logger::conf;
 void Logger::init(int argc, char* argv[]) {
     START_EASYLOGGINGPP(argc, argv);
 
-    std::string dir = weakly_canonical(std::filesystem::path(argv[0])).parent_path();
+    conf.setGlobally(el::ConfigurationType::Enabled, "true");
+    conf.setGlobally(el::ConfigurationType::Format, "%datetime{%Y-%M-%d %H:%m:%s} %tick: %level %msg");
+    conf.setGlobally(el::ConfigurationType::ToFile, "false");
+    conf.setGlobally(el::ConfigurationType::ToStandardOutput, "true");
+    conf.setGlobally(el::ConfigurationType::SubsecondPrecision, "2");
+    conf.setGlobally(el::ConfigurationType::PerformanceTracking, "false");
+    conf.setGlobally(el::ConfigurationType::MaxLogFileSize, "2097152");
+    conf.setGlobally(el::ConfigurationType::LogFlushThreshold, "100");
+    conf.set(el::Level::Verbose, el::ConfigurationType::Format, "%datetime{%Y-%M-%d %H:%m:%s} %tick: %msg");
 
-    conf = el::Configurations(el::Configurations(dir + "/.logger.conf"));
+    el::Loggers::addFlag(el::LoggingFlag::DisableApplicationAbortOnFatalLog);
+    el::Loggers::addFlag(el::LoggingFlag::DisablePerformanceTrackingCheckpointComparison);
+    el::Loggers::addFlag(el::LoggingFlag::ColoredTerminalOutput);
 
-    el::Loggers::reconfigureAllLoggers(conf);
+    el::Loggers::reconfigureLogger("default", conf);
+
+    el::Logger* logger = el::Loggers::getLogger("default");
+    std::string logFilename = logger->typedConfigurations()->filename(el::Level::Verbose).c_str();
+
+    if (logFilename != "/dev/null") {
+        conf.setGlobally(el::ConfigurationType::ToFile, "true");
+        el::Loggers::reconfigureLogger("default", conf);
+    }
 
     setLogLevel(6);
 }
@@ -85,22 +103,15 @@ void Logger::setVerboseLevel(int level) {
     el::Loggers::setVerboseLevel(level);
 }
 
-void Logger::logToFile(bool yes) {
-    if (yes) {
-        conf.set(el::Level::Global, el::ConfigurationType::ToFile, "true");
-    } else {
-        conf.set(el::Level::Global, el::ConfigurationType::ToFile, "false");
-    }
+void Logger::logToFile(const std::string& logFile) {
+    conf.setGlobally(el::ConfigurationType::Filename, logFile);
+    conf.setGlobally(el::ConfigurationType::ToFile, "true");
 
     el::Loggers::reconfigureLogger("default", conf);
 }
 
-void Logger::logToStdOut(bool yes) {
-    if (yes) {
-        conf.set(el::Level::Global, el::ConfigurationType::ToStandardOutput, "true");
-    } else {
-        conf.set(el::Level::Global, el::ConfigurationType::ToStandardOutput, "false");
-    }
+void Logger::quiet() {
+    conf.setGlobally(el::ConfigurationType::ToStandardOutput, "false");
 
     el::Loggers::reconfigureLogger("default", conf);
 }
