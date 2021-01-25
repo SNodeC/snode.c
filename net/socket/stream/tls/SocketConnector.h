@@ -58,8 +58,6 @@ namespace net::socket::stream {
                       onDestruct,
                       [onConnect, &onError = this->onError, &ctx = this->ctx, this](
                           SocketConnection* socketConnection) -> void { // onConnect
-                          //                          stream::SocketConnector<SocketConnection>::ConnectEventReceiver::suspend();
-
                           SSL* ssl = socketConnection->startSSL(ctx);
 
                           if (ssl != nullptr) {

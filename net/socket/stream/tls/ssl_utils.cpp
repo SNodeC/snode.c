@@ -152,7 +152,7 @@ namespace net::socket::stream::tls {
                 if (errno != 0) {
                     ssl_log_error(message);
                 } else {
-                    ssl_log_warning(message + " - syscall error");
+                    ssl_log_warning(message + " - protocol error");
                 }
                 break;
             default:
@@ -171,7 +171,7 @@ namespace net::socket::stream::tls {
     }
 
     void ssl_log_warning(const std::string& message) {
-        PLOG(WARNING) << message;
+        LOG(WARNING) << message;
 
         unsigned long errorCode;
         while ((errorCode = ERR_get_error()) != 0) {
