@@ -18,6 +18,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <new>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #ifndef SNODEC_H
@@ -26,9 +28,13 @@
 namespace net {
 
     class SNodeC {
-    public:
+    private:
         SNodeC() = delete;
+        ~SNodeC() = delete;
 
+        void* operator new(std::size_t count) = delete;
+
+    public:
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
         static void init(int argc, char* argv[]);
         static int start();

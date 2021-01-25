@@ -28,28 +28,16 @@
 
 namespace net {
 
-    /*
-    static std::string getTickCounterAsString([[maybe_unused]] const el::LogMessage* logMessage) {
-        std::string tick = std::to_string(net::EventLoop::instance().getTickCounter());
-
-        if (tick.length() < 10) {
-            tick.insert(0, 10 - tick.length(), '0');
-        }
-
-        return tick;
-    }
-    */
-
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
     void SNodeC::init(int argc, char* argv[]) {
-        net::EventLoop::init(argc, argv);
+        EventLoop::init(argc, argv);
     }
 
     int SNodeC::start() {
-        return net::EventLoop::start();
+        return EventLoop::start();
     }
     void SNodeC::stop() {
-        net::EventLoop::stop();
+        EventLoop::stop();
     }
 
 } // namespace net

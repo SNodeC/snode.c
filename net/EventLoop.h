@@ -48,11 +48,6 @@ namespace net {
             return eventLoop;
         }
 
-        // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
-        static void init(int argc, char* argv[]);
-        static int start();
-        static void stop();
-
         DescriptorEventDispatcher& getReadEventDispatcher() {
             return *readEventDispatcher;
         }
@@ -74,6 +69,12 @@ namespace net {
         unsigned long getTickCounter() {
             return tickCounter;
         }
+
+    protected:
+        // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
+        static void init(int argc, char* argv[]);
+        static int start();
+        static void stop();
 
     private:
         static void stoponsig(int sig);
@@ -100,6 +101,8 @@ namespace net {
         static bool initialized;
 
         unsigned long tickCounter = 0;
+
+        friend class SNodeC;
     };
 
 } // namespace net
