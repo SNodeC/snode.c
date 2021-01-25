@@ -20,30 +20,21 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "WebApp.h"
+#ifndef SNODEC_H
+#define SNODEC_H
 
-#include "Logger.h"
-#include "SNodeC.h"
+namespace net {
 
-namespace express {
+    class SNodeC {
+    public:
+        SNodeC() = delete;
 
-    bool WebApp::initialized{false};
+        // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
+        static void init(int argc, char* argv[]);
+        static int start();
+        static void stop();
+    };
 
-    WebApp::WebApp(const Router& router)
-        : Router(router) {
-    }
+} // namespace net
 
-    void WebApp::init(int argc, char* argv[]) {
-        net::SNodeC::init(argc, argv);
-        WebApp::initialized = true;
-    }
-
-    int WebApp::start() {
-        return net::SNodeC::start();
-    }
-
-    void WebApp::stop() {
-        net::SNodeC::stop();
-    }
-
-} // namespace express
+#endif // SNODEC_H

@@ -1,5 +1,5 @@
-#include "EventLoop.h"
 #include "Logger.h"
+#include "SNodeC.h"
 #include "stream/Pipe.h"
 #include "stream/PipeSink.h"
 #include "stream/PipeSource.h"
@@ -9,7 +9,7 @@
 #include <string>     // for allocator, string
 
 int main(int argc, char* argv[]) {
-    net::EventLoop::init(argc, argv);
+    net::SNodeC::init(argc, argv);
 
     net::stream::Pipe pipe(
         [](net::stream::PipeSource& pipeSource, net::stream::PipeSink& pipeSink) -> void {
@@ -39,5 +39,5 @@ int main(int argc, char* argv[]) {
             PLOG(ERROR) << "Pipe not created";
         });
 
-    return net::EventLoop::start();
+    return net::SNodeC::start();
 }

@@ -18,9 +18,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "EventLoop.h"
 #include "Logger.h"
 #include "ResponseParser.h"
+#include "SNodeC.h"
 #include "ServerResponse.h"
 #include "config.h" // just for this example app
 #include "socket/bluetooth/rfcomm/legacy/SocketClient.h"
@@ -68,7 +68,7 @@ SocketClient getClient() {
 }
 
 int main(int argc, char* argv[]) {
-    net::EventLoop::init(argc, argv);
+    net::SNodeC::init(argc, argv);
 
     SocketClient::SocketAddress remoteAddress("A4:B1:C1:2C:82:37", 1); // titan
     SocketClient::SocketAddress bindAddress("44:01:BB:A3:63:32");      // mpow
@@ -83,5 +83,5 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    return net::EventLoop::start();
+    return net::SNodeC::start();
 }

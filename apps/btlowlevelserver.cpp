@@ -18,8 +18,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "EventLoop.h"
 #include "Logger.h"
+#include "SNodeC.h"
 #include "config.h" // just for this example app
 #include "socket/bluetooth/rfcomm/legacy/SocketServer.h"
 
@@ -30,7 +30,7 @@
 using namespace net::socket::bluetooth::rfcomm::legacy;
 
 int main(int argc, char* argv[]) {
-    net::EventLoop::init(argc, argv);
+    net::SNodeC::init(argc, argv);
 
     SocketServer btServer(
         []([[maybe_unused]] SocketServer::SocketConnection* socketConnection) -> void { // onConstruct
@@ -69,5 +69,5 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    return net::EventLoop::start();
+    return net::SNodeC::start();
 }

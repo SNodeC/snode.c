@@ -13,6 +13,7 @@ add_library(
     FdSet.cpp
     OutOfBandEventReceiver.cpp
     ReadEventReceiver.cpp
+    SNodeC.cpp
     TimerEventDispatcher.cpp
     WriteEventReceiver.cpp
     file/File.cpp

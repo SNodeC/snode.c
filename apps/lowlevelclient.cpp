@@ -18,9 +18,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "EventLoop.h"
 #include "Logger.h"
 #include "ResponseParser.h"
+#include "SNodeC.h"
 #include "ServerResponse.h"
 #include "config.h" // just for this example app
 #include "socket/ip/tcp/ipv4/Socket.h"
@@ -235,7 +235,7 @@ legacy::SocketClient<tcp::ipv4::Socket> getLegacyClient() {
 }
 
 int main(int argc, char* argv[]) {
-    net::EventLoop::init(argc, argv);
+    net::SNodeC::init(argc, argv);
 
     {
         InetAddress remoteAddress("localhost", 8080);
@@ -263,5 +263,5 @@ int main(int argc, char* argv[]) {
         });
     }
 
-    return net::EventLoop::start();
+    return net::SNodeC::start();
 }

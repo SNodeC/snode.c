@@ -20,8 +20,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "EventLoop.h"
 #include "Logger.h"
+#include "SNodeC.h"
 #include "ServerResponse.h"
 #include "config.h" // just for this example app
 #include "legacy/Client.h"
@@ -31,7 +31,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 int main(int argc, char* argv[]) {
-    net::EventLoop::init(argc, argv);
+    net::SNodeC::init(argc, argv);
 
     http::legacy::Client jsonClient(
         [](http::legacy::Client::SocketConnection* socketConnection) -> void {
@@ -88,5 +88,5 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    return net::EventLoop::start();
+    return net::SNodeC::start();
 }

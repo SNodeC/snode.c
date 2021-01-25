@@ -18,32 +18,38 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <signal.h>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "WebApp.h"
-
+#include "EventLoop.h"
 #include "Logger.h"
 #include "SNodeC.h"
 
-namespace express {
+namespace net {
 
-    bool WebApp::initialized{false};
+    /*
+    static std::string getTickCounterAsString([[maybe_unused]] const el::LogMessage* logMessage) {
+        std::string tick = std::to_string(net::EventLoop::instance().getTickCounter());
 
-    WebApp::WebApp(const Router& router)
-        : Router(router) {
+        if (tick.length() < 10) {
+            tick.insert(0, 10 - tick.length(), '0');
+        }
+
+        return tick;
+    }
+    */
+
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
+    void SNodeC::init(int argc, char* argv[]) {
+        net::EventLoop::init(argc, argv);
     }
 
-    void WebApp::init(int argc, char* argv[]) {
-        net::SNodeC::init(argc, argv);
-        WebApp::initialized = true;
+    int SNodeC::start() {
+        return net::EventLoop::start();
+    }
+    void SNodeC::stop() {
+        net::EventLoop::stop();
     }
 
-    int WebApp::start() {
-        return net::SNodeC::start();
-    }
-
-    void WebApp::stop() {
-        net::SNodeC::stop();
-    }
-
-} // namespace express
+} // namespace net
