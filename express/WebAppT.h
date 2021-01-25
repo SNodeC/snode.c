@@ -58,9 +58,6 @@ namespace express {
                       req.extend();
                       dispatch(req, res);
                   },
-                  [this](express::Request& req, express::Response& res) -> void { // onRequestCompleted
-                      completed(req, res);
-                  },
                   [this](SocketConnection* socketConnection) -> void { // onDisconnect
                       if (_onDisconnect != nullptr) {
                           _onDisconnect(socketConnection);

@@ -81,7 +81,6 @@ namespace express {
 
     protected:
         void dispatch(express::Request& req, express::Response& res);
-        void completed(const express::Request& req, const express::Response& res);
 
     private:
         std::map<const http::Request*, Request*> reqestMap;

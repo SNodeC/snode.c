@@ -290,9 +290,6 @@ namespace express {
         static_cast<void>(routerDispatcher->dispatch(MountPoint("use", "/"), "/", req, res));
     }
 
-    void Router::completed([[maybe_unused]] const express::Request& req, [[maybe_unused]] const express::Response& res) {
-    }
-
 #define DEFINE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                          \
     Router& Router::METHOD(const std::string& path, const Router& router) {                                                                \
         routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, path, router.routerDispatcher));                                    \

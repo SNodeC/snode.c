@@ -32,11 +32,9 @@ namespace http {
 
     template <typename Request, typename Response>
     ServerContext<Request, Response>::ServerContext(SocketConnection* socketConnection,
-                                                    const std::function<void(Request& req, Response& res)>& onRequestReady,
-                                                    const std::function<void(Request& req, Response& res)>& onRequestCompleted)
+                                                    const std::function<void(Request& req, Response& res)>& onRequestReady)
         : socketConnection(socketConnection)
         , onRequestReady(onRequestReady)
-        , onRequestCompleted(onRequestCompleted)
         , parser(
               [this](void) -> void {
                   VLOG(3) << "++ BEGIN:";
@@ -114,15 +112,6 @@ namespace http {
     }
 
     template <typename Request, typename Response>
-    ServerContext<Request, Response>::~ServerContext() {
-        if (requestInProgress) {
-            RequestContext& requestContext = requestContexts.front();
-
-            onRequestCompleted(requestContext.request, requestContext.response);
-        }
-    }
-
-    template <typename Request, typename Response>
     void ServerContext<Request, Response>::receiveRequestData(const char* junk, std::size_t junkLen) {
         parser.parse(junk, junkLen);
     }
@@ -166,8 +155,6 @@ namespace http {
     template <typename Request, typename Response>
     void ServerContext<Request, Response>::responseCompleted() {
         RequestContext& requestContext = requestContexts.front();
-
-        onRequestCompleted(requestContext.request, requestContext.response);
 
         // if 0.9 => terminate
         // if 1.0 && (request != Keep || contentLength = -1) => terminate

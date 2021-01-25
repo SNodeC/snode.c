@@ -29,13 +29,12 @@ namespace http {
 
         Server(const std::function<void(SocketConnection*)>& onConnect,
                const std::function<void(Request& req, Response& res)>& onRequestReady,
-               const std::function<void(Request& req, Response& res)>& onRequestCompleted,
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
             : socketServer(
-                  [onRequestReady, onRequestCompleted](SocketConnection* socketConnection) -> void { // onConstruct
+                  [onRequestReady](SocketConnection* socketConnection) -> void { // onConstruct
                       socketConnection->template setContext<ServerContextBase*>(
-                          new ServerContext<Request, Response>(socketConnection, onRequestReady, onRequestCompleted));
+                          new ServerContext<Request, Response>(socketConnection, onRequestReady));
                   },
                   [](SocketConnection* socketConnection) -> void { // onDestruct
                       socketConnection->template getContext<ServerContextBase*>([](ServerContextBase* serverContext) -> void {

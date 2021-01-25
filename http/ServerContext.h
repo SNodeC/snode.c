@@ -71,11 +71,9 @@ namespace http {
             std::string reason;
         };
 
-        ServerContext(SocketConnection* socketConnection,
-                      const std::function<void(Request& req, Response& res)>& onRequestReady,
-                      const std::function<void(Request& req, Response& res)>& onRequestCompleted);
+        ServerContext(SocketConnection* socketConnection, const std::function<void(Request& req, Response& res)>& onRequestReady);
 
-        ~ServerContext();
+        ~ServerContext() = default;
 
         void receiveRequestData(const char* junk, std::size_t junkLen) override;
         void onReadError(int errnum);
@@ -90,7 +88,6 @@ namespace http {
         SocketConnection* socketConnection;
 
         std::function<void(Request& req, Response& res)> onRequestReady;
-        std::function<void(Request& req, Response& res)> onRequestCompleted;
 
         RequestParser parser;
 
