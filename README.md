@@ -64,6 +64,7 @@ GNU Lesser General Public License
 - libmagic: To recognize the type of data in a file using "magic" numbers
 - clang-format: To format the sourcecode consistently
 - nlohmann-json3-dev: For JSON support
+- librange-v3-dev: For C++20 range support also in clang (as long as the compilers didn't support them natively)
 
 ## Components
 - libnet (directory net) low level multiplexed network-layer (server/client) with event-loop supporting legacy- and tls-connections
