@@ -22,7 +22,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "ConnectionState.h"
 #include "Logger.h"
 #include "ServerContext.h"
 #include "http_utils.h"
