@@ -18,13 +18,11 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <signal.h>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "EventLoop.h"
-#include "Logger.h"
 #include "SNodeC.h"
+
+#include "EventLoop.h"
 
 namespace net {
 
