@@ -28,11 +28,6 @@
 
 #include "../http/Request.h"
 
-namespace http {
-    template <typename Request, typename Response>
-    class ServerContext;
-}
-
 namespace express {
 
     class Request : public http::Request {
