@@ -11,7 +11,7 @@ add_library(
     DescriptorEventDispatcher.cpp
     EventLoop.cpp
     FdSet.cpp
-    OutOfBandEventReceiver.cpp
+    ExceptionalConditionEventReceiver.cpp
     ReadEventReceiver.cpp
     SNodeC.cpp
     TimerEventDispatcher.cpp

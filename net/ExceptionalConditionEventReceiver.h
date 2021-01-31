@@ -29,9 +29,9 @@
 
 namespace net {
 
-    class OutOfBandEventReceiver : public DescriptorEventReceiver {
+    class ExceptionalConditionEventReceiver : public DescriptorEventReceiver {
     protected:
-        OutOfBandEventReceiver(long timeout = MAX_OUTOFBAND_INACTIVITY);
+        ExceptionalConditionEventReceiver(long timeout = MAX_OUTOFBAND_INACTIVITY);
 
         virtual void outOfBandEvent() = 0;
 

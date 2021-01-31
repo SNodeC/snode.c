@@ -60,14 +60,14 @@ namespace net {
     EventLoop::EventLoop()
         : readEventDispatcher(new DescriptorEventDispatcher(readFdSet))
         , writeEventDispatcher(new DescriptorEventDispatcher(writeFdSet))
-        , outOfBandEventDispatcher(new DescriptorEventDispatcher(exceptFdSet))
+        , exceptionalConditionEventDispatcher(new DescriptorEventDispatcher(exceptFdSet))
         , timerEventDispatcher(new TimerEventDispatcher()) {
     }
 
     EventLoop::~EventLoop() {
         delete readEventDispatcher;
         delete writeEventDispatcher;
-        delete outOfBandEventDispatcher;
+        delete exceptionalConditionEventDispatcher;
         delete timerEventDispatcher;
     }
 
@@ -76,14 +76,14 @@ namespace net {
         nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
         nextTimeout = writeEventDispatcher->observeEnabledEvents();
         nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
-        nextTimeout = outOfBandEventDispatcher->observeEnabledEvents();
+        nextTimeout = exceptionalConditionEventDispatcher->observeEnabledEvents();
         nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
         nextTimeout = timerEventDispatcher->getNextTimeout();
         nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
 
         int maxFd = readEventDispatcher->getMaxFd();
         maxFd = std::max(writeEventDispatcher->getMaxFd(), maxFd);
-        maxFd = std::max(outOfBandEventDispatcher->getMaxFd(), maxFd);
+        maxFd = std::max(exceptionalConditionEventDispatcher->getMaxFd(), maxFd);
 
         if (maxFd >= 0 || !timerEventDispatcher->empty()) {
             if (nextInactivityTimeout < timeval({0, 0})) {
@@ -103,7 +103,7 @@ namespace net {
                 nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
                 nextTimeout = writeEventDispatcher->dispatchActiveEvents(currentTime);
                 nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
-                nextTimeout = outOfBandEventDispatcher->dispatchActiveEvents(currentTime);
+                nextTimeout = exceptionalConditionEventDispatcher->dispatchActiveEvents(currentTime);
                 nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
             } else if (errno != EINTR) {
                 PLOG(ERROR) << "select";
@@ -115,11 +115,11 @@ namespace net {
 
         readEventDispatcher->unobserveDisabledEvents();
         writeEventDispatcher->unobserveDisabledEvents();
-        outOfBandEventDispatcher->unobserveDisabledEvents();
+        exceptionalConditionEventDispatcher->unobserveDisabledEvents();
 
         readEventDispatcher->releaseUnobservedEvents();
         writeEventDispatcher->releaseUnobservedEvents();
-        outOfBandEventDispatcher->releaseUnobservedEvents();
+        exceptionalConditionEventDispatcher->releaseUnobservedEvents();
     }
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
@@ -155,19 +155,19 @@ namespace net {
 
             eventLoop.readEventDispatcher->observeEnabledEvents();
             eventLoop.writeEventDispatcher->observeEnabledEvents();
-            eventLoop.outOfBandEventDispatcher->observeEnabledEvents();
+            eventLoop.exceptionalConditionEventDispatcher->observeEnabledEvents();
 
             eventLoop.readEventDispatcher->disableObservedEvents();
             eventLoop.writeEventDispatcher->disableObservedEvents();
-            eventLoop.outOfBandEventDispatcher->disableObservedEvents();
+            eventLoop.exceptionalConditionEventDispatcher->disableObservedEvents();
 
             eventLoop.readEventDispatcher->unobserveDisabledEvents();
             eventLoop.writeEventDispatcher->unobserveDisabledEvents();
-            eventLoop.outOfBandEventDispatcher->unobserveDisabledEvents();
+            eventLoop.exceptionalConditionEventDispatcher->unobserveDisabledEvents();
 
             eventLoop.readEventDispatcher->releaseUnobservedEvents();
             eventLoop.writeEventDispatcher->releaseUnobservedEvents();
-            eventLoop.outOfBandEventDispatcher->releaseUnobservedEvents();
+            eventLoop.exceptionalConditionEventDispatcher->releaseUnobservedEvents();
 
             eventLoop.timerEventDispatcher->cancelAll();
 
@@ -194,7 +194,7 @@ namespace net {
 
     unsigned long EventLoop::getEventCounter() {
         return readEventDispatcher->getEventCounter() + writeEventDispatcher->getEventCounter() +
-               outOfBandEventDispatcher->getEventCounter();
+               exceptionalConditionEventDispatcher->getEventCounter();
     }
 
 } // namespace net

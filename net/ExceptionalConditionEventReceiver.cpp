@@ -16,35 +16,35 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "OutOfBandEventReceiver.h"
+#include "ExceptionalConditionEventReceiver.h"
 
 #include "DescriptorEventDispatcher.h"
 #include "EventLoop.h"
 
 namespace net {
 
-    OutOfBandEventReceiver::OutOfBandEventReceiver(long timeout)
+    ExceptionalConditionEventReceiver::ExceptionalConditionEventReceiver(long timeout)
         : DescriptorEventReceiver(timeout) {
     }
 
-    void OutOfBandEventReceiver::dispatchEvent() {
+    void ExceptionalConditionEventReceiver::dispatchEvent() {
         outOfBandEvent();
     }
 
-    void OutOfBandEventReceiver::enable(int fd) {
-        EventLoop::instance().getOutOfBandEventDispatcher().enable(this, fd);
+    void ExceptionalConditionEventReceiver::enable(int fd) {
+        EventLoop::instance().getExceptionalConditionEventDispatcher().enable(this, fd);
     }
 
-    void OutOfBandEventReceiver::disable() {
-        EventLoop::instance().getOutOfBandEventDispatcher().disable(this, fd);
+    void ExceptionalConditionEventReceiver::disable() {
+        EventLoop::instance().getExceptionalConditionEventDispatcher().disable(this, fd);
     }
 
-    void OutOfBandEventReceiver::suspend() {
-        EventLoop::instance().getOutOfBandEventDispatcher().suspend(this, fd);
+    void ExceptionalConditionEventReceiver::suspend() {
+        EventLoop::instance().getExceptionalConditionEventDispatcher().suspend(this, fd);
     }
 
-    void OutOfBandEventReceiver::resume() {
-        EventLoop::instance().getOutOfBandEventDispatcher().resume(this, fd);
+    void ExceptionalConditionEventReceiver::resume() {
+        EventLoop::instance().getExceptionalConditionEventDispatcher().resume(this, fd);
     }
 
 } // namespace net

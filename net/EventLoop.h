@@ -56,8 +56,8 @@ namespace net {
             return *writeEventDispatcher;
         }
 
-        DescriptorEventDispatcher& getOutOfBandEventDispatcher() {
-            return *outOfBandEventDispatcher;
+        DescriptorEventDispatcher& getExceptionalConditionEventDispatcher() {
+            return *exceptionalConditionEventDispatcher;
         }
 
         TimerEventDispatcher& getTimerEventDispatcher() {
@@ -89,7 +89,7 @@ namespace net {
 
         DescriptorEventDispatcher* readEventDispatcher;
         DescriptorEventDispatcher* writeEventDispatcher;
-        DescriptorEventDispatcher* outOfBandEventDispatcher;
+        DescriptorEventDispatcher* exceptionalConditionEventDispatcher;
 
         TimerEventDispatcher* timerEventDispatcher;
 
