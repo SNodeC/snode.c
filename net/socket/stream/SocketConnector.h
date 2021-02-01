@@ -133,11 +133,12 @@ namespace net::socket::stream {
                             socketConnection->SocketConnection::SocketReader::enable(Socket::getFd());
 
                             SocketConnector::dontClose(true);
-                            stream::SocketConnector<SocketConnection>::ConnectEventReceiver::suspend();
+                            SocketConnector::ConnectEventReceiver::suspend();
 
                             onError(0);
                             onConnect(socketConnection);
                         } else {
+                            cErrno = errno;
                             onError(errno);
                         }
                     } else {
@@ -146,6 +147,7 @@ namespace net::socket::stream {
                     }
                 }
             } else {
+                cErrno = errno;
                 onError(errno);
             }
 
