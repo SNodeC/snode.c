@@ -103,7 +103,7 @@ namespace net::socket::stream {
                 ssl_ctx_free(ctx);
             }
 
-            void listen(const SocketAddress& localAddress, int backlog, const std::function<void(int err)>& onError) override {
+            void listen(const SocketAddress& localAddress, int backlog, const std::function<void(int err)>& onError) {
                 if (ctx == nullptr) {
                     errno = EINVAL;
                     onError(EINVAL);

@@ -67,26 +67,26 @@ namespace net::socket::stream {
 
                               TLSHandshake::doHandshake(
                                   ssl,
-                                  [&onConnect, socketConnection, this](void) -> void { // onSuccess
-                                      stream::SocketConnector<SocketConnection>::ConnectEventReceiver::disable();
+                                  [socketConnection, &onConnect, this](void) -> void { // onSuccess
+                                      SocketConnector::disable();
                                       socketConnection->SocketConnection::SocketReader::resume();
                                       onConnect(socketConnection);
                                   },
                                   [socketConnection, &onError, this](void) -> void { // onTimeout
                                       PLOG(ERROR) << "SSL/TLS handshake timeout";
-                                      stream::SocketConnector<SocketConnection>::ConnectEventReceiver::disable();
+                                      SocketConnector::disable();
                                       socketConnection->SocketConnection::SocketReader::disable();
                                       onError(ETIMEDOUT);
                                   },
                                   [socketConnection, &onError, this](int sslErr) -> void { // onError
                                       ssl_log("SSL/TLS handshake failed", -sslErr);
                                       socketConnection->setSSLError(-sslErr);
-                                      stream::SocketConnector<SocketConnection>::ConnectEventReceiver::disable();
+                                      SocketConnector::disable();
                                       socketConnection->SocketConnection::SocketReader::disable();
                                       onError(sslErr);
                                   });
                           } else {
-                              stream::SocketConnector<SocketConnection>::ConnectEventReceiver::disable();
+                              SocketConnector::disable();
                               socketConnection->SocketConnection::SocketReader::disable();
                               ssl_log_error("SSL/TLS initialization failed");
                               onError(-SSL_ERROR_SSL);
@@ -107,9 +107,8 @@ namespace net::socket::stream {
                 ssl_ctx_free(ctx);
             }
 
-            void connect(const SocketAddress& remoteAddress,
-                         const SocketAddress& bindAddress,
-                         const std::function<void(int err)>& onError) override {
+            void
+            connect(const SocketAddress& remoteAddress, const SocketAddress& bindAddress, const std::function<void(int err)>& onError) {
                 if (ctx == nullptr) {
                     errno = EINVAL;
                     onError(errno);
@@ -120,10 +119,10 @@ namespace net::socket::stream {
 
         private:
             void connectEvent() override {
-                int cErrno = stream::SocketConnector<SocketConnection>::tryToCompleteConnect();
+                int cErrno = SocketConnector::tryToCompleteConnect();
 
                 if (cErrno != EINPROGRESS && cErrno != 0) {
-                    stream::SocketConnector<SocketConnection>::ConnectEventReceiver::disable();
+                    SocketConnector::ConnectEventReceiver::disable();
                 }
             }
 
