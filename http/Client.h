@@ -64,8 +64,10 @@ namespace http {
 
                       socketConnection->template getContext<ClientContext*>(
                           [&socketConnection, &onRequestBegin](ClientContext* clientContext) -> void {
-                              clientContext->getServerRequest().setHost(socketConnection->getRemoteAddress().host());
-                              onRequestBegin(clientContext->getServerRequest());
+                              ServerRequest& serverRequest = clientContext->getServerRequest();
+
+                              serverRequest.setHost(socketConnection->getRemoteAddress().host());
+                              onRequestBegin(serverRequest);
                           });
                   },
                   [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect

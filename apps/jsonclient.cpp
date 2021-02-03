@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
             memcpy(body, clientResponse.body, clientResponse.contentLength);
             body[clientResponse.contentLength] = 0;
 
-            VLOG(1) << "     Body:\n----------- start body -----------\n" << body << "------------ end body ------------";
+            VLOG(1) << "     Body:\n----------- start body -----------\n" << body << "\n------------ end body ------------";
 
             delete[] body;
         },
