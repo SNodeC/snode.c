@@ -42,7 +42,9 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
                 VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
             },
-            []([[maybe_unused]] const http::ServerRequest& serverRequest) -> void {
+            [](http::ServerRequest& serverRequest) -> void {
+                serverRequest.url = "/index.html";
+                serverRequest.end();
             },
             [](const http::ServerResponse& serverResponse) -> void {
                 VLOG(0) << "-- OnResponse";
@@ -133,7 +135,9 @@ int main(int argc, char* argv[]) {
                     VLOG(0) << "     Server certificate: no certificate";
                 }
             },
-            []([[maybe_unused]] const http::ServerRequest& serverRequest) -> void {
+            [](http::ServerRequest& serverRequest) -> void {
+                serverRequest.url = "/index.html";
+                serverRequest.end();
             },
             [](const http::ServerResponse& serverResponse) -> void {
                 VLOG(0) << "-- OnResponse";
@@ -176,25 +180,25 @@ int main(int argc, char* argv[]) {
             },
             {{"caFile", SERVERCAFILE}});
 
-        legacyClient.get("localhost", 8080, "/index.html", [](int err) -> void {
+        legacyClient.connect("localhost", 8080, [](int err) -> void {
             if (err != 0) {
                 PLOG(ERROR) << "OnError: " << err;
             }
         }); // Connection:keep-alive\r\n\r\n"
 
-        legacyClient.get("localhost", 8080, "/index.html", [](int err) -> void {
+        legacyClient.connect("localhost", 8080, [](int err) -> void {
             if (err != 0) {
                 PLOG(ERROR) << "OnError: " << err;
             }
         }); // Connection:keep-alive\r\n\r\n"
 
-        tlsClient.get("localhost", 8088, "/index.html", [](int err) -> void {
+        tlsClient.connect("localhost", 8088, [](int err) -> void {
             if (err != 0) {
                 PLOG(ERROR) << "OnError: " << err;
             }
         }); // Connection:keep-alive\r\n\r\n"
 
-        tlsClient.get("localhost", 8088, "/index.html", [](int err) -> void {
+        tlsClient.connect("localhost", 8088, [](int err) -> void {
             if (err != 0) {
                 PLOG(ERROR) << "OnError: " << err;
             }

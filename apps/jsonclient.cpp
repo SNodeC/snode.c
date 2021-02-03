@@ -40,7 +40,10 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
         },
-        []([[maybe_unused]] const http::ServerRequest& clientRequest) -> void {
+        [](http::ServerRequest& serverRequest) -> void {
+            serverRequest.method = "POST";
+            serverRequest.url = "/index.html";
+            serverRequest.type("application/json").send("{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}");
         },
         [](const http::ServerResponse& clientResponse) -> void {
             VLOG(0) << "-- OnResponse";
@@ -82,11 +85,23 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
         });
 
-    jsonClient.post("localhost", 8080, "/index.html", "{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}", [](int err) -> void {
+    jsonClient.connect("localhost", 8080, [](int err) -> void {
         if (err != 0) {
             PLOG(ERROR) << "OnError: " << err;
         }
     });
 
+    jsonClient.connect("localhost", 8080, [](int err) -> void {
+        if (err != 0) {
+            PLOG(ERROR) << "OnError: " << err;
+        }
+    });
+    /*
+        jsonClient.post("localhost", 8080, "/index.html", "{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}", [](int err) -> void {
+            if (err != 0) {
+                PLOG(ERROR) << "OnError: " << err;
+            }
+        });
+    */
     return net::SNodeC::start();
 }

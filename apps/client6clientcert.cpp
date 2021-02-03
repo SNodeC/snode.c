@@ -86,7 +86,9 @@ int main(int argc, char* argv[]) {
                     VLOG(0) << "     Server certificate: no certificate";
                 }
             },
-            []([[maybe_unused]] const http::ServerRequest& serverRequest) -> void {
+            [](http::ServerRequest& serverRequest) -> void {
+                serverRequest.url = "/index.html";
+                serverRequest.end();
             },
             [](const http::ServerResponse& serverResponse) -> void {
                 VLOG(0) << "-- OnResponse";
@@ -127,13 +129,13 @@ int main(int argc, char* argv[]) {
             },
             {{"certChain", CLIENTCERTF}, {"keyPEM", CLIENTKEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}});
 
-        tlsClient.get("localhost", 8088, "/index.html", [](int err) -> void {
+        tlsClient.connect("localhost", 8088, [](int err) -> void {
             if (err != 0) {
                 PLOG(ERROR) << "OnError: " << err;
             }
         }); // Connection:keep-alive\r\n\r\n"
 
-        tlsClient.get("localhost", 8088, "/index.html", [](int err) -> void {
+        tlsClient.connect("localhost", 8088, [](int err) -> void {
             if (err != 0) {
                 PLOG(ERROR) << "OnError: " << err;
             }

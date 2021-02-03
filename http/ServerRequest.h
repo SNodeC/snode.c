@@ -21,20 +21,71 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef> // for size_t
+#include <map>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "ConnectionState.h"
+#include "stream/Sink.h"
+
 namespace http {
 
-    class ServerRequest {
-    public:
-        void setRequest(const std::string& request);
+    class ClientContext;
 
-        const std::string& getRequest() const;
+    class ServerRequest : public net::stream::Sink {
+    protected:
+        explicit ServerRequest(ClientContext* clientContext);
+
+    public:
+        std::string method = "GET";
+        std::string url;
+        std::string host;
+        int httpMajor = 1;
+        int httpMinor = 1;
+
+        ConnectionState connectionState = ConnectionState::Default;
+
+        ServerRequest& setHost(const std::string& host);
+        ServerRequest& append(const std::string& field, const std::string& value);
+        ServerRequest& set(const std::string& field, const std::string& value, bool overwrite = false);
+        ServerRequest& set(const std::map<std::string, std::string>& headers, bool overwrite = false);
+        ServerRequest& cookie(const std::string& name, const std::string& value);
+        ServerRequest& cookie(const std::map<std::string, std::string>& cookies);
+        ServerRequest& type(const std::string& type);
+
+        void send(const char* buffer, std::size_t size);
+        void send(const std::string& text);
+
+        void sendHeader();
+
+        void end();
 
     protected:
-        std::string request;
+        void enqueue(const char* buf, std::size_t len);
+        void enqueue(const std::string& data);
+
+        bool sendHeaderInProgress = false;
+        bool headersSent = false;
+        std::size_t contentSent = 0;
+        std::size_t contentLength = 0;
+
+        ClientContext* clientContext;
+
+        virtual void reset();
+
+        std::map<std::string, std::string> queries;
+        std::map<std::string, std::string> headers;
+        std::map<std::string, std::string> cookies;
+
+        std::string nullstr = "";
+
+        void receive(const char* junk, std::size_t junkLen) override;
+        void eof() override;
+        void error(int errnum) override;
+
+        friend class ClientContext;
     };
 
 } // namespace http

@@ -18,4 +18,9 @@
 
 #include "ServerResponse.h"
 
-namespace http {} // namespace http
+namespace http {
+
+    void ServerResponse::reset() {
+    }
+
+} // namespace http

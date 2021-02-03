@@ -46,16 +46,17 @@ namespace http {
                       const std::function<void(int status, const std::string& reason)>& onError);
 
         void receiveResponseData(const char* junk, std::size_t junkLen);
+        void sendRequestData(const char* buf, std::size_t len);
 
-        void setRequest(const std::string& request);
-        const std::string& getRequest();
+        ServerRequest& getServerRequest();
+
+        void terminateConnection();
+
+        void requestCompleted();
 
     protected:
         SocketConnection* socketConnection;
 
-        std::string request;
-
-    public:
         ServerRequest serverRequest;
         ServerResponse serverResponse;
 

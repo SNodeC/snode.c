@@ -45,101 +45,68 @@ namespace http {
 
         Client(const std::function<void(SocketConnection*)>& onConnect,
                const std::function<void(ServerRequest&)>& onRequestBegin,
-               const std::function<void(ServerResponse&)>& onResponseReady,
+               const std::function<void(ServerResponse&)>& onResponse,
                const std::function<void(int, const std::string&)>& onResponseError,
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
-            : onConnect(onConnect)
-            , onRequestBegin(onRequestBegin)
-            , onResponseReady(onResponseReady)
-            , onResponseError(onResponseError)
-            , onDisconnect(onDisconnect)
-            , options(options) {
+            : socketClient(
+                  [onResponse, onResponseError](SocketConnection* socketConnection) -> void { // onConstruct
+                      ClientContext* clientContext = new ClientContext(socketConnection, onResponse, onResponseError);
+                      socketConnection->template setContext<ClientContext*>(clientContext);
+                  },
+                  [](SocketConnection* socketConnection) -> void { // onDestruct
+                      socketConnection->template getContext<ClientContext*>([](ClientContext* clientContext) -> void {
+                          delete clientContext;
+                      });
+                  },
+                  [onConnect, onRequestBegin](SocketConnection* socketConnection) -> void { // onConnect
+                      onConnect(socketConnection);
+
+                      socketConnection->template getContext<ClientContext*>(
+                          [&socketConnection, &onRequestBegin](ClientContext* clientContext) -> void {
+                              clientContext->getServerRequest().setHost(socketConnection->getRemoteAddress().host());
+                              onRequestBegin(clientContext->getServerRequest());
+                          });
+                  },
+                  [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
+                      onDisconnect(socketConnection);
+                  },
+                  [](SocketConnection* socketConnection, const char* junk, std::size_t junkSize) -> void { // onRead
+                      socketConnection->template getContext<ClientContext*>([junk, junkSize](ClientContext* clientContext) -> void {
+                          clientContext->receiveResponseData(junk, junkSize);
+                      });
+                  },
+                  [](SocketConnection* socketConnection, int errnum) -> void { // onReadError
+                      if (errnum != 0) {
+                          PLOG(ERROR) << "Server: " << socketConnection->getRemoteAddress().host() << " (" << errnum << ")";
+                      } else {
+                          VLOG(0) << "Server: EOF";
+                      }
+                  },
+                  [](SocketConnection* socketConnection, int errnum) -> void { // onWriteError
+                      if (errnum != 0) {
+                          PLOG(ERROR) << "Server: " << socketConnection->getRemoteAddress().host() << " (" << errnum << ")";
+                      } else {
+                          VLOG(0) << "Server: EOF";
+                      }
+                  },
+                  options) {
         }
 
-        void connect(const std::string& request, const SocketAddress& remoteAddress, const std::function<void(int err)>& onError) const {
+        void connect(const SocketAddress& remoteAddress, const std::function<void(int err)>& onError) const {
             errno = 0;
-
-            SocketClient socketClient(
-                [request,
-                 onRequestBegin = this->onRequestBegin,
-                 onResponseReady = this->onResponseReady,
-                 onResponseError = this->onResponseError](SocketConnection* socketConnection) -> void { // onConstruct
-                    ClientContext* clientContext = new ClientContext(socketConnection, onResponseReady, onResponseError);
-                    clientContext->setRequest(request);
-                    socketConnection->template setContext<ClientContext*>(clientContext);
-                    onRequestBegin(clientContext->serverRequest);
-                },
-                [](SocketConnection* socketConnection) -> void { // onDestruct
-                    socketConnection->template getContext<ClientContext*>([](ClientContext* clientContext) -> void {
-                        delete clientContext;
-                    });
-                },
-                [onConnect = this->onConnect](SocketConnection* socketConnection) -> void { // onConnect
-                    onConnect(socketConnection);
-
-                    socketConnection->template getContext<ClientContext*>([&socketConnection](ClientContext* clientContext) -> void {
-                        socketConnection->enqueue(clientContext->getRequest());
-                    });
-                },
-                [onDisconnect = this->onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
-                    onDisconnect(socketConnection);
-                },
-                [](SocketConnection* socketConnection, const char* junk, std::size_t junkSize) -> void { // onRead
-                    socketConnection->template getContext<ClientContext*>([junk, junkSize](ClientContext* clientContext) -> void {
-                        clientContext->receiveResponseData(junk, junkSize);
-                    });
-                },
-                [](SocketConnection* socketConnection, int errnum) -> void { // onReadError
-                    if (errnum != 0) {
-                        PLOG(ERROR) << "Server: " << socketConnection->getRemoteAddress().host() << " (" << errnum << ")";
-                    } else {
-                        VLOG(0) << "Server: EOF";
-                    }
-                },
-                [](SocketConnection* socketConnection, int errnum) -> void { // onWriteError
-                    if (errnum != 0) {
-                        PLOG(ERROR) << "Server: " << socketConnection->getRemoteAddress().host() << " (" << errnum << ")";
-                    } else {
-                        VLOG(0) << "Server: EOF";
-                    }
-                },
-                this->options);
 
             socketClient.connect(remoteAddress, onError);
         }
 
-        void
-        get(const std::string& ipOrHostname, unsigned short port, const std::string& path, const std::function<void(int err)>& onError) {
-            std::string request = "GET " + path + " HTTP/1.1\r\nHost: " + ipOrHostname + "\r\nConnection: close\r\n\r\n";
-
+        void connect(const std::string& ipOrHostname, unsigned short port, const std::function<void(int err)>& onError) {
             SocketAddress remoteAddress(ipOrHostname, port);
 
-            connect(request, remoteAddress, onError);
-        }
-
-        void post(const std::string& ipOrHostname,
-                  unsigned short port,
-                  const std::string& path,
-                  const std::string& body,
-                  const std::function<void(int err)>& onError) {
-            int contentLength = body.length();
-
-            std::string request = "POST " + path + " HTTP/1.1\r\nHost: " + ipOrHostname +
-                                  "\r\nContent-Length: " + std::to_string(contentLength) + "\r\nConnection: close\r\n\r\n" + body;
-
-            SocketAddress remoteAddress(ipOrHostname, port);
-
-            connect(request, remoteAddress, onError);
+            connect(remoteAddress, onError);
         }
 
     protected:
-        std::function<void(SocketConnection*)> onConnect;
-        std::function<void(ServerRequest&)> onRequestBegin;
-        std::function<void(ServerResponse&)> onResponseReady;
-        std::function<void(int, const std::string&)> onResponseError;
-        std::function<void(SocketConnection*)> onDisconnect;
-        std::map<std::string, std::any> options;
+        SocketClient socketClient;
     };
 
 } // namespace http

@@ -33,6 +33,7 @@ namespace http {
                                  const std::function<void(ServerResponse&)>& onResponse,
                                  const std::function<void(int status, const std::string& reason)>& onError)
         : socketConnection(socketConnection)
+        , serverRequest(this)
         , parser(
               [](void) -> void {
               },
@@ -52,22 +53,32 @@ namespace http {
               [this, onResponse](http::ResponseParser& parser) -> void {
                   onResponse(serverResponse);
                   parser.reset();
+                  serverRequest.reset();
+                  serverResponse.reset();
               },
               [onError](int status, const std::string& reason) -> void {
                   onError(status, reason);
               }) {
     }
 
+    void ClientContext::requestCompleted() {
+    }
+
     void ClientContext::receiveResponseData(const char* junk, std::size_t junkLen) {
         parser.parse(junk, junkLen);
     }
 
-    void ClientContext::setRequest(const std::string& request) {
-        this->request = request;
+    void ClientContext::sendRequestData(const char* buf, std::size_t len) {
+        socketConnection->enqueue(buf, len);
     }
 
-    const std::string& ClientContext::getRequest() {
-        return request;
+    ServerRequest& ClientContext::getServerRequest() {
+        return serverRequest;
+    }
+#
+
+    void ClientContext::terminateConnection() {
+        socketConnection->close();
     }
 
 } // namespace http

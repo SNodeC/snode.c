@@ -31,11 +31,13 @@ namespace http {
     class CookieOptions;
 
     class ServerResponse {
-    public:
+    protected:
         ServerResponse() = default;
 
         // switch to protected later on
     public:
+        void reset();
+
         std::string httpVersion;
         std::string statusCode;
         std::string reason;
@@ -43,6 +45,8 @@ namespace http {
         int contentLength = 0;
         const std::map<std::string, std::string>* headers = nullptr;
         const std::map<std::string, CookieOptions>* cookies = nullptr;
+
+        friend class ClientContext;
     };
 
 } // namespace http
