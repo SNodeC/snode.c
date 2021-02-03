@@ -139,7 +139,7 @@ namespace http {
 
     void Response::send(const std::string& text) {
         if (text.size() > 0) {
-            headers.insert({"Content-Type", "text/html; charset=utf-8"});
+            headers.insert({"Content-Type", "text/html"});
         }
         send(text.c_str(), text.size());
     }
