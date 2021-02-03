@@ -34,7 +34,7 @@ namespace http {
 
     class Request : public utils::MultibleAttributeInjector {
     protected:
-        explicit Request() = default;
+        Request() = default;
         virtual ~Request() = default;
 
     public:
