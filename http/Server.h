@@ -65,15 +65,11 @@ namespace http {
         }
 
         void listen(unsigned short port, const std::function<void(int err)>& onError) const {
-            errno = 0;
-
             socketServer.listen(SocketAddress(port), 5, onError);
         }
 
-        void listen(const std::string& host, unsigned short port, const std::function<void(int err)>& onError) const {
-            errno = 0;
-
-            socketServer.listen(SocketAddress(host, port), 5, onError);
+        void listen(const std::string& ipOrHostname, unsigned short port, const std::function<void(int err)>& onError) const {
+            socketServer.listen(SocketAddress(ipOrHostname, port), 5, onError);
         }
 
     protected:

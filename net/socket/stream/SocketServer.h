@@ -63,6 +63,8 @@ namespace net::socket::stream {
         virtual ~SocketServer() = default;
 
         void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int err)>& onError) const {
+            errno = 0;
+
             SocketListener* socketListener =
                 new SocketListener(onConstruct, onDestruct, onConnect, onDisconnect, onRead, onReadError, onWriteError, options);
 
