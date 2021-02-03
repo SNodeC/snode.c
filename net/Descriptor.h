@@ -38,8 +38,11 @@ namespace net {
     public:
         Descriptor(const Descriptor& d) = delete;
         Descriptor& operator=(const Descriptor& descriptor) = delete;
+
+    protected:
         ~Descriptor();
 
+    public:
         void attach(int fd, enum Descriptor::FLAGS flags = FLAGS::none);
         int getFd() const;
         void dontClose(bool dontClose);

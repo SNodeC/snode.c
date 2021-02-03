@@ -42,13 +42,13 @@ namespace net::socket {
         Socket(const Socket&) = delete;
         Socket& operator=(const Socket&) = delete;
 
+    protected:
         ~Socket() {
             if (!dontClose()) {
                 shutdown(shutdown::RDWR);
             }
         }
 
-    protected:
         virtual int create(int flags) = 0;
 
     public:
