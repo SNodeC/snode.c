@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef REQUEST_H
-#define REQUEST_H
+#ifndef HTTP_CLIENT_REQUEST_H
+#define HTTP_CLIENT_REQUEST_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -90,4 +90,4 @@ namespace http::client {
 
 } // namespace http::client
 
-#endif // REQUEST_H
+#endif // HTTP_CLIENT_REQUEST_H

@@ -16,9 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CONNECTIONSTATE_H
-#define CONNECTIONSTATE_H
+#ifndef HTTP_CONNECTIONSTATE_H
+#define HTTP_CONNECTIONSTATE_H
 
 enum ConnectionState { Default, Keep, Close };
 
-#endif // CONNECTIONSTATE_H
+#endif // HTTP_CONNECTIONSTATE_H

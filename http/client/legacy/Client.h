@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LEGACY_CLIENT_H
-#define LEGACY_CLIENT_H
+#ifndef HTTP_CLIENT_LEGACY_CLIENT_H
+#define HTTP_CLIENT_LEGACY_CLIENT_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -41,4 +41,4 @@ namespace http::client::legacy {
 
 } // namespace http::client::legacy
 
-#endif // LEGACY_CLIENT_H
+#endif // HTTP_CLIENT_LEGACY_CLIENT_H

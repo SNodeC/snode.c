@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEBAPP_H
-#define WEBAPP_H
+#ifndef EXPRESS_WEBAPP_H
+#define EXPRESS_WEBAPP_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -49,4 +49,4 @@ namespace express {
 
 } // namespace express
 
-#endif // WEBAPP_H
+#endif // EXPRESS_WEBAPP_H

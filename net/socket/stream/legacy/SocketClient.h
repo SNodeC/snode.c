@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_stream_LEGACY_SOCKETCLIENT_H
-#define NET_SOCKET_stream_LEGACY_SOCKETCLIENT_H
+#ifndef NET_SOCKET_STREAM_LEGACY_SOCKETCLIENT_H
+#define NET_SOCKET_STREAM_LEGACY_SOCKETCLIENT_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -35,4 +35,4 @@ namespace net::socket::stream::legacy {
 
 } // namespace net::socket::stream::legacy
 
-#endif // NET_SOCKET_stream_LEGACY_SOCKETCLIENT_H
+#endif // NET_SOCKET_STREAM_LEGACY_SOCKETCLIENT_H

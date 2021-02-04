@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TLS_SERVER_H
-#define TLS_SERVER_H
+#ifndef HTTP_SERVER_TLS_SERVER_H
+#define HTTP_SERVER_TLS_SERVER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -43,4 +43,4 @@ namespace http::server::tls {
 
 } // namespace http::server::tls
 
-#endif // TLS_SERVER_H
+#endif // HTTP_SERVER_TLS_SERVER_H

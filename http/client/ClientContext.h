@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CLIENTCONTEXT_H
-#define CLIENTCONTEXT_H
+#ifndef HTTP_CLIENT_CLIENTCONTEXT_H
+#define HTTP_CLIENT_CLIENTCONTEXT_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -66,4 +66,4 @@ namespace http::client {
 
 } // namespace http::client
 
-#endif // CLIENTCONTEXT_H
+#endif // HTTP_CLIENT_CLIENTCONTEXT_H

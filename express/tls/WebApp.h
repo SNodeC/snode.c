@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TLS_WEBAPP_H
-#define TLS_WEBAPP_H
+#ifndef EXPRESS_TLS_WEBAPP_H
+#define EXPRESS_TLS_WEBAPP_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -40,4 +40,4 @@ namespace express::tls {
 
 } // namespace express::tls
 
-#endif // TLS_WEBAPP_H
+#endif // EXPRESS_TLS_WEBAPP_H

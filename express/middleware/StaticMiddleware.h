@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STATICMIDDLEWARE_H
-#define STATICMIDDLEWARE_H
+#ifndef EXPRESS_MIDDLEWARE_STATICMIDDLEWARE_H
+#define EXPRESS_MIDDLEWARE_STATICMIDDLEWARE_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -59,4 +59,4 @@ namespace express::middleware {
 
 } // namespace express::middleware
 
-#endif // STATICMIDDLEWARE_H
+#endif // EXPRESS_MIDDLEWARE_STATICMIDDLEWARE_H

@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SERVERCONTEXT_H
-#define SERVERCONTEXT_H
+#ifndef HTTP_SERVER_SERVERCONTEXT_H
+#define HTTP_SERVER_SERVERCONTEXT_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -103,4 +103,4 @@ namespace http::server {
 
 } // namespace http::server
 
-#endif // SERVERCONTEXT_H
+#endif // HTTP_SERVER_SERVERCONTEXT_H

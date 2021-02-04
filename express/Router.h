@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ROUTER_H
-#define ROUTER_H
+#ifndef EXPRESS_ROUTER_H
+#define EXPRESS_ROUTER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -90,4 +90,4 @@ namespace express {
 
 } // namespace express
 
-#endif // ROUTER_H
+#endif // EXPRESS_ROUTER_H

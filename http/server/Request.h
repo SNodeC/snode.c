@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef REQUEST_H
-#define REQUEST_H
+#ifndef HTTP_SERVER_REQUEST_H
+#define HTTP_SERVER_REQUEST_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -69,7 +69,7 @@ namespace http::server {
 
 } // namespace http::server
 
-#endif // REQUEST_H
+#endif // HTTP_SERVER_REQUEST_H
 
 /* https://de.wikipedia.org/wiki/Liste_der_HTTP-Headerfelder
 

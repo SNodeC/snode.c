@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MIMETYPES_H
-#define MIMETYPES_H
+#ifndef HTTP_MIMETYPES_H
+#define HTTP_MIMETYPES_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -46,4 +46,4 @@ private:
     static std::map<std::string, std::string> mimeType;
 };
 
-#endif // MIMETYPES_H
+#endif // HTTP_MIMETYPES_H

@@ -18,8 +18,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef JSONMIDDLEWARE_H
-#define JSONMIDDLEWARE_H
+#ifndef EXPRESS_MIDDLEWARE_JSONMIDDLEWARE_H
+#define EXPRESS_MIDDLEWARE_JSONMIDDLEWARE_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -45,4 +45,4 @@ namespace express::middleware {
 
 } // namespace express::middleware
 
-#endif // JSONMIDDLEWARE_H
+#endif // EXPRESS_MIDDLEWARE_JSONMIDDLEWARE_H

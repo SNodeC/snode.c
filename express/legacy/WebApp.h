@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LEGACY_WEBAPP_H
-#define LEGACY_WEBAPP_H
+#ifndef EXPRESS_LEGACY_WEBAPP_H
+#define EXPRESS_LEGACY_WEBAPP_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -40,4 +40,4 @@ namespace express::legacy {
 
 } // namespace express::legacy
 
-#endif // LEGACY_WEBAPP_H
+#endif // EXPRESS_LEGACY_WEBAPP_H

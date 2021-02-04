@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef RESPONSE_H
-#define RESPONSE_H
+#ifndef HTTP_SERVER_RESPONSE_H
+#define HTTP_SERVER_RESPONSE_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -87,7 +87,7 @@ namespace http::server {
 
 } // namespace http::server
 
-#endif // RESPONSE_H
+#endif // HTTP_SERVER_RESPONSE_H
 
 /* https://de.wikipedia.org/wiki/Liste_der_HTTP-Headerfelder
 

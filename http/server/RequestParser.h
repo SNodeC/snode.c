@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef REQUESTPARSER_H
-#define REQUESTPARSER_H
+#ifndef HTTP_SERVER_REQUESTPARSER_H
+#define HTTP_SERVER_REQUESTPARSER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -89,4 +89,4 @@ namespace http::server {
 
 } // namespace http::server
 
-#endif // REQUESTPARSER_H
+#endif // HTTP_SERVER_REQUESTPARSER_H

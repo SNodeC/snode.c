@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COOKIEOPTIONS_H
-#define COOKIEOPTIONS_H
+#ifndef HTTP_COOKIEOPTIONS_H
+#define HTTP_COOKIEOPTIONS_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -58,4 +58,4 @@ namespace http {
 
 } // namespace http
 
-#endif // COOKIEOPTIONS_H
+#endif // HTTP_COOKIEOPTIONS_H

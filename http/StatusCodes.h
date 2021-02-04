@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STATUSCODES_H
-#define STATUSCODES_H
+#ifndef HTTP_STATUSCODES_H
+#define HTTP_STATUSCODES_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -36,4 +36,4 @@ private:
     static std::map<int, std::string> statusCode;
 };
 
-#endif // STATUSCODES_H
+#endif // HTTP_STATUSCODES_H

@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef HTTP_PARSER_H
+#define HTTP_PARSER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -90,4 +90,4 @@ namespace http {
 
 } // namespace http
 
-#endif // PARSER_H
+#endif // HTTP_PARSER_H

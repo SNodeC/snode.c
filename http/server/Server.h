@@ -1,5 +1,5 @@
-#ifndef SERVERT_H
-#define SERVERT_H
+#ifndef HTTP_SERVER_SERVERT_H
+#define HTTP_SERVER_SERVERT_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -78,4 +78,4 @@ namespace http::server {
 
 } // namespace http::server
 
-#endif // SERVERT_H
+#endif // HTTP_SERVER_SERVERT_H

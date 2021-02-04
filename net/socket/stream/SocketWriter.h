@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_stream_SOCKETWRITER_H
-#define NET_SOCKET_stream_SOCKETWRITER_H
+#ifndef NET_SOCKET_STREAM_SOCKETWRITER_H
+#define NET_SOCKET_STREAM_SOCKETWRITER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -105,4 +105,4 @@ namespace net::socket::stream {
 
 } // namespace net::socket::stream
 
-#endif // NET_SOCKET_stream_SOCKETWRITER_H
+#endif // NET_SOCKET_STREAM_SOCKETWRITER_H
