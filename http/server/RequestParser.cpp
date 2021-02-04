@@ -28,7 +28,7 @@
 #include "RequestParser.h"
 #include "http_utils.h"
 
-namespace http {
+namespace http::server {
 
     RequestParser::RequestParser(
         const std::function<void(void)>& onStart,
@@ -167,4 +167,4 @@ namespace http {
         return ParserState::ERROR;
     }
 
-} // namespace http
+} // namespace http::server

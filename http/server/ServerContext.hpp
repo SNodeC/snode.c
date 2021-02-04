@@ -27,7 +27,7 @@
 #include "http_utils.h"
 #include "socket/stream/SocketConnectionBase.h"
 
-namespace http {
+namespace http::server {
 
     template <typename Request, typename Response>
     ServerContext<Request, Response>::ServerContext(SocketConnection* socketConnection,
@@ -208,4 +208,4 @@ namespace http {
         reset();
     }
 
-} // namespace http
+} // namespace http::server

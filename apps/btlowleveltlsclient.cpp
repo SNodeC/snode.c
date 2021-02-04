@@ -19,9 +19,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "Logger.h"
-#include "ResponseParser.h"
 #include "SNodeC.h"
-#include "ServerResponse.h"
 #include "config.h" // just for this example app
 #include "socket/bluetooth/rfcomm/tls/SocketClient.h"
 

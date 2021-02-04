@@ -33,7 +33,7 @@
 
 class FileReader;
 
-namespace http {
+namespace http::server {
 
     class ServerContextBase;
 
@@ -85,7 +85,7 @@ namespace http {
         friend class ServerContext;
     };
 
-} // namespace http
+} // namespace http::server
 
 #endif // RESPONSE_H
 

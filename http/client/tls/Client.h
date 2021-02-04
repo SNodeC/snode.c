@@ -16,39 +16,29 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SERVERRESPONSE_H
-#define SERVERRESPONSE_H
+#ifndef TLS_CLIENT_H
+#define TLS_CLIENT_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <map>
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http {
+#include "client/Client.h"
+#include "socket/ip/tcp/ipv4/tls/SocketClient.h"
+#include "socket/ip/tcp/ipv6/tls/SocketClient.h"
 
-    class CookieOptions;
+namespace http::client::tls {
 
-    class ServerResponse {
-    protected:
-        ServerResponse() = default;
-
-        // switch to protected later on
+    class Client : public http::client::Client<net::socket::ip::tcp::ipv4::tls::SocketClient> {
     public:
-        void reset();
-
-        std::string httpVersion;
-        std::string statusCode;
-        std::string reason;
-        char* body = nullptr;
-        int contentLength = 0;
-        const std::map<std::string, std::string>* headers = nullptr;
-        const std::map<std::string, CookieOptions>* cookies = nullptr;
-
-        friend class ClientContext;
+        using http::client::Client<net::socket::ip::tcp::ipv4::tls::SocketClient>::Client;
     };
 
-} // namespace http
+    class Client6 : public http::client::Client<net::socket::ip::tcp::ipv6::tls::SocketClient> {
+    public:
+        using http::client::Client<net::socket::ip::tcp::ipv6::tls::SocketClient>::Client;
+    };
 
-#endif // SERVERRESPONSE_H
+} // namespace http::client::tls
+
+#endif // TLS_CLIENT_H

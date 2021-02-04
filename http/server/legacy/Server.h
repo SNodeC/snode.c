@@ -23,24 +23,24 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "../Server.h"
+#include "server/Server.h"
 #include "socket/ip/tcp/ipv4/legacy/SocketServer.h"
 #include "socket/ip/tcp/ipv6/legacy/SocketServer.h"
 
-namespace http::legacy {
+namespace http::server::legacy {
 
-    template <typename Request = http::Request, typename Response = http::Response>
-    class Server : public http::Server<net::socket::ip::tcp::ipv4::legacy::SocketServer, Request, Response> {
+    template <typename Request = http::server::Request, typename Response = http::server::Response>
+    class Server : public http::server::Server<net::socket::ip::tcp::ipv4::legacy::SocketServer, Request, Response> {
     public:
-        using http::Server<net::socket::ip::tcp::ipv4::legacy::SocketServer, Request, Response>::Server;
+        using http::server::Server<net::socket::ip::tcp::ipv4::legacy::SocketServer, Request, Response>::Server;
     };
 
-    template <typename Request = http::Request, typename Response = http::Response>
-    class Server6 : public http::Server<net::socket::ip::tcp ::ipv6::legacy::SocketServer, Request, Response> {
+    template <typename Request = http::server::Request, typename Response = http::server::Response>
+    class Server6 : public http::server::Server<net::socket::ip::tcp ::ipv6::legacy::SocketServer, Request, Response> {
     public:
-        using http::Server<net::socket::ip::tcp::ipv6::legacy::SocketServer, Request, Response>::Server;
+        using http::server::Server<net::socket::ip::tcp::ipv6::legacy::SocketServer, Request, Response>::Server;
     };
 
-} // namespace http::legacy
+} // namespace http::server::legacy
 
 #endif // LEGACY_SERVER_H

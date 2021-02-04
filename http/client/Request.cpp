@@ -25,22 +25,22 @@
 
 #include "ClientContext.h"
 #include "Logger.h"
-#include "ServerRequest.h"
+#include "Request.h"
 #include "http_utils.h"
 
-namespace http {
+namespace http::client {
 
-    ServerRequest::ServerRequest(ClientContext* clientContext)
+    Request::Request(ClientContext* clientContext)
         : clientContext(clientContext) {
     }
 
-    ServerRequest& ServerRequest::setHost(const std::string& host) {
+    Request& Request::setHost(const std::string& host) {
         this->host = host;
 
         return *this;
     }
 
-    ServerRequest& ServerRequest::append(const std::string& field, const std::string& value) {
+    Request& Request::append(const std::string& field, const std::string& value) {
         std::map<std::string, std::string>::iterator it = headers.find(field);
 
         if (it != headers.end()) {
@@ -52,7 +52,7 @@ namespace http {
         return *this;
     }
 
-    ServerRequest& ServerRequest::set(const std::map<std::string, std::string>& headers, bool overwrite) {
+    Request& Request::set(const std::map<std::string, std::string>& headers, bool overwrite) {
         for (auto& [field, value] : headers) {
             set(field, value, overwrite);
         }
@@ -60,7 +60,7 @@ namespace http {
         return *this;
     }
 
-    ServerRequest& ServerRequest::set(const std::string& field, const std::string& value, bool overwrite) {
+    Request& Request::set(const std::string& field, const std::string& value, bool overwrite) {
         if (overwrite) {
             headers.insert_or_assign(field, value);
         } else {
@@ -78,26 +78,26 @@ namespace http {
         return *this;
     }
 
-    ServerRequest& ServerRequest::cookie(const std::string& name, const std::string& value) {
+    Request& Request::cookie(const std::string& name, const std::string& value) {
         cookies.insert({name, value});
 
         return *this;
     }
 
-    ServerRequest& ServerRequest::cookie(const std::map<std::string, std::string>& cookies) {
+    Request& Request::cookie(const std::map<std::string, std::string>& cookies) {
         for (auto& [name, value] : cookies) {
             cookie(name, value);
         }
         return *this;
     }
 
-    ServerRequest& ServerRequest::type(const std::string& type) {
+    Request& Request::type(const std::string& type) {
         headers.insert({"Content-Type", type});
 
         return *this;
     };
 
-    void ServerRequest::reset() {
+    void Request::reset() {
         method = "GET";
         url.clear();
         httpMajor = 1;
@@ -114,7 +114,7 @@ namespace http {
         connectionState = ConnectionState::Default;
     }
 
-    void ServerRequest::enqueue(const char* buf, std::size_t len) {
+    void Request::enqueue(const char* buf, std::size_t len) {
         if (!headersSent && !sendHeaderInProgress) {
             sendHeaderInProgress = true;
             sendHeader();
@@ -134,11 +134,11 @@ namespace http {
         }
     }
 
-    void ServerRequest::enqueue(const std::string& data) {
+    void Request::enqueue(const std::string& data) {
         enqueue(data.c_str(), data.size());
     }
 
-    void ServerRequest::sendHeader() {
+    void Request::sendHeader() {
         std::string httpVersion = "HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor);
         enqueue(method + " " + url + " " + httpVersion + "\r\n");
 
@@ -174,7 +174,7 @@ namespace http {
         }
     }
 
-    void ServerRequest::send(const char* buffer, std::size_t size) {
+    void Request::send(const char* buffer, std::size_t size) {
         if (size > 0) {
             headers.insert({"Content-Type", "application/octet-stream"});
         }
@@ -183,28 +183,28 @@ namespace http {
         enqueue(buffer, size);
     }
 
-    void ServerRequest::send(const std::string& text) {
+    void Request::send(const std::string& text) {
         if (text.size() > 0) {
             headers.insert({"Content-Type", "text/html; charset=utf-8"});
         }
         send(text.c_str(), text.size());
     }
 
-    void ServerRequest::end() {
+    void Request::end() {
         send("");
     }
 
-    void ServerRequest::receive(const char* junk, std::size_t junkLen) {
+    void Request::receive(const char* junk, std::size_t junkLen) {
         enqueue(junk, junkLen);
     }
 
-    void ServerRequest::eof() {
+    void Request::eof() {
         LOG(INFO) << "Stream EOF";
     }
 
-    void ServerRequest::error([[maybe_unused]] int errnum) {
+    void Request::error([[maybe_unused]] int errnum) {
         PLOG(ERROR) << "Stream error: ";
         clientContext->terminateConnection();
     }
 
-} // namespace http
+} // namespace http::client

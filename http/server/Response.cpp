@@ -27,10 +27,9 @@
 #include "Response.h"
 #include "ServerContext.h"
 #include "StatusCodes.h"
-#include "file/FileReader.h"
 #include "http_utils.h"
 
-namespace http {
+namespace http::server {
 
     Response::Response(ServerContextBase* serverContext)
         : serverContext(serverContext) {
@@ -202,4 +201,4 @@ namespace http {
         cookies.clear();
     }
 
-} // namespace http
+} // namespace http::server

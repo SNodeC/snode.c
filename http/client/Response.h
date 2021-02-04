@@ -16,29 +16,43 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TLS_CLIENT_H
-#define TLS_CLIENT_H
+#ifndef SERVERRESPONSE_H
+#define SERVERRESPONSE_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <map>
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "../Client.h"
-#include "socket/ip/tcp/ipv4/tls/SocketClient.h"
-#include "socket/ip/tcp/ipv6/tls/SocketClient.h"
+namespace http {
 
-namespace http::tls {
+    class CookieOptions;
 
-    class Client : public http::Client<net::socket::ip::tcp::ipv4::tls::SocketClient> {
-    public:
-        using http::Client<net::socket::ip::tcp::ipv4::tls::SocketClient>::Client;
-    };
+    namespace client {
 
-    class Client6 : public http::Client<net::socket::ip::tcp::ipv6::tls::SocketClient> {
-    public:
-        using http::Client<net::socket::ip::tcp::ipv6::tls::SocketClient>::Client;
-    };
+        class Response {
+        protected:
+            Response() = default;
 
-} // namespace http::tls
+            // switch to protected later on
+        public:
+            void reset();
 
-#endif // TLS_CLIENT_H
+            std::string httpVersion;
+            std::string statusCode;
+            std::string reason;
+            char* body = nullptr;
+            int contentLength = 0;
+            const std::map<std::string, std::string>* headers = nullptr;
+            const std::map<std::string, CookieOptions>* cookies = nullptr;
+
+            friend class ClientContext;
+        };
+
+    } // namespace client
+
+} // namespace http
+
+#endif // SERVERRESPONSE_H

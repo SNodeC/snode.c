@@ -20,8 +20,8 @@
 
 #include "Logger.h" // for Writer, Storage, VLOG
 #include "Parser.h"
-#include "RequestParser.h"  // for RequestParser
-#include "ResponseParser.h" // for HTTPResponseParser, ResponseCookie
+#include "client/ResponseParser.h" // for HTTPResponseParser, ResponseCookie
+#include "server/RequestParser.h"  // for RequestParser
 
 #include <cstddef>
 #include <cstring>     // for memcpy, std::size_t
@@ -42,7 +42,7 @@ using namespace http;
 int main(int argc, char* argv[]) {
     Logger::init(argc, argv);
 
-    RequestParser requestParser(
+    server::RequestParser requestParser(
         [](void) -> void {
         },
         [](const std::string& method,
@@ -107,7 +107,7 @@ int main(int argc, char* argv[]) {
     requestParser.parse(httpRequest.c_str(), httpRequest.size());
     requestParser.reset();
 
-    ResponseParser responseParser(
+    client::ResponseParser responseParser(
         [](void) -> void {
         },
         [](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
@@ -134,7 +134,7 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "++   OnContent: " << contentLength << " : " << strContent;
             delete[] strContent;
         },
-        [](ResponseParser& parser) -> void {
+        [](client::ResponseParser& parser) -> void {
             VLOG(0) << "++   OnParsed";
             parser.reset();
         },

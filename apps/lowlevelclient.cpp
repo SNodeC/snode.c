@@ -19,9 +19,9 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "Logger.h"
-#include "ResponseParser.h"
 #include "SNodeC.h"
-#include "ServerResponse.h"
+#include "client/Response.h"
+#include "client/ResponseParser.h"
 #include "config.h" // just for this example app
 #include "socket/ip/tcp/ipv4/Socket.h"
 #include "socket/stream/legacy/SocketClient.h"
@@ -35,8 +35,8 @@ using namespace net::socket::ip;
 using namespace net::socket::ip::address::ipv4;
 using namespace net::socket::stream;
 
-static http::ResponseParser* getResponseParser() {
-    http::ResponseParser* responseParser = new http::ResponseParser(
+static http::client::ResponseParser* getResponseParser() {
+    http::client::ResponseParser* responseParser = new http::client::ResponseParser(
         [](void) -> void {
         },
         [](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
@@ -63,7 +63,7 @@ static http::ResponseParser* getResponseParser() {
             VLOG(0) << "++   OnContent: " << contentLength << std::endl << strContent;
             delete[] strContent;
         },
-        [](http::ResponseParser& parser) -> void {
+        [](http::client::ResponseParser& parser) -> void {
             VLOG(0) << "++   OnParsed";
             parser.reset();
         },
@@ -77,7 +77,7 @@ static http::ResponseParser* getResponseParser() {
 tls::SocketClient<tcp::ipv4::Socket> getTlsClient() {
     tls::SocketClient<tcp::ipv4::Socket> tlsClient(
         [](tls::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection) -> void { // onConstruct
-            socketConnection->setContext<http::ResponseParser*>(getResponseParser());
+            socketConnection->setContext<http::client::ResponseParser*>(getResponseParser());
         },
         []([[maybe_unused]] tls::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection) -> void { // onDestruct
         },
@@ -140,7 +140,7 @@ tls::SocketClient<tcp::ipv4::Socket> getTlsClient() {
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
 
-            socketConnection->getContext<http::ResponseParser*>([](http::ResponseParser*& responseParser) -> void {
+            socketConnection->getContext<http::client::ResponseParser*>([](http::client::ResponseParser*& responseParser) -> void {
                 delete responseParser;
             });
         },
@@ -149,9 +149,10 @@ tls::SocketClient<tcp::ipv4::Socket> getTlsClient() {
            std::size_t junkSize) -> void { // onRead
             VLOG(0) << "OnRead";
 
-            socketConnection->getContext<http::ResponseParser*>([junk, junkSize](http::ResponseParser*& responseParser) -> void {
-                responseParser->parse(junk, junkSize);
-            });
+            socketConnection->getContext<http::client::ResponseParser*>(
+                [junk, junkSize](http::client::ResponseParser*& responseParser) -> void {
+                    responseParser->parse(junk, junkSize);
+                });
 
         },
         []([[maybe_unused]] tls::SocketConnection<tcp::ipv4::Socket>* socketConnection,
@@ -180,7 +181,7 @@ tls::SocketClient<tcp::ipv4::Socket> getTlsClient() {
 legacy::SocketClient<tcp::ipv4::Socket> getLegacyClient() {
     legacy::SocketClient<tcp::ipv4::Socket> legacyClient(
         [](legacy::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection) -> void { // onConstruct
-            socketConnection->setContext<http::ResponseParser*>(getResponseParser());
+            socketConnection->setContext<http::client::ResponseParser*>(getResponseParser());
         },
         []([[maybe_unused]] legacy::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection) -> void { // onDestruct
         },
@@ -198,7 +199,7 @@ legacy::SocketClient<tcp::ipv4::Socket> getLegacyClient() {
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
 
-            socketConnection->getContext<http::ResponseParser*>([](http::ResponseParser*& responseParser) -> void {
+            socketConnection->getContext<http::client::ResponseParser*>([](http::client::ResponseParser*& responseParser) -> void {
                 delete responseParser;
             });
         },
@@ -207,9 +208,10 @@ legacy::SocketClient<tcp::ipv4::Socket> getLegacyClient() {
            std::size_t junkSize) -> void { // onRead
             VLOG(0) << "OnRead";
 
-            socketConnection->getContext<http::ResponseParser*>([junk, junkSize](http::ResponseParser*& responseParser) -> void {
-                responseParser->parse(junk, junkSize);
-            });
+            socketConnection->getContext<http::client::ResponseParser*>(
+                [junk, junkSize](http::client::ResponseParser*& responseParser) -> void {
+                    responseParser->parse(junk, junkSize);
+                });
         },
         []([[maybe_unused]] legacy::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection,
            int errnum) -> void { // onReadError

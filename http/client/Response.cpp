@@ -16,11 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ServerResponse.h"
+#include "Response.h"
 
-namespace http {
+namespace http::client {
 
-    void ServerResponse::reset() {
+    void Response::reset() {
     }
 
-} // namespace http
+} // namespace http::client

@@ -24,15 +24,15 @@
 
 #include "MimeTypes.h"
 #include "Response.h"
-#include "ServerContext.h"
 #include "StatusCodes.h"
 #include "file/FileReader.h"
 #include "http_utils.h"
+#include "server/ServerContext.h"
 
 namespace express {
 
-    Response::Response(http::ServerContextBase* serverContext)
-        : http::Response(serverContext) {
+    Response::Response(http::server::ServerContextBase* serverContext)
+        : http::server::Response(serverContext) {
     }
 
     void Response::sendFile(const std::string& file, const std::function<void(int err)>& onError) {
@@ -94,7 +94,7 @@ namespace express {
     }
 
     void Response::reset() {
-        http::Response::reset();
+        http::server::Response::reset();
     }
 
 } // namespace express

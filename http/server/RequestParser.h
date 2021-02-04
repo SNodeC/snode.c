@@ -31,7 +31,7 @@
 
 #include "Parser.h"
 
-namespace http {
+namespace http::server {
 
     class RequestParser : public Parser {
     public:
@@ -87,6 +87,6 @@ namespace http {
         std::function<void(int status, const std::string& reason)> onError;
     };
 
-} // namespace http
+} // namespace http::server
 
 #endif // REQUESTPARSER_H

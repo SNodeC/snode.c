@@ -20,10 +20,10 @@
 
 #include "Logger.h"
 #include "SNodeC.h"
-#include "ServerResponse.h"
+#include "client/Response.h"
+#include "client/legacy/Client.h"
+#include "client/tls/Client.h"
 #include "config.h" // just for this example app
-#include "legacy/Client.h"
-#include "tls/Client.h"
 
 #include <cstring>
 #include <iostream>
@@ -31,42 +31,44 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+using namespace http::client;
+
 int main(int argc, char* argv[]) {
     net::SNodeC::init(argc, argv);
 
     {
-        http::legacy::Client6 legacyClient(
-            [](http::legacy::Client6::SocketConnection* socketConnection) -> void {
+        legacy::Client6 legacyClient(
+            [](legacy::Client6::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnConnect";
 
                 VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
                 VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
             },
-            [](http::ServerRequest& serverRequest) -> void {
-                serverRequest.url = "/index.html";
-                serverRequest.end();
+            [](Request& request) -> void {
+                request.url = "/index.html";
+                request.end();
             },
-            [](const http::ServerResponse& serverResponse) -> void {
+            [](Response& response) -> void {
                 VLOG(0) << "-- OnResponse";
                 VLOG(0) << "     Status:";
-                VLOG(0) << "       " << serverResponse.httpVersion << " " << serverResponse.statusCode << " " << serverResponse.reason;
+                VLOG(0) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
 
                 VLOG(0) << "     Headers:";
-                for (auto [field, value] : *serverResponse.headers) {
+                for (auto [field, value] : *response.headers) {
                     VLOG(0) << "       " << field + " = " + value;
                 }
 
                 VLOG(0) << "     Cookies:";
-                for (auto [name, cookie] : *serverResponse.cookies) {
+                for (auto [name, cookie] : *response.cookies) {
                     VLOG(0) << "       " + name + " = " + cookie.getValue();
                     for (auto [option, value] : cookie.getOptions()) {
                         VLOG(0) << "         " + option + " = " + value;
                     }
                 }
 
-                char* body = new char[serverResponse.contentLength + 1];
-                memcpy(body, serverResponse.body, serverResponse.contentLength);
-                body[serverResponse.contentLength] = 0;
+                char* body = new char[response.contentLength + 1];
+                memcpy(body, response.body, response.contentLength);
+                body[response.contentLength] = 0;
 
                 VLOG(1) << "     Body:\n----------- start body -----------\n" << body << "------------ end body ------------";
 
@@ -77,15 +79,15 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "     Status: " << status;
                 VLOG(0) << "     Reason: " << reason;
             },
-            [](http::legacy::Client6::SocketConnection* socketConnection) -> void {
+            [](legacy::Client6::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnDisconnect";
 
                 VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
                 VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
             });
 
-        http::tls::Client6 tlsClient(
-            [](http::tls::Client6::SocketConnection* socketConnection) -> void {
+        tls::Client6 tlsClient(
+            [](tls::Client6::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnConnect";
 
                 VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
@@ -135,33 +137,33 @@ int main(int argc, char* argv[]) {
                     VLOG(0) << "     Server certificate: no certificate";
                 }
             },
-            [](http::ServerRequest& serverRequest) -> void {
-                serverRequest.url = "/index.html";
-                serverRequest.end();
+            [](Request& request) -> void {
+                request.url = "/index.html";
+                request.end();
             },
-            [](const http::ServerResponse& serverResponse) -> void {
+            [](const Response& response) -> void {
                 VLOG(0) << "-- OnResponse";
                 VLOG(0) << "     Status:";
-                VLOG(0) << "       " << serverResponse.httpVersion;
-                VLOG(0) << "       " << serverResponse.statusCode;
-                VLOG(0) << "       " << serverResponse.reason;
+                VLOG(0) << "       " << response.httpVersion;
+                VLOG(0) << "       " << response.statusCode;
+                VLOG(0) << "       " << response.reason;
 
                 VLOG(0) << "     Headers:";
-                for (auto [field, value] : *serverResponse.headers) {
+                for (auto [field, value] : *response.headers) {
                     VLOG(0) << "       " << field + " = " + value;
                 }
 
                 VLOG(0) << "     Cookies:";
-                for (auto [name, cookie] : *serverResponse.cookies) {
+                for (auto [name, cookie] : *response.cookies) {
                     VLOG(0) << "       " + name + " = " + cookie.getValue();
                     for (auto [option, value] : cookie.getOptions()) {
                         VLOG(0) << "         " + option + " = " + value;
                     }
                 }
 
-                char* body = new char[serverResponse.contentLength + 1];
-                memcpy(body, serverResponse.body, serverResponse.contentLength);
-                body[serverResponse.contentLength] = 0;
+                char* body = new char[response.contentLength + 1];
+                memcpy(body, response.body, response.contentLength);
+                body[response.contentLength] = 0;
 
                 VLOG(1) << "     Body:\n----------- start body -----------\n" << body << "------------ end body ------------";
 
@@ -172,7 +174,7 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "     Status: " << status;
                 VLOG(0) << "     Reason: " << reason;
             },
-            [](http::tls::Client6::SocketConnection* socketConnection) -> void {
+            [](tls::Client6::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnDisconnect";
 
                 VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();

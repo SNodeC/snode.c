@@ -33,7 +33,7 @@
 #include "ClientContext.h"
 #include "Logger.h"
 
-namespace http {
+namespace http::client {
 
     template <typename SocketClientT>
     class Client {
@@ -44,8 +44,8 @@ namespace http {
         using SocketAddress = typename Socket::SocketAddress;
 
         Client(const std::function<void(SocketConnection*)>& onConnect,
-               const std::function<void(ServerRequest&)>& onRequestBegin,
-               const std::function<void(ServerResponse&)>& onResponse,
+               const std::function<void(Request&)>& onRequestBegin,
+               const std::function<void(Response&)>& onResponse,
                const std::function<void(int, const std::string&)>& onResponseError,
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
@@ -64,10 +64,10 @@ namespace http {
 
                       socketConnection->template getContext<ClientContext*>(
                           [&socketConnection, &onRequestBegin](ClientContext* clientContext) -> void {
-                              ServerRequest& serverRequest = clientContext->getServerRequest();
+                              Request& request = clientContext->getRequest();
 
-                              serverRequest.setHost(socketConnection->getRemoteAddress().host());
-                              onRequestBegin(serverRequest);
+                              request.setHost(socketConnection->getRemoteAddress().host());
+                              onRequestBegin(request);
                           });
                   },
                   [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
@@ -103,6 +103,6 @@ namespace http {
         SocketClient socketClient;
     };
 
-} // namespace http
+} // namespace http::client
 
 #endif // CLIENT_H

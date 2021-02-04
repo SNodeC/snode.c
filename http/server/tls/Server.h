@@ -23,24 +23,24 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "../Server.h"
+#include "server/Server.h"
 #include "socket/ip/tcp/ipv4/tls/SocketServer.h"
 #include "socket/ip/tcp/ipv6/tls/SocketServer.h"
 
-namespace http::tls {
+namespace http::server::tls {
 
-    template <typename Request = http::Request, typename Response = http::Response>
-    class Server : public http::Server<net::socket::ip::tcp::ipv4::tls::SocketServer, Request, Response> {
+    template <typename Request = http::server::Request, typename Response = http::server::Response>
+    class Server : public http::server::Server<net::socket::ip::tcp::ipv4::tls::SocketServer, Request, Response> {
     public:
-        using http::Server<net::socket::ip::tcp::ipv4::tls::SocketServer, Request, Response>::Server;
+        using http::server::Server<net::socket::ip::tcp::ipv4::tls::SocketServer, Request, Response>::Server;
     };
 
-    template <typename Request = http::Request, typename Response = http::Response>
-    class Server6 : public http::Server<net::socket::ip::tcp::ipv6::tls::SocketServer, Request, Response> {
+    template <typename Request = http::server::Request, typename Response = http::server::Response>
+    class Server6 : public http::server::Server<net::socket::ip::tcp::ipv6::tls::SocketServer, Request, Response> {
     public:
-        using http::Server<net::socket::ip::tcp::ipv6::tls::SocketServer, Request, Response>::Server;
+        using http::server::Server<net::socket::ip::tcp::ipv6::tls::SocketServer, Request, Response>::Server;
     };
 
-} // namespace http::tls
+} // namespace http::server::tls
 
 #endif // TLS_SERVER_H

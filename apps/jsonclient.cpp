@@ -22,9 +22,9 @@
 
 #include "Logger.h"
 #include "SNodeC.h"
-#include "ServerResponse.h"
+#include "client/Response.h"
+#include "client/legacy/Client.h"
 #include "config.h" // just for this example app
-#include "legacy/Client.h"
 
 #include <cstring>
 
@@ -33,41 +33,41 @@
 int main(int argc, char* argv[]) {
     net::SNodeC::init(argc, argv);
 
-    http::legacy::Client jsonClient(
-        [](http::legacy::Client::SocketConnection* socketConnection) -> void {
+    http::client::legacy::Client jsonClient(
+        [](http::client::legacy::Client::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnConnect";
 
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
         },
-        [](http::ServerRequest& serverRequest) -> void {
-            serverRequest.method = "POST";
-            serverRequest.url = "/index.html";
-            serverRequest.type("application/json").send("{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}");
+        [](http::client::Request& request) -> void {
+            request.method = "POST";
+            request.url = "/index.html";
+            request.type("application/json").send("{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}");
         },
-        [](const http::ServerResponse& clientResponse) -> void {
+        [](const http::client::Response& response) -> void {
             VLOG(0) << "-- OnResponse";
             VLOG(0) << "     Status:";
-            VLOG(0) << "       " << clientResponse.httpVersion;
-            VLOG(0) << "       " << clientResponse.statusCode;
-            VLOG(0) << "       " << clientResponse.reason;
+            VLOG(0) << "       " << response.httpVersion;
+            VLOG(0) << "       " << response.statusCode;
+            VLOG(0) << "       " << response.reason;
 
             VLOG(0) << "     Headers:";
-            for (auto [field, value] : *clientResponse.headers) {
+            for (auto [field, value] : *response.headers) {
                 VLOG(0) << "       " << field + " = " + value;
             }
 
             VLOG(0) << "     Cookies:";
-            for (auto [name, cookie] : *clientResponse.cookies) {
+            for (auto [name, cookie] : *response.cookies) {
                 VLOG(0) << "       " + name + " = " + cookie.getValue();
                 for (auto [option, value] : cookie.getOptions()) {
                     VLOG(0) << "         " + option + " = " + value;
                 }
             }
 
-            char* body = new char[clientResponse.contentLength + 1];
-            memcpy(body, clientResponse.body, clientResponse.contentLength);
-            body[clientResponse.contentLength] = 0;
+            char* body = new char[response.contentLength + 1];
+            memcpy(body, response.body, response.contentLength);
+            body[response.contentLength] = 0;
 
             VLOG(1) << "     Body:\n----------- start body -----------\n" << body << "\n------------ end body ------------";
 
@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "     Status: " << status;
             VLOG(0) << "     Reason: " << reason;
         },
-        [](http::legacy::Client::SocketConnection* socketConnection) -> void {
+        [](http::client::legacy::Client::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnDisconnect";
 
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();

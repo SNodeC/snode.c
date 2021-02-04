@@ -14,7 +14,7 @@
 
 #include "ServerContext.hpp"
 
-namespace http {
+namespace http::server {
 
     template <typename SocketServerT, typename RequestT = Request, typename ResponseT = Response>
     class Server {
@@ -76,6 +76,6 @@ namespace http {
         SocketServer socketServer;
     };
 
-} // namespace http
+} // namespace http::server
 
 #endif // SERVERT_H

@@ -33,7 +33,7 @@ namespace net::socket::stream {
     class SocketConnectionBase;
 }
 
-namespace http {
+namespace http::server {
 
     class ServerContextBase {
     public:
@@ -101,6 +101,6 @@ namespace http {
         void reset();
     };
 
-} // namespace http
+} // namespace http::server
 
 #endif // SERVERCONTEXT_H

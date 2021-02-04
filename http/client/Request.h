@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SERVERREQUEST_H
-#define SERVERREQUEST_H
+#ifndef REQUEST_H
+#define REQUEST_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,13 +30,13 @@
 #include "ConnectionState.h"
 #include "stream/Sink.h"
 
-namespace http {
+namespace http::client {
 
     class ClientContext;
 
-    class ServerRequest : public net::stream::Sink {
+    class Request : public net::stream::Sink {
     protected:
-        explicit ServerRequest(ClientContext* clientContext);
+        explicit Request(ClientContext* clientContext);
 
     public:
         std::string method = "GET";
@@ -47,13 +47,13 @@ namespace http {
 
         ConnectionState connectionState = ConnectionState::Default;
 
-        ServerRequest& setHost(const std::string& host);
-        ServerRequest& append(const std::string& field, const std::string& value);
-        ServerRequest& set(const std::string& field, const std::string& value, bool overwrite = false);
-        ServerRequest& set(const std::map<std::string, std::string>& headers, bool overwrite = false);
-        ServerRequest& cookie(const std::string& name, const std::string& value);
-        ServerRequest& cookie(const std::map<std::string, std::string>& cookies);
-        ServerRequest& type(const std::string& type);
+        Request& setHost(const std::string& host);
+        Request& append(const std::string& field, const std::string& value);
+        Request& set(const std::string& field, const std::string& value, bool overwrite = false);
+        Request& set(const std::map<std::string, std::string>& headers, bool overwrite = false);
+        Request& cookie(const std::string& name, const std::string& value);
+        Request& cookie(const std::map<std::string, std::string>& cookies);
+        Request& type(const std::string& type);
 
         void send(const char* buffer, std::size_t size);
         void send(const std::string& text);
@@ -88,6 +88,6 @@ namespace http {
         friend class ClientContext;
     };
 
-} // namespace http
+} // namespace http::client
 
-#endif // SERVERREQUEST_H
+#endif // REQUEST_H

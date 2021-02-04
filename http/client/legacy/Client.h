@@ -23,22 +23,22 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "../Client.h"
+#include "client/Client.h"
 #include "socket/ip/tcp/ipv4/legacy/SocketClient.h"
 #include "socket/ip/tcp/ipv6/legacy/SocketClient.h"
 
-namespace http::legacy {
+namespace http::client::legacy {
 
-    class Client : public http::Client<net::socket::ip::tcp::ipv4::legacy::SocketClient> {
+    class Client : public http::client::Client<net::socket::ip::tcp::ipv4::legacy::SocketClient> {
     public:
-        using http::Client<net::socket::ip::tcp::ipv4::legacy::SocketClient>::Client;
+        using http::client::Client<net::socket::ip::tcp::ipv4::legacy::SocketClient>::Client;
     };
 
-    class Client6 : public http::Client<net::socket::ip::tcp::ipv6::legacy::SocketClient> {
+    class Client6 : public http::client::Client<net::socket::ip::tcp::ipv6::legacy::SocketClient> {
     public:
-        using http::Client<net::socket::ip::tcp::ipv6::legacy::SocketClient>::Client;
+        using http::client::Client<net::socket::ip::tcp::ipv6::legacy::SocketClient>::Client;
     };
 
-} // namespace http::legacy
+} // namespace http::client::legacy
 
 #endif // LEGACY_CLIENT_H

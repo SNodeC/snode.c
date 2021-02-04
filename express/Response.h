@@ -26,13 +26,13 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "../http/Response.h"
+#include "server/Response.h"
 
 namespace express {
 
-    class Response : public http::Response {
+    class Response : public http::server::Response {
     public:
-        Response(http::ServerContextBase* serverContext);
+        Response(http::server::ServerContextBase* serverContext);
 
         void sendFile(const std::string& file, const std::function<void(int err)>& onError);
         void download(const std::string& file, const std::function<void(int err)>& onError);

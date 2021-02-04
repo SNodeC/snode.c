@@ -83,8 +83,8 @@ namespace express {
         void dispatch(express::Request& req, express::Response& res);
 
     private:
-        std::map<const http::Request*, Request*> reqestMap;
-        std::map<const http::Response*, Response*> responseMap;
+        std::map<const http::server::Request*, Request*> reqestMap;
+        std::map<const http::server::Response*, Response*> responseMap;
         std::shared_ptr<RouterDispatcher> routerDispatcher; // it can be shared by multiple routers
     };
 

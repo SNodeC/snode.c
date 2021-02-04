@@ -26,11 +26,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "../http/Request.h"
+#include "server/Request.h"
 
 namespace express {
 
-    class Request : public http::Request {
+    class Request : public http::server::Request {
     public:
         std::string& param(const std::string& id);
 

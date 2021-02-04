@@ -24,7 +24,7 @@
 
 #include "http_utils.h"
 
-namespace http {
+namespace http::server {
 
     const std::string& Request::header(const std::string& key, int i) const {
         std::string tmpKey = key;
@@ -84,4 +84,4 @@ namespace http {
         MultibleAttributeInjector::reset();
     }
 
-} // namespace http
+} // namespace http::server

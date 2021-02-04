@@ -24,22 +24,20 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "WebAppT.h"
-#include "tls/Server.h"
+#include "server/tls/Server.h"
 
 namespace express::tls {
 
-    class WebApp : public WebAppT<http::tls::Server<express::Request, express::Response>> {
+    class WebApp : public WebAppT<http::server::tls::Server<express::Request, express::Response>> {
     public:
-        using WebAppT<http::tls::Server<express::Request, express::Response>>::WebAppT;
+        using WebAppT<http::server::tls::Server<express::Request, express::Response>>::WebAppT;
     };
 
-    class WebApp6 : public WebAppT<http::tls::Server6<express::Request, express::Response>> {
+    class WebApp6 : public WebAppT<http::server::tls::Server6<express::Request, express::Response>> {
     public:
-        using WebAppT<http::tls::Server6<express::Request, express::Response>>::WebAppT;
+        using WebAppT<http::server::tls::Server6<express::Request, express::Response>>::WebAppT;
     };
 
 } // namespace express::tls
-
-template class http::tls::Server<express::Request, express::Response>;
 
 #endif // TLS_WEBAPP_H

@@ -24,18 +24,18 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "WebAppT.h"
-#include "legacy/Server.h"
+#include "server/legacy/Server.h"
 
 namespace express::legacy {
 
-    class WebApp : public WebAppT<http::legacy::Server<express::Request, express::Response>> {
+    class WebApp : public WebAppT<http::server::legacy::Server<express::Request, express::Response>> {
     public:
-        using WebAppT<http::legacy::Server<express::Request, express::Response>>::WebAppT;
+        using WebAppT<http::server::legacy::Server<express::Request, express::Response>>::WebAppT;
     };
 
-    class WebApp6 : public WebAppT<http::legacy::Server6<express::Request, express::Response>> {
+    class WebApp6 : public WebAppT<http::server::legacy::Server6<express::Request, express::Response>> {
     public:
-        using WebAppT<http::legacy::Server6<express::Request, express::Response>>::WebAppT;
+        using WebAppT<http::server::legacy::Server6<express::Request, express::Response>>::WebAppT;
     };
 
 } // namespace express::legacy

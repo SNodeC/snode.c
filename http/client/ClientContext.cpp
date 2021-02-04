@@ -26,35 +26,35 @@
 #include "ClientContext.h"
 #include "socket/stream/SocketConnectionBase.h"
 
-namespace http {
+namespace http::client {
     class CookieOptions;
 
     ClientContext::ClientContext(SocketConnection* socketConnection,
-                                 const std::function<void(ServerResponse&)>& onResponse,
+                                 const std::function<void(Response&)>& onResponse,
                                  const std::function<void(int status, const std::string& reason)>& onError)
         : socketConnection(socketConnection)
-        , serverRequest(this)
+        , request(this)
         , parser(
               [](void) -> void {
               },
               [this](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
-                  serverResponse.httpVersion = httpVersion;
-                  serverResponse.statusCode = statusCode;
-                  serverResponse.reason = reason;
+                  response.httpVersion = httpVersion;
+                  response.statusCode = statusCode;
+                  response.reason = reason;
               },
               [this](const std::map<std::string, std::string>& headers, const std::map<std::string, http::CookieOptions>& cookies) -> void {
-                  serverResponse.headers = &headers;
-                  serverResponse.cookies = &cookies;
+                  response.headers = &headers;
+                  response.cookies = &cookies;
               },
               [this](char* content, std::size_t contentLength) -> void {
-                  serverResponse.body = content;
-                  serverResponse.contentLength = contentLength;
+                  response.body = content;
+                  response.contentLength = contentLength;
               },
-              [this, onResponse](http::ResponseParser& parser) -> void {
-                  onResponse(serverResponse);
+              [this, onResponse](http::client::ResponseParser& parser) -> void {
+                  onResponse(response);
                   parser.reset();
-                  serverRequest.reset();
-                  serverResponse.reset();
+                  request.reset();
+                  response.reset();
               },
               [onError](int status, const std::string& reason) -> void {
                   onError(status, reason);
@@ -72,8 +72,8 @@ namespace http {
         socketConnection->enqueue(buf, len);
     }
 
-    ServerRequest& ClientContext::getServerRequest() {
-        return serverRequest;
+    Request& ClientContext::getRequest() {
+        return request;
     }
 #
 
@@ -81,4 +81,4 @@ namespace http {
         socketConnection->close();
     }
 
-} // namespace http
+} // namespace http::client

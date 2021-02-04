@@ -27,28 +27,28 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Request.h"
+#include "Response.h"
 #include "ResponseParser.h"
-#include "ServerRequest.h"
-#include "ServerResponse.h"
 
 namespace net::socket::stream {
     class SocketConnectionBase;
 } // namespace net::socket::stream
 
-namespace http {
+namespace http::client {
 
     class ClientContext {
     public:
         using SocketConnection = net::socket::stream::SocketConnectionBase;
 
         ClientContext(SocketConnection* socketConnection,
-                      const std::function<void(ServerResponse&)>& onResponse,
+                      const std::function<void(Response&)>& onResponse,
                       const std::function<void(int status, const std::string& reason)>& onError);
 
         void receiveResponseData(const char* junk, std::size_t junkLen);
         void sendRequestData(const char* buf, std::size_t len);
 
-        ServerRequest& getServerRequest();
+        Request& getRequest();
 
         void terminateConnection();
 
@@ -57,13 +57,13 @@ namespace http {
     protected:
         SocketConnection* socketConnection;
 
-        ServerRequest serverRequest;
-        ServerResponse serverResponse;
+        Request request;
+        Response response;
 
     private:
         ResponseParser parser;
     };
 
-} // namespace http
+} // namespace http::client
 
 #endif // CLIENTCONTEXT_H

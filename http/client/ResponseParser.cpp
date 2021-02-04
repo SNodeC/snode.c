@@ -26,7 +26,7 @@
 #include "ResponseParser.h"
 #include "http_utils.h"
 
-namespace http {
+namespace http::client {
 
     ResponseParser::ResponseParser(
         const std::function<void(void)>& onStart,
@@ -145,4 +145,4 @@ namespace http {
         onParsed(*this);
     }
 
-} // namespace http
+} // namespace http::client

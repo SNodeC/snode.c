@@ -31,7 +31,7 @@
 #include "CookieOptions.h"
 #include "Parser.h"
 
-namespace http {
+namespace http::client {
 
     class ResponseParser : public Parser {
     public:
@@ -69,6 +69,6 @@ namespace http {
         std::function<void(int status, const std::string& reason)> onError;
     };
 
-} // namespace http
+} // namespace http::client
 
 #endif // RESPONSEPARSER_H
