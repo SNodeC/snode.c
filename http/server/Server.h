@@ -64,11 +64,11 @@ namespace http::server {
                   options) {
         }
 
-        void listen(unsigned short port, const std::function<void(int err)>& onError) const {
+        void listen(in_port_t port, const std::function<void(int err)>& onError) const {
             socketServer.listen(SocketAddress(port), 5, onError);
         }
 
-        void listen(const std::string& ipOrHostname, unsigned short port, const std::function<void(int err)>& onError) const {
+        void listen(const std::string& ipOrHostname, in_port_t port, const std::function<void(int err)>& onError) const {
             socketServer.listen(SocketAddress(ipOrHostname, port), 5, onError);
         }
 

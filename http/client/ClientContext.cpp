@@ -75,7 +75,6 @@ namespace http::client {
     Request& ClientContext::getRequest() {
         return request;
     }
-#
 
     void ClientContext::terminateConnection() {
         socketConnection->close();

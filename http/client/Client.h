@@ -95,7 +95,7 @@ namespace http::client {
                   options) {
         }
 
-        void connect(const std::string& ipOrHostname, unsigned short port, const std::function<void(int err)>& onError) {
+        void connect(const std::string& ipOrHostname, in_port_t port, const std::function<void(int err)>& onError) {
             socketClient.connect(SocketAddress(ipOrHostname, port), onError);
         }
 
