@@ -18,8 +18,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string.h> // for memcpy
-#include <utility>  // for pair, tuple_element<>::type
+#include <utility> // for pair, tuple_element<>::type
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
