@@ -16,14 +16,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <iosfwd> // for size_t
-
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
 #ifndef SNODEC_H
 #define SNODEC_H
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <cstddef> // for size_t
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net {
 
