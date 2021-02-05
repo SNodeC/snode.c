@@ -56,7 +56,7 @@ namespace http::server {
     }
 
     void Response::enqueue(const std::string& str) {
-        enqueue(str.c_str(), str.size());
+        enqueue(str.data(), str.size());
     }
 
     Response& Response::status(int status) {
@@ -140,7 +140,7 @@ namespace http::server {
         if (text.size() > 0) {
             headers.insert({"Content-Type", "text/html; charset=utf-8"});
         }
-        send(text.c_str(), text.size());
+        send(text.data(), text.size());
     }
 
     void Response::sendHeader() {

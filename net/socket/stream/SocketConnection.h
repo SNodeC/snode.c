@@ -81,7 +81,7 @@ namespace net::socket::stream {
         }
 
         void enqueue(const std::string& data) override {
-            enqueue(data.c_str(), data.size());
+            enqueue(data.data(), data.size());
         }
 
         void close(bool instantly = false) final {

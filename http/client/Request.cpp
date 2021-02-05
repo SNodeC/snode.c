@@ -134,7 +134,7 @@ namespace http::client {
     }
 
     void Request::enqueue(const std::string& data) {
-        enqueue(data.c_str(), data.size());
+        enqueue(data.data(), data.size());
     }
 
     void Request::sendHeader() {
@@ -186,7 +186,7 @@ namespace http::client {
         if (text.size() > 0) {
             headers.insert({"Content-Type", "text/html; charset=utf-8"});
         }
-        send(text.c_str(), text.size());
+        send(text.data(), text.size());
     }
 
     void Request::end() {

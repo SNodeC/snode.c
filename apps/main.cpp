@@ -327,6 +327,16 @@ int main(int argc, char** argv) {
     const char str[] = "ÅÄÖ";
     std::cout << sizeof(str) << ' ' << strlen(str) << ' ' << sizeof("Åäö") << ' ' << strlen("åäö") << std::endl;
 
+    std::string s = "ÅÄÖ";
+    std::cout << "String: \"" << s << "\" Length: " << s.length() << std::endl;
+
+    std::cout << "String: \"" << s.c_str() << "\" Length: " << strlen(s.c_str()) << std::endl;
+
+    std::string s1 = str;
+    std::cout << "String: \"" << s1 << "\" Length: " << s1.length() << std::endl;
+
+    std::cout << "String: \"" << s1.c_str() << "\" Length: " << strlen(s1.c_str()) << std::endl;
+
     WebApp::init(argc, argv);
 
     return timerApp();

@@ -51,7 +51,7 @@ namespace net::stream {
     }
 
     void PipeSource::send(const std::string& data) {
-        send(data.c_str(), data.size());
+        send(data.data(), data.size());
     }
 
     void PipeSource::eof() {

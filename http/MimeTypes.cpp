@@ -237,7 +237,7 @@ std::string MimeTypes::contentType(const std::string& file) {
     if (it != mimeType.end()) {
         type = it->second;
     } else if (magic != nullptr) {
-        type = magic_file(MimeTypes::magic, (file.c_str()));
+        type = magic_file(MimeTypes::magic, file.c_str());
     }
 
     return type;
