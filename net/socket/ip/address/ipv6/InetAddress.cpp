@@ -75,7 +75,7 @@ namespace net::socket::ip::address::ipv6 {
         freeaddrinfo(resalloc);
     }
 
-    InetAddress::InetAddress(const std::string& ipOrHostname, in_port_t port) {
+    InetAddress::InetAddress(const std::string& ipOrHostname, uint16_t port) {
         struct addrinfo hints {};
         struct addrinfo* res;
         struct addrinfo* resalloc;
@@ -114,13 +114,13 @@ namespace net::socket::ip::address::ipv6 {
         freeaddrinfo(resalloc);
     }
 
-    InetAddress::InetAddress(in_port_t port) {
+    InetAddress::InetAddress(uint16_t port) {
         sockAddr.sin6_family = AF_INET6;
         sockAddr.sin6_addr = in6addr_any;
         sockAddr.sin6_port = htons(port);
     }
 
-    in_port_t InetAddress::port() const {
+    uint16_t InetAddress::port() const {
         return (ntohs(sockAddr.sin6_port));
     }
 

@@ -21,6 +21,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstdint>
 #include <exception>    // IWYU pragma: keep
 #include <netinet/in.h> // IWYU pragma: keep
 #include <string>
@@ -52,10 +53,10 @@ namespace net::socket::ip::address::ipv4 {
 
         InetAddress();
         explicit InetAddress(const std::string& ipOrHostname);
-        InetAddress(const std::string& ipOrHostname, in_port_t port);
-        explicit InetAddress(in_port_t port);
+        InetAddress(const std::string& ipOrHostname, uint16_t port);
+        explicit InetAddress(uint16_t port);
 
-        in_port_t port() const;
+        uint16_t port() const;
         std::string host() const;
         std::string ip() const;
         std::string serv() const;

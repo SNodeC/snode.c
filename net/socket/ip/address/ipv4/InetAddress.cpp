@@ -36,7 +36,7 @@ namespace net::socket::ip::address::ipv4 {
         sockAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     }
 
-    InetAddress::InetAddress(const std::string& ipOrHostname, in_port_t port) {
+    InetAddress::InetAddress(const std::string& ipOrHostname, uint16_t port) {
         struct hostent* he = gethostbyname(ipOrHostname.c_str());
 
         if (he == nullptr) {
@@ -60,13 +60,13 @@ namespace net::socket::ip::address::ipv4 {
         memcpy(&sockAddr.sin_addr, he->h_addr_list[0], he->h_length);
     }
 
-    InetAddress::InetAddress(in_port_t port) {
+    InetAddress::InetAddress(uint16_t port) {
         sockAddr.sin_family = AF_INET;
         sockAddr.sin_port = htons(port);
         sockAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     }
 
-    in_port_t InetAddress::port() const {
+    uint16_t InetAddress::port() const {
         return (ntohs(sockAddr.sin_port));
     }
 
