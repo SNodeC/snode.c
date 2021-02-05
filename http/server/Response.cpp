@@ -138,7 +138,7 @@ namespace http::server {
 
     void Response::send(const std::string& text) {
         if (text.size() > 0) {
-            headers.insert({"Content-Type", "text/html"});
+            headers.insert({"Content-Type", "text/html; charset=utf-8"});
         }
         send(text.c_str(), text.size());
     }

@@ -55,6 +55,7 @@ endif()
 option(CHECK_INCLUDES "Check used headers")
 
 set(iwyu_path_and_options ${iwyu_path} -Xiwyu --verbose=1)
+add_compile_options(-fexec-charset=UTF-8)
 
 add_subdirectory(net)
 add_subdirectory(http)

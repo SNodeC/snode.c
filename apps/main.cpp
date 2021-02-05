@@ -324,6 +324,9 @@ int testPost() {
 }
 
 int main(int argc, char** argv) {
+    const char str[] = "ÅÄÖ";
+    std::cout << sizeof(str) << ' ' << strlen(str) << ' ' << sizeof("Åäö") << ' ' << strlen("åäö") << std::endl;
+
     WebApp::init(argc, argv);
 
     return timerApp();
