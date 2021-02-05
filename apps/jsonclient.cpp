@@ -33,8 +33,8 @@
 int main(int argc, char* argv[]) {
     net::SNodeC::init(argc, argv);
 
-    http::client::legacy::Client jsonClient(
-        [](http::client::legacy::Client::SocketConnection* socketConnection) -> void {
+    http::client::legacy::Client<> jsonClient(
+        [](http::client::legacy::Client<>::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnConnect";
 
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
@@ -43,7 +43,8 @@ int main(int argc, char* argv[]) {
         [](http::client::Request& request) -> void {
             request.method = "POST";
             request.url = "/index.html";
-            request.type("application/json").send("{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}");
+            request.type("application/json");
+            request.send("{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}");
         },
         [](const http::client::Response& response) -> void {
             VLOG(0) << "-- OnResponse";
@@ -78,7 +79,7 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "     Status: " << status;
             VLOG(0) << "     Reason: " << reason;
         },
-        [](http::client::legacy::Client::SocketConnection* socketConnection) -> void {
+        [](http::client::legacy::Client<>::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnDisconnect";
 
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();

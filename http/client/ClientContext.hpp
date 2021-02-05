@@ -29,7 +29,8 @@
 namespace http::client {
     class CookieOptions;
 
-    ClientContext::ClientContext(SocketConnection* socketConnection,
+    template <typename Request, typename Response>
+    ClientContext<Request, Response>::ClientContext(SocketConnection* socketConnection,
                                  const std::function<void(Response&)>& onResponse,
                                  const std::function<void(int status, const std::string& reason)>& onError)
         : socketConnection(socketConnection)
@@ -61,22 +62,27 @@ namespace http::client {
               }) {
     }
 
-    void ClientContext::requestCompleted() {
+    template <typename Request, typename Response>
+    void ClientContext<Request, Response>::requestCompleted() {
     }
 
-    void ClientContext::receiveResponseData(const char* junk, std::size_t junkLen) {
+    template <typename Request, typename Response>
+    void ClientContext<Request, Response>::receiveResponseData(const char* junk, std::size_t junkLen) {
         parser.parse(junk, junkLen);
     }
 
-    void ClientContext::sendRequestData(const char* buf, std::size_t len) {
+    template <typename Request, typename Response>
+    void ClientContext<Request, Response>::sendRequestData(const char* buf, std::size_t len) {
         socketConnection->enqueue(buf, len);
     }
 
-    Request& ClientContext::getRequest() {
+    template <typename Request, typename Response>
+    Request& ClientContext<Request, Response>::getRequest() {
         return request;
     }
 
-    void ClientContext::terminateConnection() {
+    template <typename Request, typename Response>
+    void ClientContext<Request, Response>::terminateConnection() {
         socketConnection->close();
     }
 

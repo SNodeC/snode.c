@@ -35,11 +35,23 @@ namespace http::server::tls {
         using http::server::Server<net::socket::ip::tcp::ipv4::tls::SocketServer, Request, Response>::Server;
     };
 
+    Server(const std::function<void(net::socket::ip::tcp::ipv4::tls::SocketServer::SocketConnection*)>& onConnect,
+           const std::function<void(Request& req, Response& res)>& onRequestReady,
+           const std::function<void(net::socket::ip::tcp::ipv4::tls::SocketServer::SocketConnection*)>& onDisconnect,
+           const std::map<std::string, std::any>& options = {{}})
+        ->Server<http::server::Request, http::server::Response>;
+
     template <typename Request = http::server::Request, typename Response = http::server::Response>
     class Server6 : public http::server::Server<net::socket::ip::tcp::ipv6::tls::SocketServer, Request, Response> {
     public:
         using http::server::Server<net::socket::ip::tcp::ipv6::tls::SocketServer, Request, Response>::Server;
     };
+
+    Server6(const std::function<void(net::socket::ip::tcp::ipv6::tls::SocketServer::SocketConnection*)>& onConnect,
+            const std::function<void(Request& req, Response& res)>& onRequestReady,
+            const std::function<void(net::socket::ip::tcp::ipv6::tls::SocketServer::SocketConnection*)>& onDisconnect,
+            const std::map<std::string, std::any>& options = {{}})
+        ->Server6<http::server::Request, http::server::Response>;
 
 } // namespace http::server::tls
 

@@ -29,7 +29,7 @@
 
 namespace http::client {
 
-    Request::Request(ClientContext* clientContext)
+    Request::Request(ClientContextBase* clientContext)
         : clientContext(clientContext) {
     }
 

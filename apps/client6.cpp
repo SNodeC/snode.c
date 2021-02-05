@@ -37,8 +37,8 @@ int main(int argc, char* argv[]) {
     net::SNodeC::init(argc, argv);
 
     {
-        legacy::Client6 legacyClient(
-            [](legacy::Client6::SocketConnection* socketConnection) -> void {
+        legacy::Client6<> legacyClient(
+            [](legacy::Client6<>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnConnect";
 
                 VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
@@ -79,15 +79,15 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "     Status: " << status;
                 VLOG(0) << "     Reason: " << reason;
             },
-            [](legacy::Client6::SocketConnection* socketConnection) -> void {
+            [](legacy::Client6<>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnDisconnect";
 
                 VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
                 VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
             });
 
-        tls::Client6 tlsClient(
-            [](tls::Client6::SocketConnection* socketConnection) -> void {
+        tls::Client6<> tlsClient(
+            [](tls::Client6<>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnConnect";
 
                 VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
@@ -174,7 +174,7 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "     Status: " << status;
                 VLOG(0) << "     Reason: " << reason;
             },
-            [](tls::Client6::SocketConnection* socketConnection) -> void {
+            [](tls::Client6<>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnDisconnect";
 
                 VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();

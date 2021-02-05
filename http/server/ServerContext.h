@@ -73,7 +73,7 @@ namespace http::server {
 
         ServerContext(SocketConnection* socketConnection, const std::function<void(Request& req, Response& res)>& onRequestReady);
 
-        ~ServerContext() = default;
+        ~ServerContext() override = default;
 
         void receiveRequestData(const char* junk, std::size_t junkLen) override;
         void onReadError(int errnum);

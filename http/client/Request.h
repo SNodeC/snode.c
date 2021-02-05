@@ -32,11 +32,11 @@
 
 namespace http::client {
 
-    class ClientContext;
+    class ClientContextBase;
 
     class Request : public net::stream::Sink {
     protected:
-        explicit Request(ClientContext* clientContext);
+        explicit Request(ClientContextBase* clientContext);
 
     public:
         std::string method = "GET";
@@ -71,7 +71,7 @@ namespace http::client {
         std::size_t contentSent = 0;
         std::size_t contentLength = 0;
 
-        ClientContext* clientContext;
+        ClientContextBase* clientContext;
 
         virtual void reset();
 
@@ -85,6 +85,7 @@ namespace http::client {
         void eof() override;
         void error(int errnum) override;
 
+        template <typename Request, typename Response>
         friend class ClientContext;
     };
 

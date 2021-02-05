@@ -37,22 +37,40 @@ namespace net::socket::stream {
 
 namespace http::client {
 
-    class ClientContext {
+    class ClientContextBase {
+    public:
+        virtual ~ClientContextBase() = default;
+
+        virtual void receiveResponseData(const char* junk, std::size_t junkLen) = 0;
+        virtual void sendRequestData(const char* buf, std::size_t len) = 0;
+
+        virtual Request& getRequest() = 0;
+
+        virtual void terminateConnection() = 0;
+        virtual void requestCompleted() = 0;
+    };
+
+    template <typename RequestT, typename ResponseT>
+    class ClientContext : public ClientContextBase {
     public:
         using SocketConnection = net::socket::stream::SocketConnectionBase;
+        using Request = RequestT;
+        using Response = ResponseT;
 
         ClientContext(SocketConnection* socketConnection,
                       const std::function<void(Response&)>& onResponse,
                       const std::function<void(int status, const std::string& reason)>& onError);
 
-        void receiveResponseData(const char* junk, std::size_t junkLen);
-        void sendRequestData(const char* buf, std::size_t len);
+        ~ClientContext() override = default;
 
-        Request& getRequest();
+        void receiveResponseData(const char* junk, std::size_t junkLen) override;
+        void sendRequestData(const char* buf, std::size_t len) override;
 
-        void terminateConnection();
+        Request& getRequest() override;
 
-        void requestCompleted();
+        void terminateConnection() override;
+
+        void requestCompleted() override;
 
     protected:
         SocketConnection* socketConnection;

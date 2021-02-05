@@ -6,17 +6,16 @@ find_package(LibMagic REQUIRED)
 
 add_library(
     http SHARED
-    client/ClientContext.cpp
     Parser.cpp
-    server/RequestParser.cpp
+    StatusCodes.cpp
+    MimeTypes.cpp
+    http_utils.cpp
     client/ResponseParser.cpp
     client/Request.cpp
     client/Response.cpp
-    StatusCodes.cpp
-    MimeTypes.cpp
+    server/RequestParser.cpp
     server/Request.cpp
     server/Response.cpp
-    http_utils.cpp
 )
 
 target_link_libraries(http LINK_PUBLIC net ${LIBMAGIC_LIBRARIES})

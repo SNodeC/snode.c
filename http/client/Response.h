@@ -48,6 +48,7 @@ namespace http {
             const std::map<std::string, std::string>* headers = nullptr;
             const std::map<std::string, CookieOptions>* cookies = nullptr;
 
+            template <typename Request, typename Response>
             friend class ClientContext;
         };
 
