@@ -92,7 +92,6 @@ namespace http::server {
 
                   RequestContext& requestContext = requestContexts.back();
 
-                  //                  requestContext.request.extend();
                   requestContext.ready = true;
 
                   requestParsed();
