@@ -35,7 +35,7 @@ namespace std {
 
         constexpr auto operator<=>(const basic_fixed_string&) const = default;
 
-        CharT m_data[N]{};
+        CharT m_data[N + 1]{};
 
         constexpr operator const CharT*() const {
             return m_data;
@@ -47,8 +47,8 @@ namespace std {
     template <typename CharT, std::size_t N>
     basic_fixed_string(const CharT (&str)[N]) -> basic_fixed_string<CharT, N>;
 
-    template <std::size_t N>
-    using fixed_string = basic_fixed_string<char, N>;
+    //    template <std::size_t N>
+    //    using fixed_string = basic_fixed_string<char, N>;
 
 } // namespace std
 
@@ -158,21 +158,28 @@ namespace utils {
 
         template <InjectableAttribute Attribute, std::basic_fixed_string key = "">
         constexpr bool delAttribute(const std::string& subKey = "") const {
-            return attributes.erase(typeid(Attribute).name() + std::string(key) + subKey) > 0;
+            bool deleted = attributes.erase(typeid(Attribute).name() + std::string(key) + subKey) > 0;
+
+            return deleted;
         }
 
         template <InjectableAttribute Attribute, std::basic_fixed_string key = "">
         constexpr bool hasAttribute(const std::string& subKey = "") const {
-            return attributes.find(typeid(Attribute).name() + std::string(key) + subKey) != attributes.end();
+            bool found = attributes.find(typeid(Attribute).name() + std::string(key) + subKey) != attributes.end();
+
+            return found;
         }
 
         template <InjectableAttribute Attribute, std::basic_fixed_string key = "">
         constexpr bool getAttribute(const std::function<void(Attribute&)>& onFound, const std::string& subKey = "") const {
             bool found = false;
 
-            if ((found = hasAttribute<Attribute, key>(subKey))) {
-                std::map<std::string, std::shared_ptr<void>>::const_iterator it =
-                    attributes.find(typeid(Attribute).name() + std::string(key) + subKey);
+            std::map<std::string, std::shared_ptr<void>>::const_iterator it =
+                attributes.find(typeid(Attribute).name() + std::string(key) + subKey);
+
+            if (it != attributes.end()) {
+                found = true;
+
                 onFound(**std::static_pointer_cast<AttributeProxy<Attribute>>(it->second));
             }
 
@@ -183,9 +190,10 @@ namespace utils {
         constexpr void getAttribute(const std::function<void(Attribute&)>& onFound,
                                     const std::function<void(const std::string&)>& onNotFound,
                                     const std::string& subKey = "") const {
-            if (hasAttribute<Attribute, key>(subKey)) {
-                std::map<std::string, std::shared_ptr<void>>::const_iterator it =
-                    attributes.find(typeid(Attribute).name() + std::string(key) + subKey);
+            std::map<std::string, std::shared_ptr<void>>::const_iterator it =
+                attributes.find(typeid(Attribute).name() + std::string(key) + subKey);
+
+            if (it != attributes.end()) {
                 onFound(**std::static_pointer_cast<AttributeProxy<Attribute>>(it->second));
             } else {
                 onNotFound(std::string(typeid(Attribute).name()) + std::string(key) + subKey);
