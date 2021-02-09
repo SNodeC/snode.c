@@ -139,7 +139,17 @@ namespace http::client {
 
     void Request::sendHeader() {
         std::string httpVersion = "HTTP/" + std::to_string(httpMajor) + "." + std::to_string(httpMinor);
-        enqueue(method + " " + url + " " + httpVersion + "\r\n");
+
+        std::string queryString = "";
+        if (queries.size() > 0) {
+            queryString += "?";
+            for (auto& [key, value] : queries) {
+                queryString += httputils::url_encode(key) + "=" + httputils::url_encode(value) + "&";
+            }
+            queryString.pop_back();
+        }
+
+        enqueue(method + " " + url + queryString + " " + httpVersion + "\r\n");
 
         enqueue("Host: " + host + "\r\n");
         enqueue("Date: " + httputils::to_http_date() + "\r\n");

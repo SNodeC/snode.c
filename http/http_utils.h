@@ -31,6 +31,8 @@ namespace httputils {
 
     std::string url_decode(const std::string& text);
 
+    std::string url_encode(const std::string& text);
+
     std::string& str_trimm(std::string& text);
 
     std::pair<std::string, std::string> str_split(const std::string& base, char c_middle);
