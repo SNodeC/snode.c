@@ -51,7 +51,7 @@ namespace http {
         }
         virtual ~Parser() = default;
 
-        void parse(const char* buf, std::size_t count);
+        void parse(const char* junk, std::size_t junkLen);
 
     protected:
         // Parser state
@@ -72,10 +72,10 @@ namespace http {
         std::map<std::string, std::string> headers;
 
     private:
-        std::size_t readStartLine(const char* buf, std::size_t count);
-        std::size_t readHeaderLine(const char* buf, std::size_t count);
+        std::size_t readStartLine(const char* junk, std::size_t junkLen);
+        std::size_t readHeaderLine(const char* junk, std::size_t junkLen);
         void splitHeaderLine(const std::string& line);
-        std::size_t readContent(const char* buf, std::size_t count);
+        std::size_t readContent(const char* junk, std::size_t junkLen);
 
         // Line state
         bool EOL{false};

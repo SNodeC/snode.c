@@ -69,7 +69,7 @@ namespace net::socket::stream {
         }
 
     private:
-        virtual ssize_t write(const char* junk, std::size_t junkSize) = 0;
+        virtual ssize_t write(const char* junk, std::size_t junkLen) = 0;
 
         void writeEvent() override {
             errno = 0;

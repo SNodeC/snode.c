@@ -42,23 +42,23 @@ namespace http {
         }
     }
 
-    void Parser::parse(const char* buf, std::size_t count) {
+    void Parser::parse(const char* junk, std::size_t junkLen) {
         std::size_t consumed = 0;
 
-        while (consumed < count && parserState != ParserState::ERROR) {
+        while (consumed < junkLen && parserState != ParserState::ERROR) {
             switch (parserState) {
                 case ParserState::BEGIN:
                     parserState = ParserState::FIRSTLINE;
                     begin();
                     [[fallthrough]];
                 case ParserState::FIRSTLINE:
-                    consumed += readStartLine(buf + consumed, count - consumed);
+                    consumed += readStartLine(junk + consumed, junkLen - consumed);
                     break;
                 case ParserState::HEADER:
-                    consumed += readHeaderLine(buf + consumed, count - consumed);
+                    consumed += readHeaderLine(junk + consumed, junkLen - consumed);
                     break;
                 case ParserState::BODY:
-                    consumed += readContent(buf + consumed, count - consumed);
+                    consumed += readContent(junk + consumed, junkLen - consumed);
                     break;
                 case ParserState::ERROR:
                     break;
@@ -66,11 +66,11 @@ namespace http {
         }
     }
 
-    std::size_t Parser::readStartLine(const char* buf, std::size_t count) {
+    std::size_t Parser::readStartLine(const char* junk, std::size_t junkLen) {
         std::size_t consumed = 0;
 
-        while (consumed < count && parserState == ParserState::FIRSTLINE) {
-            char ch = buf[consumed++];
+        while (consumed < junkLen && parserState == ParserState::FIRSTLINE) {
+            char ch = junk[consumed++];
 
             if (ch == '\r' || ch == '\n') {
                 if (ch == '\n') {
@@ -85,11 +85,11 @@ namespace http {
         return consumed;
     }
 
-    std::size_t Parser::readHeaderLine(const char* buf, std::size_t count) {
+    std::size_t Parser::readHeaderLine(const char* junk, std::size_t junkLen) {
         std::size_t consumed = 0;
 
-        while (consumed < count && parserState == ParserState::HEADER) {
-            char ch = buf[consumed];
+        while (consumed < junkLen && parserState == ParserState::HEADER) {
+            char ch = junk[consumed];
 
             if (ch == '\r' || ch == '\n') {
                 consumed++;
@@ -157,15 +157,15 @@ namespace http {
         }
     }
 
-    std::size_t Parser::readContent(const char* buf, std::size_t count) {
+    std::size_t Parser::readContent(const char* junk, std::size_t junkLen) {
         if (contentRead == 0) {
             content = new char[contentLength];
         }
 
-        if (contentRead + count <= contentLength) {
-            memcpy(content + contentRead, buf, count); // NOLINT(clang-analyzer-core.NonNullParamChecker)
+        if (contentRead + junkLen <= contentLength) {
+            memcpy(content + contentRead, junk, junkLen); // NOLINT(clang-analyzer-core.NonNullParamChecker)
 
-            contentRead += count;
+            contentRead += junkLen;
             if (contentRead == contentLength) {
                 parserState = parseContent(content, contentLength);
 
@@ -182,7 +182,7 @@ namespace http {
             }
         }
 
-        return count;
+        return junkLen;
     }
 
     enum Parser::HTTPCompliance operator|(const enum Parser::HTTPCompliance& c1, const enum Parser::HTTPCompliance& c2) {

@@ -49,8 +49,8 @@ SocketClient getClient() {
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
         },
-        [](SocketClient::SocketConnection* socketConnection, const char* junk, std::size_t junkSize) -> void { // onRead
-            std::string data(junk, junkSize);
+        [](SocketClient::SocketConnection* socketConnection, const char* junk, std::size_t junkLen) -> void { // onRead
+            std::string data(junk, junkLen);
             VLOG(0) << "Data to reflect: " << data;
             socketConnection->enqueue(data);
         },

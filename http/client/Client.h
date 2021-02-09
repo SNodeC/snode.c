@@ -75,9 +75,9 @@ namespace http::client {
                   [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
                       onDisconnect(socketConnection);
                   },
-                  [](SocketConnection* socketConnection, const char* junk, std::size_t junkSize) -> void { // onRead
-                      socketConnection->template getContext<ClientContextBase*>([junk, junkSize](ClientContextBase* clientContext) -> void {
-                          clientContext->receiveResponseData(junk, junkSize);
+                  [](SocketConnection* socketConnection, const char* junk, std::size_t junkLen) -> void { // onRead
+                      socketConnection->template getContext<ClientContextBase*>([junk, junkLen](ClientContextBase* clientContext) -> void {
+                          clientContext->receiveResponseData(junk, junkLen);
                       });
                   },
                   [](SocketConnection* socketConnection, int errnum) -> void { // onReadError

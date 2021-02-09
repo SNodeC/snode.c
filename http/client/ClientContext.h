@@ -64,7 +64,7 @@ namespace http::client {
         ~ClientContext() override = default;
 
         void receiveResponseData(const char* junk, std::size_t junkLen) override;
-        void sendRequestData(const char* buf, std::size_t len) override;
+        void sendRequestData(const char* junk, std::size_t junkLen) override;
 
         Request& getRequest() override;
 

@@ -123,8 +123,8 @@ namespace http::server {
     }
 
     template <typename Request, typename Response>
-    void ServerContext<Request, Response>::sendResponseData(const char* buf, std::size_t len) {
-        socketConnection->enqueue(buf, len);
+    void ServerContext<Request, Response>::sendResponseData(const char* junk, std::size_t junkLen) {
+        socketConnection->enqueue(junk, junkLen);
     }
 
     template <typename Request, typename Response>

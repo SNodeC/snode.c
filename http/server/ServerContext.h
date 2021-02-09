@@ -76,9 +76,9 @@ namespace http::server {
         ~ServerContext() override = default;
 
         void receiveRequestData(const char* junk, std::size_t junkLen) override;
-        void onReadError(int errnum);
+        void onReadError(int errnum) override;
 
-        void sendResponseData(const char* buf, std::size_t len) override;
+        void sendResponseData(const char* junk, std::size_t junkLen) override;
         void onWriteError(int errnum) override;
 
         void responseCompleted() override;

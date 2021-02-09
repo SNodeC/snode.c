@@ -35,7 +35,7 @@ namespace http::server {
         : serverContext(serverContext) {
     }
 
-    void Response::enqueue(const char* buf, std::size_t len) {
+    void Response::enqueue(const char* junk, std::size_t junkLen) {
         if (!headersSent && !sendHeaderInProgress) {
             sendHeaderInProgress = true;
             sendHeader();
@@ -43,10 +43,10 @@ namespace http::server {
             headersSent = true;
         }
 
-        serverContext->sendResponseData(buf, len);
+        serverContext->sendResponseData(junk, junkLen);
 
         if (headersSent) {
-            contentSent += len;
+            contentSent += junkLen;
             if (contentSent == contentLength) {
                 serverContext->responseCompleted();
             } else if (contentSent > contentLength) {
@@ -55,8 +55,8 @@ namespace http::server {
         }
     }
 
-    void Response::enqueue(const std::string& str) {
-        enqueue(str.data(), str.size());
+    void Response::enqueue(const std::string& junk) {
+        enqueue(junk.data(), junk.size());
     }
 
     Response& Response::status(int status) {
@@ -127,20 +127,20 @@ namespace http::server {
         return *this;
     }
 
-    void Response::send(const char* buffer, std::size_t size) {
-        if (size > 0) {
+    void Response::send(const char* junk, std::size_t junkLen) {
+        if (junkLen > 0) {
             headers.insert({"Content-Type", "application/octet-stream"});
         }
-        headers.insert_or_assign("Content-Length", std::to_string(size));
+        headers.insert_or_assign("Content-Length", std::to_string(junkLen));
 
-        enqueue(buffer, size);
+        enqueue(junk, junkLen);
     }
 
-    void Response::send(const std::string& text) {
-        if (text.size() > 0) {
+    void Response::send(const std::string& junk) {
+        if (junk.size() > 0) {
             headers.insert({"Content-Type", "text/html; charset=utf-8"});
         }
-        send(text.data(), text.size());
+        send(junk.data(), junk.size());
     }
 
     void Response::sendHeader() {

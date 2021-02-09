@@ -113,7 +113,7 @@ namespace http::client {
         connectionState = ConnectionState::Default;
     }
 
-    void Request::enqueue(const char* buf, std::size_t len) {
+    void Request::enqueue(const char* junk, std::size_t junkLen) {
         if (!headersSent && !sendHeaderInProgress) {
             sendHeaderInProgress = true;
             sendHeader();
@@ -121,10 +121,10 @@ namespace http::client {
             headersSent = true;
         }
 
-        clientContext->sendRequestData(buf, len);
+        clientContext->sendRequestData(junk, junkLen);
 
         if (headersSent) {
-            contentSent += len;
+            contentSent += junkLen;
             if (contentSent == contentLength) {
                 clientContext->requestCompleted();
             } else if (contentSent > contentLength) {
@@ -173,20 +173,20 @@ namespace http::client {
         }
     }
 
-    void Request::send(const char* buffer, std::size_t size) {
-        if (size > 0) {
+    void Request::send(const char* junk, std::size_t junkLen) {
+        if (junkLen > 0) {
             headers.insert({"Content-Type", "application/octet-stream"});
         }
-        headers.insert_or_assign("Content-Length", std::to_string(size));
+        headers.insert_or_assign("Content-Length", std::to_string(junkLen));
 
-        enqueue(buffer, size);
+        enqueue(junk, junkLen);
     }
 
-    void Request::send(const std::string& text) {
-        if (text.size() > 0) {
+    void Request::send(const std::string& junk) {
+        if (junk.size() > 0) {
             headers.insert({"Content-Type", "text/html; charset=utf-8"});
         }
-        send(text.data(), text.size());
+        send(junk.data(), junk.size());
     }
 
     void Request::end() {

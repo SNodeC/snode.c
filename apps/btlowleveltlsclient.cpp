@@ -42,8 +42,6 @@ SocketClient getClient() {
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
 
-            socketConnection->enqueue("Hello rfcomm connection!");
-
             X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
             if (server_cert != NULL) {
                 int verifyErr = SSL_get_verify_result(socketConnection->getSSL());
@@ -87,6 +85,8 @@ SocketClient getClient() {
             } else {
                 VLOG(0) << "     Server certificate: no certificate";
             }
+
+            socketConnection->enqueue("Hello rfcomm connection!");
         },
         [](SocketClient::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
@@ -94,8 +94,8 @@ SocketClient getClient() {
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
         },
-        [](SocketClient::SocketConnection* socketConnection, const char* junk, std::size_t junkSize) -> void { // onRead
-            std::string data(junk, junkSize);
+        [](SocketClient::SocketConnection* socketConnection, const char* junk, std::size_t junkLen) -> void { // onRead
+            std::string data(junk, junkLen);
             VLOG(0) << "Data to reflect: " << data;
             socketConnection->enqueue(data);
         },

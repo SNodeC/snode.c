@@ -31,8 +31,8 @@ namespace http::client {
 
     template <typename Request, typename Response>
     ClientContext<Request, Response>::ClientContext(SocketConnection* socketConnection,
-                                 const std::function<void(Response&)>& onResponse,
-                                 const std::function<void(int status, const std::string& reason)>& onError)
+                                                    const std::function<void(Response&)>& onResponse,
+                                                    const std::function<void(int status, const std::string& reason)>& onError)
         : socketConnection(socketConnection)
         , request(this)
         , parser(
@@ -72,8 +72,8 @@ namespace http::client {
     }
 
     template <typename Request, typename Response>
-    void ClientContext<Request, Response>::sendRequestData(const char* buf, std::size_t len) {
-        socketConnection->enqueue(buf, len);
+    void ClientContext<Request, Response>::sendRequestData(const char* junk, std::size_t junkLen) {
+        socketConnection->enqueue(junk, junkLen);
     }
 
     template <typename Request, typename Response>

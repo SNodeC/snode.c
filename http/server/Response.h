@@ -42,8 +42,8 @@ namespace http::server {
         explicit Response(ServerContextBase* serverContext);
 
     public:
-        void send(const char* buffer, std::size_t size);
-        void send(const std::string& text);
+        void send(const char* junk, std::size_t junkLen);
+        void send(const std::string& junk);
 
         void end();
 
@@ -68,8 +68,8 @@ namespace http::server {
         std::size_t contentSent = 0;
         std::size_t contentLength = 0;
 
-        void enqueue(const char* buf, std::size_t len);
-        void enqueue(const std::string& str);
+        void enqueue(const char* junk, std::size_t junkLen);
+        void enqueue(const std::string& junk);
         void sendHeader();
 
         void receive(const char* junk, std::size_t junkLen) override;

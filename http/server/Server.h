@@ -45,10 +45,10 @@ namespace http::server {
                   [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
                       onDisconnect(socketConnection);
                   },
-                  [](SocketConnection* socketConnection, const char* junk, std::size_t junkSize) -> void { // onRead
+                  [](SocketConnection* socketConnection, const char* junk, std::size_t junkLen) -> void { // onRead
                       socketConnection->template getContext<ServerContextBase*>(
-                          [&junk, &junkSize](ServerContextBase* serverContext) -> void {
-                              serverContext->receiveRequestData(junk, junkSize);
+                          [&junk, &junkLen](ServerContextBase* serverContext) -> void {
+                              serverContext->receiveRequestData(junk, junkLen);
                           });
                   },
                   [](SocketConnection* socketConnection, int errnum) -> void { // onReadError
