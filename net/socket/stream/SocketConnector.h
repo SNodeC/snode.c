@@ -159,6 +159,7 @@ namespace net::socket::stream {
                 ConnectEventReceiver::disable();
             }
         }
+        
         void unobserved() override {
             destruct();
         }

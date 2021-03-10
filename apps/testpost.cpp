@@ -29,6 +29,7 @@ int main(int argc, char* argv[]) {
     express::WebApp::init(argc, argv);
 
     express::legacy::WebApp legacyApp;
+
     legacyApp.get("/", [] APPLICATION(req, res) {
         res.send("<html>"
                  "    <head>"
@@ -64,19 +65,21 @@ int main(int argc, char* argv[]) {
     legacyApp.post("/", [] APPLICATION(req, res) {
         VLOG(0) << "Content-Type: " << req.header("Content-Type");
         VLOG(0) << "Content-Length: " << req.header("Content-Length");
+
         char* body = new char[std::stoul(req.header("Content-Length")) + 1];
         memcpy(body, req.body, std::stoul(req.header("Content-Length")));
         body[std::stoi(req.header("Content-Length"))] = 0;
 
         VLOG(0) << "Body: ";
         VLOG(0) << body;
+
+        delete[] body;
+
         res.send("<html>"
                  "    <body>"
                  "        <h1>Thank you</h1>"
                  "    </body>"
                  "</html>");
-
-        delete[] body;
     });
 
     express::tls::WebApp tlsApp({{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});

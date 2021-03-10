@@ -87,13 +87,9 @@ namespace http::server {
 
                     while (!queriesLine.empty()) {
                         std::string query;
+
                         std::tie(query, queriesLine) = httputils::str_split(queriesLine, '&');
-
-                        std::string key;
-                        std::string value;
-                        std::tie(key, value) = httputils::str_split(query, '=');
-
-                        queries.insert({key, value});
+                        queries.insert(httputils::str_split(query, '='));
                     }
 
                     onRequest(method, url, httpVersion, httpMajor, httpMinor, queries);
