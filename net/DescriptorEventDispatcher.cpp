@@ -39,6 +39,7 @@
 #include "Timeval.h" // for operator-, operator<, operator>=
 
 namespace net {
+
     bool DescriptorEventDispatcher::DescriptorEventReceiverList::contains(DescriptorEventReceiver* eventReceiver) const {
         return std::find(begin(), end(), eventReceiver) != end();
     }
@@ -200,6 +201,7 @@ namespace net {
             }
         }
     }
+
 } // namespace net
 
 #endif // EVENTDISPATCHER_HPP
