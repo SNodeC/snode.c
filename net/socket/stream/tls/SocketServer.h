@@ -33,6 +33,6 @@ namespace net::socket::stream::tls {
         using stream::SocketServer<tls::SocketListener<SocketT>>::SocketServer;
     };
 
-}; // namespace net::socket::stream::tls
+} // namespace net::socket::stream::tls
 
 #endif // NET_SOCKET_STREAM_TLS_SOCKETSERVER_H

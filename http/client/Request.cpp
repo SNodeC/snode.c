@@ -94,7 +94,7 @@ namespace http::client {
         headers.insert({"Content-Type", type});
 
         return *this;
-    };
+    }
 
     void Request::reset() {
         method = "GET";

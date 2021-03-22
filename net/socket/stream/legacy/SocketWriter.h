@@ -45,6 +45,6 @@ namespace net::socket::stream::legacy {
         }
     };
 
-}; // namespace net::socket::stream::legacy
+} // namespace net::socket::stream::legacy
 
 #endif // NET_SOCKET_STREAM_LEGACY_SOCKETWRITER_H

@@ -37,7 +37,7 @@ int timerApp() {
             static int i = 0;
             std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
         },
-        (struct timeval){0, 500000},
+        {0, 500000},
         "Tick");
 
     Timer& tack = Timer::continousTimer(
@@ -45,7 +45,7 @@ int timerApp() {
             static int i = 0;
             std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
         },
-        (struct timeval){1, 100000},
+        {1, 100000},
         "Tack");
 
     bool canceled = false;

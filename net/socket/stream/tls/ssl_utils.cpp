@@ -134,7 +134,7 @@ namespace net::socket::stream::tls {
         }
 
         return ctx;
-    };
+    }
 
     void ssl_ctx_free(SSL_CTX* ctx) {
         if (ctx != nullptr) {

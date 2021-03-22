@@ -108,6 +108,6 @@ namespace net::socket::stream::tls {
         int sslErr = SSL_ERROR_NONE;
     };
 
-}; // namespace net::socket::stream::tls
+} // namespace net::socket::stream::tls
 
 #endif // NET_SOCKET_STREAM_TLS_SOCKETWRITER_H

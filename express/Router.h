@@ -67,17 +67,17 @@ namespace express {
                    const std::function<void(Request & req, Response & res, const std::function<void(void)>& next)>& dispatcher);           \
     Router& METHOD(const std::function<void(Request & req, Response & res, const std::function<void(void)>& next)>& dispatcher);
 
-        DECLARE_REQUESTMETHOD(use);
-        DECLARE_REQUESTMETHOD(all);
-        DECLARE_REQUESTMETHOD(get);
-        DECLARE_REQUESTMETHOD(put);
-        DECLARE_REQUESTMETHOD(post);
-        DECLARE_REQUESTMETHOD(del);
-        DECLARE_REQUESTMETHOD(connect);
-        DECLARE_REQUESTMETHOD(options);
-        DECLARE_REQUESTMETHOD(trace);
-        DECLARE_REQUESTMETHOD(patch);
-        DECLARE_REQUESTMETHOD(head);
+        DECLARE_REQUESTMETHOD(use)
+        DECLARE_REQUESTMETHOD(all)
+        DECLARE_REQUESTMETHOD(get)
+        DECLARE_REQUESTMETHOD(put)
+        DECLARE_REQUESTMETHOD(post)
+        DECLARE_REQUESTMETHOD(del)
+        DECLARE_REQUESTMETHOD(connect)
+        DECLARE_REQUESTMETHOD(options)
+        DECLARE_REQUESTMETHOD(trace)
+        DECLARE_REQUESTMETHOD(patch)
+        DECLARE_REQUESTMETHOD(head)
 
     protected:
         void dispatch(express::Request& req, express::Response& res);
