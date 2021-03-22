@@ -58,7 +58,8 @@ namespace net::socket::stream {
         }
 
         template <utils::InjectableAttribute Attribute>
-        constexpr void getContext(const std::function<void(Attribute&)>& onFound, const std::function<void(const std::string&)>& onNotFound) const {
+        constexpr void getContext(const std::function<void(Attribute&)>& onFound,
+                                  const std::function<void(const std::string&)>& onNotFound) const {
             return protocol.getAttribute<Attribute>(onFound, onNotFound);
         }
 
