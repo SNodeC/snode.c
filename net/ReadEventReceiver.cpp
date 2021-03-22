@@ -24,27 +24,11 @@
 namespace net {
 
     ReadEventReceiver::ReadEventReceiver(long timeout)
-        : DescriptorEventReceiver(timeout) {
+        : DescriptorEventReceiver(EventLoop::instance().getReadEventDispatcher(), timeout) {
     }
 
     void ReadEventReceiver::dispatchEvent() {
         readEvent();
-    }
-
-    void ReadEventReceiver::enable(int fd) {
-        EventLoop::instance().getReadEventDispatcher().enable(this, fd);
-    }
-
-    void ReadEventReceiver::disable() {
-        EventLoop::instance().getReadEventDispatcher().disable(this, fd);
-    }
-
-    void ReadEventReceiver::suspend() {
-        EventLoop::instance().getReadEventDispatcher().suspend(this, fd);
-    }
-
-    void ReadEventReceiver::resume() {
-        EventLoop::instance().getReadEventDispatcher().resume(this, fd);
     }
 
 } // namespace net

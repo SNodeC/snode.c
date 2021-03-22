@@ -39,13 +39,6 @@ namespace net {
 
     private:
         void dispatchEvent() override;
-
-    public:
-        void enable(int fd) override;
-        void disable() override;
-
-        void suspend() override;
-        void resume() override;
     };
 
 } // namespace net

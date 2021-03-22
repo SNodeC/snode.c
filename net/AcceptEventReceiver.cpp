@@ -31,27 +31,11 @@
 namespace net {
 
     AcceptEventReceiver::AcceptEventReceiver(long timeout)
-        : DescriptorEventReceiver(timeout) {
+        : DescriptorEventReceiver(EventLoop::instance().getReadEventDispatcher(), timeout) {
     }
 
     void AcceptEventReceiver::dispatchEvent() {
         acceptEvent();
-    }
-
-    void AcceptEventReceiver::enable(int fd) {
-        EventLoop::instance().getReadEventDispatcher().enable(this, fd);
-    }
-
-    void AcceptEventReceiver::disable() {
-        EventLoop::instance().getReadEventDispatcher().disable(this, fd);
-    }
-
-    void AcceptEventReceiver::suspend() {
-        EventLoop::instance().getReadEventDispatcher().suspend(this, fd);
-    }
-
-    void AcceptEventReceiver::resume() {
-        EventLoop::instance().getReadEventDispatcher().resume(this, fd);
     }
 
 } // namespace net

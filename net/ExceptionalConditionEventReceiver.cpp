@@ -24,27 +24,11 @@
 namespace net {
 
     ExceptionalConditionEventReceiver::ExceptionalConditionEventReceiver(long timeout)
-        : DescriptorEventReceiver(timeout) {
+        : DescriptorEventReceiver(EventLoop::instance().getExceptionalConditionEventDispatcher(), timeout) {
     }
 
     void ExceptionalConditionEventReceiver::dispatchEvent() {
         outOfBandEvent();
-    }
-
-    void ExceptionalConditionEventReceiver::enable(int fd) {
-        EventLoop::instance().getExceptionalConditionEventDispatcher().enable(this, fd);
-    }
-
-    void ExceptionalConditionEventReceiver::disable() {
-        EventLoop::instance().getExceptionalConditionEventDispatcher().disable(this, fd);
-    }
-
-    void ExceptionalConditionEventReceiver::suspend() {
-        EventLoop::instance().getExceptionalConditionEventDispatcher().suspend(this, fd);
-    }
-
-    void ExceptionalConditionEventReceiver::resume() {
-        EventLoop::instance().getExceptionalConditionEventDispatcher().resume(this, fd);
     }
 
 } // namespace net

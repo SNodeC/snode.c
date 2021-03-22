@@ -42,7 +42,7 @@ namespace net::socket::stream::tls {
 
         void readEvent() override;
         void writeEvent() override;
-        void timeout() override;
+        void timeoutEvent() override;
         void unobserved() override;
 
         static void doHandshake(SSL* ssl,

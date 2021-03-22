@@ -1,9 +1,54 @@
+/*
+ * snode.c - a slim toolkit for network communication
+ * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 #include "DescriptorEventReceiver.h"
 
-namespace net {
+#include "DescriptorEventDispatcher.h"
 
-    void DescriptorEventReceiver::enabled(int fd) {
+namespace net {
+    DescriptorEventReceiver::DescriptorEventReceiver(DescriptorEventDispatcher& descriptorEventDispatcher, long timeout)
+        : descriptorEventDispatcher(descriptorEventDispatcher)
+        , maxInactivity(timeout)
+        , initialTimeout(timeout) {
+    }
+
+    void DescriptorEventReceiver::enable(int fd) {
         this->fd = fd;
+        descriptorEventDispatcher.enable(this, fd);
+    }
+
+    void DescriptorEventReceiver::disable() {
+        descriptorEventDispatcher.disable(this, fd);
+    }
+
+    void DescriptorEventReceiver::suspend() {
+        descriptorEventDispatcher.suspend(this, fd);
+    }
+
+    void DescriptorEventReceiver::resume() {
+        descriptorEventDispatcher.resume(this, fd);
+    }
+
+    void DescriptorEventReceiver::enabled() {
         ObservationCounter::observationCounter++;
         _enabled = true;
         lastTriggered = {time(nullptr), 0};
@@ -44,11 +89,11 @@ namespace net {
         return {maxInactivity, 0};
     }
 
-    void DescriptorEventReceiver::timeout() {
+    void DescriptorEventReceiver::timeoutEvent() {
     }
 
-    void DescriptorEventReceiver::triggered(timeval _lastTriggered) {
-        lastTriggered = _lastTriggered;
+    void DescriptorEventReceiver::triggered(struct timeval lastTriggered) {
+        this->lastTriggered = lastTriggered;
     }
 
     timeval DescriptorEventReceiver::getLastTriggered() {

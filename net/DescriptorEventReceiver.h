@@ -28,6 +28,8 @@
 
 namespace net {
 
+    class DescriptorEventDispatcher;
+
     class ObservationCounter {
     public:
         bool isObserved() {
@@ -47,20 +49,17 @@ namespace net {
             static const long DISABLE = LONG_MAX;
         };
 
-        explicit DescriptorEventReceiver(long timeout = TIMEOUT::DISABLE)
-            : maxInactivity(timeout)
-            , initialTimeout(timeout) {
-        }
+        explicit DescriptorEventReceiver(DescriptorEventDispatcher& descriptorEventDispatcher, long timeout = TIMEOUT::DISABLE);
 
     public:
         DescriptorEventReceiver(const DescriptorEventReceiver&) = delete;
         DescriptorEventReceiver& operator=(const DescriptorEventReceiver&) = delete;
 
-        virtual void enable(int fd) = 0;
-        virtual void disable() = 0;
+        void enable(int fd);
+        void disable();
 
-        virtual void suspend() = 0;
-        virtual void resume() = 0;
+        void suspend();
+        void resume();
 
     protected:
         virtual ~DescriptorEventReceiver() = default;
@@ -70,13 +69,11 @@ namespace net {
         bool isEnabled() const;
         bool isSuspended() const;
 
-        int fd = -1;
-
     private:
         virtual void dispatchEvent() = 0;
-        virtual void timeout();
+        virtual void timeoutEvent();
 
-        void enabled(int fd);
+        void enabled();
         void disabled();
 
         void suspended();
@@ -86,9 +83,13 @@ namespace net {
 
         struct timeval getLastTriggered();
 
-        void triggered(struct timeval _lastTriggered = {time(nullptr), 0});
+        void triggered(struct timeval lastTriggered = {time(nullptr), 0});
 
         virtual void unobserved() = 0;
+
+        DescriptorEventDispatcher& descriptorEventDispatcher;
+
+        int fd = -1;
 
         bool _enabled = false;
         bool _suspended = false;

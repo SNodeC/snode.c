@@ -55,7 +55,7 @@ namespace net {
                    (!enabledEventReceiver.contains(fd) || !enabledEventReceiver[fd].contains(eventReceiver))) {
             // next tick as disable
             enabledEventReceiver[fd].push_back(eventReceiver);
-            eventReceiver->enabled(fd);
+            eventReceiver->enabled();
             if (unobservedEventReceiver.contains(eventReceiver)) {
                 unobservedEventReceiver.remove(eventReceiver);
             }
@@ -152,7 +152,7 @@ namespace net {
             } else {
                 struct timeval inactivity = currentTime - eventReceiver->getLastTriggered();
                 if (inactivity >= maxInactivity) {
-                    eventReceiver->timeout();
+                    eventReceiver->timeoutEvent();
                     eventReceiver->disable();
                 } else {
                     nextInactivityTimeout = std::min(maxInactivity - inactivity, nextInactivityTimeout);

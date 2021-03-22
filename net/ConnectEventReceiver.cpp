@@ -24,27 +24,11 @@
 namespace net {
 
     ConnectEventReceiver::ConnectEventReceiver(long timeout)
-        : DescriptorEventReceiver(timeout) {
+        : DescriptorEventReceiver(EventLoop::instance().getWriteEventDispatcher(), timeout) {
     }
 
     void ConnectEventReceiver::dispatchEvent() {
         connectEvent();
-    }
-
-    void ConnectEventReceiver::enable(int fd) {
-        EventLoop::instance().getWriteEventDispatcher().enable(this, fd);
-    }
-
-    void ConnectEventReceiver::disable() {
-        EventLoop::instance().getWriteEventDispatcher().disable(this, fd);
-    }
-
-    void ConnectEventReceiver::suspend() {
-        EventLoop::instance().getWriteEventDispatcher().suspend(this, fd);
-    }
-
-    void ConnectEventReceiver::resume() {
-        EventLoop::instance().getWriteEventDispatcher().resume(this, fd);
     }
 
 } // namespace net
