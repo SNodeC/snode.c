@@ -38,7 +38,7 @@ namespace net::stream {
         Pipe& operator=(const Pipe& pipe) = delete;
 
     protected:
-        int pipefd[2];
+        int pipeFd[2];
     };
 
 } // namespace net::stream

@@ -43,7 +43,6 @@ namespace net {
     protected:
         class TIMEOUT {
         public:
-            static const long IGNORE = -2;
             static const long DEFAULT = -1;
             static const long DISABLE = LONG_MAX;
         };
@@ -57,74 +56,37 @@ namespace net {
         DescriptorEventReceiver(const DescriptorEventReceiver&) = delete;
         DescriptorEventReceiver& operator=(const DescriptorEventReceiver&) = delete;
 
-    protected:
-        virtual ~DescriptorEventReceiver() = default;
-
-        void setTimeout(long timeout) { // -3: do not change, -2: set default, -1 disable, ...
-            if (timeout != TIMEOUT::IGNORE) {
-                if (timeout != TIMEOUT::DEFAULT) {
-                    this->maxInactivity = timeout;
-                } else {
-                    this->maxInactivity = initialTimeout;
-                }
-            }
-        }
-
-        bool isEnabled() const {
-            return _enabled;
-        }
-
-        bool isSuspended() const {
-            return _suspended;
-        }
-
-        int fd = -1;
-
-    private:
-        virtual void dispatchEvent() = 0;
-
-        virtual void timeout() {
-        }
-
-        void enabled(int fd) {
-            this->fd = fd;
-            ObservationCounter::observationCounter++;
-            _enabled = true;
-            lastTriggered = {time(nullptr), 0};
-        }
-
-        void disabled() {
-            this->fd = -1;
-            ObservationCounter::observationCounter--;
-            _enabled = false;
-        }
-
-        void suspended() {
-            _suspended = true;
-        }
-
-        void resumed() {
-            _suspended = false;
-            lastTriggered = {time(nullptr), 0};
-        }
-
-        struct timeval getTimeout() const {
-            return {maxInactivity, 0};
-        }
-
-        struct timeval getLastTriggered() {
-            return lastTriggered;
-        }
-
-        void triggered(struct timeval _lastTriggered = {time(nullptr), 0}) {
-            lastTriggered = _lastTriggered;
-        }
-
         virtual void enable(int fd) = 0;
         virtual void disable() = 0;
 
         virtual void suspend() = 0;
         virtual void resume() = 0;
+
+    protected:
+        virtual ~DescriptorEventReceiver() = default;
+
+        void setTimeout(long timeout);
+
+        bool isEnabled() const;
+        bool isSuspended() const;
+
+        int fd = -1;
+
+    private:
+        virtual void dispatchEvent() = 0;
+        virtual void timeout();
+
+        void enabled(int fd);
+        void disabled();
+
+        void suspended();
+        void resumed();
+
+        struct timeval getTimeout() const;
+
+        struct timeval getLastTriggered();
+
+        void triggered(struct timeval _lastTriggered = {time(nullptr), 0});
 
         virtual void unobserved() = 0;
 
@@ -132,7 +94,7 @@ namespace net {
         bool _suspended = false;
 
         long maxInactivity = LONG_MAX;
-        long initialTimeout = LONG_MAX;
+        const long initialTimeout;
 
         friend class DescriptorEventDispatcher;
     };

@@ -9,6 +9,7 @@ add_library(
     ConnectEventReceiver.cpp
     Descriptor.cpp
     DescriptorEventDispatcher.cpp
+    DescriptorEventReceiver.cpp
     EventLoop.cpp
     FdSet.cpp
     ExceptionalConditionEventReceiver.cpp
