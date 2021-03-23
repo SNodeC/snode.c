@@ -122,7 +122,7 @@ namespace net::socket::stream {
                 int cErrno = SocketConnector::tryToCompleteConnect();
 
                 if (cErrno != EINPROGRESS && cErrno != 0) {
-                    SocketConnector::ConnectEventReceiver::disable();
+                    SocketConnector::disable();
                 }
             }
 
