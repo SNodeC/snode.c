@@ -93,10 +93,6 @@ namespace net::socket::stream {
                       onWriteError,
                       options) {
                 ctx = ssl_ctx_new(options, true);
-                if (ctx != nullptr) {
-                    SSL_CTX_set_session_id_context(ctx, reinterpret_cast<unsigned char*>(&sslSessionCtxId), sizeof(sslSessionCtxId));
-                    sslSessionCtxId++;
-                }
             }
 
             ~SocketListener() override {
@@ -114,12 +110,7 @@ namespace net::socket::stream {
 
         private:
             SSL_CTX* ctx = nullptr;
-
-            static int sslSessionCtxId;
         };
-
-        template <typename Socket>
-        int SocketListener<Socket>::sslSessionCtxId = 1;
 
     } // namespace tls
 

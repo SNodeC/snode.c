@@ -18,11 +18,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <climits>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "AcceptEventReceiver.h"
+
 #include "DescriptorEventDispatcher.h"
 #include "EventLoop.h"
 
