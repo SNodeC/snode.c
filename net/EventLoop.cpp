@@ -28,10 +28,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "DescriptorEventDispatcher.h"
 #include "EventLoop.h" // for EventLoop
-#include "Logger.h"    // for Logger
-#include "TimerEventDispatcher.h"
+#include "FdSet.h"
+#include "Logger.h"  // for Logger
 #include "Timeval.h" // for operator<
 
 #define MAX_READ_INACTIVITY 60
@@ -57,53 +56,43 @@ namespace net {
     bool EventLoop::stopped = true;
     int EventLoop::stopsig = 0;
 
-    EventLoop::EventLoop()
-        : readEventDispatcher(new DescriptorEventDispatcher(readFdSet))
-        , writeEventDispatcher(new DescriptorEventDispatcher(writeFdSet))
-        , exceptionalConditionEventDispatcher(new DescriptorEventDispatcher(exceptFdSet))
-        , timerEventDispatcher(new TimerEventDispatcher()) {
-    }
-
-    EventLoop::~EventLoop() {
-        delete readEventDispatcher;
-        delete writeEventDispatcher;
-        delete exceptionalConditionEventDispatcher;
-        delete timerEventDispatcher;
-    }
-
     void EventLoop::tick() {
-        struct timeval nextTimeout = readEventDispatcher->observeEnabledEvents();
+        struct timeval nextTimeout = readEventDispatcher.observeEnabledEvents();
         nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
-        nextTimeout = writeEventDispatcher->observeEnabledEvents();
+        nextTimeout = writeEventDispatcher.observeEnabledEvents();
         nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
-        nextTimeout = exceptionalConditionEventDispatcher->observeEnabledEvents();
+        nextTimeout = exceptionalConditionEventDispatcher.observeEnabledEvents();
         nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
-        nextTimeout = timerEventDispatcher->getNextTimeout();
+        nextTimeout = timerEventDispatcher.getNextTimeout();
         nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
 
-        int maxFd = readEventDispatcher->getMaxFd();
-        maxFd = std::max(writeEventDispatcher->getMaxFd(), maxFd);
-        maxFd = std::max(exceptionalConditionEventDispatcher->getMaxFd(), maxFd);
+        int maxFd = readEventDispatcher.getMaxFd();
+        maxFd = std::max(writeEventDispatcher.getMaxFd(), maxFd);
+        maxFd = std::max(exceptionalConditionEventDispatcher.getMaxFd(), maxFd);
 
-        if (maxFd >= 0 || !timerEventDispatcher->empty()) {
+        if (maxFd >= 0 || !timerEventDispatcher.empty()) {
             if (nextInactivityTimeout < timeval({0, 0})) {
                 nextInactivityTimeout = {0, 0};
             }
 
-            int counter = select(maxFd + 1, &readFdSet.get(), &writeFdSet.get(), &exceptFdSet.get(), &nextInactivityTimeout);
+            int counter = select(maxFd + 1,
+                                 &readEventDispatcher.getFdSet().get(),
+                                 &writeEventDispatcher.getFdSet().get(),
+                                 &exceptionalConditionEventDispatcher.getFdSet().get(),
+                                 &nextInactivityTimeout);
 
             if (counter >= 0) {
                 tickCounter++;
-                timerEventDispatcher->dispatch();
+                timerEventDispatcher.dispatch();
 
                 struct timeval currentTime = {time(nullptr), 0};
                 nextInactivityTimeout = {LONG_MAX, 0};
 
-                nextTimeout = readEventDispatcher->dispatchActiveEvents(currentTime);
+                nextTimeout = readEventDispatcher.dispatchActiveEvents(currentTime);
                 nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
-                nextTimeout = writeEventDispatcher->dispatchActiveEvents(currentTime);
+                nextTimeout = writeEventDispatcher.dispatchActiveEvents(currentTime);
                 nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
-                nextTimeout = exceptionalConditionEventDispatcher->dispatchActiveEvents(currentTime);
+                nextTimeout = exceptionalConditionEventDispatcher.dispatchActiveEvents(currentTime);
                 nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
             } else if (errno != EINTR) {
                 PLOG(ERROR) << "select";
@@ -113,13 +102,13 @@ namespace net {
             stop();
         }
 
-        readEventDispatcher->unobserveDisabledEvents();
-        writeEventDispatcher->unobserveDisabledEvents();
-        exceptionalConditionEventDispatcher->unobserveDisabledEvents();
+        readEventDispatcher.unobserveDisabledEvents();
+        writeEventDispatcher.unobserveDisabledEvents();
+        exceptionalConditionEventDispatcher.unobserveDisabledEvents();
 
-        readEventDispatcher->releaseUnobservedEvents();
-        writeEventDispatcher->releaseUnobservedEvents();
-        exceptionalConditionEventDispatcher->releaseUnobservedEvents();
+        readEventDispatcher.releaseUnobservedEvents();
+        writeEventDispatcher.releaseUnobservedEvents();
+        exceptionalConditionEventDispatcher.releaseUnobservedEvents();
     }
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
@@ -153,23 +142,23 @@ namespace net {
                 eventLoop.tick();
             };
 
-            eventLoop.readEventDispatcher->observeEnabledEvents();
-            eventLoop.writeEventDispatcher->observeEnabledEvents();
-            eventLoop.exceptionalConditionEventDispatcher->observeEnabledEvents();
+            eventLoop.readEventDispatcher.observeEnabledEvents();
+            eventLoop.writeEventDispatcher.observeEnabledEvents();
+            eventLoop.exceptionalConditionEventDispatcher.observeEnabledEvents();
 
-            eventLoop.readEventDispatcher->disableObservedEvents();
-            eventLoop.writeEventDispatcher->disableObservedEvents();
-            eventLoop.exceptionalConditionEventDispatcher->disableObservedEvents();
+            eventLoop.readEventDispatcher.disableObservedEvents();
+            eventLoop.writeEventDispatcher.disableObservedEvents();
+            eventLoop.exceptionalConditionEventDispatcher.disableObservedEvents();
 
-            eventLoop.readEventDispatcher->unobserveDisabledEvents();
-            eventLoop.writeEventDispatcher->unobserveDisabledEvents();
-            eventLoop.exceptionalConditionEventDispatcher->unobserveDisabledEvents();
+            eventLoop.readEventDispatcher.unobserveDisabledEvents();
+            eventLoop.writeEventDispatcher.unobserveDisabledEvents();
+            eventLoop.exceptionalConditionEventDispatcher.unobserveDisabledEvents();
 
-            eventLoop.readEventDispatcher->releaseUnobservedEvents();
-            eventLoop.writeEventDispatcher->releaseUnobservedEvents();
-            eventLoop.exceptionalConditionEventDispatcher->releaseUnobservedEvents();
+            eventLoop.readEventDispatcher.releaseUnobservedEvents();
+            eventLoop.writeEventDispatcher.releaseUnobservedEvents();
+            eventLoop.exceptionalConditionEventDispatcher.releaseUnobservedEvents();
 
-            eventLoop.timerEventDispatcher->cancelAll();
+            eventLoop.timerEventDispatcher.cancelAll();
 
             running = false;
         }
@@ -193,8 +182,8 @@ namespace net {
     }
 
     unsigned long EventLoop::getEventCounter() {
-        return readEventDispatcher->getEventCounter() + writeEventDispatcher->getEventCounter() +
-               exceptionalConditionEventDispatcher->getEventCounter();
+        return readEventDispatcher.getEventCounter() + writeEventDispatcher.getEventCounter() +
+               exceptionalConditionEventDispatcher.getEventCounter();
     }
 
 } // namespace net

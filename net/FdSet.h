@@ -35,7 +35,6 @@ namespace net {
         void clr(int fd, bool immediate = false);
         int isSet(int fd) const;
         void zero();
-        void prepare();
         fd_set& get();
 
     protected:

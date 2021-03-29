@@ -49,11 +49,8 @@ namespace net {
     }
 
     fd_set& FdSet::get() {
-        return active;
-    }
-
-    void FdSet::prepare() {
         active = registered;
+        return active;
     }
 
 } // namespace net

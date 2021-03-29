@@ -27,10 +27,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "FdSet.h" // for FdSet
+
 namespace net {
 
     class DescriptorEventReceiver;
-    class FdSet;
 
     class DescriptorEventDispatcher {
     public:
@@ -45,7 +46,7 @@ namespace net {
         };
 
     public:
-        explicit DescriptorEventDispatcher(FdSet& fdSet); // NOLINT(google-runtime-references)
+        DescriptorEventDispatcher(); // NOLINT(google-runtime-references)
         DescriptorEventDispatcher(const DescriptorEventDispatcher&) = delete;
 
         DescriptorEventDispatcher& operator=(const DescriptorEventDispatcher&) = delete;
@@ -59,6 +60,7 @@ namespace net {
 
     private:
         int getMaxFd() const;
+        FdSet& getFdSet();
 
         struct timeval dispatchActiveEvents(struct timeval currentTime);
 
@@ -72,7 +74,7 @@ namespace net {
         std::map<int, DescriptorEventReceiverList> disabledEventReceiver;
         DescriptorEventReceiverList unobservedEventReceiver;
 
-        FdSet& fdSet;
+        FdSet fdSet;
 
         unsigned long eventCounter = 0;
 

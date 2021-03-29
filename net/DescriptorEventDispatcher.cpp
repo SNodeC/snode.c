@@ -34,7 +34,6 @@
 
 #include "DescriptorEventDispatcher.h"
 #include "DescriptorEventReceiver.h"
-#include "FdSet.h"   // for FdSet
 #include "Logger.h"  // for Writer, CWARNING, LOG
 #include "Timeval.h" // for operator-, operator<, operator>=
 
@@ -44,8 +43,7 @@ namespace net {
         return std::find(begin(), end(), eventReceiver) != end();
     }
 
-    DescriptorEventDispatcher::DescriptorEventDispatcher(FdSet& fdSet) // NOLINT(google-runtime-references)
-        : fdSet(fdSet) {
+    DescriptorEventDispatcher::DescriptorEventDispatcher() { // NOLINT(google-runtime-references)
     }
 
     void DescriptorEventDispatcher::enable(DescriptorEventReceiver* eventReceiver, int fd) {
@@ -116,6 +114,10 @@ namespace net {
         return !activeObservedEventReceivers.empty() ? activeObservedEventReceivers.front().first : -1;
     }
 
+    FdSet& DescriptorEventDispatcher::getFdSet() {
+        return fdSet;
+    }
+
     struct timeval DescriptorEventDispatcher::observeEnabledEvents() {
         struct timeval nextTimeout = {LONG_MAX, 0};
 
@@ -131,8 +133,6 @@ namespace net {
             }
         }
         enabledEventReceiver.clear();
-
-        fdSet.prepare();
 
         return nextTimeout;
     }

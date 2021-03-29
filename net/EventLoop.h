@@ -26,22 +26,20 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "FdSet.h"
+#include "DescriptorEventDispatcher.h"
+#include "TimerEventDispatcher.h"
 
 namespace net {
 
-    class DescriptorEventDispatcher;
-    class TimerEventDispatcher;
-
     class EventLoop {
     private:
-        EventLoop();
+        EventLoop() = default;
 
         EventLoop(const EventLoop& eventLoop) = delete;
 
         EventLoop& operator=(const EventLoop& eventLoop) = delete;
 
-        ~EventLoop();
+        ~EventLoop() = default;
 
     public:
         static EventLoop& instance() {
@@ -49,19 +47,19 @@ namespace net {
         }
 
         DescriptorEventDispatcher& getReadEventDispatcher() {
-            return *readEventDispatcher;
+            return readEventDispatcher;
         }
 
         DescriptorEventDispatcher& getWriteEventDispatcher() {
-            return *writeEventDispatcher;
+            return writeEventDispatcher;
         }
 
         DescriptorEventDispatcher& getExceptionalConditionEventDispatcher() {
-            return *exceptionalConditionEventDispatcher;
+            return exceptionalConditionEventDispatcher;
         }
 
         TimerEventDispatcher& getTimerEventDispatcher() {
-            return *timerEventDispatcher;
+            return timerEventDispatcher;
         }
 
         unsigned long getEventCounter();
@@ -83,15 +81,11 @@ namespace net {
 
         static EventLoop eventLoop;
 
-        FdSet readFdSet;
-        FdSet writeFdSet;
-        FdSet exceptFdSet;
+        DescriptorEventDispatcher readEventDispatcher;
+        DescriptorEventDispatcher writeEventDispatcher;
+        DescriptorEventDispatcher exceptionalConditionEventDispatcher;
 
-        DescriptorEventDispatcher* readEventDispatcher;
-        DescriptorEventDispatcher* writeEventDispatcher;
-        DescriptorEventDispatcher* exceptionalConditionEventDispatcher;
-
-        TimerEventDispatcher* timerEventDispatcher;
+        TimerEventDispatcher timerEventDispatcher;
 
         struct timeval nextInactivityTimeout = {LONG_MAX, 0};
 

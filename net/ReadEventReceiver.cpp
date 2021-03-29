@@ -22,7 +22,6 @@
 
 #include "ReadEventReceiver.h"
 
-#include "DescriptorEventDispatcher.h"
 #include "EventLoop.h"
 
 namespace net {

@@ -22,7 +22,6 @@
 
 #include "AcceptEventReceiver.h"
 
-#include "DescriptorEventDispatcher.h"
 #include "EventLoop.h"
 
 #define MAX_ACCEPT_INACTIVITY LONG_MAX

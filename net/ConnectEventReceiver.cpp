@@ -22,7 +22,6 @@
 
 #include "ConnectEventReceiver.h"
 
-#include "DescriptorEventDispatcher.h"
 #include "EventLoop.h"
 
 namespace net {

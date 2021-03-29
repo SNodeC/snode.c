@@ -23,6 +23,7 @@
 
 #include <climits>
 #include <ctime>
+#include <sys/time.h> // for timeval
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
