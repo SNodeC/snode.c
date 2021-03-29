@@ -42,36 +42,21 @@ namespace net::socket::stream {
 
         SocketConnection() = delete;
 
-        SocketConnection(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
-                         const std::function<void(SocketConnection* socketConnection)>& onDestruct,
-                         const std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)>& onRead,
-                         const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
-                         const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
-                         const std::function<void(SocketConnection* socketConnection)>& onDisconnect)
-            : SocketReader(
-                  [this, onRead](const char* junk, std::size_t junkLen) -> void {
-                      onRead(this, junk, junkLen);
-                  },
-                  [this, onReadError](int errnum) -> void {
-                      onReadError(this, errnum);
-                  })
-            , SocketWriter([this, onWriteError](int errnum) -> void {
-                onWriteError(this, errnum);
-            })
-            , onDestruct(onDestruct)
+    protected:
+        SocketConnection(const std::function<void(const char* junk, std::size_t junkLen)>& onRead,
+                         const std::function<void(int errnum)>& onReadError,
+                         const std::function<void(int errnum)>& onWriteError,
+                         const std::function<void()>& onDisconnect)
+            : SocketReader(onRead, onReadError)
+            , SocketWriter(onWriteError)
             , onDisconnect(onDisconnect) {
-            onConstruct(this);
         }
 
-    protected:
-        ~SocketConnection() override {
-            onDestruct(this);
-        }
+        virtual ~SocketConnection() = default;
 
     private:
         void unobserved() override {
-            onDisconnect(this);
-
+            onDisconnect();
             delete this;
         }
 
@@ -111,8 +96,7 @@ namespace net::socket::stream {
         SocketAddress remoteAddress{};
         SocketAddress localAddress{};
 
-        std::function<void(SocketConnection* socketConnection)> onDestruct;
-        std::function<void(SocketConnection* socketConnection)> onDisconnect;
+        std::function<void()> onDisconnect;
     };
 
 } // namespace net::socket::stream

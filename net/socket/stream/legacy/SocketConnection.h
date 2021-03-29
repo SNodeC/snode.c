@@ -37,10 +37,6 @@ namespace net::socket::stream::legacy {
     public:
         using Socket = SocketT;
 
-    private:
-        using SocketConnectionSuper =
-            stream::SocketConnection<legacy::SocketReader<Socket>, legacy::SocketWriter<Socket>, typename Socket::SocketAddress>;
-
     public:
         SocketConnection(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
                          const std::function<void(SocketConnection* socketConnection)>& onDestruct,
@@ -48,26 +44,31 @@ namespace net::socket::stream::legacy {
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                          const std::function<void(SocketConnection* socketConnection)>& onDisconnect)
-            : SocketConnectionSuper::SocketConnection(
-                  []([[maybe_unused]] SocketConnectionSuper* socketConnection) -> void {
-                  },
-                  [onDestruct](SocketConnectionSuper* socketConnection) -> void {
-                      onDestruct(static_cast<SocketConnection*>(socketConnection));
-                  },
-                  [onRead](SocketConnectionSuper* socketConnection, const char* junk, std::size_t junkLen) -> void {
-                      onRead(static_cast<SocketConnection*>(socketConnection), junk, junkLen);
-                  },
-                  [onReadError](SocketConnectionSuper* socketConnection, int errnum) -> void {
-                      onReadError(static_cast<SocketConnection*>(socketConnection), errnum);
-                  },
-                  [onWriteError](SocketConnectionSuper* socketConnection, int errnum) -> void {
-                      onWriteError(static_cast<SocketConnection*>(socketConnection), errnum);
-                  },
-                  [onDisconnect](SocketConnectionSuper* socketConnection) -> void {
-                      onDisconnect(static_cast<SocketConnection*>(socketConnection));
-                  }) {
+            : stream::SocketConnection<legacy::SocketReader<Socket>, legacy::SocketWriter<Socket>, typename Socket::SocketAddress>::
+                  SocketConnection(
+                      [onRead, this](const char* junk, std::size_t junkLen) -> void {
+                          onRead(this, junk, junkLen);
+                      },
+                      [onReadError, this](int errnum) -> void {
+                          onReadError(this, errnum);
+                      },
+                      [onWriteError, this](int errnum) -> void {
+                          onWriteError(this, errnum);
+                      },
+                      [onDisconnect, this]() -> void {
+                          onDisconnect(this);
+                      })
+            , onDestruct(onDestruct) {
             onConstruct(this);
         }
+
+    protected:
+        ~SocketConnection() override {
+            onDestruct(this);
+        }
+
+    private:
+        std::function<void(SocketConnection* socketConnection)> onDestruct;
     };
 
 } // namespace net::socket::stream::legacy

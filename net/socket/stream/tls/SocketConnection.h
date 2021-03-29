@@ -37,10 +37,6 @@ namespace net::socket::stream::tls {
     public:
         using Socket = SocketT;
 
-    private:
-        using SocketConnectionSuper =
-            stream::SocketConnection<tls::SocketReader<Socket>, tls::SocketWriter<Socket>, typename Socket::SocketAddress>;
-
     public:
         SocketConnection(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
                          const std::function<void(SocketConnection* socketConnection)>& onDestruct,
@@ -48,30 +44,31 @@ namespace net::socket::stream::tls {
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                          const std::function<void(SocketConnection* socketConnection)>& onDisconnect)
-            : SocketConnectionSuper::SocketConnection(
-                  []([[maybe_unused]] SocketConnectionSuper* socketConnection) -> void {
-                  },
-                  [onDestruct](SocketConnectionSuper* socketConnection) -> void {
-                      onDestruct(static_cast<SocketConnection*>(socketConnection));
-                  },
-                  [onRead](SocketConnectionSuper* socketConnection, const char* junk, std::size_t junkLen) -> void {
-                      onRead(static_cast<SocketConnection*>(socketConnection), junk, junkLen);
-                  },
-                  [onReadError, &sslErr = this->sslErr](SocketConnectionSuper* socketConnection, int errnum) -> void {
-                      sslErr = errnum <= 0 ? -errnum : SSL_ERROR_SYSCALL;
-                      onReadError(static_cast<SocketConnection*>(socketConnection), errnum);
-                  },
-                  [onWriteError, &sslErr = this->sslErr](SocketConnectionSuper* socketConnection, int errnum) -> void {
-                      sslErr = errnum <= 0 ? -errnum : SSL_ERROR_SYSCALL;
-                      onWriteError(static_cast<SocketConnection*>(socketConnection), errnum);
-                  },
-                  [onDisconnect](SocketConnectionSuper* socketConnection) -> void {
-                      onDisconnect(static_cast<SocketConnection*>(socketConnection));
-                  }) {
+            : stream::SocketConnection<tls::SocketReader<Socket>, tls::SocketWriter<Socket>, typename Socket::SocketAddress>::
+                  SocketConnection(
+                      [onRead, this](const char* junk, std::size_t junkLen) -> void {
+                          onRead(this, junk, junkLen);
+                      },
+                      [onReadError, this](int errnum) -> void {
+                          sslErr = errnum <= 0 ? -errnum : SSL_ERROR_SYSCALL;
+                          onReadError(this, errnum);
+                      },
+                      [onWriteError, this](int errnum) -> void {
+                          sslErr = errnum <= 0 ? -errnum : SSL_ERROR_SYSCALL;
+                          onWriteError(this, errnum);
+                      },
+                      [onDisconnect, this]() -> void {
+                          onDisconnect(this);
+                      })
+            , onDestruct(onDestruct) {
             onConstruct(this);
         }
 
     protected:
+        ~SocketConnection() override {
+            onDestruct(this);
+        }
+
         SSL* startSSL(SSL_CTX* ctx) {
             if (ctx != nullptr) {
                 ssl = SSL_new(ctx);
@@ -118,6 +115,9 @@ namespace net::socket::stream::tls {
         SSL* ssl = nullptr;
 
         int sslErr = SSL_ERROR_NONE;
+
+    private:
+        std::function<void(SocketConnection* socketConnection)> onDestruct;
 
         template <typename Socket>
         friend class SocketListener;

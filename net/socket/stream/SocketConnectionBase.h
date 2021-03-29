@@ -28,12 +28,11 @@
 namespace net::socket::stream {
 
     class SocketConnectionBase {
-    public:
+    protected:
         SocketConnectionBase() = default;
         SocketConnectionBase(const SocketConnectionBase&) = delete;
         SocketConnectionBase& operator=(const SocketConnectionBase&) = delete;
 
-    protected:
         virtual ~SocketConnectionBase() = default;
 
     public:
