@@ -51,6 +51,8 @@ namespace net::socket::stream {
             , onError(onError) {
         }
 
+        virtual ~SocketReader() = default;
+
         void shutdown() {
             if (!isEnabled()) {
                 Socket::shutdown(Socket::shut::RD);
