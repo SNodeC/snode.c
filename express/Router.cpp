@@ -151,8 +151,7 @@ namespace express {
 
         virtual ~Dispatcher() = default;
 
-        [[nodiscard]] virtual bool
-        dispatch(const MountPoint& mountPoint, const std::string& parentPath, Request& req, Response& res) const = 0;
+        virtual bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, Request& req, Response& res) const = 0;
     };
 
     class Route {
@@ -163,7 +162,7 @@ namespace express {
             , dispatcher(dispatcher) {
         }
 
-        [[nodiscard]] bool dispatch(const std::string& parentPath, Request& req, Response& res) const;
+        bool dispatch(const std::string& parentPath, Request& req, Response& res) const;
 
     protected:
         Router* parent;
@@ -175,8 +174,7 @@ namespace express {
     public:
         explicit RouterDispatcher() = default;
 
-        [[nodiscard]] bool
-        dispatch(const MountPoint& mountPoint, const std::string& parentPath, Request& req, Response& res) const override;
+        bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, Request& req, Response& res) const override;
 
     private:
         std::list<Route> routes;
@@ -191,8 +189,7 @@ namespace express {
             : dispatcher(dispatcher) {
         }
 
-        [[nodiscard]] bool
-        dispatch(const MountPoint& mountPoint, const std::string& parentPath, Request& req, Response& res) const override;
+        bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, Request& req, Response& res) const override;
 
     private:
         const std::function<void(Request& req, Response& res, std::function<void(void)>)> dispatcher;
@@ -204,8 +201,7 @@ namespace express {
             : dispatcher(dispatcher) {
         }
 
-        [[nodiscard]] bool
-        dispatch(const MountPoint& mountPoint, const std::string& parentPath, Request& req, Response& res) const override;
+        bool dispatch(const MountPoint& mountPoint, const std::string& parentPath, Request& req, Response& res) const override;
 
     protected:
         const std::function<void(Request& req, Response& res)> dispatcher;
@@ -287,7 +283,7 @@ namespace express {
     }
 
     void Router::dispatch(express::Request& req, express::Response& res) {
-        static_cast<void>(routerDispatcher->dispatch(MountPoint("use", "/"), "/", req, res));
+        routerDispatcher->dispatch(MountPoint("use", "/"), "/", req, res);
     }
 
 #define DEFINE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                          \
