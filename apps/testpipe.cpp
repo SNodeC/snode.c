@@ -17,8 +17,8 @@ int main(int argc, char* argv[]) {
                 std::string string(junk, junkLen);
                 VLOG(0) << "Pipe Data: " << string;
                 pipeSource.send(junk, junkLen);
-                pipeSink.disable();
-                pipeSource.disable();
+                // pipeSink.disable();
+                // pipeSource.disable();
             });
 
             pipeSink.setOnEof([]() -> void {

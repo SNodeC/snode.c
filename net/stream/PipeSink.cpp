@@ -48,19 +48,18 @@ namespace net::stream {
             if (onData) {
                 onData(junk, ret);
             }
-        } else if (ret == 0) {
-            ReadEventReceiver::disable();
-            ReadEventReceiver::suspend();
-
-            if (onEof) {
-                onEof();
-            }
         } else {
             ReadEventReceiver::disable();
             ReadEventReceiver::suspend();
 
-            if (onError) {
-                onError(errno);
+            if (ret == 0) {
+                if (onEof) {
+                    onEof();
+                }
+            } else {
+                if (onError) {
+                    onError(errno);
+                }
             }
         }
     }
