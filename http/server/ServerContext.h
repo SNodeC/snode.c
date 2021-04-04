@@ -25,9 +25,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Request.h"
-#include "RequestParser.h"
-#include "Response.h"
+#include "http/server/Request.h"
+#include "http/server/RequestParser.h"
+#include "http/server/Response.h"
 
 namespace net::socket::stream {
     class SocketConnectionBase;

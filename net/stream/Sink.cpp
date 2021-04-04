@@ -16,9 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Sink.h"
+#include "net/stream/Sink.h"
 
-#include "Source.h"
+#include "net/stream/Source.h"
 
 namespace net::stream {
 

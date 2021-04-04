@@ -22,7 +22,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Socket.h"
+#include "net/socket/ip/tcp/ipv4/Socket.h"
 
 namespace net::socket::ip::tcp::ipv4 {
 

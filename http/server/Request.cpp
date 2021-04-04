@@ -20,9 +20,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Request.h"
+#include "http/server/Request.h"
 
-#include "http_utils.h"
+#include "http/http_utils.h"
 
 namespace http::server {
 

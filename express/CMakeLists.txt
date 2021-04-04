@@ -23,7 +23,7 @@ set_target_properties(
                SOVERSION 1
 )
 
-target_include_directories(express PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(express PUBLIC ${PROJECT_SOURCE_DIR})
 
 install(TARGETS express LIBRARY DESTINATION lib
                                 NAMELINK_COMPONENT libexpress.so.1

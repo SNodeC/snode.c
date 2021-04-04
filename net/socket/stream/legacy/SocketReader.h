@@ -27,7 +27,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/stream/SocketReader.h"
+#include "net/socket/stream/SocketReader.h"
 
 namespace net::socket::stream::legacy {
 

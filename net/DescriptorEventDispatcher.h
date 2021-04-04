@@ -27,7 +27,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "FdSet.h" // for FdSet
+#include "net/FdSet.h" // for FdSet
 
 namespace net {
 

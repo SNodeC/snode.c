@@ -32,10 +32,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "DescriptorEventDispatcher.h"
-#include "DescriptorEventReceiver.h"
-#include "Logger.h"  // for Writer, CWARNING, LOG
-#include "Timeval.h" // for operator-, operator<, operator>=
+#include "log/Logger.h" // for Writer, CWARNING, LOG
+#include "net/DescriptorEventDispatcher.h"
+#include "net/DescriptorEventReceiver.h"
+#include "utils/Timeval.h" // for operator-, operator<, operator>=
 
 namespace net {
 

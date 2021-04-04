@@ -22,7 +22,7 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#include "RfCommAddress.h"
+#include "net/socket/bluetooth/address/RfCommAddress.h"
 
 namespace net::socket::bluetooth::address {
 

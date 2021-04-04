@@ -22,7 +22,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Logger.h"
+#include "log/Logger.h"
 
 INITIALIZE_EASYLOGGINGPP
 

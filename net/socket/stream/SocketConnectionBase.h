@@ -23,7 +23,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "AttributeInjector.h"
+#include "utils/AttributeInjector.h"
 
 namespace net::socket::stream {
 

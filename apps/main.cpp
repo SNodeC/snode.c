@@ -19,9 +19,9 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "config.h" // just for this example app
-#include "legacy/WebApp.h"
-#include "timer/IntervalTimer.h"
-#include "timer/SingleshotTimer.h"
+#include "express/legacy/WebApp.h"
+#include "net/timer/IntervalTimer.h"
+#include "net/timer/SingleshotTimer.h"
 
 #include <cstring>
 #include <iostream>

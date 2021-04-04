@@ -23,8 +23,8 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#include "socket/bluetooth/rfcomm/Socket.h"
-#include "socket/stream/legacy/SocketClient.h"
+#include "net/socket/bluetooth/rfcomm/Socket.h"
+#include "net/socket/stream/legacy/SocketClient.h"
 
 namespace net::socket::bluetooth::rfcomm::legacy {
 

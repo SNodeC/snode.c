@@ -22,7 +22,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Timeval.h"
+#include "utils/Timeval.h"
 
 bool operator<(const struct timeval& tv1, const struct timeval& tv2) {
     return (tv1.tv_sec < tv2.tv_sec) || ((tv1.tv_sec == tv2.tv_sec) && (tv1.tv_usec < tv2.tv_usec));

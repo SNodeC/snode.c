@@ -25,8 +25,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "RequestParser.h"
-#include "http_utils.h"
+#include "http/http_utils.h"
+#include "http/server/RequestParser.h"
 
 namespace http::server {
 

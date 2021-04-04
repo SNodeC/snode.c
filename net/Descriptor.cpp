@@ -22,7 +22,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Descriptor.h"
+#include "net/Descriptor.h"
 
 namespace net {
 

@@ -29,7 +29,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "SocketListener.h"
+#include "net/socket/stream/SocketListener.h"
 
 namespace net::socket::stream {
 

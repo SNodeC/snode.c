@@ -20,9 +20,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "ExceptionalConditionEventReceiver.h"
+#include "net/ExceptionalConditionEventReceiver.h"
 
-#include "EventLoop.h"
+#include "net/EventLoop.h"
 
 namespace net {
 

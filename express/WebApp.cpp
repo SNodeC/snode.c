@@ -20,9 +20,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "WebApp.h"
+#include "express/WebApp.h"
 
-#include "SNodeC.h"
+#include "net/SNodeC.h"
 
 namespace express {
 

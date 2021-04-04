@@ -18,10 +18,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "Logger.h"
 #include "config.h" // just for this example app
-#include "middleware/StaticMiddleware.h"
-#include "tls/WebApp.h"
+#include "express/middleware/StaticMiddleware.h"
+#include "express/tls/WebApp.h"
+#include "log/Logger.h"
 
 #include <openssl/x509v3.h>
 

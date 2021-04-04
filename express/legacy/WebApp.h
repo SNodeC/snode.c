@@ -23,8 +23,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "WebAppT.h"
-#include "server/legacy/Server.h"
+#include "express/WebAppT.h"
+#include "http/server/legacy/Server.h"
 
 namespace express::legacy {
 

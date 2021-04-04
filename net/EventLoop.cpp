@@ -28,10 +28,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "EventLoop.h" // for EventLoop
-#include "FdSet.h"
-#include "Logger.h"  // for Logger
-#include "Timeval.h" // for operator<
+#include "log/Logger.h"    // for Logger
+#include "net/EventLoop.h" // for EventLoop
+#include "net/FdSet.h"
+#include "utils/Timeval.h" // for operator<
 
 #define MAX_READ_INACTIVITY 60
 #define MAX_WRITE_INACTIVITY 60

@@ -20,13 +20,13 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Timer.h"
+#include "net/timer/Timer.h"
 
-#include "EventLoop.h"
-#include "IntervalTimer.h"
-#include "SingleshotTimer.h"
-#include "TimerEventDispatcher.h" // for ManagedTimer
-#include "Timeval.h"              // for operator+
+#include "net/EventLoop.h"
+#include "net/TimerEventDispatcher.h" // for ManagedTimer
+#include "net/timer/IntervalTimer.h"
+#include "net/timer/SingleshotTimer.h"
+#include "utils/Timeval.h" // for operator+
 
 namespace net::timer {
 

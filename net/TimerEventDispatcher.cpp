@@ -25,7 +25,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "TimerEventDispatcher.h"
+#include "net/TimerEventDispatcher.h"
+#include "net/TimerEventReceiver.h" // for TimerEventReceiver
 
 namespace net {
 

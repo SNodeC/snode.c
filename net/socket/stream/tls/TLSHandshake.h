@@ -26,8 +26,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "ReadEventReceiver.h"
-#include "WriteEventReceiver.h"
+#include "net/ReadEventReceiver.h"
+#include "net/WriteEventReceiver.h"
 
 namespace net::socket::stream::tls {
 

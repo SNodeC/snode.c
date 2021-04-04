@@ -30,7 +30,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/SocketAddress.h"
+#include "net/socket/SocketAddress.h"
 
 namespace net::socket::bluetooth::address {
 

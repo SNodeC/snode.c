@@ -22,7 +22,7 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#include "L2CapAddress.h"
+#include "net/socket/bluetooth/address/L2CapAddress.h"
 
 namespace net::socket::bluetooth::address {
 

@@ -28,8 +28,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "CookieOptions.h"
-#include "Parser.h"
+#include "http/CookieOptions.h"
+#include "http/Parser.h"
 
 namespace http::client {
 

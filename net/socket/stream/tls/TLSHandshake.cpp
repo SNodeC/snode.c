@@ -24,7 +24,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "TLSHandshake.h"
+#include "net/socket/stream/tls/TLSHandshake.h"
 
 #define TLSHANDSHAKE_TIMEOUT 10
 

@@ -27,8 +27,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "ConnectionState.h"
-#include "stream/Sink.h"
+#include "http/ConnectionState.h"
+#include "net/stream/Sink.h"
 
 namespace http::client {
 

@@ -22,10 +22,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Logger.h"
-#include "Request.h"
-#include "Response.h"
-#include "StaticMiddleware.h"
+#include "express/Request.h"
+#include "express/Response.h"
+#include "express/middleware/StaticMiddleware.h"
+#include "log/Logger.h"
 
 namespace express::middleware {
 

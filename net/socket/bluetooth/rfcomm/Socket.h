@@ -23,8 +23,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/Socket.h"
-#include "socket/bluetooth/address/RfCommAddress.h" // IWYU pragma: keep
+#include "net/socket/Socket.h"
+#include "net/socket/bluetooth/address/RfCommAddress.h" // IWYU pragma: keep
 
 namespace net::socket::bluetooth::rfcomm {
 

@@ -18,10 +18,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "Logger.h"
-#include "SNodeC.h"
 #include "config.h" // just for this example app
-#include "socket/bluetooth/rfcomm/tls/SocketClient.h"
+#include "log/Logger.h"
+#include "net/SNodeC.h"
+#include "net/socket/bluetooth/rfcomm/tls/SocketClient.h"
 
 #include <cstddef>
 #include <openssl/x509v3.h>

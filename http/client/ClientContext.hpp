@@ -23,8 +23,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "ClientContext.h"
-#include "socket/stream/SocketConnectionBase.h"
+#include "http/client/ClientContext.h"
+#include "net/socket/stream/SocketConnectionBase.h"
 
 namespace http::client {
     class CookieOptions;

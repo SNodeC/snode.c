@@ -27,9 +27,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "ConnectionState.h"
-#include "CookieOptions.h"
-#include "stream/Sink.h"
+#include "http/ConnectionState.h"
+#include "http/CookieOptions.h"
+#include "net/stream/Sink.h"
 
 class FileReader;
 

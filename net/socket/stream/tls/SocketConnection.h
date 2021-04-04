@@ -25,9 +25,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/stream/SocketConnection.h"
-#include "socket/stream/tls/SocketReader.h"
-#include "socket/stream/tls/SocketWriter.h"
+#include "net/socket/stream/SocketConnection.h"
+#include "net/socket/stream/tls/SocketReader.h"
+#include "net/socket/stream/tls/SocketWriter.h"
 
 namespace net::socket::stream::tls {
 

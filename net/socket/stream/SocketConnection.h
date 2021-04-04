@@ -26,7 +26,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "SocketConnectionBase.h"
+#include "net/socket/stream/SocketConnectionBase.h"
 
 namespace net::socket::stream {
 

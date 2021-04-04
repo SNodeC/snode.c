@@ -24,7 +24,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Router.h"
+#include "express/Router.h"
 
 namespace express::middleware {
 

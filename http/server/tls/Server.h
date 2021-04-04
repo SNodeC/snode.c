@@ -23,9 +23,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "server/Server.h"
-#include "socket/ip/tcp/ipv4/tls/SocketServer.h"
-#include "socket/ip/tcp/ipv6/tls/SocketServer.h"
+#include "http/server/Server.h"
+#include "net/socket/ip/tcp/ipv4/tls/SocketServer.h"
+#include "net/socket/ip/tcp/ipv6/tls/SocketServer.h"
 
 namespace http::server::tls {
 

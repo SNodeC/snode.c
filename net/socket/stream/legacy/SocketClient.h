@@ -23,8 +23,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "SocketConnector.h"
-#include "socket/stream/SocketClient.h"
+#include "net/socket/stream/SocketClient.h"
+#include "net/socket/stream/legacy/SocketConnector.h"
 
 namespace net::socket::stream::legacy {
 

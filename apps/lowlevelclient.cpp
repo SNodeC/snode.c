@@ -18,14 +18,14 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "Logger.h"
-#include "SNodeC.h"
-#include "client/Response.h"
-#include "client/ResponseParser.h"
 #include "config.h" // just for this example app
-#include "socket/ip/tcp/ipv4/Socket.h"
-#include "socket/stream/legacy/SocketClient.h"
-#include "socket/stream/tls/SocketClient.h"
+#include "http/client/Response.h"
+#include "http/client/ResponseParser.h"
+#include "log/Logger.h"
+#include "net/SNodeC.h"
+#include "net/socket/ip/tcp/ipv4/Socket.h"
+#include "net/socket/stream/legacy/SocketClient.h"
+#include "net/socket/stream/tls/SocketClient.h"
 
 #include <openssl/x509v3.h>
 

@@ -22,12 +22,12 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "MimeTypes.h"
-#include "Response.h"
-#include "StatusCodes.h"
-#include "file/FileReader.h"
-#include "http_utils.h"
-#include "server/ServerContext.h"
+#include "express/Response.h"
+#include "http/MimeTypes.h"
+#include "http/StatusCodes.h"
+#include "http/http_utils.h"
+#include "http/server/ServerContext.h"
+#include "net/file/FileReader.h"
 
 namespace express {
 

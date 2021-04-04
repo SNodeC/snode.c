@@ -31,9 +31,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "AcceptEventReceiver.h"
-#include "Logger.h"
-#include "ReadEventReceiver.h"
+#include "log/Logger.h"
+#include "net/AcceptEventReceiver.h"
+#include "net/ReadEventReceiver.h"
 
 namespace net::socket::stream {
 

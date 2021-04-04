@@ -28,7 +28,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "http_utils.h"
+#include "http/http_utils.h"
 
 namespace httputils {
 

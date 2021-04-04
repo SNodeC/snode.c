@@ -24,8 +24,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Parser.h"
-#include "http_utils.h"
+#include "http/Parser.h"
+#include "http/http_utils.h"
 
 namespace http {
 

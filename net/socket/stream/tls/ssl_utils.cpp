@@ -30,8 +30,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Logger.h"
-#include "ssl_utils.h"
+#include "log/Logger.h"
+#include "net/socket/stream/tls/ssl_utils.h"
 
 namespace net::socket::stream::tls {
 

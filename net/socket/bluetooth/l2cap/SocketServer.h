@@ -26,8 +26,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "socket/bluetooth/l2cap/Socket.h"
-#include "socket/stream/legacy/SocketServer.h"
+#include "net/socket/bluetooth/l2cap/Socket.h"
+#include "net/socket/stream/legacy/SocketServer.h"
 
 namespace net::socket::bluetooth::l2cap {
 

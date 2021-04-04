@@ -31,8 +31,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "ConnectEventReceiver.h"
-#include "socket/Socket.h"
+#include "net/ConnectEventReceiver.h"
+#include "net/socket/Socket.h"
 
 namespace net::socket::stream {
 

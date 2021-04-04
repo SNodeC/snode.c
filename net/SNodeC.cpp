@@ -20,9 +20,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "SNodeC.h"
+#include "net/SNodeC.h"
 
-#include "EventLoop.h"
+#include "net/EventLoop.h"
 
 namespace net {
 

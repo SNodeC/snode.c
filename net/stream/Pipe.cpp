@@ -24,9 +24,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Pipe.h"
-#include "PipeSink.h"   // for PipeSink
-#include "PipeSource.h" // for PipeSource
+#include "net/stream/Pipe.h"
+#include "net/stream/PipeSink.h"   // for PipeSink
+#include "net/stream/PipeSource.h" // for PipeSource
 
 namespace net::stream {
 

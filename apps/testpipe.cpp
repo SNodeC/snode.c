@@ -1,8 +1,8 @@
-#include "Logger.h"
-#include "SNodeC.h"
-#include "stream/Pipe.h"
-#include "stream/PipeSink.h"
-#include "stream/PipeSource.h"
+#include "log/Logger.h"
+#include "net/SNodeC.h"
+#include "net/stream/Pipe.h"
+#include "net/stream/PipeSink.h"
+#include "net/stream/PipeSource.h"
 
 #include <functional> // for function
 #include <iosfwd>     // for size_t

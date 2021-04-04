@@ -28,12 +28,12 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Descriptor.h"
-#include "Logger.h"
-#include "TLSHandshake.h"
-#include "WriteEventReceiver.h"
-#include "socket/stream/SocketReader.h"
-#include "ssl_utils.h"
+#include "log/Logger.h"
+#include "net/Descriptor.h"
+#include "net/WriteEventReceiver.h"
+#include "net/socket/stream/SocketReader.h"
+#include "net/socket/stream/tls/TLSHandshake.h"
+#include "net/socket/stream/tls/ssl_utils.h"
 
 namespace net::socket::stream::tls {
 

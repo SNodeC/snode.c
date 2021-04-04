@@ -52,7 +52,7 @@ set_target_properties(
 target_compile_options(net PRIVATE --warn-all)
 
 target_include_directories(
-    net PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${OPENSSL_INCLUDE_DIRS}
+    net PUBLIC ${PROJECT_SOURCE_DIR} ${OPENSSL_INCLUDE_DIRS}
                ${BLUEZ_INCLUDE_DIRS}
 )
 

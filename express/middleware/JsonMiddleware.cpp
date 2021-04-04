@@ -24,9 +24,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "JsonMiddleware.h"
-#include "Request.h"
-#include "Response.h"
+#include "express/Request.h"
+#include "express/Response.h"
+#include "express/middleware/JsonMiddleware.h"
 
 namespace express::middleware {
 

@@ -30,8 +30,8 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#include "ClientContext.hpp"
-#include "Logger.h"
+#include "http/client/ClientContext.hpp"
+#include "log/Logger.h"
 
 namespace http::client {
 

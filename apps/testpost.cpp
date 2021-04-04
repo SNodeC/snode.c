@@ -18,10 +18,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "Logger.h"
 #include "config.h" // just for this example app
-#include "legacy/WebApp.h"
-#include "tls/WebApp.h"
+#include "express/legacy/WebApp.h"
+#include "express/tls/WebApp.h"
+#include "log/Logger.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

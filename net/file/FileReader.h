@@ -26,9 +26,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "File.h"
-#include "ReadEventReceiver.h"
-#include "stream/Source.h"
+#include "net/ReadEventReceiver.h"
+#include "net/file/File.h"
+#include "net/stream/Source.h"
 
 namespace net::stream {
     class Sink;

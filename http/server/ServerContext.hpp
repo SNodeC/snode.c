@@ -22,10 +22,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Logger.h"
-#include "ServerContext.h"
-#include "http_utils.h"
-#include "socket/stream/SocketConnectionBase.h"
+#include "http/http_utils.h"
+#include "http/server/ServerContext.h"
+#include "log/Logger.h"
+#include "net/socket/stream/SocketConnectionBase.h"
 
 namespace http::server {
 

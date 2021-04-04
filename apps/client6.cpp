@@ -18,12 +18,12 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "Logger.h"
-#include "SNodeC.h"
-#include "client/Response.h"
-#include "client/legacy/Client.h"
-#include "client/tls/Client.h"
 #include "config.h" // just for this example app
+#include "http/client/Response.h"
+#include "http/client/legacy/Client.h"
+#include "http/client/tls/Client.h"
+#include "log/Logger.h"
+#include "net/SNodeC.h"
 
 #include <cstring>
 #include <iostream>

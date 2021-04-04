@@ -31,7 +31,7 @@ set_target_properties(
 )
 
 target_include_directories(
-    http PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${LIBMAGIC_INCLUDES}
+    http PUBLIC ${PROJECT_SOURCE_DIR} ${LIBMAGIC_INCLUDES}
 )
 
 install(TARGETS http LIBRARY DESTINATION lib NAMELINK_COMPONENT libhttp.so.1)

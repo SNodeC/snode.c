@@ -56,9 +56,9 @@ if(NOT SNODEC_FOUND)
     # ########## LOGGER
     find_path(
         SNODEC_LOGGER_H
-        NAMES Logger.h
+        NAMES log/Logger.h
         HINTS ${SNODEC_LOGGER_ROOT_DIR}/include
-        PATH_SUFFIXES snode.c/log
+        PATH_SUFFIXES snode.c
     )
     if(SNODEC_LOGGER_H)
         list(APPEND SNODEC_LOGGER_INCLUDE ${SNODEC_LOGGER_H})
@@ -71,9 +71,9 @@ if(NOT SNODEC_FOUND)
     # ########## NET
     find_path(
         SNODEC_NET_H
-        NAMES EventLoop.h
+        NAMES net/EventLoop.h
         HINTS ${SNODEC_NET_ROOT_DIR}/include
-        PATH_SUFFIXES snode.c/net
+        PATH_SUFFIXES snode.c
     )
     if(SNODEC_NET_H)
         list(APPEND SNODEC_NET_INCLUDE ${SNODEC_NET_H})
@@ -84,9 +84,9 @@ if(NOT SNODEC_FOUND)
     # ########## HTTP
     find_path(
         SNODEC_HTTP_H
-        NAMES http_utils.h
+        NAMES http/http_utils.h
         HINTS ${SNODEC_HTTP_ROOT_DIR}/include
-        PATH_SUFFIXES snode.c/http
+        PATH_SUFFIXES snode.c
     )
     if(SNODEC_HTTP_H)
         list(APPEND SNODEC_HTTP_INCLUDE ${SNODEC_HTTP_H})
@@ -97,9 +97,9 @@ if(NOT SNODEC_FOUND)
     # ########## EXPRESS
     find_path(
         SNODEC_EXPRESS_H
-        NAMES WebApp.h
+        NAMES express/WebApp.h
         HINTS ${SNODEC_EXPRESS_ROOT_DIR}/include
-        PATH_SUFFIXES snode.c/express
+        PATH_SUFFIXES snode.c
     )
     if(SNODEC_EXPRESS_H)
         list(APPEND SNODEC_EXPRESS_INCLUDE ${SNODEC_EXPRESS_H})
@@ -112,9 +112,9 @@ if(NOT SNODEC_FOUND)
     # ########## UTILS
     find_path(
         SNODEC_UTILS_H
-        NAMES AttributeInjector.h
+        NAMES utils/AttributeInjector.h
         HINTS ${SNODEC_UTILS_ROOT_DIR}/include
-        PATH_SUFFIXES snode.c/utils
+        PATH_SUFFIXES snode.c
     )
     if(SNODEC_UTILS_H)
         list(APPEND SNODEC_UTILS_INCLUDE ${SNODEC_UTILS_H})
@@ -145,6 +145,11 @@ if(SNODEC_FOUND)
     message("--     " ${SNODEC_NET_LIBRARY})
     message("--     " ${SNODEC_HTTP_LIBRARY})
     message("--     " ${SNODEC_EXPRESS_LIBRARY})
+
+    message("--     " ${SNODEC_LOGGER_INCLUDE})
+    message("--     " ${SNODEC_NET_INCLUDE})
+    message("--     " ${SNODEC_HTTP_INCLUDE})
+    message("--     " ${SNODEC_EXPRESS_INCLUDE})
 
     set(SNODEC_NET_LIBRARIES ${SNODEC_LOGGER_LIBRARY} ${SNODEC_NET_LIBRARY})
     set(SNODEC_HTTP_LIBRARIES ${SNODEC_NET_LIBRARIES} ${SNODEC_HTTP_LIBRARY})

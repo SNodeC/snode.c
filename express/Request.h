@@ -26,7 +26,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "server/Request.h"
+#include "http/server/Request.h"
 
 namespace express {
 

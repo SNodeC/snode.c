@@ -20,9 +20,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "DescriptorEventReceiver.h"
+#include "net/DescriptorEventReceiver.h"
 
-#include "DescriptorEventDispatcher.h"
+#include "net/DescriptorEventDispatcher.h"
 
 namespace net {
     DescriptorEventReceiver::DescriptorEventReceiver(DescriptorEventDispatcher& descriptorEventDispatcher, long timeout)

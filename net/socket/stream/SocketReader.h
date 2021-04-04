@@ -27,7 +27,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "ReadEventReceiver.h"
+#include "net/ReadEventReceiver.h"
 
 #ifndef MAX_READ_JUNKSIZE
 #define MAX_READ_JUNKSIZE 16384

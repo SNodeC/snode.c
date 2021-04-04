@@ -23,9 +23,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "client/Client.h"
-#include "socket/ip/tcp/ipv4/tls/SocketClient.h"
-#include "socket/ip/tcp/ipv6/tls/SocketClient.h"
+#include "http/client/Client.h"
+#include "net/socket/ip/tcp/ipv4/tls/SocketClient.h"
+#include "net/socket/ip/tcp/ipv6/tls/SocketClient.h"
 
 namespace http::client::tls {
 

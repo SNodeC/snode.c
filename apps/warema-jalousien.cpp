@@ -1,7 +1,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "Logger.h"
-#include "legacy/WebApp.h"
+#include "express/legacy/WebApp.h"
+#include "log/Logger.h"
 
 #include <cstdlib>
 

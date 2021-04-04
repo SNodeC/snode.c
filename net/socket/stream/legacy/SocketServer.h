@@ -23,8 +23,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "SocketListener.h"
-#include "socket/stream/SocketServer.h"
+#include "net/socket/stream/SocketServer.h"
+#include "net/socket/stream/legacy/SocketListener.h"
 
 namespace net::socket::stream::legacy {
 

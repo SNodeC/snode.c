@@ -26,7 +26,7 @@
 
 #define MFREADSIZE 16384
 
-#include "FileReader.h"
+#include "net/file/FileReader.h"
 
 FileReader::FileReader(int fd, net::stream::Sink& sink) {
     attach(fd);

@@ -24,7 +24,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "PipeSource.h"
+#include "net/stream/PipeSource.h"
 
 #ifndef MAX_SEND_JUNKSIZE
 #define MAX_SEND_JUNKSIZE 16384

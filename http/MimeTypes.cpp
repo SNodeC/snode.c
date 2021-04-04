@@ -23,8 +23,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Logger.h"
-#include "MimeTypes.h"
+#include "http/MimeTypes.h"
+#include "log/Logger.h"
 
 MimeTypes MimeTypes::mimeTypes;
 

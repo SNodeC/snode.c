@@ -23,7 +23,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Socket.h"
+#include "net/socket/bluetooth/rfcomm/Socket.h"
 
 namespace net::socket::bluetooth::rfcomm {
 

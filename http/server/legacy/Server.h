@@ -23,9 +23,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "server/Server.h"
-#include "socket/ip/tcp/ipv4/legacy/SocketServer.h"
-#include "socket/ip/tcp/ipv6/legacy/SocketServer.h"
+#include "http/server/Server.h"
+#include "net/socket/ip/tcp/ipv4/legacy/SocketServer.h"
+#include "net/socket/ip/tcp/ipv6/legacy/SocketServer.h"
 
 namespace http::server::legacy {
 

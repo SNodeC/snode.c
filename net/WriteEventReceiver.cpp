@@ -20,9 +20,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "WriteEventReceiver.h"
+#include "net/WriteEventReceiver.h"
 
-#include "EventLoop.h"
+#include "net/EventLoop.h"
 
 namespace net {
 

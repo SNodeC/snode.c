@@ -20,10 +20,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "Logger.h"
-#include "legacy/WebApp.h"
-#include "middleware/JsonMiddleware.h"
-#include "middleware/StaticMiddleware.h"
+#include "express/legacy/WebApp.h"
+#include "express/middleware/JsonMiddleware.h"
+#include "express/middleware/StaticMiddleware.h"
+#include "log/Logger.h"
 
 #include <nlohmann/json.hpp>
 

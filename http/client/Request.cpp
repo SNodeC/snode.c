@@ -22,10 +22,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "ClientContext.h"
-#include "Logger.h"
-#include "Request.h"
-#include "http_utils.h"
+#include "http/client/ClientContext.h"
+#include "http/client/Request.h"
+#include "http/http_utils.h"
+#include "log/Logger.h"
 
 namespace http::client {
 

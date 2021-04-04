@@ -25,8 +25,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "AttributeInjector.h"
-#include "ConnectionState.h"
+#include "http/ConnectionState.h"
+#include "utils/AttributeInjector.h"
 
 namespace http::server {
 
