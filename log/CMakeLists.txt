@@ -50,7 +50,9 @@ target_compile_definitions(
 )
 
 target_include_directories(
-    logger PUBLIC ${PROJECT_SOURCE_DIR} INTERFACE ${EASYLOGGINGPP_INCLUDE_DIR}
+    logger
+    PUBLIC ${PROJECT_SOURCE_DIR}
+    INTERFACE ${EASYLOGGINGPP_INCLUDE_DIR}
 )
 
 install(TARGETS logger LIBRARY DESTINATION lib
