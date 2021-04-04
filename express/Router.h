@@ -28,9 +28,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "Request.h"
-#include "Response.h"
-
 #define MIDDLEWARE(req, res, next)                                                                                                         \
     ([[maybe_unused]] express::Request & (req),                                                                                            \
      [[maybe_unused]] express::Response & (res),                                                                                           \
@@ -38,7 +35,15 @@
 
 #define APPLICATION(req, res) ([[maybe_unused]] express::Request & (req), [[maybe_unused]] express::Response & (res))
 
+namespace http::server {
+    class Request;
+    class Response;
+} // namespace http::server
+
 namespace express {
+
+    class Request;
+    class Response;
 
     struct MountPoint {
         MountPoint(const std::string& method, const std::string& path)

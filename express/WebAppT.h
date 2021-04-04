@@ -29,6 +29,8 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "Logger.h"
+#include "Request.h"
+#include "Response.h"
 #include "WebApp.h"
 
 namespace express {

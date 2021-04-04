@@ -25,9 +25,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#include "Request.h"
 #include "Router.h"
 #include "http_utils.h"
-#include "server/ServerContext.hpp"
+#include "server/ServerContext.h"
 
 namespace express {
 

@@ -22,7 +22,6 @@
 
 #include "WebApp.h"
 
-#include "Logger.h"
 #include "SNodeC.h"
 
 namespace express {

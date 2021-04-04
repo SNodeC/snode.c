@@ -22,8 +22,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
-#include <netinet/in.h>
-#include <string> // for string
+#include <stdint.h> // for uint16_t
+#include <string>   // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
