@@ -18,15 +18,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "express/middleware/JsonMiddleware.h"
+
+#include "express/Request.h"
+#include "express/Response.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <nlohmann/json.hpp>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "express/Request.h"
-#include "express/Response.h"
-#include "express/middleware/JsonMiddleware.h"
 
 namespace express::middleware {
 

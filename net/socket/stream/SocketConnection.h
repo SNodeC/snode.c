@@ -19,14 +19,14 @@
 #ifndef NET_SOCKET_STREAM_SOCKETCONNECTION_H
 #define NET_SOCKET_STREAM_SOCKETCONNECTION_H
 
+#include "net/socket/stream/SocketConnectionBase.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
 #include <functional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/socket/stream/SocketConnectionBase.h"
 
 namespace net::socket::stream {
 

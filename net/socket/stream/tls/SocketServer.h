@@ -19,12 +19,12 @@
 #ifndef NET_SOCKET_STREAM_TLS_SOCKETSERVER_H
 #define NET_SOCKET_STREAM_TLS_SOCKETSERVER_H
 
+#include "net/socket/stream/SocketServer.h"
+#include "net/socket/stream/tls/SocketListener.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/socket/stream/SocketServer.h"
-#include "net/socket/stream/tls/SocketListener.h"
 
 namespace net::socket::stream::tls {
 

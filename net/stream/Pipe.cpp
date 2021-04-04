@@ -16,6 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "net/stream/Pipe.h"
+
+#include "net/stream/PipeSink.h"   // for PipeSink
+#include "net/stream/PipeSource.h" // for PipeSource
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cerrno>
@@ -23,10 +28,6 @@
 #include <unistd.h> // for pipe2
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/stream/Pipe.h"
-#include "net/stream/PipeSink.h"   // for PipeSink
-#include "net/stream/PipeSource.h" // for PipeSource
 
 namespace net::stream {
 

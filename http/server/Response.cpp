@@ -16,18 +16,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "http/server/Response.h"
+
+#include "http/StatusCodes.h"
+#include "http/http_utils.h"
+#include "http/server/ServerContext.h"
+#include "log/Logger.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <filesystem>
 #include <numeric>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "http/StatusCodes.h"
-#include "http/http_utils.h"
-#include "http/server/Response.h"
-#include "http/server/ServerContext.h"
-#include "log/Logger.h"
 
 namespace http::server {
 

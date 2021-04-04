@@ -19,14 +19,14 @@
 #ifndef HTTP_SERVER_REQUEST_H
 #define HTTP_SERVER_REQUEST_H
 
+#include "http/ConnectionState.h"
+#include "utils/AttributeInjector.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "http/ConnectionState.h"
-#include "utils/AttributeInjector.h"
 
 namespace http::server {
 

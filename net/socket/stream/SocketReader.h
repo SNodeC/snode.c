@@ -19,6 +19,8 @@
 #ifndef NET_SOCKET_STREAM_SOCKETREADER_H
 #define NET_SOCKET_STREAM_SOCKETREADER_H
 
+#include "net/ReadEventReceiver.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cerrno>
@@ -26,8 +28,6 @@
 #include <functional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/ReadEventReceiver.h"
 
 #ifndef MAX_READ_JUNKSIZE
 #define MAX_READ_JUNKSIZE 16384

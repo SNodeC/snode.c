@@ -19,11 +19,11 @@
 #ifndef OUTOFBANDEVENTRECEIVER_H
 #define OUTOFBANDEVENTRECEIVER_H
 
+#include "net/DescriptorEventReceiver.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/DescriptorEventReceiver.h"
 
 #define MAX_OUTOFBAND_INACTIVITY 60
 

@@ -16,6 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "net/TimerEventDispatcher.h"
+
+#include "net/TimerEventReceiver.h" // for TimerEventReceiver
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm> // for copy
@@ -24,9 +28,6 @@
 #include <sys/time.h> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/TimerEventDispatcher.h"
-#include "net/TimerEventReceiver.h" // for TimerEventReceiver
 
 namespace net {
 

@@ -19,15 +19,15 @@
 #ifndef EVENTLOOP_H
 #define EVENTLOOP_H
 
+#include "net/DescriptorEventDispatcher.h"
+#include "net/TimerEventDispatcher.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <climits>
 #include <sys/time.h> // for timeval
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/DescriptorEventDispatcher.h"
-#include "net/TimerEventDispatcher.h"
 
 namespace net {
 

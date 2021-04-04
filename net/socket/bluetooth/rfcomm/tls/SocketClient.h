@@ -19,12 +19,12 @@
 #ifndef NET_SOCKET_BLUETOOTH_RFCOMM_TLS_SOCKETCLIENT_H
 #define NET_SOCKET_BLUETOOTH_RFCOMM_TLS_SOCKETCLIENT_H
 
+#include "net/socket/bluetooth/rfcomm/Socket.h"
+#include "net/socket/stream/tls/SocketClient.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
-
-#include "net/socket/bluetooth/rfcomm/Socket.h"
-#include "net/socket/stream/tls/SocketClient.h"
 
 namespace net::socket::bluetooth::rfcomm::tls {
 

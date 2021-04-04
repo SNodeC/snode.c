@@ -19,13 +19,13 @@
 #ifndef HTTP_SERVER_TLS_SERVER_H
 #define HTTP_SERVER_TLS_SERVER_H
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
 #include "http/server/Server.h"
 #include "net/socket/ip/tcp/ipv4/tls/SocketServer.h"
 #include "net/socket/ip/tcp/ipv6/tls/SocketServer.h"
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace http::server::tls {
 

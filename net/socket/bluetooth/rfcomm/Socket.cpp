@@ -16,14 +16,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "net/socket/bluetooth/rfcomm/Socket.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <bluetooth/bluetooth.h> // for BTPROTO_RFCOMM
 #include <sys/socket.h>          // for socket, PF_BLUETOOTH, stream
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/socket/bluetooth/rfcomm/Socket.h"
 
 namespace net::socket::bluetooth::rfcomm {
 

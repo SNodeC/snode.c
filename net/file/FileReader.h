@@ -19,16 +19,16 @@
 #ifndef FILEREADER_H
 #define FILEREADER_H
 
+#include "net/ReadEventReceiver.h"
+#include "net/file/File.h"
+#include "net/stream/Source.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/ReadEventReceiver.h"
-#include "net/file/File.h"
-#include "net/stream/Source.h"
 
 namespace net::stream {
     class Sink;

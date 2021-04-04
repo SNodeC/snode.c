@@ -19,12 +19,12 @@
 #ifndef EXPRESS_TLS_WEBAPP_H
 #define EXPRESS_TLS_WEBAPP_H
 
+#include "express/WebAppT.h"
+#include "http/server/tls/Server.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "express/WebAppT.h"
-#include "http/server/tls/Server.h"
 
 namespace express::tls {
 

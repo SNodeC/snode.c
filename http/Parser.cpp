@@ -16,6 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "http/Parser.h"
+
+#include "http/http_utils.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cctype> // for isblank
@@ -23,9 +27,6 @@
 #include <tuple> // for tie, tuple
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "http/Parser.h"
-#include "http/http_utils.h"
 
 namespace http {
 

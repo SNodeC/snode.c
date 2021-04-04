@@ -19,6 +19,8 @@
 #ifndef NET_SOCKET_STREAM_SOCKETSERVERNEW_H
 #define NET_SOCKET_STREAM_SOCKETSERVERNEW_H
 
+#include "net/socket/stream/SocketListener.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <any>
@@ -28,8 +30,6 @@
 #include <map>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/socket/stream/SocketListener.h"
 
 namespace net::socket::stream {
 

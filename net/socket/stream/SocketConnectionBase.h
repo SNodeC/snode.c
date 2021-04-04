@@ -19,11 +19,11 @@
 #ifndef NET_SOCKET_STREAM_SOCKETCONNECTIONBASE_H
 #define NET_SOCKET_STREAM_SOCKETCONNECTIONBASE_H
 
+#include "utils/AttributeInjector.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "utils/AttributeInjector.h"
 
 namespace net::socket::stream {
 

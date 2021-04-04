@@ -21,6 +21,10 @@
 
 #include "utils/Timeval.h"
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 namespace net {
 
     class TimerEventReceiver {

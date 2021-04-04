@@ -19,6 +19,9 @@
 #ifndef STREAM_PIPESOURCE_H
 #define STREAM_PIPESOURCE_H
 
+#include "net/Descriptor.h"
+#include "net/WriteEventReceiver.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
@@ -27,9 +30,6 @@
 #include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/Descriptor.h"
-#include "net/WriteEventReceiver.h"
 
 namespace net::stream {
 

@@ -16,6 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "net/stream/PipeSource.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cerrno>
@@ -23,8 +25,6 @@
 #include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/stream/PipeSource.h"
 
 #ifndef MAX_SEND_JUNKSIZE
 #define MAX_SEND_JUNKSIZE 16384

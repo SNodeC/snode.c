@@ -19,14 +19,14 @@
 #ifndef TIMER_H
 #define TIMER_H
 
+#include "net/TimerEventReceiver.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
 #include <sys/time.h> // for timeval
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/TimerEventReceiver.h"
 
 namespace net {
 

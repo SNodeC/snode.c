@@ -19,13 +19,13 @@
 #ifndef HTTP_SERVER_LEGACY_SERVER_H
 #define HTTP_SERVER_LEGACY_SERVER_H
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
 #include "http/server/Server.h"
 #include "net/socket/ip/tcp/ipv4/legacy/SocketServer.h"
 #include "net/socket/ip/tcp/ipv6/legacy/SocketServer.h"
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace http::server::legacy {
 

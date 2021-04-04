@@ -19,6 +19,11 @@
 #ifndef EXPRESS_WEBAPPT_H
 #define EXPRESS_WEBAPPT_H
 
+#include "express/Request.h"
+#include "express/Response.h"
+#include "express/WebApp.h"
+#include "log/Logger.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <any>
@@ -27,11 +32,6 @@
 #include <string> // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "express/Request.h"
-#include "express/Response.h"
-#include "express/WebApp.h"
-#include "log/Logger.h"
 
 namespace express {
 

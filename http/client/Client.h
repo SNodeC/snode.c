@@ -19,6 +19,9 @@
 #ifndef HTTP_CLIENT_CLIENT_H
 #define HTTP_CLIENT_CLIENT_H
 
+#include "http/client/ClientContext.hpp"
+#include "log/Logger.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <any>
@@ -29,9 +32,6 @@
 #include <string>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
-
-#include "http/client/ClientContext.hpp"
-#include "log/Logger.h"
 
 namespace http::client {
 

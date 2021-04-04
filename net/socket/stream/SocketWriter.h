@@ -19,6 +19,9 @@
 #ifndef NET_SOCKET_STREAM_SOCKETWRITER_H
 #define NET_SOCKET_STREAM_SOCKETWRITER_H
 
+#include "log/Logger.h"
+#include "net/WriteEventReceiver.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cerrno>
@@ -28,9 +31,6 @@
 #include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "log/Logger.h"
-#include "net/WriteEventReceiver.h"
 
 #ifndef MAX_SEND_JUNKSIZE
 #define MAX_SEND_JUNKSIZE 16384

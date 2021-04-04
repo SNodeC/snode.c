@@ -19,6 +19,13 @@
 #ifndef NET_SOCKET_STREAM_TLS_SOCKETREADER_H
 #define NET_SOCKET_STREAM_TLS_SOCKETREADER_H
 
+#include "log/Logger.h"
+#include "net/Descriptor.h"
+#include "net/WriteEventReceiver.h"
+#include "net/socket/stream/SocketReader.h"
+#include "net/socket/stream/tls/TLSHandshake.h"
+#include "net/socket/stream/tls/ssl_utils.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef> // for std::size_t
@@ -27,13 +34,6 @@
 #include <sys/types.h> // for ssize_t
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "log/Logger.h"
-#include "net/Descriptor.h"
-#include "net/WriteEventReceiver.h"
-#include "net/socket/stream/SocketReader.h"
-#include "net/socket/stream/tls/TLSHandshake.h"
-#include "net/socket/stream/tls/ssl_utils.h"
 
 namespace net::socket::stream::tls {
 

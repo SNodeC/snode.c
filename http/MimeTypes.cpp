@@ -16,15 +16,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "http/MimeTypes.h"
+
+#include "log/Logger.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <filesystem>
 #include <utility>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "http/MimeTypes.h"
-#include "log/Logger.h"
 
 MimeTypes MimeTypes::mimeTypes;
 

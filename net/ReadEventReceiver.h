@@ -19,11 +19,11 @@
 #ifndef READEVENTRECEIVER_H
 #define READEVENTRECEIVER_H
 
+#include "net/DescriptorEventReceiver.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/DescriptorEventReceiver.h"
 
 #define MAX_READ_INACTIVITY 60
 

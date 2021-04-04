@@ -19,6 +19,10 @@
 #ifndef HTTP_CONNECTIONSTATE_H
 #define HTTP_CONNECTIONSTATE_H
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 enum ConnectionState { Default, Keep, Close };
 
 #endif // HTTP_CONNECTIONSTATE_H

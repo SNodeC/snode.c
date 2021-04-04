@@ -19,6 +19,8 @@
 #ifndef NET_SOCKET_STREAM_LEGACY_SOCKETWRITER_H
 #define NET_SOCKET_STREAM_LEGACY_SOCKETWRITER_H
 
+#include "net/socket/stream/SocketWriter.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef> // for std::size_t
@@ -26,8 +28,6 @@
 #include <sys/types.h> // for ssize_t
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/socket/stream/SocketWriter.h"
 
 namespace net::socket::stream::legacy {
 

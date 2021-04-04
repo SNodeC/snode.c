@@ -19,6 +19,12 @@
 #ifndef EVENTDISPATCHER_HPP
 #define EVENTDISPATCHER_HPP
 
+#include "net/DescriptorEventDispatcher.h"
+
+#include "log/Logger.h" // for Writer, CWARNING, LOG
+#include "net/DescriptorEventReceiver.h"
+#include "utils/Timeval.h" // for operator-, operator<, operator>=
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm> // for min, find
@@ -31,11 +37,6 @@
 #include <utility>                              // for tuple_element<>::type
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "log/Logger.h" // for Writer, CWARNING, LOG
-#include "net/DescriptorEventDispatcher.h"
-#include "net/DescriptorEventReceiver.h"
-#include "utils/Timeval.h" // for operator-, operator<, operator>=
 
 namespace net {
 

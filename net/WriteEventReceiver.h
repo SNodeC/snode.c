@@ -19,11 +19,11 @@
 #ifndef WRITEEVENTRECEIVER_H
 #define WRITEEVENTRECEIVER_H
 
+#include "net/DescriptorEventReceiver.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/DescriptorEventReceiver.h"
 
 #define MAX_WRITE_INACTIVITY 60
 

@@ -16,10 +16,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
 #include "net/timer/Timer.h"
 
 #include "net/EventLoop.h"
@@ -27,6 +23,10 @@
 #include "net/timer/IntervalTimer.h"
 #include "net/timer/SingleshotTimer.h"
 #include "utils/Timeval.h" // for operator+
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::timer {
 

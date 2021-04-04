@@ -19,12 +19,12 @@
 #ifndef NET_SOCKET_IP_TCP_IPV4_LEGACY_SOCKETCLIENT_H
 #define NET_SOCKET_IP_TCP_IPV4_LEGACY_SOCKETCLIENT_H
 
+#include "net/socket/ip/tcp/ipv4/Socket.h"
+#include "net/socket/stream/legacy/SocketClient.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
-
-#include "net/socket/ip/tcp/ipv4/Socket.h"
-#include "net/socket/stream/legacy/SocketClient.h"
 
 namespace net::socket::ip::tcp::ipv4::legacy {
 

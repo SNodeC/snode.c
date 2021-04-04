@@ -19,12 +19,12 @@
 #ifndef NET_SOCKET_BLUETOOTH_RFCOMM_SOCKET_H
 #define NET_SOCKET_BLUETOOTH_RFCOMM_SOCKET_H
 
+#include "net/socket/Socket.h"
+#include "net/socket/bluetooth/address/RfCommAddress.h" // IWYU pragma: keep
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/socket/Socket.h"
-#include "net/socket/bluetooth/address/RfCommAddress.h" // IWYU pragma: keep
 
 namespace net::socket::bluetooth::rfcomm {
 

@@ -21,6 +21,10 @@
 
 #include "net/Descriptor.h"
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
 class File : virtual public net::Descriptor {};
 
 #endif // FILE_H

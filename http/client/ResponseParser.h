@@ -19,6 +19,9 @@
 #ifndef HTTP_CLIENT_RESPONSEPARSER_H
 #define HTTP_CLIENT_RESPONSEPARSER_H
 
+#include "http/CookieOptions.h"
+#include "http/Parser.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
@@ -27,9 +30,6 @@
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "http/CookieOptions.h"
-#include "http/Parser.h"
 
 namespace http::client {
 

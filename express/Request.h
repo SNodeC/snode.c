@@ -19,14 +19,14 @@
 #ifndef EXPRESS_REQUEST_H
 #define EXPRESS_REQUEST_H
 
+#include "http/server/Request.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <map>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "http/server/Request.h"
 
 namespace express {
 

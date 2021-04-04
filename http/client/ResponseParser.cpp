@@ -16,15 +16,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "http/client/ResponseParser.h"
+
+#include "http/http_utils.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <tuple>   // for tie, tuple
 #include <utility> // for tuple_element<>::type, pair
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "http/client/ResponseParser.h"
-#include "http/http_utils.h"
 
 namespace http::client {
 

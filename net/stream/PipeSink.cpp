@@ -16,14 +16,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "net/stream/PipeSink.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cerrno>
 #include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/stream/PipeSink.h"
 
 #ifndef MAX_READ_JUNKSIZE
 #define MAX_READ_JUNKSIZE 16384

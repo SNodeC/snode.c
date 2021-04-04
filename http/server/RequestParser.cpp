@@ -16,6 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "http/server/RequestParser.h"
+
+#include "http/http_utils.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <regex>
@@ -24,9 +28,6 @@
 #include <vector> // for vector
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "http/http_utils.h"
-#include "http/server/RequestParser.h"
 
 namespace http::server {
 

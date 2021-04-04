@@ -19,6 +19,8 @@
 #ifndef NET_SOCKET_IP_ADDRESS_IPV6_INETADDRESS_H
 #define NET_SOCKET_IP_ADDRESS_IPV6_INETADDRESS_H
 
+#include "net/socket/SocketAddress.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
@@ -28,8 +30,6 @@
 // IWYU pragma: no_include <bits/exception.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/socket/SocketAddress.h"
 
 namespace net::socket::ip::address::ipv6 {
 

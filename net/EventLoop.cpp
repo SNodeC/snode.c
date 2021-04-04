@@ -16,6 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "net/EventLoop.h" // for EventLoop
+
+#include "log/Logger.h" // for Logger
+#include "net/FdSet.h"
+#include "utils/Timeval.h" // for operator<
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>    // for min, max
@@ -27,11 +33,6 @@
 #include <sys/select.h> // for select
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "log/Logger.h"    // for Logger
-#include "net/EventLoop.h" // for EventLoop
-#include "net/FdSet.h"
-#include "utils/Timeval.h" // for operator<
 
 #define MAX_READ_INACTIVITY 60
 #define MAX_WRITE_INACTIVITY 60

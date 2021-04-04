@@ -19,14 +19,14 @@
 #ifndef EXPRESS_RESPONSE_H
 #define EXPRESS_RESPONSE_H
 
+#include "http/server/Response.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "http/server/Response.h"
 
 namespace express {
 

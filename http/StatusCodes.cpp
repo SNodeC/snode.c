@@ -16,11 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "http/StatusCodes.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "http/StatusCodes.h"
 
 std::map<int, std::string> StatusCode::statusCode = {{100, "Continue"},
                                                      {101, "Switching Protocols"},

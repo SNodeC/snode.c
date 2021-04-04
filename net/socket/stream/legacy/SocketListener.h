@@ -19,12 +19,12 @@
 #ifndef NET_SOCKET_STREAM_LEGACY_SOCKETLISTENER_H
 #define NET_SOCKET_STREAM_LEGACY_SOCKETLISTENER_H
 
+#include "net/socket/stream/SocketListener.h"
+#include "net/socket/stream/legacy/SocketConnection.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/socket/stream/SocketListener.h"
-#include "net/socket/stream/legacy/SocketConnection.h"
 
 namespace net::socket::stream::legacy {
 

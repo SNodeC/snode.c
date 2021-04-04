@@ -16,15 +16,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "http/client/ClientContext.h"
+#include "net/socket/stream/SocketConnectionBase.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <map>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "http/client/ClientContext.h"
-#include "net/socket/stream/SocketConnectionBase.h"
 
 namespace http::client {
     class CookieOptions;

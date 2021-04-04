@@ -19,15 +19,15 @@
 #ifndef TIMEREVENTDISPATCHER_H
 #define TIMEREVENTDISPATCHER_H
 
+#include "net/TimerEventReceiver.h"
+#include "utils/Timeval.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <list>
 #include <sys/time.h> // for timeval
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/TimerEventReceiver.h"
-#include "utils/Timeval.h"
 
 namespace net {
 

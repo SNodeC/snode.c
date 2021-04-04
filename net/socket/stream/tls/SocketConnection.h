@@ -19,15 +19,15 @@
 #ifndef NET_SOCKET_STREAM_TLS_SOCKETCONNECTION_H
 #define NET_SOCKET_STREAM_TLS_SOCKETCONNECTION_H
 
+#include "net/socket/stream/SocketConnection.h"
+#include "net/socket/stream/tls/SocketReader.h"
+#include "net/socket/stream/tls/SocketWriter.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/socket/stream/SocketConnection.h"
-#include "net/socket/stream/tls/SocketReader.h"
-#include "net/socket/stream/tls/SocketWriter.h"
 
 namespace net::socket::stream::tls {
 

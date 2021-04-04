@@ -19,11 +19,11 @@
 #ifndef CONNECTEVENTRECEIVER_H
 #define CONNECTEVENTRECEIVER_H
 
+#include "net/DescriptorEventReceiver.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/DescriptorEventReceiver.h"
 
 #define MAX_CONNECT_INACTIVITY 10
 

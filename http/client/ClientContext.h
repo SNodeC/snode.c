@@ -19,6 +19,10 @@
 #ifndef HTTP_CLIENT_CLIENTCONTEXT_H
 #define HTTP_CLIENT_CLIENTCONTEXT_H
 
+#include "http/client/Request.h"
+#include "http/client/Response.h"
+#include "http/client/ResponseParser.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
@@ -26,10 +30,6 @@
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "http/client/Request.h"
-#include "http/client/Response.h"
-#include "http/client/ResponseParser.h"
 
 namespace net::socket::stream {
     class SocketConnectionBase;

@@ -19,13 +19,13 @@
 #ifndef ACCEPTEVENTRECEIVER_H
 #define ACCEPTEVENTRECEIVER_H
 
+#include "net/DescriptorEventReceiver.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <climits> // for LONG_MAX
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/DescriptorEventReceiver.h"
 
 #define MAX_ACCEPT_INACTIVITY LONG_MAX
 

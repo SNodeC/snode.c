@@ -19,11 +19,11 @@
 #ifndef INTERVALTIMER_H
 #define INTERVALTIMER_H
 
+#include "net/timer/Timer.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/timer/Timer.h"
 
 namespace net::timer {
 

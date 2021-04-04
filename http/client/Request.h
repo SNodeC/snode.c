@@ -19,6 +19,9 @@
 #ifndef HTTP_CLIENT_REQUEST_H
 #define HTTP_CLIENT_REQUEST_H
 
+#include "http/ConnectionState.h"
+#include "net/stream/Sink.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef> // for size_t
@@ -26,9 +29,6 @@
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "http/ConnectionState.h"
-#include "net/stream/Sink.h"
 
 namespace http::client {
 

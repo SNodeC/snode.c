@@ -16,6 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define MFREADSIZE 16384
+
+#include "net/file/FileReader.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cerrno>
@@ -23,10 +27,6 @@
 #include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#define MFREADSIZE 16384
-
-#include "net/file/FileReader.h"
 
 FileReader::FileReader(int fd, net::stream::Sink& sink) {
     attach(fd);

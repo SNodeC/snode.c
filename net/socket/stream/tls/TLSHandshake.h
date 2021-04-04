@@ -19,15 +19,15 @@
 #ifndef NET_SOCKET_STREAM_TLS_TLSHANDSHAKE_H
 #define NET_SOCKET_STREAM_TLS_TLSHANDSHAKE_H
 
+#include "net/ReadEventReceiver.h"
+#include "net/WriteEventReceiver.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
 #include <openssl/ossl_typ.h> // for SSL
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/ReadEventReceiver.h"
-#include "net/WriteEventReceiver.h"
 
 namespace net::socket::stream::tls {
 

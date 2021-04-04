@@ -16,6 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "net/socket/ip/address/ipv6/InetAddress.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstring>
@@ -23,8 +25,6 @@
 #include <sys/socket.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/socket/ip/address/ipv6/InetAddress.h"
 
 namespace net::socket::ip::address::ipv6 {
 

@@ -19,18 +19,17 @@
 #ifndef NET_SOCKET_BLUETOOTH_ADDRESS_RFCOMMADDRESS_H
 #define NET_SOCKET_BLUETOOTH_ADDRESS_RFCOMMADDRESS_H
 
+#include "net/socket/SocketAddress.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <bluetooth/bluetooth.h> // IWYU pragma: keep
 #include <bluetooth/rfcomm.h>    // IWYU pragma: keep
 #include <cstdint>               // for uint16_t
-#include <exception>             // IWYU pragma: keep
 #include <string>
 // IWYU pragma: no_include <bits/exception.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/socket/SocketAddress.h"
 
 namespace net::socket::bluetooth::address {
 

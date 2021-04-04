@@ -19,6 +19,9 @@
 #ifndef NET_SOCKET_SOCKET_H
 #define NET_SOCKET_SOCKET_H
 
+#include "net/Descriptor.h"
+#include "net/socket/SocketAddress.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cerrno>
@@ -26,9 +29,6 @@
 #include <sys/socket.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/Descriptor.h"
-#include "net/socket/SocketAddress.h"
 
 namespace net::socket {
 

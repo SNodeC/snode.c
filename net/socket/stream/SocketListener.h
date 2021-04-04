@@ -19,6 +19,10 @@
 #ifndef NET_SOCKET_STREAM_SOCKETLISTENER_H
 #define NET_SOCKET_STREAM_SOCKETLISTENER_H
 
+#include "log/Logger.h"
+#include "net/AcceptEventReceiver.h"
+#include "net/ReadEventReceiver.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <any>
@@ -30,10 +34,6 @@
 #include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "log/Logger.h"
-#include "net/AcceptEventReceiver.h"
-#include "net/ReadEventReceiver.h"
 
 namespace net::socket::stream {
 

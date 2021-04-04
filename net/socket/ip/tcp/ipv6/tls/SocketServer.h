@@ -19,12 +19,12 @@
 #ifndef NET_SOCKET_IP_TCP_IPV6_TLS_SOCKETSERVER_H
 #define NET_SOCKET_IP_TCP_IPV6_TLS_SOCKETSERVER_H
 
+#include "net/socket/ip/tcp/ipv6/Socket.h"
+#include "net/socket/stream/tls/SocketServer.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
-
-#include "net/socket/ip/tcp/ipv6/Socket.h"
-#include "net/socket/stream/tls/SocketServer.h"
 
 namespace net::socket::ip::tcp::ipv6::tls {
 

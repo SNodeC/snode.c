@@ -19,13 +19,13 @@
 #ifndef HTTP_CLIENT_TLS_CLIENT_H
 #define HTTP_CLIENT_TLS_CLIENT_H
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
 #include "http/client/Client.h"
 #include "net/socket/ip/tcp/ipv4/tls/SocketClient.h"
 #include "net/socket/ip/tcp/ipv6/tls/SocketClient.h"
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace http::client::tls {
 

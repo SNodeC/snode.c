@@ -16,6 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "http/http_utils.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm>
@@ -27,8 +29,6 @@
 #include <sys/types.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "http/http_utils.h"
 
 namespace httputils {
 

@@ -16,16 +16,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "http/client/Request.h"
+
+#include "http/client/ClientContext.h"
+#include "http/http_utils.h"
+#include "log/Logger.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <utility> // for pair, tuple_element<>::type
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "http/client/ClientContext.h"
-#include "http/client/Request.h"
-#include "http/http_utils.h"
-#include "log/Logger.h"
 
 namespace http::client {
 

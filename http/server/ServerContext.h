@@ -19,15 +19,15 @@
 #ifndef HTTP_SERVER_SERVERCONTEXT_H
 #define HTTP_SERVER_SERVERCONTEXT_H
 
+#include "http/server/Request.h"
+#include "http/server/RequestParser.h"
+#include "http/server/Response.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <list>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "http/server/Request.h"
-#include "http/server/RequestParser.h"
-#include "http/server/Response.h"
 
 namespace net::socket::stream {
     class SocketConnectionBase;

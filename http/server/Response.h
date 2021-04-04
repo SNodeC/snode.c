@@ -19,6 +19,10 @@
 #ifndef HTTP_SERVER_RESPONSE_H
 #define HTTP_SERVER_RESPONSE_H
 
+#include "http/ConnectionState.h"
+#include "http/CookieOptions.h"
+#include "net/stream/Sink.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
@@ -26,10 +30,6 @@
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "http/ConnectionState.h"
-#include "http/CookieOptions.h"
-#include "net/stream/Sink.h"
 
 class FileReader;
 

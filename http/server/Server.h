@@ -1,6 +1,8 @@
 #ifndef HTTP_SERVER_SERVERT_H
 #define HTTP_SERVER_SERVERT_H
 
+#include "http/server/ServerContext.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <any>
@@ -11,8 +13,6 @@
 #include <string>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
-
-#include "http/server/ServerContext.hpp"
 
 namespace http::server {
 

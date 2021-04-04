@@ -19,15 +19,12 @@
 #ifndef NET_SOCKET_BLUETOOTH_L2CAP_SOCKETSERVER_H
 #define NET_SOCKET_BLUETOOTH_L2CAP_SOCKETSERVER_H
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <functional>
-#include <string>
-
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
 #include "net/socket/bluetooth/l2cap/Socket.h"
 #include "net/socket/stream/legacy/SocketServer.h"
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::socket::bluetooth::l2cap {
 

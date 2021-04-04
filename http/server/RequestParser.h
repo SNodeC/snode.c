@@ -19,6 +19,8 @@
 #ifndef HTTP_SERVER_REQUESTPARSER_H
 #define HTTP_SERVER_REQUESTPARSER_H
 
+#include "http/Parser.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef> // for std::size_t
@@ -28,8 +30,6 @@
 #include <string> // for string, basic_string, operator<
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "http/Parser.h"
 
 namespace http::server {
 

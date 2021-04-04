@@ -19,11 +19,12 @@
 #ifndef EXPRESS_MIDDLEWARE_STATICMIDDLEWARE_H
 #define EXPRESS_MIDDLEWARE_STATICMIDDLEWARE_H
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
 #include "express/Router.h"
 #include "http/CookieOptions.h"
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express::middleware {
 

@@ -21,10 +21,11 @@
 #ifndef EXPRESS_MIDDLEWARE_JSONMIDDLEWARE_H
 #define EXPRESS_MIDDLEWARE_JSONMIDDLEWARE_H
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
 #include "express/Router.h"
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express::middleware {
 

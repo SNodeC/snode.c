@@ -16,6 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "net/socket/stream/tls/TLSHandshake.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <openssl/ssl.h> // IWYU pragma: keep
@@ -23,8 +25,6 @@
 // IWYU pragma: no_include <openssl/ssl3.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/socket/stream/tls/TLSHandshake.h"
 
 #define TLSHANDSHAKE_TIMEOUT 10
 

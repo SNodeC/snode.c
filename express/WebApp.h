@@ -19,6 +19,8 @@
 #ifndef EXPRESS_WEBAPP_H
 #define EXPRESS_WEBAPP_H
 
+#include "express/Router.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
@@ -26,8 +28,6 @@
 #include <string>   // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "express/Router.h"
 
 namespace express {
 

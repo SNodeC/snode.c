@@ -19,6 +19,8 @@
 #ifndef DESCRIPTOREVENTDISPATCHER_H
 #define DESCRIPTOREVENTDISPATCHER_H
 
+#include "net/FdSet.h" // for FdSet
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <list>
@@ -26,8 +28,6 @@
 #include <sys/time.h> // for timeval
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/FdSet.h" // for FdSet
 
 namespace net {
 

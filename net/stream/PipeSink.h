@@ -19,15 +19,15 @@
 #ifndef STREAM_PIPESINK_H
 #define STREAM_PIPESINK_H
 
+#include "net/Descriptor.h"
+#include "net/ReadEventReceiver.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
 #include <iosfwd> // for size_t
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/Descriptor.h"
-#include "net/ReadEventReceiver.h"
 
 namespace net::stream {
 

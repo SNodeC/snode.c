@@ -16,6 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "express/Router.h"
+
+#include "express/Request.h"
+#include "http/http_utils.h"
+#include "http/server/ServerContext.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <filesystem>
@@ -24,11 +30,6 @@
 #include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "express/Request.h"
-#include "express/Router.h"
-#include "http/http_utils.h"
-#include "http/server/ServerContext.h"
 
 namespace express {
 

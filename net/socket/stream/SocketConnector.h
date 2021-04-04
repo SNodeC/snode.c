@@ -19,6 +19,9 @@
 #ifndef NET_SOCKET_STREAM_SOCKETCONNECTOR_H
 #define NET_SOCKET_STREAM_SOCKETCONNECTOR_H
 
+#include "net/ConnectEventReceiver.h"
+#include "net/socket/Socket.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <any>
@@ -30,9 +33,6 @@
 #include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "net/ConnectEventReceiver.h"
-#include "net/socket/Socket.h"
 
 namespace net::socket::stream {
 
