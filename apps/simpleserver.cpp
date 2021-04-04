@@ -24,8 +24,6 @@
 #include "express/tls/WebApp.h"
 #include "log/Logger.h"
 
-#include <openssl/x509v3.h>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 using namespace express;

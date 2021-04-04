@@ -67,7 +67,7 @@ namespace net::socket::stream {
                               TLSHandshake::doHandshake(
                                   ssl,
                                   [&onConnect, socketConnection](void) -> void { // onSuccess
-                                      socketConnection->ReadEventReceiver::resume();
+                                      socketConnection->SocketConnection::SocketReader::resume();
                                       onConnect(socketConnection);
                                   },
                                   [socketConnection](void) -> void { // onTimeout
