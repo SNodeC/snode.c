@@ -19,6 +19,7 @@
 #ifndef NET_SOCKET_STREAM_TLS_SOCKETCONNECTION_H
 #define NET_SOCKET_STREAM_TLS_SOCKETCONNECTION_H
 
+#include "log/Logger.h"
 #include "net/socket/stream/SocketConnection.h"
 #include "net/socket/stream/tls/SocketReader.h"
 #include "net/socket/stream/tls/SocketWriter.h"
@@ -85,6 +86,52 @@ namespace net::socket::stream::tls {
             }
 
             return ssl;
+        }
+
+        void doSSLHandshake(const std::function<void()>& onSuccess,
+                            const std::function<void()>& onTimeout,
+                            const std::function<void(int sslErr)>& onError) {
+            SocketConnection::SocketReader::suspend();
+            SocketConnection::SocketWriter::suspend();
+
+            TLSHandshake::doHandshake(
+                ssl,
+                [onSuccess, this](void) -> void { // onSuccess
+                    SocketConnection::SocketReader::resume();
+                    SocketConnection::SocketWriter::resume();
+                    onSuccess();
+                },
+                [onTimeout, this](void) -> void { // onTimeout
+                    PLOG(ERROR) << "SSL/TLS handshake timeout";
+                    if (SocketConnection::SocketReader::isEnabled()) {
+                        SocketConnection::SocketReader::disable();
+                    }
+                    if (SocketConnection::SocketWriter::isEnabled()) {
+                        SocketConnection::SocketWriter::disable();
+                    }
+                    onTimeout();
+                },
+                [onError, this](int sslErr) -> void { // onError
+                    ssl_log("SSL/TLS handshake failed", -sslErr);
+                    setSSLError(-sslErr);
+                    if (SocketConnection::SocketReader::isEnabled()) {
+                        SocketConnection::SocketReader::disable();
+                    }
+                    if (SocketConnection::SocketWriter::isEnabled()) {
+                        SocketConnection::SocketWriter::disable();
+                    }
+                    onError(sslErr);
+                });
+        }
+
+        void doSSLHandshake() override {
+            doSSLHandshake(
+                [](void) -> void {
+                },
+                [](void) -> void {
+                },
+                []([[maybe_unused]] int sslErr) -> void {
+                });
         }
 
         void stopSSL() {

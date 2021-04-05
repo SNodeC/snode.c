@@ -60,24 +60,15 @@ namespace net::socket::stream {
                           SSL* ssl = socketConnection->startSSL(ctx);
 
                           if (ssl != nullptr) {
-                              socketConnection->SocketConnection::SocketReader::suspend();
-
                               SSL_set_accept_state(ssl);
 
-                              TLSHandshake::doHandshake(
-                                  ssl,
+                              socketConnection->doSSLHandshake(
                                   [&onConnect, socketConnection](void) -> void { // onSuccess
-                                      socketConnection->SocketConnection::SocketReader::resume();
                                       onConnect(socketConnection);
                                   },
                                   [socketConnection](void) -> void { // onTimeout
-                                      PLOG(ERROR) << "SSL/TLS handshake timeout";
-                                      socketConnection->SocketConnection::SocketReader::disable();
                                   },
-                                  [socketConnection](int sslErr) -> void { // onError
-                                      ssl_log("SSL/TLS handshake failed", -sslErr);
-                                      socketConnection->setSSLError(-sslErr);
-                                      socketConnection->SocketConnection::SocketReader::disable();
+                                  [socketConnection]([[maybe_unused]] int sslErr) -> void { // onError
                                   });
                           } else {
                               socketConnection->SocketConnection::SocketReader::disable();

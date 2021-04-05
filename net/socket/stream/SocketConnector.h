@@ -101,10 +101,8 @@ namespace net::socket::stream {
                 SOCK_NONBLOCK);
         }
 
-    protected:
-        std::function<void(int err)> onError;
-
-        int tryToCompleteConnect() {
+    private:
+        void connectEvent() override {
             errno = 0;
             int cErrno = -1;
             socklen_t cErrnoLen = sizeof(cErrno);
@@ -132,31 +130,25 @@ namespace net::socket::stream {
                             socketConnection->SocketConnection::SocketReader::enable(Socket::getFd());
 
                             SocketConnector::dontClose(true);
-                            SocketConnector::ConnectEventReceiver::suspend();
+                            SocketConnector::ConnectEventReceiver::disable();
 
                             onError(0);
                             onConnect(socketConnection);
                         } else {
+                            SocketConnector::ConnectEventReceiver::disable();
                             cErrno = errno;
                             onError(errno);
                         }
                     } else {
+                        SocketConnector::ConnectEventReceiver::disable();
                         errno = cErrno;
                         onError(errno);
                     }
                 }
             } else {
+                SocketConnector::ConnectEventReceiver::disable();
                 cErrno = errno;
                 onError(errno);
-            }
-
-            return cErrno;
-        }
-
-    private:
-        void connectEvent() override {
-            if (tryToCompleteConnect() != EINPROGRESS) {
-                ConnectEventReceiver::disable();
             }
         }
 
@@ -168,6 +160,10 @@ namespace net::socket::stream {
             delete this;
         }
 
+    protected:
+        std::function<void(int err)> onError;
+
+    private:
         std::function<void(SocketConnection* socketConnection)> onConstruct;
         std::function<void(SocketConnection* socketConnection)> onDestruct;
         std::function<void(SocketConnection* socketConnection)> onConnect;

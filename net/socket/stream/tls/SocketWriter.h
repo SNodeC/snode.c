@@ -51,20 +51,7 @@ namespace net::socket::stream::tls {
                 switch (sslErr) {
                     case SSL_ERROR_WANT_WRITE:
                     case SSL_ERROR_WANT_READ:
-                        WriteEventReceiver::suspend();
-                        TLSHandshake::doHandshake(
-                            ssl,
-                            [this](void) -> void {
-                                WriteEventReceiver::resume();
-                            },
-                            [this](void) -> void {
-                                WriteEventReceiver::disable();
-                                PLOG(ERROR) << "TLS handshake timeout";
-                            },
-                            [this](int sslErr) -> void {
-                                WriteEventReceiver::disable();
-                                ssl_log("SSL/TLS handshake failed", sslErr);
-                            });
+                        doSSLHandshake();
                         errno = EAGAIN;
                         break;
                     case SSL_ERROR_ZERO_RETURN:
@@ -103,6 +90,8 @@ namespace net::socket::stream::tls {
         }
 
     protected:
+        virtual void doSSLHandshake() = 0;
+
         SSL* ssl = nullptr;
 
         int sslErr = SSL_ERROR_NONE;
