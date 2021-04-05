@@ -50,12 +50,14 @@ namespace net::socket::stream::tls {
 
                 switch (sslErr) {
                     case SSL_ERROR_WANT_WRITE:
+                        [[fallthrough]];
                     case SSL_ERROR_WANT_READ:
                         doSSLHandshake();
                         errno = EAGAIN;
                         break;
                     case SSL_ERROR_ZERO_RETURN:
                         ret = 0;
+                        errno = 0;
                         break;
                     case SSL_ERROR_SYSCALL:
                         ssl_log("SSL/TLS write failed", sslErr);
@@ -74,6 +76,7 @@ namespace net::socket::stream::tls {
 
             switch (sslErr) {
                 case SSL_ERROR_NONE:
+                    [[fallthrough]];
                 case SSL_ERROR_ZERO_RETURN:
                     ret = 0;
                     break;

@@ -146,6 +146,7 @@ namespace net::socket::stream::tls {
     void ssl_log(const std::string& message, int sslErr) {
         switch (sslErr) {
             case SSL_ERROR_NONE:
+                [[fallthrough]];
             case SSL_ERROR_ZERO_RETURN:
                 ssl_log_info(message);
                 break;

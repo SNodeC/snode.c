@@ -92,6 +92,7 @@ void Logger::setLogLevel(int level) {
             conf.set(el::Level::Fatal, el::ConfigurationType::Enabled, "true");
             [[fallthrough]];
         case 0:
+            [[fallthrough]];
         default:;
     };
 
