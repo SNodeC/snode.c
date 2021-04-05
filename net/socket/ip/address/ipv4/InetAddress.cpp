@@ -31,33 +31,52 @@ namespace net::socket::ip::address::ipv4 {
     std::string bad_hostname::message;
 
     InetAddress::InetAddress() {
-        sockAddr.sin_family = AF_INET;
-        sockAddr.sin_port = htons(0);
+        sockAddr.sin_family = AF_INET6;
         sockAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+        sockAddr.sin_port = 0;
+    }
+
+    InetAddress::InetAddress(const std::string& ipOrHostname)
+        : InetAddress(ipOrHostname, 0) {
     }
 
     InetAddress::InetAddress(const std::string& ipOrHostname, uint16_t port) {
-        struct hostent* he = gethostbyname(ipOrHostname.c_str());
+        struct addrinfo hints {};
+        struct addrinfo* res;
+        struct addrinfo* resalloc;
 
-        if (he == nullptr) {
+        memset(&hints, 0, sizeof(hints));
+        memset(&sockAddr, 0, sizeof(sockAddr));
+
+        /* We only care about IPV6 results */
+        hints.ai_family = AF_INET;
+        hints.ai_socktype = 0;
+        hints.ai_flags = AI_ADDRCONFIG;
+
+        int err = getaddrinfo(ipOrHostname.c_str(), nullptr, &hints, &res);
+
+        if (err != 0) {
             throw bad_hostname(ipOrHostname);
         }
 
-        sockAddr.sin_family = AF_INET;
-        sockAddr.sin_port = htons(port);
-        memcpy(&sockAddr.sin_addr, he->h_addr_list[0], he->h_length);
-    }
+        resalloc = res;
 
-    InetAddress::InetAddress(const std::string& ipOrHostname) {
-        struct hostent* he = gethostbyname(ipOrHostname.c_str());
+        while (res) {
+            /* Check to make sure we have a valid AF_INET6 address */
+            if (res->ai_family == AF_INET) {
+                /* Use memcpy since we're going to free the res variable later */
+                memcpy(&sockAddr, res->ai_addr, res->ai_addrlen);
 
-        if (he == nullptr) {
-            throw bad_hostname(ipOrHostname);
+                /* Here we convert the port to network byte order */
+                sockAddr.sin_port = htons(port);
+                sockAddr.sin_family = AF_INET;
+                break;
+            }
+
+            res = res->ai_next;
         }
 
-        sockAddr.sin_family = AF_INET;
-        sockAddr.sin_port = htons(0);
-        memcpy(&sockAddr.sin_addr, he->h_addr_list[0], he->h_length);
+        freeaddrinfo(resalloc);
     }
 
     InetAddress::InetAddress(uint16_t port) {

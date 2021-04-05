@@ -36,43 +36,8 @@ namespace net::socket::ip::address::ipv6 {
         sockAddr.sin6_port = 0;
     }
 
-    InetAddress::InetAddress(const std::string& ipOrHostname) {
-        struct addrinfo hints {};
-        struct addrinfo* res;
-        struct addrinfo* resalloc;
-
-        memset(&hints, 0, sizeof(hints));
-        memset(&sockAddr, 0, sizeof(sockAddr));
-
-        /* We only care about IPV6 results */
-        hints.ai_family = AF_INET6;
-        hints.ai_socktype = 0;
-        hints.ai_flags = AI_ADDRCONFIG | AI_V4MAPPED;
-
-        int err = getaddrinfo(ipOrHostname.c_str(), nullptr, &hints, &res);
-
-        if (err != 0) {
-            throw bad_hostname(ipOrHostname);
-        }
-
-        resalloc = res;
-
-        while (res) {
-            /* Check to make sure we have a valid AF_INET6 address */
-            if (res->ai_family == AF_INET6) {
-                /* Use memcpy since we're going to free the res variable later */
-                memcpy(&sockAddr, res->ai_addr, res->ai_addrlen);
-
-                /* Here we convert the port to network byte order */
-                sockAddr.sin6_port = htons(0);
-                sockAddr.sin6_family = AF_INET6;
-                break;
-            }
-
-            res = res->ai_next;
-        }
-
-        freeaddrinfo(resalloc);
+    InetAddress::InetAddress(const std::string& ipOrHostname)
+        : InetAddress(ipOrHostname, 0) {
     }
 
     InetAddress::InetAddress(const std::string& ipOrHostname, uint16_t port) {
