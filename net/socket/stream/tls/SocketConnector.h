@@ -73,7 +73,6 @@ namespace net::socket::stream {
                                   [socketConnection, onError](int sslErr) -> void { // onError
                                       onError(sslErr);
                                   });
-
                           } else {
                               socketConnection->SocketConnection::SocketReader::disable();
                               ssl_log_error("SSL/TLS initialization failed");
