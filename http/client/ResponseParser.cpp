@@ -18,6 +18,7 @@
 
 #include "http/client/ResponseParser.h"
 
+#include "http/StatusCodes.h"
 #include "http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -63,11 +64,24 @@ namespace http::client {
             std::string remaining;
 
             std::tie(httpVersion, remaining) = httputils::str_split(line, ' ');
-            std::tie(statusCode, reason) = httputils::str_split(remaining, ' ');
 
-            onResponse(httpVersion, statusCode, reason);
+            std::smatch httpVersionMatch;
+            if (!std::regex_match(httpVersion, httpVersionMatch, httpVersionRegex)) {
+                parserState = parsingError(400, "Wrong protocol version");
+            } else {
+                std::tie(statusCode, reason) = httputils::str_split(remaining, ' ');
+                if (StatusCode::contains(std::stoi(statusCode))) {
+                    if (!reason.empty()) {
+                        onResponse(httpVersion, statusCode, reason);
+                    } else {
+                        parserState = parsingError(400, "No reason phrase");
+                    }
+                } else {
+                    parserState = parsingError(400, "Unknown status code");
+                }
+            }
         } else {
-            parserState = parsingError(400, "Response-line empty");
+            parserState = parsingError(400, "Response line empty");
         }
         return parserState;
     }

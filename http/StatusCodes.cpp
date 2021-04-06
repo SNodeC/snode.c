@@ -85,3 +85,17 @@ std::map<int, std::string> StatusCode::statusCode = {{100, "Continue"},
                                                      {508, "Loop Detected"},
                                                      {510, "Not Extended"},
                                                      {511, "Network Authentication Required"}};
+
+std::string StatusCode::reason(int status) {
+    std::string reasonPhrase = "unknown status code";
+
+    if (StatusCode::contains(status)) {
+        reasonPhrase = statusCode[status];
+    }
+
+    return reasonPhrase;
+}
+
+bool StatusCode::contains(int status) {
+    return statusCode.contains(status);
+}

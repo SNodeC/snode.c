@@ -28,9 +28,9 @@
 
 class StatusCode {
 public:
-    static std::string reason(int status) {
-        return statusCode[status];
-    }
+    static std::string reason(int status);
+
+    static bool contains(int status);
 
 private:
     static std::map<int, std::string> statusCode;
