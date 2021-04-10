@@ -47,8 +47,8 @@ namespace http::server {
         std::string method;
         std::string url;
         std::string httpVersion;
-        int httpMajor;
-        int httpMinor;
+        int httpMajor = 0;
+        int httpMinor = 0;
         char* body = nullptr;
         int contentLength = 0;
 

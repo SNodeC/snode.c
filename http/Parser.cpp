@@ -45,8 +45,9 @@ namespace http {
 
     void Parser::parse(const char* junk, std::size_t junkLen) {
         std::size_t consumed = 0;
+        bool parsingError = false;
 
-        while (consumed < junkLen && parserState != ParserState::ERROR) {
+        while (consumed < junkLen && !parsingError) {
             switch (parserState) {
                 case ParserState::BEGIN:
                     parserState = ParserState::FIRSTLINE;
@@ -62,6 +63,8 @@ namespace http {
                     consumed += readContent(junk + consumed, junkLen - consumed);
                     break;
                 case ParserState::ERROR:
+                    parsingError = true;
+                    reset();
                     break;
             };
         }
@@ -98,11 +101,15 @@ namespace http {
                     if (EOL) {
                         splitHeaderLine(line);
                         line.clear();
-                        parserState = parseHeader();
+                        if (parserState != ParserState::ERROR) {
+                            parserState = parseHeader();
+                        }
                         EOL = false;
                     } else {
                         if (line.empty()) {
-                            parserState = parseHeader();
+                            if (parserState != ParserState::ERROR) {
+                                parserState = parseHeader();
+                            }
                         } else {
                             EOL = true;
                         }

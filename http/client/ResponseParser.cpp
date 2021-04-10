@@ -151,7 +151,6 @@ namespace http::client {
 
     enum Parser::ParserState ResponseParser::parsingError(int code, const std::string& reason) {
         onError(code, reason);
-        reset();
 
         return ParserState::ERROR;
     }

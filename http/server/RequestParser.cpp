@@ -159,7 +159,6 @@ namespace http::server {
 
     enum Parser::ParserState RequestParser::parsingError(int code, const std::string& reason) {
         onError(code, reason);
-        reset();
 
         return ParserState::ERROR;
     }
