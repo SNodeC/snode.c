@@ -23,8 +23,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <regex>   // for regex_match, match_results<>::_Base_type
 #include <tuple>   // for tie, tuple
 #include <utility> // for tuple_element<>::type, pair
+#include <vector>  // for vector
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
