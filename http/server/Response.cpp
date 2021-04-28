@@ -105,9 +105,7 @@ namespace http::server {
     }
 
     Response& Response::type(const std::string& type) {
-        set({{"Content-Type", type}});
-
-        return *this;
+        return set({{"Content-Type", type}});
     }
 
     Response& Response::cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options) {
@@ -123,9 +121,7 @@ namespace http::server {
         time_t time = 0;
         opts["Expires"] = httputils::to_http_date(gmtime(&time));
 
-        cookie(name, "", opts);
-
-        return *this;
+        return cookie(name, "", opts);
     }
 
     void Response::send(const char* junk, std::size_t junkLen) {

@@ -30,12 +30,6 @@ namespace net::socket::ip::address::ipv4 {
 
     std::string bad_hostname::message;
 
-    InetAddress::InetAddress() {
-        sockAddr.sin_family = AF_INET6;
-        sockAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-        sockAddr.sin_port = 0;
-    }
-
     InetAddress::InetAddress(const std::string& ipOrHostname)
         : InetAddress(ipOrHostname, 0) {
     }

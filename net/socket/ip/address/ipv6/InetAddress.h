@@ -51,7 +51,6 @@ namespace net::socket::ip::address::ipv6 {
     public:
         using SocketAddress<struct sockaddr_in6>::SocketAddress;
 
-        InetAddress();
         explicit InetAddress(const std::string& ipOrHostname);
         InetAddress(const std::string& ipOrHostname, uint16_t port);
         explicit InetAddress(uint16_t port);

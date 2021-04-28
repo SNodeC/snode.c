@@ -60,10 +60,13 @@ namespace net {
     void EventLoop::tick() {
         struct timeval nextTimeout = readEventDispatcher.observeEnabledEvents();
         nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
+
         nextTimeout = writeEventDispatcher.observeEnabledEvents();
         nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
+
         nextTimeout = exceptionalConditionEventDispatcher.observeEnabledEvents();
         nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
+
         nextTimeout = timerEventDispatcher.getNextTimeout();
         nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
 
@@ -91,8 +94,10 @@ namespace net {
 
                 nextTimeout = readEventDispatcher.dispatchActiveEvents(currentTime);
                 nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
+
                 nextTimeout = writeEventDispatcher.dispatchActiveEvents(currentTime);
                 nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
+
                 nextTimeout = exceptionalConditionEventDispatcher.dispatchActiveEvents(currentTime);
                 nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
             } else if (errno != EINTR) {
