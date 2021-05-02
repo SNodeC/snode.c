@@ -73,9 +73,7 @@ namespace net::socket::stream {
         }
 
         void connect(const SocketAddress& remoteAddress, const std::function<void(int err)>& onError) const {
-            SocketAddress bindAddress;
-
-            connect(remoteAddress, bindAddress, onError);
+            connect(remoteAddress, SocketAddress(), onError);
         }
 
     private:
