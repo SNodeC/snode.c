@@ -72,8 +72,6 @@ namespace net {
         private:
             struct timeval absoluteTimeout {};
             struct timeval delay;
-
-            friend class net::TimerEventDispatcher;
         };
 
     } // namespace timer
