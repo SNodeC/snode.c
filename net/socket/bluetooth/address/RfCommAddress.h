@@ -37,6 +37,7 @@ namespace net::socket::bluetooth::address {
     public:
         using SocketAddress<struct sockaddr_rc>::SocketAddress;
 
+        RfCommAddress();
         explicit RfCommAddress(const std::string& btAddress);
         RfCommAddress(const std::string& btAddress, uint8_t channel);
         explicit RfCommAddress(uint8_t port);

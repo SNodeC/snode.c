@@ -25,6 +25,12 @@
 
 namespace net::socket::bluetooth::address {
 
+    L2CapAddress::L2CapAddress() {
+        sockAddr.l2_family = AF_BLUETOOTH;
+        sockAddr.l2_bdaddr = {{0, 0, 0, 0, 0, 0}};
+        sockAddr.l2_psm = htobs(0);
+    }
+
     L2CapAddress::L2CapAddress(const std::string& btAddress) {
         sockAddr.l2_family = AF_BLUETOOTH;
         str2ba(btAddress.c_str(), &sockAddr.l2_bdaddr);
