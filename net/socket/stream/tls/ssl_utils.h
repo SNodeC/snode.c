@@ -33,6 +33,8 @@ namespace net::socket::stream::tls {
     SSL_CTX* ssl_ctx_new(const std::map<std::string, std::any>& options, bool server = false);
     void ssl_ctx_free(SSL_CTX* ctx);
 
+    void ssl_set_sni(SSL* ssl, const std::map<std::string, std::any>& options);
+
     void ssl_log_error(const std::string& message);
     void ssl_log_warning(const std::string& message);
     void ssl_log_info(const std::string& message);

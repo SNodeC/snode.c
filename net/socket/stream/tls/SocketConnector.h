@@ -24,6 +24,7 @@
 #include "net/socket/stream/tls/SocketConnection.h"
 #include "net/socket/stream/tls/TLSHandshake.h"
 #include "net/socket/stream/tls/ssl_utils.h"
+#include "ssl_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -56,11 +57,13 @@ namespace net::socket::stream {
                 : stream::SocketConnector<SocketConnection>(
                       onConstruct,
                       onDestruct,
-                      [onConnect, &onError = this->onError, &ctx = this->ctx, this](
+                      [onConnect, &onError = this->onError, &ctx = this->ctx, this, &options = this->options](
                           SocketConnection* socketConnection) -> void { // onConnect
                           SSL* ssl = socketConnection->startSSL(ctx);
 
                           if (ssl != nullptr) {
+                              ssl_set_sni(ssl, options);
+
                               SSL_set_connect_state(ssl);
 
                               socketConnection->doSSLHandshake(
@@ -104,7 +107,7 @@ namespace net::socket::stream {
                 }
             }
 
-        private:
+        protected:
             SSL_CTX* ctx = nullptr;
         };
 

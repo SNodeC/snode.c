@@ -68,7 +68,8 @@ namespace http::client {
                           [&socketConnection, &onRequestBegin](ClientContextBase* clientContext) -> void {
                               Request& request = clientContext->getRequest();
 
-                              request.setHost(socketConnection->getRemoteAddress().host());
+                              request.setHost(socketConnection->getRemoteAddress().host() + ":" +
+                                              std::to_string(socketConnection->getRemoteAddress().port()));
                               onRequestBegin(request);
                           });
                   },

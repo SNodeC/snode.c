@@ -57,6 +57,7 @@ namespace net::socket::stream {
                       onConstruct,
                       onDestruct,
                       [onConnect, &ctx = this->ctx](SocketConnection* socketConnection) -> void {
+                          SSL_CTX_set_tlsext_servername_arg(ctx, socketConnection);
                           SSL* ssl = socketConnection->startSSL(ctx);
 
                           if (ssl != nullptr) {
@@ -84,6 +85,7 @@ namespace net::socket::stream {
                       onWriteError,
                       options) {
                 ctx = ssl_ctx_new(options, true);
+                SSL_CTX_set_tlsext_servername_callback(ctx, serverNameCallback);
             }
 
             ~SocketListener() override {
@@ -99,7 +101,18 @@ namespace net::socket::stream {
                 }
             }
 
-        private:
+        protected:
+            static int serverNameCallback([[maybe_unused]] SSL* ssl, [[maybe_unused]] int* al, [[maybe_unused]] void* arg) {
+                SocketConnection* socketConnection = static_cast<SocketConnection*>(arg);
+
+                if (SSL_get_servername_type(ssl) != -1) {
+                    socketConnection->serverNameIndication = SSL_get_servername(ssl, TLSEXT_NAMETYPE_host_name);
+                    LOG(INFO) << "ServerName: " << socketConnection->serverNameIndication;
+                }
+
+                return SSL_TLSEXT_ERR_OK;
+            }
+
             SSL_CTX* ctx = nullptr;
         };
 

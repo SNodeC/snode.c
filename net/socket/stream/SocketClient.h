@@ -67,7 +67,7 @@ namespace net::socket::stream {
             errno = 0;
 
             SocketConnector* socketConnector =
-                new SocketConnector(onConstruct, onDestruct, onConnect, onDisconnect, onRead, onReadError, onWriteError, this->options);
+                new SocketConnector(onConstruct, onDestruct, onConnect, onDisconnect, onRead, onReadError, onWriteError, options);
 
             socketConnector->connect(remoteAddress, bindAddress, onError);
         }

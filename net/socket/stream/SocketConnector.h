@@ -53,14 +53,14 @@ namespace net::socket::stream {
                         const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                         const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                         const std::map<std::string, std::any>& options)
-            : onConstruct(onConstruct)
+            : options(options)
+            , onConstruct(onConstruct)
             , onDestruct(onDestruct)
             , onConnect(onConnect)
             , onDisconnect(onDisconnect)
             , onRead(onRead)
             , onReadError(onReadError)
-            , onWriteError(onWriteError)
-            , options(options) {
+            , onWriteError(onWriteError) {
         }
 
         SocketConnector() = delete;
@@ -162,6 +162,7 @@ namespace net::socket::stream {
 
     protected:
         std::function<void(int err)> onError;
+        std::map<std::string, std::any> options;
 
     private:
         std::function<void(SocketConnection* socketConnection)> onConstruct;
@@ -173,8 +174,6 @@ namespace net::socket::stream {
         std::function<void(SocketConnection* socketConnection, int errnum)> onWriteError;
 
         SocketConnection* socketConnection = nullptr;
-
-        std::map<std::string, std::any> options;
     };
 
 } // namespace net::socket::stream

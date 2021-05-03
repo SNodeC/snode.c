@@ -27,6 +27,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -160,6 +161,8 @@ namespace net::socket::stream::tls {
         }
 
         SSL* ssl = nullptr;
+
+        std::string serverNameIndication;
 
         int sslErr = SSL_ERROR_NONE;
 
