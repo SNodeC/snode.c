@@ -244,7 +244,7 @@ namespace express {
                 setParams(cpath, req);
             }
 
-            dispatcher(req, res, [&next]() -> void {
+            dispatcher(req, res, [&next]([[maybe_unused]] std::string router = "app") -> void {
                 next = true;
             });
         }

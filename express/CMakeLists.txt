@@ -8,6 +8,7 @@ add_library(
     express SHARED
     Response.cpp Request.cpp Router.cpp WebApp.cpp
     middleware/JsonMiddleware.cpp middleware/StaticMiddleware.cpp
+    middleware/VHost.cpp
 )
 
 target_link_libraries(express LINK_PUBLIC http)
