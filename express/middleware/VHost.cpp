@@ -20,11 +20,10 @@
 
 #include "express/Request.h"
 #include "express/Response.h"
-#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <map>
+#include <list>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -33,28 +32,24 @@ namespace express::middleware {
     VHost::VHost(const std::string& host)
         : host(host) {
         use([this] MIDDLEWARE(req, res, next) {
-            VLOG(0) << "-------------------";
             std::string headerHost = req.header("Host");
-            VLOG(0) << "Host: " << headerHost << " - " << this->host;
 
             if (headerHost == this->host) {
-                VLOG(0) << "VHost dispatching";
                 next();
             } else {
-                VLOG(0) << "VHost not";
+                next("route");
             }
         });
     }
 
     // Keep all created vhost middlewares alive
-    static std::map<const std::string, std::shared_ptr<class VHost>> vhostMiddlewares;
+    static std::list<std::shared_ptr<class VHost>> vhostMiddlewares;
 
     class VHost& VHost::instance(const std::string& host) {
-        if (!vhostMiddlewares.contains(host)) {
-            vhostMiddlewares[host] = std::shared_ptr<VHost>(new VHost(host));
-        }
+        std::shared_ptr<VHost> vhost = std::shared_ptr<VHost>(new VHost(host));
+        vhostMiddlewares.push_back(vhost);
 
-        return *vhostMiddlewares[host];
+        return *vhost;
     }
 
     // "Constructor" of StaticMiddleware

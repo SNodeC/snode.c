@@ -42,7 +42,13 @@ int main(int argc, char* argv[]) {
 
     WebApp::init(argc, argv);
 
-    legacy::WebApp legacyApp(middleware::VHost("localhost:8080").use(getRouter()));
+    legacy::WebApp legacyApp(middleware::VHost("localhost:8080").use(middleware::StaticMiddleware(SERVERROOT)));
+
+    Router vHost = middleware::VHost("titan.home.vchrist.at:8080");
+    vHost.get("/", [] APPLICATION(req, res) {
+        res.send("Hello - I am VHOST titan.home.vchrist.at");
+    });
+    legacyApp.use(vHost);
 
     legacyApp.use([] APPLICATION(req, res) {
         res.sendStatus(404);
