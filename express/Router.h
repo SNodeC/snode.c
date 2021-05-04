@@ -29,9 +29,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define MIDDLEWARE(req, res, next)                                                                                                         \
-    ([[maybe_unused]] express::Request & (req),                                                                                            \
-     [[maybe_unused]] express::Response & (res),                                                                                           \
-     [[maybe_unused]] const std::function<void(void)>&(next))
+    ([[maybe_unused]] express::Request & (req), [[maybe_unused]] express::Response & (res), [[maybe_unused]] express::Next & (next))
 
 #define APPLICATION(req, res) ([[maybe_unused]] express::Request & (req), [[maybe_unused]] express::Response & (res))
 
@@ -44,6 +42,20 @@ namespace express {
 
     class Request;
     class Response;
+
+    class Next {
+    public:
+        void operator()(const std::string& how = "") {
+            if (how == "route") {
+                nextRouter = true;
+            } else {
+                next = true;
+            }
+        }
+
+        bool next = true;
+        bool nextRouter = false;
+    };
 
     struct MountPoint {
         MountPoint(const std::string& method, const std::string& path)
@@ -68,9 +80,8 @@ namespace express {
     Router& METHOD(const std::function<void(Request & req, Response & res)>& dispatcher);                                                  \
     Router& METHOD(const std::string& path, const Router& router);                                                                         \
     Router& METHOD(const Router& router);                                                                                                  \
-    Router& METHOD(const std::string& path,                                                                                                \
-                   const std::function<void(Request & req, Response & res, const std::function<void(void)>& next)>& dispatcher);           \
-    Router& METHOD(const std::function<void(Request & req, Response & res, const std::function<void(void)>& next)>& dispatcher);
+    Router& METHOD(const std::string& path, const std::function<void(Request & req, Response & res, express::Next & next)>& dispatcher);   \
+    Router& METHOD(const std::function<void(Request & req, Response & res, express::Next & next)>& dispatcher);
 
         DECLARE_REQUESTMETHOD(use)
         DECLARE_REQUESTMETHOD(all)
