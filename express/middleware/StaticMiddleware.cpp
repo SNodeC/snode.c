@@ -34,9 +34,7 @@ namespace express::middleware {
         : root(root) {
         use([&stdHeaders = this->stdHeaders, &stdCookies = this->stdCookies, &forceClose = this->forceClose] MIDDLEWARE(req, res, next) {
             if (req.method == "GET") {
-                if (forceClose || ((req.connectionState == ConnectionState::Close) || (req.httpMajor == 0 && req.httpMinor == 9) ||
-                                   (req.httpMajor == 1 && req.httpMinor == 0 && req.connectionState != ConnectionState::Keep) ||
-                                   (req.httpMajor == 1 && req.httpMinor == 1 && req.connectionState == ConnectionState::Close))) {
+                if (forceClose) {
                     res.set("Connection", "Close");
                 } else {
                     res.set("Connection", "Keep-Alive");

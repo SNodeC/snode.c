@@ -142,6 +142,17 @@ namespace http::server {
 
             requestInProgress = true;
             if (requestContext.status == 0) {
+                if (((requestContext.request.connectionState == ConnectionState::Close) ||
+                     (requestContext.request.httpMajor == 0 && requestContext.request.httpMinor == 9) ||
+                     (requestContext.request.httpMajor == 1 && requestContext.request.httpMinor == 0 &&
+                      requestContext.request.connectionState != ConnectionState::Keep) ||
+                     (requestContext.request.httpMajor == 1 && requestContext.request.httpMinor == 1 &&
+                      requestContext.request.connectionState == ConnectionState::Close))) {
+                    requestContext.response.set("Connection", "close");
+                } else {
+                    requestContext.response.set("Connection", "keep-alive");
+                }
+
                 onRequestReady(requestContext.request, requestContext.response);
             } else {
                 requestContext.response.status(requestContext.status).send(requestContext.reason);
