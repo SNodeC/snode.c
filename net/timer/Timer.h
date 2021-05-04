@@ -30,8 +30,6 @@
 
 namespace net {
 
-    class TimerEventDispatcher;
-
     namespace timer {
 
         class SingleshotTimer;
