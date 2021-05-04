@@ -186,14 +186,14 @@ namespace express {
 
     class MiddlewareDispatcher : public Dispatcher {
     public:
-        explicit MiddlewareDispatcher(const std::function<void(Request& req, Response& res, express::Next& next)>& dispatcher)
+        explicit MiddlewareDispatcher(const std::function<void(Request& req, Response& res, Next& next)>& dispatcher)
             : dispatcher(dispatcher) {
         }
 
         Next dispatch(const MountPoint& mountPoint, const std::string& parentPath, Request& req, Response& res) const override;
 
     private:
-        const std::function<void(Request& req, Response& res, express::Next& next)> dispatcher;
+        const std::function<void(Request& req, Response& res, Next& next)> dispatcher;
     };
 
     class ApplicationDispatcher : public Dispatcher {
@@ -298,12 +298,11 @@ namespace express {
         routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, "", router.routerDispatcher));                                      \
         return *this;                                                                                                                      \
     }                                                                                                                                      \
-    Router& Router::METHOD(const std::string& path,                                                                                        \
-                           const std::function<void(Request & req, Response & res, express::Next & next)>& dispatcher) {                   \
+    Router& Router::METHOD(const std::string& path, const std::function<void(Request & req, Response & res, Next & next)>& dispatcher) {   \
         routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, path, std::make_shared<MiddlewareDispatcher>(dispatcher)));         \
         return *this;                                                                                                                      \
     }                                                                                                                                      \
-    Router& Router::METHOD(const std::function<void(Request & req, Response & res, express::Next & next)>& dispatcher) {                   \
+    Router& Router::METHOD(const std::function<void(Request & req, Response & res, Next & next)>& dispatcher) {                            \
         routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, "", std::make_shared<MiddlewareDispatcher>(dispatcher)));           \
         return *this;                                                                                                                      \
     }                                                                                                                                      \
