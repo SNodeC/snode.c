@@ -79,6 +79,12 @@ int main(int argc, char* argv[]) {
     tls::WebApp tlsApp(middleware::VHost("localhost:8088").use(getRouter()),
                        {{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
 
+    vHost = middleware::VHost("titan.home.vchrist.at:8088");
+    vHost.get("/", [] APPLICATION(req, res) {
+        res.send("Hello - I am VHOST titan.home.vchrist.at");
+    });
+    tlsApp.use(vHost);
+
     tlsApp.use([] APPLICATION(req, res) {
         res.sendStatus(404);
     });
