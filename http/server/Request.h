@@ -30,8 +30,6 @@
 
 namespace http::server {
 
-    class ServerContextBase;
-
     class Request : public utils::MultibleAttributeInjector {
     protected:
         Request() = default;

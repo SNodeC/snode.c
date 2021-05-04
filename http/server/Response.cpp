@@ -87,25 +87,23 @@ namespace http::server {
     }
 
     Response& Response::set(const std::string& field, const std::string& value, bool overwrite) {
-        if (overwrite) {
+        if (overwrite || headers.find(field) == headers.end()) {
             headers.insert_or_assign(field, value);
-        } else {
-            headers.insert({field, value});
-        }
 
-        if (field == "Content-Length") {
-            contentLength = std::stol(value);
-        } else if (field == "Connection" && httputils::ci_comp(value, "close")) {
-            connectionState = ConnectionState::Close;
-        } else if (field == "Connection" && httputils::ci_comp(value, "keep-alive")) {
-            connectionState = ConnectionState::Keep;
+            if (field == "Content-Length") {
+                contentLength = std::stol(value);
+            } else if (field == "Connection" && httputils::ci_comp(value, "close")) {
+                connectionState = ConnectionState::Close;
+            } else if (field == "Connection" && httputils::ci_comp(value, "keep-alive")) {
+                connectionState = ConnectionState::Keep;
+            }
         }
 
         return *this;
     }
 
     Response& Response::type(const std::string& type) {
-        return set({{"Content-Type", type}});
+        return set("Content-Type", type);
     }
 
     Response& Response::cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options) {
@@ -126,16 +124,16 @@ namespace http::server {
 
     void Response::send(const char* junk, std::size_t junkLen) {
         if (junkLen > 0) {
-            headers.insert({"Content-Type", "application/octet-stream"});
+            set("Content-Type", "application/octet-stream", false);
         }
-        headers.insert_or_assign("Content-Length", std::to_string(junkLen));
+        set("Content-Length", std::to_string(junkLen));
 
         enqueue(junk, junkLen);
     }
 
     void Response::send(const std::string& junk) {
         if (junk.size() > 0) {
-            headers.insert({"Content-Type", "text/html; charset=utf-8"});
+            set("Content-Type", "text/html; charset=utf-8");
         }
         send(junk.data(), junk.size());
     }
@@ -144,7 +142,7 @@ namespace http::server {
         enqueue("HTTP/1.1 " + std::to_string(responseStatus) + " " + StatusCode::reason(responseStatus) + "\r\n");
         enqueue("Date: " + httputils::to_http_date() + "\r\n");
 
-        headers.insert({{"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}, {"X-Powered-By", "snode.c"}});
+        set({{"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}, {"X-Powered-By", "snode.c"}});
 
         for (auto& [field, value] : headers) {
             enqueue(field + ": " + value + "\r\n");

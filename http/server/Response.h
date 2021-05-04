@@ -49,8 +49,8 @@ namespace http::server {
 
         Response& status(int status);
         Response& append(const std::string& field, const std::string& value);
-        Response& set(const std::string& field, const std::string& value, bool overwrite = false);
-        Response& set(const std::map<std::string, std::string>& headers, bool overwrite = false);
+        Response& set(const std::string& field, const std::string& value, bool overwrite = true);
+        Response& set(const std::map<std::string, std::string>& headers, bool overwrite = true);
         Response& cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options = {});
         Response& clearCookie(const std::string& name, const std::map<std::string, std::string>& options = {});
         Response& type(const std::string& type);
