@@ -163,22 +163,28 @@ namespace express {
 
         virtual ~Dispatcher() = default;
 
-        virtual void
-        dispatch(RouterDispatcher* parent, const std::string& parentPath, const MountPoint& mountPoint, Request& req, Response& res) = 0;
+        virtual void dispatch(const RouterDispatcher* parentRouter,
+                              const std::string& parentPath,
+                              const MountPoint& mountPoint,
+                              Request& req,
+                              Response& res) const = 0;
     };
 
     class Route {
     public:
-        Route(RouterDispatcher* parent, const std::string& method, const std::string& path, const std::shared_ptr<Dispatcher>& dispatcher)
-            : parent(parent)
+        Route(RouterDispatcher* parentRouter,
+              const std::string& method,
+              const std::string& path,
+              const std::shared_ptr<Dispatcher>& dispatcher)
+            : parentRouter(parentRouter)
             , mountPoint(method, path)
             , dispatcher(dispatcher) {
         }
 
-        void dispatch(RouterDispatcher* parent, const std::string& parentPath, Request& req, Response& res);
+        void dispatch(const RouterDispatcher* parentRouter, const std::string& parentPath, Request& req, Response& res) const;
 
     protected:
-        RouterDispatcher* parent;
+        RouterDispatcher* parentRouter;
         MountPoint mountPoint;
         std::shared_ptr<Dispatcher> dispatcher;
 
@@ -187,28 +193,54 @@ namespace express {
 
     class RouterDispatcher : public Dispatcher {
     public:
-        void dispatch(
-            RouterDispatcher* parent, const std::string& parentPath, const MountPoint& mountPoint, Request& req, Response& res) override;
+        void dispatch(const RouterDispatcher* parentRouter,
+                      const std::string& parentPath,
+                      const MountPoint& mountPoint,
+                      Request& req,
+                      Response& res) const override;
 
-        Next next;
+        void terminate() const {
+            state.proceed = false;
+        }
+
+        bool proceed() const {
+            return state.proceed;
+        }
+
+        void returnTo(const RouterDispatcher* parentRouter) const {
+            if (parentRouter) {
+                parentRouter->state.proceed = state.proceed | state.parentProceed;
+            }
+
+            state.proceed = true;
+            state.parentProceed = false;
+        }
+
+        State& getState() const {
+            return state;
+        }
 
     private:
         std::list<Route> routes;
+        mutable State state;
 
         friend class Router;
     };
 
     class MiddlewareDispatcher : public Dispatcher {
     public:
-        explicit MiddlewareDispatcher(const std::function<void(Request& req, Response& res, Next& next)>& lambda)
+        explicit MiddlewareDispatcher(const std::function<void(Request& req, Response& res, State& state)>& lambda)
             : lambda(lambda) {
         }
 
-        void dispatch(
-            RouterDispatcher* parent, const std::string& parentPath, const MountPoint& mountPoint, Request& req, Response& res) override;
+        void dispatch(const RouterDispatcher* parentRouter,
+                      const std::string& parentPath,
+                      const MountPoint& mountPoint,
+                      Request& req,
+                      Response& res) const override;
 
     private:
-        const std::function<void(Request& req, Response& res, Next& next)> lambda;
+        const std::function<void(Request& req, Response& res, State& state)> lambda;
     };
 
     class ApplicationDispatcher : public Dispatcher {
@@ -217,64 +249,73 @@ namespace express {
             : lambda(lambda) {
         }
 
-        void dispatch(
-            RouterDispatcher* parent, const std::string& parentPath, const MountPoint& mountPoint, Request& req, Response& res) override;
+        void dispatch(const RouterDispatcher* parentRouter,
+                      const std::string& parentPath,
+                      const MountPoint& mountPoint,
+                      Request& req,
+                      Response& res) const override;
 
     protected:
         const std::function<void(Request& req, Response& res)> lambda;
     };
 
-    void Route::dispatch(RouterDispatcher* parent, const std::string& parentPath, Request& req, Response& res) {
-        return dispatcher->dispatch(parent, parentPath, mountPoint, req, res);
+    void Route::dispatch(const RouterDispatcher* parentRouter, const std::string& parentPath, Request& req, Response& res) const {
+        return dispatcher->dispatch(parentRouter, parentPath, mountPoint, req, res);
     }
 
-    void RouterDispatcher::dispatch(
-        RouterDispatcher* parent, const std::string& parentPath, const MountPoint& mountPoint, Request& req, Response& res) {
-        next.next = true;
-        next.nextRouter = false;
-
+    void RouterDispatcher::dispatch(const RouterDispatcher* parentRouter,
+                                    const std::string& parentPath,
+                                    const MountPoint& mountPoint,
+                                    Request& req,
+                                    Response& res) const {
         std::string cpath = path_concat(parentPath, mountPoint.path);
 
         // TODO: Fix regex-match
         if ((req.path.rfind(cpath, 0) == 0 &&
              (mountPoint.method == "use" || req.method == mountPoint.method || mountPoint.method == "all"))) {
-            for (Route& route : routes) {
+            for (const Route& route : routes) {
                 route.dispatch(this, cpath, req, res);
-                if (!this->next.next) {
-                    if (parent) {
-                        parent->next.next = next.nextRouter;
-                    }
+
+                if (!proceed()) {
                     break;
                 }
             }
         }
+
+        returnTo(parentRouter);
     }
 
-    void MiddlewareDispatcher::dispatch(
-        RouterDispatcher* parent, const std::string& parentPath, const MountPoint& mountPoint, Request& req, Response& res) {
+    void MiddlewareDispatcher::dispatch(const RouterDispatcher* parentRouter,
+                                        const std::string& parentPath,
+                                        const MountPoint& mountPoint,
+                                        Request& req,
+                                        Response& res) const {
         std::string cpath = path_concat(parentPath, mountPoint.path);
 
         // TODO: Fix regex-match
         if ((req.path.rfind(cpath, 0) == 0 && mountPoint.method == "use") ||
             ((cpath == req.path || checkForUrlMatch(cpath, req.url)) && (req.method == mountPoint.method || mountPoint.method == "all"))) {
-            parent->next.next = false;
+            parentRouter->terminate();
 
             if (hasResult(cpath)) {
                 setParams(cpath, req);
             }
 
-            lambda(req, res, parent->next);
+            lambda(req, res, parentRouter->getState());
         }
     }
 
-    void ApplicationDispatcher::dispatch(
-        RouterDispatcher* parent, const std::string& parentPath, const MountPoint& mountPoint, Request& req, Response& res) {
+    void ApplicationDispatcher::dispatch(const RouterDispatcher* parentRouter,
+                                         const std::string& parentPath,
+                                         const MountPoint& mountPoint,
+                                         Request& req,
+                                         Response& res) const {
         std::string cpath = path_concat(parentPath, mountPoint.path);
 
         // TODO: Fix regex-match
         if ((req.path.rfind(cpath, 0) == 0 && mountPoint.method == "use") ||
             ((cpath == req.path || checkForUrlMatch(cpath, req.url)) && (req.method == mountPoint.method || mountPoint.method == "all"))) {
-            parent->next.next = false;
+            parentRouter->terminate();
 
             if (hasResult(cpath)) {
                 setParams(cpath, req);
@@ -310,12 +351,12 @@ namespace express {
         routerDispatcher->routes.emplace_back(Route(routerDispatcher.get(), HTTP_METHOD, "", router.routerDispatcher));                    \
         return *this;                                                                                                                      \
     }                                                                                                                                      \
-    Router& Router::METHOD(const std::string& path, const std::function<void(Request & req, Response & res, Next & next)>& lambda) {       \
+    Router& Router::METHOD(const std::string& path, const std::function<void(Request & req, Response & res, State & state)>& lambda) {     \
         routerDispatcher->routes.emplace_back(                                                                                             \
             Route(routerDispatcher.get(), HTTP_METHOD, path, std::make_shared<MiddlewareDispatcher>(lambda)));                             \
         return *this;                                                                                                                      \
     }                                                                                                                                      \
-    Router& Router::METHOD(const std::function<void(Request & req, Response & res, Next & next)>& lambda) {                                \
+    Router& Router::METHOD(const std::function<void(Request & req, Response & res, State & state)>& lambda) {                              \
         routerDispatcher->routes.emplace_back(                                                                                             \
             Route(routerDispatcher.get(), HTTP_METHOD, "", std::make_shared<MiddlewareDispatcher>(lambda)));                               \
         return *this;                                                                                                                      \

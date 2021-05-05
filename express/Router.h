@@ -28,8 +28,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define MIDDLEWARE(req, res, next)                                                                                                         \
-    ([[maybe_unused]] express::Request & (req), [[maybe_unused]] express::Response & (res), [[maybe_unused]] express::Next & (next))
+#define MIDDLEWARE(req, res, state)                                                                                                        \
+    ([[maybe_unused]] express::Request & (req), [[maybe_unused]] express::Response & (res), [[maybe_unused]] express::State & (state))
 
 #define APPLICATION(req, res) ([[maybe_unused]] express::Request & (req), [[maybe_unused]] express::Response & (res))
 
@@ -44,24 +44,21 @@ namespace express {
     class Response;
     class RouterDispatcher;
 
-    class Next {
+    class State {
     public:
         void operator()(const std::string& how = "") {
             if (how == "route") {
-                nextRouter = true;
+                parentProceed = true;
             } else {
-                next = true;
+                proceed = true;
             }
         }
 
     protected:
-        bool next = true;
-        bool nextRouter = false;
+        bool proceed = true;
+        bool parentProceed = false;
 
-        friend class Router;
         friend class RouterDispatcher;
-        friend class MiddlewareDispatcher;
-        friend class ApplicationDispatcher;
     };
 
     class Router {
@@ -75,8 +72,8 @@ namespace express {
     Router& METHOD(const std::function<void(Request & req, Response & res)>& lambda);                                                      \
     Router& METHOD(const std::string& path, const Router& router);                                                                         \
     Router& METHOD(const Router& router);                                                                                                  \
-    Router& METHOD(const std::string& path, const std::function<void(Request & req, Response & res, express::Next & next)>& lambda);       \
-    Router& METHOD(const std::function<void(Request & req, Response & res, express::Next & next)>& lambda);
+    Router& METHOD(const std::string& path, const std::function<void(Request & req, Response & res, express::State & state)>& lambda);     \
+    Router& METHOD(const std::function<void(Request & req, Response & res, express::State & state)>& lambda);
 
         DECLARE_REQUESTMETHOD(use)
         DECLARE_REQUESTMETHOD(all)
