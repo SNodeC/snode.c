@@ -153,7 +153,7 @@ namespace express {
 
         virtual ~Dispatcher() = default;
 
-        virtual Next dispatch(const MountPoint& mountPoint, const std::string& parentPath, Request& req, Response& res) const = 0;
+        virtual Next dispatch(const std::string& parentPath, const MountPoint& mountPoint, Request& req, Response& res) const = 0;
     };
 
     class Route {
@@ -170,13 +170,13 @@ namespace express {
         Router* parent;
         MountPoint mountPoint;
         std::shared_ptr<Dispatcher> dispatcher;
+
+        friend RouterDispatcher;
     };
 
     class RouterDispatcher : public Dispatcher {
     public:
-        explicit RouterDispatcher() = default;
-
-        Next dispatch(const MountPoint& mountPoint, const std::string& parentPath, Request& req, Response& res) const override;
+        Next dispatch(const std::string& parentPath, const MountPoint& mountPoint, Request& req, Response& res) const override;
 
     private:
         std::list<Route> routes;
@@ -190,7 +190,7 @@ namespace express {
             : dispatcher(dispatcher) {
         }
 
-        Next dispatch(const MountPoint& mountPoint, const std::string& parentPath, Request& req, Response& res) const override;
+        Next dispatch(const std::string& parentPath, const MountPoint& mountPoint, Request& req, Response& res) const override;
 
     private:
         const std::function<void(Request& req, Response& res, Next& next)> dispatcher;
@@ -202,17 +202,17 @@ namespace express {
             : dispatcher(dispatcher) {
         }
 
-        Next dispatch(const MountPoint& mountPoint, const std::string& parentPath, Request& req, Response& res) const override;
+        Next dispatch(const std::string& parentPath, const MountPoint& mountPoint, Request& req, Response& res) const override;
 
     protected:
         const std::function<void(Request& req, Response& res)> dispatcher;
     };
 
     Next Route::dispatch(const std::string& parentPath, Request& req, Response& res) const {
-        return dispatcher->dispatch(mountPoint, parentPath, req, res);
+        return dispatcher->dispatch(parentPath, mountPoint, req, res);
     }
 
-    Next RouterDispatcher::dispatch(const MountPoint& mountPoint, const std::string& parentPath, Request& req, Response& res) const {
+    Next RouterDispatcher::dispatch(const std::string& parentPath, const MountPoint& mountPoint, Request& req, Response& res) const {
         Next next;
         std::string cpath = path_concat(parentPath, mountPoint.path);
 
@@ -220,9 +220,8 @@ namespace express {
         if ((req.path.rfind(cpath, 0) == 0 &&
              (mountPoint.method == "use" || req.method == mountPoint.method || mountPoint.method == "all"))) {
             for (const Route& route : routes) {
-                if (next.next) {
-                    next = route.dispatch(cpath, req, res);
-                } else {
+                next = route.dispatch(cpath, req, res);
+                if (!next.next) {
                     break;
                 }
             }
@@ -233,7 +232,7 @@ namespace express {
         return next;
     }
 
-    Next MiddlewareDispatcher::dispatch(const MountPoint& mountPoint, const std::string& parentPath, Request& req, Response& res) const {
+    Next MiddlewareDispatcher::dispatch(const std::string& parentPath, const MountPoint& mountPoint, Request& req, Response& res) const {
         Next next;
 
         std::string cpath = path_concat(parentPath, mountPoint.path);
@@ -253,7 +252,7 @@ namespace express {
         return next;
     }
 
-    Next ApplicationDispatcher::dispatch(const MountPoint& mountPoint, const std::string& parentPath, Request& req, Response& res) const {
+    Next ApplicationDispatcher::dispatch(const std::string& parentPath, const MountPoint& mountPoint, Request& req, Response& res) const {
         Next next;
         std::string cpath = path_concat(parentPath, mountPoint.path);
 
@@ -286,7 +285,7 @@ namespace express {
     }
 
     void Router::dispatch(express::Request& req, express::Response& res) {
-        routerDispatcher->dispatch(MountPoint("use", "/"), "/", req, res);
+        routerDispatcher->dispatch("/", MountPoint("use", "/"), req, res);
     }
 
 #define DEFINE_REQUESTMETHOD(METHOD, HTTP_METHOD)                                                                                          \
