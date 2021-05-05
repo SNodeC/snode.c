@@ -42,6 +42,7 @@ namespace express {
 
     class Request;
     class Response;
+    class RouterDispatcher;
 
     class Next {
     public:
@@ -57,22 +58,11 @@ namespace express {
         bool next = true;
         bool nextRouter = false;
 
+        friend class Router;
         friend class RouterDispatcher;
         friend class MiddlewareDispatcher;
         friend class ApplicationDispatcher;
     };
-
-    struct MountPoint {
-        MountPoint(const std::string& method, const std::string& path)
-            : method(method)
-            , path(path) {
-        }
-
-        std::string method;
-        std::string path;
-    };
-
-    class RouterDispatcher;
 
     class Router {
     public:
