@@ -241,16 +241,13 @@ namespace express {
             for (Route& route : routes) {
                 route.dispatch(this, cpath, req, res);
                 if (!this->next.next) {
+                    if (parent) {
+                        parent->next.next = next.nextRouter;
+                    }
                     break;
                 }
             }
         }
-
-        if (parent) {
-            parent->next.next = next.next | next.nextRouter;
-        }
-
-        //        return next.next | next.nextRouter;
     }
 
     void MiddlewareDispatcher::dispatch(
@@ -268,8 +265,6 @@ namespace express {
 
             lambda(req, res, parent->next);
         }
-
-        //        return parent->next.next;
     }
 
     void ApplicationDispatcher::dispatch(
@@ -287,8 +282,6 @@ namespace express {
 
             lambda(req, res);
         }
-
-        //        return parent->next.next;
     }
 
     Router::Router()
