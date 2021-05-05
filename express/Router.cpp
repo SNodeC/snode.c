@@ -186,26 +186,26 @@ namespace express {
 
     class MiddlewareDispatcher : public Dispatcher {
     public:
-        explicit MiddlewareDispatcher(const std::function<void(Request& req, Response& res, Next& next)>& dispatcher)
-            : dispatcher(dispatcher) {
+        explicit MiddlewareDispatcher(const std::function<void(Request& req, Response& res, Next& next)>& lambda)
+            : lambda(lambda) {
         }
 
         Next dispatch(const std::string& parentPath, const MountPoint& mountPoint, Request& req, Response& res) const override;
 
     private:
-        const std::function<void(Request& req, Response& res, Next& next)> dispatcher;
+        const std::function<void(Request& req, Response& res, Next& next)> lambda;
     };
 
     class ApplicationDispatcher : public Dispatcher {
     public:
-        explicit ApplicationDispatcher(const std::function<void(Request& req, Response& res)>& dispatcher)
-            : dispatcher(dispatcher) {
+        explicit ApplicationDispatcher(const std::function<void(Request& req, Response& res)>& lambda)
+            : lambda(lambda) {
         }
 
         Next dispatch(const std::string& parentPath, const MountPoint& mountPoint, Request& req, Response& res) const override;
 
     protected:
-        const std::function<void(Request& req, Response& res)> dispatcher;
+        const std::function<void(Request& req, Response& res)> lambda;
     };
 
     Next Route::dispatch(const std::string& parentPath, Request& req, Response& res) const {
@@ -246,7 +246,7 @@ namespace express {
                 setParams(cpath, req);
             }
 
-            dispatcher(req, res, next);
+            lambda(req, res, next);
         }
 
         return next;
@@ -265,7 +265,7 @@ namespace express {
                 setParams(cpath, req);
             }
 
-            dispatcher(req, res);
+            lambda(req, res);
         }
 
         return next;
@@ -297,20 +297,20 @@ namespace express {
         routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, "", router.routerDispatcher));                                      \
         return *this;                                                                                                                      \
     }                                                                                                                                      \
-    Router& Router::METHOD(const std::string& path, const std::function<void(Request & req, Response & res, Next & next)>& dispatcher) {   \
-        routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, path, std::make_shared<MiddlewareDispatcher>(dispatcher)));         \
+    Router& Router::METHOD(const std::string& path, const std::function<void(Request & req, Response & res, Next & next)>& lambda) {       \
+        routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, path, std::make_shared<MiddlewareDispatcher>(lambda)));             \
         return *this;                                                                                                                      \
     }                                                                                                                                      \
-    Router& Router::METHOD(const std::function<void(Request & req, Response & res, Next & next)>& dispatcher) {                            \
-        routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, "", std::make_shared<MiddlewareDispatcher>(dispatcher)));           \
+    Router& Router::METHOD(const std::function<void(Request & req, Response & res, Next & next)>& lambda) {                                \
+        routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, "", std::make_shared<MiddlewareDispatcher>(lambda)));               \
         return *this;                                                                                                                      \
     }                                                                                                                                      \
-    Router& Router::METHOD(const std::string& path, const std::function<void(Request & req, Response & res)>& dispatcher) {                \
-        routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, path, std::make_shared<ApplicationDispatcher>(dispatcher)));        \
+    Router& Router::METHOD(const std::string& path, const std::function<void(Request & req, Response & res)>& lambda) {                    \
+        routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, path, std::make_shared<ApplicationDispatcher>(lambda)));            \
         return *this;                                                                                                                      \
     }                                                                                                                                      \
-    Router& Router::METHOD(const std::function<void(Request & req, Response & res)>& dispatcher) {                                         \
-        routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, "", std::make_shared<ApplicationDispatcher>(dispatcher)));          \
+    Router& Router::METHOD(const std::function<void(Request & req, Response & res)>& lambda) {                                             \
+        routerDispatcher->routes.emplace_back(Route(this, HTTP_METHOD, "", std::make_shared<ApplicationDispatcher>(lambda)));              \
         return *this;                                                                                                                      \
     }
 

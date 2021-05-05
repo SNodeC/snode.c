@@ -53,8 +53,13 @@ namespace express {
             }
         }
 
+    protected:
         bool next = true;
         bool nextRouter = false;
+
+        friend class RouterDispatcher;
+        friend class MiddlewareDispatcher;
+        friend class ApplicationDispatcher;
     };
 
     struct MountPoint {
@@ -76,12 +81,12 @@ namespace express {
         Router& operator=(const Router& router);
 
 #define DECLARE_REQUESTMETHOD(METHOD)                                                                                                      \
-    Router& METHOD(const std::string& path, const std::function<void(Request & req, Response & res)>& dispatcher);                         \
-    Router& METHOD(const std::function<void(Request & req, Response & res)>& dispatcher);                                                  \
+    Router& METHOD(const std::string& path, const std::function<void(Request & req, Response & res)>& lambda);                             \
+    Router& METHOD(const std::function<void(Request & req, Response & res)>& lambda);                                                      \
     Router& METHOD(const std::string& path, const Router& router);                                                                         \
     Router& METHOD(const Router& router);                                                                                                  \
-    Router& METHOD(const std::string& path, const std::function<void(Request & req, Response & res, express::Next & next)>& dispatcher);   \
-    Router& METHOD(const std::function<void(Request & req, Response & res, express::Next & next)>& dispatcher);
+    Router& METHOD(const std::string& path, const std::function<void(Request & req, Response & res, express::Next & next)>& lambda);       \
+    Router& METHOD(const std::function<void(Request & req, Response & res, express::Next & next)>& lambda);
 
         DECLARE_REQUESTMETHOD(use)
         DECLARE_REQUESTMETHOD(all)
