@@ -25,6 +25,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net {
+
     DescriptorEventReceiver::DescriptorEventReceiver(DescriptorEventDispatcher& descriptorEventDispatcher, long timeout)
         : descriptorEventDispatcher(descriptorEventDispatcher)
         , maxInactivity(timeout)
