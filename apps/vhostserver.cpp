@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
 
     WebApp::init(argc, argv);
 
-    legacy::WebApp legacyApp(middleware::VHost("localhost:8080").use(middleware::StaticMiddleware(SERVERROOT)));
+    legacy::WebApp6 legacyApp(middleware::VHost("localhost:8080").use(middleware::StaticMiddleware(SERVERROOT)));
 
     Router vHost = middleware::VHost("titan.home.vchrist.at:8080");
     vHost.get("/", [] APPLICATION(req, res) {
@@ -62,22 +62,22 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    legacyApp.onConnect([](legacy::WebApp::SocketConnection* socketConnection) -> void {
+    legacyApp.onConnect([](legacy::WebApp6::SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnConnect:";
 
         VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
         VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
     });
 
-    legacyApp.onDisconnect([](legacy::WebApp::SocketConnection* socketConnection) -> void {
+    legacyApp.onDisconnect([](legacy::WebApp6::SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnDisconnect:";
 
         VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
         VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
     });
 
-    tls::WebApp tlsApp(middleware::VHost("localhost:8088").use(getRouter()),
-                       {{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
+    tls::WebApp6 tlsApp(middleware::VHost("localhost:8088").use(getRouter()),
+                        {{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
 
     vHost = middleware::VHost("titan.home.vchrist.at:8088");
     vHost.get("/", [] APPLICATION(req, res) {
@@ -97,14 +97,14 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    tlsApp.onConnect([](tls::WebApp::SocketConnection* socketConnection) -> void {
+    tlsApp.onConnect([](tls::WebApp6::SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnConnect:";
 
         VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
         VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
     });
 
-    tlsApp.onDisconnect([](tls::WebApp::SocketConnection* socketConnection) -> void {
+    tlsApp.onDisconnect([](tls::WebApp6::SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnDisconnect:";
 
         VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
