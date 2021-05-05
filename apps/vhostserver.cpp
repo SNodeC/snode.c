@@ -42,7 +42,9 @@ int main(int argc, char* argv[]) {
 
     WebApp::init(argc, argv);
 
-    legacy::WebApp6 legacyApp(middleware::VHost("localhost:8080").use(middleware::StaticMiddleware(SERVERROOT)));
+    legacy::WebApp6 legacyApp;
+
+    legacyApp.use(middleware::VHost("localhost:8080").use(middleware::StaticMiddleware(SERVERROOT)));
 
     Router vHost = middleware::VHost("titan.home.vchrist.at:8080");
     vHost.get("/", [] APPLICATION(req, res) {
@@ -76,8 +78,9 @@ int main(int argc, char* argv[]) {
         VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
     });
 
-    tls::WebApp6 tlsApp(middleware::VHost("localhost:8088").use(getRouter()),
-                        {{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
+    tls::WebApp6 tlsApp({{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
+
+    tlsApp.use(middleware::VHost("localhost:8088").use(getRouter()));
 
     vHost = middleware::VHost("titan.home.vchrist.at:8088");
     vHost.get("/", [] APPLICATION(req, res) {

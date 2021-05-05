@@ -28,8 +28,8 @@ namespace express {
 
     bool WebApp::initialized{false};
 
-    WebApp::WebApp(const Router& router) {
-        use(router);
+    WebApp::WebApp(const Router& router)
+        : Router(router) {
     }
 
     void WebApp::init(int argc, char* argv[]) {
