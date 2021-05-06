@@ -22,6 +22,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
+#include <list>
 #include <map>
 #include <memory>
 #include <string>
@@ -40,6 +41,7 @@ namespace http::server {
 
 namespace express {
 
+    struct MountPoint;
     class Request;
     class Response;
     class RouterDispatcher;
@@ -54,11 +56,65 @@ namespace express {
             }
         }
 
-    protected:
+    private:
         bool proceed = true;
         bool parentProceed = false;
 
         friend class RouterDispatcher;
+    };
+
+    class Dispatcher {
+    public:
+        Dispatcher() = default;
+        Dispatcher(const Dispatcher&) = delete;
+
+        Dispatcher& operator=(const Dispatcher&) = delete;
+
+        virtual ~Dispatcher() = default;
+
+    private:
+        virtual void dispatch(const RouterDispatcher* parentRouter,
+                              const std::string& parentPath,
+                              const MountPoint& mountPoint,
+                              Request& req,
+                              Response& res) const = 0;
+
+        friend class Route;
+    };
+
+    class Route;
+
+    class RouterDispatcher : public Dispatcher {
+    public:
+        void dispatch(Request& req, Response& res) const;
+
+    private:
+        void dispatch(const RouterDispatcher* parentRouter,
+                      const std::string& parentPath,
+                      const MountPoint& mountPoint,
+                      Request& req,
+                      Response& res) const override;
+
+        void terminate() const {
+            state.proceed = false;
+        }
+
+        State& getState() const {
+            return state;
+        }
+
+        bool proceed() const {
+            return state.proceed;
+        }
+
+        void returnTo(const RouterDispatcher* parentRouter) const;
+
+        std::list<Route> routes;
+        mutable State state;
+
+        friend class Router;
+        friend class ApplicationDispatcher;
+        friend class MiddlewareDispatcher;
     };
 
     class Router {
@@ -88,11 +144,6 @@ namespace express {
         DECLARE_REQUESTMETHOD(head)
 
     protected:
-        void dispatch(express::Request& req, express::Response& res);
-
-    private:
-        std::map<const http::server::Request*, Request*> reqestMap;
-        std::map<const http::server::Response*, Response*> responseMap;
         std::shared_ptr<RouterDispatcher> routerDispatcher; // it can be shared by multiple routers
     };
 

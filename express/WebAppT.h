@@ -51,14 +51,15 @@ namespace express {
         WebAppT(const Router& router, const std::map<std::string, std::any>& options = {{}})
             : WebApp(router)
             , server(
-                  [this](SocketConnection* socketConnection) -> void { // onConnect
-                      if (_onConnect != nullptr) {
-                          _onConnect(socketConnection);
+                  [&onConnect = this->_onConnect](SocketConnection* socketConnection) -> void { // onConnect
+                      if (onConnect) {
+                          onConnect(socketConnection);
                       }
                   },
-                  [this](express::Request& req, express::Response& res) -> void { // onRequestReady
+                  [routerDispatcher = this->routerDispatcher](express::Request& req,
+                                                              express::Response& res) -> void { // onRequestReady
                       req.extend();
-                      dispatch(req, res);
+                      routerDispatcher->dispatch(req, res);
                   },
                   [this](SocketConnection* socketConnection) -> void { // onDisconnect
                       if (_onDisconnect != nullptr) {
