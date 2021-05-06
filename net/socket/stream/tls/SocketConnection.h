@@ -91,7 +91,7 @@ namespace net::socket::stream::tls {
 
         void doSSLHandshake(const std::function<void()>& onSuccess,
                             const std::function<void()>& onTimeout,
-                            const std::function<void(int sslErr)>& onError) {
+                            const std::function<void(int sslErr)>& onError) override {
             SocketConnection::SocketReader::suspend();
             SocketConnection::SocketWriter::suspend();
 
@@ -113,8 +113,8 @@ namespace net::socket::stream::tls {
                     onTimeout();
                 },
                 [onError, this](int sslErr) -> void { // onError
-                    ssl_log("SSL/TLS handshake failed", -sslErr);
-                    setSSLError(-sslErr);
+                    ssl_log("SSL/TLS handshake failed", sslErr);
+                    setSSLError(sslErr);
                     if (SocketConnection::SocketReader::isEnabled()) {
                         SocketConnection::SocketReader::disable();
                     }
@@ -122,16 +122,6 @@ namespace net::socket::stream::tls {
                         SocketConnection::SocketWriter::disable();
                     }
                     onError(sslErr);
-                });
-        }
-
-        void doSSLHandshake() override {
-            doSSLHandshake(
-                [](void) -> void {
-                },
-                [](void) -> void {
-                },
-                []([[maybe_unused]] int sslErr) -> void {
                 });
         }
 

@@ -74,7 +74,7 @@ namespace net::socket::stream {
                                       onError(ETIMEDOUT);
                                   },
                                   [socketConnection, onError](int sslErr) -> void { // onError
-                                      onError(sslErr);
+                                      onError(-sslErr);
                                   });
                           } else {
                               socketConnection->SocketConnection::SocketReader::disable();

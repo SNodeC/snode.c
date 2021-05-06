@@ -52,7 +52,17 @@ namespace net::socket::stream::tls {
                     case SSL_ERROR_WANT_WRITE:
                         [[fallthrough]];
                     case SSL_ERROR_WANT_READ:
-                        doSSLHandshake();
+                        doSSLHandshake(
+                            [](void) -> void {
+                                PLOG(INFO) << "SSL/TLS renegotiation success";
+                            },
+                            [](void) -> void {
+                                PLOG(ERROR) << "SSL/TLS renegotiation timed out";
+                            },
+                            [this](int sslErr) -> void {
+                                ssl_log("SSL/TLS renegotiation", sslErr);
+                                setSSLError(sslErr);
+                            });
                         errno = EAGAIN;
                         break;
                     case SSL_ERROR_ZERO_RETURN:
@@ -93,12 +103,19 @@ namespace net::socket::stream::tls {
         }
 
     protected:
-        virtual void doSSLHandshake() = 0;
+        virtual void doSSLHandshake(const std::function<void()>& onSuccess,
+                                    const std::function<void()>& onTimeout,
+                                    const std::function<void(int sslErr)>& onError) = 0;
+
+        void setSSLError(int sslErr) {
+            this->sslErr = sslErr;
+        }
 
         SSL* ssl = nullptr;
 
         int sslErr = SSL_ERROR_NONE;
     };
+
 } // namespace net::socket::stream::tls
 
 #endif // NET_SOCKET_STREAM_TLS_SOCKETREADER_H

@@ -57,7 +57,7 @@ namespace net::socket::stream::tls {
                 delete this;
                 break;
             default:
-                onError(-sslErr);
+                onError(sslErr);
                 delete this;
                 break;
         }
@@ -80,7 +80,7 @@ namespace net::socket::stream::tls {
                 break;
             default:
                 ReadEventReceiver::disable();
-                onError(-sslErr);
+                onError(sslErr);
                 break;
         }
     }
@@ -102,7 +102,7 @@ namespace net::socket::stream::tls {
                 break;
             default:
                 WriteEventReceiver::disable();
-                onError(-sslErr);
+                onError(sslErr);
                 break;
         }
     }
