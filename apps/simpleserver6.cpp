@@ -40,54 +40,55 @@ int main(int argc, char* argv[]) {
     Logger::setVerboseLevel(2);
 
     WebApp::init(argc, argv);
+    {
+        legacy::WebApp6 legacyApp(getRouter());
 
-    legacy::WebApp6 legacyApp(getRouter());
+        legacyApp.listen(8080, [](int err) -> void {
+            if (err != 0) {
+                PLOG(FATAL) << "listen on port 8080";
+            } else {
+                VLOG(0) << "snode.c listening on port 8080 for legacy connections";
+            }
+        });
 
-    legacyApp.listen(8080, [](int err) -> void {
-        if (err != 0) {
-            PLOG(FATAL) << "listen on port 8080";
-        } else {
-            VLOG(0) << "snode.c listening on port 8080 for legacy connections";
-        }
-    });
+        legacyApp.onConnect([](legacy::WebApp6::SocketConnection* socketConnection) -> void {
+            VLOG(0) << "OnConnect:";
 
-    legacyApp.onConnect([](legacy::WebApp6::SocketConnection* socketConnection) -> void {
-        VLOG(0) << "OnConnect:";
+            VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
+            VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
+        });
 
-        VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
-        VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
-    });
+        legacyApp.onDisconnect([](legacy::WebApp6::SocketConnection* socketConnection) -> void {
+            VLOG(0) << "OnDisconnect:";
 
-    legacyApp.onDisconnect([](legacy::WebApp6::SocketConnection* socketConnection) -> void {
-        VLOG(0) << "OnDisconnect:";
+            VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
+            VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
+        });
 
-        VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
-        VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
-    });
+        tls::WebApp6 tlsApp(getRouter(), {{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
 
-    tls::WebApp6 tlsApp(getRouter(), {{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
+        tlsApp.listen(8088, [](int err) -> void {
+            if (err != 0) {
+                PLOG(FATAL) << "listen on port 8088";
+            } else {
+                VLOG(0) << "snode.c listening on port 8088 for SSL/TLS connections";
+            }
+        });
 
-    tlsApp.listen(8088, [](int err) -> void {
-        if (err != 0) {
-            PLOG(FATAL) << "listen on port 8088";
-        } else {
-            VLOG(0) << "snode.c listening on port 8088 for SSL/TLS connections";
-        }
-    });
+        tlsApp.onConnect([](tls::WebApp6::SocketConnection* socketConnection) -> void {
+            VLOG(0) << "OnConnect:";
 
-    tlsApp.onConnect([](tls::WebApp6::SocketConnection* socketConnection) -> void {
-        VLOG(0) << "OnConnect:";
+            VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
+            VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
+        });
 
-        VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
-        VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
-    });
+        tlsApp.onDisconnect([](tls::WebApp6::SocketConnection* socketConnection) -> void {
+            VLOG(0) << "OnDisconnect:";
 
-    tlsApp.onDisconnect([](tls::WebApp6::SocketConnection* socketConnection) -> void {
-        VLOG(0) << "OnDisconnect:";
-
-        VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
-        VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
-    });
-
+            VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
+            VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
+        });
+    }
+    
     return WebApp::start();
 }
