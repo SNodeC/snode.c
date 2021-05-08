@@ -45,6 +45,9 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
                 VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
             },
+            []([[maybe_unused]] legacy::Client<>::SocketConnection* socketConnection) -> void {
+                VLOG(0) << "-- OnConnected";
+            },
             [](Request& request) -> void {
                 request.url = "/index.html";
                 request.end();
@@ -93,7 +96,9 @@ int main(int argc, char* argv[]) {
 
                 VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
                 VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
-
+            },
+            [](tls::Client<>::SocketConnection* socketConnection) -> void {
+                VLOG(0) << "-- OnConnect";
                 X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
                 if (server_cert != nullptr) {
                     int verifyErr = SSL_get_verify_result(socketConnection->getSSL());

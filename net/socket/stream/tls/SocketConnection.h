@@ -38,9 +38,13 @@ namespace net::socket::stream::tls {
         : public stream::SocketConnection<tls::SocketReader<SocketT>, tls::SocketWriter<SocketT>, typename SocketT::SocketAddress> {
     public:
         using Socket = SocketT;
+        using SocketAddress = typename Socket::SocketAddress;
 
     public:
-        SocketConnection(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
+        SocketConnection(int fd,
+                         const SocketAddress& localAddress,
+                         const SocketAddress& remoteAddress,
+                         const std::function<void(SocketConnection* socketConnection)>& onConstruct,
                          const std::function<void(SocketConnection* socketConnection)>& onDestruct,
                          const std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)>& onRead,
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
@@ -48,6 +52,9 @@ namespace net::socket::stream::tls {
                          const std::function<void(SocketConnection* socketConnection)>& onDisconnect)
             : stream::SocketConnection<tls::SocketReader<Socket>, tls::SocketWriter<Socket>, typename Socket::SocketAddress>::
                   SocketConnection(
+                      fd,
+                      localAddress,
+                      remoteAddress,
                       [onRead, this](const char* junk, std::size_t junkLen) -> void {
                           onRead(this, junk, junkLen);
                       },

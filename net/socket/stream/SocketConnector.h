@@ -120,13 +120,15 @@ namespace net::socket::stream {
 
                         if (getsockname(Socket::getFd(), reinterpret_cast<sockaddr*>(&localAddress), &localAddressLength) == 0 &&
                             getpeername(Socket::getFd(), reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) == 0) {
-                            socketConnection =
-                                new SocketConnection(onConstruct, onDestruct, onRead, onReadError, onWriteError, onDisconnect);
-
-                            socketConnection->setRemoteAddress(SocketAddress(remoteAddress));
-                            socketConnection->setLocalAddress(SocketAddress(localAddress));
-
-                            socketConnection->attach(Socket::getFd());
+                            socketConnection = new SocketConnection(Socket::getFd(),
+                                                                    SocketAddress(localAddress),
+                                                                    SocketAddress(remoteAddress),
+                                                                    onConstruct,
+                                                                    onDestruct,
+                                                                    onRead,
+                                                                    onReadError,
+                                                                    onWriteError,
+                                                                    onDisconnect);
                             socketConnection->SocketConnection::SocketReader::enable(Socket::getFd());
 
                             SocketConnector::dontClose(true);

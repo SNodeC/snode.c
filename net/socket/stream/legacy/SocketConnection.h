@@ -36,9 +36,13 @@ namespace net::socket::stream::legacy {
         : public stream::SocketConnection<legacy::SocketReader<SocketT>, legacy::SocketWriter<SocketT>, typename SocketT::SocketAddress> {
     public:
         using Socket = SocketT;
+        using SocketAddress = typename Socket::SocketAddress;
 
     public:
-        SocketConnection(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
+        SocketConnection(int fd,
+                         const SocketAddress& localAddress,
+                         const SocketAddress& remoteAddress,
+                         const std::function<void(SocketConnection* socketConnection)>& onConstruct,
                          const std::function<void(SocketConnection* socketConnection)>& onDestruct,
                          const std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)>& onRead,
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
@@ -46,6 +50,9 @@ namespace net::socket::stream::legacy {
                          const std::function<void(SocketConnection* socketConnection)>& onDisconnect)
             : stream::SocketConnection<legacy::SocketReader<Socket>, legacy::SocketWriter<Socket>, typename Socket::SocketAddress>::
                   SocketConnection(
+                      fd,
+                      localAddress,
+                      remoteAddress,
                       [onRead, this](const char* junk, std::size_t junkLen) -> void {
                           onRead(this, junk, junkLen);
                       },

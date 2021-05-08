@@ -40,6 +40,9 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
         },
+        []([[maybe_unused]] http::client::legacy::Client<>::SocketConnection* socketConnection) -> void {
+            VLOG(0) << "-- OnConnected";
+        },
         [](http::client::Request& request) -> void {
             request.method = "POST";
             request.url = "/index.html";

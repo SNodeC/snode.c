@@ -56,6 +56,11 @@ namespace express {
                           onConnect(socketConnection);
                       }
                   },
+                  [&onConnected = this->_onConnected](SocketConnection* socketConnection) -> void { // onConnected
+                      if (onConnected) {
+                          onConnected(socketConnection);
+                      }
+                  },
                   [routerDispatcher = this->routerDispatcher](express::Request& req,
                                                               express::Response& res) -> void { // onRequestReady
                       req.extend();
@@ -81,6 +86,10 @@ namespace express {
             _onConnect = onConnect;
         }
 
+        void onConnected(const std::function<void(SocketConnection*)>& onConnected) {
+            _onConnected = onConnected;
+        }
+
         void onDisconnect(const std::function<void(SocketConnection*)>& onDisconnect) {
             _onDisconnect = onDisconnect;
         }
@@ -89,6 +98,7 @@ namespace express {
         Server server;
 
         std::function<void(SocketConnection*)> _onConnect = nullptr;
+        std::function<void(SocketConnection*)> _onConnected = nullptr;
         std::function<void(SocketConnection*)> _onDisconnect = nullptr;
 
     private:

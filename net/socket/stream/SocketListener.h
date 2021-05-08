@@ -123,29 +123,31 @@ namespace net::socket::stream {
             typename SocketAddress::SockAddr remoteAddress{};
             socklen_t remoteAddressLength = sizeof(remoteAddress);
 
-            int scFd = -1;
+            int fd = -1;
 
-            scFd = ::accept4(Socket::getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &remoteAddressLength, SOCK_NONBLOCK);
+            fd = ::accept4(Socket::getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &remoteAddressLength, SOCK_NONBLOCK);
 
-            if (scFd >= 0) {
+            if (fd >= 0) {
                 typename SocketAddress::SockAddr localAddress{};
                 socklen_t addressLength = sizeof(localAddress);
 
-                if (getsockname(scFd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
-                    SocketConnection* socketConnection =
-                        new SocketConnection(onConstruct, onDestruct, onRead, onReadError, onWriteError, onDisconnect);
-
-                    socketConnection->setRemoteAddress(SocketAddress(remoteAddress));
-                    socketConnection->setLocalAddress(SocketAddress(localAddress));
-
-                    socketConnection->attach(scFd);
-                    socketConnection->SocketConnection::SocketReader::enable(scFd);
+                if (getsockname(fd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
+                    SocketConnection* socketConnection = new SocketConnection(fd,
+                                                                              SocketAddress(localAddress),
+                                                                              SocketAddress(remoteAddress),
+                                                                              onConstruct,
+                                                                              onDestruct,
+                                                                              onRead,
+                                                                              onReadError,
+                                                                              onWriteError,
+                                                                              onDisconnect);
+                    socketConnection->SocketConnection::SocketReader::enable(fd);
 
                     onConnect(socketConnection);
                 } else {
                     PLOG(ERROR) << "getsockname";
-                    shutdown(scFd, SHUT_RDWR);
-                    ::close(scFd);
+                    shutdown(fd, SHUT_RDWR);
+                    ::close(fd);
                 }
             } else if (errno != EINTR) {
                 PLOG(ERROR) << "accept";
