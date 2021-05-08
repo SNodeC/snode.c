@@ -47,8 +47,7 @@ namespace net::socket::stream {
             using SocketAddress = typename Socket::SocketAddress;
 
             SocketConnector(const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConstruct,
-                            const std::function<void(SocketConnection* socketConnection)>& onDestruct,
-                            const std::function<void(SocketConnection* socketConnection)>& onConnect,
+                            const std::function<void(SocketConnection* socketConnection)>& onConnected,
                             const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
                             const std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)>& onRead,
                             const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
@@ -56,8 +55,7 @@ namespace net::socket::stream {
                             const std::map<std::string, std::any>& options)
                 : stream::SocketConnector<SocketConnection>(
                       onConstruct,
-                      onDestruct,
-                      [onConnect, &onError = this->onError, &ctx = this->ctx, this, &options = this->options](
+                      [onConnected, &onError = this->onError, &ctx = this->ctx, this, &options = this->options](
                           SocketConnection* socketConnection) -> void { // onConnect
                           SSL* ssl = socketConnection->startSSL(ctx);
 
@@ -67,9 +65,9 @@ namespace net::socket::stream {
                               SSL_set_connect_state(ssl);
 
                               socketConnection->doSSLHandshake(
-                                  [ssl, onConnect, socketConnection](void) -> void { // onSuccess
+                                  [ssl, onConnected, socketConnection](void) -> void { // onSuccess
                                       LOG(INFO) << "SSL/TLS initial handshake success";
-                                      onConnect(socketConnection);
+                                      onConnected(socketConnection);
                                   },
                                   [socketConnection, onError](void) -> void { // onTimeout
                                       LOG(WARNING) << "SSL/TLS initial handshake timed out";

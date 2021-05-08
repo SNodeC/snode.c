@@ -35,15 +35,13 @@ int main(int argc, char* argv[]) {
 
     SocketServer btServer(
         [](const SocketServer::SocketAddress& localAddress,
-           const SocketServer::SocketAddress& remoteAddress) -> void { // onConstruct
+           const SocketServer::SocketAddress& remoteAddress) -> void { // OnConnect
             VLOG(0) << "OnConnect";
 
             VLOG(0) << "\tServer: " + localAddress.toString();
             VLOG(0) << "\tClient: " + remoteAddress.toString();
         },
-        []([[maybe_unused]] SocketServer::SocketConnection* socketConnection) -> void { // onDestruct
-        },
-        [](SocketServer::SocketConnection* socketConnection) -> void { // onConnect
+        [](SocketServer::SocketConnection* socketConnection) -> void { // onConnected
             VLOG(0) << "OnConnected";
 
             X509* client_cert = SSL_get_peer_certificate(socketConnection->getSSL());

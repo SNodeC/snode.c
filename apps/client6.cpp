@@ -97,7 +97,7 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "\tClient: " + localAddress.toString();
             },
             [](tls::Client6<>::SocketConnection* socketConnection) -> void {
-                VLOG(0) << "-- OnConnect";
+                VLOG(0) << "-- OnConnected";
 
                 X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
                 if (server_cert != nullptr) {

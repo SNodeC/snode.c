@@ -39,6 +39,7 @@ namespace http::client::tls {
     };
 
     Client(const std::function<void(net::socket::ip::tcp::ipv4::tls::SocketClient::SocketConnection*)>& onConnect,
+           const std::function<void(net::socket::ip::tcp::ipv4::tls::SocketClient::SocketConnection*)>& onConnected,
            const std::function<void(Request&)>& onRequestBegin,
            const std::function<void(Response&)>& onResponse,
            const std::function<void(int, const std::string&)>& onResponseError,
@@ -56,6 +57,7 @@ namespace http::client::tls {
     };
 
     Client6(const std::function<void(net::socket::ip::tcp::ipv6::tls::SocketClient::SocketConnection*)>& onConnect,
+            const std::function<void(net::socket::ip::tcp::ipv6::tls::SocketClient::SocketConnection*)>& onConnected,
             const std::function<void(Request&)>& onRequestBegin,
             const std::function<void(Response&)>& onResponse,
             const std::function<void(int, const std::string&)>& onResponseError,

@@ -34,13 +34,11 @@ int main(int argc, char* argv[]) {
 
     SocketServer btServer(
         [](const SocketServer::SocketAddress& localAddress,
-           [[maybe_unused]] const SocketServer::SocketAddress& remoteAddress) -> void { // onConstruct
+           [[maybe_unused]] const SocketServer::SocketAddress& remoteAddress) -> void { // OnConnect
             VLOG(0) << "OnConnect";
 
             VLOG(0) << "\tServer: " + localAddress.toString();
             VLOG(0) << "\tClient: " + remoteAddress.toString();
-        },
-        []([[maybe_unused]] SocketServer::SocketConnection* socketConnection) -> void { // onDestruct
         },
         []([[maybe_unused]] SocketServer::SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnected";

@@ -44,8 +44,6 @@ namespace net::socket::stream::tls {
         SocketConnection(int fd,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
-                         const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConstruct,
-                         const std::function<void(SocketConnection* socketConnection)>& onDestruct,
                          const std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)>& onRead,
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
@@ -68,16 +66,10 @@ namespace net::socket::stream::tls {
                       },
                       [onDisconnect, this]() -> void {
                           onDisconnect(this);
-                      })
-            , onDestruct(onDestruct) {
-            onConstruct(localAddress, remoteAddress);
+                      }) {
         }
 
     protected:
-        ~SocketConnection() override {
-            onDestruct(this);
-        }
-
         SSL* startSSL(SSL_CTX* ctx) {
             if (ctx != nullptr) {
                 ssl = SSL_new(ctx);
@@ -162,8 +154,6 @@ namespace net::socket::stream::tls {
         int sslErr = SSL_ERROR_NONE;
 
     private:
-        std::function<void(SocketConnection* socketConnection)> onDestruct;
-
         template <typename Socket>
         friend class SocketListener;
 

@@ -77,14 +77,14 @@ static http::client::ResponseParser* getResponseParser() {
 tls::SocketClient<tcp::ipv4::Socket> getTlsClient() {
     tls::SocketClient<tcp::ipv4::Socket> tlsClient(
         [](const tls::SocketClient<tcp::ipv4::Socket>::SocketAddress& localAddress,
-           const tls::SocketClient<tcp::ipv4::Socket>::SocketAddress& remoteAddress) -> void { // onConstruct
+           const tls::SocketClient<tcp::ipv4::Socket>::SocketAddress& remoteAddress) -> void { // OnConnect
+            VLOG(0) << "OnConnect";
+
             VLOG(0) << "\tServer: " + remoteAddress.toString();
             VLOG(0) << "\tClient: " + localAddress.toString();
         },
-        []([[maybe_unused]] tls::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection) -> void { // onDestruct
-        },
         [](tls::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection) -> void { // onConnect
-            VLOG(0) << "OnConnect";
+            VLOG(0) << "OnConnected";
 
             socketConnection->setContext<http::client::ResponseParser*>(getResponseParser());
 
@@ -182,13 +182,11 @@ tls::SocketClient<tcp::ipv4::Socket> getTlsClient() {
 legacy::SocketClient<tcp::ipv4::Socket> getLegacyClient() {
     legacy::SocketClient<tcp::ipv4::Socket> legacyClient(
         [](const legacy::SocketClient<tcp::ipv4::Socket>::SocketAddress& localAddress,
-           const legacy::SocketClient<tcp::ipv4::Socket>::SocketAddress& remoteAddress) -> void { // onConstruct
+           const legacy::SocketClient<tcp::ipv4::Socket>::SocketAddress& remoteAddress) -> void { // OnConnect
             VLOG(0) << "OnConnect";
 
             VLOG(0) << "\tServer: " + remoteAddress.toString();
             VLOG(0) << "\tClient: " + localAddress.toString();
-        },
-        []([[maybe_unused]] legacy::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection) -> void { // onDestruct
         },
         [](legacy::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnected";

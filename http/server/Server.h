@@ -32,12 +32,10 @@ namespace http::server {
                const std::map<std::string, std::any>& options = {{}})
             : socketServer(
                   [onConnect, onRequestReady](const SocketAddress& localAddress,
-                                              const SocketAddress& remoteAddress) -> void { // onConstruct
+                                              const SocketAddress& remoteAddress) -> void { // OnConnect
                       onConnect(localAddress, remoteAddress);
                   },
-                  []([[maybe_unused]] SocketConnection* socketConnection) -> void { // onDestruct
-                  },
-                  [onConnected, onRequestReady](SocketConnection* socketConnection) -> void { // onConnect
+                  [onConnected, onRequestReady](SocketConnection* socketConnection) -> void { // onConnected
                       socketConnection->template setContext<ServerContextBase*>(
                           new ServerContext<Request, Response>(socketConnection, onRequestReady));
                       onConnected(socketConnection);

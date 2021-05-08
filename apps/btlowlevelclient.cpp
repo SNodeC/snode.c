@@ -32,15 +32,13 @@ using namespace net::socket::bluetooth::rfcomm::legacy;
 SocketClient getClient() {
     SocketClient client(
         [](const SocketClient::SocketAddress& localAddress,
-           const SocketClient::SocketAddress& remoteAddress) -> void { // onConstruct
+           const SocketClient::SocketAddress& remoteAddress) -> void { // onConnect
             VLOG(0) << "OnConnect";
 
             VLOG(0) << "\tServer: " + remoteAddress.toString();
             VLOG(0) << "\tClient: " + localAddress.toString();
         },
-        []([[maybe_unused]] SocketClient::SocketConnection* socketConnection) -> void { // onDestruct
-        },
-        [](SocketClient::SocketConnection* socketConnection) -> void { // onConnect
+        [](SocketClient::SocketConnection* socketConnection) -> void { // onConnected
             VLOG(0) << "OnConnected";
 
             socketConnection->enqueue("Hello rfcomm connection!");

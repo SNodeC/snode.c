@@ -53,12 +53,10 @@ namespace http::client {
                const std::map<std::string, std::any>& options = {{}})
             : socketClient(
                   [onConnect]([[maybe_unused]] const Client::SocketAddress& localAddress,
-                              [[maybe_unused]] const Client::SocketAddress& remoteAddress) -> void { // onConstruct
+                              [[maybe_unused]] const Client::SocketAddress& remoteAddress) -> void { // onConnect
                       onConnect(localAddress, remoteAddress);
                   },
-                  []([[maybe_unused]] SocketConnection* socketConnection) -> void { // onDestruct
-                  },
-                  [onConnected, onRequestBegin, onResponse, onResponseError](SocketConnection* socketConnection) -> void { // onConnect
+                  [onConnected, onRequestBegin, onResponse, onResponseError](SocketConnection* socketConnection) -> void { // onConnected
                       ClientContext<Request, Response>* clientContext =
                           new ClientContext<Request, Response>(socketConnection, onResponse, onResponseError);
 
