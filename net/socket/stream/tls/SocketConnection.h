@@ -103,7 +103,6 @@ namespace net::socket::stream::tls {
                     onSuccess();
                 },
                 [onTimeout, this](void) -> void { // onTimeout
-                    PLOG(ERROR) << "SSL/TLS handshake timeout";
                     if (SocketConnection::SocketReader::isEnabled()) {
                         SocketConnection::SocketReader::disable();
                     }
@@ -113,7 +112,6 @@ namespace net::socket::stream::tls {
                     onTimeout();
                 },
                 [onError, this](int sslErr) -> void { // onError
-                    ssl_log("SSL/TLS handshake failed", sslErr);
                     setSSLError(sslErr);
                     if (SocketConnection::SocketReader::isEnabled()) {
                         SocketConnection::SocketReader::disable();

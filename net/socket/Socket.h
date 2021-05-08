@@ -88,10 +88,6 @@ namespace net::socket {
             return bindAddress;
         }
 
-        void setBindAddress(const SocketAddress& bindAddress) {
-            this->bindAddress = bindAddress;
-        }
-
     protected:
         SocketAddress bindAddress{};
     };

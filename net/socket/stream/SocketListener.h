@@ -71,20 +71,20 @@ namespace net::socket::stream {
 
         virtual ~SocketListener() = default;
 
-        void listen(const SocketAddress& localAddress, int backlog, const std::function<void(int err)>& onError) {
+        void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int err)>& onError) {
             errno = 0;
 
-            Socket::open([this, &localAddress, &backlog, &onError](int errnum) -> void {
+            Socket::open([this, &bindAddress, &backlog, &onError](int errnum) -> void {
                 if (errnum > 0) {
                     onError(errnum);
                     destruct();
                 } else {
-                    reuseAddress([this, &localAddress, &backlog, &onError](int errnum) -> void {
+                    reuseAddress([this, &bindAddress, &backlog, &onError](int errnum) -> void {
                         if (errnum != 0) {
                             onError(errnum);
                             destruct();
                         } else {
-                            Socket::bind(localAddress, [this, &backlog, &onError](int errnum) -> void {
+                            Socket::bind(bindAddress, [this, &backlog, &onError](int errnum) -> void {
                                 if (errnum > 0) {
                                     onError(errnum);
                                     destruct();

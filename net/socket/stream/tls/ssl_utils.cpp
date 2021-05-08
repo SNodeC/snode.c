@@ -143,11 +143,9 @@ namespace net::socket::stream::tls {
         }
     }
 
-    void ssl_set_sni(SSL* ssl, const std::map<std::string, std::any>& options) {
-        auto it = options.find("Host");
-
-        if (it != options.end()) {
-            SSL_set_tlsext_host_name(ssl, std::any_cast<const char*>(it->second));
+    void ssl_set_sni(SSL* ssl, std::map<std::string, std::any>& options) {
+        if (options.contains("Host")) {
+            SSL_set_tlsext_host_name(ssl, std::any_cast<const char*>(options["Host"]));
         }
     }
 

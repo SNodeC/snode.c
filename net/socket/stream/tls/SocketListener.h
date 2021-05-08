@@ -57,19 +57,23 @@ namespace net::socket::stream {
                       onConstruct,
                       onDestruct,
                       [onConnect, &ctx = this->ctx](SocketConnection* socketConnection) -> void {
-                          SSL_CTX_set_tlsext_servername_arg(ctx, socketConnection);
                           SSL* ssl = socketConnection->startSSL(ctx);
 
                           if (ssl != nullptr) {
+                              SSL_CTX_set_tlsext_servername_arg(ctx, socketConnection);
+
                               SSL_set_accept_state(ssl);
 
                               socketConnection->doSSLHandshake(
                                   [&onConnect, socketConnection](void) -> void { // onSuccess
+                                      LOG(INFO) << "SSL/TLS initial handshake success";
                                       onConnect(socketConnection);
                                   },
                                   [socketConnection](void) -> void { // onTimeout
+                                      LOG(WARNING) << "SSL/TLS initial handshake timed out";
                                   },
-                                  [socketConnection]([[maybe_unused]] int sslErr) -> void { // onError
+                                  [socketConnection](int sslErr) -> void { // onError
+                                      ssl_log("SSL/TLS initial handshake failed", sslErr);
                                   });
                           } else {
                               socketConnection->SocketConnection::SocketReader::disable();

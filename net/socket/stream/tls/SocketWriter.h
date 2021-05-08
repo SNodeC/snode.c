@@ -52,12 +52,13 @@ namespace net::socket::stream::tls {
                     case SSL_ERROR_WANT_WRITE:
                         [[fallthrough]];
                     case SSL_ERROR_WANT_READ:
+                        LOG(INFO) << "SSL/TLS start renegotiation on write";
                         doSSLHandshake(
                             [](void) -> void {
-                                PLOG(INFO) << "SSL/TLS renegotiation success";
+                                LOG(INFO) << "SSL/TLS renegotiation on write success";
                             },
                             [](void) -> void {
-                                PLOG(ERROR) << "SSL/TLS renegotiation timed out";
+                                LOG(WARNING) << "SSL/TLS renegotiation on write timed out";
                             },
                             [this](int sslErr) -> void {
                                 ssl_log("SSL/TLS renegotiation", sslErr);

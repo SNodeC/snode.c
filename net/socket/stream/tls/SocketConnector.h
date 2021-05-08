@@ -67,13 +67,16 @@ namespace net::socket::stream {
                               SSL_set_connect_state(ssl);
 
                               socketConnection->doSSLHandshake(
-                                  [onConnect, socketConnection](void) -> void { // onSuccess
+                                  [ssl, onConnect, socketConnection](void) -> void { // onSuccess
+                                      LOG(INFO) << "SSL/TLS initial handshake success";
                                       onConnect(socketConnection);
                                   },
                                   [socketConnection, onError](void) -> void { // onTimeout
+                                      LOG(WARNING) << "SSL/TLS initial handshake timed out";
                                       onError(ETIMEDOUT);
                                   },
                                   [socketConnection, onError](int sslErr) -> void { // onError
+                                      ssl_log("SSL/TLS initial handshake failed", sslErr);
                                       onError(-sslErr);
                                   });
                           } else {
