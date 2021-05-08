@@ -45,18 +45,16 @@ namespace net::socket::stream {
         using Socket = typename SocketConnection::Socket;
         using SocketAddress = typename Socket::SocketAddress;
 
-        SocketConnector(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
-                        const std::function<void(SocketConnection* socketConnection)>& onDestruct,
-                        const std::function<void(SocketConnection* socketConnection)>& onConnect,
+        SocketConnector(const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
+                        const std::function<void(SocketConnection* socketConnection)>& onConnected,
                         const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
                         const std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)>& onRead,
                         const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                         const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                         const std::map<std::string, std::any>& options)
             : options(options)
-            , onConstruct(onConstruct)
-            , onDestruct(onDestruct)
             , onConnect(onConnect)
+            , onConnected(onConnected)
             , onDisconnect(onDisconnect)
             , onRead(onRead)
             , onReadError(onReadError)
@@ -120,20 +118,19 @@ namespace net::socket::stream {
 
                         if (getsockname(Socket::getFd(), reinterpret_cast<sockaddr*>(&localAddress), &localAddressLength) == 0 &&
                             getpeername(Socket::getFd(), reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) == 0) {
-                            socketConnection =
-                                new SocketConnection(onConstruct, onDestruct, onRead, onReadError, onWriteError, onDisconnect);
-
-                            socketConnection->setRemoteAddress(SocketAddress(remoteAddress));
-                            socketConnection->setLocalAddress(SocketAddress(localAddress));
-
-                            socketConnection->attach(Socket::getFd());
-                            socketConnection->SocketConnection::SocketReader::enable(Socket::getFd());
-
+                            socketConnection = new SocketConnection(Socket::getFd(),
+                                                                    SocketAddress(localAddress),
+                                                                    SocketAddress(remoteAddress),
+                                                                    onConnect,
+                                                                    onRead,
+                                                                    onReadError,
+                                                                    onWriteError,
+                                                                    onDisconnect);
                             SocketConnector::dontClose(true);
                             SocketConnector::ConnectEventReceiver::disable();
 
+                            onConnected(socketConnection);
                             onError(0);
-                            onConnect(socketConnection);
                         } else {
                             SocketConnector::ConnectEventReceiver::disable();
                             cErrno = errno;
@@ -165,9 +162,9 @@ namespace net::socket::stream {
         std::map<std::string, std::any> options;
 
     private:
-        std::function<void(SocketConnection* socketConnection)> onConstruct;
+        std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)> onConnect;
         std::function<void(SocketConnection* socketConnection)> onDestruct;
-        std::function<void(SocketConnection* socketConnection)> onConnect;
+        std::function<void(SocketConnection* socketConnection)> onConnected;
         std::function<void(SocketConnection* socketConnection)> onDisconnect;
         std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)> onRead;
         std::function<void(SocketConnection* socketConnection, int errnum)> onReadError;

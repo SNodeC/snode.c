@@ -44,25 +44,25 @@ namespace http::client {
         using Request = RequestT;
         using Response = ResponseT;
 
-        Client(const std::function<void(SocketConnection*)>& onConnect,
+        Client(const std::function<void(const Client::SocketAddress&, const Client::SocketAddress&)>& onConnect,
+               const std::function<void(SocketConnection*)>& onConnected,
                const std::function<void(Request&)>& onRequestBegin,
                const std::function<void(Response&)>& onResponse,
                const std::function<void(int, const std::string&)>& onResponseError,
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
             : socketClient(
-                  [onResponse, onResponseError](SocketConnection* socketConnection) -> void { // onConstruct
+                  [onConnect]([[maybe_unused]] const Client::SocketAddress& localAddress,
+                              [[maybe_unused]] const Client::SocketAddress& remoteAddress) -> void { // onConnect
+                      onConnect(localAddress, remoteAddress);
+                  },
+                  [onConnected, onRequestBegin, onResponse, onResponseError](SocketConnection* socketConnection) -> void { // onConnected
                       ClientContext<Request, Response>* clientContext =
                           new ClientContext<Request, Response>(socketConnection, onResponse, onResponseError);
+
                       socketConnection->template setContext<ClientContextBase*>(clientContext);
-                  },
-                  [](SocketConnection* socketConnection) -> void { // onDestruct
-                      socketConnection->template getContext<ClientContextBase*>([](ClientContextBase* clientContext) -> void {
-                          delete clientContext;
-                      });
-                  },
-                  [onConnect, onRequestBegin](SocketConnection* socketConnection) -> void { // onConnect
-                      onConnect(socketConnection);
+
+                      onConnected(socketConnection);
 
                       socketConnection->template getContext<ClientContextBase*>(
                           [&socketConnection, &onRequestBegin](ClientContextBase* clientContext) -> void {
@@ -74,6 +74,9 @@ namespace http::client {
                           });
                   },
                   [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
+                      socketConnection->template getContext<ClientContextBase*>([](ClientContextBase* clientContext) -> void {
+                          delete clientContext;
+                      });
                       onDisconnect(socketConnection);
                   },
                   [](SocketConnection* socketConnection, const char* junk, std::size_t junkLen) -> void { // onRead

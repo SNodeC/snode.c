@@ -25,24 +25,25 @@ namespace http::server {
         using Request = RequestT;
         using Response = ResponseT;
 
-        Server(const std::function<void(SocketConnection*)>& onConnect,
+        Server(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
+               const std::function<void(SocketConnection*)>& onConnected,
                const std::function<void(Request& req, Response& res)>& onRequestReady,
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
             : socketServer(
-                  [onRequestReady](SocketConnection* socketConnection) -> void { // onConstruct
+                  [onConnect, onRequestReady](const SocketAddress& localAddress,
+                                              const SocketAddress& remoteAddress) -> void { // OnConnect
+                      onConnect(localAddress, remoteAddress);
+                  },
+                  [onConnected, onRequestReady](SocketConnection* socketConnection) -> void { // onConnected
                       socketConnection->template setContext<ServerContextBase*>(
                           new ServerContext<Request, Response>(socketConnection, onRequestReady));
+                      onConnected(socketConnection);
                   },
-                  [](SocketConnection* socketConnection) -> void { // onDestruct
+                  [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
                       socketConnection->template getContext<ServerContextBase*>([](ServerContextBase* serverContext) -> void {
                           delete serverContext;
                       });
-                  },
-                  [onConnect](SocketConnection* socketConnection) -> void { // onConnect
-                      onConnect(socketConnection);
-                  },
-                  [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
                       onDisconnect(socketConnection);
                   },
                   [](SocketConnection* socketConnection, const char* junk, std::size_t junkLen) -> void { // onRead

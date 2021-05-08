@@ -43,13 +43,22 @@ namespace net::socket::stream {
         SocketConnection() = delete;
 
     protected:
-        SocketConnection(const std::function<void(const char* junk, std::size_t junkLen)>& onRead,
+        SocketConnection(int fd,
+                         const SocketAddress& localAddress,
+                         const SocketAddress& remoteAddress,
+                         const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
+                         const std::function<void(const char* junk, std::size_t junkLen)>& onRead,
                          const std::function<void(int errnum)>& onReadError,
                          const std::function<void(int errnum)>& onWriteError,
                          const std::function<void()>& onDisconnect)
             : SocketReader(onRead, onReadError)
             , SocketWriter(onWriteError)
+            , localAddress(localAddress)
+            , remoteAddress(remoteAddress)
             , onDisconnect(onDisconnect) {
+            SocketConnection::attach(fd);
+            SocketReader::enable(fd);
+            onConnect(localAddress, remoteAddress);
         }
 
         virtual ~SocketConnection() = default;
@@ -80,21 +89,13 @@ namespace net::socket::stream {
             return remoteAddress;
         }
 
-        void setRemoteAddress(const SocketAddress& remoteAddress) {
-            this->remoteAddress = remoteAddress;
-        }
-
         const SocketAddress& getLocalAddress() const {
             return localAddress;
         }
 
-        void setLocalAddress(const SocketAddress& localAddress) {
-            this->localAddress = localAddress;
-        }
-
     private:
-        SocketAddress remoteAddress{};
         SocketAddress localAddress{};
+        SocketAddress remoteAddress{};
 
         std::function<void()> onDisconnect;
     };

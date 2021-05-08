@@ -38,11 +38,14 @@ int main(int argc, char* argv[]) {
 
     {
         tls::Client6<> tlsClient(
-            [](tls::Client6<>::SocketConnection* socketConnection) -> void {
+            [](const tls::Client6<>::SocketAddress& localAddress, const tls::Client6<>::SocketAddress& remoteAddress) -> void {
                 VLOG(0) << "-- OnConnect";
 
-                VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-                VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+                VLOG(0) << "\tServer: " + remoteAddress.toString();
+                VLOG(0) << "\tClient: " + localAddress.toString();
+            },
+            [](tls::Client6<>::SocketConnection* socketConnection) -> void {
+                VLOG(0) << "-- OnConnected";
 
                 X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
                 if (server_cert != NULL) {
