@@ -45,7 +45,7 @@ namespace net::socket::stream {
         using Socket = typename SocketConnection::Socket;
         using SocketAddress = typename Socket::SocketAddress;
 
-        SocketConnector(const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConstruct,
+        SocketConnector(const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
                         const std::function<void(SocketConnection* socketConnection)>& onConnected,
                         const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
                         const std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)>& onRead,
@@ -53,7 +53,7 @@ namespace net::socket::stream {
                         const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                         const std::map<std::string, std::any>& options)
             : options(options)
-            , onConstruct(onConstruct)
+            , onConnect(onConnect)
             , onConnected(onConnected)
             , onDisconnect(onDisconnect)
             , onRead(onRead)
@@ -128,7 +128,7 @@ namespace net::socket::stream {
                             SocketConnector::dontClose(true);
                             SocketConnector::ConnectEventReceiver::disable();
 
-                            onConstruct(SocketAddress(localAddress), SocketAddress(remoteAddress));
+                            onConnect(SocketAddress(localAddress), SocketAddress(remoteAddress));
                             onConnected(socketConnection);
                             onError(0);
                         } else {
@@ -162,7 +162,7 @@ namespace net::socket::stream {
         std::map<std::string, std::any> options;
 
     private:
-        std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)> onConstruct;
+        std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)> onConnect;
         std::function<void(SocketConnection* socketConnection)> onDestruct;
         std::function<void(SocketConnection* socketConnection)> onConnected;
         std::function<void(SocketConnection* socketConnection)> onDisconnect;

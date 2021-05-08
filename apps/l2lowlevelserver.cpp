@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "\tServer: " + localAddress.toString();
             VLOG(0) << "\tClient: " + remoteAddress.toString();
         },
-        []([[maybe_unused]] SocketServer::SocketConnection* socketConnection) -> void { // onConnect
+        []([[maybe_unused]] SocketServer::SocketConnection* socketConnection) -> void { // onConnected
             VLOG(0) << "OnConnected";
 
         },

@@ -38,7 +38,7 @@ SocketClient getClient() {
             VLOG(0) << "\tServer: " + remoteAddress.toString();
             VLOG(0) << "\tClient: " + localAddress.toString();
         },
-        [](SocketClient::SocketConnection* socketConnection) -> void { // onConnect
+        [](SocketClient::SocketConnection* socketConnection) -> void { // onConnected
             VLOG(0) << "OnConnected";
 
             socketConnection->enqueue("Hello rfcomm connection!");

@@ -188,7 +188,7 @@ legacy::SocketClient<tcp::ipv4::Socket> getLegacyClient() {
             VLOG(0) << "\tServer: " + remoteAddress.toString();
             VLOG(0) << "\tClient: " + localAddress.toString();
         },
-        [](legacy::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection) -> void { // onConnect
+        [](legacy::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection) -> void { // onConnected
             VLOG(0) << "OnConnected";
 
             socketConnection->setContext<http::client::ResponseParser*>(getResponseParser());
