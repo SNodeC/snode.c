@@ -52,8 +52,8 @@ namespace http::client {
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
             : socketClient(
-                  [onConnect]([[maybe_unused]] const Client::SocketAddress& localAddress,
-                              [[maybe_unused]] const Client::SocketAddress& remoteAddress) -> void { // onConnect
+                  [onConnect](const Client::SocketAddress& localAddress,
+                              const Client::SocketAddress& remoteAddress) -> void { // onConnect
                       onConnect(localAddress, remoteAddress);
                   },
                   [onConnected, onRequestBegin, onResponse, onResponseError](SocketConnection* socketConnection) -> void { // onConnected

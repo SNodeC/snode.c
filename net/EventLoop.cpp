@@ -40,7 +40,7 @@
 
 namespace net {
 
-    static std::string getTickCounterAsString([[maybe_unused]] const el::LogMessage* logMessage) {
+    static std::string getTickCounterAsString(const el::LogMessage*) {
         std::string tick = std::to_string(EventLoop::instance().getTickCounter());
 
         if (tick.length() < 10) {

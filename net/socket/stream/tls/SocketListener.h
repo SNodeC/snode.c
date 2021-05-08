@@ -104,7 +104,7 @@ namespace net::socket::stream {
             }
 
         protected:
-            static int serverNameCallback([[maybe_unused]] SSL* ssl, [[maybe_unused]] int* al, [[maybe_unused]] void* arg) {
+            static int serverNameCallback(SSL* ssl, [[maybe_unused]] int* al, void* arg) {
                 SocketConnection* socketConnection = static_cast<SocketConnection*>(arg);
 
                 if (SSL_get_servername_type(ssl) != -1) {
