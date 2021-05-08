@@ -121,6 +121,7 @@ namespace net::socket::stream {
                             socketConnection = new SocketConnection(Socket::getFd(),
                                                                     SocketAddress(localAddress),
                                                                     SocketAddress(remoteAddress),
+                                                                    onConnect,
                                                                     onRead,
                                                                     onReadError,
                                                                     onWriteError,
@@ -128,7 +129,6 @@ namespace net::socket::stream {
                             SocketConnector::dontClose(true);
                             SocketConnector::ConnectEventReceiver::disable();
 
-                            onConnect(SocketAddress(localAddress), SocketAddress(remoteAddress));
                             onConnected(socketConnection);
                             onError(0);
                         } else {

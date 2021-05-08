@@ -44,6 +44,7 @@ namespace net::socket::stream::tls {
         SocketConnection(int fd,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
+                         const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
                          const std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)>& onRead,
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
@@ -53,6 +54,7 @@ namespace net::socket::stream::tls {
                       fd,
                       localAddress,
                       remoteAddress,
+                      onConnect,
                       [onRead, this](const char* junk, std::size_t junkLen) -> void {
                           onRead(this, junk, junkLen);
                       },

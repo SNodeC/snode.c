@@ -130,10 +130,15 @@ namespace net::socket::stream {
                 socklen_t addressLength = sizeof(localAddress);
 
                 if (getsockname(fd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
-                    SocketConnection* socketConnection = new SocketConnection(
-                        fd, SocketAddress(localAddress), SocketAddress(remoteAddress), onRead, onReadError, onWriteError, onDisconnect);
+                    SocketConnection* socketConnection = new SocketConnection(fd,
+                                                                              SocketAddress(localAddress),
+                                                                              SocketAddress(remoteAddress),
+                                                                              onConnect,
+                                                                              onRead,
+                                                                              onReadError,
+                                                                              onWriteError,
+                                                                              onDisconnect);
 
-                    onConnect(SocketAddress(localAddress), SocketAddress(remoteAddress));
                     onConnected(socketConnection);
                 } else {
                     PLOG(ERROR) << "getsockname";

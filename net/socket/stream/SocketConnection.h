@@ -46,6 +46,7 @@ namespace net::socket::stream {
         SocketConnection(int fd,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
+                         const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
                          const std::function<void(const char* junk, std::size_t junkLen)>& onRead,
                          const std::function<void(int errnum)>& onReadError,
                          const std::function<void(int errnum)>& onWriteError,
@@ -57,6 +58,7 @@ namespace net::socket::stream {
             , onDisconnect(onDisconnect) {
             SocketConnection::attach(fd);
             SocketReader::enable(fd);
+            onConnect(localAddress, remoteAddress);
         }
 
         virtual ~SocketConnection() = default;
@@ -87,16 +89,8 @@ namespace net::socket::stream {
             return remoteAddress;
         }
 
-        void setRemoteAddress(const SocketAddress& remoteAddress) {
-            this->remoteAddress = remoteAddress;
-        }
-
         const SocketAddress& getLocalAddress() const {
             return localAddress;
-        }
-
-        void setLocalAddress(const SocketAddress& localAddress) {
-            this->localAddress = localAddress;
         }
 
     private:
