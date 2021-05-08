@@ -66,11 +66,11 @@ int main(int argc, char* argv[]) {
         res.send("Wrong Url");
     });
 
-    legacyApp.onConnect([](legacy::WebApp::SocketConnection* socketConnection) -> void {
+    legacyApp.onConnect([](const legacy::WebApp::SocketAddress& localAddress, const legacy::WebApp::SocketAddress& remoteAddress) -> void {
         VLOG(0) << "OnConnect:";
 
-        VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
-        VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
+        VLOG(0) << "\tServer: " + localAddress.toString();
+        VLOG(0) << "\tClient: " + remoteAddress.toString();
     });
 
     legacyApp.onDisconnect([](legacy::WebApp::SocketConnection* socketConnection) -> void {

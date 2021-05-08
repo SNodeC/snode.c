@@ -39,11 +39,11 @@ int main(int argc, char* argv[]) {
 
     {
         legacy::Client<> legacyClient(
-            [](legacy::Client<>::SocketConnection* socketConnection) -> void {
+            [](const legacy::Client<>::SocketAddress& localAddress, const legacy::Client<>::SocketAddress& remoteAddress) -> void {
                 VLOG(0) << "-- OnConnect";
 
-                VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-                VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+                VLOG(0) << "\tServer: " + remoteAddress.toString();
+                VLOG(0) << "\tClient: " + localAddress.toString();
             },
             []([[maybe_unused]] legacy::Client<>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnConnected";
@@ -91,11 +91,11 @@ int main(int argc, char* argv[]) {
             });
 
         tls::Client<> tlsClient(
-            [](tls::Client<>::SocketConnection* socketConnection) -> void {
+            [](const tls::Client<>::SocketAddress& localAddress, const tls::Client<>::SocketAddress& remoteAddress) -> void {
                 VLOG(0) << "-- OnConnect";
 
-                VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-                VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+                VLOG(0) << "\tServer: " + remoteAddress.toString();
+                VLOG(0) << "\tClient: " + localAddress.toString();
             },
             [](tls::Client<>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnConnect";

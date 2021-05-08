@@ -51,12 +51,13 @@ int main(int argc, char* argv[]) {
             }
         });
 
-        legacyApp.onConnect([](legacy::WebApp6::SocketConnection* socketConnection) -> void {
-            VLOG(0) << "OnConnect:";
+        legacyApp.onConnect(
+            [](const legacy::WebApp6::SocketAddress& localAddress, const legacy::WebApp6::SocketAddress& remoteAddress) -> void {
+                VLOG(0) << "OnConnect:";
 
-            VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
-            VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
-        });
+                VLOG(0) << "\tServer: " + localAddress.toString();
+                VLOG(0) << "\tClient: " + remoteAddress.toString();
+            });
 
         legacyApp.onDisconnect([](legacy::WebApp6::SocketConnection* socketConnection) -> void {
             VLOG(0) << "OnDisconnect:";
@@ -75,11 +76,11 @@ int main(int argc, char* argv[]) {
             }
         });
 
-        tlsApp.onConnect([](tls::WebApp6::SocketConnection* socketConnection) -> void {
+        tlsApp.onConnect([](const tls::WebApp6::SocketAddress& localAddress, const tls::WebApp6::SocketAddress& remoteAddress) -> void {
             VLOG(0) << "OnConnect:";
 
-            VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
-            VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
+            VLOG(0) << "\tServer: " + localAddress.toString();
+            VLOG(0) << "\tClient: " + remoteAddress.toString();
         });
 
         tlsApp.onDisconnect([](tls::WebApp6::SocketConnection* socketConnection) -> void {
@@ -89,6 +90,6 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
         });
     }
-    
+
     return WebApp::start();
 }

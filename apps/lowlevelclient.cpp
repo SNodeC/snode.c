@@ -76,16 +76,17 @@ static http::client::ResponseParser* getResponseParser() {
 
 tls::SocketClient<tcp::ipv4::Socket> getTlsClient() {
     tls::SocketClient<tcp::ipv4::Socket> tlsClient(
-        [](tls::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection) -> void { // onConstruct
-            socketConnection->setContext<http::client::ResponseParser*>(getResponseParser());
+        [](const tls::SocketClient<tcp::ipv4::Socket>::SocketAddress& localAddress,
+           const tls::SocketClient<tcp::ipv4::Socket>::SocketAddress& remoteAddress) -> void { // onConstruct
+            VLOG(0) << "\tServer: " + remoteAddress.toString();
+            VLOG(0) << "\tClient: " + localAddress.toString();
         },
         []([[maybe_unused]] tls::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection) -> void { // onDestruct
         },
         [](tls::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection) -> void { // onConnect
             VLOG(0) << "OnConnect";
 
-            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+            socketConnection->setContext<http::client::ResponseParser*>(getResponseParser());
 
             socketConnection->enqueue("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
 
@@ -180,16 +181,19 @@ tls::SocketClient<tcp::ipv4::Socket> getTlsClient() {
 
 legacy::SocketClient<tcp::ipv4::Socket> getLegacyClient() {
     legacy::SocketClient<tcp::ipv4::Socket> legacyClient(
-        [](legacy::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection) -> void { // onConstruct
-            socketConnection->setContext<http::client::ResponseParser*>(getResponseParser());
+        [](const legacy::SocketClient<tcp::ipv4::Socket>::SocketAddress& localAddress,
+           const legacy::SocketClient<tcp::ipv4::Socket>::SocketAddress& remoteAddress) -> void { // onConstruct
+            VLOG(0) << "OnConnect";
+
+            VLOG(0) << "\tServer: " + remoteAddress.toString();
+            VLOG(0) << "\tClient: " + localAddress.toString();
         },
         []([[maybe_unused]] legacy::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection) -> void { // onDestruct
         },
         [](legacy::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection) -> void { // onConnect
-            VLOG(0) << "OnConnect";
+            VLOG(0) << "OnConnected";
 
-            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+            socketConnection->setContext<http::client::ResponseParser*>(getResponseParser());
 
             socketConnection->enqueue("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
         },

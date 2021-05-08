@@ -44,7 +44,7 @@ namespace http::client {
         using Request = RequestT;
         using Response = ResponseT;
 
-        Client(const std::function<void(SocketConnection*)>& onConnect,
+        Client(const std::function<void(const Client::SocketAddress&, const Client::SocketAddress&)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
                const std::function<void(Request&)>& onRequestBegin,
                const std::function<void(Response&)>& onResponse,
@@ -52,8 +52,9 @@ namespace http::client {
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
             : socketClient(
-                  [onConnect]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConstruct
-                      onConnect(socketConnection);
+                  [onConnect]([[maybe_unused]] const Client::SocketAddress& localAddress,
+                              [[maybe_unused]] const Client::SocketAddress& remoteAddress) -> void { // onConstruct
+                      onConnect(localAddress, remoteAddress);
                   },
                   []([[maybe_unused]] SocketConnection* socketConnection) -> void { // onDestruct
                   },

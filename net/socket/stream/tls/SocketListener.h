@@ -45,7 +45,7 @@ namespace net::socket::stream {
             using Socket = typename SocketConnection::Socket;
             using SocketAddress = typename Socket::SocketAddress;
 
-            SocketListener(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
+            SocketListener(const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConstruct,
                            const std::function<void(SocketConnection* socketConnection)>& onDestruct,
                            const std::function<void(SocketConnection* socketConnection)>& onConnect,
                            const std::function<void(SocketConnection* socketConnection)>& onDisconnect,

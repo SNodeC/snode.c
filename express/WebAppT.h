@@ -51,9 +51,10 @@ namespace express {
         WebAppT(const Router& router, const std::map<std::string, std::any>& options = {{}})
             : WebApp(router)
             , server(
-                  [&onConnect = this->_onConnect](SocketConnection* socketConnection) -> void { // onConnect
+                  [&onConnect = this->_onConnect](const SocketAddress& localAddress,
+                                                  const SocketAddress& remoteAddress) -> void { // onConnect
                       if (onConnect) {
-                          onConnect(socketConnection);
+                          onConnect(localAddress, remoteAddress);
                       }
                   },
                   [&onConnected = this->_onConnected](SocketConnection* socketConnection) -> void { // onConnected
@@ -82,7 +83,7 @@ namespace express {
             server.listen(host, port, onError);
         }
 
-        void onConnect(const std::function<void(SocketConnection*)>& onConnect) {
+        void onConnect(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect) {
             _onConnect = onConnect;
         }
 
@@ -97,7 +98,7 @@ namespace express {
     protected:
         Server server;
 
-        std::function<void(SocketConnection*)> _onConnect = nullptr;
+        std::function<void(const SocketAddress&, const SocketAddress&)> _onConnect = nullptr;
         std::function<void(SocketConnection*)> _onConnected = nullptr;
         std::function<void(SocketConnection*)> _onDisconnect = nullptr;
 

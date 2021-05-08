@@ -32,15 +32,17 @@ using namespace net::socket::bluetooth::rfcomm::tls;
 
 SocketClient getClient() {
     SocketClient client(
-        []([[maybe_unused]] SocketClient::SocketConnection* socketConnection) -> void { // onConstruct
+        [](const SocketClient::SocketAddress& localAddress,
+           const SocketClient::SocketAddress& remoteAddress) -> void { // onConstruct
+            VLOG(0) << "OnConnect";
+
+            VLOG(0) << "\tServer: " + remoteAddress.toString();
+            VLOG(0) << "\tClient: " + localAddress.toString();
         },
         []([[maybe_unused]] SocketClient::SocketConnection* socketConnection) -> void { // onDestruct
         },
         [](SocketClient::SocketConnection* socketConnection) -> void { // onConnect
-            VLOG(0) << "OnConnect";
-
-            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+            VLOG(0) << "OnConnected";
 
             X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
             if (server_cert != NULL) {

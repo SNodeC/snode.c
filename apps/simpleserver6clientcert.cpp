@@ -54,11 +54,11 @@ int main(int argc, char* argv[]) {
             }
         });
 
-        tlsApp.onConnect([](tls::WebApp6::SocketConnection* socketConnection) -> void {
+        tlsApp.onConnect([](const tls::WebApp6::SocketAddress& localAddress, const tls::WebApp6::SocketAddress& remoteAddress) -> void {
             VLOG(0) << "OnConnect:";
 
-            VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
-            VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
+            VLOG(0) << "\tServer: " + localAddress.toString();
+            VLOG(0) << "\tClient: " + remoteAddress.toString();
         });
 
         tlsApp.onConnected([](tls::WebApp6::SocketConnection* socketConnection) -> void {

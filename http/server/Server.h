@@ -25,14 +25,15 @@ namespace http::server {
         using Request = RequestT;
         using Response = ResponseT;
 
-        Server(const std::function<void(SocketConnection*)>& onConnect,
+        Server(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
                const std::function<void(Request& req, Response& res)>& onRequestReady,
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
             : socketServer(
-                  [onConnect, onRequestReady](SocketConnection* socketConnection) -> void { // onConstruct
-                      onConnect(socketConnection);
+                  [onConnect, onRequestReady](const SocketAddress& localAddress,
+                                              const SocketAddress& remoteAddress) -> void { // onConstruct
+                      onConnect(localAddress, remoteAddress);
                   },
                   []([[maybe_unused]] SocketConnection* socketConnection) -> void { // onDestruct
                   },

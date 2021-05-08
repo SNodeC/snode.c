@@ -120,11 +120,11 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    legacyApp.onConnect([](legacy::WebApp::SocketConnection* socketConnection) -> void {
+    legacyApp.onConnect([](const legacy::WebApp::SocketAddress& localAddress, const legacy::WebApp::SocketAddress& remoteAddress) -> void {
         VLOG(0) << "OnConnect:";
 
-        VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-        VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+        VLOG(0) << "\tServer: " + remoteAddress.toString();
+        VLOG(0) << "\tClient: " + localAddress.toString();
     });
 
     legacyApp.onDisconnect([](legacy::WebApp::SocketConnection* socketConnection) -> void {
@@ -146,11 +146,15 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    tlsApp.onConnect([](tls::WebApp::SocketConnection* socketConnection) -> void {
+    tlsApp.onConnect([](const tls::WebApp::SocketAddress& localAddress, const tls::WebApp::SocketAddress& remoteAddress) -> void {
         VLOG(0) << "OnConnect:";
 
-        VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-        VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+        VLOG(0) << "\tServer: " + remoteAddress.toString();
+        VLOG(0) << "\tClient: " + localAddress.toString();
+    });
+
+    tlsApp.onConnected([](tls::WebApp::SocketConnection* socketConnection) {
+        VLOG(0) << "OnConnected:";
 
         X509* client_cert = SSL_get_peer_certificate(socketConnection->getSSL());
 

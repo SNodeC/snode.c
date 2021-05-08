@@ -34,15 +34,17 @@ int main(int argc, char* argv[]) {
     net::SNodeC::init(argc, argv);
 
     SocketServer btServer(
-        []([[maybe_unused]] SocketServer::SocketConnection* socketConnection) -> void { // onConstruct
+        [](const SocketServer::SocketAddress& localAddress,
+           const SocketServer::SocketAddress& remoteAddress) -> void { // onConstruct
+            VLOG(0) << "OnConnect";
+
+            VLOG(0) << "\tServer: " + localAddress.toString();
+            VLOG(0) << "\tClient: " + remoteAddress.toString();
         },
         []([[maybe_unused]] SocketServer::SocketConnection* socketConnection) -> void { // onDestruct
         },
         [](SocketServer::SocketConnection* socketConnection) -> void { // onConnect
-            VLOG(0) << "OnConnect";
-
-            VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
-            VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
+            VLOG(0) << "OnConnected";
 
             X509* client_cert = SSL_get_peer_certificate(socketConnection->getSSL());
 

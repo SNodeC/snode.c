@@ -44,7 +44,7 @@ namespace net::socket::stream::tls {
         SocketConnection(int fd,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
-                         const std::function<void(SocketConnection* socketConnection)>& onConstruct,
+                         const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConstruct,
                          const std::function<void(SocketConnection* socketConnection)>& onDestruct,
                          const std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)>& onRead,
                          const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
@@ -70,7 +70,7 @@ namespace net::socket::stream::tls {
                           onDisconnect(this);
                       })
             , onDestruct(onDestruct) {
-            onConstruct(this);
+            onConstruct(localAddress, remoteAddress);
         }
 
     protected:

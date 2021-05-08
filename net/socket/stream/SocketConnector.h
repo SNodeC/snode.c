@@ -45,7 +45,7 @@ namespace net::socket::stream {
         using Socket = typename SocketConnection::Socket;
         using SocketAddress = typename Socket::SocketAddress;
 
-        SocketConnector(const std::function<void(SocketConnection* socketConnection)>& onConstruct,
+        SocketConnector(const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConstruct,
                         const std::function<void(SocketConnection* socketConnection)>& onDestruct,
                         const std::function<void(SocketConnection* socketConnection)>& onConnect,
                         const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
@@ -129,13 +129,11 @@ namespace net::socket::stream {
                                                                     onReadError,
                                                                     onWriteError,
                                                                     onDisconnect);
-                            socketConnection->SocketConnection::SocketReader::enable(Socket::getFd());
-
                             SocketConnector::dontClose(true);
                             SocketConnector::ConnectEventReceiver::disable();
 
-                            onError(0);
                             onConnect(socketConnection);
+                            onError(0);
                         } else {
                             SocketConnector::ConnectEventReceiver::disable();
                             cErrno = errno;
@@ -167,7 +165,7 @@ namespace net::socket::stream {
         std::map<std::string, std::any> options;
 
     private:
-        std::function<void(SocketConnection* socketConnection)> onConstruct;
+        std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)> onConstruct;
         std::function<void(SocketConnection* socketConnection)> onDestruct;
         std::function<void(SocketConnection* socketConnection)> onConnect;
         std::function<void(SocketConnection* socketConnection)> onDisconnect;

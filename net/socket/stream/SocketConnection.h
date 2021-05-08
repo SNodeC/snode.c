@@ -55,7 +55,8 @@ namespace net::socket::stream {
             , localAddress(localAddress)
             , remoteAddress(remoteAddress)
             , onDisconnect(onDisconnect) {
-            this->attach(fd);
+            SocketConnection::attach(fd);
+            SocketReader::enable(fd);
         }
 
         virtual ~SocketConnection() = default;

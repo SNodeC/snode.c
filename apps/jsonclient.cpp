@@ -34,11 +34,12 @@ int main(int argc, char* argv[]) {
     net::SNodeC::init(argc, argv);
 
     http::client::legacy::Client<> jsonClient(
-        [](http::client::legacy::Client<>::SocketConnection* socketConnection) -> void {
+        [](const http::client::legacy::Client<>::SocketAddress& localAddress,
+           const http::client::legacy::Client<>::SocketAddress& remoteAddress) -> void {
             VLOG(0) << "-- OnConnect";
 
-            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+            VLOG(0) << "\tServer: " + remoteAddress.toString();
+            VLOG(0) << "\tClient: " + localAddress.toString();
         },
         []([[maybe_unused]] http::client::legacy::Client<>::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnConnected";
