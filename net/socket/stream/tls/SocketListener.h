@@ -109,7 +109,7 @@ namespace net::socket::stream {
 
                 if (SSL_get_servername_type(ssl) != -1) {
                     socketConnection->serverNameIndication = SSL_get_servername(ssl, TLSEXT_NAMETYPE_host_name);
-                    LOG(INFO) << "ServerName: " << socketConnection->serverNameIndication;
+                    LOG(INFO) << "ServerNameIndication: " << socketConnection->serverNameIndication;
                 }
 
                 return SSL_TLSEXT_ERR_OK;
