@@ -67,9 +67,9 @@ namespace express {
                       req.extend();
                       routerDispatcher->dispatch(req, res);
                   },
-                  [this](SocketConnection* socketConnection) -> void { // onDisconnect
-                      if (_onDisconnect != nullptr) {
-                          _onDisconnect(socketConnection);
+                  [&onDisconnect = this->_onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
+                      if (onDisconnect != nullptr) {
+                          onDisconnect(socketConnection);
                       }
                   },
                   options) {
