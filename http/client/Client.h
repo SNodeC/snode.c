@@ -62,8 +62,6 @@ namespace http::client {
 
                       socketConnection->template setContext<ClientContextBase*>(clientContext);
 
-                      onConnected(socketConnection);
-
                       socketConnection->template getContext<ClientContextBase*>(
                           [&socketConnection, &onRequestBegin](ClientContextBase* clientContext) -> void {
                               Request& request = clientContext->getRequest();
@@ -72,11 +70,14 @@ namespace http::client {
                                               std::to_string(socketConnection->getRemoteAddress().port()));
                               onRequestBegin(request);
                           });
+
+                      onConnected(socketConnection);
                   },
                   [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
                       socketConnection->template getContext<ClientContextBase*>([](ClientContextBase* clientContext) -> void {
                           delete clientContext;
                       });
+
                       onDisconnect(socketConnection);
                   },
                   [](SocketConnection* socketConnection, const char* junk, std::size_t junkLen) -> void { // onRead

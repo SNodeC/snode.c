@@ -31,19 +31,21 @@ namespace http::server {
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
             : socketServer(
-                  [onConnect, onRequestReady](const SocketAddress& localAddress,
-                                              const SocketAddress& remoteAddress) -> void { // OnConnect
+                  [onConnect](const SocketAddress& localAddress,
+                              const SocketAddress& remoteAddress) -> void { // OnConnect
                       onConnect(localAddress, remoteAddress);
                   },
                   [onConnected, onRequestReady](SocketConnection* socketConnection) -> void { // onConnected
                       socketConnection->template setContext<ServerContextBase*>(
                           new ServerContext<Request, Response>(socketConnection, onRequestReady));
+
                       onConnected(socketConnection);
                   },
                   [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
                       socketConnection->template getContext<ServerContextBase*>([](ServerContextBase* serverContext) -> void {
                           delete serverContext;
                       });
+
                       onDisconnect(socketConnection);
                   },
                   [](SocketConnection* socketConnection, const char* junk, std::size_t junkLen) -> void { // onRead
