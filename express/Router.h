@@ -34,11 +34,6 @@
 
 #define APPLICATION(req, res) ([[maybe_unused]] express::Request & (req), [[maybe_unused]] express::Response & (res))
 
-namespace http::server {
-    class Request;
-    class Response;
-} // namespace http::server
-
 namespace express {
 
     struct MountPoint;
@@ -74,7 +69,7 @@ namespace express {
 
     private:
         virtual void dispatch(const RouterDispatcher* parentRouter,
-                              const std::string& parentPath,
+                              const std::string& parentMountPath,
                               const MountPoint& mountPoint,
                               Request& req,
                               Response& res) const = 0;
@@ -90,7 +85,7 @@ namespace express {
 
     private:
         void dispatch(const RouterDispatcher* parentRouter,
-                      const std::string& parentPath,
+                      const std::string& parentMountPath,
                       const MountPoint& mountPoint,
                       Request& req,
                       Response& res) const override;
@@ -124,11 +119,12 @@ namespace express {
         Router& operator=(const Router& router);
 
 #define DECLARE_REQUESTMETHOD(METHOD)                                                                                                      \
-    Router& METHOD(const std::string& path, const std::function<void(Request & req, Response & res)>& lambda);                             \
+    Router& METHOD(const std::string& relativeMountPath, const std::function<void(Request & req, Response & res)>& lambda);                \
     Router& METHOD(const std::function<void(Request & req, Response & res)>& lambda);                                                      \
-    Router& METHOD(const std::string& path, const Router& router);                                                                         \
+    Router& METHOD(const std::string& relativeMountPath, const Router& router);                                                            \
     Router& METHOD(const Router& router);                                                                                                  \
-    Router& METHOD(const std::string& path, const std::function<void(Request & req, Response & res, express::State & state)>& lambda);     \
+    Router& METHOD(const std::string& relativeMountPath,                                                                                   \
+                   const std::function<void(Request & req, Response & res, express::State & state)>& lambda);                              \
     Router& METHOD(const std::function<void(Request & req, Response & res, express::State & state)>& lambda);
 
         DECLARE_REQUESTMETHOD(use)
