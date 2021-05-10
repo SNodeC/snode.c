@@ -30,6 +30,13 @@
 
 namespace net::socket::stream::tls {
 
+    void TLSHandshake::doHandshake(SSL* ssl,
+                                   const std::function<void(void)>& onSuccess,
+                                   const std::function<void(void)>& onTimeout,
+                                   const std::function<void(int err)>& onError) {
+        new TLSHandshake(ssl, onSuccess, onTimeout, onError);
+    }
+
     TLSHandshake::TLSHandshake(SSL* ssl,
                                const std::function<void(void)>& onSuccess,
                                const std::function<void(void)>& onTimeout,
@@ -115,13 +122,6 @@ namespace net::socket::stream::tls {
 
     void TLSHandshake::unobserved() {
         delete this;
-    }
-
-    void TLSHandshake::doHandshake(SSL* ssl,
-                                   const std::function<void(void)>& onSuccess,
-                                   const std::function<void(void)>& onTimeout,
-                                   const std::function<void(int err)>& onError) {
-        new TLSHandshake(ssl, onSuccess, onTimeout, onError);
     }
 
 } // namespace net::socket::stream::tls

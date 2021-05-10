@@ -26,7 +26,7 @@
 
 namespace express {
 
-    bool WebApp::initialized{false};
+    bool WebApp::initialized = false;
 
     WebApp::WebApp(const Router& router)
         : Router(router) {

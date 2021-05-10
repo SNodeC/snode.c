@@ -60,9 +60,9 @@ namespace express::middleware {
             }
         });
 
-        use([this] APPLICATION(req, res) {
-            LOG(INFO) << "GET " + req.url + " -> " + this->root + req.url;
-            res.sendFile(this->root + req.url, [&req](int ret) -> void {
+        use([&root = this->root] APPLICATION(req, res) {
+            LOG(INFO) << "GET " + req.url + " -> " + root + req.url;
+            res.sendFile(root + req.url, [&req](int ret) -> void {
                 if (ret != 0) {
                     PLOG(ERROR) << req.url;
                 }

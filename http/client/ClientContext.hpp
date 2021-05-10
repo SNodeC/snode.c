@@ -38,20 +38,22 @@ namespace http::client {
         , parser(
               [](void) -> void {
               },
-              [this](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
+              [&response =
+                   this->response](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
                   response.httpVersion = httpVersion;
                   response.statusCode = statusCode;
                   response.reason = reason;
               },
-              [this](const std::map<std::string, std::string>& headers, const std::map<std::string, http::CookieOptions>& cookies) -> void {
+              [&response = this->response](const std::map<std::string, std::string>& headers,
+                                           const std::map<std::string, http::CookieOptions>& cookies) -> void {
                   response.headers = &headers;
                   response.cookies = &cookies;
               },
-              [this](char* content, std::size_t contentLength) -> void {
+              [&response = this->response](char* content, std::size_t contentLength) -> void {
                   response.body = content;
                   response.contentLength = contentLength;
               },
-              [this, onResponse](http::client::ResponseParser& parser) -> void {
+              [&response = this->response, &request = this->request, onResponse](http::client::ResponseParser& parser) -> void {
                   onResponse(response);
                   parser.reset();
                   request.reset();

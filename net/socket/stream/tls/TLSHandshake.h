@@ -35,17 +35,17 @@ namespace net::socket::stream::tls {
         : public ReadEventReceiver
         , public WriteEventReceiver {
     public:
-        TLSHandshake(SSL* ssl,
-                     const std::function<void(void)>& onSuccess,
-                     const std::function<void(void)>& onTimeout,
-                     const std::function<void(int err)>& onError);
-
         static void doHandshake(SSL* ssl,
                                 const std::function<void(void)>& onSuccess,
                                 const std::function<void(void)>& onTimeout,
                                 const std::function<void(int err)>& onError);
 
     private:
+        TLSHandshake(SSL* ssl,
+                     const std::function<void(void)>& onSuccess,
+                     const std::function<void(void)>& onTimeout,
+                     const std::function<void(int err)>& onError);
+
         void readEvent() override;
         void writeEvent() override;
         void timeoutEvent() override;

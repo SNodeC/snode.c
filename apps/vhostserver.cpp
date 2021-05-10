@@ -53,14 +53,6 @@ int main(int argc, char* argv[]) {
             res.sendStatus(404);
         });
 
-        legacyApp.listen(8080, [](int err) -> void {
-            if (err != 0) {
-                PLOG(FATAL) << "listen on port 8080";
-            } else {
-                VLOG(0) << "snode.c listening on port 8080 for legacy connections";
-            }
-        });
-
         legacyApp.onConnect(
             [](const legacy::WebApp6::SocketAddress& localAddress, const legacy::WebApp6::SocketAddress& remoteAddress) -> void {
                 VLOG(0) << "OnConnect:";
@@ -76,6 +68,14 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
         });
 
+        legacyApp.listen(8080, [](int err) -> void {
+            if (err != 0) {
+                PLOG(FATAL) << "listen on port 8080";
+            } else {
+                VLOG(0) << "snode.c listening on port 8080 for legacy connections";
+            }
+        });
+
         tls::WebApp6 tlsApp({{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
 
         tlsApp.use(middleware::VHost("localhost:8088").use(getRouter()));
@@ -84,14 +84,6 @@ int main(int argc, char* argv[]) {
         }));
         tlsApp.use([] APPLICATION(req, res) {
             res.sendStatus(404);
-        });
-
-        tlsApp.listen(8088, [](int err) -> void {
-            if (err != 0) {
-                PLOG(FATAL) << "listen on port 8088";
-            } else {
-                VLOG(0) << "snode.c listening on port 8088 for SSL/TLS connections";
-            }
         });
 
         tlsApp.onConnect([](const tls::WebApp6::SocketAddress& localAddress, const tls::WebApp6::SocketAddress& remoteAddress) -> void {
@@ -106,6 +98,14 @@ int main(int argc, char* argv[]) {
 
             VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
             VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
+        });
+
+        tlsApp.listen(8088, [](int err) -> void {
+            if (err != 0) {
+                PLOG(FATAL) << "listen on port 8088";
+            } else {
+                VLOG(0) << "snode.c listening on port 8088 for SSL/TLS connections";
+            }
         });
     }
 

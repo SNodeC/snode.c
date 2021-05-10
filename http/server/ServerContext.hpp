@@ -40,12 +40,12 @@ namespace http::server {
 
                   requestContexts.emplace_back(RequestContext(this));
               },
-              [this](const std::string& method,
-                     const std::string& url,
-                     const std::string& httpVersion,
-                     int httpMajor,
-                     int httpMinor,
-                     const std::map<std::string, std::string>& queries) -> void {
+              [&requestContexts = this->requestContexts](const std::string& method,
+                                                         const std::string& url,
+                                                         const std::string& httpVersion,
+                                                         int httpMajor,
+                                                         int httpMinor,
+                                                         const std::map<std::string, std::string>& queries) -> void {
                   VLOG(3) << "++ Request: " << method << " " << url << " " << httpVersion;
 
                   Request& request = requestContexts.back().request;
@@ -57,7 +57,8 @@ namespace http::server {
                   request.httpMajor = httpMajor;
                   request.httpMinor = httpMinor;
               },
-              [this](const std::map<std::string, std::string>& header, const std::map<std::string, std::string>& cookies) -> void {
+              [&requestContexts = this->requestContexts](const std::map<std::string, std::string>& header,
+                                                         const std::map<std::string, std::string>& cookies) -> void {
                   Request& request = requestContexts.back().request;
 
                   VLOG(3) << "++ Header:";
@@ -79,7 +80,7 @@ namespace http::server {
                       VLOG(3) << "     " << cookie << ": " << value;
                   }
               },
-              [this](char* content, std::size_t contentLength) -> void {
+              [&requestContexts = this->requestContexts](char* content, std::size_t contentLength) -> void {
                   VLOG(3) << "++ Content: " << contentLength;
 
                   Request& request = requestContexts.back().request;
@@ -87,7 +88,7 @@ namespace http::server {
                   request.body = content;
                   request.contentLength = contentLength;
               },
-              [this, onRequestReady]() -> void {
+              [this]() -> void {
                   VLOG(3) << "++ Parsed ++";
 
                   RequestContext& requestContext = requestContexts.back();
