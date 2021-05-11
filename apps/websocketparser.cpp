@@ -22,41 +22,34 @@ public:
     unsigned char opCode = 0;
 };
 
-class WSDecoder {
+class WebSocketReceiver {
 public:
-    void parse(const char* junk, std::size_t junkLen) {
+    void receive(const char* junk, std::size_t junkLen) {
         std::size_t consumed = 0;
         bool parsingError = false;
 
         while (consumed < junkLen && !parsingError) {
             switch (parserState) {
                 case ParserState::BEGIN:
-                    //                    std::cout << "State::BEGIN: " << std::endl;
                     parserState = ParserState::OPCODE;
                     begin();
                     [[fallthrough]];
                 case ParserState::OPCODE:
-                    //                    std::cout << "State::OPCODE: " << (int) *(uint8_t*) (junk + consumed) << std::endl;
                     consumed += readOpcode(junk + consumed, junkLen - consumed);
                     break;
                 case ParserState::LENGTH:
-                    //                    std::cout << "State::LENGTH: " << (int) *(uint8_t*) (junk + consumed) << std::endl;
                     consumed += readLength(junk + consumed, junkLen - consumed);
                     break;
                 case ParserState::ELENGTH:
-                    //                    std::cout << "State::ELENGTH: " << (int) *(uint8_t*) (junk + consumed) << std::endl;
                     consumed += readELength(junk + consumed, junkLen - consumed);
                     break;
                 case ParserState::MASKINGKEY:
-                    //                    std::cout << "State::MASKINGKEY: " << (int) *(uint8_t*) (junk + consumed) << std::endl;
                     consumed += readMaskingKey(junk + consumed, junkLen - consumed);
                     break;
                 case ParserState::PAYLOAD:
-                    //                    std::cout << "State::PAYLOAD: " << (int) *(uint8_t*) (junk + consumed) << std::endl;
                     consumed += readPayload(junk + consumed, junkLen - consumed);
                     break;
                 case ParserState::ERROR:
-                    //                    std::cout << "State::ERROR: " << std::endl;
                     parsingError = true;
                     reset();
                     break;
@@ -64,6 +57,7 @@ public:
         }
     }
 
+protected:
     void begin() {
     }
 
@@ -178,8 +172,8 @@ public:
         return consumed;
     }
 
-    void printHeader() {
-        VLOG(0) << "--------- Header ---------";
+    void printFrame() {
+        VLOG(0) << "--------- Frame ---------";
         VLOG(0) << "FIN: " << fin;
         VLOG(0) << "OPCODE: " << (int) opCode;
         VLOG(0) << "LENGTH: " << length;
@@ -201,7 +195,7 @@ public:
 
     void reset() {
         if (payloadRead == length) {
-            printHeader();
+            printFrame();
             payloadRead = 0;
             if (fin) {
                 // Payload ready
@@ -251,32 +245,32 @@ protected:
 
 #define WSPAYLOADLENGTH 4
 
-class WSEncoder {
+class WebSocketSender {
 public:
-    WSDecoder wSParser;
+    WebSocketReceiver webSocketReceiver;
 
-    void sendframe([[maybe_unused]] const char* data, [[maybe_unused]] std::size_t length) {
-        for (std::size_t i = 0; i < length; i++) {
-            std::cout << std::hex << (unsigned int) (unsigned char) data[i] << " ";
+public:
+    void send([[maybe_unused]] uint8_t opCode, [[maybe_unused]] const char* message, std::size_t messageLength) {
+        std::size_t messageOffset = 0;
 
-            if ((i + 1) % 4 == 0) {
-                std::cout << std::endl;
-            }
-        }
-        std::cout << std::endl;
-
-        //        wSParser.parse(data, length);
-
-        for (unsigned long i = 0; i < length; i++) {
-            wSParser.parse(data + i, 1);
+        while (messageLength - messageOffset > 0) {
+            std::size_t sendMessageLength =
+                (messageLength - messageOffset <= WSPAYLOADLENGTH) ? messageLength - messageOffset : WSPAYLOADLENGTH;
+            bool fin = sendMessageLength == messageLength - messageOffset;
+            bool masked = false;
+            sendFrame(fin, masked, opCode, message + messageOffset, sendMessageLength);
+            messageOffset += sendMessageLength;
+            opCode = 0; // continuation
+            reset();
         }
     }
 
-    void frameReady([[maybe_unused]] bool fin,
-                    [[maybe_unused]] bool masked,
-                    [[maybe_unused]] uint8_t opCode,
-                    const char* payload,
-                    uint64_t payloadLength) {
+protected:
+    void sendFrame([[maybe_unused]] bool fin,
+                   [[maybe_unused]] bool masked,
+                   [[maybe_unused]] uint8_t opCode,
+                   const char* payload,
+                   uint64_t payloadLength) {
         std::size_t frameLength = ((masked) ? 6 : 2) + payloadLength;
 
         char* frame = nullptr;
@@ -312,24 +306,22 @@ public:
 
         memcpy(frame + oPayload, payload, payloadLength);
 
-        sendframe(frame, frameLength);
+        for (std::size_t i = 0; i < frameLength; i++) {
+            std::cout << std::hex << (unsigned int) (unsigned char) frame[i] << " ";
+
+            if ((i + 1) % 4 == 0) {
+                std::cout << std::endl;
+            }
+        }
+        std::cout << std::endl;
+
+        //        wSParser.receive(frame, length);
+
+        for (unsigned long i = 0; i < frameLength; i++) {
+            webSocketReceiver.receive(frame + i, 1);
+        }
 
         delete[] frame;
-    }
-
-    void encodeMessage([[maybe_unused]] uint8_t opCode, [[maybe_unused]] const char* message, std::size_t messageLength) {
-        std::size_t messageOffset = 0;
-
-        while (messageLength - messageOffset > 0) {
-            std::size_t sendMessageLength =
-                (messageLength - messageOffset <= WSPAYLOADLENGTH) ? messageLength - messageOffset : WSPAYLOADLENGTH;
-            bool fin = sendMessageLength == messageLength - messageOffset;
-            bool masked = false;
-            frameReady(fin, masked, opCode, message + messageOffset, sendMessageLength);
-            messageOffset += sendMessageLength;
-            opCode = 0; // continuation
-            reset();
-        }
     }
 
     void reset() {
@@ -340,7 +332,6 @@ public:
         oPayload = 2;
     }
 
-protected:
     uint8_t oOpCode = 0;
     uint8_t oLength = 1;
     uint8_t oELength = 2;
@@ -351,9 +342,9 @@ protected:
 int main(int argc, char* argv[]) {
     SNodeC::init(argc, argv);
 
-    WSEncoder sWEncoder;
+    WebSocketSender webSocketSender;
 
-    sWEncoder.encodeMessage(1, "Hallo Du", std::string("Hallo Du").length());
+    webSocketSender.send(1, "Hallo Du", std::string("Hallo Du").length());
 
     SocketServer webSocketParser(
         [](const SocketServer::SocketAddress& localAddress,
