@@ -99,7 +99,7 @@ void Logger::setLogLevel(int level) {
     el::Loggers::reconfigureLogger("default", conf);
 }
 
-void Logger::setVerboseLevel(int level) {
+void Logger::setVerboseLevel(unsigned short level) {
     el::Loggers::setVerboseLevel(level);
 }
 

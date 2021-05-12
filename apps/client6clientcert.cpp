@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
 
                 X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
                 if (server_cert != NULL) {
-                    int verifyErr = SSL_get_verify_result(socketConnection->getSSL());
+                    long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
                     VLOG(0) << "     Server certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
 

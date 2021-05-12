@@ -57,7 +57,7 @@ namespace http::server {
         }
     }
 
-    int Request::bodyLength() const {
+    std::size_t Request::bodyLength() const {
         return contentLength;
     }
 
