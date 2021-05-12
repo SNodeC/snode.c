@@ -300,8 +300,8 @@ protected:
             oPayload += 4;
         }
 
-        *(uint8_t*) (frame + oOpCode) = (uint8_t)(fin ? 0b10000000 : 0) | opCode;
-        *(uint8_t*) (frame + oLength) = (uint8_t)(masked ? 0b10000000 : 0) | static_cast<uint8_t>(length);
+        *reinterpret_cast<uint8_t*>(frame + oOpCode) = static_cast<uint8_t>((fin ? 0b10000000 : 0) | opCode);
+        *reinterpret_cast<uint8_t*>(frame + oLength) = static_cast<uint8_t>((masked ? 0b10000000 : 0) | length);
 
         memcpy(frame + oPayload, payload, static_cast<std::size_t>(payloadLength));
 
