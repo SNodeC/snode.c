@@ -68,7 +68,7 @@ protected:
 
             uint8_t opCodeByte = static_cast<uint8_t>(junk[0]);
 
-            fin = (opCodeByte & 0b10000000);
+            fin = opCodeByte & 0b10000000;
             opCode = (opCodeByte & 0b00001111) == 0 ? opCode : opCodeByte & 0b00001111;
 
             parserState = ParserState::LENGTH;
@@ -234,13 +234,14 @@ protected:
     bool masked = false;
     uint8_t opCode = 0;
     uint64_t length = 0;
+    uint32_t maskingKey = 0;
+    std::vector<char> messageData;
+
     uint8_t elengthNumBytes = 0;
     uint8_t elengthNumBytesLeft = 0;
-    uint32_t maskingKey = 0;
     uint8_t maskingKeyNumBytes = 4;
     uint8_t maskingKeyNumBytesLeft = 0;
     uint64_t payloadRead = 0;
-    std::vector<char> messageData;
 };
 
 #define WSPAYLOADLENGTH 4
@@ -258,8 +259,7 @@ public:
             std::size_t sendMessageLength =
                 (messageLength - messageOffset <= WSPAYLOADLENGTH) ? messageLength - messageOffset : WSPAYLOADLENGTH;
             bool fin = sendMessageLength == messageLength - messageOffset;
-            bool masked = true;
-            sendFrame(fin, masked, opCode, message + messageOffset, sendMessageLength);
+            sendFrame(fin, opCode, 0x01020304, message + messageOffset, sendMessageLength);
             messageOffset += sendMessageLength;
             opCode = 0; // continuation
             reset();
@@ -267,26 +267,26 @@ public:
     }
 
 protected:
-    void sendFrame(bool fin, bool masked, uint8_t opCode, [[maybe_unused]] const char* payload, uint64_t payloadLength) {
-        uint64_t frameLength = ((masked) ? 6 : 2) + payloadLength;
+    void sendFrame(bool fin, uint8_t opCode, uint32_t maskingKey, const char* payload, uint64_t payloadLength) {
+        uint64_t frameLength = ((maskingKey > 0) ? 6 : 2) + payloadLength;
 
         char* frame = nullptr;
         uint64_t length = 0;
 
-        if (payloadLength > 125 || true) {
-            if (payloadLength > 0xFFFF || true) {
+        if (payloadLength > 125) {
+            if (payloadLength > 0xFFFF) {
                 frameLength += 8;
-                oMaskingKey += 8;
-                oPayload += 8;
+                maskingKeyOffset += 8;
+                payloadOffset += 8;
                 frame = new char[frameLength];
-                *reinterpret_cast<uint64_t*>(frame + oELength) = htobe64(*reinterpret_cast<uint64_t*>(&payloadLength));
+                *reinterpret_cast<uint64_t*>(frame + eLengthOffset) = htobe64(*reinterpret_cast<uint64_t*>(&payloadLength));
                 length = 127;
             } else {
                 frameLength += 2;
-                oMaskingKey += 2;
-                oPayload += 2;
+                maskingKeyOffset += 2;
+                payloadOffset += 2;
                 frame = new char[frameLength];
-                *reinterpret_cast<uint16_t*>(frame + oELength) = htobe16(*reinterpret_cast<uint16_t*>(&payloadLength));
+                *reinterpret_cast<uint16_t*>(frame + eLengthOffset) = htobe16(*reinterpret_cast<uint16_t*>(&payloadLength));
                 length = 126;
             }
         } else {
@@ -294,16 +294,15 @@ protected:
             length = payloadLength;
         }
 
-        if (masked) {
-            uint32_t mask = 0x01020304;
-            *reinterpret_cast<uint32_t*>(frame + oMaskingKey) = htobe32(mask);
-            oPayload += 4;
+        if (maskingKey > 0) {
+            *reinterpret_cast<uint32_t*>(frame + maskingKeyOffset) = htobe32(maskingKey);
+            payloadOffset += 4;
         }
 
-        *reinterpret_cast<uint8_t*>(frame + oOpCode) = static_cast<uint8_t>((fin ? 0b10000000 : 0) | opCode);
-        *reinterpret_cast<uint8_t*>(frame + oLength) = static_cast<uint8_t>((masked ? 0b10000000 : 0) | length);
+        *reinterpret_cast<uint8_t*>(frame + opCodeOffset) = static_cast<uint8_t>((fin ? 0b10000000 : 0) | opCode);
+        *reinterpret_cast<uint8_t*>(frame + lengthOffset) = static_cast<uint8_t>(((maskingKey > 0) ? 0b10000000 : 0) | length);
 
-        memcpy(frame + oPayload, payload, static_cast<std::size_t>(payloadLength));
+        memcpy(frame + payloadOffset, payload, static_cast<std::size_t>(payloadLength));
 
         for (std::size_t i = 0; i < frameLength; i++) {
             std::cout << std::hex << (unsigned int) (unsigned char) frame[i] << " ";
@@ -324,18 +323,18 @@ protected:
     }
 
     void reset() {
-        oOpCode = 0;
-        oLength = 1;
-        oELength = 2;
-        oMaskingKey = 2;
-        oPayload = 2;
+        opCodeOffset = 0;
+        lengthOffset = 1;
+        eLengthOffset = 2;
+        maskingKeyOffset = 2;
+        payloadOffset = 2;
     }
 
-    uint8_t oOpCode = 0;
-    uint8_t oLength = 1;
-    uint8_t oELength = 2;
-    uint8_t oMaskingKey = 2;
-    uint8_t oPayload = 2;
+    uint8_t opCodeOffset = 0;
+    uint8_t lengthOffset = 1;
+    uint8_t eLengthOffset = 2;
+    uint8_t maskingKeyOffset = 2;
+    uint8_t payloadOffset = 2;
 };
 
 int main(int argc, char* argv[]) {
