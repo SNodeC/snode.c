@@ -25,7 +25,7 @@ public:
 class WebSocketReceiver {
 public:
     void receive(const char* junk, std::size_t junkLen) {
-        std::size_t consumed = 0;
+        uint64_t consumed = 0;
         bool parsingError = false;
 
         while (consumed < junkLen && !parsingError) {
@@ -61,8 +61,8 @@ protected:
     void begin() {
     }
 
-    std::size_t readOpcode(const char* junk, std::size_t junkLen) {
-        std::size_t consumed = 0;
+    uint64_t readOpcode(const char* junk, uint64_t junkLen) {
+        uint64_t consumed = 0;
         if (junkLen > 0) {
             consumed++;
 
@@ -77,8 +77,8 @@ protected:
         return consumed;
     }
 
-    std::size_t readLength(const char* junk, std::size_t junkLen) {
-        std::size_t consumed = 0;
+    uint64_t readLength(const char* junk, uint64_t junkLen) {
+        uint64_t consumed = 0;
 
         if (junkLen > 0) {
             uint8_t lengthByte = static_cast<uint8_t>(junk[0]);
@@ -106,8 +106,8 @@ protected:
         return consumed;
     }
 
-    std::size_t readELength(const char* junk, std::size_t junkLen) {
-        std::size_t consumed = 0;
+    uint64_t readELength(const char* junk, uint64_t junkLen) {
+        uint64_t consumed = 0;
 
         elengthNumBytesLeft = (elengthNumBytesLeft == 0) ? elengthNumBytes : elengthNumBytesLeft;
 
@@ -134,8 +134,8 @@ protected:
         return consumed;
     }
 
-    std::size_t readMaskingKey(const char* junk, std::size_t junkLen) {
-        std::size_t consumed = 0;
+    uint64_t readMaskingKey(const char* junk, uint64_t junkLen) {
+        uint64_t consumed = 0;
 
         if (masked) {
             maskingKeyNumBytesLeft = (maskingKeyNumBytesLeft == 0) ? maskingKeyNumBytes : maskingKeyNumBytesLeft;
@@ -157,8 +157,8 @@ protected:
         return consumed;
     }
 
-    std::size_t readPayload(const char* junk, std::size_t junkLen) {
-        std::size_t consumed = 0;
+    uint64_t readPayload(const char* junk, uint64_t junkLen) {
+        uint64_t consumed = 0;
 
         if (junkLen > 0 && length - payloadRead > 0) {
             uint64_t numBytesToRead = (junkLen <= length - payloadRead) ? junkLen : length - payloadRead;
@@ -258,7 +258,7 @@ public:
             std::size_t sendMessageLength =
                 (messageLength - messageOffset <= WSPAYLOADLENGTH) ? messageLength - messageOffset : WSPAYLOADLENGTH;
             bool fin = sendMessageLength == messageLength - messageOffset;
-            bool masked = false;
+            bool masked = true;
             sendFrame(fin, masked, opCode, message + messageOffset, sendMessageLength);
             messageOffset += sendMessageLength;
             opCode = 0; // continuation
@@ -268,13 +268,13 @@ public:
 
 protected:
     void sendFrame(bool fin, bool masked, uint8_t opCode, [[maybe_unused]] const char* payload, uint64_t payloadLength) {
-        std::size_t frameLength = ((masked) ? 6 : 2) + payloadLength;
+        uint64_t frameLength = ((masked) ? 6 : 2) + payloadLength;
 
         char* frame = nullptr;
         uint64_t length = 0;
 
-        if (payloadLength > 125) {
-            if (payloadLength > 0xFFFF) {
+        if (payloadLength > 125 || true) {
+            if (payloadLength > 0xFFFF || true) {
                 frameLength += 8;
                 oMaskingKey += 8;
                 oPayload += 8;
@@ -300,10 +300,10 @@ protected:
             oPayload += 4;
         }
 
-        *reinterpret_cast<uint8_t*>(frame + oOpCode) = static_cast<uint8_t>((fin ? 0b10000000 : 0) | opCode);
-        *reinterpret_cast<uint8_t*>(frame + oLength) = static_cast<uint8_t>((masked ? 0b10000000 : 0) | static_cast<uint8_t>(length));
+        *(uint8_t*) (frame + oOpCode) = (uint8_t)(fin ? 0b10000000 : 0) | opCode;
+        *(uint8_t*) (frame + oLength) = (uint8_t)(masked ? 0b10000000 : 0) | static_cast<uint8_t>(length);
 
-        memcpy(frame + oPayload, payload, payloadLength);
+        memcpy(frame + oPayload, payload, static_cast<std::size_t>(payloadLength));
 
         for (std::size_t i = 0; i < frameLength; i++) {
             std::cout << std::hex << (unsigned int) (unsigned char) frame[i] << " ";
