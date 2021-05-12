@@ -12,6 +12,11 @@ using namespace net;
 
 using namespace net::socket::ip::tcp::ipv4::legacy;
 
+union MaskingKeyAsArray {
+    uint32_t value;
+    char array[4];
+};
+
 class WSMessage {
 public:
     WSMessage(unsigned char opCode, const std::vector<char>& message)
@@ -24,7 +29,7 @@ public:
 
 class WebSocketReceiver {
 public:
-    void receive(const char* junk, std::size_t junkLen) {
+    void receive(char* junk, std::size_t junkLen) {
         uint64_t consumed = 0;
         bool parsingError = false;
 
@@ -61,7 +66,7 @@ protected:
     void begin() {
     }
 
-    uint64_t readOpcode(const char* junk, uint64_t junkLen) {
+    uint64_t readOpcode(char* junk, uint64_t junkLen) {
         uint64_t consumed = 0;
         if (junkLen > 0) {
             consumed++;
@@ -77,7 +82,7 @@ protected:
         return consumed;
     }
 
-    uint64_t readLength(const char* junk, uint64_t junkLen) {
+    uint64_t readLength(char* junk, uint64_t junkLen) {
         uint64_t consumed = 0;
 
         if (junkLen > 0) {
@@ -106,7 +111,7 @@ protected:
         return consumed;
     }
 
-    uint64_t readELength(const char* junk, uint64_t junkLen) {
+    uint64_t readELength(char* junk, uint64_t junkLen) {
         uint64_t consumed = 0;
 
         elengthNumBytesLeft = (elengthNumBytesLeft == 0) ? elengthNumBytes : elengthNumBytesLeft;
@@ -134,7 +139,7 @@ protected:
         return consumed;
     }
 
-    uint64_t readMaskingKey(const char* junk, uint64_t junkLen) {
+    uint64_t readMaskingKey(char* junk, uint64_t junkLen) {
         uint64_t consumed = 0;
 
         if (masked) {
@@ -157,12 +162,20 @@ protected:
         return consumed;
     }
 
-    uint64_t readPayload(const char* junk, uint64_t junkLen) {
+    uint64_t readPayload(char* junk, uint64_t junkLen) {
         uint64_t consumed = 0;
 
         if (junkLen > 0 && length - payloadRead > 0) {
             uint64_t numBytesToRead = (junkLen <= length - payloadRead) ? junkLen : length - payloadRead;
+
+            MaskingKeyAsArray maskingKeyAsArray = {.value = htobe32(maskingKey)};
+
+            for (uint64_t i = 0; i < junkLen; i++) {
+                *(junk + i) = *(junk + i) ^ maskingKeyAsArray.array[(i + payloadRead) % 4];
+            }
+
             messageData.insert(messageData.end(), junk, junk + numBytesToRead);
+
             payloadRead += numBytesToRead;
             consumed = numBytesToRead;
         }
@@ -302,10 +315,14 @@ protected:
         *reinterpret_cast<uint8_t*>(frame + opCodeOffset) = static_cast<uint8_t>((fin ? 0b10000000 : 0) | opCode);
         *reinterpret_cast<uint8_t*>(frame + lengthOffset) = static_cast<uint8_t>(((maskingKey > 0) ? 0b10000000 : 0) | length);
 
-        memcpy(frame + payloadOffset, payload, static_cast<std::size_t>(payloadLength));
+        MaskingKeyAsArray maskingKeyAsArray = {.value = htobe32(maskingKey)};
+
+        for (uint64_t i = 0; i < payloadLength; i++) {
+            *(frame + payloadOffset + i) = *(payload + i) ^ maskingKeyAsArray.array[i % 4];
+        }
 
         for (std::size_t i = 0; i < frameLength; i++) {
-            std::cout << std::hex << (unsigned int) (unsigned char) frame[i] << " ";
+            std::cout << std::setfill('0') << std::setw(2) << std::hex << (unsigned int) (unsigned char) frame[i] << " ";
 
             if ((i + 1) % 4 == 0) {
                 std::cout << std::endl;
@@ -342,7 +359,12 @@ int main(int argc, char* argv[]) {
 
     WebSocketSender webSocketSender;
 
-    webSocketSender.send(1, "Hallo Du", std::string("Hallo Du").length());
+    const char* message = "Hallo Du, heute ist ein schöner Tag oder meinst du nicht?"
+                          "Hallo Du, heute ist ein schöner Tag oder meinst du nicht?"
+                          "Hallo Du, heute ist ein schöner Tag oder meinst du nicht?"
+                          "Hallo Du, heute ist ein schöner Tag oder meinst du nicht?";
+
+    webSocketSender.send(1, message, std::string(message).length());
 
     SocketServer webSocketParser(
         [](const SocketServer::SocketAddress& localAddress,
