@@ -66,10 +66,10 @@ protected:
         if (junkLen > 0) {
             consumed++;
 
-            uint8_t byte = *(uint8_t*) junk;
+            uint8_t opCodeByte = (uint8_t) junk[0];
 
-            fin = (byte & 0b10000000);
-            opCode = (byte & 0b00001111) == 0 ? opCode : byte & 0b00001111;
+            fin = (opCodeByte & 0b10000000);
+            opCode = (opCodeByte & 0b00001111) == 0 ? opCode : opCodeByte & 0b00001111;
 
             parserState = ParserState::LENGTH;
         }
@@ -81,10 +81,10 @@ protected:
         std::size_t consumed = 0;
 
         if (junkLen > 0) {
-            uint8_t byte = *(uint8_t*) junk;
+            uint8_t lengthByte = (uint8_t) junk[0];
 
-            masked = byte & 0b10000000;
-            length = byte & 0b01111111;
+            masked = lengthByte & 0b10000000;
+            length = lengthByte & 0b01111111;
 
             if (length > 125) {
                 switch (length) {
@@ -112,7 +112,7 @@ protected:
         elengthNumBytesLeft = (elengthNumBytesLeft == 0) ? elengthNumBytes : elengthNumBytesLeft;
 
         while (consumed < junkLen && elengthNumBytesLeft > 0) {
-            length |= ((uint64_t)((uint8_t*) junk)[consumed]) << (elengthNumBytes - elengthNumBytesLeft) * 8;
+            length |= (uint64_t) junk[consumed] << (elengthNumBytes - elengthNumBytesLeft) * 8;
 
             consumed++;
             elengthNumBytesLeft--;
@@ -141,7 +141,7 @@ protected:
             maskingKeyNumBytesLeft = (maskingKeyNumBytesLeft == 0) ? maskingKeyNumBytes : maskingKeyNumBytesLeft;
 
             while (consumed < junkLen && maskingKeyNumBytesLeft > 0) {
-                maskingKey |= ((uint32_t) junk[consumed]) << (maskingKeyNumBytes - maskingKeyNumBytesLeft) * 8;
+                maskingKey |= (uint32_t) junk[consumed] << (maskingKeyNumBytes - maskingKeyNumBytesLeft) * 8;
                 consumed++;
                 maskingKeyNumBytesLeft--;
             }
@@ -157,7 +157,7 @@ protected:
         return consumed;
     }
 
-    std::size_t readPayload([[maybe_unused]] const char* junk, [[maybe_unused]] std::size_t junkLen) {
+    std::size_t readPayload(const char* junk, std::size_t junkLen) {
         std::size_t consumed = 0;
 
         if (junkLen > 0 && length - payloadRead > 0) {
@@ -186,7 +186,7 @@ protected:
         VLOG(0) << "Data: " << s; // UTF-8 encoded
     }
 
-    void printMessage([[maybe_unused]] const WSMessage& wSMessage) {
+    void printMessage(const WSMessage& wSMessage) {
         VLOG(0) << "--------- Message ---------";
         VLOG(0) << "OPCode: " << (int) wSMessage.opCode;
         std::string s(wSMessage.message.data(), wSMessage.message.size());
@@ -198,7 +198,7 @@ protected:
             printFrame();
             payloadRead = 0;
             if (fin) {
-                // Payload ready
+                // Message ready
                 WSMessage wSMessage(opCode, messageData);
                 printMessage(wSMessage);
 
@@ -250,10 +250,11 @@ public:
     WebSocketReceiver webSocketReceiver;
 
 public:
-    void send([[maybe_unused]] uint8_t opCode, [[maybe_unused]] const char* message, std::size_t messageLength) {
+    void send(uint8_t opCode, const char* message, std::size_t messageLength) {
         std::size_t messageOffset = 0;
 
         while (messageLength - messageOffset > 0) {
+            std::cout << "-----------------" << std::endl;
             std::size_t sendMessageLength =
                 (messageLength - messageOffset <= WSPAYLOADLENGTH) ? messageLength - messageOffset : WSPAYLOADLENGTH;
             bool fin = sendMessageLength == messageLength - messageOffset;
@@ -266,33 +267,31 @@ public:
     }
 
 protected:
-    void sendFrame([[maybe_unused]] bool fin,
-                   [[maybe_unused]] bool masked,
-                   [[maybe_unused]] uint8_t opCode,
-                   const char* payload,
-                   uint64_t payloadLength) {
+    void sendFrame(bool fin, bool masked, uint8_t opCode, [[maybe_unused]] const char* payload, uint64_t payloadLength) {
         std::size_t frameLength = ((masked) ? 6 : 2) + payloadLength;
 
         char* frame = nullptr;
+        uint64_t length = 0;
 
-        if (payloadLength > 125) {
-            if (payloadLength > 0xFFFF) {
+        if (payloadLength > 125 || true) {
+            if (payloadLength > 0xFFFF || true) {
                 frameLength += 8;
                 oMaskingKey += 8;
                 oPayload += 8;
                 frame = new char[frameLength];
                 *reinterpret_cast<uint64_t*>(frame + oELength) = htobe64(*reinterpret_cast<uint64_t*>(&payloadLength));
-                payloadLength = 127;
+                length = 127;
             } else {
                 frameLength += 2;
                 oMaskingKey += 2;
                 oPayload += 2;
                 frame = new char[frameLength];
                 *reinterpret_cast<uint16_t*>(frame + oELength) = htobe16(*reinterpret_cast<uint16_t*>(&payloadLength));
-                payloadLength = 126;
+                length = 126;
             }
         } else {
             frame = new char[frameLength];
+            length = payloadLength;
         }
 
         if (masked) {
@@ -302,7 +301,7 @@ protected:
         }
 
         *(uint8_t*) (frame + oOpCode) = (uint8_t)(fin ? 0b10000000 : 0) | opCode;
-        *(uint8_t*) (frame + oLength) = (uint8_t)(masked ? 0b10000000 : 0) | payloadLength;
+        *(uint8_t*) (frame + oLength) = (uint8_t)(masked ? 0b10000000 : 0) | length;
 
         memcpy(frame + oPayload, payload, payloadLength);
 
