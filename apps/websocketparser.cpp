@@ -66,7 +66,7 @@ protected:
         if (junkLen > 0) {
             consumed++;
 
-            uint8_t opCodeByte = (uint8_t) junk[0];
+            uint8_t opCodeByte = static_cast<uint8_t>(junk[0]);
 
             fin = (opCodeByte & 0b10000000);
             opCode = (opCodeByte & 0b00001111) == 0 ? opCode : opCodeByte & 0b00001111;
@@ -81,7 +81,7 @@ protected:
         std::size_t consumed = 0;
 
         if (junkLen > 0) {
-            uint8_t lengthByte = (uint8_t) junk[0];
+            uint8_t lengthByte = static_cast<uint8_t>(junk[0]);
 
             masked = lengthByte & 0b10000000;
             length = lengthByte & 0b01111111;
@@ -112,7 +112,7 @@ protected:
         elengthNumBytesLeft = (elengthNumBytesLeft == 0) ? elengthNumBytes : elengthNumBytesLeft;
 
         while (consumed < junkLen && elengthNumBytesLeft > 0) {
-            length |= (uint64_t) junk[consumed] << (elengthNumBytes - elengthNumBytesLeft) * 8;
+            length |= static_cast<uint64_t>(junk[consumed]) << (elengthNumBytes - elengthNumBytesLeft) * 8;
 
             consumed++;
             elengthNumBytesLeft--;
@@ -121,7 +121,7 @@ protected:
         if (elengthNumBytesLeft == 0) {
             switch (elengthNumBytes) {
                 case 2: {
-                    uint16_t length16 = length;
+                    uint16_t length16 = static_cast<uint16_t>(length);
                     length = be16toh(length16);
                 } break;
                 case 8:
@@ -141,7 +141,7 @@ protected:
             maskingKeyNumBytesLeft = (maskingKeyNumBytesLeft == 0) ? maskingKeyNumBytes : maskingKeyNumBytesLeft;
 
             while (consumed < junkLen && maskingKeyNumBytesLeft > 0) {
-                maskingKey |= (uint32_t) junk[consumed] << (maskingKeyNumBytes - maskingKeyNumBytesLeft) * 8;
+                maskingKey |= static_cast<uint32_t>(junk[consumed]) << (maskingKeyNumBytes - maskingKeyNumBytesLeft) * 8;
                 consumed++;
                 maskingKeyNumBytesLeft--;
             }
@@ -300,8 +300,8 @@ protected:
             oPayload += 4;
         }
 
-        *(uint8_t*) (frame + oOpCode) = (uint8_t)(fin ? 0b10000000 : 0) | opCode;
-        *(uint8_t*) (frame + oLength) = (uint8_t)(masked ? 0b10000000 : 0) | length;
+        *reinterpret_cast<uint8_t*>(frame + oOpCode) = static_cast<uint8_t>((fin ? 0b10000000 : 0) | opCode);
+        *reinterpret_cast<uint8_t*>(frame + oLength) = static_cast<uint8_t>((masked ? 0b10000000 : 0) | static_cast<uint8_t>(length));
 
         memcpy(frame + oPayload, payload, payloadLength);
 
