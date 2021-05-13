@@ -493,6 +493,8 @@ int main(int argc, char* argv[]) {
 
     webSocketSender.messageStart(1, message, std::string(message).length(), 0x12345678);
     webSocketSender.messageData(message, std::string(message).length(), 0x23456789);
+    webSocketSender.messageData(message, std::string(message).length(), 0x12345678);
+    webSocketSender.messageData(message, std::string(message).length(), 0x23456789);
     webSocketSender.messageEnd(message, std::string(message).length(), 0x34567890);
 
     SocketServer webSocketParser(
