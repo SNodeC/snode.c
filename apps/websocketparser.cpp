@@ -339,7 +339,7 @@ public:
         send(false, opCode, message, messageLength, messageKey);
     }
 
-    void messageData(const char* message, std::size_t messageLength, uint32_t messageKey = 0) {
+    void message(const char* message, std::size_t messageLength, uint32_t messageKey = 0) {
         send(false, 0, message, messageLength, messageKey);
     }
 
@@ -377,35 +377,37 @@ protected:
     }
 
     void sendFrame(bool fin, uint8_t opCode, uint32_t maskingKey, const char* payload, uint64_t payloadLength) {
-        uint64_t frameLength = ((maskingKey > 0) ? 6 : 2) + payloadLength;
+        uint64_t frameLength = 2 + payloadLength;
+
+        if (maskingKey > 0) {
+            frameLength += 4;
+            payloadOffset += 4;
+        }
 
         char* frame = nullptr;
         uint64_t length = 0;
 
-        if (payloadLength > 125) {
-            if (payloadLength > 0xFFFF) {
-                frameLength += 8;
-                maskingKeyOffset += 8;
-                payloadOffset += 8;
-                frame = new char[frameLength];
-                *reinterpret_cast<uint64_t*>(frame + eLengthOffset) = htobe64(*reinterpret_cast<uint64_t*>(&payloadLength));
-                length = 127;
-            } else {
-                frameLength += 2;
-                maskingKeyOffset += 2;
-                payloadOffset += 2;
-                frame = new char[frameLength];
-                *reinterpret_cast<uint16_t*>(frame + eLengthOffset) = htobe16(*reinterpret_cast<uint16_t*>(&payloadLength));
-                length = 126;
-            }
-        } else {
+        if (payloadLength < 126) {
             frame = new char[frameLength];
             length = payloadLength;
+        } else if (payloadLength < 0x10000) {
+            frameLength += 2;
+            maskingKeyOffset += 2;
+            payloadOffset += 2;
+            frame = new char[frameLength];
+            *reinterpret_cast<uint16_t*>(frame + eLengthOffset) = htobe16(*reinterpret_cast<uint16_t*>(&payloadLength));
+            length = 126;
+        } else {
+            frameLength += 8;
+            maskingKeyOffset += 8;
+            payloadOffset += 8;
+            frame = new char[frameLength];
+            *reinterpret_cast<uint64_t*>(frame + eLengthOffset) = htobe64(*reinterpret_cast<uint64_t*>(&payloadLength));
+            length = 127;
         }
 
         if (maskingKey > 0) {
             *reinterpret_cast<uint32_t*>(frame + maskingKeyOffset) = htobe32(maskingKey);
-            payloadOffset += 4;
         }
 
         *reinterpret_cast<uint8_t*>(frame + opCodeOffset) = static_cast<uint8_t>((fin ? 0b10000000 : 0) | opCode);
@@ -493,9 +495,9 @@ int main(int argc, char* argv[]) {
     webSocketReceiver.receive(s.data(), s.length());
 
     webSocketSender.messageStart(1, message, std::string(message).length(), 0x12345678);
-    webSocketSender.messageData(message, std::string(message).length(), 0x23456789);
-    webSocketSender.messageData(message, std::string(message).length(), 0x12345678);
-    webSocketSender.messageData(message, std::string(message).length(), 0x23456789);
+    webSocketSender.message(message, std::string(message).length(), 0x23456789);
+    webSocketSender.message(message, std::string(message).length(), 0x12345678);
+    webSocketSender.message(message, std::string(message).length(), 0x23456789);
     webSocketSender.messageEnd(message, std::string(message).length(), 0x34567890);
 
     SocketServer webSocketParser(
