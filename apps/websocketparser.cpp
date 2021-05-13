@@ -34,6 +34,18 @@ unsigned char* decode64(const char* input, int length) {
     return output;
 }
 
+std::string serverWebSocketKey(const std::string& clientWebSocketKey) {
+    std::string GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+
+    std::string serverWebSocketKey(clientWebSocketKey + GUID);
+    unsigned char digest[SHA_DIGEST_LENGTH];
+    SHA1(reinterpret_cast<const unsigned char*>(serverWebSocketKey.c_str()),
+         serverWebSocketKey.length(),
+         reinterpret_cast<unsigned char*>(&digest));
+
+    return base64(digest, SHA_DIGEST_LENGTH);
+}
+
 union MaskingKeyAsArray {
     uint32_t value;
     char array[4];
@@ -187,8 +199,7 @@ protected:
         if (elengthNumBytesLeft == 0) {
             switch (elengthNumBytes) {
                 case 2: {
-                    uint16_t length16 = static_cast<uint16_t>(length);
-                    length = be16toh(length16);
+                    length = be16toh(static_cast<uint16_t>(length));
                 } break;
                 case 8:
                     length = be64toh(length);
@@ -233,7 +244,8 @@ protected:
             MaskingKeyAsArray maskingKeyAsArray = {.value = htobe32(maskingKey)};
 
             for (uint64_t i = 0; i < junkLen; i++) {
-                *(junk + i) = *(junk + i) ^ maskingKeyAsArray.array[(i + payloadRead) % 4];
+                //                *(junk + i) = *(junk + i) ^ maskingKeyAsArray.array[(i + payloadRead) % 4];
+                *(junk + i) = *(junk + i) ^ *(maskingKeyAsArray.array + (i + payloadRead) % 4);
             }
 
             messageData.insert(messageData.end(), junk, junk + numBytesToRead);
@@ -380,7 +392,8 @@ protected:
         MaskingKeyAsArray maskingKeyAsArray = {.value = htobe32(maskingKey)};
 
         for (uint64_t i = 0; i < payloadLength; i++) {
-            *(frame + payloadOffset + i) = *(payload + i) ^ maskingKeyAsArray.array[i % 4];
+            *reinterpret_cast<uint8_t*>(frame + payloadOffset + i) =
+                *reinterpret_cast<uint8_t*>(const_cast<char*>(payload + i)) ^ *reinterpret_cast<uint8_t*>(maskingKeyAsArray.array + i % 4);
         }
 
         for (std::size_t i = 0; i < frameLength; i++) {
@@ -415,18 +428,6 @@ protected:
     uint8_t maskingKeyOffset = 2;
     uint8_t payloadOffset = 2;
 };
-
-std::string serverWebSocketKey(const std::string& clientWebSocketKey) {
-    std::string GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-
-    std::string serverWebSocketKey(clientWebSocketKey + GUID);
-    unsigned char digest[SHA_DIGEST_LENGTH];
-    SHA1(reinterpret_cast<const unsigned char*>(serverWebSocketKey.c_str()),
-         serverWebSocketKey.length(),
-         reinterpret_cast<unsigned char*>(&digest));
-
-    return base64(digest, SHA_DIGEST_LENGTH);
-}
 
 int main(int argc, char* argv[]) {
     SNodeC::init(argc, argv);
