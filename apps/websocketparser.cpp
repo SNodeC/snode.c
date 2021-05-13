@@ -244,7 +244,6 @@ protected:
             MaskingKeyAsArray maskingKeyAsArray = {.value = htobe32(maskingKey)};
 
             for (uint64_t i = 0; i < junkLen; i++) {
-                //                *(junk + i) = *(junk + i) ^ maskingKeyAsArray.array[(i + payloadRead) % 4];
                 *(junk + i) = *(junk + i) ^ *(maskingKeyAsArray.array + (i + payloadRead) % 4);
             }
 
@@ -392,8 +391,10 @@ protected:
         MaskingKeyAsArray maskingKeyAsArray = {.value = htobe32(maskingKey)};
 
         for (uint64_t i = 0; i < payloadLength; i++) {
-            *reinterpret_cast<uint8_t*>(frame + payloadOffset + i) =
-                *reinterpret_cast<uint8_t*>(const_cast<char*>(payload + i)) ^ *reinterpret_cast<uint8_t*>(maskingKeyAsArray.array + i % 4);
+            //            *reinterpret_cast<uint8_t*>(frame + payloadOffset + i) =
+            //                *reinterpret_cast<uint8_t*>(const_cast<char*>(payload + i)) ^
+            //                *reinterpret_cast<uint8_t*>(maskingKeyAsArray.array + i % 4);
+            *(frame + payloadOffset + i) = *(payload + i) ^ *(maskingKeyAsArray.array + i % 4);
         }
 
         for (std::size_t i = 0; i < frameLength; i++) {
