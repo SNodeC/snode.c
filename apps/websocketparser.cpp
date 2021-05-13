@@ -354,6 +354,7 @@ public:
 protected:
     void send(bool end, uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey) {
         std::size_t messageOffset = 0;
+
         while (messageLength - messageOffset > 0) {
             std::size_t sendMessageLength =
                 (messageLength - messageOffset <= WSPAYLOADLENGTH) ? messageLength - messageOffset : WSPAYLOADLENGTH;
