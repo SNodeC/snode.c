@@ -26,7 +26,7 @@ char* base64(const unsigned char* input, int length) {
 
 unsigned char* decode64(const char* input, int length) {
     const int pl = 3 * length / 4;
-    auto output = reinterpret_cast<unsigned char*>(calloc(pl + 1, 1));
+    unsigned char* output = reinterpret_cast<unsigned char*>(calloc(pl + 1, 1));
     const int ol = EVP_DecodeBlock(output, reinterpret_cast<const unsigned char*>(input), length);
     if (pl != ol) {
         std::cerr << "Whoops, decode predicted " << pl << " but we got " << ol << "\n";
@@ -330,7 +330,7 @@ protected:
     uint64_t payloadRead = 0;
 };
 
-#define WSPAYLOADLENGTH 4
+#define WSPAYLOADLENGTH 128
 
 class WebSocketSender {
 public:
@@ -391,9 +391,6 @@ protected:
         MaskingKeyAsArray maskingKeyAsArray = {.value = htobe32(maskingKey)};
 
         for (uint64_t i = 0; i < payloadLength; i++) {
-            //            *reinterpret_cast<uint8_t*>(frame + payloadOffset + i) =
-            //                *reinterpret_cast<uint8_t*>(const_cast<char*>(payload + i)) ^
-            //                *reinterpret_cast<uint8_t*>(maskingKeyAsArray.array + i % 4);
             *(frame + payloadOffset + i) = *(payload + i) ^ *(maskingKeyAsArray.array + i % 4);
         }
 
@@ -476,10 +473,6 @@ int main(int argc, char* argv[]) {
     webSocketReceiver.receive(s.data(), s.length());
     s = "\x80\x02\x6c\x6f";
     webSocketReceiver.receive(s.data(), s.length());
-
-    std::cout << "====================================" << std::endl;
-
-    //    frame = {};
 
     SocketServer webSocketParser(
         [](const SocketServer::SocketAddress& localAddress,
