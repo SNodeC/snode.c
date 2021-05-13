@@ -438,12 +438,12 @@ protected:
 
         //        dumpFrame(frame, frameLength);
 
-        //        webSocketReceiver.receive(frame, frameLength);
-
-        for (unsigned long i = 0; i < frameLength; i++) {
-            webSocketReceiver.receive(frame + i, 1);
-        }
-
+        webSocketReceiver.receive(frame, static_cast<std::size_t>(frameLength));
+        /*
+                for (unsigned long i = 0; i < frameLength; i++) {
+                    webSocketReceiver.receive(frame + i, 1);
+                }
+        */
         delete[] frame;
 
         reset();
