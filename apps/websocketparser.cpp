@@ -401,8 +401,8 @@ protected:
         char* frame = nullptr;
         uint64_t length = 0;
 
-        if (payloadLength > 125) {
-            if (payloadLength > 0xFFFF) {
+        if (payloadLength > 125 || true) {
+            if (payloadLength > 0xFFFF || true) {
                 frameLength += 8;
                 maskingKeyOffset += 8;
                 payloadOffset += 8;
