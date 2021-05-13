@@ -39,7 +39,7 @@ endforeach()
 find_package(range-v3 REQUIRED)
 
 set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -Wno-psabi -pedantic-errors"
+    "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -Wno-psabi -Wconversion -pedantic-errors"
 )
 
 option(CXX_INSTRUMENT_METHODS "Instrument methods and functions")

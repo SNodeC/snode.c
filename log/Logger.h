@@ -38,7 +38,7 @@ public:
 
     static void setLogLevel(int level);
 
-    static void setVerboseLevel(int level);
+    static void setVerboseLevel(unsigned short level);
 
     static void logToFile(const std::string& logFile = "");
 

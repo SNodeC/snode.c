@@ -47,10 +47,10 @@ int main(int argc, char* argv[]) {
 
         legacyApp.use(middleware::VHost("localhost:8080").use(middleware::StaticMiddleware(SERVERROOT)));
         legacyApp.use(middleware::VHost("titan.home.vchrist.at:8080").get("/", [] APPLICATION(req, res) {
-            res.send("Hello - I am VHOST titan.home.vchrist.at");
+            res.send("Hello! I am VHOST titan.home.vchrist.at.");
         }));
         legacyApp.use([] APPLICATION(req, res) {
-            res.sendStatus(404);
+            res.status(404).send("The requested resource is not found.");
         });
 
         legacyApp.onConnect(
@@ -80,10 +80,10 @@ int main(int argc, char* argv[]) {
 
         tlsApp.use(middleware::VHost("localhost:8088").use(getRouter()));
         tlsApp.use(middleware::VHost("titan.home.vchrist.at:8088").get("/", [] APPLICATION(req, res) {
-            res.send("Hello - I am VHOST titan.home.vchrist.at");
+            res.send("Hello! I am VHOST titan.home.vchrist.at.");
         }));
         tlsApp.use([] APPLICATION(req, res) {
-            res.sendStatus(404);
+            res.status(404).send("The requested resource is not found.");
         });
 
         tlsApp.onConnect([](const tls::WebApp6::SocketAddress& localAddress, const tls::WebApp6::SocketAddress& remoteAddress) -> void {

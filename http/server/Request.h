@@ -39,7 +39,7 @@ namespace http::server {
         const std::string& header(const std::string& key, int i = 0) const;
         const std::string& cookie(const std::string& key) const;
         const std::string& query(const std::string& key) const;
-        int bodyLength() const;
+        std::size_t bodyLength() const;
 
         // Properties
         std::string method;
@@ -48,7 +48,7 @@ namespace http::server {
         int httpMajor = 0;
         int httpMinor = 0;
         char* body = nullptr;
-        int contentLength = 0;
+        std::size_t contentLength = 0;
 
         ConnectionState connectionState = ConnectionState::Default;
 

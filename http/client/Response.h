@@ -44,7 +44,7 @@ namespace http {
             std::string statusCode;
             std::string reason;
             char* body = nullptr;
-            int contentLength = 0;
+            std::size_t contentLength = 0;
             const std::map<std::string, std::string>* headers = nullptr;
             const std::map<std::string, CookieOptions>* cookies = nullptr;
 

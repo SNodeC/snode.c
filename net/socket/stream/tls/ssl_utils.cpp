@@ -45,7 +45,7 @@ namespace net::socket::stream::tls {
         memset(u, 0, ::strlen(static_cast<char*>(u))); // garble password
         free(u);
 
-        return ::strlen(buf);
+        return static_cast<int>(::strlen(buf));
     }
 
     static int verify_callback([[maybe_unused]] int preverify_ok, [[maybe_unused]] X509_STORE_CTX* ctx) {

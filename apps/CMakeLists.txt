@@ -371,7 +371,7 @@ set_target_properties(
 if(CHECK_INCLUDES)
     set_property(
         TARGET vhostserver PROPERTY CXX_INCLUDE_WHAT_YOU_USE
-                                         ${iwyu_path_and_options}
+                                    ${iwyu_path_and_options}
     )
 endif(CHECK_INCLUDES)
 
@@ -389,5 +389,22 @@ if(CHECK_INCLUDES)
     set_property(
         TARGET testpipe PROPERTY CXX_INCLUDE_WHAT_YOU_USE
                                  ${iwyu_path_and_options}
+    )
+endif(CHECK_INCLUDES)
+
+add_executable(websocketparser websocketparser.cpp)
+target_compile_options(websocketparser PRIVATE --warn-all)
+target_link_libraries(websocketparser LINK_PUBLIC net)
+install(TARGETS websocketparser RUNTIME DESTINATION bin)
+set_target_properties(
+    websocketparser
+    PROPERTIES CXX_STANDARD 20
+               CXX_STANDARD_REQUIRED ON
+               CXX_EXTENSIONS OFF
+)
+if(CHECK_INCLUDES)
+    set_property(
+        TARGET websocketparser PROPERTY CXX_INCLUDE_WHAT_YOU_USE
+                                        ${iwyu_path_and_options}
     )
 endif(CHECK_INCLUDES)
