@@ -16,6 +16,9 @@ add_library(
     server/RequestParser.cpp
     server/Request.cpp
     server/Response.cpp
+    websocket/WSReceiver.cpp
+    websocket/WSTransmitter.cpp
+    websocket/WSTransCeiver.cpp
 )
 
 target_link_libraries(http LINK_PUBLIC net ${LIBMAGIC_LIBRARIES})
