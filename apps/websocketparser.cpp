@@ -243,7 +243,7 @@ protected:
 
             MaskingKeyAsArray maskingKeyAsArray = {.value = htobe32(maskingKey)};
 
-            for (uint64_t i = 0; i < junkLen; i++) {
+            for (uint64_t i = 0; i < numBytesToRead; i++) {
                 *(junk + i) = *(junk + i) ^ *(maskingKeyAsArray.array + (i + payloadRead) % 4);
             }
 
