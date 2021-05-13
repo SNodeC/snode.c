@@ -283,7 +283,7 @@ protected:
     }
 
     void onMessageData(char* junk, uint64_t junkLen) {
-        std::cout << std::string(junk, junkLen);
+        std::cout << std::string(junk, static_cast<std::size_t>(junkLen));
     }
 
     void onMessageEnd() {
