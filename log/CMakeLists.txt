@@ -43,7 +43,9 @@ set_target_properties(
                SOVERSION 1
 )
 
-target_compile_options(logger PRIVATE --warn-all -Wno-unused-parameter -Wno-error=conversion)
+target_compile_options(
+    logger PRIVATE --warn-all -Wno-unused-parameter -Wno-error=conversion
+)
 
 target_compile_definitions(
     logger PRIVATE ELPP_NO_DEFAULT_LOG_FILE ELPP_CUSTOM_COUT=std::cerr

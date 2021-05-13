@@ -6,8 +6,12 @@ find_package(nlohmann_json 3.7.0 REQUIRED)
 
 add_library(
     express SHARED
-    Response.cpp Request.cpp Router.cpp WebApp.cpp
-    middleware/JsonMiddleware.cpp middleware/StaticMiddleware.cpp
+    Response.cpp
+    Request.cpp
+    Router.cpp
+    WebApp.cpp
+    middleware/JsonMiddleware.cpp
+    middleware/StaticMiddleware.cpp
     middleware/VHost.cpp
 )
 
