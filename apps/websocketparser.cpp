@@ -99,7 +99,7 @@ public:
     //  -+----------------+-----------------------------------------+-
 };
 
-class WebSocketReceiver {
+class WSReceiver {
 public:
     void receive(char* junk, std::size_t junkLen) {
         uint64_t consumed = 0;
@@ -330,9 +330,9 @@ protected:
 
 #define WSPAYLOADLENGTH 4
 
-class WebSocketSender {
+class WSTransmitter {
 public:
-    WebSocketReceiver webSocketReceiver;
+    WSReceiver wSReceiver;
 
 public:
     void messageStart(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey = 0) {
@@ -365,19 +365,13 @@ protected:
         }
     }
 
-    void dumpFrame(char* frame, uint64_t frameLength) {
-        for (std::size_t i = 0; i < frameLength; i++) {
-            std::cout << std::setfill('0') << std::setw(2) << std::hex << (unsigned int) (unsigned char) frame[i] << " ";
-
-            if ((i + 1) % 4 == 0) {
-                std::cout << std::endl;
-            }
-        }
-        std::cout << std::endl;
-    }
-
     void sendFrame(bool fin, uint8_t opCode, uint32_t maskingKey, const char* payload, uint64_t payloadLength) {
         uint64_t frameLength = 2 + payloadLength;
+        uint8_t opCodeOffset = 0;
+        uint8_t lengthOffset = 1;
+        uint8_t eLengthOffset = 2;
+        uint8_t maskingKeyOffset = 2;
+        uint8_t payloadOffset = 2;
 
         if (maskingKey > 0) {
             frameLength += 4;
@@ -424,40 +418,35 @@ protected:
         //        webSocketReceiver.receive(frame, static_cast<std::size_t>(frameLength));
 
         for (unsigned long i = 0; i < frameLength; i++) {
-            webSocketReceiver.receive(frame + i, 1);
+            wSReceiver.receive(frame + i, 1);
         }
 
         delete[] frame;
-
-        reset();
     }
 
-    void reset() {
-        opCodeOffset = 0;
-        lengthOffset = 1;
-        eLengthOffset = 2;
-        maskingKeyOffset = 2;
-        payloadOffset = 2;
-    }
+    void dumpFrame(char* frame, uint64_t frameLength) {
+        for (std::size_t i = 0; i < frameLength; i++) {
+            std::cout << std::setfill('0') << std::setw(2) << std::hex << (unsigned int) (unsigned char) frame[i] << " ";
 
-    uint8_t opCodeOffset = 0;
-    uint8_t lengthOffset = 1;
-    uint8_t eLengthOffset = 2;
-    uint8_t maskingKeyOffset = 2;
-    uint8_t payloadOffset = 2;
+            if ((i + 1) % 4 == 0) {
+                std::cout << std::endl;
+            }
+        }
+        std::cout << std::endl;
+    }
 };
 
 int main(int argc, char* argv[]) {
     SNodeC::init(argc, argv);
 
-    WebSocketSender webSocketSender;
+    WSTransmitter wSTransmitter;
 
     const char* message = "Hallo Du, heute ist ein schöner Tag oder meinst du nicht?"
                           "Hallo Du, heute ist ein schöner Tag oder meinst du nicht?"
                           "Hallo Du, heute ist ein schöner Tag oder meinst du nicht?"
                           "Hallo Du, heute ist ein schöner Tag oder meinst du nicht?";
 
-    webSocketSender.message(1, message, std::string(message).length());
+    wSTransmitter.message(1, message, std::string(message).length());
 
     std::string clientWebSocketKey = "dGhlIHNhbXBsZSBub25jZQ==";
 
@@ -481,24 +470,25 @@ int main(int argc, char* argv[]) {
     //    64KiB binary message in a single unmasked frame
     //    0x82 0x7F 0x0000000000010000 [65536 bytes of binary data]
 
-    WebSocketReceiver webSocketReceiver;
+    WSReceiver wSReceiver;
 
     std::string s("\x81\x05\x48\x65\x6c\x6c\x6f");
-    webSocketReceiver.receive(s.data(), s.length());
+    wSReceiver.receive(s.data(), s.length());
 
     s = "\x81\x85\x37\xfa\x21\x3d\x7f\x9f\x4d\x51\x58";
-    webSocketReceiver.receive(s.data(), s.length());
+    wSReceiver.receive(s.data(), s.length());
 
     s = "\x01\x03\x48\x65\x6c";
-    webSocketReceiver.receive(s.data(), s.length());
-    s = "\x80\x02\x6c\x6f";
-    webSocketReceiver.receive(s.data(), s.length());
+    wSReceiver.receive(s.data(), s.length());
 
-    webSocketSender.messageStart(1, message, std::string(message).length(), 0x12345678);
-    webSocketSender.message(message, std::string(message).length(), 0x23456789);
-    webSocketSender.message(message, std::string(message).length(), 0x12345678);
-    webSocketSender.message(message, std::string(message).length(), 0x23456789);
-    webSocketSender.messageEnd(message, std::string(message).length(), 0x34567890);
+    s = "\x80\x02\x6c\x6f";
+    wSReceiver.receive(s.data(), s.length());
+
+    wSTransmitter.messageStart(1, message, std::string(message).length(), 0x12345678);
+    wSTransmitter.message(message, std::string(message).length(), 0x23456789);
+    wSTransmitter.message(message, std::string(message).length(), 0x12345678);
+    wSTransmitter.message(message, std::string(message).length(), 0x23456789);
+    wSTransmitter.messageEnd(message, std::string(message).length(), 0x34567890);
 
     SocketServer webSocketParser(
         [](const SocketServer::SocketAddress& localAddress,
