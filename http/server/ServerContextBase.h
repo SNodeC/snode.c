@@ -19,7 +19,9 @@
 #ifndef HTTP_SERVER_SERVERCONTEXTBASE_H
 #define HTTP_SERVER_SERVERCONTEXTBASE_H
 
-#include "net/socket/stream/SocketConnectionBase.h"
+namespace net::socket::stream {
+    class SocketConnectionBase;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -42,6 +44,8 @@ namespace http::server {
         virtual void receiveData(const char* junk, std::size_t junkLen) = 0;
         virtual void onWriteError(int errnum) = 0;
         virtual void onReadError(int errnum) = 0;
+
+        void upgrade(ServerContextBase* serverContextBase);
 
     protected:
         SocketConnection* socketConnection = nullptr;

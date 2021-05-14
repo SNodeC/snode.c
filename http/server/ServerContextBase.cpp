@@ -16,37 +16,25 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WSTRANSCEIVER_H
-#define WSTRANSCEIVER_H
+#include "ServerContextBase.h"
 
-#include "http/server/ServerContextBase.h"
-#include "http/websocket/WSReceiver.h"
-#include "http/websocket/WSTransmitter.h"
+#include "net/socket/stream/SocketConnectionBase.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http::websocket {
+namespace http::server {
 
-    class WSServerContext
-        : public http::server::ServerContextBase
-        , public WSReceiver
-        , public WSTransmitter {
-    private:
-        void receiveData(const char* junk, std::size_t junklen) override;
-        void onReadError(int errnum) override;
-        void onWriteError(int errnum) override;
+    void http::server::ServerContextBase::upgrade(ServerContextBase* serverContextBase) {
+        socketConnection->template getContext<ServerContextBase*>(
+            [socketConnection = this->socketConnection, &serverContextBase](ServerContextBase* serverContext) -> void {
+                socketConnection->template setContext<ServerContextBase*>(serverContextBase);
 
-        void onMessageStart(int opCode) override;
-        void onMessageData(char* junk, uint64_t junkLen) override;
-        void onMessageEnd() override;
+                serverContextBase->setSocketConnection(socketConnection);
 
-        void onFrameReady(char* frame, uint64_t frameLength) override;
-    };
+                delete serverContext;
+            });
+    }
 
-} // namespace http::websocket
-
-#endif // WSTRANSCEIVER_H
+} // namespace http::server

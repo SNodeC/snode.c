@@ -43,7 +43,6 @@ namespace http::server {
         virtual void sendResponseData(const char* buf, std::size_t len) = 0;
         virtual void responseCompleted() = 0;
         virtual void terminateConnection() = 0;
-        virtual void upgrade(ServerContextBase* serverContextBase) = 0;
     };
 
     template <typename RequestT, typename ResponseT>
@@ -81,7 +80,6 @@ namespace http::server {
 
         void responseCompleted() override;
         void terminateConnection() override;
-        void upgrade(ServerContextBase* serverContextBase) override;
 
     private:
         std::function<void(Request& req, Response& res)> onRequestReady;

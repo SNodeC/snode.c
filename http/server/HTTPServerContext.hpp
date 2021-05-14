@@ -219,15 +219,4 @@ namespace http::server {
         reset();
     }
 
-    template <typename Request, typename Response>
-    void HTTPServerContext<Request, Response>::upgrade(ServerContextBase* serverContextBase) {
-        socketConnection->template getContext<ServerContextBase*>(
-            [socketConnection = this->socketConnection, &serverContextBase](ServerContextBase* serverContext) -> void {
-                socketConnection->template setContext<ServerContextBase*>(serverContextBase);
-                serverContextBase->setSocketConnection(socketConnection);
-
-                delete serverContext;
-            });
-    }
-
 } // namespace http::server
