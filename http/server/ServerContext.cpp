@@ -29,18 +29,18 @@
 
 namespace http::server {
 
-    void ServerContext::upgrade([[maybe_unused]] ServerContext* newServerContext) {
-        this->socketConnection->template setContext<ServerContext*>(newServerContext);
+    void ServerContext::upgrade(ServerContext* newServerContext) {
+        socketConnection->template setContext<ServerContext*>(newServerContext);
 
         newServerContext->setSocketConnection(socketConnection);
 
-        this->markForDelete = true;
+        markedForDelete = true;
     }
 
     void ServerContext::take(const char* junk, std::size_t junkLen) {
         receiveData(junk, junkLen);
 
-        if (markForDelete) {
+        if (markedForDelete) {
             delete this;
         }
     }

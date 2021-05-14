@@ -53,7 +53,7 @@ namespace http::server {
         SocketConnection* socketConnection = nullptr;
 
     private:
-        bool markForDelete = false;
+        bool markedForDelete = false;
     };
 
 } // namespace http::server
