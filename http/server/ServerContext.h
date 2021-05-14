@@ -52,6 +52,7 @@ namespace http::server {
     protected:
         SocketConnection* socketConnection = nullptr;
 
+    private:
         bool markForDelete = false;
     };
 
