@@ -51,9 +51,7 @@ namespace http::server {
                   },
                   [](SocketConnection* socketConnection, const char* junk, std::size_t junkLen) -> void { // onRead
                       socketConnection->template getContext<ServerContext*>([&junk, &junkLen](ServerContext* serverContext) -> void {
-                          std::cout << "##################### Bevor receiveData ######################" << std::endl;
-                          serverContext->receiveData(junk, junkLen);
-                          std::cout << "##################### After receiveData ######################" << std::endl;
+                          serverContext->take(junk, junkLen);
                       });
                   },
                   [](SocketConnection* socketConnection, int errnum) -> void { // onReadError

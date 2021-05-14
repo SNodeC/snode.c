@@ -42,18 +42,17 @@ namespace http::server {
 
         virtual ~ServerContext() = default;
 
+        void take(const char* junk, std::size_t junkLen);
         virtual void receiveData(const char* junk, std::size_t junkLen) = 0;
         virtual void onWriteError(int errnum) = 0;
         virtual void onReadError(int errnum) = 0;
-
-        void test() {
-            std::cout << "TestTest" << std::endl;
-        }
 
         void upgrade(ServerContext* newServerContext);
 
     protected:
         SocketConnection* socketConnection = nullptr;
+
+        bool markForDelete = false;
     };
 
 } // namespace http::server

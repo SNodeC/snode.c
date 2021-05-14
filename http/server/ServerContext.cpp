@@ -29,12 +29,20 @@
 
 namespace http::server {
 
-    void http::server::ServerContext::upgrade([[maybe_unused]] ServerContext* newServerContext) {
+    void ServerContext::upgrade([[maybe_unused]] ServerContext* newServerContext) {
         this->socketConnection->template setContext<ServerContext*>(newServerContext);
+
         newServerContext->setSocketConnection(socketConnection);
 
-        std::cout << "########################## after upgrade ##########################" << std::endl;
-        //        delete this;
+        this->markForDelete = true;
+    }
+
+    void ServerContext::take(const char* junk, std::size_t junkLen) {
+        receiveData(junk, junkLen);
+
+        if (markForDelete) {
+            delete this;
+        }
     }
 
 } // namespace http::server
