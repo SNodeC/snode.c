@@ -1,4 +1,4 @@
-#include "WSReceiver.h"
+#include "http/websocket/WSReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

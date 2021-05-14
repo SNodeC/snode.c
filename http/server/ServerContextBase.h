@@ -16,36 +16,37 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EXPRESS_RESPONSE_H
-#define EXPRESS_RESPONSE_H
+#ifndef HTTP_SERVER_SERVERCONTEXTBASE_H
+#define HTTP_SERVER_SERVERCONTEXTBASE_H
 
-#include "http/server/Response.h"
+#include "net/socket/stream/SocketConnectionBase.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
-#include <string>
+#include <cstddef>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace express {
+namespace http::server {
 
-    class Response : public http::server::Response {
+    class ServerContextBase {
     public:
-        Response(http::server::HTTPServerContextBase* serverContext);
+        using SocketConnection = net::socket::stream::SocketConnectionBase;
 
-        void sendFile(const std::string& file, const std::function<void(int err)>& onError);
-        void download(const std::string& file, const std::function<void(int err)>& onError);
-        void download(const std::string& file, const std::string& name, const std::function<void(int err)>& onError);
+        void setSocketConnection(SocketConnection* socketConnection) {
+            this->socketConnection = socketConnection;
+        }
 
-        void redirect(const std::string& name);
-        void redirect(int status, const std::string& name);
+        virtual ~ServerContextBase() = default;
 
-        void sendStatus(int status);
+        virtual void receiveData(const char* junk, std::size_t junkLen) = 0;
+        virtual void onWriteError(int errnum) = 0;
+        virtual void onReadError(int errnum) = 0;
 
-        void reset() override;
+    protected:
+        SocketConnection* socketConnection = nullptr;
     };
 
-} // namespace express
+} // namespace http::server
 
-#endif // EXPRESS_RESPONSE_H
+#endif // HTTP_SERVER_SERVERCONTEXTBASE_H

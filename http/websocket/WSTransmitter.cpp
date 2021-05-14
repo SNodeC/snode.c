@@ -1,4 +1,4 @@
-#include "WSTransmitter.h"
+#include "http/websocket/WSTransmitter.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

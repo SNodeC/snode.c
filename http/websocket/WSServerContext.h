@@ -1,8 +1,9 @@
 #ifndef WSTRANSCEIVER_H
 #define WSTRANSCEIVER_H
 
-#include "WSReceiver.h"
-#include "WSTransmitter.h"
+#include "http/server/ServerContextBase.h"
+#include "http/websocket/WSReceiver.h"
+#include "http/websocket/WSTransmitter.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -12,11 +13,14 @@
 
 namespace http::websocket {
 
-    class WSTransCeiver
-        : public WSReceiver
+    class WSServerContext
+        : public http::server::ServerContextBase
+        , public WSReceiver
         , public WSTransmitter {
     public:
-        WSTransCeiver();
+        void receiveData(const char* junk, std::size_t junklen) override;
+        void onReadError(int errnum) override;
+        void onWriteError(int errnum) override;
 
         void onMessageStart(int opCode) override;
         void onMessageData(char* junk, uint64_t junkLen) override;

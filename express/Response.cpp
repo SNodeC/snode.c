@@ -21,7 +21,7 @@
 #include "http/MimeTypes.h"
 #include "http/StatusCodes.h"
 #include "http/http_utils.h"
-#include "http/server/ServerContext.h"
+#include "http/server/HTTPServerContext.h"
 #include "net/file/FileReader.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -32,7 +32,7 @@
 
 namespace express {
 
-    Response::Response(http::server::ServerContextBase* serverContext)
+    Response::Response(http::server::HTTPServerContextBase* serverContext)
         : http::server::Response(serverContext) {
     }
 

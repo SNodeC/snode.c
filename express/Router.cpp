@@ -20,7 +20,7 @@
 
 #include "express/Request.h"
 #include "http/http_utils.h"
-#include "http/server/ServerContext.h"
+#include "http/server/HTTPServerContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -1,4 +1,4 @@
-#include "http/websocket/WSTransCeiver.h"
+#include "http/websocket/WSServerContext.h"
 #include "log/Logger.h"
 #include "net/SNodeC.h"
 #include "net/socket/ip/tcp/ipv4/legacy/SocketServer.h"
@@ -50,7 +50,7 @@ std::string serverWebSocketKey(const std::string& clientWebSocketKey) {
 int main(int argc, char* argv[]) {
     SNodeC::init(argc, argv);
 
-    http::websocket::WSTransCeiver wsTransCeiver;
+    http::websocket::WSServerContext wsTransCeiver;
 
     const char* message = "Hallo Du, heute ist ein schöner Tag oder meinst du nicht?"
                           "Hallo Du, heute ist ein schöner Tag oder meinst du nicht?"

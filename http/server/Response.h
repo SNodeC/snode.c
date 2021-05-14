@@ -35,11 +35,12 @@ class FileReader;
 
 namespace http::server {
 
+    class HTTPServerContextBase;
     class ServerContextBase;
 
     class Response : public net::stream::Sink {
     protected:
-        explicit Response(ServerContextBase* serverContext);
+        explicit Response(HTTPServerContextBase* serverContext);
 
     public:
         void send(const char* junk, std::size_t junkLen);
@@ -55,8 +56,10 @@ namespace http::server {
         Response& clearCookie(const std::string& name, const std::map<std::string, std::string>& options = {});
         Response& type(const std::string& type);
 
+        void upgrade(ServerContextBase* serverContextBase);
+
     protected:
-        ServerContextBase* serverContext;
+        HTTPServerContextBase* serverContext;
 
         ConnectionState connectionState = ConnectionState::Default;
 
@@ -82,7 +85,7 @@ namespace http::server {
         std::map<std::string, CookieOptions> cookies;
 
         template <typename Request, typename Response>
-        friend class ServerContext;
+        friend class HTTPServerContext;
     };
 
 } // namespace http::server

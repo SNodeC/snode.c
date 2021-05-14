@@ -50,9 +50,9 @@ namespace http::server {
         char* body = nullptr;
         std::size_t contentLength = 0;
 
+    protected:
         ConnectionState connectionState = ConnectionState::Default;
 
-    protected:
         virtual void reset();
 
         const std::map<std::string, std::string>* queries = nullptr;
@@ -62,7 +62,7 @@ namespace http::server {
         std::string nullstr = "";
 
         template <typename Request, typename Response>
-        friend class ServerContext;
+        friend class HTTPServerContext;
     };
 
 } // namespace http::server

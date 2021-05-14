@@ -22,6 +22,7 @@
 #include "http/server/Request.h"
 #include "http/server/RequestParser.h"
 #include "http/server/Response.h"
+#include "http/server/ServerContextBase.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -35,28 +36,25 @@ namespace net::socket::stream {
 
 namespace http::server {
 
-    class ServerContextBase {
+    class HTTPServerContextBase : public ServerContextBase {
     public:
-        virtual ~ServerContextBase() = default;
+        using SocketConnection = net::socket::stream::SocketConnectionBase;
 
-        virtual void receiveRequestData(const char* junk, std::size_t junkLen) = 0;
         virtual void sendResponseData(const char* buf, std::size_t len) = 0;
         virtual void responseCompleted() = 0;
         virtual void terminateConnection() = 0;
-
-        virtual void onWriteError(int errnum) = 0;
-        virtual void onReadError(int errnum) = 0;
+        virtual void upgrade(ServerContextBase* serverContextBase) = 0;
     };
 
     template <typename RequestT, typename ResponseT>
-    class ServerContext : public ServerContextBase {
+    class HTTPServerContext : public HTTPServerContextBase {
     public:
         using SocketConnection = net::socket::stream::SocketConnectionBase;
         using Request = RequestT;
         using Response = ResponseT;
 
         struct RequestContext {
-            RequestContext(ServerContext<Request, Response>* serverContext)
+            RequestContext(HTTPServerContextBase* serverContext)
                 : response(serverContext)
                 , ready(false)
                 , status(0) {
@@ -71,11 +69,11 @@ namespace http::server {
             std::string reason;
         };
 
-        ServerContext(SocketConnection* socketConnection, const std::function<void(Request& req, Response& res)>& onRequestReady);
+        HTTPServerContext(SocketConnection* socketConnection, const std::function<void(Request& req, Response& res)>& onRequestReady);
 
-        ~ServerContext() override = default;
+        ~HTTPServerContext() override = default;
 
-        void receiveRequestData(const char* junk, std::size_t junkLen) override;
+        void receiveData(const char* junk, std::size_t junkLen) override;
         void onReadError(int errnum) override;
 
         void sendResponseData(const char* junk, std::size_t junkLen) override;
@@ -83,10 +81,9 @@ namespace http::server {
 
         void responseCompleted() override;
         void terminateConnection() override;
+        void upgrade(ServerContextBase* serverContextBase) override;
 
     private:
-        SocketConnection* socketConnection;
-
         std::function<void(Request& req, Response& res)> onRequestReady;
 
         RequestParser parser;

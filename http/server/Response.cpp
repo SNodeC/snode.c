@@ -20,7 +20,7 @@
 
 #include "http/StatusCodes.h"
 #include "http/http_utils.h"
-#include "http/server/ServerContext.h"
+#include "http/server/HTTPServerContext.h"
 #include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -32,7 +32,7 @@
 
 namespace http::server {
 
-    Response::Response(ServerContextBase* serverContext)
+    Response::Response(HTTPServerContextBase* serverContext)
         : serverContext(serverContext) {
     }
 
@@ -104,6 +104,11 @@ namespace http::server {
 
     Response& Response::type(const std::string& type) {
         return set("Content-Type", type);
+    }
+
+    void Response::upgrade(ServerContextBase* serverContextBase) {
+        serverContext->upgrade(serverContextBase);
+        end();
     }
 
     Response& Response::cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options) {

@@ -1,7 +1,7 @@
 #ifndef HTTP_SERVER_SERVERT_H
 #define HTTP_SERVER_SERVERT_H
 
-#include "http/server/ServerContext.hpp"
+#include "http/server/HTTPServerContext.hpp"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -35,9 +35,9 @@ namespace http::server {
                               const SocketAddress& remoteAddress) -> void { // OnConnect
                       onConnect(localAddress, remoteAddress);
                   },
-                  [onConnected, onRequestReady](SocketConnection* socketConnection) -> void { // onConnected
+                  [onConnected, onRequestReady](SocketConnection* socketConnection) -> void { // onConnected.
                       socketConnection->template setContext<ServerContextBase*>(
-                          new ServerContext<Request, Response>(socketConnection, onRequestReady));
+                          new HTTPServerContext<Request, Response>(socketConnection, onRequestReady));
 
                       onConnected(socketConnection);
                   },
@@ -51,7 +51,7 @@ namespace http::server {
                   [](SocketConnection* socketConnection, const char* junk, std::size_t junkLen) -> void { // onRead
                       socketConnection->template getContext<ServerContextBase*>(
                           [&junk, &junkLen](ServerContextBase* serverContext) -> void {
-                              serverContext->receiveRequestData(junk, junkLen);
+                              serverContext->receiveData(junk, junkLen);
                           });
                   },
                   [](SocketConnection* socketConnection, int errnum) -> void { // onReadError

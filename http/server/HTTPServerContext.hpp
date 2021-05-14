@@ -17,7 +17,7 @@
  */
 
 #include "http/http_utils.h"
-#include "http/server/ServerContext.h"
+#include "http/server/HTTPServerContext.h"
 #include "log/Logger.h"
 #include "net/socket/stream/SocketConnectionBase.h"
 
@@ -30,10 +30,9 @@
 namespace http::server {
 
     template <typename Request, typename Response>
-    ServerContext<Request, Response>::ServerContext(SocketConnection* socketConnection,
-                                                    const std::function<void(Request& req, Response& res)>& onRequestReady)
-        : socketConnection(socketConnection)
-        , onRequestReady(onRequestReady)
+    HTTPServerContext<Request, Response>::HTTPServerContext(SocketConnection* socketConnection,
+                                                            const std::function<void(Request& req, Response& res)>& onRequestReady)
+        : onRequestReady(onRequestReady)
         , parser(
               [this](void) -> void {
                   VLOG(3) << "++ BEGIN:";
@@ -108,15 +107,16 @@ namespace http::server {
 
                   requestParsed();
               }) {
+        this->setSocketConnection(socketConnection);
     }
 
     template <typename Request, typename Response>
-    void ServerContext<Request, Response>::receiveRequestData(const char* junk, std::size_t junkLen) {
+    void HTTPServerContext<Request, Response>::receiveData(const char* junk, std::size_t junkLen) {
         parser.parse(junk, junkLen);
     }
 
     template <typename Request, typename Response>
-    void ServerContext<Request, Response>::onReadError(int errnum) {
+    void HTTPServerContext<Request, Response>::onReadError(int errnum) {
         if (errnum != 0 && errnum != ECONNRESET) {
             PLOG(ERROR) << "Connection read: " << errnum;
             reset();
@@ -124,12 +124,12 @@ namespace http::server {
     }
 
     template <typename Request, typename Response>
-    void ServerContext<Request, Response>::sendResponseData(const char* junk, std::size_t junkLen) {
+    void HTTPServerContext<Request, Response>::sendResponseData(const char* junk, std::size_t junkLen) {
         socketConnection->enqueue(junk, junkLen);
     }
 
     template <typename Request, typename Response>
-    void ServerContext<Request, Response>::onWriteError(int errnum) {
+    void HTTPServerContext<Request, Response>::onWriteError(int errnum) {
         if (errnum != 0 && errnum != ECONNRESET) {
             PLOG(ERROR) << "Connection write: " << errnum;
             reset();
@@ -137,7 +137,7 @@ namespace http::server {
     }
 
     template <typename Request, typename Response>
-    void ServerContext<Request, Response>::requestParsed() {
+    void HTTPServerContext<Request, Response>::requestParsed() {
         if (!requestInProgress) {
             RequestContext& requestContext = requestContexts.front();
 
@@ -163,7 +163,7 @@ namespace http::server {
     }
 
     template <typename Request, typename Response>
-    void ServerContext<Request, Response>::responseCompleted() {
+    void HTTPServerContext<Request, Response>::responseCompleted() {
         RequestContext& requestContext = requestContexts.front();
 
         // if 0.9 => terminate
@@ -198,7 +198,7 @@ namespace http::server {
     }
 
     template <typename Request, typename Response>
-    void ServerContext<Request, Response>::reset() {
+    void HTTPServerContext<Request, Response>::reset() {
         if (!requestContexts.empty()) {
             RequestContext& requestContext = requestContexts.front();
             requestContext.request.reset();
@@ -209,7 +209,7 @@ namespace http::server {
     }
 
     template <typename Request, typename Response>
-    void ServerContext<Request, Response>::terminateConnection() {
+    void HTTPServerContext<Request, Response>::terminateConnection() {
         if (!connectionTerminated) {
             socketConnection->close();
             requestContexts.clear();
@@ -217,6 +217,17 @@ namespace http::server {
         }
 
         reset();
+    }
+
+    template <typename Request, typename Response>
+    void HTTPServerContext<Request, Response>::upgrade(ServerContextBase* serverContextBase) {
+        socketConnection->template getContext<ServerContextBase*>(
+            [socketConnection = this->socketConnection, &serverContextBase](ServerContextBase* serverContext) -> void {
+                socketConnection->template setContext<ServerContextBase*>(serverContextBase);
+                serverContextBase->setSocketConnection(socketConnection);
+
+                delete serverContext;
+            });
     }
 
 } // namespace http::server
