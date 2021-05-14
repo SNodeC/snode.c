@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "http/server/RequestParser.h"
+#include "http/server/http/RequestParser.h"
 
 #include "http/http_utils.h"
 

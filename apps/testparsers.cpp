@@ -19,9 +19,9 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "http/Parser.h"
-#include "http/client/ResponseParser.h" // for HTTPResponseParser, ResponseCookie
-#include "http/server/RequestParser.h"  // for RequestParser
-#include "log/Logger.h"                 // for Writer, Storage, VLOG
+#include "http/client/ResponseParser.h"     // for HTTPResponseParser, ResponseCookie
+#include "http/server/http/RequestParser.h" // for RequestParser
+#include "log/Logger.h"                     // for Writer, Storage, VLOG
 
 #include <cstddef>
 #include <cstring>     // for memcpy, std::size_t

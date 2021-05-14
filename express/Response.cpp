@@ -21,7 +21,7 @@
 #include "http/MimeTypes.h"
 #include "http/StatusCodes.h"
 #include "http/http_utils.h"
-#include "http/server/HTTPServerContext.h"
+#include "http/server/http/HTTPServerContext.h"
 #include "net/file/FileReader.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

@@ -18,7 +18,7 @@
 
 #include "ServerContext.h"
 
-#include "http/server/HTTPServerContext.h"
+#include "http/server/http/HTTPServerContext.h"
 #include "net/socket/stream/SocketConnectionBase.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

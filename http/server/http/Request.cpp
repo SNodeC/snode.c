@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "http/server/Request.h"
+#include "http/server/http/Request.h"
 
 #include "http/http_utils.h"
 

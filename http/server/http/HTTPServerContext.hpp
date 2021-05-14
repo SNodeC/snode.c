@@ -17,7 +17,7 @@
  */
 
 #include "http/http_utils.h"
-#include "http/server/HTTPServerContext.h"
+#include "http/server/http/HTTPServerContext.h"
 #include "log/Logger.h"
 #include "net/socket/stream/SocketConnectionBase.h"
 
