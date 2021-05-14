@@ -1,7 +1,7 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020  Volker Christian <me@vchrist.at>
- * Json Middleware 2020 Marlene Mayr, Anna Moser, Matteo Prock, Eric Thalhammer
+ * Copyright (C) 2020, 2021  Volker Christian <me@vchrist.at>
+ * Json Middleware 2020, 2021 Marlene Mayr, Anna Moser, Matteo Prock, Eric Thalhammer
  * Github <MarleneMayr><moseranna><MatteoMatteoMatteo><peregrin-tuk>
  *
  * This program is free software: you can redistribute it and/or modify
