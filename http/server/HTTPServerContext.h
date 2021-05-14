@@ -16,13 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HTTP_SERVER_SERVERCONTEXT_H
-#define HTTP_SERVER_SERVERCONTEXT_H
+#ifndef HTTP_SERVER_HTTPSERVERCONTEXT_H
+#define HTTP_SERVER_HTTPSERVERCONTEXT_H
 
 #include "http/server/Request.h"
 #include "http/server/RequestParser.h"
 #include "http/server/Response.h"
-#include "http/server/ServerContextBase.h"
+#include "http/server/ServerContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -36,7 +36,7 @@ namespace net::socket::stream {
 
 namespace http::server {
 
-    class HTTPServerContextBase : public ServerContextBase {
+    class HTTPServerContextBase : public ServerContext {
     public:
         using SocketConnection = net::socket::stream::SocketConnectionBase;
 
@@ -98,4 +98,4 @@ namespace http::server {
 
 } // namespace http::server
 
-#endif // HTTP_SERVER_SERVERCONTEXT_H
+#endif // HTTP_SERVER_HTTPSERVERCONTEXT_H

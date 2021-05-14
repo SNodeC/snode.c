@@ -16,7 +16,7 @@ add_library(
     server/RequestParser.cpp
     server/Request.cpp
     server/Response.cpp
-    server/ServerContextBase.cpp
+    server/ServerContext.cpp
     websocket/WSReceiver.cpp
     websocket/WSTransmitter.cpp
     websocket/WSServerContext.cpp

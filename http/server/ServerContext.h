@@ -16,25 +16,41 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ServerContextBase.h"
+#ifndef HTTP_SERVER_SERVERCONTEXT_H
+#define HTTP_SERVER_SERVERCONTEXT_H
 
-#include "net/socket/stream/SocketConnectionBase.h"
+namespace net::socket::stream {
+    class SocketConnectionBase;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <cstddef>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace http::server {
 
-    void http::server::ServerContextBase::upgrade(ServerContextBase* serverContextBase) {
-        socketConnection->template getContext<ServerContextBase*>(
-            [socketConnection = this->socketConnection, &serverContextBase](ServerContextBase* serverContext) -> void {
-                socketConnection->template setContext<ServerContextBase*>(serverContextBase);
+    class ServerContext {
+    public:
+        using SocketConnection = net::socket::stream::SocketConnectionBase;
 
-                serverContextBase->setSocketConnection(socketConnection);
+        void setSocketConnection(SocketConnection* socketConnection) {
+            this->socketConnection = socketConnection;
+        }
 
-                delete serverContext;
-            });
-    }
+        virtual ~ServerContext() = default;
+
+        virtual void receiveData(const char* junk, std::size_t junkLen) = 0;
+        virtual void onWriteError(int errnum) = 0;
+        virtual void onReadError(int errnum) = 0;
+
+        void upgrade(ServerContext* serverContextBase);
+
+    protected:
+        SocketConnection* socketConnection = nullptr;
+    };
 
 } // namespace http::server
+
+#endif // HTTP_SERVER_SERVERCONTEXT_H

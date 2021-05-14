@@ -19,7 +19,7 @@
 #ifndef WSTRANSCEIVER_H
 #define WSTRANSCEIVER_H
 
-#include "http/server/ServerContextBase.h"
+#include "http/server/ServerContext.h"
 #include "http/websocket/WSReceiver.h"
 #include "http/websocket/WSTransmitter.h"
 
@@ -32,7 +32,7 @@
 namespace http::websocket {
 
     class WSServerContext
-        : public http::server::ServerContextBase
+        : public http::server::ServerContext
         , public WSReceiver
         , public WSTransmitter {
     private:

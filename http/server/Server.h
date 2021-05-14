@@ -36,31 +36,30 @@ namespace http::server {
                       onConnect(localAddress, remoteAddress);
                   },
                   [onConnected, onRequestReady](SocketConnection* socketConnection) -> void { // onConnected.
-                      socketConnection->template setContext<ServerContextBase*>(
+                      socketConnection->template setContext<ServerContext*>(
                           new HTTPServerContext<Request, Response>(socketConnection, onRequestReady));
 
                       onConnected(socketConnection);
                   },
                   [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
-                      socketConnection->template getContext<ServerContextBase*>([](ServerContextBase* serverContext) -> void {
+                      socketConnection->template getContext<ServerContext*>([](ServerContext* serverContext) -> void {
                           delete serverContext;
                       });
 
                       onDisconnect(socketConnection);
                   },
                   [](SocketConnection* socketConnection, const char* junk, std::size_t junkLen) -> void { // onRead
-                      socketConnection->template getContext<ServerContextBase*>(
-                          [&junk, &junkLen](ServerContextBase* serverContext) -> void {
-                              serverContext->receiveData(junk, junkLen);
-                          });
+                      socketConnection->template getContext<ServerContext*>([&junk, &junkLen](ServerContext* serverContext) -> void {
+                          serverContext->receiveData(junk, junkLen);
+                      });
                   },
                   [](SocketConnection* socketConnection, int errnum) -> void { // onReadError
-                      socketConnection->template getContext<ServerContextBase*>([&errnum](ServerContextBase* serverContext) -> void {
+                      socketConnection->template getContext<ServerContext*>([&errnum](ServerContext* serverContext) -> void {
                           serverContext->onReadError(errnum);
                       });
                   },
                   [](SocketConnection* socketConnection, int errnum) -> void { // onWriteError
-                      socketConnection->template getContext<ServerContextBase*>([&errnum](ServerContextBase* serverContext) -> void {
+                      socketConnection->template getContext<ServerContext*>([&errnum](ServerContext* serverContext) -> void {
                           serverContext->onWriteError(errnum);
                       });
                   },

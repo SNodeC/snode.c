@@ -36,7 +36,7 @@ class FileReader;
 namespace http::server {
 
     class HTTPServerContextBase;
-    class ServerContextBase;
+    class ServerContext;
 
     class Response : public net::stream::Sink {
     protected:
@@ -56,7 +56,7 @@ namespace http::server {
         Response& clearCookie(const std::string& name, const std::map<std::string, std::string>& options = {});
         Response& type(const std::string& type);
 
-        void upgrade(ServerContextBase* serverContextBase);
+        void upgrade(ServerContext* serverContext);
 
     protected:
         HTTPServerContextBase* serverContext;
