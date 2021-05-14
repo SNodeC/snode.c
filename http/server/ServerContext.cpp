@@ -18,23 +18,23 @@
 
 #include "ServerContext.h"
 
+#include "http/server/HTTPServerContext.h"
 #include "net/socket/stream/SocketConnectionBase.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <iostream>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace http::server {
 
-    void http::server::ServerContext::upgrade(ServerContext* serverContextBase) {
-        socketConnection->template getContext<ServerContext*>(
-            [socketConnection = this->socketConnection, &serverContextBase](ServerContext* serverContext) -> void {
-                socketConnection->template setContext<ServerContext*>(serverContextBase);
+    void http::server::ServerContext::upgrade([[maybe_unused]] ServerContext* newServerContext) {
+        this->socketConnection->template setContext<ServerContext*>(newServerContext);
+        newServerContext->setSocketConnection(socketConnection);
 
-                serverContextBase->setSocketConnection(socketConnection);
-
-                delete serverContext;
-            });
+        std::cout << "########################## after upgrade ##########################" << std::endl;
+        //        delete this;
     }
 
 } // namespace http::server

@@ -394,7 +394,7 @@ endif(CHECK_INCLUDES)
 
 add_executable(websocketparser websocketparser.cpp)
 target_compile_options(websocketparser PRIVATE --warn-all)
-target_link_libraries(websocketparser LINK_PUBLIC http)
+target_link_libraries(websocketparser LINK_PUBLIC express)
 install(TARGETS websocketparser RUNTIME DESTINATION bin)
 set_target_properties(
     websocketparser

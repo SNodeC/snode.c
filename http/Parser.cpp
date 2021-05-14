@@ -152,7 +152,6 @@ namespace http {
             } else {
                 httputils::to_lower(field);
                 httputils::str_trimm(value);
-                httputils::to_lower(value);
 
                 if (headers.find(field) == headers.end()) {
                     headers.insert({field, value});

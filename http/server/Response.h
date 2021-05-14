@@ -56,7 +56,7 @@ namespace http::server {
         Response& clearCookie(const std::string& name, const std::map<std::string, std::string>& options = {});
         Response& type(const std::string& type);
 
-        void upgrade(ServerContext* serverContext);
+        void upgrade(ServerContext* newServerContext);
 
     protected:
         HTTPServerContextBase* serverContext;

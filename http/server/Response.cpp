@@ -106,8 +106,8 @@ namespace http::server {
         return set("Content-Type", type);
     }
 
-    void Response::upgrade(ServerContext* serverContext) {
-        serverContext->upgrade(serverContext);
+    void Response::upgrade(ServerContext* newServerContext) {
+        serverContext->upgrade(newServerContext);
         end();
     }
 

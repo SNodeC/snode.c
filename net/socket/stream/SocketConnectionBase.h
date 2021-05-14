@@ -43,12 +43,12 @@ namespace net::socket::stream {
 
         template <utils::InjectableAttribute Attribute>
         constexpr void setContext(Attribute& attribute) const {
-            protocol.setAttribute<Attribute>(attribute);
+            protocol.setAttribute<Attribute>(attribute, true);
         }
 
         template <utils::InjectableAttribute Attribute>
         constexpr void setContext(Attribute&& attribute) const {
-            protocol.setAttribute<Attribute>(attribute);
+            protocol.setAttribute<Attribute>(attribute, true);
         }
 
         template <utils::InjectableAttribute Attribute>

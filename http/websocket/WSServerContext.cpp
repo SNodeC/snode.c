@@ -18,8 +18,11 @@
 
 #include "http/websocket/WSServerContext.h"
 
+#include "net/socket/stream/SocketConnectionBase.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstring>
 #include <iostream>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -31,9 +34,11 @@ namespace http::websocket {
     }
 
     void WSServerContext::onReadError([[maybe_unused]] int errnum) {
+        socketConnection->close();
     }
 
     void WSServerContext::onWriteError([[maybe_unused]] int errnum) {
+        socketConnection->close();
     }
 
     void WSServerContext::onMessageStart(int opCode) {
@@ -46,10 +51,11 @@ namespace http::websocket {
 
     void WSServerContext::onMessageEnd() {
         std::cout << std::endl << "Message End" << std::endl;
+        message(1, "Hallo zurück", strlen("Hallo zurück"));
     }
 
     void WSServerContext::onFrameReady(char* frame, uint64_t frameLength) {
-        receive(frame, static_cast<std::size_t>(frameLength));
+        socketConnection->enqueue(frame, static_cast<std::size_t>(frameLength));
     }
 
 } // namespace http::websocket

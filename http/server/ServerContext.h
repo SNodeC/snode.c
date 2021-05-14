@@ -26,6 +26,7 @@ namespace net::socket::stream {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
+#include <iostream>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -45,7 +46,11 @@ namespace http::server {
         virtual void onWriteError(int errnum) = 0;
         virtual void onReadError(int errnum) = 0;
 
-        void upgrade(ServerContext* serverContextBase);
+        void test() {
+            std::cout << "TestTest" << std::endl;
+        }
+
+        void upgrade(ServerContext* newServerContext);
 
     protected:
         SocketConnection* socketConnection = nullptr;

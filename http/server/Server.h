@@ -8,6 +8,7 @@
 #include <any>
 #include <cstddef>
 #include <functional>
+#include <iostream>
 #include <map>
 #include <netinet/in.h>
 #include <string>
@@ -50,7 +51,9 @@ namespace http::server {
                   },
                   [](SocketConnection* socketConnection, const char* junk, std::size_t junkLen) -> void { // onRead
                       socketConnection->template getContext<ServerContext*>([&junk, &junkLen](ServerContext* serverContext) -> void {
+                          std::cout << "##################### Bevor receiveData ######################" << std::endl;
                           serverContext->receiveData(junk, junkLen);
+                          std::cout << "##################### After receiveData ######################" << std::endl;
                       });
                   },
                   [](SocketConnection* socketConnection, int errnum) -> void { // onReadError
