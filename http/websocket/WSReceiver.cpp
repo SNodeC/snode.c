@@ -56,6 +56,7 @@ namespace http::websocket {
                     consumed += readPayload(junk + consumed, junkLen - consumed);
                     break;
                 case ParserState::ERROR:
+                    onError(0);
                     parsingError = true;
                     reset();
                     break;
@@ -77,6 +78,7 @@ namespace http::websocket {
                 if (!continuation) {
                     onMessageStart(opCode);
                 } else {
+                    parserState = ParserState::ERROR;
                     std::cout << "Error opcode: provided in continuation frame" << std::endl;
                 }
             }
@@ -142,6 +144,7 @@ namespace http::websocket {
             }
 
             if (length & static_cast<uint64_t>(0x01) << 63) {
+                parserState = ParserState::ERROR;
                 std::cout << "Error elength: msb == 1" << std::endl;
             }
 

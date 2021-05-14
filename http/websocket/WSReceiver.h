@@ -52,6 +52,7 @@ namespace http::websocket {
         virtual void onMessageStart(int opCode) = 0;
         virtual void onMessageData(char* junk, uint64_t junkLen) = 0;
         virtual void onMessageEnd() = 0;
+        virtual void onError(int errno) = 0;
 
         void reset();
 

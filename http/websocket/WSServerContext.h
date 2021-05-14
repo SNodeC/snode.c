@@ -43,6 +43,7 @@ namespace http::websocket {
         void onMessageStart(int opCode) override;
         void onMessageData(char* junk, uint64_t junkLen) override;
         void onMessageEnd() override;
+        void onError(int errno) override;
 
         void onFrameReady(char* frame, uint64_t frameLength) override;
     };

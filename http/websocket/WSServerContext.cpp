@@ -54,6 +54,12 @@ namespace http::websocket {
         message(1, "Hallo zurück", strlen("Hallo zurück"));
     }
 
+    void WSServerContext::onError([[maybe_unused]] int errno) {
+        std::cout << std::endl << "Message Error" << std::endl;
+
+        socketConnection->close();
+    }
+
     void WSServerContext::onFrameReady(char* frame, uint64_t frameLength) {
         socketConnection->enqueue(frame, static_cast<std::size_t>(frameLength));
     }
