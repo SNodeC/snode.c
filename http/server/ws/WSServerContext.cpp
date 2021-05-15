@@ -34,11 +34,11 @@ namespace http::websocket {
     }
 
     void WSServerContext::onReadError([[maybe_unused]] int errnum) {
-        socketConnection->close();
+        //        socketConnection->close();
     }
 
     void WSServerContext::onWriteError([[maybe_unused]] int errnum) {
-        socketConnection->close();
+        //        socketConnection->close();
     }
 
     void WSServerContext::onMessageStart(int opCode) {
