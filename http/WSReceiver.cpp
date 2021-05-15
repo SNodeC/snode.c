@@ -166,10 +166,20 @@ namespace http::websocket {
 
             if (maskingKeyNumBytesLeft == 0) {
                 maskingKey = be32toh(maskingKey);
-                parserState = ParserState::PAYLOAD;
+                if (length > 0) {
+                    parserState = ParserState::PAYLOAD;
+                } else {
+                    onMessageEnd();
+                    reset();
+                }
             }
         } else {
-            parserState = ParserState::PAYLOAD;
+            if (length > 0) {
+                parserState = ParserState::PAYLOAD;
+            } else {
+                onMessageEnd();
+                reset();
+            }
         }
 
         return consumed;
