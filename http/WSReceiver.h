@@ -30,14 +30,12 @@ namespace http::websocket {
 
     class WSReceiver {
     public:
-        WSReceiver();
-
         void receive(char* junk, std::size_t junkLen);
 
     protected:
-        union MaskingKeyAsArray {
-            uint32_t value;
-            char array[4];
+        union MaskingKey {
+            uint32_t key;
+            char keyAsArray[4];
         };
 
         void begin() {
@@ -91,26 +89,3 @@ namespace http::websocket {
 //  -+--------+-------------------------------------+-----------|
 //   | 10     | Pong Frame                          | RFC XXXX  |
 //  -+--------+-------------------------------------+-----------|
-
-//   | Version Number | Reference                               |
-//  -+----------------+-----------------------------------------+-
-//   | 0              + draft-ietf-hybi-thewebsocketprotocol-00 |
-//  -+----------------+-----------------------------------------+-
-//   | 1              + draft-ietf-hybi-thewebsocketprotocol-01 |
-//  -+----------------+-----------------------------------------+-
-//   | 2              + draft-ietf-hybi-thewebsocketprotocol-02 |
-//  -+----------------+-----------------------------------------+-
-//   | 3              + draft-ietf-hybi-thewebsocketprotocol-03 |
-//  -+----------------+-----------------------------------------+-
-//   | 4              + draft-ietf-hybi-thewebsocketprotocol-04 |
-//  -+----------------+-----------------------------------------+-
-//   | 5              + draft-ietf-hybi-thewebsocketprotocol-05 |
-//  -+----------------+-----------------------------------------+-
-//   | 6              + draft-ietf-hybi-thewebsocketprotocol-06 |
-//  -+----------------+-----------------------------------------+-
-//   | 7              + draft-ietf-hybi-thewebsocketprotocol-07 |
-//  -+----------------+-----------------------------------------+-
-//   | 8              + draft-ietf-hybi-thewebsocketprotocol-08 |
-//  -+----------------+-----------------------------------------+-
-//   | 9              + draft-ietf-hybi-thewebsocketprotocol-09 |
-//  -+----------------+-----------------------------------------+-

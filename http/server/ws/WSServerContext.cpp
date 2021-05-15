@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "http/websocket/WSServerContext.h"
+#include "http/server/ws/WSServerContext.h"
 
 #include "net/socket/stream/SocketConnectionBase.h"
 
@@ -29,8 +29,8 @@
 
 namespace http::websocket {
 
-    void WSServerContext::receiveData(const char* junk, std::size_t junklen) {
-        receive(const_cast<char*>(junk), junklen);
+    void WSServerContext::receiveData(const char* junk, std::size_t junkLen) {
+        receive(const_cast<char*>(junk), junkLen);
     }
 
     void WSServerContext::onReadError([[maybe_unused]] int errnum) {

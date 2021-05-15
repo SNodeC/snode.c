@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "http/websocket/WSTransmitter.h"
+#include "http/WSTransmitter.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,9 +27,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace http::websocket {
-
-    WSTransmitter::WSTransmitter() {
-    }
 
     void WSTransmitter::messageStart(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey) {
         send(false, opCode, message, messageLength, messageKey);
@@ -102,10 +99,10 @@ namespace http::websocket {
         *reinterpret_cast<uint8_t*>(frame + opCodeOffset) = static_cast<uint8_t>((fin ? 0b10000000 : 0) | opCode);
         *reinterpret_cast<uint8_t*>(frame + lengthOffset) = static_cast<uint8_t>(((maskingKey > 0) ? 0b10000000 : 0) | length);
 
-        MaskingKeyAsArray maskingKeyAsArray = {.value = htobe32(maskingKey)};
+        MaskingKey maskingKeyAsArray = {.key = htobe32(maskingKey)};
 
         for (uint64_t i = 0; i < payloadLength; i++) {
-            *(frame + payloadOffset + i) = *(payload + i) ^ *(maskingKeyAsArray.array + i % 4);
+            *(frame + payloadOffset + i) = *(payload + i) ^ *(maskingKeyAsArray.keyAsArray + i % 4);
         }
 
         onFrameReady(frame, frameLength);

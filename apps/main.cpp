@@ -20,7 +20,7 @@
 
 #include "config.h" // just for this example app
 #include "express/legacy/WebApp.h"
-#include "http/websocket/WSServerContext.h"
+#include "http/server/ws/WSServerContext.h"
 #include "net/timer/IntervalTimer.h"
 #include "net/timer/SingleshotTimer.h"
 

@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "http/websocket/WSReceiver.h"
+#include "http/WSReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,9 +26,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace http::websocket {
-
-    WSReceiver::WSReceiver() {
-    }
 
     void WSReceiver::receive(char* junk, std::size_t junkLen) {
         uint64_t consumed = 0;
@@ -184,10 +181,10 @@ namespace http::websocket {
         if (junkLen > 0 && length - payloadRead > 0) {
             uint64_t numBytesToRead = (junkLen <= length - payloadRead) ? junkLen : length - payloadRead;
 
-            MaskingKeyAsArray maskingKeyAsArray = {.value = htobe32(maskingKey)};
+            MaskingKey maskingKeyAsArray = {.key = htobe32(maskingKey)};
 
             for (uint64_t i = 0; i < numBytesToRead; i++) {
-                *(junk + i) = *(junk + i) ^ *(maskingKeyAsArray.array + (i + payloadRead) % 4);
+                *(junk + i) = *(junk + i) ^ *(maskingKeyAsArray.keyAsArray + (i + payloadRead) % 4);
             }
 
             onMessageData(junk, numBytesToRead);
