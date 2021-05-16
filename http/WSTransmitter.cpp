@@ -47,14 +47,14 @@ namespace http::websocket {
     void WSTransmitter::send(bool end, uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey) {
         std::size_t messageOffset = 0;
 
-        while (messageLength - messageOffset > 0) {
+        do {
             std::size_t sendMessageLength =
                 (messageLength - messageOffset <= WSPAYLOADLENGTH) ? messageLength - messageOffset : WSPAYLOADLENGTH;
             bool fin = sendMessageLength == messageLength - messageOffset;
             sendFrame(fin && end, opCode, messageKey, message + messageOffset, sendMessageLength);
             messageOffset += sendMessageLength;
             opCode = 0; // continuation
-        }
+        } while (messageLength - messageOffset > 0);
     }
 
     void WSTransmitter::sendFrame(bool fin, uint8_t opCode, uint32_t maskingKey, const char* payload, uint64_t payloadLength) {
@@ -104,6 +104,8 @@ namespace http::websocket {
         for (uint64_t i = 0; i < payloadLength; i++) {
             *(frame + payloadOffset + i) = *(payload + i) ^ *(maskingKeyAsArray.keyAsArray + i % 4);
         }
+
+        //        dumpFrame(frame, frameLength);
 
         onFrameReady(frame, frameLength);
 

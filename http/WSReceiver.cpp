@@ -21,6 +21,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <endian.h>
+#include <iomanip>
 #include <iostream>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -30,6 +31,8 @@ namespace http::websocket {
     void WSReceiver::receive(char* junk, std::size_t junkLen) {
         uint64_t consumed = 0;
         bool parsingError = false;
+
+        //        dumpFrame(junk, junkLen);
 
         while (consumed < junkLen && !parsingError) {
             switch (parserState) {
@@ -53,7 +56,7 @@ namespace http::websocket {
                     consumed += readPayload(junk + consumed, junkLen - consumed);
                     break;
                 case ParserState::ERROR:
-                    onError(0);
+                    onError(errorState);
                     parsingError = true;
                     reset();
                     break;
@@ -71,18 +74,17 @@ namespace http::websocket {
             fin = opCodeByte & 0b10000000;
             opCode = opCodeByte & 0b00001111;
 
-            if (opCode != 0) {
-                if (!continuation) {
-                    onMessageStart(opCode);
-                } else {
-                    parserState = ParserState::ERROR;
-                    std::cout << "Error opcode: provided in continuation frame" << std::endl;
-                }
+            if (!continuation) {
+                onMessageStart(opCode);
+                parserState = ParserState::LENGTH;
+            } else if (opCode == 0) {
+                parserState = ParserState::LENGTH;
+            } else {
+                parserState = ParserState::ERROR;
+                errorState = 1002;
+                std::cout << "Error opcode in continuation frame" << std::endl;
             }
-
             continuation = !fin;
-
-            parserState = ParserState::LENGTH;
         }
 
         return consumed;
@@ -109,7 +111,16 @@ namespace http::websocket {
                 parserState = ParserState::ELENGTH;
                 length = 0;
             } else {
-                parserState = ParserState::MASKINGKEY;
+                if (masked) {
+                    parserState = ParserState::MASKINGKEY;
+                } else if (length > 0) {
+                    parserState = ParserState::PAYLOAD;
+                } else {
+                    if (fin) {
+                        onMessageEnd();
+                    }
+                    reset();
+                }
             }
             consumed++;
         }
@@ -142,10 +153,13 @@ namespace http::websocket {
 
             if (length & static_cast<uint64_t>(0x01) << 63) {
                 parserState = ParserState::ERROR;
+                errorState = 1004;
                 std::cout << "Error elength: msb == 1" << std::endl;
+            } else if (masked) {
+                parserState = ParserState::MASKINGKEY;
+            } else {
+                parserState = ParserState::PAYLOAD;
             }
-
-            parserState = ParserState::MASKINGKEY;
         }
 
         return consumed;
@@ -154,30 +168,23 @@ namespace http::websocket {
     uint64_t WSReceiver::readMaskingKey(char* junk, uint64_t junkLen) {
         uint64_t consumed = 0;
 
-        if (masked) {
-            maskingKeyNumBytesLeft = (maskingKeyNumBytesLeft == 0) ? maskingKeyNumBytes : maskingKeyNumBytesLeft;
+        maskingKeyNumBytesLeft = (maskingKeyNumBytesLeft == 0) ? maskingKeyNumBytes : maskingKeyNumBytesLeft;
 
-            while (consumed < junkLen && maskingKeyNumBytesLeft > 0) {
-                maskingKey |= static_cast<uint32_t>(*reinterpret_cast<unsigned char*>(junk + consumed))
-                              << (maskingKeyNumBytes - maskingKeyNumBytesLeft) * 8;
-                consumed++;
-                maskingKeyNumBytesLeft--;
-            }
+        while (consumed < junkLen && maskingKeyNumBytesLeft > 0) {
+            maskingKey |= static_cast<uint32_t>(*reinterpret_cast<unsigned char*>(junk + consumed))
+                          << (maskingKeyNumBytes - maskingKeyNumBytesLeft) * 8;
+            consumed++;
+            maskingKeyNumBytesLeft--;
+        }
 
-            if (maskingKeyNumBytesLeft == 0) {
-                maskingKey = be32toh(maskingKey);
-                if (length > 0) {
-                    parserState = ParserState::PAYLOAD;
-                } else {
-                    onMessageEnd();
-                    reset();
-                }
-            }
-        } else {
+        if (maskingKeyNumBytesLeft == 0) {
+            maskingKey = be32toh(maskingKey);
             if (length > 0) {
                 parserState = ParserState::PAYLOAD;
             } else {
-                onMessageEnd();
+                if (fin) {
+                    onMessageEnd();
+                }
                 reset();
             }
         }
@@ -213,6 +220,17 @@ namespace http::websocket {
         return consumed;
     }
 
+    void WSReceiver::dumpFrame(char* frame, uint64_t frameLength) {
+        for (std::size_t i = 0; i < frameLength; i++) {
+            std::cout << std::setfill('0') << std::setw(2) << std::hex << (unsigned int) (unsigned char) frame[i] << " ";
+
+            if ((i + 1) % 4 == 0) {
+                std::cout << std::endl;
+            }
+        }
+        std::cout << std::endl;
+    }
+
     void WSReceiver::reset() {
         payloadRead = 0;
         opCode = 0;
@@ -226,6 +244,7 @@ namespace http::websocket {
         maskingKeyNumBytes = 4;
         maskingKeyNumBytesLeft = 0;
         payloadRead = 0;
+        errorState = 0;
     }
 
 } // namespace http::websocket

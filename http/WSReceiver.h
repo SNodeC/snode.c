@@ -50,9 +50,11 @@ namespace http::websocket {
         virtual void onMessageStart(int opCode) = 0;
         virtual void onMessageData(char* junk, uint64_t junkLen) = 0;
         virtual void onMessageEnd() = 0;
-        virtual void onError(int errno) = 0;
+        virtual void onError(uint16_t errnum) = 0;
 
         void reset();
+
+        void dumpFrame(char* frame, uint64_t frameLength);
 
         // Parser state
         enum struct ParserState { BEGIN, OPCODE, LENGTH, ELENGTH, MASKINGKEY, PAYLOAD, ERROR } parserState = ParserState::BEGIN;
@@ -69,6 +71,8 @@ namespace http::websocket {
         uint8_t maskingKeyNumBytes = 4;
         uint8_t maskingKeyNumBytesLeft = 0;
         uint64_t payloadRead = 0;
+
+        uint16_t errorState = 0;
     };
 
 } // namespace http::websocket

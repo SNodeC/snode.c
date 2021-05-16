@@ -19,9 +19,9 @@
 #ifndef WSTRANSCEIVER_H
 #define WSTRANSCEIVER_H
 
-#include "http/server/ServerContext.h"
 #include "http/WSReceiver.h"
 #include "http/WSTransmitter.h"
+#include "http/server/ServerContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -43,9 +43,18 @@ namespace http::websocket {
         void onMessageStart(int opCode) override;
         void onMessageData(char* junk, uint64_t junkLen) override;
         void onMessageEnd() override;
-        void onError(int errno) override;
-
+        void onError(uint16_t errnum) override;
         void onFrameReady(char* frame, uint64_t frameLength) override;
+
+        void close(uint16_t statusCode = 0, const char* reason = nullptr, std::size_t reasonLength = 0);
+        void ping(const char* reason = nullptr, std::size_t reasonLength = 0);
+        void pong(const char* reason = nullptr, std::size_t reasonLength = 0);
+
+        bool closeReceived = false;
+        bool closeSent = false;
+
+        bool pingReceived = false;
+        bool pongReceived = false;
     };
 
 } // namespace http::websocket

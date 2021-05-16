@@ -26,7 +26,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define WSPAYLOADLENGTH 4
+#define WSPAYLOADLENGTH 1024
 
 namespace http::websocket {
 

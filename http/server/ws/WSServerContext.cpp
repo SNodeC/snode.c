@@ -34,34 +34,92 @@ namespace http::websocket {
     }
 
     void WSServerContext::onReadError([[maybe_unused]] int errnum) {
-        //        socketConnection->close();
     }
 
     void WSServerContext::onWriteError([[maybe_unused]] int errnum) {
-        //        socketConnection->close();
     }
 
     void WSServerContext::onMessageStart(int opCode) {
         std::cout << "Message Start - OpCode: " << opCode << std::endl;
+
+        closeReceived = (opCode == 8);
+        pingReceived = (opCode == 9);
+        pongReceived = (opCode == 10);
     }
 
     void WSServerContext::onMessageData(char* junk, uint64_t junkLen) {
-        std::cout << std::string(junk, static_cast<std::size_t>(junkLen));
+        if (!closeReceived && !pingReceived && !pongReceived) {
+            std::cout << "Data: " << std::string(junk, static_cast<std::size_t>(junkLen));
+            if (fin) {
+                std::cout << std::endl;
+            }
+        } else {
+            // collect data for close and pong
+        }
     }
 
     void WSServerContext::onMessageEnd() {
-        std::cout << std::endl << "Message End" << std::endl;
-        message(1, "Hallo zurück", strlen("Hallo zurück"));
+        if (closeReceived) {
+            closeReceived = false;
+            if (closeSent) {
+                closeSent = false;
+                std::cout << "Closed" << std::endl;
+            } else {
+                close();
+                std::cout << "Close requested" << std::endl;
+            }
+            socketConnection->close();
+        } else if (pingReceived) {
+            pingReceived = false;
+            pong();
+        } else if (pongReceived) {
+            pongReceived = false;
+            /* Propagate connection alive to application */
+        } else {
+            /* Propagate Message back to application */
+            message(1, "Hallo zurück", strlen("Hallo zurück"));
+            std::cout << "Message End" << std::endl;
+            close(1000);
+        }
     }
 
-    void WSServerContext::onError([[maybe_unused]] int errno) {
+    void WSServerContext::onError(uint16_t errnum) {
         std::cout << std::endl << "Message Error" << std::endl;
-
-        socketConnection->close();
+        close(errnum);
     }
 
     void WSServerContext::onFrameReady(char* frame, uint64_t frameLength) {
         socketConnection->enqueue(frame, static_cast<std::size_t>(frameLength));
+    }
+
+    void WSServerContext::close(uint16_t statusCode, const char* reason, std::size_t reasonLength) {
+        char* closePayload = const_cast<char*>(reason);
+        std::size_t closePayloadLength = reasonLength;
+
+        if (statusCode != 0) {
+            closePayload = new char[reasonLength + 2];
+            *reinterpret_cast<uint16_t*>(closePayload) = htobe16(statusCode);
+            closePayloadLength += 2;
+            if (reasonLength > 0) {
+                memcpy(closePayload + 2, reason, reasonLength);
+            }
+        }
+
+        message(8, closePayload, closePayloadLength);
+
+        if (statusCode != 0) {
+            delete[] closePayload;
+        }
+
+        closeSent = true;
+    }
+
+    void WSServerContext::ping(const char* reason, std::size_t reasonLength) {
+        message(9, reason, reasonLength);
+    }
+
+    void WSServerContext::pong(const char* reason, std::size_t reasonLength) {
+        message(10, reason, reasonLength);
     }
 
 } // namespace http::websocket
