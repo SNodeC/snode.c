@@ -27,6 +27,8 @@
 
 namespace net::socket::stream {
 
+    class SocketProtocol;
+
     class SocketConnectionBase {
     protected:
         SocketConnectionBase() = default;
@@ -41,13 +43,23 @@ namespace net::socket::stream {
 
         virtual void close(bool instantly = false) = 0;
 
+        void setSocketProtocol(SocketProtocol* socketProtocol) {
+            this->socketProtocol = socketProtocol;
+        }
+
+        SocketProtocol* getSocketProtocol() {
+            return socketProtocol;
+        }
+
         template <utils::InjectableAttribute Attribute>
-        constexpr void setContext(Attribute& attribute) const {
+        constexpr void setContext(Attribute& attribute) {
+            attribute->setSocketConnection(this);
             protocol.setAttribute<Attribute>(attribute, true);
         }
 
         template <utils::InjectableAttribute Attribute>
-        constexpr void setContext(Attribute&& attribute) const {
+        constexpr void setContext(Attribute&& attribute) {
+            attribute->setSocketConnection(this);
             protocol.setAttribute<Attribute>(attribute, true);
         }
 
@@ -64,6 +76,8 @@ namespace net::socket::stream {
 
     private:
         utils::SingleAttributeInjector protocol;
+
+        SocketProtocol* socketProtocol;
     };
 
 } // namespace net::socket::stream
