@@ -44,6 +44,7 @@ namespace http::websocket {
         void onMessageData(char* junk, uint64_t junkLen) override;
         void onMessageEnd() override;
         void onError(uint16_t errnum) override;
+
         void onFrameReady(char* frame, uint64_t frameLength) override;
 
         void close(uint16_t statusCode = 0, const char* reason = nullptr, std::size_t reasonLength = 0);

@@ -30,9 +30,7 @@
 namespace http::server {
 
     void ServerContext::upgrade(ServerContext* newServerContext) {
-        socketConnection->template setContext<ServerContext*>(newServerContext);
-
-        newServerContext->setSocketConnection(socketConnection);
+        socketConnection->setSocketProtocol(newServerContext);
 
         markedForDelete = true;
     }

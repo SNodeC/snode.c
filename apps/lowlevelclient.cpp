@@ -31,6 +31,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+/*
 using namespace net::socket::ip;
 using namespace net::socket::ip::address::ipv4;
 using namespace net::socket::stream;
@@ -237,35 +238,35 @@ legacy::SocketClient<tcp::ipv4::Socket> getLegacyClient() {
 
     return legacyClient;
 }
-
+*/
 int main(int argc, char* argv[]) {
     net::SNodeC::init(argc, argv);
+    /*
+        {
+            InetAddress remoteAddress("localhost", 8080);
 
-    {
-        InetAddress remoteAddress("localhost", 8080);
+            legacy::SocketClient<tcp::ipv4::Socket> legacyClient = getLegacyClient();
 
-        legacy::SocketClient<tcp::ipv4::Socket> legacyClient = getLegacyClient();
+            legacyClient.connect(remoteAddress, [](int err) -> void { // example.com:81 simulate connnect timeout
+                if (err) {
+                    PLOG(ERROR) << "Connect: " << std::to_string(err);
+                } else {
+                    VLOG(0) << "Connected";
+                }
+            });
 
-        legacyClient.connect(remoteAddress, [](int err) -> void { // example.com:81 simulate connnect timeout
-            if (err) {
-                PLOG(ERROR) << "Connect: " << std::to_string(err);
-            } else {
-                VLOG(0) << "Connected";
-            }
-        });
+            remoteAddress = InetAddress("localhost", 8088);
 
-        remoteAddress = InetAddress("localhost", 8088);
+            tls::SocketClient<tcp::ipv4::Socket> tlsClient = getTlsClient();
 
-        tls::SocketClient<tcp::ipv4::Socket> tlsClient = getTlsClient();
-
-        tlsClient.connect(remoteAddress, [](int err) -> void {
-            if (err) {
-                PLOG(ERROR) << "Connect: " << std::to_string(err);
-            } else {
-                VLOG(0) << "Connected";
-            }
-        });
-    }
-
+            tlsClient.connect(remoteAddress, [](int err) -> void {
+                if (err) {
+                    PLOG(ERROR) << "Connect: " << std::to_string(err);
+                } else {
+                    VLOG(0) << "Connected";
+                }
+            });
+        }
+    */
     return net::SNodeC::start();
 }

@@ -26,6 +26,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#define WSMAXFRAMEPAYLOADLENGTH 1024
+
 namespace http::websocket {
 
     void WSTransmitter::messageStart(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey) {
@@ -49,10 +51,14 @@ namespace http::websocket {
 
         do {
             std::size_t sendMessageLength =
-                (messageLength - messageOffset <= WSPAYLOADLENGTH) ? messageLength - messageOffset : WSPAYLOADLENGTH;
+                (messageLength - messageOffset <= WSMAXFRAMEPAYLOADLENGTH) ? messageLength - messageOffset : WSMAXFRAMEPAYLOADLENGTH;
+
             bool fin = sendMessageLength == messageLength - messageOffset;
+
             sendFrame(fin && end, opCode, messageKey, message + messageOffset, sendMessageLength);
+
             messageOffset += sendMessageLength;
+
             opCode = 0; // continuation
         } while (messageLength - messageOffset > 0);
     }
@@ -81,14 +87,14 @@ namespace http::websocket {
             maskingKeyOffset += 2;
             payloadOffset += 2;
             frame = new char[frameLength];
-            *reinterpret_cast<uint16_t*>(frame + eLengthOffset) = htobe16(*reinterpret_cast<uint16_t*>(&payloadLength));
+            *reinterpret_cast<uint16_t*>(frame + eLengthOffset) = htobe16(static_cast<uint16_t>(payloadLength));
             length = 126;
         } else {
             frameLength += 8;
             maskingKeyOffset += 8;
             payloadOffset += 8;
             frame = new char[frameLength];
-            *reinterpret_cast<uint64_t*>(frame + eLengthOffset) = htobe64(*reinterpret_cast<uint64_t*>(&payloadLength));
+            *reinterpret_cast<uint64_t*>(frame + eLengthOffset) = htobe64(payloadLength);
             length = 127;
         }
 

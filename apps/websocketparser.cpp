@@ -48,6 +48,21 @@ char* serverWebSocketKey(const std::string& clientWebSocketKey) {
     return base64(digest, SHA_DIGEST_LENGTH);
 }
 
+void serverWebSocketKey(const std::string& clientWebSocketKey, const std::function<void(char*)>& returnKey) {
+    std::string GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+
+    std::string serverWebSocketKey(clientWebSocketKey + GUID);
+    unsigned char digest[SHA_DIGEST_LENGTH];
+    SHA1(reinterpret_cast<const unsigned char*>(serverWebSocketKey.c_str()),
+         serverWebSocketKey.length(),
+         reinterpret_cast<unsigned char*>(&digest));
+
+    char* key = base64(digest, SHA_DIGEST_LENGTH);
+    returnKey(key);
+
+    free(key);
+}
+
 int main(int argc, char* argv[]) {
     /*
     http::websocket::WSServerContext wsTransCeiver;
@@ -121,9 +136,10 @@ int main(int argc, char* argv[]) {
 
         res.set("Upgrade", "websocket");
         res.set("Connection", "Upgrade");
-        char* swsk = serverWebSocketKey(req.header("sec-websocket-key"));
-        res.set("Sec-WebSocket-Accept", swsk);
-        free(swsk);
+        serverWebSocketKey(req.header("sec-websocket-key"), [&res](char* key) -> void {
+            res.set("Sec-WebSocket-Accept", key);
+        });
+
         res.status(101); // Switch Protocol
 
         res.upgrade(new http::websocket::WSServerContext());
@@ -156,9 +172,15 @@ int main(int argc, char* argv[]) {
 
         res.set("Upgrade", "websocket");
         res.set("Connection", "Upgrade");
+        /*
         char* swsk = serverWebSocketKey(req.header("sec-websocket-key"));
         res.set("Sec-WebSocket-Accept", swsk);
         free(swsk);
+        */
+        serverWebSocketKey(req.header("sec-websocket-key"), [&res](char* key) -> void {
+            res.set("Sec-WebSocket-Accept", key);
+        });
+
         res.status(101); // Switch Protocol
 
         res.upgrade(new http::websocket::WSServerContext());

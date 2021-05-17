@@ -30,11 +30,9 @@ namespace http::client {
     class CookieOptions;
 
     template <typename Request, typename Response>
-    ClientContext<Request, Response>::ClientContext(SocketConnection* socketConnection,
-                                                    const std::function<void(Response&)>& onResponse,
+    ClientContext<Request, Response>::ClientContext(const std::function<void(Response&)>& onResponse,
                                                     const std::function<void(int status, const std::string& reason)>& onError)
-        : socketConnection(socketConnection)
-        , request(this)
+        : request(this)
         , parser(
               [](void) -> void {
               },

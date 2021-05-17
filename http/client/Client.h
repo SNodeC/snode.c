@@ -57,33 +57,25 @@ namespace http::client {
                       onConnect(localAddress, remoteAddress);
                   },
                   [onConnected, onRequestBegin, onResponse, onResponseError](SocketConnection* socketConnection) -> void { // onConnected
-                      ClientContext<Request, Response>* clientContext =
-                          new ClientContext<Request, Response>(socketConnection, onResponse, onResponseError);
+                      ClientContext<Request, Response>* clientContext = new ClientContext<Request, Response>(onResponse, onResponseError);
 
-                      socketConnection->template setContext<ClientContextBase*>(clientContext);
+                      socketConnection->setSocketProtocol(clientContext);
 
-                      socketConnection->template getContext<ClientContextBase*>(
-                          [&socketConnection, &onRequestBegin](ClientContextBase* clientContext) -> void {
-                              Request& request = clientContext->getRequest();
+                      Request& request = clientContext->getRequest();
 
-                              request.setHost(socketConnection->getRemoteAddress().host() + ":" +
-                                              std::to_string(socketConnection->getRemoteAddress().port()));
-                              onRequestBegin(request);
-                          });
+                      request.setHost(socketConnection->getRemoteAddress().host() + ":" +
+                                      std::to_string(socketConnection->getRemoteAddress().port()));
+                      onRequestBegin(request);
 
                       onConnected(socketConnection);
                   },
                   [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
-                      socketConnection->template getContext<ClientContextBase*>([](ClientContextBase* clientContext) -> void {
-                          delete clientContext;
-                      });
-
                       onDisconnect(socketConnection);
+
+                      delete socketConnection->getSocketProtocol();
                   },
                   [](SocketConnection* socketConnection, const char* junk, std::size_t junkLen) -> void { // onRead
-                      socketConnection->template getContext<ClientContextBase*>([junk, junkLen](ClientContextBase* clientContext) -> void {
-                          clientContext->receiveResponseData(junk, junkLen);
-                      });
+                      static_cast<ClientContextBase*>(socketConnection->getSocketProtocol())->receiveResponseData(junk, junkLen);
                   },
                   [](SocketConnection* socketConnection, int errnum) -> void { // onReadError
                       if (errnum != 0) {

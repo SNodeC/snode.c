@@ -19,15 +19,16 @@
 #ifndef NET_SOCKET_STREAM_SOCKETCONNECTIONBASE_H
 #define NET_SOCKET_STREAM_SOCKETCONNECTIONBASE_H
 
-#include "utils/AttributeInjector.h"
+#include "net/socket/stream/SocketProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <cstddef>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::socket::stream {
-
-    class SocketProtocol;
 
     class SocketConnectionBase {
     protected:
@@ -45,39 +46,15 @@ namespace net::socket::stream {
 
         void setSocketProtocol(SocketProtocol* socketProtocol) {
             this->socketProtocol = socketProtocol;
+            socketProtocol->setSocketConnection(this);
         }
 
         SocketProtocol* getSocketProtocol() {
             return socketProtocol;
         }
 
-        template <utils::InjectableAttribute Attribute>
-        constexpr void setContext(Attribute& attribute) {
-            attribute->setSocketConnection(this);
-            protocol.setAttribute<Attribute>(attribute, true);
-        }
-
-        template <utils::InjectableAttribute Attribute>
-        constexpr void setContext(Attribute&& attribute) {
-            attribute->setSocketConnection(this);
-            protocol.setAttribute<Attribute>(attribute, true);
-        }
-
-        template <utils::InjectableAttribute Attribute>
-        constexpr bool getContext(const std::function<void(Attribute&)>& onFound) const {
-            return protocol.getAttribute<Attribute>(onFound);
-        }
-
-        template <utils::InjectableAttribute Attribute>
-        constexpr void getContext(const std::function<void(Attribute&)>& onFound,
-                                  const std::function<void(const std::string&)>& onNotFound) const {
-            return protocol.getAttribute<Attribute>(onFound, onNotFound);
-        }
-
     private:
-        utils::SingleAttributeInjector protocol;
-
-        SocketProtocol* socketProtocol;
+        SocketProtocol* socketProtocol = nullptr;
     };
 
 } // namespace net::socket::stream

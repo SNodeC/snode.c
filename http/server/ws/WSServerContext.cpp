@@ -79,7 +79,7 @@ namespace http::websocket {
             /* Propagate Message back to application */
             message(1, "Hallo zurück", strlen("Hallo zurück"));
             std::cout << "Message End" << std::endl;
-            close(1000);
+            //            close(1000);
         }
     }
 

@@ -19,6 +19,8 @@
 #ifndef HTTP_SERVER_SERVERCONTEXT_H
 #define HTTP_SERVER_SERVERCONTEXT_H
 
+#include "net/socket/stream/SocketProtocol.h"
+
 namespace net::socket::stream {
     class SocketConnectionBase;
 }
@@ -32,13 +34,9 @@ namespace net::socket::stream {
 
 namespace http::server {
 
-    class ServerContext {
+    class ServerContext : public net::socket::stream::SocketProtocol {
     public:
         using SocketConnection = net::socket::stream::SocketConnectionBase;
-
-        void setSocketConnection(SocketConnection* socketConnection) {
-            this->socketConnection = socketConnection;
-        }
 
         virtual ~ServerContext() = default;
 
@@ -48,9 +46,6 @@ namespace http::server {
         virtual void onReadError(int errnum) = 0;
 
         void upgrade(ServerContext* newServerContext);
-
-    protected:
-        SocketConnection* socketConnection = nullptr;
 
     private:
         bool markedForDelete = false;

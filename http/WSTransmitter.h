@@ -26,8 +26,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define WSPAYLOADLENGTH 1024
-
 namespace http::websocket {
 
     class WSTransmitter {
@@ -47,9 +45,9 @@ namespace http::websocket {
         void sendFrame(bool fin, uint8_t opCode, uint32_t maskingKey, const char* payload, uint64_t payloadLength);
         void dumpFrame(char* frame, uint64_t frameLength);
 
-        virtual void onFrameReady(char* frame, uint64_t frameLength) = 0;
-
         void send(bool end, uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey);
+
+        virtual void onFrameReady(char* frame, uint64_t frameLength) = 0;
     };
 
 } // namespace http::websocket

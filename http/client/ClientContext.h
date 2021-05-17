@@ -22,6 +22,7 @@
 #include "http/client/Request.h"
 #include "http/client/Response.h"
 #include "http/client/ResponseParser.h"
+#include "net/socket/stream/SocketProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -37,7 +38,7 @@ namespace net::socket::stream {
 
 namespace http::client {
 
-    class ClientContextBase {
+    class ClientContextBase : public net::socket::stream::SocketProtocol {
     public:
         virtual ~ClientContextBase() = default;
 
@@ -57,8 +58,7 @@ namespace http::client {
         using Request = RequestT;
         using Response = ResponseT;
 
-        ClientContext(SocketConnection* socketConnection,
-                      const std::function<void(Response&)>& onResponse,
+        ClientContext(const std::function<void(Response&)>& onResponse,
                       const std::function<void(int status, const std::string& reason)>& onError);
 
         ~ClientContext() override = default;
@@ -73,8 +73,6 @@ namespace http::client {
         void requestCompleted() override;
 
     protected:
-        SocketConnection* socketConnection;
-
         Request request;
         Response response;
 
