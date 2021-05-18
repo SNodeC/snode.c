@@ -38,13 +38,26 @@ namespace net::socket::stream {
         virtual void onReadError(int errnum) = 0;
 
     protected:
+        void take(const char* junk, std::size_t junkLen) {
+            receiveData(junk, junkLen);
+
+            if (markedForDelete) {
+                delete this;
+            }
+        }
+
         void setSocketConnection(SocketConnectionBase* socketConnection) {
             this->socketConnection = socketConnection;
         }
 
         SocketConnectionBase* socketConnection;
 
+        bool markedForDelete = false;
+
         friend class SocketConnectionBase;
+
+        template <typename SocketReaderT, typename SocketWriterT, typename SocketAddressT>
+        friend class SocketConnection;
     };
 
 } // namespace net::socket::stream

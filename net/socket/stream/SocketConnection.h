@@ -49,12 +49,16 @@ namespace net::socket::stream {
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
                          const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
-                         const std::function<void(const char* junk, std::size_t junkLen)>& onRead,
+                         [[maybe_unused]] const std::function<void(const char* junk, std::size_t junkLen)>& onRead,
                          const std::function<void(int errnum)>& onReadError,
                          const std::function<void(int errnum)>& onWriteError,
                          const std::function<void()>& onDisconnect)
             : SocketConnectionBase(socketProtocolFactory)
-            , SocketReader(onRead, onReadError)
+            , SocketReader(
+                  [this](const char* junk, std::size_t junkLen) -> void {
+                      this->getSocketProtocol()->take(junk, junkLen);
+                  },
+                  onReadError)
             , SocketWriter(onWriteError)
             , localAddress(localAddress)
             , remoteAddress(remoteAddress)
