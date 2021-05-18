@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HTTPSERVERCONTEXTFACTORY_H
-#define HTTPSERVERCONTEXTFACTORY_H
+#ifndef HTTP_SERVER_HTTPSERVERCONTEXTFACTORY_H
+#define HTTP_SERVER_HTTPSERVERCONTEXTFACTORY_H
 
 #include "http/server/http/HTTPServerContext.h"
 #include "net/socket/stream/SocketConnectionBase.h"
@@ -49,4 +49,4 @@ namespace http::server {
 
 } // namespace http::server
 
-#endif // HTTPSERVERCONTEXTFACTORY_H
+#endif // HTTP_SERVER_HTTPSERVERCONTEXTFACTORY_H

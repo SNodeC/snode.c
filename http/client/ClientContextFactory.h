@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HTTPSERVERCONTEXTFACTORY_H
-#define HTTPSERVERCONTEXTFACTORY_H
+#ifndef HTTP_CLIENT_CLIENTCONTEXTFACTORY_H
+#define HTTP_CLIENT_CLIENTCONTEXTFACTORY_H
 
 #include "http/client/ClientContext.h"
 #include "net/socket/stream/SocketConnectionBase.h"
@@ -51,4 +51,4 @@ namespace http::client {
 
 } // namespace http::client
 
-#endif // CLIENTCONTEXTFACTORY_H
+#endif // HTTP_CLIENT_CLIENTCONTEXTFACTORY_H
