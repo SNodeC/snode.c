@@ -22,6 +22,8 @@
 #include "log/Logger.h"
 #include "net/SNodeC.h"
 #include "net/socket/bluetooth/rfcomm/tls/SocketServer.h"
+#include "net/socket/stream/SocketProtocol.h"
+#include "net/socket/stream/SocketProtocolFactory.h"
 
 #include <cstddef>
 #include <openssl/x509v3.h>
@@ -30,11 +32,36 @@
 
 using namespace net::socket::bluetooth::rfcomm::tls;
 
+class SimpleSocketProtocol : public net::socket::stream::SocketProtocol {
+public:
+    SimpleSocketProtocol() {
+    }
+
+    void receiveData(const char* junk, std::size_t junkLen) override {
+        socketConnection->enqueue(junk, junkLen);
+    }
+
+    void onWriteError([[maybe_unused]] int errnum) override {
+        VLOG(0) << "OnWriteError: " << errnum;
+    }
+
+    void onReadError([[maybe_unused]] int errnum) override {
+        VLOG(0) << "OnReadError: " << errnum;
+    }
+};
+
+class SimpleSocketProtocolFactory : public net::socket::stream::SocketProtocolFactory {
+public:
+    net::socket::stream::SocketProtocol* create() const override {
+        return new SimpleSocketProtocol();
+    }
+};
+
 int main(int argc, char* argv[]) {
     net::SNodeC::init(argc, argv);
 
     SocketServer btServer(
-        nullptr, // SharedFactory
+        std::make_shared<SimpleSocketProtocolFactory>(), // SharedFactory
         [](const SocketServer::SocketAddress& localAddress,
            const SocketServer::SocketAddress& remoteAddress) -> void { // OnConnect
             VLOG(0) << "OnConnect";
@@ -99,7 +126,7 @@ int main(int argc, char* argv[]) {
         [](SocketServer::SocketConnection* socketConnection, const char* junk, std::size_t junkLen) -> void { // onRead
             std::string data(junk, junkLen);
             VLOG(0) << "Data to reflect: " << data;
-            socketConnection->enqueue(data);
+            static_cast<SimpleSocketProtocol*>(socketConnection->getSocketProtocol())->receiveData(junk, junkLen);
         },
         []([[maybe_unused]] SocketServer::SocketConnection* socketConnection, int errnum) -> void { // onReadError
             PLOG(ERROR) << "OnReadError: " << errnum;

@@ -22,6 +22,8 @@
 #include "log/Logger.h"
 #include "net/SNodeC.h"
 #include "net/socket/bluetooth/rfcomm/tls/SocketClient.h"
+#include "net/socket/stream/SocketProtocol.h"
+#include "net/socket/stream/SocketProtocolFactory.h"
 
 #include <cstddef>
 #include <openssl/x509v3.h>
@@ -30,9 +32,34 @@
 
 using namespace net::socket::bluetooth::rfcomm::tls;
 
+class SimpleSocketProtocol : public net::socket::stream::SocketProtocol {
+public:
+    SimpleSocketProtocol() {
+    }
+
+    void receiveData(const char* junk, std::size_t junkLen) override {
+        socketConnection->enqueue(junk, junkLen);
+    }
+
+    void onWriteError([[maybe_unused]] int errnum) override {
+        VLOG(0) << "OnWriteError: " << errnum;
+    }
+
+    void onReadError([[maybe_unused]] int errnum) override {
+        VLOG(0) << "OnReadError: " << errnum;
+    }
+};
+
+class SimpleSocketProtocolFactory : public net::socket::stream::SocketProtocolFactory {
+public:
+    net::socket::stream::SocketProtocol* create() const override {
+        return new SimpleSocketProtocol();
+    }
+};
+
 SocketClient getClient() {
     SocketClient client(
-        nullptr,
+        std::make_shared<SimpleSocketProtocolFactory>(), // SharedFactory
         [](const SocketClient::SocketAddress& localAddress,
            const SocketClient::SocketAddress& remoteAddress) -> void { // OnConnect
             VLOG(0) << "OnConnect";
@@ -98,7 +125,7 @@ SocketClient getClient() {
         [](SocketClient::SocketConnection* socketConnection, const char* junk, std::size_t junkLen) -> void { // onRead
             std::string data(junk, junkLen);
             VLOG(0) << "Data to reflect: " << data;
-            socketConnection->enqueue(data);
+            static_cast<SimpleSocketProtocol*>(socketConnection->getSocketProtocol())->receiveData(junk, junkLen);
         },
         []([[maybe_unused]] SocketClient::SocketConnection* socketConnection, int errnum) -> void { // onReadError
             PLOG(ERROR) << "OnReadError: " << errnum;
