@@ -17,6 +17,7 @@
  */
 
 #include "http/client/ClientContext.h"
+#include "log/Logger.h"
 #include "net/socket/stream/SocketConnectionBase.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -67,13 +68,27 @@ namespace http::client {
     }
 
     template <typename Request, typename Response>
-    void ClientContext<Request, Response>::receiveResponseData(const char* junk, std::size_t junkLen) {
+    void ClientContext<Request, Response>::receiveData(const char* junk, std::size_t junkLen) {
         parser.parse(junk, junkLen);
     }
 
     template <typename Request, typename Response>
     void ClientContext<Request, Response>::sendRequestData(const char* junk, std::size_t junkLen) {
         socketConnection->enqueue(junk, junkLen);
+    }
+
+    template <typename Request, typename Response>
+    void ClientContext<Request, Response>::onWriteError([[maybe_unused]] int errnum) {
+        if (errnum != 0 && errnum != ECONNRESET) {
+            PLOG(ERROR) << "Connection write: " << errnum;
+        }
+    }
+
+    template <typename Request, typename Response>
+    void ClientContext<Request, Response>::onReadError([[maybe_unused]] int errnum) {
+        if (errnum != 0 && errnum != ECONNRESET) {
+            PLOG(ERROR) << "Connection read: " << errnum;
+        }
     }
 
     template <typename Request, typename Response>

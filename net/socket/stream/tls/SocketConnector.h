@@ -46,7 +46,8 @@ namespace net::socket::stream {
             using Socket = typename SocketConnection::Socket;
             using SocketAddress = typename Socket::SocketAddress;
 
-            SocketConnector(const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
+            SocketConnector(const std::shared_ptr<const SocketProtocolFactory>& socketProtocolFactory,
+                            const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
                             const std::function<void(SocketConnection* socketConnection)>& onConnected,
                             const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
                             const std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)>& onRead,
@@ -54,6 +55,7 @@ namespace net::socket::stream {
                             const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                             const std::map<std::string, std::any>& options)
                 : stream::SocketConnector<SocketConnection>(
+                      socketProtocolFactory,
                       onConnect,
                       [onConnected, &onError = this->onError, &ctx = this->ctx, this, &options = this->options](
                           SocketConnection* socketConnection) -> void { // onConnect

@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PROTOCOLFACTORY_H
-#define PROTOCOLFACTORY_H
+#ifndef NET_SOCKET_STREAM_PROTOCOLFACTORY_H
+#define NET_SOCKET_STREAM_PROTOCOLFACTORY_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,10 +30,10 @@ class SocketProtocol;
 
 class SocketProtocolFactory {
 public:
-    virtual SocketProtocol* create(SocketConnectionBase* socketConnection) const = 0;
+    virtual SocketProtocol* create() const = 0;
 
 };
 
 } // namespace net::socket::stream
 
-#endif // PROTOCOLFACTORY_H
+#endif // NET_SOCKET_STREAM_PROTOCOLFACTORY_H

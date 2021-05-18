@@ -31,6 +31,7 @@ using namespace net::socket::bluetooth::l2cap;
 
 SocketClient getClient() {
     SocketClient client(
+        nullptr,
         [](const SocketClient::SocketAddress& localAddress,
            const SocketClient::SocketAddress& remoteAddress) -> void { // OnConnect
             VLOG(0) << "OnConnect";

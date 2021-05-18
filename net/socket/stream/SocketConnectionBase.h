@@ -35,7 +35,7 @@ namespace net::socket::stream {
     class SocketConnectionBase {
     protected:
         SocketConnectionBase(const std::shared_ptr<const SocketProtocolFactory>& socketProtocolFactory) {
-            socketProtocol = socketProtocolFactory->create(this);
+            socketProtocol = socketProtocolFactory->create();
             socketProtocol->setSocketConnection(this);
         }
 

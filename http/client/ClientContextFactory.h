@@ -19,7 +19,7 @@
 #ifndef HTTPSERVERCONTEXTFACTORY_H
 #define HTTPSERVERCONTEXTFACTORY_H
 
-#include "http/server/http/HTTPServerContext.h"
+#include "http/client/ClientContext.h"
 #include "net/socket/stream/SocketConnectionBase.h"
 #include "net/socket/stream/SocketProtocolFactory.h"
 
@@ -27,26 +27,28 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http::server {
+namespace http::client {
 
     template <typename RequestT, typename ResponseT>
-    class HTTPServerContextFactory : public net::socket::stream::SocketProtocolFactory {
+    class ClientContextFactory : public net::socket::stream::SocketProtocolFactory {
     public:
         using Request = RequestT;
         using Response = ResponseT;
 
-        HTTPServerContextFactory(const std::function<void(Request& req, Response& res)>& onRequestReady)
-            : onRequestReady(onRequestReady) {
+        ClientContextFactory(const std::function<void(Response&)>& onResponse, const std::function<void(int, const std::string&)>& onRequestError)
+            : onResponse(onResponse)
+        , onRequestError(onRequestError){
         }
 
         net::socket::stream::SocketProtocol* create() const override {
-            return new HTTPServerContext<Request, Response>(onRequestReady);
+            return new ClientContext<Request, Response>(onResponse, onRequestError);
         }
 
     protected:
-        std::function<void(Request& req, Response& res)> onRequestReady;
+        std::function<void(Response&)> onResponse;
+        std::function<void(int, const std::string&)> onRequestError;
     };
 
-} // namespace http::server
+} // namespace http::client
 
-#endif // HTTPSERVERCONTEXTFACTORY_H
+#endif // CLIENTCONTEXTFACTORY_H

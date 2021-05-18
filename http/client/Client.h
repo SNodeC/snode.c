@@ -20,6 +20,7 @@
 #define HTTP_CLIENT_CLIENT_H
 
 #include "http/client/ClientContext.hpp"
+#include "http/client/ClientContextFactory.h"
 #include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -52,16 +53,14 @@ namespace http::client {
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
             : socketClient(
-                  [onConnect](const Client::SocketAddress& localAddress,
-                              const Client::SocketAddress& remoteAddress) -> void { // onConnect
+                  std::make_shared<ClientContextFactory<Request, Response>>(onResponse, onResponseError), // SharedFactory
+                  [onConnect]([[maybe_unused]] const Client::SocketAddress& localAddress,
+                              [[maybe_unused]] const Client::SocketAddress& remoteAddress) -> void { // onConnect
                       onConnect(localAddress, remoteAddress);
                   },
                   [onConnected, onRequestBegin, onResponse, onResponseError](SocketConnection* socketConnection) -> void { // onConnected
-                      ClientContext<Request, Response>* clientContext = new ClientContext<Request, Response>(onResponse, onResponseError);
-
-                      socketConnection->setSocketProtocol(clientContext);
-
-                      Request& request = clientContext->getRequest();
+                      static_cast<ClientContextBase*>(socketConnection->getSocketProtocol())->getRequest();
+                      Request& request = static_cast<ClientContextBase*>(socketConnection->getSocketProtocol())->getRequest();
 
                       request.setHost(socketConnection->getRemoteAddress().host() + ":" +
                                       std::to_string(socketConnection->getRemoteAddress().port()));
@@ -69,27 +68,17 @@ namespace http::client {
 
                       onConnected(socketConnection);
                   },
-                  [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
+                  [onDisconnect]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onDisconnect
                       onDisconnect(socketConnection);
-
-                      delete socketConnection->getSocketProtocol();
                   },
                   [](SocketConnection* socketConnection, const char* junk, std::size_t junkLen) -> void { // onRead
-                      static_cast<ClientContextBase*>(socketConnection->getSocketProtocol())->receiveResponseData(junk, junkLen);
+                      static_cast<ClientContextBase*>(socketConnection->getSocketProtocol())->receiveData(junk, junkLen);
                   },
                   [](SocketConnection* socketConnection, int errnum) -> void { // onReadError
-                      if (errnum != 0) {
-                          PLOG(ERROR) << "Server: " << socketConnection->getRemoteAddress().host() << " (" << errnum << ")";
-                      } else {
-                          VLOG(0) << "Server: EOF";
-                      }
+                      static_cast<ClientContextBase*>(socketConnection->getSocketProtocol())->onReadError(errnum);
                   },
                   [](SocketConnection* socketConnection, int errnum) -> void { // onWriteError
-                      if (errnum != 0) {
-                          PLOG(ERROR) << "Server: " << socketConnection->getRemoteAddress().host() << " (" << errnum << ")";
-                      } else {
-                          VLOG(0) << "Server: EOF";
-                      }
+                      static_cast<ClientContextBase*>(socketConnection->getSocketProtocol())->onWriteError(errnum);
                   },
                   options) {
         }

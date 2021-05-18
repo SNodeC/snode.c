@@ -42,7 +42,6 @@ namespace http::client {
     public:
         virtual ~ClientContextBase() = default;
 
-        virtual void receiveResponseData(const char* junk, std::size_t junkLen) = 0;
         virtual void sendRequestData(const char* buf, std::size_t len) = 0;
 
         virtual Request& getRequest() = 0;
@@ -63,8 +62,11 @@ namespace http::client {
 
         ~ClientContext() override = default;
 
-        void receiveResponseData(const char* junk, std::size_t junkLen) override;
+        void receiveData(const char* junk, std::size_t junkLen) override;
         void sendRequestData(const char* junk, std::size_t junkLen) override;
+
+        void onWriteError(int errnum) override;
+        void onReadError(int errnum) override;
 
         Request& getRequest() override;
 

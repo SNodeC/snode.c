@@ -51,9 +51,9 @@ namespace net::socket::stream {
                      const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                      const std::map<std::string, std::any>& options = {{}})
             : socketProtocolFactory(socketProtocolFactory)
-            , onConnect(onConnect)
-            , onConnected(onConnected)
-            , onDisconnect(onDisconnect)
+            , _onConnect(onConnect)
+            , _onConnected(onConnected)
+            , _onDisconnect(onDisconnect)
             , onRead(onRead)
             , onReadError(onReadError)
             , onWriteError(onWriteError)
@@ -67,18 +67,30 @@ namespace net::socket::stream {
         void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int err)>& onError) const {
             errno = 0;
 
-            SocketListener* socketListener =
-                new SocketListener(socketProtocolFactory, onConnect, onConnected, onDisconnect, onRead, onReadError, onWriteError, options);
+            SocketListener* socketListener = new SocketListener(
+                socketProtocolFactory, _onConnect, _onConnected, _onDisconnect, onRead, onReadError, onWriteError, options);
 
             socketListener->listen(bindAddress, backlog, onError);
+        }
+
+        void onConnect(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect) {
+            _onConnect = onConnect;
+        }
+
+        void onConnected(const std::function<void(SocketConnection*)>& onConnected) {
+            _onConnected = onConnected;
+        }
+
+        void onDisconnect(const std::function<void(SocketConnection*)>& onDisconnect) {
+            _onDisconnect = onDisconnect;
         }
 
     private:
         std::shared_ptr<const SocketProtocolFactory> socketProtocolFactory = nullptr;
 
-        std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)> onConnect;
-        std::function<void(SocketConnection* socketConnection)> onConnected;
-        std::function<void(SocketConnection* socketConnection)> onDisconnect;
+        std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)> _onConnect;
+        std::function<void(SocketConnection* socketConnection)> _onConnected;
+        std::function<void(SocketConnection* socketConnection)> _onDisconnect;
         std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)> onRead;
         std::function<void(SocketConnection* socketConnection, int errnum)> onReadError;
         std::function<void(SocketConnection* socketConnection, int errnum)> onWriteError;

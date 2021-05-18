@@ -24,6 +24,8 @@
 #include "log/Logger.h"
 #include "net/SNodeC.h"
 #include "net/socket/ip/tcp/ipv4/Socket.h"
+#include "net/socket/stream/SocketProtocol.h"
+#include "net/socket/stream/SocketProtocolFactory.h"
 #include "net/socket/stream/legacy/SocketClient.h"
 #include "net/socket/stream/tls/SocketClient.h"
 
@@ -31,7 +33,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-/*
 using namespace net::socket::ip;
 using namespace net::socket::ip::address::ipv4;
 using namespace net::socket::stream;
@@ -45,14 +46,14 @@ static http::client::ResponseParser* getResponseParser() {
         },
         [](const std::map<std::string, std::string>& headers, const std::map<std::string, http::CookieOptions>& cookies) -> void {
             VLOG(0) << "++   Headers:";
-            for (auto [field, value] : headers) {
+            for (const auto& [field, value] : headers) {
                 VLOG(0) << "++       " << field + " = " + value;
             }
 
             VLOG(0) << "++   Cookies:";
-            for (auto [name, cookie] : cookies) {
+            for (const auto& [name, cookie] : cookies) {
                 VLOG(0) << "++     " + name + " = " + cookie.getValue();
-                for (auto [option, value] : cookie.getOptions()) {
+                for (const auto& [option, value] : cookie.getOptions()) {
                     VLOG(0) << "++       " + option + " = " + value;
                 }
             }
@@ -75,8 +76,46 @@ static http::client::ResponseParser* getResponseParser() {
     return responseParser;
 }
 
+class SimpleSocketProtocol : public SocketProtocol {
+public:
+    SimpleSocketProtocol() {
+        responseParser = getResponseParser();
+    }
+
+    ~SimpleSocketProtocol() override {
+        delete responseParser;
+    }
+
+    void receiveData(const char* junk, std::size_t junkLen) override {
+        responseParser->parse(junk, junkLen);
+    }
+
+    void onWriteError([[maybe_unused]] int errnum) override {
+        VLOG(0) << "OnWriteError: " << errnum;
+    }
+
+    void onReadError([[maybe_unused]] int errnum) override {
+        VLOG(0) << "OnReadError: " << errnum;
+    }
+
+private:
+    http::client::ResponseParser* responseParser;
+};
+
+class SimpleSocketProtocolFactory : public SocketProtocolFactory {
+public:
+    SimpleSocketProtocolFactory() = default;
+
+    SocketProtocol* create() const override {
+        return new SimpleSocketProtocol();
+    }
+};
+
+class SocketConnectionBase;
+
 tls::SocketClient<tcp::ipv4::Socket> getTlsClient() {
     tls::SocketClient<tcp::ipv4::Socket> tlsClient(
+        std::make_shared<SimpleSocketProtocolFactory>(), // SharedFactory
         [](const tls::SocketClient<tcp::ipv4::Socket>::SocketAddress& localAddress,
            const tls::SocketClient<tcp::ipv4::Socket>::SocketAddress& remoteAddress) -> void { // OnConnect
             VLOG(0) << "OnConnect";
@@ -84,10 +123,10 @@ tls::SocketClient<tcp::ipv4::Socket> getTlsClient() {
             VLOG(0) << "\tServer: " + remoteAddress.toString();
             VLOG(0) << "\tClient: " + localAddress.toString();
         },
-        [](tls::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection) -> void { // onConnect
+        [](tls::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection) -> void { // onConnected
             VLOG(0) << "OnConnected";
 
-            socketConnection->setContext<http::client::ResponseParser*>(getResponseParser());
+            //            socketConnection->setContext<http::client::ResponseParser*>(getResponseParser());
 
             socketConnection->enqueue("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
 
@@ -142,28 +181,21 @@ tls::SocketClient<tcp::ipv4::Socket> getTlsClient() {
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
 
-            socketConnection->getContext<http::client::ResponseParser*>([](http::client::ResponseParser*& responseParser) -> void {
-                delete responseParser;
-            });
         },
         [](tls::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection,
            const char* junk,
            std::size_t junkLen) -> void { // onRead
             VLOG(0) << "OnRead";
-
-            socketConnection->getContext<http::client::ResponseParser*>(
-                [junk, junkLen](http::client::ResponseParser*& responseParser) -> void {
-                    responseParser->parse(junk, junkLen);
-                });
+            static_cast<SimpleSocketProtocol*>(socketConnection->getSocketProtocol())->receiveData(junk, junkLen);
 
         },
         []([[maybe_unused]] tls::SocketConnection<tcp::ipv4::Socket>* socketConnection,
            int errnum) -> void { // onReadError
-            VLOG(0) << "OnReadError: " + std::to_string(errnum);
+            static_cast<SimpleSocketProtocol*>(socketConnection->getSocketProtocol())->onReadError(errnum);
         },
         []([[maybe_unused]] tls::SocketConnection<tcp::ipv4::Socket>* socketConnection,
            int errnum) -> void { // onWriteError
-            VLOG(0) << "OnWriteError: " + std::to_string(errnum);
+            static_cast<SimpleSocketProtocol*>(socketConnection->getSocketProtocol())->onWriteError(errnum);
         },
         {{"certChain", CLIENTCERTF}, {"keyPEM", CLIENTKEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}});
 
@@ -182,6 +214,7 @@ tls::SocketClient<tcp::ipv4::Socket> getTlsClient() {
 
 legacy::SocketClient<tcp::ipv4::Socket> getLegacyClient() {
     legacy::SocketClient<tcp::ipv4::Socket> legacyClient(
+        std::make_shared<SimpleSocketProtocolFactory>(), // SharedFactory
         [](const legacy::SocketClient<tcp::ipv4::Socket>::SocketAddress& localAddress,
            const legacy::SocketClient<tcp::ipv4::Socket>::SocketAddress& remoteAddress) -> void { // OnConnect
             VLOG(0) << "OnConnect";
@@ -192,8 +225,6 @@ legacy::SocketClient<tcp::ipv4::Socket> getLegacyClient() {
         [](legacy::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection) -> void { // onConnected
             VLOG(0) << "OnConnected";
 
-            socketConnection->setContext<http::client::ResponseParser*>(getResponseParser());
-
             socketConnection->enqueue("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
         },
         [](legacy::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection) -> void { // onDisconnect
@@ -202,27 +233,20 @@ legacy::SocketClient<tcp::ipv4::Socket> getLegacyClient() {
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
 
-            socketConnection->getContext<http::client::ResponseParser*>([](http::client::ResponseParser*& responseParser) -> void {
-                delete responseParser;
-            });
         },
         [](legacy::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection,
            const char* junk,
            std::size_t junkLen) -> void { // onRead
             VLOG(0) << "OnRead";
-
-            socketConnection->getContext<http::client::ResponseParser*>(
-                [junk, junkLen](http::client::ResponseParser*& responseParser) -> void {
-                    responseParser->parse(junk, junkLen);
-                });
+            static_cast<SimpleSocketProtocol*>(socketConnection->getSocketProtocol())->receiveData(junk, junkLen);
         },
         []([[maybe_unused]] legacy::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection,
            int errnum) -> void { // onReadError
-            VLOG(0) << "OnReadError: " << errnum;
+            static_cast<SimpleSocketProtocol*>(socketConnection->getSocketProtocol())->onReadError(errnum);
         },
         []([[maybe_unused]] legacy::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection,
            int errnum) -> void { // onWriteError
-            VLOG(0) << "OnWriteError: " << errnum;
+            static_cast<SimpleSocketProtocol*>(socketConnection->getSocketProtocol())->onWriteError(errnum);
         },
         {{}});
 
@@ -238,35 +262,35 @@ legacy::SocketClient<tcp::ipv4::Socket> getLegacyClient() {
 
     return legacyClient;
 }
-*/
+
 int main(int argc, char* argv[]) {
     net::SNodeC::init(argc, argv);
-    /*
-        {
-            InetAddress remoteAddress("localhost", 8080);
 
-            legacy::SocketClient<tcp::ipv4::Socket> legacyClient = getLegacyClient();
+    {
+        InetAddress remoteAddress("localhost", 8080);
 
-            legacyClient.connect(remoteAddress, [](int err) -> void { // example.com:81 simulate connnect timeout
-                if (err) {
-                    PLOG(ERROR) << "Connect: " << std::to_string(err);
-                } else {
-                    VLOG(0) << "Connected";
-                }
-            });
+        legacy::SocketClient<tcp::ipv4::Socket> legacyClient = getLegacyClient();
 
-            remoteAddress = InetAddress("localhost", 8088);
+        legacyClient.connect(remoteAddress, [](int err) -> void { // example.com:81 simulate connnect timeout
+            if (err) {
+                PLOG(ERROR) << "Connect: " << std::to_string(err);
+            } else {
+                VLOG(0) << "Connected";
+            }
+        });
 
-            tls::SocketClient<tcp::ipv4::Socket> tlsClient = getTlsClient();
+        remoteAddress = InetAddress("localhost", 8088);
 
-            tlsClient.connect(remoteAddress, [](int err) -> void {
-                if (err) {
-                    PLOG(ERROR) << "Connect: " << std::to_string(err);
-                } else {
-                    VLOG(0) << "Connected";
-                }
-            });
-        }
-    */
+        tls::SocketClient<tcp::ipv4::Socket> tlsClient = getTlsClient();
+
+        tlsClient.connect(remoteAddress, [](int err) -> void {
+            if (err) {
+                PLOG(ERROR) << "Connect: " << std::to_string(err);
+            } else {
+                VLOG(0) << "Connected";
+            }
+        });
+    }
+
     return net::SNodeC::start();
 }

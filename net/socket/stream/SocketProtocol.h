@@ -21,6 +21,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::socket::stream {
@@ -30,6 +32,10 @@ namespace net::socket::stream {
     class SocketProtocol {
     public:
         virtual ~SocketProtocol() = default;
+
+        virtual void receiveData(const char* junk, std::size_t junkLen) = 0;
+        virtual void onWriteError(int errnum) = 0;
+        virtual void onReadError(int errnum) = 0;
 
     protected:
         void setSocketConnection(SocketConnectionBase* socketConnection) {

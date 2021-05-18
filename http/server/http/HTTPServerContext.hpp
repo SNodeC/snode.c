@@ -30,8 +30,7 @@
 namespace http::server {
 
     template <typename Request, typename Response>
-    HTTPServerContext<Request, Response>::HTTPServerContext(SocketConnection* socketConnection,
-                                                            const std::function<void(Request& req, Response& res)>& onRequestReady)
+    HTTPServerContext<Request, Response>::HTTPServerContext(const std::function<void(Request& req, Response& res)>& onRequestReady)
         : onRequestReady(onRequestReady)
         , parser(
               [this](void) -> void {
@@ -107,7 +106,6 @@ namespace http::server {
 
                   requestParsed();
               }) {
-        this->setSocketConnection(socketConnection);
     }
 
     template <typename Request, typename Response>

@@ -29,6 +29,7 @@
 #include <cstddef>
 #include <functional>
 #include <map>
+#include <memory>
 #include <string>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -46,14 +47,16 @@ namespace net::socket::stream {
         using Socket = typename SocketConnection::Socket;
         using SocketAddress = typename Socket::SocketAddress;
 
-        SocketConnector(const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
+        SocketConnector(const std::shared_ptr<const SocketProtocolFactory>& socketProtocolFactory,
+                        const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
                         const std::function<void(SocketConnection* socketConnection)>& onConnected,
                         const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
                         const std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)>& onRead,
                         const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                         const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                         const std::map<std::string, std::any>& options)
-            : options(options)
+            : socketProtocolFactory(socketProtocolFactory)
+            , options(options)
             , onConnect(onConnect)
             , onConnected(onConnected)
             , onDisconnect(onDisconnect)
@@ -161,10 +164,9 @@ namespace net::socket::stream {
 
     protected:
         std::function<void(int err)> onError;
-        std::map<std::string, std::any> options;
 
-    private:
-        std::shared_ptr<const SocketProtocolFactory> socketProtocolFactory;
+        std::shared_ptr<const SocketProtocolFactory> socketProtocolFactory = nullptr;
+        std::map<std::string, std::any> options;
 
         std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)> onConnect;
         std::function<void(SocketConnection* socketConnection)> onDestruct;

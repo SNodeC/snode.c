@@ -61,9 +61,7 @@ namespace net::socket::stream {
             , onDisconnect(onDisconnect) {
             SocketConnection::attach(fd);
             SocketReader::enable(fd);
-            VLOG(0) << "13 ----------------------";
             onConnect(localAddress, remoteAddress);
-            VLOG(0) << "14 ----------------------";
         }
 
         virtual ~SocketConnection() = default;

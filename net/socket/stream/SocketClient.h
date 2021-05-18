@@ -20,6 +20,7 @@
 #define NET_SOCKET_STREAM_SOCKETCLIENT_H
 
 #include "net/socket/stream/SocketConnector.h"
+#include "net/socket/stream/SocketProtocolFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,6 +29,7 @@
 #include <cstddef>
 #include <functional>
 #include <map>
+#include <memory>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -40,14 +42,16 @@ namespace net::socket::stream {
         using SocketConnection = typename SocketConnector::SocketConnection;
         using SocketAddress = typename SocketConnection::Socket::SocketAddress;
 
-        SocketClient(const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
+        SocketClient(const std::shared_ptr<const SocketProtocolFactory> socketProtocolFactory,
+                     const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
                      const std::function<void(SocketConnection* socketConnection)>& onConnected,
                      const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
                      const std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)>& onRead,
                      const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
                      const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                      const std::map<std::string, std::any>& options = {{}})
-            : onConnect(onConnect)
+            : socketProtocolFactory(socketProtocolFactory)
+            , onConnect(onConnect)
             , onConnected(onConnected)
             , onDisconnect(onDisconnect)
             , onRead(onRead)
@@ -64,8 +68,8 @@ namespace net::socket::stream {
         connect(const SocketAddress& remoteAddress, const SocketAddress& bindAddress, const std::function<void(int err)>& onError) const {
             errno = 0;
 
-            SocketConnector* socketConnector =
-                new SocketConnector(onConnect, onConnected, onDisconnect, onRead, onReadError, onWriteError, options);
+            SocketConnector* socketConnector = new SocketConnector(
+                socketProtocolFactory, onConnect, onConnected, onDisconnect, onRead, onReadError, onWriteError, options);
 
             socketConnector->connect(remoteAddress, bindAddress, onError);
         }
@@ -75,6 +79,8 @@ namespace net::socket::stream {
         }
 
     private:
+        std::shared_ptr<const SocketProtocolFactory> socketProtocolFactory = nullptr;
+
         std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)> onConnect;
         std::function<void(SocketConnection* socketConnection)> onConnected;
         std::function<void(SocketConnection* socketConnection)> onDisconnect;

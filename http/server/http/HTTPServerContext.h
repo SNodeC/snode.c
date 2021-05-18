@@ -19,10 +19,10 @@
 #ifndef HTTP_SERVER_HTTPSERVERCONTEXT_H
 #define HTTP_SERVER_HTTPSERVERCONTEXT_H
 
+#include "http/server/ServerContext.h"
 #include "http/server/http/Request.h"
 #include "http/server/http/RequestParser.h"
 #include "http/server/http/Response.h"
-#include "http/server/ServerContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -68,7 +68,7 @@ namespace http::server {
             std::string reason;
         };
 
-        HTTPServerContext(SocketConnection* socketConnection, const std::function<void(Request& req, Response& res)>& onRequestReady);
+        HTTPServerContext(const std::function<void(Request& req, Response& res)>& onRequestReady);
 
         ~HTTPServerContext() override = default;
 

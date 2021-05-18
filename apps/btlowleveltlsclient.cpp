@@ -32,6 +32,7 @@ using namespace net::socket::bluetooth::rfcomm::tls;
 
 SocketClient getClient() {
     SocketClient client(
+        nullptr,
         [](const SocketClient::SocketAddress& localAddress,
            const SocketClient::SocketAddress& remoteAddress) -> void { // OnConnect
             VLOG(0) << "OnConnect";
