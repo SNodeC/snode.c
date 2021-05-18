@@ -20,10 +20,12 @@
 #define NET_SOCKET_STREAM_SOCKETCONNECTIONBASE_H
 
 #include "net/socket/stream/SocketProtocol.h"
+#include "net/socket/stream/SocketProtocolFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
+#include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -32,11 +34,17 @@ namespace net::socket::stream {
 
     class SocketConnectionBase {
     protected:
-        SocketConnectionBase() = default;
+        SocketConnectionBase(const std::shared_ptr<const SocketProtocolFactory>& socketProtocolFactory) {
+            socketProtocol = socketProtocolFactory->create(this);
+            socketProtocol->setSocketConnection(this);
+        }
+
         SocketConnectionBase(const SocketConnectionBase&) = delete;
         SocketConnectionBase& operator=(const SocketConnectionBase&) = delete;
 
-        virtual ~SocketConnectionBase() = default;
+        virtual ~SocketConnectionBase() {
+            delete socketProtocol;
+        };
 
     public:
         virtual void enqueue(const char* junk, std::size_t junkLen) = 0;

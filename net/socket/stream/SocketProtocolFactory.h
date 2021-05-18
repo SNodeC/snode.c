@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_STREAM_SOCKETPROTOCOL_H
-#define NET_SOCKET_STREAM_SOCKETPROTOCOL_H
+#ifndef PROTOCOLFACTORY_H
+#define PROTOCOLFACTORY_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -25,22 +25,15 @@
 
 namespace net::socket::stream {
 
-    class SocketConnectionBase;
+class SocketConnectionBase;
+class SocketProtocol;
 
-    class SocketProtocol {
-    public:
-        virtual ~SocketProtocol() = default;
+class SocketProtocolFactory {
+public:
+    virtual SocketProtocol* create(SocketConnectionBase* socketConnection) const = 0;
 
-    protected:
-        void setSocketConnection(SocketConnectionBase* socketConnection) {
-            this->socketConnection = socketConnection;
-        }
-
-        SocketConnectionBase* socketConnection;
-
-        friend class SocketConnectionBase;
-    };
+};
 
 } // namespace net::socket::stream
 
-#endif // NET_SOCKET_STREAM_SOCKETPROTOCOL_H
+#endif // PROTOCOLFACTORY_H

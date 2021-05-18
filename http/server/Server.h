@@ -2,6 +2,7 @@
 #define HTTP_SERVER_SERVERT_H
 
 #include "http/server/http/HTTPServerContext.hpp"
+#include "http/server/http/HTTPServerContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,19 +33,21 @@ namespace http::server {
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
             : socketServer(
-                  [onConnect](const SocketAddress& localAddress,
-                              const SocketAddress& remoteAddress) -> void { // OnConnect
-                      onConnect(localAddress, remoteAddress);
+                  std::make_shared<HTTPServerContextFactory<Request, Response>>(onRequestReady), // SharedFactory
+                  [onConnect]([[maybe_unused]] const SocketAddress& localAddress,
+                              [[maybe_unused]] const SocketAddress& remoteAddress) -> void { // OnConnect
+                      //                      onConnect(localAddress, remoteAddress);
                   },
                   [onConnected, onRequestReady](SocketConnection* socketConnection) -> void { // onConnected.
-                      socketConnection->setSocketProtocol(new HTTPServerContext<Request, Response>(socketConnection, onRequestReady));
+                      //                      socketConnection->setSocketProtocol(new HTTPServerContext<Request, Response>(socketConnection,
+                      //                      onRequestReady));
 
                       onConnected(socketConnection);
                   },
                   [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
                       onDisconnect(socketConnection);
 
-                      delete socketConnection->getSocketProtocol();
+                      //                      delete socketConnection->getSocketProtocol();
                   },
                   [](SocketConnection* socketConnection, const char* junk, std::size_t junkLen) -> void { // onRead
                       static_cast<ServerContext*>(socketConnection->getSocketProtocol())->take(junk, junkLen);

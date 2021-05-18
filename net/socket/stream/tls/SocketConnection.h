@@ -41,7 +41,8 @@ namespace net::socket::stream::tls {
         using SocketAddress = typename Socket::SocketAddress;
 
     public:
-        SocketConnection(int fd,
+        SocketConnection(const std::shared_ptr<const SocketProtocolFactory>& socketProtocolFactory,
+                         int fd,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
                          const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
@@ -51,6 +52,7 @@ namespace net::socket::stream::tls {
                          const std::function<void(SocketConnection* socketConnection)>& onDisconnect)
             : stream::SocketConnection<tls::SocketReader<Socket>, tls::SocketWriter<Socket>, typename Socket::SocketAddress>::
                   SocketConnection(
+                      socketProtocolFactory,
                       fd,
                       localAddress,
                       remoteAddress,

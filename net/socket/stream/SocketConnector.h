@@ -21,6 +21,7 @@
 
 #include "net/ConnectEventReceiver.h"
 #include "net/socket/Socket.h"
+#include "net/socket/stream/SocketProtocolFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -118,7 +119,8 @@ namespace net::socket::stream {
 
                         if (getsockname(Socket::getFd(), reinterpret_cast<sockaddr*>(&localAddress), &localAddressLength) == 0 &&
                             getpeername(Socket::getFd(), reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) == 0) {
-                            socketConnection = new SocketConnection(Socket::getFd(),
+                            socketConnection = new SocketConnection(socketProtocolFactory,
+                                                                    Socket::getFd(),
                                                                     SocketAddress(localAddress),
                                                                     SocketAddress(remoteAddress),
                                                                     onConnect,
@@ -162,6 +164,8 @@ namespace net::socket::stream {
         std::map<std::string, std::any> options;
 
     private:
+        std::shared_ptr<const SocketProtocolFactory> socketProtocolFactory;
+
         std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)> onConnect;
         std::function<void(SocketConnection* socketConnection)> onDestruct;
         std::function<void(SocketConnection* socketConnection)> onConnected;

@@ -25,6 +25,7 @@
 
 #include <cstddef>
 #include <functional>
+#include <memory>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -43,7 +44,8 @@ namespace net::socket::stream {
         SocketConnection() = delete;
 
     protected:
-        SocketConnection(int fd,
+        SocketConnection(const std::shared_ptr<const SocketProtocolFactory>& socketProtocolFactory,
+                         int fd,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
                          const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
@@ -51,14 +53,17 @@ namespace net::socket::stream {
                          const std::function<void(int errnum)>& onReadError,
                          const std::function<void(int errnum)>& onWriteError,
                          const std::function<void()>& onDisconnect)
-            : SocketReader(onRead, onReadError)
+            : SocketConnectionBase(socketProtocolFactory)
+            , SocketReader(onRead, onReadError)
             , SocketWriter(onWriteError)
             , localAddress(localAddress)
             , remoteAddress(remoteAddress)
             , onDisconnect(onDisconnect) {
             SocketConnection::attach(fd);
             SocketReader::enable(fd);
+            VLOG(0) << "13 ----------------------";
             onConnect(localAddress, remoteAddress);
+            VLOG(0) << "14 ----------------------";
         }
 
         virtual ~SocketConnection() = default;

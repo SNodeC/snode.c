@@ -34,6 +34,7 @@ int main(int argc, char* argv[]) {
     net::SNodeC::init(argc, argv);
 
     SocketServer btServer(
+        nullptr, // SharedFactory
         [](const SocketServer::SocketAddress& localAddress,
            const SocketServer::SocketAddress& remoteAddress) -> void { // OnConnect
             VLOG(0) << "OnConnect";
