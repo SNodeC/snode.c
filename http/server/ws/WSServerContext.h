@@ -36,7 +36,7 @@ namespace http::websocket {
         , public WSReceiver
         , public WSTransmitter {
     private:
-        void receiveData(const char* junk, std::size_t junklen) override;
+        void parseReceivedData(const char* junk, std::size_t junklen) override;
         void onReadError(int errnum) override;
         void onWriteError(int errnum) override;
 

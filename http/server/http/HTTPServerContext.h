@@ -72,7 +72,7 @@ namespace http::server {
 
         ~HTTPServerContext() override = default;
 
-        void receiveData(const char* junk, std::size_t junkLen) override;
+        void parseReceivedData(const char* junk, std::size_t junkLen) override;
         void onReadError(int errnum) override;
 
         void sendResponseData(const char* junk, std::size_t junkLen) override;

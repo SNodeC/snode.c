@@ -25,14 +25,15 @@
 
 namespace net::socket::stream {
 
-class SocketConnectionBase;
-class SocketProtocol;
+    class SocketConnectionBase;
+    class SocketProtocol;
 
-class SocketProtocolFactory {
-public:
-    virtual SocketProtocol* create() const = 0;
+    class SocketProtocolFactory {
+    public:
+        virtual ~SocketProtocolFactory() = default;
 
-};
+        virtual SocketProtocol* create() const = 0;
+    };
 
 } // namespace net::socket::stream
 

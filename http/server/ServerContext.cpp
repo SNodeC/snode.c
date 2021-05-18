@@ -35,8 +35,8 @@ namespace http::server {
         markedForDelete = true;
     }
 
-    void ServerContext::take(const char* junk, std::size_t junkLen) {
-        receiveData(junk, junkLen);
+    void ServerContext::receiveData(const char* junk, std::size_t junkLen) {
+        parseReceivedData(junk, junkLen);
 
         if (markedForDelete) {
             delete this;

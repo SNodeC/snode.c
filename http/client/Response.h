@@ -21,14 +21,17 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <map>
-#include <string>
+#include <cstddef> // for size_t
+#include <map>     // for map
+#include <string>  // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace http {
-
     class CookieOptions;
+}
+
+namespace http {
 
     namespace client {
 

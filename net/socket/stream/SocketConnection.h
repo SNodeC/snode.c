@@ -55,8 +55,8 @@ namespace net::socket::stream {
                          const std::function<void()>& onDisconnect)
             : SocketConnectionBase(socketProtocolFactory)
             , SocketReader(
-                  [this](const char* junk, std::size_t junkLen) -> void {
-                      this->getSocketProtocol()->take(junk, junkLen);
+                  [&socketProtocol = this->socketProtocol](const char* junk, std::size_t junkLen) -> void {
+                      socketProtocol->receiveData(junk, junkLen);
                   },
                   onReadError)
             , SocketWriter(onWriteError)

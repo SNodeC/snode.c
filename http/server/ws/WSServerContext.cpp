@@ -29,8 +29,8 @@
 
 namespace http::websocket {
 
-    void WSServerContext::receiveData(const char* junk, std::size_t junkLen) {
-        receive(const_cast<char*>(junk), junkLen);
+    void WSServerContext::parseReceivedData(const char* junk, std::size_t junkLen) {
+        WSReceiver::receive(const_cast<char*>(junk), junkLen);
     }
 
     void WSServerContext::onReadError([[maybe_unused]] int errnum) {

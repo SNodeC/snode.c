@@ -18,14 +18,20 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h" // just for this example app
-#include "log/Logger.h"
-#include "net/SNodeC.h"
-#include "net/socket/bluetooth/l2cap/SocketServer.h"
-#include "net/socket/stream/SocketProtocol.h"
-#include "net/socket/stream/SocketProtocolFactory.h"
+#include "log/Logger.h"                                // for Writer, Storage
+#include "net/SNodeC.h"                                // for SNodeC
+#include "net/socket/bluetooth/address/L2CapAddress.h" // for L2CapAddress
+#include "net/socket/bluetooth/l2cap/Socket.h"         // for l2cap
+#include "net/socket/bluetooth/l2cap/SocketServer.h"   // for SocketServer
+#include "net/socket/stream/SocketConnectionBase.h"    // for SocketConnect...
+#include "net/socket/stream/SocketProtocol.h"          // for SocketProtocol
+#include "net/socket/stream/SocketProtocolFactory.h"   // for SocketProtoco...
+#include "net/socket/stream/SocketServer.h"            // for SocketServer<...
 
-#include <cstddef>
+#include <cstddef>    // for size_t
+#include <functional> // for function
+#include <memory>     // for allocator
+#include <string>     // for operator+
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -33,8 +39,7 @@ using namespace net::socket::bluetooth::l2cap;
 
 class SimpleSocketProtocol : public net::socket::stream::SocketProtocol {
 public:
-    SimpleSocketProtocol() {
-    }
+    ~SimpleSocketProtocol() = default;
 
     void receiveData(const char* junk, std::size_t junkLen) override {
         socketConnection->enqueue(junk, junkLen);
@@ -51,6 +56,8 @@ public:
 
 class SimpleSocketProtocolFactory : public net::socket::stream::SocketProtocolFactory {
 public:
+    ~SimpleSocketProtocolFactory() = default;
+
     net::socket::stream::SocketProtocol* create() const override {
         return new SimpleSocketProtocol();
     }

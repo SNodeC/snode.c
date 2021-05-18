@@ -73,7 +73,7 @@ namespace net::socket::stream {
             ssize_t ret = read(junk, MAX_READ_JUNKSIZE);
 
             if (ret > 0) {
-                onRead(junk, ret);
+                onRead(junk, static_cast<std::size_t>(ret));
             } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
                 ReadEventReceiver::disable();
                 if (markShutdown) {

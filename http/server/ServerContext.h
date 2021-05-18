@@ -40,9 +40,12 @@ namespace http::server {
 
         virtual ~ServerContext() = default;
 
-        void take(const char* junk, std::size_t junkLen);
-
         void upgrade(ServerContext* newServerContext);
+
+    protected:
+        void receiveData(const char* junk, std::size_t junkLen) override;
+
+        virtual void parseReceivedData(const char* junk, std::size_t junkLen) = 0;
 
     private:
         bool markedForDelete = false;

@@ -61,7 +61,7 @@ namespace net::socket::stream {
             return socketProtocol;
         }
 
-    private:
+    protected:
         SocketProtocol* socketProtocol = nullptr;
     };
 

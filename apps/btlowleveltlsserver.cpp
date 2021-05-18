@@ -34,9 +34,6 @@ using namespace net::socket::bluetooth::rfcomm::tls;
 
 class SimpleSocketProtocol : public net::socket::stream::SocketProtocol {
 public:
-    SimpleSocketProtocol() {
-    }
-
     void receiveData(const char* junk, std::size_t junkLen) override {
         socketConnection->enqueue(junk, junkLen);
     }
