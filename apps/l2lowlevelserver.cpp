@@ -41,6 +41,7 @@ public:
     ~SimpleSocketProtocol() = default;
 
     void receiveData(const char* junk, std::size_t junkLen) override {
+        VLOG(0) << "Data to reflect: " << std::string(junk, junkLen);
         socketConnection->enqueue(junk, junkLen);
     }
 
@@ -83,17 +84,6 @@ int main(int argc, char* argv[]) {
 
             VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
             VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
-        },
-        [](SocketServer::SocketConnection* socketConnection, const char* junk, std::size_t junkLen) -> void { // onRead
-            std::string data(junk, junkLen);
-            VLOG(0) << "Data to reflect: " << data;
-            static_cast<SimpleSocketProtocol*>(socketConnection->getSocketProtocol())->receiveData(junk, junkLen);
-        },
-        []([[maybe_unused]] SocketServer::SocketConnection* socketConnection, int errnum) -> void { // onReadError
-            PLOG(ERROR) << "OnReadError: " << errnum;
-        },
-        []([[maybe_unused]] SocketServer::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
-            PLOG(ERROR) << "OnWriteError: " << errnum;
         });
 
     btServer.listen(SocketServer::SocketAddress("A4:B1:C1:2C:82:37", 0x1023), 5, [](int errnum) -> void { // titan

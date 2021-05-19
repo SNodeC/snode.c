@@ -71,15 +71,6 @@ namespace http::client {
                   [onDisconnect]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onDisconnect
                       onDisconnect(socketConnection);
                   },
-                  [](SocketConnection* socketConnection, const char* junk, std::size_t junkLen) -> void { // onRead
-                      static_cast<ClientContextBase*>(socketConnection->getSocketProtocol())->receiveData(junk, junkLen);
-                  },
-                  [](SocketConnection* socketConnection, int errnum) -> void { // onReadError
-                      static_cast<ClientContextBase*>(socketConnection->getSocketProtocol())->onReadError(errnum);
-                  },
-                  [](SocketConnection* socketConnection, int errnum) -> void { // onWriteError
-                      static_cast<ClientContextBase*>(socketConnection->getSocketProtocol())->onWriteError(errnum);
-                  },
                   options) {
         }
 

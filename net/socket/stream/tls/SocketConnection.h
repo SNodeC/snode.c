@@ -46,31 +46,11 @@ namespace net::socket::stream::tls {
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
                          const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
-                         const std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)>& onRead,
-                         const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
-                         const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                          const std::function<void(SocketConnection* socketConnection)>& onDisconnect)
             : stream::SocketConnection<tls::SocketReader<Socket>, tls::SocketWriter<Socket>, typename Socket::SocketAddress>::
-                  SocketConnection(
-                      socketProtocolFactory,
-                      fd,
-                      localAddress,
-                      remoteAddress,
-                      onConnect,
-                      [onRead, this](const char* junk, std::size_t junkLen) -> void {
-                          onRead(this, junk, junkLen);
-                      },
-                      [onReadError, this](int errnum) -> void {
-                          sslErr = errnum <= 0 ? -errnum : SSL_ERROR_SYSCALL;
-                          onReadError(this, errnum);
-                      },
-                      [onWriteError, this](int errnum) -> void {
-                          sslErr = errnum <= 0 ? -errnum : SSL_ERROR_SYSCALL;
-                          onWriteError(this, errnum);
-                      },
-                      [onDisconnect, this]() -> void {
-                          onDisconnect(this);
-                      }) {
+                  SocketConnection(socketProtocolFactory, fd, localAddress, remoteAddress, onConnect, [onDisconnect, this]() -> void {
+                      onDisconnect(this);
+                  }) {
         }
 
     protected:

@@ -48,6 +48,7 @@ using namespace net::socket::bluetooth::rfcomm::tls;
 class SimpleSocketProtocol : public net::socket::stream::SocketProtocol {
 public:
     void receiveData(const char* junk, std::size_t junkLen) override {
+        VLOG(0) << "Data to reflect: " << std::string(junk, junkLen);
         socketConnection->enqueue(junk, junkLen);
     }
 
@@ -131,17 +132,6 @@ SocketClient getClient() {
 
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
-        },
-        [](SocketClient::SocketConnection* socketConnection, const char* junk, std::size_t junkLen) -> void { // onRead
-            std::string data(junk, junkLen);
-            VLOG(0) << "Data to reflect: " << data;
-            static_cast<SimpleSocketProtocol*>(socketConnection->getSocketProtocol())->receiveData(junk, junkLen);
-        },
-        []([[maybe_unused]] SocketClient::SocketConnection* socketConnection, int errnum) -> void { // onReadError
-            PLOG(ERROR) << "OnReadError: " << errnum;
-        },
-        []([[maybe_unused]] SocketClient::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
-            PLOG(ERROR) << "OnWriteError: " << errnum;
         },
         {{"certChain", CLIENTCERTF}, {"keyPEM", CLIENTKEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}});
 

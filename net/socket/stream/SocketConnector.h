@@ -51,18 +51,12 @@ namespace net::socket::stream {
                         const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
                         const std::function<void(SocketConnection* socketConnection)>& onConnected,
                         const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
-                        const std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)>& onRead,
-                        const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
-                        const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                         const std::map<std::string, std::any>& options)
             : socketProtocolFactory(socketProtocolFactory)
             , options(options)
             , onConnect(onConnect)
             , onConnected(onConnected)
-            , onDisconnect(onDisconnect)
-            , onRead(onRead)
-            , onReadError(onReadError)
-            , onWriteError(onWriteError) {
+            , onDisconnect(onDisconnect) {
         }
 
         SocketConnector() = delete;
@@ -127,9 +121,6 @@ namespace net::socket::stream {
                                                                     SocketAddress(localAddress),
                                                                     SocketAddress(remoteAddress),
                                                                     onConnect,
-                                                                    onRead,
-                                                                    onReadError,
-                                                                    onWriteError,
                                                                     onDisconnect);
                             SocketConnector::dontClose(true);
                             SocketConnector::ConnectEventReceiver::disable();
@@ -172,9 +163,6 @@ namespace net::socket::stream {
         std::function<void(SocketConnection* socketConnection)> onDestruct;
         std::function<void(SocketConnection* socketConnection)> onConnected;
         std::function<void(SocketConnection* socketConnection)> onDisconnect;
-        std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)> onRead;
-        std::function<void(SocketConnection* socketConnection, int errnum)> onReadError;
-        std::function<void(SocketConnection* socketConnection, int errnum)> onWriteError;
 
         SocketConnection* socketConnection = nullptr;
     };

@@ -44,16 +44,6 @@ namespace http::server {
                   [onDisconnect]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onDisconnect
                       onDisconnect(socketConnection);
                   },
-                  []([[maybe_unused]] SocketConnection* socketConnection,
-                     [[maybe_unused]] const char* junk,
-                     [[maybe_unused]] std::size_t junkLen) -> void { // onRead
-                  },
-                  [](SocketConnection* socketConnection, int errnum) -> void { // onReadError
-                      static_cast<net::socket::stream::SocketProtocol*>(socketConnection->getSocketProtocol())->onReadError(errnum);
-                  },
-                  [](SocketConnection* socketConnection, int errnum) -> void { // onWriteError
-                      static_cast<net::socket::stream::SocketProtocol*>(socketConnection->getSocketProtocol())->onWriteError(errnum);
-                  },
                   options) {
         }
 

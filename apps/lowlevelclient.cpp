@@ -182,21 +182,6 @@ tls::SocketClient<tcp::ipv4::Socket> getTlsClient() {
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
 
         },
-        [](tls::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection,
-           const char* junk,
-           std::size_t junkLen) -> void { // onRead
-            VLOG(0) << "OnRead";
-            static_cast<SimpleSocketProtocol*>(socketConnection->getSocketProtocol())->receiveData(junk, junkLen);
-
-        },
-        []([[maybe_unused]] tls::SocketConnection<tcp::ipv4::Socket>* socketConnection,
-           int errnum) -> void { // onReadError
-            static_cast<SimpleSocketProtocol*>(socketConnection->getSocketProtocol())->onReadError(errnum);
-        },
-        []([[maybe_unused]] tls::SocketConnection<tcp::ipv4::Socket>* socketConnection,
-           int errnum) -> void { // onWriteError
-            static_cast<SimpleSocketProtocol*>(socketConnection->getSocketProtocol())->onWriteError(errnum);
-        },
         {{"certChain", CLIENTCERTF}, {"keyPEM", CLIENTKEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}});
 
     InetAddress remoteAddress("localhost", 8088);
@@ -233,20 +218,6 @@ legacy::SocketClient<tcp::ipv4::Socket> getLegacyClient() {
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
 
-        },
-        [](legacy::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection,
-           const char* junk,
-           std::size_t junkLen) -> void { // onRead
-            VLOG(0) << "OnRead";
-            static_cast<SimpleSocketProtocol*>(socketConnection->getSocketProtocol())->receiveData(junk, junkLen);
-        },
-        []([[maybe_unused]] legacy::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection,
-           int errnum) -> void { // onReadError
-            static_cast<SimpleSocketProtocol*>(socketConnection->getSocketProtocol())->onReadError(errnum);
-        },
-        []([[maybe_unused]] legacy::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection,
-           int errnum) -> void { // onWriteError
-            static_cast<SimpleSocketProtocol*>(socketConnection->getSocketProtocol())->onWriteError(errnum);
         },
         {{}});
 

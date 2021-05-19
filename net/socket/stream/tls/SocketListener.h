@@ -49,9 +49,6 @@ namespace net::socket::stream {
                            const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
                            const std::function<void(SocketConnection* socketConnection)>& onConnected,
                            const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
-                           const std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)>& onRead,
-                           const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
-                           const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                            const std::map<std::string, std::any>& options)
                 : stream::SocketListener<SocketConnection>(
                       socketProtocolFactory,
@@ -84,9 +81,6 @@ namespace net::socket::stream {
                           socketConnection->stopSSL();
                           onDisconnect(socketConnection);
                       },
-                      onRead,
-                      onReadError,
-                      onWriteError,
                       options) {
                 ctx = ssl_ctx_new(options, true);
                 SSL_CTX_set_tlsext_servername_callback(ctx, serverNameCallback);

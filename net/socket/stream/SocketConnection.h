@@ -49,9 +49,6 @@ namespace net::socket::stream {
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
                          const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
-                         [[maybe_unused]] const std::function<void(const char* junk, std::size_t junkLen)>& onRead,
-                         [[maybe_unused]] const std::function<void(int errnum)>& onReadError,
-                         [[maybe_unused]] const std::function<void(int errnum)>& onWriteError,
                          const std::function<void()>& onDisconnect)
             : SocketConnectionBase(socketProtocolFactory)
             , SocketReader(
