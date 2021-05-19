@@ -30,7 +30,6 @@
 
 #include <cstddef>    // for size_t
 #include <functional> // for function
-#include <memory>     // for allocator
 #include <string>     // for operator+
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -67,7 +66,7 @@ int main(int argc, char* argv[]) {
     net::SNodeC::init(argc, argv);
 
     SocketServer btServer(
-        std::make_shared<SimpleSocketProtocolFactory>(), // SharedFactory
+        new SimpleSocketProtocolFactory(), // SharedFactory
         [](const SocketServer::SocketAddress& localAddress,
            [[maybe_unused]] const SocketServer::SocketAddress& remoteAddress) -> void { // OnConnect
             VLOG(0) << "OnConnect";

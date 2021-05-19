@@ -115,7 +115,7 @@ class SocketConnectionBase;
 
 tls::SocketClient<tcp::ipv4::Socket> getTlsClient() {
     tls::SocketClient<tcp::ipv4::Socket> tlsClient(
-        std::make_shared<SimpleSocketProtocolFactory>(), // SharedFactory
+        new SimpleSocketProtocolFactory(), // SharedFactory
         [](const tls::SocketClient<tcp::ipv4::Socket>::SocketAddress& localAddress,
            const tls::SocketClient<tcp::ipv4::Socket>::SocketAddress& remoteAddress) -> void { // OnConnect
             VLOG(0) << "OnConnect";
@@ -214,7 +214,7 @@ tls::SocketClient<tcp::ipv4::Socket> getTlsClient() {
 
 legacy::SocketClient<tcp::ipv4::Socket> getLegacyClient() {
     legacy::SocketClient<tcp::ipv4::Socket> legacyClient(
-        std::make_shared<SimpleSocketProtocolFactory>(), // SharedFactory
+        new SimpleSocketProtocolFactory(), // SharedFactory
         [](const legacy::SocketClient<tcp::ipv4::Socket>::SocketAddress& localAddress,
            const legacy::SocketClient<tcp::ipv4::Socket>::SocketAddress& remoteAddress) -> void { // OnConnect
             VLOG(0) << "OnConnect";

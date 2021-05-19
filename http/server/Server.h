@@ -33,9 +33,9 @@ namespace http::server {
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
             : socketServer(
-                  std::make_shared<HTTPServerContextFactory<Request, Response>>(onRequestReady), // SharedFactory
-                  [onConnect]([[maybe_unused]] const SocketAddress& localAddress,
-                              [[maybe_unused]] const SocketAddress& remoteAddress) -> void { // OnConnect
+                  new HTTPServerContextFactory<Request, Response>(onRequestReady), // SharedFactory
+                  [onConnect](const SocketAddress& localAddress,
+                              const SocketAddress& remoteAddress) -> void { // OnConnect
                       onConnect(localAddress, remoteAddress);
                   },
                   [onConnected, onRequestReady]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnected.

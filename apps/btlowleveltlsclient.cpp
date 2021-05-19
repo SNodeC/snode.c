@@ -31,7 +31,6 @@
 #include <any>                // for any
 #include <cstddef>            // for size_t, NULL
 #include <functional>         // for function
-#include <memory>             // for allocator
 #include <openssl/asn1.h>     // for ASN1_STRIN...
 #include <openssl/crypto.h>   // for OPENSSL_free
 #include <openssl/obj_mac.h>  // for NID_subjec...
@@ -70,7 +69,7 @@ public:
 
 SocketClient getClient() {
     SocketClient client(
-        std::make_shared<SimpleSocketProtocolFactory>(), // SharedFactory
+        new SimpleSocketProtocolFactory(), // SharedFactory
         [](const SocketClient::SocketAddress& localAddress,
            const SocketClient::SocketAddress& remoteAddress) -> void { // OnConnect
             VLOG(0) << "OnConnect";

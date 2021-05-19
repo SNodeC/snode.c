@@ -55,7 +55,7 @@ public:
 
 SocketClient getClient() {
     SocketClient client(
-        std::make_shared<SimpleSocketProtocolFactory>(), // SharedFactory
+        new SimpleSocketProtocolFactory(), // SharedFactory
         [](const SocketClient::SocketAddress& localAddress,
            const SocketClient::SocketAddress& remoteAddress) -> void { // onConnect
             VLOG(0) << "OnConnect";
@@ -77,7 +77,7 @@ SocketClient getClient() {
         [](SocketClient::SocketConnection* socketConnection, const char* junk, std::size_t junkLen) -> void { // onRead
             std::string data(junk, junkLen);
             VLOG(0) << "Data to reflect: " << data;
-            static_cast<SimpleSocketProtocol*>(socketConnection->getSocketProtocol())->receiveData(junk, junkLen);
+            socketConnection->getSocketProtocol()->receiveData(junk, junkLen);
         },
         []([[maybe_unused]] SocketClient::SocketConnection* socketConnection, int errnum) -> void { // onReadError
             PLOG(ERROR) << "OnReadError: " << errnum;

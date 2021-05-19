@@ -55,7 +55,7 @@ public:
 
 SocketClient getClient() {
     SocketClient client(
-        std::make_shared<SimpleSocketProtocolFactory>(), // SharedFactory
+        new SimpleSocketProtocolFactory(), // SharedFactory
         [](const SocketClient::SocketAddress& localAddress,
            const SocketClient::SocketAddress& remoteAddress) -> void { // OnConnect
             VLOG(0) << "OnConnect";
