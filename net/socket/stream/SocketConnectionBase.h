@@ -34,17 +34,12 @@ namespace net::socket::stream {
 
     class SocketConnectionBase {
     protected:
-        SocketConnectionBase(const std::shared_ptr<const SocketProtocolFactory>& socketProtocolFactory) {
-            socketProtocol = socketProtocolFactory->create();
-            socketProtocol->setSocketConnection(this);
-        }
+        SocketConnectionBase(const std::shared_ptr<const SocketProtocolFactory>& socketProtocolFactory);
 
         SocketConnectionBase(const SocketConnectionBase&) = delete;
         SocketConnectionBase& operator=(const SocketConnectionBase&) = delete;
 
-        virtual ~SocketConnectionBase() {
-            delete socketProtocol;
-        };
+        virtual ~SocketConnectionBase();
 
     public:
         virtual void enqueue(const char* junk, std::size_t junkLen) = 0;
@@ -52,14 +47,9 @@ namespace net::socket::stream {
 
         virtual void close(bool instantly = false) = 0;
 
-        void switchSocketProtocol(SocketProtocol* socketProtocol) {
-            this->socketProtocol = socketProtocol;
-            socketProtocol->setSocketConnection(this);
-        }
+        SocketProtocol* getSocketProtocol();
 
-        SocketProtocol* getSocketProtocol() {
-            return socketProtocol;
-        }
+        void switchSocketProtocol(SocketProtocol* socketProtocol);
 
     protected:
         SocketProtocol* socketProtocol = nullptr;

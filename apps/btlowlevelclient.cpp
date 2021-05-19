@@ -55,7 +55,7 @@ public:
 };
 
 SocketClient getClient() {
-    SocketClient client(
+    return SocketClient(
         new SimpleSocketProtocolFactory(), // SharedFactory
         [](const SocketClient::SocketAddress& localAddress,
            const SocketClient::SocketAddress& remoteAddress) -> void { // onConnect
@@ -76,8 +76,6 @@ SocketClient getClient() {
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
         },
         {{}});
-
-    return client;
 }
 
 int main(int argc, char* argv[]) {
