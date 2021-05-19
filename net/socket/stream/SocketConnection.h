@@ -56,7 +56,7 @@ namespace net::socket::stream {
             : SocketConnectionBase(socketProtocolFactory)
             , SocketReader(
                   [&socketProtocol = this->socketProtocol](const char* junk, std::size_t junkLen) -> void {
-                      socketProtocol->receiveData(junk, junkLen);
+                      socketProtocol->take(junk, junkLen);
                   },
                   onReadError)
             , SocketWriter(onWriteError)

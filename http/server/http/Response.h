@@ -33,6 +33,10 @@
 
 class FileReader;
 
+namespace net::socket::stream {
+    class SocketProtocol;
+}
+
 namespace http::server {
 
     class HTTPServerContextBase;
@@ -56,7 +60,7 @@ namespace http::server {
         Response& clearCookie(const std::string& name, const std::map<std::string, std::string>& options = {});
         Response& type(const std::string& type);
 
-        void upgrade(ServerContext* newServerContext);
+        void upgrade(net::socket::stream::SocketProtocol* newServerContext);
 
     protected:
         HTTPServerContextBase* serverContext;

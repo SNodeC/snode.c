@@ -16,41 +16,32 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HTTP_SERVER_SERVERCONTEXT_H
-#define HTTP_SERVER_SERVERCONTEXT_H
-
 #include "net/socket/stream/SocketProtocol.h"
 
-namespace net::socket::stream {
-    class SocketConnectionBase;
-}
+#include "net/socket/stream/SocketConnectionBase.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
-#include <iostream>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http::server {
+namespace net::socket::stream {
 
-    class ServerContext : public net::socket::stream::SocketProtocol {
-    public:
-        using SocketConnection = net::socket::stream::SocketConnectionBase;
+    void SocketProtocol::switchSocketProtocol(SocketProtocol* socketProtocol) {
+        socketConnection->switchSocketProtocol(socketProtocol);
 
-        virtual ~ServerContext() = default;
+        markedForDelete = true;
+    }
 
-        void upgrade(ServerContext* newServerContext);
+    void SocketProtocol::take(const char* junk, std::size_t junkLen) {
+        receiveData(junk, junkLen);
 
-    protected:
-        void receiveData(const char* junk, std::size_t junkLen) override;
+        if (markedForDelete) {
+            delete this;
+        }
+    }
 
-        virtual void parseReceivedData(const char* junk, std::size_t junkLen) = 0;
+    void SocketProtocol::setSocketConnection(SocketConnectionBase* socketConnection) {
+        this->socketConnection = socketConnection;
+    }
 
-    private:
-        bool markedForDelete = false;
-    };
-
-} // namespace http::server
-
-#endif // HTTP_SERVER_SERVERCONTEXT_H
+} // namespace net::socket::stream

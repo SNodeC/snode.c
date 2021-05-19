@@ -109,7 +109,7 @@ namespace http::server {
     }
 
     template <typename Request, typename Response>
-    void HTTPServerContext<Request, Response>::parseReceivedData(const char* junk, std::size_t junkLen) {
+    void HTTPServerContext<Request, Response>::receiveData(const char* junk, std::size_t junkLen) {
         parser.parse(junk, junkLen);
     }
 

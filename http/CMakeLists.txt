@@ -19,7 +19,6 @@ add_library(
     server/http/Request.cpp
     server/http/Response.cpp
     server/ws/WSServerContext.cpp
-    server/ServerContext.cpp
 )
 
 target_link_libraries(http LINK_PUBLIC net ${LIBMAGIC_LIBRARIES})

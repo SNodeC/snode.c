@@ -37,12 +37,16 @@ namespace net::socket::stream {
         virtual void onWriteError(int errnum) = 0;
         virtual void onReadError(int errnum) = 0;
 
+        void switchSocketProtocol(SocketProtocol* socketProtocol);
+
     protected:
-        void setSocketConnection(SocketConnectionBase* socketConnection) {
-            this->socketConnection = socketConnection;
-        }
+        void take(const char* junk, std::size_t junkLen);
+
+        void setSocketConnection(SocketConnectionBase* socketConnection);
 
         SocketConnectionBase* socketConnection;
+
+        bool markedForDelete = false;
 
         friend class SocketConnectionBase;
 

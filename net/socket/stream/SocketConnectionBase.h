@@ -52,7 +52,7 @@ namespace net::socket::stream {
 
         virtual void close(bool instantly = false) = 0;
 
-        void setSocketProtocol(SocketProtocol* socketProtocol) {
+        void switchSocketProtocol(SocketProtocol* socketProtocol) {
             this->socketProtocol = socketProtocol;
             socketProtocol->setSocketConnection(this);
         }

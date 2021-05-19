@@ -21,7 +21,7 @@
 
 #include "http/WSReceiver.h"
 #include "http/WSTransmitter.h"
-#include "http/server/ServerContext.h"
+#include "net/socket/stream/SocketProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,11 +32,11 @@
 namespace http::websocket {
 
     class WSServerContext
-        : public http::server::ServerContext
+        : public net::socket::stream::SocketProtocol
         , public WSReceiver
         , public WSTransmitter {
     private:
-        void parseReceivedData(const char* junk, std::size_t junklen) override;
+        void receiveData(const char* junk, std::size_t junklen) override;
         void onReadError(int errnum) override;
         void onWriteError(int errnum) override;
 

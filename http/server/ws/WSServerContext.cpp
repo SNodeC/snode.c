@@ -29,7 +29,7 @@
 
 namespace http::websocket {
 
-    void WSServerContext::parseReceivedData(const char* junk, std::size_t junkLen) {
+    void WSServerContext::receiveData(const char* junk, std::size_t junkLen) {
         WSReceiver::receive(const_cast<char*>(junk), junkLen);
     }
 

@@ -47,13 +47,12 @@ namespace http::server {
                   []([[maybe_unused]] SocketConnection* socketConnection,
                      [[maybe_unused]] const char* junk,
                      [[maybe_unused]] std::size_t junkLen) -> void { // onRead
-                      //                      static_cast<ServerContext*>(socketConnection->getSocketProtocol())->take(junk, junkLen);
                   },
                   [](SocketConnection* socketConnection, int errnum) -> void { // onReadError
-                      static_cast<ServerContext*>(socketConnection->getSocketProtocol())->onReadError(errnum);
+                      static_cast<net::socket::stream::SocketProtocol*>(socketConnection->getSocketProtocol())->onReadError(errnum);
                   },
                   [](SocketConnection* socketConnection, int errnum) -> void { // onWriteError
-                      static_cast<ServerContext*>(socketConnection->getSocketProtocol())->onWriteError(errnum);
+                      static_cast<net::socket::stream::SocketProtocol*>(socketConnection->getSocketProtocol())->onWriteError(errnum);
                   },
                   options) {
         }

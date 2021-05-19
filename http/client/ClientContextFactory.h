@@ -35,9 +35,10 @@ namespace http::client {
         using Request = RequestT;
         using Response = ResponseT;
 
-        ClientContextFactory(const std::function<void(Response&)>& onResponse, const std::function<void(int, const std::string&)>& onRequestError)
+        ClientContextFactory(const std::function<void(Response&)>& onResponse,
+                             const std::function<void(int, const std::string&)>& onRequestError)
             : onResponse(onResponse)
-        , onRequestError(onRequestError){
+            , onRequestError(onRequestError) {
         }
 
         net::socket::stream::SocketProtocol* create() const override {

@@ -19,10 +19,10 @@
 #ifndef HTTP_SERVER_HTTPSERVERCONTEXT_H
 #define HTTP_SERVER_HTTPSERVERCONTEXT_H
 
-#include "http/server/ServerContext.h"
 #include "http/server/http/Request.h"
 #include "http/server/http/RequestParser.h"
 #include "http/server/http/Response.h"
+#include "net/socket/stream/SocketProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -36,7 +36,7 @@ namespace net::socket::stream {
 
 namespace http::server {
 
-    class HTTPServerContextBase : public ServerContext {
+    class HTTPServerContextBase : public net::socket::stream::SocketProtocol {
     public:
         using SocketConnection = net::socket::stream::SocketConnectionBase;
 
@@ -72,7 +72,7 @@ namespace http::server {
 
         ~HTTPServerContext() override = default;
 
-        void parseReceivedData(const char* junk, std::size_t junkLen) override;
+        void receiveData(const char* junk, std::size_t junkLen) override;
         void onReadError(int errnum) override;
 
         void sendResponseData(const char* junk, std::size_t junkLen) override;
