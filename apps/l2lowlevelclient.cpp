@@ -18,14 +18,20 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h" // just for this example app
 #include "log/Logger.h"
 #include "net/SNodeC.h"
+#include "net/socket/bluetooth/address/L2CapAddress.h" // for L2CapAddress
+#include "net/socket/bluetooth/l2cap/Socket.h"         // for l2cap
 #include "net/socket/bluetooth/l2cap/SocketClient.h"
+#include "net/socket/stream/SocketClient.h"         // for SocketClient<...
+#include "net/socket/stream/SocketConnectionBase.h" // for SocketConnect...
 #include "net/socket/stream/SocketProtocol.h"
 #include "net/socket/stream/SocketProtocolFactory.h"
 
+#include <any> // for any
 #include <cstddef>
+#include <functional> // for function
+#include <string>     // for string, alloc...
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

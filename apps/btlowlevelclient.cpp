@@ -18,14 +18,19 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h" // just for this example app
 #include "log/Logger.h"
 #include "net/SNodeC.h"
+#include "net/socket/bluetooth/address/RfCommAddress.h" // for RfCommA...
 #include "net/socket/bluetooth/rfcomm/legacy/SocketClient.h"
+#include "net/socket/stream/SocketClient.h"         // for SocketC...
+#include "net/socket/stream/SocketConnectionBase.h" // for SocketC...
 #include "net/socket/stream/SocketProtocol.h"
 #include "net/socket/stream/SocketProtocolFactory.h"
 
-#include <cstddef>
+#include <any>        // for any
+#include <functional> // for function
+#include <iosfwd>
+#include <string> // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

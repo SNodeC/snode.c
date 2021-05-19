@@ -18,6 +18,9 @@
 
 #include "net/socket/stream/SocketConnectionBase.h"
 
+#include "net/socket/stream/SocketProtocol.h"
+#include "net/socket/stream/SocketProtocolFactory.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

@@ -20,15 +20,21 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h" // just for this example app
-#include "http/client/Response.h"
-#include "http/client/legacy/Client.h"
-#include "log/Logger.h"
-#include "net/SNodeC.h"
+#include "http/client/Client.h"                     // for Client<>::Socket...
+#include "http/client/Request.h"                    // for Request
+#include "http/client/Response.h"                   // for Response
+#include "http/client/legacy/Client.h"              // for Client, Client<>...
+#include "log/Logger.h"                             // for Writer, Storage
+#include "net/SNodeC.h"                             // for SNodeC
+#include "net/socket/ip/address/ipv4/InetAddress.h" // for InetAddress
 
-#include <cstring>
-
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#include <cstring>     // for memcpy
+#include <functional>  // for function
+#include <map>         // for map, operator==
+#include <string>      // for allocator, opera...
+#include <type_traits> // for add_const<>::type
+#include <utility>     // for tuple_element<>:...
+#endif                 /* DOXYGEN_SHOULD_SKIP_THIS */
 
 int main(int argc, char* argv[]) {
     net::SNodeC::init(argc, argv);

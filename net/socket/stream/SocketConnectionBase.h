@@ -19,8 +19,10 @@
 #ifndef NET_SOCKET_STREAM_SOCKETCONNECTIONBASE_H
 #define NET_SOCKET_STREAM_SOCKETCONNECTIONBASE_H
 
-#include "net/socket/stream/SocketProtocol.h"
-#include "net/socket/stream/SocketProtocolFactory.h"
+namespace net::socket::stream {
+    class SocketProtocol;
+    class SocketProtocolFactory;
+} // namespace net::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -23,7 +23,9 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstring>
+#include <endian.h> // for htobe16
 #include <iostream>
+#include <string> // for operator<<, string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

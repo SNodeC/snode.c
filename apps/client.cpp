@@ -18,19 +18,33 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "http/client/legacy/Client.h"
+#include "http/client/Client.h" // for Client<>::Socket...
 
-#include "config.h" // just for this example app
-#include "http/client/Response.h"
-#include "http/client/tls/Client.h"
-#include "log/Logger.h"
-#include "net/SNodeC.h"
+#include "config.h"                                 // for SERVERCAFILE
+#include "http/CookieOptions.h"                     // for CookieOptions
+#include "http/client/Request.h"                    // for Request, client
+#include "http/client/Response.h"                   // for Response
+#include "http/client/legacy/Client.h"              // for Client, Client<>...
+#include "http/client/tls/Client.h"                 // for Client, Client<>...
+#include "log/Logger.h"                             // for Writer, Storage
+#include "net/SNodeC.h"                             // for SNodeC
+#include "net/socket/ip/address/ipv4/InetAddress.h" // for InetAddress
 
-#include <cstring>
-#include <iostream>
-#include <openssl/x509v3.h>
-
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#include <any>                // for any
+#include <cstring>            // for memcpy
+#include <functional>         // for function
+#include <map>                // for map, operator==
+#include <openssl/asn1.h>     // for ASN1_STRING_get0...
+#include <openssl/crypto.h>   // for OPENSSL_free
+#include <openssl/obj_mac.h>  // for NID_subject_alt_...
+#include <openssl/ossl_typ.h> // for X509
+#include <openssl/ssl3.h>     // for SSL_get_peer_cer...
+#include <openssl/x509.h>     // for X509_NAME_oneline
+#include <openssl/x509v3.h>   // for GENERAL_NAME
+#include <stdint.h>           // for int32_t
+#include <string>             // for allocator, opera...
+#include <utility>            // for tuple_element<>:...
+#endif                        /* DOXYGEN_SHOULD_SKIP_THIS */
 
 using namespace http::client;
 

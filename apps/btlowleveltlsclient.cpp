@@ -29,7 +29,7 @@
 #include "net/socket/stream/SocketProtocolFactory.h"      // for SocketProt...
 
 #include <any>                // for any
-#include <cstddef>            // for size_t, NULL
+#include <cstddef>            // for NULL, size_t
 #include <functional>         // for function
 #include <openssl/asn1.h>     // for ASN1_STRIN...
 #include <openssl/crypto.h>   // for OPENSSL_free

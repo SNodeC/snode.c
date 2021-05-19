@@ -26,6 +26,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
+#include <iosfwd>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

@@ -18,19 +18,38 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h" // just for this example app
-#include "http/client/Response.h"
-#include "http/client/ResponseParser.h"
-#include "log/Logger.h"
-#include "net/SNodeC.h"
-#include "net/socket/ip/tcp/ipv4/Socket.h"
-#include "net/socket/stream/SocketProtocol.h"
-#include "net/socket/stream/SocketProtocolFactory.h"
-#include "net/socket/stream/legacy/SocketClient.h"
-#include "net/socket/stream/tls/SocketClient.h"
+#include "config.h"                                  // for CLIENTCERTF
+#include "http/client/ResponseParser.h"              // for ResponseParser
+#include "log/Logger.h"                              // for Writer, Storage
+#include "net/SNodeC.h"                              // for SNodeC
+#include "net/socket/ip/address/ipv4/InetAddress.h"  // for InetAddress, ip
+#include "net/socket/ip/tcp/ipv4/Socket.h"           // for Socket
+#include "net/socket/stream/SocketClient.h"          // for SocketClient<>:...
+#include "net/socket/stream/SocketProtocol.h"        // for SocketProtocol
+#include "net/socket/stream/SocketProtocolFactory.h" // for SocketProtocolF...
+#include "net/socket/stream/legacy/SocketClient.h"   // for SocketClient
+#include "net/socket/stream/tls/SocketClient.h"      // for SocketClient
 
-#include <openssl/x509v3.h>
+#include <any>                // for any
+#include <functional>         // for function
+#include <map>                // for map, operator==
+#include <openssl/asn1.h>     // for ASN1_STRING_get...
+#include <openssl/crypto.h>   // for OPENSSL_free
+#include <openssl/obj_mac.h>  // for NID_subject_alt...
+#include <openssl/ossl_typ.h> // for X509
+#include <openssl/ssl3.h>     // for SSL_free, SSL_new
+#include <openssl/x509.h>     // for X509_NAME_oneline
+#include <openssl/x509v3.h>   // for GENERAL_NAME
+#include <ostream>            // for size_t, endl
+#include <stdint.h>           // for int32_t
+#include <string.h>           // for memcpy, NULL
+#include <string>             // for allocator, string
+#include <type_traits>        // for add_const<>::type
+#include <utility>            // for tuple_element<>...
 
+namespace http {
+    class CookieOptions;
+}
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 using namespace net::socket::ip;
@@ -110,8 +129,6 @@ public:
         return new SimpleSocketProtocol();
     }
 };
-
-class SocketConnectionBase;
 
 tls::SocketClient<tcp::ipv4::Socket> getTlsClient() {
     tls::SocketClient<tcp::ipv4::Socket> tlsClient(

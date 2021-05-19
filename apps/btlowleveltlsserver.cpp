@@ -21,12 +21,25 @@
 #include "config.h" // just for this example app
 #include "log/Logger.h"
 #include "net/SNodeC.h"
+#include "net/socket/bluetooth/address/RfCommAddress.h" // for RfCommAddress
 #include "net/socket/bluetooth/rfcomm/tls/SocketServer.h"
+#include "net/socket/stream/SocketConnectionBase.h" // for SocketConn...
 #include "net/socket/stream/SocketProtocol.h"
 #include "net/socket/stream/SocketProtocolFactory.h"
+#include "net/socket/stream/SocketServer.h" // for SocketServ...
 
+#include <any> // for any
 #include <cstddef>
+#include <functional>         // for function
+#include <openssl/asn1.h>     // for ASN1_STRIN...
+#include <openssl/crypto.h>   // for OPENSSL_free
+#include <openssl/obj_mac.h>  // for NID_subjec...
+#include <openssl/ossl_typ.h> // for X509
+#include <openssl/ssl3.h>     // for SSL_get_pe...
+#include <openssl/x509.h>     // for X509_NAME_...
 #include <openssl/x509v3.h>
+#include <stdint.h> // for int32_t
+#include <string>   // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
