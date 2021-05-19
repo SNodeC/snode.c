@@ -72,14 +72,14 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
 
                 VLOG(0) << "     Headers:";
-                for (auto [field, value] : *response.headers) {
+                for (const auto& [field, value] : *response.headers) {
                     VLOG(0) << "       " << field + " = " + value;
                 }
 
                 VLOG(0) << "     Cookies:";
-                for (auto [name, cookie] : *response.cookies) {
+                for (const auto& [name, cookie] : *response.cookies) {
                     VLOG(0) << "       " + name + " = " + cookie.getValue();
-                    for (auto [option, value] : cookie.getOptions()) {
+                    for (const auto& [option, value] : cookie.getOptions()) {
                         VLOG(0) << "         " + option + " = " + value;
                     }
                 }
@@ -169,14 +169,14 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "       " << response.reason;
 
                 VLOG(0) << "     Headers:";
-                for (auto [field, value] : *response.headers) {
+                for (const auto& [field, value] : *response.headers) {
                     VLOG(0) << "       " << field + " = " + value;
                 }
 
                 VLOG(0) << "     Cookies:";
-                for (auto [name, cookie] : *response.cookies) {
+                for (const auto& [name, cookie] : *response.cookies) {
                     VLOG(0) << "       " + name + " = " + cookie.getValue();
-                    for (auto [option, value] : cookie.getOptions()) {
+                    for (const auto& [option, value] : cookie.getOptions()) {
                         VLOG(0) << "         " + option + " = " + value;
                     }
                 }

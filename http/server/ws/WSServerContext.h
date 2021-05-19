@@ -25,8 +25,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
 #include <cstdint>
-#include <iosfwd>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -37,7 +37,7 @@ namespace http::websocket {
         , public WSReceiver
         , public WSTransmitter {
     private:
-        void receiveData(const char* junk, std::size_t junklen) override;
+        void receiveData(const char* junk, std::size_t junkLen) override;
         void onReadError(int errnum) override;
         void onWriteError(int errnum) override;
 

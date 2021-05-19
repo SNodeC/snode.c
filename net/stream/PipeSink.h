@@ -24,8 +24,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef> // for size_t
 #include <functional>
-#include <iosfwd> // for size_t
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

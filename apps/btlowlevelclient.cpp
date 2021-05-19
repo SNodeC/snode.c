@@ -27,10 +27,10 @@
 #include "net/socket/stream/SocketProtocol.h"
 #include "net/socket/stream/SocketProtocolFactory.h"
 
-#include <any>        // for any
+#include <any> // for any
+#include <cstddef>
 #include <functional> // for function
-#include <iosfwd>
-#include <string> // for string
+#include <string>     // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
