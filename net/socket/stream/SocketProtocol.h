@@ -22,6 +22,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -33,7 +34,12 @@ namespace net::socket::stream {
     public:
         virtual ~SocketProtocol() = default;
 
-        virtual void receiveData(const char* junk, std::size_t junkLen) = 0;
+        void sendToPeer(const char* junk, std::size_t junkLen);
+        void sendToPeer(const std::string& data);
+
+        void close();
+
+        virtual void receiveFromPeer(const char* junk, std::size_t junkLen) = 0;
         virtual void onWriteError(int errnum) = 0;
         virtual void onReadError(int errnum) = 0;
 

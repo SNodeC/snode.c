@@ -105,15 +105,15 @@ public:
         delete responseParser;
     }
 
-    void receiveData(const char* junk, std::size_t junkLen) override {
+    void receiveFromPeer(const char* junk, std::size_t junkLen) override {
         responseParser->parse(junk, junkLen);
     }
 
-    void onWriteError([[maybe_unused]] int errnum) override {
+    void onWriteError(int errnum) override {
         VLOG(0) << "OnWriteError: " << errnum;
     }
 
-    void onReadError([[maybe_unused]] int errnum) override {
+    void onReadError(int errnum) override {
         VLOG(0) << "OnReadError: " << errnum;
     }
 
@@ -145,7 +145,8 @@ tls::SocketClient<tcp::ipv4::Socket> getTlsClient() {
 
             //            socketConnection->setContext<http::client::ResponseParser*>(getResponseParser());
 
-            socketConnection->enqueue("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
+            socketConnection->getSocketProtocol()->sendToPeer(
+                "GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
 
             X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
             if (server_cert != NULL) {
@@ -227,7 +228,8 @@ legacy::SocketClient<tcp::ipv4::Socket> getLegacyClient() {
         [](legacy::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection) -> void { // onConnected
             VLOG(0) << "OnConnected";
 
-            socketConnection->enqueue("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
+            socketConnection->getSocketProtocol()->sendToPeer(
+                "GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
         },
         [](legacy::SocketClient<tcp::ipv4::Socket>::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";

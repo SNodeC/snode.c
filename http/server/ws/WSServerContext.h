@@ -27,6 +27,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -36,27 +37,44 @@ namespace http::websocket {
         : public net::socket::stream::SocketProtocol
         , public WSReceiver
         , public WSTransmitter {
+    public:
+        WSServerContext(const std::function<void(WSServerContext* wSServerContext, int opCode)>& _onMessageStart,
+                        const std::function<void(WSServerContext* wSServerContext, const char* junk, std::size_t junkLen)>& _onFrameData,
+                        const std::function<void(WSServerContext* wSServerContext)>& _onMessageEnd);
+
+    public:
+        void messageStart(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
+        void sendFrame(const char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
+        void messageEnd(const char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
+
+        void message(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
+
     private:
-        void receiveData(const char* junk, std::size_t junkLen) override;
+        void receiveFromPeer(const char* junk, std::size_t junkLen) override;
         void onReadError(int errnum) override;
         void onWriteError(int errnum) override;
 
         void onMessageStart(int opCode) override;
-        void onMessageData(char* junk, uint64_t junkLen) override;
+        void onFrameData(const char* junk, uint64_t junkLen) override;
         void onMessageEnd() override;
         void onError(uint16_t errnum) override;
 
         void onFrameReady(char* frame, uint64_t frameLength) override;
 
-        void close(uint16_t statusCode = 0, const char* reason = nullptr, std::size_t reasonLength = 0);
-        void ping(const char* reason = nullptr, std::size_t reasonLength = 0);
-        void pong(const char* reason = nullptr, std::size_t reasonLength = 0);
+        void sendPing(const char* reason = nullptr, std::size_t reasonLength = 0);
+        void sendPong(const char* reason = nullptr, std::size_t reasonLength = 0);
+
+        void close(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);
 
         bool closeReceived = false;
         bool closeSent = false;
 
         bool pingReceived = false;
         bool pongReceived = false;
+
+        std::function<void(WSServerContext* wSServerContext, int opCode)> _onMessageStart = nullptr;
+        std::function<void(WSServerContext* wSServerContext, const char* junk, std::size_t junkLen)> _onFrameData = nullptr;
+        std::function<void(WSServerContext* wSServerContext)> _onMessageEnd = nullptr;
     };
 
 } // namespace http::websocket

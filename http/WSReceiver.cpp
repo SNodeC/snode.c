@@ -18,11 +18,13 @@
 
 #include "http/WSReceiver.h"
 
+#include "log/Logger.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <endian.h>
 #include <iomanip>
-#include <iostream>
+#include <sstream>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -82,7 +84,7 @@ namespace http::websocket {
             } else {
                 parserState = ParserState::ERROR;
                 errorState = 1002;
-                std::cout << "Error opcode in continuation frame" << std::endl;
+                VLOG(0) << "Error opcode in continuation frame";
             }
             continuation = !fin;
         }
@@ -154,7 +156,6 @@ namespace http::websocket {
             if (length & static_cast<uint64_t>(0x01) << 63) {
                 parserState = ParserState::ERROR;
                 errorState = 1004;
-                std::cout << "Error elength: msb == 1" << std::endl;
             } else if (masked) {
                 parserState = ParserState::MASKINGKEY;
             } else {
@@ -204,7 +205,7 @@ namespace http::websocket {
                 *(junk + i) = *(junk + i) ^ *(maskingKeyAsArray.keyAsArray + (i + payloadRead) % 4);
             }
 
-            onMessageData(junk, numBytesToRead);
+            onFrameData(junk, numBytesToRead);
 
             payloadRead += numBytesToRead;
             consumed = numBytesToRead;
@@ -221,14 +222,18 @@ namespace http::websocket {
     }
 
     void WSReceiver::dumpFrame(char* frame, uint64_t frameLength) {
-        for (std::size_t i = 0; i < frameLength; i++) {
-            std::cout << std::setfill('0') << std::setw(2) << std::hex << (unsigned int) (unsigned char) frame[i] << " ";
+        int modul = 4;
 
-            if ((i + 1) % 4 == 0) {
-                std::cout << std::endl;
+        std::stringstream stringStream;
+
+        for (std::size_t i = 0; i < frameLength; i++) {
+            stringStream << std::setfill('0') << std::setw(2) << std::hex << (unsigned int) (unsigned char) frame[i] << " ";
+
+            if ((i + 1) % modul == 0 || i == frameLength) {
+                VLOG(0) << "Frame: " << stringStream.str();
+                stringStream.str("");
             }
         }
-        std::cout << std::endl;
     }
 
     void WSReceiver::reset() {

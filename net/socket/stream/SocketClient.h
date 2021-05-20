@@ -71,9 +71,10 @@ namespace net::socket::stream {
             connect(remoteAddress, SocketAddress(), onError);
         }
 
-    private:
+    protected:
         std::shared_ptr<const SocketProtocolFactory> socketProtocolFactory = nullptr;
 
+    private:
         std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)> onConnect;
         std::function<void(SocketConnection* socketConnection)> onConnected;
         std::function<void(SocketConnection* socketConnection)> onDisconnect;

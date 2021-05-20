@@ -59,7 +59,6 @@ namespace http::client {
                       onConnect(localAddress, remoteAddress);
                   },
                   [onConnected, onRequestBegin, onResponse, onResponseError](SocketConnection* socketConnection) -> void { // onConnected
-                      static_cast<ClientContextBase*>(socketConnection->getSocketProtocol())->getRequest();
                       Request& request = static_cast<ClientContextBase*>(socketConnection->getSocketProtocol())->getRequest();
 
                       request.setHost(socketConnection->getRemoteAddress().host() + ":" +

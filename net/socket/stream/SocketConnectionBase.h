@@ -43,18 +43,20 @@ namespace net::socket::stream {
 
         virtual ~SocketConnectionBase();
 
-    public:
         virtual void enqueue(const char* junk, std::size_t junkLen) = 0;
         virtual void enqueue(const std::string& data) = 0;
 
         virtual void close(bool instantly = false) = 0;
 
-        SocketProtocol* getSocketProtocol();
-
         void switchSocketProtocol(SocketProtocol* socketProtocol);
+
+    public:
+        SocketProtocol* getSocketProtocol();
 
     protected:
         SocketProtocol* socketProtocol = nullptr;
+
+        friend SocketProtocol;
     };
 
 } // namespace net::socket::stream

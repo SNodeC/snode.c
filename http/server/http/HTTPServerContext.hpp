@@ -109,7 +109,7 @@ namespace http::server {
     }
 
     template <typename Request, typename Response>
-    void HTTPServerContext<Request, Response>::receiveData(const char* junk, std::size_t junkLen) {
+    void HTTPServerContext<Request, Response>::receiveFromPeer(const char* junk, std::size_t junkLen) {
         parser.parse(junk, junkLen);
     }
 
@@ -123,7 +123,7 @@ namespace http::server {
 
     template <typename Request, typename Response>
     void HTTPServerContext<Request, Response>::sendResponseData(const char* junk, std::size_t junkLen) {
-        socketConnection->enqueue(junk, junkLen);
+        sendToPeer(junk, junkLen);
     }
 
     template <typename Request, typename Response>
@@ -209,7 +209,7 @@ namespace http::server {
     template <typename Request, typename Response>
     void HTTPServerContext<Request, Response>::terminateConnection() {
         if (!connectionTerminated) {
-            socketConnection->close();
+            socketConnection->getSocketProtocol()->close();
             requestContexts.clear();
             connectionTerminated = true;
         }

@@ -39,16 +39,16 @@ using namespace net::socket::bluetooth::l2cap;
 
 class SimpleSocketProtocol : public net::socket::stream::SocketProtocol {
 public:
-    void receiveData(const char* junk, std::size_t junkLen) override {
+    void receiveFromPeer(const char* junk, std::size_t junkLen) override {
         VLOG(0) << "Data to reflect: " << std::string(junk, junkLen);
-        socketConnection->enqueue(junk, junkLen);
+        sendToPeer(junk, junkLen);
     }
 
-    void onWriteError([[maybe_unused]] int errnum) override {
+    void onWriteError(int errnum) override {
         VLOG(0) << "OnWriteError: " << errnum;
     }
 
-    void onReadError([[maybe_unused]] int errnum) override {
+    void onReadError(int errnum) override {
         VLOG(0) << "OnReadError: " << errnum;
     }
 };
@@ -73,7 +73,7 @@ SocketClient getClient() {
         [](SocketClient::SocketConnection* socketConnection) -> void { // onConnected
             VLOG(0) << "OnConnected";
 
-            socketConnection->enqueue("Hello rfcomm connection!");
+            socketConnection->getSocketProtocol()->sendToPeer("Hello rfcomm connection!");
         },
         [](SocketClient::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";

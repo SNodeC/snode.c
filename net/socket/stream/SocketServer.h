@@ -78,9 +78,10 @@ namespace net::socket::stream {
             _onDisconnect = onDisconnect;
         }
 
-    private:
+    protected:
         std::shared_ptr<const SocketProtocolFactory> socketProtocolFactory = nullptr;
 
+    private:
         std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)> _onConnect;
         std::function<void(SocketConnection* socketConnection)> _onConnected;
         std::function<void(SocketConnection* socketConnection)> _onDisconnect;

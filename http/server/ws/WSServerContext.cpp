@@ -18,43 +18,97 @@
 
 #include "http/server/ws/WSServerContext.h"
 
+#include "log/Logger.h"
 #include "net/socket/stream/SocketConnectionBase.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstring>
 #include <endian.h> // for htobe16
-#include <iostream>
-#include <string> // for operator<<, string
+#include <string>   // for operator<<, string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace http::websocket {
 
-    void WSServerContext::receiveData(const char* junk, std::size_t junkLen) {
+    WSServerContext::WSServerContext(
+        const std::function<void(WSServerContext* wSServerContext, int opCode)>& _onMessageStart,
+        const std::function<void(WSServerContext* wSServerContext, const char* junk, std::size_t junkLen)>& _onFrameData,
+        const std::function<void(WSServerContext* wSServerContext)>& _onMessageEnd)
+        : _onMessageStart(_onMessageStart)
+        , _onFrameData(_onFrameData)
+        , _onMessageEnd(_onMessageEnd) {
+    }
+
+    void WSServerContext::messageStart(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey) {
+        if (!closeSent) {
+            WSTransmitter::messageStart(opCode, message, messageLength, messageKey);
+        }
+    }
+
+    void WSServerContext::sendFrame(const char* message, std::size_t messageLength, uint32_t messageKey) {
+        if (!closeSent) {
+            WSTransmitter::sendFrame(message, messageLength, messageKey);
+        }
+    }
+
+    void WSServerContext::messageEnd(const char* message, std::size_t messageLength, uint32_t messageKey) {
+        if (!closeSent) {
+            WSTransmitter::messageEnd(message, messageLength, messageKey);
+        }
+    }
+
+    void WSServerContext::message(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey) {
+        if (!closeSent) {
+            WSTransmitter::message(opCode, message, messageLength, messageKey);
+        }
+    }
+
+    void WSServerContext::receiveFromPeer(const char* junk, std::size_t junkLen) {
         WSReceiver::receive(const_cast<char*>(junk), junkLen);
     }
 
     void WSServerContext::onReadError([[maybe_unused]] int errnum) {
+        VLOG(0) << "OnReadError: " << errnum;
     }
 
     void WSServerContext::onWriteError([[maybe_unused]] int errnum) {
+        VLOG(0) << "OnWriteError: " << errnum;
     }
 
     void WSServerContext::onMessageStart(int opCode) {
-        std::cout << "Message Start - OpCode: " << opCode << std::endl;
-
         closeReceived = (opCode == 8);
         pingReceived = (opCode == 9);
         pongReceived = (opCode == 10);
+
+        switch (opCode) {
+            case 8:
+                closeReceived = true;
+                VLOG(0) << "Close requested";
+                break;
+            case 9:
+                pingReceived = true;
+                VLOG(0) << "Ping received";
+                break;
+            case 10:
+                pongReceived = true;
+                VLOG(0) << "Pong received";
+                break;
+            default:
+                _onMessageStart(this, opCode);
+                break;
+        }
     }
 
-    void WSServerContext::onMessageData(char* junk, uint64_t junkLen) {
+    void WSServerContext::onFrameData(const char* junk, uint64_t junkLen) {
         if (!closeReceived && !pingReceived && !pongReceived) {
-            std::cout << "Data: " << std::string(junk, static_cast<std::size_t>(junkLen));
-            if (fin) {
-                std::cout << std::endl;
-            }
+            std::size_t junkOffset = 0;
+
+            do {
+                std::size_t sendJunkLen = (junkLen - junkOffset <= SIZE_MAX) ? junkLen - junkOffset : SIZE_MAX;
+                _onFrameData(this, junk + junkOffset, sendJunkLen);
+                junkOffset += sendJunkLen;
+            } while (junkLen - junkOffset > 0);
         } else {
             // collect data for close and pong
         }
@@ -63,35 +117,32 @@ namespace http::websocket {
     void WSServerContext::onMessageEnd() {
         if (closeReceived) {
             closeReceived = false;
-            if (closeSent) {
+            if (closeSent) { // active close
                 closeSent = false;
-                std::cout << "Closed" << std::endl;
-            } else {
+                VLOG(0) << "Request close";
+            } else { // passive close
+                VLOG(0) << "Closed";
                 close();
-                std::cout << "Close requested" << std::endl;
             }
-            socketConnection->close();
+            socketConnection->getSocketProtocol()->close();
         } else if (pingReceived) {
             pingReceived = false;
-            pong();
+            sendPong();
         } else if (pongReceived) {
             pongReceived = false;
             /* Propagate connection alive to application */
         } else {
-            /* Propagate Message back to application */
-            message(1, "Hallo zurück", strlen("Hallo zurück"));
-            std::cout << "Message End" << std::endl;
-            //            close(1000);
+            _onMessageEnd(this);
         }
     }
 
     void WSServerContext::onError(uint16_t errnum) {
-        std::cout << std::endl << "Message Error" << std::endl;
+        VLOG(0) << std::endl << "Message Error";
         close(errnum);
     }
 
     void WSServerContext::onFrameReady(char* frame, uint64_t frameLength) {
-        socketConnection->enqueue(frame, static_cast<std::size_t>(frameLength));
+        sendToPeer(frame, static_cast<std::size_t>(frameLength));
     }
 
     void WSServerContext::close(uint16_t statusCode, const char* reason, std::size_t reasonLength) {
@@ -116,11 +167,11 @@ namespace http::websocket {
         closeSent = true;
     }
 
-    void WSServerContext::ping(const char* reason, std::size_t reasonLength) {
+    void WSServerContext::sendPing(const char* reason, std::size_t reasonLength) {
         message(9, reason, reasonLength);
     }
 
-    void WSServerContext::pong(const char* reason, std::size_t reasonLength) {
+    void WSServerContext::sendPong(const char* reason, std::size_t reasonLength) {
         message(10, reason, reasonLength);
     }
 

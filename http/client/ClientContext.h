@@ -62,7 +62,7 @@ namespace http::client {
 
         ~ClientContext() override = default;
 
-        void receiveData(const char* junk, std::size_t junkLen) override;
+        void receiveFromPeer(const char* junk, std::size_t junkLen) override;
         void sendRequestData(const char* junk, std::size_t junkLen) override;
 
         void onWriteError(int errnum) override;

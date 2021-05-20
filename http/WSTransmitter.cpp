@@ -18,11 +18,13 @@
 
 #include "http/WSTransmitter.h"
 
+#include "log/Logger.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <endian.h>
 #include <iomanip>
-#include <iostream>
+#include <sstream>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -34,7 +36,7 @@ namespace http::websocket {
         send(false, opCode, message, messageLength, messageKey);
     }
 
-    void WSTransmitter::message(const char* message, std::size_t messageLength, uint32_t messageKey) {
+    void WSTransmitter::sendFrame(const char* message, std::size_t messageLength, uint32_t messageKey) {
         send(false, 0, message, messageLength, messageKey);
     }
 
@@ -119,14 +121,18 @@ namespace http::websocket {
     }
 
     void WSTransmitter::dumpFrame(char* frame, uint64_t frameLength) {
-        for (std::size_t i = 0; i < frameLength; i++) {
-            std::cout << std::setfill('0') << std::setw(2) << std::hex << (unsigned int) (unsigned char) frame[i] << " ";
+        int modul = 4;
 
-            if ((i + 1) % 4 == 0) {
-                std::cout << std::endl;
+        std::stringstream stringStream;
+
+        for (std::size_t i = 0; i < frameLength; i++) {
+            stringStream << std::setfill('0') << std::setw(2) << std::hex << (unsigned int) (unsigned char) frame[i] << " ";
+
+            if ((i + 1) % modul == 0 || i == frameLength) {
+                VLOG(0) << "Frame: " << stringStream.str();
+                stringStream.str("");
             }
         }
-        std::cout << std::endl;
     }
 
 } // namespace http::websocket

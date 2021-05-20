@@ -79,7 +79,7 @@ namespace net::socket::stream {
             delete this;
         }
 
-    public:
+    protected:
         void enqueue(const char* junk, std::size_t junkLen) override {
             SocketWriter::enqueue(junk, junkLen);
         }
@@ -95,6 +95,7 @@ namespace net::socket::stream {
             }
         }
 
+    public:
         const SocketAddress& getRemoteAddress() const {
             return remoteAddress;
         }

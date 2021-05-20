@@ -120,7 +120,19 @@ int timerApp() {
                 }
             });
         }
-        res.upgrade(new http::websocket::WSServerContext());
+        res.upgrade(new http::websocket::WSServerContext(
+            []([[maybe_unused]] http::websocket::WSServerContext* wSServerContext, [[maybe_unused]] int opCode) -> void {
+                VLOG(0) << "Message Start - OpCode: " << opCode;
+            },
+            []([[maybe_unused]] http::websocket::WSServerContext* wSServerContext,
+               [[maybe_unused]] const char* junk,
+               [[maybe_unused]] std::size_t junkLen) -> void {
+                VLOG(0) << "Data: " << std::string(junk, static_cast<std::size_t>(junkLen));
+            },
+            []([[maybe_unused]] http::websocket::WSServerContext* wSServerContext) -> void {
+                VLOG(0) << "Message End";
+                wSServerContext->message(1, "Hallo zurück", strlen("Hallo zurück"));
+            }));
     });
 
     app.listen(8080, [](int err) -> void {

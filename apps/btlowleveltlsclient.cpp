@@ -47,16 +47,16 @@ using namespace net::socket::bluetooth::rfcomm::tls;
 
 class SimpleSocketProtocol : public net::socket::stream::SocketProtocol {
 public:
-    void receiveData(const char* junk, std::size_t junkLen) override {
+    void receiveFromPeer(const char* junk, std::size_t junkLen) override {
         VLOG(0) << "Data to reflect: " << std::string(junk, junkLen);
-        socketConnection->enqueue(junk, junkLen);
+        sendToPeer(junk, junkLen);
     }
 
-    void onWriteError([[maybe_unused]] int errnum) override {
+    void onWriteError(int errnum) override {
         VLOG(0) << "OnWriteError: " << errnum;
     }
 
-    void onReadError([[maybe_unused]] int errnum) override {
+    void onReadError(int errnum) override {
         VLOG(0) << "OnReadError: " << errnum;
     }
 };
@@ -125,7 +125,7 @@ SocketClient getClient() {
                 VLOG(0) << "     Server certificate: no certificate";
             }
 
-            socketConnection->enqueue("Hello rfcomm connection!");
+            socketConnection->getSocketProtocol()->sendToPeer("Hello rfcomm connection!");
         },
         [](SocketClient::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";

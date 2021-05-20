@@ -68,13 +68,13 @@ namespace http::client {
     }
 
     template <typename Request, typename Response>
-    void ClientContext<Request, Response>::receiveData(const char* junk, std::size_t junkLen) {
+    void ClientContext<Request, Response>::receiveFromPeer(const char* junk, std::size_t junkLen) {
         parser.parse(junk, junkLen);
     }
 
     template <typename Request, typename Response>
     void ClientContext<Request, Response>::sendRequestData(const char* junk, std::size_t junkLen) {
-        socketConnection->enqueue(junk, junkLen);
+        sendToPeer(junk, junkLen);
     }
 
     template <typename Request, typename Response>
@@ -98,7 +98,7 @@ namespace http::client {
 
     template <typename Request, typename Response>
     void ClientContext<Request, Response>::terminateConnection() {
-        socketConnection->close();
+        socketConnection->getSocketProtocol()->close();
     }
 
 } // namespace http::client

@@ -26,6 +26,18 @@
 
 namespace net::socket::stream {
 
+    void SocketProtocol::sendToPeer(const char* junk, std::size_t junkLen) {
+        socketConnection->enqueue(junk, junkLen);
+    }
+
+    void SocketProtocol::sendToPeer(const std::string& data) {
+        sendToPeer(data.data(), data.length());
+    }
+
+    void SocketProtocol::close() {
+        socketConnection->close();
+    }
+
     void SocketProtocol::switchSocketProtocol(SocketProtocol* socketProtocol) {
         socketConnection->switchSocketProtocol(socketProtocol);
 
@@ -33,7 +45,7 @@ namespace net::socket::stream {
     }
 
     void SocketProtocol::take(const char* junk, std::size_t junkLen) {
-        receiveData(junk, junkLen);
+        receiveFromPeer(junk, junkLen);
 
         if (markedForDelete) {
             delete this;

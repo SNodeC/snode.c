@@ -119,7 +119,7 @@ int main(int argc, char* argv[]) {
 
     legacy::WebApp legacyApp;
 
-    legacyApp.get("/", [](Request& req, [[maybe_unused]] Response& res) -> void {
+    legacyApp.get("/", [](Request& req, Response& res) -> void {
         std::string uri = req.originalUrl;
 
         VLOG(1) << "OriginalUri: " << uri;
@@ -136,13 +136,26 @@ int main(int argc, char* argv[]) {
 
         res.set("Upgrade", "websocket");
         res.set("Connection", "Upgrade");
+
         serverWebSocketKey(req.header("sec-websocket-key"), [&res](char* key) -> void {
             res.set("Sec-WebSocket-Accept", key);
         });
 
         res.status(101); // Switch Protocol
 
-        res.upgrade(new http::websocket::WSServerContext());
+        res.upgrade(new http::websocket::WSServerContext(
+            []([[maybe_unused]] http::websocket::WSServerContext* wSServerContext, [[maybe_unused]] int opCode) -> void {
+                VLOG(0) << "Message Start - OpCode: " << opCode;
+            },
+            []([[maybe_unused]] http::websocket::WSServerContext* wSServerContext,
+               [[maybe_unused]] const char* junk,
+               [[maybe_unused]] std::size_t junkLen) -> void {
+                VLOG(0) << "Data: " << std::string(junk, static_cast<std::size_t>(junkLen));
+            },
+            []([[maybe_unused]] http::websocket::WSServerContext* wSServerContext) -> void {
+                VLOG(0) << "Message End";
+                wSServerContext->message(1, "Hallo zurück", strlen("Hallo zurück"));
+            }));
     });
 
     legacyApp.listen(8080, [](int err) -> void {
@@ -172,18 +185,26 @@ int main(int argc, char* argv[]) {
 
         res.set("Upgrade", "websocket");
         res.set("Connection", "Upgrade");
-        /*
-        char* swsk = serverWebSocketKey(req.header("sec-websocket-key"));
-        res.set("Sec-WebSocket-Accept", swsk);
-        free(swsk);
-        */
+
         serverWebSocketKey(req.header("sec-websocket-key"), [&res](char* key) -> void {
             res.set("Sec-WebSocket-Accept", key);
         });
 
         res.status(101); // Switch Protocol
 
-        res.upgrade(new http::websocket::WSServerContext());
+        res.upgrade(new http::websocket::WSServerContext(
+            []([[maybe_unused]] http::websocket::WSServerContext* wSServerContext, [[maybe_unused]] int opCode) -> void {
+                VLOG(0) << "Message Start - OpCode: " << opCode;
+            },
+            []([[maybe_unused]] http::websocket::WSServerContext* wSServerContext,
+               [[maybe_unused]] const char* junk,
+               [[maybe_unused]] std::size_t junkLen) -> void {
+                VLOG(0) << "Data: " << std::string(junk, static_cast<std::size_t>(junkLen));
+            },
+            []([[maybe_unused]] http::websocket::WSServerContext* wSServerContext) -> void {
+                VLOG(0) << "Message End";
+                wSServerContext->message(1, "Hallo zurück", strlen("Hallo zurück"));
+            }));
     });
 
     tlsApp.listen(8088, [](int err) -> void {
