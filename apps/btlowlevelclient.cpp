@@ -18,17 +18,16 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-#include "net/SNodeC.h"
-#include "net/socket/bluetooth/address/RfCommAddress.h" // for RfCommA...
-#include "net/socket/bluetooth/rfcomm/legacy/SocketClient.h"
-#include "net/socket/stream/SocketClient.h"         // for SocketC...
-#include "net/socket/stream/SocketConnectionBase.h" // for SocketC...
-#include "net/socket/stream/SocketProtocol.h"
-#include "net/socket/stream/SocketProtocolFactory.h"
+#include "log/Logger.h"                                      // for Writer
+#include "net/SNodeC.h"                                      // for SNodeC
+#include "net/socket/bluetooth/address/RfCommAddress.h"      // for RfCommA...
+#include "net/socket/bluetooth/rfcomm/legacy/SocketClient.h" // for SocketC...
+#include "net/socket/stream/SocketClient.h"                  // for SocketC...
+#include "net/socket/stream/SocketProtocol.h"                // for SocketP...
+#include "net/socket/stream/SocketProtocolFactory.h"         // for SocketP...
 
-#include <any> // for any
-#include <cstddef>
+#include <any>        // for any
+#include <cstddef>    // for size_t
 #include <functional> // for function
 #include <string>     // for string
 

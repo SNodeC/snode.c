@@ -23,8 +23,7 @@
 #include "net/socket/bluetooth/address/L2CapAddress.h" // for L2CapAddress
 #include "net/socket/bluetooth/l2cap/Socket.h"         // for l2cap
 #include "net/socket/bluetooth/l2cap/SocketClient.h"
-#include "net/socket/stream/SocketClient.h"         // for SocketClient<...
-#include "net/socket/stream/SocketConnectionBase.h" // for SocketConnect...
+#include "net/socket/stream/SocketClient.h" // for SocketClient<...
 #include "net/socket/stream/SocketProtocol.h"
 #include "net/socket/stream/SocketProtocolFactory.h"
 

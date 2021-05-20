@@ -21,7 +21,6 @@
 #include "http/client/Client.h" // for Client<>::Socket...
 
 #include "config.h"                                 // for SERVERCAFILE
-#include "http/CookieOptions.h"                     // for CookieOptions
 #include "http/client/Request.h"                    // for Request, client
 #include "http/client/Response.h"                   // for Response
 #include "http/client/legacy/Client.h"              // for Client, Client<>...
@@ -43,8 +42,10 @@
 #include <openssl/x509v3.h>   // for GENERAL_NAME
 #include <stdint.h>           // for int32_t
 #include <string>             // for allocator, opera...
+#include <type_traits>        // for add_const<>::type
 #include <utility>            // for tuple_element<>:...
-#endif                        /* DOXYGEN_SHOULD_SKIP_THIS */
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 using namespace http::client;
 

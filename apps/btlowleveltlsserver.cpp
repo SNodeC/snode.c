@@ -18,18 +18,17 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h" // just for this example app
-#include "log/Logger.h"
-#include "net/SNodeC.h"
-#include "net/socket/bluetooth/address/RfCommAddress.h" // for RfCommAddress
-#include "net/socket/bluetooth/rfcomm/tls/SocketServer.h"
-#include "net/socket/stream/SocketConnectionBase.h" // for SocketConn...
-#include "net/socket/stream/SocketProtocol.h"
-#include "net/socket/stream/SocketProtocolFactory.h"
-#include "net/socket/stream/SocketServer.h" // for SocketServ...
+#include "config.h"                                       // for CLIENTCAFILE
+#include "log/Logger.h"                                   // for Writer
+#include "net/SNodeC.h"                                   // for SNodeC
+#include "net/socket/bluetooth/address/RfCommAddress.h"   // for RfCommAddress
+#include "net/socket/bluetooth/rfcomm/tls/SocketServer.h" // for SocketServer
+#include "net/socket/stream/SocketProtocol.h"             // for SocketProt...
+#include "net/socket/stream/SocketProtocolFactory.h"      // for SocketProt...
+#include "net/socket/stream/SocketServer.h"               // for SocketServ...
 
-#include <any> // for any
-#include <cstddef>
+#include <any>                // for any
+#include <cstddef>            // for NULL, size_t
 #include <functional>         // for function
 #include <openssl/asn1.h>     // for ASN1_STRIN...
 #include <openssl/crypto.h>   // for OPENSSL_free
@@ -37,9 +36,9 @@
 #include <openssl/ossl_typ.h> // for X509
 #include <openssl/ssl3.h>     // for SSL_get_pe...
 #include <openssl/x509.h>     // for X509_NAME_...
-#include <openssl/x509v3.h>
-#include <stdint.h> // for int32_t
-#include <string>   // for string
+#include <openssl/x509v3.h>   // for GENERAL_NAME
+#include <stdint.h>           // for int32_t
+#include <string>             // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

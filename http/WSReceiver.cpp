@@ -22,9 +22,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <endian.h>
-#include <iomanip>
-#include <sstream>
+#include <endian.h> // for be16toh, be32toh, be64toh, htobe32
+#include <iomanip>  // for operator<<, setfill, setw
+#include <memory>   // for allocator
+#include <sstream>  // for stringstream, basic_ostream, operator<<, bas...
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

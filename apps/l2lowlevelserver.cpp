@@ -23,14 +23,13 @@
 #include "net/socket/bluetooth/address/L2CapAddress.h" // for L2CapAddress
 #include "net/socket/bluetooth/l2cap/Socket.h"         // for l2cap
 #include "net/socket/bluetooth/l2cap/SocketServer.h"   // for SocketServer
-#include "net/socket/stream/SocketConnectionBase.h"    // for SocketConnect...
 #include "net/socket/stream/SocketProtocol.h"          // for SocketProtocol
 #include "net/socket/stream/SocketProtocolFactory.h"   // for SocketProtoco...
 #include "net/socket/stream/SocketServer.h"            // for SocketServer<...
 
 #include <cstddef>    // for size_t
 #include <functional> // for function
-#include <string>     // for operator+
+#include <string>     // for allocator
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
