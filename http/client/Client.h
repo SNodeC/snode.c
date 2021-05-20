@@ -67,7 +67,7 @@ namespace http::client {
 
                       onConnected(socketConnection);
                   },
-                  [onDisconnect]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onDisconnect
+                  [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
                       onDisconnect(socketConnection);
                   },
                   options) {

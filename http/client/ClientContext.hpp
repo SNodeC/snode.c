@@ -78,14 +78,14 @@ namespace http::client {
     }
 
     template <typename Request, typename Response>
-    void ClientContext<Request, Response>::onWriteError([[maybe_unused]] int errnum) {
+    void ClientContext<Request, Response>::onWriteError(int errnum) {
         if (errnum != 0 && errnum != ECONNRESET) {
             PLOG(ERROR) << "Connection write: " << errnum;
         }
     }
 
     template <typename Request, typename Response>
-    void ClientContext<Request, Response>::onReadError([[maybe_unused]] int errnum) {
+    void ClientContext<Request, Response>::onReadError(int errnum) {
         if (errnum != 0 && errnum != ECONNRESET) {
             PLOG(ERROR) << "Connection read: " << errnum;
         }

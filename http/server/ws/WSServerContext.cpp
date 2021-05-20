@@ -68,11 +68,11 @@ namespace http::websocket {
         WSReceiver::receive(const_cast<char*>(junk), junkLen);
     }
 
-    void WSServerContext::onReadError([[maybe_unused]] int errnum) {
+    void WSServerContext::onReadError(int errnum) {
         VLOG(0) << "OnReadError: " << errnum;
     }
 
-    void WSServerContext::onWriteError([[maybe_unused]] int errnum) {
+    void WSServerContext::onWriteError(int errnum) {
         VLOG(0) << "OnWriteError: " << errnum;
     }
 

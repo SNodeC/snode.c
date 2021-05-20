@@ -38,10 +38,10 @@ namespace http::server {
                               const SocketAddress& remoteAddress) -> void { // OnConnect
                       onConnect(localAddress, remoteAddress);
                   },
-                  [onConnected, onRequestReady]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnected.
+                  [onConnected, onRequestReady](SocketConnection* socketConnection) -> void { // onConnected.
                       onConnected(socketConnection);
                   },
-                  [onDisconnect]([[maybe_unused]] SocketConnection* socketConnection) -> void { // onDisconnect
+                  [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
                       onDisconnect(socketConnection);
                   },
                   options) {

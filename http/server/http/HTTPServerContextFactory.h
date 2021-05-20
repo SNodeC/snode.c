@@ -41,7 +41,7 @@ namespace http::server {
             return new HTTPServerContext<Request, Response>(onRequestReady);
         }
 
-        void setOnRequestReady([[maybe_unused]] const std::function<void(Request& req, Response& res)>& onRequestReady) {
+        void setOnRequestReady(const std::function<void(Request& req, Response& res)>& onRequestReady) {
             this->onRequestReady = onRequestReady;
         }
 
