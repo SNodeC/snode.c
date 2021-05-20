@@ -77,20 +77,20 @@ namespace http::websocket {
     }
 
     void WSServerContext::onMessageStart(int opCode) {
-        closeReceived = (opCode == 8);
-        pingReceived = (opCode == 9);
-        pongReceived = (opCode == 10);
+        closeReceived = (opCode == 0x08);
+        pingReceived = (opCode == 0x09);
+        pongReceived = (opCode == 0x0A);
 
         switch (opCode) {
-            case 8:
+            case 0x08:
                 closeReceived = true;
                 VLOG(0) << "Close requested";
                 break;
-            case 9:
+            case 0x09:
                 pingReceived = true;
                 VLOG(0) << "Ping received";
                 break;
-            case 10:
+            case 0x0A:
                 pongReceived = true;
                 VLOG(0) << "Pong received";
                 break;
@@ -105,7 +105,7 @@ namespace http::websocket {
             std::size_t junkOffset = 0;
 
             do {
-                std::size_t sendJunkLen = (junkLen - junkOffset <= SIZE_MAX) ? junkLen - junkOffset : SIZE_MAX;
+                std::size_t sendJunkLen = (junkLen - junkOffset <= SIZE_MAX) ? static_cast<std::size_t>(junkLen - junkOffset) : SIZE_MAX;
                 _onFrameData(this, junk + junkOffset, sendJunkLen);
                 junkOffset += sendJunkLen;
             } while (junkLen - junkOffset > 0);
@@ -130,7 +130,7 @@ namespace http::websocket {
             sendPong();
         } else if (pongReceived) {
             pongReceived = false;
-            /* Propagate connection alive to application */
+            /* Propagate connection alive to application? */
         } else {
             _onMessageEnd(this);
         }

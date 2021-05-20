@@ -113,7 +113,7 @@ namespace http::websocket {
             *(frame + payloadOffset + i) = *(payload + i) ^ *(maskingKeyAsArray.keyAsArray + i % 4);
         }
 
-        //        dumpFrame(frame, frameLength);
+        // dumpFrame(frame, frameLength);
 
         onFrameReady(frame, frameLength);
 

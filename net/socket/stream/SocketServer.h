@@ -20,7 +20,6 @@
 #define NET_SOCKET_STREAM_SOCKETSERVERNEW_H
 
 #include "net/socket/stream/SocketListener.h"
-#include "net/socket/stream/SocketProtocolFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -35,19 +34,19 @@
 
 namespace net::socket::stream {
 
-    template <typename SocketListenerT>
+    template <typename SocketProtocolT, typename SocketListenerT>
     class SocketServer {
     public:
+        using SocketProtocol = SocketProtocolT;
         using SocketListener = SocketListenerT;
         using SocketConnection = typename SocketListener::SocketConnection;
         using SocketAddress = typename SocketConnection::Socket::SocketAddress;
 
-        SocketServer(const SocketProtocolFactory* socketProtocolFactory,
-                     const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
+        SocketServer(const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
                      const std::function<void(SocketConnection* socketConnection)>& onConnected,
                      const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
                      const std::map<std::string, std::any>& options = {{}})
-            : socketProtocolFactory(std::shared_ptr<const SocketProtocolFactory>(socketProtocolFactory))
+            : socketProtocol(std::make_shared<SocketProtocolT>())
             , _onConnect(onConnect)
             , _onConnected(onConnected)
             , _onDisconnect(onDisconnect)
@@ -61,7 +60,7 @@ namespace net::socket::stream {
         void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int err)>& onError) const {
             errno = 0;
 
-            SocketListener* socketListener = new SocketListener(socketProtocolFactory, _onConnect, _onConnected, _onDisconnect, options);
+            SocketListener* socketListener = new SocketListener(socketProtocol, _onConnect, _onConnected, _onDisconnect, options);
 
             socketListener->listen(bindAddress, backlog, onError);
         }
@@ -78,8 +77,12 @@ namespace net::socket::stream {
             _onDisconnect = onDisconnect;
         }
 
+        std::shared_ptr<SocketProtocol> getSocketProtocol() {
+            return socketProtocol;
+        }
+
     protected:
-        std::shared_ptr<const SocketProtocolFactory> socketProtocolFactory = nullptr;
+        std::shared_ptr<SocketProtocol> socketProtocol;
 
     private:
         std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)> _onConnect;

@@ -33,7 +33,7 @@
 
 namespace net::socket::stream {
 
-    template <typename SocketListener>
+    template <typename SocketProtocol, typename SocketListener>
     class SocketServer;
 
     namespace tls {

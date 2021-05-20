@@ -49,6 +49,8 @@ namespace http::websocket {
 
         void message(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
 
+        void sendPing(const char* reason = nullptr, std::size_t reasonLength = 0);
+
     private:
         void receiveFromPeer(const char* junk, std::size_t junkLen) override;
         void onReadError(int errnum) override;
@@ -61,7 +63,6 @@ namespace http::websocket {
 
         void onFrameReady(char* frame, uint64_t frameLength) override;
 
-        void sendPing(const char* reason = nullptr, std::size_t reasonLength = 0);
         void sendPong(const char* reason = nullptr, std::size_t reasonLength = 0);
 
         void close(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);

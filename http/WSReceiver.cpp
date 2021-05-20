@@ -34,7 +34,7 @@ namespace http::websocket {
         uint64_t consumed = 0;
         bool parsingError = false;
 
-        //        dumpFrame(junk, junkLen);
+        // dumpFrame(junk, junkLen);
 
         while (consumed < junkLen && !parsingError) {
             switch (parserState) {
