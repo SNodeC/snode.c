@@ -35,12 +35,18 @@ namespace http::server {
         using Request = RequestT;
         using Response = ResponseT;
 
+        HTTPServerContextFactory() = default;
+
         HTTPServerContextFactory(const std::function<void(Request& req, Response& res)>& onRequestReady)
             : onRequestReady(onRequestReady) {
         }
 
         net::socket::stream::SocketProtocol* create() const override {
             return new HTTPServerContext<Request, Response>(onRequestReady);
+        }
+
+        void setOnRequestReady(const std::function<void(Request& req, Response& res)>& onRequestReady) {
+            this->onRequestReady = onRequestReady;
         }
 
     protected:

@@ -61,26 +61,25 @@ public:
 int main(int argc, char* argv[]) {
     net::SNodeC::init(argc, argv);
 
-    SocketServer btServer(
-        new SimpleSocketProtocolFactory(), // SharedFactory
-        [](const SocketServer::SocketAddress& localAddress,
-           const SocketServer::SocketAddress& remoteAddress) -> void { // OnConnect
+    SocketServer<SimpleSocketProtocolFactory> btServer(
+        [](const SocketServer<SimpleSocketProtocolFactory>::SocketAddress& localAddress,
+           const SocketServer<SimpleSocketProtocolFactory>::SocketAddress& remoteAddress) -> void { // OnConnect
             VLOG(0) << "OnConnect";
 
             VLOG(0) << "\tServer: " + localAddress.toString();
             VLOG(0) << "\tClient: " + remoteAddress.toString();
         },
-        []([[maybe_unused]] SocketServer::SocketConnection* socketConnection) -> void { // onConnected
+        []([[maybe_unused]] SocketServer<SimpleSocketProtocolFactory>::SocketConnection* socketConnection) -> void { // onConnected
             VLOG(0) << "OnConnected";
         },
-        [](SocketServer::SocketConnection* socketConnection) -> void { // onDisconnect
+        [](SocketServer<SimpleSocketProtocolFactory>::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
 
             VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
             VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
         });
 
-    btServer.listen(SocketServer::SocketAddress("A4:B1:C1:2C:82:37", 1), 5, [](int errnum) -> void { // titan
+    btServer.listen(SocketServer<SimpleSocketProtocolFactory>::SocketAddress("A4:B1:C1:2C:82:37", 1), 5, [](int errnum) -> void { // titan
         if (errnum != 0) {
             PLOG(ERROR) << "BT listen: " << errnum;
         } else {

@@ -20,6 +20,7 @@
 #define HTTP_SERVER_LEGACY_SERVER_H
 
 #include "http/server/Server.h"
+#include "http/server/http/HTTPServerContextFactory.h"
 #include "net/socket/ip/tcp/ipv4/legacy/SocketServer.h"
 #include "net/socket/ip/tcp/ipv6/legacy/SocketServer.h"
 

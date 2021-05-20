@@ -28,9 +28,9 @@
 
 namespace net::socket::stream::legacy {
 
-    template <typename SocketT>
-    class SocketServer : public stream::SocketServer<legacy::SocketListener<SocketT>> {
-        using stream::SocketServer<legacy::SocketListener<SocketT>>::SocketServer;
+    template <typename SocketProtocolT, typename SocketT>
+    class SocketServer : public stream::SocketServer<SocketProtocolT, legacy::SocketListener<SocketT>> {
+        using stream::SocketServer<SocketProtocolT, legacy::SocketListener<SocketT>>::SocketServer;
     };
 
 } // namespace net::socket::stream::legacy

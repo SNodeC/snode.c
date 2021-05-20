@@ -28,8 +28,9 @@
 
 namespace net::socket::ip::tcp::ipv4::legacy {
 
-    class SocketServer : public stream::legacy::SocketServer<ipv4::Socket> {
-        using stream::legacy::SocketServer<ipv4::Socket>::SocketServer;
+    template <typename SocketProtocolT>
+    class SocketServer : public stream::legacy::SocketServer<SocketProtocolT, ipv4::Socket> {
+        using stream::legacy::SocketServer<SocketProtocolT, ipv4::Socket>::SocketServer;
     };
 
 } // namespace net::socket::ip::tcp::ipv4::legacy

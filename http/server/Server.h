@@ -18,14 +18,14 @@
 
 namespace http::server {
 
-    template <typename SocketServerT, typename RequestT, typename ResponseT>
+    template <template <typename SocketProtocolT> typename SocketServerT, typename RequestT, typename ResponseT>
     class Server {
     public:
-        using SocketServer = SocketServerT;
-        using SocketConnection = typename SocketServer::SocketConnection;
-        using SocketAddress = typename SocketConnection::SocketAddress;
         using Request = RequestT;
         using Response = ResponseT;
+        using SocketServer = SocketServerT<HTTPServerContextFactory<Request, Response>>;
+        using SocketConnection = typename SocketServer::SocketConnection;
+        using SocketAddress = typename SocketConnection::SocketAddress;
 
         Server(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
@@ -33,7 +33,6 @@ namespace http::server {
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
             : socketServer(
-                  new HTTPServerContextFactory<Request, Response>(onRequestReady), // SharedFactory
                   [onConnect](const SocketAddress& localAddress,
                               const SocketAddress& remoteAddress) -> void { // OnConnect
                       onConnect(localAddress, remoteAddress);
@@ -45,6 +44,7 @@ namespace http::server {
                       onDisconnect(socketConnection);
                   },
                   options) {
+            socketServer.getSocketProtocol()->setOnRequestReady(onRequestReady); //.setOnRequestReady(onRequestReady);
         }
 
         void listen(uint16_t port, const std::function<void(int err)>& onError) const {

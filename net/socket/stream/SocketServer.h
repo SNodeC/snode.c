@@ -35,19 +35,18 @@
 
 namespace net::socket::stream {
 
-    template <typename SocketListenerT>
+    template <typename SocketProtocolT, typename SocketListenerT>
     class SocketServer {
     public:
         using SocketListener = SocketListenerT;
         using SocketConnection = typename SocketListener::SocketConnection;
         using SocketAddress = typename SocketConnection::Socket::SocketAddress;
 
-        SocketServer(const SocketProtocolFactory* socketProtocolFactory,
-                     const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
+        SocketServer(const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
                      const std::function<void(SocketConnection* socketConnection)>& onConnected,
                      const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
                      const std::map<std::string, std::any>& options = {{}})
-            : socketProtocolFactory(std::shared_ptr<const SocketProtocolFactory>(socketProtocolFactory))
+            : socketProtocol(std::make_shared<SocketProtocolT>())
             , _onConnect(onConnect)
             , _onConnected(onConnected)
             , _onDisconnect(onDisconnect)
@@ -61,7 +60,7 @@ namespace net::socket::stream {
         void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int err)>& onError) const {
             errno = 0;
 
-            SocketListener* socketListener = new SocketListener(socketProtocolFactory, _onConnect, _onConnected, _onDisconnect, options);
+            SocketListener* socketListener = new SocketListener(socketProtocol, _onConnect, _onConnected, _onDisconnect, options);
 
             socketListener->listen(bindAddress, backlog, onError);
         }
@@ -78,10 +77,13 @@ namespace net::socket::stream {
             _onDisconnect = onDisconnect;
         }
 
-    protected:
-        std::shared_ptr<const SocketProtocolFactory> socketProtocolFactory = nullptr;
+        std::shared_ptr<SocketProtocolT> getSocketProtocol() {
+            return socketProtocol;
+        }
 
     private:
+        std::shared_ptr<SocketProtocolT> socketProtocol;
+
         std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)> _onConnect;
         std::function<void(SocketConnection* socketConnection)> _onConnected;
         std::function<void(SocketConnection* socketConnection)> _onDisconnect;
