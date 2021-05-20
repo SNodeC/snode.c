@@ -32,7 +32,10 @@ namespace net::socket::stream {
     public:
         virtual ~SocketProtocolFactory() = default;
 
+    protected:
         virtual SocketProtocol* create() const = 0;
+
+        friend class SocketConnectionBase;
     };
 
 } // namespace net::socket::stream

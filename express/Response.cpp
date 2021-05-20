@@ -91,7 +91,7 @@ namespace express {
     }
 
     void Response::sendStatus(int status) {
-        this->status(status).send(StatusCode::reason(status));
+        this->status(status).send(http::StatusCode::reason(status));
     }
 
     void Response::reset() {

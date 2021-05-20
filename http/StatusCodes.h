@@ -26,14 +26,18 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-class StatusCode {
-public:
-    static std::string reason(int status);
+namespace http {
 
-    static bool contains(int status);
+    class StatusCode {
+    public:
+        static std::string reason(int status);
 
-private:
-    static std::map<int, std::string> statusCode;
-};
+        static bool contains(int status);
+
+    private:
+        static std::map<int, std::string> statusCode;
+    };
+
+} // namespace http
 
 #endif // HTTP_STATUSCODES_H

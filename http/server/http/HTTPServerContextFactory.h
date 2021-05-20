@@ -37,10 +37,12 @@ namespace http::server {
 
         HTTPServerContextFactory() = default;
 
+    private:
         net::socket::stream::SocketProtocol* create() const override {
             return new HTTPServerContext<Request, Response>(onRequestReady);
         }
 
+    public:
         void setOnRequestReady(const std::function<void(Request& req, Response& res)>& onRequestReady) {
             this->onRequestReady = onRequestReady;
         }

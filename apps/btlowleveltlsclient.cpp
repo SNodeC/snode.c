@@ -61,7 +61,7 @@ public:
 };
 
 class SimpleSocketProtocolFactory : public net::socket::stream::SocketProtocolFactory {
-public:
+private:
     net::socket::stream::SocketProtocol* create() const override {
         return new SimpleSocketProtocol();
     }

@@ -122,9 +122,7 @@ private:
 };
 
 class SimpleSocketProtocolFactory : public SocketProtocolFactory {
-public:
-    SimpleSocketProtocolFactory() = default;
-
+private:
     SocketProtocol* create() const override {
         return new SimpleSocketProtocol();
     }
