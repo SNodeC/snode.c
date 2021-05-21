@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -16,11 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "http/server/Response.h"
+#include "http/server/http/Response.h"
 
 #include "http/StatusCodes.h"
 #include "http/http_utils.h"
-#include "http/server/HTTPServerContext.h"
+#include "http/server/http/HTTPServerContext.h"
 #include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -106,8 +106,8 @@ namespace http::server {
         return set("Content-Type", type);
     }
 
-    void Response::upgrade(ServerContext* serverContext) {
-        serverContext->upgrade(serverContext);
+    void Response::upgrade(net::socket::stream::SocketProtocol* newServerContext) {
+        serverContext->switchSocketProtocol(newServerContext);
         end();
     }
 

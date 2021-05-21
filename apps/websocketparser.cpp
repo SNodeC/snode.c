@@ -1,7 +1,9 @@
-#include "http/websocket/WSServerContext.h"
+#include "config.h"
+#include "express/legacy/WebApp.h"
+#include "express/tls/WebApp.h"
+#include "http/server/ws/WSServerContext.h"
 #include "log/Logger.h"
 #include "net/SNodeC.h"
-#include "net/socket/ip/tcp/ipv4/legacy/SocketServer.h"
 
 #include <cstddef>
 #include <endian.h>
@@ -11,9 +13,8 @@
 #include <openssl/sha.h>
 #include <vector>
 
+using namespace express;
 using namespace net;
-
-using namespace net::socket::ip::tcp::ipv4::legacy;
 
 char* base64(const unsigned char* input, int length) {
     const int pl = 4 * ((length + 2) / 3);
@@ -35,7 +36,7 @@ unsigned char* decode64(const char* input, int length) {
     return output;
 }
 
-std::string serverWebSocketKey(const std::string& clientWebSocketKey) {
+char* serverWebSocketKey(const std::string& clientWebSocketKey) {
     std::string GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
     std::string serverWebSocketKey(clientWebSocketKey + GUID);
@@ -47,9 +48,23 @@ std::string serverWebSocketKey(const std::string& clientWebSocketKey) {
     return base64(digest, SHA_DIGEST_LENGTH);
 }
 
-int main(int argc, char* argv[]) {
-    SNodeC::init(argc, argv);
+void serverWebSocketKey(const std::string& clientWebSocketKey, const std::function<void(char*)>& returnKey) {
+    std::string GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
+    std::string serverWebSocketKey(clientWebSocketKey + GUID);
+    unsigned char digest[SHA_DIGEST_LENGTH];
+    SHA1(reinterpret_cast<const unsigned char*>(serverWebSocketKey.c_str()),
+         serverWebSocketKey.length(),
+         reinterpret_cast<unsigned char*>(&digest));
+
+    char* key = base64(digest, SHA_DIGEST_LENGTH);
+    returnKey(key);
+
+    free(key);
+}
+
+int main(int argc, char* argv[]) {
+    /*
     http::websocket::WSServerContext wsTransCeiver;
 
     const char* message = "Hallo Du, heute ist ein schöner Tag oder meinst du nicht?"
@@ -98,43 +113,123 @@ int main(int argc, char* argv[]) {
     wsTransCeiver.message(message, std::string(message).length(), 0x12345678);
     wsTransCeiver.message(message, std::string(message).length(), 0x23456789);
     wsTransCeiver.messageEnd(message, std::string(message).length(), 0x34567890);
+    */
 
-    SocketServer webSocketParser(
-        [](const SocketServer::SocketAddress& localAddress,
-           const SocketServer::SocketAddress& remoteAddress) -> void { // OnConnect
-            VLOG(0) << "OnConnect";
+    SNodeC::init(argc, argv);
 
-            VLOG(0) << "\tServer: " + localAddress.toString();
-            VLOG(0) << "\tClient: " + remoteAddress.toString();
-        },
-        []([[maybe_unused]] SocketServer::SocketConnection* socketConnection) -> void { // onConnected
-            VLOG(0) << "OnConnected";
-        },
-        [](SocketServer::SocketConnection* socketConnection) -> void { // onDisconnect
-            VLOG(0) << "OnDisconnect";
+    legacy::WebApp legacyApp;
 
-            VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
-            VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
-        },
-        [](SocketServer::SocketConnection* socketConnection, const char* junk, std::size_t junkLen) -> void { // onRead
-            std::string data(junk, junkLen);
-            VLOG(0) << "Data to reflect: " << data;
-            socketConnection->enqueue(data);
-        },
-        []([[maybe_unused]] SocketServer::SocketConnection* socketConnection, int errnum) -> void { // onReadError
-            PLOG(ERROR) << "OnReadError: " << errnum;
-        },
-        []([[maybe_unused]] SocketServer::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
-            PLOG(ERROR) << "OnWriteError: " << errnum;
+    legacyApp.get("/", [](Request& req, Response& res) -> void {
+        std::string uri = req.originalUrl;
+
+        VLOG(1) << "OriginalUri: " << uri;
+        VLOG(1) << "Uri: " << req.url;
+
+        VLOG(1) << "Connection: " << req.header("connection");
+        VLOG(1) << "Host: " << req.header("host");
+        VLOG(1) << "Origin: " << req.header("origin");
+        VLOG(1) << "sec-web-socket-extensions: " << req.header("sec-websocket-extensions");
+        VLOG(1) << "sec-websocket-key: " << req.header("sec-websocket-key");
+        VLOG(1) << "sec-websocket-version: " << req.header("sec-websocket-version");
+        VLOG(1) << "upgrade: " << req.header("upgrade");
+        VLOG(1) << "user-agent: " << req.header("user-agent");
+
+        res.set("Upgrade", "websocket");
+        res.set("Connection", "Upgrade");
+
+        serverWebSocketKey(req.header("sec-websocket-key"), [&res](char* key) -> void {
+            res.set("Sec-WebSocket-Accept", key);
         });
 
-    webSocketParser.listen(SocketServer::SocketAddress(8080), 5, [](int err) -> void {
+        res.status(101); // Switch Protocol
+
+        res.upgrade(new http::websocket::WSServerContext(
+            []([[maybe_unused]] http::websocket::WSServerContext* wSServerContext, [[maybe_unused]] int opCode) -> void {
+                VLOG(0) << "Message Start - OpCode: " << opCode;
+            },
+            []([[maybe_unused]] http::websocket::WSServerContext* wSServerContext,
+               [[maybe_unused]] const char* junk,
+               [[maybe_unused]] std::size_t junkLen) -> void {
+                VLOG(0) << "Data: " << std::string(junk, static_cast<std::size_t>(junkLen));
+            },
+            [](http::websocket::WSServerContext* wSServerContext) -> void {
+                VLOG(0) << "Message End";
+                wSServerContext->message(1, "Hallo zurück", strlen("Hallo zurück"));
+                wSServerContext->sendPing();
+            }));
+    });
+
+    legacyApp.listen(8080, [](int err) -> void {
         if (err != 0) {
-            PLOG(FATAL) << "listen on port 8080";
+            perror("Listen");
         } else {
-            VLOG(0) << "snode.c listening on port 8080 for legacy connections";
+            std::cout << "snode.c listening on port 8080" << std::endl;
+        }
+    });
+
+    tls::WebApp tlsApp({{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
+
+    tlsApp.get("/", [](Request& req, [[maybe_unused]] Response& res) -> void {
+        std::string uri = req.originalUrl;
+
+        VLOG(1) << "OriginalUri: " << uri;
+        VLOG(1) << "Uri: " << req.url;
+
+        VLOG(1) << "Connection: " << req.header("connection");
+        VLOG(1) << "Host: " << req.header("host");
+        VLOG(1) << "Origin: " << req.header("origin");
+        VLOG(1) << "sec-web-socket-extensions: " << req.header("sec-websocket-extensions");
+        VLOG(1) << "sec-websocket-key: " << req.header("sec-websocket-key");
+        VLOG(1) << "sec-websocket-version: " << req.header("sec-websocket-version");
+        VLOG(1) << "upgrade: " << req.header("upgrade");
+        VLOG(1) << "user-agent: " << req.header("user-agent");
+
+        res.set("Upgrade", "websocket");
+        res.set("Connection", "Upgrade");
+
+        serverWebSocketKey(req.header("sec-websocket-key"), [&res](char* key) -> void {
+            res.set("Sec-WebSocket-Accept", key);
+        });
+
+        res.status(101); // Switch Protocol
+
+        res.upgrade(new http::websocket::WSServerContext(
+            []([[maybe_unused]] http::websocket::WSServerContext* wSServerContext, [[maybe_unused]] int opCode) -> void {
+                VLOG(0) << "Message Start - OpCode: " << opCode;
+            },
+            []([[maybe_unused]] http::websocket::WSServerContext* wSServerContext, const char* junk, std::size_t junkLen) -> void {
+                VLOG(0) << "Data: " << std::string(junk, static_cast<std::size_t>(junkLen));
+            },
+            [](http::websocket::WSServerContext* wSServerContext) -> void {
+                VLOG(0) << "Message End";
+                wSServerContext->message(1, "Hallo zurück", strlen("Hallo zurück"));
+                wSServerContext->sendPing();
+            }));
+    });
+
+    tlsApp.listen(8088, [](int err) -> void {
+        if (err != 0) {
+            perror("Listen");
+        } else {
+            std::cout << "snode.c listening on port 8088" << std::endl;
         }
     });
 
     return SNodeC::start();
 }
+
+/*
+2021-05-14 10:21:39 0000000002:      accept-encoding: gzip, deflate, br
+2021-05-14 10:21:39 0000000002:      accept-language: en-us,en;q=0.9,de-at;q=0.8,de-de;q=0.7,de;q=0.6
+2021-05-14 10:21:39 0000000002:      cache-control: no-cache
+2021-05-14 10:21:39 0000000002:      connection: upgrade
+2021-05-14 10:21:39 0000000002:      host: localhost:8080
+2021-05-14 10:21:39 0000000002:      origin: file://
+2021-05-14 10:21:39 0000000002:      pragma: no-cache
+2021-05-14 10:21:39 0000000002:      sec-websocket-extensions: permessage-deflate; client_max_window_bits
+2021-05-14 10:21:39 0000000002:      sec-websocket-key: et6vtby1wwyooittpidflw==
+2021-05-14 10:21:39 0000000002:      sec-websocket-version: 13
+2021-05-14 10:21:39 0000000002:      upgrade: websocket
+2021-05-14 10:21:39 0000000002:      user-agent: mozilla/5.0 (x11; linux x86_64) applewebkit/537.36 (khtml, like gecko)
+chrome/90.0.4430.212 safari/537.36
+*/

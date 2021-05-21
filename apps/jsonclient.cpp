@@ -1,7 +1,7 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020  Volker Christian <me@vchrist.at>
- * Json Middleware 2020 Marlene Mayr, Anna Moser, Matteo Prock, Eric Thalhammer
+ * Copyright (C) 2020, 2021  Volker Christian <me@vchrist.at>
+ * Json Middleware 2020, 2021 Marlene Mayr, Anna Moser, Matteo Prock, Eric Thalhammer
  * Github <MarleneMayr><moseranna><MatteoMatteoMatteo><peregrin-tuk>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,15 +20,21 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h" // just for this example app
-#include "http/client/Response.h"
-#include "http/client/legacy/Client.h"
-#include "log/Logger.h"
-#include "net/SNodeC.h"
+#include "http/client/Client.h"                     // for Client<>::Socket...
+#include "http/client/Request.h"                    // for Request
+#include "http/client/Response.h"                   // for Response
+#include "http/client/legacy/Client.h"              // for Client, Client<>...
+#include "log/Logger.h"                             // for Writer, Storage
+#include "net/SNodeC.h"                             // for SNodeC
+#include "net/socket/ip/address/ipv4/InetAddress.h" // for InetAddress
 
-#include <cstring>
-
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#include <cstring>     // for memcpy
+#include <functional>  // for function
+#include <map>         // for map, operator==
+#include <string>      // for allocator, opera...
+#include <type_traits> // for add_const<>::type
+#include <utility>     // for tuple_element<>:...
+#endif                 /* DOXYGEN_SHOULD_SKIP_THIS */
 
 int main(int argc, char* argv[]) {
     net::SNodeC::init(argc, argv);
@@ -58,14 +64,14 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "       " << response.reason;
 
             VLOG(0) << "     Headers:";
-            for (auto [field, value] : *response.headers) {
+            for (const auto& [field, value] : *response.headers) {
                 VLOG(0) << "       " << field + " = " + value;
             }
 
             VLOG(0) << "     Cookies:";
-            for (auto [name, cookie] : *response.cookies) {
+            for (const auto& [name, cookie] : *response.cookies) {
                 VLOG(0) << "       " + name + " = " + cookie.getValue();
-                for (auto [option, value] : cookie.getOptions()) {
+                for (const auto& [option, value] : cookie.getOptions()) {
                     VLOG(0) << "         " + option + " = " + value;
                 }
             }

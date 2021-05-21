@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -33,7 +33,7 @@
 
 namespace net::socket::stream {
 
-    template <typename SocketListener>
+    template <typename SocketProtocol, typename SocketListener>
     class SocketServer;
 
     namespace tls {
@@ -45,14 +45,13 @@ namespace net::socket::stream {
             using Socket = typename SocketConnection::Socket;
             using SocketAddress = typename Socket::SocketAddress;
 
-            SocketListener(const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
+            SocketListener(const std::shared_ptr<const SocketProtocolFactory>& socketProtocolFactory,
+                           const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
                            const std::function<void(SocketConnection* socketConnection)>& onConnected,
                            const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
-                           const std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)>& onRead,
-                           const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
-                           const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                            const std::map<std::string, std::any>& options)
                 : stream::SocketListener<SocketConnection>(
+                      socketProtocolFactory,
                       onConnect,
                       [onConnected, &ctx = this->ctx](SocketConnection* socketConnection) -> void {
                           SSL* ssl = socketConnection->startSSL(ctx);
@@ -82,9 +81,6 @@ namespace net::socket::stream {
                           socketConnection->stopSSL();
                           onDisconnect(socketConnection);
                       },
-                      onRead,
-                      onReadError,
-                      onWriteError,
                       options) {
                 ctx = ssl_ctx_new(options, true);
                 SSL_CTX_set_tlsext_servername_callback(ctx, serverNameCallback);

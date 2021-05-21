@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -51,26 +51,29 @@ namespace express {
         WebAppT(const Router& router, const std::map<std::string, std::any>& options = {{}})
             : WebApp(router)
             , server(
-                  [&onConnect = this->_onConnect](const SocketAddress& localAddress,
-                                                  const SocketAddress& remoteAddress) -> void { // onConnect
-                      if (onConnect) {
-                          onConnect(localAddress, remoteAddress);
-                      }
+                  [](const SocketAddress& localAddress,
+                     const SocketAddress& remoteAddress) -> void { // onConnect
+                      VLOG(0) << "OnConnect:";
+
+                      VLOG(0) << "\tServer: " + localAddress.toString();
+                      VLOG(0) << "\tClient: " + remoteAddress.toString();
                   },
-                  [&onConnected = this->_onConnected](SocketConnection* socketConnection) -> void { // onConnected
-                      if (onConnected) {
-                          onConnected(socketConnection);
-                      }
+                  [](SocketConnection* socketConnection) -> void { // onConnected
+                      VLOG(0) << "OnConnected:";
+
+                      VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
+                      VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
                   },
                   [routerDispatcher = this->routerDispatcher](express::Request& req,
                                                               express::Response& res) -> void { // onRequestReady
                       req.extend();
                       routerDispatcher->dispatch(req, res);
                   },
-                  [&onDisconnect = this->_onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
-                      if (onDisconnect != nullptr) {
-                          onDisconnect(socketConnection);
-                      }
+                  [](SocketConnection* socketConnection) -> void { // onDisconnect
+                      VLOG(0) << "OnDisconnect:";
+
+                      VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
+                      VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
                   },
                   options) {
         }
@@ -84,15 +87,15 @@ namespace express {
         }
 
         void onConnect(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect) {
-            _onConnect = onConnect;
+            server.onConnect(onConnect);
         }
 
         void onConnected(const std::function<void(SocketConnection*)>& onConnected) {
-            _onConnected = onConnected;
+            server.onConnected(onConnected);
         }
 
         void onDisconnect(const std::function<void(SocketConnection*)>& onDisconnect) {
-            _onDisconnect = onDisconnect;
+            server.onDisconnect(onDisconnect);
         }
 
     protected:

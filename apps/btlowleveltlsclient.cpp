@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -18,20 +18,58 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h" // just for this example app
-#include "log/Logger.h"
-#include "net/SNodeC.h"
-#include "net/socket/bluetooth/rfcomm/tls/SocketClient.h"
+#include "config.h"                                       // for CLIENTCERTF
+#include "log/Logger.h"                                   // for Writer
+#include "net/SNodeC.h"                                   // for SNodeC
+#include "net/socket/bluetooth/address/RfCommAddress.h"   // for RfCommAddress
+#include "net/socket/bluetooth/rfcomm/tls/SocketClient.h" // for SocketClient
+#include "net/socket/stream/SocketClient.h"               // for SocketClie...
+#include "net/socket/stream/SocketProtocol.h"             // for SocketProt...
+#include "net/socket/stream/SocketProtocolFactory.h"      // for SocketProt...
 
-#include <cstddef>
-#include <openssl/x509v3.h>
+#include <any>                // for any
+#include <cstddef>            // for NULL, size_t
+#include <functional>         // for function
+#include <openssl/asn1.h>     // for ASN1_STRIN...
+#include <openssl/crypto.h>   // for OPENSSL_free
+#include <openssl/obj_mac.h>  // for NID_subjec...
+#include <openssl/ossl_typ.h> // for X509
+#include <openssl/ssl3.h>     // for SSL_get_pe...
+#include <openssl/x509.h>     // for X509_NAME_...
+#include <openssl/x509v3.h>   // for GENERAL_NAME
+#include <stdint.h>           // for int32_t
+#include <string>             // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 using namespace net::socket::bluetooth::rfcomm::tls;
 
+class SimpleSocketProtocol : public net::socket::stream::SocketProtocol {
+public:
+    void receiveFromPeer(const char* junk, std::size_t junkLen) override {
+        VLOG(0) << "Data to reflect: " << std::string(junk, junkLen);
+        sendToPeer(junk, junkLen);
+    }
+
+    void onWriteError(int errnum) override {
+        VLOG(0) << "OnWriteError: " << errnum;
+    }
+
+    void onReadError(int errnum) override {
+        VLOG(0) << "OnReadError: " << errnum;
+    }
+};
+
+class SimpleSocketProtocolFactory : public net::socket::stream::SocketProtocolFactory {
+private:
+    net::socket::stream::SocketProtocol* create() const override {
+        return new SimpleSocketProtocol();
+    }
+};
+
 SocketClient getClient() {
     SocketClient client(
+        new SimpleSocketProtocolFactory(), // SharedFactory
         [](const SocketClient::SocketAddress& localAddress,
            const SocketClient::SocketAddress& remoteAddress) -> void { // OnConnect
             VLOG(0) << "OnConnect";
@@ -86,24 +124,13 @@ SocketClient getClient() {
                 VLOG(0) << "     Server certificate: no certificate";
             }
 
-            socketConnection->enqueue("Hello rfcomm connection!");
+            socketConnection->getSocketProtocol()->sendToPeer("Hello rfcomm connection!");
         },
         [](SocketClient::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
 
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
-        },
-        [](SocketClient::SocketConnection* socketConnection, const char* junk, std::size_t junkLen) -> void { // onRead
-            std::string data(junk, junkLen);
-            VLOG(0) << "Data to reflect: " << data;
-            socketConnection->enqueue(data);
-        },
-        []([[maybe_unused]] SocketClient::SocketConnection* socketConnection, int errnum) -> void { // onReadError
-            PLOG(ERROR) << "OnReadError: " << errnum;
-        },
-        []([[maybe_unused]] SocketClient::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
-            PLOG(ERROR) << "OnWriteError: " << errnum;
         },
         {{"certChain", CLIENTCERTF}, {"keyPEM", CLIENTKEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}});
 

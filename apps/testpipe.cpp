@@ -4,8 +4,8 @@
 #include "net/stream/PipeSink.h"
 #include "net/stream/PipeSource.h"
 
+#include <cstddef>    // for size_t
 #include <functional> // for function
-#include <iosfwd>     // for size_t
 #include <string>     // for allocator, string
 
 int main(int argc, char* argv[]) {

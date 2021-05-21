@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -16,23 +16,26 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "http/websocket/WSReceiver.h"
+#include "http/WSReceiver.h"
+
+#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <endian.h>
-#include <iostream>
+#include <endian.h> // for be16toh, be32toh, be64toh, htobe32
+#include <iomanip>  // for operator<<, setfill, setw
+#include <memory>   // for allocator
+#include <sstream>  // for stringstream, basic_ostream, operator<<, bas...
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http::websocket {
-
-    WSReceiver::WSReceiver() {
-    }
+namespace http {
 
     void WSReceiver::receive(char* junk, std::size_t junkLen) {
         uint64_t consumed = 0;
         bool parsingError = false;
+
+        // dumpFrame(junk, junkLen);
 
         while (consumed < junkLen && !parsingError) {
             switch (parserState) {
@@ -56,6 +59,7 @@ namespace http::websocket {
                     consumed += readPayload(junk + consumed, junkLen - consumed);
                     break;
                 case ParserState::ERROR:
+                    onError(errorState);
                     parsingError = true;
                     reset();
                     break;
@@ -73,17 +77,17 @@ namespace http::websocket {
             fin = opCodeByte & 0b10000000;
             opCode = opCodeByte & 0b00001111;
 
-            if (opCode != 0) {
-                if (!continuation) {
-                    onMessageStart(opCode);
-                } else {
-                    std::cout << "Error opcode: provided in continuation frame" << std::endl;
-                }
+            if (!continuation) {
+                onMessageStart(opCode);
+                parserState = ParserState::LENGTH;
+            } else if (opCode == 0) {
+                parserState = ParserState::LENGTH;
+            } else {
+                parserState = ParserState::ERROR;
+                errorState = 1002;
+                VLOG(0) << "Error opcode in continuation frame";
             }
-
             continuation = !fin;
-
-            parserState = ParserState::LENGTH;
         }
 
         return consumed;
@@ -110,7 +114,16 @@ namespace http::websocket {
                 parserState = ParserState::ELENGTH;
                 length = 0;
             } else {
-                parserState = ParserState::MASKINGKEY;
+                if (masked) {
+                    parserState = ParserState::MASKINGKEY;
+                } else if (length > 0) {
+                    parserState = ParserState::PAYLOAD;
+                } else {
+                    if (fin) {
+                        onMessageEnd();
+                    }
+                    reset();
+                }
             }
             consumed++;
         }
@@ -142,10 +155,13 @@ namespace http::websocket {
             }
 
             if (length & static_cast<uint64_t>(0x01) << 63) {
-                std::cout << "Error elength: msb == 1" << std::endl;
+                parserState = ParserState::ERROR;
+                errorState = 1004;
+            } else if (masked) {
+                parserState = ParserState::MASKINGKEY;
+            } else {
+                parserState = ParserState::PAYLOAD;
             }
-
-            parserState = ParserState::MASKINGKEY;
         }
 
         return consumed;
@@ -154,22 +170,25 @@ namespace http::websocket {
     uint64_t WSReceiver::readMaskingKey(char* junk, uint64_t junkLen) {
         uint64_t consumed = 0;
 
-        if (masked) {
-            maskingKeyNumBytesLeft = (maskingKeyNumBytesLeft == 0) ? maskingKeyNumBytes : maskingKeyNumBytesLeft;
+        maskingKeyNumBytesLeft = (maskingKeyNumBytesLeft == 0) ? maskingKeyNumBytes : maskingKeyNumBytesLeft;
 
-            while (consumed < junkLen && maskingKeyNumBytesLeft > 0) {
-                maskingKey |= static_cast<uint32_t>(*reinterpret_cast<unsigned char*>(junk + consumed))
-                              << (maskingKeyNumBytes - maskingKeyNumBytesLeft) * 8;
-                consumed++;
-                maskingKeyNumBytesLeft--;
-            }
+        while (consumed < junkLen && maskingKeyNumBytesLeft > 0) {
+            maskingKey |= static_cast<uint32_t>(*reinterpret_cast<unsigned char*>(junk + consumed))
+                          << (maskingKeyNumBytes - maskingKeyNumBytesLeft) * 8;
+            consumed++;
+            maskingKeyNumBytesLeft--;
+        }
 
-            if (maskingKeyNumBytesLeft == 0) {
-                maskingKey = be32toh(maskingKey);
+        if (maskingKeyNumBytesLeft == 0) {
+            maskingKey = be32toh(maskingKey);
+            if (length > 0) {
                 parserState = ParserState::PAYLOAD;
+            } else {
+                if (fin) {
+                    onMessageEnd();
+                }
+                reset();
             }
-        } else {
-            parserState = ParserState::PAYLOAD;
         }
 
         return consumed;
@@ -181,13 +200,13 @@ namespace http::websocket {
         if (junkLen > 0 && length - payloadRead > 0) {
             uint64_t numBytesToRead = (junkLen <= length - payloadRead) ? junkLen : length - payloadRead;
 
-            MaskingKeyAsArray maskingKeyAsArray = {.value = htobe32(maskingKey)};
+            MaskingKey maskingKeyAsArray = {.key = htobe32(maskingKey)};
 
             for (uint64_t i = 0; i < numBytesToRead; i++) {
-                *(junk + i) = *(junk + i) ^ *(maskingKeyAsArray.array + (i + payloadRead) % 4);
+                *(junk + i) = *(junk + i) ^ *(maskingKeyAsArray.keyAsArray + (i + payloadRead) % 4);
             }
 
-            onMessageData(junk, numBytesToRead);
+            onFrameData(junk, numBytesToRead);
 
             payloadRead += numBytesToRead;
             consumed = numBytesToRead;
@@ -203,6 +222,21 @@ namespace http::websocket {
         return consumed;
     }
 
+    void WSReceiver::dumpFrame(char* frame, uint64_t frameLength) {
+        int modul = 4;
+
+        std::stringstream stringStream;
+
+        for (std::size_t i = 0; i < frameLength; i++) {
+            stringStream << std::setfill('0') << std::setw(2) << std::hex << (unsigned int) (unsigned char) frame[i] << " ";
+
+            if ((i + 1) % modul == 0 || i == frameLength) {
+                VLOG(0) << "Frame: " << stringStream.str();
+                stringStream.str("");
+            }
+        }
+    }
+
     void WSReceiver::reset() {
         payloadRead = 0;
         opCode = 0;
@@ -216,6 +250,7 @@ namespace http::websocket {
         maskingKeyNumBytes = 4;
         maskingKeyNumBytesLeft = 0;
         payloadRead = 0;
+        errorState = 0;
     }
 
-} // namespace http::websocket
+} // namespace http

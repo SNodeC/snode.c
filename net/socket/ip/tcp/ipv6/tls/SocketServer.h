@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -28,8 +28,9 @@
 
 namespace net::socket::ip::tcp::ipv6::tls {
 
-    class SocketServer : public stream::tls::SocketServer<ipv6::Socket> {
-        using stream::tls::SocketServer<ipv6::Socket>::SocketServer;
+    template <typename SocketProtocolT>
+    class SocketServer : public stream::tls::SocketServer<SocketProtocolT, ipv6::Socket> {
+        using stream::tls::SocketServer<SocketProtocolT, ipv6::Socket>::SocketServer;
     };
 
 } // namespace net::socket::ip::tcp::ipv6::tls

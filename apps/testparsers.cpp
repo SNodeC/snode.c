@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -19,9 +19,9 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "http/Parser.h"
-#include "http/client/ResponseParser.h" // for HTTPResponseParser, ResponseCookie
-#include "http/server/RequestParser.h"  // for RequestParser
-#include "log/Logger.h"                 // for Writer, Storage, VLOG
+#include "http/client/ResponseParser.h"     // for HTTPResponseParser, ResponseCookie
+#include "http/server/http/RequestParser.h" // for RequestParser
+#include "log/Logger.h"                     // for Writer, Storage, VLOG
 
 #include <cstddef>
 #include <cstring>     // for memcpy, std::size_t

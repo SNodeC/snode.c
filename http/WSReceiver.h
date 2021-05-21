@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -26,18 +26,16 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http::websocket {
+namespace http {
 
     class WSReceiver {
     public:
-        WSReceiver();
-
         void receive(char* junk, std::size_t junkLen);
 
     protected:
-        union MaskingKeyAsArray {
-            uint32_t value;
-            char array[4];
+        union MaskingKey {
+            uint32_t key;
+            char keyAsArray[4];
         };
 
         void begin() {
@@ -50,10 +48,13 @@ namespace http::websocket {
         uint64_t readPayload(char* junk, uint64_t junkLen);
 
         virtual void onMessageStart(int opCode) = 0;
-        virtual void onMessageData(char* junk, uint64_t junkLen) = 0;
+        virtual void onFrameData(const char* junk, uint64_t junkLen) = 0;
         virtual void onMessageEnd() = 0;
+        virtual void onError(uint16_t errnum) = 0;
 
         void reset();
+
+        void dumpFrame(char* frame, uint64_t frameLength);
 
         // Parser state
         enum struct ParserState { BEGIN, OPCODE, LENGTH, ELENGTH, MASKINGKEY, PAYLOAD, ERROR } parserState = ParserState::BEGIN;
@@ -70,9 +71,11 @@ namespace http::websocket {
         uint8_t maskingKeyNumBytes = 4;
         uint8_t maskingKeyNumBytesLeft = 0;
         uint64_t payloadRead = 0;
+
+        uint16_t errorState = 0;
     };
 
-} // namespace http::websocket
+} // namespace http
 
 #endif // WSRECEVIER_H
 
@@ -90,26 +93,3 @@ namespace http::websocket {
 //  -+--------+-------------------------------------+-----------|
 //   | 10     | Pong Frame                          | RFC XXXX  |
 //  -+--------+-------------------------------------+-----------|
-
-//   | Version Number | Reference                               |
-//  -+----------------+-----------------------------------------+-
-//   | 0              + draft-ietf-hybi-thewebsocketprotocol-00 |
-//  -+----------------+-----------------------------------------+-
-//   | 1              + draft-ietf-hybi-thewebsocketprotocol-01 |
-//  -+----------------+-----------------------------------------+-
-//   | 2              + draft-ietf-hybi-thewebsocketprotocol-02 |
-//  -+----------------+-----------------------------------------+-
-//   | 3              + draft-ietf-hybi-thewebsocketprotocol-03 |
-//  -+----------------+-----------------------------------------+-
-//   | 4              + draft-ietf-hybi-thewebsocketprotocol-04 |
-//  -+----------------+-----------------------------------------+-
-//   | 5              + draft-ietf-hybi-thewebsocketprotocol-05 |
-//  -+----------------+-----------------------------------------+-
-//   | 6              + draft-ietf-hybi-thewebsocketprotocol-06 |
-//  -+----------------+-----------------------------------------+-
-//   | 7              + draft-ietf-hybi-thewebsocketprotocol-07 |
-//  -+----------------+-----------------------------------------+-
-//   | 8              + draft-ietf-hybi-thewebsocketprotocol-08 |
-//  -+----------------+-----------------------------------------+-
-//   | 9              + draft-ietf-hybi-thewebsocketprotocol-09 |
-//  -+----------------+-----------------------------------------+-

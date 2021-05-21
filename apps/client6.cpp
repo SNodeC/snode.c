@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -18,16 +18,31 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h" // just for this example app
-#include "http/client/Response.h"
-#include "http/client/legacy/Client.h"
-#include "http/client/tls/Client.h"
-#include "log/Logger.h"
-#include "net/SNodeC.h"
+#include "config.h"                                 // for SERVERCAFILE
+#include "http/client/Client.h"                     // for Client<>::Socket...
+#include "http/client/Request.h"                    // for Request, client
+#include "http/client/Response.h"                   // for Response
+#include "http/client/legacy/Client.h"              // for Client6, Client6...
+#include "http/client/tls/Client.h"                 // for Client6, Client6...
+#include "log/Logger.h"                             // for Writer, Storage
+#include "net/SNodeC.h"                             // for SNodeC
+#include "net/socket/ip/address/ipv6/InetAddress.h" // for InetAddress
 
-#include <cstring>
-#include <iostream>
-#include <openssl/x509v3.h>
+#include <any>                // for any
+#include <cstring>            // for memcpy
+#include <functional>         // for function
+#include <map>                // for map, operator==
+#include <openssl/asn1.h>     // for ASN1_STRING_get0...
+#include <openssl/crypto.h>   // for OPENSSL_free
+#include <openssl/obj_mac.h>  // for NID_subject_alt_...
+#include <openssl/ossl_typ.h> // for X509
+#include <openssl/ssl3.h>     // for SSL_get_peer_cer...
+#include <openssl/x509.h>     // for X509_NAME_oneline
+#include <openssl/x509v3.h>   // for GENERAL_NAME
+#include <stdint.h>           // for int32_t
+#include <string>             // for allocator, opera...
+#include <type_traits>        // for add_const<>::type
+#include <utility>            // for tuple_element<>:...
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -57,14 +72,14 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
 
                 VLOG(0) << "     Headers:";
-                for (auto [field, value] : *response.headers) {
+                for (const auto& [field, value] : *response.headers) {
                     VLOG(0) << "       " << field + " = " + value;
                 }
 
                 VLOG(0) << "     Cookies:";
-                for (auto [name, cookie] : *response.cookies) {
+                for (const auto& [name, cookie] : *response.cookies) {
                     VLOG(0) << "       " + name + " = " + cookie.getValue();
-                    for (auto [option, value] : cookie.getOptions()) {
+                    for (const auto& [option, value] : cookie.getOptions()) {
                         VLOG(0) << "         " + option + " = " + value;
                     }
                 }
@@ -155,14 +170,14 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "       " << response.reason;
 
                 VLOG(0) << "     Headers:";
-                for (auto [field, value] : *response.headers) {
+                for (const auto& [field, value] : *response.headers) {
                     VLOG(0) << "       " << field + " = " + value;
                 }
 
                 VLOG(0) << "     Cookies:";
-                for (auto [name, cookie] : *response.cookies) {
+                for (const auto& [name, cookie] : *response.cookies) {
                     VLOG(0) << "       " + name + " = " + cookie.getValue();
-                    for (auto [option, value] : cookie.getOptions()) {
+                    for (const auto& [option, value] : cookie.getOptions()) {
                         VLOG(0) << "         " + option + " = " + value;
                     }
                 }

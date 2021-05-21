@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -20,6 +20,7 @@
 #define HTTP_SERVER_TLS_SERVER_H
 
 #include "http/server/Server.h"
+#include "http/server/http/HTTPServerContextFactory.h"
 #include "net/socket/ip/tcp/ipv4/tls/SocketServer.h"
 #include "net/socket/ip/tcp/ipv6/tls/SocketServer.h"
 

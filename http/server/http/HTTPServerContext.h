@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -19,10 +19,10 @@
 #ifndef HTTP_SERVER_HTTPSERVERCONTEXT_H
 #define HTTP_SERVER_HTTPSERVERCONTEXT_H
 
-#include "http/server/Request.h"
-#include "http/server/RequestParser.h"
-#include "http/server/Response.h"
-#include "http/server/ServerContext.h"
+#include "http/server/http/Request.h"
+#include "http/server/http/RequestParser.h"
+#include "http/server/http/Response.h"
+#include "net/socket/stream/SocketProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -36,7 +36,7 @@ namespace net::socket::stream {
 
 namespace http::server {
 
-    class HTTPServerContextBase : public ServerContext {
+    class HTTPServerContextBase : public net::socket::stream::SocketProtocol {
     public:
         using SocketConnection = net::socket::stream::SocketConnectionBase;
 
@@ -68,11 +68,11 @@ namespace http::server {
             std::string reason;
         };
 
-        HTTPServerContext(SocketConnection* socketConnection, const std::function<void(Request& req, Response& res)>& onRequestReady);
+        HTTPServerContext(const std::function<void(Request& req, Response& res)>& onRequestReady);
 
         ~HTTPServerContext() override = default;
 
-        void receiveData(const char* junk, std::size_t junkLen) override;
+        void receiveFromPeer(const char* junk, std::size_t junkLen) override;
         void onReadError(int errnum) override;
 
         void sendResponseData(const char* junk, std::size_t junkLen) override;

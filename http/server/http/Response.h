@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -33,6 +33,10 @@
 
 class FileReader;
 
+namespace net::socket::stream {
+    class SocketProtocol;
+}
+
 namespace http::server {
 
     class HTTPServerContextBase;
@@ -56,7 +60,7 @@ namespace http::server {
         Response& clearCookie(const std::string& name, const std::map<std::string, std::string>& options = {});
         Response& type(const std::string& type);
 
-        void upgrade(ServerContext* serverContext);
+        void upgrade(net::socket::stream::SocketProtocol* newServerContext);
 
     protected:
         HTTPServerContextBase* serverContext;

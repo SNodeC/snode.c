@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -20,6 +20,7 @@
 #define NET_SOCKET_STREAM_SOCKETCLIENT_H
 
 #include "net/socket/stream/SocketConnector.h"
+#include "net/socket/stream/SocketProtocolFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,6 +29,7 @@
 #include <cstddef>
 #include <functional>
 #include <map>
+#include <memory>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -40,19 +42,15 @@ namespace net::socket::stream {
         using SocketConnection = typename SocketConnector::SocketConnection;
         using SocketAddress = typename SocketConnection::Socket::SocketAddress;
 
-        SocketClient(const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
+        SocketClient(const SocketProtocolFactory* socketProtocolFactory,
+                     const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
                      const std::function<void(SocketConnection* socketConnection)>& onConnected,
                      const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
-                     const std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)>& onRead,
-                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
-                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                      const std::map<std::string, std::any>& options = {{}})
-            : onConnect(onConnect)
+            : socketProtocolFactory(std::shared_ptr<const SocketProtocolFactory>(socketProtocolFactory))
+            , onConnect(onConnect)
             , onConnected(onConnected)
             , onDisconnect(onDisconnect)
-            , onRead(onRead)
-            , onReadError(onReadError)
-            , onWriteError(onWriteError)
             , options(options) {
         }
 
@@ -64,8 +62,7 @@ namespace net::socket::stream {
         connect(const SocketAddress& remoteAddress, const SocketAddress& bindAddress, const std::function<void(int err)>& onError) const {
             errno = 0;
 
-            SocketConnector* socketConnector =
-                new SocketConnector(onConnect, onConnected, onDisconnect, onRead, onReadError, onWriteError, options);
+            SocketConnector* socketConnector = new SocketConnector(socketProtocolFactory, onConnect, onConnected, onDisconnect, options);
 
             socketConnector->connect(remoteAddress, bindAddress, onError);
         }
@@ -74,13 +71,13 @@ namespace net::socket::stream {
             connect(remoteAddress, SocketAddress(), onError);
         }
 
+    protected:
+        std::shared_ptr<const SocketProtocolFactory> socketProtocolFactory = nullptr;
+
     private:
         std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)> onConnect;
         std::function<void(SocketConnection* socketConnection)> onConnected;
         std::function<void(SocketConnection* socketConnection)> onDisconnect;
-        std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)> onRead;
-        std::function<void(SocketConnection* socketConnection, int errnum)> onReadError;
-        std::function<void(SocketConnection* socketConnection, int errnum)> onWriteError;
 
         std::map<std::string, std::any> options;
     };

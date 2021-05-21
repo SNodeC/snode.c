@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -152,7 +152,6 @@ namespace http {
             } else {
                 httputils::to_lower(field);
                 httputils::str_trimm(value);
-                httputils::to_lower(value);
 
                 if (headers.find(field) == headers.end()) {
                     headers.insert({field, value});

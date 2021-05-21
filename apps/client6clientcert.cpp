@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -18,16 +18,30 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h" // just for this example app
+#include "config.h"              // just for this example app
+#include "http/CookieOptions.h"  // for CookieOptions
+#include "http/client/Client.h"  // for Client<>::Socket...
+#include "http/client/Request.h" // for Request
 #include "http/client/Response.h"
-#include "http/client/legacy/Client.h"
 #include "http/client/tls/Client.h"
 #include "log/Logger.h"
 #include "net/SNodeC.h"
+#include "net/socket/ip/address/ipv6/InetAddress.h" // for InetAddress
 
+#include <any> // for any
 #include <cstring>
-#include <iostream>
+#include <functional>         // for function
+#include <map>                // for map, operator==
+#include <openssl/asn1.h>     // for ASN1_STRING_get0...
+#include <openssl/crypto.h>   // for OPENSSL_free
+#include <openssl/obj_mac.h>  // for NID_subject_alt_...
+#include <openssl/ossl_typ.h> // for X509
+#include <openssl/ssl3.h>     // for SSL_get_peer_cer...
+#include <openssl/x509.h>     // for X509_NAME_oneline
 #include <openssl/x509v3.h>
+#include <stdint.h> // for int32_t
+#include <string>   // for allocator, string
+#include <utility>  // for tuple_element<>:...
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -45,14 +45,6 @@ int main(int argc, char* argv[]) {
     {
         tls::WebApp6 tlsApp(getRouter(),
                             {{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}, {"caFile", CLIENTCAFILE}});
-
-        tlsApp.listen(8088, [](int err) -> void {
-            if (err != 0) {
-                PLOG(FATAL) << "listen on port 8088";
-            } else {
-                VLOG(0) << "snode.c listening on port 8088 for SSL/TLS connections";
-            }
-        });
 
         tlsApp.onConnect([](const tls::WebApp6::SocketAddress& localAddress, const tls::WebApp6::SocketAddress& remoteAddress) -> void {
             VLOG(0) << "OnConnect:";
@@ -107,7 +99,7 @@ int main(int argc, char* argv[]) {
                 X509_free(client_cert);
             } else {
                 VLOG(2) << "\tClient certificate: no certificate";
-                socketConnection->close();
+                socketConnection->getSocketProtocol()->close();
             }
         });
 
@@ -116,6 +108,14 @@ int main(int argc, char* argv[]) {
 
             VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
             VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
+        });
+
+        tlsApp.listen(8088, [](int err) -> void {
+            if (err != 0) {
+                PLOG(FATAL) << "listen on port 8088";
+            } else {
+                VLOG(0) << "snode.c listening on port 8088 for SSL/TLS connections";
+            }
         });
     }
 

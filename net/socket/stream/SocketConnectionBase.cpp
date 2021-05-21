@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -16,25 +16,33 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ServerContext.h"
-
 #include "net/socket/stream/SocketConnectionBase.h"
+
+#include "net/socket/stream/SocketProtocol.h"
+#include "net/socket/stream/SocketProtocolFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http::server {
+namespace net::socket::stream {
 
-    void http::server::ServerContext::upgrade(ServerContext* serverContextBase) {
-        socketConnection->template getContext<ServerContext*>(
-            [socketConnection = this->socketConnection, &serverContextBase](ServerContext* serverContext) -> void {
-                socketConnection->template setContext<ServerContext*>(serverContextBase);
-
-                serverContextBase->setSocketConnection(socketConnection);
-
-                delete serverContext;
-            });
+    SocketConnectionBase::SocketConnectionBase(const std::shared_ptr<const SocketProtocolFactory>& socketProtocolFactory) {
+        socketProtocol = socketProtocolFactory->create();
+        socketProtocol->setSocketConnection(this);
     }
 
-} // namespace http::server
+    SocketConnectionBase::~SocketConnectionBase() {
+        delete socketProtocol;
+    }
+
+    SocketProtocol* SocketConnectionBase::getSocketProtocol() {
+        return socketProtocol;
+    }
+
+    void SocketConnectionBase::switchSocketProtocol(SocketProtocol* socketProtocol) {
+        this->socketProtocol = socketProtocol;
+        socketProtocol->setSocketConnection(this);
+    }
+
+} // namespace net::socket::stream

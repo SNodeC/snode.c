@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -19,9 +19,16 @@
 #ifndef NET_SOCKET_STREAM_SOCKETCONNECTIONBASE_H
 #define NET_SOCKET_STREAM_SOCKETCONNECTIONBASE_H
 
-#include "utils/AttributeInjector.h"
+namespace net::socket::stream {
+    class SocketProtocol;
+    class SocketProtocolFactory;
+} // namespace net::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <cstddef>
+#include <memory>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -29,41 +36,27 @@ namespace net::socket::stream {
 
     class SocketConnectionBase {
     protected:
-        SocketConnectionBase() = default;
+        SocketConnectionBase(const std::shared_ptr<const SocketProtocolFactory>& socketProtocolFactory);
+
         SocketConnectionBase(const SocketConnectionBase&) = delete;
         SocketConnectionBase& operator=(const SocketConnectionBase&) = delete;
 
-        virtual ~SocketConnectionBase() = default;
+        virtual ~SocketConnectionBase();
 
-    public:
         virtual void enqueue(const char* junk, std::size_t junkLen) = 0;
         virtual void enqueue(const std::string& data) = 0;
 
         virtual void close(bool instantly = false) = 0;
 
-        template <utils::InjectableAttribute Attribute>
-        constexpr void setContext(Attribute& attribute) const {
-            protocol.setAttribute<Attribute>(attribute);
-        }
+        void switchSocketProtocol(SocketProtocol* socketProtocol);
 
-        template <utils::InjectableAttribute Attribute>
-        constexpr void setContext(Attribute&& attribute) const {
-            protocol.setAttribute<Attribute>(attribute);
-        }
+    public:
+        SocketProtocol* getSocketProtocol();
 
-        template <utils::InjectableAttribute Attribute>
-        constexpr bool getContext(const std::function<void(Attribute&)>& onFound) const {
-            return protocol.getAttribute<Attribute>(onFound);
-        }
+    protected:
+        SocketProtocol* socketProtocol = nullptr;
 
-        template <utils::InjectableAttribute Attribute>
-        constexpr void getContext(const std::function<void(Attribute&)>& onFound,
-                                  const std::function<void(const std::string&)>& onNotFound) const {
-            return protocol.getAttribute<Attribute>(onFound, onNotFound);
-        }
-
-    private:
-        utils::SingleAttributeInjector protocol;
+        friend SocketProtocol;
     };
 
 } // namespace net::socket::stream

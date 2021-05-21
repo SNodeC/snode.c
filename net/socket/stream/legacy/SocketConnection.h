@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -39,32 +39,16 @@ namespace net::socket::stream::legacy {
         using SocketAddress = typename Socket::SocketAddress;
 
     public:
-        SocketConnection(int fd,
+        SocketConnection(const std::shared_ptr<const SocketProtocolFactory>& socketProtocolFactory,
+                         int fd,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
                          const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
-                         const std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)>& onRead,
-                         const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
-                         const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                          const std::function<void(SocketConnection* socketConnection)>& onDisconnect)
             : stream::SocketConnection<legacy::SocketReader<Socket>, legacy::SocketWriter<Socket>, typename Socket::SocketAddress>::
-                  SocketConnection(
-                      fd,
-                      localAddress,
-                      remoteAddress,
-                      onConnect,
-                      [onRead, this](const char* junk, std::size_t junkLen) -> void {
-                          onRead(this, junk, junkLen);
-                      },
-                      [onReadError, this](int errnum) -> void {
-                          onReadError(this, errnum);
-                      },
-                      [onWriteError, this](int errnum) -> void {
-                          onWriteError(this, errnum);
-                      },
-                      [onDisconnect, this]() -> void {
-                          onDisconnect(this);
-                      }) {
+                  SocketConnection(socketProtocolFactory, fd, localAddress, remoteAddress, onConnect, [onDisconnect, this]() -> void {
+                      onDisconnect(this);
+                  }) {
         }
 
     private:

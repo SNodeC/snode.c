@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -18,50 +18,67 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h" // just for this example app
-#include "log/Logger.h"
-#include "net/SNodeC.h"
-#include "net/socket/bluetooth/rfcomm/legacy/SocketServer.h"
+#include "log/Logger.h"                                      // for Writer
+#include "net/SNodeC.h"                                      // for SNodeC
+#include "net/socket/bluetooth/address/RfCommAddress.h"      // for RfCommA...
+#include "net/socket/bluetooth/rfcomm/legacy/SocketServer.h" // for SocketS...
+#include "net/socket/stream/SocketProtocol.h"                // for SocketP...
+#include "net/socket/stream/SocketProtocolFactory.h"         // for SocketP...
+#include "net/socket/stream/SocketServer.h"                  // for SocketS...
 
-#include <cstddef>
+#include <cstddef>    // for size_t
+#include <functional> // for function
+#include <string>     // for allocator
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 using namespace net::socket::bluetooth::rfcomm::legacy;
 
+class SimpleSocketProtocol : public net::socket::stream::SocketProtocol {
+public:
+    void receiveFromPeer(const char* junk, std::size_t junkLen) override {
+        VLOG(0) << "Data to reflect: " << std::string(junk, junkLen);
+        sendToPeer(junk, junkLen);
+    }
+
+    void onWriteError(int errnum) override {
+        VLOG(0) << "OnWriteError: " << errnum;
+    }
+
+    void onReadError(int errnum) override {
+        VLOG(0) << "OnReadError: " << errnum;
+    }
+};
+
+class SimpleSocketProtocolFactory : public net::socket::stream::SocketProtocolFactory {
+private:
+    net::socket::stream::SocketProtocol* create() const override {
+        return new SimpleSocketProtocol();
+    }
+};
+
 int main(int argc, char* argv[]) {
     net::SNodeC::init(argc, argv);
 
-    SocketServer btServer(
-        [](const SocketServer::SocketAddress& localAddress,
-           const SocketServer::SocketAddress& remoteAddress) -> void { // OnConnect
+    SocketServer<SimpleSocketProtocolFactory> btServer(
+        [](const SocketServer<SimpleSocketProtocolFactory>::SocketAddress& localAddress,
+           const SocketServer<SimpleSocketProtocolFactory>::SocketAddress& remoteAddress) -> void { // OnConnect
             VLOG(0) << "OnConnect";
 
             VLOG(0) << "\tServer: " + localAddress.toString();
             VLOG(0) << "\tClient: " + remoteAddress.toString();
         },
-        []([[maybe_unused]] SocketServer::SocketConnection* socketConnection) -> void { // onConnected
+        []([[maybe_unused]] SocketServer<SimpleSocketProtocolFactory>::SocketConnection* socketConnection) -> void { // onConnected
             VLOG(0) << "OnConnected";
         },
-        [](SocketServer::SocketConnection* socketConnection) -> void { // onDisconnect
+        [](SocketServer<SimpleSocketProtocolFactory>::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
 
             VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
             VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
-        },
-        [](SocketServer::SocketConnection* socketConnection, const char* junk, std::size_t junkLen) -> void { // onRead
-            std::string data(junk, junkLen);
-            VLOG(0) << "Data to reflect: " << data;
-            socketConnection->enqueue(data);
-        },
-        []([[maybe_unused]] SocketServer::SocketConnection* socketConnection, int errnum) -> void { // onReadError
-            PLOG(ERROR) << "OnReadError: " << errnum;
-        },
-        []([[maybe_unused]] SocketServer::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
-            PLOG(ERROR) << "OnWriteError: " << errnum;
         });
 
-    btServer.listen(SocketServer::SocketAddress("A4:B1:C1:2C:82:37", 1), 5, [](int errnum) -> void { // titan
+    btServer.listen(SocketServer<SimpleSocketProtocolFactory>::SocketAddress("A4:B1:C1:2C:82:37", 1), 5, [](int errnum) -> void { // titan
         if (errnum != 0) {
             PLOG(ERROR) << "BT listen: " << errnum;
         } else {

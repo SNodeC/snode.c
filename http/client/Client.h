@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -20,6 +20,7 @@
 #define HTTP_CLIENT_CLIENT_H
 
 #include "http/client/ClientContext.hpp"
+#include "http/client/ClientContextFactory.h"
 #include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -52,52 +53,22 @@ namespace http::client {
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
             : socketClient(
+                  new ClientContextFactory<Request, Response>(onResponse, onResponseError), // SharedFactory
                   [onConnect](const Client::SocketAddress& localAddress,
                               const Client::SocketAddress& remoteAddress) -> void { // onConnect
                       onConnect(localAddress, remoteAddress);
                   },
                   [onConnected, onRequestBegin, onResponse, onResponseError](SocketConnection* socketConnection) -> void { // onConnected
-                      ClientContext<Request, Response>* clientContext =
-                          new ClientContext<Request, Response>(socketConnection, onResponse, onResponseError);
+                      Request& request = static_cast<ClientContextBase*>(socketConnection->getSocketProtocol())->getRequest();
 
-                      socketConnection->template setContext<ClientContextBase*>(clientContext);
-
-                      socketConnection->template getContext<ClientContextBase*>(
-                          [&socketConnection, &onRequestBegin](ClientContextBase* clientContext) -> void {
-                              Request& request = clientContext->getRequest();
-
-                              request.setHost(socketConnection->getRemoteAddress().host() + ":" +
-                                              std::to_string(socketConnection->getRemoteAddress().port()));
-                              onRequestBegin(request);
-                          });
+                      request.setHost(socketConnection->getRemoteAddress().host() + ":" +
+                                      std::to_string(socketConnection->getRemoteAddress().port()));
+                      onRequestBegin(request);
 
                       onConnected(socketConnection);
                   },
                   [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
-                      socketConnection->template getContext<ClientContextBase*>([](ClientContextBase* clientContext) -> void {
-                          delete clientContext;
-                      });
-
                       onDisconnect(socketConnection);
-                  },
-                  [](SocketConnection* socketConnection, const char* junk, std::size_t junkLen) -> void { // onRead
-                      socketConnection->template getContext<ClientContextBase*>([junk, junkLen](ClientContextBase* clientContext) -> void {
-                          clientContext->receiveResponseData(junk, junkLen);
-                      });
-                  },
-                  [](SocketConnection* socketConnection, int errnum) -> void { // onReadError
-                      if (errnum != 0) {
-                          PLOG(ERROR) << "Server: " << socketConnection->getRemoteAddress().host() << " (" << errnum << ")";
-                      } else {
-                          VLOG(0) << "Server: EOF";
-                      }
-                  },
-                  [](SocketConnection* socketConnection, int errnum) -> void { // onWriteError
-                      if (errnum != 0) {
-                          PLOG(ERROR) << "Server: " << socketConnection->getRemoteAddress().host() << " (" << errnum << ")";
-                      } else {
-                          VLOG(0) << "Server: EOF";
-                      }
                   },
                   options) {
         }

@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -28,14 +28,16 @@
 #include <cstddef>
 #include <functional>
 #include <map>
+#include <memory>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::socket::stream {
 
-    template <typename SocketListenerT>
+    template <typename SocketProtocolT, typename SocketListenerT>
     class SocketServer {
     public:
+        using SocketProtocol = SocketProtocolT;
         using SocketListener = SocketListenerT;
         using SocketConnection = typename SocketListener::SocketConnection;
         using SocketAddress = typename SocketConnection::Socket::SocketAddress;
@@ -43,16 +45,11 @@ namespace net::socket::stream {
         SocketServer(const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
                      const std::function<void(SocketConnection* socketConnection)>& onConnected,
                      const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
-                     const std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)>& onRead,
-                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
-                     const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                      const std::map<std::string, std::any>& options = {{}})
-            : onConnect(onConnect)
-            , onConnected(onConnected)
-            , onDisconnect(onDisconnect)
-            , onRead(onRead)
-            , onReadError(onReadError)
-            , onWriteError(onWriteError)
+            : socketProtocol(std::make_shared<SocketProtocol>())
+            , _onConnect(onConnect)
+            , _onConnected(onConnected)
+            , _onDisconnect(onDisconnect)
             , options(options) {
         }
 
@@ -63,19 +60,34 @@ namespace net::socket::stream {
         void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int err)>& onError) const {
             errno = 0;
 
-            SocketListener* socketListener =
-                new SocketListener(onConnect, onConnected, onDisconnect, onRead, onReadError, onWriteError, options);
+            SocketListener* socketListener = new SocketListener(socketProtocol, _onConnect, _onConnected, _onDisconnect, options);
 
             socketListener->listen(bindAddress, backlog, onError);
         }
 
+        void onConnect(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect) {
+            _onConnect = onConnect;
+        }
+
+        void onConnected(const std::function<void(SocketConnection*)>& onConnected) {
+            _onConnected = onConnected;
+        }
+
+        void onDisconnect(const std::function<void(SocketConnection*)>& onDisconnect) {
+            _onDisconnect = onDisconnect;
+        }
+
+        std::shared_ptr<SocketProtocol> getSocketProtocol() {
+            return socketProtocol;
+        }
+
+    protected:
+        std::shared_ptr<SocketProtocol> socketProtocol;
+
     private:
-        std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)> onConnect;
-        std::function<void(SocketConnection* socketConnection)> onConnected;
-        std::function<void(SocketConnection* socketConnection)> onDisconnect;
-        std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)> onRead;
-        std::function<void(SocketConnection* socketConnection, int errnum)> onReadError;
-        std::function<void(SocketConnection* socketConnection, int errnum)> onWriteError;
+        std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)> _onConnect;
+        std::function<void(SocketConnection* socketConnection)> _onConnected;
+        std::function<void(SocketConnection* socketConnection)> _onDisconnect;
 
         std::map<std::string, std::any> options;
     };

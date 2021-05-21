@@ -1,13 +1,15 @@
 #ifndef HTTP_SERVER_SERVERT_H
 #define HTTP_SERVER_SERVERT_H
 
-#include "http/server/HTTPServerContext.hpp"
+#include "http/server/http/HTTPServerContext.hpp"
+#include "http/server/http/HTTPServerContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <any>
 #include <cstddef>
 #include <functional>
+#include <iostream>
 #include <map>
 #include <netinet/in.h>
 #include <string>
@@ -16,14 +18,15 @@
 
 namespace http::server {
 
-    template <typename SocketServerT, typename RequestT, typename ResponseT>
+    template <template <typename SocketProtocolT> typename SocketServerT, typename RequestT, typename ResponseT>
     class Server {
     public:
-        using SocketServer = SocketServerT;
-        using SocketConnection = typename SocketServer::SocketConnection;
-        using SocketAddress = typename SocketConnection::SocketAddress;
+        std::function<void(Request& req, Response& res)> onRequestReady;
         using Request = RequestT;
         using Response = ResponseT;
+        using SocketServer = SocketServerT<HTTPServerContextFactory<Request, Response>>; // this makes it an HTTP server
+        using SocketConnection = typename SocketServer::SocketConnection;
+        using SocketAddress = typename SocketConnection::SocketAddress;
 
         Server(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
@@ -36,34 +39,13 @@ namespace http::server {
                       onConnect(localAddress, remoteAddress);
                   },
                   [onConnected, onRequestReady](SocketConnection* socketConnection) -> void { // onConnected.
-                      socketConnection->template setContext<ServerContext*>(
-                          new HTTPServerContext<Request, Response>(socketConnection, onRequestReady));
-
                       onConnected(socketConnection);
                   },
                   [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
-                      socketConnection->template getContext<ServerContext*>([](ServerContext* serverContext) -> void {
-                          delete serverContext;
-                      });
-
                       onDisconnect(socketConnection);
                   },
-                  [](SocketConnection* socketConnection, const char* junk, std::size_t junkLen) -> void { // onRead
-                      socketConnection->template getContext<ServerContext*>([&junk, &junkLen](ServerContext* serverContext) -> void {
-                          serverContext->receiveData(junk, junkLen);
-                      });
-                  },
-                  [](SocketConnection* socketConnection, int errnum) -> void { // onReadError
-                      socketConnection->template getContext<ServerContext*>([&errnum](ServerContext* serverContext) -> void {
-                          serverContext->onReadError(errnum);
-                      });
-                  },
-                  [](SocketConnection* socketConnection, int errnum) -> void { // onWriteError
-                      socketConnection->template getContext<ServerContext*>([&errnum](ServerContext* serverContext) -> void {
-                          serverContext->onWriteError(errnum);
-                      });
-                  },
                   options) {
+            socketServer.getSocketProtocol()->setOnRequestReady(onRequestReady); //.setOnRequestReady(onRequestReady);
         }
 
         void listen(uint16_t port, const std::function<void(int err)>& onError) const {
@@ -72,6 +54,18 @@ namespace http::server {
 
         void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(int err)>& onError) const {
             socketServer.listen(SocketAddress(ipOrHostname, port), 5, onError);
+        }
+
+        void onConnect(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect) {
+            socketServer.onConnect(onConnect);
+        }
+
+        void onConnected(const std::function<void(SocketConnection*)>& onConnected) {
+            socketServer.onConnected(onConnected);
+        }
+
+        void onDisconnect(const std::function<void(SocketConnection*)>& onDisconnect) {
+            socketServer.onDisconnect(onDisconnect);
         }
 
     protected:

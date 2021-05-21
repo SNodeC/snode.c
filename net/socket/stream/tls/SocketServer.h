@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -28,9 +28,9 @@
 
 namespace net::socket::stream::tls {
 
-    template <typename SocketT>
-    class SocketServer : public stream::SocketServer<tls::SocketListener<SocketT>> {
-        using stream::SocketServer<tls::SocketListener<SocketT>>::SocketServer;
+    template <typename SocketProtocolT, typename SocketT>
+    class SocketServer : public stream::SocketServer<SocketProtocolT, tls::SocketListener<SocketT>> {
+        using stream::SocketServer<SocketProtocolT, tls::SocketListener<SocketT>>::SocketServer;
     };
 
 } // namespace net::socket::stream::tls

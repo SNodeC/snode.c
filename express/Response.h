@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -19,7 +19,7 @@
 #ifndef EXPRESS_RESPONSE_H
 #define EXPRESS_RESPONSE_H
 
-#include "http/server/Response.h"
+#include "http/server/http/Response.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

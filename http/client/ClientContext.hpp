@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -17,6 +17,7 @@
  */
 
 #include "http/client/ClientContext.h"
+#include "log/Logger.h"
 #include "net/socket/stream/SocketConnectionBase.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -30,11 +31,9 @@ namespace http::client {
     class CookieOptions;
 
     template <typename Request, typename Response>
-    ClientContext<Request, Response>::ClientContext(SocketConnection* socketConnection,
-                                                    const std::function<void(Response&)>& onResponse,
+    ClientContext<Request, Response>::ClientContext(const std::function<void(Response&)>& onResponse,
                                                     const std::function<void(int status, const std::string& reason)>& onError)
-        : socketConnection(socketConnection)
-        , request(this)
+        : request(this)
         , parser(
               [](void) -> void {
               },
@@ -69,13 +68,27 @@ namespace http::client {
     }
 
     template <typename Request, typename Response>
-    void ClientContext<Request, Response>::receiveResponseData(const char* junk, std::size_t junkLen) {
+    void ClientContext<Request, Response>::receiveFromPeer(const char* junk, std::size_t junkLen) {
         parser.parse(junk, junkLen);
     }
 
     template <typename Request, typename Response>
     void ClientContext<Request, Response>::sendRequestData(const char* junk, std::size_t junkLen) {
-        socketConnection->enqueue(junk, junkLen);
+        sendToPeer(junk, junkLen);
+    }
+
+    template <typename Request, typename Response>
+    void ClientContext<Request, Response>::onWriteError(int errnum) {
+        if (errnum != 0 && errnum != ECONNRESET) {
+            PLOG(ERROR) << "Connection write: " << errnum;
+        }
+    }
+
+    template <typename Request, typename Response>
+    void ClientContext<Request, Response>::onReadError(int errnum) {
+        if (errnum != 0 && errnum != ECONNRESET) {
+            PLOG(ERROR) << "Connection read: " << errnum;
+        }
     }
 
     template <typename Request, typename Response>
@@ -85,7 +98,7 @@ namespace http::client {
 
     template <typename Request, typename Response>
     void ClientContext<Request, Response>::terminateConnection() {
-        socketConnection->close();
+        socketConnection->getSocketProtocol()->close();
     }
 
 } // namespace http::client

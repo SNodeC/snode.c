@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -43,14 +43,6 @@ int main(int argc, char* argv[]) {
     {
         legacy::WebApp6 legacyApp(getRouter());
 
-        legacyApp.listen(8080, [](int err) -> void {
-            if (err != 0) {
-                PLOG(FATAL) << "listen on port 8080";
-            } else {
-                VLOG(0) << "snode.c listening on port 8080 for legacy connections";
-            }
-        });
-
         legacyApp.onConnect(
             [](const legacy::WebApp6::SocketAddress& localAddress, const legacy::WebApp6::SocketAddress& remoteAddress) -> void {
                 VLOG(0) << "OnConnect:";
@@ -66,15 +58,15 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
         });
 
-        tls::WebApp6 tlsApp(getRouter(), {{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
-
-        tlsApp.listen(8088, [](int err) -> void {
+        legacyApp.listen(8080, [](int err) -> void {
             if (err != 0) {
-                PLOG(FATAL) << "listen on port 8088";
+                PLOG(FATAL) << "listen on port 8080";
             } else {
-                VLOG(0) << "snode.c listening on port 8088 for SSL/TLS connections";
+                VLOG(0) << "snode.c listening on port 8080 for legacy connections";
             }
         });
+
+        tls::WebApp6 tlsApp(getRouter(), {{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
 
         tlsApp.onConnect([](const tls::WebApp6::SocketAddress& localAddress, const tls::WebApp6::SocketAddress& remoteAddress) -> void {
             VLOG(0) << "OnConnect:";
@@ -88,6 +80,14 @@ int main(int argc, char* argv[]) {
 
             VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
             VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
+        });
+
+        tlsApp.listen(8088, [](int err) -> void {
+            if (err != 0) {
+                PLOG(FATAL) << "listen on port 8088";
+            } else {
+                VLOG(0) << "snode.c listening on port 8088 for SSL/TLS connections";
+            }
         });
     }
 

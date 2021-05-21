@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -21,7 +21,7 @@
 #include "http/MimeTypes.h"
 #include "http/StatusCodes.h"
 #include "http/http_utils.h"
-#include "http/server/HTTPServerContext.h"
+#include "http/server/http/HTTPServerContext.h"
 #include "net/file/FileReader.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -91,7 +91,7 @@ namespace express {
     }
 
     void Response::sendStatus(int status) {
-        this->status(status).send(StatusCode::reason(status));
+        this->status(status).send(http::StatusCode::reason(status));
     }
 
     void Response::reset() {

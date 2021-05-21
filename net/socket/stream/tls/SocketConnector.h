@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -46,14 +46,13 @@ namespace net::socket::stream {
             using Socket = typename SocketConnection::Socket;
             using SocketAddress = typename Socket::SocketAddress;
 
-            SocketConnector(const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
+            SocketConnector(const std::shared_ptr<const SocketProtocolFactory>& socketProtocolFactory,
+                            const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
                             const std::function<void(SocketConnection* socketConnection)>& onConnected,
                             const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
-                            const std::function<void(SocketConnection* socketConnection, const char* junk, std::size_t junkLen)>& onRead,
-                            const std::function<void(SocketConnection* socketConnection, int errnum)>& onReadError,
-                            const std::function<void(SocketConnection* socketConnection, int errnum)>& onWriteError,
                             const std::map<std::string, std::any>& options)
                 : stream::SocketConnector<SocketConnection>(
+                      socketProtocolFactory,
                       onConnect,
                       [onConnected, &onError = this->onError, &ctx = this->ctx, this, &options = this->options](
                           SocketConnection* socketConnection) -> void { // onConnect
@@ -87,9 +86,6 @@ namespace net::socket::stream {
                           socketConnection->stopSSL();
                           onDisconnect(socketConnection);
                       },
-                      onRead,       // onRead
-                      onReadError,  // onReadError
-                      onWriteError, // onWriteError
                       options) {
                 ctx = ssl_ctx_new(options, false);
             }

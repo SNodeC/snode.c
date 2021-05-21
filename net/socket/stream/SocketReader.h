@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -73,7 +73,7 @@ namespace net::socket::stream {
             ssize_t ret = read(junk, MAX_READ_JUNKSIZE);
 
             if (ret > 0) {
-                onRead(junk, ret);
+                onRead(junk, static_cast<std::size_t>(ret));
             } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
                 ReadEventReceiver::disable();
                 if (markShutdown) {

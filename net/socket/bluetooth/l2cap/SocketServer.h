@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -28,9 +28,10 @@
 
 namespace net::socket::bluetooth::l2cap {
 
-    class SocketServer : public stream::legacy::SocketServer<l2cap::Socket> {
+    template <typename SocketProtocolT>
+    class SocketServer : public stream::legacy::SocketServer<SocketProtocolT, l2cap::Socket> {
     public:
-        using stream::legacy::SocketServer<l2cap::Socket>::SocketServer;
+        using stream::legacy::SocketServer<SocketProtocolT, l2cap::Socket>::SocketServer;
     };
 
 } // namespace net::socket::bluetooth::l2cap

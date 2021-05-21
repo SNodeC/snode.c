@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -22,6 +22,7 @@
 #include "http/client/Request.h"
 #include "http/client/Response.h"
 #include "http/client/ResponseParser.h"
+#include "net/socket/stream/SocketProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -37,11 +38,10 @@ namespace net::socket::stream {
 
 namespace http::client {
 
-    class ClientContextBase {
+    class ClientContextBase : public net::socket::stream::SocketProtocol {
     public:
         virtual ~ClientContextBase() = default;
 
-        virtual void receiveResponseData(const char* junk, std::size_t junkLen) = 0;
         virtual void sendRequestData(const char* buf, std::size_t len) = 0;
 
         virtual Request& getRequest() = 0;
@@ -57,14 +57,16 @@ namespace http::client {
         using Request = RequestT;
         using Response = ResponseT;
 
-        ClientContext(SocketConnection* socketConnection,
-                      const std::function<void(Response&)>& onResponse,
+        ClientContext(const std::function<void(Response&)>& onResponse,
                       const std::function<void(int status, const std::string& reason)>& onError);
 
         ~ClientContext() override = default;
 
-        void receiveResponseData(const char* junk, std::size_t junkLen) override;
+        void receiveFromPeer(const char* junk, std::size_t junkLen) override;
         void sendRequestData(const char* junk, std::size_t junkLen) override;
+
+        void onWriteError(int errnum) override;
+        void onReadError(int errnum) override;
 
         Request& getRequest() override;
 
@@ -73,8 +75,6 @@ namespace http::client {
         void requestCompleted() override;
 
     protected:
-        SocketConnection* socketConnection;
-
         Request request;
         Response response;
 

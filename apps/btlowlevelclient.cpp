@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -18,19 +18,49 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h" // just for this example app
-#include "log/Logger.h"
-#include "net/SNodeC.h"
-#include "net/socket/bluetooth/rfcomm/legacy/SocketClient.h"
+#include "log/Logger.h"                                      // for Writer
+#include "net/SNodeC.h"                                      // for SNodeC
+#include "net/socket/bluetooth/address/RfCommAddress.h"      // for RfCommA...
+#include "net/socket/bluetooth/rfcomm/legacy/SocketClient.h" // for SocketC...
+#include "net/socket/stream/SocketClient.h"                  // for SocketC...
+#include "net/socket/stream/SocketProtocol.h"                // for SocketP...
+#include "net/socket/stream/SocketProtocolFactory.h"         // for SocketP...
 
-#include <cstddef>
+#include <any>        // for any
+#include <cstddef>    // for size_t
+#include <functional> // for function
+#include <string>     // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 using namespace net::socket::bluetooth::rfcomm::legacy;
 
+class SimpleSocketProtocol : public net::socket::stream::SocketProtocol {
+public:
+    void receiveFromPeer(const char* junk, std::size_t junkLen) override {
+        VLOG(0) << "Data to reflect: " << std::string(junk, junkLen);
+        sendToPeer(junk, junkLen);
+    }
+
+    void onWriteError(int errnum) override {
+        VLOG(0) << "OnWriteError: " << errnum;
+    }
+
+    void onReadError(int errnum) override {
+        VLOG(0) << "OnReadError: " << errnum;
+    }
+};
+
+class SimpleSocketProtocolFactory : public net::socket::stream::SocketProtocolFactory {
+private:
+    net::socket::stream::SocketProtocol* create() const override {
+        return new SimpleSocketProtocol();
+    }
+};
+
 SocketClient getClient() {
-    SocketClient client(
+    return SocketClient(
+        new SimpleSocketProtocolFactory(), // SharedFactory
         [](const SocketClient::SocketAddress& localAddress,
            const SocketClient::SocketAddress& remoteAddress) -> void { // onConnect
             VLOG(0) << "OnConnect";
@@ -41,7 +71,7 @@ SocketClient getClient() {
         [](SocketClient::SocketConnection* socketConnection) -> void { // onConnected
             VLOG(0) << "OnConnected";
 
-            socketConnection->enqueue("Hello rfcomm connection!");
+            socketConnection->getSocketProtocol()->sendToPeer("Hello rfcomm connection!");
         },
         [](SocketClient::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
@@ -49,20 +79,7 @@ SocketClient getClient() {
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
         },
-        [](SocketClient::SocketConnection* socketConnection, const char* junk, std::size_t junkLen) -> void { // onRead
-            std::string data(junk, junkLen);
-            VLOG(0) << "Data to reflect: " << data;
-            socketConnection->enqueue(data);
-        },
-        []([[maybe_unused]] SocketClient::SocketConnection* socketConnection, int errnum) -> void { // onReadError
-            PLOG(ERROR) << "OnReadError: " << errnum;
-        },
-        []([[maybe_unused]] SocketClient::SocketConnection* socketConnection, int errnum) -> void { // onWriteError
-            PLOG(ERROR) << "OnWriteError: " << errnum;
-        },
         {{}});
-
-    return client;
 }
 
 int main(int argc, char* argv[]) {

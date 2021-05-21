@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -20,11 +20,14 @@
 #define NET_SOCKET_STREAM_SOCKETCONNECTION_H
 
 #include "net/socket/stream/SocketConnectionBase.h"
+#include "net/socket/stream/SocketProtocol.h"
+#include "net/socket/stream/SocketProtocolFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
 #include <functional>
+#include <memory>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -43,16 +46,23 @@ namespace net::socket::stream {
         SocketConnection() = delete;
 
     protected:
-        SocketConnection(int fd,
+        SocketConnection(const std::shared_ptr<const SocketProtocolFactory>& socketProtocolFactory,
+                         int fd,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
                          const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
-                         const std::function<void(const char* junk, std::size_t junkLen)>& onRead,
-                         const std::function<void(int errnum)>& onReadError,
-                         const std::function<void(int errnum)>& onWriteError,
                          const std::function<void()>& onDisconnect)
-            : SocketReader(onRead, onReadError)
-            , SocketWriter(onWriteError)
+            : SocketConnectionBase(socketProtocolFactory)
+            , SocketReader(
+                  [&socketProtocol = this->socketProtocol](const char* junk, std::size_t junkLen) -> void {
+                      socketProtocol->take(junk, junkLen);
+                  },
+                  [&socketProtocol = this->socketProtocol](int errnum) -> void {
+                      socketProtocol->onReadError(errnum);
+                  })
+            , SocketWriter([&socketProtocol = this->socketProtocol](int errnum) -> void {
+                socketProtocol->onWriteError(errnum);
+            })
             , localAddress(localAddress)
             , remoteAddress(remoteAddress)
             , onDisconnect(onDisconnect) {
@@ -69,7 +79,7 @@ namespace net::socket::stream {
             delete this;
         }
 
-    public:
+    protected:
         void enqueue(const char* junk, std::size_t junkLen) override {
             SocketWriter::enqueue(junk, junkLen);
         }
@@ -85,6 +95,7 @@ namespace net::socket::stream {
             }
         }
 
+    public:
         const SocketAddress& getRemoteAddress() const {
             return remoteAddress;
         }

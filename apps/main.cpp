@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -20,7 +20,7 @@
 
 #include "config.h" // just for this example app
 #include "express/legacy/WebApp.h"
-#include "http/websocket/WSServerContext.h"
+#include "http/server/ws/WSServerContext.h"
 #include "net/timer/IntervalTimer.h"
 #include "net/timer/SingleshotTimer.h"
 
@@ -120,7 +120,19 @@ int timerApp() {
                 }
             });
         }
-        res.upgrade(new http::websocket::WSServerContext());
+        res.upgrade(new http::websocket::WSServerContext(
+            []([[maybe_unused]] http::websocket::WSServerContext* wSServerContext, [[maybe_unused]] int opCode) -> void {
+                VLOG(0) << "Message Start - OpCode: " << opCode;
+            },
+            []([[maybe_unused]] http::websocket::WSServerContext* wSServerContext,
+               [[maybe_unused]] const char* junk,
+               [[maybe_unused]] std::size_t junkLen) -> void {
+                VLOG(0) << "Data: " << std::string(junk, static_cast<std::size_t>(junkLen));
+            },
+            []([[maybe_unused]] http::websocket::WSServerContext* wSServerContext) -> void {
+                VLOG(0) << "Message End";
+                wSServerContext->message(1, "Hallo zurück", strlen("Hallo zurück"));
+            }));
     });
 
     app.listen(8080, [](int err) -> void {

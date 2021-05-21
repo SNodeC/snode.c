@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -17,7 +17,7 @@
  */
 
 #include "http/http_utils.h"
-#include "http/server/HTTPServerContext.h"
+#include "http/server/http/HTTPServerContext.h"
 #include "log/Logger.h"
 #include "net/socket/stream/SocketConnectionBase.h"
 
@@ -30,8 +30,7 @@
 namespace http::server {
 
     template <typename Request, typename Response>
-    HTTPServerContext<Request, Response>::HTTPServerContext(SocketConnection* socketConnection,
-                                                            const std::function<void(Request& req, Response& res)>& onRequestReady)
+    HTTPServerContext<Request, Response>::HTTPServerContext(const std::function<void(Request& req, Response& res)>& onRequestReady)
         : onRequestReady(onRequestReady)
         , parser(
               [this](void) -> void {
@@ -64,9 +63,9 @@ namespace http::server {
                   request.headers = &header;
 
                   for (auto [field, value] : header) {
-                      if (field == "connection" && value == "close") {
+                      if (field == "connection" && httputils::ci_comp(value, "close")) {
                           request.connectionState = ConnectionState::Close;
-                      } else if (field == "connection" && value == "keep-alive") {
+                      } else if (field == "connection" && httputils::ci_comp(value, "keep-alive")) {
                           request.connectionState = ConnectionState::Keep;
                       }
                       VLOG(3) << "     " << field << ": " << value;
@@ -107,11 +106,10 @@ namespace http::server {
 
                   requestParsed();
               }) {
-        this->setSocketConnection(socketConnection);
     }
 
     template <typename Request, typename Response>
-    void HTTPServerContext<Request, Response>::receiveData(const char* junk, std::size_t junkLen) {
+    void HTTPServerContext<Request, Response>::receiveFromPeer(const char* junk, std::size_t junkLen) {
         parser.parse(junk, junkLen);
     }
 
@@ -125,7 +123,7 @@ namespace http::server {
 
     template <typename Request, typename Response>
     void HTTPServerContext<Request, Response>::sendResponseData(const char* junk, std::size_t junkLen) {
-        socketConnection->enqueue(junk, junkLen);
+        sendToPeer(junk, junkLen);
     }
 
     template <typename Request, typename Response>
@@ -211,7 +209,7 @@ namespace http::server {
     template <typename Request, typename Response>
     void HTTPServerContext<Request, Response>::terminateConnection() {
         if (!connectionTerminated) {
-            socketConnection->close();
+            socketConnection->getSocketProtocol()->close();
             requestContexts.clear();
             connectionTerminated = true;
         }
