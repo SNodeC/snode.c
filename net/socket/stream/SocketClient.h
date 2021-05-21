@@ -35,19 +35,19 @@
 
 namespace net::socket::stream {
 
-    template <typename SocketConnectorT>
+    template <typename SocketProtocolT, typename SocketConnectorT>
     class SocketClient {
     public:
+        using SocketProtocol = SocketProtocolT;
         using SocketConnector = SocketConnectorT;
         using SocketConnection = typename SocketConnector::SocketConnection;
         using SocketAddress = typename SocketConnection::Socket::SocketAddress;
 
-        SocketClient(const SocketProtocolFactory* socketProtocolFactory,
-                     const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
+        SocketClient(const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
                      const std::function<void(SocketConnection* socketConnection)>& onConnected,
                      const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
                      const std::map<std::string, std::any>& options = {{}})
-            : socketProtocolFactory(std::shared_ptr<const SocketProtocolFactory>(socketProtocolFactory))
+            : socketProtocol(std::make_shared<SocketProtocol>())
             , onConnect(onConnect)
             , onConnected(onConnected)
             , onDisconnect(onDisconnect)
@@ -62,7 +62,7 @@ namespace net::socket::stream {
         connect(const SocketAddress& remoteAddress, const SocketAddress& bindAddress, const std::function<void(int err)>& onError) const {
             errno = 0;
 
-            SocketConnector* socketConnector = new SocketConnector(socketProtocolFactory, onConnect, onConnected, onDisconnect, options);
+            SocketConnector* socketConnector = new SocketConnector(socketProtocol, onConnect, onConnected, onDisconnect, options);
 
             socketConnector->connect(remoteAddress, bindAddress, onError);
         }
@@ -71,8 +71,12 @@ namespace net::socket::stream {
             connect(remoteAddress, SocketAddress(), onError);
         }
 
+        std::shared_ptr<SocketProtocol> getSocketProtocol() {
+            return socketProtocol;
+        }
+
     protected:
-        std::shared_ptr<const SocketProtocolFactory> socketProtocolFactory = nullptr;
+        std::shared_ptr<SocketProtocol> socketProtocol;
 
     private:
         std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)> onConnect;

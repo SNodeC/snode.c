@@ -28,8 +28,9 @@
 
 namespace net::socket::bluetooth::rfcomm::legacy {
 
-    class SocketClient : public stream::legacy::SocketClient<rfcomm::Socket> {
-        using stream::legacy::SocketClient<rfcomm::Socket>::SocketClient;
+    template <typename SocketProtocolT>
+    class SocketClient : public stream::legacy::SocketClient<SocketProtocolT, rfcomm::Socket> {
+        using stream::legacy::SocketClient<SocketProtocolT, rfcomm::Socket>::SocketClient;
     };
 
 } // namespace net::socket::bluetooth::rfcomm::legacy

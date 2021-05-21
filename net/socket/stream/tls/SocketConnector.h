@@ -34,7 +34,7 @@
 
 namespace net::socket::stream {
 
-    template <typename SocketConnector>
+    template <typename SocketProtocol, typename SocketConnector>
     class SocketClient;
 
     namespace tls {

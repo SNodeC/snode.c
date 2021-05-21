@@ -28,8 +28,9 @@
 
 namespace net::socket::bluetooth::rfcomm::tls {
 
-    class SocketClient : public stream::tls::SocketClient<rfcomm::Socket> {
-        using stream::tls::SocketClient<rfcomm::Socket>::SocketClient;
+    template <typename SocketProtocolT>
+    class SocketClient : public stream::tls::SocketClient<SocketProtocolT, rfcomm::Socket> {
+        using stream::tls::SocketClient<SocketProtocolT, rfcomm::Socket>::SocketClient;
     };
 
 } // namespace net::socket::bluetooth::rfcomm::tls

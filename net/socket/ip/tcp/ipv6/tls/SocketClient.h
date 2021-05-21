@@ -28,8 +28,9 @@
 
 namespace net::socket::ip::tcp::ipv6::tls {
 
-    class SocketClient : public stream::tls::SocketClient<ipv6::Socket> {
-        using stream::tls::SocketClient<ipv6::Socket>::SocketClient;
+    template <typename SocketProtocolT>
+    class SocketClient : public stream::tls::SocketClient<SocketProtocolT, ipv6::Socket> {
+        using stream::tls::SocketClient<SocketProtocolT, ipv6::Socket>::SocketClient;
     };
 
 } // namespace net::socket::ip::tcp::ipv6::tls

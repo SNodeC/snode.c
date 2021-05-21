@@ -59,22 +59,21 @@ public:
     }
 };
 
-SocketClient getClient() {
-    SocketClient client(
-        new SimpleSocketProtocolFactory(), // SharedFactory
-        [](const SocketClient::SocketAddress& localAddress,
-           const SocketClient::SocketAddress& remoteAddress) -> void { // OnConnect
+SocketClient<SimpleSocketProtocolFactory> getClient() {
+    SocketClient<SimpleSocketProtocolFactory> client(
+        [](const SocketClient<SimpleSocketProtocolFactory>::SocketAddress& localAddress,
+           const SocketClient<SimpleSocketProtocolFactory>::SocketAddress& remoteAddress) -> void { // OnConnect
             VLOG(0) << "OnConnect";
 
             VLOG(0) << "\tServer: " + remoteAddress.toString();
             VLOG(0) << "\tClient: " + localAddress.toString();
         },
-        [](SocketClient::SocketConnection* socketConnection) -> void { // onConnected
+        [](SocketClient<SimpleSocketProtocolFactory>::SocketConnection* socketConnection) -> void { // onConnected
             VLOG(0) << "OnConnected";
 
             socketConnection->getSocketProtocol()->sendToPeer("Hello rfcomm connection!");
         },
-        [](SocketClient::SocketConnection* socketConnection) -> void { // onDisconnect
+        [](SocketClient<SimpleSocketProtocolFactory>::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
 
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
@@ -89,8 +88,8 @@ int main(int argc, char* argv[]) {
     net::SNodeC::init(argc, argv);
 
     {
-        SocketClient::SocketAddress remoteAddress("A4:B1:C1:2C:82:37", 0x1023); // titan
-        SocketClient::SocketAddress bindAddress("44:01:BB:A3:63:32");           // mpow
+        SocketClient<SimpleSocketProtocolFactory>::SocketAddress remoteAddress("A4:B1:C1:2C:82:37", 0x1023); // titan
+        SocketClient<SimpleSocketProtocolFactory>::SocketAddress bindAddress("44:01:BB:A3:63:32");           // mpow
 
         SocketClient client = getClient();
 

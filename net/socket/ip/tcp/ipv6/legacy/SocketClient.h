@@ -28,8 +28,9 @@
 
 namespace net::socket::ip::tcp::ipv6::legacy {
 
-    class SocketClient : public stream::legacy::SocketClient<ipv6::Socket> {
-        using stream::legacy::SocketClient<ipv6::Socket>::SocketClient;
+    template <typename SocketProtocolT>
+    class SocketClient : public stream::legacy::SocketClient<SocketProtocolT, ipv6::Socket> {
+        using stream::legacy::SocketClient<SocketProtocolT, ipv6::Socket>::SocketClient;
     };
 
 } // namespace net::socket::ip::tcp::ipv6::legacy

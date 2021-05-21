@@ -28,9 +28,10 @@
 
 namespace net::socket::bluetooth::l2cap {
 
-    class SocketClient : public stream::legacy::SocketClient<l2cap::Socket> {
+    template <typename SocketProtocolT>
+    class SocketClient : public stream::legacy::SocketClient<SocketProtocolT, l2cap::Socket> {
     public:
-        using stream::legacy::SocketClient<l2cap::Socket>::SocketClient;
+        using stream::legacy::SocketClient<SocketProtocolT, l2cap::Socket>::SocketClient;
     };
 
 } // namespace net::socket::bluetooth::l2cap

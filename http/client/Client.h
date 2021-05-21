@@ -21,7 +21,6 @@
 
 #include "http/client/ClientContext.hpp"
 #include "http/client/ClientContextFactory.h"
-#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -36,14 +35,14 @@
 
 namespace http::client {
 
-    template <typename SocketClientT, typename RequestT, typename ResponseT>
+    template <template <typename SocketProtocolT> typename SocketClientT, typename RequestT, typename ResponseT>
     class Client {
     public:
-        using SocketClient = SocketClientT;
-        using SocketConnection = typename SocketClient::SocketConnection;
-        using SocketAddress = typename SocketConnection::SocketAddress;
         using Request = RequestT;
         using Response = ResponseT;
+        using SocketClient = SocketClientT<ClientContextFactory<Request, Response>>; // this makes it an HTTP server;
+        using SocketConnection = typename SocketClient::SocketConnection;
+        using SocketAddress = typename SocketConnection::SocketAddress;
 
         Client(const std::function<void(const Client::SocketAddress&, const Client::SocketAddress&)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
@@ -53,7 +52,6 @@ namespace http::client {
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
             : socketClient(
-                  new ClientContextFactory<Request, Response>(onResponse, onResponseError), // SharedFactory
                   [onConnect](const Client::SocketAddress& localAddress,
                               const Client::SocketAddress& remoteAddress) -> void { // onConnect
                       onConnect(localAddress, remoteAddress);
@@ -71,6 +69,8 @@ namespace http::client {
                       onDisconnect(socketConnection);
                   },
                   options) {
+            socketClient.getSocketProtocol()->setOnResponse(onResponse);
+            socketClient.getSocketProtocol()->setOnRequestError(onResponseError);
         }
 
         void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(int err)>& onError) {

@@ -35,14 +35,20 @@ namespace http::client {
         using Request = RequestT;
         using Response = ResponseT;
 
-        ClientContextFactory(const std::function<void(Response&)>& onResponse,
-                             const std::function<void(int, const std::string&)>& onRequestError)
-            : onResponse(onResponse)
-            , onRequestError(onRequestError) {
-        }
+        ClientContextFactory() = default;
 
+    private:
         net::socket::stream::SocketProtocol* create() const override {
             return new ClientContext<Request, Response>(onResponse, onRequestError);
+        }
+
+    public:
+        void setOnResponse(const std::function<void(Response&)>& onResponse) {
+            this->onResponse = onResponse;
+        }
+
+        void setOnRequestError(const std::function<void(int, const std::string&)> onRequestError) {
+            this->onRequestError = onRequestError;
         }
 
     protected:
