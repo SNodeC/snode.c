@@ -46,7 +46,7 @@ namespace net::socket::stream {
                      const std::function<void(SocketConnection* socketConnection)>& onConnected,
                      const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
                      const std::map<std::string, std::any>& options = {{}})
-            : socketProtocol(std::make_shared<SocketProtocolT>())
+            : socketProtocol(std::make_shared<SocketProtocol>())
             , _onConnect(onConnect)
             , _onConnected(onConnected)
             , _onDisconnect(onDisconnect)
