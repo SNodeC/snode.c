@@ -24,8 +24,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cerrno>
-#include <cstddef> // for std::size_t
 #include <functional>
 #include <sys/types.h> // for ssize_t
 #include <vector>
@@ -74,8 +72,6 @@ namespace net::socket::stream {
         virtual ssize_t write(const char* junk, std::size_t junkLen) = 0;
 
         void writeEvent() override {
-            errno = 0;
-
             ssize_t ret = write(writeBuffer.data(), (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE);
 
             if (ret > 0) {

@@ -18,17 +18,18 @@
 
 #include "net/socket/bluetooth/rfcomm/Socket.h"
 
+#include "net/system/socket.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <bluetooth/bluetooth.h> // for BTPROTO_RFCOMM
-#include <sys/socket.h>          // for socket, PF_BLUETOOTH, stream
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::socket::bluetooth::rfcomm {
 
     int Socket::create(int flags) {
-        return ::socket(PF_BLUETOOTH, SOCK_STREAM | flags, BTPROTO_RFCOMM);
+        return system::socket(PF_BLUETOOTH, SOCK_STREAM | flags, BTPROTO_RFCOMM);
     }
 
 } // namespace net::socket::bluetooth::rfcomm

@@ -36,6 +36,13 @@ add_library(
     stream/Pipe.cpp
     stream/PipeSink.cpp
     stream/PipeSource.cpp
+    system/netdb.cpp
+    system/select.cpp
+    system/signal.cpp
+    system/socket.cpp
+    system/ssl.cpp
+    system/time.cpp
+    system/unistd.cpp
     timer/Timer.cpp
 )
 

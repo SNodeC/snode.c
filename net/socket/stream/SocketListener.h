@@ -23,16 +23,15 @@
 #include "net/AcceptEventReceiver.h"
 #include "net/ReadEventReceiver.h"
 #include "net/socket/stream/SocketProtocolFactory.h"
+#include "net/system/socket.h"
+#include "net/system/unistd.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <any>
-#include <cstddef>
 #include <functional>
 #include <map>
 #include <string>
-#include <sys/socket.h>
-#include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -67,8 +66,6 @@ namespace net::socket::stream {
         virtual ~SocketListener() = default;
 
         void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int err)>& onError) {
-            errno = 0;
-
             Socket::open([this, &bindAddress, &backlog, &onError](int errnum) -> void {
                 if (errnum > 0) {
                     onError(errnum);
@@ -84,7 +81,7 @@ namespace net::socket::stream {
                                     onError(errnum);
                                     destruct();
                                 } else {
-                                    int ret = ::listen(Socket::getFd(), backlog);
+                                    int ret = system::listen(Socket::getFd(), backlog);
 
                                     if (ret == 0) {
                                         AcceptEventReceiver::enable(Socket::getFd());
@@ -105,7 +102,7 @@ namespace net::socket::stream {
         void reuseAddress(const std::function<void(int errnum)>& onError) {
             int sockopt = 1;
 
-            if (setsockopt(Socket::getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
+            if (system::setsockopt(Socket::getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
                 onError(errno);
             } else {
                 onError(0);
@@ -113,28 +110,26 @@ namespace net::socket::stream {
         }
 
         void acceptEvent() override {
-            errno = 0;
-
             typename SocketAddress::SockAddr remoteAddress{};
             socklen_t remoteAddressLength = sizeof(remoteAddress);
 
             int fd = -1;
 
-            fd = ::accept4(Socket::getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &remoteAddressLength, SOCK_NONBLOCK);
+            fd = system::accept4(Socket::getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &remoteAddressLength, SOCK_NONBLOCK);
 
             if (fd >= 0) {
                 typename SocketAddress::SockAddr localAddress{};
                 socklen_t addressLength = sizeof(localAddress);
 
-                if (getsockname(fd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
+                if (system::getsockname(fd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
                     SocketConnection* socketConnection = new SocketConnection(
                         socketProtocolFactory, fd, SocketAddress(localAddress), SocketAddress(remoteAddress), onConnect, onDisconnect);
 
                     onConnected(socketConnection);
                 } else {
                     PLOG(ERROR) << "getsockname";
-                    shutdown(fd, SHUT_RDWR);
-                    ::close(fd);
+                    system::shutdown(fd, SHUT_RDWR);
+                    system::close(fd);
                 }
             } else if (errno != EINTR) {
                 PLOG(ERROR) << "accept";

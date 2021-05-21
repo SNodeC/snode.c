@@ -18,11 +18,11 @@
 
 #include "net/socket/ip/address/ipv4/InetAddress.h"
 
+#include "net/system/netdb.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstring>
-#include <netdb.h>
-#include <sys/socket.h> // for AF_INET
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -53,7 +53,7 @@ namespace net::socket::ip::address::ipv4 {
         hints.ai_socktype = 0;
         hints.ai_flags = AI_ADDRCONFIG;
 
-        int err = getaddrinfo(ipOrHostname.c_str(), nullptr, &hints, &res);
+        int err = system::getaddrinfo(ipOrHostname.c_str(), nullptr, &hints, &res);
 
         if (err != 0) {
             throw bad_hostname(ipOrHostname);
@@ -76,7 +76,7 @@ namespace net::socket::ip::address::ipv4 {
             res = res->ai_next;
         }
 
-        freeaddrinfo(resalloc);
+        system::freeaddrinfo(resalloc);
     }
 
     InetAddress::InetAddress(uint16_t port) {
@@ -91,21 +91,21 @@ namespace net::socket::ip::address::ipv4 {
 
     std::string InetAddress::host() const {
         char host[NI_MAXHOST];
-        getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), host, 256, nullptr, 0, 0);
+        system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), host, 256, nullptr, 0, 0);
 
         return host;
     }
 
     std::string InetAddress::ip() const {
         char ip[NI_MAXHOST];
-        getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), ip, 256, nullptr, 0, NI_NUMERICHOST);
+        system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), ip, 256, nullptr, 0, NI_NUMERICHOST);
 
         return ip;
     }
 
     std::string InetAddress::serv() const {
         char serv[NI_MAXSERV];
-        getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), nullptr, 0, serv, 256, 0);
+        system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), nullptr, 0, serv, 256, 0);
 
         return serv;
     }

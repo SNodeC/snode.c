@@ -60,8 +60,6 @@ namespace net::socket::stream {
 
         void
         connect(const SocketAddress& remoteAddress, const SocketAddress& bindAddress, const std::function<void(int err)>& onError) const {
-            errno = 0;
-
             SocketConnector* socketConnector = new SocketConnector(socketProtocol, onConnect, onConnected, onDisconnect, options);
 
             socketConnector->connect(remoteAddress, bindAddress, onError);

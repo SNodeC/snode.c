@@ -20,11 +20,12 @@
 
 #include "net/file/FileReader.h"
 
+#include "net/system/unistd.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cerrno>
-#include <fcntl.h>
-#include <unistd.h>
+#include <cstddef>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -37,7 +38,7 @@ FileReader::FileReader(int fd, net::stream::Sink& sink) {
 FileReader* FileReader::connect(const std::string& path, net::stream::Sink& writeStream, const std::function<void(int err)>& onError) {
     FileReader* fileReader = nullptr;
 
-    int fd = ::open(path.c_str(), O_RDONLY);
+    int fd = net::system::open(path.c_str(), O_RDONLY);
 
     if (fd >= 0) {
         fileReader = new FileReader(fd, writeStream);
@@ -52,10 +53,10 @@ void FileReader::readEvent() {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
     static char junk[MFREADSIZE];
 
-    ssize_t ret = ::read(getFd(), junk, MFREADSIZE);
+    ssize_t ret = net::system::read(getFd(), junk, MFREADSIZE);
 
     if (ret > 0) {
-        this->send(junk, ret);
+        this->send(junk, static_cast<std::size_t>(ret));
     } else {
         ReadEventReceiver::disable();
         if (ret == 0) {

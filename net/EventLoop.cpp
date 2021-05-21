@@ -20,17 +20,17 @@
 
 #include "log/Logger.h" // for Logger
 #include "net/FdSet.h"
+#include "net/system/select.h"
+#include "net/system/signal.h"
+#include "net/system/time.h"
 #include "utils/Timeval.h" // for operator<
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <algorithm>    // for min, max
-#include <cerrno>       // for EINTR, errno
-#include <csignal>      // for signal, SIGABRT, SIGHUP, SIGINT, SIGPIPE
-#include <cstdlib>      // for exit
-#include <ctime>        // for time, time_t
-#include <string>       // for std::string std::to_string
-#include <sys/select.h> // for select
+#include <algorithm> // for min, max
+#include <cerrno>    // for EINTR, errno
+#include <cstdlib>   // for exit
+#include <string>    // for string, to_string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -79,17 +79,17 @@ namespace net {
                 nextInactivityTimeout = {0, 0};
             }
 
-            int counter = select(maxFd + 1,
-                                 &readEventDispatcher.getFdSet().get(),
-                                 &writeEventDispatcher.getFdSet().get(),
-                                 &exceptionalConditionEventDispatcher.getFdSet().get(),
-                                 &nextInactivityTimeout);
+            int counter = system::select(maxFd + 1,
+                                         &readEventDispatcher.getFdSet().get(),
+                                         &writeEventDispatcher.getFdSet().get(),
+                                         &exceptionalConditionEventDispatcher.getFdSet().get(),
+                                         &nextInactivityTimeout);
 
             if (counter >= 0) {
                 tickCounter++;
                 timerEventDispatcher.dispatch();
 
-                struct timeval currentTime = {time(nullptr), 0};
+                struct timeval currentTime = {system::time(nullptr), 0};
                 nextInactivityTimeout = {LONG_MAX, 0};
 
                 nextTimeout = readEventDispatcher.dispatchActiveEvents(currentTime);
@@ -119,12 +119,12 @@ namespace net {
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
     void EventLoop::init(int argc, char* argv[]) {
-        signal(SIGPIPE, SIG_IGN);
-        signal(SIGQUIT, EventLoop::stoponsig);
-        signal(SIGHUP, EventLoop::stoponsig);
-        signal(SIGINT, EventLoop::stoponsig);
-        signal(SIGTERM, EventLoop::stoponsig);
-        signal(SIGABRT, EventLoop::stoponsig);
+        system::signal(SIGPIPE, SIG_IGN);
+        system::signal(SIGQUIT, EventLoop::stoponsig);
+        system::signal(SIGHUP, EventLoop::stoponsig);
+        system::signal(SIGINT, EventLoop::stoponsig);
+        system::signal(SIGTERM, EventLoop::stoponsig);
+        system::signal(SIGABRT, EventLoop::stoponsig);
 
         Logger::init(argc, argv);
 

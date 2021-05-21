@@ -17,9 +17,11 @@
  */
 
 #include "net/socket/bluetooth/address/L2CapAddress.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <sys/socket.h>
+#include <bluetooth/bluetooth.h> // for str2ba, htobs, ba2str, bdaddr_t, btohs
+#include <sys/socket.h>          // for AF_BLUETOOTH
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

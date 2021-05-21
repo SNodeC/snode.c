@@ -18,11 +18,12 @@
 
 #include "net/stream/PipeSource.h"
 
+#include "net/system/unistd.h" // for write, ssize_t
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cerrno>
-#include <string>
-#include <unistd.h>
+#include <errno.h> // for errno, EAGAIN, EINTR, EWOULDBLOCK
+#include <string>  // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -60,10 +61,8 @@ namespace net::stream {
     }
 
     void PipeSource::writeEvent() {
-        errno = 0;
-
-        ssize_t ret =
-            ::write(getFd(), writeBuffer.data(), (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE);
+        ssize_t ret = net::system::write(
+            getFd(), writeBuffer.data(), (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE);
 
         if (ret > 0) {
             writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + ret);

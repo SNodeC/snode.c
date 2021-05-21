@@ -19,13 +19,13 @@
 #include "net/TimerEventDispatcher.h"
 
 #include "net/TimerEventReceiver.h" // for TimerEventReceiver
+#include "net/system/time.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm> // for copy
 #include <climits>
-#include <iterator>   // for back_insert_iterator, back_inserter
-#include <sys/time.h> // IWYU pragma: export
+#include <iterator> // for back_insert_iterator, back_inserter
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -60,7 +60,7 @@ namespace net {
             struct timeval currentTime {
                 0, 0
             };
-            gettimeofday(&currentTime, nullptr);
+            system::gettimeofday(&currentTime, nullptr);
 
             if (tv < currentTime) {
                 tv.tv_sec = 0;
@@ -77,7 +77,7 @@ namespace net {
         struct timeval currentTime {
             0, 0
         };
-        gettimeofday(&currentTime, nullptr);
+        system::gettimeofday(&currentTime, nullptr);
 
         for (TimerEventReceiver* timer : timerList) {
             if (timer->timeout() <= currentTime) {

@@ -20,6 +20,7 @@
 #define NET_SOCKET_STREAM_LEGACY_SOCKETWRITER_H
 
 #include "net/socket/stream/SocketWriter.h"
+#include "net/system/socket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -37,7 +38,7 @@ namespace net::socket::stream::legacy {
 
     private:
         ssize_t write(const char* junk, std::size_t junkLen) override {
-            return ::send(this->getFd(), junk, junkLen, MSG_NOSIGNAL);
+            return net::system::send(this->getFd(), junk, junkLen, MSG_NOSIGNAL);
         }
 
         int getError() override {

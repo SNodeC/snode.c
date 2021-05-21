@@ -20,9 +20,11 @@
 #define NET_SOCKET_STREAM_LEGACY_SOCKETREADER_H
 
 #include "net/socket/stream/SocketReader.h"
+#include "net/system/socket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cerrno>
 #include <cstddef> // for std::size_t
 #include <sys/socket.h>
 #include <sys/types.h> // for ssize_t
@@ -37,7 +39,7 @@ namespace net::socket::stream::legacy {
 
     private:
         ssize_t read(char* junk, std::size_t junkLen) override {
-            return ::recv(this->getFd(), junk, junkLen, 0);
+            return system::recv(this->getFd(), junk, junkLen, 0);
         }
 
         int getError() override {

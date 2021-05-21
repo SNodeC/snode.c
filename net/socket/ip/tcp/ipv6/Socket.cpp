@@ -18,16 +18,16 @@
 
 #include "net/socket/ip/tcp/ipv6/Socket.h"
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#include "net/system/socket.h"
 
-#include <sys/socket.h>
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::socket::ip::tcp::ipv6 {
 
     int Socket::create(int flags) {
-        return ::socket(PF_INET6, SOCK_STREAM | flags, 0);
+        return system::socket(PF_INET6, SOCK_STREAM | flags, 0);
     }
 
 } // namespace net::socket::ip::tcp::ipv6

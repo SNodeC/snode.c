@@ -21,12 +21,11 @@
 
 #include "net/Descriptor.h"
 #include "net/socket/SocketAddress.h"
+#include "net/system/socket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cerrno>
 #include <functional>
-#include <sys/socket.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -53,8 +52,6 @@ namespace net::socket {
 
     public:
         void open(const std::function<void(int errnum)>& onError, int flags = 0) {
-            errno = 0;
-
             int fd = create(flags);
 
             if (fd >= 0) {
@@ -66,9 +63,7 @@ namespace net::socket {
         }
 
         void bind(const SocketAddress& bindAddress, const std::function<void(int errnum)>& onError) {
-            errno = 0;
-
-            int ret = ::bind(getFd(), &bindAddress.getSockAddr(), sizeof(typename SocketAddress::SockAddr));
+            int ret = system::bind(getFd(), &bindAddress.getSockAddr(), sizeof(typename SocketAddress::SockAddr));
 
             if (ret < 0) {
                 onError(errno);
@@ -81,7 +76,7 @@ namespace net::socket {
         enum shutdown { WR = SHUT_WR, RD = SHUT_RD, RDWR = SHUT_RDWR };
 
         void shutdown(shutdown how) {
-            ::shutdown(getFd(), how);
+            system::shutdown(getFd(), how);
         }
 
         const SocketAddress& getBindAddress() const {

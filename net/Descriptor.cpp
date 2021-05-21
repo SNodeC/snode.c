@@ -18,9 +18,9 @@
 
 #include "net/Descriptor.h"
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#include "net/system/unistd.h"
 
-#include <unistd.h>
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -33,7 +33,7 @@ namespace net {
 
     Descriptor::~Descriptor() {
         if (!dontClose()) {
-            ::close(fd);
+            system::close(fd);
         }
     }
 
