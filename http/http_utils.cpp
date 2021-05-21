@@ -24,11 +24,9 @@
 
 #include <algorithm>
 #include <cctype>
-#include <ctime>
 #include <iomanip> // std::setw
 #include <sstream>
 #include <sys/stat.h>
-#include <sys/types.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
