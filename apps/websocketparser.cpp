@@ -1,7 +1,7 @@
 #include "config.h"
 #include "express/legacy/WebApp.h"
 #include "express/tls/WebApp.h"
-#include "http/server/ws/WSServerContext.h"
+#include "web/server/ws/WSServerContext.h"
 #include "log/Logger.h"
 #include "net/SNodeC.h"
 

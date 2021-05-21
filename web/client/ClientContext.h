@@ -1,0 +1,87 @@
+/*
+ * snode.c - a slim toolkit for network communication
+ * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef HTTP_CLIENT_CLIENTCONTEXT_H
+#define HTTP_CLIENT_CLIENTCONTEXT_H
+
+#include "web/client/Request.h"
+#include "web/client/Response.h"
+#include "web/client/ResponseParser.h"
+#include "net/socket/stream/SocketProtocol.h"
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <cstddef>
+#include <functional>
+#include <string>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+namespace net::socket::stream {
+    class SocketConnectionBase;
+} // namespace net::socket::stream
+
+namespace http::client {
+
+    class ClientContextBase : public net::socket::stream::SocketProtocol {
+    public:
+        virtual ~ClientContextBase() = default;
+
+        virtual void sendRequestData(const char* buf, std::size_t len) = 0;
+
+        virtual Request& getRequest() = 0;
+
+        virtual void terminateConnection() = 0;
+        virtual void requestCompleted() = 0;
+    };
+
+    template <typename RequestT, typename ResponseT>
+    class ClientContext : public ClientContextBase {
+    public:
+        using SocketConnection = net::socket::stream::SocketConnectionBase;
+        using Request = RequestT;
+        using Response = ResponseT;
+
+        ClientContext(const std::function<void(Response&)>& onResponse,
+                      const std::function<void(int status, const std::string& reason)>& onError);
+
+        ~ClientContext() override = default;
+
+        void receiveFromPeer(const char* junk, std::size_t junkLen) override;
+        void sendRequestData(const char* junk, std::size_t junkLen) override;
+
+        void onWriteError(int errnum) override;
+        void onReadError(int errnum) override;
+
+        Request& getRequest() override;
+
+        void terminateConnection() override;
+
+        void requestCompleted() override;
+
+    protected:
+        Request request;
+        Response response;
+
+    private:
+        ResponseParser parser;
+    };
+
+} // namespace http::client
+
+#endif // HTTP_CLIENT_CLIENTCONTEXT_H

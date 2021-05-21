@@ -20,10 +20,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "http/client/Client.h"                     // for Client<>::Socket...
-#include "http/client/Request.h"                    // for Request
-#include "http/client/Response.h"                   // for Response
-#include "http/client/legacy/Client.h"              // for Client, Client<>...
+#include "web/client/Client.h"                     // for Client<>::Socket...
+#include "web/client/Request.h"                    // for Request
+#include "web/client/Response.h"                   // for Response
+#include "web/client/legacy/Client.h"              // for Client, Client<>...
 #include "log/Logger.h"                             // for Writer, Storage
 #include "net/SNodeC.h"                             // for SNodeC
 #include "net/socket/ip/address/ipv4/InetAddress.h" // for InetAddress

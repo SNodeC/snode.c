@@ -20,7 +20,7 @@
 #define EXPRESS_LEGACY_WEBAPP_H
 
 #include "express/WebAppT.h"
-#include "http/server/legacy/Server.h"
+#include "web/server/legacy/Server.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

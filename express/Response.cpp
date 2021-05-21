@@ -18,10 +18,10 @@
 
 #include "express/Response.h"
 
-#include "http/MimeTypes.h"
-#include "http/StatusCodes.h"
-#include "http/http_utils.h"
-#include "http/server/http/HTTPServerContext.h"
+#include "web/MimeTypes.h"
+#include "web/StatusCodes.h"
+#include "web/http_utils.h"
+#include "web/server/http/HTTPServerContext.h"
 #include "net/file/FileReader.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

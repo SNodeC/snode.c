@@ -16,28 +16,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EXPRESS_TLS_WEBAPP_H
-#define EXPRESS_TLS_WEBAPP_H
-
-#include "express/WebAppT.h"
-#include "web/server/tls/Server.h"
+#include "web/client/Response.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace express::tls {
+namespace http::client {
 
-    class WebApp : public WebAppT<http::server::tls::Server<express::Request, express::Response>> {
-    public:
-        using WebAppT<http::server::tls::Server<express::Request, express::Response>>::WebAppT;
-    };
+    void Response::reset() {
+    }
 
-    class WebApp6 : public WebAppT<http::server::tls::Server6<express::Request, express::Response>> {
-    public:
-        using WebAppT<http::server::tls::Server6<express::Request, express::Response>>::WebAppT;
-    };
-
-} // namespace express::tls
-
-#endif // EXPRESS_TLS_WEBAPP_H
+} // namespace http::client

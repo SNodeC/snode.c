@@ -156,7 +156,7 @@ endif(CHECK_INCLUDES)
 
 add_executable(client client.cpp)
 target_compile_options(client PRIVATE --warn-all)
-target_link_libraries(client LINK_PUBLIC http)
+target_link_libraries(client LINK_PUBLIC web)
 install(TARGETS client RUNTIME DESTINATION bin)
 set_target_properties(
     client
@@ -173,7 +173,7 @@ endif(CHECK_INCLUDES)
 
 add_executable(client6 client6.cpp)
 target_compile_options(client6 PRIVATE --warn-all)
-target_link_libraries(client6 LINK_PUBLIC http)
+target_link_libraries(client6 LINK_PUBLIC web)
 install(TARGETS client6 RUNTIME DESTINATION bin)
 set_target_properties(
     client6
@@ -190,7 +190,7 @@ endif(CHECK_INCLUDES)
 
 add_executable(client6clientcert client6clientcert.cpp)
 target_compile_options(client6clientcert PRIVATE --warn-all)
-target_link_libraries(client6clientcert LINK_PUBLIC http)
+target_link_libraries(client6clientcert LINK_PUBLIC web)
 install(TARGETS client6clientcert RUNTIME DESTINATION bin)
 set_target_properties(
     client6clientcert
@@ -207,7 +207,7 @@ endif(CHECK_INCLUDES)
 
 add_executable(lowlevelclient lowlevelclient.cpp)
 target_compile_options(lowlevelclient PRIVATE --warn-all)
-target_link_libraries(lowlevelclient LINK_PUBLIC http)
+target_link_libraries(lowlevelclient LINK_PUBLIC web)
 install(TARGETS lowlevelclient RUNTIME DESTINATION bin)
 set_target_properties(
     lowlevelclient
@@ -258,7 +258,7 @@ endif(CHECK_INCLUDES)
 
 add_executable(btlowlevelclient btlowlevelclient.cpp)
 target_compile_options(btlowlevelclient PRIVATE --warn-all)
-target_link_libraries(btlowlevelclient LINK_PUBLIC http)
+target_link_libraries(btlowlevelclient LINK_PUBLIC web)
 install(TARGETS btlowlevelclient RUNTIME DESTINATION bin)
 set_target_properties(
     btlowlevelclient
@@ -292,7 +292,7 @@ endif(CHECK_INCLUDES)
 
 add_executable(btlowleveltlsclient btlowleveltlsclient.cpp)
 target_compile_options(btlowleveltlsclient PRIVATE --warn-all)
-target_link_libraries(btlowleveltlsclient LINK_PUBLIC http)
+target_link_libraries(btlowleveltlsclient LINK_PUBLIC web)
 install(TARGETS btlowleveltlsclient RUNTIME DESTINATION bin)
 set_target_properties(
     btlowleveltlsclient
@@ -326,7 +326,7 @@ endif(CHECK_INCLUDES)
 
 add_executable(l2lowlevelclient l2lowlevelclient.cpp)
 target_compile_options(l2lowlevelclient PRIVATE --warn-all)
-target_link_libraries(l2lowlevelclient LINK_PUBLIC http)
+target_link_libraries(l2lowlevelclient LINK_PUBLIC web)
 install(TARGETS l2lowlevelclient RUNTIME DESTINATION bin)
 set_target_properties(
     l2lowlevelclient

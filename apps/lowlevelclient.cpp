@@ -19,7 +19,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "config.h"                                  // for CLIENTCERTF
-#include "http/client/ResponseParser.h"              // for ResponseParser
+#include "web/client/ResponseParser.h"              // for ResponseParser
 #include "log/Logger.h"                              // for Writer, Storage
 #include "net/SNodeC.h"                              // for SNodeC
 #include "net/socket/ip/address/ipv4/InetAddress.h"  // for InetAddress, ip

@@ -60,7 +60,7 @@ set(iwyu_path_and_options ${iwyu_path} -Xiwyu --verbose=1)
 add_compile_options(-fexec-charset=UTF-8)
 
 add_subdirectory(net)
-add_subdirectory(http)
+add_subdirectory(web)
 add_subdirectory(express)
 add_subdirectory(log)
 add_subdirectory(utils)

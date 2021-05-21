@@ -19,11 +19,11 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "config.h"              // just for this example app
-#include "http/CookieOptions.h"  // for CookieOptions
-#include "http/client/Client.h"  // for Client<>::Socket...
-#include "http/client/Request.h" // for Request
-#include "http/client/Response.h"
-#include "http/client/tls/Client.h"
+#include "web/CookieOptions.h"  // for CookieOptions
+#include "web/client/Client.h"  // for Client<>::Socket...
+#include "web/client/Request.h" // for Request
+#include "web/client/Response.h"
+#include "web/client/tls/Client.h"
 #include "log/Logger.h"
 #include "net/SNodeC.h"
 #include "net/socket/ip/address/ipv6/InetAddress.h" // for InetAddress

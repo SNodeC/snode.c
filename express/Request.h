@@ -19,7 +19,7 @@
 #ifndef EXPRESS_REQUEST_H
 #define EXPRESS_REQUEST_H
 
-#include "http/server/http/Request.h"
+#include "web/server/http/Request.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
