@@ -63,7 +63,7 @@ namespace net::socket {
         }
 
         void bind(const SocketAddress& bindAddress, const std::function<void(int errnum)>& onError) {
-            int ret = system::bind(getFd(), &bindAddress.getSockAddr(), sizeof(typename SocketAddress::SockAddr));
+            int ret = net::system::bind(getFd(), &bindAddress.getSockAddr(), sizeof(typename SocketAddress::SockAddr));
 
             if (ret < 0) {
                 onError(errno);
@@ -76,7 +76,7 @@ namespace net::socket {
         enum shutdown { WR = SHUT_WR, RD = SHUT_RD, RDWR = SHUT_RDWR };
 
         void shutdown(shutdown how) {
-            system::shutdown(getFd(), how);
+            net::system::shutdown(getFd(), how);
         }
 
         const SocketAddress& getBindAddress() const {

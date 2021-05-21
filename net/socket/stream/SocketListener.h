@@ -81,7 +81,7 @@ namespace net::socket::stream {
                                     onError(errnum);
                                     destruct();
                                 } else {
-                                    int ret = system::listen(Socket::getFd(), backlog);
+                                    int ret = net::system::listen(Socket::getFd(), backlog);
 
                                     if (ret == 0) {
                                         AcceptEventReceiver::enable(Socket::getFd());
@@ -102,7 +102,7 @@ namespace net::socket::stream {
         void reuseAddress(const std::function<void(int errnum)>& onError) {
             int sockopt = 1;
 
-            if (system::setsockopt(Socket::getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
+            if (net::system::setsockopt(Socket::getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
                 onError(errno);
             } else {
                 onError(0);
@@ -115,21 +115,22 @@ namespace net::socket::stream {
 
             int fd = -1;
 
-            fd = system::accept4(Socket::getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &remoteAddressLength, SOCK_NONBLOCK);
+            fd = net::system::accept4(
+                Socket::getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &remoteAddressLength, SOCK_NONBLOCK);
 
             if (fd >= 0) {
                 typename SocketAddress::SockAddr localAddress{};
                 socklen_t addressLength = sizeof(localAddress);
 
-                if (system::getsockname(fd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
+                if (net::system::getsockname(fd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
                     SocketConnection* socketConnection = new SocketConnection(
                         socketProtocolFactory, fd, SocketAddress(localAddress), SocketAddress(remoteAddress), onConnect, onDisconnect);
 
                     onConnected(socketConnection);
                 } else {
                     PLOG(ERROR) << "getsockname";
-                    system::shutdown(fd, SHUT_RDWR);
-                    system::close(fd);
+                    net::system::shutdown(fd, SHUT_RDWR);
+                    net::system::close(fd);
                 }
             } else if (errno != EINTR) {
                 PLOG(ERROR) << "accept";

@@ -39,7 +39,7 @@ namespace net::socket::stream::legacy {
 
     private:
         ssize_t read(char* junk, std::size_t junkLen) override {
-            return system::recv(this->getFd(), junk, junkLen, 0);
+            return net::system::recv(this->getFd(), junk, junkLen, 0);
         }
 
         int getError() override {

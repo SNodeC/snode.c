@@ -60,7 +60,7 @@ namespace net {
             struct timeval currentTime {
                 0, 0
             };
-            system::gettimeofday(&currentTime, nullptr);
+            net::system::gettimeofday(&currentTime, nullptr);
 
             if (tv < currentTime) {
                 tv.tv_sec = 0;
@@ -77,7 +77,7 @@ namespace net {
         struct timeval currentTime {
             0, 0
         };
-        system::gettimeofday(&currentTime, nullptr);
+        net::system::gettimeofday(&currentTime, nullptr);
 
         for (TimerEventReceiver* timer : timerList) {
             if (timer->timeout() <= currentTime) {

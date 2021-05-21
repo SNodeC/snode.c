@@ -27,7 +27,7 @@
 namespace net::socket::ip::tcp::ipv6 {
 
     int Socket::create(int flags) {
-        return system::socket(PF_INET6, SOCK_STREAM | flags, 0);
+        return net::system::socket(PF_INET6, SOCK_STREAM | flags, 0);
     }
 
 } // namespace net::socket::ip::tcp::ipv6

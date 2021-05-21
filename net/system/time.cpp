@@ -23,4 +23,9 @@ namespace net::system {
         return ::gmtime(timep);
     }
 
+    time_t mktime(struct tm* tm) {
+        errno = 0;
+        return ::mktime(tm);
+    }
+
 } // namespace net::system

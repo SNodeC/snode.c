@@ -17,6 +17,7 @@ namespace net::system {
     // #include <time.h> = <ctime>
     time_t time(time_t* tloc);
     struct tm* gmtime(const time_t* timep);
+    time_t mktime(struct tm* tm);
 
     // #include <sys/time.h>
     int gettimeofday(struct timeval* tv, struct timezone* tz);

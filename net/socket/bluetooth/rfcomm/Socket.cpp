@@ -29,7 +29,7 @@
 namespace net::socket::bluetooth::rfcomm {
 
     int Socket::create(int flags) {
-        return system::socket(PF_BLUETOOTH, SOCK_STREAM | flags, BTPROTO_RFCOMM);
+        return net::system::socket(PF_BLUETOOTH, SOCK_STREAM | flags, BTPROTO_RFCOMM);
     }
 
 } // namespace net::socket::bluetooth::rfcomm

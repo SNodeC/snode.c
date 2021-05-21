@@ -22,6 +22,7 @@
 #include "http/http_utils.h"
 #include "http/server/http/HTTPServerContext.h"
 #include "log/Logger.h"
+#include "net/system/time.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -122,7 +123,7 @@ namespace http::server {
 
         opts.erase("Max-Age");
         time_t time = 0;
-        opts["Expires"] = httputils::to_http_date(gmtime(&time));
+        opts["Expires"] = httputils::to_http_date(net::system::gmtime(&time));
 
         return cookie(name, "", opts);
     }

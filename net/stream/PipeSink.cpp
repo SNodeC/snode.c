@@ -41,7 +41,7 @@ namespace net::stream {
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
         static char junk[MAX_READ_JUNKSIZE];
 
-        ssize_t ret = system::read(getFd(), junk, MAX_READ_JUNKSIZE);
+        ssize_t ret = net::system::read(getFd(), junk, MAX_READ_JUNKSIZE);
 
         if (ret > 0) {
             if (onData) {

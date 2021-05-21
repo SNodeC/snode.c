@@ -79,17 +79,17 @@ namespace net {
                 nextInactivityTimeout = {0, 0};
             }
 
-            int counter = system::select(maxFd + 1,
-                                         &readEventDispatcher.getFdSet().get(),
-                                         &writeEventDispatcher.getFdSet().get(),
-                                         &exceptionalConditionEventDispatcher.getFdSet().get(),
-                                         &nextInactivityTimeout);
+            int counter = net::system::select(maxFd + 1,
+                                              &readEventDispatcher.getFdSet().get(),
+                                              &writeEventDispatcher.getFdSet().get(),
+                                              &exceptionalConditionEventDispatcher.getFdSet().get(),
+                                              &nextInactivityTimeout);
 
             if (counter >= 0) {
                 tickCounter++;
                 timerEventDispatcher.dispatch();
 
-                struct timeval currentTime = {system::time(nullptr), 0};
+                struct timeval currentTime = {net::system::time(nullptr), 0};
                 nextInactivityTimeout = {LONG_MAX, 0};
 
                 nextTimeout = readEventDispatcher.dispatchActiveEvents(currentTime);
@@ -119,12 +119,12 @@ namespace net {
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
     void EventLoop::init(int argc, char* argv[]) {
-        system::signal(SIGPIPE, SIG_IGN);
-        system::signal(SIGQUIT, EventLoop::stoponsig);
-        system::signal(SIGHUP, EventLoop::stoponsig);
-        system::signal(SIGINT, EventLoop::stoponsig);
-        system::signal(SIGTERM, EventLoop::stoponsig);
-        system::signal(SIGABRT, EventLoop::stoponsig);
+        net::system::signal(SIGPIPE, SIG_IGN);
+        net::system::signal(SIGQUIT, EventLoop::stoponsig);
+        net::system::signal(SIGHUP, EventLoop::stoponsig);
+        net::system::signal(SIGINT, EventLoop::stoponsig);
+        net::system::signal(SIGTERM, EventLoop::stoponsig);
+        net::system::signal(SIGABRT, EventLoop::stoponsig);
 
         Logger::init(argc, argv);
 

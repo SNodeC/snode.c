@@ -29,7 +29,7 @@
 namespace net::socket::bluetooth::l2cap {
 
     int Socket::create(int flags) {
-        return system::socket(PF_BLUETOOTH, SOCK_SEQPACKET | flags, BTPROTO_L2CAP);
+        return net::system::socket(PF_BLUETOOTH, SOCK_SEQPACKET | flags, BTPROTO_L2CAP);
     }
 
 } // namespace net::socket::bluetooth::l2cap
