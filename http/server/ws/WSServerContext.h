@@ -35,8 +35,8 @@ namespace http::websocket {
 
     class WSServerContext
         : public net::socket::stream::SocketProtocol
-        , public WSReceiver
-        , public WSTransmitter {
+        , public http::WSReceiver
+        , public http::WSTransmitter {
     public:
         WSServerContext(const std::function<void(WSServerContext* wSServerContext, int opCode)>& _onMessageStart,
                         const std::function<void(WSServerContext* wSServerContext, const char* junk, std::size_t junkLen)>& _onFrameData,

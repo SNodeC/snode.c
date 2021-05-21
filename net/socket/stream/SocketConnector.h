@@ -153,12 +153,14 @@ namespace net::socket::stream {
             delete this;
         }
 
+        std::shared_ptr<const SocketProtocolFactory> socketProtocolFactory = nullptr;
+
     protected:
         std::function<void(int err)> onError;
 
-        std::shared_ptr<const SocketProtocolFactory> socketProtocolFactory = nullptr;
         std::map<std::string, std::any> options;
 
+    private:
         std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)> onConnect;
         std::function<void(SocketConnection* socketConnection)> onDestruct;
         std::function<void(SocketConnection* socketConnection)> onConnected;

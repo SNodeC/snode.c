@@ -53,10 +53,10 @@ namespace net::socket::stream {
                        const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
                        const std::map<std::string, std::any>& options)
             : socketProtocolFactory(socketProtocolFactory)
+            , options(options)
             , onConnect(onConnect)
             , onConnected(onConnected)
-            , onDisconnect(onDisconnect)
-            , options(options) {
+            , onDisconnect(onDisconnect) {
         }
 
         SocketListener() = delete;
@@ -155,12 +155,14 @@ namespace net::socket::stream {
 
         std::shared_ptr<const SocketProtocolFactory> socketProtocolFactory = nullptr;
 
+    protected:
+        std::map<std::string, std::any> options;
+
+    private:
         std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)> onConnect;
         std::function<void(SocketConnection* socketConnection)> onDestruct;
         std::function<void(SocketConnection* socketConnection)> onConnected;
         std::function<void(SocketConnection* socketConnection)> onDisconnect;
-
-        std::map<std::string, std::any> options;
     };
 
 } // namespace net::socket::stream

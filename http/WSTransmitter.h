@@ -26,7 +26,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http::websocket {
+namespace http {
 
     class WSTransmitter {
     protected:
@@ -52,6 +52,6 @@ namespace http::websocket {
         virtual void onFrameReady(char* frame, uint64_t frameLength) = 0;
     };
 
-} // namespace http::websocket
+} // namespace http
 
 #endif // WSTRANSMITTER_H

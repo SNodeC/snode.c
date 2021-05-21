@@ -26,7 +26,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http::websocket {
+namespace http {
 
     class WSReceiver {
     public:
@@ -75,7 +75,7 @@ namespace http::websocket {
         uint16_t errorState = 0;
     };
 
-} // namespace http::websocket
+} // namespace http
 
 #endif // WSRECEVIER_H
 
