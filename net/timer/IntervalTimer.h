@@ -28,6 +28,8 @@
 namespace net::timer {
 
     class IntervalTimer : public Timer {
+        IntervalTimer& operator=(const IntervalTimer& timer) = delete;
+
     public:
         IntervalTimer(const std::function<void(const void* arg, const std::function<void()>& stop)>& dispatcher,
                       const struct timeval& timeout,
@@ -42,8 +44,6 @@ namespace net::timer {
         }
 
         ~IntervalTimer() override = default;
-
-        IntervalTimer& operator=(const IntervalTimer& timer) = delete;
 
         bool dispatch() override {
             bool stop = false;

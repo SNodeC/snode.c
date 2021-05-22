@@ -26,6 +26,9 @@
 namespace net {
 
     class Descriptor {
+        Descriptor(const Descriptor& d) = delete;
+        Descriptor& operator=(const Descriptor& descriptor) = delete;
+
     public:
         enum struct FLAGS : unsigned short {
             none = 0,
@@ -34,10 +37,6 @@ namespace net {
 
     protected:
         Descriptor(int fd = -1, enum Descriptor::FLAGS flags = FLAGS::none);
-
-    public:
-        Descriptor(const Descriptor& d) = delete;
-        Descriptor& operator=(const Descriptor& descriptor) = delete;
 
     protected:
         ~Descriptor();

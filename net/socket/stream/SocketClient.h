@@ -37,6 +37,8 @@ namespace net::socket::stream {
 
     template <typename SocketProtocolT, typename SocketConnectorT>
     class SocketClient {
+        SocketClient() = delete;
+
     public:
         using SocketProtocol = SocketProtocolT;
         using SocketConnector = SocketConnectorT;
@@ -53,8 +55,6 @@ namespace net::socket::stream {
             , onDisconnect(onDisconnect)
             , options(options) {
         }
-
-        SocketClient() = delete;
 
         virtual ~SocketClient() = default;
 

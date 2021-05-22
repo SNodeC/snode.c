@@ -29,14 +29,14 @@
 namespace express::middleware {
 
     class StaticMiddleware : public Router {
+        StaticMiddleware(const StaticMiddleware&) = delete;
+        StaticMiddleware& operator=(const StaticMiddleware&) = delete;
+
     protected:
         StaticMiddleware(const std::string& root);
         static class StaticMiddleware& instance(const std::string& root);
 
     public:
-        StaticMiddleware(const StaticMiddleware&) = delete;
-        StaticMiddleware& operator=(const StaticMiddleware&) = delete;
-
         StaticMiddleware& clearStdHeaders();
         StaticMiddleware& setStdHeaders(const std::map<std::string, std::string>& stdHeaders);
         StaticMiddleware& appendStdHeaders(const std::map<std::string, std::string>& stdHeaders);

@@ -35,12 +35,16 @@ namespace net::socket::stream {
 namespace net::socket::stream {
 
     class SocketConnectionBase {
-    protected:
-        SocketConnectionBase(const std::shared_ptr<const SocketProtocolFactory>& socketProtocolFactory);
-
         SocketConnectionBase(const SocketConnectionBase&) = delete;
         SocketConnectionBase& operator=(const SocketConnectionBase&) = delete;
 
+    protected:
+        SocketConnectionBase(const std::shared_ptr<const SocketProtocolFactory>& socketProtocolFactory);
+
+    public:
+        SocketProtocol* getSocketProtocol();
+
+    protected:
         virtual ~SocketConnectionBase();
 
         virtual void enqueue(const char* junk, std::size_t junkLen) = 0;
@@ -50,10 +54,6 @@ namespace net::socket::stream {
 
         void switchSocketProtocol(SocketProtocol* socketProtocol);
 
-    public:
-        SocketProtocol* getSocketProtocol();
-
-    protected:
         SocketProtocol* socketProtocol = nullptr;
 
         friend SocketProtocol;

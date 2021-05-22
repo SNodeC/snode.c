@@ -34,11 +34,11 @@ namespace net::pipe {
     class PipeSink
         : public Descriptor
         , public ReadEventReceiver {
+        PipeSink(const PipeSink&) = delete;
+        PipeSink& operator=(const PipeSink&) = delete;
+
     public:
         PipeSink(int fd);
-        PipeSink(const PipeSink&) = delete;
-
-        PipeSink& operator=(const PipeSink&) = delete;
 
         void setOnData(const std::function<void(const char* junk, std::size_t junkLen)>& onData);
         void setOnEof(const std::function<void()>& onEof);

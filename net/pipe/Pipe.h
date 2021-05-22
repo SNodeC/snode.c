@@ -31,11 +31,11 @@ namespace net::pipe {
     class PipeSource;
 
     class Pipe {
+        Pipe(const Pipe& pipe) = delete;
+        Pipe& operator=(const Pipe& pipe) = delete;
+
     public:
         Pipe(const std::function<void(PipeSource& pipeSource, PipeSink& pipsSink)>& onSuccess, const std::function<void(int err)>& onError);
-        Pipe(const Pipe& pipe) = delete;
-
-        Pipe& operator=(const Pipe& pipe) = delete;
 
     protected:
         int pipeFd[2];

@@ -30,15 +30,13 @@
 namespace express::middleware {
 
     class JsonMiddleware : public Router {
-    protected:
-        JsonMiddleware();
-        static const class JsonMiddleware& instance();
-
-    public:
         JsonMiddleware(const JsonMiddleware&) = delete;
         JsonMiddleware& operator=(const JsonMiddleware&) = delete;
 
     protected:
+        JsonMiddleware();
+
+        static const class JsonMiddleware& instance();
         friend const class JsonMiddleware& JsonMiddleware();
     };
 

@@ -36,6 +36,8 @@ namespace net::socket::stream {
 
     template <typename SocketProtocolT, typename SocketListenerT>
     class SocketServer {
+        SocketServer() = delete;
+
     public:
         using SocketProtocol = SocketProtocolT;
         using SocketListener = SocketListenerT;
@@ -52,8 +54,6 @@ namespace net::socket::stream {
             , _onDisconnect(onDisconnect)
             , options(options) {
         }
-
-        SocketServer() = delete;
 
         virtual ~SocketServer() = default;
 

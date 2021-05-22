@@ -34,7 +34,19 @@ namespace net {
     class DescriptorEventReceiver;
 
     class DescriptorEventDispatcher {
+        DescriptorEventDispatcher(const DescriptorEventDispatcher&) = delete;
+        DescriptorEventDispatcher& operator=(const DescriptorEventDispatcher&) = delete;
+
     public:
+        DescriptorEventDispatcher(); // NOLINT(google-runtime-references)
+
+        void enable(DescriptorEventReceiver* eventReceiver, int fd);
+        void disable(DescriptorEventReceiver* eventReceiver, int fd);
+        void suspend(DescriptorEventReceiver* eventReceiver, int fd);
+        void resume(DescriptorEventReceiver* eventReceiver, int fd);
+
+        unsigned long getEventCounter() const;
+
     private:
         class DescriptorEventReceiverList : public std::list<DescriptorEventReceiver*> {
         public:
@@ -45,20 +57,6 @@ namespace net {
             bool contains(DescriptorEventReceiver* descriptorEventReceiver) const;
         };
 
-    public:
-        DescriptorEventDispatcher(); // NOLINT(google-runtime-references)
-        DescriptorEventDispatcher(const DescriptorEventDispatcher&) = delete;
-
-        DescriptorEventDispatcher& operator=(const DescriptorEventDispatcher&) = delete;
-
-        void enable(DescriptorEventReceiver* eventReceiver, int fd);
-        void disable(DescriptorEventReceiver* eventReceiver, int fd);
-        void suspend(DescriptorEventReceiver* eventReceiver, int fd);
-        void resume(DescriptorEventReceiver* eventReceiver, int fd);
-
-        unsigned long getEventCounter() const;
-
-    private:
         int getMaxFd() const;
         FdSet& getFdSet();
 

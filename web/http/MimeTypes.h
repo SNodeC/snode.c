@@ -30,10 +30,10 @@
 namespace web::http {
 
     class MimeTypes {
-    public:
         MimeTypes(const MimeTypes&) = delete;
         MimeTypes operator=(const MimeTypes&) = delete;
 
+    public:
         ~MimeTypes();
 
         static std::string contentType(const std::string& file);

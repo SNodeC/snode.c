@@ -41,6 +41,10 @@ namespace net::socket::stream {
     class SocketListener
         : public AcceptEventReceiver
         , public SocketConnectionT::Socket {
+        SocketListener() = delete;
+        SocketListener(const SocketListener&) = delete;
+        SocketListener& operator=(const SocketListener&) = delete;
+
     public:
         using SocketConnection = SocketConnectionT;
         using Socket = typename SocketConnection::Socket;
@@ -57,11 +61,6 @@ namespace net::socket::stream {
             , onConnected(onConnected)
             , onDisconnect(onDisconnect) {
         }
-
-        SocketListener() = delete;
-        SocketListener(const SocketListener&) = delete;
-
-        SocketListener& operator=(const SocketListener&) = delete;
 
         virtual ~SocketListener() = default;
 

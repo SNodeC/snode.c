@@ -43,6 +43,10 @@ namespace net::socket::stream {
     class SocketConnector
         : public ConnectEventReceiver
         , public SocketConnectionT::Socket {
+        SocketConnector() = delete;
+        SocketConnector(const SocketConnector&) = delete;
+        SocketConnector& operator=(const SocketConnector&) = delete;
+
     public:
         using SocketConnection = SocketConnectionT;
         using Socket = typename SocketConnection::Socket;
@@ -59,11 +63,6 @@ namespace net::socket::stream {
             , onConnected(onConnected)
             , onDisconnect(onDisconnect) {
         }
-
-        SocketConnector() = delete;
-        SocketConnector(const SocketConnector&) = delete;
-
-        SocketConnector& operator=(const SocketConnector&) = delete;
 
         virtual ~SocketConnector() = default;
 

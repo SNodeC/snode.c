@@ -36,15 +36,15 @@ namespace net {
         class IntervalTimer;
 
         class Timer : public TimerEventReceiver {
+            Timer(const Timer&) = delete;
+            Timer& operator=(const Timer& timer) = delete;
+
         protected:
             Timer(const struct timeval& timeout, const void* arg);
 
             virtual ~Timer() = default;
 
         public:
-            Timer(const Timer&) = delete;
-            Timer& operator=(const Timer& timer) = delete;
-
             static IntervalTimer& continousTimer(const std::function<void(const void* arg, const std::function<void()>& stop)>& dispatcher,
                                                  const struct timeval& timeout,
                                                  const void* arg);

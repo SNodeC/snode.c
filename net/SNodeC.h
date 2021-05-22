@@ -28,10 +28,10 @@
 namespace net {
 
     class SNodeC {
-    private:
         SNodeC() = delete;
         ~SNodeC() = delete;
 
+    private:
         void* operator new(std::size_t count) = delete;
 
     public:

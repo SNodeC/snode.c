@@ -38,12 +38,12 @@ namespace net::socket::stream {
     class SocketReader
         : public ReadEventReceiver
         , virtual public SocketT {
+        SocketReader() = delete;
+
     public:
         using Socket = SocketT;
 
     protected:
-        SocketReader() = delete;
-
         explicit SocketReader(const std::function<void(const char* junk, std::size_t junkLen)>& onRead,
                               const std::function<void(int errnum)>& onError)
             : onRead(onRead)

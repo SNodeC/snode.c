@@ -43,19 +43,13 @@ namespace net {
     };
 
     class DescriptorEventReceiver : virtual public ObservationCounter {
-    protected:
-        class TIMEOUT {
-        public:
-            static const long DEFAULT = -1;
-            static const long DISABLE = LONG_MAX;
-        };
-
-        explicit DescriptorEventReceiver(DescriptorEventDispatcher& descriptorEventDispatcher, long timeout = TIMEOUT::DISABLE);
-
-    public:
         DescriptorEventReceiver(const DescriptorEventReceiver&) = delete;
         DescriptorEventReceiver& operator=(const DescriptorEventReceiver&) = delete;
 
+    protected:
+        explicit DescriptorEventReceiver(DescriptorEventDispatcher& descriptorEventDispatcher, long timeout = TIMEOUT::DISABLE);
+
+    public:
         void enable(int fd);
         void disable();
 
@@ -63,6 +57,12 @@ namespace net {
         void resume();
 
     protected:
+        class TIMEOUT {
+        public:
+            static const long DEFAULT = -1;
+            static const long DISABLE = LONG_MAX;
+        };
+
         virtual ~DescriptorEventReceiver() = default;
 
         void setTimeout(long timeout);

@@ -36,11 +36,11 @@ namespace net::pipe {
     class PipeSource
         : public Descriptor
         , public WriteEventReceiver {
+        PipeSource(const PipeSource&) = delete;
+        PipeSource& operator=(const PipeSource&) = delete;
+
     public:
         PipeSource(int fd);
-        PipeSource(const PipeSource&) = delete;
-
-        PipeSource& operator=(const PipeSource&) = delete;
 
         void send(const char* junk, std::size_t junkLen);
         void send(const std::string& data);

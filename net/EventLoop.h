@@ -32,12 +32,11 @@
 namespace net {
 
     class EventLoop {
+        EventLoop(const EventLoop& eventLoop) = delete;
+        EventLoop& operator=(const EventLoop& eventLoop) = delete;
+
     private:
         EventLoop() = default;
-
-        EventLoop(const EventLoop& eventLoop) = delete;
-
-        EventLoop& operator=(const EventLoop& eventLoop) = delete;
 
         ~EventLoop() = default;
 

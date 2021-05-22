@@ -40,12 +40,12 @@ namespace net::socket::stream {
     class SocketWriter
         : public WriteEventReceiver
         , virtual public SocketT {
+        SocketWriter() = delete;
+
     public:
         using Socket = SocketT;
 
     protected:
-        SocketWriter() = delete;
-
         explicit SocketWriter(const std::function<void(int errnum)>& onError)
             : onError(onError) {
         }

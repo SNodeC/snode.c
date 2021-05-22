@@ -28,6 +28,8 @@
 namespace net::timer {
 
     class SingleshotTimer : public Timer {
+        SingleshotTimer& operator=(const SingleshotTimer& timer) = delete;
+
     public:
         SingleshotTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg)
             : Timer(timeout, arg)
@@ -41,8 +43,6 @@ namespace net::timer {
             cancel();
             return false;
         }
-
-        SingleshotTimer& operator=(const SingleshotTimer& timer) = delete;
 
     private:
         std::function<void(const void* arg)> dispatcher;

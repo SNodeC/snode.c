@@ -38,12 +38,12 @@ namespace net::socket::stream {
         : public SocketConnectionBase
         , public SocketReaderT
         , public SocketWriterT {
+        SocketConnection() = delete;
+
     public:
         using SocketReader = SocketReaderT;
         using SocketWriter = SocketWriterT;
         using SocketAddress = SocketAddressT;
-
-        SocketConnection() = delete;
 
     protected:
         SocketConnection(const std::shared_ptr<const SocketProtocolFactory>& socketProtocolFactory,
