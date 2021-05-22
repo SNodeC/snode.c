@@ -27,7 +27,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http::client {
+namespace web::client {
 
     template <typename RequestT, typename ResponseT>
     class ClientContextFactory : public net::socket::stream::SocketProtocolFactory {
@@ -56,6 +56,6 @@ namespace http::client {
         std::function<void(int, const std::string&)> onRequestError;
     };
 
-} // namespace http::client
+} // namespace web::client
 
 #endif // HTTP_CLIENT_CLIENTCONTEXTFACTORY_H

@@ -20,13 +20,13 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "web/client/Client.h"                     // for Client<>::Socket...
-#include "web/client/Request.h"                    // for Request
-#include "web/client/Response.h"                   // for Response
-#include "web/client/legacy/Client.h"              // for Client, Client<>...
 #include "log/Logger.h"                             // for Writer, Storage
 #include "net/SNodeC.h"                             // for SNodeC
 #include "net/socket/ip/address/ipv4/InetAddress.h" // for InetAddress
+#include "web/client/Client.h"                      // for Client<>::Socket...
+#include "web/client/Request.h"                     // for Request
+#include "web/client/Response.h"                    // for Response
+#include "web/client/legacy/Client.h"               // for Client, Client<>...
 
 #include <cstring>     // for memcpy
 #include <functional>  // for function
@@ -39,24 +39,24 @@
 int main(int argc, char* argv[]) {
     net::SNodeC::init(argc, argv);
 
-    http::client::legacy::Client<> jsonClient(
-        [](const http::client::legacy::Client<>::SocketAddress& localAddress,
-           const http::client::legacy::Client<>::SocketAddress& remoteAddress) -> void {
+    web::client::legacy::Client<> jsonClient(
+        [](const web::client::legacy::Client<>::SocketAddress& localAddress,
+           const web::client::legacy::Client<>::SocketAddress& remoteAddress) -> void {
             VLOG(0) << "-- OnConnect";
 
             VLOG(0) << "\tServer: " + remoteAddress.toString();
             VLOG(0) << "\tClient: " + localAddress.toString();
         },
-        []([[maybe_unused]] http::client::legacy::Client<>::SocketConnection* socketConnection) -> void {
+        []([[maybe_unused]] web::client::legacy::Client<>::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnConnected";
         },
-        [](http::client::Request& request) -> void {
+        [](web::client::Request& request) -> void {
             request.method = "POST";
             request.url = "/index.html";
             request.type("application/json");
             request.send("{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}");
         },
-        [](const http::client::Response& response) -> void {
+        [](const web::client::Response& response) -> void {
             VLOG(0) << "-- OnResponse";
             VLOG(0) << "     Status:";
             VLOG(0) << "       " << response.httpVersion;
@@ -89,7 +89,7 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "     Status: " << status;
             VLOG(0) << "     Reason: " << reason;
         },
-        [](http::client::legacy::Client<>::SocketConnection* socketConnection) -> void {
+        [](web::client::legacy::Client<>::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnDisconnect";
 
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();

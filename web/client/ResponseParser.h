@@ -31,7 +31,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http::client {
+namespace web::client {
 
     class ResponseParser : public Parser {
     public:
@@ -69,6 +69,6 @@ namespace http::client {
         std::function<void(int status, const std::string& reason)> onError;
     };
 
-} // namespace http::client
+} // namespace web::client
 
 #endif // HTTP_CLIENT_RESPONSEPARSER_H

@@ -31,7 +31,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http::server {
+namespace web::server {
 
     class RequestParser : public Parser {
     public:
@@ -65,7 +65,7 @@ namespace http::server {
         void parsingFinished();
         enum Parser::ParserState parsingError(int code, const std::string& reason) override;
 
-        // Supported http-methods
+        // Supported web-methods
         std::set<std::string> supportedMethods{"GET", "PUT", "POST", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH", "HEAD"};
 
         // Data specific to HTTP request messages
@@ -87,6 +87,6 @@ namespace http::server {
         std::function<void(int status, const std::string& reason)> onError;
     };
 
-} // namespace http::server
+} // namespace web::server
 
 #endif // HTTP_SERVER_REQUESTPARSER_H

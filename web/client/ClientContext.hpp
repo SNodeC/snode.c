@@ -16,9 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/client/ClientContext.h"
 #include "log/Logger.h"
 #include "net/socket/stream/SocketConnectionBase.h"
+#include "web/client/ClientContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,7 +27,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http::client {
+namespace web::client {
     class CookieOptions;
 
     template <typename Request, typename Response>
@@ -44,7 +44,7 @@ namespace http::client {
                   response.reason = reason;
               },
               [&response = this->response](const std::map<std::string, std::string>& headers,
-                                           const std::map<std::string, http::CookieOptions>& cookies) -> void {
+                                           const std::map<std::string, web::CookieOptions>& cookies) -> void {
                   response.headers = &headers;
                   response.cookies = &cookies;
               },
@@ -52,7 +52,7 @@ namespace http::client {
                   response.body = content;
                   response.contentLength = contentLength;
               },
-              [&response = this->response, &request = this->request, onResponse](http::client::ResponseParser& parser) -> void {
+              [&response = this->response, &request = this->request, onResponse](web::client::ResponseParser& parser) -> void {
                   onResponse(response);
                   parser.reset();
                   request.reset();
@@ -101,4 +101,4 @@ namespace http::client {
         socketConnection->getSocketProtocol()->close();
     }
 
-} // namespace http::client
+} // namespace web::client

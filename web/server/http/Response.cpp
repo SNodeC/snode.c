@@ -31,7 +31,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http::server {
+namespace web::server {
 
     Response::Response(HTTPServerContextBase* serverContext)
         : serverContext(serverContext) {
@@ -202,4 +202,4 @@ namespace http::server {
         cookies.clear();
     }
 
-} // namespace http::server
+} // namespace web::server

@@ -36,7 +36,7 @@ namespace net::socket::stream {
     class SocketConnectionBase;
 } // namespace net::socket::stream
 
-namespace http::client {
+namespace web::client {
 
     class ClientContextBase : public net::socket::stream::SocketProtocol {
     public:
@@ -82,6 +82,6 @@ namespace http::client {
         ResponseParser parser;
     };
 
-} // namespace http::client
+} // namespace web::client
 
 #endif // HTTP_CLIENT_CLIENTCONTEXT_H

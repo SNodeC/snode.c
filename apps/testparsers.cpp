@@ -18,10 +18,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h" // for Writer, Storage, VLOG
 #include "web/Parser.h"
 #include "web/client/ResponseParser.h"     // for HTTPResponseParser, ResponseCookie
 #include "web/server/http/RequestParser.h" // for RequestParser
-#include "log/Logger.h"                     // for Writer, Storage, VLOG
 
 #include <cstddef>
 #include <cstring>     // for memcpy, std::size_t
@@ -33,11 +33,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http {
+namespace web {
     class CookieOptions;
 }
 
-using namespace http;
+using namespace web;
 
 int main(int argc, char* argv[]) {
     Logger::init(argc, argv);

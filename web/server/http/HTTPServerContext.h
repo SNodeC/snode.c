@@ -34,7 +34,7 @@ namespace net::socket::stream {
     class SocketConnectionBase;
 }
 
-namespace http::server {
+namespace web::server {
 
     class HTTPServerContextBase : public net::socket::stream::SocketProtocol {
     public:
@@ -96,6 +96,6 @@ namespace http::server {
         void reset();
     };
 
-} // namespace http::server
+} // namespace web::server
 
 #endif // HTTP_SERVER_HTTPSERVERCONTEXT_H

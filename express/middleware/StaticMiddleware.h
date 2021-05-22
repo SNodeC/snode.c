@@ -51,7 +51,7 @@ namespace express::middleware {
         std::string root;
         std::map<std::string, std::string> stdHeaders = {
             {"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}, {"X-Powered-By", "snode.c"}};
-        std::map<std::string, http::CookieOptions> stdCookies = {};
+        std::map<std::string, web::CookieOptions> stdCookies = {};
         bool forceClose = false;
 
         friend class StaticMiddleware& StaticMiddleware(const std::string& root);

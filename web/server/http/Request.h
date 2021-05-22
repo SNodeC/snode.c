@@ -19,8 +19,8 @@
 #ifndef HTTP_SERVER_REQUEST_H
 #define HTTP_SERVER_REQUEST_H
 
-#include "web/ConnectionState.h"
 #include "utils/AttributeInjector.h"
+#include "web/ConnectionState.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,7 +28,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http::server {
+namespace web::server {
 
     class Request : public utils::MultibleAttributeInjector {
     protected:
@@ -65,7 +65,7 @@ namespace http::server {
         friend class HTTPServerContext;
     };
 
-} // namespace http::server
+} // namespace web::server
 
 #endif // HTTP_SERVER_REQUEST_H
 

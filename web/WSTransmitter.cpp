@@ -31,7 +31,7 @@
 
 #define WSMAXFRAMEPAYLOADLENGTH 1024
 
-namespace http {
+namespace web {
 
     void WSTransmitter::messageStart(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey) {
         send(false, opCode, message, messageLength, messageKey);
@@ -136,4 +136,4 @@ namespace http {
         }
     }
 
-} // namespace http
+} // namespace web

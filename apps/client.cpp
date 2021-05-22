@@ -21,13 +21,13 @@
 #include "web/client/Client.h" // for Client<>::Socket...
 
 #include "config.h"                                 // for SERVERCAFILE
-#include "web/client/Request.h"                    // for Request, client
-#include "web/client/Response.h"                   // for Response
-#include "web/client/legacy/Client.h"              // for Client, Client<>...
-#include "web/client/tls/Client.h"                 // for Client, Client<>...
 #include "log/Logger.h"                             // for Writer, Storage
 #include "net/SNodeC.h"                             // for SNodeC
 #include "net/socket/ip/address/ipv4/InetAddress.h" // for InetAddress
+#include "web/client/Request.h"                     // for Request, client
+#include "web/client/Response.h"                    // for Response
+#include "web/client/legacy/Client.h"               // for Client, Client<>...
+#include "web/client/tls/Client.h"                  // for Client, Client<>...
 
 #include <any>                // for any
 #include <cstring>            // for memcpy
@@ -47,7 +47,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-using namespace http::client;
+using namespace web::client;
 
 int main(int argc, char* argv[]) {
     net::SNodeC::init(argc, argv);

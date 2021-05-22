@@ -16,10 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/http_utils.h"
-#include "web/server/http/HTTPServerContext.h"
 #include "log/Logger.h"
 #include "net/socket/stream/SocketConnectionBase.h"
+#include "web/http_utils.h"
+#include "web/server/http/HTTPServerContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,7 +27,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http::server {
+namespace web::server {
 
     template <typename Request, typename Response>
     HTTPServerContext<Request, Response>::HTTPServerContext(const std::function<void(Request& req, Response& res)>& onRequestReady)
@@ -217,4 +217,4 @@ namespace http::server {
         reset();
     }
 
-} // namespace http::server
+} // namespace web::server

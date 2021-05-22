@@ -20,9 +20,9 @@
 
 #include "config.h" // just for this example app
 #include "express/legacy/WebApp.h"
-#include "web/server/ws/WSServerContext.h"
 #include "net/timer/IntervalTimer.h"
 #include "net/timer/SingleshotTimer.h"
+#include "web/server/ws/WSServerContext.h"
 
 #include <cstring>
 #include <iostream>
@@ -120,16 +120,16 @@ int timerApp() {
                 }
             });
         }
-        res.upgrade(new http::websocket::WSServerContext(
-            []([[maybe_unused]] http::websocket::WSServerContext* wSServerContext, [[maybe_unused]] int opCode) -> void {
+        res.upgrade(new web::websocket::WSServerContext(
+            []([[maybe_unused]] web::websocket::WSServerContext* wSServerContext, [[maybe_unused]] int opCode) -> void {
                 VLOG(0) << "Message Start - OpCode: " << opCode;
             },
-            []([[maybe_unused]] http::websocket::WSServerContext* wSServerContext,
+            []([[maybe_unused]] web::websocket::WSServerContext* wSServerContext,
                [[maybe_unused]] const char* junk,
                [[maybe_unused]] std::size_t junkLen) -> void {
                 VLOG(0) << "Data: " << std::string(junk, static_cast<std::size_t>(junkLen));
             },
-            []([[maybe_unused]] http::websocket::WSServerContext* wSServerContext) -> void {
+            []([[maybe_unused]] web::websocket::WSServerContext* wSServerContext) -> void {
                 VLOG(0) << "Message End";
                 wSServerContext->message(1, "Hallo zurück", strlen("Hallo zurück"));
             }));

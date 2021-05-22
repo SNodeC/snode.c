@@ -28,7 +28,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http {
+namespace web {
 
     class Parser {
     protected:
@@ -88,6 +88,6 @@ namespace http {
         friend enum HTTPCompliance operator&(const enum HTTPCompliance& c1, const enum HTTPCompliance& c2);
     };
 
-} // namespace http
+} // namespace web
 
 #endif // HTTP_PARSER_H

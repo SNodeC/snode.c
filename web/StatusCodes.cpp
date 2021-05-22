@@ -22,7 +22,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http {
+namespace web {
 
     std::map<int, std::string> StatusCode::statusCode = {{100, "Continue"},
                                                          {101, "Switching Protocols"},
@@ -101,4 +101,4 @@ namespace http {
     bool StatusCode::contains(int status) {
         return statusCode.contains(status);
     }
-} // namespace http
+} // namespace web

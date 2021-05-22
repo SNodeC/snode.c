@@ -27,7 +27,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http::server {
+namespace web::server {
 
     template <typename RequestT, typename ResponseT>
     class HTTPServerContextFactory : public net::socket::stream::SocketProtocolFactory {
@@ -51,6 +51,6 @@ namespace http::server {
         std::function<void(Request& req, Response& res)> onRequestReady;
     };
 
-} // namespace http::server
+} // namespace web::server
 
 #endif // HTTP_SERVER_HTTPSERVERCONTEXTFACTORY_H

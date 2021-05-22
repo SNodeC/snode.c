@@ -18,15 +18,15 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h"              // just for this example app
-#include "web/CookieOptions.h"  // for CookieOptions
-#include "web/client/Client.h"  // for Client<>::Socket...
-#include "web/client/Request.h" // for Request
-#include "web/client/Response.h"
-#include "web/client/tls/Client.h"
+#include "config.h" // just for this example app
 #include "log/Logger.h"
 #include "net/SNodeC.h"
 #include "net/socket/ip/address/ipv6/InetAddress.h" // for InetAddress
+#include "web/CookieOptions.h"                      // for CookieOptions
+#include "web/client/Client.h"                      // for Client<>::Socket...
+#include "web/client/Request.h"                     // for Request
+#include "web/client/Response.h"
+#include "web/client/tls/Client.h"
 
 #include <any> // for any
 #include <cstring>
@@ -45,7 +45,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-using namespace http::client;
+using namespace web::client;
 
 int main(int argc, char* argv[]) {
     net::SNodeC::init(argc, argv);

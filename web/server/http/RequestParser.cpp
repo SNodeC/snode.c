@@ -29,7 +29,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http::server {
+namespace web::server {
 
     RequestParser::RequestParser(
         const std::function<void(void)>& onStart,
@@ -163,4 +163,4 @@ namespace http::server {
         return ParserState::ERROR;
     }
 
-} // namespace http::server
+} // namespace web::server

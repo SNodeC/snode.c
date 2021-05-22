@@ -28,14 +28,14 @@
 
 namespace express::tls {
 
-    class WebApp : public WebAppT<http::server::tls::Server<express::Request, express::Response>> {
+    class WebApp : public WebAppT<web::server::tls::Server<express::Request, express::Response>> {
     public:
-        using WebAppT<http::server::tls::Server<express::Request, express::Response>>::WebAppT;
+        using WebAppT<web::server::tls::Server<express::Request, express::Response>>::WebAppT;
     };
 
-    class WebApp6 : public WebAppT<http::server::tls::Server6<express::Request, express::Response>> {
+    class WebApp6 : public WebAppT<web::server::tls::Server6<express::Request, express::Response>> {
     public:
-        using WebAppT<http::server::tls::Server6<express::Request, express::Response>>::WebAppT;
+        using WebAppT<web::server::tls::Server6<express::Request, express::Response>>::WebAppT;
     };
 
 } // namespace express::tls

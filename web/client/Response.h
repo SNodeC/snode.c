@@ -27,11 +27,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http {
+namespace web {
     class CookieOptions;
 }
 
-namespace http {
+namespace web {
 
     namespace client {
 
@@ -57,6 +57,6 @@ namespace http {
 
     } // namespace client
 
-} // namespace http
+} // namespace web
 
 #endif // HTTP_CLIENT_RESPONSE_H

@@ -19,7 +19,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "config.h"                                  // for CLIENTCERTF
-#include "web/client/ResponseParser.h"              // for ResponseParser
 #include "log/Logger.h"                              // for Writer, Storage
 #include "net/SNodeC.h"                              // for SNodeC
 #include "net/socket/ip/address/ipv4/InetAddress.h"  // for InetAddress, ip
@@ -29,6 +28,7 @@
 #include "net/socket/stream/SocketProtocolFactory.h" // for SocketProtocolF...
 #include "net/socket/stream/legacy/SocketClient.h"   // for SocketClient
 #include "net/socket/stream/tls/SocketClient.h"      // for SocketClient
+#include "web/client/ResponseParser.h"               // for ResponseParser
 
 #include <any>                // for any
 #include <functional>         // for function
@@ -47,7 +47,7 @@
 #include <type_traits>        // for add_const<>::type
 #include <utility>            // for tuple_element<>...
 
-namespace http {
+namespace web {
     class CookieOptions;
 }
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -56,14 +56,14 @@ using namespace net::socket::ip;
 using namespace net::socket::ip::address::ipv4;
 using namespace net::socket::stream;
 
-static http::client::ResponseParser* getResponseParser() {
-    http::client::ResponseParser* responseParser = new http::client::ResponseParser(
+static web::client::ResponseParser* getResponseParser() {
+    web::client::ResponseParser* responseParser = new web::client::ResponseParser(
         [](void) -> void {
         },
         [](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
             VLOG(0) << "++ Response: " << httpVersion << " " << statusCode << " " << reason;
         },
-        [](const std::map<std::string, std::string>& headers, const std::map<std::string, http::CookieOptions>& cookies) -> void {
+        [](const std::map<std::string, std::string>& headers, const std::map<std::string, web::CookieOptions>& cookies) -> void {
             VLOG(0) << "++   Headers:";
             for (const auto& [field, value] : headers) {
                 VLOG(0) << "++       " << field + " = " + value;
@@ -84,7 +84,7 @@ static http::client::ResponseParser* getResponseParser() {
             VLOG(0) << "++   OnContent: " << contentLength << std::endl << strContent;
             delete[] strContent;
         },
-        [](http::client::ResponseParser& parser) -> void {
+        [](web::client::ResponseParser& parser) -> void {
             VLOG(0) << "++   OnParsed";
             parser.reset();
         },
@@ -118,7 +118,7 @@ public:
     }
 
 private:
-    http::client::ResponseParser* responseParser;
+    web::client::ResponseParser* responseParser;
 };
 
 class SimpleSocketProtocolFactory : public SocketProtocolFactory {

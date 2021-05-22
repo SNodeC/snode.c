@@ -18,11 +18,11 @@
 
 #include "express/Response.h"
 
+#include "net/file/FileReader.h"
 #include "web/MimeTypes.h"
 #include "web/StatusCodes.h"
 #include "web/http_utils.h"
 #include "web/server/http/HTTPServerContext.h"
-#include "net/file/FileReader.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,8 +32,8 @@
 
 namespace express {
 
-    Response::Response(http::server::HTTPServerContextBase* serverContext)
-        : http::server::Response(serverContext) {
+    Response::Response(web::server::HTTPServerContextBase* serverContext)
+        : web::server::Response(serverContext) {
     }
 
     void Response::sendFile(const std::string& file, const std::function<void(int err)>& onError) {
@@ -91,11 +91,11 @@ namespace express {
     }
 
     void Response::sendStatus(int status) {
-        this->status(status).send(http::StatusCode::reason(status));
+        this->status(status).send(web::StatusCode::reason(status));
     }
 
     void Response::reset() {
-        http::server::Response::reset();
+        web::server::Response::reset();
     }
 
 } // namespace express

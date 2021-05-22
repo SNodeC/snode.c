@@ -19,14 +19,14 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "config.h"                                 // for SERVERCAFILE
-#include "web/client/Client.h"                     // for Client<>::Socket...
-#include "web/client/Request.h"                    // for Request, client
-#include "web/client/Response.h"                   // for Response
-#include "web/client/legacy/Client.h"              // for Client6, Client6...
-#include "web/client/tls/Client.h"                 // for Client6, Client6...
 #include "log/Logger.h"                             // for Writer, Storage
 #include "net/SNodeC.h"                             // for SNodeC
 #include "net/socket/ip/address/ipv6/InetAddress.h" // for InetAddress
+#include "web/client/Client.h"                      // for Client<>::Socket...
+#include "web/client/Request.h"                     // for Request, client
+#include "web/client/Response.h"                    // for Response
+#include "web/client/legacy/Client.h"               // for Client6, Client6...
+#include "web/client/tls/Client.h"                  // for Client6, Client6...
 
 #include <any>                // for any
 #include <cstring>            // for memcpy
@@ -46,7 +46,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-using namespace http::client;
+using namespace web::client;
 
 int main(int argc, char* argv[]) {
     net::SNodeC::init(argc, argv);

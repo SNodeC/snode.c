@@ -28,7 +28,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http::client {
+namespace web::client {
 
     Request::Request(ClientContextBase* clientContext)
         : clientContext(clientContext) {
@@ -217,4 +217,4 @@ namespace http::client {
         clientContext->terminateConnection();
     }
 
-} // namespace http::client
+} // namespace web::client

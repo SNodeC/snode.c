@@ -19,20 +19,20 @@
 #ifndef HTTP_CLIENT_LEGACY_CLIENT_H
 #define HTTP_CLIENT_LEGACY_CLIENT_H
 
-#include "web/client/Client.h"
 #include "net/socket/ip/tcp/ipv4/legacy/SocketClient.h"
 #include "net/socket/ip/tcp/ipv6/legacy/SocketClient.h"
+#include "web/client/Client.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http::client::legacy {
+namespace web::client::legacy {
 
-    template <typename Request = http::client::Request, typename Response = http::client::Response>
-    class Client : public http::client::Client<net::socket::ip::tcp::ipv4::legacy::SocketClient, Request, Response> {
+    template <typename Request = web::client::Request, typename Response = web::client::Response>
+    class Client : public web::client::Client<net::socket::ip::tcp::ipv4::legacy::SocketClient, Request, Response> {
     public:
-        using http::client::Client<net::socket::ip::tcp::ipv4::legacy::SocketClient, Request, Response>::Client;
+        using web::client::Client<net::socket::ip::tcp::ipv4::legacy::SocketClient, Request, Response>::Client;
     };
     /*
         Client(const std::function<void(net::socket::ip::tcp::ipv4::legacy::SocketClient::SocketConnection*)>& onConnect,
@@ -42,13 +42,13 @@ namespace http::client::legacy {
                const std::function<void(int, const std::string&)>& onResponseError,
                const std::function<void(net::socket::ip::tcp::ipv4::legacy::SocketClient::SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
-            ->Client<http::client::Request, http::client::Response>;
+            ->Client<web::client::Request, web::client::Response>;
     */
 
-    template <typename Request = http::client::Request, typename Response = http::client::Response>
-    class Client6 : public http::client::Client<net::socket::ip::tcp::ipv6::legacy::SocketClient, Request, Response> {
+    template <typename Request = web::client::Request, typename Response = web::client::Response>
+    class Client6 : public web::client::Client<net::socket::ip::tcp::ipv6::legacy::SocketClient, Request, Response> {
     public:
-        using http::client::Client<net::socket::ip::tcp::ipv6::legacy::SocketClient, Request, Response>::Client;
+        using web::client::Client<net::socket::ip::tcp::ipv6::legacy::SocketClient, Request, Response>::Client;
     };
     /*
         Client6(const std::function<void(net::socket::ip::tcp::ipv6::legacy::SocketClient::SocketConnection*)>& onConnect,
@@ -58,8 +58,8 @@ namespace http::client::legacy {
                 const std::function<void(int, const std::string&)>& onResponseError,
                 const std::function<void(net::socket::ip::tcp::ipv6::legacy::SocketClient::SocketConnection*)>& onDisconnect,
                 const std::map<std::string, std::any>& options = {{}})
-            ->Client6<http::client::Request, http::client::Response>;
+            ->Client6<web::client::Request, web::client::Response>;
     */
-} // namespace http::client::legacy
+} // namespace web::client::legacy
 
 #endif // HTTP_CLIENT_LEGACY_CLIENT_H

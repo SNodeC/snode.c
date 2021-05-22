@@ -16,7 +16,7 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace http::server {
+namespace web::server {
 
     template <template <typename SocketProtocolT> typename SocketServerT, typename RequestT, typename ResponseT>
     class Server {
@@ -72,6 +72,6 @@ namespace http::server {
         SocketServer socketServer;
     };
 
-} // namespace http::server
+} // namespace web::server
 
 #endif // HTTP_SERVER_SERVERT_H

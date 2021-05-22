@@ -19,9 +19,9 @@
 #ifndef HTTP_SERVER_RESPONSE_H
 #define HTTP_SERVER_RESPONSE_H
 
+#include "net/stream/Sink.h"
 #include "web/ConnectionState.h"
 #include "web/CookieOptions.h"
-#include "net/stream/Sink.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -37,7 +37,7 @@ namespace net::socket::stream {
     class SocketProtocol;
 }
 
-namespace http::server {
+namespace web::server {
 
     class HTTPServerContextBase;
     class ServerContext;
@@ -92,7 +92,7 @@ namespace http::server {
         friend class HTTPServerContext;
     };
 
-} // namespace http::server
+} // namespace web::server
 
 #endif // HTTP_SERVER_RESPONSE_H
 

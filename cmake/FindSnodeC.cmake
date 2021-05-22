@@ -5,17 +5,17 @@
 #
 # Add find_package(SnodeC REQUIRED) to your CMakeLists.txt file
 #
-# In case you need snode.c without http/express add
+# In case you need snode.c without wenb/express add
 # target_include_directories(<target> SNODEC_NET_INCLUDES)
 # target_link_libraries(<target> SNODEC_NET_LIBRARIES) to your CMakeLists.txt
 # file
 #
-# In case you need snode.c and http but not express add
-# target_include_directories(<target> SNODEC_HTTP_INCLUDES)
-# target_link_libraries(<target> SNODEC_HTTP_LIBRARIES) to your CMakeLists.txt
+# In case you need snode.c and web but not express add
+# target_include_directories(<target> SNODEC_WEB_INCLUDES)
+# target_link_libraries(<target> SNODEC_WEB_LIBRARIES) to your CMakeLists.txt
 # file
 #
-# In case you need the full snode.c-stack (snode.c/http/express) add
+# In case you need the full snode.c-stack (snode.c/web/express) add
 # target_include_directories(<target> SNODEC_EXPRESS_INCLUDES)
 # target_link_libraries(<target> SNODEC_EXPRESS_LIBRARIES) to your
 # CMakeLists.txt file
@@ -36,9 +36,9 @@ if(NOT SNODEC_NET_ROOT_DIR)
     set(SNODEC_NET_ROOT_DIR ${SNODEC_ROOT_DIR})
 endif(NOT SNODEC_NET_ROOT_DIR)
 
-if(NOT SNODEC_HTTP_ROOT_DIR)
-    set(SNODEC_HTTP_ROOT_DIR ${SNODEC_ROOT_DIR})
-endif(NOT SNODEC_HTTP_ROOT_DIR)
+if(NOT SNODEC_WEB_ROOT_DIR)
+    set(SNODEC_WEB_ROOT_DIR ${SNODEC_ROOT_DIR})
+endif(NOT SNODEC_WEB_ROOT_DIR)
 
 if(NOT SNODEC_EXPRESS_ROOT_DIR)
     set(SNODEC_EXPRESS_ROOT_DIR ${SNODEC_ROOT_DIR})
@@ -81,18 +81,18 @@ if(NOT SNODEC_FOUND)
 
     find_library(SNODEC_NET_LIBRARY net HINTS ${SNODEC_NET_ROOT_DIR}/lib)
 
-    # ########## HTTP
+    # ########## WEB
     find_path(
-        SNODEC_HTTP_H
-        NAMES http/http_utils.h
-        HINTS ${SNODEC_HTTP_ROOT_DIR}/include
+        SNODEC_WEB_H
+        NAMES web/http_utils.h
+        HINTS ${SNODEC_WEB_ROOT_DIR}/include
         PATH_SUFFIXES snode.c
     )
-    if(SNODEC_HTTP_H)
-        list(APPEND SNODEC_HTTP_INCLUDE ${SNODEC_HTTP_H})
-    endif(SNODEC_HTTP_H)
+    if(SNODEC_WEB_H)
+        list(APPEND SNODEC_WEB_INCLUDE ${SNODEC_WEB_H})
+    endif(SNODEC_WEB_H)
 
-    find_library(SNODEC_HTTP_LIBRARY http HINTS ${SNODEC_HTTP_ROOT_DIR}/lib)
+    find_library(SNODEC_WEB_LIBRARY web HINTS ${SNODEC_WEB_ROOT_DIR}/lib)
 
     # ########## EXPRESS
     find_path(
@@ -127,8 +127,8 @@ if(NOT SNODEC_FOUND)
             SNODEC_NET_INCLUDE
             SNODEC_LOGGER_INCLUDE
             SNODEC_LOGGER_LIBRARY
-            SNODEC_HTTP_INCLUDE
-            SNODEC_HTTP_LIBRARY
+            SNODEC_WEB_INCLUDE
+            SNODEC_WEB_LIBRARY
             SNODEC_EXPRESS_INCLUDE
             SNODEC_EXPRESS_LIBRARY
             SNODEC_UTILS_H
@@ -143,25 +143,25 @@ if(SNODEC_FOUND)
     message("-- Found SnodeC: ")
     message("--     " ${SNODEC_LOGGER_LIBRARY})
     message("--     " ${SNODEC_NET_LIBRARY})
-    message("--     " ${SNODEC_HTTP_LIBRARY})
+    message("--     " ${SNODEC_WEB_LIBRARY})
     message("--     " ${SNODEC_EXPRESS_LIBRARY})
 
     message("--     " ${SNODEC_LOGGER_INCLUDE})
     message("--     " ${SNODEC_NET_INCLUDE})
-    message("--     " ${SNODEC_HTTP_INCLUDE})
+    message("--     " ${SNODEC_WEB_INCLUDE})
     message("--     " ${SNODEC_EXPRESS_INCLUDE})
 
     set(SNODEC_NET_LIBRARIES ${SNODEC_LOGGER_LIBRARY} ${SNODEC_NET_LIBRARY})
-    set(SNODEC_HTTP_LIBRARIES ${SNODEC_NET_LIBRARIES} ${SNODEC_HTTP_LIBRARY})
-    set(SNODEC_EXPRESS_LIBRARIES ${SNODEC_HTTP_LIBRARIES}
+    set(SNODEC_WEB_LIBRARIES ${SNODEC_NET_LIBRARIES} ${SNODEC_WEB_LIBRARY})
+    set(SNODEC_EXPRESS_LIBRARIES ${SNODEC_WEB_LIBRARIES}
                                  ${SNODEC_EXPRESS_LIBRARY}
     )
 
     set(SNODEC_NET_INCLUDES ${SNODEC_LOGGER_INCLUDE} ${SNODEC_NET_INCLUDE})
-    set(SNODEC_HTTP_INCLUDES ${SNODEC_NET_INCLUDES} ${SNODEC_UTILS_INCLUDE}
-                             ${SNODEC_HTTP_INCLUDE}
+    set(SNODEC_WEB_INCLUDES ${SNODEC_NET_INCLUDES} ${SNODEC_UTILS_INCLUDE}
+                             ${SNODEC_WEB_INCLUDE}
     )
-    set(SNODEC_EXPRESS_INCLUDES ${SNODEC_HTTP_INCLUDES}
+    set(SNODEC_EXPRESS_INCLUDES ${SNODEC_WEB_INCLUDES}
                                 ${SNODEC_EXPRESS_INCLUDE}
     )
 endif(SNODEC_FOUND)

@@ -19,8 +19,8 @@
 #ifndef HTTP_CLIENT_REQUEST_H
 #define HTTP_CLIENT_REQUEST_H
 
-#include "web/ConnectionState.h"
 #include "net/stream/Sink.h"
+#include "web/ConnectionState.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,7 +30,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http::client {
+namespace web::client {
 
     class ClientContextBase;
 
@@ -89,6 +89,6 @@ namespace http::client {
         friend class ClientContext;
     };
 
-} // namespace http::client
+} // namespace web::client
 
 #endif // HTTP_CLIENT_REQUEST_H

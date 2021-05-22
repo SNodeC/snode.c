@@ -19,9 +19,9 @@
 #ifndef WSTRANSCEIVER_H
 #define WSTRANSCEIVER_H
 
+#include "net/socket/stream/SocketProtocol.h"
 #include "web/WSReceiver.h"
 #include "web/WSTransmitter.h"
-#include "net/socket/stream/SocketProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,12 +31,12 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http::websocket {
+namespace web::websocket {
 
     class WSServerContext
         : public net::socket::stream::SocketProtocol
-        , public http::WSReceiver
-        , public http::WSTransmitter {
+        , public web::WSReceiver
+        , public web::WSTransmitter {
     public:
         WSServerContext(const std::function<void(WSServerContext* wSServerContext, int opCode)>& _onMessageStart,
                         const std::function<void(WSServerContext* wSServerContext, const char* junk, std::size_t junkLen)>& _onFrameData,
@@ -78,6 +78,6 @@ namespace http::websocket {
         std::function<void(WSServerContext* wSServerContext)> _onMessageEnd = nullptr;
     };
 
-} // namespace http::websocket
+} // namespace web::websocket
 
 #endif // WSTRANSCEIVER_H

@@ -29,7 +29,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http::websocket {
+namespace web::websocket {
 
     WSServerContext::WSServerContext(
         const std::function<void(WSServerContext* wSServerContext, int opCode)>& _onMessageStart,
@@ -175,4 +175,4 @@ namespace http::websocket {
         message(10, reason, reasonLength);
     }
 
-} // namespace http::websocket
+} // namespace web::websocket

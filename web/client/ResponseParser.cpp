@@ -30,7 +30,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http::client {
+namespace web::client {
 
     ResponseParser::ResponseParser(
         const std::function<void(void)>& onStart,
@@ -161,4 +161,4 @@ namespace http::client {
         onParsed(*this);
     }
 
-} // namespace http::client
+} // namespace web::client

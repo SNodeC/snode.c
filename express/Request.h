@@ -30,7 +30,7 @@
 
 namespace express {
 
-    class Request : public http::server::Request {
+    class Request : public web::server::Request {
     public:
         std::string& param(const std::string& id);
 

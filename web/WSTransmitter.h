@@ -26,7 +26,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http {
+namespace web {
 
     class WSTransmitter {
     protected:
@@ -52,6 +52,6 @@ namespace http {
         virtual void onFrameReady(char* frame, uint64_t frameLength) = 0;
     };
 
-} // namespace http
+} // namespace web
 
 #endif // WSTRANSMITTER_H

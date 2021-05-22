@@ -19,28 +19,28 @@
 #ifndef HTTP_SERVER_TLS_SERVER_H
 #define HTTP_SERVER_TLS_SERVER_H
 
-#include "web/server/Server.h"
 #include "net/socket/ip/tcp/ipv4/tls/SocketServer.h"
 #include "net/socket/ip/tcp/ipv6/tls/SocketServer.h"
+#include "web/server/Server.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http::server::tls {
+namespace web::server::tls {
 
-    template <typename Request = http::server::Request, typename Response = http::server::Response>
-    class Server : public http::server::Server<net::socket::ip::tcp::ipv4::tls::SocketServer, Request, Response> {
+    template <typename Request = web::server::Request, typename Response = web::server::Response>
+    class Server : public web::server::Server<net::socket::ip::tcp::ipv4::tls::SocketServer, Request, Response> {
     public:
-        using http::server::Server<net::socket::ip::tcp::ipv4::tls::SocketServer, Request, Response>::Server;
+        using web::server::Server<net::socket::ip::tcp::ipv4::tls::SocketServer, Request, Response>::Server;
     };
 
-    template <typename Request = http::server::Request, typename Response = http::server::Response>
-    class Server6 : public http::server::Server<net::socket::ip::tcp::ipv6::tls::SocketServer, Request, Response> {
+    template <typename Request = web::server::Request, typename Response = web::server::Response>
+    class Server6 : public web::server::Server<net::socket::ip::tcp::ipv6::tls::SocketServer, Request, Response> {
     public:
-        using http::server::Server<net::socket::ip::tcp::ipv6::tls::SocketServer, Request, Response>::Server;
+        using web::server::Server<net::socket::ip::tcp::ipv6::tls::SocketServer, Request, Response>::Server;
     };
 
-} // namespace http::server::tls
+} // namespace web::server::tls
 
 #endif // HTTP_SERVER_TLS_SERVER_H

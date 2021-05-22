@@ -19,20 +19,20 @@
 #ifndef HTTP_CLIENT_TLS_CLIENT_H
 #define HTTP_CLIENT_TLS_CLIENT_H
 
-#include "web/client/Client.h"
 #include "net/socket/ip/tcp/ipv4/tls/SocketClient.h"
 #include "net/socket/ip/tcp/ipv6/tls/SocketClient.h"
+#include "web/client/Client.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace http::client::tls {
+namespace web::client::tls {
 
-    template <typename Request = http::client::Request, typename Response = http::client::Response>
-    class Client : public http::client::Client<net::socket::ip::tcp::ipv4::tls::SocketClient, Request, Response> {
+    template <typename Request = web::client::Request, typename Response = web::client::Response>
+    class Client : public web::client::Client<net::socket::ip::tcp::ipv4::tls::SocketClient, Request, Response> {
     public:
-        using http::client::Client<net::socket::ip::tcp::ipv4::tls::SocketClient, Request, Response>::Client;
+        using web::client::Client<net::socket::ip::tcp::ipv4::tls::SocketClient, Request, Response>::Client;
     };
     /*
         Client(const std::function<void(net::socket::ip::tcp::ipv4::tls::SocketClient::SocketConnection*)>& onConnect,
@@ -42,12 +42,12 @@ namespace http::client::tls {
                const std::function<void(int, const std::string&)>& onResponseError,
                const std::function<void(net::socket::ip::tcp::ipv4::tls::SocketClient::SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
-            ->Client<http::client::Request, http::client::Response>;
+            ->Client<web::client::Request, web::client::Response>;
     */
-    template <typename Request = http::client::Request, typename Response = http::client::Response>
-    class Client6 : public http::client::Client<net::socket::ip::tcp::ipv6::tls::SocketClient, Request, Response> {
+    template <typename Request = web::client::Request, typename Response = web::client::Response>
+    class Client6 : public web::client::Client<net::socket::ip::tcp::ipv6::tls::SocketClient, Request, Response> {
     public:
-        using http::client::Client<net::socket::ip::tcp::ipv6::tls::SocketClient, Request, Response>::Client;
+        using web::client::Client<net::socket::ip::tcp::ipv6::tls::SocketClient, Request, Response>::Client;
     };
     /*
         Client6(const std::function<void(net::socket::ip::tcp::ipv6::tls::SocketClient::SocketConnection*)>& onConnect,
@@ -57,8 +57,8 @@ namespace http::client::tls {
                 const std::function<void(int, const std::string&)>& onResponseError,
                 const std::function<void(net::socket::ip::tcp::ipv6::tls::SocketClient::SocketConnection*)>& onDisconnect,
                 const std::map<std::string, std::any>& options = {{}})
-            ->Client6<http::client::Request, http::client::Response>;
+            ->Client6<web::client::Request, web::client::Response>;
     */
-} // namespace http::client::tls
+} // namespace web::client::tls
 
 #endif // HTTP_CLIENT_TLS_CLIENT_H

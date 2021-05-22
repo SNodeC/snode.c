@@ -1,9 +1,9 @@
 #include "config.h"
 #include "express/legacy/WebApp.h"
 #include "express/tls/WebApp.h"
-#include "web/server/ws/WSServerContext.h"
 #include "log/Logger.h"
 #include "net/SNodeC.h"
+#include "web/server/ws/WSServerContext.h"
 
 #include <cstddef>
 #include <endian.h>
@@ -143,16 +143,16 @@ int main(int argc, char* argv[]) {
 
         res.status(101); // Switch Protocol
 
-        res.upgrade(new http::websocket::WSServerContext(
-            []([[maybe_unused]] http::websocket::WSServerContext* wSServerContext, [[maybe_unused]] int opCode) -> void {
+        res.upgrade(new web::websocket::WSServerContext(
+            []([[maybe_unused]] web::websocket::WSServerContext* wSServerContext, [[maybe_unused]] int opCode) -> void {
                 VLOG(0) << "Message Start - OpCode: " << opCode;
             },
-            []([[maybe_unused]] http::websocket::WSServerContext* wSServerContext,
+            []([[maybe_unused]] web::websocket::WSServerContext* wSServerContext,
                [[maybe_unused]] const char* junk,
                [[maybe_unused]] std::size_t junkLen) -> void {
                 VLOG(0) << "Data: " << std::string(junk, static_cast<std::size_t>(junkLen));
             },
-            [](http::websocket::WSServerContext* wSServerContext) -> void {
+            [](web::websocket::WSServerContext* wSServerContext) -> void {
                 VLOG(0) << "Message End";
                 wSServerContext->message(1, "Hallo zurück", strlen("Hallo zurück"));
                 wSServerContext->sendPing();
@@ -193,14 +193,14 @@ int main(int argc, char* argv[]) {
 
         res.status(101); // Switch Protocol
 
-        res.upgrade(new http::websocket::WSServerContext(
-            []([[maybe_unused]] http::websocket::WSServerContext* wSServerContext, [[maybe_unused]] int opCode) -> void {
+        res.upgrade(new web::websocket::WSServerContext(
+            []([[maybe_unused]] web::websocket::WSServerContext* wSServerContext, [[maybe_unused]] int opCode) -> void {
                 VLOG(0) << "Message Start - OpCode: " << opCode;
             },
-            []([[maybe_unused]] http::websocket::WSServerContext* wSServerContext, const char* junk, std::size_t junkLen) -> void {
+            []([[maybe_unused]] web::websocket::WSServerContext* wSServerContext, const char* junk, std::size_t junkLen) -> void {
                 VLOG(0) << "Data: " << std::string(junk, static_cast<std::size_t>(junkLen));
             },
-            [](http::websocket::WSServerContext* wSServerContext) -> void {
+            [](web::websocket::WSServerContext* wSServerContext) -> void {
                 VLOG(0) << "Message End";
                 wSServerContext->message(1, "Hallo zurück", strlen("Hallo zurück"));
                 wSServerContext->sendPing();
