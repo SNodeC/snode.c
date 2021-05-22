@@ -31,7 +31,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::websocket {
+namespace web::server::ws {
 
     class WSServerContext
         : public net::socket::stream::SocketProtocol
