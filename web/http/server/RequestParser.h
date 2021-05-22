@@ -47,7 +47,7 @@ namespace web::http::server {
 
         void reset() override;
 
-    protected:
+    private:
         // Check if request method is supported
         virtual bool methodSupported(const std::string& method) {
             return supportedMethods.contains(method);

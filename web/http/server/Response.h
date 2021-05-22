@@ -63,14 +63,20 @@ namespace web::http::server {
         void upgrade(net::socket::stream::SocketProtocol* newServerContext);
 
     protected:
+        virtual void reset();
+
         HTTPServerContextBase* serverContext;
 
+        int responseStatus = 200;
+
+        std::map<std::string, std::string> headers;
+        std::map<std::string, CookieOptions> cookies;
+
+    private:
         ConnectionState connectionState = ConnectionState::Default;
 
         bool sendHeaderInProgress = false;
         bool headersSent = false;
-
-        int responseStatus = 200;
 
         std::size_t contentSent = 0;
         std::size_t contentLength = 0;
@@ -82,11 +88,6 @@ namespace web::http::server {
         void receive(const char* junk, std::size_t junkLen) override;
         void eof() override;
         void error(int errnum) override;
-
-        virtual void reset();
-
-        std::map<std::string, std::string> headers;
-        std::map<std::string, CookieOptions> cookies;
 
         template <typename Request, typename Response>
         friend class HTTPServerContext;

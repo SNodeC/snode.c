@@ -48,7 +48,7 @@ namespace web::ws {
         uint64_t readPayload(char* junk, uint64_t junkLen);
 
         virtual void onMessageStart(int opCode) = 0;
-        virtual void onFrameData(const char* junk, uint64_t junkLen) = 0;
+        virtual void onFrameReceived(const char* junk, uint64_t junkLen) = 0;
         virtual void onMessageEnd() = 0;
         virtual void onError(uint16_t errnum) = 0;
 

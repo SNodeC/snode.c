@@ -206,7 +206,7 @@ namespace web::ws {
                 *(junk + i) = *(junk + i) ^ *(maskingKeyAsArray.keyAsArray + (i + payloadRead) % 4);
             }
 
-            onFrameData(junk, numBytesToRead);
+            onFrameReceived(junk, numBytesToRead);
 
             payloadRead += numBytesToRead;
             consumed = numBytesToRead;

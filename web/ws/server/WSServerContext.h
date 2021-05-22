@@ -52,20 +52,23 @@ namespace web::ws::server {
         void sendPing(const char* reason = nullptr, std::size_t reasonLength = 0);
 
     private:
+        void replyPong(const char* reason = nullptr, std::size_t reasonLength = 0);
+
+        void close(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);
+
+        /* SocketProtocol */
         void receiveFromPeer(const char* junk, std::size_t junkLen) override;
         void onReadError(int errnum) override;
         void onWriteError(int errnum) override;
 
+        /* WSReceiver */
         void onMessageStart(int opCode) override;
-        void onFrameData(const char* junk, uint64_t junkLen) override;
+        void onFrameReceived(const char* junk, uint64_t junkLen) override;
         void onMessageEnd() override;
         void onError(uint16_t errnum) override;
 
+        /* WSTransmitter */
         void onFrameReady(char* frame, uint64_t frameLength) override;
-
-        void sendPong(const char* reason = nullptr, std::size_t reasonLength = 0);
-
-        void close(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);
 
         bool closeReceived = false;
         bool closeSent = false;

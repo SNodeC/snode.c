@@ -73,15 +73,17 @@ namespace web::http::server {
         ~HTTPServerContext() override = default;
 
         void receiveFromPeer(const char* junk, std::size_t junkLen) override;
-        void onReadError(int errnum) override;
-
         void sendResponseData(const char* junk, std::size_t junkLen) override;
-        void onWriteError(int errnum) override;
 
-        void responseCompleted() override;
+    protected:
         void terminateConnection() override;
 
     private:
+        void onReadError(int errnum) override;
+        void onWriteError(int errnum) override;
+
+        void responseCompleted() override;
+
         std::function<void(Request& req, Response& res)> onRequestReady;
 
         RequestParser parser;

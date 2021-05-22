@@ -100,7 +100,7 @@ namespace web::ws::server {
         }
     }
 
-    void WSServerContext::onFrameData(const char* junk, uint64_t junkLen) {
+    void WSServerContext::onFrameReceived(const char* junk, uint64_t junkLen) {
         if (!closeReceived && !pingReceived && !pongReceived) {
             std::size_t junkOffset = 0;
 
@@ -127,7 +127,7 @@ namespace web::ws::server {
             socketConnection->getSocketProtocol()->close();
         } else if (pingReceived) {
             pingReceived = false;
-            sendPong();
+            replyPong();
         } else if (pongReceived) {
             pongReceived = false;
             /* Propagate connection alive to application? */
@@ -171,7 +171,7 @@ namespace web::ws::server {
         message(9, reason, reasonLength);
     }
 
-    void WSServerContext::sendPong(const char* reason, std::size_t reasonLength) {
+    void WSServerContext::replyPong(const char* reason, std::size_t reasonLength) {
         message(10, reason, reasonLength);
     }
 

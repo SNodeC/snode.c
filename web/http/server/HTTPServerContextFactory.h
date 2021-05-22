@@ -47,7 +47,7 @@ namespace web::http::server {
             this->onRequestReady = onRequestReady;
         }
 
-    protected:
+    private:
         std::function<void(Request& req, Response& res)> onRequestReady;
     };
 
