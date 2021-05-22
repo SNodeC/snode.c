@@ -27,7 +27,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::server {
+namespace web::server::http {
 
     template <typename Request, typename Response>
     HTTPServerContext<Request, Response>::HTTPServerContext(const std::function<void(Request& req, Response& res)>& onRequestReady)

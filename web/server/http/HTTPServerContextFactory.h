@@ -27,7 +27,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::server {
+namespace web::server::http {
 
     template <typename RequestT, typename ResponseT>
     class HTTPServerContextFactory : public net::socket::stream::SocketProtocolFactory {

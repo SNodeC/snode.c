@@ -31,7 +31,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::server {
+namespace web::server::http {
 
     class RequestParser : public Parser {
     public:

@@ -21,10 +21,9 @@ namespace web::server {
     template <template <typename SocketProtocolT> typename SocketServerT, typename RequestT, typename ResponseT>
     class Server {
     public:
-        std::function<void(Request& req, Response& res)> onRequestReady;
         using Request = RequestT;
         using Response = ResponseT;
-        using SocketServer = SocketServerT<HTTPServerContextFactory<Request, Response>>; // this makes it an HTTP server
+        using SocketServer = SocketServerT<web::server::http::HTTPServerContextFactory<Request, Response>>; // this makes it an HTTP server
         using SocketConnection = typename SocketServer::SocketConnection;
         using SocketAddress = typename SocketConnection::SocketAddress;
 
@@ -70,6 +69,8 @@ namespace web::server {
 
     protected:
         SocketServer socketServer;
+
+        std::function<void(Request& req, Response& res)> onRequestReady;
     };
 
 } // namespace web::server

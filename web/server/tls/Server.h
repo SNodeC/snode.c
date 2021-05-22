@@ -29,13 +29,13 @@
 
 namespace web::server::tls {
 
-    template <typename Request = web::server::Request, typename Response = web::server::Response>
+    template <typename Request = web::server::http::Request, typename Response = web::server::http::Response>
     class Server : public web::server::Server<net::socket::ip::tcp::ipv4::tls::SocketServer, Request, Response> {
     public:
         using web::server::Server<net::socket::ip::tcp::ipv4::tls::SocketServer, Request, Response>::Server;
     };
 
-    template <typename Request = web::server::Request, typename Response = web::server::Response>
+    template <typename Request = web::server::http::Request, typename Response = web::server::http::Response>
     class Server6 : public web::server::Server<net::socket::ip::tcp::ipv6::tls::SocketServer, Request, Response> {
     public:
         using web::server::Server<net::socket::ip::tcp::ipv6::tls::SocketServer, Request, Response>::Server;

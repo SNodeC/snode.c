@@ -24,7 +24,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::server {
+namespace web::server::http {
 
     const std::string& Request::header(const std::string& key, int i) const {
         std::string tmpKey = key;
@@ -86,4 +86,4 @@ namespace web::server {
         MultibleAttributeInjector::reset();
     }
 
-} // namespace web::server
+} // namespace web::server::http

@@ -32,8 +32,8 @@
 
 namespace express {
 
-    Response::Response(web::server::HTTPServerContextBase* serverContext)
-        : web::server::Response(serverContext) {
+    Response::Response(web::server::http::HTTPServerContextBase* serverContext)
+        : web::server::http::Response(serverContext) {
     }
 
     void Response::sendFile(const std::string& file, const std::function<void(int err)>& onError) {
@@ -95,7 +95,7 @@ namespace express {
     }
 
     void Response::reset() {
-        web::server::Response::reset();
+        web::server::http::Response::reset();
     }
 
 } // namespace express

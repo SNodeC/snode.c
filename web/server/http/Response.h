@@ -37,7 +37,7 @@ namespace net::socket::stream {
     class SocketProtocol;
 }
 
-namespace web::server {
+namespace web::server::http {
 
     class HTTPServerContextBase;
     class ServerContext;
@@ -92,7 +92,7 @@ namespace web::server {
         friend class HTTPServerContext;
     };
 
-} // namespace web::server
+} // namespace web::server::http
 
 #endif // HTTP_SERVER_RESPONSE_H
 

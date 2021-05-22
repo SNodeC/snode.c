@@ -30,9 +30,9 @@
 
 namespace express {
 
-    class Response : public web::server::Response {
+    class Response : public web::server::http::Response {
     public:
-        Response(web::server::HTTPServerContextBase* serverContext);
+        Response(web::server::http::HTTPServerContextBase* serverContext);
 
         void sendFile(const std::string& file, const std::function<void(int err)>& onError);
         void download(const std::string& file, const std::function<void(int err)>& onError);
