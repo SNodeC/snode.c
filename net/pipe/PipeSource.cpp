@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/stream/PipeSource.h"
+#include "net/pipe/PipeSource.h"
 
 #include "net/system/unistd.h" // for write, ssize_t
 
@@ -31,7 +31,7 @@
 #define MAX_SEND_JUNKSIZE 16384
 #endif
 
-namespace net::stream {
+namespace net::pipe {
 
     PipeSource::PipeSource(int fd)
         : Descriptor(fd) {
@@ -84,4 +84,4 @@ namespace net::stream {
         delete this;
     }
 
-} // namespace net::stream
+} // namespace net::pipe

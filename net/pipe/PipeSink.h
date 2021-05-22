@@ -29,7 +29,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::stream {
+namespace net::pipe {
 
     class PipeSink
         : public Descriptor
@@ -53,6 +53,6 @@ namespace net::stream {
         std::function<void(int errnum)> onError;
     };
 
-} // namespace net::stream
+} // namespace net::pipe
 
 #endif // STREAM_PIPESINK_H

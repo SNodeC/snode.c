@@ -16,35 +16,31 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STREAM_SOURCE_H
-#define STREAM_SOURCE_H
+#ifndef STREAM_PIPE_H
+#define STREAM_PIPE_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // for std::size_t
+#include <functional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::stream {
+namespace net::pipe {
 
-    class Sink;
+    class PipeSink;
+    class PipeSource;
 
-    class Source {
+    class Pipe {
     public:
-        Source();
-        virtual ~Source();
+        Pipe(const std::function<void(PipeSource& pipeSource, PipeSink& pipsSink)>& onSuccess, const std::function<void(int err)>& onError);
+        Pipe(const Pipe& pipe) = delete;
 
-        void connect(Sink& sink);
-        void disconnect(Sink& sink);
-
-        void send(const char* junk, std::size_t junkLen);
-        void eof();
-        void error(int errnum);
+        Pipe& operator=(const Pipe& pipe) = delete;
 
     protected:
-        Sink* sink;
+        int pipeFd[2];
     };
 
-} // namespace net::stream
+} // namespace net::pipe
 
-#endif // STREAM_SOURCE_H
+#endif // STREAM_PIPE_H

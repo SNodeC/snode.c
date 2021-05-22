@@ -31,11 +31,11 @@ add_library(
     socket/stream/SocketProtocol.cpp
     socket/stream/tls/ssl_utils.cpp
     socket/stream/tls/TLSHandshake.cpp
-    stream/Source.cpp
-    stream/Sink.cpp
-    stream/Pipe.cpp
-    stream/PipeSink.cpp
-    stream/PipeSource.cpp
+    pipe/Source.cpp
+    pipe/Sink.cpp
+    pipe/Pipe.cpp
+    pipe/PipeSink.cpp
+    pipe/PipeSource.cpp
     system/netdb.cpp
     system/select.cpp
     system/signal.cpp

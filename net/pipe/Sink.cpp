@@ -16,55 +16,34 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/stream/Source.h"
+#include "net/pipe/Sink.h"
 
-#include "net/stream/Sink.h"
+#include "net/pipe/Source.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::stream {
+namespace net::pipe {
 
-    Source::Source()
-        : sink(nullptr) {
+    Sink::Sink()
+        : source(nullptr) {
     }
 
-    Source::~Source() {
-        if (sink != nullptr) {
-            sink->disconnect(*this);
+    Sink::~Sink() {
+        if (source != nullptr) {
+            source->disconnect(*this);
         }
     }
 
-    void Source::connect(Sink& sink) {
-        this->sink = &sink;
-        if (this->sink != nullptr) {
-            sink.connect(*this);
+    void Sink::connect(Source& source) {
+        this->source = &source;
+    }
+
+    void Sink::disconnect(Source& source) {
+        if (&source == this->source) {
+            this->source = nullptr;
         }
     }
 
-    void Source::disconnect(Sink& sink) {
-        if (&sink == this->sink) {
-            this->sink = nullptr;
-        }
-    }
-
-    void Source::send(const char* junk, std::size_t junkLen) {
-        if (this->sink != nullptr) {
-            sink->receive(junk, junkLen);
-        }
-    }
-
-    void Source::error(int errnum) {
-        if (this->sink != nullptr) {
-            sink->error(errnum);
-        }
-    }
-
-    void Source::eof() {
-        if (this->sink != nullptr) {
-            sink->eof();
-        }
-    }
-
-} // namespace net::stream
+} // namespace net::pipe

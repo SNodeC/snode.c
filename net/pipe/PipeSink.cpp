@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/stream/PipeSink.h"
+#include "net/pipe/PipeSink.h"
 
 #include "net/system/unistd.h"
 
@@ -30,7 +30,7 @@
 #define MAX_READ_JUNKSIZE 16384
 #endif
 
-namespace net::stream {
+namespace net::pipe {
 
     PipeSink::PipeSink(int fd)
         : Descriptor(fd) {
@@ -79,4 +79,4 @@ namespace net::stream {
         delete this;
     }
 
-} // namespace net::stream
+} // namespace net::pipe

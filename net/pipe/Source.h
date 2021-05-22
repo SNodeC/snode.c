@@ -16,47 +16,35 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STREAM_PIPESOURCE_H
-#define STREAM_PIPESOURCE_H
-
-#include "net/Descriptor.h"
-#include "net/WriteEventReceiver.h"
+#ifndef STREAM_SOURCE_H
+#define STREAM_SOURCE_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // for size_t
-#include <functional>
-#include <string> // for string
-#include <vector>
+#include <cstddef> // for std::size_t
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::stream {
+namespace net::pipe {
 
-    class PipeSource
-        : public Descriptor
-        , public WriteEventReceiver {
+    class Sink;
+
+    class Source {
     public:
-        PipeSource(int fd);
-        PipeSource(const PipeSource&) = delete;
+        Source();
+        virtual ~Source();
 
-        PipeSource& operator=(const PipeSource&) = delete;
+        void connect(Sink& sink);
+        void disconnect(Sink& sink);
 
         void send(const char* junk, std::size_t junkLen);
-        void send(const std::string& data);
         void eof();
-
-        void setOnError(const std::function<void(int errnum)>& onError);
+        void error(int errnum);
 
     protected:
-        void writeEvent() override;
-        void unobserved() override;
-
-        std::function<void(int errnum)> onError;
-
-        std::vector<char> writeBuffer;
+        Sink* sink;
     };
 
-} // namespace net::stream
+} // namespace net::pipe
 
-#endif // STREAM_PIPESOURCE_H
+#endif // STREAM_SOURCE_H

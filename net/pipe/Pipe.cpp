@@ -16,34 +16,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/stream/Sink.h"
+#include "net/pipe/Pipe.h"
 
-#include "net/stream/Source.h"
+#include "net/pipe/PipeSink.h"   // for PipeSink
+#include "net/pipe/PipeSource.h" // for PipeSource
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cerrno>
+#include <fcntl.h>  /* Obtain O_* constant definitions */
+#include <unistd.h> // for pipe2
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::stream {
+namespace net::pipe {
 
-    Sink::Sink()
-        : source(nullptr) {
-    }
+    Pipe::Pipe(const std::function<void(PipeSource& pipeSource, PipeSink& pipsSink)>& onSuccess,
+               const std::function<void(int err)>& onError) {
+        int ret = pipe2(pipeFd, O_NONBLOCK);
 
-    Sink::~Sink() {
-        if (source != nullptr) {
-            source->disconnect(*this);
+        if (ret == 0) {
+            onSuccess(*(new PipeSource(pipeFd[1])), *(new PipeSink(pipeFd[0])));
+        } else {
+            onError(errno);
         }
     }
 
-    void Sink::connect(Source& source) {
-        this->source = &source;
-    }
-
-    void Sink::disconnect(Source& source) {
-        if (&source == this->source) {
-            this->source = nullptr;
-        }
-    }
-
-} // namespace net::stream
+} // namespace net::pipe

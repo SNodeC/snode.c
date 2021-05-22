@@ -1,8 +1,8 @@
 #include "log/Logger.h"
 #include "net/SNodeC.h"
-#include "net/stream/Pipe.h"
-#include "net/stream/PipeSink.h"
-#include "net/stream/PipeSource.h"
+#include "net/pipe/Pipe.h"
+#include "net/pipe/PipeSink.h"
+#include "net/pipe/PipeSource.h"
 
 #include <cstddef>    // for size_t
 #include <functional> // for function
@@ -11,8 +11,8 @@
 int main(int argc, char* argv[]) {
     net::SNodeC::init(argc, argv);
 
-    net::stream::Pipe pipe(
-        [](net::stream::PipeSource& pipeSource, net::stream::PipeSink& pipeSink) -> void {
+    net::pipe::Pipe pipe(
+        []([[maybe_unused]] net::pipe::PipeSource& pipeSource, [[maybe_unused]] net::pipe::PipeSink& pipeSink) -> void {
             pipeSink.setOnData([&pipeSource, &pipeSink](const char* junk, std::size_t junkLen) -> void {
                 std::string string(junk, junkLen);
                 VLOG(0) << "Pipe Data: " << string;

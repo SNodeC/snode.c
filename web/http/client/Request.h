@@ -19,7 +19,7 @@
 #ifndef WEB_HTTP_CLIENT_REQUEST_H
 #define WEB_HTTP_CLIENT_REQUEST_H
 
-#include "net/stream/Sink.h"
+#include "net/pipe/Sink.h"
 #include "web/http/ConnectionState.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -34,7 +34,7 @@ namespace web::http::client {
 
     class ClientContextBase;
 
-    class Request : public net::stream::Sink {
+    class Request : public net::pipe::Sink {
     protected:
         explicit Request(ClientContextBase* clientContext);
 

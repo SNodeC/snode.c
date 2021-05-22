@@ -19,7 +19,7 @@
 #ifndef WEB_HTTP_SERVER_RESPONSE_H
 #define WEB_HTTP_SERVER_RESPONSE_H
 
-#include "net/stream/Sink.h"
+#include "net/pipe/Sink.h"
 #include "web/http/ConnectionState.h"
 #include "web/http/CookieOptions.h"
 
@@ -42,7 +42,7 @@ namespace web::http::server {
     class HTTPServerContextBase;
     class ServerContext;
 
-    class Response : public net::stream::Sink {
+    class Response : public net::pipe::Sink {
     protected:
         explicit Response(HTTPServerContextBase* serverContext);
 

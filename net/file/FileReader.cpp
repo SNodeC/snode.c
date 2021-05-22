@@ -29,13 +29,13 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-FileReader::FileReader(int fd, net::stream::Sink& sink) {
+FileReader::FileReader(int fd, net::pipe::Sink& sink) {
     attach(fd);
     ReadEventReceiver::enable(fd);
     Source::connect(sink);
 }
 
-FileReader* FileReader::connect(const std::string& path, net::stream::Sink& writeStream, const std::function<void(int err)>& onError) {
+FileReader* FileReader::connect(const std::string& path, net::pipe::Sink& writeStream, const std::function<void(int err)>& onError) {
     FileReader* fileReader = nullptr;
 
     int fd = net::system::open(path.c_str(), O_RDONLY);
