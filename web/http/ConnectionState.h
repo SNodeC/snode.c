@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HTTP_CONNECTIONSTATE_H
-#define HTTP_CONNECTIONSTATE_H
+#ifndef WEB_HTTP_CONNECTIONSTATE_H
+#define WEB_HTTP_CONNECTIONSTATE_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,4 +29,4 @@ namespace web::http {
 
 } // namespace web::http
 
-#endif // HTTP_CONNECTIONSTATE_H
+#endif // WEB_HTTP_CONNECTIONSTATE_H

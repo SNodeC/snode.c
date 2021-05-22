@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HTTP_CLIENT_CLIENT_H
-#define HTTP_CLIENT_CLIENT_H
+#ifndef WEB_HTTP_CLIENT_CLIENT_H
+#define WEB_HTTP_CLIENT_CLIENT_H
 
 #include "web/http/client/ClientContext.hpp"
 #include "web/http/client/ClientContextFactory.h"
@@ -83,4 +83,4 @@ namespace web::http::client {
 
 } // namespace web::http::client
 
-#endif // HTTP_CLIENT_CLIENT_H
+#endif // WEB_HTTP_CLIENT_CLIENT_H

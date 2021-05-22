@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HTTP_CLIENT_RESPONSE_H
-#define HTTP_CLIENT_RESPONSE_H
+#ifndef WEB_HTTP_CLIENT_RESPONSE_H
+#define WEB_HTTP_CLIENT_RESPONSE_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -55,4 +55,4 @@ namespace web::http::client {
 
 } // namespace web::http::client
 
-#endif // HTTP_CLIENT_RESPONSE_H
+#endif // WEB_HTTP_CLIENT_RESPONSE_H

@@ -1,5 +1,5 @@
-#ifndef HTTP_SERVER_SERVERT_H
-#define HTTP_SERVER_SERVERT_H
+#ifndef WEB_HTTP_SERVER_SERVERT_H
+#define WEB_HTTP_SERVER_SERVERT_H
 
 #include "web/http/server/HTTPServerContext.hpp"
 #include "web/http/server/HTTPServerContextFactory.h"
@@ -75,4 +75,4 @@ namespace web::http::server {
 
 } // namespace web::http::server
 
-#endif // HTTP_SERVER_SERVERT_H
+#endif // WEB_HTTP_SERVER_SERVERT_H

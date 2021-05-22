@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HTTP_SERVER_TLS_SERVER_H
-#define HTTP_SERVER_TLS_SERVER_H
+#ifndef WEB_HTTP_SERVER_TLS_SERVER_H
+#define WEB_HTTP_SERVER_TLS_SERVER_H
 
 #include "net/socket/ip/tcp/ipv4/tls/SocketServer.h"
 #include "net/socket/ip/tcp/ipv6/tls/SocketServer.h"
@@ -43,4 +43,4 @@ namespace web::http::server::tls {
 
 } // namespace web::http::server::tls
 
-#endif // HTTP_SERVER_TLS_SERVER_H
+#endif // WEB_HTTP_SERVER_TLS_SERVER_H

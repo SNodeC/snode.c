@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HTTP_CLIENT_LEGACY_CLIENT_H
-#define HTTP_CLIENT_LEGACY_CLIENT_H
+#ifndef WEB_HTTP_CLIENT_LEGACY_CLIENT_H
+#define WEB_HTTP_CLIENT_LEGACY_CLIENT_H
 
 #include "net/socket/ip/tcp/ipv4/legacy/SocketClient.h"
 #include "net/socket/ip/tcp/ipv6/legacy/SocketClient.h"
@@ -62,4 +62,4 @@ namespace web::http::client::legacy {
     */
 } // namespace web::http::client::legacy
 
-#endif // HTTP_CLIENT_LEGACY_CLIENT_H
+#endif // WEB_HTTP_CLIENT_LEGACY_CLIENT_H

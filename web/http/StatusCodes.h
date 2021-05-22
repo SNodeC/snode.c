@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HTTP_STATUSCODES_H
-#define HTTP_STATUSCODES_H
+#ifndef WEB_HTTP_STATUSCODES_H
+#define WEB_HTTP_STATUSCODES_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -40,4 +40,4 @@ namespace web::http {
 
 } // namespace web::http
 
-#endif // HTTP_STATUSCODES_H
+#endif // WEB_HTTP_STATUSCODES_H

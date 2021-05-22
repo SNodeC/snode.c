@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HTTP_CLIENT_TLS_CLIENT_H
-#define HTTP_CLIENT_TLS_CLIENT_H
+#ifndef WEB_HTTP_CLIENT_TLS_CLIENT_H
+#define WEB_HTTP_CLIENT_TLS_CLIENT_H
 
 #include "net/socket/ip/tcp/ipv4/tls/SocketClient.h"
 #include "net/socket/ip/tcp/ipv6/tls/SocketClient.h"
@@ -61,4 +61,4 @@ namespace web::http::client::tls {
     */
 } // namespace web::http::client::tls
 
-#endif // HTTP_CLIENT_TLS_CLIENT_H
+#endif // WEB_HTTP_CLIENT_TLS_CLIENT_H

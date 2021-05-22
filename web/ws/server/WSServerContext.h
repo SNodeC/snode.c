@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WSTRANSCEIVER_H
-#define WSTRANSCEIVER_H
+#ifndef WEB_WS_SERVER_WSSERVERCONTEXT_H
+#define WEB_WS_SERVER_WSSERVERCONTEXT_H
 
 #include "net/socket/stream/SocketProtocol.h"
 #include "web/ws/WSReceiver.h"
@@ -80,4 +80,4 @@ namespace web::ws::server {
 
 } // namespace web::ws::server
 
-#endif // WSTRANSCEIVER_H
+#endif // WEB_WS_SERVER_WSSERVERCONTEXT_H

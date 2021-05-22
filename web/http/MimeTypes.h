@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HTTP_MIMETYPES_H
-#define HTTP_MIMETYPES_H
+#ifndef WEB_HTTP_MIMETYPES_H
+#define WEB_HTTP_MIMETYPES_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -50,4 +50,4 @@ namespace web::http {
 
 } // namespace web::http
 
-#endif // HTTP_MIMETYPES_H
+#endif // WEB_HTTP_MIMETYPES_H

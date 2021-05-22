@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HTTP_CLIENT_RESPONSEPARSER_H
-#define HTTP_CLIENT_RESPONSEPARSER_H
+#ifndef WEB_HTTP_CLIENT_RESPONSEPARSER_H
+#define WEB_HTTP_CLIENT_RESPONSEPARSER_H
 
 #include "web/http/CookieOptions.h"
 #include "web/http/Parser.h"
@@ -71,4 +71,4 @@ namespace web::http::client {
 
 } // namespace web::http::client
 
-#endif // HTTP_CLIENT_RESPONSEPARSER_H
+#endif // WEB_HTTP_CLIENT_RESPONSEPARSER_H

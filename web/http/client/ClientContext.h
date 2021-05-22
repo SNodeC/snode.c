@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HTTP_CLIENT_CLIENTCONTEXT_H
-#define HTTP_CLIENT_CLIENTCONTEXT_H
+#ifndef WEB_HTTP_CLIENT_CLIENTCONTEXT_H
+#define WEB_HTTP_CLIENT_CLIENTCONTEXT_H
 
 #include "net/socket/stream/SocketProtocol.h"
 #include "web/http/CookieOptions.h"
@@ -85,4 +85,4 @@ namespace web::http::client {
 
 } // namespace web::http::client
 
-#endif // HTTP_CLIENT_CLIENTCONTEXT_H
+#endif // WEB_HTTP_CLIENT_CLIENTCONTEXT_H

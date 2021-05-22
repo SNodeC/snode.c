@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HTTP_SERVER_REQUESTPARSER_H
-#define HTTP_SERVER_REQUESTPARSER_H
+#ifndef WEB_HTTP_SERVER_REQUESTPARSER_H
+#define WEB_HTTP_SERVER_REQUESTPARSER_H
 
 #include "web/http/Parser.h"
 
@@ -89,4 +89,4 @@ namespace web::http::server {
 
 } // namespace web::http::server
 
-#endif // HTTP_SERVER_REQUESTPARSER_H
+#endif // WEB_HTTP_SERVER_REQUESTPARSER_H

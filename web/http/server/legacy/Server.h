@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HTTP_SERVER_LEGACY_SERVER_H
-#define HTTP_SERVER_LEGACY_SERVER_H
+#ifndef WEB_HTTP_SERVER_LEGACY_SERVER_H
+#define WEB_HTTP_SERVER_LEGACY_SERVER_H
 
 #include "net/socket/ip/tcp/ipv4/legacy/SocketServer.h"
 #include "net/socket/ip/tcp/ipv6/legacy/SocketServer.h"
@@ -43,4 +43,4 @@ namespace web::http::server::legacy {
 
 } // namespace web::http::server::legacy
 
-#endif // HTTP_SERVER_LEGACY_SERVER_H
+#endif // WEB_HTTP_SERVER_LEGACY_SERVER_H

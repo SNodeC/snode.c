@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HTTP_SERVER_REQUEST_H
-#define HTTP_SERVER_REQUEST_H
+#ifndef WEB_HTTP_SERVER_REQUEST_H
+#define WEB_HTTP_SERVER_REQUEST_H
 
 #include "utils/AttributeInjector.h"
 #include "web/http/ConnectionState.h"
@@ -67,7 +67,7 @@ namespace web::http::server {
 
 } // namespace web::http::server
 
-#endif // HTTP_SERVER_REQUEST_H
+#endif // WEB_HTTP_SERVER_REQUEST_H
 
 /* https://de.wikipedia.org/wiki/Liste_der_HTTP-Headerfelder
 
