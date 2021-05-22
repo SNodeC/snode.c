@@ -27,8 +27,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::client {
-    class CookieOptions;
+namespace web::http {
+    class CokieOptions;
+} // namespace web::http
+
+namespace web::http::client {
 
     template <typename Request, typename Response>
     ClientContext<Request, Response>::ClientContext(const std::function<void(Response&)>& onResponse,
@@ -44,7 +47,7 @@ namespace web::client {
                   response.reason = reason;
               },
               [&response = this->response](const std::map<std::string, std::string>& headers,
-                                           const std::map<std::string, web::CookieOptions>& cookies) -> void {
+                                           const std::map<std::string, web::http::CookieOptions>& cookies) -> void {
                   response.headers = &headers;
                   response.cookies = &cookies;
               },
@@ -52,7 +55,7 @@ namespace web::client {
                   response.body = content;
                   response.contentLength = contentLength;
               },
-              [&response = this->response, &request = this->request, onResponse](web::client::ResponseParser& parser) -> void {
+              [&response = this->response, &request = this->request, onResponse](web::http::client::ResponseParser& parser) -> void {
                   onResponse(response);
                   parser.reset();
                   request.reset();
@@ -101,4 +104,4 @@ namespace web::client {
         socketConnection->getSocketProtocol()->close();
     }
 
-} // namespace web::client
+} // namespace web::http::client

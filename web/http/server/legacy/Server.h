@@ -27,20 +27,20 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::server::legacy {
+namespace web::http::server::legacy {
 
-    template <typename Request = web::server::http::Request, typename Response = web::server::http::Response>
-    class Server : public web::server::Server<net::socket::ip::tcp::ipv4::legacy::SocketServer, Request, Response> {
+    template <typename Request = web::http::server::Request, typename Response = web::http::server::Response>
+    class Server : public web::http::server::Server<net::socket::ip::tcp::ipv4::legacy::SocketServer, Request, Response> {
     public:
-        using web::server::Server<net::socket::ip::tcp::ipv4::legacy::SocketServer, Request, Response>::Server;
+        using web::http::server::Server<net::socket::ip::tcp::ipv4::legacy::SocketServer, Request, Response>::Server;
     };
 
-    template <typename Request = web::server::http::Request, typename Response = web::server::http::Response>
-    class Server6 : public web::server::Server<net::socket::ip::tcp ::ipv6::legacy::SocketServer, Request, Response> {
+    template <typename Request = web::http::server::Request, typename Response = web::http::server::Response>
+    class Server6 : public web::http::server::Server<net::socket::ip::tcp ::ipv6::legacy::SocketServer, Request, Response> {
     public:
-        using web::server::Server<net::socket::ip::tcp::ipv6::legacy::SocketServer, Request, Response>::Server;
+        using web::http::server::Server<net::socket::ip::tcp::ipv6::legacy::SocketServer, Request, Response>::Server;
     };
 
-} // namespace web::server::legacy
+} // namespace web::http::server::legacy
 
 #endif // HTTP_SERVER_LEGACY_SERVER_H

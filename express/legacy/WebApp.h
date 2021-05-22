@@ -28,14 +28,14 @@
 
 namespace express::legacy {
 
-    class WebApp : public WebAppT<web::server::legacy::Server<express::Request, express::Response>> {
+    class WebApp : public WebAppT<web::http::server::legacy::Server<express::Request, express::Response>> {
     public:
-        using WebAppT<web::server::legacy::Server<express::Request, express::Response>>::WebAppT;
+        using WebAppT<web::http::server::legacy::Server<express::Request, express::Response>>::WebAppT;
     };
 
-    class WebApp6 : public WebAppT<web::server::legacy::Server6<express::Request, express::Response>> {
+    class WebApp6 : public WebAppT<web::http::server::legacy::Server6<express::Request, express::Response>> {
     public:
-        using WebAppT<web::server::legacy::Server6<express::Request, express::Response>>::WebAppT;
+        using WebAppT<web::http::server::legacy::Server6<express::Request, express::Response>>::WebAppT;
     };
 
 } // namespace express::legacy

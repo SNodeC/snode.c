@@ -18,7 +18,7 @@
 
 #include "log/Logger.h"
 #include "net/socket/stream/SocketConnectionBase.h"
-#include "web/http_utils.h"
+#include "web/http/http_utils.h"
 #include "web/http/server/HTTPServerContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -27,7 +27,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::server::http {
+namespace web::http::server {
 
     template <typename Request, typename Response>
     HTTPServerContext<Request, Response>::HTTPServerContext(const std::function<void(Request& req, Response& res)>& onRequestReady)
@@ -217,4 +217,4 @@ namespace web::server::http {
         reset();
     }
 
-} // namespace web::server
+} // namespace web::http::server

@@ -11,7 +11,7 @@ add_library(
     http/MimeTypes.cpp
     ws/WSReceiver.cpp
     ws/WSTransmitter.cpp
-    http_utils.cpp
+    http/http_utils.cpp
     http/client/ResponseParser.cpp
     http/client/Request.cpp
     http/client/Response.cpp

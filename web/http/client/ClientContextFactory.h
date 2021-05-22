@@ -19,15 +19,15 @@
 #ifndef HTTP_CLIENT_CLIENTCONTEXTFACTORY_H
 #define HTTP_CLIENT_CLIENTCONTEXTFACTORY_H
 
-#include "web/http/client/ClientContext.h"
 #include "net/socket/stream/SocketConnectionBase.h"
 #include "net/socket/stream/SocketProtocolFactory.h"
+#include "web/http/client/ClientContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::client {
+namespace web::http::client {
 
     template <typename RequestT, typename ResponseT>
     class ClientContextFactory : public net::socket::stream::SocketProtocolFactory {
@@ -56,6 +56,6 @@ namespace web::client {
         std::function<void(int, const std::string&)> onRequestError;
     };
 
-} // namespace web::client
+} // namespace web::http::client
 
 #endif // HTTP_CLIENT_CLIENTCONTEXTFACTORY_H

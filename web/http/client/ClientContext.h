@@ -19,10 +19,11 @@
 #ifndef HTTP_CLIENT_CLIENTCONTEXT_H
 #define HTTP_CLIENT_CLIENTCONTEXT_H
 
+#include "net/socket/stream/SocketProtocol.h"
+#include "web/http/CookieOptions.h"
 #include "web/http/client/Request.h"
 #include "web/http/client/Response.h"
 #include "web/http/client/ResponseParser.h"
-#include "net/socket/stream/SocketProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -36,7 +37,7 @@ namespace net::socket::stream {
     class SocketConnectionBase;
 } // namespace net::socket::stream
 
-namespace web::client {
+namespace web::http::client {
 
     class ClientContextBase : public net::socket::stream::SocketProtocol {
     public:
@@ -82,6 +83,6 @@ namespace web::client {
         ResponseParser parser;
     };
 
-} // namespace web::client
+} // namespace web::http::client
 
 #endif // HTTP_CLIENT_CLIENTCONTEXT_H

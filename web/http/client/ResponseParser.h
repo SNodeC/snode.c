@@ -31,17 +31,17 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::client {
+namespace web::http::client {
 
     class ResponseParser : public Parser {
     public:
-        ResponseParser(
-            const std::function<void(void)>& onStart,
-            const std::function<void(const std::string&, const std::string&, const std::string&)>& onResponse,
-            const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, CookieOptions>&)>& onHeader,
-            const std::function<void(char*, std::size_t)>& onContent,
-            const std::function<void(ResponseParser&)>& onParsed,
-            const std::function<void(int status, const std::string& reason)>& onError);
+        ResponseParser(const std::function<void(void)>& onStart,
+                       const std::function<void(const std::string&, const std::string&, const std::string&)>& onResponse,
+                       const std::function<void(const std::map<std::string, std::string>&,
+                                                const std::map<std::string, web::http::CookieOptions>&)>& onHeader,
+                       const std::function<void(char*, std::size_t)>& onContent,
+                       const std::function<void(ResponseParser&)>& onParsed,
+                       const std::function<void(int status, const std::string& reason)>& onError);
 
         // Entrence
         void begin() override;
@@ -63,12 +63,12 @@ namespace web::client {
 
         std::function<void(void)> onStart;
         std::function<void(const std::string&, const std::string&, const std::string&)> onResponse;
-        std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, CookieOptions>&)> onHeader;
+        std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, web::http::CookieOptions>&)> onHeader;
         std::function<void(char*, std::size_t)> onContent;
         std::function<void(ResponseParser&)> onParsed;
         std::function<void(int status, const std::string& reason)> onError;
     };
 
-} // namespace web::client
+} // namespace web::http::client
 
 #endif // HTTP_CLIENT_RESPONSEPARSER_H

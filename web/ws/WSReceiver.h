@@ -26,7 +26,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web {
+namespace web::ws {
 
     class WSReceiver {
     public:
@@ -75,7 +75,7 @@ namespace web {
         uint16_t errorState = 0;
     };
 
-} // namespace web
+} // namespace web::ws
 
 #endif // WSRECEVIER_H
 

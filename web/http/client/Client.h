@@ -33,7 +33,7 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace web::client {
+namespace web::http::client {
 
     template <template <typename SocketProtocolT> typename SocketClientT, typename RequestT, typename ResponseT>
     class Client {
@@ -81,6 +81,6 @@ namespace web::client {
         SocketClient socketClient;
     };
 
-} // namespace web::client
+} // namespace web::http::client
 
 #endif // HTTP_CLIENT_CLIENT_H

@@ -39,24 +39,24 @@
 int main(int argc, char* argv[]) {
     net::SNodeC::init(argc, argv);
 
-    web::client::legacy::Client<> jsonClient(
-        [](const web::client::legacy::Client<>::SocketAddress& localAddress,
-           const web::client::legacy::Client<>::SocketAddress& remoteAddress) -> void {
+    web::http::client::legacy::Client<> jsonClient(
+        [](const web::http::client::legacy::Client<>::SocketAddress& localAddress,
+           const web::http::client::legacy::Client<>::SocketAddress& remoteAddress) -> void {
             VLOG(0) << "-- OnConnect";
 
             VLOG(0) << "\tServer: " + remoteAddress.toString();
             VLOG(0) << "\tClient: " + localAddress.toString();
         },
-        []([[maybe_unused]] web::client::legacy::Client<>::SocketConnection* socketConnection) -> void {
+        []([[maybe_unused]] web::http::client::legacy::Client<>::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnConnected";
         },
-        [](web::client::Request& request) -> void {
+        [](web::http::client::Request& request) -> void {
             request.method = "POST";
             request.url = "/index.html";
             request.type("application/json");
             request.send("{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}");
         },
-        [](const web::client::Response& response) -> void {
+        [](const web::http::client::Response& response) -> void {
             VLOG(0) << "-- OnResponse";
             VLOG(0) << "     Status:";
             VLOG(0) << "       " << response.httpVersion;
@@ -89,7 +89,7 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "     Status: " << status;
             VLOG(0) << "     Reason: " << reason;
         },
-        [](web::client::legacy::Client<>::SocketConnection* socketConnection) -> void {
+        [](web::http::client::legacy::Client<>::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnDisconnect";
 
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();

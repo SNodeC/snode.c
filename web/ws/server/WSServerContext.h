@@ -31,12 +31,12 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::server::ws {
+namespace web::ws::server {
 
     class WSServerContext
         : public net::socket::stream::SocketProtocol
-        , public web::WSReceiver
-        , public web::WSTransmitter {
+        , public web::ws::WSReceiver
+        , public web::ws::WSTransmitter {
     public:
         WSServerContext(const std::function<void(WSServerContext* wSServerContext, int opCode)>& _onMessageStart,
                         const std::function<void(WSServerContext* wSServerContext, const char* junk, std::size_t junkLen)>& _onFrameData,
@@ -78,6 +78,6 @@ namespace web::server::ws {
         std::function<void(WSServerContext* wSServerContext)> _onMessageEnd = nullptr;
     };
 
-} // namespace web::websocket
+} // namespace web::ws::server
 
 #endif // WSTRANSCEIVER_H

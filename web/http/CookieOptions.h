@@ -26,7 +26,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web {
+namespace web::http {
 
     class CookieOptions {
     public:
@@ -56,6 +56,6 @@ namespace web {
         std::map<std::string, std::string> options;
     };
 
-} // namespace web
+} // namespace web::http
 
 #endif // HTTP_COOKIEOPTIONS_H

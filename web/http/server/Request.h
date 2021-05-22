@@ -28,7 +28,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::server::http {
+namespace web::http::server {
 
     class Request : public utils::MultibleAttributeInjector {
     protected:
@@ -65,7 +65,7 @@ namespace web::server::http {
         friend class HTTPServerContext;
     };
 
-} // namespace web::server::http
+} // namespace web::http::server
 
 #endif // HTTP_SERVER_REQUEST_H
 

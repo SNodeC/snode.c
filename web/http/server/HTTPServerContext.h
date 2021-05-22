@@ -19,10 +19,10 @@
 #ifndef HTTP_SERVER_HTTPSERVERCONTEXT_H
 #define HTTP_SERVER_HTTPSERVERCONTEXT_H
 
+#include "net/socket/stream/SocketProtocol.h"
 #include "web/http/server/Request.h"
 #include "web/http/server/RequestParser.h"
 #include "web/http/server/Response.h"
-#include "net/socket/stream/SocketProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -34,7 +34,7 @@ namespace net::socket::stream {
     class SocketConnectionBase;
 }
 
-namespace web::server::http {
+namespace web::http::server {
 
     class HTTPServerContextBase : public net::socket::stream::SocketProtocol {
     public:
@@ -96,6 +96,6 @@ namespace web::server::http {
         void reset();
     };
 
-} // namespace web::server
+} // namespace web::http::server
 
 #endif // HTTP_SERVER_HTTPSERVERCONTEXT_H

@@ -26,7 +26,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web {
+namespace web::http {
 
     class StatusCode {
     public:
@@ -38,6 +38,6 @@ namespace web {
         static std::map<int, std::string> statusCode;
     };
 
-} // namespace web
+} // namespace web::http
 
 #endif // HTTP_STATUSCODES_H

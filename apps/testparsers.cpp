@@ -19,7 +19,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h" // for Writer, Storage, VLOG
-#include "web/http/Parser.h"
+#include "web/http/CookieOptions.h"
 #include "web/http/client/ResponseParser.h" // for HTTPResponseParser, ResponseCookie
 #include "web/http/server/RequestParser.h"  // for RequestParser
 
@@ -33,16 +33,12 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web {
-    class CookieOptions;
-}
-
-using namespace web;
+using namespace web::http;
 
 int main(int argc, char* argv[]) {
     Logger::init(argc, argv);
 
-    server::http::RequestParser requestParser(
+    server::RequestParser requestParser(
         [](void) -> void {
         },
         [](const std::string& method,
@@ -113,7 +109,7 @@ int main(int argc, char* argv[]) {
         [](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
             VLOG(0) << "++ Response: " << httpVersion << " " << statusCode << " " << reason;
         },
-        [](const std::map<std::string, std::string>& headers, const std::map<std::string, CookieOptions>& cookies) -> void {
+        [](const std::map<std::string, std::string>& headers, const std::map<std::string, web::http::CookieOptions>& cookies) -> void {
             VLOG(0) << "++   Headers:";
             for (const auto& [field, value] : headers) {
                 VLOG(0) << "++       " << field + " = " + value;

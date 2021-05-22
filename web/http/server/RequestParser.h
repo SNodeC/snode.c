@@ -31,7 +31,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::server::http {
+namespace web::http::server {
 
     class RequestParser : public Parser {
     public:
@@ -87,6 +87,6 @@ namespace web::server::http {
         std::function<void(int status, const std::string& reason)> onError;
     };
 
-} // namespace web::server::http
+} // namespace web::http::server
 
 #endif // HTTP_SERVER_REQUESTPARSER_H

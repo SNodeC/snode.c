@@ -18,7 +18,7 @@
 
 #include "web/http/Parser.h"
 
-#include "web/http_utils.h"
+#include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,7 +28,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web {
+namespace web::http {
 
     // HTTP/x.x
     std::regex Parser::httpVersionRegex("^HTTP/([[:digit:]])\\.([[:digit:]])$");
@@ -200,4 +200,4 @@ namespace web {
         return static_cast<enum Parser::HTTPCompliance>(static_cast<unsigned short>(c1) & static_cast<unsigned short>(c2));
     }
 
-} // namespace web
+} // namespace web::http

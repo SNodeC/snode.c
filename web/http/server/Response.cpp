@@ -21,8 +21,8 @@
 #include "log/Logger.h"
 #include "net/system/time.h"
 #include "web/http/StatusCodes.h"
+#include "web/http/http_utils.h"
 #include "web/http/server//HTTPServerContext.h"
-#include "web/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,7 +31,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::server::http {
+namespace web::http::server {
 
     Response::Response(HTTPServerContextBase* serverContext)
         : serverContext(serverContext) {
@@ -202,4 +202,4 @@ namespace web::server::http {
         cookies.clear();
     }
 
-} // namespace web::server::http
+} // namespace web::http::server

@@ -45,7 +45,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-using namespace web::client;
+using namespace web::http::client;
 
 int main(int argc, char* argv[]) {
     net::SNodeC::init(argc, argv);

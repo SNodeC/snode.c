@@ -29,7 +29,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::server::ws {
+namespace web::ws::server {
 
     WSServerContext::WSServerContext(
         const std::function<void(WSServerContext* wSServerContext, int opCode)>& _onMessageStart,
@@ -175,4 +175,4 @@ namespace web::server::ws {
         message(10, reason, reasonLength);
     }
 
-} // namespace web::server::ws
+} // namespace web::ws::server

@@ -16,15 +16,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/http/server//Request.h"
+#include "web/http/server/Request.h"
 
-#include "web/http_utils.h"
+#include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::server::http {
+namespace web::http::server {
 
     const std::string& Request::header(const std::string& key, int i) const {
         std::string tmpKey = key;
@@ -86,4 +86,4 @@ namespace web::server::http {
         MultibleAttributeInjector::reset();
     }
 
-} // namespace web::server::http
+} // namespace web::http::server

@@ -16,14 +16,14 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace web::server {
+namespace web::http::server {
 
     template <template <typename SocketProtocolT> typename SocketServerT, typename RequestT, typename ResponseT>
     class Server {
     public:
         using Request = RequestT;
         using Response = ResponseT;
-        using SocketServer = SocketServerT<web::server::http::HTTPServerContextFactory<Request, Response>>; // this makes it an HTTP server
+        using SocketServer = SocketServerT<web::http::server::HTTPServerContextFactory<Request, Response>>; // this makes it an HTTP server
         using SocketConnection = typename SocketServer::SocketConnection;
         using SocketAddress = typename SocketConnection::SocketAddress;
 
@@ -73,6 +73,6 @@ namespace web::server {
         std::function<void(Request& req, Response& res)> onRequestReady;
     };
 
-} // namespace web::server
+} // namespace web::http::server
 
 #endif // HTTP_SERVER_SERVERT_H

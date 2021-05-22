@@ -19,7 +19,7 @@
 #include "web/http/client/ResponseParser.h"
 
 #include "web/http/StatusCodes.h"
-#include "web/http_utils.h"
+#include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,7 +30,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::client {
+namespace web::http::client {
 
     ResponseParser::ResponseParser(
         const std::function<void(void)>& onStart,
@@ -92,7 +92,7 @@ namespace web::client {
         for (auto& [field, value] : Parser::headers) {
             if (field != "set-cookie") {
                 if (field == "content-length") {
-                    Parser::contentLength = std::stoi(value);
+                    Parser::contentLength = static_cast<std::size_t>(std::stoi(value));
                 }
             } else {
                 std::string cookiesLine = value;
@@ -161,4 +161,4 @@ namespace web::client {
         onParsed(*this);
     }
 
-} // namespace web::client
+} // namespace web::http::client

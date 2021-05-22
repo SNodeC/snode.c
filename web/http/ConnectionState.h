@@ -23,6 +23,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-enum ConnectionState { Default, Keep, Close };
+namespace web::http {
+
+    enum ConnectionState { Default, Keep, Close };
+
+} // namespace web::http
 
 #endif // HTTP_CONNECTIONSTATE_H

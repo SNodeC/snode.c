@@ -54,7 +54,7 @@ namespace net::socket::stream {
                 : stream::SocketConnector<SocketConnection>(
                       socketProtocolFactory,
                       onConnect,
-                      [onConnected, &onError = this->onError, &ctx = this->ctx, this, &options = this->options](
+                      [onConnected, &onError = this->onError, &ctx = this->ctx, &options = this->options](
                           SocketConnection* socketConnection) -> void { // onConnect
                           SSL* ssl = socketConnection->startSSL(ctx);
 
@@ -64,15 +64,15 @@ namespace net::socket::stream {
                               SSL_set_connect_state(ssl);
 
                               socketConnection->doSSLHandshake(
-                                  [ssl, onConnected, socketConnection](void) -> void { // onSuccess
+                                  [onConnected, socketConnection](void) -> void { // onSuccess
                                       LOG(INFO) << "SSL/TLS initial handshake success";
                                       onConnected(socketConnection);
                                   },
-                                  [socketConnection, onError](void) -> void { // onTimeout
+                                  [onError](void) -> void { // onTimeout
                                       LOG(WARNING) << "SSL/TLS initial handshake timed out";
                                       onError(ETIMEDOUT);
                                   },
-                                  [socketConnection, onError](int sslErr) -> void { // onError
+                                  [onError](int sslErr) -> void { // onError
                                       ssl_log("SSL/TLS initial handshake failed", sslErr);
                                       onError(-sslErr);
                                   });

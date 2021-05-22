@@ -29,7 +29,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web {
+namespace web::ws {
 
     void WSReceiver::receive(char* junk, std::size_t junkLen) {
         uint64_t consumed = 0;
@@ -253,4 +253,4 @@ namespace web {
         errorState = 0;
     }
 
-} // namespace web
+} // namespace web::ws

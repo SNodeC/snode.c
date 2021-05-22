@@ -18,7 +18,7 @@
 
 #include "web/http/server/RequestParser.h"
 
-#include "web/http_utils.h"
+#include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,7 +29,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::server::http {
+namespace web::http::server {
 
     RequestParser::RequestParser(
         const std::function<void(void)>& onStart,
@@ -163,4 +163,4 @@ namespace web::server::http {
         return ParserState::ERROR;
     }
 
-} // namespace web::server::http
+} // namespace web::http::server

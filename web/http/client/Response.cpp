@@ -22,9 +22,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::client {
+namespace web::http::client {
 
     void Response::reset() {
     }
 
-} // namespace web::client
+} // namespace web::http::client

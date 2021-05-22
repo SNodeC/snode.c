@@ -27,23 +27,27 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-class MimeTypes {
-public:
-    MimeTypes(const MimeTypes&) = delete;
-    MimeTypes operator=(const MimeTypes&) = delete;
+namespace web::http {
 
-    ~MimeTypes();
+    class MimeTypes {
+    public:
+        MimeTypes(const MimeTypes&) = delete;
+        MimeTypes operator=(const MimeTypes&) = delete;
 
-    static std::string contentType(const std::string& file);
+        ~MimeTypes();
 
-private:
-    MimeTypes();
+        static std::string contentType(const std::string& file);
 
-    static magic_t magic;
+    private:
+        MimeTypes();
 
-    static MimeTypes mimeTypes;
+        static magic_t magic;
 
-    static std::map<std::string, std::string> mimeType;
-};
+        static MimeTypes mimeTypes;
+
+        static std::map<std::string, std::string> mimeType;
+    };
+
+} // namespace web::http
 
 #endif // HTTP_MIMETYPES_H

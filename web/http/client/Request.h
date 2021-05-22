@@ -30,7 +30,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::client {
+namespace web::http::client {
 
     class ClientContextBase;
 
@@ -89,6 +89,6 @@ namespace web::client {
         friend class ClientContext;
     };
 
-} // namespace web::client
+} // namespace web::http::client
 
 #endif // HTTP_CLIENT_REQUEST_H

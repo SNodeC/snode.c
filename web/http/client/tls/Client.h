@@ -27,12 +27,12 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::client::tls {
+namespace web::http::client::tls {
 
-    template <typename Request = web::client::Request, typename Response = web::client::Response>
-    class Client : public web::client::Client<net::socket::ip::tcp::ipv4::tls::SocketClient, Request, Response> {
+    template <typename Request = web::http::client::Request, typename Response = web::http::client::Response>
+    class Client : public web::http::client::Client<net::socket::ip::tcp::ipv4::tls::SocketClient, Request, Response> {
     public:
-        using web::client::Client<net::socket::ip::tcp::ipv4::tls::SocketClient, Request, Response>::Client;
+        using web::http::client::Client<net::socket::ip::tcp::ipv4::tls::SocketClient, Request, Response>::Client;
     };
     /*
         Client(const std::function<void(net::socket::ip::tcp::ipv4::tls::SocketClient::SocketConnection*)>& onConnect,
@@ -44,10 +44,10 @@ namespace web::client::tls {
                const std::map<std::string, std::any>& options = {{}})
             ->Client<web::client::Request, web::client::Response>;
     */
-    template <typename Request = web::client::Request, typename Response = web::client::Response>
-    class Client6 : public web::client::Client<net::socket::ip::tcp::ipv6::tls::SocketClient, Request, Response> {
+    template <typename Request = web::http::client::Request, typename Response = web::http::client::Response>
+    class Client6 : public web::http::client::Client<net::socket::ip::tcp::ipv6::tls::SocketClient, Request, Response> {
     public:
-        using web::client::Client<net::socket::ip::tcp::ipv6::tls::SocketClient, Request, Response>::Client;
+        using web::http::client::Client<net::socket::ip::tcp::ipv6::tls::SocketClient, Request, Response>::Client;
     };
     /*
         Client6(const std::function<void(net::socket::ip::tcp::ipv6::tls::SocketClient::SocketConnection*)>& onConnect,
@@ -59,6 +59,6 @@ namespace web::client::tls {
                 const std::map<std::string, std::any>& options = {{}})
             ->Client6<web::client::Request, web::client::Response>;
     */
-} // namespace web::client::tls
+} // namespace web::http::client::tls
 
 #endif // HTTP_CLIENT_TLS_CLIENT_H

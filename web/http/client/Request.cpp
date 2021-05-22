@@ -20,7 +20,7 @@
 
 #include "log/Logger.h"
 #include "web/http/client/ClientContext.h"
-#include "web/http_utils.h"
+#include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,7 +28,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::client {
+namespace web::http::client {
 
     Request::Request(ClientContextBase* clientContext)
         : clientContext(clientContext) {
@@ -217,4 +217,4 @@ namespace web::client {
         clientContext->terminateConnection();
     }
 
-} // namespace web::client
+} // namespace web::http::client

@@ -27,36 +27,32 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web {
+namespace web::http {
     class CookieOptions;
 }
 
-namespace web {
+namespace web::http::client {
 
-    namespace client {
+    class Response {
+    protected:
+        Response() = default;
 
-        class Response {
-        protected:
-            Response() = default;
+        // switch to protected later on
+    public:
+        void reset();
 
-            // switch to protected later on
-        public:
-            void reset();
+        std::string httpVersion;
+        std::string statusCode;
+        std::string reason;
+        char* body = nullptr;
+        std::size_t contentLength = 0;
+        const std::map<std::string, std::string>* headers = nullptr;
+        const std::map<std::string, CookieOptions>* cookies = nullptr;
 
-            std::string httpVersion;
-            std::string statusCode;
-            std::string reason;
-            char* body = nullptr;
-            std::size_t contentLength = 0;
-            const std::map<std::string, std::string>* headers = nullptr;
-            const std::map<std::string, CookieOptions>* cookies = nullptr;
+        template <typename Request, typename Response>
+        friend class ClientContext;
+    };
 
-            template <typename Request, typename Response>
-            friend class ClientContext;
-        };
-
-    } // namespace client
-
-} // namespace web
+} // namespace web::http::client
 
 #endif // HTTP_CLIENT_RESPONSE_H

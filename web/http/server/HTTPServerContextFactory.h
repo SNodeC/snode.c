@@ -19,15 +19,15 @@
 #ifndef HTTP_SERVER_HTTPSERVERCONTEXTFACTORY_H
 #define HTTP_SERVER_HTTPSERVERCONTEXTFACTORY_H
 
-#include "web/http/server/HTTPServerContext.h"
 #include "net/socket/stream/SocketConnectionBase.h"
 #include "net/socket/stream/SocketProtocolFactory.h"
+#include "web/http/server/HTTPServerContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::server::http {
+namespace web::http::server {
 
     template <typename RequestT, typename ResponseT>
     class HTTPServerContextFactory : public net::socket::stream::SocketProtocolFactory {
@@ -51,6 +51,6 @@ namespace web::server::http {
         std::function<void(Request& req, Response& res)> onRequestReady;
     };
 
-} // namespace web::server
+} // namespace web::http::server
 
 #endif // HTTP_SERVER_HTTPSERVERCONTEXTFACTORY_H
