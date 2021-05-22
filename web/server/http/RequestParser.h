@@ -19,7 +19,7 @@
 #ifndef HTTP_SERVER_REQUESTPARSER_H
 #define HTTP_SERVER_REQUESTPARSER_H
 
-#include "web/Parser.h"
+#include "web/http/Parser.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -87,6 +87,6 @@ namespace web::server::http {
         std::function<void(int status, const std::string& reason)> onError;
     };
 
-} // namespace web::server
+} // namespace web::server::http
 
 #endif // HTTP_SERVER_REQUESTPARSER_H

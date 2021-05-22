@@ -20,7 +20,7 @@
 
 #include "log/Logger.h"
 #include "net/system/time.h"
-#include "web/StatusCodes.h"
+#include "web/http/StatusCodes.h"
 #include "web/http_utils.h"
 #include "web/server/http/HTTPServerContext.h"
 

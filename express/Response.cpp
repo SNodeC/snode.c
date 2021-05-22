@@ -19,8 +19,8 @@
 #include "express/Response.h"
 
 #include "net/file/FileReader.h"
-#include "web/MimeTypes.h"
-#include "web/StatusCodes.h"
+#include "web/http/MimeTypes.h"
+#include "web/http/StatusCodes.h"
 #include "web/http_utils.h"
 #include "web/server/http/HTTPServerContext.h"
 

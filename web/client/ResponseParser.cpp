@@ -18,7 +18,7 @@
 
 #include "web/client/ResponseParser.h"
 
-#include "web/StatusCodes.h"
+#include "web/http/StatusCodes.h"
 #include "web/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

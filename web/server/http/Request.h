@@ -20,7 +20,7 @@
 #define HTTP_SERVER_REQUEST_H
 
 #include "utils/AttributeInjector.h"
-#include "web/ConnectionState.h"
+#include "web/http/ConnectionState.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -65,7 +65,7 @@ namespace web::server::http {
         friend class HTTPServerContext;
     };
 
-} // namespace web::server
+} // namespace web::server::http
 
 #endif // HTTP_SERVER_REQUEST_H
 

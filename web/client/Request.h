@@ -20,7 +20,7 @@
 #define HTTP_CLIENT_REQUEST_H
 
 #include "net/stream/Sink.h"
-#include "web/ConnectionState.h"
+#include "web/http/ConnectionState.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

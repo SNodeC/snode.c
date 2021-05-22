@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/MimeTypes.h"
+#include "web/http/MimeTypes.h"
 
 #include "log/Logger.h"
 

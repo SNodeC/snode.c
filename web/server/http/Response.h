@@ -20,8 +20,8 @@
 #define HTTP_SERVER_RESPONSE_H
 
 #include "net/stream/Sink.h"
-#include "web/ConnectionState.h"
-#include "web/CookieOptions.h"
+#include "web/http/ConnectionState.h"
+#include "web/http/CookieOptions.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

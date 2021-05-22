@@ -19,8 +19,8 @@
 #ifndef HTTP_CLIENT_RESPONSEPARSER_H
 #define HTTP_CLIENT_RESPONSEPARSER_H
 
-#include "web/CookieOptions.h"
-#include "web/Parser.h"
+#include "web/http/CookieOptions.h"
+#include "web/http/Parser.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

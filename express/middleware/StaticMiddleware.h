@@ -20,7 +20,7 @@
 #define EXPRESS_MIDDLEWARE_STATICMIDDLEWARE_H
 
 #include "express/Router.h"
-#include "web/CookieOptions.h"
+#include "web/http/CookieOptions.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

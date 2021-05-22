@@ -6,9 +6,9 @@ find_package(LibMagic REQUIRED)
 
 add_library(
     web SHARED
-    Parser.cpp
-    StatusCodes.cpp
-    MimeTypes.cpp
+    http/Parser.cpp
+    http/StatusCodes.cpp
+    http/MimeTypes.cpp
     WSReceiver.cpp
     WSTransmitter.cpp
     http_utils.cpp
