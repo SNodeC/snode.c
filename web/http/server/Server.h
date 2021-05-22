@@ -1,8 +1,8 @@
 #ifndef HTTP_SERVER_SERVERT_H
 #define HTTP_SERVER_SERVERT_H
 
-#include "web/server/http/HTTPServerContext.hpp"
-#include "web/server/http/HTTPServerContextFactory.h"
+#include "web/http/server/HTTPServerContext.hpp"
+#include "web/http/server/HTTPServerContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

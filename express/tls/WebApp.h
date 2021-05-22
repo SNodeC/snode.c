@@ -20,7 +20,7 @@
 #define EXPRESS_TLS_WEBAPP_H
 
 #include "express/WebAppT.h"
-#include "web/server/tls/Server.h"
+#include "web/http/server/tls/Server.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

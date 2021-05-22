@@ -28,7 +28,7 @@
 #include "net/socket/stream/SocketProtocolFactory.h" // for SocketProtocolF...
 #include "net/socket/stream/legacy/SocketClient.h"   // for SocketClient
 #include "net/socket/stream/tls/SocketClient.h"      // for SocketClient
-#include "web/client/ResponseParser.h"               // for ResponseParser
+#include "web/http/client/ResponseParser.h"          // for ResponseParser
 
 #include <any>                // for any
 #include <functional>         // for function

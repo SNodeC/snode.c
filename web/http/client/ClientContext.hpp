@@ -18,7 +18,7 @@
 
 #include "log/Logger.h"
 #include "net/socket/stream/SocketConnectionBase.h"
-#include "web/client/ClientContext.h"
+#include "web/http/client/ClientContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

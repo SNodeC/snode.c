@@ -22,7 +22,7 @@
 #include "express/legacy/WebApp.h"
 #include "net/timer/IntervalTimer.h"
 #include "net/timer/SingleshotTimer.h"
-#include "web/server/ws/WSServerContext.h"
+#include "web/ws/server/WSServerContext.h"
 
 #include <cstring>
 #include <iostream>

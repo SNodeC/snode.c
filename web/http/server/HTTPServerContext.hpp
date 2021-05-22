@@ -19,7 +19,7 @@
 #include "log/Logger.h"
 #include "net/socket/stream/SocketConnectionBase.h"
 #include "web/http_utils.h"
-#include "web/server/http/HTTPServerContext.h"
+#include "web/http/server/HTTPServerContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

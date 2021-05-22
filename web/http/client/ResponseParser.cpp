@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/client/ResponseParser.h"
+#include "web/http/client/ResponseParser.h"
 
 #include "web/http/StatusCodes.h"
 #include "web/http_utils.h"

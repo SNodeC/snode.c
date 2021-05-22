@@ -16,11 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/client/Request.h"
+#include "web/http/client/Request.h"
 
-#include "web/client/ClientContext.h"
-#include "web/http_utils.h"
 #include "log/Logger.h"
+#include "web/http/client/ClientContext.h"
+#include "web/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/WSReceiver.h"
+#include "web/ws/WSReceiver.h"
 
 #include "log/Logger.h"
 

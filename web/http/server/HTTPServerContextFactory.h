@@ -19,7 +19,7 @@
 #ifndef HTTP_SERVER_HTTPSERVERCONTEXTFACTORY_H
 #define HTTP_SERVER_HTTPSERVERCONTEXTFACTORY_H
 
-#include "web/server/http/HTTPServerContext.h"
+#include "web/http/server/HTTPServerContext.h"
 #include "net/socket/stream/SocketConnectionBase.h"
 #include "net/socket/stream/SocketProtocolFactory.h"
 

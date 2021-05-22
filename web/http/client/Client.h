@@ -19,8 +19,8 @@
 #ifndef HTTP_CLIENT_CLIENT_H
 #define HTTP_CLIENT_CLIENT_H
 
-#include "web/client/ClientContext.hpp"
-#include "web/client/ClientContextFactory.h"
+#include "web/http/client/ClientContext.hpp"
+#include "web/http/client/ClientContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

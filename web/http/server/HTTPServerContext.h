@@ -19,9 +19,9 @@
 #ifndef HTTP_SERVER_HTTPSERVERCONTEXT_H
 #define HTTP_SERVER_HTTPSERVERCONTEXT_H
 
-#include "web/server/http/Request.h"
-#include "web/server/http/RequestParser.h"
-#include "web/server/http/Response.h"
+#include "web/http/server/Request.h"
+#include "web/http/server/RequestParser.h"
+#include "web/http/server/Response.h"
 #include "net/socket/stream/SocketProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

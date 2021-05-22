@@ -22,11 +22,11 @@
 #include "log/Logger.h"
 #include "net/SNodeC.h"
 #include "net/socket/ip/address/ipv6/InetAddress.h" // for InetAddress
-#include "web/client/Client.h"                      // for Client<>::Socket...
-#include "web/client/Request.h"                     // for Request
-#include "web/client/Response.h"
-#include "web/client/tls/Client.h"
-#include "web/http/CookieOptions.h" // for CookieOptions
+#include "web/http/CookieOptions.h"                 // for CookieOptions
+#include "web/http/client/Client.h"                 // for Client<>::Socket...
+#include "web/http/client/Request.h"                // for Request
+#include "web/http/client/Response.h"
+#include "web/http/client/tls/Client.h"
 
 #include <any> // for any
 #include <cstring>

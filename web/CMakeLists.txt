@@ -9,16 +9,16 @@ add_library(
     http/Parser.cpp
     http/StatusCodes.cpp
     http/MimeTypes.cpp
-    WSReceiver.cpp
-    WSTransmitter.cpp
+    ws/WSReceiver.cpp
+    ws/WSTransmitter.cpp
     http_utils.cpp
-    client/ResponseParser.cpp
-    client/Request.cpp
-    client/Response.cpp
-    server/http/RequestParser.cpp
-    server/http/Request.cpp
-    server/http/Response.cpp
-    server/ws/WSServerContext.cpp
+    http/client/ResponseParser.cpp
+    http/client/Request.cpp
+    http/client/Response.cpp
+    http/server/RequestParser.cpp
+    http/server/Request.cpp
+    http/server/Response.cpp
+    ws/server/WSServerContext.cpp
 )
 
 target_link_libraries(web LINK_PUBLIC net ${LIBMAGIC_LIBRARIES})

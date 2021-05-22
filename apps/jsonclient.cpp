@@ -23,10 +23,10 @@
 #include "log/Logger.h"                             // for Writer, Storage
 #include "net/SNodeC.h"                             // for SNodeC
 #include "net/socket/ip/address/ipv4/InetAddress.h" // for InetAddress
-#include "web/client/Client.h"                      // for Client<>::Socket...
-#include "web/client/Request.h"                     // for Request
-#include "web/client/Response.h"                    // for Response
-#include "web/client/legacy/Client.h"               // for Client, Client<>...
+#include "web/http/client/Client.h"                 // for Client<>::Socket...
+#include "web/http/client/Request.h"                // for Request
+#include "web/http/client/Response.h"               // for Response
+#include "web/http/client/legacy/Client.h"          // for Client, Client<>...
 
 #include <cstring>     // for memcpy
 #include <functional>  // for function

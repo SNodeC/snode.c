@@ -19,9 +19,9 @@
 #ifndef HTTP_CLIENT_CLIENTCONTEXT_H
 #define HTTP_CLIENT_CLIENTCONTEXT_H
 
-#include "web/client/Request.h"
-#include "web/client/Response.h"
-#include "web/client/ResponseParser.h"
+#include "web/http/client/Request.h"
+#include "web/http/client/Response.h"
+#include "web/http/client/ResponseParser.h"
 #include "net/socket/stream/SocketProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

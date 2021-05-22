@@ -20,8 +20,8 @@
 #define WSTRANSCEIVER_H
 
 #include "net/socket/stream/SocketProtocol.h"
-#include "web/WSReceiver.h"
-#include "web/WSTransmitter.h"
+#include "web/ws/WSReceiver.h"
+#include "web/ws/WSTransmitter.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -16,13 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/server/http/Response.h"
+#include "web/http/server//Response.h"
 
 #include "log/Logger.h"
 #include "net/system/time.h"
 #include "web/http/StatusCodes.h"
+#include "web/http/server//HTTPServerContext.h"
 #include "web/http_utils.h"
-#include "web/server/http/HTTPServerContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

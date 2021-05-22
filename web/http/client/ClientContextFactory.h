@@ -19,7 +19,7 @@
 #ifndef HTTP_CLIENT_CLIENTCONTEXTFACTORY_H
 #define HTTP_CLIENT_CLIENTCONTEXTFACTORY_H
 
-#include "web/client/ClientContext.h"
+#include "web/http/client/ClientContext.h"
 #include "net/socket/stream/SocketConnectionBase.h"
 #include "net/socket/stream/SocketProtocolFactory.h"
 

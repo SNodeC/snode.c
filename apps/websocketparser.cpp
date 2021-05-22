@@ -3,7 +3,7 @@
 #include "express/tls/WebApp.h"
 #include "log/Logger.h"
 #include "net/SNodeC.h"
-#include "web/server/ws/WSServerContext.h"
+#include "web/ws/server/WSServerContext.h"
 
 #include <cstddef>
 #include <endian.h>

@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/WSTransmitter.h"
+#include "web/ws/WSTransmitter.h"
 
 #include "log/Logger.h"
 

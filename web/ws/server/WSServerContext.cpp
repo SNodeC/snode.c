@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/server/ws/WSServerContext.h"
+#include "web/ws/server/WSServerContext.h"
 
 #include "log/Logger.h"
 #include "net/socket/stream/SocketConnectionBase.h"

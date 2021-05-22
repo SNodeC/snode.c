@@ -21,7 +21,7 @@
 
 #include "net/socket/ip/tcp/ipv4/tls/SocketServer.h"
 #include "net/socket/ip/tcp/ipv6/tls/SocketServer.h"
-#include "web/server/Server.h"
+#include "web/http/server/Server.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
