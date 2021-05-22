@@ -97,7 +97,7 @@ namespace express::middleware {
     class StaticMiddleware& StaticMiddleware::appendStdCookie(const std::string& name,
                                                               const std::string& value,
                                                               const std::map<std::string, std::string>& options) {
-        this->stdCookies.insert({name, web::CookieOptions(value, options)});
+        this->stdCookies.insert({name, web::http::CookieOptions(value, options)});
 
         return *this;
     }

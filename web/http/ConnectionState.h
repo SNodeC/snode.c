@@ -16,36 +16,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EXPRESS_RESPONSE_H
-#define EXPRESS_RESPONSE_H
-
-#include "web/http/server//Response.h"
+#ifndef HTTP_CONNECTIONSTATE_H
+#define HTTP_CONNECTIONSTATE_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace express {
+namespace web::http {
 
-    class Response : public web::http::server::Response {
-    public:
-        Response(web::http::server::HTTPServerContextBase* serverContext);
+    enum ConnectionState { Default, Keep, Close };
 
-        void sendFile(const std::string& file, const std::function<void(int err)>& onError);
-        void download(const std::string& file, const std::function<void(int err)>& onError);
-        void download(const std::string& file, const std::string& name, const std::function<void(int err)>& onError);
+} // namespace web::http
 
-        void redirect(const std::string& name);
-        void redirect(int status, const std::string& name);
-
-        void sendStatus(int status);
-
-        void reset() override;
-    };
-
-} // namespace express
-
-#endif // EXPRESS_RESPONSE_H
+#endif // HTTP_CONNECTIONSTATE_H

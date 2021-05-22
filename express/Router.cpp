@@ -19,8 +19,8 @@
 #include "express/Router.h"
 
 #include "express/Request.h"
-#include "web/http_utils.h"
-#include "web/server/http/HTTPServerContext.h"
+#include "web/http/http_utils.h"
+#include "web/http/server/HTTPServerContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

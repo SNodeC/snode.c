@@ -84,7 +84,7 @@ if(NOT SNODEC_FOUND)
     # ########## WEB
     find_path(
         SNODEC_WEB_H
-        NAMES web/http_utils.h
+        NAMES web/http/Parser.h
         HINTS ${SNODEC_WEB_ROOT_DIR}/include
         PATH_SUFFIXES snode.c
     )

@@ -22,7 +22,7 @@
 #include "express/legacy/WebApp.h"
 #include "net/timer/IntervalTimer.h"
 #include "net/timer/SingleshotTimer.h"
-#include "web/server/ws/WSServerContext.h"
+#include "web/ws/server/WSServerContext.h"
 
 #include <cstring>
 #include <iostream>
@@ -120,14 +120,14 @@ int timerApp() {
                 }
             });
         }
-        res.upgrade(new web::server::ws::WSServerContext(
-            []([[maybe_unused]] web::server::ws::WSServerContext* wSServerContext, int opCode) -> void {
+        res.upgrade(new web::ws::server::WSServerContext(
+            []([[maybe_unused]] web::ws::server::WSServerContext* wSServerContext, int opCode) -> void {
                 VLOG(0) << "Message Start - OpCode: " << opCode;
             },
-            []([[maybe_unused]] web::server::ws::WSServerContext* wSServerContext, const char* junk, std::size_t junkLen) -> void {
+            []([[maybe_unused]] web::ws::server::WSServerContext* wSServerContext, const char* junk, std::size_t junkLen) -> void {
                 VLOG(0) << "Data: " << std::string(junk, static_cast<std::size_t>(junkLen));
             },
-            []([[maybe_unused]] web::server::ws::WSServerContext* wSServerContext) -> void {
+            []([[maybe_unused]] web::ws::server::WSServerContext* wSServerContext) -> void {
                 VLOG(0) << "Message End";
                 wSServerContext->message(1, "Hallo zurück", strlen("Hallo zurück"));
             }));

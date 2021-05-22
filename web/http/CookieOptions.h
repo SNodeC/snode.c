@@ -16,36 +16,46 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EXPRESS_RESPONSE_H
-#define EXPRESS_RESPONSE_H
-
-#include "web/http/server//Response.h"
+#ifndef HTTP_COOKIEOPTIONS_H
+#define HTTP_COOKIEOPTIONS_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
+#include <map>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace express {
+namespace web::http {
 
-    class Response : public web::http::server::Response {
+    class CookieOptions {
     public:
-        Response(web::http::server::HTTPServerContextBase* serverContext);
+        CookieOptions(const std::string& value, const std::map<std::string, std::string>& options)
+            : value(value)
+            , options(options) {
+        }
 
-        void sendFile(const std::string& file, const std::function<void(int err)>& onError);
-        void download(const std::string& file, const std::function<void(int err)>& onError);
-        void download(const std::string& file, const std::string& name, const std::function<void(int err)>& onError);
+        explicit CookieOptions(const std::string& value)
+            : value(value) {
+        }
 
-        void redirect(const std::string& name);
-        void redirect(int status, const std::string& name);
+        void setOption(const std::string& optionName, const std::string& optionValue) {
+            options[optionName] = optionValue;
+        }
 
-        void sendStatus(int status);
+        const std::map<std::string, std::string>& getOptions() const {
+            return options;
+        }
 
-        void reset() override;
+        const std::string& getValue() const {
+            return value;
+        }
+
+    protected:
+        std::string value;
+        std::map<std::string, std::string> options;
     };
 
-} // namespace express
+} // namespace web::http
 
-#endif // EXPRESS_RESPONSE_H
+#endif // HTTP_COOKIEOPTIONS_H

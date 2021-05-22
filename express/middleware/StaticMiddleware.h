@@ -20,7 +20,7 @@
 #define EXPRESS_MIDDLEWARE_STATICMIDDLEWARE_H
 
 #include "express/Router.h"
-#include "web/CookieOptions.h"
+#include "web/http/CookieOptions.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -51,7 +51,7 @@ namespace express::middleware {
         std::string root;
         std::map<std::string, std::string> stdHeaders = {
             {"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}, {"X-Powered-By", "snode.c"}};
-        std::map<std::string, web::CookieOptions> stdCookies = {};
+        std::map<std::string, web::http::CookieOptions> stdCookies = {};
         bool forceClose = false;
 
         friend class StaticMiddleware& StaticMiddleware(const std::string& root);

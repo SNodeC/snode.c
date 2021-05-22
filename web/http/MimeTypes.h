@@ -16,36 +16,38 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EXPRESS_RESPONSE_H
-#define EXPRESS_RESPONSE_H
-
-#include "web/http/server//Response.h"
+#ifndef HTTP_MIMETYPES_H
+#define HTTP_MIMETYPES_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
+#include <magic.h>
+#include <map>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace express {
+namespace web::http {
 
-    class Response : public web::http::server::Response {
+    class MimeTypes {
     public:
-        Response(web::http::server::HTTPServerContextBase* serverContext);
+        MimeTypes(const MimeTypes&) = delete;
+        MimeTypes operator=(const MimeTypes&) = delete;
 
-        void sendFile(const std::string& file, const std::function<void(int err)>& onError);
-        void download(const std::string& file, const std::function<void(int err)>& onError);
-        void download(const std::string& file, const std::string& name, const std::function<void(int err)>& onError);
+        ~MimeTypes();
 
-        void redirect(const std::string& name);
-        void redirect(int status, const std::string& name);
+        static std::string contentType(const std::string& file);
 
-        void sendStatus(int status);
+    private:
+        MimeTypes();
 
-        void reset() override;
+        static magic_t magic;
+
+        static MimeTypes mimeTypes;
+
+        static std::map<std::string, std::string> mimeType;
     };
 
-} // namespace express
+} // namespace web::http
 
-#endif // EXPRESS_RESPONSE_H
+#endif // HTTP_MIMETYPES_H

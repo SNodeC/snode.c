@@ -16,36 +16,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EXPRESS_RESPONSE_H
-#define EXPRESS_RESPONSE_H
-
-#include "web/http/server//Response.h"
+#ifndef HTTP_STATUSCODES_H
+#define HTTP_STATUSCODES_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
+#include <map>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace express {
+namespace web::http {
 
-    class Response : public web::http::server::Response {
+    class StatusCode {
     public:
-        Response(web::http::server::HTTPServerContextBase* serverContext);
+        static std::string reason(int status);
 
-        void sendFile(const std::string& file, const std::function<void(int err)>& onError);
-        void download(const std::string& file, const std::function<void(int err)>& onError);
-        void download(const std::string& file, const std::string& name, const std::function<void(int err)>& onError);
+        static bool contains(int status);
 
-        void redirect(const std::string& name);
-        void redirect(int status, const std::string& name);
-
-        void sendStatus(int status);
-
-        void reset() override;
+    private:
+        static std::map<int, std::string> statusCode;
     };
 
-} // namespace express
+} // namespace web::http
 
-#endif // EXPRESS_RESPONSE_H
+#endif // HTTP_STATUSCODES_H

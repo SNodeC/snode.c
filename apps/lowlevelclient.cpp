@@ -28,7 +28,7 @@
 #include "net/socket/stream/SocketProtocolFactory.h" // for SocketProtocolF...
 #include "net/socket/stream/legacy/SocketClient.h"   // for SocketClient
 #include "net/socket/stream/tls/SocketClient.h"      // for SocketClient
-#include "web/client/ResponseParser.h"               // for ResponseParser
+#include "web/http/client/ResponseParser.h"          // for ResponseParser
 
 #include <any>                // for any
 #include <functional>         // for function
@@ -47,7 +47,7 @@
 #include <type_traits>        // for add_const<>::type
 #include <utility>            // for tuple_element<>...
 
-namespace web {
+namespace web::http {
     class CookieOptions;
 }
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -56,14 +56,14 @@ using namespace net::socket::ip;
 using namespace net::socket::ip::address::ipv4;
 using namespace net::socket::stream;
 
-static web::client::ResponseParser* getResponseParser() {
-    web::client::ResponseParser* responseParser = new web::client::ResponseParser(
+static web::http::client::ResponseParser* getResponseParser() {
+    web::http::client::ResponseParser* responseParser = new web::http::client::ResponseParser(
         [](void) -> void {
         },
         [](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
             VLOG(0) << "++ Response: " << httpVersion << " " << statusCode << " " << reason;
         },
-        [](const std::map<std::string, std::string>& headers, const std::map<std::string, web::CookieOptions>& cookies) -> void {
+        [](const std::map<std::string, std::string>& headers, const std::map<std::string, web::http::CookieOptions>& cookies) -> void {
             VLOG(0) << "++   Headers:";
             for (const auto& [field, value] : headers) {
                 VLOG(0) << "++       " << field + " = " + value;
@@ -84,7 +84,7 @@ static web::client::ResponseParser* getResponseParser() {
             VLOG(0) << "++   OnContent: " << contentLength << std::endl << strContent;
             delete[] strContent;
         },
-        [](web::client::ResponseParser& parser) -> void {
+        [](web::http::client::ResponseParser& parser) -> void {
             VLOG(0) << "++   OnParsed";
             parser.reset();
         },
@@ -118,7 +118,7 @@ public:
     }
 
 private:
-    web::client::ResponseParser* responseParser;
+    web::http::client::ResponseParser* responseParser;
 };
 
 class SimpleSocketProtocolFactory : public SocketProtocolFactory {

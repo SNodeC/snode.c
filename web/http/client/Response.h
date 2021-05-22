@@ -16,36 +16,43 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EXPRESS_RESPONSE_H
-#define EXPRESS_RESPONSE_H
-
-#include "web/http/server//Response.h"
+#ifndef HTTP_CLIENT_RESPONSE_H
+#define HTTP_CLIENT_RESPONSE_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
-#include <string>
+#include <cstddef> // for size_t
+#include <map>     // for map
+#include <string>  // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace express {
+namespace web::http {
+    class CookieOptions;
+}
 
-    class Response : public web::http::server::Response {
+namespace web::http::client {
+
+    class Response {
+    protected:
+        Response() = default;
+
+        // switch to protected later on
     public:
-        Response(web::http::server::HTTPServerContextBase* serverContext);
+        void reset();
 
-        void sendFile(const std::string& file, const std::function<void(int err)>& onError);
-        void download(const std::string& file, const std::function<void(int err)>& onError);
-        void download(const std::string& file, const std::string& name, const std::function<void(int err)>& onError);
+        std::string httpVersion;
+        std::string statusCode;
+        std::string reason;
+        char* body = nullptr;
+        std::size_t contentLength = 0;
+        const std::map<std::string, std::string>* headers = nullptr;
+        const std::map<std::string, CookieOptions>* cookies = nullptr;
 
-        void redirect(const std::string& name);
-        void redirect(int status, const std::string& name);
-
-        void sendStatus(int status);
-
-        void reset() override;
+        template <typename Request, typename Response>
+        friend class ClientContext;
     };
 
-} // namespace express
+} // namespace web::http::client
 
-#endif // EXPRESS_RESPONSE_H
+#endif // HTTP_CLIENT_RESPONSE_H
