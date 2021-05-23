@@ -47,6 +47,12 @@ namespace net {
         DescriptorEventReceiver& operator=(const DescriptorEventReceiver&) = delete;
 
     protected:
+        class TIMEOUT {
+        public:
+            static const long DEFAULT = -1;
+            static const long DISABLE = LONG_MAX;
+        };
+
         explicit DescriptorEventReceiver(DescriptorEventDispatcher& descriptorEventDispatcher, long timeout = TIMEOUT::DISABLE);
 
     public:
@@ -57,12 +63,6 @@ namespace net {
         void resume();
 
     protected:
-        class TIMEOUT {
-        public:
-            static const long DEFAULT = -1;
-            static const long DISABLE = LONG_MAX;
-        };
-
         virtual ~DescriptorEventReceiver() = default;
 
         void setTimeout(long timeout);
