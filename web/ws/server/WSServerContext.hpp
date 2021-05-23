@@ -219,7 +219,14 @@ namespace web::ws::server {
 
     template <typename WSServerProtocol>
     void WSServerContext<WSServerProtocol>::sendFrameData(char* frame, uint64_t frameLength) {
-        sendToPeer(frame, frameLength);
+        std::size_t frameOffset = 0;
+
+        do {
+            std::size_t sendJunkLen =
+                (frameLength - frameOffset <= SIZE_MAX) ? static_cast<std::size_t>(frameLength - frameOffset) : SIZE_MAX;
+            sendToPeer(frame + frameOffset, sendJunkLen);
+            frameOffset += sendJunkLen;
+        } while (frameLength - frameOffset > 0);
     }
 
 } // namespace web::ws::server
