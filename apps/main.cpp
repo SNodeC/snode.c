@@ -129,7 +129,7 @@ int timerApp() {
             },
             []([[maybe_unused]] web::ws::server::WSServerContext* wSServerContext) -> void {
                 VLOG(0) << "Message End";
-                wSServerContext->message(1, "Hallo zurück", strlen("Hallo zurück"));
+                wSServerContext->message(1, std::string("Hallo zurück").data(), strlen("Hallo zurück"));
             }));
     });
 

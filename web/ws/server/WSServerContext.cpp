@@ -40,25 +40,25 @@ namespace web::ws::server {
         , _onMessageEnd(_onMessageEnd) {
     }
 
-    void WSServerContext::messageStart(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey) {
+    void WSServerContext::messageStart(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey) {
         if (!closeSent) {
             WSTransmitter::messageStart(opCode, message, messageLength, messageKey);
         }
     }
 
-    void WSServerContext::sendFrame(const char* message, std::size_t messageLength, uint32_t messageKey) {
+    void WSServerContext::sendFrame(char* message, std::size_t messageLength, uint32_t messageKey) {
         if (!closeSent) {
             WSTransmitter::sendFrame(message, messageLength, messageKey);
         }
     }
 
-    void WSServerContext::messageEnd(const char* message, std::size_t messageLength, uint32_t messageKey) {
+    void WSServerContext::messageEnd(char* message, std::size_t messageLength, uint32_t messageKey) {
         if (!closeSent) {
             WSTransmitter::messageEnd(message, messageLength, messageKey);
         }
     }
 
-    void WSServerContext::message(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey) {
+    void WSServerContext::message(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey) {
         if (!closeSent) {
             WSTransmitter::message(opCode, message, messageLength, messageKey);
         }
@@ -167,12 +167,32 @@ namespace web::ws::server {
         closeSent = true;
     }
 
-    void WSServerContext::sendPing(const char* reason, std::size_t reasonLength) {
+    void WSServerContext::sendPing(char* reason, std::size_t reasonLength) {
         message(9, reason, reasonLength);
     }
 
-    void WSServerContext::replyPong(const char* reason, std::size_t reasonLength) {
+    void WSServerContext::replyPong(char* reason, std::size_t reasonLength) {
         message(10, reason, reasonLength);
+    }
+
+    void WSServerContext::sendFrameData(uint8_t data) {
+        sendToPeer(reinterpret_cast<char*>(&data), sizeof(uint8_t));
+    }
+
+    void WSServerContext::sendFrameData(uint16_t data) {
+        sendToPeer(reinterpret_cast<char*>(&data), sizeof(uint16_t));
+    }
+
+    void WSServerContext::sendFrameData(uint32_t data) {
+        sendToPeer(reinterpret_cast<char*>(&data), sizeof(uint32_t));
+    }
+
+    void WSServerContext::sendFrameData(uint64_t data) {
+        sendToPeer(reinterpret_cast<char*>(&data), sizeof(uint64_t));
+    }
+
+    void WSServerContext::sendFrameData(char* frame, uint64_t frameLength) {
+        sendToPeer(frame, frameLength);
     }
 
 } // namespace web::ws::server

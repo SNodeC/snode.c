@@ -114,7 +114,6 @@ int main(int argc, char* argv[]) {
     wsTransCeiver.message(message, std::string(message).length(), 0x23456789);
     wsTransCeiver.messageEnd(message, std::string(message).length(), 0x34567890);
     */
-
     SNodeC::init(argc, argv);
 
     legacy::WebApp legacyApp;
@@ -152,7 +151,7 @@ int main(int argc, char* argv[]) {
             },
             [](web::ws::server::WSServerContext* wSServerContext) -> void {
                 VLOG(0) << "Message End";
-                wSServerContext->message(1, "Hallo zurück", strlen("Hallo zurück"));
+                wSServerContext->message(1, std::string("Hallo zurück").data(), strlen("Hallo zurück"));
                 wSServerContext->sendPing();
             }));
     });
@@ -165,53 +164,58 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    tls::WebApp tlsApp({{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
+    {
+        tls::WebApp tlsApp({{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
 
-    tlsApp.get("/", [](Request& req, [[maybe_unused]] Response& res) -> void {
-        std::string uri = req.originalUrl;
+        tlsApp.get("/", [](Request& req, Response& res) -> void {
+            std::string uri = req.originalUrl;
 
-        VLOG(1) << "OriginalUri: " << uri;
-        VLOG(1) << "Uri: " << req.url;
+            VLOG(1) << "OriginalUri: " << uri;
+            VLOG(1) << "Uri: " << req.url;
 
-        VLOG(1) << "Connection: " << req.header("connection");
-        VLOG(1) << "Host: " << req.header("host");
-        VLOG(1) << "Origin: " << req.header("origin");
-        VLOG(1) << "sec-web-socket-extensions: " << req.header("sec-websocket-extensions");
-        VLOG(1) << "sec-websocket-key: " << req.header("sec-websocket-key");
-        VLOG(1) << "sec-websocket-version: " << req.header("sec-websocket-version");
-        VLOG(1) << "upgrade: " << req.header("upgrade");
-        VLOG(1) << "user-agent: " << req.header("user-agent");
+            VLOG(1) << "Connection: " << req.header("connection");
+            VLOG(1) << "Host: " << req.header("host");
+            VLOG(1) << "Origin: " << req.header("origin");
+            VLOG(1) << "sec-web-socket-extensions: " << req.header("sec-websocket-extensions");
+            VLOG(1) << "sec-websocket-key: " << req.header("sec-websocket-key");
+            VLOG(1) << "sec-websocket-version: " << req.header("sec-websocket-version");
+            VLOG(1) << "upgrade: " << req.header("upgrade");
+            VLOG(1) << "user-agent: " << req.header("user-agent");
 
-        res.set("Upgrade", "websocket");
-        res.set("Connection", "Upgrade");
+            res.set("Upgrade", "websocket");
+            res.set("Connection", "Upgrade");
 
-        serverWebSocketKey(req.header("sec-websocket-key"), [&res](char* key) -> void {
-            res.set("Sec-WebSocket-Accept", key);
+            serverWebSocketKey(req.header("sec-websocket-key"), [&res](char* key) -> void {
+                res.set("Sec-WebSocket-Accept", key);
+            });
+
+            std::shared_ptr<std::string> data = std::make_shared<std::string>();
+
+            res.status(101); // Switch Protocol
+
+            res.upgrade(new web::ws::server::WSServerContext(
+                []([[maybe_unused]] web::ws::server::WSServerContext* wSServerContext, int opCode) -> void {
+                    VLOG(0) << "Message Start - OpCode: " << opCode;
+                },
+                [data]([[maybe_unused]] web::ws::server::WSServerContext* wSServerContext, const char* junk, std::size_t junkLen) -> void {
+                    VLOG(0) << "Data: " << std::string(junk, static_cast<std::size_t>(junkLen));
+                    *data += std::string(junk, static_cast<std::size_t>(junkLen));
+                },
+                [data](web::ws::server::WSServerContext* wSServerContext) -> void {
+                    VLOG(0) << "Message End";
+                    wSServerContext->message(1, data->data(), data->length());
+                    wSServerContext->sendPing();
+                }));
         });
 
-        res.status(101); // Switch Protocol
-
-        res.upgrade(new web::ws::server::WSServerContext(
-            []([[maybe_unused]] web::ws::server::WSServerContext* wSServerContext, [[maybe_unused]] int opCode) -> void {
-                VLOG(0) << "Message Start - OpCode: " << opCode;
-            },
-            []([[maybe_unused]] web::ws::server::WSServerContext* wSServerContext, const char* junk, std::size_t junkLen) -> void {
-                VLOG(0) << "Data: " << std::string(junk, static_cast<std::size_t>(junkLen));
-            },
-            [](web::ws::server::WSServerContext* wSServerContext) -> void {
-                VLOG(0) << "Message End";
-                wSServerContext->message(1, "Hallo zurück", strlen("Hallo zurück"));
-                wSServerContext->sendPing();
-            }));
-    });
-
-    tlsApp.listen(8088, [](int err) -> void {
-        if (err != 0) {
-            perror("Listen");
-        } else {
-            std::cout << "snode.c listening on port 8088" << std::endl;
-        }
-    });
+        tlsApp.listen(8088, [](int err) -> void {
+            if (err != 0) {
+                perror("Listen");
+            } else {
+                std::cout << "snode.c listening on port 8088" << std::endl;
+            }
+        });
+    }
 
     return SNodeC::start();
 }

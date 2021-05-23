@@ -30,26 +30,27 @@ namespace web::ws {
 
     class WSTransmitter {
     protected:
-        virtual void messageStart(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey = 0);
-        virtual void sendFrame(const char* message, std::size_t messageLength, uint32_t messageKey = 0);
-        virtual void messageEnd(const char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        virtual void messageStart(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        virtual void sendFrame(char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        virtual void messageEnd(char* message, std::size_t messageLength, uint32_t messageKey = 0);
 
-        virtual void message(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        virtual void message(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0);
 
     private:
-        union MaskingKey {
-            uint32_t key;
-            char keyAsArray[4];
-        };
+        void send(bool end, uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey);
 
-        void sendFrame(bool fin, uint8_t opCode, uint32_t maskingKey, const char* payload, uint64_t payloadLength);
+        void sendFrame(bool fin, uint8_t opCode, uint32_t maskingKey, char* payload, uint64_t payloadLength);
         void dumpFrame(char* frame, uint64_t frameLength);
 
-        //        virtual void send(bool end, uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey) = 0;
-
-        void send(bool end, uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey);
+        virtual void sendFrameData(uint8_t data) = 0;
+        virtual void sendFrameData(uint16_t data) = 0;
+        virtual void sendFrameData(uint32_t data) = 0;
+        virtual void sendFrameData(uint64_t data) = 0;
+        virtual void sendFrameData(char* frame, uint64_t frameLength) = 0;
 
         virtual void onFrameReady(char* frame, uint64_t frameLength) = 0;
+
+        void sendFrame1(bool fin, uint8_t opCode, uint32_t maskingKey, char* payload, uint64_t payloadLength);
     };
 
 } // namespace web::ws

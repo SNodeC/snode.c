@@ -43,16 +43,16 @@ namespace web::ws::server {
                         const std::function<void(WSServerContext* wSServerContext)>& _onMessageEnd);
 
     public:
-        void messageStart(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
-        void sendFrame(const char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
-        void messageEnd(const char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
+        void messageStart(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
+        void sendFrame(char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
+        void messageEnd(char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
 
-        void message(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
+        void message(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
 
-        void sendPing(const char* reason = nullptr, std::size_t reasonLength = 0);
+        void sendPing(char* reason = nullptr, std::size_t reasonLength = 0);
 
     private:
-        void replyPong(const char* reason = nullptr, std::size_t reasonLength = 0);
+        void replyPong(char* reason = nullptr, std::size_t reasonLength = 0);
 
         void close(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);
 
@@ -68,6 +68,12 @@ namespace web::ws::server {
         void onError(uint16_t errnum) override;
 
         /* WSTransmitter */
+        void sendFrameData(uint8_t data) override;
+        void sendFrameData(uint16_t data) override;
+        void sendFrameData(uint32_t data) override;
+        void sendFrameData(uint64_t data) override;
+        void sendFrameData(char* frame, uint64_t frameLength) override;
+
         void onFrameReady(char* frame, uint64_t frameLength) override;
 
         bool closeReceived = false;
@@ -76,9 +82,9 @@ namespace web::ws::server {
         bool pingReceived = false;
         bool pongReceived = false;
 
-        std::function<void(WSServerContext* wSServerContext, int opCode)> _onMessageStart = nullptr;
-        std::function<void(WSServerContext* wSServerContext, const char* junk, std::size_t junkLen)> _onFrameData = nullptr;
-        std::function<void(WSServerContext* wSServerContext)> _onMessageEnd = nullptr;
+        const std::function<void(WSServerContext* wSServerContext, int opCode)> _onMessageStart;
+        const std::function<void(WSServerContext* wSServerContext, const char* junk, std::size_t junkLen)> _onFrameData;
+        const std::function<void(WSServerContext* wSServerContext)> _onMessageEnd;
     };
 
 } // namespace web::ws::server
