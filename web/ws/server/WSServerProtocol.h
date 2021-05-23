@@ -16,9 +16,18 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_WSTRANSMITTER_H
-#define WEB_WS_WSTRANSMITTER_H
+#ifndef WS_SERVER_WSSERVERPROTOCOL_H
+#define WS_SERVER_WSSERVERPROTOCOL_H
 
+#include "web/ws/server/WSServerContextBase.h"
+/*
+namespace web::ws::server {
+
+    template <typename WSServerProtocol>
+    class WSServerContext;
+
+}
+*/
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
@@ -26,33 +35,34 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::ws {
+namespace web::ws::server {
 
-    class WSTransmitter {
-    protected:
+    class WSServerProtocol {
+    public:
+        virtual ~WSServerProtocol() = default;
+
+        /* Facade to WSServerContext */
         void messageStart(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0);
         void sendFrame(char* message, std::size_t messageLength, uint32_t messageKey = 0);
         void messageEnd(char* message, std::size_t messageLength, uint32_t messageKey = 0);
-
         void message(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        void sendPing(char* reason = nullptr, std::size_t reasonLength = 0);
+        void close(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);
 
-    private:
-        void send(bool end, uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey);
+        /* WSReceiver */
+        virtual void onMessageStart(int opCode) = 0;
+        virtual void onFrameData(const char* junk, std::size_t junkLen) = 0;
+        virtual void onMessageEnd() = 0;
+        virtual void onPongReceived() = 0;
+        virtual void onMessageError(uint16_t errnum) = 0;
 
-        void sendFrame(bool fin, uint8_t opCode, uint32_t maskingKey, char* payload, uint64_t payloadLength);
-        void dumpFrame(char* frame, uint64_t frameLength);
+    protected:
+        WSServerContextBase* wSServerContext;
 
-        virtual void sendFrameData(uint8_t data) = 0;
-        virtual void sendFrameData(uint16_t data) = 0;
-        virtual void sendFrameData(uint32_t data) = 0;
-        virtual void sendFrameData(uint64_t data) = 0;
-        virtual void sendFrameData(char* frame, uint64_t frameLength) = 0;
-
-        virtual void onFrameReady(char* frame, uint64_t frameLength) = 0;
-
-        void sendFrame1(bool fin, uint8_t opCode, uint32_t maskingKey, char* payload, uint64_t payloadLength);
+        template <typename WSServerProtocolT>
+        friend class WSServerContext;
     };
 
-} // namespace web::ws
+} // namespace web::ws::server
 
-#endif // WEB_WS_WSTRANSMITTER_H
+#endif // WS_SERVER_WSSERVERPROTOCOL_H

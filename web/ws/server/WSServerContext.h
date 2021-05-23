@@ -22,6 +22,8 @@
 #include "net/socket/stream/SocketProtocol.h"
 #include "web/ws/WSReceiver.h"
 #include "web/ws/WSTransmitter.h"
+#include "web/ws/server/WSServerContextBase.h"
+#include "web/ws/server/WSServerProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -33,29 +35,33 @@
 
 namespace web::ws::server {
 
+    template <typename WSServerProtocolT>
     class WSServerContext
         : public net::socket::stream::SocketProtocol
+        , public web::ws::server::WSServerContextBase
         , public web::ws::WSReceiver
         , public web::ws::WSTransmitter {
-    public:
-        WSServerContext(const std::function<void(WSServerContext* wSServerContext, int opCode)>& _onMessageStart,
-                        const std::function<void(WSServerContext* wSServerContext, const char* junk, std::size_t junkLen)>& _onFrameData,
-                        const std::function<void(WSServerContext* wSServerContext)>& _onMessageEnd);
+        using WSServerProtocol = WSServerProtocolT;
 
     public:
-        void messageStart(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
-        void sendFrame(char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
-        void messageEnd(char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
+        WSServerContext();
 
-        void message(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
+        ~WSServerContext();
+
+    public:
+        void messageStart(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        void sendFrame(char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        void messageEnd(char* message, std::size_t messageLength, uint32_t messageKey = 0);
+
+        void message(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0);
 
         void sendPing(char* reason = nullptr, std::size_t reasonLength = 0);
 
-    private:
         void replyPong(char* reason = nullptr, std::size_t reasonLength = 0);
 
         void close(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);
 
+    private:
         /* SocketProtocol */
         void receiveFromPeer(const char* junk, std::size_t junkLen) override;
         void onReadError(int errnum) override;
@@ -65,7 +71,7 @@ namespace web::ws::server {
         void onMessageStart(int opCode) override;
         void onFrameReceived(const char* junk, uint64_t junkLen) override;
         void onMessageEnd() override;
-        void onError(uint16_t errnum) override;
+        void onMessageError(uint16_t errnum) override;
 
         /* WSTransmitter */
         void sendFrameData(uint8_t data) override;
@@ -76,15 +82,13 @@ namespace web::ws::server {
 
         void onFrameReady(char* frame, uint64_t frameLength) override;
 
+        web::ws::server::WSServerProtocol* wSServerProtocol;
+
         bool closeReceived = false;
         bool closeSent = false;
 
         bool pingReceived = false;
         bool pongReceived = false;
-
-        const std::function<void(WSServerContext* wSServerContext, int opCode)> _onMessageStart;
-        const std::function<void(WSServerContext* wSServerContext, const char* junk, std::size_t junkLen)> _onFrameData;
-        const std::function<void(WSServerContext* wSServerContext)> _onMessageEnd;
     };
 
 } // namespace web::ws::server

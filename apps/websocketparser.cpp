@@ -3,7 +3,8 @@
 #include "express/tls/WebApp.h"
 #include "log/Logger.h"
 #include "net/SNodeC.h"
-#include "web/ws/server/WSServerContext.h"
+#include "web/ws/server/WSServerContext.hpp"
+#include "web/ws/server/WSServerProtocol.h"
 
 #include <cstddef>
 #include <endian.h>
@@ -62,6 +63,35 @@ void serverWebSocketKey(const std::string& clientWebSocketKey, const std::functi
 
     free(key);
 }
+
+class MyWSServerProtocol : public web::ws::server::WSServerProtocol {
+public:
+    void onMessageStart([[maybe_unused]] int opCode) override {
+        VLOG(0) << "Message Start - OpCode: " << opCode;
+    }
+
+    void onFrameData([[maybe_unused]] const char* junk, [[maybe_unused]] std::size_t junkLen) override {
+        data += std::string(junk, static_cast<std::size_t>(junkLen));
+    }
+
+    void onMessageEnd() override {
+        VLOG(0) << "Data: " << data;
+        VLOG(0) << "Message End";
+        message(1, data.data(), data.length());
+        sendPing();
+        data.clear();
+    }
+
+    void onMessageError([[maybe_unused]] uint16_t errnum) override {
+    }
+
+    void onPongReceived() override {
+        VLOG(0) << "Pong received";
+    }
+
+private:
+    std::string data;
+};
 
 int main(int argc, char* argv[]) {
     /*
@@ -142,18 +172,7 @@ int main(int argc, char* argv[]) {
 
         res.status(101); // Switch Protocol
 
-        res.upgrade(new web::ws::server::WSServerContext(
-            []([[maybe_unused]] web::ws::server::WSServerContext* wSServerContext, int opCode) -> void {
-                VLOG(0) << "Message Start - OpCode: " << opCode;
-            },
-            []([[maybe_unused]] web::ws::server::WSServerContext* wSServerContext, const char* junk, std::size_t junkLen) -> void {
-                VLOG(0) << "Data: " << std::string(junk, static_cast<std::size_t>(junkLen));
-            },
-            [](web::ws::server::WSServerContext* wSServerContext) -> void {
-                VLOG(0) << "Message End";
-                wSServerContext->message(1, std::string("Hallo zurück").data(), strlen("Hallo zurück"));
-                wSServerContext->sendPing();
-            }));
+        res.upgrade(new web::ws::server::WSServerContext<MyWSServerProtocol>());
     });
 
     legacyApp.listen(8080, [](int err) -> void {
@@ -193,19 +212,7 @@ int main(int argc, char* argv[]) {
 
             res.status(101); // Switch Protocol
 
-            res.upgrade(new web::ws::server::WSServerContext(
-                []([[maybe_unused]] web::ws::server::WSServerContext* wSServerContext, int opCode) -> void {
-                    VLOG(0) << "Message Start - OpCode: " << opCode;
-                },
-                [data]([[maybe_unused]] web::ws::server::WSServerContext* wSServerContext, const char* junk, std::size_t junkLen) -> void {
-                    VLOG(0) << "Data: " << std::string(junk, static_cast<std::size_t>(junkLen));
-                    *data += std::string(junk, static_cast<std::size_t>(junkLen));
-                },
-                [data](web::ws::server::WSServerContext* wSServerContext) -> void {
-                    VLOG(0) << "Message End";
-                    wSServerContext->message(1, data->data(), data->length());
-                    wSServerContext->sendPing();
-                }));
+            res.upgrade(new web::ws::server::WSServerContext<MyWSServerProtocol>());
         });
 
         tlsApp.listen(8088, [](int err) -> void {

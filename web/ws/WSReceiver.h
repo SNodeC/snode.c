@@ -50,7 +50,7 @@ namespace web::ws {
         virtual void onMessageStart(int opCode) = 0;
         virtual void onFrameReceived(const char* junk, uint64_t junkLen) = 0;
         virtual void onMessageEnd() = 0;
-        virtual void onError(uint16_t errnum) = 0;
+        virtual void onMessageError(uint16_t errnum) = 0;
 
         void reset();
 

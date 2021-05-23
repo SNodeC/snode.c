@@ -59,7 +59,7 @@ namespace web::ws {
                     consumed += readPayload(junk + consumed, junkLen - consumed);
                     break;
                 case ParserState::ERROR:
-                    onError(errorState);
+                    onMessageError(errorState);
                     parsingError = true;
                     reset();
                     break;

@@ -22,7 +22,8 @@
 #include "express/legacy/WebApp.h"
 #include "net/timer/IntervalTimer.h"
 #include "net/timer/SingleshotTimer.h"
-#include "web/ws/server/WSServerContext.h"
+#include "web/ws/server/WSServerContext.hpp"
+#include "web/ws/server/WSServerProtocol.h"
 
 #include <cstring>
 #include <iostream>
@@ -31,6 +32,33 @@
 
 using namespace express;
 using namespace net::timer;
+
+class MyWSServerProtocol : public web::ws::server::WSServerProtocol {
+public:
+    void onMessageStart([[maybe_unused]] int opCode) override {
+        VLOG(0) << "Message Start - OpCode: " << opCode;
+    }
+
+    void onFrameData([[maybe_unused]] const char* junk, [[maybe_unused]] std::size_t junkLen) override {
+        data += std::string(junk, static_cast<std::size_t>(junkLen));
+    }
+
+    void onMessageEnd() override {
+        VLOG(0) << "Data: " << data;
+        VLOG(0) << "Message End";
+        message(1, data.data(), data.length());
+        data.clear();
+    }
+
+    void onMessageError([[maybe_unused]] uint16_t errnum) override {
+    }
+
+    void onPongReceived() override {
+    }
+
+private:
+    std::string data;
+};
 
 int timerApp() {
     [[maybe_unused]] const Timer& tick = Timer::continousTimer(
@@ -120,17 +148,7 @@ int timerApp() {
                 }
             });
         }
-        res.upgrade(new web::ws::server::WSServerContext(
-            []([[maybe_unused]] web::ws::server::WSServerContext* wSServerContext, int opCode) -> void {
-                VLOG(0) << "Message Start - OpCode: " << opCode;
-            },
-            []([[maybe_unused]] web::ws::server::WSServerContext* wSServerContext, const char* junk, std::size_t junkLen) -> void {
-                VLOG(0) << "Data: " << std::string(junk, static_cast<std::size_t>(junkLen));
-            },
-            []([[maybe_unused]] web::ws::server::WSServerContext* wSServerContext) -> void {
-                VLOG(0) << "Message End";
-                wSServerContext->message(1, std::string("Hallo zurück").data(), strlen("Hallo zurück"));
-            }));
+        res.upgrade(new web::ws::server::WSServerContext<MyWSServerProtocol>());
     });
 
     app.listen(8080, [](int err) -> void {
