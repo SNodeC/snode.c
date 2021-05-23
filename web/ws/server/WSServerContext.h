@@ -23,7 +23,6 @@
 #include "web/ws/WSReceiver.h"
 #include "web/ws/WSTransmitter.h"
 #include "web/ws/server/WSServerContextBase.h"
-#include "web/ws/server/WSServerProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -52,14 +51,12 @@ namespace web::ws::server {
         void messageStart(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0);
         void sendFrame(char* message, std::size_t messageLength, uint32_t messageKey = 0);
         void messageEnd(char* message, std::size_t messageLength, uint32_t messageKey = 0);
-
         void message(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0);
-
         void sendPing(char* reason = nullptr, std::size_t reasonLength = 0);
-
         void replyPong(char* reason = nullptr, std::size_t reasonLength = 0);
-
         void close(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);
+
+        WSServerProtocol* getWSServerProtocol();
 
     private:
         /* SocketProtocol */
@@ -82,7 +79,7 @@ namespace web::ws::server {
 
         void onFrameReady(char* frame, uint64_t frameLength) override;
 
-        web::ws::server::WSServerProtocol* wSServerProtocol;
+        WSServerProtocol* wSServerProtocol;
 
         bool closeReceived = false;
         bool closeSent = false;

@@ -20,18 +20,13 @@
 #define WS_SERVER_WSSERVERPROTOCOL_H
 
 #include "web/ws/server/WSServerContextBase.h"
-/*
-namespace web::ws::server {
 
-    template <typename WSServerProtocol>
-    class WSServerContext;
-
-}
-*/
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
 #include <cstdint>
+#include <list>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -39,28 +34,52 @@ namespace web::ws::server {
 
     class WSServerProtocol {
     public:
-        virtual ~WSServerProtocol() = default;
+        WSServerProtocol();
+        virtual ~WSServerProtocol();
 
-        /* Facade to WSServerContext */
-        void messageStart(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        /* Facade (API) to WSServerContext -> WSTransmitter */
+        void messageStart(char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        void messageStart(const std::string& message, uint32_t messageKey = 0);
+
         void sendFrame(char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        void sendFrame(const std::string& message, uint32_t messageKey = 0);
+
         void messageEnd(char* message, std::size_t messageLength, uint32_t messageKey = 0);
-        void message(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        void messageEnd(const std::string& message, uint32_t messageKey = 0);
+
+        void message(char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        void message(const std::string& message, uint32_t messageKey = 0);
+
+        static void broadcast(char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        static void broadcast(const std::string& message, uint32_t messageKey = 0);
+
         void sendPing(char* reason = nullptr, std::size_t reasonLength = 0);
         void close(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);
 
-        /* WSReceiver */
+        /* Callbacks (API) WSReceiver */
         virtual void onMessageStart(int opCode) = 0;
         virtual void onFrameData(const char* junk, std::size_t junkLen) = 0;
         virtual void onMessageEnd() = 0;
         virtual void onPongReceived() = 0;
         virtual void onMessageError(uint16_t errnum) = 0;
 
+        /* Callbacks (API) socketConnection -> WSServerContext */
+        virtual void onConnect() = 0;
+        virtual void onDisconnect() = 0;
+
+    private:
+        void messageStart(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        void message(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        static void broadcast(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0);
+
     protected:
         WSServerContextBase* wSServerContext;
 
         template <typename WSServerProtocolT>
         friend class WSServerContext;
+
+    private:
+        static std::list<WSServerProtocol*> clients;
     };
 
 } // namespace web::ws::server

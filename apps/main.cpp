@@ -46,7 +46,7 @@ public:
     void onMessageEnd() override {
         VLOG(0) << "Data: " << data;
         VLOG(0) << "Message End";
-        message(1, data.data(), data.length());
+        message(data);
         data.clear();
     }
 
@@ -54,6 +54,12 @@ public:
     }
 
     void onPongReceived() override {
+    }
+
+    void onConnect() override {
+    }
+
+    void onDisconnect() override {
     }
 
 private:

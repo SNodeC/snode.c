@@ -37,10 +37,12 @@ namespace web::ws::server {
     WSServerContext<WSServerProtocol>::WSServerContext()
         : wSServerProtocol(new WSServerProtocol()) {
         wSServerProtocol->wSServerContext = this;
+        wSServerProtocol->onConnect();
     }
 
     template <typename WSServerProtocol>
     WSServerContext<WSServerProtocol>::~WSServerContext() {
+        wSServerProtocol->onDisconnect();
         delete wSServerProtocol;
     }
 
@@ -92,7 +94,6 @@ namespace web::ws::server {
         switch (opCode) {
             case 0x08:
                 closeReceived = true;
-                VLOG(0) << "Close request received";
                 break;
             case 0x09:
                 pingReceived = true;
@@ -128,9 +129,9 @@ namespace web::ws::server {
             closeReceived = false;
             if (closeSent) { // active close
                 closeSent = false;
-                VLOG(0) << "Request close";
+                VLOG(0) << "Close confirmed from peer";
             } else { // passive close
-                VLOG(0) << "Closed";
+                VLOG(0) << "Close request received - replying with close";
                 close();
             }
             socketConnection->getSocketProtocol()->close();
@@ -179,6 +180,11 @@ namespace web::ws::server {
         }
 
         closeSent = true;
+    }
+
+    template <typename WSServerProtocol>
+    WSServerProtocol* WSServerContext<WSServerProtocol>::getWSServerProtocol() {
+        return wSServerProtocol;
     }
 
     template <typename WSServerProtocol>

@@ -10,6 +10,7 @@
 #include <endian.h>
 #include <iomanip>
 #include <iostream>
+#include <list>
 #include <openssl/evp.h>
 #include <openssl/sha.h>
 #include <vector>
@@ -77,8 +78,7 @@ public:
     void onMessageEnd() override {
         VLOG(0) << "Data: " << data;
         VLOG(0) << "Message End";
-        message(1, data.data(), data.length());
-        sendPing();
+        broadcast(data);
         data.clear();
     }
 
@@ -89,9 +89,21 @@ public:
         VLOG(0) << "Pong received";
     }
 
+    void onConnect() override {
+        clients.push_back(this);
+    }
+
+    void onDisconnect() override {
+        clients.remove(this);
+    }
+
 private:
     std::string data;
+
+    static std::list<MyWSServerProtocol*> clients;
 };
+
+std::list<MyWSServerProtocol*> MyWSServerProtocol::clients;
 
 int main(int argc, char* argv[]) {
     /*
