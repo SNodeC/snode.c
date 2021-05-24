@@ -63,8 +63,8 @@ namespace web::ws::server {
 
     private:
         /* SocketProtocol */
-        void onConnect() override;
-        void onDisconnect() override;
+        void onProtocolConnect() override;
+        void onProtocolDisconnect() override;
 
         void receiveFromPeer(const char* junk, std::size_t junkLen) override;
         void onReadError(int errnum) override;

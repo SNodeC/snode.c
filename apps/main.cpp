@@ -56,10 +56,10 @@ public:
     void onPongReceived() override {
     }
 
-    void onConnect() override {
+    void onProtocolConnect() override {
     }
 
-    void onDisconnect() override {
+    void onProtocolDisconnect() override {
     }
 
 private:

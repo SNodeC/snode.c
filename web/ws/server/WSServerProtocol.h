@@ -64,8 +64,8 @@ namespace web::ws::server {
         virtual void onMessageError(uint16_t errnum) = 0;
 
         /* Callbacks (API) socketConnection -> WSServerContext */
-        virtual void onConnect() = 0;
-        virtual void onDisconnect() = 0;
+        virtual void onProtocolConnect() = 0;
+        virtual void onProtocolDisconnect() = 0;
 
         std::string getLocalAddressAsString() const;
         std::string getRemoteAddressAsString() const;

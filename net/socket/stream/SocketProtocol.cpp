@@ -67,14 +67,14 @@ namespace net::socket::stream {
 
     void SocketProtocol::setSocketConnection(SocketConnectionBase* socketConnection) {
         this->socketConnection = socketConnection;
-        onConnect();
+        onProtocolConnect();
     }
 
-    void SocketProtocol::onConnect() {
+    void SocketProtocol::onProtocolConnect() {
         VLOG(0) << "Protocol connected";
     }
 
-    void SocketProtocol::onDisconnect() {
+    void SocketProtocol::onProtocolDisconnect() {
         VLOG(0) << "Protocol disconnected";
     }
 

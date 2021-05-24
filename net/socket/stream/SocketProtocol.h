@@ -55,8 +55,8 @@ namespace net::socket::stream {
 
         void setSocketConnection(SocketConnectionBase* socketConnection);
 
-        virtual void onConnect();
-        virtual void onDisconnect();
+        virtual void onProtocolConnect();
+        virtual void onProtocolDisconnect();
 
         SocketConnectionBase* socketConnection;
 

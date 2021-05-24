@@ -73,12 +73,12 @@ namespace net::socket::stream {
         }
 
         virtual ~SocketConnection() {
-            socketProtocol->onDisconnect();
+            socketProtocol->onProtocolDisconnect();
         }
 
     private:
         void switchSocketProtocol(SocketProtocol* socketProtocol) override {
-            this->socketProtocol->onDisconnect();
+            this->socketProtocol->onProtocolDisconnect();
             this->socketProtocol = socketProtocol;
             socketProtocol->setSocketConnection(this);
         }

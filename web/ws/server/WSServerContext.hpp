@@ -75,13 +75,13 @@ namespace web::ws::server {
     }
 
     template <typename WSServerProtocol>
-    void WSServerContext<WSServerProtocol>::onConnect() {
-        wSServerProtocol->onConnect();
+    void WSServerContext<WSServerProtocol>::onProtocolConnect() {
+        wSServerProtocol->onProtocolConnect();
     }
 
     template <typename WSServerProtocol>
-    void WSServerContext<WSServerProtocol>::onDisconnect() {
-        wSServerProtocol->onDisconnect();
+    void WSServerContext<WSServerProtocol>::onProtocolDisconnect() {
+        wSServerProtocol->onProtocolDisconnect();
     }
 
     template <typename WSServerProtocol>
