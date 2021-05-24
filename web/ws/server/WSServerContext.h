@@ -48,17 +48,17 @@ namespace web::ws::server {
         ~WSServerContext();
 
     private:
-        void messageStart(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
-        void sendFrame(char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
-        void messageEnd(char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
-        void message(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
-        void sendPing(char* reason = nullptr, std::size_t reasonLength = 0) override;
+        void messageStart(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
+        void sendFrame(const char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
+        void messageEnd(const char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
+        void message(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
+        void sendPing(const char* reason = nullptr, std::size_t reasonLength = 0) override;
         void close(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0) override;
 
         std::string getLocalAddressAsString() const override;
         std::string getRemoteAddressAsString() const override;
 
-        void replyPong(char* reason = nullptr, std::size_t reasonLength = 0);
+        void replyPong(const char* reason = nullptr, std::size_t reasonLength = 0);
 
         /* SocketProtocol */
         void onProtocolConnect() override;
@@ -79,9 +79,9 @@ namespace web::ws::server {
         void sendFrameData(uint16_t data) override;
         void sendFrameData(uint32_t data) override;
         void sendFrameData(uint64_t data) override;
-        void sendFrameData(char* frame, uint64_t frameLength) override;
+        void sendFrameData(const char* frame, uint64_t frameLength) override;
 
-        void onFrameReady(char* frame, uint64_t frameLength) override;
+        //        void onFrameReady(char* frame, uint64_t frameLength) override;
 
         WSServerProtocol* wSServerProtocol;
 

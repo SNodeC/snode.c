@@ -40,19 +40,19 @@ namespace web::ws::server {
         virtual ~WSServerProtocol();
 
         /* Facade (API) to WSServerContext -> WSTransmitter */
-        void messageStart(char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        void messageStart(const char* message, std::size_t messageLength, uint32_t messageKey = 0);
         void messageStart(const std::string& message, uint32_t messageKey = 0);
 
-        void sendFrame(char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        void sendFrame(const char* message, std::size_t messageLength, uint32_t messageKey = 0);
         void sendFrame(const std::string& message, uint32_t messageKey = 0);
 
-        void messageEnd(char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        void messageEnd(const char* message, std::size_t messageLength, uint32_t messageKey = 0);
         void messageEnd(const std::string& message, uint32_t messageKey = 0);
 
-        void message(char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        void message(const char* message, std::size_t messageLength, uint32_t messageKey = 0);
         void message(const std::string& message, uint32_t messageKey = 0);
 
-        static void broadcast(char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        static void broadcast(const char* message, std::size_t messageLength, uint32_t messageKey = 0);
         static void broadcast(const std::string& message, uint32_t messageKey = 0);
 
         void sendPing(char* reason = nullptr, std::size_t reasonLength = 0);
@@ -73,9 +73,9 @@ namespace web::ws::server {
         std::string getRemoteAddressAsString() const;
 
     private:
-        void messageStart(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0);
-        void message(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0);
-        static void broadcast(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        void messageStart(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        void message(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        static void broadcast(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey = 0);
 
     protected:
         WSServerContextBase* wSServerContext;

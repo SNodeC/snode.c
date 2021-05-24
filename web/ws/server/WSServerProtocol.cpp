@@ -41,7 +41,7 @@ namespace web::ws::server {
         messageStart(1, const_cast<std::string&>(message).data(), message.length(), messageKey);
     }
 
-    void WSServerProtocol::messageStart(char* message, std::size_t messageLength, uint32_t messageKey) { // 2
+    void WSServerProtocol::messageStart(const char* message, std::size_t messageLength, uint32_t messageKey) { // 2
         messageStart(2, message, messageLength, messageKey);
     }
 
@@ -49,7 +49,7 @@ namespace web::ws::server {
         sendFrame(const_cast<std::string&>(message).data(), message.length(), messageKey);
     }
 
-    void WSServerProtocol::sendFrame(char* message, std::size_t messageLength, uint32_t messageKey) {
+    void WSServerProtocol::sendFrame(const char* message, std::size_t messageLength, uint32_t messageKey) {
         wSServerContext->sendFrame(message, messageLength, messageKey);
     }
 
@@ -57,7 +57,7 @@ namespace web::ws::server {
         message(1, const_cast<std::string&>(msg).data(), msg.length(), messageKey);
     }
 
-    void WSServerProtocol::message(char* message, std::size_t messageLength, uint32_t messageKey) {
+    void WSServerProtocol::message(const char* message, std::size_t messageLength, uint32_t messageKey) {
         messageStart(2, message, messageLength, messageKey);
     }
 
@@ -65,11 +65,11 @@ namespace web::ws::server {
         messageEnd(const_cast<std::string&>(message).data(), message.length(), messageKey);
     }
 
-    void WSServerProtocol::messageEnd(char* message, std::size_t messageLength, uint32_t messageKey) {
+    void WSServerProtocol::messageEnd(const char* message, std::size_t messageLength, uint32_t messageKey) {
         wSServerContext->messageEnd(message, messageLength, messageKey);
     }
 
-    void WSServerProtocol::broadcast(char* message, std::size_t messageLength, uint32_t messageKey) {
+    void WSServerProtocol::broadcast(const char* message, std::size_t messageLength, uint32_t messageKey) {
         broadcast(2, message, messageLength, messageKey);
     }
     void WSServerProtocol::broadcast(const std::string& message, uint32_t messageKey) {
@@ -85,17 +85,17 @@ namespace web::ws::server {
     }
 
     /* private members */
-    void WSServerProtocol::messageStart(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey) {
+    void WSServerProtocol::messageStart(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey) {
         wSServerContext->messageStart(opCode, message, messageLength, messageKey);
     }
 
-    void WSServerProtocol::message(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey) {
+    void WSServerProtocol::message(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey) {
         wSServerContext->message(opCode, message, messageLength, messageKey);
     }
 
     std::list<WSServerProtocol*> WSServerProtocol::clients;
 
-    void WSServerProtocol::broadcast(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey) {
+    void WSServerProtocol::broadcast(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey) {
         for (WSServerProtocol* client : clients) {
             client->message(opCode, message, messageLength, messageKey);
         }

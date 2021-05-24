@@ -48,28 +48,29 @@ namespace web::ws::server {
     }
 
     template <typename WSServerProtocol>
-    void WSServerContext<WSServerProtocol>::messageStart(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey) {
+    void
+    WSServerContext<WSServerProtocol>::messageStart(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey) {
         if (!closeSent) {
             WSTransmitter::messageStart(opCode, message, messageLength, messageKey);
         }
     }
 
     template <typename WSServerProtocol>
-    void WSServerContext<WSServerProtocol>::sendFrame(char* message, std::size_t messageLength, uint32_t messageKey) {
+    void WSServerContext<WSServerProtocol>::sendFrame(const char* message, std::size_t messageLength, uint32_t messageKey) {
         if (!closeSent) {
             WSTransmitter::sendFrame(message, messageLength, messageKey);
         }
     }
 
     template <typename WSServerProtocol>
-    void WSServerContext<WSServerProtocol>::messageEnd(char* message, std::size_t messageLength, uint32_t messageKey) {
+    void WSServerContext<WSServerProtocol>::messageEnd(const char* message, std::size_t messageLength, uint32_t messageKey) {
         if (!closeSent) {
             WSTransmitter::messageEnd(message, messageLength, messageKey);
         }
     }
 
     template <typename WSServerProtocol>
-    void WSServerContext<WSServerProtocol>::message(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey) {
+    void WSServerContext<WSServerProtocol>::message(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey) {
         if (!closeSent) {
             WSTransmitter::message(opCode, message, messageLength, messageKey);
         }
@@ -165,10 +166,12 @@ namespace web::ws::server {
         close(errnum);
     }
 
-    template <typename WSServerProtocol>
-    void WSServerContext<WSServerProtocol>::onFrameReady(char* frame, uint64_t frameLength) {
-        sendToPeer(frame, static_cast<std::size_t>(frameLength));
-    }
+    /*
+        template <typename WSServerProtocol>
+        void WSServerContext<WSServerProtocol>::onFrameReady(char* frame, uint64_t frameLength) {
+            sendToPeer(frame, static_cast<std::size_t>(frameLength));
+        }
+    */
 
     template <typename WSServerProtocol>
     void WSServerContext<WSServerProtocol>::close(uint16_t statusCode, const char* reason, std::size_t reasonLength) {
@@ -206,12 +209,12 @@ namespace web::ws::server {
     }
 
     template <typename WSServerProtocol>
-    void WSServerContext<WSServerProtocol>::sendPing(char* reason, std::size_t reasonLength) {
+    void WSServerContext<WSServerProtocol>::sendPing(const char* reason, std::size_t reasonLength) {
         message(9, reason, reasonLength);
     }
 
     template <typename WSServerProtocol>
-    void WSServerContext<WSServerProtocol>::replyPong(char* reason, std::size_t reasonLength) {
+    void WSServerContext<WSServerProtocol>::replyPong(const char* reason, std::size_t reasonLength) {
         message(10, reason, reasonLength);
     }
 
@@ -236,7 +239,7 @@ namespace web::ws::server {
     }
 
     template <typename WSServerProtocol>
-    void WSServerContext<WSServerProtocol>::sendFrameData(char* frame, uint64_t frameLength) {
+    void WSServerContext<WSServerProtocol>::sendFrameData(const char* frame, uint64_t frameLength) {
         std::size_t frameOffset = 0;
 
         do {
