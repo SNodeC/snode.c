@@ -37,36 +37,36 @@ namespace web::ws::server {
         clients.remove(this);
     }
 
-    void WSServerProtocol::messageStart(char* message, std::size_t messageLength, uint32_t messageKey) { // 2
-        messageStart(2, message, messageLength, messageKey);
-    }
-
-    void WSServerProtocol::sendFrame(char* message, std::size_t messageLength, uint32_t messageKey) {
-        wSServerContext->sendFrame(message, messageLength, messageKey);
-    }
-
-    void WSServerProtocol::message(char* message, std::size_t messageLength, uint32_t messageKey) {
-        messageStart(2, message, messageLength, messageKey);
-    }
-
-    void WSServerProtocol::messageEnd(char* message, std::size_t messageLength, uint32_t messageKey) {
-        wSServerContext->messageEnd(message, messageLength, messageKey);
-    }
-
     void WSServerProtocol::messageStart(const std::string& message, uint32_t messageKey) { // 1
         messageStart(1, const_cast<std::string&>(message).data(), message.length(), messageKey);
+    }
+
+    void WSServerProtocol::messageStart(char* message, std::size_t messageLength, uint32_t messageKey) { // 2
+        messageStart(2, message, messageLength, messageKey);
     }
 
     void WSServerProtocol::sendFrame(const std::string& message, uint32_t messageKey) {
         sendFrame(const_cast<std::string&>(message).data(), message.length(), messageKey);
     }
 
+    void WSServerProtocol::sendFrame(char* message, std::size_t messageLength, uint32_t messageKey) {
+        wSServerContext->sendFrame(message, messageLength, messageKey);
+    }
+
     void WSServerProtocol::message(const std::string& msg, uint32_t messageKey) {
         message(1, const_cast<std::string&>(msg).data(), msg.length(), messageKey);
     }
 
+    void WSServerProtocol::message(char* message, std::size_t messageLength, uint32_t messageKey) {
+        messageStart(2, message, messageLength, messageKey);
+    }
+
     void WSServerProtocol::messageEnd(const std::string& message, uint32_t messageKey) {
         messageEnd(const_cast<std::string&>(message).data(), message.length(), messageKey);
+    }
+
+    void WSServerProtocol::messageEnd(char* message, std::size_t messageLength, uint32_t messageKey) {
+        wSServerContext->messageEnd(message, messageLength, messageKey);
     }
 
     void WSServerProtocol::broadcast(char* message, std::size_t messageLength, uint32_t messageKey) {

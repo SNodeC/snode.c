@@ -73,38 +73,7 @@ namespace net::socket::stream {
             socketProtocol->onProtocolConnect();
         }
 
-        virtual ~SocketConnection() {
-        }
-
-    private:
-        void switchSocketProtocol(SocketProtocol* newSocketProtocol) override {
-            socketProtocol->onProtocolDisconnect();
-            socketProtocol = newSocketProtocol;
-            socketProtocol->setSocketConnection(this);
-            socketProtocol->onProtocolConnect();
-        }
-
-        void unobserved() override {
-            socketProtocol->onProtocolDisconnect();
-            onDisconnect();
-            delete this;
-        }
-
-    protected:
-        void enqueue(const char* junk, std::size_t junkLen) override {
-            SocketWriter::enqueue(junk, junkLen);
-        }
-
-        void enqueue(const std::string& data) override {
-            enqueue(data.data(), data.size());
-        }
-
-        void close(bool instantly = false) final {
-            SocketReader::disable();
-            if (instantly) {
-                SocketWriter::disable();
-            }
-        }
+        virtual ~SocketConnection() = default;
 
     public:
         void setTimeout(int timeout) override {
@@ -128,7 +97,35 @@ namespace net::socket::stream {
             return remoteAddress.toString();
         }
 
+        void switchSocketProtocol(SocketProtocol* newSocketProtocol) override {
+            socketProtocol->onProtocolDisconnect();
+            socketProtocol = newSocketProtocol;
+            socketProtocol->socketConnection = this;
+            socketProtocol->onProtocolConnect();
+        }
+
+        void enqueue(const char* junk, std::size_t junkLen) override {
+            SocketWriter::enqueue(junk, junkLen);
+        }
+
+        void enqueue(const std::string& data) override {
+            enqueue(data.data(), data.size());
+        }
+
+        void close(bool instantly = false) final {
+            SocketReader::disable();
+            if (instantly) {
+                SocketWriter::disable();
+            }
+        }
+
     private:
+        void unobserved() override {
+            socketProtocol->onProtocolDisconnect();
+            onDisconnect();
+            delete this;
+        }
+
         SocketAddress localAddress{};
         SocketAddress remoteAddress{};
 

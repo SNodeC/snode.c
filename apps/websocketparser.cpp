@@ -107,11 +107,13 @@ public:
 
     void onPongReceived() override {
         VLOG(0) << "Pong received";
-        flyingPings--;
+        flyingPings = 0;
     }
 
     void onProtocolConnect() override {
         VLOG(0) << "On protocol connected:";
+
+        message("hihihi");
 
         VLOG(0) << "\tServer: " + getLocalAddressAsString();
         VLOG(0) << "\tClient: " + getRemoteAddressAsString();
@@ -187,7 +189,25 @@ int main(int argc, char* argv[]) {
 
     legacy::WebApp legacyApp;
 
-    legacyApp.get("/", [](Request& req, Response& res) -> void {
+    legacyApp.get("/", [] MIDDLEWARE(req, res, next) {
+        VLOG(0) << "Get Doc";
+        if (req.url == "/") {
+            req.url = "/wstest.html";
+        }
+
+        if (req.url == "/ws") {
+            VLOG(0) << "Next";
+            next();
+        } else {
+            res.sendFile(CMAKE_SOURCE_DIR "apps/html" + req.url, [&req](int ret) -> void {
+                if (ret != 0) {
+                    PLOG(ERROR) << req.url;
+                }
+            });
+        }
+    });
+
+    legacyApp.get("/ws", [](Request& req, Response& res) -> void {
         std::string uri = req.originalUrl;
 
         VLOG(1) << "OriginalUri: " << uri;
@@ -225,7 +245,26 @@ int main(int argc, char* argv[]) {
     {
         tls::WebApp tlsApp({{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
 
-        tlsApp.get("/", [](Request& req, Response& res) -> void {
+        tlsApp.get("/", [] MIDDLEWARE(req, res, next) {
+            VLOG(0) << "Get Doc";
+            if (req.url == "/") {
+                req.url = "/wstest.html";
+            }
+
+            if (req.url == "/ws") {
+                VLOG(0) << "Next";
+                next();
+            } else {
+                VLOG(0) << CMAKE_SOURCE_DIR "apps/html";
+                res.sendFile(CMAKE_SOURCE_DIR "apps/html" + req.url, [&req](int ret) -> void {
+                    if (ret != 0) {
+                        PLOG(ERROR) << req.url;
+                    }
+                });
+            }
+        });
+
+        tlsApp.get("/ws", [](Request& req, Response& res) -> void {
             std::string uri = req.originalUrl;
 
             VLOG(1) << "OriginalUri: " << uri;
@@ -246,8 +285,6 @@ int main(int argc, char* argv[]) {
             serverWebSocketKey(req.header("sec-websocket-key"), [&res](char* key) -> void {
                 res.set("Sec-WebSocket-Accept", key);
             });
-
-            std::shared_ptr<std::string> data = std::make_shared<std::string>();
 
             res.status(101); // Switch Protocol
 

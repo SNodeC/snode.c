@@ -108,8 +108,8 @@ namespace web::http::server {
     }
 
     void Response::upgrade(net::socket::stream::SocketProtocol* newServerContext) {
-        serverContext->switchSocketProtocol(newServerContext);
         end();
+        serverContext->switchSocketProtocol(newServerContext);
     }
 
     Response& Response::cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options) {

@@ -42,23 +42,24 @@ namespace net::socket::stream {
 
         void close();
 
+        void switchSocketProtocol(SocketProtocol* socketProtocol);
+
         void setTimeout(int timeout);
 
+    protected:
+        SocketConnectionBase* socketConnection;
+
+    private:
         virtual void receiveFromPeer(const char* junk, std::size_t junkLen) = 0;
         virtual void onWriteError(int errnum) = 0;
         virtual void onReadError(int errnum) = 0;
 
-        void switchSocketProtocol(SocketProtocol* socketProtocol);
-
-    protected:
         void take(const char* junk, std::size_t junkLen);
 
         void setSocketConnection(SocketConnectionBase* socketConnection);
 
         virtual void onProtocolConnect();
         virtual void onProtocolDisconnect();
-
-        SocketConnectionBase* socketConnection;
 
         bool markedForDelete = false;
 

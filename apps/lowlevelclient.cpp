@@ -142,8 +142,7 @@ tls::SocketClient<SimpleSocketProtocolFactory, tcp::ipv4::Socket> getTlsClient()
 
             //            socketConnection->setContext<http::client::ResponseParser*>(getResponseParser());
 
-            socketConnection->getSocketProtocol()->sendToPeer(
-                "GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
+            socketConnection->enqueue("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
 
             X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
             if (server_cert != NULL) {

@@ -41,14 +41,13 @@ namespace net::socket::stream {
     protected:
         SocketConnectionBase(const std::shared_ptr<const SocketProtocolFactory>& socketProtocolFactory);
 
+        virtual ~SocketConnectionBase();
+
     public:
         SocketProtocol* getSocketProtocol();
 
         virtual std::string getLocalAddressAsString() const = 0;
         virtual std::string getRemoteAddressAsString() const = 0;
-
-    protected:
-        virtual ~SocketConnectionBase();
 
         virtual void enqueue(const char* junk, std::size_t junkLen) = 0;
         virtual void enqueue(const std::string& data) = 0;
@@ -59,6 +58,7 @@ namespace net::socket::stream {
 
         virtual void switchSocketProtocol(SocketProtocol* newSocketProtocol) = 0;
 
+    protected:
         SocketProtocol* socketProtocol = nullptr;
 
         friend SocketProtocol;
