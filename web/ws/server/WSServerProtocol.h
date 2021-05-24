@@ -19,7 +19,9 @@
 #ifndef WS_SERVER_WSSERVERPROTOCOL_H
 #define WS_SERVER_WSSERVERPROTOCOL_H
 
-#include "web/ws/server/WSServerContextBase.h"
+namespace web::ws::server {
+    class WSServerContextBase;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -70,20 +70,22 @@ namespace net::socket::stream {
             SocketConnection::attach(fd);
             SocketReader::enable(fd);
             onConnect(localAddress, remoteAddress);
+            socketProtocol->onProtocolConnect();
         }
 
         virtual ~SocketConnection() {
-            socketProtocol->onProtocolDisconnect();
         }
 
     private:
-        void switchSocketProtocol(SocketProtocol* socketProtocol) override {
-            this->socketProtocol->onProtocolDisconnect();
-            this->socketProtocol = socketProtocol;
+        void switchSocketProtocol(SocketProtocol* newSocketProtocol) override {
+            socketProtocol->onProtocolDisconnect();
+            socketProtocol = newSocketProtocol;
             socketProtocol->setSocketConnection(this);
+            socketProtocol->onProtocolConnect();
         }
 
         void unobserved() override {
+            socketProtocol->onProtocolDisconnect();
             onDisconnect();
             delete this;
         }

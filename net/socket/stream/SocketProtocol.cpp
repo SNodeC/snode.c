@@ -67,7 +67,6 @@ namespace net::socket::stream {
 
     void SocketProtocol::setSocketConnection(SocketConnectionBase* socketConnection) {
         this->socketConnection = socketConnection;
-        onProtocolConnect();
     }
 
     void SocketProtocol::onProtocolConnect() {

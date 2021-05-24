@@ -43,6 +43,7 @@ namespace web::ws::server {
 
     template <typename WSServerProtocol>
     WSServerContext<WSServerProtocol>::~WSServerContext() {
+        wSServerProtocol->wSServerContext = nullptr;
         delete wSServerProtocol;
     }
 
@@ -202,11 +203,6 @@ namespace web::ws::server {
     template <typename WSServerProtocol>
     std::string WSServerContext<WSServerProtocol>::getRemoteAddressAsString() const {
         return SocketProtocol::getLocalAddressAsString();
-    }
-
-    template <typename WSServerProtocol>
-    WSServerProtocol* WSServerContext<WSServerProtocol>::getWSServerProtocol() {
-        return wSServerProtocol;
     }
 
     template <typename WSServerProtocol>

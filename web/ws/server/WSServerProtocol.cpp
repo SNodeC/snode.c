@@ -21,7 +21,7 @@
 
 #include "web/ws/server/WSServerProtocol.h"
 
-#include "web/ws/server/WSServerContext.hpp"
+#include "web/ws/server/WSServerContextBase.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
