@@ -18,6 +18,7 @@
 
 #include "net/socket/stream/SocketProtocol.h"
 
+#include "log/Logger.h"
 #include "net/socket/stream/SocketConnectionBase.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -66,6 +67,15 @@ namespace net::socket::stream {
 
     void SocketProtocol::setSocketConnection(SocketConnectionBase* socketConnection) {
         this->socketConnection = socketConnection;
+        onConnect();
+    }
+
+    void SocketProtocol::onConnect() {
+        VLOG(0) << "Protocol connected";
+    }
+
+    void SocketProtocol::onDisconnect() {
+        VLOG(0) << "Protocol disconnected";
     }
 
 } // namespace net::socket::stream

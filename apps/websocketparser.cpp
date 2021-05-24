@@ -111,14 +111,14 @@ public:
     }
 
     void onConnect() override {
-        VLOG(0) << "OnConnect:";
+        VLOG(0) << "On protocol connected:";
 
         VLOG(0) << "\tServer: " + getLocalAddressAsString();
         VLOG(0) << "\tClient: " + getRemoteAddressAsString();
     }
 
     void onDisconnect() override {
-        VLOG(0) << "OnDisconnect:";
+        VLOG(0) << "On protocol disconnected:";
 
         VLOG(0) << "\tServer: " + getLocalAddressAsString();
         VLOG(0) << "\tClient: " + getRemoteAddressAsString();

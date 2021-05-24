@@ -19,6 +19,7 @@
 #ifndef NET_SOCKET_STREAM_SOCKETCONNECTION_H
 #define NET_SOCKET_STREAM_SOCKETCONNECTION_H
 
+#include "log/Logger.h"
 #include "net/socket/stream/SocketConnectionBase.h"
 #include "net/socket/stream/SocketProtocol.h"
 #include "net/socket/stream/SocketProtocolFactory.h"
@@ -71,9 +72,17 @@ namespace net::socket::stream {
             onConnect(localAddress, remoteAddress);
         }
 
-        virtual ~SocketConnection() = default;
+        virtual ~SocketConnection() {
+            socketProtocol->onDisconnect();
+        }
 
     private:
+        void switchSocketProtocol(SocketProtocol* socketProtocol) override {
+            this->socketProtocol->onDisconnect();
+            this->socketProtocol = socketProtocol;
+            socketProtocol->setSocketConnection(this);
+        }
+
         void unobserved() override {
             onDisconnect();
             delete this;

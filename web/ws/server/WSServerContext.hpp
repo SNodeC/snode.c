@@ -39,12 +39,10 @@ namespace web::ws::server {
     WSServerContext<WSServerProtocol>::WSServerContext()
         : wSServerProtocol(new WSServerProtocol()) {
         wSServerProtocol->wSServerContext = this;
-        wSServerProtocol->onConnect();
     }
 
     template <typename WSServerProtocol>
     WSServerContext<WSServerProtocol>::~WSServerContext() {
-        wSServerProtocol->onDisconnect();
         delete wSServerProtocol;
     }
 
@@ -74,6 +72,16 @@ namespace web::ws::server {
         if (!closeSent) {
             WSTransmitter::message(opCode, message, messageLength, messageKey);
         }
+    }
+
+    template <typename WSServerProtocol>
+    void WSServerContext<WSServerProtocol>::onConnect() {
+        wSServerProtocol->onConnect();
+    }
+
+    template <typename WSServerProtocol>
+    void WSServerContext<WSServerProtocol>::onDisconnect() {
+        wSServerProtocol->onDisconnect();
     }
 
     template <typename WSServerProtocol>

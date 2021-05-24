@@ -56,13 +56,16 @@ namespace web::ws::server {
         void replyPong(char* reason = nullptr, std::size_t reasonLength = 0);
         void close(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0) override;
 
-        virtual std::string getLocalAddressAsString() const override;
-        virtual std::string getRemoteAddressAsString() const override;
+        std::string getLocalAddressAsString() const override;
+        std::string getRemoteAddressAsString() const override;
 
         WSServerProtocol* getWSServerProtocol();
 
     private:
         /* SocketProtocol */
+        void onConnect() override;
+        void onDisconnect() override;
+
         void receiveFromPeer(const char* junk, std::size_t junkLen) override;
         void onReadError(int errnum) override;
         void onWriteError(int errnum) override;

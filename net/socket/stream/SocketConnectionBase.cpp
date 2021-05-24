@@ -40,9 +40,4 @@ namespace net::socket::stream {
         return socketProtocol;
     }
 
-    void SocketConnectionBase::switchSocketProtocol(SocketProtocol* socketProtocol) {
-        this->socketProtocol = socketProtocol;
-        socketProtocol->setSocketConnection(this);
-    }
-
 } // namespace net::socket::stream

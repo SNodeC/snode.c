@@ -55,6 +55,9 @@ namespace net::socket::stream {
 
         void setSocketConnection(SocketConnectionBase* socketConnection);
 
+        virtual void onConnect();
+        virtual void onDisconnect();
+
         SocketConnectionBase* socketConnection;
 
         bool markedForDelete = false;
