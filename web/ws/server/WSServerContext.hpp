@@ -31,6 +31,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#define CLOSE_SOCKET_TIMEOUT 10
+
 namespace web::ws::server {
 
     template <typename WSServerProtocol>
@@ -179,7 +181,19 @@ namespace web::ws::server {
             delete[] closePayload;
         }
 
+        setTimeout(CLOSE_SOCKET_TIMEOUT);
+
         closeSent = true;
+    }
+
+    template <typename WSServerProtocol>
+    std::string WSServerContext<WSServerProtocol>::getLocalAddressAsString() const {
+        return SocketProtocol::getLocalAddressAsString();
+    }
+
+    template <typename WSServerProtocol>
+    std::string WSServerContext<WSServerProtocol>::getRemoteAddressAsString() const {
+        return SocketProtocol::getLocalAddressAsString();
     }
 
     template <typename WSServerProtocol>

@@ -3,6 +3,7 @@
 #include "express/tls/WebApp.h"
 #include "log/Logger.h"
 #include "net/SNodeC.h"
+#include "net/timer/IntervalTimer.h"
 #include "web/ws/server/WSServerContext.hpp"
 #include "web/ws/server/WSServerProtocol.h"
 
@@ -10,7 +11,6 @@
 #include <endian.h>
 #include <iomanip>
 #include <iostream>
-#include <list>
 #include <openssl/evp.h>
 #include <openssl/sha.h>
 #include <vector>
@@ -65,13 +65,32 @@ void serverWebSocketKey(const std::string& clientWebSocketKey, const std::functi
     free(key);
 }
 
+#define MAX_FLYING_PINGS 3
+
 class MyWSServerProtocol : public web::ws::server::WSServerProtocol {
 public:
-    void onMessageStart([[maybe_unused]] int opCode) override {
+    MyWSServerProtocol()
+        : timer(net::timer::Timer::continousTimer(
+              [this]([[maybe_unused]] const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
+                  this->sendPing();
+                  this->flyingPings++;
+                  if (this->flyingPings >= MAX_FLYING_PINGS) {
+                      this->close();
+                  }
+              },
+              {1, 0},
+              nullptr)) {
+    }
+
+    ~MyWSServerProtocol() override {
+        timer.cancel();
+    }
+
+    void onMessageStart(int opCode) override {
         VLOG(0) << "Message Start - OpCode: " << opCode;
     }
 
-    void onFrameData([[maybe_unused]] const char* junk, [[maybe_unused]] std::size_t junkLen) override {
+    void onFrameData(const char* junk, std::size_t junkLen) override {
         data += std::string(junk, static_cast<std::size_t>(junkLen));
     }
 
@@ -82,28 +101,36 @@ public:
         data.clear();
     }
 
-    void onMessageError([[maybe_unused]] uint16_t errnum) override {
+    void onMessageError(uint16_t errnum) override {
+        VLOG(0) << "Message error: " << errnum;
     }
 
     void onPongReceived() override {
         VLOG(0) << "Pong received";
+        flyingPings--;
     }
 
     void onConnect() override {
-        clients.push_back(this);
+        VLOG(0) << "OnConnect:";
+
+        VLOG(0) << "\tServer: " + getLocalAddressAsString();
+        VLOG(0) << "\tClient: " + getRemoteAddressAsString();
     }
 
     void onDisconnect() override {
-        clients.remove(this);
+        VLOG(0) << "OnDisconnect:";
+
+        VLOG(0) << "\tServer: " + getLocalAddressAsString();
+        VLOG(0) << "\tClient: " + getRemoteAddressAsString();
     }
 
 private:
     std::string data;
 
-    static std::list<MyWSServerProtocol*> clients;
-};
+    int flyingPings = 0;
 
-std::list<MyWSServerProtocol*> MyWSServerProtocol::clients;
+    net::timer::Timer& timer;
+};
 
 int main(int argc, char* argv[]) {
     /*

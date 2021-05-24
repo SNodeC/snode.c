@@ -67,6 +67,9 @@ namespace web::ws::server {
         virtual void onConnect() = 0;
         virtual void onDisconnect() = 0;
 
+        std::string getLocalAddressAsString() const;
+        std::string getRemoteAddressAsString() const;
+
     private:
         void messageStart(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0);
         void message(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0);

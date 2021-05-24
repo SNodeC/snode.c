@@ -44,6 +44,9 @@ namespace net::socket::stream {
     public:
         SocketProtocol* getSocketProtocol();
 
+        virtual std::string getLocalAddressAsString() const = 0;
+        virtual std::string getRemoteAddressAsString() const = 0;
+
     protected:
         virtual ~SocketConnectionBase();
 
@@ -51,6 +54,8 @@ namespace net::socket::stream {
         virtual void enqueue(const std::string& data) = 0;
 
         virtual void close(bool instantly = false) = 0;
+
+        virtual void setTimeout(int timeout) = 0;
 
         void switchSocketProtocol(SocketProtocol* socketProtocol);
 

@@ -34,6 +34,14 @@ namespace net::socket::stream {
         sendToPeer(data.data(), data.length());
     }
 
+    std::string SocketProtocol::getLocalAddressAsString() const {
+        return socketConnection->getLocalAddressAsString();
+    }
+
+    std::string SocketProtocol::getRemoteAddressAsString() const {
+        return socketConnection->getRemoteAddressAsString();
+    }
+
     void SocketProtocol::close() {
         socketConnection->close();
     }
@@ -50,6 +58,10 @@ namespace net::socket::stream {
         if (markedForDelete) {
             delete this;
         }
+    }
+
+    void SocketProtocol::setTimeout(int timeout) {
+        socketConnection->setTimeout(timeout);
     }
 
     void SocketProtocol::setSocketConnection(SocketConnectionBase* socketConnection) {

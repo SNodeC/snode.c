@@ -101,6 +101,13 @@ namespace web::ws::server {
         }
     }
 
+    std::string WSServerProtocol::getLocalAddressAsString() const {
+        return wSServerContext->getLocalAddressAsString();
+    }
+    std::string WSServerProtocol::getRemoteAddressAsString() const {
+        return wSServerContext->getRemoteAddressAsString();
+    }
+
 } // namespace web::ws::server
 
 #endif // WS_SERVER_WSSERVERPROTOCOL_HPP

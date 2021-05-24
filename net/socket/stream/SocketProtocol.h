@@ -37,7 +37,12 @@ namespace net::socket::stream {
         void sendToPeer(const char* junk, std::size_t junkLen);
         void sendToPeer(const std::string& data);
 
+        std::string getLocalAddressAsString() const;
+        std::string getRemoteAddressAsString() const;
+
         void close();
+
+        void setTimeout(int timeout);
 
         virtual void receiveFromPeer(const char* junk, std::size_t junkLen) = 0;
         virtual void onWriteError(int errnum) = 0;

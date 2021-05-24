@@ -96,12 +96,25 @@ namespace net::socket::stream {
         }
 
     public:
+        void setTimeout(int timeout) override {
+            SocketReader::setTimeout(timeout);
+            SocketWriter::setTimeout(timeout);
+        }
+
         const SocketAddress& getRemoteAddress() const {
             return remoteAddress;
         }
 
         const SocketAddress& getLocalAddress() const {
             return localAddress;
+        }
+
+        std::string getLocalAddressAsString() const override {
+            return localAddress.toString();
+        }
+
+        std::string getRemoteAddressAsString() const override {
+            return remoteAddress.toString();
         }
 
     private:

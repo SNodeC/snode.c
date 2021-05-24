@@ -48,13 +48,16 @@ namespace web::ws::server {
         ~WSServerContext();
 
     public:
-        void messageStart(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0);
-        void sendFrame(char* message, std::size_t messageLength, uint32_t messageKey = 0);
-        void messageEnd(char* message, std::size_t messageLength, uint32_t messageKey = 0);
-        void message(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0);
-        void sendPing(char* reason = nullptr, std::size_t reasonLength = 0);
+        void messageStart(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
+        void sendFrame(char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
+        void messageEnd(char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
+        void message(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
+        void sendPing(char* reason = nullptr, std::size_t reasonLength = 0) override;
         void replyPong(char* reason = nullptr, std::size_t reasonLength = 0);
-        void close(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);
+        void close(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0) override;
+
+        virtual std::string getLocalAddressAsString() const override;
+        virtual std::string getRemoteAddressAsString() const override;
 
         WSServerProtocol* getWSServerProtocol();
 
