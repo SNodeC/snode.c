@@ -57,8 +57,8 @@ namespace web::ws::server {
         message(1, const_cast<std::string&>(msg).data(), msg.length(), messageKey);
     }
 
-    void WSServerProtocol::message(const char* message, std::size_t messageLength, uint32_t messageKey) {
-        messageStart(2, message, messageLength, messageKey);
+    void WSServerProtocol::message(const char* msg, std::size_t messageLength, uint32_t messageKey) {
+        message(2, msg, messageLength, messageKey);
     }
 
     void WSServerProtocol::messageEnd(const std::string& message, uint32_t messageKey) {
