@@ -40,23 +40,23 @@ namespace web::ws::server {
         virtual ~WSServerProtocol();
 
         /* Facade (API) to WSServerContext -> WSTransmitter */
-        void messageStart(const char* message, std::size_t messageLength, uint32_t messageKey = 0);
-        void messageStart(const std::string& message, uint32_t messageKey = 0);
+        void sendMessageStart(const char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        void sendMessageStart(const std::string& message, uint32_t messageKey = 0);
 
-        void sendFrame(const char* message, std::size_t messageLength, uint32_t messageKey = 0);
-        void sendFrame(const std::string& message, uint32_t messageKey = 0);
+        void sendMessageFrame(const char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        void sendMessageFrame(const std::string& message, uint32_t messageKey = 0);
 
-        void messageEnd(const char* message, std::size_t messageLength, uint32_t messageKey = 0);
-        void messageEnd(const std::string& message, uint32_t messageKey = 0);
+        void sendMessageEnd(const char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        void sendMessageEnd(const std::string& message, uint32_t messageKey = 0);
 
-        void message(const char* message, std::size_t messageLength, uint32_t messageKey = 0);
-        void message(const std::string& message, uint32_t messageKey = 0);
+        void sendMessage(const char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        void sendMessage(const std::string& message, uint32_t messageKey = 0);
 
-        static void broadcast(const char* message, std::size_t messageLength, uint32_t messageKey = 0);
-        static void broadcast(const std::string& message, uint32_t messageKey = 0);
+        static void sendBroadcast(const char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        static void sendBroadcast(const std::string& message, uint32_t messageKey = 0);
 
         void sendPing(char* reason = nullptr, std::size_t reasonLength = 0);
-        void close(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);
+        void sendClose(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);
 
         /* Callbacks (API) WSReceiver */
         virtual void onMessageStart(int opCode) = 0;

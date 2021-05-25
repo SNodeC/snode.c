@@ -33,19 +33,19 @@
 
 namespace web::ws {
 
-    void WSTransmitter::messageStart(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey) {
+    void WSTransmitter::sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey) {
         send(false, opCode, message, messageLength, messageKey);
     }
 
-    void WSTransmitter::sendFrame(const char* message, std::size_t messageLength, uint32_t messageKey) {
+    void WSTransmitter::sendMessageFrame(const char* message, std::size_t messageLength, uint32_t messageKey) {
         send(false, 0, message, messageLength, messageKey);
     }
 
-    void WSTransmitter::messageEnd(const char* message, std::size_t messageLength, uint32_t messageKey) {
+    void WSTransmitter::sendMessageEnd(const char* message, std::size_t messageLength, uint32_t messageKey) {
         send(true, 0, message, messageLength, messageKey);
     }
 
-    void WSTransmitter::message(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey) {
+    void WSTransmitter::sendMessage(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey) {
         send(true, opCode, message, messageLength, messageKey);
     }
 

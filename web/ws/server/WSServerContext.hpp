@@ -49,30 +49,30 @@ namespace web::ws::server {
 
     template <typename WSServerProtocol>
     void
-    WSServerContext<WSServerProtocol>::messageStart(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey) {
+    WSServerContext<WSServerProtocol>::sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey) {
         if (!closeSent) {
-            WSTransmitter::messageStart(opCode, message, messageLength, messageKey);
+            WSTransmitter::sendMessageStart(opCode, message, messageLength, messageKey);
         }
     }
 
     template <typename WSServerProtocol>
-    void WSServerContext<WSServerProtocol>::sendFrame(const char* message, std::size_t messageLength, uint32_t messageKey) {
+    void WSServerContext<WSServerProtocol>::sendMessageFrame(const char* message, std::size_t messageLength, uint32_t messageKey) {
         if (!closeSent) {
-            WSTransmitter::sendFrame(message, messageLength, messageKey);
+            WSTransmitter::sendMessageFrame(message, messageLength, messageKey);
         }
     }
 
     template <typename WSServerProtocol>
-    void WSServerContext<WSServerProtocol>::messageEnd(const char* message, std::size_t messageLength, uint32_t messageKey) {
+    void WSServerContext<WSServerProtocol>::sendMessageEnd(const char* message, std::size_t messageLength, uint32_t messageKey) {
         if (!closeSent) {
-            WSTransmitter::messageEnd(message, messageLength, messageKey);
+            WSTransmitter::sendMessageEnd(message, messageLength, messageKey);
         }
     }
 
     template <typename WSServerProtocol>
-    void WSServerContext<WSServerProtocol>::message(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey) {
+    void WSServerContext<WSServerProtocol>::sendMessage(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey) {
         if (!closeSent) {
-            WSTransmitter::message(opCode, message, messageLength, messageKey);
+            WSTransmitter::sendMessage(opCode, message, messageLength, messageKey);
         }
     }
 
@@ -187,7 +187,7 @@ namespace web::ws::server {
             }
         }
 
-        message(8, closePayload, closePayloadLength);
+        sendMessage(8, closePayload, closePayloadLength);
 
         if (statusCode != 0) {
             delete[] closePayload;
@@ -210,12 +210,12 @@ namespace web::ws::server {
 
     template <typename WSServerProtocol>
     void WSServerContext<WSServerProtocol>::sendPing(const char* reason, std::size_t reasonLength) {
-        message(9, reason, reasonLength);
+        sendMessage(9, reason, reasonLength);
     }
 
     template <typename WSServerProtocol>
     void WSServerContext<WSServerProtocol>::replyPong(const char* reason, std::size_t reasonLength) {
-        message(10, reason, reasonLength);
+        sendMessage(10, reason, reasonLength);
     }
 
     template <typename WSServerProtocol>

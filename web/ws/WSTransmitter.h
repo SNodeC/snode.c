@@ -30,11 +30,11 @@ namespace web::ws {
 
     class WSTransmitter {
     protected:
-        void messageStart(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey = 0);
-        void sendFrame(const char* message, std::size_t messageLength, uint32_t messageKey = 0);
-        void messageEnd(const char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        void sendMessageFrame(const char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        void sendMessageEnd(const char* message, std::size_t messageLength, uint32_t messageKey = 0);
 
-        void message(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey = 0);
 
     private:
         void send(bool end, uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey);

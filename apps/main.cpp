@@ -46,7 +46,7 @@ public:
     void onMessageEnd() override {
         VLOG(0) << "Data: " << data;
         VLOG(0) << "Message End";
-        message(data);
+        sendMessage(data);
         data.clear();
     }
 

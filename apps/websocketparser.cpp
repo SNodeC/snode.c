@@ -75,7 +75,7 @@ public:
                   this->sendPing();
                   this->flyingPings++;
                   if (this->flyingPings >= MAX_FLYING_PINGS) {
-                      this->close();
+                      this->sendClose();
                   }
               },
               {1, 0},
@@ -97,7 +97,7 @@ public:
     void onMessageEnd() override {
         VLOG(0) << "Data: " << data;
         VLOG(0) << "Message End";
-        broadcast(data);
+        sendBroadcast(data);
         data.clear();
     }
 
@@ -113,7 +113,7 @@ public:
     void onProtocolConnect() override {
         VLOG(0) << "On protocol connected:";
 
-        message("hihihi");
+        sendMessage("hihihi");
 
         VLOG(0) << "\tServer: " + getLocalAddressAsString();
         VLOG(0) << "\tClient: " + getRemoteAddressAsString();
