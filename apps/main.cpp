@@ -22,8 +22,8 @@
 #include "express/legacy/WebApp.h"
 #include "net/timer/IntervalTimer.h"
 #include "net/timer/SingleshotTimer.h"
+#include "web/ws/WSProtocol.h"
 #include "web/ws/server/WSServerContext.hpp"
-#include "web/ws/server/WSServerProtocol.h"
 
 #include <cstring>
 #include <iostream>
@@ -33,13 +33,13 @@
 using namespace express;
 using namespace net::timer;
 
-class MyWSServerProtocol : public web::ws::server::WSServerProtocol {
+class MyWSServerProtocol : public web::ws::WSProtocol {
 public:
     void onMessageStart([[maybe_unused]] int opCode) override {
         VLOG(0) << "Message Start - OpCode: " << opCode;
     }
 
-    void onFrameData([[maybe_unused]] const char* junk, [[maybe_unused]] std::size_t junkLen) override {
+    void onMessageData([[maybe_unused]] const char* junk, [[maybe_unused]] std::size_t junkLen) override {
         data += std::string(junk, static_cast<std::size_t>(junkLen));
     }
 

@@ -16,9 +16,10 @@ add_library(
     http/server/RequestParser.cpp
     http/server/Request.cpp
     http/server/Response.cpp
+    ws/WSContextBase.cpp
+    ws/WSProtocol.cpp
     ws/WSReceiver.cpp
     ws/WSTransmitter.cpp
-    ws/server/WSServerProtocol.cpp
 )
 
 target_link_libraries(web LINK_PUBLIC net ${LIBMAGIC_LIBRARIES})

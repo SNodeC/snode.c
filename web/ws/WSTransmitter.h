@@ -23,6 +23,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <random>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -30,16 +31,16 @@ namespace web::ws {
 
     class WSTransmitter {
     protected:
-        void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey = 0);
-        void sendMessageFrame(const char* message, std::size_t messageLength, uint32_t messageKey = 0);
-        void sendMessageEnd(const char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength, bool masked);
+        void sendMessageFrame(const char* message, std::size_t messageLength, bool masked);
+        void sendMessageEnd(const char* message, std::size_t messageLength, bool masked);
 
-        void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength, bool masked);
 
     private:
-        void send(bool end, uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey);
+        void send(bool end, uint8_t opCode, const char* message, std::size_t messageLength, bool masked);
 
-        void sendFrame(bool fin, uint8_t opCode, uint32_t maskingKey, const char* payload, uint64_t payloadLength);
+        void sendFrame(bool fin, uint8_t opCode, const char* payload, uint64_t payloadLength, bool masked);
         void dumpFrame(char* frame, uint64_t frameLength);
 
         virtual void sendFrameData(uint8_t data) = 0;
@@ -47,6 +48,9 @@ namespace web::ws {
         virtual void sendFrameData(uint32_t data) = 0;
         virtual void sendFrameData(uint64_t data) = 0;
         virtual void sendFrameData(const char* frame, uint64_t frameLength) = 0;
+
+        std::default_random_engine generator;
+        std::uniform_int_distribution<uint32_t> distribution{1, UINT32_MAX};
 
         //        virtual void onFrameReady(char* frame, uint64_t frameLength) = 0;
 

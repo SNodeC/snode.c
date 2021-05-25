@@ -4,8 +4,8 @@
 #include "log/Logger.h"
 #include "net/SNodeC.h"
 #include "net/timer/IntervalTimer.h"
+#include "web/ws/WSProtocol.h"
 #include "web/ws/server/WSServerContext.hpp"
-#include "web/ws/server/WSServerProtocol.h"
 
 #include <cstddef>
 #include <endian.h>
@@ -67,7 +67,7 @@ void serverWebSocketKey(const std::string& clientWebSocketKey, const std::functi
 
 #define MAX_FLYING_PINGS 3
 
-class MyWSServerProtocol : public web::ws::server::WSServerProtocol {
+class MyWSServerProtocol : public web::ws::WSProtocol {
 public:
     MyWSServerProtocol()
         : timer(net::timer::Timer::continousTimer(
@@ -90,7 +90,7 @@ public:
         VLOG(0) << "Message Start - OpCode: " << opCode;
     }
 
-    void onFrameData(const char* junk, std::size_t junkLen) override {
+    void onMessageData(const char* junk, std::size_t junkLen) override {
         data += std::string(junk, static_cast<std::size_t>(junkLen));
     }
 
@@ -113,7 +113,8 @@ public:
     void onProtocolConnect() override {
         VLOG(0) << "On protocol connected:";
 
-        sendMessage("hihihi");
+        sendMessage("Welcome to SimpleChat");
+        sendMessage("=====================");
 
         VLOG(0) << "\tServer: " + getLocalAddressAsString();
         VLOG(0) << "\tClient: " + getRemoteAddressAsString();

@@ -33,23 +33,23 @@
 
 namespace web::ws {
 
-    void WSTransmitter::sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey) {
-        send(false, opCode, message, messageLength, messageKey);
+    void WSTransmitter::sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength, bool masked) {
+        send(false, opCode, message, messageLength, masked);
     }
 
-    void WSTransmitter::sendMessageFrame(const char* message, std::size_t messageLength, uint32_t messageKey) {
-        send(false, 0, message, messageLength, messageKey);
+    void WSTransmitter::sendMessageFrame(const char* message, std::size_t messageLength, bool masked) {
+        send(false, 0, message, messageLength, masked);
     }
 
-    void WSTransmitter::sendMessageEnd(const char* message, std::size_t messageLength, uint32_t messageKey) {
-        send(true, 0, message, messageLength, messageKey);
+    void WSTransmitter::sendMessageEnd(const char* message, std::size_t messageLength, bool masked) {
+        send(true, 0, message, messageLength, masked);
     }
 
-    void WSTransmitter::sendMessage(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey) {
-        send(true, opCode, message, messageLength, messageKey);
+    void WSTransmitter::sendMessage(uint8_t opCode, const char* message, std::size_t messageLength, bool masked) {
+        send(true, opCode, message, messageLength, masked);
     }
 
-    void WSTransmitter::send(bool end, uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey) {
+    void WSTransmitter::send(bool end, uint8_t opCode, const char* message, std::size_t messageLength, bool masked) {
         std::size_t messageOffset = 0;
 
         do {
@@ -58,7 +58,7 @@ namespace web::ws {
 
             bool fin = sendMessageLength == messageLength - messageOffset;
 
-            sendFrame(fin && end, opCode, messageKey, message + messageOffset, sendMessageLength);
+            sendFrame(fin && end, opCode, message + messageOffset, sendMessageLength, masked);
 
             messageOffset += sendMessageLength;
 
@@ -66,7 +66,7 @@ namespace web::ws {
         } while (messageLength - messageOffset > 0);
     }
     /*
-        void WSTransmitter::sendFrame1(bool fin, uint8_t opCode, uint32_t maskingKey, char* payload, uint64_t payloadLength) {
+        void WSTransmitter::sendFrame1(bool fin, uint8_t opCode, char* payload, uint64_t payloadLength, uint32_t maskingKey, ) {
             uint64_t frameLength = 2 + payloadLength;
             uint8_t opCodeOffset = 0;
             uint8_t lengthOffset = 1;
@@ -126,7 +126,7 @@ namespace web::ws {
             delete[] frame;
         }
     */
-    void WSTransmitter::sendFrame(bool fin, uint8_t opCode, uint32_t maskingKey, const char* payload, uint64_t payloadLength) {
+    void WSTransmitter::sendFrame(bool fin, uint8_t opCode, const char* payload, uint64_t payloadLength, bool masked) {
         uint64_t length = 0;
 
         if (payloadLength < 126) {
@@ -139,7 +139,8 @@ namespace web::ws {
 
         char header[2];
         header[0] = static_cast<char>((fin ? 0b10000000 : 0) | opCode);
-        header[1] = static_cast<char>(((maskingKey > 0) ? 0b10000000 : 0) | length);
+
+        header[1] = static_cast<char>((masked ? 0b10000000 : 0) | length);
 
         sendFrameData(header, 2);
 
@@ -157,10 +158,10 @@ namespace web::ws {
             char keyAsBytes[4];
         };
 
-        MaskingKey maskingKeyAsArray = {.keyAsValue = htobe32(maskingKey)};
+        MaskingKey maskingKeyAsArray = {.keyAsValue = distribution(generator)};
 
-        if (maskingKey > 0) {
-            sendFrameData(htobe32(maskingKey));
+        if (masked) {
+            sendFrameData(htobe32(maskingKeyAsArray.keyAsValue));
 
             for (uint64_t i = 0; i < payloadLength; i++) {
                 *(const_cast<char*>(payload) + i) = *(payload + i) ^ *(maskingKeyAsArray.keyAsBytes + i % 4);
@@ -169,7 +170,7 @@ namespace web::ws {
 
         sendFrameData(payload, payloadLength);
 
-        if (maskingKey > 0) {
+        if (masked) {
             for (uint64_t i = 0; i < payloadLength; i++) {
                 *(const_cast<char*>(payload) + i) = *(payload + i) ^ *(maskingKeyAsArray.keyAsBytes + i % 4);
             }

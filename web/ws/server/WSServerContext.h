@@ -20,9 +20,7 @@
 #define WEB_WS_SERVER_WSSERVERCONTEXT_H
 
 #include "net/socket/stream/SocketProtocol.h"
-#include "web/ws/WSReceiver.h"
-#include "web/ws/WSTransmitter.h"
-#include "web/ws/server/WSServerContextBase.h"
+#include "web/ws/WSContextBase.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,15 +30,14 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#define MASKED false // Server
+// #define SHALL_MASKED true // Client
+
 namespace web::ws::server {
 
-    template <typename WSServerProtocolT>
-    class WSServerContext
-        : public net::socket::stream::SocketProtocol
-        , public web::ws::server::WSServerContextBase
-        , public web::ws::WSReceiver
-        , public web::ws::WSTransmitter {
-        using WSServerProtocol = WSServerProtocolT;
+    template <typename WSProtocolT>
+    class WSServerContext : public web::ws::WSContextBase {
+        using WSProtocol = WSProtocolT;
 
     public:
         WSServerContext();
@@ -48,48 +45,13 @@ namespace web::ws::server {
         ~WSServerContext();
 
     private:
-        void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
-        void sendMessageFrame(const char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
-        void sendMessageEnd(const char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
-        void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength, uint32_t messageKey = 0) override;
+        void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) override;
+        void sendMessageFrame(const char* message, std::size_t messageLength) override;
+        void sendMessageEnd(const char* message, std::size_t messageLength) override;
+        void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) override;
         void sendPing(const char* reason = nullptr, std::size_t reasonLength = 0) override;
+        void replyPong(const char* reason = nullptr, std::size_t reasonLength = 0) override;
         void close(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0) override;
-
-        std::string getLocalAddressAsString() const override;
-        std::string getRemoteAddressAsString() const override;
-
-        void replyPong(const char* reason = nullptr, std::size_t reasonLength = 0);
-
-        /* SocketProtocol */
-        void onProtocolConnect() override;
-        void onProtocolDisconnect() override;
-
-        void receiveFromPeer(const char* junk, std::size_t junkLen) override;
-        void onReadError(int errnum) override;
-        void onWriteError(int errnum) override;
-
-        /* WSReceiver */
-        void onMessageStart(int opCode) override;
-        void onFrameReceived(const char* junk, uint64_t junkLen) override;
-        void onMessageEnd() override;
-        void onMessageError(uint16_t errnum) override;
-
-        /* WSTransmitter */
-        void sendFrameData(uint8_t data) override;
-        void sendFrameData(uint16_t data) override;
-        void sendFrameData(uint32_t data) override;
-        void sendFrameData(uint64_t data) override;
-        void sendFrameData(const char* frame, uint64_t frameLength) override;
-
-        //        void onFrameReady(char* frame, uint64_t frameLength) override;
-
-        WSServerProtocol* wSServerProtocol;
-
-        bool closeReceived = false;
-        bool closeSent = false;
-
-        bool pingReceived = false;
-        bool pongReceived = false;
     };
 
 } // namespace web::ws::server
