@@ -56,7 +56,7 @@ namespace net::socket::stream {
             : SocketConnectionBase(socketProtocolFactory)
             , SocketReader(
                   [&socketProtocol = this->socketProtocol](const char* junk, std::size_t junkLen) -> void {
-                      socketProtocol->take(junk, junkLen);
+                      socketProtocol->receiveFromPeer(junk, junkLen);
                   },
                   [&socketProtocol = this->socketProtocol](int errnum) -> void {
                       socketProtocol->onReadError(errnum);

@@ -105,7 +105,7 @@ public:
         delete responseParser;
     }
 
-    void receiveFromPeer(const char* junk, std::size_t junkLen) override {
+    void onReceiveFromPeer(const char* junk, std::size_t junkLen) override {
         responseParser->parse(junk, junkLen);
     }
 

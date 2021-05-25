@@ -44,16 +44,20 @@ namespace web::ws {
     public:
         WSContextBase(web::ws::WSProtocol* wSProtocol);
 
-        virtual ~WSContextBase() = default;
+        virtual ~WSContextBase();
 
+    protected:
+        void setWSServerContext(WSContextBase* wSServerContext);
+
+    private:
         /* To be overridden in subclass to decide if masking or not */
         virtual void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) = 0;
         virtual void sendMessageFrame(const char* message, std::size_t messageLength) = 0;
         virtual void sendMessageEnd(const char* message, std::size_t messageLength) = 0;
         virtual void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) = 0;
-        virtual void sendPing(const char* reason = nullptr, std::size_t reasonLength = 0) = 0;
-        virtual void replyPong(const char* reason = nullptr, std::size_t reasonLength = 0) = 0;
-        virtual void close(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0) = 0;
+        void sendPing(const char* reason = nullptr, std::size_t reasonLength = 0);
+        void replyPong(const char* reason = nullptr, std::size_t reasonLength = 0);
+        void close(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);
 
         std::string getLocalAddressAsString() const;
         std::string getRemoteAddressAsString() const;
@@ -77,20 +81,20 @@ namespace web::ws {
         void sendFrameData(const char* frame, uint64_t frameLength) override;
 
         /* SocketProtocol */
-        void receiveFromPeer(const char* junk, std::size_t junkLen) override;
+        void onReceiveFromPeer(const char* junk, std::size_t junkLen) override;
         void onReadError(int errnum) override;
         void onWriteError(int errnum) override;
 
-        void setWSServerContext(WSContextBase* wSServerContext);
-
-    protected:
         web::ws::WSProtocol* wSProtocol;
 
+    protected:
         bool closeReceived = false;
         bool closeSent = false;
 
         bool pingReceived = false;
         bool pongReceived = false;
+
+        friend class web::ws::WSProtocol;
     };
 
 } // namespace web::ws

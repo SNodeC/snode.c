@@ -71,7 +71,7 @@ namespace web::http::client {
     }
 
     template <typename Request, typename Response>
-    void ClientContext<Request, Response>::receiveFromPeer(const char* junk, std::size_t junkLen) {
+    void ClientContext<Request, Response>::onReceiveFromPeer(const char* junk, std::size_t junkLen) {
         parser.parse(junk, junkLen);
     }
 

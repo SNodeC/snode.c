@@ -50,11 +50,11 @@ namespace net::socket::stream {
         SocketConnectionBase* socketConnection;
 
     private:
-        virtual void receiveFromPeer(const char* junk, std::size_t junkLen) = 0;
+        virtual void onReceiveFromPeer(const char* junk, std::size_t junkLen) = 0;
         virtual void onWriteError(int errnum) = 0;
         virtual void onReadError(int errnum) = 0;
 
-        void take(const char* junk, std::size_t junkLen);
+        void receiveFromPeer(const char* junk, std::size_t junkLen);
 
         void setSocketConnection(SocketConnectionBase* socketConnection);
 

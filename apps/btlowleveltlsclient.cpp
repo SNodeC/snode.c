@@ -46,7 +46,7 @@ using namespace net::socket::bluetooth::rfcomm::tls;
 
 class SimpleSocketProtocol : public net::socket::stream::SocketProtocol {
 public:
-    void receiveFromPeer(const char* junk, std::size_t junkLen) override {
+    void onReceiveFromPeer(const char* junk, std::size_t junkLen) override {
         VLOG(0) << "Data to reflect: " << std::string(junk, junkLen);
         sendToPeer(junk, junkLen);
     }

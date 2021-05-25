@@ -43,11 +43,6 @@ namespace web::ws::server {
     }
 
     template <typename WSProtocol>
-    WSServerContext<WSProtocol>::~WSServerContext() {
-        delete wSProtocol;
-    }
-
-    template <typename WSProtocol>
     void WSServerContext<WSProtocol>::sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) {
         if (!closeSent) {
             WSTransmitter::sendMessageStart(opCode, message, messageLength, MASKED);
@@ -73,41 +68,6 @@ namespace web::ws::server {
         if (!closeSent) {
             WSTransmitter::sendMessage(opCode, message, messageLength, MASKED);
         }
-    }
-
-    template <typename WSProtocol>
-    void WSServerContext<WSProtocol>::sendPing(const char* reason, std::size_t reasonLength) {
-        sendMessage(9, reason, reasonLength);
-    }
-
-    template <typename WSProtocol>
-    void WSServerContext<WSProtocol>::replyPong(const char* reason, std::size_t reasonLength) {
-        sendMessage(10, reason, reasonLength);
-    }
-
-    template <typename WSProtocol>
-    void WSServerContext<WSProtocol>::close(uint16_t statusCode, const char* reason, std::size_t reasonLength) {
-        char* closePayload = const_cast<char*>(reason);
-        std::size_t closePayloadLength = reasonLength;
-
-        if (statusCode != 0) {
-            closePayload = new char[reasonLength + 2];
-            *reinterpret_cast<uint16_t*>(closePayload) = htobe16(statusCode);
-            closePayloadLength += 2;
-            if (reasonLength > 0) {
-                memcpy(closePayload + 2, reason, reasonLength);
-            }
-        }
-
-        sendMessage(8, closePayload, closePayloadLength);
-
-        if (statusCode != 0) {
-            delete[] closePayload;
-        }
-
-        setTimeout(CLOSE_SOCKET_TIMEOUT);
-
-        closeSent = true;
     }
 
 } // namespace web::ws::server

@@ -26,6 +26,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#define CLOSE_SOCKET_TIMEOUT 10
+
 namespace web::ws {
 
     WSContextBase::WSContextBase(web::ws::WSProtocol* wSProtocol)
@@ -48,6 +50,10 @@ namespace web::ws {
                 wSProtocol->onMessageStart(opCode);
                 break;
         }
+    }
+
+    WSContextBase::~WSContextBase() {
+        delete wSProtocol;
     }
 
     void WSContextBase::onFrameReceived(const char* junk, uint64_t junkLen) {
@@ -105,34 +111,76 @@ namespace web::ws {
         wSProtocol->onProtocolDisconnect();
     }
 
+    void WSContextBase::sendPing(const char* reason, std::size_t reasonLength) {
+        sendMessage(9, reason, reasonLength);
+    }
+
+    void WSContextBase::replyPong(const char* reason, std::size_t reasonLength) {
+        sendMessage(10, reason, reasonLength);
+    }
+
+    void WSContextBase::close(uint16_t statusCode, const char* reason, std::size_t reasonLength) {
+        char* closePayload = const_cast<char*>(reason);
+        std::size_t closePayloadLength = reasonLength;
+
+        if (statusCode != 0) {
+            closePayload = new char[reasonLength + 2];
+            *reinterpret_cast<uint16_t*>(closePayload) = htobe16(statusCode);
+            closePayloadLength += 2;
+            if (reasonLength > 0) {
+                memcpy(closePayload + 2, reason, reasonLength);
+            }
+        }
+
+        sendMessage(8, closePayload, closePayloadLength);
+
+        if (statusCode != 0) {
+            delete[] closePayload;
+        }
+
+        setTimeout(CLOSE_SOCKET_TIMEOUT);
+
+        closeSent = true;
+    }
+
     void WSContextBase::sendFrameData(uint8_t data) {
-        sendToPeer(reinterpret_cast<char*>(&data), sizeof(uint8_t));
+        if (!closeSent) {
+            sendToPeer(reinterpret_cast<char*>(&data), sizeof(uint8_t));
+        }
     }
 
     void WSContextBase::sendFrameData(uint16_t data) {
-        sendToPeer(reinterpret_cast<char*>(&data), sizeof(uint16_t));
+        if (!closeSent) {
+            sendToPeer(reinterpret_cast<char*>(&data), sizeof(uint16_t));
+        }
     }
 
     void WSContextBase::sendFrameData(uint32_t data) {
-        sendToPeer(reinterpret_cast<char*>(&data), sizeof(uint32_t));
+        if (!closeSent) {
+            sendToPeer(reinterpret_cast<char*>(&data), sizeof(uint32_t));
+        }
     }
 
     void WSContextBase::sendFrameData(uint64_t data) {
-        sendToPeer(reinterpret_cast<char*>(&data), sizeof(uint64_t));
+        if (!closeSent) {
+            sendToPeer(reinterpret_cast<char*>(&data), sizeof(uint64_t));
+        }
     }
 
     void WSContextBase::sendFrameData(const char* frame, uint64_t frameLength) {
-        std::size_t frameOffset = 0;
+        if (!closeSent) {
+            std::size_t frameOffset = 0;
 
-        do {
-            std::size_t sendJunkLen =
-                (frameLength - frameOffset <= SIZE_MAX) ? static_cast<std::size_t>(frameLength - frameOffset) : SIZE_MAX;
-            sendToPeer(frame + frameOffset, sendJunkLen);
-            frameOffset += sendJunkLen;
-        } while (frameLength - frameOffset > 0);
+            do {
+                std::size_t sendJunkLen =
+                    (frameLength - frameOffset <= SIZE_MAX) ? static_cast<std::size_t>(frameLength - frameOffset) : SIZE_MAX;
+                sendToPeer(frame + frameOffset, sendJunkLen);
+                frameOffset += sendJunkLen;
+            } while (frameLength - frameOffset > 0);
+        }
     }
 
-    void WSContextBase::receiveFromPeer(const char* junk, std::size_t junkLen) {
+    void WSContextBase::onReceiveFromPeer(const char* junk, std::size_t junkLen) {
         WSReceiver::receive(const_cast<char*>(junk), junkLen);
     }
 

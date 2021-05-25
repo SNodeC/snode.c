@@ -53,8 +53,8 @@ namespace net::socket::stream {
         markedForDelete = true;
     }
 
-    void SocketProtocol::take(const char* junk, std::size_t junkLen) {
-        receiveFromPeer(junk, junkLen);
+    void SocketProtocol::receiveFromPeer(const char* junk, std::size_t junkLen) {
+        onReceiveFromPeer(junk, junkLen);
 
         if (markedForDelete) {
             delete this;

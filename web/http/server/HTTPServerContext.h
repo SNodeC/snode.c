@@ -72,7 +72,7 @@ namespace web::http::server {
 
         ~HTTPServerContext() override = default;
 
-        void receiveFromPeer(const char* junk, std::size_t junkLen) override;
+        void onReceiveFromPeer(const char* junk, std::size_t junkLen) override;
         void sendResponseData(const char* junk, std::size_t junkLen) override;
 
     protected:
