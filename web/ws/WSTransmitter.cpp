@@ -152,10 +152,6 @@ namespace web::ws {
                 break;
         }
 
-        if (maskingKey > 0) {
-            sendFrameData(htobe32(maskingKey));
-        }
-
         union MaskingKey {
             uint32_t keyAsValue;
             char keyAsBytes[4];
@@ -163,7 +159,9 @@ namespace web::ws {
 
         MaskingKey maskingKeyAsArray = {.keyAsValue = htobe32(maskingKey)};
 
-        if (maskingKey != 0) {
+        if (maskingKey > 0) {
+            sendFrameData(htobe32(maskingKey));
+
             for (uint64_t i = 0; i < payloadLength; i++) {
                 *(const_cast<char*>(payload) + i) = *(payload + i) ^ *(maskingKeyAsArray.keyAsBytes + i % 4);
             }
@@ -171,7 +169,7 @@ namespace web::ws {
 
         sendFrameData(payload, payloadLength);
 
-        if (maskingKey != 0) {
+        if (maskingKey > 0) {
             for (uint64_t i = 0; i < payloadLength; i++) {
                 *(const_cast<char*>(payload) + i) = *(payload + i) ^ *(maskingKeyAsArray.keyAsBytes + i % 4);
             }
