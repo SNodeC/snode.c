@@ -69,14 +69,6 @@ namespace web::ws {
         wSContext->sendMessageEnd(message, messageLength);
     }
 
-    void WSProtocol::sendBroadcast(const std::string& message) {
-        broadcast(1, const_cast<std::string&>(message).data(), message.length());
-    }
-
-    void WSProtocol::sendBroadcast(const char* message, std::size_t messageLength) {
-        broadcast(2, message, messageLength);
-    }
-
     void WSProtocol::sendPing(char* reason, std::size_t reasonLength) {
         wSContext->sendPing(reason, reasonLength);
     }
@@ -85,24 +77,33 @@ namespace web::ws {
         wSContext->close(statusCode, reason, reasonLength);
     }
 
+    std::string WSProtocol::getLocalAddressAsString() const {
+        return wSContext->getLocalAddressAsString();
+    }
+
+    std::string WSProtocol::getRemoteAddressAsString() const {
+        return wSContext->getRemoteAddressAsString();
+    }
+
+    void WSProtocol::sendBroadcast(const std::string& message) {
+        broadcast(1, const_cast<std::string&>(message).data(), message.length());
+    }
+
+    void WSProtocol::sendBroadcast(const char* message, std::size_t messageLength) {
+        broadcast(2, message, messageLength);
+    }
+
     /* private members */
+    void WSProtocol::setWSContext(WSContext* wSServerContext) {
+        this->wSContext = wSServerContext;
+    }
+
     std::list<WSProtocol*> WSProtocol::clients;
 
     void WSProtocol::broadcast(uint8_t opCode, const char* message, std::size_t messageLength) {
         for (WSProtocol* client : clients) {
             client->wSContext->sendMessage(opCode, message, messageLength);
         }
-    }
-
-    std::string WSProtocol::getLocalAddressAsString() const {
-        return wSContext->getLocalAddressAsString();
-    }
-    std::string WSProtocol::getRemoteAddressAsString() const {
-        return wSContext->getRemoteAddressAsString();
-    }
-
-    void WSProtocol::setWSContext(WSContext* wSServerContext) {
-        this->wSContext = wSServerContext;
     }
 
 } // namespace web::ws

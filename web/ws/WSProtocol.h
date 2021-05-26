@@ -52,14 +52,14 @@ namespace web::ws {
         void sendMessage(const char* message, std::size_t messageLength);
         void sendMessage(const std::string& message);
 
-        static void sendBroadcast(const char* message, std::size_t messageLength);
-        static void sendBroadcast(const std::string& message);
-
         void sendPing(char* reason = nullptr, std::size_t reasonLength = 0);
         void sendClose(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);
 
         std::string getLocalAddressAsString() const;
         std::string getRemoteAddressAsString() const;
+
+        static void sendBroadcast(const char* message, std::size_t messageLength);
+        static void sendBroadcast(const std::string& message);
 
     private:
         /* Callbacks (API) WSReceiver -> WSProtocol-Subclasses */

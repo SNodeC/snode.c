@@ -191,13 +191,11 @@ int main(int argc, char* argv[]) {
     legacy::WebApp legacyApp;
 
     legacyApp.get("/", [] MIDDLEWARE(req, res, next) {
-        VLOG(0) << "Get Doc";
         if (req.url == "/") {
             req.url = "/wstest.html";
         }
 
         if (req.url == "/ws") {
-            VLOG(0) << "Next";
             next();
         } else {
             res.sendFile(CMAKE_SOURCE_DIR "apps/html" + req.url, [&req](int ret) -> void {
@@ -247,13 +245,11 @@ int main(int argc, char* argv[]) {
         tls::WebApp tlsApp({{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
 
         tlsApp.get("/", [] MIDDLEWARE(req, res, next) {
-            VLOG(0) << "Get Doc";
             if (req.url == "/") {
                 req.url = "/wstest.html";
             }
 
             if (req.url == "/ws") {
-                VLOG(0) << "Next";
                 next();
             } else {
                 VLOG(0) << CMAKE_SOURCE_DIR "apps/html";
