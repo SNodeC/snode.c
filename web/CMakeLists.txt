@@ -16,7 +16,7 @@ add_library(
     http/server/RequestParser.cpp
     http/server/Request.cpp
     http/server/Response.cpp
-    ws/WSContextBase.cpp
+    ws/WSContext.cpp
     ws/WSProtocol.cpp
     ws/WSReceiver.cpp
     ws/WSTransmitter.cpp

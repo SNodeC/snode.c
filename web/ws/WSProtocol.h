@@ -20,7 +20,7 @@
 #define WS_SERVER_WSPROTOCOL_H
 
 namespace web::ws {
-    class WSContextBase;
+    class WSContext;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -39,7 +39,7 @@ namespace web::ws {
         WSProtocol();
         virtual ~WSProtocol();
 
-        /* Facade (API) to WSServerContext -> WSTransmitter */
+        /* Facade (API) to WSServerContext -> WSTransmitter to be used from WSProtocol-Subclasses */
         void sendMessageStart(const char* message, std::size_t messageLength);
         void sendMessageStart(const std::string& message);
 
@@ -62,32 +62,26 @@ namespace web::ws {
         std::string getRemoteAddressAsString() const;
 
     private:
-        void setWSServerContext(WSContextBase* wSServerContext);
-
-        /* Should be protected at lease */
-        /* Callbacks (API) WSReceiver */
+        /* Callbacks (API) WSReceiver -> WSProtocol-Subclasses */
         virtual void onMessageStart(int opCode) = 0;
         virtual void onMessageData(const char* junk, std::size_t junkLen) = 0;
         virtual void onMessageEnd() = 0;
         virtual void onPongReceived() = 0;
         virtual void onMessageError(uint16_t errnum) = 0;
 
-        /* Callbacks (API) socketConnection -> WSServerContext */
+        /* Callbacks (API) socketConnection -> WSProtocol-Subclasses */
         virtual void onProtocolConnect() = 0;
         virtual void onProtocolDisconnect() = 0;
 
-    private:
-        void messageStart(uint8_t opCode, const char* message, std::size_t messageLength);
-        void message(uint8_t opCode, const char* message, std::size_t messageLength);
+        void setWSContext(WSContext* wSServerContext);
+
         static void broadcast(uint8_t opCode, const char* message, std::size_t messageLength);
 
-    protected:
-        WSContextBase* wSServerContext;
-
-    private:
         static std::list<WSProtocol*> clients;
 
-        friend class web::ws::WSContextBase;
+        WSContext* wSContext;
+
+        friend class web::ws::WSContext;
     };
 
 } // namespace web::ws

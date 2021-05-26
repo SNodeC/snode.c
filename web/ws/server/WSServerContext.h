@@ -20,7 +20,7 @@
 #define WEB_WS_SERVER_WSSERVERCONTEXT_H
 
 #include "net/socket/stream/SocketProtocol.h"
-#include "web/ws/WSContextBase.h"
+#include "web/ws/WSContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -36,7 +36,7 @@
 namespace web::ws::server {
 
     template <typename WSProtocolT>
-    class WSServerContext : public web::ws::WSContextBase {
+    class WSServerContext : public web::ws::WSContext {
         using WSProtocol = WSProtocolT;
 
     public:

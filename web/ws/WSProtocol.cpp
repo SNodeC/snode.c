@@ -21,7 +21,7 @@
 
 #include "web/ws/WSProtocol.h"
 
-#include "web/ws/WSContextBase.h"
+#include "web/ws/WSContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -38,11 +38,11 @@ namespace web::ws {
     }
 
     void WSProtocol::sendMessageStart(const std::string& message) { // 1
-        messageStart(1, const_cast<std::string&>(message).data(), message.length());
+        wSContext->sendMessageStart(1, const_cast<std::string&>(message).data(), message.length());
     }
 
     void WSProtocol::sendMessageStart(const char* message, std::size_t messageLength) { // 2
-        messageStart(2, message, messageLength);
+        wSContext->sendMessageStart(2, message, messageLength);
     }
 
     void WSProtocol::sendMessageFrame(const std::string& message) {
@@ -50,15 +50,15 @@ namespace web::ws {
     }
 
     void WSProtocol::sendMessageFrame(const char* message, std::size_t messageLength) {
-        wSServerContext->sendMessageFrame(message, messageLength);
+        wSContext->sendMessageFrame(message, messageLength);
     }
 
     void WSProtocol::sendMessage(const std::string& msg) {
-        message(1, const_cast<std::string&>(msg).data(), msg.length());
+        wSContext->sendMessage(1, const_cast<std::string&>(msg).data(), msg.length());
     }
 
     void WSProtocol::sendMessage(const char* msg, std::size_t messageLength) {
-        message(2, msg, messageLength);
+        wSContext->sendMessage(2, msg, messageLength);
     }
 
     void WSProtocol::sendMessageEnd(const std::string& message) {
@@ -66,7 +66,7 @@ namespace web::ws {
     }
 
     void WSProtocol::sendMessageEnd(const char* message, std::size_t messageLength) {
-        wSServerContext->sendMessageEnd(message, messageLength);
+        wSContext->sendMessageEnd(message, messageLength);
     }
 
     void WSProtocol::sendBroadcast(const std::string& message) {
@@ -78,39 +78,31 @@ namespace web::ws {
     }
 
     void WSProtocol::sendPing(char* reason, std::size_t reasonLength) {
-        wSServerContext->sendPing(reason, reasonLength);
+        wSContext->sendPing(reason, reasonLength);
     }
 
     void WSProtocol::sendClose(uint16_t statusCode, const char* reason, std::size_t reasonLength) {
-        wSServerContext->close(statusCode, reason, reasonLength);
+        wSContext->close(statusCode, reason, reasonLength);
     }
 
     /* private members */
-    void WSProtocol::messageStart(uint8_t opCode, const char* message, std::size_t messageLength) {
-        wSServerContext->sendMessageStart(opCode, message, messageLength);
-    }
-
-    void WSProtocol::message(uint8_t opCode, const char* message, std::size_t messageLength) {
-        wSServerContext->sendMessage(opCode, message, messageLength);
-    }
-
     std::list<WSProtocol*> WSProtocol::clients;
 
     void WSProtocol::broadcast(uint8_t opCode, const char* message, std::size_t messageLength) {
         for (WSProtocol* client : clients) {
-            client->message(opCode, message, messageLength);
+            client->wSContext->sendMessage(opCode, message, messageLength);
         }
     }
 
     std::string WSProtocol::getLocalAddressAsString() const {
-        return wSServerContext->getLocalAddressAsString();
+        return wSContext->getLocalAddressAsString();
     }
     std::string WSProtocol::getRemoteAddressAsString() const {
-        return wSServerContext->getRemoteAddressAsString();
+        return wSContext->getRemoteAddressAsString();
     }
 
-    void WSProtocol::setWSServerContext(WSContextBase* wSServerContext) {
-        this->wSServerContext = wSServerContext;
+    void WSProtocol::setWSContext(WSContext* wSServerContext) {
+        this->wSContext = wSServerContext;
     }
 
 } // namespace web::ws

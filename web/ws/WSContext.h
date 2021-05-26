@@ -28,6 +28,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <string>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -37,17 +38,17 @@ namespace web::ws {
 
 namespace web::ws {
 
-    class WSContextBase
+    class WSContext
         : public net::socket::stream::SocketProtocol
         , public web::ws::WSReceiver
         , public web::ws::WSTransmitter {
     public:
-        WSContextBase(web::ws::WSProtocol* wSProtocol);
+        WSContext(web::ws::WSProtocol* wSProtocol);
 
-        virtual ~WSContextBase();
+        virtual ~WSContext();
 
     protected:
-        void setWSServerContext(WSContextBase* wSServerContext);
+        void setWSContext(WSContext* wSServerContext);
 
     private:
         /* To be overridden in subclass to decide if masking or not */
@@ -58,6 +59,7 @@ namespace web::ws {
         void sendPing(const char* reason = nullptr, std::size_t reasonLength = 0);
         void replyPong(const char* reason = nullptr, std::size_t reasonLength = 0);
         void close(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);
+        void close(const char* reason, std::size_t reasonLength);
 
         std::string getLocalAddressAsString() const;
         std::string getRemoteAddressAsString() const;
@@ -69,11 +71,11 @@ namespace web::ws {
         void onPongReceived();
         void onMessageError(uint16_t errnum) override;
 
-        /* Callbacks (API) socketConnection -> WSServerContext */
+        /* Callbacks (API) socketConnection -> WSProtocol */
         void onProtocolConnect() override;
         void onProtocolDisconnect() override;
 
-        /* WSTransmitter */
+        /* Facade to SocketProtocol used from WSTransmitter */
         void sendFrameData(uint8_t data) override;
         void sendFrameData(uint16_t data) override;
         void sendFrameData(uint32_t data) override;
@@ -87,12 +89,13 @@ namespace web::ws {
 
         web::ws::WSProtocol* wSProtocol;
 
-    protected:
         bool closeReceived = false;
         bool closeSent = false;
 
         bool pingReceived = false;
         bool pongReceived = false;
+
+        std::string pongCloseData;
 
         friend class web::ws::WSProtocol;
     };

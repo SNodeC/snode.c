@@ -38,36 +38,28 @@ namespace web::ws::server {
 
     template <typename WSProtocol>
     WSServerContext<WSProtocol>::WSServerContext()
-        : WSContextBase(new WSProtocol()) {
-        WSContextBase::setWSServerContext(this);
+        : WSContext(new WSProtocol()) {
+        WSContext::setWSContext(this);
     }
 
     template <typename WSProtocol>
     void WSServerContext<WSProtocol>::sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) {
-        if (!closeSent) {
-            WSTransmitter::sendMessageStart(opCode, message, messageLength, MASKED);
-        }
+        WSTransmitter::sendMessageStart(opCode, message, messageLength, MASKED);
     }
 
     template <typename WSProtocol>
     void WSServerContext<WSProtocol>::sendMessageFrame(const char* message, std::size_t messageLength) {
-        if (!closeSent) {
-            WSTransmitter::sendMessageFrame(message, messageLength, MASKED);
-        }
+        WSTransmitter::sendMessageFrame(message, messageLength, MASKED);
     }
 
     template <typename WSProtocol>
     void WSServerContext<WSProtocol>::sendMessageEnd(const char* message, std::size_t messageLength) {
-        if (!closeSent) {
-            WSTransmitter::sendMessageEnd(message, messageLength, MASKED);
-        }
+        WSTransmitter::sendMessageEnd(message, messageLength, MASKED);
     }
 
     template <typename WSProtocol>
     void WSServerContext<WSProtocol>::sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) {
-        if (!closeSent) {
-            WSTransmitter::sendMessage(opCode, message, messageLength, MASKED);
-        }
+        WSTransmitter::sendMessage(opCode, message, messageLength, MASKED);
     }
 
 } // namespace web::ws::server
