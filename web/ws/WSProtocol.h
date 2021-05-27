@@ -85,6 +85,9 @@ namespace web::ws {
         friend class web::ws::WSContext;
     };
 
+    typedef WSProtocol* create_t();
+    typedef void destroy_t(WSProtocol*);
+
 } // namespace web::ws
 
 #endif // WS_SERVER_WSPROTOCOL_H

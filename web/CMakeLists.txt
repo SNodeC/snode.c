@@ -24,6 +24,8 @@ add_library(
     ws/server/WSContext.cpp
 )
 
+add_subdirectory(ws/subprotocol)
+
 target_link_libraries(web LINK_PUBLIC net ${LIBMAGIC_LIBRARIES})
 
 target_compile_options(web PRIVATE --warn-all)
