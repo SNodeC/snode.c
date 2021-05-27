@@ -35,10 +35,11 @@ namespace web::ws {
 namespace web::ws {
 
     class WSProtocol {
-    public:
+    protected:
         WSProtocol();
         virtual ~WSProtocol();
 
+    public:
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from WSProtocol-Subclasses */
         void sendMessageStart(const char* message, std::size_t messageLength);
         void sendMessageStart(const std::string& message);

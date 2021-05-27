@@ -107,14 +107,11 @@ namespace web::http::server {
     Response& Response::type(const std::string& type) {
         return set("Content-Type", type);
     }
-    /*
-        void Response::upgrade(net::socket::stream::SocketProtocol* newServerContext) {
-            end();
-            serverContext->switchSocketProtocol(newServerContext);
-        }
-    */
+
     void Response::upgrade(web::ws::WSProtocol* wSProtocol) {
+        HTTPServerContextBase* serverContext = this->serverContext;
         end();
+
         serverContext->switchSocketProtocol(new web::ws::server::WSContext(wSProtocol));
     }
 

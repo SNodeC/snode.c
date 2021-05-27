@@ -31,9 +31,11 @@ namespace net::socket::stream {
     class SocketConnectionBase;
 
     class SocketProtocol {
-    public:
+    protected:
+        SocketProtocol() = default;
         virtual ~SocketProtocol() = default;
 
+    public:
         void sendToPeer(const char* junk, std::size_t junkLen);
         void sendToPeer(const std::string& data);
 

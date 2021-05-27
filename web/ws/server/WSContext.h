@@ -19,13 +19,13 @@
 #ifndef WEB_WS_SERVER_WSSERVERCONTEXT_H
 #define WEB_WS_SERVER_WSSERVERCONTEXT_H
 
-#include "net/socket/stream/SocketProtocol.h"
 #include "web/ws/WSContext.h"
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+namespace web::ws {
+    class WSProtocol;
+}
 
-#include <cstddef>
-#include <cstdint>
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

@@ -29,10 +29,10 @@ namespace net::socket::stream {
     class SocketProtocol;
 
     class SocketProtocolFactory {
-    public:
+    protected:
+        SocketProtocolFactory() = default;
         virtual ~SocketProtocolFactory() = default;
 
-    protected:
         virtual SocketProtocol* create() const = 0;
 
         friend class SocketConnectionBase;

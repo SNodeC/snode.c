@@ -95,7 +95,7 @@ namespace web::ws {
 
     /* private members */
     void WSProtocol::setWSContext(WSContext* wSServerContext) {
-        this->wSContext = wSServerContext;
+        wSContext = wSServerContext;
     }
 
     std::list<WSProtocol*> WSProtocol::clients;

@@ -23,6 +23,10 @@
 #include "web/ws/WSReceiver.h"
 #include "web/ws/WSTransmitter.h"
 
+namespace web::ws {
+    class WSProtocol;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
@@ -30,10 +34,6 @@
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-namespace web::ws {
-    class WSProtocol;
-}
 
 namespace web::ws {
 
