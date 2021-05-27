@@ -16,12 +16,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "web/ws/WSContext.h"
+
 #include "log/Logger.h"
 #include "net/socket/stream/SocketConnectionBase.h"
-#include "web/ws/WSContext.h"
 #include "web/ws/WSProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <endian.h> // for htobe16
+#include <string.h> // for memcpy
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -31,6 +35,10 @@ namespace web::ws {
 
     WSContext::WSContext(web::ws::WSProtocol* wSProtocol)
         : wSProtocol(wSProtocol) {
+    }
+
+    WSContext::~WSContext() {
+        delete wSProtocol;
     }
 
     void WSContext::onMessageStart(int opCode) {
@@ -49,10 +57,6 @@ namespace web::ws {
                 wSProtocol->onMessageStart(opCode);
                 break;
         }
-    }
-
-    WSContext::~WSContext() {
-        delete wSProtocol;
     }
 
     void WSContext::onFrameReceived(const char* junk, uint64_t junkLen) {

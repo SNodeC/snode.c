@@ -186,6 +186,7 @@ int main(int argc, char* argv[]) {
     wsTransCeiver.message(message, std::string(message).length(), 0x23456789);
     wsTransCeiver.messageEnd(message, std::string(message).length(), 0x34567890);
     */
+
     SNodeC::init(argc, argv);
 
     legacy::WebApp legacyApp;

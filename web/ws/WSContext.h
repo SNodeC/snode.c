@@ -28,7 +28,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <string>
-#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -56,6 +55,7 @@ namespace web::ws {
         virtual void sendMessageFrame(const char* message, std::size_t messageLength) = 0;
         virtual void sendMessageEnd(const char* message, std::size_t messageLength) = 0;
         virtual void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) = 0;
+
         void sendPing(const char* reason = nullptr, std::size_t reasonLength = 0);
         void replyPong(const char* reason = nullptr, std::size_t reasonLength = 0);
         void close(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);

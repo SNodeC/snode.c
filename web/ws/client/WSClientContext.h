@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_SERVER_WSSERVERCONTEXT_H
-#define WEB_WS_SERVER_WSSERVERCONTEXT_H
+#ifndef WEB_WS_CLIENT_WSSERVERCONTEXT_H
+#define WEB_WS_CLIENT_WSSERVERCONTEXT_H
 
 #include "net/socket/stream/SocketProtocol.h"
 #include "web/ws/WSContext.h"
@@ -29,14 +29,14 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::ws::server {
+namespace web::ws::client {
 
     template <typename WSProtocolT>
-    class WSServerContext : public web::ws::WSContext {
+    class WSClientContext : public web::ws::WSContext {
         using WSProtocol = WSProtocolT;
 
     public:
-        WSServerContext();
+        WSClientContext();
 
     private:
         void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) override;
@@ -45,6 +45,6 @@ namespace web::ws::server {
         void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) override;
     };
 
-} // namespace web::ws::server
+} // namespace web::ws::client
 
-#endif // WEB_WS_SERVER_WSSERVERCONTEXT_H
+#endif // WEB_WS_CLIENT_WSSERVERCONTEXT_H

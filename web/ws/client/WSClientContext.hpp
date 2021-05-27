@@ -16,10 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_SERVER_WSSERVERCONTEXT_HPP
-#define WEB_WS_SERVER_WSSERVERCONTEXT_HPP
+#ifndef WEB_WS_CLIENT_WSSERVERCONTEXT_HPP
+#define WEB_WS_CLIENT_WSSERVERCONTEXT_HPP
 
-#include "WSServerContext.h"
+#include "WSClientContext.h"
 #include "log/Logger.h"
 #include "net/socket/stream/SocketConnectionBase.h"
 #include "web/ws/WSProtocol.h"
@@ -30,34 +30,34 @@
 
 #define CLOSE_SOCKET_TIMEOUT 10
 
-namespace web::ws::server {
+namespace web::ws::client {
 
     template <typename WSProtocol>
-    WSServerContext<WSProtocol>::WSServerContext()
+    WSClientContext<WSProtocol>::WSClientContext()
         : WSContext(new WSProtocol()) {
         WSContext::setWSContext(this);
     }
 
     template <typename WSProtocol>
-    void WSServerContext<WSProtocol>::sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) {
-        WSTransmitter::sendMessageStart(opCode, message, messageLength, false);
+    void WSClientContext<WSProtocol>::sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) {
+        WSTransmitter::sendMessageStart(opCode, message, messageLength, true);
     }
 
     template <typename WSProtocol>
-    void WSServerContext<WSProtocol>::sendMessageFrame(const char* message, std::size_t messageLength) {
-        WSTransmitter::sendMessageFrame(message, messageLength, false);
+    void WSClientContext<WSProtocol>::sendMessageFrame(const char* message, std::size_t messageLength) {
+        WSTransmitter::sendMessageFrame(message, messageLength, true);
     }
 
     template <typename WSProtocol>
-    void WSServerContext<WSProtocol>::sendMessageEnd(const char* message, std::size_t messageLength) {
-        WSTransmitter::sendMessageEnd(message, messageLength, false);
+    void WSClientContext<WSProtocol>::sendMessageEnd(const char* message, std::size_t messageLength) {
+        WSTransmitter::sendMessageEnd(message, messageLength, true);
     }
 
     template <typename WSProtocol>
-    void WSServerContext<WSProtocol>::sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) {
-        WSTransmitter::sendMessage(opCode, message, messageLength, false);
+    void WSClientContext<WSProtocol>::sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) {
+        WSTransmitter::sendMessage(opCode, message, messageLength, true);
     }
 
-} // namespace web::ws::server
+} // namespace web::ws::client
 
-#endif // WEB_WS_SERVER_WSSERVERCONTEXT_HPP
+#endif // WEB_WS_CLIENT_WSSERVERCONTEXT_HPP
