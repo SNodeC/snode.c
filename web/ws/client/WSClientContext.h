@@ -31,12 +31,9 @@
 
 namespace web::ws::client {
 
-    template <typename WSProtocolT>
     class WSClientContext : public web::ws::WSContext {
-        using WSProtocol = WSProtocolT;
-
     public:
-        WSClientContext();
+        WSClientContext(web::ws::WSProtocol* wSProtocol);
 
     private:
         void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) override;

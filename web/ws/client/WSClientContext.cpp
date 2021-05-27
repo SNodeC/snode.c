@@ -32,29 +32,23 @@
 
 namespace web::ws::client {
 
-    template <typename WSProtocol>
-    WSClientContext<WSProtocol>::WSClientContext()
-        : WSContext(new WSProtocol()) {
-        WSContext::setWSContext(this);
+    WSClientContext::WSClientContext(web::ws::WSProtocol* wSProtocol)
+        : WSContext(wSProtocol) {
     }
 
-    template <typename WSProtocol>
-    void WSClientContext<WSProtocol>::sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) {
+    void WSClientContext::sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) {
         WSTransmitter::sendMessageStart(opCode, message, messageLength, true);
     }
 
-    template <typename WSProtocol>
-    void WSClientContext<WSProtocol>::sendMessageFrame(const char* message, std::size_t messageLength) {
+    void WSClientContext::sendMessageFrame(const char* message, std::size_t messageLength) {
         WSTransmitter::sendMessageFrame(message, messageLength, true);
     }
 
-    template <typename WSProtocol>
-    void WSClientContext<WSProtocol>::sendMessageEnd(const char* message, std::size_t messageLength) {
+    void WSClientContext::sendMessageEnd(const char* message, std::size_t messageLength) {
         WSTransmitter::sendMessageEnd(message, messageLength, true);
     }
 
-    template <typename WSProtocol>
-    void WSClientContext<WSProtocol>::sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) {
+    void WSClientContext::sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) {
         WSTransmitter::sendMessage(opCode, message, messageLength, true);
     }
 

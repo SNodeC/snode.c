@@ -20,6 +20,8 @@ add_library(
     ws/WSProtocol.cpp
     ws/WSReceiver.cpp
     ws/WSTransmitter.cpp
+    ws/client/WSClientContext.cpp
+    ws/server/WSServerContext.cpp
 )
 
 target_link_libraries(web LINK_PUBLIC net ${LIBMAGIC_LIBRARIES})

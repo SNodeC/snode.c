@@ -5,7 +5,7 @@
 #include "net/SNodeC.h"
 #include "net/timer/IntervalTimer.h"
 #include "web/ws/WSProtocol.h"
-#include "web/ws/server/WSServerContext.hpp"
+#include "web/ws/server/WSServerContext.h"
 
 #include <cstddef>
 #include <endian.h>
@@ -231,7 +231,8 @@ int main(int argc, char* argv[]) {
 
         res.status(101); // Switch Protocol
 
-        res.upgrade(new web::ws::server::WSServerContext<MyWSServerProtocol>());
+        //        res.upgrade(new web::ws::server::WSServerContext<MyWSServerProtocol>());
+        res.upgrade(new MyWSServerProtocol());
     });
 
     legacyApp.listen(8080, [](int err) -> void {
@@ -286,7 +287,8 @@ int main(int argc, char* argv[]) {
 
             res.status(101); // Switch Protocol
 
-            res.upgrade(new web::ws::server::WSServerContext<MyWSServerProtocol>());
+            //            res.upgrade(new web::ws::server::WSServerContext<MyWSServerProtocol>());
+            res.upgrade(new MyWSServerProtocol());
         });
 
         tlsApp.listen(8088, [](int err) -> void {

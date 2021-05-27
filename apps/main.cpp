@@ -23,7 +23,7 @@
 #include "net/timer/IntervalTimer.h"
 #include "net/timer/SingleshotTimer.h"
 #include "web/ws/WSProtocol.h"
-#include "web/ws/server/WSServerContext.hpp"
+#include "web/ws/server/WSServerContext.h"
 
 #include <cstring>
 #include <iostream>
@@ -154,7 +154,7 @@ int timerApp() {
                 }
             });
         }
-        res.upgrade(new web::ws::server::WSServerContext<MyWSServerProtocol>());
+        res.upgrade(new MyWSServerProtocol());
     });
 
     app.listen(8080, [](int err) -> void {

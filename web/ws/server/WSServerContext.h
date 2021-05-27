@@ -31,12 +31,9 @@
 
 namespace web::ws::server {
 
-    template <typename WSProtocolT>
     class WSServerContext : public web::ws::WSContext {
-        using WSProtocol = WSProtocolT;
-
     public:
-        WSServerContext();
+        WSServerContext(web::ws::WSProtocol* wSProtocol);
 
     private:
         void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) override;

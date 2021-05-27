@@ -46,9 +46,6 @@ namespace web::ws {
 
         virtual ~WSContext();
 
-    protected:
-        void setWSContext(WSContext* wSServerContext);
-
     private:
         /* To be overridden in subclass to decide if masking or not */
         virtual void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) = 0;

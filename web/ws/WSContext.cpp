@@ -35,6 +35,7 @@ namespace web::ws {
 
     WSContext::WSContext(web::ws::WSProtocol* wSProtocol)
         : wSProtocol(wSProtocol) {
+        wSProtocol->setWSContext(this);
     }
 
     WSContext::~WSContext() {
@@ -199,10 +200,6 @@ namespace web::ws {
 
     void WSContext::onWriteError(int errnum) {
         VLOG(0) << "OnWriteError: " << errnum;
-    }
-
-    void WSContext::setWSContext(WSContext* wSServerContext) {
-        wSProtocol->setWSContext(wSServerContext);
     }
 
     std::string WSContext::getLocalAddressAsString() const {

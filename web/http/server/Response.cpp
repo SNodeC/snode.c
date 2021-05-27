@@ -23,6 +23,7 @@
 #include "web/http/StatusCodes.h"
 #include "web/http/http_utils.h"
 #include "web/http/server//HTTPServerContext.h"
+#include "web/ws/server/WSServerContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -106,10 +107,15 @@ namespace web::http::server {
     Response& Response::type(const std::string& type) {
         return set("Content-Type", type);
     }
-
-    void Response::upgrade(net::socket::stream::SocketProtocol* newServerContext) {
+    /*
+        void Response::upgrade(net::socket::stream::SocketProtocol* newServerContext) {
+            end();
+            serverContext->switchSocketProtocol(newServerContext);
+        }
+    */
+    void Response::upgrade(web::ws::WSProtocol* wSProtocol) {
         end();
-        serverContext->switchSocketProtocol(newServerContext);
+        serverContext->switchSocketProtocol(new web::ws::server::WSServerContext(wSProtocol));
     }
 
     Response& Response::cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options) {
