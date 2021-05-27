@@ -33,8 +33,8 @@
 
 namespace web::ws {
 
-    WSContext::WSContext(web::ws::WSProtocol* wSProtocol, bool masking)
-        : WSTransmitter(masking)
+    WSContext::WSContext(web::ws::WSProtocol* wSProtocol, web::ws::WSTransmitter::Role role)
+        : WSTransmitter(role)
         , wSProtocol(wSProtocol) {
         wSProtocol->setWSContext(this);
     }

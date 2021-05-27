@@ -33,8 +33,8 @@
 
 namespace web::ws {
 
-    WSTransmitter::WSTransmitter(bool masking)
-        : masking(masking) {
+    WSTransmitter::WSTransmitter(Role role)
+        : masking(role == Role::CLIENT) {
     }
 
     void WSTransmitter::sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) {

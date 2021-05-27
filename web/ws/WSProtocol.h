@@ -85,6 +85,7 @@ namespace web::ws {
         friend class web::ws::WSContext;
     };
 
+    typedef const std::string& name_t();
     typedef WSProtocol* create_t();
     typedef void destroy_t(WSProtocol*);
 

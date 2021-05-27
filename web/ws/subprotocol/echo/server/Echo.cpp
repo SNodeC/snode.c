@@ -18,11 +18,29 @@
 
 #include "web/ws/subprotocol/echo/server/Echo.h"
 
+#include "log/Logger.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::ws::subprotocol::echo::server { // namespace web::ws::subprotocol::echo::server
+    Echo::Echo()
+        : timer(net::timer::Timer::continousTimer(
+              [this]([[maybe_unused]] const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
+                  this->sendPing();
+                  this->flyingPings++;
+                  if (this->flyingPings >= MAX_FLYING_PINGS) {
+                      this->sendClose();
+                  }
+              },
+              {1, 0},
+              nullptr)) {
+    }
+
+    Echo::~Echo() {
+        timer.cancel();
+    }
 
     void Echo::onMessageStart(int opCode) {
         VLOG(0) << "Message Start - OpCode: " << opCode;
@@ -64,4 +82,5 @@ namespace web::ws::subprotocol::echo::server { // namespace web::ws::subprotocol
         VLOG(0) << "\tServer: " + getLocalAddressAsString();
         VLOG(0) << "\tClient: " + getRemoteAddressAsString();
     }
+
 } // namespace web::ws::subprotocol::echo::server

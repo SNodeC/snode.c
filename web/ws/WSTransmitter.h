@@ -30,8 +30,11 @@
 namespace web::ws {
 
     class WSTransmitter {
+    public:
+        enum class Role { SERVER, CLIENT };
+
     protected:
-        WSTransmitter(bool masking);
+        WSTransmitter(Role role);
 
         void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength);
         void sendMessageFrame(const char* message, std::size_t messageLength);

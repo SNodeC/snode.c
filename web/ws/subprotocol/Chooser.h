@@ -16,23 +16,31 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_CLIENT_WSSERVERCONTEXT_HPP
-#define WEB_WS_CLIENT_WSSERVERCONTEXT_HPP
+#ifndef WEB_WS_SUBPROTOCOL_CHOOSER_H
+#define WEB_WS_SUBPROTOCOL_CHOOSER_H
 
-#include "WSContext.h"
+namespace web::ws {
+    class WSProtocol;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define CLOSE_SOCKET_TIMEOUT 10
+namespace web::ws::subprotocol {
 
-namespace web::ws::client {
+    class Chooser {
+    public:
+        Chooser();
 
-    WSContext::WSContext(web::ws::WSProtocol* wSProtocol)
-        : web::ws::WSContext(wSProtocol, web::ws::WSContext::Role::CLIENT) {
-    }
+        WSProtocol* select(const std::string& subProtocol);
 
-} // namespace web::ws::client
+    protected:
+        void loadSubprotocols();
+    };
 
-#endif // WEB_WS_CLIENT_WSSERVERCONTEXT_HPP
+} // namespace web::ws::subprotocol
+
+#endif // WEB_WS_SUBPROTOCOL_CHOOSER_H

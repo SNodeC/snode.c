@@ -42,12 +42,11 @@ namespace web::ws {
         , public web::ws::WSReceiver
         , public web::ws::WSTransmitter {
     protected:
-        WSContext(web::ws::WSProtocol* wSProtocol, bool masking);
+        WSContext(web::ws::WSProtocol* wSProtocol, web::ws::WSTransmitter::Role masking);
 
         virtual ~WSContext();
 
     private:
-        /* To be overridden in subclass to decide if masking or not */
         void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength);
         void sendMessageFrame(const char* message, std::size_t messageLength);
         void sendMessageEnd(const char* message, std::size_t messageLength);

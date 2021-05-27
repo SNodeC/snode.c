@@ -30,7 +30,7 @@
 namespace web::ws::server {
 
     WSContext::WSContext(web::ws::WSProtocol* wSProtocol)
-        : web::ws::WSContext(wSProtocol, false) {
+        : web::ws::WSContext(wSProtocol, web::ws::WSContext::Role::SERVER) {
     }
 
 } // namespace web::ws::server

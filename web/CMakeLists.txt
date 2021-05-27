@@ -22,6 +22,7 @@ add_library(
     ws/WSTransmitter.cpp
     ws/client/WSContext.cpp
     ws/server/WSContext.cpp
+    ws/subprotocol/Chooser.cpp
 )
 
 add_subdirectory(ws/subprotocol)

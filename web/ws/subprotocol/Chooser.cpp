@@ -16,41 +16,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_SERVER_SUBPROTOCOL_ECHO_ECHO_H
-#define WEB_WS_SERVER_SUBPROTOCOL_ECHO_ECHO_H
+#include "web/ws/subprotocol/Chooser.h"
 
-#include "net/timer/IntervalTimer.h"
 #include "web/ws/WSProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::ws::subprotocol::echo::server {
+namespace web::ws::subprotocol {
 
-#define MAX_FLYING_PINGS 3
+    Chooser::Chooser() {
+    }
 
-    class Echo : public web::ws::WSProtocol {
-    public:
-        Echo();
-        ~Echo() override;
+    void Chooser::loadSubprotocols() {
+    }
 
-        void onMessageStart(int opCode) override;
-        void onMessageData(const char* junk, std::size_t junkLen) override;
-        void onMessageEnd() override;
-        void onMessageError(uint16_t errnum) override;
-        void onPongReceived() override;
-        void onProtocolConnect() override;
-        void onProtocolDisconnect() override;
+    WSProtocol* Chooser::select([[maybe_unused]] const std::string& subProtocol) {
+        return nullptr;
+    }
 
-    private:
-        std::string data;
-
-        int flyingPings = 0;
-
-        net::timer::Timer& timer;
-    };
-
-} // namespace web::ws::subprotocol::echo::server
-
-#endif // WEB_WS_SERVER_SUBPROTOCOL_ECHO_ECHO_H
+} // namespace web::ws::subprotocol

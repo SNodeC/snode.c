@@ -38,7 +38,7 @@ namespace web::ws {
     }
 
     void WSProtocol::sendMessageStart(const std::string& message) { // 1
-        wSContext->sendMessageStart(1, const_cast<std::string&>(message).data(), message.length());
+        wSContext->sendMessageStart(1, message.data(), message.length());
     }
 
     void WSProtocol::sendMessageStart(const char* message, std::size_t messageLength) { // 2
@@ -46,7 +46,7 @@ namespace web::ws {
     }
 
     void WSProtocol::sendMessageFrame(const std::string& message) {
-        sendMessageFrame(const_cast<std::string&>(message).data(), message.length());
+        sendMessageFrame(message.data(), message.length());
     }
 
     void WSProtocol::sendMessageFrame(const char* message, std::size_t messageLength) {
@@ -54,7 +54,7 @@ namespace web::ws {
     }
 
     void WSProtocol::sendMessage(const std::string& msg) {
-        wSContext->sendMessage(1, const_cast<std::string&>(msg).data(), msg.length());
+        wSContext->sendMessage(1, msg.data(), msg.length());
     }
 
     void WSProtocol::sendMessage(const char* msg, std::size_t messageLength) {
@@ -62,7 +62,7 @@ namespace web::ws {
     }
 
     void WSProtocol::sendMessageEnd(const std::string& message) {
-        sendMessageEnd(const_cast<std::string&>(message).data(), message.length());
+        sendMessageEnd(message.data(), message.length());
     }
 
     void WSProtocol::sendMessageEnd(const char* message, std::size_t messageLength) {
@@ -86,7 +86,7 @@ namespace web::ws {
     }
 
     void WSProtocol::sendBroadcast(const std::string& message) {
-        broadcast(1, const_cast<std::string&>(message).data(), message.length());
+        broadcast(1, message.data(), message.length());
     }
 
     void WSProtocol::sendBroadcast(const char* message, std::size_t messageLength) {
