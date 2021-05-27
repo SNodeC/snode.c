@@ -41,17 +41,17 @@ namespace web::ws {
         : public net::socket::stream::SocketProtocol
         , public web::ws::WSReceiver
         , public web::ws::WSTransmitter {
-    public:
-        WSContext(web::ws::WSProtocol* wSProtocol);
+    protected:
+        WSContext(web::ws::WSProtocol* wSProtocol, bool masking);
 
         virtual ~WSContext();
 
     private:
         /* To be overridden in subclass to decide if masking or not */
-        virtual void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) = 0;
-        virtual void sendMessageFrame(const char* message, std::size_t messageLength) = 0;
-        virtual void sendMessageEnd(const char* message, std::size_t messageLength) = 0;
-        virtual void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) = 0;
+        void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength);
+        void sendMessageFrame(const char* message, std::size_t messageLength);
+        void sendMessageEnd(const char* message, std::size_t messageLength);
+        void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength);
 
         void sendPing(const char* reason = nullptr, std::size_t reasonLength = 0);
         void replyPong(const char* reason = nullptr, std::size_t reasonLength = 0);

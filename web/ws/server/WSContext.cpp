@@ -19,7 +19,8 @@
 #ifndef WEB_WS_SERVER_WSSERVERCONTEXT_HPP
 #define WEB_WS_SERVER_WSSERVERCONTEXT_HPP
 
-#include "WSServerContext.h"
+#include "WSContext.h"
+
 #include "log/Logger.h"
 #include "net/socket/stream/SocketConnectionBase.h"
 #include "web/ws/WSProtocol.h"
@@ -32,24 +33,8 @@
 
 namespace web::ws::server {
 
-    WSServerContext::WSServerContext(web::ws::WSProtocol* wSProtocol)
-        : WSContext(wSProtocol) {
-    }
-
-    void WSServerContext::sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) {
-        WSTransmitter::sendMessageStart(opCode, message, messageLength, false);
-    }
-
-    void WSServerContext::sendMessageFrame(const char* message, std::size_t messageLength) {
-        WSTransmitter::sendMessageFrame(message, messageLength, false);
-    }
-
-    void WSServerContext::sendMessageEnd(const char* message, std::size_t messageLength) {
-        WSTransmitter::sendMessageEnd(message, messageLength, false);
-    }
-
-    void WSServerContext::sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) {
-        WSTransmitter::sendMessage(opCode, message, messageLength, false);
+    WSContext::WSContext(web::ws::WSProtocol* wSProtocol)
+        : web::ws::WSContext(wSProtocol, false) {
     }
 
 } // namespace web::ws::server

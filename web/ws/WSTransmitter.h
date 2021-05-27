@@ -31,16 +31,18 @@ namespace web::ws {
 
     class WSTransmitter {
     protected:
-        void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength, bool masked);
-        void sendMessageFrame(const char* message, std::size_t messageLength, bool masked);
-        void sendMessageEnd(const char* message, std::size_t messageLength, bool masked);
+        WSTransmitter(bool masking);
 
-        void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength, bool masked);
+        void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength);
+        void sendMessageFrame(const char* message, std::size_t messageLength);
+        void sendMessageEnd(const char* message, std::size_t messageLength);
+
+        void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength);
 
     private:
-        void send(bool end, uint8_t opCode, const char* message, std::size_t messageLength, bool masked);
+        void send(bool end, uint8_t opCode, const char* message, std::size_t messageLength);
 
-        void sendFrame(bool fin, uint8_t opCode, const char* payload, uint64_t payloadLength, bool masked);
+        void sendFrame(bool fin, uint8_t opCode, const char* payload, uint64_t payloadLength);
         void dumpFrame(char* frame, uint64_t frameLength);
 
         virtual void sendFrameData(uint8_t data) = 0;
@@ -51,6 +53,8 @@ namespace web::ws {
 
         std::default_random_engine generator;
         std::uniform_int_distribution<uint32_t> distribution{1, UINT32_MAX};
+
+        bool masking = false;
 
         //        virtual void onFrameReady(char* frame, uint64_t frameLength) = 0;
 

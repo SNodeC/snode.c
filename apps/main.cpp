@@ -23,7 +23,7 @@
 #include "net/timer/IntervalTimer.h"
 #include "net/timer/SingleshotTimer.h"
 #include "web/ws/WSProtocol.h"
-#include "web/ws/server/WSServerContext.h"
+#include "web/ws/server/WSContext.h"
 
 #include <cstring>
 #include <iostream>

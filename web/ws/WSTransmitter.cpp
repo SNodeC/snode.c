@@ -33,23 +33,27 @@
 
 namespace web::ws {
 
-    void WSTransmitter::sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength, bool masked) {
-        send(false, opCode, message, messageLength, masked);
+    WSTransmitter::WSTransmitter(bool masking)
+        : masking(masking) {
     }
 
-    void WSTransmitter::sendMessageFrame(const char* message, std::size_t messageLength, bool masked) {
-        send(false, 0, message, messageLength, masked);
+    void WSTransmitter::sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) {
+        send(false, opCode, message, messageLength);
     }
 
-    void WSTransmitter::sendMessageEnd(const char* message, std::size_t messageLength, bool masked) {
-        send(true, 0, message, messageLength, masked);
+    void WSTransmitter::sendMessageFrame(const char* message, std::size_t messageLength) {
+        send(false, 0, message, messageLength);
     }
 
-    void WSTransmitter::sendMessage(uint8_t opCode, const char* message, std::size_t messageLength, bool masked) {
-        send(true, opCode, message, messageLength, masked);
+    void WSTransmitter::sendMessageEnd(const char* message, std::size_t messageLength) {
+        send(true, 0, message, messageLength);
     }
 
-    void WSTransmitter::send(bool end, uint8_t opCode, const char* message, std::size_t messageLength, bool masked) {
+    void WSTransmitter::sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) {
+        send(true, opCode, message, messageLength);
+    }
+
+    void WSTransmitter::send(bool end, uint8_t opCode, const char* message, std::size_t messageLength) {
         std::size_t messageOffset = 0;
 
         do {
@@ -58,13 +62,14 @@ namespace web::ws {
 
             bool fin = sendMessageLength == messageLength - messageOffset;
 
-            sendFrame(fin && end, opCode, message + messageOffset, sendMessageLength, masked);
+            sendFrame(fin && end, opCode, message + messageOffset, sendMessageLength);
 
             messageOffset += sendMessageLength;
 
             opCode = 0; // continuation
         } while (messageLength - messageOffset > 0);
     }
+
     /*
         void WSTransmitter::sendFrame1(bool fin, uint8_t opCode, char* payload, uint64_t payloadLength, uint32_t maskingKey, ) {
             uint64_t frameLength = 2 + payloadLength;
@@ -126,7 +131,7 @@ namespace web::ws {
             delete[] frame;
         }
     */
-    void WSTransmitter::sendFrame(bool fin, uint8_t opCode, const char* payload, uint64_t payloadLength, bool masked) {
+    void WSTransmitter::sendFrame(bool fin, uint8_t opCode, const char* payload, uint64_t payloadLength) {
         uint64_t length = 0;
 
         if (payloadLength < 126) {
@@ -140,7 +145,7 @@ namespace web::ws {
         char header[2];
         header[0] = static_cast<char>((fin ? 0b10000000 : 0) | opCode);
 
-        header[1] = static_cast<char>((masked ? 0b10000000 : 0) | length);
+        header[1] = static_cast<char>((masking ? 0b10000000 : 0) | length);
 
         sendFrameData(header, 2);
 
@@ -160,7 +165,7 @@ namespace web::ws {
 
         MaskingKey maskingKeyAsArray = {.keyAsValue = distribution(generator)};
 
-        if (masked) {
+        if (masking) {
             sendFrameData(htobe32(maskingKeyAsArray.keyAsValue));
 
             for (uint64_t i = 0; i < payloadLength; i++) {
@@ -170,7 +175,7 @@ namespace web::ws {
 
         sendFrameData(payload, payloadLength);
 
-        if (masked) {
+        if (masking) {
             for (uint64_t i = 0; i < payloadLength; i++) {
                 *(const_cast<char*>(payload) + i) = *(payload + i) ^ *(maskingKeyAsArray.keyAsBytes + i % 4);
             }
@@ -178,7 +183,7 @@ namespace web::ws {
     }
 
     void WSTransmitter::dumpFrame(char* frame, uint64_t frameLength) {
-        int modul = 4;
+        unsigned int modul = 4;
 
         std::stringstream stringStream;
 

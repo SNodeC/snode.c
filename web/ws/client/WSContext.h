@@ -31,15 +31,9 @@
 
 namespace web::ws::client {
 
-    class WSClientContext : public web::ws::WSContext {
+    class WSContext : public web::ws::WSContext {
     public:
-        WSClientContext(web::ws::WSProtocol* wSProtocol);
-
-    private:
-        void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) override;
-        void sendMessageFrame(const char* message, std::size_t messageLength) override;
-        void sendMessageEnd(const char* message, std::size_t messageLength) override;
-        void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) override;
+        WSContext(web::ws::WSProtocol* wSProtocol);
     };
 
 } // namespace web::ws::client

@@ -5,7 +5,7 @@
 #include "net/SNodeC.h"
 #include "net/timer/IntervalTimer.h"
 #include "web/ws/WSProtocol.h"
-#include "web/ws/server/WSServerContext.h"
+#include "web/ws/server/WSContext.h"
 
 #include <cstddef>
 #include <endian.h>

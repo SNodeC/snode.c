@@ -33,13 +33,30 @@
 
 namespace web::ws {
 
-    WSContext::WSContext(web::ws::WSProtocol* wSProtocol)
-        : wSProtocol(wSProtocol) {
+    WSContext::WSContext(web::ws::WSProtocol* wSProtocol, bool masking)
+        : WSTransmitter(masking)
+        , wSProtocol(wSProtocol) {
         wSProtocol->setWSContext(this);
     }
 
     WSContext::~WSContext() {
         delete wSProtocol;
+    }
+
+    void WSContext::sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) {
+        WSTransmitter::sendMessageStart(opCode, message, messageLength);
+    }
+
+    void WSContext::sendMessageFrame(const char* message, std::size_t messageLength) {
+        WSTransmitter::sendMessageFrame(message, messageLength);
+    }
+
+    void WSContext::sendMessageEnd(const char* message, std::size_t messageLength) {
+        WSTransmitter::sendMessageEnd(message, messageLength);
+    }
+
+    void WSContext::sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) {
+        WSTransmitter::sendMessage(opCode, message, messageLength);
     }
 
     void WSContext::onMessageStart(int opCode) {
