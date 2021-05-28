@@ -38,7 +38,7 @@ namespace web::ws {
 
     WSContext::WSContext(const std::string& subProtocol, web::ws::WSProtocol::Role role)
         : WSTransmitter(role == web::ws::WSProtocol::Role::CLIENT)
-        , wSProtocol(chooser.select(subProtocol, role)) {
+        , wSProtocol(chooser.select(subProtocol, role).create()) {
         wSProtocol->setWSContext(this);
     }
 

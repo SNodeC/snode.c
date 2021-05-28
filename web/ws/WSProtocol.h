@@ -40,6 +40,8 @@ namespace web::ws {
 
     protected:
         WSProtocol();
+
+    public:
         virtual ~WSProtocol();
 
     public:
@@ -88,9 +90,13 @@ namespace web::ws {
         friend class web::ws::WSContext;
     };
 
-    typedef const std::string& name_t();
-    typedef WSProtocol* create_t();
-    typedef void destroy_t(WSProtocol*);
+    struct WSProtocolInterface {
+        void* handle;
+        const char* (*name)();
+        web::ws::WSProtocol* (*create)();
+        void (*destroy)(web::ws::WSProtocol*);
+        web::ws::WSProtocol::Role (*role)();
+    };
 
 } // namespace web::ws
 

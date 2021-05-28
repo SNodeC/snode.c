@@ -26,21 +26,25 @@
 
 namespace web::ws::subprotocol::echo::server { // namespace web::ws::subprotocol::echo::server
 
+    web::ws::WSProtocol* create() {
+        return new Echo();
+    }
+
+    const char* name() {
+        return "echo";
+    }
+
+    void destroy(web::ws::WSProtocol* echo) {
+        delete echo;
+    }
+
+    web::ws::WSProtocol::Role role() {
+        return web::ws::WSProtocol::Role::SERVER;
+    }
+
     extern "C" {
-        web::ws::WSProtocol* create() {
-            return new Echo();
-        }
-
-        const char* name() {
-            return "echo";
-        }
-
-        void destroy(Echo* echo) {
-            delete echo;
-        }
-
-        web::ws::WSProtocol::Role role() {
-            return web::ws::WSProtocol::Role::SERVER;
+        web::ws::WSProtocolInterface interface(void* handle) {
+            return web::ws::WSProtocolInterface{.handle = handle, .name = name, .create = create, .destroy = destroy, .role = role};
         }
     }
 

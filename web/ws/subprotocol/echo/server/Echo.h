@@ -52,10 +52,7 @@ namespace web::ws::subprotocol::echo::server {
     };
 
     extern "C" {
-        web::ws::WSProtocol* create();
-        const char* name();
-        void destroy(Echo* echo);
-        web::ws::WSProtocol::Role role();
+        web::ws::WSProtocolInterface interface(void* handle);
     }
 
 } // namespace web::ws::subprotocol::echo::server

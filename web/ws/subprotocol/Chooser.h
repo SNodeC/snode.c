@@ -30,27 +30,19 @@
 
 namespace web::ws::subprotocol {
 
-    struct SubProtocol {
-        void* handle;
-        const char* (*name)();
-        web::ws::WSProtocol* (*create)();
-        void (*destroy)(web::ws::WSProtocol* echo);
-        web::ws::WSProtocol::Role (*role)();
-    };
-
     class Chooser {
     public:
         Chooser();
         ~Chooser();
 
-        WSProtocol* select(const std::string& subProtocol, web::ws::WSProtocol::Role role);
+        web::ws::WSProtocolInterface select(const std::string& subProtocol, web::ws::WSProtocol::Role role);
 
     protected:
         void loadSubProtocols();
         void loadSubProtocolsIn(const std::string& path);
 
-        std::map<std::string, SubProtocol> serverSubprotocols;
-        std::map<std::string, SubProtocol> clientSubprotocols;
+        std::map<std::string, web::ws::WSProtocolInterface> serverSubprotocols;
+        std::map<std::string, web::ws::WSProtocolInterface> clientSubprotocols;
     };
 
 } // namespace web::ws::subprotocol
