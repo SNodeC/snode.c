@@ -26,6 +26,7 @@
 
 #include <dlfcn.h>
 #include <filesystem>
+#include <sstream> // for basic_stringbuf<>::int_type, basic_st...
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -44,29 +45,32 @@ namespace web::ws::subprotocol {
     void Chooser::loadSubProtocolsIn(const std::string& path) {
         if (std::filesystem::exists(path) && std::filesystem::is_directory(path)) {
             for (const std::filesystem::directory_entry& directoryEntry : std::filesystem::recursive_directory_iterator(path)) {
-                if (std::filesystem::is_regular_file(directoryEntry)) {
-                    if (directoryEntry.path().extension() == ".so") {
-                        void* handle = dlopen(directoryEntry.path().c_str(), RTLD_NOW | RTLD_LOCAL);
-                        if (handle != nullptr) {
-                            SubProtocol subProtocol;
-                            subProtocol.handle = handle;
-                            subProtocol.name = reinterpret_cast<const char* (*) ()>(dlsym(handle, "name"));
-                            subProtocol.create = reinterpret_cast<web::ws::WSProtocol* (*) ()>(dlsym(handle, "create"));
-                            subProtocol.destroy = reinterpret_cast<void (*)(web::ws::WSProtocol * proto)>(dlsym(handle, "destroy"));
-                            subProtocol.role = reinterpret_cast<web::ws::WSProtocol::Role (*)()>(dlsym(handle, "role"));
+                if (std::filesystem::is_regular_file(directoryEntry) && directoryEntry.path().extension() == ".so") {
+                    void* handle = dlopen(directoryEntry.path().c_str(), RTLD_NOW | RTLD_LOCAL);
+                    if (handle != nullptr) {
+                        SubProtocol subProtocol;
+                        subProtocol.handle = handle;
+                        subProtocol.name = reinterpret_cast<const char* (*) ()>(dlsym(handle, "name"));
+                        subProtocol.create = reinterpret_cast<web::ws::WSProtocol* (*) ()>(dlsym(handle, "create"));
+                        subProtocol.destroy = reinterpret_cast<void (*)(web::ws::WSProtocol * proto)>(dlsym(handle, "destroy"));
+                        subProtocol.role = reinterpret_cast<web::ws::WSProtocol::Role (*)()>(dlsym(handle, "role"));
 
-                            if (subProtocol.role() == web::ws::WSProtocol::Role::SERVER) {
-                                serverSubprotocols.insert({subProtocol.name(), subProtocol});
-                            } else {
-                                clientSubprotocols.insert({subProtocol.name(), subProtocol});
-                            }
-                            VLOG(1) << "DLOpen: success: " << directoryEntry.path().c_str();
+                        if (subProtocol.role() == web::ws::WSProtocol::Role::SERVER) {
+                            serverSubprotocols.insert({subProtocol.name(), subProtocol});
                         } else {
-                            VLOG(1) << "DLOpen: error: " << dlerror() << " - " << directoryEntry.path().c_str();
+                            clientSubprotocols.insert({subProtocol.name(), subProtocol});
                         }
+
+                        VLOG(1) << "DLOpen: success: " << directoryEntry.path().c_str();
+                    } else {
+                        VLOG(1) << "DLOpen: error: " << dlerror() << " - " << directoryEntry.path().c_str();
                     }
+                } else {
+                    VLOG(1) << "Not a library: Ignoring direntry " << directoryEntry;
                 }
             }
+        } else {
+            VLOG(1) << "Not a directory: Ignoring path: " << path;
         }
     }
 
