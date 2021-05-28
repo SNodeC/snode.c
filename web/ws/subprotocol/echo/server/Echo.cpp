@@ -39,8 +39,8 @@ namespace web::ws::subprotocol::echo::server { // namespace web::ws::subprotocol
             delete echo;
         }
 
-        web::ws::WSTransmitter::Role role() {
-            return web::ws::WSTransmitter::Role::SERVER;
+        web::ws::WSProtocol::Role role() {
+            return web::ws::WSProtocol::Role::SERVER;
         }
     }
 

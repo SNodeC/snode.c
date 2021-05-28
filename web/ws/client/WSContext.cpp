@@ -21,6 +21,8 @@
 
 #include "WSContext.h"
 
+#include "web/ws/WSProtocol.h" // for WSProtocol, WSProtocol::Role, WSProto...
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -30,7 +32,7 @@
 namespace web::ws::client {
 
     WSContext::WSContext(const std::string& subProtocol)
-        : web::ws::WSContext(subProtocol, web::ws::WSContext::Role::CLIENT) {
+        : web::ws::WSContext(subProtocol, web::ws::WSProtocol::Role::CLIENT) {
     }
 
 } // namespace web::ws::client

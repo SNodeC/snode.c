@@ -18,6 +18,7 @@
 
 #include "web/ws/subprotocol/Chooser.h"
 
+#include "log/Logger.h"
 #include "web/config.h"
 #include "web/ws/WSProtocol.h"
 
@@ -25,7 +26,6 @@
 
 #include <dlfcn.h>
 #include <filesystem>
-#include <iostream>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -42,22 +42,21 @@ namespace web::ws::subprotocol {
                     if (directoryEntry.path().extension() == ".so") {
                         void* handle = dlopen(directoryEntry.path().c_str(), RTLD_NOW | RTLD_GLOBAL);
                         if (handle != nullptr) {
-                            SubprotocolInterface subprotocolInterface;
-                            subprotocolInterface.handle = handle;
-                            subprotocolInterface.name = reinterpret_cast<const char* (*) ()>(dlsym(handle, "name"));
-                            subprotocolInterface.create = reinterpret_cast<web::ws::WSProtocol* (*) ()>(dlsym(handle, "create"));
-                            subprotocolInterface.destroy =
-                                reinterpret_cast<void (*)(web::ws::WSProtocol * proto)>(dlsym(handle, "destroy"));
-                            subprotocolInterface.role = reinterpret_cast<web::ws::WSTransmitter::Role (*)()>(dlsym(handle, "role"));
+                            SubProtocol subProtocol;
+                            subProtocol.handle = handle;
+                            subProtocol.name = reinterpret_cast<const char* (*) ()>(dlsym(handle, "name"));
+                            subProtocol.create = reinterpret_cast<web::ws::WSProtocol* (*) ()>(dlsym(handle, "create"));
+                            subProtocol.destroy = reinterpret_cast<void (*)(web::ws::WSProtocol * proto)>(dlsym(handle, "destroy"));
+                            subProtocol.role = reinterpret_cast<web::ws::WSProtocol::Role (*)()>(dlsym(handle, "role"));
 
-                            if (subprotocolInterface.role() == web::ws::WSTransmitter::Role::SERVER) {
-                                serverSubprotocols.insert({subprotocolInterface.name(), subprotocolInterface});
+                            if (subProtocol.role() == web::ws::WSProtocol::Role::SERVER) {
+                                serverSubprotocols.insert({subProtocol.name(), subProtocol});
                             } else {
-                                clientSubprotocols.insert({subprotocolInterface.name(), subprotocolInterface});
+                                clientSubprotocols.insert({subProtocol.name(), subProtocol});
                             }
-                            std::cout << "DLOpen: success: " << directoryEntry.path().c_str() << std::endl;
+                            VLOG(1) << "DLOpen: success: " << directoryEntry.path().c_str();
                         } else {
-                            std::cout << "DLOpen: error: " << dlerror() << " - " << directoryEntry.path().c_str() << std::endl;
+                            VLOG(1) << "DLOpen: error: " << dlerror() << " - " << directoryEntry.path().c_str();
                         }
                     }
                 }
@@ -66,27 +65,28 @@ namespace web::ws::subprotocol {
     }
 
     Chooser::~Chooser() {
-        for (std::pair<const std::string&, SubprotocolInterface> pair : serverSubprotocols) {
-            dlclose(pair.second.handle);
+        for (auto& [name, supprotocol] : serverSubprotocols) {
+            dlclose(supprotocol.handle);
         }
 
-        for (std::pair<const std::string&, SubprotocolInterface> pair : clientSubprotocols) {
-            dlclose(pair.second.handle);
+        for (auto& [name, supprotocol] : clientSubprotocols) {
+            dlclose(supprotocol.handle);
         }
     }
 
-    WSProtocol* Chooser::select(const std::string& subProtocol, web::ws::WSTransmitter::Role role) {
+    WSProtocol* Chooser::select(const std::string& subProtocol, web::ws::WSProtocol::Role role) {
         WSProtocol* wSProtocol = nullptr;
 
-        if (role == web::ws::WSTransmitter::Role::SERVER) { // server
+        if (role == web::ws::WSProtocol::Role::SERVER) { // server
             if (serverSubprotocols.contains(subProtocol)) {
                 wSProtocol = serverSubprotocols[subProtocol].create();
             }
-        } else { // client
+        } else if (role == web::ws::WSProtocol::Role::CLIENT) { // client
             if (clientSubprotocols.contains(subProtocol)) {
                 wSProtocol = clientSubprotocols[subProtocol].create();
             }
         }
+
         return wSProtocol;
     }
 

@@ -30,11 +30,8 @@
 namespace web::ws {
 
     class WSTransmitter {
-    public:
-        enum class Role { SERVER, CLIENT };
-
     protected:
-        WSTransmitter(Role role);
+        WSTransmitter(bool masking);
 
         void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength);
         void sendMessageFrame(const char* message, std::size_t messageLength);
@@ -58,10 +55,6 @@ namespace web::ws {
         std::uniform_int_distribution<uint32_t> distribution{1, UINT32_MAX};
 
         bool masking = false;
-
-        //        virtual void onFrameReady(char* frame, uint64_t frameLength) = 0;
-
-        //        void sendFrame1(bool fin, uint8_t opCode, uint32_t maskingKey, char* payload, uint64_t payloadLength);
     };
 
 } // namespace web::ws

@@ -21,10 +21,6 @@
 
 #include "web/ws/WSContext.h"
 
-namespace web::ws {
-    class WSProtocol;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string>

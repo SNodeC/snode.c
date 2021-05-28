@@ -35,6 +35,9 @@ namespace web::ws {
 namespace web::ws {
 
     class WSProtocol {
+    public:
+        enum class Role { SERVER, CLIENT };
+
     protected:
         WSProtocol();
         virtual ~WSProtocol();

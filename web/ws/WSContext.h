@@ -20,12 +20,12 @@
 #define WEB_WS_WSCONTEXTBASE_H
 
 #include "net/socket/stream/SocketProtocol.h"
+#include "web/ws/WSProtocol.h" // for WSProtocol, WSProtocol...
 #include "web/ws/WSReceiver.h"
 #include "web/ws/WSTransmitter.h"
-#include "web/ws/subprotocol/Chooser.h"
 
-namespace web::ws {
-    class WSProtocol;
+namespace web::ws::subprotocol {
+    class Chooser;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -43,7 +43,7 @@ namespace web::ws {
         , public web::ws::WSReceiver
         , public web::ws::WSTransmitter {
     protected:
-        WSContext(const std::string& subProtocol, web::ws::WSTransmitter::Role role);
+        WSContext(const std::string& subProtocol, web::ws::WSProtocol::Role role);
 
         virtual ~WSContext();
 
