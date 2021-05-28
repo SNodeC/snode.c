@@ -32,15 +32,21 @@
 namespace web::ws::subprotocol {
 
     Chooser::Chooser() {
-        loadSubprotocols();
+        loadSubProtocols();
     }
 
-    void Chooser::loadSubprotocols() {
-        for (const std::filesystem::directory_entry& directoryEntry : std::filesystem::recursive_directory_iterator(SUBPROTOCOL_PATH)) {
-            if (std::filesystem::is_regular_file(directoryEntry)) {
-                {
+    void Chooser::loadSubProtocols() {
+        loadSubProtocolsIn(SUBPROTOCOL_PATH);
+        loadSubProtocolsIn("/usr/lib/snodec/web/ws/subprotocol");
+        loadSubProtocolsIn("/usr/local/lib/snodec/web/ws/subprotocol");
+    }
+
+    void Chooser::loadSubProtocolsIn(const std::string& path) {
+        if (std::filesystem::exists(path) && std::filesystem::is_directory(path)) {
+            for (const std::filesystem::directory_entry& directoryEntry : std::filesystem::recursive_directory_iterator(path)) {
+                if (std::filesystem::is_regular_file(directoryEntry)) {
                     if (directoryEntry.path().extension() == ".so") {
-                        void* handle = dlopen(directoryEntry.path().c_str(), RTLD_NOW | RTLD_GLOBAL);
+                        void* handle = dlopen(directoryEntry.path().c_str(), RTLD_NOW | RTLD_LOCAL);
                         if (handle != nullptr) {
                             SubProtocol subProtocol;
                             subProtocol.handle = handle;

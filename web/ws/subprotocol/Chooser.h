@@ -45,10 +45,10 @@ namespace web::ws::subprotocol {
 
         WSProtocol* select(const std::string& subProtocol, web::ws::WSProtocol::Role role);
 
-    public:
-        void loadSubprotocols();
-
     protected:
+        void loadSubProtocols();
+        void loadSubProtocolsIn(const std::string& path);
+
         std::map<std::string, SubProtocol> serverSubprotocols;
         std::map<std::string, SubProtocol> clientSubprotocols;
     };
