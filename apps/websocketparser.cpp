@@ -65,76 +65,6 @@ void serverWebSocketKey(const std::string& clientWebSocketKey, const std::functi
     free(key);
 }
 
-#define MAX_FLYING_PINGS 3
-
-class MyWSServerProtocol : public web::ws::WSProtocol {
-public:
-    MyWSServerProtocol()
-        : timer(net::timer::Timer::continousTimer(
-              [this]([[maybe_unused]] const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
-                  this->sendPing();
-                  this->flyingPings++;
-                  if (this->flyingPings >= MAX_FLYING_PINGS) {
-                      this->sendClose();
-                  }
-              },
-              {1, 0},
-              nullptr)) {
-    }
-
-    ~MyWSServerProtocol() override {
-        timer.cancel();
-    }
-
-    void onMessageStart(int opCode) override {
-        VLOG(0) << "Message Start - OpCode: " << opCode;
-    }
-
-    void onMessageData(const char* junk, std::size_t junkLen) override {
-        data += std::string(junk, static_cast<std::size_t>(junkLen));
-    }
-
-    void onMessageEnd() override {
-        VLOG(0) << "Data: " << data;
-        VLOG(0) << "Message End";
-        sendBroadcast(data);
-        data.clear();
-    }
-
-    void onMessageError(uint16_t errnum) override {
-        VLOG(0) << "Message error: " << errnum;
-    }
-
-    void onPongReceived() override {
-        VLOG(0) << "Pong received";
-        flyingPings = 0;
-    }
-
-    void onProtocolConnect() override {
-        VLOG(0) << "On protocol connected:";
-
-        sendMessage("Welcome to SimpleChat");
-        sendMessage("=====================");
-
-        VLOG(0) << "\tServer: " + getLocalAddressAsString();
-        VLOG(0) << "\tClient: " + getRemoteAddressAsString();
-    }
-
-    void onProtocolDisconnect() override {
-        VLOG(0) << "On protocol disconnected:";
-
-        VLOG(0) << "\tServer: " + getLocalAddressAsString();
-        VLOG(0) << "\tClient: " + getRemoteAddressAsString();
-    }
-
-private:
-    std::string data;
-
-    int flyingPings = 0;
-
-    net::timer::Timer& timer;
-};
-
 int main(int argc, char* argv[]) {
     /*
     http::websocket::WSServerContext wsTransCeiver;
@@ -216,6 +146,7 @@ int main(int argc, char* argv[]) {
         VLOG(1) << "Connection: " << req.header("connection");
         VLOG(1) << "Host: " << req.header("host");
         VLOG(1) << "Origin: " << req.header("origin");
+        VLOG(1) << "Sec-WebSocket-Protocol: " << req.header("sec-websocket-protocol");
         VLOG(1) << "sec-web-socket-extensions: " << req.header("sec-websocket-extensions");
         VLOG(1) << "sec-websocket-key: " << req.header("sec-websocket-key");
         VLOG(1) << "sec-websocket-version: " << req.header("sec-websocket-version");
@@ -224,6 +155,7 @@ int main(int argc, char* argv[]) {
 
         res.set("Upgrade", "websocket");
         res.set("Connection", "Upgrade");
+        res.set("Sec-WebSocket-Protocol", "echo");
 
         serverWebSocketKey(req.header("sec-websocket-key"), [&res](char* key) -> void {
             res.set("Sec-WebSocket-Accept", key);
@@ -231,8 +163,7 @@ int main(int argc, char* argv[]) {
 
         res.status(101); // Switch Protocol
 
-        //        res.upgrade(new web::ws::server::WSServerContext<MyWSServerProtocol>());
-        res.upgrade(new MyWSServerProtocol());
+        res.upgrade("ws", "echo");
     });
 
     legacyApp.listen(8080, [](int err) -> void {
@@ -272,6 +203,7 @@ int main(int argc, char* argv[]) {
             VLOG(1) << "Connection: " << req.header("connection");
             VLOG(1) << "Host: " << req.header("host");
             VLOG(1) << "Origin: " << req.header("origin");
+            VLOG(1) << "Sec-WebSocket-Protocol: " << req.header("sec-websocket-protocol");
             VLOG(1) << "sec-web-socket-extensions: " << req.header("sec-websocket-extensions");
             VLOG(1) << "sec-websocket-key: " << req.header("sec-websocket-key");
             VLOG(1) << "sec-websocket-version: " << req.header("sec-websocket-version");
@@ -280,6 +212,7 @@ int main(int argc, char* argv[]) {
 
             res.set("Upgrade", "websocket");
             res.set("Connection", "Upgrade");
+            res.set("Sec-WebSocket-Protocol", "echo");
 
             serverWebSocketKey(req.header("sec-websocket-key"), [&res](char* key) -> void {
                 res.set("Sec-WebSocket-Accept", key);
@@ -287,8 +220,7 @@ int main(int argc, char* argv[]) {
 
             res.status(101); // Switch Protocol
 
-            //            res.upgrade(new web::ws::server::WSServerContext<MyWSServerProtocol>());
-            res.upgrade(new MyWSServerProtocol());
+            res.upgrade("ws", "echo");
         });
 
         tlsApp.listen(8088, [](int err) -> void {

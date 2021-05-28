@@ -33,39 +33,6 @@
 using namespace express;
 using namespace net::timer;
 
-class MyWSServerProtocol : public web::ws::WSProtocol {
-public:
-    void onMessageStart([[maybe_unused]] int opCode) override {
-        VLOG(0) << "Message Start - OpCode: " << opCode;
-    }
-
-    void onMessageData([[maybe_unused]] const char* junk, [[maybe_unused]] std::size_t junkLen) override {
-        data += std::string(junk, static_cast<std::size_t>(junkLen));
-    }
-
-    void onMessageEnd() override {
-        VLOG(0) << "Data: " << data;
-        VLOG(0) << "Message End";
-        sendMessage(data);
-        data.clear();
-    }
-
-    void onMessageError([[maybe_unused]] uint16_t errnum) override {
-    }
-
-    void onPongReceived() override {
-    }
-
-    void onProtocolConnect() override {
-    }
-
-    void onProtocolDisconnect() override {
-    }
-
-private:
-    std::string data;
-};
-
 int timerApp() {
     [[maybe_unused]] const Timer& tick = Timer::continousTimer(
         [](const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
@@ -154,7 +121,7 @@ int timerApp() {
                 }
             });
         }
-        res.upgrade(new MyWSServerProtocol());
+        res.upgrade("ws", "echo");
     });
 
     app.listen(8080, [](int err) -> void {

@@ -21,6 +21,7 @@
 
 #include "net/timer/IntervalTimer.h"
 #include "web/ws/WSProtocol.h"
+#include "web/ws/WSTransmitter.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -50,6 +51,13 @@ namespace web::ws::subprotocol::echo::server {
 
         net::timer::Timer& timer;
     };
+
+    extern "C" {
+        web::ws::WSProtocol* create();
+        const char* name();
+        void destroy(Echo* echo);
+        web::ws::WSTransmitter::Role role();
+    }
 
 } // namespace web::ws::subprotocol::echo::server
 

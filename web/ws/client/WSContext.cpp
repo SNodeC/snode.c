@@ -29,8 +29,8 @@
 
 namespace web::ws::client {
 
-    WSContext::WSContext(web::ws::WSProtocol* wSProtocol)
-        : web::ws::WSContext(wSProtocol, web::ws::WSContext::Role::CLIENT) {
+    WSContext::WSContext(const std::string& subProtocol)
+        : web::ws::WSContext(subProtocol, web::ws::WSContext::Role::CLIENT) {
     }
 
 } // namespace web::ws::client

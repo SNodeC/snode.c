@@ -29,8 +29,8 @@
 
 namespace web::ws::server {
 
-    WSContext::WSContext(web::ws::WSProtocol* wSProtocol)
-        : web::ws::WSContext(wSProtocol, web::ws::WSContext::Role::SERVER) {
+    WSContext::WSContext(const std::string& subProtocol)
+        : web::ws::WSContext(subProtocol, web::ws::WSContext::Role::SERVER) {
     }
 
 } // namespace web::ws::server

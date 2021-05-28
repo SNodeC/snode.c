@@ -27,13 +27,15 @@ namespace web::ws {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::ws::client {
 
     class WSContext : public web::ws::WSContext {
     public:
-        WSContext(web::ws::WSProtocol* wSProtocol);
+        WSContext(const std::string& subProtocol);
     };
 
 } // namespace web::ws::client

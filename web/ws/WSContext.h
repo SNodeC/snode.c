@@ -22,6 +22,7 @@
 #include "net/socket/stream/SocketProtocol.h"
 #include "web/ws/WSReceiver.h"
 #include "web/ws/WSTransmitter.h"
+#include "web/ws/subprotocol/Chooser.h"
 
 namespace web::ws {
     class WSProtocol;
@@ -42,7 +43,7 @@ namespace web::ws {
         , public web::ws::WSReceiver
         , public web::ws::WSTransmitter {
     protected:
-        WSContext(web::ws::WSProtocol* wSProtocol, web::ws::WSTransmitter::Role masking);
+        WSContext(const std::string& subProtocol, web::ws::WSTransmitter::Role role);
 
         virtual ~WSContext();
 
@@ -92,6 +93,8 @@ namespace web::ws {
         bool pongReceived = false;
 
         std::string pongCloseData;
+
+        static web::ws::subprotocol::Chooser chooser;
 
         friend class web::ws::WSProtocol;
     };

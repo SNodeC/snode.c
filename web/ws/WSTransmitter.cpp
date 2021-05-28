@@ -69,9 +69,8 @@ namespace web::ws {
             opCode = 0; // continuation
         } while (messageLength - messageOffset > 0);
     }
-
     /*
-        void WSTransmitter::sendFrame1(bool fin, uint8_t opCode, char* payload, uint64_t payloadLength, uint32_t maskingKey, ) {
+        void WSTransmitter::sendFrame(bool fin, uint8_t opCode, const char* payload, uint64_t payloadLength) {
             uint64_t frameLength = 2 + payloadLength;
             uint8_t opCodeOffset = 0;
             uint8_t lengthOffset = 1;
@@ -79,7 +78,7 @@ namespace web::ws {
             uint8_t maskingKeyOffset = 2;
             uint8_t payloadOffset = 2;
 
-            if (maskingKey > 0) {
+            if (masking) {
                 frameLength += 4;
                 payloadOffset += 4;
             }
@@ -106,19 +105,18 @@ namespace web::ws {
                 length = 127;
             }
 
-            if (maskingKey > 0) {
-                *reinterpret_cast<uint32_t*>(frame + maskingKeyOffset) = htobe32(maskingKey);
+            union MaskingKey {
+                uint32_t keyAsValue;
+                char keyAsArray[4];
+            } maskingKeyAsArray = {.keyAsValue = 0};
+
+            if (masking) {
+                maskingKeyAsArray = {.keyAsValue = distribution(generator)};
+                *reinterpret_cast<uint32_t*>(frame + maskingKeyOffset) = htobe32(maskingKeyAsArray.keyAsValue);
             }
 
             *reinterpret_cast<uint8_t*>(frame + opCodeOffset) = static_cast<uint8_t>((fin ? 0b10000000 : 0) | opCode);
-            *reinterpret_cast<uint8_t*>(frame + lengthOffset) = static_cast<uint8_t>(((maskingKey > 0) ? 0b10000000 : 0) | length);
-
-            union MaskingKey {
-                uint32_t key;
-                char keyAsArray[4];
-            };
-
-            MaskingKey maskingKeyAsArray = {.key = htobe32(maskingKey)};
+            *reinterpret_cast<uint8_t*>(frame + lengthOffset) = static_cast<uint8_t>((masking ? 0b10000000 : 0) | length);
 
             for (uint64_t i = 0; i < payloadLength; i++) {
                 *(frame + payloadOffset + i) = *(payload + i) ^ *(maskingKeyAsArray.keyAsArray + i % 4);
@@ -126,11 +124,12 @@ namespace web::ws {
 
             // dumpFrame(frame, frameLength);
 
-            onFrameReady(frame, frameLength);
+            sendFrameData(frame, frameLength);
 
             delete[] frame;
         }
     */
+
     void WSTransmitter::sendFrame(bool fin, uint8_t opCode, const char* payload, uint64_t payloadLength) {
         uint64_t length = 0;
 

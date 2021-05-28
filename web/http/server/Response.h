@@ -64,7 +64,7 @@ namespace web::http::server {
         Response& clearCookie(const std::string& name, const std::map<std::string, std::string>& options = {});
         Response& type(const std::string& type);
 
-        void upgrade(web::ws::WSProtocol* wSProtocol);
+        void upgrade(const std::string protocol, const std::string subProtocol);
 
     protected:
         virtual void reset();

@@ -25,6 +25,25 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::ws::subprotocol::echo::server { // namespace web::ws::subprotocol::echo::server
+
+    extern "C" {
+        web::ws::WSProtocol* create() {
+            return new Echo();
+        }
+
+        const char* name() {
+            return "echo";
+        }
+
+        void destroy(Echo* echo) {
+            delete echo;
+        }
+
+        web::ws::WSTransmitter::Role role() {
+            return web::ws::WSTransmitter::Role::SERVER;
+        }
+    }
+
     Echo::Echo()
         : timer(net::timer::Timer::continousTimer(
               [this]([[maybe_unused]] const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {

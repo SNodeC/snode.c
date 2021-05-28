@@ -1,0 +1,8 @@
+#ifndef CONFIG_H_IN
+#define CONFIG_H_IN
+
+#cmakedefine CMAKE_BINARY_DIR "@CMAKE_BINARY_DIR@/"
+
+#define SUBPROTOCOL_PATH CMAKE_BINARY_DIR "web/ws/subprotocol"
+
+#endif // CONFIG_H_IN

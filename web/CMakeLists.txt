@@ -4,6 +4,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 find_package(LibMagic REQUIRED)
 
+configure_file(config.h.in config.h @ONLY)
+
 add_library(
     web SHARED
     http/Parser.cpp
@@ -40,7 +42,7 @@ set_target_properties(
 )
 
 target_include_directories(
-    web PUBLIC ${PROJECT_SOURCE_DIR} ${LIBMAGIC_INCLUDES}
+    web PUBLIC ${PROJECT_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${LIBMAGIC_INCLUDES}
 )
 
 install(TARGETS web LIBRARY DESTINATION lib NAMELINK_COMPONENT libweb.so.1)

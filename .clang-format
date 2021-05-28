@@ -79,6 +79,7 @@ IncludeCategories:
 IncludeIsMainRegex: '(Test)?$'
 IncludeIsMainSourceRegex: ''
 IndentCaseLabels: true
+IndentExternBlock: Indent
 IndentGotoLabels: true
 IndentPPDirectives: None
 IndentWidth:     4
