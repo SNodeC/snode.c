@@ -36,6 +36,13 @@ namespace net::socket::stream {
         delete socketProtocol;
     }
 
+    void SocketConnectionBase::switchSocketProtocol(SocketProtocol* newSocketProtocol) {
+        socketProtocol->onProtocolDisconnected();
+        socketProtocol = newSocketProtocol;
+        socketProtocol->socketConnection = this;
+        socketProtocol->onProtocolConnected();
+    }
+
     SocketProtocol* SocketConnectionBase::getSocketProtocol() {
         return socketProtocol;
     }

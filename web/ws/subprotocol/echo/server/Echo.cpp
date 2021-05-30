@@ -46,7 +46,7 @@ namespace web::ws::subprotocol::echo::server { // namespace web::ws::subprotocol
 
     extern "C" {
         web::ws::WSProtocolPlugin plugin(void* handle) {
-            return web::ws::WSProtocolPlugin{.handle = handle, .name = name, .role = role, .create = create, .destroy = destroy};
+            return web::ws::WSProtocolPlugin{.name = name, .role = role, .create = create, .destroy = destroy, .handle = handle};
         }
     }
 

@@ -95,11 +95,11 @@ namespace web::ws {
     };
 
     struct WSProtocolPlugin {
-        void* handle;
-        const char* (*name)();
-        web::ws::WSProtocol::Role (*role)();
-        web::ws::WSProtocol* (*create)();
-        void (*destroy)(web::ws::WSProtocol*);
+        const char* (*name)() = nullptr;
+        web::ws::WSProtocol::Role (*role)() = nullptr;
+        web::ws::WSProtocol* (*create)() = nullptr;
+        void (*destroy)(web::ws::WSProtocol*) = nullptr;
+        void* handle = nullptr;
     };
 
 } // namespace web::ws

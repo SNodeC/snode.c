@@ -73,7 +73,10 @@ namespace net::socket::stream {
             socketProtocol->onProtocolConnected();
         }
 
-        virtual ~SocketConnection() = default;
+        virtual ~SocketConnection() {
+            socketProtocol->onProtocolDisconnected();
+            onDisconnect();
+        }
 
     public:
         void setTimeout(int timeout) override {
@@ -97,13 +100,6 @@ namespace net::socket::stream {
             return remoteAddress.toString();
         }
 
-        void switchSocketProtocol(SocketProtocol* newSocketProtocol) override {
-            socketProtocol->onProtocolDisconnected();
-            socketProtocol = newSocketProtocol;
-            socketProtocol->socketConnection = this;
-            socketProtocol->onProtocolConnected();
-        }
-
         void enqueue(const char* junk, std::size_t junkLen) override {
             SocketWriter::enqueue(junk, junkLen);
         }
@@ -121,8 +117,6 @@ namespace net::socket::stream {
 
     private:
         void unobserved() override {
-            socketProtocol->onProtocolDisconnected();
-            onDisconnect();
             delete this;
         }
 

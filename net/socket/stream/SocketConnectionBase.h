@@ -56,9 +56,9 @@ namespace net::socket::stream {
 
         virtual void setTimeout(int timeout) = 0;
 
-        virtual void switchSocketProtocol(SocketProtocol* newSocketProtocol) = 0;
-
     protected:
+        void switchSocketProtocol(SocketProtocol* newSocketProtocol);
+
         SocketProtocol* socketProtocol = nullptr;
 
         friend SocketProtocol;

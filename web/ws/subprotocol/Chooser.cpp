@@ -37,12 +37,26 @@ namespace web::ws::subprotocol {
     }
 
     void Chooser::loadSubProtocols() {
-        loadSubProtocolsIn(SUBPROTOCOL_PATH);
-        loadSubProtocolsIn("/usr/lib/snodec/web/ws/subprotocol");
-        loadSubProtocolsIn("/usr/local/lib/snodec/web/ws/subprotocol");
+        loadSubProtocols(SUBPROTOCOL_PATH);
+        loadSubProtocols("/usr/lib/snodec/web/ws/subprotocol");
+        loadSubProtocols("/usr/local/lib/snodec/web/ws/subprotocol");
     }
 
-    void Chooser::loadSubProtocolsIn(const std::string& path) {
+    void Chooser::registerSubProtocol(const web::ws::WSProtocolPlugin& subProtocol) {
+        if (subProtocol.role() == web::ws::WSProtocol::Role::SERVER) {
+            const auto [it, success] = serverSubprotocols.insert({subProtocol.name(), subProtocol});
+            if (!success && subProtocol.handle) {
+                dlclose(subProtocol.handle);
+            }
+        } else {
+            const auto [it, success] = clientSubprotocols.insert({subProtocol.name(), subProtocol});
+            if (!success && subProtocol.handle) {
+                dlclose(subProtocol.handle);
+            }
+        }
+    }
+
+    void Chooser::loadSubProtocols(const std::string& path) {
         if (std::filesystem::exists(path) && std::filesystem::is_directory(path)) {
             for (const std::filesystem::directory_entry& directoryEntry : std::filesystem::recursive_directory_iterator(path)) {
                 if (std::filesystem::is_regular_file(directoryEntry) && directoryEntry.path().extension() == ".so") {
@@ -51,13 +65,7 @@ namespace web::ws::subprotocol {
                         web::ws::WSProtocolPlugin (*wSProtocolPlugin)(void*) =
                             reinterpret_cast<web::ws::WSProtocolPlugin (*)(void*)>(dlsym(handle, "plugin"));
 
-                        web::ws::WSProtocolPlugin subProtocol(wSProtocolPlugin(handle));
-
-                        if (subProtocol.role() == web::ws::WSProtocol::Role::SERVER) {
-                            serverSubprotocols.insert({subProtocol.name(), subProtocol});
-                        } else {
-                            clientSubprotocols.insert({subProtocol.name(), subProtocol});
-                        }
+                        registerSubProtocol(wSProtocolPlugin(handle));
 
                         VLOG(1) << "DLOpen: success: " << directoryEntry.path().c_str();
                     } else {
@@ -73,12 +81,16 @@ namespace web::ws::subprotocol {
     }
 
     Chooser::~Chooser() {
-        for (auto& [name, supprotocol] : serverSubprotocols) {
-            dlclose(supprotocol.handle);
+        for (auto& [name, subProtocol] : serverSubprotocols) {
+            if (subProtocol.handle != nullptr) {
+                dlclose(subProtocol.handle);
+            }
         }
 
-        for (auto& [name, supprotocol] : clientSubprotocols) {
-            dlclose(supprotocol.handle);
+        for (auto& [name, subProtocol] : clientSubprotocols) {
+            if (subProtocol.handle != nullptr) {
+                dlclose(subProtocol.handle);
+            }
         }
     }
 

@@ -47,6 +47,10 @@ namespace web::ws {
 
         virtual ~WSContext() = default;
 
+    public:
+        static web::ws::subprotocol::Chooser chooser;
+
+    protected:
         web::ws::WSProtocol* wSProtocol;
 
     private:
@@ -95,8 +99,6 @@ namespace web::ws {
         std::string pongCloseData;
 
     protected:
-        static web::ws::subprotocol::Chooser chooser;
-
         friend class web::ws::WSProtocol;
     };
 
