@@ -20,6 +20,7 @@
 #define WEB_WS_SUBPROTOCOL_SELECTOR_H
 
 #include "WSSubProtocolPluginInterface.h"
+#include "web/ws/WSSubProtocol.h" // for WSSubProtocol, WSSubProtoc...
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

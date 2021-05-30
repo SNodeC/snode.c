@@ -19,8 +19,9 @@
 #ifndef WEB_WS_WSSERVERPROTOCOL_HPP
 #define WEB_WS_WSSERVERPROTOCOL_HPP
 
-#include "web/ws/WSContext.h"
 #include "web/ws/WSSubProtocol.h"
+
+#include "web/ws/WSContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

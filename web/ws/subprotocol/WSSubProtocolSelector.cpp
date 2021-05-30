@@ -21,6 +21,7 @@
 #include "log/Logger.h"
 #include "web/config.h"
 #include "web/ws/WSSubProtocol.h"
+#include "web/ws/subprotocol/WSSubProtocolPluginInterface.h" // for WSSubPr...
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
