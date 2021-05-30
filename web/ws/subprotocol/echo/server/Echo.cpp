@@ -54,7 +54,7 @@ namespace web::ws::subprotocol::echo::server { // namespace web::ws::subprotocol
 
     Echo::Echo()
         : web::ws::WSSubProtocol(NAME)
-        , timer(net::timer::Timer::continousTimer(
+        , timer(net::timer::Timer::intervalTimer(
               [this]([[maybe_unused]] const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
                   this->sendPing();
                   this->flyingPings++;

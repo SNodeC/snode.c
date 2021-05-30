@@ -34,7 +34,7 @@ using namespace express;
 using namespace net::timer;
 
 int timerApp() {
-    [[maybe_unused]] const Timer& tick = Timer::continousTimer(
+    [[maybe_unused]] const Timer& tick = Timer::intervalTimer(
         [](const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
             static int i = 0;
             std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
@@ -42,7 +42,7 @@ int timerApp() {
         {0, 500000},
         "Tick");
 
-    Timer& tack = Timer::continousTimer(
+    Timer& tack = Timer::intervalTimer(
         [](const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
             static int i = 0;
             std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
