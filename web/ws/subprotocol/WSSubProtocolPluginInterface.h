@@ -37,6 +37,6 @@ namespace web::ws::subprotocol {
         };
     }
 
-}
+} // namespace web::ws::subprotocol
 
 #endif // WEB_WS_SUBPROTOCOL_WSSUBPROTOCOLPLUGIN_H
