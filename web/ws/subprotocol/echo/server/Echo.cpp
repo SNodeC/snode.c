@@ -24,6 +24,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#define MAX_FLYING_PINGS 3
+
 namespace web::ws::subprotocol::echo::server { // namespace web::ws::subprotocol::echo::server
 
     web::ws::WSProtocol* create() {

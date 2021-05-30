@@ -110,9 +110,11 @@ namespace web::http::server {
 
     void Response::upgrade([[maybe_unused]] const std::string protocol, const std::string subProtocol) {
         HTTPServerContextBase* serverContext = this->serverContext;
+        web::ws::server::WSContext* wSContext = new web::ws::server::WSContext(subProtocol);
+
         end();
 
-        serverContext->switchSocketProtocol(new web::ws::server::WSContext(subProtocol));
+        serverContext->switchSocketProtocol(wSContext);
     }
 
     Response& Response::cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options) {

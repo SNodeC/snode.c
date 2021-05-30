@@ -28,8 +28,6 @@
 
 namespace web::ws::subprotocol::echo::server {
 
-#define MAX_FLYING_PINGS 3
-
     class Echo : public web::ws::WSProtocol {
     public:
         Echo();
