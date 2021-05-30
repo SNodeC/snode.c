@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_SUBPROTOCOL_CHOOSER_H
-#define WEB_WS_SUBPROTOCOL_CHOOSER_H
+#ifndef WEB_WS_SUBPROTOCOL_SELECTOR_H
+#define WEB_WS_SUBPROTOCOL_SELECTOR_H
 
 #include "WSSubProtocolPluginInterface.h"
 
@@ -50,4 +50,4 @@ namespace web::ws::subprotocol {
 
 } // namespace web::ws::subprotocol
 
-#endif // WEB_WS_SUBPROTOCOL_CHOOSER_H
+#endif // WEB_WS_SUBPROTOCOL_SELECTOR_H

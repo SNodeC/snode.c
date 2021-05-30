@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_SUBPROTOCOL_WSSUBPROTOCOLPLUGIN_H
-#define WEB_WS_SUBPROTOCOL_WSSUBPROTOCOLPLUGIN_H
+#ifndef WEB_WS_SUBPROTOCOL_WSSUBPROTOCOLPLUGININTERFACE_H
+#define WEB_WS_SUBPROTOCOL_WSSUBPROTOCOLPLUGININTERFACE_H
 
 #include "web/ws/WSSubProtocol.h"
 
@@ -39,4 +39,4 @@ namespace web::ws::subprotocol {
 
 } // namespace web::ws::subprotocol
 
-#endif // WEB_WS_SUBPROTOCOL_WSSUBPROTOCOLPLUGIN_H
+#endif // WEB_WS_SUBPROTOCOL_WSSUBPROTOCOLPLUGININTERFACE_H

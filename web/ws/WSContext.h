@@ -43,7 +43,7 @@ namespace web::ws {
         , public web::ws::WSReceiver
         , public web::ws::WSTransmitter {
     protected:
-        WSContext(web::ws::WSSubProtocol* subProtocol, web::ws::WSSubProtocol::Role role);
+        WSContext(web::ws::WSSubProtocol* wSSubProtocol, web::ws::WSSubProtocol::Role role);
 
         virtual ~WSContext() = default;
 
@@ -51,7 +51,7 @@ namespace web::ws {
         static web::ws::subprotocol::WSSubProtocolSelector selector;
 
     protected:
-        web::ws::WSSubProtocol* wSProtocol;
+        web::ws::WSSubProtocol* wSSubProtocol;
 
     private:
         void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength);

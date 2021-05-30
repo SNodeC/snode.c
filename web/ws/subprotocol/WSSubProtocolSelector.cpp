@@ -62,10 +62,10 @@ namespace web::ws::subprotocol {
                 if (std::filesystem::is_regular_file(directoryEntry) && directoryEntry.path().extension() == ".so") {
                     void* handle = dlopen(directoryEntry.path().c_str(), RTLD_NOW | RTLD_LOCAL);
                     if (handle != nullptr) {
-                        WSSubProtocolPluginInterface (*wSProtocolPlugin)(void*) =
+                        WSSubProtocolPluginInterface (*wSSubProtocolPluginInterface)(void*) =
                             reinterpret_cast<WSSubProtocolPluginInterface (*)(void*)>(dlsym(handle, "plugin"));
 
-                        loadSubProtocol(wSProtocolPlugin(handle));
+                        loadSubProtocol(wSSubProtocolPluginInterface(handle));
 
                         VLOG(1) << "DLOpen: success: " << directoryEntry.path().c_str();
                     } else {

@@ -22,7 +22,7 @@
 #include "WSContext.h"
 
 #include "log/Logger.h"
-#include "web/ws/WSSubProtocol.h" // for WSProtocol, WSProtocol::Role, WSProto...
+#include "web/ws/WSSubProtocol.h" // for WSSubProtocol, WSSubProtocol::Role, WSProto...
 #include "web/ws/subprotocol/WSSubProtocolSelector.h"
 #include "web/ws/ws_utils.h"
 
@@ -34,32 +34,32 @@
 
 namespace web::ws::server {
 
-    WSContext::WSContext(web::ws::WSSubProtocol* wSProtocol, web::ws::WSSubProtocol::Role role)
-        : web::ws::WSContext(wSProtocol, role) {
+    WSContext::WSContext(web::ws::WSSubProtocol* wSSubProtocol, web::ws::WSSubProtocol::Role role)
+        : web::ws::WSContext(wSSubProtocol, role) {
     }
 
     WSContext::WSContext::~WSContext() {
-        web::ws::subprotocol::WSSubProtocolPluginInterface* wSProtocolPlugin =
-            selector.select(wSProtocol->getName(), web::ws::WSSubProtocol::Role::SERVER);
+        web::ws::subprotocol::WSSubProtocolPluginInterface* wSSubProtocolPluginInterface =
+            selector.select(wSSubProtocol->getName(), web::ws::WSSubProtocol::Role::SERVER);
 
-        if (wSProtocolPlugin != nullptr) {
-            wSProtocolPlugin->destroy(wSProtocol);
+        if (wSSubProtocolPluginInterface != nullptr) {
+            wSSubProtocolPluginInterface->destroy(wSSubProtocol);
         }
     }
 
     WSContext* WSContext::create(web::http::server::Request& req, web::http::server::Response& res) {
         std::string subProtocol = req.header("sec-websocket-protocol");
 
-        web::ws::subprotocol::WSSubProtocolPluginInterface* wSProtocolPlugin =
+        web::ws::subprotocol::WSSubProtocolPluginInterface* wSSubProtocolPluginInterface =
             selector.select(subProtocol, web::ws::WSSubProtocol::Role::SERVER);
 
         web::ws::server::WSContext* wSContext = nullptr;
 
-        if (wSProtocolPlugin != nullptr) {
-            web::ws::WSSubProtocol* wSProtocol = wSProtocolPlugin->create();
+        if (wSSubProtocolPluginInterface != nullptr) {
+            web::ws::WSSubProtocol* wSSubProtocol = wSSubProtocolPluginInterface->create();
 
-            if (wSProtocol != nullptr) {
-                wSContext = new web::ws::server::WSContext(wSProtocol, web::ws::WSSubProtocol::Role::SERVER);
+            if (wSSubProtocol != nullptr) {
+                wSContext = new web::ws::server::WSContext(wSSubProtocol, web::ws::WSSubProtocol::Role::SERVER);
 
                 if (wSContext != nullptr) {
                     res.set("Upgrade", "websocket");

@@ -31,7 +31,7 @@ namespace web::ws::server {
 
     class WSContext : public web::ws::WSContext {
     protected:
-        WSContext(web::ws::WSSubProtocol* wSProtocol, web::ws::WSSubProtocol::Role role);
+        WSContext(web::ws::WSSubProtocol* wSSubProtocol, web::ws::WSSubProtocol::Role role);
 
         ~WSContext() override;
 

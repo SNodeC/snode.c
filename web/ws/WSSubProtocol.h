@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WS_SERVER_WSPROTOCOL_H
-#define WS_SERVER_WSPROTOCOL_H
+#ifndef WS_SERVER_WSUBSPROTOCOL_H
+#define WS_SERVER_WSUBSPROTOCOL_H
 
 namespace web::ws {
     class WSContext;
@@ -45,7 +45,7 @@ namespace web::ws {
         virtual ~WSSubProtocol();
 
     public:
-        /* Facade (API) to WSServerContext -> WSTransmitter to be used from WSProtocol-Subclasses */
+        /* Facade (API) to WSServerContext -> WSTransmitter to be used from WSSubProtocol-Subclasses */
         void sendMessageStart(const char* message, std::size_t messageLength);
         void sendMessageStart(const std::string& message);
 
@@ -70,14 +70,14 @@ namespace web::ws {
         const std::string& getName();
 
     private:
-        /* Callbacks (API) WSReceiver -> WSProtocol-Subclasses */
+        /* Callbacks (API) WSReceiver -> WSSubProtocol-Subclasses */
         virtual void onMessageStart(int opCode) = 0;
         virtual void onMessageData(const char* junk, std::size_t junkLen) = 0;
         virtual void onMessageEnd() = 0;
         virtual void onPongReceived() = 0;
         virtual void onMessageError(uint16_t errnum) = 0;
 
-        /* Callbacks (API) socketConnection -> WSProtocol-Subclasses */
+        /* Callbacks (API) socketConnection -> WSSubProtocol-Subclasses */
         virtual void onProtocolConnected() = 0;
         virtual void onProtocolDisconnected() = 0;
 
@@ -96,4 +96,4 @@ namespace web::ws {
 
 } // namespace web::ws
 
-#endif // WS_SERVER_WSPROTOCOL_H
+#endif // WS_SERVER_WSUBSPROTOCOL_H

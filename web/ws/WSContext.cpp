@@ -36,10 +36,10 @@ namespace web::ws {
 
     web::ws::subprotocol::WSSubProtocolSelector WSContext::selector;
 
-    WSContext::WSContext(web::ws::WSSubProtocol* subProtocol, web::ws::WSSubProtocol::Role role)
+    WSContext::WSContext(web::ws::WSSubProtocol* wSSubProtocol, web::ws::WSSubProtocol::Role role)
         : WSTransmitter(role == web::ws::WSSubProtocol::Role::CLIENT)
-        , wSProtocol(subProtocol) {
-        wSProtocol->setWSContext(this);
+        , wSSubProtocol(wSSubProtocol) {
+        wSSubProtocol->setWSContext(this);
     }
 
     void WSContext::sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) {
@@ -71,7 +71,7 @@ namespace web::ws {
                 pongReceived = true;
                 break;
             default:
-                wSProtocol->onMessageStart(opCode);
+                wSSubProtocol->onMessageStart(opCode);
                 break;
         }
     }
@@ -82,7 +82,7 @@ namespace web::ws {
 
             do {
                 std::size_t sendJunkLen = (junkLen - junkOffset <= SIZE_MAX) ? static_cast<std::size_t>(junkLen - junkOffset) : SIZE_MAX;
-                wSProtocol->onMessageData(junk + junkOffset, sendJunkLen);
+                wSSubProtocol->onMessageData(junk + junkOffset, sendJunkLen);
                 junkOffset += sendJunkLen;
             } while (junkLen - junkOffset > 0);
         } else {
@@ -108,29 +108,29 @@ namespace web::ws {
             pongCloseData.clear();
         } else if (pongReceived) {
             pongReceived = false;
-            wSProtocol->onPongReceived();
+            wSSubProtocol->onPongReceived();
         } else {
-            wSProtocol->onMessageEnd();
+            wSSubProtocol->onMessageEnd();
         }
     }
 
     void WSContext::onPongReceived() {
-        wSProtocol->onPongReceived();
+        wSSubProtocol->onPongReceived();
     }
 
     void WSContext::onMessageError(uint16_t errnum) {
         VLOG(0) << "Message Error";
 
-        wSProtocol->onMessageError(errnum);
+        wSSubProtocol->onMessageError(errnum);
         close(errnum, "hallo", std::string("hallo").length());
     }
 
     void WSContext::onProtocolConnected() {
-        wSProtocol->onProtocolConnected();
+        wSSubProtocol->onProtocolConnected();
     }
 
     void WSContext::onProtocolDisconnected() {
-        wSProtocol->onProtocolDisconnected();
+        wSSubProtocol->onProtocolDisconnected();
     }
 
     void WSContext::sendPing(const char* reason, std::size_t reasonLength) {
