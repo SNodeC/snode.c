@@ -97,9 +97,9 @@ namespace web::ws {
     struct WSProtocolPlugin {
         void* handle;
         const char* (*name)();
+        web::ws::WSProtocol::Role (*role)();
         web::ws::WSProtocol* (*create)();
         void (*destroy)(web::ws::WSProtocol*);
-        web::ws::WSProtocol::Role (*role)();
     };
 
 } // namespace web::ws
