@@ -121,7 +121,7 @@ int timerApp() {
                 }
             });
         }
-        res.upgrade("ws", "echo");
+        res.upgrade(req);
     });
 
     app.listen(8080, [](int err) -> void {

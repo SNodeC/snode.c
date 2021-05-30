@@ -60,8 +60,8 @@ namespace net::socket::stream {
 
         void setSocketConnection(SocketConnectionBase* socketConnection);
 
-        virtual void onProtocolConnect();
-        virtual void onProtocolDisconnect();
+        virtual void onProtocolConnected();
+        virtual void onProtocolDisconnected();
 
         bool markedForDelete = false;
 

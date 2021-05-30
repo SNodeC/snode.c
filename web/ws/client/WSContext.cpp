@@ -21,8 +21,6 @@
 
 #include "WSContext.h"
 
-#include "web/ws/WSProtocol.h" // for WSProtocol, WSProtocol::Role, WSProto...
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -30,11 +28,11 @@
 #define CLOSE_SOCKET_TIMEOUT 10
 
 namespace web::ws::client {
-
-    WSContext::WSContext(const std::string& subProtocol)
-        : web::ws::WSContext(subProtocol, web::ws::WSProtocol::Role::CLIENT) {
-    }
-
+    /*
+        WSContext::WSContext(const std::string& subProtocol)
+            : web::ws::WSContext(subProtocol, web::ws::WSProtocol::Role::CLIENT) {
+        }
+    */
 } // namespace web::ws::client
 
 #endif // WEB_WS_CLIENT_WSSERVERCONTEXT_HPP

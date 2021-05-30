@@ -69,12 +69,12 @@ namespace net::socket::stream {
         this->socketConnection = socketConnection;
     }
 
-    void SocketProtocol::onProtocolConnect() {
+    void SocketProtocol::onProtocolConnected() {
         VLOG(0) << "Protocol connected";
     }
 
-    void SocketProtocol::onProtocolDisconnect() {
-        VLOG(0) << "Protocol disconnected";
+    void SocketProtocol::onProtocolDisconnected() {
+        VLOG(0) << "Protocol disconnecteded";
     }
 
 } // namespace net::socket::stream

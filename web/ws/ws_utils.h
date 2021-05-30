@@ -16,22 +16,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_CLIENT_WSSERVERCONTEXT_H
-#define WEB_WS_CLIENT_WSSERVERCONTEXT_H
-
-#include "web/ws/WSContext.h"
+#ifndef WEB_WS_WS_UTILS_H
+#define WEB_WS_WS_UTILS_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <functional>
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::ws::client {
+namespace web::ws {
 
-    class WSContext : public web::ws::WSContext {
-    public:
-        //        WSContext(const std::string& subProtocol);
-    };
+    unsigned char* decode64(const char* input, int length);
+    char* base64(const unsigned char* input, int length);
+    void serverWebSocketKey(const std::string& clientWebSocketKey, const std::function<void(char*)>& returnKey);
 
-} // namespace web::ws::client
+} // namespace web::ws
 
-#endif // WEB_WS_CLIENT_WSSERVERCONTEXT_H
+#endif // WEB_WS_WS_UTILS_H

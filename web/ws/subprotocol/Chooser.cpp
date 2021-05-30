@@ -48,10 +48,10 @@ namespace web::ws::subprotocol {
                 if (std::filesystem::is_regular_file(directoryEntry) && directoryEntry.path().extension() == ".so") {
                     void* handle = dlopen(directoryEntry.path().c_str(), RTLD_NOW | RTLD_LOCAL);
                     if (handle != nullptr) {
-                        web::ws::WSProtocolInterface (*interface)(void*) =
-                            reinterpret_cast<web::ws::WSProtocolInterface (*)(void*)>(dlsym(handle, "interface"));
+                        web::ws::WSProtocolPlugin (*wSProtocolPlugin)(void*) =
+                            reinterpret_cast<web::ws::WSProtocolPlugin (*)(void*)>(dlsym(handle, "plugin"));
 
-                        web::ws::WSProtocolInterface subProtocol(interface(handle));
+                        web::ws::WSProtocolPlugin subProtocol(wSProtocolPlugin(handle));
 
                         if (subProtocol.role() == web::ws::WSProtocol::Role::SERVER) {
                             serverSubprotocols.insert({subProtocol.name(), subProtocol});
@@ -82,16 +82,16 @@ namespace web::ws::subprotocol {
         }
     }
 
-    WSProtocolInterface Chooser::select(const std::string& subProtocolName, web::ws::WSProtocol::Role role) {
-        WSProtocolInterface subProtocol;
+    WSProtocolPlugin* Chooser::select(const std::string& subProtocolName, web::ws::WSProtocol::Role role) {
+        WSProtocolPlugin* subProtocol = nullptr;
 
         if (role == web::ws::WSProtocol::Role::SERVER) { // server
             if (serverSubprotocols.contains(subProtocolName)) {
-                subProtocol = serverSubprotocols[subProtocolName];
+                subProtocol = &serverSubprotocols[subProtocolName];
             }
         } else if (role == web::ws::WSProtocol::Role::CLIENT) { // client
             if (clientSubprotocols.contains(subProtocolName)) {
-                subProtocol = clientSubprotocols[subProtocolName];
+                subProtocol = &clientSubprotocols[subProtocolName];
             }
         }
 

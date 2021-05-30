@@ -29,7 +29,8 @@
 
 namespace web::ws {
 
-    WSProtocol::WSProtocol() {
+    WSProtocol::WSProtocol(const std::string& name)
+        : name(name) {
         clients.push_back(this);
     }
 
@@ -104,6 +105,10 @@ namespace web::ws {
         for (WSProtocol* client : clients) {
             client->wSContext->sendMessage(opCode, message, messageLength);
         }
+    }
+
+    const std::string& WSProtocol::getName() {
+        return name;
     }
 
 } // namespace web::ws

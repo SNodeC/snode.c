@@ -22,6 +22,7 @@ add_library(
     ws/WSProtocol.cpp
     ws/WSReceiver.cpp
     ws/WSTransmitter.cpp
+    ws/ws_utils.cpp
     ws/client/WSContext.cpp
     ws/server/WSContext.cpp
     ws/subprotocol/Chooser.cpp

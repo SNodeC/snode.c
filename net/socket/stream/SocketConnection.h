@@ -70,7 +70,7 @@ namespace net::socket::stream {
             SocketConnection::attach(fd);
             SocketReader::enable(fd);
             onConnect(localAddress, remoteAddress);
-            socketProtocol->onProtocolConnect();
+            socketProtocol->onProtocolConnected();
         }
 
         virtual ~SocketConnection() = default;
@@ -98,10 +98,10 @@ namespace net::socket::stream {
         }
 
         void switchSocketProtocol(SocketProtocol* newSocketProtocol) override {
-            socketProtocol->onProtocolDisconnect();
+            socketProtocol->onProtocolDisconnected();
             socketProtocol = newSocketProtocol;
             socketProtocol->socketConnection = this;
-            socketProtocol->onProtocolConnect();
+            socketProtocol->onProtocolConnected();
         }
 
         void enqueue(const char* junk, std::size_t junkLen) override {
@@ -121,7 +121,7 @@ namespace net::socket::stream {
 
     private:
         void unobserved() override {
-            socketProtocol->onProtocolDisconnect();
+            socketProtocol->onProtocolDisconnected();
             onDisconnect();
             delete this;
         }

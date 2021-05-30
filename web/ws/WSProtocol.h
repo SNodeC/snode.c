@@ -39,7 +39,7 @@ namespace web::ws {
         enum class Role { SERVER, CLIENT };
 
     protected:
-        WSProtocol();
+        WSProtocol(const std::string& name);
 
     public:
         virtual ~WSProtocol();
@@ -67,6 +67,8 @@ namespace web::ws {
         static void sendBroadcast(const char* message, std::size_t messageLength);
         static void sendBroadcast(const std::string& message);
 
+        const std::string& getName();
+
     private:
         /* Callbacks (API) WSReceiver -> WSProtocol-Subclasses */
         virtual void onMessageStart(int opCode) = 0;
@@ -76,21 +78,23 @@ namespace web::ws {
         virtual void onMessageError(uint16_t errnum) = 0;
 
         /* Callbacks (API) socketConnection -> WSProtocol-Subclasses */
-        virtual void onProtocolConnect() = 0;
-        virtual void onProtocolDisconnect() = 0;
+        virtual void onProtocolConnected() = 0;
+        virtual void onProtocolDisconnected() = 0;
 
         void setWSContext(WSContext* wSServerContext);
 
         static void broadcast(uint8_t opCode, const char* message, std::size_t messageLength);
 
-        static std::list<WSProtocol*> clients;
+        const std::string name;
 
         WSContext* wSContext;
+
+        static std::list<WSProtocol*> clients;
 
         friend class web::ws::WSContext;
     };
 
-    struct WSProtocolInterface {
+    struct WSProtocolPlugin {
         void* handle;
         const char* (*name)();
         web::ws::WSProtocol* (*create)();

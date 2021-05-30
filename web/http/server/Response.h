@@ -45,6 +45,7 @@ namespace web::http::server {
 
     class HTTPServerContextBase;
     class ServerContext;
+    class Request;
 
     class Response : public net::pipe::Sink {
     protected:
@@ -64,7 +65,7 @@ namespace web::http::server {
         Response& clearCookie(const std::string& name, const std::map<std::string, std::string>& options = {});
         Response& type(const std::string& type);
 
-        void upgrade(const std::string protocol, const std::string subProtocol);
+        void upgrade(Request& req);
 
     protected:
         virtual void reset();

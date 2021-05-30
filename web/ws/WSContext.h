@@ -43,9 +43,11 @@ namespace web::ws {
         , public web::ws::WSReceiver
         , public web::ws::WSTransmitter {
     protected:
-        WSContext(const std::string& subProtocol, web::ws::WSProtocol::Role role);
+        WSContext(web::ws::WSProtocol* subProtocol, web::ws::WSProtocol::Role role);
 
-        virtual ~WSContext();
+        virtual ~WSContext() = default;
+
+        web::ws::WSProtocol* wSProtocol;
 
     private:
         void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength);
@@ -69,8 +71,8 @@ namespace web::ws {
         void onMessageError(uint16_t errnum) override;
 
         /* Callbacks (API) socketConnection -> WSProtocol */
-        void onProtocolConnect() override;
-        void onProtocolDisconnect() override;
+        void onProtocolConnected() override;
+        void onProtocolDisconnected() override;
 
         /* Facade to SocketProtocol used from WSTransmitter */
         void sendFrameData(uint8_t data) override;
@@ -84,8 +86,6 @@ namespace web::ws {
         void onReadError(int errnum) override;
         void onWriteError(int errnum) override;
 
-        web::ws::WSProtocol* wSProtocol;
-
         bool closeReceived = false;
         bool closeSent = false;
 
@@ -94,6 +94,7 @@ namespace web::ws {
 
         std::string pongCloseData;
 
+    protected:
         static web::ws::subprotocol::Chooser chooser;
 
         friend class web::ws::WSProtocol;

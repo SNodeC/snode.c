@@ -23,6 +23,7 @@
 #include "web/http/StatusCodes.h"
 #include "web/http/http_utils.h"
 #include "web/http/server//HTTPServerContext.h"
+#include "web/http/server/Request.h"
 #include "web/ws/server/WSContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -60,6 +61,26 @@ namespace web::http::server {
 
     void Response::enqueue(const std::string& junk) {
         enqueue(junk.data(), junk.size());
+    }
+
+    void Response::send(const char* junk, std::size_t junkLen) {
+        if (junkLen > 0) {
+            set("Content-Type", "application/octet-stream", false);
+        }
+        set("Content-Length", std::to_string(junkLen));
+
+        enqueue(junk, junkLen);
+    }
+
+    void Response::send(const std::string& junk) {
+        if (junk.size() > 0) {
+            set("Content-Type", "text/html; charset=utf-8");
+        }
+        send(junk.data(), junk.size());
+    }
+
+    void Response::end() {
+        send("");
     }
 
     Response& Response::status(int status) {
@@ -108,15 +129,6 @@ namespace web::http::server {
         return set("Content-Type", type);
     }
 
-    void Response::upgrade([[maybe_unused]] const std::string protocol, const std::string subProtocol) {
-        HTTPServerContextBase* serverContext = this->serverContext;
-        web::ws::server::WSContext* wSContext = new web::ws::server::WSContext(subProtocol);
-
-        end();
-
-        serverContext->switchSocketProtocol(wSContext);
-    }
-
     Response& Response::cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options) {
         cookies.insert({name, CookieOptions(value, options)});
 
@@ -133,20 +145,27 @@ namespace web::http::server {
         return cookie(name, "", opts);
     }
 
-    void Response::send(const char* junk, std::size_t junkLen) {
-        if (junkLen > 0) {
-            set("Content-Type", "application/octet-stream", false);
-        }
-        set("Content-Length", std::to_string(junkLen));
+    void Response::upgrade(Request& req) {
+        // here we need an additional dynamic library loader for the upgrade-protocol
+        if (req.header("Connection") == "Upgrade") {
+            if (req.header("upgrade") == "websocket") {
+                web::ws::server::WSContext* wSContext = web::ws::server::WSContext::create(req, *this);
 
-        enqueue(junk, junkLen);
-    }
+                if (wSContext != nullptr) {
+                    HTTPServerContextBase* serverContext = this->serverContext;
 
-    void Response::send(const std::string& junk) {
-        if (junk.size() > 0) {
-            set("Content-Type", "text/html; charset=utf-8");
+                    end();
+
+                    serverContext->switchSocketProtocol(wSContext);
+                } else {
+                    end();
+                }
+            } else {
+                this->status(404).end();
+            }
+        } else {
+            this->status(400).end();
         }
-        send(junk.data(), junk.size());
     }
 
     void Response::sendHeader() {
@@ -177,10 +196,6 @@ namespace web::http::server {
         } else {
             contentLength = 0;
         }
-    }
-
-    void Response::end() {
-        send("");
     }
 
     void Response::receive(const char* junk, std::size_t junkLen) {

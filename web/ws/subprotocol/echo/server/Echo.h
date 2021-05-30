@@ -38,8 +38,8 @@ namespace web::ws::subprotocol::echo::server {
         void onMessageEnd() override;
         void onMessageError(uint16_t errnum) override;
         void onPongReceived() override;
-        void onProtocolConnect() override;
-        void onProtocolDisconnect() override;
+        void onProtocolConnected() override;
+        void onProtocolDisconnected() override;
 
     private:
         std::string data;
@@ -50,7 +50,7 @@ namespace web::ws::subprotocol::echo::server {
     };
 
     extern "C" {
-        web::ws::WSProtocolInterface interface(void* handle);
+        web::ws::WSProtocolPlugin plugin(void* handle);
     }
 
 } // namespace web::ws::subprotocol::echo::server

@@ -45,13 +45,14 @@ namespace web::ws::subprotocol::echo::server { // namespace web::ws::subprotocol
     }
 
     extern "C" {
-        web::ws::WSProtocolInterface interface(void* handle) {
-            return web::ws::WSProtocolInterface{.handle = handle, .name = name, .create = create, .destroy = destroy, .role = role};
+        web::ws::WSProtocolPlugin plugin(void* handle) {
+            return web::ws::WSProtocolPlugin{.handle = handle, .name = name, .create = create, .destroy = destroy, .role = role};
         }
     }
 
     Echo::Echo()
-        : timer(net::timer::Timer::continousTimer(
+        : web::ws::WSProtocol("echo")
+        , timer(net::timer::Timer::continousTimer(
               [this]([[maybe_unused]] const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
                   this->sendPing();
                   this->flyingPings++;
@@ -91,7 +92,7 @@ namespace web::ws::subprotocol::echo::server { // namespace web::ws::subprotocol
         flyingPings = 0;
     }
 
-    void Echo::onProtocolConnect() {
+    void Echo::onProtocolConnected() {
         VLOG(0) << "On protocol connected:";
 
         sendMessage("Welcome to SimpleChat");
@@ -101,7 +102,7 @@ namespace web::ws::subprotocol::echo::server { // namespace web::ws::subprotocol
         VLOG(0) << "\tClient: " + getRemoteAddressAsString();
     }
 
-    void Echo::onProtocolDisconnect() {
+    void Echo::onProtocolDisconnected() {
         VLOG(0) << "On protocol disconnected:";
 
         VLOG(0) << "\tServer: " + getLocalAddressAsString();

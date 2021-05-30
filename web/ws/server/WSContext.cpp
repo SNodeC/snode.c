@@ -21,7 +21,10 @@
 
 #include "WSContext.h"
 
+#include "log/Logger.h"
 #include "web/ws/WSProtocol.h" // for WSProtocol, WSProtocol::Role, WSProto...
+#include "web/ws/subprotocol/Chooser.h"
+#include "web/ws/ws_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,8 +34,52 @@
 
 namespace web::ws::server {
 
-    WSContext::WSContext(const std::string& subProtocol)
-        : web::ws::WSContext(subProtocol, web::ws::WSProtocol::Role::SERVER) {
+    WSContext::WSContext(web::ws::WSProtocol* wSProtocol, web::ws::WSProtocol::Role role)
+        : web::ws::WSContext(wSProtocol, role) {
+    }
+
+    WSContext::WSContext::~WSContext() {
+        web::ws::WSProtocolPlugin* wSProtocolPlugin = chooser.select(wSProtocol->getName(), web::ws::WSProtocol::Role::SERVER);
+
+        if (wSProtocolPlugin != nullptr) {
+            wSProtocolPlugin->destroy(wSProtocol);
+        }
+    }
+
+    WSContext* WSContext::create(web::http::server::Request& req, web::http::server::Response& res) {
+        std::string subProtocol = req.header("sec-websocket-protocol");
+
+        web::ws::WSProtocolPlugin* wSProtocolPlugin = chooser.select(subProtocol, web::ws::WSProtocol::Role::SERVER);
+
+        web::ws::server::WSContext* wSContext = nullptr;
+
+        if (wSProtocolPlugin != nullptr) {
+            web::ws::WSProtocol* wSProtocol = wSProtocolPlugin->create();
+
+            if (wSProtocol != nullptr) {
+                wSContext = new web::ws::server::WSContext(wSProtocol, web::ws::WSProtocol::Role::SERVER);
+
+                if (wSContext != nullptr) {
+                    res.set("Upgrade", "websocket");
+                    res.set("Connection", "Upgrade");
+                    res.set("Sec-WebSocket-Protocol", subProtocol);
+
+                    web::ws::serverWebSocketKey(req.header("sec-websocket-key"), [&res](char* key) -> void {
+                        res.set("Sec-WebSocket-Accept", key);
+                    });
+
+                    res.status(101); // Switch Protocol
+                } else {
+                    res.status(500);
+                }
+            } else {
+                res.status(500); // Internal Server Error
+            }
+        } else {
+            res.status(404); // Not found
+        }
+
+        return wSContext;
     }
 
 } // namespace web::ws::server

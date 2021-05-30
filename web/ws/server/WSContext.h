@@ -19,19 +19,24 @@
 #ifndef WEB_WS_SERVER_WSSERVERCONTEXT_H
 #define WEB_WS_SERVER_WSSERVERCONTEXT_H
 
+#include "web/http/server/Request.h"
+#include "web/http/server/Response.h"
 #include "web/ws/WSContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::ws::server {
 
     class WSContext : public web::ws::WSContext {
+    protected:
+        WSContext(web::ws::WSProtocol* wSProtocol, web::ws::WSProtocol::Role role);
+
+        ~WSContext() override;
+
     public:
-        WSContext(const std::string& subProtocol);
+        static WSContext* create(web::http::server::Request& req, web::http::server::Response& res);
     };
 
 } // namespace web::ws::server

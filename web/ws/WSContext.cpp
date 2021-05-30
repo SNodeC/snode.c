@@ -36,14 +36,10 @@ namespace web::ws {
 
     web::ws::subprotocol::Chooser WSContext::chooser;
 
-    WSContext::WSContext(const std::string& subProtocol, web::ws::WSProtocol::Role role)
+    WSContext::WSContext(web::ws::WSProtocol* subProtocol, web::ws::WSProtocol::Role role)
         : WSTransmitter(role == web::ws::WSProtocol::Role::CLIENT)
-        , wSProtocol(chooser.select(subProtocol, role).create()) {
+        , wSProtocol(subProtocol) {
         wSProtocol->setWSContext(this);
-    }
-
-    WSContext::~WSContext() {
-        delete wSProtocol;
     }
 
     void WSContext::sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) {
@@ -129,12 +125,12 @@ namespace web::ws {
         close(errnum, "hallo", std::string("hallo").length());
     }
 
-    void WSContext::onProtocolConnect() {
-        wSProtocol->onProtocolConnect();
+    void WSContext::onProtocolConnected() {
+        wSProtocol->onProtocolConnected();
     }
 
-    void WSContext::onProtocolDisconnect() {
-        wSProtocol->onProtocolDisconnect();
+    void WSContext::onProtocolDisconnected() {
+        wSProtocol->onProtocolDisconnected();
     }
 
     void WSContext::sendPing(const char* reason, std::size_t reasonLength) {

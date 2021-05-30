@@ -35,14 +35,14 @@ namespace web::ws::subprotocol {
         Chooser();
         ~Chooser();
 
-        web::ws::WSProtocolInterface select(const std::string& subProtocol, web::ws::WSProtocol::Role role);
+        web::ws::WSProtocolPlugin* select(const std::string& subProtocol, web::ws::WSProtocol::Role role);
 
     protected:
         void loadSubProtocols();
         void loadSubProtocolsIn(const std::string& path);
 
-        std::map<std::string, web::ws::WSProtocolInterface> serverSubprotocols;
-        std::map<std::string, web::ws::WSProtocolInterface> clientSubprotocols;
+        std::map<std::string, web::ws::WSProtocolPlugin> serverSubprotocols;
+        std::map<std::string, web::ws::WSProtocolPlugin> clientSubprotocols;
     };
 
 } // namespace web::ws::subprotocol
