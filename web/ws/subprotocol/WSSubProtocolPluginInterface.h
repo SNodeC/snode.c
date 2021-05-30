@@ -16,29 +16,27 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_SERVER_WSSERVERCONTEXT_H
-#define WEB_WS_SERVER_WSSERVERCONTEXT_H
+#ifndef WEB_WS_SUBPROTOCOL_WSSUBPROTOCOLPLUGIN_H
+#define WEB_WS_SUBPROTOCOL_WSSUBPROTOCOLPLUGIN_H
 
-#include "web/http/server/Request.h"
-#include "web/http/server/Response.h"
-#include "web/ws/WSContext.h"
+#include "web/ws/WSSubProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::ws::server {
+namespace web::ws::subprotocol {
 
-    class WSContext : public web::ws::WSContext {
-    protected:
-        WSContext(web::ws::WSSubProtocol* wSProtocol, web::ws::WSSubProtocol::Role role);
+    extern "C" {
+        struct WSSubProtocolPluginInterface {
+            const char* (*name)();
+            web::ws::WSSubProtocol::Role (*role)();
+            web::ws::WSSubProtocol* (*create)();
+            void (*destroy)(web::ws::WSSubProtocol*);
+            void* handle;
+        };
+    }
 
-        ~WSContext() override;
+}
 
-    public:
-        static WSContext* create(web::http::server::Request& req, web::http::server::Response& res);
-    };
-
-} // namespace web::ws::server
-
-#endif // WEB_WS_SERVER_WSSERVERCONTEXT_H
+#endif // WEB_WS_SUBPROTOCOL_WSSUBPROTOCOLPLUGIN_H

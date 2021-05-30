@@ -34,15 +34,15 @@ namespace web::ws {
 
 namespace web::ws {
 
-    class WSProtocol {
+    class WSSubProtocol {
     public:
         enum class Role { SERVER, CLIENT };
 
     protected:
-        WSProtocol(const std::string& name);
+        WSSubProtocol(const std::string& name);
 
     public:
-        virtual ~WSProtocol();
+        virtual ~WSSubProtocol();
 
     public:
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from WSProtocol-Subclasses */
@@ -85,21 +85,13 @@ namespace web::ws {
 
         static void broadcast(uint8_t opCode, const char* message, std::size_t messageLength);
 
-        const std::string name;
-
         WSContext* wSContext;
 
-        static std::list<WSProtocol*> clients;
+        static std::list<WSSubProtocol*> clients;
+
+        const std::string name;
 
         friend class web::ws::WSContext;
-    };
-
-    struct WSProtocolPlugin {
-        const char* (*name)() = nullptr;
-        web::ws::WSProtocol::Role (*role)() = nullptr;
-        web::ws::WSProtocol* (*create)() = nullptr;
-        void (*destroy)(web::ws::WSProtocol*) = nullptr;
-        void* handle = nullptr;
     };
 
 } // namespace web::ws

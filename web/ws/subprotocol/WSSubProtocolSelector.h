@@ -19,7 +19,7 @@
 #ifndef WEB_WS_SUBPROTOCOL_CHOOSER_H
 #define WEB_WS_SUBPROTOCOL_CHOOSER_H
 
-#include "web/ws/WSProtocol.h"
+#include "WSSubProtocolPluginInterface.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,22 +30,22 @@
 
 namespace web::ws::subprotocol {
 
-    class Chooser {
+    class WSSubProtocolSelector {
     public:
-        Chooser();
-        ~Chooser();
+        WSSubProtocolSelector();
+        ~WSSubProtocolSelector();
 
         void loadSubProtocols(const std::string& path);
-        void registerSubProtocol(const web::ws::WSProtocolPlugin& wSProtocolPlugin);
+        void loadSubProtocol(const WSSubProtocolPluginInterface& wSProtocolPlugin);
 
-        web::ws::WSProtocolPlugin* select(const std::string& subProtocol, web::ws::WSProtocol::Role role);
+        WSSubProtocolPluginInterface* select(const std::string& subProtocol, web::ws::WSSubProtocol::Role role);
 
     protected:
         void loadSubProtocols();
 
     private:
-        std::map<std::string, web::ws::WSProtocolPlugin> serverSubprotocols;
-        std::map<std::string, web::ws::WSProtocolPlugin> clientSubprotocols;
+        std::map<std::string, WSSubProtocolPluginInterface> serverSubprotocols;
+        std::map<std::string, WSSubProtocolPluginInterface> clientSubprotocols;
     };
 
 } // namespace web::ws::subprotocol

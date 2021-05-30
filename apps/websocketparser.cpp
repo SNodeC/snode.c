@@ -4,7 +4,7 @@
 #include "log/Logger.h"
 #include "net/SNodeC.h"
 #include "net/timer/IntervalTimer.h"
-#include "web/ws/WSProtocol.h"
+#include "web/ws/WSSubProtocol.h"
 #include "web/ws/server/WSContext.h"
 
 #include <cstddef>

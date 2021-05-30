@@ -20,12 +20,12 @@
 #define WEB_WS_WSCONTEXTBASE_H
 
 #include "net/socket/stream/SocketProtocol.h"
-#include "web/ws/WSProtocol.h" // for WSProtocol, WSProtocol...
 #include "web/ws/WSReceiver.h"
+#include "web/ws/WSSubProtocol.h" // for WSProtocol, WSProtocol...
 #include "web/ws/WSTransmitter.h"
 
 namespace web::ws::subprotocol {
-    class Chooser;
+    class WSSubProtocolSelector;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -43,15 +43,15 @@ namespace web::ws {
         , public web::ws::WSReceiver
         , public web::ws::WSTransmitter {
     protected:
-        WSContext(web::ws::WSProtocol* subProtocol, web::ws::WSProtocol::Role role);
+        WSContext(web::ws::WSSubProtocol* subProtocol, web::ws::WSSubProtocol::Role role);
 
         virtual ~WSContext() = default;
 
     public:
-        static web::ws::subprotocol::Chooser chooser;
+        static web::ws::subprotocol::WSSubProtocolSelector selector;
 
     protected:
-        web::ws::WSProtocol* wSProtocol;
+        web::ws::WSSubProtocol* wSProtocol;
 
     private:
         void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength);
@@ -99,7 +99,7 @@ namespace web::ws {
         std::string pongCloseData;
 
     protected:
-        friend class web::ws::WSProtocol;
+        friend class web::ws::WSSubProtocol;
     };
 
 } // namespace web::ws

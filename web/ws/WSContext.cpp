@@ -20,8 +20,8 @@
 
 #include "log/Logger.h"
 #include "net/socket/stream/SocketConnectionBase.h"
-#include "web/ws/WSProtocol.h"
-#include "web/ws/subprotocol/Chooser.h"
+#include "web/ws/WSSubProtocol.h"
+#include "web/ws/subprotocol/WSSubProtocolSelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -34,10 +34,10 @@
 
 namespace web::ws {
 
-    web::ws::subprotocol::Chooser WSContext::chooser;
+    web::ws::subprotocol::WSSubProtocolSelector WSContext::selector;
 
-    WSContext::WSContext(web::ws::WSProtocol* subProtocol, web::ws::WSProtocol::Role role)
-        : WSTransmitter(role == web::ws::WSProtocol::Role::CLIENT)
+    WSContext::WSContext(web::ws::WSSubProtocol* subProtocol, web::ws::WSSubProtocol::Role role)
+        : WSTransmitter(role == web::ws::WSSubProtocol::Role::CLIENT)
         , wSProtocol(subProtocol) {
         wSProtocol->setWSContext(this);
     }

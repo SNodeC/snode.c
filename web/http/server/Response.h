@@ -38,7 +38,7 @@ namespace net::socket::stream {
 }
 
 namespace web::ws {
-    class WSProtocol;
+    class WSSubProtocol;
 }
 
 namespace web::http::server {

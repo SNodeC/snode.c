@@ -19,9 +19,8 @@
 #ifndef WEB_WS_WSSERVERPROTOCOL_HPP
 #define WEB_WS_WSSERVERPROTOCOL_HPP
 
-#include "web/ws/WSProtocol.h"
-
 #include "web/ws/WSContext.h"
+#include "web/ws/WSSubProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,85 +28,85 @@
 
 namespace web::ws {
 
-    WSProtocol::WSProtocol(const std::string& name)
+    WSSubProtocol::WSSubProtocol(const std::string& name)
         : name(name) {
         clients.push_back(this);
     }
 
-    WSProtocol::~WSProtocol() {
+    WSSubProtocol::~WSSubProtocol() {
         clients.remove(this);
     }
 
-    void WSProtocol::sendMessageStart(const std::string& message) { // 1
+    void WSSubProtocol::sendMessageStart(const std::string& message) { // 1
         wSContext->sendMessageStart(1, message.data(), message.length());
     }
 
-    void WSProtocol::sendMessageStart(const char* message, std::size_t messageLength) { // 2
+    void WSSubProtocol::sendMessageStart(const char* message, std::size_t messageLength) { // 2
         wSContext->sendMessageStart(2, message, messageLength);
     }
 
-    void WSProtocol::sendMessageFrame(const std::string& message) {
+    void WSSubProtocol::sendMessageFrame(const std::string& message) {
         sendMessageFrame(message.data(), message.length());
     }
 
-    void WSProtocol::sendMessageFrame(const char* message, std::size_t messageLength) {
+    void WSSubProtocol::sendMessageFrame(const char* message, std::size_t messageLength) {
         wSContext->sendMessageFrame(message, messageLength);
     }
 
-    void WSProtocol::sendMessage(const std::string& msg) {
+    void WSSubProtocol::sendMessage(const std::string& msg) {
         wSContext->sendMessage(1, msg.data(), msg.length());
     }
 
-    void WSProtocol::sendMessage(const char* msg, std::size_t messageLength) {
+    void WSSubProtocol::sendMessage(const char* msg, std::size_t messageLength) {
         wSContext->sendMessage(2, msg, messageLength);
     }
 
-    void WSProtocol::sendMessageEnd(const std::string& message) {
+    void WSSubProtocol::sendMessageEnd(const std::string& message) {
         sendMessageEnd(message.data(), message.length());
     }
 
-    void WSProtocol::sendMessageEnd(const char* message, std::size_t messageLength) {
+    void WSSubProtocol::sendMessageEnd(const char* message, std::size_t messageLength) {
         wSContext->sendMessageEnd(message, messageLength);
     }
 
-    void WSProtocol::sendPing(char* reason, std::size_t reasonLength) {
+    void WSSubProtocol::sendPing(char* reason, std::size_t reasonLength) {
         wSContext->sendPing(reason, reasonLength);
     }
 
-    void WSProtocol::sendClose(uint16_t statusCode, const char* reason, std::size_t reasonLength) {
+    void WSSubProtocol::sendClose(uint16_t statusCode, const char* reason, std::size_t reasonLength) {
         wSContext->close(statusCode, reason, reasonLength);
     }
 
-    std::string WSProtocol::getLocalAddressAsString() const {
+    std::string WSSubProtocol::getLocalAddressAsString() const {
         return wSContext->getLocalAddressAsString();
     }
 
-    std::string WSProtocol::getRemoteAddressAsString() const {
+    std::string WSSubProtocol::getRemoteAddressAsString() const {
         return wSContext->getRemoteAddressAsString();
     }
 
-    void WSProtocol::sendBroadcast(const std::string& message) {
+    void WSSubProtocol::sendBroadcast(const std::string& message) {
         broadcast(1, message.data(), message.length());
     }
 
-    void WSProtocol::sendBroadcast(const char* message, std::size_t messageLength) {
+    void WSSubProtocol::sendBroadcast(const char* message, std::size_t messageLength) {
         broadcast(2, message, messageLength);
     }
 
     /* private members */
-    void WSProtocol::setWSContext(WSContext* wSServerContext) {
+    void WSSubProtocol::setWSContext(WSContext* wSServerContext) {
         wSContext = wSServerContext;
     }
 
-    std::list<WSProtocol*> WSProtocol::clients;
+    std::list<WSSubProtocol*> WSSubProtocol::clients;
 
-    void WSProtocol::broadcast(uint8_t opCode, const char* message, std::size_t messageLength) {
-        for (WSProtocol* client : clients) {
+    void WSSubProtocol::broadcast(uint8_t opCode, const char* message, std::size_t messageLength) {
+        for (WSSubProtocol* client : clients) {
             client->wSContext->sendMessage(opCode, message, messageLength);
         }
     }
 
-    const std::string& WSProtocol::getName() {
+    const std::string& WSSubProtocol::getName() {
         return name;
     }
 

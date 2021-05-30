@@ -16,11 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/ws/subprotocol/Chooser.h"
+#include "web/ws/subprotocol/WSSubProtocolSelector.h"
 
 #include "log/Logger.h"
 #include "web/config.h"
-#include "web/ws/WSProtocol.h"
+#include "web/ws/WSSubProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,18 +32,18 @@
 
 namespace web::ws::subprotocol {
 
-    Chooser::Chooser() {
+    WSSubProtocolSelector::WSSubProtocolSelector() {
         loadSubProtocols();
     }
 
-    void Chooser::loadSubProtocols() {
+    void WSSubProtocolSelector::loadSubProtocols() {
         loadSubProtocols(SUBPROTOCOL_PATH);
         loadSubProtocols("/usr/lib/snodec/web/ws/subprotocol");
         loadSubProtocols("/usr/local/lib/snodec/web/ws/subprotocol");
     }
 
-    void Chooser::registerSubProtocol(const web::ws::WSProtocolPlugin& subProtocol) {
-        if (subProtocol.role() == web::ws::WSProtocol::Role::SERVER) {
+    void WSSubProtocolSelector::loadSubProtocol(const WSSubProtocolPluginInterface& subProtocol) {
+        if (subProtocol.role() == web::ws::WSSubProtocol::Role::SERVER) {
             const auto [it, success] = serverSubprotocols.insert({subProtocol.name(), subProtocol});
             if (!success && subProtocol.handle) {
                 dlclose(subProtocol.handle);
@@ -56,16 +56,16 @@ namespace web::ws::subprotocol {
         }
     }
 
-    void Chooser::loadSubProtocols(const std::string& path) {
+    void WSSubProtocolSelector::loadSubProtocols(const std::string& path) {
         if (std::filesystem::exists(path) && std::filesystem::is_directory(path)) {
             for (const std::filesystem::directory_entry& directoryEntry : std::filesystem::recursive_directory_iterator(path)) {
                 if (std::filesystem::is_regular_file(directoryEntry) && directoryEntry.path().extension() == ".so") {
                     void* handle = dlopen(directoryEntry.path().c_str(), RTLD_NOW | RTLD_LOCAL);
                     if (handle != nullptr) {
-                        web::ws::WSProtocolPlugin (*wSProtocolPlugin)(void*) =
-                            reinterpret_cast<web::ws::WSProtocolPlugin (*)(void*)>(dlsym(handle, "plugin"));
+                        WSSubProtocolPluginInterface (*wSProtocolPlugin)(void*) =
+                            reinterpret_cast<WSSubProtocolPluginInterface (*)(void*)>(dlsym(handle, "plugin"));
 
-                        registerSubProtocol(wSProtocolPlugin(handle));
+                        loadSubProtocol(wSProtocolPlugin(handle));
 
                         VLOG(1) << "DLOpen: success: " << directoryEntry.path().c_str();
                     } else {
@@ -80,7 +80,7 @@ namespace web::ws::subprotocol {
         }
     }
 
-    Chooser::~Chooser() {
+    WSSubProtocolSelector::~WSSubProtocolSelector() {
         for (auto& [name, subProtocol] : serverSubprotocols) {
             if (subProtocol.handle != nullptr) {
                 dlclose(subProtocol.handle);
@@ -94,14 +94,14 @@ namespace web::ws::subprotocol {
         }
     }
 
-    WSProtocolPlugin* Chooser::select(const std::string& subProtocolName, web::ws::WSProtocol::Role role) {
-        WSProtocolPlugin* subProtocol = nullptr;
+    WSSubProtocolPluginInterface* WSSubProtocolSelector::select(const std::string& subProtocolName, web::ws::WSSubProtocol::Role role) {
+        WSSubProtocolPluginInterface* subProtocol = nullptr;
 
-        if (role == web::ws::WSProtocol::Role::SERVER) { // server
+        if (role == web::ws::WSSubProtocol::Role::SERVER) { // server
             if (serverSubprotocols.contains(subProtocolName)) {
                 subProtocol = &serverSubprotocols[subProtocolName];
             }
-        } else if (role == web::ws::WSProtocol::Role::CLIENT) { // client
+        } else if (role == web::ws::WSSubProtocol::Role::CLIENT) { // client
             if (clientSubprotocols.contains(subProtocolName)) {
                 subProtocol = &clientSubprotocols[subProtocolName];
             }

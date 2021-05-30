@@ -26,32 +26,34 @@
 
 #define MAX_FLYING_PINGS 3
 
+#define NAME "echo"
+
 namespace web::ws::subprotocol::echo::server { // namespace web::ws::subprotocol::echo::server
 
-    web::ws::WSProtocol* create() {
+    web::ws::WSSubProtocol* create() {
         return new Echo();
     }
 
     const char* name() {
-        return "echo";
+        return NAME;
     }
 
-    void destroy(web::ws::WSProtocol* echo) {
+    void destroy(web::ws::WSSubProtocol* echo) {
         delete echo;
     }
 
-    web::ws::WSProtocol::Role role() {
-        return web::ws::WSProtocol::Role::SERVER;
+    web::ws::WSSubProtocol::Role role() {
+        return web::ws::WSSubProtocol::Role::SERVER;
     }
 
     extern "C" {
-        web::ws::WSProtocolPlugin plugin(void* handle) {
-            return web::ws::WSProtocolPlugin{.name = name, .role = role, .create = create, .destroy = destroy, .handle = handle};
+        struct WSSubProtocolPluginInterface plugin(void* handle) {
+            return WSSubProtocolPluginInterface{.name = name, .role = role, .create = create, .destroy = destroy, .handle = handle};
         }
     }
 
     Echo::Echo()
-        : web::ws::WSProtocol("echo")
+        : web::ws::WSSubProtocol(NAME)
         , timer(net::timer::Timer::continousTimer(
               [this]([[maybe_unused]] const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
                   this->sendPing();
