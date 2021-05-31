@@ -16,9 +16,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_CLIENT_WSSERVERCONTEXT_HPP
-#define WEB_WS_CLIENT_WSSERVERCONTEXT_HPP
-
 #include "WSContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -34,5 +31,3 @@ namespace web::ws::client {
         }
     */
 } // namespace web::ws::client
-
-#endif // WEB_WS_CLIENT_WSSERVERCONTEXT_HPP

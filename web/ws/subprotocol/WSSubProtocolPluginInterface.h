@@ -21,6 +21,13 @@
 
 #include "web/ws/WSSubProtocol.h"
 
+namespace web::http::server {
+
+    class Request;
+    class Response;
+
+} // namespace web::http::server
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -31,7 +38,7 @@ namespace web::ws::subprotocol {
         struct WSSubProtocolPluginInterface {
             const char* (*name)();
             web::ws::WSSubProtocol::Role (*role)();
-            web::ws::WSSubProtocol* (*create)();
+            web::ws::WSSubProtocol* (*create)(web::http::server::Request&, web::http::server::Response&);
             void (*destroy)(web::ws::WSSubProtocol*);
             void* handle;
         };

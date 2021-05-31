@@ -16,9 +16,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_SERVER_WSSERVERCONTEXT_HPP
-#define WEB_WS_SERVER_WSSERVERCONTEXT_HPP
-
 #include "WSContext.h"
 
 #include "log/Logger.h"
@@ -56,7 +53,7 @@ namespace web::ws::server {
         web::ws::server::WSContext* wSContext = nullptr;
 
         if (wSSubProtocolPluginInterface != nullptr) {
-            web::ws::WSSubProtocol* wSSubProtocol = wSSubProtocolPluginInterface->create();
+            web::ws::WSSubProtocol* wSSubProtocol = wSSubProtocolPluginInterface->create(req, res);
 
             if (wSSubProtocol != nullptr) {
                 wSContext = new web::ws::server::WSContext(wSSubProtocol, web::ws::WSSubProtocol::Role::SERVER);
@@ -85,5 +82,3 @@ namespace web::ws::server {
     }
 
 } // namespace web::ws::server
-
-#endif // WEB_WS_SERVER_WSSERVERCONTEXT_HPP
