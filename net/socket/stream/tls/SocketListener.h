@@ -83,7 +83,9 @@ namespace net::socket::stream {
                       },
                       options) {
                 ctx = ssl_ctx_new(options, true);
-                SSL_CTX_set_tlsext_servername_callback(ctx, serverNameCallback);
+                if (ctx != nullptr) {
+                    SSL_CTX_set_tlsext_servername_callback(ctx, serverNameCallback);
+                }
             }
 
             ~SocketListener() override {
@@ -93,7 +95,8 @@ namespace net::socket::stream {
             void listen(const SocketAddress& localAddress, int backlog, const std::function<void(int err)>& onError) {
                 if (ctx == nullptr) {
                     errno = EINVAL;
-                    onError(EINVAL);
+                    onError(errno);
+                    stream::SocketListener<SocketConnection>::destruct();
                 } else {
                     stream::SocketListener<SocketConnection>::listen(localAddress, backlog, onError);
                 }

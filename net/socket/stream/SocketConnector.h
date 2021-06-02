@@ -149,10 +149,12 @@ namespace net::socket::stream {
             destruct();
         }
 
+    protected:
         void destruct() {
             delete this;
         }
 
+    private:
         std::shared_ptr<const SocketProtocolFactory> socketProtocolFactory = nullptr;
 
     protected:

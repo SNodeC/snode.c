@@ -99,6 +99,7 @@ namespace net::socket::stream {
                 if (ctx == nullptr) {
                     errno = EINVAL;
                     onError(errno);
+                    stream::SocketConnector<SocketConnection>::destruct();
                 } else {
                     stream::SocketConnector<SocketConnection>::connect(remoteAddress, bindAddress, onError);
                 }
