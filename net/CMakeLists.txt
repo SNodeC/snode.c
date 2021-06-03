@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.0)
 find_package(OpenSSL REQUIRED)
 pkg_check_modules(BLUEZ REQUIRED bluez)
 
+find_package(range-v3 REQUIRED)
+
 add_library(
     net SHARED
     AcceptEventReceiver.cpp

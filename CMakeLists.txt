@@ -36,8 +36,6 @@ foreach(i ${CMAKE_CXX_COMPILE_FEATURES})
     message("${i}")
 endforeach()
 
-find_package(range-v3 REQUIRED)
-
 set(CMAKE_CXX_FLAGS
     "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -Wno-psabi -Wconversion -pedantic-errors"
 )
