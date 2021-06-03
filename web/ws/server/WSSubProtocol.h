@@ -66,15 +66,15 @@ namespace web::ws::server {
 
     private:
         /* Callbacks (API) WSReceiver -> WSSubProtocol-Subclasses */
-        virtual void onMessageStart(int opCode) = 0;
-        virtual void onMessageData(const char* junk, std::size_t junkLen) = 0;
-        virtual void onMessageEnd() = 0;
-        virtual void onPongReceived() = 0;
-        virtual void onMessageError(uint16_t errnum) = 0;
+        void onMessageStart(int opCode) override = 0;
+        void onMessageData(const char* junk, std::size_t junkLen) override = 0;
+        void onMessageEnd() override = 0;
+        void onPongReceived() override = 0;
+        void onMessageError(uint16_t errnum) override = 0;
 
         /* Callbacks (API) socketConnection -> WSSubProtocol-Subclasses */
-        virtual void onProtocolConnected() = 0;
-        virtual void onProtocolDisconnected() = 0;
+        void onProtocolConnected() override = 0;
+        void onProtocolDisconnected() override = 0;
 
         void sendBroadcast(uint8_t opCode, const char* message, std::size_t messageLength);
         void sendBroadcastStart(uint8_t opCode, const char* message, std::size_t messageLength);
