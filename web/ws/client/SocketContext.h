@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_CLIENT_WSSERVERCONTEXT_H
-#define WEB_WS_CLIENT_WSSERVERCONTEXT_H
+#ifndef WEB_WS_CLIENT_SOCKETCONTEXT_H
+#define WEB_WS_CLIENT_SOCKETCONTEXT_H
 
 #include "web/ws/SocketContext.h"
 
@@ -34,4 +34,4 @@ namespace web::ws::client {
 
 } // namespace web::ws::client
 
-#endif // WEB_WS_CLIENT_WSSERVERCONTEXT_H
+#endif // WEB_WS_CLIENT_SOCKETCONTEXT_H

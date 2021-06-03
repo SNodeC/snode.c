@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SOCKET_H
-#define SOCKET_H
+#ifndef NET_SYSTEM_SOCKET_H
+#define NET_SYSTEM_SOCKET_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -51,4 +51,4 @@ namespace net::system {
 
 } // namespace net::system
 
-#endif // SOCKET_H
+#endif // NET_SYSTEM_SOCKET_H

@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_WSTRANSMITTER_H
-#define WEB_WS_WSTRANSMITTER_H
+#ifndef WEB_WS_TRANSMITTER_H
+#define WEB_WS_TRANSMITTER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -65,4 +65,4 @@ namespace web::ws {
 
 } // namespace web::ws
 
-#endif // WEB_WS_WSTRANSMITTER_H
+#endif // WEB_WS_TRANSMITTER_H

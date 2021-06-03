@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_WSCONTEXTBASE_H
-#define WEB_WS_WSCONTEXTBASE_H
+#ifndef WEB_WS_SOCKETCONTEXT_H
+#define WEB_WS_SOCKETCONTEXT_H
 
 #include "net/socket/stream/SocketContext.h"
 #include "web/ws/Receiver.h"
@@ -103,4 +103,4 @@ namespace web::ws {
 
 } // namespace web::ws
 
-#endif // WEB_WS_WSCONTEXTBASE_H
+#endif // WEB_WS_SOCKETCONTEXT_H

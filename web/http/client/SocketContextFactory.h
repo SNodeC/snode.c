@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_HTTP_CLIENT_CLIENTCONTEXTFACTORY_H
-#define WEB_HTTP_CLIENT_CLIENTCONTEXTFACTORY_H
+#ifndef WEB_HTTP_CLIENT_SOCKETCONTEXTFACTORY_H
+#define WEB_HTTP_CLIENT_SOCKETCONTEXTFACTORY_H
 
 #include "net/socket/stream/SocketConnectionBase.h"
 #include "net/socket/stream/SocketContextFactory.h"
@@ -58,4 +58,4 @@ namespace web::http::client {
 
 } // namespace web::http::client
 
-#endif // WEB_HTTP_CLIENT_CLIENTCONTEXTFACTORY_H
+#endif // WEB_HTTP_CLIENT_SOCKETCONTEXTFACTORY_H

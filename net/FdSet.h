@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FDSET_H
-#define FDSET_H
+#ifndef NET_FDSET_H
+#define NET_FDSET_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -44,4 +44,4 @@ namespace net {
 
 } // namespace net
 
-#endif // FDSET_H
+#endif // NET_FDSET_H

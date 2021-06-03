@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NETDB_H
-#define NETDB_H
+#ifndef NET_SYSTEM_NETDB_H
+#define NET_SYSTEM_NETDB_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -45,4 +45,4 @@ namespace net::system {
 
 } // namespace net::system
 
-#endif // NETDB_H
+#endif // NET_SYSTEM_NETDB_H

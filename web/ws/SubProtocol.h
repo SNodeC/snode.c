@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_WSUBSPROTOCOL_H
-#define WEB_WS_WSUBSPROTOCOL_H
+#ifndef WEB_WS_SUBSPROTOCOL_H
+#define WEB_WS_SUBSPROTOCOL_H
 
 namespace web::ws {
     class SocketContext;
@@ -105,4 +105,4 @@ namespace web::ws {
 
 } // namespace web::ws
 
-#endif // WEB_WS_WSUBSPROTOCOL_H
+#endif // WEB_WS_SUBSPROTOCOL_H

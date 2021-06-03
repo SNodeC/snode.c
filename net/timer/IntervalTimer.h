@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef INTERVALTIMER_H
-#define INTERVALTIMER_H
+#ifndef NET_TIMER_INTERVALTIMER_H
+#define NET_TIMER_INTERVALTIMER_H
 
 #include "net/timer/Timer.h"
 
@@ -72,4 +72,4 @@ namespace net::timer {
 
 } // namespace net::timer
 
-#endif // INTERVALTIMER_H
+#endif // NET_TIMER_INTERVALTIMER_H

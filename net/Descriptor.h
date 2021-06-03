@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DESCRIPTOR_H
-#define DESCRIPTOR_H
+#ifndef NET_DESCRIPTOR_H
+#define NET_DESCRIPTOR_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -57,4 +57,4 @@ namespace net {
 
 } // namespace net
 
-#endif // DESCRIPTOR_H
+#endif // NET_DESCRIPTOR_H

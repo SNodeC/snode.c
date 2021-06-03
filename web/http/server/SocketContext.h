@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_HTTP_SERVER_HTTPSERVERCONTEXT_H
-#define WEB_HTTP_SERVER_HTTPSERVERCONTEXT_H
+#ifndef WEB_HTTP_SERVER_SOCKETCONTEXT_H
+#define WEB_HTTP_SERVER_SOCKETCONTEXT_H
 
 #include "net/socket/stream/SocketContext.h"
 #include "web/http/server/Request.h"
@@ -105,4 +105,4 @@ namespace web::http::server {
 
 } // namespace web::http::server
 
-#endif // WEB_HTTP_SERVER_HTTPSERVERCONTEXT_H
+#endif // WEB_HTTP_SERVER_SOCKETCONTEXT_H

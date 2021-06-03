@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EVENTLOOP_H
-#define EVENTLOOP_H
+#ifndef NET_EVENTLOOP_H
+#define NET_EVENTLOOP_H
 
 #include "net/DescriptorEventDispatcher.h"
 #include "net/TimerEventDispatcher.h"
@@ -100,4 +100,4 @@ namespace net {
 
 } // namespace net
 
-#endif // EVENTLOOP_H
+#endif // NET_EVENTLOOP_H

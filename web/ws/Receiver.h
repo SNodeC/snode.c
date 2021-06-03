@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_WSRECEVIER_H
-#define WEB_WS_WSRECEVIER_H
+#ifndef WEB_WS_RECEVIER_H
+#define WEB_WS_RECEVIER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -82,7 +82,7 @@ namespace web::ws {
 
 } // namespace web::ws
 
-#endif // WEB_WS_WSRECEVIER_H
+#endif // WEB_WS_RECEVIER_H
 
 //   |Opcode  | Meaning                             | Reference |
 //  -+--------+-------------------------------------+-----------|

@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TIMER_H
-#define TIMER_H
+#ifndef NET_TIMER_TIMER_H
+#define NET_TIMER_TIMER_H
 
 #include "net/TimerEventReceiver.h"
 
@@ -76,4 +76,4 @@ namespace net {
 
 } // namespace net
 
-#endif // TIMER_H
+#endif // NET_TIMER_TIMER_H

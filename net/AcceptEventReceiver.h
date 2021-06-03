@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ACCEPTEVENTRECEIVER_H
-#define ACCEPTEVENTRECEIVER_H
+#ifndef NET_ACCEPTEVENTRECEIVER_H
+#define NET_ACCEPTEVENTRECEIVER_H
 
 #include "net/DescriptorEventReceiver.h"
 
@@ -43,4 +43,4 @@ namespace net {
 
 } // namespace net
 
-#endif // ACCEPTEVENTRECEIVER_H
+#endif // NET_ACCEPTEVENTRECEIVER_H

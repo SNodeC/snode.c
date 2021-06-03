@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SINGLESHOTTIMER_H
-#define SINGLESHOTTIMER_H
+#ifndef NET_TIMER_SINGLESHOTTIMER_H
+#define NET_TIMER_SINGLESHOTTIMER_H
 
 #include "net/timer/Timer.h"
 
@@ -50,4 +50,4 @@ namespace net::timer {
 
 } // namespace net::timer
 
-#endif // SINGLESHOTTIMER_H
+#endif // NET_TIMER_SINGLESHOTTIMER_H

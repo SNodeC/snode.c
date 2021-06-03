@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DESCRIPTOREVENTDISPATCHER_H
-#define DESCRIPTOREVENTDISPATCHER_H
+#ifndef NET_DESCRIPTOREVENTDISPATCHER_H
+#define NET_DESCRIPTOREVENTDISPATCHER_H
 
 #include "net/FdSet.h" // for FdSet
 
@@ -81,4 +81,4 @@ namespace net {
 
 } // namespace net
 
-#endif // DESCRIPTOREVENTDISPATCHER_H
+#endif // NET_DESCRIPTOREVENTDISPATCHER_H

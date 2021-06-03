@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SNODEC_H
-#define SNODEC_H
+#ifndef NET_SNODEC_H
+#define NET_SNODEC_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -43,4 +43,4 @@ namespace net {
 
 } // namespace net
 
-#endif // SNODEC_H
+#endif // NET_SNODEC_H

@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TIMEVAL_H
-#define TIMEVAL_H
+#ifndef UTILS_TIMEVAL_H
+#define UTILS_TIMEVAL_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -34,4 +34,4 @@ bool operator==(const struct timeval& tv1, const struct timeval& tv2);
 struct timeval operator+(const struct timeval& tv1, const struct timeval& tv2);
 struct timeval operator-(const struct timeval& tv1, const struct timeval& tv2);
 
-#endif // TIMEVAL_H
+#endif // UTILS_TIMEVAL_H
