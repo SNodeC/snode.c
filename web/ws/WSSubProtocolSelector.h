@@ -45,7 +45,8 @@ namespace web::ws {
         WSSubProtocolSelector& operator=(const WSSubProtocolSelector&) = delete;
 
     public:
-        void loadSubProtocols(const std::string& path);
+        void loadSubProtocol(const std::string& filePath);
+        void loadSubProtocols(const std::string& directoryPath);
         void registerSubProtocol(WSSubProtocolPluginInterface* wSSubProtocolPluginInterface);
 
         virtual WSSubProtocolPluginInterface* select(const std::string& subProtocolName) = 0;

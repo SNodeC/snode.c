@@ -85,27 +85,31 @@ namespace web::ws {
         }
     }
 
-    void WSSubProtocolSelector::loadSubProtocols(const std::string& path) {
-        if (std::filesystem::exists(path) && std::filesystem::is_directory(path)) {
-            for (const std::filesystem::directory_entry& directoryEntry : std::filesystem::recursive_directory_iterator(path)) {
+    void WSSubProtocolSelector::loadSubProtocol(const std::string& filePath) {
+        void* handle = dlopen(filePath.c_str(), RTLD_NOW | RTLD_LOCAL);
+        if (handle != nullptr) {
+            WSSubProtocolPluginInterface* (*wSSubProtocolPlugin)() =
+                reinterpret_cast<WSSubProtocolPluginInterface* (*) ()>(dlsym(handle, "plugin"));
+
+            registerSubProtocol(wSSubProtocolPlugin(), handle);
+
+            VLOG(1) << "DLOpen: success: " << filePath;
+        } else {
+            VLOG(1) << "DLOpen: error: " << dlerror() << " - " << filePath;
+        }
+    }
+
+    void WSSubProtocolSelector::loadSubProtocols(const std::string& directoryPath) {
+        if (std::filesystem::exists(directoryPath) && std::filesystem::is_directory(directoryPath)) {
+            for (const std::filesystem::directory_entry& directoryEntry : std::filesystem::recursive_directory_iterator(directoryPath)) {
                 if (std::filesystem::is_regular_file(directoryEntry) && directoryEntry.path().extension() == ".so") {
-                    void* handle = dlopen(directoryEntry.path().c_str(), RTLD_NOW | RTLD_LOCAL);
-                    if (handle != nullptr) {
-                        WSSubProtocolPluginInterface* (*wSSubProtocolPlugin)() =
-                            reinterpret_cast<WSSubProtocolPluginInterface* (*) ()>(dlsym(handle, "plugin"));
-
-                        registerSubProtocol(wSSubProtocolPlugin(), handle);
-
-                        VLOG(1) << "DLOpen: success: " << directoryEntry.path().c_str();
-                    } else {
-                        VLOG(1) << "DLOpen: error: " << dlerror() << " - " << directoryEntry.path().c_str();
-                    }
+                    loadSubProtocol(directoryEntry.path());
                 } else {
                     VLOG(1) << "Not a library: Ignoring direntry " << directoryEntry;
                 }
             }
         } else {
-            VLOG(1) << "Not a directory: Ignoring path: " << path;
+            VLOG(1) << "Not a directory: Ignoring path: " << directoryPath;
         }
     }
 
