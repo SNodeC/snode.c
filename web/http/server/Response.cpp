@@ -149,14 +149,14 @@ namespace web::http::server {
         // here we need an additional dynamic library loader for the upgrade-protocol
         if (httputils::ci_contains(req.header("connection"), "Upgrade")) {
             if (httputils::ci_contains(req.header("upgrade"), "websocket")) {
-                web::ws::server::SocketContext* Context = web::ws::server::SocketContext::create(req, *this);
+                web::ws::server::SocketContext* socketContext = web::ws::server::SocketContext::create(req, *this);
 
-                if (Context != nullptr) {
+                if (socketContext != nullptr) {
                     SocketContextBase* serverContext = this->serverContext;
 
                     end();
 
-                    serverContext->switchSocketProtocol(Context);
+                    serverContext->switchSocketProtocol(socketContext);
                 } else {
                     end();
                 }

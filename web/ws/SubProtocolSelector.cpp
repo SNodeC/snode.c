@@ -107,7 +107,7 @@ namespace web::ws {
                 if (std::filesystem::is_regular_file(directoryEntry) && directoryEntry.path().extension() == ".so") {
                     loadSubProtocol(directoryEntry.path());
                 } else {
-                    VLOG(1) << "Not a library: Ignoring direntry " << directoryEntry;
+                    VLOG(1) << "Not a library: Ignoring " << directoryEntry;
                 }
             }
         } else {

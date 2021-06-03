@@ -22,7 +22,6 @@
 #include "log/Logger.h"
 #include "net/SNodeC.h"
 #include "net/socket/ip/address/ipv6/InetAddress.h" // for InetAddress
-#include "web/http/CookieOptions.h"                 // for CookieOptions
 #include "web/http/client/Client.h"                 // for Client<>::Socket...
 #include "web/http/client/Request.h"                // for Request
 #include "web/http/client/Response.h"
@@ -39,9 +38,10 @@
 #include <openssl/ssl3.h>     // for SSL_get_peer_cer...
 #include <openssl/x509.h>     // for X509_NAME_oneline
 #include <openssl/x509v3.h>
-#include <stdint.h> // for int32_t
-#include <string>   // for allocator, string
-#include <utility>  // for tuple_element<>:...
+#include <stdint.h>    // for int32_t
+#include <string>      // for allocator, string
+#include <type_traits> // for add_const<>::type
+#include <utility>     // for tuple_element<>:...
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
