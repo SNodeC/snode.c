@@ -16,37 +16,18 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_SUBPROTOCOL_WSSUBPROTOCOLPLUGININTERFACE_H
-#define WEB_WS_SUBPROTOCOL_WSSUBPROTOCOLPLUGININTERFACE_H
-
-#include "web/ws/server/WSSubProtocol.h"
-#include "web/ws/WSSubProtocolPluginInterface.h"
-
-#include <list>
-
-namespace web::http::server {
-
-    class Request;
-    class Response;
-
-} // namespace web::http::server
+#include "SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::ws::server {
+#define CLOSE_SOCKET_TIMEOUT 10
 
-    extern "C" {
-        struct WSSubProtocolPluginInterface : public web::ws::WSSubProtocolPluginInterface {
-            std::list<web::ws::server::WSSubProtocol*>* getClients() {
-                return &clients;
-            }
-
-            std::list<web::ws::server::WSSubProtocol*> clients;
-        };
-    }
-
-} // namespace web::ws::server::subprotocol
-
-#endif // WEB_WS_SUBPROTOCOL_WSSUBPROTOCOLPLUGININTERFACE_H
+namespace web::ws::client {
+    /*
+        WSContext::WSContext(const std::string& subProtocol)
+            : web::ws::WSContext(subProtocol, web::ws::WSProtocol::Role::CLIENT) {
+        }
+    */
+} // namespace web::ws::client

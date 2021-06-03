@@ -1,8 +1,8 @@
 #ifndef WEB_HTTP_SERVER_SERVERT_H
 #define WEB_HTTP_SERVER_SERVERT_H
 
-#include "web/http/server/HTTPServerContext.hpp"
-#include "web/http/server/HTTPServerContextFactory.h"
+#include "web/http/server/SocketContext.hpp"
+#include "web/http/server/SocketContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -23,7 +23,7 @@ namespace web::http::server {
     public:
         using Request = RequestT;
         using Response = ResponseT;
-        using SocketServer = SocketServerT<web::http::server::HTTPServerContextFactory<Request, Response>>; // this makes it an HTTP server
+        using SocketServer = SocketServerT<web::http::server::SocketContextFactory<Request, Response>>; // this makes it an HTTP server
         using SocketConnection = typename SocketServer::SocketConnection;
         using SocketAddress = typename SocketConnection::SocketAddress;
 

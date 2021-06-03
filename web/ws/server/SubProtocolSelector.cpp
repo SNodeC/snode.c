@@ -16,9 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "WSSubProtocolSelector.h"
-
-#include "WSSubProtocolPluginInterface.h" // for WSSubPr...
+#include "SubProtocolPluginInterface.h" // for WSSubPr...
+#include "SubProtocolSelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,18 +28,18 @@
 
 namespace web::ws::server {
 
-    WSSubProtocolSelector WSSubProtocolSelector::wSSubProtocolSelector;
+    SubProtocolSelector SubProtocolSelector::wSSubProtocolSelector;
 
-    WSSubProtocolSelector& WSSubProtocolSelector::instance() {
-        return web::ws::server::WSSubProtocolSelector::wSSubProtocolSelector;
+    SubProtocolSelector& SubProtocolSelector::instance() {
+        return web::ws::server::SubProtocolSelector::wSSubProtocolSelector;
     }
 
-    web::ws::server::WSSubProtocolPluginInterface* WSSubProtocolSelector::select(const std::string& subProtocolName) {
-        WSSubProtocolPluginInterface* wSSubProtocolPluginInterface = nullptr;
+    web::ws::server::SubProtocolPluginInterface* SubProtocolSelector::select(const std::string& subProtocolName) {
+        SubProtocolPluginInterface* wSSubProtocolPluginInterface = nullptr;
 
         if (serverSubprotocols.contains(subProtocolName)) {
             wSSubProtocolPluginInterface =
-                static_cast<WSSubProtocolPluginInterface*>(serverSubprotocols.find(subProtocolName)->second.wSSubprotocolPluginInterface);
+                static_cast<SubProtocolPluginInterface*>(serverSubprotocols.find(subProtocolName)->second.wSSubprotocolPluginInterface);
         }
 
         return wSSubProtocolPluginInterface;

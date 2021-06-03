@@ -22,9 +22,9 @@
 #include "net/system/time.h"
 #include "web/http/StatusCodes.h"
 #include "web/http/http_utils.h"
-#include "web/http/server//HTTPServerContext.h"
+#include "web/http/server//SocketContext.h"
 #include "web/http/server/Request.h"
-#include "web/ws/server/WSContext.h"
+#include "web/ws/server/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -35,7 +35,7 @@
 
 namespace web::http::server {
 
-    Response::Response(HTTPServerContextBase* serverContext)
+    Response::Response(SocketContextBase* serverContext)
         : serverContext(serverContext) {
     }
 
@@ -149,10 +149,10 @@ namespace web::http::server {
         // here we need an additional dynamic library loader for the upgrade-protocol
         if (httputils::ci_contains(req.header("connection"), "Upgrade")) {
             if (httputils::ci_contains(req.header("upgrade"), "websocket")) {
-                web::ws::server::WSContext* wSContext = web::ws::server::WSContext::create(req, *this);
+                web::ws::server::SocketContext* wSContext = web::ws::server::SocketContext::create(req, *this);
 
                 if (wSContext != nullptr) {
-                    HTTPServerContextBase* serverContext = this->serverContext;
+                    SocketContextBase* serverContext = this->serverContext;
 
                     end();
 

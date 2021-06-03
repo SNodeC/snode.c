@@ -19,7 +19,7 @@
 #include "web/http/client/Request.h"
 
 #include "log/Logger.h"
-#include "web/http/client/ClientContext.h"
+#include "web/http/client/SocketContext.h"
 #include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -30,7 +30,7 @@
 
 namespace web::http::client {
 
-    Request::Request(ClientContextBase* clientContext)
+    Request::Request(SocketContextBase* clientContext)
         : clientContext(clientContext) {
     }
 

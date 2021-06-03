@@ -21,7 +21,7 @@
 
 #include "net/socket/stream/SocketConnectionBase.h"
 #include "net/socket/stream/SocketContextFactory.h"
-#include "web/http/client/ClientContext.h"
+#include "web/http/client/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,16 +30,16 @@
 namespace web::http::client {
 
     template <typename RequestT, typename ResponseT>
-    class ClientContextFactory : public net::socket::stream::SocketContextFactory {
+    class SocketContextFactory : public net::socket::stream::SocketContextFactory {
     public:
         using Request = RequestT;
         using Response = ResponseT;
 
-        ClientContextFactory() = default;
+        SocketContextFactory() = default;
 
     private:
         net::socket::stream::SocketContext* create() const override {
-            return new ClientContext<Request, Response>(onResponse, onRequestError);
+            return new SocketContext<Request, Response>(onResponse, onRequestError);
         }
 
     public:

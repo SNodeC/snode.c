@@ -32,11 +32,11 @@
 
 namespace web::http::client {
 
-    class ClientContextBase;
+    class SocketContextBase;
 
     class Request : public net::pipe::Sink {
     protected:
-        explicit Request(ClientContextBase* clientContext);
+        explicit Request(SocketContextBase* clientContext);
 
     public:
         std::string method = "GET";
@@ -71,7 +71,7 @@ namespace web::http::client {
         std::size_t contentSent = 0;
         std::size_t contentLength = 0;
 
-        ClientContextBase* clientContext;
+        SocketContextBase* clientContext;
 
         virtual void reset();
 
@@ -86,7 +86,7 @@ namespace web::http::client {
         void error(int errnum) override;
 
         template <typename Request, typename Response>
-        friend class ClientContext;
+        friend class SocketContext;
     };
 
 } // namespace web::http::client

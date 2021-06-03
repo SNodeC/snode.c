@@ -28,12 +28,12 @@
 
 namespace web::ws {
 
-    class WSReceiver {
+    class Receiver {
     public:
-        WSReceiver() = default;
+        Receiver() = default;
 
-        WSReceiver(const WSReceiver&) = delete;
-        WSReceiver& operator=(const WSReceiver&) = delete;
+        Receiver(const Receiver&) = delete;
+        Receiver& operator=(const Receiver&) = delete;
 
         void receive(char* junk, std::size_t junkLen);
 

@@ -19,10 +19,10 @@
 #ifndef WEB_WS_SERVER_WSUBSPROTOCOL_H
 #define WEB_WS_SERVER_WSUBSPROTOCOL_H
 
-#include "web/ws/WSSubProtocol.h"
+#include "web/ws/SubProtocol.h"
 
 namespace web::ws::server {
-    class WSContext;
+    class SocketContext;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -36,19 +36,19 @@ namespace web::ws::server {
 
 namespace web::ws::server {
 
-    class WSSubProtocol : public web::ws::WSSubProtocol {
+    class SubProtocol : public web::ws::SubProtocol {
     public:
         enum class Role { SERVER, CLIENT };
 
     protected:
-        WSSubProtocol(const std::string& name);
+        SubProtocol(const std::string& name);
 
-        WSSubProtocol() = delete;
-        WSSubProtocol(const WSSubProtocol&) = delete;
-        WSSubProtocol& operator=(const WSSubProtocol&) = delete;
+        SubProtocol() = delete;
+        SubProtocol(const SubProtocol&) = delete;
+        SubProtocol& operator=(const SubProtocol&) = delete;
 
     public:
-        virtual ~WSSubProtocol();
+        virtual ~SubProtocol();
 
     public:
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from WSSubProtocol-Subclasses */
@@ -79,11 +79,11 @@ namespace web::ws::server {
         void sendBroadcast(uint8_t opCode, const char* message, std::size_t messageLength);
         void sendBroadcastStart(uint8_t opCode, const char* message, std::size_t messageLength);
 
-        void setClients(std::list<WSSubProtocol*>* clients);
+        void setClients(std::list<SubProtocol*>* clients);
 
-        std::list<WSSubProtocol*>* clients;
+        std::list<SubProtocol*>* clients;
 
-        friend class web::ws::server::WSContext;
+        friend class web::ws::server::SocketContext;
     };
 
 } // namespace web::ws::server

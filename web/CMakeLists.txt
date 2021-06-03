@@ -18,16 +18,16 @@ add_library(
     http/server/RequestParser.cpp
     http/server/Request.cpp
     http/server/Response.cpp
-    ws/WSContext.cpp
-    ws/WSReceiver.cpp
-    ws/WSSubProtocol.cpp
-    ws/WSSubProtocolSelector.cpp
-    ws/WSTransmitter.cpp
+    ws/SocketContext.cpp
+    ws/Receiver.cpp
+    ws/SubProtocol.cpp
+    ws/SubProtocolSelector.cpp
+    ws/Transmitter.cpp
     ws/ws_utils.cpp
-    ws/client/WSContext.cpp
-    ws/server/WSContext.cpp
-    ws/server/WSSubProtocol.cpp
-    ws/server/WSSubProtocolSelector.cpp
+    ws/client/SocketContext.cpp
+    ws/server/SocketContext.cpp
+    ws/server/SubProtocol.cpp
+    ws/server/SubProtocolSelector.cpp
 )
 
 add_subdirectory(ws/subprotocol)

@@ -20,9 +20,9 @@
 #define WEB_WS_WSCONTEXTBASE_H
 
 #include "net/socket/stream/SocketContext.h"
-#include "web/ws/WSReceiver.h"
-#include "web/ws/WSSubProtocol.h" // for WSProtocol, WSProtocol...
-#include "web/ws/WSTransmitter.h"
+#include "web/ws/Receiver.h"
+#include "web/ws/SubProtocol.h" // for WSProtocol, WSProtocol...
+#include "web/ws/Transmitter.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -34,20 +34,20 @@
 
 namespace web::ws {
 
-    class WSContext
+    class SocketContext
         : public net::socket::stream::SocketContext
-        , public web::ws::WSReceiver
-        , public web::ws::WSTransmitter {
+        , public web::ws::Receiver
+        , public web::ws::Transmitter {
     protected:
-        WSContext(web::ws::WSSubProtocol* wSSubProtocol, web::ws::WSSubProtocol::Role role);
+        SocketContext(web::ws::SubProtocol* wSSubProtocol, web::ws::SubProtocol::Role role);
 
-        WSContext() = delete;
-        WSContext(const WSContext&) = delete;
-        WSContext& operator=(const WSContext&) = delete;
+        SocketContext() = delete;
+        SocketContext(const SocketContext&) = delete;
+        SocketContext& operator=(const SocketContext&) = delete;
 
-        virtual ~WSContext() = default;
+        virtual ~SocketContext() = default;
 
-        web::ws::WSSubProtocol* wSSubProtocol;
+        web::ws::SubProtocol* wSSubProtocol;
 
     public:
         void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength);
@@ -98,7 +98,7 @@ namespace web::ws {
         std::string pongCloseData;
 
     protected:
-        friend class web::ws::WSSubProtocol;
+        friend class web::ws::SubProtocol;
     };
 
 } // namespace web::ws

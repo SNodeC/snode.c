@@ -32,7 +32,7 @@
 
 namespace web::ws::subprotocol::echo::server { // namespace web::ws::subprotocol::echo::server
 
-    web::ws::WSSubProtocol* create([[maybe_unused]] web::http::server::Request& req, [[maybe_unused]] web::http::server::Response& res) {
+    web::ws::SubProtocol* create([[maybe_unused]] web::http::server::Request& req, [[maybe_unused]] web::http::server::Response& res) {
         return new Echo();
     }
 
@@ -40,17 +40,17 @@ namespace web::ws::subprotocol::echo::server { // namespace web::ws::subprotocol
         return NAME;
     }
 
-    void destroy(web::ws::WSSubProtocol* echo) {
+    void destroy(web::ws::SubProtocol* echo) {
         delete echo;
     }
 
-    web::ws::WSSubProtocol::Role role() {
-        return web::ws::WSSubProtocol::Role::SERVER;
+    web::ws::SubProtocol::Role role() {
+        return web::ws::SubProtocol::Role::SERVER;
     }
 
     extern "C" {
-        struct web::ws::WSSubProtocolPluginInterface* plugin() {
-            web::ws::WSSubProtocolPluginInterface* wSSubProtocolPluginInterface = new web::ws::server::WSSubProtocolPluginInterface();
+        struct web::ws::SubProtocolPluginInterface* plugin() {
+            web::ws::SubProtocolPluginInterface* wSSubProtocolPluginInterface = new web::ws::server::SubProtocolPluginInterface();
             wSSubProtocolPluginInterface->name = name;
             wSSubProtocolPluginInterface->role = role;
             wSSubProtocolPluginInterface->create = create;
@@ -60,7 +60,7 @@ namespace web::ws::subprotocol::echo::server { // namespace web::ws::subprotocol
     }
 
     Echo::Echo()
-        : web::ws::server::WSSubProtocol(NAME)
+        : web::ws::server::SubProtocol(NAME)
         , timer(net::timer::Timer::intervalTimer(
               [this]([[maybe_unused]] const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
                   this->sendPing();

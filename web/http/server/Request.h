@@ -63,7 +63,7 @@ namespace web::http::server {
         std::string nullstr = "";
 
         template <typename Request, typename Response>
-        friend class HTTPServerContext;
+        friend class SocketContext;
     };
 
 } // namespace web::http::server

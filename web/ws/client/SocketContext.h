@@ -19,7 +19,7 @@
 #ifndef WEB_WS_CLIENT_WSSERVERCONTEXT_H
 #define WEB_WS_CLIENT_WSSERVERCONTEXT_H
 
-#include "web/ws/WSContext.h"
+#include "web/ws/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,7 +27,7 @@
 
 namespace web::ws::client {
 
-    class WSContext : public web::ws::WSContext {
+    class SocketContext : public web::ws::SocketContext {
     public:
         //        WSContext(const std::string& subProtocol);
     };

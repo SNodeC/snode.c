@@ -20,7 +20,7 @@
 #define WEB_WS_WSUBSPROTOCOL_H
 
 namespace web::ws {
-    class WSContext;
+    class SocketContext;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -33,19 +33,19 @@ namespace web::ws {
 
 namespace web::ws {
 
-    class WSSubProtocol {
+    class SubProtocol {
     public:
         enum class Role { SERVER, CLIENT };
 
     protected:
-        WSSubProtocol(const std::string& name);
+        SubProtocol(const std::string& name);
 
-        WSSubProtocol() = delete;
-        WSSubProtocol(const WSSubProtocol&) = delete;
-        WSSubProtocol& operator=(const WSSubProtocol&) = delete;
+        SubProtocol() = delete;
+        SubProtocol(const SubProtocol&) = delete;
+        SubProtocol& operator=(const SubProtocol&) = delete;
 
     public:
-        virtual ~WSSubProtocol();
+        virtual ~SubProtocol();
 
     public:
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from WSSubProtocol-Subclasses */
@@ -93,14 +93,14 @@ namespace web::ws {
         virtual void onProtocolConnected() = 0;
         virtual void onProtocolDisconnected() = 0;
 
-        void setWSContext(WSContext* wSServerContext);
+        void setWSContext(SocketContext* wSServerContext);
 
     protected:
-        WSContext* wSContext;
+        SocketContext* wSContext;
 
         const std::string name;
 
-        friend class web::ws::WSContext;
+        friend class web::ws::SocketContext;
     };
 
 } // namespace web::ws

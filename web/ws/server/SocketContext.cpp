@@ -16,12 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "WSContext.h"
+#include "SocketContext.h"
 
 #include "log/Logger.h"
-#include "web/ws/WSSubProtocol.h" // for WSSubProtocol, WSSubProtocol::Role, WSProto...
-#include "web/ws/server/WSSubProtocolPluginInterface.h"
-#include "web/ws/server/WSSubProtocolSelector.h"
+#include "web/ws/SubProtocol.h" // for WSSubProtocol, WSSubProtocol::Role, WSProto...
+#include "web/ws/server/SubProtocolPluginInterface.h"
+#include "web/ws/server/SubProtocolSelector.h"
 #include "web/ws/ws_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -32,35 +32,35 @@
 
 namespace web::ws::server {
 
-    WSContext::WSContext(web::ws::server::WSSubProtocol* wSSubProtocol, web::ws::WSSubProtocol::Role role)
-        : web::ws::WSContext(wSSubProtocol, role) {
+    SocketContext::SocketContext(web::ws::server::SubProtocol* wSSubProtocol, web::ws::SubProtocol::Role role)
+        : web::ws::SocketContext(wSSubProtocol, role) {
     }
 
-    WSContext::WSContext::~WSContext() {
-        web::ws::WSSubProtocolPluginInterface* wSSubProtocolPluginInterface =
-            web::ws::server::WSSubProtocolSelector::instance().select(wSSubProtocol->getName());
+    SocketContext::SocketContext::~SocketContext() {
+        web::ws::SubProtocolPluginInterface* wSSubProtocolPluginInterface =
+            web::ws::server::SubProtocolSelector::instance().select(wSSubProtocol->getName());
 
         if (wSSubProtocolPluginInterface != nullptr) {
-            wSSubProtocolPluginInterface->destroy(dynamic_cast<web::ws::server::WSSubProtocol*>(wSSubProtocol));
+            wSSubProtocolPluginInterface->destroy(dynamic_cast<web::ws::server::SubProtocol*>(wSSubProtocol));
         }
     }
 
-    WSContext* WSContext::create(web::http::server::Request& req, web::http::server::Response& res) {
+    SocketContext* SocketContext::create(web::http::server::Request& req, web::http::server::Response& res) {
         std::string subProtocol = req.header("sec-websocket-protocol");
 
-        web::ws::server::WSSubProtocolPluginInterface* wSSubProtocolPluginInterface =
-            web::ws::server::WSSubProtocolSelector::instance().select(subProtocol);
+        web::ws::server::SubProtocolPluginInterface* wSSubProtocolPluginInterface =
+            web::ws::server::SubProtocolSelector::instance().select(subProtocol);
 
-        web::ws::server::WSContext* wSContext = nullptr;
+        web::ws::server::SocketContext* wSContext = nullptr;
 
         if (wSSubProtocolPluginInterface != nullptr) {
-            web::ws::server::WSSubProtocol* wSSubProtocol =
-                static_cast<web::ws::server::WSSubProtocol*>(wSSubProtocolPluginInterface->create(req, res));
+            web::ws::server::SubProtocol* wSSubProtocol =
+                static_cast<web::ws::server::SubProtocol*>(wSSubProtocolPluginInterface->create(req, res));
 
             if (wSSubProtocol != nullptr) {
                 wSSubProtocol->setClients(wSSubProtocolPluginInterface->getClients());
 
-                wSContext = new web::ws::server::WSContext(wSSubProtocol, web::ws::WSSubProtocol::Role::SERVER);
+                wSContext = new web::ws::server::SocketContext(wSSubProtocol, web::ws::SubProtocol::Role::SERVER);
 
                 if (wSContext != nullptr) {
                     res.set("Upgrade", "websocket");

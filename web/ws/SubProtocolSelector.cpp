@@ -16,12 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "WSSubProtocolSelector.h"
+#include "SubProtocolSelector.h"
 
-#include "WSSubProtocolPluginInterface.h" // for WSSubPr...
+#include "SubProtocolPluginInterface.h" // for WSSubPr...
 #include "log/Logger.h"
 #include "web/config.h"
-#include "web/ws/WSSubProtocol.h"
+#include "web/ws/SubProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -59,14 +59,14 @@ namespace web::ws {
         loadSubProtocols("/usr/local/lib/snodec/web/ws/subprotocol");
     }
 
-    void WSSubProtocolSelector::registerSubProtocol(WSSubProtocolPluginInterface* wSSubProtocolPluginInterface) {
+    void WSSubProtocolSelector::registerSubProtocol(SubProtocolPluginInterface* wSSubProtocolPluginInterface) {
         registerSubProtocol(wSSubProtocolPluginInterface, nullptr);
     }
 
-    void WSSubProtocolSelector::registerSubProtocol(WSSubProtocolPluginInterface* wSSubProtocolPluginInterface, void* handle) {
-        WSSubProtocolPlugin wSSubProtocolPlugin = {.wSSubprotocolPluginInterface = wSSubProtocolPluginInterface, .handle = handle};
+    void WSSubProtocolSelector::registerSubProtocol(SubProtocolPluginInterface* wSSubProtocolPluginInterface, void* handle) {
+        SubProtocolPlugin wSSubProtocolPlugin = {.wSSubprotocolPluginInterface = wSSubProtocolPluginInterface, .handle = handle};
 
-        if (wSSubProtocolPluginInterface->role() == web::ws::WSSubProtocol::Role::SERVER) {
+        if (wSSubProtocolPluginInterface->role() == web::ws::SubProtocol::Role::SERVER) {
             const auto [it, success] = serverSubprotocols.insert({wSSubProtocolPluginInterface->name(), wSSubProtocolPlugin});
             if (!success) {
                 if (handle != nullptr) {
@@ -88,8 +88,8 @@ namespace web::ws {
     void WSSubProtocolSelector::loadSubProtocol(const std::string& filePath) {
         void* handle = dlopen(filePath.c_str(), RTLD_NOW | RTLD_LOCAL);
         if (handle != nullptr) {
-            WSSubProtocolPluginInterface* (*wSSubProtocolPlugin)() =
-                reinterpret_cast<WSSubProtocolPluginInterface* (*) ()>(dlsym(handle, "plugin"));
+            SubProtocolPluginInterface* (*wSSubProtocolPlugin)() =
+                reinterpret_cast<SubProtocolPluginInterface* (*) ()>(dlsym(handle, "plugin"));
 
             registerSubProtocol(wSSubProtocolPlugin(), handle);
 

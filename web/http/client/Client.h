@@ -19,8 +19,8 @@
 #ifndef WEB_HTTP_CLIENT_CLIENT_H
 #define WEB_HTTP_CLIENT_CLIENT_H
 
-#include "web/http/client/ClientContext.hpp"
-#include "web/http/client/ClientContextFactory.h"
+#include "web/http/client/SocketContext.hpp"
+#include "web/http/client/SocketContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -40,7 +40,7 @@ namespace web::http::client {
     public:
         using Request = RequestT;
         using Response = ResponseT;
-        using SocketClient = SocketClientT<ClientContextFactory<Request, Response>>; // this makes it an HTTP server;
+        using SocketClient = SocketClientT<SocketContextFactory<Request, Response>>; // this makes it an HTTP server;
         using SocketConnection = typename SocketClient::SocketConnection;
         using SocketAddress = typename SocketConnection::SocketAddress;
 
@@ -57,7 +57,7 @@ namespace web::http::client {
                       onConnect(localAddress, remoteAddress);
                   },
                   [onConnected, onRequestBegin, onResponse, onResponseError](SocketConnection* socketConnection) -> void { // onConnected
-                      Request& request = static_cast<ClientContextBase*>(socketConnection->getSocketContext())->getRequest();
+                      Request& request = static_cast<SocketContextBase*>(socketConnection->getSocketContext())->getRequest();
 
                       request.setHost(socketConnection->getRemoteAddress().host() + ":" +
                                       std::to_string(socketConnection->getRemoteAddress().port()));

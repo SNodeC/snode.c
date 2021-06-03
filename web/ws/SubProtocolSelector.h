@@ -28,10 +28,10 @@
 
 namespace web::ws {
 
-    struct WSSubProtocolPluginInterface;
+    struct SubProtocolPluginInterface;
 
-    struct WSSubProtocolPlugin {
-        WSSubProtocolPluginInterface* wSSubprotocolPluginInterface;
+    struct SubProtocolPlugin {
+        SubProtocolPluginInterface* wSSubprotocolPluginInterface;
         void* handle;
     };
 
@@ -47,16 +47,16 @@ namespace web::ws {
     public:
         void loadSubProtocol(const std::string& filePath);
         void loadSubProtocols(const std::string& directoryPath);
-        void registerSubProtocol(WSSubProtocolPluginInterface* wSSubProtocolPluginInterface);
+        void registerSubProtocol(SubProtocolPluginInterface* wSSubProtocolPluginInterface);
 
-        virtual WSSubProtocolPluginInterface* select(const std::string& subProtocolName) = 0;
+        virtual SubProtocolPluginInterface* select(const std::string& subProtocolName) = 0;
 
     protected:
-        void registerSubProtocol(WSSubProtocolPluginInterface* wSSubProtocolPluginInterface, void* handle);
+        void registerSubProtocol(SubProtocolPluginInterface* wSSubProtocolPluginInterface, void* handle);
         void loadSubProtocols();
 
-        std::map<std::string, WSSubProtocolPlugin> serverSubprotocols;
-        std::map<std::string, WSSubProtocolPlugin> clientSubprotocols;
+        std::map<std::string, SubProtocolPlugin> serverSubprotocols;
+        std::map<std::string, SubProtocolPlugin> clientSubprotocols;
     };
 
 } // namespace web::ws

@@ -4,8 +4,8 @@
 #include "log/Logger.h"
 #include "net/SNodeC.h"
 #include "net/timer/IntervalTimer.h"
-#include "web/ws/WSSubProtocol.h"
-#include "web/ws/server/WSContext.h"
+#include "web/ws/SubProtocol.h"
+#include "web/ws/server/SocketContext.h"
 
 #include <cstddef>
 #include <endian.h>

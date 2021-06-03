@@ -29,15 +29,15 @@
 
 namespace web::ws {
 
-    class WSTransmitter {
+    class Transmitter {
     public:
-        WSTransmitter() = default;
+        Transmitter() = default;
 
-        WSTransmitter(const WSTransmitter&) = delete;
-        WSTransmitter& operator=(const WSTransmitter&) = delete;
+        Transmitter(const Transmitter&) = delete;
+        Transmitter& operator=(const Transmitter&) = delete;
 
     protected:
-        WSTransmitter(bool masking);
+        Transmitter(bool masking);
 
         void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength);
 

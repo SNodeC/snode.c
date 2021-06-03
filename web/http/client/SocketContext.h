@@ -39,9 +39,9 @@ namespace net::socket::stream {
 
 namespace web::http::client {
 
-    class ClientContextBase : public net::socket::stream::SocketContext {
+    class SocketContextBase : public net::socket::stream::SocketContext {
     public:
-        virtual ~ClientContextBase() = default;
+        virtual ~SocketContextBase() = default;
 
         virtual void sendRequestData(const char* buf, std::size_t len) = 0;
 
@@ -52,16 +52,16 @@ namespace web::http::client {
     };
 
     template <typename RequestT, typename ResponseT>
-    class ClientContext : public ClientContextBase {
+    class SocketContext : public SocketContextBase {
     public:
         using SocketConnection = net::socket::stream::SocketConnectionBase;
         using Request = RequestT;
         using Response = ResponseT;
 
-        ClientContext(const std::function<void(Response&)>& onResponse,
+        SocketContext(const std::function<void(Response&)>& onResponse,
                       const std::function<void(int status, const std::string& reason)>& onError);
 
-        ~ClientContext() override = default;
+        ~SocketContext() override = default;
 
         void onReceiveFromPeer(const char* junk, std::size_t junkLen) override;
         void sendRequestData(const char* junk, std::size_t junkLen) override;

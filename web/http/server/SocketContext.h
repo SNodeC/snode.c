@@ -36,14 +36,14 @@ namespace net::socket::stream {
 
 namespace web::http::server {
 
-    class HTTPServerContextBase : public net::socket::stream::SocketContext {
+    class SocketContextBase : public net::socket::stream::SocketContext {
     public:
         using SocketConnection = net::socket::stream::SocketConnectionBase;
 
-        HTTPServerContextBase() = default;
+        SocketContextBase() = default;
 
-        HTTPServerContextBase(const HTTPServerContextBase&) = delete;
-        HTTPServerContextBase& operator=(const HTTPServerContextBase&) = delete;
+        SocketContextBase(const SocketContextBase&) = delete;
+        SocketContextBase& operator=(const SocketContextBase&) = delete;
 
         virtual void sendResponseData(const char* buf, std::size_t len) = 0;
         virtual void responseCompleted() = 0;
@@ -51,14 +51,14 @@ namespace web::http::server {
     };
 
     template <typename RequestT, typename ResponseT>
-    class HTTPServerContext : public HTTPServerContextBase {
+    class SocketContext : public SocketContextBase {
     public:
         using SocketConnection = net::socket::stream::SocketConnectionBase;
         using Request = RequestT;
         using Response = ResponseT;
 
         struct RequestContext {
-            RequestContext(HTTPServerContextBase* serverContext)
+            RequestContext(SocketContextBase* serverContext)
                 : response(serverContext)
                 , ready(false)
                 , status(0) {
@@ -73,9 +73,9 @@ namespace web::http::server {
             std::string reason;
         };
 
-        HTTPServerContext(const std::function<void(Request& req, Response& res)>& onRequestReady);
+        SocketContext(const std::function<void(Request& req, Response& res)>& onRequestReady);
 
-        ~HTTPServerContext() override = default;
+        ~SocketContext() override = default;
 
         void onReceiveFromPeer(const char* junk, std::size_t junkLen) override;
         void sendResponseData(const char* junk, std::size_t junkLen) override;

@@ -16,9 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/ws/WSSubProtocol.h"
+#include "web/ws/SubProtocol.h"
 
-#include "web/ws/WSContext.h"
+#include "web/ws/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,67 +28,67 @@ namespace web::ws {
 
     //    std::list<WSSubProtocol*> WSSubProtocol::clients;
 
-    WSSubProtocol::WSSubProtocol(const std::string& name)
+    SubProtocol::SubProtocol(const std::string& name)
         : name(name) {
     }
 
-    WSSubProtocol::~WSSubProtocol() {
+    SubProtocol::~SubProtocol() {
     }
 
-    void WSSubProtocol::sendMessage(const char* msg, std::size_t messageLength) {
+    void SubProtocol::sendMessage(const char* msg, std::size_t messageLength) {
         wSContext->sendMessage(2, msg, messageLength);
     }
 
-    void WSSubProtocol::sendMessage(const std::string& msg) {
+    void SubProtocol::sendMessage(const std::string& msg) {
         wSContext->sendMessage(1, msg.data(), msg.length());
     }
 
-    void WSSubProtocol::sendMessageStart(const char* message, std::size_t messageLength) {
+    void SubProtocol::sendMessageStart(const char* message, std::size_t messageLength) {
         wSContext->sendMessageStart(2, message, messageLength);
     }
 
-    void WSSubProtocol::sendMessageStart(const std::string& message) { // 1
+    void SubProtocol::sendMessageStart(const std::string& message) { // 1
         wSContext->sendMessageStart(1, message.data(), message.length());
     }
 
-    void WSSubProtocol::sendMessageFrame(const char* message, std::size_t messageLength) {
+    void SubProtocol::sendMessageFrame(const char* message, std::size_t messageLength) {
         wSContext->sendMessageFrame(message, messageLength);
     }
 
-    void WSSubProtocol::sendMessageFrame(const std::string& message) {
+    void SubProtocol::sendMessageFrame(const std::string& message) {
         sendMessageFrame(message.data(), message.length());
     }
 
-    void WSSubProtocol::sendMessageEnd(const char* message, std::size_t messageLength) {
+    void SubProtocol::sendMessageEnd(const char* message, std::size_t messageLength) {
         wSContext->sendMessageEnd(message, messageLength);
     }
 
-    void WSSubProtocol::sendMessageEnd(const std::string& message) {
+    void SubProtocol::sendMessageEnd(const std::string& message) {
         sendMessageEnd(message.data(), message.length());
     }
 
-    void WSSubProtocol::sendPing(char* reason, std::size_t reasonLength) {
+    void SubProtocol::sendPing(char* reason, std::size_t reasonLength) {
         wSContext->sendPing(reason, reasonLength);
     }
 
-    void WSSubProtocol::sendClose(uint16_t statusCode, const char* reason, std::size_t reasonLength) {
+    void SubProtocol::sendClose(uint16_t statusCode, const char* reason, std::size_t reasonLength) {
         wSContext->close(statusCode, reason, reasonLength);
     }
 
-    std::string WSSubProtocol::getLocalAddressAsString() const {
+    std::string SubProtocol::getLocalAddressAsString() const {
         return wSContext->getLocalAddressAsString();
     }
 
-    std::string WSSubProtocol::getRemoteAddressAsString() const {
+    std::string SubProtocol::getRemoteAddressAsString() const {
         return wSContext->getRemoteAddressAsString();
     }
 
     /* private members */
-    void WSSubProtocol::setWSContext(WSContext* wSServerContext) {
+    void SubProtocol::setWSContext(SocketContext* wSServerContext) {
         wSContext = wSServerContext;
     }
 
-    const std::string& WSSubProtocol::getName() {
+    const std::string& SubProtocol::getName() {
         return name;
     }
 

@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/ws/WSTransmitter.h"
+#include "web/ws/Transmitter.h"
 
 #include "log/Logger.h"
 
@@ -33,27 +33,27 @@
 
 namespace web::ws {
 
-    WSTransmitter::WSTransmitter(bool masking)
+    Transmitter::Transmitter(bool masking)
         : masking(masking) {
     }
 
-    void WSTransmitter::sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) {
+    void Transmitter::sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) {
         send(true, opCode, message, messageLength);
     }
 
-    void WSTransmitter::sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) {
+    void Transmitter::sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) {
         send(false, opCode, message, messageLength);
     }
 
-    void WSTransmitter::sendMessageFrame(const char* message, std::size_t messageLength) {
+    void Transmitter::sendMessageFrame(const char* message, std::size_t messageLength) {
         send(false, 0, message, messageLength);
     }
 
-    void WSTransmitter::sendMessageEnd(const char* message, std::size_t messageLength) {
+    void Transmitter::sendMessageEnd(const char* message, std::size_t messageLength) {
         send(true, 0, message, messageLength);
     }
 
-    void WSTransmitter::send(bool end, uint8_t opCode, const char* message, std::size_t messageLength) {
+    void Transmitter::send(bool end, uint8_t opCode, const char* message, std::size_t messageLength) {
         std::size_t messageOffset = 0;
 
         do {
@@ -130,7 +130,7 @@ namespace web::ws {
         }
     */
 
-    void WSTransmitter::sendFrame(bool fin, uint8_t opCode, const char* payload, uint64_t payloadLength) {
+    void Transmitter::sendFrame(bool fin, uint8_t opCode, const char* payload, uint64_t payloadLength) {
         uint64_t length = 0;
 
         if (payloadLength < 126) {
@@ -181,7 +181,7 @@ namespace web::ws {
         }
     }
 
-    void WSTransmitter::dumpFrame(char* frame, uint64_t frameLength) {
+    void Transmitter::dumpFrame(char* frame, uint64_t frameLength) {
         unsigned int modul = 4;
 
         std::stringstream stringStream;

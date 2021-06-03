@@ -16,18 +16,33 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "WSContext.h"
+#ifndef WEB_WS_WSSUBPROTOCOLPLUGININTERFACE_H
+#define WEB_WS_WSSUBPROTOCOLPLUGININTERFACE_H
+
+#include "web/ws/SubProtocol.h"
+
+namespace web::http::server {
+
+    class Request;
+    class Response;
+
+} // namespace web::http::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define CLOSE_SOCKET_TIMEOUT 10
+namespace web::ws {
 
-namespace web::ws::client {
-    /*
-        WSContext::WSContext(const std::string& subProtocol)
-            : web::ws::WSContext(subProtocol, web::ws::WSProtocol::Role::CLIENT) {
-        }
-    */
-} // namespace web::ws::client
+    extern "C" {
+        struct SubProtocolPluginInterface {
+            const char* (*name)();
+            web::ws::SubProtocol::Role (*role)();
+            web::ws::SubProtocol* (*create)(web::http::server::Request&, web::http::server::Response&);
+            void (*destroy)(web::ws::SubProtocol*);
+        };
+    }
+
+} // namespace web::ws
+
+#endif // WEB_WS_WSSUBPROTOCOLPLUGININTERFACE_H

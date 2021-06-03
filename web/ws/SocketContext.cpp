@@ -16,11 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/ws/WSContext.h"
+#include "web/ws/SocketContext.h"
 
 #include "log/Logger.h"
 #include "net/socket/stream/SocketConnectionBase.h"
-#include "web/ws/WSSubProtocol.h"
+#include "web/ws/SubProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -33,29 +33,29 @@
 
 namespace web::ws {
 
-    WSContext::WSContext(web::ws::WSSubProtocol* wSSubProtocol, web::ws::WSSubProtocol::Role role)
-        : WSTransmitter(role == web::ws::WSSubProtocol::Role::CLIENT)
+    SocketContext::SocketContext(web::ws::SubProtocol* wSSubProtocol, web::ws::SubProtocol::Role role)
+        : Transmitter(role == web::ws::SubProtocol::Role::CLIENT)
         , wSSubProtocol(wSSubProtocol) {
         wSSubProtocol->setWSContext(this);
     }
 
-    void WSContext::sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) {
-        WSTransmitter::sendMessageStart(opCode, message, messageLength);
+    void SocketContext::sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) {
+        Transmitter::sendMessageStart(opCode, message, messageLength);
     }
 
-    void WSContext::sendMessageFrame(const char* message, std::size_t messageLength) {
-        WSTransmitter::sendMessageFrame(message, messageLength);
+    void SocketContext::sendMessageFrame(const char* message, std::size_t messageLength) {
+        Transmitter::sendMessageFrame(message, messageLength);
     }
 
-    void WSContext::sendMessageEnd(const char* message, std::size_t messageLength) {
-        WSTransmitter::sendMessageEnd(message, messageLength);
+    void SocketContext::sendMessageEnd(const char* message, std::size_t messageLength) {
+        Transmitter::sendMessageEnd(message, messageLength);
     }
 
-    void WSContext::sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) {
-        WSTransmitter::sendMessage(opCode, message, messageLength);
+    void SocketContext::sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) {
+        Transmitter::sendMessage(opCode, message, messageLength);
     }
 
-    void WSContext::onMessageStart(int opCode) {
+    void SocketContext::onMessageStart(int opCode) {
         switch (opCode) {
             case 0x08:
                 closeReceived = true;
@@ -73,7 +73,7 @@ namespace web::ws {
         }
     }
 
-    void WSContext::onFrameReceived(const char* junk, uint64_t junkLen) {
+    void SocketContext::onFrameReceived(const char* junk, uint64_t junkLen) {
         if (!closeReceived && !pingReceived && !pongReceived) {
             std::size_t junkOffset = 0;
 
@@ -87,7 +87,7 @@ namespace web::ws {
         }
     }
 
-    void WSContext::onMessageEnd() {
+    void SocketContext::onMessageEnd() {
         if (closeReceived) {
             closeReceived = false;
             if (closeSent) { // active close
@@ -111,34 +111,34 @@ namespace web::ws {
         }
     }
 
-    void WSContext::onPongReceived() {
+    void SocketContext::onPongReceived() {
         wSSubProtocol->onPongReceived();
     }
 
-    void WSContext::onMessageError(uint16_t errnum) {
+    void SocketContext::onMessageError(uint16_t errnum) {
         VLOG(0) << "Message Error";
 
         wSSubProtocol->onMessageError(errnum);
         close(errnum, "hallo", std::string("hallo").length());
     }
 
-    void WSContext::onProtocolConnected() {
+    void SocketContext::onProtocolConnected() {
         wSSubProtocol->onProtocolConnected();
     }
 
-    void WSContext::onProtocolDisconnected() {
+    void SocketContext::onProtocolDisconnected() {
         wSSubProtocol->onProtocolDisconnected();
     }
 
-    void WSContext::sendPing(const char* reason, std::size_t reasonLength) {
+    void SocketContext::sendPing(const char* reason, std::size_t reasonLength) {
         sendMessage(9, reason, reasonLength);
     }
 
-    void WSContext::replyPong(const char* reason, std::size_t reasonLength) {
+    void SocketContext::replyPong(const char* reason, std::size_t reasonLength) {
         sendMessage(10, reason, reasonLength);
     }
 
-    void WSContext::close(uint16_t statusCode, const char* reason, std::size_t reasonLength) {
+    void SocketContext::close(uint16_t statusCode, const char* reason, std::size_t reasonLength) {
         char* closePayload = const_cast<char*>(reason);
         std::size_t closePayloadLength = reasonLength;
 
@@ -162,35 +162,35 @@ namespace web::ws {
         closeSent = true;
     }
 
-    void WSContext::close(const char* message, std::size_t messageLength) {
+    void SocketContext::close(const char* message, std::size_t messageLength) {
         sendMessage(8, message, messageLength);
     }
 
-    void WSContext::sendFrameData(uint8_t data) {
+    void SocketContext::sendFrameData(uint8_t data) {
         if (!closeSent) {
             sendToPeer(reinterpret_cast<char*>(&data), sizeof(uint8_t));
         }
     }
 
-    void WSContext::sendFrameData(uint16_t data) {
+    void SocketContext::sendFrameData(uint16_t data) {
         if (!closeSent) {
             sendToPeer(reinterpret_cast<char*>(&data), sizeof(uint16_t));
         }
     }
 
-    void WSContext::sendFrameData(uint32_t data) {
+    void SocketContext::sendFrameData(uint32_t data) {
         if (!closeSent) {
             sendToPeer(reinterpret_cast<char*>(&data), sizeof(uint32_t));
         }
     }
 
-    void WSContext::sendFrameData(uint64_t data) {
+    void SocketContext::sendFrameData(uint64_t data) {
         if (!closeSent) {
             sendToPeer(reinterpret_cast<char*>(&data), sizeof(uint64_t));
         }
     }
 
-    void WSContext::sendFrameData(const char* frame, uint64_t frameLength) {
+    void SocketContext::sendFrameData(const char* frame, uint64_t frameLength) {
         if (!closeSent) {
             std::size_t frameOffset = 0;
 
@@ -203,24 +203,24 @@ namespace web::ws {
         }
     }
 
-    void WSContext::onReceiveFromPeer(const char* junk, std::size_t junkLen) {
-        WSReceiver::receive(const_cast<char*>(junk), junkLen);
+    void SocketContext::onReceiveFromPeer(const char* junk, std::size_t junkLen) {
+        Receiver::receive(const_cast<char*>(junk), junkLen);
     }
 
-    void WSContext::onReadError(int errnum) {
+    void SocketContext::onReadError(int errnum) {
         VLOG(0) << "OnReadError: " << errnum;
     }
 
-    void WSContext::onWriteError(int errnum) {
+    void SocketContext::onWriteError(int errnum) {
         VLOG(0) << "OnWriteError: " << errnum;
     }
 
-    std::string WSContext::getLocalAddressAsString() const {
-        return SocketContext::getLocalAddressAsString();
+    std::string SocketContext::getLocalAddressAsString() const {
+        return net::socket::stream::SocketContext::getLocalAddressAsString();
     }
 
-    std::string WSContext::getRemoteAddressAsString() const {
-        return SocketContext::getLocalAddressAsString();
+    std::string SocketContext::getRemoteAddressAsString() const {
+        return net::socket::stream::SocketContext::getLocalAddressAsString();
     }
 
 } // namespace web::ws

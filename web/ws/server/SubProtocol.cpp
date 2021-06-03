@@ -16,9 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/ws/server/WSSubProtocol.h"
+#include "web/ws/server/SubProtocol.h"
 
-#include "web/ws/WSContext.h"
+#include "web/ws/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,63 +26,63 @@
 
 namespace web::ws::server {
 
-    WSSubProtocol::WSSubProtocol(const std::string& name)
-        : web::ws::WSSubProtocol(name) {
+    SubProtocol::SubProtocol(const std::string& name)
+        : web::ws::SubProtocol(name) {
     }
 
-    WSSubProtocol::~WSSubProtocol() {
+    SubProtocol::~SubProtocol() {
         clients->remove(this);
     }
 
-    void WSSubProtocol::sendBroadcast(const std::string& message) {
+    void SubProtocol::sendBroadcast(const std::string& message) {
         sendBroadcast(1, message.data(), message.length());
     }
 
-    void WSSubProtocol::sendBroadcast(const char* message, std::size_t messageLength) {
+    void SubProtocol::sendBroadcast(const char* message, std::size_t messageLength) {
         sendBroadcast(2, message, messageLength);
     }
 
-    void WSSubProtocol::sendBroadcastStart(const char* message, std::size_t messageLength) {
+    void SubProtocol::sendBroadcastStart(const char* message, std::size_t messageLength) {
         sendBroadcastStart(2, message, messageLength);
     }
-    void WSSubProtocol::sendBroadcastStart(const std::string& message) {
+    void SubProtocol::sendBroadcastStart(const std::string& message) {
         sendBroadcastStart(1, message.data(), message.length());
     }
 
-    void WSSubProtocol::sendBroadcastFrame(const char* message, std::size_t messageLength) {
-        for (WSSubProtocol* client : *clients) {
+    void SubProtocol::sendBroadcastFrame(const char* message, std::size_t messageLength) {
+        for (SubProtocol* client : *clients) {
             client->sendMessageFrame(message, messageLength);
         }
     }
 
-    void WSSubProtocol::sendBroadcastFrame(const std::string& message) {
+    void SubProtocol::sendBroadcastFrame(const std::string& message) {
         sendBroadcastFrame(message.data(), message.length());
     }
 
-    void WSSubProtocol::sendBroadcastEnd(const char* message, std::size_t messageLength) {
-        for (WSSubProtocol* client : *clients) {
+    void SubProtocol::sendBroadcastEnd(const char* message, std::size_t messageLength) {
+        for (SubProtocol* client : *clients) {
             client->sendMessageEnd(message, messageLength);
         }
     }
 
-    void WSSubProtocol::sendBroadcastEnd(const std::string& message) {
+    void SubProtocol::sendBroadcastEnd(const std::string& message) {
         sendBroadcastEnd(message.data(), message.length());
     }
 
     /* private members */
-    void WSSubProtocol::sendBroadcast(uint8_t opCode, const char* message, std::size_t messageLength) {
-        for (WSSubProtocol* client : *clients) {
+    void SubProtocol::sendBroadcast(uint8_t opCode, const char* message, std::size_t messageLength) {
+        for (SubProtocol* client : *clients) {
             client->wSContext->sendMessage(opCode, message, messageLength);
         }
     }
 
-    void WSSubProtocol::sendBroadcastStart(uint8_t opCode, const char* message, std::size_t messageLength) {
-        for (WSSubProtocol* client : *clients) {
+    void SubProtocol::sendBroadcastStart(uint8_t opCode, const char* message, std::size_t messageLength) {
+        for (SubProtocol* client : *clients) {
             client->wSContext->sendMessageStart(opCode, message, messageLength);
         }
     }
 
-    void WSSubProtocol::setClients(std::list<WSSubProtocol*>* clients) {
+    void SubProtocol::setClients(std::list<SubProtocol*>* clients) {
         this->clients = clients;
         clients->push_back(this);
     }

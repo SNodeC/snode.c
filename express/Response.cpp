@@ -22,7 +22,7 @@
 #include "web/http/MimeTypes.h"
 #include "web/http/StatusCodes.h"
 #include "web/http/http_utils.h"
-#include "web/http/server//HTTPServerContext.h"
+#include "web/http/server//SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,7 +32,7 @@
 
 namespace express {
 
-    Response::Response(web::http::server::HTTPServerContextBase* serverContext)
+    Response::Response(web::http::server::SocketContextBase* serverContext)
         : web::http::server::Response(serverContext) {
     }
 

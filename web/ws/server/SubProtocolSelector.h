@@ -16,30 +16,33 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_SERVER_WSSERVERCONTEXT_H
-#define WEB_WS_SERVER_WSSERVERCONTEXT_H
+#ifndef WEB_WS_SERVER_SUBPROTOCOL_SELECTOR_H
+#define WEB_WS_SERVER_SUBPROTOCOL_SELECTOR_H
 
-#include "web/http/server/Request.h"
-#include "web/http/server/Response.h"
-#include "web/ws/WSContext.h"
-#include "web/ws/server/WSSubProtocol.h"
+#include "web/ws/SubProtocolSelector.h"
+#include "web/ws/server/SubProtocolPluginInterface.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::ws::server {
 
-    class WSContext : public web::ws::WSContext {
-    protected:
-        WSContext(web::ws::server::WSSubProtocol* wSSubProtocol, web::ws::WSSubProtocol::Role role);
-
-        ~WSContext() override;
-
+    class SubProtocolSelector : public web::ws::WSSubProtocolSelector {
     public:
-        static WSContext* create(web::http::server::Request& req, web::http::server::Response& res);
+        web::ws::server::SubProtocolPluginInterface* select(const std::string& subProtocolName) override;
+
+        static SubProtocolSelector& instance();
+
+    private:
+        void registerSubProtocol(SubProtocolPluginInterface& wSSubProtocolPluginInterface, void* handle);
+        void loadSubProtocols();
+
+        static SubProtocolSelector wSSubProtocolSelector;
     };
 
 } // namespace web::ws::server
 
-#endif // WEB_WS_SERVER_WSSERVERCONTEXT_H
+#endif // WEB_WS_SERVER_SUBPROTOCOL_SELECTOR_H
