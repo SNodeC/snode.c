@@ -129,7 +129,7 @@ int main(int argc, char* argv[]) {
 2021-05-14 10:21:39 0000000002:      accept-encoding: gzip, deflate, br
 2021-05-14 10:21:39 0000000002:      accept-language: en-us,en;q=0.9,de-at;q=0.8,de-de;q=0.7,de;q=0.6
 2021-05-14 10:21:39 0000000002:      cache-control: no-cache
-2021-05-14 10:21:39 0000000002:      connection: upgrade
+2021-05-14 10:21:39 0000000002:      connection: upgrade, keep-alive
 2021-05-14 10:21:39 0000000002:      host: localhost:8080
 2021-05-14 10:21:39 0000000002:      origin: file://
 2021-05-14 10:21:39 0000000002:      pragma: no-cache
