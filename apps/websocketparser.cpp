@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
         VLOG(1) << "upgrade: " << req.header("upgrade");
         VLOG(1) << "user-agent: " << req.header("user-agent");
 
-        if (req.header("connection") == "Upgrade") {
+        if (httputils::ci_contains(req.header("connection"), "Upgrade")) {
             res.upgrade(req);
         } else {
             res.sendStatus(404);
@@ -106,7 +106,7 @@ int main(int argc, char* argv[]) {
             VLOG(1) << "upgrade: " << req.header("upgrade");
             VLOG(1) << "user-agent: " << req.header("user-agent");
 
-            if (req.header("connection") == "Upgrade") {
+            if (httputils::ci_contains(req.header("connection"), "Upgrade")) {
                 res.upgrade(req);
             } else {
                 res.sendStatus(404);

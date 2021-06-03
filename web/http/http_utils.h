@@ -51,6 +51,8 @@ namespace httputils {
 
     bool ci_comp(const std::string& str1, const std::string& str2);
 
+    bool ci_contains(const std::string& str1, const std::string& str2);
+
 } // namespace httputils
 
 #endif // WEB_HTTP_UTILS_H

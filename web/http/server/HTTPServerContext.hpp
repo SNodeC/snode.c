@@ -63,9 +63,9 @@ namespace web::http::server {
                   request.headers = &header;
 
                   for (auto [field, value] : header) {
-                      if (field == "connection" && httputils::ci_comp(value, "close")) {
+                      if (field == "connection" && httputils::ci_contains(value, "close")) {
                           request.connectionState = ConnectionState::Close;
-                      } else if (field == "connection" && httputils::ci_comp(value, "keep-alive")) {
+                      } else if (field == "connection" && httputils::ci_contains(value, "keep-alive")) {
                           request.connectionState = ConnectionState::Keep;
                       }
                       VLOG(3) << "     " << field << ": " << value;

@@ -115,9 +115,9 @@ namespace web::http::server {
 
             if (field == "Content-Length") {
                 contentLength = std::stol(value);
-            } else if (field == "Connection" && httputils::ci_comp(value, "close")) {
+            } else if (field == "Connection" && httputils::ci_contains(value, "close")) {
                 connectionState = ConnectionState::Close;
-            } else if (field == "Connection" && httputils::ci_comp(value, "keep-alive")) {
+            } else if (field == "Connection" && httputils::ci_contains(value, "keep-alive")) {
                 connectionState = ConnectionState::Keep;
             }
         }
@@ -147,8 +147,8 @@ namespace web::http::server {
 
     void Response::upgrade(Request& req) {
         // here we need an additional dynamic library loader for the upgrade-protocol
-        if (req.header("Connection") == "Upgrade") {
-            if (req.header("upgrade") == "websocket") {
+        if (httputils::ci_contains(req.header("connection"), "Upgrade")) {
+            if (httputils::ci_contains(req.header("upgrade"), "websocket")) {
                 web::ws::server::WSContext* wSContext = web::ws::server::WSContext::create(req, *this);
 
                 if (wSContext != nullptr) {
