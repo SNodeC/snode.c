@@ -72,13 +72,13 @@ namespace web::ws::server {
     /* private members */
     void SubProtocol::sendBroadcast(uint8_t opCode, const char* message, std::size_t messageLength) {
         for (SubProtocol* client : *clients) {
-            client->wSContext->sendMessage(opCode, message, messageLength);
+            client->Context->sendMessage(opCode, message, messageLength);
         }
     }
 
     void SubProtocol::sendBroadcastStart(uint8_t opCode, const char* message, std::size_t messageLength) {
         for (SubProtocol* client : *clients) {
-            client->wSContext->sendMessageStart(opCode, message, messageLength);
+            client->Context->sendMessageStart(opCode, message, messageLength);
         }
     }
 

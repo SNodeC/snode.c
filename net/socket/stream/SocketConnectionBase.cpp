@@ -36,9 +36,9 @@ namespace net::socket::stream {
         delete socketContext;
     }
 
-    void SocketConnectionBase::switchSocketProtocol(SocketContext* newSocketProtocol) {
+    void SocketConnectionBase::switchSocketProtocol(SocketContext* neocketProtocol) {
         socketContext->onProtocolDisconnected();
-        socketContext = newSocketProtocol;
+        socketContext = neocketProtocol;
         socketContext->socketConnection = this;
         socketContext->onProtocolConnected();
     }

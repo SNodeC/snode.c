@@ -57,7 +57,7 @@ namespace net::socket::stream {
         virtual void setTimeout(int timeout) = 0;
 
     protected:
-        void switchSocketProtocol(SocketContext* newSocketProtocol);
+        void switchSocketProtocol(SocketContext* neocketProtocol);
 
         SocketContext* socketContext = nullptr;
 

@@ -37,10 +37,10 @@ namespace web::ws::server {
         static SubProtocolSelector& instance();
 
     private:
-        void registerSubProtocol(SubProtocolPluginInterface& wSSubProtocolPluginInterface, void* handle);
+        void registerSubProtocol(SubProtocolPluginInterface& subProtocolPluginInterface, void* handle);
         void loadSubProtocols();
 
-        static SubProtocolSelector wSSubProtocolSelector;
+        static SubProtocolSelector subProtocolSelector;
     };
 
 } // namespace web::ws::server

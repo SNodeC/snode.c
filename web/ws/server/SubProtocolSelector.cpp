@@ -29,21 +29,21 @@
 
 namespace web::ws::server {
 
-    SubProtocolSelector SubProtocolSelector::wSSubProtocolSelector;
+    SubProtocolSelector SubProtocolSelector::subProtocolSelector;
 
     SubProtocolSelector& SubProtocolSelector::instance() {
-        return web::ws::server::SubProtocolSelector::wSSubProtocolSelector;
+        return web::ws::server::SubProtocolSelector::subProtocolSelector;
     }
 
     web::ws::server::SubProtocolPluginInterface* SubProtocolSelector::select(const std::string& subProtocolName) {
-        SubProtocolPluginInterface* wSSubProtocolPluginInterface = nullptr;
+        SubProtocolPluginInterface* subProtocolPluginInterface = nullptr;
 
         if (serverSubprotocols.contains(subProtocolName)) {
-            wSSubProtocolPluginInterface =
-                static_cast<SubProtocolPluginInterface*>(serverSubprotocols.find(subProtocolName)->second.wSSubprotocolPluginInterface);
+            subProtocolPluginInterface =
+                static_cast<SubProtocolPluginInterface*>(serverSubprotocols.find(subProtocolName)->second.subprotocolPluginInterface);
         }
 
-        return wSSubProtocolPluginInterface;
+        return subProtocolPluginInterface;
     }
 
 } // namespace web::ws::server

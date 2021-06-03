@@ -93,10 +93,10 @@ namespace web::ws {
         virtual void onProtocolConnected() = 0;
         virtual void onProtocolDisconnected() = 0;
 
-        void setWSContext(SocketContext* wSServerContext);
+        void setWSContext(SocketContext* ServerContext);
 
     protected:
-        SocketContext* wSContext;
+        SocketContext* Context;
 
         const std::string name;
 

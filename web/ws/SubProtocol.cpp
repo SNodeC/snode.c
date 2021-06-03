@@ -36,23 +36,23 @@ namespace web::ws {
     }
 
     void SubProtocol::sendMessage(const char* msg, std::size_t messageLength) {
-        wSContext->sendMessage(2, msg, messageLength);
+        Context->sendMessage(2, msg, messageLength);
     }
 
     void SubProtocol::sendMessage(const std::string& msg) {
-        wSContext->sendMessage(1, msg.data(), msg.length());
+        Context->sendMessage(1, msg.data(), msg.length());
     }
 
     void SubProtocol::sendMessageStart(const char* message, std::size_t messageLength) {
-        wSContext->sendMessageStart(2, message, messageLength);
+        Context->sendMessageStart(2, message, messageLength);
     }
 
     void SubProtocol::sendMessageStart(const std::string& message) { // 1
-        wSContext->sendMessageStart(1, message.data(), message.length());
+        Context->sendMessageStart(1, message.data(), message.length());
     }
 
     void SubProtocol::sendMessageFrame(const char* message, std::size_t messageLength) {
-        wSContext->sendMessageFrame(message, messageLength);
+        Context->sendMessageFrame(message, messageLength);
     }
 
     void SubProtocol::sendMessageFrame(const std::string& message) {
@@ -60,7 +60,7 @@ namespace web::ws {
     }
 
     void SubProtocol::sendMessageEnd(const char* message, std::size_t messageLength) {
-        wSContext->sendMessageEnd(message, messageLength);
+        Context->sendMessageEnd(message, messageLength);
     }
 
     void SubProtocol::sendMessageEnd(const std::string& message) {
@@ -68,24 +68,24 @@ namespace web::ws {
     }
 
     void SubProtocol::sendPing(char* reason, std::size_t reasonLength) {
-        wSContext->sendPing(reason, reasonLength);
+        Context->sendPing(reason, reasonLength);
     }
 
     void SubProtocol::sendClose(uint16_t statusCode, const char* reason, std::size_t reasonLength) {
-        wSContext->close(statusCode, reason, reasonLength);
+        Context->close(statusCode, reason, reasonLength);
     }
 
     std::string SubProtocol::getLocalAddressAsString() const {
-        return wSContext->getLocalAddressAsString();
+        return Context->getLocalAddressAsString();
     }
 
     std::string SubProtocol::getRemoteAddressAsString() const {
-        return wSContext->getRemoteAddressAsString();
+        return Context->getRemoteAddressAsString();
     }
 
     /* private members */
-    void SubProtocol::setWSContext(SocketContext* wSServerContext) {
-        wSContext = wSServerContext;
+    void SubProtocol::setWSContext(SocketContext* ServerContext) {
+        Context = ServerContext;
     }
 
     const std::string& SubProtocol::getName() {

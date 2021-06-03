@@ -42,14 +42,14 @@ namespace web::ws {
             if (subProtocol.handle != nullptr) {
                 dlclose(subProtocol.handle);
             }
-            delete subProtocol.wSSubprotocolPluginInterface;
+            delete subProtocol.subprotocolPluginInterface;
         }
 
         for (auto& [name, subProtocol] : clientSubprotocols) {
             if (subProtocol.handle != nullptr) {
                 dlclose(subProtocol.handle);
             }
-            delete subProtocol.wSSubprotocolPluginInterface;
+            delete subProtocol.subprotocolPluginInterface;
         }
     }
 
@@ -61,28 +61,28 @@ namespace web::ws {
         loadSubProtocols("/usr/local/lib/snodec/web/ws/subprotocol");
     }
 
-    void SubProtocolSelector::registerSubProtocol(SubProtocolPluginInterface* wSSubProtocolPluginInterface) {
-        registerSubProtocol(wSSubProtocolPluginInterface, nullptr);
+    void SubProtocolSelector::registerSubProtocol(SubProtocolPluginInterface* subProtocolPluginInterface) {
+        registerSubProtocol(subProtocolPluginInterface, nullptr);
     }
 
-    void SubProtocolSelector::registerSubProtocol(SubProtocolPluginInterface* wSSubProtocolPluginInterface, void* handle) {
-        SubProtocolPlugin wSSubProtocolPlugin = {.wSSubprotocolPluginInterface = wSSubProtocolPluginInterface, .handle = handle};
+    void SubProtocolSelector::registerSubProtocol(SubProtocolPluginInterface* subProtocolPluginInterface, void* handle) {
+        SubProtocolPlugin subProtocolPlugin = {.subprotocolPluginInterface = subProtocolPluginInterface, .handle = handle};
 
-        if (wSSubProtocolPluginInterface->role() == web::ws::SubProtocol::Role::SERVER) {
-            const auto [it, success] = serverSubprotocols.insert({wSSubProtocolPluginInterface->name(), wSSubProtocolPlugin});
+        if (subProtocolPluginInterface->role() == web::ws::SubProtocol::Role::SERVER) {
+            const auto [it, success] = serverSubprotocols.insert({subProtocolPluginInterface->name(), subProtocolPlugin});
             if (!success) {
                 if (handle != nullptr) {
                     dlclose(handle);
                 }
-                delete wSSubProtocolPluginInterface;
+                delete subProtocolPluginInterface;
             }
         } else {
-            const auto [it, success] = clientSubprotocols.insert({wSSubProtocolPluginInterface->name(), wSSubProtocolPlugin});
+            const auto [it, success] = clientSubprotocols.insert({subProtocolPluginInterface->name(), subProtocolPlugin});
             if (!success) {
                 if (handle != nullptr) {
                     dlclose(handle);
                 }
-                delete wSSubProtocolPluginInterface;
+                delete subProtocolPluginInterface;
             }
         }
     }

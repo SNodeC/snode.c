@@ -39,7 +39,7 @@ namespace web::ws {
         , public web::ws::Receiver
         , public web::ws::Transmitter {
     protected:
-        SocketContext(web::ws::SubProtocol* wSSubProtocol, web::ws::SubProtocol::Role role);
+        SocketContext(web::ws::SubProtocol* subProtocol, web::ws::SubProtocol::Role role);
 
         SocketContext() = delete;
         SocketContext(const SocketContext&) = delete;
@@ -47,7 +47,7 @@ namespace web::ws {
 
         virtual ~SocketContext() = default;
 
-        web::ws::SubProtocol* wSSubProtocol;
+        web::ws::SubProtocol* subProtocol;
 
     public:
         void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength);

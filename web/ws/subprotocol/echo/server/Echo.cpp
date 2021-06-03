@@ -50,12 +50,12 @@ namespace web::ws::subprotocol::echo::server { // namespace web::ws::subprotocol
 
     extern "C" {
         struct web::ws::SubProtocolPluginInterface* plugin() {
-            web::ws::SubProtocolPluginInterface* wSSubProtocolPluginInterface = new web::ws::server::SubProtocolPluginInterface();
-            wSSubProtocolPluginInterface->name = name;
-            wSSubProtocolPluginInterface->role = role;
-            wSSubProtocolPluginInterface->create = create;
-            wSSubProtocolPluginInterface->destroy = destroy;
-            return wSSubProtocolPluginInterface;
+            web::ws::SubProtocolPluginInterface* subProtocolPluginInterface = new web::ws::server::SubProtocolPluginInterface();
+            subProtocolPluginInterface->name = name;
+            subProtocolPluginInterface->role = role;
+            subProtocolPluginInterface->create = create;
+            subProtocolPluginInterface->destroy = destroy;
+            return subProtocolPluginInterface;
         }
     }
 
