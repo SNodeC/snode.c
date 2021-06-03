@@ -30,7 +30,8 @@
 #include "net/socket/stream/tls/SocketClient.h"      // for SocketClient
 #include "web/http/client/ResponseParser.h"          // for ResponseParser
 
-#include <any>                // for any
+#include <any> // for any
+#include <cstring>
 #include <functional>         // for function
 #include <map>                // for map, operator==
 #include <openssl/asn1.h>     // for ASN1_STRING_get...
@@ -42,7 +43,6 @@
 #include <openssl/x509v3.h>   // for GENERAL_NAME
 #include <ostream>            // for size_t, endl
 #include <stdint.h>           // for int32_t
-#include <string.h>           // for memcpy, NULL
 #include <string>             // for allocator, string
 #include <type_traits>        // for add_const<>::type
 #include <utility>            // for tuple_element<>...

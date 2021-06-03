@@ -11,3 +11,5 @@ set_target_properties(
                CXX_EXTENSIONS OFF
                SOVERSION 1
 )
+
+install(TARGETS echo LIBRARY DESTINATION lib NAMELINK_COMPONENT libecho.so.1)

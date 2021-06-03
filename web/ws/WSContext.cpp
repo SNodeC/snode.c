@@ -21,20 +21,17 @@
 #include "log/Logger.h"
 #include "net/socket/stream/SocketConnectionBase.h"
 #include "web/ws/WSSubProtocol.h"
-#include "web/ws/subprotocol/WSSubProtocolSelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstring>  // for memcpy
 #include <endian.h> // for htobe16
-#include <string.h> // for memcpy
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define CLOSE_SOCKET_TIMEOUT 10
 
 namespace web::ws {
-
-    web::ws::subprotocol::WSSubProtocolSelector WSContext::selector;
 
     WSContext::WSContext(web::ws::WSSubProtocol* wSSubProtocol, web::ws::WSSubProtocol::Role role)
         : WSTransmitter(role == web::ws::WSSubProtocol::Role::CLIENT)

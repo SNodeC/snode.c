@@ -37,6 +37,10 @@ namespace web::ws {
         : masking(masking) {
     }
 
+    void WSTransmitter::sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) {
+        send(true, opCode, message, messageLength);
+    }
+
     void WSTransmitter::sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) {
         send(false, opCode, message, messageLength);
     }
@@ -49,22 +53,18 @@ namespace web::ws {
         send(true, 0, message, messageLength);
     }
 
-    void WSTransmitter::sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) {
-        send(true, opCode, message, messageLength);
-    }
-
     void WSTransmitter::send(bool end, uint8_t opCode, const char* message, std::size_t messageLength) {
         std::size_t messageOffset = 0;
 
         do {
-            std::size_t sendMessageLength =
+            std::size_t sendFrameLength =
                 (messageLength - messageOffset <= WSMAXFRAMEPAYLOADLENGTH) ? messageLength - messageOffset : WSMAXFRAMEPAYLOADLENGTH;
 
-            bool fin = sendMessageLength == messageLength - messageOffset;
+            bool fin = (sendFrameLength == messageLength - messageOffset) && end;
 
-            sendFrame(fin && end, opCode, message + messageOffset, sendMessageLength);
+            sendFrame(fin, opCode, message + messageOffset, sendFrameLength);
 
-            messageOffset += sendMessageLength;
+            messageOffset += sendFrameLength;
 
             opCode = 0; // continuation
         } while (messageLength - messageOffset > 0);

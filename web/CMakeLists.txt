@@ -21,11 +21,13 @@ add_library(
     ws/WSContext.cpp
     ws/WSReceiver.cpp
     ws/WSSubProtocol.cpp
+    ws/WSSubProtocolSelector.cpp
     ws/WSTransmitter.cpp
     ws/ws_utils.cpp
     ws/client/WSContext.cpp
     ws/server/WSContext.cpp
-    ws/subprotocol/WSSubProtocolSelector.cpp
+    ws/server/WSSubProtocol.cpp
+    ws/server/WSSubProtocolSelector.cpp
 )
 
 add_subdirectory(ws/subprotocol)

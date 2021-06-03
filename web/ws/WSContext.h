@@ -24,10 +24,6 @@
 #include "web/ws/WSSubProtocol.h" // for WSProtocol, WSProtocol...
 #include "web/ws/WSTransmitter.h"
 
-namespace web::ws::subprotocol {
-    class WSSubProtocolSelector;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
@@ -45,19 +41,22 @@ namespace web::ws {
     protected:
         WSContext(web::ws::WSSubProtocol* wSSubProtocol, web::ws::WSSubProtocol::Role role);
 
+        WSContext() = delete;
+        WSContext(const WSContext&) = delete;
+        WSContext& operator=(const WSContext&) = delete;
+
         virtual ~WSContext() = default;
 
-    public:
-        static web::ws::subprotocol::WSSubProtocolSelector selector;
-
-    protected:
         web::ws::WSSubProtocol* wSSubProtocol;
 
-    private:
+    public:
+        void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength);
+
         void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength);
+
+    private:
         void sendMessageFrame(const char* message, std::size_t messageLength);
         void sendMessageEnd(const char* message, std::size_t messageLength);
-        void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength);
 
         void sendPing(const char* reason = nullptr, std::size_t reasonLength = 0);
         void replyPong(const char* reason = nullptr, std::size_t reasonLength = 0);

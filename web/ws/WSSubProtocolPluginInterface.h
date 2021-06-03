@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_SUBPROTOCOL_WSSUBPROTOCOLPLUGININTERFACE_H
-#define WEB_WS_SUBPROTOCOL_WSSUBPROTOCOLPLUGININTERFACE_H
+#ifndef WEB_WS_WSSUBPROTOCOLPLUGININTERFACE_H
+#define WEB_WS_WSSUBPROTOCOLPLUGININTERFACE_H
 
 #include "web/ws/WSSubProtocol.h"
 
@@ -32,7 +32,7 @@ namespace web::http::server {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::ws::subprotocol {
+namespace web::ws {
 
     extern "C" {
         struct WSSubProtocolPluginInterface {
@@ -40,10 +40,9 @@ namespace web::ws::subprotocol {
             web::ws::WSSubProtocol::Role (*role)();
             web::ws::WSSubProtocol* (*create)(web::http::server::Request&, web::http::server::Response&);
             void (*destroy)(web::ws::WSSubProtocol*);
-            void* handle;
         };
     }
 
-} // namespace web::ws::subprotocol
+} // namespace web::ws
 
-#endif // WEB_WS_SUBPROTOCOL_WSSUBPROTOCOLPLUGININTERFACE_H
+#endif // WEB_WS_WSSUBPROTOCOLPLUGININTERFACE_H

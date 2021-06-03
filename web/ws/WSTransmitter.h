@@ -30,14 +30,20 @@
 namespace web::ws {
 
     class WSTransmitter {
+    public:
+        WSTransmitter() = default;
+
+        WSTransmitter(const WSTransmitter&) = delete;
+        WSTransmitter& operator=(const WSTransmitter&) = delete;
+
     protected:
         WSTransmitter(bool masking);
+
+        void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength);
 
         void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength);
         void sendMessageFrame(const char* message, std::size_t messageLength);
         void sendMessageEnd(const char* message, std::size_t messageLength);
-
-        void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength);
 
     private:
         void send(bool end, uint8_t opCode, const char* message, std::size_t messageLength);

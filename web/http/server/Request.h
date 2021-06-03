@@ -33,6 +33,7 @@ namespace web::http::server {
     class Request : public utils::MultibleAttributeInjector {
     protected:
         Request() = default;
+
         virtual ~Request() = default;
 
     public:

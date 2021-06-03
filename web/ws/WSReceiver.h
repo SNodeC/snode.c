@@ -30,6 +30,11 @@ namespace web::ws {
 
     class WSReceiver {
     public:
+        WSReceiver() = default;
+
+        WSReceiver(const WSReceiver&) = delete;
+        WSReceiver& operator=(const WSReceiver&) = delete;
+
         void receive(char* junk, std::size_t junkLen);
 
     protected:

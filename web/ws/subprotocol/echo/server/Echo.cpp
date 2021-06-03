@@ -49,13 +49,18 @@ namespace web::ws::subprotocol::echo::server { // namespace web::ws::subprotocol
     }
 
     extern "C" {
-        struct WSSubProtocolPluginInterface plugin(void* handle) {
-            return WSSubProtocolPluginInterface{.name = name, .role = role, .create = create, .destroy = destroy, .handle = handle};
+        struct web::ws::WSSubProtocolPluginInterface* plugin() {
+            web::ws::WSSubProtocolPluginInterface* wSSubProtocolPluginInterface = new web::ws::server::WSSubProtocolPluginInterface();
+            wSSubProtocolPluginInterface->name = name;
+            wSSubProtocolPluginInterface->role = role;
+            wSSubProtocolPluginInterface->create = create;
+            wSSubProtocolPluginInterface->destroy = destroy;
+            return wSSubProtocolPluginInterface;
         }
     }
 
     Echo::Echo()
-        : web::ws::WSSubProtocol(NAME)
+        : web::ws::server::WSSubProtocol(NAME)
         , timer(net::timer::Timer::intervalTimer(
               [this]([[maybe_unused]] const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
                   this->sendPing();
@@ -72,12 +77,24 @@ namespace web::ws::subprotocol::echo::server { // namespace web::ws::subprotocol
         timer.cancel();
     }
 
+    void Echo::onProtocolConnected() {
+        VLOG(0) << "On protocol connected:";
+
+        sendMessage("Welcome to SimpleChat");
+        sendMessage("=====================");
+
+        VLOG(0) << "\tServer: " + getLocalAddressAsString();
+        VLOG(0) << "\tClient: " + getRemoteAddressAsString();
+    }
+
     void Echo::onMessageStart(int opCode) {
         VLOG(0) << "Message Start - OpCode: " << opCode;
     }
 
     void Echo::onMessageData(const char* junk, std::size_t junkLen) {
         data += std::string(junk, static_cast<std::size_t>(junkLen));
+
+        VLOG(0) << "Message Data";
     }
 
     void Echo::onMessageEnd() {
@@ -95,17 +112,6 @@ namespace web::ws::subprotocol::echo::server { // namespace web::ws::subprotocol
         VLOG(0) << "Pong received";
         flyingPings = 0;
     }
-
-    void Echo::onProtocolConnected() {
-        VLOG(0) << "On protocol connected:";
-
-        sendMessage("Welcome to SimpleChat");
-        sendMessage("=====================");
-
-        VLOG(0) << "\tServer: " + getLocalAddressAsString();
-        VLOG(0) << "\tClient: " + getRemoteAddressAsString();
-    }
-
     void Echo::onProtocolDisconnected() {
         VLOG(0) << "On protocol disconnected:";
 

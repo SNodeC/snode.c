@@ -37,6 +37,9 @@ namespace web::http::server {
 
         HTTPServerContextFactory() = default;
 
+        HTTPServerContextFactory(const HTTPServerContextFactory&) = delete;
+        HTTPServerContextFactory& operator=(const HTTPServerContextFactory&) = delete;
+
     private:
         net::socket::stream::SocketProtocol* create() const override {
             return new HTTPServerContext<Request, Response>(onRequestReady);

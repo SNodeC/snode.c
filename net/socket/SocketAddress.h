@@ -21,6 +21,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstring>
 #include <string>
 #include <sys/socket.h>
 #include <sys/types.h>

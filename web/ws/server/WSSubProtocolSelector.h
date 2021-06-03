@@ -16,39 +16,33 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_SUBPROTOCOL_SELECTOR_H
-#define WEB_WS_SUBPROTOCOL_SELECTOR_H
+#ifndef WEB_WS_SERVER_SUBPROTOCOL_SELECTOR_H
+#define WEB_WS_SERVER_SUBPROTOCOL_SELECTOR_H
 
-#include "WSSubProtocolPluginInterface.h"
-#include "web/ws/WSSubProtocol.h" // for WSSubProtocol, WSSubProtoc...
+#include "web/ws/WSSubProtocolSelector.h"
+#include "web/ws/server/WSSubProtocolPluginInterface.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <map>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::ws::subprotocol {
+namespace web::ws::server {
 
-    class WSSubProtocolSelector {
+    class WSSubProtocolSelector : public web::ws::WSSubProtocolSelector {
     public:
-        WSSubProtocolSelector();
-        ~WSSubProtocolSelector();
+        web::ws::server::WSSubProtocolPluginInterface* select(const std::string& subProtocolName) override;
 
-        void loadSubProtocols(const std::string& path);
-        void loadSubProtocol(const WSSubProtocolPluginInterface& wSProtocolPlugin);
-
-        WSSubProtocolPluginInterface* select(const std::string& subProtocol, web::ws::WSSubProtocol::Role role);
-
-    protected:
-        void loadSubProtocols();
+        static WSSubProtocolSelector& instance();
 
     private:
-        std::map<std::string, WSSubProtocolPluginInterface> serverSubprotocols;
-        std::map<std::string, WSSubProtocolPluginInterface> clientSubprotocols;
+        void registerSubProtocol(WSSubProtocolPluginInterface& wSSubProtocolPluginInterface, void* handle);
+        void loadSubProtocols();
+
+        static WSSubProtocolSelector wSSubProtocolSelector;
     };
 
-} // namespace web::ws::subprotocol
+} // namespace web::ws::server
 
-#endif // WEB_WS_SUBPROTOCOL_SELECTOR_H
+#endif // WEB_WS_SERVER_SUBPROTOCOL_SELECTOR_H

@@ -16,13 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_SERVER_WSSERVERCONTEXT_H
-#define WEB_WS_SERVER_WSSERVERCONTEXT_H
+#ifndef WEB_WS_SUBPROTOCOL_WSSUBPROTOCOLPLUGININTERFACE_H
+#define WEB_WS_SUBPROTOCOL_WSSUBPROTOCOLPLUGININTERFACE_H
 
-#include "web/http/server/Request.h"
-#include "web/http/server/Response.h"
-#include "web/ws/WSContext.h"
 #include "web/ws/server/WSSubProtocol.h"
+#include "web/ws/WSSubProtocolPluginInterface.h"
+
+#include <list>
+
+namespace web::http::server {
+
+    class Request;
+    class Response;
+
+} // namespace web::http::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,16 +37,16 @@
 
 namespace web::ws::server {
 
-    class WSContext : public web::ws::WSContext {
-    protected:
-        WSContext(web::ws::server::WSSubProtocol* wSSubProtocol, web::ws::WSSubProtocol::Role role);
+    extern "C" {
+        struct WSSubProtocolPluginInterface : public web::ws::WSSubProtocolPluginInterface {
+            std::list<web::ws::server::WSSubProtocol*>* getClients() {
+                return &clients;
+            }
 
-        ~WSContext() override;
+            std::list<web::ws::server::WSSubProtocol*> clients;
+        };
+    }
 
-    public:
-        static WSContext* create(web::http::server::Request& req, web::http::server::Response& res);
-    };
+} // namespace web::ws::server::subprotocol
 
-} // namespace web::ws::server
-
-#endif // WEB_WS_SERVER_WSSERVERCONTEXT_H
+#endif // WEB_WS_SUBPROTOCOL_WSSUBPROTOCOLPLUGININTERFACE_H

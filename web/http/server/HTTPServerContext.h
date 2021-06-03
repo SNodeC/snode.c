@@ -40,6 +40,11 @@ namespace web::http::server {
     public:
         using SocketConnection = net::socket::stream::SocketConnectionBase;
 
+        HTTPServerContextBase() = default;
+
+        HTTPServerContextBase(const HTTPServerContextBase&) = delete;
+        HTTPServerContextBase& operator=(const HTTPServerContextBase&) = delete;
+
         virtual void sendResponseData(const char* buf, std::size_t len) = 0;
         virtual void responseCompleted() = 0;
         virtual void terminateConnection() = 0;

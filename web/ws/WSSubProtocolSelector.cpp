@@ -16,12 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/ws/subprotocol/WSSubProtocolSelector.h"
+#include "WSSubProtocolSelector.h"
 
+#include "WSSubProtocolPluginInterface.h" // for WSSubPr...
 #include "log/Logger.h"
 #include "web/config.h"
 #include "web/ws/WSSubProtocol.h"
-#include "web/ws/subprotocol/WSSubProtocolPluginInterface.h" // for WSSubPr...
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,10 +31,26 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::ws::subprotocol {
+namespace web::ws {
 
     WSSubProtocolSelector::WSSubProtocolSelector() {
         loadSubProtocols();
+    }
+
+    WSSubProtocolSelector::~WSSubProtocolSelector() {
+        for (auto& [name, subProtocol] : serverSubprotocols) {
+            if (subProtocol.handle != nullptr) {
+                dlclose(subProtocol.handle);
+            }
+            delete subProtocol.wSSubprotocolPluginInterface;
+        }
+
+        for (auto& [name, subProtocol] : clientSubprotocols) {
+            if (subProtocol.handle != nullptr) {
+                dlclose(subProtocol.handle);
+            }
+            delete subProtocol.wSSubprotocolPluginInterface;
+        }
     }
 
     void WSSubProtocolSelector::loadSubProtocols() {
@@ -43,16 +59,28 @@ namespace web::ws::subprotocol {
         loadSubProtocols("/usr/local/lib/snodec/web/ws/subprotocol");
     }
 
-    void WSSubProtocolSelector::loadSubProtocol(const WSSubProtocolPluginInterface& subProtocol) {
-        if (subProtocol.role() == web::ws::WSSubProtocol::Role::SERVER) {
-            const auto [it, success] = serverSubprotocols.insert({subProtocol.name(), subProtocol});
-            if (!success && subProtocol.handle) {
-                dlclose(subProtocol.handle);
+    void WSSubProtocolSelector::registerSubProtocol(WSSubProtocolPluginInterface* wSSubProtocolPluginInterface) {
+        registerSubProtocol(wSSubProtocolPluginInterface, nullptr);
+    }
+
+    void WSSubProtocolSelector::registerSubProtocol(WSSubProtocolPluginInterface* wSSubProtocolPluginInterface, void* handle) {
+        WSSubProtocolPlugin wSSubProtocolPlugin = {.wSSubprotocolPluginInterface = wSSubProtocolPluginInterface, .handle = handle};
+
+        if (wSSubProtocolPluginInterface->role() == web::ws::WSSubProtocol::Role::SERVER) {
+            const auto [it, success] = serverSubprotocols.insert({wSSubProtocolPluginInterface->name(), wSSubProtocolPlugin});
+            if (!success) {
+                if (handle != nullptr) {
+                    dlclose(handle);
+                }
+                delete wSSubProtocolPluginInterface;
             }
         } else {
-            const auto [it, success] = clientSubprotocols.insert({subProtocol.name(), subProtocol});
-            if (!success && subProtocol.handle) {
-                dlclose(subProtocol.handle);
+            const auto [it, success] = clientSubprotocols.insert({wSSubProtocolPluginInterface->name(), wSSubProtocolPlugin});
+            if (!success) {
+                if (handle != nullptr) {
+                    dlclose(handle);
+                }
+                delete wSSubProtocolPluginInterface;
             }
         }
     }
@@ -63,10 +91,10 @@ namespace web::ws::subprotocol {
                 if (std::filesystem::is_regular_file(directoryEntry) && directoryEntry.path().extension() == ".so") {
                     void* handle = dlopen(directoryEntry.path().c_str(), RTLD_NOW | RTLD_LOCAL);
                     if (handle != nullptr) {
-                        WSSubProtocolPluginInterface (*wSSubProtocolPluginInterface)(void*) =
-                            reinterpret_cast<WSSubProtocolPluginInterface (*)(void*)>(dlsym(handle, "plugin"));
+                        WSSubProtocolPluginInterface* (*wSSubProtocolPlugin)() =
+                            reinterpret_cast<WSSubProtocolPluginInterface* (*) ()>(dlsym(handle, "plugin"));
 
-                        loadSubProtocol(wSSubProtocolPluginInterface(handle));
+                        registerSubProtocol(wSSubProtocolPlugin(), handle);
 
                         VLOG(1) << "DLOpen: success: " << directoryEntry.path().c_str();
                     } else {
@@ -81,34 +109,4 @@ namespace web::ws::subprotocol {
         }
     }
 
-    WSSubProtocolSelector::~WSSubProtocolSelector() {
-        for (auto& [name, subProtocol] : serverSubprotocols) {
-            if (subProtocol.handle != nullptr) {
-                dlclose(subProtocol.handle);
-            }
-        }
-
-        for (auto& [name, subProtocol] : clientSubprotocols) {
-            if (subProtocol.handle != nullptr) {
-                dlclose(subProtocol.handle);
-            }
-        }
-    }
-
-    WSSubProtocolPluginInterface* WSSubProtocolSelector::select(const std::string& subProtocolName, web::ws::WSSubProtocol::Role role) {
-        WSSubProtocolPluginInterface* subProtocol = nullptr;
-
-        if (role == web::ws::WSSubProtocol::Role::SERVER) { // server
-            if (serverSubprotocols.contains(subProtocolName)) {
-                subProtocol = &serverSubprotocols[subProtocolName];
-            }
-        } else if (role == web::ws::WSSubProtocol::Role::CLIENT) { // client
-            if (clientSubprotocols.contains(subProtocolName)) {
-                subProtocol = &clientSubprotocols[subProtocolName];
-            }
-        }
-
-        return subProtocol;
-    }
-
-} // namespace web::ws::subprotocol
+} // namespace web::ws

@@ -20,7 +20,8 @@
 #define WEB_WS_SERVER_SUBPROTOCOL_ECHO_ECHO_H
 
 #include "net/timer/IntervalTimer.h"
-#include "web/ws/subprotocol/WSSubProtocolPluginInterface.h"
+#include "web/ws/server/WSSubProtocol.h"
+#include "web/ws/server/WSSubProtocolPluginInterface.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,17 +29,21 @@
 
 namespace web::ws::subprotocol::echo::server {
 
-    class Echo : public web::ws::WSSubProtocol {
+    class Echo : public web::ws::server::WSSubProtocol {
     public:
         Echo();
+
+        Echo(const Echo&) = delete;
+        Echo& operator=(const Echo&) = delete;
+
         ~Echo() override;
 
+        void onProtocolConnected() override;
         void onMessageStart(int opCode) override;
         void onMessageData(const char* junk, std::size_t junkLen) override;
         void onMessageEnd() override;
         void onMessageError(uint16_t errnum) override;
         void onPongReceived() override;
-        void onProtocolConnected() override;
         void onProtocolDisconnected() override;
 
     private:
@@ -50,7 +55,7 @@ namespace web::ws::subprotocol::echo::server {
     };
 
     extern "C" {
-        struct web::ws::subprotocol::WSSubProtocolPluginInterface plugin(void* handle);
+        struct web::ws::WSSubProtocolPluginInterface* plugin();
     }
 
 } // namespace web::ws::subprotocol::echo::server

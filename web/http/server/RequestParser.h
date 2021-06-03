@@ -45,13 +45,14 @@ namespace web::http::server {
             const std::function<void()>& onParsed,
             const std::function<void(int status, const std::string& reason)>& onError);
 
+        RequestParser(const RequestParser&) = delete;
+        RequestParser& operator=(const RequestParser&) = delete;
+
         void reset() override;
 
     private:
         // Check if request method is supported
-        virtual bool methodSupported(const std::string& method) {
-            return supportedMethods.contains(method);
-        }
+        virtual bool methodSupported(const std::string& method) const;
 
         // Entrence
         void begin() override;

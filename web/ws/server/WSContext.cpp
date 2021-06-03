@@ -20,7 +20,8 @@
 
 #include "log/Logger.h"
 #include "web/ws/WSSubProtocol.h" // for WSSubProtocol, WSSubProtocol::Role, WSProto...
-#include "web/ws/subprotocol/WSSubProtocolSelector.h"
+#include "web/ws/server/WSSubProtocolPluginInterface.h"
+#include "web/ws/server/WSSubProtocolSelector.h"
 #include "web/ws/ws_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -31,31 +32,34 @@
 
 namespace web::ws::server {
 
-    WSContext::WSContext(web::ws::WSSubProtocol* wSSubProtocol, web::ws::WSSubProtocol::Role role)
+    WSContext::WSContext(web::ws::server::WSSubProtocol* wSSubProtocol, web::ws::WSSubProtocol::Role role)
         : web::ws::WSContext(wSSubProtocol, role) {
     }
 
     WSContext::WSContext::~WSContext() {
-        web::ws::subprotocol::WSSubProtocolPluginInterface* wSSubProtocolPluginInterface =
-            selector.select(wSSubProtocol->getName(), web::ws::WSSubProtocol::Role::SERVER);
+        web::ws::WSSubProtocolPluginInterface* wSSubProtocolPluginInterface =
+            web::ws::server::WSSubProtocolSelector::instance().select(wSSubProtocol->getName());
 
         if (wSSubProtocolPluginInterface != nullptr) {
-            wSSubProtocolPluginInterface->destroy(wSSubProtocol);
+            wSSubProtocolPluginInterface->destroy(dynamic_cast<web::ws::server::WSSubProtocol*>(wSSubProtocol));
         }
     }
 
     WSContext* WSContext::create(web::http::server::Request& req, web::http::server::Response& res) {
         std::string subProtocol = req.header("sec-websocket-protocol");
 
-        web::ws::subprotocol::WSSubProtocolPluginInterface* wSSubProtocolPluginInterface =
-            selector.select(subProtocol, web::ws::WSSubProtocol::Role::SERVER);
+        web::ws::server::WSSubProtocolPluginInterface* wSSubProtocolPluginInterface =
+            web::ws::server::WSSubProtocolSelector::instance().select(subProtocol);
 
         web::ws::server::WSContext* wSContext = nullptr;
 
         if (wSSubProtocolPluginInterface != nullptr) {
-            web::ws::WSSubProtocol* wSSubProtocol = wSSubProtocolPluginInterface->create(req, res);
+            web::ws::server::WSSubProtocol* wSSubProtocol =
+                static_cast<web::ws::server::WSSubProtocol*>(wSSubProtocolPluginInterface->create(req, res));
 
             if (wSSubProtocol != nullptr) {
+                wSSubProtocol->setClients(wSSubProtocolPluginInterface->getClients());
+
                 wSContext = new web::ws::server::WSContext(wSSubProtocol, web::ws::WSSubProtocol::Role::SERVER);
 
                 if (wSContext != nullptr) {

@@ -16,10 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_WSUBSPROTOCOL_H
-#define WEB_WS_WSUBSPROTOCOL_H
+#ifndef WEB_WS_SERVER_WSUBSPROTOCOL_H
+#define WEB_WS_SERVER_WSUBSPROTOCOL_H
 
-namespace web::ws {
+#include "web/ws/WSSubProtocol.h"
+
+namespace web::ws::server {
     class WSContext;
 }
 
@@ -27,13 +29,14 @@ namespace web::ws {
 
 #include <cstddef>
 #include <cstdint>
+#include <list>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::ws {
+namespace web::ws::server {
 
-    class WSSubProtocol {
+    class WSSubProtocol : public web::ws::WSSubProtocol {
     public:
         enum class Role { SERVER, CLIENT };
 
@@ -49,37 +52,17 @@ namespace web::ws {
 
     public:
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from WSSubProtocol-Subclasses */
-        void sendMessage(const char* message, std::size_t messageLength);
-        void sendMessage(const std::string& message);
+        void sendBroadcast(const char* message, std::size_t messageLength);
+        void sendBroadcast(const std::string& message);
 
-        void sendMessageStart(const char* message, std::size_t messageLength);
-        void sendMessageStart(const std::string& message);
+        void sendBroadcastStart(const char* message, std::size_t messageLength);
+        void sendBroadcastStart(const std::string& message);
 
-        void sendMessageFrame(const char* message, std::size_t messageLength);
-        void sendMessageFrame(const std::string& message);
+        void sendBroadcastFrame(const char* message, std::size_t messageLength);
+        void sendBroadcastFrame(const std::string& message);
 
-        void sendMessageEnd(const char* message, std::size_t messageLength);
-        void sendMessageEnd(const std::string& message);
-
-        static void sendBroadcast(const char* message, std::size_t messageLength);
-        static void sendBroadcast(const std::string& message);
-
-        static void sendBroadcastStart(const char* message, std::size_t messageLength);
-        static void sendBroadcastStart(const std::string& message);
-
-        static void sendBroadcastFrame(const char* message, std::size_t messageLength);
-        static void sendBroadcastFrame(const std::string& message);
-
-        static void sendBroadcastEnd(const char* message, std::size_t messageLength);
-        static void sendBroadcastEnd(const std::string& message);
-
-        void sendPing(char* reason = nullptr, std::size_t reasonLength = 0);
-        void sendClose(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);
-
-        std::string getLocalAddressAsString() const;
-        std::string getRemoteAddressAsString() const;
-
-        const std::string& getName();
+        void sendBroadcastEnd(const char* message, std::size_t messageLength);
+        void sendBroadcastEnd(const std::string& message);
 
     private:
         /* Callbacks (API) WSReceiver -> WSSubProtocol-Subclasses */
@@ -93,16 +76,16 @@ namespace web::ws {
         virtual void onProtocolConnected() = 0;
         virtual void onProtocolDisconnected() = 0;
 
-        void setWSContext(WSContext* wSServerContext);
+        void sendBroadcast(uint8_t opCode, const char* message, std::size_t messageLength);
+        void sendBroadcastStart(uint8_t opCode, const char* message, std::size_t messageLength);
 
-    protected:
-        WSContext* wSContext;
+        void setClients(std::list<WSSubProtocol*>* clients);
 
-        const std::string name;
+        std::list<WSSubProtocol*>* clients;
 
-        friend class web::ws::WSContext;
+        friend class web::ws::server::WSContext;
     };
 
-} // namespace web::ws
+} // namespace web::ws::server
 
-#endif // WEB_WS_WSUBSPROTOCOL_H
+#endif // WEB_WS_SERVER_WSUBSPROTOCOL_H
