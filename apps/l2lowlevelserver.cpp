@@ -23,8 +23,8 @@
 #include "net/socket/bluetooth/address/L2CapAddress.h" // for L2CapAddress
 #include "net/socket/bluetooth/l2cap/Socket.h"         // for l2cap
 #include "net/socket/bluetooth/l2cap/SocketServer.h"   // for SocketServer
-#include "net/socket/stream/SocketProtocol.h"          // for SocketProtocol
-#include "net/socket/stream/SocketProtocolFactory.h"   // for SocketProtoco...
+#include "net/socket/stream/SocketContext.h"          // for SocketProtocol
+#include "net/socket/stream/SocketContextFactory.h"   // for SocketProtoco...
 #include "net/socket/stream/SocketServer.h"            // for SocketServer<...
 
 #include <cstddef>    // for size_t
@@ -35,7 +35,7 @@
 
 using namespace net::socket::bluetooth::l2cap;
 
-class SimpleSocketProtocol : public net::socket::stream::SocketProtocol {
+class SimpleSocketProtocol : public net::socket::stream::SocketContext {
 public:
     void onReceiveFromPeer(const char* junk, std::size_t junkLen) override {
         VLOG(0) << "Data to reflect: " << std::string(junk, junkLen);
@@ -51,11 +51,11 @@ public:
     }
 };
 
-class SimpleSocketProtocolFactory : public net::socket::stream::SocketProtocolFactory {
+class SimpleSocketProtocolFactory : public net::socket::stream::SocketContextFactory {
 public:
     ~SimpleSocketProtocolFactory() = default;
 
-    net::socket::stream::SocketProtocol* create() const override {
+    net::socket::stream::SocketContext* create() const override {
         return new SimpleSocketProtocol();
     }
 };

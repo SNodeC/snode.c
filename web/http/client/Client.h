@@ -35,7 +35,7 @@
 
 namespace web::http::client {
 
-    template <template <typename SocketProtocolFactoryT> typename SocketClientT, typename RequestT, typename ResponseT>
+    template <template <typename SocketContextFactoryT> typename SocketClientT, typename RequestT, typename ResponseT>
     class Client {
     public:
         using Request = RequestT;
@@ -57,7 +57,7 @@ namespace web::http::client {
                       onConnect(localAddress, remoteAddress);
                   },
                   [onConnected, onRequestBegin, onResponse, onResponseError](SocketConnection* socketConnection) -> void { // onConnected
-                      Request& request = static_cast<ClientContextBase*>(socketConnection->getSocketProtocol())->getRequest();
+                      Request& request = static_cast<ClientContextBase*>(socketConnection->getSocketContext())->getRequest();
 
                       request.setHost(socketConnection->getRemoteAddress().host() + ":" +
                                       std::to_string(socketConnection->getRemoteAddress().port()));
@@ -69,8 +69,8 @@ namespace web::http::client {
                       onDisconnect(socketConnection);
                   },
                   options) {
-            socketClient.getSocketProtocol()->setOnResponse(onResponse);
-            socketClient.getSocketProtocol()->setOnRequestError(onResponseError);
+            socketClient.getSocketContextFactory()->setOnResponse(onResponse);
+            socketClient.getSocketContextFactory()->setOnRequestError(onResponseError);
         }
 
         void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(int err)>& onError) {

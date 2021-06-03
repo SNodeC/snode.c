@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
                 X509_free(client_cert);
             } else {
                 VLOG(2) << "\tClient certificate: no certificate";
-                socketConnection->getSocketProtocol()->close();
+                socketConnection->getSocketContext()->close();
             }
         });
 

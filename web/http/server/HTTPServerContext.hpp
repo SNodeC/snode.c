@@ -209,7 +209,7 @@ namespace web::http::server {
     template <typename Request, typename Response>
     void HTTPServerContext<Request, Response>::terminateConnection() {
         if (!connectionTerminated) {
-            socketConnection->getSocketProtocol()->close();
+            socketConnection->getSocketContext()->close();
             requestContexts.clear();
             connectionTerminated = true;
         }

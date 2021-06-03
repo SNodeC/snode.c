@@ -26,14 +26,14 @@
 namespace net::socket::stream {
 
     class SocketConnectionBase;
-    class SocketProtocol;
+    class SocketContext;
 
-    class SocketProtocolFactory {
+    class SocketContextFactory {
     protected:
-        SocketProtocolFactory() = default;
-        virtual ~SocketProtocolFactory() = default;
+        SocketContextFactory() = default;
+        virtual ~SocketContextFactory() = default;
 
-        virtual SocketProtocol* create() const = 0;
+        virtual SocketContext* create() const = 0;
 
         friend class SocketConnectionBase;
     };

@@ -30,10 +30,10 @@ namespace net::socket::stream {
 
     class SocketConnectionBase;
 
-    class SocketProtocol {
+    class SocketContext {
     protected:
-        SocketProtocol() = default;
-        virtual ~SocketProtocol() = default;
+        SocketContext() = default;
+        virtual ~SocketContext() = default;
 
     public:
         void sendToPeer(const char* junk, std::size_t junkLen);
@@ -44,7 +44,7 @@ namespace net::socket::stream {
 
         void close();
 
-        void switchSocketProtocol(SocketProtocol* socketProtocol);
+        void switchSocketProtocol(SocketContext* socketProtocol);
 
         void setTimeout(int timeout);
 

@@ -19,7 +19,7 @@
 #ifndef WEB_HTTP_SERVER_HTTPSERVERCONTEXT_H
 #define WEB_HTTP_SERVER_HTTPSERVERCONTEXT_H
 
-#include "net/socket/stream/SocketProtocol.h"
+#include "net/socket/stream/SocketContext.h"
 #include "web/http/server/Request.h"
 #include "web/http/server/RequestParser.h"
 #include "web/http/server/Response.h"
@@ -36,7 +36,7 @@ namespace net::socket::stream {
 
 namespace web::http::server {
 
-    class HTTPServerContextBase : public net::socket::stream::SocketProtocol {
+    class HTTPServerContextBase : public net::socket::stream::SocketContext {
     public:
         using SocketConnection = net::socket::stream::SocketConnectionBase;
 

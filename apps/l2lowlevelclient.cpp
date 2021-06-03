@@ -24,8 +24,8 @@
 #include "net/socket/bluetooth/l2cap/Socket.h"         // for l2cap
 #include "net/socket/bluetooth/l2cap/SocketClient.h"
 #include "net/socket/stream/SocketClient.h" // for SocketClient<...
-#include "net/socket/stream/SocketProtocol.h"
-#include "net/socket/stream/SocketProtocolFactory.h"
+#include "net/socket/stream/SocketContext.h"
+#include "net/socket/stream/SocketContextFactory.h"
 
 #include <any> // for any
 #include <cstddef>
@@ -36,7 +36,7 @@
 
 using namespace net::socket::bluetooth::l2cap;
 
-class SimpleSocketProtocol : public net::socket::stream::SocketProtocol {
+class SimpleSocketProtocol : public net::socket::stream::SocketContext {
 public:
     void onReceiveFromPeer(const char* junk, std::size_t junkLen) override {
         VLOG(0) << "Data to reflect: " << std::string(junk, junkLen);
@@ -52,9 +52,9 @@ public:
     }
 };
 
-class SimpleSocketProtocolFactory : public net::socket::stream::SocketProtocolFactory {
+class SimpleSocketProtocolFactory : public net::socket::stream::SocketContextFactory {
 public:
-    net::socket::stream::SocketProtocol* create() const override {
+    net::socket::stream::SocketContext* create() const override {
         return new SimpleSocketProtocol();
     }
 };

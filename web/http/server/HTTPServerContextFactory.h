@@ -20,7 +20,7 @@
 #define WEB_HTTP_SERVER_HTTPSERVERCONTEXTFACTORY_H
 
 #include "net/socket/stream/SocketConnectionBase.h"
-#include "net/socket/stream/SocketProtocolFactory.h"
+#include "net/socket/stream/SocketContextFactory.h"
 #include "web/http/server/HTTPServerContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -30,7 +30,7 @@
 namespace web::http::server {
 
     template <typename RequestT, typename ResponseT>
-    class HTTPServerContextFactory : public net::socket::stream::SocketProtocolFactory {
+    class HTTPServerContextFactory : public net::socket::stream::SocketContextFactory {
     public:
         using Request = RequestT;
         using Response = ResponseT;
@@ -41,7 +41,7 @@ namespace web::http::server {
         HTTPServerContextFactory& operator=(const HTTPServerContextFactory&) = delete;
 
     private:
-        net::socket::stream::SocketProtocol* create() const override {
+        net::socket::stream::SocketContext* create() const override {
             return new HTTPServerContext<Request, Response>(onRequestReady);
         }
 

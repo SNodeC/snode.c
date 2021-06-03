@@ -46,7 +46,7 @@ namespace net::socket::stream {
             using Socket = typename SocketConnection::Socket;
             using SocketAddress = typename Socket::SocketAddress;
 
-            SocketConnector(const std::shared_ptr<const SocketProtocolFactory>& socketProtocolFactory,
+            SocketConnector(const std::shared_ptr<const SocketContextFactory>& socketProtocolFactory,
                             const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
                             const std::function<void(SocketConnection* socketConnection)>& onConnected,
                             const std::function<void(SocketConnection* socketConnection)>& onDisconnect,

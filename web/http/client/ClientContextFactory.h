@@ -20,7 +20,7 @@
 #define WEB_HTTP_CLIENT_CLIENTCONTEXTFACTORY_H
 
 #include "net/socket/stream/SocketConnectionBase.h"
-#include "net/socket/stream/SocketProtocolFactory.h"
+#include "net/socket/stream/SocketContextFactory.h"
 #include "web/http/client/ClientContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -30,7 +30,7 @@
 namespace web::http::client {
 
     template <typename RequestT, typename ResponseT>
-    class ClientContextFactory : public net::socket::stream::SocketProtocolFactory {
+    class ClientContextFactory : public net::socket::stream::SocketContextFactory {
     public:
         using Request = RequestT;
         using Response = ResponseT;
@@ -38,7 +38,7 @@ namespace web::http::client {
         ClientContextFactory() = default;
 
     private:
-        net::socket::stream::SocketProtocol* create() const override {
+        net::socket::stream::SocketContext* create() const override {
             return new ClientContext<Request, Response>(onResponse, onRequestError);
         }
 

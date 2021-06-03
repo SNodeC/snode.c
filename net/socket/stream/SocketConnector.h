@@ -21,7 +21,7 @@
 
 #include "net/ConnectEventReceiver.h"
 #include "net/socket/Socket.h"
-#include "net/socket/stream/SocketProtocolFactory.h"
+#include "net/socket/stream/SocketContextFactory.h"
 #include "net/system/socket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -52,7 +52,7 @@ namespace net::socket::stream {
         using Socket = typename SocketConnection::Socket;
         using SocketAddress = typename Socket::SocketAddress;
 
-        SocketConnector(const std::shared_ptr<const SocketProtocolFactory>& socketProtocolFactory,
+        SocketConnector(const std::shared_ptr<const SocketContextFactory>& socketProtocolFactory,
                         const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
                         const std::function<void(SocketConnection* socketConnection)>& onConnected,
                         const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
@@ -155,7 +155,7 @@ namespace net::socket::stream {
         }
 
     private:
-        std::shared_ptr<const SocketProtocolFactory> socketProtocolFactory = nullptr;
+        std::shared_ptr<const SocketContextFactory> socketProtocolFactory = nullptr;
 
     protected:
         std::function<void(int err)> onError;

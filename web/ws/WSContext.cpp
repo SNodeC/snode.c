@@ -98,7 +98,7 @@ namespace web::ws {
                 close(pongCloseData.data(), pongCloseData.length());
                 pongCloseData.clear();
             }
-            socketConnection->getSocketProtocol()->close();
+            socketConnection->getSocketContext()->close();
         } else if (pingReceived) {
             pingReceived = false;
             replyPong(pongCloseData.data(), pongCloseData.length());
@@ -216,11 +216,11 @@ namespace web::ws {
     }
 
     std::string WSContext::getLocalAddressAsString() const {
-        return SocketProtocol::getLocalAddressAsString();
+        return SocketContext::getLocalAddressAsString();
     }
 
     std::string WSContext::getRemoteAddressAsString() const {
-        return SocketProtocol::getLocalAddressAsString();
+        return SocketContext::getLocalAddressAsString();
     }
 
 } // namespace web::ws

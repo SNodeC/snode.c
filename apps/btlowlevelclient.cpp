@@ -23,8 +23,8 @@
 #include "net/socket/bluetooth/address/RfCommAddress.h"      // for RfCommA...
 #include "net/socket/bluetooth/rfcomm/legacy/SocketClient.h" // for SocketC...
 #include "net/socket/stream/SocketClient.h"                  // for SocketC...
-#include "net/socket/stream/SocketProtocol.h"                // for SocketP...
-#include "net/socket/stream/SocketProtocolFactory.h"         // for SocketP...
+#include "net/socket/stream/SocketContext.h"                // for SocketP...
+#include "net/socket/stream/SocketContextFactory.h"         // for SocketP...
 
 #include <any>        // for any
 #include <cstddef>    // for size_t
@@ -35,7 +35,7 @@
 
 using namespace net::socket::bluetooth::rfcomm::legacy;
 
-class SimpleSocketProtocol : public net::socket::stream::SocketProtocol {
+class SimpleSocketProtocol : public net::socket::stream::SocketContext {
 public:
     void onReceiveFromPeer(const char* junk, std::size_t junkLen) override {
         VLOG(0) << "Data to reflect: " << std::string(junk, junkLen);
@@ -51,9 +51,9 @@ public:
     }
 };
 
-class SimpleSocketProtocolFactory : public net::socket::stream::SocketProtocolFactory {
+class SimpleSocketProtocolFactory : public net::socket::stream::SocketContextFactory {
 private:
-    net::socket::stream::SocketProtocol* create() const override {
+    net::socket::stream::SocketContext* create() const override {
         return new SimpleSocketProtocol();
     }
 };

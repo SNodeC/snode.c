@@ -28,10 +28,10 @@
 
 namespace net::socket::bluetooth::l2cap {
 
-    template <typename SocketProtocolFactoryT>
-    class SocketServer : public stream::legacy::SocketServer<SocketProtocolFactoryT, l2cap::Socket> {
+    template <typename SocketContextFactoryT>
+    class SocketServer : public stream::legacy::SocketServer<SocketContextFactoryT, l2cap::Socket> {
     public:
-        using stream::legacy::SocketServer<SocketProtocolFactoryT, l2cap::Socket>::SocketServer;
+        using stream::legacy::SocketServer<SocketContextFactoryT, l2cap::Socket>::SocketServer;
     };
 
 } // namespace net::socket::bluetooth::l2cap

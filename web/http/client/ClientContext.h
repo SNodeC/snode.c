@@ -19,7 +19,7 @@
 #ifndef WEB_HTTP_CLIENT_CLIENTCONTEXT_H
 #define WEB_HTTP_CLIENT_CLIENTCONTEXT_H
 
-#include "net/socket/stream/SocketProtocol.h"
+#include "net/socket/stream/SocketContext.h"
 #include "web/http/CookieOptions.h"
 #include "web/http/client/Request.h"
 #include "web/http/client/Response.h"
@@ -39,7 +39,7 @@ namespace net::socket::stream {
 
 namespace web::http::client {
 
-    class ClientContextBase : public net::socket::stream::SocketProtocol {
+    class ClientContextBase : public net::socket::stream::SocketContext {
     public:
         virtual ~ClientContextBase() = default;
 

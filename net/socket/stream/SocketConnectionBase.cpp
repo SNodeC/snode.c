@@ -18,8 +18,8 @@
 
 #include "net/socket/stream/SocketConnectionBase.h"
 
-#include "net/socket/stream/SocketProtocol.h"
-#include "net/socket/stream/SocketProtocolFactory.h"
+#include "net/socket/stream/SocketContext.h"
+#include "net/socket/stream/SocketContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,24 +27,24 @@
 
 namespace net::socket::stream {
 
-    SocketConnectionBase::SocketConnectionBase(const std::shared_ptr<const SocketProtocolFactory>& socketProtocolFactory) {
-        socketProtocol = socketProtocolFactory->create();
-        socketProtocol->setSocketConnection(this);
+    SocketConnectionBase::SocketConnectionBase(const std::shared_ptr<const SocketContextFactory>& socketProtocolFactory) {
+        socketContext = socketProtocolFactory->create();
+        socketContext->setSocketConnection(this);
     }
 
     SocketConnectionBase::~SocketConnectionBase() {
-        delete socketProtocol;
+        delete socketContext;
     }
 
-    void SocketConnectionBase::switchSocketProtocol(SocketProtocol* newSocketProtocol) {
-        socketProtocol->onProtocolDisconnected();
-        socketProtocol = newSocketProtocol;
-        socketProtocol->socketConnection = this;
-        socketProtocol->onProtocolConnected();
+    void SocketConnectionBase::switchSocketProtocol(SocketContext* newSocketProtocol) {
+        socketContext->onProtocolDisconnected();
+        socketContext = newSocketProtocol;
+        socketContext->socketConnection = this;
+        socketContext->onProtocolConnected();
     }
 
-    SocketProtocol* SocketConnectionBase::getSocketProtocol() {
-        return socketProtocol;
+    SocketContext* SocketConnectionBase::getSocketContext() {
+        return socketContext;
     }
 
 } // namespace net::socket::stream

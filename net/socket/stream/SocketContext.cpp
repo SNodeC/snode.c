@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/socket/stream/SocketProtocol.h"
+#include "net/socket/stream/SocketContext.h"
 
 #include "log/Logger.h"
 #include "net/socket/stream/SocketConnectionBase.h"
@@ -27,33 +27,33 @@
 
 namespace net::socket::stream {
 
-    void SocketProtocol::sendToPeer(const char* junk, std::size_t junkLen) {
+    void SocketContext::sendToPeer(const char* junk, std::size_t junkLen) {
         socketConnection->enqueue(junk, junkLen);
     }
 
-    void SocketProtocol::sendToPeer(const std::string& data) {
+    void SocketContext::sendToPeer(const std::string& data) {
         sendToPeer(data.data(), data.length());
     }
 
-    std::string SocketProtocol::getLocalAddressAsString() const {
+    std::string SocketContext::getLocalAddressAsString() const {
         return socketConnection->getLocalAddressAsString();
     }
 
-    std::string SocketProtocol::getRemoteAddressAsString() const {
+    std::string SocketContext::getRemoteAddressAsString() const {
         return socketConnection->getRemoteAddressAsString();
     }
 
-    void SocketProtocol::close() {
+    void SocketContext::close() {
         socketConnection->close();
     }
 
-    void SocketProtocol::switchSocketProtocol(SocketProtocol* socketProtocol) {
+    void SocketContext::switchSocketProtocol(SocketContext* socketProtocol) {
         socketConnection->switchSocketProtocol(socketProtocol);
 
         markedForDelete = true;
     }
 
-    void SocketProtocol::receiveFromPeer(const char* junk, std::size_t junkLen) {
+    void SocketContext::receiveFromPeer(const char* junk, std::size_t junkLen) {
         onReceiveFromPeer(junk, junkLen);
 
         if (markedForDelete) {
@@ -61,19 +61,19 @@ namespace net::socket::stream {
         }
     }
 
-    void SocketProtocol::setTimeout(int timeout) {
+    void SocketContext::setTimeout(int timeout) {
         socketConnection->setTimeout(timeout);
     }
 
-    void SocketProtocol::setSocketConnection(SocketConnectionBase* socketConnection) {
+    void SocketContext::setSocketConnection(SocketConnectionBase* socketConnection) {
         this->socketConnection = socketConnection;
     }
 
-    void SocketProtocol::onProtocolConnected() {
+    void SocketContext::onProtocolConnected() {
         VLOG(0) << "Protocol connected";
     }
 
-    void SocketProtocol::onProtocolDisconnected() {
+    void SocketContext::onProtocolDisconnected() {
         VLOG(0) << "Protocol disconnecteded";
     }
 

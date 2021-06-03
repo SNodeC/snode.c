@@ -101,7 +101,7 @@ namespace web::http::client {
 
     template <typename Request, typename Response>
     void ClientContext<Request, Response>::terminateConnection() {
-        socketConnection->getSocketProtocol()->close();
+        socketConnection->getSocketContext()->close();
     }
 
 } // namespace web::http::client

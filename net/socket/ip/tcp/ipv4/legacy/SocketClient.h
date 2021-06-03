@@ -28,9 +28,9 @@
 
 namespace net::socket::ip::tcp::ipv4::legacy {
 
-    template <typename SocketProtocolFactoryT>
-    class SocketClient : public stream::legacy::SocketClient<SocketProtocolFactoryT, ipv4::Socket> {
-        using stream::legacy::SocketClient<SocketProtocolFactoryT, ipv4::Socket>::SocketClient;
+    template <typename SocketContextFactoryT>
+    class SocketClient : public stream::legacy::SocketClient<SocketContextFactoryT, ipv4::Socket> {
+        using stream::legacy::SocketClient<SocketContextFactoryT, ipv4::Socket>::SocketClient;
     };
 
 } // namespace net::socket::ip::tcp::ipv4::legacy

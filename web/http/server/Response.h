@@ -34,7 +34,7 @@
 class FileReader;
 
 namespace net::socket::stream {
-    class SocketProtocol;
+    class SocketContext;
 }
 
 namespace web::ws {

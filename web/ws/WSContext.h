@@ -19,7 +19,7 @@
 #ifndef WEB_WS_WSCONTEXTBASE_H
 #define WEB_WS_WSCONTEXTBASE_H
 
-#include "net/socket/stream/SocketProtocol.h"
+#include "net/socket/stream/SocketContext.h"
 #include "web/ws/WSReceiver.h"
 #include "web/ws/WSSubProtocol.h" // for WSProtocol, WSProtocol...
 #include "web/ws/WSTransmitter.h"
@@ -35,7 +35,7 @@
 namespace web::ws {
 
     class WSContext
-        : public net::socket::stream::SocketProtocol
+        : public net::socket::stream::SocketContext
         , public web::ws::WSReceiver
         , public web::ws::WSTransmitter {
     protected:

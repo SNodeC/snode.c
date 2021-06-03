@@ -20,8 +20,8 @@
 #define NET_SOCKET_STREAM_SOCKETCONNECTIONBASE_H
 
 namespace net::socket::stream {
-    class SocketProtocol;
-    class SocketProtocolFactory;
+    class SocketContext;
+    class SocketContextFactory;
 } // namespace net::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -39,12 +39,12 @@ namespace net::socket::stream {
         SocketConnectionBase& operator=(const SocketConnectionBase&) = delete;
 
     protected:
-        SocketConnectionBase(const std::shared_ptr<const SocketProtocolFactory>& socketProtocolFactory);
+        SocketConnectionBase(const std::shared_ptr<const SocketContextFactory>& socketProtocolFactory);
 
         virtual ~SocketConnectionBase();
 
     public:
-        SocketProtocol* getSocketProtocol();
+        SocketContext* getSocketContext();
 
         virtual std::string getLocalAddressAsString() const = 0;
         virtual std::string getRemoteAddressAsString() const = 0;
@@ -57,11 +57,11 @@ namespace net::socket::stream {
         virtual void setTimeout(int timeout) = 0;
 
     protected:
-        void switchSocketProtocol(SocketProtocol* newSocketProtocol);
+        void switchSocketProtocol(SocketContext* newSocketProtocol);
 
-        SocketProtocol* socketProtocol = nullptr;
+        SocketContext* socketContext = nullptr;
 
-        friend SocketProtocol;
+        friend SocketContext;
     };
 
 } // namespace net::socket::stream
