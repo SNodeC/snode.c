@@ -30,7 +30,7 @@
 
 namespace web::ws::server {
 
-    class SubProtocolSelector : public web::ws::WSSubProtocolSelector {
+    class SubProtocolSelector : public web::ws::SubProtocolSelector {
     public:
         web::ws::server::SubProtocolPluginInterface* select(const std::string& subProtocolName) override;
 

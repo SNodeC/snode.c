@@ -35,14 +35,14 @@ namespace web::ws {
         void* handle;
     };
 
-    class WSSubProtocolSelector {
+    class SubProtocolSelector {
     protected:
-        WSSubProtocolSelector();
-        ~WSSubProtocolSelector();
+        SubProtocolSelector();
+        ~SubProtocolSelector();
 
     private:
-        WSSubProtocolSelector(const WSSubProtocolSelector&) = delete;
-        WSSubProtocolSelector& operator=(const WSSubProtocolSelector&) = delete;
+        SubProtocolSelector(const SubProtocolSelector&) = delete;
+        SubProtocolSelector& operator=(const SubProtocolSelector&) = delete;
 
     public:
         void loadSubProtocol(const std::string& filePath);

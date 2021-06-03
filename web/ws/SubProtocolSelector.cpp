@@ -33,11 +33,11 @@
 
 namespace web::ws {
 
-    WSSubProtocolSelector::WSSubProtocolSelector() {
+    SubProtocolSelector::SubProtocolSelector() {
         loadSubProtocols();
     }
 
-    WSSubProtocolSelector::~WSSubProtocolSelector() {
+    SubProtocolSelector::~SubProtocolSelector() {
         for (auto& [name, subProtocol] : serverSubprotocols) {
             if (subProtocol.handle != nullptr) {
                 dlclose(subProtocol.handle);
@@ -53,17 +53,19 @@ namespace web::ws {
         }
     }
 
-    void WSSubProtocolSelector::loadSubProtocols() {
+    void SubProtocolSelector::loadSubProtocols() {
+#ifndef NDEBUG
         loadSubProtocols(SUBPROTOCOL_PATH);
+#endif
         loadSubProtocols("/usr/lib/snodec/web/ws/subprotocol");
         loadSubProtocols("/usr/local/lib/snodec/web/ws/subprotocol");
     }
 
-    void WSSubProtocolSelector::registerSubProtocol(SubProtocolPluginInterface* wSSubProtocolPluginInterface) {
+    void SubProtocolSelector::registerSubProtocol(SubProtocolPluginInterface* wSSubProtocolPluginInterface) {
         registerSubProtocol(wSSubProtocolPluginInterface, nullptr);
     }
 
-    void WSSubProtocolSelector::registerSubProtocol(SubProtocolPluginInterface* wSSubProtocolPluginInterface, void* handle) {
+    void SubProtocolSelector::registerSubProtocol(SubProtocolPluginInterface* wSSubProtocolPluginInterface, void* handle) {
         SubProtocolPlugin wSSubProtocolPlugin = {.wSSubprotocolPluginInterface = wSSubProtocolPluginInterface, .handle = handle};
 
         if (wSSubProtocolPluginInterface->role() == web::ws::SubProtocol::Role::SERVER) {
@@ -85,13 +87,13 @@ namespace web::ws {
         }
     }
 
-    void WSSubProtocolSelector::loadSubProtocol(const std::string& filePath) {
+    void SubProtocolSelector::loadSubProtocol(const std::string& filePath) {
         void* handle = dlopen(filePath.c_str(), RTLD_NOW | RTLD_LOCAL);
         if (handle != nullptr) {
-            SubProtocolPluginInterface* (*wSSubProtocolPlugin)() =
+            SubProtocolPluginInterface* (*subProtocolPluginInterface)() =
                 reinterpret_cast<SubProtocolPluginInterface* (*) ()>(dlsym(handle, "plugin"));
 
-            registerSubProtocol(wSSubProtocolPlugin(), handle);
+            registerSubProtocol(subProtocolPluginInterface(), handle);
 
             VLOG(1) << "DLOpen: success: " << filePath;
         } else {
@@ -99,7 +101,7 @@ namespace web::ws {
         }
     }
 
-    void WSSubProtocolSelector::loadSubProtocols(const std::string& directoryPath) {
+    void SubProtocolSelector::loadSubProtocols(const std::string& directoryPath) {
         if (std::filesystem::exists(directoryPath) && std::filesystem::is_directory(directoryPath)) {
             for (const std::filesystem::directory_entry& directoryEntry : std::filesystem::recursive_directory_iterator(directoryPath)) {
                 if (std::filesystem::is_regular_file(directoryEntry) && directoryEntry.path().extension() == ".so") {

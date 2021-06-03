@@ -12,4 +12,4 @@ set_target_properties(
                SOVERSION 1
 )
 
-install(TARGETS echo LIBRARY DESTINATION lib NAMELINK_COMPONENT libecho.so.1)
+install(TARGETS echo LIBRARY DESTINATION lib/snodec/web/ws/subprotocol NAMELINK_COMPONENT libecho.so.1)

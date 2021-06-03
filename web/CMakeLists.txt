@@ -18,8 +18,8 @@ add_library(
     http/server/RequestParser.cpp
     http/server/Request.cpp
     http/server/Response.cpp
-    ws/SocketContext.cpp
     ws/Receiver.cpp
+    ws/SocketContext.cpp
     ws/SubProtocol.cpp
     ws/SubProtocolSelector.cpp
     ws/Transmitter.cpp

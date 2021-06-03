@@ -21,6 +21,11 @@ add_library(
     WriteEventReceiver.cpp
     file/File.cpp
     file/FileReader.cpp
+    pipe/Source.cpp
+    pipe/Sink.cpp
+    pipe/Pipe.cpp
+    pipe/PipeSink.cpp
+    pipe/PipeSource.cpp
     socket/bluetooth/address/L2CapAddress.cpp
     socket/bluetooth/address/RfCommAddress.cpp
     socket/bluetooth/l2cap/Socket.cpp
@@ -33,11 +38,6 @@ add_library(
     socket/stream/SocketContext.cpp
     socket/stream/tls/ssl_utils.cpp
     socket/stream/tls/TLSHandshake.cpp
-    pipe/Source.cpp
-    pipe/Sink.cpp
-    pipe/Pipe.cpp
-    pipe/PipeSink.cpp
-    pipe/PipeSource.cpp
     system/netdb.cpp
     system/select.cpp
     system/signal.cpp
