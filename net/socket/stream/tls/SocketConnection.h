@@ -41,7 +41,7 @@ namespace net::socket::stream::tls {
         using SocketAddress = typename Socket::SocketAddress;
 
     public:
-        SocketConnection(const std::shared_ptr<const SocketProtocolFactory>& socketProtocolFactory,
+        SocketConnection(const std::shared_ptr<const SocketContextFactory>& socketProtocolFactory,
                          int fd,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,

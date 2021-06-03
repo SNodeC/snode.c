@@ -22,7 +22,9 @@
 #include "net/system/time.h"
 #include "web/http/StatusCodes.h"
 #include "web/http/http_utils.h"
-#include "web/http/server//HTTPServerContext.h"
+#include "web/http/server//SocketContext.h"
+#include "web/http/server/Request.h"
+#include "web/ws/server/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -33,7 +35,7 @@
 
 namespace web::http::server {
 
-    Response::Response(HTTPServerContextBase* serverContext)
+    Response::Response(SocketContextBase* serverContext)
         : serverContext(serverContext) {
     }
 
@@ -59,6 +61,26 @@ namespace web::http::server {
 
     void Response::enqueue(const std::string& junk) {
         enqueue(junk.data(), junk.size());
+    }
+
+    void Response::send(const char* junk, std::size_t junkLen) {
+        if (junkLen > 0) {
+            set("Content-Type", "application/octet-stream", false);
+        }
+        set("Content-Length", std::to_string(junkLen));
+
+        enqueue(junk, junkLen);
+    }
+
+    void Response::send(const std::string& junk) {
+        if (junk.size() > 0) {
+            set("Content-Type", "text/html; charset=utf-8");
+        }
+        send(junk.data(), junk.size());
+    }
+
+    void Response::end() {
+        send("");
     }
 
     Response& Response::status(int status) {
@@ -93,9 +115,9 @@ namespace web::http::server {
 
             if (field == "Content-Length") {
                 contentLength = std::stol(value);
-            } else if (field == "Connection" && httputils::ci_comp(value, "close")) {
+            } else if (field == "Connection" && httputils::ci_contains(value, "close")) {
                 connectionState = ConnectionState::Close;
-            } else if (field == "Connection" && httputils::ci_comp(value, "keep-alive")) {
+            } else if (field == "Connection" && httputils::ci_contains(value, "keep-alive")) {
                 connectionState = ConnectionState::Keep;
             }
         }
@@ -105,11 +127,6 @@ namespace web::http::server {
 
     Response& Response::type(const std::string& type) {
         return set("Content-Type", type);
-    }
-
-    void Response::upgrade(net::socket::stream::SocketProtocol* newServerContext) {
-        serverContext->switchSocketProtocol(newServerContext);
-        end();
     }
 
     Response& Response::cookie(const std::string& name, const std::string& value, const std::map<std::string, std::string>& options) {
@@ -128,20 +145,27 @@ namespace web::http::server {
         return cookie(name, "", opts);
     }
 
-    void Response::send(const char* junk, std::size_t junkLen) {
-        if (junkLen > 0) {
-            set("Content-Type", "application/octet-stream", false);
-        }
-        set("Content-Length", std::to_string(junkLen));
+    void Response::upgrade(Request& req) {
+        // here we need an additional dynamic library loader for the upgrade-protocol
+        if (httputils::ci_contains(req.header("connection"), "Upgrade")) {
+            if (httputils::ci_contains(req.header("upgrade"), "websocket")) {
+                web::ws::server::SocketContext* wSContext = web::ws::server::SocketContext::create(req, *this);
 
-        enqueue(junk, junkLen);
-    }
+                if (wSContext != nullptr) {
+                    SocketContextBase* serverContext = this->serverContext;
 
-    void Response::send(const std::string& junk) {
-        if (junk.size() > 0) {
-            set("Content-Type", "text/html; charset=utf-8");
+                    end();
+
+                    serverContext->switchSocketProtocol(wSContext);
+                } else {
+                    end();
+                }
+            } else {
+                this->status(404).end();
+            }
+        } else {
+            this->status(400).end();
         }
-        send(junk.data(), junk.size());
     }
 
     void Response::sendHeader() {
@@ -172,10 +196,6 @@ namespace web::http::server {
         } else {
             contentLength = 0;
         }
-    }
-
-    void Response::end() {
-        send("");
     }
 
     void Response::receive(const char* junk, std::size_t junkLen) {

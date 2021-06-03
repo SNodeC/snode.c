@@ -46,9 +46,9 @@ namespace net::timer {
         return *st;
     }
 
-    IntervalTimer& Timer::continousTimer(const std::function<void(const void* arg, const std::function<void()>& stop)>& dispatcher,
-                                         const struct timeval& timeout,
-                                         const void* arg) {
+    IntervalTimer& Timer::intervalTimer(const std::function<void(const void* arg, const std::function<void()>& stop)>& dispatcher,
+                                        const struct timeval& timeout,
+                                        const void* arg) {
         IntervalTimer* ct = new IntervalTimer(dispatcher, timeout, arg);
 
         EventLoop::instance().getTimerEventDispatcher().add(ct);
@@ -57,7 +57,7 @@ namespace net::timer {
     }
 
     IntervalTimer&
-    Timer::continousTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg) {
+    Timer::intervalTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg) {
         IntervalTimer* ct = new IntervalTimer(dispatcher, timeout, arg);
 
         EventLoop::instance().getTimerEventDispatcher().add(ct);

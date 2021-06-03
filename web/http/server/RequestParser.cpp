@@ -58,6 +58,10 @@ namespace web::http::server {
         httpMinor = 0;
     }
 
+    bool RequestParser::methodSupported(const std::string& method) const {
+        return supportedMethods.contains(method);
+    }
+
     void RequestParser::begin() {
         onStart();
     }

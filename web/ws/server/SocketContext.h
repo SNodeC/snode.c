@@ -16,28 +16,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_STREAM_SOCKETPROTOCOLFACTORY_H
-#define NET_SOCKET_STREAM_SOCKETPROTOCOLFACTORY_H
+#ifndef WEB_WS_SERVER_WSSERVERCONTEXT_H
+#define WEB_WS_SERVER_WSSERVERCONTEXT_H
+
+#include "web/http/server/Request.h"
+#include "web/http/server/Response.h"
+#include "web/ws/SocketContext.h"
+#include "web/ws/server/SubProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::stream {
+namespace web::ws::server {
 
-    class SocketConnectionBase;
-    class SocketProtocol;
-
-    class SocketProtocolFactory {
-    public:
-        virtual ~SocketProtocolFactory() = default;
-
+    class SocketContext : public web::ws::SocketContext {
     protected:
-        virtual SocketProtocol* create() const = 0;
+        SocketContext(web::ws::server::SubProtocol* wSSubProtocol, web::ws::SubProtocol::Role role);
 
-        friend class SocketConnectionBase;
+        ~SocketContext() override;
+
+    public:
+        static SocketContext* create(web::http::server::Request& req, web::http::server::Response& res);
     };
 
-} // namespace net::socket::stream
+} // namespace web::ws::server
 
-#endif // NET_SOCKET_STREAM_SOCKETPROTOCOLFACTORY_H
+#endif // WEB_WS_SERVER_WSSERVERCONTEXT_H

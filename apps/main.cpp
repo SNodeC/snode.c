@@ -22,7 +22,8 @@
 #include "express/legacy/WebApp.h"
 #include "net/timer/IntervalTimer.h"
 #include "net/timer/SingleshotTimer.h"
-#include "web/ws/server/WSServerContext.h"
+#include "web/ws/SubProtocol.h"
+#include "web/ws/server/SocketContext.h"
 
 #include <cstring>
 #include <iostream>
@@ -33,7 +34,7 @@ using namespace express;
 using namespace net::timer;
 
 int timerApp() {
-    [[maybe_unused]] const Timer& tick = Timer::continousTimer(
+    [[maybe_unused]] const Timer& tick = Timer::intervalTimer(
         [](const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
             static int i = 0;
             std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
@@ -41,7 +42,7 @@ int timerApp() {
         {0, 500000},
         "Tick");
 
-    Timer& tack = Timer::continousTimer(
+    Timer& tack = Timer::intervalTimer(
         [](const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
             static int i = 0;
             std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
@@ -120,17 +121,7 @@ int timerApp() {
                 }
             });
         }
-        res.upgrade(new web::ws::server::WSServerContext(
-            []([[maybe_unused]] web::ws::server::WSServerContext* wSServerContext, int opCode) -> void {
-                VLOG(0) << "Message Start - OpCode: " << opCode;
-            },
-            []([[maybe_unused]] web::ws::server::WSServerContext* wSServerContext, const char* junk, std::size_t junkLen) -> void {
-                VLOG(0) << "Data: " << std::string(junk, static_cast<std::size_t>(junkLen));
-            },
-            []([[maybe_unused]] web::ws::server::WSServerContext* wSServerContext) -> void {
-                VLOG(0) << "Message End";
-                wSServerContext->message(1, std::string("Hallo zurück").data(), strlen("Hallo zurück"));
-            }));
+        res.upgrade(req);
     });
 
     app.listen(8080, [](int err) -> void {

@@ -45,7 +45,7 @@ namespace net::socket::stream {
             using Socket = typename SocketConnection::Socket;
             using SocketAddress = typename Socket::SocketAddress;
 
-            SocketListener(const std::shared_ptr<const SocketProtocolFactory>& socketProtocolFactory,
+            SocketListener(const std::shared_ptr<const SocketContextFactory>& socketProtocolFactory,
                            const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
                            const std::function<void(SocketConnection* socketConnection)>& onConnected,
                            const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
@@ -83,7 +83,9 @@ namespace net::socket::stream {
                       },
                       options) {
                 ctx = ssl_ctx_new(options, true);
-                SSL_CTX_set_tlsext_servername_callback(ctx, serverNameCallback);
+                if (ctx != nullptr) {
+                    SSL_CTX_set_tlsext_servername_callback(ctx, serverNameCallback);
+                }
             }
 
             ~SocketListener() override {
@@ -93,7 +95,8 @@ namespace net::socket::stream {
             void listen(const SocketAddress& localAddress, int backlog, const std::function<void(int err)>& onError) {
                 if (ctx == nullptr) {
                     errno = EINVAL;
-                    onError(EINVAL);
+                    onError(errno);
+                    stream::SocketListener<SocketConnection>::destruct();
                 } else {
                     stream::SocketListener<SocketConnection>::listen(localAddress, backlog, onError);
                 }

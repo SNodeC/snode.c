@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/ws/WSReceiver.h"
+#include "web/ws/Receiver.h"
 
 #include "log/Logger.h"
 
@@ -31,7 +31,7 @@
 
 namespace web::ws {
 
-    void WSReceiver::receive(char* junk, std::size_t junkLen) {
+    void Receiver::receive(char* junk, std::size_t junkLen) {
         uint64_t consumed = 0;
         bool parsingError = false;
 
@@ -59,7 +59,7 @@ namespace web::ws {
                     consumed += readPayload(junk + consumed, junkLen - consumed);
                     break;
                 case ParserState::ERROR:
-                    onError(errorState);
+                    onMessageError(errorState);
                     parsingError = true;
                     reset();
                     break;
@@ -67,7 +67,7 @@ namespace web::ws {
         }
     }
 
-    uint64_t WSReceiver::readOpcode(char* junk, uint64_t junkLen) {
+    uint64_t Receiver::readOpcode(char* junk, uint64_t junkLen) {
         uint64_t consumed = 0;
         if (junkLen > 0) {
             consumed++;
@@ -93,7 +93,7 @@ namespace web::ws {
         return consumed;
     }
 
-    uint64_t WSReceiver::readLength(char* junk, uint64_t junkLen) {
+    uint64_t Receiver::readLength(char* junk, uint64_t junkLen) {
         uint64_t consumed = 0;
 
         if (junkLen > 0) {
@@ -131,7 +131,7 @@ namespace web::ws {
         return consumed;
     }
 
-    uint64_t WSReceiver::readELength(char* junk, uint64_t junkLen) {
+    uint64_t Receiver::readELength(char* junk, uint64_t junkLen) {
         uint64_t consumed = 0;
 
         elengthNumBytesLeft = (elengthNumBytesLeft == 0) ? elengthNumBytes : elengthNumBytesLeft;
@@ -167,7 +167,7 @@ namespace web::ws {
         return consumed;
     }
 
-    uint64_t WSReceiver::readMaskingKey(char* junk, uint64_t junkLen) {
+    uint64_t Receiver::readMaskingKey(char* junk, uint64_t junkLen) {
         uint64_t consumed = 0;
 
         maskingKeyNumBytesLeft = (maskingKeyNumBytesLeft == 0) ? maskingKeyNumBytes : maskingKeyNumBytesLeft;
@@ -194,7 +194,7 @@ namespace web::ws {
         return consumed;
     }
 
-    uint64_t WSReceiver::readPayload(char* junk, uint64_t junkLen) {
+    uint64_t Receiver::readPayload(char* junk, uint64_t junkLen) {
         uint64_t consumed = 0;
 
         if (junkLen > 0 && length - payloadRead > 0) {
@@ -222,7 +222,7 @@ namespace web::ws {
         return consumed;
     }
 
-    void WSReceiver::dumpFrame(char* frame, uint64_t frameLength) {
+    void Receiver::dumpFrame(char* frame, uint64_t frameLength) {
         int modul = 4;
 
         std::stringstream stringStream;
@@ -237,7 +237,7 @@ namespace web::ws {
         }
     }
 
-    void WSReceiver::reset() {
+    void Receiver::reset() {
         payloadRead = 0;
         opCode = 0;
         parserState = ParserState::BEGIN;

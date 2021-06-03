@@ -4,13 +4,13 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 find_package(LibMagic REQUIRED)
 
+configure_file(config.h.in config.h @ONLY)
+
 add_library(
     web SHARED
     http/Parser.cpp
     http/StatusCodes.cpp
     http/MimeTypes.cpp
-    ws/WSReceiver.cpp
-    ws/WSTransmitter.cpp
     http/http_utils.cpp
     http/client/ResponseParser.cpp
     http/client/Request.cpp
@@ -18,8 +18,19 @@ add_library(
     http/server/RequestParser.cpp
     http/server/Request.cpp
     http/server/Response.cpp
-    ws/server/WSServerContext.cpp
+    ws/SocketContext.cpp
+    ws/Receiver.cpp
+    ws/SubProtocol.cpp
+    ws/SubProtocolSelector.cpp
+    ws/Transmitter.cpp
+    ws/ws_utils.cpp
+    ws/client/SocketContext.cpp
+    ws/server/SocketContext.cpp
+    ws/server/SubProtocol.cpp
+    ws/server/SubProtocolSelector.cpp
 )
+
+add_subdirectory(ws/subprotocol)
 
 target_link_libraries(web LINK_PUBLIC net ${LIBMAGIC_LIBRARIES})
 
@@ -34,7 +45,7 @@ set_target_properties(
 )
 
 target_include_directories(
-    web PUBLIC ${PROJECT_SOURCE_DIR} ${LIBMAGIC_INCLUDES}
+    web PUBLIC ${PROJECT_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${LIBMAGIC_INCLUDES}
 )
 
 install(TARGETS web LIBRARY DESTINATION lib NAMELINK_COMPONENT libweb.so.1)

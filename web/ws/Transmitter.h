@@ -23,34 +23,44 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <random>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::ws {
 
-    class WSTransmitter {
-    protected:
-        virtual void messageStart(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0);
-        virtual void sendFrame(char* message, std::size_t messageLength, uint32_t messageKey = 0);
-        virtual void messageEnd(char* message, std::size_t messageLength, uint32_t messageKey = 0);
+    class Transmitter {
+    public:
+        Transmitter() = default;
 
-        virtual void message(uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey = 0);
+        Transmitter(const Transmitter&) = delete;
+        Transmitter& operator=(const Transmitter&) = delete;
+
+    protected:
+        Transmitter(bool masking);
+
+        void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength);
+
+        void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength);
+        void sendMessageFrame(const char* message, std::size_t messageLength);
+        void sendMessageEnd(const char* message, std::size_t messageLength);
 
     private:
-        void send(bool end, uint8_t opCode, char* message, std::size_t messageLength, uint32_t messageKey);
+        void send(bool end, uint8_t opCode, const char* message, std::size_t messageLength);
 
-        void sendFrame(bool fin, uint8_t opCode, uint32_t maskingKey, char* payload, uint64_t payloadLength);
+        void sendFrame(bool fin, uint8_t opCode, const char* payload, uint64_t payloadLength);
         void dumpFrame(char* frame, uint64_t frameLength);
 
         virtual void sendFrameData(uint8_t data) = 0;
         virtual void sendFrameData(uint16_t data) = 0;
         virtual void sendFrameData(uint32_t data) = 0;
         virtual void sendFrameData(uint64_t data) = 0;
-        virtual void sendFrameData(char* frame, uint64_t frameLength) = 0;
+        virtual void sendFrameData(const char* frame, uint64_t frameLength) = 0;
 
-        virtual void onFrameReady(char* frame, uint64_t frameLength) = 0;
+        std::default_random_engine generator;
+        std::uniform_int_distribution<uint32_t> distribution{1, UINT32_MAX};
 
-        void sendFrame1(bool fin, uint8_t opCode, uint32_t maskingKey, char* payload, uint64_t payloadLength);
+        bool masking = false;
     };
 
 } // namespace web::ws

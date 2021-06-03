@@ -19,7 +19,7 @@
 #include "log/Logger.h"
 #include "net/socket/stream/SocketConnectionBase.h"
 #include "web/http/http_utils.h"
-#include "web/http/server/HTTPServerContext.h"
+#include "web/http/server/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,7 +30,7 @@
 namespace web::http::server {
 
     template <typename Request, typename Response>
-    HTTPServerContext<Request, Response>::HTTPServerContext(const std::function<void(Request& req, Response& res)>& onRequestReady)
+    SocketContext<Request, Response>::SocketContext(const std::function<void(Request& req, Response& res)>& onRequestReady)
         : onRequestReady(onRequestReady)
         , parser(
               [this](void) -> void {
@@ -63,9 +63,9 @@ namespace web::http::server {
                   request.headers = &header;
 
                   for (auto [field, value] : header) {
-                      if (field == "connection" && httputils::ci_comp(value, "close")) {
+                      if (field == "connection" && httputils::ci_contains(value, "close")) {
                           request.connectionState = ConnectionState::Close;
-                      } else if (field == "connection" && httputils::ci_comp(value, "keep-alive")) {
+                      } else if (field == "connection" && httputils::ci_contains(value, "keep-alive")) {
                           request.connectionState = ConnectionState::Keep;
                       }
                       VLOG(3) << "     " << field << ": " << value;
@@ -109,12 +109,12 @@ namespace web::http::server {
     }
 
     template <typename Request, typename Response>
-    void HTTPServerContext<Request, Response>::receiveFromPeer(const char* junk, std::size_t junkLen) {
+    void SocketContext<Request, Response>::onReceiveFromPeer(const char* junk, std::size_t junkLen) {
         parser.parse(junk, junkLen);
     }
 
     template <typename Request, typename Response>
-    void HTTPServerContext<Request, Response>::onReadError(int errnum) {
+    void SocketContext<Request, Response>::onReadError(int errnum) {
         if (errnum != 0 && errnum != ECONNRESET) {
             PLOG(ERROR) << "Connection read: " << errnum;
             reset();
@@ -122,12 +122,12 @@ namespace web::http::server {
     }
 
     template <typename Request, typename Response>
-    void HTTPServerContext<Request, Response>::sendResponseData(const char* junk, std::size_t junkLen) {
+    void SocketContext<Request, Response>::sendResponseData(const char* junk, std::size_t junkLen) {
         sendToPeer(junk, junkLen);
     }
 
     template <typename Request, typename Response>
-    void HTTPServerContext<Request, Response>::onWriteError(int errnum) {
+    void SocketContext<Request, Response>::onWriteError(int errnum) {
         if (errnum != 0 && errnum != ECONNRESET) {
             PLOG(ERROR) << "Connection write: " << errnum;
             reset();
@@ -135,7 +135,7 @@ namespace web::http::server {
     }
 
     template <typename Request, typename Response>
-    void HTTPServerContext<Request, Response>::requestParsed() {
+    void SocketContext<Request, Response>::requestParsed() {
         if (!requestInProgress) {
             RequestContext& requestContext = requestContexts.front();
 
@@ -161,7 +161,7 @@ namespace web::http::server {
     }
 
     template <typename Request, typename Response>
-    void HTTPServerContext<Request, Response>::responseCompleted() {
+    void SocketContext<Request, Response>::responseCompleted() {
         RequestContext& requestContext = requestContexts.front();
 
         // if 0.9 => terminate
@@ -196,7 +196,7 @@ namespace web::http::server {
     }
 
     template <typename Request, typename Response>
-    void HTTPServerContext<Request, Response>::reset() {
+    void SocketContext<Request, Response>::reset() {
         if (!requestContexts.empty()) {
             RequestContext& requestContext = requestContexts.front();
             requestContext.request.reset();
@@ -207,9 +207,9 @@ namespace web::http::server {
     }
 
     template <typename Request, typename Response>
-    void HTTPServerContext<Request, Response>::terminateConnection() {
+    void SocketContext<Request, Response>::terminateConnection() {
         if (!connectionTerminated) {
-            socketConnection->getSocketProtocol()->close();
+            socketConnection->getSocketContext()->close();
             requestContexts.clear();
             connectionTerminated = true;
         }

@@ -16,8 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/socket/stream/SocketProtocol.h"
+#include "net/socket/stream/SocketContext.h"
 
+#include "log/Logger.h"
 #include "net/socket/stream/SocketConnectionBase.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -26,34 +27,54 @@
 
 namespace net::socket::stream {
 
-    void SocketProtocol::sendToPeer(const char* junk, std::size_t junkLen) {
+    void SocketContext::sendToPeer(const char* junk, std::size_t junkLen) {
         socketConnection->enqueue(junk, junkLen);
     }
 
-    void SocketProtocol::sendToPeer(const std::string& data) {
+    void SocketContext::sendToPeer(const std::string& data) {
         sendToPeer(data.data(), data.length());
     }
 
-    void SocketProtocol::close() {
+    std::string SocketContext::getLocalAddressAsString() const {
+        return socketConnection->getLocalAddressAsString();
+    }
+
+    std::string SocketContext::getRemoteAddressAsString() const {
+        return socketConnection->getRemoteAddressAsString();
+    }
+
+    void SocketContext::close() {
         socketConnection->close();
     }
 
-    void SocketProtocol::switchSocketProtocol(SocketProtocol* socketProtocol) {
+    void SocketContext::switchSocketProtocol(SocketContext* socketProtocol) {
         socketConnection->switchSocketProtocol(socketProtocol);
 
         markedForDelete = true;
     }
 
-    void SocketProtocol::take(const char* junk, std::size_t junkLen) {
-        receiveFromPeer(junk, junkLen);
+    void SocketContext::receiveFromPeer(const char* junk, std::size_t junkLen) {
+        onReceiveFromPeer(junk, junkLen);
 
         if (markedForDelete) {
             delete this;
         }
     }
 
-    void SocketProtocol::setSocketConnection(SocketConnectionBase* socketConnection) {
+    void SocketContext::setTimeout(int timeout) {
+        socketConnection->setTimeout(timeout);
+    }
+
+    void SocketContext::setSocketConnection(SocketConnectionBase* socketConnection) {
         this->socketConnection = socketConnection;
+    }
+
+    void SocketContext::onProtocolConnected() {
+        VLOG(0) << "Protocol connected";
+    }
+
+    void SocketContext::onProtocolDisconnected() {
+        VLOG(0) << "Protocol disconnecteded";
     }
 
 } // namespace net::socket::stream

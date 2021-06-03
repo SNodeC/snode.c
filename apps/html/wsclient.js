@@ -27,7 +27,7 @@ function openWSConnection(protocol, hostname, port, endpoint) {
     webSocketURL = protocol + "://" + hostname + ":" + port + endpoint;
     console.log("openWSConnection::Connecting to: " + webSocketURL);
     try {
-        webSocket = new WebSocket(webSocketURL);
+        webSocket = new WebSocket(webSocketURL, "echo");
         webSocket.onopen = function(openEvent) {
             console.log("WebSocket OPEN: " + JSON.stringify(openEvent, null, 4));
             document.getElementById("btnSend").disabled       = false;

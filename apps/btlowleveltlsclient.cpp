@@ -24,8 +24,8 @@
 #include "net/socket/bluetooth/address/RfCommAddress.h"   // for RfCommAddress
 #include "net/socket/bluetooth/rfcomm/tls/SocketClient.h" // for SocketClient
 #include "net/socket/stream/SocketClient.h"               // for SocketClie...
-#include "net/socket/stream/SocketProtocol.h"             // for SocketProt...
-#include "net/socket/stream/SocketProtocolFactory.h"      // for SocketProt...
+#include "net/socket/stream/SocketContext.h"             // for SocketProt...
+#include "net/socket/stream/SocketContextFactory.h"      // for SocketProt...
 
 #include <any>                // for any
 #include <cstddef>            // for NULL, size_t
@@ -44,9 +44,9 @@
 
 using namespace net::socket::bluetooth::rfcomm::tls;
 
-class SimpleSocketProtocol : public net::socket::stream::SocketProtocol {
+class SimpleSocketProtocol : public net::socket::stream::SocketContext {
 public:
-    void receiveFromPeer(const char* junk, std::size_t junkLen) override {
+    void onReceiveFromPeer(const char* junk, std::size_t junkLen) override {
         VLOG(0) << "Data to reflect: " << std::string(junk, junkLen);
         sendToPeer(junk, junkLen);
     }
@@ -60,9 +60,9 @@ public:
     }
 };
 
-class SimpleSocketProtocolFactory : public net::socket::stream::SocketProtocolFactory {
+class SimpleSocketProtocolFactory : public net::socket::stream::SocketContextFactory {
 private:
-    net::socket::stream::SocketProtocol* create() const override {
+    net::socket::stream::SocketContext* create() const override {
         return new SimpleSocketProtocol();
     }
 };
@@ -123,7 +123,7 @@ SocketClient<SimpleSocketProtocolFactory> getClient() {
                 VLOG(0) << "     Server certificate: no certificate";
             }
 
-            socketConnection->getSocketProtocol()->sendToPeer("Hello rfcomm connection!");
+            socketConnection->enqueue("Hello rfcomm connection!");
         },
         [](SocketClient<SimpleSocketProtocolFactory>::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";

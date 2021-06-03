@@ -19,9 +19,10 @@
 #ifndef NET_SOCKET_STREAM_SOCKETCONNECTION_H
 #define NET_SOCKET_STREAM_SOCKETCONNECTION_H
 
+#include "log/Logger.h"
 #include "net/socket/stream/SocketConnectionBase.h"
-#include "net/socket/stream/SocketProtocol.h"
-#include "net/socket/stream/SocketProtocolFactory.h"
+#include "net/socket/stream/SocketContext.h"
+#include "net/socket/stream/SocketContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -46,7 +47,7 @@ namespace net::socket::stream {
         using SocketAddress = SocketAddressT;
 
     protected:
-        SocketConnection(const std::shared_ptr<const SocketProtocolFactory>& socketProtocolFactory,
+        SocketConnection(const std::shared_ptr<const SocketContextFactory>& socketProtocolFactory,
                          int fd,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
@@ -54,14 +55,14 @@ namespace net::socket::stream {
                          const std::function<void()>& onDisconnect)
             : SocketConnectionBase(socketProtocolFactory)
             , SocketReader(
-                  [&socketProtocol = this->socketProtocol](const char* junk, std::size_t junkLen) -> void {
-                      socketProtocol->take(junk, junkLen);
+                  [&socketContext = this->socketContext](const char* junk, std::size_t junkLen) -> void {
+                      socketContext->receiveFromPeer(junk, junkLen);
                   },
-                  [&socketProtocol = this->socketProtocol](int errnum) -> void {
-                      socketProtocol->onReadError(errnum);
+                  [&socketContext = this->socketContext](int errnum) -> void {
+                      socketContext->onReadError(errnum);
                   })
-            , SocketWriter([&socketProtocol = this->socketProtocol](int errnum) -> void {
-                socketProtocol->onWriteError(errnum);
+            , SocketWriter([&socketContext = this->socketContext](int errnum) -> void {
+                socketContext->onWriteError(errnum);
             })
             , localAddress(localAddress)
             , remoteAddress(remoteAddress)
@@ -69,17 +70,36 @@ namespace net::socket::stream {
             SocketConnection::attach(fd);
             SocketReader::enable(fd);
             onConnect(localAddress, remoteAddress);
+            socketContext->onProtocolConnected();
         }
 
-        virtual ~SocketConnection() = default;
-
-    private:
-        void unobserved() override {
+        virtual ~SocketConnection() {
+            socketContext->onProtocolDisconnected();
             onDisconnect();
-            delete this;
         }
 
-    protected:
+    public:
+        void setTimeout(int timeout) override {
+            SocketReader::setTimeout(timeout);
+            SocketWriter::setTimeout(timeout);
+        }
+
+        const SocketAddress& getRemoteAddress() const {
+            return remoteAddress;
+        }
+
+        const SocketAddress& getLocalAddress() const {
+            return localAddress;
+        }
+
+        std::string getLocalAddressAsString() const override {
+            return localAddress.toString();
+        }
+
+        std::string getRemoteAddressAsString() const override {
+            return remoteAddress.toString();
+        }
+
         void enqueue(const char* junk, std::size_t junkLen) override {
             SocketWriter::enqueue(junk, junkLen);
         }
@@ -95,16 +115,11 @@ namespace net::socket::stream {
             }
         }
 
-    public:
-        const SocketAddress& getRemoteAddress() const {
-            return remoteAddress;
-        }
-
-        const SocketAddress& getLocalAddress() const {
-            return localAddress;
-        }
-
     private:
+        void unobserved() override {
+            delete this;
+        }
+
         SocketAddress localAddress{};
         SocketAddress remoteAddress{};
 

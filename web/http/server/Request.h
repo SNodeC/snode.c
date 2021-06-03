@@ -33,6 +33,7 @@ namespace web::http::server {
     class Request : public utils::MultibleAttributeInjector {
     protected:
         Request() = default;
+
         virtual ~Request() = default;
 
     public:
@@ -62,7 +63,7 @@ namespace web::http::server {
         std::string nullstr = "";
 
         template <typename Request, typename Response>
-        friend class HTTPServerContext;
+        friend class SocketContext;
     };
 
 } // namespace web::http::server

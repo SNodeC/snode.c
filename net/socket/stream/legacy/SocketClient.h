@@ -28,9 +28,9 @@
 
 namespace net::socket::stream::legacy {
 
-    template <typename SocketProtocolT, typename SocketT>
-    class SocketClient : public stream::SocketClient<SocketProtocolT, legacy::SocketConnector<SocketT>> {
-        using stream::SocketClient<SocketProtocolT, legacy::SocketConnector<SocketT>>::SocketClient;
+    template <typename SocketContextFactoryT, typename SocketT>
+    class SocketClient : public stream::SocketClient<SocketContextFactoryT, legacy::SocketConnector<SocketT>> {
+        using stream::SocketClient<SocketContextFactoryT, legacy::SocketConnector<SocketT>>::SocketClient;
     };
 
 } // namespace net::socket::stream::legacy

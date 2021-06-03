@@ -16,50 +16,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_STREAM_SOCKETPROTOCOL_H
-#define NET_SOCKET_STREAM_SOCKETPROTOCOL_H
+#ifndef NET_SOCKET_STREAM_SOCKETPROTOCOLFACTORY_H
+#define NET_SOCKET_STREAM_SOCKETPROTOCOLFACTORY_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <cstddef>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::socket::stream {
 
     class SocketConnectionBase;
+    class SocketContext;
 
-    class SocketProtocol {
-    public:
-        virtual ~SocketProtocol() = default;
-
-        void sendToPeer(const char* junk, std::size_t junkLen);
-        void sendToPeer(const std::string& data);
-
-        void close();
-
-        virtual void receiveFromPeer(const char* junk, std::size_t junkLen) = 0;
-        virtual void onWriteError(int errnum) = 0;
-        virtual void onReadError(int errnum) = 0;
-
-        void switchSocketProtocol(SocketProtocol* socketProtocol);
-
+    class SocketContextFactory {
     protected:
-        void take(const char* junk, std::size_t junkLen);
+        SocketContextFactory() = default;
+        virtual ~SocketContextFactory() = default;
 
-        void setSocketConnection(SocketConnectionBase* socketConnection);
-
-        SocketConnectionBase* socketConnection;
-
-        bool markedForDelete = false;
+        virtual SocketContext* create() const = 0;
 
         friend class SocketConnectionBase;
-
-        template <typename SocketReaderT, typename SocketWriterT, typename SocketAddressT>
-        friend class SocketConnection;
     };
 
 } // namespace net::socket::stream
 
-#endif // NET_SOCKET_STREAM_SOCKETPROTOCOL_H
+#endif // NET_SOCKET_STREAM_SOCKETPROTOCOLFACTORY_H

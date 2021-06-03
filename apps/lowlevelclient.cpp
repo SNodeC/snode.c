@@ -18,19 +18,20 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h"                                  // for CLIENTCERTF
-#include "log/Logger.h"                              // for Writer, Storage
-#include "net/SNodeC.h"                              // for SNodeC
-#include "net/socket/ip/address/ipv4/InetAddress.h"  // for InetAddress, ip
-#include "net/socket/ip/tcp/ipv4/Socket.h"           // for Socket
-#include "net/socket/stream/SocketClient.h"          // for SocketClient<>:...
-#include "net/socket/stream/SocketProtocol.h"        // for SocketProtocol
-#include "net/socket/stream/SocketProtocolFactory.h" // for SocketProtocolF...
-#include "net/socket/stream/legacy/SocketClient.h"   // for SocketClient
-#include "net/socket/stream/tls/SocketClient.h"      // for SocketClient
-#include "web/http/client/ResponseParser.h"          // for ResponseParser
+#include "config.h"                                 // for CLIENTCERTF
+#include "log/Logger.h"                             // for Writer, Storage
+#include "net/SNodeC.h"                             // for SNodeC
+#include "net/socket/ip/address/ipv4/InetAddress.h" // for InetAddress, ip
+#include "net/socket/ip/tcp/ipv4/Socket.h"          // for Socket
+#include "net/socket/stream/SocketClient.h"         // for SocketClient<>:...
+#include "net/socket/stream/SocketContext.h"        // for SocketProtocol
+#include "net/socket/stream/SocketContextFactory.h" // for SocketProtocolF...
+#include "net/socket/stream/legacy/SocketClient.h"  // for SocketClient
+#include "net/socket/stream/tls/SocketClient.h"     // for SocketClient
+#include "web/http/client/ResponseParser.h"         // for ResponseParser
 
-#include <any>                // for any
+#include <any> // for any
+#include <cstring>
 #include <functional>         // for function
 #include <map>                // for map, operator==
 #include <openssl/asn1.h>     // for ASN1_STRING_get...
@@ -42,7 +43,6 @@
 #include <openssl/x509v3.h>   // for GENERAL_NAME
 #include <ostream>            // for size_t, endl
 #include <stdint.h>           // for int32_t
-#include <string.h>           // for memcpy, NULL
 #include <string>             // for allocator, string
 #include <type_traits>        // for add_const<>::type
 #include <utility>            // for tuple_element<>...
@@ -95,7 +95,7 @@ static web::http::client::ResponseParser* getResponseParser() {
     return responseParser;
 }
 
-class SimpleSocketProtocol : public SocketProtocol {
+class SimpleSocketProtocol : public SocketContext {
 public:
     SimpleSocketProtocol() {
         responseParser = getResponseParser();
@@ -105,7 +105,7 @@ public:
         delete responseParser;
     }
 
-    void receiveFromPeer(const char* junk, std::size_t junkLen) override {
+    void onReceiveFromPeer(const char* junk, std::size_t junkLen) override {
         responseParser->parse(junk, junkLen);
     }
 
@@ -121,9 +121,9 @@ private:
     web::http::client::ResponseParser* responseParser;
 };
 
-class SimpleSocketProtocolFactory : public SocketProtocolFactory {
+class SimpleSocketProtocolFactory : public SocketContextFactory {
 private:
-    SocketProtocol* create() const override {
+    SocketContext* create() const override {
         return new SimpleSocketProtocol();
     }
 };
@@ -142,8 +142,7 @@ tls::SocketClient<SimpleSocketProtocolFactory, tcp::ipv4::Socket> getTlsClient()
 
             //            socketConnection->setContext<http::client::ResponseParser*>(getResponseParser());
 
-            socketConnection->getSocketProtocol()->sendToPeer(
-                "GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
+            socketConnection->enqueue("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
 
             X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
             if (server_cert != NULL) {
@@ -225,7 +224,7 @@ legacy::SocketClient<SimpleSocketProtocolFactory, tcp::ipv4::Socket> getLegacyCl
             -> void { // onConnected
             VLOG(0) << "OnConnected";
 
-            socketConnection->getSocketProtocol()->sendToPeer(
+            socketConnection->getSocketContext()->sendToPeer(
                 "GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
         },
         [](legacy::SocketClient<SimpleSocketProtocolFactory, tcp::ipv4::Socket>::SocketConnection* socketConnection)

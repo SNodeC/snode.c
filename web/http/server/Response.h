@@ -34,17 +34,21 @@
 class FileReader;
 
 namespace net::socket::stream {
-    class SocketProtocol;
+    class SocketContext;
+}
+
+namespace web::ws {
+    class SubProtocol;
 }
 
 namespace web::http::server {
 
-    class HTTPServerContextBase;
-    class ServerContext;
+    class SocketContextBase;
+    class Request;
 
     class Response : public net::pipe::Sink {
     protected:
-        explicit Response(HTTPServerContextBase* serverContext);
+        explicit Response(SocketContextBase* serverContext);
 
     public:
         void send(const char* junk, std::size_t junkLen);
@@ -60,12 +64,12 @@ namespace web::http::server {
         Response& clearCookie(const std::string& name, const std::map<std::string, std::string>& options = {});
         Response& type(const std::string& type);
 
-        void upgrade(net::socket::stream::SocketProtocol* newServerContext);
+        void upgrade(Request& req);
 
     protected:
         virtual void reset();
 
-        HTTPServerContextBase* serverContext;
+        SocketContextBase* serverContext;
 
         int responseStatus = 200;
 
@@ -90,7 +94,7 @@ namespace web::http::server {
         void error(int errnum) override;
 
         template <typename Request, typename Response>
-        friend class HTTPServerContext;
+        friend class SocketContext;
     };
 
 } // namespace web::http::server

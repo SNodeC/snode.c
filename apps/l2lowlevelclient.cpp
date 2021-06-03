@@ -24,8 +24,8 @@
 #include "net/socket/bluetooth/l2cap/Socket.h"         // for l2cap
 #include "net/socket/bluetooth/l2cap/SocketClient.h"
 #include "net/socket/stream/SocketClient.h" // for SocketClient<...
-#include "net/socket/stream/SocketProtocol.h"
-#include "net/socket/stream/SocketProtocolFactory.h"
+#include "net/socket/stream/SocketContext.h"
+#include "net/socket/stream/SocketContextFactory.h"
 
 #include <any> // for any
 #include <cstddef>
@@ -36,9 +36,9 @@
 
 using namespace net::socket::bluetooth::l2cap;
 
-class SimpleSocketProtocol : public net::socket::stream::SocketProtocol {
+class SimpleSocketProtocol : public net::socket::stream::SocketContext {
 public:
-    void receiveFromPeer(const char* junk, std::size_t junkLen) override {
+    void onReceiveFromPeer(const char* junk, std::size_t junkLen) override {
         VLOG(0) << "Data to reflect: " << std::string(junk, junkLen);
         sendToPeer(junk, junkLen);
     }
@@ -52,9 +52,9 @@ public:
     }
 };
 
-class SimpleSocketProtocolFactory : public net::socket::stream::SocketProtocolFactory {
+class SimpleSocketProtocolFactory : public net::socket::stream::SocketContextFactory {
 public:
-    net::socket::stream::SocketProtocol* create() const override {
+    net::socket::stream::SocketContext* create() const override {
         return new SimpleSocketProtocol();
     }
 };
@@ -71,7 +71,7 @@ SocketClient<SimpleSocketProtocolFactory> getClient() {
         [](SocketClient<SimpleSocketProtocolFactory>::SocketConnection* socketConnection) -> void { // onConnected
             VLOG(0) << "OnConnected";
 
-            socketConnection->getSocketProtocol()->sendToPeer("Hello rfcomm connection!");
+            socketConnection->enqueue("Hello rfcomm connection!");
         },
         [](SocketClient<SimpleSocketProtocolFactory>::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";

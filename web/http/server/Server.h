@@ -1,8 +1,8 @@
 #ifndef WEB_HTTP_SERVER_SERVERT_H
 #define WEB_HTTP_SERVER_SERVERT_H
 
-#include "web/http/server/HTTPServerContext.hpp"
-#include "web/http/server/HTTPServerContextFactory.h"
+#include "web/http/server/SocketContext.hpp"
+#include "web/http/server/SocketContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -18,12 +18,12 @@
 
 namespace web::http::server {
 
-    template <template <typename SocketProtocolT> typename SocketServerT, typename RequestT, typename ResponseT>
+    template <template <typename SocketContextFactoryT> typename SocketServerT, typename RequestT, typename ResponseT>
     class Server {
     public:
         using Request = RequestT;
         using Response = ResponseT;
-        using SocketServer = SocketServerT<web::http::server::HTTPServerContextFactory<Request, Response>>; // this makes it an HTTP server
+        using SocketServer = SocketServerT<web::http::server::SocketContextFactory<Request, Response>>; // this makes it an HTTP server
         using SocketConnection = typename SocketServer::SocketConnection;
         using SocketAddress = typename SocketConnection::SocketAddress;
 
@@ -44,7 +44,7 @@ namespace web::http::server {
                       onDisconnect(socketConnection);
                   },
                   options) {
-            socketServer.getSocketProtocol()->setOnRequestReady(onRequestReady); //.setOnRequestReady(onRequestReady);
+            socketServer.getSocketContextFactory()->setOnRequestReady(onRequestReady); //.setOnRequestReady(onRequestReady);
         }
 
         void listen(uint16_t port, const std::function<void(int err)>& onError) const {

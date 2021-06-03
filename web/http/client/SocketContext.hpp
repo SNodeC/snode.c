@@ -18,7 +18,7 @@
 
 #include "log/Logger.h"
 #include "net/socket/stream/SocketConnectionBase.h"
-#include "web/http/client/ClientContext.h"
+#include "web/http/client/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -34,7 +34,7 @@ namespace web::http {
 namespace web::http::client {
 
     template <typename Request, typename Response>
-    ClientContext<Request, Response>::ClientContext(const std::function<void(Response&)>& onResponse,
+    SocketContext<Request, Response>::SocketContext(const std::function<void(Response&)>& onResponse,
                                                     const std::function<void(int status, const std::string& reason)>& onError)
         : request(this)
         , parser(
@@ -67,41 +67,41 @@ namespace web::http::client {
     }
 
     template <typename Request, typename Response>
-    void ClientContext<Request, Response>::requestCompleted() {
+    void SocketContext<Request, Response>::requestCompleted() {
     }
 
     template <typename Request, typename Response>
-    void ClientContext<Request, Response>::receiveFromPeer(const char* junk, std::size_t junkLen) {
+    void SocketContext<Request, Response>::onReceiveFromPeer(const char* junk, std::size_t junkLen) {
         parser.parse(junk, junkLen);
     }
 
     template <typename Request, typename Response>
-    void ClientContext<Request, Response>::sendRequestData(const char* junk, std::size_t junkLen) {
+    void SocketContext<Request, Response>::sendRequestData(const char* junk, std::size_t junkLen) {
         sendToPeer(junk, junkLen);
     }
 
     template <typename Request, typename Response>
-    void ClientContext<Request, Response>::onWriteError(int errnum) {
+    void SocketContext<Request, Response>::onWriteError(int errnum) {
         if (errnum != 0 && errnum != ECONNRESET) {
             PLOG(ERROR) << "Connection write: " << errnum;
         }
     }
 
     template <typename Request, typename Response>
-    void ClientContext<Request, Response>::onReadError(int errnum) {
+    void SocketContext<Request, Response>::onReadError(int errnum) {
         if (errnum != 0 && errnum != ECONNRESET) {
             PLOG(ERROR) << "Connection read: " << errnum;
         }
     }
 
     template <typename Request, typename Response>
-    Request& ClientContext<Request, Response>::getRequest() {
+    Request& SocketContext<Request, Response>::getRequest() {
         return request;
     }
 
     template <typename Request, typename Response>
-    void ClientContext<Request, Response>::terminateConnection() {
-        socketConnection->getSocketProtocol()->close();
+    void SocketContext<Request, Response>::terminateConnection() {
+        socketConnection->getSocketContext()->close();
     }
 
 } // namespace web::http::client

@@ -174,4 +174,12 @@ namespace httputils {
                });
     }
 
+    bool ci_contains(const std::string& str1, const std::string& str2) {
+        auto it = std::search(str1.begin(), str1.end(), str2.begin(), str2.end(), [](char ch1, char ch2) {
+            return std::toupper(ch1) == std::toupper(ch2);
+        });
+
+        return (it != str1.end());
+    }
+
 } // namespace httputils

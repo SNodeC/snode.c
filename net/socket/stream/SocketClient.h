@@ -20,7 +20,7 @@
 #define NET_SOCKET_STREAM_SOCKETCLIENT_H
 
 #include "net/socket/stream/SocketConnector.h"
-#include "net/socket/stream/SocketProtocolFactory.h"
+#include "net/socket/stream/SocketContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -35,12 +35,12 @@
 
 namespace net::socket::stream {
 
-    template <typename SocketProtocolT, typename SocketConnectorT>
+    template <typename SocketContextFactoryT, typename SocketConnectorT>
     class SocketClient {
         SocketClient() = delete;
 
     public:
-        using SocketProtocol = SocketProtocolT;
+        using SocketContextFactory = SocketContextFactoryT;
         using SocketConnector = SocketConnectorT;
         using SocketConnection = typename SocketConnector::SocketConnection;
         using SocketAddress = typename SocketConnection::Socket::SocketAddress;
@@ -49,7 +49,7 @@ namespace net::socket::stream {
                      const std::function<void(SocketConnection* socketConnection)>& onConnected,
                      const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
                      const std::map<std::string, std::any>& options = {{}})
-            : socketProtocol(std::make_shared<SocketProtocol>())
+            : socketContextFactory(std::make_shared<SocketContextFactory>())
             , onConnect(onConnect)
             , onConnected(onConnected)
             , onDisconnect(onDisconnect)
@@ -60,7 +60,7 @@ namespace net::socket::stream {
 
         void
         connect(const SocketAddress& remoteAddress, const SocketAddress& bindAddress, const std::function<void(int err)>& onError) const {
-            SocketConnector* socketConnector = new SocketConnector(socketProtocol, onConnect, onConnected, onDisconnect, options);
+            SocketConnector* socketConnector = new SocketConnector(socketContextFactory, onConnect, onConnected, onDisconnect, options);
 
             socketConnector->connect(remoteAddress, bindAddress, onError);
         }
@@ -69,12 +69,12 @@ namespace net::socket::stream {
             connect(remoteAddress, SocketAddress(), onError);
         }
 
-        std::shared_ptr<SocketProtocol> getSocketProtocol() {
-            return socketProtocol;
+        std::shared_ptr<SocketContextFactory> getSocketContextFactory() {
+            return socketContextFactory;
         }
 
     protected:
-        std::shared_ptr<SocketProtocol> socketProtocol;
+        std::shared_ptr<SocketContextFactory> socketContextFactory;
 
     private:
         std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)> onConnect;

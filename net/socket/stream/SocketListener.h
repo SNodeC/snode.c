@@ -22,7 +22,7 @@
 #include "log/Logger.h"
 #include "net/AcceptEventReceiver.h"
 #include "net/ReadEventReceiver.h"
-#include "net/socket/stream/SocketProtocolFactory.h"
+#include "net/socket/stream/SocketContextFactory.h"
 #include "net/system/socket.h"
 #include "net/system/unistd.h"
 
@@ -50,7 +50,7 @@ namespace net::socket::stream {
         using Socket = typename SocketConnection::Socket;
         using SocketAddress = typename Socket::SocketAddress;
 
-        SocketListener(const std::shared_ptr<const SocketProtocolFactory>& socketProtocolFactory,
+        SocketListener(const std::shared_ptr<const SocketContextFactory>& socketProtocolFactory,
                        const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
                        const std::function<void(SocketConnection* socketConnection)>& onConnected,
                        const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
@@ -144,16 +144,17 @@ namespace net::socket::stream {
             destruct();
         }
 
+    protected:
         void destruct() {
             delete this;
         }
 
-        std::shared_ptr<const SocketProtocolFactory> socketProtocolFactory = nullptr;
+    private:
+        std::shared_ptr<const SocketContextFactory> socketProtocolFactory = nullptr;
 
     protected:
         std::map<std::string, std::any> options;
 
-    private:
         std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)> onConnect;
         std::function<void(SocketConnection* socketConnection)> onDestruct;
         std::function<void(SocketConnection* socketConnection)> onConnected;
