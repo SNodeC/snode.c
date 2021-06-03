@@ -40,7 +40,7 @@ namespace web::http::client {
     public:
         using Request = RequestT;
         using Response = ResponseT;
-        using SocketClient = SocketClientT<SocketContextFactory<Request, Response>>; // this makes it an HTTP server;
+        using SocketClient = SocketClientT<SocketContextFactory<Request, Response>>; // this makes it an HTTP client;
         using SocketConnection = typename SocketClient::SocketConnection;
         using SocketAddress = typename SocketConnection::SocketAddress;
 

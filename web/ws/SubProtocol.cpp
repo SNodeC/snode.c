@@ -26,8 +26,6 @@
 
 namespace web::ws {
 
-    //    std::list<WSSubProtocol*> WSSubProtocol::clients;
-
     SubProtocol::SubProtocol(const std::string& name)
         : name(name) {
     }

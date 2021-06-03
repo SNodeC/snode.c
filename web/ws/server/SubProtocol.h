@@ -51,7 +51,7 @@ namespace web::ws::server {
         virtual ~SubProtocol();
 
     public:
-        /* Facade (API) to WSServerContext -> WSTransmitter to be used from WSSubProtocol-Subclasses */
+        /* Facade (API) to WSServerContext -> WSTransmitter to be used from SubProtocol-Subclasses */
         void sendBroadcast(const char* message, std::size_t messageLength);
         void sendBroadcast(const std::string& message);
 
@@ -65,14 +65,14 @@ namespace web::ws::server {
         void sendBroadcastEnd(const std::string& message);
 
     private:
-        /* Callbacks (API) WSReceiver -> WSSubProtocol-Subclasses */
+        /* Callbacks (API) WSReceiver -> SubProtocol-Subclasses */
         void onMessageStart(int opCode) override = 0;
         void onMessageData(const char* junk, std::size_t junkLen) override = 0;
         void onMessageEnd() override = 0;
         void onPongReceived() override = 0;
         void onMessageError(uint16_t errnum) override = 0;
 
-        /* Callbacks (API) socketConnection -> WSSubProtocol-Subclasses */
+        /* Callbacks (API) socketConnection -> SubProtocol-Subclasses */
         void onProtocolConnected() override = 0;
         void onProtocolDisconnected() override = 0;
 

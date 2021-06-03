@@ -19,7 +19,7 @@
 #include "SocketContext.h"
 
 #include "log/Logger.h"
-#include "web/ws/SubProtocol.h" // for WSSubProtocol, WSSubProtocol::Role, WSProto...
+#include "web/ws/SubProtocol.h" // for SubProtocol, SubProtocol::Role, WSProto...
 #include "web/ws/server/SubProtocolPluginInterface.h"
 #include "web/ws/server/SubProtocolSelector.h"
 #include "web/ws/ws_utils.h"
