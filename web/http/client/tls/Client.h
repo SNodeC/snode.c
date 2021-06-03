@@ -34,31 +34,33 @@ namespace web::http::client::tls {
     public:
         using web::http::client::Client<net::socket::ip::tcp::ipv4::tls::SocketClient, Request, Response>::Client;
     };
-    /*
-        Client(const std::function<void(net::socket::ip::tcp::ipv4::tls::SocketClient::SocketConnection*)>& onConnect,
-               const std::function<void(net::socket::ip::tcp::ipv4::tls::SocketClient::SocketConnection*)>& onConnected,
-               const std::function<void(Request&)>& onRequestBegin,
-               const std::function<void(Response&)>& onResponse,
-               const std::function<void(int, const std::string&)>& onResponseError,
-               const std::function<void(net::socket::ip::tcp::ipv4::tls::SocketClient::SocketConnection*)>& onDisconnect,
-               const std::map<std::string, std::any>& options = {{}})
-            ->Client<web::client::Request, web::client::Response>;
-    */
+
+    Client(const std::function<void(const tls::Client<>::SocketAddress& localAddress, const tls::Client<>::SocketAddress& remoteAddress)>&
+               onConnect,
+           const std::function<void(tls::Client<>::SocketConnection* socketConnection)>& onConnected,
+           const std::function<void(Request&)>& onRequestBegin,
+           const std::function<void(Response&)>& onResponse,
+           const std::function<void(int, const std::string&)>& onResponseError,
+           const std::function<void(tls::Client<>::SocketConnection* socketConnection)>& onDisconnect,
+           const std::map<std::string, std::any>& options = {{}})
+        ->Client<web::http::client::Request, web::http::client::Response>;
+
     template <typename Request = web::http::client::Request, typename Response = web::http::client::Response>
     class Client6 : public web::http::client::Client<net::socket::ip::tcp::ipv6::tls::SocketClient, Request, Response> {
     public:
         using web::http::client::Client<net::socket::ip::tcp::ipv6::tls::SocketClient, Request, Response>::Client;
     };
-    /*
-        Client6(const std::function<void(net::socket::ip::tcp::ipv6::tls::SocketClient::SocketConnection*)>& onConnect,
-                const std::function<void(net::socket::ip::tcp::ipv6::tls::SocketClient::SocketConnection*)>& onConnected,
-                const std::function<void(Request&)>& onRequestBegin,
-                const std::function<void(Response&)>& onResponse,
-                const std::function<void(int, const std::string&)>& onResponseError,
-                const std::function<void(net::socket::ip::tcp::ipv6::tls::SocketClient::SocketConnection*)>& onDisconnect,
-                const std::map<std::string, std::any>& options = {{}})
-            ->Client6<web::client::Request, web::client::Response>;
-    */
+
+    Client6(const std::function<void(const tls::Client6<>::SocketAddress& localAddress,
+                                     const tls::Client6<>::SocketAddress& remoteAddress)>& onConnect,
+            const std::function<void(tls::Client6<>::SocketConnection* socketConnection)>& onConnected,
+            const std::function<void(Request&)>& onRequestBegin,
+            const std::function<void(Response&)>& onResponse,
+            const std::function<void(int, const std::string&)>& onResponseError,
+            const std::function<void(tls::Client6<>::SocketConnection* socketConnection)>& onDisconnect,
+            const std::map<std::string, std::any>& options = {{}})
+        ->Client6<web::http::client::Request, web::http::client::Response>;
+
 } // namespace web::http::client::tls
 
 #endif // WEB_HTTP_CLIENT_TLS_CLIENT_H
