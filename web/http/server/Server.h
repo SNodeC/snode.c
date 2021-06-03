@@ -18,7 +18,7 @@
 
 namespace web::http::server {
 
-    template <template <typename SocketProtocolT> typename SocketServerT, typename RequestT, typename ResponseT>
+    template <template <typename SocketProtocolFactoryT> typename SocketServerT, typename RequestT, typename ResponseT>
     class Server {
     public:
         using Request = RequestT;
@@ -44,7 +44,7 @@ namespace web::http::server {
                       onDisconnect(socketConnection);
                   },
                   options) {
-            socketServer.getSocketProtocol()->setOnRequestReady(onRequestReady); //.setOnRequestReady(onRequestReady);
+            socketServer.getSocketProtocolFactory()->setOnRequestReady(onRequestReady); //.setOnRequestReady(onRequestReady);
         }
 
         void listen(uint16_t port, const std::function<void(int err)>& onError) const {

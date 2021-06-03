@@ -35,12 +35,12 @@
 
 namespace net::socket::stream {
 
-    template <typename SocketProtocolT, typename SocketConnectorT>
+    template <typename SocketProtocolFactoryT, typename SocketConnectorT>
     class SocketClient {
         SocketClient() = delete;
 
     public:
-        using SocketProtocol = SocketProtocolT;
+        using SocketProtocol = SocketProtocolFactoryT;
         using SocketConnector = SocketConnectorT;
         using SocketConnection = typename SocketConnector::SocketConnection;
         using SocketAddress = typename SocketConnection::Socket::SocketAddress;

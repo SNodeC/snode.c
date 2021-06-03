@@ -35,7 +35,7 @@
 
 namespace web::http::client {
 
-    template <template <typename SocketProtocolT> typename SocketClientT, typename RequestT, typename ResponseT>
+    template <template <typename SocketProtocolFactoryT> typename SocketClientT, typename RequestT, typename ResponseT>
     class Client {
     public:
         using Request = RequestT;

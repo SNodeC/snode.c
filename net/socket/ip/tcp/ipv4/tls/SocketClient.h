@@ -28,9 +28,9 @@
 
 namespace net::socket::ip::tcp::ipv4::tls {
 
-    template <typename SocketProtocolT>
-    class SocketClient : public stream::tls::SocketClient<SocketProtocolT, ipv4::Socket> {
-        using stream::tls::SocketClient<SocketProtocolT, ipv4::Socket>::SocketClient;
+    template <typename SocketProtocolFactoryT>
+    class SocketClient : public stream::tls::SocketClient<SocketProtocolFactoryT, ipv4::Socket> {
+        using stream::tls::SocketClient<SocketProtocolFactoryT, ipv4::Socket>::SocketClient;
     };
 
 } // namespace net::socket::ip::tcp::ipv4::tls
