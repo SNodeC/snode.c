@@ -55,7 +55,7 @@ namespace web::ws::subprotocol::echo::server {
     };
 
     extern "C" {
-        struct web::ws::SubProtocolPluginInterface* plugin();
+        class web::ws::SubProtocolPluginInterface* plugin();
     }
 
 } // namespace web::ws::subprotocol::echo::server

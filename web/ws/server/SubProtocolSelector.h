@@ -37,9 +37,6 @@ namespace web::ws::server {
         static SubProtocolSelector& instance();
 
     private:
-        void registerSubProtocol(SubProtocolPluginInterface& subProtocolPluginInterface, void* handle);
-        void loadSubProtocols();
-
         static SubProtocolSelector subProtocolSelector;
     };
 

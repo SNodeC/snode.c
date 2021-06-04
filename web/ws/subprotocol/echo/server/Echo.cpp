@@ -49,13 +49,8 @@ namespace web::ws::subprotocol::echo::server { // namespace web::ws::subprotocol
     }
 
     extern "C" {
-        struct web::ws::SubProtocolPluginInterface* plugin() {
-            web::ws::SubProtocolPluginInterface* subProtocolPluginInterface = new web::ws::server::SubProtocolPluginInterface();
-            subProtocolPluginInterface->name = name;
-            subProtocolPluginInterface->role = role;
-            subProtocolPluginInterface->create = create;
-            subProtocolPluginInterface->destroy = destroy;
-            return subProtocolPluginInterface;
+        class web::ws::SubProtocolPluginInterface* plugin() {
+            return new web::ws::server::SubProtocolPluginInterface(name, role, create, destroy);
         }
     }
 

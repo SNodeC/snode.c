@@ -32,7 +32,7 @@ namespace web::ws::server {
     SubProtocolSelector SubProtocolSelector::subProtocolSelector;
 
     SubProtocolSelector& SubProtocolSelector::instance() {
-        return web::ws::server::SubProtocolSelector::subProtocolSelector;
+        return SubProtocolSelector::subProtocolSelector;
     }
 
     web::ws::server::SubProtocolPluginInterface* SubProtocolSelector::select(const std::string& subProtocolName) {

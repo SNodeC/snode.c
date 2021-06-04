@@ -35,7 +35,18 @@ namespace web::http::server {
 namespace web::ws {
 
     extern "C" {
-        struct SubProtocolPluginInterface {
+        class SubProtocolPluginInterface {
+        public:
+            SubProtocolPluginInterface(const char* (*name)(),
+                                       web::ws::SubProtocol::Role (*role)(),
+                                       web::ws::SubProtocol* (*create)(web::http::server::Request&, web::http::server::Response&),
+                                       void (*destroy)(web::ws::SubProtocol*))
+                : name(name)
+                , role(role)
+                , create(create)
+                , destroy(destroy) {
+            }
+
             const char* (*name)();
             web::ws::SubProtocol::Role (*role)();
             web::ws::SubProtocol* (*create)(web::http::server::Request&, web::http::server::Response&);
