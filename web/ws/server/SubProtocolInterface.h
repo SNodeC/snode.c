@@ -44,6 +44,7 @@ namespace web::ws::server {
                 return &clients;
             }
 
+        private:
             std::list<web::ws::server::SubProtocol*> clients;
         };
     }
