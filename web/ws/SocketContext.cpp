@@ -174,19 +174,22 @@ namespace web::ws {
 
     void SocketContext::sendFrameData(uint16_t data) {
         if (!closeSent) {
-            sendToPeer(reinterpret_cast<char*>(&data), sizeof(uint16_t));
+            uint16_t sendData = htobe16(data);
+            sendToPeer(reinterpret_cast<char*>(&sendData), sizeof(uint16_t));
         }
     }
 
     void SocketContext::sendFrameData(uint32_t data) {
         if (!closeSent) {
-            sendToPeer(reinterpret_cast<char*>(&data), sizeof(uint32_t));
+            uint32_t sendData = htobe32(data);
+            sendToPeer(reinterpret_cast<char*>(&sendData), sizeof(uint32_t));
         }
     }
 
     void SocketContext::sendFrameData(uint64_t data) {
         if (!closeSent) {
-            sendToPeer(reinterpret_cast<char*>(&data), sizeof(uint64_t));
+            uint64_t sendData = htobe64(data);
+            sendToPeer(reinterpret_cast<char*>(&sendData), sizeof(uint64_t));
         }
     }
 

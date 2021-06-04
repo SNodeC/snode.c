@@ -150,10 +150,10 @@ namespace web::ws {
 
         switch (length) {
             case 126:
-                sendFrameData(htobe16(static_cast<uint16_t>(payloadLength)));
+                sendFrameData(static_cast<uint16_t>(payloadLength));
                 break;
             case 127:
-                sendFrameData(htobe64(static_cast<uint64_t>(payloadLength)));
+                sendFrameData(payloadLength);
                 break;
         }
 
@@ -165,7 +165,7 @@ namespace web::ws {
         MaskingKey maskingKeyAsArray = {.keyAsValue = distribution(generator)};
 
         if (masking) {
-            sendFrameData(htobe32(maskingKeyAsArray.keyAsValue));
+            sendFrameData(maskingKeyAsArray.keyAsValue);
 
             for (uint64_t i = 0; i < payloadLength; i++) {
                 *(const_cast<char*>(payload) + i) = *(payload + i) ^ *(maskingKeyAsArray.keyAsBytes + i % 4);
