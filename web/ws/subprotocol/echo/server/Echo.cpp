@@ -32,25 +32,28 @@
 
 namespace web::ws::subprotocol::echo::server { // namespace web::ws::subprotocol::echo::server
 
-    web::ws::SubProtocol* create([[maybe_unused]] web::http::server::Request& req, [[maybe_unused]] web::http::server::Response& res) {
-        return new Echo();
-    }
+    class EchoInterface : public web::ws::server::SubProtocolPluginInterface {
+        web::ws::SubProtocol* create([[maybe_unused]] web::http::server::Request& req,
+                                     [[maybe_unused]] web::http::server::Response& res) override {
+            return new Echo();
+        }
 
-    const char* name() {
-        return NAME;
-    }
+        web::ws::SubProtocol::Role role() override {
+            return web::ws::SubProtocol::Role::SERVER;
+        }
 
-    void destroy(web::ws::SubProtocol* echo) {
-        delete echo;
-    }
+        std::string name() override {
+            return NAME;
+        }
 
-    web::ws::SubProtocol::Role role() {
-        return web::ws::SubProtocol::Role::SERVER;
-    }
+        void destroy(web::ws::SubProtocol* echo) override {
+            delete echo;
+        }
+    };
 
     extern "C" {
-        class web::ws::SubProtocolPluginInterface* plugin() {
-            return new web::ws::server::SubProtocolPluginInterface(name, role, create, destroy);
+        class web::ws::server::SubProtocolPluginInterface* plugin() {
+            return new EchoInterface();
         }
     }
 

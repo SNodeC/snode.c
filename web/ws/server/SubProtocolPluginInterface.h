@@ -40,13 +40,6 @@ namespace web::ws::server {
     extern "C" {
         class SubProtocolPluginInterface : public web::ws::SubProtocolPluginInterface {
         public:
-            SubProtocolPluginInterface(const char* (*name)(),
-                                       web::ws::SubProtocol::Role (*role)(),
-                                       web::ws::SubProtocol* (*create)(web::http::server::Request&, web::http::server::Response&),
-                                       void (*destroy)(web::ws::SubProtocol*))
-                : web::ws::SubProtocolPluginInterface(name, role, create, destroy) {
-            }
-
             std::list<web::ws::server::SubProtocol*>* getClients() {
                 return &clients;
             }

@@ -37,20 +37,12 @@ namespace web::ws {
     extern "C" {
         class SubProtocolPluginInterface {
         public:
-            SubProtocolPluginInterface(const char* (*name)(),
-                                       web::ws::SubProtocol::Role (*role)(),
-                                       web::ws::SubProtocol* (*create)(web::http::server::Request&, web::http::server::Response&),
-                                       void (*destroy)(web::ws::SubProtocol*))
-                : name(name)
-                , role(role)
-                , create(create)
-                , destroy(destroy) {
-            }
+            virtual ~SubProtocolPluginInterface() = default;
 
-            const char* (*name)();
-            web::ws::SubProtocol::Role (*role)();
-            web::ws::SubProtocol* (*create)(web::http::server::Request&, web::http::server::Response&);
-            void (*destroy)(web::ws::SubProtocol*);
+            virtual std::string name() = 0;
+            virtual web::ws::SubProtocol::Role role() = 0;
+            virtual web::ws::SubProtocol* create(web::http::server::Request&, web::http::server::Response&) = 0;
+            virtual void destroy(web::ws::SubProtocol*) = 0;
         };
     }
 

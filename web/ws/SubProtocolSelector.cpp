@@ -71,18 +71,18 @@ namespace web::ws {
         if (subProtocolPluginInterface->role() == web::ws::SubProtocol::Role::SERVER) {
             const auto [it, success] = serverSubprotocols.insert({subProtocolPluginInterface->name(), subProtocolPlugin});
             if (!success) {
+                delete subProtocolPluginInterface;
                 if (handle != nullptr) {
                     dlclose(handle);
                 }
-                delete subProtocolPluginInterface;
             }
         } else {
             const auto [it, success] = clientSubprotocols.insert({subProtocolPluginInterface->name(), subProtocolPlugin});
             if (!success) {
+                delete subProtocolPluginInterface;
                 if (handle != nullptr) {
                     dlclose(handle);
                 }
-                delete subProtocolPluginInterface;
             }
         }
     }
@@ -93,7 +93,11 @@ namespace web::ws {
             SubProtocolPluginInterface* (*subProtocolPluginInterface)() =
                 reinterpret_cast<SubProtocolPluginInterface* (*) ()>(dlsym(handle, "plugin"));
 
-            registerSubProtocol(subProtocolPluginInterface(), handle);
+            if (subProtocolPluginInterface != nullptr) {
+                registerSubProtocol(subProtocolPluginInterface(), handle);
+            } else {
+                VLOG(0) << "Optaining function \"plugin()\" in plugin failed: " << dlerror();
+            }
 
             VLOG(1) << "DLOpen: success: " << filePath;
         } else {

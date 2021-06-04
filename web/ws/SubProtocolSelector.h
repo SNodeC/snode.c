@@ -28,7 +28,7 @@
 
 namespace web::ws {
 
-    struct SubProtocolPluginInterface;
+    class SubProtocolPluginInterface;
 
     struct SubProtocolPlugin {
         SubProtocolPluginInterface* subprotocolPluginInterface;
