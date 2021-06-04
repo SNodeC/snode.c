@@ -61,18 +61,6 @@ namespace web::ws {
         void sendMessageEnd(const char* message, std::size_t messageLength);
         void sendMessageEnd(const std::string& message);
 
-        static void sendBroadcast(const char* message, std::size_t messageLength);
-        static void sendBroadcast(const std::string& message);
-
-        static void sendBroadcastStart(const char* message, std::size_t messageLength);
-        static void sendBroadcastStart(const std::string& message);
-
-        static void sendBroadcastFrame(const char* message, std::size_t messageLength);
-        static void sendBroadcastFrame(const std::string& message);
-
-        static void sendBroadcastEnd(const char* message, std::size_t messageLength);
-        static void sendBroadcastEnd(const std::string& message);
-
         void sendPing(char* reason = nullptr, std::size_t reasonLength = 0);
         void sendClose(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);
 
@@ -96,7 +84,7 @@ namespace web::ws {
         void setWSContext(SocketContext* ServerContext);
 
     protected:
-        SocketContext* Context;
+        SocketContext* context;
 
         const std::string name;
 

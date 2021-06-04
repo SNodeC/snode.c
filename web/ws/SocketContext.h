@@ -51,21 +51,21 @@ namespace web::ws {
 
     public:
         void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength);
-
         void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength);
 
-    private:
         void sendMessageFrame(const char* message, std::size_t messageLength);
         void sendMessageEnd(const char* message, std::size_t messageLength);
 
         void sendPing(const char* reason = nullptr, std::size_t reasonLength = 0);
         void replyPong(const char* reason = nullptr, std::size_t reasonLength = 0);
+
         void close(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);
         void close(const char* reason, std::size_t reasonLength);
 
         std::string getLocalAddressAsString() const;
         std::string getRemoteAddressAsString() const;
 
+    private:
         /* WSReceiver */
         void onMessageStart(int opCode) override;
         void onFrameReceived(const char* junk, uint64_t junkLen) override;
@@ -96,9 +96,6 @@ namespace web::ws {
         bool pongReceived = false;
 
         std::string pongCloseData;
-
-    protected:
-        friend class web::ws::SubProtocol;
     };
 
 } // namespace web::ws

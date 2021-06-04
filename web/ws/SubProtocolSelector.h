@@ -40,7 +40,6 @@ namespace web::ws {
         SubProtocolSelector();
         ~SubProtocolSelector();
 
-    private:
         SubProtocolSelector(const SubProtocolSelector&) = delete;
         SubProtocolSelector& operator=(const SubProtocolSelector&) = delete;
 

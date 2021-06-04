@@ -37,14 +37,11 @@ namespace web::ws {
 
         void receive(char* junk, std::size_t junkLen);
 
-    protected:
+    private:
         union MaskingKey {
             uint32_t key;
             char keyAsArray[4];
         };
-
-        void begin() {
-        }
 
         uint64_t readOpcode(char* junk, uint64_t junkLen);
         uint64_t readLength(char* junk, uint64_t junkLen);
@@ -67,14 +64,17 @@ namespace web::ws {
         bool fin = false;
         bool continuation = false;
         bool masked = false;
+
         uint8_t opCode = 0;
         uint64_t length = 0;
         uint32_t maskingKey = 0;
 
         uint8_t elengthNumBytes = 0;
         uint8_t elengthNumBytesLeft = 0;
+
         uint8_t maskingKeyNumBytes = 4;
         uint8_t maskingKeyNumBytesLeft = 0;
+
         uint64_t payloadRead = 0;
 
         uint16_t errorState = 0;

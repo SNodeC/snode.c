@@ -41,7 +41,6 @@ namespace web::ws {
             switch (parserState) {
                 case ParserState::BEGIN:
                     parserState = ParserState::OPCODE;
-                    begin();
                     [[fallthrough]];
                 case ParserState::OPCODE:
                     consumed += readOpcode(junk + consumed, junkLen - consumed);
@@ -238,18 +237,24 @@ namespace web::ws {
     }
 
     void Receiver::reset() {
-        payloadRead = 0;
-        opCode = 0;
         parserState = ParserState::BEGIN;
+
         fin = false;
+        continuation = false;
         masked = false;
+
+        opCode = 0;
         length = 0;
+        maskingKey = 0;
+
         elengthNumBytes = 0;
         elengthNumBytesLeft = 0;
-        maskingKey = 0;
+
         maskingKeyNumBytes = 4;
         maskingKeyNumBytesLeft = 0;
+
         payloadRead = 0;
+
         errorState = 0;
     }
 
