@@ -18,7 +18,7 @@
 
 #include "SubProtocolSelector.h"
 
-#include "SubProtocolPluginInterface.h" // for WSSubPr...
+#include "SubProtocolInterface.h" // for WSSubPr...
 #include "log/Logger.h"
 #include "web/config.h"
 #include "web/ws/SubProtocol.h"
@@ -61,11 +61,11 @@ namespace web::ws {
         loadSubProtocols("/usr/local/lib/snodec/web/ws/subprotocol");
     }
 
-    void SubProtocolSelector::registerSubProtocol(SubProtocolPluginInterface* subProtocolPluginInterface) {
+    void SubProtocolSelector::registerSubProtocol(SubProtocolInterface* subProtocolPluginInterface) {
         registerSubProtocol(subProtocolPluginInterface, nullptr);
     }
 
-    void SubProtocolSelector::registerSubProtocol(SubProtocolPluginInterface* subProtocolPluginInterface, void* handle) {
+    void SubProtocolSelector::registerSubProtocol(SubProtocolInterface* subProtocolPluginInterface, void* handle) {
         SubProtocolPlugin subProtocolPlugin = {.subprotocolPluginInterface = subProtocolPluginInterface, .handle = handle};
 
         if (subProtocolPluginInterface->role() == web::ws::SubProtocol::Role::SERVER) {
@@ -90,8 +90,7 @@ namespace web::ws {
     void SubProtocolSelector::loadSubProtocol(const std::string& filePath) {
         void* handle = dlopen(filePath.c_str(), RTLD_NOW | RTLD_LOCAL);
         if (handle != nullptr) {
-            SubProtocolPluginInterface* (*subProtocolPluginInterface)() =
-                reinterpret_cast<SubProtocolPluginInterface* (*) ()>(dlsym(handle, "plugin"));
+            SubProtocolInterface* (*subProtocolPluginInterface)() = reinterpret_cast<SubProtocolInterface* (*) ()>(dlsym(handle, "plugin"));
 
             if (subProtocolPluginInterface != nullptr) {
                 registerSubProtocol(subProtocolPluginInterface(), handle);

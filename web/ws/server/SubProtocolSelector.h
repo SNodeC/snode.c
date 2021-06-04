@@ -20,7 +20,7 @@
 #define WEB_WS_SERVER_SUBPROTOCOLSELECTOR_H
 
 #include "web/ws/SubProtocolSelector.h"
-#include "web/ws/server/SubProtocolPluginInterface.h"
+#include "web/ws/server/SubProtocolInterface.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,7 +32,7 @@ namespace web::ws::server {
 
     class SubProtocolSelector : public web::ws::SubProtocolSelector {
     public:
-        web::ws::server::SubProtocolPluginInterface* select(const std::string& subProtocolName) override;
+        web::ws::server::SubProtocolInterface* select(const std::string& subProtocolName) override;
 
         static SubProtocolSelector& instance();
 

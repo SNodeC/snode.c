@@ -18,7 +18,7 @@
 
 #include "SubProtocolSelector.h"
 
-#include "SubProtocolPluginInterface.h" // for WSSubPr...
+#include "SubProtocolInterface.h" // for WSSubPr...
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -35,12 +35,12 @@ namespace web::ws::server {
         return SubProtocolSelector::subProtocolSelector;
     }
 
-    web::ws::server::SubProtocolPluginInterface* SubProtocolSelector::select(const std::string& subProtocolName) {
-        SubProtocolPluginInterface* subProtocolPluginInterface = nullptr;
+    web::ws::server::SubProtocolInterface* SubProtocolSelector::select(const std::string& subProtocolName) {
+        SubProtocolInterface* subProtocolPluginInterface = nullptr;
 
         if (serverSubprotocols.contains(subProtocolName)) {
             subProtocolPluginInterface =
-                static_cast<SubProtocolPluginInterface*>(serverSubprotocols.find(subProtocolName)->second.subprotocolPluginInterface);
+                static_cast<SubProtocolInterface*>(serverSubprotocols.find(subProtocolName)->second.subprotocolPluginInterface);
         }
 
         return subProtocolPluginInterface;

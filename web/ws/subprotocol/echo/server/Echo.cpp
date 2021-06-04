@@ -32,7 +32,7 @@
 
 namespace web::ws::subprotocol::echo::server { // namespace web::ws::subprotocol::echo::server
 
-    class EchoInterface : public web::ws::server::SubProtocolPluginInterface {
+    class EchoInterface : public web::ws::server::SubProtocolInterface {
         web::ws::SubProtocol* create([[maybe_unused]] web::http::server::Request& req,
                                      [[maybe_unused]] web::http::server::Response& res) override {
             return new Echo();
@@ -52,7 +52,7 @@ namespace web::ws::subprotocol::echo::server { // namespace web::ws::subprotocol
     };
 
     extern "C" {
-        class web::ws::server::SubProtocolPluginInterface* plugin() {
+        class web::ws::server::SubProtocolInterface* plugin() {
             return new EchoInterface();
         }
     }

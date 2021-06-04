@@ -19,7 +19,7 @@
 #ifndef WEB_WS_SUBPROTOCOL_SUBPROTOCOLPLUGININTERFACE_H
 #define WEB_WS_SUBPROTOCOL_SUBPROTOCOLPLUGININTERFACE_H
 
-#include "web/ws/SubProtocolPluginInterface.h"
+#include "web/ws/SubProtocolInterface.h"
 #include "web/ws/server/SubProtocol.h"
 
 #include <list>
@@ -38,7 +38,7 @@ namespace web::http::server {
 namespace web::ws::server {
 
     extern "C" {
-        class SubProtocolPluginInterface : public web::ws::SubProtocolPluginInterface {
+        class SubProtocolInterface : public web::ws::SubProtocolInterface {
         public:
             std::list<web::ws::server::SubProtocol*>* getClients() {
                 return &clients;

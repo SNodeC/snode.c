@@ -21,7 +21,7 @@
 
 #include "net/timer/IntervalTimer.h"
 #include "web/ws/server/SubProtocol.h"
-#include "web/ws/server/SubProtocolPluginInterface.h"
+#include "web/ws/server/SubProtocolInterface.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -55,7 +55,7 @@ namespace web::ws::subprotocol::echo::server {
     };
 
     extern "C" {
-        class web::ws::server::SubProtocolPluginInterface* plugin();
+        class web::ws::server::SubProtocolInterface* plugin();
     }
 
 } // namespace web::ws::subprotocol::echo::server

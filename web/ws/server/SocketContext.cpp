@@ -20,7 +20,7 @@
 
 #include "log/Logger.h"
 #include "web/ws/SubProtocol.h" // for SubProtocol, SubProtocol::Role, WSProto...
-#include "web/ws/server/SubProtocolPluginInterface.h"
+#include "web/ws/server/SubProtocolInterface.h"
 #include "web/ws/server/SubProtocolSelector.h"
 #include "web/ws/ws_utils.h"
 
@@ -37,7 +37,7 @@ namespace web::ws::server {
     }
 
     SocketContext::SocketContext::~SocketContext() {
-        web::ws::SubProtocolPluginInterface* subProtocolPluginInterface =
+        web::ws::SubProtocolInterface* subProtocolPluginInterface =
             web::ws::server::SubProtocolSelector::instance().select(subProtocol->getName());
 
         if (subProtocolPluginInterface != nullptr) {
@@ -48,7 +48,7 @@ namespace web::ws::server {
     SocketContext* SocketContext::create(web::http::server::Request& req, web::http::server::Response& res) {
         std::string subProtocolName = req.header("sec-websocket-protocol");
 
-        web::ws::server::SubProtocolPluginInterface* subProtocolPluginInterface =
+        web::ws::server::SubProtocolInterface* subProtocolPluginInterface =
             web::ws::server::SubProtocolSelector::instance().select(subProtocolName);
 
         web::ws::server::SocketContext* Context = nullptr;

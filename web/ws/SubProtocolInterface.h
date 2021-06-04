@@ -35,9 +35,9 @@ namespace web::http::server {
 namespace web::ws {
 
     extern "C" {
-        class SubProtocolPluginInterface {
+        class SubProtocolInterface {
         public:
-            virtual ~SubProtocolPluginInterface() = default;
+            virtual ~SubProtocolInterface() = default;
 
             virtual std::string name() = 0;
             virtual web::ws::SubProtocol::Role role() = 0;
