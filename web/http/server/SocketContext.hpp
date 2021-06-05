@@ -30,8 +30,10 @@
 namespace web::http::server {
 
     template <typename Request, typename Response>
-    SocketContext<Request, Response>::SocketContext(const std::function<void(Request& req, Response& res)>& onRequestReady)
-        : onRequestReady(onRequestReady)
+    SocketContext<Request, Response>::SocketContext(net::socket::stream::SocketConnectionBase* socketConnection,
+                                                    const std::function<void(Request& req, Response& res)>& onRequestReady)
+        : SocketContextBase(socketConnection)
+        , onRequestReady(onRequestReady)
         , parser(
               [this](void) -> void {
                   VLOG(3) << "++ BEGIN:";

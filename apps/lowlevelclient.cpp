@@ -30,6 +30,10 @@
 #include "net/socket/stream/tls/SocketClient.h"     // for SocketClient
 #include "web/http/client/ResponseParser.h"         // for ResponseParser
 
+namespace net::socket::stream {
+    class SocketConnectionBase;
+} // namespace net::socket::stream
+
 #include <any> // for any
 #include <cstring>
 #include <functional>         // for function
@@ -97,7 +101,8 @@ static web::http::client::ResponseParser* getResponseParser() {
 
 class SimpleSocketProtocol : public SocketContext {
 public:
-    SimpleSocketProtocol() {
+    explicit SimpleSocketProtocol(net::socket::stream::SocketConnectionBase* socketConnection)
+        : SocketContext(socketConnection) {
         responseParser = getResponseParser();
     }
 
@@ -123,8 +128,8 @@ private:
 
 class SimpleSocketProtocolFactory : public SocketContextFactory {
 private:
-    SocketContext* create() const override {
-        return new SimpleSocketProtocol();
+    SocketContext* create(net::socket::stream::SocketConnectionBase* socketConnection) const override {
+        return new SimpleSocketProtocol(socketConnection);
     }
 };
 

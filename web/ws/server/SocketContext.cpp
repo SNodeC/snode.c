@@ -32,8 +32,10 @@
 
 namespace web::ws::server {
 
-    SocketContext::SocketContext(web::ws::server::SubProtocol* subProtocol, web::ws::SubProtocol::Role role)
-        : web::ws::SocketContext(subProtocol, role) {
+    SocketContext::SocketContext(net::socket::stream::SocketConnectionBase* socketConnection,
+                                 web::ws::server::SubProtocol* subProtocol,
+                                 web::ws::SubProtocol::Role role)
+        : web::ws::SocketContext(socketConnection, subProtocol, role) {
     }
 
     SocketContext::SocketContext::~SocketContext() {
@@ -45,13 +47,15 @@ namespace web::ws::server {
         }
     }
 
-    SocketContext* SocketContext::create(web::http::server::Request& req, web::http::server::Response& res) {
+    SocketContext* SocketContext::create(net::socket::stream::SocketConnectionBase* socketConnection,
+                                         web::http::server::Request& req,
+                                         web::http::server::Response& res) {
         std::string subProtocolName = req.header("sec-websocket-protocol");
 
         web::ws::server::SubProtocolInterface* subProtocolPluginInterface =
             web::ws::server::SubProtocolSelector::instance().select(subProtocolName);
 
-        web::ws::server::SocketContext* Context = nullptr;
+        web::ws::server::SocketContext* context = nullptr;
 
         if (subProtocolPluginInterface != nullptr) {
             web::ws::server::SubProtocol* subProtocol =
@@ -60,9 +64,9 @@ namespace web::ws::server {
             if (subProtocol != nullptr) {
                 subProtocol->setClients(subProtocolPluginInterface->getClients());
 
-                Context = new web::ws::server::SocketContext(subProtocol, web::ws::SubProtocol::Role::SERVER);
+                context = new web::ws::server::SocketContext(socketConnection, subProtocol, web::ws::SubProtocol::Role::SERVER);
 
-                if (Context != nullptr) {
+                if (context != nullptr) {
                     res.set("Upgrade", "websocket");
                     res.set("Connection", "Upgrade");
                     res.set("Sec-WebSocket-Protocol", subProtocolName);
@@ -71,18 +75,21 @@ namespace web::ws::server {
                         res.set("Sec-WebSocket-Accept", key);
                     });
 
-                    res.status(101); // Switch Protocol
+                    res.status(101).end(); // Switch Protocol
+
                 } else {
-                    res.status(500);
+                    delete subProtocol;
+
+                    res.status(500).end();
                 }
             } else {
-                res.status(500); // Internal Server Error
+                res.status(500).end(); // Internal Server Error
             }
         } else {
-            res.status(404); // Not found
+            res.status(404).end(); // Not found
         }
 
-        return Context;
+        return context;
     }
 
 } // namespace web::ws::server

@@ -34,9 +34,11 @@ namespace web::http {
 namespace web::http::client {
 
     template <typename Request, typename Response>
-    SocketContext<Request, Response>::SocketContext(const std::function<void(Response&)>& onResponse,
+    SocketContext<Request, Response>::SocketContext(net::socket::stream::SocketConnectionBase* socketConnection,
+                                                    const std::function<void(Response&)>& onResponse,
                                                     const std::function<void(int status, const std::string& reason)>& onError)
-        : request(this)
+        : SocketContextBase(socketConnection)
+        , request(this)
         , parser(
               [](void) -> void {
               },

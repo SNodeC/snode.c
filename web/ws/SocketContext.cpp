@@ -33,8 +33,11 @@
 
 namespace web::ws {
 
-    SocketContext::SocketContext(web::ws::SubProtocol* subProtocol, web::ws::SubProtocol::Role role)
-        : Transmitter(role == web::ws::SubProtocol::Role::CLIENT)
+    SocketContext::SocketContext(net::socket::stream::SocketConnectionBase* socketConnection,
+                                 web::ws::SubProtocol* subProtocol,
+                                 web::ws::SubProtocol::Role role)
+        : net::socket::stream::SocketContext(socketConnection)
+        , Transmitter(role == web::ws::SubProtocol::Role::CLIENT)
         , subProtocol(subProtocol) {
         subProtocol->setWSContext(this);
     }

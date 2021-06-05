@@ -19,6 +19,10 @@
 #ifndef NET_SOCKET_STREAM_SOCKETCONTEXT_H
 #define NET_SOCKET_STREAM_SOCKETCONTEXT_H
 
+namespace net::socket::stream {
+    class SocketContextFactory;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
@@ -32,7 +36,7 @@ namespace net::socket::stream {
 
     class SocketContext {
     protected:
-        SocketContext() = default;
+        explicit SocketContext(SocketConnectionBase* socketConnection);
         virtual ~SocketContext() = default;
 
     public:
@@ -44,7 +48,7 @@ namespace net::socket::stream {
 
         void close();
 
-        void switchSocketProtocol(SocketContext* socketProtocol);
+        void switchSocketProtocol(const SocketContextFactory& socketProtocolFactory);
 
         void setTimeout(int timeout);
 
@@ -57,8 +61,6 @@ namespace net::socket::stream {
         virtual void onReadError(int errnum) = 0;
 
         void receiveFromPeer(const char* junk, std::size_t junkLen);
-
-        void setSocketConnection(SocketConnectionBase* socketConnection);
 
         virtual void onProtocolConnected();
         virtual void onProtocolDisconnected();
