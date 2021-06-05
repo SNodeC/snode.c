@@ -29,6 +29,7 @@ namespace web::ws::server {
 
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <list>
 #include <string>
 
@@ -63,6 +64,8 @@ namespace web::ws::server {
 
         void sendBroadcastEnd(const char* message, std::size_t messageLength);
         void sendBroadcastEnd(const std::string& message);
+
+        void forEachClient(const std::function<void(SubProtocol*)>& forEachClient);
 
     private:
         /* Callbacks (API) WSReceiver -> SubProtocol-Subclasses */

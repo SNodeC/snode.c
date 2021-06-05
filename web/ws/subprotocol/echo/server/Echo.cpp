@@ -99,7 +99,13 @@ namespace web::ws::subprotocol::echo::server { // namespace web::ws::subprotocol
     void Echo::onMessageEnd() {
         VLOG(0) << "Data: " << data;
         VLOG(0) << "Message End";
+        /*
+                forEachClient([&data = this->data](SubProtocol* client) {
+                    client->sendMessage(data);
+                });
+        */
         sendBroadcast(data);
+
         data.clear();
     }
 

@@ -69,6 +69,12 @@ namespace web::ws::server {
         sendBroadcastEnd(message.data(), message.length());
     }
 
+    void SubProtocol::forEachClient(const std::function<void(SubProtocol*)>& forEachClient) {
+        for (SubProtocol* client : *clients) {
+            forEachClient(client);
+        }
+    }
+
     /* private members */
     void SubProtocol::sendBroadcast(uint8_t opCode, const char* message, std::size_t messageLength) {
         for (SubProtocol* client : *clients) {
