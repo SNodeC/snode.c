@@ -40,7 +40,9 @@ namespace web::http::server {
     public:
         using SocketConnection = net::socket::stream::SocketConnectionBase;
 
-        SocketContextBase() = default;
+        SocketContextBase(net::socket::stream::SocketConnectionBase* socketConnection)
+            : net::socket::stream::SocketContext(socketConnection) {
+        }
 
         SocketContextBase(const SocketContextBase&) = delete;
         SocketContextBase& operator=(const SocketContextBase&) = delete;
@@ -73,7 +75,8 @@ namespace web::http::server {
             std::string reason;
         };
 
-        SocketContext(const std::function<void(Request& req, Response& res)>& onRequestReady);
+        SocketContext(net::socket::stream::SocketConnectionBase* socketConnection,
+                      const std::function<void(Request& req, Response& res)>& onRequestReady);
 
         ~SocketContext() override = default;
 

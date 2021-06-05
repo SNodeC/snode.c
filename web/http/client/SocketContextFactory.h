@@ -38,8 +38,8 @@ namespace web::http::client {
         SocketContextFactory() = default;
 
     private:
-        net::socket::stream::SocketContext* create() const override {
-            return new SocketContext<Request, Response>(onResponse, onRequestError);
+        net::socket::stream::SocketContext* create(net::socket::stream::SocketConnectionBase* socketConnection) const override {
+            return new SocketContext<Request, Response>(socketConnection, onResponse, onRequestError);
         }
 
     public:

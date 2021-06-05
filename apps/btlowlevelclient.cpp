@@ -26,6 +26,10 @@
 #include "net/socket/stream/SocketContext.h"                 // for SocketP...
 #include "net/socket/stream/SocketContextFactory.h"          // for SocketP...
 
+namespace net::socket::stream {
+    class SocketConnectionBase;
+} // namespace net::socket::stream
+
 #include <any>        // for any
 #include <cstddef>    // for size_t
 #include <functional> // for function
@@ -37,6 +41,10 @@ using namespace net::socket::bluetooth::rfcomm::legacy;
 
 class SimpleSocketProtocol : public net::socket::stream::SocketContext {
 public:
+    explicit SimpleSocketProtocol(net::socket::stream::SocketConnectionBase* socketConnection)
+        : net::socket::stream::SocketContext(socketConnection) {
+    }
+
     void onReceiveFromPeer(const char* junk, std::size_t junkLen) override {
         VLOG(0) << "Data to reflect: " << std::string(junk, junkLen);
         sendToPeer(junk, junkLen);
@@ -53,8 +61,8 @@ public:
 
 class SimpleSocketProtocolFactory : public net::socket::stream::SocketContextFactory {
 private:
-    net::socket::stream::SocketContext* create() const override {
-        return new SimpleSocketProtocol();
+    net::socket::stream::SocketContext* create(net::socket::stream::SocketConnectionBase* socketConnection) const override {
+        return new SimpleSocketProtocol(socketConnection);
     }
 };
 

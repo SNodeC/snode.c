@@ -27,6 +27,10 @@
 
 namespace net::socket::stream {
 
+    SocketContext::SocketContext(SocketConnectionBase* socketConnection)
+        : socketConnection(socketConnection) {
+    }
+
     void SocketContext::sendToPeer(const char* junk, std::size_t junkLen) {
         socketConnection->enqueue(junk, junkLen);
     }
@@ -47,8 +51,8 @@ namespace net::socket::stream {
         socketConnection->close();
     }
 
-    void SocketContext::switchSocketProtocol(SocketContext* socketProtocol) {
-        socketConnection->switchSocketProtocol(socketProtocol);
+    void SocketContext::switchSocketProtocol(const SocketContextFactory& socketProtocolFactory) {
+        socketConnection->switchSocketProtocol(socketProtocolFactory);
 
         markedForDelete = true;
     }
@@ -63,10 +67,6 @@ namespace net::socket::stream {
 
     void SocketContext::setTimeout(int timeout) {
         socketConnection->setTimeout(timeout);
-    }
-
-    void SocketContext::setSocketConnection(SocketConnectionBase* socketConnection) {
-        this->socketConnection = socketConnection;
     }
 
     void SocketContext::onProtocolConnected() {

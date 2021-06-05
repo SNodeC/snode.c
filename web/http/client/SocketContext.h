@@ -41,6 +41,10 @@ namespace web::http::client {
 
     class SocketContextBase : public net::socket::stream::SocketContext {
     public:
+        explicit SocketContextBase(net::socket::stream::SocketConnectionBase* socketConnection)
+            : net::socket::stream::SocketContext(socketConnection) {
+        }
+
         virtual ~SocketContextBase() = default;
 
         virtual void sendRequestData(const char* buf, std::size_t len) = 0;
@@ -58,7 +62,8 @@ namespace web::http::client {
         using Request = RequestT;
         using Response = ResponseT;
 
-        SocketContext(const std::function<void(Response&)>& onResponse,
+        SocketContext(net::socket::stream::SocketConnectionBase* socketConnection,
+                      const std::function<void(Response&)>& onResponse,
                       const std::function<void(int status, const std::string& reason)>& onError);
 
         ~SocketContext() override = default;

@@ -27,20 +27,24 @@
 
 namespace net::socket::stream {
 
-    SocketConnectionBase::SocketConnectionBase(const std::shared_ptr<const SocketContextFactory>& socketProtocolFactory) {
-        socketContext = socketProtocolFactory->create();
-        socketContext->setSocketConnection(this);
+    SocketConnectionBase::SocketConnectionBase(const std::shared_ptr<const SocketContextFactory>& socketContextFactory) {
+        socketContext = socketContextFactory->create(this);
+        socketContext->onProtocolConnected();
     }
 
     SocketConnectionBase::~SocketConnectionBase() {
+        socketContext->onProtocolDisconnected();
         delete socketContext;
     }
 
-    void SocketConnectionBase::switchSocketProtocol(SocketContext* neocketProtocol) {
-        socketContext->onProtocolDisconnected();
-        socketContext = neocketProtocol;
-        socketContext->socketConnection = this;
-        socketContext->onProtocolConnected();
+    void SocketConnectionBase::switchSocketProtocol(const SocketContextFactory& socketContextFactory) {
+        SocketContext* newSocketContext = socketContextFactory.create(this);
+
+        if (newSocketContext != nullptr) {
+            socketContext->onProtocolDisconnected();
+            socketContext = newSocketContext;
+            socketContext->onProtocolConnected();
+        }
     }
 
     SocketContext* SocketConnectionBase::getSocketContext() {

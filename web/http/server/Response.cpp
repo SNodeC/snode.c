@@ -25,6 +25,7 @@
 #include "web/http/server//SocketContext.h"
 #include "web/http/server/Request.h"
 #include "web/ws/server/SocketContext.h"
+#include "web/ws/server/SocketContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -149,17 +150,7 @@ namespace web::http::server {
         // here we need an additional dynamic library loader for the upgrade-protocol
         if (httputils::ci_contains(req.header("connection"), "Upgrade")) {
             if (httputils::ci_contains(req.header("upgrade"), "websocket")) {
-                web::ws::server::SocketContext* socketContext = web::ws::server::SocketContext::create(req, *this);
-
-                if (socketContext != nullptr) {
-                    SocketContextBase* serverContext = this->serverContext;
-
-                    end();
-
-                    serverContext->switchSocketProtocol(socketContext);
-                } else {
-                    end();
-                }
+                serverContext->switchSocketProtocol(web::ws::server::SocketContextFactory(req, *this));
             } else {
                 this->status(404).end();
             }

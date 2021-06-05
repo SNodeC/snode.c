@@ -24,6 +24,10 @@
 #include "web/ws/SubProtocol.h" // for WSProtocol, WSProtocol...
 #include "web/ws/Transmitter.h"
 
+namespace net::socket::stream {
+    class SocketConnectionBase;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
@@ -39,7 +43,9 @@ namespace web::ws {
         , public web::ws::Receiver
         , public web::ws::Transmitter {
     protected:
-        SocketContext(web::ws::SubProtocol* subProtocol, web::ws::SubProtocol::Role role);
+        SocketContext(net::socket::stream::SocketConnectionBase* socketConnection,
+                      web::ws::SubProtocol* subProtocol,
+                      web::ws::SubProtocol::Role role);
 
         SocketContext() = delete;
         SocketContext(const SocketContext&) = delete;

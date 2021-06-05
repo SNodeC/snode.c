@@ -39,7 +39,7 @@ namespace net::socket::stream {
         SocketConnectionBase& operator=(const SocketConnectionBase&) = delete;
 
     protected:
-        SocketConnectionBase(const std::shared_ptr<const SocketContextFactory>& socketProtocolFactory);
+        SocketConnectionBase(const std::shared_ptr<const SocketContextFactory>& socketContextFactory);
 
         virtual ~SocketConnectionBase();
 
@@ -57,7 +57,7 @@ namespace net::socket::stream {
         virtual void setTimeout(int timeout) = 0;
 
     protected:
-        void switchSocketProtocol(SocketContext* neocketProtocol);
+        void switchSocketProtocol(const SocketContextFactory& socketContextFactory);
 
         SocketContext* socketContext = nullptr;
 
