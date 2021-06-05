@@ -226,7 +226,7 @@ namespace web::ws {
     }
 
     std::string SocketContext::getRemoteAddressAsString() const {
-        return net::socket::stream::SocketContext::getLocalAddressAsString();
+        return net::socket::stream::SocketContext::getRemoteAddressAsString();
     }
 
 } // namespace web::ws
