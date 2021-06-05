@@ -70,9 +70,11 @@ namespace net::socket::stream {
             SocketConnection::attach(fd);
             SocketReader::enable(fd);
             onConnect(localAddress, remoteAddress);
+            socketContext->onProtocolConnected();
         }
 
         virtual ~SocketConnection() {
+            socketContext->onProtocolDisconnected();
             onDisconnect();
         }
 

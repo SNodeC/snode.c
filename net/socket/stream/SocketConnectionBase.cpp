@@ -29,11 +29,9 @@ namespace net::socket::stream {
 
     SocketConnectionBase::SocketConnectionBase(const std::shared_ptr<const SocketContextFactory>& socketContextFactory) {
         socketContext = socketContextFactory->create(this);
-        socketContext->onProtocolConnected();
     }
 
     SocketConnectionBase::~SocketConnectionBase() {
-        socketContext->onProtocolDisconnected();
         delete socketContext;
     }
 
