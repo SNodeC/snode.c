@@ -19,6 +19,12 @@
 #ifndef WEB_HTTP_PARSER_H
 #define WEB_HTTP_PARSER_H
 
+namespace net::socket::stream {
+
+    class SocketConnectionBase;
+
+} // namespace net::socket::stream
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef> // for std::size_t
@@ -46,9 +52,12 @@ namespace web::http {
         } HTTPCompliance;
 
     public:
-        explicit Parser(enum HTTPCompliance compliance = HTTPCompliance::RFC2616 | HTTPCompliance::RFC7230)
-            : HTTPCompliance(compliance) {
+        explicit Parser([[maybe_unused]] net::socket::stream::SocketConnectionBase* socketConnection,
+                        enum HTTPCompliance compliance = HTTPCompliance::RFC2616 | HTTPCompliance::RFC7230)
+            : HTTPCompliance(compliance)
+            , socketConnection(socketConnection) {
         }
+
         virtual ~Parser() = default;
 
         void parse(const char* junk, std::size_t junkLen);
@@ -72,6 +81,8 @@ namespace web::http {
         std::map<std::string, std::string> headers;
 
     private:
+        net::socket::stream::SocketConnectionBase* socketConnection = nullptr;
+
         std::size_t readStartLine(const char* junk, std::size_t junkLen);
         std::size_t readHeaderLine(const char* junk, std::size_t junkLen);
         void splitHeaderLine(const std::string& line);

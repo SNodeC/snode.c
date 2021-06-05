@@ -32,6 +32,7 @@
 namespace web::http::server {
 
     RequestParser::RequestParser(
+        net::socket::stream::SocketConnectionBase* socketConnection,
         const std::function<void(void)>& onStart,
         const std::function<void(
             const std::string&, const std::string&, const std::string&, int, int, const std::map<std::string, std::string>&)>& onRequest,
@@ -39,7 +40,8 @@ namespace web::http::server {
         const std::function<void(char*, std::size_t)>& onContent,
         const std::function<void()>& onParsed,
         const std::function<void(int status, const std::string& reason)>& onError)
-        : onStart(onStart)
+        : Parser(socketConnection)
+        , onStart(onStart)
         , onRequest(onRequest)
         , onHeader(onHeader)
         , onContent(onContent)

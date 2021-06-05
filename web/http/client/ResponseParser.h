@@ -35,7 +35,8 @@ namespace web::http::client {
 
     class ResponseParser : public Parser {
     public:
-        ResponseParser(const std::function<void(void)>& onStart,
+        ResponseParser(net::socket::stream::SocketConnectionBase* socketConnection,
+                       const std::function<void(void)>& onStart,
                        const std::function<void(const std::string&, const std::string&, const std::string&)>& onResponse,
                        const std::function<void(const std::map<std::string, std::string>&,
                                                 const std::map<std::string, web::http::CookieOptions>&)>& onHeader,

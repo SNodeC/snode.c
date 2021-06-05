@@ -31,6 +31,10 @@
 
 namespace web::ws {
 
+    Receiver::Receiver(net::socket::stream::SocketConnectionBase* socketConnection)
+        : socketConnection(socketConnection) {
+    }
+
     void Receiver::receive(char* junk, std::size_t junkLen) {
         uint64_t consumed = 0;
         bool parsingError = false;

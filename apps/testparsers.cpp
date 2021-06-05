@@ -39,6 +39,7 @@ int main(int argc, char* argv[]) {
     Logger::init(argc, argv);
 
     server::RequestParser requestParser(
+        nullptr,
         [](void) -> void {
         },
         [](const std::string& method,
@@ -104,6 +105,7 @@ int main(int argc, char* argv[]) {
     requestParser.reset();
 
     client::ResponseParser responseParser(
+        nullptr,
         [](void) -> void {
         },
         [](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {

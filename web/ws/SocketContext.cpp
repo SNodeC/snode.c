@@ -37,6 +37,7 @@ namespace web::ws {
                                  web::ws::SubProtocol* subProtocol,
                                  web::ws::SubProtocol::Role role)
         : net::socket::stream::SocketContext(socketConnection)
+        , Receiver(socketConnection)
         , Transmitter(role == web::ws::SubProtocol::Role::CLIENT)
         , subProtocol(subProtocol) {
         subProtocol->setWSContext(this);
@@ -101,7 +102,7 @@ namespace web::ws {
                 close(pongCloseData.data(), pongCloseData.length());
                 pongCloseData.clear();
             }
-            socketConnection->getSocketContext()->close();
+            net::socket::stream::SocketContext::socketConnection->getSocketContext()->close();
         } else if (pingReceived) {
             pingReceived = false;
             replyPong(pongCloseData.data(), pongCloseData.length());

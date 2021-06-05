@@ -35,6 +35,7 @@ namespace web::http::server {
         : SocketContextBase(socketConnection)
         , onRequestReady(onRequestReady)
         , parser(
+              socketConnection,
               [this](void) -> void {
                   VLOG(3) << "++ BEGIN:";
 

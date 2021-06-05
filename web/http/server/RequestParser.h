@@ -36,6 +36,7 @@ namespace web::http::server {
     class RequestParser : public Parser {
     public:
         RequestParser(
+            net::socket::stream::SocketConnectionBase* socketConnection,
             const std::function<void(void)>& onStart,
             const std::function<
                 void(const std::string&, const std::string&, const std::string&, int, int, const std::map<std::string, std::string>&)>&
