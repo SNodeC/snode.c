@@ -207,7 +207,8 @@ namespace web::ws {
     std::size_t Receiver::readPayload() {
         std::size_t consumed = 0;
 
-        std::size_t numBytesToRead = (1024 <= length - payloadRead) ? 1024 : static_cast<std::size_t>(length - payloadRead);
+        std::size_t numBytesToRead =
+            (1024 <= length - payloadRead) ? static_cast<std::size_t>(1024) : static_cast<std::size_t>(length - payloadRead);
         char junk[1024];
 
         ssize_t numBytesRead = socketContext->readFromPeer(junk, numBytesToRead);

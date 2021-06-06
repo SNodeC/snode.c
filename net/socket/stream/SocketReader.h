@@ -45,9 +45,8 @@ namespace net::socket::stream {
         using Socket = SocketT;
 
     protected:
-        explicit SocketReader(const std::function<void()>& onRead, const std::function<void(int errnum)>& onError)
-            : onRead(onRead)
-            , onError(onError) {
+        explicit SocketReader(const std::function<void(int errnum)>& onError)
+            : onError(onError) {
         }
 
         virtual ~SocketReader() = default;
@@ -62,10 +61,6 @@ namespace net::socket::stream {
 
     private:
         virtual ssize_t read(char* junk, std::size_t junkLen) = 0;
-
-        void readEvent() override {
-            onRead();
-        }
 
     protected:
         std::size_t doRead(char* junk, std::size_t junkLen) {
@@ -88,7 +83,6 @@ namespace net::socket::stream {
     private:
         virtual int getError() = 0;
 
-        std::function<void()> onRead;
         std::function<void(int errnum)> onError;
 
         bool markShutdown = false;

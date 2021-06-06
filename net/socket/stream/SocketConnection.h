@@ -54,13 +54,9 @@ namespace net::socket::stream {
                          const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
                          const std::function<void()>& onDisconnect)
             : SocketConnectionBase(socketProtocolFactory)
-            , SocketReader(
-                  [&socketContext = this->socketContext]() -> void {
-                      socketContext->receiveFromPeer();
-                  },
-                  [&socketContext = this->socketContext](int errnum) -> void {
-                      socketContext->onReadError(errnum);
-                  })
+            , SocketReader([&socketContext = this->socketContext](int errnum) -> void {
+                socketContext->onReadError(errnum);
+            })
             , SocketWriter([&socketContext = this->socketContext](int errnum) -> void {
                 socketContext->onWriteError(errnum);
             })
@@ -120,6 +116,10 @@ namespace net::socket::stream {
         }
 
     private:
+        void readEvent() override {
+            socketContext->receiveFromPeer();
+        }
+
         void unobserved() override {
             delete this;
         }
