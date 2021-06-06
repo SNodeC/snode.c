@@ -19,7 +19,6 @@
 #include "web/ws/SocketContext.h"
 
 #include "log/Logger.h"
-#include "net/socket/stream/SocketConnectionBase.h"
 #include "web/ws/SubProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -101,7 +100,7 @@ namespace web::ws {
                 close(pongCloseData.data(), pongCloseData.length());
                 pongCloseData.clear();
             }
-            socketConnection->getSocketContext()->close();
+            close();
         } else if (pingReceived) {
             pingReceived = false;
             replyPong(pongCloseData.data(), pongCloseData.length());
@@ -123,6 +122,10 @@ namespace web::ws {
 
         subProtocol->onMessageError(errnum);
         close(errnum, "hallo", std::string("hallo").length());
+    }
+
+    std::size_t SocketContext::readFrameData(char* junk, std::size_t junkLen) {
+        return readFromPeer(junk, junkLen);
     }
 
     void SocketContext::onProtocolConnected() {
@@ -209,8 +212,8 @@ namespace web::ws {
         }
     }
 
-    void SocketContext::onReceiveFromPeer(const char* junk, std::size_t junkLen) {
-        Receiver::receive(const_cast<char*>(junk), junkLen);
+    void SocketContext::onReceiveFromPeer() {
+        Receiver::receive();
     }
 
     void SocketContext::onReadError(int errnum) {

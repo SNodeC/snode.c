@@ -24,9 +24,9 @@
 #include "web/ws/SubProtocol.h" // for WSProtocol, WSProtocol...
 #include "web/ws/Transmitter.h"
 
-namespace net::socket::stream {
+namespace net ::socket ::stream {
     class SocketConnectionBase;
-}
+} // namespace net::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -79,6 +79,8 @@ namespace web::ws {
         void onPongReceived();
         void onMessageError(uint16_t errnum) override;
 
+        std::size_t readFrameData(char* junk, std::size_t junkLen) override;
+
         /* Callbacks (API) socketConnection -> WSProtocol */
         void onProtocolConnected() override;
         void onProtocolDisconnected() override;
@@ -91,7 +93,7 @@ namespace web::ws {
         void sendFrameData(const char* frame, uint64_t frameLength) override;
 
         /* SocketProtocol */
-        void onReceiveFromPeer(const char* junk, std::size_t junkLen) override;
+        void onReceiveFromPeer() override;
         void onReadError(int errnum) override;
         void onWriteError(int errnum) override;
 

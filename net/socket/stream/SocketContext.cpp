@@ -39,6 +39,10 @@ namespace net::socket::stream {
         sendToPeer(data.data(), data.length());
     }
 
+    std::size_t SocketContext::readFromPeer(char* junk, std::size_t junklen) {
+        return socketConnection->doRead(junk, junklen);
+    }
+
     std::string SocketContext::getLocalAddressAsString() const {
         return socketConnection->getLocalAddressAsString();
     }
@@ -57,8 +61,8 @@ namespace net::socket::stream {
         markedForDelete = true;
     }
 
-    void SocketContext::receiveFromPeer(const char* junk, std::size_t junkLen) {
-        onReceiveFromPeer(junk, junkLen);
+    void SocketContext::receiveFromPeer() {
+        onReceiveFromPeer();
 
         if (markedForDelete) {
             delete this;

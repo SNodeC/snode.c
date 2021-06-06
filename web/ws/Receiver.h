@@ -26,6 +26,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#ifndef MAX_PAYLOAD_JUNK_LEN
+#define MAX_PAYLOAD_JUNK_LEN 16384
+#endif
+
 namespace web::ws {
 
     class Receiver {
@@ -35,7 +39,7 @@ namespace web::ws {
         Receiver(const Receiver&) = delete;
         Receiver& operator=(const Receiver&) = delete;
 
-        void receive(char* junk, std::size_t junkLen);
+        void receive();
 
     private:
         union MaskingKey {
@@ -43,16 +47,18 @@ namespace web::ws {
             char keyAsArray[4];
         };
 
-        uint64_t readOpcode(char* junk, uint64_t junkLen);
-        uint64_t readLength(char* junk, uint64_t junkLen);
-        uint64_t readELength(char* junk, uint64_t junkLen);
-        uint64_t readMaskingKey(char* junk, uint64_t junkLen);
-        uint64_t readPayload(char* junk, uint64_t junkLen);
+        std::size_t readOpcode();
+        std::size_t readLength();
+        std::size_t readELength();
+        std::size_t readMaskingKey();
+        std::size_t readPayload();
 
         virtual void onMessageStart(int opCode) = 0;
         virtual void onFrameReceived(const char* junk, uint64_t junkLen) = 0;
         virtual void onMessageEnd() = 0;
         virtual void onMessageError(uint16_t errnum) = 0;
+
+        virtual std::size_t readFrameData(char* junk, std::size_t junkLen) = 0;
 
         void reset();
 
@@ -78,6 +84,10 @@ namespace web::ws {
         uint64_t payloadRead = 0;
 
         uint16_t errorState = 0;
+
+        char elengthJunk[8];
+        char maskingKeyJunk[4];
+        char payloadJunk[MAX_PAYLOAD_JUNK_LEN];
     };
 
 } // namespace web::ws

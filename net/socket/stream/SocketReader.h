@@ -23,14 +23,11 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cerrno>
 #include <cstddef> // for std::size_t
 #include <functional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#ifndef MAX_READ_JUNKSIZE
-#define MAX_READ_JUNKSIZE 16384
-#endif
 
 namespace net::socket::stream {
 
@@ -44,10 +41,8 @@ namespace net::socket::stream {
         using Socket = SocketT;
 
     protected:
-        explicit SocketReader(const std::function<void(const char* junk, std::size_t junkLen)>& onRead,
-                              const std::function<void(int errnum)>& onError)
-            : onRead(onRead)
-            , onError(onError) {
+        explicit SocketReader(const std::function<void(int errnum)>& onError)
+            : onError(onError) {
         }
 
         virtual ~SocketReader() = default;
@@ -63,26 +58,32 @@ namespace net::socket::stream {
     private:
         virtual ssize_t read(char* junk, std::size_t junkLen) = 0;
 
-        void readEvent() override {
-            // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
-            static char junk[MAX_READ_JUNKSIZE];
-
-            ssize_t ret = read(junk, MAX_READ_JUNKSIZE);
-
-            if (ret > 0) {
-                onRead(junk, static_cast<std::size_t>(ret));
-            } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
-                ReadEventReceiver::disable();
-                if (markShutdown) {
-                    Socket::shutdown(Socket::shutdown::RD);
-                }
-                onError(getError());
+    protected:
+        std::size_t doRead(char* junk, std::size_t junkLen) {
+            if (markShutdown) {
+                Socket::shutdown(Socket::shutdown::RD);
             }
+
+            ssize_t ret = read(junk, junkLen);
+
+            if (ret <= 0) {
+                if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
+                    ReadEventReceiver::disable();
+                    onError(getError());
+                } else {
+                    if (markShutdown) {
+                        Socket::shutdown(Socket::shutdown::RD);
+                    }
+                }
+                ret = 0;
+            }
+
+            return ret;
         }
 
+    private:
         virtual int getError() = 0;
 
-        std::function<void(const char* junk, std::size_t junkLen)> onRead;
         std::function<void(int errnum)> onError;
 
         bool markShutdown = false;

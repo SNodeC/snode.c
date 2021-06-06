@@ -24,6 +24,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cerrno>
 #include <functional>
 #include <sys/types.h> // for ssize_t
 #include <vector>
@@ -55,8 +56,8 @@ namespace net::socket::stream {
         void enqueue(const char* junk, std::size_t junkLen) {
             writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
 
-            if (!WriteEventReceiver::isEnabled()) {
-                WriteEventReceiver::enable(Socket::getFd());
+            if (WriteEventReceiver::isSuspended()) {
+                WriteEventReceiver::resume();
             }
         }
 
@@ -71,27 +72,30 @@ namespace net::socket::stream {
     private:
         virtual ssize_t write(const char* junk, std::size_t junkLen) = 0;
 
-        void writeEvent() override {
+    protected:
+        void doWrite() {
             ssize_t ret = write(writeBuffer.data(), (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE);
 
-            if (ret > 0) {
+            if (ret >= 0) {
                 writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + ret);
 
                 if (writeBuffer.empty()) {
-                    WriteEventReceiver::disable();
+                    WriteEventReceiver::suspend();
                     if (markShutdown) {
                         Socket::shutdown(Socket::shutdown::WR);
                     }
                 }
             } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
                 WriteEventReceiver::disable();
+                onError(getError());
+
                 if (markShutdown) {
                     Socket::shutdown(Socket::shutdown::WR);
                 }
-                onError(getError());
             }
         }
 
+    private:
         virtual int getError() = 0;
 
         std::function<void(int errnum)> onError;

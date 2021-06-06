@@ -54,21 +54,20 @@ namespace net::socket::stream {
                          const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
                          const std::function<void()>& onDisconnect)
             : SocketConnectionBase(socketProtocolFactory)
-            , SocketReader(
-                  [&socketContext = this->socketContext](const char* junk, std::size_t junkLen) -> void {
-                      socketContext->receiveFromPeer(junk, junkLen);
-                  },
-                  [&socketContext = this->socketContext](int errnum) -> void {
-                      socketContext->onReadError(errnum);
-                  })
-            , SocketWriter([&socketContext = this->socketContext](int errnum) -> void {
+            , SocketReader([&socketContext = this->socketContext, this](int errnum) -> void {
+                socketContext->onReadError(errnum);
+                SocketWriter::disable();
+            })
+            , SocketWriter([&socketContext = this->socketContext, this](int errnum) -> void {
                 socketContext->onWriteError(errnum);
+                SocketReader::disable();
             })
             , localAddress(localAddress)
             , remoteAddress(remoteAddress)
             , onDisconnect(onDisconnect) {
             SocketConnection::attach(fd);
             SocketReader::enable(fd);
+            SocketWriter::enable(fd);
             onConnect(localAddress, remoteAddress);
             socketContext->onProtocolConnected();
         }
@@ -108,14 +107,24 @@ namespace net::socket::stream {
             enqueue(data.data(), data.size());
         }
 
-        void close(bool instantly = false) final {
+        std::size_t doRead(char* junk, std::size_t junkLen) override {
+            return SocketReader::doRead(junk, junkLen);
+        }
+
+        void close() final {
             SocketReader::disable();
-            if (instantly) {
-                SocketWriter::disable();
-            }
+            SocketWriter::disable();
         }
 
     private:
+        void readEvent() override {
+            socketContext->receiveFromPeer();
+        }
+
+        void writeEvent() override {
+            SocketWriter::doWrite();
+        }
+
         void unobserved() override {
             delete this;
         }

@@ -39,6 +39,7 @@ int main(int argc, char* argv[]) {
     Logger::init(argc, argv);
 
     server::RequestParser requestParser(
+        nullptr,
         [](void) -> void {
         },
         [](const std::string& method,
@@ -93,17 +94,18 @@ int main(int argc, char* argv[]) {
     VLOG(0) << httpRequest;
     VLOG(0) << "----------------------------------";
 
-    requestParser.parse(httpRequest.c_str(), httpRequest.size());
+    requestParser.parse();
     requestParser.reset();
 
     VLOG(0) << "==================================";
     VLOG(0) << httpRequest;
     VLOG(0) << "----------------------------------";
 
-    requestParser.parse(httpRequest.c_str(), httpRequest.size());
+    requestParser.parse();
     requestParser.reset();
 
     client::ResponseParser responseParser(
+        nullptr,
         [](void) -> void {
         },
         [](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
@@ -149,13 +151,13 @@ int main(int argc, char* argv[]) {
     VLOG(0) << "==================================";
     VLOG(0) << httpResponse;
     VLOG(0) << "----------------------------------";
-    responseParser.parse(httpResponse.c_str(), httpResponse.size());
+    responseParser.parse();
     responseParser.reset();
 
     VLOG(0) << "==================================";
     VLOG(0) << httpResponse;
     VLOG(0) << "----------------------------------";
-    responseParser.parse(httpResponse.c_str(), httpResponse.size());
+    responseParser.parse();
     responseParser.reset();
 
     return 0;

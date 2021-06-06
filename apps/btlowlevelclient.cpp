@@ -45,9 +45,13 @@ public:
         : net::socket::stream::SocketContext(socketConnection) {
     }
 
-    void onReceiveFromPeer(const char* junk, std::size_t junkLen) override {
-        VLOG(0) << "Data to reflect: " << std::string(junk, junkLen);
-        sendToPeer(junk, junkLen);
+    void onReceiveFromPeer() override {
+        char junk[4096];
+
+        std::size_t ret = readFromPeer(junk, 4096);
+
+        VLOG(0) << "Data to reflect: " << std::string(junk, ret);
+        sendToPeer(junk, ret);
     }
 
     void onWriteError(int errnum) override {

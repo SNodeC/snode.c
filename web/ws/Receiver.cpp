@@ -31,31 +31,31 @@
 
 namespace web::ws {
 
-    void Receiver::receive(char* junk, std::size_t junkLen) {
-        uint64_t consumed = 0;
+    void Receiver::receive() {
+        std::size_t consumed = 0;
         bool parsingError = false;
 
         // dumpFrame(junk, junkLen);
 
-        while (consumed < junkLen && !parsingError) {
+        do {
             switch (parserState) {
                 case ParserState::BEGIN:
                     parserState = ParserState::OPCODE;
                     [[fallthrough]];
                 case ParserState::OPCODE:
-                    consumed += readOpcode(junk + consumed, junkLen - consumed);
+                    consumed = readOpcode();
                     break;
                 case ParserState::LENGTH:
-                    consumed += readLength(junk + consumed, junkLen - consumed);
+                    consumed = readLength();
                     break;
                 case ParserState::ELENGTH:
-                    consumed += readELength(junk + consumed, junkLen - consumed);
+                    consumed = readELength();
                     break;
                 case ParserState::MASKINGKEY:
-                    consumed += readMaskingKey(junk + consumed, junkLen - consumed);
+                    consumed = readMaskingKey();
                     break;
                 case ParserState::PAYLOAD:
-                    consumed += readPayload(junk + consumed, junkLen - consumed);
+                    consumed = readPayload();
                     break;
                 case ParserState::ERROR:
                     onMessageError(errorState);
@@ -63,15 +63,15 @@ namespace web::ws {
                     reset();
                     break;
             };
-        }
+        } while (consumed > 0 && !parsingError && parserState != ParserState::BEGIN);
     }
 
-    uint64_t Receiver::readOpcode(char* junk, uint64_t junkLen) {
-        uint64_t consumed = 0;
-        if (junkLen > 0) {
-            consumed++;
+    std::size_t Receiver::readOpcode() {
+        char byte = 0;
+        std::size_t consumed = readFrameData(&byte, 1);
 
-            uint8_t opCodeByte = *reinterpret_cast<uint8_t*>(junk);
+        if (consumed > 0) {
+            uint8_t opCodeByte = static_cast<uint8_t>(byte);
 
             fin = opCodeByte & 0b10000000;
             opCode = opCodeByte & 0b00001111;
@@ -92,11 +92,12 @@ namespace web::ws {
         return consumed;
     }
 
-    uint64_t Receiver::readLength(char* junk, uint64_t junkLen) {
-        uint64_t consumed = 0;
+    std::size_t Receiver::readLength() {
+        char byte = 0;
+        std::size_t consumed = readFrameData(&byte, 1);
 
-        if (junkLen > 0) {
-            uint8_t lengthByte = *reinterpret_cast<uint8_t*>(junk);
+        if (consumed > 0) {
+            uint8_t lengthByte = static_cast<uint8_t>(byte);
 
             masked = lengthByte & 0b10000000;
             length = lengthByte & 0b01111111;
@@ -124,19 +125,20 @@ namespace web::ws {
                     reset();
                 }
             }
-            consumed++;
         }
 
         return consumed;
     }
 
-    uint64_t Receiver::readELength(char* junk, uint64_t junkLen) {
-        uint64_t consumed = 0;
+    std::size_t Receiver::readELength() {
+        std::size_t consumed = 0;
 
         elengthNumBytesLeft = (elengthNumBytesLeft == 0) ? elengthNumBytes : elengthNumBytesLeft;
 
-        while (consumed < junkLen && elengthNumBytesLeft > 0) {
-            length |= static_cast<uint64_t>(*reinterpret_cast<unsigned char*>(junk + consumed))
+        std::size_t elengthJunkLen = readFrameData(elengthJunk, elengthNumBytesLeft);
+
+        while (elengthJunkLen - consumed > 0) {
+            length |= static_cast<uint64_t>(*reinterpret_cast<unsigned char*>(elengthJunk + consumed))
                       << (elengthNumBytes - elengthNumBytesLeft) * 8;
 
             consumed++;
@@ -166,13 +168,15 @@ namespace web::ws {
         return consumed;
     }
 
-    uint64_t Receiver::readMaskingKey(char* junk, uint64_t junkLen) {
-        uint64_t consumed = 0;
+    std::size_t Receiver::readMaskingKey() {
+        std::size_t consumed = 0;
 
         maskingKeyNumBytesLeft = (maskingKeyNumBytesLeft == 0) ? maskingKeyNumBytes : maskingKeyNumBytesLeft;
 
-        while (consumed < junkLen && maskingKeyNumBytesLeft > 0) {
-            maskingKey |= static_cast<uint32_t>(*reinterpret_cast<unsigned char*>(junk + consumed))
+        std::size_t maskingKeyJunkLen = readFrameData(maskingKeyJunk, maskingKeyNumBytesLeft);
+
+        while (maskingKeyJunkLen - consumed > 0) {
+            maskingKey |= static_cast<uint32_t>(*reinterpret_cast<unsigned char*>(maskingKeyJunk + consumed))
                           << (maskingKeyNumBytes - maskingKeyNumBytesLeft) * 8;
             consumed++;
             maskingKeyNumBytesLeft--;
@@ -193,22 +197,25 @@ namespace web::ws {
         return consumed;
     }
 
-    uint64_t Receiver::readPayload(char* junk, uint64_t junkLen) {
-        uint64_t consumed = 0;
+    std::size_t Receiver::readPayload() {
+        std::size_t consumed = 0;
 
-        if (junkLen > 0 && length - payloadRead > 0) {
-            uint64_t numBytesToRead = (junkLen <= length - payloadRead) ? junkLen : length - payloadRead;
+        std::size_t payloadJunkLen = (MAX_PAYLOAD_JUNK_LEN <= length - payloadRead) ? static_cast<std::size_t>(MAX_PAYLOAD_JUNK_LEN)
+                                                                                    : static_cast<std::size_t>(length - payloadRead);
 
+        payloadJunkLen = readFrameData(payloadJunk, payloadJunkLen);
+
+        if (payloadJunkLen > 0) {
             MaskingKey maskingKeyAsArray = {.key = htobe32(maskingKey)};
 
-            for (uint64_t i = 0; i < numBytesToRead; i++) {
-                *(junk + i) = *(junk + i) ^ *(maskingKeyAsArray.keyAsArray + (i + payloadRead) % 4);
+            for (std::size_t i = 0; i < payloadJunkLen; i++) {
+                *(payloadJunk + i) = *(payloadJunk + i) ^ *(maskingKeyAsArray.keyAsArray + (i + payloadRead) % 4);
             }
 
-            onFrameReceived(junk, numBytesToRead);
+            onFrameReceived(payloadJunk, payloadJunkLen);
 
-            payloadRead += numBytesToRead;
-            consumed = numBytesToRead;
+            payloadRead += payloadJunkLen;
+            consumed = payloadJunkLen;
         }
 
         if (payloadRead == length) {
@@ -222,7 +229,7 @@ namespace web::ws {
     }
 
     void Receiver::dumpFrame(char* frame, uint64_t frameLength) {
-        int modul = 4;
+        unsigned long modul = 4;
 
         std::stringstream stringStream;
 

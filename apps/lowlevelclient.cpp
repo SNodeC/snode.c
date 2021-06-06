@@ -60,8 +60,9 @@ using namespace net::socket::ip;
 using namespace net::socket::ip::address::ipv4;
 using namespace net::socket::stream;
 
-static web::http::client::ResponseParser* getResponseParser() {
+static web::http::client::ResponseParser* getResponseParser(SocketContext* socketContext) {
     web::http::client::ResponseParser* responseParser = new web::http::client::ResponseParser(
+        socketContext,
         [](void) -> void {
         },
         [](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
@@ -103,15 +104,20 @@ class SimpleSocketProtocol : public SocketContext {
 public:
     explicit SimpleSocketProtocol(net::socket::stream::SocketConnectionBase* socketConnection)
         : SocketContext(socketConnection) {
-        responseParser = getResponseParser();
+        responseParser = getResponseParser(this);
     }
 
     ~SimpleSocketProtocol() override {
         delete responseParser;
     }
 
-    void onReceiveFromPeer(const char* junk, std::size_t junkLen) override {
-        responseParser->parse(junk, junkLen);
+    void onReceiveFromPeer() override {
+        char junk[4096];
+
+        std::size_t ret = readFromPeer(junk, 4096);
+
+        VLOG(0) << "Data to reflect: " << std::string(junk, 4096);
+        sendToPeer(junk, ret);
     }
 
     void onWriteError(int errnum) override {

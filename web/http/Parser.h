@@ -19,6 +19,12 @@
 #ifndef WEB_HTTP_PARSER_H
 #define WEB_HTTP_PARSER_H
 
+namespace net::socket::stream {
+
+    class SocketContext;
+
+} // namespace net::socket::stream
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef> // for std::size_t
@@ -27,6 +33,10 @@
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+#ifndef MAX_CONTENT_JUNK_LEN
+#define MAX_CONTENT_JUNK_LEN 16384
+#endif
 
 namespace web::http {
 
@@ -43,15 +53,15 @@ namespace web::http {
             RFC7235 = 0x01 << 7, // Authentication
             RFC7540 = 0x01 << 8, // HTTP 2.0
             RFC7541 = 0x01 << 9  // Header Compression
-        } HTTPCompliance;
+        } hTTPCompliance;
 
     public:
-        explicit Parser(enum HTTPCompliance compliance = HTTPCompliance::RFC2616 | HTTPCompliance::RFC7230)
-            : HTTPCompliance(compliance) {
-        }
+        explicit Parser(net::socket::stream::SocketContext* socketContext,
+                        const enum HTTPCompliance& compliance = HTTPCompliance::RFC2616 | HTTPCompliance::RFC7230);
+
         virtual ~Parser() = default;
 
-        void parse(const char* junk, std::size_t junkLen);
+        void parse();
 
     protected:
         // Parser state
@@ -72,10 +82,12 @@ namespace web::http {
         std::map<std::string, std::string> headers;
 
     private:
-        std::size_t readStartLine(const char* junk, std::size_t junkLen);
-        std::size_t readHeaderLine(const char* junk, std::size_t junkLen);
+        net::socket::stream::SocketContext* socketContext = nullptr;
+
+        std::size_t readStartLine();
+        std::size_t readHeaderLine();
         void splitHeaderLine(const std::string& line);
-        std::size_t readContent(const char* junk, std::size_t junkLen);
+        std::size_t readContent();
 
         // Line state
         bool EOL{false};
@@ -83,6 +95,7 @@ namespace web::http {
         // Used during parseing data
         std::string line;
         std::size_t contentRead = 0;
+        char contentJunk[MAX_CONTENT_JUNK_LEN]{};
 
         friend enum HTTPCompliance operator|(const enum HTTPCompliance& c1, const enum HTTPCompliance& c2);
         friend enum HTTPCompliance operator&(const enum HTTPCompliance& c1, const enum HTTPCompliance& c2);

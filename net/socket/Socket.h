@@ -33,13 +33,13 @@ namespace net::socket {
 
     template <typename SocketAddressT>
     class Socket : virtual public net::Descriptor {
-        Socket(const Socket&) = delete;
-        Socket& operator=(const Socket&) = delete;
-
     public:
         using SocketAddress = SocketAddressT;
 
         Socket() = default;
+
+        Socket(const Socket&) = delete;
+        Socket& operator=(const Socket&) = delete;
 
     protected:
         ~Socket() {
