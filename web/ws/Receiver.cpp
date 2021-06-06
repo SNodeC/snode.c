@@ -32,10 +32,6 @@
 
 namespace web::ws {
 
-    Receiver::Receiver(net::socket::stream::SocketContext* socketContext)
-        : socketContext(socketContext) {
-    }
-
     void Receiver::receive() {
         std::size_t consumed = 0;
         bool parsingError = false;
@@ -73,7 +69,7 @@ namespace web::ws {
 
     std::size_t Receiver::readOpcode() {
         char byte = 0;
-        std::size_t consumed = socketContext->readFromPeer(&byte, 1);
+        std::size_t consumed = readFrameData(&byte, 1);
 
         if (consumed > 0) {
             uint8_t opCodeByte = static_cast<uint8_t>(byte);
@@ -99,7 +95,7 @@ namespace web::ws {
 
     std::size_t Receiver::readLength() {
         char byte = 0;
-        std::size_t consumed = socketContext->readFromPeer(&byte, 1);
+        std::size_t consumed = readFrameData(&byte, 1);
 
         if (consumed > 0) {
             uint8_t lengthByte = static_cast<uint8_t>(byte);
@@ -140,7 +136,7 @@ namespace web::ws {
 
         elengthNumBytesLeft = (elengthNumBytesLeft == 0) ? elengthNumBytes : elengthNumBytesLeft;
 
-        std::size_t elengthJunkLen = socketContext->readFromPeer(elengthJunk, elengthNumBytesLeft);
+        std::size_t elengthJunkLen = readFrameData(elengthJunk, elengthNumBytesLeft);
 
         while (elengthJunkLen - consumed > 0) {
             length |= static_cast<uint64_t>(*reinterpret_cast<unsigned char*>(elengthJunk + consumed))
@@ -178,7 +174,7 @@ namespace web::ws {
 
         maskingKeyNumBytesLeft = (maskingKeyNumBytesLeft == 0) ? maskingKeyNumBytes : maskingKeyNumBytesLeft;
 
-        std::size_t maskingKeyJunkLen = socketContext->readFromPeer(maskingKeyJunk, maskingKeyNumBytesLeft);
+        std::size_t maskingKeyJunkLen = readFrameData(maskingKeyJunk, maskingKeyNumBytesLeft);
 
         while (maskingKeyJunkLen - consumed > 0) {
             maskingKey |= static_cast<uint32_t>(*reinterpret_cast<unsigned char*>(maskingKeyJunk + consumed))
@@ -208,7 +204,7 @@ namespace web::ws {
         std::size_t payloadJunkLen = (MAX_PAYLOAD_JUNK_LEN <= length - payloadRead) ? static_cast<std::size_t>(MAX_PAYLOAD_JUNK_LEN)
                                                                                     : static_cast<std::size_t>(length - payloadRead);
 
-        payloadJunkLen = socketContext->readFromPeer(payloadJunk, payloadJunkLen);
+        payloadJunkLen = readFrameData(payloadJunk, payloadJunkLen);
 
         if (payloadJunkLen > 0) {
             MaskingKey maskingKeyAsArray = {.key = htobe32(maskingKey)};

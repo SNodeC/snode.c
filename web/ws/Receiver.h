@@ -38,7 +38,7 @@ namespace web::ws {
 
     class Receiver {
     public:
-        Receiver(net::socket::stream::SocketContext* socketContext);
+        Receiver() = default;
 
         Receiver(const Receiver&) = delete;
         Receiver& operator=(const Receiver&) = delete;
@@ -46,8 +46,6 @@ namespace web::ws {
         void receive();
 
     private:
-        net::socket::stream::SocketContext* socketContext = nullptr;
-
         union MaskingKey {
             uint32_t key;
             char keyAsArray[4];
@@ -63,6 +61,8 @@ namespace web::ws {
         virtual void onFrameReceived(const char* junk, uint64_t junkLen) = 0;
         virtual void onMessageEnd() = 0;
         virtual void onMessageError(uint16_t errnum) = 0;
+
+        virtual std::size_t readFrameData(char* junk, std::size_t junkLen) = 0;
 
         void reset();
 

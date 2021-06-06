@@ -37,7 +37,6 @@ namespace web::ws {
                                  web::ws::SubProtocol* subProtocol,
                                  web::ws::SubProtocol::Role role)
         : net::socket::stream::SocketContext(socketConnection)
-        , Receiver(this)
         , Transmitter(role == web::ws::SubProtocol::Role::CLIENT)
         , subProtocol(subProtocol) {
         subProtocol->setWSContext(this);
@@ -124,6 +123,10 @@ namespace web::ws {
 
         subProtocol->onMessageError(errnum);
         close(errnum, "hallo", std::string("hallo").length());
+    }
+
+    std::size_t SocketContext::readFrameData(char* junk, std::size_t junkLen) {
+        return readFromPeer(junk, junkLen);
     }
 
     void SocketContext::onProtocolConnected() {

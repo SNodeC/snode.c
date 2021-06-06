@@ -79,6 +79,8 @@ namespace web::ws {
         void onPongReceived();
         void onMessageError(uint16_t errnum) override;
 
+        std::size_t readFrameData(char* junk, std::size_t junkLen) override;
+
         /* Callbacks (API) socketConnection -> WSProtocol */
         void onProtocolConnected() override;
         void onProtocolDisconnected() override;
