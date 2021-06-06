@@ -79,11 +79,6 @@ namespace web::http::client {
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::sendRequestData(const char* junk, std::size_t junkLen) {
-        sendToPeer(junk, junkLen);
-    }
-
-    template <typename Request, typename Response>
     void SocketContext<Request, Response>::onWriteError(int errnum) {
         if (errnum != 0 && errnum != ECONNRESET) {
             PLOG(ERROR) << "Connection write: " << errnum;

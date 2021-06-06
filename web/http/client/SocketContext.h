@@ -47,8 +47,6 @@ namespace web::http::client {
 
         virtual ~SocketContextBase() = default;
 
-        virtual void sendRequestData(const char* buf, std::size_t len) = 0;
-
         virtual Request& getRequest() = 0;
 
         virtual void terminateConnection() = 0;
@@ -69,7 +67,6 @@ namespace web::http::client {
         ~SocketContext() override = default;
 
         void onReceiveFromPeer() override;
-        void sendRequestData(const char* junk, std::size_t junkLen) override;
 
         void onWriteError(int errnum) override;
         void onReadError(int errnum) override;

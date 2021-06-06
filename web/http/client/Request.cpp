@@ -122,7 +122,7 @@ namespace web::http::client {
             headersSent = true;
         }
 
-        clientContext->sendRequestData(junk, junkLen);
+        clientContext->sendToPeer(junk, junkLen);
 
         if (headersSent) {
             contentSent += junkLen;
