@@ -47,7 +47,6 @@ namespace web::ws {
     public:
         virtual ~SubProtocol();
 
-    public:
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from SubProtocol-Subclasses */
         void sendMessage(const char* message, std::size_t messageLength);
         void sendMessage(const std::string& message);

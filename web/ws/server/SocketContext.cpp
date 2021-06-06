@@ -39,11 +39,11 @@ namespace web::ws::server {
     }
 
     SocketContext::SocketContext::~SocketContext() {
-        web::ws::SubProtocolInterface* subProtocolPluginInterface =
+        web::ws::SubProtocolInterface* subProtocolInterface =
             web::ws::server::SubProtocolSelector::instance().select(subProtocol->getName());
 
-        if (subProtocolPluginInterface != nullptr) {
-            subProtocolPluginInterface->destroy(dynamic_cast<web::ws::server::SubProtocol*>(subProtocol));
+        if (subProtocolInterface != nullptr) {
+            subProtocolInterface->destroy(dynamic_cast<web::ws::server::SubProtocol*>(subProtocol));
         }
     }
 
@@ -52,17 +52,16 @@ namespace web::ws::server {
                                          web::http::server::Response& res) {
         std::string subProtocolName = req.header("sec-websocket-protocol");
 
-        web::ws::server::SubProtocolInterface* subProtocolPluginInterface =
+        web::ws::server::SubProtocolInterface* subProtocolInterface =
             web::ws::server::SubProtocolSelector::instance().select(subProtocolName);
 
         web::ws::server::SocketContext* context = nullptr;
 
-        if (subProtocolPluginInterface != nullptr) {
-            web::ws::server::SubProtocol* subProtocol =
-                static_cast<web::ws::server::SubProtocol*>(subProtocolPluginInterface->create(req, res));
+        if (subProtocolInterface != nullptr) {
+            web::ws::server::SubProtocol* subProtocol = static_cast<web::ws::server::SubProtocol*>(subProtocolInterface->create(req, res));
 
             if (subProtocol != nullptr) {
-                subProtocol->setClients(subProtocolPluginInterface->getClients());
+                subProtocol->setClients(subProtocolInterface->getClients());
 
                 context = new web::ws::server::SocketContext(socketConnection, subProtocol, web::ws::SubProtocol::Role::SERVER);
 
