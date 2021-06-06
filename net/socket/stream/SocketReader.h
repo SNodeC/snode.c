@@ -60,15 +60,20 @@ namespace net::socket::stream {
 
     protected:
         std::size_t doRead(char* junk, std::size_t junkLen) {
+            if (markShutdown) {
+                Socket::shutdown(Socket::shutdown::RD);
+            }
+
             ssize_t ret = read(junk, junkLen);
 
             if (ret <= 0) {
                 if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
                     ReadEventReceiver::disable();
+                    onError(getError());
+                } else {
                     if (markShutdown) {
                         Socket::shutdown(Socket::shutdown::RD);
                     }
-                    onError(getError());
                 }
                 ret = 0;
             }

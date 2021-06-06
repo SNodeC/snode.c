@@ -87,10 +87,11 @@ namespace net::socket::stream {
                 }
             } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
                 WriteEventReceiver::disable();
+                onError(getError());
+
                 if (markShutdown) {
                     Socket::shutdown(Socket::shutdown::WR);
                 }
-                onError(getError());
             }
         }
 
