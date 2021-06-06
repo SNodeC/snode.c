@@ -18,7 +18,6 @@
 
 #include "Parser.h"
 
-#include "log/Logger.h"
 #include "net/socket/stream/SocketContext.h"
 #include "web/http/http_utils.h"
 

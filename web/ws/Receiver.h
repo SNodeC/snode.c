@@ -19,10 +19,6 @@
 #ifndef WEB_WS_RECEVIER_H
 #define WEB_WS_RECEVIER_H
 
-namespace net::socket::stream {
-    class SocketContext;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>

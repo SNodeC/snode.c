@@ -19,7 +19,6 @@
 #include "web/ws/SocketContext.h"
 
 #include "log/Logger.h"
-#include "net/socket/stream/SocketConnectionBase.h"
 #include "web/ws/SubProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

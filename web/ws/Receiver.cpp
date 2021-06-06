@@ -18,7 +18,6 @@
 
 #include "web/ws/Receiver.h"
 
-#include "SocketContext.h"
 #include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -230,7 +229,7 @@ namespace web::ws {
     }
 
     void Receiver::dumpFrame(char* frame, uint64_t frameLength) {
-        int modul = 4;
+        unsigned long modul = 4;
 
         std::stringstream stringStream;
 

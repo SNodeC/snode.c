@@ -49,7 +49,7 @@ public:
     void onReceiveFromPeer() override {
         char junk[4096];
 
-        ssize_t ret = readFromPeer(junk, 4096);
+        std::size_t ret = readFromPeer(junk, 4096);
 
         VLOG(0) << "Data to reflect: " << std::string(junk, ret);
         sendToPeer(junk, ret);

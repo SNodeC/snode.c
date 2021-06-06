@@ -95,7 +95,7 @@ namespace web::http {
         // Used during parseing data
         std::string line;
         std::size_t contentRead = 0;
-        char contentJunk[MAX_CONTENT_JUNK_LEN];
+        char contentJunk[MAX_CONTENT_JUNK_LEN]{};
 
         friend enum HTTPCompliance operator|(const enum HTTPCompliance& c1, const enum HTTPCompliance& c2);
         friend enum HTTPCompliance operator&(const enum HTTPCompliance& c1, const enum HTTPCompliance& c2);
