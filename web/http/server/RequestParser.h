@@ -21,6 +21,10 @@
 
 #include "web/http/Parser.h"
 
+namespace net ::socket ::stream {
+    class SocketContext;
+} // namespace net::socket::stream
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef> // for std::size_t
@@ -36,7 +40,7 @@ namespace web::http::server {
     class RequestParser : public Parser {
     public:
         RequestParser(
-            net::socket::stream::SocketConnectionBase* socketConnection,
+            net::socket::stream::SocketContext* socketContext,
             const std::function<void(void)>& onStart,
             const std::function<
                 void(const std::string&, const std::string&, const std::string&, int, int, const std::map<std::string, std::string>&)>&

@@ -60,9 +60,9 @@ using namespace net::socket::ip;
 using namespace net::socket::ip::address::ipv4;
 using namespace net::socket::stream;
 
-static web::http::client::ResponseParser* getResponseParser(net::socket::stream::SocketConnectionBase* socketConnection) {
+static web::http::client::ResponseParser* getResponseParser(SocketContext* socketContext) {
     web::http::client::ResponseParser* responseParser = new web::http::client::ResponseParser(
-        socketConnection,
+        socketContext,
         [](void) -> void {
         },
         [](const std::string& httpVersion, const std::string& statusCode, const std::string& reason) -> void {
@@ -104,7 +104,7 @@ class SimpleSocketProtocol : public SocketContext {
 public:
     explicit SimpleSocketProtocol(net::socket::stream::SocketConnectionBase* socketConnection)
         : SocketContext(socketConnection) {
-        responseParser = getResponseParser(socketConnection);
+        responseParser = getResponseParser(this);
     }
 
     ~SimpleSocketProtocol() override {

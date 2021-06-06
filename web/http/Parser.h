@@ -21,7 +21,7 @@
 
 namespace net::socket::stream {
 
-    class SocketConnectionBase;
+    class SocketContext;
 
 } // namespace net::socket::stream
 
@@ -49,14 +49,11 @@ namespace web::http {
             RFC7235 = 0x01 << 7, // Authentication
             RFC7540 = 0x01 << 8, // HTTP 2.0
             RFC7541 = 0x01 << 9  // Header Compression
-        } HTTPCompliance;
+        } hTTPCompliance;
 
     public:
-        explicit Parser([[maybe_unused]] net::socket::stream::SocketConnectionBase* socketConnection,
-                        enum HTTPCompliance compliance = HTTPCompliance::RFC2616 | HTTPCompliance::RFC7230)
-            : HTTPCompliance(compliance)
-            , socketConnection(socketConnection) {
-        }
+        explicit Parser(net::socket::stream::SocketContext* socketContext,
+                        enum HTTPCompliance compliance = HTTPCompliance::RFC2616 | HTTPCompliance::RFC7230);
 
         virtual ~Parser() = default;
 
@@ -81,7 +78,7 @@ namespace web::http {
         std::map<std::string, std::string> headers;
 
     private:
-        net::socket::stream::SocketConnectionBase* socketConnection = nullptr;
+        net::socket::stream::SocketContext* socketContext = nullptr;
 
         std::size_t readStartLine(const char* junk, std::size_t junkLen);
         std::size_t readHeaderLine(const char* junk, std::size_t junkLen);

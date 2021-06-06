@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/http/Parser.h"
+#include "Parser.h"
 
 #include "web/http/http_utils.h"
 
@@ -32,6 +32,11 @@ namespace web::http {
 
     // HTTP/x.x
     std::regex Parser::httpVersionRegex("^HTTP/([[:digit:]])\\.([[:digit:]])$");
+
+    Parser::Parser(net::socket::stream::SocketContext* socketContext, enum Parser::HTTPCompliance compliance)
+        : hTTPCompliance(compliance)
+        , socketContext(socketContext) {
+    }
 
     void Parser::reset() {
         parserState = ParserState::BEGIN;
@@ -117,7 +122,7 @@ namespace web::http {
                 }
             } else if (EOL) {
                 if (std::isblank(ch)) {
-                    if ((HTTPCompliance & HTTPCompliance::RFC7230) == HTTPCompliance::RFC7230) {
+                    if ((hTTPCompliance & HTTPCompliance::RFC7230) == HTTPCompliance::RFC7230) {
                         parserState = parsingError(400, "Header Folding");
                     } else {
                         line += ch;

@@ -20,7 +20,7 @@
 #define WEB_WS_RECEVIER_H
 
 namespace net::socket::stream {
-    class SocketConnectionBase;
+    class SocketContext;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -34,7 +34,7 @@ namespace web::ws {
 
     class Receiver {
     public:
-        Receiver(net::socket::stream::SocketConnectionBase* socketConnection);
+        Receiver(net::socket::stream::SocketContext* socketContext);
 
         Receiver(const Receiver&) = delete;
         Receiver& operator=(const Receiver&) = delete;
@@ -42,7 +42,7 @@ namespace web::ws {
         void receive(char* junk, std::size_t junkLen);
 
     private:
-        net::socket::stream::SocketConnectionBase* socketConnection = nullptr;
+        net::socket::stream::SocketContext* socketContext = nullptr;
 
         union MaskingKey {
             uint32_t key;

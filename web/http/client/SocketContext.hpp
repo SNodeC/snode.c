@@ -40,7 +40,7 @@ namespace web::http::client {
         : SocketContextBase(socketConnection)
         , request(this)
         , parser(
-              socketConnection,
+              this,
               [](void) -> void {
               },
               [&response =

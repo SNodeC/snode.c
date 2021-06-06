@@ -22,6 +22,10 @@
 #include "web/http/CookieOptions.h"
 #include "web/http/Parser.h"
 
+namespace net ::socket ::stream {
+    class SocketContext;
+} // namespace net::socket::stream
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
@@ -35,7 +39,7 @@ namespace web::http::client {
 
     class ResponseParser : public Parser {
     public:
-        ResponseParser(net::socket::stream::SocketConnectionBase* socketConnection,
+        ResponseParser(net::socket::stream::SocketContext* socketContext,
                        const std::function<void(void)>& onStart,
                        const std::function<void(const std::string&, const std::string&, const std::string&)>& onResponse,
                        const std::function<void(const std::map<std::string, std::string>&,

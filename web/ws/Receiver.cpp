@@ -31,8 +31,8 @@
 
 namespace web::ws {
 
-    Receiver::Receiver(net::socket::stream::SocketConnectionBase* socketConnection)
-        : socketConnection(socketConnection) {
+    Receiver::Receiver(net::socket::stream::SocketContext* socketContext)
+        : socketContext(socketContext) {
     }
 
     void Receiver::receive(char* junk, std::size_t junkLen) {

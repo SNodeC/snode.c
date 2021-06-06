@@ -24,6 +24,10 @@
 #include "web/ws/SubProtocol.h" // for WSProtocol, WSProtocol...
 #include "web/ws/Transmitter.h"
 
+namespace net ::socket ::stream {
+    class SocketConnectionBase;
+} // namespace net::socket::stream
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
