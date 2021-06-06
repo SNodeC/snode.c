@@ -56,8 +56,8 @@ namespace net::socket::stream {
         void enqueue(const char* junk, std::size_t junkLen) {
             writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
 
-            if (!WriteEventReceiver::isEnabled()) {
-                WriteEventReceiver::enable(Socket::getFd());
+            if (WriteEventReceiver::isSuspended()) {
+                WriteEventReceiver::resume();
             }
         }
 
@@ -76,11 +76,11 @@ namespace net::socket::stream {
         void doWrite() {
             ssize_t ret = write(writeBuffer.data(), (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE);
 
-            if (ret > 0) {
+            if (ret >= 0) {
                 writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + ret);
 
                 if (writeBuffer.empty()) {
-                    WriteEventReceiver::disable();
+                    WriteEventReceiver::suspend();
                     if (markShutdown) {
                         Socket::shutdown(Socket::shutdown::WR);
                     }

@@ -54,17 +54,20 @@ namespace net::socket::stream {
                          const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
                          const std::function<void()>& onDisconnect)
             : SocketConnectionBase(socketProtocolFactory)
-            , SocketReader([&socketContext = this->socketContext](int errnum) -> void {
+            , SocketReader([&socketContext = this->socketContext, this](int errnum) -> void {
                 socketContext->onReadError(errnum);
+                SocketWriter::disable();
             })
-            , SocketWriter([&socketContext = this->socketContext](int errnum) -> void {
+            , SocketWriter([&socketContext = this->socketContext, this](int errnum) -> void {
                 socketContext->onWriteError(errnum);
+                SocketReader::disable();
             })
             , localAddress(localAddress)
             , remoteAddress(remoteAddress)
             , onDisconnect(onDisconnect) {
             SocketConnection::attach(fd);
             SocketReader::enable(fd);
+            SocketWriter::enable(fd);
             onConnect(localAddress, remoteAddress);
             socketContext->onProtocolConnected();
         }
@@ -108,11 +111,9 @@ namespace net::socket::stream {
             return SocketReader::doRead(junk, junkLen);
         }
 
-        void close(bool instantly = false) final {
+        void close() final {
             SocketReader::disable();
-            if (instantly) {
-                SocketWriter::disable();
-            }
+            SocketWriter::disable();
         }
 
     private:
