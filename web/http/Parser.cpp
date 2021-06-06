@@ -18,6 +18,8 @@
 
 #include "Parser.h"
 
+#include "log/Logger.h"
+#include "net/socket/stream/SocketContext.h"
 #include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -33,7 +35,7 @@ namespace web::http {
     // HTTP/x.x
     std::regex Parser::httpVersionRegex("^HTTP/([[:digit:]])\\.([[:digit:]])$");
 
-    Parser::Parser(net::socket::stream::SocketContext* socketContext, enum Parser::HTTPCompliance compliance)
+    Parser::Parser(net::socket::stream::SocketContext* socketContext, const enum Parser::HTTPCompliance& compliance)
         : hTTPCompliance(compliance)
         , socketContext(socketContext) {
     }
@@ -52,92 +54,103 @@ namespace web::http {
         std::size_t consumed = 0;
         bool parsingError = false;
 
-        while (consumed < junkLen && !parsingError) {
+        do {
             switch (parserState) {
                 case ParserState::BEGIN:
                     parserState = ParserState::FIRSTLINE;
                     begin();
                     [[fallthrough]];
                 case ParserState::FIRSTLINE:
-                    consumed += readStartLine(junk + consumed, junkLen - consumed);
+                    consumed = readStartLine(junk + consumed, junkLen - consumed);
                     break;
                 case ParserState::HEADER:
-                    consumed += readHeaderLine(junk + consumed, junkLen - consumed);
+                    consumed = readHeaderLine(junk + consumed, junkLen - consumed);
                     break;
                 case ParserState::BODY:
-                    consumed += readContent(junk + consumed, junkLen - consumed);
+                    consumed = readContent(junk + consumed, junkLen - consumed);
                     break;
                 case ParserState::ERROR:
                     parsingError = true;
                     reset();
                     break;
             };
-        }
+        } while (consumed > 0 && !parsingError);
     }
 
-    std::size_t Parser::readStartLine(const char* junk, std::size_t junkLen) {
+    std::size_t Parser::readStartLine([[maybe_unused]] const char* junk, [[maybe_unused]] std::size_t junkLen) {
         std::size_t consumed = 0;
+        ssize_t ret = 0;
 
-        while (consumed < junkLen && parserState == ParserState::FIRSTLINE) {
-            char ch = junk[consumed++];
+        do {
+            char ch = 0;
+            ret = socketContext->readFromPeer(&ch, 1);
 
-            if (ch == '\r' || ch == '\n') {
-                if (ch == '\n') {
-                    parserState = parseStartLine(line);
-                    line.clear();
+            if (ret > 0) {
+                consumed += ret;
+                if (ch == '\r' || ch == '\n') {
+                    if (ch == '\n') {
+                        parserState = parseStartLine(line);
+                        line.clear();
+                    }
+                } else {
+                    line += ch;
                 }
-            } else {
-                line += ch;
             }
-        }
+        } while (ret > 0 && parserState == ParserState::FIRSTLINE);
 
         return consumed;
     }
 
-    std::size_t Parser::readHeaderLine(const char* junk, std::size_t junkLen) {
+    std::size_t Parser::readHeaderLine([[maybe_unused]] const char* junk, [[maybe_unused]] std::size_t junkLen) {
         std::size_t consumed = 0;
+        ssize_t ret = 0;
 
-        while (consumed < junkLen && parserState == ParserState::HEADER) {
-            char ch = junk[consumed];
+        do {
+            char ch = 0;
+            ret = socketContext->readFromPeer(&ch, 1);
 
-            if (ch == '\r' || ch == '\n') {
-                consumed++;
-                if (ch == '\n') {
-                    if (EOL) {
-                        splitHeaderLine(line);
-                        line.clear();
-                        if (parserState != ParserState::ERROR) {
-                            parserState = parseHeader();
-                        }
-                        EOL = false;
-                    } else {
-                        if (line.empty()) {
+            if (ret > 0) {
+                if (ch == '\r' || ch == '\n') {
+                    consumed++;
+                    if (ch == '\n') {
+                        if (EOL) {
+                            splitHeaderLine(line);
+                            line.clear();
                             if (parserState != ParserState::ERROR) {
                                 parserState = parseHeader();
                             }
+                            EOL = false;
                         } else {
-                            EOL = true;
+                            if (line.empty()) {
+                                if (parserState != ParserState::ERROR) {
+                                    parserState = parseHeader();
+                                }
+                            } else {
+                                EOL = true;
+                            }
                         }
                     }
-                }
-            } else if (EOL) {
-                if (std::isblank(ch)) {
-                    if ((hTTPCompliance & HTTPCompliance::RFC7230) == HTTPCompliance::RFC7230) {
-                        parserState = parsingError(400, "Header Folding");
+                } else if (EOL) {
+                    if (std::isblank(ch)) {
+                        if ((hTTPCompliance & HTTPCompliance::RFC7230) == HTTPCompliance::RFC7230) {
+                            parserState = parsingError(400, "Header Folding");
+                        } else {
+                            line += ch;
+                            consumed++;
+                        }
                     } else {
+                        splitHeaderLine(line);
+                        line.clear();
                         line += ch;
                         consumed++;
                     }
+                    EOL = false;
                 } else {
-                    splitHeaderLine(line);
-                    line.clear();
+                    line += ch;
+                    consumed++;
                 }
-                EOL = false;
-            } else {
-                line += ch;
-                consumed++;
             }
-        }
+        } while (ret > 0 && parserState == ParserState::HEADER);
 
         return consumed;
     }
@@ -169,32 +182,39 @@ namespace web::http {
         }
     }
 
-    std::size_t Parser::readContent(const char* junk, std::size_t junkLen) {
+    std::size_t Parser::readContent([[maybe_unused]] const char* junk1, [[maybe_unused]] std::size_t junkLen1) {
         if (contentRead == 0) {
             content = new char[contentLength];
         }
 
-        if (contentRead + junkLen <= contentLength) {
-            memcpy(content + contentRead, junk, junkLen); // NOLINT(clang-analyzer-core.NonNullParamChecker)
+        char junk[1024];
+        std::size_t junkLen = (contentLength - contentRead < 1024) ? contentLength - contentRead : 1024;
 
-            contentRead += junkLen;
-            if (contentRead == contentLength) {
-                parserState = parseContent(content, contentLength);
+        ssize_t ret = socketContext->readFromPeer(junk, junkLen);
 
-                delete[] content;
-                content = nullptr;
-                contentRead = 0;
-            }
-        } else {
-            parserState = parsingError(400, "Content to long");
+        if (ret > 0) {
+            if (contentRead + ret <= contentLength) {
+                memcpy(content + contentRead, junk, ret); // NOLINT(clang-analyzer-core.NonNullParamChecker)
 
-            if (content != nullptr) {
-                delete[] content;
-                content = nullptr;
+                contentRead += ret;
+                if (contentRead == contentLength) {
+                    parserState = parseContent(content, contentLength);
+
+                    delete[] content;
+                    content = nullptr;
+                    contentRead = 0;
+                }
+            } else {
+                parserState = parsingError(400, "Content to long");
+
+                if (content != nullptr) {
+                    delete[] content;
+                    content = nullptr;
+                }
             }
         }
 
-        return junkLen;
+        return ret;
     }
 
     enum Parser::HTTPCompliance operator|(const enum Parser::HTTPCompliance& c1, const enum Parser::HTTPCompliance& c2) {

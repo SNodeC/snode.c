@@ -24,6 +24,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cerrno>
 #include <functional>
 #include <sys/types.h> // for ssize_t
 #include <vector>

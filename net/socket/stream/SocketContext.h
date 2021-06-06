@@ -42,6 +42,7 @@ namespace net::socket::stream {
     public:
         void sendToPeer(const char* junk, std::size_t junkLen);
         void sendToPeer(const std::string& data);
+        ssize_t readFromPeer(char* junk, std::size_t junklen);
 
         std::string getLocalAddressAsString() const;
         std::string getRemoteAddressAsString() const;

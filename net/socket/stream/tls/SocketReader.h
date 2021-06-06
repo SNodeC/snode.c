@@ -50,8 +50,6 @@ namespace net::socket::stream::tls {
 
                 switch (sslErr) {
                     case SSL_ERROR_WANT_WRITE:
-                        [[fallthrough]];
-                    case SSL_ERROR_WANT_READ:
                         LOG(INFO) << "SSL/TLS start renegotiation on read";
                         doSSLHandshake(
                             [](void) -> void {
@@ -64,6 +62,10 @@ namespace net::socket::stream::tls {
                                 ssl_log("SSL/TLS renegotiation", sslErr);
                                 setSSLError(sslErr);
                             });
+                        errno = EAGAIN;
+                        break;
+                    case SSL_ERROR_WANT_READ:
+                        ret = 0;
                         errno = EAGAIN;
                         break;
                     case SSL_ERROR_ZERO_RETURN:

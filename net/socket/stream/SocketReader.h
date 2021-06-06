@@ -23,6 +23,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cerrno>
 #include <cstddef> // for std::size_t
 #include <functional>
 
@@ -64,22 +65,26 @@ namespace net::socket::stream {
         virtual ssize_t read(char* junk, std::size_t junkLen) = 0;
 
         void readEvent() override {
-            // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
-            static char junk[MAX_READ_JUNKSIZE];
+            onRead(nullptr, 0);
+        }
 
-            ssize_t ret = read(junk, MAX_READ_JUNKSIZE);
+    protected:
+        ssize_t doRead(char* junk, std::size_t junkLen) {
+            ssize_t ret = read(junk, junkLen);
 
-            if (ret > 0) {
-                onRead(junk, static_cast<std::size_t>(ret));
-            } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
+            if (ret <= 0 && errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
                 ReadEventReceiver::disable();
                 if (markShutdown) {
                     Socket::shutdown(Socket::shutdown::RD);
                 }
                 onError(getError());
+                ret = 0;
             }
+
+            return ret;
         }
 
+    private:
         virtual int getError() = 0;
 
         std::function<void(const char* junk, std::size_t junkLen)> onRead;

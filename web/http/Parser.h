@@ -53,7 +53,7 @@ namespace web::http {
 
     public:
         explicit Parser(net::socket::stream::SocketContext* socketContext,
-                        enum HTTPCompliance compliance = HTTPCompliance::RFC2616 | HTTPCompliance::RFC7230);
+                        const enum HTTPCompliance& compliance = HTTPCompliance::RFC2616 | HTTPCompliance::RFC7230);
 
         virtual ~Parser() = default;
 

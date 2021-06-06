@@ -108,6 +108,10 @@ namespace net::socket::stream {
             enqueue(data.data(), data.size());
         }
 
+        ssize_t doRead(char* junk, std::size_t junkLen) override {
+            return SocketReader::doRead(junk, junkLen);
+        }
+
         void close(bool instantly = false) final {
             SocketReader::disable();
             if (instantly) {

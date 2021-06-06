@@ -39,6 +39,10 @@ namespace net::socket::stream {
         sendToPeer(data.data(), data.length());
     }
 
+    ssize_t SocketContext::readFromPeer(char* junk, std::size_t junklen) {
+        return socketConnection->doRead(junk, junklen);
+    }
+
     std::string SocketContext::getLocalAddressAsString() const {
         return socketConnection->getLocalAddressAsString();
     }
