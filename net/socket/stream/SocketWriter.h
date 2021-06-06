@@ -72,7 +72,8 @@ namespace net::socket::stream {
     private:
         virtual ssize_t write(const char* junk, std::size_t junkLen) = 0;
 
-        void writeEvent() override {
+    protected:
+        void doWrite() {
             ssize_t ret = write(writeBuffer.data(), (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE);
 
             if (ret > 0) {
@@ -93,6 +94,7 @@ namespace net::socket::stream {
             }
         }
 
+    private:
         virtual int getError() = 0;
 
         std::function<void(int errnum)> onError;

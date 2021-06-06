@@ -120,6 +120,10 @@ namespace net::socket::stream {
             socketContext->receiveFromPeer();
         }
 
+        void writeEvent() override {
+            SocketWriter::doWrite();
+        }
+
         void unobserved() override {
             delete this;
         }
