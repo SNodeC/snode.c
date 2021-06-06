@@ -68,7 +68,7 @@ namespace web::http::client {
 
         ~SocketContext() override = default;
 
-        void onReceiveFromPeer(const char* junk, std::size_t junkLen) override;
+        void onReceiveFromPeer() override;
         void sendRequestData(const char* junk, std::size_t junkLen) override;
 
         void onWriteError(int errnum) override;

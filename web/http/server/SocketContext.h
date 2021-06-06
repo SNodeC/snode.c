@@ -80,7 +80,7 @@ namespace web::http::server {
 
         ~SocketContext() override = default;
 
-        void onReceiveFromPeer(const char* junk, std::size_t junkLen) override;
+        void onReceiveFromPeer() override;
         void sendResponseData(const char* junk, std::size_t junkLen) override;
 
     protected:

@@ -42,26 +42,24 @@ namespace net::socket::stream {
     public:
         void sendToPeer(const char* junk, std::size_t junkLen);
         void sendToPeer(const std::string& data);
-        ssize_t readFromPeer(char* junk, std::size_t junklen);
+        std::size_t readFromPeer(char* junk, std::size_t junklen);
+        void close();
 
         std::string getLocalAddressAsString() const;
         std::string getRemoteAddressAsString() const;
-
-        void close();
 
         void switchSocketProtocol(const SocketContextFactory& socketProtocolFactory);
 
         void setTimeout(int timeout);
 
-    protected:
+    private:
         SocketConnectionBase* socketConnection;
 
-    private:
-        virtual void onReceiveFromPeer(const char* junk, std::size_t junkLen) = 0;
+        virtual void onReceiveFromPeer() = 0;
         virtual void onWriteError(int errnum) = 0;
         virtual void onReadError(int errnum) = 0;
 
-        void receiveFromPeer(const char* junk, std::size_t junkLen);
+        void receiveFromPeer();
 
         virtual void onProtocolConnected();
         virtual void onProtocolDisconnected();

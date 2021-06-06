@@ -91,7 +91,7 @@ namespace web::ws {
         void sendFrameData(const char* frame, uint64_t frameLength) override;
 
         /* SocketProtocol */
-        void onReceiveFromPeer(const char* junk, std::size_t junkLen) override;
+        void onReceiveFromPeer() override;
         void onReadError(int errnum) override;
         void onWriteError(int errnum) override;
 

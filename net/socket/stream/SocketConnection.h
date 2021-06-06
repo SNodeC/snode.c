@@ -55,8 +55,8 @@ namespace net::socket::stream {
                          const std::function<void()>& onDisconnect)
             : SocketConnectionBase(socketProtocolFactory)
             , SocketReader(
-                  [&socketContext = this->socketContext](const char* junk, std::size_t junkLen) -> void {
-                      socketContext->receiveFromPeer(junk, junkLen);
+                  [&socketContext = this->socketContext]() -> void {
+                      socketContext->receiveFromPeer();
                   },
                   [&socketContext = this->socketContext](int errnum) -> void {
                       socketContext->onReadError(errnum);
@@ -108,7 +108,7 @@ namespace net::socket::stream {
             enqueue(data.data(), data.size());
         }
 
-        ssize_t doRead(char* junk, std::size_t junkLen) override {
+        std::size_t doRead(char* junk, std::size_t junkLen) override {
             return SocketReader::doRead(junk, junkLen);
         }
 

@@ -112,8 +112,8 @@ namespace web::http::server {
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::onReceiveFromPeer(const char* junk, std::size_t junkLen) {
-        parser.parse(junk, junkLen);
+    void SocketContext<Request, Response>::onReceiveFromPeer() {
+        parser.parse();
     }
 
     template <typename Request, typename Response>
@@ -212,7 +212,7 @@ namespace web::http::server {
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::terminateConnection() {
         if (!connectionTerminated) {
-            socketConnection->getSocketContext()->close();
+            close();
             requestContexts.clear();
             connectionTerminated = true;
         }

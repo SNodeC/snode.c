@@ -94,14 +94,14 @@ int main(int argc, char* argv[]) {
     VLOG(0) << httpRequest;
     VLOG(0) << "----------------------------------";
 
-    requestParser.parse(httpRequest.c_str(), httpRequest.size());
+    requestParser.parse();
     requestParser.reset();
 
     VLOG(0) << "==================================";
     VLOG(0) << httpRequest;
     VLOG(0) << "----------------------------------";
 
-    requestParser.parse(httpRequest.c_str(), httpRequest.size());
+    requestParser.parse();
     requestParser.reset();
 
     client::ResponseParser responseParser(
@@ -151,13 +151,13 @@ int main(int argc, char* argv[]) {
     VLOG(0) << "==================================";
     VLOG(0) << httpResponse;
     VLOG(0) << "----------------------------------";
-    responseParser.parse(httpResponse.c_str(), httpResponse.size());
+    responseParser.parse();
     responseParser.reset();
 
     VLOG(0) << "==================================";
     VLOG(0) << httpResponse;
     VLOG(0) << "----------------------------------";
-    responseParser.parse(httpResponse.c_str(), httpResponse.size());
+    responseParser.parse();
     responseParser.reset();
 
     return 0;

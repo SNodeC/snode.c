@@ -50,7 +50,7 @@ namespace web::http {
         }
     }
 
-    void Parser::parse(const char* junk, std::size_t junkLen) {
+    void Parser::parse() {
         std::size_t consumed = 0;
         bool parsingError = false;
 
@@ -61,13 +61,13 @@ namespace web::http {
                     begin();
                     [[fallthrough]];
                 case ParserState::FIRSTLINE:
-                    consumed = readStartLine(junk + consumed, junkLen - consumed);
+                    consumed = readStartLine();
                     break;
                 case ParserState::HEADER:
-                    consumed = readHeaderLine(junk + consumed, junkLen - consumed);
+                    consumed = readHeaderLine();
                     break;
                 case ParserState::BODY:
-                    consumed = readContent(junk + consumed, junkLen - consumed);
+                    consumed = readContent();
                     break;
                 case ParserState::ERROR:
                     parsingError = true;
@@ -77,9 +77,9 @@ namespace web::http {
         } while (consumed > 0 && !parsingError);
     }
 
-    std::size_t Parser::readStartLine([[maybe_unused]] const char* junk, [[maybe_unused]] std::size_t junkLen) {
+    std::size_t Parser::readStartLine() {
         std::size_t consumed = 0;
-        ssize_t ret = 0;
+        std::size_t ret = 0;
 
         do {
             char ch = 0;
@@ -101,9 +101,9 @@ namespace web::http {
         return consumed;
     }
 
-    std::size_t Parser::readHeaderLine([[maybe_unused]] const char* junk, [[maybe_unused]] std::size_t junkLen) {
+    std::size_t Parser::readHeaderLine() {
         std::size_t consumed = 0;
-        ssize_t ret = 0;
+        std::size_t ret = 0;
 
         do {
             char ch = 0;
@@ -182,7 +182,7 @@ namespace web::http {
         }
     }
 
-    std::size_t Parser::readContent([[maybe_unused]] const char* junk1, [[maybe_unused]] std::size_t junkLen1) {
+    std::size_t Parser::readContent() {
         if (contentRead == 0) {
             content = new char[contentLength];
         }
@@ -190,7 +190,7 @@ namespace web::http {
         char junk[1024];
         std::size_t junkLen = (contentLength - contentRead < 1024) ? contentLength - contentRead : 1024;
 
-        ssize_t ret = socketContext->readFromPeer(junk, junkLen);
+        std::size_t ret = socketContext->readFromPeer(junk, junkLen);
 
         if (ret > 0) {
             if (contentRead + ret <= contentLength) {

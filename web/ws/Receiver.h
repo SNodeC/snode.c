@@ -39,7 +39,7 @@ namespace web::ws {
         Receiver(const Receiver&) = delete;
         Receiver& operator=(const Receiver&) = delete;
 
-        void receive(char* junk, std::size_t junkLen);
+        void receive();
 
     private:
         net::socket::stream::SocketContext* socketContext = nullptr;
@@ -49,11 +49,11 @@ namespace web::ws {
             char keyAsArray[4];
         };
 
-        uint64_t readOpcode(char* junk, uint64_t junkLen);
-        uint64_t readLength(char* junk, uint64_t junkLen);
-        uint64_t readELength(char* junk, uint64_t junkLen);
-        uint64_t readMaskingKey(char* junk, uint64_t junkLen);
-        uint64_t readPayload(char* junk, uint64_t junkLen);
+        std::size_t readOpcode();
+        std::size_t readLength();
+        std::size_t readELength();
+        std::size_t readMaskingKey();
+        std::size_t readPayload();
 
         virtual void onMessageStart(int opCode) = 0;
         virtual void onFrameReceived(const char* junk, uint64_t junkLen) = 0;

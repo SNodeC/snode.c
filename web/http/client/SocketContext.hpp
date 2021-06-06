@@ -74,8 +74,8 @@ namespace web::http::client {
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::onReceiveFromPeer(const char* junk, std::size_t junkLen) {
-        parser.parse(junk, junkLen);
+    void SocketContext<Request, Response>::onReceiveFromPeer() {
+        parser.parse();
     }
 
     template <typename Request, typename Response>
@@ -104,7 +104,7 @@ namespace web::http::client {
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::terminateConnection() {
-        socketConnection->getSocketContext()->close();
+        close();
     }
 
 } // namespace web::http::client

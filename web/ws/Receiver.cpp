@@ -18,6 +18,7 @@
 
 #include "web/ws/Receiver.h"
 
+#include "SocketContext.h"
 #include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -35,31 +36,31 @@ namespace web::ws {
         : socketContext(socketContext) {
     }
 
-    void Receiver::receive(char* junk, std::size_t junkLen) {
-        uint64_t consumed = 0;
+    void Receiver::receive() {
+        std::size_t consumed = 0;
         bool parsingError = false;
 
         // dumpFrame(junk, junkLen);
 
-        while (consumed < junkLen && !parsingError) {
+        do {
             switch (parserState) {
                 case ParserState::BEGIN:
                     parserState = ParserState::OPCODE;
                     [[fallthrough]];
                 case ParserState::OPCODE:
-                    consumed += readOpcode(junk + consumed, junkLen - consumed);
+                    consumed = readOpcode();
                     break;
                 case ParserState::LENGTH:
-                    consumed += readLength(junk + consumed, junkLen - consumed);
+                    consumed = readLength();
                     break;
                 case ParserState::ELENGTH:
-                    consumed += readELength(junk + consumed, junkLen - consumed);
+                    consumed = readELength();
                     break;
                 case ParserState::MASKINGKEY:
-                    consumed += readMaskingKey(junk + consumed, junkLen - consumed);
+                    consumed = readMaskingKey();
                     break;
                 case ParserState::PAYLOAD:
-                    consumed += readPayload(junk + consumed, junkLen - consumed);
+                    consumed = readPayload();
                     break;
                 case ParserState::ERROR:
                     onMessageError(errorState);
@@ -67,15 +68,15 @@ namespace web::ws {
                     reset();
                     break;
             };
-        }
+        } while (consumed > 0 && !parsingError);
     }
 
-    uint64_t Receiver::readOpcode(char* junk, uint64_t junkLen) {
-        uint64_t consumed = 0;
-        if (junkLen > 0) {
-            consumed++;
+    std::size_t Receiver::readOpcode() {
+        char ch = 0;
+        std::size_t consumed = socketContext->readFromPeer(&ch, 1);
 
-            uint8_t opCodeByte = *reinterpret_cast<uint8_t*>(junk);
+        if (consumed > 0) {
+            uint8_t opCodeByte = static_cast<uint8_t>(ch);
 
             fin = opCodeByte & 0b10000000;
             opCode = opCodeByte & 0b00001111;
@@ -96,11 +97,12 @@ namespace web::ws {
         return consumed;
     }
 
-    uint64_t Receiver::readLength(char* junk, uint64_t junkLen) {
-        uint64_t consumed = 0;
+    std::size_t Receiver::readLength() {
+        char ch = 0;
+        std::size_t consumed = socketContext->readFromPeer(&ch, 1);
 
-        if (junkLen > 0) {
-            uint8_t lengthByte = *reinterpret_cast<uint8_t*>(junk);
+        if (consumed > 0) {
+            uint8_t lengthByte = static_cast<uint8_t>(ch);
 
             masked = lengthByte & 0b10000000;
             length = lengthByte & 0b01111111;
@@ -128,18 +130,20 @@ namespace web::ws {
                     reset();
                 }
             }
-            consumed++;
         }
 
         return consumed;
     }
 
-    uint64_t Receiver::readELength(char* junk, uint64_t junkLen) {
-        uint64_t consumed = 0;
+    std::size_t Receiver::readELength() {
+        std::size_t consumed = 0;
 
         elengthNumBytesLeft = (elengthNumBytesLeft == 0) ? elengthNumBytes : elengthNumBytesLeft;
 
-        while (consumed < junkLen && elengthNumBytesLeft > 0) {
+        char junk[8];
+        std::size_t numBytesRead = socketContext->readFromPeer(junk, elengthNumBytesLeft);
+
+        while (numBytesRead - consumed > 0) {
             length |= static_cast<uint64_t>(*reinterpret_cast<unsigned char*>(junk + consumed))
                       << (elengthNumBytes - elengthNumBytesLeft) * 8;
 
@@ -170,12 +174,15 @@ namespace web::ws {
         return consumed;
     }
 
-    uint64_t Receiver::readMaskingKey(char* junk, uint64_t junkLen) {
-        uint64_t consumed = 0;
+    std::size_t Receiver::readMaskingKey() {
+        std::size_t consumed = 0;
 
         maskingKeyNumBytesLeft = (maskingKeyNumBytesLeft == 0) ? maskingKeyNumBytes : maskingKeyNumBytesLeft;
 
-        while (consumed < junkLen && maskingKeyNumBytesLeft > 0) {
+        char junk[4];
+        std::size_t numBytesRead = socketContext->readFromPeer(junk, maskingKeyNumBytesLeft);
+
+        while (numBytesRead - consumed > 0) {
             maskingKey |= static_cast<uint32_t>(*reinterpret_cast<unsigned char*>(junk + consumed))
                           << (maskingKeyNumBytes - maskingKeyNumBytesLeft) * 8;
             consumed++;
@@ -197,22 +204,25 @@ namespace web::ws {
         return consumed;
     }
 
-    uint64_t Receiver::readPayload(char* junk, uint64_t junkLen) {
-        uint64_t consumed = 0;
+    std::size_t Receiver::readPayload() {
+        std::size_t consumed = 0;
 
-        if (junkLen > 0 && length - payloadRead > 0) {
-            uint64_t numBytesToRead = (junkLen <= length - payloadRead) ? junkLen : length - payloadRead;
+        std::size_t numBytesToRead = (1024 <= length - payloadRead) ? 1024 : static_cast<std::size_t>(length - payloadRead);
+        char junk[1024];
 
+        ssize_t numBytesRead = socketContext->readFromPeer(junk, numBytesToRead);
+
+        if (numBytesRead > 0) {
             MaskingKey maskingKeyAsArray = {.key = htobe32(maskingKey)};
 
-            for (uint64_t i = 0; i < numBytesToRead; i++) {
+            for (ssize_t i = 0; i < numBytesRead; i++) {
                 *(junk + i) = *(junk + i) ^ *(maskingKeyAsArray.keyAsArray + (i + payloadRead) % 4);
             }
 
-            onFrameReceived(junk, numBytesToRead);
+            onFrameReceived(junk, numBytesRead);
 
-            payloadRead += numBytesToRead;
-            consumed = numBytesToRead;
+            payloadRead += numBytesRead;
+            consumed = numBytesRead;
         }
 
         if (payloadRead == length) {

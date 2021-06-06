@@ -57,7 +57,7 @@ namespace web::http {
 
         virtual ~Parser() = default;
 
-        void parse(const char* junk, std::size_t junkLen);
+        void parse();
 
     protected:
         // Parser state
@@ -80,10 +80,10 @@ namespace web::http {
     private:
         net::socket::stream::SocketContext* socketContext = nullptr;
 
-        std::size_t readStartLine(const char* junk, std::size_t junkLen);
-        std::size_t readHeaderLine(const char* junk, std::size_t junkLen);
+        std::size_t readStartLine();
+        std::size_t readHeaderLine();
         void splitHeaderLine(const std::string& line);
-        std::size_t readContent(const char* junk, std::size_t junkLen);
+        std::size_t readContent();
 
         // Line state
         bool EOL{false};

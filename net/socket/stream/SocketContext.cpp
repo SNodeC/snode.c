@@ -39,7 +39,7 @@ namespace net::socket::stream {
         sendToPeer(data.data(), data.length());
     }
 
-    ssize_t SocketContext::readFromPeer(char* junk, std::size_t junklen) {
+    std::size_t SocketContext::readFromPeer(char* junk, std::size_t junklen) {
         return socketConnection->doRead(junk, junklen);
     }
 
@@ -61,8 +61,8 @@ namespace net::socket::stream {
         markedForDelete = true;
     }
 
-    void SocketContext::receiveFromPeer(const char* junk, std::size_t junkLen) {
-        onReceiveFromPeer(junk, junkLen);
+    void SocketContext::receiveFromPeer() {
+        onReceiveFromPeer();
 
         if (markedForDelete) {
             delete this;

@@ -102,7 +102,7 @@ namespace web::ws {
                 close(pongCloseData.data(), pongCloseData.length());
                 pongCloseData.clear();
             }
-            net::socket::stream::SocketContext::socketConnection->getSocketContext()->close();
+            close();
         } else if (pingReceived) {
             pingReceived = false;
             replyPong(pongCloseData.data(), pongCloseData.length());
@@ -210,8 +210,8 @@ namespace web::ws {
         }
     }
 
-    void SocketContext::onReceiveFromPeer(const char* junk, std::size_t junkLen) {
-        Receiver::receive(const_cast<char*>(junk), junkLen);
+    void SocketContext::onReceiveFromPeer() {
+        Receiver::receive();
     }
 
     void SocketContext::onReadError(int errnum) {

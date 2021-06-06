@@ -52,7 +52,7 @@ namespace net::socket::stream {
         virtual void enqueue(const char* junk, std::size_t junkLen) = 0;
         virtual void enqueue(const std::string& data) = 0;
 
-        virtual ssize_t doRead(char* junk, std::size_t junkLen) = 0;
+        virtual std::size_t doRead(char* junk, std::size_t junkLen) = 0;
 
         virtual void close(bool instantly = false) = 0;
 
