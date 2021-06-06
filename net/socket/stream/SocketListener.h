@@ -123,7 +123,7 @@ namespace net::socket::stream {
 
                 if (net::system::getsockname(fd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
                     SocketConnection* socketConnection = new SocketConnection(
-                        socketProtocolFactory, fd, SocketAddress(localAddress), SocketAddress(remoteAddress), onConnect, onDisconnect);
+                        fd, socketProtocolFactory, SocketAddress(localAddress), SocketAddress(remoteAddress), onConnect, onDisconnect);
 
                     onConnected(socketConnection);
                 } else {

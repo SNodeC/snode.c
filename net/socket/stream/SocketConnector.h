@@ -116,8 +116,8 @@ namespace net::socket::stream {
                                 0 &&
                             net::system::getpeername(Socket::getFd(), reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) ==
                                 0) {
-                            socketConnection = new SocketConnection(socketProtocolFactory,
-                                                                    Socket::getFd(),
+                            socketConnection = new SocketConnection(Socket::getFd(),
+                                                                    socketProtocolFactory,
                                                                     SocketAddress(localAddress),
                                                                     SocketAddress(remoteAddress),
                                                                     onConnect,

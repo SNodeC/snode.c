@@ -39,14 +39,14 @@ namespace net::socket::stream::legacy {
         using SocketAddress = typename Socket::SocketAddress;
 
     public:
-        SocketConnection(const std::shared_ptr<const SocketContextFactory>& socketProtocolFactory,
-                         int fd,
+        SocketConnection(int fd,
+                         const std::shared_ptr<const SocketContextFactory>& socketProtocolFactory,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
                          const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
                          const std::function<void(SocketConnection* socketConnection)>& onDisconnect)
             : stream::SocketConnection<legacy::SocketReader<Socket>, legacy::SocketWriter<Socket>, typename Socket::SocketAddress>::
-                  SocketConnection(socketProtocolFactory, fd, localAddress, remoteAddress, onConnect, [onDisconnect, this]() -> void {
+                  SocketConnection(fd, socketProtocolFactory, localAddress, remoteAddress, onConnect, [onDisconnect, this]() -> void {
                       onDisconnect(this);
                   }) {
         }
