@@ -68,15 +68,15 @@ namespace web::ws {
                     reset();
                     break;
             };
-        } while (consumed > 0 && !parsingError);
+        } while (consumed > 0 && !parsingError && parserState != ParserState::BEGIN);
     }
 
     std::size_t Receiver::readOpcode() {
-        char ch = 0;
-        std::size_t consumed = socketContext->readFromPeer(&ch, 1);
+        char byte = 0;
+        std::size_t consumed = socketContext->readFromPeer(&byte, 1);
 
         if (consumed > 0) {
-            uint8_t opCodeByte = static_cast<uint8_t>(ch);
+            uint8_t opCodeByte = static_cast<uint8_t>(byte);
 
             fin = opCodeByte & 0b10000000;
             opCode = opCodeByte & 0b00001111;
@@ -98,11 +98,11 @@ namespace web::ws {
     }
 
     std::size_t Receiver::readLength() {
-        char ch = 0;
-        std::size_t consumed = socketContext->readFromPeer(&ch, 1);
+        char byte = 0;
+        std::size_t consumed = socketContext->readFromPeer(&byte, 1);
 
         if (consumed > 0) {
-            uint8_t lengthByte = static_cast<uint8_t>(ch);
+            uint8_t lengthByte = static_cast<uint8_t>(byte);
 
             masked = lengthByte & 0b10000000;
             length = lengthByte & 0b01111111;
@@ -140,11 +140,10 @@ namespace web::ws {
 
         elengthNumBytesLeft = (elengthNumBytesLeft == 0) ? elengthNumBytes : elengthNumBytesLeft;
 
-        char junk[8];
-        std::size_t numBytesRead = socketContext->readFromPeer(junk, elengthNumBytesLeft);
+        std::size_t elengthJunkLen = socketContext->readFromPeer(elengthJunk, elengthNumBytesLeft);
 
-        while (numBytesRead - consumed > 0) {
-            length |= static_cast<uint64_t>(*reinterpret_cast<unsigned char*>(junk + consumed))
+        while (elengthJunkLen - consumed > 0) {
+            length |= static_cast<uint64_t>(*reinterpret_cast<unsigned char*>(elengthJunk + consumed))
                       << (elengthNumBytes - elengthNumBytesLeft) * 8;
 
             consumed++;
@@ -179,11 +178,10 @@ namespace web::ws {
 
         maskingKeyNumBytesLeft = (maskingKeyNumBytesLeft == 0) ? maskingKeyNumBytes : maskingKeyNumBytesLeft;
 
-        char junk[4];
-        std::size_t numBytesRead = socketContext->readFromPeer(junk, maskingKeyNumBytesLeft);
+        std::size_t maskingKeyJunkLen = socketContext->readFromPeer(maskingKeyJunk, maskingKeyNumBytesLeft);
 
-        while (numBytesRead - consumed > 0) {
-            maskingKey |= static_cast<uint32_t>(*reinterpret_cast<unsigned char*>(junk + consumed))
+        while (maskingKeyJunkLen - consumed > 0) {
+            maskingKey |= static_cast<uint32_t>(*reinterpret_cast<unsigned char*>(maskingKeyJunk + consumed))
                           << (maskingKeyNumBytes - maskingKeyNumBytesLeft) * 8;
             consumed++;
             maskingKeyNumBytesLeft--;
@@ -207,23 +205,22 @@ namespace web::ws {
     std::size_t Receiver::readPayload() {
         std::size_t consumed = 0;
 
-        std::size_t numBytesToRead =
-            (1024 <= length - payloadRead) ? static_cast<std::size_t>(1024) : static_cast<std::size_t>(length - payloadRead);
-        char junk[1024];
+        std::size_t payloadJunkLen = (MAX_PAYLOAD_JUNK_LEN <= length - payloadRead) ? static_cast<std::size_t>(MAX_PAYLOAD_JUNK_LEN)
+                                                                                    : static_cast<std::size_t>(length - payloadRead);
 
-        ssize_t numBytesRead = socketContext->readFromPeer(junk, numBytesToRead);
+        payloadJunkLen = socketContext->readFromPeer(payloadJunk, payloadJunkLen);
 
-        if (numBytesRead > 0) {
+        if (payloadJunkLen > 0) {
             MaskingKey maskingKeyAsArray = {.key = htobe32(maskingKey)};
 
-            for (ssize_t i = 0; i < numBytesRead; i++) {
-                *(junk + i) = *(junk + i) ^ *(maskingKeyAsArray.keyAsArray + (i + payloadRead) % 4);
+            for (std::size_t i = 0; i < payloadJunkLen; i++) {
+                *(payloadJunk + i) = *(payloadJunk + i) ^ *(maskingKeyAsArray.keyAsArray + (i + payloadRead) % 4);
             }
 
-            onFrameReceived(junk, numBytesRead);
+            onFrameReceived(payloadJunk, payloadJunkLen);
 
-            payloadRead += numBytesRead;
-            consumed = numBytesRead;
+            payloadRead += payloadJunkLen;
+            consumed = payloadJunkLen;
         }
 
         if (payloadRead == length) {

@@ -29,10 +29,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#ifndef MAX_READ_JUNKSIZE
-#define MAX_READ_JUNKSIZE 16384
-#endif
-
 namespace net::socket::stream {
 
     template <typename SocketT>

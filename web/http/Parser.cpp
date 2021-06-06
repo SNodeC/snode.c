@@ -74,7 +74,7 @@ namespace web::http {
                     reset();
                     break;
             };
-        } while (consumed > 0 && !parsingError);
+        } while (consumed > 0 && !parsingError && parserState != ParserState::BEGIN);
     }
 
     std::size_t Parser::readStartLine() {
@@ -187,16 +187,16 @@ namespace web::http {
             content = new char[contentLength];
         }
 
-        char junk[1024];
-        std::size_t junkLen = (contentLength - contentRead < 1024) ? contentLength - contentRead : 1024;
+        std::size_t contentJunkLen =
+            (contentLength - contentRead < MAX_CONTENT_JUNK_LEN) ? contentLength - contentRead : MAX_CONTENT_JUNK_LEN;
 
-        std::size_t ret = socketContext->readFromPeer(junk, junkLen);
+        contentJunkLen = socketContext->readFromPeer(contentJunk, contentJunkLen);
 
-        if (ret > 0) {
-            if (contentRead + ret <= contentLength) {
-                memcpy(content + contentRead, junk, ret); // NOLINT(clang-analyzer-core.NonNullParamChecker)
+        if (contentJunkLen > 0) {
+            if (contentRead + contentJunkLen <= contentLength) {
+                memcpy(content + contentRead, contentJunk, contentJunkLen); // NOLINT(clang-analyzer-core.NonNullParamChecker)
 
-                contentRead += ret;
+                contentRead += contentJunkLen;
                 if (contentRead == contentLength) {
                     parserState = parseContent(content, contentLength);
 
@@ -214,7 +214,7 @@ namespace web::http {
             }
         }
 
-        return ret;
+        return contentJunkLen;
     }
 
     enum Parser::HTTPCompliance operator|(const enum Parser::HTTPCompliance& c1, const enum Parser::HTTPCompliance& c2) {

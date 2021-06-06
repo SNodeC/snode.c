@@ -30,6 +30,10 @@ namespace net::socket::stream {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#ifndef MAX_PAYLOAD_JUNK_LEN
+#define MAX_PAYLOAD_JUNK_LEN 16384
+#endif
+
 namespace web::ws {
 
     class Receiver {
@@ -84,6 +88,10 @@ namespace web::ws {
         uint64_t payloadRead = 0;
 
         uint16_t errorState = 0;
+
+        char elengthJunk[8];
+        char maskingKeyJunk[4];
+        char payloadJunk[MAX_PAYLOAD_JUNK_LEN];
     };
 
 } // namespace web::ws
