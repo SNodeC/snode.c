@@ -35,7 +35,7 @@ namespace express {
     protected:
         WebApp(const Router& router);
 
-        virtual void listen(uint16_t port, const std::function<void(int err)>& onError = nullptr) = 0;
+        virtual void listen(uint16_t port, const std::function<void(int)>& onError = nullptr) = 0;
         virtual void listen(const std::string& host, uint16_t port, const std::function<void(int err)>& onError = nullptr) = 0;
 
     public:

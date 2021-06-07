@@ -38,13 +38,13 @@ namespace net::socket::stream::tls {
         static void doHandshake(SSL* ssl,
                                 const std::function<void(void)>& onSuccess,
                                 const std::function<void(void)>& onTimeout,
-                                const std::function<void(int err)>& onError);
+                                const std::function<void(int)>& onError);
 
     private:
         TLSHandshake(SSL* ssl,
                      const std::function<void(void)>& onSuccess,
                      const std::function<void(void)>& onTimeout,
-                     const std::function<void(int err)>& onError);
+                     const std::function<void(int)>& onError);
 
         void readEvent() override;
         void writeEvent() override;
@@ -54,7 +54,7 @@ namespace net::socket::stream::tls {
         SSL* ssl = nullptr;
         std::function<void(void)> onSuccess;
         std::function<void(void)> onTimeout;
-        std::function<void(int err)> onError;
+        std::function<void(int)> onError;
 
         int fd = -1;
     };

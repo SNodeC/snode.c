@@ -44,9 +44,9 @@ namespace net::socket::stream {
         using SocketConnection = typename SocketListener::SocketConnection;
         using SocketAddress = typename SocketConnection::Socket::SocketAddress;
 
-        SocketServer(const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
-                     const std::function<void(SocketConnection* socketConnection)>& onConnected,
-                     const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
+        SocketServer(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
+                     const std::function<void(SocketConnection*)>& onConnected,
+                     const std::function<void(SocketConnection*)>& onDisconnect,
                      const std::map<std::string, std::any>& options = {{}})
             : socketContextFactory(std::make_shared<SocketContextFactory>())
             , _onConnect(onConnect)
@@ -57,7 +57,7 @@ namespace net::socket::stream {
 
         virtual ~SocketServer() = default;
 
-        void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int err)>& onError) const {
+        void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const {
             SocketListener* socketListener = new SocketListener(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
 
             socketListener->listen(bindAddress, backlog, onError);
@@ -83,9 +83,9 @@ namespace net::socket::stream {
         std::shared_ptr<SocketContextFactory> socketContextFactory;
 
     private:
-        std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)> _onConnect;
-        std::function<void(SocketConnection* socketConnection)> _onConnected;
-        std::function<void(SocketConnection* socketConnection)> _onDisconnect;
+        std::function<void(const SocketAddress&, const SocketAddress&)> _onConnect;
+        std::function<void(SocketConnection*)> _onConnected;
+        std::function<void(SocketConnection*)> _onDisconnect;
 
         std::map<std::string, std::any> options;
     };

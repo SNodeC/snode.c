@@ -46,9 +46,9 @@ namespace net::socket::stream {
             using SocketAddress = typename Socket::SocketAddress;
 
             SocketListener(const std::shared_ptr<const SocketContextFactory>& socketContextFactory,
-                           const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
-                           const std::function<void(SocketConnection* socketConnection)>& onConnected,
-                           const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
+                           const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
+                           const std::function<void(SocketConnection*)>& onConnected,
+                           const std::function<void(SocketConnection*)>& onDisconnect,
                            const std::map<std::string, std::any>& options)
                 : stream::SocketListener<SocketConnection>(
                       socketContextFactory,
@@ -92,7 +92,7 @@ namespace net::socket::stream {
                 ssl_ctx_free(ctx);
             }
 
-            void listen(const SocketAddress& localAddress, int backlog, const std::function<void(int err)>& onError) {
+            void listen(const SocketAddress& localAddress, int backlog, const std::function<void(int)>& onError) {
                 if (ctx == nullptr) {
                     errno = EINVAL;
                     onError(errno);

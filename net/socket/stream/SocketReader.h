@@ -41,7 +41,7 @@ namespace net::socket::stream {
         using Socket = SocketT;
 
     protected:
-        explicit SocketReader(const std::function<void(int errnum)>& onError)
+        explicit SocketReader(const std::function<void(int)>& onError)
             : onError(onError) {
         }
 
@@ -84,7 +84,7 @@ namespace net::socket::stream {
     private:
         virtual int getError() = 0;
 
-        std::function<void(int errnum)> onError;
+        std::function<void(int)> onError;
 
         bool markShutdown = false;
     };

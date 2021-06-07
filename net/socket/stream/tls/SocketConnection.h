@@ -45,8 +45,8 @@ namespace net::socket::stream::tls {
                          const std::shared_ptr<const SocketContextFactory>& socketContextFactory,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
-                         const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
-                         const std::function<void(SocketConnection* socketConnection)>& onDisconnect)
+                         const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
+                         const std::function<void(SocketConnection*)>& onDisconnect)
             : stream::SocketConnection<tls::SocketReader<Socket>, tls::SocketWriter<Socket>, typename Socket::SocketAddress>::
                   SocketConnection(fd, socketContextFactory, localAddress, remoteAddress, onConnect, [onDisconnect, this]() -> void {
                       onDisconnect(this);
@@ -74,7 +74,7 @@ namespace net::socket::stream::tls {
 
         void doSSLHandshake(const std::function<void()>& onSuccess,
                             const std::function<void()>& onTimeout,
-                            const std::function<void(int sslErr)>& onError) override {
+                            const std::function<void(int)>& onError) override {
             SocketConnection::SocketReader::suspend();
             SocketConnection::SocketWriter::suspend();
 

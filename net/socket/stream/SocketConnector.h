@@ -53,9 +53,9 @@ namespace net::socket::stream {
         using SocketAddress = typename Socket::SocketAddress;
 
         SocketConnector(const std::shared_ptr<const SocketContextFactory>& socketProtocolFactory,
-                        const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
-                        const std::function<void(SocketConnection* socketConnection)>& onConnected,
-                        const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
+                        const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
+                        const std::function<void(SocketConnection*)>& onConnected,
+                        const std::function<void(SocketConnection*)>& onDisconnect,
                         const std::map<std::string, std::any>& options)
             : socketProtocolFactory(socketProtocolFactory)
             , options(options)
@@ -66,7 +66,7 @@ namespace net::socket::stream {
 
         virtual ~SocketConnector() = default;
 
-        void connect(const SocketAddress& remoteAddress, const SocketAddress& bindAddress, const std::function<void(int err)>& onError) {
+        void connect(const SocketAddress& remoteAddress, const SocketAddress& bindAddress, const std::function<void(int)>& onError) {
             this->onError = onError;
 
             Socket::open(
@@ -163,10 +163,10 @@ namespace net::socket::stream {
         std::map<std::string, std::any> options;
 
     private:
-        std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)> onConnect;
-        std::function<void(SocketConnection* socketConnection)> onDestruct;
-        std::function<void(SocketConnection* socketConnection)> onConnected;
-        std::function<void(SocketConnection* socketConnection)> onDisconnect;
+        std::function<void(const SocketAddress&, const SocketAddress&)> onConnect;
+        std::function<void(SocketConnection*)> onDestruct;
+        std::function<void(SocketConnection*)> onConnected;
+        std::function<void(SocketConnection*)> onDisconnect;
 
         SocketConnection* socketConnection = nullptr;
     };

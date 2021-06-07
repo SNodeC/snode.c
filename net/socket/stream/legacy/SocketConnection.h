@@ -43,8 +43,8 @@ namespace net::socket::stream::legacy {
                          const std::shared_ptr<const SocketContextFactory>& socketProtocolFactory,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
-                         const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
-                         const std::function<void(SocketConnection* socketConnection)>& onDisconnect)
+                         const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
+                         const std::function<void(SocketConnection*)>& onDisconnect)
             : stream::SocketConnection<legacy::SocketReader<Socket>, legacy::SocketWriter<Socket>, typename Socket::SocketAddress>::
                   SocketConnection(fd, socketProtocolFactory, localAddress, remoteAddress, onConnect, [onDisconnect, this]() -> void {
                       onDisconnect(this);
@@ -52,7 +52,7 @@ namespace net::socket::stream::legacy {
         }
 
     private:
-        std::function<void(SocketConnection* socketConnection)> onDestruct;
+        std::function<void(SocketConnection*)> onDestruct;
     };
 
 } // namespace net::socket::stream::legacy

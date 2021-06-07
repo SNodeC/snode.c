@@ -108,7 +108,7 @@ namespace net::socket::stream::tls {
     protected:
         virtual void doSSLHandshake(const std::function<void()>& onSuccess,
                                     const std::function<void()>& onTimeout,
-                                    const std::function<void(int sslErr)>& onError) = 0;
+                                    const std::function<void(int)>& onError) = 0;
 
         void setSSLError(int sslErr) {
             this->sslErr = sslErr;

@@ -51,9 +51,9 @@ namespace net::socket::stream {
         using SocketAddress = typename Socket::SocketAddress;
 
         SocketListener(const std::shared_ptr<const SocketContextFactory>& socketProtocolFactory,
-                       const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
-                       const std::function<void(SocketConnection* socketConnection)>& onConnected,
-                       const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
+                       const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
+                       const std::function<void(SocketConnection*)>& onConnected,
+                       const std::function<void(SocketConnection*)>& onDisconnect,
                        const std::map<std::string, std::any>& options)
             : socketProtocolFactory(socketProtocolFactory)
             , options(options)
@@ -64,7 +64,7 @@ namespace net::socket::stream {
 
         virtual ~SocketListener() = default;
 
-        void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int err)>& onError) {
+        void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) {
             Socket::open([this, &bindAddress, &backlog, &onError](int errnum) -> void {
                 if (errnum > 0) {
                     onError(errnum);
@@ -98,7 +98,7 @@ namespace net::socket::stream {
         }
 
     private:
-        void reuseAddress(const std::function<void(int errnum)>& onError) {
+        void reuseAddress(const std::function<void(int)>& onError) {
             int sockopt = 1;
 
             if (net::system::setsockopt(Socket::getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
@@ -155,10 +155,10 @@ namespace net::socket::stream {
     protected:
         std::map<std::string, std::any> options;
 
-        std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)> onConnect;
-        std::function<void(SocketConnection* socketConnection)> onDestruct;
-        std::function<void(SocketConnection* socketConnection)> onConnected;
-        std::function<void(SocketConnection* socketConnection)> onDisconnect;
+        std::function<void(const SocketAddress&, const SocketAddress&)> onConnect;
+        std::function<void(SocketConnection*)> onDestruct;
+        std::function<void(SocketConnection*)> onConnected;
+        std::function<void(SocketConnection*)> onDisconnect;
     };
 
 } // namespace net::socket::stream

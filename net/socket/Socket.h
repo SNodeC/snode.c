@@ -51,7 +51,7 @@ namespace net::socket {
         virtual int create(int flags) = 0;
 
     public:
-        void open(const std::function<void(int errnum)>& onError, int flags = 0) {
+        void open(const std::function<void(int)>& onError, int flags = 0) {
             int fd = create(flags);
 
             if (fd >= 0) {
@@ -62,7 +62,7 @@ namespace net::socket {
             }
         }
 
-        void bind(const SocketAddress& bindAddress, const std::function<void(int errnum)>& onError) {
+        void bind(const SocketAddress& bindAddress, const std::function<void(int)>& onError) {
             int ret = net::system::bind(getFd(), &bindAddress.getSockAddr(), sizeof(typename SocketAddress::SockAddr));
 
             if (ret < 0) {
