@@ -45,13 +45,13 @@ namespace net::socket::stream {
             using Socket = typename SocketConnection::Socket;
             using SocketAddress = typename Socket::SocketAddress;
 
-            SocketListener(const std::shared_ptr<const SocketContextFactory>& socketProtocolFactory,
+            SocketListener(const std::shared_ptr<const SocketContextFactory>& socketContextFactory,
                            const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
                            const std::function<void(SocketConnection* socketConnection)>& onConnected,
                            const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
                            const std::map<std::string, std::any>& options)
                 : stream::SocketListener<SocketConnection>(
-                      socketProtocolFactory,
+                      socketContextFactory,
                       onConnect,
                       [onConnected, &ctx = this->ctx](SocketConnection* socketConnection) -> void {
                           SSL* ssl = socketConnection->startSSL(ctx);

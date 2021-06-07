@@ -46,13 +46,13 @@ namespace net::socket::stream {
             using Socket = typename SocketConnection::Socket;
             using SocketAddress = typename Socket::SocketAddress;
 
-            SocketConnector(const std::shared_ptr<const SocketContextFactory>& socketProtocolFactory,
+            SocketConnector(const std::shared_ptr<const SocketContextFactory>& socketContextFactory,
                             const std::function<void(const SocketAddress& localAddress, const SocketAddress& remoteAddress)>& onConnect,
                             const std::function<void(SocketConnection* socketConnection)>& onConnected,
                             const std::function<void(SocketConnection* socketConnection)>& onDisconnect,
                             const std::map<std::string, std::any>& options)
                 : stream::SocketConnector<SocketConnection>(
-                      socketProtocolFactory,
+                      socketContextFactory,
                       onConnect,
                       [onConnected, &onError = this->onError, &ctx = this->ctx, &options = this->options](
                           SocketConnection* socketConnection) -> void { // onConnect

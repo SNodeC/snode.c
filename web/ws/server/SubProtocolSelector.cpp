@@ -36,14 +36,14 @@ namespace web::ws::server {
     }
 
     web::ws::server::SubProtocolInterface* SubProtocolSelector::select(const std::string& subProtocolName) {
-        SubProtocolInterface* subProtocolPluginInterface = nullptr;
+        SubProtocolInterface* subProtocolInterface = nullptr;
 
         if (serverSubprotocols.contains(subProtocolName)) {
-            subProtocolPluginInterface =
+            subProtocolInterface =
                 static_cast<SubProtocolInterface*>(serverSubprotocols.find(subProtocolName)->second.subprotocolPluginInterface);
         }
 
-        return subProtocolPluginInterface;
+        return subProtocolInterface;
     }
 
 } // namespace web::ws::server
