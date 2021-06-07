@@ -18,16 +18,17 @@
 
 #include "SubProtocolSelector.h"
 
-#include "SubProtocolInterface.h" // for WSSubPr...
 #include "log/Logger.h"
 #include "web/config.h" // IWYU pragma: keep
 #include "web/ws/SubProtocol.h"
+#include "web/ws/SubProtocolInterface.h" // for WSSubPr...
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <dlfcn.h>
 #include <filesystem>
-#include <sstream> // for basic_stringbuf<>::int_type, basic_st...
+#include <sstream>     // for basic_stringbuf<>::int_type, basic_st...
+#include <type_traits> // for add_const<>::type
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
