@@ -76,7 +76,7 @@ namespace web::http::server {
         };
 
         SocketContext(net::socket::stream::SocketConnectionBase* socketConnection,
-                      const std::function<void(Request& req, Response& res)>& onRequestReady);
+                      const std::function<void(Request&, Response&)>& onRequestReady);
 
         ~SocketContext() override = default;
 

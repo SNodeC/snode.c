@@ -29,7 +29,7 @@ namespace web::http::server {
 
         Server(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
-               const std::function<void(Request& req, Response& res)>& onRequestReady,
+               const std::function<void(Request&, Response&)>& onRequestReady,
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
             : socketServer(
@@ -47,11 +47,11 @@ namespace web::http::server {
             socketServer.getSocketContextFactory()->setOnRequestReady(onRequestReady); //.setOnRequestReady(onRequestReady);
         }
 
-        void listen(uint16_t port, const std::function<void(int err)>& onError) const {
+        void listen(uint16_t port, const std::function<void(int)>& onError) const {
             socketServer.listen(SocketAddress(port), 5, onError);
         }
 
-        void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(int err)>& onError) const {
+        void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) const {
             socketServer.listen(SocketAddress(ipOrHostname, port), 5, onError);
         }
 
@@ -70,7 +70,7 @@ namespace web::http::server {
     protected:
         SocketServer socketServer;
 
-        std::function<void(Request& req, Response& res)> onRequestReady;
+        std::function<void(Request&, Response&)> onRequestReady;
     };
 
 } // namespace web::http::server

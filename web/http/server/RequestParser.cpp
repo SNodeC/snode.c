@@ -39,7 +39,7 @@ namespace web::http::server {
         const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>& onHeader,
         const std::function<void(char*, std::size_t)>& onContent,
         const std::function<void()>& onParsed,
-        const std::function<void(int status, const std::string& reason)>& onError)
+        const std::function<void(int, const std::string&)>& onError)
         : Parser(socketContext)
         , onStart(onStart)
         , onRequest(onRequest)

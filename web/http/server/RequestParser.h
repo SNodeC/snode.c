@@ -48,7 +48,7 @@ namespace web::http::server {
             const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>& onHeader,
             const std::function<void(char*, std::size_t)>& onContent,
             const std::function<void()>& onParsed,
-            const std::function<void(int status, const std::string& reason)>& onError);
+            const std::function<void(int, const std::string&)>& onError);
 
         RequestParser(const RequestParser&) = delete;
         RequestParser& operator=(const RequestParser&) = delete;
@@ -90,7 +90,7 @@ namespace web::http::server {
         std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)> onHeader;
         std::function<void(char*, std::size_t)> onContent;
         std::function<void()> onParsed;
-        std::function<void(int status, const std::string& reason)> onError;
+        std::function<void(int, const std::string&)> onError;
     };
 
 } // namespace web::http::server

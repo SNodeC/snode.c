@@ -46,12 +46,12 @@ namespace web::http::server {
         }
 
     public:
-        void setOnRequestReady(const std::function<void(Request& req, Response& res)>& onRequestReady) {
+        void setOnRequestReady(const std::function<void(Request&, Response&)>& onRequestReady) {
             this->onRequestReady = onRequestReady;
         }
 
     private:
-        std::function<void(Request& req, Response& res)> onRequestReady;
+        std::function<void(Request&, Response&)> onRequestReady;
     };
 
 } // namespace web::http::server

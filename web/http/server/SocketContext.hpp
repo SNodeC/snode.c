@@ -31,7 +31,7 @@ namespace web::http::server {
 
     template <typename Request, typename Response>
     SocketContext<Request, Response>::SocketContext(net::socket::stream::SocketConnectionBase* socketConnection,
-                                                    const std::function<void(Request& req, Response& res)>& onRequestReady)
+                                                    const std::function<void(Request&, Response&)>& onRequestReady)
         : SocketContextBase(socketConnection)
         , onRequestReady(onRequestReady)
         , parser(

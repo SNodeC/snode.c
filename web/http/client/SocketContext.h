@@ -62,7 +62,7 @@ namespace web::http::client {
 
         SocketContext(net::socket::stream::SocketConnectionBase* socketConnection,
                       const std::function<void(Response&)>& onResponse,
-                      const std::function<void(int status, const std::string& reason)>& onError);
+                      const std::function<void(int, const std::string&)>& onError);
 
         ~SocketContext() override = default;
 

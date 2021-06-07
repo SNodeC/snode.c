@@ -46,7 +46,7 @@ namespace web::http::client {
                                                 const std::map<std::string, web::http::CookieOptions>&)>& onHeader,
                        const std::function<void(char*, std::size_t)>& onContent,
                        const std::function<void(ResponseParser&)>& onParsed,
-                       const std::function<void(int status, const std::string& reason)>& onError);
+                       const std::function<void(int, const std::string&)>& onError);
 
         // Entrence
         void begin() override;
@@ -71,7 +71,7 @@ namespace web::http::client {
         std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, web::http::CookieOptions>&)> onHeader;
         std::function<void(char*, std::size_t)> onContent;
         std::function<void(ResponseParser&)> onParsed;
-        std::function<void(int status, const std::string& reason)> onError;
+        std::function<void(int, const std::string&)> onError;
     };
 
 } // namespace web::http::client

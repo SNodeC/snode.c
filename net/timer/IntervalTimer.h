@@ -31,14 +31,14 @@ namespace net::timer {
         IntervalTimer& operator=(const IntervalTimer& timer) = delete;
 
     public:
-        IntervalTimer(const std::function<void(const void* arg, const std::function<void()>& stop)>& dispatcher,
+        IntervalTimer(const std::function<void(const void*, const std::function<void()>&)>& dispatcher,
                       const struct timeval& timeout,
                       const void* arg)
             : Timer(timeout, arg)
             , dispatcherS(dispatcher) {
         }
 
-        IntervalTimer(const std::function<void(const void* arg)>& dispatcher, const struct timeval& timeout, const void* arg)
+        IntervalTimer(const std::function<void(const void*)>& dispatcher, const struct timeval& timeout, const void* arg)
             : Timer(timeout, arg)
             , dispatcherC(dispatcher) {
         }
@@ -66,8 +66,8 @@ namespace net::timer {
         }
 
     private:
-        std::function<void(const void* arg, const std::function<void()>& stop)> dispatcherS = nullptr;
-        std::function<void(const void* arg)> dispatcherC = nullptr;
+        std::function<void(const void*, const std::function<void()>&)> dispatcherS = nullptr;
+        std::function<void(const void*)> dispatcherC = nullptr;
     };
 
 } // namespace net::timer

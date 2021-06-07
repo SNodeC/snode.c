@@ -103,7 +103,7 @@ namespace utils {
         }
 
         template <InjectableAttribute Attribute>
-        constexpr bool getAttribute(const std::function<void(Attribute& attribute)>& onFound) const {
+        constexpr bool getAttribute(const std::function<void(Attribute&)>& onFound) const {
             bool found = false;
 
             if (attribute != nullptr && attributeType == typeid(Attribute).name()) {
@@ -114,7 +114,7 @@ namespace utils {
         }
 
         template <InjectableAttribute Attribute>
-        constexpr void getAttribute(const std::function<void(Attribute& attribute)>& onFound,
+        constexpr void getAttribute(const std::function<void(Attribute&)>& onFound,
                                     const std::function<void(const std::string&)>& onNotFound) const {
             if (attribute != nullptr && attributeType == typeid(Attribute).name()) {
                 onFound(**std::static_pointer_cast<AttributeProxy<Attribute>>(attribute));

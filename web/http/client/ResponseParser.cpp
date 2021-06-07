@@ -39,7 +39,7 @@ namespace web::http::client {
         const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, CookieOptions>&)>& onHeader,
         const std::function<void(char*, std::size_t)>& onContent,
         const std::function<void(ResponseParser&)>& onParsed,
-        const std::function<void(int status, const std::string& reason)>& onError)
+        const std::function<void(int, const std::string&)>& onError)
         : Parser(socketContext)
         , onStart(onStart)
         , onResponse(onResponse)

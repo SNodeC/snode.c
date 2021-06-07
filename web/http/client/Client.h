@@ -73,7 +73,7 @@ namespace web::http::client {
             socketClient.getSocketContextFactory()->setOnRequestError(onResponseError);
         }
 
-        void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(int err)>& onError) {
+        void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
             socketClient.connect(SocketAddress(ipOrHostname, port), onError);
         }
 
