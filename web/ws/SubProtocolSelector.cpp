@@ -38,18 +38,18 @@ namespace web::ws {
     }
 
     SubProtocolSelector::~SubProtocolSelector() {
-        for (auto& [name, subProtocol] : serverSubprotocols) {
-            if (subProtocol.handle != nullptr) {
-                dlclose(subProtocol.handle);
+        for (const auto& [name, subProtocolPlugin] : serverSubprotocols) {
+            if (subProtocolPlugin.handle != nullptr) {
+                dlclose(subProtocolPlugin.handle);
             }
-            delete subProtocol.subprotocolPluginInterface;
+            delete subProtocolPlugin.subprotocolPluginInterface;
         }
 
-        for (auto& [name, subProtocol] : clientSubprotocols) {
-            if (subProtocol.handle != nullptr) {
-                dlclose(subProtocol.handle);
+        for (const auto& [name, subProtocolPlugin] : clientSubprotocols) {
+            if (subProtocolPlugin.handle != nullptr) {
+                dlclose(subProtocolPlugin.handle);
             }
-            delete subProtocol.subprotocolPluginInterface;
+            delete subProtocolPlugin.subprotocolPluginInterface;
         }
     }
 
@@ -67,21 +67,21 @@ namespace web::ws {
         registerSubProtocol(subProtocolPluginInterface, nullptr);
     }
 
-    void SubProtocolSelector::registerSubProtocol(SubProtocolInterface* subProtocolPluginInterface, void* handle) {
-        SubProtocolPlugin subProtocolPlugin = {.subprotocolPluginInterface = subProtocolPluginInterface, .handle = handle};
+    void SubProtocolSelector::registerSubProtocol(SubProtocolInterface* subProtocolInterface, void* handle) {
+        SubProtocolPlugin subProtocolPlugin = {.subprotocolPluginInterface = subProtocolInterface, .handle = handle};
 
-        if (subProtocolPluginInterface->role() == web::ws::SubProtocol::Role::SERVER) {
-            const auto [it, success] = serverSubprotocols.insert({subProtocolPluginInterface->name(), subProtocolPlugin});
+        if (subProtocolInterface->role() == web::ws::SubProtocol::Role::SERVER) {
+            const auto [it, success] = serverSubprotocols.insert({subProtocolInterface->name(), subProtocolPlugin});
             if (!success) {
-                delete subProtocolPluginInterface;
+                delete subProtocolInterface;
                 if (handle != nullptr) {
                     dlclose(handle);
                 }
             }
         } else {
-            const auto [it, success] = clientSubprotocols.insert({subProtocolPluginInterface->name(), subProtocolPlugin});
+            const auto [it, success] = clientSubprotocols.insert({subProtocolInterface->name(), subProtocolPlugin});
             if (!success) {
-                delete subProtocolPluginInterface;
+                delete subProtocolInterface;
                 if (handle != nullptr) {
                     dlclose(handle);
                 }
@@ -92,10 +92,10 @@ namespace web::ws {
     void SubProtocolSelector::loadSubProtocol(const std::string& filePath) {
         void* handle = dlopen(filePath.c_str(), RTLD_NOW | RTLD_LOCAL);
         if (handle != nullptr) {
-            SubProtocolInterface* (*subProtocolPluginInterface)() = reinterpret_cast<SubProtocolInterface* (*) ()>(dlsym(handle, "plugin"));
+            SubProtocolInterface* (*subProtocolInterface)() = reinterpret_cast<SubProtocolInterface* (*) ()>(dlsym(handle, "plugin"));
 
-            if (subProtocolPluginInterface != nullptr) {
-                registerSubProtocol(subProtocolPluginInterface(), handle);
+            if (subProtocolInterface != nullptr) {
+                registerSubProtocol(subProtocolInterface(), handle);
             } else {
                 VLOG(0) << "Optaining function \"plugin()\" in plugin failed: " << dlerror();
             }
