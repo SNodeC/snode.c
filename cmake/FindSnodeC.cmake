@@ -40,6 +40,10 @@ if(NOT SNODEC_WEB_ROOT_DIR)
     set(SNODEC_WEB_ROOT_DIR ${SNODEC_ROOT_DIR})
 endif(NOT SNODEC_WEB_ROOT_DIR)
 
+if(NOT SNODEC_WEBSOCKET_ROOT_DIR)
+    set(SNODEC_WEBSOCKET_ROOT_DIR ${SNODEC_ROOT_DIR})
+endif(NOT SNODEC_WEBSOCKET_ROOT_DIR)
+
 if(NOT SNODEC_EXPRESS_ROOT_DIR)
     set(SNODEC_EXPRESS_ROOT_DIR ${SNODEC_ROOT_DIR})
 endif(NOT SNODEC_EXPRESS_ROOT_DIR)
@@ -65,7 +69,8 @@ if(NOT SNODEC_FOUND)
     endif(SNODEC_LOGGER_H)
 
     find_library(
-        SNODEC_LOGGER_LIBRARY logger HINTS ${SNODEC_LOGGER_ROOT_DIR}/lib
+        SNODEC_LOGGER_LIBRARY logger PATHS ${SNODEC_LOGGER_ROOT_DIR}/lib
+                                           /usr/lib /usr/local/lib
     )
 
     # ########## NET
@@ -79,7 +84,10 @@ if(NOT SNODEC_FOUND)
         list(APPEND SNODEC_NET_INCLUDE ${SNODEC_NET_H})
     endif(SNODEC_NET_H)
 
-    find_library(SNODEC_NET_LIBRARY net HINTS ${SNODEC_NET_ROOT_DIR}/lib)
+    find_library(
+        SNODEC_NET_LIBRARY net PATHS ${SNODEC_NET_ROOT_DIR}/lib /usr/lib
+                                     /usr/local/lib
+    )
 
     # ########## WEB
     find_path(
@@ -92,7 +100,26 @@ if(NOT SNODEC_FOUND)
         list(APPEND SNODEC_WEB_INCLUDE ${SNODEC_WEB_H})
     endif(SNODEC_WEB_H)
 
-    find_library(SNODEC_WEB_LIBRARY web HINTS ${SNODEC_WEB_ROOT_DIR}/lib)
+    find_library(
+        SNODEC_WEB_LIBRARY web PATHS ${SNODEC_WEB_ROOT_DIR}/lib /usr/lib
+                                     /usr/local/lib
+    )
+    # ########## WEBSOCKETS
+    find_path(
+        SNODEC_WEBSOCKET_H
+        NAMES web/ws/SubProtocol.h
+        HINTS ${SNODEC_WEBSOCKET_ROOT_DIR}/include
+        PATH_SUFFIXES snode.c
+    )
+    if(SNODEC_WEBSOCKET_H)
+        list(APPEND SNODEC_WEBSOCKET_INCLUDE ${SNODEC_WEBSOCKET_H})
+    endif(SNODEC_WEBSOCKET_H)
+
+    find_library(
+        SNODEC_WEBSOCKET_LIBRARY websocket
+        PATHS ${SNODEC_WEBSOCKET_ROOT_DIR}/lib/snodec/web/ws
+              /usr/lib/snodec/web/ws /usr/local/lib/snodec/web/ws
+    )
 
     # ########## EXPRESS
     find_path(
@@ -106,7 +133,9 @@ if(NOT SNODEC_FOUND)
     endif(SNODEC_EXPRESS_H)
 
     find_library(
-        SNODEC_EXPRESS_LIBRARY express HINTS ${SNODEC_EXPRESS_ROOT_DIR}/lib
+        SNODEC_EXPRESS_LIBRARY express
+        PATHS ${SNODEC_EXPRESS_ROOT_DIR}/lib/snodec/web/ws /usr/lib
+              /usr/local/lib
     )
 
     # ########## UTILS
@@ -144,10 +173,12 @@ if(SNODEC_FOUND)
     message("--     " ${SNODEC_LOGGER_LIBRARY})
     message("--     " ${SNODEC_NET_LIBRARY})
     message("--     " ${SNODEC_WEB_LIBRARY})
+    message("--     " ${SNODEC_WEBSOCKET_LIBRARY})
     message("--     " ${SNODEC_EXPRESS_LIBRARY})
 
     message("--     " ${SNODEC_LOGGER_INCLUDE})
     message("--     " ${SNODEC_NET_INCLUDE})
+    message("--     " ${SNODEC_WEBSOCKET_INCLUDE})
     message("--     " ${SNODEC_WEB_INCLUDE})
     message("--     " ${SNODEC_EXPRESS_INCLUDE})
 
@@ -156,6 +187,9 @@ if(SNODEC_FOUND)
     set(SNODEC_EXPRESS_LIBRARIES ${SNODEC_WEB_LIBRARIES}
                                  ${SNODEC_EXPRESS_LIBRARY}
     )
+    set(SNODEC_WEBSOCKET_LIBRARIES ${SNODEC_WEB_LIBRARIES}
+                                   ${SNODEC_WEBSOCKET_LIBRARY}
+    )
 
     set(SNODEC_NET_INCLUDES ${SNODEC_LOGGER_INCLUDE} ${SNODEC_NET_INCLUDE})
     set(SNODEC_WEB_INCLUDES ${SNODEC_NET_INCLUDES} ${SNODEC_UTILS_INCLUDE}
@@ -163,5 +197,8 @@ if(SNODEC_FOUND)
     )
     set(SNODEC_EXPRESS_INCLUDES ${SNODEC_WEB_INCLUDES}
                                 ${SNODEC_EXPRESS_INCLUDE}
+    )
+    set(SNODEC_WEBSOCKET_INCLUDES ${SNODEC_WEB_INCLUDES}
+                                  ${SNODEC_WEBSOCKET_INCLUDE}
     )
 endif(SNODEC_FOUND)

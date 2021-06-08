@@ -35,7 +35,6 @@
 namespace web::ws {
 
     SubProtocolSelector::SubProtocolSelector() {
-        VLOG(0) << "Load Subprotocol:";
         loadSubProtocols();
     }
 
