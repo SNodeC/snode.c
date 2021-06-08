@@ -42,6 +42,14 @@ namespace web::http::client {
             return new SocketContext<Request, Response>(socketConnection, onResponse, onRequestError);
         }
 
+        std::string name() override {
+            return "http";
+        }
+
+        std::string type() override {
+            return "client";
+        }
+
     public:
         void setOnResponse(const std::function<void(Response&)>& onResponse) {
             this->onResponse = onResponse;

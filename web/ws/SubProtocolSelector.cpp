@@ -64,10 +64,6 @@ namespace web::ws {
         loadSubProtocols("/usr/local/lib/snodec/web/ws/subprotocol");
     }
 
-    void SubProtocolSelector::registerSubProtocol(SubProtocolInterface* subProtocolPluginInterface) {
-        registerSubProtocol(subProtocolPluginInterface, nullptr);
-    }
-
     void SubProtocolSelector::registerSubProtocol(SubProtocolInterface* subProtocolInterface, void* handle) {
         SubProtocolPlugin subProtocolPlugin = {.subprotocolPluginInterface = subProtocolInterface, .handle = handle};
 

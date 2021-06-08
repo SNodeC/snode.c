@@ -24,6 +24,7 @@
 #include "web/http/http_utils.h"
 #include "web/http/server//SocketContext.h"
 #include "web/http/server/Request.h"
+#include "web/http/server/SocketContextUpgradeFactorySelector.h"
 #include "web/ws/server/SocketContext.h"
 #include "web/ws/server/SocketContextFactory.h"
 
@@ -147,10 +148,14 @@ namespace web::http::server {
     }
 
     void Response::upgrade(Request& req) {
-        // here we need an additional dynamic library loader for the upgrade-protocol
         if (httputils::ci_contains(req.header("connection"), "Upgrade")) {
-            if (httputils::ci_contains(req.header("upgrade"), "websocket")) {
-                serverContext->switchSocketProtocol(web::ws::server::SocketContextFactory(req, *this));
+            web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory =
+                web::http::server::SocketContextUpgradeFactorySelector::instance().select("websocket");
+            //                        httputils::ci_contains(req.header("upgrade"), "websocket")
+
+            if (socketContextUpgradeFactory != nullptr) {
+                socketContextUpgradeFactory->prepare(req, *this);
+                serverContext->switchSocketProtocol(*socketContextUpgradeFactory);
             } else {
                 this->status(404).end();
             }

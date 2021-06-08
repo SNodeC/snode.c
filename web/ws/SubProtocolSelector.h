@@ -32,7 +32,7 @@ namespace web::ws {
 
     struct SubProtocolPlugin {
         SubProtocolInterface* subprotocolPluginInterface;
-        void* handle;
+        void* handle = nullptr;
     };
 
     class SubProtocolSelector {
@@ -46,12 +46,11 @@ namespace web::ws {
     public:
         void loadSubProtocol(const std::string& filePath);
         void loadSubProtocols(const std::string& directoryPath);
-        void registerSubProtocol(SubProtocolInterface* subProtocolPluginInterface);
+        void registerSubProtocol(SubProtocolInterface* subProtocolPluginInterface, void* handle = nullptr);
 
         virtual SubProtocolInterface* select(const std::string& subProtocolName) = 0;
 
     protected:
-        void registerSubProtocol(SubProtocolInterface* subProtocolPluginInterface, void* handle);
         void loadSubProtocols();
 
         std::map<std::string, SubProtocolPlugin> serverSubprotocols;

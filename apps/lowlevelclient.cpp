@@ -132,10 +132,18 @@ private:
     web::http::client::ResponseParser* responseParser;
 };
 
-class SimpleSocketProtocolFactory : public SocketContextFactory {
+class SimpleSocketProtocolFactory : public net::socket::stream::SocketContextFactory {
 private:
     SocketContext* create(net::socket::stream::SocketConnectionBase* socketConnection) const override {
         return new SimpleSocketProtocol(socketConnection);
+    }
+
+    std::string name() override {
+        return "echo";
+    }
+
+    std::string type() override {
+        return "client";
     }
 };
 

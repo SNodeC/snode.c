@@ -21,6 +21,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::socket::stream {
@@ -31,9 +33,15 @@ namespace net::socket::stream {
     class SocketContextFactory {
     protected:
         SocketContextFactory() = default;
+
+    public:
         virtual ~SocketContextFactory() = default;
 
         virtual SocketContext* create(SocketConnectionBase* socketConnection) const = 0;
+
+        virtual std::string name() = 0;
+
+        virtual std::string type() = 0;
 
         friend class SocketConnectionBase;
     };

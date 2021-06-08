@@ -45,6 +45,14 @@ namespace web::http::server {
             return new SocketContext<Request, Response>(socketConnection, onRequestReady);
         }
 
+        std::string name() override {
+            return "http";
+        }
+
+        std::string type() override {
+            return "server";
+        }
+
     public:
         void setOnRequestReady(const std::function<void(Request&, Response&)>& onRequestReady) {
             this->onRequestReady = onRequestReady;

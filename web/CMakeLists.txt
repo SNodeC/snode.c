@@ -18,6 +18,7 @@ add_library(
     http/server/RequestParser.cpp
     http/server/Request.cpp
     http/server/Response.cpp
+    http/server/SocketContextUpgradeFactorySelector.cpp
     ws/Receiver.cpp
     ws/SocketContext.cpp
     ws/SubProtocol.cpp

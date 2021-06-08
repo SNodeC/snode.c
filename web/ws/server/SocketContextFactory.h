@@ -1,29 +1,32 @@
 #ifndef SOCKETCONTEXTFACTORY_H
 #define SOCKETCONTEXTFACTORY_H
 
-#include "net/socket/stream/SocketContextFactory.h"
+#include "web/http/server/SocketContextUpgradeFactory.h"
 #include "web/ws/server/SocketContext.h"
+
+namespace web::http::server {
+    class Request;
+    class Response;
+} // namespace web::http::server
 
 namespace web::ws::server {
 
-    template <typename RequestT, typename ResponseT>
-    class SocketContextFactory : public net::socket::stream::SocketContextFactory {
-        using Request = RequestT;
-        using Response = ResponseT;
-
+    class SocketContextFactory : public web::http::server::SocketContextUpgradeFactory {
     public:
-        SocketContextFactory(Request& request, Response& response)
-            : request(request)
-            , response(response) {
+        SocketContextFactory() = default;
+
+        std::string name() override {
+            return "websocket";
+        }
+
+        std::string type() override {
+            return "server";
         }
 
     private:
-        net::socket::stream::SocketContext* create(net::socket::stream::SocketConnectionBase* socketConnection) const override {
-            return SocketContext::create(socketConnection, request, response);
+        virtual net::socket::stream::SocketContext* create(net::socket::stream::SocketConnectionBase* socketConnection) const override {
+            return SocketContext::create(socketConnection, *request, *response);
         }
-
-        Request& request;
-        Response& response;
     };
 
 } // namespace web::ws::server

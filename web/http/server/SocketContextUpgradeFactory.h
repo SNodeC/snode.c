@@ -16,32 +16,34 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_SERVER_SUBPROTOCOLSELECTOR_H
-#define WEB_WS_SERVER_SUBPROTOCOLSELECTOR_H
+#ifndef WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H
+#define WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H
 
-#include "web/ws/SubProtocolSelector.h"
-#include "web/ws/server/SubProtocolInterface.h"
+#include "net/socket/stream/SocketContextFactory.h"
+
+namespace web::http::server {
+    class Request;
+    class Response;
+} // namespace web::http::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::ws::server {
+namespace web::http::server {
 
-    class SubProtocolSelector : public web::ws::SubProtocolSelector {
+    class SocketContextUpgradeFactory : public net::socket::stream::SocketContextFactory {
     public:
-        SubProtocolSelector();
+        void prepare(web::http::server::Request& request, web::http::server::Response& response) {
+            this->request = &request;
+            this->response = &response;
+        }
 
-        web::ws::server::SubProtocolInterface* select(const std::string& subProtocolName) override;
-
-        static SubProtocolSelector& instance();
-
-    private:
-        static SubProtocolSelector subProtocolSelector;
+    protected:
+        web::http::server::Request* request;
+        web::http::server::Response* response;
     };
 
-} // namespace web::ws::server
+} // namespace web::http::server
 
-#endif // WEB_WS_SERVER_SUBPROTOCOLSELECTOR_H
+#endif // WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H
