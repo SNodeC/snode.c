@@ -39,10 +39,6 @@ namespace net::socket::stream {
 
         virtual SocketContext* create(SocketConnectionBase* socketConnection) const = 0;
 
-        virtual std::string name() = 0;
-
-        virtual std::string type() = 0;
-
         friend class SocketConnectionBase;
     };
 

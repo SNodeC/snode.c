@@ -42,8 +42,9 @@ namespace web::http::server {
         SocketContextUpgradeFactorySelector();
         ~SocketContextUpgradeFactorySelector();
 
-        void registerSubProtocol(web::http::server::SocketContextUpgradeFactory* subProtocolPluginInterface);
-        void registerSubProtocol(web::http::server::SocketContextUpgradeFactory* subProtocolPluginInterface, void* handler);
+        void registerSocketContextUpgradeFactory(web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory);
+        void registerSocketContextUpgradeFactory(web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory,
+                                                 void* handler);
 
         web::http::server::SocketContextUpgradeFactory* select(const std::string& subProtocolName);
 

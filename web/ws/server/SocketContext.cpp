@@ -57,6 +57,7 @@ namespace web::ws::server {
 
         web::ws::server::SocketContext* context = nullptr;
 
+        VLOG(0) << "-- SubProtocolInterface: " << subProtocolInterface << " - " << subProtocolName;
         if (subProtocolInterface != nullptr) {
             web::ws::server::SubProtocol* subProtocol = static_cast<web::ws::server::SubProtocol*>(subProtocolInterface->create(req, res));
 

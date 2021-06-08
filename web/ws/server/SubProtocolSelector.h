@@ -32,8 +32,6 @@ namespace web::ws::server {
 
     class SubProtocolSelector : public web::ws::SubProtocolSelector {
     public:
-        SubProtocolSelector();
-
         web::ws::server::SubProtocolInterface* select(const std::string& subProtocolName) override;
 
         static SubProtocolSelector& instance();

@@ -35,28 +35,29 @@
 namespace web::ws {
 
     SubProtocolSelector::SubProtocolSelector() {
+        VLOG(0) << "Load Subprotocol:";
         loadSubProtocols();
     }
 
     SubProtocolSelector::~SubProtocolSelector() {
         for (const auto& [name, subProtocolPlugin] : serverSubprotocols) {
+            delete subProtocolPlugin.subprotocolPluginInterface;
             if (subProtocolPlugin.handle != nullptr) {
                 dlclose(subProtocolPlugin.handle);
             }
-            delete subProtocolPlugin.subprotocolPluginInterface;
         }
 
         for (const auto& [name, subProtocolPlugin] : clientSubprotocols) {
+            delete subProtocolPlugin.subprotocolPluginInterface;
             if (subProtocolPlugin.handle != nullptr) {
                 dlclose(subProtocolPlugin.handle);
             }
-            delete subProtocolPlugin.subprotocolPluginInterface;
         }
     }
 
     void SubProtocolSelector::loadSubProtocols() {
 #ifndef NDEBUG
-#ifdef SUBPROCOL_PATH
+#ifdef SUBPROTOCOL_PATH
         loadSubProtocols(SUBPROTOCOL_PATH);
 #endif
 #endif
@@ -65,41 +66,53 @@ namespace web::ws {
     }
 
     void SubProtocolSelector::registerSubProtocol(SubProtocolInterface* subProtocolInterface, void* handle) {
+        VLOG(0) << "Register: " << subProtocolInterface->name();
+
         SubProtocolPlugin subProtocolPlugin = {.subprotocolPluginInterface = subProtocolInterface, .handle = handle};
 
-        if (subProtocolInterface->role() == web::ws::SubProtocol::Role::SERVER) {
-            const auto [it, success] = serverSubprotocols.insert({subProtocolInterface->name(), subProtocolPlugin});
-            if (!success) {
-                delete subProtocolInterface;
-                if (handle != nullptr) {
-                    dlclose(handle);
+        if (subProtocolInterface != nullptr) {
+            if (subProtocolInterface->role() == web::ws::SubProtocol::Role::SERVER) {
+                const auto [it, success] = serverSubprotocols.insert({subProtocolInterface->name(), subProtocolPlugin});
+                if (!success) {
+                    delete subProtocolInterface;
+                    if (handle != nullptr) {
+                        dlclose(handle);
+                    }
+                }
+            } else {
+                const auto [it, success] = clientSubprotocols.insert({subProtocolInterface->name(), subProtocolPlugin});
+                if (!success) {
+                    delete subProtocolInterface;
+                    if (handle != nullptr) {
+                        dlclose(handle);
+                    }
                 }
             }
-        } else {
-            const auto [it, success] = clientSubprotocols.insert({subProtocolInterface->name(), subProtocolPlugin});
-            if (!success) {
-                delete subProtocolInterface;
-                if (handle != nullptr) {
-                    dlclose(handle);
-                }
-            }
+        } else if (handle != nullptr) {
+            dlclose(handle);
         }
     }
 
     void SubProtocolSelector::loadSubProtocol(const std::string& filePath) {
-        void* handle = dlopen(filePath.c_str(), RTLD_NOW | RTLD_LOCAL);
-        if (handle != nullptr) {
-            SubProtocolInterface* (*subProtocolInterface)() = reinterpret_cast<SubProtocolInterface* (*) ()>(dlsym(handle, "plugin"));
+        void* handle = dlopen(filePath.c_str(), RTLD_LAZY | RTLD_GLOBAL);
 
-            if (subProtocolInterface != nullptr) {
-                registerSubProtocol(subProtocolInterface(), handle);
+        if (handle != nullptr) {
+            SubProtocolInterface* (*plugin)() = reinterpret_cast<SubProtocolInterface* (*) ()>(dlsym(handle, "plugin"));
+
+            if (plugin != nullptr) {
+                SubProtocolInterface* subProtocolInterface = plugin();
+                if (subProtocolInterface != nullptr) {
+                    registerSubProtocol(subProtocolInterface, handle);
+                } else {
+                    dlclose(handle);
+                }
             } else {
                 VLOG(0) << "Optaining function \"plugin()\" in plugin failed: " << dlerror();
             }
 
-            VLOG(1) << "DLOpen: success: " << filePath;
+            VLOG(0) << "DLOpen: success: " << filePath;
         } else {
-            VLOG(1) << "DLOpen: error: " << dlerror() << " - " << filePath;
+            VLOG(0) << "DLOpen: error: " << dlerror() << " - " << filePath;
         }
     }
 

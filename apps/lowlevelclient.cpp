@@ -137,14 +137,6 @@ private:
     SocketContext* create(net::socket::stream::SocketConnectionBase* socketConnection) const override {
         return new SimpleSocketProtocol(socketConnection);
     }
-
-    std::string name() override {
-        return "echo";
-    }
-
-    std::string type() override {
-        return "client";
-    }
 };
 
 tls::SocketClient<SimpleSocketProtocolFactory, tcp::ipv4::Socket> getTlsClient() {

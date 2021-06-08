@@ -39,6 +39,9 @@ namespace web::http::server {
             this->response = &response;
         }
 
+        virtual std::string name() = 0;
+        virtual std::string type() = 0;
+
     protected:
         web::http::server::Request* request;
         web::http::server::Response* response;

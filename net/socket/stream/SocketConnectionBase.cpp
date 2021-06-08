@@ -18,6 +18,7 @@
 
 #include "net/socket/stream/SocketConnectionBase.h"
 
+#include "log/Logger.h"
 #include "net/socket/stream/SocketContext.h"
 #include "net/socket/stream/SocketContextFactory.h"
 
@@ -37,6 +38,8 @@ namespace net::socket::stream {
 
     void SocketConnectionBase::switchSocketProtocol(const SocketContextFactory& socketContextFactory) {
         SocketContext* newSocketContext = socketContextFactory.create(this);
+
+        VLOG(0) << "NewSocketContext " << newSocketContext;
 
         if (newSocketContext != nullptr) {
             socketContext->onProtocolDisconnected();

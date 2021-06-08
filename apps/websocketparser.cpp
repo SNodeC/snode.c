@@ -4,7 +4,6 @@
 #include "log/Logger.h"
 #include "net/SNodeC.h"
 #include "net/timer/IntervalTimer.h"
-#include "web/ws/SubProtocol.h"
 #include "web/ws/server/SocketContext.h"
 
 #include <cstddef>

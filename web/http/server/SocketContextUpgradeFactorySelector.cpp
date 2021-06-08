@@ -18,7 +18,9 @@
 
 #include "SocketContextUpgradeFactorySelector.h"
 
+#include "log/Logger.h"
 #include "web/http/server/SocketContextUpgradeFactory.h"
+#include "web/http/server/SocketContextUpgradeInterface.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,21 +34,33 @@ namespace web::http::server {
     SocketContextUpgradeFactorySelector SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector;
 
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactorySelector() {
+        VLOG(0) << "hihihihih";
+        void* handle = dlopen("/home/voc/projects/ServerVoc/build/debug/web/ws/libwebsocket.so", RTLD_LAZY | RTLD_NODELETE | RTLD_GLOBAL);
+
+        SocketContextUpgradeInterface* (*plugin)() = reinterpret_cast<SocketContextUpgradeInterface* (*) ()>(dlsym(handle, "plugin"));
+
+        SocketContextUpgradeInterface* socketContextUpgradeInterface = plugin();
+
+        SocketContextUpgradeFactorySelector::instance().registerSocketContextUpgradeFactory(socketContextUpgradeInterface->create(),
+                                                                                            handle);
+
+        delete socketContextUpgradeInterface;
     }
 
     SocketContextUpgradeFactorySelector::~SocketContextUpgradeFactorySelector() {
         for (const auto& [name, socketContextPlugin] : serverSocketContexts) {
+            delete socketContextPlugin.socketContextFactory;
             if (socketContextPlugin.handle != nullptr) {
+                VLOG(0) << "Delete server: " << name << " - " << socketContextPlugin.handle;
                 dlclose(socketContextPlugin.handle);
             }
-            delete socketContextPlugin.socketContextFactory;
         }
 
         for (const auto& [name, socketContextPlugin] : clientSocketContexts) {
+            delete socketContextPlugin.socketContextFactory;
             if (socketContextPlugin.handle != nullptr) {
                 dlclose(socketContextPlugin.handle);
             }
-            delete socketContextPlugin.socketContextFactory;
         }
     }
 
@@ -54,26 +68,35 @@ namespace web::http::server {
         return SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector;
     }
 
-    void SocketContextUpgradeFactorySelector::registerSubProtocol(web::http::server::SocketContextUpgradeFactory* socketContextFactory) {
-        registerSubProtocol(socketContextFactory, nullptr);
+    void SocketContextUpgradeFactorySelector::registerSocketContextUpgradeFactory(
+        web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory) {
+        VLOG(0) << "register";
+        registerSocketContextUpgradeFactory(socketContextUpgradeFactory, nullptr);
     }
 
-    void SocketContextUpgradeFactorySelector::registerSubProtocol(web::http::server::SocketContextUpgradeFactory* socketContextFactory,
-                                                                  void* handle) {
-        SocketContextPlugin socketContextPlugin = {.socketContextFactory = socketContextFactory, .handle = handle};
+    void SocketContextUpgradeFactorySelector::registerSocketContextUpgradeFactory(
+        web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handle) {
+        SocketContextPlugin socketContextPlugin = {.socketContextFactory = socketContextUpgradeFactory, .handle = handle};
 
-        if (socketContextFactory->type() == "server") {
-            [[maybe_unused]] const auto [it, success] = serverSocketContexts.insert({socketContextFactory->name(), socketContextPlugin});
+        if (socketContextUpgradeFactory->type() == "server") {
+            VLOG(0) << "server: " << socketContextUpgradeFactory->name() << " - " << handle;
+            [[maybe_unused]] const auto [it, success] =
+                serverSocketContexts.insert({socketContextUpgradeFactory->name(), socketContextPlugin});
         } else {
-            [[maybe_unused]] const auto [it, success] = clientSocketContexts.insert({socketContextFactory->name(), socketContextPlugin});
+            VLOG(0) << "client";
+            [[maybe_unused]] const auto [it, success] =
+                clientSocketContexts.insert({socketContextUpgradeFactory->name(), socketContextPlugin});
         }
     }
 
     web::http::server::SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(const std::string& name) {
         web::http::server::SocketContextUpgradeFactory* socketContextFactory = nullptr;
 
+        VLOG(0) << "Select: " << name;
+
         if (serverSocketContexts.contains(name)) {
             socketContextFactory = serverSocketContexts[name].socketContextFactory;
+            VLOG(0) << "Socket Context Factory: " << socketContextFactory;
         }
 
         return socketContextFactory;

@@ -34,17 +34,15 @@ namespace web::http::server {
 
 namespace web::ws {
 
-    extern "C" {
-        class SubProtocolInterface {
-        public:
-            virtual ~SubProtocolInterface() = default;
+    class SubProtocolInterface {
+    public:
+        virtual ~SubProtocolInterface() = default;
 
-            virtual std::string name() = 0;
-            virtual web::ws::SubProtocol::Role role() = 0;
-            virtual web::ws::SubProtocol* create(web::http::server::Request&, web::http::server::Response&) = 0;
-            virtual void destroy(web::ws::SubProtocol*) = 0;
-        };
-    }
+        virtual std::string name() = 0;
+        virtual web::ws::SubProtocol::Role role() = 0;
+        virtual web::ws::SubProtocol* create(web::http::server::Request&, web::http::server::Response&) = 0;
+        virtual void destroy(web::ws::SubProtocol*) = 0;
+    };
 
 } // namespace web::ws
 

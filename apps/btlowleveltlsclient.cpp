@@ -77,14 +77,6 @@ private:
     net::socket::stream::SocketContext* create(net::socket::stream::SocketConnectionBase* socketConnection) const override {
         return new SimpleSocketProtocol(socketConnection);
     }
-
-    std::string name() override {
-        return "echo";
-    }
-
-    std::string type() override {
-        return "client";
-    }
 };
 
 SocketClient<SimpleSocketProtocolFactory> getClient() {

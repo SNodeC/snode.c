@@ -19,8 +19,7 @@
 #include "SubProtocolSelector.h"
 
 #include "SubProtocolInterface.h" // for WSSubPr...
-#include "web/http/server/SocketContextUpgradeFactorySelector.h"
-#include "web/ws/server/SocketContextFactory.h"
+//#include "web/ws/server/SocketContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -35,10 +34,6 @@ namespace web::ws::server {
 
     SubProtocolSelector& SubProtocolSelector::instance() {
         return SubProtocolSelector::subProtocolSelector;
-    }
-
-    SubProtocolSelector::SubProtocolSelector() {
-        web::http::server::SocketContextUpgradeFactorySelector::instance().registerSubProtocol(new web::ws::server::SocketContextFactory());
     }
 
     web::ws::server::SubProtocolInterface* SubProtocolSelector::select(const std::string& subProtocolName) {

@@ -24,9 +24,8 @@
 #include "web/http/http_utils.h"
 #include "web/http/server//SocketContext.h"
 #include "web/http/server/Request.h"
+#include "web/http/server/SocketContextUpgradeFactory.h"
 #include "web/http/server/SocketContextUpgradeFactorySelector.h"
-#include "web/ws/server/SocketContext.h"
-#include "web/ws/server/SocketContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -153,8 +152,10 @@ namespace web::http::server {
                 web::http::server::SocketContextUpgradeFactorySelector::instance().select("websocket");
             //                        httputils::ci_contains(req.header("upgrade"), "websocket")
 
+            VLOG(0) << "Socket Context Upgrade Factory: " << socketContextUpgradeFactory;
             if (socketContextUpgradeFactory != nullptr) {
                 socketContextUpgradeFactory->prepare(req, *this);
+                VLOG(0) << "Socket Context Upgrade Factory: " << socketContextUpgradeFactory;
                 serverContext->switchSocketProtocol(*socketContextUpgradeFactory);
             } else {
                 this->status(404).end();
