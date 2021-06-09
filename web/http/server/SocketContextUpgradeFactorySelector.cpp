@@ -40,14 +40,15 @@ namespace web::http::server {
 
         void* handle = dlopen("/usr/local/lib/snodec/web/ws/libwebsocket.so", RTLD_LAZY | RTLD_GLOBAL);
 
-        SocketContextUpgradeInterface* (*plugin)() = reinterpret_cast<SocketContextUpgradeInterface* (*) ()>(dlsym(handle, "plugin"));
+        if (handle != nullptr) {
+            SocketContextUpgradeInterface* (*plugin)() = reinterpret_cast<SocketContextUpgradeInterface* (*) ()>(dlsym(handle, "plugin"));
 
-        SocketContextUpgradeInterface* socketContextUpgradeInterface = plugin();
+            SocketContextUpgradeInterface* socketContextUpgradeInterface = plugin();
 
-        SocketContextUpgradeFactorySelector::instance().registerSocketContextUpgradeFactory(socketContextUpgradeInterface->create(),
-                                                                                            handle);
-
-        delete socketContextUpgradeInterface;
+            SocketContextUpgradeFactorySelector::instance().registerSocketContextUpgradeFactory(socketContextUpgradeInterface->create(),
+                                                                                                handle);
+            delete socketContextUpgradeInterface;
+        }
     }
 
     SocketContextUpgradeFactorySelector::~SocketContextUpgradeFactorySelector() {
