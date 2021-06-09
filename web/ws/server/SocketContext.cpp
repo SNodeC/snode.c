@@ -43,7 +43,6 @@ namespace web::ws::server {
             web::ws::server::SubProtocolSelector::instance().select(subProtocol->getName());
 
         if (subProtocolInterface != nullptr) {
-            VLOG(0) << "++++++++++++++++++++++++++++++++";
             subProtocolInterface->destroy(dynamic_cast<web::ws::server::SubProtocol*>(subProtocol));
         }
     }
@@ -58,7 +57,6 @@ namespace web::ws::server {
 
         web::ws::server::SocketContext* context = nullptr;
 
-        VLOG(0) << "-- SubProtocolInterface: " << subProtocolInterface << " - " << subProtocolName;
         if (subProtocolInterface != nullptr) {
             web::ws::server::SubProtocol* subProtocol = static_cast<web::ws::server::SubProtocol*>(subProtocolInterface->create(req, res));
 

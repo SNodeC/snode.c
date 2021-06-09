@@ -39,17 +39,13 @@ namespace web::http::server {
         using Response = ResponseT;
 
         SocketContextFactory() {
-            VLOG(0) << "++++++++++++++++++++ SocketContextFactory +++++++++++++++++++++";
             if (SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector == nullptr) {
-                VLOG(0) << "++++++++++++++++++++ SocketContextUpgradeFactorySelector +++++++++++++++++++++";
                 new SocketContextUpgradeFactorySelector();
             }
         }
 
         ~SocketContextFactory() {
-            VLOG(0) << "-------------------. SocketContextFactory ---------------------";
             if (SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector != nullptr) {
-                VLOG(0) << "-------------------. SocketContextUpgradeFactorySelector ---------------------";
                 delete SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector;
             }
         }
@@ -59,7 +55,6 @@ namespace web::http::server {
 
     private:
         net::socket::stream::SocketContext* create(net::socket::stream::SocketConnectionBase* socketConnection) const override {
-            VLOG(0) << "++++++++++++++++++++ SocketContextFactory - create +++++++++++++++++++++";
             return new SocketContext<Request, Response>(socketConnection, onRequestReady);
         }
 

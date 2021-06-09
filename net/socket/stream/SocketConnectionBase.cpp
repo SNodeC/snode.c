@@ -39,8 +39,6 @@ namespace net::socket::stream {
     void SocketConnectionBase::switchSocketProtocol(const SocketContextFactory& socketContextFactory) {
         SocketContext* newSocketContext = socketContextFactory.create(this);
 
-        VLOG(0) << "NewSocketContext " << newSocketContext;
-
         if (newSocketContext != nullptr) {
             socketContext->onProtocolDisconnected();
             socketContext = newSocketContext;

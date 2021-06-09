@@ -39,12 +39,9 @@ namespace web::ws {
     }
 
     SubProtocolSelector::~SubProtocolSelector() {
-        VLOG(0) << "SubProtocolSelector DESTROY";
         for (const auto& [name, subProtocolPlugin] : serverSubprotocols) {
-            VLOG(0) << "SubProtocolSelector DELETE " << name;
             delete subProtocolPlugin.subprotocolPluginInterface;
             if (subProtocolPlugin.handle != nullptr) {
-                VLOG(0) << "SubProtocolSelector dlclose " << name;
                 dlclose(subProtocolPlugin.handle);
             }
         }
@@ -68,19 +65,14 @@ namespace web::ws {
     }
 
     void SubProtocolSelector::registerSubProtocol(SubProtocolInterface* subProtocolInterface, void* handle) {
-        VLOG(0) << "Register: " << subProtocolInterface->name();
-
         SubProtocolPlugin subProtocolPlugin = {.subprotocolPluginInterface = subProtocolInterface, .handle = handle};
 
         if (subProtocolInterface != nullptr) {
             if (subProtocolInterface->role() == web::ws::SubProtocol::Role::SERVER) {
                 const auto [it, success] = serverSubprotocols.insert({subProtocolInterface->name(), subProtocolPlugin});
                 if (!success) {
-                    VLOG(0) << "registerSubProtocol ALREADY REGISTERED " << subProtocolInterface->name();
-                    VLOG(0) << "registerSubProtocol delete Subprotocol " << subProtocolInterface->name();
                     delete subProtocolInterface;
                     if (handle != nullptr) {
-                        VLOG(0) << "registerSubProtocol dlclose ";
                         dlclose(handle);
                     }
                 }
