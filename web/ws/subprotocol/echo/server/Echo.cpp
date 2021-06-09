@@ -33,6 +33,10 @@
 namespace web::ws::subprotocol::echo::server { // namespace web::ws::subprotocol::echo::server
 
     class EchoInterface : public web::ws::server::SubProtocolInterface {
+    public:
+        ~EchoInterface() {
+            VLOG(0) << "Delete Echo Interface";
+        }
     private:
         web::ws::SubProtocol* create([[maybe_unused]] web::http::server::Request& req,
                                      [[maybe_unused]] web::http::server::Response& res) override {

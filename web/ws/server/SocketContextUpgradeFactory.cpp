@@ -40,6 +40,19 @@ namespace web::ws::server {
         return new SocketContextUpgradeFactory();
     }
 
+    SocketContextUpgradeFactory::SocketContextUpgradeFactory() {
+        if (SubProtocolSelector::subProtocolSelector == nullptr) {
+            SubProtocolSelector::subProtocolSelector = new SubProtocolSelector();
+        }
+    }
+
+    SocketContextUpgradeFactory::~SocketContextUpgradeFactory() {
+        if (SubProtocolSelector::subProtocolSelector != nullptr) {
+            delete SubProtocolSelector::subProtocolSelector;
+            SubProtocolSelector::subProtocolSelector = nullptr;
+        }
+    }
+
     std::string SocketContextUpgradeFactory::name() {
         return "websocket";
     }
@@ -49,7 +62,6 @@ namespace web::ws::server {
     }
 
     web::ws::server::SocketContext* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnectionBase* socketConnection) const {
-        VLOG(0) << "----------------";
         return web::ws::server::SocketContext::create(socketConnection, *request, *response);
     }
 

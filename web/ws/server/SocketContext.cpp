@@ -43,6 +43,7 @@ namespace web::ws::server {
             web::ws::server::SubProtocolSelector::instance().select(subProtocol->getName());
 
         if (subProtocolInterface != nullptr) {
+            VLOG(0) << "++++++++++++++++++++++++++++++++";
             subProtocolInterface->destroy(dynamic_cast<web::ws::server::SubProtocol*>(subProtocol));
         }
     }
@@ -90,6 +91,9 @@ namespace web::ws::server {
         }
 
         return context;
+    }
+
+    void SocketContext::destroy(SocketContext*) {
     }
 
 } // namespace web::ws::server

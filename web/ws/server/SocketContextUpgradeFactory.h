@@ -4,6 +4,7 @@
 #include "web/http/server/SocketContextUpgradeFactory.h"
 #include "web/http/server/SocketContextUpgradeInterface.h"
 #include "web/ws/server/SocketContext.h"
+#include "web/ws/server/SubProtocolSelector.h"
 
 namespace web::http::server {
     class Request;
@@ -14,7 +15,8 @@ namespace web::ws::server {
 
     class SocketContextUpgradeFactory : public web::http::server::SocketContextUpgradeFactory {
     public:
-        SocketContextUpgradeFactory() = default;
+        SocketContextUpgradeFactory();
+        ~SocketContextUpgradeFactory();
 
         std::string name() override;
 

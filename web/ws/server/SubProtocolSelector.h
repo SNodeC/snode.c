@@ -36,8 +36,8 @@ namespace web::ws::server {
 
         static SubProtocolSelector& instance();
 
-    private:
-        static SubProtocolSelector subProtocolSelector;
+    public:
+        static SubProtocolSelector* subProtocolSelector;
     };
 
 } // namespace web::ws::server

@@ -42,6 +42,8 @@ namespace web::ws::server {
         static SocketContext* create(net::socket::stream::SocketConnectionBase* socketConnection,
                                      web::http::server::Request& req,
                                      web::http::server::Response& res);
+
+        static void destroy(SocketContext*);
     };
 
 } // namespace web::ws::server

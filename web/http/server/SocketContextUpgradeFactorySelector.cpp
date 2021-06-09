@@ -31,11 +31,15 @@
 
 namespace web::http::server {
 
-    SocketContextUpgradeFactorySelector SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector;
+    SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector = nullptr;
 
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactorySelector() {
-        VLOG(0) << "hihihihih";
-        void* handle = dlopen("/home/voc/projects/ServerVoc/build/debug/web/ws/libwebsocket.so", RTLD_LAZY | RTLD_NODELETE | RTLD_GLOBAL);
+        if (SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector == nullptr) {
+            SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector = this;
+        }
+
+        VLOG(0) << "hihihihih " << SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector;
+        void* handle = dlopen("/home/voc/projects/ServerVoc/build/debug/web/ws/libwebsocket.so", RTLD_LAZY | RTLD_GLOBAL);
 
         SocketContextUpgradeInterface* (*plugin)() = reinterpret_cast<SocketContextUpgradeInterface* (*) ()>(dlsym(handle, "plugin"));
 
@@ -48,7 +52,8 @@ namespace web::http::server {
     }
 
     SocketContextUpgradeFactorySelector::~SocketContextUpgradeFactorySelector() {
-        for (const auto& [name, socketContextPlugin] : serverSocketContexts) {
+        VLOG(0) << "##############################";
+        for (const auto& [name, socketContextPlugin] : serverSocketContextPlugins) {
             delete socketContextPlugin.socketContextFactory;
             if (socketContextPlugin.handle != nullptr) {
                 VLOG(0) << "Delete server: " << name << " - " << socketContextPlugin.handle;
@@ -56,16 +61,20 @@ namespace web::http::server {
             }
         }
 
-        for (const auto& [name, socketContextPlugin] : clientSocketContexts) {
+        for (const auto& [name, socketContextPlugin] : clientSocketContextPlugins) {
             delete socketContextPlugin.socketContextFactory;
             if (socketContextPlugin.handle != nullptr) {
                 dlclose(socketContextPlugin.handle);
             }
         }
+
+        SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector = nullptr;
+
+        VLOG(0) << "SocketContextUpgradeFactorySelector DELETED";
     }
 
     SocketContextUpgradeFactorySelector& SocketContextUpgradeFactorySelector::instance() {
-        return SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector;
+        return *SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector;
     }
 
     void SocketContextUpgradeFactorySelector::registerSocketContextUpgradeFactory(
@@ -81,11 +90,11 @@ namespace web::http::server {
         if (socketContextUpgradeFactory->type() == "server") {
             VLOG(0) << "server: " << socketContextUpgradeFactory->name() << " - " << handle;
             [[maybe_unused]] const auto [it, success] =
-                serverSocketContexts.insert({socketContextUpgradeFactory->name(), socketContextPlugin});
+                serverSocketContextPlugins.insert({socketContextUpgradeFactory->name(), socketContextPlugin});
         } else {
             VLOG(0) << "client";
             [[maybe_unused]] const auto [it, success] =
-                clientSocketContexts.insert({socketContextUpgradeFactory->name(), socketContextPlugin});
+                clientSocketContextPlugins.insert({socketContextUpgradeFactory->name(), socketContextPlugin});
         }
     }
 
@@ -94,8 +103,8 @@ namespace web::http::server {
 
         VLOG(0) << "Select: " << name;
 
-        if (serverSocketContexts.contains(name)) {
-            socketContextFactory = serverSocketContexts[name].socketContextFactory;
+        if (serverSocketContextPlugins.contains(name)) {
+            socketContextFactory = serverSocketContextPlugins[name].socketContextFactory;
             VLOG(0) << "Socket Context Factory: " << socketContextFactory;
         }
 

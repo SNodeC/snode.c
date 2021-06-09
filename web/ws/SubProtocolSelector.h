@@ -38,7 +38,7 @@ namespace web::ws {
     class SubProtocolSelector {
     protected:
         SubProtocolSelector();
-        ~SubProtocolSelector();
+        virtual ~SubProtocolSelector();
 
         SubProtocolSelector(const SubProtocolSelector&) = delete;
         SubProtocolSelector& operator=(const SubProtocolSelector&) = delete;

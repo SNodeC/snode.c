@@ -51,11 +51,11 @@ namespace web::http::server {
         static SocketContextUpgradeFactorySelector& instance();
 
     protected:
-        std::map<std::string, SocketContextPlugin> serverSocketContexts;
-        std::map<std::string, SocketContextPlugin> clientSocketContexts;
+        std::map<std::string, SocketContextPlugin> serverSocketContextPlugins;
+        std::map<std::string, SocketContextPlugin> clientSocketContextPlugins;
 
-    private:
-        static SocketContextUpgradeFactorySelector socketContextUpgradeFactorySelector;
+    public:
+        static SocketContextUpgradeFactorySelector* socketContextUpgradeFactorySelector;
     };
 
 } // namespace web::http::server

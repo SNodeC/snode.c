@@ -16,12 +16,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "log/Logger.h"
+
 #ifndef WEB_HTTP_SERVER_SOCKETCONTEXTFACTORY_H
 #define WEB_HTTP_SERVER_SOCKETCONTEXTFACTORY_H
 
 #include "net/socket/stream/SocketConnectionBase.h"
 #include "net/socket/stream/SocketContextFactory.h"
 #include "web/http/server/SocketContext.h"
+#include "web/http/server/SocketContextUpgradeFactorySelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -35,13 +38,28 @@ namespace web::http::server {
         using Request = RequestT;
         using Response = ResponseT;
 
-        SocketContextFactory() = default;
+        SocketContextFactory() {
+            VLOG(0) << "++++++++++++++++++++ SocketContextFactory +++++++++++++++++++++";
+            if (SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector == nullptr) {
+                VLOG(0) << "++++++++++++++++++++ SocketContextUpgradeFactorySelector +++++++++++++++++++++";
+                new SocketContextUpgradeFactorySelector();
+            }
+        }
+
+        ~SocketContextFactory() {
+            VLOG(0) << "-------------------. SocketContextFactory ---------------------";
+            if (SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector != nullptr) {
+                VLOG(0) << "-------------------. SocketContextUpgradeFactorySelector ---------------------";
+                delete SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector;
+            }
+        }
 
         SocketContextFactory(const SocketContextFactory&) = delete;
         SocketContextFactory& operator=(const SocketContextFactory&) = delete;
 
     private:
         net::socket::stream::SocketContext* create(net::socket::stream::SocketConnectionBase* socketConnection) const override {
+            VLOG(0) << "++++++++++++++++++++ SocketContextFactory - create +++++++++++++++++++++";
             return new SocketContext<Request, Response>(socketConnection, onRequestReady);
         }
 
