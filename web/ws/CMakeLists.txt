@@ -18,7 +18,7 @@ add_library(
 )
 
 
-target_link_libraries(websocket LINK_PUBLIC net ${SNODEC_LOGGER_LIBRARY})
+target_link_libraries(websocket LINK_PUBLIC utils logger net web)
 
 target_include_directories(
     websocket PUBLIC ${CMAKE_BINARY_DIR} ${PROJECT_SOURCE_DIR}
