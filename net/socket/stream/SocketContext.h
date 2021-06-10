@@ -64,8 +64,6 @@ namespace net::socket::stream {
         virtual void onProtocolConnected();
         virtual void onProtocolDisconnected();
 
-        bool markedForDelete = false;
-
         friend class SocketConnectionBase;
 
         template <typename SocketReaderT, typename SocketWriterT, typename SocketAddressT>
