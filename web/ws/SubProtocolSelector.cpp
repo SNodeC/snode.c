@@ -39,6 +39,7 @@ namespace web::ws {
     }
 
     SubProtocolSelector::~SubProtocolSelector() {
+        VLOG(0) << "ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ should be before \"It would be unaviable from here on\"";
         for (const auto& [name, subProtocolPlugin] : serverSubprotocols) {
             delete subProtocolPlugin.subprotocolPluginInterface;
             if (subProtocolPlugin.handle != nullptr) {

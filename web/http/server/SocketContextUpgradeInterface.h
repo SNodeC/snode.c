@@ -21,7 +21,6 @@ namespace web::http::server {
             virtual ~SocketContextUpgradeInterface() = default;
 
             virtual web::http::server::SocketContextUpgradeFactory* create() = 0;
-            virtual void destroy(web::http::server::SocketContextUpgradeFactory*) = 0;
         };
     }
 

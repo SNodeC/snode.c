@@ -19,8 +19,9 @@ namespace web::ws::server {
         ~SocketContextUpgradeFactory();
 
         std::string name() override;
-
         std::string type() override;
+
+        void destroy() override;
 
     private:
         virtual web::ws::server::SocketContext* create(net::socket::stream::SocketConnectionBase* socketConnection) const override;
@@ -29,8 +30,6 @@ namespace web::ws::server {
     class SocketContextUpgradeInterface : public web::http::server::SocketContextUpgradeInterface {
     public:
         web::http::server::SocketContextUpgradeFactory* create() override;
-
-        void destroy(web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory) override;
     };
 
 } // namespace web::ws::server

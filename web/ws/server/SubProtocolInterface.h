@@ -23,6 +23,7 @@
 #include "web/ws/server/SubProtocol.h"
 
 #include <list>
+#include <memory>
 
 namespace web::http::server {
 
@@ -40,12 +41,13 @@ namespace web::ws::server {
     extern "C" {
         class SubProtocolInterface : public web::ws::SubProtocolInterface {
         public:
-            std::list<web::ws::server::SubProtocol*>* getClients() {
-                return &clients;
+            std::shared_ptr<std::list<web::ws::server::SubProtocol*>> getClients() {
+                return clients;
             }
 
         private:
-            std::list<web::ws::server::SubProtocol*> clients;
+            std::shared_ptr<std::list<web::ws::server::SubProtocol*>> clients =
+                std::make_shared<std::list<web::ws::server::SubProtocol*>>();
         };
     }
 

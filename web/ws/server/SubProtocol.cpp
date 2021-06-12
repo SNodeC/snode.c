@@ -88,7 +88,7 @@ namespace web::ws::server {
         }
     }
 
-    void SubProtocol::setClients(std::list<SubProtocol*>* clients) {
+    void SubProtocol::setClients(std::shared_ptr<std::list<web::ws::server::SubProtocol*>> clients) {
         this->clients = clients;
         clients->push_back(this);
     }

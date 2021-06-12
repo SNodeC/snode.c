@@ -31,6 +31,7 @@ namespace web::ws::server {
 #include <cstdint>
 #include <functional>
 #include <list>
+#include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -92,9 +93,9 @@ namespace web::ws::server {
         void sendBroadcast(uint8_t opCode, const char* message, std::size_t messageLength);
         void sendBroadcastStart(uint8_t opCode, const char* message, std::size_t messageLength);
 
-        void setClients(std::list<SubProtocol*>* clients);
+        void setClients(std::shared_ptr<std::list<web::ws::server::SubProtocol*>> clients);
 
-        std::list<SubProtocol*>* clients;
+        std::shared_ptr<std::list<web::ws::server::SubProtocol*>> clients;
 
         friend class web::ws::server::SocketContext;
     };

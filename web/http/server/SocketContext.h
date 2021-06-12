@@ -19,6 +19,7 @@
 #ifndef WEB_HTTP_SERVER_SOCKETCONTEXT_H
 #define WEB_HTTP_SERVER_SOCKETCONTEXT_H
 
+#include "log/Logger.h"
 #include "net/socket/stream/SocketContext.h"
 #include "web/http/server/Request.h"
 #include "web/http/server/RequestParser.h"
@@ -78,7 +79,9 @@ namespace web::http::server {
         SocketContext(net::socket::stream::SocketConnectionBase* socketConnection,
                       const std::function<void(Request&, Response&)>& onRequestReady);
 
-        ~SocketContext() override = default;
+        ~SocketContext() {
+            VLOG(0) << "HTTP SocketContext Destructor";
+        }
 
         void onReceiveFromPeer() override;
         void sendResponseData(const char* junk, std::size_t junkLen) override;

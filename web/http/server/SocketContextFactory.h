@@ -45,6 +45,7 @@ namespace web::http::server {
         }
 
         ~SocketContextFactory() {
+            VLOG(0) << "Destructor: SocketContextFactory";
             if (SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector != nullptr) {
                 delete SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector;
             }

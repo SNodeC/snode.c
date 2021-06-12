@@ -42,6 +42,8 @@ namespace web::http::server {
         virtual std::string name() = 0;
         virtual std::string type() = 0;
 
+        virtual void destroy() = 0;
+
     protected:
         web::http::server::Request* request;
         web::http::server::Response* response;

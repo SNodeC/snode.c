@@ -40,6 +40,8 @@ namespace web::http::server {
     class SocketContextUpgradeFactorySelector {
     public:
         SocketContextUpgradeFactorySelector();
+
+    public:
         ~SocketContextUpgradeFactorySelector();
 
         void registerSocketContextUpgradeFactory(web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory);

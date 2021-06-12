@@ -30,6 +30,7 @@ namespace net::socket::stream {
 
     SocketConnectionBase::SocketConnectionBase(const std::shared_ptr<const SocketContextFactory>& socketContextFactory) {
         socketContext = socketContextFactory->create(this);
+        this->socketContextFactory = socketContextFactory;
     }
 
     SocketConnectionBase::~SocketConnectionBase() {

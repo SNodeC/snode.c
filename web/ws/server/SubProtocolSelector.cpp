@@ -32,14 +32,14 @@
 
 namespace web::ws::server {
 
-    SubProtocolSelector* SubProtocolSelector::subProtocolSelector = nullptr;
+    std::shared_ptr<SubProtocolSelector> SubProtocolSelector::subProtocolSelector = nullptr;
 
-    SubProtocolSelector& SubProtocolSelector::instance() {
+    std::shared_ptr<SubProtocolSelector> SubProtocolSelector::instance() {
         if (subProtocolSelector == nullptr) {
-            subProtocolSelector = new SubProtocolSelector();
+            subProtocolSelector = std::make_shared<SubProtocolSelector>();
         }
 
-        return *subProtocolSelector;
+        return subProtocolSelector;
     }
 
     web::ws::server::SubProtocolInterface* SubProtocolSelector::select(const std::string& subProtocolName) {

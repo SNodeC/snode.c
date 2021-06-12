@@ -32,25 +32,21 @@ namespace web::ws::server {
         }
     }
 
-    void SocketContextUpgradeInterface::destroy(http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory) {
-        delete socketContextUpgradeFactory;
-    }
-
     http::server::SocketContextUpgradeFactory* SocketContextUpgradeInterface::create() {
         return new SocketContextUpgradeFactory();
     }
 
     SocketContextUpgradeFactory::SocketContextUpgradeFactory() {
-        if (SubProtocolSelector::subProtocolSelector == nullptr) {
-            SubProtocolSelector::subProtocolSelector = new SubProtocolSelector();
-        }
+        //        if (SubProtocolSelector::subProtocolSelector == nullptr) {
+        //            SubProtocolSelector::subProtocolSelector = new SubProtocolSelector();
+        //        }
     }
 
     SocketContextUpgradeFactory::~SocketContextUpgradeFactory() {
-        if (SubProtocolSelector::subProtocolSelector != nullptr) {
-            delete SubProtocolSelector::subProtocolSelector;
-            SubProtocolSelector::subProtocolSelector = nullptr;
-        }
+        //        if (SubProtocolSelector::subProtocolSelector != nullptr) {
+        //            delete SubProtocolSelector::subProtocolSelector;
+        //            SubProtocolSelector::subProtocolSelector = nullptr;
+        //        }
     }
 
     std::string SocketContextUpgradeFactory::name() {
@@ -59,6 +55,11 @@ namespace web::ws::server {
 
     std::string SocketContextUpgradeFactory::type() {
         return "server";
+    }
+
+    void SocketContextUpgradeFactory::destroy() {
+        ///////////////// hier clear
+        VLOG(0) << "Cllllllllllllllllllllllllllllllear";
     }
 
     web::ws::server::SocketContext* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnectionBase* socketConnection) const {
