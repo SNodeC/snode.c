@@ -54,7 +54,7 @@ namespace net::socket::stream {
 
         virtual std::size_t doRead(char* junk, std::size_t junkLen) = 0;
 
-        virtual void close() = 0;
+        virtual void close(bool instantly = false) = 0;
 
         virtual void setTimeout(int timeout) = 0;
 
