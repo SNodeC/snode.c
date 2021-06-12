@@ -44,11 +44,7 @@ namespace web::http::server {
                       onDisconnect(socketConnection);
                   },
                   options) {
-            socketServer.getSocketContextFactory()->setOnRequestReady(onRequestReady); //.setOnRequestReady(onRequestReady);
-        }
-
-        ~Server() {
-            VLOG(0) << "Destructor Server";
+            socketServer.getSocketContextFactory()->setOnRequestReady(onRequestReady);
         }
 
         void listen(uint16_t port, const std::function<void(int)>& onError) const {

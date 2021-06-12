@@ -19,6 +19,7 @@
 #ifndef NET_SOCKET_STREAM_SOCKETREADER_H
 #define NET_SOCKET_STREAM_SOCKETREADER_H
 
+#include "log/Logger.h"
 #include "net/ReadEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -49,7 +50,7 @@ namespace net::socket::stream {
 
         void shutdown() {
             if (!isEnabled()) {
-                Socket::shutdown(Socket::shut::RD);
+                Socket::shutdown(Socket::shutdown::RD);
             } else {
                 markShutdown = true;
             }
@@ -70,10 +71,6 @@ namespace net::socket::stream {
                 if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
                     ReadEventReceiver::disable();
                     onError(getError());
-                } else {
-                    if (markShutdown) {
-                        Socket::shutdown(Socket::shutdown::RD);
-                    }
                 }
                 ret = 0;
             }

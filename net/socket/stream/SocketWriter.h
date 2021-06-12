@@ -56,14 +56,14 @@ namespace net::socket::stream {
         void enqueue(const char* junk, std::size_t junkLen) {
             writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
 
-            if (!WriteEventReceiver::isEnabled()) {
-                WriteEventReceiver::enable(Socket::getFd());
+            if (WriteEventReceiver::isSuspended()) {
+                WriteEventReceiver::resume();
             }
         }
 
         void shutdown() {
-            if (!isEnabled()) {
-                Socket::shutdown(Socket::shut::WR);
+            if (isSuspended()) {
+                Socket::shutdown(Socket::shutdown::WR);
             } else {
                 markShutdown = true;
             }
@@ -74,23 +74,28 @@ namespace net::socket::stream {
 
     protected:
         void doWrite() {
-            ssize_t ret = write(writeBuffer.data(), (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE);
+            if (writeBuffer.empty()) {
+                WriteEventReceiver::suspend();
+            } else {
+                ssize_t ret = write(writeBuffer.data(), (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE);
 
-            if (ret > 0) {
-                writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + ret);
+                if (ret > 0) {
+                    writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + ret);
 
-                if (writeBuffer.empty()) {
+                    if (writeBuffer.empty()) {
+                        WriteEventReceiver::suspend();
+                        if (markShutdown) {
+                            Socket::shutdown(Socket::shutdown::WR);
+                            WriteEventReceiver::disable();
+                        }
+                    }
+                } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
                     WriteEventReceiver::disable();
+                    onError(getError());
+
                     if (markShutdown) {
                         Socket::shutdown(Socket::shutdown::WR);
                     }
-                }
-            } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
-                WriteEventReceiver::disable();
-                onError(getError());
-
-                if (markShutdown) {
-                    Socket::shutdown(Socket::shutdown::WR);
                 }
             }
         }
