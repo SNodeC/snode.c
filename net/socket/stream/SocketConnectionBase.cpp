@@ -26,28 +26,4 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::stream {
-
-    SocketConnectionBase::SocketConnectionBase(const std::shared_ptr<const SocketContextFactory>& socketContextFactory) {
-        socketContext = socketContextFactory->create(this);
-    }
-
-    SocketConnectionBase::~SocketConnectionBase() {
-        delete socketContext;
-    }
-
-    void SocketConnectionBase::switchSocketProtocol(const SocketContextFactory& socketContextFactory) {
-        SocketContext* newSocketContext = socketContextFactory.create(this);
-
-        if (newSocketContext != nullptr) {
-            socketContext->onProtocolDisconnected();
-            socketContext = newSocketContext;
-            socketContext->onProtocolConnected();
-        }
-    }
-
-    SocketContext* SocketConnectionBase::getSocketContext() {
-        return socketContext;
-    }
-
-} // namespace net::socket::stream
+namespace net::socket::stream {} // namespace net::socket::stream

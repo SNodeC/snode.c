@@ -48,13 +48,12 @@ namespace net::socket::stream {
 
     protected:
         SocketConnection(int fd,
-                         const std::shared_ptr<const SocketContextFactory>& socketProtocolFactory,
+                         const std::shared_ptr<const SocketContextFactory>& socketContextFactory,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
                          const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                          const std::function<void()>& onDisconnect)
-            : SocketConnectionBase(socketProtocolFactory)
-            , SocketReader([&socketContext = this->socketContext, this](int errnum) -> void {
+            : SocketReader([&socketContext = this->socketContext, this](int errnum) -> void {
                 socketContext->onReadError(errnum);
                 SocketWriter::disable();
             })
@@ -69,12 +68,14 @@ namespace net::socket::stream {
             SocketReader::enable(fd);
             SocketWriter::enable(fd);
             onConnect(localAddress, remoteAddress);
+            socketContext = socketContextFactory->create(this);
             socketContext->onProtocolConnected();
         }
 
         virtual ~SocketConnection() {
             socketContext->onProtocolDisconnected();
             onDisconnect();
+            delete socketContext;
         }
 
     public:
@@ -116,6 +117,20 @@ namespace net::socket::stream {
             SocketWriter::disable();
         }
 
+        SocketContext* getSocketContext() {
+            return socketContext;
+        }
+
+        void switchSocketProtocol(const SocketContextFactory& socketContextFactory) override {
+            SocketContext* newSocketContext = socketContextFactory.create(this);
+
+            if (newSocketContext != nullptr) {
+                socketContext->onProtocolDisconnected();
+                socketContext = newSocketContext;
+                socketContext->onProtocolConnected();
+            }
+        }
+
     private:
         void readEvent() override {
             socketContext->receiveFromPeer();
@@ -133,6 +148,8 @@ namespace net::socket::stream {
         SocketAddress remoteAddress{};
 
         std::function<void()> onDisconnect;
+
+        SocketContext* socketContext = nullptr;
     };
 
 } // namespace net::socket::stream
