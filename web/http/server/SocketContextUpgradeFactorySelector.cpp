@@ -34,12 +34,13 @@ namespace web::http::server {
     SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector = nullptr;
 
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactorySelector() {
-        VLOG(0) << "++++++++++++++++++++++++++++++++++";
-        if (SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector == nullptr) {
-            SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector = this;
-        }
+    }
 
-        void* handle = dlopen("/usr/local/lib/snodec/web/ws/libwebsocket.so", RTLD_LAZY | RTLD_NODELETE | RTLD_GLOBAL);
+    SocketContextUpgradeFactorySelector::~SocketContextUpgradeFactorySelector() {
+    }
+
+    void SocketContextUpgradeFactorySelector::loadSocketContexts() {
+        void* handle = dlopen("/usr/local/lib/snodec/web/ws/libwebsocket.so", RTLD_LAZY | RTLD_GLOBAL);
 
         if (handle != nullptr) {
             SocketContextUpgradeInterface* (*plugin)() = reinterpret_cast<SocketContextUpgradeInterface* (*) ()>(dlsym(handle, "plugin"));
@@ -53,10 +54,10 @@ namespace web::http::server {
         }
     }
 
-    SocketContextUpgradeFactorySelector::~SocketContextUpgradeFactorySelector() {
+    void SocketContextUpgradeFactorySelector::unloadSocketContexts() {
         for (const auto& [name, socketContextPlugin] : serverSocketContextPlugins) {
-            socketContextPlugin.socketContextFactory->destroy();
-            delete socketContextPlugin.socketContextFactory;
+            socketContextPlugin.socketContextUpgradeFactory->destroy();
+            delete socketContextPlugin.socketContextUpgradeFactory;
             if (socketContextPlugin.handle != nullptr) {
                 dlclose(socketContextPlugin.handle);
                 VLOG(0) << "It would be unaviable from here on";
@@ -64,15 +65,19 @@ namespace web::http::server {
         }
 
         for (const auto& [name, socketContextPlugin] : clientSocketContextPlugins) {
-            delete socketContextPlugin.socketContextFactory;
+            socketContextPlugin.socketContextUpgradeFactory->destroy();
+            delete socketContextPlugin.socketContextUpgradeFactory;
             if (socketContextPlugin.handle != nullptr) {
                 dlclose(socketContextPlugin.handle);
             }
         }
-        SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector = nullptr;
     }
 
     SocketContextUpgradeFactorySelector& SocketContextUpgradeFactorySelector::instance() {
+        VLOG(0) << "++++++++++++++++++++++++++++++++++";
+        if (SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector == nullptr) {
+            SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector = new SocketContextUpgradeFactorySelector();
+        }
         return *SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector;
     }
 
@@ -83,7 +88,7 @@ namespace web::http::server {
 
     void SocketContextUpgradeFactorySelector::registerSocketContextUpgradeFactory(
         web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handle) {
-        SocketContextPlugin socketContextPlugin = {.socketContextFactory = socketContextUpgradeFactory, .handle = handle};
+        SocketContextPlugin socketContextPlugin = {.socketContextUpgradeFactory = socketContextUpgradeFactory, .handle = handle};
 
         if (socketContextUpgradeFactory->type() == "server") {
             [[maybe_unused]] const auto [it, success] =
@@ -98,7 +103,7 @@ namespace web::http::server {
         web::http::server::SocketContextUpgradeFactory* socketContextFactory = nullptr;
 
         if (serverSocketContextPlugins.contains(name)) {
-            socketContextFactory = serverSocketContextPlugins[name].socketContextFactory;
+            socketContextFactory = serverSocketContextPlugins[name].socketContextUpgradeFactory;
         }
 
         return socketContextFactory;

@@ -59,6 +59,7 @@ namespace web::ws::server {
 
     void SocketContextUpgradeFactory::destroy() {
         ///////////////// hier clear
+        web::ws::server::SubProtocolSelector::instance()->unloadSubProtocols();
         VLOG(0) << "Cllllllllllllllllllllllllllllllear";
     }
 

@@ -48,6 +48,8 @@ namespace web::ws {
         void loadSubProtocols(const std::string& directoryPath);
         void registerSubProtocol(SubProtocolInterface* subProtocolPluginInterface, void* handle = nullptr);
 
+        void unloadSubProtocols();
+
         virtual SubProtocolInterface* select(const std::string& subProtocolName) = 0;
 
     protected:

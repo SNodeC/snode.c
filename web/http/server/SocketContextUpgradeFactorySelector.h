@@ -33,12 +33,12 @@ namespace web::http::server {
 namespace web::http::server {
 
     struct SocketContextPlugin {
-        web::http::server::SocketContextUpgradeFactory* socketContextFactory;
+        web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory;
         void* handle = nullptr;
     };
 
     class SocketContextUpgradeFactorySelector {
-    public:
+    private:
         SocketContextUpgradeFactorySelector();
 
     public:
@@ -47,6 +47,9 @@ namespace web::http::server {
         void registerSocketContextUpgradeFactory(web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory);
         void registerSocketContextUpgradeFactory(web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory,
                                                  void* handler);
+
+        void loadSocketContexts();
+        void unloadSocketContexts();
 
         web::http::server::SocketContextUpgradeFactory* select(const std::string& subProtocolName);
 

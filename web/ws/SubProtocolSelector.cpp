@@ -39,6 +39,7 @@ namespace web::ws {
     }
 
     SubProtocolSelector::~SubProtocolSelector() {
+        /*
         VLOG(0) << "ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ should be before \"It would be unaviable from here on\"";
         for (const auto& [name, subProtocolPlugin] : serverSubprotocols) {
             delete subProtocolPlugin.subprotocolPluginInterface;
@@ -53,6 +54,7 @@ namespace web::ws {
                 dlclose(subProtocolPlugin.handle);
             }
         }
+        */
     }
 
     void SubProtocolSelector::loadSubProtocols() {
@@ -88,6 +90,23 @@ namespace web::ws {
             }
         } else if (handle != nullptr) {
             dlclose(handle);
+        }
+    }
+
+    void SubProtocolSelector::unloadSubProtocols() {
+        VLOG(0) << "ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ should be before \"It would be unaviable from here on\"";
+        for (const auto& [name, subProtocolPlugin] : serverSubprotocols) {
+            delete subProtocolPlugin.subprotocolPluginInterface;
+            if (subProtocolPlugin.handle != nullptr) {
+                dlclose(subProtocolPlugin.handle);
+            }
+        }
+
+        for (const auto& [name, subProtocolPlugin] : clientSubprotocols) {
+            delete subProtocolPlugin.subprotocolPluginInterface;
+            if (subProtocolPlugin.handle != nullptr) {
+                dlclose(subProtocolPlugin.handle);
+            }
         }
     }
 

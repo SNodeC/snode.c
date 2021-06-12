@@ -39,15 +39,25 @@ namespace web::http::server {
         using Response = ResponseT;
 
         SocketContextFactory() {
-            if (SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector == nullptr) {
-                new SocketContextUpgradeFactorySelector();
+            VLOG(0) << "Constructor: SocketContextFactory";
+            if (useCount == 0) {
+                SocketContextUpgradeFactorySelector::instance().loadSocketContexts();
             }
+            useCount++;
+            VLOG(0) << "UseCount: " << useCount;
         }
 
         ~SocketContextFactory() {
             VLOG(0) << "Destructor: SocketContextFactory";
-            if (SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector != nullptr) {
-                delete SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector;
+            useCount--;
+            VLOG(0) << "UseCount: " << useCount;
+
+            if (useCount == 0) {
+                SocketContextUpgradeFactorySelector::instance().unloadSocketContexts();
+
+                if (SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector != nullptr) {
+                    delete SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector;
+                }
             }
         }
 
@@ -66,7 +76,12 @@ namespace web::http::server {
 
     private:
         std::function<void(Request&, Response&)> onRequestReady;
+
+        static int useCount;
     };
+
+    template <typename RequestT, typename ResponseT>
+    int SocketContextFactory<RequestT, ResponseT>::useCount = 0;
 
 } // namespace web::http::server
 

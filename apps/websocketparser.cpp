@@ -19,56 +19,56 @@ using namespace net;
 
 int main(int argc, char* argv[]) {
     SNodeC::init(argc, argv);
-    /*
-        legacy::WebApp legacyApp;
 
-        legacyApp.get("/", [] MIDDLEWARE(req, res, next) {
-            if (req.url == "/") {
-                req.url = "/wstest.html";
-            }
+    legacy::WebApp legacyApp;
 
-            if (req.url == "/ws") {
-                next();
-            } else {
-                res.sendFile(CMAKE_SOURCE_DIR "apps/html" + req.url, [&req](int ret) -> void {
-                    if (ret != 0) {
-                        PLOG(ERROR) << req.url;
-                    }
-                });
-            }
-        });
+    legacyApp.get("/", [] MIDDLEWARE(req, res, next) {
+        if (req.url == "/") {
+            req.url = "/wstest.html";
+        }
 
-        legacyApp.get("/ws", [](Request& req, Response& res) -> void {
-            std::string uri = req.originalUrl;
+        if (req.url == "/ws") {
+            next();
+        } else {
+            res.sendFile(CMAKE_SOURCE_DIR "apps/html" + req.url, [&req](int ret) -> void {
+                if (ret != 0) {
+                    PLOG(ERROR) << req.url;
+                }
+            });
+        }
+    });
 
-            VLOG(1) << "OriginalUri: " << uri;
-            VLOG(1) << "Uri: " << req.url;
+    legacyApp.get("/ws", [](Request& req, Response& res) -> void {
+        std::string uri = req.originalUrl;
 
-            VLOG(1) << "Host: " << req.header("host");
-            VLOG(1) << "Connection: " << req.header("connection");
-            VLOG(1) << "Origin: " << req.header("origin");
-            VLOG(1) << "Sec-WebSocket-Protocol: " << req.header("sec-websocket-protocol");
-            VLOG(1) << "sec-web-socket-extensions: " << req.header("sec-websocket-extensions");
-            VLOG(1) << "sec-websocket-key: " << req.header("sec-websocket-key");
-            VLOG(1) << "sec-websocket-version: " << req.header("sec-websocket-version");
-            VLOG(1) << "upgrade: " << req.header("upgrade");
-            VLOG(1) << "user-agent: " << req.header("user-agent");
+        VLOG(1) << "OriginalUri: " << uri;
+        VLOG(1) << "Uri: " << req.url;
 
-            if (httputils::ci_contains(req.header("connection"), "Upgrade")) {
-                res.upgrade(req);
-            } else {
-                res.sendStatus(404);
-            }
-        });
+        VLOG(1) << "Host: " << req.header("host");
+        VLOG(1) << "Connection: " << req.header("connection");
+        VLOG(1) << "Origin: " << req.header("origin");
+        VLOG(1) << "Sec-WebSocket-Protocol: " << req.header("sec-websocket-protocol");
+        VLOG(1) << "sec-web-socket-extensions: " << req.header("sec-websocket-extensions");
+        VLOG(1) << "sec-websocket-key: " << req.header("sec-websocket-key");
+        VLOG(1) << "sec-websocket-version: " << req.header("sec-websocket-version");
+        VLOG(1) << "upgrade: " << req.header("upgrade");
+        VLOG(1) << "user-agent: " << req.header("user-agent");
 
-        legacyApp.listen(8080, [](int err) -> void {
-            if (err != 0) {
-                perror("Listen");
-            } else {
-                std::cout << "snode.c listening on port 8080" << std::endl;
-            }
-        });
-    */
+        if (httputils::ci_contains(req.header("connection"), "Upgrade")) {
+            res.upgrade(req);
+        } else {
+            res.sendStatus(404);
+        }
+    });
+
+    legacyApp.listen(8080, [](int err) -> void {
+        if (err != 0) {
+            perror("Listen");
+        } else {
+            std::cout << "snode.c listening on port 8080" << std::endl;
+        }
+    });
+
     {
         tls::WebApp tlsApp({{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
 
