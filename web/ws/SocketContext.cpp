@@ -216,12 +216,12 @@ namespace web::ws {
         Receiver::receive();
     }
 
-    void SocketContext::onReadError(int errnum) {
-        VLOG(0) << "OnReadError: " << errnum;
+    void SocketContext::onReadError([[maybe_unused]] int errnum) {
+        PLOG(INFO) << "OnReadError:";
     }
 
-    void SocketContext::onWriteError(int errnum) {
-        VLOG(0) << "OnWriteError: " << errnum;
+    void SocketContext::onWriteError([[maybe_unused]] int errnum) {
+        PLOG(INFO) << "OnWriteError:";
     }
 
     std::string SocketContext::getLocalAddressAsString() const {

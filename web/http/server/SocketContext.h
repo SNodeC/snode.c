@@ -79,10 +79,6 @@ namespace web::http::server {
         SocketContext(net::socket::stream::SocketConnectionBase* socketConnection,
                       const std::function<void(Request&, Response&)>& onRequestReady);
 
-        ~SocketContext() {
-            VLOG(0) << "HTTP SocketContext Destructor";
-        }
-
         void onReceiveFromPeer() override;
         void sendResponseData(const char* junk, std::size_t junkLen) override;
 

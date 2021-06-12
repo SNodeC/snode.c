@@ -152,10 +152,8 @@ namespace web::http::server {
                 web::http::server::SocketContextUpgradeFactorySelector::instance()->select("websocket");
             //                        httputils::ci_contains(req.header("upgrade"), "websocket")
 
-            VLOG(0) << "Socket Context Upgrade Factory: " << socketContextUpgradeFactory;
             if (socketContextUpgradeFactory != nullptr) {
                 socketContextUpgradeFactory->prepare(req, *this);
-                VLOG(0) << "Socket Context Upgrade Factory: " << socketContextUpgradeFactory;
                 serverContext->switchSocketProtocol(*socketContextUpgradeFactory);
             } else {
                 this->status(404).end();

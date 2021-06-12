@@ -55,7 +55,7 @@ namespace net::socket::stream {
                          const std::function<void()>& onDisconnect)
             : SocketReader([&socketContext = this->socketContext, this](int errnum) -> void {
                 socketContext->onReadError(errnum);
-                SocketWriter::shutdown();
+                SocketWriter::disable();
             })
             , SocketWriter([&socketContext = this->socketContext, this](int errnum) -> void {
                 socketContext->onWriteError(errnum);
