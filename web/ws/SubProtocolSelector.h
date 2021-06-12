@@ -37,8 +37,8 @@ namespace web::ws {
 
     class SubProtocolSelector {
     protected:
-        SubProtocolSelector();
-        virtual ~SubProtocolSelector();
+        SubProtocolSelector() = default;
+        virtual ~SubProtocolSelector() = default;
 
         SubProtocolSelector(const SubProtocolSelector&) = delete;
         SubProtocolSelector& operator=(const SubProtocolSelector&) = delete;
@@ -52,7 +52,7 @@ namespace web::ws {
 
         virtual SubProtocolInterface* select(const std::string& subProtocolName) = 0;
 
-    protected:
+    public:
         void loadSubProtocols();
 
         std::map<std::string, SubProtocolPlugin> serverSubprotocols;

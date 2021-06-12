@@ -33,12 +33,6 @@ namespace web::http::server {
 
     SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector = nullptr;
 
-    SocketContextUpgradeFactorySelector::SocketContextUpgradeFactorySelector() {
-    }
-
-    SocketContextUpgradeFactorySelector::~SocketContextUpgradeFactorySelector() {
-    }
-
     void SocketContextUpgradeFactorySelector::loadSocketContexts() {
         void* handle = dlopen("/usr/local/lib/snodec/web/ws/libwebsocket.so", RTLD_LAZY | RTLD_GLOBAL);
 
@@ -47,8 +41,8 @@ namespace web::http::server {
 
             SocketContextUpgradeInterface* socketContextUpgradeInterface = plugin();
 
-            SocketContextUpgradeFactorySelector::instance().registerSocketContextUpgradeFactory(socketContextUpgradeInterface->create(),
-                                                                                                handle);
+            SocketContextUpgradeFactorySelector::instance()->registerSocketContextUpgradeFactory(socketContextUpgradeInterface->create(),
+                                                                                                 handle);
 
             delete socketContextUpgradeInterface;
         }
@@ -56,29 +50,35 @@ namespace web::http::server {
 
     void SocketContextUpgradeFactorySelector::unloadSocketContexts() {
         for (const auto& [name, socketContextPlugin] : serverSocketContextPlugins) {
-            socketContextPlugin.socketContextUpgradeFactory->destroy();
             delete socketContextPlugin.socketContextUpgradeFactory;
             if (socketContextPlugin.handle != nullptr) {
                 dlclose(socketContextPlugin.handle);
-                VLOG(0) << "It would be unaviable from here on";
             }
         }
 
         for (const auto& [name, socketContextPlugin] : clientSocketContextPlugins) {
-            socketContextPlugin.socketContextUpgradeFactory->destroy();
             delete socketContextPlugin.socketContextUpgradeFactory;
             if (socketContextPlugin.handle != nullptr) {
                 dlclose(socketContextPlugin.handle);
             }
         }
+
+        delete this;
     }
 
-    SocketContextUpgradeFactorySelector& SocketContextUpgradeFactorySelector::instance() {
-        VLOG(0) << "++++++++++++++++++++++++++++++++++";
-        if (SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector == nullptr) {
-            SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector = new SocketContextUpgradeFactorySelector();
+    void SocketContextUpgradeFactorySelector::loadSocketContexts1() {
+        instance()->loadSocketContexts();
+    }
+
+    void SocketContextUpgradeFactorySelector::unloadSocketContexts1() {
+        instance()->unloadSocketContexts();
+    }
+
+    SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::instance() {
+        if (socketContextUpgradeFactorySelector == nullptr) {
+            socketContextUpgradeFactorySelector = new SocketContextUpgradeFactorySelector();
         }
-        return *SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector;
+        return socketContextUpgradeFactorySelector;
     }
 
     void SocketContextUpgradeFactorySelector::registerSocketContextUpgradeFactory(

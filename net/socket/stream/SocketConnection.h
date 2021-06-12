@@ -73,9 +73,7 @@ namespace net::socket::stream {
         }
 
         virtual ~SocketConnection() {
-            VLOG(0) << "11111111111111111111111111";
             socketContext->onProtocolDisconnected();
-            VLOG(0) << "22222222222222222222222222";
             onDisconnect();
         }
 

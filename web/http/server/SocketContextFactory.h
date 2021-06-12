@@ -39,25 +39,16 @@ namespace web::http::server {
         using Response = ResponseT;
 
         SocketContextFactory() {
-            VLOG(0) << "Constructor: SocketContextFactory";
             if (useCount == 0) {
-                SocketContextUpgradeFactorySelector::instance().loadSocketContexts();
+                SocketContextUpgradeFactorySelector::instance()->loadSocketContexts();
             }
             useCount++;
-            VLOG(0) << "UseCount: " << useCount;
         }
 
         ~SocketContextFactory() {
-            VLOG(0) << "Destructor: SocketContextFactory";
             useCount--;
-            VLOG(0) << "UseCount: " << useCount;
-
             if (useCount == 0) {
-                SocketContextUpgradeFactorySelector::instance().unloadSocketContexts();
-
-                if (SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector != nullptr) {
-                    delete SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector;
-                }
+                SocketContextUpgradeFactorySelector::instance()->unloadSocketContexts();
             }
         }
 

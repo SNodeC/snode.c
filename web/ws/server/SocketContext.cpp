@@ -39,12 +39,10 @@ namespace web::ws::server {
     }
 
     SocketContext::SocketContext::~SocketContext() {
-        VLOG(0) << "WebSocketContext Destructor";
         web::ws::SubProtocolInterface* subProtocolInterface =
             web::ws::server::SubProtocolSelector::instance()->select(subProtocol->getName());
 
         if (subProtocolInterface != nullptr) {
-            VLOG(0) << "WebSocketContext Destructor";
             subProtocolInterface->destroy(subProtocol);
         }
     }
@@ -91,9 +89,6 @@ namespace web::ws::server {
         }
 
         return context;
-    }
-
-    void SocketContext::destroy(SocketContext*) {
     }
 
 } // namespace web::ws::server

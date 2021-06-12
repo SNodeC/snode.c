@@ -34,29 +34,6 @@
 
 namespace web::ws {
 
-    SubProtocolSelector::SubProtocolSelector() {
-        loadSubProtocols();
-    }
-
-    SubProtocolSelector::~SubProtocolSelector() {
-        /*
-        VLOG(0) << "ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ should be before \"It would be unaviable from here on\"";
-        for (const auto& [name, subProtocolPlugin] : serverSubprotocols) {
-            delete subProtocolPlugin.subprotocolPluginInterface;
-            if (subProtocolPlugin.handle != nullptr) {
-                dlclose(subProtocolPlugin.handle);
-            }
-        }
-
-        for (const auto& [name, subProtocolPlugin] : clientSubprotocols) {
-            delete subProtocolPlugin.subprotocolPluginInterface;
-            if (subProtocolPlugin.handle != nullptr) {
-                dlclose(subProtocolPlugin.handle);
-            }
-        }
-        */
-    }
-
     void SubProtocolSelector::loadSubProtocols() {
 #ifndef NDEBUG
 #ifdef SUBPROTOCOL_PATH
@@ -94,7 +71,6 @@ namespace web::ws {
     }
 
     void SubProtocolSelector::unloadSubProtocols() {
-        VLOG(0) << "ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ should be before \"It would be unaviable from here on\"";
         for (const auto& [name, subProtocolPlugin] : serverSubprotocols) {
             delete subProtocolPlugin.subprotocolPluginInterface;
             if (subProtocolPlugin.handle != nullptr) {

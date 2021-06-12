@@ -149,7 +149,7 @@ namespace web::http::server {
     void Response::upgrade(Request& req) {
         if (httputils::ci_contains(req.header("connection"), "Upgrade")) {
             web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory =
-                web::http::server::SocketContextUpgradeFactorySelector::instance().select("websocket");
+                web::http::server::SocketContextUpgradeFactorySelector::instance()->select("websocket");
             //                        httputils::ci_contains(req.header("upgrade"), "websocket")
 
             VLOG(0) << "Socket Context Upgrade Factory: " << socketContextUpgradeFactory;

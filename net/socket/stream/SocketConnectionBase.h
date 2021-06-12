@@ -63,8 +63,6 @@ namespace net::socket::stream {
 
         SocketContext* socketContext = nullptr;
 
-        std::shared_ptr<const SocketContextFactory> socketContextFactory;
-
         friend SocketContext;
     };
 

@@ -39,11 +39,10 @@ namespace web::http::server {
 
     class SocketContextUpgradeFactorySelector {
     private:
-        SocketContextUpgradeFactorySelector();
+        SocketContextUpgradeFactorySelector() = default;
+        ~SocketContextUpgradeFactorySelector() = default;
 
     public:
-        ~SocketContextUpgradeFactorySelector();
-
         void registerSocketContextUpgradeFactory(web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory);
         void registerSocketContextUpgradeFactory(web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory,
                                                  void* handler);
@@ -51,9 +50,12 @@ namespace web::http::server {
         void loadSocketContexts();
         void unloadSocketContexts();
 
+        static void loadSocketContexts1();
+        static void unloadSocketContexts1();
+
         web::http::server::SocketContextUpgradeFactory* select(const std::string& subProtocolName);
 
-        static SocketContextUpgradeFactorySelector& instance();
+        static SocketContextUpgradeFactorySelector* instance();
 
     protected:
         std::map<std::string, SocketContextPlugin> serverSocketContextPlugins;
