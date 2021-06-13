@@ -41,8 +41,7 @@ namespace web::ws::server {
         return subProtocolSelector;
     }
 
-    web::ws::SubProtocol*
-    SubProtocolSelector::select(const std::string& subProtocolName, web::http::server::Request& req, web::http::server::Response& res) {
+    web::ws::SubProtocol* SubProtocolSelector::select(const std::string& subProtocolName) {
         web::ws::server::SubProtocol* subProtocol = nullptr;
 
         if (serverSubprotocols.contains(subProtocolName)) {
@@ -50,7 +49,7 @@ namespace web::ws::server {
                 static_cast<SubProtocolInterface*>(serverSubprotocols.find(subProtocolName)->second.subprotocolPluginInterface);
 
             if (subProtocolInterface != nullptr) {
-                subProtocol = static_cast<web::ws::server::SubProtocol*>(subProtocolInterface->create(req, res));
+                subProtocol = static_cast<web::ws::server::SubProtocol*>(subProtocolInterface->create());
 
                 if (subProtocol != nullptr) {
                     subProtocol->setClients(subProtocolInterface->getClients());

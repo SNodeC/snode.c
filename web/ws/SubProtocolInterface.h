@@ -19,13 +19,6 @@
 #ifndef WEB_WS_SUBPROTOCOLPLUGININTERFACE_H
 #define WEB_WS_SUBPROTOCOLPLUGININTERFACE_H
 
-namespace web::http::server {
-
-    class Request;
-    class Response;
-
-} // namespace web::http::server
-
 namespace web::ws {
     class SubProtocol;
 } // namespace web::ws
@@ -44,7 +37,7 @@ namespace web::ws {
 
         virtual std::string name() = 0;
         virtual std::string role() = 0;
-        virtual web::ws::SubProtocol* create(web::http::server::Request&, web::http::server::Response&) = 0;
+        virtual web::ws::SubProtocol* create() = 0;
         virtual void destroy(web::ws::SubProtocol*) = 0;
     };
 

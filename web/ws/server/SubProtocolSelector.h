@@ -37,7 +37,7 @@ namespace web::ws::server {
 
     class SubProtocolSelector : public web::ws::SubProtocolSelector {
     public:
-        web::ws::SubProtocol* select(const std::string& subProtocolName, web::http::server::Request& req, web::http::server::Response& res);
+        web::ws::SubProtocol* select(const std::string& subProtocolName);
 
         void destroy(web::ws::SubProtocol* subProtocol);
 

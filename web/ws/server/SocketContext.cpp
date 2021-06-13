@@ -47,7 +47,7 @@ namespace web::ws::server {
         web::ws::server::SocketContext* context = nullptr;
 
         web::ws::server::SubProtocol* subProtocol =
-            static_cast<web::ws::server::SubProtocol*>(web::ws::server::SubProtocolSelector::instance()->select(subProtocolName, req, res));
+            static_cast<web::ws::server::SubProtocol*>(web::ws::server::SubProtocolSelector::instance()->select(subProtocolName));
 
         if (subProtocol != nullptr) {
             context = new web::ws::server::SocketContext(socketConnection, subProtocol);
