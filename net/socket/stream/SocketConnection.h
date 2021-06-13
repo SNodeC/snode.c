@@ -113,7 +113,8 @@ namespace net::socket::stream {
         }
 
         void close() final {
-            SocketReader::disable();
+            //            SocketReader::disable();
+            //            SocketReader::shutdown();
             SocketWriter::shutdown();
         }
 

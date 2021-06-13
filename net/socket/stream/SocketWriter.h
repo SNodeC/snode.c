@@ -86,16 +86,12 @@ namespace net::socket::stream {
                         WriteEventReceiver::suspend();
                         if (markShutdown) {
                             Socket::shutdown(Socket::shutdown::WR);
-                            WriteEventReceiver::disable();
+                            markShutdown = false;
                         }
                     }
                 } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
                     WriteEventReceiver::disable();
                     onError(getError());
-
-                    if (markShutdown) {
-                        Socket::shutdown(Socket::shutdown::WR);
-                    }
                 }
             }
         }

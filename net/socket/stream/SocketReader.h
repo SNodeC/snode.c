@@ -49,7 +49,7 @@ namespace net::socket::stream {
         virtual ~SocketReader() = default;
 
         void shutdown() {
-            if (!isEnabled()) {
+            if (isSuspended()) {
                 Socket::shutdown(Socket::shutdown::RD);
             } else {
                 markShutdown = true;
@@ -63,6 +63,7 @@ namespace net::socket::stream {
         std::size_t doRead(char* junk, std::size_t junkLen) {
             if (markShutdown) {
                 Socket::shutdown(Socket::shutdown::RD);
+                markShutdown = false;
             }
 
             ssize_t ret = read(junk, junkLen);

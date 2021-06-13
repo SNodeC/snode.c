@@ -42,12 +42,6 @@ namespace net::socket {
         Socket& operator=(const Socket&) = delete;
 
     protected:
-        ~Socket() {
-            if (!dontClose()) {
-                shutdown(shutdown::RDWR);
-            }
-        }
-
         virtual int create(int flags) = 0;
 
     public:
