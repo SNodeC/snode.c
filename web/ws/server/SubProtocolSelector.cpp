@@ -18,9 +18,7 @@
 
 #include "SubProtocolSelector.h"
 
-#include "SubProtocolInterface.h" // for WSSubPr...
 #include "log/Logger.h"
-//#include "web/ws/server/SocketContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

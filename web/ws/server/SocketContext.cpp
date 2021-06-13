@@ -32,13 +32,11 @@
 
 namespace web::ws::server {
 
-    SocketContext::SocketContext(net::socket::stream::SocketConnectionBase* socketConnection,
-                                 web::ws::server::SubProtocol* subProtocol,
-                                 web::ws::SubProtocol::Role role)
-        : web::ws::SocketContext(socketConnection, subProtocol, role) {
+    SocketContext::SocketContext(net::socket::stream::SocketConnectionBase* socketConnection, web::ws::server::SubProtocol* subProtocol)
+        : web::ws::SocketContext(socketConnection, subProtocol, false) {
     }
 
-    SocketContext::SocketContext::~SocketContext() {
+    SocketContext::~SocketContext() {
         web::ws::SubProtocolInterface* subProtocolInterface =
             web::ws::server::SubProtocolSelector::instance()->select(subProtocol->getName());
 
@@ -63,7 +61,7 @@ namespace web::ws::server {
             if (subProtocol != nullptr) {
                 subProtocol->setClients(subProtocolInterface->getClients());
 
-                context = new web::ws::server::SocketContext(socketConnection, subProtocol, web::ws::SubProtocol::Role::SERVER);
+                context = new web::ws::server::SocketContext(socketConnection, subProtocol);
 
                 if (context != nullptr) {
                     res.set("Upgrade", "websocket");

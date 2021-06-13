@@ -32,9 +32,7 @@ namespace web::ws::server {
 
     class SocketContext : public web::ws::SocketContext {
     protected:
-        SocketContext(net::socket::stream::SocketConnectionBase* socketConnection,
-                      web::ws::server::SubProtocol* subProtocol,
-                      web::ws::SubProtocol::Role role);
+        SocketContext(net::socket::stream::SocketConnectionBase* socketConnection, web::ws::server::SubProtocol* subProtocol);
 
         ~SocketContext() override;
 

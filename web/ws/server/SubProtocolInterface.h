@@ -20,7 +20,6 @@
 #define WEB_WS_SUBPROTOCOL_SUBPROTOCOLPLUGININTERFACE_H
 
 #include "web/ws/SubProtocolInterface.h"
-#include "web/ws/server/SubProtocol.h"
 
 #include <list>
 #include <memory>
@@ -31,6 +30,10 @@ namespace web::http::server {
     class Response;
 
 } // namespace web::http::server
+
+namespace web::ws::server {
+    class SubProtocol;
+} // namespace web::ws::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
