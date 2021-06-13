@@ -37,7 +37,7 @@ namespace web::http::server {
                               const SocketAddress& remoteAddress) -> void { // OnConnect
                       onConnect(localAddress, remoteAddress);
                   },
-                  [onConnected, onRequestReady](SocketConnection* socketConnection) -> void { // onConnected.
+                  [onConnected](SocketConnection* socketConnection) -> void { // onConnected.
                       onConnected(socketConnection);
                   },
                   [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect

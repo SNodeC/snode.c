@@ -56,14 +56,14 @@ namespace web::http::client {
                               const Client::SocketAddress& remoteAddress) -> void { // onConnect
                       onConnect(localAddress, remoteAddress);
                   },
-                  [onConnected, onRequestBegin, onResponse, onResponseError](SocketConnection* socketConnection) -> void { // onConnected
+                  [onConnected, onRequestBegin](SocketConnection* socketConnection) -> void { // onConnected
                       Request& request = static_cast<SocketContextBase*>(socketConnection->getSocketContext())->getRequest();
 
                       request.setHost(socketConnection->getRemoteAddress().host() + ":" +
                                       std::to_string(socketConnection->getRemoteAddress().port()));
-                      onRequestBegin(request);
-
                       onConnected(socketConnection);
+
+                      onRequestBegin(request);
                   },
                   [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
                       onDisconnect(socketConnection);
