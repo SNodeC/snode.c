@@ -48,7 +48,7 @@ namespace web::ws {
         SubProtocolPlugin subProtocolPlugin = {.subprotocolPluginInterface = subProtocolInterface, .handle = handle};
 
         if (subProtocolInterface != nullptr) {
-            if (subProtocolInterface->role() == web::ws::SubProtocol::Role::SERVER) {
+            if (subProtocolInterface->role() == "server") {
                 const auto [it, success] = serverSubprotocols.insert({subProtocolInterface->name(), subProtocolPlugin});
                 if (!success) {
                     VLOG(0) << "Subprotocol already existing: not using " << subProtocolInterface->name();

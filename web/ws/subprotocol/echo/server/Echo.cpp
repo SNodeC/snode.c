@@ -39,8 +39,8 @@ namespace web::ws::subprotocol::echo::server { // namespace web::ws::subprotocol
             return new Echo();
         }
 
-        web::ws::SubProtocol::Role role() override {
-            return web::ws::SubProtocol::Role::SERVER;
+        std::string role() override {
+            return "server";
         }
 
         std::string name() override {

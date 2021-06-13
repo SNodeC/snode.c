@@ -19,8 +19,6 @@
 #ifndef WEB_WS_SUBPROTOCOLPLUGININTERFACE_H
 #define WEB_WS_SUBPROTOCOLPLUGININTERFACE_H
 
-#include "web/ws/SubProtocol.h"
-
 namespace web::http::server {
 
     class Request;
@@ -28,7 +26,13 @@ namespace web::http::server {
 
 } // namespace web::http::server
 
+namespace web::ws {
+    class SubProtocol;
+} // namespace web::ws
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -39,7 +43,7 @@ namespace web::ws {
         virtual ~SubProtocolInterface() = default;
 
         virtual std::string name() = 0;
-        virtual web::ws::SubProtocol::Role role() = 0;
+        virtual std::string role() = 0;
         virtual web::ws::SubProtocol* create(web::http::server::Request&, web::http::server::Response&) = 0;
         virtual void destroy(web::ws::SubProtocol*) = 0;
     };

@@ -34,3 +34,12 @@ set_target_properties(
 install(TARGETS websocket LIBRARY DESTINATION lib/snodec/web/ws
                                   NAMELINK_COMPONENT libwebsocket.so.1
 )
+
+install(
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+    DESTINATION include/snode.c/web/ws
+    FILES_MATCHING
+    PATTERN "*.h"
+    PATTERN "*.hpp"
+    PATTERN "cmake" EXCLUDE
+)

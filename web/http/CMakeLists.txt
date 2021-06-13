@@ -36,9 +36,10 @@ target_include_directories(
 )
 
 install(TARGETS web LIBRARY DESTINATION lib NAMELINK_COMPONENT libweb.so.1)
+
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION include/snode.c/web
+    DESTINATION include/snode.c/web/http
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
