@@ -19,8 +19,6 @@
 #include "web/ws/subprotocol/echo/server/Echo.h"
 
 #include "log/Logger.h"
-#include "web/http/server/Request.h"
-#include "web/http/server/Response.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
