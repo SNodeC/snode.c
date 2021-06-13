@@ -17,9 +17,6 @@ add_library(
     server/SubProtocolSelector.cpp
 )
 
-
-target_link_libraries(websocket LINK_PUBLIC utils logger net web)
-
 target_include_directories(
     websocket PUBLIC ${CMAKE_BINARY_DIR} ${PROJECT_SOURCE_DIR}
 )
