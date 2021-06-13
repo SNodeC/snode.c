@@ -18,7 +18,6 @@
 
 #include "SocketContextUpgradeFactorySelector.h"
 
-#include "log/Logger.h"
 #include "web/http/server/SocketContextUpgradeFactory.h"
 #include "web/http/server/SocketContextUpgradeInterface.h"
 

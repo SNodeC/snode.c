@@ -18,10 +18,6 @@
 
 #include "net/socket/stream/SocketConnectionBase.h"
 
-#include "log/Logger.h"
-#include "net/socket/stream/SocketContext.h"
-#include "net/socket/stream/SocketContextFactory.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
