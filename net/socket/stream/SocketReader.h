@@ -76,7 +76,7 @@ namespace net::socket::stream {
                 ret = 0;
             }
 
-            return ret;
+            return static_cast<std::size_t>(ret);
         }
 
     private:
