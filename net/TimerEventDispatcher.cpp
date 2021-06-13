@@ -40,6 +40,7 @@ namespace net {
             timerList.push_back(timer);
             timerListDirty = true;
         }
+
         addedList.clear();
 
         for (TimerEventReceiver* timer : removedList) {
