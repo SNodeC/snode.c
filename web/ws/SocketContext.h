@@ -43,8 +43,8 @@ namespace web::ws {
 
     class SocketContext
         : public net::socket::stream::SocketContext
-        , public web::ws::Receiver
-        , public web::ws::Transmitter {
+        , protected web::ws::Receiver
+        , protected web::ws::Transmitter {
     protected:
         SocketContext(net::socket::stream::SocketConnectionBase* socketConnection, web::ws::SubProtocol* subProtocol, bool masking);
 
