@@ -18,8 +18,8 @@
 
 #include "SubProtocolSelector.h"
 
+#include "config.h" // IWYU pragma: keep
 #include "log/Logger.h"
-#include "web/config.h" // IWYU pragma: keep
 #include "web/ws/SubProtocol.h"
 #include "web/ws/SubProtocolInterface.h" // for WSSubPr...
 
@@ -51,6 +51,7 @@ namespace web::ws {
             if (subProtocolInterface->role() == web::ws::SubProtocol::Role::SERVER) {
                 const auto [it, success] = serverSubprotocols.insert({subProtocolInterface->name(), subProtocolPlugin});
                 if (!success) {
+                    VLOG(0) << "Subprotocol already existing: not using " << subProtocolInterface->name();
                     delete subProtocolInterface;
                     if (handle != nullptr) {
                         dlclose(handle);
@@ -59,6 +60,7 @@ namespace web::ws {
             } else {
                 const auto [it, success] = clientSubprotocols.insert({subProtocolInterface->name(), subProtocolPlugin});
                 if (!success) {
+                    VLOG(0) << "Subprotocol already existing: not using " << subProtocolInterface->name();
                     delete subProtocolInterface;
                     if (handle != nullptr) {
                         dlclose(handle);
@@ -90,6 +92,8 @@ namespace web::ws {
         void* handle = dlopen(filePath.c_str(), RTLD_LAZY | RTLD_GLOBAL);
 
         if (handle != nullptr) {
+            VLOG(0) << "DLOpen: success: " << filePath;
+
             SubProtocolInterface* (*plugin)() = reinterpret_cast<SubProtocolInterface* (*) ()>(dlsym(handle, "plugin"));
 
             if (plugin != nullptr) {
@@ -102,8 +106,6 @@ namespace web::ws {
             } else {
                 VLOG(0) << "Optaining function \"plugin()\" in plugin failed: " << dlerror();
             }
-
-            VLOG(0) << "DLOpen: success: " << filePath;
         } else {
             VLOG(0) << "DLOpen: error: " << dlerror() << " - " << filePath;
         }

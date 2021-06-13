@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
+configure_file(config.h.in config.h @ONLY)
+
 add_subdirectory(subprotocol)
 
 add_library(
@@ -18,7 +20,7 @@ add_library(
 )
 
 target_include_directories(
-    websocket PUBLIC ${CMAKE_BINARY_DIR} ${PROJECT_SOURCE_DIR}
+    websocket PUBLIC ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 set_target_properties(
