@@ -22,7 +22,10 @@
 #include "web/http/server/Request.h"
 #include "web/http/server/Response.h"
 #include "web/ws/SocketContext.h"
-#include "web/ws/server/SubProtocol.h"
+
+namespace web::ws::server {
+    class SubProtocol;
+} // namespace web::ws::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

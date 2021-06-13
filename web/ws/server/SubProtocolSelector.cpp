@@ -18,6 +18,7 @@
 
 #include "SubProtocolSelector.h"
 
+#include "SubProtocol.h"
 #include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -40,15 +41,33 @@ namespace web::ws::server {
         return subProtocolSelector;
     }
 
-    web::ws::server::SubProtocolInterface* SubProtocolSelector::select(const std::string& subProtocolName) {
-        SubProtocolInterface* subProtocolInterface = nullptr;
+    web::ws::SubProtocol*
+    SubProtocolSelector::select(const std::string& subProtocolName, web::http::server::Request& req, web::http::server::Response& res) {
+        web::ws::server::SubProtocol* subProtocol = nullptr;
 
         if (serverSubprotocols.contains(subProtocolName)) {
-            subProtocolInterface =
+            SubProtocolInterface* subProtocolInterface =
                 static_cast<SubProtocolInterface*>(serverSubprotocols.find(subProtocolName)->second.subprotocolPluginInterface);
+
+            if (subProtocolInterface != nullptr) {
+                subProtocol = static_cast<web::ws::server::SubProtocol*>(subProtocolInterface->create(req, res));
+
+                if (subProtocol != nullptr) {
+                    subProtocol->setClients(subProtocolInterface->getClients());
+                }
+            }
         }
 
-        return subProtocolInterface;
+        return subProtocol;
+    }
+
+    void SubProtocolSelector::destroy(web::ws::SubProtocol* subProtocol) {
+        if (serverSubprotocols.contains(subProtocol->getName())) {
+            web::ws::SubProtocolInterface* subProtocolInterface =
+                static_cast<SubProtocolInterface*>(serverSubprotocols.find(subProtocol->getName())->second.subprotocolPluginInterface);
+
+            subProtocolInterface->destroy(subProtocol);
+        }
     }
 
 } // namespace web::ws::server

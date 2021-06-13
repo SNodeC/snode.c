@@ -23,7 +23,8 @@
 
 namespace web::ws::server {
     class SocketContext;
-}
+    class SubProtocolSelector;
+} // namespace web::ws::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -98,6 +99,7 @@ namespace web::ws::server {
         std::shared_ptr<std::list<web::ws::server::SubProtocol*>> clients;
 
         friend class web::ws::server::SocketContext;
+        friend class web::ws::server::SubProtocolSelector;
     };
 
 } // namespace web::ws::server

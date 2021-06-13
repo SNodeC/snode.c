@@ -19,8 +19,7 @@
 #include "SocketContext.h"
 
 #include "log/Logger.h"
-#include "web/ws/SubProtocol.h" // for SubProtocol, SubProtocol::Role, WSProto...
-#include "web/ws/server/SubProtocolInterface.h"
+#include "web/ws/server/SubProtocol.h"
 #include "web/ws/server/SubProtocolSelector.h"
 #include "web/ws/ws_utils.h"
 
@@ -37,12 +36,7 @@ namespace web::ws::server {
     }
 
     SocketContext::~SocketContext() {
-        web::ws::SubProtocolInterface* subProtocolInterface =
-            web::ws::server::SubProtocolSelector::instance()->select(subProtocol->getName());
-
-        if (subProtocolInterface != nullptr) {
-            subProtocolInterface->destroy(subProtocol);
-        }
+        web::ws::server::SubProtocolSelector::instance()->destroy(subProtocol);
     }
 
     SocketContext* SocketContext::create(net::socket::stream::SocketConnectionBase* socketConnection,
@@ -50,40 +44,32 @@ namespace web::ws::server {
                                          web::http::server::Response& res) {
         std::string subProtocolName = req.header("sec-websocket-protocol");
 
-        web::ws::server::SubProtocolInterface* subProtocolInterface =
-            web::ws::server::SubProtocolSelector::instance()->select(subProtocolName);
-
         web::ws::server::SocketContext* context = nullptr;
 
-        if (subProtocolInterface != nullptr) {
-            web::ws::server::SubProtocol* subProtocol = static_cast<web::ws::server::SubProtocol*>(subProtocolInterface->create(req, res));
+        web::ws::server::SubProtocol* subProtocol =
+            static_cast<web::ws::server::SubProtocol*>(web::ws::server::SubProtocolSelector::instance()->select(subProtocolName, req, res));
 
-            if (subProtocol != nullptr) {
-                subProtocol->setClients(subProtocolInterface->getClients());
+        if (subProtocol != nullptr) {
+            context = new web::ws::server::SocketContext(socketConnection, subProtocol);
 
-                context = new web::ws::server::SocketContext(socketConnection, subProtocol);
+            if (context != nullptr) {
+                res.set("Upgrade", "websocket");
+                res.set("Connection", "Upgrade");
+                res.set("Sec-WebSocket-Protocol", subProtocolName);
 
-                if (context != nullptr) {
-                    res.set("Upgrade", "websocket");
-                    res.set("Connection", "Upgrade");
-                    res.set("Sec-WebSocket-Protocol", subProtocolName);
+                web::ws::serverWebSocketKey(req.header("sec-websocket-key"), [&res](char* key) -> void {
+                    res.set("Sec-WebSocket-Accept", key);
+                });
 
-                    web::ws::serverWebSocketKey(req.header("sec-websocket-key"), [&res](char* key) -> void {
-                        res.set("Sec-WebSocket-Accept", key);
-                    });
+                res.status(101).end(); // Switch Protocol
 
-                    res.status(101).end(); // Switch Protocol
-
-                } else {
-                    delete subProtocol;
-
-                    res.status(500).end();
-                }
             } else {
-                res.status(500).end(); // Internal Server Error
+                delete subProtocol;
+
+                res.status(500).end();
             }
         } else {
-            res.status(404).end(); // Not found
+            res.status(500).end(); // Internal Server Error
         }
 
         return context;

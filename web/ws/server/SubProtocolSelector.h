@@ -22,6 +22,10 @@
 #include "web/ws/SubProtocolSelector.h"
 #include "web/ws/server/SubProtocolInterface.h"
 
+namespace web::ws {
+    class SubProtocol;
+} // namespace web::ws
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <memory>
@@ -33,7 +37,9 @@ namespace web::ws::server {
 
     class SubProtocolSelector : public web::ws::SubProtocolSelector {
     public:
-        web::ws::server::SubProtocolInterface* select(const std::string& subProtocolName) override;
+        web::ws::SubProtocol* select(const std::string& subProtocolName, web::http::server::Request& req, web::http::server::Response& res);
+
+        void destroy(web::ws::SubProtocol* subProtocol);
 
         static std::shared_ptr<SubProtocolSelector> instance();
 
