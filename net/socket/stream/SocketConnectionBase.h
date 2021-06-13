@@ -27,7 +27,6 @@ namespace net::socket::stream {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
-#include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -39,12 +38,12 @@ namespace net::socket::stream {
         SocketConnectionBase& operator=(const SocketConnectionBase&) = delete;
 
     protected:
-        SocketConnectionBase(const std::shared_ptr<const SocketContextFactory>& socketContextFactory);
+        SocketConnectionBase() = default;
 
-        virtual ~SocketConnectionBase();
+        virtual ~SocketConnectionBase() = default;
 
     public:
-        SocketContext* getSocketContext();
+        virtual SocketContext* getSocketContext() = 0;
 
         virtual std::string getLocalAddressAsString() const = 0;
         virtual std::string getRemoteAddressAsString() const = 0;
@@ -59,9 +58,7 @@ namespace net::socket::stream {
         virtual void setTimeout(int timeout) = 0;
 
     protected:
-        void switchSocketProtocol(const SocketContextFactory& socketContextFactory);
-
-        SocketContext* socketContext = nullptr;
+        virtual void switchSocketProtocol(const SocketContextFactory& socketContextFactory) = 0;
 
         friend SocketContext;
     };

@@ -19,6 +19,7 @@
 #ifndef NET_SOCKET_STREAM_SOCKETREADER_H
 #define NET_SOCKET_STREAM_SOCKETREADER_H
 
+#include "log/Logger.h"
 #include "net/ReadEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -48,8 +49,8 @@ namespace net::socket::stream {
         virtual ~SocketReader() = default;
 
         void shutdown() {
-            if (!isEnabled()) {
-                Socket::shutdown(Socket::shut::RD);
+            if (isSuspended()) {
+                Socket::shutdown(Socket::shutdown::RD);
             } else {
                 markShutdown = true;
             }
@@ -62,6 +63,7 @@ namespace net::socket::stream {
         std::size_t doRead(char* junk, std::size_t junkLen) {
             if (markShutdown) {
                 Socket::shutdown(Socket::shutdown::RD);
+                markShutdown = false;
             }
 
             ssize_t ret = read(junk, junkLen);
@@ -70,10 +72,6 @@ namespace net::socket::stream {
                 if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
                     ReadEventReceiver::disable();
                     onError(getError());
-                } else {
-                    if (markShutdown) {
-                        Socket::shutdown(Socket::shutdown::RD);
-                    }
                 }
                 ret = 0;
             }

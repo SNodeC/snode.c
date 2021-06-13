@@ -6,6 +6,8 @@ find_package(LibMagic REQUIRED)
 
 configure_file(config.h.in config.h @ONLY)
 
+add_subdirectory(ws)
+
 add_library(
     web SHARED
     http/Parser.cpp
@@ -18,19 +20,8 @@ add_library(
     http/server/RequestParser.cpp
     http/server/Request.cpp
     http/server/Response.cpp
-    ws/Receiver.cpp
-    ws/SocketContext.cpp
-    ws/SubProtocol.cpp
-    ws/SubProtocolSelector.cpp
-    ws/Transmitter.cpp
-    ws/ws_utils.cpp
-    ws/client/SocketContext.cpp
-    ws/server/SocketContext.cpp
-    ws/server/SubProtocol.cpp
-    ws/server/SubProtocolSelector.cpp
+    http/server/SocketContextUpgradeFactorySelector.cpp
 )
-
-add_subdirectory(ws/subprotocol)
 
 target_link_libraries(web LINK_PUBLIC net ${LIBMAGIC_LIBRARIES})
 

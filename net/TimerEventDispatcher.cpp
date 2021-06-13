@@ -44,7 +44,7 @@ namespace net {
 
         for (TimerEventReceiver* timer : removedList) {
             timerList.remove(timer);
-            timer->destroy();
+            //            timer->destroy();
             timerListDirty = true;
         }
         removedList.clear();
@@ -90,6 +90,7 @@ namespace net {
 
     void TimerEventDispatcher::remove(TimerEventReceiver* timer) {
         removedList.push_back(timer);
+        timer->destroy();
     }
 
     void TimerEventDispatcher::add(TimerEventReceiver* timer) {

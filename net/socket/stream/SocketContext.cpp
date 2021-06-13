@@ -57,14 +57,12 @@ namespace net::socket::stream {
 
     void SocketContext::switchSocketProtocol(const SocketContextFactory& socketProtocolFactory) {
         socketConnection->switchSocketProtocol(socketProtocolFactory);
-
-        markedForDelete = true;
     }
 
     void SocketContext::receiveFromPeer() {
         onReceiveFromPeer();
 
-        if (markedForDelete) {
+        if (this != socketConnection->getSocketContext()) {
             delete this;
         }
     }

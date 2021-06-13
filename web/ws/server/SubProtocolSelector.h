@@ -24,6 +24,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -34,10 +35,10 @@ namespace web::ws::server {
     public:
         web::ws::server::SubProtocolInterface* select(const std::string& subProtocolName) override;
 
-        static SubProtocolSelector& instance();
+        static std::shared_ptr<SubProtocolSelector> instance();
 
     private:
-        static SubProtocolSelector subProtocolSelector;
+        static std::shared_ptr<SubProtocolSelector> subProtocolSelector;
     };
 
 } // namespace web::ws::server

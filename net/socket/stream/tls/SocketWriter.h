@@ -73,7 +73,9 @@ namespace net::socket::stream::tls {
                         errno = 0;
                         break;
                     case SSL_ERROR_SYSCALL:
-                        ssl_log("SSL/TLS write failed", sslErr);
+                        if (errno != 0) {
+                            ssl_log("SSL/TLS write failed", sslErr);
+                        }
                         break;
                     default:
                         ssl_log("SSL/TLS write failed", sslErr);

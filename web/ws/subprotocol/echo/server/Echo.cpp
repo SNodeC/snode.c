@@ -73,6 +73,7 @@ namespace web::ws::subprotocol::echo::server { // namespace web::ws::subprotocol
     }
 
     Echo::~Echo() {
+        VLOG(0) << "Destructor Echo";
         timer.cancel();
     }
 

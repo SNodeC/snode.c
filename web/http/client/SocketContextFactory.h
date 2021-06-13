@@ -51,7 +51,7 @@ namespace web::http::client {
             this->onRequestError = onRequestError;
         }
 
-    protected:
+    private:
         std::function<void(Response&)> onResponse;
         std::function<void(int, const std::string&)> onRequestError;
     };

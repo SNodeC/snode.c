@@ -31,6 +31,7 @@ namespace web::ws::server {
 #include <cstdint>
 #include <functional>
 #include <list>
+#include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -53,6 +54,15 @@ namespace web::ws::server {
 
     public:
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from SubProtocol-Subclasses */
+        using web::ws::SubProtocol::sendMessage;
+
+        using web::ws::SubProtocol::sendMessageEnd;
+        using web::ws::SubProtocol::sendMessageFrame;
+        using web::ws::SubProtocol::sendMessageStart;
+
+        using web::ws::SubProtocol::sendClose;
+        using web::ws::SubProtocol::sendPing;
+
         void sendBroadcast(const char* message, std::size_t messageLength);
         void sendBroadcast(const std::string& message);
 
@@ -79,12 +89,13 @@ namespace web::ws::server {
         void onProtocolConnected() override = 0;
         void onProtocolDisconnected() override = 0;
 
+        /* Internal used methods */
         void sendBroadcast(uint8_t opCode, const char* message, std::size_t messageLength);
         void sendBroadcastStart(uint8_t opCode, const char* message, std::size_t messageLength);
 
-        void setClients(std::list<SubProtocol*>* clients);
+        void setClients(std::shared_ptr<std::list<web::ws::server::SubProtocol*>> clients);
 
-        std::list<SubProtocol*>* clients;
+        std::shared_ptr<std::list<web::ws::server::SubProtocol*>> clients;
 
         friend class web::ws::server::SocketContext;
     };

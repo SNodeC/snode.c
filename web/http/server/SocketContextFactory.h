@@ -16,12 +16,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "log/Logger.h"
+
 #ifndef WEB_HTTP_SERVER_SOCKETCONTEXTFACTORY_H
 #define WEB_HTTP_SERVER_SOCKETCONTEXTFACTORY_H
 
 #include "net/socket/stream/SocketConnectionBase.h"
 #include "net/socket/stream/SocketContextFactory.h"
 #include "web/http/server/SocketContext.h"
+#include "web/http/server/SocketContextUpgradeFactorySelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -35,7 +38,19 @@ namespace web::http::server {
         using Request = RequestT;
         using Response = ResponseT;
 
-        SocketContextFactory() = default;
+        SocketContextFactory() {
+            if (useCount == 0) {
+                SocketContextUpgradeFactorySelector::instance()->loadSocketContexts();
+            }
+            useCount++;
+        }
+
+        ~SocketContextFactory() {
+            useCount--;
+            if (useCount == 0) {
+                SocketContextUpgradeFactorySelector::instance()->unloadSocketContexts();
+            }
+        }
 
         SocketContextFactory(const SocketContextFactory&) = delete;
         SocketContextFactory& operator=(const SocketContextFactory&) = delete;
@@ -52,7 +67,12 @@ namespace web::http::server {
 
     private:
         std::function<void(Request&, Response&)> onRequestReady;
+
+        static int useCount;
     };
+
+    template <typename RequestT, typename ResponseT>
+    int SocketContextFactory<RequestT, ResponseT>::useCount = 0;
 
 } // namespace web::http::server
 

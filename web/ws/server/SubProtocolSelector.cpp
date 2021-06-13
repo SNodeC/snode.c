@@ -19,9 +19,12 @@
 #include "SubProtocolSelector.h"
 
 #include "SubProtocolInterface.h" // for WSSubPr...
+#include "log/Logger.h"
+//#include "web/ws/server/SocketContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <dlfcn.h>
 #include <map>     // for map, _Rb_tree_iterator
 #include <utility> // for pair
 
@@ -29,10 +32,14 @@
 
 namespace web::ws::server {
 
-    SubProtocolSelector SubProtocolSelector::subProtocolSelector;
+    std::shared_ptr<SubProtocolSelector> SubProtocolSelector::subProtocolSelector = nullptr;
 
-    SubProtocolSelector& SubProtocolSelector::instance() {
-        return SubProtocolSelector::subProtocolSelector;
+    std::shared_ptr<SubProtocolSelector> SubProtocolSelector::instance() {
+        if (subProtocolSelector == nullptr) {
+            subProtocolSelector = std::make_shared<SubProtocolSelector>();
+        }
+
+        return subProtocolSelector;
     }
 
     web::ws::server::SubProtocolInterface* SubProtocolSelector::select(const std::string& subProtocolName) {

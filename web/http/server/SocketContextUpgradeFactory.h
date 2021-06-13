@@ -16,34 +16,37 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_SUBPROTOCOLPLUGININTERFACE_H
-#define WEB_WS_SUBPROTOCOLPLUGININTERFACE_H
+#ifndef WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H
+#define WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H
 
-#include "web/ws/SubProtocol.h"
+#include "net/socket/stream/SocketContextFactory.h"
 
 namespace web::http::server {
-
     class Request;
     class Response;
-
 } // namespace web::http::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::ws {
+namespace web::http::server {
 
-    class SubProtocolInterface {
+    class SocketContextUpgradeFactory : public net::socket::stream::SocketContextFactory {
     public:
-        virtual ~SubProtocolInterface() = default;
+        void prepare(web::http::server::Request& request, web::http::server::Response& response) {
+            this->request = &request;
+            this->response = &response;
+        }
 
         virtual std::string name() = 0;
-        virtual web::ws::SubProtocol::Role role() = 0;
-        virtual web::ws::SubProtocol* create(web::http::server::Request&, web::http::server::Response&) = 0;
-        virtual void destroy(web::ws::SubProtocol*) = 0;
+        virtual std::string type() = 0;
+
+    protected:
+        web::http::server::Request* request;
+        web::http::server::Response* response;
     };
 
-} // namespace web::ws
+} // namespace web::http::server
 
-#endif // WEB_WS_SUBPROTOCOLPLUGININTERFACE_H
+#endif // WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H

@@ -118,10 +118,8 @@ namespace web::ws {
     }
 
     void SocketContext::onMessageError(uint16_t errnum) {
-        VLOG(0) << "Message Error";
-
         subProtocol->onMessageError(errnum);
-        close(errnum, "hallo", std::string("hallo").length());
+        close(errnum);
     }
 
     std::size_t SocketContext::readFrameData(char* junk, std::size_t junkLen) {
@@ -217,11 +215,15 @@ namespace web::ws {
     }
 
     void SocketContext::onReadError(int errnum) {
-        VLOG(0) << "OnReadError: " << errnum;
+        if (errnum != 0) {
+            PLOG(INFO) << "OnReadError:";
+        }
     }
 
     void SocketContext::onWriteError(int errnum) {
-        VLOG(0) << "OnWriteError: " << errnum;
+        if (errnum != 0) {
+            PLOG(INFO) << "OnWriteError:";
+        }
     }
 
     std::string SocketContext::getLocalAddressAsString() const {

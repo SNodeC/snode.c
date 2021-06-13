@@ -40,10 +40,10 @@ namespace web::ws::server {
 
     SocketContext::SocketContext::~SocketContext() {
         web::ws::SubProtocolInterface* subProtocolInterface =
-            web::ws::server::SubProtocolSelector::instance().select(subProtocol->getName());
+            web::ws::server::SubProtocolSelector::instance()->select(subProtocol->getName());
 
         if (subProtocolInterface != nullptr) {
-            subProtocolInterface->destroy(dynamic_cast<web::ws::server::SubProtocol*>(subProtocol));
+            subProtocolInterface->destroy(subProtocol);
         }
     }
 
@@ -53,7 +53,7 @@ namespace web::ws::server {
         std::string subProtocolName = req.header("sec-websocket-protocol");
 
         web::ws::server::SubProtocolInterface* subProtocolInterface =
-            web::ws::server::SubProtocolSelector::instance().select(subProtocolName);
+            web::ws::server::SubProtocolSelector::instance()->select(subProtocolName);
 
         web::ws::server::SocketContext* context = nullptr;
 

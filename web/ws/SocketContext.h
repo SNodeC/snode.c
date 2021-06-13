@@ -53,8 +53,6 @@ namespace web::ws {
 
         virtual ~SocketContext() = default;
 
-        web::ws::SubProtocol* subProtocol;
-
     public:
         void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength);
         void sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength);
@@ -66,12 +64,16 @@ namespace web::ws {
         void replyPong(const char* reason = nullptr, std::size_t reasonLength = 0);
 
         void close(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);
-        void close(const char* reason, std::size_t reasonLength);
 
         std::string getLocalAddressAsString() const;
         std::string getRemoteAddressAsString() const;
 
+    protected:
+        web::ws::SubProtocol* subProtocol;
+
     private:
+        void close(const char* reason, std::size_t reasonLength);
+
         /* WSReceiver */
         void onMessageStart(int opCode) override;
         void onFrameReceived(const char* junk, uint64_t junkLen) override;
