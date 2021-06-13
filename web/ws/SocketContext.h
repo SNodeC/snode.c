@@ -66,12 +66,13 @@ namespace web::ws {
         void replyPong(const char* reason = nullptr, std::size_t reasonLength = 0);
 
         void close(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);
-        void close(const char* reason, std::size_t reasonLength);
 
         std::string getLocalAddressAsString() const;
         std::string getRemoteAddressAsString() const;
 
     private:
+        void close(const char* reason, std::size_t reasonLength);
+
         /* WSReceiver */
         void onMessageStart(int opCode) override;
         void onFrameReceived(const char* junk, uint64_t junkLen) override;
