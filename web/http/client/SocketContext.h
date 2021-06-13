@@ -66,6 +66,7 @@ namespace web::http::client {
 
         ~SocketContext() override = default;
 
+    private:
         void onReceiveFromPeer() override;
 
         void onWriteError(int errnum) override;
@@ -77,11 +78,9 @@ namespace web::http::client {
 
         void requestCompleted() override;
 
-    protected:
         Request request;
         Response response;
 
-    private:
         ResponseParser parser;
     };
 

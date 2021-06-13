@@ -159,7 +159,6 @@ namespace net::socket::stream {
 
     protected:
         std::function<void(int err)> onError;
-
         std::map<std::string, std::any> options;
 
     private:

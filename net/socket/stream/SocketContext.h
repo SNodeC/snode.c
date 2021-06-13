@@ -52,19 +52,17 @@ namespace net::socket::stream {
 
         void setTimeout(int timeout);
 
-    private:
-        SocketConnectionBase* socketConnection;
-
         virtual void onReceiveFromPeer() = 0;
         virtual void onWriteError(int errnum) = 0;
         virtual void onReadError(int errnum) = 0;
 
-        void receiveFromPeer();
-
         virtual void onProtocolConnected();
         virtual void onProtocolDisconnected();
 
-        friend class SocketConnectionBase;
+    private:
+        void receiveFromPeer();
+
+        SocketConnectionBase* socketConnection;
 
         template <typename SocketReaderT, typename SocketWriterT, typename SocketAddressT>
         friend class SocketConnection;

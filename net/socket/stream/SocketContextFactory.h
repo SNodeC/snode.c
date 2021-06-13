@@ -34,12 +34,10 @@ namespace net::socket::stream {
     protected:
         SocketContextFactory() = default;
 
-    public:
         virtual ~SocketContextFactory() = default;
 
+    public:
         virtual SocketContext* create(SocketConnectionBase* socketConnection) const = 0;
-
-        friend class SocketConnectionBase;
     };
 
 } // namespace net::socket::stream

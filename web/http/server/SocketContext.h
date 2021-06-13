@@ -79,17 +79,16 @@ namespace web::http::server {
         SocketContext(net::socket::stream::SocketConnectionBase* socketConnection,
                       const std::function<void(Request&, Response&)>& onRequestReady);
 
+    private:
         void onReceiveFromPeer() override;
         void sendResponseData(const char* junk, std::size_t junkLen) override;
 
-    protected:
-        void terminateConnection() override;
-
-    private:
         void onReadError(int errnum) override;
         void onWriteError(int errnum) override;
 
         void responseCompleted() override;
+
+        void terminateConnection() override;
 
         std::function<void(Request& req, Response& res)> onRequestReady;
 

@@ -44,16 +44,15 @@ namespace web::ws {
         SubProtocolSelector& operator=(const SubProtocolSelector&) = delete;
 
     public:
+        void loadSubProtocols();
         void loadSubProtocol(const std::string& filePath);
         void loadSubProtocols(const std::string& directoryPath);
         void registerSubProtocol(SubProtocolInterface* subProtocolPluginInterface, void* handle = nullptr);
 
         void unloadSubProtocols();
 
+    protected:
         virtual SubProtocolInterface* select(const std::string& subProtocolName) = 0;
-
-    public:
-        void loadSubProtocols();
 
         std::map<std::string, SubProtocolPlugin> serverSubprotocols;
         std::map<std::string, SubProtocolPlugin> clientSubprotocols;

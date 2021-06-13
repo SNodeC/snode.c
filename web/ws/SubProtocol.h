@@ -68,7 +68,6 @@ namespace web::ws {
 
         const std::string& getName();
 
-    private:
         /* Callbacks (API) WSReceiver -> SubProtocol-Subclasses */
         virtual void onMessageStart(int opCode) = 0;
         virtual void onMessageData(const char* junk, std::size_t junkLen) = 0;
@@ -87,7 +86,7 @@ namespace web::ws {
 
         const std::string name;
 
-        friend class web::ws::SocketContext;
+        //        friend class web::ws::SocketContext;
     };
 
 } // namespace web::ws

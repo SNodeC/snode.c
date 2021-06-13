@@ -37,7 +37,7 @@ namespace web::ws::server {
 
         static std::shared_ptr<SubProtocolSelector> instance();
 
-    public:
+    private:
         static std::shared_ptr<SubProtocolSelector> subProtocolSelector;
     };
 
