@@ -19,6 +19,7 @@
 #include "SubProtocolSelector.h"
 
 #include "SubProtocol.h"
+#include "config.h"
 #include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -39,6 +40,20 @@ namespace web::ws::server {
         }
 
         return subProtocolSelector;
+    }
+
+    void SubProtocolSelector::loadSubProtocols() {
+#ifndef NDEBUG
+#ifdef SUBPROTOCOL_SERVER_PATH
+        loadSubProtocols(SUBPROTOCOL_SERVER_PATH);
+#endif // SUBPROTOCOL_SERVER_PATH
+#endif // NDEBUG
+
+#ifdef SUBPROTOCOL_SERVER_INSTALL_PATH
+        loadSubProtocols(SUBPROTOCOL_SERVER_INSTALL_PATH);
+#endif
+        loadSubProtocols("/usr/local/lib/snode.c/" RELATIVE_SUBPROTOCOL_SERVER_PATH);
+        loadSubProtocols("/usr/lib/snode.c/" RELATIVE_SUBPROTOCOL_SERVER_PATH);
     }
 
     web::ws::SubProtocol* SubProtocolSelector::select(const std::string& subProtocolName) {

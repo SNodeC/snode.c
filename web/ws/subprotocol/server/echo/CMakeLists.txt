@@ -12,6 +12,6 @@ set_target_properties(
                SOVERSION 1
 )
 
-install(TARGETS echo LIBRARY DESTINATION lib/snodec/web/ws/subprotocol
+install(TARGETS echo LIBRARY DESTINATION lib/snode.c/web/ws/subprotocol/server
                              NAMELINK_COMPONENT libecho.so.1
 )

@@ -70,7 +70,7 @@ namespace web::ws {
     }
 
     void SubProtocol::sendClose(uint16_t statusCode, const char* reason, std::size_t reasonLength) {
-        context->close(statusCode, reason, reasonLength);
+        context->sendClose(statusCode, reason, reasonLength);
     }
 
     std::string SubProtocol::getLocalAddressAsString() const {

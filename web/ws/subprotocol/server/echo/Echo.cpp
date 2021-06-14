@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/ws/subprotocol/echo/server/Echo.h"
+#include "Echo.h"
 
 #include "log/Logger.h"
 

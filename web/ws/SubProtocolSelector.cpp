@@ -18,7 +18,6 @@
 
 #include "SubProtocolSelector.h"
 
-#include "config.h" // IWYU pragma: keep
 #include "log/Logger.h"
 #include "web/ws/SubProtocol.h"
 #include "web/ws/SubProtocolInterface.h" // for WSSubPr...
@@ -33,16 +32,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::ws {
-
-    void SubProtocolSelector::loadSubProtocols() {
-#ifndef NDEBUG
-#ifdef SUBPROTOCOL_PATH
-        loadSubProtocols(SUBPROTOCOL_PATH);
-#endif
-#endif
-        loadSubProtocols("/usr/lib/snodec/web/ws/subprotocol");
-        loadSubProtocols("/usr/local/lib/snodec/web/ws/subprotocol");
-    }
 
     void SubProtocolSelector::loadSubProtocols(const std::string& directoryPath) {
         if (std::filesystem::exists(directoryPath) && std::filesystem::is_directory(directoryPath)) {

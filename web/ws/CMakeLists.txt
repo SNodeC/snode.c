@@ -31,7 +31,7 @@ set_target_properties(
                SOVERSION 1
 )
 
-install(TARGETS websocket LIBRARY DESTINATION lib/snodec/web/ws
+install(TARGETS websocket LIBRARY DESTINATION lib/snode.c/web/ws
                                   NAMELINK_COMPONENT libwebsocket.so.1
 )
 
