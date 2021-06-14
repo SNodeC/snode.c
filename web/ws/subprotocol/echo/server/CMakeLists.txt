@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-add_library(echo SHARED Echo.cpp)
+add_library(echo SHARED Echo.cpp EchoInterface.cpp)
 
 target_include_directories(echo PUBLIC ${PROJECT_SOURCE_DIR})
 

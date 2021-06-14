@@ -27,34 +27,7 @@
 #define MAX_FLYING_PINGS 3
 #define PING_DELAY 5
 
-#define NAME "echo"
-
 namespace web::ws::subprotocol::echo::server {
-
-    class EchoInterface : public web::ws::server::SubProtocolInterface {
-    private:
-        web::ws::SubProtocol* create() override {
-            return new Echo();
-        }
-
-        ROLE role() override {
-            return ROLE::SERVER;
-        }
-
-        std::string name() override {
-            return NAME;
-        }
-
-        void destroy(web::ws::SubProtocol* echo) override {
-            delete echo;
-        }
-    };
-
-    extern "C" {
-        class web::ws::server::SubProtocolInterface* plugin() {
-            return new EchoInterface();
-        }
-    }
 
     Echo::Echo()
         : web::ws::server::SubProtocol(NAME)

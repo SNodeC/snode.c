@@ -46,7 +46,7 @@ namespace web::ws::server {
 
         if (serverSubprotocols.contains(subProtocolName)) {
             SubProtocolInterface* subProtocolInterface =
-                static_cast<SubProtocolInterface*>(serverSubprotocols.find(subProtocolName)->second.subprotocolPluginInterface);
+                static_cast<SubProtocolInterface*>(serverSubprotocols.find(subProtocolName)->second.subProtocolInterface);
 
             if (subProtocolInterface != nullptr) {
                 subProtocol = static_cast<web::ws::server::SubProtocol*>(subProtocolInterface->create());
@@ -63,7 +63,7 @@ namespace web::ws::server {
     void SubProtocolSelector::destroy(web::ws::SubProtocol* subProtocol) {
         if (serverSubprotocols.contains(subProtocol->getName())) {
             web::ws::SubProtocolInterface* subProtocolInterface =
-                static_cast<SubProtocolInterface*>(serverSubprotocols.find(subProtocol->getName())->second.subprotocolPluginInterface);
+                static_cast<SubProtocolInterface*>(serverSubprotocols.find(subProtocol->getName())->second.subProtocolInterface);
 
             subProtocolInterface->destroy(subProtocol);
         }

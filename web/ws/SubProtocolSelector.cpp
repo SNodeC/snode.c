@@ -44,50 +44,17 @@ namespace web::ws {
         loadSubProtocols("/usr/local/lib/snodec/web/ws/subprotocol");
     }
 
-    void SubProtocolSelector::registerSubProtocol(SubProtocolInterface* subProtocolInterface, void* handle) {
-        SubProtocolPlugin subProtocolPlugin = {.subprotocolPluginInterface = subProtocolInterface, .handle = handle};
-
-        if (subProtocolInterface != nullptr) {
-            if (subProtocolInterface->role() == SubProtocolInterface::ROLE::SERVER) {
-                const auto [it, success] = serverSubprotocols.insert({subProtocolInterface->name(), subProtocolPlugin});
-                if (!success) {
-                    VLOG(0) << "Subprotocol already existing: not using " << subProtocolInterface->name();
-                    delete subProtocolInterface;
-                    if (handle != nullptr) {
-                        dlclose(handle);
-                    }
+    void SubProtocolSelector::loadSubProtocols(const std::string& directoryPath) {
+        if (std::filesystem::exists(directoryPath) && std::filesystem::is_directory(directoryPath)) {
+            for (const std::filesystem::directory_entry& directoryEntry : std::filesystem::recursive_directory_iterator(directoryPath)) {
+                if (std::filesystem::is_regular_file(directoryEntry) && directoryEntry.path().extension() == ".so") {
+                    loadSubProtocol(directoryEntry.path());
+                } else {
+                    VLOG(1) << "Not a library: Ignoring " << directoryEntry;
                 }
-            } else if (subProtocolInterface->role() == SubProtocolInterface::ROLE::CLIENT) {
-                const auto [it, success] = clientSubprotocols.insert({subProtocolInterface->name(), subProtocolPlugin});
-                if (!success) {
-                    VLOG(0) << "Subprotocol already existing: not using " << subProtocolInterface->name();
-                    delete subProtocolInterface;
-                    if (handle != nullptr) {
-                        dlclose(handle);
-                    }
-                }
-            } else if (handle != nullptr) {
-                delete subProtocolInterface;
-                dlclose(handle);
             }
-        } else if (handle != nullptr) {
-            dlclose(handle);
-        }
-    }
-
-    void SubProtocolSelector::unloadSubProtocols() {
-        for (const auto& [name, subProtocolPlugin] : serverSubprotocols) {
-            delete subProtocolPlugin.subprotocolPluginInterface;
-            if (subProtocolPlugin.handle != nullptr) {
-                dlclose(subProtocolPlugin.handle);
-            }
-        }
-
-        for (const auto& [name, subProtocolPlugin] : clientSubprotocols) {
-            delete subProtocolPlugin.subprotocolPluginInterface;
-            if (subProtocolPlugin.handle != nullptr) {
-                dlclose(subProtocolPlugin.handle);
-            }
+        } else {
+            VLOG(1) << "Not a directory: Ignoring path: " << directoryPath;
         }
     }
 
@@ -114,17 +81,50 @@ namespace web::ws {
         }
     }
 
-    void SubProtocolSelector::loadSubProtocols(const std::string& directoryPath) {
-        if (std::filesystem::exists(directoryPath) && std::filesystem::is_directory(directoryPath)) {
-            for (const std::filesystem::directory_entry& directoryEntry : std::filesystem::recursive_directory_iterator(directoryPath)) {
-                if (std::filesystem::is_regular_file(directoryEntry) && directoryEntry.path().extension() == ".so") {
-                    loadSubProtocol(directoryEntry.path());
-                } else {
-                    VLOG(1) << "Not a library: Ignoring " << directoryEntry;
+    void SubProtocolSelector::registerSubProtocol(SubProtocolInterface* subProtocolInterface, void* handle) {
+        SubProtocolPlugin subProtocolPlugin = {.subProtocolInterface = subProtocolInterface, .handle = handle};
+
+        if (subProtocolInterface != nullptr) {
+            if (subProtocolInterface->role() == SubProtocolInterface::ROLE::SERVER) {
+                const auto [it, success] = serverSubprotocols.insert({subProtocolInterface->name(), subProtocolPlugin});
+                if (!success) {
+                    VLOG(0) << "Subprotocol already existing: not using " << subProtocolInterface->name();
+                    subProtocolInterface->destroy();
+                    if (handle != nullptr) {
+                        dlclose(handle);
+                    }
                 }
+            } else if (subProtocolInterface->role() == SubProtocolInterface::ROLE::CLIENT) {
+                const auto [it, success] = clientSubprotocols.insert({subProtocolInterface->name(), subProtocolPlugin});
+                if (!success) {
+                    VLOG(0) << "Subprotocol already existing: not using " << subProtocolInterface->name();
+                    subProtocolInterface->destroy();
+                    if (handle != nullptr) {
+                        dlclose(handle);
+                    }
+                }
+            } else if (handle != nullptr) {
+                subProtocolInterface->destroy();
+                dlclose(handle);
             }
-        } else {
-            VLOG(1) << "Not a directory: Ignoring path: " << directoryPath;
+        } else if (handle != nullptr) {
+            dlclose(handle);
+        }
+    }
+
+    void SubProtocolSelector::unloadSubProtocols() {
+        for (const auto& [name, subProtocolPlugin] : serverSubprotocols) {
+            subProtocolPlugin.subProtocolInterface->destroy();
+            if (subProtocolPlugin.handle != nullptr) {
+                dlclose(subProtocolPlugin.handle);
+            }
+        }
+
+        for (const auto& [name, subProtocolPlugin] : clientSubprotocols) {
+            subProtocolPlugin.subProtocolInterface->destroy();
+            if (subProtocolPlugin.handle != nullptr) {
+                dlclose(subProtocolPlugin.handle);
+            }
         }
     }
 

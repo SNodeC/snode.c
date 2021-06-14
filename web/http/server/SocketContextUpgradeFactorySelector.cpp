@@ -50,14 +50,14 @@ namespace web::http::server {
 
     void SocketContextUpgradeFactorySelector::unloadSocketContexts() {
         for (const auto& [name, socketContextPlugin] : serverSocketContextPlugins) {
-            delete socketContextPlugin.socketContextUpgradeFactory;
+            socketContextPlugin.socketContextUpgradeFactory->destroy();
             if (socketContextPlugin.handle != nullptr) {
                 dlclose(socketContextPlugin.handle);
             }
         }
 
         for (const auto& [name, socketContextPlugin] : clientSocketContextPlugins) {
-            delete socketContextPlugin.socketContextUpgradeFactory;
+            socketContextPlugin.socketContextUpgradeFactory->destroy();
             if (socketContextPlugin.handle != nullptr) {
                 dlclose(socketContextPlugin.handle);
             }
@@ -86,7 +86,7 @@ namespace web::http::server {
             const auto [it, success] = serverSocketContextPlugins.insert({socketContextUpgradeFactory->name(), socketContextPlugin});
             if (!success) {
                 VLOG(0) << "UpgradeSocketContext already existing: not using " << socketContextUpgradeFactory->name();
-                delete socketContextUpgradeFactory;
+                socketContextUpgradeFactory->destroy();
                 if (handle != nullptr) {
                     dlclose(handle);
                 }
@@ -95,7 +95,7 @@ namespace web::http::server {
             const auto [it, success] = clientSocketContextPlugins.insert({socketContextUpgradeFactory->name(), socketContextPlugin});
             if (!success) {
                 VLOG(0) << "UpgradeSocketContext already existing: not using " << socketContextUpgradeFactory->name();
-                delete socketContextUpgradeFactory;
+                socketContextUpgradeFactory->destroy();
                 if (handle != nullptr) {
                     dlclose(handle);
                 }

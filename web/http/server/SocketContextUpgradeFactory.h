@@ -33,6 +33,9 @@ namespace web::http::server {
 namespace web::http::server {
 
     class SocketContextUpgradeFactory : public net::socket::stream::SocketContextFactory {
+    protected:
+        ~SocketContextUpgradeFactory() = default;
+
     public:
         enum class ROLE { CLIENT, SERVER };
 
@@ -43,6 +46,10 @@ namespace web::http::server {
 
         virtual std::string name() = 0;
         virtual ROLE role() = 0;
+
+        void destroy() {
+            delete this;
+        }
 
     protected:
         web::http::server::Request* request;

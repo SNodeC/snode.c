@@ -35,7 +35,7 @@ namespace web::ws {
     class SubProtocolInterface;
 
     struct SubProtocolPlugin {
-        SubProtocolInterface* subprotocolPluginInterface;
+        SubProtocolInterface* subProtocolInterface;
         void* handle = nullptr;
     };
 
@@ -51,6 +51,7 @@ namespace web::ws {
         void loadSubProtocols();
         void loadSubProtocol(const std::string& filePath);
         void loadSubProtocols(const std::string& directoryPath);
+
         void registerSubProtocol(SubProtocolInterface* subProtocolPluginInterface, void* handle = nullptr);
 
         void unloadSubProtocols();

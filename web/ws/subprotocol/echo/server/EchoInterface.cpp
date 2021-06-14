@@ -16,38 +16,43 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_SUBPROTOCOLPLUGININTERFACE_H
-#define WEB_WS_SUBPROTOCOLPLUGININTERFACE_H
+#include "EchoInterface.h"
 
-namespace web::ws {
-    class SubProtocol;
-} // namespace web::ws
+#include "Echo.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::ws {
+namespace web::ws::subprotocol::echo::server {
 
-    class SubProtocolInterface {
-    public:
-        enum class ROLE { CLIENT, SERVER };
+    class EchoInterface : public web::ws::server::SubProtocolInterface {
+    private:
+        void destroy() override {
+            delete this;
+        }
 
-    protected:
-        virtual ~SubProtocolInterface() = default;
+        ROLE role() override {
+            return ROLE::SERVER;
+        }
 
-    public:
-        virtual std::string name() = 0;
-        virtual ROLE role() = 0;
+        std::string name() override {
+            return NAME;
+        }
 
-        virtual void destroy() = 0;
+        web::ws::SubProtocol* create() override {
+            return new Echo();
+        }
 
-        virtual web::ws::SubProtocol* create() = 0;
-        virtual void destroy(web::ws::SubProtocol*) = 0;
+        void destroy(web::ws::SubProtocol* echo) override {
+            delete echo;
+        }
     };
 
-} // namespace web::ws
+    extern "C" {
+        class web::ws::server::SubProtocolInterface* plugin() {
+            return new EchoInterface();
+        }
+    }
 
-#endif // WEB_WS_SUBPROTOCOLPLUGININTERFACE_H
+} // namespace web::ws::subprotocol::echo::server

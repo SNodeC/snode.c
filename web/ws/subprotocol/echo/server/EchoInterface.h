@@ -16,46 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_SUBPROTOCOL_ECHO_SERVER_ECHO_H
-#define WEB_WS_SUBPROTOCOL_ECHO_SERVER_ECHO_H
+#ifndef WEB_WS_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H
+#define WEB_WS_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H
 
-#include "net/timer/IntervalTimer.h"
-#include "web/ws/server/SubProtocol.h"
 #include "web/ws/server/SubProtocolInterface.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define NAME "echo"
-
 namespace web::ws::subprotocol::echo::server {
 
-    class Echo : public web::ws::server::SubProtocol {
-    public:
-        Echo();
+extern "C" {
+    class web::ws::server::SubProtocolInterface* plugin();
+}
 
-        Echo(const Echo&) = delete;
-        Echo& operator=(const Echo&) = delete;
-
-        ~Echo() override;
-
-        void onProtocolConnected() override;
-        void onMessageStart(int opCode) override;
-        void onMessageData(const char* junk, std::size_t junkLen) override;
-        void onMessageEnd() override;
-        void onMessageError(uint16_t errnum) override;
-        void onPongReceived() override;
-        void onProtocolDisconnected() override;
-
-    private:
-        std::string data;
-
-        int flyingPings = 0;
-
-        net::timer::Timer& timer;
-    };
-
-} // namespace web::ws::subprotocol::echo::server
-
-#endif // WEB_WS_SUBPROTOCOL_ECHO_SERVER_ECHO_H
+}
+#endif // ECHOINTERFACE_H
