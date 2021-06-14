@@ -42,7 +42,7 @@ namespace web::ws::server {
     public:
         void loadSubProtocols() override;
 
-        web::ws::SubProtocol* select(const std::string& subProtocolName);
+        web::ws::SubProtocol* select(const std::string& subProtocolName) override;
 
         void destroy(web::ws::SubProtocol* subProtocol);
 

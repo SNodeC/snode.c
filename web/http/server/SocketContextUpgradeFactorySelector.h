@@ -21,7 +21,9 @@
 
 namespace web::http::server {
     class SocketContextUpgradeFactory;
-}
+    class Request;
+    class Response;
+} // namespace web::http::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -50,7 +52,8 @@ namespace web::http::server {
         void loadSocketContexts();
         void unloadSocketContexts();
 
-        web::http::server::SocketContextUpgradeFactory* select(const std::string& subProtocolName);
+        web::http::server::SocketContextUpgradeFactory*
+        select(const std::string& subProtocolName, web::http::server::Request& req, web::http::server::Response& res);
 
         static SocketContextUpgradeFactorySelector* instance();
 

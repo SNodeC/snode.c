@@ -57,7 +57,7 @@ namespace web::ws {
         void unloadSubProtocols();
 
     protected:
-        //        virtual SubProtocol* select(const std::string& subProtocolName) = 0;
+        virtual SubProtocol* select(const std::string& subProtocolName) = 0;
 
         std::map<std::string, SubProtocolPlugin> serverSubprotocols;
         std::map<std::string, SubProtocolPlugin> clientSubprotocols;

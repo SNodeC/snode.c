@@ -103,14 +103,17 @@ namespace web::http::server {
         }
     }
 
-    web::http::server::SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(const std::string& name) {
-        web::http::server::SocketContextUpgradeFactory* socketContextFactory = nullptr;
+    web::http::server::SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(const std::string& name,
+                                                                                                web::http::server::Request& req,
+                                                                                                web::http::server::Response& res) {
+        web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
         if (serverSocketContextPlugins.contains(name)) {
-            socketContextFactory = serverSocketContextPlugins[name].socketContextUpgradeFactory;
+            socketContextUpgradeFactory = serverSocketContextPlugins[name].socketContextUpgradeFactory;
+            socketContextUpgradeFactory->prepare(req, res);
         }
 
-        return socketContextFactory;
+        return socketContextUpgradeFactory;
     }
 
 } // namespace web::http::server
