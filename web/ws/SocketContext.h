@@ -64,7 +64,7 @@ namespace web::ws {
         void sendPing(const char* reason = nullptr, std::size_t reasonLength = 0);
         void replyPong(const char* reason = nullptr, std::size_t reasonLength = 0);
 
-        void close(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);
+        void sendClose(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);
 
         std::string getLocalAddressAsString() const;
         std::string getRemoteAddressAsString() const;
@@ -73,7 +73,7 @@ namespace web::ws {
         web::ws::SubProtocol* subProtocol;
 
     private:
-        void close(const char* reason, std::size_t reasonLength);
+        void sendClose(const char* reason, std::size_t reasonLength);
 
         /* WSReceiver */
         void onMessageStart(int opCode) override;

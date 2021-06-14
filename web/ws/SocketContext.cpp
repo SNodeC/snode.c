@@ -97,10 +97,10 @@ namespace web::ws {
                 VLOG(0) << "Close confirmed from peer";
             } else { // passive close
                 VLOG(0) << "Close request received - replying with close";
-                close(pongCloseData.data(), pongCloseData.length());
+                sendClose(pongCloseData.data(), pongCloseData.length());
                 pongCloseData.clear();
             }
-            close();
+            sendClose();
         } else if (pingReceived) {
             pingReceived = false;
             replyPong(pongCloseData.data(), pongCloseData.length());
@@ -119,7 +119,7 @@ namespace web::ws {
 
     void SocketContext::onMessageError(uint16_t errnum) {
         subProtocol->onMessageError(errnum);
-        close(errnum);
+        sendClose(errnum);
     }
 
     std::size_t SocketContext::readFrameData(char* junk, std::size_t junkLen) {
@@ -142,7 +142,7 @@ namespace web::ws {
         sendMessage(10, reason, reasonLength);
     }
 
-    void SocketContext::close(uint16_t statusCode, const char* reason, std::size_t reasonLength) {
+    void SocketContext::sendClose(uint16_t statusCode, const char* reason, std::size_t reasonLength) {
         char* closePayload = const_cast<char*>(reason);
         std::size_t closePayloadLength = reasonLength;
 
@@ -155,7 +155,7 @@ namespace web::ws {
             }
         }
 
-        close(closePayload, closePayloadLength);
+        sendClose(closePayload, closePayloadLength);
 
         if (statusCode != 0) {
             delete[] closePayload;
@@ -164,9 +164,11 @@ namespace web::ws {
         setTimeout(CLOSE_SOCKET_TIMEOUT);
 
         closeSent = true;
+
+        close();
     }
 
-    void SocketContext::close(const char* message, std::size_t messageLength) {
+    void SocketContext::sendClose(const char* message, std::size_t messageLength) {
         sendMessage(8, message, messageLength);
     }
 
