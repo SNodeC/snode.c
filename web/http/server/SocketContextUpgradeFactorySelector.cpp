@@ -18,6 +18,7 @@
 
 #include "SocketContextUpgradeFactorySelector.h"
 
+#include "log/Logger.h"
 #include "web/http/server/SocketContextUpgradeFactory.h"
 #include "web/http/server/SocketContextUpgradeInterface.h"
 
@@ -65,14 +66,6 @@ namespace web::http::server {
         delete this;
     }
 
-    void SocketContextUpgradeFactorySelector::loadSocketContexts1() {
-        instance()->loadSocketContexts();
-    }
-
-    void SocketContextUpgradeFactorySelector::unloadSocketContexts1() {
-        instance()->unloadSocketContexts();
-    }
-
     SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::instance() {
         if (socketContextUpgradeFactorySelector == nullptr) {
             socketContextUpgradeFactorySelector = new SocketContextUpgradeFactorySelector();
@@ -89,12 +82,24 @@ namespace web::http::server {
         web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handle) {
         SocketContextPlugin socketContextPlugin = {.socketContextUpgradeFactory = socketContextUpgradeFactory, .handle = handle};
 
-        if (socketContextUpgradeFactory->type() == "server") {
-            [[maybe_unused]] const auto [it, success] =
-                serverSocketContextPlugins.insert({socketContextUpgradeFactory->name(), socketContextPlugin});
-        } else {
-            [[maybe_unused]] const auto [it, success] =
-                clientSocketContextPlugins.insert({socketContextUpgradeFactory->name(), socketContextPlugin});
+        if (socketContextUpgradeFactory->role() == SocketContextUpgradeFactory::ROLE::SERVER) {
+            const auto [it, success] = serverSocketContextPlugins.insert({socketContextUpgradeFactory->name(), socketContextPlugin});
+            if (!success) {
+                VLOG(0) << "UpgradeSocketContext already existing: not using " << socketContextUpgradeFactory->name();
+                delete socketContextUpgradeFactory;
+                if (handle != nullptr) {
+                    dlclose(handle);
+                }
+            }
+        } else if (socketContextUpgradeFactory->role() == SocketContextUpgradeFactory::ROLE::CLIENT) {
+            const auto [it, success] = clientSocketContextPlugins.insert({socketContextUpgradeFactory->name(), socketContextPlugin});
+            if (!success) {
+                VLOG(0) << "UpgradeSocketContext already existing: not using " << socketContextUpgradeFactory->name();
+                delete socketContextUpgradeFactory;
+                if (handle != nullptr) {
+                    dlclose(handle);
+                }
+            }
         }
     }
 

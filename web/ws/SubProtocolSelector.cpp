@@ -48,7 +48,7 @@ namespace web::ws {
         SubProtocolPlugin subProtocolPlugin = {.subprotocolPluginInterface = subProtocolInterface, .handle = handle};
 
         if (subProtocolInterface != nullptr) {
-            if (subProtocolInterface->role() == "server") {
+            if (subProtocolInterface->role() == SubProtocolInterface::ROLE::SERVER) {
                 const auto [it, success] = serverSubprotocols.insert({subProtocolInterface->name(), subProtocolPlugin});
                 if (!success) {
                     VLOG(0) << "Subprotocol already existing: not using " << subProtocolInterface->name();
@@ -57,7 +57,7 @@ namespace web::ws {
                         dlclose(handle);
                     }
                 }
-            } else {
+            } else if (subProtocolInterface->role() == SubProtocolInterface::ROLE::CLIENT) {
                 const auto [it, success] = clientSubprotocols.insert({subProtocolInterface->name(), subProtocolPlugin});
                 if (!success) {
                     VLOG(0) << "Subprotocol already existing: not using " << subProtocolInterface->name();
@@ -66,6 +66,9 @@ namespace web::ws {
                         dlclose(handle);
                     }
                 }
+            } else if (handle != nullptr) {
+                delete subProtocolInterface;
+                dlclose(handle);
             }
         } else if (handle != nullptr) {
             dlclose(handle);

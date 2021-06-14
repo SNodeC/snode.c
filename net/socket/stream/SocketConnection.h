@@ -53,11 +53,11 @@ namespace net::socket::stream {
                          const SocketAddress& remoteAddress,
                          const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                          const std::function<void()>& onDisconnect)
-            : SocketReader([&socketContext = this->socketContext, this](int errnum) -> void {
+            : SocketReader([this](int errnum) -> void {
                 socketContext->onReadError(errnum);
                 SocketWriter::disable();
             })
-            , SocketWriter([&socketContext = this->socketContext, this](int errnum) -> void {
+            , SocketWriter([this](int errnum) -> void {
                 socketContext->onWriteError(errnum);
                 SocketReader::disable();
             })

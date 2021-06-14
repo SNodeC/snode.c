@@ -50,9 +50,6 @@ namespace web::http::server {
         void loadSocketContexts();
         void unloadSocketContexts();
 
-        static void loadSocketContexts1();
-        static void unloadSocketContexts1();
-
         web::http::server::SocketContextUpgradeFactory* select(const std::string& subProtocolName);
 
         static SocketContextUpgradeFactorySelector* instance();

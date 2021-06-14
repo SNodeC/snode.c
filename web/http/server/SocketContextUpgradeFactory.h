@@ -34,13 +34,15 @@ namespace web::http::server {
 
     class SocketContextUpgradeFactory : public net::socket::stream::SocketContextFactory {
     public:
+        enum class ROLE { CLIENT, SERVER };
+
         void prepare(web::http::server::Request& request, web::http::server::Response& response) {
             this->request = &request;
             this->response = &response;
         }
 
         virtual std::string name() = 0;
-        virtual std::string type() = 0;
+        virtual ROLE role() = 0;
 
     protected:
         web::http::server::Request* request;

@@ -37,7 +37,7 @@ namespace web::ws::server {
         ~SocketContextUpgradeFactory();
 
         std::string name() override;
-        std::string type() override;
+        ROLE role() override;
 
     private:
         web::ws::server::SocketContext* create(net::socket::stream::SocketConnectionBase* socketConnection) const override;

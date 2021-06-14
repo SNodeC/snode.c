@@ -25,6 +25,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define MAX_FLYING_PINGS 3
+#define PING_DELAY 5
 
 #define NAME "echo"
 
@@ -36,8 +37,8 @@ namespace web::ws::subprotocol::echo::server {
             return new Echo();
         }
 
-        std::string role() override {
-            return "server";
+        ROLE role() override {
+            return ROLE::SERVER;
         }
 
         std::string name() override {
@@ -65,7 +66,7 @@ namespace web::ws::subprotocol::echo::server {
                       this->sendClose();
                   }
               },
-              {1, 0},
+              {PING_DELAY, 0},
               nullptr)) {
     }
 
@@ -91,11 +92,11 @@ namespace web::ws::subprotocol::echo::server {
     void Echo::onMessageData(const char* junk, std::size_t junkLen) {
         data += std::string(junk, static_cast<std::size_t>(junkLen));
 
-        VLOG(0) << "Message Data";
+        VLOG(0) << "Message Fragment: " << std::string(junk, junkLen);
     }
 
     void Echo::onMessageEnd() {
-        VLOG(0) << "Data: " << data;
+        VLOG(0) << "Message Full Data: " << data;
         VLOG(0) << "Message End";
         /*
                 forEachClient([&data = this->data](SubProtocol* client) {
