@@ -100,7 +100,6 @@ namespace web::ws {
                 sendClose(pongCloseData.data(), pongCloseData.length());
                 pongCloseData.clear();
             }
-            sendClose();
         } else if (pingReceived) {
             pingReceived = false;
             replyPong(pongCloseData.data(), pongCloseData.length());
@@ -164,12 +163,11 @@ namespace web::ws {
         setTimeout(CLOSE_SOCKET_TIMEOUT);
 
         closeSent = true;
-
-        close();
     }
 
     void SocketContext::sendClose(const char* message, std::size_t messageLength) {
         sendMessage(8, message, messageLength);
+        close();
     }
 
     void SocketContext::sendFrameData(uint8_t data) {
