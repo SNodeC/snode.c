@@ -22,6 +22,7 @@
 #include "net/socket/stream/SocketConnectionBase.h"
 #include "net/socket/stream/SocketContextFactory.h"
 #include "web/http/client/SocketContext.h"
+#include "web/http/client/SocketContextUpgradeFactorySelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -35,7 +36,19 @@ namespace web::http::client {
         using Request = RequestT;
         using Response = ResponseT;
 
-        SocketContextFactory() = default;
+        SocketContextFactory() {
+            if (useCount == 0) {
+                SocketContextUpgradeFactorySelector::instance()->loadSocketContexts();
+            }
+            useCount++;
+        }
+
+        ~SocketContextFactory() {
+            useCount--;
+            if (useCount == 0) {
+                SocketContextUpgradeFactorySelector::instance()->unloadSocketContexts();
+            }
+        }
 
     private:
         net::socket::stream::SocketContext* create(net::socket::stream::SocketConnectionBase* socketConnection) const override {
@@ -54,7 +67,12 @@ namespace web::http::client {
     private:
         std::function<void(Response&)> onResponse;
         std::function<void(int, const std::string&)> onRequestError;
+
+        static int useCount;
     };
+
+    template <typename RequestT, typename ResponseT>
+    int SocketContextFactory<RequestT, ResponseT>::useCount = 0;
 
 } // namespace web::http::client
 

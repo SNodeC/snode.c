@@ -13,6 +13,7 @@ add_library(
     client/ResponseParser.cpp
     client/Request.cpp
     client/Response.cpp
+    client/SocketContextUpgradeFactorySelector.cpp
     server/RequestParser.cpp
     server/Request.cpp
     server/Response.cpp
