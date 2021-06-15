@@ -64,7 +64,6 @@ namespace web::ws {
                 break;
             case 0x09:
                 pingReceived = true;
-                VLOG(0) << "Ping received";
                 break;
             case 0x0A:
                 pongReceived = true;
@@ -102,7 +101,7 @@ namespace web::ws {
             }
         } else if (pingReceived) {
             pingReceived = false;
-            replyPong(pongCloseData.data(), pongCloseData.length());
+            sendPong(pongCloseData.data(), pongCloseData.length());
             pongCloseData.clear();
         } else if (pongReceived) {
             pongReceived = false;
@@ -137,7 +136,7 @@ namespace web::ws {
         sendMessage(9, reason, reasonLength);
     }
 
-    void SocketContext::replyPong(const char* reason, std::size_t reasonLength) {
+    void SocketContext::sendPong(const char* reason, std::size_t reasonLength) {
         sendMessage(10, reason, reasonLength);
     }
 

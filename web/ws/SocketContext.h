@@ -62,7 +62,7 @@ namespace web::ws {
         void sendMessageEnd(const char* message, std::size_t messageLength);
 
         void sendPing(const char* reason = nullptr, std::size_t reasonLength = 0);
-        void replyPong(const char* reason = nullptr, std::size_t reasonLength = 0);
+        void sendPong(const char* reason = nullptr, std::size_t reasonLength = 0);
 
         void sendClose(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);
 
