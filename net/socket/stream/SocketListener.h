@@ -50,12 +50,12 @@ namespace net::socket::stream {
         using Socket = typename SocketConnection::Socket;
         using SocketAddress = typename Socket::SocketAddress;
 
-        SocketListener(const std::shared_ptr<const SocketContextFactory>& socketProtocolFactory,
+        SocketListener(const std::shared_ptr<const SocketContextFactory>& socketContextFactory,
                        const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,
                        const std::map<std::string, std::any>& options)
-            : socketProtocolFactory(socketProtocolFactory)
+            : socketContextFactory(socketContextFactory)
             , options(options)
             , onConnect(onConnect)
             , onConnected(onConnected)
@@ -123,7 +123,7 @@ namespace net::socket::stream {
 
                 if (net::system::getsockname(fd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
                     SocketConnection* socketConnection = new SocketConnection(
-                        fd, socketProtocolFactory, SocketAddress(localAddress), SocketAddress(remoteAddress), onConnect, onDisconnect);
+                        fd, socketContextFactory, SocketAddress(localAddress), SocketAddress(remoteAddress), onConnect, onDisconnect);
 
                     onConnected(socketConnection);
                 } else {
@@ -150,7 +150,7 @@ namespace net::socket::stream {
         }
 
     private:
-        std::shared_ptr<const SocketContextFactory> socketProtocolFactory = nullptr;
+        std::shared_ptr<const SocketContextFactory> socketContextFactory = nullptr;
 
     protected:
         std::map<std::string, std::any> options;

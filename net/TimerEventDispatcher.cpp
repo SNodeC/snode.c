@@ -23,9 +23,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <algorithm> // for copy
 #include <climits>
-#include <iterator> // for back_insert_iterator, back_inserter
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -40,12 +38,10 @@ namespace net {
             timerList.push_back(timer);
             timerListDirty = true;
         }
-
         addedList.clear();
 
         for (TimerEventReceiver* timer : removedList) {
             timerList.remove(timer);
-            //            timer->destroy();
             timerListDirty = true;
         }
         removedList.clear();
@@ -105,7 +101,9 @@ namespace net {
     void TimerEventDispatcher::cancelAll() {
         getNextTimeout();
 
-        std::copy(timerList.begin(), timerList.end(), std::back_inserter(removedList));
+        for (TimerEventReceiver* timer : timerList) {
+            remove(timer);
+        }
 
         getNextTimeout();
     }

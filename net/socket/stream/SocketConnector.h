@@ -52,12 +52,12 @@ namespace net::socket::stream {
         using Socket = typename SocketConnection::Socket;
         using SocketAddress = typename Socket::SocketAddress;
 
-        SocketConnector(const std::shared_ptr<const SocketContextFactory>& socketProtocolFactory,
+        SocketConnector(const std::shared_ptr<const SocketContextFactory>& socketContextFactory,
                         const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,
                         const std::map<std::string, std::any>& options)
-            : socketProtocolFactory(socketProtocolFactory)
+            : socketContextFactory(socketContextFactory)
             , options(options)
             , onConnect(onConnect)
             , onConnected(onConnected)
@@ -104,8 +104,9 @@ namespace net::socket::stream {
             int err = net::system::getsockopt(Socket::getFd(), SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);
 
             if (err == 0) {
-                if (cErrno != EINPROGRESS) {
-                    if (cErrno == 0) {
+                errno = cErrno;
+                if (errno != EINPROGRESS) {
+                    if (errno == 0) {
                         typename SocketAddress::SockAddr localAddress{};
                         socklen_t localAddressLength = sizeof(localAddress);
 
@@ -117,7 +118,7 @@ namespace net::socket::stream {
                             net::system::getpeername(Socket::getFd(), reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) ==
                                 0) {
                             socketConnection = new SocketConnection(Socket::getFd(),
-                                                                    socketProtocolFactory,
+                                                                    socketContextFactory,
                                                                     SocketAddress(localAddress),
                                                                     SocketAddress(remoteAddress),
                                                                     onConnect,
@@ -129,18 +130,17 @@ namespace net::socket::stream {
                             onError(0);
                         } else {
                             SocketConnector::ConnectEventReceiver::disable();
-                            cErrno = errno;
                             onError(errno);
                         }
                     } else {
                         SocketConnector::ConnectEventReceiver::disable();
-                        errno = cErrno;
                         onError(errno);
                     }
+                } else {
+                    // connect() still in progress
                 }
             } else {
                 SocketConnector::ConnectEventReceiver::disable();
-                cErrno = errno;
                 onError(errno);
             }
         }
@@ -155,7 +155,7 @@ namespace net::socket::stream {
         }
 
     private:
-        std::shared_ptr<const SocketContextFactory> socketProtocolFactory = nullptr;
+        std::shared_ptr<const SocketContextFactory> socketContextFactory = nullptr;
 
     protected:
         std::function<void(int err)> onError;
