@@ -46,7 +46,9 @@ namespace web::ws {
         , protected web::ws::Receiver
         , protected web::ws::Transmitter {
     protected:
-        SocketContext(net::socket::stream::SocketConnectionBase* socketConnection, web::ws::SubProtocol* subProtocol, bool masking);
+        SocketContext(net::socket::stream::SocketConnectionBase* socketConnection,
+                      web::ws::SubProtocol* subProtocol,
+                      Transmitter::Role role);
 
         SocketContext() = delete;
         SocketContext(const SocketContext&) = delete;
@@ -103,10 +105,14 @@ namespace web::ws {
         bool closeReceived = false;
         bool closeSent = false;
 
+        int opCodeReceived = 0;
+
         bool pingReceived = false;
         bool pongReceived = false;
 
         std::string pongCloseData;
+
+        enum OpCode { CLOSE = 0x08, PING = 0x09, PONG = 0x0A };
     };
 
 } // namespace web::ws

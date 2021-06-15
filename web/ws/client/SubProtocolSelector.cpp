@@ -30,7 +30,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::ws::server {
+namespace web::ws::client {
 
     std::shared_ptr<SubProtocolSelector> SubProtocolSelector::subProtocolSelector = nullptr;
 
@@ -48,32 +48,28 @@ namespace web::ws::server {
 
     void SubProtocolSelector::loadSubProtocols() {
 #ifndef NDEBUG
-#ifdef SUBPROTOCOL_SERVER_PATH
-        loadSubProtocols(SUBPROTOCOL_SERVER_PATH);
-#endif // SUBPROTOCOL_SERVER_PATH
+#ifdef SUBPROTOCOL_CLIENT_PATH
+        loadSubProtocols(SUBPROTOCOL_CLIENT_PATH);
+#endif // SUBPROTOCOL_CLIENT_PATH
 #endif // NDEBUG
 
 #ifdef SUBPROTOCOL_SERVER_INSTALL_PATH
-        loadSubProtocols(SUBPROTOCOL_SERVER_INSTALL_PATH);
+        loadSubProtocols(SUBPROTOCOL_CLIENT_INSTALL_PATH);
 #endif
-        loadSubProtocols("/usr/local/lib/snode.c/" RELATIVE_SUBPROTOCOL_SERVER_PATH);
-        loadSubProtocols("/usr/lib/snode.c/" RELATIVE_SUBPROTOCOL_SERVER_PATH);
+        loadSubProtocols("/usr/local/lib/snode.c/" RELATIVE_SUBPROTOCOL_CLIENT_PATH);
+        loadSubProtocols("/usr/lib/snode.c/" RELATIVE_SUBPROTOCOL_CLIENT_PATH);
     }
 
     web::ws::SubProtocol* SubProtocolSelector::select(const std::string& subProtocolName) {
-        web::ws::server::SubProtocol* subProtocol = nullptr;
+        web::ws::client::SubProtocol* subProtocol = nullptr;
 
         SubProtocolInterface* subProtocolInterface = dynamic_cast<SubProtocolInterface*>(selectSubProtocolInterface(subProtocolName));
 
         if (subProtocolInterface != nullptr) {
             subProtocol = dynamic_cast<SubProtocol*>(subProtocolInterface->create());
-
-            if (subProtocol != nullptr) {
-                subProtocol->setClients(subProtocolInterface->getClients());
-            }
         }
 
         return subProtocol;
     }
 
-} // namespace web::ws::server
+} // namespace web::ws::client

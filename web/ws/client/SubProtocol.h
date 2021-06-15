@@ -21,10 +21,10 @@
 
 #include "web/ws/SubProtocol.h"
 
-namespace web::ws::server {
+namespace web::ws::client {
     class SocketContext;
     class SubProtocolSelector;
-} // namespace web::ws::server
+} // namespace web::ws::client
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -37,7 +37,7 @@ namespace web::ws::server {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::ws::server {
+namespace web::ws::client {
 
     class SubProtocol : public web::ws::SubProtocol {
     public:
@@ -51,7 +51,7 @@ namespace web::ws::server {
         SubProtocol& operator=(const SubProtocol&) = delete;
 
     public:
-        ~SubProtocol() override;
+        ~SubProtocol() override = default;
 
     public:
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from SubProtocol-Subclasses */
@@ -63,20 +63,6 @@ namespace web::ws::server {
 
         using web::ws::SubProtocol::sendClose;
         using web::ws::SubProtocol::sendPing;
-
-        void sendBroadcast(const char* message, std::size_t messageLength);
-        void sendBroadcast(const std::string& message);
-
-        void sendBroadcastStart(const char* message, std::size_t messageLength);
-        void sendBroadcastStart(const std::string& message);
-
-        void sendBroadcastFrame(const char* message, std::size_t messageLength);
-        void sendBroadcastFrame(const std::string& message);
-
-        void sendBroadcastEnd(const char* message, std::size_t messageLength);
-        void sendBroadcastEnd(const std::string& message);
-
-        void forEachClient(const std::function<void(SubProtocol*)>& forEachClient);
 
     private:
         /* Callbacks (API) WSReceiver -> SubProtocol-Subclasses */
@@ -94,14 +80,10 @@ namespace web::ws::server {
         void sendBroadcast(uint8_t opCode, const char* message, std::size_t messageLength);
         void sendBroadcastStart(uint8_t opCode, const char* message, std::size_t messageLength);
 
-        void setClients(std::shared_ptr<std::list<web::ws::server::SubProtocol*>> clients);
-
-        std::shared_ptr<std::list<web::ws::server::SubProtocol*>> clients;
-
-        friend class web::ws::server::SocketContext;
-        friend class web::ws::server::SubProtocolSelector;
+        friend class web::ws::client::SocketContext;
+        friend class web::ws::client::SubProtocolSelector;
     };
 
-} // namespace web::ws::server
+} // namespace web::ws::client
 
 #endif // WEB_WS_SERVER_SUBSPROTOCOL_H

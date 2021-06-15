@@ -16,35 +16,43 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_CLIENT_SOCKETCONTEXT_H
-#define WEB_WS_CLIENT_SOCKETCONTEXT_H
+#ifndef WEB_WS_CLIENT_SUBPROTOCOLSELECTOR_H
+#define WEB_WS_CLIENT_SUBPROTOCOLSELECTOR_H
 
-#include "web/http/client/Request.h"
-#include "web/http/client/Response.h"
-#include "web/ws/SocketContext.h"
+#include "web/ws/SubProtocolSelector.h"
+#include "web/ws/client/SubProtocolInterface.h"
 
-namespace web::ws::client {
+namespace web::ws {
     class SubProtocol;
-} // namespace web::ws::client
+} // namespace web::ws
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <memory>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::ws::client {
 
-    class SocketContext : public web::ws::SocketContext {
-    protected:
-        SocketContext(net::socket::stream::SocketConnectionBase* socketConnection, web::ws::client::SubProtocol* subProtocol);
+    class SubProtocolSelector : public web::ws::SubProtocolSelector {
+    public:
+        SubProtocolSelector();
 
-        ~SocketContext() override;
+    private:
+        using web::ws::SubProtocolSelector::loadSubProtocols;
 
     public:
-        static SocketContext* create(net::socket::stream::SocketConnectionBase* socketConnection,
-                                     web::http::client::Request& req,
-                                     web::http::client::Response& res);
+        void loadSubProtocols() override;
+
+        web::ws::SubProtocol* select(const std::string& subProtocolName) override;
+
+        static std::shared_ptr<SubProtocolSelector> instance();
+
+    private:
+        static std::shared_ptr<SubProtocolSelector> subProtocolSelector;
     };
 
 } // namespace web::ws::client
 
-#endif // WEB_WS_CLIENT_SOCKETCONTEXT_H
+#endif // WEB_WS_CLIENT_SUBPROTOCOLSELECTOR_H

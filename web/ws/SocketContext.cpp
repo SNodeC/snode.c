@@ -34,9 +34,9 @@ namespace web::ws {
 
     SocketContext::SocketContext(net::socket::stream::SocketConnectionBase* socketConnection,
                                  web::ws::SubProtocol* subProtocol,
-                                 bool masking)
+                                 Transmitter::Role role)
         : net::socket::stream::SocketContext(socketConnection)
-        , Transmitter(masking)
+        , Transmitter(role)
         , subProtocol(subProtocol) {
         subProtocol->setWSContext(this);
     }
@@ -58,15 +58,14 @@ namespace web::ws {
     }
 
     void SocketContext::onMessageStart(int opCode) {
+        opCodeReceived = opCode;
+
         switch (opCode) {
-            case 0x08:
-                closeReceived = true;
-                break;
-            case 0x09:
-                pingReceived = true;
-                break;
-            case 0x0A:
-                pongReceived = true;
+            case OpCode::CLOSE:
+                [[fallthrough]];
+            case OpCode::PING:
+                [[fallthrough]];
+            case OpCode::PONG:
                 break;
             default:
                 subProtocol->onMessageStart(opCode);
@@ -89,25 +88,29 @@ namespace web::ws {
     }
 
     void SocketContext::onMessageEnd() {
-        if (closeReceived) {
-            closeReceived = false;
-            if (closeSent) { // active close
-                closeSent = false;
-                VLOG(0) << "Close confirmed from peer";
-            } else { // passive close
-                VLOG(0) << "Close request received - replying with close";
-                sendClose(pongCloseData.data(), pongCloseData.length());
+        switch (opCodeReceived) {
+            case OpCode::CLOSE:
+                closeReceived = false;
+                if (closeSent) { // active close
+                    closeSent = false;
+                    VLOG(0) << "Close confirmed from peer";
+                } else { // passive close
+                    VLOG(0) << "Close request received - replying with close";
+                    sendClose(pongCloseData.data(), pongCloseData.length());
+                    pongCloseData.clear();
+                }
+                break;
+            case OpCode::PING:
+                pingReceived = false;
+                sendPong(pongCloseData.data(), pongCloseData.length());
                 pongCloseData.clear();
-            }
-        } else if (pingReceived) {
-            pingReceived = false;
-            sendPong(pongCloseData.data(), pongCloseData.length());
-            pongCloseData.clear();
-        } else if (pongReceived) {
-            pongReceived = false;
-            subProtocol->onPongReceived();
-        } else {
-            subProtocol->onMessageEnd();
+                break;
+            case OpCode::PONG:
+                subProtocol->onPongReceived();
+                break;
+            default:
+                subProtocol->onMessageEnd();
+                break;
         }
     }
 

@@ -36,8 +36,10 @@ namespace web::ws {
         Transmitter(const Transmitter&) = delete;
         Transmitter& operator=(const Transmitter&) = delete;
 
+        enum class Role { SERVER, CLIENT };
+
     protected:
-        Transmitter(bool masking);
+        Transmitter(Role role);
 
         void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength);
 

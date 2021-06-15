@@ -18,6 +18,11 @@
 
 #include "SocketContext.h"
 
+#include "log/Logger.h"
+#include "web/ws/client/SubProtocol.h"
+#include "web/ws/client/SubProtocolSelector.h"
+#include "web/ws/ws_utils.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -25,9 +30,13 @@
 #define CLOSE_SOCKET_TIMEOUT 10
 
 namespace web::ws::client {
-    /*
-        WSContext::WSContext(const std::string& subProtocol)
-            : web::ws::WSContext(subProtocol, web::ws::WSProtocol::Role::CLIENT) {
-        }
-    */
+
+    SocketContext::SocketContext(net::socket::stream::SocketConnectionBase* socketConnection, web::ws::client::SubProtocol* subProtocol)
+        : web::ws::SocketContext(socketConnection, subProtocol, Transmitter::Role::CLIENT) {
+    }
+
+    SocketContext::~SocketContext() {
+        web::ws::client::SubProtocolSelector::instance()->destroy(subProtocol);
+    }
+
 } // namespace web::ws::client

@@ -13,6 +13,8 @@ add_library(
     Transmitter.cpp
     ws_utils.cpp
     client/SocketContext.cpp
+    client/SubProtocol.cpp
+    client/SubProtocolSelector.cpp
     server/SocketContext.cpp
     server/SocketContextUpgradeFactory.cpp
     server/SubProtocol.cpp

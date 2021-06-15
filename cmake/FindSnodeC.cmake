@@ -133,9 +133,8 @@ if(NOT SNODEC_FOUND)
     endif(SNODEC_EXPRESS_H)
 
     find_library(
-        SNODEC_EXPRESS_LIBRARY express
-        PATHS ${SNODEC_EXPRESS_ROOT_DIR}/lib /usr/lib
-              /usr/local/lib
+        SNODEC_EXPRESS_LIBRARY express PATHS ${SNODEC_EXPRESS_ROOT_DIR}/lib
+                                             /usr/lib /usr/local/lib
     )
 
     # ########## UTILS

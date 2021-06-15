@@ -32,7 +32,7 @@
 namespace web::ws::server {
 
     SocketContext::SocketContext(net::socket::stream::SocketConnectionBase* socketConnection, web::ws::server::SubProtocol* subProtocol)
-        : web::ws::SocketContext(socketConnection, subProtocol, false) {
+        : web::ws::SocketContext(socketConnection, subProtocol, Transmitter::Role::SERVER) {
     }
 
     SocketContext::~SocketContext() {

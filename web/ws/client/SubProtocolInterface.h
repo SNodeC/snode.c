@@ -16,20 +16,38 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H
-#define WEB_WS_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H
+#ifndef WEB_WS_CLIENT_SUBPROTOCOLPLUGININTERFACE_H
+#define WEB_WS_CLIENT_SUBPROTOCOLPLUGININTERFACE_H
 
-#include "web/ws/server/SubProtocolInterface.h"
+#include "web/ws/SubProtocolInterface.h"
+
+#include <list>
+#include <memory>
+
+namespace web::http::client {
+
+    class Request;
+    class Response;
+
+} // namespace web::http::client
+
+namespace web::ws::client {
+    class SubProtocol;
+} // namespace web::ws::client
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::ws::subprotocol::echo::server {
+namespace web::ws::client {
 
     extern "C" {
-        class web::ws::server::SubProtocolInterface* plugin();
+        class SubProtocolInterface : public web::ws::SubProtocolInterface {
+        public:
+            using web::ws::SubProtocolInterface::SubProtocolInterface;
+        };
     }
 
-} // namespace web::ws::subprotocol::echo::server
-#endif // ECHOINTERFACE_H
+} // namespace web::ws::client
+
+#endif // WEB_WS_CLIENT_SUBPROTOCOLPLUGININTERFACE_H
