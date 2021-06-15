@@ -32,8 +32,8 @@ namespace web::ws::subprotocol::echo::server {
             delete this;
         }
 
-        ROLE role() override {
-            return ROLE::SERVER;
+        Role role() override {
+            return Role::SERVER;
         }
 
         std::string name() override {

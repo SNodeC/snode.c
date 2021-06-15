@@ -20,7 +20,6 @@
 
 #include "log/Logger.h"
 #include "web/ws/SubProtocol.h"
-#include "web/ws/SubProtocolInterface.h" // for WSSubPr...
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,6 +31,19 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::ws {
+
+    SubProtocolSelector::SubProtocolSelector(SubProtocolInterface::Role role)
+        : role(role) {
+    }
+
+    void SubProtocolSelector::destroy(web::ws::SubProtocol* subProtocol) {
+        if (subProtocols.contains(subProtocol->getName())) {
+            web::ws::SubProtocolInterface* subProtocolInterface =
+                static_cast<SubProtocolInterface*>(subProtocols.find(subProtocol->getName())->second.subProtocolInterface);
+
+            subProtocolInterface->destroy(subProtocol);
+        }
+    }
 
     void SubProtocolSelector::loadSubProtocols(const std::string& directoryPath) {
         if (std::filesystem::exists(directoryPath) && std::filesystem::is_directory(directoryPath)) {
@@ -74,17 +86,8 @@ namespace web::ws {
         SubProtocolPlugin subProtocolPlugin = {.subProtocolInterface = subProtocolInterface, .handle = handle};
 
         if (subProtocolInterface != nullptr) {
-            if (subProtocolInterface->role() == SubProtocolInterface::ROLE::SERVER) {
-                const auto [it, success] = serverSubprotocols.insert({subProtocolInterface->name(), subProtocolPlugin});
-                if (!success) {
-                    VLOG(0) << "Subprotocol already existing: not using " << subProtocolInterface->name();
-                    subProtocolInterface->destroy();
-                    if (handle != nullptr) {
-                        dlclose(handle);
-                    }
-                }
-            } else if (subProtocolInterface->role() == SubProtocolInterface::ROLE::CLIENT) {
-                const auto [it, success] = clientSubprotocols.insert({subProtocolInterface->name(), subProtocolPlugin});
+            if (subProtocolInterface->role() == role) {
+                const auto [it, success] = subProtocols.insert({subProtocolInterface->name(), subProtocolPlugin});
                 if (!success) {
                     VLOG(0) << "Subprotocol already existing: not using " << subProtocolInterface->name();
                     subProtocolInterface->destroy();
@@ -102,19 +105,22 @@ namespace web::ws {
     }
 
     void SubProtocolSelector::unloadSubProtocols() {
-        for (const auto& [name, subProtocolPlugin] : serverSubprotocols) {
+        for (const auto& [name, subProtocolPlugin] : subProtocols) {
             subProtocolPlugin.subProtocolInterface->destroy();
             if (subProtocolPlugin.handle != nullptr) {
                 dlclose(subProtocolPlugin.handle);
             }
+        }
+    }
+
+    SubProtocolInterface* SubProtocolSelector::selectSubProtocolInterface(const std::string& subProtocolName) {
+        SubProtocolInterface* subProtocolInterface = nullptr;
+
+        if (subProtocols.contains(subProtocolName)) {
+            subProtocolInterface = subProtocols.find(subProtocolName)->second.subProtocolInterface;
         }
 
-        for (const auto& [name, subProtocolPlugin] : clientSubprotocols) {
-            subProtocolPlugin.subProtocolInterface->destroy();
-            if (subProtocolPlugin.handle != nullptr) {
-                dlclose(subProtocolPlugin.handle);
-            }
-        }
+        return subProtocolInterface;
     }
 
 } // namespace web::ws

@@ -42,6 +42,10 @@ namespace web::ws::server {
         return subProtocolSelector;
     }
 
+    SubProtocolSelector::SubProtocolSelector()
+        : web::ws::SubProtocolSelector(SubProtocolInterface::Role::SERVER) {
+    }
+
     void SubProtocolSelector::loadSubProtocols() {
 #ifndef NDEBUG
 #ifdef SUBPROTOCOL_SERVER_PATH
@@ -59,29 +63,17 @@ namespace web::ws::server {
     web::ws::SubProtocol* SubProtocolSelector::select(const std::string& subProtocolName) {
         web::ws::server::SubProtocol* subProtocol = nullptr;
 
-        if (serverSubprotocols.contains(subProtocolName)) {
-            SubProtocolInterface* subProtocolInterface =
-                static_cast<SubProtocolInterface*>(serverSubprotocols.find(subProtocolName)->second.subProtocolInterface);
+        SubProtocolInterface* subProtocolInterface = dynamic_cast<SubProtocolInterface*>(selectSubProtocolInterface(subProtocolName));
 
-            if (subProtocolInterface != nullptr) {
-                subProtocol = static_cast<web::ws::server::SubProtocol*>(subProtocolInterface->create());
+        if (subProtocolInterface != nullptr) {
+            subProtocol = static_cast<web::ws::server::SubProtocol*>(subProtocolInterface->create());
 
-                if (subProtocol != nullptr) {
-                    subProtocol->setClients(subProtocolInterface->getClients());
-                }
+            if (subProtocol != nullptr) {
+                subProtocol->setClients(subProtocolInterface->getClients());
             }
         }
 
         return subProtocol;
-    }
-
-    void SubProtocolSelector::destroy(web::ws::SubProtocol* subProtocol) {
-        if (serverSubprotocols.contains(subProtocol->getName())) {
-            web::ws::SubProtocolInterface* subProtocolInterface =
-                static_cast<SubProtocolInterface*>(serverSubprotocols.find(subProtocol->getName())->second.subProtocolInterface);
-
-            subProtocolInterface->destroy(subProtocol);
-        }
     }
 
 } // namespace web::ws::server

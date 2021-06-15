@@ -36,6 +36,9 @@ namespace web::ws {
 namespace web::ws::server {
 
     class SubProtocolSelector : public web::ws::SubProtocolSelector {
+    public:
+        SubProtocolSelector();
+
     private:
         using web::ws::SubProtocolSelector::loadSubProtocols;
 
@@ -43,8 +46,6 @@ namespace web::ws::server {
         void loadSubProtocols() override;
 
         web::ws::SubProtocol* select(const std::string& subProtocolName) override;
-
-        void destroy(web::ws::SubProtocol* subProtocol);
 
         static std::shared_ptr<SubProtocolSelector> instance();
 

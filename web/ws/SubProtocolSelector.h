@@ -19,6 +19,8 @@
 #ifndef WEB_WS_SUBPROTOCOLSELECTOR_H
 #define WEB_WS_SUBPROTOCOLSELECTOR_H
 
+#include "web/ws/SubProtocolInterface.h" // for WSSubPr...
+
 namespace web::ws {
     class SubProtocol;
 }
@@ -41,13 +43,15 @@ namespace web::ws {
 
     class SubProtocolSelector {
     protected:
-        SubProtocolSelector() = default;
+        SubProtocolSelector(SubProtocolInterface::Role role);
         virtual ~SubProtocolSelector() = default;
 
         SubProtocolSelector(const SubProtocolSelector&) = delete;
         SubProtocolSelector& operator=(const SubProtocolSelector&) = delete;
 
     public:
+        void destroy(web::ws::SubProtocol* subProtocol);
+
         virtual void loadSubProtocols() = 0;
         void loadSubProtocol(const std::string& filePath);
         void loadSubProtocols(const std::string& directoryPath);
@@ -58,9 +62,11 @@ namespace web::ws {
 
     protected:
         virtual SubProtocol* select(const std::string& subProtocolName) = 0;
+        SubProtocolInterface* selectSubProtocolInterface(const std::string& subProtocolName);
 
-        std::map<std::string, SubProtocolPlugin> serverSubprotocols;
-        std::map<std::string, SubProtocolPlugin> clientSubprotocols;
+        SubProtocolInterface::Role role;
+
+        std::map<std::string, SubProtocolPlugin> subProtocols;
     };
 
 } // namespace web::ws

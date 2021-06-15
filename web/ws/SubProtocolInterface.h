@@ -33,14 +33,14 @@ namespace web::ws {
 
     class SubProtocolInterface {
     public:
-        enum class ROLE { CLIENT, SERVER };
+        enum class Role { CLIENT, SERVER };
 
     protected:
         virtual ~SubProtocolInterface() = default;
 
     public:
         virtual std::string name() = 0;
-        virtual ROLE role() = 0;
+        virtual Role role() = 0;
 
         virtual void destroy() = 0;
 
