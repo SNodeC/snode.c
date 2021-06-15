@@ -112,12 +112,7 @@ public:
     }
 
     void onReceiveFromPeer() override {
-        char junk[4096];
-
-        std::size_t ret = readFromPeer(junk, 4096);
-
-        VLOG(0) << "Data to reflect: " << std::string(junk, 4096);
-        sendToPeer(junk, ret);
+        responseParser->parse();
     }
 
     void onWriteError(int errnum) override {
@@ -150,8 +145,6 @@ tls::SocketClient<SimpleSocketProtocolFactory, tcp::ipv4::Socket> getTlsClient()
         },
         [](tls::SocketClient<SimpleSocketProtocolFactory, tcp::ipv4::Socket>::SocketConnection* socketConnection) -> void { // onConnected
             VLOG(0) << "OnConnected";
-
-            //            socketConnection->setContext<http::client::ResponseParser*>(getResponseParser());
 
             socketConnection->enqueue("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
 
