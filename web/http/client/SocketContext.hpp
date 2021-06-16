@@ -17,7 +17,7 @@
  */
 
 #include "log/Logger.h"
-#include "net/socket/stream/SocketConnectionBase.h"
+#include "net/socket/stream/SocketConnection.h"
 #include "web/http/client/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -34,7 +34,7 @@ namespace web::http {
 namespace web::http::client {
 
     template <typename Request, typename Response>
-    SocketContext<Request, Response>::SocketContext(net::socket::stream::SocketConnectionBase* socketConnection,
+    SocketContext<Request, Response>::SocketContext(net::socket::stream::SocketConnection* socketConnection,
                                                     const std::function<void(Response&)>& onResponse,
                                                     const std::function<void(int, const std::string&)>& onError)
         : SocketContextBase(socketConnection)

@@ -40,7 +40,7 @@ namespace web::ws::server {
         ROLE role() override;
 
     private:
-        web::ws::server::SocketContext* create(net::socket::stream::SocketConnectionBase* socketConnection) const override;
+        web::ws::server::SocketContext* create(net::socket::stream::SocketConnection* socketConnection) const override;
     };
 
     class SocketContextUpgradeInterface : public web::http::server::SocketContextUpgradeInterface {

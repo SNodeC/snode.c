@@ -31,7 +31,7 @@
 
 namespace web::ws::client {
 
-    SocketContext::SocketContext(net::socket::stream::SocketConnectionBase* socketConnection, web::ws::client::SubProtocol* subProtocol)
+    SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection, web::ws::client::SubProtocol* subProtocol)
         : web::ws::SocketContext(socketConnection, subProtocol, Transmitter::Role::CLIENT) {
     }
 

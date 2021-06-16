@@ -28,7 +28,7 @@
 #include "net/socket/stream/SocketContextFactory.h"       // for SocketProt...
 
 namespace net::socket::stream {
-    class SocketConnectionBase;
+    class SocketConnection;
 } // namespace net::socket::stream
 
 #include <any>                // for any
@@ -50,7 +50,7 @@ using namespace net::socket::bluetooth::rfcomm::tls;
 
 class SimpleSocketProtocol : public net::socket::stream::SocketContext {
 public:
-    explicit SimpleSocketProtocol(net::socket::stream::SocketConnectionBase* socketConnection)
+    explicit SimpleSocketProtocol(net::socket::stream::SocketConnection* socketConnection)
         : net::socket::stream::SocketContext(socketConnection) {
     }
 
@@ -74,7 +74,7 @@ public:
 
 class SimpleSocketProtocolFactory : public net::socket::stream::SocketContextFactory {
 private:
-    net::socket::stream::SocketContext* create(net::socket::stream::SocketConnectionBase* socketConnection) const override {
+    net::socket::stream::SocketContext* create(net::socket::stream::SocketConnection* socketConnection) const override {
         return new SimpleSocketProtocol(socketConnection);
     }
 };

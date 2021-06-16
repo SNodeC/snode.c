@@ -17,7 +17,7 @@
  */
 
 #include "log/Logger.h"
-#include "net/socket/stream/SocketConnectionBase.h"
+#include "net/socket/stream/SocketConnection.h"
 #include "web/http/http_utils.h"
 #include "web/http/server/SocketContext.h"
 
@@ -30,7 +30,7 @@
 namespace web::http::server {
 
     template <typename Request, typename Response>
-    SocketContext<Request, Response>::SocketContext(net::socket::stream::SocketConnectionBase* socketConnection,
+    SocketContext<Request, Response>::SocketContext(net::socket::stream::SocketConnection* socketConnection,
                                                     const std::function<void(Request&, Response&)>& onRequestReady)
         : SocketContextBase(socketConnection)
         , onRequestReady(onRequestReady)

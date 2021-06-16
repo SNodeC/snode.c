@@ -24,7 +24,7 @@
 #include "web/ws/Transmitter.h"
 
 namespace net::socket::stream {
-    class SocketConnectionBase;
+    class SocketConnection;
 } // namespace net::socket::stream
 
 namespace web::ws {
@@ -46,7 +46,7 @@ namespace web::ws {
         , protected web::ws::Receiver
         , protected web::ws::Transmitter {
     protected:
-        SocketContext(net::socket::stream::SocketConnectionBase* socketConnection,
+        SocketContext(net::socket::stream::SocketConnection* socketConnection,
                       web::ws::SubProtocol* subProtocol,
                       Transmitter::Role role);
 

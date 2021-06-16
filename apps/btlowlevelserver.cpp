@@ -27,7 +27,7 @@
 #include "net/socket/stream/SocketServer.h"                  // for SocketS...
 
 namespace net::socket::stream {
-    class SocketConnectionBase;
+    class SocketConnection;
 } // namespace net::socket::stream
 
 #include <cstddef>    // for size_t
@@ -40,7 +40,7 @@ using namespace net::socket::bluetooth::rfcomm::legacy;
 
 class SimpleSocketProtocol : public net::socket::stream::SocketContext {
 public:
-    explicit SimpleSocketProtocol(net::socket::stream::SocketConnectionBase* socketConnection)
+    explicit SimpleSocketProtocol(net::socket::stream::SocketConnection* socketConnection)
         : net::socket::stream::SocketContext(socketConnection) {
     }
 
@@ -64,7 +64,7 @@ public:
 
 class SimpleSocketProtocolFactory : public net::socket::stream::SocketContextFactory {
 private:
-    net::socket::stream::SocketContext* create(net::socket::stream::SocketConnectionBase* socketConnection) const override {
+    net::socket::stream::SocketContext* create(net::socket::stream::SocketConnection* socketConnection) const override {
         return new SimpleSocketProtocol(socketConnection);
     }
 };

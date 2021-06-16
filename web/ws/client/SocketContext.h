@@ -35,12 +35,12 @@ namespace web::ws::client {
 
     class SocketContext : public web::ws::SocketContext {
     protected:
-        SocketContext(net::socket::stream::SocketConnectionBase* socketConnection, web::ws::client::SubProtocol* subProtocol);
+        SocketContext(net::socket::stream::SocketConnection* socketConnection, web::ws::client::SubProtocol* subProtocol);
 
         ~SocketContext() override;
 
     public:
-        static SocketContext* create(net::socket::stream::SocketConnectionBase* socketConnection,
+        static SocketContext* create(net::socket::stream::SocketConnection* socketConnection,
                                      web::http::client::Request& req,
                                      web::http::client::Response& res);
     };

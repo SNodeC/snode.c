@@ -34,7 +34,7 @@ add_library(
     socket/ip/address/ipv6/InetAddress.cpp
     socket/ip/tcp/ipv4/Socket.cpp
     socket/ip/tcp/ipv6/Socket.cpp
-    socket/stream/SocketConnectionBase.cpp
+    socket/stream/SocketConnection.cpp
     socket/stream/SocketContext.cpp
     socket/stream/tls/ssl_utils.cpp
     socket/stream/tls/TLSHandshake.cpp

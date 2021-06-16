@@ -21,7 +21,7 @@
 #ifndef WEB_HTTP_SERVER_SOCKETCONTEXTFACTORY_H
 #define WEB_HTTP_SERVER_SOCKETCONTEXTFACTORY_H
 
-#include "net/socket/stream/SocketConnectionBase.h"
+#include "net/socket/stream/SocketConnection.h"
 #include "net/socket/stream/SocketContextFactory.h"
 #include "web/http/server/SocketContext.h"
 #include "web/http/server/SocketContextUpgradeFactorySelector.h"
@@ -56,7 +56,7 @@ namespace web::http::server {
         SocketContextFactory& operator=(const SocketContextFactory&) = delete;
 
     private:
-        net::socket::stream::SocketContext* create(net::socket::stream::SocketConnectionBase* socketConnection) const override {
+        net::socket::stream::SocketContext* create(net::socket::stream::SocketConnection* socketConnection) const override {
             return new SocketContext<Request, Response>(socketConnection, onRequestReady);
         }
 

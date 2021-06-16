@@ -19,7 +19,7 @@
 #include "net/socket/stream/SocketContext.h"
 
 #include "log/Logger.h"
-#include "net/socket/stream/SocketConnectionBase.h"
+#include "net/socket/stream/SocketConnection.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,7 +27,7 @@
 
 namespace net::socket::stream {
 
-    SocketContext::SocketContext(SocketConnectionBase* socketConnection)
+    SocketContext::SocketContext(SocketConnection* socketConnection)
         : socketConnection(socketConnection) {
     }
 

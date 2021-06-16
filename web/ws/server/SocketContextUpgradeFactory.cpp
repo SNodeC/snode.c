@@ -52,7 +52,7 @@ namespace web::ws::server {
         return http::server::SocketContextUpgradeFactory::ROLE::SERVER;
     }
 
-    web::ws::server::SocketContext* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnectionBase* socketConnection) const {
+    web::ws::server::SocketContext* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnection* socketConnection) const {
         return web::ws::server::SocketContext::create(socketConnection, *request, *response);
     }
 

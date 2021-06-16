@@ -31,7 +31,7 @@
 
 namespace web::ws::server {
 
-    SocketContext::SocketContext(net::socket::stream::SocketConnectionBase* socketConnection, web::ws::server::SubProtocol* subProtocol)
+    SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection, web::ws::server::SubProtocol* subProtocol)
         : web::ws::SocketContext(socketConnection, subProtocol, Transmitter::Role::SERVER) {
     }
 
@@ -39,7 +39,7 @@ namespace web::ws::server {
         web::ws::server::SubProtocolSelector::instance()->destroy(subProtocol);
     }
 
-    SocketContext* SocketContext::create(net::socket::stream::SocketConnectionBase* socketConnection,
+    SocketContext* SocketContext::create(net::socket::stream::SocketConnection* socketConnection,
                                          web::http::server::Request& req,
                                          web::http::server::Response& res) {
         std::string subProtocolName = req.header("sec-websocket-protocol");

@@ -16,143 +16,53 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_STREAM_SOCKETCONNECTION_H
-#define NET_SOCKET_STREAM_SOCKETCONNECTION_H
+#ifndef NET_SOCKET_STREAM_SOCKETCONNECTIONBASE_H
+#define NET_SOCKET_STREAM_SOCKETCONNECTIONBASE_H
 
-#include "log/Logger.h"
-#include "net/socket/stream/SocketConnectionBase.h"
-#include "net/socket/stream/SocketContext.h"
-#include "net/socket/stream/SocketContextFactory.h"
+namespace net::socket::stream {
+    class SocketContext;
+    class SocketContextFactory;
+} // namespace net::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
-#include <functional>
-#include <memory>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::socket::stream {
 
-    template <typename SocketReaderT, typename SocketWriterT, typename SocketAddressT>
-    class SocketConnection
-        : public SocketConnectionBase
-        , public SocketReaderT
-        , public SocketWriterT {
-        SocketConnection() = delete;
-
-    public:
-        using SocketReader = SocketReaderT;
-        using SocketWriter = SocketWriterT;
-        using SocketAddress = SocketAddressT;
+    class SocketConnection {
+        SocketConnection(const SocketConnection&) = delete;
+        SocketConnection& operator=(const SocketConnection&) = delete;
 
     protected:
-        SocketConnection(int fd,
-                         const std::shared_ptr<const SocketContextFactory>& socketContextFactory,
-                         const SocketAddress& localAddress,
-                         const SocketAddress& remoteAddress,
-                         const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
-                         const std::function<void()>& onDisconnect)
-            : SocketReader([this](int errnum) -> void {
-                socketContext->onReadError(errnum);
-                SocketWriter::disable();
-            })
-            , SocketWriter([this](int errnum) -> void {
-                socketContext->onWriteError(errnum);
-                SocketReader::disable();
-            })
-            , socketContext(socketContextFactory->create(this))
-            , localAddress(localAddress)
-            , remoteAddress(remoteAddress)
-            , onDisconnect(onDisconnect) {
-            SocketConnection::attach(fd);
-            SocketReader::enable(fd);
-            SocketWriter::enable(fd);
-            onConnect(localAddress, remoteAddress);
-            socketContext->onProtocolConnected();
-        }
+        SocketConnection() = default;
 
-        virtual ~SocketConnection() {
-            socketContext->onProtocolDisconnected();
-            onDisconnect();
-            delete socketContext;
-        }
+        virtual ~SocketConnection() = default;
 
     public:
-        void setTimeout(int timeout) override {
-            SocketReader::setTimeout(timeout);
-            SocketWriter::setTimeout(timeout);
-        }
+        virtual SocketContext* getSocketContext() = 0;
 
-        const SocketAddress& getRemoteAddress() const {
-            return remoteAddress;
-        }
+        virtual std::string getLocalAddressAsString() const = 0;
+        virtual std::string getRemoteAddressAsString() const = 0;
 
-        const SocketAddress& getLocalAddress() const {
-            return localAddress;
-        }
+        virtual void enqueue(const char* junk, std::size_t junkLen) = 0;
+        virtual void enqueue(const std::string& data) = 0;
 
-        std::string getLocalAddressAsString() const override {
-            return localAddress.toString();
-        }
+        virtual std::size_t doRead(char* junk, std::size_t junkLen) = 0;
 
-        std::string getRemoteAddressAsString() const override {
-            return remoteAddress.toString();
-        }
+        virtual void close() = 0;
 
-        void enqueue(const char* junk, std::size_t junkLen) override {
-            SocketWriter::enqueue(junk, junkLen);
-        }
+        virtual void setTimeout(int timeout) = 0;
 
-        void enqueue(const std::string& data) override {
-            enqueue(data.data(), data.size());
-        }
+    protected:
+        virtual void switchSocketProtocol(const SocketContextFactory& socketContextFactory) = 0;
 
-        std::size_t doRead(char* junk, std::size_t junkLen) override {
-            return SocketReader::doRead(junk, junkLen);
-        }
-
-        void close() final {
-            //            SocketReader::disable();
-            //            SocketReader::shutdown();
-            SocketWriter::shutdown();
-        }
-
-        SocketContext* getSocketContext() {
-            return socketContext;
-        }
-
-        void switchSocketProtocol(const SocketContextFactory& socketContextFactory) override {
-            SocketContext* newSocketContext = socketContextFactory.create(this);
-
-            if (newSocketContext != nullptr) {
-                socketContext->onProtocolDisconnected();
-                socketContext = newSocketContext;
-                socketContext->onProtocolConnected();
-            }
-        }
-
-    private:
-        void readEvent() override {
-            socketContext->receiveFromPeer();
-        }
-
-        void writeEvent() override {
-            SocketWriter::doWrite();
-        }
-
-        void unobserved() override {
-            delete this;
-        }
-
-        SocketContext* socketContext = nullptr;
-
-        SocketAddress localAddress{};
-        SocketAddress remoteAddress{};
-
-        std::function<void()> onDisconnect;
+        friend SocketContext;
     };
 
 } // namespace net::socket::stream
 
-#endif // NET_SOCKET_STREAM_SOCKETCONNECTION_H
+#endif // NET_SOCKET_STREAM_SOCKETCONNECTIONBASE_H

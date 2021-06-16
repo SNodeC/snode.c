@@ -34,14 +34,14 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::socket::stream {
-    class SocketConnectionBase;
+    class SocketConnection;
 } // namespace net::socket::stream
 
 namespace web::http::client {
 
     class SocketContextBase : public net::socket::stream::SocketContext {
     public:
-        explicit SocketContextBase(net::socket::stream::SocketConnectionBase* socketConnection)
+        explicit SocketContextBase(net::socket::stream::SocketConnection* socketConnection)
             : net::socket::stream::SocketContext(socketConnection) {
         }
 
@@ -56,11 +56,11 @@ namespace web::http::client {
     template <typename RequestT, typename ResponseT>
     class SocketContext : public SocketContextBase {
     public:
-        using SocketConnection = net::socket::stream::SocketConnectionBase;
+        using SocketConnection = net::socket::stream::SocketConnection;
         using Request = RequestT;
         using Response = ResponseT;
 
-        SocketContext(net::socket::stream::SocketConnectionBase* socketConnection,
+        SocketContext(net::socket::stream::SocketConnection* socketConnection,
                       const std::function<void(Response&)>& onResponse,
                       const std::function<void(int, const std::string&)>& onError);
 

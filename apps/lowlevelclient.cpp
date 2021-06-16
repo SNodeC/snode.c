@@ -31,7 +31,7 @@
 #include "web/http/client/ResponseParser.h"         // for ResponseParser
 
 namespace net::socket::stream {
-    class SocketConnectionBase;
+    class SocketConnection;
 } // namespace net::socket::stream
 
 #include <any> // for any
@@ -102,7 +102,7 @@ static web::http::client::ResponseParser* getResponseParser(SocketContext* socke
 
 class SimpleSocketProtocol : public SocketContext {
 public:
-    explicit SimpleSocketProtocol(net::socket::stream::SocketConnectionBase* socketConnection)
+    explicit SimpleSocketProtocol(net::socket::stream::SocketConnection* socketConnection)
         : SocketContext(socketConnection) {
         responseParser = getResponseParser(this);
     }
@@ -129,7 +129,7 @@ private:
 
 class SimpleSocketProtocolFactory : public net::socket::stream::SocketContextFactory {
 private:
-    SocketContext* create(net::socket::stream::SocketConnectionBase* socketConnection) const override {
+    SocketContext* create(net::socket::stream::SocketConnection* socketConnection) const override {
         return new SimpleSocketProtocol(socketConnection);
     }
 };

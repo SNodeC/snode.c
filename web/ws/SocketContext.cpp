@@ -32,7 +32,7 @@
 
 namespace web::ws {
 
-    SocketContext::SocketContext(net::socket::stream::SocketConnectionBase* socketConnection,
+    SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection,
                                  web::ws::SubProtocol* subProtocol,
                                  Transmitter::Role role)
         : net::socket::stream::SocketContext(socketConnection)

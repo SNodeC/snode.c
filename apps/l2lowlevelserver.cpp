@@ -28,7 +28,7 @@
 #include "net/socket/stream/SocketServer.h"            // for SocketServer<...
 
 namespace net::socket::stream {
-    class SocketConnectionBase;
+    class SocketConnection;
 } // namespace net::socket::stream
 
 #include <cstddef>    // for size_t
@@ -41,7 +41,7 @@ using namespace net::socket::bluetooth::l2cap;
 
 class SimpleSocketProtocol : public net::socket::stream::SocketContext {
 public:
-    explicit SimpleSocketProtocol(net::socket::stream::SocketConnectionBase* socketConnection)
+    explicit SimpleSocketProtocol(net::socket::stream::SocketConnection* socketConnection)
         : net::socket::stream::SocketContext(socketConnection) {
     }
 
@@ -67,7 +67,7 @@ class SimpleSocketProtocolFactory : public net::socket::stream::SocketContextFac
 public:
     ~SimpleSocketProtocolFactory() = default;
 
-    net::socket::stream::SocketContext* create(net::socket::stream::SocketConnectionBase* socketConnection) const override {
+    net::socket::stream::SocketContext* create(net::socket::stream::SocketConnection* socketConnection) const override {
         return new SimpleSocketProtocol(socketConnection);
     }
 };

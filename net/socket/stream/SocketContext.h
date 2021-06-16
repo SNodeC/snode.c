@@ -32,11 +32,11 @@ namespace net::socket::stream {
 
 namespace net::socket::stream {
 
-    class SocketConnectionBase;
+    class SocketConnection;
 
     class SocketContext {
     protected:
-        explicit SocketContext(SocketConnectionBase* socketConnection);
+        explicit SocketContext(SocketConnection* socketConnection);
         virtual ~SocketContext() = default;
 
     public:
@@ -62,10 +62,10 @@ namespace net::socket::stream {
     private:
         void receiveFromPeer();
 
-        SocketConnectionBase* socketConnection;
+        SocketConnection* socketConnection;
 
         template <typename SocketReaderT, typename SocketWriterT, typename SocketAddressT>
-        friend class SocketConnection;
+        friend class SocketConnectionT;
     };
 
 } // namespace net::socket::stream

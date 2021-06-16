@@ -19,7 +19,7 @@
 #ifndef NET_SOCKET_STREAM_LEGACY_SOCKETCONNECTION_H
 #define NET_SOCKET_STREAM_LEGACY_SOCKETCONNECTION_H
 
-#include "net/socket/stream/SocketConnection.h"
+#include "net/socket/stream/SocketConnectionT.h"
 #include "net/socket/stream/legacy/SocketReader.h"
 #include "net/socket/stream/legacy/SocketWriter.h"
 
@@ -33,7 +33,7 @@ namespace net::socket::stream::legacy {
 
     template <typename SocketT>
     class SocketConnection
-        : public stream::SocketConnection<legacy::SocketReader<SocketT>, legacy::SocketWriter<SocketT>, typename SocketT::SocketAddress> {
+        : public stream::SocketConnectionT<legacy::SocketReader<SocketT>, legacy::SocketWriter<SocketT>, typename SocketT::SocketAddress> {
     public:
         using Socket = SocketT;
         using SocketAddress = typename Socket::SocketAddress;
@@ -45,8 +45,8 @@ namespace net::socket::stream::legacy {
                          const SocketAddress& remoteAddress,
                          const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                          const std::function<void(SocketConnection*)>& onDisconnect)
-            : stream::SocketConnection<legacy::SocketReader<Socket>, legacy::SocketWriter<Socket>, typename Socket::SocketAddress>::
-                  SocketConnection(fd, socketProtocolFactory, localAddress, remoteAddress, onConnect, [onDisconnect, this]() -> void {
+            : stream::SocketConnectionT<legacy::SocketReader<Socket>, legacy::SocketWriter<Socket>, typename Socket::SocketAddress>::
+                  SocketConnectionT(fd, socketProtocolFactory, localAddress, remoteAddress, onConnect, [onDisconnect, this]() -> void {
                       onDisconnect(this);
                   }) {
         }

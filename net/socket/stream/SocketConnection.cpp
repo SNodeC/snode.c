@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/socket/stream/SocketConnectionBase.h"
+#include "net/socket/stream/SocketConnection.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
