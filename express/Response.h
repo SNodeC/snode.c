@@ -32,7 +32,7 @@ namespace express {
 
     class Response : public web::http::server::Response {
     public:
-        Response(web::http::server::SocketContextBase* serverContext);
+        Response(web::http::server::SocketContext* serverContext);
 
         void sendFile(const std::string& file, const std::function<void(int)>& onError);
         void download(const std::string& file, const std::function<void(int)>& onError);

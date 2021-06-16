@@ -37,16 +37,16 @@ namespace net::socket::stream {
 
 namespace web::http::server {
 
-    class SocketContextBase : public net::socket::stream::SocketContext {
+    class SocketContext : public net::socket::stream::SocketContext {
     public:
         using SocketConnection = net::socket::stream::SocketConnection;
 
-        SocketContextBase(net::socket::stream::SocketConnection* socketConnection)
+        SocketContext(net::socket::stream::SocketConnection* socketConnection)
             : net::socket::stream::SocketContext(socketConnection) {
         }
 
-        SocketContextBase(const SocketContextBase&) = delete;
-        SocketContextBase& operator=(const SocketContextBase&) = delete;
+        SocketContext(const SocketContext&) = delete;
+        SocketContext& operator=(const SocketContext&) = delete;
 
         virtual void sendResponseData(const char* buf, std::size_t len) = 0;
         virtual void responseCompleted() = 0;
@@ -54,14 +54,14 @@ namespace web::http::server {
     };
 
     template <typename RequestT, typename ResponseT>
-    class SocketContext : public SocketContextBase {
+    class SocketContextT : public SocketContext {
     public:
         using SocketConnection = net::socket::stream::SocketConnection;
         using Request = RequestT;
         using Response = ResponseT;
 
         struct RequestContext {
-            RequestContext(SocketContextBase* serverContext)
+            RequestContext(SocketContext* serverContext)
                 : response(serverContext)
                 , ready(false)
                 , status(0) {
@@ -76,8 +76,8 @@ namespace web::http::server {
             std::string reason;
         };
 
-        SocketContext(net::socket::stream::SocketConnection* socketConnection,
-                      const std::function<void(Request&, Response&)>& onRequestReady);
+        SocketContextT(net::socket::stream::SocketConnection* socketConnection,
+                       const std::function<void(Request&, Response&)>& onRequestReady);
 
     private:
         void onReceiveFromPeer() override;

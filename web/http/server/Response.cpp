@@ -36,7 +36,7 @@
 
 namespace web::http::server {
 
-    Response::Response(SocketContextBase* serverContext)
+    Response::Response(SocketContext* serverContext)
         : serverContext(serverContext) {
     }
 

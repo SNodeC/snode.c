@@ -43,12 +43,12 @@ namespace web::ws {
 
 namespace web::http::server {
 
-    class SocketContextBase;
+    class SocketContext;
     class Request;
 
     class Response : public net::pipe::Sink {
     protected:
-        explicit Response(SocketContextBase* serverContext);
+        explicit Response(SocketContext* serverContext);
 
     public:
         void send(const char* junk, std::size_t junkLen);
@@ -69,7 +69,7 @@ namespace web::http::server {
     protected:
         virtual void reset();
 
-        SocketContextBase* serverContext;
+        SocketContext* serverContext;
 
         int responseStatus = 200;
 
@@ -94,7 +94,7 @@ namespace web::http::server {
         void error(int errnum) override;
 
         template <typename Request, typename Response>
-        friend class SocketContext;
+        friend class SocketContextT;
     };
 
 } // namespace web::http::server

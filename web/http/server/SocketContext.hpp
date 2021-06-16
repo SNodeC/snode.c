@@ -30,9 +30,9 @@
 namespace web::http::server {
 
     template <typename Request, typename Response>
-    SocketContext<Request, Response>::SocketContext(net::socket::stream::SocketConnection* socketConnection,
-                                                    const std::function<void(Request&, Response&)>& onRequestReady)
-        : SocketContextBase(socketConnection)
+    SocketContextT<Request, Response>::SocketContextT(net::socket::stream::SocketConnection* socketConnection,
+                                                      const std::function<void(Request&, Response&)>& onRequestReady)
+        : SocketContext(socketConnection)
         , onRequestReady(onRequestReady)
         , parser(
               this,
@@ -112,12 +112,12 @@ namespace web::http::server {
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::onReceiveFromPeer() {
+    void SocketContextT<Request, Response>::onReceiveFromPeer() {
         parser.parse();
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::onReadError(int errnum) {
+    void SocketContextT<Request, Response>::onReadError(int errnum) {
         if (errnum != 0 && errnum != ECONNRESET) {
             PLOG(ERROR) << "Connection read: " << errnum;
             reset();
@@ -125,12 +125,12 @@ namespace web::http::server {
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::sendResponseData(const char* junk, std::size_t junkLen) {
+    void SocketContextT<Request, Response>::sendResponseData(const char* junk, std::size_t junkLen) {
         sendToPeer(junk, junkLen);
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::onWriteError(int errnum) {
+    void SocketContextT<Request, Response>::onWriteError(int errnum) {
         if (errnum != 0 && errnum != ECONNRESET) {
             PLOG(ERROR) << "Connection write: " << errnum;
             reset();
@@ -138,7 +138,7 @@ namespace web::http::server {
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::requestParsed() {
+    void SocketContextT<Request, Response>::requestParsed() {
         if (!requestInProgress) {
             RequestContext& requestContext = requestContexts.front();
 
@@ -164,7 +164,7 @@ namespace web::http::server {
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::responseCompleted() {
+    void SocketContextT<Request, Response>::responseCompleted() {
         RequestContext& requestContext = requestContexts.front();
 
         // if 0.9 => terminate
@@ -199,7 +199,7 @@ namespace web::http::server {
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::reset() {
+    void SocketContextT<Request, Response>::reset() {
         if (!requestContexts.empty()) {
             RequestContext& requestContext = requestContexts.front();
             requestContext.request.reset();
@@ -210,7 +210,7 @@ namespace web::http::server {
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::terminateConnection() {
+    void SocketContextT<Request, Response>::terminateConnection() {
         if (!connectionTerminated) {
             close();
             requestContexts.clear();

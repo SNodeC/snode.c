@@ -57,7 +57,7 @@ namespace web::http::server {
 
     private:
         net::socket::stream::SocketContext* create(net::socket::stream::SocketConnection* socketConnection) const override {
-            return new SocketContext<Request, Response>(socketConnection, onRequestReady);
+            return new SocketContextT<Request, Response>(socketConnection, onRequestReady);
         }
 
     public:
