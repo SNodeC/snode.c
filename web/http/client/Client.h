@@ -57,7 +57,7 @@ namespace web::http::client {
                       onConnect(localAddress, remoteAddress);
                   },
                   [onConnected, onRequestBegin](SocketConnection* socketConnection) -> void { // onConnected
-                      Request& request = static_cast<SocketContextBase*>(socketConnection->getSocketContext())->getRequest();
+                      Request& request = static_cast<SocketContext*>(socketConnection->getSocketContext())->getRequest();
 
                       request.setHost(socketConnection->getRemoteAddress().host() + ":" +
                                       std::to_string(socketConnection->getRemoteAddress().port()));

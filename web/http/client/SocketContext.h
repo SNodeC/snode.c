@@ -39,13 +39,13 @@ namespace net::socket::stream {
 
 namespace web::http::client {
 
-    class SocketContextBase : public net::socket::stream::SocketContext {
+    class SocketContext : public net::socket::stream::SocketContext {
     public:
-        explicit SocketContextBase(net::socket::stream::SocketConnection* socketConnection)
+        explicit SocketContext(net::socket::stream::SocketConnection* socketConnection)
             : net::socket::stream::SocketContext(socketConnection) {
         }
 
-        virtual ~SocketContextBase() = default;
+        virtual ~SocketContext() = default;
 
         virtual Request& getRequest() = 0;
 
@@ -54,17 +54,17 @@ namespace web::http::client {
     };
 
     template <typename RequestT, typename ResponseT>
-    class SocketContext : public SocketContextBase {
+    class SocketContextT : public SocketContext {
     public:
         using SocketConnection = net::socket::stream::SocketConnection;
         using Request = RequestT;
         using Response = ResponseT;
 
-        SocketContext(net::socket::stream::SocketConnection* socketConnection,
-                      const std::function<void(Response&)>& onResponse,
-                      const std::function<void(int, const std::string&)>& onError);
+        SocketContextT(net::socket::stream::SocketConnection* socketConnection,
+                       const std::function<void(Response&)>& onResponse,
+                       const std::function<void(int, const std::string&)>& onError);
 
-        ~SocketContext() override = default;
+        ~SocketContextT() override = default;
 
     private:
         void onReceiveFromPeer() override;

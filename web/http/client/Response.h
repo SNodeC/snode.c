@@ -50,7 +50,7 @@ namespace web::http::client {
         const std::map<std::string, CookieOptions>* cookies = nullptr;
 
         template <typename Request, typename Response>
-        friend class SocketContext;
+        friend class SocketContextT;
     };
 
 } // namespace web::http::client

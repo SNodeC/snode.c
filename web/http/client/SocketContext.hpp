@@ -34,10 +34,10 @@ namespace web::http {
 namespace web::http::client {
 
     template <typename Request, typename Response>
-    SocketContext<Request, Response>::SocketContext(net::socket::stream::SocketConnection* socketConnection,
-                                                    const std::function<void(Response&)>& onResponse,
-                                                    const std::function<void(int, const std::string&)>& onError)
-        : SocketContextBase(socketConnection)
+    SocketContextT<Request, Response>::SocketContextT(net::socket::stream::SocketConnection* socketConnection,
+                                                      const std::function<void(Response&)>& onResponse,
+                                                      const std::function<void(int, const std::string&)>& onError)
+        : SocketContext(socketConnection)
         , request(this)
         , parser(
               this,
@@ -70,35 +70,35 @@ namespace web::http::client {
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::requestCompleted() {
+    void SocketContextT<Request, Response>::requestCompleted() {
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::onReceiveFromPeer() {
+    void SocketContextT<Request, Response>::onReceiveFromPeer() {
         parser.parse();
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::onWriteError(int errnum) {
+    void SocketContextT<Request, Response>::onWriteError(int errnum) {
         if (errnum != 0 && errnum != ECONNRESET) {
             PLOG(ERROR) << "Connection write: " << errnum;
         }
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::onReadError(int errnum) {
+    void SocketContextT<Request, Response>::onReadError(int errnum) {
         if (errnum != 0 && errnum != ECONNRESET) {
             PLOG(ERROR) << "Connection read: " << errnum;
         }
     }
 
     template <typename Request, typename Response>
-    Request& SocketContext<Request, Response>::getRequest() {
+    Request& SocketContextT<Request, Response>::getRequest() {
         return request;
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::terminateConnection() {
+    void SocketContextT<Request, Response>::terminateConnection() {
         close();
     }
 
