@@ -61,6 +61,7 @@ namespace net::socket::stream {
                 socketContext->onWriteError(errnum);
                 SocketReader::disable();
             })
+            , socketContext(socketContextFactory->create(this))
             , localAddress(localAddress)
             , remoteAddress(remoteAddress)
             , onDisconnect(onDisconnect) {
@@ -68,7 +69,6 @@ namespace net::socket::stream {
             SocketReader::enable(fd);
             SocketWriter::enable(fd);
             onConnect(localAddress, remoteAddress);
-            socketContext = socketContextFactory->create(this);
             socketContext->onProtocolConnected();
         }
 
@@ -145,12 +145,12 @@ namespace net::socket::stream {
             delete this;
         }
 
+        SocketContext* socketContext = nullptr;
+
         SocketAddress localAddress{};
         SocketAddress remoteAddress{};
 
         std::function<void()> onDisconnect;
-
-        SocketContext* socketContext = nullptr;
     };
 
 } // namespace net::socket::stream
