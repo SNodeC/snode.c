@@ -41,8 +41,8 @@ namespace net::socket::stream {
 
     template <typename SocketConnectionT>
     class SocketConnector
-        : public ConnectEventReceiver
-        , public SocketConnectionT::Socket {
+        : public SocketConnectionT::Socket
+        , public ConnectEventReceiver {
         SocketConnector() = delete;
         SocketConnector(const SocketConnector&) = delete;
         SocketConnector& operator=(const SocketConnector&) = delete;
@@ -51,6 +51,7 @@ namespace net::socket::stream {
         using SocketConnection = SocketConnectionT;
         using Socket = typename SocketConnection::Socket;
         using SocketAddress = typename Socket::SocketAddress;
+        using Socket::getFd;
 
         SocketConnector(const std::shared_ptr<const SocketContextFactory>& socketContextFactory,
                         const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
@@ -80,11 +81,10 @@ namespace net::socket::stream {
                                 onError(errnum);
                                 destruct();
                             } else {
-                                int ret =
-                                    net::system::connect(Socket::getFd(), &remoteAddress.getSockAddr(), remoteAddress.getSockAddrLen());
+                                int ret = net::system::connect(getFd(), &remoteAddress.getSockAddr(), remoteAddress.getSockAddrLen());
 
                                 if (ret == 0 || errno == EINPROGRESS) {
-                                    ConnectEventReceiver::enable(Socket::getFd());
+                                    ConnectEventReceiver::enable(getFd());
                                 } else {
                                     onError(errno);
                                     destruct();
@@ -113,11 +113,9 @@ namespace net::socket::stream {
                         typename SocketAddress::SockAddr remoteAddress{};
                         socklen_t remoteAddressLength = sizeof(remoteAddress);
 
-                        if (net::system::getsockname(Socket::getFd(), reinterpret_cast<sockaddr*>(&localAddress), &localAddressLength) ==
-                                0 &&
-                            net::system::getpeername(Socket::getFd(), reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) ==
-                                0) {
-                            socketConnection = new SocketConnection(Socket::getFd(),
+                        if (net::system::getsockname(getFd(), reinterpret_cast<sockaddr*>(&localAddress), &localAddressLength) == 0 &&
+                            net::system::getpeername(getFd(), reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) == 0) {
+                            socketConnection = new SocketConnection(getFd(),
                                                                     socketContextFactory,
                                                                     SocketAddress(localAddress),
                                                                     SocketAddress(remoteAddress),

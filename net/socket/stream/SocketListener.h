@@ -39,8 +39,8 @@ namespace net::socket::stream {
 
     template <typename SocketConnectionT>
     class SocketListener
-        : public AcceptEventReceiver
-        , public SocketConnectionT::Socket {
+        : public SocketConnectionT::Socket
+        , public AcceptEventReceiver {
         SocketListener() = delete;
         SocketListener(const SocketListener&) = delete;
         SocketListener& operator=(const SocketListener&) = delete;

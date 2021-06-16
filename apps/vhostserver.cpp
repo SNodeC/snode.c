@@ -45,27 +45,18 @@ int main(int argc, char* argv[]) {
     {
         legacy::WebApp6 legacyApp;
 
-        legacyApp.use(middleware::VHost("localhost:8080").use(middleware::StaticMiddleware(SERVERROOT)));
-        legacyApp.use(middleware::VHost("titan.home.vchrist.at:8080").get("/", [] APPLICATION(req, res) {
+        Router& router = middleware::VHost("localhost:8080");
+        router.use(middleware::StaticMiddleware(SERVERROOT));
+        legacyApp.use(router);
+
+        router = middleware::VHost("titan.home.vchrist.at:8080");
+        router.get("/", [] APPLICATION(req, res) {
             res.send("Hello! I am VHOST titan.home.vchrist.at.");
-        }));
+        });
+        legacyApp.use(router);
+
         legacyApp.use([] APPLICATION(req, res) {
             res.status(404).send("The requested resource is not found.");
-        });
-
-        legacyApp.onConnect(
-            [](const legacy::WebApp6::SocketAddress& localAddress, const legacy::WebApp6::SocketAddress& remoteAddress) -> void {
-                VLOG(0) << "OnConnect:";
-
-                VLOG(0) << "\tServer: " + localAddress.toString();
-                VLOG(0) << "\tClient: " + remoteAddress.toString();
-            });
-
-        legacyApp.onDisconnect([](legacy::WebApp6::SocketConnection* socketConnection) -> void {
-            VLOG(0) << "OnDisconnect:";
-
-            VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
-            VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
         });
 
         legacyApp.listen(8080, [](int err) -> void {
@@ -76,37 +67,41 @@ int main(int argc, char* argv[]) {
             }
         });
 
-        tls::WebApp6 tlsApp({{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
+        {
+            tls::WebApp6 tlsApp({{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
 
-        tlsApp.use(middleware::VHost("localhost:8088").use(getRouter()));
-        tlsApp.use(middleware::VHost("titan.home.vchrist.at:8088").get("/", [] APPLICATION(req, res) {
-            res.send("Hello! I am VHOST titan.home.vchrist.at.");
-        }));
-        tlsApp.use([] APPLICATION(req, res) {
-            res.status(404).send("The requested resource is not found.");
-        });
+            tlsApp.use(middleware::VHost("localhost:8088").use(getRouter()));
 
-        tlsApp.onConnect([](const tls::WebApp6::SocketAddress& localAddress, const tls::WebApp6::SocketAddress& remoteAddress) -> void {
-            VLOG(0) << "OnConnect:";
+            tlsApp.use(middleware::VHost("titan.home.vchrist.at:8088").get("/", [] APPLICATION(req, res) {
+                res.send("Hello! I am VHOST titan.home.vchrist.at.");
+            }));
 
-            VLOG(0) << "\tServer: " + localAddress.toString();
-            VLOG(0) << "\tClient: " + remoteAddress.toString();
-        });
+            tlsApp.use([] APPLICATION(req, res) {
+                res.status(404).send("The requested resource is not found.");
+            });
 
-        tlsApp.onDisconnect([](tls::WebApp6::SocketConnection* socketConnection) -> void {
-            VLOG(0) << "OnDisconnect:";
+            tlsApp.onConnect([](const tls::WebApp6::SocketAddress& localAddress, const tls::WebApp6::SocketAddress& remoteAddress) -> void {
+                VLOG(0) << "OnConnect:";
 
-            VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
-            VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
-        });
+                VLOG(0) << "\tServer: " + localAddress.toString();
+                VLOG(0) << "\tClient: " + remoteAddress.toString();
+            });
 
-        tlsApp.listen(8088, [](int err) -> void {
-            if (err != 0) {
-                PLOG(FATAL) << "listen on port 8088";
-            } else {
-                VLOG(0) << "snode.c listening on port 8088 for SSL/TLS connections";
-            }
-        });
+            tlsApp.onDisconnect([](tls::WebApp6::SocketConnection* socketConnection) -> void {
+                VLOG(0) << "OnDisconnect:";
+
+                VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
+                VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
+            });
+
+            tlsApp.listen(8088, [](int err) -> void {
+                if (err != 0) {
+                    PLOG(FATAL) << "listen on port 8088";
+                } else {
+                    VLOG(0) << "snode.c listening on port 8088 for SSL/TLS connections";
+                }
+            });
+        }
     }
 
     WebApp::start();
