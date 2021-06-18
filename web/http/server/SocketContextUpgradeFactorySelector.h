@@ -45,21 +45,22 @@ namespace web::http::server {
         ~SocketContextUpgradeFactorySelector() = default;
 
     public:
-        void registerSocketContextUpgradeFactory(web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory);
-        void registerSocketContextUpgradeFactory(web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory,
-                                                 void* handler);
-
-        void loadSocketContexts();
-        void unloadSocketContexts();
-
-        web::http::server::SocketContextUpgradeFactory*
-        select(const std::string& subProtocolName, web::http::server::Request& req, web::http::server::Response& res);
-
         static SocketContextUpgradeFactorySelector* instance();
 
+        web::http::server::SocketContextUpgradeFactory* selectSocketContextUpgradeFactory(web::http::server::Request& req,
+                                                                                          web::http::server::Response& res);
+
+        void unloadSocketContexts();
+
+        bool registerSocketContextUpgradeFactory(web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory);
+
     protected:
-        std::map<std::string, SocketContextPlugin> serverSocketContextPlugins;
-        std::map<std::string, SocketContextPlugin> clientSocketContextPlugins;
+        web::http::server::SocketContextUpgradeFactory* loadSocketContext(const std::string& socketContextName);
+
+        bool registerSocketContextUpgradeFactory(web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory,
+                                                 void* handler);
+
+        std::map<std::string, SocketContextPlugin> socketContextUpgradePlugins;
 
     public:
         static SocketContextUpgradeFactorySelector* socketContextUpgradeFactorySelector;

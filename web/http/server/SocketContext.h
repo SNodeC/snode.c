@@ -48,8 +48,8 @@ namespace web::http::server {
         SocketContext(const SocketContext&) = delete;
         SocketContext& operator=(const SocketContext&) = delete;
 
-        virtual void sendResponseData(const char* buf, std::size_t len) = 0;
-        virtual void responseCompleted() = 0;
+        virtual void sendToPeerCompleted() = 0;
+
         virtual void terminateConnection() = 0;
     };
 
@@ -81,12 +81,11 @@ namespace web::http::server {
 
     private:
         void onReceiveFromPeer() override;
-        void sendResponseData(const char* junk, std::size_t junkLen) override;
 
         void onReadError(int errnum) override;
         void onWriteError(int errnum) override;
 
-        void responseCompleted() override;
+        void sendToPeerCompleted() override;
 
         void terminateConnection() override;
 

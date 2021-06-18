@@ -58,6 +58,8 @@ namespace web::http::client {
         void send(const char* junk, std::size_t junkLen);
         void send(const std::string& junk);
 
+        void upgrade();
+
         void sendHeader();
 
         void end();

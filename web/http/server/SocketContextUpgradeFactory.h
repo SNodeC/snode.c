@@ -28,16 +28,18 @@ namespace web::http::server {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http::server {
 
     class SocketContextUpgradeFactory : public net::socket::stream::SocketContextFactory {
     protected:
-        ~SocketContextUpgradeFactory() = default;
+        virtual ~SocketContextUpgradeFactory() = default;
 
     public:
-        enum class ROLE { CLIENT, SERVER };
+        enum class Role { CLIENT, SERVER };
 
         void prepare(web::http::server::Request& request, web::http::server::Response& response) {
             this->request = &request;
@@ -45,7 +47,7 @@ namespace web::http::server {
         }
 
         virtual std::string name() = 0;
-        virtual ROLE role() = 0;
+        virtual Role role() = 0;
 
         void destroy() {
             delete this;

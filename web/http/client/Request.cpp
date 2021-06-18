@@ -127,7 +127,7 @@ namespace web::http::client {
         if (headersSent) {
             contentSent += junkLen;
             if (contentSent == contentLength) {
-                clientContext->requestCompleted();
+                clientContext->sendToPeerCompleted();
             } else if (contentSent > contentLength) {
                 clientContext->terminateConnection();
             }
@@ -198,6 +198,13 @@ namespace web::http::client {
             headers.insert({"Content-Type", "text/html; charset=utf-8"});
         }
         send(junk.data(), junk.size());
+    }
+
+    void Request::upgrade() {
+        // load upgrade context
+        // let upgrade context fill the request-header fields
+        // send the request to the server
+        // the response-code needs to check the response from the server and upgrade the context in case the server says OK
     }
 
     void Request::end() {

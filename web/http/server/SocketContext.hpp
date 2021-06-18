@@ -125,11 +125,6 @@ namespace web::http::server {
     }
 
     template <typename Request, typename Response>
-    void SocketContextT<Request, Response>::sendResponseData(const char* junk, std::size_t junkLen) {
-        sendToPeer(junk, junkLen);
-    }
-
-    template <typename Request, typename Response>
     void SocketContextT<Request, Response>::onWriteError(int errnum) {
         if (errnum != 0 && errnum != ECONNRESET) {
             PLOG(ERROR) << "Connection write: " << errnum;
@@ -164,7 +159,7 @@ namespace web::http::server {
     }
 
     template <typename Request, typename Response>
-    void SocketContextT<Request, Response>::responseCompleted() {
+    void SocketContextT<Request, Response>::sendToPeerCompleted() {
         RequestContext& requestContext = requestContexts.front();
 
         // if 0.9 => terminate

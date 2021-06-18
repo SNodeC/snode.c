@@ -48,8 +48,8 @@ namespace web::ws::server {
         return "websocket";
     }
 
-    http::server::SocketContextUpgradeFactory::ROLE SocketContextUpgradeFactory::role() {
-        return http::server::SocketContextUpgradeFactory::ROLE::SERVER;
+    http::server::SocketContextUpgradeFactory::Role SocketContextUpgradeFactory::role() {
+        return http::server::SocketContextUpgradeFactory::Role::SERVER;
     }
 
     web::ws::server::SocketContext* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnection* socketConnection) const {

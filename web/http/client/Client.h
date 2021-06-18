@@ -77,6 +77,18 @@ namespace web::http::client {
             socketClient.connect(SocketAddress(ipOrHostname, port), onError);
         }
 
+        void onConnect(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect) {
+            socketClient.onConnect(onConnect);
+        }
+
+        void onConnected(const std::function<void(SocketConnection*)>& onConnected) {
+            socketClient.onConnected(onConnected);
+        }
+
+        void onDisconnect(const std::function<void(SocketConnection*)>& onDisconnect) {
+            socketClient.onDisconnect(onDisconnect);
+        }
+
     protected:
         SocketClient socketClient;
     };

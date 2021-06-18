@@ -70,7 +70,7 @@ namespace web::http::client {
     }
 
     template <typename Request, typename Response>
-    void SocketContextT<Request, Response>::requestCompleted() {
+    void SocketContextT<Request, Response>::sendToPeerCompleted() {
     }
 
     template <typename Request, typename Response>

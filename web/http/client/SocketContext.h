@@ -49,8 +49,8 @@ namespace web::http::client {
 
         virtual Request& getRequest() = 0;
 
+        virtual void sendToPeerCompleted() = 0;
         virtual void terminateConnection() = 0;
-        virtual void requestCompleted() = 0;
     };
 
     template <typename RequestT, typename ResponseT>
@@ -76,7 +76,7 @@ namespace web::http::client {
 
         void terminateConnection() override;
 
-        void requestCompleted() override;
+        void sendToPeerCompleted() override;
 
         Request request;
         Response response;

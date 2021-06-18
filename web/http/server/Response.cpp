@@ -48,12 +48,12 @@ namespace web::http::server {
             headersSent = true;
         }
 
-        serverContext->sendResponseData(junk, junkLen);
+        serverContext->sendToPeer(junk, junkLen);
 
         if (headersSent) {
             contentSent += junkLen;
             if (contentSent == contentLength) {
-                serverContext->responseCompleted();
+                serverContext->sendToPeerCompleted();
             } else if (contentSent > contentLength) {
                 serverContext->terminateConnection();
             }
@@ -149,14 +149,14 @@ namespace web::http::server {
     void Response::upgrade(Request& req) {
         if (httputils::ci_contains(req.header("connection"), "Upgrade")) {
             web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory =
-                web::http::server::SocketContextUpgradeFactorySelector::instance()->select("websocket", req, *this);
-            //                        httputils::ci_contains(req.header("upgrade"), "websocket")
+                web::http::server::SocketContextUpgradeFactorySelector::instance()->selectSocketContextUpgradeFactory(req, *this);
 
             if (socketContextUpgradeFactory != nullptr) {
                 serverContext->switchSocketProtocol(*socketContextUpgradeFactory);
             } else {
                 this->status(404).end();
             }
+
         } else {
             this->status(400).end();
         }

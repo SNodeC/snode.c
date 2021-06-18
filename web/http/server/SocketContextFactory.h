@@ -39,9 +39,6 @@ namespace web::http::server {
         using Response = ResponseT;
 
         SocketContextFactory() {
-            if (useCount == 0) {
-                SocketContextUpgradeFactorySelector::instance()->loadSocketContexts();
-            }
             useCount++;
         }
 
