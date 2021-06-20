@@ -152,7 +152,7 @@ namespace web::http::server {
                 web::http::server::SocketContextUpgradeFactorySelector::instance()->selectSocketContextUpgradeFactory(req, *this);
 
             if (socketContextUpgradeFactory != nullptr) {
-                serverContext->switchSocketProtocol(*socketContextUpgradeFactory);
+                serverContext->switchSocketContext(*socketContextUpgradeFactory);
             } else {
                 this->status(404).end();
             }

@@ -55,15 +55,15 @@ namespace net::socket::stream {
         socketConnection->close();
     }
 
-    void SocketContext::switchSocketProtocol(const SocketContextFactory& socketProtocolFactory) {
-        socketConnection->switchSocketProtocol(socketProtocolFactory);
+    void SocketContext::switchSocketContext(const SocketContextFactory& socketContextFactory) {
+        socketConnection->switchSocketContext(socketContextFactory);
     }
 
     void SocketContext::receiveFromPeer() {
         onReceiveFromPeer();
 
         if (this != socketConnection->getSocketContext()) {
-            delete this;
+            delete this; // we were replaced by a different context.
         }
     }
 

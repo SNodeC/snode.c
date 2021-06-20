@@ -122,13 +122,15 @@ namespace net::socket::stream {
             return socketContext;
         }
 
-        void switchSocketProtocol(const SocketContextFactory& socketContextFactory) override {
+        void switchSocketContext(const SocketContextFactory& socketContextFactory) override {
             SocketContext* newSocketContext = socketContextFactory.create(this);
 
             if (newSocketContext != nullptr) {
                 socketContext->onProtocolDisconnected();
                 socketContext = newSocketContext;
                 socketContext->onProtocolConnected();
+            } else {
+                VLOG(0) << "Switch socket context unsuccessull: new socket context not created";
             }
         }
 

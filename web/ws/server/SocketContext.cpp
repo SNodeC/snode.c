@@ -66,10 +66,10 @@ namespace web::ws::server {
             } else {
                 delete subProtocol;
 
-                res.status(500).end();
+                res.status(500).end(); // Internal Server Error
             }
         } else {
-            res.status(500).end(); // Internal Server Error
+            res.status(404).end(); // Not Found
         }
 
         return context;
