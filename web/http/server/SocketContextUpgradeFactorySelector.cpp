@@ -44,9 +44,8 @@ namespace web::http::server {
         return socketContextUpgradeFactorySelector;
     }
 
-    web::http::server::SocketContextUpgradeFactory*
-    SocketContextUpgradeFactorySelector::selectSocketContextUpgradeFactory(web::http::server::Request& req,
-                                                                           web::http::server::Response& res) {
+    web::http::server::SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(web::http::server::Request& req,
+                                                                                                web::http::server::Response& res) {
         web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
         std::string upgradeContextNames = req.header("upgrade");
@@ -62,7 +61,7 @@ namespace web::http::server {
             if (socketContextUpgradePlugins.contains(upgradeContextName)) {
                 socketContextUpgradeFactory = socketContextUpgradePlugins[upgradeContextName].socketContextUpgradeFactory;
             } else {
-                socketContextUpgradeFactory = loadSocketContext(upgradeContextName);
+                socketContextUpgradeFactory = load(upgradeContextName);
             }
         }
 
@@ -73,8 +72,9 @@ namespace web::http::server {
         return socketContextUpgradeFactory;
     }
 
-    web::http::server::SocketContextUpgradeFactory*
-    SocketContextUpgradeFactorySelector::loadSocketContext(const std::string& socketContextName) {
+    web::http::server::SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::load(const std::string& socketContextName) {
+        VLOG(0) << "UpgradeSocketContext loading: " << socketContextName;
+
         web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
         std::string socketContextLibraryPath = "/usr/local/lib/snode.c/web/ws/lib" + socketContextName + ".so";
@@ -94,8 +94,7 @@ namespace web::http::server {
                     delete socketContextUpgradeInterface;
 
                     if (socketContextUpgradeFactory != nullptr) {
-                        if (SocketContextUpgradeFactorySelector::instance()->registerSocketContextUpgradeFactory(
-                                socketContextUpgradeFactory, handle)) {
+                        if (SocketContextUpgradeFactorySelector::instance()->add(socketContextUpgradeFactory, handle)) {
                             VLOG(0) << "UpgradeSocketContext loaded successfully: " << socketContextName;
                         } else {
                             socketContextUpgradeFactory->destroy();
@@ -120,7 +119,7 @@ namespace web::http::server {
         return socketContextUpgradeFactory;
     }
 
-    void SocketContextUpgradeFactorySelector::unloadSocketContexts() {
+    void SocketContextUpgradeFactorySelector::unload() {
         for (const auto& [name, socketContextPlugin] : socketContextUpgradePlugins) {
             socketContextPlugin.socketContextUpgradeFactory->destroy();
             if (socketContextPlugin.handle != nullptr) {
@@ -131,13 +130,12 @@ namespace web::http::server {
         delete this;
     }
 
-    bool SocketContextUpgradeFactorySelector::registerSocketContextUpgradeFactory(
-        web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory) {
-        return registerSocketContextUpgradeFactory(socketContextUpgradeFactory, nullptr);
+    bool SocketContextUpgradeFactorySelector::add(web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory) {
+        return add(socketContextUpgradeFactory, nullptr);
     }
 
-    bool SocketContextUpgradeFactorySelector::registerSocketContextUpgradeFactory(
-        web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handle) {
+    bool SocketContextUpgradeFactorySelector::add(web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory,
+                                                  void* handle) {
         bool success = false;
 
         if (socketContextUpgradeFactory != nullptr) {

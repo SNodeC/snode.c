@@ -47,18 +47,16 @@ namespace web::http::server {
     public:
         static SocketContextUpgradeFactorySelector* instance();
 
-        web::http::server::SocketContextUpgradeFactory* selectSocketContextUpgradeFactory(web::http::server::Request& req,
-                                                                                          web::http::server::Response& res);
+        web::http::server::SocketContextUpgradeFactory* select(web::http::server::Request& req, web::http::server::Response& res);
 
-        void unloadSocketContexts();
+        void unload();
 
-        bool registerSocketContextUpgradeFactory(web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory);
+        bool add(web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory);
 
     protected:
-        web::http::server::SocketContextUpgradeFactory* loadSocketContext(const std::string& socketContextName);
+        web::http::server::SocketContextUpgradeFactory* load(const std::string& socketContextName);
 
-        bool registerSocketContextUpgradeFactory(web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory,
-                                                 void* handler);
+        bool add(web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handler);
 
         std::map<std::string, SocketContextPlugin> socketContextUpgradePlugins;
 

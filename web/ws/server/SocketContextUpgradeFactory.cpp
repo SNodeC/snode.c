@@ -26,16 +26,6 @@
 
 namespace web::ws::server {
 
-    extern "C" {
-        class web::ws::server::SocketContextUpgradeInterface* plugin() {
-            return new SocketContextUpgradeInterface();
-        }
-    }
-
-    http::server::SocketContextUpgradeFactory* SocketContextUpgradeInterface::create() {
-        return new SocketContextUpgradeFactory();
-    }
-
     SocketContextUpgradeFactory::SocketContextUpgradeFactory() {
         web::ws::server::SubProtocolSelector::instance()->loadSubProtocols();
     }

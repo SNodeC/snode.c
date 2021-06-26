@@ -16,30 +16,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADEINTERFACE_H
-#define WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADEINTERFACE_H
+#ifndef WEB_WS_SERVER_OCKETCONTEXTUPGRADEFACTORYINTERFACE_H
+#define WEB_WS_SERVER_OCKETCONTEXTUPGRADEFACTORYINTERFACE_H
 
-namespace web::http::server {
-
-    class SocketContextUpgradeFactory;
-
-} // namespace web::http::server
+#include "web/http/server/SocketContextUpgradeInterface.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::http::server {
+namespace web::ws::server {
 
-    extern "C" {
-        class SocketContextUpgradeInterface {
-        public:
-            virtual ~SocketContextUpgradeInterface() = default;
+    class SocketContextUpgradeInterface : public web::http::server::SocketContextUpgradeInterface {
+    public:
+        web::http::server::SocketContextUpgradeFactory* create() override;
+    };
 
-            virtual web::http::server::SocketContextUpgradeFactory* create() = 0;
-        };
-    }
+} // namespace web::ws::server
 
-} // namespace web::http::server
-
-#endif // WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADEINTERFACE_H
+#endif // WEB_WS_SERVER_OCKETCONTEXTUPGRADEFACTORYINTERFACE_H

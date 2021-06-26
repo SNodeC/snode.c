@@ -16,11 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_SERVER_SOCKETCONTEXTFACTORY_H
-#define WEB_WS_SERVER_SOCKETCONTEXTFACTORY_H
+#ifndef WEB_WS_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H
+#define WEB_WS_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H
 
 #include "web/http/server/SocketContextUpgradeFactory.h"
-#include "web/http/server/SocketContextUpgradeInterface.h"
 #include "web/ws/server/SocketContext.h"
 #include "web/ws/server/SubProtocolSelector.h"
 
@@ -28,6 +27,10 @@ namespace web::http::server {
     class Request;
     class Response;
 } // namespace web::http::server
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::ws::server {
 
@@ -43,11 +46,6 @@ namespace web::ws::server {
         web::ws::server::SocketContext* create(net::socket::stream::SocketConnection* socketConnection) const override;
     };
 
-    class SocketContextUpgradeInterface : public web::http::server::SocketContextUpgradeInterface {
-    public:
-        web::http::server::SocketContextUpgradeFactory* create() override;
-    };
-
 } // namespace web::ws::server
 
-#endif // WEB_WS_SERVER_SOCKETCONTEXTFACTORY_H
+#endif // WEB_WS_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H
