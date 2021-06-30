@@ -117,8 +117,8 @@ if(NOT SNODEC_FOUND)
 
     find_library(
         SNODEC_WEBSOCKET_LIBRARY websocket
-        PATHS ${SNODEC_WEBSOCKET_ROOT_DIR}/lib/snode.c/web/ws
-              /usr/lib/snode.c/web/ws /usr/local/lib/snode.c/web/ws
+        PATHS ${SNODEC_WEBSOCKET_ROOT_DIR}/lib/snode.c/web/http/upgrade/server
+              /usr/lib/snode.c/web/http/upgrade/server /usr/local/lib/snode.c/web/http/upgrade/server
     )
 
     # ########## EXPRESS
