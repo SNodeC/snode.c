@@ -37,7 +37,7 @@ namespace net::socket::stream {
     class SocketContext;
 }
 
-namespace web::ws {
+namespace web::websocket {
     class SubProtocol;
 }
 

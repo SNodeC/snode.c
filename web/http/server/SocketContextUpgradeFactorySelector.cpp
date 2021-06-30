@@ -23,10 +23,11 @@
 #include "web/http/server/Request.h"
 #include "web/http/server/Response.h"
 #include "web/http/server/SocketContextUpgradeFactory.h"
-#include "web/http/server/SocketContextUpgradeInterface.h"
+#include "web/http/server/SocketContextUpgradeFactoryInterface.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cxxabi.h>
 #include <dlfcn.h>
 #include <type_traits> // for add_const<>::type
 
@@ -77,21 +78,29 @@ namespace web::http::server {
 
         web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
-        std::string socketContextLibraryPath = "/usr/local/lib/snode.c/web/ws/lib" + socketContextName + ".so";
+        std::string socketContextLibraryPath = "/usr/local/lib/snode.c/web/http/upgrade/server/lib" + socketContextName + ".so";
 
         void* handle = dlopen(socketContextLibraryPath.c_str(), RTLD_LAZY | RTLD_GLOBAL);
 
         if (handle != nullptr) {
-            SocketContextUpgradeInterface* (*plugin)() = reinterpret_cast<SocketContextUpgradeInterface* (*) ()>(dlsym(handle, "plugin"));
+            SocketContextUpgradeFactoryInterface* (*plugin)() =
+                reinterpret_cast<SocketContextUpgradeFactoryInterface* (*) ()>(dlsym(handle, "plugin"));
 
             // Only allow signed plugins? Architecture for x509-certs for plugins?
+            /*
+                        const std::type_info& pluginTypeId = typeid(plugin());
+                        const std::type_info& expectedTypeId = typeid(SocketContextUpgradeFactoryInterface*);
+                        std::string pluginType = abi::__cxa_demangle(pluginTypeId.name(), 0, 0, &status);
+                        std::string expectedType = abi::__cxa_demangle(expectedTypeId.name(), 0, 0, &status);
+            */
 
             if (plugin != nullptr) {
-                SocketContextUpgradeInterface* socketContextUpgradeInterface = plugin();
+                SocketContextUpgradeFactoryInterface* socketContextUpgradeFactoryInterface = plugin();
 
-                if (socketContextUpgradeInterface != nullptr) {
-                    socketContextUpgradeFactory = socketContextUpgradeInterface->create();
-                    delete socketContextUpgradeInterface;
+                if (socketContextUpgradeFactoryInterface != nullptr) {
+                    socketContextUpgradeFactory = socketContextUpgradeFactoryInterface->create();
+
+                    delete socketContextUpgradeFactoryInterface;
 
                     if (socketContextUpgradeFactory != nullptr) {
                         if (SocketContextUpgradeFactorySelector::instance()->add(socketContextUpgradeFactory, handle)) {
@@ -112,8 +121,11 @@ namespace web::http::server {
                     VLOG(0) << "SocketContextUpgradeInterface not created (maybe to little memory?): " << socketContextLibraryPath;
                 }
             } else {
+                dlclose(handle);
                 VLOG(0) << "Not a Plugin \"" << socketContextLibraryPath;
             }
+        } else {
+            VLOG(0) << "Error dlopen: " << dlerror();
         }
 
         return socketContextUpgradeFactory;
