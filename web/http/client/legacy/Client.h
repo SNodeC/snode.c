@@ -38,7 +38,7 @@ namespace web::http::client::legacy {
     Client(const std::function<void(const legacy::Client<>::SocketAddress&, const legacy::Client<>::SocketAddress&)>& onConnect,
            const std::function<void(legacy::Client<>::SocketConnection*)>& onConnected,
            const std::function<void(Request&)>& onRequestBegin,
-           const std::function<void(Response&)>& onResponse,
+           const std::function<void(Request&, Response&)>& onResponse,
            const std::function<void(int, const std::string&)>& onResponseError,
            const std::function<void(legacy::Client<>::SocketConnection*)>& onDisconnect,
            const std::map<std::string, std::any>& options = {{}})
@@ -53,7 +53,7 @@ namespace web::http::client::legacy {
     Client6(const std::function<void(const legacy::Client6<>::SocketAddress&, const legacy::Client6<>::SocketAddress&)>& onConnect,
             const std::function<void(legacy::Client6<>::SocketConnection*)>& onConnected,
             const std::function<void(Request&)>& onRequestBegin,
-            const std::function<void(Response&)>& onResponse,
+            const std::function<void(Request&, Response&)>& onResponse,
             const std::function<void(int, const std::string&)>& onResponseError,
             const std::function<void(legacy::Client6<>::SocketConnection*)>& onDisconnect,
             const std::map<std::string, std::any>& options = {{}})

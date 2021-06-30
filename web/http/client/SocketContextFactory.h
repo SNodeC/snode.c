@@ -56,7 +56,7 @@ namespace web::http::client {
         }
 
     public:
-        void setOnResponse(const std::function<void(Response&)>& onResponse) {
+        void setOnResponse(const std::function<void(Request&, Response&)>& onResponse) {
             this->onResponse = onResponse;
         }
 
@@ -65,7 +65,7 @@ namespace web::http::client {
         }
 
     private:
-        std::function<void(Response&)> onResponse;
+        std::function<void(Request&, Response&)> onResponse;
         std::function<void(int, const std::string&)> onRequestError;
 
         static int useCount;

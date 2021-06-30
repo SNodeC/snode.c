@@ -35,7 +35,7 @@ namespace web::http::client {
 
     template <typename Request, typename Response>
     SocketContextT<Request, Response>::SocketContextT(net::socket::stream::SocketConnection* socketConnection,
-                                                      const std::function<void(Response&)>& onResponse,
+                                                      const std::function<void(Request&, Response&)>& onResponse,
                                                       const std::function<void(int, const std::string&)>& onError)
         : SocketContext(socketConnection)
         , request(this)
@@ -59,7 +59,7 @@ namespace web::http::client {
                   response.contentLength = contentLength;
               },
               [&response = this->response, &request = this->request, onResponse](web::http::client::ResponseParser& parser) -> void {
-                  onResponse(response);
+                  onResponse(request, response);
                   parser.reset();
                   request.reset();
                   response.reset();
