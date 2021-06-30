@@ -76,8 +76,8 @@ namespace web::websocket {
         virtual void onMessageError(uint16_t errnum) = 0;
 
         /* Callbacks (API) socketConnection -> SubProtocol-Subclasses */
-        virtual void onProtocolConnected() = 0;
-        virtual void onProtocolDisconnected() = 0;
+        virtual void onConnected() = 0;
+        virtual void onDisconnected() = 0;
 
         void setWSContext(SocketContext* ServerContext);
 

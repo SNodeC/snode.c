@@ -71,11 +71,11 @@ namespace net::socket::stream {
         socketConnection->setTimeout(timeout);
     }
 
-    void SocketContext::onProtocolConnected() {
+    void SocketContext::onConnected() {
         VLOG(0) << "Protocol connected";
     }
 
-    void SocketContext::onProtocolDisconnected() {
+    void SocketContext::onDisconnected() {
         VLOG(0) << "Protocol disconnecteded";
     }
 

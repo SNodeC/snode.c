@@ -73,8 +73,8 @@ namespace web::websocket::client {
         void onMessageError(uint16_t errnum) override = 0;
 
         /* Callbacks (API) socketConnection -> SubProtocol-Subclasses */
-        void onProtocolConnected() override = 0;
-        void onProtocolDisconnected() override = 0;
+        void onConnected() override = 0;
+        void onDisconnected() override = 0;
 
         /* Internal used methods */
         void sendBroadcast(uint8_t opCode, const char* message, std::size_t messageLength);

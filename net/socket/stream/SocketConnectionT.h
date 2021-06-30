@@ -69,11 +69,11 @@ namespace net::socket::stream {
             SocketReader::enable(fd);
             SocketWriter::enable(fd);
             onConnect(localAddress, remoteAddress);
-            socketContext->onProtocolConnected();
+            socketContext->onConnected();
         }
 
         virtual ~SocketConnectionT() {
-            socketContext->onProtocolDisconnected();
+            socketContext->onDisconnected();
             onDisconnect();
             delete socketContext;
         }
@@ -126,9 +126,9 @@ namespace net::socket::stream {
             SocketContext* newSocketContext = socketContextFactory.create(this);
 
             if (newSocketContext != nullptr) {
-                socketContext->onProtocolDisconnected();
+                socketContext->onDisconnected();
                 socketContext = newSocketContext;
-                socketContext->onProtocolConnected();
+                socketContext->onConnected();
             } else {
                 VLOG(0) << "Switch socket context unsuccessull: new socket context not created";
             }

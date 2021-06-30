@@ -48,7 +48,7 @@ namespace web::websocket::subprotocol::echo::server {
         timer.cancel();
     }
 
-    void Echo::onProtocolConnected() {
+    void Echo::onConnected() {
         VLOG(0) << "On protocol connected:";
 
         sendMessage("Welcome to SimpleChat");
@@ -89,7 +89,7 @@ namespace web::websocket::subprotocol::echo::server {
         VLOG(0) << "Pong received";
         flyingPings = 0;
     }
-    void Echo::onProtocolDisconnected() {
+    void Echo::onDisconnected() {
         VLOG(0) << "On protocol disconnected:";
 
         VLOG(0) << "\tServer: " + getLocalAddressAsString();

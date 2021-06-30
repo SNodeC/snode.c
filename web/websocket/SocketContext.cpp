@@ -127,12 +127,12 @@ namespace web::websocket {
         return readFromPeer(junk, junkLen);
     }
 
-    void SocketContext::onProtocolConnected() {
-        subProtocol->onProtocolConnected();
+    void SocketContext::onConnected() {
+        subProtocol->onConnected();
     }
 
-    void SocketContext::onProtocolDisconnected() {
-        subProtocol->onProtocolDisconnected();
+    void SocketContext::onDisconnected() {
+        subProtocol->onDisconnected();
     }
 
     void SocketContext::sendPing(const char* reason, std::size_t reasonLength) {

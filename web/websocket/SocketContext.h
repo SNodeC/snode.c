@@ -87,8 +87,8 @@ namespace web::websocket {
         std::size_t readFrameData(char* junk, std::size_t junkLen) override;
 
         /* Callbacks (API) socketConnection -> WSProtocol */
-        void onProtocolConnected() override;
-        void onProtocolDisconnected() override;
+        void onConnected() override;
+        void onDisconnected() override;
 
         /* Facade to SocketProtocol used from WSTransmitter */
         void sendFrameData(uint8_t data) override;
