@@ -60,7 +60,7 @@ namespace web::websocket {
     }
 
     void SubProtocolSelector::loadSubProtocol(const std::string& filePath) {
-        void* handle = dlopen(filePath.c_str(), RTLD_LAZY | RTLD_GLOBAL);
+        void* handle = dlopen(filePath.c_str(), RTLD_LAZY | RTLD_LOCAL);
 
         if (handle != nullptr) {
             VLOG(0) << "DLOpen: success: " << filePath;

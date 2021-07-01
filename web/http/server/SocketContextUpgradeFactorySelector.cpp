@@ -80,7 +80,7 @@ namespace web::http::server {
 
         std::string socketContextLibraryPath = "/usr/local/lib/snode.c/web/http/upgrade/server/lib" + socketContextName + ".so";
 
-        void* handle = dlopen(socketContextLibraryPath.c_str(), RTLD_LAZY | RTLD_GLOBAL);
+        void* handle = dlopen(socketContextLibraryPath.c_str(), RTLD_LAZY | RTLD_LOCAL);
 
         if (handle != nullptr) {
             SocketContextUpgradeFactoryInterface* (*plugin)() =

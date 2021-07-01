@@ -4,6 +4,8 @@ add_library(echo SHARED Echo.cpp EchoInterface.cpp)
 
 target_include_directories(echo PUBLIC ${PROJECT_SOURCE_DIR})
 
+target_link_libraries(echo websocket)
+
 set_target_properties(
     echo
     PROPERTIES CXX_STANDARD 20
