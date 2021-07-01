@@ -66,7 +66,7 @@ namespace web::websocket {
                 VLOG(0) << "Optaining function \"plugin()\" in plugin failed: " << dlerror();
             }
         } else {
-            VLOG(0) << "DLOpen: error: " << dlerror() << " - " << filePath;
+            VLOG(0) << "Error dlopen: " << dlerror();
         }
 
         return subProtocolInterface;

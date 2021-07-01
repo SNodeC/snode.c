@@ -62,7 +62,7 @@ namespace web::http::server {
         std::map<std::string, SocketContextPlugin> socketContextUpgradePlugins;
         std::list<std::string> searchPaths;
 
-    public:
+    private:
         static SocketContextUpgradeFactorySelector* socketContextUpgradeFactorySelector;
     };
 
