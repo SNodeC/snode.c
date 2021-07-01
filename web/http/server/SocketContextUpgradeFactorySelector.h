@@ -27,6 +27,7 @@ namespace web::http::server {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <list>
 #include <map>
 #include <string>
 
@@ -41,7 +42,7 @@ namespace web::http::server {
 
     class SocketContextUpgradeFactorySelector {
     private:
-        SocketContextUpgradeFactorySelector() = default;
+        SocketContextUpgradeFactorySelector();
         ~SocketContextUpgradeFactorySelector() = default;
 
     public:
@@ -59,6 +60,7 @@ namespace web::http::server {
         bool add(web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handler);
 
         std::map<std::string, SocketContextPlugin> socketContextUpgradePlugins;
+        std::list<std::string> searchPaths;
 
     public:
         static SocketContextUpgradeFactorySelector* socketContextUpgradeFactorySelector;

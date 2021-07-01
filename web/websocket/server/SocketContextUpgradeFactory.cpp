@@ -27,11 +27,11 @@
 namespace web::websocket::server {
 
     SocketContextUpgradeFactory::SocketContextUpgradeFactory() {
-        web::websocket::server::SubProtocolSelector::instance()->loadSubProtocols();
+        //        web::websocket::server::SubProtocolSelector::instance()->loadSubProtocols();
     }
 
     SocketContextUpgradeFactory::~SocketContextUpgradeFactory() {
-        web::websocket::server::SubProtocolSelector::instance()->unloadSubProtocols();
+        web::websocket::server::SubProtocolSelector::instance()->unload();
     }
 
     std::string SocketContextUpgradeFactory::name() {
@@ -42,7 +42,8 @@ namespace web::websocket::server {
         return http::server::SocketContextUpgradeFactory::Role::SERVER;
     }
 
-    web::websocket::server::SocketContext* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnection* socketConnection) const {
+    web::websocket::server::SocketContext*
+    SocketContextUpgradeFactory::create(net::socket::stream::SocketConnection* socketConnection) const {
         return web::websocket::server::SocketContext::create(socketConnection, *request, *response);
     }
 

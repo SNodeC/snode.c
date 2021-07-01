@@ -39,12 +39,7 @@ namespace web::websocket::client {
     public:
         SubProtocolSelector();
 
-    private:
-        using web::websocket::SubProtocolSelector::loadSubProtocols;
-
     public:
-        void loadSubProtocols() override;
-
         web::websocket::SubProtocol* select(const std::string& subProtocolName) override;
 
         static std::shared_ptr<SubProtocolSelector> instance();

@@ -45,32 +45,20 @@ namespace web::websocket {
         }
     }
 
-    void SubProtocolSelector::loadSubProtocols(const std::string& directoryPath) {
-        if (std::filesystem::exists(directoryPath) && std::filesystem::is_directory(directoryPath)) {
-            for (const std::filesystem::directory_entry& directoryEntry : std::filesystem::recursive_directory_iterator(directoryPath)) {
-                if (std::filesystem::is_regular_file(directoryEntry) && directoryEntry.path().extension() == ".so") {
-                    loadSubProtocol(directoryEntry.path());
-                } else {
-                    VLOG(1) << "Not a library: Ignoring " << directoryEntry;
-                }
-            }
-        } else {
-            VLOG(1) << "Not a directory: Ignoring path: " << directoryPath;
-        }
-    }
+    SubProtocolInterface* SubProtocolSelector::load(const std::string& filePath) {
+        SubProtocolInterface* subProtocolInterface = nullptr;
 
-    void SubProtocolSelector::loadSubProtocol(const std::string& filePath) {
         void* handle = dlopen(filePath.c_str(), RTLD_LAZY | RTLD_LOCAL);
 
         if (handle != nullptr) {
-            VLOG(0) << "DLOpen: success: " << filePath;
+            VLOG(0) << "SubProtocol loaded successfully: " << filePath;
 
             SubProtocolInterface* (*plugin)() = reinterpret_cast<SubProtocolInterface* (*) ()>(dlsym(handle, "plugin"));
 
             if (plugin != nullptr) {
-                SubProtocolInterface* subProtocolInterface = plugin();
+                subProtocolInterface = plugin();
                 if (subProtocolInterface != nullptr) {
-                    registerSubProtocol(subProtocolInterface, handle);
+                    add(subProtocolInterface, handle);
                 } else {
                     dlclose(handle);
                 }
@@ -80,9 +68,11 @@ namespace web::websocket {
         } else {
             VLOG(0) << "DLOpen: error: " << dlerror() << " - " << filePath;
         }
+
+        return subProtocolInterface;
     }
 
-    void SubProtocolSelector::registerSubProtocol(SubProtocolInterface* subProtocolInterface, void* handle) {
+    void SubProtocolSelector::add(SubProtocolInterface* subProtocolInterface, void* handle) {
         SubProtocolPlugin subProtocolPlugin = {.subProtocolInterface = subProtocolInterface, .handle = handle};
 
         if (subProtocolInterface != nullptr) {
@@ -104,7 +94,7 @@ namespace web::websocket {
         }
     }
 
-    void SubProtocolSelector::unloadSubProtocols() {
+    void SubProtocolSelector::unload() {
         for (const auto& [name, subProtocolPlugin] : subProtocols) {
             subProtocolPlugin.subProtocolInterface->destroy();
             if (subProtocolPlugin.handle != nullptr) {
@@ -113,11 +103,22 @@ namespace web::websocket {
         }
     }
 
+    void SubProtocolSelector::addSubProtocolSearchPath(const std::string& searchPath) {
+        searchPaths.push_back(searchPath);
+    }
+
     SubProtocolInterface* SubProtocolSelector::selectSubProtocolInterface(const std::string& subProtocolName) {
         SubProtocolInterface* subProtocolInterface = nullptr;
 
         if (subProtocols.contains(subProtocolName)) {
             subProtocolInterface = subProtocols.find(subProtocolName)->second.subProtocolInterface;
+        } else {
+            for (const std::string& searchPath : searchPaths) {
+                subProtocolInterface = dynamic_cast<SubProtocolInterface*>(load(searchPath + "/lib" + subProtocolName + ".so"));
+                if (subProtocolInterface != nullptr) {
+                    break;
+                }
+            }
         }
 
         return subProtocolInterface;

@@ -46,20 +46,6 @@ namespace web::websocket::client {
         : web::websocket::SubProtocolSelector(SubProtocolInterface::Role::SERVER) {
     }
 
-    void SubProtocolSelector::loadSubProtocols() {
-#ifndef NDEBUG
-#ifdef SUBPROTOCOL_CLIENT_PATH
-        loadSubProtocols(SUBPROTOCOL_CLIENT_PATH);
-#endif // SUBPROTOCOL_CLIENT_PATH
-#endif // NDEBUG
-
-#ifdef SUBPROTOCOL_SERVER_INSTALL_PATH
-        loadSubProtocols(SUBPROTOCOL_CLIENT_INSTALL_PATH);
-#endif
-        loadSubProtocols("/usr/local/lib/snode.c/" RELATIVE_SUBPROTOCOL_CLIENT_PATH);
-        loadSubProtocols("/usr/lib/snode.c/" RELATIVE_SUBPROTOCOL_CLIENT_PATH);
-    }
-
     web::websocket::SubProtocol* SubProtocolSelector::select(const std::string& subProtocolName) {
         web::websocket::client::SubProtocol* subProtocol = nullptr;
 

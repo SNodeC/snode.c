@@ -14,6 +14,13 @@ set_target_properties(
                SOVERSION 1
 )
 
-install(TARGETS echo LIBRARY DESTINATION lib/snode.c/web/ws/subprotocol/server
+set_target_properties(echo
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "${WEBSOCKET_SERVER_LIBDIR}"
+    LIBRARY_OUTPUT_DIRECTORY "${WEBSOCKET_SERVER_LIBDIR}"
+    RUNTIME_OUTPUT_DIRECTORY "${WEBSOCKET_SERVER_LIBDIR}"
+)
+
+install(TARGETS echo LIBRARY DESTINATION lib/snode.c/web/websocket/subprotocol/server
                              NAMELINK_COMPONENT libecho.so.1
 )

@@ -18,6 +18,7 @@
 
 #include "SocketContextUpgradeFactorySelector.h"
 
+#include "config.h"
 #include "log/Logger.h"
 #include "web/http/http_utils.h"
 #include "web/http/server/Request.h"
@@ -36,6 +37,15 @@
 namespace web::http::server {
 
     SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector = nullptr;
+
+    SocketContextUpgradeFactorySelector::SocketContextUpgradeFactorySelector() {
+#ifndef NDEBUG
+#ifdef UPGRADECONTEXT_SERVER_COMPILE_PATH
+        searchPaths.push_back(UPGRADECONTEXT_SERVER_COMPILE_PATH);
+#endif // UPGRADECONTEXT_SERVER_COMPILE_PATH
+#endif // NDEBUG
+        searchPaths.push_back(UPGRADECONTEXT_SERVER_INSTALL_PATH);
+    }
 
     SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::instance() {
         if (socketContextUpgradeFactorySelector == nullptr) {
@@ -62,7 +72,13 @@ namespace web::http::server {
             if (socketContextUpgradePlugins.contains(upgradeContextName)) {
                 socketContextUpgradeFactory = socketContextUpgradePlugins[upgradeContextName].socketContextUpgradeFactory;
             } else {
-                socketContextUpgradeFactory = load(upgradeContextName);
+                for (const std::string& searchPath : searchPaths) {
+                    socketContextUpgradeFactory = load(searchPath + "/lib" + upgradeContextName + ".so");
+
+                    if (socketContextUpgradeFactory != nullptr) {
+                        break;
+                    }
+                }
             }
         }
 
@@ -73,14 +89,10 @@ namespace web::http::server {
         return socketContextUpgradeFactory;
     }
 
-    web::http::server::SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::load(const std::string& socketContextName) {
-        VLOG(0) << "UpgradeSocketContext loading: " << socketContextName;
-
+    web::http::server::SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::load(const std::string& filePath) {
         web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
-        std::string socketContextLibraryPath = "/usr/local/lib/snode.c/web/http/upgrade/server/lib" + socketContextName + ".so";
-
-        void* handle = dlopen(socketContextLibraryPath.c_str(), RTLD_LAZY | RTLD_LOCAL);
+        void* handle = dlopen(filePath.c_str(), RTLD_LAZY | RTLD_LOCAL);
 
         if (handle != nullptr) {
             SocketContextUpgradeFactoryInterface* (*plugin)() =
@@ -104,25 +116,24 @@ namespace web::http::server {
 
                     if (socketContextUpgradeFactory != nullptr) {
                         if (SocketContextUpgradeFactorySelector::instance()->add(socketContextUpgradeFactory, handle)) {
-                            VLOG(0) << "UpgradeSocketContext loaded successfully: " << socketContextName;
+                            VLOG(0) << "UpgradeSocketContext loaded successfully: " << filePath;
                         } else {
                             socketContextUpgradeFactory->destroy();
                             socketContextUpgradeFactory = nullptr;
                             dlclose(handle);
-                            VLOG(0) << "UpgradeSocketContext already existing. Not using: " << socketContextName;
+                            VLOG(0) << "UpgradeSocketContext already existing. Not using: " << filePath;
                         }
                     } else {
                         dlclose(handle);
-                        VLOG(0) << "SocketContextUpgradeFactorySelector not created (maybe to little memory?): "
-                                << socketContextLibraryPath;
+                        VLOG(0) << "SocketContextUpgradeFactorySelector not created (maybe to little memory?): " << filePath;
                     }
                 } else {
                     dlclose(handle);
-                    VLOG(0) << "SocketContextUpgradeInterface not created (maybe to little memory?): " << socketContextLibraryPath;
+                    VLOG(0) << "SocketContextUpgradeInterface not created (maybe to little memory?): " << filePath;
                 }
             } else {
                 dlclose(handle);
-                VLOG(0) << "Not a Plugin \"" << socketContextLibraryPath;
+                VLOG(0) << "Not a Plugin \"" << filePath;
             }
         } else {
             VLOG(0) << "Error dlopen: " << dlerror();

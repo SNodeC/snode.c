@@ -44,20 +44,12 @@ namespace web::websocket::server {
 
     SubProtocolSelector::SubProtocolSelector()
         : web::websocket::SubProtocolSelector(SubProtocolInterface::Role::SERVER) {
-    }
-
-    void SubProtocolSelector::loadSubProtocols() {
 #ifndef NDEBUG
-#ifdef SUBPROTOCOL_SERVER_PATH
-        loadSubProtocols(SUBPROTOCOL_SERVER_PATH);
-#endif // SUBPROTOCOL_SERVER_PATH
+#ifdef SUBPROTOCOL_SERVER_COMPILE_PATH
+        addSubProtocolSearchPath(SUBPROTOCOL_SERVER_COMPILE_PATH);
+#endif // SUBPROTOCOL_SERVER_COMPILE_PATH
 #endif // NDEBUG
-
-#ifdef SUBPROTOCOL_SERVER_INSTALL_PATH
-        loadSubProtocols(SUBPROTOCOL_SERVER_INSTALL_PATH);
-#endif
-        loadSubProtocols("/usr/local/lib/snode.c/" RELATIVE_SUBPROTOCOL_SERVER_PATH);
-        loadSubProtocols("/usr/lib/snode.c/" RELATIVE_SUBPROTOCOL_SERVER_PATH);
+        addSubProtocolSearchPath(SUBPROTOCOL_SERVER_INSTALL_PATH);
     }
 
     web::websocket::SubProtocol* SubProtocolSelector::select(const std::string& subProtocolName) {

@@ -27,6 +27,7 @@ namespace web::websocket {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <list>
 #include <map>
 #include <string>
 
@@ -52,21 +53,22 @@ namespace web::websocket {
     public:
         void destroy(web::websocket::SubProtocol* subProtocol);
 
-        virtual void loadSubProtocols() = 0;
-        void loadSubProtocol(const std::string& filePath);
-        void loadSubProtocols(const std::string& directoryPath);
+        SubProtocolInterface* load(const std::string& filePath);
 
-        void registerSubProtocol(SubProtocolInterface* subProtocolPluginInterface, void* handle = nullptr);
+        void add(SubProtocolInterface* subProtocolPluginInterface, void* handle = nullptr);
 
-        void unloadSubProtocols();
+        void unload();
 
     protected:
+        void addSubProtocolSearchPath(const std::string& searchPath);
+
         virtual SubProtocol* select(const std::string& subProtocolName) = 0;
         SubProtocolInterface* selectSubProtocolInterface(const std::string& subProtocolName);
 
         SubProtocolInterface::Role role;
 
         std::map<std::string, SubProtocolPlugin> subProtocols;
+        std::list<std::string> searchPaths;
     };
 
 } // namespace web::websocket
