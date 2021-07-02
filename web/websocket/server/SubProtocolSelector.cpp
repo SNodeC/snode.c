@@ -46,14 +46,17 @@ namespace web::websocket::server {
         : web::websocket::SubProtocolSelector(SubProtocolInterface::Role::SERVER) {
 #ifndef NDEBUG
 #ifdef SUBPROTOCOL_SERVER_COMPILE_PATH
+
         addSubProtocolSearchPath(SUBPROTOCOL_SERVER_COMPILE_PATH);
+
 #endif // SUBPROTOCOL_SERVER_COMPILE_PATH
 #endif // NDEBUG
+
         addSubProtocolSearchPath(SUBPROTOCOL_SERVER_INSTALL_PATH);
     }
 
     web::websocket::SubProtocol* SubProtocolSelector::select(const std::string& subProtocolName) {
-        web::websocket::server::SubProtocol* subProtocol = nullptr;
+        SubProtocol* subProtocol = nullptr;
 
         SubProtocolInterface* subProtocolInterface = dynamic_cast<SubProtocolInterface*>(selectSubProtocolInterface(subProtocolName));
 

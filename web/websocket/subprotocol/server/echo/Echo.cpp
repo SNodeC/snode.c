@@ -31,7 +31,7 @@ namespace web::websocket::subprotocol::echo::server {
 
     Echo::Echo()
         : web::websocket::server::SubProtocol(NAME)
-        , timer(net::timer::Timer::intervalTimer(
+        , pingTimer(net::timer::Timer::intervalTimer(
               [this]([[maybe_unused]] const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
                   this->sendPing();
                   this->flyingPings++;
@@ -44,8 +44,7 @@ namespace web::websocket::subprotocol::echo::server {
     }
 
     Echo::~Echo() {
-        VLOG(0) << "Destructor Echo";
-        timer.cancel();
+        pingTimer.cancel();
     }
 
     void Echo::onConnected() {

@@ -51,7 +51,7 @@ namespace web::websocket {
         SubProtocolSelector& operator=(const SubProtocolSelector&) = delete;
 
     public:
-        void destroy(web::websocket::SubProtocol* subProtocol);
+        void destroy(SubProtocol* subProtocol);
 
         SubProtocolInterface* load(const std::string& filePath);
 

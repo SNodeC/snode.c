@@ -31,12 +31,12 @@
 
 namespace web::websocket::server {
 
-    SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection, web::websocket::server::SubProtocol* subProtocol)
+    SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection, SubProtocol* subProtocol)
         : web::websocket::SocketContext(socketConnection, subProtocol, Transmitter::Role::SERVER) {
     }
 
     SocketContext::~SocketContext() {
-        web::websocket::server::SubProtocolSelector::instance()->destroy(subProtocol);
+        SubProtocolSelector::instance()->destroy(subProtocol);
     }
 
     SocketContext* SocketContext::create(net::socket::stream::SocketConnection* socketConnection,
@@ -44,13 +44,12 @@ namespace web::websocket::server {
                                          web::http::server::Response& res) {
         std::string subProtocolName = req.header("sec-websocket-protocol");
 
-        web::websocket::server::SocketContext* context = nullptr;
+        SocketContext* context = nullptr;
 
-        web::websocket::server::SubProtocol* subProtocol =
-            static_cast<web::websocket::server::SubProtocol*>(web::websocket::server::SubProtocolSelector::instance()->select(subProtocolName));
+        SubProtocol* subProtocol = static_cast<SubProtocol*>(SubProtocolSelector::instance()->select(subProtocolName));
 
         if (subProtocol != nullptr) {
-            context = new web::websocket::server::SocketContext(socketConnection, subProtocol);
+            context = new SocketContext(socketConnection, subProtocol);
 
             if (context != nullptr) {
                 res.set("Upgrade", "websocket");
@@ -64,7 +63,7 @@ namespace web::websocket::server {
                 res.status(101).end(); // Switch Protocol
 
             } else {
-                delete subProtocol;
+                SubProtocolSelector::instance()->destroy(subProtocol);
 
                 res.status(500).end(); // Internal Server Error
             }

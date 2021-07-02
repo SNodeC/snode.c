@@ -30,9 +30,6 @@ namespace web::websocket {
         : name(name) {
     }
 
-    SubProtocol::~SubProtocol() {
-    }
-
     void SubProtocol::sendMessage(const char* msg, std::size_t messageLength) {
         context->sendMessage(2, msg, messageLength);
     }

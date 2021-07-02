@@ -36,7 +36,7 @@ namespace web::http::server {
 namespace web::http::server {
 
     struct SocketContextPlugin {
-        web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory;
+        SocketContextUpgradeFactory* socketContextUpgradeFactory;
         void* handle = nullptr;
     };
 
@@ -47,17 +47,16 @@ namespace web::http::server {
 
     public:
         static SocketContextUpgradeFactorySelector* instance();
+        void destroy();
 
-        web::http::server::SocketContextUpgradeFactory* select(web::http::server::Request& req, web::http::server::Response& res);
-
-        void unload();
+        SocketContextUpgradeFactory* select(Request& req, Response& res);
 
         bool add(web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory);
 
     protected:
         web::http::server::SocketContextUpgradeFactory* load(const std::string& socketContextName);
 
-        bool add(web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handler);
+        bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handler);
 
         std::map<std::string, SocketContextPlugin> socketContextUpgradePlugins;
         std::list<std::string> searchPaths;

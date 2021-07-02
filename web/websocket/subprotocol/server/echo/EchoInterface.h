@@ -32,4 +32,5 @@ namespace web::websocket::subprotocol::echo::server {
     }
 
 } // namespace web::websocket::subprotocol::echo::server
+
 #endif // ECHOINTERFACE_H

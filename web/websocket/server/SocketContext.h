@@ -40,9 +40,8 @@ namespace web::websocket::server {
         ~SocketContext() override;
 
     public:
-        static SocketContext* create(net::socket::stream::SocketConnection* socketConnection,
-                                     web::http::server::Request& req,
-                                     web::http::server::Response& res);
+        static SocketContext*
+        create(net::socket::stream::SocketConnection* socketConnection, web::http::server::Request& req, web::http::server::Response& res);
     };
 
 } // namespace web::websocket::server

@@ -16,38 +16,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_SUBPROTOCOLPLUGININTERFACE_H
-#define WEB_WS_SUBPROTOCOLPLUGININTERFACE_H
-
-namespace web::websocket {
-    class SubProtocol;
-} // namespace web::websocket
+#include "SocketContextUpgradeFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::websocket {
+namespace web::http::server {
 
-    class SubProtocolInterface {
-    public:
-        enum class Role { CLIENT, SERVER };
+    void SocketContextUpgradeFactory::prepare(Request& request, Response& response) {
+        this->request = &request;
+        this->response = &response;
+    }
 
-    protected:
-        virtual ~SubProtocolInterface() = default;
+    void SocketContextUpgradeFactory::destroy() {
+        delete this;
+    }
 
-    public:
-        virtual std::string name() = 0;
-        virtual Role role() = 0;
-
-        virtual void destroy() = 0;
-
-        virtual SubProtocol* create() = 0;
-        virtual void destroy(SubProtocol*) = 0;
-    };
-
-} // namespace web::websocket
-
-#endif // WEB_WS_SUBPROTOCOLPLUGININTERFACE_H
+} // namespace web::http::server

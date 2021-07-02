@@ -27,7 +27,7 @@
 namespace web::websocket::server {
 
     extern "C" {
-        class web::websocket::server::SocketContextUpgradeFactoryInterface* plugin() {
+        class SocketContextUpgradeFactoryInterface* plugin() {
             return new SocketContextUpgradeFactoryInterface();
         }
     }

@@ -45,7 +45,7 @@ namespace web::websocket {
         SubProtocol& operator=(const SubProtocol&) = delete;
 
     public:
-        virtual ~SubProtocol();
+        virtual ~SubProtocol() = default;
 
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from SubProtocol-Subclasses */
         void sendMessage(const char* message, std::size_t messageLength);

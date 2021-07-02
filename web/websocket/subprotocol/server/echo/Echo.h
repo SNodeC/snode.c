@@ -53,7 +53,7 @@ namespace web::websocket::subprotocol::echo::server {
 
         int flyingPings = 0;
 
-        net::timer::Timer& timer;
+        net::timer::Timer& pingTimer;
     };
 
 } // namespace web::websocket::subprotocol::echo::server

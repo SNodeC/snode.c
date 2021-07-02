@@ -40,9 +40,6 @@ namespace web::websocket::server {
 namespace web::websocket::server {
 
     class SubProtocol : public web::websocket::SubProtocol {
-    public:
-        enum class Role { SERVER, CLIENT };
-
     protected:
         SubProtocol(const std::string& name);
 
@@ -50,7 +47,6 @@ namespace web::websocket::server {
         SubProtocol(const SubProtocol&) = delete;
         SubProtocol& operator=(const SubProtocol&) = delete;
 
-    public:
         ~SubProtocol() override;
 
     public:
@@ -94,12 +90,11 @@ namespace web::websocket::server {
         void sendBroadcast(uint8_t opCode, const char* message, std::size_t messageLength);
         void sendBroadcastStart(uint8_t opCode, const char* message, std::size_t messageLength);
 
-        void setClients(std::shared_ptr<std::list<web::websocket::server::SubProtocol*>> clients);
+        void setClients(std::shared_ptr<std::list<SubProtocol*>> clients);
 
-        std::shared_ptr<std::list<web::websocket::server::SubProtocol*>> clients;
+        std::shared_ptr<std::list<SubProtocol*>> clients;
 
-        friend class web::websocket::server::SocketContext;
-        friend class web::websocket::server::SubProtocolSelector;
+        friend class SubProtocolSelector;
     };
 
 } // namespace web::websocket::server

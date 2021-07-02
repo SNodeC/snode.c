@@ -41,9 +41,12 @@ namespace web::http::server {
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactorySelector() {
 #ifndef NDEBUG
 #ifdef UPGRADECONTEXT_SERVER_COMPILE_PATH
+
         searchPaths.push_back(UPGRADECONTEXT_SERVER_COMPILE_PATH);
+
 #endif // UPGRADECONTEXT_SERVER_COMPILE_PATH
 #endif // NDEBUG
+
         searchPaths.push_back(UPGRADECONTEXT_SERVER_INSTALL_PATH);
     }
 
@@ -55,13 +58,23 @@ namespace web::http::server {
         return socketContextUpgradeFactorySelector;
     }
 
-    web::http::server::SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(web::http::server::Request& req,
-                                                                                                web::http::server::Response& res) {
-        web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
+    void SocketContextUpgradeFactorySelector::destroy() {
+        for (const auto& [name, socketContextPlugin] : socketContextUpgradePlugins) {
+            socketContextPlugin.socketContextUpgradeFactory->destroy();
+            if (socketContextPlugin.handle != nullptr) {
+                dlclose(socketContextPlugin.handle);
+            }
+        }
+
+        delete this;
+    }
+
+    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(Request& req, Response& res) {
+        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
         std::string upgradeContextNames = req.header("upgrade");
 
-        while (!upgradeContextNames.empty() && socketContextUpgradeFactory == nullptr) {
+        if (!upgradeContextNames.empty()) {
             std::string upgradeContextName;
             std::string upgradeContextPriority;
 
@@ -89,8 +102,8 @@ namespace web::http::server {
         return socketContextUpgradeFactory;
     }
 
-    web::http::server::SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::load(const std::string& filePath) {
-        web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
+    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::load(const std::string& filePath) {
+        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
         void* handle = dlopen(filePath.c_str(), RTLD_LAZY | RTLD_LOCAL);
 
@@ -142,23 +155,11 @@ namespace web::http::server {
         return socketContextUpgradeFactory;
     }
 
-    void SocketContextUpgradeFactorySelector::unload() {
-        for (const auto& [name, socketContextPlugin] : socketContextUpgradePlugins) {
-            socketContextPlugin.socketContextUpgradeFactory->destroy();
-            if (socketContextPlugin.handle != nullptr) {
-                dlclose(socketContextPlugin.handle);
-            }
-        }
-
-        delete this;
-    }
-
-    bool SocketContextUpgradeFactorySelector::add(web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory) {
+    bool SocketContextUpgradeFactorySelector::add(SocketContextUpgradeFactory* socketContextUpgradeFactory) {
         return add(socketContextUpgradeFactory, nullptr);
     }
 
-    bool SocketContextUpgradeFactorySelector::add(web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory,
-                                                  void* handle) {
+    bool SocketContextUpgradeFactorySelector::add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handle) {
         bool success = false;
 
         if (socketContextUpgradeFactory != nullptr) {

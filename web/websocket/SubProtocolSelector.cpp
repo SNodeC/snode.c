@@ -36,10 +36,9 @@ namespace web::websocket {
         : role(role) {
     }
 
-    void SubProtocolSelector::destroy(web::websocket::SubProtocol* subProtocol) {
+    void SubProtocolSelector::destroy(SubProtocol* subProtocol) {
         if (subProtocols.contains(subProtocol->getName())) {
-            web::websocket::SubProtocolInterface* subProtocolInterface =
-                static_cast<SubProtocolInterface*>(subProtocols.find(subProtocol->getName())->second.subProtocolInterface);
+            SubProtocolInterface* subProtocolInterface = subProtocols.find(subProtocol->getName())->second.subProtocolInterface;
 
             subProtocolInterface->destroy(subProtocol);
         }

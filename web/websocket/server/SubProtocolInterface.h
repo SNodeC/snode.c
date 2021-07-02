@@ -21,8 +21,12 @@
 
 #include "web/websocket/SubProtocolInterface.h"
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <list>
 #include <memory>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http::server {
 
@@ -44,13 +48,10 @@ namespace web::websocket::server {
     extern "C" {
         class SubProtocolInterface : public web::websocket::SubProtocolInterface {
         public:
-            std::shared_ptr<std::list<web::websocket::server::SubProtocol*>> getClients() {
-                return clients;
-            }
+            std::shared_ptr<std::list<SubProtocol*>> getClients();
 
         private:
-            std::shared_ptr<std::list<web::websocket::server::SubProtocol*>> clients =
-                std::make_shared<std::list<web::websocket::server::SubProtocol*>>();
+            std::shared_ptr<std::list<SubProtocol*>> clients = std::make_shared<std::list<SubProtocol*>>();
         };
     }
 

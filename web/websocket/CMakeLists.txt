@@ -19,6 +19,7 @@ add_library(
     server/SocketContextUpgradeFactory.cpp
     server/SocketContextUpgradeFactoryInterface.cpp
     server/SubProtocol.cpp
+    server/SubProtocolInterface.cpp
     server/SubProtocolSelector.cpp
 )
 
@@ -34,15 +35,19 @@ set_target_properties(
                SOVERSION 1
 )
 
-set_target_properties(websocket
-    PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY "${UPGRADE_SERVER_LIBDIR}/upgrade/server"
-    LIBRARY_OUTPUT_DIRECTORY "${UPGRADE_SERVER_LIBDIR}/upgrade/server"
-    RUNTIME_OUTPUT_DIRECTORY "${UPGRADE_SERVER_LIBDIR}/upgrade/server"
+set_target_properties(
+    websocket
+    PROPERTIES ARCHIVE_OUTPUT_DIRECTORY
+               "${SOCKETCONTEXTUPGRADE_SERVER_LIBDIR}/upgrade/server"
+               LIBRARY_OUTPUT_DIRECTORY
+               "${SOCKETCONTEXTUPGRADE_SERVER_LIBDIR}/upgrade/server"
+               RUNTIME_OUTPUT_DIRECTORY
+               "${SOCKETCONTEXTUPGRADE_SERVER_LIBDIR}/upgrade/server"
 )
 
-install(TARGETS websocket LIBRARY DESTINATION lib/snode.c/web/http/upgrade/server
-                                  NAMELINK_COMPONENT libwebsocket.so.1
+install(TARGETS websocket
+        LIBRARY DESTINATION lib/snode.c/web/http/upgrade/server
+                NAMELINK_COMPONENT libwebsocket.so.1
 )
 
 install(

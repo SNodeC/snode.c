@@ -36,14 +36,14 @@ namespace web::websocket::server {
 
     class SocketContextUpgradeFactory : public web::http::server::SocketContextUpgradeFactory {
     public:
-        SocketContextUpgradeFactory();
+        SocketContextUpgradeFactory() = default;
         ~SocketContextUpgradeFactory();
 
         std::string name() override;
         Role role() override;
 
     private:
-        web::websocket::server::SocketContext* create(net::socket::stream::SocketConnection* socketConnection) const override;
+        SocketContext* create(net::socket::stream::SocketConnection* socketConnection) const override;
     };
 
 } // namespace web::websocket::server

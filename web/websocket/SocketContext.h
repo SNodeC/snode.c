@@ -46,9 +46,7 @@ namespace web::websocket {
         , protected web::websocket::Receiver
         , protected web::websocket::Transmitter {
     protected:
-        SocketContext(net::socket::stream::SocketConnection* socketConnection,
-                      web::websocket::SubProtocol* subProtocol,
-                      Transmitter::Role role);
+        SocketContext(net::socket::stream::SocketConnection* socketConnection, SubProtocol* subProtocol, Transmitter::Role role);
 
         SocketContext() = delete;
         SocketContext(const SocketContext&) = delete;

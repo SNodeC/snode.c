@@ -36,7 +36,7 @@ namespace web::http::server {
         public:
             virtual ~SocketContextUpgradeFactoryInterface() = default;
 
-            virtual web::http::server::SocketContextUpgradeFactory* create() = 0;
+            virtual SocketContextUpgradeFactory* create() = 0;
         };
     }
 
