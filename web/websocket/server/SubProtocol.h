@@ -89,7 +89,7 @@ namespace web::websocket::server {
 
         std::shared_ptr<std::list<SubProtocol*>> clients;
 
-        friend class SubProtocolSelector;
+        friend class SocketContext;
     };
 
 } // namespace web::websocket::server

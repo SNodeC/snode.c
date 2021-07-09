@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SubProtocolSelector.h"
+#include "SubProtocolFactorySelector.h"
 
 #include "log/Logger.h"
 #include "web/websocket/SubProtocol.h"
@@ -31,11 +31,11 @@
 
 namespace web::websocket {
 
-    SubProtocolSelector::SubProtocolSelector(SubProtocolFactory::Role role)
+    SubProtocolFactorySelector::SubProtocolFactorySelector(SubProtocolFactory::Role role)
         : role(role) {
     }
 
-    void SubProtocolSelector::destroy(SubProtocol* subProtocol) {
+    void SubProtocolFactorySelector::destroy(SubProtocol* subProtocol) {
         if (subProtocolPlugins.contains(subProtocol->getName())) {
             SubProtocolFactory* subProtocolFactory = subProtocolPlugins.find(subProtocol->getName())->second.subProtocolFactory;
 
@@ -43,7 +43,7 @@ namespace web::websocket {
         }
     }
 
-    SubProtocolFactory* SubProtocolSelector::load(const std::string& filePath) {
+    SubProtocolFactory* SubProtocolFactorySelector::load(const std::string& filePath) {
         SubProtocolFactory* subProtocolFactory = nullptr;
 
         void* handle = dlopen(filePath.c_str(), RTLD_LAZY | RTLD_LOCAL);
@@ -70,7 +70,7 @@ namespace web::websocket {
         return subProtocolFactory;
     }
 
-    void SubProtocolSelector::add(SubProtocolFactory* subProtocolFactory, void* handle) {
+    void SubProtocolFactorySelector::add(SubProtocolFactory* subProtocolFactory, void* handle) {
         SubProtocolPlugin subProtocolPlugin = {.subProtocolFactory = subProtocolFactory, .handle = handle};
 
         if (subProtocolFactory != nullptr) {
@@ -92,7 +92,7 @@ namespace web::websocket {
         }
     }
 
-    void SubProtocolSelector::unload() {
+    void SubProtocolFactorySelector::unload() {
         for (const auto& [name, subProtocolPlugin] : subProtocolPlugins) {
             subProtocolPlugin.subProtocolFactory->destroy();
             if (subProtocolPlugin.handle != nullptr) {
@@ -101,11 +101,11 @@ namespace web::websocket {
         }
     }
 
-    void SubProtocolSelector::addSubProtocolSearchPath(const std::string& searchPath) {
+    void SubProtocolFactorySelector::addSubProtocolSearchPath(const std::string& searchPath) {
         searchPaths.push_back(searchPath);
     }
 
-    SubProtocolFactory* SubProtocolSelector::selectSubProtocolFactory(const std::string& subProtocolName) {
+    SubProtocolFactory* SubProtocolFactorySelector::select(const std::string& subProtocolName) {
         SubProtocolFactory* subProtocolFactory = nullptr;
 
         if (subProtocolPlugins.contains(subProtocolName)) {

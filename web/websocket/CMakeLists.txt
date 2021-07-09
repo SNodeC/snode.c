@@ -9,7 +9,7 @@ add_library(
     Receiver.cpp
     SocketContext.cpp
     SubProtocol.cpp
-    SubProtocolSelector.cpp
+    SubProtocolFactorySelector.cpp
     Transmitter.cpp
     ws_utils.cpp
     client/SocketContext.cpp
@@ -19,7 +19,7 @@ add_library(
     server/SocketContextUpgradeFactory.cpp
     server/SubProtocol.cpp
     server/SubProtocolFactory.cpp
-    server/SubProtocolSelector.cpp
+    server/SubProtocolFactorySelector.cpp
 )
 
 target_include_directories(

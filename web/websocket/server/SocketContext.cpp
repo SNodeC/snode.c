@@ -20,7 +20,8 @@
 
 #include "log/Logger.h"
 #include "web/websocket/server/SubProtocol.h"
-#include "web/websocket/server/SubProtocolSelector.h"
+#include "web/websocket/server/SubProtocolFactory.h"
+#include "web/websocket/server/SubProtocolFactorySelector.h"
 #include "web/websocket/ws_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -31,12 +32,12 @@
 
 namespace web::websocket::server {
 
-    SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection, SubProtocol* subProtocol)
+    SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection, web::websocket::SubProtocol* subProtocol)
         : web::websocket::SocketContext(socketConnection, subProtocol, Transmitter::Role::SERVER) {
     }
 
     SocketContext::~SocketContext() {
-        SubProtocolSelector::instance()->destroy(subProtocol);
+        SubProtocolFactorySelector::instance()->destroy(subProtocol);
     }
 
     SocketContext* SocketContext::create(net::socket::stream::SocketConnection* socketConnection,
@@ -46,26 +47,40 @@ namespace web::websocket::server {
 
         SocketContext* context = nullptr;
 
-        SubProtocol* subProtocol = static_cast<SubProtocol*>(SubProtocolSelector::instance()->select(subProtocolName));
+        SubProtocolFactory* subProtocolFactory =
+            dynamic_cast<SubProtocolFactory*>(SubProtocolFactorySelector::instance()->select(subProtocolName));
 
-        if (subProtocol != nullptr) {
-            context = new SocketContext(socketConnection, subProtocol);
+        if (subProtocolFactory != nullptr) {
+            if (subProtocolFactory->role() == SubProtocolFactory::Role::SERVER) {
+                SubProtocol* subProtocol = dynamic_cast<SubProtocol*>(subProtocolFactory->create());
 
-            if (context != nullptr) {
-                res.set("Upgrade", "websocket");
-                res.set("Connection", "Upgrade");
-                res.set("Sec-WebSocket-Protocol", subProtocolName);
+                if (subProtocol != nullptr) {
+                    subProtocol->setClients(subProtocolFactory->getClients());
 
-                web::websocket::serverWebSocketKey(req.header("sec-websocket-key"), [&res](char* key) -> void {
-                    res.set("Sec-WebSocket-Accept", key);
-                });
+                    context = new SocketContext(socketConnection, subProtocol);
 
-                res.status(101).end(); // Switch Protocol
+                    if (context != nullptr) {
+                        res.set("Upgrade", "websocket");
+                        res.set("Connection", "Upgrade");
+                        res.set("Sec-WebSocket-Protocol", subProtocolName);
 
+                        web::websocket::serverWebSocketKey(req.header("sec-websocket-key"), [&res](char* key) -> void {
+                            res.set("Sec-WebSocket-Accept", key);
+                        });
+
+                        res.status(101).end(); // Switch Protocol
+
+                    } else {
+                        SubProtocolFactorySelector::instance()->destroy(subProtocol);
+                        subProtocolFactory->destroy();
+                        res.status(500).end(); // Internal Server Error
+                    }
+                } else {
+                    res.status(404).end(); // Not Found
+                }
             } else {
-                SubProtocolSelector::instance()->destroy(subProtocol);
-
                 res.status(500).end(); // Internal Server Error
+                subProtocolFactory->destroy();
             }
         } else {
             res.status(404).end(); // Not Found

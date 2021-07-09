@@ -40,16 +40,18 @@ namespace web::websocket {
         void* handle = nullptr;
     };
 
-    class SubProtocolSelector {
+    class SubProtocolFactorySelector {
     protected:
-        SubProtocolSelector(SubProtocolFactory::Role role);
-        virtual ~SubProtocolSelector() = default;
+        SubProtocolFactorySelector(SubProtocolFactory::Role role);
+        virtual ~SubProtocolFactorySelector() = default;
 
-        SubProtocolSelector(const SubProtocolSelector&) = delete;
-        SubProtocolSelector& operator=(const SubProtocolSelector&) = delete;
+        SubProtocolFactorySelector(const SubProtocolFactorySelector&) = delete;
+        SubProtocolFactorySelector& operator=(const SubProtocolFactorySelector&) = delete;
 
     public:
         void add(SubProtocolFactory* subProtocolFactory, void* handle = nullptr);
+
+        SubProtocolFactory* select(const std::string& subProtocolName);
 
         void destroy(SubProtocol* subProtocol);
 
@@ -59,10 +61,6 @@ namespace web::websocket {
         SubProtocolFactory* load(const std::string& filePath);
 
         void addSubProtocolSearchPath(const std::string& searchPath);
-
-        virtual SubProtocol* select(const std::string& subProtocolName) = 0;
-
-        SubProtocolFactory* selectSubProtocolFactory(const std::string& subProtocolName);
 
         SubProtocolFactory::Role role;
 

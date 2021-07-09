@@ -35,11 +35,12 @@ namespace web::websocket::server {
 namespace web::websocket::server {
 
     class SubProtocolFactory : public web::websocket::SubProtocolFactory {
-    public:
+    private:
         std::shared_ptr<std::list<SubProtocol*>> getClients();
 
-    private:
         std::shared_ptr<std::list<SubProtocol*>> clients = std::make_shared<std::list<SubProtocol*>>();
+
+        friend class SocketContext;
     };
 
 } // namespace web::websocket::server

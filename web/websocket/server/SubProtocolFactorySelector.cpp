@@ -16,9 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SubProtocolSelector.h"
+#include "SubProtocolFactorySelector.h"
 
-#include "SubProtocol.h"
 #include "config.h"
 #include "web/websocket/server/SubProtocolFactory.h"
 
@@ -28,18 +27,18 @@
 
 namespace web::websocket::server {
 
-    std::shared_ptr<SubProtocolSelector> SubProtocolSelector::subProtocolSelector = nullptr;
+    std::shared_ptr<SubProtocolFactorySelector> SubProtocolFactorySelector::subProtocolSelector = nullptr;
 
-    std::shared_ptr<SubProtocolSelector> SubProtocolSelector::instance() {
+    std::shared_ptr<SubProtocolFactorySelector> SubProtocolFactorySelector::instance() {
         if (subProtocolSelector == nullptr) {
-            subProtocolSelector = std::make_shared<SubProtocolSelector>();
+            subProtocolSelector = std::make_shared<SubProtocolFactorySelector>();
         }
 
         return subProtocolSelector;
     }
 
-    SubProtocolSelector::SubProtocolSelector()
-        : web::websocket::SubProtocolSelector(SubProtocolFactory::Role::SERVER) {
+    SubProtocolFactorySelector::SubProtocolFactorySelector()
+        : web::websocket::SubProtocolFactorySelector(SubProtocolFactory::Role::SERVER) {
 #ifndef NDEBUG
 #ifdef SUBPROTOCOL_SERVER_COMPILE_PATH
 
@@ -51,6 +50,7 @@ namespace web::websocket::server {
         addSubProtocolSearchPath(SUBPROTOCOL_SERVER_INSTALL_PATH);
     }
 
+    /*
     web::websocket::SubProtocol* SubProtocolSelector::select(const std::string& subProtocolName) {
         SubProtocol* subProtocol = nullptr;
 
@@ -72,5 +72,6 @@ namespace web::websocket::server {
 
         return subProtocol;
     }
+    */
 
 } // namespace web::websocket::server

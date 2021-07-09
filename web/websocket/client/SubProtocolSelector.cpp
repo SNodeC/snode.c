@@ -18,7 +18,6 @@
 
 #include "SubProtocolSelector.h"
 
-#include "SubProtocol.h"                               // for SubProtocol
 #include "web/websocket/SubProtocolFactory.h"          // for SubProtocolIn...
 #include "web/websocket/client/SubProtocolInterface.h" // for SubProtocolIn...
 
@@ -28,30 +27,31 @@
 
 namespace web::websocket::client {
 
-    std::shared_ptr<SubProtocolSelector> SubProtocolSelector::subProtocolSelector = nullptr;
+    std::shared_ptr<SubProtocolFactorySelector> SubProtocolFactorySelector::subProtocolSelector = nullptr;
 
-    std::shared_ptr<SubProtocolSelector> SubProtocolSelector::instance() {
+    std::shared_ptr<SubProtocolFactorySelector> SubProtocolFactorySelector::instance() {
         if (subProtocolSelector == nullptr) {
-            subProtocolSelector = std::make_shared<SubProtocolSelector>();
+            subProtocolSelector = std::make_shared<SubProtocolFactorySelector>();
         }
 
         return subProtocolSelector;
     }
 
-    SubProtocolSelector::SubProtocolSelector()
-        : web::websocket::SubProtocolSelector(SubProtocolInterface::Role::SERVER) {
+    SubProtocolFactorySelector::SubProtocolFactorySelector()
+        : web::websocket::SubProtocolFactorySelector(SubProtocolInterface::Role::SERVER) {
     }
+    /*
+        web::websocket::SubProtocol* SubProtocolSelector::select(const std::string& subProtocolName) {
+            web::websocket::client::SubProtocol* subProtocol = nullptr;
 
-    web::websocket::SubProtocol* SubProtocolSelector::select(const std::string& subProtocolName) {
-        web::websocket::client::SubProtocol* subProtocol = nullptr;
+            SubProtocolInterface* subProtocolInterface = dynamic_cast<SubProtocolInterface*>(selectSubProtocolFactory(subProtocolName));
 
-        SubProtocolInterface* subProtocolInterface = dynamic_cast<SubProtocolInterface*>(selectSubProtocolFactory(subProtocolName));
+            if (subProtocolInterface != nullptr) {
+                subProtocol = dynamic_cast<SubProtocol*>(subProtocolInterface->create());
+            }
 
-        if (subProtocolInterface != nullptr) {
-            subProtocol = dynamic_cast<SubProtocol*>(subProtocolInterface->create());
+            return subProtocol;
         }
-
-        return subProtocol;
-    }
+        */
 
 } // namespace web::websocket::client

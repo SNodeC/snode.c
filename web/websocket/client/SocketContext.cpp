@@ -37,7 +37,7 @@ namespace web::websocket::client {
     }
 
     SocketContext::~SocketContext() {
-        web::websocket::client::SubProtocolSelector::instance()->destroy(subProtocol);
+        web::websocket::client::SubProtocolFactorySelector::instance()->destroy(subProtocol);
     }
 
 } // namespace web::websocket::client

@@ -19,29 +19,25 @@
 #ifndef WEB_WS_SERVER_SUBPROTOCOLSELECTOR_H
 #define WEB_WS_SERVER_SUBPROTOCOLSELECTOR_H
 
-#include "web/websocket/SubProtocol.h" // for SubProtocol
-#include "web/websocket/SubProtocolSelector.h"
+#include "web/websocket/SubProtocolFactorySelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <memory>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::websocket::server {
 
-    class SubProtocolSelector : public web::websocket::SubProtocolSelector {
+    class SubProtocolFactorySelector : public web::websocket::SubProtocolFactorySelector {
     public:
-        SubProtocolSelector();
+        SubProtocolFactorySelector();
 
     public:
-        web::websocket::SubProtocol* select(const std::string& subProtocolName) override;
-
-        static std::shared_ptr<SubProtocolSelector> instance();
+        static std::shared_ptr<SubProtocolFactorySelector> instance();
 
     private:
-        static std::shared_ptr<SubProtocolSelector> subProtocolSelector;
+        static std::shared_ptr<SubProtocolFactorySelector> subProtocolSelector;
     };
 
 } // namespace web::websocket::server

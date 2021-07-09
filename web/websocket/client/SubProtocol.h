@@ -23,7 +23,7 @@
 
 namespace web::websocket::client {
     class SocketContext;
-    class SubProtocolSelector;
+    class SubProtocolFactorySelector;
 } // namespace web::websocket::client
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -78,7 +78,7 @@ namespace web::websocket::client {
         void sendBroadcastStart(uint8_t opCode, const char* message, std::size_t messageLength);
 
         friend class web::websocket::client::SocketContext;
-        friend class web::websocket::client::SubProtocolSelector;
+        friend class web::websocket::client::SubProtocolFactorySelector;
     };
 
 } // namespace web::websocket::client

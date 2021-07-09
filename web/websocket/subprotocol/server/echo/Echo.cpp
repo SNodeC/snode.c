@@ -65,7 +65,7 @@ namespace web::websocket::subprotocol::echo::server {
     }
 
     void Echo::onMessageData(const char* junk, std::size_t junkLen) {
-        data += std::string(junk, static_cast<std::size_t>(junkLen));
+        data += std::string(junk, junkLen);
 
         VLOG(0) << "Message Fragment: " << std::string(junk, junkLen);
     }

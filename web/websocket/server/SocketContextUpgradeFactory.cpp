@@ -28,11 +28,11 @@
 namespace web::websocket::server {
 
     SocketContextUpgradeFactory::SocketContextUpgradeFactory(SubProtocolFactory* subProtocolFactory) {
-        SubProtocolSelector::instance()->add(subProtocolFactory);
+        SubProtocolFactorySelector::instance()->add(subProtocolFactory);
     }
 
     SocketContextUpgradeFactory::~SocketContextUpgradeFactory() {
-        SubProtocolSelector::instance()->unload();
+        SubProtocolFactorySelector::instance()->unload();
     }
 
     std::string SocketContextUpgradeFactory::name() {
