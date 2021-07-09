@@ -19,8 +19,11 @@
 #include "Echo.h"
 
 #include "log/Logger.h"
+#include "net/timer/IntervalTimer.h" // for IntervalTimer
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <functional> // for function
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

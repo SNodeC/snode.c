@@ -17,7 +17,6 @@ add_library(
     client/SubProtocolSelector.cpp
     server/SocketContext.cpp
     server/SocketContextUpgradeFactory.cpp
-    server/SocketContextUpgradeFactoryInterface.cpp
     server/SubProtocol.cpp
     server/SubProtocolInterface.cpp
     server/SubProtocolSelector.cpp
@@ -58,3 +57,9 @@ install(
     PATTERN "*.hpp"
     PATTERN "cmake" EXCLUDE
 )
+
+if(CHECK_INCLUDES)
+    set_property(
+        TARGET websocket PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path_and_options}
+    )
+endif(CHECK_INCLUDES)

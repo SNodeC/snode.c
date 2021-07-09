@@ -25,3 +25,9 @@ install(TARGETS echo
         LIBRARY DESTINATION lib/snode.c/web/websocket/subprotocol/server
                 NAMELINK_COMPONENT libecho.so.1
 )
+
+if(CHECK_INCLUDES)
+    set_property(
+        TARGET echo PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path_and_options}
+    )
+endif(CHECK_INCLUDES)

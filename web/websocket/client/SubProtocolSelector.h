@@ -19,12 +19,8 @@
 #ifndef WEB_WS_CLIENT_SUBPROTOCOLSELECTOR_H
 #define WEB_WS_CLIENT_SUBPROTOCOLSELECTOR_H
 
+#include "web/websocket/SubProtocol.h" // for SubProtocol
 #include "web/websocket/SubProtocolSelector.h"
-#include "web/websocket/client/SubProtocolInterface.h"
-
-namespace web::websocket {
-    class SubProtocol;
-} // namespace web::websocket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -19,6 +19,7 @@
 #include "EchoInterface.h"
 
 #include "Echo.h"
+#include "web/websocket/SubProtocol.h" // for SubProtocol
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,31 +27,28 @@
 
 namespace web::websocket::subprotocol::echo::server {
 
-    class EchoInterface : public web::websocket::server::SubProtocolInterface {
-    private:
-        void destroy() override {
-            delete this;
-        }
+    void EchoInterface::destroy() {
+        delete this;
+    }
 
-        Role role() override {
-            return Role::SERVER;
-        }
+    SubProtocolInterface::Role EchoInterface::role() {
+        return Role::SERVER;
+    }
 
-        std::string name() override {
-            return NAME;
-        }
+    std::string EchoInterface::name() {
+        return NAME;
+    }
 
-        web::websocket::SubProtocol* create() override {
-            return new Echo();
-        }
+    SubProtocol* EchoInterface::create() {
+        return new Echo();
+    }
 
-        void destroy(web::websocket::SubProtocol* echo) override {
-            delete echo;
-        }
-    };
+    void EchoInterface::destroy(SubProtocol* echo) {
+        delete echo;
+    }
 
     extern "C" {
-        class web::websocket::server::SubProtocolInterface* plugin() {
+        web::websocket::server::SubProtocolInterface* plugin() {
             return new EchoInterface();
         }
     }

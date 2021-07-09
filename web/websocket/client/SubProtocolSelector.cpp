@@ -18,15 +18,11 @@
 
 #include "SubProtocolSelector.h"
 
-#include "SubProtocol.h"
-#include "config.h"
-#include "log/Logger.h"
+#include "SubProtocol.h"                               // for SubProtocol
+#include "web/websocket/SubProtocolInterface.h"        // for SubProtocolIn...
+#include "web/websocket/client/SubProtocolInterface.h" // for SubProtocolIn...
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <dlfcn.h>
-#include <map>     // for map, _Rb_tree_iterator
-#include <utility> // for pair
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

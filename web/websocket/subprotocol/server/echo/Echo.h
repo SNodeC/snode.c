@@ -19,11 +19,17 @@
 #ifndef WEB_WS_SUBPROTOCOL_ECHO_SERVER_ECHO_H
 #define WEB_WS_SUBPROTOCOL_ECHO_SERVER_ECHO_H
 
-#include "net/timer/IntervalTimer.h"
 #include "web/websocket/server/SubProtocol.h"
-#include "web/websocket/server/SubProtocolInterface.h"
+
+namespace net::timer {
+    class Timer;
+} // namespace net::timer
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <cstddef> // for std::size_t
+#include <cstdint> // for uint16_t
+#include <string>  // for allocator, string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

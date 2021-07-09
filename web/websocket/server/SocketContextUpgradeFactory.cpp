@@ -18,6 +18,7 @@
 
 #include "SocketContextUpgradeFactory.h"
 
+#include "SubProtocolInterface.h"
 #include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -25,6 +26,10 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::websocket::server {
+
+    SocketContextUpgradeFactory::SocketContextUpgradeFactory(SubProtocolInterface* subProtocolInterface) {
+        SubProtocolSelector::instance()->add(subProtocolInterface);
+    }
 
     SocketContextUpgradeFactory::~SocketContextUpgradeFactory() {
         SubProtocolSelector::instance()->unload();
@@ -40,6 +45,12 @@ namespace web::websocket::server {
 
     SocketContext* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnection* socketConnection) const {
         return SocketContext::create(socketConnection, *request, *response);
+    }
+
+    extern "C" {
+        SocketContextUpgradeFactory* plugin() {
+            return new SocketContextUpgradeFactory();
+        }
     }
 
 } // namespace web::websocket::server

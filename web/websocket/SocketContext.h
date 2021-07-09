@@ -79,7 +79,6 @@ namespace web::websocket {
         void onMessageStart(int opCode) override;
         void onFrameReceived(const char* junk, uint64_t junkLen) override;
         void onMessageEnd() override;
-        void onPongReceived();
         void onMessageError(uint16_t errnum) override;
 
         std::size_t readFrameData(char* junk, std::size_t junkLen) override;
@@ -100,13 +99,9 @@ namespace web::websocket {
         void onReadError(int errnum) override;
         void onWriteError(int errnum) override;
 
-        bool closeReceived = false;
         bool closeSent = false;
 
         int opCodeReceived = 0;
-
-        bool pingReceived = false;
-        bool pongReceived = false;
 
         std::string pongCloseData;
 

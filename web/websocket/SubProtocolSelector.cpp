@@ -24,9 +24,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <dlfcn.h>
-#include <filesystem>
-#include <sstream>     // for basic_stringbuf<>::int_type, basic_st...
 #include <type_traits> // for add_const<>::type
+#include <utility>     // for pair
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -37,8 +36,8 @@ namespace web::websocket {
     }
 
     void SubProtocolSelector::destroy(SubProtocol* subProtocol) {
-        if (subProtocols.contains(subProtocol->getName())) {
-            SubProtocolInterface* subProtocolInterface = subProtocols.find(subProtocol->getName())->second.subProtocolInterface;
+        if (subProtocolPlugins.contains(subProtocol->getName())) {
+            SubProtocolInterface* subProtocolInterface = subProtocolPlugins.find(subProtocol->getName())->second.subProtocolInterface;
 
             subProtocolInterface->destroy(subProtocol);
         }
@@ -76,7 +75,7 @@ namespace web::websocket {
 
         if (subProtocolInterface != nullptr) {
             if (subProtocolInterface->role() == role) {
-                const auto [it, success] = subProtocols.insert({subProtocolInterface->name(), subProtocolPlugin});
+                const auto [it, success] = subProtocolPlugins.insert({subProtocolInterface->name(), subProtocolPlugin});
                 if (!success) {
                     VLOG(0) << "Subprotocol already existing: not using " << subProtocolInterface->name();
                     subProtocolInterface->destroy();
@@ -94,7 +93,7 @@ namespace web::websocket {
     }
 
     void SubProtocolSelector::unload() {
-        for (const auto& [name, subProtocolPlugin] : subProtocols) {
+        for (const auto& [name, subProtocolPlugin] : subProtocolPlugins) {
             subProtocolPlugin.subProtocolInterface->destroy();
             if (subProtocolPlugin.handle != nullptr) {
                 dlclose(subProtocolPlugin.handle);
@@ -109,11 +108,11 @@ namespace web::websocket {
     SubProtocolInterface* SubProtocolSelector::selectSubProtocolInterface(const std::string& subProtocolName) {
         SubProtocolInterface* subProtocolInterface = nullptr;
 
-        if (subProtocols.contains(subProtocolName)) {
-            subProtocolInterface = subProtocols.find(subProtocolName)->second.subProtocolInterface;
+        if (subProtocolPlugins.contains(subProtocolName)) {
+            subProtocolInterface = subProtocolPlugins[subProtocolName].subProtocolInterface;
         } else {
             for (const std::string& searchPath : searchPaths) {
-                subProtocolInterface = dynamic_cast<SubProtocolInterface*>(load(searchPath + "/lib" + subProtocolName + ".so"));
+                subProtocolInterface = load(searchPath + "/lib" + subProtocolName + ".so");
                 if (subProtocolInterface != nullptr) {
                     break;
                 }

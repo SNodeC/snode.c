@@ -24,7 +24,6 @@
 #include "web/http/server/Request.h"
 #include "web/http/server/Response.h"
 #include "web/http/server/SocketContextUpgradeFactory.h"
-#include "web/http/server/SocketContextUpgradeFactoryInterface.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -108,8 +107,7 @@ namespace web::http::server {
         void* handle = dlopen(filePath.c_str(), RTLD_LAZY | RTLD_LOCAL);
 
         if (handle != nullptr) {
-            SocketContextUpgradeFactoryInterface* (*plugin)() =
-                reinterpret_cast<SocketContextUpgradeFactoryInterface* (*) ()>(dlsym(handle, "plugin"));
+            SocketContextUpgradeFactory* (*plugin)() = reinterpret_cast<SocketContextUpgradeFactory* (*) ()>(dlsym(handle, "plugin"));
 
             // Only allow signed plugins? Architecture for x509-certs for plugins?
             /*
@@ -120,29 +118,20 @@ namespace web::http::server {
             */
 
             if (plugin != nullptr) {
-                SocketContextUpgradeFactoryInterface* socketContextUpgradeFactoryInterface = plugin();
+                socketContextUpgradeFactory = plugin();
 
-                if (socketContextUpgradeFactoryInterface != nullptr) {
-                    socketContextUpgradeFactory = socketContextUpgradeFactoryInterface->create();
-
-                    delete socketContextUpgradeFactoryInterface;
-
-                    if (socketContextUpgradeFactory != nullptr) {
-                        if (SocketContextUpgradeFactorySelector::instance()->add(socketContextUpgradeFactory, handle)) {
-                            VLOG(0) << "UpgradeSocketContext loaded successfully: " << filePath;
-                        } else {
-                            socketContextUpgradeFactory->destroy();
-                            socketContextUpgradeFactory = nullptr;
-                            dlclose(handle);
-                            VLOG(0) << "UpgradeSocketContext already existing. Not using: " << filePath;
-                        }
+                if (socketContextUpgradeFactory != nullptr) {
+                    if (SocketContextUpgradeFactorySelector::instance()->add(socketContextUpgradeFactory, handle)) {
+                        VLOG(0) << "UpgradeSocketContext loaded successfully: " << filePath;
                     } else {
+                        socketContextUpgradeFactory->destroy();
+                        socketContextUpgradeFactory = nullptr;
                         dlclose(handle);
-                        VLOG(0) << "SocketContextUpgradeFactorySelector not created (maybe to little memory?): " << filePath;
+                        VLOG(0) << "UpgradeSocketContext already existing. Not using: " << filePath;
                     }
                 } else {
                     dlclose(handle);
-                    VLOG(0) << "SocketContextUpgradeInterface not created (maybe to little memory?): " << filePath;
+                    VLOG(0) << "SocketContextUpgradeFactory not created: " << filePath;
                 }
             } else {
                 dlclose(handle);

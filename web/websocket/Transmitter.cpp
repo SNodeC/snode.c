@@ -69,7 +69,7 @@ namespace web::websocket {
         } while (messageLength - messageOffset > 0);
     }
     /*
-        void WSTransmitter::sendFrame(bool fin, uint8_t opCode, const char* payload, uint64_t payloadLength) {
+        void Transmitter::sendFrame(bool fin, uint8_t opCode, const char* payload, uint64_t payloadLength) {
             uint64_t frameLength = 2 + payloadLength;
             uint8_t opCodeOffset = 0;
             uint8_t lengthOffset = 1;

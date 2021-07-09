@@ -18,12 +18,13 @@
 
 #include "SocketContext.h"
 
-#include "log/Logger.h"
+#include "web/websocket/Transmitter.h" // for Transmitter
 #include "web/websocket/client/SubProtocol.h"
-#include "web/websocket/client/SubProtocolSelector.h"
-#include "web/websocket/ws_utils.h"
+#include "web/websocket/client/SubProtocolSelector.h" // for SubProtocolSel...
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <memory> // for __shared_ptr_a...
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

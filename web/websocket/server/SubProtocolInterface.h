@@ -19,7 +19,11 @@
 #ifndef WEB_WS_SERVER_SUBPROTOCOLPLUGININTERFACE_H
 #define WEB_WS_SERVER_SUBPROTOCOLPLUGININTERFACE_H
 
-#include "web/websocket/SubProtocolInterface.h"
+#include "web/websocket/SubProtocolInterface.h" // IWYU pragma: export
+
+namespace web::websocket::server {
+    class SubProtocol;
+} // namespace web::websocket::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,32 +32,15 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::http::server {
-
-    class Request;
-    class Response;
-
-} // namespace web::http::server
-
-namespace web::websocket::server {
-    class SubProtocol;
-} // namespace web::websocket::server
-
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
 namespace web::websocket::server {
 
-    extern "C" {
-        class SubProtocolInterface : public web::websocket::SubProtocolInterface {
-        public:
-            std::shared_ptr<std::list<SubProtocol*>> getClients();
+    class SubProtocolInterface : public web::websocket::SubProtocolInterface {
+    public:
+        std::shared_ptr<std::list<SubProtocol*>> getClients();
 
-        private:
-            std::shared_ptr<std::list<SubProtocol*>> clients = std::make_shared<std::list<SubProtocol*>>();
-        };
-    }
+    private:
+        std::shared_ptr<std::list<SubProtocol*>> clients = std::make_shared<std::list<SubProtocol*>>();
+    };
 
 } // namespace web::websocket::server
 

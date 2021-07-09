@@ -36,7 +36,7 @@ namespace web::websocket {
         : net::socket::stream::SocketContext(socketConnection)
         , Transmitter(role)
         , subProtocol(subProtocol) {
-        subProtocol->setWSContext(this);
+        subProtocol->setSocketContext(this);
     }
 
     void SocketContext::sendMessageStart(uint8_t opCode, const char* message, std::size_t messageLength) {
@@ -72,23 +72,30 @@ namespace web::websocket {
     }
 
     void SocketContext::onFrameReceived(const char* junk, uint64_t junkLen) {
-        if (!closeReceived && !pingReceived && !pongReceived) {
-            std::size_t junkOffset = 0;
+        switch (opCodeReceived) {
+            case OpCode::CLOSE:
+                [[fallthrough]];
+            case OpCode::PING:
+                [[fallthrough]];
+            case OpCode::PONG:
+                pongCloseData += std::string(junk, static_cast<std::size_t>(junkLen));
+                break;
+            default:
+                std::size_t junkOffset = 0;
 
-            do {
-                std::size_t sendJunkLen = (junkLen - junkOffset <= SIZE_MAX) ? static_cast<std::size_t>(junkLen - junkOffset) : SIZE_MAX;
-                subProtocol->onMessageData(junk + junkOffset, sendJunkLen);
-                junkOffset += sendJunkLen;
-            } while (junkLen - junkOffset > 0);
-        } else {
-            pongCloseData += std::string(junk, static_cast<std::size_t>(junkLen));
+                do {
+                    std::size_t sendJunkLen =
+                        (junkLen - junkOffset <= SIZE_MAX) ? static_cast<std::size_t>(junkLen - junkOffset) : SIZE_MAX;
+                    subProtocol->onMessageData(junk + junkOffset, sendJunkLen);
+                    junkOffset += sendJunkLen;
+                } while (junkLen - junkOffset > 0);
+                break;
         }
     }
 
     void SocketContext::onMessageEnd() {
         switch (opCodeReceived) {
             case OpCode::CLOSE:
-                closeReceived = false;
                 if (closeSent) { // active close
                     closeSent = false;
                     VLOG(0) << "Close confirmed from peer";
@@ -99,7 +106,6 @@ namespace web::websocket {
                 }
                 break;
             case OpCode::PING:
-                pingReceived = false;
                 sendPong(pongCloseData.data(), pongCloseData.length());
                 pongCloseData.clear();
                 break;
@@ -110,10 +116,6 @@ namespace web::websocket {
                 subProtocol->onMessageEnd();
                 break;
         }
-    }
-
-    void SocketContext::onPongReceived() {
-        subProtocol->onPongReceived();
     }
 
     void SocketContext::onMessageError(uint16_t errnum) {

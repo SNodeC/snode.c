@@ -41,12 +41,10 @@ namespace web::websocket::client {
 
 namespace web::websocket::client {
 
-    extern "C" {
-        class SubProtocolInterface : public web::websocket::SubProtocolInterface {
-        public:
-            using web::websocket::SubProtocolInterface::SubProtocolInterface;
-        };
-    }
+    class SubProtocolInterface : public web::websocket::SubProtocolInterface {
+    public:
+        using web::websocket::SubProtocolInterface::SubProtocolInterface;
+    };
 
 } // namespace web::websocket::client
 

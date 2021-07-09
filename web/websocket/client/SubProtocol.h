@@ -30,9 +30,6 @@ namespace web::websocket::client {
 
 #include <cstddef>
 #include <cstdint>
-#include <functional>
-#include <list>
-#include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

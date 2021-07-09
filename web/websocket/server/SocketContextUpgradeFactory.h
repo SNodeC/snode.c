@@ -28,6 +28,10 @@ namespace web::http::server {
     class Response;
 } // namespace web::http::server
 
+namespace web::websocket::server {
+    class SubProtocolInterface;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -37,6 +41,8 @@ namespace web::websocket::server {
     class SocketContextUpgradeFactory : public web::http::server::SocketContextUpgradeFactory {
     public:
         SocketContextUpgradeFactory() = default;
+        SocketContextUpgradeFactory(SubProtocolInterface* subProtocolInterface);
+
         ~SocketContextUpgradeFactory();
 
         std::string name() override;

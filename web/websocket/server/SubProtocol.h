@@ -21,11 +21,6 @@
 
 #include "web/websocket/SubProtocol.h"
 
-namespace web::websocket::server {
-    class SocketContext;
-    class SubProtocolSelector;
-} // namespace web::websocket::server
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>

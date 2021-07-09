@@ -20,13 +20,9 @@
 
 #include "SubProtocol.h"
 #include "config.h"
-#include "log/Logger.h"
+#include "web/websocket/server/SubProtocolInterface.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <dlfcn.h>
-#include <map>     // for map, _Rb_tree_iterator
-#include <utility> // for pair
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -60,11 +56,17 @@ namespace web::websocket::server {
 
         SubProtocolInterface* subProtocolInterface = dynamic_cast<SubProtocolInterface*>(selectSubProtocolInterface(subProtocolName));
 
-        if (subProtocolInterface != nullptr) {
-            subProtocol = dynamic_cast<SubProtocol*>(subProtocolInterface->create());
+        //        subProtocolInterface->role();
 
-            if (subProtocol != nullptr) {
-                subProtocol->setClients(subProtocolInterface->getClients());
+        if (subProtocolInterface != nullptr) {
+            if (subProtocolInterface->role() == SubProtocolInterface::Role::SERVER) {
+                subProtocol = dynamic_cast<SubProtocol*>(subProtocolInterface->create());
+
+                if (subProtocol != nullptr) {
+                    subProtocol->setClients(subProtocolInterface->getClients());
+                }
+            } else {
+                subProtocolInterface->destroy();
             }
         }
 

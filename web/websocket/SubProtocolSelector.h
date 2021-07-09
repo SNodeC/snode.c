@@ -35,8 +35,6 @@ namespace web::websocket {
 
 namespace web::websocket {
 
-    class SubProtocolInterface;
-
     struct SubProtocolPlugin {
         SubProtocolInterface* subProtocolInterface;
         void* handle = nullptr;
@@ -51,23 +49,24 @@ namespace web::websocket {
         SubProtocolSelector& operator=(const SubProtocolSelector&) = delete;
 
     public:
-        void destroy(SubProtocol* subProtocol);
-
-        SubProtocolInterface* load(const std::string& filePath);
-
         void add(SubProtocolInterface* subProtocolPluginInterface, void* handle = nullptr);
+
+        void destroy(SubProtocol* subProtocol);
 
         void unload();
 
     protected:
+        SubProtocolInterface* load(const std::string& filePath);
+
         void addSubProtocolSearchPath(const std::string& searchPath);
 
         virtual SubProtocol* select(const std::string& subProtocolName) = 0;
+
         SubProtocolInterface* selectSubProtocolInterface(const std::string& subProtocolName);
 
         SubProtocolInterface::Role role;
 
-        std::map<std::string, SubProtocolPlugin> subProtocols;
+        std::map<std::string, SubProtocolPlugin> subProtocolPlugins;
         std::list<std::string> searchPaths;
     };
 

@@ -79,8 +79,8 @@ namespace web::websocket {
     }
 
     /* private members */
-    void SubProtocol::setWSContext(SocketContext* ServerContext) {
-        context = ServerContext;
+    void SubProtocol::setSocketContext(SocketContext* serverContext) {
+        context = serverContext;
     }
 
     const std::string& SubProtocol::getName() {

@@ -18,8 +18,6 @@
 
 #include "SubProtocol.h"
 
-#include "web/websocket/SocketContext.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

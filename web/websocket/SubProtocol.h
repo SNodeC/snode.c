@@ -79,14 +79,12 @@ namespace web::websocket {
         virtual void onConnected() = 0;
         virtual void onDisconnected() = 0;
 
-        void setWSContext(SocketContext* ServerContext);
+        void setSocketContext(SocketContext* serverContext);
 
     protected:
         SocketContext* context;
 
         const std::string name;
-
-        //        friend class web::websocket::SocketContext;
     };
 
 } // namespace web::websocket
