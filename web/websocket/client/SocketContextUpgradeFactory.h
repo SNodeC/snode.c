@@ -43,11 +43,6 @@ namespace web::websocket::client {
         web::websocket::server::SocketContext* create(net::socket::stream::SocketConnection* socketConnection) const override;
     };
 
-    class SocketContextUpgradeInterface : public web::http::client::SocketContextUpgradeInterface {
-    public:
-        web::http::client::SocketContextUpgradeFactory* create() override;
-    };
-
 } // namespace web::websocket::client
 
 #endif // WEB_WS_SERVER_SOCKETCONTEXTFACTORY_H

@@ -101,15 +101,14 @@ namespace web::http::server {
         return socketContextUpgradeFactory;
     }
 
+    // Only allow signed plugins? Architecture for x509-certs for plugins?
+    /*
+                const std::type_info& pluginTypeId = typeid(plugin());
+                const std::type_info& expectedTypeId = typeid(SocketContextUpgradeFactory*);
+                std::string pluginType = abi::__cxa_demangle(pluginTypeId.name(), 0, 0, &status);
+                std::string expectedType = abi::__cxa_demangle(expectedTypeId.name(), 0, 0, &status);
+    */
     SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::load(const std::string& filePath) {
-        // Only allow signed plugins? Architecture for x509-certs for plugins?
-        /*
-                    const std::type_info& pluginTypeId = typeid(plugin());
-                    const std::type_info& expectedTypeId = typeid(SocketContextUpgradeFactoryInterface*);
-                    std::string pluginType = abi::__cxa_demangle(pluginTypeId.name(), 0, 0, &status);
-                    std::string expectedType = abi::__cxa_demangle(expectedTypeId.name(), 0, 0, &status);
-        */
-
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
         void* handle = dlopen(filePath.c_str(), RTLD_LAZY | RTLD_LOCAL);

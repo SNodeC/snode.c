@@ -27,8 +27,8 @@
 
 namespace web::websocket::server {
 
-    SocketContextUpgradeFactory::SocketContextUpgradeFactory(SubProtocolFactory* subProtocolInterface) {
-        SubProtocolSelector::instance()->add(subProtocolInterface);
+    SocketContextUpgradeFactory::SocketContextUpgradeFactory(SubProtocolFactory* subProtocolFactory) {
+        SubProtocolSelector::instance()->add(subProtocolFactory);
     }
 
     SocketContextUpgradeFactory::~SocketContextUpgradeFactory() {

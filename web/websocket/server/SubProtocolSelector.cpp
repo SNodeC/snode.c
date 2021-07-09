@@ -54,19 +54,19 @@ namespace web::websocket::server {
     web::websocket::SubProtocol* SubProtocolSelector::select(const std::string& subProtocolName) {
         SubProtocol* subProtocol = nullptr;
 
-        SubProtocolFactory* subProtocolInterface = dynamic_cast<SubProtocolFactory*>(selectSubProtocolInterface(subProtocolName));
+        SubProtocolFactory* subProtocolFactory = dynamic_cast<SubProtocolFactory*>(selectSubProtocolFactory(subProtocolName));
 
         //        subProtocolInterface->role();
 
-        if (subProtocolInterface != nullptr) {
-            if (subProtocolInterface->role() == SubProtocolFactory::Role::SERVER) {
-                subProtocol = dynamic_cast<SubProtocol*>(subProtocolInterface->create());
+        if (subProtocolFactory != nullptr) {
+            if (subProtocolFactory->role() == SubProtocolFactory::Role::SERVER) {
+                subProtocol = dynamic_cast<SubProtocol*>(subProtocolFactory->create());
 
                 if (subProtocol != nullptr) {
-                    subProtocol->setClients(subProtocolInterface->getClients());
+                    subProtocol->setClients(subProtocolFactory->getClients());
                 }
             } else {
-                subProtocolInterface->destroy();
+                subProtocolFactory->destroy();
             }
         }
 

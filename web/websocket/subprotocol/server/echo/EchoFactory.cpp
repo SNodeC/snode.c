@@ -16,37 +16,41 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H
-#define WEB_WS_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H
+#include "EchoFactory.h"
 
+#include "Echo.h"
 #include "web/websocket/SubProtocol.h" // for SubProtocol
-#include "web/websocket/server/SubProtocolFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <string> // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::websocket::subprotocol::echo::server {
 
-    class EchoInterface : public web::websocket::server::SubProtocolFactory {
-    private:
-        void destroy() override;
+    void EchoFactory::destroy() {
+        delete this;
+    }
 
-        Role role() override;
+    SubProtocolFactory::Role EchoFactory::role() {
+        return Role::SERVER;
+    }
 
-        std::string name() override;
+    std::string EchoFactory::name() {
+        return NAME;
+    }
 
-        web::websocket::SubProtocol* create() override;
+    SubProtocol* EchoFactory::create() {
+        return new Echo();
+    }
 
-        void destroy(web::websocket::SubProtocol* echo) override;
-    };
+    void EchoFactory::destroy(SubProtocol* echo) {
+        delete echo;
+    }
 
     extern "C" {
-        web::websocket::server::SubProtocolFactory* plugin();
+        web::websocket::server::SubProtocolFactory* plugin() {
+            return new EchoFactory();
+        }
     }
 
 } // namespace web::websocket::subprotocol::echo::server
-
-#endif // ECHOINTERFACE_H

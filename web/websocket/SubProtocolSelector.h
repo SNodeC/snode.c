@@ -36,7 +36,7 @@ namespace web::websocket {
 namespace web::websocket {
 
     struct SubProtocolPlugin {
-        SubProtocolFactory* subProtocolInterface;
+        SubProtocolFactory* subProtocolFactory;
         void* handle = nullptr;
     };
 
@@ -49,7 +49,7 @@ namespace web::websocket {
         SubProtocolSelector& operator=(const SubProtocolSelector&) = delete;
 
     public:
-        void add(SubProtocolFactory* subProtocolPluginInterface, void* handle = nullptr);
+        void add(SubProtocolFactory* subProtocolFactory, void* handle = nullptr);
 
         void destroy(SubProtocol* subProtocol);
 
@@ -62,7 +62,7 @@ namespace web::websocket {
 
         virtual SubProtocol* select(const std::string& subProtocolName) = 0;
 
-        SubProtocolFactory* selectSubProtocolInterface(const std::string& subProtocolName);
+        SubProtocolFactory* selectSubProtocolFactory(const std::string& subProtocolName);
 
         SubProtocolFactory::Role role;
 

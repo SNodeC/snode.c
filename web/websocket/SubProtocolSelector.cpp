@@ -37,14 +37,14 @@ namespace web::websocket {
 
     void SubProtocolSelector::destroy(SubProtocol* subProtocol) {
         if (subProtocolPlugins.contains(subProtocol->getName())) {
-            SubProtocolFactory* subProtocolInterface = subProtocolPlugins.find(subProtocol->getName())->second.subProtocolInterface;
+            SubProtocolFactory* subProtocolFactory = subProtocolPlugins.find(subProtocol->getName())->second.subProtocolFactory;
 
-            subProtocolInterface->destroy(subProtocol);
+            subProtocolFactory->destroy(subProtocol);
         }
     }
 
     SubProtocolFactory* SubProtocolSelector::load(const std::string& filePath) {
-        SubProtocolFactory* subProtocolInterface = nullptr;
+        SubProtocolFactory* subProtocolFactory = nullptr;
 
         void* handle = dlopen(filePath.c_str(), RTLD_LAZY | RTLD_LOCAL);
 
@@ -54,9 +54,9 @@ namespace web::websocket {
             SubProtocolFactory* (*plugin)() = reinterpret_cast<SubProtocolFactory* (*) ()>(dlsym(handle, "plugin"));
 
             if (plugin != nullptr) {
-                subProtocolInterface = plugin();
-                if (subProtocolInterface != nullptr) {
-                    add(subProtocolInterface, handle);
+                subProtocolFactory = plugin();
+                if (subProtocolFactory != nullptr) {
+                    add(subProtocolFactory, handle);
                 } else {
                     dlclose(handle);
                 }
@@ -67,24 +67,24 @@ namespace web::websocket {
             VLOG(0) << "Error dlopen: " << dlerror();
         }
 
-        return subProtocolInterface;
+        return subProtocolFactory;
     }
 
-    void SubProtocolSelector::add(SubProtocolFactory* subProtocolInterface, void* handle) {
-        SubProtocolPlugin subProtocolPlugin = {.subProtocolInterface = subProtocolInterface, .handle = handle};
+    void SubProtocolSelector::add(SubProtocolFactory* subProtocolFactory, void* handle) {
+        SubProtocolPlugin subProtocolPlugin = {.subProtocolFactory = subProtocolFactory, .handle = handle};
 
-        if (subProtocolInterface != nullptr) {
-            if (subProtocolInterface->role() == role) {
-                const auto [it, success] = subProtocolPlugins.insert({subProtocolInterface->name(), subProtocolPlugin});
+        if (subProtocolFactory != nullptr) {
+            if (subProtocolFactory->role() == role) {
+                const auto [it, success] = subProtocolPlugins.insert({subProtocolFactory->name(), subProtocolPlugin});
                 if (!success) {
-                    VLOG(0) << "Subprotocol already existing: not using " << subProtocolInterface->name();
-                    subProtocolInterface->destroy();
+                    VLOG(0) << "Subprotocol already existing: not using " << subProtocolFactory->name();
+                    subProtocolFactory->destroy();
                     if (handle != nullptr) {
                         dlclose(handle);
                     }
                 }
             } else if (handle != nullptr) {
-                subProtocolInterface->destroy();
+                subProtocolFactory->destroy();
                 dlclose(handle);
             }
         } else if (handle != nullptr) {
@@ -94,7 +94,7 @@ namespace web::websocket {
 
     void SubProtocolSelector::unload() {
         for (const auto& [name, subProtocolPlugin] : subProtocolPlugins) {
-            subProtocolPlugin.subProtocolInterface->destroy();
+            subProtocolPlugin.subProtocolFactory->destroy();
             if (subProtocolPlugin.handle != nullptr) {
                 dlclose(subProtocolPlugin.handle);
             }
@@ -105,21 +105,21 @@ namespace web::websocket {
         searchPaths.push_back(searchPath);
     }
 
-    SubProtocolFactory* SubProtocolSelector::selectSubProtocolInterface(const std::string& subProtocolName) {
-        SubProtocolFactory* subProtocolInterface = nullptr;
+    SubProtocolFactory* SubProtocolSelector::selectSubProtocolFactory(const std::string& subProtocolName) {
+        SubProtocolFactory* subProtocolFactory = nullptr;
 
         if (subProtocolPlugins.contains(subProtocolName)) {
-            subProtocolInterface = subProtocolPlugins[subProtocolName].subProtocolInterface;
+            subProtocolFactory = subProtocolPlugins[subProtocolName].subProtocolFactory;
         } else {
             for (const std::string& searchPath : searchPaths) {
-                subProtocolInterface = load(searchPath + "/lib" + subProtocolName + ".so");
-                if (subProtocolInterface != nullptr) {
+                subProtocolFactory = load(searchPath + "/lib" + subProtocolName + ".so");
+                if (subProtocolFactory != nullptr) {
                     break;
                 }
             }
         }
 
-        return subProtocolInterface;
+        return subProtocolFactory;
     }
 
 } // namespace web::websocket
