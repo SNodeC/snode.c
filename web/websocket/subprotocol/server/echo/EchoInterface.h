@@ -20,7 +20,7 @@
 #define WEB_WS_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H
 
 #include "web/websocket/SubProtocol.h" // for SubProtocol
-#include "web/websocket/server/SubProtocolInterface.h"
+#include "web/websocket/server/SubProtocolFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,7 +30,7 @@
 
 namespace web::websocket::subprotocol::echo::server {
 
-    class EchoInterface : public web::websocket::server::SubProtocolInterface {
+    class EchoInterface : public web::websocket::server::SubProtocolFactory {
     private:
         void destroy() override;
 
@@ -44,7 +44,7 @@ namespace web::websocket::subprotocol::echo::server {
     };
 
     extern "C" {
-        web::websocket::server::SubProtocolInterface* plugin();
+        web::websocket::server::SubProtocolFactory* plugin();
     }
 
 } // namespace web::websocket::subprotocol::echo::server

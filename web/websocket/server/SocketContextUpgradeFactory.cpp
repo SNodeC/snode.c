@@ -18,7 +18,7 @@
 
 #include "SocketContextUpgradeFactory.h"
 
-#include "SubProtocolInterface.h"
+#include "SubProtocolFactory.h"
 #include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -27,7 +27,7 @@
 
 namespace web::websocket::server {
 
-    SocketContextUpgradeFactory::SocketContextUpgradeFactory(SubProtocolInterface* subProtocolInterface) {
+    SocketContextUpgradeFactory::SocketContextUpgradeFactory(SubProtocolFactory* subProtocolInterface) {
         SubProtocolSelector::instance()->add(subProtocolInterface);
     }
 

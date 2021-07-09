@@ -31,7 +31,7 @@ namespace web::websocket::subprotocol::echo::server {
         delete this;
     }
 
-    SubProtocolInterface::Role EchoInterface::role() {
+    SubProtocolFactory::Role EchoInterface::role() {
         return Role::SERVER;
     }
 
@@ -48,7 +48,7 @@ namespace web::websocket::subprotocol::echo::server {
     }
 
     extern "C" {
-        web::websocket::server::SubProtocolInterface* plugin() {
+        web::websocket::server::SubProtocolFactory* plugin() {
             return new EchoInterface();
         }
     }

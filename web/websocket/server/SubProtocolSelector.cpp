@@ -20,7 +20,7 @@
 
 #include "SubProtocol.h"
 #include "config.h"
-#include "web/websocket/server/SubProtocolInterface.h"
+#include "web/websocket/server/SubProtocolFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -39,7 +39,7 @@ namespace web::websocket::server {
     }
 
     SubProtocolSelector::SubProtocolSelector()
-        : web::websocket::SubProtocolSelector(SubProtocolInterface::Role::SERVER) {
+        : web::websocket::SubProtocolSelector(SubProtocolFactory::Role::SERVER) {
 #ifndef NDEBUG
 #ifdef SUBPROTOCOL_SERVER_COMPILE_PATH
 
@@ -54,12 +54,12 @@ namespace web::websocket::server {
     web::websocket::SubProtocol* SubProtocolSelector::select(const std::string& subProtocolName) {
         SubProtocol* subProtocol = nullptr;
 
-        SubProtocolInterface* subProtocolInterface = dynamic_cast<SubProtocolInterface*>(selectSubProtocolInterface(subProtocolName));
+        SubProtocolFactory* subProtocolInterface = dynamic_cast<SubProtocolFactory*>(selectSubProtocolInterface(subProtocolName));
 
         //        subProtocolInterface->role();
 
         if (subProtocolInterface != nullptr) {
-            if (subProtocolInterface->role() == SubProtocolInterface::Role::SERVER) {
+            if (subProtocolInterface->role() == SubProtocolFactory::Role::SERVER) {
                 subProtocol = dynamic_cast<SubProtocol*>(subProtocolInterface->create());
 
                 if (subProtocol != nullptr) {

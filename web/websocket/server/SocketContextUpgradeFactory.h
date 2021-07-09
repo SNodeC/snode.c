@@ -29,7 +29,7 @@ namespace web::http::server {
 } // namespace web::http::server
 
 namespace web::websocket::server {
-    class SubProtocolInterface;
+    class SubProtocolFactory;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -41,7 +41,7 @@ namespace web::websocket::server {
     class SocketContextUpgradeFactory : public web::http::server::SocketContextUpgradeFactory {
     public:
         SocketContextUpgradeFactory() = default;
-        SocketContextUpgradeFactory(SubProtocolInterface* subProtocolInterface);
+        SocketContextUpgradeFactory(SubProtocolFactory* subProtocolInterface);
 
         ~SocketContextUpgradeFactory();
 

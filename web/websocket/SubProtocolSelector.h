@@ -19,7 +19,7 @@
 #ifndef WEB_WS_SUBPROTOCOLSELECTOR_H
 #define WEB_WS_SUBPROTOCOLSELECTOR_H
 
-#include "web/websocket/SubProtocolInterface.h" // for WSSubPr...
+#include "web/websocket/SubProtocolFactory.h" // for WSSubPr...
 
 namespace web::websocket {
     class SubProtocol;
@@ -36,35 +36,35 @@ namespace web::websocket {
 namespace web::websocket {
 
     struct SubProtocolPlugin {
-        SubProtocolInterface* subProtocolInterface;
+        SubProtocolFactory* subProtocolInterface;
         void* handle = nullptr;
     };
 
     class SubProtocolSelector {
     protected:
-        SubProtocolSelector(SubProtocolInterface::Role role);
+        SubProtocolSelector(SubProtocolFactory::Role role);
         virtual ~SubProtocolSelector() = default;
 
         SubProtocolSelector(const SubProtocolSelector&) = delete;
         SubProtocolSelector& operator=(const SubProtocolSelector&) = delete;
 
     public:
-        void add(SubProtocolInterface* subProtocolPluginInterface, void* handle = nullptr);
+        void add(SubProtocolFactory* subProtocolPluginInterface, void* handle = nullptr);
 
         void destroy(SubProtocol* subProtocol);
 
         void unload();
 
     protected:
-        SubProtocolInterface* load(const std::string& filePath);
+        SubProtocolFactory* load(const std::string& filePath);
 
         void addSubProtocolSearchPath(const std::string& searchPath);
 
         virtual SubProtocol* select(const std::string& subProtocolName) = 0;
 
-        SubProtocolInterface* selectSubProtocolInterface(const std::string& subProtocolName);
+        SubProtocolFactory* selectSubProtocolInterface(const std::string& subProtocolName);
 
-        SubProtocolInterface::Role role;
+        SubProtocolFactory::Role role;
 
         std::map<std::string, SubProtocolPlugin> subProtocolPlugins;
         std::list<std::string> searchPaths;

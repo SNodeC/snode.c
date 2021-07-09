@@ -19,7 +19,7 @@
 #ifndef WEB_WS_SERVER_SUBPROTOCOLPLUGININTERFACE_H
 #define WEB_WS_SERVER_SUBPROTOCOLPLUGININTERFACE_H
 
-#include "web/websocket/SubProtocolInterface.h" // IWYU pragma: export
+#include "web/websocket/SubProtocolFactory.h" // IWYU pragma: export
 
 namespace web::websocket::server {
     class SubProtocol;
@@ -34,7 +34,7 @@ namespace web::websocket::server {
 
 namespace web::websocket::server {
 
-    class SubProtocolInterface : public web::websocket::SubProtocolInterface {
+    class SubProtocolFactory : public web::websocket::SubProtocolFactory {
     public:
         std::shared_ptr<std::list<SubProtocol*>> getClients();
 

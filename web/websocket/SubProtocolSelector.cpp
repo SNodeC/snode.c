@@ -31,27 +31,27 @@
 
 namespace web::websocket {
 
-    SubProtocolSelector::SubProtocolSelector(SubProtocolInterface::Role role)
+    SubProtocolSelector::SubProtocolSelector(SubProtocolFactory::Role role)
         : role(role) {
     }
 
     void SubProtocolSelector::destroy(SubProtocol* subProtocol) {
         if (subProtocolPlugins.contains(subProtocol->getName())) {
-            SubProtocolInterface* subProtocolInterface = subProtocolPlugins.find(subProtocol->getName())->second.subProtocolInterface;
+            SubProtocolFactory* subProtocolInterface = subProtocolPlugins.find(subProtocol->getName())->second.subProtocolInterface;
 
             subProtocolInterface->destroy(subProtocol);
         }
     }
 
-    SubProtocolInterface* SubProtocolSelector::load(const std::string& filePath) {
-        SubProtocolInterface* subProtocolInterface = nullptr;
+    SubProtocolFactory* SubProtocolSelector::load(const std::string& filePath) {
+        SubProtocolFactory* subProtocolInterface = nullptr;
 
         void* handle = dlopen(filePath.c_str(), RTLD_LAZY | RTLD_LOCAL);
 
         if (handle != nullptr) {
             VLOG(0) << "SubProtocol loaded successfully: " << filePath;
 
-            SubProtocolInterface* (*plugin)() = reinterpret_cast<SubProtocolInterface* (*) ()>(dlsym(handle, "plugin"));
+            SubProtocolFactory* (*plugin)() = reinterpret_cast<SubProtocolFactory* (*) ()>(dlsym(handle, "plugin"));
 
             if (plugin != nullptr) {
                 subProtocolInterface = plugin();
@@ -70,7 +70,7 @@ namespace web::websocket {
         return subProtocolInterface;
     }
 
-    void SubProtocolSelector::add(SubProtocolInterface* subProtocolInterface, void* handle) {
+    void SubProtocolSelector::add(SubProtocolFactory* subProtocolInterface, void* handle) {
         SubProtocolPlugin subProtocolPlugin = {.subProtocolInterface = subProtocolInterface, .handle = handle};
 
         if (subProtocolInterface != nullptr) {
@@ -105,8 +105,8 @@ namespace web::websocket {
         searchPaths.push_back(searchPath);
     }
 
-    SubProtocolInterface* SubProtocolSelector::selectSubProtocolInterface(const std::string& subProtocolName) {
-        SubProtocolInterface* subProtocolInterface = nullptr;
+    SubProtocolFactory* SubProtocolSelector::selectSubProtocolInterface(const std::string& subProtocolName) {
+        SubProtocolFactory* subProtocolInterface = nullptr;
 
         if (subProtocolPlugins.contains(subProtocolName)) {
             subProtocolInterface = subProtocolPlugins[subProtocolName].subProtocolInterface;

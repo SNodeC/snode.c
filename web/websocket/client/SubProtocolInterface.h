@@ -19,7 +19,7 @@
 #ifndef WEB_WS_CLIENT_SUBPROTOCOLPLUGININTERFACE_H
 #define WEB_WS_CLIENT_SUBPROTOCOLPLUGININTERFACE_H
 
-#include "web/websocket/SubProtocolInterface.h"
+#include "web/websocket/SubProtocolFactory.h"
 
 #include <list>
 #include <memory>
@@ -41,9 +41,9 @@ namespace web::websocket::client {
 
 namespace web::websocket::client {
 
-    class SubProtocolInterface : public web::websocket::SubProtocolInterface {
+    class SubProtocolInterface : public web::websocket::SubProtocolFactory {
     public:
-        using web::websocket::SubProtocolInterface::SubProtocolInterface;
+        using web::websocket::SubProtocolFactory::SubProtocolFactory;
     };
 
 } // namespace web::websocket::client

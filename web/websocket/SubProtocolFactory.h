@@ -16,16 +16,38 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SubProtocolInterface.h"
+#ifndef WEB_WS_SUBPROTOCOLPLUGININTERFACE_H
+#define WEB_WS_SUBPROTOCOLPLUGININTERFACE_H
+
+namespace web::websocket {
+    class SubProtocol;
+} // namespace web::websocket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::websocket::server {
+namespace web::websocket {
 
-    std::shared_ptr<std::list<SubProtocol*>> SubProtocolInterface::getClients() {
-        return clients;
-    }
+    class SubProtocolFactory {
+    public:
+        enum class Role { CLIENT, SERVER };
 
-} // namespace web::websocket::server
+    protected:
+        virtual ~SubProtocolFactory() = default;
+
+    public:
+        virtual std::string name() = 0;
+        virtual Role role() = 0;
+
+        virtual void destroy() = 0;
+
+        virtual SubProtocol* create() = 0;
+        virtual void destroy(SubProtocol*) = 0;
+    };
+
+} // namespace web::websocket
+
+#endif // WEB_WS_SUBPROTOCOLPLUGININTERFACE_H

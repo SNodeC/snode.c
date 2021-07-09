@@ -18,7 +18,7 @@ add_library(
     server/SocketContext.cpp
     server/SocketContextUpgradeFactory.cpp
     server/SubProtocol.cpp
-    server/SubProtocolInterface.cpp
+    server/SubProtocolFactory.cpp
     server/SubProtocolSelector.cpp
 )
 
