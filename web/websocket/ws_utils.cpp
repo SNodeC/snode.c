@@ -23,10 +23,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cctype>
-#include <crypto++/base64.h>
-#include <crypto++/config_int.h> // for byte
-#include <crypto++/iterhash.h>   // for IteratedHashWithStaticTransform<>::...
-#include <crypto++/sha.h>
 #include <cstddef> // for std::size_t
 #include <cstdlib>
 #include <openssl/evp.h>
