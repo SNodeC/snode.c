@@ -49,11 +49,11 @@ namespace web::websocket {
         SubProtocolFactorySelector& operator=(const SubProtocolFactorySelector&) = delete;
 
     public:
-        void add(SubProtocolFactory* subProtocolFactory, void* handle = nullptr);
+        void destroy(SubProtocol* subProtocol);
 
         SubProtocolFactory* select(const std::string& subProtocolName);
 
-        void destroy(SubProtocol* subProtocol);
+        void add(SubProtocolFactory* subProtocolFactory, void* handle = nullptr);
 
         void unload();
 

@@ -50,28 +50,4 @@ namespace web::websocket::server {
         addSubProtocolSearchPath(SUBPROTOCOL_SERVER_INSTALL_PATH);
     }
 
-    /*
-    web::websocket::SubProtocol* SubProtocolSelector::select(const std::string& subProtocolName) {
-        SubProtocol* subProtocol = nullptr;
-
-        SubProtocolFactory* subProtocolFactory = dynamic_cast<SubProtocolFactory*>(selectSubProtocolFactory(subProtocolName));
-
-        //        subProtocolInterface->role();
-
-        if (subProtocolFactory != nullptr) {
-            if (subProtocolFactory->role() == SubProtocolFactory::Role::SERVER) {
-                subProtocol = dynamic_cast<SubProtocol*>(subProtocolFactory->create());
-
-                if (subProtocol != nullptr) {
-                    subProtocol->setClients(subProtocolFactory->getClients());
-                }
-            } else {
-                subProtocolFactory->destroy();
-            }
-        }
-
-        return subProtocol;
-    }
-    */
-
 } // namespace web::websocket::server

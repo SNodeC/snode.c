@@ -69,10 +69,8 @@ namespace web::websocket::server {
                         });
 
                         res.status(101).end(); // Switch Protocol
-
                     } else {
-                        SubProtocolFactorySelector::instance()->destroy(subProtocol);
-                        subProtocolFactory->destroy();
+                        subProtocolFactory->destroy(subProtocol);
                         res.status(500).end(); // Internal Server Error
                     }
                 } else {
@@ -80,7 +78,6 @@ namespace web::websocket::server {
                 }
             } else {
                 res.status(500).end(); // Internal Server Error
-                subProtocolFactory->destroy();
             }
         } else {
             res.status(404).end(); // Not Found

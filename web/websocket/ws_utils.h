@@ -31,6 +31,10 @@ namespace web::websocket {
     unsigned char* decode64(const char* input, int length);
     char* base64(const unsigned char* input, int length);
     void serverWebSocketKey(const std::string& clientWebSocketKey, const std::function<void(char*)>& returnKey);
+    std::string serverWebSocketKey(const std::string& clientWebSocketKey);
+
+    std::string base64_encode(const unsigned char*, int len);
+    std::string base64_decode(const std::string& s);
 
 } // namespace web::websocket
 

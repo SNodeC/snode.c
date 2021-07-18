@@ -43,6 +43,23 @@ namespace web::websocket {
         }
     }
 
+    SubProtocolFactory* SubProtocolFactorySelector::select(const std::string& subProtocolName) {
+        SubProtocolFactory* subProtocolFactory = nullptr;
+
+        if (subProtocolPlugins.contains(subProtocolName)) {
+            subProtocolFactory = subProtocolPlugins[subProtocolName].subProtocolFactory;
+        } else {
+            for (const std::string& searchPath : searchPaths) {
+                subProtocolFactory = load(searchPath + "/lib" + subProtocolName + ".so");
+                if (subProtocolFactory != nullptr) {
+                    break;
+                }
+            }
+        }
+
+        return subProtocolFactory;
+    }
+
     SubProtocolFactory* SubProtocolFactorySelector::load(const std::string& filePath) {
         SubProtocolFactory* subProtocolFactory = nullptr;
 
@@ -70,6 +87,15 @@ namespace web::websocket {
         return subProtocolFactory;
     }
 
+    void SubProtocolFactorySelector::unload() {
+        for (const auto& [name, subProtocolPlugin] : subProtocolPlugins) {
+            subProtocolPlugin.subProtocolFactory->destroy();
+            if (subProtocolPlugin.handle != nullptr) {
+                dlclose(subProtocolPlugin.handle);
+            }
+        }
+    }
+
     void SubProtocolFactorySelector::add(SubProtocolFactory* subProtocolFactory, void* handle) {
         SubProtocolPlugin subProtocolPlugin = {.subProtocolFactory = subProtocolFactory, .handle = handle};
 
@@ -83,43 +109,19 @@ namespace web::websocket {
                         dlclose(handle);
                     }
                 }
-            } else if (handle != nullptr) {
+            } else {
                 subProtocolFactory->destroy();
-                dlclose(handle);
+                if (handle != nullptr) {
+                    dlclose(handle);
+                }
             }
         } else if (handle != nullptr) {
             dlclose(handle);
         }
     }
 
-    void SubProtocolFactorySelector::unload() {
-        for (const auto& [name, subProtocolPlugin] : subProtocolPlugins) {
-            subProtocolPlugin.subProtocolFactory->destroy();
-            if (subProtocolPlugin.handle != nullptr) {
-                dlclose(subProtocolPlugin.handle);
-            }
-        }
-    }
-
     void SubProtocolFactorySelector::addSubProtocolSearchPath(const std::string& searchPath) {
         searchPaths.push_back(searchPath);
-    }
-
-    SubProtocolFactory* SubProtocolFactorySelector::select(const std::string& subProtocolName) {
-        SubProtocolFactory* subProtocolFactory = nullptr;
-
-        if (subProtocolPlugins.contains(subProtocolName)) {
-            subProtocolFactory = subProtocolPlugins[subProtocolName].subProtocolFactory;
-        } else {
-            for (const std::string& searchPath : searchPaths) {
-                subProtocolFactory = load(searchPath + "/lib" + subProtocolName + ".so");
-                if (subProtocolFactory != nullptr) {
-                    break;
-                }
-            }
-        }
-
-        return subProtocolFactory;
     }
 
 } // namespace web::websocket
