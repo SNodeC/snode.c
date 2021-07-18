@@ -4,8 +4,6 @@ var ws_hostname = null;
 var ws_port     = null;
 var ws_endpoint = null;
 
-alert("You are on " + location.hostname);
-
 window.onload = function() {
     document.getElementById("hostname").value = location.hostname;
 }
