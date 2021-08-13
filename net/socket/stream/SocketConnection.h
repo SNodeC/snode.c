@@ -48,10 +48,10 @@ namespace net::socket::stream {
         virtual std::string getLocalAddressAsString() const = 0;
         virtual std::string getRemoteAddressAsString() const = 0;
 
-        virtual void enqueue(const char* junk, std::size_t junkLen) = 0;
-        virtual void enqueue(const std::string& data) = 0;
+        virtual void sendToPeer(const char* junk, std::size_t junkLen) = 0;
+        virtual void sendToPeer(const std::string& data) = 0;
 
-        virtual std::size_t doRead(char* junk, std::size_t junkLen) = 0;
+        virtual std::size_t readFromPeer(char* junk, std::size_t junkLen) = 0;
 
         virtual void close() = 0;
 

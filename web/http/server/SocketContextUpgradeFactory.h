@@ -36,26 +36,22 @@ namespace web::http::server {
 
     class SocketContextUpgradeFactory : public net::socket::stream::SocketContextFactory {
     protected:
+        SocketContextUpgradeFactory() = default;
         virtual ~SocketContextUpgradeFactory() = default;
 
     public:
         enum class Role { CLIENT, SERVER };
 
-        void prepare(web::http::server::Request& request, web::http::server::Response& response) {
-            this->request = &request;
-            this->response = &response;
-        }
+        void prepare(Request& request, Response& response);
 
         virtual std::string name() = 0;
         virtual Role role() = 0;
 
-        void destroy() {
-            delete this;
-        }
+        void destroy();
 
     protected:
-        web::http::server::Request* request;
-        web::http::server::Response* response;
+        Request* request;
+        Response* response;
     };
 
 } // namespace web::http::server

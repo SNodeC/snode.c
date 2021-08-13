@@ -4,7 +4,7 @@
 #include "log/Logger.h"
 #include "net/SNodeC.h"
 #include "net/timer/IntervalTimer.h"
-#include "web/ws/server/SocketContext.h"
+#include "web/websocket/server/SocketContext.h"
 
 #include <cstddef>
 #include <endian.h>

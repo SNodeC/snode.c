@@ -27,6 +27,7 @@ namespace web::http::server {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <list>
 #include <map>
 #include <string>
 
@@ -35,34 +36,32 @@ namespace web::http::server {
 namespace web::http::server {
 
     struct SocketContextPlugin {
-        web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory;
+        SocketContextUpgradeFactory* socketContextUpgradeFactory;
         void* handle = nullptr;
     };
 
     class SocketContextUpgradeFactorySelector {
     private:
-        SocketContextUpgradeFactorySelector() = default;
+        SocketContextUpgradeFactorySelector();
         ~SocketContextUpgradeFactorySelector() = default;
 
     public:
         static SocketContextUpgradeFactorySelector* instance();
+        void destroy();
 
-        web::http::server::SocketContextUpgradeFactory* selectSocketContextUpgradeFactory(web::http::server::Request& req,
-                                                                                          web::http::server::Response& res);
+        SocketContextUpgradeFactory* select(Request& req, Response& res);
 
-        void unloadSocketContexts();
-
-        bool registerSocketContextUpgradeFactory(web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory);
+        bool add(web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory);
 
     protected:
-        web::http::server::SocketContextUpgradeFactory* loadSocketContext(const std::string& socketContextName);
+        web::http::server::SocketContextUpgradeFactory* load(const std::string& socketContextName);
 
-        bool registerSocketContextUpgradeFactory(web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory,
-                                                 void* handler);
+        bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handler);
 
         std::map<std::string, SocketContextPlugin> socketContextUpgradePlugins;
+        std::list<std::string> searchPaths;
 
-    public:
+    private:
         static SocketContextUpgradeFactorySelector* socketContextUpgradeFactorySelector;
     };
 

@@ -28,7 +28,7 @@
 namespace net {
 
     class TimerEventReceiver {
-    protected:
+    private:
         virtual struct timeval& timeout() = 0;
         virtual bool dispatch() = 0;
         virtual void destroy() = 0;

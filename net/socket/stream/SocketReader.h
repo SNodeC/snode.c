@@ -60,7 +60,7 @@ namespace net::socket::stream {
         virtual ssize_t read(char* junk, std::size_t junkLen) = 0;
 
     protected:
-        std::size_t doRead(char* junk, std::size_t junkLen) {
+        std::size_t readFromPeer(char* junk, std::size_t junkLen) {
             if (markShutdown) {
                 Socket::shutdown(Socket::shutdown::RD);
                 markShutdown = false;

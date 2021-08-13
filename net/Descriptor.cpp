@@ -26,9 +26,9 @@
 
 namespace net {
 
-    Descriptor::Descriptor(int fd, enum Descriptor::FLAGS flags) {
-        this->fd = fd;
-        this->flags = flags;
+    Descriptor::Descriptor(int fd, enum Descriptor::FLAGS flags)
+        : flags(flags)
+        , fd(fd) {
     }
 
     Descriptor::~Descriptor() {

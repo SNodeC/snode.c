@@ -32,7 +32,7 @@ namespace net::socket::stream {
     }
 
     void SocketContext::sendToPeer(const char* junk, std::size_t junkLen) {
-        socketConnection->enqueue(junk, junkLen);
+        socketConnection->sendToPeer(junk, junkLen);
     }
 
     void SocketContext::sendToPeer(const std::string& data) {
@@ -40,7 +40,7 @@ namespace net::socket::stream {
     }
 
     std::size_t SocketContext::readFromPeer(char* junk, std::size_t junklen) {
-        return socketConnection->doRead(junk, junklen);
+        return socketConnection->readFromPeer(junk, junklen);
     }
 
     std::string SocketContext::getLocalAddressAsString() const {
@@ -71,11 +71,11 @@ namespace net::socket::stream {
         socketConnection->setTimeout(timeout);
     }
 
-    void SocketContext::onProtocolConnected() {
+    void SocketContext::onConnected() {
         VLOG(0) << "Protocol connected";
     }
 
-    void SocketContext::onProtocolDisconnected() {
+    void SocketContext::onDisconnected() {
         VLOG(0) << "Protocol disconnecteded";
     }
 

@@ -19,7 +19,7 @@
 #ifndef NET_TIMER_INTERVALTIMER_H
 #define NET_TIMER_INTERVALTIMER_H
 
-#include "net/timer/Timer.h"
+#include "net/timer/Timer.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

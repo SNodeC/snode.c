@@ -33,9 +33,8 @@ namespace net {
     protected:
         WriteEventReceiver(long timeout = MAX_WRITE_INACTIVITY);
 
-        virtual void writeEvent() = 0;
-
     private:
+        virtual void writeEvent() = 0;
         void dispatchEvent() override;
     };
 

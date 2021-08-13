@@ -109,7 +109,7 @@ int main(int argc, char* argv[]) {
                 request.url = "/index.html";
                 request.end();
             },
-            [](Response& response) -> void {
+            []([[maybe_unused]] Request& request, Response& response) -> void {
                 VLOG(0) << "-- OnResponse";
                 VLOG(0) << "     Status:";
                 VLOG(0) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;

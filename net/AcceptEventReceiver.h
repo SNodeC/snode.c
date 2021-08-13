@@ -35,9 +35,8 @@ namespace net {
     protected:
         AcceptEventReceiver(long timeout = MAX_ACCEPT_INACTIVITY);
 
-        virtual void acceptEvent() = 0;
-
     private:
+        virtual void acceptEvent() = 0;
         void dispatchEvent() override;
     };
 

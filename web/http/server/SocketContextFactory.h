@@ -45,7 +45,7 @@ namespace web::http::server {
         ~SocketContextFactory() {
             useCount--;
             if (useCount == 0) {
-                SocketContextUpgradeFactorySelector::instance()->unloadSocketContexts();
+                SocketContextUpgradeFactorySelector::instance()->destroy();
             }
         }
 

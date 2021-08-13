@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
                 request.url = "/index.html";
                 request.end();
             },
-            [](const Response& response) -> void {
+            []([[maybe_unused]] const Request& request, const Response& response) -> void {
                 VLOG(0) << "-- OnResponse";
                 VLOG(0) << "     Status:";
                 VLOG(0) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
@@ -162,7 +162,7 @@ int main(int argc, char* argv[]) {
                 request.url = "/index.html";
                 request.end();
             },
-            [](const Response& response) -> void {
+            []([[maybe_unused]] const Request& request, const Response& response) -> void {
                 VLOG(0) << "-- OnResponse";
                 VLOG(0) << "     Status:";
                 VLOG(0) << "       " << response.httpVersion;

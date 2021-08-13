@@ -1,5 +1,12 @@
 cmake_minimum_required(VERSION 3.0)
 
+set(SOCKETCONTEXTUPGRADE_SERVER_LIBDIR
+    ${CMAKE_CURRENT_BINARY_DIR}
+    CACHE INTERNAL "SOCKETCONTEXTUPGRADE_SERVER_LIBDIR"
+)
+
+configure_file(config.h.in config.h @ONLY)
+
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 find_package(LibMagic REQUIRED)
@@ -17,6 +24,7 @@ add_library(
     server/RequestParser.cpp
     server/Request.cpp
     server/Response.cpp
+    server/SocketContextUpgradeFactory.cpp
     server/SocketContextUpgradeFactorySelector.cpp
 )
 
@@ -33,7 +41,8 @@ set_target_properties(
 )
 
 target_include_directories(
-    web PUBLIC ${PROJECT_SOURCE_DIR} ${LIBMAGIC_INCLUDES}
+    web PUBLIC ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
+               ${LIBMAGIC_INCLUDES}
 )
 
 install(TARGETS web LIBRARY DESTINATION lib NAMELINK_COMPONENT libweb.so.1)

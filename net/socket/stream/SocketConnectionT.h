@@ -69,11 +69,11 @@ namespace net::socket::stream {
             SocketReader::enable(fd);
             SocketWriter::enable(fd);
             onConnect(localAddress, remoteAddress);
-            socketContext->onProtocolConnected();
+            socketContext->onConnected();
         }
 
         virtual ~SocketConnectionT() {
-            socketContext->onProtocolDisconnected();
+            socketContext->onDisconnected();
             onDisconnect();
             delete socketContext;
         }
@@ -100,16 +100,16 @@ namespace net::socket::stream {
             return remoteAddress.toString();
         }
 
-        void enqueue(const char* junk, std::size_t junkLen) override {
-            SocketWriter::enqueue(junk, junkLen);
+        void sendToPeer(const char* junk, std::size_t junkLen) override {
+            SocketWriter::sendToPeer(junk, junkLen);
         }
 
-        void enqueue(const std::string& data) override {
-            enqueue(data.data(), data.size());
+        void sendToPeer(const std::string& data) override {
+            sendToPeer(data.data(), data.size());
         }
 
-        std::size_t doRead(char* junk, std::size_t junkLen) override {
-            return SocketReader::doRead(junk, junkLen);
+        std::size_t readFromPeer(char* junk, std::size_t junkLen) override {
+            return SocketReader::readFromPeer(junk, junkLen);
         }
 
         void close() final {
@@ -126,9 +126,9 @@ namespace net::socket::stream {
             SocketContext* newSocketContext = socketContextFactory.create(this);
 
             if (newSocketContext != nullptr) {
-                socketContext->onProtocolDisconnected();
+                socketContext->onDisconnected();
                 socketContext = newSocketContext;
-                socketContext->onProtocolConnected();
+                socketContext->onConnected();
             } else {
                 VLOG(0) << "Switch socket context unsuccessull: new socket context not created";
             }

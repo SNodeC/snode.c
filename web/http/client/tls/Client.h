@@ -38,7 +38,7 @@ namespace web::http::client::tls {
     Client(const std::function<void(const tls::Client<>::SocketAddress&, const tls::Client<>::SocketAddress&)>& onConnect,
            const std::function<void(tls::Client<>::SocketConnection*)>& onConnected,
            const std::function<void(Request&)>& onRequestBegin,
-           const std::function<void(Response&)>& onResponse,
+           const std::function<void(Request&, Response&)>& onResponse,
            const std::function<void(int, const std::string&)>& onResponseError,
            const std::function<void(tls::Client<>::SocketConnection*)>& onDisconnect,
            const std::map<std::string, std::any>& options = {{}})
@@ -53,7 +53,7 @@ namespace web::http::client::tls {
     Client6(const std::function<void(const tls::Client6<>::SocketAddress&, const tls::Client6<>::SocketAddress&)>& onConnect,
             const std::function<void(tls::Client6<>::SocketConnection*)>& onConnected,
             const std::function<void(Request&)>& onRequestBegin,
-            const std::function<void(Response&)>& onResponse,
+            const std::function<void(Request&, Response&)>& onResponse,
             const std::function<void(int, const std::string&)>& onResponseError,
             const std::function<void(tls::Client6<>::SocketConnection*)>& onDisconnect,
             const std::map<std::string, std::any>& options = {{}})

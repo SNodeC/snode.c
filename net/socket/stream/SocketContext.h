@@ -56,8 +56,8 @@ namespace net::socket::stream {
         virtual void onWriteError(int errnum) = 0;
         virtual void onReadError(int errnum) = 0;
 
-        virtual void onProtocolConnected();
-        virtual void onProtocolDisconnected();
+        virtual void onConnected();
+        virtual void onDisconnected();
 
     private:
         void receiveFromPeer();

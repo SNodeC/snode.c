@@ -18,15 +18,16 @@
 
 #include "SocketContextUpgradeFactorySelector.h"
 
+#include "config.h"
 #include "log/Logger.h"
 #include "web/http/http_utils.h"
 #include "web/http/server/Request.h"
 #include "web/http/server/Response.h"
 #include "web/http/server/SocketContextUpgradeFactory.h"
-#include "web/http/server/SocketContextUpgradeInterface.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cxxabi.h>
 #include <dlfcn.h>
 #include <type_traits> // for add_const<>::type
 
@@ -36,6 +37,18 @@ namespace web::http::server {
 
     SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector = nullptr;
 
+    SocketContextUpgradeFactorySelector::SocketContextUpgradeFactorySelector() {
+#ifndef NDEBUG
+#ifdef UPGRADECONTEXT_SERVER_COMPILE_PATH
+
+        searchPaths.push_back(UPGRADECONTEXT_SERVER_COMPILE_PATH);
+
+#endif // UPGRADECONTEXT_SERVER_COMPILE_PATH
+#endif // NDEBUG
+
+        searchPaths.push_back(UPGRADECONTEXT_SERVER_INSTALL_PATH);
+    }
+
     SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::instance() {
         if (socketContextUpgradeFactorySelector == nullptr) {
             socketContextUpgradeFactorySelector = new SocketContextUpgradeFactorySelector();
@@ -44,83 +57,7 @@ namespace web::http::server {
         return socketContextUpgradeFactorySelector;
     }
 
-    web::http::server::SocketContextUpgradeFactory*
-    SocketContextUpgradeFactorySelector::selectSocketContextUpgradeFactory(web::http::server::Request& req,
-                                                                           web::http::server::Response& res) {
-        web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
-
-        std::string upgradeContextNames = req.header("upgrade");
-
-        while (!upgradeContextNames.empty() && socketContextUpgradeFactory == nullptr) {
-            std::string upgradeContextName;
-            std::string upgradeContextPriority;
-
-            std::tie(upgradeContextName, upgradeContextNames) = httputils::str_split(upgradeContextNames, ',');
-            std::tie(upgradeContextName, upgradeContextPriority) = httputils::str_split(upgradeContextName, '/');
-            httputils::to_lower(upgradeContextName);
-
-            if (socketContextUpgradePlugins.contains(upgradeContextName)) {
-                socketContextUpgradeFactory = socketContextUpgradePlugins[upgradeContextName].socketContextUpgradeFactory;
-            } else {
-                socketContextUpgradeFactory = loadSocketContext(upgradeContextName);
-            }
-        }
-
-        if (socketContextUpgradeFactory != nullptr) {
-            socketContextUpgradeFactory->prepare(req, res);
-        }
-
-        return socketContextUpgradeFactory;
-    }
-
-    web::http::server::SocketContextUpgradeFactory*
-    SocketContextUpgradeFactorySelector::loadSocketContext(const std::string& socketContextName) {
-        web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
-
-        std::string socketContextLibraryPath = "/usr/local/lib/snode.c/web/ws/lib" + socketContextName + ".so";
-
-        void* handle = dlopen(socketContextLibraryPath.c_str(), RTLD_LAZY | RTLD_GLOBAL);
-
-        if (handle != nullptr) {
-            SocketContextUpgradeInterface* (*plugin)() = reinterpret_cast<SocketContextUpgradeInterface* (*) ()>(dlsym(handle, "plugin"));
-
-            // Only allow signed plugins? Architecture for x509-certs for plugins?
-
-            if (plugin != nullptr) {
-                SocketContextUpgradeInterface* socketContextUpgradeInterface = plugin();
-
-                if (socketContextUpgradeInterface != nullptr) {
-                    socketContextUpgradeFactory = socketContextUpgradeInterface->create();
-                    delete socketContextUpgradeInterface;
-
-                    if (socketContextUpgradeFactory != nullptr) {
-                        if (SocketContextUpgradeFactorySelector::instance()->registerSocketContextUpgradeFactory(
-                                socketContextUpgradeFactory, handle)) {
-                            VLOG(0) << "UpgradeSocketContext loaded successfully: " << socketContextName;
-                        } else {
-                            socketContextUpgradeFactory->destroy();
-                            socketContextUpgradeFactory = nullptr;
-                            dlclose(handle);
-                            VLOG(0) << "UpgradeSocketContext already existing. Not using: " << socketContextName;
-                        }
-                    } else {
-                        dlclose(handle);
-                        VLOG(0) << "SocketContextUpgradeFactorySelector not created (maybe to little memory?): "
-                                << socketContextLibraryPath;
-                    }
-                } else {
-                    dlclose(handle);
-                    VLOG(0) << "SocketContextUpgradeInterface not created (maybe to little memory?): " << socketContextLibraryPath;
-                }
-            } else {
-                VLOG(0) << "Not a Plugin \"" << socketContextLibraryPath;
-            }
-        }
-
-        return socketContextUpgradeFactory;
-    }
-
-    void SocketContextUpgradeFactorySelector::unloadSocketContexts() {
+    void SocketContextUpgradeFactorySelector::destroy() {
         for (const auto& [name, socketContextPlugin] : socketContextUpgradePlugins) {
             socketContextPlugin.socketContextUpgradeFactory->destroy();
             if (socketContextPlugin.handle != nullptr) {
@@ -131,13 +68,86 @@ namespace web::http::server {
         delete this;
     }
 
-    bool SocketContextUpgradeFactorySelector::registerSocketContextUpgradeFactory(
-        web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory) {
-        return registerSocketContextUpgradeFactory(socketContextUpgradeFactory, nullptr);
+    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(Request& req, Response& res) {
+        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
+
+        std::string upgradeContextNames = req.header("upgrade");
+
+        if (!upgradeContextNames.empty()) {
+            std::string upgradeContextName;
+            std::string upgradeContextPriority;
+
+            std::tie(upgradeContextName, upgradeContextNames) = httputils::str_split(upgradeContextNames, ',');
+            std::tie(upgradeContextName, upgradeContextPriority) = httputils::str_split(upgradeContextName, '/');
+            httputils::to_lower(upgradeContextName);
+
+            if (socketContextUpgradePlugins.contains(upgradeContextName)) {
+                socketContextUpgradeFactory = socketContextUpgradePlugins[upgradeContextName].socketContextUpgradeFactory;
+            } else {
+                for (const std::string& searchPath : searchPaths) {
+                    socketContextUpgradeFactory = load(searchPath + "/lib" + upgradeContextName + ".so");
+
+                    if (socketContextUpgradeFactory != nullptr) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (socketContextUpgradeFactory != nullptr) {
+            socketContextUpgradeFactory->prepare(req, res);
+        }
+
+        return socketContextUpgradeFactory;
     }
 
-    bool SocketContextUpgradeFactorySelector::registerSocketContextUpgradeFactory(
-        web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handle) {
+    // Only allow signed plugins? Architecture for x509-certs for plugins?
+    /*
+                const std::type_info& pluginTypeId = typeid(plugin());
+                const std::type_info& expectedTypeId = typeid(SocketContextUpgradeFactory*);
+                std::string pluginType = abi::__cxa_demangle(pluginTypeId.name(), 0, 0, &status);
+                std::string expectedType = abi::__cxa_demangle(expectedTypeId.name(), 0, 0, &status);
+    */
+    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::load(const std::string& filePath) {
+        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
+
+        void* handle = dlopen(filePath.c_str(), RTLD_LAZY | RTLD_LOCAL);
+
+        if (handle != nullptr) {
+            SocketContextUpgradeFactory* (*plugin)() = reinterpret_cast<SocketContextUpgradeFactory* (*) ()>(dlsym(handle, "plugin"));
+
+            if (plugin != nullptr) {
+                socketContextUpgradeFactory = plugin();
+
+                if (socketContextUpgradeFactory != nullptr) {
+                    if (SocketContextUpgradeFactorySelector::instance()->add(socketContextUpgradeFactory, handle)) {
+                        VLOG(0) << "UpgradeSocketContext loaded successfully: " << filePath;
+                    } else {
+                        socketContextUpgradeFactory->destroy();
+                        socketContextUpgradeFactory = nullptr;
+                        dlclose(handle);
+                        VLOG(0) << "UpgradeSocketContext already existing. Not using: " << filePath;
+                    }
+                } else {
+                    dlclose(handle);
+                    VLOG(0) << "SocketContextUpgradeFactory not created: " << filePath;
+                }
+            } else {
+                dlclose(handle);
+                VLOG(0) << "Not a Plugin \"" << filePath;
+            }
+        } else {
+            VLOG(0) << "Error dlopen: " << dlerror();
+        }
+
+        return socketContextUpgradeFactory;
+    }
+
+    bool SocketContextUpgradeFactorySelector::add(SocketContextUpgradeFactory* socketContextUpgradeFactory) {
+        return add(socketContextUpgradeFactory, nullptr);
+    }
+
+    bool SocketContextUpgradeFactorySelector::add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handle) {
         bool success = false;
 
         if (socketContextUpgradeFactory != nullptr) {

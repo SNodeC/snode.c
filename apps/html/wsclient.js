@@ -3,6 +3,11 @@ var ws_protocol = null;
 var ws_hostname = null;
 var ws_port     = null;
 var ws_endpoint = null;
+
+window.onload = function() {
+    document.getElementById("hostname").value = location.hostname;
+}
+
 /**
  * Event handler for clicking on button "Connect"
  */

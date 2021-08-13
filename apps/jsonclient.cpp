@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
             request.type("application/json");
             request.send("{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}");
         },
-        [](const web::http::client::Response& response) -> void {
+        []([[maybe_unused]] const web::http::client::Request& request, const web::http::client::Response& response) -> void {
             VLOG(0) << "-- OnResponse";
             VLOG(0) << "     Status:";
             VLOG(0) << "       " << response.httpVersion;

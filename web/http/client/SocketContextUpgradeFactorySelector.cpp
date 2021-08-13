@@ -116,4 +116,4 @@ namespace web::http::client {
         return socketContextUpgradeFactory;
     }
 
-} // namespace web::http::server
+} // namespace web::http::client

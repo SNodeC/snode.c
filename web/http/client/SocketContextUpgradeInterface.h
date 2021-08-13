@@ -33,14 +33,12 @@ namespace web::http::client {
 
 namespace web::http::client {
 
-    extern "C" {
-        class SocketContextUpgradeInterface {
-        public:
-            virtual ~SocketContextUpgradeInterface() = default;
+    class SocketContextUpgradeInterface {
+    public:
+        virtual ~SocketContextUpgradeInterface() = default;
 
-            virtual web::http::client::SocketContextUpgradeFactory* create() = 0;
-        };
-    }
+        virtual web::http::client::SocketContextUpgradeFactory* create() = 0;
+    };
 
 } // namespace web::http::client
 

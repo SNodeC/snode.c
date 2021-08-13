@@ -149,7 +149,7 @@ namespace web::http::server {
     void Response::upgrade(Request& req) {
         if (httputils::ci_contains(req.header("connection"), "Upgrade")) {
             web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory =
-                web::http::server::SocketContextUpgradeFactorySelector::instance()->selectSocketContextUpgradeFactory(req, *this);
+                web::http::server::SocketContextUpgradeFactorySelector::instance()->select(req, *this);
 
             if (socketContextUpgradeFactory != nullptr) {
                 serverContext->switchSocketContext(*socketContextUpgradeFactory);

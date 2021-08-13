@@ -22,8 +22,8 @@
 #include "express/legacy/WebApp.h"
 #include "net/timer/IntervalTimer.h"
 #include "net/timer/SingleshotTimer.h"
-#include "web/ws/SubProtocol.h"
-#include "web/ws/server/SocketContext.h"
+#include "web/websocket/SubProtocol.h"
+#include "web/websocket/server/SocketContext.h"
 
 #include <cstring>
 #include <iostream>
