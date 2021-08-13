@@ -100,16 +100,16 @@ namespace net::socket::stream {
             return remoteAddress.toString();
         }
 
-        void enqueue(const char* junk, std::size_t junkLen) override {
-            SocketWriter::enqueue(junk, junkLen);
+        void sendToPeer(const char* junk, std::size_t junkLen) override {
+            SocketWriter::sendToPeer(junk, junkLen);
         }
 
-        void enqueue(const std::string& data) override {
-            enqueue(data.data(), data.size());
+        void sendToPeer(const std::string& data) override {
+            sendToPeer(data.data(), data.size());
         }
 
-        std::size_t doRead(char* junk, std::size_t junkLen) override {
-            return SocketReader::doRead(junk, junkLen);
+        std::size_t readFromPeer(char* junk, std::size_t junkLen) override {
+            return SocketReader::readFromPeer(junk, junkLen);
         }
 
         void close() final {

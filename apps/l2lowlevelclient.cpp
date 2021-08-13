@@ -83,7 +83,7 @@ SocketClient<SimpleSocketProtocolFactory> getClient() {
         [](SocketClient<SimpleSocketProtocolFactory>::SocketConnection* socketConnection) -> void { // onConnected
             VLOG(0) << "OnConnected";
 
-            socketConnection->enqueue("Hello rfcomm connection!");
+            socketConnection->sendToPeer("Hello rfcomm connection!");
         },
         [](SocketClient<SimpleSocketProtocolFactory>::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";

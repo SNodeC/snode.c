@@ -135,7 +135,7 @@ SocketClient<SimpleSocketProtocolFactory> getClient() {
                 VLOG(0) << "     Server certificate: no certificate";
             }
 
-            socketConnection->enqueue("Hello rfcomm connection!");
+            socketConnection->sendToPeer("Hello rfcomm connection!");
         },
         [](SocketClient<SimpleSocketProtocolFactory>::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";

@@ -33,9 +33,8 @@ namespace net {
     protected:
         ReadEventReceiver(long timeout = MAX_READ_INACTIVITY);
 
-        virtual void readEvent() = 0;
-
     private:
+        virtual void readEvent() = 0;
         void dispatchEvent() override;
     };
 

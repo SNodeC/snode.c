@@ -33,9 +33,8 @@ namespace net {
     protected:
         ConnectEventReceiver(long timeout = MAX_CONNECT_INACTIVITY);
 
-        virtual void connectEvent() = 0;
-
     private:
+        virtual void connectEvent() = 0;
         void dispatchEvent() override;
     };
 

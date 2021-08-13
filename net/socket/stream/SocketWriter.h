@@ -53,7 +53,7 @@ namespace net::socket::stream {
 
         virtual ~SocketWriter() = default;
 
-        void enqueue(const char* junk, std::size_t junkLen) {
+        void sendToPeer(const char* junk, std::size_t junkLen) {
             writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
 
             if (WriteEventReceiver::isSuspended()) {
