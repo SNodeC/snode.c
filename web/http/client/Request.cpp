@@ -68,7 +68,7 @@ namespace web::http::client {
         }
 
         if (field == "Content-Length") {
-            contentLength = std::stol(value);
+            contentLength = std::stoul(value);
         } else if (field == "Connection" && httputils::ci_contains(value, "close")) {
             connectionState = ConnectionState::Close;
         } else if (field == "Connection" && httputils::ci_contains(value, "keep-alive")) {
