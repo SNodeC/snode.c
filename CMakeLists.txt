@@ -36,7 +36,15 @@ foreach(i ${CMAKE_CXX_COMPILE_FEATURES})
     message("${i}")
 endforeach()
 
-add_compile_options(-Werror -Wall -Wextra -Wno-psabi -Wconversion -pedantic-errors -fexec-charset=UTF-8)
+add_compile_options(
+    -Werror
+    -Wall
+    -Wextra
+    -Wno-psabi
+    -Wconversion
+    -pedantic-errors
+    -fexec-charset=UTF-8
+)
 
 option(CXX_INSTRUMENT_METHODS "Instrument methods and functions")
 mark_as_advanced(FORCE CXX_INSTRUMENT_METHODS)

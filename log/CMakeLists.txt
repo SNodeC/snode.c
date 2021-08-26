@@ -44,7 +44,8 @@ set_target_properties(
 )
 
 target_compile_options(
-    logger PRIVATE --warn-all -Wno-unused-parameter -Wno-conversion -Wno-range-loop-construct
+    logger PRIVATE --warn-all -Wno-unused-parameter -Wno-conversion
+                   -Wno-range-loop-construct
 )
 
 target_compile_definitions(
