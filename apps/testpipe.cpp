@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
 
     net::pipe::Pipe pipe(
         []([[maybe_unused]] net::pipe::PipeSource& pipeSource, [[maybe_unused]] net::pipe::PipeSink& pipeSink) -> void {
-            pipeSink.setOnData([&pipeSource, &pipeSink](const char* junk, std::size_t junkLen) -> void {
+            pipeSink.setOnData([&pipeSource](const char* junk, std::size_t junkLen) -> void {
                 std::string string(junk, junkLen);
                 VLOG(0) << "Pipe Data: " << string;
                 pipeSource.send(junk, junkLen);

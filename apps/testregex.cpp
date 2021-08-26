@@ -182,11 +182,11 @@ int main(int argc, char* argv[]) {
                 if (generalName->type == GEN_URI) {
                     std::string subjectAltName =
                         std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
-                                    ASN1_STRING_length(generalName->d.uniformResourceIdentifier));
+                                    static_cast<std::size_t>(ASN1_STRING_length(generalName->d.uniformResourceIdentifier)));
                     VLOG(0) << "\t      SAN (URI): '" + subjectAltName;
                 } else if (generalName->type == GEN_DNS) {
                     std::string subjectAltName = std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
-                                                             ASN1_STRING_length(generalName->d.dNSName));
+                                                             static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
                     VLOG(0) << "\t      SAN (DNS): '" + subjectAltName;
                 } else {
                     VLOG(0) << "\t      SAN (Type): '" + std::to_string(generalName->type);
