@@ -39,7 +39,7 @@ namespace net::socket::stream::tls {
 #define SSL_VERIFY_FLAGS (SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE)
 
     static int password_callback(char* buf, int size, int, void* u) {
-        strncpy(buf, static_cast<char*>(u), size);
+        strncpy(buf, static_cast<char*>(u), static_cast<std::size_t>(size));
         buf[size - 1] = '\0';
 
         memset(u, 0, ::strlen(static_cast<char*>(u))); // garble password
