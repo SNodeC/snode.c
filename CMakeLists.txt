@@ -36,15 +36,13 @@ foreach(i ${CMAKE_CXX_COMPILE_FEATURES})
     message("${i}")
 endforeach()
 
-set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -Wno-psabi -Wconversion -pedantic-errors"
-)
+add_compile_options(-Werror -Wall -Wextra -Wno-psabi -Wconversion -pedantic-errors -fexec-charset=UTF-8)
 
 option(CXX_INSTRUMENT_METHODS "Instrument methods and functions")
 mark_as_advanced(FORCE CXX_INSTRUMENT_METHODS)
 
 if(CXX_INSTRUMENT_METHODS)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -finstrument-functions")
+    add_compile_options(-finstrument-functions)
 endif(CXX_INSTRUMENT_METHODS)
 
 find_program(iwyu_path NAMES include-what-you-use iwyu)
@@ -55,7 +53,6 @@ endif()
 option(CHECK_INCLUDES "Check used headers")
 
 set(iwyu_path_and_options ${iwyu_path} -Xiwyu --verbose=1 --cxx17ns)
-add_compile_options(-fexec-charset=UTF-8)
 
 add_subdirectory(net)
 add_subdirectory(web)
