@@ -30,8 +30,6 @@ add_library(
 
 target_link_libraries(web LINK_PUBLIC net ${LIBMAGIC_LIBRARIES})
 
-target_compile_options(web PRIVATE --warn-all)
-
 set_target_properties(
     web
     PROPERTIES CXX_STANDARD 20

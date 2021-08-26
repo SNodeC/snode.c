@@ -43,9 +43,10 @@ set_target_properties(
                SOVERSION 1
 )
 
-target_compile_options(
-    logger PRIVATE --warn-all -Wno-unused-parameter -Wno-conversion
-                   -Wno-range-loop-construct
+set_source_files_properties(
+    "${EASYLOGGINGPP_INCLUDE_DIR}/easylogging++.cc"
+    PROPERTIES COMPILE_FLAGS
+               "-Wno-unused-parameter -Wno-conversion -Wno-range-loop-construct"
 )
 
 target_compile_definitions(

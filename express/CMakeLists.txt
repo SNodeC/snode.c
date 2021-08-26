@@ -18,8 +18,6 @@ add_library(
 target_link_libraries(express LINK_PUBLIC utils logger net web)
 target_link_libraries(express PRIVATE nlohmann_json::nlohmann_json)
 
-target_compile_options(express PRIVATE --warn-all)
-
 set_target_properties(
     express
     PROPERTIES CXX_STANDARD 20
