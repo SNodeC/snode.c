@@ -22,6 +22,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <iterator> // for advance, distance
+#include <utility>  // for pair
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http::server {

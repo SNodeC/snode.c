@@ -19,13 +19,20 @@
 #ifndef WEB_WS_SERVER_SOCKTECONTEXT_H
 #define WEB_WS_SERVER_SOCKTECONTEXT_H
 
-#include "web/http/server/Request.h"
-#include "web/http/server/Response.h"
 #include "web/websocket/SocketContext.h"
 
-namespace web::websocket::server {
+namespace net::socket::stream {
+    class SocketConnection;
+} // namespace net::socket::stream
+
+namespace web::http::server {
+    class Request;
+    class Response;
+} // namespace web::http::server
+
+namespace web::websocket {
     class SubProtocol;
-} // namespace web::websocket::server
+} // namespace web::websocket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

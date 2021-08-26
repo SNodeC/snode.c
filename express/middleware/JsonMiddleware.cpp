@@ -21,11 +21,18 @@
 #include "express/middleware/JsonMiddleware.h"
 
 #include "express/Request.h"
-#include "express/Response.h"
+
+namespace express {
+    class Response;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <nlohmann/json.hpp>
+#include <initializer_list>               // for initializer_list
+#include <map>                            // for operator==
+#include <memory>                         // for shared_ptr, operator==
+#include <nlohmann/detail/exceptions.hpp> // for parse_error
+#include <vector>                         // for vector
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

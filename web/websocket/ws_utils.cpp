@@ -23,7 +23,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cctype>
-#include <cstddef> // for std::size_t
 #include <cstdlib>
 #include <openssl/evp.h>
 #include <openssl/sha.h>

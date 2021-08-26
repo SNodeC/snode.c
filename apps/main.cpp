@@ -18,15 +18,14 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h" // just for this example app
 #include "express/legacy/WebApp.h"
 #include "net/timer/IntervalTimer.h"
-#include "net/timer/SingleshotTimer.h"
-#include "web/websocket/SubProtocol.h"
-#include "web/websocket/server/SocketContext.h"
 
 #include <cstring>
+#include <functional> // for function
 #include <iostream>
+#include <stdio.h> // for perror
+#include <string>  // for string, allocator, operator<<
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

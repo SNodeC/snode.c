@@ -26,7 +26,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cerrno> // for errno, EACCES, ENOENT
 #include <filesystem>
+#include <map>          // for map
+#include <system_error> // for error_code
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

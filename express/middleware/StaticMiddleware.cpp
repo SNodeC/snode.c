@@ -25,6 +25,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <map>
+#include <memory> // for shared_ptr, __shared_ptr_access
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -40,7 +41,7 @@ namespace express::middleware {
                     res.set("Connection", "Keep-Alive");
                 }
                 res.set(stdHeaders);
-                for (const auto& [value, options] : stdCookies) {
+                for (auto& [value, options] : stdCookies) {
                     res.cookie(value, options.getValue(), options.getOptions());
                 }
                 next();

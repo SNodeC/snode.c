@@ -25,21 +25,11 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
+#include <cstddef> // for size_t
 #include <map>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-class FileReader;
-
-namespace net::socket::stream {
-    class SocketContext;
-}
-
-namespace web::websocket {
-    class SubProtocol;
-}
 
 namespace web::http::server {
 

@@ -20,11 +20,23 @@
 
 #include "config.h" // just for this example app
 #include "express/legacy/WebApp.h"
-#include "express/middleware/StaticMiddleware.h"
 #include "express/tls/WebApp.h"
 #include "log/Logger.h"
+#include "net/socket/ip/address/ipv4/InetAddress.h" // for InetAddress
 
+#include <any>                // for any
+#include <cstddef>            // for NULL, size_t
+#include <iostream>           // for operator<<, endl
+#include <map>                // for map
+#include <openssl/asn1.h>     // for ASN1_STRING_get0...
+#include <openssl/crypto.h>   // for OPENSSL_free
+#include <openssl/obj_mac.h>  // for NID_subject_alt_...
+#include <openssl/ossl_typ.h> // for X509
+#include <openssl/ssl3.h>     // for SSL_get_peer_cer...
+#include <openssl/x509.h>     // for X509_NAME_oneline
 #include <openssl/x509v3.h>
+#include <stdint.h> // for int32_t
+#include <string>   // for string, allocator
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

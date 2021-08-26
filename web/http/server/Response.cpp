@@ -29,8 +29,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <filesystem>
 #include <numeric>
+#include <utility> // for pair
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

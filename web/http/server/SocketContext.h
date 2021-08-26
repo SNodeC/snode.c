@@ -21,9 +21,7 @@
 
 #include "log/Logger.h"
 #include "net/socket/stream/SocketContext.h"
-#include "web/http/server/Request.h"
 #include "web/http/server/RequestParser.h"
-#include "web/http/server/Response.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

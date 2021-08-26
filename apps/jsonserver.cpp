@@ -22,10 +22,10 @@
 
 #include "express/legacy/WebApp.h"
 #include "express/middleware/JsonMiddleware.h"
-#include "express/middleware/StaticMiddleware.h"
 #include "log/Logger.h"
+#include "net/socket/ip/address/ipv4/InetAddress.h" // for InetAddress
 
-#include <nlohmann/json.hpp>
+#include <string> // for allocator, opera...
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

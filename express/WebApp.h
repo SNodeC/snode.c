@@ -19,7 +19,7 @@
 #ifndef EXPRESS_WEBAPP_H
 #define EXPRESS_WEBAPP_H
 
-#include "express/Router.h"
+#include "express/Router.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

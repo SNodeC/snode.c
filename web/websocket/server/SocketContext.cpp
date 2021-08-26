@@ -18,13 +18,23 @@
 
 #include "SocketContext.h"
 
-#include "log/Logger.h"
+#include "web/http/server/Request.h"   // for Request
+#include "web/http/server/Response.h"  // for Response
+#include "web/websocket/SubProtocol.h" // for SubProt...
+#include "web/websocket/Transmitter.h" // for Transmi...
 #include "web/websocket/server/SubProtocol.h"
 #include "web/websocket/server/SubProtocolFactory.h"
 #include "web/websocket/server/SubProtocolFactorySelector.h"
 #include "web/websocket/ws_utils.h"
 
+namespace net::socket::stream {
+    class SocketConnection;
+} // namespace net::socket::stream
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <memory> // for allocator
+#include <string> // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

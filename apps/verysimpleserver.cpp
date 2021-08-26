@@ -24,6 +24,9 @@
 #include "express/tls/WebApp.h"
 #include "log/Logger.h"
 
+#include <any>    // for any
+#include <string> // for string, operator<=>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 int main(int argc, char* argv[]) {

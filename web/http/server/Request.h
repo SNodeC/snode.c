@@ -24,6 +24,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef> // for size_t
+#include <map>     // for map
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

@@ -60,7 +60,7 @@ endif()
 
 option(CHECK_INCLUDES "Check used headers")
 
-set(iwyu_path_and_options ${iwyu_path} -Xiwyu --verbose=1 --cxx17ns)
+set(iwyu_path_and_options ${iwyu_path} -Xiwyu --verbose=1 -Xiwyu --cxx17ns -Xiwyu --quoted_includes_first -Xiwyu --check_also='${PROJECT_SOURCE_DIR}/*')
 
 add_subdirectory(net)
 add_subdirectory(web)

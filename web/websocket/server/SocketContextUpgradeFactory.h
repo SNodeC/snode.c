@@ -21,18 +21,18 @@
 
 #include "web/http/server/SocketContextUpgradeFactory.h"
 #include "web/websocket/server/SocketContext.h"
-#include "web/websocket/server/SubProtocolFactorySelector.h"
-
-namespace web::http::server {
-    class Request;
-    class Response;
-} // namespace web::http::server
 
 namespace web::websocket::server {
     class SubProtocolFactory;
 }
 
+namespace net::socket::stream {
+    class SocketConnection;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <string> // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

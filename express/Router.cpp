@@ -19,14 +19,16 @@
 #include "express/Router.h"
 
 #include "express/Request.h"
-#include "web/http/http_utils.h"
-#include "web/http/server/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <filesystem>
+#include <cstddef>            // for size_t
+#include <ext/alloc_traits.h> // for __alloc_traits<>::value_type
 #include <list>
+#include <map> // for map, map<>::mapped_type
 #include <regex>
+#include <sstream> // for basic_stringbuf<>::int_type, basic_ist...
+#include <utility> // for move
 #include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -39,11 +41,13 @@ namespace express {
 
     static const std::string path_concat(const std::vector<std::string>& stringvec) {
         std::string s;
+
         for (std::vector<std::string>::size_type i = 0; i < stringvec.size(); i++) {
             if (!stringvec[i].empty() && stringvec[i].front() != ' ') {
                 s += "\\/" + stringvec[i];
             }
         }
+
         return s;
     }
 

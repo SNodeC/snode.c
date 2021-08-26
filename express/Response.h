@@ -19,7 +19,11 @@
 #ifndef EXPRESS_RESPONSE_H
 #define EXPRESS_RESPONSE_H
 
-#include "web/http/server/Response.h"
+#include "web/http/server/Response.h" // IWYU pragma: export
+
+namespace web::http::server {
+    class SocketContext;
+} // namespace web::http::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

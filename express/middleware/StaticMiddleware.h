@@ -24,6 +24,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <map>    // for map
+#include <string> // for string, operator<=>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express::middleware {

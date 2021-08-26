@@ -19,9 +19,11 @@
 #include "SocketContextUpgradeFactory.h"
 
 #include "SubProtocolFactory.h"
-#include "log/Logger.h"
+#include "SubProtocolFactorySelector.h" // for SubProt...
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <memory> // for __share...
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

@@ -23,6 +23,10 @@
 #include "express/middleware/StaticMiddleware.h"
 #include "express/tls/WebApp.h"
 #include "log/Logger.h"
+#include "net/socket/ip/address/ipv4/InetAddress.h" // for InetAddress
+
+#include <any>    // for any
+#include <string> // for string, operator+
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

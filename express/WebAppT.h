@@ -19,9 +19,9 @@
 #ifndef EXPRESS_WEBAPPT_H
 #define EXPRESS_WEBAPPT_H
 
-#include "express/Request.h"
-#include "express/Response.h"
-#include "express/WebApp.h"
+#include "express/Request.h"  // IWYU pragma: export
+#include "express/Response.h" // IWYU pragma: export
+#include "express/WebApp.h"   // IWYU pragma: export
 #include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

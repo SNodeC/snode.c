@@ -24,6 +24,10 @@
 #include "express/middleware/VHost.h"
 #include "express/tls/WebApp.h"
 #include "log/Logger.h"
+#include "net/socket/ip/address/ipv6/InetAddress.h" // for InetAddress
+
+#include <any>    // for any
+#include <string> // for string, allocator
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

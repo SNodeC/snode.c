@@ -19,11 +19,14 @@
 #include "VHost.h"
 
 #include "express/Request.h"
-#include "express/Response.h"
+namespace express {
+    class Response;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <list>
+#include <memory> // for shared_ptr, __shared_ptr_access
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

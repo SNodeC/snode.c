@@ -22,6 +22,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <utility> // for pair
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express {

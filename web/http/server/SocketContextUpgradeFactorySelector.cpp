@@ -22,13 +22,12 @@
 #include "log/Logger.h"
 #include "web/http/http_utils.h"
 #include "web/http/server/Request.h"
-#include "web/http/server/Response.h"
 #include "web/http/server/SocketContextUpgradeFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cxxabi.h>
 #include <dlfcn.h>
+#include <tuple>       // for tie, tuple
 #include <type_traits> // for add_const<>::type
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
