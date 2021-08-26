@@ -113,7 +113,8 @@ namespace express {
                 if (std::regex_match(explodedReqString[i], std::regex(regex))) {
                     std::string attributeName = smatch[0];
                     attributeName.erase(0, 1);
-                    attributeName.erase((attributeName.length() - smatch[1].length()), smatch[1].length());
+                    attributeName.erase((attributeName.length() - static_cast<std::size_t>(smatch[1].length())),
+                                        static_cast<std::size_t>(smatch[1].length()));
 
                     req.params[attributeName] = explodedReqString[i];
                 }
