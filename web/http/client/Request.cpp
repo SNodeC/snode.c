@@ -178,7 +178,7 @@ namespace web::http::client {
         enqueue("\r\n");
 
         if (headers.find("Content-Length") != headers.end()) {
-            contentLength = std::stoi(headers.find("Content-Length")->second);
+            contentLength = std::stoul(headers.find("Content-Length")->second);
         } else {
             contentLength = 0;
         }

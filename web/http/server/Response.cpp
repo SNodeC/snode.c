@@ -115,7 +115,7 @@ namespace web::http::server {
             headers.insert_or_assign(field, value);
 
             if (field == "Content-Length") {
-                contentLength = std::stol(value);
+                contentLength = std::stoul(value);
             } else if (field == "Connection" && httputils::ci_contains(value, "close")) {
                 connectionState = ConnectionState::Close;
             } else if (field == "Connection" && httputils::ci_contains(value, "keep-alive")) {
@@ -186,7 +186,7 @@ namespace web::http::server {
         enqueue("\r\n");
 
         if (headers.find("Content-Length") != headers.end()) {
-            contentLength = std::stoi(headers.find("Content-Length")->second);
+            contentLength = std::stoul(headers.find("Content-Length")->second);
         } else {
             contentLength = 0;
         }

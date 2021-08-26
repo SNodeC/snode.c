@@ -113,7 +113,7 @@ namespace web::http::server {
         for (auto& [field, value] : Parser::headers) {
             if (field != "cookie") {
                 if (field == "content-length") {
-                    Parser::contentLength = std::stoi(value);
+                    Parser::contentLength = std::stoul(value);
                 }
             } else {
                 std::string cookiesLine = value;
