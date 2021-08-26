@@ -50,7 +50,7 @@ Router router() {
     });
 
     // http://localhost:8080/account/123/perfectNDSgroup
-    router.get("/account/:userId(\\d*)/:username", [] APPLICATION(req, res) {
+    router.get("/account/:userId(\\d*)/:userName", [] APPLICATION(req, res) {
         VLOG(0) << "Show account of";
         VLOG(0) << "UserId: " << req.params["userId"];
         VLOG(0) << "UserName: " << req.params["userName"];
