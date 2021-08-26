@@ -53,11 +53,11 @@ namespace net::socket::stream {
                 : stream::SocketListener<SocketConnection>(
                       socketContextFactory,
                       onConnect,
-                      [onConnected, &ctx = this->ctx](SocketConnection* socketConnection) -> void {
-                          SSL* ssl = socketConnection->startSSL(ctx);
+                      [onConnected, this](SocketConnection* socketConnection) -> void {
+                          SSL* ssl = socketConnection->startSSL(this->ctx);
 
                           if (ssl != nullptr) {
-                              SSL_CTX_set_tlsext_servername_arg(ctx, socketConnection);
+                              SSL_CTX_set_tlsext_servername_arg(this->ctx, socketConnection);
 
                               SSL_set_accept_state(ssl);
 
@@ -66,10 +66,10 @@ namespace net::socket::stream {
                                       LOG(INFO) << "SSL/TLS initial handshake success";
                                       onConnected(socketConnection);
                                   },
-                                  [socketConnection](void) -> void { // onTimeout
+                                  [](void) -> void { // onTimeout
                                       LOG(WARNING) << "SSL/TLS initial handshake timed out";
                                   },
-                                  [socketConnection](int sslErr) -> void { // onError
+                                  [](int sslErr) -> void { // onError
                                       ssl_log("SSL/TLS initial handshake failed", sslErr);
                                   });
                           } else {

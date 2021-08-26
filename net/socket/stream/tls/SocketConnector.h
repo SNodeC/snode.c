@@ -54,12 +54,11 @@ namespace net::socket::stream {
                 : stream::SocketConnector<SocketConnection>(
                       socketContextFactory,
                       onConnect,
-                      [onConnected, &onError = this->onError, &ctx = this->ctx, &options = this->options](
-                          SocketConnection* socketConnection) -> void { // onConnect
-                          SSL* ssl = socketConnection->startSSL(ctx);
+                      [onConnected, this](SocketConnection* socketConnection) -> void { // onConnect
+                          SSL* ssl = socketConnection->startSSL(this->ctx);
 
                           if (ssl != nullptr) {
-                              ssl_set_sni(ssl, options);
+                              ssl_set_sni(ssl, this->options);
 
                               SSL_set_connect_state(ssl);
 
@@ -68,18 +67,18 @@ namespace net::socket::stream {
                                       LOG(INFO) << "SSL/TLS initial handshake success";
                                       onConnected(socketConnection);
                                   },
-                                  [onError](void) -> void { // onTimeout
+                                  [this](void) -> void { // onTimeout
                                       LOG(WARNING) << "SSL/TLS initial handshake timed out";
-                                      onError(ETIMEDOUT);
+                                      this->onError(ETIMEDOUT);
                                   },
-                                  [onError](int sslErr) -> void { // onError
+                                  [this](int sslErr) -> void { // onError
                                       ssl_log("SSL/TLS initial handshake failed", sslErr);
-                                      onError(-sslErr);
+                                      this->onError(-sslErr);
                                   });
                           } else {
                               socketConnection->SocketConnection::SocketReader::disable();
                               ssl_log_error("SSL/TLS initialization failed");
-                              onError(-SSL_ERROR_SSL);
+                              this->onError(-SSL_ERROR_SSL);
                           }
                       },
                       [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
