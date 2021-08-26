@@ -27,28 +27,22 @@
 
 namespace std {
 
-    template <typename CharT, std::size_t N>
-    struct basic_fixed_string {
-        constexpr basic_fixed_string(const CharT (&foo)[N]) {
-            std::copy(std::begin(foo), std::end(foo), std::begin(m_data));
+    template <unsigned N>
+    struct fixed_string {
+        char buf[N + 1]{};
+        constexpr fixed_string(char const* s) {
+            for (unsigned i = 0; i != N; ++i)
+                buf[i] = s[i];
         }
 
-        constexpr auto operator<=>(const basic_fixed_string&) const = default;
-
-        CharT m_data[N + 1]{};
-
-        constexpr operator const CharT*() const {
-            return m_data;
+        constexpr operator char const *() const {
+            return buf;
         }
 
-        using CharType = CharT;
+        auto operator<=>(const fixed_string&) const = default;
     };
-
-    template <typename CharT, std::size_t N>
-    basic_fixed_string(const CharT (&str)[N]) -> basic_fixed_string<CharT, N>;
-
-    template <std::size_t N>
-    using fixed_string = basic_fixed_string<char, N>;
+    template <unsigned N>
+    fixed_string(char const (&)[N]) -> fixed_string<N - 1>;
 
 } // namespace std
 
@@ -131,7 +125,7 @@ namespace utils {
     class MultibleAttributeInjector {
     public:
         template <InjectableAttribute Attribute, std::fixed_string key = "">
-        constexpr bool setAttribute(Attribute& attribute, const std::string& subKey = "", bool overwrite = false) const {
+        constexpr bool setAttribute(const Attribute& attribute, const std::string& subKey = "", bool overwrite = false) const {
             bool inserted = false;
 
             if (attributes.find(typeid(Attribute).name() + std::string(key) + subKey) == attributes.end() || overwrite) {
@@ -144,7 +138,7 @@ namespace utils {
         }
 
         template <InjectableAttribute Attribute, std::fixed_string key = "">
-        constexpr bool setAttribute(Attribute&& attribute, const std::string& subKey = "", bool overwrite = false) const {
+        constexpr bool setAttribute(const Attribute&& attribute, const std::string& subKey = "", bool overwrite = false) const {
             bool inserted = false;
 
             if (attributes.find(typeid(Attribute).name() + std::string(key) + subKey) == attributes.end() || overwrite) {
