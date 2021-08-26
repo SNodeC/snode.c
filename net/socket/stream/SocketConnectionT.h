@@ -118,7 +118,7 @@ namespace net::socket::stream {
             SocketWriter::shutdown();
         }
 
-        SocketContext* getSocketContext() {
+        SocketContext* getSocketContext() override {
             return socketContext;
         }
 
