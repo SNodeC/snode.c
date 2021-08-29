@@ -17,8 +17,15 @@
  */
 
 #include "log/Logger.h"
-#include "net/socket/stream/SocketConnection.h"
 #include "web/http/client/SocketContext.h"
+
+namespace web::http {
+    class CokieOptions;
+} // namespace web::http
+
+namespace net::socket::stream {
+    class SocketConnection;
+} // namespace net::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,10 +33,6 @@
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-namespace web::http {
-    class CokieOptions;
-} // namespace web::http
 
 namespace web::http::client {
 

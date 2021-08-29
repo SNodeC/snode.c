@@ -19,10 +19,8 @@
 #ifndef NET_SOCKET_STREAM_TLS_SOCKETCONNECTOR_H
 #define NET_SOCKET_STREAM_TLS_SOCKETCONNECTOR_H
 
-#include "log/Logger.h"
 #include "net/socket/stream/SocketConnector.h"
 #include "net/socket/stream/tls/SocketConnection.h"
-#include "net/socket/stream/tls/TLSHandshake.h"
 #include "net/socket/stream/tls/ssl_utils.h"
 #include "ssl_utils.h"
 

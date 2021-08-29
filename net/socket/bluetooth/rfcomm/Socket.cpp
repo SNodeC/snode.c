@@ -18,8 +18,6 @@
 
 #include "net/socket/bluetooth/rfcomm/Socket.h"
 
-#include "net/system/socket.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <bluetooth/bluetooth.h> // for BTPROTO_RFCOMM

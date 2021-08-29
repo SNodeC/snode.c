@@ -20,8 +20,6 @@
 #define NET_SOCKET_STREAM_TLS_SOCKETREADER_H
 
 #include "log/Logger.h"
-#include "net/Descriptor.h"
-#include "net/WriteEventReceiver.h"
 #include "net/socket/stream/SocketReader.h"
 #include "net/socket/stream/tls/TLSHandshake.h"
 #include "net/socket/stream/tls/ssl_utils.h"

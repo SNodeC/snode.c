@@ -23,7 +23,6 @@
 #include "log/Logger.h"                             // for Writer, Storage
 #include "net/SNodeC.h"                             // for SNodeC
 #include "net/socket/ip/address/ipv4/InetAddress.h" // for InetAddress
-#include "web/http/client/Client.h"                 // for Client<>::Socket...
 #include "web/http/client/Request.h"                // for Request
 #include "web/http/client/Response.h"               // for Response
 #include "web/http/client/legacy/Client.h"          // for Client, Client<>...
@@ -34,7 +33,8 @@
 #include <string>      // for allocator, opera...
 #include <type_traits> // for add_const<>::type
 #include <utility>     // for tuple_element<>:...
-#endif                 /* DOXYGEN_SHOULD_SKIP_THIS */
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 int main(int argc, char* argv[]) {
     net::SNodeC::init(argc, argv);

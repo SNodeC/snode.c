@@ -19,7 +19,7 @@
 #ifndef TIMEREVENTRECEIVER_H
 #define TIMEREVENTRECEIVER_H
 
-#include "utils/Timeval.h"
+#include "utils/Timeval.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

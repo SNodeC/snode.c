@@ -20,11 +20,11 @@
 #define NET_SOCKET_SOCKET_H
 
 #include "net/Descriptor.h"
-#include "net/socket/SocketAddress.h"
-#include "net/system/socket.h"
+#include "net/system/socket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cerrno>
 #include <functional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

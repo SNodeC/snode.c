@@ -19,7 +19,7 @@
 #ifndef NET_SOCKET_BLUETOOTH_RFCOMM_SOCKET_H
 #define NET_SOCKET_BLUETOOTH_RFCOMM_SOCKET_H
 
-#include "net/socket/Socket.h"
+#include "net/socket/Socket.h"                          // IWYU pragma: export
 #include "net/socket/bluetooth/address/RfCommAddress.h" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

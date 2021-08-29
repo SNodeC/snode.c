@@ -18,13 +18,12 @@
 
 #include "SocketContext.h"
 
+#include "SubProtocol.h"
+#include "SubProtocolFactory.h"
+#include "SubProtocolFactorySelector.h"
 #include "web/http/server/Request.h"   // for Request
 #include "web/http/server/Response.h"  // for Response
-#include "web/websocket/SubProtocol.h" // for SubProt...
 #include "web/websocket/Transmitter.h" // for Transmi...
-#include "web/websocket/server/SubProtocol.h"
-#include "web/websocket/server/SubProtocolFactory.h"
-#include "web/websocket/server/SubProtocolFactorySelector.h"
 #include "web/websocket/ws_utils.h"
 
 namespace net::socket::stream {

@@ -22,7 +22,6 @@
 #include "net/TimerEventDispatcher.h" // for ManagedTimer
 #include "net/timer/IntervalTimer.h"
 #include "net/timer/SingleshotTimer.h"
-#include "utils/Timeval.h" // for operator+
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

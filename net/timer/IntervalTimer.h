@@ -31,7 +31,7 @@ namespace net::timer {
         IntervalTimer& operator=(const IntervalTimer& timer) = delete;
 
     public:
-        IntervalTimer(const std::function<void(const void*, const std::function<void()>&)>& dispatcher,
+        IntervalTimer(const std::function<void(const void*, const std::function<void()>& stop)>& dispatcher,
                       const struct timeval& timeout,
                       const void* arg)
             : Timer(timeout, arg)

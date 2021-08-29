@@ -19,7 +19,7 @@
 #ifndef WEB_WS_SERVER_SUBSPROTOCOL_H
 #define WEB_WS_SERVER_SUBSPROTOCOL_H
 
-#include "web/websocket/SubProtocol.h"
+#include "web/websocket/SubProtocol.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

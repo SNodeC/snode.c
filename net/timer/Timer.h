@@ -21,59 +21,56 @@
 
 #include "net/TimerEventReceiver.h"
 
+namespace net::timer {
+    class IntervalTimer;
+    class SingleshotTimer;
+} // namespace net::timer
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
-#include <sys/time.h> // for timeval
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net {
+namespace net::timer {
 
-    namespace timer {
+    class Timer : public TimerEventReceiver {
+        Timer(const Timer&) = delete;
+        Timer& operator=(const Timer& timer) = delete;
 
-        class SingleshotTimer;
-        class IntervalTimer;
+    protected:
+        Timer(const struct timeval& timeout, const void* arg);
 
-        class Timer : public TimerEventReceiver {
-            Timer(const Timer&) = delete;
-            Timer& operator=(const Timer& timer) = delete;
+        virtual ~Timer() = default;
 
-        protected:
-            Timer(const struct timeval& timeout, const void* arg);
+    public:
+        static IntervalTimer& intervalTimer(const std::function<void(const void*, const std::function<void()>& stop)>& dispatcher,
+                                            const struct timeval& timeout,
+                                            const void* arg);
 
-            virtual ~Timer() = default;
+        static IntervalTimer&
+        intervalTimer(const std::function<void(const void*)>& dispatcher, const struct timeval& timeout, const void* arg);
 
-        public:
-            static IntervalTimer& intervalTimer(const std::function<void(const void*, const std::function<void()>&)>& dispatcher,
-                                                const struct timeval& timeout,
-                                                const void* arg);
+        static SingleshotTimer&
+        singleshotTimer(const std::function<void(const void*)>& dispatcher, const struct timeval& timeout, const void* arg);
 
-            static IntervalTimer&
-            intervalTimer(const std::function<void(const void*)>& dispatcher, const struct timeval& timeout, const void* arg);
+        void cancel();
 
-            static SingleshotTimer&
-            singleshotTimer(const std::function<void(const void*)>& dispatcher, const struct timeval& timeout, const void* arg);
+    protected:
+        const void* arg;
 
-            void cancel();
+        void update();
+        void destroy() override;
 
-        protected:
-            const void* arg;
+        struct timeval& timeout() override;
 
-            void update();
-            void destroy() override;
+        explicit operator struct timeval() const override;
 
-            struct timeval& timeout() override;
+    private:
+        struct timeval absoluteTimeout {};
+        struct timeval delay;
+    };
 
-            explicit operator struct timeval() const override;
-
-        private:
-            struct timeval absoluteTimeout {};
-            struct timeval delay;
-        };
-
-    } // namespace timer
-
-} // namespace net
+} // namespace net::timer
 
 #endif // NET_TIMER_TIMER_H

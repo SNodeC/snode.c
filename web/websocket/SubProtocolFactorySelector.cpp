@@ -88,7 +88,7 @@ namespace web::websocket {
     }
 
     void SubProtocolFactorySelector::unload() {
-        for (const auto& [name, subProtocolPlugin] : subProtocolPlugins) {
+        for ([[maybe_unused]] const auto& [name, subProtocolPlugin] : subProtocolPlugins) {
             subProtocolPlugin.subProtocolFactory->destroy();
             if (subProtocolPlugin.handle != nullptr) {
                 dlclose(subProtocolPlugin.handle);

@@ -145,18 +145,18 @@ if(CHECK_INCLUDES)
     )
 endif(CHECK_INCLUDES)
 
-add_executable(client client.cpp)
-target_link_libraries(client LINK_PUBLIC web)
-install(TARGETS client RUNTIME DESTINATION bin)
+add_executable(client4 client4.cpp)
+target_link_libraries(client4 LINK_PUBLIC web)
+install(TARGETS client4 RUNTIME DESTINATION bin)
 set_target_properties(
-    client
+    client4
     PROPERTIES CXX_STANDARD 20
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
 )
 if(CHECK_INCLUDES)
     set_property(
-        TARGET client PROPERTY CXX_INCLUDE_WHAT_YOU_USE
+        TARGET client4 PROPERTY CXX_INCLUDE_WHAT_YOU_USE
                                ${iwyu_path_and_options}
     )
 endif(CHECK_INCLUDES)

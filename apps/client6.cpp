@@ -22,7 +22,6 @@
 #include "log/Logger.h"                             // for Writer, Storage
 #include "net/SNodeC.h"                             // for SNodeC
 #include "net/socket/ip/address/ipv6/InetAddress.h" // for InetAddress
-#include "web/http/client/Client.h"                 // for Client<>::Socket...
 #include "web/http/client/Request.h"                // for Request, client
 #include "web/http/client/Response.h"               // for Response
 #include "web/http/client/legacy/Client.h"          // for Client6, Client6...

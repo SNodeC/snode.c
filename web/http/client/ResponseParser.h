@@ -22,7 +22,7 @@
 #include "web/http/CookieOptions.h"
 #include "web/http/Parser.h"
 
-namespace net ::socket ::stream {
+namespace net::socket::stream {
     class SocketContext;
 } // namespace net::socket::stream
 

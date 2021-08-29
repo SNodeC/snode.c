@@ -16,16 +16,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
 #include "config.h" // just for this example app
 #include "log/Logger.h"
 #include "net/SNodeC.h"
 #include "net/socket/ip/address/ipv6/InetAddress.h" // for InetAddress
-#include "web/http/client/Client.h"                 // for Client<>::Socket...
 #include "web/http/client/Request.h"                // for Request
 #include "web/http/client/Response.h"
 #include "web/http/client/tls/Client.h"
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <any> // for any
 #include <cstring>
@@ -162,24 +161,4 @@ int main(int argc, char* argv[]) {
     }
 
     return net::SNodeC::start();
-}
-
-struct A {
-    int a;
-    int b;
-    int c = 4;
-    std::string d;
-};
-
-struct B {
-    std::string e;
-    std::string f;
-    A a;
-};
-
-void f([[maybe_unused]] B a) {
-}
-
-void g() {
-    f({.e = "hihi", .f = "lkjlkj", .a = {.a = 3, .b = 4, .c = 5, .d = "hihi"}});
 }

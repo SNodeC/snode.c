@@ -18,8 +18,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "web/http/client/Client.h" // for Client<>::Socket...
-
 #include "config.h"                                 // for SERVERCAFILE
 #include "log/Logger.h"                             // for Writer, Storage
 #include "net/SNodeC.h"                             // for SNodeC

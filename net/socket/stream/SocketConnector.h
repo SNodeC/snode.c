@@ -20,9 +20,11 @@
 #define NET_SOCKET_STREAM_SOCKETCONNECTOR_H
 
 #include "net/ConnectEventReceiver.h"
-#include "net/socket/Socket.h"
-#include "net/socket/stream/SocketContextFactory.h"
 #include "net/system/socket.h"
+
+namespace net::socket::stream {
+    class SocketContextFactory;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

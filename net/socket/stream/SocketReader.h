@@ -19,7 +19,6 @@
 #ifndef NET_SOCKET_STREAM_SOCKETREADER_H
 #define NET_SOCKET_STREAM_SOCKETREADER_H
 
-#include "log/Logger.h"
 #include "net/ReadEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

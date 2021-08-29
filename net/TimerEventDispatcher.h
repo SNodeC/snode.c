@@ -19,13 +19,11 @@
 #ifndef NET_TIMEREVENTDISPATCHER_H
 #define NET_TIMEREVENTDISPATCHER_H
 
-#include "net/TimerEventReceiver.h"
-#include "utils/Timeval.h"
+#include "net/TimerEventReceiver.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <list>
-#include <sys/time.h> // for timeval
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

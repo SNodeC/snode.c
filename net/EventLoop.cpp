@@ -19,11 +19,9 @@
 #include "net/EventLoop.h" // for EventLoop
 
 #include "log/Logger.h" // for Logger
-#include "net/FdSet.h"
 #include "net/system/select.h"
 #include "net/system/signal.h"
 #include "net/system/time.h"
-#include "utils/Timeval.h" // for operator<
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -20,10 +20,11 @@
 #define WEB_HTTP_CLIENT_SOCKETCONTEXT_H
 
 #include "net/socket/stream/SocketContext.h"
-#include "web/http/CookieOptions.h"
-#include "web/http/client/Request.h"
-#include "web/http/client/Response.h"
 #include "web/http/client/ResponseParser.h"
+
+namespace web::http::client {
+    class Request;
+} // namespace web::http::client
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -61,7 +62,7 @@ namespace web::http::client {
         using Response = ResponseT;
 
         SocketContextT(net::socket::stream::SocketConnection* socketConnection,
-                       const std::function<void(Request&, Response&)>& onResponse,
+                       const std::function<void(RequestT&, Response&)>& onResponse,
                        const std::function<void(int, const std::string&)>& onError);
 
         ~SocketContextT() override = default;

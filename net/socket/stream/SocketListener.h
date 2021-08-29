@@ -21,10 +21,12 @@
 
 #include "log/Logger.h"
 #include "net/AcceptEventReceiver.h"
-#include "net/ReadEventReceiver.h"
-#include "net/socket/stream/SocketContextFactory.h"
 #include "net/system/socket.h"
 #include "net/system/unistd.h"
+
+namespace net::socket::stream {
+    class SocketContextFactory;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

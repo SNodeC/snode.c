@@ -19,7 +19,7 @@
 #ifndef NET_DESCRIPTOREVENTDISPATCHER_H
 #define NET_DESCRIPTOREVENTDISPATCHER_H
 
-#include "net/FdSet.h" // for FdSet
+#include "net/FdSet.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

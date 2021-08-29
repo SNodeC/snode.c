@@ -18,8 +18,6 @@
 
 #include "net/socket/ip/tcp/ipv4/Socket.h"
 
-#include "net/system/socket.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

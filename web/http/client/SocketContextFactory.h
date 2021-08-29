@@ -19,10 +19,13 @@
 #ifndef WEB_HTTP_CLIENT_SOCKETCONTEXTFACTORY_H
 #define WEB_HTTP_CLIENT_SOCKETCONTEXTFACTORY_H
 
-#include "net/socket/stream/SocketConnection.h"
 #include "net/socket/stream/SocketContextFactory.h"
-#include "web/http/client/SocketContext.h"
+#include "web/http/client/SocketContext.hpp"
 #include "web/http/client/SocketContextUpgradeFactorySelector.h"
+
+namespace net::socket::stream {
+    class SocketConnection;
+} // namespace net::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

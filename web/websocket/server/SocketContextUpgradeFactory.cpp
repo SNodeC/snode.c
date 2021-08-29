@@ -18,7 +18,7 @@
 
 #include "SocketContextUpgradeFactory.h"
 
-#include "SubProtocolFactory.h"
+#include "SubProtocolFactory.h"         // for SubProtocolFactory
 #include "SubProtocolFactorySelector.h" // for SubProt...
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -29,7 +29,7 @@
 
 namespace web::websocket::server {
 
-    SocketContextUpgradeFactory::SocketContextUpgradeFactory(SubProtocolFactory* subProtocolFactory) {
+    SocketContextUpgradeFactory::SocketContextUpgradeFactory(web::websocket::server::SubProtocolFactory* subProtocolFactory) {
         SubProtocolFactorySelector::instance()->add(subProtocolFactory);
     }
 

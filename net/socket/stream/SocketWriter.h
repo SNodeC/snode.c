@@ -19,14 +19,13 @@
 #ifndef NET_SOCKET_STREAM_SOCKETWRITER_H
 #define NET_SOCKET_STREAM_SOCKETWRITER_H
 
-#include "log/Logger.h"
 #include "net/WriteEventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cerrno>
+#include <cstddef> // for std::size_t
 #include <functional>
-#include <sys/types.h> // for ssize_t
 #include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

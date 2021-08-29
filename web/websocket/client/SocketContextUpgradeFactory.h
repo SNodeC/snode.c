@@ -21,8 +21,8 @@
 
 #include "web/http/server/SocketContextUpgradeFactory.h"
 #include "web/http/server/SocketContextUpgradeInterface.h"
-#include "web/websocket/server/SocketContext.h"
-#include "web/websocket/server/SubProtocolSelector.h"
+#include "web/websocket/client/SocketContext.h"
+#include "web/websocket/client/SubProtocolSelector.h"
 
 namespace web::http::client {
     class Request;

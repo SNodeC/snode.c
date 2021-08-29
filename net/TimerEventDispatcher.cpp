@@ -18,7 +18,6 @@
 
 #include "net/TimerEventDispatcher.h"
 
-#include "net/TimerEventReceiver.h" // for TimerEventReceiver
 #include "net/system/time.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

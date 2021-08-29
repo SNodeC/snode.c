@@ -16,15 +16,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "log/Logger.h"
-
 #ifndef WEB_HTTP_SERVER_SOCKETCONTEXTFACTORY_H
 #define WEB_HTTP_SERVER_SOCKETCONTEXTFACTORY_H
 
-#include "net/socket/stream/SocketConnection.h"
 #include "net/socket/stream/SocketContextFactory.h"
-#include "web/http/server/SocketContext.h"
+#include "web/http/server/SocketContext.hpp"
 #include "web/http/server/SocketContextUpgradeFactorySelector.h"
+
+namespace net::socket::stream {
+    class SocketConnection;
+} // namespace net::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

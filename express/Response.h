@@ -38,9 +38,9 @@ namespace express {
     public:
         Response(web::http::server::SocketContext* serverContext);
 
-        void sendFile(const std::string& file, const std::function<void(int)>& onError);
-        void download(const std::string& file, const std::function<void(int)>& onError);
-        void download(const std::string& file, const std::string& name, const std::function<void(int)>& onError);
+        void sendFile(const std::string& file, const std::function<void(int err)>& onError);
+        void download(const std::string& file, const std::function<void(int err)>& onError);
+        void download(const std::string& file, const std::string& name, const std::function<void(int err)>& onError);
 
         void redirect(const std::string& name);
         void redirect(int status, const std::string& name);

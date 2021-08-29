@@ -19,9 +19,6 @@
 #ifndef NET_SOCKET_STREAM_SOCKETCLIENT_H
 #define NET_SOCKET_STREAM_SOCKETCLIENT_H
 
-#include "net/socket/stream/SocketConnector.h"
-#include "net/socket/stream/SocketContextFactory.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <any>
