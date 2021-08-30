@@ -50,18 +50,18 @@ int main(int argc, char* argv[]) {
            const std::map<std::string, std::string>& queries) -> void {
             VLOG(0) << "++ Request: " << method << " " << originalUrl << " "
                     << " " << httpVersion << " " << httpMajor << " " << httpMinor;
-            for (const std::pair<std::string, std::string> query : queries) {
-                VLOG(0) << "++    Query: " << query.first << " = " << query.second;
+            for (const auto& [queryField, queryValue] : queries) {
+                VLOG(0) << "++    Query: " << queryField << " = " << queryValue;
             }
         },
         [](const std::map<std::string, std::string>& header, const std::map<std::string, std::string>& cookies) -> void {
             VLOG(0) << "++    Header: ";
-            for (const std::pair<std::string, std::string> headerField : header) {
-                VLOG(0) << "++      " << headerField.first << " = " << headerField.second;
+            for (const auto& [headerField, headerValue] : header) {
+                VLOG(0) << "++      " << headerField << " = " << headerValue;
             }
             VLOG(0) << "++    Cookie: ";
-            for (const std::pair<std::string, std::string> cookie : cookies) {
-                VLOG(0) << "++      " << cookie.first << " = " << cookie.second;
+            for (const auto& [cookieName, cookieValue] : cookies) {
+                VLOG(0) << "++      " << cookieName << " = " << cookieValue;
             }
         },
         [](char* content, std::size_t contentLength) -> void {
