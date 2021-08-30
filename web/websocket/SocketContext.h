@@ -21,7 +21,7 @@
 
 #include "net/socket/stream/SocketContext.h"
 #include "web/websocket/Receiver.h"
-#include "web/websocket/Transmitter.h"
+#include "web/websocket/Transmitter.h" // IWYU pragma: export
 
 namespace net::socket::stream {
     class SocketConnection;

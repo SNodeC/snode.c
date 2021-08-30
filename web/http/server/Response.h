@@ -64,7 +64,7 @@ namespace web::http::server {
         int responseStatus = 200;
 
         std::map<std::string, std::string> headers;
-        std::map<std::string, CookieOptions> cookies;
+        std::map<std::string, web::http::CookieOptions> cookies;
 
     private:
         ConnectionState connectionState = ConnectionState::Default;

@@ -21,9 +21,8 @@
 #include "SubProtocol.h"
 #include "SubProtocolFactory.h"
 #include "SubProtocolFactorySelector.h"
-#include "web/http/server/Request.h"   // for Request
-#include "web/http/server/Response.h"  // for Response
-#include "web/websocket/Transmitter.h" // for Transmi...
+#include "web/http/server/Request.h"  // for Request
+#include "web/http/server/Response.h" // for Response
 #include "web/websocket/ws_utils.h"
 
 namespace net::socket::stream {

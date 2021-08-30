@@ -62,7 +62,7 @@ namespace net::socket::stream::tls {
         std::string caDir;
         bool useDefaultCADir = false;
 
-        for (auto& [name, value] : options) {
+        for (const auto& [name, value] : options) {
             if (name == "certChain") {
                 certChain = std::any_cast<const char*>(value);
             } else if (name == "keyPEM") {

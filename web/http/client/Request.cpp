@@ -157,7 +157,7 @@ namespace web::http::client {
 
         headers.insert({{"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}, {"X-Powered-By", "snode.c"}});
 
-        for (auto& [field, value] : headers) {
+        for (const auto& [field, value] : headers) {
             enqueue(field + ":" + value + "\r\n");
         }
 
@@ -171,7 +171,7 @@ namespace web::http::client {
             enqueue("Connection: close\r\n");
         }
 
-        for (auto& [name, value] : cookies) {
+        for (const auto& [name, value] : cookies) {
             enqueue("Cookie:" + name + "=" + value + "\r\n");
         }
 

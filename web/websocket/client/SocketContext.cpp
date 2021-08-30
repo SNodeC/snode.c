@@ -18,7 +18,6 @@
 
 #include "SocketContext.h"
 
-#include "web/websocket/Transmitter.h" // for Transmitter
 #include "web/websocket/client/SubProtocol.h"
 #include "web/websocket/client/SubProtocolSelector.h" // for SubProtocolSel...
 

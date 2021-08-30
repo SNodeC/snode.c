@@ -91,7 +91,7 @@ namespace web::http::client {
     }
 
     enum Parser::ParserState ResponseParser::parseHeader() {
-        for (auto& [field, value] : Parser::headers) {
+        for (const auto& [field, value] : Parser::headers) {
             if (field != "set-cookie") {
                 if (field == "content-length") {
                     Parser::contentLength = static_cast<std::size_t>(std::stoi(value));
