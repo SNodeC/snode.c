@@ -23,12 +23,12 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#include "net/socket/Socket.h"                         // IWYU pragma: export
+#include "net/socket/Socket.h"
 #include "net/socket/bluetooth/address/L2CapAddress.h" // IWYU pragma: keep
 
 namespace net::socket::bluetooth::l2cap {
 
-    class Socket : public socket::Socket<address::L2CapAddress> {
+    class Socket : public net::socket::Socket<address::L2CapAddress> {
     public:
         int create(int flags = 0) override;
     };

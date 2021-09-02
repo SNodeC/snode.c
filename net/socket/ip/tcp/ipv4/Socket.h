@@ -19,7 +19,7 @@
 #ifndef NET_SOCKET_IP_TCP_IPV4_SOCKET_H
 #define NET_SOCKET_IP_TCP_IPV4_SOCKET_H
 
-#include "net/socket/Socket.h"                      // IWYU pragma: export
+#include "net/socket/Socket.h"
 #include "net/socket/ip/address/ipv4/InetAddress.h" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

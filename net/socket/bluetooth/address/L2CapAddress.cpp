@@ -20,8 +20,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <bluetooth/bluetooth.h> // for str2ba, htobs, ba2str, bdaddr_t, btohs
-#include <sys/socket.h>          // for AF_BLUETOOTH
+#include <sys/socket.h> // for AF_BLUETOOTH
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
