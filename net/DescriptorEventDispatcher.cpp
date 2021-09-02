@@ -115,8 +115,8 @@ namespace net {
         return !activeObservedEventReceivers.empty() ? activeObservedEventReceivers.front().first : -1;
     }
 
-    FdSet& DescriptorEventDispatcher::getFdSet() {
-        return fdSet;
+    fd_set& DescriptorEventDispatcher::getFdSet() {
+        return fdSet.get();
     }
 
     struct timeval DescriptorEventDispatcher::observeEnabledEvents() {

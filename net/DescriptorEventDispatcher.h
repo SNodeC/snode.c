@@ -19,7 +19,7 @@
 #ifndef NET_DESCRIPTOREVENTDISPATCHER_H
 #define NET_DESCRIPTOREVENTDISPATCHER_H
 
-#include "net/FdSet.h" // IWYU pragma: export
+#include "net/FdSet.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -58,7 +58,7 @@ namespace net {
         };
 
         int getMaxFd() const;
-        FdSet& getFdSet();
+        fd_set& getFdSet();
 
         struct timeval dispatchActiveEvents(struct timeval currentTime);
 

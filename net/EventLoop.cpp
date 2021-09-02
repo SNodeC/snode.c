@@ -78,9 +78,9 @@ namespace net {
             }
 
             int counter = net::system::select(maxFd + 1,
-                                              &readEventDispatcher.getFdSet().get(),
-                                              &writeEventDispatcher.getFdSet().get(),
-                                              &exceptionalConditionEventDispatcher.getFdSet().get(),
+                                              &readEventDispatcher.getFdSet(),
+                                              &writeEventDispatcher.getFdSet(),
+                                              &exceptionalConditionEventDispatcher.getFdSet(),
                                               &nextInactivityTimeout);
 
             if (counter >= 0) {
