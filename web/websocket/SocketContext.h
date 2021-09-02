@@ -21,7 +21,7 @@
 
 #include "net/socket/stream/SocketContext.h"
 #include "web/websocket/Receiver.h"
-#include "web/websocket/Transmitter.h" // IWYU pragma: export
+#include "web/websocket/Transmitter.h"
 
 namespace net::socket::stream {
     class SocketConnection;
@@ -45,8 +45,11 @@ namespace web::websocket {
         : public net::socket::stream::SocketContext
         , protected web::websocket::Receiver
         , protected web::websocket::Transmitter {
+    public:
+        enum class Role { SERVER, CLIENT };
+
     protected:
-        SocketContext(net::socket::stream::SocketConnection* socketConnection, SubProtocol* subProtocol, Transmitter::Role role);
+        SocketContext(net::socket::stream::SocketConnection* socketConnection, SubProtocol* subProtocol, Role role);
 
         SocketContext() = delete;
         SocketContext(const SocketContext&) = delete;

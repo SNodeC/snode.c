@@ -32,7 +32,7 @@
 namespace web::websocket::client {
 
     SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection, web::websocket::client::SubProtocol* subProtocol)
-        : web::websocket::SocketContext(socketConnection, subProtocol, Transmitter::Role::CLIENT) {
+        : web::websocket::SocketContext(socketConnection, subProtocol, Role::CLIENT) {
     }
 
     SocketContext::~SocketContext() {

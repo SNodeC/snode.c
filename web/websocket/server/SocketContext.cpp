@@ -41,7 +41,7 @@ namespace net::socket::stream {
 namespace web::websocket::server {
 
     SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection, web::websocket::SubProtocol* subProtocol)
-        : web::websocket::SocketContext(socketConnection, subProtocol, Transmitter::Role::SERVER) {
+        : web::websocket::SocketContext(socketConnection, subProtocol, Role::SERVER) {
     }
 
     SocketContext::~SocketContext() {

@@ -32,9 +32,9 @@
 
 namespace web::websocket {
 
-    SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection, SubProtocol* subProtocol, Transmitter::Role role)
+    SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection, SubProtocol* subProtocol, Role role)
         : net::socket::stream::SocketContext(socketConnection)
-        , Transmitter(role)
+        , Transmitter(role == Role::CLIENT)
         , subProtocol(subProtocol) {
         subProtocol->setSocketContext(this);
     }

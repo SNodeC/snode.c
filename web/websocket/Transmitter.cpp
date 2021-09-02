@@ -32,8 +32,8 @@
 
 namespace web::websocket {
 
-    Transmitter::Transmitter(Role role)
-        : masking(role == Role::CLIENT) {
+    Transmitter::Transmitter(bool masking)
+        : masking(masking) {
     }
 
     void Transmitter::sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) {
