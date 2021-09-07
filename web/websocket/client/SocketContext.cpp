@@ -19,11 +19,8 @@
 #include "SocketContext.h"
 
 #include "web/websocket/client/SubProtocol.h"
-#include "web/websocket/client/SubProtocolSelector.h" // for SubProtocolSel...
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <memory> // for __shared_ptr_a...
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -36,7 +33,9 @@ namespace web::websocket::client {
     }
 
     SocketContext::~SocketContext() {
-        web::websocket::client::SubProtocolFactorySelector::instance()->destroy(subProtocol);
+        //        web::websocket::client::SubProtocolFactorySelector::instance()->destroy(subProtocol);
+
+        //        SubProtocolFactorySelector::instance()->select(subProtocol->getName())->destroy(subProtocol);
     }
 
 } // namespace web::websocket::client

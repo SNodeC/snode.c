@@ -18,9 +18,6 @@
 
 #include "SubProtocolSelector.h"
 
-#include "web/websocket/SubProtocolFactory.h"          // for SubProtocolFa...
-#include "web/websocket/client/SubProtocolInterface.h" // for SubProtocolIn...
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -37,9 +34,6 @@ namespace web::websocket::client {
         return subProtocolSelector;
     }
 
-    SubProtocolFactorySelector::SubProtocolFactorySelector()
-        : web::websocket::SubProtocolFactorySelector(SubProtocolInterface::Role::SERVER) {
-    }
     /*
         web::websocket::SubProtocol* SubProtocolSelector::select(const std::string& subProtocolName) {
             web::websocket::client::SubProtocol* subProtocol = nullptr;

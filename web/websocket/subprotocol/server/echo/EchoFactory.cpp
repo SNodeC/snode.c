@@ -31,10 +31,6 @@ namespace web::websocket::subprotocol::echo::server {
         delete this;
     }
 
-    SubProtocolFactory::Role EchoFactory::role() {
-        return Role::SERVER;
-    }
-
     std::string EchoFactory::name() {
         return NAME;
     }
@@ -50,6 +46,14 @@ namespace web::websocket::subprotocol::echo::server {
     extern "C" {
         web::websocket::server::SubProtocolFactory* plugin() {
             return new EchoFactory();
+        }
+
+        web::websocket::server::SubProtocolFactory* createSubProtocolFactory() {
+            return new EchoFactory();
+        }
+
+        void destroySubProtocolFactory(web::websocket::server::SubProtocolFactory* echoFactory) {
+            delete echoFactory;
         }
     }
 

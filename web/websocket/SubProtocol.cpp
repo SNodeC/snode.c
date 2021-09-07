@@ -78,7 +78,6 @@ namespace web::websocket {
         return context->getRemoteAddressAsString();
     }
 
-    /* private members */
     void SubProtocol::setSocketContext(SocketContext* serverContext) {
         context = serverContext;
     }

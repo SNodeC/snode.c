@@ -21,7 +21,7 @@
 
 namespace web::websocket {
     class SubProtocol;
-} // namespace web::websocket
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,15 +32,11 @@ namespace web::websocket {
 namespace web::websocket {
 
     class SubProtocolFactory {
-    public:
-        enum class Role { CLIENT, SERVER };
-
     protected:
         virtual ~SubProtocolFactory() = default;
 
     public:
         virtual std::string name() = 0;
-        virtual Role role() = 0;
 
         virtual void destroy() = 0;
 

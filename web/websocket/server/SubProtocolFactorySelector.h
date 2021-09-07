@@ -37,7 +37,7 @@ namespace web::websocket::server {
         static std::shared_ptr<SubProtocolFactorySelector> instance();
 
     private:
-        static std::shared_ptr<SubProtocolFactorySelector> subProtocolSelector;
+        static std::shared_ptr<SubProtocolFactorySelector> subProtocolFactorySelector;
     };
 
 } // namespace web::websocket::server

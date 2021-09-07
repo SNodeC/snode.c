@@ -37,9 +37,6 @@ namespace web::websocket::client {
 namespace web::websocket::client {
 
     class SubProtocol : public web::websocket::SubProtocol {
-    public:
-        enum class Role { SERVER, CLIENT };
-
     protected:
         SubProtocol(const std::string& name);
 

@@ -37,7 +37,7 @@
 namespace web::http::server {
 
     Response::Response(SocketContext* serverContext)
-        : serverContext(serverContext) {
+        : socketContext(serverContext) {
     }
 
     void Response::enqueue(const char* junk, std::size_t junkLen) {
@@ -48,14 +48,14 @@ namespace web::http::server {
             headersSent = true;
         }
 
-        serverContext->sendToPeer(junk, junkLen);
+        socketContext->sendToPeer(junk, junkLen);
 
         if (headersSent) {
             contentSent += junkLen;
             if (contentSent == contentLength) {
-                serverContext->sendToPeerCompleted();
+                socketContext->sendToPeerCompleted();
             } else if (contentSent > contentLength) {
-                serverContext->terminateConnection();
+                socketContext->terminateConnection();
             }
         }
     }
@@ -146,13 +146,34 @@ namespace web::http::server {
         return cookie(name, "", opts);
     }
 
+    /* Just an UML-Sequencediagram test */
+
+    /** Sender class. Can be used to send a command to the server.
+     *  The receiver will acknowledge the command by calling Ack().
+     *  \startuml
+     *    Response->SocketContextUpgradeFactorySelector  : select(request, *this)
+     *    Response<--SocketContextUpgradeFactorySelector : socketContextUpgradeFactory
+     *    Response->SocketContext : switchSocketContext(socketContextUpgradeFactory)
+     *    SocketContext->SocketConnection : switchSocketContext(socketContextUpgradeFactory)
+     *    SocketConnection->SocketContextUpgradeFactory : create(this)
+     *    SocketConnection<--SocketContextUpgradeFactory : NewSocketContext
+     *    SocketConnection->SocketContext : onDisconnected()
+     *    SocketConnection<--SocketContext
+     *    SocketConnection->SocketConnection : SocketContext=NewSocketContext
+     *    SocketConnection->SocketContext : onConnected()
+     *    SocketConnection<--SocketContext
+     *    SocketContext<--SocketConnection
+     *    Response<--SocketContext
+     *  \enduml
+     */
+
     void Response::upgrade(Request& req) {
         if (httputils::ci_contains(req.header("connection"), "Upgrade")) {
             web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory =
                 web::http::server::SocketContextUpgradeFactorySelector::instance()->select(req, *this);
 
             if (socketContextUpgradeFactory != nullptr) {
-                serverContext->switchSocketContext(*socketContextUpgradeFactory);
+                socketContext->switchSocketContext(socketContextUpgradeFactory);
             } else {
                 this->status(404).end();
             }
@@ -202,7 +223,7 @@ namespace web::http::server {
 
     void Response::error([[maybe_unused]] int errnum) {
         PLOG(ERROR) << "Stream error: ";
-        serverContext->terminateConnection();
+        socketContext->terminateConnection();
     }
 
     void Response::reset() {

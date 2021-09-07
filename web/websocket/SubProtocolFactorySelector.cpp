@@ -19,29 +19,16 @@
 #include "SubProtocolFactorySelector.h"
 
 #include "log/Logger.h"
-#include "web/websocket/SubProtocol.h"
+#include "web/websocket/SubProtocolFactory.h" // for SubProtocolFactory
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <dlfcn.h>
 #include <type_traits> // for add_const<>::type
-#include <utility>     // for pair
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::websocket {
-
-    SubProtocolFactorySelector::SubProtocolFactorySelector(SubProtocolFactory::Role role)
-        : role(role) {
-    }
-
-    void SubProtocolFactorySelector::destroy(SubProtocol* subProtocol) {
-        if (subProtocolPlugins.contains(subProtocol->getName())) {
-            SubProtocolFactory* subProtocolFactory = subProtocolPlugins.find(subProtocol->getName())->second.subProtocolFactory;
-
-            subProtocolFactory->destroy(subProtocol);
-        }
-    }
 
     SubProtocolFactory* SubProtocolFactorySelector::select(const std::string& subProtocolName) {
         SubProtocolFactory* subProtocolFactory = nullptr;
@@ -100,16 +87,9 @@ namespace web::websocket {
         SubProtocolPlugin subProtocolPlugin = {.subProtocolFactory = subProtocolFactory, .handle = handle};
 
         if (subProtocolFactory != nullptr) {
-            if (subProtocolFactory->role() == role) {
-                const auto [it, success] = subProtocolPlugins.insert({subProtocolFactory->name(), subProtocolPlugin});
-                if (!success) {
-                    VLOG(0) << "Subprotocol already existing: not using " << subProtocolFactory->name();
-                    subProtocolFactory->destroy();
-                    if (handle != nullptr) {
-                        dlclose(handle);
-                    }
-                }
-            } else {
+            const auto [it, success] = subProtocolPlugins.insert({subProtocolFactory->name(), subProtocolPlugin});
+            if (!success) {
+                VLOG(0) << "Subprotocol already existing: not using " << subProtocolFactory->name();
                 subProtocolFactory->destroy();
                 if (handle != nullptr) {
                     dlclose(handle);

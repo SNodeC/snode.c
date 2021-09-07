@@ -59,7 +59,7 @@ namespace web::http::server {
     protected:
         virtual void reset();
 
-        SocketContext* serverContext;
+        SocketContext* socketContext;
 
         int responseStatus = 200;
 

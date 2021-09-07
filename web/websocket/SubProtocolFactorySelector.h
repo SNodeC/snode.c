@@ -19,11 +19,9 @@
 #ifndef WEB_WS_SUBPROTOCOLSELECTOR_H
 #define WEB_WS_SUBPROTOCOLSELECTOR_H
 
-#include "web/websocket/SubProtocolFactory.h" // for WSSubPr...
-
 namespace web::websocket {
-    class SubProtocol;
-}
+    class SubProtocolFactory;
+} // namespace web::websocket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -42,15 +40,13 @@ namespace web::websocket {
 
     class SubProtocolFactorySelector {
     protected:
-        SubProtocolFactorySelector(SubProtocolFactory::Role role);
+        SubProtocolFactorySelector() = default;
         virtual ~SubProtocolFactorySelector() = default;
 
         SubProtocolFactorySelector(const SubProtocolFactorySelector&) = delete;
         SubProtocolFactorySelector& operator=(const SubProtocolFactorySelector&) = delete;
 
     public:
-        void destroy(SubProtocol* subProtocol);
-
         SubProtocolFactory* select(const std::string& subProtocolName);
 
         void add(SubProtocolFactory* subProtocolFactory, void* handle = nullptr);
@@ -61,8 +57,6 @@ namespace web::websocket {
         SubProtocolFactory* load(const std::string& filePath);
 
         void addSubProtocolSearchPath(const std::string& searchPath);
-
-        SubProtocolFactory::Role role;
 
         std::map<std::string, SubProtocolPlugin> subProtocolPlugins;
         std::list<std::string> searchPaths;

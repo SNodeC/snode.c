@@ -34,8 +34,6 @@ namespace web::websocket::subprotocol::echo::server {
     private:
         void destroy() override;
 
-        Role role() override;
-
         std::string name() override;
 
         web::websocket::SubProtocol* create() override;
@@ -45,6 +43,8 @@ namespace web::websocket::subprotocol::echo::server {
 
     extern "C" {
         web::websocket::server::SubProtocolFactory* plugin();
+        web::websocket::server::SubProtocolFactory* createSubProtocolFactory();
+        void destroySubProtocolFactory(web::websocket::server::SubProtocolFactory* echoFactory);
     }
 
 } // namespace web::websocket::subprotocol::echo::server

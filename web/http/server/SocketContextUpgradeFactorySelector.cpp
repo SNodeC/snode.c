@@ -57,7 +57,7 @@ namespace web::http::server {
     }
 
     void SocketContextUpgradeFactorySelector::destroy() {
-        for (const auto& [name, socketContextPlugin] : socketContextUpgradePlugins) {
+        for ([[maybe_unused]] const auto& [name, socketContextPlugin] : socketContextUpgradePlugins) {
             socketContextPlugin.socketContextUpgradeFactory->destroy();
             if (socketContextPlugin.handle != nullptr) {
                 dlclose(socketContextPlugin.handle);

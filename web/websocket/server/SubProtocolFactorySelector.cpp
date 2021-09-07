@@ -19,7 +19,6 @@
 #include "SubProtocolFactorySelector.h"
 
 #include "config.h"
-#include "web/websocket/server/SubProtocolFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,18 +26,17 @@
 
 namespace web::websocket::server {
 
-    std::shared_ptr<SubProtocolFactorySelector> SubProtocolFactorySelector::subProtocolSelector = nullptr;
+    std::shared_ptr<SubProtocolFactorySelector> SubProtocolFactorySelector::subProtocolFactorySelector = nullptr;
 
     std::shared_ptr<SubProtocolFactorySelector> SubProtocolFactorySelector::instance() {
-        if (subProtocolSelector == nullptr) {
-            subProtocolSelector = std::make_shared<SubProtocolFactorySelector>();
+        if (subProtocolFactorySelector == nullptr) {
+            subProtocolFactorySelector = std::make_shared<SubProtocolFactorySelector>();
         }
 
-        return subProtocolSelector;
+        return subProtocolFactorySelector;
     }
 
-    SubProtocolFactorySelector::SubProtocolFactorySelector()
-        : web::websocket::SubProtocolFactorySelector(SubProtocolFactory::Role::SERVER) {
+    SubProtocolFactorySelector::SubProtocolFactorySelector() {
 #ifndef NDEBUG
 #ifdef SUBPROTOCOL_SERVER_COMPILE_PATH
 

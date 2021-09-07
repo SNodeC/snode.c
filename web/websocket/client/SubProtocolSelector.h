@@ -31,11 +31,9 @@ namespace web::websocket::client {
 
     class SubProtocolFactorySelector : public web::websocket::SubProtocolFactorySelector {
     public:
-        SubProtocolFactorySelector();
+        SubProtocolFactorySelector() = default;
 
     public:
-        //        web::websocket::SubProtocol* select(const std::string& subProtocolName) override;
-
         static std::shared_ptr<SubProtocolFactorySelector> instance();
 
     private:
