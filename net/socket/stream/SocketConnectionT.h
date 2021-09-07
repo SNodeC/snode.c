@@ -122,8 +122,8 @@ namespace net::socket::stream {
             return socketContext;
         }
 
-        void switchSocketContext(const SocketContextFactory& socketContextFactory) override {
-            SocketContext* newSocketContext = socketContextFactory.create(this);
+        void switchSocketContext(const SocketContextFactory* socketContextFactory) override {
+            SocketContext* newSocketContext = socketContextFactory->create(this);
 
             if (newSocketContext != nullptr) {
                 socketContext->onDisconnected();

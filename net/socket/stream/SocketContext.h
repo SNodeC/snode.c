@@ -48,7 +48,7 @@ namespace net::socket::stream {
         std::string getLocalAddressAsString() const;
         std::string getRemoteAddressAsString() const;
 
-        void switchSocketContext(const SocketContextFactory& socketContextFactory);
+        void switchSocketContext(const SocketContextFactory* socketContextFactory);
 
         void setTimeout(int timeout);
 

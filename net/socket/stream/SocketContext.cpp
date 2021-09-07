@@ -55,7 +55,7 @@ namespace net::socket::stream {
         socketConnection->close();
     }
 
-    void SocketContext::switchSocketContext(const SocketContextFactory& socketContextFactory) {
+    void SocketContext::switchSocketContext(const SocketContextFactory* socketContextFactory) {
         socketConnection->switchSocketContext(socketContextFactory);
     }
 
