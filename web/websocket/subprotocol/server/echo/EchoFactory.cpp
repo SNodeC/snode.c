@@ -44,15 +44,15 @@ namespace web::websocket::subprotocol::echo::server {
     }
 
     extern "C" {
-        web::websocket::server::SubProtocolFactory* plugin() {
+        web::websocket::SubProtocolFactory* plugin() {
             return new EchoFactory();
         }
 
-        web::websocket::server::SubProtocolFactory* createSubProtocolFactory() {
+        web::websocket::SubProtocolFactory* createSubProtocolFactory() {
             return new EchoFactory();
         }
 
-        void destroySubProtocolFactory(web::websocket::server::SubProtocolFactory* echoFactory) {
+        void destroySubProtocolFactory(web::websocket::SubProtocolFactory* echoFactory) {
             delete echoFactory;
         }
     }

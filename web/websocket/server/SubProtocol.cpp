@@ -30,14 +30,20 @@ namespace web::websocket::server {
     SubProtocol::SubProtocol(const std::string& name)
         : web::websocket::SubProtocol(name) {
         clients = ChannelManager::instance()->subscribe(this);
+        // subscribe(name, this);
+        // this->channel = name;
     }
 
     SubProtocol::~SubProtocol() {
         ChannelManager::instance()->unsubscribe(this);
+        // unsubscribe(channel, this);
     }
 
     void SubProtocol::subscribe(const std::string& channel) {
         clients = ChannelManager::instance()->subscribe(channel, this);
+        // subscibe(channel, this);
+        // unsubscribe(this->channel, this);
+        // this->channel = channel;
     }
 
     void SubProtocol::sendBroadcast(const std::string& message) {

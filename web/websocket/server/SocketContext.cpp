@@ -20,8 +20,8 @@
 
 #include "web/http/server/Request.h"  // for Request
 #include "web/http/server/Response.h" // for Response
+#include "web/websocket/SubProtocolFactory.h"
 #include "web/websocket/server/SubProtocol.h"
-#include "web/websocket/server/SubProtocolFactory.h"
 #include "web/websocket/server/SubProtocolFactorySelector.h"
 #include "web/websocket/ws_utils.h"
 

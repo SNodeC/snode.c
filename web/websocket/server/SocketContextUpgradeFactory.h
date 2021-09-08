@@ -22,7 +22,7 @@
 #include "web/http/server/SocketContextUpgradeFactory.h"
 #include "web/websocket/server/SocketContext.h"
 
-namespace web::websocket::server {
+namespace web::websocket {
     class SubProtocolFactory;
 }
 

@@ -32,10 +32,9 @@ namespace web::websocket {
 namespace web::websocket {
 
     class SubProtocolFactory {
-    protected:
+    public:
         virtual ~SubProtocolFactory() = default;
 
-    public:
         virtual std::string name() = 0;
 
         virtual void destroy() = 0;
