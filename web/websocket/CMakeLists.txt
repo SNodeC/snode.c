@@ -15,6 +15,7 @@ add_library(
     client/SocketContext.cpp
     client/SubProtocol.cpp
     client/SubProtocolSelector.cpp
+    server/ChannelManager.cpp
     server/SocketContext.cpp
     server/SocketContextUpgradeFactory.cpp
     server/SubProtocol.cpp

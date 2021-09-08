@@ -16,13 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SocketContext.h"
+#include "web/websocket/server/SocketContext.h"
 
-#include "SubProtocol.h"
-#include "SubProtocolFactory.h"
-#include "SubProtocolFactorySelector.h"
 #include "web/http/server/Request.h"  // for Request
 #include "web/http/server/Response.h" // for Response
+#include "web/websocket/server/SubProtocol.h"
+#include "web/websocket/server/SubProtocolFactory.h"
+#include "web/websocket/server/SubProtocolFactorySelector.h"
 #include "web/websocket/ws_utils.h"
 
 namespace net::socket::stream {
@@ -62,8 +62,6 @@ namespace web::websocket::server {
             SubProtocol* subProtocol = dynamic_cast<SubProtocol*>(subProtocolFactory->create());
 
             if (subProtocol != nullptr) {
-                subProtocol->setClients(subProtocolFactory->getClients());
-
                 context = new SocketContext(socketConnection, subProtocol);
 
                 if (context != nullptr) {

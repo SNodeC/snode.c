@@ -19,6 +19,7 @@
 #include "web/websocket/server/SubProtocol.h"
 
 #include "web/websocket/SocketContext.h"
+#include "web/websocket/server/ChannelManager.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,10 +29,15 @@ namespace web::websocket::server {
 
     SubProtocol::SubProtocol(const std::string& name)
         : web::websocket::SubProtocol(name) {
+        clients = ChannelManager::instance()->subscribe(this);
     }
 
     SubProtocol::~SubProtocol() {
-        clients->remove(this);
+        ChannelManager::instance()->unsubscribe(this);
+    }
+
+    void SubProtocol::subscribe(const std::string& channel) {
+        clients = ChannelManager::instance()->subscribe(channel, this);
     }
 
     void SubProtocol::sendBroadcast(const std::string& message) {
@@ -86,11 +92,6 @@ namespace web::websocket::server {
         for (SubProtocol* client : *clients) {
             client->context->sendMessageStart(opCode, message, messageLength);
         }
-    }
-
-    void SubProtocol::setClients(std::shared_ptr<std::list<web::websocket::server::SubProtocol*>> clients) {
-        this->clients = clients;
-        clients->push_back(this);
     }
 
 } // namespace web::websocket::server

@@ -26,8 +26,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <functional>
-#include <list>
-#include <memory>
+#include <set>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -54,6 +53,8 @@ namespace web::websocket::server {
 
         using web::websocket::SubProtocol::sendClose;
         using web::websocket::SubProtocol::sendPing;
+
+        void subscribe(const std::string& channel);
 
         void sendBroadcast(const char* message, std::size_t messageLength);
         void sendBroadcast(const std::string& message);
@@ -85,11 +86,12 @@ namespace web::websocket::server {
         void sendBroadcast(uint8_t opCode, const char* message, std::size_t messageLength);
         void sendBroadcastStart(uint8_t opCode, const char* message, std::size_t messageLength);
 
-        void setClients(std::shared_ptr<std::list<SubProtocol*>> clients);
+        const std::set<SubProtocol*>* clients;
 
-        std::shared_ptr<std::list<SubProtocol*>> clients;
+        std::string channel;
 
         friend class SocketContext;
+        friend class ChannelManager;
     };
 
 } // namespace web::websocket::server

@@ -16,19 +16,47 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_SERVER_SUBPROTOCOLPLUGININTERFACE_H
-#define WEB_WS_SERVER_SUBPROTOCOLPLUGININTERFACE_H
-
-#include "web/websocket/SubProtocolFactory.h" // IWYU pragma: export
+#ifndef WEB_WS_SERVER_CHANNELMANAGER_H
+#define WEB_WS_SERVER_CHANNELMANAGER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <map>
+#include <set>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::websocket::server {
 
-    class SubProtocolFactory : public web::websocket::SubProtocolFactory {};
+    class SubProtocol;
+
+    class ChannelManager {
+    private:
+        ChannelManager();
+        ChannelManager(const ChannelManager&) = delete;
+
+        ~ChannelManager();
+
+        ChannelManager& operator=(const ChannelManager&) = delete;
+
+    public:
+        static ChannelManager* instance();
+
+        const std::set<SubProtocol*>* subscribe(const std::string& channel, SubProtocol* subProtocol);
+
+        void unsubscribe(SubProtocol* subProtocol);
+
+    private:
+        const std::set<SubProtocol*>* subscribe(SubProtocol* subProtocol);
+
+        static ChannelManager* channelManager;
+
+        std::map<std::string, std::set<SubProtocol*>> channels;
+
+        friend class SubProtocol;
+    };
 
 } // namespace web::websocket::server
 
-#endif // WEB_WS_SERVER_SUBPROTOCOLPLUGININTERFACE_H
+#endif // WEB_WS_SERVER_CHANNELMANAGER_H

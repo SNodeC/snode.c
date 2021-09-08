@@ -16,10 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SocketContextUpgradeFactory.h"
+#include "web/websocket/server/SocketContextUpgradeFactory.h"
 
-#include "SubProtocolFactory.h"         // for SubProtocolFactory
-#include "SubProtocolFactorySelector.h" // for SubProt...
+#include "web/websocket/server/SubProtocolFactory.h"         // for SubProtocolFactory
+#include "web/websocket/server/SubProtocolFactorySelector.h" // for SubProt...
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

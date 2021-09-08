@@ -16,16 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SubProtocolFactory.h"
+#include "web/websocket/server/SubProtocolFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::websocket::server {
-
-    std::shared_ptr<std::list<SubProtocol*>> SubProtocolFactory::getClients() {
-        return clients;
-    }
-
-} // namespace web::websocket::server
+namespace web::websocket::server {} // namespace web::websocket::server
