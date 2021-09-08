@@ -19,7 +19,6 @@
 #include "EchoFactory.h"
 
 #include "Echo.h"
-#include "web/websocket/SubProtocol.h" // for SubProtocol
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -35,11 +34,11 @@ namespace web::websocket::subprotocol::echo::server {
         return NAME;
     }
 
-    SubProtocol* EchoFactory::create() {
+    web::websocket::SubProtocol* EchoFactory::create() {
         return new Echo();
     }
 
-    void EchoFactory::destroy(SubProtocol* echo) {
+    void EchoFactory::destroy(web::websocket::SubProtocol* echo) {
         delete echo;
     }
 

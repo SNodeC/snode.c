@@ -18,7 +18,6 @@
 
 #include "web/websocket/server/SocketContextUpgradeFactory.h"
 
-#include "web/websocket/SubProtocolFactory.h"                // for SubProtocolFactory
 #include "web/websocket/server/SubProtocolFactorySelector.h" // for SubProt...
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

@@ -55,8 +55,7 @@ namespace web::websocket::server {
 
         SocketContext* context = nullptr;
 
-        SubProtocolFactory* subProtocolFactory =
-            dynamic_cast<SubProtocolFactory*>(SubProtocolFactorySelector::instance()->select(subProtocolName));
+        web::websocket::SubProtocolFactory* subProtocolFactory = SubProtocolFactorySelector::instance()->select(subProtocolName);
 
         if (subProtocolFactory != nullptr) {
             SubProtocol* subProtocol = dynamic_cast<SubProtocol*>(subProtocolFactory->create());
