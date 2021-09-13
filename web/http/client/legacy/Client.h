@@ -35,29 +35,11 @@ namespace web::http::client::legacy {
         using web::http::client::Client<net::socket::ip::tcp::ipv4::legacy::SocketClient, Request, Response>::Client;
     };
 
-    Client(const std::function<void(const legacy::Client<>::SocketAddress&, const legacy::Client<>::SocketAddress&)>& onConnect,
-           const std::function<void(legacy::Client<>::SocketConnection*)>& onConnected,
-           const std::function<void(Request&)>& onRequestBegin,
-           const std::function<void(Request&, Response&)>& onResponse,
-           const std::function<void(int, const std::string&)>& onResponseError,
-           const std::function<void(legacy::Client<>::SocketConnection*)>& onDisconnect,
-           const std::map<std::string, std::any>& options = {{}})
-        ->Client<web::http::client::Request, web::http::client::Response>;
-
     template <typename Request = web::http::client::Request, typename Response = web::http::client::Response>
     class Client6 : public web::http::client::Client<net::socket::ip::tcp::ipv6::legacy::SocketClient, Request, Response> {
     public:
         using web::http::client::Client<net::socket::ip::tcp::ipv6::legacy::SocketClient, Request, Response>::Client;
     };
-
-    Client6(const std::function<void(const legacy::Client6<>::SocketAddress&, const legacy::Client6<>::SocketAddress&)>& onConnect,
-            const std::function<void(legacy::Client6<>::SocketConnection*)>& onConnected,
-            const std::function<void(Request&)>& onRequestBegin,
-            const std::function<void(Request&, Response&)>& onResponse,
-            const std::function<void(int, const std::string&)>& onResponseError,
-            const std::function<void(legacy::Client6<>::SocketConnection*)>& onDisconnect,
-            const std::map<std::string, std::any>& options = {{}})
-        ->Client6<web::http::client::Request, web::http::client::Response>;
 
 } // namespace web::http::client::legacy
 
