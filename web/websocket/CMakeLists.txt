@@ -9,12 +9,8 @@ add_library(
     Receiver.cpp
     SocketContext.cpp
     SubProtocol.cpp
-    SubProtocolFactorySelector.cpp
     Transmitter.cpp
     ws_utils.cpp
-    client/SocketContext.cpp
-    client/SubProtocol.cpp
-    client/SubProtocolSelector.cpp
     server/ChannelManager.cpp
     server/SocketContext.cpp
     server/SocketContextUpgradeFactory.cpp

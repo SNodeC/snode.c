@@ -20,6 +20,7 @@
 #define WEB_WS_SUBPROTOCOLSELECTOR_H
 
 namespace web::websocket {
+    template <typename S>
     class SubProtocolFactory;
 } // namespace web::websocket
 
@@ -33,11 +34,13 @@ namespace web::websocket {
 
 namespace web::websocket {
 
+    template <typename SubProtocolT>
     struct SubProtocolPlugin {
-        SubProtocolFactory* subProtocolFactory;
+        SubProtocolFactory<SubProtocolT>* subProtocolFactory;
         void* handle = nullptr;
     };
 
+    template <typename SubProtocolT>
     class SubProtocolFactorySelector {
     protected:
         SubProtocolFactorySelector() = default;
@@ -47,18 +50,18 @@ namespace web::websocket {
         SubProtocolFactorySelector& operator=(const SubProtocolFactorySelector&) = delete;
 
     public:
-        SubProtocolFactory* select(const std::string& subProtocolName);
+        SubProtocolFactory<SubProtocolT>* select(const std::string& subProtocolName);
 
-        void add(SubProtocolFactory* subProtocolFactory, void* handle = nullptr);
+        void add(SubProtocolFactory<SubProtocolT>* subProtocolFactory, void* handle = nullptr);
 
         void unload();
 
     protected:
-        SubProtocolFactory* load(const std::string& filePath);
+        SubProtocolFactory<SubProtocolT>* load(const std::string& filePath);
 
         void addSubProtocolSearchPath(const std::string& searchPath);
 
-        std::map<std::string, SubProtocolPlugin> subProtocolPlugins;
+        std::map<std::string, SubProtocolPlugin<SubProtocolT>> subProtocolPlugins;
         std::list<std::string> searchPaths;
     };
 

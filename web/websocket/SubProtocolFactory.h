@@ -31,6 +31,7 @@ namespace web::websocket {
 
 namespace web::websocket {
 
+    template <typename SubProtocolT>
     class SubProtocolFactory {
     public:
         virtual ~SubProtocolFactory() = default;
@@ -39,8 +40,8 @@ namespace web::websocket {
 
         virtual void destroy() = 0;
 
-        virtual SubProtocol* create() = 0;
-        virtual void destroy(SubProtocol*) = 0;
+        virtual SubProtocolT* create() = 0;
+        virtual void destroy(web::websocket::SubProtocol*) = 0;
     };
 
 } // namespace web::websocket

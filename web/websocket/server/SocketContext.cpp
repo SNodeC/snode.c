@@ -20,7 +20,6 @@
 
 #include "web/http/server/Request.h"  // for Request
 #include "web/http/server/Response.h" // for Response
-#include "web/websocket/SubProtocolFactory.h"
 #include "web/websocket/server/SubProtocol.h"
 #include "web/websocket/server/SubProtocolFactorySelector.h"
 #include "web/websocket/ws_utils.h"
@@ -40,7 +39,7 @@ namespace net::socket::stream {
 
 namespace web::websocket::server {
 
-    SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection, web::websocket::SubProtocol* subProtocol)
+    SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection, web::websocket::server::SubProtocol* subProtocol)
         : web::websocket::SocketContext(socketConnection, subProtocol, Role::SERVER) {
     }
 
@@ -55,10 +54,11 @@ namespace web::websocket::server {
 
         SocketContext* context = nullptr;
 
-        web::websocket::SubProtocolFactory* subProtocolFactory = SubProtocolFactorySelector::instance()->select(subProtocolName);
+        web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory =
+            SubProtocolFactorySelector::instance()->select(subProtocolName);
 
         if (subProtocolFactory != nullptr) {
-            SubProtocol* subProtocol = dynamic_cast<SubProtocol*>(subProtocolFactory->create());
+            SubProtocol* subProtocol = subProtocolFactory->create();
 
             if (subProtocol != nullptr) {
                 context = new SocketContext(socketConnection, subProtocol);

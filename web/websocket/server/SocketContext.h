@@ -30,9 +30,9 @@ namespace web::http::server {
     class Response;
 } // namespace web::http::server
 
-namespace web::websocket {
+namespace web::websocket::server {
     class SubProtocol;
-} // namespace web::websocket
+} // namespace web::websocket::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -42,7 +42,7 @@ namespace web::websocket::server {
 
     class SocketContext : public web::websocket::SocketContext {
     protected:
-        SocketContext(net::socket::stream::SocketConnection* socketConnection, web::websocket::SubProtocol* subProtocol);
+        SocketContext(net::socket::stream::SocketConnection* socketConnection, web::websocket::server::SubProtocol* subProtocol);
 
         ~SocketContext() override;
 

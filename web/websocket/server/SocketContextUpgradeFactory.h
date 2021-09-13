@@ -23,7 +23,12 @@
 #include "web/websocket/server/SocketContext.h"
 
 namespace web::websocket {
+    template <typename S>
     class SubProtocolFactory;
+}
+
+namespace web::websocket::server {
+    class SubProtocol;
 }
 
 namespace net::socket::stream {
@@ -41,7 +46,7 @@ namespace web::websocket::server {
     class SocketContextUpgradeFactory : public web::http::server::SocketContextUpgradeFactory {
     public:
         SocketContextUpgradeFactory() = default;
-        SocketContextUpgradeFactory(SubProtocolFactory* subProtocolFactory);
+        SocketContextUpgradeFactory(SubProtocolFactory<SubProtocol>* subProtocolFactory);
 
         ~SocketContextUpgradeFactory();
 

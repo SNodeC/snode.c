@@ -1,4 +1,4 @@
-/*
+/*+
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
@@ -16,10 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SubProtocolFactorySelector.h"
+#ifndef WEB_WS_SUBPROTOCOLSELECTOR_HPP
+#define WEB_WS_SUBPROTOCOLSELECTOR_HPP
 
+#include "SubProtocolFactorySelector.h" // IWYU pragma: export
 #include "log/Logger.h"
-#include "web/websocket/SubProtocolFactory.h" // for SubProtocolFactory
+#include "web/websocket/SubProtocolFactory.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,8 +32,9 @@
 
 namespace web::websocket {
 
-    SubProtocolFactory* SubProtocolFactorySelector::select(const std::string& subProtocolName) {
-        SubProtocolFactory* subProtocolFactory = nullptr;
+    template <typename SubProtocolT>
+    SubProtocolFactory<SubProtocolT>* SubProtocolFactorySelector<SubProtocolT>::select(const std::string& subProtocolName) {
+        SubProtocolFactory<SubProtocolT>* subProtocolFactory = nullptr;
 
         if (subProtocolPlugins.contains(subProtocolName)) {
             subProtocolFactory = subProtocolPlugins[subProtocolName].subProtocolFactory;
@@ -47,15 +50,17 @@ namespace web::websocket {
         return subProtocolFactory;
     }
 
-    SubProtocolFactory* SubProtocolFactorySelector::load(const std::string& filePath) {
-        SubProtocolFactory* subProtocolFactory = nullptr;
+    template <typename SubProtocolT>
+    SubProtocolFactory<SubProtocolT>* SubProtocolFactorySelector<SubProtocolT>::load(const std::string& filePath) {
+        SubProtocolFactory<SubProtocolT>* subProtocolFactory = nullptr;
 
         void* handle = dlopen(filePath.c_str(), RTLD_LAZY | RTLD_LOCAL);
 
         if (handle != nullptr) {
             VLOG(0) << "SubProtocol loaded successfully: " << filePath;
 
-            SubProtocolFactory* (*plugin)() = reinterpret_cast<SubProtocolFactory* (*) ()>(dlsym(handle, "plugin"));
+            SubProtocolFactory<SubProtocolT>* (*plugin)() =
+                reinterpret_cast<SubProtocolFactory<SubProtocolT>* (*) ()>(dlsym(handle, "plugin"));
 
             if (plugin != nullptr) {
                 subProtocolFactory = plugin();
@@ -74,7 +79,8 @@ namespace web::websocket {
         return subProtocolFactory;
     }
 
-    void SubProtocolFactorySelector::unload() {
+    template <typename SubProtocolT>
+    void SubProtocolFactorySelector<SubProtocolT>::unload() {
         for ([[maybe_unused]] const auto& [name, subProtocolPlugin] : subProtocolPlugins) {
             subProtocolPlugin.subProtocolFactory->destroy();
             if (subProtocolPlugin.handle != nullptr) {
@@ -83,8 +89,9 @@ namespace web::websocket {
         }
     }
 
-    void SubProtocolFactorySelector::add(SubProtocolFactory* subProtocolFactory, void* handle) {
-        SubProtocolPlugin subProtocolPlugin = {.subProtocolFactory = subProtocolFactory, .handle = handle};
+    template <typename SubProtocolT>
+    void SubProtocolFactorySelector<SubProtocolT>::add(SubProtocolFactory<SubProtocolT>* subProtocolFactory, void* handle) {
+        SubProtocolPlugin<SubProtocolT> subProtocolPlugin = {.subProtocolFactory = subProtocolFactory, .handle = handle};
 
         if (subProtocolFactory != nullptr) {
             const auto [it, success] = subProtocolPlugins.insert({subProtocolFactory->name(), subProtocolPlugin});
@@ -100,8 +107,11 @@ namespace web::websocket {
         }
     }
 
-    void SubProtocolFactorySelector::addSubProtocolSearchPath(const std::string& searchPath) {
+    template <typename SubProtocolT>
+    void SubProtocolFactorySelector<SubProtocolT>::addSubProtocolSearchPath(const std::string& searchPath) {
         searchPaths.push_back(searchPath);
     }
 
 } // namespace web::websocket
+
+#endif // WEB_WS_SUBPROTOCOLSELECTOR_HPP
