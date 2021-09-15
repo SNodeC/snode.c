@@ -51,7 +51,7 @@ namespace web::http::server {
 
         SocketContextUpgradeFactory* select(Request& req, Response& res);
 
-        bool add(web::http::server::SocketContextUpgradeFactory* socketContextUpgradeFactory);
+        bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory);
 
     protected:
         web::http::server::SocketContextUpgradeFactory* load(const std::string& socketContextName);

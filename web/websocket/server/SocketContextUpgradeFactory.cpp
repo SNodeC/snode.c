@@ -18,8 +18,10 @@
 
 #include "web/websocket/server/SocketContextUpgradeFactory.h"
 
-//#include "web/websocket/SubProtocolFactorySelector.hpp"      // for SubProt...
+#include "web/http/server/Request.h"                         // for Request
+#include "web/http/server/Response.h"                        // for Response
 #include "web/websocket/server/SubProtocolFactorySelector.h" // for SubProt...
+#include "web/websocket/ws_utils.h"
 
 namespace web::websocket::server {
     class SubProtocol;
@@ -50,7 +52,42 @@ namespace web::websocket::server {
     }
 
     SocketContext* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnection* socketConnection) const {
-        return SocketContext::create(socketConnection, *request, *response);
+        std::string subProtocolName = request->header("sec-websocket-protocol");
+
+        SocketContext* context = nullptr;
+
+        web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory =
+            SubProtocolFactorySelector::instance()->select(subProtocolName);
+
+        if (subProtocolFactory != nullptr) {
+            SubProtocol* subProtocol = subProtocolFactory->create();
+
+            if (subProtocol != nullptr) {
+                context = new SocketContext(socketConnection, subProtocol);
+
+                if (context != nullptr) {
+                    response->set("Upgrade", "websocket");
+                    response->set("Connection", "Upgrade");
+                    response->set("Sec-WebSocket-Protocol", subProtocolName);
+
+                    web::websocket::serverWebSocketKey(request->header("sec-websocket-key"),
+                                                       [&response = this->response](char* key) -> void {
+                                                           response->set("Sec-WebSocket-Accept", key);
+                                                       });
+
+                    response->status(101).end(); // Switch Protocol
+                } else {
+                    subProtocolFactory->destroy(subProtocol);
+                    response->status(500).end(); // Internal Server Error
+                }
+            } else {
+                response->status(404).end(); // Not Found
+            }
+        } else {
+            response->status(404).end(); // Not Found
+        }
+
+        return context;
     }
 
     extern "C" {

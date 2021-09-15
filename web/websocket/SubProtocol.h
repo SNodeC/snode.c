@@ -19,10 +19,6 @@
 #ifndef WEB_WS_SUBSPROTOCOL_H
 #define WEB_WS_SUBSPROTOCOL_H
 
-namespace web::websocket {
-    class SocketContext;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
@@ -33,12 +29,15 @@ namespace web::websocket {
 
 namespace web::websocket {
 
+    template <typename SocketContextT>
     class SubProtocol {
     public:
         enum class Role { SERVER, CLIENT };
 
     protected:
-        SubProtocol(const std::string& name);
+        SubProtocol(const std::string& name)
+            : name(name) {
+        }
 
         SubProtocol() = delete;
         SubProtocol(const SubProtocol&) = delete;
@@ -48,25 +47,55 @@ namespace web::websocket {
         virtual ~SubProtocol() = default;
 
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from SubProtocol-Subclasses */
-        void sendMessage(const char* message, std::size_t messageLength);
-        void sendMessage(const std::string& message);
+        void sendMessage(const char* message, std::size_t messageLength) {
+            context->sendMessage(2, message, messageLength);
+        }
+        void sendMessage(const std::string& message) {
+            context->sendMessage(1, message.data(), message.length());
+        }
 
-        void sendMessageStart(const char* message, std::size_t messageLength);
-        void sendMessageStart(const std::string& message);
+        void sendMessageStart(const char* message, std::size_t messageLength) {
+            context->sendMessageStart(2, message, messageLength);
+        }
 
-        void sendMessageFrame(const char* message, std::size_t messageLength);
-        void sendMessageFrame(const std::string& message);
+        void sendMessageStart(const std::string& message) {
+            context->sendMessageStart(1, message.data(), message.length());
+        }
 
-        void sendMessageEnd(const char* message, std::size_t messageLength);
-        void sendMessageEnd(const std::string& message);
+        void sendMessageFrame([[maybe_unused]] const char* message, [[maybe_unused]] std::size_t messageLength) {
+            context->sendMessageFrame(message, messageLength);
+        }
 
-        void sendPing(char* reason = nullptr, std::size_t reasonLength = 0);
-        void sendClose(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0);
+        void sendMessageFrame(const std::string& message) {
+            sendMessageFrame(message.data(), message.length());
+        }
 
-        std::string getLocalAddressAsString() const;
-        std::string getRemoteAddressAsString() const;
+        void sendMessageEnd([[maybe_unused]] const char* message, [[maybe_unused]] std::size_t messageLength) {
+            context->sendMessageEnd(message, messageLength);
+        }
 
-        const std::string& getName();
+        void sendMessageEnd(const std::string& message) {
+            sendMessageEnd(message.data(), message.length());
+        }
+
+        void sendPing(char* reason = nullptr, std::size_t reasonLength = 0) {
+            context->sendPing(reason, reasonLength);
+        }
+
+        void sendClose(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0) {
+            context->sendClose(statusCode, reason, reasonLength);
+        }
+
+        std::string getLocalAddressAsString() const {
+            return context->getLocalAddressAsString();
+        }
+        std::string getRemoteAddressAsString() const {
+            return context->getRemoteAddressAsString();
+        }
+
+        const std::string& getName() {
+            return name;
+        }
 
         /* Callbacks (API) WSReceiver -> SubProtocol-Subclasses */
         virtual void onMessageStart(int opCode) = 0;
@@ -79,10 +108,12 @@ namespace web::websocket {
         virtual void onConnected() = 0;
         virtual void onDisconnected() = 0;
 
-        void setSocketContext(SocketContext* serverContext);
+        void setSocketContext(SocketContextT* serverContext) {
+            context = serverContext;
+        }
 
     protected:
-        SocketContext* context;
+        SocketContextT* context;
 
         const std::string name;
     };

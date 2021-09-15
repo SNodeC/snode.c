@@ -20,7 +20,7 @@
 #define WEB_WS_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H
 
 #include "web/websocket/SubProtocolFactory.h"
-#include "web/websocket/subprotocol/server/echo/Echo.h" // IWYU pragma: export
+#include "web/websocket/subprotocol/server/echo/Echo.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -38,7 +38,7 @@ namespace web::websocket::subprotocol::echo::server {
 
         Echo* create() override;
 
-        void destroy(web::websocket::SubProtocol* echo) override;
+        void destroy(Echo* echo) override;
     };
 
     extern "C" {

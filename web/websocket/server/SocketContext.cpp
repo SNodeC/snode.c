@@ -18,11 +18,8 @@
 
 #include "web/websocket/server/SocketContext.h"
 
-#include "web/http/server/Request.h"  // for Request
-#include "web/http/server/Response.h" // for Response
 #include "web/websocket/server/SubProtocol.h"
 #include "web/websocket/server/SubProtocolFactorySelector.h"
-#include "web/websocket/ws_utils.h"
 
 namespace net::socket::stream {
     class SocketConnection;
@@ -31,7 +28,6 @@ namespace net::socket::stream {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <memory> // for allocator
-#include <string> // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -40,51 +36,12 @@ namespace net::socket::stream {
 namespace web::websocket::server {
 
     SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection, web::websocket::server::SubProtocol* subProtocol)
-        : web::websocket::SocketContext(socketConnection, subProtocol, Role::SERVER) {
+        : web::websocket::SocketContext<web::websocket::server::SubProtocol>(socketConnection, subProtocol, Role::SERVER) {
+        subProtocol->setSocketContext(this);
     }
 
     SocketContext::~SocketContext() {
         SubProtocolFactorySelector::instance()->select(subProtocol->getName())->destroy(subProtocol);
-    }
-
-    SocketContext* SocketContext::create(net::socket::stream::SocketConnection* socketConnection,
-                                         web::http::server::Request& req,
-                                         web::http::server::Response& res) {
-        std::string subProtocolName = req.header("sec-websocket-protocol");
-
-        SocketContext* context = nullptr;
-
-        web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory =
-            SubProtocolFactorySelector::instance()->select(subProtocolName);
-
-        if (subProtocolFactory != nullptr) {
-            SubProtocol* subProtocol = subProtocolFactory->create();
-
-            if (subProtocol != nullptr) {
-                context = new SocketContext(socketConnection, subProtocol);
-
-                if (context != nullptr) {
-                    res.set("Upgrade", "websocket");
-                    res.set("Connection", "Upgrade");
-                    res.set("Sec-WebSocket-Protocol", subProtocolName);
-
-                    web::websocket::serverWebSocketKey(req.header("sec-websocket-key"), [&res](char* key) -> void {
-                        res.set("Sec-WebSocket-Accept", key);
-                    });
-
-                    res.status(101).end(); // Switch Protocol
-                } else {
-                    subProtocolFactory->destroy(subProtocol);
-                    res.status(500).end(); // Internal Server Error
-                }
-            } else {
-                res.status(404).end(); // Not Found
-            }
-        } else {
-            res.status(404).end(); // Not Found
-        }
-
-        return context;
     }
 
 } // namespace web::websocket::server

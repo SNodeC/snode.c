@@ -19,7 +19,7 @@
 #ifndef WEB_WS_SERVER_SUBPROTOCOLSELECTOR_H
 #define WEB_WS_SERVER_SUBPROTOCOLSELECTOR_H
 
-#include "web/websocket/SubProtocolFactorySelector.hpp" // IWYU pragma: export
+#include "web/websocket/SubProtocolFactorySelector.h" // IWYU pragma: export
 
 namespace web::websocket::server {
     class SubProtocol;

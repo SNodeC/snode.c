@@ -19,10 +19,6 @@
 #ifndef WEB_WS_SUBPROTOCOLPLUGININTERFACE_H
 #define WEB_WS_SUBPROTOCOLPLUGININTERFACE_H
 
-namespace web::websocket {
-    class SubProtocol;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string>
@@ -41,7 +37,7 @@ namespace web::websocket {
         virtual void destroy() = 0;
 
         virtual SubProtocolT* create() = 0;
-        virtual void destroy(web::websocket::SubProtocol*) = 0;
+        virtual void destroy(SubProtocolT*) = 0;
     };
 
 } // namespace web::websocket

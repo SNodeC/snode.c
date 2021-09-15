@@ -46,6 +46,7 @@ namespace web::websocket::server {
     class SocketContextUpgradeFactory : public web::http::server::SocketContextUpgradeFactory {
     public:
         SocketContextUpgradeFactory() = default;
+
         SocketContextUpgradeFactory(SubProtocolFactory<SubProtocol>* subProtocolFactory);
 
         ~SocketContextUpgradeFactory();

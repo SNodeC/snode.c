@@ -36,7 +36,7 @@ namespace web::websocket::subprotocol::echo::server {
         return new Echo();
     }
 
-    void EchoFactory::destroy(web::websocket::SubProtocol* echo) {
+    void EchoFactory::destroy(Echo* echo) {
         delete echo;
     }
 

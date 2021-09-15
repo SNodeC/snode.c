@@ -7,8 +7,6 @@ add_subdirectory(subprotocol)
 add_library(
     websocket SHARED
     Receiver.cpp
-    SocketContext.cpp
-    SubProtocol.cpp
     Transmitter.cpp
     ws_utils.cpp
     server/ChannelManager.cpp

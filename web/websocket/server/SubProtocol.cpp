@@ -18,7 +18,6 @@
 
 #include "web/websocket/server/SubProtocol.h"
 
-#include "web/websocket/SocketContext.h"
 #include "web/websocket/server/ChannelManager.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -28,8 +27,8 @@
 namespace web::websocket::server {
 
     SubProtocol::SubProtocol(const std::string& name)
-        : web::websocket::SubProtocol(name) {
-        clients = ChannelManager::instance()->subscribe(this);
+        : web::websocket::SubProtocol<web::websocket::server::SocketContext>(name) {
+        ChannelManager::instance()->subscribe(this);
         // subscribe(name, this);
         // this->channel = name;
     }
@@ -40,64 +39,46 @@ namespace web::websocket::server {
     }
 
     void SubProtocol::subscribe(const std::string& channel) {
-        clients = ChannelManager::instance()->subscribe(channel, this);
+        ChannelManager::instance()->subscribe(channel, this);
         // subscibe(channel, this);
         // unsubscribe(this->channel, this);
         // this->channel = channel;
     }
 
     void SubProtocol::sendBroadcast(const std::string& message) {
-        sendBroadcast(1, message.data(), message.length());
+        ChannelManager::instance()->sendBroadcast(channel, message);
     }
 
     void SubProtocol::sendBroadcast(const char* message, std::size_t messageLength) {
-        sendBroadcast(2, message, messageLength);
+        ChannelManager::instance()->sendBroadcast(channel, message, messageLength);
     }
 
     void SubProtocol::sendBroadcastStart(const char* message, std::size_t messageLength) {
-        sendBroadcastStart(2, message, messageLength);
+        ChannelManager::instance()->sendBroadcastStart(channel, message, messageLength);
     }
+
     void SubProtocol::sendBroadcastStart(const std::string& message) {
-        sendBroadcastStart(1, message.data(), message.length());
+        ChannelManager::instance()->sendBroadcastStart(channel, message);
     }
 
     void SubProtocol::sendBroadcastFrame(const char* message, std::size_t messageLength) {
-        for (SubProtocol* client : *clients) {
-            client->sendMessageFrame(message, messageLength);
-        }
+        ChannelManager::instance()->sendBroadcastFrame(channel, message, messageLength);
     }
 
     void SubProtocol::sendBroadcastFrame(const std::string& message) {
-        sendBroadcastFrame(message.data(), message.length());
+        ChannelManager::instance()->sendBroadcastFrame(channel, message.data(), message.length());
     }
 
     void SubProtocol::sendBroadcastEnd(const char* message, std::size_t messageLength) {
-        for (SubProtocol* client : *clients) {
-            client->sendMessageEnd(message, messageLength);
-        }
+        ChannelManager::instance()->sendBroadcastEnd(channel, message, messageLength);
     }
 
     void SubProtocol::sendBroadcastEnd(const std::string& message) {
-        sendBroadcastEnd(message.data(), message.length());
+        ChannelManager::instance()->sendBroadcastEnd(channel, message.data(), message.length());
     }
 
-    void SubProtocol::forEachClient(const std::function<void(SubProtocol*)>& forEachClient) {
-        for (SubProtocol* client : *clients) {
-            forEachClient(client);
-        }
-    }
-
-    /* private members */
-    void SubProtocol::sendBroadcast(uint8_t opCode, const char* message, std::size_t messageLength) {
-        for (SubProtocol* client : *clients) {
-            client->context->sendMessage(opCode, message, messageLength);
-        }
-    }
-
-    void SubProtocol::sendBroadcastStart(uint8_t opCode, const char* message, std::size_t messageLength) {
-        for (SubProtocol* client : *clients) {
-            client->context->sendMessageStart(opCode, message, messageLength);
-        }
+    void SubProtocol::forEachClient(const std::function<void(SubProtocol*)>& sendToClient) {
+        ChannelManager::instance()->forEachClient(channel, sendToClient);
     }
 
 } // namespace web::websocket::server

@@ -21,6 +21,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef> // for size_t
+#include <functional>
 #include <map>
 #include <set>
 #include <string>
@@ -43,12 +45,26 @@ namespace web::websocket::server {
     public:
         static ChannelManager* instance();
 
-        const std::set<SubProtocol*>* subscribe(const std::string& channel, SubProtocol* subProtocol);
+        void subscribe(const std::string& channel, SubProtocol* subProtocol);
 
         void unsubscribe(SubProtocol* subProtocol);
 
     private:
-        const std::set<SubProtocol*>* subscribe(SubProtocol* subProtocol);
+        void subscribe(SubProtocol* subProtocol);
+
+        void sendBroadcast(const std::string& channel, const char* message, std::size_t messageLength);
+        void sendBroadcastStart(const std::string& channel, const char* message, std::size_t messageLength);
+
+        void sendBroadcast(const std::string& channel, const std::string& message);
+        void sendBroadcastStart(const std::string& channel, const std::string& message);
+
+        void sendBroadcastFrame(const std::string& channel, const char* message, std::size_t messageLength);
+        void sendBroadcastFrame(const std::string& channel, const std::string& message);
+
+        void sendBroadcastEnd(const std::string& channel, const char* message, std::size_t messageLength);
+        void sendBroadcastEnd(const std::string& channel, const std::string& message);
+
+        void forEachClient(const std::string& channel, const std::function<void(SubProtocol*)>& sendToClient);
 
         static ChannelManager* channelManager;
 

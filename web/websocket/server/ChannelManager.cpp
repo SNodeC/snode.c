@@ -40,7 +40,7 @@ namespace web::websocket::server {
         return ChannelManager::channelManager == nullptr ? new ChannelManager() : ChannelManager::channelManager;
     }
 
-    const std::set<SubProtocol*>* ChannelManager::subscribe(const std::string& channel, SubProtocol* subProtocol) {
+    void ChannelManager::subscribe(const std::string& channel, SubProtocol* subProtocol) {
         if (subProtocol->channel != channel) {
             channels[subProtocol->getName() + "/" + channel].insert(subProtocol);
 
@@ -50,12 +50,10 @@ namespace web::websocket::server {
 
             subProtocol->channel = subProtocol->getName() + "/" + channel;
         }
-
-        return &(channels[subProtocol->channel]);
     }
 
-    const std::set<SubProtocol*>* ChannelManager::subscribe(SubProtocol* subProtocol) {
-        return subscribe(subProtocol->getName(), subProtocol);
+    void ChannelManager::subscribe(SubProtocol* subProtocol) {
+        subscribe(subProtocol->getName(), subProtocol);
     }
 
     void ChannelManager::unsubscribe(SubProtocol* subProtocol) {
@@ -67,6 +65,78 @@ namespace web::websocket::server {
                 if (channels.size() == 0) {
                     delete this;
                 }
+            }
+        }
+    }
+
+    /* private members */
+    void ChannelManager::sendBroadcast(const std::string& channel, const char* message, std::size_t messageLength) {
+        if (channels.contains(channel)) {
+            const std::set<SubProtocol*>& clients = channels[channel];
+            for (SubProtocol* client : clients) {
+                client->sendMessage(message, messageLength);
+            }
+        }
+    }
+
+    void ChannelManager::sendBroadcastStart(const std::string& channel, const char* message, std::size_t messageLength) {
+        if (channels.contains(channel)) {
+            const std::set<SubProtocol*>& clients = channels[channel];
+            for (SubProtocol* client : clients) {
+                client->sendMessageStart(message, messageLength);
+            }
+        }
+    }
+
+    void ChannelManager::sendBroadcast(const std::string& channel, const std::string& message) {
+        if (channels.contains(channel)) {
+            const std::set<SubProtocol*>& clients = channels[channel];
+            for (SubProtocol* client : clients) {
+                client->sendMessage(message);
+            }
+        }
+    }
+
+    void ChannelManager::sendBroadcastStart(const std::string& channel, const std::string& message) {
+        if (channels.contains(channel)) {
+            const std::set<SubProtocol*>& clients = channels[channel];
+            for (SubProtocol* client : clients) {
+                client->sendMessageStart(message);
+            }
+        }
+    }
+
+    void ChannelManager::sendBroadcastFrame(const std::string& channel, const char* message, std::size_t messageLength) {
+        if (channels.contains(channel)) {
+            const std::set<SubProtocol*>& clients = channels[channel];
+            for (SubProtocol* client : clients) {
+                client->sendMessageFrame(message, messageLength);
+            }
+        }
+    }
+
+    void ChannelManager::sendBroadcastFrame(const std::string& channel, const std::string& message) {
+        sendBroadcastFrame(channel, message.data(), message.length());
+    }
+
+    void ChannelManager::sendBroadcastEnd(const std::string& channel, const char* message, std::size_t messageLength) {
+        if (channels.contains(channel)) {
+            const std::set<SubProtocol*>& clients = channels[channel];
+            for (SubProtocol* client : clients) {
+                client->sendMessageEnd(message, messageLength);
+            }
+        }
+    }
+
+    void ChannelManager::sendBroadcastEnd(const std::string& channel, const std::string& message) {
+        sendBroadcastEnd(channel, message.data(), message.length());
+    }
+
+    void ChannelManager::forEachClient(const std::string& channel, const std::function<void(SubProtocol*)>& sendToClient) {
+        if (channels.contains(channel)) {
+            const std::set<SubProtocol*>& clients = channels[channel];
+            for (SubProtocol* client : clients) {
+                sendToClient(client);
             }
         }
     }

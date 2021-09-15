@@ -19,6 +19,9 @@
 #ifndef WEB_WS_SUBPROTOCOLSELECTOR_H
 #define WEB_WS_SUBPROTOCOLSELECTOR_H
 
+#include "log/Logger.h"
+#include "web/websocket/SubProtocolFactory.h" // IWYU pragma: export
+
 namespace web::websocket {
     template <typename S>
     class SubProtocolFactory;
@@ -26,6 +29,7 @@ namespace web::websocket {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <dlfcn.h>
 #include <list>
 #include <map>
 #include <string>
@@ -50,16 +54,81 @@ namespace web::websocket {
         SubProtocolFactorySelector& operator=(const SubProtocolFactorySelector&) = delete;
 
     public:
-        SubProtocolFactory<SubProtocolT>* select(const std::string& subProtocolName);
+        SubProtocolFactory<SubProtocolT>* select(const std::string& subProtocolName) {
+            SubProtocolFactory<SubProtocolT>* subProtocolFactory = nullptr;
 
-        void add(SubProtocolFactory<SubProtocolT>* subProtocolFactory, void* handle = nullptr);
+            if (subProtocolPlugins.contains(subProtocolName)) {
+                subProtocolFactory = subProtocolPlugins[subProtocolName].subProtocolFactory;
+            } else {
+                for (const std::string& searchPath : searchPaths) {
+                    subProtocolFactory = load(searchPath + "/lib" + subProtocolName + ".so");
+                    if (subProtocolFactory != nullptr) {
+                        break;
+                    }
+                }
+            }
 
-        void unload();
+            return subProtocolFactory;
+        }
+
+        void add(SubProtocolFactory<SubProtocolT>* subProtocolFactory, void* handle = nullptr) {
+            SubProtocolPlugin<SubProtocolT> subProtocolPlugin = {.subProtocolFactory = subProtocolFactory, .handle = handle};
+
+            if (subProtocolFactory != nullptr) {
+                const auto [it, success] = subProtocolPlugins.insert({subProtocolFactory->name(), subProtocolPlugin});
+                if (!success) {
+                    VLOG(0) << "Subprotocol already existing: not using " << subProtocolFactory->name();
+                    subProtocolFactory->destroy();
+                    if (handle != nullptr) {
+                        dlclose(handle);
+                    }
+                }
+            } else if (handle != nullptr) {
+                dlclose(handle);
+            }
+        }
+
+        void unload() {
+            for ([[maybe_unused]] const auto& [name, subProtocolPlugin] : subProtocolPlugins) {
+                subProtocolPlugin.subProtocolFactory->destroy();
+                if (subProtocolPlugin.handle != nullptr) {
+                    dlclose(subProtocolPlugin.handle);
+                }
+            }
+        }
 
     protected:
-        SubProtocolFactory<SubProtocolT>* load(const std::string& filePath);
+        SubProtocolFactory<SubProtocolT>* load(const std::string& filePath) {
+            SubProtocolFactory<SubProtocolT>* subProtocolFactory = nullptr;
 
-        void addSubProtocolSearchPath(const std::string& searchPath);
+            void* handle = dlopen(filePath.c_str(), RTLD_LAZY | RTLD_LOCAL);
+
+            if (handle != nullptr) {
+                VLOG(0) << "SubProtocol loaded successfully: " << filePath;
+
+                SubProtocolFactory<SubProtocolT>* (*plugin)() =
+                    reinterpret_cast<SubProtocolFactory<SubProtocolT>* (*) ()>(dlsym(handle, "plugin"));
+
+                if (plugin != nullptr) {
+                    subProtocolFactory = plugin();
+                    if (subProtocolFactory != nullptr) {
+                        add(subProtocolFactory, handle);
+                    } else {
+                        dlclose(handle);
+                    }
+                } else {
+                    VLOG(0) << "Optaining function \"plugin()\" in plugin failed: " << dlerror();
+                }
+            } else {
+                VLOG(0) << "Error dlopen: " << dlerror();
+            }
+
+            return subProtocolFactory;
+        }
+
+        void addSubProtocolSearchPath(const std::string& searchPath) {
+            searchPaths.push_back(searchPath);
+        }
 
         std::map<std::string, SubProtocolPlugin<SubProtocolT>> subProtocolPlugins;
         std::list<std::string> searchPaths;

@@ -25,30 +25,25 @@ namespace net::socket::stream {
     class SocketConnection;
 } // namespace net::socket::stream
 
-namespace web::http::server {
-    class Request;
-    class Response;
-} // namespace web::http::server
-
 namespace web::websocket::server {
     class SubProtocol;
-} // namespace web::websocket::server
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <cstddef> // for size_t
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::websocket::server {
 
-    class SocketContext : public web::websocket::SocketContext {
+    class SocketContext : public web::websocket::SocketContext<web::websocket::server::SubProtocol> {
     protected:
         SocketContext(net::socket::stream::SocketConnection* socketConnection, web::websocket::server::SubProtocol* subProtocol);
 
         ~SocketContext() override;
 
-    public:
-        static SocketContext*
-        create(net::socket::stream::SocketConnection* socketConnection, web::http::server::Request& req, web::http::server::Response& res);
+        friend class SocketContextUpgradeFactory;
     };
 
 } // namespace web::websocket::server
