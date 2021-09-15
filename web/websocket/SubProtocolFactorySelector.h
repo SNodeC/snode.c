@@ -130,6 +130,7 @@ namespace web::websocket {
             searchPaths.push_back(searchPath);
         }
 
+    private:
         std::map<std::string, SubProtocolPlugin<SubProtocol>> subProtocolPlugins;
         std::list<std::string> searchPaths;
     };

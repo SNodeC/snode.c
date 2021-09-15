@@ -61,19 +61,19 @@ namespace web::websocket::server {
 
         void subscribe(const std::string& channel);
 
-        void sendBroadcast(const char* message, std::size_t messageLength);
-        void sendBroadcast(const std::string& message);
+        void sendBroadcast(const char* message, std::size_t messageLength, bool excludeSelf = false);
+        void sendBroadcast(const std::string& message, bool excludeSelf = false);
 
-        void sendBroadcastStart(const char* message, std::size_t messageLength);
-        void sendBroadcastStart(const std::string& message);
+        void sendBroadcastStart(const char* message, std::size_t messageLength, bool excludeSelf = false);
+        void sendBroadcastStart(const std::string& message, bool excludeSelf = false);
 
-        void sendBroadcastFrame(const char* message, std::size_t messageLength);
-        void sendBroadcastFrame(const std::string& message);
+        void sendBroadcastFrame(const char* message, std::size_t messageLength, bool excludeSelf = false);
+        void sendBroadcastFrame(const std::string& message, bool excludeSelf = false);
 
-        void sendBroadcastEnd(const char* message, std::size_t messageLength);
-        void sendBroadcastEnd(const std::string& message);
+        void sendBroadcastEnd(const char* message, std::size_t messageLength, bool excludeSelf = false);
+        void sendBroadcastEnd(const std::string& message, bool excludeSelf = false);
 
-        void forEachClient(const std::function<void(SubProtocol*)>& sendToClient);
+        void forEachClient(const std::function<void(SubProtocol*)>& sendToClient, bool excludeSelf = false);
 
     private:
         /* Callbacks (API) WSReceiver -> SubProtocol-Subclasses */

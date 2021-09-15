@@ -45,40 +45,40 @@ namespace web::websocket::server {
         // this->channel = channel;
     }
 
-    void SubProtocol::sendBroadcast(const std::string& message) {
-        ChannelManager::instance()->sendBroadcast(channel, message);
+    void SubProtocol::sendBroadcast(const std::string& message, bool excludeSelf) {
+        ChannelManager::instance()->sendBroadcast(channel, message, excludeSelf ? this : nullptr);
     }
 
-    void SubProtocol::sendBroadcast(const char* message, std::size_t messageLength) {
-        ChannelManager::instance()->sendBroadcast(channel, message, messageLength);
+    void SubProtocol::sendBroadcast(const char* message, std::size_t messageLength, bool excludeSelf) {
+        ChannelManager::instance()->sendBroadcast(channel, message, messageLength, excludeSelf ? this : nullptr);
     }
 
-    void SubProtocol::sendBroadcastStart(const char* message, std::size_t messageLength) {
-        ChannelManager::instance()->sendBroadcastStart(channel, message, messageLength);
+    void SubProtocol::sendBroadcastStart(const char* message, std::size_t messageLength, bool excludeSelf) {
+        ChannelManager::instance()->sendBroadcastStart(channel, message, messageLength, excludeSelf ? this : nullptr);
     }
 
-    void SubProtocol::sendBroadcastStart(const std::string& message) {
-        ChannelManager::instance()->sendBroadcastStart(channel, message);
+    void SubProtocol::sendBroadcastStart(const std::string& message, bool excludeSelf) {
+        ChannelManager::instance()->sendBroadcastStart(channel, message, excludeSelf ? this : nullptr);
     }
 
-    void SubProtocol::sendBroadcastFrame(const char* message, std::size_t messageLength) {
-        ChannelManager::instance()->sendBroadcastFrame(channel, message, messageLength);
+    void SubProtocol::sendBroadcastFrame(const char* message, std::size_t messageLength, bool excludeSelf) {
+        ChannelManager::instance()->sendBroadcastFrame(channel, message, messageLength, excludeSelf ? this : nullptr);
     }
 
-    void SubProtocol::sendBroadcastFrame(const std::string& message) {
-        ChannelManager::instance()->sendBroadcastFrame(channel, message.data(), message.length());
+    void SubProtocol::sendBroadcastFrame(const std::string& message, bool excludeSelf) {
+        ChannelManager::instance()->sendBroadcastFrame(channel, message.data(), message.length(), excludeSelf ? this : nullptr);
     }
 
-    void SubProtocol::sendBroadcastEnd(const char* message, std::size_t messageLength) {
-        ChannelManager::instance()->sendBroadcastEnd(channel, message, messageLength);
+    void SubProtocol::sendBroadcastEnd(const char* message, std::size_t messageLength, bool excludeSelf) {
+        ChannelManager::instance()->sendBroadcastEnd(channel, message, messageLength, excludeSelf ? this : nullptr);
     }
 
-    void SubProtocol::sendBroadcastEnd(const std::string& message) {
-        ChannelManager::instance()->sendBroadcastEnd(channel, message.data(), message.length());
+    void SubProtocol::sendBroadcastEnd(const std::string& message, bool excludeSelf) {
+        ChannelManager::instance()->sendBroadcastEnd(channel, message.data(), message.length(), excludeSelf ? this : nullptr);
     }
 
-    void SubProtocol::forEachClient(const std::function<void(SubProtocol*)>& sendToClient) {
-        ChannelManager::instance()->forEachClient(channel, sendToClient);
+    void SubProtocol::forEachClient(const std::function<void(SubProtocol*)>& sendToClient, bool excludeSelf) {
+        ChannelManager::instance()->forEachClient(channel, sendToClient, excludeSelf ? this : nullptr);
     }
 
 } // namespace web::websocket::server

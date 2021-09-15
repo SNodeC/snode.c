@@ -49,14 +49,14 @@ namespace web::http::client {
     }
 
     void SocketContextUpgradeFactorySelector::unloadSocketContexts() {
-        for (const auto& [name, socketContextPlugin] : serverSocketContextPlugins) {
+        for ([[maybe_unused]] const auto& [name, socketContextPlugin] : serverSocketContextPlugins) {
             socketContextPlugin.socketContextUpgradeFactory->destroy();
             if (socketContextPlugin.handle != nullptr) {
                 dlclose(socketContextPlugin.handle);
             }
         }
 
-        for (const auto& [name, socketContextPlugin] : clientSocketContextPlugins) {
+        for ([[maybe_unused]] const auto& [name, socketContextPlugin] : clientSocketContextPlugins) {
             socketContextPlugin.socketContextUpgradeFactory->destroy();
             if (socketContextPlugin.handle != nullptr) {
                 dlclose(socketContextPlugin.handle);
