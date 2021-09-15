@@ -27,17 +27,20 @@
 
 namespace web::websocket {
 
-    template <typename SubProtocolT>
+    template <typename SubProtocol>
     class SubProtocolFactory {
     public:
+        SubProtocolFactory() = default;
+
         virtual ~SubProtocolFactory() = default;
 
         virtual std::string name() = 0;
 
         virtual void destroy() = 0;
 
-        virtual SubProtocolT* create() = 0;
-        virtual void destroy(SubProtocolT*) = 0;
+        virtual SubProtocol* create() = 0;
+
+        virtual void destroy(SubProtocol* subProtocol) = 0;
     };
 
 } // namespace web::websocket

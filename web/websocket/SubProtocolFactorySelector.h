@@ -23,7 +23,7 @@
 #include "web/websocket/SubProtocolFactory.h" // IWYU pragma: export
 
 namespace web::websocket {
-    template <typename S>
+    template <typename SubProtocol>
     class SubProtocolFactory;
 } // namespace web::websocket
 
@@ -38,13 +38,13 @@ namespace web::websocket {
 
 namespace web::websocket {
 
-    template <typename SubProtocolT>
+    template <typename SubProtocol>
     struct SubProtocolPlugin {
-        SubProtocolFactory<SubProtocolT>* subProtocolFactory;
+        SubProtocolFactory<SubProtocol>* subProtocolFactory;
         void* handle = nullptr;
     };
 
-    template <typename SubProtocolT>
+    template <typename SubProtocol>
     class SubProtocolFactorySelector {
     protected:
         SubProtocolFactorySelector() = default;
@@ -54,8 +54,8 @@ namespace web::websocket {
         SubProtocolFactorySelector& operator=(const SubProtocolFactorySelector&) = delete;
 
     public:
-        SubProtocolFactory<SubProtocolT>* select(const std::string& subProtocolName) {
-            SubProtocolFactory<SubProtocolT>* subProtocolFactory = nullptr;
+        SubProtocolFactory<SubProtocol>* select(const std::string& subProtocolName) {
+            SubProtocolFactory<SubProtocol>* subProtocolFactory = nullptr;
 
             if (subProtocolPlugins.contains(subProtocolName)) {
                 subProtocolFactory = subProtocolPlugins[subProtocolName].subProtocolFactory;
@@ -71,8 +71,8 @@ namespace web::websocket {
             return subProtocolFactory;
         }
 
-        void add(SubProtocolFactory<SubProtocolT>* subProtocolFactory, void* handle = nullptr) {
-            SubProtocolPlugin<SubProtocolT> subProtocolPlugin = {.subProtocolFactory = subProtocolFactory, .handle = handle};
+        void add(SubProtocolFactory<SubProtocol>* subProtocolFactory, void* handle = nullptr) {
+            SubProtocolPlugin<SubProtocol> subProtocolPlugin = {.subProtocolFactory = subProtocolFactory, .handle = handle};
 
             if (subProtocolFactory != nullptr) {
                 const auto [it, success] = subProtocolPlugins.insert({subProtocolFactory->name(), subProtocolPlugin});
@@ -98,16 +98,16 @@ namespace web::websocket {
         }
 
     protected:
-        SubProtocolFactory<SubProtocolT>* load(const std::string& filePath) {
-            SubProtocolFactory<SubProtocolT>* subProtocolFactory = nullptr;
+        SubProtocolFactory<SubProtocol>* load(const std::string& filePath) {
+            SubProtocolFactory<SubProtocol>* subProtocolFactory = nullptr;
 
             void* handle = dlopen(filePath.c_str(), RTLD_LAZY | RTLD_LOCAL);
 
             if (handle != nullptr) {
                 VLOG(0) << "SubProtocol loaded successfully: " << filePath;
 
-                SubProtocolFactory<SubProtocolT>* (*plugin)() =
-                    reinterpret_cast<SubProtocolFactory<SubProtocolT>* (*) ()>(dlsym(handle, "plugin"));
+                SubProtocolFactory<SubProtocol>* (*plugin)() =
+                    reinterpret_cast<SubProtocolFactory<SubProtocol>* (*) ()>(dlsym(handle, "plugin"));
 
                 if (plugin != nullptr) {
                     subProtocolFactory = plugin();
@@ -130,7 +130,7 @@ namespace web::websocket {
             searchPaths.push_back(searchPath);
         }
 
-        std::map<std::string, SubProtocolPlugin<SubProtocolT>> subProtocolPlugins;
+        std::map<std::string, SubProtocolPlugin<SubProtocol>> subProtocolPlugins;
         std::list<std::string> searchPaths;
     };
 

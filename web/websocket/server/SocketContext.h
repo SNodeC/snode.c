@@ -37,9 +37,9 @@ namespace web::websocket::server {
 
 namespace web::websocket::server {
 
-    class SocketContext : public web::websocket::SocketContext<web::websocket::server::SubProtocol> {
+    class SocketContext : public web::websocket::SocketContext<SubProtocol> {
     protected:
-        SocketContext(net::socket::stream::SocketConnection* socketConnection, web::websocket::server::SubProtocol* subProtocol);
+        SocketContext(net::socket::stream::SocketConnection* socketConnection, SubProtocol* subProtocol);
 
         ~SocketContext() override;
 

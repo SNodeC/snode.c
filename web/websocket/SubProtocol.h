@@ -29,7 +29,7 @@
 
 namespace web::websocket {
 
-    template <typename SocketContextT>
+    template <typename SocketContext>
     class SubProtocol {
     public:
         enum class Role { SERVER, CLIENT };
@@ -108,12 +108,12 @@ namespace web::websocket {
         virtual void onConnected() = 0;
         virtual void onDisconnected() = 0;
 
-        void setSocketContext(SocketContextT* serverContext) {
+        void setSocketContext(SocketContext* serverContext) {
             context = serverContext;
         }
 
     protected:
-        SocketContextT* context;
+        SocketContext* context;
 
         const std::string name;
     };

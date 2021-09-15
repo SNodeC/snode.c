@@ -29,7 +29,7 @@ namespace net::socket::stream {
 } // namespace net::socket::stream
 
 namespace web::websocket {
-    template <typename SocketContextT>
+    template <typename SocketContext>
     class SubProtocol;
 } // namespace web::websocket
 
@@ -45,7 +45,7 @@ namespace web::websocket {
 
 namespace web::websocket {
 
-    template <typename SubProtocolT>
+    template <typename SubProtocol>
     class SocketContext
         : public net::socket::stream::SocketContext
         , protected web::websocket::Receiver
@@ -54,7 +54,7 @@ namespace web::websocket {
         enum class Role { SERVER, CLIENT };
 
     protected:
-        SocketContext(net::socket::stream::SocketConnection* socketConnection, SubProtocolT* subProtocol, Role role)
+        SocketContext(net::socket::stream::SocketConnection* socketConnection, SubProtocol* subProtocol, Role role)
             : net::socket::stream::SocketContext(socketConnection)
             , Transmitter(role == Role::CLIENT)
             , subProtocol(subProtocol) {
@@ -123,7 +123,7 @@ namespace web::websocket {
         }
 
     protected:
-        SubProtocolT* subProtocol;
+        SubProtocol* subProtocol;
 
     private:
         void sendClose(const char* message, std::size_t messageLength) {

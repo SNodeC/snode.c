@@ -23,7 +23,7 @@
 #include "web/websocket/server/SocketContext.h"
 
 namespace web::websocket {
-    template <typename S>
+    template <typename SubProtocol>
     class SubProtocolFactory;
 }
 
@@ -52,6 +52,7 @@ namespace web::websocket::server {
         ~SocketContextUpgradeFactory();
 
         std::string name() override;
+
         Role role() override;
 
     private:
