@@ -42,13 +42,15 @@ namespace web::websocket::server {
 
     void ChannelManager::subscribe(const std::string& channel, SubProtocol* subProtocol) {
         if (subProtocol->channel != channel) {
-            channels[subProtocol->getName() + "/" + channel].insert(subProtocol);
+            std::string newChannel = subProtocol->getName() + "/" + channel;
+
+            channels[newChannel].insert(subProtocol);
 
             if (!subProtocol->channel.empty()) {
                 unsubscribe(subProtocol);
             }
 
-            subProtocol->channel = subProtocol->getName() + "/" + channel;
+            subProtocol->channel = newChannel;
         }
     }
 

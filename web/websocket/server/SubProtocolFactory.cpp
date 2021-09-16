@@ -16,35 +16,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H
-#define WEB_WS_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H
-
-#include "web/websocket/server/SubProtocolFactory.h"
-#include "web/websocket/subprotocol/server/echo/Echo.h"
+#include "SubProtocolFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string> // for string
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::websocket::subprotocol::echo::server {
+namespace web::websocket::server {
 
-    class EchoFactory : public web::websocket::server::SubProtocolFactory {
-    private:
-        void destroy() override;
-
-        std::string name() override;
-
-        web::websocket::server::SubProtocol* create() override;
-
-        void destroy(web::websocket::server::SubProtocol* echo) override;
-    };
-
-    extern "C" {
-        EchoFactory* plugin();
+    SubProtocolFactory::SubProtocolFactory() {
     }
 
-} // namespace web::websocket::subprotocol::echo::server
-
-#endif // ECHOINTERFACE_H
+} // namespace web::websocket::server

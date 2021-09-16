@@ -16,48 +16,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H
-#define WEB_WS_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H
+#ifndef WEB_WS_SERVER_SUBPROTOCOLFACTORY_H
+#define WEB_WS_SERVER_SUBPROTOCOLFACTORY_H
 
-#include "web/http/server/SocketContextUpgradeFactory.h"
-#include "web/websocket/server/SocketContext.h"
-
-namespace web::websocket::server {
-    class SubProtocolFactory;
-}
-
-namespace web::websocket::server {
-    class SubProtocol;
-}
-
-namespace net::socket::stream {
-    class SocketConnection;
-}
+#include "web/websocket/SubProtocolFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <string> // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::websocket::server {
 
-    class SocketContextUpgradeFactory : public web::http::server::SocketContextUpgradeFactory {
+    class SubProtocol;
+
+    class SubProtocolFactory : public web::websocket::SubProtocolFactory<web::websocket::server::SubProtocol> {
     public:
-        SocketContextUpgradeFactory() = default;
-
-        SocketContextUpgradeFactory(SubProtocolFactory* subProtocolFactory);
-
-        ~SocketContextUpgradeFactory();
-
-        std::string name() override;
-
-        Role role() override;
-
-    private:
-        SocketContext* create(net::socket::stream::SocketConnection* socketConnection) const override;
+        SubProtocolFactory();
     };
 
 } // namespace web::websocket::server
 
-#endif // WEB_WS_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H
+#endif // SUBPROTOCOLFACTORY_H

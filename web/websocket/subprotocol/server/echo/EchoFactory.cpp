@@ -32,11 +32,11 @@ namespace web::websocket::subprotocol::echo::server {
         return NAME;
     }
 
-    Echo* EchoFactory::create() {
+    web::websocket::server::SubProtocol* EchoFactory::create() {
         return new Echo();
     }
 
-    void EchoFactory::destroy(Echo* echo) {
+    void EchoFactory::destroy(web::websocket::server::SubProtocol* echo) {
         delete echo;
     }
 
