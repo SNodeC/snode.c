@@ -19,7 +19,7 @@
 #ifndef WEB_WS_SUBPROTOCOL_ECHO_SERVER_ECHO_H
 #define WEB_WS_SUBPROTOCOL_ECHO_SERVER_ECHO_H
 
-#include "web/websocket/server/SubProtocol.h" // IWYU pragma: export
+#include "web/websocket/server/SubProtocol.h"
 
 namespace net::timer {
     class Timer;

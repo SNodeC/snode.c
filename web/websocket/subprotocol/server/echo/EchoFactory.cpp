@@ -18,6 +18,8 @@
 
 #include "EchoFactory.h"
 
+#include "Echo.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -32,11 +34,11 @@ namespace web::websocket::subprotocol::echo::server {
         return NAME;
     }
 
-    web::websocket::server::SubProtocol* EchoFactory::create() {
+    web::websocket::server::SubProtocolFactory::SubProtocol* EchoFactory::create() {
         return new Echo();
     }
 
-    void EchoFactory::destroy(web::websocket::server::SubProtocol* echo) {
+    void EchoFactory::destroy(web::websocket::server::SubProtocolFactory::SubProtocol* echo) {
         delete echo;
     }
 

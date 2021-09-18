@@ -20,7 +20,6 @@
 #define WEB_WS_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H
 
 #include "web/websocket/server/SubProtocolFactory.h"
-#include "web/websocket/subprotocol/server/echo/Echo.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -36,9 +35,9 @@ namespace web::websocket::subprotocol::echo::server {
 
         std::string name() override;
 
-        web::websocket::server::SubProtocol* create() override;
+        web::websocket::server::SubProtocolFactory::SubProtocol* create() override;
 
-        void destroy(web::websocket::server::SubProtocol* echo) override;
+        void destroy(web::websocket::server::SubProtocolFactory::SubProtocol* echo) override;
     };
 
     extern "C" {

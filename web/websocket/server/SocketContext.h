@@ -27,7 +27,7 @@ namespace net::socket::stream {
 
 namespace web::websocket::server {
     class SubProtocol;
-}
+} // namespace web::websocket::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -37,9 +37,9 @@ namespace web::websocket::server {
 
 namespace web::websocket::server {
 
-    class SocketContext : public web::websocket::SocketContext<SubProtocol> {
+    class SocketContext : public web::websocket::SocketContext<web::websocket::server::SubProtocol> {
     protected:
-        SocketContext(net::socket::stream::SocketConnection* socketConnection, SubProtocol* subProtocol);
+        SocketContext(net::socket::stream::SocketConnection* socketConnection, web::websocket::server::SubProtocol* subProtocol);
 
         ~SocketContext() override;
 

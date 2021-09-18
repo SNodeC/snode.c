@@ -24,11 +24,7 @@
 
 namespace web::websocket::server {
     class SubProtocolFactory;
-}
-
-namespace web::websocket::server {
-    class SubProtocol;
-}
+} // namespace web::websocket::server
 
 namespace net::socket::stream {
     class SocketConnection;

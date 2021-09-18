@@ -19,7 +19,12 @@
 #ifndef WEB_WS_SERVER_SUBPROTOCOLFACTORY_H
 #define WEB_WS_SERVER_SUBPROTOCOLFACTORY_H
 
-#include "web/websocket/SubProtocolFactory.h"
+#include "web/websocket/SubProtocolFactory.h" // IWYU pragma: export
+//#include "web/websocket/server/SubProtocol.h" // IWYU pragma: export
+
+namespace web::websocket::server {
+    class SubProtocol;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,11 +32,9 @@
 
 namespace web::websocket::server {
 
-    class SubProtocol;
-
     class SubProtocolFactory : public web::websocket::SubProtocolFactory<web::websocket::server::SubProtocol> {
     public:
-        SubProtocolFactory();
+        SubProtocolFactory() = default;
     };
 
 } // namespace web::websocket::server

@@ -19,6 +19,11 @@
 #ifndef WEB_WS_SUBSPROTOCOL_H
 #define WEB_WS_SUBSPROTOCOL_H
 
+namespace web::websocket {
+    template <typename SubProtocolT>
+    class SocketContext;
+} // namespace web::websocket
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
@@ -29,9 +34,11 @@
 
 namespace web::websocket {
 
-    template <typename SocketContext>
+    template <typename SocketContextT>
     class SubProtocol {
     public:
+        using SocketContext = SocketContextT;
+
         enum class Role { SERVER, CLIENT };
 
     protected:
@@ -50,6 +57,7 @@ namespace web::websocket {
         void sendMessage(const char* message, std::size_t messageLength) {
             context->sendMessage(2, message, messageLength);
         }
+
         void sendMessage(const std::string& message) {
             context->sendMessage(1, message.data(), message.length());
         }

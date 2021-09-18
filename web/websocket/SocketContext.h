@@ -20,18 +20,13 @@
 #define WEB_WS_SOCKETCONTEXT_H
 
 #include "log/Logger.h"
-#include "web/http/server/SocketContext.h"
+#include "net/socket/stream/SocketContext.h"
 #include "web/websocket/Receiver.h"
 #include "web/websocket/Transmitter.h"
 
 namespace net::socket::stream {
     class SocketConnection;
 } // namespace net::socket::stream
-
-namespace web::websocket {
-    template <typename SocketContext>
-    class SubProtocol;
-} // namespace web::websocket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -45,12 +40,14 @@ namespace web::websocket {
 
 namespace web::websocket {
 
-    template <typename SubProtocol>
+    template <typename SubProtocolT>
     class SocketContext
         : public net::socket::stream::SocketContext
         , protected web::websocket::Receiver
         , protected web::websocket::Transmitter {
     public:
+        using SubProtocol = SubProtocolT;
+
         enum class Role { SERVER, CLIENT };
 
     protected:

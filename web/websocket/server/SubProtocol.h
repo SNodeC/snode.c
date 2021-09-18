@@ -22,11 +22,6 @@
 #include "web/websocket/SubProtocol.h"          // for SubProtocol
 #include "web/websocket/server/SocketContext.h" // IWYU pragma: export
 
-namespace web::websocket {
-    template <typename SubProtocolT>
-    class SocketContext; // IWYU pragma: keep
-} // namespace web::websocket
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
@@ -91,6 +86,7 @@ namespace web::websocket::server {
 
         template <typename SubProtocolT>
         friend class web::websocket::SocketContext;
+
         friend class ChannelManager;
     };
 

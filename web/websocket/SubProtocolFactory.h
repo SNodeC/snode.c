@@ -27,9 +27,11 @@
 
 namespace web::websocket {
 
-    template <typename SubProtocol>
+    template <typename SubProtocolT>
     class SubProtocolFactory {
     public:
+        using SubProtocol = SubProtocolT;
+
         SubProtocolFactory() = default;
 
         virtual ~SubProtocolFactory() = default;

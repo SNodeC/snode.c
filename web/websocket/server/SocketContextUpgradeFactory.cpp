@@ -18,14 +18,11 @@
 
 #include "web/websocket/server/SocketContextUpgradeFactory.h"
 
-#include "web/http/server/Request.h"                         // for Request
-#include "web/http/server/Response.h"                        // for Response
+#include "web/http/server/Request.h"  // for Request
+#include "web/http/server/Response.h" // for Response
+#include "web/websocket/server/SubProtocol.h"
 #include "web/websocket/server/SubProtocolFactorySelector.h" // for SubProt...
 #include "web/websocket/ws_utils.h"
-
-namespace web::websocket::server {
-    class SubProtocol;
-}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -56,14 +53,14 @@ namespace web::websocket::server {
 
         SocketContext* context = nullptr;
 
-        web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory =
-            SubProtocolFactorySelector::instance()->select(subProtocolName);
+        web::websocket::server::SubProtocolFactory* subProtocolFactory = SubProtocolFactorySelector::instance()->select(subProtocolName);
 
         if (subProtocolFactory != nullptr) {
             SubProtocol* subProtocol = subProtocolFactory->create();
 
             if (subProtocol != nullptr) {
                 context = new SocketContext(socketConnection, subProtocol);
+                subProtocol->setSocketContext(context);
 
                 if (context != nullptr) {
                     response->set("Upgrade", "websocket");

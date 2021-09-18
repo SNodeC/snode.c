@@ -18,16 +18,13 @@
 
 #include "web/websocket/server/SocketContext.h"
 
-#include "web/websocket/server/SubProtocol.h"
-#include "web/websocket/server/SubProtocolFactorySelector.h"
+#include "web/websocket/server/SubProtocol.h" // IWYU pragma: keep
 
 namespace net::socket::stream {
     class SocketConnection;
 } // namespace net::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <memory> // for allocator
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -37,11 +34,10 @@ namespace web::websocket::server {
 
     SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection, SubProtocol* subProtocol)
         : web::websocket::SocketContext<SubProtocol>(socketConnection, subProtocol, Role::SERVER) {
-        subProtocol->setSocketContext(this);
     }
 
     SocketContext::~SocketContext() {
-        SubProtocolFactorySelector::instance()->select(subProtocol->getName())->destroy(subProtocol);
+        delete subProtocol;
     }
 
 } // namespace web::websocket::server
