@@ -1,0 +1,15 @@
+@startuml inline_umlgraph_1.svg
+  Response->SocketContextUpgradeFactorySelector  : select(request, *this)
+  Response<--SocketContextUpgradeFactorySelector : socketContextUpgradeFactory
+  Response->SocketContext : switchSocketContext(socketContextUpgradeFactory)
+  SocketContext->SocketConnection : switchSocketContext(socketContextUpgradeFactory)
+  SocketConnection->SocketContextUpgradeFactory : create(this)
+  SocketConnection<--SocketContextUpgradeFactory : NewSocketContext
+  SocketConnection->SocketContext : onDisconnected()
+  SocketConnection<--SocketContext
+  SocketConnection->SocketConnection : SocketContext=NewSocketContext
+  SocketConnection->SocketContext : onConnected()
+  SocketConnection<--SocketContext
+  SocketContext<--SocketConnection
+  Response<--SocketContext
+@enduml
