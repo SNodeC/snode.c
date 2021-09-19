@@ -45,13 +45,21 @@ namespace web::websocket {
 
     protected:
         SubProtocolFactorySelector() = default;
-        virtual ~SubProtocolFactorySelector() = default;
 
         SubProtocolFactorySelector(const SubProtocolFactorySelector&) = delete;
         SubProtocolFactorySelector& operator=(const SubProtocolFactorySelector&) = delete;
 
+        virtual ~SubProtocolFactorySelector() {
+            for (const auto& [name, subProtocolPlugin] : subProtocolPlugins) {
+                subProtocolPlugin.subProtocolFactory->destroy();
+                if (subProtocolPlugin.handle != nullptr) {
+                    dlclose(subProtocolPlugin.handle);
+                }
+            }
+        }
+
     public:
-        SubProtocolFactory* select(const std::string& subProtocolName) {
+        SubProtocolFactory* select(const std::string& subProtocolName) const {
             SubProtocolFactory* subProtocolFactory = nullptr;
 
             if (subProtocolPlugins.contains(subProtocolName)) {
@@ -68,7 +76,7 @@ namespace web::websocket {
             return subProtocolFactory;
         }
 
-        void add(SubProtocolFactory* subProtocolFactory, void* handle = nullptr) {
+        void add(SubProtocolFactory* subProtocolFactory, void* handle = nullptr) const {
             SubProtocolPlugin<SubProtocolFactory> subProtocolPlugin = {.subProtocolFactory = subProtocolFactory, .handle = handle};
 
             if (subProtocolFactory != nullptr) {
@@ -85,17 +93,8 @@ namespace web::websocket {
             }
         }
 
-        void unload() {
-            for ([[maybe_unused]] const auto& [name, subProtocolPlugin] : subProtocolPlugins) {
-                subProtocolPlugin.subProtocolFactory->destroy();
-                if (subProtocolPlugin.handle != nullptr) {
-                    dlclose(subProtocolPlugin.handle);
-                }
-            }
-        }
-
     protected:
-        SubProtocolFactory* load(const std::string& filePath) {
+        SubProtocolFactory* load(const std::string& filePath) const {
             SubProtocolFactory* subProtocolFactory = nullptr;
 
             void* handle = dlopen(filePath.c_str(), RTLD_LAZY | RTLD_LOCAL);
@@ -127,7 +126,7 @@ namespace web::websocket {
         }
 
     private:
-        std::map<std::string, SubProtocolPlugin<SubProtocolFactory>> subProtocolPlugins;
+        mutable std::map<std::string, SubProtocolPlugin<SubProtocolFactory>> subProtocolPlugins;
         std::list<std::string> searchPaths;
     };
 

@@ -21,10 +21,7 @@
 
 #include "web/http/server/SocketContextUpgradeFactory.h"
 #include "web/websocket/server/SocketContext.h"
-
-namespace web::websocket::server {
-    class SubProtocolFactory;
-} // namespace web::websocket::server
+#include "web/websocket/server/SubProtocolFactorySelector.h" // for SubProt...
 
 namespace net::socket::stream {
     class SocketConnection;
@@ -42,16 +39,20 @@ namespace web::websocket::server {
     public:
         SocketContextUpgradeFactory() = default;
 
-        ~SocketContextUpgradeFactory();
+    private:
+        SocketContextUpgradeFactory(SubProtocolFactory* subProtocolFactory);
 
+    public:
         static void attach(SubProtocolFactory* subProtocolFactory);
 
+    private:
         std::string name() override;
 
         Role role() override;
 
-    private:
         SocketContext* create(net::socket::stream::SocketConnection* socketConnection) const override;
+
+        SubProtocolFactorySelector subProtocolFactorySelector;
     };
 
 } // namespace web::websocket::server

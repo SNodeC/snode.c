@@ -22,26 +22,22 @@
 #include "web/http/server/Response.h" // for Response
 #include "web/http/server/SocketContextUpgradeFactorySelector.h"
 #include "web/websocket/server/SubProtocol.h"
-#include "web/websocket/server/SubProtocolFactorySelector.h" // for SubProt...
 #include "web/websocket/ws_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <memory> // for __share...
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::websocket::server {
 
-    SocketContextUpgradeFactory::~SocketContextUpgradeFactory() {
-        SubProtocolFactorySelector::instance()->unload();
+    SocketContextUpgradeFactory::SocketContextUpgradeFactory(SubProtocolFactory* subProtocolFactory) {
+        subProtocolFactorySelector.add(subProtocolFactory);
     }
 
     void SocketContextUpgradeFactory::attach(SubProtocolFactory* subProtocolFactory) {
         if (!web::http::server::SocketContextUpgradeFactorySelector::instance()->contains("websocket")) {
-            web::http::server::SocketContextUpgradeFactorySelector::instance()->add(new SocketContextUpgradeFactory());
+            web::http::server::SocketContextUpgradeFactorySelector::instance()->add(new SocketContextUpgradeFactory(subProtocolFactory));
         }
-        SubProtocolFactorySelector::instance()->add(subProtocolFactory);
     }
 
     std::string SocketContextUpgradeFactory::name() {
@@ -57,7 +53,7 @@ namespace web::websocket::server {
 
         SocketContext* context = nullptr;
 
-        web::websocket::server::SubProtocolFactory* subProtocolFactory = SubProtocolFactorySelector::instance()->select(subProtocolName);
+        web::websocket::server::SubProtocolFactory* subProtocolFactory = subProtocolFactorySelector.select(subProtocolName);
 
         if (subProtocolFactory != nullptr) {
             SubProtocol* subProtocol = subProtocolFactory->create();

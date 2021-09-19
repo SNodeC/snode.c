@@ -24,8 +24,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <memory>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::websocket::server {
@@ -33,11 +31,6 @@ namespace web::websocket::server {
     class SubProtocolFactorySelector : public web::websocket::SubProtocolFactorySelector<web::websocket::server::SubProtocolFactory> {
     public:
         SubProtocolFactorySelector();
-
-        static std::shared_ptr<SubProtocolFactorySelector> instance();
-
-    private:
-        static std::shared_ptr<SubProtocolFactorySelector> subProtocolFactorySelector;
     };
 
 } // namespace web::websocket::server

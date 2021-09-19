@@ -26,16 +26,6 @@
 
 namespace web::websocket::server {
 
-    std::shared_ptr<SubProtocolFactorySelector> SubProtocolFactorySelector::subProtocolFactorySelector = nullptr;
-
-    std::shared_ptr<SubProtocolFactorySelector> SubProtocolFactorySelector::instance() {
-        if (subProtocolFactorySelector == nullptr) {
-            subProtocolFactorySelector = std::make_shared<SubProtocolFactorySelector>();
-        }
-
-        return subProtocolFactorySelector;
-    }
-
     SubProtocolFactorySelector::SubProtocolFactorySelector() {
 #ifndef NDEBUG
 #ifdef SUBPROTOCOL_SERVER_COMPILE_PATH
