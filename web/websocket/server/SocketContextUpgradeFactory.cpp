@@ -20,6 +20,7 @@
 
 #include "web/http/server/Request.h"  // for Request
 #include "web/http/server/Response.h" // for Response
+#include "web/http/server/SocketContextUpgradeFactorySelector.h"
 #include "web/websocket/server/SubProtocol.h"
 #include "web/websocket/server/SubProtocolFactorySelector.h" // for SubProt...
 #include "web/websocket/ws_utils.h"
@@ -38,6 +39,13 @@ namespace web::websocket::server {
 
     SocketContextUpgradeFactory::~SocketContextUpgradeFactory() {
         SubProtocolFactorySelector::instance()->unload();
+    }
+
+    void SocketContextUpgradeFactory::attach(SubProtocolFactory* subProtocolFactory) {
+        if (!web::http::server::SocketContextUpgradeFactorySelector::instance()->contains("websocket")) {
+            web::http::server::SocketContextUpgradeFactorySelector::instance()->add(new SocketContextUpgradeFactory());
+        }
+        SubProtocolFactorySelector::instance()->add(subProtocolFactory);
     }
 
     std::string SocketContextUpgradeFactory::name() {

@@ -53,6 +53,8 @@ namespace web::http::server {
 
         bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory);
 
+        bool contains(const std::string& name);
+
     protected:
         web::http::server::SocketContextUpgradeFactory* load(const std::string& socketContextName);
 

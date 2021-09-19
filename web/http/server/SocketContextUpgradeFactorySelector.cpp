@@ -146,6 +146,10 @@ namespace web::http::server {
         return add(socketContextUpgradeFactory, nullptr);
     }
 
+    bool SocketContextUpgradeFactorySelector::contains(const std::string& name) {
+        return socketContextUpgradePlugins.contains(name);
+    }
+
     bool SocketContextUpgradeFactorySelector::add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handle) {
         bool success = false;
 

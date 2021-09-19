@@ -46,6 +46,8 @@ namespace web::websocket::server {
 
         ~SocketContextUpgradeFactory();
 
+        static void attach(SubProtocolFactory* subProtocolFactory);
+
         std::string name() override;
 
         Role role() override;
