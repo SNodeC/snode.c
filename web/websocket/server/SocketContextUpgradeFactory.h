@@ -42,8 +42,6 @@ namespace web::websocket::server {
     public:
         SocketContextUpgradeFactory() = default;
 
-        SocketContextUpgradeFactory(SubProtocolFactory* subProtocolFactory);
-
         ~SocketContextUpgradeFactory();
 
         static void attach(SubProtocolFactory* subProtocolFactory);

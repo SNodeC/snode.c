@@ -33,10 +33,6 @@
 
 namespace web::websocket::server {
 
-    SocketContextUpgradeFactory::SocketContextUpgradeFactory(web::websocket::server::SubProtocolFactory* subProtocolFactory) {
-        SubProtocolFactorySelector::instance()->add(subProtocolFactory);
-    }
-
     SocketContextUpgradeFactory::~SocketContextUpgradeFactory() {
         SubProtocolFactorySelector::instance()->unload();
     }
