@@ -62,7 +62,7 @@ namespace web::http::client {
 
         void sendHeader();
 
-        void end();
+        void start();
 
     protected:
         void enqueue(const char* junk, std::size_t junkLen);

@@ -65,7 +65,7 @@ public:
 
 class SimpleSocketProtocolFactory : public net::socket::stream::SocketContextFactory {
 private:
-    net::socket::stream::SocketContext* create(net::socket::stream::SocketConnection* socketConnection) const override {
+    net::socket::stream::SocketContext* create(net::socket::stream::SocketConnection* socketConnection) override {
         return new SimpleSocketProtocol(socketConnection);
     }
 };

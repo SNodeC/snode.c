@@ -48,7 +48,7 @@ namespace net::socket::stream {
 
     protected:
         SocketConnectionT(int fd,
-                          const std::shared_ptr<const SocketContextFactory>& socketContextFactory,
+                          const std::shared_ptr<SocketContextFactory>& socketContextFactory,
                           const SocketAddress& localAddress,
                           const SocketAddress& remoteAddress,
                           const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
@@ -122,7 +122,7 @@ namespace net::socket::stream {
             return socketContext;
         }
 
-        void switchSocketContext(const SocketContextFactory* socketContextFactory) override {
+        void switchSocketContext(SocketContextFactory* socketContextFactory) override {
             SocketContext* newSocketContext = socketContextFactory->create(this);
 
             if (newSocketContext != nullptr) {

@@ -38,10 +38,6 @@ namespace web::websocket::subprotocol::echo::server {
         return new Echo();
     }
 
-    void EchoFactory::destroy(web::websocket::server::SubProtocolFactory::SubProtocol* echo) {
-        delete echo;
-    }
-
     extern "C" {
         EchoFactory* plugin() {
             return new EchoFactory();

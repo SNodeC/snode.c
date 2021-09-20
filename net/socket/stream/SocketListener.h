@@ -52,7 +52,7 @@ namespace net::socket::stream {
         using Socket = typename SocketConnection::Socket;
         using SocketAddress = typename Socket::SocketAddress;
 
-        SocketListener(const std::shared_ptr<const SocketContextFactory>& socketContextFactory,
+        SocketListener(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
                        const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,
@@ -152,7 +152,7 @@ namespace net::socket::stream {
         }
 
     private:
-        std::shared_ptr<const SocketContextFactory> socketContextFactory = nullptr;
+        std::shared_ptr<SocketContextFactory> socketContextFactory = nullptr;
 
     protected:
         std::map<std::string, std::any> options;

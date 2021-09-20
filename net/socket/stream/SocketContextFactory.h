@@ -37,7 +37,7 @@ namespace net::socket::stream {
         virtual ~SocketContextFactory() = default;
 
     public:
-        virtual SocketContext* create(SocketConnection* socketConnection) const = 0;
+        virtual SocketContext* create(SocketConnection* socketConnection) = 0;
     };
 
 } // namespace net::socket::stream

@@ -55,7 +55,7 @@ namespace net::socket::stream {
         using SocketAddress = typename Socket::SocketAddress;
         using Socket::getFd;
 
-        SocketConnector(const std::shared_ptr<const SocketContextFactory>& socketContextFactory,
+        SocketConnector(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
                         const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,
@@ -155,7 +155,7 @@ namespace net::socket::stream {
         }
 
     private:
-        std::shared_ptr<const SocketContextFactory> socketContextFactory = nullptr;
+        std::shared_ptr<SocketContextFactory> socketContextFactory = nullptr;
 
     protected:
         std::function<void(int err)> onError;

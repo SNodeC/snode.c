@@ -37,10 +37,10 @@ namespace web::http::client {
     protected:
         Response() = default;
 
-        // switch to protected later on
-    public:
         void reset();
 
+        // switch to protected later on
+    public:
         std::string httpVersion;
         std::string statusCode;
         std::string reason;

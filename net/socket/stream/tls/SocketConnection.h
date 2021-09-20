@@ -42,7 +42,7 @@ namespace net::socket::stream::tls {
 
     public:
         SocketConnection(int fd,
-                         const std::shared_ptr<const SocketContextFactory>& socketContextFactory,
+                         const std::shared_ptr<SocketContextFactory>& socketContextFactory,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
                          const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,

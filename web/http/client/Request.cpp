@@ -207,7 +207,7 @@ namespace web::http::client {
         // the response-code needs to check the response from the server and upgrade the context in case the server says OK
     }
 
-    void Request::end() {
+    void Request::start() {
         send("");
     }
 

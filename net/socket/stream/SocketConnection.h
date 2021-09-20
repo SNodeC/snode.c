@@ -58,7 +58,7 @@ namespace net::socket::stream {
         virtual void setTimeout(int timeout) = 0;
 
     protected:
-        virtual void switchSocketContext(const SocketContextFactory* socketContextFactory) = 0;
+        virtual void switchSocketContext(SocketContextFactory* socketContextFactory) = 0;
 
         friend SocketContext;
     };

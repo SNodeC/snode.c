@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
             },
             [](Request& request) -> void {
                 request.url = "/index.html";
-                request.end();
+                request.start();
             },
             []([[maybe_unused]] Request& request, Response& response) -> void {
                 VLOG(0) << "-- OnResponse";
@@ -159,7 +159,7 @@ int main(int argc, char* argv[]) {
             },
             [](Request& request) -> void {
                 request.url = "/index.html";
-                request.end();
+                request.start();
             },
             []([[maybe_unused]] Request& request, const Response& response) -> void {
                 VLOG(0) << "-- OnResponse";

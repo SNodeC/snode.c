@@ -42,7 +42,7 @@ namespace web::websocket {
 
         virtual SubProtocol* create() = 0;
 
-        virtual void destroy(SubProtocol* subProtocol) = 0;
+        //        virtual void destroy(SubProtocol* subProtocol) = 0;
     };
 
 } // namespace web::websocket

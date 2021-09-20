@@ -39,6 +39,10 @@ namespace web::websocket::server {
     public:
         SocketContextUpgradeFactory() = default;
 
+        SocketContextUpgradeFactory(const SocketContextUpgradeFactory&) = delete;
+
+        SocketContextUpgradeFactory& operator=(const SocketContextUpgradeFactory&) = delete;
+
     private:
         SocketContextUpgradeFactory(SubProtocolFactory* subProtocolFactory);
 
@@ -50,7 +54,7 @@ namespace web::websocket::server {
 
         Role role() override;
 
-        SocketContext* create(net::socket::stream::SocketConnection* socketConnection) const override;
+        SocketContext* create(net::socket::stream::SocketConnection* socketConnection) override;
 
         SubProtocolFactorySelector subProtocolFactorySelector;
     };

@@ -129,7 +129,7 @@ private:
 
 class SimpleSocketProtocolFactory : public net::socket::stream::SocketContextFactory {
 private:
-    SocketContext* create(net::socket::stream::SocketConnection* socketConnection) const override {
+    SocketContext* create(net::socket::stream::SocketConnection* socketConnection) override {
         return new SimpleSocketProtocol(socketConnection);
     }
 };

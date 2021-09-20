@@ -18,10 +18,10 @@
 
 #include "web/websocket/server/SocketContextUpgradeFactory.h"
 
+#include "SubProtocol.h"
 #include "web/http/server/Request.h"  // for Request
 #include "web/http/server/Response.h" // for Response
 #include "web/http/server/SocketContextUpgradeFactorySelector.h"
-#include "web/websocket/server/SubProtocol.h"
 #include "web/websocket/ws_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -48,7 +48,7 @@ namespace web::websocket::server {
         return http::server::SocketContextUpgradeFactory::Role::SERVER;
     }
 
-    SocketContext* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnection* socketConnection) const {
+    SocketContext* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnection* socketConnection) {
         std::string subProtocolName = request->header("sec-websocket-protocol");
 
         SocketContext* context = nullptr;
@@ -60,7 +60,6 @@ namespace web::websocket::server {
 
             if (subProtocol != nullptr) {
                 context = new SocketContext(socketConnection, subProtocol);
-                subProtocol->setSocketContext(context);
 
                 if (context != nullptr) {
                     response->set("Upgrade", "websocket");
@@ -74,7 +73,7 @@ namespace web::websocket::server {
 
                     response->status(101).end(); // Switch Protocol
                 } else {
-                    subProtocolFactory->destroy(subProtocol);
+                    delete subProtocol;
                     response->status(500).end(); // Internal Server Error
                 }
             } else {

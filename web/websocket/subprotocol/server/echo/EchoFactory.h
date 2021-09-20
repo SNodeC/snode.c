@@ -36,8 +36,6 @@ namespace web::websocket::subprotocol::echo::server {
         std::string name() override;
 
         web::websocket::server::SubProtocolFactory::SubProtocol* create() override;
-
-        void destroy(web::websocket::server::SubProtocolFactory::SubProtocol* echo) override;
     };
 
     extern "C" {

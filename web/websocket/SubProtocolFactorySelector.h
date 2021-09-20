@@ -59,7 +59,7 @@ namespace web::websocket {
         }
 
     public:
-        SubProtocolFactory* select(const std::string& subProtocolName) const {
+        SubProtocolFactory* select(const std::string& subProtocolName) {
             SubProtocolFactory* subProtocolFactory = nullptr;
 
             if (subProtocolPlugins.contains(subProtocolName)) {
@@ -76,7 +76,7 @@ namespace web::websocket {
             return subProtocolFactory;
         }
 
-        void add(SubProtocolFactory* subProtocolFactory, void* handle = nullptr) const {
+        void add(SubProtocolFactory* subProtocolFactory, void* handle = nullptr) {
             SubProtocolPlugin<SubProtocolFactory> subProtocolPlugin = {.subProtocolFactory = subProtocolFactory, .handle = handle};
 
             if (subProtocolFactory != nullptr) {
@@ -94,7 +94,7 @@ namespace web::websocket {
         }
 
     protected:
-        SubProtocolFactory* load(const std::string& filePath) const {
+        SubProtocolFactory* load(const std::string& filePath) {
             SubProtocolFactory* subProtocolFactory = nullptr;
 
             void* handle = dlopen(filePath.c_str(), RTLD_LAZY | RTLD_LOCAL);
@@ -126,7 +126,7 @@ namespace web::websocket {
         }
 
     private:
-        mutable std::map<std::string, SubProtocolPlugin<SubProtocolFactory>> subProtocolPlugins;
+        std::map<std::string, SubProtocolPlugin<SubProtocolFactory>> subProtocolPlugins;
         std::list<std::string> searchPaths;
     };
 
