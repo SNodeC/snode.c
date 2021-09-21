@@ -106,6 +106,7 @@ int main(int argc, char* argv[]) {
             },
             [](Request& request) -> void {
                 request.url = "/index.html";
+                request.set("Connection", "close");
                 request.start();
             },
             []([[maybe_unused]] Request& request, Response& response) -> void {

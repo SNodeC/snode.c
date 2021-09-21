@@ -43,6 +43,7 @@ namespace net::socket::stream {
 #include <openssl/x509v3.h>   // for GENERAL_NAME
 #include <stdint.h>           // for int32_t
 #include <string>             // for string
+#include <sys/types.h>        // for ssize_t
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -57,10 +58,13 @@ public:
     void onReceiveFromPeer() override {
         char junk[4096];
 
-        std::size_t ret = readFromPeer(junk, 4096);
+        ssize_t ret = readFromPeer(junk, 4096);
 
-        VLOG(0) << "Data to reflect: " << std::string(junk, ret);
-        sendToPeer(junk, ret);
+        if (ret > 0) {
+            std::size_t junklen = static_cast<std::size_t>(ret);
+            VLOG(0) << "Data to reflect: " << std::string(junk, junklen);
+            sendToPeer(junk, junklen);
+        }
     }
 
     void onWriteError(int errnum) override {

@@ -85,6 +85,7 @@ namespace net {
 
             if (counter >= 0) {
                 tickCounter++;
+
                 timerEventDispatcher.dispatch();
 
                 struct timeval currentTime = {net::system::time(nullptr), 0};

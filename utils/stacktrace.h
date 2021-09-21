@@ -16,26 +16,18 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_WS_UTILS_H
-#define WEB_WS_WS_UTILS_H
+#ifndef UTILS_STACKTRACE_H
+#define UTILS_STACKTRACE_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
-#include <string>
+#include <cstddef> // for std::size_t
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::websocket {
+namespace stacktrace {
 
-    unsigned char* decode64(const char* input, int length);
-    char* base64(const unsigned char* input, int length);
-    void serverWebSocketKey(const std::string& clientWebSocketKey, const std::function<void(char*)>& returnKey);
-    std::string serverWebSocketKey(const std::string& clientWebSocketKey);
+    void stacktrace(std::size_t trace_cnt_max = 32);
+}
 
-    std::string base64_encode(const unsigned char*, int len);
-    std::string base64_decode(const std::string& s);
-
-} // namespace web::websocket
-
-#endif // WEB_WS_WS_UTILS_H
+#endif // UTILS_STACKTRACE_H

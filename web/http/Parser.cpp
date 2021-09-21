@@ -50,7 +50,7 @@ namespace web::http {
     }
 
     void Parser::parse() {
-        std::size_t consumed = 0;
+        ssize_t consumed = 0;
         bool parsingError = false;
 
         do {
@@ -76,9 +76,9 @@ namespace web::http {
         } while (consumed > 0 && !parsingError && parserState != ParserState::BEGIN);
     }
 
-    std::size_t Parser::readStartLine() {
-        std::size_t consumed = 0;
-        std::size_t ret = 0;
+    ssize_t Parser::readStartLine() {
+        ssize_t consumed = 0;
+        ssize_t ret = 0;
 
         do {
             char ch = 0;
@@ -94,15 +94,17 @@ namespace web::http {
                 } else {
                     line += ch;
                 }
+            } else if (ret < 0) {
+                consumed = ret;
             }
         } while (ret > 0 && parserState == ParserState::FIRSTLINE);
 
         return consumed;
     }
 
-    std::size_t Parser::readHeaderLine() {
-        std::size_t consumed = 0;
-        std::size_t ret = 0;
+    ssize_t Parser::readHeaderLine() {
+        ssize_t consumed = 0;
+        ssize_t ret = 0;
 
         do {
             char ch = 0;
@@ -148,6 +150,8 @@ namespace web::http {
                     line += ch;
                     consumed++;
                 }
+            } else if (ret < 0) {
+                consumed = ret;
             }
         } while (ret > 0 && parserState == ParserState::HEADER);
 
@@ -181,17 +185,18 @@ namespace web::http {
         }
     }
 
-    std::size_t Parser::readContent() {
+    ssize_t Parser::readContent() {
         if (contentRead == 0) {
             content = new char[contentLength];
         }
 
-        std::size_t contentJunkLen =
+        std::size_t contentJunkLenLeft =
             (contentLength - contentRead < MAX_CONTENT_JUNK_LEN) ? contentLength - contentRead : MAX_CONTENT_JUNK_LEN;
 
-        contentJunkLen = socketContext->readFromPeer(contentJunk, contentJunkLen);
+        ssize_t ret = socketContext->readFromPeer(contentJunk, contentJunkLenLeft);
 
-        if (contentJunkLen > 0) {
+        if (ret > 0) {
+            std::size_t contentJunkLen = static_cast<std::size_t>(ret);
             if (contentRead + contentJunkLen <= contentLength) {
                 memcpy(content + contentRead, contentJunk, contentJunkLen); // NOLINT(clang-analyzer-core.NonNullParamChecker)
 
@@ -213,7 +218,7 @@ namespace web::http {
             }
         }
 
-        return contentJunkLen;
+        return ret;
     }
 
     enum Parser::HTTPCompliance operator|(const enum Parser::HTTPCompliance& c1, const enum Parser::HTTPCompliance& c2) {

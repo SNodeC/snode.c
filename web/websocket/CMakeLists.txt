@@ -8,13 +8,14 @@ add_library(
     websocket SHARED
     Receiver.cpp
     Transmitter.cpp
-    ws_utils.cpp
     server/ChannelManager.cpp
     server/SocketContext.cpp
     server/SocketContextUpgradeFactory.cpp
     server/SubProtocol.cpp
     server/SubProtocolFactorySelector.cpp
 )
+
+target_link_libraries(websocket PUBLIC utils)
 
 target_include_directories(
     websocket PUBLIC ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}

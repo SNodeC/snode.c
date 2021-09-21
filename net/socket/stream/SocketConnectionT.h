@@ -108,7 +108,7 @@ namespace net::socket::stream {
             sendToPeer(data.data(), data.size());
         }
 
-        std::size_t readFromPeer(char* junk, std::size_t junkLen) override {
+        ssize_t readFromPeer(char* junk, std::size_t junkLen) override {
             return SocketReader::readFromPeer(junk, junkLen);
         }
 

@@ -30,7 +30,6 @@ namespace net::socket::stream {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
 #include <cstdint>
 #include <string>
 
@@ -194,7 +193,7 @@ namespace web::websocket {
             sendClose(errnum);
         }
 
-        std::size_t readFrameData(char* junk, std::size_t junkLen) override {
+        ssize_t readFrameData(char* junk, std::size_t junkLen) override {
             return readFromPeer(junk, junkLen);
         }
 
