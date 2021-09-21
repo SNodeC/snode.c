@@ -52,9 +52,9 @@ public:
         ssize_t ret = readFromPeer(junk, 4096);
 
         if (ret > 0) {
-            std::size_t count = static_cast<std::size_t>(ret);
-            VLOG(0) << "Data to reflect: " << std::string(junk, count);
-            sendToPeer(junk, count);
+            std::size_t junklen = static_cast<std::size_t>(ret);
+            VLOG(0) << "Data to reflect: " << std::string(junk, junklen);
+            sendToPeer(junk, junklen);
         }
     }
 
