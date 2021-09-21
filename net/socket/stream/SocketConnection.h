@@ -28,6 +28,7 @@ namespace net::socket::stream {
 
 #include <cstddef>
 #include <string>
+#include <sys/types.h> // for ssize_t
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -51,7 +52,7 @@ namespace net::socket::stream {
         virtual void sendToPeer(const char* junk, std::size_t junkLen) = 0;
         virtual void sendToPeer(const std::string& data) = 0;
 
-        virtual std::size_t readFromPeer(char* junk, std::size_t junkLen) = 0;
+        virtual ssize_t readFromPeer(char* junk, std::size_t junkLen) = 0;
 
         virtual void close() = 0;
 

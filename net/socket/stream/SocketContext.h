@@ -27,6 +27,7 @@ namespace net::socket::stream {
 
 #include <cstddef>
 #include <string>
+#include <sys/types.h> // for ssize_t
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -42,7 +43,7 @@ namespace net::socket::stream {
     public:
         void sendToPeer(const char* junk, std::size_t junkLen);
         void sendToPeer(const std::string& data);
-        std::size_t readFromPeer(char* junk, std::size_t junklen);
+        ssize_t readFromPeer(char* junk, std::size_t junklen);
         void close();
 
         std::string getLocalAddressAsString() const;

@@ -63,6 +63,7 @@ int main(int argc, char* argv[]) {
             },
             [](Request& request) -> void {
                 request.url = "/index.html";
+                request.set("Connection", "close");
                 request.start();
             },
             []([[maybe_unused]] const Request& request, const Response& response) -> void {
@@ -158,6 +159,7 @@ int main(int argc, char* argv[]) {
             },
             [](Request& request) -> void {
                 request.url = "/index.html";
+                request.set("Connection", "close");
                 request.start();
             },
             []([[maybe_unused]] const Request& request, const Response& response) -> void {

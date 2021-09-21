@@ -21,8 +21,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
+#include <cstddef> // for size_t
 #include <cstdint>
+#include <sys/types.h> // for ssize_t
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -47,18 +48,18 @@ namespace web::websocket {
             char keyAsArray[4];
         };
 
-        std::size_t readOpcode();
-        std::size_t readLength();
-        std::size_t readELength();
-        std::size_t readMaskingKey();
-        std::size_t readPayload();
+        ssize_t readOpcode();
+        ssize_t readLength();
+        ssize_t readELength();
+        ssize_t readMaskingKey();
+        ssize_t readPayload();
 
         virtual void onMessageStart(int opCode) = 0;
         virtual void onFrameReceived(const char* junk, uint64_t junkLen) = 0;
         virtual void onMessageEnd() = 0;
         virtual void onMessageError(uint16_t errnum) = 0;
 
-        virtual std::size_t readFrameData(char* junk, std::size_t junkLen) = 0;
+        virtual ssize_t readFrameData(char* junk, std::size_t junkLen) = 0;
 
         void reset();
 

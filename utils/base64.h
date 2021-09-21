@@ -16,34 +16,26 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_SERVER_SOCKTECONTEXT_H
-#define WEB_WS_SERVER_SOCKTECONTEXT_H
+#ifndef UTILS_BASE64_H
+#define UTILS_BASE64_H
 
-#include "web/websocket/SocketContext.h"
-
-namespace net::socket::stream {
-    class SocketConnection;
-} // namespace net::socket::stream
-
-namespace web::websocket::server {
-    class SubProtocol;
-} // namespace web::websocket::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <functional>
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::websocket::server {
+namespace base64 {
 
-    class SocketContext : public web::websocket::SocketContext<web::websocket::server::SubProtocol> {
-    protected:
-        SocketContext(net::socket::stream::SocketConnection* socketConnection, web::websocket::server::SubProtocol* subProtocol);
+unsigned char* decode64(const char* input, int length);
+char* base64(const unsigned char* input, int length);
+void serverWebSocketKey(const std::string& clientWebSocketKey, const std::function<void(char*)>& returnKey);
+std::string serverWebSocketKey(const std::string& clientWebSocketKey);
 
-        ~SocketContext() override;
+std::string base64_encode(const unsigned char*, int len);
+std::string base64_decode(const std::string& s);
+}
 
-        friend class SocketContextUpgradeFactory;
-    };
-
-} // namespace web::websocket::server
-
-#endif // WEB_WS_SERVER_SOCKTECONTEXT_H
+#endif // UTILS_BASE64_H

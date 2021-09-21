@@ -59,7 +59,7 @@ namespace net::socket::stream {
         virtual ssize_t read(char* junk, std::size_t junkLen) = 0;
 
     protected:
-        std::size_t readFromPeer(char* junk, std::size_t junkLen) {
+        ssize_t readFromPeer(char* junk, std::size_t junkLen) {
             if (markShutdown) {
                 Socket::shutdown(Socket::shutdown::RD);
                 markShutdown = false;
@@ -71,11 +71,13 @@ namespace net::socket::stream {
                 if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
                     ReadEventReceiver::disable();
                     onError(getError());
+                    ret = -1;
+                } else {
+                    ret = 0;
                 }
-                ret = 0;
             }
 
-            return static_cast<std::size_t>(ret);
+            return ret;
         }
 
     private:

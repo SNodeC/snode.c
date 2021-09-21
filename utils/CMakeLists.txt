@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.0)
 
-add_library(utils SHARED Timeval.cpp instrumentation.cpp)
+find_package(Backward)
+find_package(LibBfd)
+
+add_library(utils SHARED Timeval.cpp instrumentation.cpp base64.cpp stacktrace.cpp)
 
 set_target_properties(
     utils
@@ -12,7 +15,7 @@ set_target_properties(
 
 target_include_directories(utils PUBLIC ${PROJECT_SOURCE_DIR})
 
-target_link_libraries(utils PUBLIC dl)
+target_link_libraries(utils PUBLIC Backward::Backward ${LIBBFD_LIBRARIES})
 
 install(TARGETS utils LIBRARY DESTINATION lib NAMELINK_COMPONENT libutils.so.1)
 install(

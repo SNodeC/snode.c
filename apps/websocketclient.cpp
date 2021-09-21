@@ -21,11 +21,11 @@
 #include "config.h"                                 // for SERVERCAFILE
 #include "log/Logger.h"                             // for Writer, Storage
 #include "net/SNodeC.h"                             // for SNodeC
-#include "net/socket/ip/address/ipv6/InetAddress.h" // for InetAddress
+#include "net/socket/ip/address/ipv4/InetAddress.h" // for InetAddress
 #include "web/http/client/Request.h"                // for Request, client
 #include "web/http/client/Response.h"               // for Response
-#include "web/http/client/legacy/Client.h"          // for Client6, Client6...
-#include "web/http/client/tls/Client.h"             // for Client6, Client6...
+#include "web/http/client/legacy/Client.h"          // for Client, Client<>...
+#include "web/http/client/tls/Client.h"             // for Client, Client<>...
 
 #include <any>                // for any
 #include <cstring>            // for memcpy
@@ -51,22 +51,22 @@ int main(int argc, char* argv[]) {
     net::SNodeC::init(argc, argv);
 
     {
-        legacy::Client6<> legacyClient(
-            [](const legacy::Client6<>::SocketAddress& localAddress, const legacy::Client6<>::SocketAddress& remoteAddress) -> void {
+        legacy::Client<> legacyClient(
+            [](const legacy::Client<>::SocketAddress& localAddress, const legacy::Client<>::SocketAddress& remoteAddress) -> void {
                 VLOG(0) << "-- OnConnect";
 
                 VLOG(0) << "\tServer: " + remoteAddress.toString();
                 VLOG(0) << "\tClient: " + localAddress.toString();
             },
-            []([[maybe_unused]] legacy::Client6<>::SocketConnection* socketConnection) -> void {
+            []([[maybe_unused]] legacy::Client<>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnConnected";
             },
             [](Request& request) -> void {
-                request.url = "/index.html";
-                request.set("Connection", "close");
-                request.start();
+                request.upgrade("/ws/", "websocket", "tiktaktoe");
+                //                request.url = "/index.html";
+                //                request.start();
             },
-            []([[maybe_unused]] Request& request, Response& response) -> void {
+            []([[maybe_unused]] const Request& request, const Response& response) -> void {
                 VLOG(0) << "-- OnResponse";
                 VLOG(0) << "     Status:";
                 VLOG(0) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
@@ -97,23 +97,22 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "     Status: " << status;
                 VLOG(0) << "     Reason: " << reason;
             },
-            [](legacy::Client6<>::SocketConnection* socketConnection) -> void {
+            [](legacy::Client<>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnDisconnect";
 
                 VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
                 VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
             });
 
-        tls::Client6<> tlsClient(
-            [](const tls::Client6<>::SocketAddress& localAddress, const tls::Client6<>::SocketAddress& remoteAddress) -> void {
+        tls::Client<> tlsClient(
+            [](const tls::Client<>::SocketAddress& localAddress, const tls::Client<>::SocketAddress& remoteAddress) -> void {
                 VLOG(0) << "-- OnConnect";
 
                 VLOG(0) << "\tServer: " + remoteAddress.toString();
                 VLOG(0) << "\tClient: " + localAddress.toString();
             },
-            [](tls::Client6<>::SocketConnection* socketConnection) -> void {
+            [](tls::Client<>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnConnected";
-
                 X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
                 if (server_cert != nullptr) {
                     long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
@@ -159,11 +158,12 @@ int main(int argc, char* argv[]) {
                 }
             },
             [](Request& request) -> void {
+                //                request.upgrade("/ws/", "websocket", "tiktaktoe");
+
                 request.url = "/index.html";
-                request.set("Connection", "close");
                 request.start();
             },
-            []([[maybe_unused]] Request& request, const Response& response) -> void {
+            []([[maybe_unused]] const Request& request, const Response& response) -> void {
                 VLOG(0) << "-- OnResponse";
                 VLOG(0) << "     Status:";
                 VLOG(0) << "       " << response.httpVersion;
@@ -196,7 +196,7 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "     Status: " << status;
                 VLOG(0) << "     Reason: " << reason;
             },
-            [](tls::Client6<>::SocketConnection* socketConnection) -> void {
+            [](tls::Client<>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnDisconnect";
 
                 VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
@@ -209,24 +209,13 @@ int main(int argc, char* argv[]) {
                 PLOG(ERROR) << "OnError: " << err;
             }
         }); // Connection:keep-alive\r\n\r\n"
-
-        legacyClient.connect("localhost", 8080, [](int err) -> void {
-            if (err != 0) {
-                PLOG(ERROR) << "OnError: " << err;
-            }
-        }); // Connection:keep-alive\r\n\r\n"
-
-        tlsClient.connect("localhost", 8088, [](int err) -> void {
-            if (err != 0) {
-                PLOG(ERROR) << "OnError: " << err;
-            }
-        }); // Connection:keep-alive\r\n\r\n"
-
-        tlsClient.connect("localhost", 8088, [](int err) -> void {
-            if (err != 0) {
-                PLOG(ERROR) << "OnError: " << err;
-            }
-        }); // Connection:keep-alive\r\n\r\n"
+            /*
+                    tlsClient.connect("localhost", 8088, [](int err) -> void {
+                        if (err != 0) {
+                            PLOG(ERROR) << "OnError: " << err;
+                        }
+                    }); // Connection:keep-alive\r\n\r\n"
+                    */
     }
 
     return net::SNodeC::start();

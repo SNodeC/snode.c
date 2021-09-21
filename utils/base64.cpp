@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ws_utils.h"
+#include "base64.h"
 
 #include "log/Logger.h"
 
@@ -30,7 +30,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::websocket {
+namespace base64 {
 
     unsigned char* decode64(const char* input, int length) {
         const int pl = 3 * length / 4;
@@ -75,8 +75,6 @@ namespace web::websocket {
 
         unsigned char digest[SHA_DIGEST_LENGTH];
         SHA1(reinterpret_cast<const unsigned char*>(serverWebSocketKey.c_str()), serverWebSocketKey.length(), digest);
-
-        VLOG(0) << "+++++++ " << base64_encode(digest, SHA_DIGEST_LENGTH);
 
         return base64_encode(digest, SHA_DIGEST_LENGTH);
     }
@@ -179,5 +177,4 @@ namespace web::websocket {
 
         return ret;
     }
-
-} // namespace web::websocket
+} // namespace base64

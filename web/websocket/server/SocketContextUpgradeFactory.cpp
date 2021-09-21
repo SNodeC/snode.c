@@ -19,10 +19,10 @@
 #include "web/websocket/server/SocketContextUpgradeFactory.h"
 
 #include "SubProtocol.h"
+#include "utils/base64.h"
 #include "web/http/server/Request.h"  // for Request
 #include "web/http/server/Response.h" // for Response
 #include "web/http/server/SocketContextUpgradeFactorySelector.h"
-#include "web/websocket/ws_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -66,10 +66,9 @@ namespace web::websocket::server {
                     response->set("Connection", "Upgrade");
                     response->set("Sec-WebSocket-Protocol", subProtocolName);
 
-                    web::websocket::serverWebSocketKey(request->header("sec-websocket-key"),
-                                                       [&response = this->response](char* key) -> void {
-                                                           response->set("Sec-WebSocket-Accept", key);
-                                                       });
+                    base64::serverWebSocketKey(request->header("sec-websocket-key"), [&response = this->response](char* key) -> void {
+                        response->set("Sec-WebSocket-Accept", key);
+                    });
 
                     response->status(101).end(); // Switch Protocol
                 } else {

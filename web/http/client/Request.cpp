@@ -19,11 +19,13 @@
 #include "web/http/client/Request.h"
 
 #include "log/Logger.h"
+#include "utils/base64.h"
 #include "web/http/client/SocketContext.h"
 #include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <sys/random.h>
 #include <utility> // for pair, tuple_element<>::type
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -164,13 +166,13 @@ namespace web::http::client {
         if (contentLength != 0) {
             enqueue("Content-Length: " + std::to_string(contentLength) + "\r\n");
         }
-
-        if (connectionState == ConnectionState::Keep) {
-            enqueue("Connection: keep-alive\r\n");
-        } else {
-            enqueue("Connection: close\r\n");
-        }
-
+        /*
+                if (connectionState == ConnectionState::Keep) {
+                    enqueue("Connection: keep-alive\r\n");
+                } else if (connectionState == ConnectionState::Close) {
+                    enqueue("Connection: close\r\n");
+                }
+        */
         for (const auto& [name, value] : cookies) {
             enqueue("Cookie:" + name + "=" + value + "\r\n");
         }
@@ -200,7 +202,23 @@ namespace web::http::client {
         send(junk.data(), junk.size());
     }
 
-    void Request::upgrade() {
+    void Request::upgrade(const std::string& url, const std::string& protocol, const std::string& subProtocol) {
+        this->url = url;
+        set("Connection", "Upgrade", true);
+
+        set("Upgrade", protocol);
+
+        if (!subProtocol.empty()) {
+            set("Sec-WebSocket-Protocol", subProtocol);
+        }
+
+        unsigned char ebytes[16];
+        getentropy(ebytes, 16);
+
+        set("Sec-WebSocket-Key", base64::base64_encode(ebytes, 16));
+
+        start();
+
         // load upgrade context
         // let upgrade context fill the request-header fields
         // send the request to the server

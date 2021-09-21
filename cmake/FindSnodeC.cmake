@@ -149,6 +149,11 @@ if(NOT SNODEC_FOUND)
         list(APPEND SNODEC_UTILS_INCLUDE ${SNODEC_UTILS_H})
     endif(SNODEC_UTILS_H)
 
+    find_library(
+        SNODEC_UTILS_LIBRARY utils PATHS ${SNODEC_UTILS_ROOT_DIR}/lib
+                                             /usr/lib /usr/local/lib
+    )
+
     find_package_handle_standard_args(
         SnodeC
         REQUIRED_VARS
@@ -160,7 +165,9 @@ if(NOT SNODEC_FOUND)
             SNODEC_WEB_LIBRARY
             SNODEC_EXPRESS_INCLUDE
             SNODEC_EXPRESS_LIBRARY
-            SNODEC_UTILS_H
+            SNODEC_UTILS_INCLUDE
+            SNODEC_UTILS_LIBRARY
+
         FAIL_MESSAGE
             "SnodeC not found: Define SNODEC_ROOT_DIR or set the environment \
             variable SNODEC_ROOT_DIR to point to the directory where snode.c \
@@ -169,18 +176,21 @@ if(NOT SNODEC_FOUND)
 endif(NOT SNODEC_FOUND)
 
 if(SNODEC_FOUND)
-    message("-- Found SnodeC: ")
-    message("--     " ${SNODEC_LOGGER_LIBRARY})
-    message("--     " ${SNODEC_NET_LIBRARY})
-    message("--     " ${SNODEC_WEB_LIBRARY})
-    message("--     " ${SNODEC_WEBSOCKET_LIBRARY})
-    message("--     " ${SNODEC_EXPRESS_LIBRARY})
+    message("-- Found SnodeC Libraries:")
+    message("--   Logger:    " ${SNODEC_LOGGER_LIBRARY})
+    message("--   Net:       " ${SNODEC_NET_LIBRARY})
+    message("--   Web:       " ${SNODEC_WEB_LIBRARY})
+    message("--   WebSocket  " ${SNODEC_WEBSOCKET_LIBRARY})
+    message("--   Express    " ${SNODEC_EXPRESS_LIBRARY})
+    message("--   Utils      " ${SNODEC_UTILS_LIBRARY})
 
-    message("--     " ${SNODEC_LOGGER_INCLUDE})
-    message("--     " ${SNODEC_NET_INCLUDE})
-    message("--     " ${SNODEC_WEBSOCKET_INCLUDE})
-    message("--     " ${SNODEC_WEB_INCLUDE})
-    message("--     " ${SNODEC_EXPRESS_INCLUDE})
+    message("-- Found SnodeC Header:")
+    message("--   Logger     " ${SNODEC_LOGGER_INCLUDE})
+    message("--   Net:       " ${SNODEC_NET_INCLUDE})
+    message("--   Web:       " ${SNODEC_WEB_INCLUDE})
+    message("--   WebSocket: " ${SNODEC_WEBSOCKET_INCLUDE})
+    message("--   Express:   " ${SNODEC_EXPRESS_INCLUDE})
+    message("--   Utils:     " ${SNODEC_UTILS_INCLUDE})
 
     set(SNODEC_NET_LIBRARIES ${SNODEC_LOGGER_LIBRARY} ${SNODEC_NET_LIBRARY})
     set(SNODEC_WEB_LIBRARIES ${SNODEC_NET_LIBRARIES} ${SNODEC_WEB_LIBRARY})

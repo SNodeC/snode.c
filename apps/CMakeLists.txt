@@ -384,3 +384,25 @@ if(CHECK_INCLUDES)
                                         ${iwyu_path_and_options}
     )
 endif(CHECK_INCLUDES)
+
+
+
+
+
+
+add_executable(websocketclient websocketclient.cpp)
+target_link_libraries(websocketclient LINK_PUBLIC web)
+install(TARGETS websocketclient RUNTIME DESTINATION bin)
+set_target_properties(
+    websocketclient
+    PROPERTIES CXX_STANDARD 20
+               CXX_STANDARD_REQUIRED ON
+               CXX_EXTENSIONS OFF
+)
+if(CHECK_INCLUDES)
+    set_property(
+        TARGET websocketclient PROPERTY CXX_INCLUDE_WHAT_YOU_USE
+                                ${iwyu_path_and_options}
+    )
+endif(CHECK_INCLUDES)
+

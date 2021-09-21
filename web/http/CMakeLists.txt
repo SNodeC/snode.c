@@ -28,7 +28,7 @@ add_library(
     server/SocketContextUpgradeFactorySelector.cpp
 )
 
-target_link_libraries(web LINK_PUBLIC net ${LIBMAGIC_LIBRARIES})
+target_link_libraries(web LINK_PUBLIC net utils ${LIBMAGIC_LIBRARIES})
 
 set_target_properties(
     web
