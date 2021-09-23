@@ -26,17 +26,47 @@ set_target_properties(
                SOVERSION 1
 )
 
-target_include_directories(express PUBLIC ${PROJECT_SOURCE_DIR})
-
-install(TARGETS express LIBRARY DESTINATION lib
-                                NAMELINK_COMPONENT libexpress.so.1
+target_include_directories(
+    express PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
 )
+
+install(TARGETS express LIBRARY DESTINATION lib)
+
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION include/snode.c/express
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "cmake" EXCLUDE
+)
+
+install(
+    TARGETS express
+    EXPORT expressTargets
+    LIBRARY DESTINATION lib NAMELINK_COMPONENT express
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION lib
+    INCLUDES
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
+)
+
+install(
+    EXPORT expressTargets
+    FILE expressTargets.cmake
+    NAMESPACE express::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/express
+)
+
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
+    "${CMAKE_CURRENT_BINARY_DIR}/expressConfig.cmake"
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/express
+)
+
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/expressConfig.cmake"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/express
 )
 
 if(CHECK_INCLUDES)

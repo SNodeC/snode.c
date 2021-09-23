@@ -48,6 +48,8 @@ add_library(
     timer/Timer.cpp
 )
 
+add_library(net::net ALIAS net)
+
 target_link_libraries(
     net LINK_PUBLIC utils logger ${OPENSSL_LIBRARIES} ${BLUEZ_LIBRARIES}
 )
@@ -60,14 +62,17 @@ set_target_properties(
                SOVERSION 1
 )
 
-target_compile_options(net PRIVATE --warn-all)
-
 target_include_directories(
-    net PUBLIC ${PROJECT_SOURCE_DIR} ${OPENSSL_INCLUDE_DIRS}
-               ${BLUEZ_INCLUDE_DIRS}
+    net
+    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+           "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
+           "$<BUILD_INTERFACE:${OPENSSL_INCLUDE_DIRS}>"
+           "$<BUILD_INTERFACE:${BLUEZ_INCLUDE_DIRS}>"
+           "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 install(TARGETS net LIBRARY DESTINATION lib NAMELINK_COMPONENT libnet.so.1)
+
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION include/snode.c/net
@@ -75,6 +80,35 @@ install(
     PATTERN "*.h"
     PATTERN "*.hpp"
     PATTERN "cmake" EXCLUDE
+)
+
+install(
+    TARGETS net
+    EXPORT netTargets
+    LIBRARY DESTINATION lib NAMELINK_COMPONENT net
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION lib
+    INCLUDES
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
+)
+
+install(
+    EXPORT netTargets
+    FILE netTargets.cmake
+    NAMESPACE net::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/net
+)
+
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
+    "${CMAKE_CURRENT_BINARY_DIR}/netConfig.cmake"
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/net
+)
+
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/netConfig.cmake"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/net
 )
 
 if(CHECK_INCLUDES)

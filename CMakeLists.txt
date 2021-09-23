@@ -6,31 +6,6 @@ project(snode.c)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-option(SET_RPATH "Set rpath on all binaries and libraries" ON)
-if(SET_RPATH)
-    # use, i.e. don't skip the full RPATH for the build tree
-    set(CMAKE_SKIP_BUILD_RPATH FALSE)
-
-    # when building, don't use the install RPATH already (but later on when
-    # installing)
-    set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-
-    # set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-
-    # add the automatically determined parts of the RPATH which point to
-    # directories outside the build tree to the install RPATH
-    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-    # the RPATH to be used when installing, but only if it's not a system
-    # directory
-    list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES
-         "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir
-    )
-    if("${isSystemDir}" STREQUAL "-1")
-        set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-    endif("${isSystemDir}" STREQUAL "-1")
-endif(SET_RPATH)
-
 message("Your C++ compiler supports these C++ features:")
 foreach(i ${CMAKE_CXX_COMPILE_FEATURES})
     message("${i}")
@@ -73,11 +48,11 @@ set(iwyu_path_and_options
     --check_also='${PROJECT_SOURCE_DIR}/*'
 )
 
+add_subdirectory(log)
+add_subdirectory(utils)
 add_subdirectory(net)
 add_subdirectory(web)
 add_subdirectory(express)
-add_subdirectory(log)
-add_subdirectory(utils)
 add_subdirectory(apps)
 
 find_package(Doxygen)
@@ -125,12 +100,6 @@ add_custom_target(
     COMMAND sudo xargs -L1 dirname < install_manifest.txt | sort | uniq | sudo
             xargs rmdir -v --ignore-fail-on-non-empty -p
     COMMENT "Uninstall project"
-)
-
-install(
-    FILES cmake/FindSnodeC.cmake
-    DESTINATION lib/cmake/SnodeC
-    RENAME SnodeCConfig.cmake
 )
 
 # xargs rm < install_manifest.txt 140
