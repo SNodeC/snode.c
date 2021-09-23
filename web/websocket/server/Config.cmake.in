@@ -1,0 +1,7 @@
+@PACKAGE_INIT@
+
+include("${CMAKE_CURRENT_LIST_DIR}/websocketserverTargets.cmake")
+
+find_package(websocketbase)
+
+check_required_components(websocketserver)

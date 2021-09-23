@@ -150,8 +150,8 @@ if(NOT SNODEC_FOUND)
     endif(SNODEC_UTILS_H)
 
     find_library(
-        SNODEC_UTILS_LIBRARY utils PATHS ${SNODEC_UTILS_ROOT_DIR}/lib
-                                             /usr/lib /usr/local/lib
+        SNODEC_UTILS_LIBRARY utils PATHS ${SNODEC_UTILS_ROOT_DIR}/lib /usr/lib
+                                         /usr/local/lib
     )
 
     find_package_handle_standard_args(
@@ -167,7 +167,6 @@ if(NOT SNODEC_FOUND)
             SNODEC_EXPRESS_LIBRARY
             SNODEC_UTILS_INCLUDE
             SNODEC_UTILS_LIBRARY
-
         FAIL_MESSAGE
             "SnodeC not found: Define SNODEC_ROOT_DIR or set the environment \
             variable SNODEC_ROOT_DIR to point to the directory where snode.c \

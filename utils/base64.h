@@ -19,7 +19,6 @@
 #ifndef UTILS_BASE64_H
 #define UTILS_BASE64_H
 
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
@@ -29,13 +28,13 @@
 
 namespace base64 {
 
-unsigned char* decode64(const char* input, int length);
-char* base64(const unsigned char* input, int length);
-void serverWebSocketKey(const std::string& clientWebSocketKey, const std::function<void(char*)>& returnKey);
-std::string serverWebSocketKey(const std::string& clientWebSocketKey);
+    unsigned char* decode64(const char* input, int length);
+    char* base64(const unsigned char* input, int length);
+    void serverWebSocketKey(const std::string& clientWebSocketKey, const std::function<void(char*)>& returnKey);
+    std::string serverWebSocketKey(const std::string& clientWebSocketKey);
 
-std::string base64_encode(const unsigned char*, int len);
-std::string base64_decode(const std::string& s);
-}
+    std::string base64_encode(const unsigned char*, int len);
+    std::string base64_decode(const std::string& s);
+} // namespace base64
 
 #endif // UTILS_BASE64_H
