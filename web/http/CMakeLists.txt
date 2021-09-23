@@ -28,7 +28,9 @@ add_library(
     server/SocketContextUpgradeFactorySelector.cpp
 )
 
-target_link_libraries(web LINK_PUBLIC net utils ${LIBMAGIC_LIBRARIES})
+target_link_libraries(
+    web LINK_PUBLIC net::net utils::utils ${LIBMAGIC_LIBRARIES}
+)
 
 set_target_properties(
     web
@@ -39,8 +41,10 @@ set_target_properties(
 )
 
 target_include_directories(
-    web PUBLIC ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
-               ${LIBMAGIC_INCLUDES}
+    web
+    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+           "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
+           "$<INSTALL_INTERFACE:include/snode.c>" "${LIBMAGIC_INCLUDES}"
 )
 
 install(TARGETS web LIBRARY DESTINATION lib NAMELINK_COMPONENT libweb.so.1)
@@ -52,6 +56,35 @@ install(
     PATTERN "*.h"
     PATTERN "*.hpp"
     PATTERN "cmake" EXCLUDE
+)
+
+install(
+    TARGETS web
+    EXPORT webTargets
+    LIBRARY DESTINATION lib NAMELINK_COMPONENT web
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION lib
+    INCLUDES
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
+)
+
+install(
+    EXPORT webTargets
+    FILE webTargets.cmake
+    NAMESPACE web::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/web
+)
+
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
+    "${CMAKE_CURRENT_BINARY_DIR}/webConfig.cmake"
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/web
+)
+
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/webConfig.cmake"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/web
 )
 
 if(CHECK_INCLUDES)

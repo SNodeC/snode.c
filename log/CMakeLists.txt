@@ -55,7 +55,7 @@ target_compile_definitions(
 
 target_include_directories(
     logger
-    PUBLIC ${PROJECT_SOURCE_DIR}
+    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
     INTERFACE ${EASYLOGGINGPP_INCLUDE_DIR}
 )
 
@@ -71,6 +71,35 @@ install(
     PATTERN "cmake" EXCLUDE
     PATTERN "downloads" EXCLUDE
     PATTERN "easyloggingpp" EXCLUDE
+)
+
+install(
+    TARGETS logger
+    EXPORT loggerTargets
+    LIBRARY DESTINATION lib NAMELINK_COMPONENT logger
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION lib
+    INCLUDES
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
+)
+
+install(
+    EXPORT loggerTargets
+    FILE loggerTargets.cmake
+    NAMESPACE logger::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/logger
+)
+
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
+    "${CMAKE_CURRENT_BINARY_DIR}/loggerConfig.cmake"
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/logger
+)
+
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/loggerConfig.cmake"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/logger
 )
 
 if(CHECK_INCLUDES)

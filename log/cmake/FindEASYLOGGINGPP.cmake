@@ -13,6 +13,8 @@
 # https://muflihun.com
 #
 
+include(FindPackageHandleStandardArgs)
+
 execute_process(COMMAND ${CMAKE_COMMAND} -E echo_append "-- Easylogging++: Searching...")
 set(EASYLOGGINGPP_PATHS ${EASYLOGGINGPP_ROOT} $ENV{EASYLOGGINGPP_ROOT})
 

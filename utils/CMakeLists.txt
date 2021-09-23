@@ -20,7 +20,7 @@ target_include_directories(
     utils
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
            "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
-           "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/snode.c>"
+           "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 target_link_libraries(utils PUBLIC) # Backward::Backward ${LIBBFD_LIBRARIES})

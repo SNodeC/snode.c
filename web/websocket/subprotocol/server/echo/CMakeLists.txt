@@ -4,7 +4,7 @@ add_library(echo SHARED Echo.cpp EchoFactory.cpp)
 
 target_include_directories(echo PUBLIC ${PROJECT_SOURCE_DIR})
 
-target_link_libraries(echo websocketserver::websocket)
+target_link_libraries(echo websocket::server websocket::websocketbase)
 
 set_target_properties(
     echo

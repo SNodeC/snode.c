@@ -1,25 +1,30 @@
 cmake_minimum_required(VERSION 3.0)
 
 add_library(
-    websocket SHARED
+    server SHARED
     ChannelManager.cpp SocketContext.cpp SocketContextUpgradeFactory.cpp
     SubProtocol.cpp SubProtocolFactorySelector.cpp
 )
 
-add_library(
-    websocketserver::websocket ALIAS websocket)
+set_target_properties(server PROPERTIES OUTPUT_NAME "websocket")
+set_target_properties(
+    server PROPERTIES INSTALL_RPATH
+                      ${CMAKE_INSTALL_PREFIX}/lib/snode.c/web/http/upgrade
+)
 
-target_link_libraries(websocket websocketbase::websocketbase utils::utils)
+add_library(websocket::server ALIAS server)
+
+target_link_libraries(server PUBLIC websocket::websocketbase utils::utils)
 
 target_include_directories(
-    websocket
+    server
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
            "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
-           "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/snode.c>"
+           "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 set_target_properties(
-    websocket
+    server
     PROPERTIES CXX_STANDARD 20
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
@@ -28,7 +33,7 @@ set_target_properties(
 )
 
 set_target_properties(
-    websocket
+    server
     PROPERTIES ARCHIVE_OUTPUT_DIRECTORY
                "${SOCKETCONTEXTUPGRADE_SERVER_LIBDIR}/upgrade/server"
                LIBRARY_OUTPUT_DIRECTORY
@@ -38,12 +43,12 @@ set_target_properties(
 )
 
 install(
-    TARGETS websocket
+    TARGETS server
     EXPORT websocketserverTargets
-    LIBRARY DESTINATION lib/snode.c/web/http/upgrade/serve
-            NAMELINK_COMPONENT libwebsocket.so.1
-    ARCHIVE DESTINATION lib/snode.c/web/http/upgrade/serve
-    RUNTIME DESTINATION lib/snode.c/web/http/upgrade/serve
+    LIBRARY DESTINATION lib/snode.c/web/http/upgrade/server
+            NAMELINK_COMPONENT websocket
+    ARCHIVE DESTINATION lib/snode.c/web/http/upgrade/server
+    RUNTIME DESTINATION lib/snode.c/web/http/upgrade/server
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
 )
@@ -60,8 +65,8 @@ install(
 install(
     EXPORT websocketserverTargets
     FILE websocketserverTargets.cmake
-    NAMESPACE websocketserver::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/websocketserver
+    NAMESPACE websocket::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/websocket
 )
 
 include(CMakePackageConfigHelpers)
@@ -69,11 +74,11 @@ include(CMakePackageConfigHelpers)
 configure_package_config_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
     "${CMAKE_CURRENT_BINARY_DIR}/websocketserverConfig.cmake"
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/websocketserver
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/websocket
 )
 
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/websocketserverConfig.cmake"
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/websocketserver
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/websocket
 )
 
 if(CHECK_INCLUDES)
