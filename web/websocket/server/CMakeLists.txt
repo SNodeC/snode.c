@@ -7,10 +7,6 @@ add_library(
 )
 
 set_target_properties(server PROPERTIES OUTPUT_NAME "websocket")
-set_target_properties(
-    server PROPERTIES INSTALL_RPATH
-                      ${CMAKE_INSTALL_PREFIX}/lib/snode.c/web/http/upgrade
-)
 
 add_library(websocket::server ALIAS server)
 

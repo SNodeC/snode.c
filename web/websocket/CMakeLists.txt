@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 
 configure_file(config.h.in config.h @ONLY)
 
-# set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib/snode.c/web/http/upgrade)
+set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib/snode.c/web/http/upgrade)
 
 add_subdirectory(server)
 add_subdirectory(subprotocol)
