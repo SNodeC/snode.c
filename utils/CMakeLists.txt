@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-find_package(Backward)
-find_package(LibBfd)
+# find_package(Backward) find_package(LibBfd)
 
 add_library(utils SHARED Timeval.cpp instrumentation.cpp base64.cpp
 )# stacktrace.cpp)

@@ -1,5 +1,10 @@
 @PACKAGE_INIT@
 
+include(CMakeFindDependencyMacro)
+
+find_dependency(utils)
+find_dependency(net)
+
 include("${CMAKE_CURRENT_LIST_DIR}/webTargets.cmake")
 
 check_required_components(web)
