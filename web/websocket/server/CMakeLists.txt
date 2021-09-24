@@ -79,7 +79,7 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/websocketserverConfig.cmake"
 
 if(CHECK_INCLUDES)
     set_property(
-        TARGET websocket PROPERTY CXX_INCLUDE_WHAT_YOU_USE
+        TARGET server PROPERTY CXX_INCLUDE_WHAT_YOU_USE
                                   ${iwyu_path_and_options}
     )
 endif(CHECK_INCLUDES)
