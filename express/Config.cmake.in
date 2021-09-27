@@ -2,9 +2,7 @@
 
 include(CMakeFindDependencyMacro)
 
-#find_dependency(web)
-#find_dependency(utils)
-find_dependency(snodec COMPONENTS logger utils net web)
+#find_dependency(snodec COMPONENTS logger utils net web)
 
 include("${CMAKE_CURRENT_LIST_DIR}/expressTargets.cmake")
 

@@ -2,8 +2,8 @@
 
 include(CMakeFindDependencyMacro)
 
-find_dependency(websocket COMPONENTS websocketbase)
+find_dependency(snodec COMPONENTS websocketbase)
 
-include("${CMAKE_CURRENT_LIST_DIR}/websocketserverTargets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/snodecwebsocketserverTargets.cmake")
 
 check_required_components(websocketserver)

@@ -2,15 +2,16 @@ cmake_minimum_required(VERSION 3.0)
 
 configure_file(config.h.in config.h @ONLY)
 
+add_subdirectory(subprotocol)
+
 set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib/snode.c/web/http/upgrade)
 
 add_subdirectory(server)
-add_subdirectory(subprotocol)
 
 add_library(websocketbase SHARED Receiver.cpp Transmitter.cpp)
-add_library(websocket::websocketbase ALIAS websocketbase)
+add_library(snodec::websocketbase ALIAS websocketbase)
 
-target_link_libraries(websocketbase PUBLIC snodec::utils)
+target_link_libraries(websocketbase)
 
 target_include_directories(
     websocketbase
@@ -42,9 +43,8 @@ set_target_properties(
 
 install(
     TARGETS websocketbase
-    EXPORT websocketbaseTargets
+    EXPORT snodecwebsocketbaseTargets
     LIBRARY DESTINATION lib/snode.c/web/http/upgrade
-            NAMELINK_COMPONENT libwebsocketbase.so.1
     ARCHIVE DESTINATION lib/snode.c/web/http/upgrade
     RUNTIME DESTINATION lib/snode.c/web/http/upgrade
     INCLUDES
@@ -61,23 +61,10 @@ install(
 )
 
 install(
-    EXPORT websocketbaseTargets
-    FILE websocketbaseTargets.cmake
-    NAMESPACE websocket::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/websocket
-)
-
-include(CMakePackageConfigHelpers)
-
-configure_package_config_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
-    "${CMAKE_CURRENT_BINARY_DIR}/websocketConfig.cmake"
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/websocket
-    NO_CHECK_REQUIRED_COMPONENTS_MACRO
-)
-
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/websocketConfig.cmake"
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/websocket
+    EXPORT snodecwebsocketbaseTargets
+    FILE snodecwebsocketbaseTargets.cmake
+    NAMESPACE snodec::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
 
 if(CHECK_INCLUDES)

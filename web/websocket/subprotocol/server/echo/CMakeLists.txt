@@ -4,7 +4,7 @@ add_library(echo SHARED Echo.cpp EchoFactory.cpp)
 
 target_include_directories(echo PUBLIC ${PROJECT_SOURCE_DIR})
 
-target_link_libraries(echo websocket::server websocket::websocketbase)
+target_link_libraries(echo snodec::websocketserver snodec::websocketbase)
 
 set_target_properties(
     echo
@@ -24,7 +24,6 @@ set_target_properties(
 
 install(TARGETS echo
         LIBRARY DESTINATION lib/snode.c/web/websocket/subprotocol/server
-                NAMELINK_COMPONENT libecho.so.1
 )
 
 if(CHECK_INCLUDES)
