@@ -61,6 +61,16 @@ target_include_directories(
 )
 
 install(
+    TARGETS logger
+    EXPORT snodecloggerTargets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
+)
+
+install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION include/snode.c/log
     FILES_MATCHING
@@ -68,16 +78,6 @@ install(
     PATTERN "cmake" EXCLUDE
     PATTERN "downloads" EXCLUDE
     PATTERN "easyloggingpp" EXCLUDE
-)
-
-install(
-    TARGETS logger
-    EXPORT snodecloggerTargets
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION lib
-    INCLUDES
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
 )
 
 install(

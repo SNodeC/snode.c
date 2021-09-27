@@ -10,7 +10,7 @@ add_subdirectory(subprotocol)
 add_library(websocketbase SHARED Receiver.cpp Transmitter.cpp)
 add_library(websocket::websocketbase ALIAS websocketbase)
 
-target_link_libraries(websocketbase PUBLIC utils::utils)
+target_link_libraries(websocketbase PUBLIC snodec::utils)
 
 target_include_directories(
     websocketbase

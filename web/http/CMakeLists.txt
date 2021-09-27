@@ -29,7 +29,7 @@ add_library(
 )
 
 target_link_libraries(
-    web LINK_PUBLIC net::net utils::utils ${LIBMAGIC_LIBRARIES}
+    web LINK_PUBLIC net::net snodec::utils ${LIBMAGIC_LIBRARIES}
 )
 
 set_target_properties(

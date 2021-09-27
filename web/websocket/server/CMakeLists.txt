@@ -10,7 +10,7 @@ set_target_properties(server PROPERTIES OUTPUT_NAME "websocket")
 
 add_library(websocket::server ALIAS server)
 
-target_link_libraries(server PUBLIC websocket::websocketbase utils::utils)
+target_link_libraries(server PUBLIC websocket::websocketbase snodec::utils)
 
 target_include_directories(
     server

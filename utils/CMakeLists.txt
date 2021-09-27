@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.0)
 add_library(utils SHARED Timeval.cpp instrumentation.cpp base64.cpp
 )# stacktrace.cpp)
 
-add_library(utils::utils ALIAS utils)
+add_library(snodec::utils ALIAS utils)
 
 set_target_properties(
     utils
@@ -26,7 +26,7 @@ target_link_libraries(utils PUBLIC) # Backward::Backward ${LIBBFD_LIBRARIES})
 
 install(
     TARGETS utils
-    EXPORT utilsTargets
+    EXPORT snodecutilsTargets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -43,22 +43,22 @@ install(
 )
 
 install(
-    EXPORT utilsTargets
-    FILE utilsTargets.cmake
-    NAMESPACE utils::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/utils
+    EXPORT snodecutilsTargets
+    FILE snodecutilsTargets.cmake
+    NAMESPACE snodec::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
 
 include(CMakePackageConfigHelpers)
 
 configure_package_config_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
-    "${CMAKE_CURRENT_BINARY_DIR}/utilsConfig.cmake"
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/utils
+    "${CMAKE_CURRENT_BINARY_DIR}/snodecutilsConfig.cmake"
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
 
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/utilsConfig.cmake"
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/utils
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/snodecutilsConfig.cmake"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
 
 if(CHECK_INCLUDES)

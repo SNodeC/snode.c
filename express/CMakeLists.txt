@@ -15,7 +15,7 @@ add_library(
     middleware/VHost.cpp
 )
 
-target_link_libraries(express LINK_PUBLIC utils snodec::logger web)
+target_link_libraries(express LINK_PUBLIC snodec::utils snodec::logger web)
 target_link_libraries(express PRIVATE nlohmann_json::nlohmann_json)
 
 set_target_properties(
