@@ -27,6 +27,7 @@ add_library(
     server/SocketContextUpgradeFactory.cpp
     server/SocketContextUpgradeFactorySelector.cpp
 )
+add_library(snodec::web ALIAS web)
 
 target_link_libraries(
     web LINK_PUBLIC snodec::net snodec::utils ${LIBMAGIC_LIBRARIES}
@@ -58,7 +59,7 @@ install(
 
 install(
     TARGETS web
-    EXPORT webTargets
+    EXPORT snodecwebTargets
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION lib
     INCLUDES
@@ -66,22 +67,22 @@ install(
 )
 
 install(
-    EXPORT webTargets
-    FILE webTargets.cmake
-    NAMESPACE web::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/web
+    EXPORT snodecwebTargets
+    FILE snodecwebTargets.cmake
+    NAMESPACE snodec::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
 
 include(CMakePackageConfigHelpers)
 
 configure_package_config_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
-    "${CMAKE_CURRENT_BINARY_DIR}/webConfig.cmake"
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/web
+    "${CMAKE_CURRENT_BINARY_DIR}/snodecwebConfig.cmake"
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
 
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/webConfig.cmake"
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/web
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/snodecwebConfig.cmake"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
 
 if(CHECK_INCLUDES)
