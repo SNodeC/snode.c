@@ -50,7 +50,8 @@ add_library(
 add_library(snodec::net ALIAS net)
 
 target_link_libraries(
-    net PUBLIC snodec::utils snodec::logger ${OPENSSL_LIBRARIES} ${BLUEZ_LIBRARIES}
+    net PUBLIC snodec::utils snodec::logger ${OPENSSL_LIBRARIES}
+               ${BLUEZ_LIBRARIES}
 )
 
 set_target_properties(

@@ -58,6 +58,6 @@ install(
 if(CHECK_INCLUDES)
     set_property(
         TARGET server PROPERTY CXX_INCLUDE_WHAT_YOU_USE
-                                  ${iwyu_path_and_options}
+                               ${iwyu_path_and_options}
     )
 endif(CHECK_INCLUDES)
