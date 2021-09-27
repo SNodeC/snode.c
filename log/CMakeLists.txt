@@ -59,10 +59,6 @@ target_include_directories(
     INTERFACE ${EASYLOGGINGPP_INCLUDE_DIR}
 )
 
-install(TARGETS logger LIBRARY DESTINATION lib
-                               NAMELINK_COMPONENT liblogger.so.1
-)
-
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION include/snode.c/log

@@ -24,13 +24,10 @@ target_include_directories(
 
 target_link_libraries(utils PUBLIC) # Backward::Backward ${LIBBFD_LIBRARIES})
 
-# install(TARGETS utils LIBRARY DESTINATION lib NAMELINK_COMPONENT
-# libutils.so.1)
-
 install(
     TARGETS utils
     EXPORT utilsTargets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} NAMELINK_COMPONENT libutils.so.1
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
     INCLUDES

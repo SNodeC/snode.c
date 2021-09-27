@@ -42,20 +42,10 @@ install(
     TARGETS server
     EXPORT websocketserverTargets
     LIBRARY DESTINATION lib/snode.c/web/http/upgrade/server
-            NAMELINK_COMPONENT websocket
     ARCHIVE DESTINATION lib/snode.c/web/http/upgrade/server
     RUNTIME DESTINATION lib/snode.c/web/http/upgrade/server
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
-)
-
-install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION include/snode.c/web/websocket/server
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hpp"
-    PATTERN "cmake" EXCLUDE
 )
 
 install(

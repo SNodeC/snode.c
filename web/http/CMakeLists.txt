@@ -47,8 +47,6 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>" "${LIBMAGIC_INCLUDES}"
 )
 
-install(TARGETS web LIBRARY DESTINATION lib NAMELINK_COMPONENT libweb.so.1)
-
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION include/snode.c/web/http
@@ -61,8 +59,7 @@ install(
 install(
     TARGETS web
     EXPORT webTargets
-    LIBRARY DESTINATION lib NAMELINK_COMPONENT web
-    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
     RUNTIME DESTINATION lib
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c

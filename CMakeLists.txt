@@ -56,13 +56,13 @@ add_subdirectory(express)
 add_subdirectory(apps)
 
 find_package(Doxygen)
-option(BUILD_DOCUMENTATION
-       "Create and install the HTML based API documentation (requires Doxygen)"
-       ${DOXYGEN_FOUND}
-)
-
-if(BUILD_DOCUMENTATION)
-    if(DOXYGEN_FOUND)
+if(DOXYGEN_FOUND)
+    option(
+        BUILD_DOCUMENTATION
+        "Create and install the HTML based API documentation (requires Doxygen)"
+        ${DOXYGEN_FOUND}
+    )
+    if(BUILD_DOCUMENTATION)
         set(DOXYFILE_IN ${CMAKE_SOURCE_DIR}/docs/Doxygen.in)
         set(DOXYFILE ${CMAKE_SOURCE_DIR}/docs/Doxyfile)
 
@@ -79,10 +79,10 @@ if(BUILD_DOCUMENTATION)
         install(DIRECTORY ${CMAKE_SOURCE_DIR}/docs/html
                 DESTINATION share/doc/snode.c
         )
-    else(DOXYGEN_FOUND)
-        message(FATAL_ERROR "Doxygen is needed to build the documentation.")
-    endif(DOXYGEN_FOUND)
-endif(BUILD_DOCUMENTATION)
+    endif(BUILD_DOCUMENTATION)
+else(DOXYGEN_FOUND)
+    message(WARNING "Doxygen is needed to build the documentation.")
+endif(DOXYGEN_FOUND)
 
 add_custom_target(format DEPENDS format-cmds)
 add_custom_command(

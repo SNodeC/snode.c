@@ -70,18 +70,6 @@ target_include_directories(
            "$<BUILD_INTERFACE:${BLUEZ_INCLUDE_DIRS}>"
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
-
-install(TARGETS net LIBRARY DESTINATION lib NAMELINK_COMPONENT libnet.so.1)
-
-install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION include/snode.c/net
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "*.hpp"
-    PATTERN "cmake" EXCLUDE
-)
-
 install(
     TARGETS net
     EXPORT netTargets
@@ -90,6 +78,15 @@ install(
     RUNTIME DESTINATION lib
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
+)
+
+install(
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net
+    FILES_MATCHING
+    PATTERN "*.h"
+    PATTERN "*.hpp"
+    PATTERN "cmake" EXCLUDE
 )
 
 install(

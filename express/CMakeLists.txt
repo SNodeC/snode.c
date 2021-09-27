@@ -30,16 +30,6 @@ target_include_directories(
     express PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
 )
 
-install(TARGETS express LIBRARY DESTINATION lib)
-
-install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION include/snode.c/express
-    FILES_MATCHING
-    PATTERN "*.h"
-    PATTERN "cmake" EXCLUDE
-)
-
 install(
     TARGETS express
     EXPORT expressTargets
@@ -48,6 +38,14 @@ install(
     RUNTIME DESTINATION lib
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
+)
+
+install(
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/express
+    FILES_MATCHING
+    PATTERN "*.h"
+    PATTERN "cmake" EXCLUDE
 )
 
 install(
