@@ -15,7 +15,7 @@ add_library(
     middleware/VHost.cpp
 )
 
-target_link_libraries(express LINK_PUBLIC utils logger web)
+target_link_libraries(express PUBLIC snodec::utils snodec::logger snodec::web)
 target_link_libraries(express PRIVATE nlohmann_json::nlohmann_json)
 
 set_target_properties(
@@ -33,7 +33,7 @@ target_include_directories(
 install(
     TARGETS express
     EXPORT expressTargets
-    LIBRARY DESTINATION lib NAMELINK_COMPONENT express
+    LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION lib
     INCLUDES

@@ -34,6 +34,7 @@ find_package(EASYLOGGINGPP REQUIRED)
 add_library(
     logger SHARED Logger.cpp ${EASYLOGGINGPP_INCLUDE_DIR}/easylogging++.cc
 )
+add_library(snodec::logger ALIAS logger)
 
 set_target_properties(
     logger
@@ -60,6 +61,16 @@ target_include_directories(
 )
 
 install(
+    TARGETS logger
+    EXPORT snodecloggerTargets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
+)
+
+install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION include/snode.c/log
     FILES_MATCHING
@@ -70,32 +81,22 @@ install(
 )
 
 install(
-    TARGETS logger
-    EXPORT loggerTargets
-    LIBRARY DESTINATION lib NAMELINK_COMPONENT logger
-    ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION lib
-    INCLUDES
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
-)
-
-install(
-    EXPORT loggerTargets
-    FILE loggerTargets.cmake
-    NAMESPACE logger::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/logger
+    EXPORT snodecloggerTargets
+    FILE snodecloggerTargets.cmake
+    NAMESPACE snodec::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
 
 include(CMakePackageConfigHelpers)
 
 configure_package_config_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
-    "${CMAKE_CURRENT_BINARY_DIR}/loggerConfig.cmake"
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/logger
+    "${CMAKE_CURRENT_BINARY_DIR}/snodecloggerConfig.cmake"
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
 
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/loggerConfig.cmake"
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/logger
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/snodecloggerConfig.cmake"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
 
 if(CHECK_INCLUDES)

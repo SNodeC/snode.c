@@ -2,17 +2,8 @@
 
 include(CMakeFindDependencyMacro)
 
-find_dependency(utils)
-find_dependency(web)
+find_dependency(snodec COMPONENTS utils web websocket)
 
-include("${CMAKE_CURRENT_LIST_DIR}/websocketbaseTargets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/snodecwebsocketbaseTargets.cmake")
 
-set(_supported_components server)
-
-foreach(_comp ${websocket_FIND_COMPONENTS})
-  if (NOT _comp IN_LIST _supported_components)
-    set(websocket_FOUND False)
-    set(websocket_NOT_FOUND_MESSAGE "Unsupported component: ${_comp}")
-  endif()
-  include("${CMAKE_CURRENT_LIST_DIR}/websocket${_comp}Targets.cmake")
-endforeach()
+check_required_components(websocketbase)
