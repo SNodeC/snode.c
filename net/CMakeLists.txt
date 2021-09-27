@@ -47,8 +47,7 @@ add_library(
     system/unistd.cpp
     timer/Timer.cpp
 )
-
-add_library(net::net ALIAS net)
+add_library(snodec::net ALIAS net)
 
 target_link_libraries(
     net LINK_PUBLIC snodec::utils snodec::logger ${OPENSSL_LIBRARIES} ${BLUEZ_LIBRARIES}
@@ -72,7 +71,7 @@ target_include_directories(
 )
 install(
     TARGETS net
-    EXPORT netTargets
+    EXPORT snodecnetTargets
     LIBRARY DESTINATION lib NAMELINK_COMPONENT net
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION lib
@@ -90,21 +89,21 @@ install(
 )
 
 install(
-    EXPORT netTargets
-    FILE netTargets.cmake
-    NAMESPACE net::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/net
+    EXPORT snodecnetTargets
+    FILE snodecnetTargets.cmake
+    NAMESPACE snodec::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
 
 include(CMakePackageConfigHelpers)
 
 configure_package_config_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
-    "${CMAKE_CURRENT_BINARY_DIR}/netConfig.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/snodecnetConfig.cmake"
     INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/net
 )
 
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/netConfig.cmake"
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/snodecnetConfig.cmake"
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/net
 )
 

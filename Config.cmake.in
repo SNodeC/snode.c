@@ -2,7 +2,7 @@
 
 include(CMakeFindDependencyMacro)
 
-set(_supported_components logger utils)
+set(_supported_components logger utils net)
 
 foreach(_comp ${snodec_FIND_COMPONENTS})
   if (NOT _comp IN_LIST _supported_components)
