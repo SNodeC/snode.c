@@ -74,6 +74,8 @@ add_subdirectory(web)
 add_subdirectory(express)
 add_subdirectory(apps)
 
+include(CMakePackageConfigHelpers)
+
 configure_package_config_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
     "${CMAKE_CURRENT_BINARY_DIR}/snodecConfig.cmake"

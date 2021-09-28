@@ -14,6 +14,7 @@ add_library(
     middleware/StaticMiddleware.cpp
     middleware/VHost.cpp
 )
+add_library(snodec::express ALIAS express)
 
 target_link_libraries(express PUBLIC snodec::utils snodec::logger snodec::web)
 target_link_libraries(express PRIVATE nlohmann_json::nlohmann_json)
@@ -32,7 +33,7 @@ target_include_directories(
 
 install(
     TARGETS express
-    EXPORT expressTargets
+    EXPORT snodecexpressTargets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION lib
@@ -49,22 +50,10 @@ install(
 )
 
 install(
-    EXPORT expressTargets
-    FILE expressTargets.cmake
-    NAMESPACE express::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/express
-)
-
-include(CMakePackageConfigHelpers)
-
-configure_package_config_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
-    "${CMAKE_CURRENT_BINARY_DIR}/expressConfig.cmake"
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/express
-)
-
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/expressConfig.cmake"
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/express
+    EXPORT snodecexpressTargets
+    FILE snodecexpressTargets.cmake
+    NAMESPACE snodec::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
 
 if(CHECK_INCLUDES)
