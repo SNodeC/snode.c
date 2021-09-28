@@ -15,11 +15,8 @@ set_target_properties(
 )
 
 set_target_properties(
-    echo
-    PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${WEBSOCKET_SERVER_LIBDIR}"
-               LIBRARY_OUTPUT_DIRECTORY "${WEBSOCKET_SERVER_LIBDIR}"
-               RUNTIME_OUTPUT_DIRECTORY "${WEBSOCKET_SERVER_LIBDIR}"
-               # PREFIX "ssp"
+    echo PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${WEBSOCKET_SERVER_LIBDIR}"
+                    # PREFIX "ssp"
 )
 
 install(TARGETS echo

@@ -2,16 +2,10 @@ cmake_minimum_required(VERSION 3.0)
 
 configure_file(config.h.in config.h @ONLY)
 
-add_subdirectory(subprotocol)
-
 set(WEBSOCKETBASE_INSTALL_PATH lib/snode.c/web/http/upgrade)
-
-add_subdirectory(server)
 
 add_library(websocketbase SHARED Receiver.cpp Transmitter.cpp)
 add_library(snodec::websocketbase ALIAS websocketbase)
-
-target_link_libraries(websocketbase PUBLIC)
 
 target_include_directories(
     websocketbase
@@ -30,21 +24,14 @@ set_target_properties(
 )
 
 set_target_properties(
-    websocketbase
-    PROPERTIES ARCHIVE_OUTPUT_DIRECTORY
-               "${SOCKETCONTEXTUPGRADE_SERVER_LIBDIR}/upgrade"
-               LIBRARY_OUTPUT_DIRECTORY
-               "${SOCKETCONTEXTUPGRADE_SERVER_LIBDIR}/upgrade"
-               RUNTIME_OUTPUT_DIRECTORY
-               "${SOCKETCONTEXTUPGRADE_SERVER_LIBDIR}/upgrade"
+    websocketbase PROPERTIES LIBRARY_OUTPUT_DIRECTORY
+                             "${SOCKETCONTEXTUPGRADE_SERVER_LIBDIR}/upgrade"
 )
 
 install(
     TARGETS websocketbase
     EXPORT snodecwebsocketbaseTargets
     LIBRARY DESTINATION ${WEBSOCKETBASE_INSTALL_PATH}
-    ARCHIVE DESTINATION ${WEBSOCKETBASE_INSTALL_PATH}
-    RUNTIME DESTINATION ${WEBSOCKETBASE_INSTALL_PATH}
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
 )
@@ -71,3 +58,6 @@ if(CHECK_INCLUDES)
                                       ${iwyu_path_and_options}
     )
 endif(CHECK_INCLUDES)
+
+add_subdirectory(server)
+add_subdirectory(subprotocol)

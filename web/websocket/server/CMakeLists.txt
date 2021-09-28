@@ -36,11 +36,7 @@ set_target_properties(
 
 set_target_properties(
     websocketserver
-    PROPERTIES ARCHIVE_OUTPUT_DIRECTORY
-               "${SOCKETCONTEXTUPGRADE_SERVER_LIBDIR}/upgrade/server"
-               LIBRARY_OUTPUT_DIRECTORY
-               "${SOCKETCONTEXTUPGRADE_SERVER_LIBDIR}/upgrade/server"
-               RUNTIME_OUTPUT_DIRECTORY
+    PROPERTIES LIBRARY_OUTPUT_DIRECTORY
                "${SOCKETCONTEXTUPGRADE_SERVER_LIBDIR}/upgrade/server"
 )
 
@@ -48,8 +44,6 @@ install(
     TARGETS websocketserver
     EXPORT snodecwebsocketserverTargets
     LIBRARY DESTINATION lib/snode.c/web/http/upgrade/server
-    ARCHIVE DESTINATION lib/snode.c/web/http/upgrade/server
-    RUNTIME DESTINATION lib/snode.c/web/http/upgrade/server
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
 )

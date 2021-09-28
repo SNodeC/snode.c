@@ -27,9 +27,7 @@ target_link_libraries(utils PUBLIC) # Backward::Backward ${LIBBFD_LIBRARIES})
 install(
     TARGETS utils
     EXPORT snodecutilsTargets
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION lib
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
 )
