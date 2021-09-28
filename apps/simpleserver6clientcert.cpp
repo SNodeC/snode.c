@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
 
             X509* client_cert = SSL_get_peer_certificate(socketConnection->getSSL());
 
-            if (client_cert != NULL) {
+            if (client_cert != nullptr) {
                 long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
                 VLOG(2) << "\tClient certificate: " + std::string(X509_verify_cert_error_string(verifyErr));

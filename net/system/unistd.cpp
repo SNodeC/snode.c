@@ -31,12 +31,12 @@ namespace net::system {
         return ::open(pathname, flags);
     }
 
-    ssize_t read(int fd, void* buf, size_t count) {
+    ssize_t read(int fd, void* buf, std::size_t count) {
         errno = 0;
         return ::read(fd, buf, count);
     }
 
-    ssize_t write(int fd, const void* buf, size_t count) {
+    ssize_t write(int fd, const void* buf, std::size_t count) {
         errno = 0;
         return ::write(fd, buf, count);
     }

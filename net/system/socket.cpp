@@ -60,12 +60,12 @@ namespace net::system {
         return ::getpeername(sockfd, addr, addrlen);
     }
 
-    ssize_t recv(int sockfd, void* buf, size_t len, int flags) {
+    ssize_t recv(int sockfd, void* buf, std::size_t len, int flags) {
         errno = 0;
         return ::recv(sockfd, buf, len, flags);
     }
 
-    ssize_t send(int sockfd, const void* buf, size_t len, int flags) {
+    ssize_t send(int sockfd, const void* buf, std::size_t len, int flags) {
         errno = 0;
         return ::send(sockfd, buf, len, flags);
     }

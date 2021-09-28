@@ -70,6 +70,7 @@ target_include_directories(
            "$<BUILD_INTERFACE:${BLUEZ_INCLUDE_DIRS}>"
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
+
 install(
     TARGETS net
     EXPORT snodecnetTargets

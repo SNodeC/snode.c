@@ -23,8 +23,8 @@
 
 // IWYU pragma: begin_exports
 
+#include <cstddef> // for size_t
 #include <fcntl.h>
-#include <stddef.h> // for size_t
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h> // for ssize_t
@@ -39,8 +39,8 @@ namespace net::system {
     int open(const char* pathname, int flags);
 
     // #include <unistd.h>
-    ssize_t read(int fd, void* buf, size_t count);
-    ssize_t write(int fd, const void* buf, size_t count);
+    ssize_t read(int fd, void* buf, std::size_t count);
+    ssize_t write(int fd, const void* buf, std::size_t count);
     int close(int fd);
     int pipe2(int pipefd[2], int flags);
 

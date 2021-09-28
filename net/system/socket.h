@@ -23,7 +23,7 @@
 
 // IWYU pragma: begin_exports
 
-#include <stddef.h> // for size_t
+#include <cstddef>
 #include <sys/socket.h>
 #include <sys/types.h> // for ssize_t
 
@@ -44,8 +44,8 @@ namespace net::system {
     int listen(int sockfd, int backlog);
     int accept4(int sockfd, struct sockaddr* addr, socklen_t* addrlen, int flags);
     int connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen);
-    ssize_t recv(int sockfd, void* buf, size_t len, int flags);
-    ssize_t send(int sockfd, const void* buf, size_t len, int flags);
+    ssize_t recv(int sockfd, void* buf, std::size_t len, int flags);
+    ssize_t send(int sockfd, const void* buf, std::size_t len, int flags);
     int getsockopt(int sockfd, int level, int optname, void* optval, socklen_t* optlen);
     int setsockopt(int sockfd, int level, int optname, const void* optval, socklen_t optlen);
 

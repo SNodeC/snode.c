@@ -29,6 +29,7 @@ set_target_properties(
 
 target_include_directories(
     express PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+                   "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 install(

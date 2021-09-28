@@ -170,7 +170,7 @@ int main(int argc, char* argv[]) {
 
         X509* client_cert = SSL_get_peer_certificate(socketConnection->getSSL());
 
-        if (client_cert != NULL) {
+        if (client_cert != nullptr) {
             long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
             VLOG(0) << "\tClient certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
@@ -185,7 +185,8 @@ int main(int argc, char* argv[]) {
 
             // We could do all sorts of certificate verification stuff here before deallocating the certificate.
 
-            GENERAL_NAMES* subjectAltNames = static_cast<GENERAL_NAMES*>(X509_get_ext_d2i(client_cert, NID_subject_alt_name, NULL, NULL));
+            GENERAL_NAMES* subjectAltNames =
+                static_cast<GENERAL_NAMES*>(X509_get_ext_d2i(client_cert, NID_subject_alt_name, nullptr, nullptr));
 
             int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
             VLOG(0) << "\t   Subject alternative name count: " << altNameCount;
