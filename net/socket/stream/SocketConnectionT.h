@@ -36,9 +36,9 @@ namespace net::socket::stream {
 
     template <typename SocketReaderT, typename SocketWriterT, typename SocketAddressT>
     class SocketConnectionT
-        : public SocketConnection
-        , public SocketReaderT
-        , public SocketWriterT {
+        : private SocketConnection
+        , protected SocketReaderT
+        , protected SocketWriterT {
         SocketConnectionT() = delete;
 
     public:

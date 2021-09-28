@@ -41,6 +41,19 @@ add_compile_options(
     -fexec-charset=UTF-8
 )
 
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/snodecConfig.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+    NO_CHECK_REQUIRED_COMPONENTS_MACRO
+)
+
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/snodecConfig.cmake"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+)
+
 option(CXX_INSTRUMENT_METHODS "Instrument methods and functions")
 mark_as_advanced(FORCE CXX_INSTRUMENT_METHODS)
 
@@ -49,23 +62,27 @@ if(CXX_INSTRUMENT_METHODS)
 endif(CXX_INSTRUMENT_METHODS)
 
 find_program(iwyu_path NAMES include-what-you-use iwyu)
-if(NOT iwyu_path)
+if(iwyu_path)
+    option(CHECK_INCLUDES "Check used headers")
+
+    set(iwyu_path_and_options
+        ${iwyu_path}
+        -Xiwyu
+        --verbose=1
+        -Xiwyu
+        --cxx17ns
+        -Xiwyu
+        --quoted_includes_first
+        -Xiwyu
+        --check_also='${PROJECT_SOURCE_DIR}/*'
+    )
+
+    if(CHECK_INCLUDES)
+        set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path_and_options})
+    endif(CHECK_INCLUDES)
+else()
     message(FATAL_ERROR "Could not find the program include-what-you-use")
 endif()
-
-option(CHECK_INCLUDES "Check used headers")
-
-set(iwyu_path_and_options
-    ${iwyu_path}
-    -Xiwyu
-    --verbose=1
-    -Xiwyu
-    --cxx17ns
-    -Xiwyu
-    --quoted_includes_first
-    -Xiwyu
-    --check_also='${PROJECT_SOURCE_DIR}/*'
-)
 
 add_subdirectory(log)
 add_subdirectory(utils)
@@ -73,19 +90,6 @@ add_subdirectory(net)
 add_subdirectory(web)
 add_subdirectory(express)
 add_subdirectory(apps)
-
-include(CMakePackageConfigHelpers)
-
-configure_package_config_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
-    "${CMAKE_CURRENT_BINARY_DIR}/snodecConfig.cmake"
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    NO_CHECK_REQUIRED_COMPONENTS_MACRO
-)
-
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/snodecConfig.cmake"
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-)
 
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
@@ -121,7 +125,6 @@ add_custom_command(
     OUTPUT format-cmds
     COMMENT "Auto formatting of all source and all cmake files"
 )
-set_source_files_properties(test-cmd PROPERTIES SYMBOLIC "true")
 
 include("cmake/clang-cpp-checks.cmake")
 include("cmake/cmake-format.cmake")

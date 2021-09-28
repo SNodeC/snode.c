@@ -46,9 +46,3 @@ install(
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
-
-if(CHECK_INCLUDES)
-    set_property(
-        TARGET utils PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path_and_options}
-    )
-endif(CHECK_INCLUDES)

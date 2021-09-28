@@ -84,7 +84,3 @@ install(
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
-
-if(CHECK_INCLUDES)
-    set_property(TARGET logger PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
-endif(CHECK_INCLUDES)

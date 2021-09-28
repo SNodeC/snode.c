@@ -12,12 +12,6 @@ set_target_properties(
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
 )
-if(CHECK_INCLUDES)
-    set_property(
-        TARGET snode.c PROPERTY CXX_INCLUDE_WHAT_YOU_USE
-                                ${iwyu_path_and_options}
-    )
-endif(CHECK_INCLUDES)
 
 add_executable(testpost testpost.cpp)
 target_link_libraries(testpost LINK_PUBLIC express)
@@ -28,12 +22,6 @@ set_target_properties(
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
 )
-if(CHECK_INCLUDES)
-    set_property(
-        TARGET testpost PROPERTY CXX_INCLUDE_WHAT_YOU_USE
-                                 ${iwyu_path_and_options}
-    )
-endif(CHECK_INCLUDES)
 
 add_executable(simpleserver simpleserver.cpp)
 target_link_libraries(simpleserver LINK_PUBLIC express)
@@ -44,12 +32,6 @@ set_target_properties(
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
 )
-if(CHECK_INCLUDES)
-    set_property(
-        TARGET simpleserver PROPERTY CXX_INCLUDE_WHAT_YOU_USE
-                                     ${iwyu_path_and_options}
-    )
-endif(CHECK_INCLUDES)
 
 add_executable(simpleserver6 simpleserver6.cpp)
 target_link_libraries(simpleserver6 LINK_PUBLIC express)
@@ -60,12 +42,6 @@ set_target_properties(
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
 )
-if(CHECK_INCLUDES)
-    set_property(
-        TARGET simpleserver6 PROPERTY CXX_INCLUDE_WHAT_YOU_USE
-                                      ${iwyu_path_and_options}
-    )
-endif(CHECK_INCLUDES)
 
 add_executable(simpleserver6clientcert simpleserver6clientcert.cpp)
 target_link_libraries(simpleserver6clientcert LINK_PUBLIC express)
@@ -76,12 +52,6 @@ set_target_properties(
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
 )
-if(CHECK_INCLUDES)
-    set_property(
-        TARGET simpleserver6clientcert PROPERTY CXX_INCLUDE_WHAT_YOU_USE
-                                                ${iwyu_path_and_options}
-    )
-endif(CHECK_INCLUDES)
 
 add_executable(verysimpleserver verysimpleserver.cpp)
 target_link_libraries(verysimpleserver LINK_PUBLIC express)
@@ -92,12 +62,6 @@ set_target_properties(
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
 )
-if(CHECK_INCLUDES)
-    set_property(
-        TARGET verysimpleserver PROPERTY CXX_INCLUDE_WHAT_YOU_USE
-                                         ${iwyu_path_and_options}
-    )
-endif(CHECK_INCLUDES)
 
 add_executable(jsonserver jsonserver.cpp)
 target_link_libraries(jsonserver LINK_PUBLIC express)
@@ -108,11 +72,6 @@ set_target_properties(
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
 )
-if(CHECK_INCLUDES)
-    set_property(
-        TARGET jsonserver PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path}
-    )
-endif(CHECK_INCLUDES)
 
 add_executable(jsonclient jsonclient.cpp)
 target_link_libraries(jsonclient LINK_PUBLIC express)
@@ -123,12 +82,6 @@ set_target_properties(
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
 )
-if(CHECK_INCLUDES)
-    set_property(
-        TARGET jsonclient PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path}
-    )
-endif(CHECK_INCLUDES)
-
 add_executable(testparser testparsers.cpp)
 target_link_libraries(testparser LINK_PUBLIC express)
 install(TARGETS testparser RUNTIME DESTINATION bin)
@@ -138,12 +91,6 @@ set_target_properties(
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
 )
-if(CHECK_INCLUDES)
-    set_property(
-        TARGET testparser PROPERTY CXX_INCLUDE_WHAT_YOU_USE
-                                   ${iwyu_path_and_options}
-    )
-endif(CHECK_INCLUDES)
 
 add_executable(client4 client4.cpp)
 target_link_libraries(client4 LINK_PUBLIC web)
@@ -154,12 +101,6 @@ set_target_properties(
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
 )
-if(CHECK_INCLUDES)
-    set_property(
-        TARGET client4 PROPERTY CXX_INCLUDE_WHAT_YOU_USE
-                                ${iwyu_path_and_options}
-    )
-endif(CHECK_INCLUDES)
 
 add_executable(client6 client6.cpp)
 target_link_libraries(client6 LINK_PUBLIC web)
@@ -170,12 +111,6 @@ set_target_properties(
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
 )
-if(CHECK_INCLUDES)
-    set_property(
-        TARGET client6 PROPERTY CXX_INCLUDE_WHAT_YOU_USE
-                                ${iwyu_path_and_options}
-    )
-endif(CHECK_INCLUDES)
 
 add_executable(client6clientcert client6clientcert.cpp)
 target_link_libraries(client6clientcert LINK_PUBLIC web)
@@ -186,12 +121,6 @@ set_target_properties(
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
 )
-if(CHECK_INCLUDES)
-    set_property(
-        TARGET client6clientcert PROPERTY CXX_INCLUDE_WHAT_YOU_USE
-                                          ${iwyu_path_and_options}
-    )
-endif(CHECK_INCLUDES)
 
 add_executable(lowlevelclient lowlevelclient.cpp)
 target_link_libraries(lowlevelclient LINK_PUBLIC web)
@@ -202,12 +131,6 @@ set_target_properties(
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
 )
-if(CHECK_INCLUDES)
-    set_property(
-        TARGET lowlevelclient PROPERTY CXX_INCLUDE_WHAT_YOU_USE
-                                       ${iwyu_path_and_options}
-    )
-endif(CHECK_INCLUDES)
 
 add_executable(testregex testregex.cpp)
 target_link_libraries(testregex LINK_PUBLIC express)
@@ -218,12 +141,6 @@ set_target_properties(
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
 )
-if(CHECK_INCLUDES)
-    set_property(
-        TARGET testregex PROPERTY CXX_INCLUDE_WHAT_YOU_USE
-                                  ${iwyu_path_and_options}
-    )
-endif(CHECK_INCLUDES)
 
 add_executable(warema-jalousien warema-jalousien.cpp)
 target_link_libraries(warema-jalousien LINK_PUBLIC express)
@@ -234,12 +151,6 @@ set_target_properties(
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
 )
-if(CHECK_INCLUDES)
-    set_property(
-        TARGET warema-jalousien PROPERTY CXX_INCLUDE_WHAT_YOU_USE
-                                         ${iwyu_path_and_options}
-    )
-endif(CHECK_INCLUDES)
 
 add_executable(btlowlevelclient btlowlevelclient.cpp)
 target_link_libraries(btlowlevelclient LINK_PUBLIC web)
@@ -250,12 +161,6 @@ set_target_properties(
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
 )
-if(CHECK_INCLUDES)
-    set_property(
-        TARGET btlowlevelclient PROPERTY CXX_INCLUDE_WHAT_YOU_USE
-                                         ${iwyu_path_and_options}
-    )
-endif(CHECK_INCLUDES)
 
 add_executable(btlowlevelserver btlowlevelserver.cpp)
 target_link_libraries(btlowlevelserver LINK_PUBLIC net)
@@ -266,12 +171,6 @@ set_target_properties(
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
 )
-if(CHECK_INCLUDES)
-    set_property(
-        TARGET btlowlevelserver PROPERTY CXX_INCLUDE_WHAT_YOU_USE
-                                         ${iwyu_path_and_options}
-    )
-endif(CHECK_INCLUDES)
 
 add_executable(btlowleveltlsclient btlowleveltlsclient.cpp)
 target_link_libraries(btlowleveltlsclient LINK_PUBLIC web)
@@ -282,12 +181,6 @@ set_target_properties(
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
 )
-if(CHECK_INCLUDES)
-    set_property(
-        TARGET btlowleveltlsclient PROPERTY CXX_INCLUDE_WHAT_YOU_USE
-                                            ${iwyu_path_and_options}
-    )
-endif(CHECK_INCLUDES)
 
 add_executable(btlowleveltlsserver btlowleveltlsserver.cpp)
 target_link_libraries(btlowleveltlsserver LINK_PUBLIC net)
@@ -298,12 +191,6 @@ set_target_properties(
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
 )
-if(CHECK_INCLUDES)
-    set_property(
-        TARGET btlowleveltlsserver PROPERTY CXX_INCLUDE_WHAT_YOU_USE
-                                            ${iwyu_path_and_options}
-    )
-endif(CHECK_INCLUDES)
 
 add_executable(l2lowlevelclient l2lowlevelclient.cpp)
 target_link_libraries(l2lowlevelclient LINK_PUBLIC web)
@@ -314,12 +201,6 @@ set_target_properties(
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
 )
-if(CHECK_INCLUDES)
-    set_property(
-        TARGET l2lowlevelclient PROPERTY CXX_INCLUDE_WHAT_YOU_USE
-                                         ${iwyu_path_and_options}
-    )
-endif(CHECK_INCLUDES)
 
 add_executable(l2lowlevelserver l2lowlevelserver.cpp)
 target_link_libraries(l2lowlevelserver LINK_PUBLIC net)
@@ -330,12 +211,6 @@ set_target_properties(
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
 )
-if(CHECK_INCLUDES)
-    set_property(
-        TARGET l2lowlevelserver PROPERTY CXX_INCLUDE_WHAT_YOU_USE
-                                         ${iwyu_path_and_options}
-    )
-endif(CHECK_INCLUDES)
 
 add_executable(vhostserver vhostserver.cpp)
 target_link_libraries(vhostserver LINK_PUBLIC express)
@@ -346,12 +221,6 @@ set_target_properties(
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
 )
-if(CHECK_INCLUDES)
-    set_property(
-        TARGET vhostserver PROPERTY CXX_INCLUDE_WHAT_YOU_USE
-                                    ${iwyu_path_and_options}
-    )
-endif(CHECK_INCLUDES)
 
 add_executable(testpipe testpipe.cpp)
 target_link_libraries(testpipe LINK_PUBLIC net)
@@ -362,12 +231,6 @@ set_target_properties(
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
 )
-if(CHECK_INCLUDES)
-    set_property(
-        TARGET testpipe PROPERTY CXX_INCLUDE_WHAT_YOU_USE
-                                 ${iwyu_path_and_options}
-    )
-endif(CHECK_INCLUDES)
 
 add_executable(websocketparser websocketparser.cpp)
 target_link_libraries(websocketparser LINK_PUBLIC express)
@@ -378,12 +241,6 @@ set_target_properties(
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
 )
-if(CHECK_INCLUDES)
-    set_property(
-        TARGET websocketparser PROPERTY CXX_INCLUDE_WHAT_YOU_USE
-                                        ${iwyu_path_and_options}
-    )
-endif(CHECK_INCLUDES)
 
 add_executable(websocketclient websocketclient.cpp)
 target_link_libraries(websocketclient LINK_PUBLIC web)
@@ -394,9 +251,3 @@ set_target_properties(
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
 )
-if(CHECK_INCLUDES)
-    set_property(
-        TARGET websocketclient PROPERTY CXX_INCLUDE_WHAT_YOU_USE
-                                        ${iwyu_path_and_options}
-    )
-endif(CHECK_INCLUDES)

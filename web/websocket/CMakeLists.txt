@@ -52,12 +52,5 @@ install(
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
 
-if(CHECK_INCLUDES)
-    set_property(
-        TARGET websocketbase PROPERTY CXX_INCLUDE_WHAT_YOU_USE
-                                      ${iwyu_path_and_options}
-    )
-endif(CHECK_INCLUDES)
-
 add_subdirectory(server)
 add_subdirectory(subprotocol)
