@@ -4,7 +4,7 @@ add_library(echo SHARED Echo.cpp EchoFactory.cpp)
 
 target_include_directories(echo PUBLIC ${PROJECT_SOURCE_DIR})
 
-target_link_libraries(echo  snodec::websocketbase snodec::websocketserver)
+target_link_libraries(echo snodec::websocketbase snodec::websocketserver)
 
 set_target_properties(
     echo

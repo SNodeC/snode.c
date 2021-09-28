@@ -10,9 +10,10 @@ add_library(snodec::websocketserver ALIAS websocketserver)
 
 set_target_properties(
     websocketserver
-    PROPERTIES OUTPUT_NAME "websocket"
-               INSTALL_RPATH
-               "${CMAKE_INSTALL_PREFIX}/lib:${CMAKE_INSTALL_PREFIX}/${WEBSOCKETBASE_INSTALL_PATH}"
+    PROPERTIES
+        OUTPUT_NAME "websocket"
+        INSTALL_RPATH
+        "${CMAKE_INSTALL_PREFIX}/lib:${CMAKE_INSTALL_PREFIX}/${WEBSOCKETBASE_INSTALL_PATH}"
 )
 
 target_link_libraries(websocketserver PUBLIC snodec::websocketbase)

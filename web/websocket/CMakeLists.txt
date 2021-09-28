@@ -4,16 +4,14 @@ configure_file(config.h.in config.h @ONLY)
 
 add_subdirectory(subprotocol)
 
-set(WEBSOCKETBASE_INSTALL_PATH
-    lib/snode.c/web/http/upgrade
-)
+set(WEBSOCKETBASE_INSTALL_PATH lib/snode.c/web/http/upgrade)
 
 add_subdirectory(server)
 
 add_library(websocketbase SHARED Receiver.cpp Transmitter.cpp)
 add_library(snodec::websocketbase ALIAS websocketbase)
 
-target_link_libraries(websocketbase PUBLIC snodec::net)
+target_link_libraries(websocketbase PUBLIC)
 
 target_include_directories(
     websocketbase
