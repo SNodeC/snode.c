@@ -4,7 +4,9 @@ configure_file(config.h.in config.h @ONLY)
 
 add_subdirectory(subprotocol)
 
-set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib/snode.c/web/http/upgrade)
+set(WEBSOCKETBASE_INSTALL_PATH
+    lib/snode.c/web/http/upgrade
+)
 
 add_subdirectory(server)
 
@@ -19,8 +21,6 @@ target_include_directories(
            "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
-
-include(GNUInstallDirs)
 
 set_target_properties(
     websocketbase
@@ -44,9 +44,9 @@ set_target_properties(
 install(
     TARGETS websocketbase
     EXPORT snodecwebsocketbaseTargets
-    LIBRARY DESTINATION lib/snode.c/web/http/upgrade
-    ARCHIVE DESTINATION lib/snode.c/web/http/upgrade
-    RUNTIME DESTINATION lib/snode.c/web/http/upgrade
+    LIBRARY DESTINATION ${WEBSOCKETBASE_INSTALL_PATH}
+    ARCHIVE DESTINATION ${WEBSOCKETBASE_INSTALL_PATH}
+    RUNTIME DESTINATION ${WEBSOCKETBASE_INSTALL_PATH}
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
 )
