@@ -16,33 +16,47 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef BACKTRACE_SUPPORTED
 //#define BACKWARD_HAS_BFD 1
 #define BACKWARD_HAS_DW 1
 //#define BACKWARD_HAS_DWARF 1
+#endif
 
 #include "stacktrace.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#ifdef BACKTRACE_SUPPORTED
 #include <backward.hpp>
+#endif
+#include <execinfo.h>
 #include <stdio.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace stacktrace {
 
-    void stacktrace(std::size_t trace_cnt_max) {
+    void stacktrace([[maybe_unused]] std::size_t trace_cnt_max) {
+#ifdef BACKTRACE_SUPPORTED
+        void* buffer[2];
+        backtrace(buffer, 2);
+
+        for (int i = 0; i < 2; i++) {
+            std::cout << i << ": " << buffer[i] << std::endl;
+        }
+
         backward::StackTrace st;
-        st.load_here(trace_cnt_max);
+        //        st.load_here(trace_cnt_max);
+        st.load_from(reinterpret_cast<char*>(buffer[1]) - 1, trace_cnt_max);
 
         backward::Printer p;
         p.snippet = true;
         p.object = false;
-        p.color_mode = backward::ColorMode::always;
+        p.color_mode = backward::ColorMode::automatic;
         p.address = true;
         p.print(st, stderr);
+#endif
     }
-
 } // namespace stacktrace
 
 /*

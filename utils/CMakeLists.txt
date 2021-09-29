@@ -1,9 +1,12 @@
 cmake_minimum_required(VERSION 3.0)
 
-# find_package(Backward) find_package(LibBfd)
+find_package(Backward)
 
-add_library(utils SHARED Timeval.cpp instrumentation.cpp base64.cpp
-)# stacktrace.cpp)
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
+add_library(
+    utils SHARED Timeval.cpp instrumentation.cpp base64.cpp stacktrace.cpp
+)
 
 add_library(snodec::utils ALIAS utils)
 
@@ -14,7 +17,6 @@ set_target_properties(
                CXX_EXTENSIONS OFF
                SOVERSION 1
 )
-
 target_include_directories(
     utils
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
@@ -22,7 +24,14 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(utils PUBLIC) # Backward::Backward ${LIBBFD_LIBRARIES})
+if(BACKWARD_FOUND)
+    if(${STACK_DETAILS_DW})
+        set(BACKWARD_LIBS "Backward::Backward")
+        target_compile_definitions(utils PUBLIC BACKTRACE_SUPPORTED=1)
+    endif(${STACK_DETAILS_DW})
+endif(BACKWARD_FOUND)
+
+target_link_libraries(utils PRIVATE ${BACKWARD_LIBS})
 
 install(
     TARGETS utils
