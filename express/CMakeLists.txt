@@ -16,7 +16,7 @@ add_library(
 )
 add_library(snodec::express ALIAS express)
 
-target_link_libraries(express PUBLIC snodec::utils snodec::logger snodec::web)
+target_link_libraries(express PUBLIC snodec::web)
 target_link_libraries(express PRIVATE nlohmann_json::nlohmann_json)
 
 set_target_properties(
