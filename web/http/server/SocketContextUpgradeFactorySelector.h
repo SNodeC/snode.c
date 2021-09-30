@@ -49,6 +49,7 @@ namespace web::http::server {
         static SocketContextUpgradeFactorySelector* instance();
         void destroy();
 
+        SocketContextUpgradeFactory* select(const std::string& upgradeContextName);
         SocketContextUpgradeFactory* select(Request& req, Response& res);
 
         bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory);

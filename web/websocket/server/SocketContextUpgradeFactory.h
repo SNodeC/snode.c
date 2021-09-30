@@ -43,10 +43,6 @@ namespace web::websocket::server {
 
         SocketContextUpgradeFactory& operator=(const SocketContextUpgradeFactory&) = delete;
 
-    private:
-        SocketContextUpgradeFactory(SubProtocolFactory* subProtocolFactory);
-
-    public:
         static void attach(SubProtocolFactory* subProtocolFactory);
 
     private:

@@ -67,6 +67,16 @@ namespace web::http::server {
         delete this;
     }
 
+    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(const std::string& upgradeContextName) {
+        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
+
+        if (socketContextUpgradePlugins.contains(upgradeContextName)) {
+            socketContextUpgradeFactory = socketContextUpgradePlugins[upgradeContextName].socketContextUpgradeFactory;
+        }
+
+        return socketContextUpgradeFactory;
+    }
+
     SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(Request& req, Response& res) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
@@ -80,9 +90,9 @@ namespace web::http::server {
             std::tie(upgradeContextName, upgradeContextPriority) = httputils::str_split(upgradeContextName, '/');
             httputils::to_lower(upgradeContextName);
 
-            if (socketContextUpgradePlugins.contains(upgradeContextName)) {
-                socketContextUpgradeFactory = socketContextUpgradePlugins[upgradeContextName].socketContextUpgradeFactory;
-            } else {
+            socketContextUpgradeFactory = select(upgradeContextName);
+
+            if (socketContextUpgradeFactory == nullptr) {
                 for (const std::string& searchPath : searchPaths) {
                     socketContextUpgradeFactory = load(searchPath + "/lib" + upgradeContextName + ".so");
 
