@@ -87,6 +87,10 @@ namespace web::websocket::server {
         return context;
     }
 
+    void SocketContextUpgradeFactory::destroy() {
+        delete this;
+    }
+
     extern "C" {
         SocketContextUpgradeFactory* plugin() {
             return new SocketContextUpgradeFactory();

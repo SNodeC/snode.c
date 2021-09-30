@@ -47,7 +47,7 @@ namespace web::http::server {
         virtual std::string name() = 0;
         virtual Role role() = 0;
 
-        void destroy();
+        virtual void destroy() = 0;
 
     protected:
         Request* request;

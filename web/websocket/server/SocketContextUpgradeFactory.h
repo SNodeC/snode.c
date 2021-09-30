@@ -52,6 +52,8 @@ namespace web::websocket::server {
 
         SocketContext* create(net::socket::stream::SocketConnection* socketConnection) override;
 
+        void destroy() override;
+
         SubProtocolFactorySelector subProtocolFactorySelector;
     };
 

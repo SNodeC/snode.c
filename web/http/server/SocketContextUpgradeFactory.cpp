@@ -29,8 +29,4 @@ namespace web::http::server {
         this->response = &response;
     }
 
-    void SocketContextUpgradeFactory::destroy() {
-        delete this;
-    }
-
 } // namespace web::http::server
