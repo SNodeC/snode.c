@@ -41,10 +41,6 @@ namespace stacktrace {
         void* buffer[2];
         backtrace(buffer, 2);
 
-        for (int i = 0; i < 2; i++) {
-            std::cout << i << ": " << buffer[i] << std::endl;
-        }
-
         backward::StackTrace st;
         //        st.load_here(trace_cnt_max);
         st.load_from(reinterpret_cast<char*>(buffer[1]) - 1, trace_cnt_max);
