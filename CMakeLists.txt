@@ -4,6 +4,13 @@ cmake_minimum_required(VERSION 3.0)
 
 project(snode.c)
 
+include("cmake/check-iwyu.cmake")
+include("cmake/check-format.cmake")
+include("cmake/check-doxygen.cmake")
+include("cmake/cmake-uninstall.cmake")
+include("cmake/cmake-instrumentation.cmake")
+include("cmake/cmake-rpath-use-always.cmake")
+
 message("Your C++ compiler supports these C++ features:")
 foreach(i ${CMAKE_CXX_COMPILE_FEATURES})
     message("${i}")
@@ -19,13 +26,6 @@ add_compile_options(
     -pedantic-errors
     -fexec-charset=UTF-8
 )
-
-include("cmake/check-iwyu.cmake")
-include("cmake/check-format.cmake")
-include("cmake/check-doxygen.cmake")
-include("cmake/cmake-uninstall.cmake")
-include("cmake/cmake-instrumentation.cmake")
-include("cmake/cmake-rpath-use-always.cmake")
 
 add_subdirectory(log)
 add_subdirectory(utils)
