@@ -1,9 +1,0 @@
-@PACKAGE_INIT@
-
-include(CMakeFindDependencyMacro)
-
-find_dependency(snodec COMPONENTS utils web websocket)
-
-include("${CMAKE_CURRENT_LIST_DIR}/snodecwebsocketbaseTargets.cmake")
-
-check_required_components(websocketbase)

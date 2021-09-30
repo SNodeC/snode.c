@@ -1,9 +1,0 @@
-@PACKAGE_INIT@
-
-include(CMakeFindDependencyMacro)
-
-find_dependency(snodec COMPONENTS logger utils)
-
-include("${CMAKE_CURRENT_LIST_DIR}/snodecnetTargets.cmake")
-
-check_required_components(net)
