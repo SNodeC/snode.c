@@ -110,13 +110,13 @@ namespace web::http::server {
     }
 
     enum Parser::ParserState RequestParser::parseHeader() {
-        for (auto& [field, value] : Parser::headers) {
-            if (field != "cookie") {
-                if (field == "content-length") {
-                    Parser::contentLength = std::stoul(value);
+        for (auto& [headerFieldName, headerFieldValue] : Parser::headers) {
+            if (headerFieldName != "cookie") {
+                if (headerFieldName == "content-length") {
+                    Parser::contentLength = std::stoul(headerFieldValue);
                 }
             } else {
-                std::string cookiesLine = value;
+                std::string cookiesLine = headerFieldValue;
 
                 while (!cookiesLine.empty()) {
                     std::string cookieLine;
@@ -126,13 +126,14 @@ namespace web::http::server {
                         std::string cookie;
                         std::tie(cookie, cookieLine) = httputils::str_split(cookieLine, ';');
 
-                        std::string name;
-                        std::string value;
-                        std::tie(name, value) = httputils::str_split(cookie, '=');
-                        httputils::str_trimm(name);
-                        httputils::str_trimm(value);
+                        std::string cookieName;
+                        std::string cookieValue;
+                        std::tie(cookieName, cookieValue) = httputils::str_split(cookie, '=');
 
-                        cookies.insert({name, value});
+                        httputils::str_trimm(cookieName);
+                        httputils::str_trimm(cookieValue);
+
+                        cookies.insert({cookieName, cookieValue});
                     }
                 }
             }

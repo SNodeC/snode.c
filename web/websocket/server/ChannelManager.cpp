@@ -77,8 +77,7 @@ namespace web::websocket::server {
                                        std::size_t messageLength,
                                        const SubProtocol* excludedClient) {
         if (channels.contains(channel)) {
-            const std::set<SubProtocol*>& clients = channels[channel];
-            for (SubProtocol* client : clients) {
+            for (SubProtocol* client : channels[channel]) {
                 if (client != excludedClient) {
                     client->sendMessage(message, messageLength);
                 }
@@ -91,8 +90,7 @@ namespace web::websocket::server {
                                             std::size_t messageLength,
                                             const SubProtocol* excludedClient) {
         if (channels.contains(channel)) {
-            const std::set<SubProtocol*>& clients = channels[channel];
-            for (SubProtocol* client : clients) {
+            for (SubProtocol* client : channels[channel]) {
                 if (client != excludedClient) {
                     client->sendMessage(message, messageLength);
                 }
@@ -102,8 +100,7 @@ namespace web::websocket::server {
 
     void ChannelManager::sendBroadcast(const std::string& channel, const std::string& message, const SubProtocol* excludedClient) {
         if (channels.contains(channel)) {
-            const std::set<SubProtocol*>& clients = channels[channel];
-            for (SubProtocol* client : clients) {
+            for (SubProtocol* client : channels[channel]) {
                 if (client != excludedClient) {
                     client->sendMessage(message);
                 }
@@ -113,8 +110,7 @@ namespace web::websocket::server {
 
     void ChannelManager::sendBroadcastStart(const std::string& channel, const std::string& message, const SubProtocol* excludedClient) {
         if (channels.contains(channel)) {
-            const std::set<SubProtocol*>& clients = channels[channel];
-            for (SubProtocol* client : clients) {
+            for (SubProtocol* client : channels[channel]) {
                 if (client != excludedClient) {
                     client->sendMessage(message);
                 }
@@ -127,8 +123,7 @@ namespace web::websocket::server {
                                             std::size_t messageLength,
                                             const SubProtocol* excludedClient) {
         if (channels.contains(channel)) {
-            const std::set<SubProtocol*>& clients = channels[channel];
-            for (SubProtocol* client : clients) {
+            for (SubProtocol* client : channels[channel]) {
                 if (client != excludedClient) {
                     client->sendMessageFrame(message, messageLength);
                 }
@@ -145,8 +140,7 @@ namespace web::websocket::server {
                                           std::size_t messageLength,
                                           const SubProtocol* excludedClient) {
         if (channels.contains(channel)) {
-            const std::set<SubProtocol*>& clients = channels[channel];
-            for (SubProtocol* client : clients) {
+            for (SubProtocol* client : channels[channel]) {
                 if (client != excludedClient) {
                     client->sendMessageEnd(message, messageLength);
                 }
@@ -162,8 +156,7 @@ namespace web::websocket::server {
                                        const std::function<void(SubProtocol*)>& sendToClient,
                                        const SubProtocol* excludedClient) {
         if (channels.contains(channel)) {
-            const std::set<SubProtocol*>& clients = channels[channel];
-            for (SubProtocol* client : clients) {
+            for (SubProtocol* client : channels[channel]) {
                 if (client != excludedClient) {
                     sendToClient(client);
                 }

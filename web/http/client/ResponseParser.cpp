@@ -91,13 +91,13 @@ namespace web::http::client {
     }
 
     enum Parser::ParserState ResponseParser::parseHeader() {
-        for (const auto& [field, value] : Parser::headers) {
-            if (field != "set-cookie") {
-                if (field == "content-length") {
-                    Parser::contentLength = static_cast<std::size_t>(std::stoi(value));
+        for (const auto& [headerFieldName, headerFieldValue] : Parser::headers) {
+            if (headerFieldName != "set-cookie") {
+                if (headerFieldName == "content-length") {
+                    Parser::contentLength = static_cast<std::size_t>(std::stoi(headerFieldValue));
                 }
             } else {
-                std::string cookiesLine = value;
+                std::string cookiesLine = headerFieldValue;
 
                 while (!cookiesLine.empty()) {
                     std::string cookieLine;
@@ -107,15 +107,16 @@ namespace web::http::client {
                     std::string cookie;
                     std::tie(cookie, cookieOptions) = httputils::str_split(cookieLine, ';');
 
-                    std::string name;
-                    std::string value;
-                    std::tie(name, value) = httputils::str_split(cookie, '=');
-                    httputils::str_trimm(name);
-                    httputils::str_trimm(value);
+                    std::string cookieName;
+                    std::string cookieValue;
+                    std::tie(cookieName, cookieValue) = httputils::str_split(cookie, '=');
+
+                    httputils::str_trimm(cookieName);
+                    httputils::str_trimm(cookieValue);
 
                     std::map<std::string, CookieOptions>::iterator cookieElement;
                     bool inserted;
-                    std::tie(cookieElement, inserted) = cookies.insert({name, CookieOptions(value)});
+                    std::tie(cookieElement, inserted) = cookies.insert({cookieName, CookieOptions(cookieValue)});
 
                     while (!cookieOptions.empty()) {
                         std::string option;
@@ -124,6 +125,7 @@ namespace web::http::client {
                         std::string optionName;
                         std::string optionValue;
                         std::tie(optionName, optionValue) = httputils::str_split(option, '=');
+
                         httputils::str_trimm(optionName);
                         httputils::str_trimm(optionValue);
 

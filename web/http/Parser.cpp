@@ -160,24 +160,24 @@ namespace web::http {
 
     void Parser::splitHeaderLine(const std::string& line) {
         if (!line.empty()) {
-            std::string field;
-            std::string value;
-            std::tie(field, value) = httputils::str_split(line, ':');
+            std::string headerFieldName;
+            std::string headerFieldValue;
+            std::tie(headerFieldName, headerFieldValue) = httputils::str_split(line, ':');
 
-            if (field.empty()) {
+            if (headerFieldName.empty()) {
                 parserState = parsingError(400, "Header-field empty");
-            } else if (std::isblank(field.back()) || std::isblank(field.front())) {
+            } else if (std::isblank(headerFieldName.back()) || std::isblank(headerFieldName.front())) {
                 parserState = parsingError(400, "White space before or after header-field");
-            } else if (value.empty()) {
-                parserState = parsingError(400, "Header-value of field \"" + field + "\" empty");
+            } else if (headerFieldValue.empty()) {
+                parserState = parsingError(400, "Header-value of field \"" + headerFieldName + "\" empty");
             } else {
-                httputils::to_lower(field);
-                httputils::str_trimm(value);
+                httputils::to_lower(headerFieldName);
+                httputils::str_trimm(headerFieldValue);
 
-                if (headers.find(field) == headers.end()) {
-                    headers.insert({field, value});
+                if (headers.find(headerFieldName) == headers.end()) {
+                    headers.insert({headerFieldName, headerFieldValue});
                 } else {
-                    headers[field] += "," + value;
+                    headers[headerFieldName] += "," + headerFieldValue;
                 }
             }
         } else {

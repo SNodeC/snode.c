@@ -56,8 +56,8 @@ int main(int argc, char* argv[]) {
         },
         [](const std::map<std::string, std::string>& header, const std::map<std::string, std::string>& cookies) -> void {
             VLOG(0) << "++    Header: ";
-            for (const auto& [headerField, headerValue] : header) {
-                VLOG(0) << "++      " << headerField << " = " << headerValue;
+            for (const auto& [headerField, headerFieldValue] : header) {
+                VLOG(0) << "++      " << headerField << " = " << headerFieldValue;
             }
             VLOG(0) << "++    Cookie: ";
             for (const auto& [cookieName, cookieValue] : cookies) {
