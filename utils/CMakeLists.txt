@@ -25,10 +25,14 @@ target_include_directories(
 )
 
 if(BACKWARD_FOUND)
-    if(${STACK_DETAILS_DW})
-        set(BACKWARD_LIBS "Backward::Backward")
-        target_compile_definitions(utils PUBLIC BACKTRACE_SUPPORTED=1)
-    endif(${STACK_DETAILS_DW})
+    option(USE_BACKWARD "Compile stacktrace code")
+
+    if(USE_BACKWARD)
+        if(${STACK_DETAILS_DW})
+            set(BACKWARD_LIBS "Backward::Backward")
+            target_compile_definitions(utils PUBLIC BACKTRACE_SUPPORTED=1)
+        endif(${STACK_DETAILS_DW})
+    endif(USE_BACKWARD)
 endif(BACKWARD_FOUND)
 
 target_link_libraries(utils PRIVATE ${BACKWARD_LIBS})
