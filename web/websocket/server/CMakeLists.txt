@@ -16,7 +16,7 @@ set_target_properties(
         "${CMAKE_INSTALL_PREFIX}/lib:${CMAKE_INSTALL_PREFIX}/${WEBSOCKETBASE_INSTALL_PATH}"
 )
 
-target_link_libraries(websocketserver PUBLIC snodec::websocketbase)
+target_link_libraries(websocketserver PUBLIC snodec::net snodec::websocketbase)
 
 target_include_directories(
     websocketserver

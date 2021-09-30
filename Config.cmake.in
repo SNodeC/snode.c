@@ -21,15 +21,7 @@ macro(LOAD_COMPONENT_WITH_DEPENDENCIES _comp)
     set(${_comp}_LOADED true)
 endmacro()
 
-set(_supported_components
-    logger
-    utils
-    net
-    web
-    express
-    websocketbase
-    websocketserver
-)
+set(_supported_components net web express websocketserver)
 
 foreach(_comp ${snodec_FIND_COMPONENTS})
     if(NOT _comp IN_LIST _supported_components)
