@@ -1,13 +1,40 @@
 @PACKAGE_INIT@
 
-include(CMakeFindDependencyMacro)
+set(websocketserver_DEPENDENCIES websocketbase net)
+set(express_DEPENDENCIES web)
+set(web_DEPENDENCIES net)
+set(net_DEPENDENCIES utils logger)
 
-set(_supported_components logger utils net web express websocketbase websocketserver)
+macro(LOAD_COMPONENT_WITH_DEPENDENCIES _comp)
+    message("Loading component: " ${_comp})
+    foreach(_depcomp ${${_comp}_DEPENDENCIES})
+        if(${${_depcomp}_LOADED})
+            message("  " ${_comp} " depends on " ${_depcomp}
+                    " ... already loaded"
+            )
+        else()
+            message("  " ${_comp} " depends on " ${_depcomp} " ... loading")
+            load_component_with_dependencies(${_depcomp})
+        endif()
+    endforeach()
+    include("${CMAKE_CURRENT_LIST_DIR}/snodec${_comp}Targets.cmake")
+    set(${_comp}_LOADED true)
+endmacro()
+
+set(_supported_components
+    logger
+    utils
+    net
+    web
+    express
+    websocketbase
+    websocketserver
+)
 
 foreach(_comp ${snodec_FIND_COMPONENTS})
-  if (NOT _comp IN_LIST _supported_components)
-    set(snodec_FOUND False)
-    set(snodec_NOT_FOUND_MESSAGE "Unsupported component: ${_comp}")
-  endif()
-  include("${CMAKE_CURRENT_LIST_DIR}/snodec${_comp}Targets.cmake")
+    if(NOT _comp IN_LIST _supported_components)
+        set(snodec_FOUND False)
+        set(snodec_NOT_FOUND_MESSAGE "Unsupported component: ${_comp}")
+    endif()
+    load_component_with_dependencies(${_comp})
 endforeach()
