@@ -16,24 +16,23 @@
         -- Bruce Guenter <bruce@untroubled.org>
     Translation to simpler C++ Code
         -- Volker Grabsch <vog@notjusthosting.com>
+    Transform digest to binary
+        -- Volker Christian <me@vchrist.at>
 */
 
 #include <cstddef>
 #include <iostream>
 #include <string>
 
-class SHA1C {
+class SHA1 {
 public:
-    SHA1C();
+    SHA1();
     void update(const std::string& s);
     void update(std::istream& is);
     std::string final();
     static std::string from_file(const std::string& filename);
 
 private:
-    //    typedef unsigned long int uint32;  /* just needs to be at least 32bit */
-    //    typedef unsigned long long uint64; /* just needs to be at least 64bit */
-
     static const unsigned int DIGEST_INTS = 5; /* number of 32bit integers per SHA1 digest */
     static const unsigned int BLOCK_INTS = 16; /* number of 32bit integers per SHA1 block */
     static const unsigned int BLOCK_BYTES = BLOCK_INTS * 4;

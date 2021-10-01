@@ -18,7 +18,7 @@
 
 #include "base64.h"
 
-#include "SHA1.h"
+#include "sha1.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -13,11 +13,11 @@
         -- Bruce Guenter <bruce@untroubled.org>
     Translation to simpler C++ Code
         -- Volker Grabsch <vog@notjusthosting.com>
+    Transform (transform_to_binary) digest to binary
+        -- Volker Christian <me@vchrist.at>
 */
 
-#include "SHA1.h"
-
-#include "log/Logger.h"
+#include "sha1.h"
 
 #include <fstream>
 #include <iomanip>
@@ -44,16 +44,16 @@
     z += (w ^ x ^ y) + SHA1_BLK(i) + 0xca62c1d6 + SHA1_ROL(v, 5);                                                                          \
     w = SHA1_ROL(w, 30);
 
-SHA1C::SHA1C() {
+SHA1::SHA1() {
     reset();
 }
 
-void SHA1C::update(const std::string& s) {
+void SHA1::update(const std::string& s) {
     std::istringstream is(s);
     update(is);
 }
 
-void SHA1C::update(std::istream& is) {
+void SHA1::update(std::istream& is) {
     std::string rest_of_buffer;
     read(is, rest_of_buffer, static_cast<int>(BLOCK_BYTES) - static_cast<int>(buffer.size()));
     buffer += rest_of_buffer;
@@ -70,7 +70,7 @@ void SHA1C::update(std::istream& is) {
  * Add padding and return the message digest.
  */
 
-std::string SHA1C::final() {
+std::string SHA1::final() {
     /* Total number of hashed bits */
     uint64_t total_bits = (transforms * BLOCK_BYTES + buffer.size()) * 8;
 
@@ -109,14 +109,14 @@ std::string SHA1C::final() {
     return result.str();
 }
 
-std::string SHA1C::from_file(const std::string& filename) {
+std::string SHA1::from_file(const std::string& filename) {
     std::ifstream stream(filename.c_str(), std::ios::binary);
-    SHA1C checksum;
+    SHA1 checksum;
     checksum.update(stream);
     return checksum.final();
 }
 
-void SHA1C::reset() {
+void SHA1::reset() {
     /* SHA1 initialization constants */
     digest[0] = 0x67452301;
     digest[1] = 0xefcdab89;
@@ -133,7 +133,7 @@ void SHA1C::reset() {
  * Hash a single 512-bit block. This is the core of the algorithm.
  */
 
-void SHA1C::transform(uint32_t block[BLOCK_BYTES]) {
+void SHA1::transform(uint32_t block[BLOCK_BYTES]) {
     /* Copy digest[] to working vars */
     uint32_t a = digest[0];
     uint32_t b = digest[1];
@@ -234,7 +234,7 @@ void SHA1C::transform(uint32_t block[BLOCK_BYTES]) {
     transforms++;
 }
 
-void SHA1C::buffer_to_block(const std::string& buffer, uint32_t block[BLOCK_BYTES]) {
+void SHA1::buffer_to_block(const std::string& buffer, uint32_t block[BLOCK_BYTES]) {
     /* Convert the std::string (byte buffer) to a uint32 array (MSB) */
     for (unsigned int i = 0; i < BLOCK_INTS; i++) {
         block[i] = (buffer[4 * i + 3] & 0xff) | (buffer[4 * i + 2] & 0xff) << 8 | (buffer[4 * i + 1] & 0xff) << 16 |
@@ -242,14 +242,14 @@ void SHA1C::buffer_to_block(const std::string& buffer, uint32_t block[BLOCK_BYTE
     }
 }
 
-void SHA1C::read(std::istream& is, std::string& s, int max) {
+void SHA1::read(std::istream& is, std::string& s, int max) {
     char* sbuf = new char[max];
     is.read(sbuf, max);
     s.assign(sbuf, is.gcount());
     delete[] sbuf;
 }
 
-std::string transform(const std::string& string) {
+static std::string transform_to_binary(const std::string& string) {
     std::string buf;
 
     char hex_byte[3];
@@ -266,7 +266,7 @@ std::string transform(const std::string& string) {
 }
 
 std::string sha1(const std::string& string) {
-    SHA1C checksum;
+    SHA1 checksum;
     checksum.update(string);
-    return transform(checksum.final());
+    return transform_to_binary(checksum.final());
 }
