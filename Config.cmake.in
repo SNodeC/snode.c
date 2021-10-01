@@ -2,8 +2,9 @@
 
 set(websocketserver_DEPENDENCIES websocketbase web)
 set(express_DEPENDENCIES web)
-set(web_DEPENDENCIES netip nettls)
+set(web_DEPENDENCIES netip netlegacy nettls)
 set(netip_DEPENDENCIES net)
+set(netlegacy_DEPENDENCIES net)
 set(nettls_DEPENDENCIES net)
 set(netbt DEPENDENCIES net)
 set(net_DEPENDENCIES utils logger)
@@ -24,7 +25,16 @@ macro(LOAD_COMPONENT_WITH_DEPENDENCIES _comp)
     set(${_comp}_LOADED true)
 endmacro()
 
-set(_supported_components net netip netbt web express websocketserver)
+set(_supported_components
+    net
+    nettls
+    netip
+    netip
+    netbt
+    web
+    express
+    websocketserver
+)
 
 foreach(_comp ${snodec_FIND_COMPONENTS})
     if(NOT _comp IN_LIST _supported_components)

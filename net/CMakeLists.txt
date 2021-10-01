@@ -10,8 +10,8 @@ add_library(
     DescriptorEventDispatcher.cpp
     DescriptorEventReceiver.cpp
     EventLoop.cpp
-    FdSet.cpp
     ExceptionalConditionEventReceiver.cpp
+    FdSet.cpp
     ReadEventReceiver.cpp
     SNodeC.cpp
     TimerEventDispatcher.cpp
@@ -70,6 +70,7 @@ install(
     PATTERN "socket/ip" EXCLUDE
     PATTERN "socket/bluetooth" EXCLUDE
     PATTERN "socket/stream/tls" EXCLUDE
+    PATTERN "socket/stream/legacy" EXCLUDE
 )
 
 install(
@@ -79,6 +80,7 @@ install(
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
 
+add_subdirectory(socket/stream/legacy)
 add_subdirectory(socket/stream/tls)
 add_subdirectory(socket/ip)
 add_subdirectory(socket/bluetooth)
