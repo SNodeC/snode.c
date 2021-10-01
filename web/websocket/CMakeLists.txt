@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
 
-configure_file(config.h.in config.h @ONLY)
-
 set(WEBSOCKETBASE_INSTALL_PATH lib/snode.c/web/http/upgrade)
 
 add_library(websocketbase SHARED Receiver.cpp Transmitter.cpp)
@@ -43,6 +41,8 @@ install(
     PATTERN "*.h"
     PATTERN "*.hpp"
     PATTERN "cmake" EXCLUDE
+    PATTERN "server" EXCLUDE
+    PATTERN "subprotocol" EXCLUDE
 )
 
 install(

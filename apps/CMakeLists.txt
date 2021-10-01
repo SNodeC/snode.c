@@ -45,7 +45,9 @@ set_target_properties(
 
 add_executable(simpleserver6clientcert simpleserver6clientcert.cpp)
 target_link_libraries(simpleserver6clientcert PRIVATE express)
-install(TARGETS simpleserver6clientcert RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS simpleserver6clientcert
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
 set_target_properties(
     simpleserver6clientcert
     PROPERTIES CXX_STANDARD 20
@@ -153,7 +155,7 @@ set_target_properties(
 )
 
 add_executable(btlowlevelclient btlowlevelclient.cpp)
-target_link_libraries(btlowlevelclient PRIVATE web)
+target_link_libraries(btlowlevelclient PRIVATE netbt)
 install(TARGETS btlowlevelclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 set_target_properties(
     btlowlevelclient
@@ -163,7 +165,7 @@ set_target_properties(
 )
 
 add_executable(btlowlevelserver btlowlevelserver.cpp)
-target_link_libraries(btlowlevelserver PRIVATE net)
+target_link_libraries(btlowlevelserver PRIVATE netbt)
 install(TARGETS btlowlevelserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 set_target_properties(
     btlowlevelserver
@@ -173,7 +175,7 @@ set_target_properties(
 )
 
 add_executable(btlowleveltlsclient btlowleveltlsclient.cpp)
-target_link_libraries(btlowleveltlsclient PRIVATE web)
+target_link_libraries(btlowleveltlsclient PRIVATE netbt)
 install(TARGETS btlowleveltlsclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 set_target_properties(
     btlowleveltlsclient
@@ -183,7 +185,7 @@ set_target_properties(
 )
 
 add_executable(btlowleveltlsserver btlowleveltlsserver.cpp)
-target_link_libraries(btlowleveltlsserver PRIVATE net)
+target_link_libraries(btlowleveltlsserver PRIVATE netbt)
 install(TARGETS btlowleveltlsserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 set_target_properties(
     btlowleveltlsserver
@@ -193,7 +195,7 @@ set_target_properties(
 )
 
 add_executable(l2lowlevelclient l2lowlevelclient.cpp)
-target_link_libraries(l2lowlevelclient PRIVATE web)
+target_link_libraries(l2lowlevelclient PRIVATE netbt)
 install(TARGETS l2lowlevelclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 set_target_properties(
     l2lowlevelclient
@@ -203,7 +205,7 @@ set_target_properties(
 )
 
 add_executable(l2lowlevelserver l2lowlevelserver.cpp)
-target_link_libraries(l2lowlevelserver PRIVATE net)
+target_link_libraries(l2lowlevelserver PRIVATE netbt)
 install(TARGETS l2lowlevelserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 set_target_properties(
     l2lowlevelserver

@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
 find_package(OpenSSL REQUIRED)
-pkg_check_modules(BLUEZ REQUIRED bluez)
 
 find_package(range-v3 REQUIRED)
 
@@ -26,14 +25,6 @@ add_library(
     pipe/Pipe.cpp
     pipe/PipeSink.cpp
     pipe/PipeSource.cpp
-    socket/bluetooth/address/L2CapAddress.cpp
-    socket/bluetooth/address/RfCommAddress.cpp
-    socket/bluetooth/l2cap/Socket.cpp
-    socket/bluetooth/rfcomm/Socket.cpp
-    socket/ip/address/ipv4/InetAddress.cpp
-    socket/ip/address/ipv6/InetAddress.cpp
-    socket/ip/tcp/ipv4/Socket.cpp
-    socket/ip/tcp/ipv6/Socket.cpp
     socket/stream/SocketConnection.cpp
     socket/stream/SocketContext.cpp
     socket/stream/tls/ssl_utils.cpp
@@ -51,7 +42,6 @@ add_library(snodec::net ALIAS net)
 
 target_link_libraries(
     net PUBLIC snodec::logger snodec::utils ${OPENSSL_LIBRARIES}
-               ${BLUEZ_LIBRARIES}
 )
 
 set_target_properties(
@@ -67,7 +57,6 @@ target_include_directories(
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
            "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
            "$<BUILD_INTERFACE:${OPENSSL_INCLUDE_DIRS}>"
-           "$<BUILD_INTERFACE:${BLUEZ_INCLUDE_DIRS}>"
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
@@ -86,6 +75,8 @@ install(
     PATTERN "*.h"
     PATTERN "*.hpp"
     PATTERN "cmake" EXCLUDE
+    PATTERN "socket/ip" EXCLUDE
+    PATTERN "socket/bluetooth" EXCLUDE
 )
 
 install(
@@ -94,3 +85,6 @@ install(
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
+
+add_subdirectory(socket/ip)
+add_subdirectory(socket/bluetooth)

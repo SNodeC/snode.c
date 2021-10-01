@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
+configure_file(config.h.in config.h @ONLY)
+
 add_library(
     websocketserver SHARED
     ChannelManager.cpp SocketContext.cpp SocketContextUpgradeFactory.cpp
@@ -16,7 +18,7 @@ set_target_properties(
         "${CMAKE_INSTALL_PREFIX}/lib:${CMAKE_INSTALL_PREFIX}/${WEBSOCKETBASE_INSTALL_PATH}"
 )
 
-target_link_libraries(websocketserver PUBLIC snodec::net snodec::websocketbase)
+target_link_libraries(websocketserver PUBLIC snodec::web snodec::websocketbase)
 
 target_include_directories(
     websocketserver
@@ -46,6 +48,15 @@ install(
     LIBRARY DESTINATION lib/snode.c/web/http/upgrade/server
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
+)
+
+install(
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
+    DESTINATION include/snode.c/web/websocket/server
+    FILES_MATCHING
+    PATTERN "*.h"
+    PATTERN "*.hpp"
+    PATTERN "cmake" EXCLUDE
 )
 
 install(

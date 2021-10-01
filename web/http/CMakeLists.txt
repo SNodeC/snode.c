@@ -29,7 +29,7 @@ add_library(
 )
 add_library(snodec::web ALIAS web)
 
-target_link_libraries(web PUBLIC snodec::net ${LIBMAGIC_LIBRARIES})
+target_link_libraries(web PUBLIC snodec::netip ${LIBMAGIC_LIBRARIES})
 
 set_target_properties(
     web
