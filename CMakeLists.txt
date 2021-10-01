@@ -10,6 +10,7 @@ include("cmake/check-doxygen.cmake")
 include("cmake/cmake-uninstall.cmake")
 include("cmake/cmake-instrumentation.cmake")
 include("cmake/cmake-rpath-use-always.cmake")
+include(GNUInstallDirs)
 
 message("Your C++ compiler supports these C++ features:")
 foreach(i ${CMAKE_CXX_COMPILE_FEATURES})
