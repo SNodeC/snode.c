@@ -29,24 +29,18 @@ add_library(
 )
 add_library(snodec::web ALIAS web)
 
-target_link_libraries(
-    web PUBLIC snodec::netip snodec::nettls ${LIBMAGIC_LIBRARIES} dl
-)
-
-set_target_properties(
-    web
-    PROPERTIES CXX_STANDARD 20
-               CXX_STANDARD_REQUIRED ON
-               CXX_EXTENSIONS OFF
-               SOVERSION 1
-)
-
 target_include_directories(
     web
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
            "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
            "$<INSTALL_INTERFACE:include/snode.c>" "${LIBMAGIC_INCLUDES}"
 )
+
+target_link_libraries(
+    web PUBLIC snodec::netip snodec::nettls ${LIBMAGIC_LIBRARIES} dl
+)
+
+set_target_properties(web PROPERTIES SOVERSION 1)
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/

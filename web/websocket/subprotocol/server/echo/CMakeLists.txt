@@ -7,16 +7,8 @@ target_include_directories(echo PUBLIC ${PROJECT_SOURCE_DIR})
 target_link_libraries(echo snodec::websocketserver snodec::net)
 
 set_target_properties(
-    echo
-    PROPERTIES CXX_STANDARD 20
-               CXX_STANDARD_REQUIRED ON
-               CXX_EXTENSIONS OFF
-               SOVERSION 1
-)
-
-set_target_properties(
     echo PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${WEBSOCKET_SERVER_LIBDIR}"
-                    # PREFIX "ssp"
+                    SOVERSION 1 # PREFIX "ssp"
 )
 
 install(TARGETS echo

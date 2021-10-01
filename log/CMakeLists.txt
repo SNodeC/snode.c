@@ -36,14 +36,6 @@ add_library(
 )
 add_library(snodec::logger ALIAS logger)
 
-set_target_properties(
-    logger
-    PROPERTIES CXX_STANDARD 20
-               CXX_STANDARD_REQUIRED ON
-               CXX_EXTENSIONS OFF
-               SOVERSION 1
-)
-
 set_source_files_properties(
     "${EASYLOGGINGPP_INCLUDE_DIR}/easylogging++.cc"
     PROPERTIES COMPILE_FLAGS
@@ -60,6 +52,9 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
     INTERFACE ${EASYLOGGINGPP_INCLUDE_DIR}
 )
+
+set_target_properties(logger PROPERTIES SOVERSION 1)
+
 install(
     TARGETS logger
     EXPORT snodecloggerTargets

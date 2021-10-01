@@ -10,19 +10,6 @@ add_library(
 )
 add_library(snodec::netbt ALIAS netbt)
 
-target_link_libraries(
-    netbt PUBLIC snodec::logger snodec::utils snodec::net snodec::nettls
-                 ${BLUEZ_LIBRARIES}
-)
-
-set_target_properties(
-    netbt
-    PROPERTIES CXX_STANDARD 20
-               CXX_STANDARD_REQUIRED ON
-               CXX_EXTENSIONS OFF
-               SOVERSION 1
-)
-
 target_include_directories(
     netbt
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
@@ -30,6 +17,13 @@ target_include_directories(
            "$<BUILD_INTERFACE:${BLUEZ_INCLUDE_DIRS}>"
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
+
+target_link_libraries(
+    netbt PUBLIC snodec::logger snodec::utils snodec::net snodec::nettls
+                 ${BLUEZ_LIBRARIES}
+)
+
+set_target_properties(netbt PROPERTIES SOVERSION 1)
 
 install(
     TARGETS netbt

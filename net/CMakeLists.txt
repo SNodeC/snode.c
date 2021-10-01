@@ -35,22 +35,16 @@ add_library(
 )
 add_library(snodec::net ALIAS net)
 
-target_link_libraries(net PUBLIC snodec::logger snodec::utils)
-
-set_target_properties(
-    net
-    PROPERTIES CXX_STANDARD 20
-               CXX_STANDARD_REQUIRED ON
-               CXX_EXTENSIONS OFF
-               SOVERSION 1
-)
-
 target_include_directories(
     net
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
            "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
+
+target_link_libraries(net PUBLIC snodec::logger snodec::utils)
+
+set_target_properties(net PROPERTIES SOVERSION 1)
 
 install(
     TARGETS net

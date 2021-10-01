@@ -2,29 +2,6 @@ cmake_minimum_required(VERSION 3.0)
 
 find_package(Backward)
 
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-
-add_library(
-    utils SHARED Timeval.cpp instrumentation.cpp base64.cpp stacktrace.cpp
-                 SHA1.cpp
-)
-add_library(snodec::utils ALIAS utils)
-
-set_target_properties(
-    utils
-    PROPERTIES CXX_STANDARD 20
-               CXX_STANDARD_REQUIRED ON
-               CXX_EXTENSIONS OFF
-               SOVERSION 1
-)
-
-target_include_directories(
-    utils
-    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
-           "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
-           "$<INSTALL_INTERFACE:include/snode.c>"
-)
-
 if(BACKWARD_FOUND)
     option(USE_BACKWARD "Compile stacktrace code")
 
@@ -36,7 +13,24 @@ if(BACKWARD_FOUND)
     endif(USE_BACKWARD)
 endif(BACKWARD_FOUND)
 
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
+add_library(
+    utils SHARED Timeval.cpp instrumentation.cpp base64.cpp stacktrace.cpp
+                 sha1.cpp
+)
+add_library(snodec::utils ALIAS utils)
+
+target_include_directories(
+    utils
+    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
+           "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
+           "$<INSTALL_INTERFACE:include/snode.c>"
+)
+
 target_link_libraries(utils PRIVATE ${BACKWARD_LIBS} dl)
+
+set_target_properties(utils PROPERTIES SOVERSION 1)
 
 install(
     TARGETS utils

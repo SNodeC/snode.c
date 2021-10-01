@@ -5,16 +5,6 @@ find_package(OpenSSL REQUIRED)
 add_library(nettls SHARED ssl_utils.cpp TLSHandshake.cpp system/ssl.cpp)
 add_library(snodec::nettls ALIAS nettls)
 
-target_link_libraries(nettls PUBLIC snodec::net ${OPENSSL_LIBRARIES})
-
-set_target_properties(
-    nettls
-    PROPERTIES CXX_STANDARD 20
-               CXX_STANDARD_REQUIRED ON
-               CXX_EXTENSIONS OFF
-               SOVERSION 1
-)
-
 target_include_directories(
     nettls
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
@@ -22,6 +12,10 @@ target_include_directories(
            "$<BUILD_INTERFACE:${OPENSSL_INCLUDE_DIRS}>"
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
+
+target_link_libraries(nettls PUBLIC snodec::net ${OPENSSL_LIBRARIES})
+
+set_target_properties(nettls PROPERTIES SOVERSION 1)
 
 install(
     TARGETS nettls

@@ -6,22 +6,16 @@ add_library(
 )
 add_library(snodec::netip ALIAS netip)
 
-target_link_libraries(netip PUBLIC snodec::logger snodec::utils snodec::net)
-
-set_target_properties(
-    netip
-    PROPERTIES CXX_STANDARD 20
-               CXX_STANDARD_REQUIRED ON
-               CXX_EXTENSIONS OFF
-               SOVERSION 1
-)
-
 target_include_directories(
     netip
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
            "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
+
+target_link_libraries(netip PUBLIC snodec::logger snodec::utils snodec::net)
+
+set_target_properties(netip PROPERTIES SOVERSION 1)
 
 install(
     TARGETS netip

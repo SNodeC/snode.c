@@ -16,21 +16,18 @@ add_library(
 )
 add_library(snodec::express ALIAS express)
 
-target_link_libraries(express PUBLIC snodec::web)
-target_link_libraries(express PRIVATE nlohmann_json::nlohmann_json)
-
-set_target_properties(
-    express
-    PROPERTIES CXX_STANDARD 20
-               CXX_STANDARD_REQUIRED ON
-               CXX_EXTENSIONS OFF
-               SOVERSION 1
-)
-
 target_include_directories(
     express PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
                    "$<INSTALL_INTERFACE:include/snode.c>"
 )
+
+target_link_libraries(
+    express
+    PUBLIC snodec::web
+    PRIVATE nlohmann_json::nlohmann_json
+)
+
+set_target_properties(express PROPERTIES SOVERSION 1)
 
 install(
     TARGETS express

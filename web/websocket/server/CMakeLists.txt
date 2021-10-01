@@ -18,8 +18,6 @@ set_target_properties(
         "${CMAKE_INSTALL_PREFIX}/lib:${CMAKE_INSTALL_PREFIX}/${WEBSOCKETBASE_INSTALL_PATH}"
 )
 
-target_link_libraries(websocketserver PUBLIC snodec::web snodec::websocketbase)
-
 target_include_directories(
     websocketserver
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
@@ -27,13 +25,9 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-set_target_properties(
-    websocketserver
-    PROPERTIES CXX_STANDARD 20
-               CXX_STANDARD_REQUIRED ON
-               CXX_EXTENSIONS OFF
-               SOVERSION 1
-               # PREFIX "sc"
+target_link_libraries(websocketserver PUBLIC snodec::web snodec::websocketbase)
+
+set_target_properties(websocketserver PROPERTIES SOVERSION 1 # PREFIX "sc"
 )
 
 set_target_properties(

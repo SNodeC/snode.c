@@ -14,16 +14,9 @@ target_include_directories(
 
 set_target_properties(
     websocketbase
-    PROPERTIES CXX_STANDARD 20
-               CXX_STANDARD_REQUIRED ON
-               CXX_EXTENSIONS OFF
-               SOVERSION 1
-               # PREFIX "sc"
-)
-
-set_target_properties(
-    websocketbase PROPERTIES LIBRARY_OUTPUT_DIRECTORY
-                             "${SOCKETCONTEXTUPGRADE_SERVER_LIBDIR}/upgrade"
+    PROPERTIES LIBRARY_OUTPUT_DIRECTORY
+               "${SOCKETCONTEXTUPGRADE_SERVER_LIBDIR}/upgrade" SOVERSION
+                                                               1 # PREFIX "sc"
 )
 
 install(
