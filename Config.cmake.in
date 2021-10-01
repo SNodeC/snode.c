@@ -2,8 +2,9 @@
 
 set(websocketserver_DEPENDENCIES websocketbase web)
 set(express_DEPENDENCIES web)
-set(web_DEPENDENCIES netip)
+set(web_DEPENDENCIES netip nettls)
 set(netip_DEPENDENCIES net)
+set(nettls_DEPENDENCIES net)
 set(netbt DEPENDENCIES net)
 set(net_DEPENDENCIES utils logger)
 

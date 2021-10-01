@@ -1,22 +1,14 @@
 cmake_minimum_required(VERSION 3.0)
 
-find_package(PkgConfig REQUIRED)
+find_package(OpenSSL REQUIRED)
 
-pkg_check_modules(BLUEZ REQUIRED bluez)
+add_library(nettls SHARED ssl_utils.cpp TLSHandshake.cpp system/ssl.cpp)
+add_library(snodec::nettls ALIAS nettls)
 
-add_library(
-    netbt SHARED address/L2CapAddress.cpp address/RfCommAddress.cpp
-                 l2cap/Socket.cpp rfcomm/Socket.cpp
-)
-add_library(snodec::netbt ALIAS netbt)
-
-target_link_libraries(
-    netbt PUBLIC snodec::logger snodec::utils snodec::net snodec::nettls
-                 ${BLUEZ_LIBRARIES}
-)
+target_link_libraries(nettls PUBLIC snodec::net ${OPENSSL_LIBRARIES})
 
 set_target_properties(
-    netbt
+    nettls
     PROPERTIES CXX_STANDARD 20
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
@@ -24,16 +16,16 @@ set_target_properties(
 )
 
 target_include_directories(
-    netbt
+    nettls
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
            "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
-           "$<BUILD_INTERFACE:${BLUEZ_INCLUDE_DIRS}>"
+           "$<BUILD_INTERFACE:${OPENSSL_INCLUDE_DIRS}>"
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 install(
-    TARGETS netbt
-    EXPORT snodecnetbtTargets
+    TARGETS nettls
+    EXPORT snodecnettlsTargets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
@@ -41,7 +33,7 @@ install(
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/socket/bluetooth
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/socket/stream/tls
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
@@ -49,8 +41,8 @@ install(
 )
 
 install(
-    EXPORT snodecnetbtTargets
-    FILE snodecnetbtTargets.cmake
+    EXPORT snodecnettlsTargets
+    FILE snodecnettlsTargets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )

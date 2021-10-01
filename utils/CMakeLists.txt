@@ -6,8 +6,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 add_library(
     utils SHARED Timeval.cpp instrumentation.cpp base64.cpp stacktrace.cpp
+                 SHA1.cpp
 )
-
 add_library(snodec::utils ALIAS utils)
 
 set_target_properties(
@@ -17,6 +17,7 @@ set_target_properties(
                CXX_EXTENSIONS OFF
                SOVERSION 1
 )
+
 target_include_directories(
     utils
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
@@ -35,7 +36,7 @@ if(BACKWARD_FOUND)
     endif(USE_BACKWARD)
 endif(BACKWARD_FOUND)
 
-target_link_libraries(utils PRIVATE ${BACKWARD_LIBS})
+target_link_libraries(utils PRIVATE ${BACKWARD_LIBS} dl)
 
 install(
     TARGETS utils
