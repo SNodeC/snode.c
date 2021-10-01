@@ -59,7 +59,7 @@ void SHA1C::update(std::istream& is) {
     buffer += rest_of_buffer;
 
     while (is) {
-        uint32 block[BLOCK_INTS];
+        uint32_t block[BLOCK_INTS];
         buffer_to_block(buffer, block);
         transform(block);
         read(is, buffer, BLOCK_BYTES);
@@ -72,7 +72,7 @@ void SHA1C::update(std::istream& is) {
 
 std::string SHA1C::final() {
     /* Total number of hashed bits */
-    uint64 total_bits = (transforms * BLOCK_BYTES + buffer.size()) * 8;
+    uint64_t total_bits = (transforms * BLOCK_BYTES + buffer.size()) * 8;
 
     /* Padding */
     buffer += static_cast<std::string::value_type>(0x80);
@@ -81,7 +81,7 @@ std::string SHA1C::final() {
         buffer += (char) 0x00;
     }
 
-    uint32 block[BLOCK_INTS];
+    uint32_t block[BLOCK_INTS];
     buffer_to_block(buffer, block);
 
     if (orig_size > BLOCK_BYTES - 8) {
@@ -92,8 +92,8 @@ std::string SHA1C::final() {
     }
 
     /* Append total_bits, split this uint64 into two uint32 */
-    block[BLOCK_INTS - 1] = total_bits;
-    block[BLOCK_INTS - 2] = (total_bits >> 32);
+    block[BLOCK_INTS - 1] = static_cast<uint32_t>(total_bits & 0x00000000FFFFFFFF);
+    block[BLOCK_INTS - 2] = static_cast<uint32_t>((total_bits >> 32) & 0x00000000FFFFFFFF);
     transform(block);
 
     /* Hex std::string */
@@ -133,13 +133,13 @@ void SHA1C::reset() {
  * Hash a single 512-bit block. This is the core of the algorithm.
  */
 
-void SHA1C::transform(uint32 block[BLOCK_BYTES]) {
+void SHA1C::transform(uint32_t block[BLOCK_BYTES]) {
     /* Copy digest[] to working vars */
-    uint32 a = digest[0];
-    uint32 b = digest[1];
-    uint32 c = digest[2];
-    uint32 d = digest[3];
-    uint32 e = digest[4];
+    uint32_t a = digest[0];
+    uint32_t b = digest[1];
+    uint32_t c = digest[2];
+    uint32_t d = digest[3];
+    uint32_t e = digest[4];
 
     /* 4 rounds of 20 operations each. Loop unrolled. */
     SHA1_R0(a, b, c, d, e, 0);
@@ -234,7 +234,7 @@ void SHA1C::transform(uint32 block[BLOCK_BYTES]) {
     transforms++;
 }
 
-void SHA1C::buffer_to_block(const std::string& buffer, uint32 block[BLOCK_BYTES]) {
+void SHA1C::buffer_to_block(const std::string& buffer, uint32_t block[BLOCK_BYTES]) {
     /* Convert the std::string (byte buffer) to a uint32 array (MSB) */
     for (unsigned int i = 0; i < BLOCK_INTS; i++) {
         block[i] = (buffer[4 * i + 3] & 0xff) | (buffer[4 * i + 2] & 0xff) << 8 | (buffer[4 * i + 1] & 0xff) << 16 |
