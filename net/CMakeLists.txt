@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
 
-find_package(OpenSSL REQUIRED)
-
 find_package(range-v3 REQUIRED)
 
 add_library(
@@ -27,22 +25,17 @@ add_library(
     pipe/PipeSource.cpp
     socket/stream/SocketConnection.cpp
     socket/stream/SocketContext.cpp
-    socket/stream/tls/ssl_utils.cpp
-    socket/stream/tls/TLSHandshake.cpp
     system/netdb.cpp
     system/select.cpp
     system/signal.cpp
     system/socket.cpp
-    system/ssl.cpp
     system/time.cpp
     system/unistd.cpp
     timer/Timer.cpp
 )
 add_library(snodec::net ALIAS net)
 
-target_link_libraries(
-    net PUBLIC snodec::logger snodec::utils ${OPENSSL_LIBRARIES}
-)
+target_link_libraries(net PUBLIC snodec::logger snodec::utils)
 
 set_target_properties(
     net
@@ -56,7 +49,6 @@ target_include_directories(
     net
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
            "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
-           "$<BUILD_INTERFACE:${OPENSSL_INCLUDE_DIRS}>"
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
@@ -77,6 +69,7 @@ install(
     PATTERN "cmake" EXCLUDE
     PATTERN "socket/ip" EXCLUDE
     PATTERN "socket/bluetooth" EXCLUDE
+    PATTERN "socket/stream/tls" EXCLUDE
 )
 
 install(
@@ -86,5 +79,6 @@ install(
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
 
+add_subdirectory(socket/stream/tls)
 add_subdirectory(socket/ip)
 add_subdirectory(socket/bluetooth)

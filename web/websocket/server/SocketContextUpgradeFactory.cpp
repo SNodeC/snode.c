@@ -67,10 +67,7 @@ namespace web::websocket::server {
                     response->set("Upgrade", "websocket");
                     response->set("Connection", "Upgrade");
                     response->set("Sec-WebSocket-Protocol", subProtocolName);
-
-                    base64::serverWebSocketKey(request->header("sec-websocket-key"), [&response = this->response](char* key) -> void {
-                        response->set("Sec-WebSocket-Accept", key);
-                    });
+                    response->set("Sec-WebSocket-Accept", base64::serverWebSocketKey(request->header("sec-websocket-key")));
 
                     response->status(101).end(); // Switch Protocol
                 } else {

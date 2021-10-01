@@ -21,6 +21,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
 #include <functional>
 #include <string>
 
@@ -28,12 +29,9 @@
 
 namespace base64 {
 
-    unsigned char* decode64(const char* input, int length);
-    char* base64(const unsigned char* input, int length);
-    void serverWebSocketKey(const std::string& clientWebSocketKey, const std::function<void(char*)>& returnKey);
     std::string serverWebSocketKey(const std::string& clientWebSocketKey);
 
-    std::string base64_encode(const unsigned char*, int len);
+    std::string base64_encode(const unsigned char*, std::size_t len);
     std::string base64_decode(const std::string& s);
 } // namespace base64
 

@@ -18,72 +18,32 @@
 
 #include "base64.h"
 
-#include "log/Logger.h"
+#include "SHA1.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cctype>
 #include <cstdlib>
-#include <openssl/evp.h>
-#include <openssl/sha.h>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace base64 {
 
-    unsigned char* decode64(const char* input, int length) {
-        const int pl = 3 * length / 4;
-        unsigned char* output = reinterpret_cast<unsigned char*>(calloc(static_cast<std::size_t>(pl + 1), 1));
-        const int ol = EVP_DecodeBlock(output, reinterpret_cast<const unsigned char*>(input), length);
-        if (pl != ol) {
-            LOG(ERROR) << "Whoops, decode predicted " << pl << " but we got " << ol;
-        }
-        return output;
-    }
-
-    char* base64(const unsigned char* input, int length) {
-        const int pl = 4 * ((length + 2) / 3);
-        char* output =
-            reinterpret_cast<char*>(calloc(static_cast<std::size_t>(pl + 1), 1)); //+1 for the terminating null that EVP_EncodeBlock adds on
-        const int ol = EVP_EncodeBlock(reinterpret_cast<unsigned char*>(output), input, length);
-        if (pl != ol) {
-            LOG(ERROR) << "Whoops, encode predicted " << pl << " but we got " << ol;
-        }
-        return output;
-    }
-
-    void serverWebSocketKey(const std::string& clientWebSocketKey, const std::function<void(char*)>& returnKey) {
-        std::string GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-
-        std::string serverWebSocketKey(clientWebSocketKey + GUID);
-        unsigned char digest[SHA_DIGEST_LENGTH];
-        SHA1(reinterpret_cast<const unsigned char*>(serverWebSocketKey.c_str()),
-             serverWebSocketKey.length(),
-             reinterpret_cast<unsigned char*>(&digest));
-
-        char* key = base64(digest, SHA_DIGEST_LENGTH);
-        returnKey(key);
-
-        free(key);
-    }
-
     std::string serverWebSocketKey(const std::string& clientWebSocketKey) {
         std::string GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
         std::string serverWebSocketKey(clientWebSocketKey + GUID);
+        std::string digest = sha1(serverWebSocketKey);
 
-        unsigned char digest[SHA_DIGEST_LENGTH];
-        SHA1(reinterpret_cast<const unsigned char*>(serverWebSocketKey.c_str()), serverWebSocketKey.length(), digest);
-
-        return base64_encode(digest, SHA_DIGEST_LENGTH);
+        return base64_encode(reinterpret_cast<unsigned char*>(digest.data()), digest.length());
     }
 
     static inline bool is_base64(char c) {
         return (isalnum(c) || (c == '+') || (c == '/'));
     }
 
-    std::string base64_encode(const unsigned char* bytes_to_encode, int length) {
+    std::string base64_encode(const unsigned char* bytes_to_encode, std::size_t length) {
         static const std::string base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                                                 "abcdefghijklmnopqrstuvwxyz"
                                                 "0123456789+/";
