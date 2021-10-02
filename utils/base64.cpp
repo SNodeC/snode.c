@@ -23,7 +23,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cctype>
-#include <cstdlib>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

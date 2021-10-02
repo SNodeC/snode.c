@@ -19,9 +19,11 @@
 
 #include "sha1.h"
 
-#include <fstream>
+#include <cstdlib> // IWYU pragma: keep
+#include <fstream> // IWYU pragma: keep
 #include <iomanip>
-#include <sstream>
+#include <sstream> // IWYU pragma: keep
+#include <sys/types.h>
 
 /* Help macros */
 #define SHA1_ROL(value, bits) (((value) << (bits)) | (((value) &0xffffffff) >> (32 - (bits))))
@@ -55,7 +57,7 @@ void SHA1::update(const std::string& s) {
 
 void SHA1::update(std::istream& is) {
     std::string rest_of_buffer;
-    read(is, rest_of_buffer, static_cast<int>(BLOCK_BYTES) - static_cast<int>(buffer.size()));
+    read(is, rest_of_buffer, static_cast<std::size_t>(static_cast<int>(BLOCK_BYTES) - static_cast<int>(buffer.size())));
     buffer += rest_of_buffer;
 
     while (is) {
@@ -237,15 +239,15 @@ void SHA1::transform(uint32_t block[BLOCK_BYTES]) {
 void SHA1::buffer_to_block(const std::string& buffer, uint32_t block[BLOCK_BYTES]) {
     /* Convert the std::string (byte buffer) to a uint32 array (MSB) */
     for (unsigned int i = 0; i < BLOCK_INTS; i++) {
-        block[i] = (buffer[4 * i + 3] & 0xff) | (buffer[4 * i + 2] & 0xff) << 8 | (buffer[4 * i + 1] & 0xff) << 16 |
-                   (buffer[4 * i + 0] & 0xff) << 24;
+        block[i] = static_cast<uint32_t>((buffer[4 * i + 3] & 0xff) | (buffer[4 * i + 2] & 0xff) << 8 | (buffer[4 * i + 1] & 0xff) << 16 |
+                                         (buffer[4 * i + 0] & 0xff) << 24);
     }
 }
 
-void SHA1::read(std::istream& is, std::string& s, int max) {
+void SHA1::read(std::istream& is, std::string& s, std::size_t max) {
     char* sbuf = new char[max];
-    is.read(sbuf, max);
-    s.assign(sbuf, is.gcount());
+    is.read(sbuf, static_cast<ssize_t>(max));
+    s.assign(sbuf, static_cast<unsigned long>(is.gcount()));
     delete[] sbuf;
 }
 

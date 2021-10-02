@@ -29,8 +29,6 @@
 #ifdef BACKTRACE_SUPPORTED
 #include <backward.hpp>
 #endif
-#include <execinfo.h>
-#include <stdio.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

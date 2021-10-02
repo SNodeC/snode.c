@@ -21,6 +21,7 @@
 */
 
 #include <cstddef>
+#include <cstdint>
 #include <iostream>
 #include <string>
 
@@ -45,7 +46,7 @@ private:
     void transform(uint32_t block[BLOCK_BYTES]);
 
     static void buffer_to_block(const std::string& buffer, uint32_t block[BLOCK_BYTES]);
-    static void read(std::istream& is, std::string& s, int max);
+    static void read(std::istream& is, std::string& s, std::size_t max);
 };
 
 std::string sha1(const std::string& string);
