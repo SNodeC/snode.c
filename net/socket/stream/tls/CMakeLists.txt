@@ -2,24 +2,24 @@ cmake_minimum_required(VERSION 3.0)
 
 find_package(OpenSSL REQUIRED)
 
-add_library(nettls SHARED ssl_utils.cpp TLSHandshake.cpp system/ssl.cpp)
-add_library(snodec::nettls ALIAS nettls)
+add_library(net-tls SHARED ssl_utils.cpp TLSHandshake.cpp system/ssl.cpp)
+add_library(snodec::net-tls ALIAS net-tls)
 
 target_include_directories(
-    nettls
+    net-tls
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
            "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
            "$<BUILD_INTERFACE:${OPENSSL_INCLUDE_DIRS}>"
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(nettls PUBLIC snodec::net ${OPENSSL_LIBRARIES})
+target_link_libraries(net-tls PUBLIC snodec::net ${OPENSSL_LIBRARIES})
 
-set_target_properties(nettls PROPERTIES SOVERSION 1)
+set_target_properties(net-tls PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-net-tls)
 
 install(
-    TARGETS nettls
-    EXPORT snodecnettlsTargets
+    TARGETS net-tls
+    EXPORT snodecnet-tlsTargets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
@@ -35,8 +35,8 @@ install(
 )
 
 install(
-    EXPORT snodecnettlsTargets
-    FILE snodecnettlsTargets.cmake
+    EXPORT snodecnet-tlsTargets
+    FILE snodecnet-tlsTargets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )

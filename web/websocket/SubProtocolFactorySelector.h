@@ -66,7 +66,7 @@ namespace web::websocket {
                 subProtocolFactory = subProtocolPlugins[subProtocolName].subProtocolFactory;
             } else {
                 for (const std::string& searchPath : searchPaths) {
-                    subProtocolFactory = load(searchPath + "/lib" + subProtocolName + ".so");
+                    subProtocolFactory = load(searchPath + "/libsnodec-websocket-" + subProtocolName + ".so");
                     if (subProtocolFactory != nullptr) {
                         break;
                     }

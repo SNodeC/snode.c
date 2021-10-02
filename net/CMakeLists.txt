@@ -44,7 +44,7 @@ target_include_directories(
 
 target_link_libraries(net PUBLIC snodec::logger snodec::utils)
 
-set_target_properties(net PROPERTIES SOVERSION 1)
+set_target_properties(net PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-net)
 
 install(
     TARGETS net

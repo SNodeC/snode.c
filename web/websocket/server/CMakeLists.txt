@@ -13,9 +13,10 @@ add_library(snodec::websocketserver ALIAS websocketserver)
 set_target_properties(
     websocketserver
     PROPERTIES
-        OUTPUT_NAME "websocket"
+        OUTPUT_NAME "snodec-websocket"
         INSTALL_RPATH
         "${CMAKE_INSTALL_PREFIX}/lib:${CMAKE_INSTALL_PREFIX}/${WEBSOCKETBASE_INSTALL_PATH}"
+        SOVERSION 1 # PREFIX "sc"
 )
 
 target_include_directories(
@@ -25,10 +26,9 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(websocketserver PUBLIC snodec::web snodec::websocketbase)
+target_link_libraries(websocketserver PUBLIC snodec::http snodec::websocketbase)
 
-set_target_properties(websocketserver PROPERTIES SOVERSION 1 # PREFIX "sc"
-)
+# set_target_properties(websocketserver PROPERTIES )
 
 set_target_properties(
     websocketserver

@@ -5,13 +5,13 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(BLUEZ REQUIRED bluez)
 
 add_library(
-    netbt SHARED address/L2CapAddress.cpp address/RfCommAddress.cpp
-                 l2cap/Socket.cpp rfcomm/Socket.cpp
+    net-bt SHARED address/L2CapAddress.cpp address/RfCommAddress.cpp
+                  l2cap/Socket.cpp rfcomm/Socket.cpp
 )
-add_library(snodec::netbt ALIAS netbt)
+add_library(snodec::net-bt ALIAS net-bt)
 
 target_include_directories(
-    netbt
+    net-bt
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
            "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
            "$<BUILD_INTERFACE:${BLUEZ_INCLUDE_DIRS}>"
@@ -19,15 +19,14 @@ target_include_directories(
 )
 
 target_link_libraries(
-    netbt PUBLIC snodec::logger snodec::utils snodec::net snodec::nettls
-                 ${BLUEZ_LIBRARIES}
+    net-bt PUBLIC snodec::net-legacy snodec::net-tls ${BLUEZ_LIBRARIES}
 )
 
-set_target_properties(netbt PROPERTIES SOVERSION 1)
+set_target_properties(net-bt PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-net-bt)
 
 install(
-    TARGETS netbt
-    EXPORT snodecnetbtTargets
+    TARGETS net-bt
+    EXPORT snodecnet-btTargets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
@@ -43,8 +42,8 @@ install(
 )
 
 install(
-    EXPORT snodecnetbtTargets
-    FILE snodecnetbtTargets.cmake
+    EXPORT snodecnet-btTargets
+    FILE snodecnet-btTargets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )

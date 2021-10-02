@@ -12,7 +12,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 find_package(LibMagic REQUIRED)
 
 add_library(
-    web SHARED
+    http SHARED
     Parser.cpp
     StatusCodes.cpp
     MimeTypes.cpp
@@ -27,20 +27,20 @@ add_library(
     server/SocketContextUpgradeFactory.cpp
     server/SocketContextUpgradeFactorySelector.cpp
 )
-add_library(snodec::web ALIAS web)
+add_library(snodec::http ALIAS http)
 
 target_include_directories(
-    web
+    http
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
            "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
            "$<INSTALL_INTERFACE:include/snode.c>" "${LIBMAGIC_INCLUDES}"
 )
 
 target_link_libraries(
-    web PUBLIC snodec::netip snodec::nettls ${LIBMAGIC_LIBRARIES} dl
+    http PUBLIC snodec::net-ip snodec::net-tls ${LIBMAGIC_LIBRARIES} dl
 )
 
-set_target_properties(web PROPERTIES SOVERSION 1)
+set_target_properties(http PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-http)
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
@@ -52,16 +52,16 @@ install(
 )
 
 install(
-    TARGETS web
-    EXPORT snodecwebTargets
+    TARGETS http
+    EXPORT snodechttpTargets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
 )
 
 install(
-    EXPORT snodecwebTargets
-    FILE snodecwebTargets.cmake
+    EXPORT snodechttpTargets
+    FILE snodechttpTargets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )

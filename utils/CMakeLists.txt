@@ -30,7 +30,7 @@ target_include_directories(
 
 target_link_libraries(utils PRIVATE ${BACKWARD_LIBS} dl)
 
-set_target_properties(utils PROPERTIES SOVERSION 1)
+set_target_properties(utils PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-utils)
 
 install(
     TARGETS utils

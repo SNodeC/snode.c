@@ -1,12 +1,12 @@
 @PACKAGE_INIT@
 
-set(websocketserver_DEPENDENCIES websocketbase web)
-set(express_DEPENDENCIES web)
-set(web_DEPENDENCIES netip netlegacy nettls)
-set(netip_DEPENDENCIES net)
-set(netlegacy_DEPENDENCIES net)
-set(nettls_DEPENDENCIES net)
-set(netbt DEPENDENCIES net)
+set(websocketserver_DEPENDENCIES websocketbase http)
+set(express_DEPENDENCIES http)
+set(http_DEPENDENCIES net-ip)
+set(net-ip_DEPENDENCIES net-legacy net-tls)
+set(net-legacy_DEPENDENCIES net)
+set(net-tls_DEPENDENCIES net)
+set(net-bt DEPENDENCIES net-legacy net-tls)
 set(net_DEPENDENCIES utils logger)
 
 macro(LOAD_COMPONENT_WITH_DEPENDENCIES _comp)
@@ -27,11 +27,11 @@ endmacro()
 
 set(_supported_components
     net
-    nettls
-    netip
-    netip
-    netbt
-    web
+    net-legacy
+    net-tls
+    net-ip
+    net-bt
+    http
     express
     websocketserver
 )

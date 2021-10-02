@@ -94,7 +94,7 @@ namespace web::http::server {
 
             if (socketContextUpgradeFactory == nullptr) {
                 for (const std::string& searchPath : searchPaths) {
-                    socketContextUpgradeFactory = load(searchPath + "/lib" + upgradeContextName + ".so");
+                    socketContextUpgradeFactory = load(searchPath + "/libsnodec-" + upgradeContextName + ".so");
 
                     if (socketContextUpgradeFactory != nullptr) {
                         break;

@@ -23,11 +23,11 @@ target_include_directories(
 
 target_link_libraries(
     express
-    PUBLIC snodec::web
+    PUBLIC snodec::http
     PRIVATE nlohmann_json::nlohmann_json
 )
 
-set_target_properties(express PROPERTIES SOVERSION 1)
+set_target_properties(express PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-express)
 
 install(
     TARGETS express

@@ -1,25 +1,25 @@
 cmake_minimum_required(VERSION 3.0)
 
 add_library(
-    netip SHARED address/ipv4/InetAddress.cpp address/ipv6/InetAddress.cpp
-                 tcp/ipv4/Socket.cpp tcp/ipv6/Socket.cpp
+    net-ip SHARED address/ipv4/InetAddress.cpp address/ipv6/InetAddress.cpp
+                  tcp/ipv4/Socket.cpp tcp/ipv6/Socket.cpp
 )
-add_library(snodec::netip ALIAS netip)
+add_library(snodec::net-ip ALIAS net-ip)
 
 target_include_directories(
-    netip
+    net-ip
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
            "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(netip PUBLIC snodec::logger snodec::utils snodec::net)
+target_link_libraries(net-ip PUBLIC snodec::net-legacy snodec::net-tls)
 
-set_target_properties(netip PROPERTIES SOVERSION 1)
+set_target_properties(net-ip PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-net-ip)
 
 install(
-    TARGETS netip
-    EXPORT snodecnetipTargets
+    TARGETS net-ip
+    EXPORT snodecnet-ipTargets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
@@ -35,8 +35,8 @@ install(
 )
 
 install(
-    EXPORT snodecnetipTargets
-    FILE snodecnetipTargets.cmake
+    EXPORT snodecnet-ipTargets
+    FILE snodecnet-ipTargets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
