@@ -28,8 +28,8 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-FileReader::FileReader(int fd, net::pipe::Sink& sink) {
-    attach(fd);
+FileReader::FileReader(int fd, net::pipe::Sink& sink)
+    : Descriptor(fd) {
     ReadEventReceiver::enable(fd);
     Source::connect(sink);
 }
