@@ -2,18 +2,18 @@ cmake_minimum_required(VERSION 3.0)
 
 find_package(Backward)
 
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
 if(BACKWARD_FOUND)
     option(USE_BACKWARD "Compile stacktrace code")
 
     if(USE_BACKWARD)
         if(${STACK_DETAILS_DW})
             set(BACKWARD_LIBS "Backward::Backward")
-            target_compile_definitions(utils PUBLIC BACKTRACE_SUPPORTED=1)
+            add_compile_definitions(BACKTRACE_SUPPORTED=1)
         endif(${STACK_DETAILS_DW})
     endif(USE_BACKWARD)
 endif(BACKWARD_FOUND)
-
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 add_library(
     utils SHARED Timeval.cpp instrumentation.cpp base64.cpp stacktrace.cpp
