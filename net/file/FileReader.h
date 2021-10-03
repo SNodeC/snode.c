@@ -47,6 +47,8 @@ public:
     void readEvent() override;
 
 private:
+    void sinkDisconnected() override;
+
     void unobserved() override;
 };
 
