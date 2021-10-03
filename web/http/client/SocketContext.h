@@ -24,6 +24,7 @@
 
 namespace web::http::client {
     class Request;
+    class Response;
 } // namespace web::http::client
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -49,6 +50,7 @@ namespace web::http::client {
         virtual ~SocketContext() = default;
 
         virtual Request& getRequest() = 0;
+        virtual Response& getResponse() = 0;
 
         virtual void sendToPeerCompleted() = 0;
         virtual void terminateConnection() = 0;
@@ -74,6 +76,7 @@ namespace web::http::client {
         void onReadError(int errnum) override;
 
         Request& getRequest() override;
+        Response& getResponse() override;
 
         void terminateConnection() override;
 
