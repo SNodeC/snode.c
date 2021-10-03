@@ -46,6 +46,7 @@ namespace net::pipe {
     void Source::disconnect(Sink& sink) {
         if (&sink == this->sink) {
             this->sink = nullptr;
+            sinkDisconnected();
         }
     }
 
