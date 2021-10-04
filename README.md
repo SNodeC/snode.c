@@ -16,6 +16,7 @@
   + [Extract Server and Client Information (host name, IP, port, SSL/TLS information)](#extract-server-and-client-information-host-name-ip-port-ssltls-information)
   + [Using Regular Expressions in Routes](#using-regular-expressions-in-routes)
 
+## **For compilation and installation move forward to [Requirements](#requirements)**
 
 ## What is snode.c
 [snode.c](https://volkerchristian.github.io/snode.c/html/index.html) (Simple NODE in C\+\+) is a lightweight, highly extendable, high-performance layer-based framework for network applications (servers and clients) in the spirit of node.js written entirely in C\+\+.
@@ -53,16 +54,22 @@ GNU Lesser General Public License
 
 #### Runtime Module Loading
 
-
 ## Requirements
+- On Debian-Style-Systems run  
+    **sudo apt install doxygen iwyu clang-format cmake-format libmagic-dev libbackward-cpp-dev
+    libdw-dev libdwarf-dev binutils-dev librange-v3-dev libssl-dev libeasyloggingpp-dev libbluetooth-dev nlohmann-json3-dev**  
+  to install all neccesarry dependencies.
 - GCC Version 10: As snode.c uses most recent C++-20 language features
 - libeasyloggingpp: For logging
 - openssl: For SSL/TLS support
+- libbluez: For bluetooth support
 - doxygen: For creating the API-documentation
 - cmake:
 - iwyu: To check for correct and complete included headers
 - libmagic: To recognize the type of data in a file using "magic" numbers
 - clang-format: To format the sourcecode consistently
+- cmake-format: To format all CMakeLists.txt files consistently
+- libbackward-cpp, libdw, libdward, binutils-dev: For creating stacktraces for debugging
 - nlohmann-json3-dev: For JSON support
 - librange-v3-dev: For C++20 range support also in clang (as long as the compilers didn't support them natively)
 
