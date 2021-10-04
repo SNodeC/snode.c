@@ -48,4 +48,6 @@ if(CLANG_FORMAT)
     # error if there are problems COMMAND ! grep -c "replacement "
     # ${CMAKE_BINARY_DIR}/check_format_file.txt > /dev/null COMMENT "Checking
     # format compliance" )
+else(CLANG_FORMAT)
+    message(WARNING "clang-format is neccesarry for consistent code format")
 endif(CLANG_FORMAT)

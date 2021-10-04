@@ -12,4 +12,6 @@ if(CMAKE_FORMAT)
         COMMAND ${CMAKE_FORMAT} -i ${CMAKELISTS_TXT_FILES}
         COMMENT "Auto formatting of all CMakeLists.txt files"
     )
+else(CMAKE_FORMAT)
+    message(WARNING "cmake-format is neccesarry for consistent cmake files format")
 endif(CMAKE_FORMAT)
