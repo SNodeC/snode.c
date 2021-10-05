@@ -26,7 +26,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <any>
+#include <any> // IWYU pragma: export
 #include <functional>
 #include <map>
 #include <string> // for string

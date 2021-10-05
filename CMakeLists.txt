@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.0)
 
 project(snode.c)
 
+set(ignoreMe ${CMAKE_VERBOSE_MAKEFILE})
+
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 include("cmake/check-iwyu.cmake")

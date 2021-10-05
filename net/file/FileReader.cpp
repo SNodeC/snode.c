@@ -20,6 +20,7 @@
 
 #include "net/file/FileReader.h"
 
+#include "net/Descriptor.h" // for Descriptor
 #include "net/system/unistd.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
