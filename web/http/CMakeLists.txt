@@ -33,11 +33,12 @@ target_include_directories(
     http
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
            "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
-           "$<INSTALL_INTERFACE:include/snode.c>" "${LIBMAGIC_INCLUDES}"
+           "$<BUILD_INTERFACE:${LIBMAGIC_INCLUDES}>"
+           "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 target_link_libraries(
-    http PUBLIC snodec::net-ip snodec::net-tls ${LIBMAGIC_LIBRARIES} dl
+    http PUBLIC snodec::net-ip snodec::net-tls ${LIBMAGIC_LIBRARY} dl
 )
 
 set_target_properties(http PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-http)
