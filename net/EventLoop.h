@@ -34,14 +34,17 @@ namespace net {
         EventLoop(const EventLoop& eventLoop) = delete;
         EventLoop& operator=(const EventLoop& eventLoop) = delete;
 
-    private:
-        EventLoop() = default;
+    public:
+        enum class TickState { SUCCESS, SELECT_ERROR, NO_EVENTRECEIVER };
 
-        ~EventLoop() = default;
+    private:
+        EventLoop();
+
+        ~EventLoop();
 
     public:
         static EventLoop& instance() {
-            return eventLoop;
+            return mainLoop;
         }
 
         DescriptorEventDispatcher& getReadEventDispatcher() {
@@ -71,13 +74,14 @@ namespace net {
         static void init(int argc, char* argv[]);
         static int start();
         static void stop();
+        int run();
 
     private:
         static void stoponsig(int sig);
 
-        inline void tick();
+        inline TickState tick();
 
-        static EventLoop eventLoop;
+        static EventLoop mainLoop;
 
         DescriptorEventDispatcher readEventDispatcher;
         DescriptorEventDispatcher writeEventDispatcher;
@@ -87,9 +91,9 @@ namespace net {
 
         struct timeval nextInactivityTimeout = {LONG_MAX, 0};
 
-        static bool running;
-        static bool stopped;
-        static int stopsig;
+        bool running;
+        bool stopped;
+        int stopsig;
         static bool initialized;
 
         unsigned long tickCounter = 0;
