@@ -1,6 +1,15 @@
 cmake_minimum_required(VERSION 3.0)
 
-find_package(range-v3 REQUIRED)
+find_package(range-v3 QUIET)
+
+if(NOT range-v3_FOUND)
+    message(
+        FATAL_ERROR
+            " librange-v3-dev not found:\n"
+            "   librange-v3-dev is mandatory for SNode.C!\n"
+            "   Thus install it!"
+    )
+endif(NOT range-v3_FOUND)
 
 add_library(
     net SHARED

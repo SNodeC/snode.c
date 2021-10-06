@@ -14,11 +14,14 @@ if(BACKWARD_FOUND)
         endif(${STACK_DETAILS_DW})
     endif(USE_BACKWARD)
 else(FACKWARD_FOUND)
-    message(WARNING " backward-cpp-dev not found:\n"
-                    "    backward-cpp-dev is used to create stacktraces at runtime for debugging.\n"
-                    "    It is highly recommented to install it, if you intend to modify and debug the code of SNode.C.\n"
-                    "    In case you have it installed you can create stacktraces by calling stacktrace::stacktrace().\n"
-                    "    For that to work you have to #include \"utils/stacktrace.h\".\n")
+    message(
+        WARNING
+            " backward-cpp-dev not found:\n"
+            "    backward-cpp-dev is used to create stacktraces at runtime for debugging.\n"
+            "    It is highly recommented to install it, if you intend to modify and debug the code of SNode.C.\n"
+            "    In case you have it installed you can create stacktraces by calling stacktrace::stacktrace().\n"
+            "    For that to work you have to #include \"utils/stacktrace.h\".\n"
+    )
 endif(BACKWARD_FOUND)
 
 add_library(
