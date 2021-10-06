@@ -11,7 +11,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 find_package(PkgConfig REQUIRED)
 
-pkg_check_modules(LIBMAGIC REQUIRED libmagic)
+pkg_check_modules(LIBMAGIC libmagic)
 
 add_library(
     http SHARED
@@ -30,6 +30,15 @@ add_library(
     server/SocketContextUpgradeFactorySelector.cpp
 )
 add_library(snodec::http ALIAS http)
+
+if (LIBMAGIC_FOUND)
+    target_compile_definitions(http PUBLIC HAS_LIBMAGIC)
+else(LIBMAGIC_FOUND)
+    message(WARNING " libmagic-dev not found:\n"
+                    "    libmagic is used for the automatic detection of Mime-type files.\n"
+                    "    SNode.C has some built-in knowledge of mime types which, compared to libmime,\n"
+                    "    is not as reliable. So you should install libmagic-dev for better mime type detection.")
+endif(LIBMAGIC_FOUND)
 
 target_include_directories(
     http

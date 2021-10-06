@@ -49,5 +49,9 @@ if(CLANG_FORMAT)
     # ${CMAKE_BINARY_DIR}/check_format_file.txt > /dev/null COMMENT "Checking
     # format compliance" )
 else(CLANG_FORMAT)
-    message(WARNING "clang-format is neccesarry for consistent code format")
+    message(WARNING " clang-format not found:\n"
+                    "    clang-format is used to format all source files consistently.\n"
+                    "    It is highly recommented to install it, if you intend to modify the code of SNode.C.\n"
+                    "    In case you have it installed run \"cmake --target format\" to format all source files.\n"
+                    "    If you do not want to contribute to SNode.C, you can ignore this warning.\n")
 endif(CLANG_FORMAT)

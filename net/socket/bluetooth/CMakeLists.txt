@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.0)
 
 find_package(PkgConfig REQUIRED)
 
-pkg_check_modules(BLUEZ REQUIRED bluez)
+pkg_check_modules(BLUEZ bluez)
+
+if(BLUEZ_FOUND)
 
 add_library(
     net-bt SHARED address/L2CapAddress.cpp address/RfCommAddress.cpp
@@ -47,3 +49,8 @@ install(
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
+
+else(BLUEZ_FOUND)
+    message(WARNING " libbluetooth-dev not found:\n"
+                    "    If you want to get bluetooth support you should install libbluetooth-dev.")
+endif(BLUEZ_FOUND)

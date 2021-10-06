@@ -31,7 +31,9 @@ namespace web::http {
 
     MimeTypes MimeTypes::mimeTypes;
 
+#ifdef HAS_LIBMAGIC
     magic_t MimeTypes::magic;
+#endif
 
     std::map<std::string, std::string> MimeTypes::mimeType = {
         {".dwg", "application/acad"},
@@ -219,6 +221,7 @@ namespace web::http {
         {".wrl", "x-world/x-vrml"}};
 
     MimeTypes::MimeTypes() {
+#ifdef HAS_LIBMAGIC
         MimeTypes::magic = magic_open(MAGIC_MIME);
 
         if (magic_load(magic, nullptr) != 0) {
@@ -226,10 +229,13 @@ namespace web::http {
             magic_close(magic);
             magic = nullptr;
         }
+#endif
     }
 
     MimeTypes::~MimeTypes() {
+#ifdef HAS_LIBMAGIC
         magic_close(MimeTypes::magic);
+#endif
     }
 
     std::string MimeTypes::contentType(const std::string& file) {
@@ -239,9 +245,12 @@ namespace web::http {
 
         if (it != mimeType.end()) {
             type = it->second;
-        } else if (magic != nullptr) {
+        }
+#ifdef HAS_LIBMAGIC
+        else if (magic != nullptr) {
             type = magic_file(MimeTypes::magic, file.c_str());
         }
+#endif
 
         return type;
     }

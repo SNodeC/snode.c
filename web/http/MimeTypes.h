@@ -21,7 +21,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#ifdef HAS_LIBMAGIC
 #include <magic.h>
+#endif
+
 #include <map>
 #include <string>
 
@@ -41,7 +44,9 @@ namespace web::http {
     private:
         MimeTypes();
 
+#ifdef HAS_LIBMAGIC
         static magic_t magic;
+#endif
 
         static MimeTypes mimeTypes;
 

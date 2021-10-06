@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-find_package(Backward)
+find_package(Backward QUIET)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
@@ -13,6 +13,12 @@ if(BACKWARD_FOUND)
             add_compile_definitions(BACKTRACE_SUPPORTED=1)
         endif(${STACK_DETAILS_DW})
     endif(USE_BACKWARD)
+else(FACKWARD_FOUND)
+    message(WARNING " backward-cpp-dev not found:\n"
+                    "    backward-cpp-dev is used to create stacktraces at runtime for debugging.\n"
+                    "    It is highly recommented to install it, if you intend to modify and debug the code of SNode.C.\n"
+                    "    In case you have it installed you can create stacktraces by calling stacktrace::stacktrace().\n"
+                    "    For that to work you have to #include \"utils/stacktrace.h\".\n")
 endif(BACKWARD_FOUND)
 
 add_library(
