@@ -131,7 +131,7 @@ namespace express {
         return (!hasRegex && cpath == reqpath) || (hasRegex && matchFunction(cpath, reqpath));
     }
 
-    static inline std::string path_concat(const std::string& first, const std::string& second) {
+    static std::string path_concat(const std::string& first, const std::string& second) {
         std::string result;
 
         if (first.back() == '/' && second.front() == '/') {

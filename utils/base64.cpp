@@ -38,7 +38,7 @@ namespace base64 {
         return base64_encode(reinterpret_cast<unsigned char*>(digest.data()), digest.length());
     }
 
-    static inline bool is_base64(char c) {
+    static bool is_base64(char c) {
         return (isalnum(c) || (c == '+') || (c == '/'));
     }
 

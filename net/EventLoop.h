@@ -75,7 +75,7 @@ namespace net {
     private:
         static void stoponsig(int sig);
 
-        inline void tick();
+        void tick();
 
         static EventLoop eventLoop;
 
