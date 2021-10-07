@@ -48,39 +48,14 @@ namespace net {
         return tick;
     }
 
-    EventLoop EventLoop::mainLoop;
+    EventLoop EventLoop::eventLoop;
 
     bool EventLoop::initialized = false;
+    bool EventLoop::running = false;
+    bool EventLoop::stopped = true;
+    int EventLoop::stopsig = 0;
 
-    EventLoop::EventLoop() {
-        running = false;
-        stopped = true;
-        stopsig = 0;
-    }
-
-    EventLoop::~EventLoop() {
-        readEventDispatcher.observeEnabledEvents();
-        writeEventDispatcher.observeEnabledEvents();
-        exceptionalConditionEventDispatcher.observeEnabledEvents();
-
-        readEventDispatcher.disableObservedEvents();
-        writeEventDispatcher.disableObservedEvents();
-        exceptionalConditionEventDispatcher.disableObservedEvents();
-
-        readEventDispatcher.unobserveDisabledEvents();
-        writeEventDispatcher.unobserveDisabledEvents();
-        exceptionalConditionEventDispatcher.unobserveDisabledEvents();
-
-        readEventDispatcher.releaseUnobservedEvents();
-        writeEventDispatcher.releaseUnobservedEvents();
-        exceptionalConditionEventDispatcher.releaseUnobservedEvents();
-
-        timerEventDispatcher.cancelAll();
-    }
-
-    EventLoop::TickState EventLoop::tick() {
-        TickState tickState = TickState::SUCCESS;
-
+    void EventLoop::tick() {
         struct timeval nextTimeout = readEventDispatcher.observeEnabledEvents();
         nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
 
@@ -126,10 +101,10 @@ namespace net {
                 nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
             } else if (errno != EINTR) {
                 PLOG(ERROR) << "select";
-                tickState = TickState::SELECT_ERROR;
+                stop();
             }
         } else {
-            tickState = TickState::NO_EVENTRECEIVER;
+            stop();
         }
 
         readEventDispatcher.unobserveDisabledEvents();
@@ -139,34 +114,6 @@ namespace net {
         readEventDispatcher.releaseUnobservedEvents();
         writeEventDispatcher.releaseUnobservedEvents();
         exceptionalConditionEventDispatcher.releaseUnobservedEvents();
-
-        return tickState;
-    }
-
-    int EventLoop::run() {
-        stopped = false;
-
-        if (!running) { // do not start the eventloop twice
-            running = true;
-
-            while (!stopped) { // run until stopped
-                TickState tickState = tick();
-
-                if (tickState != TickState::SUCCESS) {
-                    stop();
-                }
-            };
-
-            running = false;
-        }
-
-        int returnReason = 0;
-
-        if (stopsig != 0) {
-            returnReason = -1;
-        }
-
-        return returnReason;
     }
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
@@ -191,15 +138,51 @@ namespace net {
             exit(1);
         }
 
-        return mainLoop.run();
+        stopped = false;
+
+        if (!running) {
+            running = true;
+
+            while (!stopped) {
+                eventLoop.tick();
+            };
+
+            eventLoop.readEventDispatcher.observeEnabledEvents();
+            eventLoop.writeEventDispatcher.observeEnabledEvents();
+            eventLoop.exceptionalConditionEventDispatcher.observeEnabledEvents();
+
+            eventLoop.readEventDispatcher.disableObservedEvents();
+            eventLoop.writeEventDispatcher.disableObservedEvents();
+            eventLoop.exceptionalConditionEventDispatcher.disableObservedEvents();
+
+            eventLoop.readEventDispatcher.unobserveDisabledEvents();
+            eventLoop.writeEventDispatcher.unobserveDisabledEvents();
+            eventLoop.exceptionalConditionEventDispatcher.unobserveDisabledEvents();
+
+            eventLoop.readEventDispatcher.releaseUnobservedEvents();
+            eventLoop.writeEventDispatcher.releaseUnobservedEvents();
+            eventLoop.exceptionalConditionEventDispatcher.releaseUnobservedEvents();
+
+            eventLoop.timerEventDispatcher.cancelAll();
+
+            running = false;
+        }
+
+        int returnReason = 0;
+
+        if (stopsig != 0) {
+            returnReason = -1;
+        }
+
+        return returnReason;
     }
 
     void EventLoop::stop() {
-        mainLoop.stopped = true;
+        stopped = true;
     }
 
     void EventLoop::stoponsig(int sig) {
-        mainLoop.stopsig = sig;
+        stopsig = sig;
         stop();
     }
 
