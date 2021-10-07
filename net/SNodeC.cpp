@@ -31,11 +31,19 @@ namespace net {
         EventLoop::init(argc, argv);
     }
 
-    int SNodeC::start() {
-        return EventLoop::start();
+    int SNodeC::start(struct timeval timeOut) {
+        return EventLoop::start(timeOut);
     }
     void SNodeC::stop() {
         EventLoop::stop();
+    }
+
+    TickStatus SNodeC::tick() {
+        return EventLoop::tick();
+    }
+
+    void SNodeC::free() {
+        EventLoop::free();
     }
 
 } // namespace net

@@ -16,38 +16,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SNODEC_H
-#define NET_SNODEC_H
-
-#include "net/TickStatus.h"
+#ifndef NET_TICKSTATUS_H
+#define NET_TICKSTATUS_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <climits>
-#include <cstddef> // for size_t
-#include <sys/time.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net {
 
-    class SNodeC {
-        SNodeC() = delete;
-        ~SNodeC() = delete;
+enum class TickStatus { SUCCESS, NO_OBSERVER, SELECT_ERROR };
 
-    private:
-        void* operator new(std::size_t count) = delete;
+}
 
-    public:
-        // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
-        static void init(int argc, char* argv[]);
-        static int start(struct timeval timeOut = {LONG_MAX, 0});
-        static void stop();
-
-        static TickStatus tick();
-        static void free();
-    };
-
-} // namespace net
-
-#endif // NET_SNODEC_H
+#endif // NET_TICKSTATUS_H

@@ -20,6 +20,7 @@
 #define NET_EVENTLOOP_H
 
 #include "net/DescriptorEventDispatcher.h"
+#include "net/TickStatus.h"
 #include "net/TimerEventDispatcher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -69,13 +70,16 @@ namespace net {
     protected:
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
         static void init(int argc, char* argv[]);
-        static int start();
+        static int start(struct timeval timeOut);
         static void stop();
+        static TickStatus tick(struct timeval timeOut = {0, 0});
+        static void free();
 
     private:
         static void stoponsig(int sig);
 
-        void tick();
+        TickStatus _tick(struct timeval timeOut);
+        void _free();
 
         static EventLoop eventLoop;
 

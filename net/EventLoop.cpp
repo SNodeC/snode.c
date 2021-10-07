@@ -55,7 +55,9 @@ namespace net {
     bool EventLoop::stopped = true;
     int EventLoop::stopsig = 0;
 
-    void EventLoop::tick() {
+    TickStatus EventLoop::_tick(struct timeval timeOut) {
+        TickStatus tickStatus = TickStatus::SUCCESS;
+
         struct timeval nextTimeout = readEventDispatcher.observeEnabledEvents();
         nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
 
@@ -73,9 +75,8 @@ namespace net {
         maxFd = std::max(exceptionalConditionEventDispatcher.getMaxFd(), maxFd);
 
         if (maxFd >= 0 || !timerEventDispatcher.empty()) {
-            if (nextInactivityTimeout < timeval({0, 0})) {
-                nextInactivityTimeout = {0, 0};
-            }
+            nextInactivityTimeout = std::max(nextInactivityTimeout, {0, 0});
+            nextInactivityTimeout = std::min(nextInactivityTimeout, timeOut);
 
             int counter = net::system::select(maxFd + 1,
                                               &readEventDispatcher.getFdSet(),
@@ -101,10 +102,10 @@ namespace net {
                 nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
             } else if (errno != EINTR) {
                 PLOG(ERROR) << "select";
-                stop();
+                tickStatus = TickStatus::SELECT_ERROR;
             }
         } else {
-            stop();
+            tickStatus = TickStatus::NO_OBSERVER;
         }
 
         readEventDispatcher.unobserveDisabledEvents();
@@ -114,17 +115,32 @@ namespace net {
         readEventDispatcher.releaseUnobservedEvents();
         writeEventDispatcher.releaseUnobservedEvents();
         exceptionalConditionEventDispatcher.releaseUnobservedEvents();
+
+        return tickStatus;
+    }
+
+    void EventLoop::_free() {
+        readEventDispatcher.observeEnabledEvents();
+        writeEventDispatcher.observeEnabledEvents();
+        exceptionalConditionEventDispatcher.observeEnabledEvents();
+
+        readEventDispatcher.disableObservedEvents();
+        writeEventDispatcher.disableObservedEvents();
+        exceptionalConditionEventDispatcher.disableObservedEvents();
+
+        readEventDispatcher.unobserveDisabledEvents();
+        writeEventDispatcher.unobserveDisabledEvents();
+        exceptionalConditionEventDispatcher.unobserveDisabledEvents();
+
+        readEventDispatcher.releaseUnobservedEvents();
+        writeEventDispatcher.releaseUnobservedEvents();
+        exceptionalConditionEventDispatcher.releaseUnobservedEvents();
+
+        timerEventDispatcher.cancelAll();
     }
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
     void EventLoop::init(int argc, char* argv[]) {
-        net::system::signal(SIGPIPE, SIG_IGN);
-        net::system::signal(SIGQUIT, EventLoop::stoponsig);
-        net::system::signal(SIGHUP, EventLoop::stoponsig);
-        net::system::signal(SIGINT, EventLoop::stoponsig);
-        net::system::signal(SIGTERM, EventLoop::stoponsig);
-        net::system::signal(SIGABRT, EventLoop::stoponsig);
-
         Logger::init(argc, argv);
 
         Logger::setCustomFormatSpec("%tick", net::getTickCounterAsString);
@@ -132,7 +148,7 @@ namespace net {
         EventLoop::initialized = true;
     }
 
-    int EventLoop::start() {
+    int EventLoop::start(struct timeval timeOut) {
         if (!initialized) {
             PLOG(ERROR) << "snode.c not initialized. Use EventLoop::init(argc, argv) before EventLoop::start().";
             exit(1);
@@ -143,30 +159,30 @@ namespace net {
         if (!running) {
             running = true;
 
+            sighandler_t oldSigPipeHandler = net::system::signal(SIGPIPE, SIG_IGN);
+            sighandler_t oldSigQuitHandler = net::system::signal(SIGQUIT, EventLoop::stoponsig);
+            sighandler_t oldSigHubHandler = net::system::signal(SIGHUP, EventLoop::stoponsig);
+            sighandler_t oldSigIntHandler = net::system::signal(SIGINT, EventLoop::stoponsig);
+            sighandler_t oldSigTermHandler = net::system::signal(SIGTERM, EventLoop::stoponsig);
+            sighandler_t oldSigAbrtHandler = net::system::signal(SIGABRT, EventLoop::stoponsig);
+
             while (!stopped) {
-                eventLoop.tick();
+                if (eventLoop._tick(timeOut) != TickStatus::SUCCESS) {
+                    stopped = true;
+                }
             };
 
-            eventLoop.readEventDispatcher.observeEnabledEvents();
-            eventLoop.writeEventDispatcher.observeEnabledEvents();
-            eventLoop.exceptionalConditionEventDispatcher.observeEnabledEvents();
-
-            eventLoop.readEventDispatcher.disableObservedEvents();
-            eventLoop.writeEventDispatcher.disableObservedEvents();
-            eventLoop.exceptionalConditionEventDispatcher.disableObservedEvents();
-
-            eventLoop.readEventDispatcher.unobserveDisabledEvents();
-            eventLoop.writeEventDispatcher.unobserveDisabledEvents();
-            eventLoop.exceptionalConditionEventDispatcher.unobserveDisabledEvents();
-
-            eventLoop.readEventDispatcher.releaseUnobservedEvents();
-            eventLoop.writeEventDispatcher.releaseUnobservedEvents();
-            eventLoop.exceptionalConditionEventDispatcher.releaseUnobservedEvents();
-
-            eventLoop.timerEventDispatcher.cancelAll();
+            net::system::signal(SIGPIPE, oldSigPipeHandler);
+            net::system::signal(SIGQUIT, oldSigQuitHandler);
+            net::system::signal(SIGHUP, oldSigHubHandler);
+            net::system::signal(SIGINT, oldSigIntHandler);
+            net::system::signal(SIGTERM, oldSigTermHandler);
+            net::system::signal(SIGABRT, oldSigAbrtHandler);
 
             running = false;
         }
+
+        eventLoop._free();
 
         int returnReason = 0;
 
@@ -175,6 +191,27 @@ namespace net {
         }
 
         return returnReason;
+    }
+
+    TickStatus EventLoop::tick(struct timeval timeOut) {
+        if (!initialized) {
+            PLOG(ERROR) << "snode.c not initialized. Use EventLoop::init(argc, argv) before EventLoop::start().";
+            exit(1);
+        }
+
+        TickStatus tickStatus;
+
+        sighandler_t oldSigPipeHandler = net::system::signal(SIGPIPE, SIG_IGN);
+
+        tickStatus = eventLoop._tick(timeOut);
+
+        net::system::signal(SIGPIPE, oldSigPipeHandler);
+
+        return tickStatus;
+    }
+
+    void EventLoop::free() {
+        eventLoop._free();
     }
 
     void EventLoop::stop() {
