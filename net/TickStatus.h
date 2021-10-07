@@ -25,7 +25,7 @@
 
 namespace net {
 
-enum class TickStatus { SUCCESS, NO_OBSERVER, SELECT_ERROR };
+    enum class TickStatus { SUCCESS, NO_OBSERVER, SELECT_ERROR };
 
 }
 

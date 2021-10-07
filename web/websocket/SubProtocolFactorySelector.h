@@ -59,23 +59,6 @@ namespace web::websocket {
         }
 
     public:
-        SubProtocolFactory* select(const std::string& subProtocolName) {
-            SubProtocolFactory* subProtocolFactory = nullptr;
-
-            if (subProtocolPlugins.contains(subProtocolName)) {
-                subProtocolFactory = subProtocolPlugins[subProtocolName].subProtocolFactory;
-            } else {
-                for (const std::string& searchPath : searchPaths) {
-                    subProtocolFactory = load(searchPath + "/libsnodec-websocket-" + subProtocolName + ".so");
-                    if (subProtocolFactory != nullptr) {
-                        break;
-                    }
-                }
-            }
-
-            return subProtocolFactory;
-        }
-
         void add(SubProtocolFactory* subProtocolFactory, void* handle = nullptr) {
             SubProtocolPlugin<SubProtocolFactory> subProtocolPlugin = {.subProtocolFactory = subProtocolFactory, .handle = handle};
 
@@ -123,6 +106,24 @@ namespace web::websocket {
 
         void addSubProtocolSearchPath(const std::string& searchPath) {
             searchPaths.push_back(searchPath);
+        }
+
+    public:
+        SubProtocolFactory* select(const std::string& subProtocolName) {
+            SubProtocolFactory* subProtocolFactory = nullptr;
+
+            if (subProtocolPlugins.contains(subProtocolName)) {
+                subProtocolFactory = subProtocolPlugins[subProtocolName].subProtocolFactory;
+            } else {
+                for (const std::string& searchPath : searchPaths) {
+                    subProtocolFactory = load(searchPath + "/libsnodec-websocket-" + subProtocolName + ".so");
+                    if (subProtocolFactory != nullptr) {
+                        break;
+                    }
+                }
+            }
+
+            return subProtocolFactory;
         }
 
     private:

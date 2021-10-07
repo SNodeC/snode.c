@@ -59,12 +59,67 @@ namespace web::http::server {
     void SocketContextUpgradeFactorySelector::destroy() {
         for ([[maybe_unused]] const auto& [name, socketContextPlugin] : socketContextUpgradePlugins) {
             socketContextPlugin.socketContextUpgradeFactory->destroy();
+
             if (socketContextPlugin.handle != nullptr) {
                 dlclose(socketContextPlugin.handle);
             }
         }
 
         delete this;
+    }
+
+    bool SocketContextUpgradeFactorySelector::add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handle) {
+        bool success = false;
+
+        if (socketContextUpgradeFactory != nullptr) {
+            SocketContextPlugin socketContextPlugin = {.socketContextUpgradeFactory = socketContextUpgradeFactory, .handle = handle};
+
+            if (socketContextUpgradeFactory->role() == SocketContextUpgradeFactory::Role::SERVER) {
+                std::tie(std::ignore, success) =
+                    socketContextUpgradePlugins.insert({socketContextUpgradeFactory->name(), socketContextPlugin});
+            }
+        }
+
+        return success;
+    }
+
+    bool SocketContextUpgradeFactorySelector::add(SocketContextUpgradeFactory* socketContextUpgradeFactory) {
+        return add(socketContextUpgradeFactory, nullptr);
+    }
+
+    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::load(const std::string& filePath) {
+        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
+
+        void* handle = dlopen(filePath.c_str(), RTLD_LAZY | RTLD_GLOBAL);
+
+        if (handle != nullptr) {
+            SocketContextUpgradeFactory* (*plugin)() = reinterpret_cast<SocketContextUpgradeFactory* (*) ()>(dlsym(handle, "plugin"));
+
+            if (plugin != nullptr) {
+                socketContextUpgradeFactory = plugin();
+
+                if (socketContextUpgradeFactory != nullptr) {
+                    if (add(socketContextUpgradeFactory, handle)) {
+                        VLOG(0) << "UpgradeSocketContext loaded successfully: " << filePath;
+                    } else {
+                        socketContextUpgradeFactory->destroy();
+                        socketContextUpgradeFactory = nullptr;
+                        dlclose(handle);
+                        VLOG(0) << "UpgradeSocketContext already existing. Not using: " << filePath;
+                    }
+                } else {
+                    dlclose(handle);
+                    VLOG(0) << "SocketContextUpgradeFactory not created: " << filePath;
+                }
+            } else {
+                dlclose(handle);
+                VLOG(0) << "Not a Plugin \"" << filePath;
+            }
+        } else {
+            VLOG(0) << "Error dlopen: " << dlerror();
+        }
+
+        return socketContextUpgradeFactory;
     }
 
     SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(const std::string& upgradeContextName, bool doLoad) {
@@ -107,71 +162,6 @@ namespace web::http::server {
         }
 
         return socketContextUpgradeFactory;
-    }
-
-    // Only allow signed plugins? Architecture for x509-certs for plugins?
-    /*
-                const std::type_info& pluginTypeId = typeid(plugin());
-                const std::type_info& expectedTypeId = typeid(SocketContextUpgradeFactory*);
-                std::string pluginType = abi::__cxa_demangle(pluginTypeId.name(), 0, 0, &status);
-                std::string expectedType = abi::__cxa_demangle(expectedTypeId.name(), 0, 0, &status);
-    */
-    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::load(const std::string& filePath) {
-        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
-
-        void* handle = dlopen(filePath.c_str(), RTLD_LAZY | RTLD_GLOBAL);
-
-        if (handle != nullptr) {
-            SocketContextUpgradeFactory* (*plugin)() = reinterpret_cast<SocketContextUpgradeFactory* (*) ()>(dlsym(handle, "plugin"));
-
-            if (plugin != nullptr) {
-                socketContextUpgradeFactory = plugin();
-
-                if (socketContextUpgradeFactory != nullptr) {
-                    if (add(socketContextUpgradeFactory, handle)) {
-                        VLOG(0) << "UpgradeSocketContext loaded successfully: " << filePath;
-                    } else {
-                        socketContextUpgradeFactory->destroy();
-                        socketContextUpgradeFactory = nullptr;
-                        dlclose(handle);
-                        VLOG(0) << "UpgradeSocketContext already existing. Not using: " << filePath;
-                    }
-                } else {
-                    dlclose(handle);
-                    VLOG(0) << "SocketContextUpgradeFactory not created: " << filePath;
-                }
-            } else {
-                dlclose(handle);
-                VLOG(0) << "Not a Plugin \"" << filePath;
-            }
-        } else {
-            VLOG(0) << "Error dlopen: " << dlerror();
-        }
-
-        return socketContextUpgradeFactory;
-    }
-
-    bool SocketContextUpgradeFactorySelector::add(SocketContextUpgradeFactory* socketContextUpgradeFactory) {
-        return add(socketContextUpgradeFactory, nullptr);
-    }
-
-    bool SocketContextUpgradeFactorySelector::contains(const std::string& name) {
-        return socketContextUpgradePlugins.contains(name);
-    }
-
-    bool SocketContextUpgradeFactorySelector::add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handle) {
-        bool success = false;
-
-        if (socketContextUpgradeFactory != nullptr) {
-            SocketContextPlugin socketContextPlugin = {.socketContextUpgradeFactory = socketContextUpgradeFactory, .handle = handle};
-
-            if (socketContextUpgradeFactory->role() == SocketContextUpgradeFactory::Role::SERVER) {
-                std::tie(std::ignore, success) =
-                    socketContextUpgradePlugins.insert({socketContextUpgradeFactory->name(), socketContextPlugin});
-            }
-        }
-
-        return success;
     }
 
 } // namespace web::http::server
