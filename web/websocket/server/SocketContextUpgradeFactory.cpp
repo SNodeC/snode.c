@@ -32,14 +32,16 @@ namespace web::websocket::server {
 
     void SocketContextUpgradeFactory::attach(SubProtocolFactory* subProtocolFactory) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = dynamic_cast<SocketContextUpgradeFactory*>(
-            web::http::server::SocketContextUpgradeFactorySelector::instance()->select("websocket"));
+            web::http::server::SocketContextUpgradeFactorySelector::instance()->select("websocket", false));
 
         if (socketContextUpgradeFactory == nullptr) {
             socketContextUpgradeFactory = new SocketContextUpgradeFactory();
             web::http::server::SocketContextUpgradeFactorySelector::instance()->add(socketContextUpgradeFactory);
         }
 
-        socketContextUpgradeFactory->subProtocolFactorySelector.add(subProtocolFactory);
+        if (socketContextUpgradeFactory != nullptr) {
+            socketContextUpgradeFactory->subProtocolFactorySelector.add(subProtocolFactory);
+        }
     }
 
     std::string SocketContextUpgradeFactory::name() {
