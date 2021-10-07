@@ -36,12 +36,11 @@ namespace web::websocket::server {
 namespace web::websocket::server {
 
     class SocketContext : public web::websocket::SocketContext<web::websocket::server::SubProtocol> {
-    protected:
+    public:
         SocketContext(net::socket::stream::SocketConnection* socketConnection, web::websocket::server::SubProtocol* subProtocol);
 
+    protected:
         ~SocketContext() override;
-
-        friend class SocketContextUpgradeFactory;
     };
 
 } // namespace web::websocket::server

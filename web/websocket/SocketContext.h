@@ -41,7 +41,7 @@ namespace web::websocket {
 
     template <typename SubProtocolT>
     class SocketContext
-        : protected net::socket::stream::SocketContext
+        : public net::socket::stream::SocketContext
         , protected web::websocket::Receiver
         , protected web::websocket::Transmitter {
     public:
@@ -114,6 +114,7 @@ namespace web::websocket {
         std::string getLocalAddressAsString() const {
             return net::socket::stream::SocketContext::getLocalAddressAsString();
         }
+
         std::string getRemoteAddressAsString() const {
             return net::socket::stream::SocketContext::getRemoteAddressAsString();
         }
@@ -143,6 +144,7 @@ namespace web::websocket {
                     break;
             }
         }
+
         void onFrameReceived(const char* junk, uint64_t junkLen) override {
             switch (opCodeReceived) {
                 case OpCode::CLOSE:
@@ -164,6 +166,7 @@ namespace web::websocket {
                     break;
             }
         }
+
         void onMessageEnd() override {
             switch (opCodeReceived) {
                 case OpCode::CLOSE:
@@ -188,6 +191,7 @@ namespace web::websocket {
                     break;
             }
         }
+
         void onMessageError(uint16_t errnum) override {
             subProtocol->onMessageError(errnum);
             sendClose(errnum);
@@ -201,6 +205,7 @@ namespace web::websocket {
         void onConnected() override {
             subProtocol->onConnected();
         }
+
         void onDisconnected() override {
             subProtocol->onDisconnected();
         }
@@ -211,24 +216,28 @@ namespace web::websocket {
                 sendToPeer(reinterpret_cast<char*>(&data), sizeof(uint8_t));
             }
         }
+
         void sendFrameData(uint16_t data) override {
             if (!closeSent) {
                 uint16_t sendData = htobe16(data);
                 sendToPeer(reinterpret_cast<char*>(&sendData), sizeof(uint16_t));
             }
         }
+
         void sendFrameData(uint32_t data) override {
             if (!closeSent) {
                 uint32_t sendData = htobe32(data);
                 sendToPeer(reinterpret_cast<char*>(&sendData), sizeof(uint32_t));
             }
         }
+
         void sendFrameData(uint64_t data) override {
             if (!closeSent) {
                 uint64_t sendData = htobe64(data);
                 sendToPeer(reinterpret_cast<char*>(&sendData), sizeof(uint64_t));
             }
         }
+
         void sendFrameData(const char* frame, uint64_t frameLength) override {
             if (!closeSent) {
                 std::size_t frameOffset = 0;
@@ -246,11 +255,13 @@ namespace web::websocket {
         void onReceiveFromPeer() override {
             Receiver::receive();
         }
+
         void onReadError(int errnum) override {
             if (errnum != 0) {
                 PLOG(INFO) << "OnReadError:";
             }
         }
+
         void onWriteError(int errnum) override {
             if (errnum != 0) {
                 PLOG(INFO) << "OnWriteError:";
