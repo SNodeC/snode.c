@@ -38,8 +38,8 @@ namespace net {
         EventLoop::stop();
     }
 
-    TickStatus SNodeC::tick() {
-        return EventLoop::tick();
+    TickStatus SNodeC::tick(struct timeval timeOut) {
+        return EventLoop::tick(timeOut);
     }
 
     void SNodeC::free() {

@@ -41,9 +41,7 @@ namespace net {
         ~EventLoop() = default;
 
     public:
-        static EventLoop& instance() {
-            return eventLoop;
-        }
+        static EventLoop& instance();
 
         DescriptorEventDispatcher& getReadEventDispatcher() {
             return readEventDispatcher;
@@ -72,7 +70,7 @@ namespace net {
         static void init(int argc, char* argv[]);
         static int start(struct timeval timeOut);
         static void stop();
-        static TickStatus tick(struct timeval timeOut = {0, 0});
+        static TickStatus tick(struct timeval timeOut);
         static void free();
 
     private:

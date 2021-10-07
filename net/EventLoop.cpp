@@ -55,6 +55,10 @@ namespace net {
     bool EventLoop::stopped = true;
     int EventLoop::stopsig = 0;
 
+    EventLoop& EventLoop::instance() {
+        return eventLoop;
+    }
+
     TickStatus EventLoop::_tick(struct timeval timeOut) {
         TickStatus tickStatus = TickStatus::SUCCESS;
 
@@ -85,8 +89,6 @@ namespace net {
                                               &nextInactivityTimeout);
 
             if (counter >= 0) {
-                tickCounter++;
-
                 timerEventDispatcher.dispatch();
 
                 struct timeval currentTime = {net::system::time(nullptr), 0};
@@ -154,35 +156,35 @@ namespace net {
             exit(1);
         }
 
-        stopped = false;
+        sighandler_t oldSigPipeHandler = net::system::signal(SIGPIPE, SIG_IGN);
+        sighandler_t oldSigQuitHandler = net::system::signal(SIGQUIT, EventLoop::stoponsig);
+        sighandler_t oldSigHubHandler = net::system::signal(SIGHUP, EventLoop::stoponsig);
+        sighandler_t oldSigIntHandler = net::system::signal(SIGINT, EventLoop::stoponsig);
+        sighandler_t oldSigTermHandler = net::system::signal(SIGTERM, EventLoop::stoponsig);
+        sighandler_t oldSigAbrtHandler = net::system::signal(SIGABRT, EventLoop::stoponsig);
 
         if (!running) {
             running = true;
 
-            sighandler_t oldSigPipeHandler = net::system::signal(SIGPIPE, SIG_IGN);
-            sighandler_t oldSigQuitHandler = net::system::signal(SIGQUIT, EventLoop::stoponsig);
-            sighandler_t oldSigHubHandler = net::system::signal(SIGHUP, EventLoop::stoponsig);
-            sighandler_t oldSigIntHandler = net::system::signal(SIGINT, EventLoop::stoponsig);
-            sighandler_t oldSigTermHandler = net::system::signal(SIGTERM, EventLoop::stoponsig);
-            sighandler_t oldSigAbrtHandler = net::system::signal(SIGABRT, EventLoop::stoponsig);
+            stopped = false;
 
-            while (!stopped) {
-                if (eventLoop._tick(timeOut) != TickStatus::SUCCESS) {
-                    stopped = true;
-                }
-            };
+            do {
+                while (!stopped && eventLoop._tick(timeOut) == TickStatus::SUCCESS) {
+                    eventLoop.tickCounter++;
+                };
 
-            net::system::signal(SIGPIPE, oldSigPipeHandler);
-            net::system::signal(SIGQUIT, oldSigQuitHandler);
-            net::system::signal(SIGHUP, oldSigHubHandler);
-            net::system::signal(SIGINT, oldSigIntHandler);
-            net::system::signal(SIGTERM, oldSigTermHandler);
-            net::system::signal(SIGABRT, oldSigAbrtHandler);
+                eventLoop._free();
+            } while (!stopped && false);
 
             running = false;
         }
 
-        eventLoop._free();
+        net::system::signal(SIGPIPE, oldSigPipeHandler);
+        net::system::signal(SIGQUIT, oldSigQuitHandler);
+        net::system::signal(SIGHUP, oldSigHubHandler);
+        net::system::signal(SIGINT, oldSigIntHandler);
+        net::system::signal(SIGTERM, oldSigTermHandler);
+        net::system::signal(SIGABRT, oldSigAbrtHandler);
 
         int returnReason = 0;
 

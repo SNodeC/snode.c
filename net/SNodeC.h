@@ -44,7 +44,7 @@ namespace net {
         static int start(struct timeval timeOut = {LONG_MAX, 0});
         static void stop();
 
-        static TickStatus tick();
+        static TickStatus tick(struct timeval timeOut = {0, 0});
         static void free();
     };
 
