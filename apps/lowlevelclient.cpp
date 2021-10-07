@@ -34,7 +34,6 @@ namespace net::socket::stream {
     class SocketConnection;
 } // namespace net::socket::stream
 
-#include <any> // for any
 #include <cstring>
 #include <functional>         // for function
 #include <map>                // for map, operator==

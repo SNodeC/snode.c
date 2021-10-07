@@ -21,7 +21,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <any>
+#include <any> // IWYU pragma: export
 #include <cerrno>
 #include <cstddef>
 #include <functional>

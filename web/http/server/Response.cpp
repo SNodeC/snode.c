@@ -173,8 +173,7 @@ namespace web::http::server {
                 web::http::server::SocketContextUpgradeFactorySelector::instance()->select(req, *this);
 
             if (socketContextUpgradeFactory != nullptr) {
-                [[maybe_unused]] SocketContext* newSocketContext =
-                    dynamic_cast<SocketContext*>(socketContext->switchSocketContext(socketContextUpgradeFactory));
+                socketContext->switchSocketContext(socketContextUpgradeFactory);
             } else {
                 this->status(404).end();
             }

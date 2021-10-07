@@ -4,8 +4,6 @@ add_library(echo SHARED Echo.cpp EchoFactory.cpp)
 
 target_include_directories(echo PUBLIC ${PROJECT_SOURCE_DIR})
 
-target_link_libraries(echo)
-
 set_target_properties(
     echo
     PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${WEBSOCKET_SERVER_LIBDIR}"

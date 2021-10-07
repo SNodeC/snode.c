@@ -24,8 +24,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <climits>
-#include <cstddef> // for size_t
-#include <sys/time.h>
+#include <cstddef>    // for size_t
+#include <sys/time.h> // IWYU pragma: keep
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

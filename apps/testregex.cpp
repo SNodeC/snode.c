@@ -24,7 +24,6 @@
 #include "log/Logger.h"
 #include "net/socket/ip/address/ipv4/InetAddress.h" // for InetAddress
 
-#include <any>                // for any
 #include <cstddef>            // for NULL, size_t
 #include <iostream>           // for operator<<, endl
 #include <map>                // for map

@@ -49,7 +49,7 @@ namespace net::socket::stream {
         std::string getLocalAddressAsString() const;
         std::string getRemoteAddressAsString() const;
 
-        SocketContext* switchSocketContext(SocketContextFactory* socketContextFactory);
+        void switchSocketContext(SocketContextFactory* socketContextFactory);
 
         void setTimeout(int timeout);
 

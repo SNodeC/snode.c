@@ -30,7 +30,6 @@ namespace net::socket::stream {
     class SocketConnection;
 } // namespace net::socket::stream
 
-#include <any>         // for any
 #include <cstddef>     // for size_t
 #include <functional>  // for function
 #include <string>      // for string
