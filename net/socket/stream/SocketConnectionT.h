@@ -65,9 +65,10 @@ namespace net::socket::stream {
             , localAddress(localAddress)
             , remoteAddress(remoteAddress)
             , onDisconnect(onDisconnect) {
-            SocketConnectionT::attach(fd);
+            SocketConnectionT::Descriptor::attach(fd);
             SocketReader::enable(fd);
             SocketWriter::enable(fd);
+            SocketWriter::suspend();
             onConnect(localAddress, remoteAddress);
             socketContext->onConnected();
         }
@@ -116,6 +117,7 @@ namespace net::socket::stream {
             //            SocketReader::disable();
             //            SocketReader::shutdown();
             SocketWriter::shutdown();
+            //            SocketReader::disable();
         }
 
         SocketContext* getSocketContext() override {

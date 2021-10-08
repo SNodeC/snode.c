@@ -104,7 +104,7 @@ int main(int argc, char* argv[]) {
                     VLOG(0) << "     Server certificate: no certificate";
                 }
             },
-            [](Request& request) -> void {
+            [](Request& request, [[maybe_unused]] Response& response) -> void {
                 request.url = "/index.html";
                 request.set("Connection", "close");
                 request.start();

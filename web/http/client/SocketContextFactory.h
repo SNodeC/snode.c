@@ -40,16 +40,13 @@ namespace web::http::client {
         using Response = ResponseT;
 
         SocketContextFactory() {
-            if (useCount == 0) {
-                SocketContextUpgradeFactorySelector::instance()->loadSocketContexts();
-            }
             useCount++;
         }
 
         ~SocketContextFactory() {
             useCount--;
             if (useCount == 0) {
-                SocketContextUpgradeFactorySelector::instance()->unloadSocketContexts();
+                SocketContextUpgradeFactorySelector::instance()->destroy();
             }
         }
 

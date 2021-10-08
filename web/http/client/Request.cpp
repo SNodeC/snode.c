@@ -18,6 +18,8 @@
 
 #include "web/http/client/Request.h"
 
+#include "Response.h"
+#include "SocketContextUpgradeFactorySelector.h"
 #include "log/Logger.h"
 #include "utils/base64.h"
 #include "web/http/client/SocketContext.h"
@@ -33,7 +35,7 @@
 namespace web::http::client {
 
     Request::Request(SocketContext* clientContext)
-        : clientContext(clientContext) {
+        : socketContext(clientContext) {
     }
 
     Request& Request::setHost(const std::string& host) {
@@ -124,14 +126,14 @@ namespace web::http::client {
             headersSent = true;
         }
 
-        clientContext->sendToPeer(junk, junkLen);
+        socketContext->sendToPeer(junk, junkLen);
 
         if (headersSent) {
             contentSent += junkLen;
             if (contentSent == contentLength) {
-                clientContext->sendToPeerCompleted();
+                socketContext->sendToPeerCompleted();
             } else if (contentSent > contentLength) {
-                clientContext->terminateConnection();
+                socketContext->terminateConnection();
             }
         }
     }
@@ -202,27 +204,33 @@ namespace web::http::client {
         send(junk.data(), junk.size());
     }
 
-    void Request::upgrade(const std::string& url, const std::string& protocol, const std::string& subProtocol) {
+    void Request::upgrade([[maybe_unused]] Response& response, const std::string& url, const std::string& protocol) {
         this->url = url;
         set("Connection", "Upgrade", true);
 
         set("Upgrade", protocol);
 
-        if (!subProtocol.empty()) {
-            set("Sec-WebSocket-Protocol", subProtocol);
-        }
-
-        unsigned char ebytes[16];
-        getentropy(ebytes, 16);
-
-        set("Sec-WebSocket-Key", base64::base64_encode(ebytes, 16));
-
-        start();
-
         // load upgrade context
         // let upgrade context fill the request-header fields
         // send the request to the server
         // the response-code needs to check the response from the server and upgrade the context in case the server says OK
+
+        /*
+                unsigned char ebytes[16];
+                getentropy(ebytes, 16);
+
+                set("Sec-WebSocket-Key", base64::base64_encode(ebytes, 16));
+         */
+
+        web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
+            web::http::client::SocketContextUpgradeFactorySelector::instance()->select(
+                protocol, *this, response); // Complete request header
+
+        if (socketContextUpgradeFactory != nullptr) {
+            start();
+        } else {
+            socketContext->terminateConnection();
+        }
     }
 
     void Request::start() {
@@ -239,7 +247,7 @@ namespace web::http::client {
 
     void Request::error([[maybe_unused]] int errnum) {
         PLOG(ERROR) << "Stream error: ";
-        clientContext->terminateConnection();
+        socketContext->terminateConnection();
     }
 
 } // namespace web::http::client

@@ -16,7 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef WEB_WS_CLIENT_SUBPROTOCOLFACTORY_H
+#define WEB_WS_CLIENT_SUBPROTOCOLFACTORY_H
+
 #include "SubProtocol.h"
+#include "web/websocket/SubProtocolFactory.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,11 +28,11 @@
 
 namespace web::websocket::client {
 
-    SubProtocol::SubProtocol(const std::string& name)
-        : web::websocket::SubProtocol<web::websocket::client::SocketContext>(name) {
-    }
-
-    SubProtocol::~SubProtocol() {
-    }
+    class SubProtocolFactory : public web::websocket::SubProtocolFactory<web::websocket::client::SubProtocol> {
+    public:
+        //        SubProtocolFactory() = default;
+    };
 
 } // namespace web::websocket::client
+
+#endif // SUBPROTOCOLFACTORY_H

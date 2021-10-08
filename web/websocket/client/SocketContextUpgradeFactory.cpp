@@ -18,42 +18,86 @@
 
 #include "SocketContextUpgradeFactory.h"
 
+#include "SubProtocol.h"
 #include "log/Logger.h"
+#include "utils/base64.h"
+#include "web/http/client/Request.h"  // for Request
+#include "web/http/client/Response.h" // for Response
+#include "web/http/client/SocketContextUpgradeFactorySelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::ws::client {
+namespace web::websocket::client {
 
-    extern "C" {
-        class web::ws::client::SocketContextUpgradeInterface* plugin() {
-            return new SocketContextUpgradeInterface();
+    void SocketContextUpgradeFactory::attach(SubProtocolFactory* subProtocolFactory) {
+        SocketContextUpgradeFactory* socketContextUpgradeFactory = dynamic_cast<SocketContextUpgradeFactory*>(
+            web::http::client::SocketContextUpgradeFactorySelector::instance()->select("websocket", false));
+
+        if (socketContextUpgradeFactory == nullptr) {
+            socketContextUpgradeFactory = new SocketContextUpgradeFactory();
+            web::http::client::SocketContextUpgradeFactorySelector::instance()->add(socketContextUpgradeFactory);
         }
-    }
 
-    http::server::SocketContextUpgradeFactory* SocketContextUpgradeInterface::create() {
-        return new SocketContextUpgradeFactory();
-    }
-
-    SocketContextUpgradeFactory::SocketContextUpgradeFactory() {
-        web::ws::server::SubProtocolSelector::instance()->loadSubProtocols();
-    }
-
-    SocketContextUpgradeFactory::~SocketContextUpgradeFactory() {
-        web::ws::server::SubProtocolSelector::instance()->unloadSubProtocols();
+        if (socketContextUpgradeFactory != nullptr) {
+            socketContextUpgradeFactory->subProtocolFactorySelector.add(subProtocolFactory);
+        }
     }
 
     std::string SocketContextUpgradeFactory::name() {
         return "websocket";
     }
 
-    http::server::SocketContextUpgradeFactory::ROLE SocketContextUpgradeFactory::role() {
-        return http::server::SocketContextUpgradeFactory::ROLE::SERVER;
+    http::client::SocketContextUpgradeFactory::Role SocketContextUpgradeFactory::role() {
+        return http::client::SocketContextUpgradeFactory::Role::CLIENT;
     }
 
-    web::ws::server::SocketContext* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnectionBase* socketConnection) const {
-        return web::ws::server::SocketContext::create(socketConnection, *request, *response);
+    SocketContext* SocketContextUpgradeFactory::create([[maybe_unused]] net::socket::stream::SocketConnection* socketConnection) {
+        //        std::string subProtocolName = request->header("sec-websocket-protocol");
+
+        std::string subProtocolName = "hihihihi";
+
+        SocketContext* socketContext = nullptr;
+
+        [[maybe_unused]] web::websocket::client::SubProtocolFactory* subProtocolFactory =
+            subProtocolFactorySelector.select(subProtocolName);
+        /*
+                if (subProtocolFactory != nullptr) {
+                    SubProtocol* subProtocol = subProtocolFactory->create();
+
+                    if (subProtocol != nullptr) {
+                        socketContext = new SocketContext(socketConnection, subProtocol);
+
+                        if (socketContext != nullptr) {
+                            response->set("Upgrade", "websocket");
+                            response->set("Connection", "Upgrade");
+                            response->set("Sec-WebSocket-Protocol", subProtocolName);
+                            response->set("Sec-WebSocket-Accept", base64::serverWebSocketKey(request->header("sec-websocket-key")));
+
+                            response->status(101).end(); // Switch Protocol
+                        } else {
+                            delete subProtocol;
+                            response->status(500).end(); // Internal Server Error
+                        }
+                    } else {
+                        response->status(404).end(); // Not Found
+                    }
+                } else {
+                    response->status(404).end(); // Not Found
+                }
+        */
+        return socketContext;
     }
 
-} // namespace web::ws::client
+    void SocketContextUpgradeFactory::destroy() {
+        delete this;
+    }
+
+    extern "C" {
+        SocketContextUpgradeFactory* plugin() {
+            return new SocketContextUpgradeFactory();
+        }
+    }
+
+} // namespace web::websocket::client

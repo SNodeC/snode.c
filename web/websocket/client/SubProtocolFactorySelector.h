@@ -20,6 +20,7 @@
 #define WEB_WS_CLIENT_SUBPROTOCOLSELECTOR_H
 
 #include "web/websocket/SubProtocolFactorySelector.h"
+#include "web/websocket/client/SubProtocolFactory.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,17 +30,14 @@
 
 namespace web::websocket::client {
 
-    class SubProtocolFactorySelector : public web::websocket::SubProtocolFactorySelector {
+    class SubProtocolFactorySelector : public web::websocket::SubProtocolFactorySelector<web::websocket::client::SubProtocolFactory> {
     public:
-        SubProtocolFactorySelector() = default;
+        SubProtocolFactorySelector();
 
-    public:
-        static std::shared_ptr<SubProtocolFactorySelector> instance();
+        SubProtocolFactorySelector(const SubProtocolFactorySelector&) = delete;
 
-    private:
-        static std::shared_ptr<SubProtocolFactorySelector> subProtocolSelector;
+        SubProtocolFactorySelector& operator=(const SubProtocolFactorySelector&) = delete;
     };
-
 } // namespace web::websocket::client
 
 #endif // WEB_WS_CLIENT_SUBPROTOCOLSELECTOR_H

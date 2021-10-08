@@ -76,7 +76,6 @@ namespace net::socket::stream::tls {
                             const std::function<void()>& onTimeout,
                             const std::function<void(int)>& onError) override {
             SocketConnection::SocketReader::suspend();
-            SocketConnection::SocketWriter::suspend();
 
             TLSHandshake::doHandshake(
                 ssl,

@@ -55,7 +55,7 @@ namespace web::websocket::server {
     SocketContext* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnection* socketConnection) {
         std::string subProtocolName = request->header("sec-websocket-protocol");
 
-        SocketContext* context = nullptr;
+        SocketContext* socketContext = nullptr;
 
         web::websocket::server::SubProtocolFactory* subProtocolFactory = subProtocolFactorySelector.select(subProtocolName);
 
@@ -63,9 +63,9 @@ namespace web::websocket::server {
             SubProtocol* subProtocol = subProtocolFactory->create();
 
             if (subProtocol != nullptr) {
-                context = new SocketContext(socketConnection, subProtocol);
+                socketContext = new SocketContext(socketConnection, subProtocol);
 
-                if (context != nullptr) {
+                if (socketContext != nullptr) {
                     response->set("Upgrade", "websocket");
                     response->set("Connection", "Upgrade");
                     response->set("Sec-WebSocket-Protocol", subProtocolName);
@@ -83,7 +83,7 @@ namespace web::websocket::server {
             response->status(404).end(); // Not Found
         }
 
-        return context;
+        return socketContext;
     }
 
     void SocketContextUpgradeFactory::destroy() {

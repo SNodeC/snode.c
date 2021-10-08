@@ -27,6 +27,7 @@ namespace web::http::client {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <list>
 #include <map>
 #include <string>
 
@@ -35,33 +36,33 @@ namespace web::http::client {
 namespace web::http::client {
 
     struct SocketContextPlugin {
-        web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory;
+        SocketContextUpgradeFactory* socketContextUpgradeFactory;
         void* handle = nullptr;
     };
 
     class SocketContextUpgradeFactorySelector {
     private:
-        SocketContextUpgradeFactorySelector() = default;
+        SocketContextUpgradeFactorySelector();
         ~SocketContextUpgradeFactorySelector() = default;
 
     public:
-        void registerSocketContextUpgradeFactory(web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory);
-        void registerSocketContextUpgradeFactory(web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory,
-                                                 void* handler);
-
-        void loadSocketContexts();
-        void unloadSocketContexts();
-
-        web::http::client::SocketContextUpgradeFactory*
-        select(const std::string& subProtocolName, web::http::client::Request& req, web::http::client::Response& res);
-
         static SocketContextUpgradeFactorySelector* instance();
+        void destroy();
+
+        SocketContextUpgradeFactory* select(const std::string& upgradeContextName, bool doLoad = true);
+        SocketContextUpgradeFactory* select(const std::string& _upgradeContextNames, Request& req, Response& res);
+
+        bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory);
 
     protected:
-        std::map<std::string, SocketContextPlugin> serverSocketContextPlugins;
-        std::map<std::string, SocketContextPlugin> clientSocketContextPlugins;
+        web::http::client::SocketContextUpgradeFactory* load(const std::string& socketContextName);
 
-    public:
+        bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handler);
+
+        std::map<std::string, SocketContextPlugin> socketContextUpgradePlugins;
+        std::list<std::string> searchPaths;
+
+    private:
         static SocketContextUpgradeFactorySelector* socketContextUpgradeFactorySelector;
     };
 

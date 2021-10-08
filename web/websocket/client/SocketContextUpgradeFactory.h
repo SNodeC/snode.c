@@ -19,28 +19,36 @@
 #ifndef WEB_WS_SERVER_SOCKETCONTEXTFACTORY_H
 #define WEB_WS_SERVER_SOCKETCONTEXTFACTORY_H
 
-#include "web/http/server/SocketContextUpgradeFactory.h"
-#include "web/http/server/SocketContextUpgradeInterface.h"
+#include "web/http/client/SocketContextUpgradeFactory.h"
 #include "web/websocket/client/SocketContext.h"
-#include "web/websocket/client/SubProtocolSelector.h"
+#include "web/websocket/client/SubProtocolFactorySelector.h" // for SubProt...
 
-namespace web::http::client {
-    class Request;
-    class Response;
-} // namespace web::http::client
+namespace net::socket::stream {
+    class SocketConnection;
+}
 
 namespace web::websocket::client {
 
     class SocketContextUpgradeFactory : public web::http::client::SocketContextUpgradeFactory {
     public:
-        SocketContextUpgradeFactory();
-        ~SocketContextUpgradeFactory();
+        SocketContextUpgradeFactory() = default;
 
-        std::string name() override;
-        ROLE role() override;
+        SocketContextUpgradeFactory(const SocketContextUpgradeFactory&) = delete;
+
+        SocketContextUpgradeFactory& operator=(const SocketContextUpgradeFactory&) = delete;
+
+        static void attach(SubProtocolFactory* subProtocolFactory);
 
     private:
-        web::websocket::server::SocketContext* create(net::socket::stream::SocketConnection* socketConnection) const override;
+        std::string name() override;
+
+        Role role() override;
+
+        SocketContext* create(net::socket::stream::SocketConnection* socketConnection) override;
+
+        void destroy() override;
+
+        SubProtocolFactorySelector subProtocolFactorySelector;
     };
 
 } // namespace web::websocket::client

@@ -45,7 +45,7 @@ namespace web::http::client {
 
         Client(const std::function<void(const Client::SocketAddress&, const Client::SocketAddress&)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
-               const std::function<void(Request&)>& onRequestBegin,
+               const std::function<void(Request&, Response&)>& onRequestBegin,
                const std::function<void(Request&, Response&)>& onResponse,
                const std::function<void(int, const std::string&)>& onResponseError,
                const std::function<void(SocketConnection*)>& onDisconnect,
@@ -56,13 +56,14 @@ namespace web::http::client {
                       onConnect(localAddress, remoteAddress);
                   },
                   [onConnected, onRequestBegin](SocketConnection* socketConnection) -> void { // onConnected
-                      Request& request = static_cast<SocketContext*>(socketConnection->getSocketContext())->getRequest();
+                      Request& request = dynamic_cast<SocketContext*>(socketConnection->getSocketContext())->getRequest();
+                      Response& response = dynamic_cast<SocketContext*>(socketConnection->getSocketContext())->getResponse();
 
                       request.setHost(socketConnection->getRemoteAddress().host() + ":" +
                                       std::to_string(socketConnection->getRemoteAddress().port()));
                       onConnected(socketConnection);
 
-                      onRequestBegin(request);
+                      onRequestBegin(request, response);
                   },
                   [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
                       onDisconnect(socketConnection);

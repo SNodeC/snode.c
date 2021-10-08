@@ -16,7 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SubProtocolSelector.h"
+#include "SubProtocolFactorySelector.h"
+
+#include "config.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -24,28 +26,16 @@
 
 namespace web::websocket::client {
 
-    std::shared_ptr<SubProtocolFactorySelector> SubProtocolFactorySelector::subProtocolSelector = nullptr;
+    SubProtocolFactorySelector::SubProtocolFactorySelector() {
+#ifndef NDEBUG
+#ifdef SUBPROTOCOL_SERVER_COMPILE_PATH
 
-    std::shared_ptr<SubProtocolFactorySelector> SubProtocolFactorySelector::instance() {
-        if (subProtocolSelector == nullptr) {
-            subProtocolSelector = std::make_shared<SubProtocolFactorySelector>();
-        }
+        addSubProtocolSearchPath(SUBPROTOCOL_CLIENT_COMPILE_PATH);
 
-        return subProtocolSelector;
+#endif // SUBPROTOCOL_SERVER_COMPILE_PATH
+#endif // NDEBUG
+
+        addSubProtocolSearchPath(SUBPROTOCOL_CLIENT_INSTALL_PATH);
     }
-
-    /*
-        web::websocket::SubProtocol* SubProtocolSelector::select(const std::string& subProtocolName) {
-            web::websocket::client::SubProtocol* subProtocol = nullptr;
-
-            SubProtocolInterface* subProtocolInterface = dynamic_cast<SubProtocolInterface*>(selectSubProtocolFactory(subProtocolName));
-
-            if (subProtocolInterface != nullptr) {
-                subProtocol = dynamic_cast<SubProtocol*>(subProtocolInterface->create());
-            }
-
-            return subProtocol;
-        }
-        */
 
 } // namespace web::websocket::client

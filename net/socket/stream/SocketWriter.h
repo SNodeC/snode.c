@@ -61,7 +61,7 @@ namespace net::socket::stream {
         }
 
         void shutdown() {
-            if (isSuspended()) {
+            if (isSuspended() || !isEnabled()) {
                 Socket::shutdown(Socket::shutdown::WR);
             } else {
                 markShutdown = true;

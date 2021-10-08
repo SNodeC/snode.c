@@ -52,20 +52,27 @@ namespace net::socket::stream::tls {
         int ret = SSL_do_handshake(ssl);
         int sslErr = SSL_get_error(ssl, ret);
 
+        ReadEventReceiver::enable(fd);
+        WriteEventReceiver::enable(fd);
+        ReadEventReceiver::suspend();
+        WriteEventReceiver::suspend();
+
         switch (sslErr) {
             case SSL_ERROR_WANT_READ:
-                ReadEventReceiver::enable(fd);
+                ReadEventReceiver::resume();
                 break;
             case SSL_ERROR_WANT_WRITE:
-                WriteEventReceiver::enable(fd);
+                WriteEventReceiver::resume();
                 break;
             case SSL_ERROR_NONE:
+                ReadEventReceiver::disable();
+                WriteEventReceiver::disable();
                 onSuccess();
-                delete this;
                 break;
             default:
+                ReadEventReceiver::disable();
+                WriteEventReceiver::disable();
                 onError(sslErr);
-                delete this;
                 break;
         }
     }
@@ -78,15 +85,19 @@ namespace net::socket::stream::tls {
             case SSL_ERROR_WANT_READ:
                 break;
             case SSL_ERROR_WANT_WRITE:
-                ReadEventReceiver::disable();
-                WriteEventReceiver::enable(fd);
+                ReadEventReceiver::suspend();
+                WriteEventReceiver::resume();
                 break;
             case SSL_ERROR_NONE:
+                ReadEventReceiver::suspend();
                 ReadEventReceiver::disable();
+                WriteEventReceiver::disable();
                 onSuccess();
                 break;
             default:
+                ReadEventReceiver::suspend();
                 ReadEventReceiver::disable();
+                WriteEventReceiver::disable();
                 onError(sslErr);
                 break;
         }
@@ -98,16 +109,20 @@ namespace net::socket::stream::tls {
 
         switch (sslErr) {
             case SSL_ERROR_WANT_READ:
-                WriteEventReceiver::disable();
-                ReadEventReceiver::enable(fd);
+                WriteEventReceiver::suspend();
+                ReadEventReceiver::resume();
                 break;
             case SSL_ERROR_WANT_WRITE:
                 break;
             case SSL_ERROR_NONE:
+                WriteEventReceiver::suspend();
+                ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
                 onSuccess();
                 break;
             default:
+                WriteEventReceiver::suspend();
+                ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
                 onError(sslErr);
                 break;

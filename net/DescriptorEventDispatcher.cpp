@@ -24,6 +24,7 @@
 #include "log/Logger.h" // for Writer, CWARNING, LOG
 #include "net/DescriptorEventReceiver.h"
 #include "utils/Timeval.h" // for operator-, operator<, operator>=
+#include "utils/stacktrace.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -88,6 +89,7 @@ namespace net {
                 fdSet.clr(fd, true);
             }
         } else {
+            stacktrace::stacktrace();
             LOG(WARNING) << "EventReceiver double suspend";
         }
     }

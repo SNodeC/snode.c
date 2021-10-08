@@ -22,10 +22,11 @@
 #include "log/Logger.h"                             // for Writer, Storage
 #include "net/SNodeC.h"                             // for SNodeC
 #include "net/socket/ip/address/ipv4/InetAddress.h" // for InetAddress
-#include "web/http/client/Request.h"                // for Request, client
-#include "web/http/client/Response.h"               // for Response
-#include "web/http/client/legacy/Client.h"          // for Client, Client<>...
-#include "web/http/client/tls/Client.h"             // for Client, Client<>...
+#include "utils/base64.h"
+#include "web/http/client/Request.h"       // for Request, client
+#include "web/http/client/Response.h"      // for Response
+#include "web/http/client/legacy/Client.h" // for Client, Client<>...
+#include "web/http/client/tls/Client.h"    // for Client, Client<>...
 
 #include <any>                // for any
 #include <cstring>            // for memcpy
@@ -61,10 +62,18 @@ int main(int argc, char* argv[]) {
             []([[maybe_unused]] legacy::Client<>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnConnected";
             },
-            [](Request& request) -> void {
-                request.upgrade("/ws/", "websocket", "tiktaktoe");
-                //                request.url = "/index.html";
-                //                request.start();
+            [](Request& request, [[maybe_unused]] Response& response) -> void {
+                //                request.upgrade("/ws/", "websocket", "tiktaktoe");
+                //                request.set("Upgrade", "websocket");
+
+                request.set("Sec-WebSocket-Protocol", "echo");
+
+                unsigned char ebytes[16];
+                getentropy(ebytes, 16);
+
+                request.set("Sec-WebSocket-Key", base64::base64_encode(ebytes, 16));
+
+                request.upgrade(response, "/ws/", "websocket");
             },
             []([[maybe_unused]] const Request& request, const Response& response) -> void {
                 VLOG(0) << "-- OnResponse";
@@ -157,11 +166,18 @@ int main(int argc, char* argv[]) {
                     VLOG(0) << "     Server certificate: no certificate";
                 }
             },
-            [](Request& request) -> void {
+            [](Request& request, [[maybe_unused]] Response& response) -> void {
                 //                request.upgrade("/ws/", "websocket", "tiktaktoe");
+                request.set("Upgrade", "websocket");
 
-                request.url = "/index.html";
-                request.start();
+                request.set("Sec-WebSocket-Protocol", "echo");
+
+                unsigned char ebytes[16];
+                getentropy(ebytes, 16);
+
+                request.set("Sec-WebSocket-Key", base64::base64_encode(ebytes, 16));
+
+                request.upgrade(response, "/ws/", "websocket");
             },
             []([[maybe_unused]] const Request& request, const Response& response) -> void {
                 VLOG(0) << "-- OnResponse";

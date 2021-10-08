@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
         []([[maybe_unused]] web::http::client::legacy::Client<>::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnConnected";
         },
-        [](web::http::client::Request& request) -> void {
+        [](web::http::client::Request& request, [[maybe_unused]] web::http::client::Response& response) -> void {
             request.method = "POST";
             request.url = "/index.html";
             request.type("application/json");

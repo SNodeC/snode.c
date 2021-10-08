@@ -48,7 +48,7 @@ namespace net::socket::stream {
         virtual ~SocketReader() = default;
 
         void shutdown() {
-            if (isSuspended()) {
+            if (isSuspended() || !isEnabled()) {
                 Socket::shutdown(Socket::shutdown::RD);
             } else {
                 markShutdown = true;

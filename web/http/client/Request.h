@@ -22,6 +22,10 @@
 #include "net/pipe/Sink.h"
 #include "web/http/ConnectionState.h"
 
+namespace web::http::client {
+    class Response;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef> // for size_t
@@ -58,7 +62,7 @@ namespace web::http::client {
         void send(const char* junk, std::size_t junkLen);
         void send(const std::string& junk);
 
-        void upgrade(const std::string& url, const std::string& protocol, const std::string& subProtocol = "");
+        void upgrade(Response& response, const std::string& url, const std::string& protocol);
 
         void sendHeader();
 
@@ -73,7 +77,7 @@ namespace web::http::client {
         std::size_t contentSent = 0;
         std::size_t contentLength = 0;
 
-        SocketContext* clientContext;
+        SocketContext* socketContext;
 
         virtual void reset();
 

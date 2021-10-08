@@ -16,9 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SocketContext.h"
+#include "web/websocket/client/SocketContext.h"
 
-#include "web/websocket/client/SubProtocol.h"
+#include "web/websocket/client/SubProtocol.h" // IWYU pragma: keep
+
+namespace net::socket::stream {
+    class SocketConnection;
+} // namespace net::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,14 +32,13 @@
 
 namespace web::websocket::client {
 
-    SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection, web::websocket::client::SubProtocol* subProtocol)
-        : web::websocket::SocketContext(socketConnection, subProtocol, Role::CLIENT) {
+    SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection, SubProtocol* subProtocol)
+        : web::websocket::SocketContext<SubProtocol>(socketConnection, subProtocol, Role::CLIENT) {
+        subProtocol->setSocketContext(this);
     }
 
     SocketContext::~SocketContext() {
-        //        web::websocket::client::SubProtocolFactorySelector::instance()->destroy(subProtocol);
-
-        //        SubProtocolFactorySelector::instance()->select(subProtocol->getName())->destroy(subProtocol);
+        delete subProtocol;
     }
 
 } // namespace web::websocket::client

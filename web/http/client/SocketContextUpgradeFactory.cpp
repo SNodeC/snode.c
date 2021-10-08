@@ -16,36 +16,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_CLIENT_SUBPROTOCOLPLUGININTERFACE_H
-#define WEB_WS_CLIENT_SUBPROTOCOLPLUGININTERFACE_H
-
-#include "web/websocket/SubProtocolFactory.h"
-
-#include <list>
-#include <memory>
-
-namespace web::http::client {
-
-    class Request;
-    class Response;
-
-} // namespace web::http::client
-
-namespace web::websocket::client {
-    class SubProtocol;
-} // namespace web::websocket::client
+#include "SocketContextUpgradeFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::websocket::client {
+namespace web::http::client {
 
-    class SubProtocolInterface : public web::websocket::SubProtocolFactory {
-    public:
-        using web::websocket::SubProtocolFactory::SubProtocolFactory;
-    };
+    void SocketContextUpgradeFactory::prepare(Request& request, Response& response) {
+        this->request = &request;
+        this->response = &response;
+    }
 
-} // namespace web::websocket::client
-
-#endif // WEB_WS_CLIENT_SUBPROTOCOLPLUGININTERFACE_H
+} // namespace web::http::server

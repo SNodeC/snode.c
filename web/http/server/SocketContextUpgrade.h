@@ -16,30 +16,25 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_HTTP_CLIENT_SOCKETCONTEXTUPGRADEINTERFACE_H
-#define WEB_HTTP_CLIENT_SOCKETCONTEXTUPGRADEINTERFACE_H
-
-namespace web::http::client {
-
-    class SocketContextUpgradeFactory;
-
-} // namespace web::http::client
+#include "Request.h"
+#include "Response.h"
+#include "net/socket/stream/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::http::client {
+#ifndef WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADE_H
+#define WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADE_H
 
-    class SocketContextUpgradeInterface {
+namespace web::http::server {
+    class SocketContextUpgrade : public net::socket::stream::SocketContext {
     public:
-        virtual ~SocketContextUpgradeInterface() = default;
+        using net::socket::stream::SocketContext::SocketContext;
 
-        virtual web::http::client::SocketContextUpgradeFactory* create() = 0;
+        virtual void sendUpgradeResponse(Request& request, Response& response) = 0;
     };
 
-} // namespace web::http::client
+} // namespace web::http::server
 
-#endif // WEB_HTTP_CLIENT_SOCKETCONTEXTUPGRADEINTERFACE_H
+#endif // WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADE_H

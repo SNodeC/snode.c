@@ -18,9 +18,11 @@
 
 #include "SocketContextUpgradeFactorySelector.h"
 
+#include "config.h"
 #include "log/Logger.h"
+#include "web/http/client/Request.h"
 #include "web/http/client/SocketContextUpgradeFactory.h"
-#include "web/http/client/SocketContextUpgradeInterface.h"
+#include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -33,31 +35,30 @@ namespace web::http::client {
 
     SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector = nullptr;
 
-    void SocketContextUpgradeFactorySelector::loadSocketContexts() {
-        void* handle = dlopen("/usr/local/lib/snode.c/web/ws/libwebsocket.so", RTLD_LAZY | RTLD_GLOBAL);
+    SocketContextUpgradeFactorySelector::SocketContextUpgradeFactorySelector() {
+#ifndef NDEBUG
+#ifdef UPGRADECONTEXT_CLIENT_COMPILE_PATH
 
-        if (handle != nullptr) {
-            SocketContextUpgradeInterface* (*plugin)() = reinterpret_cast<SocketContextUpgradeInterface* (*) ()>(dlsym(handle, "plugin"));
+        searchPaths.push_back(UPGRADECONTEXT_CLIENT_COMPILE_PATH);
 
-            SocketContextUpgradeInterface* socketContextUpgradeInterface = plugin();
+#endif // UPGRADECONTEXT_CLIENT_COMPILE_PATH
+#endif // NDEBUG
 
-            SocketContextUpgradeFactorySelector::instance()->registerSocketContextUpgradeFactory(socketContextUpgradeInterface->create(),
-                                                                                                 handle);
-
-            delete socketContextUpgradeInterface;
-        }
+        searchPaths.push_back(UPGRADECONTEXT_CLIENT_INSTALL_PATH);
     }
 
-    void SocketContextUpgradeFactorySelector::unloadSocketContexts() {
-        for ([[maybe_unused]] const auto& [name, socketContextPlugin] : serverSocketContextPlugins) {
-            socketContextPlugin.socketContextUpgradeFactory->destroy();
-            if (socketContextPlugin.handle != nullptr) {
-                dlclose(socketContextPlugin.handle);
-            }
+    SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::instance() {
+        if (socketContextUpgradeFactorySelector == nullptr) {
+            socketContextUpgradeFactorySelector = new SocketContextUpgradeFactorySelector();
         }
 
-        for ([[maybe_unused]] const auto& [name, socketContextPlugin] : clientSocketContextPlugins) {
+        return socketContextUpgradeFactorySelector;
+    }
+
+    void SocketContextUpgradeFactorySelector::destroy() {
+        for ([[maybe_unused]] const auto& [name, socketContextPlugin] : socketContextUpgradePlugins) {
             socketContextPlugin.socketContextUpgradeFactory->destroy();
+
             if (socketContextPlugin.handle != nullptr) {
                 dlclose(socketContextPlugin.handle);
             }
@@ -66,51 +67,100 @@ namespace web::http::client {
         delete this;
     }
 
-    SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::instance() {
-        if (socketContextUpgradeFactorySelector == nullptr) {
-            socketContextUpgradeFactorySelector = new SocketContextUpgradeFactorySelector();
-        }
-        return socketContextUpgradeFactorySelector;
-    }
+    bool SocketContextUpgradeFactorySelector::add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handle) {
+        bool success = false;
 
-    void SocketContextUpgradeFactorySelector::registerSocketContextUpgradeFactory(
-        web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory) {
-        registerSocketContextUpgradeFactory(socketContextUpgradeFactory, nullptr);
-    }
+        if (socketContextUpgradeFactory != nullptr) {
+            SocketContextPlugin socketContextPlugin = {.socketContextUpgradeFactory = socketContextUpgradeFactory, .handle = handle};
 
-    void SocketContextUpgradeFactorySelector::registerSocketContextUpgradeFactory(
-        web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handle) {
-        SocketContextPlugin socketContextPlugin = {.socketContextUpgradeFactory = socketContextUpgradeFactory, .handle = handle};
-
-        if (socketContextUpgradeFactory->role() == SocketContextUpgradeFactory::ROLE::SERVER) {
-            const auto [it, success] = serverSocketContextPlugins.insert({socketContextUpgradeFactory->name(), socketContextPlugin});
-            if (!success) {
-                VLOG(0) << "UpgradeSocketContext already existing: not using " << socketContextUpgradeFactory->name();
-                socketContextUpgradeFactory->destroy();
-                if (handle != nullptr) {
-                    dlclose(handle);
-                }
-            }
-        } else if (socketContextUpgradeFactory->role() == SocketContextUpgradeFactory::ROLE::CLIENT) {
-            const auto [it, success] = clientSocketContextPlugins.insert({socketContextUpgradeFactory->name(), socketContextPlugin});
-            if (!success) {
-                VLOG(0) << "UpgradeSocketContext already existing: not using " << socketContextUpgradeFactory->name();
-                socketContextUpgradeFactory->destroy();
-                if (handle != nullptr) {
-                    dlclose(handle);
-                }
+            if (socketContextUpgradeFactory->role() == SocketContextUpgradeFactory::Role::CLIENT) {
+                std::tie(std::ignore, success) =
+                    socketContextUpgradePlugins.insert({socketContextUpgradeFactory->name(), socketContextPlugin});
             }
         }
+
+        return success;
     }
 
-    web::http::client::SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(const std::string& name,
-                                                                                                web::http::client::Request& req,
-                                                                                                web::http::client::Response& res) {
-        web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
+    bool SocketContextUpgradeFactorySelector::add(SocketContextUpgradeFactory* socketContextUpgradeFactory) {
+        return add(socketContextUpgradeFactory, nullptr);
+    }
 
-        if (serverSocketContextPlugins.contains(name)) {
-            socketContextUpgradeFactory = serverSocketContextPlugins[name].socketContextUpgradeFactory;
-            socketContextUpgradeFactory->prepare(req, res);
+    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::load(const std::string& filePath) {
+        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
+
+        void* handle = dlopen(filePath.c_str(), RTLD_LAZY | RTLD_GLOBAL);
+
+        if (handle != nullptr) {
+            SocketContextUpgradeFactory* (*plugin)() = reinterpret_cast<SocketContextUpgradeFactory* (*) ()>(dlsym(handle, "plugin"));
+
+            if (plugin != nullptr) {
+                socketContextUpgradeFactory = plugin();
+
+                if (socketContextUpgradeFactory != nullptr) {
+                    VLOG(0) << "Upgrade Protocol: " << socketContextUpgradeFactory->name();
+                    if (add(socketContextUpgradeFactory, handle)) {
+                        VLOG(0) << "UpgradeSocketContext loaded successfully: " << filePath;
+                    } else {
+                        socketContextUpgradeFactory->destroy();
+                        socketContextUpgradeFactory = nullptr;
+                        dlclose(handle);
+                        VLOG(0) << "UpgradeSocketContext already existing. Not using: " << filePath;
+                    }
+                } else {
+                    dlclose(handle);
+                    VLOG(0) << "SocketContextUpgradeFactory not created: " << filePath;
+                }
+            } else {
+                dlclose(handle);
+                VLOG(0) << "Not a Plugin \"" << filePath;
+            }
+        } else {
+            VLOG(0) << "Error dlopen: " << dlerror();
+        }
+
+        return socketContextUpgradeFactory;
+    }
+
+    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(const std::string& upgradeContextName, bool doLoad) {
+        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
+
+        if (socketContextUpgradePlugins.contains(upgradeContextName)) {
+            socketContextUpgradeFactory = socketContextUpgradePlugins[upgradeContextName].socketContextUpgradeFactory;
+        } else if (doLoad) {
+            for (const std::string& searchPath : searchPaths) {
+                socketContextUpgradeFactory = load(searchPath + "/libsnodec-" + upgradeContextName + ".so");
+
+                if (socketContextUpgradeFactory != nullptr) {
+                    break;
+                }
+            }
+        }
+
+        return socketContextUpgradeFactory;
+    }
+
+    SocketContextUpgradeFactory*
+    SocketContextUpgradeFactorySelector::select(const std::string& _upgradeContextNames, Request& req, Response& res) {
+        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
+
+        std::string upgradeContextNames =
+            _upgradeContextNames; // Hack: read the context names from request and remove _upgradeContextNames from parameterlist
+
+        if (!upgradeContextNames.empty()) {
+            std::string upgradeContextName;
+            std::string upgradeContextPriority;
+
+            std::tie(upgradeContextName, upgradeContextNames) = httputils::str_split(upgradeContextNames, ',');
+            std::tie(upgradeContextName, upgradeContextPriority) = httputils::str_split(upgradeContextName, '/');
+
+            httputils::to_lower(upgradeContextName);
+
+            socketContextUpgradeFactory = select(upgradeContextName);
+
+            if (socketContextUpgradeFactory != nullptr) {
+                socketContextUpgradeFactory->prepare(req, res); // Fill in the missing header fields into the request object
+            }
         }
 
         return socketContextUpgradeFactory;

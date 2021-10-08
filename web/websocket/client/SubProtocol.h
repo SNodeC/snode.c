@@ -19,12 +19,8 @@
 #ifndef WEB_WS_CLIENT_SUBSPROTOCOL_H
 #define WEB_WS_CLIENT_SUBSPROTOCOL_H
 
-#include "web/websocket/SubProtocol.h"
-
-namespace web::websocket::client {
-    class SocketContext;
-    class SubProtocolFactorySelector;
-} // namespace web::websocket::client
+#include "web/websocket/SubProtocol.h"          // for SubProtocol
+#include "web/websocket/client/SocketContext.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -36,7 +32,7 @@ namespace web::websocket::client {
 
 namespace web::websocket::client {
 
-    class SubProtocol : public web::websocket::SubProtocol {
+    class SubProtocol : public web::websocket::SubProtocol<web::websocket::client::SocketContext> {
     protected:
         SubProtocol(const std::string& name);
 
@@ -45,18 +41,17 @@ namespace web::websocket::client {
         SubProtocol& operator=(const SubProtocol&) = delete;
 
     public:
-        ~SubProtocol() override = default;
+        ~SubProtocol() override;
 
-    public:
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from SubProtocol-Subclasses */
-        using web::websocket::SubProtocol::sendMessage;
+        using web::websocket::SubProtocol<web::websocket::client::SocketContext>::sendMessage;
 
-        using web::websocket::SubProtocol::sendMessageEnd;
-        using web::websocket::SubProtocol::sendMessageFrame;
-        using web::websocket::SubProtocol::sendMessageStart;
+        using web::websocket::SubProtocol<web::websocket::client::SocketContext>::sendMessageEnd;
+        using web::websocket::SubProtocol<web::websocket::client::SocketContext>::sendMessageFrame;
+        using web::websocket::SubProtocol<web::websocket::client::SocketContext>::sendMessageStart;
 
-        using web::websocket::SubProtocol::sendClose;
-        using web::websocket::SubProtocol::sendPing;
+        using web::websocket::SubProtocol<web::websocket::client::SocketContext>::sendClose;
+        using web::websocket::SubProtocol<web::websocket::client::SocketContext>::sendPing;
 
     private:
         /* Callbacks (API) WSReceiver -> SubProtocol-Subclasses */
@@ -70,12 +65,12 @@ namespace web::websocket::client {
         void onConnected() override = 0;
         void onDisconnected() override = 0;
 
-        /* Internal used methods */
-        void sendBroadcast(uint8_t opCode, const char* message, std::size_t messageLength);
-        void sendBroadcastStart(uint8_t opCode, const char* message, std::size_t messageLength);
+        std::string channel;
 
-        friend class web::websocket::client::SocketContext;
-        friend class web::websocket::client::SubProtocolFactorySelector;
+        template <typename SubProtocolT>
+        friend class web::websocket::SocketContext;
+
+        friend class ChannelManager;
     };
 
 } // namespace web::websocket::client

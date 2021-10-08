@@ -73,6 +73,7 @@ namespace net::socket::stream {
                                   });
                           } else {
                               socketConnection->SocketConnection::SocketReader::disable();
+                              socketConnection->SocketConnection::SocketWriter::disable();
                               ssl_log_error("SSL/TLS initialization failed");
                           }
                       },
