@@ -1,7 +1,7 @@
 @PACKAGE_INIT@
 
 set(websocketserver_DEPENDENCIES websocketbase http)
-wet(websocketclient DEPENDENCIES websocketbase http)
+set(websocketclient DEPENDENCIES websocketbase http)
 set(express_DEPENDENCIES http)
 set(http_DEPENDENCIES net-ip)
 set(net-ip_DEPENDENCIES net-legacy net-tls)
