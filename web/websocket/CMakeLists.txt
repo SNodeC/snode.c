@@ -35,6 +35,7 @@ install(
     PATTERN "*.h"
     PATTERN "*.hpp"
     PATTERN "cmake" EXCLUDE
+    PATTERN "client" EXCLUDE
     PATTERN "server" EXCLUDE
     PATTERN "subprotocol" EXCLUDE
 )

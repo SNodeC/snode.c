@@ -3,13 +3,10 @@ cmake_minimum_required(VERSION 3.0)
 configure_file(config.h.in config.h @ONLY)
 
 add_library(
-    websocketclient SHARED
-    SocketContext.cpp SocketContextUpgradeFactory.cpp
-    SubProtocol.cpp
-    SubProtocolFactorySelector.cpp
+    websocketclient SHARED SocketContext.cpp SocketContextUpgradeFactory.cpp
+                           SubProtocol.cpp SubProtocolFactorySelector.cpp
 )
-
-add_library(snodec::websocketserver ALIAS websocketserver)
+add_library(snodec::websocketclient ALIAS websocketclient)
 
 set_target_properties(
     websocketclient
@@ -40,7 +37,7 @@ set_target_properties(
 install(
     TARGETS websocketclient
     EXPORT snodecwebsocketclientTargets
-    LIBRARY DESTINATION lib/snode.c/web/http/upgrade/server
+    LIBRARY DESTINATION lib/snode.c/web/http/upgrade/client
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
 )
