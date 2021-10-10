@@ -20,7 +20,7 @@
 
 #include "config.h"
 #include "log/Logger.h"
-#include "web/http/client/Request.h"
+#include "web/http/client/Response.h"
 #include "web/http/client/SocketContextUpgradeFactory.h"
 #include "web/http/http_utils.h"
 
@@ -162,6 +162,18 @@ namespace web::http::client {
             if (socketContextUpgradeFactory != nullptr) {
                 socketContextUpgradeFactory->prepare(req, res); // Fill in the missing header fields into the request object
             }
+        }
+
+        return socketContextUpgradeFactory;
+    }
+
+    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(Request& req, Response& res) {
+        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
+
+        std::string upgradeContextNames = res.header("upgrade");
+
+        if (!upgradeContextNames.empty()) {
+            socketContextUpgradeFactory = select(upgradeContextNames, req, res);
         }
 
         return socketContextUpgradeFactory;

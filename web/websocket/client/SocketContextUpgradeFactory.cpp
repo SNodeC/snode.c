@@ -27,6 +27,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <unistd.h>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::websocket::client {
@@ -45,6 +47,14 @@ namespace web::websocket::client {
         }
     }
 
+    void SocketContextUpgradeFactory::prepare(http::client::Request& request, http::client::Response& response) {
+        http::client::SocketContextUpgradeFactory::prepare(request, response);
+        unsigned char ebytes[16];
+        getentropy(ebytes, 16);
+
+        request.set("Sec-WebSocket-Key", base64::base64_encode(ebytes, 16));
+    }
+
     std::string SocketContextUpgradeFactory::name() {
         return "websocket";
     }
@@ -53,40 +63,27 @@ namespace web::websocket::client {
         return http::client::SocketContextUpgradeFactory::Role::CLIENT;
     }
 
-    SocketContext* SocketContextUpgradeFactory::create([[maybe_unused]] net::socket::stream::SocketConnection* socketConnection) {
-        //        std::string subProtocolName = request->header("sec-websocket-protocol");
-
-        std::string subProtocolName = "hihihihi";
+    SocketContext* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnection* socketConnection) {
+        std::string subProtocolName = response->header("sec-websocket-protocol");
 
         SocketContext* socketContext = nullptr;
 
-        [[maybe_unused]] web::websocket::client::SubProtocolFactory* subProtocolFactory =
-            subProtocolFactorySelector.select(subProtocolName);
-        /*
-                if (subProtocolFactory != nullptr) {
-                    SubProtocol* subProtocol = subProtocolFactory->create();
+        web::websocket::client::SubProtocolFactory* subProtocolFactory = subProtocolFactorySelector.select(subProtocolName);
 
-                    if (subProtocol != nullptr) {
-                        socketContext = new SocketContext(socketConnection, subProtocol);
+        if (subProtocolFactory != nullptr) {
+            SubProtocol* subProtocol = subProtocolFactory->create();
 
-                        if (socketContext != nullptr) {
-                            response->set("Upgrade", "websocket");
-                            response->set("Connection", "Upgrade");
-                            response->set("Sec-WebSocket-Protocol", subProtocolName);
-                            response->set("Sec-WebSocket-Accept", base64::serverWebSocketKey(request->header("sec-websocket-key")));
+            if (subProtocol != nullptr) {
+                socketContext = new SocketContext(socketConnection, subProtocol);
 
-                            response->status(101).end(); // Switch Protocol
-                        } else {
-                            delete subProtocol;
-                            response->status(500).end(); // Internal Server Error
-                        }
-                    } else {
-                        response->status(404).end(); // Not Found
-                    }
+                if (socketContext != nullptr) {
+                    socketContext->receive();
                 } else {
-                    response->status(404).end(); // Not Found
+                    delete subProtocol;
                 }
-        */
+            }
+        }
+
         return socketContext;
     }
 

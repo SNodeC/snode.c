@@ -63,7 +63,7 @@ namespace web::websocket {
                     reset();
                     break;
             };
-        } while (ret > 0 && !parsingError && parserState != ParserState::BEGIN);
+        } while (ret > 0 && !parsingError); // && parserState != ParserState::BEGIN);
     }
 
     ssize_t Receiver::readOpcode() {
@@ -173,7 +173,6 @@ namespace web::websocket {
         for (ssize_t i = 0; i < ret; i++) {
             maskingKey |= static_cast<uint32_t>(*reinterpret_cast<unsigned char*>(maskingKeyJunk + i))
                           << (maskingKeyNumBytes - maskingKeyNumBytesLeft) * 8;
-
             maskingKeyNumBytesLeft--;
         }
 
@@ -230,7 +229,6 @@ namespace web::websocket {
             stringStream << std::setfill('0') << std::setw(2) << std::hex << (unsigned int) (unsigned char) frame[i] << " ";
 
             if ((i + 1) % modul == 0 || i == frameLength) {
-                VLOG(0) << "Frame: " << stringStream.str();
                 stringStream.str("");
             }
         }

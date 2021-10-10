@@ -30,10 +30,10 @@
 #define MAX_FLYING_PINGS 3
 #define PING_DELAY 5
 
-namespace web::websocket::subprotocol::echo::server {
+namespace web::websocket::subprotocol::echo::client {
 
     Echo::Echo()
-        : web::websocket::server::SubProtocol(NAME)
+        : web::websocket::client::SubProtocol(NAME)
         , pingTimer(net::timer::Timer::intervalTimer(
               [this]([[maybe_unused]] const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
                   this->sendPing();
@@ -51,10 +51,7 @@ namespace web::websocket::subprotocol::echo::server {
     }
 
     void Echo::onConnected() {
-        //        VLOG(0) << "On protocol connected:";
-
-        sendMessage("Welcome to SimpleChat");
-        sendMessage("=====================");
+        VLOG(0) << "On protocol connected:";
 
         VLOG(0) << "\tServer: " + getLocalAddressAsString();
         VLOG(0) << "\tClient: " + getRemoteAddressAsString();
@@ -78,7 +75,7 @@ namespace web::websocket::subprotocol::echo::server {
                     client->sendMessage(data);
                 });
         */
-        sendBroadcast(data);
+        sendMessage(data);
 
         data.clear();
     }
@@ -98,4 +95,4 @@ namespace web::websocket::subprotocol::echo::server {
         VLOG(0) << "\tClient: " + getRemoteAddressAsString();
     }
 
-} // namespace web::websocket::subprotocol::echo::server
+} // namespace web::websocket::subprotocol::echo::client

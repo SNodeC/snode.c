@@ -40,6 +40,8 @@ namespace web::websocket::client {
         static void attach(SubProtocolFactory* subProtocolFactory);
 
     private:
+        void prepare(web::http::client::Request& request, web::http::client::Response& response) override;
+
         std::string name() override;
 
         Role role() override;

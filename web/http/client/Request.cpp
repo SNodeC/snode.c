@@ -18,16 +18,16 @@
 
 #include "web/http/client/Request.h"
 
-#include "Response.h"
-#include "SocketContextUpgradeFactorySelector.h"
 #include "log/Logger.h"
 #include "utils/base64.h"
+#include "web/http/client/Response.h"
 #include "web/http/client/SocketContext.h"
+#include "web/http/client/SocketContextUpgradeFactory.h"
+#include "web/http/client/SocketContextUpgradeFactorySelector.h"
 #include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <sys/random.h>
 #include <utility> // for pair, tuple_element<>::type
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -206,6 +206,7 @@ namespace web::http::client {
 
     void Request::upgrade([[maybe_unused]] Response& response, const std::string& url, const std::string& protocol) {
         this->url = url;
+
         set("Connection", "Upgrade", true);
 
         set("Upgrade", protocol);
@@ -215,13 +216,6 @@ namespace web::http::client {
         // send the request to the server
         // the response-code needs to check the response from the server and upgrade the context in case the server says OK
 
-        /*
-                unsigned char ebytes[16];
-                getentropy(ebytes, 16);
-
-                set("Sec-WebSocket-Key", base64::base64_encode(ebytes, 16));
-         */
-
         web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
             web::http::client::SocketContextUpgradeFactorySelector::instance()->select(
                 protocol, *this, response); // Complete request header
@@ -230,6 +224,24 @@ namespace web::http::client {
             start();
         } else {
             socketContext->terminateConnection();
+        }
+    }
+
+    void Request::upgrade(Response& response) {
+        if (httputils::ci_contains(response.header("connection"), "Upgrade")) {
+            web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
+                web::http::client::SocketContextUpgradeFactorySelector::instance()->select(*this, response);
+
+            if (socketContextUpgradeFactory != nullptr) {
+                socketContext->switchSocketContext(socketContextUpgradeFactory);
+            } else {
+                VLOG(0) << "SocketContextUpgradeFactory not existing";
+                this->socketContext->terminateConnection();
+            }
+
+        } else {
+            VLOG(0) << "Response did not contain upgrade";
+            this->socketContext->terminateConnection();
         }
     }
 

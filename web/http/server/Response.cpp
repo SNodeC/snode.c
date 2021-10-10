@@ -16,14 +16,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/http/server//Response.h"
+#include "web/http/server/Response.h"
 
 #include "log/Logger.h"
 #include "net/system/time.h"
 #include "web/http/StatusCodes.h"
 #include "web/http/http_utils.h"
-#include "web/http/server//SocketContext.h"
 #include "web/http/server/Request.h"
+#include "web/http/server/SocketContext.h"
 #include "web/http/server/SocketContextUpgradeFactory.h"
 #include "web/http/server/SocketContextUpgradeFactorySelector.h"
 

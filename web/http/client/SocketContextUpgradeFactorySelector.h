@@ -51,6 +51,7 @@ namespace web::http::client {
 
         SocketContextUpgradeFactory* select(const std::string& upgradeContextName, bool doLoad = true);
         SocketContextUpgradeFactory* select(const std::string& _upgradeContextNames, Request& req, Response& res);
+        SocketContextUpgradeFactory* select(Request& req, Response& res);
 
         bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory);
 

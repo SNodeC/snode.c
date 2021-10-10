@@ -62,20 +62,12 @@ int main(int argc, char* argv[]) {
             []([[maybe_unused]] legacy::Client<>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnConnected";
             },
-            [](Request& request, [[maybe_unused]] Response& response) -> void {
-                //                request.upgrade("/ws/", "websocket", "tiktaktoe");
-                //                request.set("Upgrade", "websocket");
-
+            [](Request& request, Response& response) -> void {
                 request.set("Sec-WebSocket-Protocol", "echo");
-
-                unsigned char ebytes[16];
-                getentropy(ebytes, 16);
-
-                request.set("Sec-WebSocket-Key", base64::base64_encode(ebytes, 16));
 
                 request.upgrade(response, "/ws/", "websocket");
             },
-            []([[maybe_unused]] const Request& request, const Response& response) -> void {
+            [](Request& request, Response& response) -> void {
                 VLOG(0) << "-- OnResponse";
                 VLOG(0) << "     Status:";
                 VLOG(0) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
@@ -98,6 +90,8 @@ int main(int argc, char* argv[]) {
                 body[response.contentLength] = 0;
 
                 VLOG(1) << "     Body:\n----------- start body -----------\n" << body << "------------ end body ------------";
+
+                request.upgrade(response);
 
                 delete[] body;
             },
@@ -166,20 +160,12 @@ int main(int argc, char* argv[]) {
                     VLOG(0) << "     Server certificate: no certificate";
                 }
             },
-            [](Request& request, [[maybe_unused]] Response& response) -> void {
-                //                request.upgrade("/ws/", "websocket", "tiktaktoe");
-                request.set("Upgrade", "websocket");
-
+            [](Request& request, Response& response) -> void {
                 request.set("Sec-WebSocket-Protocol", "echo");
-
-                unsigned char ebytes[16];
-                getentropy(ebytes, 16);
-
-                request.set("Sec-WebSocket-Key", base64::base64_encode(ebytes, 16));
 
                 request.upgrade(response, "/ws/", "websocket");
             },
-            []([[maybe_unused]] const Request& request, const Response& response) -> void {
+            [](Request& request, Response& response) -> void {
                 VLOG(0) << "-- OnResponse";
                 VLOG(0) << "     Status:";
                 VLOG(0) << "       " << response.httpVersion;
@@ -206,6 +192,8 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "     Body:\n----------- start body -----------\n" << body << "------------ end body ------------";
 
                 delete[] body;
+
+                request.upgrade(response);
             },
             [](int status, const std::string& reason) -> void {
                 VLOG(0) << "-- OnResponseError";

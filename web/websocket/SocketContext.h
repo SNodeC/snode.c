@@ -42,7 +42,7 @@ namespace web::websocket {
     template <typename SubProtocolT>
     class SocketContext
         : public net::socket::stream::SocketContext
-        , protected web::websocket::Receiver
+        , public web::websocket::Receiver
         , protected web::websocket::Transmitter {
     public:
         using SubProtocol = SubProtocolT;

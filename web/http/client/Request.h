@@ -64,6 +64,8 @@ namespace web::http::client {
 
         void upgrade(Response& response, const std::string& url, const std::string& protocol);
 
+        void upgrade(Response& response);
+
         void sendHeader();
 
         void start();

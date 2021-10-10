@@ -73,7 +73,7 @@ namespace web::http {
                     reset();
                     break;
             };
-        } while (consumed > 0 && !parsingError && parserState != ParserState::BEGIN);
+        } while (consumed > 0 && !parsingError); // && parserState != ParserState::BEGIN);
     }
 
     ssize_t Parser::readStartLine() {

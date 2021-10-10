@@ -41,16 +41,27 @@ namespace web::http::client {
 
         // switch to protected later on
     public:
+        const std::string& header(const std::string& key, int i = 0) const;
+        const std::string& cookie(const std::string& key) const;
+        std::size_t bodyLength() const;
+
         std::string httpVersion;
         std::string statusCode;
         std::string reason;
         char* body = nullptr;
         std::size_t contentLength = 0;
+
+        // need code to make it at least protected
         const std::map<std::string, std::string>* headers = nullptr;
         const std::map<std::string, CookieOptions>* cookies = nullptr;
 
+        // CookieOptions are not queryable currently. Need code to access it.
+
         template <typename Request, typename Response>
         friend class SocketContextT;
+
+    private:
+        std::string nullstr = "";
     };
 
 } // namespace web::http::client
