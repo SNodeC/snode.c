@@ -28,10 +28,7 @@
 
 namespace web::websocket::client {
 
-    class SubProtocolFactory : public web::websocket::SubProtocolFactory<web::websocket::client::SubProtocol> {
-    public:
-        //        SubProtocolFactory() = default;
-    };
+    class SubProtocolFactory : public web::websocket::SubProtocolFactory<web::websocket::client::SubProtocol> {};
 
 } // namespace web::websocket::client
 

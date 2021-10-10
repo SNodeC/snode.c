@@ -28,10 +28,7 @@
 
 namespace web::websocket::server {
 
-    class SubProtocolFactory : public web::websocket::SubProtocolFactory<web::websocket::server::SubProtocol> {
-    public:
-        //        SubProtocolFactory() = default;
-    };
+    class SubProtocolFactory : public web::websocket::SubProtocolFactory<web::websocket::server::SubProtocol> {};
 
 } // namespace web::websocket::server
 
