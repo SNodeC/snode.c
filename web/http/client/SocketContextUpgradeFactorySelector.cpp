@@ -64,7 +64,8 @@ namespace web::http::client {
             }
         }
 
-        delete this;
+        delete socketContextUpgradeFactorySelector;
+        socketContextUpgradeFactorySelector = nullptr;
     }
 
     bool SocketContextUpgradeFactorySelector::add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handle) {
