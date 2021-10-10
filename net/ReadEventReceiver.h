@@ -35,7 +35,10 @@ namespace net {
 
     private:
         virtual void readEvent() = 0;
-        void dispatchEvent() override;
+        virtual void readTimeout();
+
+        void dispatchEvent() final;
+        void timeoutEvent() final;
     };
 
 } // namespace net

@@ -48,13 +48,17 @@ namespace net::socket::stream::tls {
 
         void readEvent() override;
         void writeEvent() override;
-        void timeoutEvent() override;
+        void readTimeout() override;
+        void writeTimeout() override;
+
         void unobserved() override;
 
         SSL* ssl = nullptr;
         std::function<void(void)> onSuccess;
         std::function<void(void)> onTimeout;
         std::function<void(int)> onError;
+
+        bool timeoutTriggered;
 
         int fd = -1;
     };

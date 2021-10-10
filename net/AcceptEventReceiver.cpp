@@ -32,8 +32,16 @@ namespace net {
         : DescriptorEventReceiver(EventLoop::instance().getReadEventDispatcher(), timeout) {
     }
 
+    void AcceptEventReceiver::acceptTimeout() {
+        disable();
+    }
+
     void AcceptEventReceiver::dispatchEvent() {
         acceptEvent();
+    }
+
+    void AcceptEventReceiver::timeoutEvent() {
+        acceptTimeout();
     }
 
 } // namespace net

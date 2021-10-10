@@ -75,13 +75,28 @@ namespace net::socket::stream::tls {
         void doSSLHandshake(const std::function<void()>& onSuccess,
                             const std::function<void()>& onTimeout,
                             const std::function<void(int)>& onError) override {
-            SocketConnection::SocketReader::suspend();
+            int resumeSocketReader = false;
+            int resumeSocketWriter = false;
+
+            if (!SocketConnection::SocketReader::isSuspended()) {
+                SocketConnection::SocketReader::suspend();
+                resumeSocketReader = true;
+            }
+
+            if (!SocketConnection::SocketWriter::isSuspended()) {
+                SocketConnection::SocketWriter::suspend();
+                resumeSocketWriter = true;
+            }
 
             TLSHandshake::doHandshake(
                 ssl,
-                [onSuccess, this](void) -> void { // onSuccess
-                    SocketConnection::SocketReader::resume();
-                    SocketConnection::SocketWriter::resume();
+                [onSuccess, this, resumeSocketReader, resumeSocketWriter](void) -> void { // onSuccess
+                    if (resumeSocketReader) {
+                        SocketConnection::SocketReader::resume();
+                    }
+                    if (resumeSocketWriter) {
+                        SocketConnection::SocketWriter::resume();
+                    }
                     onSuccess();
                 },
                 [onTimeout, this](void) -> void { // onTimeout

@@ -63,6 +63,7 @@ namespace net::socket::stream {
                               socketConnection->doSSLHandshake(
                                   [onConnected, socketConnection](void) -> void { // onSuccess
                                       LOG(INFO) << "SSL/TLS initial handshake success";
+                                      socketConnection->SocketConnection::SocketReader::resume();
                                       onConnected(socketConnection);
                                   },
                                   [this](void) -> void { // onTimeout

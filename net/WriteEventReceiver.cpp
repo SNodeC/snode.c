@@ -30,8 +30,16 @@ namespace net {
         : DescriptorEventReceiver(EventLoop::instance().getWriteEventDispatcher(), timeout) {
     }
 
+    void WriteEventReceiver::writeTimeout() {
+        disable();
+    }
+
     void WriteEventReceiver::dispatchEvent() {
         writeEvent();
+    }
+
+    void WriteEventReceiver::timeoutEvent() {
+        writeTimeout();
     }
 
 } // namespace net

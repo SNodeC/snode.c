@@ -78,6 +78,7 @@ namespace net {
             // next tick as enable
             disabledEventReceiver[fd].push_back(eventReceiver);
         } else {
+            stacktrace::stacktrace();
             LOG(WARNING) << "EventReceiver double disable";
         }
     }
@@ -157,7 +158,6 @@ namespace net {
                 struct timeval inactivity = currentTime - eventReceiver->getLastTriggered();
                 if (inactivity >= maxInactivity) {
                     eventReceiver->timeoutEvent();
-                    eventReceiver->disable();
                 } else {
                     nextInactivityTimeout = std::min(maxInactivity - inactivity, nextInactivityTimeout);
                 }

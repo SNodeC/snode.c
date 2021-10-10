@@ -46,7 +46,8 @@ namespace net::socket::stream::tls {
         , ssl(ssl)
         , onSuccess(onSuccess)
         , onTimeout(onTimeout)
-        , onError(onError) {
+        , onError(onError)
+        , timeoutTriggered(false) {
         fd = SSL_get_fd(ssl);
 
         int ret = SSL_do_handshake(ssl);
@@ -129,10 +130,34 @@ namespace net::socket::stream::tls {
         }
     }
 
-    void TLSHandshake::timeoutEvent() {
-        ReadEventReceiver::suspend();
-        WriteEventReceiver::suspend();
-        onTimeout();
+    void TLSHandshake::readTimeout() {
+        if (!timeoutTriggered) {
+            timeoutTriggered = true;
+            if (!ReadEventReceiver::isSuspended()) {
+                ReadEventReceiver::suspend();
+            }
+            if (!WriteEventReceiver::isSuspended()) {
+                WriteEventReceiver::suspend();
+            }
+            ReadEventReceiver::disable();
+            WriteEventReceiver::disable();
+            onTimeout();
+        }
+    }
+
+    void TLSHandshake::writeTimeout() {
+        if (!timeoutTriggered) {
+            timeoutTriggered = true;
+            if (!ReadEventReceiver::isSuspended()) {
+                ReadEventReceiver::suspend();
+            }
+            if (!WriteEventReceiver::isSuspended()) {
+                WriteEventReceiver::suspend();
+            }
+            ReadEventReceiver::disable();
+            WriteEventReceiver::disable();
+            onTimeout();
+        }
     }
 
     void TLSHandshake::unobserved() {

@@ -68,6 +68,7 @@ namespace net::socket::stream {
             SocketConnectionT::Descriptor::attach(fd);
             SocketReader::enable(fd);
             SocketWriter::enable(fd);
+            SocketReader::suspend();
             SocketWriter::suspend();
             onConnect(localAddress, remoteAddress);
             socketContext->onConnected();

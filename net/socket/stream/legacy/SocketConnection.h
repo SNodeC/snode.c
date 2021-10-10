@@ -52,7 +52,11 @@ namespace net::socket::stream::legacy {
         }
 
     private:
-        std::function<void(SocketConnection*)> onDestruct;
+        template <typename Socket>
+        friend class SocketListener;
+
+        template <typename Socket>
+        friend class SocketConnector;
     };
 
 } // namespace net::socket::stream::legacy
