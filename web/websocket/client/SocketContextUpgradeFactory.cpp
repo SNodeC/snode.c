@@ -19,7 +19,6 @@
 #include "SocketContextUpgradeFactory.h"
 
 #include "SubProtocol.h"
-#include "log/Logger.h"
 #include "utils/base64.h"
 #include "web/http/client/Request.h"  // for Request
 #include "web/http/client/Response.h" // for Response

@@ -22,11 +22,10 @@
 #include "log/Logger.h"                             // for Writer, Storage
 #include "net/SNodeC.h"                             // for SNodeC
 #include "net/socket/ip/address/ipv4/InetAddress.h" // for InetAddress
-#include "utils/base64.h"
-#include "web/http/client/Request.h"       // for Request, client
-#include "web/http/client/Response.h"      // for Response
-#include "web/http/client/legacy/Client.h" // for Client, Client<>...
-#include "web/http/client/tls/Client.h"    // for Client, Client<>...
+#include "web/http/client/Request.h"                // for Request, client
+#include "web/http/client/Response.h"               // for Response
+#include "web/http/client/legacy/Client.h"          // for Client, Client<>...
+#include "web/http/client/tls/Client.h"             // for Client, Client<>...
 
 #include <any>                // for any
 #include <cstring>            // for memcpy
