@@ -149,15 +149,11 @@ namespace net {
         for (const auto& [fd, eventReceivers] : observedEventReceiver) {
             DescriptorEventReceiver* eventReceiver = eventReceivers.front();
             struct timeval maxInactivity = eventReceiver->getTimeout();
-            if (fdSet.isSet(fd) || (eventReceiver->continueImmediately() && !eventReceiver->isSuspended())) {
+            if (fdSet.isSet(fd) || (eventReceiver->continueImmediately())) {
                 eventCounter++;
                 eventReceiver->dispatchEvent();
                 eventReceiver->triggered(currentTime);
-                if (eventReceiver->continueImmediately()) {
-                    nextInactivityTimeout = {0, 0};
-                } else {
-                    nextInactivityTimeout = std::min(nextInactivityTimeout, maxInactivity);
-                }
+                nextInactivityTimeout = std::min(nextInactivityTimeout, maxInactivity);
             } else {
                 struct timeval inactivity = currentTime - eventReceiver->getLastTriggered();
                 if (inactivity >= maxInactivity) {
@@ -165,6 +161,14 @@ namespace net {
                 } else {
                     nextInactivityTimeout = std::min(maxInactivity - inactivity, nextInactivityTimeout);
                 }
+            }
+        }
+
+        for (const auto& [fd, eventReceivers] : observedEventReceiver) {
+            DescriptorEventReceiver* eventReceiver = eventReceivers.front();
+            if (eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
+                nextInactivityTimeout = {0, 0};
+                break;
             }
         }
 

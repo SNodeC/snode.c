@@ -93,10 +93,6 @@ namespace net {
     void DescriptorEventReceiver::timeoutEvent() {
     }
 
-    bool DescriptorEventReceiver::continueImmediately() {
-        return false;
-    }
-
     void DescriptorEventReceiver::triggered(struct timeval lastTriggered) {
         this->lastTriggered = lastTriggered;
     }
