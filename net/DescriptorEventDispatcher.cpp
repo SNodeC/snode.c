@@ -149,11 +149,15 @@ namespace net {
         for (const auto& [fd, eventReceivers] : observedEventReceiver) {
             DescriptorEventReceiver* eventReceiver = eventReceivers.front();
             struct timeval maxInactivity = eventReceiver->getTimeout();
-            if (fdSet.isSet(fd)) {
+            if (fdSet.isSet(fd) || (eventReceiver->continueImmediately() && !eventReceiver->isSuspended())) {
                 eventCounter++;
                 eventReceiver->dispatchEvent();
                 eventReceiver->triggered(currentTime);
-                nextInactivityTimeout = std::min(nextInactivityTimeout, maxInactivity);
+                if (eventReceiver->continueImmediately()) {
+                    nextInactivityTimeout = {0, 0};
+                } else {
+                    nextInactivityTimeout = std::min(nextInactivityTimeout, maxInactivity);
+                }
             } else {
                 struct timeval inactivity = currentTime - eventReceiver->getLastTriggered();
                 if (inactivity >= maxInactivity) {

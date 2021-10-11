@@ -61,8 +61,7 @@ namespace net::socket::stream {
         virtual void onDisconnected();
 
     private:
-        virtual void stop() {
-        }
+        virtual void stop();
 
         void receiveFromPeer();
 

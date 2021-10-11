@@ -83,9 +83,6 @@ namespace net::socket::stream::tls {
                 }
             }
 
-            VLOG(0) << "SSL_has_pending: " << SSL_has_pending(ssl);
-            VLOG(0) << "SSL_pending: " << SSL_pending(ssl);
-
             return ret;
         }
 
@@ -106,6 +103,10 @@ namespace net::socket::stream::tls {
             };
 
             return ret;
+        }
+
+        bool continueImmediately() override {
+            return SSL_pending(ssl);
         }
 
     protected:

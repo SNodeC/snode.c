@@ -64,8 +64,7 @@ namespace net::socket::stream {
         onReceiveFromPeer();
 
         if (this != socketConnection->getSocketContext()) {
-            socketConnection->getSocketContext()->onReceiveFromPeer(); // There can be more data already read ... process it!
-            delete this;                                               // we were replaced by a different context.
+            delete this; // we were replaced by a different context.
         }
     }
 
@@ -79,6 +78,10 @@ namespace net::socket::stream {
 
     void SocketContext::onDisconnected() {
         VLOG(0) << "Protocol disconnecteded";
+    }
+
+    void SocketContext::stop() {
+        // By default do nothing
     }
 
 } // namespace net::socket::stream
