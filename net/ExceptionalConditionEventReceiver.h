@@ -36,9 +36,11 @@ namespace net {
     private:
         virtual void outOfBandEvent() = 0;
         virtual void outOfBandTimeout();
+        virtual bool continueoutOfBandImmediately();
 
         void dispatchEvent() final;
         void timeoutEvent() final;
+        bool continueImmediately() final;
     };
 
 } // namespace net

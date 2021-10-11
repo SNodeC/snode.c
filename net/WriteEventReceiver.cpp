@@ -34,12 +34,20 @@ namespace net {
         disable();
     }
 
+    bool WriteEventReceiver::continueWriteImmediately() {
+        return false;
+    }
+
     void WriteEventReceiver::dispatchEvent() {
         writeEvent();
     }
 
     void WriteEventReceiver::timeoutEvent() {
         writeTimeout();
+    }
+
+    bool WriteEventReceiver::continueImmediately() {
+        return continueWriteImmediately();
     }
 
 } // namespace net

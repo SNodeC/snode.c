@@ -34,12 +34,20 @@ namespace net {
         disable();
     }
 
+    bool ReadEventReceiver::continueReadImmediately() {
+        return false;
+    }
+
     void ReadEventReceiver::dispatchEvent() {
         readEvent();
     }
 
     void ReadEventReceiver::timeoutEvent() {
         readTimeout();
+    }
+
+    bool ReadEventReceiver::continueImmediately() {
+        return continueReadImmediately();
     }
 
 } // namespace net

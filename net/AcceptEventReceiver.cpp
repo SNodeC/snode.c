@@ -36,12 +36,20 @@ namespace net {
         disable();
     }
 
+    bool AcceptEventReceiver::continueoutAcceptImmediately() {
+        return false;
+    }
+
     void AcceptEventReceiver::dispatchEvent() {
         acceptEvent();
     }
 
     void AcceptEventReceiver::timeoutEvent() {
         acceptTimeout();
+    }
+
+    bool AcceptEventReceiver::continueImmediately() {
+        return continueoutAcceptImmediately();
     }
 
 } // namespace net

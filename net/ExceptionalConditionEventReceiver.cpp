@@ -34,12 +34,20 @@ namespace net {
         disable();
     }
 
+    bool ExceptionalConditionEventReceiver::continueoutOfBandImmediately() {
+        return false;
+    }
+
     void ExceptionalConditionEventReceiver::dispatchEvent() {
         outOfBandEvent();
     }
 
     void ExceptionalConditionEventReceiver::timeoutEvent() {
         outOfBandTimeout();
+    }
+
+    bool ExceptionalConditionEventReceiver::continueImmediately() {
+        return continueoutOfBandImmediately();
     }
 
 } // namespace net

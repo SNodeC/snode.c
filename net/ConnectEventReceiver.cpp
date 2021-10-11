@@ -34,12 +34,20 @@ namespace net {
         disable();
     }
 
+    bool ConnectEventReceiver::continueoutConnectImmediately() {
+        return false;
+    }
+
     void ConnectEventReceiver::dispatchEvent() {
         connectEvent();
     }
 
     void ConnectEventReceiver::timeoutEvent() {
         connectTimeout();
+    }
+
+    bool ConnectEventReceiver::continueImmediately() {
+        return continueoutConnectImmediately();
     }
 
 } // namespace net
