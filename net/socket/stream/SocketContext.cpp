@@ -55,9 +55,9 @@ namespace net::socket::stream {
         socketConnection->close();
     }
 
-    void SocketContext::switchSocketContext(SocketContextFactory* socketContextFactory) {
+    SocketContext* SocketContext::switchSocketContext(SocketContextFactory* socketContextFactory) {
         stop();
-        socketConnection->switchSocketContext(socketContextFactory);
+        return socketConnection->switchSocketContext(socketContextFactory);
     }
 
     void SocketContext::receiveFromPeer() {

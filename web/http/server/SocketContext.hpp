@@ -21,6 +21,7 @@
 #include "web/http/ConnectionState.h"
 #include "web/http/http_utils.h"
 #include "web/http/server/SocketContext.h"
+#include "web/http/server/SocketContextUpgradeFactorySelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,6 +30,20 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http::server {
+
+    int SocketContext::useCount = 0;
+
+    SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection)
+        : net::socket::stream::SocketContext(socketConnection) {
+        useCount++;
+    }
+
+    SocketContext::~SocketContext() {
+        useCount--;
+        if (useCount == 0) {
+            // SocketContextUpgradeFactorySelector::instance()->destroy();
+        }
+    }
 
     template <typename Request, typename Response>
     SocketContextT<Request, Response>::SocketContextT(net::socket::stream::SocketConnection* socketConnection,

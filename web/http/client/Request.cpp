@@ -233,15 +233,17 @@ namespace web::http::client {
                 web::http::client::SocketContextUpgradeFactorySelector::instance()->select(*this, response);
 
             if (socketContextUpgradeFactory != nullptr) {
-                socketContext->switchSocketContext(socketContextUpgradeFactory);
+                if (socketContext->switchSocketContext(socketContextUpgradeFactory) == nullptr) {
+                    socketContext->terminateConnection();
+                }
             } else {
                 VLOG(0) << "SocketContextUpgradeFactory not existing";
-                this->socketContext->terminateConnection();
+                socketContext->terminateConnection();
             }
 
         } else {
             VLOG(0) << "Response did not contain upgrade";
-            this->socketContext->terminateConnection();
+            socketContext->terminateConnection();
         }
     }
 

@@ -122,7 +122,7 @@ namespace net::socket::stream {
             return socketContext;
         }
 
-        void switchSocketContext(SocketContextFactory* socketContextFactory) override {
+        SocketContext* switchSocketContext(SocketContextFactory* socketContextFactory) override {
             SocketContext* newSocketContext = socketContextFactory->create(this);
 
             if (newSocketContext != nullptr) {
@@ -132,6 +132,8 @@ namespace net::socket::stream {
             } else {
                 VLOG(0) << "Switch socket context unsuccessull: new socket context not created";
             }
+
+            return newSocketContext;
         }
 
     private:

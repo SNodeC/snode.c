@@ -18,6 +18,7 @@
 
 #include "log/Logger.h"
 #include "web/http/client/SocketContext.h"
+#include "web/http/client/SocketContextUpgradeFactorySelector.h"
 
 namespace web::http {
     class CokieOptions;
@@ -35,6 +36,20 @@ namespace net::socket::stream {
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http::client {
+
+    int SocketContext::useCount = 0;
+
+    SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection)
+        : net::socket::stream::SocketContext(socketConnection) {
+        useCount++;
+    }
+
+    SocketContext::~SocketContext() {
+        useCount--;
+        if (useCount == 0) {
+            // SocketContextUpgradeFactorySelector::instance()->destroy();
+        }
+    }
 
     template <typename Request, typename Response>
     SocketContextT<Request, Response>::SocketContextT(net::socket::stream::SocketConnection* socketConnection,

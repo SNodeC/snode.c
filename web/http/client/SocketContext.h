@@ -43,17 +43,20 @@ namespace web::http::client {
 
     class SocketContext : public net::socket::stream::SocketContext {
     public:
-        explicit SocketContext(net::socket::stream::SocketConnection* socketConnection)
-            : net::socket::stream::SocketContext(socketConnection) {
-        }
+        using SocketConnection = net::socket::stream::SocketConnection;
 
-        virtual ~SocketContext() = default;
+        explicit SocketContext(net::socket::stream::SocketConnection* socketConnection);
+
+        ~SocketContext() override;
 
         virtual Request& getRequest() = 0;
         virtual Response& getResponse() = 0;
 
         virtual void sendToPeerCompleted() = 0;
         virtual void terminateConnection() = 0;
+
+    private:
+        static int useCount;
     };
 
     template <typename RequestT, typename ResponseT>
