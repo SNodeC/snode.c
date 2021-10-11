@@ -77,7 +77,6 @@ namespace web::websocket::client {
                 socketContext = new SocketContext(socketConnection, subProtocol);
 
                 if (socketContext != nullptr) {
-                    socketContext->receive();
                 } else {
                     delete subProtocol;
                 }

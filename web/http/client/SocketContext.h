@@ -70,6 +70,8 @@ namespace web::http::client {
         ~SocketContextT() override = default;
 
     private:
+        void stop() override;
+
         void onReceiveFromPeer() override;
 
         void onWriteError(int errnum) override;

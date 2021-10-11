@@ -75,7 +75,7 @@ namespace web::websocket::subprotocol::echo::client {
                     client->sendMessage(data);
                 });
         */
-        sendMessage(data);
+        // sendMessage(data);
 
         data.clear();
     }

@@ -56,6 +56,7 @@ namespace net::socket::stream {
     }
 
     void SocketContext::switchSocketContext(SocketContextFactory* socketContextFactory) {
+        stop();
         socketConnection->switchSocketContext(socketContextFactory);
     }
 
@@ -63,7 +64,8 @@ namespace net::socket::stream {
         onReceiveFromPeer();
 
         if (this != socketConnection->getSocketContext()) {
-            delete this; // we were replaced by a different context.
+            socketConnection->getSocketContext()->onReceiveFromPeer(); // There can be more data already read ... process it!
+            delete this;                                               // we were replaced by a different context.
         }
     }
 

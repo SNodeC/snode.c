@@ -83,6 +83,9 @@ namespace net::socket::stream::tls {
                 }
             }
 
+            VLOG(0) << "SSL_has_pending: " << SSL_has_pending(ssl);
+            VLOG(0) << "SSL_pending: " << SSL_pending(ssl);
+
             return ret;
         }
 

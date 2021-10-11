@@ -63,7 +63,11 @@ namespace web::websocket {
                     reset();
                     break;
             };
-        } while (ret > 0 && !parsingError); // && parserState != ParserState::BEGIN);
+        } while (ret > 0 && !parsingError && !stopped); // && parserState != ParserState::BEGIN);
+    }
+
+    void Receiver::stop() {
+        stopped = true;
     }
 
     ssize_t Receiver::readOpcode() {

@@ -42,7 +42,7 @@ namespace web::websocket {
     template <typename SubProtocolT>
     class SocketContext
         : public net::socket::stream::SocketContext
-        , public web::websocket::Receiver
+        , protected web::websocket::Receiver
         , protected web::websocket::Transmitter {
     public:
         using SubProtocol = SubProtocolT;
@@ -266,6 +266,10 @@ namespace web::websocket {
             if (errnum != 0) {
                 PLOG(INFO) << "OnWriteError:";
             }
+        }
+
+        void stop() override {
+            Receiver::stop();
         }
 
         bool closeSent = false;

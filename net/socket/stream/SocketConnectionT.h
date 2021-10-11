@@ -115,10 +115,7 @@ namespace net::socket::stream {
         }
 
         void close() final {
-            //            SocketReader::disable();
-            //            SocketReader::shutdown();
             SocketWriter::shutdown();
-            //            SocketReader::disable();
         }
 
         SocketContext* getSocketContext() override {
