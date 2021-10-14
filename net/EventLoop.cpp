@@ -92,19 +92,29 @@ namespace net {
             if (counter >= 0) {
                 timerEventDispatcher.dispatch();
 
-                struct timeval currentTime = {net::system::time(nullptr), 0};
-                nextInactivityTimeout = {LONG_MAX, 0};
+                if (counter > 0) {
+                    struct timeval currentTime = {net::system::time(nullptr), 0};
+                    nextInactivityTimeout = {LONG_MAX, 0};
 
-                nextTimeout = readEventDispatcher.dispatchActiveEvents(currentTime);
-                nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
+                    nextTimeout = readEventDispatcher.dispatchActiveEvents(currentTime);
+                    nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
 
-                nextTimeout = writeEventDispatcher.dispatchActiveEvents(currentTime);
-                nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
+                    nextTimeout = writeEventDispatcher.dispatchActiveEvents(currentTime);
+                    nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
 
-                nextTimeout = exceptionalConditionEventDispatcher.dispatchActiveEvents(currentTime);
-                nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
+                    nextTimeout = exceptionalConditionEventDispatcher.dispatchActiveEvents(currentTime);
+                    nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
 
-                DynamicLoader::doAllDlClosedRealDlClose();
+                    readEventDispatcher.unobserveDisabledEvents();
+                    writeEventDispatcher.unobserveDisabledEvents();
+                    exceptionalConditionEventDispatcher.unobserveDisabledEvents();
+
+                    readEventDispatcher.releaseUnobservedEvents();
+                    writeEventDispatcher.releaseUnobservedEvents();
+                    exceptionalConditionEventDispatcher.releaseUnobservedEvents();
+
+                    DynamicLoader::doAllDlClosedRealDlClose();
+                }
             } else if (errno != EINTR) {
                 PLOG(ERROR) << "select";
                 tickStatus = TickStatus::SELECT_ERROR;
@@ -112,14 +122,6 @@ namespace net {
         } else {
             tickStatus = TickStatus::NO_OBSERVER;
         }
-
-        readEventDispatcher.unobserveDisabledEvents();
-        writeEventDispatcher.unobserveDisabledEvents();
-        exceptionalConditionEventDispatcher.unobserveDisabledEvents();
-
-        readEventDispatcher.releaseUnobservedEvents();
-        writeEventDispatcher.releaseUnobservedEvents();
-        exceptionalConditionEventDispatcher.releaseUnobservedEvents();
 
         return tickStatus;
     }
