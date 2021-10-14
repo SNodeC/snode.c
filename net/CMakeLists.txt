@@ -18,6 +18,7 @@ add_library(
     Descriptor.cpp
     DescriptorEventDispatcher.cpp
     DescriptorEventReceiver.cpp
+    DynamicLoader.cpp
     EventLoop.cpp
     ExceptionalConditionEventReceiver.cpp
     FdSet.cpp

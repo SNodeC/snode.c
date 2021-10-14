@@ -35,6 +35,10 @@ namespace web::http::server {
 
 namespace web::http::server {
 
+    // Should be destroyed in case no more http::server::SocketContext objects exists anymore. Thus, http::server::SocketContext should
+    // ref-count itself and if ref-count is 0 it should destroy th SocketContextUpgradeFactorySelector. The
+    // SocketContextUpgradeFactorySelector should not delete or dlclose and objects or libraries
+
     struct SocketContextPlugin {
         SocketContextUpgradeFactory* socketContextUpgradeFactory;
         void* handle = nullptr;
@@ -47,7 +51,6 @@ namespace web::http::server {
 
     public:
         static SocketContextUpgradeFactorySelector* instance();
-        void destroy();
 
         SocketContextUpgradeFactory* select(const std::string& upgradeContextName, bool doLoad = true);
         SocketContextUpgradeFactory* select(Request& req, Response& res);
@@ -61,9 +64,6 @@ namespace web::http::server {
 
         std::map<std::string, SocketContextPlugin> socketContextUpgradePlugins;
         std::list<std::string> searchPaths;
-
-    private:
-        static SocketContextUpgradeFactorySelector* socketContextUpgradeFactorySelector;
     };
 
 } // namespace web::http::server

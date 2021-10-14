@@ -22,6 +22,9 @@
 namespace web::websocket {
     template <typename SubProtocolT>
     class SocketContext;
+
+    template <typename SubProtocolT>
+    class SubProtocolFactory;
 } // namespace web::websocket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -120,8 +123,13 @@ namespace web::websocket {
             context = serverContext;
         }
 
+        SocketContext* getSocketContext() {
+            return context;
+        }
+
     protected:
         SocketContext* context;
+        //        SubProtocolFactory<>* subProtocolFactory;
 
         const std::string name;
     };

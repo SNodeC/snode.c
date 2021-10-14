@@ -47,16 +47,13 @@ namespace web::http::client {
 
         explicit SocketContext(net::socket::stream::SocketConnection* socketConnection);
 
-        ~SocketContext() override;
+        ~SocketContext() override = default;
 
         virtual Request& getRequest() = 0;
         virtual Response& getResponse() = 0;
 
         virtual void sendToPeerCompleted() = 0;
         virtual void terminateConnection() = 0;
-
-    private:
-        static int useCount;
     };
 
     template <typename RequestT, typename ResponseT>

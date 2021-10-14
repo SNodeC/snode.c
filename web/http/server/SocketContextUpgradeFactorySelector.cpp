@@ -20,6 +20,7 @@
 
 #include "config.h"
 #include "log/Logger.h"
+#include "net/DynamicLoader.h"
 #include "web/http/http_utils.h"
 #include "web/http/server/Request.h"
 #include "web/http/server/SocketContextUpgradeFactory.h"
@@ -34,7 +35,7 @@
 
 namespace web::http::server {
 
-    SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector = nullptr;
+    //    SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector = nullptr;
 
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactorySelector() {
 #ifndef NDEBUG
@@ -49,24 +50,9 @@ namespace web::http::server {
     }
 
     SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::instance() {
-        if (socketContextUpgradeFactorySelector == nullptr) {
-            socketContextUpgradeFactorySelector = new SocketContextUpgradeFactorySelector();
-        }
+        static SocketContextUpgradeFactorySelector socketContextUpgradeFactorySelector;
 
-        return socketContextUpgradeFactorySelector;
-    }
-
-    void SocketContextUpgradeFactorySelector::destroy() {
-        for ([[maybe_unused]] const auto& [name, socketContextPlugin] : socketContextUpgradePlugins) {
-            socketContextPlugin.socketContextUpgradeFactory->destroy();
-
-            if (socketContextPlugin.handle != nullptr) {
-                dlclose(socketContextPlugin.handle);
-            }
-        }
-
-        delete socketContextUpgradeFactorySelector;
-        socketContextUpgradeFactorySelector = nullptr;
+        return &socketContextUpgradeFactorySelector;
     }
 
     bool SocketContextUpgradeFactorySelector::add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handle) {
@@ -91,7 +77,7 @@ namespace web::http::server {
     SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::load(const std::string& filePath) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
-        void* handle = dlopen(filePath.c_str(), RTLD_LAZY | RTLD_GLOBAL);
+        void* handle = net::DynamicLoader::dlOpen(filePath.c_str(), RTLD_LAZY | RTLD_GLOBAL);
 
         if (handle != nullptr) {
             SocketContextUpgradeFactory* (*plugin)() = reinterpret_cast<SocketContextUpgradeFactory* (*) ()>(dlsym(handle, "plugin"));
@@ -105,15 +91,15 @@ namespace web::http::server {
                     } else {
                         socketContextUpgradeFactory->destroy();
                         socketContextUpgradeFactory = nullptr;
-                        dlclose(handle);
+                        net::DynamicLoader::dlClose(handle);
                         VLOG(0) << "UpgradeSocketContext already existing. Not using: " << filePath;
                     }
                 } else {
-                    dlclose(handle);
+                    net::DynamicLoader::dlClose(handle);
                     VLOG(0) << "SocketContextUpgradeFactory not created: " << filePath;
                 }
             } else {
-                dlclose(handle);
+                net::DynamicLoader::dlClose(handle);
                 VLOG(0) << "Not a Plugin \"" << filePath;
             }
         } else {

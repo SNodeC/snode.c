@@ -41,7 +41,7 @@ namespace web::http::server {
 
         explicit SocketContext(net::socket::stream::SocketConnection* socketConnection);
 
-        ~SocketContext() override;
+        ~SocketContext() override = default;
 
         SocketContext(const SocketContext&) = delete;
         SocketContext& operator=(const SocketContext&) = delete;
@@ -49,9 +49,6 @@ namespace web::http::server {
         virtual void sendToPeerCompleted() = 0;
 
         virtual void terminateConnection() = 0;
-
-    private:
-        static int useCount;
     };
 
     template <typename RequestT, typename ResponseT>

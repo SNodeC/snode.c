@@ -60,7 +60,7 @@ namespace web::websocket::client {
 
         void destroy() override;
 
-        SubProtocolFactorySelector subProtocolFactorySelector;
+        //        SubProtocolFactorySelector subProtocolFactorySelector;
     };
 
 } // namespace web::websocket::client

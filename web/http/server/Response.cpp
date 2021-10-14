@@ -173,12 +173,16 @@ namespace web::http::server {
                 web::http::server::SocketContextUpgradeFactorySelector::instance()->select(req, *this);
 
             if (socketContextUpgradeFactory != nullptr) {
-                socketContext->switchSocketContext(socketContextUpgradeFactory);
+                if (socketContext->switchSocketContext(socketContextUpgradeFactory) == nullptr) {
+                    socketContext->terminateConnection();
+                }
             } else {
+                set("Connection", "close");
                 this->status(404).end();
             }
 
         } else {
+            set("Connection", "close");
             this->status(400).end();
         }
     }

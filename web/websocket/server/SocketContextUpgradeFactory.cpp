@@ -40,7 +40,7 @@ namespace web::websocket::server {
         }
 
         if (socketContextUpgradeFactory != nullptr) {
-            socketContextUpgradeFactory->subProtocolFactorySelector.add(subProtocolFactory);
+            SubProtocolFactorySelector::instance()->add(subProtocolFactory);
         }
     }
 
@@ -57,13 +57,14 @@ namespace web::websocket::server {
 
         SocketContext* socketContext = nullptr;
 
-        web::websocket::server::SubProtocolFactory* subProtocolFactory = subProtocolFactorySelector.select(subProtocolName);
+        web::websocket::server::SubProtocolFactory* subProtocolFactory = SubProtocolFactorySelector::instance()->select(subProtocolName);
 
         if (subProtocolFactory != nullptr) {
             SubProtocol* subProtocol = subProtocolFactory->create();
 
             if (subProtocol != nullptr) {
                 socketContext = new SocketContext(socketConnection, subProtocol);
+                subProtocol->setSocketContext(socketContext);
 
                 if (socketContext != nullptr) {
                     response->set("Upgrade", "websocket");
@@ -74,12 +75,15 @@ namespace web::websocket::server {
                     response->status(101).end(); // Switch Protocol
                 } else {
                     delete subProtocol;
+                    response->set("Connection", "close");
                     response->status(500).end(); // Internal Server Error
                 }
             } else {
+                response->set("Connection", "close");
                 response->status(404).end(); // Not Found
             }
         } else {
+            response->set("Connection", "close");
             response->status(404).end(); // Not Found
         }
 

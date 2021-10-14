@@ -54,7 +54,7 @@ namespace web::websocket::server {
 
         void destroy() override;
 
-        SubProtocolFactorySelector subProtocolFactorySelector;
+        // SubProtocolFactorySelector subProtocolFactorySelector;
     };
 
 } // namespace web::websocket::server

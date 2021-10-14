@@ -18,6 +18,7 @@
 
 #include "net/EventLoop.h" // for EventLoop
 
+#include "DynamicLoader.h"
 #include "log/Logger.h" // for Logger
 #include "net/system/select.h"
 #include "net/system/signal.h"
@@ -102,6 +103,8 @@ namespace net {
 
                 nextTimeout = exceptionalConditionEventDispatcher.dispatchActiveEvents(currentTime);
                 nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
+
+                DynamicLoader::doAllDlClosedRealDlClose();
             } else if (errno != EINTR) {
                 PLOG(ERROR) << "select";
                 tickStatus = TickStatus::SELECT_ERROR;
@@ -122,6 +125,7 @@ namespace net {
     }
 
     void EventLoop::_free() {
+        VLOG(0) << "Call Free";
         readEventDispatcher.observeEnabledEvents();
         writeEventDispatcher.observeEnabledEvents();
         exceptionalConditionEventDispatcher.observeEnabledEvents();
@@ -139,6 +143,10 @@ namespace net {
         exceptionalConditionEventDispatcher.releaseUnobservedEvents();
 
         timerEventDispatcher.cancelAll();
+
+        DynamicLoader::doAllDlClosedRealDlClose();
+
+        DynamicLoader::doAllDlClose();
     }
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)

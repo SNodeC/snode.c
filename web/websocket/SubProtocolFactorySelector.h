@@ -38,10 +38,16 @@ namespace web::websocket {
         void* handle = nullptr;
     };
 
-    template <typename SubProtocolFactoryT>
+    template <typename SubProtocolFactorySelectorT, typename SubProtocolFactoryT>
     class SubProtocolFactorySelector {
     public:
         using SubProtocolFactory = SubProtocolFactoryT;
+
+        static SubProtocolFactorySelectorT* instance() {
+            static SubProtocolFactorySelectorT subProtocolFactorySelector;
+
+            return &subProtocolFactorySelector;
+        }
 
     protected:
         SubProtocolFactorySelector() = default;
@@ -49,14 +55,7 @@ namespace web::websocket {
         SubProtocolFactorySelector(const SubProtocolFactorySelector&) = delete;
         SubProtocolFactorySelector& operator=(const SubProtocolFactorySelector&) = delete;
 
-        virtual ~SubProtocolFactorySelector() {
-            for (const auto& [name, subProtocolPlugin] : subProtocolPlugins) {
-                subProtocolPlugin.subProtocolFactory->destroy();
-                if (subProtocolPlugin.handle != nullptr) {
-                    dlclose(subProtocolPlugin.handle);
-                }
-            }
-        }
+        virtual ~SubProtocolFactorySelector() = default;
 
     public:
         void add(SubProtocolFactory* subProtocolFactory, void* handle = nullptr) {

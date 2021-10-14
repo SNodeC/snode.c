@@ -37,18 +37,8 @@ namespace net::socket::stream {
 
 namespace web::http::client {
 
-    int SocketContext::useCount = 0;
-
     SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection)
         : net::socket::stream::SocketContext(socketConnection) {
-        useCount++;
-    }
-
-    SocketContext::~SocketContext() {
-        useCount--;
-        if (useCount == 0) {
-            // SocketContextUpgradeFactorySelector::instance()->destroy();
-        }
     }
 
     template <typename Request, typename Response>

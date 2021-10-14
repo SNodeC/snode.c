@@ -34,7 +34,7 @@
 
 namespace web::http::client {
 
-    SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector = nullptr;
+    //    SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector = nullptr;
 
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactorySelector() {
 #ifndef NDEBUG
@@ -49,24 +49,9 @@ namespace web::http::client {
     }
 
     SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::instance() {
-        if (socketContextUpgradeFactorySelector == nullptr) {
-            socketContextUpgradeFactorySelector = new SocketContextUpgradeFactorySelector();
-        }
+        static SocketContextUpgradeFactorySelector socketContextUpgradeFactorySelector;
 
-        return socketContextUpgradeFactorySelector;
-    }
-
-    void SocketContextUpgradeFactorySelector::destroy() {
-        for ([[maybe_unused]] const auto& [name, socketContextPlugin] : socketContextUpgradePlugins) {
-            socketContextPlugin.socketContextUpgradeFactory->destroy();
-
-            if (socketContextPlugin.handle != nullptr) {
-                dlclose(socketContextPlugin.handle);
-            }
-        }
-
-        delete socketContextUpgradeFactorySelector;
-        socketContextUpgradeFactorySelector = nullptr;
+        return &socketContextUpgradeFactorySelector;
     }
 
     bool SocketContextUpgradeFactorySelector::add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handle) {

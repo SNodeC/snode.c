@@ -33,22 +33,18 @@ namespace net::socket::stream {
 
 namespace web::http::server {
 
+    // Is managed by a shared_ptr and is deleted automatically in case no SocketListener depends on it anymore. May not destroy any other
+    // objects or libraries
+
     template <typename RequestT, typename ResponseT>
     class SocketContextFactory : public net::socket::stream::SocketContextFactory {
     public:
         using Request = RequestT;
         using Response = ResponseT;
 
-        SocketContextFactory() {
-            useCount++;
-        }
+        SocketContextFactory() = default;
 
-        ~SocketContextFactory() {
-            useCount--;
-            if (useCount == 0) {
-                SocketContextUpgradeFactorySelector::instance()->destroy();
-            }
-        }
+        ~SocketContextFactory() override = default;
 
         SocketContextFactory(const SocketContextFactory&) = delete;
         SocketContextFactory& operator=(const SocketContextFactory&) = delete;
@@ -65,12 +61,7 @@ namespace web::http::server {
 
     private:
         std::function<void(Request&, Response&)> onRequestReady;
-
-        static int useCount;
     };
-
-    template <typename RequestT, typename ResponseT>
-    int SocketContextFactory<RequestT, ResponseT>::useCount = 0;
 
 } // namespace web::http::server
 

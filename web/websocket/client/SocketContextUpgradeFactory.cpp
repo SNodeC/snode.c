@@ -42,7 +42,7 @@ namespace web::websocket::client {
         }
 
         if (socketContextUpgradeFactory != nullptr) {
-            socketContextUpgradeFactory->subProtocolFactorySelector.add(subProtocolFactory);
+            SubProtocolFactorySelector::instance()->add(subProtocolFactory);
         }
     }
 
@@ -67,13 +67,14 @@ namespace web::websocket::client {
 
         SocketContext* socketContext = nullptr;
 
-        web::websocket::client::SubProtocolFactory* subProtocolFactory = subProtocolFactorySelector.select(subProtocolName);
+        web::websocket::client::SubProtocolFactory* subProtocolFactory = SubProtocolFactorySelector::instance()->select(subProtocolName);
 
         if (subProtocolFactory != nullptr) {
             SubProtocol* subProtocol = subProtocolFactory->create();
 
             if (subProtocol != nullptr) {
                 socketContext = new SocketContext(socketConnection, subProtocol);
+                subProtocol->setSocketContext(socketContext);
 
                 if (socketContext == nullptr) {
                     delete subProtocol;

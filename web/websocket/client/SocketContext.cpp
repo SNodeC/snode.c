@@ -28,16 +28,14 @@ namespace net::socket::stream {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define CLOSE_SOCKET_TIMEOUT 10
-
 namespace web::websocket::client {
 
     SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection, SubProtocol* subProtocol)
         : web::websocket::SocketContext<SubProtocol>(socketConnection, subProtocol, Role::CLIENT) {
-        subProtocol->setSocketContext(this);
     }
 
     SocketContext::~SocketContext() {
+        // SubProtocolFactory->destroy(subProtocol);
         delete subProtocol;
     }
 

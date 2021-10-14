@@ -16,26 +16,44 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/websocket/server/SocketContext.h"
-
-#include "web/websocket/server/SubProtocol.h" // IWYU pragma: keep
-
-namespace net::socket::stream {
-    class SocketConnection;
-} // namespace net::socket::stream
+#ifndef NET_DYNAMICLOADER_H
+#define NET_DYNAMICLOADER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <map>
+#include <set>
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::websocket::server {
+namespace net {
 
-    SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection, SubProtocol* subProtocol)
-        : web::websocket::SocketContext<SubProtocol>(socketConnection, subProtocol, Role::SERVER) {
-    }
+    class DynamicLoader {
+    private:
+        DynamicLoader() = default;
 
-    SocketContext::~SocketContext() {
-        delete subProtocol;
-    }
+        ~DynamicLoader() = default;
 
-} // namespace web::websocket::server
+        static DynamicLoader* instance();
+
+    public:
+        static void* dlOpen(const std::string& libFile, int flags);
+        static void dlClose(void* handle);
+
+    private:
+        static void doRealDlClose(void* handle);
+        static void doAllDlClose();
+        static void doAllDlClosedRealDlClose();
+
+        std::map<void*, std::string> loadedLibraries;
+        std::set<void*> registeredForUnload;
+
+        static DynamicLoader* dynamicLoader;
+
+        friend class EventLoop;
+    };
+
+} // namespace net
+
+#endif // NET_DYNAMICLOADER_H

@@ -47,7 +47,6 @@ namespace web::http::client {
 
     public:
         static SocketContextUpgradeFactorySelector* instance();
-        void destroy();
 
         SocketContextUpgradeFactory* select(const std::string& upgradeContextName, bool doLoad = true);
         SocketContextUpgradeFactory* select(const std::string& _upgradeContextNames, Request& req, Response& res);
@@ -62,9 +61,6 @@ namespace web::http::client {
 
         std::map<std::string, SocketContextPlugin> socketContextUpgradePlugins;
         std::list<std::string> searchPaths;
-
-    private:
-        static SocketContextUpgradeFactorySelector* socketContextUpgradeFactorySelector;
     };
 
 } // namespace web::http::client
