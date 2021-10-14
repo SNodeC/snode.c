@@ -47,6 +47,7 @@ namespace web::http::server {
     class SocketContextUpgradeFactorySelector {
     private:
         SocketContextUpgradeFactorySelector();
+
         ~SocketContextUpgradeFactorySelector() = default;
 
     public:
@@ -56,6 +57,8 @@ namespace web::http::server {
         SocketContextUpgradeFactory* select(Request& req, Response& res);
 
         bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory);
+
+        void unused(SocketContextUpgradeFactory* socketContextUpgradeFactory);
 
     protected:
         web::http::server::SocketContextUpgradeFactory* load(const std::string& socketContextName);

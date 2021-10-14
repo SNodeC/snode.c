@@ -127,7 +127,6 @@ namespace net {
     }
 
     void EventLoop::_free() {
-        VLOG(0) << "Call Free";
         readEventDispatcher.observeEnabledEvents();
         writeEventDispatcher.observeEnabledEvents();
         exceptionalConditionEventDispatcher.observeEnabledEvents();

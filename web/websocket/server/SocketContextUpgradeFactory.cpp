@@ -23,6 +23,8 @@
 #include "web/http/server/Request.h"  // for Request
 #include "web/http/server/Response.h" // for Response
 #include "web/http/server/SocketContextUpgradeFactorySelector.h"
+#include "web/websocket/SocketContext.h" // for Soc...
+#include "web/websocket/server/SubProtocolFactorySelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -44,6 +46,20 @@ namespace web::websocket::server {
         }
     }
 
+    void SocketContextUpgradeFactory::deleted(SocketContext* socketContext) {
+        SubProtocolFactory* subProtocolFactory =
+            dynamic_cast<SubProtocolFactory*>(socketContext->getSubProtocol()->getSubProtocolFactory());
+
+        if (subProtocolFactory->deleted(socketContext->getSubProtocol()) == 0) {
+            SubProtocolFactorySelector::instance()->unload(dynamic_cast<web::websocket::server::SubProtocolFactory*>(subProtocolFactory));
+        }
+
+        --refCount;
+        if (refCount == 0) {
+            web::http::server::SocketContextUpgradeFactorySelector::instance()->unused(this);
+        }
+    }
+
     std::string SocketContextUpgradeFactory::name() {
         return "websocket";
     }
@@ -52,7 +68,7 @@ namespace web::websocket::server {
         return http::server::SocketContextUpgradeFactory::Role::SERVER;
     }
 
-    SocketContext* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnection* socketConnection) {
+    SocketContext* SocketContextUpgradeFactory::create([[maybe_unused]] net::socket::stream::SocketConnection* socketConnection) {
         std::string subProtocolName = request->header("sec-websocket-protocol");
 
         SocketContext* socketContext = nullptr;
@@ -60,13 +76,18 @@ namespace web::websocket::server {
         web::websocket::server::SubProtocolFactory* subProtocolFactory = SubProtocolFactorySelector::instance()->select(subProtocolName);
 
         if (subProtocolFactory != nullptr) {
-            SubProtocol* subProtocol = subProtocolFactory->create();
+            SubProtocol* subProtocol = subProtocolFactory->createSubProtocol();
 
             if (subProtocol != nullptr) {
                 socketContext = new SocketContext(socketConnection, subProtocol);
-                subProtocol->setSocketContext(socketContext);
 
                 if (socketContext != nullptr) {
+                    refCount++;
+
+                    socketContext->setSocketContextUpgradeFactory(this);
+                    subProtocol->setSocketContext(socketContext);
+                    subProtocol->setSubProtocolFactory(subProtocolFactory);
+
                     response->set("Upgrade", "websocket");
                     response->set("Connection", "Upgrade");
                     response->set("Sec-WebSocket-Protocol", subProtocolName);
@@ -85,6 +106,10 @@ namespace web::websocket::server {
         } else {
             response->set("Connection", "close");
             response->status(404).end(); // Not Found
+        }
+
+        if (refCount == 0) {
+            web::http::server::SocketContextUpgradeFactorySelector::instance()->unused(this);
         }
 
         return socketContext;

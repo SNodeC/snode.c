@@ -21,10 +21,13 @@
 
 #include "web/http/server/SocketContextUpgradeFactory.h"
 #include "web/websocket/server/SocketContext.h"
-#include "web/websocket/server/SubProtocolFactorySelector.h" // for SubProt...
 
 namespace net::socket::stream {
     class SocketConnection;
+}
+
+namespace web::websocket::server {
+    class SubProtocolFactory;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -45,6 +48,8 @@ namespace web::websocket::server {
 
         static void attach(SubProtocolFactory* subProtocolFactory);
 
+        void deleted(SocketContext* socketContext);
+
     private:
         std::string name() override;
 
@@ -54,7 +59,7 @@ namespace web::websocket::server {
 
         void destroy() override;
 
-        // SubProtocolFactorySelector subProtocolFactorySelector;
+        int refCount = 0;
     };
 
 } // namespace web::websocket::server

@@ -37,7 +37,7 @@ namespace web::http::client {
     class SocketContextUpgradeFactory : public net::socket::stream::SocketContextFactory {
     protected:
         SocketContextUpgradeFactory() = default;
-        virtual ~SocketContextUpgradeFactory() = default;
+        ~SocketContextUpgradeFactory() override = default;
 
     public:
         enum class Role { CLIENT, SERVER };

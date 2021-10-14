@@ -32,7 +32,7 @@
 
 namespace web::websocket::client {
 
-    class SubProtocol : public web::websocket::SubProtocol<web::websocket::client::SocketContext> {
+    class SubProtocol : public web::websocket::SubProtocol<web::websocket::client::SocketContext, SubProtocol> {
     protected:
         SubProtocol(const std::string& name);
 
@@ -44,14 +44,14 @@ namespace web::websocket::client {
         ~SubProtocol() override;
 
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from SubProtocol-Subclasses */
-        using web::websocket::SubProtocol<web::websocket::client::SocketContext>::sendMessage;
+        using web::websocket::SubProtocol<web::websocket::client::SocketContext, SubProtocol>::sendMessage;
 
-        using web::websocket::SubProtocol<web::websocket::client::SocketContext>::sendMessageEnd;
-        using web::websocket::SubProtocol<web::websocket::client::SocketContext>::sendMessageFrame;
-        using web::websocket::SubProtocol<web::websocket::client::SocketContext>::sendMessageStart;
+        using web::websocket::SubProtocol<web::websocket::client::SocketContext, SubProtocol>::sendMessageEnd;
+        using web::websocket::SubProtocol<web::websocket::client::SocketContext, SubProtocol>::sendMessageFrame;
+        using web::websocket::SubProtocol<web::websocket::client::SocketContext, SubProtocol>::sendMessageStart;
 
-        using web::websocket::SubProtocol<web::websocket::client::SocketContext>::sendClose;
-        using web::websocket::SubProtocol<web::websocket::client::SocketContext>::sendPing;
+        using web::websocket::SubProtocol<web::websocket::client::SocketContext, SubProtocol>::sendClose;
+        using web::websocket::SubProtocol<web::websocket::client::SocketContext, SubProtocol>::sendPing;
 
     private:
         /* Callbacks (API) WSReceiver -> SubProtocol-Subclasses */

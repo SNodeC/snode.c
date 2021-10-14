@@ -39,16 +39,12 @@ namespace web::http::client {
         using Request = RequestT;
         using Response = ResponseT;
 
-        SocketContextFactory() {
-            useCount++;
-        }
+        SocketContextFactory() = default;
 
-        ~SocketContextFactory() {
-            useCount--;
-            if (useCount == 0) {
-                //                SocketContextUpgradeFactorySelector::instance()->destroy();
-            }
-        }
+        ~SocketContextFactory() override = default;
+
+        SocketContextFactory(const SocketContextFactory&) = delete;
+        SocketContextFactory& operator=(const SocketContextFactory&) = delete;
 
     private:
         net::socket::stream::SocketContext* create(net::socket::stream::SocketConnection* socketConnection) override {
@@ -67,12 +63,7 @@ namespace web::http::client {
     private:
         std::function<void(Request&, Response&)> onResponse;
         std::function<void(int, const std::string&)> onRequestError;
-
-        static int useCount;
     };
-
-    template <typename RequestT, typename ResponseT>
-    int SocketContextFactory<RequestT, ResponseT>::useCount = 0;
 
 } // namespace web::http::client
 

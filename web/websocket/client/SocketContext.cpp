@@ -18,6 +18,7 @@
 
 #include "web/websocket/client/SocketContext.h"
 
+#include "web/websocket/client/SocketContextUpgradeFactory.h"
 #include "web/websocket/client/SubProtocol.h" // IWYU pragma: keep
 
 namespace net::socket::stream {
@@ -34,9 +35,16 @@ namespace web::websocket::client {
         : web::websocket::SocketContext<SubProtocol>(socketConnection, subProtocol, Role::CLIENT) {
     }
 
+    void SocketContext::setSocketContextUpgradeFactory(SocketContextUpgradeFactory* socketContextUpgradeFactory) {
+        this->socketContextUpgradeFactory = socketContextUpgradeFactory;
+    }
+
+    SocketContextUpgradeFactory* SocketContext::getSocketContextUpgradeFactory() {
+        return socketContextUpgradeFactory;
+    }
+
     SocketContext::~SocketContext() {
-        // SubProtocolFactory->destroy(subProtocol);
-        delete subProtocol;
+        socketContextUpgradeFactory->deleted(this);
     }
 
 } // namespace web::websocket::client

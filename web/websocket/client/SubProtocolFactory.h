@@ -20,6 +20,7 @@
 #define WEB_WS_CLIENT_SUBPROTOCOLFACTORY_H
 
 #include "SubProtocol.h"
+#include "log/Logger.h"
 #include "web/websocket/SubProtocolFactory.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -28,7 +29,28 @@
 
 namespace web::websocket::client {
 
-    class SubProtocolFactory : public web::websocket::SubProtocolFactory<web::websocket::client::SubProtocol> {};
+    class SubProtocolFactory : public web::websocket::SubProtocolFactory<web::websocket::client::SubProtocol> {
+    public:
+        web::websocket::client::SubProtocol* createSubProtocol() {
+            web::websocket::client::SubProtocol* subProtocol = create();
+            if (subProtocol != nullptr) {
+                refCount++;
+            }
+
+            return subProtocol;
+        }
+
+        int deleted(web::websocket::client::SubProtocol* subProtocol) override {
+            delete subProtocol;
+
+            refCount--;
+
+            return refCount;
+        }
+
+    private:
+        int refCount = 0;
+    };
 
 } // namespace web::websocket::client
 

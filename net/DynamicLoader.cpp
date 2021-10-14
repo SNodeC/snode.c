@@ -23,6 +23,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <dlfcn.h>
+#include <utility> // for pair
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -53,11 +54,11 @@ namespace net {
     }
 
     void DynamicLoader::dlClose(void* handle) {
-        VLOG(0) << "dlClose: " << handle;
 #ifdef USE_SYNC
+        VLOG(0) << "dlClose: " << handle;
         dlclose(handle);
 #else
-        VLOG(0) << "Register for late dlClose: " << handle << " : " << instance()->loadedLibraries[handle];
+        VLOG(0) << "dlClose: " << handle << " : " << instance()->loadedLibraries[handle];
         if (instance()->loadedLibraries.contains(handle) && !instance()->registeredForUnload.contains(handle)) {
             instance()->registeredForUnload.insert(handle);
         }
@@ -66,15 +67,20 @@ namespace net {
 
     void DynamicLoader::doRealDlClose([[maybe_unused]] void* handle) {
 #ifndef USE_SYNC
-        VLOG(0) << "DO doRealDlClose: " << handle << " : " << instance()->loadedLibraries[handle];
-        dlclose(handle);
+        VLOG(0) << "realDlClose: " << handle << " : " << instance()->loadedLibraries[handle];
+
+        if (dlclose(handle) != 0) {
+            std::string errorMessage = dlerror();
+
+            VLOG(0) << "Error during dlclose: " << errorMessage;
+        }
+
         instance()->loadedLibraries.erase(handle);
 #endif
     }
 
     void DynamicLoader::doAllDlClose() {
 #ifndef USE_SYNC
-        VLOG(0) << "Do doRealDlClose for all: " << instance()->loadedLibraries.size();
         std::map<void*, std::string>::iterator it = instance()->loadedLibraries.begin();
 
         while (it != instance()->loadedLibraries.end()) {
@@ -90,7 +96,6 @@ namespace net {
 
     void DynamicLoader::doAllDlClosedRealDlClose() {
 #ifndef USE_SYNC
-        VLOG(0) << "doAllDlClosedRealDlClose";
         for (void* handle : instance()->registeredForUnload) {
             doRealDlClose(handle);
         }

@@ -54,6 +54,8 @@ namespace web::http::client {
 
         bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory);
 
+        void unused(SocketContextUpgradeFactory* socketContextUpgradeFactory);
+
     protected:
         web::http::client::SocketContextUpgradeFactory* load(const std::string& socketContextName);
 

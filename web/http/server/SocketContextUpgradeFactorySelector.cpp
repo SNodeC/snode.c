@@ -28,8 +28,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <dlfcn.h>
-#include <tuple>       // for tie, tuple
-#include <type_traits> // for add_const<>::type
+#include <tuple> // for tie, tuple
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -53,6 +52,21 @@ namespace web::http::server {
         static SocketContextUpgradeFactorySelector socketContextUpgradeFactorySelector;
 
         return &socketContextUpgradeFactorySelector;
+    }
+
+    void SocketContextUpgradeFactorySelector::unused(SocketContextUpgradeFactory* socketContextUpgradeFactory) {
+        std::string upgradeContextNames = socketContextUpgradeFactory->name();
+
+        if (socketContextUpgradePlugins.contains(upgradeContextNames)) {
+            SocketContextPlugin& socketContextPlugin = socketContextUpgradePlugins[upgradeContextNames];
+
+            if (socketContextPlugin.handle != nullptr) {
+                socketContextUpgradeFactory->destroy();
+                net::DynamicLoader::dlClose(socketContextPlugin.handle);
+            }
+
+            socketContextUpgradePlugins.erase(upgradeContextNames);
+        }
     }
 
     bool SocketContextUpgradeFactorySelector::add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handle) {
@@ -87,12 +101,12 @@ namespace web::http::server {
 
                 if (socketContextUpgradeFactory != nullptr) {
                     if (add(socketContextUpgradeFactory, handle)) {
-                        VLOG(0) << "UpgradeSocketContext loaded successfully: " << filePath;
+                        VLOG(0) << "SocketContextUpgradeFactory created successfull: " << socketContextUpgradeFactory->name();
                     } else {
                         socketContextUpgradeFactory->destroy();
                         socketContextUpgradeFactory = nullptr;
                         net::DynamicLoader::dlClose(handle);
-                        VLOG(0) << "UpgradeSocketContext already existing. Not using: " << filePath;
+                        VLOG(0) << "UpgradeSocketContext already existing. Not using: " << socketContextUpgradeFactory->name();
                     }
                 } else {
                     net::DynamicLoader::dlClose(handle);

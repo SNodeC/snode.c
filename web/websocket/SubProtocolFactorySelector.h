@@ -82,7 +82,7 @@ namespace web::websocket {
             void* handle = dlopen(filePath.c_str(), RTLD_LAZY | RTLD_LOCAL);
 
             if (handle != nullptr) {
-                VLOG(0) << "SubProtocol loaded successfully: " << filePath;
+                VLOG(0) << "dlopen: " << handle << " : " << filePath;
 
                 SubProtocolFactory* (*plugin)() = reinterpret_cast<SubProtocolFactory* (*) ()>(dlsym(handle, "plugin"));
 
@@ -123,6 +123,21 @@ namespace web::websocket {
             }
 
             return subProtocolFactory;
+        }
+
+        void unload(SubProtocolFactory* subProtocolFactory) {
+            if (subProtocolPlugins.contains(subProtocolFactory->name())) {
+                std::string name = subProtocolFactory->name();
+
+                SubProtocolPlugin<SubProtocolFactory>& subProtocolPlugin = subProtocolPlugins[name];
+
+                if (subProtocolPlugin.handle != nullptr) {
+                    subProtocolFactory->destroy();
+                    VLOG(0) << "dlclose: " << subProtocolPlugin.handle << " : " << name;
+                    dlclose(subProtocolPlugin.handle);
+                    subProtocolPlugins.erase(name);
+                }
+            }
         }
 
     private:

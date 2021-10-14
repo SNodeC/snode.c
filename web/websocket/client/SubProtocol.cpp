@@ -25,7 +25,7 @@
 namespace web::websocket::client {
 
     SubProtocol::SubProtocol(const std::string& name)
-        : web::websocket::SubProtocol<web::websocket::client::SocketContext>(name) {
+        : web::websocket::SubProtocol<web::websocket::client::SocketContext, SubProtocol>(name) {
     }
 
     SubProtocol::~SubProtocol() {
