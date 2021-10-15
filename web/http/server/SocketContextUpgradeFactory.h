@@ -34,11 +34,6 @@ namespace web::http::server {
 
 namespace web::http::server {
 
-    // Should do ref-counting on create and destroy! If ref-count equals 0 no one needs this factory anymore and it should be destroyed and
-    // dynamically loaded libraries should be dlclosed. Destroy should be done from an upgraded SocketContext!
-    // Thus, SocketContextUpgradeFactory needs the handle to its library to delayed-dlclose it when necessary.
-    // A concrete class lives for example in libsnodec-websocket-server and libsnodec-websocket-client
-
     class SocketContextUpgradeFactory : public net::socket::stream::SocketContextFactory {
     protected:
         SocketContextUpgradeFactory() = default;

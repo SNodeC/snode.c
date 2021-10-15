@@ -66,9 +66,7 @@ namespace net {
         VLOG(0) << "realDlClose: " << handle << " : " << instance()->loadedLibraries[handle];
 
         if (dlclose(handle) != 0) {
-            std::string errorMessage = dlerror();
-
-            VLOG(0) << "Error during dlclose: " << errorMessage;
+            VLOG(0) << "Error during dlclose: " << dlerror();
         }
 
         instance()->loadedLibraries.erase(handle);

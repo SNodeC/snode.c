@@ -35,10 +35,6 @@ namespace web::http::server {
 
 namespace web::http::server {
 
-    // Should be destroyed in case no more http::server::SocketContext objects exists anymore. Thus, http::server::SocketContext should
-    // ref-count itself and if ref-count is 0 it should destroy th SocketContextUpgradeFactorySelector. The
-    // SocketContextUpgradeFactorySelector should not delete or dlclose and objects or libraries
-
     struct SocketContextPlugin {
         SocketContextUpgradeFactory* socketContextUpgradeFactory;
         void* handle = nullptr;

@@ -33,9 +33,6 @@ namespace net::socket::stream {
 
 namespace web::http::server {
 
-    // Is managed by a shared_ptr and is deleted automatically in case no SocketListener depends on it anymore. May not destroy any other
-    // objects or libraries
-
     template <typename RequestT, typename ResponseT>
     class SocketContextFactory : public net::socket::stream::SocketContextFactory {
     public:
