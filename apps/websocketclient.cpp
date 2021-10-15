@@ -61,10 +61,10 @@ int main(int argc, char* argv[]) {
             []([[maybe_unused]] legacy::Client<>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnConnected";
             },
-            [](Request& request, Response& response) -> void {
+            [](Request& request, [[maybe_unused]] Response& response) -> void {
                 request.set("Sec-WebSocket-Protocol", "echo");
 
-                request.upgrade(response, "/ws/", "websocket");
+                request.upgrade("/ws/", "websocket");
             },
             [](Request& request, Response& response) -> void {
                 VLOG(0) << "-- OnResponse";
@@ -162,7 +162,7 @@ int main(int argc, char* argv[]) {
             [](Request& request, [[maybe_unused]] Response& response) -> void {
                 request.set("Sec-WebSocket-Protocol", "echo");
 
-                request.upgrade(response, "/ws/", "websocket");
+                request.upgrade("/ws/", "websocket");
             },
             [](Request& request, Response& response) -> void {
                 VLOG(0) << "-- OnResponse";

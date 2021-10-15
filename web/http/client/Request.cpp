@@ -203,7 +203,7 @@ namespace web::http::client {
         send(junk.data(), junk.size());
     }
 
-    void Request::upgrade(Response& response, const std::string& url, const std::string& protocol) {
+    void Request::upgrade(const std::string& url, const std::string& protocol) {
         this->url = url;
 
         set("Connection", "Upgrade", true);
@@ -216,7 +216,7 @@ namespace web::http::client {
         // the response-code needs to check the response from the server and upgrade the context in case the server says OK
 
         web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
-            web::http::client::SocketContextUpgradeFactorySelector::instance()->select(protocol, *this, response);
+            web::http::client::SocketContextUpgradeFactorySelector::instance()->select(protocol, *this);
 
         if (socketContextUpgradeFactory != nullptr) {
             start();

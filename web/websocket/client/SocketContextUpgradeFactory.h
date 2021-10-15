@@ -28,7 +28,6 @@ namespace net::socket::stream {
 
 namespace web::http::client {
     class Request;
-    class Response;
 } // namespace web::http::client
 
 namespace web::websocket::client {
@@ -55,7 +54,7 @@ namespace web::websocket::client {
         void deleted(SocketContext* socketContext);
 
     private:
-        void prepare(web::http::client::Request& request, web::http::client::Response& response) override;
+        void prepare(web::http::client::Request& request) override;
 
         std::string name() override;
 
@@ -70,6 +69,7 @@ namespace web::websocket::client {
 
     extern "C" {
         web::http::client::SocketContextUpgradeFactory* getClientSocketContextUpgradeFactory();
+
         void linkStatic(const std::string& subProtocolName, web::websocket::client::SubProtocolFactory* (*plugin)());
     }
 

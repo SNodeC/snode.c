@@ -34,9 +34,7 @@
 
 namespace web::websocket::client {
 
-    void SocketContextUpgradeFactory::prepare(http::client::Request& request, http::client::Response& response) {
-        http::client::SocketContextUpgradeFactory::prepare(request, response);
-
+    void SocketContextUpgradeFactory::prepare(http::client::Request& request) {
         unsigned char ebytes[16];
         getentropy(ebytes, 16);
 

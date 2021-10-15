@@ -107,8 +107,7 @@ namespace web::http::client {
         return socketContextUpgradeFactory;
     }
 
-    SocketContextUpgradeFactory*
-    SocketContextUpgradeFactorySelector::select(const std::string& upgradeContextName, Request& req, Response& res) {
+    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(const std::string& upgradeContextName) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
         if (!upgradeContextName.empty()) {
@@ -128,8 +127,16 @@ namespace web::http::client {
             }
         }
 
+        return socketContextUpgradeFactory;
+    }
+
+    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(const std::string& upgradeContextName, Request& req) {
+        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
+
+        socketContextUpgradeFactory = select(upgradeContextName);
+
         if (socketContextUpgradeFactory != nullptr) {
-            socketContextUpgradeFactory->prepare(req, res); // Fill in the missing header fields into the request object
+            socketContextUpgradeFactory->prepare(req); // Fill in the missing header fields into the request object
         }
 
         return socketContextUpgradeFactory;
@@ -143,7 +150,11 @@ namespace web::http::client {
         if (!upgradeContextName.empty()) {
             httputils::to_lower(upgradeContextName);
 
-            socketContextUpgradeFactory = select(upgradeContextName, req, res);
+            socketContextUpgradeFactory = select(upgradeContextName);
+
+            if (socketContextUpgradeFactory != nullptr) {
+                socketContextUpgradeFactory->prepare(req, res); // Fill in the missing header fields into the request object
+            }
         }
 
         return socketContextUpgradeFactory;

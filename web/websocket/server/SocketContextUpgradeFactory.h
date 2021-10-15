@@ -63,6 +63,7 @@ namespace web::websocket::server {
 
     extern "C" {
         web::http::server::SocketContextUpgradeFactory* getServerSocketContextUpgradeFactory();
+
         void linkStatic(const std::string& subProtocolName, web::websocket::server::SubProtocolFactory* (*plugin)());
     }
 

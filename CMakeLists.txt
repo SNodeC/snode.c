@@ -33,11 +33,10 @@ add_compile_options(
     -Wpedantic
     -pedantic-errors
     -fexec-charset=UTF-8
-#    -fsanitize=address
-#    -fno-omit-frame-pointer
+    # -fsanitize=address -fno-omit-frame-pointer
 )
-#set_property(GLOBAL PROPERTY LINK_FLAGS -fsanitize=address)
-#link_libraries(asan)
+# set_property(GLOBAL PROPERTY LINK_FLAGS -fsanitize=address)
+# link_libraries(asan)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

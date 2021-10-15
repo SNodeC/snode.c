@@ -43,6 +43,7 @@ namespace web::http::client {
         enum class Role { CLIENT, SERVER };
 
         virtual void prepare(Request& request, Response& response);
+        virtual void prepare(Request& request) = 0;
 
         virtual std::string name() = 0;
         virtual Role role() = 0;
