@@ -114,10 +114,18 @@ namespace web::websocket {
             if (subProtocolPlugins.contains(subProtocolName)) {
                 subProtocolFactory = subProtocolPlugins[subProtocolName].subProtocolFactory;
             } else {
-                for (const std::string& searchPath : searchPaths) {
-                    subProtocolFactory = load(searchPath + "/libsnodec-websocket-" + subProtocolName + ".so");
+                if (linkedSubProtocolPlugins.contains(subProtocolName)) {
+                    SubProtocolFactory* (*plugin)() = linkedSubProtocolPlugins[subProtocolName];
+                    subProtocolFactory = plugin();
                     if (subProtocolFactory != nullptr) {
-                        break;
+                        add(subProtocolFactory, nullptr);
+                    }
+                } else {
+                    for (const std::string& searchPath : searchPaths) {
+                        subProtocolFactory = load(searchPath + "/libsnodec-websocket-" + subProtocolName + ".so");
+                        if (subProtocolFactory != nullptr) {
+                            break;
+                        }
                     }
                 }
             }
@@ -126,22 +134,29 @@ namespace web::websocket {
         }
 
         void unload(SubProtocolFactory* subProtocolFactory) {
-            if (subProtocolPlugins.contains(subProtocolFactory->name())) {
-                std::string name = subProtocolFactory->name();
+            std::string name = subProtocolFactory->name();
+
+            if (subProtocolPlugins.contains(name)) {
+                subProtocolFactory->destroy();
 
                 SubProtocolPlugin<SubProtocolFactory>& subProtocolPlugin = subProtocolPlugins[name];
 
                 if (subProtocolPlugin.handle != nullptr) {
-                    subProtocolFactory->destroy();
                     VLOG(0) << "dlclose: " << subProtocolPlugin.handle << " : " << name;
                     dlclose(subProtocolPlugin.handle);
-                    subProtocolPlugins.erase(name);
                 }
+
+                subProtocolPlugins.erase(name);
             }
+        }
+
+        static void linkStatic(const std::string& subProtocolName, SubProtocolFactory* (*linkedPlugin)()) {
+            instance()->linkedSubProtocolPlugins[subProtocolName] = linkedPlugin;
         }
 
     private:
         std::map<std::string, SubProtocolPlugin<SubProtocolFactory>> subProtocolPlugins;
+        std::map<std::string, SubProtocolFactory* (*) ()> linkedSubProtocolPlugins;
         std::list<std::string> searchPaths;
     };
 

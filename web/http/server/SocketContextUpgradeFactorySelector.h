@@ -53,10 +53,12 @@ namespace web::http::server {
     public:
         static SocketContextUpgradeFactorySelector* instance();
 
+        bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory);
+
         SocketContextUpgradeFactory* select(const std::string& upgradeContextName, bool doLoad = true);
         SocketContextUpgradeFactory* select(Request& req, Response& res);
 
-        bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory);
+        void setLinkedPlugin(const std::string& upgradeContextName, SocketContextUpgradeFactory* (*linkedPlugin)());
 
         void unused(SocketContextUpgradeFactory* socketContextUpgradeFactory);
 
@@ -66,6 +68,7 @@ namespace web::http::server {
         bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handler);
 
         std::map<std::string, SocketContextPlugin> socketContextUpgradePlugins;
+        std::map<std::string, SocketContextUpgradeFactory* (*) ()> linkedSocketContextUpgradePlugins;
         std::list<std::string> searchPaths;
     };
 

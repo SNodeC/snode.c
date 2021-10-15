@@ -54,21 +54,6 @@ namespace web::http::server {
         return &socketContextUpgradeFactorySelector;
     }
 
-    void SocketContextUpgradeFactorySelector::unused(SocketContextUpgradeFactory* socketContextUpgradeFactory) {
-        std::string upgradeContextNames = socketContextUpgradeFactory->name();
-
-        if (socketContextUpgradePlugins.contains(upgradeContextNames)) {
-            SocketContextPlugin& socketContextPlugin = socketContextUpgradePlugins[upgradeContextNames];
-
-            if (socketContextPlugin.handle != nullptr) {
-                socketContextUpgradeFactory->destroy();
-                net::DynamicLoader::dlClose(socketContextPlugin.handle);
-            }
-
-            socketContextUpgradePlugins.erase(upgradeContextNames);
-        }
-    }
-
     bool SocketContextUpgradeFactorySelector::add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handle) {
         bool success = false;
 
@@ -94,7 +79,8 @@ namespace web::http::server {
         void* handle = net::DynamicLoader::dlOpen(filePath.c_str(), RTLD_LAZY | RTLD_GLOBAL);
 
         if (handle != nullptr) {
-            SocketContextUpgradeFactory* (*plugin)() = reinterpret_cast<SocketContextUpgradeFactory* (*) ()>(dlsym(handle, "plugin"));
+            SocketContextUpgradeFactory* (*plugin)() =
+                reinterpret_cast<SocketContextUpgradeFactory* (*) ()>(dlsym(handle, "getSocketContextUpgradeFactory"));
 
             if (plugin != nullptr) {
                 socketContextUpgradeFactory = plugin();
@@ -128,6 +114,9 @@ namespace web::http::server {
 
         if (socketContextUpgradePlugins.contains(upgradeContextName)) {
             socketContextUpgradeFactory = socketContextUpgradePlugins[upgradeContextName].socketContextUpgradeFactory;
+        } else if (linkedSocketContextUpgradePlugins.contains(upgradeContextName)) {
+            socketContextUpgradeFactory = linkedSocketContextUpgradePlugins[upgradeContextName]();
+            add(socketContextUpgradeFactory);
         } else if (doLoad) {
             for (const std::string& searchPath : searchPaths) {
                 socketContextUpgradeFactory = load(searchPath + "/libsnodec-" + upgradeContextName + ".so");
@@ -163,6 +152,29 @@ namespace web::http::server {
         }
 
         return socketContextUpgradeFactory;
+    }
+
+    void SocketContextUpgradeFactorySelector::setLinkedPlugin(const std::string& upgradeContextName,
+                                                              SocketContextUpgradeFactory* (*linkedPlugin)()) {
+        if (!linkedSocketContextUpgradePlugins.contains(upgradeContextName)) {
+            linkedSocketContextUpgradePlugins[upgradeContextName] = linkedPlugin;
+        }
+    }
+
+    void SocketContextUpgradeFactorySelector::unused(SocketContextUpgradeFactory* socketContextUpgradeFactory) {
+        std::string upgradeContextNames = socketContextUpgradeFactory->name();
+
+        if (socketContextUpgradePlugins.contains(upgradeContextNames)) {
+            SocketContextPlugin& socketContextPlugin = socketContextUpgradePlugins[upgradeContextNames];
+
+            socketContextUpgradeFactory->destroy();
+
+            if (socketContextPlugin.handle != nullptr) {
+                net::DynamicLoader::dlClose(socketContextPlugin.handle);
+            }
+
+            socketContextUpgradePlugins.erase(upgradeContextNames);
+        }
     }
 
 } // namespace web::http::server

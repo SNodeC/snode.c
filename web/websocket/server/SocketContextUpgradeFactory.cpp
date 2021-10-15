@@ -32,20 +32,6 @@
 
 namespace web::websocket::server {
 
-    void SocketContextUpgradeFactory::attach(SubProtocolFactory* subProtocolFactory) {
-        SocketContextUpgradeFactory* socketContextUpgradeFactory = dynamic_cast<SocketContextUpgradeFactory*>(
-            web::http::server::SocketContextUpgradeFactorySelector::instance()->select("websocket", false));
-
-        if (socketContextUpgradeFactory == nullptr) {
-            socketContextUpgradeFactory = new SocketContextUpgradeFactory();
-            web::http::server::SocketContextUpgradeFactorySelector::instance()->add(socketContextUpgradeFactory);
-        }
-
-        if (socketContextUpgradeFactory != nullptr) {
-            SubProtocolFactorySelector::instance()->add(subProtocolFactory);
-        }
-    }
-
     void SocketContextUpgradeFactory::deleted(SocketContext* socketContext) {
         SubProtocolFactory* subProtocolFactory =
             dynamic_cast<SubProtocolFactory*>(socketContext->getSubProtocol()->getSubProtocolFactory());
@@ -120,8 +106,14 @@ namespace web::websocket::server {
     }
 
     extern "C" {
-        SocketContextUpgradeFactory* plugin() {
+        web::http::server::SocketContextUpgradeFactory* getSocketContextUpgradeFactory() {
             return new SocketContextUpgradeFactory();
+        }
+
+        void linkStatic(const std::string& subProtocolName, web::websocket::server::SubProtocolFactory* (*plugin)()) {
+            web::websocket::server::SubProtocolFactorySelector::linkStatic(subProtocolName, plugin);
+            web::http::server::SocketContextUpgradeFactorySelector::instance()->setLinkedPlugin("websocket",
+                                                                                                getSocketContextUpgradeFactory);
         }
     }
 

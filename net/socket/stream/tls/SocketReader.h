@@ -106,7 +106,8 @@ namespace net::socket::stream::tls {
         }
 
         bool continueReadImmediately() override {
-            return SSL_pending(ssl);
+            int pending = SSL_pending(ssl);
+            return pending;
         }
 
     protected:

@@ -43,13 +43,11 @@ namespace net {
 
     private:
         static void doRealDlClose(void* handle);
-        static void doAllDlClose();
         static void doAllDlClosedRealDlClose();
+        static void doAllDlClose();
 
         std::map<void*, std::string> loadedLibraries;
         std::set<void*> registeredForUnload;
-
-        static DynamicLoader* dynamicLoader;
 
         friend class EventLoop;
     };

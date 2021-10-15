@@ -54,6 +54,8 @@ namespace web::http::client {
 
         bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory);
 
+        void setLinkedPlugin(const std::string& upgradeContextName, SocketContextUpgradeFactory* (*linkedPlugin)());
+
         void unused(SocketContextUpgradeFactory* socketContextUpgradeFactory);
 
     protected:
@@ -62,6 +64,7 @@ namespace web::http::client {
         bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handler);
 
         std::map<std::string, SocketContextPlugin> socketContextUpgradePlugins;
+        std::map<std::string, SocketContextUpgradeFactory* (*) ()> linkedSocketContextUpgradePlugins;
         std::list<std::string> searchPaths;
     };
 

@@ -31,14 +31,10 @@
 
 namespace net {
 
-    DynamicLoader* DynamicLoader::dynamicLoader = nullptr;
-
     DynamicLoader* DynamicLoader::instance() {
-        if (dynamicLoader == nullptr) {
-            dynamicLoader = new DynamicLoader();
-        }
+        static DynamicLoader dynamicLoader;
 
-        return dynamicLoader;
+        return &dynamicLoader;
     }
 
     void* DynamicLoader::dlOpen(const std::string& libFile, int flags) {
@@ -79,21 +75,6 @@ namespace net {
 #endif
     }
 
-    void DynamicLoader::doAllDlClose() {
-#ifndef USE_SYNC
-        std::map<void*, std::string>::iterator it = instance()->loadedLibraries.begin();
-
-        while (it != instance()->loadedLibraries.end()) {
-            std::map<void*, std::string>::iterator tmpIt = it;
-            ++it;
-            doRealDlClose(tmpIt->first);
-        }
-
-        delete instance();
-        DynamicLoader::dynamicLoader = nullptr;
-#endif
-    }
-
     void DynamicLoader::doAllDlClosedRealDlClose() {
 #ifndef USE_SYNC
         for (void* handle : instance()->registeredForUnload) {
@@ -101,6 +82,21 @@ namespace net {
         }
 
         instance()->registeredForUnload.clear();
+#endif
+    }
+
+    void DynamicLoader::doAllDlClose() {
+#ifndef USE_SYNC
+
+        doAllDlClosedRealDlClose();
+
+        std::map<void*, std::string>::iterator it = instance()->loadedLibraries.begin();
+
+        while (it != instance()->loadedLibraries.end()) {
+            std::map<void*, std::string>::iterator tmpIt = it;
+            ++it;
+            doRealDlClose(tmpIt->first);
+        }
 #endif
     }
 

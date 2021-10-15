@@ -90,31 +90,30 @@ namespace net {
                                               &nextInactivityTimeout);
 
             if (counter >= 0) {
+                nextInactivityTimeout = {LONG_MAX, 0};
+
                 timerEventDispatcher.dispatch();
 
-                if (counter > 0) {
-                    struct timeval currentTime = {net::system::time(nullptr), 0};
-                    nextInactivityTimeout = {LONG_MAX, 0};
+                struct timeval currentTime = {net::system::time(nullptr), 0};
 
-                    nextTimeout = readEventDispatcher.dispatchActiveEvents(currentTime);
-                    nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
+                nextTimeout = readEventDispatcher.dispatchActiveEvents(currentTime);
+                nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
 
-                    nextTimeout = writeEventDispatcher.dispatchActiveEvents(currentTime);
-                    nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
+                nextTimeout = writeEventDispatcher.dispatchActiveEvents(currentTime);
+                nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
 
-                    nextTimeout = exceptionalConditionEventDispatcher.dispatchActiveEvents(currentTime);
-                    nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
+                nextTimeout = exceptionalConditionEventDispatcher.dispatchActiveEvents(currentTime);
+                nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
 
-                    readEventDispatcher.unobserveDisabledEvents();
-                    writeEventDispatcher.unobserveDisabledEvents();
-                    exceptionalConditionEventDispatcher.unobserveDisabledEvents();
+                readEventDispatcher.unobserveDisabledEvents();
+                writeEventDispatcher.unobserveDisabledEvents();
+                exceptionalConditionEventDispatcher.unobserveDisabledEvents();
 
-                    readEventDispatcher.releaseUnobservedEvents();
-                    writeEventDispatcher.releaseUnobservedEvents();
-                    exceptionalConditionEventDispatcher.releaseUnobservedEvents();
+                readEventDispatcher.releaseUnobservedEvents();
+                writeEventDispatcher.releaseUnobservedEvents();
+                exceptionalConditionEventDispatcher.releaseUnobservedEvents();
 
-                    DynamicLoader::doAllDlClosedRealDlClose();
-                }
+                DynamicLoader::doAllDlClosedRealDlClose();
             } else if (errno != EINTR) {
                 PLOG(ERROR) << "select";
                 tickStatus = TickStatus::SELECT_ERROR;
@@ -144,8 +143,6 @@ namespace net {
         exceptionalConditionEventDispatcher.releaseUnobservedEvents();
 
         timerEventDispatcher.cancelAll();
-
-        DynamicLoader::doAllDlClosedRealDlClose();
 
         DynamicLoader::doAllDlClose();
     }

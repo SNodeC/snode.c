@@ -46,8 +46,6 @@ namespace web::websocket::server {
 
         SocketContextUpgradeFactory& operator=(const SocketContextUpgradeFactory&) = delete;
 
-        static void attach(SubProtocolFactory* subProtocolFactory);
-
         void deleted(SocketContext* socketContext);
 
     private:
@@ -61,6 +59,11 @@ namespace web::websocket::server {
 
         int refCount = 0;
     };
+
+    extern "C" {
+        web::http::server::SocketContextUpgradeFactory* contextUpgradePlugin();
+        void linkStatic(const std::string& subProtocolName, web::websocket::server::SubProtocolFactory* (*plugin)());
+    }
 
 } // namespace web::websocket::server
 
