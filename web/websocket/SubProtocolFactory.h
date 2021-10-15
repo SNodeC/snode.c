@@ -38,7 +38,7 @@ namespace web::websocket {
 
         virtual std::string name() = 0;
 
-        virtual int deleted(SubProtocolT* subProtocol) = 0;
+        virtual std::size_t deleted(SubProtocolT* subProtocol) = 0;
 
         virtual void destroy() = 0;
 

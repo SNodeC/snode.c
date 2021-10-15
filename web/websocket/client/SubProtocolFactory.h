@@ -40,7 +40,7 @@ namespace web::websocket::client {
             return subProtocol;
         }
 
-        int deleted(web::websocket::client::SubProtocol* subProtocol) override {
+        std::size_t deleted(web::websocket::client::SubProtocol* subProtocol) override {
             delete subProtocol;
 
             refCount--;
@@ -49,7 +49,7 @@ namespace web::websocket::client {
         }
 
     private:
-        int refCount = 0;
+        std::size_t refCount = 0;
     };
 
 } // namespace web::websocket::client

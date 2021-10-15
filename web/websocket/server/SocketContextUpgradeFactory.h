@@ -32,7 +32,8 @@ namespace web::websocket::server {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string> // for string
+#include <cstddef> // for size_t
+#include <string>  // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -57,7 +58,7 @@ namespace web::websocket::server {
 
         void destroy() override;
 
-        int refCount = 0;
+        std::size_t refCount = 0;
     };
 
     extern "C" {
