@@ -79,7 +79,8 @@ namespace web::http::client {
         void* handle = net::DynamicLoader::dlOpen(filePath.c_str(), RTLD_LAZY | RTLD_GLOBAL);
 
         if (handle != nullptr) {
-            SocketContextUpgradeFactory* (*plugin)() = reinterpret_cast<SocketContextUpgradeFactory* (*) ()>(dlsym(handle, "plugin"));
+            SocketContextUpgradeFactory* (*plugin)() =
+                reinterpret_cast<SocketContextUpgradeFactory* (*) ()>(dlsym(handle, "getClientSocketContextUpgradeFactory"));
 
             if (plugin != nullptr) {
                 socketContextUpgradeFactory = plugin();

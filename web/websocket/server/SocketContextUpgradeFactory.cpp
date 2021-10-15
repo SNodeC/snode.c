@@ -106,14 +106,14 @@ namespace web::websocket::server {
     }
 
     extern "C" {
-        web::http::server::SocketContextUpgradeFactory* getSocketContextUpgradeFactory() {
+        web::http::server::SocketContextUpgradeFactory* getServerSocketContextUpgradeFactory() {
             return new SocketContextUpgradeFactory();
         }
 
         void linkStatic(const std::string& subProtocolName, web::websocket::server::SubProtocolFactory* (*plugin)()) {
             web::websocket::server::SubProtocolFactorySelector::linkStatic(subProtocolName, plugin);
             web::http::server::SocketContextUpgradeFactorySelector::instance()->setLinkedPlugin("websocket",
-                                                                                                getSocketContextUpgradeFactory);
+                                                                                                getServerSocketContextUpgradeFactory);
         }
     }
 

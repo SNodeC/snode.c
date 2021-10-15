@@ -70,6 +70,11 @@ namespace web::websocket::client {
         std::size_t refCount = 0;
     };
 
+    extern "C" {
+        web::http::client::SocketContextUpgradeFactory* getClientSocketContextUpgradeFactory();
+        void linkStatic(const std::string& subProtocolName, web::websocket::client::SubProtocolFactory* (*plugin)());
+    }
+
 } // namespace web::websocket::client
 
 #endif // WEB_WS_SERVER_SOCKETCONTEXTFACTORY_H

@@ -80,7 +80,7 @@ namespace web::http::server {
 
         if (handle != nullptr) {
             SocketContextUpgradeFactory* (*plugin)() =
-                reinterpret_cast<SocketContextUpgradeFactory* (*) ()>(dlsym(handle, "getSocketContextUpgradeFactory"));
+                reinterpret_cast<SocketContextUpgradeFactory* (*) ()>(dlsym(handle, "getServerSocketContextUpgradeFactory"));
 
             if (plugin != nullptr) {
                 socketContextUpgradeFactory = plugin();
