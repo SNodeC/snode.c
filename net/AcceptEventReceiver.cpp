@@ -36,7 +36,7 @@ namespace net {
         disable();
     }
 
-    bool AcceptEventReceiver::continueoutAcceptImmediately() {
+    bool AcceptEventReceiver::continueAcceptImmediately() {
         return false;
     }
 
@@ -49,7 +49,7 @@ namespace net {
     }
 
     bool AcceptEventReceiver::continueImmediately() {
-        return continueoutAcceptImmediately();
+        return continueAcceptImmediately();
     }
 
 } // namespace net

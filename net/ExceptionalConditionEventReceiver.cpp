@@ -34,7 +34,7 @@ namespace net {
         disable();
     }
 
-    bool ExceptionalConditionEventReceiver::continueoutOfBandImmediately() {
+    bool ExceptionalConditionEventReceiver::continueOutOfBandImmediately() {
         return false;
     }
 
@@ -47,7 +47,7 @@ namespace net {
     }
 
     bool ExceptionalConditionEventReceiver::continueImmediately() {
-        return continueoutOfBandImmediately();
+        return continueOutOfBandImmediately();
     }
 
 } // namespace net

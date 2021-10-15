@@ -34,7 +34,7 @@ namespace net {
         disable();
     }
 
-    bool ConnectEventReceiver::continueoutConnectImmediately() {
+    bool ConnectEventReceiver::continueConnectImmediately() {
         return false;
     }
 
@@ -47,7 +47,7 @@ namespace net {
     }
 
     bool ConnectEventReceiver::continueImmediately() {
-        return continueoutConnectImmediately();
+        return continueConnectImmediately();
     }
 
 } // namespace net
