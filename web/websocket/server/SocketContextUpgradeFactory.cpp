@@ -54,7 +54,7 @@ namespace web::websocket::server {
         return http::server::SocketContextUpgradeFactory::Role::SERVER;
     }
 
-    SocketContext* SocketContextUpgradeFactory::create([[maybe_unused]] net::socket::stream::SocketConnection* socketConnection) {
+    SocketContext* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnection* socketConnection) {
         std::string subProtocolName = request->header("sec-websocket-protocol");
 
         SocketContext* socketContext = nullptr;

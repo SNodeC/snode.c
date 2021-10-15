@@ -51,7 +51,7 @@ namespace web::http::server {
 
         bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory);
 
-        SocketContextUpgradeFactory* select(const std::string& upgradeContextName, bool doLoad = true);
+        SocketContextUpgradeFactory* select(const std::string& upgradeContextName);
         SocketContextUpgradeFactory* select(Request& req, Response& res);
 
         void setLinkedPlugin(const std::string& upgradeContextName, SocketContextUpgradeFactory* (*linkedPlugin)());

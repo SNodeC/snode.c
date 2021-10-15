@@ -24,11 +24,11 @@
 
 namespace net::socket::stream {
     class SocketConnection;
-}
+} // namespace net::socket::stream
 
 namespace web::websocket::server {
     class SubProtocolFactory;
-}
+} // namespace web::websocket::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

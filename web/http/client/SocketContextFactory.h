@@ -48,21 +48,21 @@ namespace web::http::client {
 
     private:
         net::socket::stream::SocketContext* create(net::socket::stream::SocketConnection* socketConnection) override {
-            return new SocketContextT<Request, Response>(socketConnection, onResponse, onRequestError);
+            return new SocketContextT<Request, Response>(socketConnection, onResponseReady, onResponseError);
         }
 
     public:
-        void setOnResponse(const std::function<void(Request&, Response&)>& onResponse) {
-            this->onResponse = onResponse;
+        void setOnResponseReady(const std::function<void(Request&, Response&)>& onResponseReady) {
+            this->onResponseReady = onResponseReady;
         }
 
-        void setOnRequestError(const std::function<void(int, const std::string&)> onRequestError) {
-            this->onRequestError = onRequestError;
+        void setOnResponseError(const std::function<void(int, const std::string&)> onResponseError) {
+            this->onResponseError = onResponseError;
         }
 
     private:
-        std::function<void(Request&, Response&)> onResponse;
-        std::function<void(int, const std::string&)> onRequestError;
+        std::function<void(Request&, Response&)> onResponseReady;
+        std::function<void(int, const std::string&)> onResponseError;
     };
 
 } // namespace web::http::client

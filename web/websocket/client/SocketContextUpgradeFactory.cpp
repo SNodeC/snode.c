@@ -34,22 +34,9 @@
 
 namespace web::websocket::client {
 
-    void SocketContextUpgradeFactory::attach(SubProtocolFactory* subProtocolFactory) {
-        SocketContextUpgradeFactory* socketContextUpgradeFactory = dynamic_cast<SocketContextUpgradeFactory*>(
-            web::http::client::SocketContextUpgradeFactorySelector::instance()->select("websocket", false));
-
-        if (socketContextUpgradeFactory == nullptr) {
-            socketContextUpgradeFactory = new SocketContextUpgradeFactory();
-            web::http::client::SocketContextUpgradeFactorySelector::instance()->add(socketContextUpgradeFactory);
-        }
-
-        if (socketContextUpgradeFactory != nullptr) {
-            SubProtocolFactorySelector::instance()->add(subProtocolFactory);
-        }
-    }
-
     void SocketContextUpgradeFactory::prepare(http::client::Request& request, http::client::Response& response) {
         http::client::SocketContextUpgradeFactory::prepare(request, response);
+
         unsigned char ebytes[16];
         getentropy(ebytes, 16);
 
@@ -97,7 +84,6 @@ namespace web::websocket::client {
                     socketContext->setSocketContextUpgradeFactory(this);
                     subProtocol->setSocketContext(socketContext);
                     subProtocol->setSubProtocolFactory(subProtocolFactory);
-
                 } else {
                     delete subProtocol;
                 }

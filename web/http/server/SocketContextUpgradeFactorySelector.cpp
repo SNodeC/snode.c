@@ -34,8 +34,6 @@
 
 namespace web::http::server {
 
-    //    SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector = nullptr;
-
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactorySelector() {
 #ifndef NDEBUG
 #ifdef UPGRADECONTEXT_SERVER_COMPILE_PATH
@@ -89,10 +87,10 @@ namespace web::http::server {
                     if (add(socketContextUpgradeFactory, handle)) {
                         VLOG(0) << "SocketContextUpgradeFactory created successfull: " << socketContextUpgradeFactory->name();
                     } else {
+                        VLOG(0) << "UpgradeSocketContext already existing. Not using: " << socketContextUpgradeFactory->name();
                         socketContextUpgradeFactory->destroy();
                         socketContextUpgradeFactory = nullptr;
                         net::DynamicLoader::dlClose(handle);
-                        VLOG(0) << "UpgradeSocketContext already existing. Not using: " << socketContextUpgradeFactory->name();
                     }
                 } else {
                     net::DynamicLoader::dlClose(handle);
@@ -109,20 +107,22 @@ namespace web::http::server {
         return socketContextUpgradeFactory;
     }
 
-    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(const std::string& upgradeContextName, bool doLoad) {
+    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(const std::string& upgradeContextName) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
-        if (socketContextUpgradePlugins.contains(upgradeContextName)) {
-            socketContextUpgradeFactory = socketContextUpgradePlugins[upgradeContextName].socketContextUpgradeFactory;
-        } else if (linkedSocketContextUpgradePlugins.contains(upgradeContextName)) {
-            socketContextUpgradeFactory = linkedSocketContextUpgradePlugins[upgradeContextName]();
-            add(socketContextUpgradeFactory);
-        } else if (doLoad) {
-            for (const std::string& searchPath : searchPaths) {
-                socketContextUpgradeFactory = load(searchPath + "/libsnodec-" + upgradeContextName + ".so");
+        if (!upgradeContextName.empty()) {
+            if (socketContextUpgradePlugins.contains(upgradeContextName)) {
+                socketContextUpgradeFactory = socketContextUpgradePlugins[upgradeContextName].socketContextUpgradeFactory;
+            } else if (linkedSocketContextUpgradePlugins.contains(upgradeContextName)) {
+                socketContextUpgradeFactory = linkedSocketContextUpgradePlugins[upgradeContextName]();
+                add(socketContextUpgradeFactory);
+            } else {
+                for (const std::string& searchPath : searchPaths) {
+                    socketContextUpgradeFactory = load(searchPath + "/libsnodec-" + upgradeContextName + ".so");
 
-                if (socketContextUpgradeFactory != nullptr) {
-                    break;
+                    if (socketContextUpgradeFactory != nullptr) {
+                        break;
+                    }
                 }
             }
         }

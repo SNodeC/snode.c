@@ -34,8 +34,6 @@
 
 namespace web::http::client {
 
-    //    SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::socketContextUpgradeFactorySelector = nullptr;
-
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactorySelector() {
 #ifndef NDEBUG
 #ifdef UPGRADECONTEXT_CLIENT_COMPILE_PATH
@@ -86,14 +84,13 @@ namespace web::http::client {
                 socketContextUpgradeFactory = plugin();
 
                 if (socketContextUpgradeFactory != nullptr) {
-                    VLOG(0) << "Upgrade Protocol: " << socketContextUpgradeFactory->name();
                     if (add(socketContextUpgradeFactory, handle)) {
                         VLOG(0) << "SocketContextUpgradeFactory created successfull: " << socketContextUpgradeFactory->name();
                     } else {
+                        VLOG(0) << "UpgradeSocketContext already existing. Not using: " << socketContextUpgradeFactory->name();
                         socketContextUpgradeFactory->destroy();
                         socketContextUpgradeFactory = nullptr;
                         net::DynamicLoader::dlClose(handle);
-                        VLOG(0) << "SocketContextUpgradeFactory created successfull: " << socketContextUpgradeFactory->name();
                     }
                 } else {
                     net::DynamicLoader::dlClose(handle);
@@ -110,48 +107,29 @@ namespace web::http::client {
         return socketContextUpgradeFactory;
     }
 
-    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(const std::string& upgradeContextName, bool doLoad) {
+    SocketContextUpgradeFactory*
+    SocketContextUpgradeFactorySelector::select(const std::string& upgradeContextName, Request& req, Response& res) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
-        if (socketContextUpgradePlugins.contains(upgradeContextName)) {
-            socketContextUpgradeFactory = socketContextUpgradePlugins[upgradeContextName].socketContextUpgradeFactory;
-        } else if (linkedSocketContextUpgradePlugins.contains(upgradeContextName)) {
-            socketContextUpgradeFactory = linkedSocketContextUpgradePlugins[upgradeContextName]();
-            add(socketContextUpgradeFactory);
-        } else if (doLoad) {
-            for (const std::string& searchPath : searchPaths) {
-                socketContextUpgradeFactory = load(searchPath + "/libsnodec-" + upgradeContextName + ".so");
+        if (!upgradeContextName.empty()) {
+            if (socketContextUpgradePlugins.contains(upgradeContextName)) {
+                socketContextUpgradeFactory = socketContextUpgradePlugins[upgradeContextName].socketContextUpgradeFactory;
+            } else if (linkedSocketContextUpgradePlugins.contains(upgradeContextName)) {
+                socketContextUpgradeFactory = linkedSocketContextUpgradePlugins[upgradeContextName]();
+                add(socketContextUpgradeFactory);
+            } else {
+                for (const std::string& searchPath : searchPaths) {
+                    socketContextUpgradeFactory = load(searchPath + "/libsnodec-" + upgradeContextName + ".so");
 
-                if (socketContextUpgradeFactory != nullptr) {
-                    break;
+                    if (socketContextUpgradeFactory != nullptr) {
+                        break;
+                    }
                 }
             }
         }
 
-        return socketContextUpgradeFactory;
-    }
-
-    SocketContextUpgradeFactory*
-    SocketContextUpgradeFactorySelector::select(const std::string& _upgradeContextNames, Request& req, Response& res) {
-        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
-
-        std::string upgradeContextNames =
-            _upgradeContextNames; // Hack: read the context names from request and remove _upgradeContextNames from parameterlist
-
-        if (!upgradeContextNames.empty()) {
-            std::string upgradeContextName;
-            std::string upgradeContextPriority;
-
-            std::tie(upgradeContextName, upgradeContextNames) = httputils::str_split(upgradeContextNames, ',');
-            std::tie(upgradeContextName, upgradeContextPriority) = httputils::str_split(upgradeContextName, '/');
-
-            httputils::to_lower(upgradeContextName);
-
-            socketContextUpgradeFactory = select(upgradeContextName);
-
-            if (socketContextUpgradeFactory != nullptr) {
-                socketContextUpgradeFactory->prepare(req, res); // Fill in the missing header fields into the request object
-            }
+        if (socketContextUpgradeFactory != nullptr) {
+            socketContextUpgradeFactory->prepare(req, res); // Fill in the missing header fields into the request object
         }
 
         return socketContextUpgradeFactory;
@@ -160,10 +138,12 @@ namespace web::http::client {
     SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(Request& req, Response& res) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
-        std::string upgradeContextNames = res.header("upgrade");
+        std::string upgradeContextName = res.header("upgrade");
 
-        if (!upgradeContextNames.empty()) {
-            socketContextUpgradeFactory = select(upgradeContextNames, req, res);
+        if (!upgradeContextName.empty()) {
+            httputils::to_lower(upgradeContextName);
+
+            socketContextUpgradeFactory = select(upgradeContextName, req, res);
         }
 
         return socketContextUpgradeFactory;

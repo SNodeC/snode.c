@@ -24,7 +24,7 @@
 
 namespace net::socket::stream {
     class SocketConnection;
-}
+} // namespace net::socket::stream
 
 namespace web::http::client {
     class Request;
@@ -33,7 +33,7 @@ namespace web::http::client {
 
 namespace web::websocket::client {
     class SubProtocolFactory;
-}
+} // namespace web::websocket::client
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -51,8 +51,6 @@ namespace web::websocket::client {
         SocketContextUpgradeFactory(const SocketContextUpgradeFactory&) = delete;
 
         SocketContextUpgradeFactory& operator=(const SocketContextUpgradeFactory&) = delete;
-
-        static void attach(SubProtocolFactory* subProtocolFactory);
 
         void deleted(SocketContext* socketContext);
 

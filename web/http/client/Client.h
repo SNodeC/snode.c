@@ -69,8 +69,8 @@ namespace web::http::client {
                       onDisconnect(socketConnection);
                   },
                   options) {
-            socketClient.getSocketContextFactory()->setOnResponse(onResponse);
-            socketClient.getSocketContextFactory()->setOnRequestError(onResponseError);
+            socketClient.getSocketContextFactory()->setOnResponseReady(onResponse);
+            socketClient.getSocketContextFactory()->setOnResponseError(onResponseError);
         }
 
         void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {

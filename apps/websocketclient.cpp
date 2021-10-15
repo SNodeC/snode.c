@@ -159,7 +159,7 @@ int main(int argc, char* argv[]) {
                     VLOG(0) << "     Server certificate: no certificate";
                 }
             },
-            [](Request& request, Response& response) -> void {
+            [](Request& request, [[maybe_unused]] Response& response) -> void {
                 request.set("Sec-WebSocket-Protocol", "echo");
 
                 request.upgrade(response, "/ws/", "websocket");
