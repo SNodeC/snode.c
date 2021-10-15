@@ -42,6 +42,6 @@ namespace web::websocket::subprotocol::echo::client {
         EchoFactory* plugin();
     }
 
-} // namespace web::websocket::subprotocol::echo::server
+} // namespace web::websocket::subprotocol::echo::client
 
 #endif // ECHOINTERFACE_H

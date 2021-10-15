@@ -17,6 +17,7 @@ install(TARGETS echoclient
 
 if(CHECK_INCLUDES)
     set_property(
-        TARGET echoclient PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path_and_options}
+        TARGET echoclient PROPERTY CXX_INCLUDE_WHAT_YOU_USE
+                                   ${iwyu_path_and_options}
     )
 endif(CHECK_INCLUDES)
