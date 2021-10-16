@@ -17,15 +17,17 @@
  */
 
 #include "log/Logger.h"
-#include "net/socket/stream/SocketConnection.h"
-#include "web/http/ConnectionState.h"
 #include "web/http/http_utils.h"
 #include "web/http/server/SocketContext.h"
 #include "web/http/server/SocketContextUpgradeFactorySelector.h"
 
+namespace net::socket::stream {
+    class SocketConnection;
+} // namespace net::socket::stream
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cerrno>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

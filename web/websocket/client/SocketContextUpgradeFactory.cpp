@@ -83,7 +83,7 @@ namespace web::websocket::client {
                     subProtocol->setSocketContext(socketContext);
                     subProtocol->setSubProtocolFactory(subProtocolFactory);
                 } else {
-                    delete subProtocol;
+                    subProtocolFactory->deleted(subProtocol);
                 }
             }
         }

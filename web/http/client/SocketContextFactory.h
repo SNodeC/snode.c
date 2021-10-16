@@ -21,7 +21,6 @@
 
 #include "net/socket/stream/SocketContextFactory.h"
 #include "web/http/client/SocketContext.hpp"
-#include "web/http/client/SocketContextUpgradeFactorySelector.h"
 
 namespace net::socket::stream {
     class SocketConnection;

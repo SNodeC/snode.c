@@ -22,22 +22,16 @@
 #include "net/socket/stream/SocketContext.h"
 #include "web/http/client/ResponseParser.h"
 
-namespace web::http::client {
-    class Request;
-    class Response;
-} // namespace web::http::client
+namespace net::socket::stream {
+    class SocketConnection;
+} // namespace net::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
 #include <functional>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-namespace net::socket::stream {
-    class SocketConnection;
-} // namespace net::socket::stream
 
 namespace web::http::client {
 
@@ -48,6 +42,9 @@ namespace web::http::client {
         explicit SocketContext(net::socket::stream::SocketConnection* socketConnection);
 
         ~SocketContext() override = default;
+
+        SocketContext(const SocketContext&) = delete;
+        SocketContext& operator=(const SocketContext&) = delete;
 
         virtual Request& getRequest() = 0;
         virtual Response& getResponse() = 0;

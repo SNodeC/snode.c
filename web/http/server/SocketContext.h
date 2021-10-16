@@ -19,13 +19,14 @@
 #ifndef WEB_HTTP_SERVER_SOCKETCONTEXT_H
 #define WEB_HTTP_SERVER_SOCKETCONTEXT_H
 
-#include "log/Logger.h"
 #include "net/socket/stream/SocketContext.h"
 #include "web/http/server/RequestParser.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <functional>
 #include <list>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -47,7 +48,6 @@ namespace web::http::server {
         SocketContext& operator=(const SocketContext&) = delete;
 
         virtual void sendToPeerCompleted() = 0;
-
         virtual void terminateConnection() = 0;
     };
 

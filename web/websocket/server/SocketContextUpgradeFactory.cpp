@@ -81,7 +81,7 @@ namespace web::websocket::server {
 
                     response->status(101).end(); // Switch Protocol
                 } else {
-                    delete subProtocol;
+                    subProtocolFactory->deleted(subProtocol);
                     response->set("Connection", "close");
                     response->status(500).end(); // Internal Server Error
                 }

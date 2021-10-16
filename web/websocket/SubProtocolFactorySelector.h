@@ -114,8 +114,8 @@ namespace web::websocket {
             if (subProtocolPlugins.contains(subProtocolName)) {
                 subProtocolFactory = subProtocolPlugins[subProtocolName].subProtocolFactory;
             } else {
-                if (linkedSubProtocolPlugins.contains(subProtocolName)) {
-                    SubProtocolFactory* (*plugin)() = linkedSubProtocolPlugins[subProtocolName];
+                if (linkedSubProtocolFactories.contains(subProtocolName)) {
+                    SubProtocolFactory* (*plugin)() = linkedSubProtocolFactories[subProtocolName];
                     subProtocolFactory = plugin();
                     if (subProtocolFactory != nullptr) {
                         add(subProtocolFactory, nullptr);
@@ -151,12 +151,12 @@ namespace web::websocket {
         }
 
         static void linkStatic(const std::string& subProtocolName, SubProtocolFactory* (*linkedPlugin)()) {
-            instance()->linkedSubProtocolPlugins[subProtocolName] = linkedPlugin;
+            instance()->linkedSubProtocolFactories[subProtocolName] = linkedPlugin;
         }
 
     private:
         std::map<std::string, SubProtocolPlugin<SubProtocolFactory>> subProtocolPlugins;
-        std::map<std::string, SubProtocolFactory* (*) ()> linkedSubProtocolPlugins;
+        std::map<std::string, SubProtocolFactory* (*) ()> linkedSubProtocolFactories;
         std::list<std::string> searchPaths;
     };
 
