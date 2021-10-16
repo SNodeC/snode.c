@@ -26,14 +26,14 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(websocketserver PUBLIC snodec::http snodec::websocketbase)
+target_link_libraries(websocketserver PUBLIC snodec::httpserver snodec::websocketbase)
 
 # set_target_properties(websocketserver PROPERTIES )
 
 set_target_properties(
     websocketserver
     PROPERTIES LIBRARY_OUTPUT_DIRECTORY
-               "${SOCKETCONTEXTUPGRADE_SERVER_LIBDIR}/upgrade/server"
+               "${SOCKETCONTEXTUPGRADE_LIBDIR}/upgrade/server"
 )
 
 install(

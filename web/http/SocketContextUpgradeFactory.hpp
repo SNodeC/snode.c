@@ -22,4 +22,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::http::server {} // namespace web::http::server
+namespace web::http {
+    template <typename RequestT, typename ResponseT>
+    void SocketContextUpgradeFactory<RequestT, ResponseT>::prepare(Request& request, Response& response) {
+        this->request = &request;
+        this->response = &response;
+    }
+
+} // namespace web::http

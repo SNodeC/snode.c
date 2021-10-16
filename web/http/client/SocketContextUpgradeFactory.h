@@ -19,7 +19,7 @@
 #ifndef WEB_HTTP_CLIENT_SOCKETCONTEXTUPGRADEFACTORY_H
 #define WEB_HTTP_CLIENT_SOCKETCONTEXTUPGRADEFACTORY_H
 
-#include "net/socket/stream/SocketContextFactory.h"
+#include "web/http/SocketContextUpgradeFactory.hpp"
 
 namespace web::http::client {
     class Request;
@@ -34,25 +34,13 @@ namespace web::http::client {
 
 namespace web::http::client {
 
-    class SocketContextUpgradeFactory : public net::socket::stream::SocketContextFactory {
+    class SocketContextUpgradeFactory : public web::http::SocketContextUpgradeFactory<Request, Response> {
     protected:
-        SocketContextUpgradeFactory() = default;
-        ~SocketContextUpgradeFactory() override = default;
+        using web::http::SocketContextUpgradeFactory<Request, Response>::SocketContextUpgradeFactory;
 
     public:
-        enum class Role { CLIENT, SERVER };
-
-        virtual void prepare(Request& request, Response& response);
+        using web::http::SocketContextUpgradeFactory<Request, Response>::prepare;
         virtual void prepare(Request& request) = 0;
-
-        virtual std::string name() = 0;
-        virtual Role role() = 0;
-
-        virtual void destroy() = 0;
-
-    protected:
-        Request* request;
-        Response* response;
     };
 
 } // namespace web::http::client

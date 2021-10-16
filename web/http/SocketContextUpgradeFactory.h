@@ -16,15 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H
-#define WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H
+#ifndef WEB_HTTP_SOCKETCONTEXTUPGRADEFACTORY_H
+#define WEB_HTTP_SOCKETCONTEXTUPGRADEFACTORY_H
 
-#include "web/http/SocketContextUpgradeFactory.hpp"
-
-namespace web::http::server {
-    class Request;
-    class Response;
-} // namespace web::http::server
+#include "net/socket/stream/SocketContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,13 +27,33 @@ namespace web::http::server {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::http::server {
+namespace web::http {
 
-    class SocketContextUpgradeFactory : public web::http::SocketContextUpgradeFactory<Request, Response> {
+template<typename RequestT, typename ResponseT>
+    class SocketContextUpgradeFactory : public net::socket::stream::SocketContextFactory {
+    public:
+        using Request = RequestT;
+        using Response = ResponseT;
+
     protected:
-        using web::http::SocketContextUpgradeFactory<Request, Response>::SocketContextUpgradeFactory;
+        SocketContextUpgradeFactory() = default;
+        ~SocketContextUpgradeFactory() override = default;
+
+    public:
+        enum class Role { CLIENT, SERVER };
+
+        virtual void prepare(Request& request, Response& response);
+
+        virtual std::string name() = 0;
+        virtual Role role() = 0;
+
+        virtual void destroy() = 0;
+
+    protected:
+        Request* request;
+        Response* response;
     };
 
-} // namespace web::http::server
+} // namespace web::http
 
-#endif // WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H
+#endif // WEB_HTTP_SOCKETCONTEXTUPGRADEFACTORY_H

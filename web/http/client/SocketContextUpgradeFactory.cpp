@@ -22,11 +22,4 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::http::client {
-
-    void SocketContextUpgradeFactory::prepare(Request& request, Response& response) {
-        this->request = &request;
-        this->response = &response;
-    }
-
-} // namespace web::http::client
+namespace web::http::client {} // namespace web::http::client
