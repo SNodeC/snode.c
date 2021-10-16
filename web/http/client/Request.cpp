@@ -216,8 +216,7 @@ namespace web::http::client {
         // the response-code needs to check the response from the server and upgrade the context in case the server says OK
 
         web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
-            dynamic_cast<web::http::client::SocketContextUpgradeFactory*>(
-                web::http::client::SocketContextUpgradeFactorySelector::instance()->select(protocol, *this));
+            web::http::client::SocketContextUpgradeFactorySelector::instance()->select(protocol, *this);
 
         if (socketContextUpgradeFactory != nullptr) {
             start();
@@ -229,8 +228,7 @@ namespace web::http::client {
     void Request::upgrade(Response& response) {
         if (httputils::ci_contains(response.header("connection"), "Upgrade")) {
             web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
-                dynamic_cast<web::http::client::SocketContextUpgradeFactory*>(
-                    web::http::client::SocketContextUpgradeFactorySelector::instance()->select(*this, response));
+                web::http::client::SocketContextUpgradeFactorySelector::instance()->select(*this, response);
 
             if (socketContextUpgradeFactory != nullptr) {
                 if (socketContext->switchSocketContext(socketContextUpgradeFactory) == nullptr) {

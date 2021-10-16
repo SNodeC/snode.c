@@ -21,6 +21,7 @@
 #include "config.h"
 #include "log/Logger.h"
 #include "net/DynamicLoader.h"
+#include "web/http/client/Request.h"
 #include "web/http/client/Response.h"
 #include "web/http/client/SocketContextUpgradeFactory.h"
 #include "web/http/http_utils.h"
@@ -53,8 +54,7 @@ namespace web::http::client {
         return &socketContextUpgradeFactorySelector;
     }
 
-    web::http::SocketContextUpgradeFactory<Request, Response>*
-    SocketContextUpgradeFactorySelector::select(const std::string& upgradeContextName, Request& req) {
+    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(const std::string& upgradeContextName, Request& req) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
         socketContextUpgradeFactory = dynamic_cast<SocketContextUpgradeFactory*>(select(upgradeContextName));
@@ -66,7 +66,7 @@ namespace web::http::client {
         return socketContextUpgradeFactory;
     }
 
-    web::http::SocketContextUpgradeFactory<Request, Response>* SocketContextUpgradeFactorySelector::select(Request& req, Response& res) {
+    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(Request& req, Response& res) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
         std::string upgradeContextName = res.header("upgrade");

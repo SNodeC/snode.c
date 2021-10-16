@@ -63,10 +63,9 @@ namespace web::http {
             SocketContextPlugin<RequestT, ResponseT> socketContextPlugin = {.socketContextUpgradeFactory = socketContextUpgradeFactory,
                                                                             .handle = handle};
 
-            if (socketContextUpgradeFactory->role() == SocketContextUpgradeFactory<RequestT, ResponseT>::Role::CLIENT) {
-                std::tie(std::ignore, success) =
-                    socketContextUpgradePlugins.insert({socketContextUpgradeFactory->name(), socketContextPlugin});
-            }
+            //            if (socketContextUpgradeFactory->role() == SocketContextUpgradeFactory<RequestT, ResponseT>::Role::SERVER) {
+            std::tie(std::ignore, success) = socketContextUpgradePlugins.insert({socketContextUpgradeFactory->name(), socketContextPlugin});
+            //            }
         }
 
         return success;
@@ -87,8 +86,7 @@ namespace web::http {
 
         if (handle != nullptr) {
             SocketContextUpgradeFactory<RequestT, ResponseT>* (*plugin)() =
-                reinterpret_cast<SocketContextUpgradeFactory<RequestT, ResponseT>* (*) ()>(
-                    dlsym(handle, "getClientSocketContextUpgradeFactory"));
+                reinterpret_cast<SocketContextUpgradeFactory<RequestT, ResponseT>* (*) ()>(dlsym(handle, "getSocketContextUpgradeFactory"));
 
             if (plugin != nullptr) {
                 socketContextUpgradeFactory = plugin();

@@ -19,11 +19,11 @@
 #ifndef WEB_HTTP_CLIENT_SOCKETCONTEXTUPGRADEFACTORYSELECTOR_H
 #define WEB_HTTP_CLIENT_SOCKETCONTEXTUPGRADEFACTORYSELECTOR_H
 
+#include "SocketContextUpgradeFactory.h"
 #include "config.h"
 #include "web/http/SocketContextUpgradeFactorySelector.hpp"
 
 namespace web::http::client {
-    class SocketContextUpgradeFactory;
     class Request;
     class Response;
 } // namespace web::http::client
@@ -51,8 +51,8 @@ namespace web::http::client {
         static SocketContextUpgradeFactorySelector* instance();
 
         using web::http::SocketContextUpgradeFactorySelector<Request, Response>::select;
-        web::http::SocketContextUpgradeFactory<Request, Response>* select(const std::string& upgradeContextName, Request& req);
-        web::http::SocketContextUpgradeFactory<Request, Response>* select(Request& req, Response& res) override;
+        SocketContextUpgradeFactory* select(const std::string& upgradeContextName, Request& req);
+        SocketContextUpgradeFactory* select(Request& req, Response& res) override;
     };
 
 } // namespace web::http::client

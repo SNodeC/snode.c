@@ -19,8 +19,11 @@
 #ifndef WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADEFACTORYSELECTOR_H
 #define WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADEFACTORYSELECTOR_H
 
+#include "SocketContextUpgradeFactory.h"
+#include "config.h"
+#include "web/http/SocketContextUpgradeFactorySelector.hpp"
+
 namespace web::http::server {
-    class SocketContextUpgradeFactory;
     class Request;
     class Response;
 } // namespace web::http::server
@@ -40,7 +43,7 @@ namespace web::http::server {
         void* handle = nullptr;
     };
 
-    class SocketContextUpgradeFactorySelector {
+    class SocketContextUpgradeFactorySelector : public web::http::SocketContextUpgradeFactorySelector<Request, Response> {
     private:
         SocketContextUpgradeFactorySelector();
 
@@ -50,23 +53,8 @@ namespace web::http::server {
     public:
         static SocketContextUpgradeFactorySelector* instance();
 
-        bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory);
-
-        SocketContextUpgradeFactory* select(const std::string& upgradeContextName);
-        SocketContextUpgradeFactory* select(Request& req, Response& res);
-
-        void setLinkedPlugin(const std::string& upgradeContextName, SocketContextUpgradeFactory* (*linkedPlugin)());
-
-        void unused(SocketContextUpgradeFactory* socketContextUpgradeFactory);
-
-    protected:
-        web::http::server::SocketContextUpgradeFactory* load(const std::string& socketContextName);
-
-        bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handler);
-
-        std::map<std::string, SocketContextPlugin> socketContextUpgradePlugins;
-        std::map<std::string, SocketContextUpgradeFactory* (*) ()> linkedSocketContextUpgradePlugins;
-        std::list<std::string> searchPaths;
+        using web::http::SocketContextUpgradeFactorySelector<Request, Response>::select;
+        SocketContextUpgradeFactory* select(Request& req, Response& res) override;
     };
 
 } // namespace web::http::server
