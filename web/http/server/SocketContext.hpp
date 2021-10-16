@@ -17,6 +17,7 @@
  */
 
 #include "log/Logger.h"
+#include "web/http/ConnectionState.h"
 #include "web/http/http_utils.h"
 #include "web/http/server/SocketContext.h"
 #include "web/http/server/SocketContextUpgradeFactorySelector.h"
@@ -32,10 +33,6 @@ namespace net::socket::stream {
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http::server {
-
-    SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection)
-        : net::socket::stream::SocketContext(socketConnection) {
-    }
 
     template <typename Request, typename Response>
     SocketContextT<Request, Response>::SocketContextT(net::socket::stream::SocketConnection* socketConnection,

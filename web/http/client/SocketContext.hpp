@@ -31,11 +31,11 @@ namespace net::socket::stream {
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http::client {
-
-    SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection)
-        : net::socket::stream::SocketContext(socketConnection) {
-    }
-
+    /*
+        SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection)
+            : net::socket::stream::SocketContext(socketConnection) {
+        }
+    */
     template <typename Request, typename Response>
     SocketContextT<Request, Response>::SocketContextT(net::socket::stream::SocketConnection* socketConnection,
                                                       const std::function<void(Request&, Response&)>& onResponse,

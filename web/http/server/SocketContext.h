@@ -19,8 +19,12 @@
 #ifndef WEB_HTTP_SERVER_SOCKETCONTEXT_H
 #define WEB_HTTP_SERVER_SOCKETCONTEXT_H
 
-#include "net/socket/stream/SocketContext.h"
+#include "web/http/SocketContext.h"
 #include "web/http/server/RequestParser.h"
+
+namespace net::socket::stream {
+    class SocketConnection;
+} // namespace net::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,25 +34,13 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::stream {
-    class SocketConnection;
-}
-
 namespace web::http::server {
 
-    class SocketContext : public net::socket::stream::SocketContext {
+    class SocketContext : public web::http::SocketContext {
     public:
+        using web::http::SocketContext::SocketContext;
+
         using SocketConnection = net::socket::stream::SocketConnection;
-
-        explicit SocketContext(net::socket::stream::SocketConnection* socketConnection);
-
-        ~SocketContext() override = default;
-
-        SocketContext(const SocketContext&) = delete;
-        SocketContext& operator=(const SocketContext&) = delete;
-
-        virtual void sendToPeerCompleted() = 0;
-        virtual void terminateConnection() = 0;
     };
 
     template <typename RequestT, typename ResponseT>

@@ -15,10 +15,11 @@ pkg_check_modules(LIBMAGIC libmagic)
 
 add_library(
     http SHARED
+    http_utils.cpp
+    MimeTypes.cpp
     Parser.cpp
     StatusCodes.cpp
-    MimeTypes.cpp
-    http_utils.cpp
+    SocketContext.cpp
     client/ResponseParser.cpp
     client/Request.cpp
     client/Response.cpp
