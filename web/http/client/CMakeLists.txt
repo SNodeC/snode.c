@@ -14,17 +14,17 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBMAGIC libmagic)
 
 add_library(
-    http SHARED
-    http_utils.cpp
-    MimeTypes.cpp
-    Parser.cpp
-    StatusCodes.cpp
-    SocketContext.cpp
+    httpclient SHARED
+    ResponseParser.cpp
+    Request.cpp
+    Response.cpp
+    SocketContextUpgradeFactory.cpp
+    SocketContextUpgradeFactorySelector.cpp
 )
-add_library(snodec::http ALIAS http)
+add_library(snodec::httpclient ALIAS httpclient)
 
 if(LIBMAGIC_FOUND)
-    target_compile_definitions(http PUBLIC HAS_LIBMAGIC)
+    target_compile_definitions(httpclient PUBLIC HAS_LIBMAGIC)
 else(LIBMAGIC_FOUND)
     message(
         WARNING
@@ -36,44 +36,38 @@ else(LIBMAGIC_FOUND)
 endif(LIBMAGIC_FOUND)
 
 target_include_directories(
-    http
+    httpclient
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
            "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
-           "$<BUILD_INTERFACE:${LIBMAGIC_INCLUDE_DIRS}>"
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 target_link_libraries(
-    http PUBLIC snodec::net-ip snodec::net-tls ${LIBMAGIC_LIBRARIES} dl
+    httpclient PUBLIC snodec::net-ip snodec::net-tls snodec::http ${LIBMAGIC_LIBRARIES} dl
 )
 
-set_target_properties(http PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-http)
+set_target_properties(httpclient PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-http-client)
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION include/snode.c/web/http
+    DESTINATION include/snode.c/web/http/client
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
     PATTERN "cmake" EXCLUDE
-    PATTERN "server" EXCLUDE
-    PATTERN "client" EXCLUDE
 )
 
 install(
-    TARGETS http
-    EXPORT snodechttpTargets
+    TARGETS httpclient
+    EXPORT snodechttpclientTargets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
 )
 
 install(
-    EXPORT snodechttpTargets
-    FILE snodechttpTargets.cmake
+    EXPORT snodechttpclientTargets
+    FILE snodechttpclientTargets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
-
-add_subdirectory(server)
-add_subdirectory(client)

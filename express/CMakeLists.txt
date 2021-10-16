@@ -40,7 +40,7 @@ target_include_directories(
 
 target_link_libraries(
     express
-    PUBLIC snodec::http
+    PUBLIC snodec::httpserver
     PRIVATE ${JSON_LIBRARY}
 )
 
