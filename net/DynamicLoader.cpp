@@ -43,7 +43,9 @@ namespace net {
         VLOG(0) << "dlOpen: " << handle << " : " << libFile.c_str();
 
 #ifndef USE_SYNC
-        instance()->loadedLibraries[handle] = libFile;
+        if (handle != nullptr) {
+            instance()->loadedLibraries[handle] = libFile;
+        }
 #endif
 
         return handle;
