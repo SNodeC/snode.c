@@ -32,28 +32,6 @@
 
 namespace web::http {
 
-    /*
-        template <typename RequestT, typename ResponseT>
-        SocketContextUpgradeFactorySelector<RequestT, ResponseT>::SocketContextUpgradeFactorySelector() {
-    #ifndef NDEBUG
-    #ifdef UPGRADECONTEXT_COMPILE_PATH
-
-            searchPaths.push_back(UPGRADECONTEXT_COMPILE_PATH);
-
-    #endif // UPGRADECONTEXT_COMPILE_PATH
-    #endif // NDEBUG
-
-            searchPaths.push_back(UPGRADECONTEXT_INSTALL_PATH);
-        }
-    */
-    /*
-        template <typename RequestT, typename ResponseT>
-        SocketContextUpgradeFactorySelector<RequestT, ResponseT>* SocketContextUpgradeFactorySelector<RequestT, ResponseT>::instance() {
-            static SocketContextUpgradeFactorySelector<RequestT, ResponseT> socketContextUpgradeFactorySelector;
-
-            return &socketContextUpgradeFactorySelector;
-        }
-    */
     template <typename RequestT, typename ResponseT>
     bool SocketContextUpgradeFactorySelector<RequestT, ResponseT>::add(
         SocketContextUpgradeFactory<RequestT, ResponseT>* socketContextUpgradeFactory, void* handle) {

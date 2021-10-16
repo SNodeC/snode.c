@@ -51,8 +51,6 @@ namespace web::http {
         virtual ~SocketContextUpgradeFactorySelector() = default;
 
     public:
-        //        static SocketContextUpgradeFactorySelector* instance();
-
         virtual SocketContextUpgradeFactory<Request, Response>* select(Request& req, Response& res) = 0;
 
         bool add(SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory);
