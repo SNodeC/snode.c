@@ -19,7 +19,7 @@
 #ifndef WEB_HTTP_SERVER_SOCKETCONTEXTFACTORY_H
 #define WEB_HTTP_SERVER_SOCKETCONTEXTFACTORY_H
 
-#include "net/socket/stream/SocketContextFactory.h"
+#include "web/http/SocketContextFactory.h"
 #include "web/http/server/SocketContext.hpp"
 
 namespace net::socket::stream {
@@ -33,7 +33,7 @@ namespace net::socket::stream {
 namespace web::http::server {
 
     template <typename RequestT, typename ResponseT>
-    class SocketContextFactory : public net::socket::stream::SocketContextFactory {
+    class SocketContextFactory : public web::http::SocketContextFactory<web::http::server::SocketContextT, RequestT, ResponseT> {
     public:
         using Request = RequestT;
         using Response = ResponseT;
