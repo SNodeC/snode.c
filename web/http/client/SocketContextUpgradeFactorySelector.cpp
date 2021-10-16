@@ -34,7 +34,8 @@
 
 namespace web::http::client {
 
-    SocketContextUpgradeFactorySelector::SocketContextUpgradeFactorySelector() {
+    SocketContextUpgradeFactorySelector::SocketContextUpgradeFactorySelector()
+        : web::http::SocketContextUpgradeFactorySelector<Request, Response>() {
 #ifndef NDEBUG
 #ifdef UPGRADECONTEXT_CLIENT_COMPILE_PATH
 
@@ -52,88 +53,11 @@ namespace web::http::client {
         return &socketContextUpgradeFactorySelector;
     }
 
-    bool SocketContextUpgradeFactorySelector::add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handle) {
-        bool success = false;
-
-        if (socketContextUpgradeFactory != nullptr) {
-            SocketContextPlugin socketContextPlugin = {.socketContextUpgradeFactory = socketContextUpgradeFactory, .handle = handle};
-
-            if (socketContextUpgradeFactory->role() == SocketContextUpgradeFactory::Role::CLIENT) {
-                std::tie(std::ignore, success) =
-                    socketContextUpgradePlugins.insert({socketContextUpgradeFactory->name(), socketContextPlugin});
-            }
-        }
-
-        return success;
-    }
-
-    bool SocketContextUpgradeFactorySelector::add(SocketContextUpgradeFactory* socketContextUpgradeFactory) {
-        return add(socketContextUpgradeFactory, nullptr);
-    }
-
-    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::load(const std::string& filePath) {
+    web::http::SocketContextUpgradeFactory<Request, Response>*
+    SocketContextUpgradeFactorySelector::select(const std::string& upgradeContextName, Request& req) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
-        void* handle = net::DynamicLoader::dlOpen(filePath.c_str(), RTLD_LAZY | RTLD_GLOBAL);
-
-        if (handle != nullptr) {
-            SocketContextUpgradeFactory* (*plugin)() =
-                reinterpret_cast<SocketContextUpgradeFactory* (*) ()>(dlsym(handle, "getClientSocketContextUpgradeFactory"));
-
-            if (plugin != nullptr) {
-                socketContextUpgradeFactory = plugin();
-
-                if (socketContextUpgradeFactory != nullptr) {
-                    if (add(socketContextUpgradeFactory, handle)) {
-                        VLOG(0) << "SocketContextUpgradeFactory created successfull: " << socketContextUpgradeFactory->name();
-                    } else {
-                        VLOG(0) << "UpgradeSocketContext already existing. Not using: " << socketContextUpgradeFactory->name();
-                        socketContextUpgradeFactory->destroy();
-                        socketContextUpgradeFactory = nullptr;
-                        net::DynamicLoader::dlClose(handle);
-                    }
-                } else {
-                    net::DynamicLoader::dlClose(handle);
-                    VLOG(0) << "SocketContextUpgradeFactory not created: " << filePath;
-                }
-            } else {
-                net::DynamicLoader::dlClose(handle);
-                VLOG(0) << "Not a Plugin \"" << filePath;
-            }
-        } else {
-            VLOG(0) << "Error dlopen: " << dlerror();
-        }
-
-        return socketContextUpgradeFactory;
-    }
-
-    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(const std::string& upgradeContextName) {
-        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
-
-        if (!upgradeContextName.empty()) {
-            if (socketContextUpgradePlugins.contains(upgradeContextName)) {
-                socketContextUpgradeFactory = socketContextUpgradePlugins[upgradeContextName].socketContextUpgradeFactory;
-            } else if (linkedSocketContextUpgradePlugins.contains(upgradeContextName)) {
-                socketContextUpgradeFactory = linkedSocketContextUpgradePlugins[upgradeContextName]();
-                add(socketContextUpgradeFactory);
-            } else {
-                for (const std::string& searchPath : searchPaths) {
-                    socketContextUpgradeFactory = load(searchPath + "/libsnodec-" + upgradeContextName + ".so");
-
-                    if (socketContextUpgradeFactory != nullptr) {
-                        break;
-                    }
-                }
-            }
-        }
-
-        return socketContextUpgradeFactory;
-    }
-
-    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(const std::string& upgradeContextName, Request& req) {
-        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
-
-        socketContextUpgradeFactory = select(upgradeContextName);
+        socketContextUpgradeFactory = dynamic_cast<SocketContextUpgradeFactory*>(select(upgradeContextName));
 
         if (socketContextUpgradeFactory != nullptr) {
             socketContextUpgradeFactory->prepare(req); // Fill in the missing header fields into the request object
@@ -142,7 +66,7 @@ namespace web::http::client {
         return socketContextUpgradeFactory;
     }
 
-    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(Request& req, Response& res) {
+    web::http::SocketContextUpgradeFactory<Request, Response>* SocketContextUpgradeFactorySelector::select(Request& req, Response& res) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
         std::string upgradeContextName = res.header("upgrade");
@@ -150,7 +74,7 @@ namespace web::http::client {
         if (!upgradeContextName.empty()) {
             httputils::to_lower(upgradeContextName);
 
-            socketContextUpgradeFactory = select(upgradeContextName);
+            socketContextUpgradeFactory = dynamic_cast<SocketContextUpgradeFactory*>(select(upgradeContextName));
 
             if (socketContextUpgradeFactory != nullptr) {
                 socketContextUpgradeFactory->prepare(req, res); // Fill in the missing header fields into the request object
@@ -158,29 +82,6 @@ namespace web::http::client {
         }
 
         return socketContextUpgradeFactory;
-    }
-
-    void SocketContextUpgradeFactorySelector::setLinkedPlugin(const std::string& upgradeContextName,
-                                                              SocketContextUpgradeFactory* (*linkedPlugin)()) {
-        if (!linkedSocketContextUpgradePlugins.contains(upgradeContextName)) {
-            linkedSocketContextUpgradePlugins[upgradeContextName] = linkedPlugin;
-        }
-    }
-
-    void SocketContextUpgradeFactorySelector::unused(SocketContextUpgradeFactory* socketContextUpgradeFactory) {
-        std::string upgradeContextNames = socketContextUpgradeFactory->name();
-
-        if (socketContextUpgradePlugins.contains(upgradeContextNames)) {
-            SocketContextPlugin& socketContextPlugin = socketContextUpgradePlugins[upgradeContextNames];
-
-            socketContextUpgradeFactory->destroy();
-
-            if (socketContextPlugin.handle != nullptr) {
-                net::DynamicLoader::dlClose(socketContextPlugin.handle);
-            }
-
-            socketContextUpgradePlugins.erase(upgradeContextNames);
-        }
     }
 
 } // namespace web::http::client

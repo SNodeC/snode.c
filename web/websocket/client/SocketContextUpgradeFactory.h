@@ -28,6 +28,7 @@ namespace net::socket::stream {
 
 namespace web::http::client {
     class Request;
+    class Response;
 } // namespace web::http::client
 
 namespace web::websocket::client {
@@ -68,7 +69,8 @@ namespace web::websocket::client {
     };
 
     extern "C" {
-        web::http::client::SocketContextUpgradeFactory* getClientSocketContextUpgradeFactory();
+        web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response>*
+        getClientSocketContextUpgradeFactory();
 
         void linkStatic(const std::string& subProtocolName, web::websocket::client::SubProtocolFactory* (*plugin)());
     }

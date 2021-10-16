@@ -1,3 +1,4 @@
+
 /*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
@@ -17,13 +18,10 @@
  */
 
 #include "SocketContextUpgradeFactorySelector.h"
-
-#include "config.h"
 #include "log/Logger.h"
 #include "net/DynamicLoader.h"
+#include "web/http/SocketContextUpgradeFactory.h"
 #include "web/http/http_utils.h"
-#include "web/http/server/Request.h"
-#include "web/http/server/SocketContextUpgradeFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,33 +30,40 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::http::server {
+namespace web::http {
 
-    SocketContextUpgradeFactorySelector::SocketContextUpgradeFactorySelector() {
-#ifndef NDEBUG
-#ifdef UPGRADECONTEXT_SERVER_COMPILE_PATH
+    /*
+        template <typename RequestT, typename ResponseT>
+        SocketContextUpgradeFactorySelector<RequestT, ResponseT>::SocketContextUpgradeFactorySelector() {
+    #ifndef NDEBUG
+    #ifdef UPGRADECONTEXT_COMPILE_PATH
 
-        searchPaths.push_back(UPGRADECONTEXT_SERVER_COMPILE_PATH);
+            searchPaths.push_back(UPGRADECONTEXT_COMPILE_PATH);
 
-#endif // UPGRADECONTEXT_SERVER_COMPILE_PATH
-#endif // NDEBUG
+    #endif // UPGRADECONTEXT_COMPILE_PATH
+    #endif // NDEBUG
 
-        searchPaths.push_back(UPGRADECONTEXT_SERVER_INSTALL_PATH);
-    }
+            searchPaths.push_back(UPGRADECONTEXT_INSTALL_PATH);
+        }
+    */
+    /*
+        template <typename RequestT, typename ResponseT>
+        SocketContextUpgradeFactorySelector<RequestT, ResponseT>* SocketContextUpgradeFactorySelector<RequestT, ResponseT>::instance() {
+            static SocketContextUpgradeFactorySelector<RequestT, ResponseT> socketContextUpgradeFactorySelector;
 
-    SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::instance() {
-        static SocketContextUpgradeFactorySelector socketContextUpgradeFactorySelector;
-
-        return &socketContextUpgradeFactorySelector;
-    }
-
-    bool SocketContextUpgradeFactorySelector::add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handle) {
+            return &socketContextUpgradeFactorySelector;
+        }
+    */
+    template <typename RequestT, typename ResponseT>
+    bool SocketContextUpgradeFactorySelector<RequestT, ResponseT>::add(
+        SocketContextUpgradeFactory<RequestT, ResponseT>* socketContextUpgradeFactory, void* handle) {
         bool success = false;
 
         if (socketContextUpgradeFactory != nullptr) {
-            SocketContextPlugin socketContextPlugin = {.socketContextUpgradeFactory = socketContextUpgradeFactory, .handle = handle};
+            SocketContextPlugin<RequestT, ResponseT> socketContextPlugin = {.socketContextUpgradeFactory = socketContextUpgradeFactory,
+                                                                            .handle = handle};
 
-            if (socketContextUpgradeFactory->role() == SocketContextUpgradeFactory::Role::SERVER) {
+            if (socketContextUpgradeFactory->role() == SocketContextUpgradeFactory<RequestT, ResponseT>::Role::CLIENT) {
                 std::tie(std::ignore, success) =
                     socketContextUpgradePlugins.insert({socketContextUpgradeFactory->name(), socketContextPlugin});
             }
@@ -67,18 +72,23 @@ namespace web::http::server {
         return success;
     }
 
-    bool SocketContextUpgradeFactorySelector::add(SocketContextUpgradeFactory* socketContextUpgradeFactory) {
+    template <typename RequestT, typename ResponseT>
+    bool SocketContextUpgradeFactorySelector<RequestT, ResponseT>::add(
+        SocketContextUpgradeFactory<RequestT, ResponseT>* socketContextUpgradeFactory) {
         return add(socketContextUpgradeFactory, nullptr);
     }
 
-    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::load(const std::string& filePath) {
-        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
+    template <typename RequestT, typename ResponseT>
+    SocketContextUpgradeFactory<RequestT, ResponseT>*
+    SocketContextUpgradeFactorySelector<RequestT, ResponseT>::load(const std::string& filePath) {
+        SocketContextUpgradeFactory<RequestT, ResponseT>* socketContextUpgradeFactory = nullptr;
 
         void* handle = net::DynamicLoader::dlOpen(filePath.c_str(), RTLD_LAZY | RTLD_GLOBAL);
 
         if (handle != nullptr) {
-            SocketContextUpgradeFactory* (*plugin)() =
-                reinterpret_cast<SocketContextUpgradeFactory* (*) ()>(dlsym(handle, "getServerSocketContextUpgradeFactory"));
+            SocketContextUpgradeFactory<RequestT, ResponseT>* (*plugin)() =
+                reinterpret_cast<SocketContextUpgradeFactory<RequestT, ResponseT>* (*) ()>(
+                    dlsym(handle, "getClientSocketContextUpgradeFactory"));
 
             if (plugin != nullptr) {
                 socketContextUpgradeFactory = plugin();
@@ -107,8 +117,10 @@ namespace web::http::server {
         return socketContextUpgradeFactory;
     }
 
-    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(const std::string& upgradeContextName) {
-        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
+    template <typename RequestT, typename ResponseT>
+    SocketContextUpgradeFactory<RequestT, ResponseT>*
+    SocketContextUpgradeFactorySelector<RequestT, ResponseT>::select(const std::string& upgradeContextName) {
+        SocketContextUpgradeFactory<RequestT, ResponseT>* socketContextUpgradeFactory = nullptr;
 
         if (!upgradeContextName.empty()) {
             if (socketContextUpgradePlugins.contains(upgradeContextName)) {
@@ -130,43 +142,21 @@ namespace web::http::server {
         return socketContextUpgradeFactory;
     }
 
-    /* do not remove */
-    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(Request& req, Response& res) {
-        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
-
-        std::string upgradeContextNames = req.header("upgrade");
-
-        if (!upgradeContextNames.empty()) {
-            std::string upgradeContextName;
-            std::string upgradeContextPriority;
-
-            std::tie(upgradeContextName, upgradeContextNames) = httputils::str_split(upgradeContextNames, ',');
-            std::tie(upgradeContextName, upgradeContextPriority) = httputils::str_split(upgradeContextName, '/');
-
-            httputils::to_lower(upgradeContextName);
-
-            socketContextUpgradeFactory = select(upgradeContextName);
-
-            if (socketContextUpgradeFactory != nullptr) {
-                socketContextUpgradeFactory->prepare(req, res);
-            }
-        }
-
-        return socketContextUpgradeFactory;
-    }
-
-    void SocketContextUpgradeFactorySelector::setLinkedPlugin(const std::string& upgradeContextName,
-                                                              SocketContextUpgradeFactory* (*linkedPlugin)()) {
+    template <typename RequestT, typename ResponseT>
+    void SocketContextUpgradeFactorySelector<RequestT, ResponseT>::setLinkedPlugin(
+        const std::string& upgradeContextName, SocketContextUpgradeFactory<RequestT, ResponseT>* (*linkedPlugin)()) {
         if (!linkedSocketContextUpgradePlugins.contains(upgradeContextName)) {
             linkedSocketContextUpgradePlugins[upgradeContextName] = linkedPlugin;
         }
     }
 
-    void SocketContextUpgradeFactorySelector::unused(SocketContextUpgradeFactory* socketContextUpgradeFactory) {
+    template <typename RequestT, typename ResponseT>
+    void SocketContextUpgradeFactorySelector<RequestT, ResponseT>::unused(
+        SocketContextUpgradeFactory<RequestT, ResponseT>* socketContextUpgradeFactory) {
         std::string upgradeContextNames = socketContextUpgradeFactory->name();
 
         if (socketContextUpgradePlugins.contains(upgradeContextNames)) {
-            SocketContextPlugin& socketContextPlugin = socketContextUpgradePlugins[upgradeContextNames];
+            SocketContextPlugin<RequestT, ResponseT>& socketContextPlugin = socketContextUpgradePlugins[upgradeContextNames];
 
             socketContextUpgradeFactory->destroy();
 
@@ -178,4 +168,4 @@ namespace web::http::server {
         }
     }
 
-} // namespace web::http::server
+} // namespace web::http

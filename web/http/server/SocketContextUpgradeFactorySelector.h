@@ -44,6 +44,7 @@ namespace web::http::server {
     private:
         SocketContextUpgradeFactorySelector();
 
+    protected:
         ~SocketContextUpgradeFactorySelector() = default;
 
     public:

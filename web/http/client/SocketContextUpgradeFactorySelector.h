@@ -19,6 +19,9 @@
 #ifndef WEB_HTTP_CLIENT_SOCKETCONTEXTUPGRADEFACTORYSELECTOR_H
 #define WEB_HTTP_CLIENT_SOCKETCONTEXTUPGRADEFACTORYSELECTOR_H
 
+#include "config.h"
+#include "web/http/SocketContextUpgradeFactorySelector.hpp"
+
 namespace web::http::client {
     class SocketContextUpgradeFactory;
     class Request;
@@ -40,33 +43,16 @@ namespace web::http::client {
         void* handle = nullptr;
     };
 
-    class SocketContextUpgradeFactorySelector {
+    class SocketContextUpgradeFactorySelector : public web::http::SocketContextUpgradeFactorySelector<Request, Response> {
     private:
         SocketContextUpgradeFactorySelector();
-        ~SocketContextUpgradeFactorySelector() = default;
 
     public:
         static SocketContextUpgradeFactorySelector* instance();
 
-        SocketContextUpgradeFactory* select(const std::string& upgradeContextName, Request& req);
-        SocketContextUpgradeFactory* select(Request& req, Response& res);
-
-        bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory);
-
-        void setLinkedPlugin(const std::string& upgradeContextName, SocketContextUpgradeFactory* (*linkedPlugin)());
-
-        void unused(SocketContextUpgradeFactory* socketContextUpgradeFactory);
-
-    protected:
-        SocketContextUpgradeFactory* select(const std::string& upgradeContextName);
-
-        web::http::client::SocketContextUpgradeFactory* load(const std::string& socketContextName);
-
-        bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handler);
-
-        std::map<std::string, SocketContextPlugin> socketContextUpgradePlugins;
-        std::map<std::string, SocketContextUpgradeFactory* (*) ()> linkedSocketContextUpgradePlugins;
-        std::list<std::string> searchPaths;
+        using web::http::SocketContextUpgradeFactorySelector<Request, Response>::select;
+        web::http::SocketContextUpgradeFactory<Request, Response>* select(const std::string& upgradeContextName, Request& req);
+        web::http::SocketContextUpgradeFactory<Request, Response>* select(Request& req, Response& res) override;
     };
 
 } // namespace web::http::client
