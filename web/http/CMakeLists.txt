@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(SOCKETCONTEXTUPGRADE_SERVER_LIBDIR
+set(SOCKETCONTEXTUPGRADE_LIBDIR
     ${CMAKE_CURRENT_BINARY_DIR}
-    CACHE INTERNAL "SOCKETCONTEXTUPGRADE_SERVER_LIBDIR"
+    CACHE INTERNAL "SOCKETCONTEXTUPGRADE_LIBDIR"
 )
 
 configure_file(config.h.in config.h @ONLY)
@@ -14,20 +14,8 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBMAGIC libmagic)
 
 add_library(
-    http SHARED
-    Parser.cpp
-    StatusCodes.cpp
-    MimeTypes.cpp
-    http_utils.cpp
-    client/ResponseParser.cpp
-    client/Request.cpp
-    client/Response.cpp
-    client/SocketContextUpgradeFactorySelector.cpp
-    server/RequestParser.cpp
-    server/Request.cpp
-    server/Response.cpp
-    server/SocketContextUpgradeFactory.cpp
-    server/SocketContextUpgradeFactorySelector.cpp
+    http SHARED http_utils.cpp MimeTypes.cpp Parser.cpp StatusCodes.cpp
+                SocketContext.cpp
 )
 add_library(snodec::http ALIAS http)
 
@@ -64,6 +52,8 @@ install(
     PATTERN "*.h"
     PATTERN "*.hpp"
     PATTERN "cmake" EXCLUDE
+    PATTERN "server" EXCLUDE
+    PATTERN "client" EXCLUDE
 )
 
 install(
@@ -80,3 +70,6 @@ install(
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
+
+add_subdirectory(server)
+add_subdirectory(client)

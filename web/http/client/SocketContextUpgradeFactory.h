@@ -19,7 +19,7 @@
 #ifndef WEB_HTTP_CLIENT_SOCKETCONTEXTUPGRADEFACTORY_H
 #define WEB_HTTP_CLIENT_SOCKETCONTEXTUPGRADEFACTORY_H
 
-#include "net/socket/stream/SocketContextFactory.h"
+#include "web/http/SocketContextUpgradeFactory.hpp" // IWYU pragma: export
 
 namespace web::http::client {
     class Request;
@@ -32,28 +32,13 @@ namespace web::http::client {
 
 namespace web::http::client {
 
-    class SocketContextUpgradeFactory : public net::socket::stream::SocketContextFactory {
+    class SocketContextUpgradeFactory : public web::http::SocketContextUpgradeFactory<Request, Response> {
     protected:
-        ~SocketContextUpgradeFactory() = default;
+        SocketContextUpgradeFactory();
 
     public:
-        enum class ROLE { CLIENT, SERVER };
-
-        void prepare(web::http::client::Request& request, web::http::client::Response& response) {
-            this->request = &request;
-            this->response = &response;
-        }
-
-        virtual std::string name() = 0;
-        virtual ROLE role() = 0;
-
-        void destroy() {
-            delete this;
-        }
-
-    protected:
-        web::http::client::Request* request;
-        web::http::client::Response* response;
+        using web::http::SocketContextUpgradeFactory<Request, Response>::prepare;
+        virtual void prepare(Request& request) = 0;
     };
 
 } // namespace web::http::client

@@ -27,6 +27,7 @@ namespace net::socket::stream {
 
 namespace web::websocket::server {
     class SubProtocol;
+    class SocketContextUpgradeFactory;
 } // namespace web::websocket::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -39,7 +40,13 @@ namespace web::websocket::server {
     public:
         SocketContext(net::socket::stream::SocketConnection* socketConnection, web::websocket::server::SubProtocol* subProtocol);
 
+        void setSocketContextUpgradeFactory(SocketContextUpgradeFactory* socketContextUpgradeFactory);
+
+        SocketContextUpgradeFactory* getSocketContextUpgradeFactory();
+
     protected:
+        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
+
         ~SocketContext() override;
     };
 

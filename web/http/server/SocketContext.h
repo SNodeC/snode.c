@@ -19,36 +19,28 @@
 #ifndef WEB_HTTP_SERVER_SOCKETCONTEXT_H
 #define WEB_HTTP_SERVER_SOCKETCONTEXT_H
 
-#include "log/Logger.h"
-#include "net/socket/stream/SocketContext.h"
+#include "web/http/SocketContext.h"
 #include "web/http/server/RequestParser.h"
-
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <list>
-
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::socket::stream {
     class SocketConnection;
-}
+} // namespace net::socket::stream
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <functional>
+#include <list>
+#include <string>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http::server {
 
-    class SocketContext : public net::socket::stream::SocketContext {
+    class SocketContext : public web::http::SocketContext {
     public:
+        using web::http::SocketContext::SocketContext;
+
         using SocketConnection = net::socket::stream::SocketConnection;
-
-        SocketContext(net::socket::stream::SocketConnection* socketConnection)
-            : net::socket::stream::SocketContext(socketConnection) {
-        }
-
-        SocketContext(const SocketContext&) = delete;
-        SocketContext& operator=(const SocketContext&) = delete;
-
-        virtual void sendToPeerCompleted() = 0;
-
-        virtual void terminateConnection() = 0;
     };
 
     template <typename RequestT, typename ResponseT>
@@ -78,6 +70,8 @@ namespace web::http::server {
                        const std::function<void(Request&, Response&)>& onRequestReady);
 
     private:
+        void stop() override;
+
         void onReceiveFromPeer() override;
 
         void onReadError(int errnum) override;

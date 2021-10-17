@@ -73,6 +73,7 @@ namespace net {
     private:
         virtual void dispatchEvent() = 0;
         virtual void timeoutEvent();
+        virtual bool continueImmediately() = 0;
 
         void enabled();
         void disabled();

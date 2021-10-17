@@ -30,8 +30,24 @@ namespace net {
         : DescriptorEventReceiver(EventLoop::instance().getExceptionalConditionEventDispatcher(), timeout) {
     }
 
+    void ExceptionalConditionEventReceiver::outOfBandTimeout() {
+        disable();
+    }
+
+    bool ExceptionalConditionEventReceiver::continueOutOfBandImmediately() {
+        return false;
+    }
+
     void ExceptionalConditionEventReceiver::dispatchEvent() {
         outOfBandEvent();
+    }
+
+    void ExceptionalConditionEventReceiver::timeoutEvent() {
+        outOfBandTimeout();
+    }
+
+    bool ExceptionalConditionEventReceiver::continueImmediately() {
+        return continueOutOfBandImmediately();
     }
 
 } // namespace net

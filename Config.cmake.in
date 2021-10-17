@@ -1,6 +1,7 @@
 @PACKAGE_INIT@
 
 set(websocketserver_DEPENDENCIES websocketbase http)
+set(websocketclient DEPENDENCIES websocketbase http)
 set(express_DEPENDENCIES http)
 set(http_DEPENDENCIES net-ip)
 set(net-ip_DEPENDENCIES net-legacy net-tls)
@@ -34,6 +35,7 @@ set(_supported_components
     http
     express
     websocketserver
+    websocketclient
 )
 
 foreach(_comp ${snodec_FIND_COMPONENTS})

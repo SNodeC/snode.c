@@ -21,18 +21,14 @@
 
 #include "web/websocket/SocketContext.h"
 
-namespace web::websocket::client {
-    class SubProtocol;
-} // namespace web::websocket::client
-
 namespace net::socket::stream {
     class SocketConnection;
 } // namespace net::socket::stream
 
-namespace web::http::client {
-    class Request;
-    class Response;
-} // namespace web::http::client
+namespace web::websocket::client {
+    class SubProtocol;
+    class SocketContextUpgradeFactory;
+} // namespace web::websocket::client
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -40,15 +36,18 @@ namespace web::http::client {
 
 namespace web::websocket::client {
 
-    class SocketContext : public web::websocket::SocketContext {
-    protected:
+    class SocketContext : public web::websocket::SocketContext<web::websocket::client::SubProtocol> {
+    public:
         SocketContext(net::socket::stream::SocketConnection* socketConnection, web::websocket::client::SubProtocol* subProtocol);
 
-        ~SocketContext() override;
+        void setSocketContextUpgradeFactory(SocketContextUpgradeFactory* socketContextUpgradeFactory);
 
-    public:
-        static SocketContext*
-        create(net::socket::stream::SocketConnection* socketConnection, web::http::client::Request& req, web::http::client::Response& res);
+        SocketContextUpgradeFactory* getSocketContextUpgradeFactory();
+
+    protected:
+        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
+
+        ~SocketContext() override;
     };
 
 } // namespace web::websocket::client

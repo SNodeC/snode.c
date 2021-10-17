@@ -119,8 +119,12 @@ namespace web::websocket {
             return net::socket::stream::SocketContext::getRemoteAddressAsString();
         }
 
+        SubProtocol* getSubProtocol() const {
+            return subProtocol;
+        }
+
     protected:
-        SubProtocol* subProtocol;
+        SubProtocol* subProtocol = nullptr;
 
     private:
         void sendClose(const char* message, std::size_t messageLength) {
@@ -266,6 +270,10 @@ namespace web::websocket {
             if (errnum != 0) {
                 PLOG(INFO) << "OnWriteError:";
             }
+        }
+
+        void stop() override {
+            Receiver::stop();
         }
 
         bool closeSent = false;

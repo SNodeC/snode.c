@@ -19,17 +19,16 @@
 #ifndef WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADEFACTORYSELECTOR_H
 #define WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADEFACTORYSELECTOR_H
 
+#include "SocketContextUpgradeFactory.h"
+#include "config.h"                                         // IWYU pragma: keep
+#include "web/http/SocketContextUpgradeFactorySelector.hpp" // IWYU pragma: export
+
 namespace web::http::server {
-    class SocketContextUpgradeFactory;
     class Request;
     class Response;
 } // namespace web::http::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <list>
-#include <map>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -40,30 +39,18 @@ namespace web::http::server {
         void* handle = nullptr;
     };
 
-    class SocketContextUpgradeFactorySelector {
+    class SocketContextUpgradeFactorySelector : public web::http::SocketContextUpgradeFactorySelector<Request, Response> {
     private:
         SocketContextUpgradeFactorySelector();
+
+    protected:
         ~SocketContextUpgradeFactorySelector() = default;
 
     public:
         static SocketContextUpgradeFactorySelector* instance();
-        void destroy();
 
-        SocketContextUpgradeFactory* select(const std::string& upgradeContextName, bool doLoad = true);
-        SocketContextUpgradeFactory* select(Request& req, Response& res);
-
-        bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory);
-
-    protected:
-        web::http::server::SocketContextUpgradeFactory* load(const std::string& socketContextName);
-
-        bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handler);
-
-        std::map<std::string, SocketContextPlugin> socketContextUpgradePlugins;
-        std::list<std::string> searchPaths;
-
-    private:
-        static SocketContextUpgradeFactorySelector* socketContextUpgradeFactorySelector;
+        using web::http::SocketContextUpgradeFactorySelector<Request, Response>::select;
+        SocketContextUpgradeFactory* select(Request& req, Response& res) override;
     };
 
 } // namespace web::http::server

@@ -19,10 +19,12 @@
 #ifndef WEB_WS_SERVER_SOCKETCONTEXTFACTORY_H
 #define WEB_WS_SERVER_SOCKETCONTEXTFACTORY_H
 
-#include "web/http/server/SocketContextUpgradeFactory.h"
-#include "web/http/server/SocketContextUpgradeInterface.h"
+#include "web/http/client/SocketContextUpgradeFactory.h"
 #include "web/websocket/client/SocketContext.h"
-#include "web/websocket/client/SubProtocolSelector.h"
+
+namespace net::socket::stream {
+    class SocketConnection;
+} // namespace net::socket::stream
 
 namespace web::http::client {
     class Request;
@@ -30,18 +32,43 @@ namespace web::http::client {
 } // namespace web::http::client
 
 namespace web::websocket::client {
+    class SubProtocolFactory;
+} // namespace web::websocket::client
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <cstddef> // for size_t
+#include <string>  // for string
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+namespace web::websocket::client {
 
     class SocketContextUpgradeFactory : public web::http::client::SocketContextUpgradeFactory {
     public:
-        SocketContextUpgradeFactory();
-        ~SocketContextUpgradeFactory();
+        SocketContextUpgradeFactory() = default;
 
-        std::string name() override;
-        ROLE role() override;
+        SocketContextUpgradeFactory(const SocketContextUpgradeFactory&) = delete;
+
+        SocketContextUpgradeFactory& operator=(const SocketContextUpgradeFactory&) = delete;
+
+        void deleted(SocketContext* socketContext);
 
     private:
-        web::websocket::server::SocketContext* create(net::socket::stream::SocketConnection* socketConnection) const override;
+        void prepare(web::http::client::Request& request) override;
+
+        std::string name() override;
+
+        SocketContext* create(net::socket::stream::SocketConnection* socketConnection) override;
+
+        std::size_t refCount = 0;
     };
+
+    extern "C" {
+        web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response>* getSocketContextUpgradeFactory();
+
+        void linkStatic(const std::string& subProtocolName, web::websocket::client::SubProtocolFactory* (*plugin)());
+    }
 
 } // namespace web::websocket::client
 

@@ -21,15 +21,24 @@
 
 #include "web/http/server/SocketContextUpgradeFactory.h"
 #include "web/websocket/server/SocketContext.h"
-#include "web/websocket/server/SubProtocolFactorySelector.h" // for SubProt...
 
 namespace net::socket::stream {
     class SocketConnection;
-}
+} // namespace net::socket::stream
+
+namespace web::websocket::server {
+    class SubProtocolFactory;
+} // namespace web::websocket::server
+
+namespace web::http::server {
+    class Request;
+    class Response;
+} // namespace web::http::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string> // for string
+#include <cstddef> // for size_t
+#include <string>  // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -43,19 +52,21 @@ namespace web::websocket::server {
 
         SocketContextUpgradeFactory& operator=(const SocketContextUpgradeFactory&) = delete;
 
-        static void attach(SubProtocolFactory* subProtocolFactory);
+        void deleted(SocketContext* socketContext);
 
     private:
         std::string name() override;
 
-        Role role() override;
-
         SocketContext* create(net::socket::stream::SocketConnection* socketConnection) override;
 
-        void destroy() override;
-
-        SubProtocolFactorySelector subProtocolFactorySelector;
+        std::size_t refCount = 0;
     };
+
+    extern "C" {
+        web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response>* getSocketContextUpgradeFactory();
+
+        void linkStatic(const std::string& subProtocolName, web::websocket::server::SubProtocolFactory* (*plugin)());
+    }
 
 } // namespace web::websocket::server
 

@@ -35,6 +35,7 @@ install(
     PATTERN "*.h"
     PATTERN "*.hpp"
     PATTERN "cmake" EXCLUDE
+    PATTERN "client" EXCLUDE
     PATTERN "server" EXCLUDE
     PATTERN "subprotocol" EXCLUDE
 )
@@ -47,4 +48,5 @@ install(
 )
 
 add_subdirectory(server)
+add_subdirectory(client)
 add_subdirectory(subprotocol)

@@ -19,15 +19,17 @@
 #ifndef WEB_HTTP_CLIENT_SOCKETCONTEXTUPGRADEFACTORYSELECTOR_H
 #define WEB_HTTP_CLIENT_SOCKETCONTEXTUPGRADEFACTORYSELECTOR_H
 
+#include "SocketContextUpgradeFactory.h"
+#include "config.h"                                         // IWYU pragma: keep
+#include "web/http/SocketContextUpgradeFactorySelector.hpp" // IWYU pragma: export
+
 namespace web::http::client {
-    class SocketContextUpgradeFactory;
     class Request;
     class Response;
 } // namespace web::http::client
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <map>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -35,34 +37,20 @@ namespace web::http::client {
 namespace web::http::client {
 
     struct SocketContextPlugin {
-        web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory;
+        SocketContextUpgradeFactory* socketContextUpgradeFactory;
         void* handle = nullptr;
     };
 
-    class SocketContextUpgradeFactorySelector {
+    class SocketContextUpgradeFactorySelector : public web::http::SocketContextUpgradeFactorySelector<Request, Response> {
     private:
-        SocketContextUpgradeFactorySelector() = default;
-        ~SocketContextUpgradeFactorySelector() = default;
+        SocketContextUpgradeFactorySelector();
 
     public:
-        void registerSocketContextUpgradeFactory(web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory);
-        void registerSocketContextUpgradeFactory(web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory,
-                                                 void* handler);
-
-        void loadSocketContexts();
-        void unloadSocketContexts();
-
-        web::http::client::SocketContextUpgradeFactory*
-        select(const std::string& subProtocolName, web::http::client::Request& req, web::http::client::Response& res);
-
         static SocketContextUpgradeFactorySelector* instance();
 
-    protected:
-        std::map<std::string, SocketContextPlugin> serverSocketContextPlugins;
-        std::map<std::string, SocketContextPlugin> clientSocketContextPlugins;
-
-    public:
-        static SocketContextUpgradeFactorySelector* socketContextUpgradeFactorySelector;
+        using web::http::SocketContextUpgradeFactorySelector<Request, Response>::select;
+        SocketContextUpgradeFactory* select(const std::string& upgradeContextName, Request& req);
+        SocketContextUpgradeFactory* select(Request& req, Response& res) override;
     };
 
 } // namespace web::http::client

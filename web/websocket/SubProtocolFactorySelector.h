@@ -38,10 +38,16 @@ namespace web::websocket {
         void* handle = nullptr;
     };
 
-    template <typename SubProtocolFactoryT>
+    template <typename SubProtocolFactorySelectorT, typename SubProtocolFactoryT>
     class SubProtocolFactorySelector {
     public:
         using SubProtocolFactory = SubProtocolFactoryT;
+
+        static SubProtocolFactorySelectorT* instance() {
+            static SubProtocolFactorySelectorT subProtocolFactorySelector;
+
+            return &subProtocolFactorySelector;
+        }
 
     protected:
         SubProtocolFactorySelector() = default;
@@ -49,14 +55,7 @@ namespace web::websocket {
         SubProtocolFactorySelector(const SubProtocolFactorySelector&) = delete;
         SubProtocolFactorySelector& operator=(const SubProtocolFactorySelector&) = delete;
 
-        virtual ~SubProtocolFactorySelector() {
-            for (const auto& [name, subProtocolPlugin] : subProtocolPlugins) {
-                subProtocolPlugin.subProtocolFactory->destroy();
-                if (subProtocolPlugin.handle != nullptr) {
-                    dlclose(subProtocolPlugin.handle);
-                }
-            }
-        }
+        virtual ~SubProtocolFactorySelector() = default;
 
     public:
         void add(SubProtocolFactory* subProtocolFactory, void* handle = nullptr) {
@@ -83,7 +82,7 @@ namespace web::websocket {
             void* handle = dlopen(filePath.c_str(), RTLD_LAZY | RTLD_LOCAL);
 
             if (handle != nullptr) {
-                VLOG(0) << "SubProtocol loaded successfully: " << filePath;
+                VLOG(0) << "dlopen: " << handle << " : " << filePath;
 
                 SubProtocolFactory* (*plugin)() = reinterpret_cast<SubProtocolFactory* (*) ()>(dlsym(handle, "plugin"));
 
@@ -115,10 +114,18 @@ namespace web::websocket {
             if (subProtocolPlugins.contains(subProtocolName)) {
                 subProtocolFactory = subProtocolPlugins[subProtocolName].subProtocolFactory;
             } else {
-                for (const std::string& searchPath : searchPaths) {
-                    subProtocolFactory = load(searchPath + "/libsnodec-websocket-" + subProtocolName + ".so");
+                if (linkedSubProtocolFactories.contains(subProtocolName)) {
+                    SubProtocolFactory* (*plugin)() = linkedSubProtocolFactories[subProtocolName];
+                    subProtocolFactory = plugin();
                     if (subProtocolFactory != nullptr) {
-                        break;
+                        add(subProtocolFactory, nullptr);
+                    }
+                } else {
+                    for (const std::string& searchPath : searchPaths) {
+                        subProtocolFactory = load(searchPath + "/libsnodec-websocket-" + subProtocolName + ".so");
+                        if (subProtocolFactory != nullptr) {
+                            break;
+                        }
                     }
                 }
             }
@@ -126,8 +133,30 @@ namespace web::websocket {
             return subProtocolFactory;
         }
 
+        void unload(SubProtocolFactory* subProtocolFactory) {
+            std::string name = subProtocolFactory->name();
+
+            if (subProtocolPlugins.contains(name)) {
+                subProtocolFactory->destroy();
+
+                SubProtocolPlugin<SubProtocolFactory>& subProtocolPlugin = subProtocolPlugins[name];
+
+                if (subProtocolPlugin.handle != nullptr) {
+                    VLOG(0) << "dlclose: " << subProtocolPlugin.handle << " : " << name;
+                    dlclose(subProtocolPlugin.handle);
+                }
+
+                subProtocolPlugins.erase(name);
+            }
+        }
+
+        static void linkStatic(const std::string& subProtocolName, SubProtocolFactory* (*linkedPlugin)()) {
+            instance()->linkedSubProtocolFactories[subProtocolName] = linkedPlugin;
+        }
+
     private:
         std::map<std::string, SubProtocolPlugin<SubProtocolFactory>> subProtocolPlugins;
+        std::map<std::string, SubProtocolFactory* (*) ()> linkedSubProtocolFactories;
         std::list<std::string> searchPaths;
     };
 

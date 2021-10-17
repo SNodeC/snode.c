@@ -22,9 +22,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <iomanip> // for operator<<, setfill, setw
-#include <memory>  // for allocator
-#include <sstream> // for stringstream, basic_ostream, operator<<, bas...
+#include <endian.h> // for be16toh, be32toh, be64toh, htobe32
+#include <iomanip>  // for operator<<, setfill, setw
+#include <memory>   // for allocator
+#include <sstream>  // for stringstream, basic_ostream, operator<<, bas..
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -164,7 +165,7 @@ namespace web::websocket {
         MaskingKey maskingKeyAsArray = {.keyAsValue = distribution(generator)};
 
         if (masking) {
-            sendFrameData(maskingKeyAsArray.keyAsValue);
+            sendFrameData(htobe32(maskingKeyAsArray.keyAsValue));
 
             for (uint64_t i = 0; i < payloadLength; i++) {
                 *(const_cast<char*>(payload) + i) = *(payload + i) ^ *(maskingKeyAsArray.keyAsBytes + i % 4);

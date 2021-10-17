@@ -24,6 +24,7 @@
 #include "log/Logger.h" // for Writer, CWARNING, LOG
 #include "net/DescriptorEventReceiver.h"
 #include "utils/Timeval.h" // for operator-, operator<, operator>=
+#include "utils/stacktrace.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -77,6 +78,7 @@ namespace net {
             // next tick as enable
             disabledEventReceiver[fd].push_back(eventReceiver);
         } else {
+            stacktrace::stacktrace();
             LOG(WARNING) << "EventReceiver double disable";
         }
     }
@@ -88,6 +90,7 @@ namespace net {
                 fdSet.clr(fd, true);
             }
         } else {
+            stacktrace::stacktrace();
             LOG(WARNING) << "EventReceiver double suspend";
         }
     }
@@ -146,7 +149,7 @@ namespace net {
         for (const auto& [fd, eventReceivers] : observedEventReceiver) {
             DescriptorEventReceiver* eventReceiver = eventReceivers.front();
             struct timeval maxInactivity = eventReceiver->getTimeout();
-            if (fdSet.isSet(fd)) {
+            if (fdSet.isSet(fd) || (eventReceiver->continueImmediately())) {
                 eventCounter++;
                 eventReceiver->dispatchEvent();
                 eventReceiver->triggered(currentTime);
@@ -155,10 +158,17 @@ namespace net {
                 struct timeval inactivity = currentTime - eventReceiver->getLastTriggered();
                 if (inactivity >= maxInactivity) {
                     eventReceiver->timeoutEvent();
-                    eventReceiver->disable();
                 } else {
                     nextInactivityTimeout = std::min(maxInactivity - inactivity, nextInactivityTimeout);
                 }
+            }
+        }
+
+        for (const auto& [fd, eventReceivers] : observedEventReceiver) {
+            DescriptorEventReceiver* eventReceiver = eventReceivers.front();
+            if (eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
+                nextInactivityTimeout = {0, 0};
+                break;
             }
         }
 

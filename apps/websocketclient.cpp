@@ -61,12 +61,12 @@ int main(int argc, char* argv[]) {
             []([[maybe_unused]] legacy::Client<>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnConnected";
             },
-            [](Request& request) -> void {
-                request.upgrade("/ws/", "websocket", "tiktaktoe");
-                //                request.url = "/index.html";
-                //                request.start();
+            [](Request& request, [[maybe_unused]] Response& response) -> void {
+                request.set("Sec-WebSocket-Protocol", "echo");
+
+                request.upgrade("/ws/", "websocket");
             },
-            []([[maybe_unused]] const Request& request, const Response& response) -> void {
+            [](Request& request, Response& response) -> void {
                 VLOG(0) << "-- OnResponse";
                 VLOG(0) << "     Status:";
                 VLOG(0) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
@@ -89,6 +89,8 @@ int main(int argc, char* argv[]) {
                 body[response.contentLength] = 0;
 
                 VLOG(1) << "     Body:\n----------- start body -----------\n" << body << "------------ end body ------------";
+
+                request.upgrade(response);
 
                 delete[] body;
             },
@@ -157,13 +159,12 @@ int main(int argc, char* argv[]) {
                     VLOG(0) << "     Server certificate: no certificate";
                 }
             },
-            [](Request& request) -> void {
-                //                request.upgrade("/ws/", "websocket", "tiktaktoe");
+            [](Request& request, [[maybe_unused]] Response& response) -> void {
+                request.set("Sec-WebSocket-Protocol", "echo");
 
-                request.url = "/index.html";
-                request.start();
+                request.upgrade("/ws/", "websocket");
             },
-            []([[maybe_unused]] const Request& request, const Response& response) -> void {
+            [](Request& request, Response& response) -> void {
                 VLOG(0) << "-- OnResponse";
                 VLOG(0) << "     Status:";
                 VLOG(0) << "       " << response.httpVersion;
@@ -190,6 +191,8 @@ int main(int argc, char* argv[]) {
                 VLOG(1) << "     Body:\n----------- start body -----------\n" << body << "------------ end body ------------";
 
                 delete[] body;
+
+                request.upgrade(response);
             },
             [](int status, const std::string& reason) -> void {
                 VLOG(0) << "-- OnResponseError";
@@ -209,13 +212,12 @@ int main(int argc, char* argv[]) {
                 PLOG(ERROR) << "OnError: " << err;
             }
         }); // Connection:keep-alive\r\n\r\n"
-            /*
-                    tlsClient.connect("localhost", 8088, [](int err) -> void {
-                        if (err != 0) {
-                            PLOG(ERROR) << "OnError: " << err;
-                        }
-                    }); // Connection:keep-alive\r\n\r\n"
-                    */
+
+        tlsClient.connect("localhost", 8088, [](int err) -> void {
+            if (err != 0) {
+                PLOG(ERROR) << "OnError: " << err;
+            }
+        }); // Connection:keep-alive\r\n\r\n"
     }
 
     return net::SNodeC::start();

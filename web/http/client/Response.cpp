@@ -18,11 +18,53 @@
 
 #include "web/http/client/Response.h"
 
+#include "web/http/CookieOptions.h"
+#include "web/http/http_utils.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <iterator> // for advance, distance
+#include <utility>  // for pair
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http::client {
+
+    const std::string& Response::header(const std::string& key, int i) const {
+        std::string tmpKey = key;
+        httputils::to_lower(tmpKey);
+
+        if (headers->find(tmpKey) != headers->end()) {
+            std::pair<std::multimap<std::string, std::string>::const_iterator, std::multimap<std::string, std::string>::const_iterator>
+                range = headers->equal_range(tmpKey);
+
+            if (std::distance(range.first, range.second) >= i) {
+                std::advance(range.first, i);
+                return (*(range.first)).second;
+            } else {
+                return nullstr;
+            }
+        } else {
+            return nullstr;
+        }
+    }
+
+    const std::string& Response::cookie(const std::string& key) const {
+        std::map<std::string, CookieOptions>::const_iterator it;
+
+        std::string tmpKey = key;
+        httputils::to_lower(tmpKey);
+
+        if ((it = cookies->find(tmpKey)) != cookies->end()) {
+            return it->second.getValue();
+        } else {
+            return nullstr;
+        }
+    }
+
+    std::size_t Response::bodyLength() const {
+        return contentLength;
+    }
 
     void Response::reset() {
     }

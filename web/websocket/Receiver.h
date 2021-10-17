@@ -41,6 +41,7 @@ namespace web::websocket {
         Receiver& operator=(const Receiver&) = delete;
 
         void receive();
+        void stop();
 
     private:
         union MaskingKey {
@@ -89,6 +90,8 @@ namespace web::websocket {
         char elengthJunk[8];
         char maskingKeyJunk[4];
         char payloadJunk[MAX_PAYLOAD_JUNK_LEN];
+
+        bool stopped = false;
     };
 
 } // namespace web::websocket

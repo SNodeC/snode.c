@@ -18,6 +18,7 @@
 
 #include "net/EventLoop.h" // for EventLoop
 
+#include "DynamicLoader.h"
 #include "log/Logger.h" // for Logger
 #include "net/system/select.h"
 #include "net/system/signal.h"
@@ -89,10 +90,11 @@ namespace net {
                                               &nextInactivityTimeout);
 
             if (counter >= 0) {
+                nextInactivityTimeout = {LONG_MAX, 0};
+
                 timerEventDispatcher.dispatch();
 
                 struct timeval currentTime = {net::system::time(nullptr), 0};
-                nextInactivityTimeout = {LONG_MAX, 0};
 
                 nextTimeout = readEventDispatcher.dispatchActiveEvents(currentTime);
                 nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
@@ -102,6 +104,16 @@ namespace net {
 
                 nextTimeout = exceptionalConditionEventDispatcher.dispatchActiveEvents(currentTime);
                 nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
+
+                readEventDispatcher.unobserveDisabledEvents();
+                writeEventDispatcher.unobserveDisabledEvents();
+                exceptionalConditionEventDispatcher.unobserveDisabledEvents();
+
+                readEventDispatcher.releaseUnobservedEvents();
+                writeEventDispatcher.releaseUnobservedEvents();
+                exceptionalConditionEventDispatcher.releaseUnobservedEvents();
+
+                DynamicLoader::doAllDlClosedRealDlClose();
             } else if (errno != EINTR) {
                 PLOG(ERROR) << "select";
                 tickStatus = TickStatus::SELECT_ERROR;
@@ -109,14 +121,6 @@ namespace net {
         } else {
             tickStatus = TickStatus::NO_OBSERVER;
         }
-
-        readEventDispatcher.unobserveDisabledEvents();
-        writeEventDispatcher.unobserveDisabledEvents();
-        exceptionalConditionEventDispatcher.unobserveDisabledEvents();
-
-        readEventDispatcher.releaseUnobservedEvents();
-        writeEventDispatcher.releaseUnobservedEvents();
-        exceptionalConditionEventDispatcher.releaseUnobservedEvents();
 
         return tickStatus;
     }
@@ -139,6 +143,8 @@ namespace net {
         exceptionalConditionEventDispatcher.releaseUnobservedEvents();
 
         timerEventDispatcher.cancelAll();
+
+        DynamicLoader::doAllDlClose();
     }
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)

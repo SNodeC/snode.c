@@ -22,6 +22,9 @@
 namespace web::websocket {
     template <typename SubProtocolT>
     class SocketContext;
+
+    template <typename SubProtocolT>
+    class SubProtocolFactory;
 } // namespace web::websocket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -34,7 +37,7 @@ namespace web::websocket {
 
 namespace web::websocket {
 
-    template <typename SocketContextT>
+    template <typename SocketContextT, typename ConcreteSubProtocol>
     class SubProtocol {
     public:
         using SocketContext = SocketContextT;
@@ -120,8 +123,21 @@ namespace web::websocket {
             context = serverContext;
         }
 
+        SocketContext* getSocketContext() {
+            return context;
+        }
+
+        void setSubProtocolFactory(SubProtocolFactory<ConcreteSubProtocol>* subProtocolFactory) {
+            this->subProtocolFactory = subProtocolFactory;
+        }
+
+        SubProtocolFactory<ConcreteSubProtocol>* getSubProtocolFactory() {
+            return subProtocolFactory;
+        }
+
     protected:
         SocketContext* context;
+        SubProtocolFactory<ConcreteSubProtocol>* subProtocolFactory;
 
         const std::string name;
     };

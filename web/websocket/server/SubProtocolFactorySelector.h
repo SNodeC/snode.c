@@ -24,19 +24,21 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <map> // for map
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::websocket::server {
 
-    class SubProtocolFactorySelector : public web::websocket::SubProtocolFactorySelector<web::websocket::server::SubProtocolFactory> {
-    public:
+    class SubProtocolFactorySelector
+        : public web::websocket::SubProtocolFactorySelector<SubProtocolFactorySelector, web::websocket::server::SubProtocolFactory> {
+    protected:
         SubProtocolFactorySelector();
 
         SubProtocolFactorySelector(const SubProtocolFactorySelector&) = delete;
 
         SubProtocolFactorySelector& operator=(const SubProtocolFactorySelector&) = delete;
+
+        template <typename SubProtocolFactorySelectorT, typename SubProtocolFactoryT>
+        friend class web::websocket::SubProtocolFactorySelector;
     };
 
 } // namespace web::websocket::server

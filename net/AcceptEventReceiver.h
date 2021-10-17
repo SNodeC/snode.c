@@ -37,7 +37,12 @@ namespace net {
 
     private:
         virtual void acceptEvent() = 0;
-        void dispatchEvent() override;
+        virtual void acceptTimeout();
+        virtual bool continueAcceptImmediately();
+
+        void dispatchEvent() final;
+        void timeoutEvent() final;
+        bool continueImmediately() final;
     };
 
 } // namespace net

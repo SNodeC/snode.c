@@ -36,27 +36,27 @@ if(NLOHMANN_JSON_FOUND)
 endif(NLOHMANN_JSON_FOUND)
 
 add_executable(jsonclient jsonclient.cpp)
-target_link_libraries(jsonclient PRIVATE snodec::express)
+target_link_libraries(jsonclient PRIVATE snodec::httpclient)
 install(TARGETS jsonclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(testparser testparsers.cpp)
-target_link_libraries(testparser PRIVATE snodec::express)
+target_link_libraries(testparser PRIVATE snodec::httpserver snodec::httpclient)
 install(TARGETS testparser RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(client4 client4.cpp)
-target_link_libraries(client4 PRIVATE snodec::http)
+target_link_libraries(client4 PRIVATE snodec::httpclient)
 install(TARGETS client4 RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(client6 client6.cpp)
-target_link_libraries(client6 PRIVATE snodec::http)
+target_link_libraries(client6 PRIVATE snodec::httpclient)
 install(TARGETS client6 RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(client6clientcert client6clientcert.cpp)
-target_link_libraries(client6clientcert PRIVATE snodec::http)
+target_link_libraries(client6clientcert PRIVATE snodec::httpclient)
 install(TARGETS client6clientcert RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(lowlevelclient lowlevelclient.cpp)
-target_link_libraries(lowlevelclient PRIVATE snodec::http)
+target_link_libraries(lowlevelclient PRIVATE snodec::httpclient)
 install(TARGETS lowlevelclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(testregex testregex.cpp)
@@ -117,6 +117,6 @@ add_executable(websocketparser websocketparser.cpp)
 target_link_libraries(websocketparser PRIVATE snodec::express)
 install(TARGETS websocketparser RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-add_executable(websocketclient websocketclient.cpp)
-target_link_libraries(websocketclient PRIVATE snodec::http)
-install(TARGETS websocketclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+add_executable(websockettestclient websocketclient.cpp)
+target_link_libraries(websockettestclient PRIVATE snodec::httpclient)
+install(TARGETS websockettestclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

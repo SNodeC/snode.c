@@ -19,7 +19,7 @@
 #ifndef WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H
 #define WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H
 
-#include "net/socket/stream/SocketContextFactory.h"
+#include "web/http/SocketContextUpgradeFactory.hpp" // IWYU pragma: export
 
 namespace web::http::server {
     class Request;
@@ -28,30 +28,13 @@ namespace web::http::server {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http::server {
 
-    class SocketContextUpgradeFactory : public net::socket::stream::SocketContextFactory {
+    class SocketContextUpgradeFactory : public web::http::SocketContextUpgradeFactory<Request, Response> {
     protected:
-        SocketContextUpgradeFactory() = default;
-        virtual ~SocketContextUpgradeFactory() = default;
-
-    public:
-        enum class Role { CLIENT, SERVER };
-
-        void prepare(Request& request, Response& response);
-
-        virtual std::string name() = 0;
-        virtual Role role() = 0;
-
-        virtual void destroy() = 0;
-
-    protected:
-        Request* request;
-        Response* response;
+        SocketContextUpgradeFactory();
     };
 
 } // namespace web::http::server

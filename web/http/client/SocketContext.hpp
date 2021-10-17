@@ -18,10 +18,7 @@
 
 #include "log/Logger.h"
 #include "web/http/client/SocketContext.h"
-
-namespace web::http {
-    class CokieOptions;
-} // namespace web::http
+#include "web/http/client/SocketContextUpgradeFactorySelector.h"
 
 namespace net::socket::stream {
     class SocketConnection;
@@ -29,7 +26,6 @@ namespace net::socket::stream {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <map>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -74,6 +70,11 @@ namespace web::http::client {
 
     template <typename Request, typename Response>
     void SocketContextT<Request, Response>::sendToPeerCompleted() {
+    }
+
+    template <typename Request, typename Response>
+    void SocketContextT<Request, Response>::stop() {
+        parser.stop();
     }
 
     template <typename Request, typename Response>

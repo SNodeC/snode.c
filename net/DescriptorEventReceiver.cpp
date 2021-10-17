@@ -35,10 +35,12 @@ namespace net {
     void DescriptorEventReceiver::enable(int fd) {
         this->fd = fd;
         descriptorEventDispatcher.enable(this, fd);
+        _enabled = true;
     }
 
     void DescriptorEventReceiver::disable() {
         descriptorEventDispatcher.disable(this, fd);
+        _enabled = false;
     }
 
     void DescriptorEventReceiver::suspend() {
@@ -51,14 +53,12 @@ namespace net {
 
     void DescriptorEventReceiver::enabled() {
         ObservationCounter::observationCounter++;
-        _enabled = true;
         lastTriggered = {time(nullptr), 0};
     }
 
     void DescriptorEventReceiver::disabled() {
         this->fd = -1;
         ObservationCounter::observationCounter--;
-        _enabled = false;
     }
 
     bool DescriptorEventReceiver::isEnabled() const {

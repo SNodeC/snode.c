@@ -16,30 +16,42 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_HTTP_CLIENT_SOCKETCONTEXTUPGRADEINTERFACE_H
-#define WEB_HTTP_CLIENT_SOCKETCONTEXTUPGRADEINTERFACE_H
-
-namespace web::http::client {
-
-    class SocketContextUpgradeFactory;
-
-} // namespace web::http::client
+#ifndef NET_DYNAMICLOADER_H
+#define NET_DYNAMICLOADER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <map>
+#include <set>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::http::client {
+namespace net {
 
-    class SocketContextUpgradeInterface {
+    class DynamicLoader {
+    private:
+        DynamicLoader() = default;
+
+        ~DynamicLoader() = default;
+
+        static DynamicLoader* instance();
+
     public:
-        virtual ~SocketContextUpgradeInterface() = default;
+        static void* dlOpen(const std::string& libFile, int flags);
+        static void dlClose(void* handle);
 
-        virtual web::http::client::SocketContextUpgradeFactory* create() = 0;
+    private:
+        static void doRealDlClose(void* handle);
+        static void doAllDlClosedRealDlClose();
+        static void doAllDlClose();
+
+        std::map<void*, std::string> loadedLibraries;
+        std::set<void*> registeredForUnload;
+
+        friend class EventLoop;
     };
 
-} // namespace web::http::client
+} // namespace net
 
-#endif // WEB_HTTP_CLIENT_SOCKETCONTEXTUPGRADEINTERFACE_H
+#endif // NET_DYNAMICLOADER_H

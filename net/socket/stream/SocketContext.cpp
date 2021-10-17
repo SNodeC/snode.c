@@ -55,8 +55,9 @@ namespace net::socket::stream {
         socketConnection->close();
     }
 
-    void SocketContext::switchSocketContext(SocketContextFactory* socketContextFactory) {
-        socketConnection->switchSocketContext(socketContextFactory);
+    SocketContext* SocketContext::switchSocketContext(SocketContextFactory* socketContextFactory) {
+        stop();
+        return socketConnection->switchSocketContext(socketContextFactory);
     }
 
     void SocketContext::receiveFromPeer() {
@@ -77,6 +78,10 @@ namespace net::socket::stream {
 
     void SocketContext::onDisconnected() {
         VLOG(0) << "Protocol disconnecteded";
+    }
+
+    void SocketContext::stop() {
+        // By default do nothing
     }
 
 } // namespace net::socket::stream

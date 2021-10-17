@@ -18,42 +18,89 @@
 
 #include "SocketContextUpgradeFactory.h"
 
-#include "log/Logger.h"
+#include "SubProtocol.h"
+#include "utils/base64.h"
+#include "web/http/client/Request.h"  // for Request
+#include "web/http/client/Response.h" // for Response
+#include "web/http/client/SocketContextUpgradeFactorySelector.h"
+#include "web/websocket/SocketContext.h"                     // for Soc...
+#include "web/websocket/client/SubProtocolFactorySelector.h" // for Sub...
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <unistd.h>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::ws::client {
+namespace web::websocket::client {
 
-    extern "C" {
-        class web::ws::client::SocketContextUpgradeInterface* plugin() {
-            return new SocketContextUpgradeInterface();
+    void SocketContextUpgradeFactory::prepare(http::client::Request& request) {
+        unsigned char ebytes[16];
+        getentropy(ebytes, 16);
+
+        request.set("Sec-WebSocket-Key", base64::base64_encode(ebytes, 16));
+    }
+
+    void SocketContextUpgradeFactory::deleted(SocketContext* socketContext) {
+        SubProtocolFactory* subProtocolFactory =
+            dynamic_cast<SubProtocolFactory*>(socketContext->getSubProtocol()->getSubProtocolFactory());
+
+        if (subProtocolFactory->deleteSubProtocol(socketContext->getSubProtocol()) == 0) {
+            SubProtocolFactorySelector::instance()->unload(subProtocolFactory);
         }
-    }
 
-    http::server::SocketContextUpgradeFactory* SocketContextUpgradeInterface::create() {
-        return new SocketContextUpgradeFactory();
-    }
-
-    SocketContextUpgradeFactory::SocketContextUpgradeFactory() {
-        web::ws::server::SubProtocolSelector::instance()->loadSubProtocols();
-    }
-
-    SocketContextUpgradeFactory::~SocketContextUpgradeFactory() {
-        web::ws::server::SubProtocolSelector::instance()->unloadSubProtocols();
+        --refCount;
+        if (refCount == 0) {
+            web::http::client::SocketContextUpgradeFactorySelector::instance()->unload(this);
+        }
     }
 
     std::string SocketContextUpgradeFactory::name() {
         return "websocket";
     }
 
-    http::server::SocketContextUpgradeFactory::ROLE SocketContextUpgradeFactory::role() {
-        return http::server::SocketContextUpgradeFactory::ROLE::SERVER;
+    SocketContext* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnection* socketConnection) {
+        std::string subProtocolName = response->header("sec-websocket-protocol");
+
+        SocketContext* socketContext = nullptr;
+
+        web::websocket::client::SubProtocolFactory* subProtocolFactory = SubProtocolFactorySelector::instance()->select(subProtocolName);
+
+        if (subProtocolFactory != nullptr) {
+            SubProtocol* subProtocol = subProtocolFactory->createSubProtocol();
+
+            if (subProtocol != nullptr) {
+                socketContext = new SocketContext(socketConnection, subProtocol);
+
+                if (socketContext != nullptr) {
+                    refCount++;
+
+                    socketContext->setSocketContextUpgradeFactory(this);
+                    subProtocol->setSocketContext(socketContext);
+                    subProtocol->setSubProtocolFactory(subProtocolFactory);
+                } else {
+                    subProtocolFactory->deleteSubProtocol(subProtocol);
+                }
+            }
+        }
+
+        if (refCount == 0) {
+            web::http::client::SocketContextUpgradeFactorySelector::instance()->unload(this);
+        }
+
+        return socketContext;
     }
 
-    web::ws::server::SocketContext* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnectionBase* socketConnection) const {
-        return web::ws::server::SocketContext::create(socketConnection, *request, *response);
+    extern "C" {
+        web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response>* getSocketContextUpgradeFactory() {
+            return new SocketContextUpgradeFactory();
+        }
+
+        void linkStatic(const std::string& subProtocolName, web::websocket::client::SubProtocolFactory* (*plugin)()) {
+            web::websocket::client::SubProtocolFactorySelector::linkStatic(subProtocolName, plugin);
+            web::http::client::SocketContextUpgradeFactorySelector::instance()->setLinkedPlugin("websocket",
+                                                                                                getSocketContextUpgradeFactory);
+        }
     }
 
-} // namespace web::ws::client
+} // namespace web::websocket::client

@@ -35,7 +35,12 @@ namespace net {
 
     private:
         virtual void connectEvent() = 0;
-        void dispatchEvent() override;
+        virtual void connectTimeout();
+        virtual bool continueConnectImmediately();
+
+        void dispatchEvent() final;
+        void timeoutEvent() final;
+        bool continueImmediately() final;
     };
 
 } // namespace net

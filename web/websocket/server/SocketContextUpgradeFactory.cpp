@@ -16,13 +16,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/websocket/server/SocketContextUpgradeFactory.h"
+#include "SocketContextUpgradeFactory.h"
 
 #include "SubProtocol.h"
 #include "utils/base64.h"
 #include "web/http/server/Request.h"  // for Request
 #include "web/http/server/Response.h" // for Response
 #include "web/http/server/SocketContextUpgradeFactorySelector.h"
+#include "web/websocket/SocketContext.h" // for Soc...
+#include "web/websocket/server/SubProtocolFactorySelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,17 +32,17 @@
 
 namespace web::websocket::server {
 
-    void SocketContextUpgradeFactory::attach(SubProtocolFactory* subProtocolFactory) {
-        SocketContextUpgradeFactory* socketContextUpgradeFactory = dynamic_cast<SocketContextUpgradeFactory*>(
-            web::http::server::SocketContextUpgradeFactorySelector::instance()->select("websocket", false));
+    void SocketContextUpgradeFactory::deleted(SocketContext* socketContext) {
+        SubProtocolFactory* subProtocolFactory =
+            dynamic_cast<SubProtocolFactory*>(socketContext->getSubProtocol()->getSubProtocolFactory());
 
-        if (socketContextUpgradeFactory == nullptr) {
-            socketContextUpgradeFactory = new SocketContextUpgradeFactory();
-            web::http::server::SocketContextUpgradeFactorySelector::instance()->add(socketContextUpgradeFactory);
+        if (subProtocolFactory->deleteSubProtocol(socketContext->getSubProtocol()) == 0) {
+            SubProtocolFactorySelector::instance()->unload(subProtocolFactory);
         }
 
-        if (socketContextUpgradeFactory != nullptr) {
-            socketContextUpgradeFactory->subProtocolFactorySelector.add(subProtocolFactory);
+        --refCount;
+        if (refCount == 0) {
+            web::http::server::SocketContextUpgradeFactorySelector::instance()->unload(this);
         }
     }
 
@@ -48,24 +50,26 @@ namespace web::websocket::server {
         return "websocket";
     }
 
-    http::server::SocketContextUpgradeFactory::Role SocketContextUpgradeFactory::role() {
-        return http::server::SocketContextUpgradeFactory::Role::SERVER;
-    }
-
     SocketContext* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnection* socketConnection) {
         std::string subProtocolName = request->header("sec-websocket-protocol");
 
-        SocketContext* context = nullptr;
+        SocketContext* socketContext = nullptr;
 
-        web::websocket::server::SubProtocolFactory* subProtocolFactory = subProtocolFactorySelector.select(subProtocolName);
+        web::websocket::server::SubProtocolFactory* subProtocolFactory = SubProtocolFactorySelector::instance()->select(subProtocolName);
 
         if (subProtocolFactory != nullptr) {
-            SubProtocol* subProtocol = subProtocolFactory->create();
+            SubProtocol* subProtocol = subProtocolFactory->createSubProtocol();
 
             if (subProtocol != nullptr) {
-                context = new SocketContext(socketConnection, subProtocol);
+                socketContext = new SocketContext(socketConnection, subProtocol);
 
-                if (context != nullptr) {
+                if (socketContext != nullptr) {
+                    refCount++;
+
+                    socketContext->setSocketContextUpgradeFactory(this);
+                    subProtocol->setSocketContext(socketContext);
+                    subProtocol->setSubProtocolFactory(subProtocolFactory);
+
                     response->set("Upgrade", "websocket");
                     response->set("Connection", "Upgrade");
                     response->set("Sec-WebSocket-Protocol", subProtocolName);
@@ -73,26 +77,35 @@ namespace web::websocket::server {
 
                     response->status(101).end(); // Switch Protocol
                 } else {
-                    delete subProtocol;
+                    subProtocolFactory->deleteSubProtocol(subProtocol);
+                    response->set("Connection", "close");
                     response->status(500).end(); // Internal Server Error
                 }
             } else {
+                response->set("Connection", "close");
                 response->status(404).end(); // Not Found
             }
         } else {
+            response->set("Connection", "close");
             response->status(404).end(); // Not Found
         }
 
-        return context;
-    }
+        if (refCount == 0) {
+            web::http::server::SocketContextUpgradeFactorySelector::instance()->unload(this);
+        }
 
-    void SocketContextUpgradeFactory::destroy() {
-        delete this;
+        return socketContext;
     }
 
     extern "C" {
-        SocketContextUpgradeFactory* plugin() {
+        web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response>* getSocketContextUpgradeFactory() {
             return new SocketContextUpgradeFactory();
+        }
+
+        void linkStatic(const std::string& subProtocolName, web::websocket::server::SubProtocolFactory* (*plugin)()) {
+            web::websocket::server::SubProtocolFactorySelector::linkStatic(subProtocolName, plugin);
+            web::http::server::SocketContextUpgradeFactorySelector::instance()->setLinkedPlugin("websocket",
+                                                                                                getSocketContextUpgradeFactory);
         }
     }
 

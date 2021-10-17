@@ -16,14 +16,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/http/server//Response.h"
+#include "web/http/server/Response.h"
 
 #include "log/Logger.h"
 #include "net/system/time.h"
 #include "web/http/StatusCodes.h"
 #include "web/http/http_utils.h"
-#include "web/http/server//SocketContext.h"
 #include "web/http/server/Request.h"
+#include "web/http/server/SocketContext.h"
 #include "web/http/server/SocketContextUpgradeFactory.h"
 #include "web/http/server/SocketContextUpgradeFactorySelector.h"
 
@@ -173,12 +173,15 @@ namespace web::http::server {
                 web::http::server::SocketContextUpgradeFactorySelector::instance()->select(req, *this);
 
             if (socketContextUpgradeFactory != nullptr) {
-                socketContext->switchSocketContext(socketContextUpgradeFactory);
+                if (socketContext->switchSocketContext(socketContextUpgradeFactory) == nullptr) {
+                }
             } else {
+                set("Connection", "close");
                 this->status(404).end();
             }
 
         } else {
+            set("Connection", "close");
             this->status(400).end();
         }
     }

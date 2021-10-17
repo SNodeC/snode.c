@@ -16,30 +16,36 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_CLIENT_SUBPROTOCOLSELECTOR_H
-#define WEB_WS_CLIENT_SUBPROTOCOLSELECTOR_H
+#ifndef WEB_HTTP_SOCKETCONTEXT_H
+#define WEB_HTTP_SOCKETCONTEXT_H
 
-#include "web/websocket/SubProtocolFactorySelector.h"
+#include "net/socket/stream/SocketContext.h"
+
+namespace net::socket::stream {
+    class SocketConnection;
+} // namespace net::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <memory>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::websocket::client {
+namespace web::http {
 
-    class SubProtocolFactorySelector : public web::websocket::SubProtocolFactorySelector {
+    class SocketContext : public net::socket::stream::SocketContext {
     public:
-        SubProtocolFactorySelector() = default;
+        using SocketConnection = net::socket::stream::SocketConnection;
 
-    public:
-        static std::shared_ptr<SubProtocolFactorySelector> instance();
+        explicit SocketContext(net::socket::stream::SocketConnection* socketConnection);
 
-    private:
-        static std::shared_ptr<SubProtocolFactorySelector> subProtocolSelector;
+        ~SocketContext() override = default;
+
+        SocketContext(const SocketContext&) = delete;
+        SocketContext& operator=(const SocketContext&) = delete;
+
+        virtual void sendToPeerCompleted() = 0;
+        virtual void terminateConnection() = 0;
     };
 
-} // namespace web::websocket::client
+} // namespace web::http
 
-#endif // WEB_WS_CLIENT_SUBPROTOCOLSELECTOR_H
+#endif // WEB_HTTP_SOCKETCONTEXT_H

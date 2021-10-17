@@ -19,13 +19,14 @@
 #include "web/http/client/Request.h"
 
 #include "log/Logger.h"
-#include "utils/base64.h"
+#include "web/http/client/Response.h"
 #include "web/http/client/SocketContext.h"
+#include "web/http/client/SocketContextUpgradeFactory.h"
+#include "web/http/client/SocketContextUpgradeFactorySelector.h"
 #include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <sys/random.h>
 #include <utility> // for pair, tuple_element<>::type
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -33,7 +34,7 @@
 namespace web::http::client {
 
     Request::Request(SocketContext* clientContext)
-        : clientContext(clientContext) {
+        : socketContext(clientContext) {
     }
 
     Request& Request::setHost(const std::string& host) {
@@ -124,14 +125,14 @@ namespace web::http::client {
             headersSent = true;
         }
 
-        clientContext->sendToPeer(junk, junkLen);
+        socketContext->sendToPeer(junk, junkLen);
 
         if (headersSent) {
             contentSent += junkLen;
             if (contentSent == contentLength) {
-                clientContext->sendToPeerCompleted();
+                socketContext->sendToPeerCompleted();
             } else if (contentSent > contentLength) {
-                clientContext->terminateConnection();
+                socketContext->terminateConnection();
             }
         }
     }
@@ -202,27 +203,46 @@ namespace web::http::client {
         send(junk.data(), junk.size());
     }
 
-    void Request::upgrade(const std::string& url, const std::string& protocol, const std::string& subProtocol) {
+    void Request::upgrade(const std::string& url, const std::string& protocol) {
         this->url = url;
+
         set("Connection", "Upgrade", true);
 
         set("Upgrade", protocol);
-
-        if (!subProtocol.empty()) {
-            set("Sec-WebSocket-Protocol", subProtocol);
-        }
-
-        unsigned char ebytes[16];
-        getentropy(ebytes, 16);
-
-        set("Sec-WebSocket-Key", base64::base64_encode(ebytes, 16));
-
-        start();
 
         // load upgrade context
         // let upgrade context fill the request-header fields
         // send the request to the server
         // the response-code needs to check the response from the server and upgrade the context in case the server says OK
+
+        web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
+            web::http::client::SocketContextUpgradeFactorySelector::instance()->select(protocol, *this);
+
+        if (socketContextUpgradeFactory != nullptr) {
+            start();
+        } else {
+            socketContext->terminateConnection();
+        }
+    }
+
+    void Request::upgrade(Response& response) {
+        if (httputils::ci_contains(response.header("connection"), "Upgrade")) {
+            web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
+                web::http::client::SocketContextUpgradeFactorySelector::instance()->select(*this, response);
+
+            if (socketContextUpgradeFactory != nullptr) {
+                if (socketContext->switchSocketContext(socketContextUpgradeFactory) == nullptr) {
+                    socketContext->terminateConnection();
+                }
+            } else {
+                VLOG(0) << "SocketContextUpgradeFactory not existing";
+                socketContext->terminateConnection();
+            }
+
+        } else {
+            VLOG(0) << "Response did not contain upgrade";
+            socketContext->terminateConnection();
+        }
     }
 
     void Request::start() {
@@ -239,7 +259,7 @@ namespace web::http::client {
 
     void Request::error([[maybe_unused]] int errnum) {
         PLOG(ERROR) << "Stream error: ";
-        clientContext->terminateConnection();
+        socketContext->terminateConnection();
     }
 
 } // namespace web::http::client

@@ -105,6 +105,11 @@ namespace net::socket::stream::tls {
             return ret;
         }
 
+        bool continueReadImmediately() override {
+            int pending = SSL_pending(ssl);
+            return pending;
+        }
+
     protected:
         virtual void doSSLHandshake(const std::function<void()>& onSuccess,
                                     const std::function<void()>& onTimeout,

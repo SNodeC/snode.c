@@ -33,10 +33,14 @@ namespace net {
     protected:
         ExceptionalConditionEventReceiver(long timeout = MAX_OUTOFBAND_INACTIVITY);
 
-        virtual void outOfBandEvent() = 0;
-
     private:
-        void dispatchEvent() override;
+        virtual void outOfBandEvent() = 0;
+        virtual void outOfBandTimeout();
+        virtual bool continueOutOfBandImmediately();
+
+        void dispatchEvent() final;
+        void timeoutEvent() final;
+        bool continueImmediately() final;
     };
 
 } // namespace net

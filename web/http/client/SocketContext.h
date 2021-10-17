@@ -19,8 +19,12 @@
 #ifndef WEB_HTTP_CLIENT_SOCKETCONTEXT_H
 #define WEB_HTTP_CLIENT_SOCKETCONTEXT_H
 
-#include "net/socket/stream/SocketContext.h"
+#include "web/http/SocketContext.h"
 #include "web/http/client/ResponseParser.h"
+
+namespace net::socket::stream {
+    class SocketConnection;
+} // namespace net::socket::stream
 
 namespace web::http::client {
     class Request;
@@ -29,31 +33,21 @@ namespace web::http::client {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
 #include <functional>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::stream {
-    class SocketConnection;
-} // namespace net::socket::stream
-
 namespace web::http::client {
 
-    class SocketContext : public net::socket::stream::SocketContext {
+    class SocketContext : public web::http::SocketContext {
     public:
-        explicit SocketContext(net::socket::stream::SocketConnection* socketConnection)
-            : net::socket::stream::SocketContext(socketConnection) {
-        }
+        using web::http::SocketContext::SocketContext;
 
-        virtual ~SocketContext() = default;
+        using SocketConnection = net::socket::stream::SocketConnection;
 
         virtual Request& getRequest() = 0;
         virtual Response& getResponse() = 0;
-
-        virtual void sendToPeerCompleted() = 0;
-        virtual void terminateConnection() = 0;
     };
 
     template <typename RequestT, typename ResponseT>
@@ -70,6 +64,8 @@ namespace web::http::client {
         ~SocketContextT() override = default;
 
     private:
+        void stop() override;
+
         void onReceiveFromPeer() override;
 
         void onWriteError(int errnum) override;

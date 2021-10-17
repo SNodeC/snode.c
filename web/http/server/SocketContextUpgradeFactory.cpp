@@ -24,9 +24,8 @@
 
 namespace web::http::server {
 
-    void SocketContextUpgradeFactory::prepare(Request& request, Response& response) {
-        this->request = &request;
-        this->response = &response;
+    SocketContextUpgradeFactory::SocketContextUpgradeFactory()
+        : web::http::SocketContextUpgradeFactory<Request, Response>(http::SocketContextUpgradeFactory<Request, Response>::Role::SERVER) {
     }
 
 } // namespace web::http::server

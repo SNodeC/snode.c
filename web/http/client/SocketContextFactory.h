@@ -19,9 +19,8 @@
 #ifndef WEB_HTTP_CLIENT_SOCKETCONTEXTFACTORY_H
 #define WEB_HTTP_CLIENT_SOCKETCONTEXTFACTORY_H
 
-#include "net/socket/stream/SocketContextFactory.h"
+#include "web/http/SocketContextFactory.h"
 #include "web/http/client/SocketContext.hpp"
-#include "web/http/client/SocketContextUpgradeFactorySelector.h"
 
 namespace net::socket::stream {
     class SocketConnection;
@@ -34,48 +33,36 @@ namespace net::socket::stream {
 namespace web::http::client {
 
     template <typename RequestT, typename ResponseT>
-    class SocketContextFactory : public net::socket::stream::SocketContextFactory {
+    class SocketContextFactory : public web::http::SocketContextFactory<web::http::client::SocketContextT, RequestT, ResponseT> {
     public:
         using Request = RequestT;
         using Response = ResponseT;
 
-        SocketContextFactory() {
-            if (useCount == 0) {
-                SocketContextUpgradeFactorySelector::instance()->loadSocketContexts();
-            }
-            useCount++;
-        }
+        SocketContextFactory() = default;
 
-        ~SocketContextFactory() {
-            useCount--;
-            if (useCount == 0) {
-                SocketContextUpgradeFactorySelector::instance()->unloadSocketContexts();
-            }
-        }
+        ~SocketContextFactory() override = default;
+
+        SocketContextFactory(const SocketContextFactory&) = delete;
+        SocketContextFactory& operator=(const SocketContextFactory&) = delete;
 
     private:
         net::socket::stream::SocketContext* create(net::socket::stream::SocketConnection* socketConnection) override {
-            return new SocketContextT<Request, Response>(socketConnection, onResponse, onRequestError);
+            return new SocketContextT<Request, Response>(socketConnection, onResponseReady, onResponseError);
         }
 
     public:
-        void setOnResponse(const std::function<void(Request&, Response&)>& onResponse) {
-            this->onResponse = onResponse;
+        void setOnResponseReady(const std::function<void(Request&, Response&)>& onResponseReady) {
+            this->onResponseReady = onResponseReady;
         }
 
-        void setOnRequestError(const std::function<void(int, const std::string&)> onRequestError) {
-            this->onRequestError = onRequestError;
+        void setOnResponseError(const std::function<void(int, const std::string&)> onResponseError) {
+            this->onResponseError = onResponseError;
         }
 
     private:
-        std::function<void(Request&, Response&)> onResponse;
-        std::function<void(int, const std::string&)> onRequestError;
-
-        static int useCount;
+        std::function<void(Request&, Response&)> onResponseReady;
+        std::function<void(int, const std::string&)> onResponseError;
     };
-
-    template <typename RequestT, typename ResponseT>
-    int SocketContextFactory<RequestT, ResponseT>::useCount = 0;
 
 } // namespace web::http::client
 

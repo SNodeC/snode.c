@@ -18,6 +18,7 @@
 
 #include "web/websocket/server/SocketContext.h"
 
+#include "web/websocket/server/SocketContextUpgradeFactory.h"
 #include "web/websocket/server/SubProtocol.h" // IWYU pragma: keep
 
 namespace net::socket::stream {
@@ -28,17 +29,22 @@ namespace net::socket::stream {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define CLOSE_SOCKET_TIMEOUT 10
-
 namespace web::websocket::server {
 
     SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection, SubProtocol* subProtocol)
         : web::websocket::SocketContext<SubProtocol>(socketConnection, subProtocol, Role::SERVER) {
-        subProtocol->setSocketContext(this);
+    }
+
+    void SocketContext::setSocketContextUpgradeFactory(SocketContextUpgradeFactory* socketContextUpgradeFactory) {
+        this->socketContextUpgradeFactory = socketContextUpgradeFactory;
+    }
+
+    SocketContextUpgradeFactory* SocketContext::getSocketContextUpgradeFactory() {
+        return socketContextUpgradeFactory;
     }
 
     SocketContext::~SocketContext() {
-        delete subProtocol;
+        socketContextUpgradeFactory->deleted(this);
     }
 
 } // namespace web::websocket::server
