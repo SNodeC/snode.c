@@ -35,23 +35,24 @@ namespace web::http {
         using Request = RequestT;
         using Response = ResponseT;
 
+        enum class Role { CLIENT, SERVER };
+
     protected:
-        SocketContextUpgradeFactory() = default;
+        SocketContextUpgradeFactory(Role role);
         ~SocketContextUpgradeFactory() override = default;
 
     public:
-        enum class Role { CLIENT, SERVER };
-
         virtual void prepare(Request& request, Response& response);
-
         virtual std::string name() = 0;
-        virtual Role role() = 0;
 
+        SocketContextUpgradeFactory<Request, Response>::Role getRole();
         void destroy();
 
     protected:
         Request* request;
         Response* response;
+
+        Role role;
     };
 
 } // namespace web::http

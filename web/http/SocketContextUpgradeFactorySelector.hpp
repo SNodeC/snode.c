@@ -44,7 +44,7 @@ namespace web::http {
         bool success = false;
 
         if (socketContextUpgradeFactory != nullptr) {
-            if (socketContextUpgradeFactory->role() == role) {
+            if (socketContextUpgradeFactory->getRole() == role) {
                 SocketContextPlugin<RequestT, ResponseT> socketContextPlugin = {.socketContextUpgradeFactory = socketContextUpgradeFactory,
                                                                                 .handle = handle};
                 std::tie(std::ignore, success) =

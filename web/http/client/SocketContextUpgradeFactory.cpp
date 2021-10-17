@@ -24,8 +24,8 @@
 
 namespace web::http::client {
 
-    http::SocketContextUpgradeFactory<Request, Response>::Role SocketContextUpgradeFactory::role() {
-        return http::SocketContextUpgradeFactory<Request, Response>::Role::CLIENT;
+    SocketContextUpgradeFactory::SocketContextUpgradeFactory()
+        : web::http::SocketContextUpgradeFactory<Request, Response>(http::SocketContextUpgradeFactory<Request, Response>::Role::CLIENT) {
     }
 
 } // namespace web::http::client

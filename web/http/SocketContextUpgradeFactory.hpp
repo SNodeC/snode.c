@@ -23,6 +23,17 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http {
+
+    template <typename RequestT, typename ResponseT>
+    SocketContextUpgradeFactory<RequestT, ResponseT>::SocketContextUpgradeFactory(Role role)
+        : role(role) {
+    }
+
+    template <typename RequestT, typename ResponseT>
+    typename SocketContextUpgradeFactory<RequestT, ResponseT>::Role SocketContextUpgradeFactory<RequestT, ResponseT>::getRole() {
+        return role;
+    }
+
     template <typename RequestT, typename ResponseT>
     void SocketContextUpgradeFactory<RequestT, ResponseT>::prepare(Request& request, Response& response) {
         this->request = &request;

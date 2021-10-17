@@ -36,13 +36,11 @@ namespace web::http::client {
 
     class SocketContextUpgradeFactory : public web::http::SocketContextUpgradeFactory<Request, Response> {
     protected:
-        using web::http::SocketContextUpgradeFactory<Request, Response>::SocketContextUpgradeFactory;
+        SocketContextUpgradeFactory();
 
     public:
         using web::http::SocketContextUpgradeFactory<Request, Response>::prepare;
         virtual void prepare(Request& request) = 0;
-
-        http::SocketContextUpgradeFactory<Request, Response>::Role role() final;
     };
 
 } // namespace web::http::client

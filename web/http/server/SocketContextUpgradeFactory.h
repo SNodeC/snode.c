@@ -36,9 +36,7 @@ namespace web::http::server {
 
     class SocketContextUpgradeFactory : public web::http::SocketContextUpgradeFactory<Request, Response> {
     protected:
-        using web::http::SocketContextUpgradeFactory<Request, Response>::SocketContextUpgradeFactory;
-
-        http::SocketContextUpgradeFactory<Request, Response>::Role role() final;
+        SocketContextUpgradeFactory();
     };
 
 } // namespace web::http::server

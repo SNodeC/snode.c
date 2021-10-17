@@ -24,8 +24,8 @@
 
 namespace web::http::server {
 
-    http::SocketContextUpgradeFactory<Request, Response>::Role SocketContextUpgradeFactory::role() {
-        return http::SocketContextUpgradeFactory<Request, Response>::Role::SERVER;
+    SocketContextUpgradeFactory::SocketContextUpgradeFactory()
+        : web::http::SocketContextUpgradeFactory<Request, Response>(http::SocketContextUpgradeFactory<Request, Response>::Role::SERVER) {
     }
 
 } // namespace web::http::server
