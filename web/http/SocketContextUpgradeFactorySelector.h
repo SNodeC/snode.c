@@ -47,7 +47,7 @@ namespace web::http {
         using Response = ResponseT;
 
     protected:
-        SocketContextUpgradeFactorySelector() = default;
+        SocketContextUpgradeFactorySelector(typename SocketContextUpgradeFactory<Request, Response>::Role role);
         virtual ~SocketContextUpgradeFactorySelector() = default;
 
     public:
@@ -57,7 +57,7 @@ namespace web::http {
 
         void setLinkedPlugin(const std::string& upgradeContextName, SocketContextUpgradeFactory<Request, Response>* (*linkedPlugin)());
 
-        void unused(SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory);
+        void unload(SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory);
 
     protected:
         SocketContextUpgradeFactory<Request, Response>* select(const std::string& upgradeContextName);
@@ -69,6 +69,8 @@ namespace web::http {
         std::map<std::string, SocketContextPlugin<Request, Response>> socketContextUpgradePlugins;
         std::map<std::string, SocketContextUpgradeFactory<Request, Response>* (*) ()> linkedSocketContextUpgradePlugins;
         std::list<std::string> searchPaths;
+
+        const typename SocketContextUpgradeFactory<Request, Response>::Role role;
     };
 
 } // namespace web::http

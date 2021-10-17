@@ -36,22 +36,18 @@ namespace web::websocket::server {
         SubProtocolFactory* subProtocolFactory =
             dynamic_cast<SubProtocolFactory*>(socketContext->getSubProtocol()->getSubProtocolFactory());
 
-        if (subProtocolFactory->deleted(socketContext->getSubProtocol()) == 0) {
-            SubProtocolFactorySelector::instance()->unload(dynamic_cast<web::websocket::server::SubProtocolFactory*>(subProtocolFactory));
+        if (subProtocolFactory->deleteSubProtocol(socketContext->getSubProtocol()) == 0) {
+            SubProtocolFactorySelector::instance()->unload(subProtocolFactory);
         }
 
         --refCount;
         if (refCount == 0) {
-            web::http::server::SocketContextUpgradeFactorySelector::instance()->unused(this);
+            web::http::server::SocketContextUpgradeFactorySelector::instance()->unload(this);
         }
     }
 
     std::string SocketContextUpgradeFactory::name() {
         return "websocket";
-    }
-
-    http::server::SocketContextUpgradeFactory::Role SocketContextUpgradeFactory::role() {
-        return http::server::SocketContextUpgradeFactory::Role::SERVER;
     }
 
     SocketContext* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnection* socketConnection) {
@@ -81,7 +77,7 @@ namespace web::websocket::server {
 
                     response->status(101).end(); // Switch Protocol
                 } else {
-                    subProtocolFactory->deleted(subProtocol);
+                    subProtocolFactory->deleteSubProtocol(subProtocol);
                     response->set("Connection", "close");
                     response->status(500).end(); // Internal Server Error
                 }
@@ -95,14 +91,10 @@ namespace web::websocket::server {
         }
 
         if (refCount == 0) {
-            web::http::server::SocketContextUpgradeFactorySelector::instance()->unused(this);
+            web::http::server::SocketContextUpgradeFactorySelector::instance()->unload(this);
         }
 
         return socketContext;
-    }
-
-    void SocketContextUpgradeFactory::destroy() {
-        delete this;
     }
 
     extern "C" {

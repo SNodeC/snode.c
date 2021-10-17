@@ -41,6 +41,8 @@ namespace web::http::client {
     public:
         using web::http::SocketContextUpgradeFactory<Request, Response>::prepare;
         virtual void prepare(Request& request) = 0;
+
+        http::SocketContextUpgradeFactory<Request, Response>::Role role() final;
     };
 
 } // namespace web::http::client

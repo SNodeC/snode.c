@@ -45,22 +45,18 @@ namespace web::websocket::client {
         SubProtocolFactory* subProtocolFactory =
             dynamic_cast<SubProtocolFactory*>(socketContext->getSubProtocol()->getSubProtocolFactory());
 
-        if (subProtocolFactory->deleted(socketContext->getSubProtocol()) == 0) {
-            SubProtocolFactorySelector::instance()->unload(dynamic_cast<web::websocket::client::SubProtocolFactory*>(subProtocolFactory));
+        if (subProtocolFactory->deleteSubProtocol(socketContext->getSubProtocol()) == 0) {
+            SubProtocolFactorySelector::instance()->unload(subProtocolFactory);
         }
 
         --refCount;
         if (refCount == 0) {
-            web::http::client::SocketContextUpgradeFactorySelector::instance()->unused(this);
+            web::http::client::SocketContextUpgradeFactorySelector::instance()->unload(this);
         }
     }
 
     std::string SocketContextUpgradeFactory::name() {
         return "websocket";
-    }
-
-    http::client::SocketContextUpgradeFactory::Role SocketContextUpgradeFactory::role() {
-        return http::client::SocketContextUpgradeFactory::Role::CLIENT;
     }
 
     SocketContext* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnection* socketConnection) {
@@ -83,20 +79,16 @@ namespace web::websocket::client {
                     subProtocol->setSocketContext(socketContext);
                     subProtocol->setSubProtocolFactory(subProtocolFactory);
                 } else {
-                    subProtocolFactory->deleted(subProtocol);
+                    subProtocolFactory->deleteSubProtocol(subProtocol);
                 }
             }
         }
 
         if (refCount == 0) {
-            web::http::client::SocketContextUpgradeFactorySelector::instance()->unused(this);
+            web::http::client::SocketContextUpgradeFactorySelector::instance()->unload(this);
         }
 
         return socketContext;
-    }
-
-    void SocketContextUpgradeFactory::destroy() {
-        delete this;
     }
 
     extern "C" {

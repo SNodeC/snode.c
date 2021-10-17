@@ -29,4 +29,9 @@ namespace web::http {
         this->response = &response;
     }
 
+    template <typename RequestT, typename ResponseT>
+    void SocketContextUpgradeFactory<RequestT, ResponseT>::SocketContextUpgradeFactory::destroy() {
+        delete this;
+    }
+
 } // namespace web::http

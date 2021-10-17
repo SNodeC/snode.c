@@ -52,11 +52,7 @@ namespace web::websocket::server {
     private:
         std::string name() override;
 
-        Role role() override;
-
         SocketContext* create(net::socket::stream::SocketConnection* socketConnection) override;
-
-        void destroy() override;
 
         std::size_t refCount = 0;
     };

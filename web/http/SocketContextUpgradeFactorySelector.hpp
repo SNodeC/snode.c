@@ -33,17 +33,23 @@
 namespace web::http {
 
     template <typename RequestT, typename ResponseT>
+    SocketContextUpgradeFactorySelector<RequestT, ResponseT>::SocketContextUpgradeFactorySelector(
+        typename SocketContextUpgradeFactory<RequestT, ResponseT>::Role role)
+        : role(role) {
+    }
+
+    template <typename RequestT, typename ResponseT>
     bool SocketContextUpgradeFactorySelector<RequestT, ResponseT>::add(
         SocketContextUpgradeFactory<RequestT, ResponseT>* socketContextUpgradeFactory, void* handle) {
         bool success = false;
 
         if (socketContextUpgradeFactory != nullptr) {
-            SocketContextPlugin<RequestT, ResponseT> socketContextPlugin = {.socketContextUpgradeFactory = socketContextUpgradeFactory,
-                                                                            .handle = handle};
-
-            //            if (socketContextUpgradeFactory->role() == SocketContextUpgradeFactory<RequestT, ResponseT>::Role::SERVER) {
-            std::tie(std::ignore, success) = socketContextUpgradePlugins.insert({socketContextUpgradeFactory->name(), socketContextPlugin});
-            //            }
+            if (socketContextUpgradeFactory->role() == role) {
+                SocketContextPlugin<RequestT, ResponseT> socketContextPlugin = {.socketContextUpgradeFactory = socketContextUpgradeFactory,
+                                                                                .handle = handle};
+                std::tie(std::ignore, success) =
+                    socketContextUpgradePlugins.insert({socketContextUpgradeFactory->name(), socketContextPlugin});
+            }
         }
 
         return success;
@@ -127,7 +133,7 @@ namespace web::http {
     }
 
     template <typename RequestT, typename ResponseT>
-    void SocketContextUpgradeFactorySelector<RequestT, ResponseT>::unused(
+    void SocketContextUpgradeFactorySelector<RequestT, ResponseT>::unload(
         SocketContextUpgradeFactory<RequestT, ResponseT>* socketContextUpgradeFactory) {
         std::string upgradeContextNames = socketContextUpgradeFactory->name();
 

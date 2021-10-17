@@ -22,4 +22,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::http::client {} // namespace web::http::client
+namespace web::http::client {
+
+    http::SocketContextUpgradeFactory<Request, Response>::Role SocketContextUpgradeFactory::role() {
+        return http::SocketContextUpgradeFactory<Request, Response>::Role::CLIENT;
+    }
+
+} // namespace web::http::client
