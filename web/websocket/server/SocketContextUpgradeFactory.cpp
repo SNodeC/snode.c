@@ -103,8 +103,8 @@ namespace web::websocket::server {
             return new SocketContextUpgradeFactory();
         }
 
-        void linkStatic(const std::string& subProtocolName, web::websocket::server::SubProtocolFactory* (*plugin)()) {
-            web::websocket::server::SubProtocolFactorySelector::linkStatic(subProtocolName, plugin);
+        void linkStatic(const std::string& subProtocolName, web::websocket::server::SubProtocolFactory* (*getSubProtocolFactory)()) {
+            web::websocket::server::SubProtocolFactorySelector::linkStatic(subProtocolName, getSubProtocolFactory);
             web::http::server::SocketContextUpgradeFactorySelector::instance()->setLinkedPlugin("websocket",
                                                                                                 getSocketContextUpgradeFactory);
         }

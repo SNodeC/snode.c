@@ -69,11 +69,11 @@ namespace web::http {
         void* handle = net::DynamicLoader::dlOpen(filePath.c_str(), RTLD_LAZY | RTLD_GLOBAL);
 
         if (handle != nullptr) {
-            SocketContextUpgradeFactory<RequestT, ResponseT>* (*plugin)() =
+            SocketContextUpgradeFactory<RequestT, ResponseT>* (*getSocketContextUpgradeFactory)() =
                 reinterpret_cast<SocketContextUpgradeFactory<RequestT, ResponseT>* (*) ()>(dlsym(handle, "getSocketContextUpgradeFactory"));
 
-            if (plugin != nullptr) {
-                socketContextUpgradeFactory = plugin();
+            if (getSocketContextUpgradeFactory != nullptr) {
+                socketContextUpgradeFactory = getSocketContextUpgradeFactory();
 
                 if (socketContextUpgradeFactory != nullptr) {
                     if (add(socketContextUpgradeFactory, handle)) {

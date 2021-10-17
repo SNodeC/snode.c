@@ -84,10 +84,11 @@ namespace web::websocket {
             if (handle != nullptr) {
                 VLOG(0) << "dlopen: " << handle << " : " << filePath;
 
-                SubProtocolFactory* (*plugin)() = reinterpret_cast<SubProtocolFactory* (*) ()>(dlsym(handle, "plugin"));
+                SubProtocolFactory* (*getSubProtocolFactory)() =
+                    reinterpret_cast<SubProtocolFactory* (*) ()>(dlsym(handle, "getSubProtocolFactory"));
 
-                if (plugin != nullptr) {
-                    subProtocolFactory = plugin();
+                if (getSubProtocolFactory != nullptr) {
+                    subProtocolFactory = getSubProtocolFactory();
                     if (subProtocolFactory != nullptr) {
                         add(subProtocolFactory, handle);
                     } else {

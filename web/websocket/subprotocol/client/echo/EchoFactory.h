@@ -39,7 +39,7 @@ namespace web::websocket::subprotocol::echo::client {
     };
 
     extern "C" {
-        web::websocket::client::SubProtocolFactory* plugin();
+        web::websocket::client::SubProtocolFactory* getSubProtocolFactory();
     }
 
 } // namespace web::websocket::subprotocol::echo::client

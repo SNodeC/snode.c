@@ -97,8 +97,8 @@ namespace web::websocket::client {
             return new SocketContextUpgradeFactory();
         }
 
-        void linkStatic(const std::string& subProtocolName, web::websocket::client::SubProtocolFactory* (*plugin)()) {
-            web::websocket::client::SubProtocolFactorySelector::linkStatic(subProtocolName, plugin);
+        void linkStatic(const std::string& subProtocolName, web::websocket::client::SubProtocolFactory* (*getSubProtocolFactory)()) {
+            web::websocket::client::SubProtocolFactorySelector::linkStatic(subProtocolName, getSubProtocolFactory);
             web::http::client::SocketContextUpgradeFactorySelector::instance()->setLinkedPlugin("websocket",
                                                                                                 getSocketContextUpgradeFactory);
         }

@@ -26,14 +26,14 @@ namespace net::socket::stream {
     class SocketConnection;
 } // namespace net::socket::stream
 
-namespace web::websocket::server {
-    class SubProtocolFactory;
-} // namespace web::websocket::server
-
 namespace web::http::server {
     class Request;
     class Response;
 } // namespace web::http::server
+
+namespace web::websocket::server {
+    class SubProtocolFactory;
+} // namespace web::websocket::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -65,7 +65,7 @@ namespace web::websocket::server {
     extern "C" {
         web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response>* getSocketContextUpgradeFactory();
 
-        void linkStatic(const std::string& subProtocolName, web::websocket::server::SubProtocolFactory* (*plugin)());
+        void linkStatic(const std::string& subProtocolName, web::websocket::server::SubProtocolFactory* (*getSubProtocolFactory)());
     }
 
 } // namespace web::websocket::server
