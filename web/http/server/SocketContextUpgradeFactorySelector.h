@@ -20,7 +20,6 @@
 #define WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADEFACTORYSELECTOR_H
 
 #include "SocketContextUpgradeFactory.h"
-#include "config.h"                                         // IWYU pragma: keep
 #include "web/http/SocketContextUpgradeFactorySelector.hpp" // IWYU pragma: export
 
 namespace web::http::server {
