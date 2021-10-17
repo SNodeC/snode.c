@@ -30,6 +30,11 @@ namespace web::websocket::server {
     class SubProtocolFactory;
 } // namespace web::websocket::server
 
+namespace web::http::server {
+    class Request;
+    class Response;
+} // namespace web::http::server
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef> // for size_t

@@ -14,12 +14,8 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBMAGIC libmagic)
 
 add_library(
-    http SHARED
-    http_utils.cpp
-    MimeTypes.cpp
-    Parser.cpp
-    StatusCodes.cpp
-    SocketContext.cpp
+    http SHARED http_utils.cpp MimeTypes.cpp Parser.cpp StatusCodes.cpp
+                SocketContext.cpp
 )
 add_library(snodec::http ALIAS http)
 

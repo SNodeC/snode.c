@@ -20,8 +20,8 @@
 #define WEB_HTTP_CLIENT_SOCKETCONTEXTUPGRADEFACTORYSELECTOR_H
 
 #include "SocketContextUpgradeFactory.h"
-#include "config.h"
-#include "web/http/SocketContextUpgradeFactorySelector.hpp"
+#include "config.h"                                         // IWYU pragma: keep
+#include "web/http/SocketContextUpgradeFactorySelector.hpp" // IWYU pragma: export
 
 namespace web::http::client {
     class Request;
@@ -30,8 +30,6 @@ namespace web::http::client {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <list>
-#include <map>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

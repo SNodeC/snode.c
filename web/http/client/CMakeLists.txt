@@ -10,10 +10,7 @@ pkg_check_modules(LIBMAGIC libmagic)
 
 add_library(
     httpclient SHARED
-    ResponseParser.cpp
-    Request.cpp
-    Response.cpp
-    SocketContextUpgradeFactory.cpp
+    ResponseParser.cpp Request.cpp Response.cpp SocketContextUpgradeFactory.cpp
     SocketContextUpgradeFactorySelector.cpp
 )
 add_library(snodec::httpclient ALIAS httpclient)
@@ -38,10 +35,13 @@ target_include_directories(
 )
 
 target_link_libraries(
-    httpclient PUBLIC snodec::net-ip snodec::net-tls snodec::http ${LIBMAGIC_LIBRARIES} dl
+    httpclient PUBLIC snodec::net-ip snodec::net-tls snodec::http
+                      ${LIBMAGIC_LIBRARIES} dl
 )
 
-set_target_properties(httpclient PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-http-client)
+set_target_properties(
+    httpclient PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-http-client
+)
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/

@@ -19,7 +19,7 @@
 #ifndef WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H
 #define WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H
 
-#include "web/http/SocketContextUpgradeFactory.hpp"
+#include "web/http/SocketContextUpgradeFactory.hpp" // IWYU pragma: export
 
 namespace web::http::server {
     class Request;
@@ -27,8 +27,6 @@ namespace web::http::server {
 } // namespace web::http::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

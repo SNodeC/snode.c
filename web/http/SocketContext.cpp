@@ -22,8 +22,8 @@
 
 namespace web::http {
 
-SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection)
-    : net::socket::stream::SocketContext(socketConnection) {
-}
+    SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection)
+        : net::socket::stream::SocketContext(socketConnection) {
+    }
 
-}
+} // namespace web::http

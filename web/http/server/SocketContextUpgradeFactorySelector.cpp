@@ -19,16 +19,15 @@
 #include "SocketContextUpgradeFactorySelector.h"
 
 #include "config.h"
-#include "log/Logger.h"
-#include "net/DynamicLoader.h"
 #include "web/http/http_utils.h"
 #include "web/http/server/Request.h"
-#include "web/http/server/Response.h"
+#include "web/http/server/SocketContextUpgradeFactory.h" // for SocketConte...
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <dlfcn.h>
-#include <tuple> // for tie, tuple
+#include <list>   // for list
+#include <string> // for string, all...
+#include <tuple>  // for tie, tuple
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

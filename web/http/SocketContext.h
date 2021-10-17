@@ -25,28 +25,27 @@ namespace net::socket::stream {
     class SocketConnection;
 } // namespace net::socket::stream
 
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http {
 
-class SocketContext : public net::socket::stream::SocketContext {
-public:
-    using SocketConnection = net::socket::stream::SocketConnection;
+    class SocketContext : public net::socket::stream::SocketContext {
+    public:
+        using SocketConnection = net::socket::stream::SocketConnection;
 
-    explicit SocketContext(net::socket::stream::SocketConnection* socketConnection);
+        explicit SocketContext(net::socket::stream::SocketConnection* socketConnection);
 
-    ~SocketContext() override = default;
+        ~SocketContext() override = default;
 
-    SocketContext(const SocketContext&) = delete;
-    SocketContext& operator=(const SocketContext&) = delete;
+        SocketContext(const SocketContext&) = delete;
+        SocketContext& operator=(const SocketContext&) = delete;
 
-    virtual void sendToPeerCompleted() = 0;
-    virtual void terminateConnection() = 0;
-};
+        virtual void sendToPeerCompleted() = 0;
+        virtual void terminateConnection() = 0;
+    };
 
-}
+} // namespace web::http
 
 #endif // WEB_HTTP_SOCKETCONTEXT_H
