@@ -20,7 +20,6 @@
 #include "web/http/ConnectionState.h"
 #include "web/http/http_utils.h"
 #include "web/http/server/SocketContext.h"
-#include "web/http/server/SocketContextUpgradeFactorySelector.h"
 
 namespace net::socket::stream {
     class SocketConnection;

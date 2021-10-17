@@ -19,9 +19,12 @@
 #ifndef WEB_WS_CLIENT_SUBPROTOCOLFACTORY_H
 #define WEB_WS_CLIENT_SUBPROTOCOLFACTORY_H
 
-#include "SubProtocol.h"
 #include "log/Logger.h"
 #include "web/websocket/SubProtocolFactory.h" // IWYU pragma: export
+
+namespace web::websocket::client {
+    class SubProtocol;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -20,7 +20,6 @@
 
 #include "config.h"
 #include "web/http/client/Response.h"
-#include "web/http/client/SocketContextUpgradeFactory.h"
 #include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

@@ -18,7 +18,6 @@
 
 #include "log/Logger.h"
 #include "web/http/client/SocketContext.h"
-#include "web/http/client/SocketContextUpgradeFactorySelector.h"
 
 namespace net::socket::stream {
     class SocketConnection;

@@ -21,7 +21,6 @@
 #include "config.h"
 #include "web/http/http_utils.h"
 #include "web/http/server/Request.h"
-#include "web/http/server/SocketContextUpgradeFactory.h" // for SocketConte...
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
