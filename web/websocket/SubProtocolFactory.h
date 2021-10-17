@@ -36,13 +36,31 @@ namespace web::websocket {
 
         virtual ~SubProtocolFactory() = default;
 
-        virtual std::string name() = 0;
+        SubProtocol* createSubProtocol() {
+            SubProtocol* subProtocol = create();
 
-        virtual std::size_t deleteSubProtocol(SubProtocolT* subProtocol) = 0;
+            if (subProtocol != nullptr) {
+                refCount++;
+            }
+
+            return subProtocol;
+        }
+
+        std::size_t deleteSubProtocol(SubProtocol* subProtocol) {
+            delete subProtocol;
+
+            refCount--;
+            return refCount;
+        }
+
+        virtual std::string name() = 0;
 
         virtual void destroy() = 0;
 
         virtual SubProtocol* create() = 0;
+
+    private:
+        std::size_t refCount = 0;
     };
 
 } // namespace web::websocket

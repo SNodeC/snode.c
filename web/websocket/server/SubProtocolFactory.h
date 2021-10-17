@@ -28,28 +28,7 @@
 
 namespace web::websocket::server {
 
-    class SubProtocolFactory : public web::websocket::SubProtocolFactory<web::websocket::server::SubProtocol> {
-    public:
-        web::websocket::server::SubProtocol* createSubProtocol() {
-            web::websocket::server::SubProtocol* subProtocol = create();
-
-            if (subProtocol != nullptr) {
-                refCount++;
-            }
-
-            return subProtocol;
-        }
-
-        std::size_t deleteSubProtocol(web::websocket::server::SubProtocol* subProtocol) override {
-            delete subProtocol;
-
-            refCount--;
-            return refCount;
-        }
-
-    private:
-        std::size_t refCount = 0;
-    };
+    class SubProtocolFactory : public web::websocket::SubProtocolFactory<web::websocket::server::SubProtocol> {};
 
 } // namespace web::websocket::server
 
