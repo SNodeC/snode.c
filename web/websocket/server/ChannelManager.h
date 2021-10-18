@@ -35,7 +35,7 @@ namespace web::websocket::server {
 
     class ChannelManager {
     private:
-        ChannelManager();
+        ChannelManager() = default;
         ChannelManager(const ChannelManager&) = delete;
 
         ~ChannelManager();

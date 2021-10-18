@@ -28,16 +28,13 @@ namespace web::websocket::server {
 
     ChannelManager* ChannelManager::channelManager = nullptr;
 
-    ChannelManager::ChannelManager() {
-        ChannelManager::channelManager = this;
-    }
-
     ChannelManager::~ChannelManager() {
         ChannelManager::channelManager = nullptr;
     }
 
     ChannelManager* ChannelManager::instance() {
-        return ChannelManager::channelManager == nullptr ? new ChannelManager() : ChannelManager::channelManager;
+        return ChannelManager::channelManager == nullptr ? ChannelManager::channelManager = new ChannelManager()
+                                                         : ChannelManager::channelManager;
     }
 
     void ChannelManager::subscribe(const std::string& channel, SubProtocol* subProtocol) {
