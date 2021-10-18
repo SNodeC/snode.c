@@ -30,12 +30,9 @@
 
 #include <algorithm> // for min, find
 #include <climits>
-#include <range/v3/iterator/basic_iterator.hpp> // for operator!=, operator==
-#include <range/v3/view/filter.hpp>             // for filter_view, filter
-#include <range/v3/view/reverse.hpp>            // for reverse_view, revers...
-#include <range/v3/view/view.hpp>               // for operator|, view_closure
-#include <type_traits>                          // for add_const<>::type
-#include <utility>                              // for tuple_element<>::type
+#include <iterator>    // for reverse_iterator
+#include <type_traits> // for add_const<>::type
+#include <utility>     // for tuple_element<>::type
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -111,11 +108,13 @@ namespace net {
     }
 
     int DescriptorEventDispatcher::getMaxFd() const {
-        auto&& activeObservedEventReceivers = observedEventReceiver | ranges::views::reverse | ranges::views::filter([](const auto& pair) {
-                                                  return !pair.second.front()->isSuspended();
-                                              });
+        int maxFd = -1;
 
-        return !activeObservedEventReceivers.empty() ? activeObservedEventReceivers.front().first : -1;
+        if (!observedEventReceiver.empty()) {
+            maxFd = observedEventReceiver.rbegin()->first;
+        }
+
+        return maxFd;
     }
 
     fd_set& DescriptorEventDispatcher::getFdSet() {
