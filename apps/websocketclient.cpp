@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
             []([[maybe_unused]] legacy::Client<>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnConnected";
             },
-            [](Request& request, [[maybe_unused]] Response& response) -> void {
+            [](Request& request) -> void {
                 request.set("Sec-WebSocket-Protocol", "echo");
 
                 request.upgrade("/ws/", "websocket");
@@ -159,7 +159,7 @@ int main(int argc, char* argv[]) {
                     VLOG(0) << "     Server certificate: no certificate";
                 }
             },
-            [](Request& request, [[maybe_unused]] Response& response) -> void {
+            [](Request& request) -> void {
                 request.set("Sec-WebSocket-Protocol", "echo");
 
                 request.upgrade("/ws/", "websocket");

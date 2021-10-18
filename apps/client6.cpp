@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
             []([[maybe_unused]] legacy::Client6<>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnConnected";
             },
-            [](Request& request, [[maybe_unused]] Response& response) -> void {
+            [](Request& request) -> void {
                 request.url = "/index.html";
                 request.set("Connection", "close");
                 request.start();
@@ -158,7 +158,7 @@ int main(int argc, char* argv[]) {
                     VLOG(0) << "     Server certificate: no certificate";
                 }
             },
-            [](Request& request, [[maybe_unused]] Response& response) -> void {
+            [](Request& request) -> void {
                 request.url = "/index.html";
                 request.set("Connection", "close");
                 request.start();
