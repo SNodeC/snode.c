@@ -46,7 +46,7 @@ namespace web::http::client {
         Client(const std::function<void(const Client::SocketAddress&, const Client::SocketAddress&)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
                const std::function<void(Request&)>& onRequestBegin,
-               const std::function<void(Request&, Response&)>& onResponse,
+               const std::function<void(Request&, Response&)>& onResponseReady,
                const std::function<void(int, const std::string&)>& onResponseError,
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
@@ -68,7 +68,7 @@ namespace web::http::client {
                       onDisconnect(socketConnection);
                   },
                   options) {
-            socketClient.getSocketContextFactory()->setOnResponseReady(onResponse);
+            socketClient.getSocketContextFactory()->setOnResponseReady(onResponseReady);
             socketClient.getSocketContextFactory()->setOnResponseError(onResponseError);
         }
 
