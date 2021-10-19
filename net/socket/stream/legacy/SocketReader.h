@@ -45,6 +45,11 @@ namespace net::socket::stream::legacy {
         int getError() override {
             return errno;
         }
+
+        bool continueReadImmediately() override {
+            int pending = net::socket::stream::SocketReader<SocketT>::continueReadImmediately();
+            return pending;
+        }
     };
 
 } // namespace net::socket::stream::legacy

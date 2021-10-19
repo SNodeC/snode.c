@@ -26,8 +26,13 @@
 #include <cerrno>
 #include <cstddef> // for std::size_t
 #include <functional>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+#ifndef MAX_READ_JUNKSIZE
+#define MAX_READ_JUNKSIZE 16384
+#endif
 
 namespace net::socket::stream {
 
@@ -65,25 +70,46 @@ namespace net::socket::stream {
                 markShutdown = false;
             }
 
-            ssize_t ret = read(junk, junkLen);
+            ssize_t ret = 0;
+            if (readBuffer.empty()) {
+                static char data[MAX_READ_JUNKSIZE];
 
-            if (ret <= 0) {
-                if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
-                    ReadEventReceiver::disable();
-                    onError(getError());
-                    ret = -1;
+                ssize_t retRead = read(data, MAX_READ_JUNKSIZE);
+
+                if (retRead <= 0) {
+                    if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
+                        ReadEventReceiver::disable();
+                        onError(getError());
+                        ret = -1;
+                    } else {
+                        ret = 0;
+                    }
                 } else {
-                    ret = 0;
+                    readBuffer.insert(readBuffer.end(), data, data + retRead);
                 }
             }
 
+            if (!readBuffer.empty()) {
+                ret = static_cast<ssize_t>(std::min(junkLen, readBuffer.size()));
+
+                std::copy(readBuffer.begin(), readBuffer.begin() + ret, junk);
+
+                readBuffer.erase(readBuffer.begin(), readBuffer.begin() + ret);
+            }
+
             return ret;
+        }
+
+        bool continueReadImmediately() override {
+            return !readBuffer.empty();
         }
 
     private:
         virtual int getError() = 0;
 
         std::function<void(int)> onError;
+
+        std::vector<char> readBuffer;
 
         bool markShutdown = false;
     };

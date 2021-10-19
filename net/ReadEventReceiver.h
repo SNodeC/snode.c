@@ -36,11 +36,13 @@ namespace net {
     private:
         virtual void readEvent() = 0;
         virtual void readTimeout();
-        virtual bool continueReadImmediately();
 
         void dispatchEvent() final;
         void timeoutEvent() final;
         bool continueImmediately() final;
+
+    protected:
+        virtual bool continueReadImmediately();
     };
 
 } // namespace net

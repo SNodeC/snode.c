@@ -38,11 +38,13 @@ namespace net {
     private:
         virtual void acceptEvent() = 0;
         virtual void acceptTimeout();
-        virtual bool continueAcceptImmediately();
 
         void dispatchEvent() final;
         void timeoutEvent() final;
         bool continueImmediately() final;
+
+    protected:
+        virtual bool continueAcceptImmediately();
     };
 
 } // namespace net

@@ -76,10 +76,11 @@ namespace net::socket::stream {
             if (writeBuffer.empty()) {
                 WriteEventReceiver::suspend();
             } else {
-                ssize_t ret = write(writeBuffer.data(), (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE);
+                ssize_t retWrite =
+                    write(writeBuffer.data(), (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE);
 
-                if (ret > 0) {
-                    writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + ret);
+                if (retWrite > 0) {
+                    writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);
 
                     if (writeBuffer.empty()) {
                         WriteEventReceiver::suspend();
