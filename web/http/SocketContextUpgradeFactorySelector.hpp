@@ -32,21 +32,21 @@
 
 namespace web::http {
 
-    template <typename RequestT, typename ResponseT>
-    SocketContextUpgradeFactorySelector<RequestT, ResponseT>::SocketContextUpgradeFactorySelector(
-        typename SocketContextUpgradeFactory<RequestT, ResponseT>::Role role)
+    template <typename SocketContextUpgradeFactoryT, typename RequestT, typename ResponseT>
+    SocketContextUpgradeFactorySelector<SocketContextUpgradeFactoryT, RequestT, ResponseT>::SocketContextUpgradeFactorySelector(
+        typename SocketContextUpgradeFactory::Role role)
         : role(role) {
     }
 
-    template <typename RequestT, typename ResponseT>
-    bool SocketContextUpgradeFactorySelector<RequestT, ResponseT>::add(
-        SocketContextUpgradeFactory<RequestT, ResponseT>* socketContextUpgradeFactory, void* handle) {
+    template <typename SocketContextUpgradeFactoryT, typename RequestT, typename ResponseT>
+    bool SocketContextUpgradeFactorySelector<SocketContextUpgradeFactoryT, RequestT, ResponseT>::add(
+        SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handle) {
         bool success = false;
 
         if (socketContextUpgradeFactory != nullptr) {
             if (socketContextUpgradeFactory->getRole() == role) {
-                SocketContextPlugin<RequestT, ResponseT> socketContextPlugin = {.socketContextUpgradeFactory = socketContextUpgradeFactory,
-                                                                                .handle = handle};
+                SocketContextPlugin<SocketContextUpgradeFactory, RequestT, ResponseT> socketContextPlugin = {
+                    .socketContextUpgradeFactory = socketContextUpgradeFactory, .handle = handle};
                 std::tie(std::ignore, success) =
                     socketContextUpgradePlugins.insert({socketContextUpgradeFactory->name(), socketContextPlugin});
             }
@@ -55,22 +55,22 @@ namespace web::http {
         return success;
     }
 
-    template <typename RequestT, typename ResponseT>
-    bool SocketContextUpgradeFactorySelector<RequestT, ResponseT>::add(
-        SocketContextUpgradeFactory<RequestT, ResponseT>* socketContextUpgradeFactory) {
+    template <typename SocketContextUpgradeFactoryT, typename RequestT, typename ResponseT>
+    bool SocketContextUpgradeFactorySelector<SocketContextUpgradeFactoryT, RequestT, ResponseT>::add(
+        SocketContextUpgradeFactory* socketContextUpgradeFactory) {
         return add(socketContextUpgradeFactory, nullptr);
     }
 
-    template <typename RequestT, typename ResponseT>
-    SocketContextUpgradeFactory<RequestT, ResponseT>*
-    SocketContextUpgradeFactorySelector<RequestT, ResponseT>::load(const std::string& filePath) {
-        SocketContextUpgradeFactory<RequestT, ResponseT>* socketContextUpgradeFactory = nullptr;
+    template <typename SocketContextUpgradeFactoryT, typename RequestT, typename ResponseT>
+    SocketContextUpgradeFactoryT*
+    SocketContextUpgradeFactorySelector<SocketContextUpgradeFactoryT, RequestT, ResponseT>::load(const std::string& filePath) {
+        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
         void* handle = net::DynamicLoader::dlOpen(filePath.c_str(), RTLD_LAZY | RTLD_GLOBAL);
 
         if (handle != nullptr) {
-            SocketContextUpgradeFactory<RequestT, ResponseT>* (*getSocketContextUpgradeFactory)() =
-                reinterpret_cast<SocketContextUpgradeFactory<RequestT, ResponseT>* (*) ()>(dlsym(handle, "getSocketContextUpgradeFactory"));
+            SocketContextUpgradeFactory* (*getSocketContextUpgradeFactory)() =
+                reinterpret_cast<SocketContextUpgradeFactory* (*) ()>(dlsym(handle, "getSocketContextUpgradeFactory"));
 
             if (getSocketContextUpgradeFactory != nullptr) {
                 socketContextUpgradeFactory = getSocketContextUpgradeFactory();
@@ -99,10 +99,10 @@ namespace web::http {
         return socketContextUpgradeFactory;
     }
 
-    template <typename RequestT, typename ResponseT>
-    SocketContextUpgradeFactory<RequestT, ResponseT>*
-    SocketContextUpgradeFactorySelector<RequestT, ResponseT>::select(const std::string& upgradeContextName) {
-        SocketContextUpgradeFactory<RequestT, ResponseT>* socketContextUpgradeFactory = nullptr;
+    template <typename SocketContextUpgradeFactoryT, typename RequestT, typename ResponseT>
+    SocketContextUpgradeFactoryT*
+    SocketContextUpgradeFactorySelector<SocketContextUpgradeFactoryT, RequestT, ResponseT>::select(const std::string& upgradeContextName) {
+        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
         if (!upgradeContextName.empty()) {
             if (socketContextUpgradePlugins.contains(upgradeContextName)) {
@@ -124,21 +124,22 @@ namespace web::http {
         return socketContextUpgradeFactory;
     }
 
-    template <typename RequestT, typename ResponseT>
-    void SocketContextUpgradeFactorySelector<RequestT, ResponseT>::setLinkedPlugin(
-        const std::string& upgradeContextName, SocketContextUpgradeFactory<RequestT, ResponseT>* (*linkedPlugin)()) {
+    template <typename SocketContextUpgradeFactoryT, typename RequestT, typename ResponseT>
+    void SocketContextUpgradeFactorySelector<SocketContextUpgradeFactoryT, RequestT, ResponseT>::setLinkedPlugin(
+        const std::string& upgradeContextName, SocketContextUpgradeFactory* (*linkedPlugin)()) {
         if (!linkedSocketContextUpgradePlugins.contains(upgradeContextName)) {
             linkedSocketContextUpgradePlugins[upgradeContextName] = linkedPlugin;
         }
     }
 
-    template <typename RequestT, typename ResponseT>
-    void SocketContextUpgradeFactorySelector<RequestT, ResponseT>::unload(
-        SocketContextUpgradeFactory<RequestT, ResponseT>* socketContextUpgradeFactory) {
+    template <typename SocketContextUpgradeFactoryT, typename RequestT, typename ResponseT>
+    void SocketContextUpgradeFactorySelector<SocketContextUpgradeFactoryT, RequestT, ResponseT>::unload(
+        SocketContextUpgradeFactory* socketContextUpgradeFactory) {
         std::string upgradeContextNames = socketContextUpgradeFactory->name();
 
         if (socketContextUpgradePlugins.contains(upgradeContextNames)) {
-            SocketContextPlugin<RequestT, ResponseT>& socketContextPlugin = socketContextUpgradePlugins[upgradeContextNames];
+            SocketContextPlugin<SocketContextUpgradeFactory, RequestT, ResponseT>& socketContextPlugin =
+                socketContextUpgradePlugins[upgradeContextNames];
 
             socketContextUpgradeFactory->destroy();
 

@@ -99,7 +99,7 @@ namespace web::websocket::server {
     }
 
     extern "C" {
-        web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response>* getSocketContextUpgradeFactory() {
+        web::http::server::SocketContextUpgradeFactory* getSocketContextUpgradeFactory() {
             return new SocketContextUpgradeFactory();
         }
 

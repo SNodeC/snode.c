@@ -40,14 +40,16 @@ namespace web::http::client {
         void* handle = nullptr;
     };
 
-    class SocketContextUpgradeFactorySelector : public web::http::SocketContextUpgradeFactorySelector<Request, Response> {
+    class SocketContextUpgradeFactorySelector
+        : public web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory, Request, Response> {
     private:
         SocketContextUpgradeFactorySelector();
 
     public:
         static SocketContextUpgradeFactorySelector* instance();
 
-        using web::http::SocketContextUpgradeFactorySelector<Request, Response>::select;
+        using web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory, Request, Response>::select;
+
         SocketContextUpgradeFactory* select(const std::string& upgradeContextName, Request& req);
         SocketContextUpgradeFactory* select(Request& req, Response& res) override;
     };

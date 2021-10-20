@@ -38,7 +38,8 @@ namespace web::http::server {
         void* handle = nullptr;
     };
 
-    class SocketContextUpgradeFactorySelector : public web::http::SocketContextUpgradeFactorySelector<Request, Response> {
+    class SocketContextUpgradeFactorySelector
+        : public web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory, Request, Response> {
     private:
         SocketContextUpgradeFactorySelector();
 
@@ -48,7 +49,8 @@ namespace web::http::server {
     public:
         static SocketContextUpgradeFactorySelector* instance();
 
-        using web::http::SocketContextUpgradeFactorySelector<Request, Response>::select;
+        using web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory, Request, Response>::select;
+
         SocketContextUpgradeFactory* select(Request& req, Response& res) override;
     };
 

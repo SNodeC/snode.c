@@ -16,11 +16,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace web::http {
-    template <typename RequestT, typename ResponseT>
-    class SocketContextUpgradeFactory;
-} // namespace web::http
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <list>
@@ -34,43 +29,44 @@ namespace web::http {
 
 namespace web::http {
 
-    template <typename RequestT, typename ResponseT>
+    template <typename SocketContextUpgradeFactoryT, typename RequestT, typename ResponseT>
     struct SocketContextPlugin {
-        SocketContextUpgradeFactory<RequestT, ResponseT>* socketContextUpgradeFactory;
+        SocketContextUpgradeFactoryT* socketContextUpgradeFactory;
         void* handle = nullptr;
     };
 
-    template <typename RequestT, typename ResponseT>
+    template <typename SocketContextUpgradeFactoryT, typename RequestT, typename ResponseT>
     class SocketContextUpgradeFactorySelector {
     public:
+        using SocketContextUpgradeFactory = SocketContextUpgradeFactoryT;
         using Request = RequestT;
         using Response = ResponseT;
 
     protected:
-        SocketContextUpgradeFactorySelector(typename SocketContextUpgradeFactory<Request, Response>::Role role);
+        SocketContextUpgradeFactorySelector(typename SocketContextUpgradeFactory::Role role);
         virtual ~SocketContextUpgradeFactorySelector() = default;
 
     public:
-        virtual SocketContextUpgradeFactory<Request, Response>* select(Request& req, Response& res) = 0;
+        virtual SocketContextUpgradeFactory* select(Request& req, Response& res) = 0;
 
-        bool add(SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory);
+        bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory);
 
-        void setLinkedPlugin(const std::string& upgradeContextName, SocketContextUpgradeFactory<Request, Response>* (*linkedPlugin)());
+        void setLinkedPlugin(const std::string& upgradeContextName, SocketContextUpgradeFactory* (*linkedPlugin)());
 
-        void unload(SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory);
+        void unload(SocketContextUpgradeFactory* socketContextUpgradeFactory);
 
     protected:
-        SocketContextUpgradeFactory<Request, Response>* select(const std::string& upgradeContextName);
+        SocketContextUpgradeFactory* select(const std::string& upgradeContextName);
 
-        SocketContextUpgradeFactory<Request, Response>* load(const std::string& socketContextName);
+        SocketContextUpgradeFactory* load(const std::string& socketContextName);
 
-        bool add(SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory, void* handler);
+        bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handler);
 
-        std::map<std::string, SocketContextPlugin<Request, Response>> socketContextUpgradePlugins;
-        std::map<std::string, SocketContextUpgradeFactory<Request, Response>* (*) ()> linkedSocketContextUpgradePlugins;
+        std::map<std::string, SocketContextPlugin<SocketContextUpgradeFactory, Request, Response>> socketContextUpgradePlugins;
+        std::map<std::string, SocketContextUpgradeFactory* (*) ()> linkedSocketContextUpgradePlugins;
         std::list<std::string> searchPaths;
 
-        const typename SocketContextUpgradeFactory<Request, Response>::Role role;
+        const typename SocketContextUpgradeFactory::Role role;
     };
 
 } // namespace web::http

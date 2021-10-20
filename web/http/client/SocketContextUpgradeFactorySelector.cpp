@@ -31,7 +31,7 @@
 namespace web::http::client {
 
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactorySelector()
-        : web::http::SocketContextUpgradeFactorySelector<Request, Response>(
+        : web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory, Request, Response>(
               web::http::SocketContextUpgradeFactory<Request, Response>::Role::CLIENT) {
 #ifndef NDEBUG
 #ifdef UPGRADECONTEXT_CLIENT_COMPILE_PATH

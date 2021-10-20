@@ -33,7 +33,7 @@
 namespace web::http::server {
 
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactorySelector()
-        : web::http::SocketContextUpgradeFactorySelector<Request, Response>(
+        : web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory, Request, Response>(
               web::http::SocketContextUpgradeFactory<Request, Response>::Role::SERVER) {
 #ifndef NDEBUG
 #ifdef UPGRADECONTEXT_SERVER_COMPILE_PATH

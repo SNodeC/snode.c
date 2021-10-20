@@ -93,7 +93,7 @@ namespace web::websocket::client {
     }
 
     extern "C" {
-        web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response>* getSocketContextUpgradeFactory() {
+        web::http::client::SocketContextUpgradeFactory* getSocketContextUpgradeFactory() {
             return new SocketContextUpgradeFactory();
         }
 
