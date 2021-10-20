@@ -29,18 +29,18 @@
 
 namespace web::http {
 
-    template <typename SocketContextUpgradeFactoryT, typename RequestT, typename ResponseT>
+    template <typename SocketContextUpgradeFactory>
     struct SocketContextPlugin {
-        SocketContextUpgradeFactoryT* socketContextUpgradeFactory;
+        SocketContextUpgradeFactory* socketContextUpgradeFactory;
         void* handle = nullptr;
     };
 
-    template <typename SocketContextUpgradeFactoryT, typename RequestT, typename ResponseT>
+    template <typename SocketContextUpgradeFactoryT>
     class SocketContextUpgradeFactorySelector {
     public:
         using SocketContextUpgradeFactory = SocketContextUpgradeFactoryT;
-        using Request = RequestT;
-        using Response = ResponseT;
+        using Request = typename SocketContextUpgradeFactory::Request;
+        using Response = typename SocketContextUpgradeFactory::Response;
 
     protected:
         SocketContextUpgradeFactorySelector(typename SocketContextUpgradeFactory::Role role);
@@ -62,7 +62,7 @@ namespace web::http {
 
         bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handler);
 
-        std::map<std::string, SocketContextPlugin<SocketContextUpgradeFactory, Request, Response>> socketContextUpgradePlugins;
+        std::map<std::string, SocketContextPlugin<SocketContextUpgradeFactory>> socketContextUpgradePlugins;
         std::map<std::string, SocketContextUpgradeFactory* (*) ()> linkedSocketContextUpgradePlugins;
         std::list<std::string> searchPaths;
 

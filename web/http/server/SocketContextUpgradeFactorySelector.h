@@ -22,11 +22,6 @@
 #include "web/http/SocketContextUpgradeFactorySelector.hpp" // IWYU pragma: export
 #include "web/http/server/SocketContextUpgradeFactory.h"    // IWYU pragma: export
 
-namespace web::http::server {
-    class Request;
-    class Response;
-} // namespace web::http::server
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -38,8 +33,7 @@ namespace web::http::server {
         void* handle = nullptr;
     };
 
-    class SocketContextUpgradeFactorySelector
-        : public web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory, Request, Response> {
+    class SocketContextUpgradeFactorySelector : public web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory> {
     private:
         SocketContextUpgradeFactorySelector();
 
@@ -49,7 +43,7 @@ namespace web::http::server {
     public:
         static SocketContextUpgradeFactorySelector* instance();
 
-        using web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory, Request, Response>::select;
+        using web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::select;
 
         SocketContextUpgradeFactory* select(Request& req, Response& res) override;
     };

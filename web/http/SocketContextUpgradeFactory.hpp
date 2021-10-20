@@ -24,24 +24,24 @@
 
 namespace web::http {
 
-    template <typename RequestT, typename ResponseT>
-    SocketContextUpgradeFactory<RequestT, ResponseT>::SocketContextUpgradeFactory(Role role)
+    template <typename Request, typename Response>
+    SocketContextUpgradeFactory<Request, Response>::SocketContextUpgradeFactory(Role role)
         : role(role) {
     }
 
-    template <typename RequestT, typename ResponseT>
-    typename SocketContextUpgradeFactory<RequestT, ResponseT>::Role SocketContextUpgradeFactory<RequestT, ResponseT>::getRole() {
+    template <typename Request, typename Response>
+    typename SocketContextUpgradeFactory<Request, Response>::Role SocketContextUpgradeFactory<Request, Response>::getRole() {
         return role;
     }
 
-    template <typename RequestT, typename ResponseT>
-    void SocketContextUpgradeFactory<RequestT, ResponseT>::prepare(Request& request, Response& response) {
+    template <typename Request, typename Response>
+    void SocketContextUpgradeFactory<Request, Response>::prepare(Request& request, Response& response) {
         this->request = &request;
         this->response = &response;
     }
 
-    template <typename RequestT, typename ResponseT>
-    void SocketContextUpgradeFactory<RequestT, ResponseT>::SocketContextUpgradeFactory::destroy() {
+    template <typename Request, typename Response>
+    void SocketContextUpgradeFactory<Request, Response>::SocketContextUpgradeFactory::destroy() {
         delete this;
     }
 

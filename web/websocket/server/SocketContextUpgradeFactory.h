@@ -26,11 +26,6 @@ namespace net::socket::stream {
     class SocketConnection;
 } // namespace net::socket::stream
 
-namespace web::http::server {
-    class Request;
-    class Response;
-} // namespace web::http::server
-
 namespace web::websocket::server {
     class SubProtocolFactory;
 } // namespace web::websocket::server

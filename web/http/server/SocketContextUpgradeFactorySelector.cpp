@@ -20,7 +20,7 @@
 
 #include "config.h"
 #include "web/http/http_utils.h"
-#include "web/http/server/Request.h"
+#include "web/http/server/Request.h" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -33,7 +33,7 @@
 namespace web::http::server {
 
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactorySelector()
-        : web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory, Request, Response>(
+        : web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>(
               web::http::SocketContextUpgradeFactory<Request, Response>::Role::SERVER) {
 #ifndef NDEBUG
 #ifdef UPGRADECONTEXT_SERVER_COMPILE_PATH
@@ -67,7 +67,7 @@ namespace web::http::server {
 
             httputils::to_lower(upgradeContextName);
 
-            socketContextUpgradeFactory = dynamic_cast<SocketContextUpgradeFactory*>(select(upgradeContextName));
+            socketContextUpgradeFactory = select(upgradeContextName);
 
             if (socketContextUpgradeFactory != nullptr) {
                 socketContextUpgradeFactory->prepare(req, res);

@@ -22,11 +22,6 @@
 #include "web/http/SocketContextUpgradeFactorySelector.hpp" // IWYU pragma: export
 #include "web/http/client/SocketContextUpgradeFactory.h"    // IWYU pragma: export
 
-namespace web::http::client {
-    class Request;
-    class Response;
-} // namespace web::http::client
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string>
@@ -40,15 +35,14 @@ namespace web::http::client {
         void* handle = nullptr;
     };
 
-    class SocketContextUpgradeFactorySelector
-        : public web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory, Request, Response> {
+    class SocketContextUpgradeFactorySelector : public web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory> {
     private:
         SocketContextUpgradeFactorySelector();
 
     public:
         static SocketContextUpgradeFactorySelector* instance();
 
-        using web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory, Request, Response>::select;
+        using web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::select;
 
         SocketContextUpgradeFactory* select(const std::string& upgradeContextName, Request& req);
         SocketContextUpgradeFactory* select(Request& req, Response& res) override;

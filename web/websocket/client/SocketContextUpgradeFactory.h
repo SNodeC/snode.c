@@ -28,7 +28,6 @@ namespace net::socket::stream {
 
 namespace web::http::client {
     class Request;
-    class Response;
 } // namespace web::http::client
 
 namespace web::websocket::client {
