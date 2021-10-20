@@ -24,7 +24,6 @@
 #include "log/Logger.h" // for Writer, CWARNING, LOG
 #include "net/DescriptorEventReceiver.h"
 #include "utils/Timeval.h" // for operator-, operator<, operator>=
-#include "utils/stacktrace.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -75,7 +74,6 @@ namespace net {
             // next tick as enable
             disabledEventReceiver[fd].push_back(eventReceiver);
         } else {
-            stacktrace::stacktrace();
             LOG(WARNING) << "EventReceiver double disable";
         }
     }
@@ -87,7 +85,6 @@ namespace net {
                 fdSet.clr(fd, true);
             }
         } else {
-            stacktrace::stacktrace();
             LOG(WARNING) << "EventReceiver double suspend";
         }
     }
@@ -152,7 +149,13 @@ namespace net {
                 eventCounter++;
                 eventReceiver->dispatchEvent();
                 eventReceiver->triggered(currentTime);
-                nextInactivityTimeout = std::min(nextInactivityTimeout, maxInactivity);
+                if (!eventReceiver->isSuspended()) {
+                    if (eventReceiver->continueImmediately()) {
+                        nextInactivityTimeout = {0, 0};
+                    } else {
+                        nextInactivityTimeout = std::min(nextInactivityTimeout, maxInactivity);
+                    }
+                }
             } else {
                 struct timeval inactivity = currentTime - eventReceiver->getLastTriggered();
                 if (inactivity >= maxInactivity) {
@@ -160,14 +163,6 @@ namespace net {
                 } else {
                     nextInactivityTimeout = std::min(maxInactivity - inactivity, nextInactivityTimeout);
                 }
-            }
-        }
-
-        for (const auto& [fd, eventReceivers] : observedEventReceiver) {
-            DescriptorEventReceiver* eventReceiver = eventReceivers.front();
-            if (eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
-                nextInactivityTimeout = {0, 0};
-                break;
             }
         }
 

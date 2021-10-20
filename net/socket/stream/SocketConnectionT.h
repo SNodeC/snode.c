@@ -36,7 +36,7 @@ namespace net::socket::stream {
 
     template <typename SocketReaderT, typename SocketWriterT, typename SocketAddressT>
     class SocketConnectionT
-        : private SocketConnection
+        : public SocketConnection
         , protected SocketReaderT
         , protected SocketWriterT {
         SocketConnectionT() = delete;
@@ -53,7 +53,8 @@ namespace net::socket::stream {
                           const SocketAddress& remoteAddress,
                           const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                           const std::function<void()>& onDisconnect)
-            : SocketReader([this](int errnum) -> void {
+            : SocketConnection(socketContextFactory)
+            , SocketReader([this](int errnum) -> void {
                 socketContext->onReadError(errnum);
                 SocketWriter::disable();
             })
@@ -61,7 +62,6 @@ namespace net::socket::stream {
                 socketContext->onWriteError(errnum);
                 SocketReader::disable();
             })
-            , socketContext(socketContextFactory->create(this))
             , localAddress(localAddress)
             , remoteAddress(remoteAddress)
             , onDisconnect(onDisconnect) {
@@ -118,24 +118,6 @@ namespace net::socket::stream {
             SocketWriter::shutdown();
         }
 
-        SocketContext* getSocketContext() override {
-            return socketContext;
-        }
-
-        SocketContext* switchSocketContext(SocketContextFactory* socketContextFactory) override {
-            SocketContext* newSocketContext = socketContextFactory->create(this);
-
-            if (newSocketContext != nullptr) {
-                socketContext->onDisconnected();
-                socketContext = newSocketContext;
-                socketContext->onConnected();
-            } else {
-                VLOG(0) << "Switch socket context unsuccessull: new socket context not created";
-            }
-
-            return newSocketContext;
-        }
-
     private:
         void readEvent() override {
             socketContext->receiveFromPeer();
@@ -148,8 +130,6 @@ namespace net::socket::stream {
         void unobserved() override {
             delete this;
         }
-
-        SocketContext* socketContext = nullptr;
 
         SocketAddress localAddress{};
         SocketAddress remoteAddress{};

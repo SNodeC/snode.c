@@ -2,14 +2,20 @@
 
 set(websocketserver_DEPENDENCIES websocketbase httpserver)
 set(websocketclient_DEPENDENCIES websocketbase httpclient)
+
 set(express_DEPENDENCIES httpserver)
+
 set(httpserver_DEPENDENCIES http)
 set(httpclient_DEPENDENCIES http)
+
 set(http_DEPENDENCIES net-ip)
+
 set(net-ip_DEPENDENCIES net-legacy net-tls)
+set(net-bt DEPENDENCIES net-legacy net-tls)
+
 set(net-legacy_DEPENDENCIES net)
 set(net-tls_DEPENDENCIES net)
-set(net-bt DEPENDENCIES net-legacy net-tls)
+
 set(net_DEPENDENCIES utils logger)
 
 macro(LOAD_COMPONENT_WITH_DEPENDENCIES _comp)
@@ -34,6 +40,7 @@ set(_supported_components
     net-tls
     net-ip
     net-bt
+    http
     httpserver
     httpclient
     express

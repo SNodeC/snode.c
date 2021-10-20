@@ -27,6 +27,7 @@ namespace net::socket::stream {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
+#include <memory>
 #include <string>
 #include <sys/types.h> // for ssize_t
 
@@ -35,16 +36,17 @@ namespace net::socket::stream {
 namespace net::socket::stream {
 
     class SocketConnection {
+        SocketConnection() = delete;
         SocketConnection(const SocketConnection&) = delete;
         SocketConnection& operator=(const SocketConnection&) = delete;
 
     protected:
-        SocketConnection() = default;
+        SocketConnection(const std::shared_ptr<SocketContextFactory>& socketContextFactory);
 
         virtual ~SocketConnection() = default;
 
     public:
-        virtual SocketContext* getSocketContext() = 0;
+        SocketContext* getSocketContext();
 
         virtual std::string getLocalAddressAsString() const = 0;
         virtual std::string getRemoteAddressAsString() const = 0;
@@ -58,8 +60,11 @@ namespace net::socket::stream {
 
         virtual void setTimeout(int timeout) = 0;
 
+    private:
+        SocketContext* switchSocketContext(SocketContextFactory* socketContextFactory);
+
     protected:
-        virtual SocketContext* switchSocketContext(SocketContextFactory* socketContextFactory) = 0;
+        SocketContext* socketContext = nullptr;
 
         friend SocketContext;
     };
