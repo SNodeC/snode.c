@@ -42,12 +42,12 @@ namespace net {
         static void dlClose(void* handle);
 
     private:
-        static void doRealDlClose(void* handle);
-        static void doAllDlClosedRealDlClose();
-        static void doAllDlClose();
+        static void execDlClose(void* handle);
+        static void execDeleyedDlClose();
+        static void execDlCloseAll();
 
-        std::map<void*, std::string> loadedLibraries;
-        std::set<void*> registeredForUnload;
+        std::map<void*, std::string> dlOpenedLibraries;
+        std::set<void*> registeredForDlClose;
 
         friend class EventLoop;
     };

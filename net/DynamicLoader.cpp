@@ -44,7 +44,7 @@ namespace net {
 
 #ifndef USE_SYNC
         if (handle != nullptr) {
-            instance()->loadedLibraries[handle] = libFile;
+            instance()->dlOpenedLibraries[handle] = libFile;
         }
 #endif
 
@@ -56,46 +56,46 @@ namespace net {
         VLOG(0) << "dlClose: " << handle;
         dlclose(handle);
 #else
-        VLOG(0) << "dlClose: " << handle << " : " << instance()->loadedLibraries[handle];
-        if (instance()->loadedLibraries.contains(handle) && !instance()->registeredForUnload.contains(handle)) {
-            instance()->registeredForUnload.insert(handle);
+        VLOG(0) << "dlClose: " << handle << " : " << instance()->dlOpenedLibraries[handle];
+        if (instance()->dlOpenedLibraries.contains(handle) && !instance()->registeredForDlClose.contains(handle)) {
+            instance()->registeredForDlClose.insert(handle);
         }
 #endif
     }
 
-    void DynamicLoader::doRealDlClose([[maybe_unused]] void* handle) {
+    void DynamicLoader::execDlClose([[maybe_unused]] void* handle) {
 #ifndef USE_SYNC
-        VLOG(0) << "realDlClose: " << handle << " : " << instance()->loadedLibraries[handle];
+        VLOG(0) << "execDLClose: " << handle << " : " << instance()->dlOpenedLibraries[handle];
 
         if (dlclose(handle) != 0) {
             VLOG(0) << "Error during dlclose: " << dlerror();
         }
 
-        instance()->loadedLibraries.erase(handle);
+        instance()->dlOpenedLibraries.erase(handle);
 #endif
     }
 
-    void DynamicLoader::doAllDlClosedRealDlClose() {
+    void DynamicLoader::execDeleyedDlClose() {
 #ifndef USE_SYNC
-        for (void* handle : instance()->registeredForUnload) {
-            doRealDlClose(handle);
+        for (void* handle : instance()->registeredForDlClose) {
+            execDlClose(handle);
         }
 
-        instance()->registeredForUnload.clear();
+        instance()->registeredForDlClose.clear();
 #endif
     }
 
-    void DynamicLoader::doAllDlClose() {
+    void DynamicLoader::execDlCloseAll() {
 #ifndef USE_SYNC
 
-        doAllDlClosedRealDlClose();
+        execDeleyedDlClose();
 
-        std::map<void*, std::string>::iterator it = instance()->loadedLibraries.begin();
+        std::map<void*, std::string>::iterator it = instance()->dlOpenedLibraries.begin();
 
-        while (it != instance()->loadedLibraries.end()) {
+        while (it != instance()->dlOpenedLibraries.end()) {
             std::map<void*, std::string>::iterator tmpIt = it;
             ++it;
-            doRealDlClose(tmpIt->first);
+            execDlClose(tmpIt->first);
         }
 #endif
     }

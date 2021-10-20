@@ -113,7 +113,7 @@ namespace net {
                 writeEventDispatcher.releaseUnobservedEvents();
                 exceptionalConditionEventDispatcher.releaseUnobservedEvents();
 
-                DynamicLoader::doAllDlClosedRealDlClose();
+                DynamicLoader::execDeleyedDlClose();
             } else if (errno != EINTR) {
                 PLOG(ERROR) << "select";
                 tickStatus = TickStatus::SELECT_ERROR;
@@ -144,7 +144,7 @@ namespace net {
 
         timerEventDispatcher.cancelAll();
 
-        DynamicLoader::doAllDlClose();
+        DynamicLoader::execDlCloseAll();
     }
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
