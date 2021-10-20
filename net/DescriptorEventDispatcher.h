@@ -38,7 +38,7 @@ namespace net {
         DescriptorEventDispatcher& operator=(const DescriptorEventDispatcher&) = delete;
 
     public:
-        DescriptorEventDispatcher(); // NOLINT(google-runtime-references)
+        DescriptorEventDispatcher() = default;
 
         void enable(DescriptorEventReceiver* eventReceiver, int fd);
         void disable(DescriptorEventReceiver* eventReceiver, int fd);

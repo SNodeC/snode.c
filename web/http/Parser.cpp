@@ -125,14 +125,12 @@ namespace web::http {
                                 parserState = parseHeader();
                             }
                             EOL = false;
-                        } else {
-                            if (line.empty()) {
-                                if (parserState != ParserState::ERROR) {
-                                    parserState = parseHeader();
-                                }
-                            } else {
-                                EOL = true;
+                        } else if (line.empty()) {
+                            if (parserState != ParserState::ERROR) {
+                                parserState = parseHeader();
                             }
+                        } else {
+                            EOL = true;
                         }
                     }
                 } else if (EOL) {

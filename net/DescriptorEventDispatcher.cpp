@@ -41,9 +41,6 @@ namespace net {
         return std::find(begin(), end(), eventReceiver) != end();
     }
 
-    DescriptorEventDispatcher::DescriptorEventDispatcher() { // NOLINT(google-runtime-references)
-    }
-
     void DescriptorEventDispatcher::enable(DescriptorEventReceiver* eventReceiver, int fd) {
         if (disabledEventReceiver[fd].contains(eventReceiver)) {
             // same tick as disable
