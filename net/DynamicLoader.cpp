@@ -31,11 +31,8 @@
 
 namespace net {
 
-    DynamicLoader* DynamicLoader::instance() {
-        static DynamicLoader dynamicLoader;
-
-        return &dynamicLoader;
-    }
+    std::map<void*, std::string> DynamicLoader::dlOpenedLibraries;
+    std::set<void*> DynamicLoader::registeredForDlClose;
 
     void* DynamicLoader::dlOpen(const std::string& libFile, int flags) {
         void* handle = dlopen(libFile.c_str(), flags);
@@ -44,7 +41,7 @@ namespace net {
 
 #ifndef USE_SYNC
         if (handle != nullptr) {
-            instance()->dlOpenedLibraries[handle] = libFile;
+            dlOpenedLibraries[handle] = libFile;
         }
 #endif
 
@@ -56,32 +53,32 @@ namespace net {
         VLOG(0) << "dlClose: " << handle;
         dlclose(handle);
 #else
-        VLOG(0) << "dlClose: " << handle << " : " << instance()->dlOpenedLibraries[handle];
-        if (instance()->dlOpenedLibraries.contains(handle) && !instance()->registeredForDlClose.contains(handle)) {
-            instance()->registeredForDlClose.insert(handle);
+        VLOG(0) << "dlClose: " << handle << " : " << dlOpenedLibraries[handle];
+        if (dlOpenedLibraries.contains(handle) && !registeredForDlClose.contains(handle)) {
+            registeredForDlClose.insert(handle);
         }
 #endif
     }
 
     void DynamicLoader::execDlClose([[maybe_unused]] void* handle) {
 #ifndef USE_SYNC
-        VLOG(0) << "execDLClose: " << handle << " : " << instance()->dlOpenedLibraries[handle];
+        VLOG(0) << "execDLClose: " << handle << " : " << dlOpenedLibraries[handle];
 
         if (dlclose(handle) != 0) {
             VLOG(0) << "Error during dlclose: " << dlerror();
         }
 
-        instance()->dlOpenedLibraries.erase(handle);
+        dlOpenedLibraries.erase(handle);
 #endif
     }
 
     void DynamicLoader::execDeleyedDlClose() {
 #ifndef USE_SYNC
-        for (void* handle : instance()->registeredForDlClose) {
+        for (void* handle : registeredForDlClose) {
             execDlClose(handle);
         }
 
-        instance()->registeredForDlClose.clear();
+        registeredForDlClose.clear();
 #endif
     }
 
@@ -90,9 +87,9 @@ namespace net {
 
         execDeleyedDlClose();
 
-        std::map<void*, std::string>::iterator it = instance()->dlOpenedLibraries.begin();
+        std::map<void*, std::string>::iterator it = dlOpenedLibraries.begin();
 
-        while (it != instance()->dlOpenedLibraries.end()) {
+        while (it != dlOpenedLibraries.end()) {
             std::map<void*, std::string>::iterator tmpIt = it;
             ++it;
             execDlClose(tmpIt->first);

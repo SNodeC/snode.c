@@ -31,11 +31,9 @@ namespace net {
 
     class DynamicLoader {
     private:
-        DynamicLoader() = default;
+        DynamicLoader() = delete;
 
-        ~DynamicLoader() = default;
-
-        static DynamicLoader* instance();
+        ~DynamicLoader() = delete;
 
     public:
         static void* dlOpen(const std::string& libFile, int flags);
@@ -46,8 +44,8 @@ namespace net {
         static void execDeleyedDlClose();
         static void execDlCloseAll();
 
-        std::map<void*, std::string> dlOpenedLibraries;
-        std::set<void*> registeredForDlClose;
+        static std::map<void*, std::string> dlOpenedLibraries;
+        static std::set<void*> registeredForDlClose;
 
         friend class EventLoop;
     };
