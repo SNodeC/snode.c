@@ -21,7 +21,8 @@
 
 namespace net::socket::stream {
     class SocketContextFactory;
-}
+    class SocketConnection;
+} // namespace net::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,8 +33,6 @@ namespace net::socket::stream {
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::socket::stream {
-
-    class SocketConnection;
 
     class SocketContext {
     protected:

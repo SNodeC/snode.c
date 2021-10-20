@@ -28,7 +28,7 @@
 
 namespace net::socket::stream {
     class SocketConnection;
-} // namespace net::socket::stream
+}
 
 #include <cstddef>     // for size_t
 #include <functional>  // for function
