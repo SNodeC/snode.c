@@ -19,7 +19,7 @@
 #ifndef WEB_WS_SERVER_SOCKTECONTEXT_H
 #define WEB_WS_SERVER_SOCKTECONTEXT_H
 
-#include "web/websocket/SocketContext.h"
+#include "web/websocket/SocketContext.h" // IWYU pragma: export
 
 namespace net::socket::stream {
     class SocketConnection;

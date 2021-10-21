@@ -23,7 +23,7 @@
 #include "web/http/server/Request.h"  // for Request
 #include "web/http/server/Response.h" // for Response
 #include "web/http/server/SocketContextUpgradeFactorySelector.h"
-#include "web/websocket/SocketContext.h" // for Soc...
+#include "web/websocket/server/SocketContext.h" // for Soc...
 #include "web/websocket/server/SubProtocolFactory.h"
 #include "web/websocket/server/SubProtocolFactorySelector.h"
 
