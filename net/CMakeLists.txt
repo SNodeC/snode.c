@@ -24,6 +24,7 @@ add_library(
     pipe/PipeSource.cpp
     socket/stream/SocketConnection.cpp
     socket/stream/SocketContext.cpp
+    system/dlfcn.cpp
     system/netdb.cpp
     system/select.cpp
     system/signal.cpp

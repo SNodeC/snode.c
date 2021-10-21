@@ -20,12 +20,10 @@
 #include "SocketContextUpgradeFactorySelector.h" // IWYU pragma: export
 #include "log/Logger.h"
 #include "net/DynamicLoader.h"
-//#include "web/http/SocketContextUpgradeFactory.h"
 #include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <dlfcn.h>
 #include <tuple> // for tie, tuple
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -68,7 +66,7 @@ namespace web::http {
 
         if (handle != nullptr) {
             SocketContextUpgradeFactory* (*getSocketContextUpgradeFactory)() =
-                reinterpret_cast<SocketContextUpgradeFactory* (*) ()>(dlsym(handle, "getSocketContextUpgradeFactory"));
+                net::DynamicLoader::dlSym<SocketContextUpgradeFactory* (*) ()>(handle, "getSocketContextUpgradeFactory");
 
             if (getSocketContextUpgradeFactory != nullptr) {
                 socketContextUpgradeFactory = getSocketContextUpgradeFactory();
@@ -91,7 +89,7 @@ namespace web::http {
                 VLOG(0) << "Not a Plugin \"" << filePath;
             }
         } else {
-            VLOG(0) << "Error dlopen: " << dlerror();
+            VLOG(0) << "Error dlopen: " << net::DynamicLoader::dlError();
         }
 
         return socketContextUpgradeFactory;

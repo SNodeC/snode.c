@@ -19,6 +19,8 @@
 #ifndef NET_DYNAMICLOADER_H
 #define NET_DYNAMICLOADER_H
 
+#include "net/system/dlfcn.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <map>
@@ -37,7 +39,14 @@ namespace net {
 
     public:
         static void* dlOpen(const std::string& libFile, int flags);
-        static void dlClose(void* handle);
+        static void dlClose(void* handle, bool sync = false);
+
+        template <typename Symbol>
+        static Symbol dlSym(void* handle, const std::string& symbol) {
+            return reinterpret_cast<Symbol>(net::system::dlsym(handle, symbol.c_str()));
+        }
+
+        static char* dlError();
 
     private:
         static void execDlClose(void* handle);

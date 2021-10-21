@@ -22,12 +22,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <dlfcn.h>
 #include <utility> // for pair
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-//#define USE_SYNC
 
 namespace net {
 
@@ -35,56 +32,51 @@ namespace net {
     std::set<void*> DynamicLoader::registeredForDlClose;
 
     void* DynamicLoader::dlOpen(const std::string& libFile, int flags) {
-        void* handle = dlopen(libFile.c_str(), flags);
+        void* handle = net::system::dlopen(libFile.c_str(), flags);
 
-        VLOG(0) << "dlOpen: " << handle << " : " << libFile.c_str();
+        VLOG(0) << "dlOpen: " << libFile.c_str();
 
-#ifndef USE_SYNC
         if (handle != nullptr) {
             dlOpenedLibraries[handle] = libFile;
         }
-#endif
 
         return handle;
     }
 
-    void DynamicLoader::dlClose(void* handle) {
-#ifdef USE_SYNC
-        VLOG(0) << "dlClose: " << handle;
-        dlclose(handle);
-#else
-        VLOG(0) << "dlClose: " << handle << " : " << dlOpenedLibraries[handle];
+    void DynamicLoader::dlClose(void* handle, bool sync) {
+        VLOG(0) << "dlClose: " << dlOpenedLibraries[handle];
         if (dlOpenedLibraries.contains(handle) && !registeredForDlClose.contains(handle)) {
-            registeredForDlClose.insert(handle);
+            if (sync) {
+                execDlClose(handle);
+            } else {
+                registeredForDlClose.insert(handle);
+            }
         }
-#endif
     }
 
-    void DynamicLoader::execDlClose([[maybe_unused]] void* handle) {
-#ifndef USE_SYNC
-        VLOG(0) << "execDLClose: " << handle << " : " << dlOpenedLibraries[handle];
+    char* DynamicLoader::dlError() {
+        return net::system::dlerror();
+    }
 
-        if (dlclose(handle) != 0) {
-            VLOG(0) << "Error during dlclose: " << dlerror();
+    void DynamicLoader::execDlClose(void* handle) {
+        VLOG(0) << "execDLClose: " << dlOpenedLibraries[handle];
+
+        if (net::system::dlclose(handle) != 0) {
+            VLOG(0) << "Error during dlclose: " << net::system::dlerror();
         }
 
         dlOpenedLibraries.erase(handle);
-#endif
     }
 
     void DynamicLoader::execDeleyedDlClose() {
-#ifndef USE_SYNC
         for (void* handle : registeredForDlClose) {
             execDlClose(handle);
         }
 
         registeredForDlClose.clear();
-#endif
     }
 
     void DynamicLoader::execDlCloseAll() {
-#ifndef USE_SYNC
-
         execDeleyedDlClose();
 
         std::map<void*, std::string>::iterator it = dlOpenedLibraries.begin();
@@ -94,7 +86,6 @@ namespace net {
             ++it;
             execDlClose(tmpIt->first);
         }
-#endif
     }
 
 } // namespace net
