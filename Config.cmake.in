@@ -24,7 +24,7 @@ macro(LOAD_COMPONENT_WITH_DEPENDENCIES _comp)
             RESULT_VARIABLE ${_comp}_OPTIONS_FILE
     )
     if(NOT "${${_comp}_OPTIONS_FILE}" STREQUAL "NOTFOUND")
-        message("  "  ${_comp} ": Options loaded from "  ${${_comp}_OPTIONS_FILE})
+        message("  " ${_comp} ": Options loaded from " ${${_comp}_OPTIONS_FILE})
     endif()
     foreach(_depcomp ${${_comp}_DEPENDENCIES})
         if("${${_depcomp}_LOADED}" STREQUAL "")
