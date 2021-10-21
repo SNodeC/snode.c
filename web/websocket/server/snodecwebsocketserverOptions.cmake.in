@@ -1,0 +1,7 @@
+set(SNODEC_SUBPROTOCOL_SERVER_INSTALL_PATH
+    "@CMAKE_INSTALL_PREFIX@/lib/snode.c/web/websocket/subprotocol/server"
+)
+
+set(SNODEC_SUBPROTOCOL_SERVER_INCLUDE_DIRS
+    "@CMAKE_INSTALL_PREFIX@/include/snode.c"
+)

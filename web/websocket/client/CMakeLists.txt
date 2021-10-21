@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.0)
 
 configure_file(config.h.in config.h @ONLY)
+configure_file(
+    snodecwebsocketclientOptions.cmake.in snodecwebsocketclientOptions.cmake
+    @ONLY
+)
 
 add_library(
     websocketclient SHARED SocketContext.cpp SocketContextUpgradeFactory.cpp
@@ -57,4 +61,8 @@ install(
     FILE snodecwebsocketclientTargets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+)
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/snodecwebsocketclientOptions.cmake
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
