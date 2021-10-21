@@ -101,14 +101,14 @@ namespace web::websocket::server {
         static bool linked = false;
 
         if (!linked) {
-            web::http::server::SocketContextUpgradeFactorySelector::instance()->linkSocketUpgradeContext("websocket",
-                                                                                                         getSocketContextUpgradeFactory);
+            web::http::server::SocketContextUpgradeFactorySelector::instance()->linkSocketUpgradeContext(
+                "websocket", websocketServerContextUpgradeFactory);
             linked = true;
         }
     }
 
     extern "C" {
-        web::http::server::SocketContextUpgradeFactory* getSocketContextUpgradeFactory() {
+        web::http::server::SocketContextUpgradeFactory* websocketServerContextUpgradeFactory() {
             return new SocketContextUpgradeFactory();
         }
     }

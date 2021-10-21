@@ -44,6 +44,11 @@ namespace web::http::client {
         searchPaths.push_back(UPGRADECONTEXT_CLIENT_INSTALL_PATH);
     }
 
+    SocketContextUpgradeFactorySelector::SocketContextUpgradeFactory*
+    SocketContextUpgradeFactorySelector::load(const std::string& upgradeContextName) {
+        return web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::load(upgradeContextName, "Client");
+    }
+
     SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::instance() {
         static SocketContextUpgradeFactorySelector socketContextUpgradeFactorySelector;
 

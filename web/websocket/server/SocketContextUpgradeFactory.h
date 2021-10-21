@@ -56,7 +56,7 @@ namespace web::websocket::server {
     void linkWebsocketServer();
 
     extern "C" {
-        web::http::server::SocketContextUpgradeFactory* getSocketContextUpgradeFactory();
+        web::http::server::SocketContextUpgradeFactory* websocketServerContextUpgradeFactory();
     }
 
 } // namespace web::websocket::server

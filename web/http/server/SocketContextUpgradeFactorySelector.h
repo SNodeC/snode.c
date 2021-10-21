@@ -40,6 +40,8 @@ namespace web::http::server {
     protected:
         ~SocketContextUpgradeFactorySelector() = default;
 
+        SocketContextUpgradeFactory* load(const std::string& upgradeContextName) override;
+
     public:
         static SocketContextUpgradeFactorySelector* instance();
 

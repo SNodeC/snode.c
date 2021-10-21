@@ -59,37 +59,43 @@ namespace web::http {
     }
 
     template <typename SocketContextUpgradeFactory>
-    SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::load(const std::string& filePath) {
+    SocketContextUpgradeFactory*
+    SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::load(const std::string& upgradeContextName, const std::string& type) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
-        void* handle = net::DynamicLoader::dlOpen(filePath.c_str(), RTLD_LAZY | RTLD_GLOBAL);
+        for (const std::string& searchPath : searchPaths) {
+            void* handle =
+                net::DynamicLoader::dlOpen((searchPath + "/libsnodec-" + upgradeContextName + ".so").c_str(), RTLD_LAZY | RTLD_GLOBAL);
 
-        if (handle != nullptr) {
-            SocketContextUpgradeFactory* (*getSocketContextUpgradeFactory)() =
-                net::DynamicLoader::dlSym<SocketContextUpgradeFactory* (*) ()>(handle, "getSocketContextUpgradeFactory");
+            if (handle != nullptr) {
+                SocketContextUpgradeFactory* (*getSocketContextUpgradeFactory)() =
+                    net::DynamicLoader::dlSym<SocketContextUpgradeFactory* (*) ()>(handle,
+                                                                                   upgradeContextName + type + "ContextUpgradeFactory");
 
-            if (getSocketContextUpgradeFactory != nullptr) {
-                socketContextUpgradeFactory = getSocketContextUpgradeFactory();
+                if (getSocketContextUpgradeFactory != nullptr) {
+                    socketContextUpgradeFactory = getSocketContextUpgradeFactory();
 
-                if (socketContextUpgradeFactory != nullptr) {
-                    if (add(socketContextUpgradeFactory, handle)) {
-                        VLOG(0) << "SocketContextUpgradeFactory created successfull: " << socketContextUpgradeFactory->name();
+                    if (socketContextUpgradeFactory != nullptr) {
+                        if (add(socketContextUpgradeFactory, handle)) {
+                            VLOG(0) << "SocketContextUpgradeFactory created successfull: " << socketContextUpgradeFactory->name();
+                        } else {
+                            VLOG(0) << "UpgradeSocketContext already existing. Not using: " << socketContextUpgradeFactory->name();
+                            socketContextUpgradeFactory->destroy();
+                            socketContextUpgradeFactory = nullptr;
+                            net::DynamicLoader::dlClose(handle);
+                        }
+                        break;
                     } else {
-                        VLOG(0) << "UpgradeSocketContext already existing. Not using: " << socketContextUpgradeFactory->name();
-                        socketContextUpgradeFactory->destroy();
-                        socketContextUpgradeFactory = nullptr;
                         net::DynamicLoader::dlClose(handle);
+                        VLOG(0) << "SocketContextUpgradeFactory not created: " << upgradeContextName;
                     }
                 } else {
                     net::DynamicLoader::dlClose(handle);
-                    VLOG(0) << "SocketContextUpgradeFactory not created: " << filePath;
+                    VLOG(0) << "Not a Plugin \"" << upgradeContextName;
                 }
             } else {
-                net::DynamicLoader::dlClose(handle);
-                VLOG(0) << "Not a Plugin \"" << filePath;
+                VLOG(0) << "Error dlopen: " << net::DynamicLoader::dlError();
             }
-        } else {
-            VLOG(0) << "Error dlopen: " << net::DynamicLoader::dlError();
         }
 
         return socketContextUpgradeFactory;
@@ -107,13 +113,7 @@ namespace web::http {
                 socketContextUpgradeFactory = linkedSocketContextUpgradePlugins[upgradeContextName]();
                 add(socketContextUpgradeFactory);
             } else {
-                for (const std::string& searchPath : searchPaths) {
-                    socketContextUpgradeFactory = load(searchPath + "/libsnodec-" + upgradeContextName + ".so");
-
-                    if (socketContextUpgradeFactory != nullptr) {
-                        break;
-                    }
-                }
+                socketContextUpgradeFactory = load(upgradeContextName);
             }
         }
 

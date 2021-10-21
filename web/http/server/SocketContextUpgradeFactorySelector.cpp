@@ -46,6 +46,11 @@ namespace web::http::server {
         searchPaths.push_back(UPGRADECONTEXT_SERVER_INSTALL_PATH);
     }
 
+    SocketContextUpgradeFactorySelector::SocketContextUpgradeFactory*
+    SocketContextUpgradeFactorySelector::load(const std::string& upgradeContextName) {
+        return web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::load(upgradeContextName, "Server");
+    }
+
     SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::instance() {
         static SocketContextUpgradeFactorySelector socketContextUpgradeFactorySelector;
 

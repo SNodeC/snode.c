@@ -39,6 +39,11 @@ namespace web::http::client {
     private:
         SocketContextUpgradeFactorySelector();
 
+    protected:
+        ~SocketContextUpgradeFactorySelector() = default;
+
+        SocketContextUpgradeFactory* load(const std::string& upgradeContextName) override;
+
     public:
         static SocketContextUpgradeFactorySelector* instance();
 

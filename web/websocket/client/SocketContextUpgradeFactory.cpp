@@ -95,14 +95,14 @@ namespace web::websocket::client {
         static bool linked = false;
 
         if (!linked) {
-            web::http::client::SocketContextUpgradeFactorySelector::instance()->linkSocketUpgradeContext("websocket",
-                                                                                                         getSocketContextUpgradeFactory);
+            web::http::client::SocketContextUpgradeFactorySelector::instance()->linkSocketUpgradeContext(
+                "websocket", websocketClientContextUpgradeFactory);
             linked = true;
         }
     }
 
     extern "C" {
-        web::http::client::SocketContextUpgradeFactory* getSocketContextUpgradeFactory() {
+        web::http::client::SocketContextUpgradeFactory* websocketClientContextUpgradeFactory() {
             return new SocketContextUpgradeFactory();
         }
     }
