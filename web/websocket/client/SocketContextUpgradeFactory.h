@@ -61,9 +61,7 @@ namespace web::websocket::client {
 
     void linkWebsocketClient();
 
-    extern "C" {
-        web::http::client::SocketContextUpgradeFactory* websocketClientContextUpgradeFactory();
-    }
+    extern "C" web::http::client::SocketContextUpgradeFactory* websocketClientContextUpgradeFactory();
 
 } // namespace web::websocket::client
 

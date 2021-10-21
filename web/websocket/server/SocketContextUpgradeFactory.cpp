@@ -107,10 +107,8 @@ namespace web::websocket::server {
         }
     }
 
-    extern "C" {
-        web::http::server::SocketContextUpgradeFactory* websocketServerContextUpgradeFactory() {
-            return new SocketContextUpgradeFactory();
-        }
+    extern "C" web::http::server::SocketContextUpgradeFactory* websocketServerContextUpgradeFactory() {
+        return new SocketContextUpgradeFactory();
     }
 
 } // namespace web::websocket::server

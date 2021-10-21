@@ -38,9 +38,7 @@ namespace web::websocket::subprotocol::echo::server {
         web::websocket::server::SubProtocolFactory::SubProtocol* create() override;
     };
 
-    extern "C" {
-        web::websocket::server::SubProtocolFactory* getSubProtocolFactory();
-    }
+    extern "C" web::websocket::server::SubProtocolFactory* getSubProtocolFactory();
 
 } // namespace web::websocket::subprotocol::echo::server
 
