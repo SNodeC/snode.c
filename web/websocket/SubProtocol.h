@@ -74,7 +74,7 @@ namespace web::websocket {
             context->sendMessageStart(1, message.data(), message.length());
         }
 
-        void sendMessageFrame([[maybe_unused]] const char* message, [[maybe_unused]] std::size_t messageLength) {
+        void sendMessageFrame(const char* message, std::size_t messageLength) {
             context->sendMessageFrame(message, messageLength);
         }
 
@@ -82,7 +82,7 @@ namespace web::websocket {
             sendMessageFrame(message.data(), message.length());
         }
 
-        void sendMessageEnd([[maybe_unused]] const char* message, [[maybe_unused]] std::size_t messageLength) {
+        void sendMessageEnd(const char* message, std::size_t messageLength) {
             context->sendMessageEnd(message, messageLength);
         }
 
