@@ -23,6 +23,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <list> // for list
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::websocket::server {
@@ -49,6 +51,10 @@ namespace web::websocket::server {
                                           web::websocket::server::SubProtocolFactory* (*getSubProtocolFactory)()) {
         linkWebsocketServer();
         web::websocket::server::SubProtocolFactorySelector::instance()->linkSubProtocol(subProtocolName, getSubProtocolFactory);
+    }
+
+    SubProtocolFactory* SubProtocolFactorySelector::load(const std::string& subProtocolName) {
+        return web::websocket::SubProtocolFactorySelector<web::websocket::server::SubProtocolFactory>::load(subProtocolName, Role::SERVER);
     }
 
 } // namespace web::websocket::server

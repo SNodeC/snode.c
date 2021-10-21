@@ -43,6 +43,8 @@ namespace web::websocket {
     public:
         using SubProtocolFactory = SubProtocolFactoryT;
 
+        enum class Role { SERVER, CLIENT };
+
     protected:
         SubProtocolFactorySelector() = default;
 
@@ -70,27 +72,33 @@ namespace web::websocket {
         }
 
     protected:
-        SubProtocolFactory* load(const std::string& filePath) {
+        virtual SubProtocolFactory* load(const std::string& subProtocolName) = 0;
+
+        SubProtocolFactory* load(const std::string& subProtocolName, Role role) {
             SubProtocolFactory* subProtocolFactory = nullptr;
 
-            void* handle = net::DynamicLoader::dlOpen(filePath.c_str(), RTLD_LAZY | RTLD_LOCAL);
+            // (searchPath + "/libsnodec-websocket-" + subProtocolName + ".so")
+            for (const std::string& searchPath : searchPaths) {
+                void* handle =
+                    net::DynamicLoader::dlOpen(searchPath + "/libsnodec-websocket-" + subProtocolName + ".so", RTLD_LAZY | RTLD_LOCAL);
 
-            if (handle != nullptr) {
-                SubProtocolFactory* (*getSubProtocolFactory)() =
-                    net::DynamicLoader::dlSym<SubProtocolFactory* (*) ()>(handle, "getSubProtocolFactory");
-
-                if (getSubProtocolFactory != nullptr) {
-                    subProtocolFactory = getSubProtocolFactory();
-                    if (subProtocolFactory != nullptr) {
-                        add(subProtocolFactory, handle);
+                if (handle != nullptr) {
+                    SubProtocolFactory* (*getSubProtocolFactory)() = net::DynamicLoader::dlSym<SubProtocolFactory* (*) ()>(
+                        handle, subProtocolName + (role == Role::SERVER ? "Server" : "Client") + "SubProtocolFactory");
+                    if (getSubProtocolFactory != nullptr) {
+                        subProtocolFactory = getSubProtocolFactory();
+                        if (subProtocolFactory != nullptr) {
+                            add(subProtocolFactory, handle);
+                            break;
+                        } else {
+                            net::DynamicLoader::dlClose(handle, true);
+                        }
                     } else {
-                        net::DynamicLoader::dlClose(handle, true);
+                        VLOG(0) << "Optaining function \"plugin()\" in plugin failed: " << net::DynamicLoader::dlError();
                     }
                 } else {
-                    VLOG(0) << "Optaining function \"plugin()\" in plugin failed: " << net::DynamicLoader::dlError();
+                    VLOG(0) << "Error dlopen: " << net::DynamicLoader::dlError();
                 }
-            } else {
-                VLOG(0) << "Error dlopen: " << net::DynamicLoader::dlError();
             }
 
             return subProtocolFactory;
@@ -114,12 +122,7 @@ namespace web::websocket {
                         add(subProtocolFactory, nullptr);
                     }
                 } else {
-                    for (const std::string& searchPath : searchPaths) {
-                        subProtocolFactory = load(searchPath + "/libsnodec-websocket-" + subProtocolName + ".so");
-                        if (subProtocolFactory != nullptr) {
-                            break;
-                        }
-                    }
+                    subProtocolFactory = load(subProtocolName);
                 }
             }
 
