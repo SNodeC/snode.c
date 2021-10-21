@@ -142,6 +142,7 @@ namespace web::websocket {
             }
         }
 
+    protected:
         void linkSubProtocol(const std::string& subProtocolName, SubProtocolFactory* (*linkedPlugin)()) {
             linkedSubProtocolFactories[subProtocolName] = linkedPlugin;
         }

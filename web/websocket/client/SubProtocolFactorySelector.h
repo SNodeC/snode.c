@@ -37,6 +37,8 @@ namespace web::websocket::client {
     public:
         static SubProtocolFactorySelector* instance();
 
+        static void link(const std::string& subProtocolName, web::websocket::client::SubProtocolFactory* (*getSubProtocolFactory)());
+
     protected:
         SubProtocolFactorySelector();
 
@@ -47,8 +49,6 @@ namespace web::websocket::client {
         template <typename SubProtocolFactory>
         friend class web::websocket::SubProtocolFactorySelector;
     };
-
-    void linkSubProtocol(const std::string& subProtocolName, web::websocket::client::SubProtocolFactory* (*getSubProtocolFactory)());
 
 } // namespace web::websocket::client
 
