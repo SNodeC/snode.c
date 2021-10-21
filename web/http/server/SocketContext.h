@@ -36,17 +36,9 @@ namespace net::socket::stream {
 
 namespace web::http::server {
 
+    template <typename RequestT, typename ResponseT>
     class SocketContext : public web::http::SocketContext {
     public:
-        using web::http::SocketContext::SocketContext;
-
-        using SocketConnection = net::socket::stream::SocketConnection;
-    };
-
-    template <typename RequestT, typename ResponseT>
-    class SocketContextT : public SocketContext {
-    public:
-        using SocketConnection = net::socket::stream::SocketConnection;
         using Request = RequestT;
         using Response = ResponseT;
 
@@ -66,8 +58,8 @@ namespace web::http::server {
             std::string reason;
         };
 
-        SocketContextT(net::socket::stream::SocketConnection* socketConnection,
-                       const std::function<void(Request&, Response&)>& onRequestReady);
+        SocketContext(net::socket::stream::SocketConnection* socketConnection,
+                      const std::function<void(Request&, Response&)>& onRequestReady);
 
     private:
         void stop() override;

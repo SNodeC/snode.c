@@ -40,28 +40,20 @@ namespace web::http::client {
 
 namespace web::http::client {
 
+    template <typename RequestT, typename ResponseT>
     class SocketContext : public web::http::SocketContext {
     public:
-        using web::http::SocketContext::SocketContext;
-
-        using SocketConnection = net::socket::stream::SocketConnection;
-
-        virtual Request& getRequest() = 0;
-        virtual Response& getResponse() = 0;
-    };
-
-    template <typename RequestT, typename ResponseT>
-    class SocketContextT : public SocketContext {
-    public:
-        using SocketConnection = net::socket::stream::SocketConnection;
         using Request = RequestT;
         using Response = ResponseT;
 
-        SocketContextT(net::socket::stream::SocketConnection* socketConnection,
-                       const std::function<void(RequestT&, Response&)>& onResponse,
-                       const std::function<void(int, const std::string&)>& onError);
+        SocketContext(net::socket::stream::SocketConnection* socketConnection,
+                      const std::function<void(RequestT&, Response&)>& onResponse,
+                      const std::function<void(int, const std::string&)>& onError);
 
-        ~SocketContextT() override = default;
+        ~SocketContext() override = default;
+
+        Request& getRequest();
+        Response& getResponse();
 
     private:
         void stop() override;
@@ -70,9 +62,6 @@ namespace web::http::client {
 
         void onWriteError(int errnum) override;
         void onReadError(int errnum) override;
-
-        Request& getRequest() override;
-        Response& getResponse() override;
 
         void terminateConnection() override;
 

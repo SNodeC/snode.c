@@ -23,6 +23,14 @@
 #include "web/http/ConnectionState.h"
 #include "web/http/CookieOptions.h"
 
+namespace web::http {
+    class SocketContext;
+
+    namespace server {
+        class Request;
+    }
+} // namespace web::http
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef> // for size_t
@@ -32,9 +40,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http::server {
-
-    class SocketContext;
-    class Request;
 
     class Response : public net::pipe::Sink {
     protected:
@@ -84,7 +89,7 @@ namespace web::http::server {
         void error(int errnum) override;
 
         template <typename Request, typename Response>
-        friend class SocketContextT;
+        friend class SocketContext;
     };
 
 } // namespace web::http::server

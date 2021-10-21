@@ -33,7 +33,7 @@ namespace net::socket::stream {
 namespace web::http::server {
 
     template <typename RequestT, typename ResponseT>
-    class SocketContextFactory : public web::http::SocketContextFactory<web::http::server::SocketContextT, RequestT, ResponseT> {
+    class SocketContextFactory : public web::http::SocketContextFactory<web::http::server::SocketContext, RequestT, ResponseT> {
     public:
         using Request = RequestT;
         using Response = ResponseT;
@@ -47,7 +47,7 @@ namespace web::http::server {
 
     private:
         net::socket::stream::SocketContext* create(net::socket::stream::SocketConnection* socketConnection) override {
-            return new SocketContextT<Request, Response>(socketConnection, onRequestReady);
+            return new SocketContext<Request, Response>(socketConnection, onRequestReady);
         }
 
     public:

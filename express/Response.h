@@ -21,9 +21,9 @@
 
 #include "web/http/server/Response.h" // IWYU pragma: export
 
-namespace web::http::server {
+namespace web::http {
     class SocketContext;
-} // namespace web::http::server
+} // namespace web::http
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -36,7 +36,7 @@ namespace express {
 
     class Response : public web::http::server::Response {
     public:
-        Response(web::http::server::SocketContext* serverContext);
+        Response(web::http::SocketContext* serverContext);
 
         void sendFile(const std::string& file, const std::function<void(int err)>& onError);
         void download(const std::string& file, const std::function<void(int err)>& onError);

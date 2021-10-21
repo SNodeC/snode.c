@@ -22,9 +22,13 @@
 #include "net/pipe/Sink.h"
 #include "web/http/ConnectionState.h"
 
-namespace web::http::client {
-    class Response;
-}
+namespace web::http {
+    class SocketContext;
+
+    namespace client {
+        class Response;
+    }
+} // namespace web::http
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -35,8 +39,6 @@ namespace web::http::client {
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http::client {
-
-    class SocketContext;
 
     class Request : public net::pipe::Sink {
     protected:
@@ -94,7 +96,7 @@ namespace web::http::client {
         void error(int errnum) override;
 
         template <typename Request, typename Response>
-        friend class SocketContextT;
+        friend class SocketContext;
     };
 
 } // namespace web::http::client

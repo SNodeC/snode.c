@@ -58,7 +58,7 @@ namespace web::http::client {
         // CookieOptions are not queryable currently. Need code to access it.
 
         template <typename Request, typename Response>
-        friend class SocketContextT;
+        friend class SocketContext;
 
     private:
         std::string nullstr = "";
