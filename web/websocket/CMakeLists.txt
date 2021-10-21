@@ -15,7 +15,7 @@ target_include_directories(
 set_target_properties(
     websocketbase
     PROPERTIES LIBRARY_OUTPUT_DIRECTORY
-               "${SOCKETCONTEXTUPGRADE_SERVER_LIBDIR}/upgrade"
+               "${SOCKETCONTEXTUPGRADE_LIBDIR}/upgrade"
                SOVERSION 1
                OUTPUT_NAME "snodec-websocketbase" # PREFIX "sc"
 )
