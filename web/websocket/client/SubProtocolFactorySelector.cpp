@@ -28,11 +28,11 @@ namespace web::websocket::client {
 
     SubProtocolFactorySelector::SubProtocolFactorySelector() {
 #ifndef NDEBUG
-#ifdef SUBPROTOCOL_SERVER_COMPILE_PATH
+#ifdef SUBPROTOCOL_CLIENT_COMPILE_PATH
 
         addSubProtocolSearchPath(SUBPROTOCOL_CLIENT_COMPILE_PATH);
 
-#endif // SUBPROTOCOL_SERVER_COMPILE_PATH
+#endif // SUBPROTOCOL_CLIENT_COMPILE_PATH
 #endif // NDEBUG
 
         addSubProtocolSearchPath(SUBPROTOCOL_CLIENT_INSTALL_PATH);
