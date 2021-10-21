@@ -37,10 +37,11 @@ namespace web::websocket {
 
 namespace web::websocket {
 
-    template <typename SocketContextT, typename ConcreteSubProtocol>
+    template <typename SocketContextT, typename SubProtocolFactoryT>
     class SubProtocol {
     public:
         using SocketContext = SocketContextT;
+        using SubProtocolFactory = SubProtocolFactoryT;
 
         enum class Role { SERVER, CLIENT };
 
@@ -127,17 +128,17 @@ namespace web::websocket {
             return context;
         }
 
-        void setSubProtocolFactory(SubProtocolFactory<ConcreteSubProtocol>* subProtocolFactory) {
+        void setSubProtocolFactory(SubProtocolFactory* subProtocolFactory) {
             this->subProtocolFactory = subProtocolFactory;
         }
 
-        SubProtocolFactory<ConcreteSubProtocol>* getSubProtocolFactory() {
+        SubProtocolFactory* getSubProtocolFactory() {
             return subProtocolFactory;
         }
 
     protected:
         SocketContext* context;
-        SubProtocolFactory<ConcreteSubProtocol>* subProtocolFactory;
+        SubProtocolFactory* subProtocolFactory;
 
         const std::string name;
     };

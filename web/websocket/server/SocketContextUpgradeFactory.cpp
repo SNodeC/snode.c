@@ -34,8 +34,7 @@
 namespace web::websocket::server {
 
     void SocketContextUpgradeFactory::deleted(SocketContext* socketContext) {
-        SubProtocolFactory* subProtocolFactory =
-            dynamic_cast<SubProtocolFactory*>(socketContext->getSubProtocol()->getSubProtocolFactory());
+        SubProtocolFactory* subProtocolFactory = socketContext->getSubProtocol()->getSubProtocolFactory();
 
         if (subProtocolFactory->deleteSubProtocol(socketContext->getSubProtocol()) == 0) {
             SubProtocolFactorySelector::instance()->unload(subProtocolFactory);
