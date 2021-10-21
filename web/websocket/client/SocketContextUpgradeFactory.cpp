@@ -91,24 +91,19 @@ namespace web::websocket::client {
         return socketContext;
     }
 
+    void linkWebsocketClient() {
+        static bool linked = false;
+
+        if (!linked) {
+            web::http::client::SocketContextUpgradeFactorySelector::instance()->linkSocketUpgradeContext("websocket",
+                                                                                                         getSocketContextUpgradeFactory);
+            linked = true;
+        }
+    }
+
     extern "C" {
         web::http::client::SocketContextUpgradeFactory* getSocketContextUpgradeFactory() {
             return new SocketContextUpgradeFactory();
-        }
-
-        void linkWebsocketClient() {
-            static bool linked = false;
-
-            if (!linked) {
-                web::http::client::SocketContextUpgradeFactorySelector::instance()->linkSocketUpgradeContext(
-                    "websocket", getSocketContextUpgradeFactory);
-                linked = true;
-            }
-        }
-
-        void linkSubProtocol(const std::string& subProtocolName, web::websocket::client::SubProtocolFactory* (*getSubProtocolFactory)()) {
-            linkWebsocketClient();
-            web::websocket::client::SubProtocolFactorySelector::instance()->linkSubProtocol(subProtocolName, getSubProtocolFactory);
         }
     }
 

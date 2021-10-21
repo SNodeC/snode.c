@@ -26,10 +26,6 @@ namespace net::socket::stream {
     class SocketConnection;
 } // namespace net::socket::stream
 
-namespace web::websocket::server {
-    class SubProtocolFactory;
-} // namespace web::websocket::server
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef> // for size_t
@@ -57,11 +53,10 @@ namespace web::websocket::server {
         std::size_t refCount = 0;
     };
 
+    void linkWebsocketServer();
+
     extern "C" {
         web::http::server::SocketContextUpgradeFactory* getSocketContextUpgradeFactory();
-
-        void linkWebsocketServer();
-        void linkSubProtocol(const std::string& subProtocolName, web::websocket::server::SubProtocolFactory* (*getSubProtocolFactory)());
     }
 
 } // namespace web::websocket::server

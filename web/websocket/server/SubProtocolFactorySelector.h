@@ -27,6 +27,8 @@ namespace web::websocket::server {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string> // for string
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::websocket::server {
@@ -45,6 +47,8 @@ namespace web::websocket::server {
         template <typename SubProtocolFactory>
         friend class web::websocket::SubProtocolFactorySelector;
     };
+
+    void linkSubProtocol(const std::string& subProtocolName, web::websocket::server::SubProtocolFactory* (*getSubProtocolFactory)());
 
 } // namespace web::websocket::server
 

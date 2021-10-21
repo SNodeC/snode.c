@@ -97,24 +97,19 @@ namespace web::websocket::server {
         return socketContext;
     }
 
+    void linkWebsocketServer() {
+        static bool linked = false;
+
+        if (!linked) {
+            web::http::server::SocketContextUpgradeFactorySelector::instance()->linkSocketUpgradeContext("websocket",
+                                                                                                         getSocketContextUpgradeFactory);
+            linked = true;
+        }
+    }
+
     extern "C" {
         web::http::server::SocketContextUpgradeFactory* getSocketContextUpgradeFactory() {
             return new SocketContextUpgradeFactory();
-        }
-
-        void linkWebsocketServer() {
-            static bool linked = false;
-
-            if (!linked) {
-                web::http::server::SocketContextUpgradeFactorySelector::instance()->linkSocketUpgradeContext(
-                    "websocket", getSocketContextUpgradeFactory);
-                linked = true;
-            }
-        }
-
-        void linkSubProtocol(const std::string& subProtocolName, web::websocket::server::SubProtocolFactory* (*getSubProtocolFactory)()) {
-            linkWebsocketServer();
-            web::websocket::server::SubProtocolFactorySelector::instance()->linkSubProtocol(subProtocolName, getSubProtocolFactory);
         }
     }
 

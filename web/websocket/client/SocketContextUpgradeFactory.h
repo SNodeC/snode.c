@@ -30,10 +30,6 @@ namespace web::http::client {
     class Request;
 } // namespace web::http::client
 
-namespace web::websocket::client {
-    class SubProtocolFactory;
-} // namespace web::websocket::client
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef> // for size_t
@@ -63,11 +59,10 @@ namespace web::websocket::client {
         std::size_t refCount = 0;
     };
 
+    void linkWebsocketClient();
+
     extern "C" {
         web::http::client::SocketContextUpgradeFactory* getSocketContextUpgradeFactory();
-
-        void linkWebsocketClient();
-        void linkSubProtocol(const std::string& subProtocolName, web::websocket::client::SubProtocolFactory* (*getSubProtocolFactory)());
     }
 
 } // namespace web::websocket::client
