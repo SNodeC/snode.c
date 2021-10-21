@@ -60,7 +60,7 @@ namespace web::http {
 
     template <typename SocketContextUpgradeFactory>
     SocketContextUpgradeFactory*
-    SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::load(const std::string& upgradeContextName, const std::string& type) {
+    SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::load(const std::string& upgradeContextName, Role role) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
         for (const std::string& searchPath : searchPaths) {
@@ -69,8 +69,8 @@ namespace web::http {
 
             if (handle != nullptr) {
                 SocketContextUpgradeFactory* (*getSocketContextUpgradeFactory)() =
-                    net::DynamicLoader::dlSym<SocketContextUpgradeFactory* (*) ()>(handle,
-                                                                                   upgradeContextName + type + "ContextUpgradeFactory");
+                    net::DynamicLoader::dlSym<SocketContextUpgradeFactory* (*) ()>(
+                        handle, upgradeContextName + (role == Role::Server ? "Server" : "Client") + "ContextUpgradeFactory");
 
                 if (getSocketContextUpgradeFactory != nullptr) {
                     socketContextUpgradeFactory = getSocketContextUpgradeFactory();
