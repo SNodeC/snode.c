@@ -102,10 +102,19 @@ namespace web::websocket::server {
             return new SocketContextUpgradeFactory();
         }
 
-        void linkStatic(const std::string& subProtocolName, web::websocket::server::SubProtocolFactory* (*getSubProtocolFactory)()) {
-            web::websocket::server::SubProtocolFactorySelector::linkStatic(subProtocolName, getSubProtocolFactory);
-            web::http::server::SocketContextUpgradeFactorySelector::instance()->setLinkedPlugin("websocket",
-                                                                                                getSocketContextUpgradeFactory);
+        void linkWebsocketServer() {
+            static bool linked = false;
+
+            if (!linked) {
+                web::http::server::SocketContextUpgradeFactorySelector::instance()->linkSocketUpgradeContext(
+                    "websocket", getSocketContextUpgradeFactory);
+                linked = true;
+            }
+        }
+
+        void linkSubProtocol(const std::string& subProtocolName, web::websocket::server::SubProtocolFactory* (*getSubProtocolFactory)()) {
+            linkWebsocketServer();
+            web::websocket::server::SubProtocolFactorySelector::instance()->linkSubProtocol(subProtocolName, getSubProtocolFactory);
         }
     }
 

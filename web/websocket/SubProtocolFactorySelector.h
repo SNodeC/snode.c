@@ -38,16 +38,10 @@ namespace web::websocket {
         void* handle = nullptr;
     };
 
-    template <typename SubProtocolFactorySelectorT, typename SubProtocolFactoryT>
+    template <typename SubProtocolFactoryT>
     class SubProtocolFactorySelector {
     public:
         using SubProtocolFactory = SubProtocolFactoryT;
-
-        static SubProtocolFactorySelectorT* instance() {
-            static SubProtocolFactorySelectorT subProtocolFactorySelector;
-
-            return &subProtocolFactorySelector;
-        }
 
     protected:
         SubProtocolFactorySelector() = default;
@@ -148,8 +142,8 @@ namespace web::websocket {
             }
         }
 
-        static void linkStatic(const std::string& subProtocolName, SubProtocolFactory* (*linkedPlugin)()) {
-            instance()->linkedSubProtocolFactories[subProtocolName] = linkedPlugin;
+        void linkSubProtocol(const std::string& subProtocolName, SubProtocolFactory* (*linkedPlugin)()) {
+            linkedSubProtocolFactories[subProtocolName] = linkedPlugin;
         }
 
     private:

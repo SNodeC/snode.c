@@ -66,7 +66,8 @@ namespace web::websocket::client {
     extern "C" {
         web::http::client::SocketContextUpgradeFactory* getSocketContextUpgradeFactory();
 
-        void linkStatic(const std::string& subProtocolName, web::websocket::client::SubProtocolFactory* (*getSubProtocolFactory)());
+        void linkWebsocketClient();
+        void linkSubProtocol(const std::string& subProtocolName, web::websocket::client::SubProtocolFactory* (*getSubProtocolFactory)());
     }
 
 } // namespace web::websocket::client

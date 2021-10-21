@@ -51,7 +51,7 @@ namespace web::http {
 
         bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory);
 
-        void setLinkedPlugin(const std::string& upgradeContextName, SocketContextUpgradeFactory* (*linkedPlugin)());
+        void linkSocketUpgradeContext(const std::string& upgradeContextName, SocketContextUpgradeFactory* (*linkedPlugin)());
 
         void unload(SocketContextUpgradeFactory* socketContextUpgradeFactory);
 

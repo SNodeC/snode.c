@@ -38,4 +38,10 @@ namespace web::websocket::server {
         addSubProtocolSearchPath(SUBPROTOCOL_SERVER_INSTALL_PATH);
     }
 
+    SubProtocolFactorySelector* SubProtocolFactorySelector::instance() {
+        static SubProtocolFactorySelector subProtocolFactorySelector;
+
+        return &subProtocolFactorySelector;
+    }
+
 } // namespace web::websocket::server

@@ -31,8 +31,10 @@ namespace web::websocket::server {
 
 namespace web::websocket::server {
 
-    class SubProtocolFactorySelector
-        : public web::websocket::SubProtocolFactorySelector<SubProtocolFactorySelector, web::websocket::server::SubProtocolFactory> {
+    class SubProtocolFactorySelector : public web::websocket::SubProtocolFactorySelector<web::websocket::server::SubProtocolFactory> {
+    public:
+        static SubProtocolFactorySelector* instance();
+
     protected:
         SubProtocolFactorySelector();
 
@@ -40,7 +42,7 @@ namespace web::websocket::server {
 
         SubProtocolFactorySelector& operator=(const SubProtocolFactorySelector&) = delete;
 
-        template <typename SubProtocolFactorySelectorT, typename SubProtocolFactoryT>
+        template <typename SubProtocolFactory>
         friend class web::websocket::SubProtocolFactorySelector;
     };
 
