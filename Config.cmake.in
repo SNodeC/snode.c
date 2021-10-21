@@ -48,6 +48,7 @@ set(_supported_components
     websocketclient
 )
 
+set(snodec_FOUND True)
 foreach(_comp ${snodec_FIND_COMPONENTS})
     if(NOT _comp IN_LIST _supported_components)
         set(snodec_FOUND False)
