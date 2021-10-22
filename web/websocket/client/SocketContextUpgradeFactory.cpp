@@ -18,12 +18,10 @@
 
 #include "SocketContextUpgradeFactory.h"
 
-#include "SubProtocol.h"
 #include "utils/base64.h"
 #include "web/http/client/Request.h"  // for Request
 #include "web/http/client/Response.h" // for Response
 #include "web/http/client/SocketContextUpgradeFactorySelector.h"
-#include "web/websocket/client/SocketContext.h" // for Soc...
 #include "web/websocket/client/SubProtocolFactory.h"
 #include "web/websocket/client/SubProtocolFactorySelector.h" // for Sub...
 
@@ -42,10 +40,10 @@ namespace web::websocket::client {
         request.set("Sec-WebSocket-Key", base64::base64_encode(ebytes, 16));
     }
 
-    void SocketContextUpgradeFactory::deleted(SocketContext* socketContext) {
-        SubProtocolFactory* subProtocolFactory = socketContext->getSubProtocol()->getSubProtocolFactory();
+    void SocketContextUpgradeFactory::deleted(SubProtocol* subProtocol) {
+        SubProtocolFactory* subProtocolFactory = subProtocol->getSubProtocolFactory();
 
-        if (subProtocolFactory->deleteSubProtocol(socketContext->getSubProtocol()) == 0) {
+        if (subProtocolFactory->deleteSubProtocol(subProtocol) == 0) {
             SubProtocolFactorySelector::instance()->unload(subProtocolFactory);
         }
 

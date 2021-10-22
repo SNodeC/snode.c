@@ -18,12 +18,10 @@
 
 #include "SocketContextUpgradeFactory.h"
 
-#include "SubProtocol.h"
 #include "utils/base64.h"
 #include "web/http/server/Request.h"  // for Request
 #include "web/http/server/Response.h" // for Response
 #include "web/http/server/SocketContextUpgradeFactorySelector.h"
-#include "web/websocket/server/SocketContext.h" // for Soc...
 #include "web/websocket/server/SubProtocolFactory.h"
 #include "web/websocket/server/SubProtocolFactorySelector.h"
 
@@ -33,10 +31,10 @@
 
 namespace web::websocket::server {
 
-    void SocketContextUpgradeFactory::deleted(SocketContext* socketContext) {
-        SubProtocolFactory* subProtocolFactory = socketContext->getSubProtocol()->getSubProtocolFactory();
+    void SocketContextUpgradeFactory::deleted(SubProtocol* subProtocol) {
+        SubProtocolFactory* subProtocolFactory = subProtocol->getSubProtocolFactory();
 
-        if (subProtocolFactory->deleteSubProtocol(socketContext->getSubProtocol()) == 0) {
+        if (subProtocolFactory->deleteSubProtocol(subProtocol) == 0) {
             SubProtocolFactorySelector::instance()->unload(subProtocolFactory);
         }
 

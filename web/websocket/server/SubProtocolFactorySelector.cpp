@@ -19,7 +19,6 @@
 #include "SubProtocolFactorySelector.h"
 
 #include "config.h"
-#include "web/websocket/server/SocketContextUpgradeFactory.h"
 #include "web/websocket/server/SubProtocolFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -47,7 +46,6 @@ namespace web::websocket::server {
     }
 
     void SubProtocolFactorySelector::link(const std::string& subProtocolName, SubProtocolFactory* (*getSubProtocolFactory)()) {
-        SocketContextUpgradeFactory::link();
         SubProtocolFactorySelector::instance()->linkSubProtocol(subProtocolName, getSubProtocolFactory);
     }
 

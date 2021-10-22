@@ -20,7 +20,7 @@
 #define WEB_WS_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H
 
 #include "web/http/server/SocketContextUpgradeFactory.h"
-#include "web/websocket/server/SocketContext.h"
+#include "web/websocket/server/SubProtocol.h"
 
 namespace net::socket::stream {
     class SocketConnection;
@@ -43,7 +43,7 @@ namespace web::websocket::server {
 
         SocketContextUpgradeFactory& operator=(const SocketContextUpgradeFactory&) = delete;
 
-        void deleted(SocketContext* socketContext);
+        void deleted(SubProtocol* subProtocol);
 
         static void link();
 
