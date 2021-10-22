@@ -36,13 +36,13 @@ target_link_libraries(
 
 set_target_properties(
     websocketclient PROPERTIES LIBRARY_OUTPUT_DIRECTORY
-                               "${SOCKETCONTEXTUPGRADE_LIBDIR}/upgrade/client"
+                               "${SOCKETCONTEXTUPGRADE_LIBDIR}/client"
 )
 
 install(
     TARGETS websocketclient
     EXPORT snodecwebsocketclientTargets
-    LIBRARY DESTINATION lib/snode.c/web/http/upgrade/client
+    LIBRARY DESTINATION lib/snode.c/web/http/client
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
 )

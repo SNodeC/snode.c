@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(WEBSOCKETBASE_INSTALL_PATH lib/snode.c/web/http/upgrade)
+set(WEBSOCKETBASE_INSTALL_PATH lib/snode.c/web/http)
 
 set(WEBSOCKET_LIBDIR ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -16,7 +16,7 @@ target_include_directories(
 
 set_target_properties(
     websocketbase
-    PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${SOCKETCONTEXTUPGRADE_LIBDIR}/upgrade"
+    PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${SOCKETCONTEXTUPGRADE_LIBDIR}"
                SOVERSION 1
                OUTPUT_NAME "snodec-websocketbase" # PREFIX "sc"
 )

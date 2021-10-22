@@ -11,9 +11,7 @@ set_target_properties(
                SOVERSION 1 # PREFIX "ssp"
 )
 
-install(TARGETS echoclient
-        LIBRARY DESTINATION lib/snode.c/web/websocket/client
-)
+install(TARGETS echoclient LIBRARY DESTINATION lib/snode.c/web/websocket/client)
 
 if(CHECK_INCLUDES)
     set_property(
