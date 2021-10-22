@@ -47,7 +47,7 @@ namespace web::websocket::client {
 
         SocketContextUpgradeFactory& operator=(const SocketContextUpgradeFactory&) = delete;
 
-        void deleted(SubProtocol* subProtocol);
+        void deleteSubProtocol(SubProtocol* subProtocol);
 
         static void link();
 

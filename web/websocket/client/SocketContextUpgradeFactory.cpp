@@ -40,7 +40,7 @@ namespace web::websocket::client {
         request.set("Sec-WebSocket-Key", base64::base64_encode(ebytes, 16));
     }
 
-    void SocketContextUpgradeFactory::deleted(SubProtocol* subProtocol) {
+    void SocketContextUpgradeFactory::deleteSubProtocol(SubProtocol* subProtocol) {
         SubProtocolFactory* subProtocolFactory = subProtocol->getSubProtocolFactory();
 
         if (subProtocolFactory->deleteSubProtocol(subProtocol) == 0) {

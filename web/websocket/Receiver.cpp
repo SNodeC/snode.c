@@ -148,9 +148,9 @@ namespace web::websocket {
 
         if (elengthNumBytesLeft == 0) {
             switch (elengthNumBytes) {
-                case 2: {
+                case 2:
                     length = be16toh(static_cast<uint16_t>(length));
-                } break;
+                    break;
                 case 8:
                     length = be64toh(length);
                     break;

@@ -31,7 +31,7 @@
 
 namespace web::websocket::server {
 
-    void SocketContextUpgradeFactory::deleted(SubProtocol* subProtocol) {
+    void SocketContextUpgradeFactory::deleteSubProtocol(SubProtocol* subProtocol) {
         SubProtocolFactory* subProtocolFactory = subProtocol->getSubProtocolFactory();
 
         if (subProtocolFactory->deleteSubProtocol(subProtocol) == 0) {

@@ -43,7 +43,7 @@ namespace web::websocket::client {
     }
 
     SocketContext::~SocketContext() {
-        socketContextUpgradeFactory->deleted(this->getSubProtocol());
+        socketContextUpgradeFactory->deleteSubProtocol(this->getSubProtocol());
     }
 
 } // namespace web::websocket::client
