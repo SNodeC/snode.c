@@ -45,6 +45,8 @@ namespace web::websocket::server {
 
         void deleted(SocketContext* socketContext);
 
+        static void link();
+
     private:
         std::string name() override;
 
@@ -52,8 +54,6 @@ namespace web::websocket::server {
 
         std::size_t refCount = 0;
     };
-
-    void linkWebsocketServer();
 
     extern "C" web::http::server::SocketContextUpgradeFactory* websocketServerContextUpgradeFactory();
 

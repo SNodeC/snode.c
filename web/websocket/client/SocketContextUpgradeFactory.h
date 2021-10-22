@@ -49,6 +49,8 @@ namespace web::websocket::client {
 
         void deleted(SocketContext* socketContext);
 
+        static void link();
+
     private:
         void prepare(web::http::client::Request& request) override;
 
@@ -58,8 +60,6 @@ namespace web::websocket::client {
 
         std::size_t refCount = 0;
     };
-
-    void linkWebsocketClient();
 
     extern "C" web::http::client::SocketContextUpgradeFactory* websocketClientContextUpgradeFactory();
 

@@ -91,7 +91,7 @@ namespace web::websocket::client {
         return socketContext;
     }
 
-    void linkWebsocketClient() {
+    void SocketContextUpgradeFactory::link() {
         static bool linked = false;
 
         if (!linked) {
