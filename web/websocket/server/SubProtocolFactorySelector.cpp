@@ -16,14 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/websocket/server/SubProtocolFactorySelector.h"
+#include "SubProtocolFactorySelector.h"
 
 #include "config.h"
 #include "web/websocket/server/SocketContextUpgradeFactory.h"
+#include "web/websocket/server/SubProtocolFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <list> // for list
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -47,14 +46,13 @@ namespace web::websocket::server {
         return &subProtocolFactorySelector;
     }
 
-    void SubProtocolFactorySelector::link(const std::string& subProtocolName,
-                                          web::websocket::server::SubProtocolFactory* (*getSubProtocolFactory)()) {
+    void SubProtocolFactorySelector::link(const std::string& subProtocolName, SubProtocolFactory* (*getSubProtocolFactory)()) {
         linkWebsocketServer();
-        web::websocket::server::SubProtocolFactorySelector::instance()->linkSubProtocol(subProtocolName, getSubProtocolFactory);
+        SubProtocolFactorySelector::instance()->linkSubProtocol(subProtocolName, getSubProtocolFactory);
     }
 
     SubProtocolFactory* SubProtocolFactorySelector::load(const std::string& subProtocolName) {
-        return web::websocket::SubProtocolFactorySelector<web::websocket::server::SubProtocolFactory>::load(subProtocolName, Role::SERVER);
+        return load(subProtocolName, Role::SERVER);
     }
 
 } // namespace web::websocket::server

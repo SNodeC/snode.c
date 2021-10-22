@@ -20,10 +20,9 @@
 
 #include "config.h"
 #include "web/websocket/client/SocketContextUpgradeFactory.h"
+#include "web/websocket/client/SubProtocolFactory.h" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <list> // for list
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -47,14 +46,13 @@ namespace web::websocket::client {
         return &subProtocolFactorySelector;
     }
 
-    void SubProtocolFactorySelector::link(const std::string& subProtocolName,
-                                          web::websocket::client::SubProtocolFactory* (*getSubProtocolFactory)()) {
+    void SubProtocolFactorySelector::link(const std::string& subProtocolName, SubProtocolFactory* (*getSubProtocolFactory)()) {
         linkWebsocketClient();
-        web::websocket::client::SubProtocolFactorySelector::instance()->linkSubProtocol(subProtocolName, getSubProtocolFactory);
+        SubProtocolFactorySelector::instance()->linkSubProtocol(subProtocolName, getSubProtocolFactory);
     }
 
     SubProtocolFactory* SubProtocolFactorySelector::load(const std::string& subProtocolName) {
-        return web::websocket::SubProtocolFactorySelector<web::websocket::client::SubProtocolFactory>::load(subProtocolName, Role::CLIENT);
+        return load(subProtocolName, Role::CLIENT);
     }
 
 } // namespace web::websocket::client

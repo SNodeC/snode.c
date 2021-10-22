@@ -20,7 +20,10 @@
 #define WEB_WS_SERVER_SUBPROTOCOLSELECTOR_H
 
 #include "web/websocket/SubProtocolFactorySelector.h"
-#include "web/websocket/server/SubProtocolFactory.h" // IWYU pragma: keep
+
+namespace web::websocket::server {
+    class SubProtocolFactory;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -34,14 +37,16 @@ namespace web::websocket::server {
     public:
         static SubProtocolFactorySelector* instance();
 
-        static void link(const std::string& subProtocolName, web::websocket::server::SubProtocolFactory* (*getSubProtocolFactory)());
+        static void link(const std::string& subProtocolName, SubProtocolFactory* (*getSubProtocolFactory)());
 
-    protected:
+    private:
         SubProtocolFactorySelector();
 
         SubProtocolFactorySelector(const SubProtocolFactorySelector&) = delete;
 
         SubProtocolFactorySelector& operator=(const SubProtocolFactorySelector&) = delete;
+
+        using web::websocket::SubProtocolFactorySelector<web::websocket::server::SubProtocolFactory>::load;
 
         SubProtocolFactory* load(const std::string& subProtocolName) override;
 
