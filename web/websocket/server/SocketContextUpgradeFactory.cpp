@@ -101,8 +101,7 @@ namespace web::websocket::server {
         static bool linked = false;
 
         if (!linked) {
-            web::http::server::SocketContextUpgradeFactorySelector::instance()->linkSocketUpgradeContext(
-                "websocket", websocketServerContextUpgradeFactory);
+            web::http::server::SocketContextUpgradeFactorySelector::instance()->link("websocket", websocketServerContextUpgradeFactory);
             linked = true;
         }
     }

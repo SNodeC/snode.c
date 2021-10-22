@@ -95,8 +95,7 @@ namespace web::websocket::client {
         static bool linked = false;
 
         if (!linked) {
-            web::http::client::SocketContextUpgradeFactorySelector::instance()->linkSocketUpgradeContext(
-                "websocket", websocketClientContextUpgradeFactory);
+            web::http::client::SocketContextUpgradeFactorySelector::instance()->link("websocket", websocketClientContextUpgradeFactory);
             linked = true;
         }
     }

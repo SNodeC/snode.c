@@ -121,8 +121,8 @@ namespace web::http {
     }
 
     template <typename SocketContextUpgradeFactory>
-    void SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::linkSocketUpgradeContext(
-        const std::string& upgradeContextName, SocketContextUpgradeFactory* (*linkedPlugin)()) {
+    void SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::link(const std::string& upgradeContextName,
+                                                                                SocketContextUpgradeFactory* (*linkedPlugin)()) {
         if (!linkedSocketContextUpgradePlugins.contains(upgradeContextName)) {
             linkedSocketContextUpgradePlugins[upgradeContextName] = linkedPlugin;
         }
