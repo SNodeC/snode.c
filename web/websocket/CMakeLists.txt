@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.0)
 
 set(WEBSOCKETBASE_INSTALL_PATH lib/snode.c/web/http/upgrade)
 
+set(WEBSOCKET_LIBDIR ${CMAKE_CURRENT_BINARY_DIR})
+
 add_library(websocketbase SHARED Receiver.cpp Transmitter.cpp)
 add_library(snodec::websocketbase ALIAS websocketbase)
 

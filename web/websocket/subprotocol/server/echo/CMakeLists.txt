@@ -12,7 +12,7 @@ set_target_properties(
 )
 
 install(TARGETS echoserver
-        LIBRARY DESTINATION lib/snode.c/web/websocket/subprotocol/server
+        LIBRARY DESTINATION lib/snode.c/web/websocket/server
 )
 
 if(CHECK_INCLUDES)
