@@ -20,6 +20,7 @@
 
 #include "config.h"
 #include "web/websocket/client/SocketContextUpgradeFactory.h"
+#include "web/websocket/client/SubProtocolFactory.h" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -49,6 +50,10 @@ namespace web::websocket::client {
                                           web::websocket::client::SubProtocolFactory* (*getSubProtocolFactory)()) {
         linkWebsocketClient();
         web::websocket::client::SubProtocolFactorySelector::instance()->linkSubProtocol(subProtocolName, getSubProtocolFactory);
+    }
+
+    SubProtocolFactory* SubProtocolFactorySelector::load(const std::string& subProtocolName) {
+        return load(subProtocolName, Role::CLIENT);
     }
 
 } // namespace web::websocket::client

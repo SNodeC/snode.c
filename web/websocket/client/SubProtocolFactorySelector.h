@@ -46,6 +46,12 @@ namespace web::websocket::client {
 
         SubProtocolFactorySelector& operator=(const SubProtocolFactorySelector&) = delete;
 
+    private:
+        using web::websocket::SubProtocolFactorySelector<web::websocket::client::SubProtocolFactory>::load;
+
+        web::websocket::SubProtocolFactorySelector<web::websocket::client::SubProtocolFactory>::SubProtocolFactory*
+        load(const std::string& subProtocolName);
+
         template <typename SubProtocolFactory>
         friend class web::websocket::SubProtocolFactorySelector;
     };

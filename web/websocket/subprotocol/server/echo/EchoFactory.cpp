@@ -38,7 +38,7 @@ namespace web::websocket::subprotocol::echo::server {
         return new Echo();
     }
 
-    extern "C" web::websocket::server::SubProtocolFactory* getSubProtocolFactory() {
+    extern "C" web::websocket::server::SubProtocolFactory* echoServerSubProtocolFactory() {
         return new EchoFactory();
     }
 
