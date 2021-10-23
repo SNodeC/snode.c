@@ -77,7 +77,6 @@ namespace web::websocket {
         SubProtocolFactory* load(const std::string& subProtocolName, Role role) {
             SubProtocolFactory* subProtocolFactory = nullptr;
 
-            // (searchPath + "/libsnodec-websocket-" + subProtocolName + ".so")
             for (const std::string& searchPath : searchPaths) {
                 void* handle =
                     net::DynamicLoader::dlOpen(searchPath + "/libsnodec-websocket-" + subProtocolName + ".so", RTLD_LAZY | RTLD_LOCAL);

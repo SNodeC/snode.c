@@ -94,7 +94,7 @@ namespace net {
         return ret;
     }
 
-    void DynamicLoader::execDeleyedDlClose() {
+    void DynamicLoader::execDlCloseDeleyed() {
         for (void* handle : registeredForDlClose) {
             int ret = execDlClose(handle);
 
@@ -107,7 +107,7 @@ namespace net {
     }
 
     void DynamicLoader::execDlCloseAll() {
-        execDeleyedDlClose();
+        execDlCloseDeleyed();
 
         std::map<void*, std::string>::iterator it = dlOpenedLibraries.begin();
 

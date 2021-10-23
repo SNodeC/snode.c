@@ -113,7 +113,7 @@ namespace net {
                 writeEventDispatcher.releaseUnobservedEvents();
                 exceptionalConditionEventDispatcher.releaseUnobservedEvents();
 
-                DynamicLoader::execDeleyedDlClose();
+                DynamicLoader::execDlCloseDeleyed();
             } else if (errno != EINTR) {
                 PLOG(ERROR) << "select";
                 tickStatus = TickStatus::SELECT_ERROR;

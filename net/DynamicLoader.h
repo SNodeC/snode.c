@@ -51,7 +51,7 @@ namespace net {
 
     private:
         static int execDlClose(void* handle);
-        static void execDeleyedDlClose();
+        static void execDlCloseDeleyed();
         static void execDlCloseAll();
 
         static std::map<void*, std::string> dlOpenedLibraries;
