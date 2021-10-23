@@ -82,15 +82,15 @@ namespace web::http {
                             VLOG(0) << "UpgradeSocketContext already existing. Not using: " << socketContextUpgradeFactory->name();
                             socketContextUpgradeFactory->destroy();
                             socketContextUpgradeFactory = nullptr;
-                            net::DynamicLoader::dlClose(handle);
+                            net::DynamicLoader::dlCloseDelayed(handle);
                         }
                         break;
                     } else {
-                        net::DynamicLoader::dlClose(handle);
+                        net::DynamicLoader::dlCloseDelayed(handle);
                         VLOG(0) << "SocketContextUpgradeFactory not created: " << upgradeContextName;
                     }
                 } else {
-                    net::DynamicLoader::dlClose(handle);
+                    net::DynamicLoader::dlCloseDelayed(handle);
                     VLOG(0) << "Not a Plugin \"" << upgradeContextName;
                 }
             } else {
@@ -139,7 +139,7 @@ namespace web::http {
             socketContextUpgradeFactory->destroy();
 
             if (socketContextPlugin.handle != nullptr) {
-                net::DynamicLoader::dlClose(socketContextPlugin.handle);
+                net::DynamicLoader::dlCloseDelayed(socketContextPlugin.handle);
             }
 
             socketContextUpgradePlugins.erase(upgradeContextNames);

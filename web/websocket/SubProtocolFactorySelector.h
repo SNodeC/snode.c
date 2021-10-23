@@ -63,11 +63,11 @@ namespace web::websocket {
                     VLOG(0) << "Subprotocol already existing: not using " << subProtocolFactory->name();
                     subProtocolFactory->destroy();
                     if (handle != nullptr) {
-                        net::DynamicLoader::dlClose(handle, true);
+                        net::DynamicLoader::dlClose(handle);
                     }
                 }
             } else if (handle != nullptr) {
-                net::DynamicLoader::dlClose(handle, true);
+                net::DynamicLoader::dlClose(handle);
             }
         }
 
@@ -91,7 +91,7 @@ namespace web::websocket {
                             add(subProtocolFactory, handle);
                             break;
                         } else {
-                            net::DynamicLoader::dlClose(handle, true);
+                            net::DynamicLoader::dlClose(handle);
                         }
                     } else {
                         VLOG(0) << "Optaining function \"plugin()\" in plugin failed: " << net::DynamicLoader::dlError();
@@ -136,7 +136,7 @@ namespace web::websocket {
                 SubProtocolPlugin<SubProtocolFactory>& subProtocolPlugin = subProtocolPlugins[name];
 
                 if (subProtocolPlugin.handle != nullptr) {
-                    net::DynamicLoader::dlClose(subProtocolPlugin.handle, true);
+                    net::DynamicLoader::dlClose(subProtocolPlugin.handle);
                 }
 
                 subProtocolPlugins.erase(name);

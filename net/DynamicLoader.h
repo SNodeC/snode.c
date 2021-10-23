@@ -39,7 +39,8 @@ namespace net {
 
     public:
         static void* dlOpen(const std::string& libFile, int flags);
-        static void dlClose(void* handle, bool sync = false);
+        static void dlCloseDelayed(void* handle);
+        static int dlClose(void* handle);
 
         template <typename Symbol>
         static Symbol dlSym(void* handle, const std::string& symbol) {
@@ -49,7 +50,7 @@ namespace net {
         static char* dlError();
 
     private:
-        static void execDlClose(void* handle);
+        static int execDlClose(void* handle);
         static void execDeleyedDlClose();
         static void execDlCloseAll();
 
