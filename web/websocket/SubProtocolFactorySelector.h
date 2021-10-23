@@ -112,18 +112,16 @@ namespace web::websocket {
         SubProtocolFactory* select(const std::string& subProtocolName) {
             SubProtocolFactory* subProtocolFactory = nullptr;
 
-            if (subProtocolPlugins.contains(subProtocolName)) {
+            if (subProtocolPlugins.contains(subProtocolName) && !onlyLinked) {
                 subProtocolFactory = subProtocolPlugins[subProtocolName].subProtocolFactory;
-            } else {
-                if (linkedSubProtocolFactories.contains(subProtocolName)) {
-                    SubProtocolFactory* (*plugin)() = linkedSubProtocolFactories[subProtocolName];
-                    subProtocolFactory = plugin();
-                    if (subProtocolFactory != nullptr) {
-                        add(subProtocolFactory, nullptr);
-                    }
-                } else {
-                    subProtocolFactory = load(subProtocolName);
+            } else if (linkedSubProtocolFactories.contains(subProtocolName)) {
+                SubProtocolFactory* (*plugin)() = linkedSubProtocolFactories[subProtocolName];
+                subProtocolFactory = plugin();
+                if (subProtocolFactory != nullptr) {
+                    add(subProtocolFactory, nullptr);
                 }
+            } else {
+                subProtocolFactory = load(subProtocolName);
             }
 
             return subProtocolFactory;
@@ -145,8 +143,13 @@ namespace web::websocket {
             }
         }
 
+        void allowDlOpen() {
+            onlyLinked = false;
+        }
+
     protected:
         void linkSubProtocol(const std::string& subProtocolName, SubProtocolFactory* (*linkedPlugin)()) {
+            onlyLinked = true;
             linkedSubProtocolFactories[subProtocolName] = linkedPlugin;
         }
 
@@ -154,6 +157,8 @@ namespace web::websocket {
         std::map<std::string, SubProtocolPlugin<SubProtocolFactory>> subProtocolPlugins;
         std::map<std::string, SubProtocolFactory* (*) ()> linkedSubProtocolFactories;
         std::list<std::string> searchPaths;
+
+        bool onlyLinked = false;
     };
 
 } // namespace web::websocket
