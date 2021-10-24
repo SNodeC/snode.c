@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SocketContextUpgradeFactory.h"
+#include "web/http/client/SocketContextUpgradeFactory.h"
 
 #include "web/http/SocketContextUpgradeFactory.hpp"
 

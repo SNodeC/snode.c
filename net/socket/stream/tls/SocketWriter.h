@@ -22,7 +22,7 @@
 #include "log/Logger.h"
 #include "net/socket/stream/SocketWriter.h"
 #include "net/socket/stream/tls/TLSHandshake.h"
-#include "ssl_utils.h"
+#include "net/socket/stream/tls/ssl_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

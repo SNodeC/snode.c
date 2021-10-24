@@ -22,7 +22,6 @@
 #include "net/socket/stream/SocketConnector.h"
 #include "net/socket/stream/tls/SocketConnection.h"
 #include "net/socket/stream/tls/ssl_utils.h"
-#include "ssl_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

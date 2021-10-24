@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SocketContextUpgradeFactory.h"
+#include "web/websocket/client/SocketContextUpgradeFactory.h"
 
 #include "utils/base64.h"
 #include "web/http/client/Request.h"  // for Request

@@ -26,6 +26,11 @@ namespace net::socket::stream {
     class SocketConnection;
 } // namespace net::socket::stream
 
+namespace web::http::server {
+    class Request;
+    class Response;
+} // namespace web::http::server
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>

@@ -17,10 +17,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SocketContextUpgradeFactory.h"         // IWYU pragma: export
-#include "SocketContextUpgradeFactorySelector.h" // IWYU pragma: export
 #include "log/Logger.h"
 #include "net/DynamicLoader.h"
+#include "web/http/SocketContextUpgradeFactory.h"         // IWYU pragma: export
+#include "web/http/SocketContextUpgradeFactorySelector.h" // IWYU pragma: export
 #include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

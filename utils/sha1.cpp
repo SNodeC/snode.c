@@ -17,7 +17,7 @@
         -- Volker Christian <me@vchrist.at>
 */
 
-#include "sha1.h"
+#include "utils/sha1.h"
 
 #include <cstdlib> // IWYU pragma: keep
 #include <fstream> // IWYU pragma: keep

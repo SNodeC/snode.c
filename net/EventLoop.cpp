@@ -18,8 +18,8 @@
 
 #include "net/EventLoop.h" // for EventLoop
 
-#include "DynamicLoader.h"
 #include "log/Logger.h" // for Logger
+#include "net/DynamicLoader.h"
 #include "net/system/select.h"
 #include "net/system/signal.h"
 #include "net/system/time.h"

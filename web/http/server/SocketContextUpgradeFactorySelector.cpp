@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SocketContextUpgradeFactorySelector.h"
+#include "web/http/server/SocketContextUpgradeFactorySelector.h"
 
 #include "config.h"
 #include "web/http/SocketContextUpgradeFactorySelector.hpp" // IWYU pragma: export

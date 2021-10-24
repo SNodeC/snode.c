@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ssl.h"
+#include "net/socket/stream/tls/system/ssl.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

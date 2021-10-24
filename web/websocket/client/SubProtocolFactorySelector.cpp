@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SubProtocolFactorySelector.h"
+#include "web/websocket/client/SubProtocolFactorySelector.h"
 
 #include "config.h"
 #include "web/websocket/client/SubProtocolFactory.h" // IWYU pragma: keep
