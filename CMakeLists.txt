@@ -28,7 +28,7 @@ add_compile_options(
     -Werror
     -Wall
     -Wextra
-    -Wno-psabi
+    # -Wno-psabi
     -Wconversion
     -Wpedantic
     -pedantic-errors
