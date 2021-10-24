@@ -59,6 +59,11 @@ namespace web::http {
     }
 
     template <typename SocketContextUpgradeFactory>
+    void SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::allowDlOpen() {
+        onlyLinked = false;
+    }
+
+    template <typename SocketContextUpgradeFactory>
     SocketContextUpgradeFactory*
     SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::load(const std::string& upgradeContextName, Role role) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
@@ -112,7 +117,7 @@ namespace web::http {
             } else if (linkedSocketContextUpgradePlugins.contains(upgradeContextName)) {
                 socketContextUpgradeFactory = linkedSocketContextUpgradePlugins[upgradeContextName]();
                 add(socketContextUpgradeFactory);
-            } else {
+            } else if (!onlyLinked) {
                 socketContextUpgradeFactory = load(upgradeContextName);
             }
         }
@@ -126,6 +131,8 @@ namespace web::http {
         if (!linkedSocketContextUpgradePlugins.contains(upgradeContextName)) {
             linkedSocketContextUpgradePlugins[upgradeContextName] = linkedPlugin;
         }
+
+        onlyLinked = true;
     }
 
     template <typename SocketContextUpgradeFactory>

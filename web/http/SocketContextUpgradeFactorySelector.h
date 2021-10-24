@@ -55,6 +55,8 @@ namespace web::http {
 
         void link(const std::string& upgradeContextName, SocketContextUpgradeFactory* (*linkedPlugin)());
 
+        void allowDlOpen();
+
         void unload(SocketContextUpgradeFactory* socketContextUpgradeFactory);
 
     protected:
@@ -70,6 +72,9 @@ namespace web::http {
         std::list<std::string> searchPaths;
 
         const typename SocketContextUpgradeFactory::Role role;
+
+    private:
+        bool onlyLinked = false;
     };
 
 } // namespace web::http
