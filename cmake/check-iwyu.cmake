@@ -10,7 +10,9 @@ if(iwyu_path)
             -Xiwyu
             --cxx17ns
             -Xiwyu
-            --quoted_includes_first
+            --quoted_includes_first#
+            -Xiwyu
+            --max_line_length=160
             -Xiwyu
             --check_also='${PROJECT_SOURCE_DIR}/*'
         )
