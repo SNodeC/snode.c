@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SocketContextUpgradeFactory.hpp"
+#include "SocketContextUpgradeFactory.h"         // IWYU pragma: export
 #include "SocketContextUpgradeFactorySelector.h" // IWYU pragma: export
 #include "log/Logger.h"
 #include "net/DynamicLoader.h"

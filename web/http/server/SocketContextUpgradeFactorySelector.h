@@ -47,8 +47,6 @@ namespace web::http::server {
     public:
         static SocketContextUpgradeFactorySelector* instance();
 
-        using web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::select;
-
         SocketContextUpgradeFactory* select(Request& req, Response& res) override;
     };
 

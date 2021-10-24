@@ -47,8 +47,6 @@ namespace web::http::client {
     public:
         static SocketContextUpgradeFactorySelector* instance();
 
-        using web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::select;
-
         SocketContextUpgradeFactory* select(const std::string& upgradeContextName, Request& req);
         SocketContextUpgradeFactory* select(Request& req, Response& res) override;
     };

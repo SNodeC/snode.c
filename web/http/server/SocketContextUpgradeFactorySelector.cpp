@@ -73,7 +73,8 @@ namespace web::http::server {
 
             httputils::to_lower(upgradeContextName);
 
-            socketContextUpgradeFactory = select(upgradeContextName);
+            socketContextUpgradeFactory =
+                web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::select(upgradeContextName);
 
             if (socketContextUpgradeFactory != nullptr) {
                 socketContextUpgradeFactory->prepare(req, res);
@@ -84,3 +85,7 @@ namespace web::http::server {
     }
 
 } // namespace web::http::server
+
+namespace web::http {
+    template class web::http::SocketContextUpgradeFactorySelector<web::http::server::SocketContextUpgradeFactory>;
+}
