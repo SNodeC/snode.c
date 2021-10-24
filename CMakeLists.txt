@@ -28,7 +28,7 @@ add_compile_options(
     -Werror
     -Wall
     -Wextra
-    # -Wno-psabi
+    -Wno-psabi  # needed for RaspberryPi
     -Wconversion
     -Wpedantic
     -pedantic-errors
