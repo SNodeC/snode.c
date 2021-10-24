@@ -111,7 +111,7 @@ namespace web::websocket {
         SubProtocolFactory* select(const std::string& subProtocolName) {
             SubProtocolFactory* subProtocolFactory = nullptr;
 
-            if (subProtocolPlugins.contains(subProtocolName) && !onlyLinked) {
+            if (subProtocolPlugins.contains(subProtocolName)) {
                 subProtocolFactory = subProtocolPlugins[subProtocolName].subProtocolFactory;
             } else if (linkedSubProtocolFactories.contains(subProtocolName)) {
                 SubProtocolFactory* (*plugin)() = linkedSubProtocolFactories[subProtocolName];
@@ -119,7 +119,7 @@ namespace web::websocket {
                 if (subProtocolFactory != nullptr) {
                     add(subProtocolFactory, nullptr);
                 }
-            } else {
+            } else if (!onlyLinked) {
                 subProtocolFactory = load(subProtocolName);
             }
 
