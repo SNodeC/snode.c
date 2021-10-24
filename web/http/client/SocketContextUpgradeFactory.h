@@ -19,7 +19,7 @@
 #ifndef WEB_HTTP_CLIENT_SOCKETCONTEXTUPGRADEFACTORY_H
 #define WEB_HTTP_CLIENT_SOCKETCONTEXTUPGRADEFACTORY_H
 
-#include "web/http/SocketContextUpgradeFactory.hpp" // IWYU pragma: export
+#include "web/http/SocketContextUpgradeFactory.h" // IWYU pragma: export
 
 namespace web::http::client {
     class Request;
@@ -41,7 +41,6 @@ namespace web::http::client {
         SocketContextUpgradeFactory();
 
     public:
-        using web::http::SocketContextUpgradeFactory<Request, Response>::prepare;
         virtual void prepare(Request& request) = 0;
     };
 

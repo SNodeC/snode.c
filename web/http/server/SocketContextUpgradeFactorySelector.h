@@ -19,8 +19,8 @@
 #ifndef WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADEFACTORYSELECTOR_H
 #define WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADEFACTORYSELECTOR_H
 
-#include "web/http/SocketContextUpgradeFactorySelector.hpp" // IWYU pragma: export
-#include "web/http/server/SocketContextUpgradeFactory.h"    // IWYU pragma: export
+#include "web/http/SocketContextUpgradeFactorySelector.h" // IWYU pragma: export
+#include "web/http/server/SocketContextUpgradeFactory.h"  // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

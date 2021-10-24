@@ -19,7 +19,8 @@
 #include "SocketContextUpgradeFactorySelector.h"
 
 #include "config.h"
-#include "web/http/client/Response.h" // IWYU pragma: keep
+#include "web/http/SocketContextUpgradeFactorySelector.hpp" // IWYU pragma: export
+#include "web/http/client/Response.h"                       // IWYU pragma: keep
 #include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -78,7 +79,8 @@ namespace web::http::client {
             socketContextUpgradeFactory = select(upgradeContextName);
 
             if (socketContextUpgradeFactory != nullptr) {
-                socketContextUpgradeFactory->prepare(req, res); // Fill in the missing header fields into the request object
+                socketContextUpgradeFactory->web::http::SocketContextUpgradeFactory<Request, Response>::prepare(
+                    req, res); // Fill in the missing header fields into the request object
             }
         }
 

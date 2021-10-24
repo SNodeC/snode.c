@@ -42,10 +42,12 @@ namespace web::http {
         ~SocketContextUpgradeFactory() override = default;
 
     public:
-        virtual void prepare(Request& request, Response& response);
         virtual std::string name() = 0;
 
+        void prepare(Request& request, Response& response);
+
         SocketContextUpgradeFactory<Request, Response>::Role getRole();
+
         void destroy();
 
     protected:

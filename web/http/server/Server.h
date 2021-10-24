@@ -19,6 +19,7 @@
 #ifndef WEB_HTTP_SERVER_SERVERT_H
 #define WEB_HTTP_SERVER_SERVERT_H
 
+#include "web/http/server/SocketContext.hpp"
 #include "web/http/server/SocketContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

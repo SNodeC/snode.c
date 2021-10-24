@@ -19,6 +19,7 @@
 #include "SocketContextUpgradeFactory.h"
 
 #include "utils/base64.h"
+#include "web/http/SocketContextUpgradeFactorySelector.hpp"
 #include "web/http/server/Request.h"  // for Request
 #include "web/http/server/Response.h" // for Response
 #include "web/http/server/SocketContextUpgradeFactorySelector.h"
