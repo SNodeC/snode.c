@@ -19,8 +19,8 @@
 #include "web/http/client/SocketContextUpgradeFactorySelector.h"
 
 #include "config.h"
-#include "web/http/SocketContextUpgradeFactorySelector.hpp" // IWYU pragma: export
-#include "web/http/client/Response.h"                       // IWYU pragma: keep
+#include "web/http/SocketContextUpgradeFactorySelector.hpp"
+#include "web/http/client/Response.h" // IWYU pragma: keep
 #include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

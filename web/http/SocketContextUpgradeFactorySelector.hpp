@@ -19,8 +19,8 @@
 
 #include "log/Logger.h"
 #include "net/DynamicLoader.h"
-#include "web/http/SocketContextUpgradeFactory.h"         // IWYU pragma: export
-#include "web/http/SocketContextUpgradeFactorySelector.h" // IWYU pragma: export
+#include "web/http/SocketContextUpgradeFactory.h" // IWYU pragma: export
+#include "web/http/SocketContextUpgradeFactorySelector.h"
 #include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

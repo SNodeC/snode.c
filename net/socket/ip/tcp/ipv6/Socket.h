@@ -20,7 +20,7 @@
 #define NET_SOCKET_IP_TCP_IPV6_SOCKET_H
 
 #include "net/socket/Socket.h"
-#include "net/socket/ip/address/ipv6/InetAddress.h" // IWYU pragma: keep
+#include "net/socket/ip/address/ipv6/InetAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

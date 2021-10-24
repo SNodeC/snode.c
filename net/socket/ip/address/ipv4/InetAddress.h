@@ -24,8 +24,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
-#include <exception>    // IWYU pragma: keep
-#include <netinet/in.h> // IWYU pragma: keep
+#include <exception>
+#include <netinet/in.h>
 #include <string>
 // IWYyyU pragma: no_include <bits/exception.h>
 

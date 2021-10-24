@@ -20,8 +20,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <sys/time.h> // IWYU pragma: export
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 bool operator<(const struct timeval& tv1, const struct timeval& tv2) {

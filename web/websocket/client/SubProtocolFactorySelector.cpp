@@ -19,7 +19,7 @@
 #include "web/websocket/client/SubProtocolFactorySelector.h"
 
 #include "config.h"
-#include "web/websocket/client/SubProtocolFactory.h" // IWYU pragma: keep
+#include "web/websocket/client/SubProtocolFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

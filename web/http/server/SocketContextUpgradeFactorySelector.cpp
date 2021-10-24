@@ -19,7 +19,7 @@
 #include "web/http/server/SocketContextUpgradeFactorySelector.h"
 
 #include "config.h"
-#include "web/http/SocketContextUpgradeFactorySelector.hpp" // IWYU pragma: export
+#include "web/http/SocketContextUpgradeFactorySelector.hpp"
 #include "web/http/http_utils.h"
 #include "web/http/server/Request.h" // IWYU pragma: keep
 

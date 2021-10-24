@@ -19,10 +19,8 @@
 
 #include "utils/sha1.h"
 
-#include <cstdlib> // IWYU pragma: keep
-#include <fstream> // IWYU pragma: keep
+#include <cstdlib>
 #include <iomanip>
-#include <sstream> // IWYU pragma: keep
 #include <sys/types.h>
 
 /* Help macros */
@@ -109,13 +107,6 @@ std::string SHA1::final() {
     reset();
 
     return result.str();
-}
-
-std::string SHA1::from_file(const std::string& filename) {
-    std::ifstream stream(filename.c_str(), std::ios::binary);
-    SHA1 checksum;
-    checksum.update(stream);
-    return checksum.final();
 }
 
 void SHA1::reset() {

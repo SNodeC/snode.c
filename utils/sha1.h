@@ -31,7 +31,6 @@ public:
     void update(const std::string& s);
     void update(std::istream& is);
     std::string final();
-    static std::string from_file(const std::string& filename);
 
 private:
     static const unsigned int DIGEST_INTS = 5; /* number of 32bit integers per SHA1 digest */
