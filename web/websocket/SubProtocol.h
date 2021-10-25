@@ -19,14 +19,6 @@
 #ifndef WEB_WS_SUBSPROTOCOL_H
 #define WEB_WS_SUBSPROTOCOL_H
 
-namespace web::websocket {
-    template <typename SubProtocolT>
-    class SocketContext;
-
-    template <typename SubProtocolT>
-    class SubProtocolFactory;
-} // namespace web::websocket
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
