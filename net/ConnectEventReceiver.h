@@ -19,7 +19,7 @@
 #ifndef NET_CONNECTEVENTRECEIVER_H
 #define NET_CONNECTEVENTRECEIVER_H
 
-#include "net/DescriptorEventReceiver.h"
+#include "net/EventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,7 +29,7 @@
 
 namespace net {
 
-    class ConnectEventReceiver : public DescriptorEventReceiver {
+    class ConnectEventReceiver : public EventReceiver {
     protected:
         ConnectEventReceiver(long timeout = MAX_CONNECT_INACTIVITY);
 

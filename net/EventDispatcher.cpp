@@ -19,10 +19,10 @@
 #ifndef EVENTDISPATCHER_HPP
 #define EVENTDISPATCHER_HPP
 
-#include "net/DescriptorEventDispatcher.h"
+#include "net/EventDispatcher.h"
 
 #include "log/Logger.h" // for Writer, CWARNING, LOG
-#include "net/DescriptorEventReceiver.h"
+#include "net/EventReceiver.h"
 #include "utils/Timeval.h" // for operator-, operator<, operator>=
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -37,11 +37,38 @@
 
 namespace net {
 
-    bool DescriptorEventDispatcher::DescriptorEventReceiverList::contains(DescriptorEventReceiver* eventReceiver) const {
+    EventDispatcher::FdSet::FdSet() {
+        zero();
+    }
+
+    void EventDispatcher::FdSet::set(int fd) {
+        FD_SET(fd, &registered);
+    }
+
+    void EventDispatcher::FdSet::clr(int fd) {
+        FD_CLR(fd, &registered);
+        FD_CLR(fd, &active);
+    }
+
+    int EventDispatcher::FdSet::isSet(int fd) const {
+        return FD_ISSET(fd, &active);
+    }
+
+    void EventDispatcher::FdSet::zero() {
+        FD_ZERO(&registered);
+        FD_ZERO(&active);
+    }
+
+    fd_set& EventDispatcher::FdSet::get() {
+        active = registered;
+        return active;
+    }
+
+    bool EventDispatcher::DescriptorEventReceiverList::contains(EventReceiver* eventReceiver) const {
         return std::find(begin(), end(), eventReceiver) != end();
     }
 
-    void DescriptorEventDispatcher::enable(DescriptorEventReceiver* eventReceiver, int fd) {
+    void EventDispatcher::enable(EventReceiver* eventReceiver, int fd) {
         if (disabledEventReceiver[fd].contains(eventReceiver)) {
             // same tick as disable
             disabledEventReceiver[fd].remove(eventReceiver);
@@ -58,7 +85,7 @@ namespace net {
         }
     }
 
-    void DescriptorEventDispatcher::disable(DescriptorEventReceiver* eventReceiver, int fd) {
+    void EventDispatcher::disable(EventReceiver* eventReceiver, int fd) {
         if (enabledEventReceiver[fd].contains(eventReceiver)) {
             // same tick as enable
             enabledEventReceiver[fd].remove(eventReceiver);
@@ -75,18 +102,18 @@ namespace net {
         }
     }
 
-    void DescriptorEventDispatcher::suspend(DescriptorEventReceiver* eventReceiver, int fd) {
+    void EventDispatcher::suspend(EventReceiver* eventReceiver, int fd) {
         if (!eventReceiver->isSuspended()) {
             eventReceiver->suspended();
             if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
-                fdSet.clr(fd, true);
+                fdSet.clr(fd);
             }
         } else {
             LOG(WARNING) << "EventReceiver double suspend";
         }
     }
 
-    void DescriptorEventDispatcher::resume(DescriptorEventReceiver* eventReceiver, int fd) {
+    void EventDispatcher::resume(EventReceiver* eventReceiver, int fd) {
         if (eventReceiver->isSuspended()) {
             eventReceiver->resumed();
             if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
@@ -97,11 +124,11 @@ namespace net {
         }
     }
 
-    unsigned long DescriptorEventDispatcher::getEventCounter() const {
+    unsigned long EventDispatcher::getEventCounter() const {
         return eventCounter;
     }
 
-    int DescriptorEventDispatcher::getMaxFd() const {
+    int EventDispatcher::getMaxFd() const {
         int maxFd = -1;
 
         if (!observedEventReceiver.empty()) {
@@ -111,21 +138,21 @@ namespace net {
         return maxFd;
     }
 
-    fd_set& DescriptorEventDispatcher::getFdSet() {
+    fd_set& EventDispatcher::getFdSet() {
         return fdSet.get();
     }
 
-    struct timeval DescriptorEventDispatcher::observeEnabledEvents() {
+    struct timeval EventDispatcher::observeEnabledEvents() {
         struct timeval nextTimeout = {LONG_MAX, 0};
 
         for (const auto& [fd, eventReceivers] : enabledEventReceiver) {
-            for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
+            for (EventReceiver* eventReceiver : eventReceivers) {
                 observedEventReceiver[fd].push_front(eventReceiver);
                 if (!eventReceiver->isSuspended()) {
                     fdSet.set(fd);
                     nextTimeout = std::min(nextTimeout, eventReceiver->getTimeout());
                 } else {
-                    fdSet.clr(fd, true);
+                    fdSet.clr(fd);
                 }
             }
         }
@@ -134,13 +161,13 @@ namespace net {
         return nextTimeout;
     }
 
-    struct timeval DescriptorEventDispatcher::dispatchActiveEvents(struct timeval currentTime) {
+    struct timeval EventDispatcher::dispatchActiveEvents(struct timeval currentTime) {
         struct timeval nextInactivityTimeout {
             LONG_MAX, 0
         };
 
         for (const auto& [fd, eventReceivers] : observedEventReceiver) {
-            DescriptorEventReceiver* eventReceiver = eventReceivers.front();
+            EventReceiver* eventReceiver = eventReceivers.front();
             struct timeval maxInactivity = eventReceiver->getTimeout();
             if (fdSet.isSet(fd) || (eventReceiver->continueImmediately())) {
                 eventCounter++;
@@ -166,15 +193,15 @@ namespace net {
         return nextInactivityTimeout;
     }
 
-    void DescriptorEventDispatcher::unobserveDisabledEvents() {
+    void EventDispatcher::unobserveDisabledEvents() {
         for (const auto& [fd, eventReceivers] : disabledEventReceiver) {
-            for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
+            for (EventReceiver* eventReceiver : eventReceivers) {
                 observedEventReceiver[fd].remove(eventReceiver);
                 if (observedEventReceiver[fd].empty() || observedEventReceiver[fd].front()->isSuspended()) {
                     if (observedEventReceiver[fd].empty()) {
                         observedEventReceiver.erase(fd);
                     }
-                    fdSet.clr(fd, true);
+                    fdSet.clr(fd);
                 } else {
                     fdSet.set(fd);
                     observedEventReceiver[fd].front()->triggered();
@@ -189,16 +216,16 @@ namespace net {
         disabledEventReceiver.clear();
     }
 
-    void DescriptorEventDispatcher::releaseUnobservedEvents() {
-        for (DescriptorEventReceiver* eventReceiver : unobservedEventReceiver) {
+    void EventDispatcher::releaseUnobservedEvents() {
+        for (EventReceiver* eventReceiver : unobservedEventReceiver) {
             eventReceiver->unobserved();
         }
         unobservedEventReceiver.clear();
     }
 
-    void DescriptorEventDispatcher::disableObservedEvents() {
+    void EventDispatcher::disableObservedEvents() {
         for (const auto& [fd, eventReceivers] : observedEventReceiver) {
-            for (DescriptorEventReceiver* eventReceiver : eventReceivers) {
+            for (EventReceiver* eventReceiver : eventReceivers) {
                 disabledEventReceiver[fd].push_back(eventReceiver);
             }
         }

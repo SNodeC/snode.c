@@ -27,7 +27,7 @@
 namespace net {
 
     ExceptionalConditionEventReceiver::ExceptionalConditionEventReceiver(long timeout)
-        : DescriptorEventReceiver(EventLoop::instance().getExceptionalConditionEventDispatcher(), timeout) {
+        : EventReceiver(EventLoop::instance().getExceptionalConditionEventDispatcher(), timeout) {
     }
 
     void ExceptionalConditionEventReceiver::outOfBandTimeout() {

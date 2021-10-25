@@ -5,12 +5,11 @@ add_library(
     AcceptEventReceiver.cpp
     ConnectEventReceiver.cpp
     Descriptor.cpp
-    DescriptorEventDispatcher.cpp
-    DescriptorEventReceiver.cpp
     DynamicLoader.cpp
+    EventDispatcher.cpp
     EventLoop.cpp
+    EventReceiver.cpp
     ExceptionalConditionEventReceiver.cpp
-    FdSet.cpp
     ReadEventReceiver.cpp
     SNodeC.cpp
     TimerEventDispatcher.cpp

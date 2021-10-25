@@ -19,7 +19,7 @@
 #ifndef NET_READEVENTRECEIVER_H
 #define NET_READEVENTRECEIVER_H
 
-#include "net/DescriptorEventReceiver.h"
+#include "net/EventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,7 +29,7 @@
 
 namespace net {
 
-    class ReadEventReceiver : public DescriptorEventReceiver {
+    class ReadEventReceiver : public EventReceiver {
     protected:
         ReadEventReceiver(long timeout = MAX_READ_INACTIVITY);
 

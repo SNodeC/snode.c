@@ -19,7 +19,7 @@
 #ifndef NET_DESCRIPTOREVENTDISPATCHER_H
 #define NET_DESCRIPTOREVENTDISPATCHER_H
 
-#include "net/FdSet.h"
+#include "net/system/select.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,30 +31,46 @@
 
 namespace net {
 
-    class DescriptorEventReceiver;
+    class EventReceiver;
 
-    class DescriptorEventDispatcher {
-        DescriptorEventDispatcher(const DescriptorEventDispatcher&) = delete;
-        DescriptorEventDispatcher& operator=(const DescriptorEventDispatcher&) = delete;
+    class EventDispatcher {
+        EventDispatcher(const EventDispatcher&) = delete;
+        EventDispatcher& operator=(const EventDispatcher&) = delete;
+
+    private:
+        class FdSet {
+        public:
+            FdSet();
+
+            void set(int fd);
+            void clr(int fd);
+            int isSet(int fd) const;
+            void zero();
+            fd_set& get();
+
+        protected:
+            fd_set registered;
+            fd_set active;
+        };
 
     public:
-        DescriptorEventDispatcher() = default;
+        EventDispatcher() = default;
 
-        void enable(DescriptorEventReceiver* eventReceiver, int fd);
-        void disable(DescriptorEventReceiver* eventReceiver, int fd);
-        void suspend(DescriptorEventReceiver* eventReceiver, int fd);
-        void resume(DescriptorEventReceiver* eventReceiver, int fd);
+        void enable(EventReceiver* eventReceiver, int fd);
+        void disable(EventReceiver* eventReceiver, int fd);
+        void suspend(EventReceiver* eventReceiver, int fd);
+        void resume(EventReceiver* eventReceiver, int fd);
 
         unsigned long getEventCounter() const;
 
     private:
-        class DescriptorEventReceiverList : public std::list<DescriptorEventReceiver*> {
+        class DescriptorEventReceiverList : public std::list<EventReceiver*> {
         public:
-            using std::list<DescriptorEventReceiver*>::begin;
-            using std::list<DescriptorEventReceiver*>::end;
-            using std::list<DescriptorEventReceiver*>::front;
+            using std::list<EventReceiver*>::begin;
+            using std::list<EventReceiver*>::end;
+            using std::list<EventReceiver*>::front;
 
-            bool contains(DescriptorEventReceiver* descriptorEventReceiver) const;
+            bool contains(EventReceiver* descriptorEventReceiver) const;
         };
 
         int getMaxFd() const;

@@ -60,6 +60,22 @@ namespace net {
         return eventLoop;
     }
 
+    EventDispatcher& EventLoop::getReadEventDispatcher() {
+        return readEventDispatcher;
+    }
+
+    EventDispatcher& EventLoop::getWriteEventDispatcher() {
+        return writeEventDispatcher;
+    }
+
+    EventDispatcher& EventLoop::getExceptionalConditionEventDispatcher() {
+        return exceptionalConditionEventDispatcher;
+    }
+
+    TimerEventDispatcher& EventLoop::getTimerEventDispatcher() {
+        return timerEventDispatcher;
+    }
+
     TickStatus EventLoop::_tick(struct timeval timeOut) {
         TickStatus tickStatus = TickStatus::SUCCESS;
 
@@ -234,6 +250,10 @@ namespace net {
     unsigned long EventLoop::getEventCounter() {
         return readEventDispatcher.getEventCounter() + writeEventDispatcher.getEventCounter() +
                exceptionalConditionEventDispatcher.getEventCounter();
+    }
+
+    unsigned long EventLoop::getTickCounter() {
+        return tickCounter;
     }
 
 } // namespace net

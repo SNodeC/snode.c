@@ -29,7 +29,7 @@
 namespace net {
 
     AcceptEventReceiver::AcceptEventReceiver(long timeout)
-        : DescriptorEventReceiver(EventLoop::instance().getReadEventDispatcher(), timeout) {
+        : EventReceiver(EventLoop::instance().getReadEventDispatcher(), timeout) {
     }
 
     void AcceptEventReceiver::acceptTimeout() {

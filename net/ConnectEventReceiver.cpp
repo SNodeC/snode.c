@@ -27,7 +27,7 @@
 namespace net {
 
     ConnectEventReceiver::ConnectEventReceiver(long timeout)
-        : DescriptorEventReceiver(EventLoop::instance().getWriteEventDispatcher(), timeout) {
+        : EventReceiver(EventLoop::instance().getWriteEventDispatcher(), timeout) {
     }
 
     void ConnectEventReceiver::connectTimeout() {

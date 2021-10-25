@@ -19,7 +19,7 @@
 #ifndef NET_EVENTLOOP_H
 #define NET_EVENTLOOP_H
 
-#include "net/DescriptorEventDispatcher.h"
+#include "net/EventDispatcher.h"
 #include "net/TickStatus.h"
 #include "net/TimerEventDispatcher.h"
 
@@ -43,27 +43,17 @@ namespace net {
     public:
         static EventLoop& instance();
 
-        DescriptorEventDispatcher& getReadEventDispatcher() {
-            return readEventDispatcher;
-        }
+        EventDispatcher& getReadEventDispatcher();
 
-        DescriptorEventDispatcher& getWriteEventDispatcher() {
-            return writeEventDispatcher;
-        }
+        EventDispatcher& getWriteEventDispatcher();
 
-        DescriptorEventDispatcher& getExceptionalConditionEventDispatcher() {
-            return exceptionalConditionEventDispatcher;
-        }
+        EventDispatcher& getExceptionalConditionEventDispatcher();
 
-        TimerEventDispatcher& getTimerEventDispatcher() {
-            return timerEventDispatcher;
-        }
+        TimerEventDispatcher& getTimerEventDispatcher();
 
         unsigned long getEventCounter();
 
-        unsigned long getTickCounter() {
-            return tickCounter;
-        }
+        unsigned long getTickCounter();
 
     protected:
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
@@ -81,9 +71,9 @@ namespace net {
 
         static EventLoop eventLoop;
 
-        DescriptorEventDispatcher readEventDispatcher;
-        DescriptorEventDispatcher writeEventDispatcher;
-        DescriptorEventDispatcher exceptionalConditionEventDispatcher;
+        EventDispatcher readEventDispatcher;
+        EventDispatcher writeEventDispatcher;
+        EventDispatcher exceptionalConditionEventDispatcher;
 
         TimerEventDispatcher timerEventDispatcher;
 

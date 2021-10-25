@@ -19,7 +19,7 @@
 #ifndef NET_WRITEEVENTRECEIVER_H
 #define NET_WRITEEVENTRECEIVER_H
 
-#include "net/DescriptorEventReceiver.h"
+#include "net/EventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,7 +29,7 @@
 
 namespace net {
 
-    class WriteEventReceiver : public DescriptorEventReceiver {
+    class WriteEventReceiver : public EventReceiver {
     protected:
         WriteEventReceiver(long timeout = MAX_WRITE_INACTIVITY);
 

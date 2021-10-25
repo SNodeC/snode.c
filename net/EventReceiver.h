@@ -29,7 +29,7 @@
 
 namespace net {
 
-    class DescriptorEventDispatcher;
+    class EventDispatcher;
 
     class ObservationCounter {
     public:
@@ -42,9 +42,9 @@ namespace net {
         struct timeval lastTriggered = {0, 0};
     };
 
-    class DescriptorEventReceiver : virtual public ObservationCounter {
-        DescriptorEventReceiver(const DescriptorEventReceiver&) = delete;
-        DescriptorEventReceiver& operator=(const DescriptorEventReceiver&) = delete;
+    class EventReceiver : virtual public ObservationCounter {
+        EventReceiver(const EventReceiver&) = delete;
+        EventReceiver& operator=(const EventReceiver&) = delete;
 
     protected:
         class TIMEOUT {
@@ -53,7 +53,7 @@ namespace net {
             static const long DISABLE = LONG_MAX;
         };
 
-        explicit DescriptorEventReceiver(DescriptorEventDispatcher& descriptorEventDispatcher, long timeout = TIMEOUT::DISABLE);
+        explicit EventReceiver(EventDispatcher& descriptorEventDispatcher, long timeout = TIMEOUT::DISABLE);
 
     public:
         void enable(int fd);
@@ -63,7 +63,7 @@ namespace net {
         void resume();
 
     protected:
-        virtual ~DescriptorEventReceiver() = default;
+        virtual ~EventReceiver() = default;
 
         void setTimeout(long timeout);
 
@@ -89,7 +89,7 @@ namespace net {
 
         virtual void unobserved() = 0;
 
-        DescriptorEventDispatcher& descriptorEventDispatcher;
+        EventDispatcher& descriptorEventDispatcher;
 
         int fd = -1;
 
@@ -99,7 +99,7 @@ namespace net {
         long maxInactivity = LONG_MAX;
         const long initialTimeout;
 
-        friend class DescriptorEventDispatcher;
+        friend class EventDispatcher;
     };
 
 } // namespace net

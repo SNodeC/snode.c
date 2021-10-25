@@ -19,7 +19,7 @@
 #ifndef NET_EXCEPTIONALCONDITIONEVENTRECEIVER_H
 #define NET_EXCEPTIONALCONDITIONEVENTRECEIVER_H
 
-#include "net/DescriptorEventReceiver.h"
+#include "net/EventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,7 +29,7 @@
 
 namespace net {
 
-    class ExceptionalConditionEventReceiver : public DescriptorEventReceiver {
+    class ExceptionalConditionEventReceiver : public EventReceiver {
     protected:
         ExceptionalConditionEventReceiver(long timeout = MAX_OUTOFBAND_INACTIVITY);
 

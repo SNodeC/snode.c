@@ -19,7 +19,7 @@
 #ifndef NET_ACCEPTEVENTRECEIVER_H
 #define NET_ACCEPTEVENTRECEIVER_H
 
-#include "net/DescriptorEventReceiver.h"
+#include "net/EventReceiver.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,7 +31,7 @@
 
 namespace net {
 
-    class AcceptEventReceiver : public DescriptorEventReceiver {
+    class AcceptEventReceiver : public EventReceiver {
     protected:
         AcceptEventReceiver(long timeout = MAX_ACCEPT_INACTIVITY);
 

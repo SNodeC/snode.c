@@ -16,9 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/DescriptorEventReceiver.h"
+#include "net/EventReceiver.h"
 
-#include "net/DescriptorEventDispatcher.h"
+#include "net/EventDispatcher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,59 +26,59 @@
 
 namespace net {
 
-    DescriptorEventReceiver::DescriptorEventReceiver(DescriptorEventDispatcher& descriptorEventDispatcher, long timeout)
+    EventReceiver::EventReceiver(EventDispatcher& descriptorEventDispatcher, long timeout)
         : descriptorEventDispatcher(descriptorEventDispatcher)
         , maxInactivity(timeout)
         , initialTimeout(timeout) {
     }
 
-    void DescriptorEventReceiver::enable(int fd) {
+    void EventReceiver::enable(int fd) {
         this->fd = fd;
         descriptorEventDispatcher.enable(this, fd);
         _enabled = true;
     }
 
-    void DescriptorEventReceiver::disable() {
+    void EventReceiver::disable() {
         descriptorEventDispatcher.disable(this, fd);
         _enabled = false;
     }
 
-    void DescriptorEventReceiver::suspend() {
+    void EventReceiver::suspend() {
         descriptorEventDispatcher.suspend(this, fd);
     }
 
-    void DescriptorEventReceiver::resume() {
+    void EventReceiver::resume() {
         descriptorEventDispatcher.resume(this, fd);
     }
 
-    void DescriptorEventReceiver::enabled() {
+    void EventReceiver::enabled() {
         ObservationCounter::observationCounter++;
         lastTriggered = {time(nullptr), 0};
     }
 
-    void DescriptorEventReceiver::disabled() {
+    void EventReceiver::disabled() {
         this->fd = -1;
         ObservationCounter::observationCounter--;
     }
 
-    bool DescriptorEventReceiver::isEnabled() const {
+    bool EventReceiver::isEnabled() const {
         return _enabled;
     }
 
-    void DescriptorEventReceiver::suspended() {
+    void EventReceiver::suspended() {
         _suspended = true;
     }
 
-    void DescriptorEventReceiver::resumed() {
+    void EventReceiver::resumed() {
         _suspended = false;
         lastTriggered = {time(nullptr), 0};
     }
 
-    bool DescriptorEventReceiver::isSuspended() const {
+    bool EventReceiver::isSuspended() const {
         return _suspended;
     }
 
-    void DescriptorEventReceiver::setTimeout(long timeout) {
+    void EventReceiver::setTimeout(long timeout) {
         if (timeout != TIMEOUT::DEFAULT) {
             this->maxInactivity = timeout;
         } else {
@@ -86,18 +86,18 @@ namespace net {
         }
     }
 
-    timeval DescriptorEventReceiver::getTimeout() const {
+    timeval EventReceiver::getTimeout() const {
         return {maxInactivity, 0};
     }
 
-    void DescriptorEventReceiver::timeoutEvent() {
+    void EventReceiver::timeoutEvent() {
     }
 
-    void DescriptorEventReceiver::triggered(struct timeval lastTriggered) {
+    void EventReceiver::triggered(struct timeval lastTriggered) {
         this->lastTriggered = lastTriggered;
     }
 
-    timeval DescriptorEventReceiver::getLastTriggered() {
+    timeval EventReceiver::getLastTriggered() {
         return lastTriggered;
     }
 
