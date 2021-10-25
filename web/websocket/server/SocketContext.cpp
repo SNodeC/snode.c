@@ -34,16 +34,16 @@ namespace web::websocket::server {
         : web::websocket::SocketContext<SubProtocol>(socketConnection, subProtocol, Role::SERVER) {
     }
 
+    SocketContext::~SocketContext() {
+        socketContextUpgradeFactory->deleteSubProtocol(this->getSubProtocol());
+    }
+
     void SocketContext::setSocketContextUpgradeFactory(SocketContextUpgradeFactory* socketContextUpgradeFactory) {
         this->socketContextUpgradeFactory = socketContextUpgradeFactory;
     }
 
     SocketContextUpgradeFactory* SocketContext::getSocketContextUpgradeFactory() {
         return socketContextUpgradeFactory;
-    }
-
-    SocketContext::~SocketContext() {
-        socketContextUpgradeFactory->deleteSubProtocol(this->getSubProtocol());
     }
 
 } // namespace web::websocket::server
