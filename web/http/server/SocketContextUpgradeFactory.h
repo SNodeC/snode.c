@@ -28,6 +28,8 @@ namespace web::http::server {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string> // for string
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http::server {
@@ -39,6 +41,11 @@ namespace web::http::server {
 
     protected:
         SocketContextUpgradeFactory();
+
+        void decRefCount() final;
+        void checkRefCount() final;
+
+        static void link(const std::string& upgradeContextName, SocketContextUpgradeFactory* (*linkedPlugin)());
     };
 
 } // namespace web::http::server

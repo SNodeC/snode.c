@@ -19,6 +19,7 @@
 #include "web/http/client/SocketContextUpgradeFactory.h"
 
 #include "web/http/SocketContextUpgradeFactory.hpp"
+#include "web/http/client/SocketContextUpgradeFactorySelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,6 +29,22 @@ namespace web::http::client {
 
     SocketContextUpgradeFactory::SocketContextUpgradeFactory()
         : web::http::SocketContextUpgradeFactory<Request, Response>(http::SocketContextUpgradeFactory<Request, Response>::Role::CLIENT) {
+    }
+
+    void SocketContextUpgradeFactory::SocketContextUpgradeFactory::decRefCount() {
+        --refCount;
+
+        checkRefCount();
+    }
+
+    void SocketContextUpgradeFactory::checkRefCount() {
+        if (refCount == 0) {
+            web::http::client::SocketContextUpgradeFactorySelector::instance()->unload(this);
+        }
+    }
+
+    void SocketContextUpgradeFactory::link(const std::string& upgradeContextName, SocketContextUpgradeFactory* (*linkedPlugin)()) {
+        web::http::client::SocketContextUpgradeFactorySelector::instance()->link(upgradeContextName, linkedPlugin);
     }
 
 } // namespace web::http::client

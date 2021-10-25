@@ -21,7 +21,6 @@
 #include "utils/base64.h"
 #include "web/http/server/Request.h"  // for Request
 #include "web/http/server/Response.h" // for Response
-#include "web/http/server/SocketContextUpgradeFactorySelector.h"
 #include "web/websocket/server/SubProtocolFactory.h"
 #include "web/websocket/server/SubProtocolFactorySelector.h"
 
@@ -31,17 +30,16 @@
 
 namespace web::websocket::server {
 
-    void SocketContextUpgradeFactory::deleteSubProtocol(SubProtocol* subProtocol) {
+    void SocketContextUpgradeFactory::destroy(SocketContext* socketContext) {
+        SubProtocol* subProtocol = socketContext->getSubProtocol();
+
         SubProtocolFactory* subProtocolFactory = subProtocol->getSubProtocolFactory();
 
         if (subProtocolFactory->deleteSubProtocol(subProtocol) == 0) {
             SubProtocolFactorySelector::instance()->unload(subProtocolFactory);
         }
 
-        --refCount;
-        if (refCount == 0) {
-            web::http::server::SocketContextUpgradeFactorySelector::instance()->unload(this);
-        }
+        decRefCount();
     }
 
     std::string SocketContextUpgradeFactory::name() {
@@ -62,7 +60,7 @@ namespace web::websocket::server {
                 socketContext = new SocketContext(socketConnection, subProtocol);
 
                 if (socketContext != nullptr) {
-                    refCount++;
+                    incRefCount();
 
                     socketContext->setSocketContextUpgradeFactory(this);
                     subProtocol->setSocketContext(socketContext);
@@ -88,8 +86,8 @@ namespace web::websocket::server {
             response->status(404).end(); // Not Found
         }
 
-        if (refCount == 0) {
-            web::http::server::SocketContextUpgradeFactorySelector::instance()->unload(this);
+        if (socketContext == nullptr) {
+            checkRefCount();
         }
 
         return socketContext;
@@ -99,7 +97,7 @@ namespace web::websocket::server {
         static bool linked = false;
 
         if (!linked) {
-            web::http::server::SocketContextUpgradeFactorySelector::instance()->link("websocket", websocketServerContextUpgradeFactory);
+            web::http::server::SocketContextUpgradeFactory::link("websocket", websocketServerContextUpgradeFactory);
             linked = true;
         }
     }

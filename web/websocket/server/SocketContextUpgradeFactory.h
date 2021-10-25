@@ -28,8 +28,7 @@ namespace net::socket::stream {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // for size_t
-#include <string>  // for string
+#include <string> // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -43,7 +42,7 @@ namespace web::websocket::server {
 
         SocketContextUpgradeFactory& operator=(const SocketContextUpgradeFactory&) = delete;
 
-        void deleteSubProtocol(SubProtocol* subProtocol);
+        void destroy(SocketContext* socketContext);
 
         static void link();
 
@@ -51,8 +50,6 @@ namespace web::websocket::server {
         std::string name() override;
 
         SocketContext* create(net::socket::stream::SocketConnection* socketConnection) override;
-
-        std::size_t refCount = 0;
     };
 
     extern "C" web::http::server::SocketContextUpgradeFactory* websocketServerContextUpgradeFactory();

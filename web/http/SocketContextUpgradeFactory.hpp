@@ -17,6 +17,7 @@
  */
 
 #include "web/http/SocketContextUpgradeFactory.h"
+#include "web/http/SocketContextUpgradeFactorySelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -43,6 +44,11 @@ namespace web::http {
     template <typename Request, typename Response>
     void SocketContextUpgradeFactory<Request, Response>::SocketContextUpgradeFactory::destroy() {
         delete this;
+    }
+
+    template <typename Request, typename Response>
+    void SocketContextUpgradeFactory<Request, Response>::SocketContextUpgradeFactory::incRefCount() {
+        refCount++;
     }
 
 } // namespace web::http

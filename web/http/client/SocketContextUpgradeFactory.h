@@ -28,6 +28,8 @@ namespace web::http::client {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string> // for string
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http::client {
@@ -42,6 +44,11 @@ namespace web::http::client {
 
     public:
         virtual void prepare(Request& request) = 0;
+
+        void decRefCount() final;
+        void checkRefCount() final;
+
+        static void link(const std::string& upgradeContextName, SocketContextUpgradeFactory* (*linkedPlugin)());
     };
 
 } // namespace web::http::client

@@ -35,7 +35,7 @@ namespace web::websocket::client {
     }
 
     SocketContext::~SocketContext() {
-        socketContextUpgradeFactory->deleteSubProtocol(this->getSubProtocol());
+        socketContextUpgradeFactory->destroy(this);
     }
 
     void SocketContext::setSocketContextUpgradeFactory(SocketContextUpgradeFactory* socketContextUpgradeFactory) {
