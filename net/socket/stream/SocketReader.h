@@ -71,9 +71,8 @@ namespace net::socket::stream {
             }
 
             ssize_t ret = 0;
-            if (readBuffer.empty()) {
-                static char data[MAX_READ_JUNKSIZE];
-
+            if (size == 0) {
+                coursor = 0;
                 ssize_t retRead = read(data, MAX_READ_JUNKSIZE);
 
                 if (retRead <= 0) {
@@ -85,23 +84,25 @@ namespace net::socket::stream {
                         ret = 0;
                     }
                 } else {
-                    readBuffer.insert(readBuffer.end(), data, data + retRead);
+                    size += static_cast<std::size_t>(retRead);
                 }
             }
 
-            if (!readBuffer.empty()) {
-                ret = static_cast<ssize_t>(std::min(junkLen, readBuffer.size()));
+            if (size > 0) {
+                std::size_t maxReturn = std::min(junkLen, size);
 
-                std::copy(readBuffer.begin(), readBuffer.begin() + ret, junk);
+                std::copy(data + coursor, data + coursor + maxReturn, junk);
+                coursor += maxReturn;
+                size -= maxReturn;
 
-                readBuffer.erase(readBuffer.begin(), readBuffer.begin() + ret);
+                ret = static_cast<ssize_t>(maxReturn);
             }
 
             return ret;
         }
 
         bool continueReadImmediately() override {
-            return !readBuffer.empty();
+            return size > 0;
         }
 
     private:
@@ -109,7 +110,10 @@ namespace net::socket::stream {
 
         std::function<void(int)> onError;
 
-        std::vector<char> readBuffer;
+        std::size_t coursor = 0;
+        std::size_t size = 0;
+
+        char data[MAX_READ_JUNKSIZE];
 
         bool markShutdown = false;
     };

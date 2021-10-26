@@ -47,8 +47,7 @@ namespace net::socket::stream::legacy {
         }
 
         bool continueReadImmediately() override {
-            int pending = net::socket::stream::SocketReader<SocketT>::continueReadImmediately();
-            return pending;
+            return net::socket::stream::SocketReader<SocketT>::continueReadImmediately();
         }
     };
 
