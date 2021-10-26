@@ -37,6 +37,7 @@ namespace web::http::client {
                                                     const std::function<void(int, const std::string&)>& onError)
         : web::http::SocketContext(socketConnection)
         , request(this)
+        , response(this)
         , parser(
               this,
               [](void) -> void {

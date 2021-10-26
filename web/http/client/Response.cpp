@@ -18,7 +18,10 @@
 
 #include "web/http/client/Response.h"
 
+#include "log/Logger.h"
 #include "web/http/CookieOptions.h"
+#include "web/http/SocketContext.h"
+#include "web/http/client/SocketContextUpgradeFactorySelector.h"
 #include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -29,6 +32,10 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http::client {
+
+    Response::Response(SocketContext* clientContext)
+        : socketContext(clientContext) {
+    }
 
     const std::string& Response::header(const std::string& key, int i) const {
         std::string tmpKey = key;
@@ -64,6 +71,25 @@ namespace web::http::client {
 
     std::size_t Response::bodyLength() const {
         return contentLength;
+    }
+
+    void Response::upgrade(Request& request) {
+        if (httputils::ci_contains(this->header("connection"), "Upgrade")) {
+            web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
+                web::http::client::SocketContextUpgradeFactorySelector::instance()->select(request, *this);
+
+            if (socketContextUpgradeFactory != nullptr) {
+                if (socketContext->switchSocketContext(socketContextUpgradeFactory) == nullptr) {
+                    socketContext->terminateConnection();
+                }
+            } else {
+                VLOG(0) << "SocketContextUpgradeFactory not existing";
+                socketContext->terminateConnection();
+            }
+        } else {
+            VLOG(0) << "Response did not contain upgrade";
+            socketContext->terminateConnection();
+        }
     }
 
     void Response::reset() {

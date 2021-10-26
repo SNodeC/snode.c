@@ -29,13 +29,20 @@
 
 namespace web::http {
     class CookieOptions;
-}
+    class SocketContext;
+
+    namespace client {
+        class Request;
+    } // namespace client
+} // namespace web::http
 
 namespace web::http::client {
 
     class Response {
     protected:
-        Response() = default;
+        Response(SocketContext* clientContext);
+
+        SocketContext* socketContext;
 
         void reset();
 
@@ -50,6 +57,8 @@ namespace web::http::client {
         std::string reason;
         char* body = nullptr;
         std::size_t contentLength = 0;
+
+        void upgrade(Request& request);
 
         // need code to make it at least protected
         const std::map<std::string, std::string>* headers = nullptr;

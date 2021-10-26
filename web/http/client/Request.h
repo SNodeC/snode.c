@@ -24,10 +24,6 @@
 
 namespace web::http {
     class SocketContext;
-
-    namespace client {
-        class Response;
-    }
 } // namespace web::http
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -65,8 +61,6 @@ namespace web::http::client {
         void send(const std::string& junk);
 
         void upgrade(const std::string& url, const std::string& protocol);
-
-        void upgrade(Response& response);
 
         void sendHeader();
 

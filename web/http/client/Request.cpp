@@ -20,7 +20,6 @@
 
 #include "log/Logger.h"
 #include "web/http/SocketContext.h"
-#include "web/http/client/Response.h"
 #include "web/http/client/SocketContextUpgradeFactorySelector.h"
 #include "web/http/http_utils.h"
 
@@ -220,26 +219,6 @@ namespace web::http::client {
         if (socketContextUpgradeFactory != nullptr) {
             start();
         } else {
-            socketContext->terminateConnection();
-        }
-    }
-
-    void Request::upgrade(Response& response) {
-        if (httputils::ci_contains(response.header("connection"), "Upgrade")) {
-            web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
-                web::http::client::SocketContextUpgradeFactorySelector::instance()->select(*this, response);
-
-            if (socketContextUpgradeFactory != nullptr) {
-                if (socketContext->switchSocketContext(socketContextUpgradeFactory) == nullptr) {
-                    socketContext->terminateConnection();
-                }
-            } else {
-                VLOG(0) << "SocketContextUpgradeFactory not existing";
-                socketContext->terminateConnection();
-            }
-
-        } else {
-            VLOG(0) << "Response did not contain upgrade";
             socketContext->terminateConnection();
         }
     }

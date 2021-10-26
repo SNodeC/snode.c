@@ -90,7 +90,7 @@ int main(int argc, char* argv[]) {
 
                 VLOG(1) << "     Body:\n----------- start body -----------\n" << body << "------------ end body ------------";
 
-                request.upgrade(response);
+                response.upgrade(request);
 
                 delete[] body;
             },
@@ -192,7 +192,8 @@ int main(int argc, char* argv[]) {
 
                 delete[] body;
 
-                request.upgrade(response);
+                //                request.upgrade(response);
+                response.upgrade(request);
             },
             [](int status, const std::string& reason) -> void {
                 VLOG(0) << "-- OnResponseError";

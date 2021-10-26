@@ -173,6 +173,8 @@ namespace web::http::server {
 
             if (socketContextUpgradeFactory != nullptr) {
                 if (socketContext->switchSocketContext(socketContextUpgradeFactory) == nullptr) {
+                    set("Connection", "close");
+                    this->status(500).end();
                 }
             } else {
                 set("Connection", "close");
