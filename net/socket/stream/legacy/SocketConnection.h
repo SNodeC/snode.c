@@ -38,7 +38,6 @@ namespace net::socket::stream::legacy {
         using Socket = SocketT;
         using SocketAddress = typename Socket::SocketAddress;
 
-    public:
         SocketConnection(int fd,
                          const std::shared_ptr<SocketContextFactory>& socketProtocolFactory,
                          const SocketAddress& localAddress,
@@ -51,7 +50,6 @@ namespace net::socket::stream::legacy {
                   }) {
         }
 
-    private:
         template <typename Socket>
         friend class SocketListener;
 

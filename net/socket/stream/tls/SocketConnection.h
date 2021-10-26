@@ -40,7 +40,6 @@ namespace net::socket::stream::tls {
         using Socket = SocketT;
         using SocketAddress = typename Socket::SocketAddress;
 
-    public:
         SocketConnection(int fd,
                          const std::shared_ptr<SocketContextFactory>& socketContextFactory,
                          const SocketAddress& localAddress,
@@ -53,15 +52,19 @@ namespace net::socket::stream::tls {
                   }) {
         }
 
-    protected:
+        SSL* getSSL() const {
+            return ssl;
+        }
+
+    private:
         SSL* startSSL(SSL_CTX* ctx) {
             if (ctx != nullptr) {
                 ssl = SSL_new(ctx);
 
                 if (ssl != nullptr) {
                     if (SSL_set_fd(ssl, Socket::getFd()) == 1) {
-                        SocketReader<Socket>::ssl = ssl;
-                        SocketWriter<Socket>::ssl = ssl;
+                        SocketConnection::SocketReader::ssl = ssl;
+                        SocketConnection::SocketWriter::ssl = ssl;
                     } else {
                         SSL_free(ssl);
                         ssl = nullptr;
@@ -130,17 +133,11 @@ namespace net::socket::stream::tls {
                 SSL_free(ssl);
 
                 ssl = nullptr;
-                SocketReader<Socket>::ssl = nullptr;
-                SocketWriter<Socket>::ssl = nullptr;
+                SocketConnection::SocketReader::ssl = nullptr;
+                SocketConnection::SocketWriter::ssl = nullptr;
             }
         }
 
-    public:
-        SSL* getSSL() const {
-            return ssl;
-        }
-
-    protected:
         void setSSLError(int sslErr) {
             this->sslErr = sslErr;
         }
@@ -151,7 +148,6 @@ namespace net::socket::stream::tls {
 
         int sslErr = SSL_ERROR_NONE;
 
-    private:
         template <typename Socket>
         friend class SocketListener;
 
