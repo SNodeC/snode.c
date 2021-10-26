@@ -47,6 +47,7 @@ namespace web::websocket {
     public:
         using SubProtocol = SubProtocolT;
 
+    protected:
         enum class Role { SERVER, CLIENT };
 
     protected:

@@ -43,8 +43,6 @@ namespace web::http {
         using Response = typename SocketContextUpgradeFactory::Response;
 
     protected:
-        enum class Role { Server, Client };
-
         SocketContextUpgradeFactorySelector(typename SocketContextUpgradeFactory::Role role);
         virtual ~SocketContextUpgradeFactorySelector() = default;
 
@@ -63,7 +61,7 @@ namespace web::http {
         SocketContextUpgradeFactory* select(const std::string& upgradeContextName);
 
         virtual SocketContextUpgradeFactory* load(const std::string& upgradeContextName) = 0;
-        SocketContextUpgradeFactory* load(const std::string& upgradeContextName, Role role);
+        SocketContextUpgradeFactory* load(const std::string& upgradeContextName, typename SocketContextUpgradeFactory::Role role);
 
         bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handler);
 

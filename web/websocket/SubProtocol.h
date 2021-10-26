@@ -35,9 +35,9 @@ namespace web::websocket {
         using SocketContext = SocketContextT;
         using SubProtocolFactory = SubProtocolFactoryT;
 
+    protected:
         enum class Role { SERVER, CLIENT };
 
-    protected:
         SubProtocol(const std::string& name)
             : name(name) {
         }
