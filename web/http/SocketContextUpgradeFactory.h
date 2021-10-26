@@ -50,19 +50,20 @@ namespace web::http {
 
         void destroy();
 
+    protected:
         void incRefCount();
 
-        virtual void decRefCount() = 0;
+        void decRefCount();
 
         virtual void checkRefCount() = 0;
 
-    protected:
         Request* request;
         Response* response;
 
-        Role role;
-
         std::size_t refCount = 0;
+
+    private:
+        Role role;
     };
 
 } // namespace web::http

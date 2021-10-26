@@ -31,12 +31,6 @@ namespace web::http::client {
         : web::http::SocketContextUpgradeFactory<Request, Response>(http::SocketContextUpgradeFactory<Request, Response>::Role::CLIENT) {
     }
 
-    void SocketContextUpgradeFactory::SocketContextUpgradeFactory::decRefCount() {
-        --refCount;
-
-        checkRefCount();
-    }
-
     void SocketContextUpgradeFactory::checkRefCount() {
         if (refCount == 0) {
             web::http::client::SocketContextUpgradeFactorySelector::instance()->unload(this);

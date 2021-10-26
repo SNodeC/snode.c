@@ -48,7 +48,14 @@ namespace web::http {
 
     template <typename Request, typename Response>
     void SocketContextUpgradeFactory<Request, Response>::SocketContextUpgradeFactory::incRefCount() {
-        refCount++;
+        ++refCount;
+    }
+
+    template <typename Request, typename Response>
+    void SocketContextUpgradeFactory<Request, Response>::SocketContextUpgradeFactory::decRefCount() {
+        --refCount;
+
+        checkRefCount();
     }
 
 } // namespace web::http

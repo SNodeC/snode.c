@@ -45,7 +45,6 @@ namespace web::http::client {
     public:
         virtual void prepare(Request& request) = 0;
 
-        void decRefCount() final;
         void checkRefCount() final;
 
         static void link(const std::string& upgradeContextName, SocketContextUpgradeFactory* (*linkedPlugin)());

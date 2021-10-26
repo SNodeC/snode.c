@@ -31,12 +31,6 @@ namespace web::http::server {
         : web::http::SocketContextUpgradeFactory<Request, Response>(http::SocketContextUpgradeFactory<Request, Response>::Role::SERVER) {
     }
 
-    void SocketContextUpgradeFactory::SocketContextUpgradeFactory::decRefCount() {
-        --refCount;
-
-        checkRefCount();
-    }
-
     void SocketContextUpgradeFactory::checkRefCount() {
         if (refCount == 0) {
             web::http::server::SocketContextUpgradeFactorySelector::instance()->unload(this);
