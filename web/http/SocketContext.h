@@ -35,13 +35,14 @@ namespace web::http {
     public:
         using SocketConnection = net::socket::stream::SocketConnection;
 
+    protected:
         explicit SocketContext(net::socket::stream::SocketConnection* socketConnection);
-
         ~SocketContext() override = default;
 
         SocketContext(const SocketContext&) = delete;
         SocketContext& operator=(const SocketContext&) = delete;
 
+    public:
         virtual void sendToPeerCompleted() = 0;
         virtual void terminateConnection() = 0;
     };

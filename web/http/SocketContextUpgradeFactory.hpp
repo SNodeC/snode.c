@@ -31,7 +31,7 @@ namespace web::http {
     }
 
     template <typename Request, typename Response>
-    typename SocketContextUpgradeFactory<Request, Response>::Role SocketContextUpgradeFactory<Request, Response>::getRole() {
+    typename SocketContextUpgradeFactory<Request, Response>::Role SocketContextUpgradeFactory<Request, Response>::getRole() const {
         return role;
     }
 

@@ -33,13 +33,14 @@ namespace web::http {
         using Request = RequestT;
         using Response = ResponseT;
 
+    protected:
         SocketContextFactory() = default;
-
         ~SocketContextFactory() override = default;
 
         SocketContextFactory(const SocketContextFactory&) = delete;
         SocketContextFactory& operator=(const SocketContextFactory&) = delete;
 
+    private:
         net::socket::stream::SocketContext* create(net::socket::stream::SocketConnection* socketConnection) override = 0;
     };
 } // namespace web::http

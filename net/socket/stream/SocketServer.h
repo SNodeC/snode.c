@@ -77,10 +77,9 @@ namespace net::socket::stream {
             return socketContextFactory;
         }
 
-    protected:
+    private:
         std::shared_ptr<SocketContextFactory> socketContextFactory;
 
-    private:
         std::function<void(const SocketAddress&, const SocketAddress&)> _onConnect;
         std::function<void(SocketConnection*)> _onConnected;
         std::function<void(SocketConnection*)> _onDisconnect;

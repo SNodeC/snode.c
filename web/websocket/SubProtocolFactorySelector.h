@@ -53,7 +53,7 @@ namespace web::websocket {
 
         virtual ~SubProtocolFactorySelector() = default;
 
-    public:
+    private:
         void add(SubProtocolFactory* subProtocolFactory, void* handle = nullptr) {
             SubProtocolPlugin<SubProtocolFactory> subProtocolPlugin = {.subProtocolFactory = subProtocolFactory, .handle = handle};
 
@@ -142,11 +142,11 @@ namespace web::websocket {
             }
         }
 
+    protected:
         void allowDlOpen() {
             onlyLinked = false;
         }
 
-    protected:
         void linkSubProtocol(const std::string& subProtocolName, SubProtocolFactory* (*linkedPlugin)()) {
             onlyLinked = true;
             linkedSubProtocolFactories[subProtocolName] = linkedPlugin;

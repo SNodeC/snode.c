@@ -72,12 +72,14 @@ namespace web::http {
 
         virtual void reset();
 
+    private:
         virtual void begin() = 0;
         virtual enum ParserState parseStartLine(const std::string& line) = 0;
         virtual enum ParserState parseHeader() = 0;
         virtual enum ParserState parseContent(char* content, std::size_t size) = 0;
         virtual enum ParserState parsingError(int code, const std::string& reason) = 0;
 
+    protected:
         // Data common to all HTTP messages (Request/Response)
         char* content = nullptr;
         std::size_t contentLength = 0;

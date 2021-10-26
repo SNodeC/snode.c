@@ -46,7 +46,7 @@ namespace web::http {
 
         void prepare(Request& request, Response& response);
 
-        SocketContextUpgradeFactory<Request, Response>::Role getRole();
+        SocketContextUpgradeFactory<Request, Response>::Role getRole() const;
 
         void destroy();
 

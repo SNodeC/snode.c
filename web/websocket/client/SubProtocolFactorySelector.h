@@ -49,9 +49,6 @@ namespace web::websocket::client {
         using web::websocket::SubProtocolFactorySelector<web::websocket::client::SubProtocolFactory>::load;
 
         SubProtocolFactory* load(const std::string& subProtocolName);
-
-        template <typename SubProtocolFactory>
-        friend class web::websocket::SubProtocolFactorySelector;
     };
 
 } // namespace web::websocket::client

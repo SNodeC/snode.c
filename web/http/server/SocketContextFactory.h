@@ -45,17 +45,15 @@ namespace web::http::server {
         SocketContextFactory(const SocketContextFactory&) = delete;
         SocketContextFactory& operator=(const SocketContextFactory&) = delete;
 
-    private:
-        net::socket::stream::SocketContext* create(net::socket::stream::SocketConnection* socketConnection) override {
-            return new SocketContext<Request, Response>(socketConnection, onRequestReady);
-        }
-
-    public:
         void setOnRequestReady(const std::function<void(Request&, Response&)>& onRequestReady) {
             this->onRequestReady = onRequestReady;
         }
 
     private:
+        net::socket::stream::SocketContext* create(net::socket::stream::SocketConnection* socketConnection) override {
+            return new SocketContext<Request, Response>(socketConnection, onRequestReady);
+        }
+
         std::function<void(Request&, Response&)> onRequestReady;
     };
 

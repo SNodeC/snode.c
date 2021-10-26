@@ -48,6 +48,9 @@ namespace web::http::client {
                        const std::function<void(ResponseParser&)>& onParsed,
                        const std::function<void(int, const std::string&)>& onError);
 
+        void reset() override;
+
+    private:
         // Entrence
         void begin() override;
 
@@ -56,9 +59,6 @@ namespace web::http::client {
         enum Parser::ParserState parseContent(char* content, std::size_t size) override;
         enum Parser::ParserState parsingError(int code, const std::string& reason) override;
 
-        void reset() override;
-
-    protected:
         void parsingFinished();
 
         std::string httpVersion;
