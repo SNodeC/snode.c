@@ -43,10 +43,7 @@ namespace web::websocket::client {
         SubProtocol* subProtocol = socketContext->getSubProtocol();
 
         SubProtocolFactory* subProtocolFactory = subProtocol->getSubProtocolFactory();
-
-        if (subProtocolFactory->deleteSubProtocol(subProtocol) == 0) {
-            SubProtocolFactorySelector::instance()->unload(subProtocolFactory);
-        }
+        subProtocolFactory->deleteSubProtocol(subProtocol);
 
         decRefCount();
     }

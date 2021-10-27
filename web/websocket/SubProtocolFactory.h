@@ -46,7 +46,7 @@ namespace web::websocket {
             return subProtocol;
         }
 
-        std::size_t deleteSubProtocol(SubProtocol* subProtocol) {
+        virtual std::size_t deleteSubProtocol(SubProtocol* subProtocol) {
             delete subProtocol;
 
             refCount--;

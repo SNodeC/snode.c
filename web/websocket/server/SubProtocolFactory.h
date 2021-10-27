@@ -20,18 +20,22 @@
 #define WEB_WS_SERVER_SUBPROTOCOLFACTORY_H
 
 #include "web/websocket/SubProtocolFactory.h" // IWYU pragma: export
-
-namespace web::websocket::server {
-    class SubProtocol;
-}
+#include "web/websocket/server/SubProtocol.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::websocket::server {
 
-    class SubProtocolFactory : public web::websocket::SubProtocolFactory<web::websocket::server::SubProtocol> {};
+    class SubProtocolFactory : public web::websocket::SubProtocolFactory<web::websocket::server::SubProtocol> {
+    public:
+        static void link(const std::string& subProtocolName, SubProtocolFactory* (*getSubProtocolFactory)());
+
+        std::size_t deleteSubProtocol(SubProtocol* subProtocol) override;
+    };
 
 } // namespace web::websocket::server
 

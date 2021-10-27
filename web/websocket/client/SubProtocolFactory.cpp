@@ -16,16 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_CLIENT_SUBPROTOCOLFACTORY_H
-#define WEB_WS_CLIENT_SUBPROTOCOLFACTORY_H
+#include "web/websocket/client/SubProtocolFactory.h" // IWYU pragma: export
 
-#include "log/Logger.h"
-#include "web/websocket/SubProtocolFactory.h" // IWYU pragma: export
-#include "web/websocket/client/SubProtocol.h"
-
-namespace web::websocket::client {
-    //    class SubProtocol;
-}
+#include "web/websocket/client/SubProtocolFactorySelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -33,13 +26,16 @@ namespace web::websocket::client {
 
 namespace web::websocket::client {
 
-    class SubProtocolFactory : public web::websocket::SubProtocolFactory<web::websocket::client::SubProtocol> {
-    public:
-        static void link(const std::string& subProtocolName, SubProtocolFactory* (*getSubProtocolFactory)());
+    void SubProtocolFactory::link(const std::string& subProtocolName, SubProtocolFactory* (*getSubProtocolFactory)()) {
+        SubProtocolFactorySelector::link(subProtocolName, getSubProtocolFactory);
+    }
 
-        std::size_t deleteSubProtocol(SubProtocol* subProtocol) override;
-    };
+    std::size_t SubProtocolFactory::deleteSubProtocol(SubProtocol* subProtocol) {
+        if (web::websocket::SubProtocolFactory<SubProtocol>::deleteSubProtocol(subProtocol) == 0) {
+            SubProtocolFactorySelector::instance()->unload(this);
+        }
+
+        return 0;
+    }
 
 } // namespace web::websocket::client
-
-#endif // SUBPROTOCOLFACTORY_H
