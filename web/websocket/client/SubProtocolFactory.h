@@ -19,7 +19,6 @@
 #ifndef WEB_WS_CLIENT_SUBPROTOCOLFACTORY_H
 #define WEB_WS_CLIENT_SUBPROTOCOLFACTORY_H
 
-#include "log/Logger.h"
 #include "web/websocket/SubProtocolFactory.h" // IWYU pragma: export
 #include "web/websocket/client/SubProtocol.h"
 

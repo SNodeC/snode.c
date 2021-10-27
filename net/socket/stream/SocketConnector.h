@@ -117,12 +117,12 @@ namespace net::socket::stream {
 
                         if (net::system::getsockname(getFd(), reinterpret_cast<sockaddr*>(&localAddress), &localAddressLength) == 0 &&
                             net::system::getpeername(getFd(), reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) == 0) {
-                            socketConnection = new SocketConnection(getFd(),
-                                                                    socketContextFactory,
-                                                                    SocketAddress(localAddress),
-                                                                    SocketAddress(remoteAddress),
-                                                                    onConnect,
-                                                                    onDisconnect);
+                            SocketConnection* socketConnection = new SocketConnection(getFd(),
+                                                                                      socketContextFactory,
+                                                                                      SocketAddress(localAddress),
+                                                                                      SocketAddress(remoteAddress),
+                                                                                      onConnect,
+                                                                                      onDisconnect);
                             SocketConnector::dontClose(true);
                             SocketConnector::ConnectEventReceiver::disable();
 
@@ -166,8 +166,6 @@ namespace net::socket::stream {
         std::function<void(SocketConnection*)> onDestruct;
         std::function<void(SocketConnection*)> onConnected;
         std::function<void(SocketConnection*)> onDisconnect;
-
-        SocketConnection* socketConnection = nullptr;
     };
 
 } // namespace net::socket::stream
