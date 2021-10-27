@@ -46,11 +46,10 @@ namespace web::websocket {
             return subProtocol;
         }
 
-        virtual std::size_t deleteSubProtocol(SubProtocol* subProtocol) {
+        virtual void deleteSubProtocol(SubProtocol* subProtocol) {
             delete subProtocol;
 
             refCount--;
-            return refCount;
         }
 
         virtual std::string name() = 0;
@@ -59,7 +58,7 @@ namespace web::websocket {
 
         virtual SubProtocol* create() = 0;
 
-    private:
+    protected:
         std::size_t refCount = 0;
     };
 

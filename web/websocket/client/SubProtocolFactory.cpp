@@ -30,12 +30,12 @@ namespace web::websocket::client {
         SubProtocolFactorySelector::link(subProtocolName, getSubProtocolFactory);
     }
 
-    std::size_t SubProtocolFactory::deleteSubProtocol(SubProtocol* subProtocol) {
-        if (web::websocket::SubProtocolFactory<SubProtocol>::deleteSubProtocol(subProtocol) == 0) {
+    void SubProtocolFactory::deleteSubProtocol(SubProtocol* subProtocol) {
+        web::websocket::SubProtocolFactory<SubProtocol>::deleteSubProtocol(subProtocol);
+
+        if (refCount == 0) {
             SubProtocolFactorySelector::instance()->unload(this);
         }
-
-        return 0;
     }
 
 } // namespace web::websocket::client

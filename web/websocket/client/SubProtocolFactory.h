@@ -23,10 +23,6 @@
 #include "web/websocket/SubProtocolFactory.h" // IWYU pragma: export
 #include "web/websocket/client/SubProtocol.h"
 
-namespace web::websocket::client {
-    //    class SubProtocol;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -37,7 +33,7 @@ namespace web::websocket::client {
     public:
         static void link(const std::string& subProtocolName, SubProtocolFactory* (*getSubProtocolFactory)());
 
-        std::size_t deleteSubProtocol(SubProtocol* subProtocol) override;
+        void deleteSubProtocol(SubProtocol* subProtocol) override;
     };
 
 } // namespace web::websocket::client
