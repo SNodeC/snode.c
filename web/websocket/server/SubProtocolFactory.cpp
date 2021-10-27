@@ -26,10 +26,6 @@
 
 namespace web::websocket::server {
 
-    void SubProtocolFactory::link(const std::string& subProtocolName, SubProtocolFactory* (*getSubProtocolFactory)()) {
-        SubProtocolFactorySelector::link(subProtocolName, getSubProtocolFactory);
-    }
-
     void SubProtocolFactory::deleteSubProtocol(SubProtocol* subProtocol) {
         web::websocket::SubProtocolFactory<SubProtocol>::deleteSubProtocol(subProtocol);
 

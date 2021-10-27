@@ -32,8 +32,6 @@ namespace web::websocket::server {
 
     class SubProtocolFactory : public web::websocket::SubProtocolFactory<web::websocket::server::SubProtocol> {
     public:
-        static void link(const std::string& subProtocolName, SubProtocolFactory* (*getSubProtocolFactory)());
-
         void deleteSubProtocol(SubProtocol* subProtocol) override;
     };
 
