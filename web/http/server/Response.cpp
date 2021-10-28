@@ -164,6 +164,7 @@ namespace web::http::server {
      *    SocketContext<--SocketConnection
      *    Response<--SocketContext
      *  \enduml
+     *  https://stackoverflow.com/questions/26039690/startuml-command-in-doxygen-with-plantuml-jar-path?rq=1
      */
 
     void Response::upgrade(Request& req) {

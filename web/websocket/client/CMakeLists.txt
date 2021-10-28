@@ -7,8 +7,9 @@ configure_file(
 )
 
 add_library(
-    websocketclient SHARED SocketContext.cpp SocketContextUpgradeFactory.cpp
-                           SubProtocol.cpp SubProtocolFactory.cpp SubProtocolFactorySelector.cpp
+    websocketclient SHARED
+    SocketContext.cpp SocketContextUpgradeFactory.cpp SubProtocol.cpp
+    SubProtocolFactory.cpp SubProtocolFactorySelector.cpp
 )
 add_library(snodec::websocketclient ALIAS websocketclient)
 
