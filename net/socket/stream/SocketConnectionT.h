@@ -33,6 +33,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::socket::stream {
+
     template <typename SocketReaderT, typename SocketWriterT, typename SocketAddressT>
     class SocketConnectionT
         : public SocketConnection
