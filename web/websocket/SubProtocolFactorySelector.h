@@ -108,7 +108,7 @@ namespace web::websocket {
         }
 
     public:
-        SubProtocolFactorySelector::SubProtocolFactory* select(const std::string& subProtocolName) {
+        SubProtocolFactory* select(const std::string& subProtocolName) {
             SubProtocolFactory* subProtocolFactory = nullptr;
 
             if (subProtocolPlugins.contains(subProtocolName)) {
