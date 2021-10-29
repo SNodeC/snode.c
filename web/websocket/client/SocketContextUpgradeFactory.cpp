@@ -19,9 +19,9 @@
 #include "web/websocket/client/SocketContextUpgradeFactory.h"
 
 #include "utils/base64.h"
-#include "web/http/client/Request.h"  // for Request
-#include "web/http/client/Response.h" // for Response
-#include "web/websocket/client/SubProtocolFactory.h"
+#include "web/http/client/Request.h"                         // for Request
+#include "web/http/client/Response.h"                        // for Response
+#include "web/websocket/client/SubProtocolFactory.h"         // IWYU pragma: keep
 #include "web/websocket/client/SubProtocolFactorySelector.h" // for Sub...
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -40,9 +40,9 @@ namespace web::websocket::client {
     }
 
     void SocketContextUpgradeFactory::destroy(SocketContext* socketContext) {
-        SubProtocol* subProtocol = socketContext->getSubProtocol();
+        SocketContext::SubProtocol* subProtocol = socketContext->getSubProtocol();
 
-        SubProtocolFactory* subProtocolFactory = subProtocol->getSubProtocolFactory();
+        SocketContext::SubProtocol::SubProtocolFactory* subProtocolFactory = subProtocol->getSubProtocolFactory();
         subProtocolFactory->deleteSubProtocol(subProtocol);
 
         decRefCount();
@@ -57,10 +57,11 @@ namespace web::websocket::client {
 
         SocketContext* socketContext = nullptr;
 
-        web::websocket::client::SubProtocolFactory* subProtocolFactory = SubProtocolFactorySelector::instance()->select(subProtocolName);
+        SocketContext::SubProtocol::SubProtocolFactory* subProtocolFactory =
+            SubProtocolFactorySelector::instance()->select(subProtocolName);
 
         if (subProtocolFactory != nullptr) {
-            SubProtocol* subProtocol = subProtocolFactory->createSubProtocol();
+            SocketContext::SubProtocol* subProtocol = subProtocolFactory->createSubProtocol();
 
             if (subProtocol != nullptr) {
                 socketContext = new SocketContext(socketConnection, subProtocol);

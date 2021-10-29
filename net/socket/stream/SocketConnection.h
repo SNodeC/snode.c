@@ -60,7 +60,6 @@ namespace net::socket::stream {
 
         virtual void setTimeout(int timeout) = 0;
 
-    private:
         SocketContext* switchSocketContext(SocketContextFactory* socketContextFactory);
 
     protected:

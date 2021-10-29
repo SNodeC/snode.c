@@ -19,7 +19,7 @@
 #ifndef WEB_WS_CLIENT_SUBSPROTOCOL_H
 #define WEB_WS_CLIENT_SUBSPROTOCOL_H
 
-#include "web/websocket/SubProtocol.h"          // for SubProtocol
+#include "web/websocket/SubProtocol.h"          // IWYU pragma: export
 #include "web/websocket/client/SocketContext.h" // IWYU pragma: export
 
 namespace web::websocket::client {
@@ -49,17 +49,14 @@ namespace web::websocket::client {
         ~SubProtocol() override;
 
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from SubProtocol-Subclasses */
-        using web::websocket::SubProtocol<web::websocket::client::SocketContext, web::websocket::client::SubProtocolFactory>::sendMessage;
+        using web::websocket::SubProtocol<SubProtocol::SocketContext, SubProtocol::SubProtocolFactory>::sendMessage;
 
-        using web::websocket::SubProtocol<web::websocket::client::SocketContext,
-                                          web::websocket::client::SubProtocolFactory>::sendMessageEnd;
-        using web::websocket::SubProtocol<web::websocket::client::SocketContext,
-                                          web::websocket::client::SubProtocolFactory>::sendMessageFrame;
-        using web::websocket::SubProtocol<web::websocket::client::SocketContext,
-                                          web::websocket::client::SubProtocolFactory>::sendMessageStart;
+        using web::websocket::SubProtocol<SubProtocol::SocketContext, SubProtocol::SubProtocolFactory>::sendMessageEnd;
+        using web::websocket::SubProtocol<SubProtocol::SocketContext, SubProtocol::SubProtocolFactory>::sendMessageFrame;
+        using web::websocket::SubProtocol<SubProtocol::SocketContext, SubProtocol::SubProtocolFactory>::sendMessageStart;
 
-        using web::websocket::SubProtocol<web::websocket::client::SocketContext, web::websocket::client::SubProtocolFactory>::sendClose;
-        using web::websocket::SubProtocol<web::websocket::client::SocketContext, web::websocket::client::SubProtocolFactory>::sendPing;
+        using web::websocket::SubProtocol<SubProtocol::SocketContext, SubProtocol::SubProtocolFactory>::sendClose;
+        using web::websocket::SubProtocol<SubProtocol::SocketContext, SubProtocol::SubProtocolFactory>::sendPing;
 
     private:
         /* Callbacks (API) WSReceiver -> SubProtocol-Subclasses */

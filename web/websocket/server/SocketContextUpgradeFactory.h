@@ -20,7 +20,7 @@
 #define WEB_WS_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H
 
 #include "web/http/server/SocketContextUpgradeFactory.h"
-#include "web/websocket/server/SubProtocol.h"
+#include "web/websocket/server/SubProtocol.h" // IWYU pragma: export
 
 namespace net::socket::stream {
     class SocketConnection;

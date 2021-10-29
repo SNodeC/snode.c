@@ -120,17 +120,17 @@ namespace web::websocket {
             return context;
         }
 
-        void setSubProtocolFactory(SubProtocolFactory* subProtocolFactory) {
+        void setSubProtocolFactory(SubProtocol::SubProtocolFactory* subProtocolFactory) {
             this->subProtocolFactory = subProtocolFactory;
         }
 
-        SubProtocolFactory* getSubProtocolFactory() {
+        SubProtocol::SubProtocolFactory* getSubProtocolFactory() {
             return subProtocolFactory;
         }
 
     protected:
         SocketContext* context;
-        SubProtocolFactory* subProtocolFactory;
+        SubProtocol::SubProtocolFactory* subProtocolFactory;
 
         const std::string name;
     };

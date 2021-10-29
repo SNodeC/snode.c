@@ -19,6 +19,10 @@
 #ifndef WEB_WS_SERVER_CHANNELMANAGER_H
 #define WEB_WS_SERVER_CHANNELMANAGER_H
 
+namespace web::websocket::server {
+    class SubProtocol;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef> // for size_t
@@ -30,8 +34,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::websocket::server {
-
-    class SubProtocol;
 
     class ChannelManager {
     private:
