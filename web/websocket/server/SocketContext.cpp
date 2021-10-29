@@ -19,6 +19,7 @@
 #include "web/websocket/server/SocketContext.h"
 
 #include "web/websocket/server/SocketContextUpgradeFactory.h"
+#include "web/websocket/server/SubProtocol.h" // IWYU pragma: keep
 
 namespace net::socket::stream {
     class SocketConnection;

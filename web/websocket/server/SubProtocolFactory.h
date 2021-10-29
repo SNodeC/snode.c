@@ -20,7 +20,7 @@
 #define WEB_WS_SERVER_SUBPROTOCOLFACTORY_H
 
 #include "web/websocket/SubProtocolFactory.h" // IWYU pragma: export
-#include "web/websocket/server/SubProtocol.h" // IWYU pragma: keep
+#include "web/websocket/server/SubProtocol.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
