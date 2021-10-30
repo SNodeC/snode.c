@@ -42,6 +42,16 @@ namespace web::http {
     }
 
     template <typename Request, typename Response>
+    net::socket::stream::SocketContext*
+    SocketContextUpgradeFactory<Request, Response>::create(net::socket::stream::SocketConnection* socketConnection) {
+        net::socket::stream::SocketContext* socketContext = create(socketConnection, request, response);
+
+        checkRefCount();
+
+        return socketContext;
+    }
+
+    template <typename Request, typename Response>
     void SocketContextUpgradeFactory<Request, Response>::SocketContextUpgradeFactory::destroy() {
         delete this;
     }

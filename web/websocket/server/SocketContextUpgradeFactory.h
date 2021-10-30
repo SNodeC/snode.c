@@ -26,9 +26,14 @@ namespace net::socket::stream {
     class SocketConnection;
 } // namespace net::socket::stream
 
+namespace web::http::server {
+    class Request;
+    class Response;
+} // namespace web::http::server
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string> // for string
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -42,14 +47,14 @@ namespace web::websocket::server {
 
         SocketContextUpgradeFactory& operator=(const SocketContextUpgradeFactory&) = delete;
 
-        void destroy(SocketContext* socketContext);
-
         static void link();
 
     private:
         std::string name() override;
 
-        SocketContext* create(net::socket::stream::SocketConnection* socketConnection) override;
+        SocketContext* create(net::socket::stream::SocketConnection* socketConnection,
+                              web::http::server::Request* request,
+                              web::http::server::Response* response) override;
     };
 
     extern "C" web::http::server::SocketContextUpgradeFactory* websocketServerContextUpgradeFactory();

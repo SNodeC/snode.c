@@ -19,6 +19,7 @@
 #ifndef WEB_WS_SERVER_SOCKTECONTEXT_H
 #define WEB_WS_SERVER_SOCKTECONTEXT_H
 
+#include "web/http/server/SocketContextUpgrade.h"
 #include "web/websocket/SocketContext.h" // IWYU pragma: export
 
 namespace net::socket::stream {
@@ -32,22 +33,32 @@ namespace web::websocket::server {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string> // for string
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::websocket::server {
 
-    class SocketContext : public web::websocket::SocketContext<web::websocket::server::SubProtocol> {
+    class SocketContext
+        : public web::http::server::SocketContextUpgrade
+        , public web::websocket::SocketContext<web::websocket::server::SubProtocol> {
     public:
-        SocketContext(net::socket::stream::SocketConnection* socketConnection, web::websocket::server::SubProtocol* subProtocol);
+        SocketContext(SocketContextUpgradeFactory* socketContextUpgradeFactory,
+                      net::socket::stream::SocketConnection* socketConnection,
+                      web::websocket::server::SubProtocol* subProtocol);
 
-        void setSocketContextUpgradeFactory(SocketContextUpgradeFactory* socketContextUpgradeFactory);
+    protected:
+        ~SocketContext() override;
+
+    public:
+        static SocketContext* create(SocketContextUpgradeFactory* socketContextUpgradeFactory,
+                                     net::socket::stream::SocketConnection* socketConnection,
+                                     const std::string& subProtocolName);
 
         SocketContextUpgradeFactory* getSocketContextUpgradeFactory();
 
     protected:
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
-
-        ~SocketContext() override;
     };
 
 } // namespace web::websocket::server

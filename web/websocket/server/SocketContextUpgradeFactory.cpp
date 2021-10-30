@@ -19,10 +19,8 @@
 #include "web/websocket/server/SocketContextUpgradeFactory.h"
 
 #include "utils/base64.h"
-#include "web/http/server/Request.h"                 // for Request
-#include "web/http/server/Response.h"                // for Response
-#include "web/websocket/server/SubProtocolFactory.h" // IWYU pragma: keep
-#include "web/websocket/server/SubProtocolFactorySelector.h"
+#include "web/http/server/Request.h"  // for Request
+#include "web/http/server/Response.h" // for Response
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,62 +28,27 @@
 
 namespace web::websocket::server {
 
-    void SocketContextUpgradeFactory::destroy(SocketContext* socketContext) {
-        SocketContext::SubProtocol* subProtocol = socketContext->getSubProtocol();
-
-        SocketContext::SubProtocol::SubProtocolFactory* subProtocolFactory = subProtocol->getSubProtocolFactory();
-        subProtocolFactory->deleteSubProtocol(subProtocol);
-
-        decRefCount();
-    }
-
     std::string SocketContextUpgradeFactory::name() {
         return "websocket";
     }
 
-    SocketContext* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnection* socketConnection) {
+    SocketContext* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnection* socketConnection,
+                                                       web::http::server::Request* request,
+                                                       web::http::server::Response* response) {
         std::string subProtocolName = request->header("sec-websocket-protocol");
 
-        SocketContext* socketContext = nullptr;
+        SocketContext* socketContext = SocketContext::create(this, socketConnection, subProtocolName);
 
-        SocketContext::SubProtocol::SubProtocolFactory* subProtocolFactory =
-            SubProtocolFactorySelector::instance()->select(subProtocolName);
+        if (socketContext != nullptr) {
+            response->set("Upgrade", "websocket");
+            response->set("Connection", "Upgrade");
+            response->set("Sec-WebSocket-Protocol", subProtocolName);
+            response->set("Sec-WebSocket-Accept", base64::serverWebSocketKey(request->header("sec-websocket-key")));
 
-        if (subProtocolFactory != nullptr) {
-            SocketContext::SubProtocol* subProtocol = subProtocolFactory->createSubProtocol();
-
-            if (subProtocol != nullptr) {
-                socketContext = new SocketContext(socketConnection, subProtocol);
-
-                if (socketContext != nullptr) {
-                    incRefCount();
-
-                    socketContext->setSocketContextUpgradeFactory(this);
-                    subProtocol->setSocketContext(socketContext);
-                    subProtocol->setSubProtocolFactory(subProtocolFactory);
-
-                    response->set("Upgrade", "websocket");
-                    response->set("Connection", "Upgrade");
-                    response->set("Sec-WebSocket-Protocol", subProtocolName);
-                    response->set("Sec-WebSocket-Accept", base64::serverWebSocketKey(request->header("sec-websocket-key")));
-
-                    response->status(101).end(); // Switch Protocol
-                } else {
-                    subProtocolFactory->deleteSubProtocol(subProtocol);
-                    response->set("Connection", "close");
-                    response->status(500).end(); // Internal Server Error
-                }
-            } else {
-                response->set("Connection", "close");
-                response->status(404).end(); // Not Found
-            }
+            response->status(101).end(); // Switch Protocol
         } else {
             response->set("Connection", "close");
             response->status(404).end(); // Not Found
-        }
-
-        if (socketContext == nullptr) {
-            checkRefCount();
         }
 
         return socketContext;

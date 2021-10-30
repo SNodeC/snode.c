@@ -10,8 +10,8 @@ pkg_check_modules(LIBMAGIC libmagic)
 
 add_library(
     httpserver SHARED
-    RequestParser.cpp Request.cpp Response.cpp SocketContextUpgradeFactory.cpp
-    SocketContextUpgradeFactorySelector.cpp
+    RequestParser.cpp Request.cpp Response.cpp SocketContextUpgrade.cpp
+    SocketContextUpgradeFactory.cpp SocketContextUpgradeFactorySelector.cpp
 )
 add_library(snodec::httpserver ALIAS httpserver)
 

@@ -16,22 +16,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/websocket/server/SubProtocolFactory.h"
+#ifndef WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADE_H
+#define WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADE_H
 
-#include "web/websocket/server/SubProtocolFactorySelector.h"
+#include "web/http/SocketContextUpgrade.h"
+
+namespace web::http::server {
+    class SocketContextUpgradeFactory;
+    class Request;
+    class Response;
+} // namespace web::http::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::websocket::server {
+namespace web::http::server {
 
-    void SubProtocolFactory::deleteSubProtocol(SubProtocol* subProtocol) {
-        web::websocket::SubProtocolFactory<SubProtocol>::deleteSubProtocol(subProtocol);
+    class SocketContextUpgrade : public web::http::SocketContextUpgrade<Request, Response> {
+    public:
+        SocketContextUpgrade(SocketContextUpgradeFactory* socketContextUpgradeFactory);
+    };
 
-        if (refCount == 0) {
-            SubProtocolFactorySelector::instance()->unload(this);
-        }
-    }
+} // namespace web::http::server
 
-} // namespace web::websocket::server
+#endif // WEB_HTTP_SERVER_SOCKETCONTEXTUPGRADE_H

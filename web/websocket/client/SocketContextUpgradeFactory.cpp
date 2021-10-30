@@ -19,10 +19,8 @@
 #include "web/websocket/client/SocketContextUpgradeFactory.h"
 
 #include "utils/base64.h"
-#include "web/http/client/Request.h"                         // for Request
-#include "web/http/client/Response.h"                        // for Response
-#include "web/websocket/client/SubProtocolFactory.h"         // IWYU pragma: keep
-#include "web/websocket/client/SubProtocolFactorySelector.h" // for Sub...
+#include "web/http/client/Request.h"  // for Request
+#include "web/http/client/Response.h" // for Response
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -39,48 +37,16 @@ namespace web::websocket::client {
         request.set("Sec-WebSocket-Key", base64::base64_encode(ebytes, 16));
     }
 
-    void SocketContextUpgradeFactory::destroy(SocketContext* socketContext) {
-        SocketContext::SubProtocol* subProtocol = socketContext->getSubProtocol();
-
-        SocketContext::SubProtocol::SubProtocolFactory* subProtocolFactory = subProtocol->getSubProtocolFactory();
-        subProtocolFactory->deleteSubProtocol(subProtocol);
-
-        decRefCount();
-    }
-
     std::string SocketContextUpgradeFactory::name() {
         return "websocket";
     }
 
-    SocketContext* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnection* socketConnection) {
+    SocketContext* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnection* socketConnection,
+                                                       [[maybe_unused]] web::http::client::Request* request,
+                                                       web::http::client::Response* response) {
         std::string subProtocolName = response->header("sec-websocket-protocol");
 
-        SocketContext* socketContext = nullptr;
-
-        SocketContext::SubProtocol::SubProtocolFactory* subProtocolFactory =
-            SubProtocolFactorySelector::instance()->select(subProtocolName);
-
-        if (subProtocolFactory != nullptr) {
-            SocketContext::SubProtocol* subProtocol = subProtocolFactory->createSubProtocol();
-
-            if (subProtocol != nullptr) {
-                socketContext = new SocketContext(socketConnection, subProtocol);
-
-                if (socketContext != nullptr) {
-                    incRefCount();
-
-                    socketContext->setSocketContextUpgradeFactory(this);
-                    subProtocol->setSocketContext(socketContext);
-                    subProtocol->setSubProtocolFactory(subProtocolFactory);
-                } else {
-                    subProtocolFactory->deleteSubProtocol(subProtocol);
-                }
-            }
-        }
-
-        if (socketContext == nullptr) {
-            checkRefCount();
-        }
+        SocketContext* socketContext = SocketContext::create(this, socketConnection, subProtocolName);
 
         return socketContext;
     }

@@ -112,14 +112,6 @@ namespace web::websocket {
             closeSent = true;
         }
 
-        std::string getLocalAddressAsString() const {
-            return net::socket::stream::SocketContext::getLocalAddressAsString();
-        }
-
-        std::string getRemoteAddressAsString() const {
-            return net::socket::stream::SocketContext::getRemoteAddressAsString();
-        }
-
         SubProtocol* getSubProtocol() const {
             return subProtocol;
         }

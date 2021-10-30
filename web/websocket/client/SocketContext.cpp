@@ -19,7 +19,8 @@
 #include "web/websocket/client/SocketContext.h"
 
 #include "web/websocket/client/SocketContextUpgradeFactory.h"
-#include "web/websocket/client/SubProtocol.h" // IWYU pragma: keep
+#include "web/websocket/client/SubProtocolFactory.h"
+#include "web/websocket/client/SubProtocolFactorySelector.h"
 
 namespace net::socket::stream {
     class SocketConnection;
@@ -31,12 +32,45 @@ namespace net::socket::stream {
 
 namespace web::websocket::client {
 
-    SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection, SubProtocol* subProtocol)
-        : web::websocket::SocketContext<SubProtocol>(socketConnection, subProtocol, Role::CLIENT) {
+    SocketContext::SocketContext(SocketContextUpgradeFactory* socketContextUpgradeFactory,
+                                 net::socket::stream::SocketConnection* socketConnection,
+                                 SubProtocol* subProtocol)
+        : web::http::client::SocketContextUpgrade(socketContextUpgradeFactory)
+        , web::websocket::SocketContext<SubProtocol>(socketConnection, subProtocol, Role::CLIENT) {
+    }
+
+    SocketContext* SocketContext::create(SocketContextUpgradeFactory* socketContextUpgradeFactory,
+                                         net::socket::stream::SocketConnection* socketConnection,
+                                         const std::string& subProtocolName) {
+        SocketContext* socketContext = nullptr;
+
+        SubProtocolFactory* subProtocolFactory = SubProtocolFactorySelector::instance()->select(subProtocolName);
+
+        if (subProtocolFactory != nullptr) {
+            SubProtocolFactory::SubProtocol* subProtocol = subProtocolFactory->createSubProtocol();
+
+            if (subProtocol != nullptr) {
+                socketContext = new SocketContext(socketContextUpgradeFactory, socketConnection, subProtocol);
+
+                if (socketContext != nullptr) {
+                    socketContext->socketContextUpgradeFactory = socketContextUpgradeFactory;
+
+                    subProtocol->setSocketContext(socketContext);
+                    subProtocol->setSubProtocolFactory(subProtocolFactory);
+                } else {
+                    subProtocolFactory->deleteSubProtocol(subProtocol);
+                }
+            }
+        }
+
+        return socketContext;
     }
 
     SocketContext::~SocketContext() {
-        socketContextUpgradeFactory->destroy(this);
+        SocketContext::SubProtocol* subProtocol = getSubProtocol();
+
+        SocketContext::SubProtocol::SubProtocolFactory* subProtocolFactory = subProtocol->getSubProtocolFactory();
+        subProtocolFactory->deleteSubProtocol(subProtocol);
     }
 
     void SocketContext::setSocketContextUpgradeFactory(SocketContextUpgradeFactory* socketContextUpgradeFactory) {

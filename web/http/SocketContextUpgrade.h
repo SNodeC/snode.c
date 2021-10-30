@@ -16,34 +16,43 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_HTTP_SOCKETCONTEXTFACTORY_H
-#define WEB_HTTP_SOCKETCONTEXTFACTORY_H
-
-#include "net/socket/stream/SocketContextFactory.h"
+#ifndef WEB_HTTP_SOCKETCONTEXTUPGRADE_H
+#define WEB_HTTP_SOCKETCONTEXTUPGRADE_H
 
 namespace net::socket::stream {
     class SocketConnection;
-} // namespace net::socket::stream
+}
+
+namespace web::http {
+    template <typename RequestT, typename ResponseT>
+    class SocketContextUpgradeFactory;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http {
-    template <template <typename RequestT, typename ResponseT> class SocketContextT, typename RequestT, typename ResponseT>
-    class SocketContextFactory : public net::socket::stream::SocketContextFactory {
+
+    template <typename RequestT, typename ResponseT>
+    class SocketContextUpgrade {
     public:
-        using SocketContext = SocketContextT<RequestT, ResponseT>;
         using Request = RequestT;
         using Response = ResponseT;
 
-    protected:
-        SocketContextFactory() = default;
-        ~SocketContextFactory() override = default;
+        SocketContextUpgrade(SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory)
+            : socketContextUpgradeFactory(socketContextUpgradeFactory) {
+            socketContextUpgradeFactory->incRefCount();
+        }
 
-        SocketContextFactory(const SocketContextFactory&) = delete;
-        SocketContextFactory& operator=(const SocketContextFactory&) = delete;
+        virtual ~SocketContextUpgrade() {
+            socketContextUpgradeFactory->decRefCount();
+        }
+
+    protected:
+        SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory = nullptr;
     };
+
 } // namespace web::http
 
-#endif // WEB_HTTP_ SOCKETCONTEXTFACTORY_H
+#endif // WEB_HTTP_SOCKETCONTEXTUPGRADE_H

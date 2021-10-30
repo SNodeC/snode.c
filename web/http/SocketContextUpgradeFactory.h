@@ -19,7 +19,11 @@
 #ifndef WEB_HTTP_SOCKETCONTEXTUPGRADEFACTORY_H
 #define WEB_HTTP_SOCKETCONTEXTUPGRADEFACTORY_H
 
-#include "net/socket/stream/SocketContextFactory.h"
+#include "net/socket/stream/SocketContextFactory.h" // IWYU pragma: export
+
+namespace net::socket::stream {
+    class SocketContext;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -50,19 +54,24 @@ namespace web::http {
 
         void destroy();
 
-    protected:
         void incRefCount();
 
         void decRefCount();
 
         virtual void checkRefCount() = 0;
 
-        Request* request;
-        Response* response;
-
+    protected:
         std::size_t refCount = 0;
 
     private:
+        Request* request;
+        Response* response;
+
+        virtual net::socket::stream::SocketContext*
+        create(net::socket::stream::SocketConnection* socketConnection, Request* request, Response* response) = 0;
+
+        net::socket::stream::SocketContext* create(net::socket::stream::SocketConnection* socketConnection) final;
+
         Role role;
     };
 

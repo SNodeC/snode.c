@@ -28,6 +28,7 @@ namespace net::socket::stream {
 
 namespace web::http::client {
     class Request;
+    class Response;
 } // namespace web::http::client
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -46,8 +47,6 @@ namespace web::websocket::client {
 
         SocketContextUpgradeFactory& operator=(const SocketContextUpgradeFactory&) = delete;
 
-        void destroy(SocketContext* socketContext);
-
         static void link();
 
     private:
@@ -55,7 +54,9 @@ namespace web::websocket::client {
 
         std::string name() override;
 
-        SocketContext* create(net::socket::stream::SocketConnection* socketConnection) override;
+        SocketContext* create(net::socket::stream::SocketConnection* socketConnection,
+                              web::http::client::Request* request,
+                              web::http::client::Response* response) override;
     };
 
     extern "C" web::http::client::SocketContextUpgradeFactory* websocketClientContextUpgradeFactory();
