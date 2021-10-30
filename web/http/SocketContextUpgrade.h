@@ -19,6 +19,8 @@
 #ifndef WEB_HTTP_SOCKETCONTEXTUPGRADE_H
 #define WEB_HTTP_SOCKETCONTEXTUPGRADE_H
 
+#include "net/socket/stream/SocketContext.h"
+
 namespace net::socket::stream {
     class SocketConnection;
 }
@@ -35,19 +37,23 @@ namespace web::http {
 namespace web::http {
 
     template <typename RequestT, typename ResponseT>
-    class SocketContextUpgrade {
+    class SocketContextUpgrade : public net::socket::stream::SocketContext {
     public:
         using Request = RequestT;
         using Response = ResponseT;
 
-        SocketContextUpgrade(SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory)
-            : socketContextUpgradeFactory(socketContextUpgradeFactory) {
+        SocketContextUpgrade(net::socket::stream::SocketConnection* socketConnection,
+                             SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory)
+            : net::socket::stream::SocketContext(socketConnection)
+            , socketContextUpgradeFactory(socketContextUpgradeFactory) {
             socketContextUpgradeFactory->incRefCount();
         }
 
         virtual ~SocketContextUpgrade() {
             socketContextUpgradeFactory->decRefCount();
         }
+
+        using net::socket::stream::SocketContext::setTimeout;
 
     protected:
         SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory = nullptr;

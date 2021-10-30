@@ -32,11 +32,11 @@ namespace net::socket::stream {
 
 namespace web::websocket::client {
 
-    SocketContext::SocketContext(SocketContextUpgradeFactory* socketContextUpgradeFactory,
-                                 net::socket::stream::SocketConnection* socketConnection,
+    SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection,
+                                 SocketContextUpgradeFactory* socketContextUpgradeFactory,
                                  SubProtocol* subProtocol)
-        : web::http::client::SocketContextUpgrade(socketContextUpgradeFactory)
-        , web::websocket::SocketContext<SubProtocol>(socketConnection, subProtocol, Role::CLIENT) {
+        : web::websocket::SocketContext<web::http::client::Request, web::http::client::Response, SubProtocol>(
+              socketConnection, socketContextUpgradeFactory, subProtocol, Role::CLIENT) {
     }
 
     SocketContext* SocketContext::create(SocketContextUpgradeFactory* socketContextUpgradeFactory,
@@ -50,7 +50,7 @@ namespace web::websocket::client {
             SubProtocolFactory::SubProtocol* subProtocol = subProtocolFactory->createSubProtocol();
 
             if (subProtocol != nullptr) {
-                socketContext = new SocketContext(socketContextUpgradeFactory, socketConnection, subProtocol);
+                socketContext = new SocketContext(socketConnection, socketContextUpgradeFactory, subProtocol);
 
                 if (socketContext != nullptr) {
                     socketContext->socketContextUpgradeFactory = socketContextUpgradeFactory;
@@ -71,14 +71,6 @@ namespace web::websocket::client {
 
         SocketContext::SubProtocol::SubProtocolFactory* subProtocolFactory = subProtocol->getSubProtocolFactory();
         subProtocolFactory->deleteSubProtocol(subProtocol);
-    }
-
-    void SocketContext::setSocketContextUpgradeFactory(SocketContextUpgradeFactory* socketContextUpgradeFactory) {
-        this->socketContextUpgradeFactory = socketContextUpgradeFactory;
-    }
-
-    SocketContextUpgradeFactory* SocketContext::getSocketContextUpgradeFactory() {
-        return socketContextUpgradeFactory;
     }
 
 } // namespace web::websocket::client

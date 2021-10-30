@@ -32,11 +32,11 @@ namespace net::socket::stream {
 
 namespace web::websocket::server {
 
-    SocketContext::SocketContext(SocketContextUpgradeFactory* socketContextUpgradeFactory,
-                                 net::socket::stream::SocketConnection* socketConnection,
+    SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection,
+                                 SocketContextUpgradeFactory* socketContextUpgradeFactory,
                                  SubProtocol* subProtocol)
-        : web::http::server::SocketContextUpgrade(socketContextUpgradeFactory)
-        , web::websocket::SocketContext<SubProtocol>(socketConnection, subProtocol, Role::SERVER) {
+        : web::websocket::SocketContext<web::http::server::Request, web::http::server::Response, SubProtocol>(
+              socketConnection, socketContextUpgradeFactory, subProtocol, Role::SERVER) {
     }
 
     SocketContext* SocketContext::create(SocketContextUpgradeFactory* socketContextUpgradeFactory,
@@ -50,7 +50,7 @@ namespace web::websocket::server {
             SubProtocolFactory::SubProtocol* subProtocol = subProtocolFactory->createSubProtocol();
 
             if (subProtocol != nullptr) {
-                socketContext = new SocketContext(socketContextUpgradeFactory, socketConnection, subProtocol);
+                socketContext = new SocketContext(socketConnection, socketContextUpgradeFactory, subProtocol);
 
                 if (socketContext != nullptr) {
                     socketContext->socketContextUpgradeFactory = socketContextUpgradeFactory;
@@ -71,10 +71,6 @@ namespace web::websocket::server {
 
         SocketContext::SubProtocol::SubProtocolFactory* subProtocolFactory = subProtocol->getSubProtocolFactory();
         subProtocolFactory->deleteSubProtocol(subProtocol);
-    }
-
-    SocketContextUpgradeFactory* SocketContext::getSocketContextUpgradeFactory() {
-        return socketContextUpgradeFactory;
     }
 
 } // namespace web::websocket::server

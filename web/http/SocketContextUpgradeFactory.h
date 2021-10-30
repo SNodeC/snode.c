@@ -25,6 +25,11 @@ namespace net::socket::stream {
     class SocketContext;
 }
 
+namespace web::http {
+    template <typename RequestT, typename ResponseT>
+    class SocketContextUpgrade;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string>
@@ -67,7 +72,7 @@ namespace web::http {
         Request* request;
         Response* response;
 
-        virtual net::socket::stream::SocketContext*
+        virtual SocketContextUpgrade<Request, Response>*
         create(net::socket::stream::SocketConnection* socketConnection, Request* request, Response* response) = 0;
 
         net::socket::stream::SocketContext* create(net::socket::stream::SocketConnection* socketConnection) final;

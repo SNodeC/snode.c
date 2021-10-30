@@ -20,7 +20,7 @@
 #define WEB_WS_CLIENT_SUBSPROTOCOL_H
 
 #include "web/websocket/SubProtocol.h"          // IWYU pragma: export
-#include "web/websocket/client/SocketContext.h" // IWYU pragma: export
+#include "web/websocket/client/SocketContext.h" // IWYU pragma: keep
 
 namespace web::websocket::client {
     class SubProtocolFactory;
@@ -73,7 +73,7 @@ namespace web::websocket::client {
 
         std::string channel;
 
-        template <typename SubProtocolT>
+        template <typename RequestT, typename ResponseT, typename SubProtocolT>
         friend class web::websocket::SocketContext;
 
         friend class ChannelManager;

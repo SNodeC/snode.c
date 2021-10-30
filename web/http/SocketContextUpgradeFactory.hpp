@@ -16,6 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "web/http/SocketContextUpgrade.h"
 #include "web/http/SocketContextUpgradeFactory.h"
 #include "web/http/SocketContextUpgradeFactorySelector.h"
 
@@ -44,7 +45,7 @@ namespace web::http {
     template <typename Request, typename Response>
     net::socket::stream::SocketContext*
     SocketContextUpgradeFactory<Request, Response>::create(net::socket::stream::SocketConnection* socketConnection) {
-        net::socket::stream::SocketContext* socketContext = create(socketConnection, request, response);
+        SocketContextUpgrade<Request, Response>* socketContext = create(socketConnection, request, response);
 
         checkRefCount();
 

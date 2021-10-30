@@ -20,13 +20,18 @@
 #define WEB_WS_SOCKETCONTEXT_H
 
 #include "log/Logger.h"
-#include "net/socket/stream/SocketContext.h"
+#include "web/http/SocketContextUpgrade.h"
 #include "web/websocket/Receiver.h"
 #include "web/websocket/Transmitter.h"
 
 namespace net::socket::stream {
     class SocketConnection;
 } // namespace net::socket::stream
+
+namespace web::http {
+    template <typename RequestT, typename ResponseT>
+    class SocketContextUpgradeFactory;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -39,20 +44,25 @@ namespace net::socket::stream {
 
 namespace web::websocket {
 
-    template <typename SubProtocolT>
+    template <typename RequestT, typename ResponseT, typename SubProtocolT>
     class SocketContext
-        : public net::socket::stream::SocketContext
+        : public web::http::SocketContextUpgrade<RequestT, ResponseT>
         , protected web::websocket::Receiver
         , protected web::websocket::Transmitter {
     public:
         using SubProtocol = SubProtocolT;
+        using Request = RequestT;
+        using Response = ResponseT;
 
     protected:
         enum class Role { SERVER, CLIENT };
 
     protected:
-        SocketContext(net::socket::stream::SocketConnection* socketConnection, SubProtocol* subProtocol, Role role)
-            : net::socket::stream::SocketContext(socketConnection)
+        SocketContext(net::socket::stream::SocketConnection* socketConnection,
+                      web::http::SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory,
+                      SubProtocol* subProtocol,
+                      Role role)
+            : web::http::SocketContextUpgrade<Request, Response>(socketConnection, socketContextUpgradeFactory)
             , Transmitter(role == Role::CLIENT)
             , subProtocol(subProtocol) {
         }
@@ -107,7 +117,7 @@ namespace web::websocket {
                 delete[] closePayload;
             }
 
-            setTimeout(CLOSE_SOCKET_TIMEOUT);
+            web::http::SocketContextUpgrade<Request, Response>::setTimeout(CLOSE_SOCKET_TIMEOUT);
 
             closeSent = true;
         }
@@ -122,7 +132,7 @@ namespace web::websocket {
     private:
         void sendClose(const char* message, std::size_t messageLength) {
             sendMessage(8, message, messageLength);
-            close();
+            web::http::SocketContextUpgrade<Request, Response>::close();
         }
 
         /* WSReceiver */
@@ -195,7 +205,7 @@ namespace web::websocket {
         }
 
         ssize_t readFrameData(char* junk, std::size_t junkLen) override {
-            return readFromPeer(junk, junkLen);
+            return web::http::SocketContextUpgrade<Request, Response>::readFromPeer(junk, junkLen);
         }
 
         /* Callbacks (API) socketConnection -> WSProtocol */
@@ -210,28 +220,28 @@ namespace web::websocket {
         /* Facade to SocketProtocol used from WSTransmitter */
         void sendFrameData(uint8_t data) override {
             if (!closeSent) {
-                sendToPeer(reinterpret_cast<char*>(&data), sizeof(uint8_t));
+                web::http::SocketContextUpgrade<Request, Response>::sendToPeer(reinterpret_cast<char*>(&data), sizeof(uint8_t));
             }
         }
 
         void sendFrameData(uint16_t data) override {
             if (!closeSent) {
                 uint16_t sendData = htobe16(data);
-                sendToPeer(reinterpret_cast<char*>(&sendData), sizeof(uint16_t));
+                web::http::SocketContextUpgrade<Request, Response>::sendToPeer(reinterpret_cast<char*>(&sendData), sizeof(uint16_t));
             }
         }
 
         void sendFrameData(uint32_t data) override {
             if (!closeSent) {
                 uint32_t sendData = htobe32(data);
-                sendToPeer(reinterpret_cast<char*>(&sendData), sizeof(uint32_t));
+                web::http::SocketContextUpgrade<Request, Response>::sendToPeer(reinterpret_cast<char*>(&sendData), sizeof(uint32_t));
             }
         }
 
         void sendFrameData(uint64_t data) override {
             if (!closeSent) {
                 uint64_t sendData = htobe64(data);
-                sendToPeer(reinterpret_cast<char*>(&sendData), sizeof(uint64_t));
+                web::http::SocketContextUpgrade<Request, Response>::sendToPeer(reinterpret_cast<char*>(&sendData), sizeof(uint64_t));
             }
         }
 
@@ -242,7 +252,7 @@ namespace web::websocket {
                 do {
                     std::size_t sendJunkLen =
                         (frameLength - frameOffset <= SIZE_MAX) ? static_cast<std::size_t>(frameLength - frameOffset) : SIZE_MAX;
-                    sendToPeer(frame + frameOffset, sendJunkLen);
+                    web::http::SocketContextUpgrade<Request, Response>::sendToPeer(frame + frameOffset, sendJunkLen);
                     frameOffset += sendJunkLen;
                 } while (frameLength - frameOffset > 0);
             }
