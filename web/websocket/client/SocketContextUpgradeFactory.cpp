@@ -41,12 +41,12 @@ namespace web::websocket::client {
         return "websocket";
     }
 
-    SocketContext* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnection* socketConnection,
+    SocketContextUpgrade* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnection* socketConnection,
                                                        [[maybe_unused]] web::http::client::Request* request,
                                                        web::http::client::Response* response) {
         std::string subProtocolName = response->header("sec-websocket-protocol");
 
-        SocketContext* socketContext = SocketContext::create(this, socketConnection, subProtocolName);
+        SocketContextUpgrade* socketContext = SocketContextUpgrade::create(this, socketConnection, subProtocolName);
 
         return socketContext;
     }

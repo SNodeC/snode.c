@@ -16,11 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "web/websocket/server/SocketContext.h"
-
-#include "web/websocket/server/SocketContextUpgradeFactory.h"
-#include "web/websocket/server/SubProtocolFactory.h"
-#include "web/websocket/server/SubProtocolFactorySelector.h"
+#include "web/websocket/client/SocketContextUpgrade.h"
+#include "web/websocket/client/SocketContextUpgradeFactory.h"
+#include "web/websocket/client/SubProtocolFactory.h"
+#include "web/websocket/client/SubProtocolFactorySelector.h"
 
 namespace net::socket::stream {
     class SocketConnection;
@@ -30,19 +29,19 @@ namespace net::socket::stream {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::websocket::server {
+namespace web::websocket::client {
 
-    SocketContext::SocketContext(net::socket::stream::SocketConnection* socketConnection,
-                                 SocketContextUpgradeFactory* socketContextUpgradeFactory,
-                                 SubProtocol* subProtocol)
-        : web::websocket::SocketContext<web::http::server::Request, web::http::server::Response, SubProtocol>(
-              socketConnection, socketContextUpgradeFactory, subProtocol, Role::SERVER) {
+    SocketContextUpgrade::SocketContextUpgrade(net::socket::stream::SocketConnection* socketConnection,
+                                               SocketContextUpgradeFactory* socketContextUpgradeFactory,
+                                               SubProtocol* subProtocol)
+        : web::websocket::SocketContextUpgrade<web::http::client::Request, web::http::client::Response, SubProtocol>(
+              socketConnection, socketContextUpgradeFactory, subProtocol, Role::CLIENT) {
     }
 
-    SocketContext* SocketContext::create(SocketContextUpgradeFactory* socketContextUpgradeFactory,
-                                         net::socket::stream::SocketConnection* socketConnection,
-                                         const std::string& subProtocolName) {
-        SocketContext* socketContext = nullptr;
+    SocketContextUpgrade* SocketContextUpgrade::create(SocketContextUpgradeFactory* socketContextUpgradeFactory,
+                                                       net::socket::stream::SocketConnection* socketConnection,
+                                                       const std::string& subProtocolName) {
+        SocketContextUpgrade* socketContext = nullptr;
 
         SubProtocolFactory* subProtocolFactory = SubProtocolFactorySelector::instance()->select(subProtocolName);
 
@@ -50,7 +49,7 @@ namespace web::websocket::server {
             SubProtocolFactory::SubProtocol* subProtocol = subProtocolFactory->createSubProtocol();
 
             if (subProtocol != nullptr) {
-                socketContext = new SocketContext(socketConnection, socketContextUpgradeFactory, subProtocol);
+                socketContext = new SocketContextUpgrade(socketConnection, socketContextUpgradeFactory, subProtocol);
 
                 if (socketContext != nullptr) {
                     socketContext->socketContextUpgradeFactory = socketContextUpgradeFactory;
@@ -66,11 +65,11 @@ namespace web::websocket::server {
         return socketContext;
     }
 
-    SocketContext::~SocketContext() {
-        SocketContext::SubProtocol* subProtocol = getSubProtocol();
+    SocketContextUpgrade::~SocketContextUpgrade() {
+        SocketContextUpgrade::SubProtocol* subProtocol = getSubProtocol();
 
-        SocketContext::SubProtocol::SubProtocolFactory* subProtocolFactory = subProtocol->getSubProtocolFactory();
+        SocketContextUpgrade::SubProtocol::SubProtocolFactory* subProtocolFactory = subProtocol->getSubProtocolFactory();
         subProtocolFactory->deleteSubProtocol(subProtocol);
     }
 
-} // namespace web::websocket::server
+} // namespace web::websocket::client

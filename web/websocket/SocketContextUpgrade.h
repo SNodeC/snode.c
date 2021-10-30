@@ -45,7 +45,7 @@ namespace web::http {
 namespace web::websocket {
 
     template <typename RequestT, typename ResponseT, typename SubProtocolT>
-    class SocketContext
+    class SocketContextUpgrade
         : public web::http::SocketContextUpgrade<RequestT, ResponseT>
         , protected web::websocket::Receiver
         , protected web::websocket::Transmitter {
@@ -58,20 +58,20 @@ namespace web::websocket {
         enum class Role { SERVER, CLIENT };
 
     protected:
-        SocketContext(net::socket::stream::SocketConnection* socketConnection,
-                      web::http::SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory,
-                      SubProtocol* subProtocol,
-                      Role role)
+        SocketContextUpgrade(net::socket::stream::SocketConnection* socketConnection,
+                             web::http::SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory,
+                             SubProtocol* subProtocol,
+                             Role role)
             : web::http::SocketContextUpgrade<Request, Response>(socketConnection, socketContextUpgradeFactory)
             , Transmitter(role == Role::CLIENT)
             , subProtocol(subProtocol) {
         }
 
-        SocketContext() = delete;
-        SocketContext(const SocketContext&) = delete;
-        SocketContext& operator=(const SocketContext&) = delete;
+        SocketContextUpgrade() = delete;
+        SocketContextUpgrade(const SocketContextUpgrade&) = delete;
+        SocketContextUpgrade& operator=(const SocketContextUpgrade&) = delete;
 
-        virtual ~SocketContext() = default;
+        virtual ~SocketContextUpgrade() = default;
 
     public:
         void sendMessage(uint8_t opCode, const char* message, std::size_t messageLength) {

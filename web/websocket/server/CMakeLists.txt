@@ -8,7 +8,7 @@ configure_file(
 
 add_library(
     websocketserver SHARED
-    ChannelManager.cpp SocketContext.cpp SocketContextUpgradeFactory.cpp
+    ChannelManager.cpp SocketContextUpgrade.cpp SocketContextUpgradeFactory.cpp
     SubProtocol.cpp SubProtocolFactory.cpp SubProtocolFactorySelector.cpp
 )
 

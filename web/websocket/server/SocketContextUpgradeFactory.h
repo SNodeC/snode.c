@@ -20,7 +20,7 @@
 #define WEB_WS_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H
 
 #include "web/http/server/SocketContextUpgradeFactory.h"
-#include "web/websocket/server/SocketContext.h"
+#include "web/websocket/server/SocketContextUpgrade.h"
 
 namespace net::socket::stream {
     class SocketConnection;
@@ -52,7 +52,7 @@ namespace web::websocket::server {
     private:
         std::string name() override;
 
-        SocketContext* create(net::socket::stream::SocketConnection* socketConnection,
+        SocketContextUpgrade* create(net::socket::stream::SocketConnection* socketConnection,
                               web::http::server::Request* request,
                               web::http::server::Response* response) override;
     };
