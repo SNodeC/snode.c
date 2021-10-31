@@ -74,16 +74,16 @@ namespace web::websocket {
         bool masked = false;
 
         uint8_t opCode = 0;
-        uint64_t length = 0;
-        uint32_t maskingKey = 0;
 
         uint8_t elengthNumBytes = 0;
         uint8_t elengthNumBytesLeft = 0;
 
+        uint64_t payLoadNumBytes = 0;
+        uint64_t payloadNumBytesRead = 0;
+
+        uint32_t maskingKey = 0;
         uint8_t maskingKeyNumBytes = 4;
         uint8_t maskingKeyNumBytesLeft = 0;
-
-        uint64_t payloadRead = 0;
 
         uint16_t errorState = 0;
 
