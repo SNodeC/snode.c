@@ -29,8 +29,8 @@
 namespace net::socket::ip::tcp::ipv4::legacy {
 
     template <typename SocketContextFactoryT>
-    class SocketServer : public stream::legacy::SocketServer<SocketContextFactoryT, ipv4::Socket> {
-        using stream::legacy::SocketServer<SocketContextFactoryT, ipv4::Socket>::SocketServer;
+    class SocketServer : public net::socket::stream::legacy::SocketServer<SocketContextFactoryT, ipv4::Socket> {
+        using net::socket::stream::legacy::SocketServer<SocketContextFactoryT, ipv4::Socket>::SocketServer;
     };
 
 } // namespace net::socket::ip::tcp::ipv4::legacy

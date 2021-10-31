@@ -38,9 +38,9 @@ namespace net::socket::stream {
     namespace tls {
 
         template <typename SocketT>
-        class SocketListener : public stream::SocketListener<stream::tls::SocketConnection<SocketT>> {
+        class SocketListener : public net::socket::stream::SocketListener<net::socket::stream::tls::SocketConnection<SocketT>> {
         public:
-            using SocketConnection = stream::tls::SocketConnection<SocketT>;
+            using SocketConnection = net::socket::stream::tls::SocketConnection<SocketT>;
             using Socket = typename SocketConnection::Socket;
             using SocketAddress = typename Socket::SocketAddress;
 
@@ -49,7 +49,7 @@ namespace net::socket::stream {
                            const std::function<void(SocketConnection*)>& onConnected,
                            const std::function<void(SocketConnection*)>& onDisconnect,
                            const std::map<std::string, std::any>& options)
-                : stream::SocketListener<SocketConnection>(
+                : net::socket::stream::SocketListener<SocketConnection>(
                       socketContextFactory,
                       onConnect,
                       [onConnected, this](SocketConnection* socketConnection) -> void {
@@ -97,9 +97,9 @@ namespace net::socket::stream {
                 if (ctx == nullptr) {
                     errno = EINVAL;
                     onError(errno);
-                    stream::SocketListener<SocketConnection>::destruct();
+                    net::socket::stream::SocketListener<SocketConnection>::destruct();
                 } else {
-                    stream::SocketListener<SocketConnection>::listen(localAddress, backlog, onError);
+                    net::socket::stream::SocketListener<SocketConnection>::listen(localAddress, backlog, onError);
                 }
             }
 

@@ -33,8 +33,8 @@
 namespace net::socket::stream::legacy {
 
     template <typename SocketT>
-    class SocketWriter : public stream::SocketWriter<SocketT> {
-        using stream::SocketWriter<SocketT>::SocketWriter;
+    class SocketWriter : public net::socket::stream::SocketWriter<SocketT> {
+        using net::socket::stream::SocketWriter<SocketT>::SocketWriter;
 
     private:
         ssize_t write(const char* junk, std::size_t junkLen) override {

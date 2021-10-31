@@ -29,8 +29,8 @@
 namespace net::socket::ip::tcp::ipv6::legacy {
 
     template <typename SocketContextFactoryT>
-    class SocketServer : public stream::legacy::SocketServer<SocketContextFactoryT, ipv6::Socket> {
-        using stream::legacy::SocketServer<SocketContextFactoryT, ipv6::Socket>::SocketServer;
+    class SocketServer : public net::socket::stream::legacy::SocketServer<SocketContextFactoryT, ipv6::Socket> {
+        using net::socket::stream::legacy::SocketServer<SocketContextFactoryT, ipv6::Socket>::SocketServer;
     };
 
 } // namespace net::socket::ip::tcp::ipv6::legacy

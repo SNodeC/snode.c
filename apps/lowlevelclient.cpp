@@ -215,9 +215,10 @@ tls::SocketClient<SimpleSocketProtocolFactory, tcp::ipv4::Socket> getTlsClient()
 }
 
 legacy::SocketClient<SimpleSocketProtocolFactory, tcp::ipv4::Socket> getLegacyClient() {
-    legacy::SocketClient<SimpleSocketProtocolFactory, tcp::ipv4::Socket> legacyClient(
-        [](const legacy::SocketClient<SimpleSocketProtocolFactory, tcp::ipv4::Socket>::SocketAddress& localAddress,
-           const legacy::SocketClient<SimpleSocketProtocolFactory, tcp::ipv4::Socket>::SocketAddress& remoteAddress) -> void { // OnConnect
+    net::socket::stream::legacy::SocketClient<SimpleSocketProtocolFactory, tcp::ipv4::Socket> legacyClient(
+        [](const net::socket::stream::legacy::SocketClient<SimpleSocketProtocolFactory, tcp::ipv4::Socket>::SocketAddress& localAddress,
+           const net::socket::stream::legacy::SocketClient<SimpleSocketProtocolFactory, tcp::ipv4::Socket>::SocketAddress& remoteAddress)
+            -> void { // OnConnect
             VLOG(0) << "OnConnect";
 
             VLOG(0) << "\tServer: " + remoteAddress.toString();
@@ -259,7 +260,7 @@ int main(int argc, char* argv[]) {
     {
         InetAddress remoteAddress("localhost", 8080);
 
-        legacy::SocketClient<SimpleSocketProtocolFactory, tcp::ipv4::Socket> legacyClient = getLegacyClient();
+        net::socket::stream::legacy::SocketClient<SimpleSocketProtocolFactory, tcp::ipv4::Socket> legacyClient = getLegacyClient();
 
         legacyClient.connect(remoteAddress, [](int err) -> void { // example.com:81 simulate connnect timeout
             if (err) {

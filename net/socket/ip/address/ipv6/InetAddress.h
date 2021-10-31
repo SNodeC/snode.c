@@ -46,9 +46,9 @@ namespace net::socket::ip::address::ipv6 {
         static std::string message;
     };
 
-    class InetAddress : public SocketAddress<struct sockaddr_in6> {
+    class InetAddress : public net::socket::SocketAddress<struct sockaddr_in6> {
     public:
-        using SocketAddress<struct sockaddr_in6>::SocketAddress;
+        using net::socket::SocketAddress<struct sockaddr_in6>::SocketAddress;
 
         InetAddress();
         explicit InetAddress(const std::string& ipOrHostname);

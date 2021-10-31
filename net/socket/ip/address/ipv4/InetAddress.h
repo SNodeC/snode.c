@@ -47,9 +47,9 @@ namespace net::socket::ip::address::ipv4 {
         static std::string message;
     };
 
-    class InetAddress : public SocketAddress<struct sockaddr_in> {
+    class InetAddress : public net::socket::SocketAddress<struct sockaddr_in> {
     public:
-        using SocketAddress<struct sockaddr_in>::SocketAddress;
+        using net::socket::SocketAddress<struct sockaddr_in>::SocketAddress;
 
         InetAddress();
         explicit InetAddress(const std::string& ipOrHostname);

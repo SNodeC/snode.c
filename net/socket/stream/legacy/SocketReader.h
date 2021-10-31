@@ -34,8 +34,8 @@
 namespace net::socket::stream::legacy {
 
     template <typename SocketT>
-    class SocketReader : public stream::SocketReader<SocketT> {
-        using stream::SocketReader<SocketT>::SocketReader;
+    class SocketReader : public net::socket::stream::SocketReader<SocketT> {
+        using net::socket::stream::SocketReader<SocketT>::SocketReader;
 
     private:
         ssize_t read(char* junk, std::size_t junkLen) override {

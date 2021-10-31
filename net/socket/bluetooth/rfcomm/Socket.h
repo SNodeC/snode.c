@@ -28,7 +28,7 @@
 
 namespace net::socket::bluetooth::rfcomm {
 
-    class Socket : public socket::Socket<address::RfCommAddress> {
+    class Socket : public net::socket::Socket<net::socket::bluetooth::address::RfCommAddress> {
     protected:
         int create(int flags) override;
     };

@@ -51,7 +51,8 @@ int main(int argc, char* argv[]) {
 
     {
         tls::Client6<> tlsClient(
-            [](const tls::Client6<>::SocketAddress& localAddress, const tls::Client6<>::SocketAddress& remoteAddress) -> void {
+            [](const tls::Client6<>::SocketAddress& localAddress,
+               const tls::Client6<>::SocketAddress& remoteAddress) -> void {
                 VLOG(0) << "-- OnConnect";
 
                 VLOG(0) << "\tServer: " + remoteAddress.toString();

@@ -33,9 +33,9 @@
 
 namespace net::socket::bluetooth::address {
 
-    class L2CapAddress : public SocketAddress<struct sockaddr_l2> {
+    class L2CapAddress : public net::socket::SocketAddress<struct sockaddr_l2> {
     public:
-        using SocketAddress<struct sockaddr_l2>::SocketAddress;
+        using net::socket::SocketAddress<struct sockaddr_l2>::SocketAddress;
 
         L2CapAddress();
         explicit L2CapAddress(const std::string& btAddress);

@@ -71,7 +71,7 @@ int main(int argc, char* argv[]) {
         });
 
         {
-            tls::WebApp6 tlsApp({{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
+            express::tls::WebApp6 tlsApp({{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
 
             tlsApp.use(middleware::VHost("localhost:8088").use(getRouter()));
 
@@ -83,7 +83,8 @@ int main(int argc, char* argv[]) {
                 res.status(404).send("The requested resource is not found.");
             });
 
-            tlsApp.onConnect([](const tls::WebApp6::SocketAddress& localAddress, const tls::WebApp6::SocketAddress& remoteAddress) -> void {
+            tlsApp.onConnect([](const express::tls::WebApp6::SocketAddress& localAddress,
+                                const express::tls::WebApp6::SocketAddress& remoteAddress) -> void {
                 VLOG(0) << "OnConnect:";
 
                 VLOG(0) << "\tServer: " + localAddress.toString();

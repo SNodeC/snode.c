@@ -33,7 +33,9 @@ namespace net::socket::stream::legacy {
 
     template <typename SocketT>
     class SocketConnection
-        : public stream::SocketConnectionT<legacy::SocketReader<SocketT>, legacy::SocketWriter<SocketT>, typename SocketT::SocketAddress> {
+        : public net::socket::stream::SocketConnectionT<net::socket::stream::legacy::SocketReader<SocketT>,
+                                                        net::socket::stream::legacy::SocketWriter<SocketT>,
+                                                        typename SocketT::SocketAddress> {
     public:
         using Socket = SocketT;
         using SocketAddress = typename Socket::SocketAddress;
@@ -44,10 +46,16 @@ namespace net::socket::stream::legacy {
                          const SocketAddress& remoteAddress,
                          const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                          const std::function<void(SocketConnection*)>& onDisconnect)
-            : stream::SocketConnectionT<legacy::SocketReader<Socket>, legacy::SocketWriter<Socket>, typename Socket::SocketAddress>::
-                  SocketConnectionT(fd, socketProtocolFactory, localAddress, remoteAddress, onConnect, [onDisconnect, this]() -> void {
-                      onDisconnect(this);
-                  }) {
+            : net::socket::stream::SocketConnectionT<net::socket::stream::legacy::SocketReader<Socket>,
+                                                     net::socket::stream::legacy::SocketWriter<Socket>,
+                                                     typename Socket::SocketAddress>::SocketConnectionT(fd,
+                                                                                                        socketProtocolFactory,
+                                                                                                        localAddress,
+                                                                                                        remoteAddress,
+                                                                                                        onConnect,
+                                                                                                        [onDisconnect, this]() -> void {
+                                                                                                            onDisconnect(this);
+                                                                                                        }) {
         }
 
         template <typename Socket>

@@ -29,9 +29,9 @@
 namespace net::socket::stream::legacy {
 
     template <typename SocketT>
-    class SocketConnector : public stream::SocketConnector<stream::legacy::SocketConnection<SocketT>> {
+    class SocketConnector : public net::socket::stream::SocketConnector<net::socket::stream::legacy::SocketConnection<SocketT>> {
     public:
-        using SocketConnection = stream::legacy::SocketConnection<SocketT>;
+        using SocketConnection = net::socket::stream::legacy::SocketConnection<SocketT>;
         using Socket = typename SocketConnection::Socket;
         using SocketAddress = typename Socket::SocketAddress;
 
@@ -40,7 +40,7 @@ namespace net::socket::stream::legacy {
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,
                         const std::map<std::string, std::any>& options)
-            : stream::SocketConnector<SocketConnection>(
+            : net::socket::stream::SocketConnector<SocketConnection>(
                   socketContextFactory,
                   onConnect,
                   [onConnected](SocketConnection* socketConnection) -> void {
