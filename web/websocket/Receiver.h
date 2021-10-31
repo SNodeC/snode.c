@@ -56,7 +56,7 @@ namespace web::websocket {
         ssize_t readPayload();
 
         virtual void onMessageStart(int opCode) = 0;
-        virtual void onFrameReceived(const char* junk, uint64_t junkLen) = 0;
+        virtual void onMessageData(const char* junk, uint64_t junkLen) = 0;
         virtual void onMessageEnd() = 0;
         virtual void onMessageError(uint16_t errnum) = 0;
 

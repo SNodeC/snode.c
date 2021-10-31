@@ -158,7 +158,7 @@ namespace web::websocket {
             }
         }
 
-        void onFrameReceived(const char* junk, uint64_t junkLen) override {
+        void onMessageData(const char* junk, uint64_t junkLen) override {
             switch (opCodeReceived) {
                 case OpCode::CLOSE:
                     [[fallthrough]];

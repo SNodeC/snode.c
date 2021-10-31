@@ -209,7 +209,7 @@ namespace web::websocket {
                 *(payloadJunk + i) = *(payloadJunk + i) ^ *(maskingKeyAsArray.keyAsArray + (i + payloadRead) % 4);
             }
 
-            onFrameReceived(payloadJunk, payloadJunkLen);
+            onMessageData(payloadJunk, payloadJunkLen);
 
             payloadRead += payloadJunkLen;
         }
