@@ -48,7 +48,7 @@ namespace web::websocket::client {
         SubProtocolFactory* subProtocolFactory = SubProtocolFactorySelector::instance()->select(subProtocolName);
 
         if (subProtocolFactory != nullptr) {
-            SubProtocolFactory::SubProtocol* subProtocol = subProtocolFactory->createSubProtocol();
+            SubProtocol* subProtocol = subProtocolFactory->createSubProtocol();
 
             if (subProtocol != nullptr) {
                 socketContext = new SocketContextUpgrade(socketConnection, socketContextUpgradeFactory, subProtocol);
