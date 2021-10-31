@@ -54,6 +54,12 @@ namespace web::websocket {
         using Request = RequestT;
         using Response = ResponseT;
 
+    private:
+        using web::http::SocketContextUpgrade<Request, Response>::sendToPeer;
+        using web::http::SocketContextUpgrade<Request, Response>::readFromPeer;
+        using web::http::SocketContextUpgrade<Request, Response>::close;
+        using web::http::SocketContextUpgrade<Request, Response>::setTimeout;
+
     protected:
         enum class Role { SERVER, CLIENT };
 
@@ -117,7 +123,7 @@ namespace web::websocket {
                 delete[] closePayload;
             }
 
-            web::http::SocketContextUpgrade<Request, Response>::setTimeout(CLOSE_SOCKET_TIMEOUT);
+            setTimeout(CLOSE_SOCKET_TIMEOUT);
 
             closeSent = true;
         }
@@ -132,7 +138,7 @@ namespace web::websocket {
     private:
         void sendClose(const char* message, std::size_t messageLength) {
             sendMessage(8, message, messageLength);
-            web::http::SocketContextUpgrade<Request, Response>::close();
+            close();
         }
 
         /* WSReceiver */
@@ -205,7 +211,7 @@ namespace web::websocket {
         }
 
         ssize_t readFrameData(char* junk, std::size_t junkLen) override {
-            return web::http::SocketContextUpgrade<Request, Response>::readFromPeer(junk, junkLen);
+            return readFromPeer(junk, junkLen);
         }
 
         /* Callbacks (API) socketConnection -> WSProtocol */
@@ -220,28 +226,28 @@ namespace web::websocket {
         /* Facade to SocketProtocol used from WSTransmitter */
         void sendFrameData(uint8_t data) override {
             if (!closeSent) {
-                web::http::SocketContextUpgrade<Request, Response>::sendToPeer(reinterpret_cast<char*>(&data), sizeof(uint8_t));
+                sendToPeer(reinterpret_cast<char*>(&data), sizeof(uint8_t));
             }
         }
 
         void sendFrameData(uint16_t data) override {
             if (!closeSent) {
                 uint16_t sendData = htobe16(data);
-                web::http::SocketContextUpgrade<Request, Response>::sendToPeer(reinterpret_cast<char*>(&sendData), sizeof(uint16_t));
+                sendToPeer(reinterpret_cast<char*>(&sendData), sizeof(uint16_t));
             }
         }
 
         void sendFrameData(uint32_t data) override {
             if (!closeSent) {
                 uint32_t sendData = htobe32(data);
-                web::http::SocketContextUpgrade<Request, Response>::sendToPeer(reinterpret_cast<char*>(&sendData), sizeof(uint32_t));
+                sendToPeer(reinterpret_cast<char*>(&sendData), sizeof(uint32_t));
             }
         }
 
         void sendFrameData(uint64_t data) override {
             if (!closeSent) {
                 uint64_t sendData = htobe64(data);
-                web::http::SocketContextUpgrade<Request, Response>::sendToPeer(reinterpret_cast<char*>(&sendData), sizeof(uint64_t));
+                sendToPeer(reinterpret_cast<char*>(&sendData), sizeof(uint64_t));
             }
         }
 
@@ -252,7 +258,7 @@ namespace web::websocket {
                 do {
                     std::size_t sendJunkLen =
                         (frameLength - frameOffset <= SIZE_MAX) ? static_cast<std::size_t>(frameLength - frameOffset) : SIZE_MAX;
-                    web::http::SocketContextUpgrade<Request, Response>::sendToPeer(frame + frameOffset, sendJunkLen);
+                    sendToPeer(frame + frameOffset, sendJunkLen);
                     frameOffset += sendJunkLen;
                 } while (frameLength - frameOffset > 0);
             }
