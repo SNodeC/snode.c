@@ -32,7 +32,7 @@ namespace net {
     }
 
     Descriptor::~Descriptor() {
-        if (!dontClose()) {
+        if (!dontClose() && fd >= 0) {
             net::system::close(fd);
         }
     }
