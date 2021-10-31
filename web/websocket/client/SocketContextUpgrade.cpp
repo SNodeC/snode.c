@@ -17,6 +17,7 @@
  */
 
 #include "web/websocket/client/SocketContextUpgrade.h"
+
 #include "web/websocket/client/SocketContextUpgradeFactory.h"
 #include "web/websocket/client/SubProtocolFactory.h"
 #include "web/websocket/client/SubProtocolFactorySelector.h"

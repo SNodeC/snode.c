@@ -33,8 +33,8 @@ namespace web::websocket::server {
     }
 
     SocketContextUpgrade* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnection* socketConnection,
-                                                       web::http::server::Request* request,
-                                                       web::http::server::Response* response) {
+                                                              web::http::server::Request* request,
+                                                              web::http::server::Response* response) {
         std::string subProtocolName = request->header("sec-websocket-protocol");
 
         SocketContextUpgrade* socketContext = SocketContextUpgrade::create(this, socketConnection, subProtocolName);

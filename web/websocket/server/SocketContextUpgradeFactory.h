@@ -53,8 +53,8 @@ namespace web::websocket::server {
         std::string name() override;
 
         SocketContextUpgrade* create(net::socket::stream::SocketConnection* socketConnection,
-                              web::http::server::Request* request,
-                              web::http::server::Response* response) override;
+                                     web::http::server::Request* request,
+                                     web::http::server::Response* response) override;
     };
 
     extern "C" web::http::server::SocketContextUpgradeFactory* websocketServerContextUpgradeFactory();
