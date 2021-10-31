@@ -51,11 +51,11 @@ namespace web::websocket::server {
             SubProtocol* subProtocol = subProtocolFactory->createSubProtocol();
 
             if (subProtocol != nullptr) {
+                subProtocol->setSubProtocolFactory(subProtocolFactory);
+
                 socketContext = new SocketContextUpgrade(socketConnection, socketContextUpgradeFactory, subProtocol);
 
-                if (socketContext != nullptr) {
-                    subProtocol->setSubProtocolFactory(subProtocolFactory);
-                } else {
+                if (socketContext == nullptr) {
                     subProtocolFactory->deleteSubProtocol(subProtocol);
                 }
             }
