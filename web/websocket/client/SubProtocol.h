@@ -50,14 +50,14 @@ namespace web::websocket::client {
 
     public:
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from SubProtocol-Subclasses */
-        using web::websocket::SubProtocol<SubProtocol::SocketContext, SubProtocol::SubProtocolFactory>::sendMessage;
+        using web::websocket::SubProtocol<SubProtocol::SocketContextUpgrade, SubProtocol::SubProtocolFactory>::sendMessage;
 
-        using web::websocket::SubProtocol<SubProtocol::SocketContext, SubProtocol::SubProtocolFactory>::sendMessageEnd;
-        using web::websocket::SubProtocol<SubProtocol::SocketContext, SubProtocol::SubProtocolFactory>::sendMessageFrame;
-        using web::websocket::SubProtocol<SubProtocol::SocketContext, SubProtocol::SubProtocolFactory>::sendMessageStart;
+        using web::websocket::SubProtocol<SubProtocol::SocketContextUpgrade, SubProtocol::SubProtocolFactory>::sendMessageEnd;
+        using web::websocket::SubProtocol<SubProtocol::SocketContextUpgrade, SubProtocol::SubProtocolFactory>::sendMessageFrame;
+        using web::websocket::SubProtocol<SubProtocol::SocketContextUpgrade, SubProtocol::SubProtocolFactory>::sendMessageStart;
 
-        using web::websocket::SubProtocol<SubProtocol::SocketContext, SubProtocol::SubProtocolFactory>::sendClose;
-        using web::websocket::SubProtocol<SubProtocol::SocketContext, SubProtocol::SubProtocolFactory>::sendPing;
+        using web::websocket::SubProtocol<SubProtocol::SocketContextUpgrade, SubProtocol::SubProtocolFactory>::sendClose;
+        using web::websocket::SubProtocol<SubProtocol::SocketContextUpgrade, SubProtocol::SubProtocolFactory>::sendPing;
 
     private:
         /* Callbacks (API) WSReceiver -> SubProtocol-Subclasses */

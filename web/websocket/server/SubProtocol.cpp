@@ -27,7 +27,7 @@
 namespace web::websocket::server {
 
     SubProtocol::SubProtocol(const std::string& name)
-        : web::websocket::SubProtocol<SubProtocol::SocketContext, SubProtocol::SubProtocolFactory>(name) {
+        : web::websocket::SubProtocol<SubProtocol::SocketContextUpgrade, SubProtocol::SubProtocolFactory>(name) {
         ChannelManager::instance()->subscribe(this);
         // subscribe(name, this);
         // this->channel = name;

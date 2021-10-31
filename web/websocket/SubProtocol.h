@@ -29,10 +29,10 @@
 
 namespace web::websocket {
 
-    template <typename SocketContextT, typename SubProtocolFactoryT>
+    template <typename SocketContextUpgradeT, typename SubProtocolFactoryT>
     class SubProtocol {
     public:
-        using SocketContext = SocketContextT;
+        using SocketContextUpgrade = SocketContextUpgradeT;
         using SubProtocolFactory = SubProtocolFactoryT;
 
     protected:
@@ -51,23 +51,23 @@ namespace web::websocket {
 
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from SubProtocol-Subclasses */
         void sendMessage(const char* message, std::size_t messageLength) {
-            context->sendMessage(2, message, messageLength);
+            socketContextUpgrade->sendMessage(2, message, messageLength);
         }
 
         void sendMessage(const std::string& message) {
-            context->sendMessage(1, message.data(), message.length());
+            socketContextUpgrade->sendMessage(1, message.data(), message.length());
         }
 
         void sendMessageStart(const char* message, std::size_t messageLength) {
-            context->sendMessageStart(2, message, messageLength);
+            socketContextUpgrade->sendMessageStart(2, message, messageLength);
         }
 
         void sendMessageStart(const std::string& message) {
-            context->sendMessageStart(1, message.data(), message.length());
+            socketContextUpgrade->sendMessageStart(1, message.data(), message.length());
         }
 
         void sendMessageFrame(const char* message, std::size_t messageLength) {
-            context->sendMessageFrame(message, messageLength);
+            socketContextUpgrade->sendMessageFrame(message, messageLength);
         }
 
         void sendMessageFrame(const std::string& message) {
@@ -75,7 +75,7 @@ namespace web::websocket {
         }
 
         void sendMessageEnd(const char* message, std::size_t messageLength) {
-            context->sendMessageEnd(message, messageLength);
+            socketContextUpgrade->sendMessageEnd(message, messageLength);
         }
 
         void sendMessageEnd(const std::string& message) {
@@ -83,18 +83,18 @@ namespace web::websocket {
         }
 
         void sendPing(char* reason = nullptr, std::size_t reasonLength = 0) {
-            context->sendPing(reason, reasonLength);
+            socketContextUpgrade->sendPing(reason, reasonLength);
         }
 
         void sendClose(uint16_t statusCode = 1000, const char* reason = nullptr, std::size_t reasonLength = 0) {
-            context->sendClose(statusCode, reason, reasonLength);
+            socketContextUpgrade->sendClose(statusCode, reason, reasonLength);
         }
 
         std::string getLocalAddressAsString() const {
-            return context->getLocalAddressAsString();
+            return socketContextUpgrade->getLocalAddressAsString();
         }
         std::string getRemoteAddressAsString() const {
-            return context->getRemoteAddressAsString();
+            return socketContextUpgrade->getRemoteAddressAsString();
         }
 
         const std::string& getName() {
@@ -112,12 +112,12 @@ namespace web::websocket {
         virtual void onConnected() = 0;
         virtual void onDisconnected() = 0;
 
-        void setSocketContext(SocketContext* serverContext) {
-            context = serverContext;
+        void setSocketContextUpgrade(SocketContextUpgrade* socketContextUpgrade) {
+            this->socketContextUpgrade = socketContextUpgrade;
         }
 
-        SocketContext* getSocketContext() {
-            return context;
+        SocketContextUpgrade* getSocketContext() {
+            return socketContextUpgrade;
         }
 
         void setSubProtocolFactory(SubProtocolFactory* subProtocolFactory) {
@@ -128,8 +128,8 @@ namespace web::websocket {
             return subProtocolFactory;
         }
 
-    protected:
-        SocketContext* context;
+    private:
+        SocketContextUpgrade* socketContextUpgrade;
         SubProtocolFactory* subProtocolFactory;
 
         const std::string name;

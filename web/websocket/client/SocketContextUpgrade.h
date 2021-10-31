@@ -57,9 +57,6 @@ namespace web::websocket::client {
         static SocketContextUpgrade* create(SocketContextUpgradeFactory* socketContextUpgradeFactory,
                                             net::socket::stream::SocketConnection* socketConnection,
                                             const std::string& subProtocolName);
-
-    protected:
-        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
     };
 
 } // namespace web::websocket::client
