@@ -29,14 +29,12 @@ namespace web::websocket::server {
         web::websocket::SubProtocolFactorySelector<SubProtocolFactory>::addSubProtocolSearchPath(
             WEBSOCKET_SUBPROTOCOL_SERVER_INSTALL_LIBDIR);
 
-#ifndef NDEBUG
-#ifdef WEBSOCKET_SUBPROTOCOL_SERVER_COMPILE_LIBDIR
+#if !defined(NDEBUG) && defined(WEBSOCKET_SUBPROTOCOL_SERVER_COMPILE_LIBDIR)
 
         web::websocket::SubProtocolFactorySelector<SubProtocolFactory>::addSubProtocolSearchPath(
             WEBSOCKET_SUBPROTOCOL_SERVER_COMPILE_LIBDIR);
 
-#endif // SUBPROTOCOL_SERVER_COMPILE_PATH
-#endif // NDEBUG
+#endif // !defined(NDEBUG) && defined(WEBSOCKET_SUBPROTOCOL_SERVER_COMPILE_LIBDIR)
     }
 
     SubProtocolFactorySelector* SubProtocolFactorySelector::instance() {

@@ -42,7 +42,14 @@ target_link_libraries(
     http PUBLIC snodec::net-ip snodec::net-tls ${LIBMAGIC_LIBRARIES} dl
 )
 
-set_target_properties(http PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-http)
+set_target_properties(
+    http
+    PROPERTIES SOVERSION 1
+               OUTPUT_NAME snodec-http
+               HTTP_SOCKETCONTEXTUPGRADE_INSTALL_LIBDIR
+               "${HTTP_SOCKETCONTEXTUPGRADE_INSTALL_LIBDIR}"
+               EXPORT_PROPERTIES "HTTP_SOCKETCONTEXTUPGRADE_INSTALL_LIBDIR"
+)
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/

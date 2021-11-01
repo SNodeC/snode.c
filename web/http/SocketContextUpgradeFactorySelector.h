@@ -60,6 +60,8 @@ namespace web::http {
     protected:
         SocketContextUpgradeFactory* select(const std::string& upgradeContextName);
 
+        void addSocketContextUpgradeSearchPath(const std::string& searchPath);
+
         virtual SocketContextUpgradeFactory* load(const std::string& upgradeContextName) = 0;
         SocketContextUpgradeFactory* load(const std::string& upgradeContextName, typename SocketContextUpgradeFactory::Role role);
 

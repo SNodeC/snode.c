@@ -35,15 +35,13 @@ namespace web::http::server {
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactorySelector()
         : web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>(
               web::http::SocketContextUpgradeFactory<Request, Response>::Role::SERVER) {
-#ifndef NDEBUG
-#ifdef HTTP_SOCKETCONTEXTUPGRADE_SERVER_COMPILE_LIBDIR
+        addSocketContextUpgradeSearchPath(HTTP_SOCKETCONTEXTUPGRADE_SERVER_INSTALL_LIBDIR);
 
-        searchPaths.push_back(HTTP_SOCKETCONTEXTUPGRADE_SERVER_COMPILE_LIBDIR);
+#if !defined(NDEBUG) && defined(HTTP_SOCKETCONTEXTUPGRADE_SERVER_COMPILE_LIBDIR)
 
-#endif // HTTP_SOCKETCONTEXTUPGRADE_SERVER_COMPILE_LIBDIR
-#endif // NDEBUG
+        addSocketContextUpgradeSearchPath(HTTP_SOCKETCONTEXTUPGRADE_SERVER_COMPILE_LIBDIR);
 
-        searchPaths.push_back(HTTP_SOCKETCONTEXTUPGRADE_SERVER_INSTALL_LIBDIR);
+#endif // !defined(NDEBUG) && defined(HTTP_SOCKETCONTEXTUPGRADE_SERVER_COMPILE_LIBDIR)
     }
 
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactory*

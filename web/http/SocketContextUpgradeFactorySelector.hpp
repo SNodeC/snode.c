@@ -37,6 +37,12 @@ namespace web::http {
     }
 
     template <typename SocketContextUpgradeFactory>
+    void
+    SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::addSocketContextUpgradeSearchPath(const std::string& searchPath) {
+        searchPaths.push_front(searchPath);
+    }
+
+    template <typename SocketContextUpgradeFactory>
     bool SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::add(SocketContextUpgradeFactory* socketContextUpgradeFactory,
                                                                                void* handle) {
         bool success = false;
