@@ -66,6 +66,8 @@ namespace web::http::client {
 
         void start();
 
+        const std::string& header(const std::string& field);
+
     protected:
         void enqueue(const char* junk, std::size_t junkLen);
         void enqueue(const std::string& data);

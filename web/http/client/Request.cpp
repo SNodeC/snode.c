@@ -227,6 +227,10 @@ namespace web::http::client {
         send("");
     }
 
+    const std::string& Request::header(const std::string& field) {
+        return headers[field];
+    }
+
     void Request::receive(const char* junk, std::size_t junkLen) {
         enqueue(junk, junkLen);
     }

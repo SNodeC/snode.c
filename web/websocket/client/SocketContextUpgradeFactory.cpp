@@ -44,9 +44,13 @@ namespace web::websocket::client {
     SocketContextUpgrade* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnection* socketConnection,
                                                               [[maybe_unused]] web::http::client::Request* request,
                                                               web::http::client::Response* response) {
-        std::string subProtocolName = response->header("sec-websocket-protocol");
+        SocketContextUpgrade* socketContext = nullptr;
 
-        SocketContextUpgrade* socketContext = SocketContextUpgrade::create(this, socketConnection, subProtocolName);
+        if (response->header("sec-websocket-accept") == base64::serverWebSocketKey(request->header("Sec-WebSocket-Key"))) {
+            std::string subProtocolName = response->header("sec-websocket-protocol");
+
+            socketContext = SocketContextUpgrade::create(this, socketConnection, subProtocolName);
+        }
 
         return socketContext;
     }
