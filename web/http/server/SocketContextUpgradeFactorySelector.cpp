@@ -18,7 +18,6 @@
 
 #include "web/http/server/SocketContextUpgradeFactorySelector.h"
 
-#include "config.h"
 #include "web/http/SocketContextUpgradeFactorySelector.hpp"
 #include "web/http/http_utils.h"
 #include "web/http/server/Request.h" // IWYU pragma: keep
@@ -37,14 +36,14 @@ namespace web::http::server {
         : web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>(
               web::http::SocketContextUpgradeFactory<Request, Response>::Role::SERVER) {
 #ifndef NDEBUG
-#ifdef UPGRADECONTEXT_SERVER_COMPILE_PATH
+#ifdef HTTP_SOCKETCONTEXTUPGRADE_SERVER_COMPILE_LIBDIR
 
-        searchPaths.push_back(UPGRADECONTEXT_SERVER_COMPILE_PATH);
+        searchPaths.push_back(HTTP_SOCKETCONTEXTUPGRADE_SERVER_COMPILE_LIBDIR);
 
-#endif // UPGRADECONTEXT_SERVER_COMPILE_PATH
+#endif // HTTP_SOCKETCONTEXTUPGRADE_SERVER_COMPILE_LIBDIR
 #endif // NDEBUG
 
-        searchPaths.push_back(UPGRADECONTEXT_SERVER_INSTALL_PATH);
+        searchPaths.push_back(HTTP_SOCKETCONTEXTUPGRADE_SERVER_INSTALL_LIBDIR);
     }
 
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactory*

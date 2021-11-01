@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
+set(WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR "lib/snode.c/websocket")
+
 add_library(websocketbase SHARED Receiver.cpp Transmitter.cpp)
 add_library(snodec::websocketbase ALIAS websocketbase)
 
