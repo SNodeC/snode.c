@@ -181,7 +181,8 @@ namespace web::websocket {
         }
 
         if (maskingKeyNumBytesLeft == 0) {
-            maskingKey = be32toh(maskingKey);
+            maskingKeyAsArray = {.key = maskingKey};
+
             if (payLoadNumBytes > 0) {
                 parserState = ParserState::PAYLOAD;
             } else {
@@ -204,10 +205,11 @@ namespace web::websocket {
 
         if (ret > 0) {
             std::size_t payloadJunkLen = static_cast<std::size_t>(ret);
-            MaskingKey maskingKeyAsArray = {.key = htobe32(maskingKey)};
 
-            for (std::size_t i = 0; i < payloadJunkLen; i++) {
-                *(payloadJunk + i) = *(payloadJunk + i) ^ *(maskingKeyAsArray.keyAsArray + (i + payloadNumBytesRead) % 4);
+            if (masked) {
+                for (std::size_t i = 0; i < payloadJunkLen; i++) {
+                    *(payloadJunk + i) = *(payloadJunk + i) ^ *(maskingKeyAsArray.keyAsArray + (i + payloadNumBytesRead) % 4);
+                }
             }
 
             onMessageData(payloadJunk, payloadJunkLen);

@@ -82,6 +82,7 @@ namespace web::websocket {
         uint64_t payloadNumBytesRead = 0;
 
         uint32_t maskingKey = 0;
+        MaskingKey maskingKeyAsArray;
         uint8_t maskingKeyNumBytes = 4;
         uint8_t maskingKeyNumBytesLeft = 0;
 
