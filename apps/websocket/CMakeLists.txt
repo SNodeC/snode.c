@@ -1,15 +1,15 @@
 cmake_minimum_required(VERSION 3.0)
 
-add_executable(websocketechoserver websocketechoserver.cpp)
+add_executable(echoserver echoserver.cpp)
 target_compile_definitions(
-    websocketechoserver
+    echoserver
     PRIVATE CMAKE_CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
 )
-target_link_libraries(websocketechoserver PRIVATE snodec::express)
-install(TARGETS websocketechoserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+target_link_libraries(echoserver PRIVATE snodec::express)
+install(TARGETS echoserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-add_executable(websocketechoclient websocketechoclient.cpp)
-target_link_libraries(websocketechoclient PRIVATE snodec::httpclient)
-install(TARGETS websocketechoclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+add_executable(echoclient echoclient.cpp)
+target_link_libraries(echoclient PRIVATE snodec::httpclient)
+install(TARGETS echoclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_subdirectory(subprotocol)

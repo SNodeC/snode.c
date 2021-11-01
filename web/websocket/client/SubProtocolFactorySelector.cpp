@@ -18,7 +18,6 @@
 
 #include "web/websocket/client/SubProtocolFactorySelector.h"
 
-#include "config.h"
 #include "web/websocket/client/SubProtocolFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -28,12 +27,14 @@
 namespace web::websocket::client {
 
     SubProtocolFactorySelector::SubProtocolFactorySelector() {
-        web::websocket::SubProtocolFactorySelector<SubProtocolFactory>::addSubProtocolSearchPath(SUBPROTOCOL_CLIENT_INSTALL_PATH);
+        web::websocket::SubProtocolFactorySelector<SubProtocolFactory>::addSubProtocolSearchPath(
+            WEBSOCKET_SUBPROTOCOL_CLIENT_INSTALL_LIBDIR);
 
 #ifndef NDEBUG
-#ifdef SUBPROTOCOL_CLIENT_COMPILE_PATH
+#ifdef WEBSOCKET_SUBPROTOCOL_CLIENT_COMPILE_LIBDIR
 
-        web::websocket::SubProtocolFactorySelector<SubProtocolFactory>::addSubProtocolSearchPath(SUBPROTOCOL_CLIENT_COMPILE_PATH);
+        web::websocket::SubProtocolFactorySelector<SubProtocolFactory>::addSubProtocolSearchPath(
+            WEBSOCKET_SUBPROTOCOL_CLIENT_COMPILE_LIBDIR);
 
 #endif // SUBPROTOCOL_CLIENT_COMPILE_PATH
 #endif // NDEBUG

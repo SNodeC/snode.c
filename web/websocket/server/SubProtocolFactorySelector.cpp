@@ -18,7 +18,6 @@
 
 #include "web/websocket/server/SubProtocolFactorySelector.h"
 
-#include "config.h"
 #include "web/websocket/server/SubProtocolFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -26,14 +25,15 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::websocket::server {
-
     SubProtocolFactorySelector::SubProtocolFactorySelector() {
-        web::websocket::SubProtocolFactorySelector<SubProtocolFactory>::addSubProtocolSearchPath(SUBPROTOCOL_SERVER_INSTALL_PATH);
+        web::websocket::SubProtocolFactorySelector<SubProtocolFactory>::addSubProtocolSearchPath(
+            WEBSOCKET_SUBPROTOCOL_SERVER_INSTALL_LIBDIR);
 
 #ifndef NDEBUG
-#ifdef SUBPROTOCOL_SERVER_COMPILE_PATH
+#ifdef WEBSOCKET_SUBPROTOCOL_SERVER_COMPILE_LIBDIR
 
-        web::websocket::SubProtocolFactorySelector<SubProtocolFactory>::addSubProtocolSearchPath(SUBPROTOCOL_SERVER_COMPILE_PATH);
+        web::websocket::SubProtocolFactorySelector<SubProtocolFactory>::addSubProtocolSearchPath(
+            WEBSOCKET_SUBPROTOCOL_SERVER_COMPILE_LIBDIR);
 
 #endif // SUBPROTOCOL_SERVER_COMPILE_PATH
 #endif // NDEBUG

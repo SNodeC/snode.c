@@ -1,11 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
 
-configure_file(config.h.in config.h @ONLY)
-configure_file(
-    snodecwebsocketserverOptions.cmake.in snodecwebsocketserverOptions.cmake
-    @ONLY
-)
-
 add_library(
     websocketserver SHARED
     ChannelManager.cpp SocketContextUpgrade.cpp SocketContextUpgradeFactory.cpp
@@ -14,6 +8,21 @@ add_library(
 
 add_library(snodec::websocketserver ALIAS websocketserver)
 
+set(WEBSOCKET_SUBPROTOCOL_SERVER_COMPILE_LIBDIR
+    "${CMAKE_BINARY_DIR}/web/websocket/server"
+)
+set(WEBSOCKET_SUBPROTOCOL_SERVER_INSTALL_LIBDIR
+    "${CMAKE_INSTALL_PREFIX}/${WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR}/server"
+)
+
+
+target_compile_definitions(
+    websocketserver
+    PRIVATE
+        WEBSOCKET_SUBPROTOCOL_SERVER_COMPILE_LIBDIR="${WEBSOCKET_SUBPROTOCOL_SERVER_COMPILE_LIBDIR}"
+        WEBSOCKET_SUBPROTOCOL_SERVER_INSTALL_LIBDIR="${WEBSOCKET_SUBPROTOCOL_SERVER_INSTALL_LIBDIR}"
+)
+
 set_target_properties(
     websocketserver
     PROPERTIES
@@ -21,6 +30,14 @@ set_target_properties(
         INSTALL_RPATH
         "${CMAKE_INSTALL_PREFIX}/lib:${CMAKE_INSTALL_PREFIX}/${HTTP_SOCKETCONTEXTUPGRADE_INSTALL_LIBDIR}"
         SOVERSION 1 # PREFIX "sc"
+        WEBSOCKET_SUBPROTOCOL_SERVER_COMPILE_LIBDIR
+        "${WEBSOCKET_SUBPROTOCOL_SERVER_COMPILE_LIBDIR}"
+        WEBSOCKET_SUBPROTOCOL_SERVER_INSTALL_LIBDIR
+        "${WEBSOCKET_SUBPROTOCOL_SERVER_INSTALL_LIBDIR}"
+        WEBSOCKET_SUBPROTOCOL_SERVER_INCLUDE_DIRS
+        "${CMAKE_INSTALL_PREFIX}/include/snode.c"
+        EXPORT_PROPERTIES
+        "WEBSOCKET_SUBPROTOCOL_SERVER_INSTALL_LIBDIR;WEBSOCKET_SUBPROTOCOL_SERVER_INCLUDE_DIRS"
 )
 
 target_include_directories(
@@ -33,8 +50,6 @@ target_include_directories(
 target_link_libraries(
     websocketserver PUBLIC snodec::httpserver snodec::websocketbase
 )
-
-# set_target_properties(websocketserver PROPERTIES )
 
 set_target_properties(
     websocketserver
@@ -64,8 +79,4 @@ install(
     FILE snodecwebsocketserverTargets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-)
-
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/snodecwebsocketserverOptions.cmake
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )

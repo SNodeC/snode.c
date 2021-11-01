@@ -1,15 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(WEBSOCKET_SUBPROTOCOL_COMPILE_LIBDIR
-    ${CMAKE_CURRENT_BINARY_DIR}
-    CACHE PATH "WEBSOCKET_SUBPROTOCOL_COMPILE_LIBDIR" FORCE
-)
-
-set(WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR
-    lib/snode.c/web/websocket
-    CACHE PATH "WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR" FORCE
-)
-
 add_library(websocketbase SHARED Receiver.cpp Transmitter.cpp)
 add_library(snodec::websocketbase ALIAS websocketbase)
 

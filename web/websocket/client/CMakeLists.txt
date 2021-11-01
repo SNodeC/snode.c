@@ -1,17 +1,26 @@
 cmake_minimum_required(VERSION 3.0)
 
-configure_file(config.h.in config.h @ONLY)
-configure_file(
-    snodecwebsocketclientOptions.cmake.in snodecwebsocketclientOptions.cmake
-    @ONLY
-)
-
 add_library(
     websocketclient SHARED
     SocketContextUpgrade.cpp SocketContextUpgradeFactory.cpp SubProtocol.cpp
     SubProtocolFactory.cpp SubProtocolFactorySelector.cpp
 )
 add_library(snodec::websocketclient ALIAS websocketclient)
+
+set(WEBSOCKET_SUBPROTOCOL_CLIENT_COMPILE_LIBDIR
+    "${CMAKE_BINARY_DIR}/web/websocket/client"
+)
+
+set(WEBSOCKET_SUBPROTOCOL_CLIENT_INSTALL_LIBDIR
+    "${CMAKE_INSTALL_PREFIX}/${WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR}/client"
+)
+
+target_compile_definitions(
+    websocketclient
+    PRIVATE
+        WEBSOCKET_SUBPROTOCOL_CLIENT_COMPILE_LIBDIR="${WEBSOCKET_SUBPROTOCOL_CLIENT_COMPILE_LIBDIR}"
+        WEBSOCKET_SUBPROTOCOL_CLIENT_INSTALL_LIBDIR="${WEBSOCKET_SUBPROTOCOL_CLIENT_INSTALL_LIBDIR}"
+)
 
 set_target_properties(
     websocketclient
@@ -20,6 +29,14 @@ set_target_properties(
         INSTALL_RPATH
         "${CMAKE_INSTALL_PREFIX}/lib:${CMAKE_INSTALL_PREFIX}/${HTTP_SOCKETCONTEXTUPGRADE_INSTALL_LIBDIR}"
         SOVERSION 1 # PREFIX "sc"
+        WEBSOCKET_SUBPROTOCOL_CLIENT_COMPILE_LIBDIR
+        "${WEBSOCKET_SUBPROTOCOL_CLIENT_COMPILE_LIBDIR}"
+        WEBSOCKET_SUBPROTOCOL_CLIENT_INSTALL_LIBDIR
+        "${WEBSOCKET_SUBPROTOCOL_CLIENT_INSTALL_LIBDIR}"
+        WEBSOCKET_SUBPROTOCOL_CLIENT_INCLUDE_DIRS
+        "${CMAKE_INSTALL_PREFIX}/include/snode.c"
+        EXPORT_PROPERTIES
+        "WEBSOCKET_SUBPROTOCOL_CLIENT_INSTALL_LIBDIR;WEBSOCKET_SUBPROTOCOL_CLIENT_INCLUDE_DIRS"
 )
 
 target_include_directories(
@@ -63,8 +80,4 @@ install(
     FILE snodecwebsocketclientTargets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-)
-
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/snodecwebsocketclientOptions.cmake
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
