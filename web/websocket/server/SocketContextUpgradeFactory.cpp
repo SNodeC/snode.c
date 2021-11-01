@@ -46,9 +46,6 @@ namespace web::websocket::server {
             response->set("Sec-WebSocket-Accept", base64::serverWebSocketKey(request->header("sec-websocket-key")));
 
             response->status(101).end(); // Switch Protocol
-        } else {
-            response->set("Connection", "close");
-            response->status(404).end(); // Not Found
         }
 
         return socketContext;
