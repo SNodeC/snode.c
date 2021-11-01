@@ -25,7 +25,8 @@ int main(int argc, char* argv[]) {
         if (req.url == "/ws") {
             next();
         } else {
-            res.sendFile(CMAKE_SOURCE_DIR "apps/html" + req.url, [&req](int ret) -> void {
+            VLOG(0) << CMAKE_CURRENT_SOURCE_DIR "/html" + req.url;
+            res.sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req.url, [&req](int ret) -> void {
                 if (ret != 0) {
                     PLOG(ERROR) << req.url;
                 }
@@ -75,8 +76,8 @@ int main(int argc, char* argv[]) {
             if (req.url == "/ws") {
                 next();
             } else {
-                VLOG(0) << CMAKE_SOURCE_DIR "apps/html";
-                res.sendFile(CMAKE_SOURCE_DIR "apps/html" + req.url, [&req](int ret) -> void {
+                VLOG(0) << CMAKE_CURRENT_SOURCE_DIR "/html" + req.url;
+                res.sendFile(CMAKE_CURRENT_SOURCE_DIR "/html" + req.url, [&req](int ret) -> void {
                     if (ret != 0) {
                         PLOG(ERROR) << req.url;
                     }

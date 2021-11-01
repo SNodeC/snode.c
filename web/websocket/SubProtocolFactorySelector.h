@@ -104,7 +104,7 @@ namespace web::websocket {
         }
 
         void addSubProtocolSearchPath(const std::string& searchPath) {
-            searchPaths.push_back(searchPath);
+            searchPaths.push_front(searchPath);
         }
 
     public:

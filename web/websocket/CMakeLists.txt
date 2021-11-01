@@ -1,8 +1,14 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(WEBSOCKETBASE_INSTALL_PATH lib/snode.c/web/http)
+set(WEBSOCKET_SUBPROTOCOL_COMPILE_LIBDIR
+    ${CMAKE_CURRENT_BINARY_DIR}
+    CACHE PATH "WEBSOCKET_SUBPROTOCOL_COMPILE_LIBDIR" FORCE
+)
 
-set(WEBSOCKET_LIBDIR ${CMAKE_CURRENT_BINARY_DIR})
+set(WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR
+    lib/snode.c/web/websocket
+    CACHE PATH "WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR" FORCE
+)
 
 add_library(websocketbase SHARED Receiver.cpp Transmitter.cpp)
 add_library(snodec::websocketbase ALIAS websocketbase)
@@ -16,7 +22,8 @@ target_include_directories(
 
 set_target_properties(
     websocketbase
-    PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${SOCKETCONTEXTUPGRADE_LIBDIR}"
+    PROPERTIES LIBRARY_OUTPUT_DIRECTORY
+               "${HTTP_SOCKETCONTEXTUPGRADE_COMPILE_LIBDIR}"
                SOVERSION 1
                OUTPUT_NAME "snodec-websocketbase" # PREFIX "sc"
 )
@@ -24,7 +31,7 @@ set_target_properties(
 install(
     TARGETS websocketbase
     EXPORT snodecwebsocketbaseTargets
-    LIBRARY DESTINATION ${WEBSOCKETBASE_INSTALL_PATH}
+    LIBRARY DESTINATION ${HTTP_SOCKETCONTEXTUPGRADE_INSTALL_LIBDIR}
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
 )
@@ -50,4 +57,3 @@ install(
 
 add_subdirectory(server)
 add_subdirectory(client)
-add_subdirectory(subprotocol)

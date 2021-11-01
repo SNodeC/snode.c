@@ -6,12 +6,15 @@ target_include_directories(echoclient PUBLIC ${PROJECT_SOURCE_DIR})
 
 set_target_properties(
     echoclient
-    PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${WEBSOCKET_CLIENT_LIBDIR}"
+    PROPERTIES LIBRARY_OUTPUT_DIRECTORY
+               "${WEBSOCKET_SUBPROTOCOL_CLIENT_COMPILE_LIBDIR}"
                OUTPUT_NAME "snodec-websocket-echo"
                SOVERSION 1 # PREFIX "ssp"
 )
 
-install(TARGETS echoclient LIBRARY DESTINATION lib/snode.c/web/websocket/client)
+install(TARGETS echoclient
+        LIBRARY DESTINATION ${WEBSOCKET_SUBPROTOCOL_CLIENT_INSTALL_LIBDIR}
+)
 
 if(CHECK_INCLUDES)
     set_property(

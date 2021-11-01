@@ -113,10 +113,4 @@ add_executable(testpipe testpipe.cpp)
 target_link_libraries(testpipe PRIVATE snodec::net)
 install(TARGETS testpipe RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-add_executable(websocketparser websocketparser.cpp)
-target_link_libraries(websocketparser PRIVATE snodec::express)
-install(TARGETS websocketparser RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
-add_executable(websockettestclient websocketclient.cpp)
-target_link_libraries(websockettestclient PRIVATE snodec::httpclient)
-install(TARGETS websockettestclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+add_subdirectory(websocket)

@@ -38,6 +38,8 @@ namespace web::websocket::client {
         static SubProtocolFactorySelector* instance();
 
         static void link(const std::string& subProtocolName, SubProtocolFactory* (*getSubProtocolFactory)());
+        static void addSubProtocolSearchPath(const std::string& searchPath);
+        static void allowDlOpen();
 
     private:
         SubProtocolFactorySelector();
