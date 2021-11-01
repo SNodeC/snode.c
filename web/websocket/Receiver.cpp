@@ -104,19 +104,19 @@ namespace web::websocket {
             uint8_t lengthByte = static_cast<uint8_t>(byte);
 
             masked = lengthByte & 0b10000000;
-            payLoadNumBytes = lengthByte & 0b01111111;
+            payLoadNumBytes = payLoadNumBytesLeft = lengthByte & 0b01111111;
 
             if (payLoadNumBytes > 125) {
                 switch (payLoadNumBytes) {
                     case 126:
-                        elengthNumBytes = 2;
+                        elengthNumBytes = elengthNumBytesLeft = 2;
                         break;
                     case 127:
-                        elengthNumBytes = 8;
+                        elengthNumBytes = elengthNumBytesLeft = 8;
                         break;
                 }
                 parserState = ParserState::ELENGTH;
-                payLoadNumBytes = 0;
+                payLoadNumBytes = payLoadNumBytesLeft = 0;
             } else {
                 if (masked) {
                     parserState = ParserState::MASKINGKEY;
@@ -135,8 +135,6 @@ namespace web::websocket {
     }
 
     ssize_t Receiver::readELength() {
-        elengthNumBytesLeft = (elengthNumBytesLeft == 0) ? elengthNumBytes : elengthNumBytesLeft;
-
         ssize_t ret = readFrameData(elengthJunk, elengthNumBytesLeft);
 
         for (ssize_t i = 0; i < ret; i++) {
@@ -149,10 +147,10 @@ namespace web::websocket {
         if (elengthNumBytesLeft == 0) {
             switch (elengthNumBytes) {
                 case 2:
-                    payLoadNumBytes = be16toh(static_cast<uint16_t>(payLoadNumBytes));
+                    payLoadNumBytes = payLoadNumBytesLeft = be16toh(static_cast<uint16_t>(payLoadNumBytes));
                     break;
                 case 8:
-                    payLoadNumBytes = be64toh(payLoadNumBytes);
+                    payLoadNumBytes = payLoadNumBytesLeft = be64toh(payLoadNumBytes);
                     break;
             }
 
@@ -170,8 +168,6 @@ namespace web::websocket {
     }
 
     ssize_t Receiver::readMaskingKey() {
-        maskingKeyNumBytesLeft = (maskingKeyNumBytesLeft == 0) ? maskingKeyNumBytes : maskingKeyNumBytesLeft;
-
         ssize_t ret = readFrameData(maskingKeyJunk, maskingKeyNumBytesLeft);
 
         for (ssize_t i = 0; i < ret; i++) {
@@ -197,9 +193,8 @@ namespace web::websocket {
     }
 
     ssize_t Receiver::readPayload() {
-        std::size_t payloadJunkLeft = (MAX_PAYLOAD_JUNK_LEN <= payLoadNumBytes - payloadNumBytesRead)
-                                          ? static_cast<std::size_t>(MAX_PAYLOAD_JUNK_LEN)
-                                          : static_cast<std::size_t>(payLoadNumBytes - payloadNumBytesRead);
+        std::size_t payloadJunkLeft = (MAX_PAYLOAD_JUNK_LEN <= payLoadNumBytesLeft) ? static_cast<std::size_t>(MAX_PAYLOAD_JUNK_LEN)
+                                                                                    : static_cast<std::size_t>(payLoadNumBytesLeft);
 
         ssize_t ret = readFrameData(payloadJunk, payloadJunkLeft);
 
@@ -208,16 +203,17 @@ namespace web::websocket {
 
             if (masked) {
                 for (std::size_t i = 0; i < payloadJunkLen; i++) {
-                    *(payloadJunk + i) = *(payloadJunk + i) ^ *(maskingKeyAsArray.keyAsArray + (i + payloadNumBytesRead) % 4);
+                    *(payloadJunk + i) =
+                        *(payloadJunk + i) ^ *(maskingKeyAsArray.keyAsArray + (i + (payLoadNumBytes - payLoadNumBytesLeft)) % 4);
                 }
             }
 
             onMessageData(payloadJunk, payloadJunkLen);
 
-            payloadNumBytesRead += payloadJunkLen;
+            payLoadNumBytesLeft -= payloadJunkLen;
         }
 
-        if (payloadNumBytesRead == payLoadNumBytes) {
+        if (payLoadNumBytesLeft == 0) { // payloadNumBytesRead == payLoadNumBytes) {
             if (fin) {
                 onMessageEnd();
             }
@@ -254,11 +250,12 @@ namespace web::websocket {
         elengthNumBytesLeft = 0;
 
         payLoadNumBytes = 0;
-        payloadNumBytesRead = 0;
+        payLoadNumBytesLeft = 0;
 
         maskingKey = 0;
+        maskingKeyAsArray = {.key = 0};
         maskingKeyNumBytes = 4;
-        maskingKeyNumBytesLeft = 0;
+        maskingKeyNumBytesLeft = 4;
 
         errorState = 0;
     }

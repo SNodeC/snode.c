@@ -79,12 +79,12 @@ namespace web::websocket {
         uint8_t elengthNumBytesLeft = 0;
 
         uint64_t payLoadNumBytes = 0;
-        uint64_t payloadNumBytesRead = 0;
+        uint64_t payLoadNumBytesLeft = 0;
 
         uint32_t maskingKey = 0;
         MaskingKey maskingKeyAsArray;
         uint8_t maskingKeyNumBytes = 4;
-        uint8_t maskingKeyNumBytesLeft = 0;
+        uint8_t maskingKeyNumBytesLeft = 4;
 
         uint16_t errorState = 0;
 
