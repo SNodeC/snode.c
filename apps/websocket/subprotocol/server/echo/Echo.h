@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_SUBPROTOCOL_ECHO_SERVER_ECHO_H
-#define WEB_WS_SUBPROTOCOL_ECHO_SERVER_ECHO_H
+#ifndef WEB_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHO_H
+#define WEB_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHO_H
 
 #include "web/websocket/server/SubProtocol.h"
 
@@ -64,4 +64,4 @@ namespace web::websocket::subprotocol::echo::server {
 
 } // namespace web::websocket::subprotocol::echo::server
 
-#endif // WEB_WS_SUBPROTOCOL_ECHO_SERVER_ECHO_H
+#endif // WEB_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHO_H

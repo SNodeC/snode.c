@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H
-#define WEB_WS_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H
+#ifndef WEB_WEBSOCKET_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H
+#define WEB_WEBSOCKET_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H
 
 #include "web/http/server/SocketContextUpgradeFactory.h"
 #include "web/websocket/server/SocketContextUpgrade.h"
@@ -61,4 +61,4 @@ namespace web::websocket::server {
 
 } // namespace web::websocket::server
 
-#endif // WEB_WS_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H
+#endif // WEB_WEBSOCKET_SERVER_SOCKETCONTEXTUPGRADEFACTORY_H

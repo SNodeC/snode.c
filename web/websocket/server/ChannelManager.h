@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_SERVER_CHANNELMANAGER_H
-#define WEB_WS_SERVER_CHANNELMANAGER_H
+#ifndef WEB_WEBSOCKET_SERVER_CHANNELMANAGER_H
+#define WEB_WEBSOCKET_SERVER_CHANNELMANAGER_H
 
 namespace web::websocket::server {
     class SubProtocol;
@@ -81,4 +81,4 @@ namespace web::websocket::server {
 
 } // namespace web::websocket::server
 
-#endif // WEB_WS_SERVER_CHANNELMANAGER_H
+#endif // WEB_WEBSOCKET_SERVER_CHANNELMANAGER_H

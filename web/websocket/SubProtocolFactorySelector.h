@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_SUBPROTOCOLSELECTOR_H
-#define WEB_WS_SUBPROTOCOLSELECTOR_H
+#ifndef WEB_WEBSOCKET_SUBPROTOCOLSELECTOR_H
+#define WEB_WEBSOCKET_SUBPROTOCOLSELECTOR_H
 
 #include "log/Logger.h"
 #include "net/DynamicLoader.h"
@@ -162,4 +162,4 @@ namespace web::websocket {
 
 } // namespace web::websocket
 
-#endif // WEB_WS_SUBPROTOCOLSELECTOR_H
+#endif // WEB_WEBSOCKET_SUBPROTOCOLSELECTOR_H

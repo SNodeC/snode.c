@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_CLIENT_SUBPROTOCOLFACTORY_H
-#define WEB_WS_CLIENT_SUBPROTOCOLFACTORY_H
+#ifndef WEB_WEBSOCKET_CLIENT_SUBPROTOCOLFACTORY_H
+#define WEB_WEBSOCKET_CLIENT_SUBPROTOCOLFACTORY_H
 
 #include "web/websocket/SubProtocolFactory.h" // IWYU pragma: export
 #include "web/websocket/client/SubProtocol.h" // IWYU pragma: export

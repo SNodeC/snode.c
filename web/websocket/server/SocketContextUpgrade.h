@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WEB_WS_SERVER_SOCKTECONTEXT_H
-#define WEB_WS_SERVER_SOCKTECONTEXT_H
+#ifndef WEB_WEBSOCKET_SERVER_SOCKTECONTEXT_H
+#define WEB_WEBSOCKET_SERVER_SOCKTECONTEXT_H
 
 #include "web/websocket/SocketContextUpgrade.h" // IWYU pragma: export
 
@@ -61,4 +61,4 @@ namespace web::websocket::server {
 
 } // namespace web::websocket::server
 
-#endif // WEB_WS_SERVER_SOCKTECONTEXT_H
+#endif // WEB_WEBSOCKET_SERVER_SOCKTECONTEXT_H
