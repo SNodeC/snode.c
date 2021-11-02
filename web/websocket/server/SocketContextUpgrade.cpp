@@ -51,8 +51,6 @@ namespace web::websocket::server {
             SubProtocol* subProtocol = subProtocolFactory->createSubProtocol();
 
             if (subProtocol != nullptr) {
-                subProtocol->setSubProtocolFactory(subProtocolFactory);
-
                 socketContextUpgrade = new SocketContextUpgrade(socketConnection, socketContextUpgradeFactory, subProtocol);
 
                 if (socketContextUpgrade == nullptr) {
@@ -65,9 +63,8 @@ namespace web::websocket::server {
     }
 
     SocketContextUpgrade::~SocketContextUpgrade() {
-        SocketContextUpgrade::SubProtocol* subProtocol = getSubProtocol();
+        SubProtocolFactory* subProtocolFactory = SubProtocolFactorySelector::instance()->select(subProtocol->getName());
 
-        SocketContextUpgrade::SubProtocol::SubProtocolFactory* subProtocolFactory = subProtocol->getSubProtocolFactory();
         subProtocolFactory->deleteSubProtocol(subProtocol);
     }
 

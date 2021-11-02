@@ -116,17 +116,8 @@ namespace web::websocket {
             this->socketContextUpgrade = socketContextUpgrade;
         }
 
-        void setSubProtocolFactory(SubProtocolFactory* subProtocolFactory) {
-            this->subProtocolFactory = subProtocolFactory;
-        }
-
-        SubProtocolFactory* getSubProtocolFactory() {
-            return subProtocolFactory;
-        }
-
     private:
         SocketContextUpgrade* socketContextUpgrade;
-        SubProtocolFactory* subProtocolFactory;
 
         const std::string name;
     };

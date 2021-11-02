@@ -128,10 +128,6 @@ namespace web::websocket {
             closeSent = true;
         }
 
-        SubProtocol* getSubProtocol() const {
-            return subProtocol;
-        }
-
     protected:
         SubProtocol* subProtocol = nullptr;
 
