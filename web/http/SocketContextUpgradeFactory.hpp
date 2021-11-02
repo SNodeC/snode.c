@@ -53,17 +53,17 @@ namespace web::http {
     }
 
     template <typename Request, typename Response>
-    void SocketContextUpgradeFactory<Request, Response>::SocketContextUpgradeFactory::destroy() {
+    void SocketContextUpgradeFactory<Request, Response>::destroy() {
         delete this;
     }
 
     template <typename Request, typename Response>
-    void SocketContextUpgradeFactory<Request, Response>::SocketContextUpgradeFactory::incRefCount() {
+    void SocketContextUpgradeFactory<Request, Response>::incRefCount() {
         ++refCount;
     }
 
     template <typename Request, typename Response>
-    void SocketContextUpgradeFactory<Request, Response>::SocketContextUpgradeFactory::decRefCount() {
+    void SocketContextUpgradeFactory<Request, Response>::decRefCount() {
         --refCount;
 
         checkRefCount();
