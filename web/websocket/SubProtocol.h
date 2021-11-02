@@ -29,11 +29,10 @@
 
 namespace web::websocket {
 
-    template <typename SocketContextUpgradeT, typename SubProtocolFactoryT>
+    template <typename SocketContextUpgradeT>
     class SubProtocol {
     public:
         using SocketContextUpgrade = SocketContextUpgradeT;
-        using SubProtocolFactory = SubProtocolFactoryT;
 
     protected:
         enum class Role { SERVER, CLIENT };

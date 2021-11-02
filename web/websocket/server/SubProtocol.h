@@ -37,8 +37,7 @@ namespace web::websocket::server {
 
 namespace web::websocket::server {
 
-    class SubProtocol
-        : public web::websocket::SubProtocol<web::websocket::server::SocketContextUpgrade, web::websocket::server::SubProtocolFactory> {
+    class SubProtocol : public web::websocket::SubProtocol<web::websocket::server::SocketContextUpgrade> {
     protected:
         SubProtocol(const std::string& name);
 
@@ -50,14 +49,14 @@ namespace web::websocket::server {
         ~SubProtocol() override;
 
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from SubProtocol-Subclasses */
-        using web::websocket::SubProtocol<SubProtocol::SocketContextUpgrade, SubProtocol::SubProtocolFactory>::sendMessage;
+        using web::websocket::SubProtocol<SubProtocol::SocketContextUpgrade>::sendMessage;
 
-        using web::websocket::SubProtocol<SubProtocol::SocketContextUpgrade, SubProtocol::SubProtocolFactory>::sendMessageEnd;
-        using web::websocket::SubProtocol<SubProtocol::SocketContextUpgrade, SubProtocol::SubProtocolFactory>::sendMessageFrame;
-        using web::websocket::SubProtocol<SubProtocol::SocketContextUpgrade, SubProtocol::SubProtocolFactory>::sendMessageStart;
+        using web::websocket::SubProtocol<SubProtocol::SocketContextUpgrade>::sendMessageEnd;
+        using web::websocket::SubProtocol<SubProtocol::SocketContextUpgrade>::sendMessageFrame;
+        using web::websocket::SubProtocol<SubProtocol::SocketContextUpgrade>::sendMessageStart;
 
-        using web::websocket::SubProtocol<SubProtocol::SocketContextUpgrade, SubProtocol::SubProtocolFactory>::sendClose;
-        using web::websocket::SubProtocol<SubProtocol::SocketContextUpgrade, SubProtocol::SubProtocolFactory>::sendPing;
+        using web::websocket::SubProtocol<SubProtocol::SocketContextUpgrade>::sendClose;
+        using web::websocket::SubProtocol<SubProtocol::SocketContextUpgrade>::sendPing;
 
         void subscribe(const std::string& channel);
 
