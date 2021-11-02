@@ -44,7 +44,7 @@ namespace web::websocket::server {
 namespace web::websocket::server {
 
     class SocketContextUpgrade
-        : public web::websocket::SocketContextUpgrade<web::http::server::Request, web::http::server::Response, SubProtocol> {
+        : public web::websocket::SocketContextUpgrade<SubProtocol, web::http::server::Request, web::http::server::Response> {
     public:
         SocketContextUpgrade(net::socket::stream::SocketConnection* socketConnection,
                              SocketContextUpgradeFactory* socketContextUpgradeFactory,

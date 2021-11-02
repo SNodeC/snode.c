@@ -22,10 +22,6 @@
 #include "web/websocket/SubProtocol.h"                 // IWYU pragma: export
 #include "web/websocket/client/SocketContextUpgrade.h" // IWYU pragma: keep
 
-namespace web::websocket::client {
-    class SubProtocolFactory;
-}
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
@@ -49,14 +45,14 @@ namespace web::websocket::client {
 
     public:
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from SubProtocol-Subclasses */
-        using web::websocket::SubProtocol<SubProtocol::SocketContextUpgrade>::sendMessage;
+        using web::websocket::SubProtocol<web::websocket::client::SocketContextUpgrade>::sendMessage;
 
-        using web::websocket::SubProtocol<SubProtocol::SocketContextUpgrade>::sendMessageEnd;
-        using web::websocket::SubProtocol<SubProtocol::SocketContextUpgrade>::sendMessageFrame;
-        using web::websocket::SubProtocol<SubProtocol::SocketContextUpgrade>::sendMessageStart;
+        using web::websocket::SubProtocol<web::websocket::client::SocketContextUpgrade>::sendMessageEnd;
+        using web::websocket::SubProtocol<web::websocket::client::SocketContextUpgrade>::sendMessageFrame;
+        using web::websocket::SubProtocol<web::websocket::client::SocketContextUpgrade>::sendMessageStart;
 
-        using web::websocket::SubProtocol<SubProtocol::SocketContextUpgrade>::sendClose;
-        using web::websocket::SubProtocol<SubProtocol::SocketContextUpgrade>::sendPing;
+        using web::websocket::SubProtocol<web::websocket::client::SocketContextUpgrade>::sendClose;
+        using web::websocket::SubProtocol<web::websocket::client::SocketContextUpgrade>::sendPing;
 
     private:
         /* Callbacks (API) WSReceiver -> SubProtocol-Subclasses */

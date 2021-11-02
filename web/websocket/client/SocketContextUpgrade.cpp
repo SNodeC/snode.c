@@ -35,7 +35,7 @@ namespace web::websocket::client {
     SocketContextUpgrade::SocketContextUpgrade(net::socket::stream::SocketConnection* socketConnection,
                                                SocketContextUpgradeFactory* socketContextUpgradeFactory,
                                                SubProtocol* subProtocol)
-        : web::websocket::SocketContextUpgrade<web::http::client::Request, web::http::client::Response, SubProtocol>(
+        : web::websocket::SocketContextUpgrade<SubProtocol, web::http::client::Request, web::http::client::Response>(
               socketConnection, socketContextUpgradeFactory, subProtocol, Role::CLIENT) {
         subProtocol->setSocketContextUpgrade(this);
     }

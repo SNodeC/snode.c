@@ -44,7 +44,7 @@ namespace web::http {
 
 namespace web::websocket {
 
-    template <typename RequestT, typename ResponseT, typename SubProtocolT>
+    template <typename SubProtocolT, typename RequestT, typename ResponseT>
     class SocketContextUpgrade
         : public web::http::SocketContextUpgrade<RequestT, ResponseT>
         , protected web::websocket::Receiver
@@ -127,9 +127,6 @@ namespace web::websocket {
 
             closeSent = true;
         }
-
-    protected:
-        SubProtocol* subProtocol = nullptr;
 
     private:
         void sendClose(const char* message, std::size_t messageLength) {
@@ -281,6 +278,10 @@ namespace web::websocket {
             Receiver::stop();
         }
 
+    protected:
+        SubProtocol* subProtocol = nullptr;
+
+    private:
         bool closeSent = false;
 
         int opCodeReceived = 0;
