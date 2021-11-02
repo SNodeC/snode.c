@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR "lib/snode.c/websocket")
+set(WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR "lib/snode.c/web/websocket")
 
 get_target_property(
     HTTP_SOCKETCONTEXTUPGRADE_INSTALL_LIBDIR snodec::http
