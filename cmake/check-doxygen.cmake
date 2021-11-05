@@ -14,7 +14,9 @@ if(DOXYGEN_FOUND)
         add_custom_target(
             doc
             COMMAND rm -rf ${CMAKE_SOURCE_DIR}/../snode.c-doc/html
-            COMMAND rm -f ${CMAKE_SOURCE_DIR}/../snode.c-doc/inline_umlgraph_cache_all.pu
+            COMMAND
+                rm -f
+                ${CMAKE_SOURCE_DIR}/../snode.c-doc/inline_umlgraph_cache_all.pu
             COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE}
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
             COMMENT "Generating API documentation with Doxygen"
