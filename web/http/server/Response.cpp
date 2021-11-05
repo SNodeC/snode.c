@@ -147,24 +147,10 @@ namespace web::http::server {
 
     /* Just an UML-Sequencediagram test */
 
-    /** Sender class. Can be used to send a command to the server.
-     *  The receiver will acknowledge the command by calling Ack().
-     *  \startuml
-     *    Response->SocketContextUpgradeFactorySelector  : select(request, *this)
-     *    Response<--SocketContextUpgradeFactorySelector : socketContextUpgradeFactory
-     *    Response->SocketContext : switchSocketContext(socketContextUpgradeFactory)
-     *    SocketContext->SocketConnection : switchSocketContext(socketContextUpgradeFactory)
-     *    SocketConnection->SocketContextUpgradeFactory : create(this)
-     *    SocketConnection<--SocketContextUpgradeFactory : NewSocketContext
-     *    SocketConnection->SocketContext : onDisconnected()
-     *    SocketConnection<--SocketContext
-     *    SocketConnection->SocketConnection : SocketContext=NewSocketContext
-     *    SocketConnection->SocketContext : onConnected()
-     *    SocketConnection<--SocketContext
-     *    SocketContext<--SocketConnection
-     *    Response<--SocketContext
-     *  \enduml
-     *  https://stackoverflow.com/questions/26039690/startuml-command-in-doxygen-with-plantuml-jar-path?rq=1
+    /** Sequence diagramm of res.upgrade(req).
+@startuml
+!include web/http/server/pu/response_upgrade.pu
+@enduml
      */
 
     void Response::upgrade(Request& req) {

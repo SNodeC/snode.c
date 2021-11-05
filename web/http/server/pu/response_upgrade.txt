@@ -1,0 +1,42 @@
+@startuml
+skinparam handwritten false
+participant "SocketConnection" as scn
+participant "SocketContext" as sc
+participant "Response" as res
+participant "SocketContext\nUpgradeFactory\nSelector" as scufs
+
+-> scn ++ : readEvent()
+  scn -> sc ++ : onReceiveFromPeer()
+    sc -> sc ++ : process data
+      sc -> res ++ : upgrade(req)
+        res -> scufs ++ : select(req, *this)
+          group Activate SocketContextUpgradeFactory
+            scufs -> scufs ++ : select(upgradeContextName)
+              scufs -> "SocketContext\nUpgradeFactory" as scuf ** : getSocketContextUpgradeFactory()
+            return socketContextUpgradeFactory
+            scufs -> scuf : prepare(req, res)
+          end
+        return socketContextUpgradeFactory
+        res -> sc ++ : switchSocketContext\n(socketContextUpgradeFactory)
+          sc -> scuf ++ : create
+            group Prepare and create a SocketContextUpgrade
+              scuf -> "SocketContext\nUpgrade" as scu ** : create
+            end
+          return socketContextUpgrade
+          sc -> scn ++ : switchSocketContext\n(socketContextUpgradeFactory)
+            scn -> scn : socketContext = socketContextUpgrade
+          return
+        return socketContextUpgrade
+      return
+    return
+  return
+return
+-> scn ++ : readEvent()
+  scn -> scu ++ : onReceiveFromPeer()
+    group Process data
+      scu -> scu ++ : process data
+      return
+    end
+  return
+return
+@enduml

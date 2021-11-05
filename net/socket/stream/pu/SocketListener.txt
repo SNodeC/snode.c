@@ -1,0 +1,90 @@
+@startuml
+skinparam handwritten false
+skinparam sequenceMessageAlign left
+actor User as usr
+participant Appliaction as app
+participant EventLoop as el
+participant "Connect\nEventDispatcher" as ced
+participant "Read\nEventDispatcher" as red
+participant "Write\nEventDispatcher" as wed
+participant SocketClient as sc
+participant SocketConnector as scon
+participant SocketConnection as sct
+participant SocketContext as sctx
+participant "Kernel" as knl
+
+usr -> app ++ : start
+  app -> sc **
+  app -> sc ++ : connect
+    sc -> scon ** : new
+      sc -> scon ++ : connect
+      group Initiate Connect
+        scon -> knl ++ : net::system::connect
+        return
+        knl ->] : TCP connect to peer
+        scon -> ced ++ : enable(fd)
+        return
+      end group
+    return
+  return
+
+  app -> el ++ : start
+    loop until no EventReceiver enabled or TimerEvent pending
+      el -> el ++ : tick
+        el -> ced ++ : getEventReceiversFdSet
+        return fdSet
+        el -> red ++ : getEventReceiversFdSet
+        return fdSet
+        el -> wed ++ : getEventReceiversFdSet
+        return fdSet
+        knl <--] : TCP connected to peer
+        el -> knl ++ : select
+        return
+        el -> ced ++ : dispatchActiveEvents
+          ced -> scon ++ : connectEvent
+            scon -> knl ++ : checkConnected\nnet::system::getsockopt()
+            return
+            alt connected?
+              note over scon : establish\nconnection
+              scon -> sct ** : new
+              activate sct
+              sct -> app ++ : onConnect
+              return
+              sct -> sctx ** : new
+              sct -> red ++ : enable(fd)
+              return
+              sct -> wed ++ : enable(fd)
+              return
+              deactivate sct
+              scon -> app ++ : onConnected
+              return
+            else
+              note over scon : do nothing
+            end
+          return
+        return
+        el -> red ++ : dispatchActiveEvents
+          red -> sct ++ : readEvent
+            sct -> sctx ++ : receiveFromPeer
+              loop as long as data pending
+                sctx-> sct ++ : readFromPeer
+                  sct -> knl ++ : read
+                  return
+                return
+                group AppProtocol specific
+                  sctx -> sctx ++ : process Data
+                  return
+                end
+              end
+            return
+          return
+        return
+        el -> wed ++ : dispatchActiveEvents
+        return
+      return
+    end
+  return
+
+destroy app
+return
+@enduml

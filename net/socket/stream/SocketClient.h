@@ -34,6 +34,12 @@ namespace net::socket::stream {
 
     template <typename SocketContextFactoryT, typename SocketConnectorT>
     class SocketClient {
+        /** Sequence diagramm showing how a connect to a peer is performed.
+        @startuml
+        !include net/socket/stream/pu/SocketClient.pu
+        @enduml
+        */
+
         SocketClient() = delete;
 
     public:

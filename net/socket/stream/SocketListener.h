@@ -52,6 +52,11 @@ namespace net::socket::stream {
         using Socket = typename SocketConnection::Socket;
         using SocketAddress = typename Socket::SocketAddress;
 
+        /** Sequence diagramm of res.upgrade(req).
+@startuml
+!include net/socket/stream/pu/SocketListener.pu!0
+@enduml
+*/
         SocketListener(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
                        const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                        const std::function<void(SocketConnection*)>& onConnected,
