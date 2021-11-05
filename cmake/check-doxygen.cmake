@@ -31,10 +31,6 @@ if(DOXYGEN_FOUND)
             COMMENT "Generating API documentation with Doxygen"
             VERBATIM
         )
-
-        install(DIRECTORY ${CMAKE_SOURCE_DIR}/docs/html
-                DESTINATION share/doc/snode.c
-        )
     endif(BUILD_DOCUMENTATION)
 else(DOXYGEN_FOUND)
     message(
