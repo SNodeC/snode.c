@@ -33,16 +33,13 @@ namespace net::socket::stream {
     }
 
     SocketContext* SocketConnection::getSocketContext() {
-        return oldSocketContext == nullptr ? socketContext : oldSocketContext;
+        return socketContext;
     }
 
     SocketContext* SocketConnection::switchSocketContext(SocketContextFactory* socketContextFactory) {
-        SocketContext* newSocketContext = socketContextFactory->create(this);
+        newSocketContext = socketContextFactory->create(this);
 
-        if (newSocketContext != nullptr) {
-            oldSocketContext = socketContext;
-            socketContext = newSocketContext;
-        } else {
+        if (newSocketContext == nullptr) {
             VLOG(0) << "Switch socket context unsuccessull: new socket context not created";
         }
 

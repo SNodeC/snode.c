@@ -103,7 +103,7 @@ namespace net::socket::stream {
         }
 
         void sendToPeer(const char* junk, std::size_t junkLen) override {
-            if (oldSocketContext == nullptr) {
+            if (newSocketContext == nullptr) {
                 SocketWriter::sendToPeer(junk, junkLen);
             } else {
                 VLOG(0) << "SendToPeer: OldSocketContext != nullptr: SocketContextSwitch in progress";
@@ -117,7 +117,7 @@ namespace net::socket::stream {
         ssize_t readFromPeer(char* junk, std::size_t junkLen) override {
             ssize_t ret = 0;
 
-            if (oldSocketContext == nullptr) {
+            if (newSocketContext == nullptr) {
                 ret = SocketReader::readFromPeer(junk, junkLen);
             } else {
                 VLOG(0) << "ReadFromPeer: OldSocketContext != nullptr: SocketContextSwitch in progress";
@@ -134,10 +134,11 @@ namespace net::socket::stream {
         void readEvent() override {
             socketContext->receiveFromPeer();
 
-            if (oldSocketContext != nullptr) {
-                oldSocketContext->onDisconnected();
-                delete oldSocketContext;
-                oldSocketContext = nullptr;
+            if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
+                socketContext->onDisconnected();
+                delete socketContext;
+                socketContext = newSocketContext;
+                newSocketContext = nullptr;
                 socketContext->onConnected();
             }
         }
