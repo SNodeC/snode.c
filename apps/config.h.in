@@ -3,7 +3,9 @@
 
 #cmakedefine CMAKE_SOURCE_DIR "@CMAKE_SOURCE_DIR@/"
 
-#define SERVERROOT CMAKE_SOURCE_DIR "../snode.c-doc/html"
+#cmakedefine SNODEC_DOC_ROOTDIR "@SNODEC_DOC_ROOTDIR@/"
+
+#define SERVERROOT SNODEC_DOC_ROOTDIR "html"
 
 #define SERVERCAFILE CMAKE_SOURCE_DIR "certs/snode.c_-_Root_CA.crt"
 #define SERVERCERTF CMAKE_SOURCE_DIR "certs/snode.c_-_server.pem"

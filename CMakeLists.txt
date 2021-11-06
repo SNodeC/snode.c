@@ -4,6 +4,10 @@ project(snode.c)
 
 set(ignoreMe ${CMAKE_VERBOSE_MAKEFILE})
 
+get_filename_component(
+    SNODEC_DOC_ROOTDIR "${CMAKE_SOURCE_DIR}/../snode.c-doc/" ABSOLUTE
+)
+
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 include("cmake/check-iwyu.cmake")
@@ -48,3 +52,5 @@ add_subdirectory(net)
 add_subdirectory(web)
 add_subdirectory(express)
 add_subdirectory(apps)
+
+message("#############: " ${SNODEC_DOC_ROOTDIR})
