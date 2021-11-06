@@ -52,5 +52,3 @@ add_subdirectory(net)
 add_subdirectory(web)
 add_subdirectory(express)
 add_subdirectory(apps)
-
-message("#############: " ${SNODEC_DOC_ROOTDIR})
