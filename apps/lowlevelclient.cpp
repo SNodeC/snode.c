@@ -228,8 +228,7 @@ legacy::SocketClient<SimpleSocketProtocolFactory, tcp::ipv4::Socket> getLegacyCl
             -> void { // onConnected
             VLOG(0) << "OnConnected";
 
-            socketConnection->getSocketContext()->sendToPeer(
-                "GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
+            socketConnection->sendToPeer("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
         },
         [](legacy::SocketClient<SimpleSocketProtocolFactory, tcp::ipv4::Socket>::SocketConnection* socketConnection)
             -> void { // onDisconnect
