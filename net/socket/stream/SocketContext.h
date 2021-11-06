@@ -60,8 +60,6 @@ namespace net::socket::stream {
         virtual void onDisconnected();
 
     private:
-        bool socketContextSwitchInProgress = false;
-
         SocketConnection* socketConnection;
 
         template <typename SocketReaderT, typename SocketWriterT, typename SocketAddressT>
