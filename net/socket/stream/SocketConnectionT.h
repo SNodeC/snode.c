@@ -132,7 +132,7 @@ namespace net::socket::stream {
 
     private:
         void readEvent() override {
-            socketContext->receiveFromPeer();
+            socketContext->onReceiveFromPeer();
 
             if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
                 socketContext->onDisconnected();

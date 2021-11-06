@@ -62,8 +62,6 @@ namespace net::socket::stream {
     private:
         bool socketContextSwitchInProgress = false;
 
-        void receiveFromPeer();
-
         SocketConnection* socketConnection;
 
         template <typename SocketReaderT, typename SocketWriterT, typename SocketAddressT>

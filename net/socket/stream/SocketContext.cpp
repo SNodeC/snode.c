@@ -63,10 +63,6 @@ namespace net::socket::stream {
         return socketConnection->switchSocketContext(socketContextFactory);
     }
 
-    void SocketContext::receiveFromPeer() {
-        onReceiveFromPeer();
-    }
-
     void SocketContext::setTimeout(int timeout) {
         socketConnection->setTimeout(timeout);
     }
