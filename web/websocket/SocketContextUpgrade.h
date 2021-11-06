@@ -274,10 +274,6 @@ namespace web::websocket {
             }
         }
 
-        void stop() override {
-            Receiver::stop();
-        }
-
     protected:
         SubProtocol* subProtocol = nullptr;
 

@@ -63,7 +63,6 @@ namespace web::http {
         virtual ~Parser() = default;
 
         void parse();
-        void stop();
 
     protected:
         // Parser state
@@ -100,8 +99,6 @@ namespace web::http {
         std::string line;
         std::size_t contentRead = 0;
         char contentJunk[MAX_CONTENT_JUNK_LEN]{};
-
-        bool stopped = false;
 
         friend enum HTTPCompliance operator|(const enum HTTPCompliance& c1, const enum HTTPCompliance& c2);
         friend enum HTTPCompliance operator&(const enum HTTPCompliance& c1, const enum HTTPCompliance& c2);

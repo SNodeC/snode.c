@@ -67,8 +67,6 @@ namespace web::http::server {
                       const std::function<void(Request&, Response&)>& onRequestReady);
 
     private:
-        void stop() override;
-
         void onReceiveFromPeer() override;
 
         void onReadError(int errnum) override;

@@ -65,6 +65,8 @@ namespace net::socket::stream {
     protected:
         SocketContext* socketContext = nullptr;
 
+        SocketContext* oldSocketContext = nullptr;
+
         friend SocketContext;
     };
 

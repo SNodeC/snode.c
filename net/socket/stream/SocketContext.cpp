@@ -40,7 +40,11 @@ namespace net::socket::stream {
     }
 
     ssize_t SocketContext::readFromPeer(char* junk, std::size_t junklen) {
-        return socketConnection->readFromPeer(junk, junklen);
+        ssize_t ret = 0;
+
+        ret = socketConnection->readFromPeer(junk, junklen);
+
+        return ret;
     }
 
     std::string SocketContext::getLocalAddressAsString() const {
@@ -56,16 +60,11 @@ namespace net::socket::stream {
     }
 
     SocketContext* SocketContext::switchSocketContext(SocketContextFactory* socketContextFactory) {
-        stop();
         return socketConnection->switchSocketContext(socketContextFactory);
     }
 
     void SocketContext::receiveFromPeer() {
         onReceiveFromPeer();
-
-        if (this != socketConnection->getSocketContext()) {
-            delete this; // we were replaced by a different context.
-        }
     }
 
     void SocketContext::setTimeout(int timeout) {
@@ -78,10 +77,6 @@ namespace net::socket::stream {
 
     void SocketContext::onDisconnected() {
         VLOG(0) << "Protocol disconnecteded";
-    }
-
-    void SocketContext::stop() {
-        // By default do nothing
     }
 
 } // namespace net::socket::stream

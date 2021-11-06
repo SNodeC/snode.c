@@ -56,8 +56,6 @@ namespace web::http::client {
         Response& getResponse();
 
     private:
-        void stop() override;
-
         void onReceiveFromPeer() override;
 
         void onWriteError(int errnum) override;

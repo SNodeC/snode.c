@@ -60,7 +60,7 @@ namespace net::socket::stream {
         virtual void onDisconnected();
 
     private:
-        virtual void stop();
+        bool socketContextSwitchInProgress = false;
 
         void receiveFromPeer();
 

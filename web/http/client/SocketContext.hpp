@@ -73,11 +73,6 @@ namespace web::http::client {
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::stop() {
-        parser.stop();
-    }
-
-    template <typename Request, typename Response>
     void SocketContext<Request, Response>::onReceiveFromPeer() {
         parser.parse();
     }
