@@ -26,20 +26,8 @@
 
 namespace web::websocket::server {
 
-    SubProtocol::SubProtocol(const std::string& name)
-        : web::websocket::SubProtocol<SubProtocol::SocketContextUpgrade>(name) {
-        ChannelManager::instance()->subscribe(this);
-        // subscribe(name, this);
-        // this->channel = name;
-    }
-
-    SubProtocol::~SubProtocol() {
-        ChannelManager::instance()->unsubscribe(this);
-        // unsubscribe(channel, this);
-    }
-
     void SubProtocol::subscribe(const std::string& channel) {
-        ChannelManager::instance()->subscribe(channel, this);
+        ChannelManager::instance()->subscribe(this, channel);
         // subscibe(channel, this);
         // unsubscribe(this->channel, this);
         // this->channel = channel;

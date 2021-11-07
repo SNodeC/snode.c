@@ -19,6 +19,8 @@
 #ifndef WEB_WEBSOCKET_SUBPROTOCOLPLUGININTERFACE_H
 #define WEB_WEBSOCKET_SUBPROTOCOLPLUGININTERFACE_H
 
+#include "log/Logger.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string>
@@ -32,14 +34,19 @@ namespace web::websocket {
     public:
         using SubProtocol = SubProtocolT;
 
-        SubProtocolFactory() = default;
+        SubProtocolFactory(const std::string& name)
+            : name(name) {
+        }
+
+        SubProtocolFactory() = delete;
 
         virtual ~SubProtocolFactory() = default;
 
-        SubProtocol* createSubProtocol() {
+        virtual SubProtocol* createSubProtocol() {
             SubProtocol* subProtocol = create();
 
             if (subProtocol != nullptr) {
+                subProtocol->setName(name);
                 refCount++;
             }
 
@@ -52,14 +59,16 @@ namespace web::websocket {
             refCount--;
         }
 
-        virtual std::string name() = 0;
-
-        virtual void destroy() = 0;
+        std::string getName() {
+            return name;
+        }
 
         virtual SubProtocol* create() = 0;
 
     protected:
         std::size_t refCount = 0;
+
+        std::string name;
     };
 
 } // namespace web::websocket

@@ -47,12 +47,9 @@ namespace web::websocket::server {
     public:
         static ChannelManager* instance();
 
-        void subscribe(const std::string& channel, SubProtocol* subProtocol);
+        void subscribe(SubProtocol* subProtocol, std::string channel = "");
 
         void unsubscribe(SubProtocol* subProtocol);
-
-    private:
-        void subscribe(SubProtocol* subProtocol);
 
         void sendBroadcast(const std::string& channel, const char* message, std::size_t messageLength, const SubProtocol* excludedClient);
         void
@@ -75,8 +72,6 @@ namespace web::websocket::server {
         static ChannelManager* channelManager;
 
         std::map<std::string, std::set<SubProtocol*>> channels;
-
-        friend class SubProtocol;
     };
 
 } // namespace web::websocket::server

@@ -30,11 +30,10 @@
 namespace web::websocket::subprotocol::echo::client {
 
     class EchoFactory : public web::websocket::client::SubProtocolFactory {
+    public:
+        using web::websocket::client::SubProtocolFactory::SubProtocolFactory;
+
     private:
-        void destroy() override;
-
-        std::string name() override;
-
         web::websocket::client::SubProtocolFactory::SubProtocol* create() override;
     };
 

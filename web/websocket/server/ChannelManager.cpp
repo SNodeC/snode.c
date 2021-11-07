@@ -37,7 +37,11 @@ namespace web::websocket::server {
                                                          : ChannelManager::channelManager;
     }
 
-    void ChannelManager::subscribe(const std::string& channel, SubProtocol* subProtocol) {
+    void ChannelManager::subscribe(SubProtocol* subProtocol, std::string channel) {
+        if (channel.empty()) {
+            channel = subProtocol->getName();
+        }
+
         if (subProtocol->channel != channel) {
             std::string newChannel = subProtocol->getName() + "/" + channel;
 
@@ -49,10 +53,6 @@ namespace web::websocket::server {
 
             subProtocol->channel = newChannel;
         }
-    }
-
-    void ChannelManager::subscribe(SubProtocol* subProtocol) {
-        subscribe(subProtocol->getName(), subProtocol);
     }
 
     void ChannelManager::unsubscribe(SubProtocol* subProtocol) {
@@ -68,7 +68,6 @@ namespace web::websocket::server {
         }
     }
 
-    /* private members */
     void ChannelManager::sendBroadcast(const std::string& channel,
                                        const char* message,
                                        std::size_t messageLength,

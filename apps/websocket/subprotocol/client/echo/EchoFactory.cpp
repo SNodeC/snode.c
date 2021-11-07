@@ -26,20 +26,12 @@
 
 namespace web::websocket::subprotocol::echo::client {
 
-    void EchoFactory::destroy() {
-        delete this;
-    }
-
-    std::string EchoFactory::name() {
-        return NAME;
-    }
-
     web::websocket::client::SubProtocolFactory::SubProtocol* EchoFactory::create() {
         return new Echo();
     }
 
     extern "C" web::websocket::client::SubProtocolFactory* echoClientSubProtocolFactory() {
-        return new EchoFactory();
+        return new EchoFactory(NAME);
     }
 
 } // namespace web::websocket::subprotocol::echo::client

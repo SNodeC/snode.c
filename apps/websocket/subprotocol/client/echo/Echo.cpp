@@ -33,8 +33,7 @@
 namespace web::websocket::subprotocol::echo::client {
 
     Echo::Echo()
-        : web::websocket::client::SubProtocol(NAME)
-        , pingTimer(net::timer::Timer::intervalTimer(
+        : pingTimer(net::timer::Timer::intervalTimer(
               [this]([[maybe_unused]] const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
                   this->sendPing();
                   this->flyingPings++;

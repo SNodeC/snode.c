@@ -58,10 +58,10 @@ namespace web::websocket {
             SubProtocolPlugin<SubProtocolFactory> subProtocolPlugin = {.subProtocolFactory = subProtocolFactory, .handle = handle};
 
             if (subProtocolFactory != nullptr) {
-                const auto [it, success] = subProtocolPlugins.insert({subProtocolFactory->name(), subProtocolPlugin});
+                const auto [it, success] = subProtocolPlugins.insert({subProtocolFactory->getName(), subProtocolPlugin});
                 if (!success) {
-                    VLOG(0) << "Subprotocol already existing: not using " << subProtocolFactory->name();
-                    subProtocolFactory->destroy();
+                    VLOG(0) << "Subprotocol already existing: not using " << subProtocolFactory->getName();
+                    delete subProtocolFactory;
                     if (handle != nullptr) {
                         net::DynamicLoader::dlClose(handle);
                     }
@@ -127,10 +127,10 @@ namespace web::websocket {
         }
 
         void unload(SubProtocolFactory* subProtocolFactory) {
-            std::string name = subProtocolFactory->name();
+            std::string name = subProtocolFactory->getName();
 
             if (subProtocolPlugins.contains(name)) {
-                subProtocolFactory->destroy();
+                delete subProtocolFactory;
 
                 SubProtocolPlugin<SubProtocolFactory>& subProtocolPlugin = subProtocolPlugins[name];
 

@@ -19,6 +19,8 @@
 #ifndef WEB_WEBSOCKET_SUBSPROTOCOL_H
 #define WEB_WEBSOCKET_SUBSPROTOCOL_H
 
+#include "log/Logger.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
@@ -37,17 +39,14 @@ namespace web::websocket {
     protected:
         enum class Role { SERVER, CLIENT };
 
-        SubProtocol(const std::string& name)
-            : name(name) {
-        }
+        SubProtocol() = default;
 
-        SubProtocol() = delete;
         SubProtocol(const SubProtocol&) = delete;
         SubProtocol& operator=(const SubProtocol&) = delete;
 
-    public:
         virtual ~SubProtocol() = default;
 
+    public:
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from SubProtocol-Subclasses */
         void sendMessage(const char* message, std::size_t messageLength) {
             socketContextUpgrade->sendMessage(2, message, messageLength);
@@ -100,6 +99,7 @@ namespace web::websocket {
             return name;
         }
 
+    private:
         /* Callbacks (API) WSReceiver -> SubProtocol-Subclasses */
         virtual void onMessageStart(int opCode) = 0;
         virtual void onMessageData(const char* junk, std::size_t junkLen) = 0;
@@ -115,10 +115,18 @@ namespace web::websocket {
             this->socketContextUpgrade = socketContextUpgrade;
         }
 
-    private:
+        void setName(const std::string& name) {
+            this->name = name;
+        }
+
         SocketContextUpgrade* socketContextUpgrade;
 
-        const std::string name;
+        std::string name;
+
+        template <typename SubProtocolT>
+        friend class SubProtocolFactory;
+
+        friend SocketContextUpgrade;
     };
 
 } // namespace web::websocket

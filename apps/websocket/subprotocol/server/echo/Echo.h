@@ -44,8 +44,10 @@ namespace web::websocket::subprotocol::echo::server {
         Echo(const Echo&) = delete;
         Echo& operator=(const Echo&) = delete;
 
+    protected:
         ~Echo() override;
 
+    private:
         void onConnected() override;
         void onMessageStart(int opCode) override;
         void onMessageData(const char* junk, std::size_t junkLen) override;
@@ -54,7 +56,6 @@ namespace web::websocket::subprotocol::echo::server {
         void onPongReceived() override;
         void onDisconnected() override;
 
-    private:
         std::string data;
 
         int flyingPings = 0;

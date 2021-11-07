@@ -22,13 +22,4 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::websocket::client {
-
-    SubProtocol::SubProtocol(const std::string& name)
-        : web::websocket::SubProtocol<SubProtocol::SocketContextUpgrade>(name) {
-    }
-
-    SubProtocol::~SubProtocol() {
-    }
-
-} // namespace web::websocket::client
+namespace web::websocket::client {} // namespace web::websocket::client

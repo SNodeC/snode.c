@@ -30,6 +30,8 @@ namespace web::websocket::client {
 
     class SubProtocolFactory : public web::websocket::SubProtocolFactory<web::websocket::client::SubProtocol> {
     public:
+        using web::websocket::SubProtocolFactory<web::websocket::client::SubProtocol>::SubProtocolFactory;
+
         void deleteSubProtocol(SubProtocol* subProtocol) override;
     };
 

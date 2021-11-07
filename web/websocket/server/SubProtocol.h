@@ -35,15 +35,9 @@ namespace web::websocket::server {
 
     class SubProtocol : public web::websocket::SubProtocol<web::websocket::server::SocketContextUpgrade> {
     protected:
-        SubProtocol(const std::string& name);
-
-        SubProtocol() = delete;
-        SubProtocol(const SubProtocol&) = delete;
-        SubProtocol& operator=(const SubProtocol&) = delete;
+        SubProtocol() = default;
 
     public:
-        ~SubProtocol() override;
-
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from SubProtocol-Subclasses */
         using web::websocket::SubProtocol<web::websocket::server::SocketContextUpgrade>::sendMessage;
 
