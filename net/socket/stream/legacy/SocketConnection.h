@@ -46,10 +46,10 @@ namespace net::socket::stream::legacy {
                          const SocketAddress& remoteAddress,
                          const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                          const std::function<void(SocketConnection*)>& onDisconnect)
-            : net::socket::stream::SocketConnectionT<net::socket::stream::legacy::SocketReader<Socket>,
+            : SocketConnection::Descriptor(fd)
+            , net::socket::stream::SocketConnectionT<net::socket::stream::legacy::SocketReader<Socket>,
                                                      net::socket::stream::legacy::SocketWriter<Socket>,
-                                                     typename Socket::SocketAddress>::SocketConnectionT(fd,
-                                                                                                        socketProtocolFactory,
+                                                     typename Socket::SocketAddress>::SocketConnectionT(socketProtocolFactory,
                                                                                                         localAddress,
                                                                                                         remoteAddress,
                                                                                                         onConnect,

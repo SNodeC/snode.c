@@ -60,12 +60,10 @@ namespace net::socket::stream {
 
         virtual void setTimeout(int timeout) = 0;
 
-        SocketContext* switchSocketContext(SocketContextFactory* socketContextFactory);
+        virtual SocketContext* switchSocketContext(SocketContextFactory* socketContextFactory) = 0;
 
     protected:
         SocketContext* socketContext = nullptr;
-
-        SocketContext* newSocketContext = nullptr;
 
         friend SocketContext;
     };

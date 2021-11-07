@@ -48,10 +48,10 @@ namespace net::socket::stream::tls {
                          const SocketAddress& remoteAddress,
                          const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                          const std::function<void(SocketConnection*)>& onDisconnect)
-            : net::socket::stream::SocketConnectionT<net::socket::stream::tls::SocketReader<Socket>,
+            : SocketConnection::Descriptor(fd)
+            , net::socket::stream::SocketConnectionT<net::socket::stream::tls::SocketReader<Socket>,
                                                      net::socket::stream::tls::SocketWriter<Socket>,
-                                                     typename Socket::SocketAddress>::SocketConnectionT(fd,
-                                                                                                        socketContextFactory,
+                                                     typename Socket::SocketAddress>::SocketConnectionT(socketContextFactory,
                                                                                                         localAddress,
                                                                                                         remoteAddress,
                                                                                                         onConnect,

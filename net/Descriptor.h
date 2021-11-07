@@ -38,11 +38,10 @@ namespace net {
     protected:
         Descriptor(int fd = -1, enum Descriptor::FLAGS flags = FLAGS::none);
 
-    protected:
         ~Descriptor();
 
-    public:
         void attach(int fd, enum Descriptor::FLAGS flags = FLAGS::none);
+
         int getFd() const;
         void dontClose(bool dontClose);
         bool dontClose() const;

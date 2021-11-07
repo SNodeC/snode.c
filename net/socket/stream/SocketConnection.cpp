@@ -18,8 +18,6 @@
 
 #include "net/socket/stream/SocketConnection.h"
 
-#include "log/Logger.h"
-#include "net/socket/stream/SocketContext.h"
 #include "net/socket/stream/SocketContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -34,16 +32,6 @@ namespace net::socket::stream {
 
     SocketContext* SocketConnection::getSocketContext() {
         return socketContext;
-    }
-
-    SocketContext* SocketConnection::switchSocketContext(SocketContextFactory* socketContextFactory) {
-        newSocketContext = socketContextFactory->create(this);
-
-        if (newSocketContext == nullptr) {
-            VLOG(0) << "Switch socket context unsuccessull: new socket context not created";
-        }
-
-        return newSocketContext;
     }
 
 } // namespace net::socket::stream

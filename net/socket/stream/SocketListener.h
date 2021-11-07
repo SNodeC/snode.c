@@ -87,10 +87,10 @@ namespace net::socket::stream {
                                     onError(errnum);
                                     destruct();
                                 } else {
-                                    int ret = net::system::listen(Socket::getFd(), backlog);
+                                    int ret = net::system::listen(SocketListener::getFd(), backlog);
 
                                     if (ret == 0) {
-                                        AcceptEventReceiver::enable(Socket::getFd());
+                                        AcceptEventReceiver::enable(SocketListener::getFd());
                                         onError(0);
                                     } else {
                                         onError(errno);
@@ -108,7 +108,7 @@ namespace net::socket::stream {
         void reuseAddress(const std::function<void(int)>& onError) {
             int sockopt = 1;
 
-            if (net::system::setsockopt(Socket::getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
+            if (net::system::setsockopt(SocketListener::getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
                 onError(errno);
             } else {
                 onError(0);
@@ -122,7 +122,7 @@ namespace net::socket::stream {
             int fd = -1;
 
             fd = net::system::accept4(
-                Socket::getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &remoteAddressLength, SOCK_NONBLOCK);
+                SocketListener::getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &remoteAddressLength, SOCK_NONBLOCK);
 
             if (fd >= 0) {
                 typename SocketAddress::SockAddr localAddress{};
@@ -144,7 +144,7 @@ namespace net::socket::stream {
         }
 
         void end() {
-            AcceptEventReceiver::disable(Socket::getFd());
+            AcceptEventReceiver::disable(SocketListener::getFd());
         }
 
         void unobserved() override {

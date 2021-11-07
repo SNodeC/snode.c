@@ -23,7 +23,6 @@
 #include "express/tls/WebApp.h"
 #include "log/Logger.h"
 #include "net/socket/ip/address/ipv6/InetAddress.h" // for InetAddress
-#include "net/socket/stream/SocketContext.h"        // for SocketContext
 
 #include <cstddef>            // for size_t, NULL
 #include <cstdint>            // for int32_t

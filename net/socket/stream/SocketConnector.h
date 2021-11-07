@@ -53,7 +53,6 @@ namespace net::socket::stream {
         using SocketConnection = SocketConnectionT;
         using Socket = typename SocketConnection::Socket;
         using SocketAddress = typename Socket::SocketAddress;
-        using Socket::getFd;
 
         SocketConnector(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
                         const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
@@ -83,10 +82,11 @@ namespace net::socket::stream {
                                 onError(errnum);
                                 destruct();
                             } else {
-                                int ret = net::system::connect(getFd(), &remoteAddress.getSockAddr(), remoteAddress.getSockAddrLen());
+                                int ret = net::system::connect(
+                                    SocketConnector::getFd(), &remoteAddress.getSockAddr(), remoteAddress.getSockAddrLen());
 
                                 if (ret == 0 || errno == EINPROGRESS) {
-                                    ConnectEventReceiver::enable(getFd());
+                                    ConnectEventReceiver::enable(SocketConnector::getFd());
                                 } else {
                                     onError(errno);
                                     destruct();
@@ -103,7 +103,7 @@ namespace net::socket::stream {
             int cErrno = -1;
             socklen_t cErrnoLen = sizeof(cErrno);
 
-            int err = net::system::getsockopt(Socket::getFd(), SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);
+            int err = net::system::getsockopt(SocketConnector::getFd(), SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);
 
             if (err == 0) {
                 errno = cErrno;
@@ -115,9 +115,11 @@ namespace net::socket::stream {
                         typename SocketAddress::SockAddr remoteAddress{};
                         socklen_t remoteAddressLength = sizeof(remoteAddress);
 
-                        if (net::system::getsockname(getFd(), reinterpret_cast<sockaddr*>(&localAddress), &localAddressLength) == 0 &&
-                            net::system::getpeername(getFd(), reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) == 0) {
-                            SocketConnection* socketConnection = new SocketConnection(getFd(),
+                        if (net::system::getsockname(
+                                SocketConnector::getFd(), reinterpret_cast<sockaddr*>(&localAddress), &localAddressLength) == 0 &&
+                            net::system::getpeername(
+                                SocketConnector::getFd(), reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) == 0) {
+                            SocketConnection* socketConnection = new SocketConnection(SocketConnector::getFd(),
                                                                                       socketContextFactory,
                                                                                       SocketAddress(localAddress),
                                                                                       SocketAddress(remoteAddress),

@@ -47,8 +47,7 @@ namespace net::socket::stream {
         using SocketAddress = SocketAddressT;
 
     protected:
-        SocketConnectionT(int fd,
-                          const std::shared_ptr<SocketContextFactory>& socketContextFactory,
+        SocketConnectionT(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
                           const SocketAddress& localAddress,
                           const SocketAddress& remoteAddress,
                           const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
@@ -65,9 +64,8 @@ namespace net::socket::stream {
             , localAddress(localAddress)
             , remoteAddress(remoteAddress)
             , onDisconnect(onDisconnect) {
-            SocketConnectionT::Descriptor::attach(fd);
-            SocketReader::enable(fd);
-            SocketWriter::enable(fd);
+            SocketReader::enable(SocketConnectionT::getFd());
+            SocketWriter::enable(SocketConnectionT::getFd());
             SocketReader::suspend();
             SocketWriter::suspend();
             onConnect(localAddress, remoteAddress);
@@ -81,11 +79,6 @@ namespace net::socket::stream {
         }
 
     public:
-        void setTimeout(int timeout) override {
-            SocketReader::setTimeout(timeout);
-            SocketWriter::setTimeout(timeout);
-        }
-
         const SocketAddress& getRemoteAddress() const {
             return remoteAddress;
         }
@@ -102,18 +95,6 @@ namespace net::socket::stream {
             return remoteAddress.toString();
         }
 
-        void sendToPeer(const char* junk, std::size_t junkLen) override {
-            if (newSocketContext == nullptr) {
-                SocketWriter::sendToPeer(junk, junkLen);
-            } else {
-                VLOG(0) << "SendToPeer: OldSocketContext != nullptr: SocketContextSwitch in progress";
-            }
-        }
-
-        void sendToPeer(const std::string& data) override {
-            sendToPeer(data.data(), data.size());
-        }
-
         ssize_t readFromPeer(char* junk, std::size_t junkLen) override {
             ssize_t ret = 0;
 
@@ -126,8 +107,35 @@ namespace net::socket::stream {
             return ret;
         }
 
+        void sendToPeer(const char* junk, std::size_t junkLen) override {
+            if (newSocketContext == nullptr) {
+                SocketWriter::sendToPeer(junk, junkLen);
+            } else {
+                VLOG(0) << "SendToPeer: OldSocketContext != nullptr: SocketContextSwitch in progress";
+            }
+        }
+
+        void sendToPeer(const std::string& data) override {
+            sendToPeer(data.data(), data.size());
+        }
+
         void close() final {
             SocketWriter::shutdown();
+        }
+
+        void setTimeout(int timeout) override {
+            SocketReader::setTimeout(timeout);
+            SocketWriter::setTimeout(timeout);
+        }
+
+        SocketContext* switchSocketContext(SocketContextFactory* socketContextFactory) override {
+            newSocketContext = socketContextFactory->create(this);
+
+            if (newSocketContext == nullptr) {
+                VLOG(0) << "Switch socket context unsuccessull: new socket context not created";
+            }
+
+            return newSocketContext;
         }
 
     private:
@@ -153,6 +161,8 @@ namespace net::socket::stream {
 
         SocketAddress localAddress{};
         SocketAddress remoteAddress{};
+
+        SocketContext* newSocketContext = nullptr;
 
         std::function<void()> onDisconnect;
     };
