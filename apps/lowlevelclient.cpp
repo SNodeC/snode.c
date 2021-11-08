@@ -30,10 +30,6 @@
 #include "net/socket/stream/tls/SocketClient.h"     // for SocketClient
 #include "web/http/client/ResponseParser.h"         // for ResponseParser
 
-namespace net::socket::stream {
-    class SocketConnection;
-} // namespace net::socket::stream
-
 #include <cstring>
 #include <functional>         // for function
 #include <map>                // for map, operator==
@@ -193,7 +189,7 @@ tls::SocketClient<SimpleSocketProtocolFactory, tcp::ipv4::Socket> getTlsClient()
             }
         },
         [](tls::SocketClient<SimpleSocketProtocolFactory, tcp::ipv4::Socket>::SocketConnection* socketConnection) -> void { // onDisconnect
-            VLOG(0) << "OnDisSimpleSocketProtocolFactory, connect";
+            VLOG(0) << "OnDisconnect";
 
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
             VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();

@@ -18,6 +18,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "config.h"
 #include "express/legacy/WebApp.h"
 #include "net/timer/IntervalTimer.h"
 
@@ -75,7 +76,7 @@ int timerApp() {
             res.cookie("Test", "me", {{"Max-Age", "3600"}});
 
             //            res.set("Connection", "close");
-            res.sendFile("/home/voc/projects/ServerVoc/docs/html" + uri, [uri](int ret) -> void {
+            res.sendFile(SERVERROOT + uri, [uri](int ret) -> void {
                 if (ret != 0) {
                     perror(uri.c_str());
                     //                    std::cout << "Error: " << ret << ", " << uri << std::endl;
@@ -114,7 +115,7 @@ int timerApp() {
                 std::cout << "Body: " << req.body << std::endl;
             }
 
-            res.sendFile("/home/voc/projects/ServerVoc/docs/html" + uri, [uri](int ret) -> void {
+            res.sendFile(SERVERROOT + uri, [uri](int ret) -> void {
                 if (ret != 0) {
                     std::cerr << uri << ": " << strerror(ret) << std::endl;
                 }
