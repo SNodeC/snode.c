@@ -47,13 +47,10 @@ namespace web::http {
                                                                                void* handle) {
         bool success = false;
 
-        if (socketContextUpgradeFactory != nullptr) {
-            if (socketContextUpgradeFactory->getRole() == role) {
-                SocketContextPlugin<SocketContextUpgradeFactory> socketContextPlugin = {
-                    .socketContextUpgradeFactory = socketContextUpgradeFactory, .handle = handle};
-                std::tie(std::ignore, success) =
-                    socketContextUpgradePlugins.insert({socketContextUpgradeFactory->name(), socketContextPlugin});
-            }
+        if (socketContextUpgradeFactory != nullptr && socketContextUpgradeFactory->getRole() == role) {
+            SocketContextPlugin<SocketContextUpgradeFactory> socketContextPlugin = {
+                .socketContextUpgradeFactory = socketContextUpgradeFactory, .handle = handle};
+            std::tie(std::ignore, success) = socketContextUpgradePlugins.insert({socketContextUpgradeFactory->name(), socketContextPlugin});
         }
 
         return success;
@@ -120,15 +117,13 @@ namespace web::http {
     SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::select(const std::string& upgradeContextName) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
-        if (!upgradeContextName.empty()) {
-            if (socketContextUpgradePlugins.contains(upgradeContextName)) {
-                socketContextUpgradeFactory = socketContextUpgradePlugins[upgradeContextName].socketContextUpgradeFactory;
-            } else if (linkedSocketContextUpgradePlugins.contains(upgradeContextName)) {
-                socketContextUpgradeFactory = linkedSocketContextUpgradePlugins[upgradeContextName]();
-                add(socketContextUpgradeFactory);
-            } else if (!onlyLinked) {
-                socketContextUpgradeFactory = load(upgradeContextName);
-            }
+        if (socketContextUpgradePlugins.contains(upgradeContextName)) {
+            socketContextUpgradeFactory = socketContextUpgradePlugins[upgradeContextName].socketContextUpgradeFactory;
+        } else if (linkedSocketContextUpgradePlugins.contains(upgradeContextName)) {
+            socketContextUpgradeFactory = linkedSocketContextUpgradePlugins[upgradeContextName]();
+            add(socketContextUpgradeFactory);
+        } else if (!onlyLinked) {
+            socketContextUpgradeFactory = load(upgradeContextName);
         }
 
         return socketContextUpgradeFactory;

@@ -59,7 +59,7 @@ namespace web::websocket {
             refCount--;
         }
 
-        std::string getName() {
+        const std::string& getName() {
             return name;
         }
 

@@ -42,16 +42,16 @@ namespace web::http::client {
 #endif // !defined(NDEBUG) && defined(HTTP_SOCKETCONTEXTUPGRADE_CLIENT_COMPILE_LIBDIR)
     }
 
-    SocketContextUpgradeFactorySelector::SocketContextUpgradeFactory*
-    SocketContextUpgradeFactorySelector::load(const std::string& upgradeContextName) {
-        return web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::load(upgradeContextName,
-                                                                                                 SocketContextUpgradeFactory::Role::CLIENT);
-    }
-
     SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::instance() {
         static SocketContextUpgradeFactorySelector socketContextUpgradeFactorySelector;
 
         return &socketContextUpgradeFactorySelector;
+    }
+
+    SocketContextUpgradeFactorySelector::SocketContextUpgradeFactory*
+    SocketContextUpgradeFactorySelector::load(const std::string& upgradeContextName) {
+        return web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::load(upgradeContextName,
+                                                                                                 SocketContextUpgradeFactory::Role::CLIENT);
     }
 
     SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(const std::string& upgradeContextName, Request& req) {

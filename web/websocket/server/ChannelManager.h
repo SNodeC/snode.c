@@ -48,14 +48,13 @@ namespace web::websocket::server {
         static ChannelManager* instance();
 
         void subscribe(SubProtocol* subProtocol, std::string channel = "");
-
         void unsubscribe(SubProtocol* subProtocol);
 
         void sendBroadcast(const std::string& channel, const char* message, std::size_t messageLength, const SubProtocol* excludedClient);
+        void sendBroadcast(const std::string& channel, const std::string& message, const SubProtocol* excludedClient);
+
         void
         sendBroadcastStart(const std::string& channel, const char* message, std::size_t messageLength, const SubProtocol* excludedClient);
-
-        void sendBroadcast(const std::string& channel, const std::string& message, const SubProtocol* excludedClient);
         void sendBroadcastStart(const std::string& channel, const std::string& message, const SubProtocol* excludedClient);
 
         void

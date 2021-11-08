@@ -36,7 +36,7 @@ namespace web::http {
         using SocketConnection = net::socket::stream::SocketConnection;
 
     protected:
-        explicit SocketContext(net::socket::stream::SocketConnection* socketConnection);
+        using net::socket::stream::SocketContext::SocketContext;
 
         SocketContext(const SocketContext&) = delete;
         SocketContext& operator=(const SocketContext&) = delete;

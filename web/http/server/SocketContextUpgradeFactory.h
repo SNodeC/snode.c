@@ -43,8 +43,10 @@ namespace web::http::server {
     protected:
         SocketContextUpgradeFactory();
 
+    public:
         void checkRefCount() final;
 
+    protected:
         static void link(const std::string& upgradeContextName, SocketContextUpgradeFactory* (*linkedPlugin)());
     };
 

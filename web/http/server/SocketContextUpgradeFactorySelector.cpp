@@ -44,16 +44,16 @@ namespace web::http::server {
 #endif // !defined(NDEBUG) && defined(HTTP_SOCKETCONTEXTUPGRADE_SERVER_COMPILE_LIBDIR)
     }
 
-    SocketContextUpgradeFactorySelector::SocketContextUpgradeFactory*
-    SocketContextUpgradeFactorySelector::load(const std::string& upgradeContextName) {
-        return web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::load(upgradeContextName,
-                                                                                                 SocketContextUpgradeFactory::Role::SERVER);
-    }
-
     SocketContextUpgradeFactorySelector* SocketContextUpgradeFactorySelector::instance() {
         static SocketContextUpgradeFactorySelector socketContextUpgradeFactorySelector;
 
         return &socketContextUpgradeFactorySelector;
+    }
+
+    SocketContextUpgradeFactorySelector::SocketContextUpgradeFactory*
+    SocketContextUpgradeFactorySelector::load(const std::string& upgradeContextName) {
+        return web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::load(upgradeContextName,
+                                                                                                 SocketContextUpgradeFactory::Role::SERVER);
     }
 
     /* do not remove */

@@ -126,7 +126,8 @@ namespace web::websocket {
             return subProtocolFactory;
         }
 
-        void unload(SubProtocolFactory* subProtocolFactory) {
+    private:
+        std::string doUnload(SubProtocolFactory* subProtocolFactory) {
             std::string name = subProtocolFactory->getName();
 
             if (subProtocolPlugins.contains(name)) {
@@ -137,9 +138,14 @@ namespace web::websocket {
                 if (subProtocolPlugin.handle != nullptr) {
                     net::DynamicLoader::dlClose(subProtocolPlugin.handle);
                 }
-
-                subProtocolPlugins.erase(name);
             }
+
+            return name;
+        }
+
+    public:
+        void unload(SubProtocolFactory* subProtocolFactory) {
+            subProtocolPlugins.erase(doUnload(subProtocolFactory));
         }
 
     protected:

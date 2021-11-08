@@ -81,19 +81,6 @@ namespace web::websocket::server {
         }
     }
 
-    void ChannelManager::sendBroadcastStart(const std::string& channel,
-                                            const char* message,
-                                            std::size_t messageLength,
-                                            const SubProtocol* excludedClient) {
-        if (channels.contains(channel)) {
-            for (SubProtocol* client : channels[channel]) {
-                if (client != excludedClient) {
-                    client->sendMessage(message, messageLength);
-                }
-            }
-        }
-    }
-
     void ChannelManager::sendBroadcast(const std::string& channel, const std::string& message, const SubProtocol* excludedClient) {
         if (channels.contains(channel)) {
             for (SubProtocol* client : channels[channel]) {
@@ -104,14 +91,21 @@ namespace web::websocket::server {
         }
     }
 
-    void ChannelManager::sendBroadcastStart(const std::string& channel, const std::string& message, const SubProtocol* excludedClient) {
+    void ChannelManager::sendBroadcastStart(const std::string& channel,
+                                            const char* message,
+                                            std::size_t messageLength,
+                                            const SubProtocol* excludedClient) {
         if (channels.contains(channel)) {
             for (SubProtocol* client : channels[channel]) {
                 if (client != excludedClient) {
-                    client->sendMessage(message);
+                    client->sendMessageStart(message, messageLength);
                 }
             }
         }
+    }
+
+    void ChannelManager::sendBroadcastStart(const std::string& channel, const std::string& message, const SubProtocol* excludedClient) {
+        sendBroadcastStart(channel, message.data(), message.length(), excludedClient);
     }
 
     void ChannelManager::sendBroadcastFrame(const std::string& channel,
