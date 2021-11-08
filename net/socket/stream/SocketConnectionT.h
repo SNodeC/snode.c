@@ -54,12 +54,16 @@ namespace net::socket::stream {
                           const std::function<void()>& onDisconnect)
             : SocketConnection(socketContextFactory)
             , SocketReader([this](int errnum) -> void {
+                if (SocketWriter::isEnabled()) {
+                    SocketWriter::disable();
+                }
                 socketContext->onReadError(errnum);
-                SocketWriter::disable();
             })
             , SocketWriter([this](int errnum) -> void {
+                if (SocketReader::isEnabled()) {
+                    SocketReader::disable();
+                }
                 socketContext->onWriteError(errnum);
-                SocketReader::disable();
             })
             , localAddress(localAddress)
             , remoteAddress(remoteAddress)

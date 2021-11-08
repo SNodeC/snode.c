@@ -49,7 +49,6 @@ namespace net::pipe {
             }
         } else {
             ReadEventReceiver::disable();
-            ReadEventReceiver::suspend();
 
             if (ret == 0) {
                 if (onEof) {

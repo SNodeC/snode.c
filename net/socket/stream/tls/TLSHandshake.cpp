@@ -90,13 +90,11 @@ namespace net::socket::stream::tls {
                 WriteEventReceiver::resume();
                 break;
             case SSL_ERROR_NONE:
-                ReadEventReceiver::suspend();
                 ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
                 onSuccess();
                 break;
             default:
-                ReadEventReceiver::suspend();
                 ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
                 onError(sslErr);
@@ -116,13 +114,11 @@ namespace net::socket::stream::tls {
             case SSL_ERROR_WANT_WRITE:
                 break;
             case SSL_ERROR_NONE:
-                WriteEventReceiver::suspend();
                 ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
                 onSuccess();
                 break;
             default:
-                WriteEventReceiver::suspend();
                 ReadEventReceiver::disable();
                 WriteEventReceiver::disable();
                 onError(sslErr);
@@ -133,12 +129,6 @@ namespace net::socket::stream::tls {
     void TLSHandshake::readTimeout() {
         if (!timeoutTriggered) {
             timeoutTriggered = true;
-            if (!ReadEventReceiver::isSuspended()) {
-                ReadEventReceiver::suspend();
-            }
-            if (!WriteEventReceiver::isSuspended()) {
-                WriteEventReceiver::suspend();
-            }
             ReadEventReceiver::disable();
             WriteEventReceiver::disable();
             onTimeout();
@@ -148,12 +138,6 @@ namespace net::socket::stream::tls {
     void TLSHandshake::writeTimeout() {
         if (!timeoutTriggered) {
             timeoutTriggered = true;
-            if (!ReadEventReceiver::isSuspended()) {
-                ReadEventReceiver::suspend();
-            }
-            if (!WriteEventReceiver::isSuspended()) {
-                WriteEventReceiver::suspend();
-            }
             ReadEventReceiver::disable();
             WriteEventReceiver::disable();
             onTimeout();

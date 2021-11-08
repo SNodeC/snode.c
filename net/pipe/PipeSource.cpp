@@ -57,7 +57,6 @@ namespace net::pipe {
 
     void PipeSource::eof() {
         WriteEventReceiver::disable();
-        WriteEventReceiver::suspend();
     }
 
     void PipeSource::writeEvent() {
@@ -72,7 +71,6 @@ namespace net::pipe {
             }
         } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
             WriteEventReceiver::disable();
-            WriteEventReceiver::suspend();
 
             if (onError) {
                 onError(errno);

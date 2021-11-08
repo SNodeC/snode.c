@@ -39,6 +39,9 @@ namespace net {
     }
 
     void EventReceiver::disable() {
+        if (!isSuspended()) {
+            suspend();
+        }
         descriptorEventDispatcher.disable(this, fd);
         _enabled = false;
     }
