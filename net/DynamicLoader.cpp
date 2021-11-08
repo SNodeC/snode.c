@@ -28,8 +28,8 @@
 
 namespace net {
 
-    std::map<void*, std::string> DynamicLoader::dlOpenedLibraries;
-    std::set<void*> DynamicLoader::registeredForDlClose;
+    std::map<void*, DynamicLoader::Library> DynamicLoader::dlOpenedLibraries;
+    std::map<void*, std::size_t> DynamicLoader::registeredForDlClose;
 
     void* DynamicLoader::dlOpen(const std::string& libFile, int flags) {
         VLOG(0) << "dlOpen: " << libFile;
@@ -37,7 +37,10 @@ namespace net {
         void* handle = net::system::dlopen(libFile.c_str(), flags);
 
         if (handle != nullptr) {
-            dlOpenedLibraries[handle] = libFile;
+            if (!dlOpenedLibraries.contains(handle)) {
+                dlOpenedLibraries[handle].fileName = libFile;
+            }
+            dlOpenedLibraries[handle].refCount++;
         }
 
         return handle;
@@ -45,10 +48,10 @@ namespace net {
 
     void DynamicLoader::dlCloseDelayed(void* handle) {
         if (handle != nullptr) {
-            if (dlOpenedLibraries.contains(handle) && !registeredForDlClose.contains(handle)) {
-                VLOG(0) << "dlCloseDelayed: " << dlOpenedLibraries[handle];
+            if (dlOpenedLibraries.contains(handle)) {
+                VLOG(0) << "dlCloseDelayed: " << dlOpenedLibraries[handle].fileName;
 
-                registeredForDlClose.insert(handle);
+                registeredForDlClose[handle]++;
             } else {
                 VLOG(0) << "dlCloseDelayed: Handle" << handle << " opened using dlOpen.";
             }
@@ -62,14 +65,14 @@ namespace net {
 
         if (handle != nullptr) {
             if (dlOpenedLibraries.contains(handle) && !registeredForDlClose.contains(handle)) {
-                VLOG(0) << "dlCloseSync: " << dlOpenedLibraries[handle];
+                VLOG(0) << "dlClose: " << dlOpenedLibraries[handle].fileName;
 
                 ret = execDlClose(handle);
             } else {
-                VLOG(0) << "dlCloseSync: Handle" << handle << " opened using dlOpen.";
+                VLOG(0) << "dlClose: Handle" << handle << " either not opened with dlOpen or already registered for dlCloseDelayedopened.";
             }
         } else {
-            VLOG(0) << "dlCloseSync: Handle is nullptr";
+            VLOG(0) << "dlClose: Handle is nullptr";
         }
 
         return ret;
@@ -83,11 +86,14 @@ namespace net {
 
         if (handle != nullptr) {
             if (dlOpenedLibraries.contains(handle)) {
-                VLOG(0) << "execDLClose: " << dlOpenedLibraries[handle];
+                VLOG(0) << "execDLClose: " << dlOpenedLibraries[handle].fileName;
 
                 ret = net::system::dlclose(handle);
+                dlOpenedLibraries[handle].refCount--;
 
-                dlOpenedLibraries.erase(handle);
+                if (dlOpenedLibraries[handle].refCount == 0) {
+                    dlOpenedLibraries.erase(handle);
+                }
             }
         }
 
@@ -95,12 +101,14 @@ namespace net {
     }
 
     void DynamicLoader::execDlCloseDeleyed() {
-        for (void* handle : registeredForDlClose) {
-            int ret = execDlClose(handle);
+        for (auto& [handle, refCount] : registeredForDlClose) {
+            do {
+                int ret = execDlClose(handle);
 
-            if (ret != 0) {
-                VLOG(0) << "Error execDeleyedDlClose: " << net::DynamicLoader::dlError();
-            }
+                if (ret != 0) {
+                    VLOG(0) << "Error execDeleyedDlClose: " << net::DynamicLoader::dlError();
+                }
+            } while (--refCount > 0);
         }
 
         registeredForDlClose.clear();
@@ -109,16 +117,19 @@ namespace net {
     void DynamicLoader::execDlCloseAll() {
         execDlCloseDeleyed();
 
-        std::map<void*, std::string>::iterator it = dlOpenedLibraries.begin();
+        std::map<void*, Library>::iterator it = dlOpenedLibraries.begin();
 
         while (it != dlOpenedLibraries.end()) {
-            std::map<void*, std::string>::iterator tmpIt = it;
+            std::map<void*, Library>::iterator tmpIt = it;
             ++it;
-            int ret = execDlClose(tmpIt->first);
 
-            if (ret != 0) {
-                VLOG(0) << "Error execDlCloseAll: " << net::DynamicLoader::dlError();
-            }
+            do {
+                int ret = execDlClose(tmpIt->first);
+
+                if (ret != 0) {
+                    VLOG(0) << "Error execDlCloseAll: " << net::DynamicLoader::dlError();
+                }
+            } while (--(it->second.refCount) > 0);
         }
     }
 

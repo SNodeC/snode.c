@@ -62,6 +62,8 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "-- OnConnected";
             },
             [](Request& request) -> void {
+                VLOG(0) << "-- OnRequestBegin";
+
                 request.set("Sec-WebSocket-Protocol", "echo");
 
                 request.upgrade("/ws/", "websocket");
@@ -160,6 +162,8 @@ int main(int argc, char* argv[]) {
                 }
             },
             [](Request& request) -> void {
+                VLOG(0) << "-- OnRequestBegin";
+
                 request.set("Sec-WebSocket-Protocol", "echo");
 
                 request.upgrade("/ws/", "websocket");
@@ -167,9 +171,7 @@ int main(int argc, char* argv[]) {
             [](Request& request, Response& response) -> void {
                 VLOG(0) << "-- OnResponse";
                 VLOG(0) << "     Status:";
-                VLOG(0) << "       " << response.httpVersion;
-                VLOG(0) << "       " << response.statusCode;
-                VLOG(0) << "       " << response.reason;
+                VLOG(0) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
 
                 VLOG(0) << "     Headers:";
                 for (const auto& [field, value] : *response.headers) {

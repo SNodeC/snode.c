@@ -21,10 +21,6 @@
 
 #include "net/socket/stream/SocketContext.h"
 
-namespace net::socket::stream {
-    class SocketConnection;
-} // namespace net::socket::stream
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

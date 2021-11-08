@@ -23,8 +23,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
 #include <map>
-#include <set>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -33,6 +33,11 @@ namespace net {
 
     class DynamicLoader {
     private:
+        struct Library {
+            std::string fileName = "";
+            std::size_t refCount = 0;
+        };
+
         DynamicLoader() = delete;
 
         ~DynamicLoader() = delete;
@@ -54,8 +59,8 @@ namespace net {
         static void execDlCloseDeleyed();
         static void execDlCloseAll();
 
-        static std::map<void*, std::string> dlOpenedLibraries;
-        static std::set<void*> registeredForDlClose;
+        static std::map<void*, Library> dlOpenedLibraries;
+        static std::map<void*, std::size_t> registeredForDlClose;
 
         friend class EventLoop;
     };

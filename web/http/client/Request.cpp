@@ -218,6 +218,7 @@ namespace web::http::client {
 
         if (socketContextUpgradeFactory != nullptr) {
             start();
+            socketContextUpgradeFactory->checkRefCount();
         } else {
             socketContext->terminateConnection();
         }
