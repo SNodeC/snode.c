@@ -51,7 +51,9 @@ namespace net {
     }
 
     void EventReceiver::resume() {
-        descriptorEventDispatcher.resume(this, fd);
+        if (isEnabled()) {
+            descriptorEventDispatcher.resume(this, fd);
+        }
     }
 
     void EventReceiver::enabled() {
