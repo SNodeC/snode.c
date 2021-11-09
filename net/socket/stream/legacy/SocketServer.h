@@ -28,10 +28,10 @@
 
 namespace net::socket::stream::legacy {
 
-    template <typename SocketContextFactoryT, typename SocketT>
+    template <typename SocketT, typename SocketContextFactoryT>
     class SocketServer
-        : public net::socket::stream::SocketServer<SocketContextFactoryT, net::socket::stream::legacy::SocketListener<SocketT>> {
-        using net::socket::stream::SocketServer<SocketContextFactoryT, net::socket::stream::legacy::SocketListener<SocketT>>::SocketServer;
+        : public net::socket::stream::SocketServer<net::socket::stream::legacy::SocketListener<SocketT>, SocketContextFactoryT> {
+        using net::socket::stream::SocketServer<net::socket::stream::legacy::SocketListener<SocketT>, SocketContextFactoryT>::SocketServer;
     };
 
 } // namespace net::socket::stream::legacy

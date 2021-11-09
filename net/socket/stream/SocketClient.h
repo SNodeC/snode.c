@@ -32,7 +32,7 @@
 
 namespace net::socket::stream {
 
-    template <typename SocketContextFactoryT, typename SocketConnectorT>
+    template <typename SocketConnectorT, typename SocketContextFactoryT>
     class SocketClient {
         /** Sequence diagramm showing how a connect to a peer is performed.
         @startuml

@@ -42,6 +42,7 @@ namespace net {
         if (!isSuspended()) {
             suspend();
         }
+
         descriptorEventDispatcher.disable(this, fd);
         _enabled = false;
     }

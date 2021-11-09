@@ -32,7 +32,7 @@
 
 namespace net::socket::stream {
 
-    template <typename SocketContextFactoryT, typename SocketListenerT>
+    template <typename SocketListenerT, typename SocketContextFactoryT>
     class SocketServer {
         SocketServer() = delete;
 

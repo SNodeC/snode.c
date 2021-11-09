@@ -77,6 +77,7 @@ namespace net {
 
         return ret;
     }
+
     char* DynamicLoader::dlError() {
         return net::system::dlerror();
     }
