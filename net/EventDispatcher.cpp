@@ -16,9 +16,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EVENTDISPATCHER_HPP
-#define EVENTDISPATCHER_HPP
-
 #include "net/EventDispatcher.h"
 
 #include "log/Logger.h" // for Writer, CWARNING, LOG
@@ -232,5 +229,3 @@ namespace net {
     }
 
 } // namespace net
-
-#endif // EVENTDISPATCHER_HPP

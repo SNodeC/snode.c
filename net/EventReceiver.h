@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_DESCRIPTOREVENTRECEIVER_H
-#define NET_DESCRIPTOREVENTRECEIVER_H
+#ifndef NET_EVENTRECEIVER_H
+#define NET_EVENTRECEIVER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -55,6 +55,8 @@ namespace net {
 
         explicit EventReceiver(EventDispatcher& descriptorEventDispatcher, long timeout = TIMEOUT::DISABLE);
 
+        virtual ~EventReceiver() = default;
+
     public:
         void enable(int fd);
         void disable();
@@ -63,8 +65,6 @@ namespace net {
         void resume();
 
     protected:
-        virtual ~EventReceiver() = default;
-
         void setTimeout(long timeout);
 
         bool isEnabled() const;
@@ -104,4 +104,4 @@ namespace net {
 
 } // namespace net
 
-#endif // NET_DESCRIPTOREVENTRECEIVER_H
+#endif // NET_EVENTRECEIVER_H

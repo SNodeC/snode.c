@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TIMEREVENTRECEIVER_H
-#define TIMEREVENTRECEIVER_H
+#ifndef NET_TIMEREVENTRECEIVER_H
+#define NET_TIMEREVENTRECEIVER_H
 
 #include "utils/Timeval.h" // IWYU pragma: export
 
@@ -40,4 +40,4 @@ namespace net {
 
 } // namespace net
 
-#endif // TIMEREVENTRECEIVER_H
+#endif // NET_TIMEREVENTRECEIVER_H
