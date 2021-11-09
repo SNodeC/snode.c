@@ -59,7 +59,7 @@ namespace net::socket::stream::legacy {
         }
 
         template <typename Socket>
-        friend class SocketListener;
+        friend class SocketAcceptor;
 
         template <typename Socket>
         friend class SocketConnector;

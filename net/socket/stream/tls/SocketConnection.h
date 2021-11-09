@@ -157,7 +157,7 @@ namespace net::socket::stream::tls {
         int sslErr = SSL_ERROR_NONE;
 
         template <typename Socket>
-        friend class SocketListener;
+        friend class SocketAcceptor;
 
         template <typename Socket>
         friend class SocketConnector;

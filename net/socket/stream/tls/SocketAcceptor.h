@@ -16,11 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_STREAM_TLS_SOCKETLISTENER_H
-#define NET_SOCKET_STREAM_TLS_SOCKETLISTENER_H
+#ifndef NET_SOCKET_STREAM_TLS_SOCKETACCEPTOR_H
+#define NET_SOCKET_STREAM_TLS_SOCKETACCEPTOR_H
 
 #include "log/Logger.h"
-#include "net/socket/stream/SocketListener.h"
+#include "net/socket/stream/SocketAcceptor.h"
 #include "net/socket/stream/tls/SocketConnection.h"
 #include "net/socket/stream/tls/ssl_utils.h"
 
@@ -32,24 +32,24 @@
 
 namespace net::socket::stream {
 
-    template <typename SocketProtocol, typename SocketListener>
+    template <typename SocketProtocol, typename SocketAcceptor>
     class SocketServer;
 
     namespace tls {
 
         template <typename SocketT>
-        class SocketListener : public net::socket::stream::SocketListener<net::socket::stream::tls::SocketConnection<SocketT>> {
+        class SocketAcceptor : public net::socket::stream::SocketAcceptor<net::socket::stream::tls::SocketConnection<SocketT>> {
         public:
             using SocketConnection = net::socket::stream::tls::SocketConnection<SocketT>;
             using Socket = typename SocketConnection::Socket;
             using SocketAddress = typename Socket::SocketAddress;
 
-            SocketListener(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
+            SocketAcceptor(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
                            const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                            const std::function<void(SocketConnection*)>& onConnected,
                            const std::function<void(SocketConnection*)>& onDisconnect,
                            const std::map<std::string, std::any>& options)
-                : net::socket::stream::SocketListener<SocketConnection>(
+                : net::socket::stream::SocketAcceptor<SocketConnection>(
                       socketContextFactory,
                       onConnect,
                       [onConnected, this](SocketConnection* socketConnection) -> void {
@@ -89,7 +89,7 @@ namespace net::socket::stream {
                 }
             }
 
-            ~SocketListener() override {
+            ~SocketAcceptor() override {
                 ssl_ctx_free(ctx);
             }
 
@@ -97,9 +97,9 @@ namespace net::socket::stream {
                 if (ctx == nullptr) {
                     errno = EINVAL;
                     onError(errno);
-                    net::socket::stream::SocketListener<SocketConnection>::destruct();
+                    net::socket::stream::SocketAcceptor<SocketConnection>::destruct();
                 } else {
-                    net::socket::stream::SocketListener<SocketConnection>::listen(localAddress, backlog, onError);
+                    net::socket::stream::SocketAcceptor<SocketConnection>::listen(localAddress, backlog, onError);
                 }
             }
 
@@ -122,4 +122,4 @@ namespace net::socket::stream {
 
 } // namespace net::socket::stream
 
-#endif // NET_SOCKET_STREAM_TLS_SOCKETLISTENER_H
+#endif // NET_SOCKET_STREAM_TLS_SOCKETACCEPTOR_H

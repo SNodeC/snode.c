@@ -16,10 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_STREAM_LEGACY_SOCKETLISTENER_H
-#define NET_SOCKET_STREAM_LEGACY_SOCKETLISTENER_H
+#ifndef NET_SOCKET_STREAM_LEGACY_SOCKETACCEPTOR_H
+#define NET_SOCKET_STREAM_LEGACY_SOCKETACCEPTOR_H
 
-#include "net/socket/stream/SocketListener.h"
+#include "net/socket/stream/SocketAcceptor.h"
 #include "net/socket/stream/legacy/SocketConnection.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -29,18 +29,18 @@
 namespace net::socket::stream::legacy {
 
     template <typename SocketT>
-    class SocketListener : public net::socket::stream::SocketListener<net::socket::stream::legacy::SocketConnection<SocketT>> {
+    class SocketAcceptor : public net::socket::stream::SocketAcceptor<net::socket::stream::legacy::SocketConnection<SocketT>> {
     public:
         using SocketConnection = net::socket::stream::legacy::SocketConnection<SocketT>;
         using Socket = typename SocketConnection::Socket;
         using SocketAddress = typename Socket::SocketAddress;
 
-        SocketListener(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
+        SocketAcceptor(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
                        const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,
                        const std::map<std::string, std::any>& options)
-            : net::socket::stream::SocketListener<SocketConnection>(
+            : net::socket::stream::SocketAcceptor<SocketConnection>(
                   socketContextFactory,
                   onConnect,
                   [onConnected](SocketConnection* socketConnection) -> void {
@@ -54,4 +54,4 @@ namespace net::socket::stream::legacy {
 
 } // namespace net::socket::stream::legacy
 
-#endif // NET_SOCKET_STREAM_LEGACY_SOCKETLISTENER_H
+#endif // NET_SOCKET_STREAM_LEGACY_SOCKETACCEPTOR_H

@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_STREAM_SOCKETLISTENER_H
-#define NET_SOCKET_STREAM_SOCKETLISTENER_H
+#ifndef NET_SOCKET_STREAM_SOCKETACCEPTOR_H
+#define NET_SOCKET_STREAM_SOCKETACCEPTOR_H
 
 #include "log/Logger.h"
 #include "net/AcceptEventReceiver.h"
@@ -40,12 +40,12 @@ namespace net::socket::stream {
 namespace net::socket::stream {
 
     template <typename SocketConnectionT>
-    class SocketListener
+    class SocketAcceptor
         : public SocketConnectionT::Socket
         , public AcceptEventReceiver {
-        SocketListener() = delete;
-        SocketListener(const SocketListener&) = delete;
-        SocketListener& operator=(const SocketListener&) = delete;
+        SocketAcceptor() = delete;
+        SocketAcceptor(const SocketAcceptor&) = delete;
+        SocketAcceptor& operator=(const SocketAcceptor&) = delete;
 
     public:
         using SocketConnection = SocketConnectionT;
@@ -54,10 +54,10 @@ namespace net::socket::stream {
 
         /** Sequence diagramm of res.upgrade(req).
 @startuml
-!include net/socket/stream/pu/SocketListener.pu!0
+!include net/socket/stream/pu/SocketAcceptor.pu!0
 @enduml
 */
-        SocketListener(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
+        SocketAcceptor(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
                        const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,
@@ -69,7 +69,7 @@ namespace net::socket::stream {
             , onDisconnect(onDisconnect) {
         }
 
-        virtual ~SocketListener() = default;
+        virtual ~SocketAcceptor() = default;
 
         void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) {
             Socket::open([this, &bindAddress, &backlog, &onError](int errnum) -> void {
@@ -87,10 +87,10 @@ namespace net::socket::stream {
                                     onError(errnum);
                                     destruct();
                                 } else {
-                                    int ret = net::system::listen(SocketListener::getFd(), backlog);
+                                    int ret = net::system::listen(SocketAcceptor::getFd(), backlog);
 
                                     if (ret == 0) {
-                                        AcceptEventReceiver::enable(SocketListener::getFd());
+                                        AcceptEventReceiver::enable(SocketAcceptor::getFd());
                                         onError(0);
                                     } else {
                                         onError(errno);
@@ -108,7 +108,7 @@ namespace net::socket::stream {
         void reuseAddress(const std::function<void(int)>& onError) {
             int sockopt = 1;
 
-            if (net::system::setsockopt(SocketListener::getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
+            if (net::system::setsockopt(SocketAcceptor::getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
                 onError(errno);
             } else {
                 onError(0);
@@ -122,7 +122,7 @@ namespace net::socket::stream {
             int fd = -1;
 
             fd = net::system::accept4(
-                SocketListener::getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &remoteAddressLength, SOCK_NONBLOCK);
+                SocketAcceptor::getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &remoteAddressLength, SOCK_NONBLOCK);
 
             if (fd >= 0) {
                 typename SocketAddress::SockAddr localAddress{};
@@ -144,7 +144,7 @@ namespace net::socket::stream {
         }
 
         void end() {
-            AcceptEventReceiver::disable(SocketListener::getFd());
+            AcceptEventReceiver::disable(SocketAcceptor::getFd());
         }
 
         void unobserved() override {
@@ -170,4 +170,4 @@ namespace net::socket::stream {
 
 } // namespace net::socket::stream
 
-#endif // NET_SOCKET_STREAM_SOCKETLISTENER_H
+#endif // NET_SOCKET_STREAM_SOCKETACCEPTOR_H

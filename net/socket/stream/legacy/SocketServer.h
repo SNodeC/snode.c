@@ -20,7 +20,7 @@
 #define NET_SOCKET_STREAM_LEGACY_SOCKETSERVER_H
 
 #include "net/socket/stream/SocketServer.h"
-#include "net/socket/stream/legacy/SocketListener.h"
+#include "net/socket/stream/legacy/SocketAcceptor.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,8 +30,8 @@ namespace net::socket::stream::legacy {
 
     template <typename SocketT, typename SocketContextFactoryT>
     class SocketServer
-        : public net::socket::stream::SocketServer<net::socket::stream::legacy::SocketListener<SocketT>, SocketContextFactoryT> {
-        using net::socket::stream::SocketServer<net::socket::stream::legacy::SocketListener<SocketT>, SocketContextFactoryT>::SocketServer;
+        : public net::socket::stream::SocketServer<net::socket::stream::legacy::SocketAcceptor<SocketT>, SocketContextFactoryT> {
+        using net::socket::stream::SocketServer<net::socket::stream::legacy::SocketAcceptor<SocketT>, SocketContextFactoryT>::SocketServer;
     };
 
 } // namespace net::socket::stream::legacy
