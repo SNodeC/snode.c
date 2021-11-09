@@ -130,7 +130,7 @@ namespace net {
                 if (ret != 0) {
                     VLOG(0) << "Error execDlCloseAll: " << net::DynamicLoader::dlError();
                 }
-            } while (--(it->second.refCount) > 0);
+            } while (it->second.refCount > 0);
         }
     }
 
