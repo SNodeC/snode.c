@@ -90,6 +90,7 @@ namespace web::websocket::subprotocol::echo::server {
         VLOG(0) << "Pong received";
         flyingPings = 0;
     }
+
     void Echo::onDisconnected() {
         VLOG(0) << "On protocol disconnected:";
 

@@ -30,96 +30,89 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::stream {
+namespace net::socket::stream::tls {
 
-    template <typename SocketProtocol, typename SocketAcceptor>
-    class SocketServer;
+    template <typename SocketT>
+    class SocketAcceptor : public net::socket::stream::SocketAcceptor<net::socket::stream::tls::SocketConnection<SocketT>> {
+    public:
+        using SocketConnection = net::socket::stream::tls::SocketConnection<SocketT>;
+        using Socket = typename SocketConnection::Socket;
+        using SocketAddress = typename Socket::SocketAddress;
 
-    namespace tls {
+        SocketAcceptor(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
+                       const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
+                       const std::function<void(SocketConnection*)>& onConnected,
+                       const std::function<void(SocketConnection*)>& onDisconnect,
+                       const std::map<std::string, std::any>& options)
+            : net::socket::stream::SocketAcceptor<SocketConnection>(
+                  socketContextFactory,
+                  onConnect,
+                  [onConnected, this](SocketConnection* socketConnection) -> void {
+                      SSL* ssl = socketConnection->startSSL(this->ctx);
 
-        template <typename SocketT>
-        class SocketAcceptor : public net::socket::stream::SocketAcceptor<net::socket::stream::tls::SocketConnection<SocketT>> {
-        public:
-            using SocketConnection = net::socket::stream::tls::SocketConnection<SocketT>;
-            using Socket = typename SocketConnection::Socket;
-            using SocketAddress = typename Socket::SocketAddress;
+                      if (ssl != nullptr) {
+                          SSL_CTX_set_tlsext_servername_arg(this->ctx, socketConnection);
 
-            SocketAcceptor(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
-                           const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
-                           const std::function<void(SocketConnection*)>& onConnected,
-                           const std::function<void(SocketConnection*)>& onDisconnect,
-                           const std::map<std::string, std::any>& options)
-                : net::socket::stream::SocketAcceptor<SocketConnection>(
-                      socketContextFactory,
-                      onConnect,
-                      [onConnected, this](SocketConnection* socketConnection) -> void {
-                          SSL* ssl = socketConnection->startSSL(this->ctx);
+                          SSL_set_accept_state(ssl);
 
-                          if (ssl != nullptr) {
-                              SSL_CTX_set_tlsext_servername_arg(this->ctx, socketConnection);
+                          socketConnection->doSSLHandshake(
+                              [&onConnected, socketConnection](void) -> void { // onSuccess
+                                  LOG(INFO) << "SSL/TLS initial handshake success";
+                                  socketConnection->SocketConnection::SocketReader::resume();
+                                  onConnected(socketConnection);
+                              },
+                              [](void) -> void { // onTimeout
+                                  LOG(WARNING) << "SSL/TLS initial handshake timed out";
+                              },
+                              [](int sslErr) -> void { // onError
+                                  ssl_log("SSL/TLS initial handshake failed", sslErr);
+                              });
+                      } else {
+                          socketConnection->SocketConnection::SocketReader::disable();
+                          socketConnection->SocketConnection::SocketWriter::disable();
+                          ssl_log_error("SSL/TLS initialization failed");
+                      }
+                  },
+                  [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
+                      socketConnection->stopSSL();
+                      onDisconnect(socketConnection);
+                  },
+                  options) {
+            ctx = ssl_ctx_new(options, true);
+            if (ctx != nullptr) {
+                SSL_CTX_set_tlsext_servername_callback(ctx, serverNameCallback);
+            }
+        }
 
-                              SSL_set_accept_state(ssl);
+        ~SocketAcceptor() override {
+            ssl_ctx_free(ctx);
+        }
 
-                              socketConnection->doSSLHandshake(
-                                  [&onConnected, socketConnection](void) -> void { // onSuccess
-                                      LOG(INFO) << "SSL/TLS initial handshake success";
-                                      socketConnection->SocketConnection::SocketReader::resume();
-                                      onConnected(socketConnection);
-                                  },
-                                  [](void) -> void { // onTimeout
-                                      LOG(WARNING) << "SSL/TLS initial handshake timed out";
-                                  },
-                                  [](int sslErr) -> void { // onError
-                                      ssl_log("SSL/TLS initial handshake failed", sslErr);
-                                  });
-                          } else {
-                              socketConnection->SocketConnection::SocketReader::disable();
-                              socketConnection->SocketConnection::SocketWriter::disable();
-                              ssl_log_error("SSL/TLS initialization failed");
-                          }
-                      },
-                      [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect
-                          socketConnection->stopSSL();
-                          onDisconnect(socketConnection);
-                      },
-                      options) {
-                ctx = ssl_ctx_new(options, true);
-                if (ctx != nullptr) {
-                    SSL_CTX_set_tlsext_servername_callback(ctx, serverNameCallback);
-                }
+        void listen(const SocketAddress& localAddress, int backlog, const std::function<void(int)>& onError) {
+            if (ctx == nullptr) {
+                errno = EINVAL;
+                onError(errno);
+                net::socket::stream::SocketAcceptor<SocketConnection>::destruct();
+            } else {
+                net::socket::stream::SocketAcceptor<SocketConnection>::listen(localAddress, backlog, onError);
+            }
+        }
+
+    protected:
+        static int serverNameCallback(SSL* ssl, [[maybe_unused]] int* al, void* arg) {
+            SocketConnection* socketConnection = static_cast<SocketConnection*>(arg);
+
+            if (SSL_get_servername_type(ssl) != -1) {
+                socketConnection->serverNameIndication = SSL_get_servername(ssl, TLSEXT_NAMETYPE_host_name);
+                LOG(INFO) << "ServerNameIndication: " << socketConnection->serverNameIndication;
             }
 
-            ~SocketAcceptor() override {
-                ssl_ctx_free(ctx);
-            }
+            return SSL_TLSEXT_ERR_OK;
+        }
 
-            void listen(const SocketAddress& localAddress, int backlog, const std::function<void(int)>& onError) {
-                if (ctx == nullptr) {
-                    errno = EINVAL;
-                    onError(errno);
-                    net::socket::stream::SocketAcceptor<SocketConnection>::destruct();
-                } else {
-                    net::socket::stream::SocketAcceptor<SocketConnection>::listen(localAddress, backlog, onError);
-                }
-            }
+        SSL_CTX* ctx = nullptr;
+    };
 
-        protected:
-            static int serverNameCallback(SSL* ssl, [[maybe_unused]] int* al, void* arg) {
-                SocketConnection* socketConnection = static_cast<SocketConnection*>(arg);
-
-                if (SSL_get_servername_type(ssl) != -1) {
-                    socketConnection->serverNameIndication = SSL_get_servername(ssl, TLSEXT_NAMETYPE_host_name);
-                    LOG(INFO) << "ServerNameIndication: " << socketConnection->serverNameIndication;
-                }
-
-                return SSL_TLSEXT_ERR_OK;
-            }
-
-            SSL_CTX* ctx = nullptr;
-        };
-
-    } // namespace tls
-
-} // namespace net::socket::stream
+} // namespace net::socket::stream::tls
 
 #endif // NET_SOCKET_STREAM_TLS_SOCKETACCEPTOR_H

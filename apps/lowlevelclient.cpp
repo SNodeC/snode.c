@@ -49,6 +49,11 @@
 namespace web::http {
     class CookieOptions;
 }
+
+namespace net::socket::stream {
+    class SocketConnection;
+}
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 using namespace net::socket::ip;
