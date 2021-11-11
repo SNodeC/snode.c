@@ -87,6 +87,7 @@ namespace net::socket::stream {
 
                                 if (ret == 0 || errno == EINPROGRESS) {
                                     ConnectEventReceiver::enable(SocketConnector::getFd());
+                                    SocketConnector::dontClose(true);
                                 } else {
                                     onError(errno);
                                     destruct();
@@ -125,7 +126,6 @@ namespace net::socket::stream {
                                                                                       SocketAddress(remoteAddress),
                                                                                       onConnect,
                                                                                       onDisconnect);
-                            SocketConnector::dontClose(true);
                             SocketConnector::ConnectEventReceiver::disable();
 
                             onConnected(socketConnection);
