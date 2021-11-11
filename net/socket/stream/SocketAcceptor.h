@@ -77,11 +77,13 @@ namespace net::socket::stream {
                     onError(errnum);
                     destruct();
                 } else {
+#if !defined(NDEBUG)
                     reuseAddress([this, &bindAddress, &backlog, &onError](int errnum) -> void {
                         if (errnum != 0) {
                             onError(errnum);
                             destruct();
                         } else {
+#endif
                             Socket::bind(bindAddress, [this, &backlog, &onError](int errnum) -> void {
                                 if (errnum > 0) {
                                     onError(errnum);
@@ -98,8 +100,10 @@ namespace net::socket::stream {
                                     }
                                 }
                             });
+#if !defined(NDEBUG)
                         }
                     });
+#endif
                 }
             });
         }
