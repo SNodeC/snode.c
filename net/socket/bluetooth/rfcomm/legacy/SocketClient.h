@@ -20,6 +20,7 @@
 #define NET_SOCKET_BLUETOOTH_RFCOMM_LEGACY_SOCKETCLIENT_H
 
 #include "net/socket/bluetooth/rfcomm/Socket.h"
+#include "net/socket/bluetooth/rfcomm/SocketClient.h"
 #include "net/socket/stream/legacy/SocketClient.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -29,29 +30,11 @@
 namespace net::socket::bluetooth::rfcomm::legacy {
 
     template <typename SocketContextFactoryT>
-    class SocketClient : public net::socket::stream::legacy::SocketClient<rfcomm::Socket, SocketContextFactoryT> {
-        using net::socket::stream::legacy::SocketClient<rfcomm::Socket, SocketContextFactoryT>::SocketClient;
-
-    public:
-        using SocketAddress = typename net::socket::stream::legacy::SocketClient<rfcomm::Socket, SocketContextFactoryT>::SocketAddress;
-
-        using net::socket::stream::legacy::SocketClient<rfcomm::Socket, SocketContextFactoryT>::connect;
-
-        void connect(const std::string& address, uint8_t channel, const std::function<void(int)>& onError) {
-            connect(SocketAddress(address, channel), onError);
-        }
-
-        void connect(const std::string& address, uint8_t channel, const std::string& bindAddress, const std::function<void(int)>& onError) {
-            connect(SocketAddress(address, channel), SocketAddress(bindAddress), onError);
-        }
-
-        void connect(const std::string& address,
-                     uint8_t channel,
-                     const std::string& bindAddress,
-                     uint8_t bindChannel,
-                     const std::function<void(int)>& onError) {
-            connect(SocketAddress(address, channel), SocketAddress(bindAddress, bindChannel), onError);
-        }
+    class SocketClient
+        : public net::socket::bluetooth::rfcomm::SocketClient<
+              net::socket::stream::legacy::SocketClient<rfcomm::Socket, SocketContextFactoryT>> {
+        using net::socket::bluetooth::rfcomm::SocketClient<
+            net::socket::stream::legacy::SocketClient<rfcomm::Socket, SocketContextFactoryT>>::SocketClient;
     };
 
 } // namespace net::socket::bluetooth::rfcomm::legacy
