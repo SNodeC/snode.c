@@ -31,6 +31,23 @@ namespace net::socket::bluetooth::rfcomm::legacy {
     template <typename SocketContextFactoryT>
     class SocketServer : public net::socket::stream::legacy::SocketServer<rfcomm::Socket, SocketContextFactoryT> {
         using net::socket::stream::legacy::SocketServer<rfcomm::Socket, SocketContextFactoryT>::SocketServer;
+
+    public:
+        using SocketAddress = typename net::socket::stream::legacy::SocketServer<rfcomm::Socket, SocketContextFactoryT>::SocketAddress;
+
+        using net::socket::stream::legacy::SocketServer<rfcomm::Socket, SocketContextFactoryT>::listen;
+
+        void listen(uint8_t channel, int backlog, const std::function<void(int)>& onError) {
+            listen(SocketAddress(channel), backlog, onError);
+        }
+
+        void listen(const std::string& address, int backlog, const std::function<void(int)>& onError) {
+            listen(SocketAddress(address), backlog, onError);
+        }
+
+        void listen(const std::string& address, uint8_t channel, int backlog, const std::function<void(int)>& onError) {
+            listen(SocketAddress(address, channel), backlog, onError);
+        }
     };
 
 } // namespace net::socket::bluetooth::rfcomm::legacy

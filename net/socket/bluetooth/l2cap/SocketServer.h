@@ -30,8 +30,24 @@ namespace net::socket::bluetooth::l2cap {
 
     template <typename SocketContextFactoryT>
     class SocketServer : public net::socket::stream::legacy::SocketServer<l2cap::Socket, SocketContextFactoryT> {
-    public:
         using net::socket::stream::legacy::SocketServer<l2cap::Socket, SocketContextFactoryT>::SocketServer;
+
+    public:
+        using SocketAddress = typename net::socket::stream::legacy::SocketServer<l2cap::Socket, SocketContextFactoryT>::SocketAddress;
+
+        using net::socket::stream::legacy::SocketServer<l2cap::Socket, SocketContextFactoryT>::listen;
+
+        void listen(uint16_t psm, int backlog, const std::function<void(int)>& onError) {
+            listen(SocketAddress(psm), backlog, onError);
+        }
+
+        void listen(const std::string& address, int backlog, const std::function<void(int)>& onError) {
+            listen(SocketAddress(address), backlog, onError);
+        }
+
+        void listen(const std::string& address, uint16_t psm, int backlog, const std::function<void(int)>& onError) {
+            listen(SocketAddress(address, psm), backlog, onError);
+        }
     };
 
 } // namespace net::socket::bluetooth::l2cap

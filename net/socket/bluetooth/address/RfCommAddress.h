@@ -40,7 +40,7 @@ namespace net::socket::bluetooth::address {
         RfCommAddress();
         explicit RfCommAddress(const std::string& btAddress);
         RfCommAddress(const std::string& btAddress, uint8_t channel);
-        explicit RfCommAddress(uint8_t port);
+        explicit RfCommAddress(uint8_t channel);
 
         uint8_t channel() const;
 

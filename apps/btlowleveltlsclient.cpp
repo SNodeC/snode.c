@@ -156,12 +156,12 @@ SocketClient<SimpleSocketProtocolFactory> getClient() {
 int main(int argc, char* argv[]) {
     net::SNodeC::init(argc, argv);
 
-    SocketClient<SimpleSocketProtocolFactory>::SocketAddress remoteAddress("A4:B1:C1:2C:82:37", 1); // titan
-    SocketClient<SimpleSocketProtocolFactory>::SocketAddress bindAddress("44:01:BB:A3:63:32");      // mpow
+    // "A4:B1:C1:2C:82:37" titan
+    // "44:01:BB:A3:63:32"  mpow
 
     SocketClient client = getClient();
 
-    client.connect(remoteAddress, bindAddress, [](int err) -> void {
+    client.connect("A4:B1:C1:2C:82:37", 1, "44:01:BB:A3:63:32", [](int err) -> void {
         if (err) {
             PLOG(ERROR) << "Connect: " << std::to_string(err);
         } else {

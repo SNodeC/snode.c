@@ -96,7 +96,7 @@ int main(int argc, char* argv[]) {
                            socketConnection->getRemoteAddress().toString();
         });
 
-    btServer.listen(SocketServer<SimpleSocketProtocolFactory>::SocketAddress("A4:B1:C1:2C:82:37", 1), 5, [](int errnum) -> void { // titan
+    btServer.listen("A4:B1:C1:2C:82:37", 1, 5, [](int errnum) -> void { // titan
         if (errnum != 0) {
             PLOG(ERROR) << "BT listen: " << errnum;
         } else {

@@ -210,25 +210,25 @@ int main(int argc, char* argv[]) {
             if (err != 0) {
                 PLOG(ERROR) << "OnError: " << err;
             }
-        }); // Connection:keep-alive\r\n\r\n"
+        });
 
         legacyClient.connect("localhost", 8080, [](int err) -> void {
             if (err != 0) {
                 PLOG(ERROR) << "OnError: " << err;
             }
-        }); // Connection:keep-alive\r\n\r\n"
+        });
 
         tlsClient.connect("localhost", 8088, [](int err) -> void {
             if (err != 0) {
                 PLOG(ERROR) << "OnError: " << err;
             }
-        }); // Connection:keep-alive\r\n\r\n"
+        });
 
         tlsClient.connect("localhost", 8088, [](int err) -> void {
             if (err != 0) {
                 PLOG(ERROR) << "OnError: " << err;
             }
-        }); // Connection:keep-alive\r\n\r\n"
+        });
     }
 
     return net::SNodeC::start();

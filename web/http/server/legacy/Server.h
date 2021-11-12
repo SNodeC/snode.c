@@ -32,55 +32,67 @@ namespace web::http::server::legacy {
 
     template <typename Request = web::http::server::Request, typename Response = web::http::server::Response>
     class Server : public web::http::server::Server<net::socket::ip::tcp::ipv4::legacy::SocketServer, Request, Response> {
-    public:
         using web::http::server::Server<net::socket::ip::tcp::ipv4::legacy::SocketServer, Request, Response>::Server;
-        using SocketAddress =
-            typename web::http::server::Server<net::socket::ip::tcp::ipv4::legacy::SocketServer, Request, Response>::SocketAddress;
+
+    public:
+        using web::http::server::Server<net::socket::ip::tcp::ipv4::legacy::SocketServer, Request, Response>::socketServer;
 
         using web::http::server::Server<net::socket::ip::tcp::ipv4::legacy::SocketServer, Request, Response>::listen;
 
         void listen(uint16_t port, const std::function<void(int)>& onError) {
-            listen(SocketAddress(port), onError);
+            socketServer.listen(port, 5, onError);
+        }
+
+        void listen(const std::string& ipOrHostname, const std::function<void(int)>& onError) {
+            socketServer.listen(ipOrHostname, 5, onError);
         }
 
         void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
-            listen(SocketAddress(ipOrHostname, port), onError);
+            socketServer.listen(ipOrHostname, port, 5, onError);
         }
     };
 
     template <typename Request = web::http::server::Request, typename Response = web::http::server::Response>
     class Server6 : public web::http::server::Server<net::socket::ip::tcp ::ipv6::legacy::SocketServer, Request, Response> {
-    public:
         using web::http::server::Server<net::socket::ip::tcp::ipv6::legacy::SocketServer, Request, Response>::Server;
-        using SocketAddress =
-            typename web::http::server::Server<net::socket::ip::tcp::ipv6::legacy::SocketServer, Request, Response>::SocketAddress;
+
+    public:
+        using web::http::server::Server<net::socket::ip::tcp::ipv6::legacy::SocketServer, Request, Response>::socketServer;
 
         using web::http::server::Server<net::socket::ip::tcp::ipv6::legacy::SocketServer, Request, Response>::listen;
 
         void listen(uint16_t port, const std::function<void(int)>& onError) {
-            listen(SocketAddress(port), onError);
+            socketServer.listen(port, 5, onError);
+        }
+
+        void listen(const std::string& ipOrHostname, const std::function<void(int)>& onError) {
+            socketServer.listen(ipOrHostname, 5, onError);
         }
 
         void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
-            listen(SocketAddress(ipOrHostname, port), onError);
+            socketServer.listen(ipOrHostname, port, 5, onError);
         }
     };
 
     template <typename Request = web::http::server::Request, typename Response = web::http::server::Response>
     class ServerRfComm : public web::http::server::Server<net::socket::bluetooth::rfcomm::legacy::SocketServer, Request, Response> {
-    public:
         using web::http::server::Server<net::socket::bluetooth::rfcomm::legacy::SocketServer, Request, Response>::Server;
-        using SocketAddress =
-            typename web::http::server::Server<net::socket::bluetooth::rfcomm::legacy::SocketServer, Request, Response>::SocketAddress;
+
+    public:
+        using web::http::server::Server<net::socket::bluetooth::rfcomm::legacy::SocketServer, Request, Response>::socketServer;
 
         using web::http::server::Server<net::socket::bluetooth::rfcomm::legacy::SocketServer, Request, Response>::listen;
 
         void listen(uint8_t channel, const std::function<void(int)>& onError) {
-            listen(SocketAddress(channel), onError);
+            socketServer.listen(channel, 5, onError);
+        }
+
+        void listen(const std::string& address, const std::function<void(int)>& onError) {
+            socketServer.listen(address, 5, onError);
         }
 
         void listen(const std::string& address, uint8_t channel, const std::function<void(int)>& onError) {
-            listen(SocketAddress(address, channel), onError);
+            socketServer.listen(address, channel, 5, onError);
         }
     };
 

@@ -32,15 +32,22 @@ namespace web::http::client::tls {
 
     template <typename Request = web::http::client::Request, typename Response = web::http::client::Response>
     class Client : public web::http::client::Client<net::socket::ip::tcp::ipv4::tls::SocketClient, Request, Response> {
-    public:
         using web::http::client::Client<net::socket::ip::tcp::ipv4::tls::SocketClient, Request, Response>::Client;
-        using SocketAddress =
-            typename web::http::client::Client<net::socket::ip::tcp::ipv4::tls::SocketClient, Request, Response>::SocketAddress;
+
+    public:
+        using web::http::client::Client<net::socket::ip::tcp::ipv4::tls::SocketClient, Request, Response>::socketClient;
 
         using web::http::client::Client<net::socket::ip::tcp::ipv4::tls::SocketClient, Request, Response>::connect;
 
         void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
-            connect(SocketAddress(ipOrHostname, port), onError);
+            socketClient.connect(ipOrHostname, port, onError);
+        }
+
+        void connect(const std::string& ipOrHostname,
+                     uint16_t port,
+                     const std::string& bindIpOrHostname,
+                     const std::function<void(int)>& onError) {
+            socketClient.connect(ipOrHostname, port, bindIpOrHostname, onError);
         }
 
         void connect(const std::string& ipOrHostname,
@@ -48,21 +55,28 @@ namespace web::http::client::tls {
                      const std::string& bindIpOrHostname,
                      uint16_t bindPort,
                      const std::function<void(int)>& onError) {
-            connect(SocketAddress(ipOrHostname, port), SocketAddress(bindIpOrHostname, bindPort), onError);
+            socketClient.connect(ipOrHostname, port, bindIpOrHostname, bindPort, onError);
         }
     };
 
     template <typename Request = web::http::client::Request, typename Response = web::http::client::Response>
     class Client6 : public web::http::client::Client<net::socket::ip::tcp::ipv6::tls::SocketClient, Request, Response> {
-    public:
         using web::http::client::Client<net::socket::ip::tcp::ipv6::tls::SocketClient, Request, Response>::Client;
-        using SocketAddress =
-            typename web::http::client::Client<net::socket::ip::tcp::ipv6::tls::SocketClient, Request, Response>::SocketAddress;
+
+    public:
+        using web::http::client::Client<net::socket::ip::tcp::ipv6::tls::SocketClient, Request, Response>::socketClient;
 
         using web::http::client::Client<net::socket::ip::tcp::ipv6::tls::SocketClient, Request, Response>::connect;
 
         void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
-            connect(SocketAddress(ipOrHostname, port), onError);
+            socketClient.connect(ipOrHostname, port, onError);
+        }
+
+        void connect(const std::string& ipOrHostname,
+                     uint16_t port,
+                     const std::string& bindIpOrHostname,
+                     const std::function<void(int)>& onError) {
+            socketClient.connect(ipOrHostname, port, bindIpOrHostname, onError);
         }
 
         void connect(const std::string& ipOrHostname,
@@ -70,21 +84,25 @@ namespace web::http::client::tls {
                      const std::string& bindIpOrHostname,
                      uint16_t bindPort,
                      const std::function<void(int)>& onError) {
-            connect(SocketAddress(ipOrHostname, port), SocketAddress(bindIpOrHostname, bindPort), onError);
+            socketClient.connect(ipOrHostname, port, bindIpOrHostname, bindPort, onError);
         }
     };
 
     template <typename Request = web::http::client::Request, typename Response = web::http::client::Response>
     class ClientRfComm : public web::http::client::Client<net::socket::bluetooth::rfcomm::tls::SocketClient, Request, Response> {
-    public:
         using web::http::client::Client<net::socket::bluetooth::rfcomm::tls::SocketClient, Request, Response>::Client;
-        using SocketAddress =
-            typename web::http::client::Client<net::socket::bluetooth::rfcomm::tls::SocketClient, Request, Response>::SocketAddress;
+
+    public:
+        using web::http::client::Client<net::socket::bluetooth::rfcomm::tls::SocketClient, Request, Response>::socketClient;
 
         using web::http::client::Client<net::socket::bluetooth::rfcomm::tls::SocketClient, Request, Response>::connect;
 
         void connect(const std::string& address, uint8_t channel, const std::function<void(int)>& onError) {
-            connect(SocketAddress(address, channel), onError);
+            socketClient.connect(address, channel, onError);
+        }
+
+        void connect(const std::string& address, uint8_t channel, const std::string& bindAddress, const std::function<void(int)>& onError) {
+            socketClient.connect(address, channel, bindAddress, onError);
         }
 
         void connect(const std::string& address,
@@ -92,7 +110,7 @@ namespace web::http::client::tls {
                      const std::string& bindAddress,
                      uint8_t bindChannel,
                      const std::function<void(int)>& onError) {
-            connect(SocketAddress(address, channel), SocketAddress(bindAddress, bindChannel), onError);
+            socketClient.connect(address, channel, bindAddress, bindChannel, onError);
         }
     };
 

@@ -100,14 +100,13 @@ int main(int argc, char* argv[]) {
                            socketConnection->getRemoteAddress().toString();
         });
 
-    btServer.listen(
-        SocketServer<SimpleSocketProtocolFactory>::SocketAddress("A4:B1:C1:2C:82:37", 0x1023), 5, [](int errnum) -> void { // titan
-            if (errnum != 0) {
-                LOG(ERROR) << "BT listen: " << errnum;
-            } else {
-                LOG(INFO) << "BT listening on psm 0x1023";
-            }
-        });
+    btServer.listen("A4:B1:C1:2C:82:37", 0x1023, 5, [](int errnum) -> void { // titan
+        if (errnum != 0) {
+            LOG(ERROR) << "BT listen: " << errnum;
+        } else {
+            LOG(INFO) << "BT listening on psm 0x1023";
+        }
+    });
 
     return net::SNodeC::start();
 }

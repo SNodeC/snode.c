@@ -31,6 +31,30 @@ namespace net::socket::ip::tcp::ipv6::tls {
     template <typename SocketContextFactoryT>
     class SocketClient : public net::socket::stream::tls::SocketClient<ipv6::Socket, SocketContextFactoryT> {
         using net::socket::stream::tls::SocketClient<ipv6::Socket, SocketContextFactoryT>::SocketClient;
+
+    public:
+        using SocketAddress = typename net::socket::stream::tls::SocketClient<ipv6::Socket, SocketContextFactoryT>::SocketAddress;
+
+        using net::socket::stream::tls::SocketClient<ipv6::Socket, SocketContextFactoryT>::connect;
+
+        void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
+            connect(SocketAddress(ipOrHostname, port), onError);
+        }
+
+        void connect(const std::string& ipOrHostname,
+                     uint16_t port,
+                     const std::string& bindIpOrHostname,
+                     const std::function<void(int)>& onError) {
+            connect(SocketAddress(ipOrHostname, port), bindIpOrHostname, onError);
+        }
+
+        void connect(const std::string& ipOrHostname,
+                     uint16_t port,
+                     const std::string& bindIpOrHostname,
+                     uint16_t bindPort,
+                     const std::function<void(int)>& onError) {
+            connect(SocketAddress(ipOrHostname, port), SocketAddress(bindIpOrHostname, bindPort), onError);
+        }
     };
 
 } // namespace net::socket::ip::tcp::ipv6::tls
