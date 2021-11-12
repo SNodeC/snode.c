@@ -23,10 +23,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint> // for uint16_t
-#include <functional>
-#include <string> // for string
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express {
@@ -34,9 +30,6 @@ namespace express {
     class WebApp : public Router {
     protected:
         WebApp(const Router& router);
-
-        virtual void listen(uint16_t port, const std::function<void(int)>& onError = nullptr) = 0;
-        virtual void listen(const std::string& host, uint16_t port, const std::function<void(int err)>& onError = nullptr) = 0;
 
     public:
         static void init(int argc, char* argv[]);

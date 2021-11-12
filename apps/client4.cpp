@@ -55,13 +55,14 @@ int main(int argc, char* argv[]) {
             [](const legacy::Client<>::SocketAddress& localAddress, const legacy::Client<>::SocketAddress& remoteAddress) -> void {
                 VLOG(0) << "-- OnConnect";
 
-                VLOG(0) << "\tServer: " + remoteAddress.toString();
-                VLOG(0) << "\tClient: " + localAddress.toString();
+                VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
+                VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
             },
             []([[maybe_unused]] legacy::Client<>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnConnected";
             },
             [](Request& request) -> void {
+                request.host = "localhost:8080";
                 request.url = "/index.html";
                 request.set("Connection", "close");
                 request.start();
@@ -100,16 +101,18 @@ int main(int argc, char* argv[]) {
             [](legacy::Client<>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnDisconnect";
 
-                VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-                VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+                VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
+                               socketConnection->getRemoteAddress().toString();
+                VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
+                               socketConnection->getLocalAddress().toString();
             });
 
         tls::Client<> tlsClient(
             [](const tls::Client<>::SocketAddress& localAddress, const tls::Client<>::SocketAddress& remoteAddress) -> void {
                 VLOG(0) << "-- OnConnect";
 
-                VLOG(0) << "\tServer: " + remoteAddress.toString();
-                VLOG(0) << "\tClient: " + localAddress.toString();
+                VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
+                VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
             },
             [](tls::Client<>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnConnected";
@@ -198,8 +201,10 @@ int main(int argc, char* argv[]) {
             [](tls::Client<>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnDisconnect";
 
-                VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-                VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+                VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
+                               socketConnection->getRemoteAddress().toString();
+                VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
+                               socketConnection->getLocalAddress().toString();
             },
             {{"caFile", SERVERCAFILE}});
 

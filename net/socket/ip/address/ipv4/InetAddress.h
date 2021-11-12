@@ -58,9 +58,9 @@ namespace net::socket::ip::address::ipv4 {
 
         uint16_t port() const;
         std::string host() const;
-        std::string ip() const;
         std::string serv() const;
 
+        std::string address() const override;
         std::string toString() const override;
     };
 

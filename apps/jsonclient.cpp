@@ -44,8 +44,8 @@ int main(int argc, char* argv[]) {
            const web::http::client::legacy::Client<>::SocketAddress& remoteAddress) -> void {
             VLOG(0) << "-- OnConnect";
 
-            VLOG(0) << "\tServer: " + remoteAddress.toString();
-            VLOG(0) << "\tClient: " + localAddress.toString();
+            VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
+            VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
         },
         []([[maybe_unused]] web::http::client::legacy::Client<>::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnConnected";
@@ -92,8 +92,10 @@ int main(int argc, char* argv[]) {
         [](web::http::client::legacy::Client<>::SocketConnection* socketConnection) -> void {
             VLOG(0) << "-- OnDisconnect";
 
-            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+            VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
+                           socketConnection->getRemoteAddress().toString();
+            VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
+                           socketConnection->getLocalAddress().toString();
         });
 
     jsonClient.connect("localhost", 8080, [](int err) -> void {

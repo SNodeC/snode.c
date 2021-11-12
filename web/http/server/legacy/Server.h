@@ -19,6 +19,7 @@
 #ifndef WEB_HTTP_SERVER_LEGACY_SERVER_H
 #define WEB_HTTP_SERVER_LEGACY_SERVER_H
 
+#include "net/socket/bluetooth/rfcomm/legacy/SocketServer.h"
 #include "net/socket/ip/tcp/ipv4/legacy/SocketServer.h"
 #include "net/socket/ip/tcp/ipv6/legacy/SocketServer.h"
 #include "web/http/server/Server.h"
@@ -33,12 +34,43 @@ namespace web::http::server::legacy {
     class Server : public web::http::server::Server<net::socket::ip::tcp::ipv4::legacy::SocketServer, Request, Response> {
     public:
         using web::http::server::Server<net::socket::ip::tcp::ipv4::legacy::SocketServer, Request, Response>::Server;
+        using web::http::server::Server<net::socket::ip::tcp::ipv4::legacy::SocketServer, Request, Response>::listen;
+        using SocketAddress =
+            typename web::http::server::Server<net::socket::ip::tcp::ipv4::legacy::SocketServer, Request, Response>::SocketAddress;
+
+        void listen(uint16_t port, const std::function<void(int)>& onError) {
+            listen(SocketAddress(port), onError);
+        }
+
+        void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
+            listen(SocketAddress(ipOrHostname, port), onError);
+        }
     };
 
     template <typename Request = web::http::server::Request, typename Response = web::http::server::Response>
     class Server6 : public web::http::server::Server<net::socket::ip::tcp ::ipv6::legacy::SocketServer, Request, Response> {
     public:
         using web::http::server::Server<net::socket::ip::tcp::ipv6::legacy::SocketServer, Request, Response>::Server;
+        using web::http::server::Server<net::socket::ip::tcp::ipv6::legacy::SocketServer, Request, Response>::listen;
+        using SocketAddress =
+            typename web::http::server::Server<net::socket::ip::tcp::ipv6::legacy::SocketServer, Request, Response>::SocketAddress;
+
+        void listen(uint16_t port, const std::function<void(int)>& onError) {
+            listen(SocketAddress(port), onError);
+        }
+
+        void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
+            listen(SocketAddress(ipOrHostname, port), onError);
+        }
+    };
+
+    template <typename Request = web::http::server::Request, typename Response = web::http::server::Response>
+    class ServerRfComm : public web::http::server::Server<net::socket::bluetooth::rfcomm::legacy::SocketServer, Request, Response> {
+    public:
+        using web::http::server::Server<net::socket::bluetooth::rfcomm::legacy::SocketServer, Request, Response>::Server;
+        using web::http::server::Server<net::socket::bluetooth::rfcomm::legacy::SocketServer, Request, Response>::listen;
+        using SocketAddress =
+            typename web::http::server::Server<net::socket::bluetooth::rfcomm::legacy::SocketServer, Request, Response>::SocketAddress;
     };
 
 } // namespace web::http::server::legacy

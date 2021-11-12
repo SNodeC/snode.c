@@ -61,8 +61,10 @@ namespace web::http::client {
                           dynamic_cast<web::http::client::SocketContext<Request, Response>*>(socketConnection->getSocketContext())
                               ->getRequest();
 
-                      request.setHost(socketConnection->getRemoteAddress().host() + ":" +
-                                      std::to_string(socketConnection->getRemoteAddress().port()));
+                      //                      request.setHost(socketConnection->getRemoteAddress().host() + ":" +
+                      //                                      std::to_string(socketConnection->getRemoteAddress().port()));
+                      request.setHost(socketConnection->getRemoteAddress().toString());
+
                       onConnected(socketConnection);
 
                       onRequestBegin(request);
@@ -75,8 +77,12 @@ namespace web::http::client {
             socketClient.getSocketContextFactory()->setOnResponseError(onResponseError);
         }
 
-        void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
-            socketClient.connect(SocketAddress(ipOrHostname, port), onError);
+        void connect(const SocketAddress& socketAddress, const std::function<void(int)>& onError) {
+            socketClient.connect(socketAddress, onError);
+        }
+
+        void connect(const SocketAddress& socketAddress, const SocketAddress& bindAddress, const std::function<void(int)>& onError) {
+            socketClient.connect(socketAddress, bindAddress, onError);
         }
 
         void onConnect(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect) {

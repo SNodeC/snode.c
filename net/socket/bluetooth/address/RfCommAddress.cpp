@@ -62,7 +62,7 @@ namespace net::socket::bluetooth::address {
     }
 
     std::string RfCommAddress::toString() const {
-        return address() + "(" + address() + "):" + std::to_string(channel());
+        return address() + ":" + std::to_string(channel());
     }
 
 } // namespace net::socket::bluetooth::address

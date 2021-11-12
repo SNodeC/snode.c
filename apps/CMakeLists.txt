@@ -16,7 +16,7 @@ target_link_libraries(simpleserver PRIVATE snodec::express)
 install(TARGETS simpleserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(simpleserver6 simpleserver6.cpp)
-target_link_libraries(simpleserver6 PRIVATE express)
+target_link_libraries(simpleserver6 PRIVATE snodec::express)
 install(TARGETS simpleserver6 RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(simpleserver6clientcert simpleserver6clientcert.cpp)
@@ -103,6 +103,21 @@ if(BLUEZ_FOUND)
     install(TARGETS l2lowlevelserver
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
+
+    add_executable(simpleserverrfcomm simpleserverrfcomm.cpp)
+    target_link_libraries(
+        simpleserverrfcomm PRIVATE snodec::express snodec::net-bt
+    )
+    install(TARGETS simpleserverrfcomm
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    )
+
+    add_executable(clientrfcomm clientrfcomm.cpp)
+    target_link_libraries(
+        clientrfcomm PRIVATE snodec::httpclient snodec::net-bt
+    )
+    install(TARGETS clientrfcomm RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
 endif(BLUEZ_FOUND)
 
 add_executable(vhostserver vhostserver.cpp)

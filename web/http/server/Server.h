@@ -64,12 +64,8 @@ namespace web::http::server {
             socketServer.getSocketContextFactory()->setOnRequestReady(onRequestReady);
         }
 
-        void listen(uint16_t port, const std::function<void(int)>& onError) {
-            socketServer.listen(SocketAddress(port), 5, onError);
-        }
-
-        void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
-            socketServer.listen(SocketAddress(ipOrHostname, port), 5, onError);
+        void listen(const SocketAddress& socketAddress, const std::function<void(int)>& onError) {
+            socketServer.listen(socketAddress, 5, onError);
         }
 
         void onConnect(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect) {

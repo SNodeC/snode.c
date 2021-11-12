@@ -62,7 +62,7 @@ namespace net::socket::bluetooth::address {
     }
 
     std::string L2CapAddress::toString() const {
-        return address() + "(" + address() + "):" + std::to_string(psm());
+        return address() + ":" + std::to_string(psm());
     }
 
 } // namespace net::socket::bluetooth::address

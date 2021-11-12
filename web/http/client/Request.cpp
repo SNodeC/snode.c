@@ -153,7 +153,9 @@ namespace web::http::client {
 
         enqueue(method + " " + url + queryString + " " + httpVersion + "\r\n");
 
-        enqueue("Host: " + host + "\r\n");
+        if (!host.empty()) {
+            enqueue("Host: " + host + "\r\n");
+        }
         enqueue("Date: " + httputils::to_http_date() + "\r\n");
 
         headers.insert({{"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}, {"X-Powered-By", "snode.c"}});

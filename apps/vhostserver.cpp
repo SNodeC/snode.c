@@ -87,15 +87,17 @@ int main(int argc, char* argv[]) {
                                 const express::tls::WebApp6::SocketAddress& remoteAddress) -> void {
                 VLOG(0) << "OnConnect:";
 
-                VLOG(0) << "\tServer: " + localAddress.toString();
-                VLOG(0) << "\tClient: " + remoteAddress.toString();
+                VLOG(0) << "\tServer: (" + localAddress.address() + ") " + localAddress.toString();
+                VLOG(0) << "\tClient: (" + remoteAddress.address() + ") " + remoteAddress.toString();
             });
 
             tlsApp.onDisconnect([](tls::WebApp6::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "OnDisconnect:";
 
-                VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
-                VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
+                VLOG(0) << "\tServer: (" + socketConnection->getLocalAddress().address() + ") " +
+                               socketConnection->getLocalAddress().toString();
+                VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " +
+                               socketConnection->getRemoteAddress().toString();
             });
 
             tlsApp.listen(8088, [](int err) -> void {

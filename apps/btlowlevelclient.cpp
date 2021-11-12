@@ -79,8 +79,8 @@ SocketClient<SimpleSocketProtocolFactory> getClient() {
            const SocketClient<SimpleSocketProtocolFactory>::SocketAddress& remoteAddress) -> void { // onConnect
             VLOG(0) << "OnConnect";
 
-            VLOG(0) << "\tServer: " + remoteAddress.toString();
-            VLOG(0) << "\tClient: " + localAddress.toString();
+            VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
+            VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
         },
         [](SocketClient<SimpleSocketProtocolFactory>::SocketConnection* socketConnection) -> void { // onConnected
             VLOG(0) << "OnConnected";
@@ -90,8 +90,10 @@ SocketClient<SimpleSocketProtocolFactory> getClient() {
         [](SocketClient<SimpleSocketProtocolFactory>::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
 
-            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+            VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
+                           socketConnection->getRemoteAddress().toString();
+            VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
+                           socketConnection->getLocalAddress().toString();
         },
         {{}});
 }

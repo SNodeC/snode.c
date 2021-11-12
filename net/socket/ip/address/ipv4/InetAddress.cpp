@@ -96,7 +96,7 @@ namespace net::socket::ip::address::ipv4 {
         return host;
     }
 
-    std::string InetAddress::ip() const {
+    std::string InetAddress::address() const {
         char ip[NI_MAXHOST];
         net::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), ip, 256, nullptr, 0, NI_NUMERICHOST);
 
@@ -111,7 +111,7 @@ namespace net::socket::ip::address::ipv4 {
     }
 
     std::string InetAddress::toString() const {
-        return host() + "(" + ip() + "):" + std::to_string(port());
+        return host() + ":" + std::to_string(port());
     }
 
 } // namespace net::socket::ip::address::ipv4

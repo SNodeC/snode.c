@@ -43,8 +43,8 @@ namespace net::socket::bluetooth::address {
         explicit RfCommAddress(uint8_t port);
 
         uint8_t channel() const;
-        std::string address() const;
 
+        std::string address() const override;
         std::string toString() const override;
     };
 

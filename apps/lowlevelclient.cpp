@@ -222,8 +222,8 @@ legacy::SocketClient<tcp::ipv4::Socket, SimpleSocketProtocolFactory> getLegacyCl
             -> void { // OnConnect
             VLOG(0) << "OnConnect";
 
-            VLOG(0) << "\tServer: " + remoteAddress.toString();
-            VLOG(0) << "\tClient: " + localAddress.toString();
+            VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
+            VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
         },
         [](legacy::SocketClient<tcp::ipv4::Socket, SimpleSocketProtocolFactory>::SocketConnection* socketConnection)
             -> void { // onConnected
@@ -235,9 +235,10 @@ legacy::SocketClient<tcp::ipv4::Socket, SimpleSocketProtocolFactory> getLegacyCl
             -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
 
-            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
-
+            VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
+                           socketConnection->getRemoteAddress().toString();
+            VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
+                           socketConnection->getLocalAddress().toString();
         },
         {{}});
 

@@ -69,6 +69,7 @@ namespace net::socket {
             return sizeof(SockAddr);
         }
 
+        virtual std::string address() const = 0;
         virtual std::string toString() const = 0;
 
     protected:

@@ -90,8 +90,8 @@ int main(int argc, char* argv[]) {
            const SocketServer<SimpleSocketProtocolFactory>::SocketAddress& remoteAddress) -> void { // OnConnect
             VLOG(0) << "OnConnect";
 
-            VLOG(0) << "\tServer: " + localAddress.toString();
-            VLOG(0) << "\tClient: " + remoteAddress.toString();
+            VLOG(0) << "\tServer: (" + localAddress.address() + ") " + localAddress.toString();
+            VLOG(0) << "\tClient: (" + remoteAddress.address() + ") " + remoteAddress.toString();
         },
         [](SocketServer<SimpleSocketProtocolFactory>::SocketConnection* socketConnection) -> void { // onConnected
             VLOG(0) << "OnConnected";
@@ -144,8 +144,10 @@ int main(int argc, char* argv[]) {
         [](SocketServer<SimpleSocketProtocolFactory>::SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
 
-            VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
-            VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
+            VLOG(0) << "\tServer: (" + socketConnection->getLocalAddress().address() + ") " +
+                           socketConnection->getLocalAddress().toString();
+            VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " +
+                           socketConnection->getRemoteAddress().toString();
         },
         {{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}, {"caFile", CLIENTCAFILE}});
 

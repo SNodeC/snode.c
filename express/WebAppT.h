@@ -55,14 +55,16 @@ namespace express {
                      const SocketAddress& remoteAddress) -> void { // onConnect
                       VLOG(0) << "OnConnect:";
 
-                      VLOG(0) << "\tServer: " + localAddress.toString();
-                      VLOG(0) << "\tClient: " + remoteAddress.toString();
+                      VLOG(0) << "\tServer: (" + localAddress.address() + ") " + localAddress.toString();
+                      VLOG(0) << "\tClient: (" + remoteAddress.address() + ") " + remoteAddress.toString();
                   },
                   [](SocketConnection* socketConnection) -> void { // onConnected
                       VLOG(0) << "OnConnected:";
 
-                      VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
-                      VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
+                      VLOG(0) << "\tServer: (" + socketConnection->getLocalAddress().address() + ") " +
+                                     socketConnection->getLocalAddress().toString();
+                      VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " +
+                                     socketConnection->getRemoteAddress().toString();
                   },
                   [routerDispatcher = this->routerDispatcher](express::Request& req,
                                                               express::Response& res) -> void { // onRequestReady
@@ -72,18 +74,16 @@ namespace express {
                   [](SocketConnection* socketConnection) -> void { // onDisconnect
                       VLOG(0) << "OnDisconnect:";
 
-                      VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
-                      VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
+                      VLOG(0) << "\tServer: (" + socketConnection->getLocalAddress().address() + ") " +
+                                     socketConnection->getLocalAddress().toString();
+                      VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " +
+                                     socketConnection->getRemoteAddress().toString();
                   },
                   options) {
         }
 
-        void listen(uint16_t port, const std::function<void(int err)>& onError = nullptr) override {
-            server.listen(port, onError);
-        }
-
-        void listen(const std::string& host, uint16_t port, const std::function<void(int err)>& onError = nullptr) override {
-            server.listen(host, port, onError);
+        void listen(const SocketAddress& socketAddress, const std::function<void(int err)>& onError = nullptr) {
+            server.listen(socketAddress, onError);
         }
 
         void onConnect(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect) {

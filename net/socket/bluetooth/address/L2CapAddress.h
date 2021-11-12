@@ -43,8 +43,8 @@ namespace net::socket::bluetooth::address {
         explicit L2CapAddress(uint16_t psm);
 
         uint16_t psm() const;
-        std::string address() const;
 
+        std::string address() const override;
         std::string toString() const override;
     };
 
