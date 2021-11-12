@@ -101,9 +101,4 @@ namespace web::http::client {
         return response;
     }
 
-    template <typename Request, typename Response>
-    void SocketContext<Request, Response>::terminateConnection() {
-        close();
-    }
-
 } // namespace web::http::client

@@ -157,7 +157,7 @@ namespace web::http::server {
                 onRequestReady(requestContext.request, requestContext.response);
             } else {
                 requestContext.response.status(requestContext.status).send(requestContext.reason);
-                terminateConnection();
+                close();
             }
         }
     }
@@ -177,7 +177,7 @@ namespace web::http::server {
             (requestContext.request.httpMajor == 1 && requestContext.request.httpMinor == 1 &&
              requestContext.request.connectionState == ConnectionState::Close) ||
             (requestContext.response.connectionState == ConnectionState::Close)) {
-            terminateConnection();
+            close();
         } else {
             reset();
 
@@ -191,7 +191,7 @@ namespace web::http::server {
                     onRequestReady(requestContext.request, requestContext.response);
                 } else {
                     requestContext.response.status(requestContext.status).send(requestContext.reason);
-                    terminateConnection();
+                    close();
                 }
             }
         }
@@ -206,19 +206,6 @@ namespace web::http::server {
         }
 
         requestInProgress = false;
-    }
-
-    template <typename Request, typename Response>
-    void SocketContext<Request, Response>::terminateConnection() {
-        if (!connectionTerminated) {
-            close();
-            requestContexts.clear();
-            connectionTerminated = true;
-        } else {
-            VLOG(0) << "####################: double terminateConnection";
-        }
-
-        reset();
     }
 
 } // namespace web::http::server

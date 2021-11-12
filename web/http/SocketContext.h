@@ -39,7 +39,6 @@ namespace web::http {
 
     public:
         virtual void sendToPeerCompleted() = 0;
-        virtual void terminateConnection() = 0;
     };
 
 } // namespace web::http

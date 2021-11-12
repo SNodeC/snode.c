@@ -80,15 +80,15 @@ namespace web::http::client {
 
             if (socketContextUpgradeFactory != nullptr) {
                 if (socketContext->switchSocketContext(socketContextUpgradeFactory) == nullptr) {
-                    socketContext->terminateConnection();
+                    socketContext->close();
                 }
             } else {
                 VLOG(0) << "SocketContextUpgradeFactory not existing";
-                socketContext->terminateConnection();
+                socketContext->close();
             }
         } else {
             VLOG(0) << "Response did not contain upgrade";
-            socketContext->terminateConnection();
+            socketContext->close();
         }
     }
 

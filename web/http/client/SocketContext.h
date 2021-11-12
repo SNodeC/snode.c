@@ -61,8 +61,6 @@ namespace web::http::client {
         void onWriteError(int errnum) override;
         void onReadError(int errnum) override;
 
-        void terminateConnection() override;
-
         void sendToPeerCompleted() override;
 
         Request request;

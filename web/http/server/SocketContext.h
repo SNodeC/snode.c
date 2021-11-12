@@ -74,8 +74,6 @@ namespace web::http::server {
 
         void sendToPeerCompleted() override;
 
-        void terminateConnection() override;
-
         std::function<void(Request& req, Response& res)> onRequestReady;
 
         RequestParser parser;

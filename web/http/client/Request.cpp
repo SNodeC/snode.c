@@ -130,7 +130,7 @@ namespace web::http::client {
             if (contentSent == contentLength) {
                 socketContext->sendToPeerCompleted();
             } else if (contentSent > contentLength) {
-                socketContext->terminateConnection();
+                socketContext->close();
             }
         }
     }
@@ -222,7 +222,7 @@ namespace web::http::client {
             start();
             socketContextUpgradeFactory->checkRefCount();
         } else {
-            socketContext->terminateConnection();
+            socketContext->close();
         }
     }
 
@@ -244,7 +244,7 @@ namespace web::http::client {
 
     void Request::error([[maybe_unused]] int errnum) {
         PLOG(ERROR) << "Stream error: ";
-        socketContext->terminateConnection();
+        socketContext->close();
     }
 
 } // namespace web::http::client

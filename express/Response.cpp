@@ -52,7 +52,7 @@ namespace express {
                 headers.insert_or_assign("Content-Length", std::to_string(std::filesystem::file_size(absolutFileName)));
 
                 FileReader::connect(absolutFileName, *this, [this, onError](int err) -> void {
-                    socketContext->terminateConnection();
+                    socketContext->close();
                     onError(err);
                 });
             } else {

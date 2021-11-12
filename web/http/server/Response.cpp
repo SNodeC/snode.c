@@ -54,7 +54,7 @@ namespace web::http::server {
             if (contentSent == contentLength) {
                 socketContext->sendToPeerCompleted();
             } else if (contentSent > contentLength) {
-                socketContext->terminateConnection();
+                socketContext->close();
             }
         }
     }
@@ -214,7 +214,7 @@ namespace web::http::server {
 
     void Response::error([[maybe_unused]] int errnum) {
         PLOG(ERROR) << "Stream error: ";
-        socketContext->terminateConnection();
+        socketContext->close();
     }
 
     void Response::reset() {
