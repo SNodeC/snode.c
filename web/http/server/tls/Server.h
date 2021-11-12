@@ -34,9 +34,10 @@ namespace web::http::server::tls {
     class Server : public web::http::server::Server<net::socket::ip::tcp::ipv4::tls::SocketServer, Request, Response> {
     public:
         using web::http::server::Server<net::socket::ip::tcp::ipv4::tls::SocketServer, Request, Response>::Server;
-        using web::http::server::Server<net::socket::ip::tcp::ipv4::tls::SocketServer, Request, Response>::listen;
         using SocketAddress =
             typename web::http::server::Server<net::socket::ip::tcp::ipv4::tls::SocketServer, Request, Response>::SocketAddress;
+
+        using web::http::server::Server<net::socket::ip::tcp::ipv4::tls::SocketServer, Request, Response>::listen;
 
         void listen(uint16_t port, const std::function<void(int)>& onError) {
             listen(SocketAddress(port), onError);
@@ -51,9 +52,10 @@ namespace web::http::server::tls {
     class Server6 : public web::http::server::Server<net::socket::ip::tcp::ipv6::tls::SocketServer, Request, Response> {
     public:
         using web::http::server::Server<net::socket::ip::tcp::ipv6::tls::SocketServer, Request, Response>::Server;
-        using web::http::server::Server<net::socket::ip::tcp::ipv6::tls::SocketServer, Request, Response>::listen;
         using SocketAddress =
             typename web::http::server::Server<net::socket::ip::tcp::ipv6::tls::SocketServer, Request, Response>::SocketAddress;
+
+        using web::http::server::Server<net::socket::ip::tcp::ipv6::tls::SocketServer, Request, Response>::listen;
 
         void listen(uint16_t port, const std::function<void(int)>& onError) {
             listen(SocketAddress(port), onError);
@@ -68,9 +70,18 @@ namespace web::http::server::tls {
     class ServerRfComm : public web::http::server::Server<net::socket::bluetooth::rfcomm::tls::SocketServer, Request, Response> {
     public:
         using web::http::server::Server<net::socket::bluetooth::rfcomm::tls::SocketServer, Request, Response>::Server;
-        using web::http::server::Server<net::socket::bluetooth::rfcomm::tls::SocketServer, Request, Response>::listen;
         using SocketAddress =
             typename web::http::server::Server<net::socket::bluetooth::rfcomm::tls::SocketServer, Request, Response>::SocketAddress;
+
+        using web::http::server::Server<net::socket::bluetooth::rfcomm::tls::SocketServer, Request, Response>::listen;
+
+        void listen(uint8_t channel, const std::function<void(int)>& onError) {
+            listen(SocketAddress(channel), onError);
+        }
+
+        void listen(const std::string& address, uint8_t channel, const std::function<void(int)>& onError) {
+            listen(SocketAddress(address, channel), onError);
+        }
     };
 
 } // namespace web::http::server::tls
