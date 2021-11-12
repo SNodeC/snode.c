@@ -169,9 +169,7 @@ int main(int argc, char* argv[]) {
             []([[maybe_unused]] Request& request, const Response& response) -> void {
                 VLOG(0) << "-- OnResponse";
                 VLOG(0) << "     Status:";
-                VLOG(0) << "       " << response.httpVersion;
-                VLOG(0) << "       " << response.statusCode;
-                VLOG(0) << "       " << response.reason;
+                VLOG(0) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
 
                 VLOG(0) << "     Headers:";
                 for (const auto& [field, value] : *response.headers) {
@@ -209,33 +207,41 @@ int main(int argc, char* argv[]) {
             },
             {{"caFile", SERVERCAFILE}});
 
-        legacy::ClientRfComm<>::SocketAddress remoteAddress("A4:B1:C1:2C:82:37", 1); // titan
-        legacy::ClientRfComm<>::SocketAddress bindAddress("44:01:BB:A3:63:32");      // mpow
+        legacy::ClientRfComm<>::SocketAddress remoteAddress1("A4:B1:C1:2C:82:37", 1); // titan
+        legacy::ClientRfComm<>::SocketAddress bindAddress("44:01:BB:A3:63:32");       // mpow
 
-        legacyClient.connect(remoteAddress, bindAddress, [](int err) -> void {
+        legacyClient.connect(remoteAddress1, bindAddress, [](int err) -> void {
             if (err != 0) {
                 PLOG(ERROR) << "OnError: " << err;
             }
         }); // Connection:keep-alive\r\n\r\n"
-            /*
-                    legacyClient.connect("localhost", 8080, [](int err) -> void {
-                        if (err != 0) {
-                            PLOG(ERROR) << "OnError: " << err;
-                        }
-                    }); // Connection:keep-alive\r\n\r\n"
 
-                    tlsClient.connect("localhost", 8088, [](int err) -> void {
-                        if (err != 0) {
-                            PLOG(ERROR) << "OnError: " << err;
-                        }
-                    }); // Connection:keep-alive\r\n\r\n"
+        tls::ClientRfComm<>::SocketAddress remoteAddress2("A4:B1:C1:2C:82:37", 2); // titan
+        tlsClient.connect(remoteAddress2, bindAddress, [](int err) -> void {
+            if (err != 0) {
+                PLOG(ERROR) << "OnError: " << err;
+            }
+        }); // Connection:keep-alive\r\n\r\n"
 
-                    tlsClient.connect("localhost", 8088, [](int err) -> void {
-                        if (err != 0) {
-                            PLOG(ERROR) << "OnError: " << err;
-                        }
-                    }); // Connection:keep-alive\r\n\r\n"
-                    */
+        /*
+                legacyClient.connect("localhost", 8080, [](int err) -> void {
+                    if (err != 0) {
+                        PLOG(ERROR) << "OnError: " << err;
+                    }
+                }); // Connection:keep-alive\r\n\r\n"
+
+                tlsClient.connect("localhost", 8088, [](int err) -> void {
+                    if (err != 0) {
+                        PLOG(ERROR) << "OnError: " << err;
+                    }
+                }); // Connection:keep-alive\r\n\r\n"
+
+                tlsClient.connect("localhost", 8088, [](int err) -> void {
+                    if (err != 0) {
+                        PLOG(ERROR) << "OnError: " << err;
+                    }
+                }); // Connection:keep-alive\r\n\r\n"
+                */
     }
 
     return net::SNodeC::start();

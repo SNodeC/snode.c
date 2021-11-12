@@ -21,6 +21,7 @@
 #include "config.h" // just for this example app
 #include "express/legacy/WebApp.h"
 #include "express/middleware/StaticMiddleware.h"
+#include "express/tls/WebApp.h"
 #include "log/Logger.h"
 #include "net/socket/bluetooth/address/RfCommAddress.h" // for RfCommAddress
 
@@ -62,37 +63,36 @@ int main(int argc, char* argv[]) {
 
     legacyApp.listen("A4:B1:C1:2C:82:37", 1, [](int err) -> void {
         if (err != 0) {
-            PLOG(FATAL) << "listen on port 8080";
+            PLOG(ERROR) << "BT listen: " << err;
         } else {
-            VLOG(0) << "snode.c listening on port 8080 for legacy connections";
+            LOG(INFO) << "BT (legacy) listening on channel 1";
         }
     });
-    /*
-        tls::WebApp tlsApp(getRouter(), {{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
 
-        tlsApp.onConnect([](const tls::WebApp::SocketAddress& localAddress, const tls::WebApp::SocketAddress& remoteAddress) -> void {
+    tls::WebAppRfComm tlsApp(getRouter(), {{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
+
+    tlsApp.onConnect(
+        [](const tls::WebAppRfComm::SocketAddress& localAddress, const tls::WebAppRfComm::SocketAddress& remoteAddress) -> void {
             VLOG(0) << "OnConnect:";
 
             VLOG(0) << "\tServer: (" + localAddress.address() + ") " + localAddress.toString();
-            VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " +
-                           socketConnection->getRemoteAddress().toString();
+            VLOG(0) << "\tClient: (" + remoteAddress.address() + ") " + remoteAddress.toString();
         });
 
-        tlsApp.onDisconnect([](tls::WebApp::SocketConnection* socketConnection) -> void {
-            VLOG(0) << "OnDisconnect:";
+    tlsApp.onDisconnect([](tls::WebAppRfComm::SocketConnection* socketConnection) -> void {
+        VLOG(0) << "OnDisconnect:";
 
-            VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().toString();
-            VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().toString();
-        });
+        VLOG(0) << "\tServer: (" + socketConnection->getLocalAddress().address() + ") " + socketConnection->getLocalAddress().toString();
+        VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " + socketConnection->getRemoteAddress().toString();
+    });
 
-        tlsApp.listen(8088, [](int err) -> void {
-            if (err != 0) {
-                PLOG(FATAL) << "listen on port 8088";
-            } else {
-                VLOG(0) << "snode.c listening on port 8088 for SSL/TLS connections";
-            }
-        });
-    */
+    tlsApp.listen("A4:B1:C1:2C:82:37", 2, [](int err) -> void {
+        if (err != 0) {
+            PLOG(ERROR) << "BT listen: " << err;
+        } else {
+            LOG(INFO) << "BT (tls) listening on channel 2";
+        }
+    });
 
     return WebApp::start();
 }
