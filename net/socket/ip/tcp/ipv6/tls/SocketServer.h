@@ -19,6 +19,7 @@
 #ifndef NET_SOCKET_IP_TCP_IPV6_TLS_SOCKETSERVER_H
 #define NET_SOCKET_IP_TCP_IPV6_TLS_SOCKETSERVER_H
 
+#include "net/socket/ip/tcp/SocketServer.h"
 #include "net/socket/ip/tcp/ipv6/Socket.h"
 #include "net/socket/stream/tls/SocketServer.h"
 
@@ -29,25 +30,9 @@
 namespace net::socket::ip::tcp::ipv6::tls {
 
     template <typename SocketContextFactoryT>
-    class SocketServer : public net::socket::stream::tls::SocketServer<ipv6::Socket, SocketContextFactoryT> {
-        using net::socket::stream::tls::SocketServer<ipv6::Socket, SocketContextFactoryT>::SocketServer;
-
-    public:
-        using SocketAddress = typename net::socket::stream::tls::SocketServer<ipv6::Socket, SocketContextFactoryT>::SocketAddress;
-
-        using net::socket::stream::tls::SocketServer<ipv6::Socket, SocketContextFactoryT>::listen;
-
-        void listen(uint16_t port, int backlog, const std::function<void(int)>& onError) {
-            listen(SocketAddress(port), backlog, onError);
-        }
-
-        void listen(const std::string& ipOrHostname, int backlog, const std::function<void(int)>& onError) {
-            listen(SocketAddress(ipOrHostname), backlog, onError);
-        }
-
-        void listen(const std::string& ipOrHostname, uint16_t port, int backlog, const std::function<void(int)>& onError) {
-            listen(SocketAddress(ipOrHostname, port), backlog, onError);
-        }
+    class SocketServer
+        : public net::socket::ip::tcp::SocketServer<net::socket::stream::tls::SocketServer<ipv6::Socket, SocketContextFactoryT>> {
+        using net::socket::ip::tcp::SocketServer<net::socket::stream::tls::SocketServer<ipv6::Socket, SocketContextFactoryT>>::SocketServer;
     };
 
 } // namespace net::socket::ip::tcp::ipv6::tls

@@ -19,6 +19,7 @@
 #ifndef NET_SOCKET_IP_TCP_IPV4_TLS_SOCKETCLIENT_H
 #define NET_SOCKET_IP_TCP_IPV4_TLS_SOCKETCLIENT_H
 
+#include "net/socket/ip/tcp/SocketClient.h"
 #include "net/socket/ip/tcp/ipv4/Socket.h"
 #include "net/socket/stream/tls/SocketClient.h"
 
@@ -29,32 +30,9 @@
 namespace net::socket::ip::tcp::ipv4::tls {
 
     template <typename SocketContextFactoryT>
-    class SocketClient : public net::socket::stream::tls::SocketClient<ipv4::Socket, SocketContextFactoryT> {
-        using net::socket::stream::tls::SocketClient<ipv4::Socket, SocketContextFactoryT>::SocketClient;
-
-    public:
-        using SocketAddress = typename net::socket::stream::tls::SocketClient<ipv4::Socket, SocketContextFactoryT>::SocketAddress;
-
-        using net::socket::stream::tls::SocketClient<ipv4::Socket, SocketContextFactoryT>::connect;
-
-        void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
-            connect(SocketAddress(ipOrHostname, port), onError);
-        }
-
-        void connect(const std::string& ipOrHostname,
-                     uint16_t port,
-                     const std::string& bindIpOrHostname,
-                     const std::function<void(int)>& onError) {
-            connect(SocketAddress(ipOrHostname, port), bindIpOrHostname, onError);
-        }
-
-        void connect(const std::string& ipOrHostname,
-                     uint16_t port,
-                     const std::string& bindIpOrHostname,
-                     uint16_t bindPort,
-                     const std::function<void(int)>& onError) {
-            connect(SocketAddress(ipOrHostname, port), SocketAddress(bindIpOrHostname, bindPort), onError);
-        }
+    class SocketClient
+        : public net::socket::ip::tcp::SocketClient<net::socket::stream::tls::SocketClient<ipv4::Socket, SocketContextFactoryT>> {
+        using net::socket::ip::tcp::SocketClient<net::socket::stream::tls::SocketClient<ipv4::Socket, SocketContextFactoryT>>::SocketClient;
     };
 
 } // namespace net::socket::ip::tcp::ipv4::tls
