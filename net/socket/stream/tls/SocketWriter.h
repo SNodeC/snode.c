@@ -95,12 +95,7 @@ namespace net::socket::stream::tls {
                         }
                         break;
                     default:
-                        //                        int s = SSL_get_shutdown(ssl);
-                        //                        if ((s & SSL_SENT_SHUTDOWN) == 0 && (s & SSL_RECEIVED_SHUTDOWN) == 0) {
                         ssl_log("SSL/TLS write failed", sslErr);
-                        //                        } else {
-                        //                            sslErr = SSL_ERROR_NONE;
-                        //                        }
                         break;
                 }
             }
