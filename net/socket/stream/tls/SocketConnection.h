@@ -133,11 +133,6 @@ namespace net::socket::stream::tls {
 
         void stopSSL() {
             if (ssl != nullptr) {
-                if (sslErr == 0) {
-                    SSL_shutdown(ssl);
-                } else {
-                    SSL_set_shutdown(ssl, SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN);
-                }
                 SSL_free(ssl);
 
                 ssl = nullptr;

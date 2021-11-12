@@ -214,6 +214,8 @@ namespace web::http::server {
             close();
             requestContexts.clear();
             connectionTerminated = true;
+        } else {
+            VLOG(0) << "####################: double terminateConnection";
         }
 
         reset();

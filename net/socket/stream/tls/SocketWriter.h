@@ -40,6 +40,23 @@ namespace net::socket::stream::tls {
         using net::socket::stream::SocketWriter<SocketT>::SocketWriter;
 
     private:
+        void doShutdown() override {
+            SSL_shutdown(ssl);
+            doSSLHandshake(
+                [this](void) -> void { // onSuccess
+                    LOG(INFO) << "SSL/TLS shutdown handshake success";
+                    net::socket::stream::SocketWriter<SocketT>::doShutdown();
+                },
+                [this](void) -> void { // onTimeout
+                    LOG(WARNING) << "SSL/TLS shutdown handshake timed out";
+                    net::socket::stream::SocketWriter<SocketT>::doShutdown();
+                },
+                [this](int sslErr) -> void { // onError
+                    ssl_log("SSL/TLS shutdown handshake failed", sslErr);
+                    net::socket::stream::SocketWriter<SocketT>::doShutdown();
+                });
+        }
+
         ssize_t write(const char* junk, std::size_t junkLen) override {
             sslErr = 0;
 
@@ -78,7 +95,12 @@ namespace net::socket::stream::tls {
                         }
                         break;
                     default:
+                        //                        int s = SSL_get_shutdown(ssl);
+                        //                        if ((s & SSL_SENT_SHUTDOWN) == 0 && (s & SSL_RECEIVED_SHUTDOWN) == 0) {
                         ssl_log("SSL/TLS write failed", sslErr);
+                        //                        } else {
+                        //                            sslErr = SSL_ERROR_NONE;
+                        //                        }
                         break;
                 }
             }

@@ -60,9 +60,13 @@ namespace net::socket::stream {
             }
         }
 
+        virtual void doShutdown() {
+            Socket::shutdown(Socket::shutdown::WR);
+        }
+
         void shutdown() {
             if (isSuspended() || !isEnabled()) {
-                Socket::shutdown(Socket::shutdown::WR);
+                doShutdown();
             } else {
                 markShutdown = true;
             }
@@ -85,7 +89,7 @@ namespace net::socket::stream {
                     if (writeBuffer.empty()) {
                         WriteEventReceiver::suspend();
                         if (markShutdown) {
-                            Socket::shutdown(Socket::shutdown::WR);
+                            doShutdown();
                             markShutdown = false;
                         }
                     }
