@@ -168,9 +168,7 @@ int main(int argc, char* argv[]) {
             []([[maybe_unused]] Request& request, const Response& response) -> void {
                 VLOG(0) << "-- OnResponse";
                 VLOG(0) << "     Status:";
-                VLOG(0) << "       " << response.httpVersion;
-                VLOG(0) << "       " << response.statusCode;
-                VLOG(0) << "       " << response.reason;
+                VLOG(0) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
 
                 VLOG(0) << "     Headers:";
                 for (const auto& [field, value] : *response.headers) {
