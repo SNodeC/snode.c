@@ -50,13 +50,13 @@ namespace net::socket::stream::tls {
         , timeoutTriggered(false) {
         fd = SSL_get_fd(ssl);
 
-        int ret = SSL_do_handshake(ssl);
-        int sslErr = SSL_get_error(ssl, ret);
-
         ReadEventReceiver::enable(fd);
         WriteEventReceiver::enable(fd);
         ReadEventReceiver::suspend();
         WriteEventReceiver::suspend();
+
+        int ret = SSL_do_handshake(ssl);
+        int sslErr = SSL_get_error(ssl, ret);
 
         switch (sslErr) {
             case SSL_ERROR_WANT_READ:
