@@ -19,24 +19,26 @@
 #ifndef NET_SOCKET_BLUETOOTH_RFCOMM_SOCKETCLIENT_H
 #define NET_SOCKET_BLUETOOTH_RFCOMM_SOCKETCLIENT_H
 
+#include "net/socket/bluetooth/rfcomm/Socket.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
 #include <cstdint>
 #include <functional>
+#include <string>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::socket::bluetooth::rfcomm {
 
-    template <typename ConcreteSocketClient>
-    class SocketClient : public ConcreteSocketClient {
-        using  ConcreteSocketClient::ConcreteSocketClient;
+    template <template <typename SocketT, typename SocketContextFactoryT> typename ConcreteSocketClient, typename SocketContextFactoryT>
+    class SocketClient : public ConcreteSocketClient<rfcomm::Socket, SocketContextFactoryT> {
+        using ConcreteSocketClient<rfcomm::Socket, SocketContextFactoryT>::ConcreteSocketClient;
 
     public:
-        using SocketAddress = typename ConcreteSocketClient::SocketAddress;
+        using SocketAddress = typename ConcreteSocketClient<rfcomm::Socket, SocketContextFactoryT>::SocketAddress;
 
-        using ConcreteSocketClient::connect;
+        using ConcreteSocketClient<rfcomm::Socket, SocketContextFactoryT>::connect;
 
         void connect(const std::string& address, uint8_t channel, const std::function<void(int)>& onError) {
             connect(SocketAddress(address, channel), onError);

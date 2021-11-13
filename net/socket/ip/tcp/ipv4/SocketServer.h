@@ -16,24 +16,25 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_IP_TCP_IPV6_TLS_SOCKETSERVER_H
-#define NET_SOCKET_IP_TCP_IPV6_TLS_SOCKETSERVER_H
+#ifndef NET_SOCKET_IP_TCP_IPV4_SOCKETSERVER_H
+#define NET_SOCKET_IP_TCP_IPV4_SOCKETSERVER_H
 
-#include "net/socket/ip/tcp/ipv6/Socket.h"
-#include "net/socket/ip/tcp/ipv6/SocketServer.h"
-#include "net/socket/stream/tls/SocketServer.h"
+#include "net/socket/ip/tcp/SocketServer.h"
+#include "net/socket/ip/tcp/ipv4/Socket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::socket::ip::tcp::ipv6::tls {
+// net::socket::ip::tcp::SocketServer<net::socket::stream::tls::SocketServer<ipv6::Socket, SocketContextFactoryT>>
 
-    template <typename SocketContextFactoryT>
-    class SocketServer : public net::socket::ip::tcp::ipv6::SocketServer<net::socket::stream::tls::SocketServer, SocketContextFactoryT> {
-        using net::socket::ip::tcp::ipv6::SocketServer<net::socket::stream::tls::SocketServer, SocketContextFactoryT>::SocketServer;
+namespace net::socket::ip::tcp::ipv4 {
+
+    template <template <typename SocketT, typename SocketContextFactoryT> typename ConcreteSocketServer, typename SocketContextFactoryT>
+    class SocketServer : public net::socket::ip::tcp::SocketServer<ConcreteSocketServer<ipv4::Socket, SocketContextFactoryT>> {
+        using net::socket::ip::tcp::SocketServer<ConcreteSocketServer<ipv4::Socket, SocketContextFactoryT>>::SocketServer;
     };
 
-} // namespace net::socket::ip::tcp::ipv6::tls
+} // namespace net::socket::ip::tcp::ipv4
 
-#endif // NET_SOCKET_IP_TCP_IPV6_TLS_SOCKETSERVER_H
+#endif // NET_SOCKET_IP_TCP_IPV4_SOCKETSERVER_H

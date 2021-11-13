@@ -19,7 +19,6 @@
 #ifndef NET_SOCKET_BLUETOOTH_RFCOMM_TLS_SOCKETCLIENT_H
 #define NET_SOCKET_BLUETOOTH_RFCOMM_TLS_SOCKETCLIENT_H
 
-#include "net/socket/bluetooth/rfcomm/Socket.h"
 #include "net/socket/bluetooth/rfcomm/SocketClient.h"
 #include "net/socket/stream/tls/SocketClient.h"
 
@@ -31,10 +30,8 @@ namespace net::socket::bluetooth::rfcomm::tls {
 
     template <typename SocketContextFactoryT>
     class SocketClient
-        : public net::socket::bluetooth::rfcomm::SocketClient<
-              net::socket::stream::tls::SocketClient<rfcomm::Socket, SocketContextFactoryT>> {
-        using net::socket::bluetooth::rfcomm::SocketClient<
-            net::socket::stream::tls::SocketClient<rfcomm::Socket, SocketContextFactoryT>>::SocketClient;
+        : public net::socket::bluetooth::rfcomm::SocketClient<net::socket::stream::tls::SocketClient, SocketContextFactoryT> {
+        using net::socket::bluetooth::rfcomm::SocketClient<net::socket::stream::tls::SocketClient, SocketContextFactoryT>::SocketClient;
     };
 
 } // namespace net::socket::bluetooth::rfcomm::tls

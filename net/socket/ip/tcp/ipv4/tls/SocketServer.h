@@ -19,8 +19,8 @@
 #ifndef NET_SOCKET_IP_TCP_IPV4_TLS_SOCKETSERVER_H
 #define NET_SOCKET_IP_TCP_IPV4_TLS_SOCKETSERVER_H
 
-#include "net/socket/ip/tcp/SocketServer.h"
 #include "net/socket/ip/tcp/ipv4/Socket.h"
+#include "net/socket/ip/tcp/ipv4/SocketServer.h"
 #include "net/socket/stream/tls/SocketServer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -30,9 +30,8 @@
 namespace net::socket::ip::tcp::ipv4::tls {
 
     template <typename SocketContextFactoryT>
-    class SocketServer
-        : public net::socket::ip::tcp::SocketServer<net::socket::stream::tls::SocketServer<ipv4::Socket, SocketContextFactoryT>> {
-        using net::socket::ip::tcp::SocketServer<net::socket::stream::tls::SocketServer<ipv4::Socket, SocketContextFactoryT>>::SocketServer;
+    class SocketServer : public net::socket::ip::tcp::ipv4::SocketServer<net::socket::stream::tls::SocketServer, SocketContextFactoryT> {
+        using net::socket::ip::tcp::ipv4::SocketServer<net::socket::stream::tls::SocketServer, SocketContextFactoryT>::SocketServer;
     };
 
 } // namespace net::socket::ip::tcp::ipv4::tls

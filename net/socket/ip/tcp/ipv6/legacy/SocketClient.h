@@ -19,8 +19,8 @@
 #ifndef NET_SOCKET_IP_TCP_IPV6_LEGACY_SOCKETCLIENT_H
 #define NET_SOCKET_IP_TCP_IPV6_LEGACY_SOCKETCLIENT_H
 
-#include "net/socket/ip/tcp/SocketClient.h"
 #include "net/socket/ip/tcp/ipv6/Socket.h"
+#include "net/socket/ip/tcp/ipv6/SocketClient.h"
 #include "net/socket/stream/legacy/SocketClient.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -30,10 +30,8 @@
 namespace net::socket::ip::tcp::ipv6::legacy {
 
     template <typename SocketContextFactoryT>
-    class SocketClient
-        : public net::socket::ip::tcp::SocketClient<net::socket::stream::legacy::SocketClient<ipv6::Socket, SocketContextFactoryT>> {
-        using net::socket::ip::tcp::SocketClient<
-            net::socket::stream::legacy::SocketClient<ipv6::Socket, SocketContextFactoryT>>::SocketClient;
+    class SocketClient : public net::socket::ip::tcp::ipv6::SocketClient<net::socket::stream::legacy::SocketClient, SocketContextFactoryT> {
+        using net::socket::ip::tcp::ipv6::SocketClient<net::socket::stream::legacy::SocketClient, SocketContextFactoryT>::SocketClient;
     };
 
 } // namespace net::socket::ip::tcp::ipv6::legacy

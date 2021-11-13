@@ -19,8 +19,8 @@
 #ifndef NET_SOCKET_IP_TCP_IPV6_LEGACY_SOCKETSERVER_H
 #define NET_SOCKET_IP_TCP_IPV6_LEGACY_SOCKETSERVER_H
 
-#include "net/socket/ip/tcp/SocketServer.h"
 #include "net/socket/ip/tcp/ipv6/Socket.h"
+#include "net/socket/ip/tcp/ipv6/SocketServer.h"
 #include "net/socket/stream/legacy/SocketServer.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -30,10 +30,8 @@
 namespace net::socket::ip::tcp::ipv6::legacy {
 
     template <typename SocketContextFactoryT>
-    class SocketServer
-        : public net::socket::ip::tcp::SocketServer<net::socket::stream::legacy::SocketServer<ipv6::Socket, SocketContextFactoryT>> {
-        using net::socket::ip::tcp::SocketServer<
-            net::socket::stream::legacy::SocketServer<ipv6::Socket, SocketContextFactoryT>>::SocketServer;
+    class SocketServer : public net::socket::ip::tcp::ipv6::SocketServer<net::socket::stream::legacy::SocketServer, SocketContextFactoryT> {
+        using net::socket::ip::tcp::ipv6::SocketServer<net::socket::stream::legacy::SocketServer, SocketContextFactoryT>::SocketServer;
     };
 
 } // namespace net::socket::ip::tcp::ipv6::legacy
