@@ -79,20 +79,16 @@ namespace net::socket::stream {
         void doWrite() {
             if (writeBuffer.empty()) {
                 WriteEventReceiver::suspend();
+                if (markShutdown) {
+                    doShutdown();
+                    markShutdown = false;
+                }
             } else {
                 ssize_t retWrite =
                     write(writeBuffer.data(), (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE);
 
                 if (retWrite > 0) {
                     writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);
-
-                    if (writeBuffer.empty()) {
-                        WriteEventReceiver::suspend();
-                        if (markShutdown) {
-                            doShutdown();
-                            markShutdown = false;
-                        }
-                    }
                 } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
                     WriteEventReceiver::disable();
                     onError(getError());

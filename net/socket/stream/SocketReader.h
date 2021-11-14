@@ -69,37 +69,38 @@ namespace net::socket::stream {
 
     protected:
         ssize_t readFromPeer(char* junk, std::size_t junkLen) {
+            ssize_t ret = 0;
+
             if (markShutdown) {
                 doShutdown();
                 markShutdown = false;
-            }
+            } else {
+                if (size == 0) {
+                    coursor = 0;
+                    ssize_t retRead = read(data, MAX_READ_JUNKSIZE);
 
-            ssize_t ret = 0;
-            if (size == 0) {
-                coursor = 0;
-                ssize_t retRead = read(data, MAX_READ_JUNKSIZE);
-
-                if (retRead <= 0) {
-                    if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
-                        ReadEventReceiver::disable();
-                        onError(getError());
-                        ret = -1;
+                    if (retRead <= 0) {
+                        if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
+                            ReadEventReceiver::disable();
+                            onError(getError());
+                            ret = -1;
+                        } else {
+                            ret = 0;
+                        }
                     } else {
-                        ret = 0;
+                        size += static_cast<std::size_t>(retRead);
                     }
-                } else {
-                    size += static_cast<std::size_t>(retRead);
                 }
-            }
 
-            if (size > 0) {
-                std::size_t maxReturn = std::min(junkLen, size);
+                if (size > 0) {
+                    std::size_t maxReturn = std::min(junkLen, size);
 
-                std::copy(data + coursor, data + coursor + maxReturn, junk);
-                coursor += maxReturn;
-                size -= maxReturn;
+                    std::copy(data + coursor, data + coursor + maxReturn, junk);
+                    coursor += maxReturn;
+                    size -= maxReturn;
 
-                ret = static_cast<ssize_t>(maxReturn);
+                    ret = static_cast<ssize_t>(maxReturn);
+                }
             }
 
             return ret;
