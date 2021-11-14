@@ -19,14 +19,12 @@
 #ifndef NET_SOCKET_IP_TCP_IPV4_SOCKETSERVER_H
 #define NET_SOCKET_IP_TCP_IPV4_SOCKETSERVER_H
 
-#include "net/socket/ip/tcp/SocketServer.h"
+#include "net/socket/ip/tcp/SocketServer.h" // IWYU pragma: export
 #include "net/socket/ip/tcp/ipv4/Socket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
-
-// net::socket::ip::tcp::SocketServer<net::socket::stream::tls::SocketServer<ipv6::Socket, SocketContextFactoryT>>
 
 namespace net::socket::ip::tcp::ipv4 {
 
