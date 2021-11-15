@@ -20,8 +20,8 @@
 #define NET_SOCKET_IP_TCP_IPV4_LEGACY_SOCKETCLIENT_H
 
 #include "net/socket/ip/tcp/ipv4/Socket.h"
-#include "net/socket/ip/tcp/ipv4/SocketClient.h" // IWYU pragma: export
-#include "net/socket/stream/legacy/SocketClient.h"
+#include "net/socket/ip/tcp/ipv4/SocketClient.h"   // IWYU pragma: export
+#include "net/socket/stream/legacy/SocketClient.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

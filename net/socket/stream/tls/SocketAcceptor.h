@@ -169,11 +169,10 @@ namespace net::socket::stream::tls {
         }
 
     private:
-        std::shared_ptr<std::map<std::string, SSL_CTX*>> sniSslCtxs;
-
-    protected:
         SSL_CTX* masterSslCtx = nullptr;
         std::set<std::string> masterSslCtxDomains;
+
+        std::shared_ptr<std::map<std::string, SSL_CTX*>> sniSslCtxs;
     };
 
 } // namespace net::socket::stream::tls

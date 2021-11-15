@@ -20,8 +20,8 @@
 #define NET_SOCKET_IP_TCP_IPV6_LEGACY_SOCKETSERVER_H
 
 #include "net/socket/ip/tcp/ipv6/Socket.h"
-#include "net/socket/ip/tcp/ipv6/SocketServer.h"
-#include "net/socket/stream/legacy/SocketServer.h"
+#include "net/socket/ip/tcp/ipv6/SocketServer.h"   // IWYU pragma: export
+#include "net/socket/stream/legacy/SocketServer.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

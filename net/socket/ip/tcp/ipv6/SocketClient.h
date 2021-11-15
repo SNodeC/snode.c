@@ -19,7 +19,7 @@
 #ifndef NET_SOCKET_IP_TCP_IPV6_SOCKETCLIENT_H
 #define NET_SOCKET_IP_TCP_IPV6_SOCKETCLIENT_H
 
-#include "net/socket/ip/tcp/SocketClient.h"
+#include "net/socket/ip/tcp/SocketClient.h" // IWYU pragma: export
 #include "net/socket/ip/tcp/ipv6/Socket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

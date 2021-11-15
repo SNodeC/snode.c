@@ -21,7 +21,7 @@
 
 #include "net/socket/ip/tcp/ipv4/Socket.h"
 #include "net/socket/ip/tcp/ipv4/SocketClient.h" // IWYU pragma: export
-#include "net/socket/stream/tls/SocketClient.h"
+#include "net/socket/stream/tls/SocketClient.h"  // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

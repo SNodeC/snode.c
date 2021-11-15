@@ -21,16 +21,18 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
 #include <cstdint>
 #include <functional>
+#include <string>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::socket::ip::tcp {
 
-    template <typename ConcreteSocketServer>
-    class SocketServer : public ConcreteSocketServer {
+    template <typename ConcreteSocketServerT>
+    class SocketServer : public ConcreteSocketServerT {
+        using ConcreteSocketServer = ConcreteSocketServerT;
+
         using ConcreteSocketServer::ConcreteSocketServer;
 
     public:

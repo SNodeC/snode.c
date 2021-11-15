@@ -31,14 +31,16 @@
 
 namespace net::socket::bluetooth::rfcomm {
 
-    template <template <typename SocketT, typename SocketContextFactoryT> typename ConcreteSocketClient, typename SocketContextFactoryT>
-    class SocketClient : public ConcreteSocketClient<rfcomm::Socket, SocketContextFactoryT> {
-        using ConcreteSocketClient<rfcomm::Socket, SocketContextFactoryT>::ConcreteSocketClient;
+    template <template <typename SocketT, typename SocketContextFactoryT> typename ConcreteSocketClientT, typename SocketContextFactoryT>
+    class SocketClient : public ConcreteSocketClientT<rfcomm::Socket, SocketContextFactoryT> {
+        using ConcreteSocketClient = ConcreteSocketClientT<rfcomm::Socket, SocketContextFactoryT>;
+
+        using ConcreteSocketClient::ConcreteSocketClient;
 
     public:
-        using SocketAddress = typename ConcreteSocketClient<rfcomm::Socket, SocketContextFactoryT>::SocketAddress;
+        using SocketAddress = typename ConcreteSocketClient::SocketAddress;
 
-        using ConcreteSocketClient<rfcomm::Socket, SocketContextFactoryT>::connect;
+        using ConcreteSocketClient::connect;
 
         void connect(const std::string& address, uint8_t channel, const std::function<void(int)>& onError) {
             connect(SocketAddress(address, channel), onError);

@@ -19,7 +19,7 @@
 #ifndef NET_SOCKET_STREAM_TLS_SOCKETSERVER_H
 #define NET_SOCKET_STREAM_TLS_SOCKETSERVER_H
 
-#include "net/socket/stream/SocketServer.h"
+#include "net/socket/stream/SocketServer.h" // IWYU pragma: export
 #include "net/socket/stream/tls/SocketAcceptor.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
