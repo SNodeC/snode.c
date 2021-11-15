@@ -64,7 +64,6 @@ namespace net::socket::stream::tls {
                 }
                 delete sniSslCtxs;
             }) {
-            SocketServer::options.insert({"_sniSslCtxs", sniSslCtxs});
         }
 
         void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const override {
