@@ -27,6 +27,10 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef>
+#include <map>
+#include <memory>
+#include <openssl/x509v3.h>
+#include <set>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -39,6 +43,7 @@ namespace net::socket::stream::tls {
         using Socket = typename SocketConnection::Socket;
         using SocketAddress = typename Socket::SocketAddress;
 
+    public:
         SocketAcceptor(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
                        const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                        const std::function<void(SocketConnection*)>& onConnected,
@@ -48,10 +53,10 @@ namespace net::socket::stream::tls {
                   socketContextFactory,
                   onConnect,
                   [onConnected, this](SocketConnection* socketConnection) -> void {
-                      SSL* ssl = socketConnection->startSSL(this->ctx);
+                      SSL* ssl = socketConnection->startSSL(this->masterSslCtx);
 
                       if (ssl != nullptr) {
-                          SSL_CTX_set_tlsext_servername_arg(this->ctx, socketConnection);
+                          SSL_CTX_set_tlsext_servername_arg(this->masterSslCtx, this);
 
                           SSL_set_accept_state(ssl);
 
@@ -78,18 +83,22 @@ namespace net::socket::stream::tls {
                       onDisconnect(socketConnection);
                   },
                   options) {
-            ctx = ssl_ctx_new(options, true);
-            if (ctx != nullptr) {
-                SSL_CTX_set_tlsext_servername_callback(ctx, serverNameCallback);
+            masterSslCtx = ssl_ctx_new(options, true);
+            if (masterSslCtx != nullptr) {
+                SSL_CTX_set_tlsext_servername_callback(masterSslCtx, serverNameCallback);
+                addMasterCert(masterSslCtx);
             }
         }
 
         ~SocketAcceptor() override {
-            ssl_ctx_free(ctx);
+            ssl_ctx_free(masterSslCtx);
+        }
+        void setSniSslCtxs(std::shared_ptr<std::map<std::string, SSL_CTX*>> sniSslCtxs) {
+            this->sniSslCtxs = sniSslCtxs;
         }
 
         void listen(const SocketAddress& localAddress, int backlog, const std::function<void(int)>& onError) {
-            if (ctx == nullptr) {
+            if (masterSslCtx == nullptr) {
                 errno = EINVAL;
                 onError(errno);
                 net::socket::stream::SocketAcceptor<SocketConnection>::destruct();
@@ -98,19 +107,70 @@ namespace net::socket::stream::tls {
             }
         }
 
-    protected:
-        static int serverNameCallback(SSL* ssl, [[maybe_unused]] int* al, void* arg) {
-            SocketConnection* socketConnection = static_cast<SocketConnection*>(arg);
+    private:
+        void addMasterCert(SSL_CTX* sSlCtx) {
+            if (sSlCtx != nullptr) {
+                X509* x509 = SSL_CTX_get0_certificate(sSlCtx);
+                if (x509 != nullptr) {
+                    GENERAL_NAMES* subjectAltNames =
+                        static_cast<GENERAL_NAMES*>(X509_get_ext_d2i(x509, NID_subject_alt_name, nullptr, nullptr));
 
-            if (SSL_get_servername_type(ssl) != -1) {
-                socketConnection->serverNameIndication = SSL_get_servername(ssl, TLSEXT_NAMETYPE_host_name);
-                LOG(INFO) << "ServerNameIndication: " << socketConnection->serverNameIndication;
+                    int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
+
+                    for (int32_t i = 0; i < altNameCount; ++i) {
+                        GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
+                        if (generalName->type == GEN_DNS) {
+                            std::string subjectAltName =
+                                std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
+                                            static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
+                            VLOG(2) << "\t      SAN (DNS): '" << subjectAltName << "'";
+                            masterSslCtxDomains.insert(subjectAltName);
+                        } else if (generalName->type != GEN_URI) {
+                            VLOG(2) << "\t      SAN (Type): '" + std::to_string(generalName->type);
+                        }
+                    }
+                    sk_GENERAL_NAME_pop_free(subjectAltNames, GENERAL_NAME_free);
+                } else {
+                    VLOG(2) << "\tClient certificate: no certificate";
+                }
             }
-
-            return SSL_TLSEXT_ERR_OK;
         }
 
-        SSL_CTX* ctx = nullptr;
+        static int serverNameCallback(SSL* ssl, [[maybe_unused]] int* al, [[maybe_unused]] void* arg) {
+            int ret = SSL_TLSEXT_ERR_OK;
+
+            SocketAcceptor* socketAcceptor = static_cast<SocketAcceptor*>(arg);
+            std::shared_ptr<std::map<std::string, SSL_CTX*>> sniSslCtxs = socketAcceptor->sniSslCtxs;
+
+            if (SSL_get_servername_type(ssl) != -1) {
+                std::string serverNameIndication = SSL_get_servername(ssl, TLSEXT_NAMETYPE_host_name);
+
+                if (!socketAcceptor->masterSslCtxDomains.contains(serverNameIndication)) {
+                    if (sniSslCtxs->contains(serverNameIndication)) {
+                        SSL_CTX* sniSslCtx = sniSslCtxs->find(serverNameIndication)->second;
+
+                        if (sniSslCtx != nullptr) {
+                            SSL_set_SSL_CTX(ssl, sniSslCtx);
+                            LOG(INFO) << "SSL_CTX switched for: '" << serverNameIndication << "'";
+                        } else {
+                            LOG(INFO) << "SSL_CTX for SNI '" << serverNameIndication << "' not found";
+                            ret = SSL_TLSEXT_ERR_NOACK;
+                        }
+                    }
+                } else {
+                    LOG(INFO) << "SSL_CTX already provides: '" << serverNameIndication << "'";
+                }
+            }
+
+            return ret;
+        }
+
+    private:
+        std::shared_ptr<std::map<std::string, SSL_CTX*>> sniSslCtxs;
+
+    protected:
+        SSL_CTX* masterSslCtx = nullptr;
+        std::set<std::string> masterSslCtxDomains;
     };
 
 } // namespace net::socket::stream::tls

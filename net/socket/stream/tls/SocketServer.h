@@ -24,6 +24,11 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <any>
+#include <map>
+#include <memory>
+#include <openssl/x509v3.h>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::socket::stream::tls {
@@ -31,7 +36,57 @@ namespace net::socket::stream::tls {
     template <typename SocketT, typename SocketContextFactoryT>
     class SocketServer
         : public net::socket::stream::SocketServer<net::socket::stream::tls::SocketAcceptor<SocketT>, SocketContextFactoryT> {
-        using net::socket::stream::SocketServer<net::socket::stream::tls::SocketAcceptor<SocketT>, SocketContextFactoryT>::SocketServer;
+        using SocketServerBase =
+            net::socket::stream::SocketServer<net::socket::stream::tls::SocketAcceptor<SocketT>, SocketContextFactoryT>;
+
+        using SocketServerBase::SocketServerBase;
+
+        using SocketServerBase::_onConnect;
+        using SocketServerBase::_onConnected;
+        using SocketServerBase::_onDisconnect;
+        using SocketServerBase::options;
+        using SocketServerBase::socketContextFactory;
+
+    public:
+        using SocketContextFactory = SocketContextFactoryT;
+        using SocketAcceptor = net::socket::stream::tls::SocketAcceptor<SocketT>;
+        using SocketConnection = typename SocketAcceptor::SocketConnection;
+        using SocketAddress = typename SocketConnection::Socket::SocketAddress;
+
+        SocketServer(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
+                     const std::function<void(SocketConnection*)>& onConnected,
+                     const std::function<void(SocketConnection*)>& onDisconnect,
+                     const std::map<std::string, std::any>& options = {{}})
+            : SocketServerBase(onConnect, onConnected, onDisconnect, options)
+            , sniSslCtxs(new std::map<std::string, SSL_CTX*>, [](std::map<std::string, SSL_CTX*>* sniSslCtxs) {
+                for (const auto& [domain, sslCtx] : *sniSslCtxs) {
+                    ssl_ctx_free(sslCtx);
+                }
+                delete sniSslCtxs;
+            }) {
+            SocketServer::options.insert({"_sniSslCtxs", sniSslCtxs});
+        }
+
+        void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const override {
+            SocketAcceptor* socketAcceptor = new SocketAcceptor(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
+
+            socketAcceptor->setSniSslCtxs(sniSslCtxs);
+
+            socketAcceptor->listen(bindAddress, backlog, onError);
+        }
+
+        void addSniCert(const std::string& domain, const std::map<std::string, std::any>& options) {
+            SSL_CTX* sSlCtx = ssl_ctx_new(options, true);
+
+            if (sSlCtx != nullptr) {
+                sniSslCtxs->insert({{domain, sSlCtx}});
+            } else {
+                VLOG(0) << "Can not create SSL_CTX for SNI certificate";
+            }
+        }
+
+    private:
+        std::shared_ptr<std::map<std::string, SSL_CTX*>> sniSslCtxs;
     };
 
 } // namespace net::socket::stream::tls

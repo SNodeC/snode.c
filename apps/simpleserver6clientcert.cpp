@@ -122,6 +122,8 @@ int main(int argc, char* argv[]) {
                            socketConnection->getRemoteAddress().toString();
         });
 
+        tlsApp.addSniCert("myhost", {{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}, {"caFile", CLIENTCAFILE}});
+
         tlsApp.listen(8088, [](int err) -> void {
             if (err != 0) {
                 PLOG(FATAL) << "listen on port 8088";

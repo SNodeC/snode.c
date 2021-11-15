@@ -39,6 +39,10 @@ namespace web::http::server::tls {
 
         using web::http::server::Server<net::socket::ip::tcp::ipv4::tls::SocketServer, Request, Response>::listen;
 
+        void addSniCert(const std::string& domain, const std::map<std::string, std::any>& options) {
+            socketServer.addSniCert(domain, options);
+        }
+
         void listen(uint16_t port, const std::function<void(int)>& onError) {
             socketServer.listen(port, 5, onError);
         }
@@ -61,6 +65,10 @@ namespace web::http::server::tls {
 
         using web::http::server::Server<net::socket::ip::tcp::ipv6::tls::SocketServer, Request, Response>::listen;
 
+        void addSniCert(const std::string& domain, const std::map<std::string, std::any>& options) {
+            socketServer.addSniCert(domain, options);
+        }
+
         void listen(uint16_t port, const std::function<void(int)>& onError) {
             socketServer.listen(port, 5, onError);
         }
@@ -82,6 +90,10 @@ namespace web::http::server::tls {
         using web::http::server::Server<net::socket::bluetooth::rfcomm::tls::SocketServer, Request, Response>::socketServer;
 
         using web::http::server::Server<net::socket::bluetooth::rfcomm::tls::SocketServer, Request, Response>::listen;
+
+        void addSniCert(const std::string& domain, const std::map<std::string, std::any>& options) {
+            socketServer.addSniCert(domain, options);
+        }
 
         void listen(uint8_t channel, const std::function<void(int)>& onError) {
             socketServer.listen(channel, 5, onError);

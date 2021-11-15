@@ -31,7 +31,10 @@ namespace net::socket::stream::tls {
     template <typename SocketT, typename SocketContextFactoryT>
     class SocketClient
         : public net::socket::stream::SocketClient<net::socket::stream::tls::SocketConnector<SocketT>, SocketContextFactoryT> {
-        using net::socket::stream::SocketClient<net::socket::stream::tls::SocketConnector<SocketT>, SocketContextFactoryT>::SocketClient;
+        using SocketClientBase =
+            net::socket::stream::SocketClient<net::socket::stream::tls::SocketConnector<SocketT>, SocketContextFactoryT>;
+
+        using SocketClientBase::SocketClientBase;
     };
 
 } // namespace net::socket::stream::tls

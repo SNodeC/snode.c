@@ -147,8 +147,6 @@ namespace net::socket::stream::tls {
 
         SSL* ssl = nullptr;
 
-        std::string serverNameIndication;
-
         int sslErr = SSL_ERROR_NONE;
 
         template <typename Socket>
