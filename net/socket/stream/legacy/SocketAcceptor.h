@@ -20,7 +20,7 @@
 #define NET_SOCKET_STREAM_LEGACY_SOCKETACCEPTOR_H
 
 #include "net/socket/stream/SocketAcceptor.h"
-#include "net/socket/stream/legacy/SocketConnection.h"
+#include "net/socket/stream/legacy/SocketConnection.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

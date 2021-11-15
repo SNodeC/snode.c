@@ -20,7 +20,7 @@
 #define NET_SOCKET_STREAM_TLS_SOCKETCONNECTION_H
 
 #include "log/Logger.h"
-#include "net/socket/stream/SocketConnectionT.h"
+#include "net/socket/stream/SocketConnectionT.h" // IWYU pragma: export
 #include "net/socket/stream/tls/SocketReader.h"
 #include "net/socket/stream/tls/SocketWriter.h"
 

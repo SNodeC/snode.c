@@ -25,11 +25,6 @@
 #include "net/socket/bluetooth/l2cap/SocketServer.h"   // for SocketServer
 #include "net/socket/stream/SocketContext.h"           // for SocketProtocol
 #include "net/socket/stream/SocketContextFactory.h"    // for SocketProtoco...
-#include "net/socket/stream/SocketServer.h"            // for SocketServer<...
-
-namespace net::socket::stream {
-    class SocketConnection;
-} // namespace net::socket::stream
 
 #include <cstddef>     // for size_t
 #include <functional>  // for function

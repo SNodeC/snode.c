@@ -26,10 +26,6 @@
 #include "net/socket/stream/SocketContext.h"              // for SocketProt...
 #include "net/socket/stream/SocketContextFactory.h"       // for SocketProt...
 
-namespace net::socket::stream {
-    class SocketConnection;
-} // namespace net::socket::stream
-
 #include <cstddef>            // for NULL, size_t
 #include <functional>         // for function
 #include <openssl/asn1.h>     // for ASN1_STRIN...

@@ -21,7 +21,7 @@
 
 #include "log/Logger.h"
 #include "net/socket/stream/SocketAcceptor.h"
-#include "net/socket/stream/tls/SocketConnection.h"
+#include "net/socket/stream/tls/SocketConnection.h" // IWYU pragma: export
 #include "net/socket/stream/tls/ssl_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

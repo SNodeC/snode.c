@@ -19,7 +19,7 @@
 #ifndef NET_SOCKET_STREAM_LEGACY_SOCKETCONNECTION_H
 #define NET_SOCKET_STREAM_LEGACY_SOCKETCONNECTION_H
 
-#include "net/socket/stream/SocketConnectionT.h"
+#include "net/socket/stream/SocketConnectionT.h" // IWYU pragma: export
 #include "net/socket/stream/legacy/SocketReader.h"
 #include "net/socket/stream/legacy/SocketWriter.h"
 

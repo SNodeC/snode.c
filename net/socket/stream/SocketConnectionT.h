@@ -20,7 +20,7 @@
 #define NET_SOCKET_STREAM_SOCKETCONNECTION_H
 
 #include "log/Logger.h"
-#include "net/socket/stream/SocketConnection.h"
+#include "net/socket/stream/SocketConnection.h" // IWYU pragma: export
 #include "net/socket/stream/SocketContext.h"
 #include "net/socket/stream/SocketContextFactory.h"
 

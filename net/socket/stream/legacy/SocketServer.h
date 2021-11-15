@@ -19,8 +19,8 @@
 #ifndef NET_SOCKET_STREAM_LEGACY_SOCKETSERVER_H
 #define NET_SOCKET_STREAM_LEGACY_SOCKETSERVER_H
 
-#include "net/socket/stream/SocketServer.h"
-#include "net/socket/stream/legacy/SocketAcceptor.h"
+#include "net/socket/stream/SocketServer.h"          // IWYU pragma: export
+#include "net/socket/stream/legacy/SocketAcceptor.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
