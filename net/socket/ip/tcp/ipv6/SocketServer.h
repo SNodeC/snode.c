@@ -26,8 +26,6 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-// net::socket::ip::tcp::SocketServer<net::socket::stream::tls::SocketServer<ipv6::Socket, SocketContextFactoryT>>
-
 namespace net::socket::ip::tcp::ipv6 {
 
     template <template <typename SocketT, typename SocketContextFactoryT> typename ConcreteSocketServer, typename SocketContextFactoryT>
