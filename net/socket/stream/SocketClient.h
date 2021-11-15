@@ -61,13 +61,14 @@ namespace net::socket::stream {
 
         virtual ~SocketClient() = default;
 
-        void connect(const SocketAddress& remoteAddress, const SocketAddress& bindAddress, const std::function<void(int)>& onError) const {
+        virtual void
+        connect(const SocketAddress& remoteAddress, const SocketAddress& bindAddress, const std::function<void(int)>& onError) const {
             SocketConnector* socketConnector = new SocketConnector(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
 
             socketConnector->connect(remoteAddress, bindAddress, onError);
         }
 
-        void connect(const SocketAddress& remoteAddress, const std::function<void(int)>& onError) const {
+        virtual void connect(const SocketAddress& remoteAddress, const std::function<void(int)>& onError) const {
             connect(remoteAddress, SocketAddress(), onError);
         }
 

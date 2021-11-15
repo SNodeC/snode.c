@@ -55,10 +55,10 @@ namespace net::socket::stream {
 
         virtual ~SocketServer() = default;
 
-        void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const {
-            SocketAcceptor* socketListener = new SocketAcceptor(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
+        virtual void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const {
+            SocketAcceptor* socketAcceptor = new SocketAcceptor(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
 
-            socketListener->listen(bindAddress, backlog, onError);
+            socketAcceptor->listen(bindAddress, backlog, onError);
         }
 
         void onConnect(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect) {
@@ -77,7 +77,7 @@ namespace net::socket::stream {
             return socketContextFactory;
         }
 
-    private:
+    protected:
         std::shared_ptr<SocketContextFactory> socketContextFactory;
 
         std::function<void(const SocketAddress&, const SocketAddress&)> _onConnect;

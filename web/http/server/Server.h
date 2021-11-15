@@ -36,7 +36,7 @@
 namespace web::http::server {
 
     template <template <typename SocketContextFactoryT> typename SocketServerT, typename RequestT, typename ResponseT>
-    class Server {
+    class Server : public SocketServerT<web::http::server::SocketContextFactory<RequestT, ResponseT>> {
     public:
         using Request = RequestT;
         using Response = ResponseT;
@@ -46,10 +46,10 @@ namespace web::http::server {
 
         Server(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
-               const std::function<void(Request&, Response&)>& onRequestReady,
+               [[maybe_unused]] const std::function<void(Request&, Response&)>& onRequestReady,
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
-            : socketServer(
+            : SocketServerT<web::http::server::SocketContextFactory<Request, Response>>(
                   [onConnect](const SocketAddress& localAddress,
                               const SocketAddress& remoteAddress) -> void { // OnConnect
                       onConnect(localAddress, remoteAddress);
@@ -61,29 +61,12 @@ namespace web::http::server {
                       onDisconnect(socketConnection);
                   },
                   options) {
-            socketServer.getSocketContextFactory()->setOnRequestReady(onRequestReady);
+            SocketServer::getSocketContextFactory()->setOnRequestReady(onRequestReady);
         }
 
         void listen(const SocketAddress& socketAddress, const std::function<void(int)>& onError) {
-            socketServer.listen(socketAddress, 5, onError);
+            SocketServer::listen(socketAddress, 5, onError);
         }
-
-        void onConnect(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect) {
-            socketServer.onConnect(onConnect);
-        }
-
-        void onConnected(const std::function<void(SocketConnection*)>& onConnected) {
-            socketServer.onConnected(onConnected);
-        }
-
-        void onDisconnect(const std::function<void(SocketConnection*)>& onDisconnect) {
-            socketServer.onDisconnect(onDisconnect);
-        }
-
-    protected:
-        SocketServer socketServer;
-
-        std::function<void(Request&, Response&)> onRequestReady;
     };
 
 } // namespace web::http::server

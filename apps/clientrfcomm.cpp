@@ -205,7 +205,7 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
                                socketConnection->getLocalAddress().toString();
             },
-            {{"caFile", SERVERCAFILE}});
+            {{"caFile", SERVERCAFILE}, {"Host", "myhost"}});
 
         // "A4:B1:C1:2C:82:37" titan
         // "44:01:BB:A3:63:32"  mpow
