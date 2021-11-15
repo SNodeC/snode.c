@@ -36,7 +36,9 @@
 namespace express {
 
     template <typename ServerT>
-    class WebAppT : public WebApp {
+    class WebAppT
+        : public WebApp
+        , public ServerT {
     public:
         using Server = ServerT;
         using SocketServer = typename Server::SocketServer;
@@ -50,7 +52,7 @@ namespace express {
 
         WebAppT(const Router& router, const std::map<std::string, std::any>& options = {{}})
             : WebApp(router)
-            , server(
+            , Server(
                   [](const SocketAddress& localAddress,
                      const SocketAddress& remoteAddress) -> void { // onConnect
                       VLOG(0) << "OnConnect:";
@@ -81,34 +83,6 @@ namespace express {
                   },
                   options) {
         }
-
-        void listen(const SocketAddress& socketAddress, const std::function<void(int err)>& onError = nullptr) {
-            server.listen(socketAddress, onError);
-        }
-
-        void onConnect(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect) {
-            server.onConnect(onConnect);
-        }
-
-        void onConnected(const std::function<void(SocketConnection*)>& onConnected) {
-            server.onConnected(onConnected);
-        }
-
-        void onDisconnect(const std::function<void(SocketConnection*)>& onDisconnect) {
-            server.onDisconnect(onDisconnect);
-        }
-
-    protected:
-        Server server;
-
-        std::function<void(const SocketAddress&, const SocketAddress&)> _onConnect = nullptr;
-        std::function<void(SocketConnection*)> _onConnected = nullptr;
-        std::function<void(SocketConnection*)> _onDisconnect = nullptr;
-
-    private:
-        using express::WebApp::init;
-        using express::WebApp::start;
-        using express::WebApp::stop;
     };
 
 } // namespace express

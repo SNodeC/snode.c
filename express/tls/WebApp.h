@@ -29,54 +29,15 @@
 namespace express::tls {
 
     class WebApp : public WebAppT<web::http::server::tls::Server<express::Request, express::Response>> {
-    public:
         using WebAppT<web::http::server::tls::Server<express::Request, express::Response>>::WebAppT;
-
-        void addSniCert(const std::string& domain, const std::map<std::string, std::any>& options) {
-            server.addSniCert(domain, options);
-        }
-
-        void listen(uint16_t port, const std::function<void(int err)>& onError = nullptr) {
-            server.listen(SocketAddress(port), onError);
-        }
-
-        void listen(const std::string& host, uint16_t port, const std::function<void(int err)>& onError = nullptr) {
-            server.listen(SocketAddress(host, port), onError);
-        }
     };
 
     class WebApp6 : public WebAppT<web::http::server::tls::Server6<express::Request, express::Response>> {
-    public:
         using WebAppT<web::http::server::tls::Server6<express::Request, express::Response>>::WebAppT;
-
-        void addSniCert(const std::string& domain, const std::map<std::string, std::any>& options) {
-            server.addSniCert(domain, options);
-        }
-
-        void listen(uint16_t port, const std::function<void(int err)>& onError = nullptr) {
-            server.listen(SocketAddress(port), onError);
-        }
-
-        void listen(const std::string& host, uint16_t port, const std::function<void(int err)>& onError = nullptr) {
-            server.listen(SocketAddress(host, port), onError);
-        }
     };
 
     class WebAppRfComm : public WebAppT<web::http::server::tls::ServerRfComm<express::Request, express::Response>> {
-    public:
         using WebAppT<web::http::server::tls::ServerRfComm<express::Request, express::Response>>::WebAppT;
-
-        void addSniCert(const std::string& domain, const std::map<std::string, std::any>& options) {
-            server.addSniCert(domain, options);
-        }
-
-        void listen(uint8_t channel, const std::function<void(int err)>& onError = nullptr) {
-            server.listen(SocketAddress(channel), onError);
-        }
-
-        void listen(const std::string& address, uint8_t channel, const std::function<void(int err)>& onError = nullptr) {
-            server.listen(SocketAddress(address, channel), onError);
-        }
     };
 
 } // namespace express::tls
