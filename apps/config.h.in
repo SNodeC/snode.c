@@ -17,4 +17,6 @@
 
 #define KEYFPASS "snode.c"
 
+#define SNODECCERTF CMAKE_SOURCE_DIR "certs/snodec.home.vchrist.at_-_snode.c_-_server.pem"
+
 #endif
