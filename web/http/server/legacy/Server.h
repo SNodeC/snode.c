@@ -35,9 +35,8 @@ namespace web::http::server::legacy {
         using web::http::server::Server<net::socket::ip::tcp::ipv4::legacy::SocketServer, Request, Response>::Server;
 
     public:
-        using SocketServer =
-            net::socket::ip::tcp::ipv4::legacy::SocketServer<web::http::server::SocketContextFactory<Request, Response>>; // this makes it
-                                                                                                                          // an HTTP server
+        using SocketServer = net::socket::ip::tcp::ipv4::legacy::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
+
         using SocketAddress = typename SocketServer::SocketAddress;
 
         using web::http::server::Server<net::socket::ip::tcp::ipv4::legacy::SocketServer, Request, Response>::listen;
@@ -60,9 +59,8 @@ namespace web::http::server::legacy {
         using web::http::server::Server<net::socket::ip::tcp::ipv6::legacy::SocketServer, Request, Response>::Server;
 
     public:
-        using SocketServer =
-            net::socket::ip::tcp::ipv6::legacy::SocketServer<web::http::server::SocketContextFactory<Request, Response>>; // this makes it
-                                                                                                                          // an HTTP server
+        using SocketServer = net::socket::ip::tcp::ipv6::legacy::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
+
         using SocketAddress = typename SocketServer::SocketAddress;
 
         using web::http::server::Server<net::socket::ip::tcp::ipv6::legacy::SocketServer, Request, Response>::listen;
@@ -86,9 +84,8 @@ namespace web::http::server::legacy {
 
     public:
         using SocketServer =
-            net::socket::bluetooth::rfcomm::legacy::SocketServer<web::http::server::SocketContextFactory<Request, Response>>; // this makes
-                                                                                                                              // it an HTTP
-                                                                                                                              // server
+            net::socket::bluetooth::rfcomm::legacy::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
+
         using SocketAddress = typename SocketServer::SocketAddress;
 
         using web::http::server::Server<net::socket::bluetooth::rfcomm::legacy::SocketServer, Request, Response>::listen;

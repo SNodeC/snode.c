@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
 
     SocketServer<SimpleSocketProtocolFactory> btServer(
         [](const SocketServer<SimpleSocketProtocolFactory>::SocketAddress& localAddress,
-           [[maybe_unused]] const SocketServer<SimpleSocketProtocolFactory>::SocketAddress& remoteAddress) -> void { // OnConnect
+           const SocketServer<SimpleSocketProtocolFactory>::SocketAddress& remoteAddress) -> void { // OnConnect
             VLOG(0) << "OnConnect";
 
             VLOG(0) << "\tServer: (" + localAddress.address() + ") " + localAddress.toString();

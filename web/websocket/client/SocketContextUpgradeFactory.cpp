@@ -42,7 +42,7 @@ namespace web::websocket::client {
     }
 
     SocketContextUpgrade* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnection* socketConnection,
-                                                              [[maybe_unused]] web::http::client::Request* request,
+                                                              web::http::client::Request* request,
                                                               web::http::client::Response* response) {
         SocketContextUpgrade* socketContext = nullptr;
 

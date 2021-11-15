@@ -46,7 +46,7 @@ namespace web::http::server {
 
         Server(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
-               [[maybe_unused]] const std::function<void(Request&, Response&)>& onRequestReady,
+               const std::function<void(Request&, Response&)>& onRequestReady,
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
             : SocketServerT<web::http::server::SocketContextFactory<Request, Response>>(

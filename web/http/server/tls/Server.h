@@ -35,9 +35,8 @@ namespace web::http::server::tls {
         using web::http::server::Server<net::socket::ip::tcp::ipv4::tls::SocketServer, Request, Response>::Server;
 
     public:
-        using SocketServer =
-            net::socket::ip::tcp::ipv4::tls::SocketServer<web::http::server::SocketContextFactory<Request, Response>>; // this makes it an
-                                                                                                                       // HTTP server
+        using SocketServer = net::socket::ip::tcp::ipv4::tls::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
+
         using SocketAddress = typename SocketServer::SocketAddress;
 
         using web::http::server::Server<net::socket::ip::tcp::ipv4::tls::SocketServer, Request, Response>::listen;
@@ -64,9 +63,8 @@ namespace web::http::server::tls {
         using web::http::server::Server<net::socket::ip::tcp::ipv6::tls::SocketServer, Request, Response>::Server;
 
     public:
-        using SocketServer =
-            net::socket::ip::tcp::ipv6::tls::SocketServer<web::http::server::SocketContextFactory<Request, Response>>; // this makes it an
-                                                                                                                       // HTTP server
+        using SocketServer = net::socket::ip::tcp::ipv6::tls::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
+
         using SocketAddress = typename SocketServer::SocketAddress;
 
         using web::http::server::Server<net::socket::ip::tcp::ipv6::tls::SocketServer, Request, Response>::listen;
@@ -93,9 +91,8 @@ namespace web::http::server::tls {
         using web::http::server::Server<net::socket::bluetooth::rfcomm::tls::SocketServer, Request, Response>::Server;
 
     public:
-        using SocketServer =
-            net::socket::bluetooth::rfcomm::tls::SocketServer<web::http::server::SocketContextFactory<Request, Response>>; // this makes it
-                                                                                                                           // an HTTP server
+        using SocketServer = net::socket::bluetooth::rfcomm::tls::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
+
         using SocketAddress = typename SocketServer::SocketAddress;
 
         using web::http::server::Server<net::socket::bluetooth::rfcomm::tls::SocketServer, Request, Response>::listen;
