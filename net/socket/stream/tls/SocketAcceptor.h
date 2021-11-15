@@ -147,15 +147,18 @@ namespace net::socket::stream::tls {
 
                 if (!socketAcceptor->masterSslCtxDomains.contains(serverNameIndication)) {
                     if (sniSslCtxs->contains(serverNameIndication)) {
-                        SSL_CTX* sniSslCtx = sniSslCtxs->find(serverNameIndication)->second;
+                        SSL_CTX* sniSslCtx = (*sniSslCtxs.get())[serverNameIndication];
 
-                        if (sniSslCtx != nullptr) {
-                            SSL_set_SSL_CTX(ssl, sniSslCtx);
+                        SSL_CTX* nowUsedSslCtx = SSL_set_SSL_CTX(ssl, sniSslCtx);
+                        if (nowUsedSslCtx != nullptr) {
                             LOG(INFO) << "SSL_CTX switched for: '" << serverNameIndication << "'";
                         } else {
-                            LOG(INFO) << "SSL_CTX for SNI '" << serverNameIndication << "' not found";
+                            LOG(INFO) << "SSL_CTX for SNI '" << serverNameIndication << "' not switched";
                             ret = SSL_TLSEXT_ERR_NOACK;
                         }
+                    } else {
+                        LOG(INFO) << "SSL_CTX for SNI '" << serverNameIndication << "' not found";
+                        ret = SSL_TLSEXT_ERR_NOACK;
                     }
                 } else {
                     LOG(INFO) << "SSL_CTX already provides: '" << serverNameIndication << "'";
