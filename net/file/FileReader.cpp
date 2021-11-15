@@ -71,6 +71,6 @@ void FileReader::sinkDisconnected() {
     ReadEventReceiver::disable();
 }
 
-void FileReader::unobserved() {
+void FileReader::unobservedEvent() {
     delete this;
 }

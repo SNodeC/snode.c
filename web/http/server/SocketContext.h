@@ -47,6 +47,7 @@ namespace web::http::server {
         using Request = RequestT;
         using Response = ResponseT;
 
+    private:
         struct RequestContext {
             RequestContext(SocketContext* serverContext)
                 : response(serverContext)
@@ -63,6 +64,7 @@ namespace web::http::server {
             std::string reason;
         };
 
+    public:
         SocketContext(net::socket::stream::SocketConnection* socketConnection,
                       const std::function<void(Request&, Response&)>& onRequestReady);
 
@@ -74,6 +76,10 @@ namespace web::http::server {
 
         void sendToPeerCompleted() override;
 
+        void requestParsed();
+
+        void reset();
+
         std::function<void(Request& req, Response& res)> onRequestReady;
 
         RequestParser parser;
@@ -82,10 +88,6 @@ namespace web::http::server {
 
         bool requestInProgress = false;
         bool connectionTerminated = false;
-
-        void requestParsed();
-
-        void reset();
     };
 
 } // namespace web::http::server

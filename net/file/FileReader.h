@@ -49,7 +49,7 @@ public:
 private:
     void sinkDisconnected() override;
 
-    void unobserved() override;
+    void unobservedEvent() override;
 };
 
 #endif // FILEREADER_H

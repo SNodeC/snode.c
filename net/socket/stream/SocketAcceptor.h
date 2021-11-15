@@ -151,7 +151,7 @@ namespace net::socket::stream {
             AcceptEventReceiver::disable(SocketAcceptor::getFd());
         }
 
-        void unobserved() override {
+        void unobservedEvent() override {
             destruct();
         }
 

@@ -215,7 +215,7 @@ namespace net {
 
     void EventDispatcher::releaseUnobservedEvents() {
         for (EventReceiver* eventReceiver : unobservedEventReceiver) {
-            eventReceiver->unobserved();
+            eventReceiver->unobservedEvent();
         }
         unobservedEventReceiver.clear();
     }

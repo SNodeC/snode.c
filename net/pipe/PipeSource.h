@@ -50,7 +50,7 @@ namespace net::pipe {
 
     protected:
         void writeEvent() override;
-        void unobserved() override;
+        void unobservedEvent() override;
 
         std::function<void(int errnum)> onError;
 

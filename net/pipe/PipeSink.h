@@ -46,7 +46,7 @@ namespace net::pipe {
 
     protected:
         void readEvent() override;
-        void unobserved() override;
+        void unobservedEvent() override;
 
         std::function<void(const char* junk, std::size_t junkLen)> onData;
         std::function<void()> onEof;

@@ -147,7 +147,7 @@ namespace net::socket::stream {
             }
         }
 
-        void unobserved() override {
+        void unobservedEvent() override {
             destruct();
         }
 

@@ -144,7 +144,7 @@ namespace net::socket::stream::tls {
         }
     }
 
-    void TLSHandshake::unobserved() {
+    void TLSHandshake::unobservedEvent() {
         delete this;
     }
 

@@ -74,7 +74,7 @@ namespace net::pipe {
         this->onError = onError;
     }
 
-    void PipeSink::unobserved() {
+    void PipeSink::unobservedEvent() {
         delete this;
     }
 

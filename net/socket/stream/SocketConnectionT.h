@@ -159,7 +159,7 @@ namespace net::socket::stream {
             SocketWriter::doWrite();
         }
 
-        void unobserved() override {
+        void unobservedEvent() override {
             delete this;
         }
 

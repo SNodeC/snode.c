@@ -87,7 +87,7 @@ namespace net {
 
         void triggered(struct timeval lastTriggered = {time(nullptr), 0});
 
-        virtual void unobserved() = 0;
+        virtual void unobservedEvent() = 0;
 
         EventDispatcher& descriptorEventDispatcher;
 

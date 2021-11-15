@@ -78,7 +78,7 @@ namespace net::pipe {
         }
     }
 
-    void PipeSource::unobserved() {
+    void PipeSource::unobservedEvent() {
         delete this;
     }
 
