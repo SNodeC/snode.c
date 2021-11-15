@@ -86,6 +86,8 @@ int main(int argc, char* argv[]) {
         VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " + socketConnection->getRemoteAddress().toString();
     });
 
+    tlsApp.addSniCert("myhost", {{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}, {"caFile", CLIENTCAFILE}});
+
     tlsApp.listen("A4:B1:C1:2C:82:37", 2, [](int err) -> void {
         if (err != 0) {
             PLOG(ERROR) << "BT listen: " << err;

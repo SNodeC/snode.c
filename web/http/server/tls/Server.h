@@ -35,24 +35,27 @@ namespace web::http::server::tls {
         using web::http::server::Server<net::socket::ip::tcp::ipv4::tls::SocketServer, Request, Response>::Server;
 
     public:
-        using web::http::server::Server<net::socket::ip::tcp::ipv4::tls::SocketServer, Request, Response>::socketServer;
+        using SocketServer =
+            net::socket::ip::tcp::ipv4::tls::SocketServer<web::http::server::SocketContextFactory<Request, Response>>; // this makes it an
+                                                                                                                       // HTTP server
+        using SocketAddress = typename SocketServer::SocketAddress;
 
         using web::http::server::Server<net::socket::ip::tcp::ipv4::tls::SocketServer, Request, Response>::listen;
 
         void addSniCert(const std::string& domain, const std::map<std::string, std::any>& options) {
-            socketServer.addSniCert(domain, options);
+            SocketServer::addSniCert(domain, options);
         }
 
         void listen(uint16_t port, const std::function<void(int)>& onError) {
-            socketServer.listen(port, 5, onError);
+            SocketServer::listen(port, 5, onError);
         }
 
         void listen(const std::string& ipOrHostname, const std::function<void(int)>& onError) {
-            socketServer.listen(ipOrHostname, 5, onError);
+            SocketServer::listen(ipOrHostname, 5, onError);
         }
 
         void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
-            socketServer.listen(ipOrHostname, port, 5, onError);
+            SocketServer::listen(ipOrHostname, port, 5, onError);
         }
     };
 
@@ -61,50 +64,56 @@ namespace web::http::server::tls {
         using web::http::server::Server<net::socket::ip::tcp::ipv6::tls::SocketServer, Request, Response>::Server;
 
     public:
-        using web::http::server::Server<net::socket::ip::tcp::ipv6::tls::SocketServer, Request, Response>::socketServer;
+        using SocketServer =
+            net::socket::ip::tcp::ipv6::tls::SocketServer<web::http::server::SocketContextFactory<Request, Response>>; // this makes it an
+                                                                                                                       // HTTP server
+        using SocketAddress = typename SocketServer::SocketAddress;
 
         using web::http::server::Server<net::socket::ip::tcp::ipv6::tls::SocketServer, Request, Response>::listen;
 
         void addSniCert(const std::string& domain, const std::map<std::string, std::any>& options) {
-            socketServer.addSniCert(domain, options);
+            SocketServer::addSniCert(domain, options);
         }
 
         void listen(uint16_t port, const std::function<void(int)>& onError) {
-            socketServer.listen(port, 5, onError);
+            SocketServer::listen(port, 5, onError);
         }
 
         void listen(const std::string& ipOrHostname, const std::function<void(int)>& onError) {
-            socketServer.listen(ipOrHostname, 5, onError);
+            SocketServer::listen(ipOrHostname, 5, onError);
         }
 
         void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
-            socketServer.listen(ipOrHostname, port, 5, onError);
+            SocketServer::listen(ipOrHostname, port, 5, onError);
         }
     };
 
     template <typename Request = web::http::server::Request, typename Response = web::http::server::Response>
     class ServerRfComm : public web::http::server::Server<net::socket::bluetooth::rfcomm::tls::SocketServer, Request, Response> {
-    public:
         using web::http::server::Server<net::socket::bluetooth::rfcomm::tls::SocketServer, Request, Response>::Server;
 
-        using web::http::server::Server<net::socket::bluetooth::rfcomm::tls::SocketServer, Request, Response>::socketServer;
+    public:
+        using SocketServer =
+            net::socket::bluetooth::rfcomm::tls::SocketServer<web::http::server::SocketContextFactory<Request, Response>>; // this makes it
+                                                                                                                           // an HTTP server
+        using SocketAddress = typename SocketServer::SocketAddress;
 
         using web::http::server::Server<net::socket::bluetooth::rfcomm::tls::SocketServer, Request, Response>::listen;
 
         void addSniCert(const std::string& domain, const std::map<std::string, std::any>& options) {
-            socketServer.addSniCert(domain, options);
+            SocketServer::addSniCert(domain, options);
         }
 
         void listen(uint8_t channel, const std::function<void(int)>& onError) {
-            socketServer.listen(channel, 5, onError);
+            SocketServer::listen(channel, 5, onError);
         }
 
         void listen(const std::string& address, const std::function<void(int)>& onError) {
-            socketServer.listen(address, 5, onError);
+            SocketServer::listen(address, 5, onError);
         }
 
         void listen(const std::string& address, uint8_t channel, const std::function<void(int)>& onError) {
-            socketServer.listen(address, channel, 5, onError);
+            SocketServer::listen(address, channel, 5, onError);
         }
     };
 
