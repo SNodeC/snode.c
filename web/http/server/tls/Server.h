@@ -19,10 +19,10 @@
 #ifndef WEB_HTTP_SERVER_TLS_SERVER_H
 #define WEB_HTTP_SERVER_TLS_SERVER_H
 
-#include "net/socket/bluetooth/rfcomm/tls/SocketServer.h"
-#include "net/socket/ip/tcp/ipv4/tls/SocketServer.h"
-#include "net/socket/ip/tcp/ipv6/tls/SocketServer.h"
-#include "web/http/server/Server.h"
+#include "net/socket/bluetooth/rfcomm/tls/SocketServer.h" // IWYU pragma: export
+#include "net/socket/ip/tcp/ipv4/tls/SocketServer.h"      // IWYU pragma: export
+#include "net/socket/ip/tcp/ipv6/tls/SocketServer.h"      // IWYU pragma: export
+#include "web/http/server/Server.h"                       // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

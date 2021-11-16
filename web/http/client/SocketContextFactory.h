@@ -20,7 +20,7 @@
 #define WEB_HTTP_CLIENT_SOCKETCONTEXTFACTORY_H
 
 #include "web/http/SocketContextFactory.h"
-#include "web/http/client/SocketContext.h"
+#include "web/http/client/SocketContext.hpp"
 
 namespace net::socket::stream {
     class SocketConnection;

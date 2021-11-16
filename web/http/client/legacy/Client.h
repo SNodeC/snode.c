@@ -19,10 +19,10 @@
 #ifndef WEB_HTTP_CLIENT_LEGACY_CLIENT_H
 #define WEB_HTTP_CLIENT_LEGACY_CLIENT_H
 
-#include "net/socket/bluetooth/rfcomm/legacy/SocketClient.h"
-#include "net/socket/ip/tcp/ipv4/legacy/SocketClient.h"
-#include "net/socket/ip/tcp/ipv6/legacy/SocketClient.h"
-#include "web/http/client/Client.h" // IWYU pragma: export
+#include "net/socket/bluetooth/rfcomm/legacy/SocketClient.h" // IWYU pragma: export
+#include "net/socket/ip/tcp/ipv4/legacy/SocketClient.h"      // IWYU pragma: export
+#include "net/socket/ip/tcp/ipv6/legacy/SocketClient.h"      // IWYU pragma: export
+#include "web/http/client/Client.h"                          // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -35,28 +35,11 @@ namespace web::http::client::legacy {
         using web::http::client::Client<net::socket::ip::tcp::ipv4::legacy::SocketClient, Request, Response>::Client;
 
     public:
-        using web::http::client::Client<net::socket::ip::tcp::ipv4::legacy::SocketClient, Request, Response>::socketClient;
+        using SocketClient = net::socket::ip::tcp::ipv4::legacy::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
+
+        using SocketAddress = typename SocketClient::SocketAddress;
 
         using web::http::client::Client<net::socket::ip::tcp::ipv4::legacy::SocketClient, Request, Response>::connect;
-
-        void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
-            socketClient.connect(ipOrHostname, port, onError);
-        }
-
-        void connect(const std::string& ipOrHostname,
-                     uint16_t port,
-                     const std::string& bindIpOrHostname,
-                     const std::function<void(int)>& onError) {
-            socketClient.connect(ipOrHostname, port, bindIpOrHostname, onError);
-        }
-
-        void connect(const std::string& ipOrHostname,
-                     uint16_t port,
-                     const std::string& bindIpOrHostname,
-                     uint16_t bindPort,
-                     const std::function<void(int)>& onError) {
-            socketClient.connect(ipOrHostname, port, bindIpOrHostname, bindPort, onError);
-        }
     };
 
     template <typename Request = web::http::client::Request, typename Response = web::http::client::Response>
@@ -64,28 +47,11 @@ namespace web::http::client::legacy {
         using web::http::client::Client<net::socket::ip::tcp::ipv6::legacy::SocketClient, Request, Response>::Client;
 
     public:
-        using web::http::client::Client<net::socket::ip::tcp::ipv6::legacy::SocketClient, Request, Response>::socketClient;
+        using SocketClient = net::socket::ip::tcp::ipv6::legacy::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
+
+        using SocketAddress = typename SocketClient::SocketAddress;
 
         using web::http::client::Client<net::socket::ip::tcp::ipv6::legacy::SocketClient, Request, Response>::connect;
-
-        void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
-            socketClient.connect(ipOrHostname, port, onError);
-        }
-
-        void connect(const std::string& ipOrHostname,
-                     uint16_t port,
-                     const std::string& bindIpOrHostname,
-                     const std::function<void(int)>& onError) {
-            socketClient.connect(ipOrHostname, port, bindIpOrHostname, onError);
-        }
-
-        void connect(const std::string& ipOrHostname,
-                     uint16_t port,
-                     const std::string& bindIpOrHostname,
-                     uint16_t bindPort,
-                     const std::function<void(int)>& onError) {
-            socketClient.connect(ipOrHostname, port, bindIpOrHostname, bindPort, onError);
-        }
     };
 
     template <typename Request = web::http::client::Request, typename Response = web::http::client::Response>
@@ -93,25 +59,12 @@ namespace web::http::client::legacy {
         using web::http::client::Client<net::socket::bluetooth::rfcomm::legacy::SocketClient, Request, Response>::Client;
 
     public:
-        using web::http::client::Client<net::socket::bluetooth::rfcomm::legacy::SocketClient, Request, Response>::socketClient;
+        using SocketClient =
+            net::socket::bluetooth::rfcomm::legacy::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
+
+        using SocketAddress = typename SocketClient::SocketAddress;
 
         using web::http::client::Client<net::socket::bluetooth::rfcomm::legacy::SocketClient, Request, Response>::connect;
-
-        void connect(const std::string& address, uint8_t channel, const std::function<void(int)>& onError) {
-            socketClient.connect(address, channel, onError);
-        }
-
-        void connect(const std::string& address, uint8_t channel, const std::string& bindAddress, const std::function<void(int)>& onError) {
-            socketClient.connect(address, channel, bindAddress, onError);
-        }
-
-        void connect(const std::string& address,
-                     uint8_t channel,
-                     const std::string& bindAddress,
-                     uint8_t bindChannel,
-                     const std::function<void(int)>& onError) {
-            socketClient.connect(address, channel, bindAddress, bindChannel, onError);
-        }
     };
 
 } // namespace web::http::client::legacy

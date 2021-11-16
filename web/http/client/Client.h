@@ -19,7 +19,6 @@
 #ifndef WEB_HTTP_CLIENT_CLIENT_H
 #define WEB_HTTP_CLIENT_CLIENT_H
 
-#include "web/http/client/SocketContext.hpp"
 #include "web/http/client/SocketContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -36,7 +35,7 @@
 namespace web::http::client {
 
     template <template <typename SocketContextFactoryT> typename SocketClientT, typename RequestT, typename ResponseT>
-    class Client {
+    class Client : public SocketClientT<SocketContextFactory<Request, Response>> {
     public:
         using Request = RequestT;
         using Response = ResponseT;
@@ -51,7 +50,7 @@ namespace web::http::client {
                const std::function<void(int, const std::string&)>& onResponseError,
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
-            : socketClient(
+            : SocketClient(
                   [onConnect](const Client::SocketAddress& localAddress,
                               const Client::SocketAddress& remoteAddress) -> void { // onConnect
                       onConnect(localAddress, remoteAddress);
@@ -60,9 +59,6 @@ namespace web::http::client {
                       Request& request =
                           dynamic_cast<web::http::client::SocketContext<Request, Response>*>(socketConnection->getSocketContext())
                               ->getRequest();
-
-                      //                      request.setHost(socketConnection->getRemoteAddress().host() + ":" +
-                      //                                      std::to_string(socketConnection->getRemoteAddress().port()));
                       request.setHost(socketConnection->getRemoteAddress().toString());
 
                       onConnected(socketConnection);
@@ -73,32 +69,9 @@ namespace web::http::client {
                       onDisconnect(socketConnection);
                   },
                   options) {
-            socketClient.getSocketContextFactory()->setOnResponseReady(onResponseReady);
-            socketClient.getSocketContextFactory()->setOnResponseError(onResponseError);
+            SocketClient::getSocketContextFactory()->setOnResponseReady(onResponseReady);
+            SocketClient::getSocketContextFactory()->setOnResponseError(onResponseError);
         }
-
-        void connect(const SocketAddress& socketAddress, const std::function<void(int)>& onError) {
-            socketClient.connect(socketAddress, onError);
-        }
-
-        void connect(const SocketAddress& socketAddress, const SocketAddress& bindAddress, const std::function<void(int)>& onError) {
-            socketClient.connect(socketAddress, bindAddress, onError);
-        }
-
-        void onConnect(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect) {
-            socketClient.onConnect(onConnect);
-        }
-
-        void onConnected(const std::function<void(SocketConnection*)>& onConnected) {
-            socketClient.onConnected(onConnected);
-        }
-
-        void onDisconnect(const std::function<void(SocketConnection*)>& onDisconnect) {
-            socketClient.onDisconnect(onDisconnect);
-        }
-
-    protected:
-        SocketClient socketClient;
     };
 
 } // namespace web::http::client

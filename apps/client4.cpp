@@ -27,7 +27,6 @@
 #include "web/http/client/legacy/Client.h"          // for Client, Client<>...
 #include "web/http/client/tls/Client.h"             // for Client, Client<>...
 
-#include <any>                // for any
 #include <cstring>            // for memcpy
 #include <functional>         // for function
 #include <map>                // for map, operator==

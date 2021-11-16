@@ -26,7 +26,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <any> // for any
 #include <cstring>
 #include <functional>         // for function
 #include <map>                // for map, operator==

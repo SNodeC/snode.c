@@ -23,7 +23,6 @@
 #include "net/SNodeC.h"                             // for SNodeC
 #include "net/socket/ip/address/ipv4/InetAddress.h" // for InetAddress, ip
 #include "net/socket/ip/tcp/ipv4/Socket.h"          // for Socket
-#include "net/socket/stream/SocketClient.h"         // for SocketClient<>:...
 #include "net/socket/stream/SocketContext.h"        // for SocketProtocol
 #include "net/socket/stream/SocketContextFactory.h" // for SocketProtocolF...
 #include "net/socket/stream/legacy/SocketClient.h"  // for SocketClient
@@ -48,10 +47,6 @@
 
 namespace web::http {
     class CookieOptions;
-}
-
-namespace net::socket::stream {
-    class SocketConnection;
 }
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

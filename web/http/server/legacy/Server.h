@@ -19,10 +19,10 @@
 #ifndef WEB_HTTP_SERVER_LEGACY_SERVER_H
 #define WEB_HTTP_SERVER_LEGACY_SERVER_H
 
-#include "net/socket/bluetooth/rfcomm/legacy/SocketServer.h"
-#include "net/socket/ip/tcp/ipv4/legacy/SocketServer.h"
-#include "net/socket/ip/tcp/ipv6/legacy/SocketServer.h"
-#include "web/http/server/Server.h"
+#include "net/socket/bluetooth/rfcomm/legacy/SocketServer.h" // IWYU pragma: export
+#include "net/socket/ip/tcp/ipv4/legacy/SocketServer.h"      // IWYU pragma: export
+#include "net/socket/ip/tcp/ipv6/legacy/SocketServer.h"      // IWYU pragma: export
+#include "web/http/server/Server.h"                          // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

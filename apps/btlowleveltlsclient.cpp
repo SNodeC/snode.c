@@ -23,13 +23,8 @@
 #include "net/SNodeC.h"                                   // for SNodeC
 #include "net/socket/bluetooth/address/RfCommAddress.h"   // for RfCommAddress
 #include "net/socket/bluetooth/rfcomm/tls/SocketClient.h" // for SocketClient
-#include "net/socket/stream/SocketClient.h"               // for SocketClie...
 #include "net/socket/stream/SocketContext.h"              // for SocketProt...
 #include "net/socket/stream/SocketContextFactory.h"       // for SocketProt...
-
-namespace net::socket::stream {
-    class SocketConnection;
-}
 
 #include <cstddef>            // for NULL, size_t
 #include <functional>         // for function
