@@ -147,7 +147,11 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
                                socketConnection->getLocalAddress().toString();
             },
-            {{"certChain", CLIENTCERTF}, {"keyPEM", CLIENTKEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}, {"Host", "myhost"}});
+            {{"certChain", CLIENTCERTF},
+             {"keyPEM", CLIENTKEYF},
+             {"password", KEYFPASS},
+             {"caFile", SERVERCAFILE},
+             {"Host", "snodec.home.vchrist.at"}});
 
         tlsClient.connect("localhost", 8088, [](int err) -> void {
             if (err != 0) {
