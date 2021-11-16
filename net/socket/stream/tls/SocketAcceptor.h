@@ -123,10 +123,8 @@ namespace net::socket::stream::tls {
                             std::string subjectAltName =
                                 std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                             static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
-                            VLOG(2) << "\t      SAN (DNS): '" << subjectAltName << "'";
+                            VLOG(2) << "SSL_CTX for domain '" << subjectAltName << "' installed";
                             masterSslCtxDomains.insert(subjectAltName);
-                        } else if (generalName->type != GEN_URI) {
-                            VLOG(2) << "\t      SAN (Type): '" + std::to_string(generalName->type);
                         }
                     }
                     sk_GENERAL_NAME_pop_free(subjectAltNames, GENERAL_NAME_free);

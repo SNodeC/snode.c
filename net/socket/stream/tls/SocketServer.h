@@ -79,9 +79,9 @@ namespace net::socket::stream::tls {
 
             if (sSlCtx != nullptr) {
                 sniSslCtxs->insert({{domain, sSlCtx}});
-                VLOG(0) << "SSL_CTX for domain '" << domain << "' installed";
+                VLOG(2) << "SSL_CTX for domain '" << domain << "' installed";
             } else {
-                VLOG(0) << "Can not create SSL_CTX for SNI '" << domain << "'";
+                VLOG(2) << "Can not create SSL_CTX for SNI '" << domain << "'";
             }
         }
 
