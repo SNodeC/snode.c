@@ -24,13 +24,13 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <any>
-#include <cstddef>
 #include <functional>
 #include <map>
-#include <netinet/in.h>
 #include <string>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
+
+#define LISTEN_BACKLOG 5
 
 namespace web::http::server {
 
@@ -64,7 +64,7 @@ namespace web::http::server {
         }
 
         void listen(const SocketAddress& socketAddress, const std::function<void(int)>& onError) {
-            SocketServer::listen(socketAddress, 5, onError);
+            SocketServer::listen(socketAddress, LISTEN_BACKLOG, onError);
         }
     };
 

@@ -42,15 +42,15 @@ namespace web::http::server::legacy {
         using web::http::server::Server<net::socket::ip::tcp::ipv4::legacy::SocketServer, Request, Response>::listen;
 
         void listen(uint16_t port, const std::function<void(int)>& onError) {
-            SocketServer::listen(port, 5, onError);
+            SocketServer::listen(port, LISTEN_BACKLOG, onError);
         }
 
         void listen(const std::string& ipOrHostname, const std::function<void(int)>& onError) {
-            SocketServer::listen(ipOrHostname, 5, onError);
+            SocketServer::listen(ipOrHostname, LISTEN_BACKLOG, onError);
         }
 
         void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
-            SocketServer::listen(ipOrHostname, port, 5, onError);
+            SocketServer::listen(ipOrHostname, port, LISTEN_BACKLOG, onError);
         }
     };
 
@@ -66,15 +66,15 @@ namespace web::http::server::legacy {
         using web::http::server::Server<net::socket::ip::tcp::ipv6::legacy::SocketServer, Request, Response>::listen;
 
         void listen(uint16_t port, const std::function<void(int)>& onError) {
-            SocketServer::listen(port, 5, onError);
+            SocketServer::listen(port, LISTEN_BACKLOG, onError);
         }
 
         void listen(const std::string& ipOrHostname, const std::function<void(int)>& onError) {
-            SocketServer::listen(ipOrHostname, 5, onError);
+            SocketServer::listen(ipOrHostname, LISTEN_BACKLOG, onError);
         }
 
         void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
-            SocketServer::listen(ipOrHostname, port, 5, onError);
+            SocketServer::listen(ipOrHostname, port, LISTEN_BACKLOG, onError);
         }
     };
 
@@ -91,15 +91,15 @@ namespace web::http::server::legacy {
         using web::http::server::Server<net::socket::bluetooth::rfcomm::legacy::SocketServer, Request, Response>::listen;
 
         void listen(uint8_t channel, const std::function<void(int)>& onError) {
-            SocketServer::listen(channel, 5, onError);
+            SocketServer::listen(channel, LISTEN_BACKLOG, onError);
         }
 
         void listen(const std::string& address, const std::function<void(int)>& onError) {
-            SocketServer::listen(address, 5, onError);
+            SocketServer::listen(address, LISTEN_BACKLOG, onError);
         }
 
         void listen(const std::string& address, uint8_t channel, const std::function<void(int)>& onError) {
-            SocketServer::listen(address, channel, 5, onError);
+            SocketServer::listen(address, channel, LISTEN_BACKLOG, onError);
         }
     };
 

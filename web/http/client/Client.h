@@ -24,10 +24,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <any>
-#include <cstddef>
 #include <functional>
 #include <map>
-#include <netinet/in.h>
 #include <string>
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS

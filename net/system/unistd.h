@@ -26,8 +26,8 @@
 #include <cstddef> // for size_t
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h> // for ssize_t
+#include <sys/types.h> // for ssize_t
+#include <unistd.h>
 
 // IWYU pragma: end_exports
 

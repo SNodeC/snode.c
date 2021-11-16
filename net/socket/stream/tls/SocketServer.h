@@ -59,8 +59,8 @@ namespace net::socket::stream::tls {
                      const std::map<std::string, std::any>& options = {{}})
             : SocketServerBase(onConnect, onConnected, onDisconnect, options)
             , sniSslCtxs(new std::map<std::string, SSL_CTX*>, [](std::map<std::string, SSL_CTX*>* sniSslCtxs) {
-                for (const auto& [domain, sslCtx] : *sniSslCtxs) {
-                    ssl_ctx_free(sslCtx);
+                for (const auto& [domain, sniSslCtx] : *sniSslCtxs) {
+                    ssl_ctx_free(sniSslCtx);
                 }
                 delete sniSslCtxs;
             }) {
