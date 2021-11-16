@@ -16,6 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include "config.h" // just for this example app
 #include "log/Logger.h"
 #include "net/SNodeC.h"
@@ -23,8 +25,6 @@
 #include "web/http/client/Request.h"                // for Request
 #include "web/http/client/Response.h"
 #include "web/http/client/tls/Client.h"
-
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstring>
 #include <functional>         // for function
@@ -151,7 +151,7 @@ int main(int argc, char* argv[]) {
              {"keyPEM", CLIENTKEYF},
              {"password", KEYFPASS},
              {"caFile", SERVERCAFILE},
-             {"Host", "snodec.home.vchrist.at"}});
+             {"SNI", "snodec.home.vchrist.at"}});
 
         tlsClient.connect("localhost", 8088, [](int err) -> void {
             if (err != 0) {
