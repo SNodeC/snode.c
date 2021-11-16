@@ -88,7 +88,7 @@ namespace net::socket::stream {
             return socketContextFactory;
         }
 
-    private:
+    protected:
         std::shared_ptr<SocketContextFactory> socketContextFactory;
 
         std::function<void(const SocketAddress&, const SocketAddress&)> _onConnect;

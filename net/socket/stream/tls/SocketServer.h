@@ -66,7 +66,7 @@ namespace net::socket::stream::tls {
             }) {
         }
 
-        void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const override {
+        void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const final {
             SocketAcceptor* socketAcceptor = new SocketAcceptor(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
 
             socketAcceptor->setSniSslCtxs(sniSslCtxs);
@@ -81,7 +81,7 @@ namespace net::socket::stream::tls {
                 sniSslCtxs->insert({{domain, sSlCtx}});
                 VLOG(0) << "SSL_CTX for domain '" << domain << "' installed";
             } else {
-                VLOG(0) << "Can not create SSL_CTX for SNI certificate";
+                VLOG(0) << "Can not create SSL_CTX for SNI '" << domain << "'";
             }
         }
 
