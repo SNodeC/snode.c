@@ -19,7 +19,6 @@
 #ifndef NET_SOCKET_IP_TCP_IPV4_TLS_SOCKETCLIENT_H
 #define NET_SOCKET_IP_TCP_IPV4_TLS_SOCKETCLIENT_H
 
-#include "net/socket/ip/tcp/ipv4/Socket.h"
 #include "net/socket/ip/tcp/ipv4/SocketClient.h" // IWYU pragma: export
 #include "net/socket/stream/tls/SocketClient.h"  // IWYU pragma: export
 

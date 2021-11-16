@@ -21,15 +21,9 @@
 #include "log/Logger.h"
 #include "net/SNodeC.h"
 #include "net/socket/bluetooth/address/L2CapAddress.h" // for L2CapAddress
-#include "net/socket/bluetooth/l2cap/Socket.h"         // for l2cap
 #include "net/socket/bluetooth/l2cap/SocketClient.h"
-#include "net/socket/stream/SocketClient.h" // for SocketClient<...
 #include "net/socket/stream/SocketContext.h"
 #include "net/socket/stream/SocketContextFactory.h"
-
-namespace net::socket::stream {
-    class SocketConnection;
-} // namespace net::socket::stream
 
 #include <cstddef>
 #include <functional>  // for function

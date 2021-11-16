@@ -19,8 +19,8 @@
 #ifndef NET_SOCKET_IP_TCP_IPV4_SOCKETCLIENT_H
 #define NET_SOCKET_IP_TCP_IPV4_SOCKETCLIENT_H
 
-#include "net/socket/ip/tcp/SocketClient.h" // IWYU pragma: export
-#include "net/socket/ip/tcp/ipv4/Socket.h"
+#include "net/socket/ip/tcp/SocketClient.h"
+#include "net/socket/ip/tcp/ipv4/Socket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

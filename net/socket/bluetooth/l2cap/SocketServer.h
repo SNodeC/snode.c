@@ -19,7 +19,7 @@
 #ifndef NET_SOCKET_BLUETOOTH_L2CAP_SOCKETSERVER_H
 #define NET_SOCKET_BLUETOOTH_L2CAP_SOCKETSERVER_H
 
-#include "net/socket/bluetooth/l2cap/Socket.h"
+#include "net/socket/bluetooth/l2cap/Socket.h"     // IWYU pragma: export
 #include "net/socket/stream/legacy/SocketServer.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
