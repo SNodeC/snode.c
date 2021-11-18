@@ -16,23 +16,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_IP_TCP_IPV6_SOCKETSERVER_H
-#define NET_SOCKET_IP_TCP_IPV6_SOCKETSERVER_H
+#ifndef NET_SOCKET_IP_TCP_LEGACY_SOCKETSERVER_H
+#define NET_SOCKET_IP_TCP_LEGACY_SOCKETSERVER_H
 
 #include "net/socket/ip/tcp/SocketServer.h"
-#include "net/socket/ip/tcp/ipv6/Socket.h" // IWYU pragma: export
+#include "net/socket/stream/legacy/SocketServer.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::socket::ip::tcp::ipv6 {
+namespace net::socket::ip::tcp::legacy {
 
-    template <template <typename SocketT, typename SocketContextFactoryT> typename ConcreteSocketServer, typename SocketContextFactoryT>
-    class SocketServer : public net::socket::ip::tcp::SocketServer<ConcreteSocketServer<ipv6::Socket, SocketContextFactoryT>> {
-        using net::socket::ip::tcp::SocketServer<ConcreteSocketServer<ipv6::Socket, SocketContextFactoryT>>::SocketServer;
-    };
+    template <typename SocketT, typename SocketContextFactoryT>
+    using SocketServer = net::socket::ip::tcp::SocketServer<net::socket::stream::legacy::SocketServer, SocketT, SocketContextFactoryT>;
 
-} // namespace net::socket::ip::tcp::ipv6
+} // namespace net::socket::ip::tcp::tls
 
-#endif // NET_SOCKET_IP_TCP_IPV6_SOCKETSERVER_H
+#endif // NET_SOCKET_IP_TCP_LEGACY_SOCKETSERVER_H
