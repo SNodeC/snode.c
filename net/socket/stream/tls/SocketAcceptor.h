@@ -88,13 +88,11 @@ namespace net::socket::stream::tls {
                 SSL_CTX_set_tlsext_servername_callback(masterSslCtx, serverNameCallback);
                 addMasterCert(masterSslCtx);
             }
+            sniSslCtxs = std::any_cast<std::shared_ptr<std::map<std::string, SSL_CTX*>>>(options.find("SNI_SSL_CTXS")->second);
         }
 
         ~SocketAcceptor() override {
             ssl_ctx_free(masterSslCtx);
-        }
-        void setSniSslCtxs(std::shared_ptr<std::map<std::string, SSL_CTX*>> sniSslCtxs) {
-            this->sniSslCtxs = sniSslCtxs;
         }
 
         void listen(const SocketAddress& localAddress, int backlog, const std::function<void(int)>& onError) {

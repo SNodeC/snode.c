@@ -64,14 +64,7 @@ namespace net::socket::stream::tls {
                 }
                 delete sniSslCtxs;
             }) {
-        }
-
-        void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const final {
-            SocketAcceptor* socketAcceptor = new SocketAcceptor(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
-
-            socketAcceptor->setSniSslCtxs(sniSslCtxs);
-
-            socketAcceptor->listen(bindAddress, backlog, onError);
+            this->options.insert({{"SNI_SSL_CTXS", sniSslCtxs}});
         }
 
         void addSniCert(const std::string& domain, const std::map<std::string, std::any>& options) {
