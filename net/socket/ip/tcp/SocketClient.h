@@ -60,6 +60,39 @@ namespace net::socket::ip::tcp {
         }
     };
 
+    template <template <typename SocketT, typename SocketContextFactoryT> typename SocketClientBaseT,
+              typename SocketT,
+              typename SocketContextFactoryT>
+    class SocketClient1 : public SocketClientBaseT<SocketT, SocketContextFactoryT> {
+        using SocketClientBase = SocketClientBaseT<SocketT, SocketContextFactoryT>;
+
+        using SocketClientBase::SocketClientBase;
+
+    public:
+        using SocketAddress = typename SocketClientBase::SocketAddress;
+
+        using SocketClientBase::connect;
+
+        void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
+            connect(SocketAddress(ipOrHostname, port), onError);
+        }
+
+        void connect(const std::string& ipOrHostname,
+                     uint16_t port,
+                     const std::string& bindIpOrHostname,
+                     const std::function<void(int)>& onError) {
+            connect(SocketAddress(ipOrHostname, port), bindIpOrHostname, onError);
+        }
+
+        void connect(const std::string& ipOrHostname,
+                     uint16_t port,
+                     const std::string& bindIpOrHostname,
+                     uint16_t bindPort,
+                     const std::function<void(int)>& onError) {
+            connect(SocketAddress(ipOrHostname, port), SocketAddress(bindIpOrHostname, bindPort), onError);
+        }
+    };
+
 } // namespace net::socket::ip::tcp
 
 #endif // NET_SOCKET_IP_TCP_SOCKETCLIENT_H

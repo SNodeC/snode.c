@@ -16,23 +16,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_IP_TCP_IPV6_TLS_SOCKETCLIENT_H
-#define NET_SOCKET_IP_TCP_IPV6_TLS_SOCKETCLIENT_H
+#ifndef NET_SOCKET_IP_TCP_TLS_IPV4_SOCKETCLIENT_H
+#define NET_SOCKET_IP_TCP_TLS_IPV4_SOCKETCLIENT_H
 
-#include "net/socket/ip/tcp/ipv6/SocketClient.h" // IWYU pragma: export
-#include "net/socket/stream/tls/SocketClient.h"  // IWYU pragma: export
+#include "net/socket/ip/tcp/ipv4/Socket.h"      // IWYU pragma: export
+#include "net/socket/ip/tcp/tls/SocketClient.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::socket::ip::tcp::ipv6::tls {
+namespace net::socket::ip::tcp::tls::ipv4 {
 
     template <typename SocketContextFactoryT>
-    class SocketClient : public net::socket::ip::tcp::ipv6::SocketClient<net::socket::stream::tls::SocketClient, SocketContextFactoryT> {
-        using net::socket::ip::tcp::ipv6::SocketClient<net::socket::stream::tls::SocketClient, SocketContextFactoryT>::SocketClient;
-    };
+    using SocketClient = net::socket::ip::tcp::tls::SocketClient<tcp::ipv4::Socket, SocketContextFactoryT>;
 
-} // namespace net::socket::ip::tcp::ipv6::tls
+} // namespace net::socket::ip::tcp::tls::ipv4
 
-#endif // NET_SOCKET_IP_TCP_IPV6_TLS_SOCKETCLIENT_H
+#endif // NET_SOCKET_IP_TCP_TLS_IPV4_SOCKETCLIENT_H

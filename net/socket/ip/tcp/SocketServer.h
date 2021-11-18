@@ -29,16 +29,18 @@
 
 namespace net::socket::ip::tcp {
 
-    template <typename ConcreteSocketServerT>
-    class SocketServer : public ConcreteSocketServerT {
-        using ConcreteSocketServer = ConcreteSocketServerT;
+    template <template <typename SocketT, typename SocketContextFactoryT> typename SocketServerBaseT,
+              typename SocketT,
+              typename SocketContextFactoryT>
+    class SocketServer : public SocketServerBaseT<SocketT, SocketContextFactoryT> {
+        using SocketServerBase = SocketServerBaseT<SocketT, SocketContextFactoryT>;
 
-        using ConcreteSocketServer::ConcreteSocketServer;
+        using SocketServerBase::SocketServerBase;
 
     public:
-        using SocketAddress = typename ConcreteSocketServer::SocketAddress;
+        using SocketAddress = typename SocketServerBase::SocketAddress;
 
-        using ConcreteSocketServer::listen;
+        using SocketServerBase::listen;
 
         void listen(uint16_t port, int backlog, const std::function<void(int)>& onError) {
             listen(SocketAddress(port), backlog, onError);
