@@ -29,41 +29,10 @@
 
 namespace net::socket::ip::tcp {
 
-    template <typename ConcreteSocketClientT>
-    class SocketClient : public ConcreteSocketClientT {
-        using ConcreteSocketClient = ConcreteSocketClientT;
-
-        using ConcreteSocketClient::ConcreteSocketClient;
-
-    public:
-        using SocketAddress = typename ConcreteSocketClient::SocketAddress;
-
-        using ConcreteSocketClient::connect;
-
-        void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
-            connect(SocketAddress(ipOrHostname, port), onError);
-        }
-
-        void connect(const std::string& ipOrHostname,
-                     uint16_t port,
-                     const std::string& bindIpOrHostname,
-                     const std::function<void(int)>& onError) {
-            connect(SocketAddress(ipOrHostname, port), bindIpOrHostname, onError);
-        }
-
-        void connect(const std::string& ipOrHostname,
-                     uint16_t port,
-                     const std::string& bindIpOrHostname,
-                     uint16_t bindPort,
-                     const std::function<void(int)>& onError) {
-            connect(SocketAddress(ipOrHostname, port), SocketAddress(bindIpOrHostname, bindPort), onError);
-        }
-    };
-
     template <template <typename SocketT, typename SocketContextFactoryT> typename SocketClientBaseT,
               typename SocketT,
               typename SocketContextFactoryT>
-    class SocketClient1 : public SocketClientBaseT<SocketT, SocketContextFactoryT> {
+    class SocketClient : public SocketClientBaseT<SocketT, SocketContextFactoryT> {
         using SocketClientBase = SocketClientBaseT<SocketT, SocketContextFactoryT>;
 
         using SocketClientBase::SocketClientBase;
@@ -74,14 +43,14 @@ namespace net::socket::ip::tcp {
         using SocketClientBase::connect;
 
         void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
-            connect(SocketAddress(ipOrHostname, port), onError);
+            SocketClientBase::connect(SocketAddress(ipOrHostname, port), onError);
         }
 
         void connect(const std::string& ipOrHostname,
                      uint16_t port,
                      const std::string& bindIpOrHostname,
                      const std::function<void(int)>& onError) {
-            connect(SocketAddress(ipOrHostname, port), bindIpOrHostname, onError);
+            SocketClientBase::connect(SocketAddress(ipOrHostname, port), bindIpOrHostname, onError);
         }
 
         void connect(const std::string& ipOrHostname,
@@ -89,7 +58,7 @@ namespace net::socket::ip::tcp {
                      const std::string& bindIpOrHostname,
                      uint16_t bindPort,
                      const std::function<void(int)>& onError) {
-            connect(SocketAddress(ipOrHostname, port), SocketAddress(bindIpOrHostname, bindPort), onError);
+            SocketClientBase::connect(SocketAddress(ipOrHostname, port), SocketAddress(bindIpOrHostname, bindPort), onError);
         }
     };
 

@@ -43,15 +43,15 @@ namespace net::socket::ip::tcp {
         using SocketServerBase::listen;
 
         void listen(uint16_t port, int backlog, const std::function<void(int)>& onError) {
-            listen(SocketAddress(port), backlog, onError);
+            SocketServerBase::listen(SocketAddress(port), backlog, onError);
         }
 
         void listen(const std::string& ipOrHostname, int backlog, const std::function<void(int)>& onError) {
-            listen(SocketAddress(ipOrHostname), backlog, onError);
+            SocketServerBase::listen(SocketAddress(ipOrHostname), backlog, onError);
         }
 
         void listen(const std::string& ipOrHostname, uint16_t port, int backlog, const std::function<void(int)>& onError) {
-            listen(SocketAddress(ipOrHostname, port), backlog, onError);
+            SocketServerBase::listen(SocketAddress(ipOrHostname, port), backlog, onError);
         }
     };
 

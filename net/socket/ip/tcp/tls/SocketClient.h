@@ -29,7 +29,7 @@
 namespace net::socket::ip::tcp::tls {
 
     template <typename SocketT, typename SocketContextFactoryT>
-    using SocketClient = net::socket::ip::tcp::SocketClient1<net::socket::stream::tls::SocketClient, SocketT, SocketContextFactoryT>;
+    using SocketClient = net::socket::ip::tcp::SocketClient<net::socket::stream::tls::SocketClient, SocketT, SocketContextFactoryT>;
 
 } // namespace net::socket::ip::tcp::tls
 
