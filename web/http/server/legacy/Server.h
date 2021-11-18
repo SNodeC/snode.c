@@ -19,10 +19,10 @@
 #ifndef WEB_HTTP_SERVER_LEGACY_SERVER_H
 #define WEB_HTTP_SERVER_LEGACY_SERVER_H
 
-#include "net/socket/bluetooth/rfcomm/legacy/SocketServer.h" // IWYU pragma: export
-#include "net/socket/ip/transport/tcp/legacy/ipv4/SocketServer.h"      // IWYU pragma: export
-#include "net/socket/ip/transport/tcp/legacy/ipv6/SocketServer.h"      // IWYU pragma: export
-#include "web/http/server/Server.h"                          // IWYU pragma: export
+#include "net/socket/bluetooth/rfcomm/legacy/SocketServer.h"      // IWYU pragma: export
+#include "net/socket/ip/transport/tcp/legacy/ipv4/SocketServer.h" // IWYU pragma: export
+#include "net/socket/ip/transport/tcp/legacy/ipv6/SocketServer.h" // IWYU pragma: export
+#include "web/http/server/Server.h"                               // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -35,7 +35,8 @@ namespace web::http::server::legacy {
         using web::http::server::Server<net::socket::ip::transport::tcp::legacy::ipv4::SocketServer, Request, Response>::Server;
 
     protected:
-        using SocketServer = net::socket::ip::transport::tcp::legacy::ipv4::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
+        using SocketServer =
+            net::socket::ip::transport::tcp::legacy::ipv4::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
 
     public:
         using web::http::server::Server<net::socket::ip::transport::tcp::legacy::ipv4::SocketServer, Request, Response>::listen;
@@ -62,7 +63,8 @@ namespace web::http::server::legacy {
         using web::http::server::Server<net::socket::ip::transport::tcp::legacy::ipv6::SocketServer, Request, Response>::Server;
 
     protected:
-        using SocketServer = net::socket::ip::transport::tcp::legacy::ipv6::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
+        using SocketServer =
+            net::socket::ip::transport::tcp::legacy::ipv6::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
 
     public:
         using web::http::server::Server<net::socket::ip::transport::tcp::legacy::ipv6::SocketServer, Request, Response>::listen;

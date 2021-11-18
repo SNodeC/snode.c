@@ -23,7 +23,6 @@
 #include "express/middleware/StaticMiddleware.h"
 #include "express/tls/WebApp.h"
 #include "log/Logger.h"
-#include "net/socket/ip/socket/ipv6/InetAddress.h" // for InetAddress
 
 #include <string> // for string, operator+
 

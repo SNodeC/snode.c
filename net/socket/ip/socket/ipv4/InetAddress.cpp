@@ -26,7 +26,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::ip::address::ipv4 {
+namespace net::socket::ip::socket::ipv4 {
 
     std::string bad_hostname::message;
 
@@ -114,4 +114,4 @@ namespace net::socket::ip::address::ipv4 {
         return host() + ":" + std::to_string(port());
     }
 
-} // namespace net::socket::ip::address::ipv4
+} // namespace net::socket::ip::socket::ipv4

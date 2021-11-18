@@ -20,19 +20,19 @@
 #define NET_SOCKET_IP_SOCKET_IPV4_STREAM_SOCKET_H
 
 #include "net/socket/Socket.h"
-#include "net/socket/ip/socket/ipv4/InetAddress.h"
+#include "net/socket/ip/socket/ipv4/InetAddress.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::ip::address::ipv4::stream {
+namespace net::socket::ip::socket::ipv4::stream {
 
-    class Socket : public net::socket::Socket<net::socket::ip::address::ipv4::InetAddress> {
+    class Socket : public net::socket::Socket<net::socket::ip::socket::ipv4::InetAddress> {
     protected:
         int create(int flags) override;
     };
 
-} // namespace net::socket::ip::address::ipv4::stream
+} // namespace net::socket::ip::socket::ipv4::stream
 
 #endif // NET_SOCKET_IP_SOCKET_IPV4_STREAM_SOCKET_H

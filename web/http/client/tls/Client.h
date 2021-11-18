@@ -19,10 +19,10 @@
 #ifndef WEB_HTTP_CLIENT_TLS_CLIENT_H
 #define WEB_HTTP_CLIENT_TLS_CLIENT_H
 
-#include "net/socket/bluetooth/rfcomm/tls/SocketClient.h" // IWYU pragma: export
-#include "net/socket/ip/transport/tcp/tls/ipv4/SocketClient.h"      // IWYU pragma: export
-#include "net/socket/ip/transport/tcp/tls/ipv6/SocketClient.h"      // IWYU pragma: export
-#include "web/http/client/Client.h"                       // IWYU pragma: export
+#include "net/socket/bluetooth/rfcomm/tls/SocketClient.h"      // IWYU pragma: export
+#include "net/socket/ip/transport/tcp/tls/ipv4/SocketClient.h" // IWYU pragma: export
+#include "net/socket/ip/transport/tcp/tls/ipv6/SocketClient.h" // IWYU pragma: export
+#include "web/http/client/Client.h"                            // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -35,7 +35,8 @@ namespace web::http::client::tls {
         using web::http::client::Client<net::socket::ip::transport::tcp::tls::ipv4::SocketClient, Request, Response>::Client;
 
     protected:
-        using SocketClient = net::socket::ip::transport::tcp::tls::ipv4::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
+        using SocketClient =
+            net::socket::ip::transport::tcp::tls::ipv4::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
 
     public:
         using web::http::client::Client<net::socket::ip::transport::tcp::tls::ipv4::SocketClient, Request, Response>::connect;
@@ -46,7 +47,8 @@ namespace web::http::client::tls {
         using web::http::client::Client<net::socket::ip::transport::tcp::tls::ipv6::SocketClient, Request, Response>::Client;
 
     protected:
-        using SocketClient = net::socket::ip::transport::tcp::tls::ipv6::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
+        using SocketClient =
+            net::socket::ip::transport::tcp::tls::ipv6::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
 
     public:
         using web::http::client::Client<net::socket::ip::transport::tcp::tls::ipv6::SocketClient, Request, Response>::connect;

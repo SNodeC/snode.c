@@ -18,14 +18,13 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h"                                // for SERVERCAFILE
-#include "log/Logger.h"                            // for Writer, Storage
-#include "net/SNodeC.h"                            // for SNodeC
-#include "net/socket/ip/socket/ipv4/InetAddress.h" // for InetAddress
-#include "web/http/client/Request.h"               // for Request, client
-#include "web/http/client/Response.h"              // for Response
-#include "web/http/client/legacy/Client.h"         // for Client, Client<>...
-#include "web/http/client/tls/Client.h"            // for Client, Client<>...
+#include "config.h"                        // for SERVERCAFILE
+#include "log/Logger.h"                    // for Writer, Storage
+#include "net/SNodeC.h"                    // for SNodeC
+#include "web/http/client/Request.h"       // for Request, client
+#include "web/http/client/Response.h"      // for Response
+#include "web/http/client/legacy/Client.h" // for Client, Client<>...
+#include "web/http/client/tls/Client.h"    // for Client, Client<>...
 
 #include <cstring>            // for memcpy
 #include <functional>         // for function

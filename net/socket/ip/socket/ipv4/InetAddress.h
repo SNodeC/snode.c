@@ -27,11 +27,10 @@
 #include <exception>
 #include <netinet/in.h>
 #include <string>
-// IWYyyU pragma: no_include <bits/exception.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::ip::address::ipv4 {
+namespace net::socket::ip::socket::ipv4 {
 
     class bad_hostname : public std::exception {
     public:
@@ -64,6 +63,6 @@ namespace net::socket::ip::address::ipv4 {
         std::string toString() const override;
     };
 
-} // namespace net::socket::ip::address::ipv4
+} // namespace net::socket::ip::socket::ipv4
 
 #endif // NET_SOCKET_IP_ADDRESS_IPV4_INETADDRESS_H

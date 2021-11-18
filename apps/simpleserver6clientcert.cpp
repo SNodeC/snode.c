@@ -22,7 +22,6 @@
 #include "express/middleware/StaticMiddleware.h"
 #include "express/tls/WebApp.h"
 #include "log/Logger.h"
-#include "net/socket/ip/socket/ipv6/InetAddress.h" // for InetAddress
 
 #include <cstddef>            // for size_t, NULL
 #include <cstdint>            // for int32_t

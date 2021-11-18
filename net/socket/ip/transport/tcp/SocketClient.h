@@ -50,7 +50,7 @@ namespace net::socket::ip::transport::tcp {
                      uint16_t port,
                      const std::string& bindIpOrHostname,
                      const std::function<void(int)>& onError) {
-            SocketClientBase::connect(SocketAddress(ipOrHostname, port), bindIpOrHostname, onError);
+            SocketClientBase::connect(SocketAddress(ipOrHostname, port), SocketAddress(bindIpOrHostname), onError);
         }
 
         void connect(const std::string& ipOrHostname,

@@ -19,8 +19,8 @@
 #ifndef EXPRESS_LEGACY_WEBAPP_H
 #define EXPRESS_LEGACY_WEBAPP_H
 
-#include "express/WebAppT.h" // IWYU pragma: export
-#include "web/http/server/legacy/Server.h"
+#include "express/WebAppT.h"               // IWYU pragma: export
+#include "web/http/server/legacy/Server.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

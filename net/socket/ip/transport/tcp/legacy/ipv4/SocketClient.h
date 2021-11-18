@@ -19,8 +19,8 @@
 #ifndef NET_SOCKET_IP_TRANSPORT_TCP_LEGACY_IPV4_SOCKETCLIENT_H
 #define NET_SOCKET_IP_TRANSPORT_TCP_LEGACY_IPV4_SOCKETCLIENT_H
 
-#include "net/socket/ip/socket/ipv4/stream/Socket.h" // IWYU pragma: export
-#include "net/socket/ip/transport/tcp/legacy/SocketClient.h"   // IWYU pragma: export
+#include "net/socket/ip/socket/ipv4/stream/Socket.h"         // IWYU pragma: export
+#include "net/socket/ip/transport/tcp/legacy/SocketClient.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,7 +29,7 @@
 namespace net::socket::ip::transport::tcp::legacy::ipv4 {
 
     template <typename SocketContextFactoryT>
-    using SocketClient = net::socket::ip::transport::tcp::legacy::SocketClient<address::ipv4::stream::Socket, SocketContextFactoryT>;
+    using SocketClient = net::socket::ip::transport::tcp::legacy::SocketClient<socket::ipv4::stream::Socket, SocketContextFactoryT>;
 
 } // namespace net::socket::ip::transport::tcp::legacy::ipv4
 

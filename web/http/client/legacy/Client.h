@@ -35,7 +35,8 @@ namespace web::http::client::legacy {
         using web::http::client::Client<net::socket::ip::transport::tcp::legacy::ipv4::SocketClient, Request, Response>::Client;
 
     protected:
-        using SocketClient = net::socket::ip::transport::tcp::legacy::ipv4::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
+        using SocketClient =
+            net::socket::ip::transport::tcp::legacy::ipv4::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
 
     public:
         using web::http::client::Client<net::socket::ip::transport::tcp::legacy::ipv4::SocketClient, Request, Response>::connect;
@@ -46,7 +47,8 @@ namespace web::http::client::legacy {
         using web::http::client::Client<net::socket::ip::transport::tcp::legacy::ipv6::SocketClient, Request, Response>::Client;
 
     protected:
-        using SocketClient = net::socket::ip::transport::tcp::legacy::ipv6::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
+        using SocketClient =
+            net::socket::ip::transport::tcp::legacy::ipv6::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
 
     public:
         using web::http::client::Client<net::socket::ip::transport::tcp::legacy::ipv6::SocketClient, Request, Response>::connect;

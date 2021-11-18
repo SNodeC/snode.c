@@ -29,7 +29,8 @@
 namespace net::socket::ip::transport::tcp::legacy {
 
     template <typename SocketT, typename SocketContextFactoryT>
-    using SocketClient = net::socket::ip::transport::tcp::SocketClient<net::socket::stream::legacy::SocketClient, SocketT, SocketContextFactoryT>;
+    using SocketClient =
+        net::socket::ip::transport::tcp::SocketClient<net::socket::stream::legacy::SocketClient, SocketT, SocketContextFactoryT>;
 
 } // namespace net::socket::ip::transport::tcp::legacy
 

@@ -30,7 +30,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::ip::address::ipv6 {
+namespace net::socket::ip::socket::ipv6 {
 
     class bad_hostname : public std::exception {
     public:
@@ -63,6 +63,6 @@ namespace net::socket::ip::address::ipv6 {
         std::string toString() const override;
     };
 
-} // namespace net::socket::ip::address::ipv6
+} // namespace net::socket::ip::socket::ipv6
 
 #endif // NET_SOCKET_IP_ADDRESS_IPV6_INETADDRESS_H
