@@ -154,7 +154,7 @@ int main(int argc, char* argv[]) {
     // "A4:B1:C1:2C:82:37" titan
     // "44:01:BB:A3:63:32"  mpow
 
-    SocketClient client = getClient();
+    SocketClient<SimpleSocketProtocolFactory> client = getClient();
 
     client.connect("A4:B1:C1:2C:82:37", 1, "44:01:BB:A3:63:32", [](int err) -> void {
         if (err) {

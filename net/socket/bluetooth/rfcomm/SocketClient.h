@@ -19,8 +19,6 @@
 #ifndef NET_SOCKET_BLUETOOTH_RFCOMM_SOCKETCLIENT_H
 #define NET_SOCKET_BLUETOOTH_RFCOMM_SOCKETCLIENT_H
 
-#include "net/socket/bluetooth/rfcomm/Socket.h" // IWYU pragma: export
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
@@ -31,16 +29,18 @@
 
 namespace net::socket::bluetooth::rfcomm {
 
-    template <template <typename SocketT, typename SocketContextFactoryT> typename ConcreteSocketClientT, typename SocketContextFactoryT>
-    class SocketClient : public ConcreteSocketClientT<rfcomm::Socket, SocketContextFactoryT> {
-        using ConcreteSocketClient = ConcreteSocketClientT<rfcomm::Socket, SocketContextFactoryT>;
+    template <template <typename SocketT, typename SocketContextFactoryT> typename SocketClientBaseT,
+              typename SocketT,
+              typename SocketContextFactoryT>
+    class SocketClient : public SocketClientBaseT<SocketT, SocketContextFactoryT> {
+        using SocketClientBase = SocketClientBaseT<SocketT, SocketContextFactoryT>;
 
-        using ConcreteSocketClient::ConcreteSocketClient;
+        using SocketClientBase::SocketClientBase;
 
     public:
-        using SocketAddress = typename ConcreteSocketClient::SocketAddress;
+        using SocketAddress = typename SocketClientBase::SocketAddress;
 
-        using ConcreteSocketClient::connect;
+        using SocketClientBase::connect;
 
         void connect(const std::string& address, uint8_t channel, const std::function<void(int)>& onError) {
             connect(SocketAddress(address, channel), onError);

@@ -19,6 +19,7 @@
 #ifndef NET_SOCKET_BLUETOOTH_RFCOMM_LEGACY_SOCKETSERVER_H
 #define NET_SOCKET_BLUETOOTH_RFCOMM_LEGACY_SOCKETSERVER_H
 
+#include "net/socket/bluetooth/rfcomm/Socket.h"       // IWYU pragma: export
 #include "net/socket/bluetooth/rfcomm/SocketServer.h" // IWYU pragma: export
 #include "net/socket/stream/legacy/SocketServer.h"    // IWYU pragma: export
 
@@ -29,10 +30,8 @@
 namespace net::socket::bluetooth::rfcomm::legacy {
 
     template <typename SocketContextFactoryT>
-    class SocketServer
-        : public net::socket::bluetooth::rfcomm::SocketServer<net::socket::stream::legacy::SocketServer, SocketContextFactoryT> {
-        using net::socket::bluetooth::rfcomm::SocketServer<net::socket::stream::legacy::SocketServer, SocketContextFactoryT>::SocketServer;
-    };
+    using SocketServer =
+        net::socket::bluetooth::rfcomm::SocketServer<net::socket::stream::legacy::SocketServer, rfcomm::Socket, SocketContextFactoryT>;
 
 } // namespace net::socket::bluetooth::rfcomm::legacy
 

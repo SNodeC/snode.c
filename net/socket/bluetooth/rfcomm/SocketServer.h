@@ -19,8 +19,6 @@
 #ifndef NET_SOCKET_BLUETOOTH_RFCOMM_SOCKETSERVER_H
 #define NET_SOCKET_BLUETOOTH_RFCOMM_SOCKETSERVER_H
 
-#include "net/socket/bluetooth/rfcomm/Socket.h" // IWYU pragma: export
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
@@ -31,16 +29,18 @@
 
 namespace net::socket::bluetooth::rfcomm {
 
-    template <template <typename SocketT, typename SocketContextFactoryT> typename ConcreteSocketServerT, typename SocketContextFactoryT>
-    class SocketServer : public ConcreteSocketServerT<rfcomm::Socket, SocketContextFactoryT> {
-        using ConcreteSocketServer = ConcreteSocketServerT<rfcomm::Socket, SocketContextFactoryT>;
+    template <template <typename SocketT, typename SocketContextFactoryT> typename SocketServerBaseT,
+              typename SocketT,
+              typename SocketContextFactoryT>
+    class SocketServer : public SocketServerBaseT<SocketT, SocketContextFactoryT> {
+        using SocketServerBase = SocketServerBaseT<SocketT, SocketContextFactoryT>;
 
-        using ConcreteSocketServer::ConcreteSocketServer;
+        using SocketServerBase::SocketServerBase;
 
     public:
-        using SocketAddress = typename ConcreteSocketServer::SocketAddress;
+        using SocketAddress = typename SocketServerBase::SocketAddress;
 
-        using ConcreteSocketServer::listen;
+        using SocketServerBase::listen;
 
         void listen(uint8_t channel, int backlog, const std::function<void(int)>& onError) {
             listen(SocketAddress(channel), backlog, onError);
