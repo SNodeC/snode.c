@@ -79,47 +79,48 @@ namespace net {
     TickStatus EventLoop::_tick(struct timeval timeOut) {
         TickStatus tickStatus = TickStatus::SUCCESS;
 
-        struct timeval nextTimeout = readEventDispatcher.observeEnabledEvents();
-        nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
+        struct timeval nextDispatcherTimeout = readEventDispatcher.observeEnabledEvents();
+        nextEventTimeout = std::min(nextDispatcherTimeout, nextEventTimeout);
 
-        nextTimeout = writeEventDispatcher.observeEnabledEvents();
-        nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
+        nextDispatcherTimeout = writeEventDispatcher.observeEnabledEvents();
+        nextEventTimeout = std::min(nextDispatcherTimeout, nextEventTimeout);
 
-        nextTimeout = exceptionalConditionEventDispatcher.observeEnabledEvents();
-        nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
+        nextDispatcherTimeout = exceptionalConditionEventDispatcher.observeEnabledEvents();
+        nextEventTimeout = std::min(nextDispatcherTimeout, nextEventTimeout);
 
-        nextTimeout = timerEventDispatcher.getNextTimeout();
-        nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
+        nextDispatcherTimeout = timerEventDispatcher.getNextTimeout();
+        nextEventTimeout = std::min(nextDispatcherTimeout, nextEventTimeout);
 
         int maxFd = readEventDispatcher.getMaxFd();
         maxFd = std::max(writeEventDispatcher.getMaxFd(), maxFd);
         maxFd = std::max(exceptionalConditionEventDispatcher.getMaxFd(), maxFd);
 
         if (maxFd >= 0 || !timerEventDispatcher.empty()) {
-            nextInactivityTimeout = std::max(nextInactivityTimeout, {0, 0});
-            nextInactivityTimeout = std::min(nextInactivityTimeout, timeOut);
+            //            nextEventTimeout = std::max(nextEventTimeout, {0, 0}); // don't know if still necessary: So let it here as a
+            //            comment
+            nextEventTimeout = std::min(nextEventTimeout, timeOut);
 
             int counter = net::system::select(maxFd + 1,
                                               &readEventDispatcher.getFdSet(),
                                               &writeEventDispatcher.getFdSet(),
                                               &exceptionalConditionEventDispatcher.getFdSet(),
-                                              &nextInactivityTimeout);
+                                              &nextEventTimeout);
 
             if (counter >= 0) {
-                nextInactivityTimeout = {LONG_MAX, 0};
+                nextEventTimeout = {LONG_MAX, 0};
 
                 timerEventDispatcher.dispatch();
 
                 struct timeval currentTime = {net::system::time(nullptr), 0};
 
-                nextTimeout = readEventDispatcher.dispatchActiveEvents(currentTime);
-                nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
+                nextDispatcherTimeout = readEventDispatcher.dispatchActiveEvents(currentTime);
+                nextEventTimeout = std::min(nextDispatcherTimeout, nextEventTimeout);
 
-                nextTimeout = writeEventDispatcher.dispatchActiveEvents(currentTime);
-                nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
+                nextDispatcherTimeout = writeEventDispatcher.dispatchActiveEvents(currentTime);
+                nextEventTimeout = std::min(nextDispatcherTimeout, nextEventTimeout);
 
-                nextTimeout = exceptionalConditionEventDispatcher.dispatchActiveEvents(currentTime);
-                nextInactivityTimeout = std::min(nextTimeout, nextInactivityTimeout);
+                nextDispatcherTimeout = exceptionalConditionEventDispatcher.dispatchActiveEvents(currentTime);
+                nextEventTimeout = std::min(nextDispatcherTimeout, nextEventTimeout);
 
                 readEventDispatcher.unobserveDisabledEvents();
                 writeEventDispatcher.unobserveDisabledEvents();
@@ -223,23 +224,21 @@ namespace net {
             exit(1);
         }
 
-        TickStatus tickStatus;
-
         sighandler_t oldSigPipeHandler = net::system::signal(SIGPIPE, SIG_IGN);
 
-        tickStatus = eventLoop._tick(timeOut);
+        TickStatus tickStatus = eventLoop._tick(timeOut);
 
         net::system::signal(SIGPIPE, oldSigPipeHandler);
 
         return tickStatus;
     }
 
-    void EventLoop::free() {
-        eventLoop._free();
-    }
-
     void EventLoop::stop() {
         stopped = true;
+    }
+
+    void EventLoop::free() {
+        eventLoop._free();
     }
 
     void EventLoop::stoponsig(int sig) {

@@ -84,10 +84,12 @@ namespace net::socket::stream::tls {
                   },
                   options) {
             masterSslCtx = ssl_ctx_new(options, true);
+
             if (masterSslCtx != nullptr) {
                 SSL_CTX_set_tlsext_servername_callback(masterSslCtx, serverNameCallback);
                 addMasterCert(masterSslCtx);
             }
+
             sniSslCtxs = std::any_cast<std::shared_ptr<std::map<std::string, SSL_CTX*>>>(options.find("SNI_SSL_CTXS")->second);
         }
 
@@ -146,18 +148,20 @@ namespace net::socket::stream::tls {
                         SSL_CTX* sniSslCtx = (*sniSslCtxs.get())[serverNameIndication];
 
                         SSL_CTX* nowUsedSslCtx = SSL_set_SSL_CTX(ssl, sniSslCtx);
-                        if (nowUsedSslCtx != nullptr) {
-                            LOG(INFO) << "SSL_CTX switched for: '" << serverNameIndication << "'";
-                        } else {
-                            LOG(INFO) << "SSL_CTX for SNI '" << serverNameIndication << "' not switched";
+                        if (nowUsedSslCtx != sniSslCtx) {
+                            LOG(INFO) << "SSL_CTX: Switched for SNI '" << serverNameIndication << "'";
+                        } else if (nowUsedSslCtx != nullptr) {
+                            LOG(INFO) << "SSL_CTX: Not switcher for SNI '" << serverNameIndication << "': still using master SSL_CTX";
                             ret = SSL_TLSEXT_ERR_NOACK;
+                        } else {
+                            LOG(WARNING) << "SSL_CTX: Found but none used for SNI '" << serverNameIndication << '"';
                         }
                     } else {
-                        LOG(INFO) << "SSL_CTX for SNI '" << serverNameIndication << "' not found";
+                        LOG(INFO) << "SSL_CTX: Not found for SNI '" << serverNameIndication;
                         ret = SSL_TLSEXT_ERR_NOACK;
                     }
                 } else {
-                    LOG(INFO) << "SSL_CTX already provides: '" << serverNameIndication << "'";
+                    LOG(INFO) << "SSL_CTX: Already provides: '" << serverNameIndication << "'";
                 }
             }
 

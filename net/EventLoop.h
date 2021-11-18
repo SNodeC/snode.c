@@ -44,23 +44,19 @@ namespace net {
         static EventLoop& instance();
 
         EventDispatcher& getReadEventDispatcher();
-
         EventDispatcher& getWriteEventDispatcher();
-
         EventDispatcher& getExceptionalConditionEventDispatcher();
-
         TimerEventDispatcher& getTimerEventDispatcher();
 
         unsigned long getEventCounter();
-
         unsigned long getTickCounter();
 
     protected:
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
         static void init(int argc, char* argv[]);
         static int start(struct timeval timeOut);
-        static void stop();
         static TickStatus tick(struct timeval timeOut);
+        static void stop();
         static void free();
 
     private:
@@ -77,7 +73,7 @@ namespace net {
 
         TimerEventDispatcher timerEventDispatcher;
 
-        struct timeval nextInactivityTimeout = {LONG_MAX, 0};
+        struct timeval nextEventTimeout = {LONG_MAX, 0};
 
         static bool running;
         static bool stopped;

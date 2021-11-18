@@ -73,6 +73,8 @@ namespace net {
     private:
         virtual void dispatchEvent() = 0;
         virtual void timeoutEvent();
+        virtual void unobservedEvent() = 0;
+
         virtual bool continueImmediately() = 0;
 
         void enabled();
@@ -82,12 +84,9 @@ namespace net {
         void resumed();
 
         struct timeval getTimeout() const;
-
         struct timeval getLastTriggered();
 
         void triggered(struct timeval lastTriggered = {time(nullptr), 0});
-
-        virtual void unobservedEvent() = 0;
 
         EventDispatcher& descriptorEventDispatcher;
 
