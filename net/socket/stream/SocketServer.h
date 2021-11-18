@@ -55,7 +55,7 @@ namespace net::socket::stream {
 
         virtual ~SocketServer() = default;
 
-        virtual void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const {
+        void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const {
             SocketAcceptor* socketAcceptor = new SocketAcceptor(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
 
             socketAcceptor->listen(bindAddress, backlog, onError);
