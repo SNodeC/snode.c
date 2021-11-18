@@ -53,6 +53,32 @@ namespace net::socket::ip::tcp {
         }
     };
 
+    template <template <typename SocketT, typename SocketContextFactoryT> typename SocketServerBaseT,
+              typename SocketT,
+              typename SocketContextFactoryT>
+    class SocketServer1 : public SocketServerBaseT<SocketT, SocketContextFactoryT> {
+        using SocketServerBase = SocketServerBaseT<SocketT, SocketContextFactoryT>;
+
+        using SocketServerBase::SocketServerBase;
+
+    public:
+        using SocketAddress = typename SocketServerBase::SocketAddress;
+
+        using SocketServerBase::listen;
+
+        void listen(uint16_t port, int backlog, const std::function<void(int)>& onError) {
+            listen(SocketAddress(port), backlog, onError);
+        }
+
+        void listen(const std::string& ipOrHostname, int backlog, const std::function<void(int)>& onError) {
+            listen(SocketAddress(ipOrHostname), backlog, onError);
+        }
+
+        void listen(const std::string& ipOrHostname, uint16_t port, int backlog, const std::function<void(int)>& onError) {
+            listen(SocketAddress(ipOrHostname, port), backlog, onError);
+        }
+    };
+
 } // namespace net::socket::ip::tcp
 
 #endif // NET_SOCKET_IP_TCP_SOCKETSERVER_H

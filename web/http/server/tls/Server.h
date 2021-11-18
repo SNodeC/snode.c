@@ -20,8 +20,8 @@
 #define WEB_HTTP_SERVER_TLS_SERVER_H
 
 #include "net/socket/bluetooth/rfcomm/tls/SocketServer.h" // IWYU pragma: export
-#include "net/socket/ip/tcp/ipv4/tls/SocketServer.h"      // IWYU pragma: export
-#include "net/socket/ip/tcp/ipv6/tls/SocketServer.h"      // IWYU pragma: export
+#include "net/socket/ip/tcp/tls/ipv4/SocketServer.h"      // IWYU pragma: export
+#include "net/socket/ip/tcp/tls/ipv6/SocketServer.h"      // IWYU pragma: export
 #include "web/http/server/Server.h"                       // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -31,15 +31,14 @@
 namespace web::http::server::tls {
 
     template <typename Request = web::http::server::Request, typename Response = web::http::server::Response>
-    class Server : public web::http::server::Server<net::socket::ip::tcp::ipv4::tls::SocketServer, Request, Response> {
-        using web::http::server::Server<net::socket::ip::tcp::ipv4::tls::SocketServer, Request, Response>::Server;
+    class Server : public web::http::server::Server<net::socket::ip::tcp::tls::ipv4::SocketServer, Request, Response> {
+        using web::http::server::Server<net::socket::ip::tcp::tls::ipv4::SocketServer, Request, Response>::Server;
+
+    protected:
+        using SocketServer = net::socket::ip::tcp::tls::ipv4::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
 
     public:
-        using SocketServer = net::socket::ip::tcp::ipv4::tls::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
-
-        using SocketAddress = typename SocketServer::SocketAddress;
-
-        using web::http::server::Server<net::socket::ip::tcp::ipv4::tls::SocketServer, Request, Response>::listen;
+        using web::http::server::Server<net::socket::ip::tcp::tls::ipv4::SocketServer, Request, Response>::listen;
 
         void addSniCert(const std::string& domain, const std::map<std::string, std::any>& options) {
             SocketServer::addSniCert(domain, options);
@@ -59,15 +58,14 @@ namespace web::http::server::tls {
     };
 
     template <typename Request = web::http::server::Request, typename Response = web::http::server::Response>
-    class Server6 : public web::http::server::Server<net::socket::ip::tcp::ipv6::tls::SocketServer, Request, Response> {
-        using web::http::server::Server<net::socket::ip::tcp::ipv6::tls::SocketServer, Request, Response>::Server;
+    class Server6 : public web::http::server::Server<net::socket::ip::tcp::tls::ipv6::SocketServer, Request, Response> {
+        using web::http::server::Server<net::socket::ip::tcp::tls::ipv6::SocketServer, Request, Response>::Server;
+
+    protected:
+        using SocketServer = net::socket::ip::tcp::tls::ipv6::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
 
     public:
-        using SocketServer = net::socket::ip::tcp::ipv6::tls::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
-
-        using SocketAddress = typename SocketServer::SocketAddress;
-
-        using web::http::server::Server<net::socket::ip::tcp::ipv6::tls::SocketServer, Request, Response>::listen;
+        using web::http::server::Server<net::socket::ip::tcp::tls::ipv6::SocketServer, Request, Response>::listen;
 
         void addSniCert(const std::string& domain, const std::map<std::string, std::any>& options) {
             SocketServer::addSniCert(domain, options);
