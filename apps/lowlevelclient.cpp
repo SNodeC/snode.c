@@ -18,16 +18,16 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h"                                 // for CLIENTCERTF
-#include "log/Logger.h"                             // for Writer, Storage
-#include "net/SNodeC.h"                             // for SNodeC
-#include "net/socket/ip/address/ipv4/InetAddress.h" // for InetAddress, ip
-#include "net/socket/ip/tcp/ipv4/Socket.h"          // for Socket
-#include "net/socket/stream/SocketContext.h"        // for SocketProtocol
-#include "net/socket/stream/SocketContextFactory.h" // for SocketProtocolF...
-#include "net/socket/stream/legacy/SocketClient.h"  // for SocketClient
-#include "net/socket/stream/tls/SocketClient.h"     // for SocketClient
-#include "web/http/client/ResponseParser.h"         // for ResponseParser
+#include "config.h"                                  // for CLIENTCERTF
+#include "log/Logger.h"                              // for Writer, Storage
+#include "net/SNodeC.h"                              // for SNodeC
+#include "net/socket/ip/socket/ipv4/InetAddress.h"   // for InetAddress, ip
+#include "net/socket/ip/socket/ipv4/stream/Socket.h" // for Socket
+#include "net/socket/stream/SocketContext.h"         // for SocketProtocol
+#include "net/socket/stream/SocketContextFactory.h"  // for SocketProtocolF...
+#include "net/socket/stream/legacy/SocketClient.h"   // for SocketClient
+#include "net/socket/stream/tls/SocketClient.h"      // for SocketClient
+#include "web/http/client/ResponseParser.h"          // for ResponseParser
 
 #include <cstring>
 #include <functional>         // for function
@@ -129,16 +129,18 @@ private:
     }
 };
 
-tls::SocketClient<tcp::ipv4::Socket, SimpleSocketProtocolFactory> getTlsClient() {
-    tls::SocketClient<tcp::ipv4::Socket, SimpleSocketProtocolFactory> tlsClient(
-        [](const tls::SocketClient<tcp::ipv4::Socket, SimpleSocketProtocolFactory>::SocketAddress& localAddress,
-           const tls::SocketClient<tcp::ipv4::Socket, SimpleSocketProtocolFactory>::SocketAddress& remoteAddress) -> void { // OnConnect
+tls::SocketClient<address::ipv4::stream::Socket, SimpleSocketProtocolFactory> getTlsClient() {
+    tls::SocketClient<address::ipv4::stream::Socket, SimpleSocketProtocolFactory> tlsClient(
+        [](const tls::SocketClient<address::ipv4::stream::Socket, SimpleSocketProtocolFactory>::SocketAddress& localAddress,
+           const tls::SocketClient<address::ipv4::stream::Socket, SimpleSocketProtocolFactory>::SocketAddress& remoteAddress)
+            -> void { // OnConnect
             VLOG(0) << "OnConnect";
 
             VLOG(0) << "\tServer: " + remoteAddress.toString();
             VLOG(0) << "\tClient: " + localAddress.toString();
         },
-        [](tls::SocketClient<tcp::ipv4::Socket, SimpleSocketProtocolFactory>::SocketConnection* socketConnection) -> void { // onConnected
+        [](tls::SocketClient<address::ipv4::stream::Socket, SimpleSocketProtocolFactory>::SocketConnection* socketConnection)
+            -> void { // onConnected
             VLOG(0) << "OnConnected";
 
             socketConnection->sendToPeer("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
@@ -188,7 +190,8 @@ tls::SocketClient<tcp::ipv4::Socket, SimpleSocketProtocolFactory> getTlsClient()
                 VLOG(0) << "\tServer certificate: no certificate";
             }
         },
-        [](tls::SocketClient<tcp::ipv4::Socket, SimpleSocketProtocolFactory>::SocketConnection* socketConnection) -> void { // onDisconnect
+        [](tls::SocketClient<address::ipv4::stream::Socket, SimpleSocketProtocolFactory>::SocketConnection* socketConnection)
+            -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
 
             VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
@@ -210,23 +213,24 @@ tls::SocketClient<tcp::ipv4::Socket, SimpleSocketProtocolFactory> getTlsClient()
     return tlsClient;
 }
 
-legacy::SocketClient<tcp::ipv4::Socket, SimpleSocketProtocolFactory> getLegacyClient() {
-    net::socket::stream::legacy::SocketClient<tcp::ipv4::Socket, SimpleSocketProtocolFactory> legacyClient(
-        [](const net::socket::stream::legacy::SocketClient<tcp::ipv4::Socket, SimpleSocketProtocolFactory>::SocketAddress& localAddress,
-           const net::socket::stream::legacy::SocketClient<tcp::ipv4::Socket, SimpleSocketProtocolFactory>::SocketAddress& remoteAddress)
-            -> void { // OnConnect
+legacy::SocketClient<address::ipv4::stream::Socket, SimpleSocketProtocolFactory> getLegacyClient() {
+    net::socket::stream::legacy::SocketClient<address::ipv4::stream::Socket, SimpleSocketProtocolFactory> legacyClient(
+        [](const net::socket::stream::legacy::SocketClient<address::ipv4::stream::Socket, SimpleSocketProtocolFactory>::SocketAddress&
+               localAddress,
+           const net::socket::stream::legacy::SocketClient<address::ipv4::stream::Socket, SimpleSocketProtocolFactory>::SocketAddress&
+               remoteAddress) -> void { // OnConnect
             VLOG(0) << "OnConnect";
 
             VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
             VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
         },
-        [](legacy::SocketClient<tcp::ipv4::Socket, SimpleSocketProtocolFactory>::SocketConnection* socketConnection)
+        [](legacy::SocketClient<address::ipv4::stream::Socket, SimpleSocketProtocolFactory>::SocketConnection* socketConnection)
             -> void { // onConnected
             VLOG(0) << "OnConnected";
 
             socketConnection->sendToPeer("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
         },
-        [](legacy::SocketClient<tcp::ipv4::Socket, SimpleSocketProtocolFactory>::SocketConnection* socketConnection)
+        [](legacy::SocketClient<address::ipv4::stream::Socket, SimpleSocketProtocolFactory>::SocketConnection* socketConnection)
             -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
 
@@ -256,7 +260,8 @@ int main(int argc, char* argv[]) {
     {
         InetAddress remoteAddress("localhost", 8080);
 
-        net::socket::stream::legacy::SocketClient<tcp::ipv4::Socket, SimpleSocketProtocolFactory> legacyClient = getLegacyClient();
+        net::socket::stream::legacy::SocketClient<address::ipv4::stream::Socket, SimpleSocketProtocolFactory> legacyClient =
+            getLegacyClient();
 
         legacyClient.connect(remoteAddress, [](int err) -> void { // example.com:81 simulate connnect timeout
             if (err) {
@@ -268,7 +273,7 @@ int main(int argc, char* argv[]) {
 
         remoteAddress = InetAddress("localhost", 8088);
 
-        tls::SocketClient<tcp::ipv4::Socket, SimpleSocketProtocolFactory> tlsClient = getTlsClient();
+        tls::SocketClient<address::ipv4::stream::Socket, SimpleSocketProtocolFactory> tlsClient = getTlsClient();
 
         tlsClient.connect(remoteAddress, [](int err) -> void {
             if (err) {

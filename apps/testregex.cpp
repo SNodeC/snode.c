@@ -22,7 +22,7 @@
 #include "express/legacy/WebApp.h"
 #include "express/tls/WebApp.h"
 #include "log/Logger.h"
-#include "net/socket/ip/address/ipv4/InetAddress.h" // for InetAddress
+#include "net/socket/ip/socket/ipv4/InetAddress.h" // for InetAddress
 
 #include <cstddef>            // for NULL, size_t
 #include <iostream>           // for operator<<, endl

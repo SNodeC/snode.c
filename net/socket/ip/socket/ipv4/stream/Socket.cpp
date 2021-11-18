@@ -16,23 +16,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_IP_TCP_IPV4_SOCKET_H
-#define NET_SOCKET_IP_TCP_IPV4_SOCKET_H
-
-#include "net/socket/Socket.h"
-#include "net/socket/ip/address/ipv4/InetAddress.h"
+#include "net/socket/ip/socket/ipv4/stream/Socket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::ip::tcp::ipv4 {
+namespace net::socket::ip::address::ipv4::stream {
 
-    class Socket : public net::socket::Socket<net::socket::ip::address::ipv4::InetAddress> {
-    protected:
-        int create(int flags) override;
-    };
+    int Socket::create(int flags) {
+        return net::system::socket(PF_INET, SOCK_STREAM | flags, 0);
+    }
 
-} // namespace net::socket::ip::tcp::ipv4
-
-#endif // NET_SOCKET_IP_TCP_IPV4_SOCKET_H
+} // namespace net::socket::ip::address::ipv4::stream

@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/socket/ip/address/ipv4/InetAddress.h"
+#include "net/socket/ip/socket/ipv6/InetAddress.h"
 
 #include "net/system/netdb.h"
 
@@ -26,14 +26,14 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::ip::address::ipv4 {
+namespace net::socket::ip::address::ipv6 {
 
     std::string bad_hostname::message;
 
     InetAddress::InetAddress() {
-        sockAddr.sin_family = AF_INET;
-        sockAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-        sockAddr.sin_port = 0;
+        sockAddr.sin6_family = AF_INET6;
+        sockAddr.sin6_addr = in6addr_any;
+        sockAddr.sin6_port = 0;
     }
 
     InetAddress::InetAddress(const std::string& ipOrHostname)
@@ -49,9 +49,9 @@ namespace net::socket::ip::address::ipv4 {
         memset(&sockAddr, 0, sizeof(sockAddr));
 
         /* We only care about IPV6 results */
-        hints.ai_family = AF_INET;
+        hints.ai_family = AF_INET6;
         hints.ai_socktype = 0;
-        hints.ai_flags = AI_ADDRCONFIG;
+        hints.ai_flags = AI_ADDRCONFIG | AI_V4MAPPED;
 
         int err = net::system::getaddrinfo(ipOrHostname.c_str(), nullptr, &hints, &res);
 
@@ -63,13 +63,13 @@ namespace net::socket::ip::address::ipv4 {
 
         while (res) {
             /* Check to make sure we have a valid AF_INET6 address */
-            if (res->ai_family == AF_INET) {
+            if (res->ai_family == AF_INET6) {
                 /* Use memcpy since we're going to free the res variable later */
                 memcpy(&sockAddr, res->ai_addr, res->ai_addrlen);
 
                 /* Here we convert the port to network byte order */
-                sockAddr.sin_port = htons(port);
-                sockAddr.sin_family = AF_INET;
+                sockAddr.sin6_port = htons(port);
+                sockAddr.sin6_family = AF_INET6;
                 break;
             }
 
@@ -80,13 +80,13 @@ namespace net::socket::ip::address::ipv4 {
     }
 
     InetAddress::InetAddress(uint16_t port) {
-        sockAddr.sin_family = AF_INET;
-        sockAddr.sin_port = htons(port);
-        sockAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+        sockAddr.sin6_family = AF_INET6;
+        sockAddr.sin6_addr = in6addr_any;
+        sockAddr.sin6_port = htons(port);
     }
 
     uint16_t InetAddress::port() const {
-        return (ntohs(sockAddr.sin_port));
+        return (ntohs(sockAddr.sin6_port));
     }
 
     std::string InetAddress::host() const {
@@ -114,4 +114,4 @@ namespace net::socket::ip::address::ipv4 {
         return host() + ":" + std::to_string(port());
     }
 
-} // namespace net::socket::ip::address::ipv4
+} // namespace net::socket::ip::address::ipv6

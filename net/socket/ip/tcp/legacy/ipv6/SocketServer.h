@@ -19,8 +19,8 @@
 #ifndef NET_SOCKET_IP_TCP_LEGACY_IPV6_SOCKETSERVER_H
 #define NET_SOCKET_IP_TCP_LEGACY_IPV6_SOCKETSERVER_H
 
-#include "net/socket/ip/tcp/ipv6/Socket.h"         // IWYU pragma: export
-#include "net/socket/ip/tcp/legacy/SocketServer.h" // IWYU pragma: export
+#include "net/socket/ip/socket/ipv6/stream/Socket.h" // IWYU pragma: export
+#include "net/socket/ip/tcp/legacy/SocketServer.h"   // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,7 +29,7 @@
 namespace net::socket::ip::tcp::legacy::ipv6 {
 
     template <typename SocketContextFactoryT>
-    using SocketServer = net::socket::ip::tcp::legacy::SocketServer<tcp::ipv6::Socket, SocketContextFactoryT>;
+    using SocketServer = net::socket::ip::tcp::legacy::SocketServer<address::ipv6::stream::Socket, SocketContextFactoryT>;
 
 } // namespace net::socket::ip::tcp::legacy::ipv6
 

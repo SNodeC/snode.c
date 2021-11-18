@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 
 add_library(
-    net-ip SHARED address/ipv4/InetAddress.cpp address/ipv6/InetAddress.cpp
-                  tcp/ipv4/Socket.cpp tcp/ipv6/Socket.cpp
+    net-ip SHARED socket/ipv4/InetAddress.cpp socket/ipv6/InetAddress.cpp
+                  socket/ipv4/stream/Socket.cpp socket/ipv6/stream/Socket.cpp
 )
 add_library(snodec::net-ip ALIAS net-ip)
 
