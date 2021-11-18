@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_IP_TCP_TLS_SOCKETCLIENT_H
-#define NET_SOCKET_IP_TCP_TLS_SOCKETCLIENT_H
+#ifndef NET_SOCKET_IP_TRANSPORT_TCP_TLS_SOCKETCLIENT_H
+#define NET_SOCKET_IP_TRANSPORT_TCP_TLS_SOCKETCLIENT_H
 
 #include "net/socket/ip/transport/tcp/SocketClient.h"
 #include "net/socket/stream/tls/SocketClient.h" // IWYU pragma: export
@@ -33,4 +33,4 @@ namespace net::socket::ip::transport::tcp::tls {
 
 } // namespace net::socket::ip::transport::tcp::tls
 
-#endif // NET_SOCKET_IP_TCP_TLS_SOCKETCLIENT_H
+#endif // NET_SOCKET_IP_TRANSPORT_TCP_TLS_SOCKETCLIENT_H
