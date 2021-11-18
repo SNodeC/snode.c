@@ -16,21 +16,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_IP_TCP_LEGACY_IPV6_SOCKETSERVER_H
-#define NET_SOCKET_IP_TCP_LEGACY_IPV6_SOCKETSERVER_H
+#ifndef NET_SOCKET_IP_TCP_TLS_IPV6_SOCKETSERVER_H
+#define NET_SOCKET_IP_TCP_TLS_IPV6_SOCKETSERVER_H
 
 #include "net/socket/ip/socket/ipv6/stream/Socket.h" // IWYU pragma: export
-#include "net/socket/ip/tcp/legacy/SocketServer.h"   // IWYU pragma: export
+#include "net/socket/ip/transport/tcp/tls/SocketServer.h"      // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::socket::ip::tcp::legacy::ipv6 {
+namespace net::socket::ip::transport::tcp::tls::ipv6 {
 
     template <typename SocketContextFactoryT>
-    using SocketServer = net::socket::ip::tcp::legacy::SocketServer<address::ipv6::stream::Socket, SocketContextFactoryT>;
+    using SocketServer = net::socket::ip::transport::tcp::tls::SocketServer<address::ipv6::stream::Socket, SocketContextFactoryT>;
 
-} // namespace net::socket::ip::tcp::legacy::ipv6
+} // namespace net::socket::ip::transport::tcp::tls::ipv6
 
-#endif // NET_SOCKET_IP_TCP_LEGACY_IPV6_SOCKETSERVER_H
+#endif // NET_SOCKET_IP_TCP_TLS_IPV6_SOCKETSERVER_H

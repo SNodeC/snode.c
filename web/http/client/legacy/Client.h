@@ -19,10 +19,10 @@
 #ifndef WEB_HTTP_CLIENT_LEGACY_CLIENT_H
 #define WEB_HTTP_CLIENT_LEGACY_CLIENT_H
 
-#include "net/socket/bluetooth/rfcomm/legacy/SocketClient.h" // IWYU pragma: export
-#include "net/socket/ip/tcp/legacy/ipv4/SocketClient.h"      // IWYU pragma: export
-#include "net/socket/ip/tcp/legacy/ipv6/SocketClient.h"      // IWYU pragma: export
-#include "web/http/client/Client.h"                          // IWYU pragma: export
+#include "net/socket/bluetooth/rfcomm/legacy/SocketClient.h"      // IWYU pragma: export
+#include "net/socket/ip/transport/tcp/legacy/ipv4/SocketClient.h" // IWYU pragma: export
+#include "net/socket/ip/transport/tcp/legacy/ipv6/SocketClient.h" // IWYU pragma: export
+#include "web/http/client/Client.h"                               // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,25 +31,25 @@
 namespace web::http::client::legacy {
 
     template <typename Request = web::http::client::Request, typename Response = web::http::client::Response>
-    class Client : public web::http::client::Client<net::socket::ip::tcp::legacy::ipv4::SocketClient, Request, Response> {
-        using web::http::client::Client<net::socket::ip::tcp::legacy::ipv4::SocketClient, Request, Response>::Client;
+    class Client : public web::http::client::Client<net::socket::ip::transport::tcp::legacy::ipv4::SocketClient, Request, Response> {
+        using web::http::client::Client<net::socket::ip::transport::tcp::legacy::ipv4::SocketClient, Request, Response>::Client;
 
     protected:
-        using SocketClient = net::socket::ip::tcp::legacy::ipv4::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
+        using SocketClient = net::socket::ip::transport::tcp::legacy::ipv4::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
 
     public:
-        using web::http::client::Client<net::socket::ip::tcp::legacy::ipv4::SocketClient, Request, Response>::connect;
+        using web::http::client::Client<net::socket::ip::transport::tcp::legacy::ipv4::SocketClient, Request, Response>::connect;
     };
 
     template <typename Request = web::http::client::Request, typename Response = web::http::client::Response>
-    class Client6 : public web::http::client::Client<net::socket::ip::tcp::legacy::ipv6::SocketClient, Request, Response> {
-        using web::http::client::Client<net::socket::ip::tcp::legacy::ipv6::SocketClient, Request, Response>::Client;
+    class Client6 : public web::http::client::Client<net::socket::ip::transport::tcp::legacy::ipv6::SocketClient, Request, Response> {
+        using web::http::client::Client<net::socket::ip::transport::tcp::legacy::ipv6::SocketClient, Request, Response>::Client;
 
     protected:
-        using SocketClient = net::socket::ip::tcp::legacy::ipv6::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
+        using SocketClient = net::socket::ip::transport::tcp::legacy::ipv6::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
 
     public:
-        using web::http::client::Client<net::socket::ip::tcp::legacy::ipv6::SocketClient, Request, Response>::connect;
+        using web::http::client::Client<net::socket::ip::transport::tcp::legacy::ipv6::SocketClient, Request, Response>::connect;
     };
 
     template <typename Request = web::http::client::Request, typename Response = web::http::client::Response>

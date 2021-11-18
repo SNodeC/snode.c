@@ -27,7 +27,7 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::socket::ip::tcp {
+namespace net::socket::ip::transport::tcp {
 
     template <template <typename SocketT, typename SocketContextFactoryT> typename SocketClientBaseT,
               typename SocketT,
@@ -62,6 +62,6 @@ namespace net::socket::ip::tcp {
         }
     };
 
-} // namespace net::socket::ip::tcp
+} // namespace net::socket::ip::transport::tcp
 
 #endif // NET_SOCKET_IP_TCP_SOCKETCLIENT_H

@@ -16,21 +16,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_IP_TCP_LEGACY_SOCKETCLIENT_H
-#define NET_SOCKET_IP_TCP_LEGACY_SOCKETCLIENT_H
+#ifndef NET_SOCKET_IP_TCP_LEGACY_IPV6_SOCKETCLIENT_H
+#define NET_SOCKET_IP_TCP_LEGACY_IPV6_SOCKETCLIENT_H
 
-#include "net/socket/ip/tcp/SocketClient.h"
-#include "net/socket/stream/legacy/SocketClient.h" // IWYU pragma: export
+#include "net/socket/ip/socket/ipv6/stream/Socket.h" // IWYU pragma: export
+#include "net/socket/ip/transport/tcp/legacy/SocketClient.h"   // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::socket::ip::tcp::legacy {
+namespace net::socket::ip::transport::tcp::legacy::ipv6 {
 
-    template <typename SocketT, typename SocketContextFactoryT>
-    using SocketClient = net::socket::ip::tcp::SocketClient<net::socket::stream::legacy::SocketClient, SocketT, SocketContextFactoryT>;
+    template <typename SocketContextFactoryT>
+    using SocketClient = net::socket::ip::transport::tcp::legacy::SocketClient<address::ipv6::stream::Socket, SocketContextFactoryT>;
 
-} // namespace net::socket::ip::tcp::legacy
+} // namespace net::socket::ip::transport::tcp::legacy::ipv6
 
-#endif // NET_SOCKET_IP_TCP_LEGACY_SOCKETCLIENT_H
+#endif // NET_SOCKET_IP_TCP_LEGACY_IPV6_SOCKETCLIENT_H

@@ -16,21 +16,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_IP_TCP_TLS_IPV6_SOCKETCLIENT_H
-#define NET_SOCKET_IP_TCP_TLS_IPV6_SOCKETCLIENT_H
+#ifndef NET_SOCKET_IP_TCP_TLS_SOCKETSERVER_H
+#define NET_SOCKET_IP_TCP_TLS_SOCKETSERVER_H
 
-#include "net/socket/ip/socket/ipv6/stream/Socket.h" // IWYU pragma: export
-#include "net/socket/ip/tcp/tls/SocketClient.h"      // IWYU pragma: export
+#include "net/socket/ip/transport/tcp/SocketServer.h"
+#include "net/socket/stream/tls/SocketServer.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::socket::ip::tcp::tls::ipv6 {
+namespace net::socket::ip::transport::tcp::tls {
 
-    template <typename SocketContextFactoryT>
-    using SocketClient = net::socket::ip::tcp::tls::SocketClient<address::ipv6::stream::Socket, SocketContextFactoryT>;
+    template <typename SocketT, typename SocketContextFactoryT>
+    using SocketServer = net::socket::ip::transport::tcp::SocketServer<net::socket::stream::tls::SocketServer, SocketT, SocketContextFactoryT>;
 
-} // namespace net::socket::ip::tcp::tls::ipv6
+} // namespace net::socket::ip::transport::tcp::tls
 
-#endif // NET_SOCKET_IP_TCP_TLS_IPV6_SOCKETCLIENT_H
+#endif // NET_SOCKET_IP_TCP_TLS_SOCKETSERVER_H
