@@ -31,6 +31,6 @@ namespace net::socket::ip::tcp::legacy {
     template <typename SocketT, typename SocketContextFactoryT>
     using SocketServer = net::socket::ip::tcp::SocketServer<net::socket::stream::legacy::SocketServer, SocketT, SocketContextFactoryT>;
 
-} // namespace net::socket::ip::tcp::tls
+} // namespace net::socket::ip::tcp::legacy
 
 #endif // NET_SOCKET_IP_TCP_LEGACY_SOCKETSERVER_H
