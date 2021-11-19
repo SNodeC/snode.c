@@ -96,8 +96,7 @@ namespace net {
         maxFd = std::max(exceptionalConditionEventDispatcher.getMaxFd(), maxFd);
 
         if (maxFd >= 0 || !timerEventDispatcher.empty()) {
-            //            nextEventTimeout = std::max(nextEventTimeout, {0, 0}); // don't know if still necessary: So let it here as a
-            //            comment
+            nextEventTimeout = std::max(nextEventTimeout, {0, 0});
             nextEventTimeout = std::min(nextEventTimeout, timeOut);
 
             int counter = net::system::select(maxFd + 1,

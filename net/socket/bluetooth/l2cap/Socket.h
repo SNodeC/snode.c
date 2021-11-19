@@ -29,8 +29,101 @@
 namespace net::socket::bluetooth::l2cap {
 
     class Socket : public net::socket::Socket<net::socket::bluetooth::address::L2CapAddress> {
-    public:
+    protected:
         int create(int flags = 0) override;
+
+    public:
+        using SocketAddress = net::socket::bluetooth::address::L2CapAddress;
+
+        class Server {
+        public:
+            virtual void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const = 0;
+
+            void listen(uint16_t psm, int backlog, const std::function<void(int)>& onError) {
+                listen(SocketAddress(psm), backlog, onError);
+            }
+
+            void listen(const std::string& address, int backlog, const std::function<void(int)>& onError) {
+                listen(SocketAddress(address), backlog, onError);
+            }
+
+            void listen(const std::string& address, uint16_t psm, int backlog, const std::function<void(int)>& onError) {
+                listen(SocketAddress(address, psm), backlog, onError);
+            }
+        };
+
+        class Client {
+        public:
+            virtual void connect(const SocketAddress& remoteAddress,
+                                 const SocketAddress& bindAddress,
+                                 const std::function<void(int)>& onError) const = 0;
+
+            virtual void connect(const SocketAddress& remoteAddress, const std::function<void(int)>& onError) const = 0;
+
+            void connect(const std::string& address, uint16_t psm, const std::function<void(int)>& onError) {
+                connect(SocketAddress(address, psm), onError);
+            }
+
+            void
+            connect(const std::string& address, uint16_t psm, const std::string& bindAddress, const std::function<void(int)>& onError) {
+                connect(SocketAddress(address, psm), SocketAddress(bindAddress), onError);
+            }
+
+            void connect(const std::string& address,
+                         uint16_t psm,
+                         const std::string& bindAddress,
+                         uint16_t bindPsm,
+                         const std::function<void(int)>& onError) {
+                connect(SocketAddress(address, psm), SocketAddress(bindAddress, bindPsm), onError);
+            }
+        };
+    };
+
+    class Server {
+    public:
+        using Socket = net::socket::bluetooth::l2cap::Socket;
+        using SocketAddress = Socket::SocketAddress;
+
+        virtual void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const = 0;
+
+        void listen(uint8_t channel, int backlog, const std::function<void(int)>& onError) {
+            listen(SocketAddress(channel), backlog, onError);
+        }
+
+        void listen(const std::string& address, int backlog, const std::function<void(int)>& onError) {
+            listen(SocketAddress(address), backlog, onError);
+        }
+
+        void listen(const std::string& address, uint8_t channel, int backlog, const std::function<void(int)>& onError) {
+            listen(SocketAddress(address, channel), backlog, onError);
+        }
+    };
+
+    class Client {
+    public:
+        using Socket = net::socket::bluetooth::l2cap::Socket;
+        using SocketAddress = Socket::SocketAddress;
+
+        virtual void
+        connect(const SocketAddress& remoteAddress, const SocketAddress& bindAddress, const std::function<void(int)>& onError) const = 0;
+
+        virtual void connect(const SocketAddress& remoteAddress, const std::function<void(int)>& onError) const = 0;
+
+        void connect(const std::string& address, uint8_t channel, const std::function<void(int)>& onError) {
+            connect(SocketAddress(address, channel), onError);
+        }
+
+        void connect(const std::string& address, uint8_t channel, const std::string& bindAddress, const std::function<void(int)>& onError) {
+            connect(SocketAddress(address, channel), SocketAddress(bindAddress), onError);
+        }
+
+        void connect(const std::string& address,
+                     uint8_t channel,
+                     const std::string& bindAddress,
+                     uint8_t bindChannel,
+                     const std::function<void(int)>& onError) {
+            connect(SocketAddress(address, channel), SocketAddress(bindAddress, bindChannel), onError);
+        }
     };
 
 } // namespace net::socket::bluetooth::l2cap

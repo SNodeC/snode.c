@@ -29,32 +29,7 @@
 namespace net::socket::bluetooth::l2cap {
 
     template <typename SocketContextFactoryT>
-    class SocketClient : public net::socket::stream::legacy::SocketClient<l2cap::Socket, SocketContextFactoryT> {
-        using SocketClientBase = net::socket::stream::legacy::SocketClient<l2cap::Socket, SocketContextFactoryT>;
-
-        using SocketClientBase::SocketClientBase;
-
-    public:
-        using SocketAddress = typename SocketClientBase::SocketAddress;
-
-        using SocketClientBase::connect;
-
-        void connect(const std::string& address, uint16_t psm, const std::function<void(int)>& onError) {
-            connect(SocketAddress(address, psm), onError);
-        }
-
-        void connect(const std::string& address, uint16_t psm, const std::string& bindAddress, const std::function<void(int)>& onError) {
-            connect(SocketAddress(address, psm), SocketAddress(bindAddress), onError);
-        }
-
-        void connect(const std::string& address,
-                     uint16_t psm,
-                     const std::string& bindAddress,
-                     uint16_t bindPsm,
-                     const std::function<void(int)>& onError) {
-            connect(SocketAddress(address, psm), SocketAddress(bindAddress, bindPsm), onError);
-        }
-    };
+    using SocketClient = net::socket::stream::legacy::SocketClient<l2cap::Socket, SocketContextFactoryT>;
 
 } // namespace net::socket::bluetooth::l2cap
 

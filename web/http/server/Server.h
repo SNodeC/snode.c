@@ -63,6 +63,8 @@ namespace web::http::server {
             SocketServer::getSocketContextFactory()->setOnRequestReady(onRequestReady);
         }
 
+        using SocketServer::listen;
+
         void listen(const SocketAddress& socketAddress, const std::function<void(int)>& onError) {
             SocketServer::listen(socketAddress, LISTEN_BACKLOG, onError);
         }
