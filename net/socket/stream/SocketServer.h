@@ -32,11 +32,12 @@
 
 namespace net::socket::stream {
 
-    template <typename SocketAcceptorT, typename SocketContextFactoryT>
-    class SocketServer : public SocketAcceptorT::ServerSocket {
+    template <typename ServerSocketT, typename SocketAcceptorT, typename SocketContextFactoryT>
+    class SocketServer : public ServerSocketT {
         SocketServer() = delete;
 
     public:
+        using ServerSocket = ServerSocketT;
         using SocketContextFactory = SocketContextFactoryT;
         using SocketAcceptor = SocketAcceptorT;
         using SocketConnection = typename SocketAcceptor::SocketConnection;
@@ -55,7 +56,7 @@ namespace net::socket::stream {
 
         virtual ~SocketServer() = default;
 
-        using SocketAcceptorT::ServerSocket::listen;
+        using ServerSocket::listen;
 
         void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const {
             SocketAcceptor* socketAcceptor = new SocketAcceptor(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);

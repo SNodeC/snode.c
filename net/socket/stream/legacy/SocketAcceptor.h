@@ -28,12 +28,10 @@
 
 namespace net::socket::stream::legacy {
 
-    template <typename ServerSocketT>
-    class SocketAcceptor
-        : public net::socket::stream::SocketAcceptor<net::socket::stream::legacy::SocketConnection<typename ServerSocketT::Socket>> {
+    template <typename SocketT>
+    class SocketAcceptor : public net::socket::stream::SocketAcceptor<net::socket::stream::legacy::SocketConnection<SocketT>> {
     public:
-        using ServerSocket = ServerSocketT;
-        using Socket = typename ServerSocket::Socket;
+        using Socket = SocketT;
         using SocketConnection = net::socket::stream::legacy::SocketConnection<Socket>;
         using SocketAddress = typename Socket::SocketAddress;
 

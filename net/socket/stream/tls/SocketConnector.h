@@ -31,12 +31,10 @@
 
 namespace net::socket::stream::tls {
 
-    template <typename ClientSocketT>
-    class SocketConnector
-        : public net::socket::stream::SocketConnector<net::socket::stream::tls::SocketConnection<typename ClientSocketT::Socket>> {
+    template <typename SocketT>
+    class SocketConnector : public net::socket::stream::SocketConnector<net::socket::stream::tls::SocketConnection<SocketT>> {
     public:
-        using ClientSocket = ClientSocketT;
-        using Socket = typename ClientSocket::Socket;
+        using Socket = SocketT;
         using SocketConnection = net::socket::stream::tls::SocketConnection<Socket>;
         using SocketAddress = typename Socket::SocketAddress;
 
