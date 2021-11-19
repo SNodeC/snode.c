@@ -35,9 +35,7 @@ namespace net::socket::stream::tls {
 
     template <typename SocketT>
     class SocketConnection
-        : public net::socket::stream::SocketConnectionT<net::socket::stream::tls::SocketReader<SocketT>,
-                                                        net::socket::stream::tls::SocketWriter<SocketT>,
-                                                        typename SocketT::SocketAddress> {
+        : public net::socket::stream::SocketConnectionT<SocketReader<SocketT>, SocketWriter<SocketT>, typename SocketT::SocketAddress> {
     public:
         using Socket = SocketT;
         using SocketAddress = typename Socket::SocketAddress;
@@ -49,15 +47,10 @@ namespace net::socket::stream::tls {
                          const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                          const std::function<void(SocketConnection*)>& onDisconnect)
             : SocketConnection::Descriptor(fd)
-            , net::socket::stream::SocketConnectionT<net::socket::stream::tls::SocketReader<Socket>,
-                                                     net::socket::stream::tls::SocketWriter<Socket>,
-                                                     typename Socket::SocketAddress>::SocketConnectionT(socketContextFactory,
-                                                                                                        localAddress,
-                                                                                                        remoteAddress,
-                                                                                                        onConnect,
-                                                                                                        [onDisconnect, this]() -> void {
-                                                                                                            onDisconnect(this);
-                                                                                                        }) {
+            , net::socket::stream::SocketConnectionT<SocketReader<Socket>, SocketWriter<Socket>, typename Socket::SocketAddress>::
+                  SocketConnectionT(socketContextFactory, localAddress, remoteAddress, onConnect, [onDisconnect, this]() -> void {
+                      onDisconnect(this);
+                  }) {
         }
 
         SSL* getSSL() const {

@@ -33,9 +33,7 @@ namespace net::socket::stream::legacy {
 
     template <typename SocketT>
     class SocketConnection
-        : public net::socket::stream::SocketConnectionT<net::socket::stream::legacy::SocketReader<SocketT>,
-                                                        net::socket::stream::legacy::SocketWriter<SocketT>,
-                                                        typename SocketT::SocketAddress> {
+        : public net::socket::stream::SocketConnectionT<SocketReader<SocketT>, SocketWriter<SocketT>, typename SocketT::SocketAddress> {
     public:
         using Socket = SocketT;
         using SocketAddress = typename Socket::SocketAddress;
@@ -47,15 +45,10 @@ namespace net::socket::stream::legacy {
                          const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                          const std::function<void(SocketConnection*)>& onDisconnect)
             : SocketConnection::Descriptor(fd)
-            , net::socket::stream::SocketConnectionT<net::socket::stream::legacy::SocketReader<Socket>,
-                                                     net::socket::stream::legacy::SocketWriter<Socket>,
-                                                     typename Socket::SocketAddress>::SocketConnectionT(socketProtocolFactory,
-                                                                                                        localAddress,
-                                                                                                        remoteAddress,
-                                                                                                        onConnect,
-                                                                                                        [onDisconnect, this]() -> void {
-                                                                                                            onDisconnect(this);
-                                                                                                        }) {
+            , net::socket::stream::SocketConnectionT<SocketReader<Socket>, SocketWriter<Socket>, typename Socket::SocketAddress>::
+                  SocketConnectionT(socketProtocolFactory, localAddress, remoteAddress, onConnect, [onDisconnect, this]() -> void {
+                      onDisconnect(this);
+                  }) {
         }
 
         template <typename Socket>

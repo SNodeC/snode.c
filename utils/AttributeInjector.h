@@ -35,7 +35,7 @@ namespace std {
                 buf[i] = s[i];
         }
 
-        constexpr operator char const *() const {
+        constexpr operator char const*() const {
             return buf;
         }
 
@@ -51,7 +51,7 @@ namespace std {
 namespace utils {
 
     template <typename Attribute>
-    concept InjectableAttribute = std::copy_constructible<Attribute>and std::default_initializable<Attribute>and std::copyable<Attribute>;
+    concept InjectableAttribute = std::copy_constructible<Attribute> and std::default_initializable<Attribute> and std::copyable<Attribute>;
 
     template <InjectableAttribute Attribute>
     class AttributeProxy {
