@@ -23,7 +23,6 @@
 #include "express/middleware/StaticMiddleware.h"
 #include "express/tls/WebApp.h"
 #include "log/Logger.h"
-#include "net/socket/bluetooth/address/RfCommAddress.h" // for RfCommAddress
 
 #include <string> // for string, operator+
 

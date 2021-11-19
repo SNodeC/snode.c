@@ -20,7 +20,6 @@
 
 #include "log/Logger.h"
 #include "net/SNodeC.h"
-#include "net/socket/bluetooth/address/L2CapAddress.h" // for L2CapAddress
 #include "net/socket/bluetooth/l2cap/SocketClient.h"
 #include "net/socket/stream/SocketContext.h"
 #include "net/socket/stream/SocketContextFactory.h"

@@ -24,7 +24,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #include "net/socket/Socket.h"
-#include "net/socket/bluetooth/address/L2CapAddress.h"
+#include "net/socket/bluetooth/address/L2CapAddress.h" // IWYU pragma: export
 
 namespace net::socket::bluetooth::l2cap {
 
