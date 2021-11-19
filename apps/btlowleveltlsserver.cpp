@@ -28,6 +28,7 @@
 
 #include <cstddef>            // for NULL, size_t
 #include <functional>         // for function
+#include <map>                // for map
 #include <openssl/asn1.h>     // for ASN1_STRIN...
 #include <openssl/crypto.h>   // for OPENSSL_free
 #include <openssl/obj_mac.h>  // for NID_subjec...

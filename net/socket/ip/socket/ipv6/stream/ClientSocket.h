@@ -19,42 +19,44 @@
 #ifndef NET_SOCKET_IP_SOCKET_IPV6_STREAM_CLIENTSOCKET_H
 #define NET_SOCKET_IP_SOCKET_IPV6_STREAM_CLIENTSOCKET_H
 
-#include "net/socket/ip/socket/ipv6/stream/Socket.h"
+#include "net/socket/ip/socket/ipv6/stream/Socket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <functional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::socket::ip::socket::ipv6::stream {
 
-class Client {
-public:
-    using Socket = net::socket::ip::socket::ipv6::stream::Socket;
-    using SocketAddress = Socket::SocketAddress;
+    class Client {
+    public:
+        using Socket = net::socket::ip::socket::ipv6::stream::Socket;
+        using SocketAddress = Socket::SocketAddress;
 
-    virtual void
-    connect(const SocketAddress& remoteAddress, const SocketAddress& bindAddress, const std::function<void(int)>& onError) const = 0;
-    virtual void connect(const SocketAddress& remoteAddress, const std::function<void(int)>& onError) const = 0;
+        virtual void
+        connect(const SocketAddress& remoteAddress, const SocketAddress& bindAddress, const std::function<void(int)>& onError) const = 0;
+        virtual void connect(const SocketAddress& remoteAddress, const std::function<void(int)>& onError) const = 0;
 
-    void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
-        connect(SocketAddress(ipOrHostname, port), onError);
-    }
+        void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
+            connect(SocketAddress(ipOrHostname, port), onError);
+        }
 
-    void connect(const std::string& ipOrHostname,
-                 uint16_t port,
-                 const std::string& bindIpOrHostname,
-                 const std::function<void(int)>& onError) {
-        connect(SocketAddress(ipOrHostname, port), SocketAddress(bindIpOrHostname), onError);
-    }
+        void connect(const std::string& ipOrHostname,
+                     uint16_t port,
+                     const std::string& bindIpOrHostname,
+                     const std::function<void(int)>& onError) {
+            connect(SocketAddress(ipOrHostname, port), SocketAddress(bindIpOrHostname), onError);
+        }
 
-    void connect(const std::string& ipOrHostname,
-                 uint16_t port,
-                 const std::string& bindIpOrHostname,
-                 uint16_t bindPort,
-                 const std::function<void(int)>& onError) {
-        connect(SocketAddress(ipOrHostname, port), SocketAddress(bindIpOrHostname, bindPort), onError);
-    }
-};
+        void connect(const std::string& ipOrHostname,
+                     uint16_t port,
+                     const std::string& bindIpOrHostname,
+                     uint16_t bindPort,
+                     const std::function<void(int)>& onError) {
+            connect(SocketAddress(ipOrHostname, port), SocketAddress(bindIpOrHostname, bindPort), onError);
+        }
+    };
 
 } // namespace net::socket::ip::socket::ipv6::stream
 

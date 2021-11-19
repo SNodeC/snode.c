@@ -16,10 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_IP_SOCKET_IPV4_STREAM_CLIENTSOCKET_H
-#define NET_SOCKET_IP_SOCKET_IPV4_STREAM_CLIENTSOCKET_H
+#ifndef NET_SOCKET_BLUETOOTH_RFCOMM_CLIENTSOCKET_H
+#define NET_SOCKET_BLUETOOTH_RFCOMM_CLIENTSOCKET_H
 
-#include "net/socket/ip/socket/ipv4/stream/Socket.h" // IWYU pragma: export
+#include "net/socket/bluetooth/rfcomm/Socket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,37 +27,34 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::ip::socket::ipv4::stream {
+namespace net::socket::bluetooth::rfcomm {
 
     class Client {
     public:
-        using Socket = net::socket::ip::socket::ipv4::stream::Socket;
+        using Socket = net::socket::bluetooth::rfcomm::Socket;
         using SocketAddress = Socket::SocketAddress;
 
         virtual void
         connect(const SocketAddress& remoteAddress, const SocketAddress& bindAddress, const std::function<void(int)>& onError) const = 0;
         virtual void connect(const SocketAddress& remoteAddress, const std::function<void(int)>& onError) const = 0;
 
-        void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
-            connect(SocketAddress(ipOrHostname, port), onError);
+        void connect(const std::string& address, uint8_t channel, const std::function<void(int)>& onError) {
+            connect(SocketAddress(address, channel), onError);
         }
 
-        void connect(const std::string& ipOrHostname,
-                     uint16_t port,
-                     const std::string& bindIpOrHostname,
-                     const std::function<void(int)>& onError) {
-            connect(SocketAddress(ipOrHostname, port), SocketAddress(bindIpOrHostname), onError);
+        void connect(const std::string& address, uint8_t channel, const std::string& bindAddress, const std::function<void(int)>& onError) {
+            connect(SocketAddress(address, channel), SocketAddress(bindAddress), onError);
         }
 
-        void connect(const std::string& ipOrHostname,
-                     uint16_t port,
-                     const std::string& bindIpOrHostname,
-                     uint16_t bindPort,
+        void connect(const std::string& address,
+                     uint8_t channel,
+                     const std::string& bindAddress,
+                     uint8_t bindChannel,
                      const std::function<void(int)>& onError) {
-            connect(SocketAddress(ipOrHostname, port), SocketAddress(bindIpOrHostname, bindPort), onError);
+            connect(SocketAddress(address, channel), SocketAddress(bindAddress, bindChannel), onError);
         }
     };
 
-} // namespace net::socket::ip::socket::ipv4::stream
+} // namespace net::socket::bluetooth::rfcomm
 
-#endif // NET_SOCKET_IP_SOCKET_IPV4_STREAM_CLIENTSOCKET_H
+#endif // NET_SOCKET_BLUETOOTH_RFCOMM_CLIENTSOCKET_H

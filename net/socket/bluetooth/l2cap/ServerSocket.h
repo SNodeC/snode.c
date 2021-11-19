@@ -16,10 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_IP_SOCKET_IPV4_STREAM_SERVERSOCKET_H
-#define NET_SOCKET_IP_SOCKET_IPV4_STREAM_SERVERSOCKET_H
+#ifndef NET_SOCKET_BLUETOOTH_L2CAP_SERVERSOCKET_H
+#define NET_SOCKET_BLUETOOTH_L2CAP_SERVERSOCKET_H
 
-#include "net/socket/ip/socket/ipv4/stream/Socket.h" // IWYU pragma: export
+#include "net/socket/bluetooth/l2cap/Socket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,28 +27,28 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::ip::socket::ipv4::stream {
+namespace net::socket::bluetooth::l2cap {
 
     class Server {
     public:
-        using Socket = net::socket::ip::socket::ipv4::stream::Socket;
+        using Socket = net::socket::bluetooth::l2cap::Socket;
         using SocketAddress = Socket::SocketAddress;
 
         virtual void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const = 0;
 
-        void listen(uint16_t port, int backlog, const std::function<void(int)>& onError) {
-            listen(SocketAddress(port), backlog, onError);
+        void listen(uint16_t psm, int backlog, const std::function<void(int)>& onError) {
+            listen(SocketAddress(psm), backlog, onError);
         }
 
-        void listen(const std::string& ipOrHostname, int backlog, const std::function<void(int)>& onError) {
-            listen(SocketAddress(ipOrHostname), backlog, onError);
+        void listen(const std::string& address, int backlog, const std::function<void(int)>& onError) {
+            listen(SocketAddress(address), backlog, onError);
         }
 
-        void listen(const std::string& ipOrHostname, uint16_t port, int backlog, const std::function<void(int)>& onError) {
-            listen(SocketAddress(ipOrHostname, port), backlog, onError);
+        void listen(const std::string& address, uint16_t psm, int backlog, const std::function<void(int)>& onError) {
+            listen(SocketAddress(address, psm), backlog, onError);
         }
     };
 
-} // namespace net::socket::ip::socket::ipv4::stream
+} // namespace net::socket::bluetooth::l2cap
 
-#endif // NET_SOCKET_IP_SOCKET_IPV4_STREAM_SERVERSOCKET_H
+#endif // -NET_SOCKET_BLUETOOTH_L2CAP_SERVERSOCKET_H

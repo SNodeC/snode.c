@@ -19,8 +19,8 @@
 #ifndef NET_SOCKET_BLUETOOTH_RFCOMM_TLS_SOCKETCLIENT_H
 #define NET_SOCKET_BLUETOOTH_RFCOMM_TLS_SOCKETCLIENT_H
 
-#include "net/socket/bluetooth/rfcomm/Socket.h" // IWYU pragma: export
-#include "net/socket/stream/tls/SocketClient.h" // IWYU pragma: export
+#include "net/socket/bluetooth/rfcomm/ClientSocket.h" // IWYU pragma: export
+#include "net/socket/stream/tls/SocketClient.h"       // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

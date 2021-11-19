@@ -19,33 +19,35 @@
 #ifndef NET_SOCKET_IP_SOCKET_IPV6_STREAM_SERVERSOCKET_H
 #define NET_SOCKET_IP_SOCKET_IPV6_STREAM_SERVERSOCKET_H
 
-#include "net/socket/ip/socket/ipv6/stream/Socket.h"
+#include "net/socket/ip/socket/ipv6/stream/Socket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <functional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::socket::ip::socket::ipv6::stream {
 
-class Server {
-public:
-    using Socket = net::socket::ip::socket::ipv6::stream::Socket;
-    using SocketAddress = Socket::SocketAddress;
+    class Server {
+    public:
+        using Socket = net::socket::ip::socket::ipv6::stream::Socket;
+        using SocketAddress = Socket::SocketAddress;
 
-    virtual void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const = 0;
+        virtual void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const = 0;
 
-    void listen(uint16_t port, int backlog, const std::function<void(int)>& onError) {
-        listen(SocketAddress(port), backlog, onError);
-    }
+        void listen(uint16_t port, int backlog, const std::function<void(int)>& onError) {
+            listen(SocketAddress(port), backlog, onError);
+        }
 
-    void listen(const std::string& ipOrHostname, int backlog, const std::function<void(int)>& onError) {
-        listen(SocketAddress(ipOrHostname), backlog, onError);
-    }
+        void listen(const std::string& ipOrHostname, int backlog, const std::function<void(int)>& onError) {
+            listen(SocketAddress(ipOrHostname), backlog, onError);
+        }
 
-    void listen(const std::string& ipOrHostname, uint16_t port, int backlog, const std::function<void(int)>& onError) {
-        listen(SocketAddress(ipOrHostname, port), backlog, onError);
-    }
-};
+        void listen(const std::string& ipOrHostname, uint16_t port, int backlog, const std::function<void(int)>& onError) {
+            listen(SocketAddress(ipOrHostname, port), backlog, onError);
+        }
+    };
 
 } // namespace net::socket::ip::socket::ipv6::stream
 

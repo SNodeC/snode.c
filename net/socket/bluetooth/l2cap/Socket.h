@@ -36,53 +36,6 @@ namespace net::socket::bluetooth::l2cap {
         using SocketAddress = net::socket::bluetooth::address::L2CapAddress;
     };
 
-    class Server {
-    public:
-        using Socket = net::socket::bluetooth::l2cap::Socket;
-        using SocketAddress = Socket::SocketAddress;
-
-        virtual void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const = 0;
-
-        void listen(uint16_t psm, int backlog, const std::function<void(int)>& onError) {
-            listen(SocketAddress(psm), backlog, onError);
-        }
-
-        void listen(const std::string& address, int backlog, const std::function<void(int)>& onError) {
-            listen(SocketAddress(address), backlog, onError);
-        }
-
-        void listen(const std::string& address, uint16_t psm, int backlog, const std::function<void(int)>& onError) {
-            listen(SocketAddress(address, psm), backlog, onError);
-        }
-    };
-
-    class Client {
-    public:
-        using Socket = net::socket::bluetooth::l2cap::Socket;
-        using SocketAddress = Socket::SocketAddress;
-
-        virtual void
-        connect(const SocketAddress& remoteAddress, const SocketAddress& bindAddress, const std::function<void(int)>& onError) const = 0;
-
-        virtual void connect(const SocketAddress& remoteAddress, const std::function<void(int)>& onError) const = 0;
-
-        void connect(const std::string& address, uint16_t psm, const std::function<void(int)>& onError) {
-            connect(SocketAddress(address, psm), onError);
-        }
-
-        void connect(const std::string& address, uint16_t psm, const std::string& bindAddress, const std::function<void(int)>& onError) {
-            connect(SocketAddress(address, psm), SocketAddress(bindAddress), onError);
-        }
-
-        void connect(const std::string& address,
-                     uint16_t psm,
-                     const std::string& bindAddress,
-                     uint16_t bindPsm,
-                     const std::function<void(int)>& onError) {
-            connect(SocketAddress(address, psm), SocketAddress(bindAddress, bindPsm), onError);
-        }
-    };
-
 } // namespace net::socket::bluetooth::l2cap
 
 #endif // NET_SOCKET_BLUETOOTH_L2CAP_SOCKET_H
