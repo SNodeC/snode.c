@@ -35,23 +35,6 @@ namespace net::socket::bluetooth::rfcomm {
     public:
         using SocketAddress = net::socket::bluetooth::address::RfCommAddress;
 
-        class Server {
-        public:
-            virtual void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const = 0;
-
-            void listen(uint8_t channel, int backlog, const std::function<void(int)>& onError) {
-                listen(SocketAddress(channel), backlog, onError);
-            }
-
-            void listen(const std::string& address, int backlog, const std::function<void(int)>& onError) {
-                listen(SocketAddress(address), backlog, onError);
-            }
-
-            void listen(const std::string& address, uint8_t channel, int backlog, const std::function<void(int)>& onError) {
-                listen(SocketAddress(address, channel), backlog, onError);
-            }
-        };
-
         class Client {
         public:
             virtual void connect(const SocketAddress& remoteAddress,
@@ -81,7 +64,7 @@ namespace net::socket::bluetooth::rfcomm {
 
     class Server {
     public:
-        using Socket = net::socket::bluetooth::rfcomm::Socket;
+        using Socket = class net::socket::bluetooth::rfcomm::Socket;
         using SocketAddress = Socket::SocketAddress;
 
         virtual void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const = 0;
@@ -101,7 +84,7 @@ namespace net::socket::bluetooth::rfcomm {
 
     class Client {
     public:
-        using Socket = net::socket::bluetooth::rfcomm::Socket;
+        using Socket = class net::socket::bluetooth::rfcomm::Socket;
         using SocketAddress = Socket::SocketAddress;
 
         virtual void

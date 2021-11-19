@@ -27,6 +27,8 @@ int main(int argc, char* argv[]) {
 
     legacy::WebApp webApp;
 
+    //    tls::WebApp wa;
+
     webApp.get("/jalousien/:id", [] APPLICATION(req, res) {
         VLOG(0) << "Param: " << req.param("id");
         VLOG(0) << "Qurey: " << req.query("action");

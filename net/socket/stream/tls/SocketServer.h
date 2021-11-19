@@ -35,10 +35,9 @@ namespace net::socket::stream::tls {
 
     template <typename ServerSocketT, typename SocketContextFactoryT>
     class SocketServer
-        : public net::socket::stream::SocketServer<net::socket::stream::tls::SocketAcceptor<typename ServerSocketT::Socket>,
-                                                   SocketContextFactoryT> {
-        using SocketServerBase = net::socket::stream::SocketServer<net::socket::stream::tls::SocketAcceptor<typename ServerSocketT::Socket>,
-                                                                   SocketContextFactoryT>;
+        : public net::socket::stream::SocketServer<net::socket::stream::tls::SocketAcceptor<ServerSocketT>, SocketContextFactoryT> {
+        using SocketServerBase =
+            net::socket::stream::SocketServer<net::socket::stream::tls::SocketAcceptor<ServerSocketT>, SocketContextFactoryT>;
 
         using SocketServerBase::SocketServerBase;
 
@@ -50,7 +49,7 @@ namespace net::socket::stream::tls {
 
     public:
         using SocketContextFactory = SocketContextFactoryT;
-        using SocketAcceptor = net::socket::stream::tls::SocketAcceptor<typename ServerSocketT::Socket>;
+        using SocketAcceptor = net::socket::stream::tls::SocketAcceptor<ServerSocketT>;
         using SocketConnection = typename SocketAcceptor::SocketConnection;
         using SocketAddress = typename SocketConnection::Socket::SocketAddress;
 

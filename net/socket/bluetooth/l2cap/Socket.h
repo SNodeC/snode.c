@@ -35,23 +35,6 @@ namespace net::socket::bluetooth::l2cap {
     public:
         using SocketAddress = net::socket::bluetooth::address::L2CapAddress;
 
-        class Server {
-        public:
-            virtual void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const = 0;
-
-            void listen(uint16_t psm, int backlog, const std::function<void(int)>& onError) {
-                listen(SocketAddress(psm), backlog, onError);
-            }
-
-            void listen(const std::string& address, int backlog, const std::function<void(int)>& onError) {
-                listen(SocketAddress(address), backlog, onError);
-            }
-
-            void listen(const std::string& address, uint16_t psm, int backlog, const std::function<void(int)>& onError) {
-                listen(SocketAddress(address, psm), backlog, onError);
-            }
-        };
-
         class Client {
         public:
             virtual void connect(const SocketAddress& remoteAddress,
@@ -81,7 +64,7 @@ namespace net::socket::bluetooth::l2cap {
 
     class Server {
     public:
-        using Socket = net::socket::bluetooth::l2cap::Socket;
+        using Socket = class net::socket::bluetooth::l2cap::Socket;
         using SocketAddress = Socket::SocketAddress;
 
         virtual void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const = 0;
@@ -101,7 +84,7 @@ namespace net::socket::bluetooth::l2cap {
 
     class Client {
     public:
-        using Socket = net::socket::bluetooth::l2cap::Socket;
+        using Socket = class net::socket::bluetooth::l2cap::Socket;
         using SocketAddress = Socket::SocketAddress;
 
         virtual void

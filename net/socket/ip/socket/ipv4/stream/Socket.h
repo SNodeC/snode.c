@@ -35,23 +35,6 @@ namespace net::socket::ip::socket::ipv4::stream {
     public:
         using SocketAddress = net::socket::ip::socket::ipv4::InetAddress;
 
-        class Server {
-        public:
-            virtual void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const = 0;
-
-            void listen(uint16_t port, int backlog, const std::function<void(int)>& onError) {
-                listen(SocketAddress(port), backlog, onError);
-            }
-
-            void listen(const std::string& ipOrHostname, int backlog, const std::function<void(int)>& onError) {
-                listen(SocketAddress(ipOrHostname), backlog, onError);
-            }
-
-            void listen(const std::string& ipOrHostname, uint16_t port, int backlog, const std::function<void(int)>& onError) {
-                listen(SocketAddress(ipOrHostname, port), backlog, onError);
-            }
-        };
-
         class Client {
         public:
             virtual void connect(const SocketAddress& remoteAddress,
@@ -83,7 +66,7 @@ namespace net::socket::ip::socket::ipv4::stream {
 
     class Server {
     public:
-        using Socket = net::socket::ip::socket::ipv4::stream::Socket;
+        using Socket = class net::socket::ip::socket::ipv4::stream::Socket;
         using SocketAddress = Socket::SocketAddress;
 
         virtual void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const = 0;
@@ -103,7 +86,7 @@ namespace net::socket::ip::socket::ipv4::stream {
 
     class Client {
     public:
-        using Socket = net::socket::ip::socket::ipv4::stream::Socket;
+        using Socket = class net::socket::ip::socket::ipv4::stream::Socket;
         using SocketAddress = Socket::SocketAddress;
 
         virtual void
