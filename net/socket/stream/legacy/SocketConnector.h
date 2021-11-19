@@ -29,10 +29,10 @@
 namespace net::socket::stream::legacy {
 
     template <typename SocketT>
-    class SocketConnector : public net::socket::stream::SocketConnector<SocketConnection<SocketT>> {
+    class SocketConnector : public net::socket::stream::SocketConnector<legacy::SocketConnection<SocketT>> {
     public:
         using Socket = SocketT;
-        using SocketConnection = SocketConnection<Socket>;
+        using SocketConnection = legacy::SocketConnection<Socket>;
         using SocketAddress = typename Socket::SocketAddress;
 
         SocketConnector(const std::shared_ptr<SocketContextFactory>& socketContextFactory,

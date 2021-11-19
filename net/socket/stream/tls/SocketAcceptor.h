@@ -37,10 +37,10 @@
 namespace net::socket::stream::tls {
 
     template <typename SocketT>
-    class SocketAcceptor : public net::socket::stream::SocketAcceptor<SocketConnection<SocketT>> {
+    class SocketAcceptor : public net::socket::stream::SocketAcceptor<tls::SocketConnection<SocketT>> {
     public:
         using Socket = SocketT;
-        using SocketConnection = SocketConnection<Socket>;
+        using SocketConnection = tls::SocketConnection<Socket>;
         using SocketAddress = typename Socket::SocketAddress;
 
     public:
