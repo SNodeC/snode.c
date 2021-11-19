@@ -29,7 +29,7 @@
 namespace net::socket::bluetooth::l2cap {
 
     template <typename SocketContextFactoryT>
-    using SocketClient = net::socket::stream::legacy::SocketClient<l2cap::Socket, SocketContextFactoryT>;
+    using SocketClient = net::socket::stream::legacy::SocketClient<l2cap::Client, SocketContextFactoryT>;
 
 } // namespace net::socket::bluetooth::l2cap
 
