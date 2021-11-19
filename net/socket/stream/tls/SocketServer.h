@@ -41,12 +41,6 @@ namespace net::socket::stream::tls {
 
         using SocketServerBase::SocketServerBase;
 
-        using SocketServerBase::_onConnect;
-        using SocketServerBase::_onConnected;
-        using SocketServerBase::_onDisconnect;
-        using SocketServerBase::options;
-        using SocketServerBase::socketContextFactory;
-
     public:
         using SocketConnection = typename SocketAcceptor<typename ServerSocketT::Socket>::SocketConnection;
         using SocketAddress = typename SocketConnection::Socket::SocketAddress;

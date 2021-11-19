@@ -38,12 +38,13 @@ namespace net::socket::stream::tls {
 
     template <typename SocketT>
     class SocketAcceptor : public net::socket::stream::SocketAcceptor<tls::SocketConnection<SocketT>> {
-    public:
+    private:
         using Socket = SocketT;
+
+    public:
         using SocketConnection = tls::SocketConnection<Socket>;
         using SocketAddress = typename Socket::SocketAddress;
 
-    public:
         SocketAcceptor(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
                        const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                        const std::function<void(SocketConnection*)>& onConnected,

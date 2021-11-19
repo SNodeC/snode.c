@@ -33,8 +33,10 @@ namespace net::socket::stream::tls {
 
     template <typename SocketT>
     class SocketConnector : public net::socket::stream::SocketConnector<tls::SocketConnection<SocketT>> {
-    public:
+    private:
         using Socket = SocketT;
+
+    public:
         using SocketConnection = tls::SocketConnection<Socket>;
         using SocketAddress = typename Socket::SocketAddress;
 

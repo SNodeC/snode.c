@@ -30,8 +30,10 @@ namespace net::socket::stream::legacy {
 
     template <typename SocketT>
     class SocketConnector : public net::socket::stream::SocketConnector<legacy::SocketConnection<SocketT>> {
-    public:
+    private:
         using Socket = SocketT;
+
+    public:
         using SocketConnection = legacy::SocketConnection<Socket>;
         using SocketAddress = typename Socket::SocketAddress;
 

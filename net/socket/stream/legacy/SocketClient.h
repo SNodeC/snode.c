@@ -31,8 +31,10 @@ namespace net::socket::stream::legacy {
     template <typename ClientSocketT, typename SocketContextFactoryT>
     class SocketClient
         : public net::socket::stream::SocketClient<ClientSocketT, SocketConnector<typename ClientSocketT::Socket>, SocketContextFactoryT> {
-        using net::socket::stream::SocketClient<ClientSocketT, SocketConnector<typename ClientSocketT::Socket>, SocketContextFactoryT>::
-            SocketClient;
+        using SocketClientBase =
+            net::socket::stream::SocketClient<ClientSocketT, SocketConnector<typename ClientSocketT::Socket>, SocketContextFactoryT>;
+
+        using SocketClientBase::SocketClientBase;
     };
 
 } // namespace net::socket::stream::legacy
