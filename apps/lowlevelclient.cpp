@@ -18,15 +18,15 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h"                                  // for CLIENTCERTF
-#include "log/Logger.h"                              // for Writer, Storage
-#include "net/SNodeC.h"                              // for SNodeC
-#include "net/socket/ip/socket/ipv4/stream/Socket.h" // for Socket
-#include "net/socket/stream/SocketContext.h"         // for SocketProtocol
-#include "net/socket/stream/SocketContextFactory.h"  // for SocketProtocolF...
-#include "net/socket/stream/legacy/SocketClient.h"   // for SocketClient
-#include "net/socket/stream/tls/SocketClient.h"      // for SocketClient
-#include "web/http/client/ResponseParser.h"          // for ResponseParser
+#include "config.h"                                        // for CLIENTCERTF
+#include "log/Logger.h"                                    // for Writer, Storage
+#include "net/SNodeC.h"                                    // for SNodeC
+#include "net/socket/ip/socket/ipv4/stream/ClientSocket.h" // for Socket
+#include "net/socket/stream/SocketContext.h"               // for SocketProtocol
+#include "net/socket/stream/SocketContextFactory.h"        // for SocketProtocolF...
+#include "net/socket/stream/legacy/SocketClient.h"         // for SocketClient
+#include "net/socket/stream/tls/SocketClient.h"            // for SocketClient
+#include "web/http/client/ResponseParser.h"                // for ResponseParser
 
 #include <cstring>
 #include <functional>         // for function

@@ -19,7 +19,7 @@
 #ifndef NET_SOCKET_IP_TRANSPORT_TCP_LEGACY_IPV6_SOCKETSERVER_H
 #define NET_SOCKET_IP_TRANSPORT_TCP_LEGACY_IPV6_SOCKETSERVER_H
 
-#include "net/socket/ip/socket/ipv6/stream/Socket.h"         // IWYU pragma: export
+#include "net/socket/ip/socket/ipv6/stream/ServerSocket.h"   // IWYU pragma: export
 #include "net/socket/ip/transport/tcp/legacy/SocketServer.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

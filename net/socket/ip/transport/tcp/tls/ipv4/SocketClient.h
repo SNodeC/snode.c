@@ -19,8 +19,8 @@
 #ifndef NET_SOCKET_IP_TRANSPORT_TCP_TLS_IPV4_SOCKETCLIENT_H
 #define NET_SOCKET_IP_TRANSPORT_TCP_TLS_IPV4_SOCKETCLIENT_H
 
-#include "net/socket/ip/socket/ipv4/stream/Socket.h"      // IWYU pragma: export
-#include "net/socket/ip/transport/tcp/tls/SocketClient.h" // IWYU pragma: export
+#include "net/socket/ip/socket/ipv4/stream/ClientSocket.h" // IWYU pragma: export
+#include "net/socket/ip/transport/tcp/tls/SocketClient.h"  // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -38,7 +38,7 @@ namespace net::socket::ip::socket::ipv6::stream {
         using SocketAddress = net::socket::ip::socket::ipv6::InetAddress;
     };
 
-    class Server {
+    class Server1 {
     public:
         using Socket = net::socket::ip::socket::ipv6::stream::Socket;
         using SocketAddress = Socket::SocketAddress;
@@ -58,7 +58,7 @@ namespace net::socket::ip::socket::ipv6::stream {
         }
     };
 
-    class Client {
+    class Client1 {
     public:
         using Socket = net::socket::ip::socket::ipv6::stream::Socket;
         using SocketAddress = Socket::SocketAddress;
