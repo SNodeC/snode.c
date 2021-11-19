@@ -38,7 +38,7 @@ namespace net::socket::ip::socket::ipv4::stream {
 
     class Server {
     public:
-        using Socket = class net::socket::ip::socket::ipv4::stream::Socket;
+        using Socket = net::socket::ip::socket::ipv4::stream::Socket;
         using SocketAddress = Socket::SocketAddress;
 
         virtual void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const = 0;
@@ -58,7 +58,7 @@ namespace net::socket::ip::socket::ipv4::stream {
 
     class Client {
     public:
-        using Socket = class net::socket::ip::socket::ipv4::stream::Socket;
+        using Socket = net::socket::ip::socket::ipv4::stream::Socket;
         using SocketAddress = Socket::SocketAddress;
 
         virtual void

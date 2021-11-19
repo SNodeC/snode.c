@@ -38,7 +38,7 @@ namespace net::socket::bluetooth::rfcomm {
 
     class Server {
     public:
-        using Socket = class net::socket::bluetooth::rfcomm::Socket;
+        using Socket = net::socket::bluetooth::rfcomm::Socket;
         using SocketAddress = Socket::SocketAddress;
 
         virtual void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const = 0;
@@ -58,7 +58,7 @@ namespace net::socket::bluetooth::rfcomm {
 
     class Client {
     public:
-        using Socket = class net::socket::bluetooth::rfcomm::Socket;
+        using Socket = net::socket::bluetooth::rfcomm::Socket;
         using SocketAddress = Socket::SocketAddress;
 
         virtual void

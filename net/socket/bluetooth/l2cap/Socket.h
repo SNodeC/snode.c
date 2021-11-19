@@ -38,7 +38,7 @@ namespace net::socket::bluetooth::l2cap {
 
     class Server {
     public:
-        using Socket = class net::socket::bluetooth::l2cap::Socket;
+        using Socket = net::socket::bluetooth::l2cap::Socket;
         using SocketAddress = Socket::SocketAddress;
 
         virtual void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const = 0;
@@ -58,7 +58,7 @@ namespace net::socket::bluetooth::l2cap {
 
     class Client {
     public:
-        using Socket = class net::socket::bluetooth::l2cap::Socket;
+        using Socket = net::socket::bluetooth::l2cap::Socket;
         using SocketAddress = Socket::SocketAddress;
 
         virtual void
