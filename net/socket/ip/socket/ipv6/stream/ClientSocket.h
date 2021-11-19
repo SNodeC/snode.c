@@ -29,7 +29,7 @@
 
 namespace net::socket::ip::socket::ipv6::stream {
 
-    class Client {
+    class ClientSocket {
     public:
         using Socket = net::socket::ip::socket::ipv6::stream::Socket;
         using SocketAddress = Socket::SocketAddress;

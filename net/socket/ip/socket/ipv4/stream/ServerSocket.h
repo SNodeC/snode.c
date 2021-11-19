@@ -29,7 +29,7 @@
 
 namespace net::socket::ip::socket::ipv4::stream {
 
-    class Server {
+    class ServerSocket {
     public:
         using Socket = net::socket::ip::socket::ipv4::stream::Socket;
         using SocketAddress = Socket::SocketAddress;

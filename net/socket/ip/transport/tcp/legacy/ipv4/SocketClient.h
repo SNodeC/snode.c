@@ -29,7 +29,7 @@
 namespace net::socket::ip::transport::tcp::legacy::ipv4 {
 
     template <typename SocketContextFactoryT>
-    using SocketClient = net::socket::ip::transport::tcp::legacy::SocketClient<socket::ipv4::stream::Client, SocketContextFactoryT>;
+    using SocketClient = net::socket::ip::transport::tcp::legacy::SocketClient<socket::ipv4::stream::ClientSocket, SocketContextFactoryT>;
 
 } // namespace net::socket::ip::transport::tcp::legacy::ipv4
 

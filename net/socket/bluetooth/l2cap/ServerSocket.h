@@ -29,7 +29,7 @@
 
 namespace net::socket::bluetooth::l2cap {
 
-    class Server {
+    class ServerSocket {
     public:
         using Socket = net::socket::bluetooth::l2cap::Socket;
         using SocketAddress = Socket::SocketAddress;

@@ -29,7 +29,7 @@
 namespace net::socket::bluetooth::rfcomm::tls {
 
     template <typename SocketContextFactoryT>
-    using SocketClient = net::socket::stream::tls::SocketClient<rfcomm::Client, SocketContextFactoryT>;
+    using SocketClient = net::socket::stream::tls::SocketClient<rfcomm::ClientSocket, SocketContextFactoryT>;
 
 } // namespace net::socket::bluetooth::rfcomm::tls
 

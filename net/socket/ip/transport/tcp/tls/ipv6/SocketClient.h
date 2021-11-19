@@ -29,7 +29,7 @@
 namespace net::socket::ip::transport::tcp::tls::ipv6 {
 
     template <typename SocketContextFactoryT>
-    using SocketClient = net::socket::ip::transport::tcp::tls::SocketClient<socket::ipv6::stream::Client, SocketContextFactoryT>;
+    using SocketClient = net::socket::ip::transport::tcp::tls::SocketClient<socket::ipv6::stream::ClientSocket, SocketContextFactoryT>;
 
 } // namespace net::socket::ip::transport::tcp::tls::ipv6
 

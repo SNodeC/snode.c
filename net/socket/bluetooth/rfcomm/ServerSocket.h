@@ -29,7 +29,7 @@
 
 namespace net::socket::bluetooth::rfcomm {
 
-    class Server {
+    class ServerSocket {
     public:
         using Socket = net::socket::bluetooth::rfcomm::Socket;
         using SocketAddress = Socket::SocketAddress;

@@ -29,7 +29,7 @@
 namespace net::socket::bluetooth::rfcomm::legacy {
 
     template <typename SocketContextFactoryT>
-    using SocketClient = net::socket::stream::legacy::SocketClient<rfcomm::Client, SocketContextFactoryT>;
+    using SocketClient = net::socket::stream::legacy::SocketClient<rfcomm::ClientSocket, SocketContextFactoryT>;
 
 } // namespace net::socket::bluetooth::rfcomm::legacy
 

@@ -27,8 +27,8 @@
 
 namespace net::socket::ip::transport::tcp::tls {
 
-    template <typename SocketT, typename SocketContextFactoryT>
-    using SocketServer = net::socket::stream::tls::SocketServer<SocketT, SocketContextFactoryT>;
+    template <typename ServerSocketT, typename SocketContextFactoryT>
+    using SocketServer = net::socket::stream::tls::SocketServer<ServerSocketT, SocketContextFactoryT>;
 
 } // namespace net::socket::ip::transport::tcp::tls
 
