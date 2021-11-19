@@ -30,7 +30,7 @@
 
 namespace web::http::client::legacy {
 
-    template <typename Request = web::http::client::Request, typename Response = web::http::client::Response>
+    template <typename Request, typename Response>
     class Client : public web::http::client::Client<net::socket::ip::transport::tcp::legacy::ipv4::SocketClient, Request, Response> {
         using web::http::client::Client<net::socket::ip::transport::tcp::legacy::ipv4::SocketClient, Request, Response>::Client;
 

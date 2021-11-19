@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
     net::SNodeC::init(argc, argv);
 
     {
-        legacy::ClientRfComm<> legacyClient(
+        legacy::ClientRfComm<Request, Response> legacyClient(
             [](const legacy::ClientRfComm<>::SocketAddress& localAddress,
                const legacy::ClientRfComm<>::SocketAddress& remoteAddress) -> void {
                 VLOG(0) << "-- OnConnect";
@@ -105,7 +105,7 @@ int main(int argc, char* argv[]) {
                                socketConnection->getLocalAddress().toString();
             });
 
-        tls::ClientRfComm<> tlsClient(
+        tls::ClientRfComm<Request, Response> tlsClient(
             [](const tls::ClientRfComm<>::SocketAddress& localAddress, const tls::ClientRfComm<>::SocketAddress& remoteAddress) -> void {
                 VLOG(0) << "-- OnConnect";
 

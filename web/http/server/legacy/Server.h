@@ -30,7 +30,7 @@
 
 namespace web::http::server::legacy {
 
-    template <typename Request = web::http::server::Request, typename Response = web::http::server::Response>
+    template <typename Request, typename Response>
     class Server : public web::http::server::Server<net::socket::ip::transport::tcp::legacy::ipv4::SocketServer, Request, Response> {
         using web::http::server::Server<net::socket::ip::transport::tcp::legacy::ipv4::SocketServer, Request, Response>::Server;
 

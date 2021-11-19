@@ -49,14 +49,15 @@ int main(int argc, char* argv[]) {
     net::SNodeC::init(argc, argv);
 
     {
-        legacy::Client<> legacyClient(
-            [](const legacy::Client<>::SocketAddress& localAddress, const legacy::Client<>::SocketAddress& remoteAddress) -> void {
+        legacy::Client<Request, Response> legacyClient(
+            [](const legacy::Client<Request, Response>::SocketAddress& localAddress,
+               const legacy::Client<Request, Response>::SocketAddress& remoteAddress) -> void {
                 VLOG(0) << "-- OnConnect";
 
                 VLOG(0) << "\tServer: " + remoteAddress.toString();
                 VLOG(0) << "\tClient: " + localAddress.toString();
             },
-            []([[maybe_unused]] legacy::Client<>::SocketConnection* socketConnection) -> void {
+            []([[maybe_unused]] legacy::Client<Request, Response>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnConnected";
             },
             [](Request& request) -> void {
@@ -99,21 +100,22 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "     Status: " << status;
                 VLOG(0) << "     Reason: " << reason;
             },
-            [](legacy::Client<>::SocketConnection* socketConnection) -> void {
+            [](legacy::Client<Request, Response>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnDisconnect";
 
                 VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
                 VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
             });
 
-        tls::Client<> tlsClient(
-            [](const tls::Client<>::SocketAddress& localAddress, const tls::Client<>::SocketAddress& remoteAddress) -> void {
+        tls::Client<Request, Response> tlsClient(
+            [](const tls::Client<Request, Response>::SocketAddress& localAddress,
+               const tls::Client<Request, Response>::SocketAddress& remoteAddress) -> void {
                 VLOG(0) << "-- OnConnect";
 
                 VLOG(0) << "\tServer: " + remoteAddress.toString();
                 VLOG(0) << "\tClient: " + localAddress.toString();
             },
-            [](tls::Client<>::SocketConnection* socketConnection) -> void {
+            [](tls::Client<Request, Response>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnConnected";
                 X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
                 if (server_cert != nullptr) {
@@ -200,7 +202,7 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "     Status: " << status;
                 VLOG(0) << "     Reason: " << reason;
             },
-            [](tls::Client<>::SocketConnection* socketConnection) -> void {
+            [](tls::Client<Request, Response>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnDisconnect";
 
                 VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();

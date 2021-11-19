@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
     net::SNodeC::init(argc, argv);
 
     {
-        tls::Client6<> tlsClient(
+        tls::Client6<Request, Response> tlsClient(
             [](const tls::Client6<>::SocketAddress& localAddress, const tls::Client6<>::SocketAddress& remoteAddress) -> void {
                 VLOG(0) << "-- OnConnect";
 
