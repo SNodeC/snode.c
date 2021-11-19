@@ -19,7 +19,6 @@
 #ifndef NET_SOCKET_IP_TRANSPORT_TCP_LEGACY_SOCKETSERVER_H
 #define NET_SOCKET_IP_TRANSPORT_TCP_LEGACY_SOCKETSERVER_H
 
-#include "net/socket/ip/transport/tcp/SocketServer.h"
 #include "net/socket/stream/legacy/SocketServer.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -29,8 +28,7 @@
 namespace net::socket::ip::transport::tcp::legacy {
 
     template <typename SocketT, typename SocketContextFactoryT>
-    using SocketServer =
-        net::socket::ip::transport::tcp::SocketServer<net::socket::stream::legacy::SocketServer, SocketT, SocketContextFactoryT>;
+    using SocketServer = net::socket::stream::legacy::SocketServer<SocketT, SocketContextFactoryT>;
 
 } // namespace net::socket::ip::transport::tcp::legacy
 

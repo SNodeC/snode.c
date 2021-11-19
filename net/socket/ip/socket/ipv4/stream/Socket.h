@@ -31,6 +31,58 @@ namespace net::socket::ip::socket::ipv4::stream {
     class Socket : public net::socket::Socket<net::socket::ip::socket::ipv4::InetAddress> {
     protected:
         int create(int flags) override;
+
+    public:
+        using SocketAddress = net::socket::ip::socket::ipv4::InetAddress;
+    };
+
+    class Server {
+    public:
+        using Socket = class net::socket::ip::socket::ipv4::stream::Socket;
+        using SocketAddress = Socket::SocketAddress;
+
+        virtual void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const = 0;
+
+        void listen(uint16_t port, int backlog, const std::function<void(int)>& onError) {
+            listen(SocketAddress(port), backlog, onError);
+        }
+
+        void listen(const std::string& ipOrHostname, int backlog, const std::function<void(int)>& onError) {
+            listen(SocketAddress(ipOrHostname), backlog, onError);
+        }
+
+        void listen(const std::string& ipOrHostname, uint16_t port, int backlog, const std::function<void(int)>& onError) {
+            listen(SocketAddress(ipOrHostname, port), backlog, onError);
+        }
+    };
+
+    class Client {
+    public:
+        using Socket = class net::socket::ip::socket::ipv4::stream::Socket;
+        using SocketAddress = Socket::SocketAddress;
+
+        virtual void
+        connect(const SocketAddress& remoteAddress, const SocketAddress& bindAddress, const std::function<void(int)>& onError) const = 0;
+        virtual void connect(const SocketAddress& remoteAddress, const std::function<void(int)>& onError) const = 0;
+
+        void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
+            connect(SocketAddress(ipOrHostname, port), onError);
+        }
+
+        void connect(const std::string& ipOrHostname,
+                     uint16_t port,
+                     const std::string& bindIpOrHostname,
+                     const std::function<void(int)>& onError) {
+            connect(SocketAddress(ipOrHostname, port), SocketAddress(bindIpOrHostname), onError);
+        }
+
+        void connect(const std::string& ipOrHostname,
+                     uint16_t port,
+                     const std::string& bindIpOrHostname,
+                     uint16_t bindPort,
+                     const std::function<void(int)>& onError) {
+            connect(SocketAddress(ipOrHostname, port), SocketAddress(bindIpOrHostname, bindPort), onError);
+        }
     };
 
 } // namespace net::socket::ip::socket::ipv4::stream

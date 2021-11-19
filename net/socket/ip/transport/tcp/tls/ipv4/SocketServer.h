@@ -19,7 +19,7 @@
 #ifndef NET_SOCKET_IP_TRANSPORT_TCP_TLS_IPV4_SOCKETSERVER_H
 #define NET_SOCKET_IP_TRANSPORT_TCP_TLS_IPV4_SOCKETSERVER_H
 
-#include "net/socket/ip/socket/ipv6/stream/Socket.h"      // IWYU pragma: export
+#include "net/socket/ip/socket/ipv4/stream/Socket.h"      // IWYU pragma: export
 #include "net/socket/ip/transport/tcp/tls/SocketServer.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -29,7 +29,7 @@
 namespace net::socket::ip::transport::tcp::tls::ipv4 {
 
     template <typename SocketContextFactoryT>
-    using SocketServer = net::socket::ip::transport::tcp::tls::SocketServer<socket::ipv6::stream::Socket, SocketContextFactoryT>;
+    using SocketServer = net::socket::ip::transport::tcp::tls::SocketServer<socket::ipv4::stream::Server, SocketContextFactoryT>;
 
 } // namespace net::socket::ip::transport::tcp::tls::ipv4
 

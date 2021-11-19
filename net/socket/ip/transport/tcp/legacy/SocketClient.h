@@ -19,7 +19,6 @@
 #ifndef NET_SOCKET_IP_TRANSPORT_TCP_LEGACY_SOCKETCLIENT_H
 #define NET_SOCKET_IP_TRANSPORT_TCP_LEGACY_SOCKETCLIENT_H
 
-#include "net/socket/ip/transport/tcp/SocketClient.h"
 #include "net/socket/stream/legacy/SocketClient.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -29,8 +28,7 @@
 namespace net::socket::ip::transport::tcp::legacy {
 
     template <typename SocketT, typename SocketContextFactoryT>
-    using SocketClient =
-        net::socket::ip::transport::tcp::SocketClient<net::socket::stream::legacy::SocketClient, SocketT, SocketContextFactoryT>;
+    using SocketClient = net::socket::stream::legacy::SocketClient<SocketT, SocketContextFactoryT>;
 
 } // namespace net::socket::ip::transport::tcp::legacy
 

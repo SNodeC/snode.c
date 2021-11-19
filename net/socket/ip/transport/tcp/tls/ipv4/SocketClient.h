@@ -29,7 +29,7 @@
 namespace net::socket::ip::transport::tcp::tls::ipv4 {
 
     template <typename SocketContextFactoryT>
-    using SocketClient = net::socket::ip::transport::tcp::tls::SocketClient<socket::ipv4::stream::Socket, SocketContextFactoryT>;
+    using SocketClient = net::socket::ip::transport::tcp::tls::SocketClient<socket::ipv4::stream::Client, SocketContextFactoryT>;
 
 } // namespace net::socket::ip::transport::tcp::tls::ipv4
 

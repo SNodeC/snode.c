@@ -31,11 +31,13 @@
 
 namespace net::socket::stream::tls {
 
-    template <typename SocketT>
-    class SocketConnector : public net::socket::stream::SocketConnector<net::socket::stream::tls::SocketConnection<SocketT>> {
+    template <typename SocketClientT>
+    class SocketConnector
+        : public net::socket::stream::SocketConnector<net::socket::stream::tls::SocketConnection<typename SocketClientT::Socket>> {
     public:
-        using SocketConnection = net::socket::stream::tls::SocketConnection<SocketT>;
-        using Socket = typename SocketConnection::Socket;
+        using SocketClient = SocketClientT;
+        using Socket = typename SocketClient::Socket;
+        using SocketConnection = net::socket::stream::tls::SocketConnection<Socket>;
         using SocketAddress = typename Socket::SocketAddress;
 
         SocketConnector(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
