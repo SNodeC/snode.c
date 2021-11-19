@@ -36,10 +36,12 @@ namespace net::socket::stream {
     class SocketServer : public ServerSocketT {
         SocketServer() = delete;
 
-    public:
+    private:
         using ServerSocket = ServerSocketT;
-        using SocketContextFactory = SocketContextFactoryT;
         using SocketAcceptor = SocketAcceptorT;
+        using SocketContextFactory = SocketContextFactoryT;
+
+    public:
         using SocketConnection = typename SocketAcceptor::SocketConnection;
         using SocketAddress = typename SocketConnection::Socket::SocketAddress;
 

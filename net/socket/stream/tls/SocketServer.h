@@ -48,9 +48,7 @@ namespace net::socket::stream::tls {
         using SocketServerBase::socketContextFactory;
 
     public:
-        using SocketContextFactory = SocketContextFactoryT;
-        using SocketAcceptor = SocketAcceptor<typename ServerSocketT::Socket>;
-        using SocketConnection = typename SocketAcceptor::SocketConnection;
+        using SocketConnection = typename SocketAcceptor<typename ServerSocketT::Socket>::SocketConnection;
         using SocketAddress = typename SocketConnection::Socket::SocketAddress;
 
         SocketServer(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,

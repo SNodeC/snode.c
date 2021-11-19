@@ -42,10 +42,12 @@ namespace net::socket::stream {
 
         SocketClient() = delete;
 
-    public:
+    private:
         using ClientSocket = ClientSocketT;
-        using SocketContextFactory = SocketContextFactoryT;
         using SocketConnector = SocketConnectorT;
+        using SocketContextFactory = SocketContextFactoryT;
+
+    public:
         using SocketConnection = typename SocketConnector::SocketConnection;
         using SocketAddress = typename SocketConnection::Socket::SocketAddress;
 
