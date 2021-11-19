@@ -28,11 +28,13 @@
 
 namespace net::socket::stream::legacy {
 
-    template <typename SocketT>
-    class SocketConnector : public net::socket::stream::SocketConnector<net::socket::stream::legacy::SocketConnection<SocketT>> {
+    template <typename SocketClientT>
+    class SocketConnector
+        : public net::socket::stream::SocketConnector<net::socket::stream::legacy::SocketConnection<typename SocketClientT::Socket>> {
     public:
-        using SocketConnection = net::socket::stream::legacy::SocketConnection<SocketT>;
-        using Socket = typename SocketConnection::Socket;
+        using SocketClient = SocketClientT;
+        using Socket = typename SocketClient::Socket;
+        using SocketConnection = net::socket::stream::legacy::SocketConnection<Socket>;
         using SocketAddress = typename Socket::SocketAddress;
 
         SocketConnector(const std::shared_ptr<SocketContextFactory>& socketContextFactory,

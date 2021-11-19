@@ -33,7 +33,7 @@
 namespace net::socket::stream {
 
     template <typename SocketConnectorT, typename SocketContextFactoryT>
-    class SocketClient : public SocketConnectorT::Socket::Client {
+    class SocketClient : public SocketConnectorT::SocketClient {
         /** Sequence diagramm showing how a connect to a peer is performed.
         @startuml
         !include net/socket/stream/pu/SocketClient.pu
@@ -61,7 +61,7 @@ namespace net::socket::stream {
 
         virtual ~SocketClient() = default;
 
-        using SocketConnectorT::Socket::Client::connect;
+        using SocketConnectorT::SocketClient::connect;
 
         void connect(const SocketAddress& remoteAddress, const SocketAddress& bindAddress, const std::function<void(int)>& onError) const {
             SocketConnector* socketConnector = new SocketConnector(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);

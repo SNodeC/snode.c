@@ -34,32 +34,6 @@ namespace net::socket::bluetooth::rfcomm {
 
     public:
         using SocketAddress = net::socket::bluetooth::address::RfCommAddress;
-
-        class Client {
-        public:
-            virtual void connect(const SocketAddress& remoteAddress,
-                                 const SocketAddress& bindAddress,
-                                 const std::function<void(int)>& onError) const = 0;
-
-            virtual void connect(const SocketAddress& remoteAddress, const std::function<void(int)>& onError) const = 0;
-
-            void connect(const std::string& address, uint8_t channel, const std::function<void(int)>& onError) {
-                connect(SocketAddress(address, channel), onError);
-            }
-
-            void
-            connect(const std::string& address, uint8_t channel, const std::string& bindAddress, const std::function<void(int)>& onError) {
-                connect(SocketAddress(address, channel), SocketAddress(bindAddress), onError);
-            }
-
-            void connect(const std::string& address,
-                         uint8_t channel,
-                         const std::string& bindAddress,
-                         uint8_t bindChannel,
-                         const std::function<void(int)>& onError) {
-                connect(SocketAddress(address, channel), SocketAddress(bindAddress, bindChannel), onError);
-            }
-        };
     };
 
     class Server {
