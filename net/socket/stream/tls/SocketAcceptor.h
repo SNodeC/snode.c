@@ -150,7 +150,7 @@ namespace net::socket::stream::tls {
                         SSL_CTX* sniSslCtx = (*sniSslCtxs.get())[serverNameIndication];
 
                         SSL_CTX* nowUsedSslCtx = SSL_set_SSL_CTX(ssl, sniSslCtx);
-                        if (nowUsedSslCtx != sniSslCtx) {
+                        if (nowUsedSslCtx == sniSslCtx) {
                             LOG(INFO) << "SSL_CTX: Switched for SNI '" << serverNameIndication << "'";
                         } else if (nowUsedSslCtx != nullptr) {
                             LOG(INFO) << "SSL_CTX: Not switcher for SNI '" << serverNameIndication << "': still using master SSL_CTX";
