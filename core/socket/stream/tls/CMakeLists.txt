@@ -10,26 +10,26 @@ if(NOT OpenSSL_FOUND)
     )
 else(NOT OpenSSL_FOUND)
 
-    add_library(net-tls SHARED ssl_utils.cpp TLSHandshake.cpp system/ssl.cpp)
-    add_library(snodec::net-tls ALIAS net-tls)
+    add_library(core-tls SHARED ssl_utils.cpp TLSHandshake.cpp system/ssl.cpp)
+    add_library(snodec::core-tls ALIAS core-tls)
 
     target_include_directories(
-        net-tls
+        core-tls
         PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
                "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
                "$<BUILD_INTERFACE:${OPENSSL_INCLUDE_DIRS}>"
                "$<INSTALL_INTERFACE:include/snode.c>"
     )
 
-    target_link_libraries(net-tls PUBLIC snodec::net ${OPENSSL_LIBRARIES})
+    target_link_libraries(core-tls PUBLIC snodec::core ${OPENSSL_LIBRARIES})
 
     set_target_properties(
-        net-tls PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-net-tls
+        core-tls PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-core-tls
     )
 
     install(
-        TARGETS net-tls
-        EXPORT snodecnet-tlsTargets
+        TARGETS core-tls
+        EXPORT snodeccore-tlsTargets
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         INCLUDES
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
@@ -45,8 +45,8 @@ else(NOT OpenSSL_FOUND)
     )
 
     install(
-        EXPORT snodecnet-tlsTargets
-        FILE snodecnet-tlsTargets.cmake
+        EXPORT snodeccore-tlsTargets
+        FILE snodeccore-tlsTargets.cmake
         NAMESPACE snodec::
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
     )

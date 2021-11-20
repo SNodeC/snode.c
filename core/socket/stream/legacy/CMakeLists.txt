@@ -1,18 +1,18 @@
 cmake_minimum_required(VERSION 3.0)
 
-add_library(net-legacy INTERFACE)
-add_library(snodec::net-legacy ALIAS net-legacy)
+add_library(core-legacy INTERFACE)
+add_library(snodec::core-legacy ALIAS core-legacy)
 
 target_include_directories(
-    net-legacy
+    core-legacy
     INTERFACE "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
               "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
               "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
 install(
-    TARGETS net-legacy
-    EXPORT snodecnet-legacyTargets
+    TARGETS core-legacy
+    EXPORT snodeccore-legacyTargets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
@@ -28,8 +28,8 @@ install(
 )
 
 install(
-    EXPORT snodecnet-legacyTargets
-    FILE snodecnet-legacyTargets.cmake
+    EXPORT snodeccore-legacyTargets
+    FILE snodeccore-legacyTargets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )

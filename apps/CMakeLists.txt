@@ -125,7 +125,7 @@ target_link_libraries(vhostserver PRIVATE snodec::express)
 install(TARGETS vhostserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(testpipe testpipe.cpp)
-target_link_libraries(testpipe PRIVATE snodec::net)
+target_link_libraries(testpipe PRIVATE snodec::core)
 install(TARGETS testpipe RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_subdirectory(websocket)

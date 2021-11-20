@@ -21,7 +21,7 @@ if(BLUEZ_FOUND)
     )
 
     target_link_libraries(
-        net-bt PUBLIC snodec::net-legacy snodec::net-tls ${BLUEZ_LIBRARIES}
+        net-bt PUBLIC snodec::core-legacy snodec::core-tls ${BLUEZ_LIBRARIES}
     )
 
     set_target_properties(
