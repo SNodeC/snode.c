@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_BLUETOOTH_L2CAP_SOCKET_H
-#define NET_SOCKET_BLUETOOTH_L2CAP_SOCKET_H
+#ifndef NET_L2CAP_STREAM_SOCKET_H
+#define NET_L2CAP_STREAM_SOCKET_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -38,4 +38,4 @@ namespace net::l2::stream {
 
 } // namespace net::l2::stream
 
-#endif // NET_SOCKET_BLUETOOTH_L2CAP_SOCKET_H
+#endif // NET_L2CAP_STREAM_SOCKET_H

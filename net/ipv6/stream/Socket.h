@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_IP_SOCKET_IPV6_STREAM_SOCKET_H
-#define NET_SOCKET_IP_SOCKET_IPV6_STREAM_SOCKET_H
+#ifndef NET_IPV6_STREAM_SOCKET_H
+#define NET_IPV6_STREAM_SOCKET_H
 
 #include "core/socket/Socket.h"
 #include "net/ipv6/InetAddress.h" // IWYU pragma: export
@@ -38,4 +38,4 @@ namespace net::ip6::stream {
 
 } // namespace net::ip6::stream
 
-#endif // NET_SOCKET_IP_SOCKET_IPV6_STREAM_SOCKET_H
+#endif // NET_IPV6_STREAM_SOCKET_H

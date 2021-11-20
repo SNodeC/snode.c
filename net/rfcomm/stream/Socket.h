@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_BLUETOOTH_RFCOMM_SOCKET_H
-#define NET_SOCKET_BLUETOOTH_RFCOMM_SOCKET_H
+#ifndef NET_RFCOMM_STREAM_SOCKET_H
+#define NET_RFCOMM_STREAM_SOCKET_H
 
 #include "core/socket/Socket.h"
 #include "net/rfcomm/RfCommAddress.h" // IWYU pragma: export
@@ -38,4 +38,4 @@ namespace net::rf::stream {
 
 } // namespace net::rf::stream
 
-#endif // NET_SOCKET_BLUETOOTH_RFCOMM_SOCKET_H
+#endif // NET_RFCOMM_STREAM_SOCKET_H

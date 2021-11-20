@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_BLUETOOTH_L2CAP_SOCKETSERVER_H
-#define NET_SOCKET_BLUETOOTH_L2CAP_SOCKETSERVER_H
+#ifndef NET_L2CAP_STREAM_LEGACY_SOCKETSERVER_H
+#define NET_L2CAP_STREAM_LEGACY_SOCKETSERVER_H
 
 #include "core/socket/stream/legacy/SocketServer.h" // IWYU pragma: export
 #include "net/l2cap/stream/ServerSocket.h"          // IWYU pragma: export
@@ -33,4 +33,4 @@ namespace net::l2::stream::legacy {
 
 } // namespace net::l2::stream::legacy
 
-#endif // NET_SOCKET_BLUETOOTH_L2CAP_SOCKETSERVER_H
+#endif // NET_L2CAP_STREAM_LEGACY_SOCKETSERVER_H

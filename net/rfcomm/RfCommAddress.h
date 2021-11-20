@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_BLUETOOTH_ADDRESS_RFCOMMADDRESS_H
-#define NET_SOCKET_BLUETOOTH_ADDRESS_RFCOMMADDRESS_H
+#ifndef NET_RFCOMM_RFCOMMADDRESS_H
+#define NET_RFCOMM_RFCOMMADDRESS_H
 
 #include "core/socket/SocketAddress.h"
 
@@ -50,4 +50,4 @@ namespace net::rf {
 
 } // namespace net::rf
 
-#endif // NET_SOCKET_BLUETOOTH_ADDRESS_RFCOMMADDRESS_H
+#endif // NET_RFCOMM_RFCOMMADDRESS_H

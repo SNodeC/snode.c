@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_BLUETOOTH_ADDRESS_L2CAPADDRESS_H
-#define NET_SOCKET_BLUETOOTH_ADDRESS_L2CAPADDRESS_H
+#ifndef NET_L2CAP_L2CAPADDRESS_H
+#define NET_L2CAP_L2CAPADDRESS_H
 
 #include "core/socket/SocketAddress.h"
 
@@ -50,4 +50,4 @@ namespace net::l2 {
 
 } // namespace net::l2
 
-#endif // NET_SOCKET_BLUETOOTH_ADDRESS_L2CAPADDRESS_H
+#endif // NET_L2CAP_L2CAPADDRESS_H

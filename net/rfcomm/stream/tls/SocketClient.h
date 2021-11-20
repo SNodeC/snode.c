@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_BLUETOOTH_RFCOMM_TLS_SOCKETCLIENT_H
-#define NET_SOCKET_BLUETOOTH_RFCOMM_TLS_SOCKETCLIENT_H
+#ifndef NET_RFCOMM_STREAM_TLS_SOCKETCLIENT_H
+#define NET_RFCOMM_STREAM_TLS_SOCKETCLIENT_H
 
 #include "core/socket/stream/tls/SocketClient.h" // IWYU pragma: export
 #include "net/rfcomm/stream/ClientSocket.h"      // IWYU pragma: export
@@ -33,4 +33,4 @@ namespace net::rf::stream::tls {
 
 } // namespace net::rf::stream::tls
 
-#endif // NET_SOCKET_BLUETOOTH_RFCOMM_TLS_SOCKETCLIENT_H
+#endif // NET_RFCOMM_STREAM_TLS_SOCKETCLIENT_H

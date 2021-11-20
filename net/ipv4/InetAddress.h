@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_IP_ADDRESS_IPV4_INETADDRESS_H
-#define NET_SOCKET_IP_ADDRESS_IPV4_INETADDRESS_H
+#ifndef NET_IPV4_INETADDRESS_H
+#define NET_IPV4_INETADDRESS_H
 
 #include "core/socket/SocketAddress.h"
 
@@ -65,4 +65,4 @@ namespace net::ip {
 
 } // namespace net::ip
 
-#endif // NET_SOCKET_IP_ADDRESS_IPV4_INETADDRESS_H
+#endif // NET_IPV4_INETADDRESS_H
