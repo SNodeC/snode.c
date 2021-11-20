@@ -20,7 +20,7 @@
 
 #include "log/Logger.h"
 #include "core/SNodeC.h"
-#include "core/socket/bluetooth/l2cap/SocketClient.h"
+#include "net/bluetooth/l2cap/SocketClient.h"
 #include "core/socket/stream/SocketContext.h"
 #include "core/socket/stream/SocketContextFactory.h"
 

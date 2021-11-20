@@ -21,7 +21,7 @@
 #include "config.h"                                       // for CLIENTCAFILE
 #include "log/Logger.h"                                   // for Writer
 #include "core/SNodeC.h"                                   // for SNodeC
-#include "core/socket/bluetooth/rfcomm/tls/SocketServer.h" // for SocketServer
+#include "net/bluetooth/rfcomm/tls/SocketServer.h" // for SocketServer
 #include "core/socket/stream/SocketContext.h"              // for SocketProt...
 #include "core/socket/stream/SocketContextFactory.h"       // for SocketProt...
 
