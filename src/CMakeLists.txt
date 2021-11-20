@@ -8,6 +8,17 @@ include(check-iwyu)
 include(cmake-instrumentation)
 include(cmake-rpath-use-always)
 
+configure_package_config_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/snodecConfig.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+    NO_CHECK_REQUIRED_COMPONENTS_MACRO
+)
+
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/snodecConfig.cmake"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
+)
+
 add_compile_options(
     -Werror
     -Wall
@@ -33,14 +44,3 @@ add_subdirectory(net)
 add_subdirectory(web)
 add_subdirectory(express)
 add_subdirectory(apps)
-
-configure_package_config_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/snodecConfig.cmake
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-    NO_CHECK_REQUIRED_COMPONENTS_MACRO
-)
-
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/snodecConfig.cmake"
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
-)

@@ -27,7 +27,7 @@ set_target_properties(
 
 install(
     TARGETS websocketbase
-    EXPORT snodecwebsocketbaseTargets
+    EXPORT snodec_websocketbase_Targets
     LIBRARY DESTINATION ${HTTP_SOCKETCONTEXTUPGRADE_INSTALL_LIBDIR}
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
@@ -46,8 +46,8 @@ install(
 )
 
 install(
-    EXPORT snodecwebsocketbaseTargets
-    FILE snodecwebsocketbaseTargets.cmake
+    EXPORT snodec_websocketbase_Targets
+    FILE snodec_websocketbase_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )

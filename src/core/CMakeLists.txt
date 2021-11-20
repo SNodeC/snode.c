@@ -47,7 +47,7 @@ set_target_properties(core PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-core)
 
 install(
     TARGETS core
-    EXPORT snodeccoreTargets
+    EXPORT snodec_core_Targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
@@ -67,8 +67,8 @@ install(
 )
 
 install(
-    EXPORT snodeccoreTargets
-    FILE snodeccoreTargets.cmake
+    EXPORT snodec_core_Targets
+    FILE snodec_core_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )

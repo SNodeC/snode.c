@@ -29,7 +29,7 @@ if(BLUEZ_FOUND)
 
     install(
         TARGETS net-l2
-        EXPORT snodecnet-l2Targets
+        EXPORT snodec_net-l2_Targets
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         INCLUDES
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
@@ -45,8 +45,8 @@ if(BLUEZ_FOUND)
     )
 
     install(
-        EXPORT snodecnet-l2Targets
-        FILE snodecnet-l2Targets.cmake
+        EXPORT snodec_net-l2_Targets
+        FILE snodec_net-l2_Targets.cmake
         NAMESPACE snodec::
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
     )

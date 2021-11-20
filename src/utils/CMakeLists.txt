@@ -43,7 +43,7 @@ set_target_properties(utils PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-utils)
 
 install(
     TARGETS utils
-    EXPORT snodecutilsTargets
+    EXPORT snodec_utils_Targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
@@ -58,8 +58,8 @@ install(
 )
 
 install(
-    EXPORT snodecutilsTargets
-    FILE snodecutilsTargets.cmake
+    EXPORT snodec_utils_Targets
+    FILE snodec_utils_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )

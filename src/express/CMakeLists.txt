@@ -48,7 +48,7 @@ set_target_properties(express PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-express)
 
 install(
     TARGETS express
-    EXPORT snodecexpressTargets
+    EXPORT snodec_express_Targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
@@ -63,8 +63,8 @@ install(
 )
 
 install(
-    EXPORT snodecexpressTargets
-    FILE snodecexpressTargets.cmake
+    EXPORT snodec_express_Targets
+    FILE snodec_express_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )

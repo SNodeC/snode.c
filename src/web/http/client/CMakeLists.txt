@@ -75,15 +75,15 @@ install(
 
 install(
     TARGETS httpclient
-    EXPORT snodechttpclientTargets
+    EXPORT snodec_httpclient_Targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
 )
 
 install(
-    EXPORT snodechttpclientTargets
-    FILE snodechttpclientTargets.cmake
+    EXPORT snodec_httpclient_Targets
+    FILE snodec_httpclient_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )

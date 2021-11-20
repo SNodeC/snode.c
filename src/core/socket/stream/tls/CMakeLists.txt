@@ -29,7 +29,7 @@ else(NOT OpenSSL_FOUND)
 
     install(
         TARGETS core-tls
-        EXPORT snodeccore-tlsTargets
+        EXPORT snodec_core-tls_Targets
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         INCLUDES
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
@@ -45,8 +45,8 @@ else(NOT OpenSSL_FOUND)
     )
 
     install(
-        EXPORT snodeccore-tlsTargets
-        FILE snodeccore-tlsTargets.cmake
+        EXPORT snodec_core-tls_Targets
+        FILE snodec_core-tls_Targets.cmake
         NAMESPACE snodec::
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
     )

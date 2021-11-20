@@ -29,7 +29,7 @@ if(BLUEZ_FOUND)
 
     install(
         TARGETS net-rf
-        EXPORT snodecnet-rfTargets
+        EXPORT snodec_net-rf_Targets
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         INCLUDES
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
@@ -45,8 +45,8 @@ if(BLUEZ_FOUND)
     )
 
     install(
-        EXPORT snodecnet-rfTargets
-        FILE snodecnet-rfTargets.cmake
+        EXPORT snodec_net-rf_Targets
+        FILE snodec_net-rf_Targets.cmake
         NAMESPACE snodec::
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
     )

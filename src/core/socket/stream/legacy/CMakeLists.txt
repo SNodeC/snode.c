@@ -12,7 +12,7 @@ target_include_directories(
 
 install(
     TARGETS core-legacy
-    EXPORT snodeccore-legacyTargets
+    EXPORT snodec_core-legacy_Targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
@@ -28,8 +28,8 @@ install(
 )
 
 install(
-    EXPORT snodeccore-legacyTargets
-    FILE snodeccore-legacyTargets.cmake
+    EXPORT snodec_core-legacy_Targets
+    FILE snodec_core-legacy_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )

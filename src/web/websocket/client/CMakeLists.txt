@@ -64,7 +64,7 @@ target_link_libraries(
 
 install(
     TARGETS websocketclient
-    EXPORT snodecwebsocketclientTargets
+    EXPORT snodec_websocketclient_Targets
     LIBRARY DESTINATION ${HTTP_SOCKETCONTEXTUPGRADE_CLIENT_INSTALL_LIBDIR}
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
@@ -80,8 +80,8 @@ install(
 )
 
 install(
-    EXPORT snodecwebsocketclientTargets
-    FILE snodecwebsocketclientTargets.cmake
+    EXPORT snodec_websocketclient_Targets
+    FILE snodec_websocketclient_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )

@@ -19,7 +19,7 @@ set_target_properties(net-in PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-net-in)
 
 install(
     TARGETS net-in
-    EXPORT snodecnet-inTargets
+    EXPORT snodec_net-in_Targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
@@ -35,8 +35,8 @@ install(
 )
 
 install(
-    EXPORT snodecnet-inTargets
-    FILE snodecnet-inTargets.cmake
+    EXPORT snodec_net-in_Targets
+    FILE snodec_net-in_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )

@@ -63,7 +63,7 @@ target_link_libraries(
 
 install(
     TARGETS websocketserver
-    EXPORT snodecwebsocketserverTargets
+    EXPORT snodec_websocketserver_Targets
     LIBRARY DESTINATION ${HTTP_SOCKETCONTEXTUPGRADE_SERVER_INSTALL_LIBDIR}
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
@@ -79,8 +79,8 @@ install(
 )
 
 install(
-    EXPORT snodecwebsocketserverTargets
-    FILE snodecwebsocketserverTargets.cmake
+    EXPORT snodec_websocketserver_Targets
+    FILE snodec_websocketserver_Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )

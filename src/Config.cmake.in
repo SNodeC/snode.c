@@ -38,7 +38,7 @@ macro(LOAD_COMPONENT_WITH_DEPENDENCIES _comp)
             )
         endif()
     endforeach()
-    include("${CMAKE_CURRENT_LIST_DIR}/snodec${_comp}Targets.cmake")
+    include("${CMAKE_CURRENT_LIST_DIR}/snodec_${_comp}_Targets.cmake")
     set(${_comp}_LOADED true)
 endmacro()
 
