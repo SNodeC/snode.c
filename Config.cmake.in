@@ -12,7 +12,7 @@ set(http_DEPENDENCIES net-ip net-ip6)
 
 set(net-ip_DEPENDENCIES core-legacy core-tls)
 set(net-ip6_DEPENDENCIES core-legacy core-tls)
-set(net-rfcomm_DEPENDENCIES core-legacy core-tls)
+set(net-rf_DEPENDENCIES core-legacy core-tls)
 set(net-l2_DEPENDENCIES core-legacy core-tls)
 
 set(core-legacy_DEPENDENCIES core)
@@ -48,7 +48,7 @@ set(_supported_components
     core-tls
     net-ip
     net-ip6
-    net-rfcomm
+    net-rf
     net-l2
     http
     httpserver
