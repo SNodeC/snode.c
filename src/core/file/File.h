@@ -16,15 +16,18 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FILE_H
-#define FILE_H
+#ifndef CORE_FILE_FILE_H
+#define CORE_FILE_FILE_H
 
 #include "core/Descriptor.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
+namespace core::file {
 
-class File : virtual public core::Descriptor {};
+    class File : virtual public core::Descriptor {};
 
-#endif // FILE_H
+} // namespace core::file
+
+#endif // CORE_FILE_FILE_H

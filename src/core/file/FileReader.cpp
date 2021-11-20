@@ -29,48 +29,52 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-FileReader::FileReader(int fd, core::pipe::Sink& sink)
-    : Descriptor(fd) {
-    ReadEventReceiver::enable(fd);
-    Source::connect(sink);
-}
+namespace core::file {
 
-FileReader* FileReader::connect(const std::string& path, core::pipe::Sink& writeStream, const std::function<void(int err)>& onError) {
-    FileReader* fileReader = nullptr;
-
-    int fd = core::system::open(path.c_str(), O_RDONLY);
-
-    if (fd >= 0) {
-        fileReader = new FileReader(fd, writeStream);
-    } else {
-        onError(errno);
+    FileReader::FileReader(int fd, core::pipe::Sink& sink)
+        : Descriptor(fd) {
+        ReadEventReceiver::enable(fd);
+        Source::connect(sink);
     }
 
-    return fileReader;
-}
+    FileReader* FileReader::connect(const std::string& path, core::pipe::Sink& writeStream, const std::function<void(int err)>& onError) {
+        FileReader* fileReader = nullptr;
 
-void FileReader::readEvent() {
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
-    static char junk[MFREADSIZE];
+        int fd = core::system::open(path.c_str(), O_RDONLY);
 
-    ssize_t ret = core::system::read(getFd(), junk, MFREADSIZE);
-
-    if (ret > 0) {
-        this->send(junk, static_cast<std::size_t>(ret));
-    } else {
-        ReadEventReceiver::disable();
-        if (ret == 0) {
-            this->eof();
+        if (fd >= 0) {
+            fileReader = new FileReader(fd, writeStream);
         } else {
-            this->error(errno);
+            onError(errno);
+        }
+
+        return fileReader;
+    }
+
+    void FileReader::readEvent() {
+        // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
+        static char junk[MFREADSIZE];
+
+        ssize_t ret = core::system::read(getFd(), junk, MFREADSIZE);
+
+        if (ret > 0) {
+            this->send(junk, static_cast<std::size_t>(ret));
+        } else {
+            ReadEventReceiver::disable();
+            if (ret == 0) {
+                this->eof();
+            } else {
+                this->error(errno);
+            }
         }
     }
-}
 
-void FileReader::sinkDisconnected() {
-    ReadEventReceiver::disable();
-}
+    void FileReader::sinkDisconnected() {
+        ReadEventReceiver::disable();
+    }
 
-void FileReader::unobservedEvent() {
-    delete this;
-}
+    void FileReader::unobservedEvent() {
+        delete this;
+    }
+
+} // namespace core::file

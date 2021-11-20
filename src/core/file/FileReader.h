@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FILEREADER_H
-#define FILEREADER_H
+#ifndef CORE_FILE_FILEREADER_H
+#define CORE_FILE_FILEREADER_H
 
 #include "core/ReadEventReceiver.h"
 #include "core/file/File.h"
@@ -34,22 +34,26 @@ namespace core::pipe {
     class Sink;
 }
 
-class FileReader
-    : public core::ReadEventReceiver
-    , public core::pipe::Source
-    , virtual public File {
-protected:
-    FileReader(int fd, core::pipe::Sink& writeStream);
+namespace core::file {
 
-public:
-    static FileReader* connect(const std::string& path, core::pipe::Sink& writeStream, const std::function<void(int err)>& onError);
+    class FileReader
+        : public core::ReadEventReceiver
+        , public core::pipe::Source
+        , virtual public File {
+    protected:
+        FileReader(int fd, core::pipe::Sink& writeStream);
 
-    void readEvent() override;
+    public:
+        static FileReader* connect(const std::string& path, core::pipe::Sink& writeStream, const std::function<void(int err)>& onError);
 
-private:
-    void sinkDisconnected() override;
+        void readEvent() override;
 
-    void unobservedEvent() override;
-};
+    private:
+        void sinkDisconnected() override;
 
-#endif // FILEREADER_H
+        void unobservedEvent() override;
+    };
+
+} // namespace core::file
+
+#endif // CORE_FILE_FILEREADER_H
