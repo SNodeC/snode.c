@@ -22,9 +22,9 @@
 #include "web/websocket/server/SubProtocolFactory.h"
 #include "web/websocket/server/SubProtocolFactorySelector.h"
 
-namespace net::socket::stream {
+namespace core::socket::stream {
     class SocketConnection;
-} // namespace net::socket::stream
+} // namespace core::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,7 +32,7 @@ namespace net::socket::stream {
 
 namespace web::websocket::server {
 
-    SocketContextUpgrade::SocketContextUpgrade(net::socket::stream::SocketConnection* socketConnection,
+    SocketContextUpgrade::SocketContextUpgrade(core::socket::stream::SocketConnection* socketConnection,
                                                SocketContextUpgradeFactory* socketContextUpgradeFactory,
                                                SubProtocol* subProtocol)
         : web::websocket::SocketContextUpgrade<SubProtocol, web::http::server::Request, web::http::server::Response>(
@@ -41,7 +41,7 @@ namespace web::websocket::server {
     }
 
     SocketContextUpgrade* SocketContextUpgrade::create(SocketContextUpgradeFactory* socketContextUpgradeFactory,
-                                                       net::socket::stream::SocketConnection* socketConnection,
+                                                       core::socket::stream::SocketConnection* socketConnection,
                                                        const std::string& subProtocolName) {
         SocketContextUpgrade* socketContextUpgrade = nullptr;
 

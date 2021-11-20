@@ -32,7 +32,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net {
+namespace core {
 
     EventDispatcher::FdSet::FdSet() {
         zero();

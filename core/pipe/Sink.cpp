@@ -24,7 +24,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::pipe {
+namespace core::pipe {
 
     Sink::Sink()
         : source(nullptr) {
@@ -46,4 +46,4 @@ namespace net::pipe {
         }
     }
 
-} // namespace net::pipe
+} // namespace core::pipe

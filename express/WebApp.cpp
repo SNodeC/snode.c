@@ -33,16 +33,16 @@ namespace express {
     }
 
     void WebApp::init(int argc, char* argv[]) {
-        net::SNodeC::init(argc, argv);
+        core::SNodeC::init(argc, argv);
         WebApp::initialized = true;
     }
 
     int WebApp::start() {
-        return net::SNodeC::start();
+        return core::SNodeC::start();
     }
 
     void WebApp::stop() {
-        net::SNodeC::stop();
+        core::SNodeC::stop();
     }
 
 } // namespace express

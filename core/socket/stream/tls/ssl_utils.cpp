@@ -34,7 +34,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::stream::tls {
+namespace core::socket::stream::tls {
 
 #define SSL_VERIFY_FLAGS (SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE)
 
@@ -194,4 +194,4 @@ namespace net::socket::stream::tls {
         }
     }
 
-} // namespace net::socket::stream::tls
+} // namespace core::socket::stream::tls

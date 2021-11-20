@@ -30,7 +30,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::stream {
+namespace core::socket::stream {
 
     template <typename ServerSocketT, typename SocketAcceptorT, typename SocketContextFactoryT>
     class SocketServer : public ServerSocketT {
@@ -92,6 +92,6 @@ namespace net::socket::stream {
         std::map<std::string, std::any> options;
     };
 
-} // namespace net::socket::stream
+} // namespace core::socket::stream
 
 #endif // NET_SOCKET_STREAM_SOCKETSERVERNEW_H

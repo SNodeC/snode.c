@@ -31,7 +31,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::pipe {
+namespace core::pipe {
 
     class PipeSource
         : public Descriptor
@@ -57,6 +57,6 @@ namespace net::pipe {
         std::vector<char> writeBuffer;
     };
 
-} // namespace net::pipe
+} // namespace core::pipe
 
 #endif // STREAM_PIPESOURCE_H

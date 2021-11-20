@@ -27,11 +27,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::bluetooth::rfcomm {
+namespace core::socket::bluetooth::rfcomm {
 
     class ClientSocket {
     public:
-        using Socket = net::socket::bluetooth::rfcomm::Socket;
+        using Socket = core::socket::bluetooth::rfcomm::Socket;
         using SocketAddress = Socket::SocketAddress;
 
         virtual void
@@ -55,6 +55,6 @@ namespace net::socket::bluetooth::rfcomm {
         }
     };
 
-} // namespace net::socket::bluetooth::rfcomm
+} // namespace core::socket::bluetooth::rfcomm
 
 #endif // NET_SOCKET_BLUETOOTH_RFCOMM_CLIENTSOCKET_H

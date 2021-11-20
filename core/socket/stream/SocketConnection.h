@@ -19,10 +19,10 @@
 #ifndef NET_SOCKET_STREAM_SOCKETCONNECTIONBASE_H
 #define NET_SOCKET_STREAM_SOCKETCONNECTIONBASE_H
 
-namespace net::socket::stream {
+namespace core::socket::stream {
     class SocketContext;
     class SocketContextFactory;
-} // namespace net::socket::stream
+} // namespace core::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -33,7 +33,7 @@ namespace net::socket::stream {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::stream {
+namespace core::socket::stream {
 
     class SocketConnection {
         SocketConnection() = delete;
@@ -68,6 +68,6 @@ namespace net::socket::stream {
         friend SocketContext;
     };
 
-} // namespace net::socket::stream
+} // namespace core::socket::stream
 
 #endif // NET_SOCKET_STREAM_SOCKETCONNECTIONBASE_H

@@ -29,7 +29,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::stream::tls {
+namespace core::socket::stream::tls {
 
     class TLSHandshake
         : public ReadEventReceiver
@@ -63,6 +63,6 @@ namespace net::socket::stream::tls {
         int fd = -1;
     };
 
-} // namespace net::socket::stream::tls
+} // namespace core::socket::stream::tls
 
 #endif // NET_SOCKET_STREAM_TLS_TLSHANDSHAKE_H

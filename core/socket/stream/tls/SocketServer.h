@@ -31,13 +31,13 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::stream::tls {
+namespace core::socket::stream::tls {
 
     template <typename ServerSocketT, typename SocketContextFactoryT>
     class SocketServer
-        : public net::socket::stream::SocketServer<ServerSocketT, SocketAcceptor<typename ServerSocketT::Socket>, SocketContextFactoryT> {
+        : public core::socket::stream::SocketServer<ServerSocketT, SocketAcceptor<typename ServerSocketT::Socket>, SocketContextFactoryT> {
         using SocketServerBase =
-            net::socket::stream::SocketServer<ServerSocketT, SocketAcceptor<typename ServerSocketT::Socket>, SocketContextFactoryT>;
+            core::socket::stream::SocketServer<ServerSocketT, SocketAcceptor<typename ServerSocketT::Socket>, SocketContextFactoryT>;
 
         using SocketServerBase::SocketServerBase;
 
@@ -74,6 +74,6 @@ namespace net::socket::stream::tls {
         std::shared_ptr<std::map<std::string, SSL_CTX*>> sniSslCtxs;
     };
 
-} // namespace net::socket::stream::tls
+} // namespace core::socket::stream::tls
 
 #endif // NET_SOCKET_STREAM_TLS_SOCKETSERVER_H

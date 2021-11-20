@@ -24,7 +24,7 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::socket::bluetooth::address {
+namespace core::socket::bluetooth::address {
 
     L2CapAddress::L2CapAddress() {
         sockAddr.l2_family = AF_BLUETOOTH;
@@ -65,4 +65,4 @@ namespace net::socket::bluetooth::address {
         return address() + ":" + std::to_string(psm());
     }
 
-} // namespace net::socket::bluetooth::address
+} // namespace core::socket::bluetooth::address

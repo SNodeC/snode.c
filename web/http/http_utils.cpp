@@ -132,11 +132,11 @@ namespace httputils {
         char buf[100];
 
         if (tm == nullptr) {
-            time_t now = net::system::time(nullptr);
-            tm = net::system::gmtime(&now);
+            time_t now = core::system::time(nullptr);
+            tm = core::system::gmtime(&now);
         } else {
-            time_t time = net::system::mktime(tm);
-            tm = net::system::gmtime(&time);
+            time_t time = core::system::mktime(tm);
+            tm = core::system::gmtime(&time);
         }
 
         strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", tm);

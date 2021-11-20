@@ -26,7 +26,7 @@
 
 #define MAX_ACCEPT_INACTIVITY LONG_MAX
 
-namespace net {
+namespace core {
 
     AcceptEventReceiver::AcceptEventReceiver(long timeout)
         : EventReceiver(EventLoop::instance().getReadEventDispatcher(), timeout) {

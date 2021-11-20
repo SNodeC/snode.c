@@ -31,11 +31,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::bluetooth::address {
+namespace core::socket::bluetooth::address {
 
-    class RfCommAddress : public net::socket::SocketAddress<struct sockaddr_rc> {
+    class RfCommAddress : public core::socket::SocketAddress<struct sockaddr_rc> {
     public:
-        using net::socket::SocketAddress<struct sockaddr_rc>::SocketAddress;
+        using core::socket::SocketAddress<struct sockaddr_rc>::SocketAddress;
 
         RfCommAddress();
         explicit RfCommAddress(const std::string& btAddress);
@@ -48,6 +48,6 @@ namespace net::socket::bluetooth::address {
         std::string toString() const override;
     };
 
-} // namespace net::socket::bluetooth::address
+} // namespace core::socket::bluetooth::address
 
 #endif // NET_SOCKET_BLUETOOTH_ADDRESS_RFCOMMADDRESS_H

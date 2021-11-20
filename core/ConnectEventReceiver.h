@@ -27,7 +27,7 @@
 
 #define MAX_CONNECT_INACTIVITY 10
 
-namespace net {
+namespace core {
 
     class ConnectEventReceiver : public EventReceiver {
     protected:

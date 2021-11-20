@@ -26,17 +26,17 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::stream::legacy {
+namespace core::socket::stream::legacy {
 
     template <typename ServerSocketT, typename SocketContextFactoryT>
     class SocketServer
-        : public net::socket::stream::SocketServer<ServerSocketT, SocketAcceptor<typename ServerSocketT::Socket>, SocketContextFactoryT> {
+        : public core::socket::stream::SocketServer<ServerSocketT, SocketAcceptor<typename ServerSocketT::Socket>, SocketContextFactoryT> {
         using SocketServerBase =
-            net::socket::stream::SocketServer<ServerSocketT, SocketAcceptor<typename ServerSocketT::Socket>, SocketContextFactoryT>;
+            core::socket::stream::SocketServer<ServerSocketT, SocketAcceptor<typename ServerSocketT::Socket>, SocketContextFactoryT>;
 
         using SocketServerBase::SocketServerBase;
     };
 
-} // namespace net::socket::stream::legacy
+} // namespace core::socket::stream::legacy
 
 #endif // NET_SOCKET_STREAM_LEGACY_SOCKETSERVER_H

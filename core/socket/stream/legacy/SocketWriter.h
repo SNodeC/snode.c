@@ -30,15 +30,15 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::stream::legacy {
+namespace core::socket::stream::legacy {
 
     template <typename SocketT>
-    class SocketWriter : public net::socket::stream::SocketWriter<SocketT> {
-        using net::socket::stream::SocketWriter<SocketT>::SocketWriter;
+    class SocketWriter : public core::socket::stream::SocketWriter<SocketT> {
+        using core::socket::stream::SocketWriter<SocketT>::SocketWriter;
 
     private:
         ssize_t write(const char* junk, std::size_t junkLen) override {
-            return net::system::send(this->getFd(), junk, junkLen, MSG_NOSIGNAL);
+            return core::system::send(this->getFd(), junk, junkLen, MSG_NOSIGNAL);
         }
 
         int getError() override {
@@ -46,6 +46,6 @@ namespace net::socket::stream::legacy {
         }
     };
 
-} // namespace net::socket::stream::legacy
+} // namespace core::socket::stream::legacy
 
 #endif // NET_SOCKET_STREAM_LEGACY_SOCKETWRITER_H

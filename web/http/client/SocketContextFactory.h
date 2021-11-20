@@ -22,9 +22,9 @@
 #include "web/http/SocketContextFactory.h"
 #include "web/http/client/SocketContext.hpp"
 
-namespace net::socket::stream {
+namespace core::socket::stream {
     class SocketConnection;
-} // namespace net::socket::stream
+} // namespace core::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -46,7 +46,7 @@ namespace web::http::client {
         SocketContextFactory& operator=(const SocketContextFactory&) = delete;
 
     private:
-        net::socket::stream::SocketContext* create(net::socket::stream::SocketConnection* socketConnection) override {
+        core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
             return new SocketContext<Request, Response>(socketConnection, onResponseReady, onResponseError);
         }
 

@@ -36,7 +36,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 int main(int argc, char* argv[]) {
-    net::SNodeC::init(argc, argv);
+    core::SNodeC::init(argc, argv);
 
     web::http::client::legacy::Client<web::http::client::Request, web::http::client::Response> jsonClient(
         [](const web::http::client::legacy::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& localAddress,
@@ -118,5 +118,5 @@ int main(int argc, char* argv[]) {
             }
         });
     */
-    return net::SNodeC::start();
+    return core::SNodeC::start();
 }

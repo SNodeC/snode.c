@@ -33,7 +33,7 @@
 namespace web::http::client {
 
     ResponseParser::ResponseParser(
-        net::socket::stream::SocketContext* socketContext,
+        core::socket::stream::SocketContext* socketContext,
         const std::function<void(void)>& onStart,
         const std::function<void(const std::string&, const std::string&, const std::string&)>& onResponse,
         const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, CookieOptions>&)>& onHeader,

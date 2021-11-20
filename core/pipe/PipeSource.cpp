@@ -31,7 +31,7 @@
 #define MAX_SEND_JUNKSIZE 16384
 #endif
 
-namespace net::pipe {
+namespace core::pipe {
 
     PipeSource::PipeSource(int fd)
         : Descriptor(fd) {
@@ -60,7 +60,7 @@ namespace net::pipe {
     }
 
     void PipeSource::writeEvent() {
-        ssize_t ret = net::system::write(
+        ssize_t ret = core::system::write(
             getFd(), writeBuffer.data(), (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE);
 
         if (ret > 0) {
@@ -82,4 +82,4 @@ namespace net::pipe {
         delete this;
     }
 
-} // namespace net::pipe
+} // namespace core::pipe

@@ -33,11 +33,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::stream::tls {
+namespace core::socket::stream::tls {
 
     template <typename SocketT>
-    class SocketWriter : public net::socket::stream::SocketWriter<SocketT> {
-        using net::socket::stream::SocketWriter<SocketT>::SocketWriter;
+    class SocketWriter : public core::socket::stream::SocketWriter<SocketT> {
+        using core::socket::stream::SocketWriter<SocketT>::SocketWriter;
 
     private:
         void doShutdown() override {
@@ -45,15 +45,15 @@ namespace net::socket::stream::tls {
             doSSLHandshake(
                 [this](void) -> void { // onSuccess
                     LOG(INFO) << "SSL/TLS shutdown handshake success";
-                    net::socket::stream::SocketWriter<SocketT>::doShutdown();
+                    core::socket::stream::SocketWriter<SocketT>::doShutdown();
                 },
                 [this](void) -> void { // onTimeout
                     LOG(WARNING) << "SSL/TLS shutdown handshake timed out";
-                    net::socket::stream::SocketWriter<SocketT>::doShutdown();
+                    core::socket::stream::SocketWriter<SocketT>::doShutdown();
                 },
                 [this](int sslErr) -> void { // onError
                     ssl_log("SSL/TLS shutdown handshake failed", sslErr);
-                    net::socket::stream::SocketWriter<SocketT>::doShutdown();
+                    core::socket::stream::SocketWriter<SocketT>::doShutdown();
                 });
         }
 
@@ -136,6 +136,6 @@ namespace net::socket::stream::tls {
         int sslErr = SSL_ERROR_NONE;
     };
 
-} // namespace net::socket::stream::tls
+} // namespace core::socket::stream::tls
 
 #endif // NET_SOCKET_STREAM_TLS_SOCKETWRITER_H

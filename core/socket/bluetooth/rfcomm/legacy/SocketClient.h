@@ -26,11 +26,11 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::socket::bluetooth::rfcomm::legacy {
+namespace core::socket::bluetooth::rfcomm::legacy {
 
     template <typename SocketContextFactoryT>
-    using SocketClient = net::socket::stream::legacy::SocketClient<rfcomm::ClientSocket, SocketContextFactoryT>;
+    using SocketClient = core::socket::stream::legacy::SocketClient<rfcomm::ClientSocket, SocketContextFactoryT>;
 
-} // namespace net::socket::bluetooth::rfcomm::legacy
+} // namespace core::socket::bluetooth::rfcomm::legacy
 
 #endif // NET_SOCKET_BLUETOOTH_RFCOMM_LEGACY_SOCKETCLIENT_H

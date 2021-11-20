@@ -25,7 +25,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::timer {
+namespace core::timer {
 
     class SingleshotTimer : public Timer {
         SingleshotTimer& operator=(const SingleshotTimer& timer) = delete;
@@ -48,6 +48,6 @@ namespace net::timer {
         std::function<void(const void*)> dispatcher;
     };
 
-} // namespace net::timer
+} // namespace core::timer
 
 #endif // NET_TIMER_SINGLESHOTTIMER_H

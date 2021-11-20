@@ -34,7 +34,7 @@
 #define MAX_SEND_JUNKSIZE 16384
 #endif
 
-namespace net::socket::stream {
+namespace core::socket::stream {
 
     template <typename SocketT>
     class SocketWriter
@@ -106,6 +106,6 @@ namespace net::socket::stream {
         bool markShutdown = false;
     };
 
-} // namespace net::socket::stream
+} // namespace core::socket::stream
 
 #endif // NET_SOCKET_STREAM_SOCKETWRITER_H

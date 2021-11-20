@@ -25,7 +25,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::pipe {
+namespace core::pipe {
 
     class PipeSink;
     class PipeSource;
@@ -41,6 +41,6 @@ namespace net::pipe {
         int pipeFd[2];
     };
 
-} // namespace net::pipe
+} // namespace core::pipe
 
 #endif // STREAM_PIPE_H

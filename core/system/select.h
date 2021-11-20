@@ -29,11 +29,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::system {
+namespace core::system {
 
     // #include <sys/socket.h>
     int select(int nfds, fd_set* readfds, fd_set* writefds, fd_set* exceptfds, struct timeval* timeout);
 
-} // namespace net::system
+} // namespace core::system
 
 #endif // NET_SYSTEM_SELECT_H

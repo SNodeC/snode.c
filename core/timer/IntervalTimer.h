@@ -25,7 +25,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::timer {
+namespace core::timer {
 
     class IntervalTimer : public Timer {
         IntervalTimer& operator=(const IntervalTimer& timer) = delete;
@@ -70,6 +70,6 @@ namespace net::timer {
         std::function<void(const void*)> dispatcherC = nullptr;
     };
 
-} // namespace net::timer
+} // namespace core::timer
 
 #endif // NET_TIMER_INTERVALTIMER_H

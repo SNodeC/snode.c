@@ -26,11 +26,11 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::socket::bluetooth::rfcomm::tls {
+namespace core::socket::bluetooth::rfcomm::tls {
 
     template <typename SocketContextFactoryT>
-    using SocketServer = net::socket::stream::tls::SocketServer<rfcomm::ServerSocket, SocketContextFactoryT>;
+    using SocketServer = core::socket::stream::tls::SocketServer<rfcomm::ServerSocket, SocketContextFactoryT>;
 
-} // namespace net::socket::bluetooth::rfcomm::tls
+} // namespace core::socket::bluetooth::rfcomm::tls
 
 #endif // NET_SOCKET_BLUETOOTH_RFCOMM_TLS_SOCKETSERVER_H

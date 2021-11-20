@@ -25,7 +25,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::stream {
+namespace core::socket::stream {
 
     class SocketConnection;
     class SocketContext;
@@ -40,6 +40,6 @@ namespace net::socket::stream {
         virtual SocketContext* create(SocketConnection* socketConnection) = 0;
     };
 
-} // namespace net::socket::stream
+} // namespace core::socket::stream
 
 #endif // NET_SOCKET_STREAM_SOCKETCONTEXTFACTORY_H

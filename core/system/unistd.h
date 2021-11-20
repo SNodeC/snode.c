@@ -33,7 +33,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::system {
+namespace core::system {
 
     // #include <sys/types.h>, #include <sys/stat.h>, #include <fcntl.h>
     int open(const char* pathname, int flags);
@@ -44,6 +44,6 @@ namespace net::system {
     int close(int fd);
     int pipe2(int pipefd[2], int flags);
 
-} // namespace net::system
+} // namespace core::system
 
 #endif // NET_SYSTEM_UNISTD_H

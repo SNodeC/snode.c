@@ -32,7 +32,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::stream {
+namespace core::socket::stream {
 
     template <typename SocketReaderT, typename SocketWriterT, typename SocketAddressT>
     class SocketConnectionT
@@ -171,6 +171,6 @@ namespace net::socket::stream {
         std::function<void()> onDisconnect;
     };
 
-} // namespace net::socket::stream
+} // namespace core::socket::stream
 
 #endif // NET_SOCKET_STREAM_SOCKETCONNECTION_H

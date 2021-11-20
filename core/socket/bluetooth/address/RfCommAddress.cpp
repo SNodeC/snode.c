@@ -24,7 +24,7 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::socket::bluetooth::address {
+namespace core::socket::bluetooth::address {
 
     RfCommAddress::RfCommAddress() {
         sockAddr.rc_family = AF_BLUETOOTH;
@@ -65,4 +65,4 @@ namespace net::socket::bluetooth::address {
         return address() + ":" + std::to_string(channel());
     }
 
-} // namespace net::socket::bluetooth::address
+} // namespace core::socket::bluetooth::address

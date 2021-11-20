@@ -21,10 +21,10 @@
 
 #include "core/TimerEventReceiver.h"
 
-namespace net::timer {
+namespace core::timer {
     class IntervalTimer;
     class SingleshotTimer;
-} // namespace net::timer
+} // namespace core::timer
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,7 +32,7 @@ namespace net::timer {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::timer {
+namespace core::timer {
 
     class Timer : public TimerEventReceiver {
         Timer(const Timer&) = delete;
@@ -71,6 +71,6 @@ namespace net::timer {
         struct timeval delay;
     };
 
-} // namespace net::timer
+} // namespace core::timer
 
 #endif // NET_TIMER_TIMER_H

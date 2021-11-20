@@ -27,7 +27,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::timer {
+namespace core::timer {
 
     Timer::Timer(const struct timeval& timeout, const void* arg)
         : arg(arg)
@@ -84,4 +84,4 @@ namespace net::timer {
         return absoluteTimeout;
     }
 
-} // namespace net::timer
+} // namespace core::timer

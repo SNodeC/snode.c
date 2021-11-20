@@ -28,7 +28,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket {
+namespace core::socket {
 
     template <typename SockAddrT>
     class SocketAddress {
@@ -76,6 +76,6 @@ namespace net::socket {
         SockAddr sockAddr;
     };
 
-} // namespace net::socket
+} // namespace core::socket
 
 #endif // NET_SOCKET_SOCKETADDRESS_H

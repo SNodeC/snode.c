@@ -63,11 +63,11 @@ namespace web::websocket {
                     VLOG(0) << "Subprotocol already existing: not using " << subProtocolFactory->getName();
                     delete subProtocolFactory;
                     if (handle != nullptr) {
-                        net::DynamicLoader::dlClose(handle);
+                        core::DynamicLoader::dlClose(handle);
                     }
                 }
             } else if (handle != nullptr) {
-                net::DynamicLoader::dlClose(handle);
+                core::DynamicLoader::dlClose(handle);
             }
         }
 
@@ -79,10 +79,10 @@ namespace web::websocket {
 
             for (const std::string& searchPath : searchPaths) {
                 void* handle =
-                    net::DynamicLoader::dlOpen(searchPath + "/libsnodec-websocket-" + subProtocolName + ".so", RTLD_LAZY | RTLD_LOCAL);
+                    core::DynamicLoader::dlOpen(searchPath + "/libsnodec-websocket-" + subProtocolName + ".so", RTLD_LAZY | RTLD_LOCAL);
 
                 if (handle != nullptr) {
-                    SubProtocolFactory* (*getSubProtocolFactory)() = net::DynamicLoader::dlSym<SubProtocolFactory* (*) ()>(
+                    SubProtocolFactory* (*getSubProtocolFactory)() = core::DynamicLoader::dlSym<SubProtocolFactory* (*) ()>(
                         handle, subProtocolName + (role == Role::SERVER ? "Server" : "Client") + "SubProtocolFactory");
                     if (getSubProtocolFactory != nullptr) {
                         subProtocolFactory = getSubProtocolFactory();
@@ -90,13 +90,13 @@ namespace web::websocket {
                             add(subProtocolFactory, handle);
                             break;
                         } else {
-                            net::DynamicLoader::dlClose(handle);
+                            core::DynamicLoader::dlClose(handle);
                         }
                     } else {
-                        VLOG(0) << "Optaining function \"plugin()\" in plugin failed: " << net::DynamicLoader::dlError();
+                        VLOG(0) << "Optaining function \"plugin()\" in plugin failed: " << core::DynamicLoader::dlError();
                     }
                 } else {
-                    VLOG(0) << "Error dlopen: " << net::DynamicLoader::dlError();
+                    VLOG(0) << "Error dlopen: " << core::DynamicLoader::dlError();
                 }
             }
 
@@ -136,7 +136,7 @@ namespace web::websocket {
                 SubProtocolPlugin<SubProtocolFactory>& subProtocolPlugin = subProtocolPlugins[name];
 
                 if (subProtocolPlugin.handle != nullptr) {
-                    net::DynamicLoader::dlClose(subProtocolPlugin.handle);
+                    core::DynamicLoader::dlClose(subProtocolPlugin.handle);
                 }
             }
 

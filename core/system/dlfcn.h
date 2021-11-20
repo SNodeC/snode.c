@@ -29,13 +29,13 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::system {
+namespace core::system {
 
     void* dlopen(const char* filename, int flags);
     int dlclose(void* handle);
     void* dlsym(void* handle, const char* symbol);
     char* dlerror(void);
 
-} // namespace net::system
+} // namespace core::system
 
 #endif // NET_SYSTEM_DLFCN_H

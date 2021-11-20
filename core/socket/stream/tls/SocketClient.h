@@ -26,17 +26,17 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::stream::tls {
+namespace core::socket::stream::tls {
 
     template <typename ClientSocketT, typename SocketContextFactoryT>
     class SocketClient
-        : public net::socket::stream::SocketClient<ClientSocketT, SocketConnector<typename ClientSocketT::Socket>, SocketContextFactoryT> {
+        : public core::socket::stream::SocketClient<ClientSocketT, SocketConnector<typename ClientSocketT::Socket>, SocketContextFactoryT> {
         using SocketClientBase =
-            net::socket::stream::SocketClient<ClientSocketT, SocketConnector<typename ClientSocketT::Socket>, SocketContextFactoryT>;
+            core::socket::stream::SocketClient<ClientSocketT, SocketConnector<typename ClientSocketT::Socket>, SocketContextFactoryT>;
 
         using SocketClientBase::SocketClientBase;
     };
 
-} // namespace net::socket::stream::tls
+} // namespace core::socket::stream::tls
 
 #endif // NET_SOCKET_STREAM_TLS_SOCKETCLIENT_H

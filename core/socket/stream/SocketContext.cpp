@@ -25,7 +25,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::stream {
+namespace core::socket::stream {
 
     SocketContext::SocketContext(SocketConnection* socketConnection)
         : socketConnection(socketConnection) {
@@ -75,4 +75,4 @@ namespace net::socket::stream {
         VLOG(0) << "Protocol disconnecteded";
     }
 
-} // namespace net::socket::stream
+} // namespace core::socket::stream

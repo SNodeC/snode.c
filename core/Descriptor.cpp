@@ -24,7 +24,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net {
+namespace core {
 
     Descriptor::Descriptor(int fd, enum Descriptor::FLAGS flags)
         : flags(flags)
@@ -33,7 +33,7 @@ namespace net {
 
     Descriptor::~Descriptor() {
         if (!dontClose() && fd >= 0) {
-            net::system::close(fd);
+            core::system::close(fd);
         }
     }
 

@@ -41,7 +41,7 @@ namespace web::http {
 
 namespace web::http::server {
 
-    class Response : public net::pipe::Sink {
+    class Response : public core::pipe::Sink {
     protected:
         explicit Response(SocketContext* serverContext);
 

@@ -24,7 +24,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::system {
+namespace core::system {
 
     int socket(int domain, int type, int protocol) {
         errno = 0;
@@ -85,4 +85,4 @@ namespace net::system {
         return ::shutdown(sockfd, how);
     }
 
-} // namespace net::system
+} // namespace core::system

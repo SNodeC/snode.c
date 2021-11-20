@@ -30,12 +30,12 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::ssl {
+namespace core::ssl {
 
     // #include <openssl/ssl.h>
     int SSL_read(SSL* ssl, void* buf, int num);
     int SSL_write(SSL* ssl, const void* buf, int num);
 
-} // namespace net::ssl
+} // namespace core::ssl
 
 #endif // NET_SYSTEM_SSL_H

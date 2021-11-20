@@ -24,7 +24,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::system {
+namespace core::system {
 
     time_t time(time_t* tloc) {
         errno = 0;
@@ -46,4 +46,4 @@ namespace net::system {
         return ::mktime(tm);
     }
 
-} // namespace net::system
+} // namespace core::system

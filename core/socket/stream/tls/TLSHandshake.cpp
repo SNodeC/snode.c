@@ -28,7 +28,7 @@
 
 #define TLSHANDSHAKE_TIMEOUT 10
 
-namespace net::socket::stream::tls {
+namespace core::socket::stream::tls {
 
     void TLSHandshake::doHandshake(SSL* ssl,
                                    const std::function<void(void)>& onSuccess,
@@ -148,4 +148,4 @@ namespace net::socket::stream::tls {
         delete this;
     }
 
-} // namespace net::socket::stream::tls
+} // namespace core::socket::stream::tls

@@ -21,9 +21,9 @@
 
 #include "web/websocket/server/SubProtocol.h"
 
-namespace net::timer {
+namespace core::timer {
     class Timer;
-} // namespace net::timer
+} // namespace core::timer
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -60,7 +60,7 @@ namespace web::websocket::subprotocol::echo::server {
 
         int flyingPings = 0;
 
-        net::timer::Timer& pingTimer;
+        core::timer::Timer& pingTimer;
     };
 
 } // namespace web::websocket::subprotocol::echo::server

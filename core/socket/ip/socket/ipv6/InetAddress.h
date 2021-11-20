@@ -30,7 +30,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::ip::socket::ipv6 {
+namespace core::socket::ip::socket::ipv6 {
 
     class bad_hostname : public std::exception {
     public:
@@ -46,9 +46,9 @@ namespace net::socket::ip::socket::ipv6 {
         static std::string message;
     };
 
-    class InetAddress : public net::socket::SocketAddress<struct sockaddr_in6> {
+    class InetAddress : public core::socket::SocketAddress<struct sockaddr_in6> {
     public:
-        using net::socket::SocketAddress<struct sockaddr_in6>::SocketAddress;
+        using core::socket::SocketAddress<struct sockaddr_in6>::SocketAddress;
 
         InetAddress();
         explicit InetAddress(const std::string& ipOrHostname);
@@ -63,6 +63,6 @@ namespace net::socket::ip::socket::ipv6 {
         std::string toString() const override;
     };
 
-} // namespace net::socket::ip::socket::ipv6
+} // namespace core::socket::ip::socket::ipv6
 
 #endif // NET_SOCKET_IP_ADDRESS_IPV6_INETADDRESS_H

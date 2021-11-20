@@ -21,7 +21,7 @@
 
 #include "core/socket/stream/SocketContext.h" // IWYU pragma: export
 
-namespace net::socket::stream {
+namespace core::socket::stream {
     class SocketConnection;
 }
 
@@ -37,14 +37,14 @@ namespace web::http {
 namespace web::http {
 
     template <typename RequestT, typename ResponseT>
-    class SocketContextUpgrade : public net::socket::stream::SocketContext {
+    class SocketContextUpgrade : public core::socket::stream::SocketContext {
     public:
         using Request = RequestT;
         using Response = ResponseT;
 
-        SocketContextUpgrade(net::socket::stream::SocketConnection* socketConnection,
+        SocketContextUpgrade(core::socket::stream::SocketConnection* socketConnection,
                              SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory)
-            : net::socket::stream::SocketContext(socketConnection)
+            : core::socket::stream::SocketContext(socketConnection)
             , socketContextUpgradeFactory(socketContextUpgradeFactory) {
             socketContextUpgradeFactory->incRefCount();
         }
@@ -53,7 +53,7 @@ namespace web::http {
             socketContextUpgradeFactory->decRefCount();
         }
 
-        using net::socket::stream::SocketContext::setTimeout;
+        using core::socket::stream::SocketContext::setTimeout;
 
     protected:
         SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory = nullptr;

@@ -24,7 +24,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net {
+namespace core {
 
     ExceptionalConditionEventReceiver::ExceptionalConditionEventReceiver(long timeout)
         : EventReceiver(EventLoop::instance().getExceptionalConditionEventDispatcher(), timeout) {

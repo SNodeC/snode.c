@@ -26,11 +26,11 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::socket::ip::transport::tcp::tls::ipv6 {
+namespace core::socket::ip::transport::tcp::tls::ipv6 {
 
     template <typename SocketContextFactoryT>
-    using SocketServer = net::socket::ip::transport::tcp::tls::SocketServer<socket::ipv6::stream::ServerSocket, SocketContextFactoryT>;
+    using SocketServer = core::socket::ip::transport::tcp::tls::SocketServer<socket::ipv6::stream::ServerSocket, SocketContextFactoryT>;
 
-} // namespace net::socket::ip::transport::tcp::tls::ipv6
+} // namespace core::socket::ip::transport::tcp::tls::ipv6
 
 #endif // NET_SOCKET_IP_TRANSPORT_TCP_TLS_IPV6_SOCKETSERVER_H

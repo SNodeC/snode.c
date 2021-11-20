@@ -33,11 +33,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::stream::tls {
+namespace core::socket::stream::tls {
 
     template <typename SocketT>
-    class SocketReader : public net::socket::stream::SocketReader<SocketT> {
-        using net::socket::stream::SocketReader<SocketT>::SocketReader;
+    class SocketReader : public core::socket::stream::SocketReader<SocketT> {
+        using core::socket::stream::SocketReader<SocketT>::SocketReader;
 
     private:
         ssize_t read(char* junk, std::size_t junkLen) override {
@@ -106,7 +106,7 @@ namespace net::socket::stream::tls {
         }
 
         bool continueReadImmediately() override {
-            return SSL_pending(ssl) || net::socket::stream::SocketReader<SocketT>::continueReadImmediately();
+            return SSL_pending(ssl) || core::socket::stream::SocketReader<SocketT>::continueReadImmediately();
         }
 
     protected:
@@ -123,6 +123,6 @@ namespace net::socket::stream::tls {
         int sslErr = SSL_ERROR_NONE;
     };
 
-} // namespace net::socket::stream::tls
+} // namespace core::socket::stream::tls
 
 #endif // NET_SOCKET_STREAM_TLS_SOCKETREADER_H

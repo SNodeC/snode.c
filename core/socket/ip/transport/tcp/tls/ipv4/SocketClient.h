@@ -26,11 +26,11 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::socket::ip::transport::tcp::tls::ipv4 {
+namespace core::socket::ip::transport::tcp::tls::ipv4 {
 
     template <typename SocketContextFactoryT>
-    using SocketClient = net::socket::ip::transport::tcp::tls::SocketClient<socket::ipv4::stream::ClientSocket, SocketContextFactoryT>;
+    using SocketClient = core::socket::ip::transport::tcp::tls::SocketClient<socket::ipv4::stream::ClientSocket, SocketContextFactoryT>;
 
-} // namespace net::socket::ip::transport::tcp::tls::ipv4
+} // namespace core::socket::ip::transport::tcp::tls::ipv4
 
 #endif // NET_SOCKET_IP_TRANSPORT_TCP_TLS_IPV4_SOCKETCLIENT_H

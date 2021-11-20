@@ -31,7 +31,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::system {
+namespace core::system {
 
     // #include <sys/socket.h>
     int getsockname(int sockfd, struct sockaddr* addr, socklen_t* addrlen);
@@ -49,6 +49,6 @@ namespace net::system {
     int getsockopt(int sockfd, int level, int optname, void* optval, socklen_t* optlen);
     int setsockopt(int sockfd, int level, int optname, const void* optval, socklen_t optlen);
 
-} // namespace net::system
+} // namespace core::system
 
 #endif // NET_SYSTEM_SOCKET_H

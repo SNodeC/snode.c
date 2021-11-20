@@ -25,11 +25,11 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::socket::ip::transport::tcp::tls {
+namespace core::socket::ip::transport::tcp::tls {
 
     template <typename ClientSocketT, typename SocketContextFactoryT>
-    using SocketClient = net::socket::stream::tls::SocketClient<ClientSocketT, SocketContextFactoryT>;
+    using SocketClient = core::socket::stream::tls::SocketClient<ClientSocketT, SocketContextFactoryT>;
 
-} // namespace net::socket::ip::transport::tcp::tls
+} // namespace core::socket::ip::transport::tcp::tls
 
 #endif // NET_SOCKET_IP_TRANSPORT_TCP_TLS_SOCKETCLIENT_H

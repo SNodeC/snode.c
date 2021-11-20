@@ -29,11 +29,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::system {
+namespace core::system {
 
     // #include <csignal>
     sighandler_t signal(int signum, sighandler_t handler);
 
-} // namespace net::system
+} // namespace core::system
 
 #endif // NET_SYSTEM_SIGNAL_H

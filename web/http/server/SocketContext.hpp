@@ -21,9 +21,9 @@
 #include "web/http/http_utils.h"
 #include "web/http/server/SocketContext.h"
 
-namespace net::socket::stream {
+namespace core::socket::stream {
     class SocketConnection;
-} // namespace net::socket::stream
+} // namespace core::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -34,7 +34,7 @@ namespace net::socket::stream {
 namespace web::http::server {
 
     template <typename Request, typename Response>
-    SocketContext<Request, Response>::SocketContext(net::socket::stream::SocketConnection* socketConnection,
+    SocketContext<Request, Response>::SocketContext(core::socket::stream::SocketConnection* socketConnection,
                                                     const std::function<void(Request&, Response&)>& onRequestReady)
         : web::http::SocketContext(socketConnection)
         , onRequestReady(onRequestReady)

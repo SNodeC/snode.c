@@ -24,7 +24,7 @@
 #include "core/system/socket.h"
 #include "core/system/unistd.h"
 
-namespace net::socket::stream {
+namespace core::socket::stream {
     class SocketContextFactory;
 }
 
@@ -37,7 +37,7 @@ namespace net::socket::stream {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::stream {
+namespace core::socket::stream {
 
     template <typename SocketConnectionT>
     class SocketAcceptor
@@ -89,7 +89,7 @@ namespace net::socket::stream {
                                     onError(errnum);
                                     destruct();
                                 } else {
-                                    int ret = net::system::listen(SocketAcceptor::getFd(), backlog);
+                                    int ret = core::system::listen(SocketAcceptor::getFd(), backlog);
 
                                     if (ret == 0) {
                                         AcceptEventReceiver::enable(SocketAcceptor::getFd());
@@ -112,7 +112,7 @@ namespace net::socket::stream {
         void reuseAddress(const std::function<void(int)>& onError) {
             int sockopt = 1;
 
-            if (net::system::setsockopt(SocketAcceptor::getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
+            if (core::system::setsockopt(SocketAcceptor::getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
                 onError(errno);
             } else {
                 onError(0);
@@ -125,22 +125,22 @@ namespace net::socket::stream {
 
             int fd = -1;
 
-            fd = net::system::accept4(
+            fd = core::system::accept4(
                 SocketAcceptor::getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &remoteAddressLength, SOCK_NONBLOCK);
 
             if (fd >= 0) {
                 typename SocketAddress::SockAddr localAddress{};
                 socklen_t addressLength = sizeof(localAddress);
 
-                if (net::system::getsockname(fd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
+                if (core::system::getsockname(fd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
                     SocketConnection* socketConnection = new SocketConnection(
                         fd, socketContextFactory, SocketAddress(localAddress), SocketAddress(remoteAddress), onConnect, onDisconnect);
 
                     onConnected(socketConnection);
                 } else {
                     PLOG(ERROR) << "getsockname";
-                    net::system::shutdown(fd, SHUT_RDWR);
-                    net::system::close(fd);
+                    core::system::shutdown(fd, SHUT_RDWR);
+                    core::system::close(fd);
                 }
             } else if (errno != EINTR) {
                 PLOG(ERROR) << "accept";
@@ -172,6 +172,6 @@ namespace net::socket::stream {
         std::function<void(SocketConnection*)> onDisconnect;
     };
 
-} // namespace net::socket::stream
+} // namespace core::socket::stream
 
 #endif // NET_SOCKET_STREAM_SOCKETACCEPTOR_H

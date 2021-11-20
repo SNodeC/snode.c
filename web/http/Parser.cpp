@@ -34,7 +34,7 @@ namespace web::http {
     // HTTP/x.x
     std::regex Parser::httpVersionRegex("^HTTP/([[:digit:]])\\.([[:digit:]])$");
 
-    Parser::Parser(net::socket::stream::SocketContext* socketContext, const enum Parser::HTTPCompliance& compliance)
+    Parser::Parser(core::socket::stream::SocketContext* socketContext, const enum Parser::HTTPCompliance& compliance)
         : hTTPCompliance(compliance)
         , socketContext(socketContext) {
     }

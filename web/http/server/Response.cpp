@@ -140,7 +140,7 @@ namespace web::http::server {
 
         opts.erase("Max-Age");
         time_t time = 0;
-        opts["Expires"] = httputils::to_http_date(net::system::gmtime(&time));
+        opts["Expires"] = httputils::to_http_date(core::system::gmtime(&time));
 
         return cookie(name, "", opts);
     }

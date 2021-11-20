@@ -31,15 +31,15 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::stream::legacy {
+namespace core::socket::stream::legacy {
 
     template <typename SocketT>
-    class SocketReader : public net::socket::stream::SocketReader<SocketT> {
-        using net::socket::stream::SocketReader<SocketT>::SocketReader;
+    class SocketReader : public core::socket::stream::SocketReader<SocketT> {
+        using core::socket::stream::SocketReader<SocketT>::SocketReader;
 
     private:
         ssize_t read(char* junk, std::size_t junkLen) override {
-            return net::system::recv(this->getFd(), junk, junkLen, 0);
+            return core::system::recv(this->getFd(), junk, junkLen, 0);
         }
 
         int getError() override {
@@ -47,10 +47,10 @@ namespace net::socket::stream::legacy {
         }
 
         bool continueReadImmediately() override {
-            return net::socket::stream::SocketReader<SocketT>::continueReadImmediately();
+            return core::socket::stream::SocketReader<SocketT>::continueReadImmediately();
         }
     };
 
-} // namespace net::socket::stream::legacy
+} // namespace core::socket::stream::legacy
 
 #endif // NET_SOCKET_STREAM_LEGACY_SOCKETREADER_H

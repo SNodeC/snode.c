@@ -29,10 +29,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::stream::tls {
+namespace core::socket::stream::tls {
 
     template <typename SocketT>
-    class SocketConnector : public net::socket::stream::SocketConnector<tls::SocketConnection<SocketT>> {
+    class SocketConnector : public core::socket::stream::SocketConnector<tls::SocketConnection<SocketT>> {
     private:
         using Socket = SocketT;
 
@@ -45,7 +45,7 @@ namespace net::socket::stream::tls {
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,
                         const std::map<std::string, std::any>& options)
-            : net::socket::stream::SocketConnector<SocketConnection>(
+            : core::socket::stream::SocketConnector<SocketConnection>(
                   socketContextFactory,
                   onConnect,
                   [onConnected, this](SocketConnection* socketConnection) -> void { // onConnect
@@ -93,9 +93,9 @@ namespace net::socket::stream::tls {
             if (ctx == nullptr) {
                 errno = EINVAL;
                 onError(errno);
-                net::socket::stream::SocketConnector<SocketConnection>::destruct();
+                core::socket::stream::SocketConnector<SocketConnection>::destruct();
             } else {
-                net::socket::stream::SocketConnector<SocketConnection>::connect(remoteAddress, bindAddress, onError);
+                core::socket::stream::SocketConnector<SocketConnection>::connect(remoteAddress, bindAddress, onError);
             }
         }
 
@@ -103,6 +103,6 @@ namespace net::socket::stream::tls {
         SSL_CTX* ctx = nullptr;
     };
 
-} // namespace net::socket::stream::tls
+} // namespace core::socket::stream::tls
 
 #endif // NET_SOCKET_STREAM_TLS_SOCKETCONNECTOR_H

@@ -31,7 +31,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::system {
+namespace core::system {
 
     // #include <sys/types.h>, #include <sys/socket.h>, #include <netdb.h>
     int getaddrinfo(const char* node, const char* service, const struct addrinfo* hints, struct addrinfo** res);
@@ -43,6 +43,6 @@ namespace net::system {
     int
     getnameinfo(const struct sockaddr* addr, socklen_t addrlen, char* host, socklen_t hostlen, char* serv, socklen_t servlen, int flags);
 
-} // namespace net::system
+} // namespace core::system
 
 #endif // NET_SYSTEM_NETDB_H

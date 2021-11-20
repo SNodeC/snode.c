@@ -22,7 +22,7 @@
 #include "core/ConnectEventReceiver.h"
 #include "core/system/socket.h"
 
-namespace net::socket::stream {
+namespace core::socket::stream {
     class SocketContextFactory;
 }
 
@@ -39,7 +39,7 @@ namespace net::socket::stream {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::stream {
+namespace core::socket::stream {
 
     template <typename SocketConnectionT>
     class SocketConnector
@@ -82,7 +82,7 @@ namespace net::socket::stream {
                                 onError(errnum);
                                 destruct();
                             } else {
-                                int ret = net::system::connect(
+                                int ret = core::system::connect(
                                     SocketConnector::getFd(), &remoteAddress.getSockAddr(), remoteAddress.getSockAddrLen());
 
                                 if (ret == 0 || errno == EINPROGRESS) {
@@ -104,7 +104,7 @@ namespace net::socket::stream {
             int cErrno = -1;
             socklen_t cErrnoLen = sizeof(cErrno);
 
-            int err = net::system::getsockopt(SocketConnector::getFd(), SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);
+            int err = core::system::getsockopt(SocketConnector::getFd(), SOL_SOCKET, SO_ERROR, &cErrno, &cErrnoLen);
 
             if (err == 0) {
                 errno = cErrno;
@@ -116,9 +116,9 @@ namespace net::socket::stream {
                         typename SocketAddress::SockAddr remoteAddress{};
                         socklen_t remoteAddressLength = sizeof(remoteAddress);
 
-                        if (net::system::getsockname(
+                        if (core::system::getsockname(
                                 SocketConnector::getFd(), reinterpret_cast<sockaddr*>(&localAddress), &localAddressLength) == 0 &&
-                            net::system::getpeername(
+                            core::system::getpeername(
                                 SocketConnector::getFd(), reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) == 0) {
                             SocketConnection* socketConnection = new SocketConnection(SocketConnector::getFd(),
                                                                                       socketContextFactory,
@@ -170,6 +170,6 @@ namespace net::socket::stream {
         std::function<void(SocketConnection*)> onDisconnect;
     };
 
-} // namespace net::socket::stream
+} // namespace core::socket::stream
 
 #endif // NET_SOCKET_STREAM_SOCKETCONNECTOR_H

@@ -26,11 +26,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::bluetooth::l2cap {
+namespace core::socket::bluetooth::l2cap {
 
     template <typename SocketContextFactoryT>
-    using SocketServer = net::socket::stream::legacy::SocketServer<l2cap::ServerSocket, SocketContextFactoryT>;
+    using SocketServer = core::socket::stream::legacy::SocketServer<l2cap::ServerSocket, SocketContextFactoryT>;
 
-} // namespace net::socket::bluetooth::l2cap
+} // namespace core::socket::bluetooth::l2cap
 
 #endif // NET_SOCKET_BLUETOOTH_L2CAP_SOCKETSERVER_H

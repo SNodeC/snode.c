@@ -21,9 +21,9 @@
 
 #include "core/socket/stream/SocketContextFactory.h"
 
-namespace net::socket::stream {
+namespace core::socket::stream {
     class SocketConnection;
-} // namespace net::socket::stream
+} // namespace core::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,7 +31,7 @@ namespace net::socket::stream {
 
 namespace web::http {
     template <template <typename RequestT, typename ResponseT> class SocketContextT, typename RequestT, typename ResponseT>
-    class SocketContextFactory : public net::socket::stream::SocketContextFactory {
+    class SocketContextFactory : public core::socket::stream::SocketContextFactory {
     public:
         using SocketContext = SocketContextT<RequestT, ResponseT>;
         using Request = RequestT;

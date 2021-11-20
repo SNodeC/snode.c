@@ -24,9 +24,9 @@
 #include "web/websocket/Receiver.h"
 #include "web/websocket/Transmitter.h"
 
-namespace net::socket::stream {
+namespace core::socket::stream {
     class SocketConnection;
-} // namespace net::socket::stream
+} // namespace core::socket::stream
 
 namespace web::http {
     template <typename RequestT, typename ResponseT>
@@ -64,7 +64,7 @@ namespace web::websocket {
         enum class Role { SERVER, CLIENT };
 
     protected:
-        SocketContextUpgrade(net::socket::stream::SocketConnection* socketConnection,
+        SocketContextUpgrade(core::socket::stream::SocketConnection* socketConnection,
                              web::http::SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory,
                              SubProtocol* subProtocol,
                              Role role)

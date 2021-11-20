@@ -25,11 +25,11 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::socket::ip::transport::tcp::legacy {
+namespace core::socket::ip::transport::tcp::legacy {
 
     template <typename ClientSocketT, typename SocketContextFactoryT>
-    using SocketClient = net::socket::stream::legacy::SocketClient<ClientSocketT, SocketContextFactoryT>;
+    using SocketClient = core::socket::stream::legacy::SocketClient<ClientSocketT, SocketContextFactoryT>;
 
-} // namespace net::socket::ip::transport::tcp::legacy
+} // namespace core::socket::ip::transport::tcp::legacy
 
 #endif // NET_SOCKET_IP_TRANSPORT_TCP_LEGACY_SOCKETCLIENT_H

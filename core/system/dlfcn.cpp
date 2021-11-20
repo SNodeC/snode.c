@@ -22,7 +22,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::system {
+namespace core::system {
 
     void* dlopen(const char* filename, int flags) {
         return ::dlopen(filename, flags);
@@ -40,4 +40,4 @@ namespace net::system {
         return ::dlerror();
     }
 
-} // namespace net::system
+} // namespace core::system

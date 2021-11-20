@@ -24,7 +24,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::system {
+namespace core::system {
 
     int open(const char* pathname, int flags) {
         errno = 0;
@@ -51,4 +51,4 @@ namespace net::system {
         return ::pipe2(pipefd, flags);
     }
 
-} // namespace net::system
+} // namespace core::system

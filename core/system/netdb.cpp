@@ -24,7 +24,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::system {
+namespace core::system {
 
     int getaddrinfo(const char* node, const char* service, const struct addrinfo* hints, struct addrinfo** res) {
         errno = 0;
@@ -42,4 +42,4 @@ namespace net::system {
         return ::getnameinfo(addr, addrlen, host, hostlen, serv, servlen, flags);
     }
 
-} // namespace net::system
+} // namespace core::system

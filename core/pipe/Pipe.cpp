@@ -29,7 +29,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::pipe {
+namespace core::pipe {
 
     Pipe::Pipe(const std::function<void(PipeSource& pipeSource, PipeSink& pipsSink)>& onSuccess,
                const std::function<void(int err)>& onError) {
@@ -42,4 +42,4 @@ namespace net::pipe {
         }
     }
 
-} // namespace net::pipe
+} // namespace core::pipe

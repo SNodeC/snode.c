@@ -27,11 +27,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::ip::socket::ipv6::stream {
+namespace core::socket::ip::socket::ipv6::stream {
 
     class ServerSocket {
     public:
-        using Socket = net::socket::ip::socket::ipv6::stream::Socket;
+        using Socket = core::socket::ip::socket::ipv6::stream::Socket;
         using SocketAddress = Socket::SocketAddress;
 
         virtual void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const = 0;
@@ -49,6 +49,6 @@ namespace net::socket::ip::socket::ipv6::stream {
         }
     };
 
-} // namespace net::socket::ip::socket::ipv6::stream
+} // namespace core::socket::ip::socket::ipv6::stream
 
 #endif // NET_SOCKET_IP_SOCKET_IPV6_STREAM_SERVERSOCKET_H

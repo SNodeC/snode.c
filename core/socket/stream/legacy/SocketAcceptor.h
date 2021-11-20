@@ -26,10 +26,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::stream::legacy {
+namespace core::socket::stream::legacy {
 
     template <typename SocketT>
-    class SocketAcceptor : public net::socket::stream::SocketAcceptor<legacy::SocketConnection<SocketT>> {
+    class SocketAcceptor : public core::socket::stream::SocketAcceptor<legacy::SocketConnection<SocketT>> {
     private:
         using Socket = SocketT;
 
@@ -42,7 +42,7 @@ namespace net::socket::stream::legacy {
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,
                        const std::map<std::string, std::any>& options)
-            : net::socket::stream::SocketAcceptor<SocketConnection>(
+            : core::socket::stream::SocketAcceptor<SocketConnection>(
                   socketContextFactory,
                   onConnect,
                   [onConnected](SocketConnection* socketConnection) -> void {
@@ -54,6 +54,6 @@ namespace net::socket::stream::legacy {
         }
     };
 
-} // namespace net::socket::stream::legacy
+} // namespace core::socket::stream::legacy
 
 #endif // NET_SOCKET_STREAM_LEGACY_SOCKETACCEPTOR_H

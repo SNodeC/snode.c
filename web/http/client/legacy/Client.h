@@ -31,40 +31,40 @@
 namespace web::http::client::legacy {
 
     template <typename Request, typename Response>
-    class Client : public web::http::client::Client<net::socket::ip::transport::tcp::legacy::ipv4::SocketClient, Request, Response> {
-        using web::http::client::Client<net::socket::ip::transport::tcp::legacy::ipv4::SocketClient, Request, Response>::Client;
+    class Client : public web::http::client::Client<core::socket::ip::transport::tcp::legacy::ipv4::SocketClient, Request, Response> {
+        using web::http::client::Client<core::socket::ip::transport::tcp::legacy::ipv4::SocketClient, Request, Response>::Client;
 
     protected:
         using SocketClient =
-            net::socket::ip::transport::tcp::legacy::ipv4::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
+            core::socket::ip::transport::tcp::legacy::ipv4::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
 
     public:
-        using web::http::client::Client<net::socket::ip::transport::tcp::legacy::ipv4::SocketClient, Request, Response>::connect;
+        using web::http::client::Client<core::socket::ip::transport::tcp::legacy::ipv4::SocketClient, Request, Response>::connect;
     };
 
     template <typename Request = web::http::client::Request, typename Response = web::http::client::Response>
-    class Client6 : public web::http::client::Client<net::socket::ip::transport::tcp::legacy::ipv6::SocketClient, Request, Response> {
-        using web::http::client::Client<net::socket::ip::transport::tcp::legacy::ipv6::SocketClient, Request, Response>::Client;
+    class Client6 : public web::http::client::Client<core::socket::ip::transport::tcp::legacy::ipv6::SocketClient, Request, Response> {
+        using web::http::client::Client<core::socket::ip::transport::tcp::legacy::ipv6::SocketClient, Request, Response>::Client;
 
     protected:
         using SocketClient =
-            net::socket::ip::transport::tcp::legacy::ipv6::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
+            core::socket::ip::transport::tcp::legacy::ipv6::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
 
     public:
-        using web::http::client::Client<net::socket::ip::transport::tcp::legacy::ipv6::SocketClient, Request, Response>::connect;
+        using web::http::client::Client<core::socket::ip::transport::tcp::legacy::ipv6::SocketClient, Request, Response>::connect;
     };
 
     template <typename Request = web::http::client::Request, typename Response = web::http::client::Response>
-    class ClientRfComm : public web::http::client::Client<net::socket::bluetooth::rfcomm::legacy::SocketClient, Request, Response> {
-        using web::http::client::Client<net::socket::bluetooth::rfcomm::legacy::SocketClient, Request, Response>::Client;
+    class ClientRfComm : public web::http::client::Client<core::socket::bluetooth::rfcomm::legacy::SocketClient, Request, Response> {
+        using web::http::client::Client<core::socket::bluetooth::rfcomm::legacy::SocketClient, Request, Response>::Client;
 
     public:
         using SocketClient =
-            net::socket::bluetooth::rfcomm::legacy::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
+            core::socket::bluetooth::rfcomm::legacy::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
 
         using SocketAddress = typename SocketClient::SocketAddress;
 
-        using web::http::client::Client<net::socket::bluetooth::rfcomm::legacy::SocketClient, Request, Response>::connect;
+        using web::http::client::Client<core::socket::bluetooth::rfcomm::legacy::SocketClient, Request, Response>::connect;
     };
 
 } // namespace web::http::client::legacy

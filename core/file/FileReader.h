@@ -30,19 +30,19 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::pipe {
+namespace core::pipe {
     class Sink;
 }
 
 class FileReader
-    : public net::ReadEventReceiver
-    , public net::pipe::Source
+    : public core::ReadEventReceiver
+    , public core::pipe::Source
     , virtual public File {
 protected:
-    FileReader(int fd, net::pipe::Sink& writeStream);
+    FileReader(int fd, core::pipe::Sink& writeStream);
 
 public:
-    static FileReader* connect(const std::string& path, net::pipe::Sink& writeStream, const std::function<void(int err)>& onError);
+    static FileReader* connect(const std::string& path, core::pipe::Sink& writeStream, const std::function<void(int err)>& onError);
 
     void readEvent() override;
 

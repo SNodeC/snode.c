@@ -50,9 +50,9 @@ namespace web::http {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-using namespace net::socket::ip;
-using namespace net::socket::ip::socket::ipv4;
-using namespace net::socket::stream;
+using namespace core::socket::ip;
+using namespace core::socket::ip::socket::ipv4;
+using namespace core::socket::stream;
 
 static web::http::client::ResponseParser* getResponseParser(SocketContext* socketContext) {
     web::http::client::ResponseParser* responseParser = new web::http::client::ResponseParser(
@@ -96,7 +96,7 @@ static web::http::client::ResponseParser* getResponseParser(SocketContext* socke
 
 class SimpleSocketProtocol : public SocketContext {
 public:
-    explicit SimpleSocketProtocol(net::socket::stream::SocketConnection* socketConnection)
+    explicit SimpleSocketProtocol(core::socket::stream::SocketConnection* socketConnection)
         : SocketContext(socketConnection) {
         responseParser = getResponseParser(this);
     }
@@ -121,9 +121,9 @@ private:
     web::http::client::ResponseParser* responseParser;
 };
 
-class SimpleSocketProtocolFactory : public net::socket::stream::SocketContextFactory {
+class SimpleSocketProtocolFactory : public core::socket::stream::SocketContextFactory {
 private:
-    SocketContext* create(net::socket::stream::SocketConnection* socketConnection) override {
+    SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
         return new SimpleSocketProtocol(socketConnection);
     }
 };
@@ -213,10 +213,10 @@ tls::SocketClient<socket::ipv4::stream::ClientSocket, SimpleSocketProtocolFactor
 }
 
 legacy::SocketClient<socket::ipv4::stream::ClientSocket, SimpleSocketProtocolFactory> getLegacyClient() {
-    net::socket::stream::legacy::SocketClient<socket::ipv4::stream::ClientSocket, SimpleSocketProtocolFactory> legacyClient(
-        [](const net::socket::stream::legacy::SocketClient<socket::ipv4::stream::ClientSocket, SimpleSocketProtocolFactory>::SocketAddress&
+    core::socket::stream::legacy::SocketClient<socket::ipv4::stream::ClientSocket, SimpleSocketProtocolFactory> legacyClient(
+        [](const core::socket::stream::legacy::SocketClient<socket::ipv4::stream::ClientSocket, SimpleSocketProtocolFactory>::SocketAddress&
                localAddress,
-           const net::socket::stream::legacy::SocketClient<socket::ipv4::stream::ClientSocket, SimpleSocketProtocolFactory>::SocketAddress&
+           const core::socket::stream::legacy::SocketClient<socket::ipv4::stream::ClientSocket, SimpleSocketProtocolFactory>::SocketAddress&
                remoteAddress) -> void { // OnConnect
             VLOG(0) << "OnConnect";
 
@@ -254,12 +254,12 @@ legacy::SocketClient<socket::ipv4::stream::ClientSocket, SimpleSocketProtocolFac
 }
 
 int main(int argc, char* argv[]) {
-    net::SNodeC::init(argc, argv);
+    core::SNodeC::init(argc, argv);
 
     {
         InetAddress remoteAddress("localhost", 8080);
 
-        net::socket::stream::legacy::SocketClient<socket::ipv4::stream::ClientSocket, SimpleSocketProtocolFactory> legacyClient =
+        core::socket::stream::legacy::SocketClient<socket::ipv4::stream::ClientSocket, SimpleSocketProtocolFactory> legacyClient =
             getLegacyClient();
 
         legacyClient.connect(remoteAddress, [](int err) -> void { // example.com:81 simulate connnect timeout
@@ -283,5 +283,5 @@ int main(int argc, char* argv[]) {
         });
     }
 
-    return net::SNodeC::start();
+    return core::SNodeC::start();
 }

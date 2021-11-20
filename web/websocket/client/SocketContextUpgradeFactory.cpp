@@ -41,7 +41,7 @@ namespace web::websocket::client {
         return "websocket";
     }
 
-    SocketContextUpgrade* SocketContextUpgradeFactory::create(net::socket::stream::SocketConnection* socketConnection,
+    SocketContextUpgrade* SocketContextUpgradeFactory::create(core::socket::stream::SocketConnection* socketConnection,
                                                               web::http::client::Request* request,
                                                               web::http::client::Response* response) {
         SocketContextUpgrade* socketContext = nullptr;

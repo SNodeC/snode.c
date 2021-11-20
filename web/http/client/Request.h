@@ -36,7 +36,7 @@ namespace web::http {
 
 namespace web::http::client {
 
-    class Request : public net::pipe::Sink {
+    class Request : public core::pipe::Sink {
     protected:
         explicit Request(SocketContext* clientContext);
 

@@ -29,16 +29,16 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-FileReader::FileReader(int fd, net::pipe::Sink& sink)
+FileReader::FileReader(int fd, core::pipe::Sink& sink)
     : Descriptor(fd) {
     ReadEventReceiver::enable(fd);
     Source::connect(sink);
 }
 
-FileReader* FileReader::connect(const std::string& path, net::pipe::Sink& writeStream, const std::function<void(int err)>& onError) {
+FileReader* FileReader::connect(const std::string& path, core::pipe::Sink& writeStream, const std::function<void(int err)>& onError) {
     FileReader* fileReader = nullptr;
 
-    int fd = net::system::open(path.c_str(), O_RDONLY);
+    int fd = core::system::open(path.c_str(), O_RDONLY);
 
     if (fd >= 0) {
         fileReader = new FileReader(fd, writeStream);
@@ -53,7 +53,7 @@ void FileReader::readEvent() {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
     static char junk[MFREADSIZE];
 
-    ssize_t ret = net::system::read(getFd(), junk, MFREADSIZE);
+    ssize_t ret = core::system::read(getFd(), junk, MFREADSIZE);
 
     if (ret > 0) {
         this->send(junk, static_cast<std::size_t>(ret));

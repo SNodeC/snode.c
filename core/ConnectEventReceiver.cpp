@@ -24,7 +24,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net {
+namespace core {
 
     ConnectEventReceiver::ConnectEventReceiver(long timeout)
         : EventReceiver(EventLoop::instance().getWriteEventDispatcher(), timeout) {

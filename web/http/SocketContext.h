@@ -27,12 +27,12 @@
 
 namespace web::http {
 
-    class SocketContext : public net::socket::stream::SocketContext {
+    class SocketContext : public core::socket::stream::SocketContext {
     public:
-        using SocketConnection = net::socket::stream::SocketConnection;
+        using SocketConnection = core::socket::stream::SocketConnection;
 
     protected:
-        using net::socket::stream::SocketContext::SocketContext;
+        using core::socket::stream::SocketContext::SocketContext;
 
         SocketContext(const SocketContext&) = delete;
         SocketContext& operator=(const SocketContext&) = delete;

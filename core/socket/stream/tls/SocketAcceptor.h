@@ -34,10 +34,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::stream::tls {
+namespace core::socket::stream::tls {
 
     template <typename SocketT>
-    class SocketAcceptor : public net::socket::stream::SocketAcceptor<tls::SocketConnection<SocketT>> {
+    class SocketAcceptor : public core::socket::stream::SocketAcceptor<tls::SocketConnection<SocketT>> {
     private:
         using Socket = SocketT;
 
@@ -50,7 +50,7 @@ namespace net::socket::stream::tls {
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,
                        const std::map<std::string, std::any>& options)
-            : net::socket::stream::SocketAcceptor<SocketConnection>(
+            : core::socket::stream::SocketAcceptor<SocketConnection>(
                   socketContextFactory,
                   onConnect,
                   [onConnected, this](SocketConnection* socketConnection) -> void {
@@ -102,9 +102,9 @@ namespace net::socket::stream::tls {
             if (masterSslCtx == nullptr) {
                 errno = EINVAL;
                 onError(errno);
-                net::socket::stream::SocketAcceptor<SocketConnection>::destruct();
+                core::socket::stream::SocketAcceptor<SocketConnection>::destruct();
             } else {
-                net::socket::stream::SocketAcceptor<SocketConnection>::listen(localAddress, backlog, onError);
+                core::socket::stream::SocketAcceptor<SocketConnection>::listen(localAddress, backlog, onError);
             }
         }
 
@@ -176,6 +176,6 @@ namespace net::socket::stream::tls {
         std::shared_ptr<std::map<std::string, SSL_CTX*>> sniSslCtxs;
     };
 
-} // namespace net::socket::stream::tls
+} // namespace core::socket::stream::tls
 
 #endif // NET_SOCKET_STREAM_TLS_SOCKETACCEPTOR_H

@@ -21,7 +21,7 @@
 
 #include "core/socket/stream/SocketContextFactory.h" // IWYU pragma: export
 
-namespace net::socket::stream {
+namespace core::socket::stream {
     class SocketContext;
 }
 
@@ -39,7 +39,7 @@ namespace web::http {
 namespace web::http {
 
     template <typename RequestT, typename ResponseT>
-    class SocketContextUpgradeFactory : public net::socket::stream::SocketContextFactory {
+    class SocketContextUpgradeFactory : public core::socket::stream::SocketContextFactory {
     public:
         using Request = RequestT;
         using Response = ResponseT;
@@ -73,9 +73,9 @@ namespace web::http {
         Response* response;
 
         virtual SocketContextUpgrade<Request, Response>*
-        create(net::socket::stream::SocketConnection* socketConnection, Request* request, Response* response) = 0;
+        create(core::socket::stream::SocketConnection* socketConnection, Request* request, Response* response) = 0;
 
-        net::socket::stream::SocketContext* create(net::socket::stream::SocketConnection* socketConnection) final;
+        core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) final;
 
         Role role;
     };

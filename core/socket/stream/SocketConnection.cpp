@@ -24,7 +24,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::stream {
+namespace core::socket::stream {
 
     SocketConnection::SocketConnection(const std::shared_ptr<SocketContextFactory>& socketContextFactory)
         : socketContext(socketContextFactory->create(this)) {
@@ -34,4 +34,4 @@ namespace net::socket::stream {
         return socketContext;
     }
 
-} // namespace net::socket::stream
+} // namespace core::socket::stream

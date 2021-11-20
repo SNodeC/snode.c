@@ -26,7 +26,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::ip::socket::ipv6 {
+namespace core::socket::ip::socket::ipv6 {
 
     std::string bad_hostname::message;
 
@@ -53,7 +53,7 @@ namespace net::socket::ip::socket::ipv6 {
         hints.ai_socktype = 0;
         hints.ai_flags = AI_ADDRCONFIG | AI_V4MAPPED;
 
-        int err = net::system::getaddrinfo(ipOrHostname.c_str(), nullptr, &hints, &res);
+        int err = core::system::getaddrinfo(ipOrHostname.c_str(), nullptr, &hints, &res);
 
         if (err != 0) {
             throw bad_hostname(ipOrHostname);
@@ -76,7 +76,7 @@ namespace net::socket::ip::socket::ipv6 {
             res = res->ai_next;
         }
 
-        net::system::freeaddrinfo(resalloc);
+        core::system::freeaddrinfo(resalloc);
     }
 
     InetAddress::InetAddress(uint16_t port) {
@@ -91,21 +91,21 @@ namespace net::socket::ip::socket::ipv6 {
 
     std::string InetAddress::host() const {
         char host[NI_MAXHOST];
-        net::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), host, 256, nullptr, 0, 0);
+        core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), host, 256, nullptr, 0, 0);
 
         return host;
     }
 
     std::string InetAddress::address() const {
         char ip[NI_MAXHOST];
-        net::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), ip, 256, nullptr, 0, NI_NUMERICHOST);
+        core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), ip, 256, nullptr, 0, NI_NUMERICHOST);
 
         return ip;
     }
 
     std::string InetAddress::serv() const {
         char serv[NI_MAXSERV];
-        net::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), nullptr, 0, serv, 256, 0);
+        core::system::getnameinfo(reinterpret_cast<const sockaddr*>(&sockAddr), sizeof(sockAddr), nullptr, 0, serv, 256, 0);
 
         return serv;
     }
@@ -114,4 +114,4 @@ namespace net::socket::ip::socket::ipv6 {
         return host() + ":" + std::to_string(port());
     }
 
-} // namespace net::socket::ip::socket::ipv6
+} // namespace core::socket::ip::socket::ipv6

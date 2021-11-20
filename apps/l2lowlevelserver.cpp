@@ -31,12 +31,12 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-using namespace net::socket::bluetooth::l2cap;
+using namespace core::socket::bluetooth::l2cap;
 
-class SimpleSocketProtocol : public net::socket::stream::SocketContext {
+class SimpleSocketProtocol : public core::socket::stream::SocketContext {
 public:
-    explicit SimpleSocketProtocol(net::socket::stream::SocketConnection* socketConnection)
-        : net::socket::stream::SocketContext(socketConnection) {
+    explicit SimpleSocketProtocol(core::socket::stream::SocketConnection* socketConnection)
+        : core::socket::stream::SocketContext(socketConnection) {
     }
 
     void onReceiveFromPeer() override {
@@ -60,17 +60,17 @@ public:
     }
 };
 
-class SimpleSocketProtocolFactory : public net::socket::stream::SocketContextFactory {
+class SimpleSocketProtocolFactory : public core::socket::stream::SocketContextFactory {
 public:
     ~SimpleSocketProtocolFactory() = default;
 
-    net::socket::stream::SocketContext* create(net::socket::stream::SocketConnection* socketConnection) override {
+    core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
         return new SimpleSocketProtocol(socketConnection);
     }
 };
 
 int main(int argc, char* argv[]) {
-    net::SNodeC::init(argc, argv);
+    core::SNodeC::init(argc, argv);
 
     SocketServer<SimpleSocketProtocolFactory> btServer(
         [](const SocketServer<SimpleSocketProtocolFactory>::SocketAddress& localAddress,
@@ -101,5 +101,5 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    return net::SNodeC::start();
+    return core::SNodeC::start();
 }

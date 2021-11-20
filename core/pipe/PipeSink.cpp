@@ -30,7 +30,7 @@
 #define MAX_READ_JUNKSIZE 16384
 #endif
 
-namespace net::pipe {
+namespace core::pipe {
 
     PipeSink::PipeSink(int fd)
         : Descriptor(fd) {
@@ -41,7 +41,7 @@ namespace net::pipe {
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
         static char junk[MAX_READ_JUNKSIZE];
 
-        ssize_t ret = net::system::read(getFd(), junk, MAX_READ_JUNKSIZE);
+        ssize_t ret = core::system::read(getFd(), junk, MAX_READ_JUNKSIZE);
 
         if (ret > 0) {
             if (onData) {
@@ -78,4 +78,4 @@ namespace net::pipe {
         delete this;
     }
 
-} // namespace net::pipe
+} // namespace core::pipe

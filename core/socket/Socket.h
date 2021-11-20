@@ -29,10 +29,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket {
+namespace core::socket {
 
     template <typename SocketAddressT>
-    class Socket : virtual public net::Descriptor {
+    class Socket : virtual public core::Descriptor {
     public:
         using SocketAddress = SocketAddressT;
 
@@ -57,7 +57,7 @@ namespace net::socket {
         }
 
         void bind(const SocketAddress& bindAddress, const std::function<void(int)>& onError) {
-            int ret = net::system::bind(getFd(), &bindAddress.getSockAddr(), sizeof(typename SocketAddress::SockAddr));
+            int ret = core::system::bind(getFd(), &bindAddress.getSockAddr(), sizeof(typename SocketAddress::SockAddr));
 
             if (ret < 0) {
                 onError(errno);
@@ -70,7 +70,7 @@ namespace net::socket {
         enum shutdown { WR = SHUT_WR, RD = SHUT_RD, RDWR = SHUT_RDWR };
 
         void shutdown(shutdown how) {
-            net::system::shutdown(getFd(), how);
+            core::system::shutdown(getFd(), how);
         }
 
         const SocketAddress& getBindAddress() const {
@@ -81,6 +81,6 @@ namespace net::socket {
         SocketAddress bindAddress{};
     };
 
-} // namespace net::socket
+} // namespace core::socket
 
 #endif // NET_SOCKET_SOCKET_H

@@ -29,7 +29,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net {
+namespace core {
 
     class DynamicLoader {
     private:
@@ -49,7 +49,7 @@ namespace net {
 
         template <typename Symbol>
         static Symbol dlSym(void* handle, const std::string& symbol) {
-            return reinterpret_cast<Symbol>(net::system::dlsym(handle, symbol.c_str()));
+            return reinterpret_cast<Symbol>(core::system::dlsym(handle, symbol.c_str()));
         }
 
         static char* dlError();

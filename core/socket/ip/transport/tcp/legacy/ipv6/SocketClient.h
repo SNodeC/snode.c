@@ -26,11 +26,11 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::socket::ip::transport::tcp::legacy::ipv6 {
+namespace core::socket::ip::transport::tcp::legacy::ipv6 {
 
     template <typename SocketContextFactoryT>
-    using SocketClient = net::socket::ip::transport::tcp::legacy::SocketClient<socket::ipv6::stream::ClientSocket, SocketContextFactoryT>;
+    using SocketClient = core::socket::ip::transport::tcp::legacy::SocketClient<socket::ipv6::stream::ClientSocket, SocketContextFactoryT>;
 
-} // namespace net::socket::ip::transport::tcp::legacy::ipv6
+} // namespace core::socket::ip::transport::tcp::legacy::ipv6
 
 #endif // NET_SOCKET_IP_TRANSPORT_TCP_LEGACY_IPV6_SOCKETCLIENT_H

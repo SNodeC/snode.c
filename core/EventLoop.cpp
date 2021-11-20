@@ -37,7 +37,7 @@
 #define MAX_WRITE_INACTIVITY 60
 #define MAX_OUTOFBAND_INACTIVITY 60
 
-namespace net {
+namespace core {
 
     static std::string getTickCounterAsString(const el::LogMessage*) {
         std::string tick = std::to_string(EventLoop::instance().getTickCounter());
@@ -99,7 +99,7 @@ namespace net {
             nextEventTimeout = std::max(nextEventTimeout, {0, 0});
             nextEventTimeout = std::min(nextEventTimeout, timeOut);
 
-            int counter = net::system::select(maxFd + 1,
+            int counter = core::system::select(maxFd + 1,
                                               &readEventDispatcher.getFdSet(),
                                               &writeEventDispatcher.getFdSet(),
                                               &exceptionalConditionEventDispatcher.getFdSet(),
@@ -110,7 +110,7 @@ namespace net {
 
                 timerEventDispatcher.dispatch();
 
-                struct timeval currentTime = {net::system::time(nullptr), 0};
+                struct timeval currentTime = {core::system::time(nullptr), 0};
 
                 nextDispatcherTimeout = readEventDispatcher.dispatchActiveEvents(currentTime);
                 nextEventTimeout = std::min(nextDispatcherTimeout, nextEventTimeout);
@@ -167,7 +167,7 @@ namespace net {
     void EventLoop::init(int argc, char* argv[]) {
         Logger::init(argc, argv);
 
-        Logger::setCustomFormatSpec("%tick", net::getTickCounterAsString);
+        Logger::setCustomFormatSpec("%tick", core::getTickCounterAsString);
 
         EventLoop::initialized = true;
     }
@@ -178,12 +178,12 @@ namespace net {
             exit(1);
         }
 
-        sighandler_t oldSigPipeHandler = net::system::signal(SIGPIPE, SIG_IGN);
-        sighandler_t oldSigQuitHandler = net::system::signal(SIGQUIT, EventLoop::stoponsig);
-        sighandler_t oldSigHubHandler = net::system::signal(SIGHUP, EventLoop::stoponsig);
-        sighandler_t oldSigIntHandler = net::system::signal(SIGINT, EventLoop::stoponsig);
-        sighandler_t oldSigTermHandler = net::system::signal(SIGTERM, EventLoop::stoponsig);
-        sighandler_t oldSigAbrtHandler = net::system::signal(SIGABRT, EventLoop::stoponsig);
+        sighandler_t oldSigPipeHandler = core::system::signal(SIGPIPE, SIG_IGN);
+        sighandler_t oldSigQuitHandler = core::system::signal(SIGQUIT, EventLoop::stoponsig);
+        sighandler_t oldSigHubHandler = core::system::signal(SIGHUP, EventLoop::stoponsig);
+        sighandler_t oldSigIntHandler = core::system::signal(SIGINT, EventLoop::stoponsig);
+        sighandler_t oldSigTermHandler = core::system::signal(SIGTERM, EventLoop::stoponsig);
+        sighandler_t oldSigAbrtHandler = core::system::signal(SIGABRT, EventLoop::stoponsig);
 
         if (!running) {
             running = true;
@@ -201,12 +201,12 @@ namespace net {
             running = false;
         }
 
-        net::system::signal(SIGPIPE, oldSigPipeHandler);
-        net::system::signal(SIGQUIT, oldSigQuitHandler);
-        net::system::signal(SIGHUP, oldSigHubHandler);
-        net::system::signal(SIGINT, oldSigIntHandler);
-        net::system::signal(SIGTERM, oldSigTermHandler);
-        net::system::signal(SIGABRT, oldSigAbrtHandler);
+        core::system::signal(SIGPIPE, oldSigPipeHandler);
+        core::system::signal(SIGQUIT, oldSigQuitHandler);
+        core::system::signal(SIGHUP, oldSigHubHandler);
+        core::system::signal(SIGINT, oldSigIntHandler);
+        core::system::signal(SIGTERM, oldSigTermHandler);
+        core::system::signal(SIGABRT, oldSigAbrtHandler);
 
         int returnReason = 0;
 
@@ -223,11 +223,11 @@ namespace net {
             exit(1);
         }
 
-        sighandler_t oldSigPipeHandler = net::system::signal(SIGPIPE, SIG_IGN);
+        sighandler_t oldSigPipeHandler = core::system::signal(SIGPIPE, SIG_IGN);
 
         TickStatus tickStatus = eventLoop._tick(timeOut);
 
-        net::system::signal(SIGPIPE, oldSigPipeHandler);
+        core::system::signal(SIGPIPE, oldSigPipeHandler);
 
         return tickStatus;
     }

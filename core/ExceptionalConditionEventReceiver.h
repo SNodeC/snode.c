@@ -27,7 +27,7 @@
 
 #define MAX_OUTOFBAND_INACTIVITY 60
 
-namespace net {
+namespace core {
 
     class ExceptionalConditionEventReceiver : public EventReceiver {
     protected:

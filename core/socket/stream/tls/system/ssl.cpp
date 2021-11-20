@@ -24,7 +24,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::ssl {
+namespace core::ssl {
 
     int SSL_read(SSL* ssl, void* buf, int num) {
         errno = 0;
@@ -35,4 +35,4 @@ namespace net::ssl {
         return ::SSL_write(ssl, buf, num);
     }
 
-} // namespace net::ssl
+} // namespace core::ssl

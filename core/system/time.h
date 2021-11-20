@@ -30,7 +30,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::system {
+namespace core::system {
 
     // #include <time.h> = <ctime>
     time_t time(time_t* tloc);
@@ -40,6 +40,6 @@ namespace net::system {
     // #include <sys/time.h>
     int gettimeofday(struct timeval* tv, struct timezone* tz);
 
-} // namespace net::system
+} // namespace core::system
 
 #endif // NET_SYSTEM_TIME_H

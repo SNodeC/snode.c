@@ -31,11 +31,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::socket::stream::tls {
+namespace core::socket::stream::tls {
 
     template <typename SocketT>
     class SocketConnection
-        : public net::socket::stream::SocketConnectionT<SocketReader<SocketT>, SocketWriter<SocketT>, typename SocketT::SocketAddress> {
+        : public core::socket::stream::SocketConnectionT<SocketReader<SocketT>, SocketWriter<SocketT>, typename SocketT::SocketAddress> {
     public:
         using Socket = SocketT;
         using SocketAddress = typename Socket::SocketAddress;
@@ -47,7 +47,7 @@ namespace net::socket::stream::tls {
                          const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                          const std::function<void(SocketConnection*)>& onDisconnect)
             : SocketConnection::Descriptor(fd)
-            , net::socket::stream::SocketConnectionT<SocketReader<Socket>, SocketWriter<Socket>, typename Socket::SocketAddress>::
+            , core::socket::stream::SocketConnectionT<SocketReader<Socket>, SocketWriter<Socket>, typename Socket::SocketAddress>::
                   SocketConnectionT(socketContextFactory, localAddress, remoteAddress, onConnect, [onDisconnect, this]() -> void {
                       onDisconnect(this);
                   }) {
@@ -149,6 +149,6 @@ namespace net::socket::stream::tls {
         friend class SocketConnector;
     };
 
-} // namespace net::socket::stream::tls
+} // namespace core::socket::stream::tls
 
 #endif // NET_SOCKET_STREAM_TLS_SOCKETCONNECTION_H

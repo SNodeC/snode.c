@@ -29,7 +29,7 @@
 
 #define MAX_ACCEPT_INACTIVITY LONG_MAX
 
-namespace net {
+namespace core {
 
     class AcceptEventReceiver : public EventReceiver {
     protected:

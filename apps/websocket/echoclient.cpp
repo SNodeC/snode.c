@@ -46,7 +46,7 @@
 using namespace web::http::client;
 
 int main(int argc, char* argv[]) {
-    net::SNodeC::init(argc, argv);
+    core::SNodeC::init(argc, argv);
 
     {
         legacy::Client<Request, Response> legacyClient(
@@ -223,7 +223,7 @@ int main(int argc, char* argv[]) {
         }); // Connection:keep-alive\r\n\r\n"
     }
 
-    return net::SNodeC::start();
+    return core::SNodeC::start();
 }
 
 struct A {
