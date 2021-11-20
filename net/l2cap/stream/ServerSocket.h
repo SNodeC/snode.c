@@ -27,11 +27,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket::bluetooth::l2cap {
+namespace net::l2::stream {
 
     class ServerSocket {
     public:
-        using Socket = core::socket::bluetooth::l2cap::Socket;
+        using Socket = net::l2::stream::Socket;
         using SocketAddress = Socket::SocketAddress;
 
         virtual void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const = 0;
@@ -49,6 +49,6 @@ namespace core::socket::bluetooth::l2cap {
         }
     };
 
-} // namespace core::socket::bluetooth::l2cap
+} // namespace net::l2::stream
 
 #endif // -NET_SOCKET_BLUETOOTH_L2CAP_SERVERSOCKET_H

@@ -31,7 +31,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-using namespace core::socket::bluetooth::l2cap;
+using namespace net::l2::stream::legacy;
 
 class SimpleSocketProtocol : public core::socket::stream::SocketContext {
 public:

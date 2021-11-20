@@ -26,16 +26,16 @@
 #include "core/socket/Socket.h"
 #include "net/l2cap/L2CapAddress.h" // IWYU pragma: export
 
-namespace core::socket::bluetooth::l2cap {
+namespace net::l2::stream {
 
-    class Socket : public core::socket::Socket<core::socket::bluetooth::address::L2CapAddress> {
+    class Socket : public core::socket::Socket<net::l2::L2CapAddress> {
     protected:
         int create(int flags = 0) override;
 
     public:
-        using SocketAddress = core::socket::bluetooth::address::L2CapAddress;
+        using SocketAddress = net::l2::L2CapAddress;
     };
 
-} // namespace core::socket::bluetooth::l2cap
+} // namespace net::l2::stream
 
 #endif // NET_SOCKET_BLUETOOTH_L2CAP_SOCKET_H

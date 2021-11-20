@@ -27,11 +27,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket::bluetooth::l2cap {
+namespace net::l2::stream {
 
     class ClientSocket {
     public:
-        using Socket = core::socket::bluetooth::l2cap::Socket;
+        using Socket = net::l2::stream::Socket;
         using SocketAddress = Socket::SocketAddress;
 
         virtual void
@@ -55,6 +55,6 @@ namespace core::socket::bluetooth::l2cap {
         }
     };
 
-} // namespace core::socket::bluetooth::l2cap
+} // namespace net::l2::stream
 
 #endif // NET_SOCKET_BLUETOOTH_L2CAP_CLIENTSOCKET_H

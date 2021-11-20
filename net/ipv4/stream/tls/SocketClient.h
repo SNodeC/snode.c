@@ -19,18 +19,18 @@
 #ifndef NET_SOCKET_IP_TRANSPORT_TCP_TLS_IPV4_SOCKETCLIENT_H
 #define NET_SOCKET_IP_TRANSPORT_TCP_TLS_IPV4_SOCKETCLIENT_H
 
-#include "core/socket/stream/tls/SocketClient.h"    // IWYU pragma: export
-#include "net/ipv4/stream/ClientSocket.h" // IWYU pragma: export
+#include "core/socket/stream/tls/SocketClient.h" // IWYU pragma: export
+#include "net/ipv4/stream/ClientSocket.h"        // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace core::socket::ip::transport::tcp::tls::ipv4 {
+namespace net::ip::stream::tls {
 
     template <typename SocketContextFactoryT>
-    using SocketClient = core::socket::stream::tls::SocketClient<socket::ipv4::stream::ClientSocket, SocketContextFactoryT>;
+    using SocketClient = core::socket::stream::tls::SocketClient<net::ip::stream::ClientSocket, SocketContextFactoryT>;
 
-} // namespace core::socket::ip::transport::tcp::tls::ipv4
+} // namespace net::ip::stream::tls
 
 #endif // NET_SOCKET_IP_TRANSPORT_TCP_TLS_IPV4_SOCKETCLIENT_H

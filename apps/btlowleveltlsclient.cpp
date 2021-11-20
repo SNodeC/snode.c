@@ -40,7 +40,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-using namespace core::socket::bluetooth::rfcomm::tls;
+using namespace net::rf::stream::tls;
 
 class SimpleSocketProtocol : public core::socket::stream::SocketContext {
 public:

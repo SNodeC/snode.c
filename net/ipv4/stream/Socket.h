@@ -26,16 +26,16 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket::ip::socket::ipv4::stream {
+namespace net::ip::stream {
 
-    class Socket : public core::socket::Socket<core::socket::ip::socket::ipv4::InetAddress> {
+    class Socket : public core::socket::Socket<net::ip::InetAddress> {
     protected:
         int create(int flags) override;
 
     public:
-        using SocketAddress = core::socket::ip::socket::ipv4::InetAddress;
+        using SocketAddress = net::ip::InetAddress;
     };
 
-} // namespace core::socket::ip::socket::ipv4::stream
+} // namespace net::ip::stream
 
 #endif // NET_SOCKET_IP_SOCKET_IPV4_STREAM_SOCKET_H

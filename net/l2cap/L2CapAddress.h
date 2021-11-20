@@ -31,7 +31,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket::bluetooth::address {
+namespace net::l2 {
 
     class L2CapAddress : public core::socket::SocketAddress<struct sockaddr_l2> {
     public:
@@ -48,6 +48,6 @@ namespace core::socket::bluetooth::address {
         std::string toString() const override;
     };
 
-} // namespace core::socket::bluetooth::address
+} // namespace net::l2
 
 #endif // NET_SOCKET_BLUETOOTH_ADDRESS_L2CAPADDRESS_H

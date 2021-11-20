@@ -27,11 +27,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket::bluetooth::rfcomm {
+namespace net::rf::stream {
 
     class ServerSocket {
     public:
-        using Socket = core::socket::bluetooth::rfcomm::Socket;
+        using Socket = net::rf::stream::Socket;
         using SocketAddress = Socket::SocketAddress;
 
         virtual void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const = 0;
@@ -49,6 +49,6 @@ namespace core::socket::bluetooth::rfcomm {
         }
     };
 
-} // namespace core::socket::bluetooth::rfcomm
+} // namespace net::rf::stream
 
 #endif // NET_SOCKET_BLUETOOTH_RFCOMM_SERVERSOCKET_H

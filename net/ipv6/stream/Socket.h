@@ -26,16 +26,16 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket::ip::socket::ipv6::stream {
+namespace net::ip6::stream {
 
-    class Socket : public core::socket::Socket<core::socket::ip::socket::ipv6::InetAddress> {
+    class Socket : public core::socket::Socket<net::ip6::InetAddress> {
     protected:
         int create(int flags) override;
 
     public:
-        using SocketAddress = core::socket::ip::socket::ipv6::InetAddress;
+        using SocketAddress = net::ip6::InetAddress;
     };
 
-} // namespace core::socket::ip::socket::ipv6::stream
+} // namespace net::ip6::stream
 
 #endif // NET_SOCKET_IP_SOCKET_IPV6_STREAM_SOCKET_H

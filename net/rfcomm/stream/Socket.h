@@ -26,16 +26,16 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket::bluetooth::rfcomm {
+namespace net::rf::stream {
 
-    class Socket : public core::socket::Socket<core::socket::bluetooth::address::RfCommAddress> {
+    class Socket : public core::socket::Socket<net::rf::RfCommAddress> {
     protected:
         int create(int flags) override;
 
     public:
-        using SocketAddress = core::socket::bluetooth::address::RfCommAddress;
+        using SocketAddress = net::rf::RfCommAddress;
     };
 
-} // namespace core::socket::bluetooth::rfcomm
+} // namespace net::rf::stream
 
 #endif // NET_SOCKET_BLUETOOTH_RFCOMM_SOCKET_H

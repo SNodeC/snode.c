@@ -20,17 +20,17 @@
 #define NET_SOCKET_IP_TRANSPORT_TCP_LEGACY_IPV4_SOCKETSERVER_H
 
 #include "core/socket/stream/legacy/SocketServer.h" // IWYU pragma: export
-#include "net/ipv4/stream/ServerSocket.h" // IWYU pragma: export
+#include "net/ipv4/stream/ServerSocket.h"           // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace core::socket::ip::transport::tcp::legacy::ipv4 {
+namespace net::ip::stream::legacy {
 
     template <typename SocketContextFactoryT>
-    using SocketServer = core::socket::stream::legacy::SocketServer<socket::ipv4::stream::ServerSocket, SocketContextFactoryT>;
+    using SocketServer = core::socket::stream::legacy::SocketServer<net::ip::stream::ServerSocket, SocketContextFactoryT>;
 
-} // namespace core::socket::ip::transport::tcp::legacy::ipv4
+} // namespace net::ip::stream::legacy
 
 #endif // NET_SOCKET_IP_TRANSPORT_TCP_LEGACY_IPV4_SOCKETSERVER_H

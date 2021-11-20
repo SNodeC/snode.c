@@ -24,10 +24,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket::bluetooth::l2cap {
+namespace net::l2::stream {
 
     int Socket::create(int flags) {
         return core::system::socket(PF_BLUETOOTH, SOCK_SEQPACKET | flags, BTPROTO_L2CAP);
     }
 
-} // namespace core::socket::bluetooth::l2cap
+} // namespace net::l2::stream

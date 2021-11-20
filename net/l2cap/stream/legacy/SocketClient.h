@@ -20,17 +20,17 @@
 #define NET_SOCKET_BLUETOOTH_L2CAP_SOCKETCLIENT_H
 
 #include "core/socket/stream/legacy/SocketClient.h" // IWYU pragma: export
-#include "net/l2cap/stream/ClientSocket.h"       // IWYU pragma: export
+#include "net/l2cap/stream/ClientSocket.h"          // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket::bluetooth::l2cap {
+namespace net::l2::stream::legacy {
 
     template <typename SocketContextFactoryT>
-    using SocketClient = core::socket::stream::legacy::SocketClient<l2cap::ClientSocket, SocketContextFactoryT>;
+    using SocketClient = core::socket::stream::legacy::SocketClient<net::l2::stream::ClientSocket, SocketContextFactoryT>;
 
-} // namespace core::socket::bluetooth::l2cap
+} // namespace net::l2::stream::legacy
 
 #endif // NET_SOCKET_BLUETOOTH_L2CAP_SOCKETCLIENT_H

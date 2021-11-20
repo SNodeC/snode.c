@@ -20,17 +20,17 @@
 #define NET_SOCKET_BLUETOOTH_RFCOMM_TLS_SOCKETCLIENT_H
 
 #include "core/socket/stream/tls/SocketClient.h" // IWYU pragma: export
-#include "net/rfcomm/stream/ClientSocket.h"   // IWYU pragma: export
+#include "net/rfcomm/stream/ClientSocket.h"      // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace core::socket::bluetooth::rfcomm::tls {
+namespace net::rf::stream::tls {
 
     template <typename SocketContextFactoryT>
-    using SocketClient = core::socket::stream::tls::SocketClient<rfcomm::ClientSocket, SocketContextFactoryT>;
+    using SocketClient = core::socket::stream::tls::SocketClient<net::rf::stream::ClientSocket, SocketContextFactoryT>;
 
-} // namespace core::socket::bluetooth::rfcomm::tls
+} // namespace net::rf::stream::tls
 
 #endif // NET_SOCKET_BLUETOOTH_RFCOMM_TLS_SOCKETCLIENT_H

@@ -27,11 +27,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket::ip::socket::ipv4::stream {
+namespace net::ip::stream {
 
     class ServerSocket {
     public:
-        using Socket = core::socket::ip::socket::ipv4::stream::Socket;
+        using Socket = net::ip::stream::Socket;
         using SocketAddress = Socket::SocketAddress;
 
         virtual void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const = 0;
@@ -49,6 +49,6 @@ namespace core::socket::ip::socket::ipv4::stream {
         }
     };
 
-} // namespace core::socket::ip::socket::ipv4::stream
+} // namespace net::ip::stream
 
 #endif // NET_SOCKET_IP_SOCKET_IPV4_STREAM_SERVERSOCKET_H

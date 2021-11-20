@@ -22,10 +22,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket::ip::socket::ipv6::stream {
+namespace net::ip6::stream {
 
     int Socket::create(int flags) {
         return core::system::socket(PF_INET6, SOCK_STREAM | flags, 0);
     }
 
-} // namespace core::socket::ip::socket::ipv6::stream
+} // namespace net::ip6::stream

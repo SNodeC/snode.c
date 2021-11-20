@@ -27,11 +27,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket::ip::socket::ipv6::stream {
+namespace net::ip6::stream {
 
     class ClientSocket {
     public:
-        using Socket = core::socket::ip::socket::ipv6::stream::Socket;
+        using Socket = net::ip6::stream::Socket;
         using SocketAddress = Socket::SocketAddress;
 
         virtual void
@@ -58,6 +58,6 @@ namespace core::socket::ip::socket::ipv6::stream {
         }
     };
 
-} // namespace core::socket::ip::socket::ipv6::stream
+} // namespace net::ip6::stream
 
 #endif // NET_SOCKET_IP_SOCKET_IPV6_STREAM_CLIENTSOCKET_H

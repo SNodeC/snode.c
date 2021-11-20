@@ -27,11 +27,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket::ip::socket::ipv4::stream {
+namespace net::ip::stream {
 
     class ClientSocket {
     public:
-        using Socket = core::socket::ip::socket::ipv4::stream::Socket;
+        using Socket = net::ip::stream::Socket;
         using SocketAddress = Socket::SocketAddress;
 
         virtual void
@@ -58,6 +58,6 @@ namespace core::socket::ip::socket::ipv4::stream {
         }
     };
 
-} // namespace core::socket::ip::socket::ipv4::stream
+} // namespace net::ip::stream
 
 #endif // NET_SOCKET_IP_SOCKET_IPV4_STREAM_CLIENTSOCKET_H

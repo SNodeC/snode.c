@@ -31,7 +31,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-using namespace core::socket::bluetooth::rfcomm::legacy;
+using namespace net::rf::stream::legacy;
 
 class SimpleSocketProtocol : public core::socket::stream::SocketContext {
 public:
