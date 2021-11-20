@@ -23,7 +23,7 @@
 #include "core/socket/stream/SocketContext.h"        // for SocketProt...
 #include "core/socket/stream/SocketContextFactory.h" // for SocketProt...
 #include "log/Logger.h"                              // for Writer
-#include "net/rfcomm/stream/tls/SocketClient.h"      // for SocketClient
+#include "net/rf/stream/tls/SocketClient.h"          // for SocketClient
 
 #include <cstddef>            // for NULL, size_t
 #include <functional>         // for function

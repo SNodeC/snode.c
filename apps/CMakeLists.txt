@@ -69,44 +69,44 @@ install(TARGETS warema-jalousien RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 if(BLUEZ_FOUND)
     add_executable(btlowlevelclient btlowlevelclient.cpp)
-    target_link_libraries(btlowlevelclient PRIVATE snodec::net-rfcomm)
+    target_link_libraries(btlowlevelclient PRIVATE snodec::net-rf)
     install(TARGETS btlowlevelclient
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
 
     add_executable(btlowlevelserver btlowlevelserver.cpp)
-    target_link_libraries(btlowlevelserver PRIVATE snodec::net-rfcomm)
+    target_link_libraries(btlowlevelserver PRIVATE snodec::net-rf)
     install(TARGETS btlowlevelserver
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
 
     add_executable(btlowleveltlsclient btlowleveltlsclient.cpp)
-    target_link_libraries(btlowleveltlsclient PRIVATE snodec::net-rfcomm)
+    target_link_libraries(btlowleveltlsclient PRIVATE snodec::net-rf)
     install(TARGETS btlowleveltlsclient
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
 
     add_executable(btlowleveltlsserver btlowleveltlsserver.cpp)
-    target_link_libraries(btlowleveltlsserver PRIVATE snodec::net-rfcomm)
+    target_link_libraries(btlowleveltlsserver PRIVATE snodec::net-rf)
     install(TARGETS btlowleveltlsserver
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
 
     add_executable(l2lowlevelclient l2lowlevelclient.cpp)
-    target_link_libraries(l2lowlevelclient PRIVATE snodec::net-l2cap)
+    target_link_libraries(l2lowlevelclient PRIVATE snodec::net-l2)
     install(TARGETS l2lowlevelclient
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
 
     add_executable(l2lowlevelserver l2lowlevelserver.cpp)
-    target_link_libraries(l2lowlevelserver PRIVATE snodec::net-l2cap)
+    target_link_libraries(l2lowlevelserver PRIVATE snodec::net-l2)
     install(TARGETS l2lowlevelserver
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
 
     add_executable(simpleserverrfcomm simpleserverrfcomm.cpp)
     target_link_libraries(
-        simpleserverrfcomm PRIVATE snodec::express snodec::net-rfcomm
+        simpleserverrfcomm PRIVATE snodec::express snodec::net-rf
     )
     install(TARGETS simpleserverrfcomm
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -114,7 +114,7 @@ if(BLUEZ_FOUND)
 
     add_executable(clientrfcomm clientrfcomm.cpp)
     target_link_libraries(
-        clientrfcomm PRIVATE snodec::httpclient snodec::net-rfcomm
+        clientrfcomm PRIVATE snodec::httpclient snodec::net-rf
     )
     install(TARGETS clientrfcomm RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 

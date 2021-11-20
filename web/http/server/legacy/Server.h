@@ -19,10 +19,10 @@
 #ifndef WEB_HTTP_SERVER_LEGACY_SERVER_H
 #define WEB_HTTP_SERVER_LEGACY_SERVER_H
 
-#include "net/ipv4/stream/legacy/SocketServer.h"   // IWYU pragma: export
-#include "net/ipv6/stream/legacy/SocketServer.h"   // IWYU pragma: export
-#include "net/rfcomm/stream/legacy/SocketServer.h" // IWYU pragma: export
-#include "web/http/server/Server.h"                // IWYU pragma: export
+#include "net/ip/stream/legacy/SocketServer.h"  // IWYU pragma: export
+#include "net/ip6/stream/legacy/SocketServer.h" // IWYU pragma: export
+#include "net/rf/stream/legacy/SocketServer.h"  // IWYU pragma: export
+#include "web/http/server/Server.h"             // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

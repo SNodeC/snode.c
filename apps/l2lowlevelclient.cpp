@@ -22,7 +22,7 @@
 #include "core/socket/stream/SocketContext.h"
 #include "core/socket/stream/SocketContextFactory.h"
 #include "log/Logger.h"
-#include "net/l2cap/stream/legacy/SocketClient.h"
+#include "net/l2/stream/legacy/SocketClient.h"
 
 #include <cstddef>
 #include <functional>  // for function

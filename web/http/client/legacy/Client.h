@@ -19,10 +19,10 @@
 #ifndef WEB_HTTP_CLIENT_LEGACY_CLIENT_H
 #define WEB_HTTP_CLIENT_LEGACY_CLIENT_H
 
-#include "net/ipv4/stream/legacy/SocketClient.h"   // IWYU pragma: export
-#include "net/ipv6/stream/legacy/SocketClient.h"   // IWYU pragma: export
-#include "net/rfcomm/stream/legacy/SocketClient.h" // IWYU pragma: export
-#include "web/http/client/Client.h"                // IWYU pragma: export
+#include "net/ip/stream/legacy/SocketClient.h"  // IWYU pragma: export
+#include "net/ip6/stream/legacy/SocketClient.h" // IWYU pragma: export
+#include "net/rf/stream/legacy/SocketClient.h"  // IWYU pragma: export
+#include "web/http/client/Client.h"             // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -25,7 +25,7 @@
 #include "core/socket/stream/legacy/SocketClient.h"  // for SocketClient
 #include "core/socket/stream/tls/SocketClient.h"     // for SocketClient
 #include "log/Logger.h"                              // for Writer, Storage
-#include "net/ipv4/stream/ClientSocket.h"            // for Socket
+#include "net/ip/stream/ClientSocket.h"              // for Socket
 #include "web/http/client/ResponseParser.h"          // for ResponseParser
 
 #include <cstring>
@@ -199,7 +199,7 @@ tls::SocketClient<net::ip::stream::ClientSocket, SimpleSocketProtocolFactory> ge
         },
         {{"certChain", CLIENTCERTF}, {"keyPEM", CLIENTKEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}});
 
-    InetAddress remoteAddress("localhost", 8088);
+    SocketAddress remoteAddress("localhost", 8088);
 
     tlsClient.connect(remoteAddress, [](int err) -> void {
         if (err) {
@@ -240,7 +240,7 @@ legacy::SocketClient<net::ip::stream::ClientSocket, SimpleSocketProtocolFactory>
         },
         {{}});
 
-    InetAddress remoteAddress("localhost", 8080);
+    SocketAddress remoteAddress("localhost", 8080);
 
     legacyClient.connect(remoteAddress, [](int err) -> void {
         if (err) {
@@ -257,7 +257,7 @@ int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
     {
-        InetAddress remoteAddress("localhost", 8080);
+        SocketAddress remoteAddress("localhost", 8080);
 
         core::socket::stream::legacy::SocketClient<net::ip::stream::ClientSocket, SimpleSocketProtocolFactory> legacyClient =
             getLegacyClient();
@@ -270,7 +270,7 @@ int main(int argc, char* argv[]) {
             }
         });
 
-        remoteAddress = InetAddress("localhost", 8088);
+        remoteAddress = SocketAddress("localhost", 8088);
 
         tls::SocketClient<net::ip::stream::ClientSocket, SimpleSocketProtocolFactory> tlsClient = getTlsClient();
 

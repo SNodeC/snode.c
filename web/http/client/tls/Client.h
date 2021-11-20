@@ -19,10 +19,10 @@
 #ifndef WEB_HTTP_CLIENT_TLS_CLIENT_H
 #define WEB_HTTP_CLIENT_TLS_CLIENT_H
 
-#include "net/ipv4/stream/tls/SocketClient.h"   // IWYU pragma: export
-#include "net/ipv6/stream/tls/SocketClient.h"   // IWYU pragma: export
-#include "net/rfcomm/stream/tls/SocketClient.h" // IWYU pragma: export
-#include "web/http/client/Client.h"             // IWYU pragma: export
+#include "net/ip/stream/tls/SocketClient.h"  // IWYU pragma: export
+#include "net/ip6/stream/tls/SocketClient.h" // IWYU pragma: export
+#include "net/rf/stream/tls/SocketClient.h"  // IWYU pragma: export
+#include "web/http/client/Client.h"          // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -46,8 +46,7 @@ namespace web::http::client::tls {
         using web::http::client::Client<net::ip6::stream::tls::SocketClient, Request, Response>::Client;
 
     protected:
-        using SocketClient =
-            net::ip6::stream::tls::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
+        using SocketClient = net::ip6::stream::tls::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
 
     public:
         using web::http::client::Client<net::ip6::stream::tls::SocketClient, Request, Response>::connect;

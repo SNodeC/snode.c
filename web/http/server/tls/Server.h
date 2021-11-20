@@ -19,10 +19,10 @@
 #ifndef WEB_HTTP_SERVER_TLS_SERVER_H
 #define WEB_HTTP_SERVER_TLS_SERVER_H
 
-#include "net/ipv4/stream/tls/SocketServer.h"   // IWYU pragma: export
-#include "net/ipv6/stream/tls/SocketServer.h"   // IWYU pragma: export
-#include "net/rfcomm/stream/tls/SocketServer.h" // IWYU pragma: export
-#include "web/http/server/Server.h"             // IWYU pragma: export
+#include "net/ip/stream/tls/SocketServer.h"  // IWYU pragma: export
+#include "net/ip6/stream/tls/SocketServer.h" // IWYU pragma: export
+#include "net/rf/stream/tls/SocketServer.h"  // IWYU pragma: export
+#include "web/http/server/Server.h"          // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -62,8 +62,7 @@ namespace web::http::server::tls {
         using web::http::server::Server<net::ip6::stream::tls::SocketServer, Request, Response>::Server;
 
     protected:
-        using SocketServer =
-            net::ip6::stream::tls::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
+        using SocketServer = net::ip6::stream::tls::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
 
     public:
         using web::http::server::Server<net::ip6::stream::tls::SocketServer, Request, Response>::listen;
