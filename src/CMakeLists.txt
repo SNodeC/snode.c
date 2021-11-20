@@ -4,9 +4,9 @@ project(snode.c)
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
-include(check-iwyu)
-include(cmake-instrumentation)
-include(cmake-rpath-use-always)
+include(iwyu)
+include(instrumentation)
+include(rpath-use-always)
 
 configure_package_config_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in

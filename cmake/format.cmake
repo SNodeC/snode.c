@@ -4,5 +4,5 @@ add_custom_command(
     COMMENT "Auto formatting of all source and all cmake files"
 )
 
-include(clang-cpp-checks)
+include(clang-format)
 include(cmake-format)

@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.0)
 
 project(snode.c-master)
 
+set(CPACK_PROJECT_NAME "snodec")
+
 set(ignoreMe ${CMAKE_VERBOSE_MAKEFILE})
 
 get_filename_component(
@@ -10,8 +12,8 @@ get_filename_component(
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
-include(check-format)
-include(check-doxygen)
-include(cmake-uninstall)
+include(format)
+include(doxygen)
+include(uninstall)
 
 add_subdirectory(src)
