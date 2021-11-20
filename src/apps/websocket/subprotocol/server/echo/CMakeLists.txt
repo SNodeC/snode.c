@@ -18,8 +18,7 @@ get_target_property(
 add_library(echoserversubprotocol SHARED Echo.cpp EchoFactory.cpp)
 
 target_include_directories(
-    echoserversubprotocol
-    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>"
+    echoserversubprotocol PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>"
 )
 
 set_target_properties(

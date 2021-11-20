@@ -12,9 +12,7 @@ target_include_directories(
 
 target_link_libraries(net-ip6 PUBLIC snodec::core-legacy snodec::core-tls)
 
-set_target_properties(
-    net-ip6 PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-net-ip6
-)
+set_target_properties(net-ip6 PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-net-ip6)
 
 install(
     TARGETS net-ip6

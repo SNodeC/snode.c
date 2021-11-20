@@ -20,7 +20,7 @@
 #define NET_RF_STREAM_TLS_SOCKETSERVER_H
 
 #include "core/socket/stream/tls/SocketServer.h" // IWYU pragma: export
-#include "net/rf/stream/ServerSocket.h"      // IWYU pragma: export
+#include "net/rf/stream/ServerSocket.h"          // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
