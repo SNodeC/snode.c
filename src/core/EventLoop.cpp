@@ -165,9 +165,9 @@ namespace core {
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
     void EventLoop::init(int argc, char* argv[]) {
-        Logger::init(argc, argv);
+        logger::Logger::init(argc, argv);
 
-        Logger::setCustomFormatSpec("%tick", core::getTickCounterAsString);
+        logger::Logger::setCustomFormatSpec("%tick", core::getTickCounterAsString);
 
         EventLoop::initialized = true;
     }

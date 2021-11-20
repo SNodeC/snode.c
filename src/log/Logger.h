@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LOGGER_H
-#define LOGGER_H
+#ifndef LOGGER_LOGGER_H
+#define LOGGER_LOGGER_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,28 +26,32 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-class Logger {
-    Logger() = delete;
-    ~Logger() = delete;
+namespace logger {
 
-public:
-    enum Level { INFO, DEBUG, WARNING, ERROR, FATAL };
+    class Logger {
+        Logger() = delete;
+        ~Logger() = delete;
 
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
-    static void init(int argc, char* argv[]);
+    public:
+        enum Level { INFO, DEBUG, WARNING, ERROR, FATAL };
 
-    static void setLogLevel(int level);
+        // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
+        static void init(int argc, char* argv[]);
 
-    static void setVerboseLevel(unsigned short level);
+        static void setLogLevel(int level);
 
-    static void logToFile(const std::string& logFile = "");
+        static void setVerboseLevel(unsigned short level);
 
-    static void quiet();
+        static void logToFile(const std::string& logFile = "");
 
-    static void setCustomFormatSpec(const char* format, const el::FormatSpecifierValueResolver& resolver);
+        static void quiet();
 
-protected:
-    static el::Configurations conf;
-};
+        static void setCustomFormatSpec(const char* format, const el::FormatSpecifierValueResolver& resolver);
 
-#endif // LOGGER_H
+    protected:
+        static el::Configurations conf;
+    };
+
+} // namespace logger
+
+#endif // LOGGER_LOGGER_H

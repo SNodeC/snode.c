@@ -26,92 +26,96 @@
 
 INITIALIZE_EASYLOGGINGPP
 
-el::Configurations Logger::conf;
+namespace logger {
 
-void Logger::init(int argc, char* argv[]) {
-    START_EASYLOGGINGPP(argc, argv);
+    el::Configurations Logger::conf;
 
-    conf.setGlobally(el::ConfigurationType::Enabled, "true");
-    conf.setGlobally(el::ConfigurationType::Format, "%datetime{%Y-%M-%d %H:%m:%s} %tick: %level %msg");
-    conf.setGlobally(el::ConfigurationType::ToFile, "false");
-    conf.setGlobally(el::ConfigurationType::ToStandardOutput, "true");
-    conf.setGlobally(el::ConfigurationType::SubsecondPrecision, "2");
-    conf.setGlobally(el::ConfigurationType::PerformanceTracking, "false");
-    conf.setGlobally(el::ConfigurationType::MaxLogFileSize, "2097152");
-    conf.setGlobally(el::ConfigurationType::LogFlushThreshold, "100");
-    conf.set(el::Level::Verbose, el::ConfigurationType::Format, "%datetime{%Y-%M-%d %H:%m:%s} %tick: %msg");
+    void Logger::init(int argc, char* argv[]) {
+        START_EASYLOGGINGPP(argc, argv);
 
-    el::Loggers::addFlag(el::LoggingFlag::DisableApplicationAbortOnFatalLog);
-    el::Loggers::addFlag(el::LoggingFlag::DisablePerformanceTrackingCheckpointComparison);
-    el::Loggers::addFlag(el::LoggingFlag::ColoredTerminalOutput);
+        conf.setGlobally(el::ConfigurationType::Enabled, "true");
+        conf.setGlobally(el::ConfigurationType::Format, "%datetime{%Y-%M-%d %H:%m:%s} %tick: %level %msg");
+        conf.setGlobally(el::ConfigurationType::ToFile, "false");
+        conf.setGlobally(el::ConfigurationType::ToStandardOutput, "true");
+        conf.setGlobally(el::ConfigurationType::SubsecondPrecision, "2");
+        conf.setGlobally(el::ConfigurationType::PerformanceTracking, "false");
+        conf.setGlobally(el::ConfigurationType::MaxLogFileSize, "2097152");
+        conf.setGlobally(el::ConfigurationType::LogFlushThreshold, "100");
+        conf.set(el::Level::Verbose, el::ConfigurationType::Format, "%datetime{%Y-%M-%d %H:%m:%s} %tick: %msg");
 
-    el::Loggers::reconfigureLogger("default", conf);
+        el::Loggers::addFlag(el::LoggingFlag::DisableApplicationAbortOnFatalLog);
+        el::Loggers::addFlag(el::LoggingFlag::DisablePerformanceTrackingCheckpointComparison);
+        el::Loggers::addFlag(el::LoggingFlag::ColoredTerminalOutput);
 
-    el::Logger* logger = el::Loggers::getLogger("default");
-    std::string logFilename = logger->typedConfigurations()->filename(el::Level::Verbose).c_str();
+        el::Loggers::reconfigureLogger("default", conf);
 
-    if (logFilename != "/dev/null") {
-        conf.setGlobally(el::ConfigurationType::ToFile, "true");
+        el::Logger* logger = el::Loggers::getLogger("default");
+        std::string logFilename = logger->typedConfigurations()->filename(el::Level::Verbose).c_str();
+
+        if (logFilename != "/dev/null") {
+            conf.setGlobally(el::ConfigurationType::ToFile, "true");
+            el::Loggers::reconfigureLogger("default", conf);
+        }
+
+        setLogLevel(6);
+    }
+
+    void Logger::setCustomFormatSpec(const char* format, const el::FormatSpecifierValueResolver& resolver) {
+        el::Helpers::installCustomFormatSpecifier(el::CustomFormatSpecifier(format, resolver));
+    }
+
+    // Application logging should be done with VLOG(loglevel)
+    // Framework logging should use one of the following levels
+    void Logger::setLogLevel(int level) {
+        conf.set(el::Level::Trace, el::ConfigurationType::Enabled, "false");   // trace method/function calling
+        conf.set(el::Level::Debug, el::ConfigurationType::Enabled, "false");   // typical assert messages - but we can go on
+        conf.set(el::Level::Info, el::ConfigurationType::Enabled, "false");    // additional infos - what 's going on
+        conf.set(el::Level::Warning, el::ConfigurationType::Enabled, "false"); // not that serious but mentioning
+        conf.set(el::Level::Error, el::ConfigurationType::Enabled, "false");   // serious errors - but we can go on
+        conf.set(el::Level::Fatal, el::ConfigurationType::Enabled, "false");   // asserts - stop - we can not go on
+
+        switch (level) {
+            case 6:
+                conf.set(el::Level::Trace, el::ConfigurationType::Enabled, "true");
+                [[fallthrough]];
+            case 5:
+                conf.set(el::Level::Debug, el::ConfigurationType::Enabled, "true");
+                [[fallthrough]];
+            case 4:
+                conf.set(el::Level::Info, el::ConfigurationType::Enabled, "true");
+                [[fallthrough]];
+            case 3:
+                conf.set(el::Level::Warning, el::ConfigurationType::Enabled, "true");
+                [[fallthrough]];
+            case 2:
+                conf.set(el::Level::Error, el::ConfigurationType::Enabled, "true");
+                [[fallthrough]];
+            case 1:
+                conf.set(el::Level::Fatal, el::ConfigurationType::Enabled, "true");
+                [[fallthrough]];
+            case 0:
+                [[fallthrough]];
+            default:;
+        };
+
         el::Loggers::reconfigureLogger("default", conf);
     }
 
-    setLogLevel(6);
-}
+    void Logger::setVerboseLevel(unsigned short level) {
+        el::Loggers::setVerboseLevel(level);
+    }
 
-void Logger::setCustomFormatSpec(const char* format, const el::FormatSpecifierValueResolver& resolver) {
-    el::Helpers::installCustomFormatSpecifier(el::CustomFormatSpecifier(format, resolver));
-}
+    void Logger::logToFile(const std::string& logFile) {
+        conf.setGlobally(el::ConfigurationType::Filename, logFile);
+        conf.setGlobally(el::ConfigurationType::ToFile, "true");
 
-// Application logging should be done with VLOG(loglevel)
-// Framework logging should use one of the following levels
-void Logger::setLogLevel(int level) {
-    conf.set(el::Level::Trace, el::ConfigurationType::Enabled, "false");   // trace method/function calling
-    conf.set(el::Level::Debug, el::ConfigurationType::Enabled, "false");   // typical assert messages - but we can go on
-    conf.set(el::Level::Info, el::ConfigurationType::Enabled, "false");    // additional infos - what 's going on
-    conf.set(el::Level::Warning, el::ConfigurationType::Enabled, "false"); // not that serious but mentioning
-    conf.set(el::Level::Error, el::ConfigurationType::Enabled, "false");   // serious errors - but we can go on
-    conf.set(el::Level::Fatal, el::ConfigurationType::Enabled, "false");   // asserts - stop - we can not go on
+        el::Loggers::reconfigureLogger("default", conf);
+    }
 
-    switch (level) {
-        case 6:
-            conf.set(el::Level::Trace, el::ConfigurationType::Enabled, "true");
-            [[fallthrough]];
-        case 5:
-            conf.set(el::Level::Debug, el::ConfigurationType::Enabled, "true");
-            [[fallthrough]];
-        case 4:
-            conf.set(el::Level::Info, el::ConfigurationType::Enabled, "true");
-            [[fallthrough]];
-        case 3:
-            conf.set(el::Level::Warning, el::ConfigurationType::Enabled, "true");
-            [[fallthrough]];
-        case 2:
-            conf.set(el::Level::Error, el::ConfigurationType::Enabled, "true");
-            [[fallthrough]];
-        case 1:
-            conf.set(el::Level::Fatal, el::ConfigurationType::Enabled, "true");
-            [[fallthrough]];
-        case 0:
-            [[fallthrough]];
-        default:;
-    };
+    void Logger::quiet() {
+        conf.setGlobally(el::ConfigurationType::ToStandardOutput, "false");
 
-    el::Loggers::reconfigureLogger("default", conf);
-}
+        el::Loggers::reconfigureLogger("default", conf);
+    }
 
-void Logger::setVerboseLevel(unsigned short level) {
-    el::Loggers::setVerboseLevel(level);
-}
-
-void Logger::logToFile(const std::string& logFile) {
-    conf.setGlobally(el::ConfigurationType::Filename, logFile);
-    conf.setGlobally(el::ConfigurationType::ToFile, "true");
-
-    el::Loggers::reconfigureLogger("default", conf);
-}
-
-void Logger::quiet() {
-    conf.setGlobally(el::ConfigurationType::ToStandardOutput, "false");
-
-    el::Loggers::reconfigureLogger("default", conf);
-}
+} // namespace logger

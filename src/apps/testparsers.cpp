@@ -36,7 +36,7 @@
 using namespace web::http;
 
 int main(int argc, char* argv[]) {
-    Logger::init(argc, argv);
+    logger::Logger::init(argc, argv);
 
     server::RequestParser requestParser(
         nullptr,
