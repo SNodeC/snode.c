@@ -19,7 +19,7 @@
 #ifndef WEB_HTTP_CLIENT_REQUEST_H
 #define WEB_HTTP_CLIENT_REQUEST_H
 
-#include "net/pipe/Sink.h"
+#include "core/pipe/Sink.h"
 #include "web/http/ConnectionState.h"
 
 namespace web::http {

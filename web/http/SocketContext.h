@@ -19,7 +19,7 @@
 #ifndef WEB_HTTP_SOCKETCONTEXT_H
 #define WEB_HTTP_SOCKETCONTEXT_H
 
-#include "net/socket/stream/SocketContext.h"
+#include "core/socket/stream/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

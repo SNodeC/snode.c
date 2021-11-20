@@ -18,7 +18,7 @@
 
 #include "express/WebApp.h"
 
-#include "net/SNodeC.h"
+#include "core/SNodeC.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

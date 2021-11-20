@@ -18,7 +18,7 @@
 
 #include "web/http/http_utils.h"
 
-#include "net/system/time.h"
+#include "core/system/time.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

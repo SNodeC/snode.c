@@ -20,7 +20,7 @@
 #define WEB_WEBSOCKET_SUBPROTOCOLSELECTOR_H
 
 #include "log/Logger.h"
-#include "net/DynamicLoader.h"
+#include "core/DynamicLoader.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

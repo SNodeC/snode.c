@@ -20,10 +20,10 @@
 
 #include "config.h"                                       // for CLIENTCERTF
 #include "log/Logger.h"                                   // for Writer
-#include "net/SNodeC.h"                                   // for SNodeC
-#include "net/socket/bluetooth/rfcomm/tls/SocketClient.h" // for SocketClient
-#include "net/socket/stream/SocketContext.h"              // for SocketProt...
-#include "net/socket/stream/SocketContextFactory.h"       // for SocketProt...
+#include "core/SNodeC.h"                                   // for SNodeC
+#include "core/socket/bluetooth/rfcomm/tls/SocketClient.h" // for SocketClient
+#include "core/socket/stream/SocketContext.h"              // for SocketProt...
+#include "core/socket/stream/SocketContextFactory.h"       // for SocketProt...
 
 #include <cstddef>            // for NULL, size_t
 #include <functional>         // for function

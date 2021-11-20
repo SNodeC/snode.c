@@ -21,7 +21,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"                    // for Writer, Storage
-#include "net/SNodeC.h"                    // for SNodeC
+#include "core/SNodeC.h"                    // for SNodeC
 #include "web/http/client/Request.h"       // for Request
 #include "web/http/client/Response.h"      // for Response
 #include "web/http/client/legacy/Client.h" // for Client, Client<>...

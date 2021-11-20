@@ -20,7 +20,7 @@
 
 #include "config.h"                        // for SERVERCAFILE
 #include "log/Logger.h"                    // for Writer, Storage
-#include "net/SNodeC.h"                    // for SNodeC
+#include "core/SNodeC.h"                    // for SNodeC
 #include "web/http/client/Request.h"       // for Request, client
 #include "web/http/client/Response.h"      // for Response
 #include "web/http/client/legacy/Client.h" // for Client6, Client6...

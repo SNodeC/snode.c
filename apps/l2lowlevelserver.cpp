@@ -19,10 +19,10 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "log/Logger.h"                              // for Writer, Storage
-#include "net/SNodeC.h"                              // for SNodeC
-#include "net/socket/bluetooth/l2cap/SocketServer.h" // for SocketServer
-#include "net/socket/stream/SocketContext.h"         // for SocketProtocol
-#include "net/socket/stream/SocketContextFactory.h"  // for SocketProtoco...
+#include "core/SNodeC.h"                              // for SNodeC
+#include "core/socket/bluetooth/l2cap/SocketServer.h" // for SocketServer
+#include "core/socket/stream/SocketContext.h"         // for SocketProtocol
+#include "core/socket/stream/SocketContextFactory.h"  // for SocketProtoco...
 
 #include <cstddef>     // for size_t
 #include <functional>  // for function

@@ -19,7 +19,7 @@
 #ifndef WEB_HTTP_SERVER_RESPONSE_H
 #define WEB_HTTP_SERVER_RESPONSE_H
 
-#include "net/pipe/Sink.h"
+#include "core/pipe/Sink.h"
 #include "web/http/ConnectionState.h"
 #include "web/http/CookieOptions.h"
 

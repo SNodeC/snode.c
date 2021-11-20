@@ -19,7 +19,7 @@
 #ifndef WEB_HTTP_SOCKETCONTEXTFACTORY_H
 #define WEB_HTTP_SOCKETCONTEXTFACTORY_H
 
-#include "net/socket/stream/SocketContextFactory.h"
+#include "core/socket/stream/SocketContextFactory.h"
 
 namespace net::socket::stream {
     class SocketConnection;

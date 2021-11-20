@@ -18,7 +18,7 @@
 
 #include "web/http/Parser.h"
 
-#include "net/socket/stream/SocketContext.h"
+#include "core/socket/stream/SocketContext.h"
 #include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

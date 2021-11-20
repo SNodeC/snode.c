@@ -20,7 +20,7 @@
 
 #include "config.h" // just for this example app
 #include "log/Logger.h"
-#include "net/SNodeC.h"
+#include "core/SNodeC.h"
 #include "web/http/client/Request.h" // for Request
 #include "web/http/client/Response.h"
 #include "web/http/client/tls/Client.h"

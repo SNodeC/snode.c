@@ -20,7 +20,7 @@
 
 #include "config.h"
 #include "express/legacy/WebApp.h"
-#include "net/timer/IntervalTimer.h"
+#include "core/timer/IntervalTimer.h"
 
 #include <cstring>
 #include <functional> // for function
