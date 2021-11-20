@@ -19,8 +19,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "config.h" // just for this example app
-#include "log/Logger.h"
 #include "core/SNodeC.h"
+#include "log/Logger.h"
 #include "web/http/client/Request.h" // for Request
 #include "web/http/client/Response.h"
 #include "web/http/client/tls/Client.h"

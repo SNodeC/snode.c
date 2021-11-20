@@ -17,8 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "log/Logger.h"
 #include "core/DynamicLoader.h"
+#include "log/Logger.h"
 #include "web/http/SocketContextUpgradeFactorySelector.h"
 #include "web/http/http_utils.h"
 

@@ -45,6 +45,6 @@ namespace core {
         virtual bool continueReadImmediately();
     };
 
-} // namespace net
+} // namespace core
 
 #endif // NET_READEVENTRECEIVER_H

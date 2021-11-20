@@ -75,5 +75,3 @@ install(
 
 add_subdirectory(socket/stream/legacy)
 add_subdirectory(socket/stream/tls)
-#add_subdirectory(socket/ip)
-#add_subdirectory(socket/bluetooth)

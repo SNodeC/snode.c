@@ -101,6 +101,6 @@ namespace core {
         friend class EventDispatcher;
     };
 
-} // namespace net
+} // namespace core
 
 #endif // NET_EVENTRECEIVER_H

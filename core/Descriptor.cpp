@@ -62,4 +62,4 @@ namespace core {
         return static_cast<enum Descriptor::FLAGS>(static_cast<unsigned short>(f1) & static_cast<unsigned short>(f2));
     }
 
-} // namespace net
+} // namespace core

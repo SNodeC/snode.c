@@ -48,6 +48,6 @@ namespace core {
         static void free();
     };
 
-} // namespace net
+} // namespace core
 
 #endif // NET_SNODEC_H

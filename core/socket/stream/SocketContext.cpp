@@ -18,8 +18,8 @@
 
 #include "core/socket/stream/SocketContext.h"
 
-#include "log/Logger.h"
 #include "core/socket/stream/SocketConnection.h"
+#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

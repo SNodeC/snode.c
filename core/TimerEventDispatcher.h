@@ -59,6 +59,6 @@ namespace core {
         bool timerListDirty = false;
     };
 
-} // namespace net
+} // namespace core
 
 #endif // NET_TIMEREVENTDISPATCHER_H

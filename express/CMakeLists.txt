@@ -4,17 +4,17 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 find_package(nlohmann_json 3.7.0 QUIET)
 
-#if(NLOHMANN_JSON_FOUND)
-#    set(JSON_MIDDLEWARE_SOURCES middleware/JsonMiddleware.cpp)
-#    set(JSON_LIBRARY nlohmann_json::nlohmann_json)
-#else(NLOHMANN_JSON_FOUND)
-#    message(
-#        WARNING
-#            " nlohmann-json3-dev not found:\n"
-#            "    nlohmann_json is used to build the JsonMiddleware. In case you need\n"
-#            "    json support install nlohmann-json-dev"
-#    )
-#endif(NLOHMANN_JSON_FOUND)
+if(NLOHMANN_JSON_FOUND)
+    set(JSON_MIDDLEWARE_SOURCES middleware/JsonMiddleware.cpp)
+    set(JSON_LIBRARY nlohmann_json::nlohmann_json)
+else(NLOHMANN_JSON_FOUND)
+    message(
+        WARNING
+            " nlohmann-json3-dev not found:\n"
+            "    nlohmann_json is used to build the JsonMiddleware. In case you need\n"
+            "   json support install nlohmann-json-dev"
+    )
+endif(NLOHMANN_JSON_FOUND)
 
 set(NLOHMANN_JSON_FOUND
     ${NLOHMANN_JSON_FOUND}

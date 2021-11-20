@@ -95,6 +95,6 @@ namespace core {
         friend class EventLoop;
     }; // namespace net
 
-} // namespace net
+} // namespace core
 
 #endif // NET_EVENTDISPATCHER_H

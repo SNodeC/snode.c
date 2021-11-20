@@ -65,6 +65,6 @@ namespace core {
         friend class EventLoop;
     };
 
-} // namespace net
+} // namespace core
 
 #endif // NET_DYNAMICLOADER_H

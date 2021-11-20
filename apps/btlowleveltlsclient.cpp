@@ -18,12 +18,12 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h"                                       // for CLIENTCERTF
-#include "log/Logger.h"                                   // for Writer
-#include "core/SNodeC.h"                                   // for SNodeC
-#include "net/bluetooth/rfcomm/tls/SocketClient.h" // for SocketClient
-#include "core/socket/stream/SocketContext.h"              // for SocketProt...
-#include "core/socket/stream/SocketContextFactory.h"       // for SocketProt...
+#include "config.h"                                  // for CLIENTCERTF
+#include "core/SNodeC.h"                             // for SNodeC
+#include "core/socket/stream/SocketContext.h"        // for SocketProt...
+#include "core/socket/stream/SocketContextFactory.h" // for SocketProt...
+#include "log/Logger.h"                              // for Writer
+#include "net/rfcomm/stream/tls/SocketClient.h"      // for SocketClient
 
 #include <cstddef>            // for NULL, size_t
 #include <functional>         // for function

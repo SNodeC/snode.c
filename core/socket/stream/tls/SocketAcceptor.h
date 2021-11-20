@@ -19,10 +19,10 @@
 #ifndef NET_SOCKET_STREAM_TLS_SOCKETACCEPTOR_H
 #define NET_SOCKET_STREAM_TLS_SOCKETACCEPTOR_H
 
-#include "log/Logger.h"
 #include "core/socket/stream/SocketAcceptor.h"
 #include "core/socket/stream/tls/SocketConnection.h" // IWYU pragma: export
 #include "core/socket/stream/tls/ssl_utils.h"
+#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

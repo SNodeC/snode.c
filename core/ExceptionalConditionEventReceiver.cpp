@@ -50,4 +50,4 @@ namespace core {
         return continueOutOfBandImmediately();
     }
 
-} // namespace net
+} // namespace core

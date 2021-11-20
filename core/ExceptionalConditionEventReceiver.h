@@ -45,6 +45,6 @@ namespace core {
         virtual bool continueOutOfBandImmediately();
     };
 
-} // namespace net
+} // namespace core
 
 #endif // NET_EXCEPTIONALCONDITIONEVENTRECEIVER_H

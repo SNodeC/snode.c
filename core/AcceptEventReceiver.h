@@ -47,6 +47,6 @@ namespace core {
         virtual bool continueAcceptImmediately();
     };
 
-} // namespace net
+} // namespace core
 
 #endif // NET_ACCEPTEVENTRECEIVER_H

@@ -19,10 +19,10 @@
 #ifndef WEB_HTTP_CLIENT_TLS_CLIENT_H
 #define WEB_HTTP_CLIENT_TLS_CLIENT_H
 
-#include "net/bluetooth/rfcomm/tls/SocketClient.h"      // IWYU pragma: export
-#include "net/ip/transport/tcp/tls/ipv4/SocketClient.h" // IWYU pragma: export
-#include "net/ip/transport/tcp/tls/ipv6/SocketClient.h" // IWYU pragma: export
-#include "web/http/client/Client.h"                            // IWYU pragma: export
+#include "net/ipv4/stream/tls/SocketClient.h"   // IWYU pragma: export
+#include "net/ipv6/stream/tls/SocketClient.h"   // IWYU pragma: export
+#include "net/rfcomm/stream/tls/SocketClient.h" // IWYU pragma: export
+#include "web/http/client/Client.h"             // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

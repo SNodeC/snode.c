@@ -19,10 +19,10 @@
 #ifndef NET_SOCKET_STREAM_SOCKETCONNECTION_H
 #define NET_SOCKET_STREAM_SOCKETCONNECTION_H
 
-#include "log/Logger.h"
 #include "core/socket/stream/SocketConnection.h" // IWYU pragma: export
 #include "core/socket/stream/SocketContext.h"
 #include "core/socket/stream/SocketContextFactory.h"
+#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

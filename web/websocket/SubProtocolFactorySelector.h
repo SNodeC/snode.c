@@ -19,8 +19,8 @@
 #ifndef WEB_WEBSOCKET_SUBPROTOCOLSELECTOR_H
 #define WEB_WEBSOCKET_SUBPROTOCOLSELECTOR_H
 
-#include "log/Logger.h"
 #include "core/DynamicLoader.h"
+#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

@@ -29,11 +29,11 @@ add_executable(verysimpleserver verysimpleserver.cpp)
 target_link_libraries(verysimpleserver PRIVATE snodec::express)
 install(TARGETS verysimpleserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-#if(NLOHMANN_JSON_FOUND)
-#    add_executable(jsonserver jsonserver.cpp)
-#    target_link_libraries(jsonserver PRIVATE snodec::express)
-#    install(TARGETS jsonserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-#endif(NLOHMANN_JSON_FOUND)
+if(NLOHMANN_JSON_FOUND)
+    add_executable(jsonserver jsonserver.cpp)
+    target_link_libraries(jsonserver PRIVATE snodec::express)
+    install(TARGETS jsonserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif(NLOHMANN_JSON_FOUND)
 
 add_executable(jsonclient jsonclient.cpp)
 target_link_libraries(jsonclient PRIVATE snodec::httpclient)
@@ -69,44 +69,44 @@ install(TARGETS warema-jalousien RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 if(BLUEZ_FOUND)
     add_executable(btlowlevelclient btlowlevelclient.cpp)
-    target_link_libraries(btlowlevelclient PRIVATE snodec::net-bt)
+    target_link_libraries(btlowlevelclient PRIVATE snodec::net-rfcomm)
     install(TARGETS btlowlevelclient
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
 
     add_executable(btlowlevelserver btlowlevelserver.cpp)
-    target_link_libraries(btlowlevelserver PRIVATE snodec::net-bt)
+    target_link_libraries(btlowlevelserver PRIVATE snodec::net-rfcomm)
     install(TARGETS btlowlevelserver
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
 
     add_executable(btlowleveltlsclient btlowleveltlsclient.cpp)
-    target_link_libraries(btlowleveltlsclient PRIVATE snodec::net-bt)
+    target_link_libraries(btlowleveltlsclient PRIVATE snodec::net-rfcomm)
     install(TARGETS btlowleveltlsclient
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
 
     add_executable(btlowleveltlsserver btlowleveltlsserver.cpp)
-    target_link_libraries(btlowleveltlsserver PRIVATE snodec::net-bt)
+    target_link_libraries(btlowleveltlsserver PRIVATE snodec::net-rfcomm)
     install(TARGETS btlowleveltlsserver
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
 
     add_executable(l2lowlevelclient l2lowlevelclient.cpp)
-    target_link_libraries(l2lowlevelclient PRIVATE snodec::net-bt)
+    target_link_libraries(l2lowlevelclient PRIVATE snodec::net-l2cap)
     install(TARGETS l2lowlevelclient
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
 
     add_executable(l2lowlevelserver l2lowlevelserver.cpp)
-    target_link_libraries(l2lowlevelserver PRIVATE snodec::net-bt)
+    target_link_libraries(l2lowlevelserver PRIVATE snodec::net-l2cap)
     install(TARGETS l2lowlevelserver
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
 
     add_executable(simpleserverrfcomm simpleserverrfcomm.cpp)
     target_link_libraries(
-        simpleserverrfcomm PRIVATE snodec::express snodec::net-bt
+        simpleserverrfcomm PRIVATE snodec::express snodec::net-rfcomm
     )
     install(TARGETS simpleserverrfcomm
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -114,7 +114,7 @@ if(BLUEZ_FOUND)
 
     add_executable(clientrfcomm clientrfcomm.cpp)
     target_link_libraries(
-        clientrfcomm PRIVATE snodec::httpclient snodec::net-bt
+        clientrfcomm PRIVATE snodec::httpclient snodec::net-rfcomm
     )
     install(TARGETS clientrfcomm RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 

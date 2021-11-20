@@ -19,8 +19,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "config.h"
-#include "express/legacy/WebApp.h"
 #include "core/timer/IntervalTimer.h"
+#include "express/legacy/WebApp.h"
 
 #include <cstring>
 #include <functional> // for function

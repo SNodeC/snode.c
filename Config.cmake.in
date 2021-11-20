@@ -8,10 +8,12 @@ set(express_DEPENDENCIES httpserver)
 set(httpserver_DEPENDENCIES http)
 set(httpclient_DEPENDENCIES http)
 
-set(http_DEPENDENCIES net-ip)
+set(http_DEPENDENCIES net-ipv4 net-ipv6)
 
-set(net-ip_DEPENDENCIES core-legacy core-tls)
-set(net-bt DEPENDENCIES core-legacy core-tls)
+set(net-ipv4_DEPENDENCIES core-legacy core-tls)
+set(net-ipv6_DEPENDENCIES core-legacy core-tls)
+set(net-rfcomm_DEPENDENCIES core-legacy core-tls)
+set(net-l2cap_DEPENDENCIES core-legacy core-tls)
 
 set(core-legacy_DEPENDENCIES core)
 set(core-tls_DEPENDENCIES core)
@@ -44,8 +46,10 @@ set(_supported_components
     core
     core-legacy
     core-tls
-    net-ip
-    net-bt
+    net-ipv4
+    net-ipv6
+    net-rfcomm
+    net-l2cap
     http
     httpserver
     httpclient

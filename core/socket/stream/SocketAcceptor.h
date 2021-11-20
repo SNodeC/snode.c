@@ -19,10 +19,10 @@
 #ifndef NET_SOCKET_STREAM_SOCKETACCEPTOR_H
 #define NET_SOCKET_STREAM_SOCKETACCEPTOR_H
 
-#include "log/Logger.h"
 #include "core/AcceptEventReceiver.h"
 #include "core/system/socket.h"
 #include "core/system/unistd.h"
+#include "log/Logger.h"
 
 namespace core::socket::stream {
     class SocketContextFactory;

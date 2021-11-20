@@ -45,6 +45,6 @@ namespace core {
         virtual bool continueConnectImmediately();
     };
 
-} // namespace net
+} // namespace core
 
 #endif // NET_CONNECTEVENTRECEIVER_H

@@ -1,8 +1,8 @@
-#include "log/Logger.h"
 #include "core/SNodeC.h"
 #include "core/pipe/Pipe.h"
 #include "core/pipe/PipeSink.h"
 #include "core/pipe/PipeSource.h"
+#include "log/Logger.h"
 
 #include <cstddef>    // for size_t
 #include <functional> // for function

@@ -52,4 +52,4 @@ namespace core {
         return continueAcceptImmediately();
     }
 
-} // namespace net
+} // namespace core

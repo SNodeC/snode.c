@@ -54,6 +54,6 @@ namespace core {
         friend enum FLAGS operator&(const enum FLAGS& f1, const enum FLAGS& f2);
     };
 
-} // namespace net
+} // namespace core
 
 #endif // NET_DESCRIPTOR_H

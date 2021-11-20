@@ -19,8 +19,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "config.h"                        // for SERVERCAFILE
+#include "core/SNodeC.h"                   // for SNodeC
 #include "log/Logger.h"                    // for Writer, Storage
-#include "core/SNodeC.h"                    // for SNodeC
 #include "web/http/client/Request.h"       // for Request, client
 #include "web/http/client/Response.h"      // for Response
 #include "web/http/client/legacy/Client.h" // for Client6, Client6...

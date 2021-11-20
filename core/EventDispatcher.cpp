@@ -18,8 +18,8 @@
 
 #include "core/EventDispatcher.h"
 
-#include "log/Logger.h" // for Writer, CWARNING, LOG
 #include "core/EventReceiver.h"
+#include "log/Logger.h"    // for Writer, CWARNING, LOG
 #include "utils/Timeval.h" // for operator-, operator<, operator>=
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -228,4 +228,4 @@ namespace core {
         }
     }
 
-} // namespace net
+} // namespace core

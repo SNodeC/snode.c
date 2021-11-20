@@ -50,4 +50,4 @@ namespace core {
         return continueConnectImmediately();
     }
 
-} // namespace net
+} // namespace core

@@ -18,11 +18,11 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
 #include "core/SNodeC.h"
-#include "net/bluetooth/l2cap/SocketClient.h"
 #include "core/socket/stream/SocketContext.h"
 #include "core/socket/stream/SocketContextFactory.h"
+#include "log/Logger.h"
+#include "net/l2cap/stream/legacy/SocketClient.h"
 
 #include <cstddef>
 #include <functional>  // for function

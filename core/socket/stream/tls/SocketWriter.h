@@ -19,10 +19,10 @@
 #ifndef NET_SOCKET_STREAM_TLS_SOCKETWRITER_H
 #define NET_SOCKET_STREAM_TLS_SOCKETWRITER_H
 
-#include "log/Logger.h"
 #include "core/socket/stream/SocketWriter.h"
 #include "core/socket/stream/tls/TLSHandshake.h"
 #include "core/socket/stream/tls/ssl_utils.h"
+#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

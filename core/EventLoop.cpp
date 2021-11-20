@@ -18,11 +18,11 @@
 
 #include "core/EventLoop.h" // for EventLoop
 
-#include "log/Logger.h" // for Logger
 #include "core/DynamicLoader.h"
 #include "core/system/select.h"
 #include "core/system/signal.h"
 #include "core/system/time.h"
+#include "log/Logger.h" // for Logger
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -100,10 +100,10 @@ namespace core {
             nextEventTimeout = std::min(nextEventTimeout, timeOut);
 
             int counter = core::system::select(maxFd + 1,
-                                              &readEventDispatcher.getFdSet(),
-                                              &writeEventDispatcher.getFdSet(),
-                                              &exceptionalConditionEventDispatcher.getFdSet(),
-                                              &nextEventTimeout);
+                                               &readEventDispatcher.getFdSet(),
+                                               &writeEventDispatcher.getFdSet(),
+                                               &exceptionalConditionEventDispatcher.getFdSet(),
+                                               &nextEventTimeout);
 
             if (counter >= 0) {
                 nextEventTimeout = {LONG_MAX, 0};
@@ -254,4 +254,4 @@ namespace core {
         return tickCounter;
     }
 
-} // namespace net
+} // namespace core

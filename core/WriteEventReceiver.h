@@ -45,6 +45,6 @@ namespace core {
         virtual bool continueWriteImmediately();
     };
 
-} // namespace net
+} // namespace core
 
 #endif // NET_WRITEEVENTRECEIVER_H
