@@ -16,10 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IPV4_STREAM_SERVERSOCKET_H
-#define NET_IPV4_STREAM_SERVERSOCKET_H
+#ifndef NET_IN6_STREAM_STREAM_SERVERSOCKET_H
+#define NET_IN6_STREAM_STREAM_SERVERSOCKET_H
 
-#include "net/ip/stream/Socket.h" // IWYU pragma: export
+#include "net/in6/stream/Socket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,11 +27,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::ip::stream {
+namespace net::in6::stream {
 
     class ServerSocket {
     public:
-        using Socket = net::ip::stream::Socket;
+        using Socket = net::in6::stream::Socket;
         using SocketAddress = Socket::SocketAddress;
 
         virtual void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const = 0;
@@ -49,6 +49,6 @@ namespace net::ip::stream {
         }
     };
 
-} // namespace net::ip::stream
+} // namespace net::in6::stream
 
-#endif // NET_IPV4_STREAM_SERVERSOCKET_H
+#endif // NET_IN6_STREAM_STREAM_SERVERSOCKET_H

@@ -16,21 +16,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IPV4_STREAM_LEGACY_SOCKETSERVER_H
-#define NET_IPV4_STREAM_LEGACY_SOCKETSERVER_H
+#ifndef NET_IN_STREAM_LEGACY_SOCKETSERVER_H
+#define NET_IN_STREAM_LEGACY_SOCKETSERVER_H
 
 #include "core/socket/stream/legacy/SocketServer.h" // IWYU pragma: export
-#include "net/ip/stream/ServerSocket.h"             // IWYU pragma: export
+#include "net/in/stream/ServerSocket.h"             // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::ip::stream::legacy {
+namespace net::in::stream::legacy {
 
     template <typename SocketContextFactoryT>
-    using SocketServer = core::socket::stream::legacy::SocketServer<net::ip::stream::ServerSocket, SocketContextFactoryT>;
+    using SocketServer = core::socket::stream::legacy::SocketServer<net::in::stream::ServerSocket, SocketContextFactoryT>;
 
-} // namespace net::ip::stream::legacy
+} // namespace net::in::stream::legacy
 
-#endif // NET_IPV4_STREAM_LEGACY_SOCKETSERVER_H
+#endif // NET_IN_STREAM_LEGACY_SOCKETSERVER_H

@@ -16,16 +16,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/ip6/stream/Socket.h"
+#include "net/in/stream/Socket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::ip6::stream {
+namespace net::in::stream {
 
     int Socket::create(int flags) {
-        return core::system::socket(PF_INET6, SOCK_STREAM | flags, 0);
+        return core::system::socket(PF_INET, SOCK_STREAM | flags, 0);
     }
 
-} // namespace net::ip6::stream
+} // namespace net::in::stream

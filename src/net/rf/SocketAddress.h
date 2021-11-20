@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_RF_RFCOMMADDRESS_H
-#define NET_RF_RFCOMMADDRESS_H
+#ifndef NET_RF_SOCKETADDRESS_H
+#define NET_RF_SOCKETADDRESS_H
 
 #include "core/socket/SocketAddress.h"
 
@@ -49,4 +49,4 @@ namespace net::rf {
 
 } // namespace net::rf
 
-#endif // NET_RF_RFCOMMADDRESS_H
+#endif // NET_RF_SOCKETADDRESS_H

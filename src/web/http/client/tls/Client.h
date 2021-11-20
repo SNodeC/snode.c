@@ -19,8 +19,8 @@
 #ifndef WEB_HTTP_CLIENT_TLS_CLIENT_H
 #define WEB_HTTP_CLIENT_TLS_CLIENT_H
 
-#include "net/ip/stream/tls/SocketClient.h"  // IWYU pragma: export
-#include "net/ip6/stream/tls/SocketClient.h" // IWYU pragma: export
+#include "net/in/stream/tls/SocketClient.h"  // IWYU pragma: export
+#include "net/in6/stream/tls/SocketClient.h" // IWYU pragma: export
 #include "net/rf/stream/tls/SocketClient.h"  // IWYU pragma: export
 #include "web/http/client/Client.h"          // IWYU pragma: export
 
@@ -31,25 +31,25 @@
 namespace web::http::client::tls {
 
     template <typename Request, typename Response>
-    class Client : public web::http::client::Client<net::ip::stream::tls::SocketClient, Request, Response> {
-        using web::http::client::Client<net::ip::stream::tls::SocketClient, Request, Response>::Client;
+    class Client : public web::http::client::Client<net::in::stream::tls::SocketClient, Request, Response> {
+        using web::http::client::Client<net::in::stream::tls::SocketClient, Request, Response>::Client;
 
     protected:
-        using SocketClient = net::ip::stream::tls::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
+        using SocketClient = net::in::stream::tls::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
 
     public:
-        using web::http::client::Client<net::ip::stream::tls::SocketClient, Request, Response>::connect;
+        using web::http::client::Client<net::in::stream::tls::SocketClient, Request, Response>::connect;
     };
 
     template <typename Request = web::http::client::Request, typename Response = web::http::client::Response>
-    class Client6 : public web::http::client::Client<net::ip6::stream::tls::SocketClient, Request, Response> {
-        using web::http::client::Client<net::ip6::stream::tls::SocketClient, Request, Response>::Client;
+    class Client6 : public web::http::client::Client<net::in6::stream::tls::SocketClient, Request, Response> {
+        using web::http::client::Client<net::in6::stream::tls::SocketClient, Request, Response>::Client;
 
     protected:
-        using SocketClient = net::ip6::stream::tls::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
+        using SocketClient = net::in6::stream::tls::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
 
     public:
-        using web::http::client::Client<net::ip6::stream::tls::SocketClient, Request, Response>::connect;
+        using web::http::client::Client<net::in6::stream::tls::SocketClient, Request, Response>::connect;
     };
 
     template <typename Request = web::http::client::Request, typename Response = web::http::client::Response>

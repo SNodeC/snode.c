@@ -16,21 +16,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IPV4_STREAM_TLS_SOCKETSERVER_H
-#define NET_IPV4_STREAM_TLS_SOCKETSERVER_H
+#ifndef NET_IN6_STREAM_TLS_SOCKETCLIENT_H
+#define NET_IN6_STREAM_TLS_SOCKETCLIENT_H
 
-#include "core/socket/stream/tls/SocketServer.h" // IWYU pragma: export
-#include "net/ip/stream/ServerSocket.h"          // IWYU pragma: export
+#include "core/socket/stream/tls/SocketClient.h" // IWYU pragma: export
+#include "net/in6/stream/ClientSocket.h"         // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::ip::stream::tls {
+namespace net::in6::stream::tls {
 
     template <typename SocketContextFactoryT>
-    using SocketServer = core::socket::stream::tls::SocketServer<net::ip::stream::ServerSocket, SocketContextFactoryT>;
+    using SocketClient = core::socket::stream::tls::SocketClient<net::in6::stream::ClientSocket, SocketContextFactoryT>;
 
-} // namespace net::ip::stream::tls
+} // namespace net::in6::stream::tls
 
-#endif // NET_IPV4_STREAM_TLS_SOCKETSERVER_H
+#endif // NET_IN6_STREAM_TLS_SOCKETCLIENT_H

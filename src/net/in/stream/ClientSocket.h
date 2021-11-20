@@ -16,10 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IPV6_STREAM_STREAM_CLIENTSOCKET_H
-#define NET_IPV6_STREAM_STREAM_CLIENTSOCKET_H
+#ifndef NET_IN_STREAM_CLIENTSOCKET_H
+#define NET_IN_STREAM_CLIENTSOCKET_H
 
-#include "net/ip6/stream/Socket.h" // IWYU pragma: export
+#include "net/in/stream/Socket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,11 +27,11 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::ip6::stream {
+namespace net::in::stream {
 
     class ClientSocket {
     public:
-        using Socket = net::ip6::stream::Socket;
+        using Socket = net::in::stream::Socket;
         using SocketAddress = Socket::SocketAddress;
 
         virtual void
@@ -58,6 +58,6 @@ namespace net::ip6::stream {
         }
     };
 
-} // namespace net::ip6::stream
+} // namespace net::in::stream
 
-#endif // NET_IPV6_STREAM_STREAM_CLIENTSOCKET_H
+#endif // NET_IN_STREAM_CLIENTSOCKET_H

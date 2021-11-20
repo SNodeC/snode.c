@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "net/ip6/SocketAddress.h"
+#include "net/in6/SocketAddress.h"
 
 #include "core/system/netdb.h"
 
@@ -26,7 +26,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::ip6 {
+namespace net::in6 {
 
     std::string bad_hostname::message;
 
@@ -114,4 +114,4 @@ namespace net::ip6 {
         return host() + ":" + std::to_string(port());
     }
 
-} // namespace net::ip6
+} // namespace net::in6

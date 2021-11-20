@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IPV6_INETADDRESS_H
-#define NET_IPV6_INETADDRESS_H
+#ifndef NET_IN6_SOCKETADDRESS_H
+#define NET_IN6_SOCKETADDRESS_H
 
 #include "core/socket/SocketAddress.h"
 
@@ -30,7 +30,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::ip6 {
+namespace net::in6 {
 
     class bad_hostname : public std::exception {
     public:
@@ -63,6 +63,6 @@ namespace net::ip6 {
         std::string toString() const override;
     };
 
-} // namespace net::ip6
+} // namespace net::in6
 
-#endif // NET_IPV6_INETADDRESS_H
+#endif // NET_IN6_SOCKETADDRESS_H

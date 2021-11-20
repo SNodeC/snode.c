@@ -19,8 +19,8 @@
 #ifndef WEB_HTTP_SERVER_LEGACY_SERVER_H
 #define WEB_HTTP_SERVER_LEGACY_SERVER_H
 
-#include "net/ip/stream/legacy/SocketServer.h"  // IWYU pragma: export
-#include "net/ip6/stream/legacy/SocketServer.h" // IWYU pragma: export
+#include "net/in/stream/legacy/SocketServer.h"  // IWYU pragma: export
+#include "net/in6/stream/legacy/SocketServer.h" // IWYU pragma: export
 #include "net/rf/stream/legacy/SocketServer.h"  // IWYU pragma: export
 #include "web/http/server/Server.h"             // IWYU pragma: export
 
@@ -31,14 +31,14 @@
 namespace web::http::server::legacy {
 
     template <typename Request, typename Response>
-    class Server : public web::http::server::Server<net::ip::stream::legacy::SocketServer, Request, Response> {
-        using web::http::server::Server<net::ip::stream::legacy::SocketServer, Request, Response>::Server;
+    class Server : public web::http::server::Server<net::in::stream::legacy::SocketServer, Request, Response> {
+        using web::http::server::Server<net::in::stream::legacy::SocketServer, Request, Response>::Server;
 
     protected:
-        using SocketServer = net::ip::stream::legacy::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
+        using SocketServer = net::in::stream::legacy::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
 
     public:
-        using web::http::server::Server<net::ip::stream::legacy::SocketServer, Request, Response>::listen;
+        using web::http::server::Server<net::in::stream::legacy::SocketServer, Request, Response>::listen;
 
         void addSniCert(const std::string& domain, const std::map<std::string, std::any>& options) {
             SocketServer::addSniCert(domain, options);
@@ -58,14 +58,14 @@ namespace web::http::server::legacy {
     };
 
     template <typename Request = web::http::server::Request, typename Response = web::http::server::Response>
-    class Server6 : public web::http::server::Server<net::ip6::stream::legacy::SocketServer, Request, Response> {
-        using web::http::server::Server<net::ip6::stream::legacy::SocketServer, Request, Response>::Server;
+    class Server6 : public web::http::server::Server<net::in6::stream::legacy::SocketServer, Request, Response> {
+        using web::http::server::Server<net::in6::stream::legacy::SocketServer, Request, Response>::Server;
 
     protected:
-        using SocketServer = net::ip6::stream::legacy::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
+        using SocketServer = net::in6::stream::legacy::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
 
     public:
-        using web::http::server::Server<net::ip6::stream::legacy::SocketServer, Request, Response>::listen;
+        using web::http::server::Server<net::in6::stream::legacy::SocketServer, Request, Response>::listen;
 
         void addSniCert(const std::string& domain, const std::map<std::string, std::any>& options) {
             SocketServer::addSniCert(domain, options);

@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IPV4_INETADDRESS_H
-#define NET_IPV4_INETADDRESS_H
+#ifndef NET_IN_SOCKETADDRESS_H
+#define NET_IN_SOCKETADDRESS_H
 
 #include "core/socket/SocketAddress.h"
 
@@ -30,7 +30,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::ip {
+namespace net::in {
 
     class bad_hostname : public std::exception {
     public:
@@ -63,6 +63,6 @@ namespace net::ip {
         std::string toString() const override;
     };
 
-} // namespace net::ip
+} // namespace net::in
 
-#endif // NET_IPV4_INETADDRESS_H
+#endif // NET_IN_SOCKETADDRESS_H

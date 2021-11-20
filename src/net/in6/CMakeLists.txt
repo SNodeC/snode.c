@@ -1,22 +1,22 @@
 cmake_minimum_required(VERSION 3.0)
 
-add_library(net-ip6 SHARED SocketAddress.cpp stream/Socket.cpp)
-add_library(snodec::net-ip6 ALIAS net-ip6)
+add_library(net-in6 SHARED SocketAddress.cpp stream/Socket.cpp)
+add_library(snodec::net-in6 ALIAS net-in6)
 
 target_include_directories(
-    net-ip6
+    net-in6
     PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>"
            "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(net-ip6 PUBLIC snodec::core-legacy snodec::core-tls)
+target_link_libraries(net-in6 PUBLIC snodec::core-legacy snodec::core-tls)
 
-set_target_properties(net-ip6 PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-net-ip6)
+set_target_properties(net-in6 PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-net-in6)
 
 install(
-    TARGETS net-ip6
-    EXPORT snodecnet-ip6Targets
+    TARGETS net-in6
+    EXPORT snodecnet-in6Targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     INCLUDES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
@@ -24,7 +24,7 @@ install(
 
 install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/ip6
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/net/in6
     FILES_MATCHING
     PATTERN "*.h"
     PATTERN "*.hpp"
@@ -32,8 +32,8 @@ install(
 )
 
 install(
-    EXPORT snodecnet-ip6Targets
-    FILE snodecnet-ip6Targets.cmake
+    EXPORT snodecnet-in6Targets
+    FILE snodecnet-in6Targets.cmake
     NAMESPACE snodec::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )

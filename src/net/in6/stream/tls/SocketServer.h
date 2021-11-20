@@ -16,26 +16,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IPV6_STREAM_SOCKET_H
-#define NET_IPV6_STREAM_SOCKET_H
+#ifndef NET_IN6_STREAM_TLS_SOCKETSERVER_H
+#define NET_IN6_STREAM_TLS_SOCKETSERVER_H
 
-#include "core/socket/Socket.h"
-#include "net/ip6/SocketAddress.h" // IWYU pragma: export
+#include "core/socket/stream/tls/SocketServer.h" // IWYU pragma: export
+#include "net/in6/stream/ServerSocket.h"         // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-namespace net::ip6::stream {
+namespace net::in6::stream::tls {
 
-    class Socket : public core::socket::Socket<net::ip6::SocketAddress> {
-    protected:
-        int create(int flags) override;
+    template <typename SocketContextFactoryT>
+    using SocketServer = core::socket::stream::tls::SocketServer<net::in6::stream::ServerSocket, SocketContextFactoryT>;
 
-    public:
-        using SocketAddress = net::ip6::SocketAddress;
-    };
+} // namespace net::in6::stream::tls
 
-} // namespace net::ip6::stream
-
-#endif // NET_IPV6_STREAM_SOCKET_H
+#endif // NET_IN6_STREAM_TLS_SOCKETSERVER_H
