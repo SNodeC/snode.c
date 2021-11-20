@@ -36,7 +36,7 @@ namespace core::socket::stream {
     class SocketClient : public ClientSocketT {
         /** Sequence diagramm showing how a connect to a peer is performed.
         @startuml
-        !include net/socket/stream/pu/SocketClient.pu
+        !include core/socket/stream/pu/SocketClient.pu
         @enduml
         */
 

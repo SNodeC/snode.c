@@ -54,7 +54,7 @@ namespace core::socket::stream {
 
         /** Sequence diagramm of res.upgrade(req).
 @startuml
-!include net/socket/stream/pu/SocketAcceptor.pu!0
+!include core/socket/stream/pu/SocketAcceptor.pu!0
 @enduml
 */
         SocketAcceptor(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
