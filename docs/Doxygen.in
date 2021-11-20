@@ -2594,7 +2594,7 @@ PLANTUML_CFG_FILE      =
 # When using plantuml, the specified paths are searched for files specified by
 # the !include statement in a plantuml block.
 
-PLANTUML_INCLUDE_PATH  = @CMAKE_SOURCE_DIR@
+PLANTUML_INCLUDE_PATH  = @CMAKE_SOURCE_DIR@/src
 
 # The DOT_GRAPH_MAX_NODES tag can be used to set the maximum number of nodes
 # that will be shown in the graph. If the number of nodes in a graph becomes
