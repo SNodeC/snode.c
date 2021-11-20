@@ -8,15 +8,17 @@ set(express_DEPENDENCIES httpserver)
 set(httpserver_DEPENDENCIES http)
 set(httpclient_DEPENDENCIES http)
 
-set(http_DEPENDENCIES net-ip)
+set(http_DEPENDENCIES net-ip net-ip6)
 
-set(net-ip_DEPENDENCIES net-legacy net-tls)
-set(net-bt DEPENDENCIES net-legacy net-tls)
+set(net-ip_DEPENDENCIES core-legacy core-tls)
+set(net-ip6_DEPENDENCIES core-legacy core-tls)
+set(net-rf_DEPENDENCIES core-legacy core-tls)
+set(net-l2_DEPENDENCIES core-legacy core-tls)
 
-set(net-legacy_DEPENDENCIES net)
-set(net-tls_DEPENDENCIES net)
+set(core-legacy_DEPENDENCIES core)
+set(core-tls_DEPENDENCIES core)
 
-set(net_DEPENDENCIES utils logger)
+set(core_DEPENDENCIES utils logger)
 
 macro(LOAD_COMPONENT_WITH_DEPENDENCIES _comp)
     message("Loading component: " ${_comp})
@@ -41,11 +43,13 @@ macro(LOAD_COMPONENT_WITH_DEPENDENCIES _comp)
 endmacro()
 
 set(_supported_components
-    net
-    net-legacy
-    net-tls
+    core
+    core-legacy
+    core-tls
     net-ip
-    net-bt
+    net-ip6
+    net-rf
+    net-l2
     http
     httpserver
     httpclient

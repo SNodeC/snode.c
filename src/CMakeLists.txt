@@ -1,0 +1,27 @@
+cmake_minimum_required(VERSION 3.0)
+
+add_compile_options(
+    -Werror
+    -Wall
+    -Wextra
+    -Wno-psabi # needed for RaspberryPi
+    -Wconversion
+    -Wpedantic
+    -pedantic-errors
+    -fexec-charset=UTF-8
+    # -fsanitize=address -fno-omit-frame-pointer
+)
+# set_property(GLOBAL PROPERTY LINK_FLAGS -fsanitize=address)
+# link_libraries(asan)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+add_subdirectory(log)
+add_subdirectory(utils)
+add_subdirectory(core)
+add_subdirectory(net)
+add_subdirectory(web)
+add_subdirectory(express)
+add_subdirectory(apps)

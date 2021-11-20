@@ -9,7 +9,7 @@ find_program(CLANG_FORMAT "clang-format")
 
 if(CLANG_FORMAT)
     # Set the source files to clang - format
-    file(GLOB_RECURSE CHECK_CXX_SOURCE_FILES ${CMAKE_SOURCE_DIR}/*.[tch]pp
+    file(GLOB_RECURSE CHECK_CXX_SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/*.[tch]pp
          ${CMAKE_SOURCE_DIR}/*.h
     )
 

@@ -250,7 +250,7 @@ int main(int argc, char** argv) {
         }
     });
 
-    legacyApp.onConnect([](net::socket::legacy::SocketConnection* socketConnection) {
+    legacyApp.onConnect([](core::socket::legacy::SocketConnection* socketConnection) {
         VLOG(0) << "OnConnect:";
         VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().host()
                           + "(" + socketConnection->getRemoteAddress().ip() + "):"
@@ -260,7 +260,7 @@ int main(int argc, char** argv) {
                  + std::to_string(socketConnection->getLocalAddress().port());
     });
 
-    legacyApp.onDisconnect([](net::socket::legacy::SocketConnection* socketConnection) {
+    legacyApp.onDisconnect([](core::socket::legacy::SocketConnection* socketConnection) {
         VLOG(0) << "OnDisconnect:";
         VLOG(0) << "\tClient: " + socketConnection->getRemoteAddress().host()
                           + "(" + socketConnection->getRemoteAddress().ip() + "):"
@@ -282,7 +282,7 @@ int main(int argc, char** argv) {
         }
     });
 
-    tlsApp.onConnect([](net::socket::tls::SocketConnection* socketConnection) {
+    tlsApp.onConnect([](core::socket::tls::SocketConnection* socketConnection) {
         VLOG(0) << "OnConnect:";
         VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().host()
                           + "(" + socketConnection->getLocalAddress().ip() + "):"
@@ -332,7 +332,7 @@ int main(int argc, char** argv) {
         }
     });
 
-    tlsApp.onDisconnect([](net::socket::tls::SocketConnection* socketConnection) {
+    tlsApp.onDisconnect([](core::socket::tls::SocketConnection* socketConnection) {
         VLOG(0) << "OnDisconnect:";
         VLOG(0) << "\tServer: " + socketConnection->getLocalAddress().host()
                           + "(" + socketConnection->getLocalAddress().ip() + "):"
