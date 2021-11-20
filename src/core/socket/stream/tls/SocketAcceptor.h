@@ -162,7 +162,7 @@ namespace core::socket::stream::tls {
                         ret = SSL_TLSEXT_ERR_NOACK;
                     }
                 } else {
-                    LOG(INFO) << "SSL_CTX: Already provides: '" << serverNameIndication << "'";
+                    LOG(INFO) << "SSL_CTX: Master SSL_CTX already provides: '" << serverNameIndication << "'";
                 }
             }
 

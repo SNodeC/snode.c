@@ -5,7 +5,7 @@ add_library(snodec::core-legacy ALIAS core-legacy)
 
 target_include_directories(
     core-legacy
-    INTERFACE "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>"
+    INTERFACE "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
               "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
               "$<INSTALL_INTERFACE:include/snode.c>"
 )

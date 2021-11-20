@@ -48,7 +48,7 @@ target_compile_definitions(
 
 target_include_directories(
     logger
-    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>"
+    PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
            "$<INSTALL_INTERFACE:include/snode.c>"
     INTERFACE ${EASYLOGGINGPP_INCLUDE_DIR}
 )

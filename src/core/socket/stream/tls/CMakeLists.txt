@@ -15,7 +15,7 @@ else(NOT OpenSSL_FOUND)
 
     target_include_directories(
         core-tls
-        PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>"
+        PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
                "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
                "$<BUILD_INTERFACE:${OPENSSL_INCLUDE_DIRS}>"
                "$<INSTALL_INTERFACE:include/snode.c>"

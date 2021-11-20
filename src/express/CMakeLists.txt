@@ -34,7 +34,7 @@ add_library(
 add_library(snodec::express ALIAS express)
 
 target_include_directories(
-    express PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>"
+    express PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
                    "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
