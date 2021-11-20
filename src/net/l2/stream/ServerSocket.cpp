@@ -16,33 +16,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_L2_STREAM_SERVERSOCKET_H
-#define NET_L2_STREAM_SERVERSOCKET_H
-
-#include "net/l2/stream/Socket.h" // IWYU pragma: export
+#include "net/l2/stream/ServerSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <functional>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::l2::stream {
 
-    class ServerSocket {
-    public:
-        using Socket = net::l2::stream::Socket;
-        using SocketAddress = Socket::SocketAddress;
+    void ServerSocket::listen(uint16_t psm, int backlog, const std::function<void(int)>& onError) {
+        listen(SocketAddress(psm), backlog, onError);
+    }
 
-        virtual void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const = 0;
+    void ServerSocket::listen(const std::string& address, int backlog, const std::function<void(int)>& onError) {
+        listen(SocketAddress(address), backlog, onError);
+    }
 
-        void listen(uint16_t psm, int backlog, const std::function<void(int)>& onError);
-
-        void listen(const std::string& address, int backlog, const std::function<void(int)>& onError);
-
-        void listen(const std::string& address, uint16_t psm, int backlog, const std::function<void(int)>& onError);
-    };
+    void ServerSocket::listen(const std::string& address, uint16_t psm, int backlog, const std::function<void(int)>& onError) {
+        listen(SocketAddress(address, psm), backlog, onError);
+    }
 
 } // namespace net::l2::stream
-
-#endif // NET_L2_STREAM_SERVERSOCKET_H

@@ -36,17 +36,11 @@ namespace net::in6::stream {
 
         virtual void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const = 0;
 
-        void listen(uint16_t port, int backlog, const std::function<void(int)>& onError) {
-            listen(SocketAddress(port), backlog, onError);
-        }
+        void listen(uint16_t port, int backlog, const std::function<void(int)>& onError);
 
-        void listen(const std::string& ipOrHostname, int backlog, const std::function<void(int)>& onError) {
-            listen(SocketAddress(ipOrHostname), backlog, onError);
-        }
+        void listen(const std::string& ipOrHostname, int backlog, const std::function<void(int)>& onError);
 
-        void listen(const std::string& ipOrHostname, uint16_t port, int backlog, const std::function<void(int)>& onError) {
-            listen(SocketAddress(ipOrHostname, port), backlog, onError);
-        }
+        void listen(const std::string& ipOrHostname, uint16_t port, int backlog, const std::function<void(int)>& onError);
     };
 
 } // namespace net::in6::stream

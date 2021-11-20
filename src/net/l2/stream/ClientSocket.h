@@ -38,21 +38,15 @@ namespace net::l2::stream {
         connect(const SocketAddress& remoteAddress, const SocketAddress& bindAddress, const std::function<void(int)>& onError) const = 0;
         virtual void connect(const SocketAddress& remoteAddress, const std::function<void(int)>& onError) const = 0;
 
-        void connect(const std::string& address, uint16_t psm, const std::function<void(int)>& onError) {
-            connect(SocketAddress(address, psm), onError);
-        }
+        void connect(const std::string& address, uint16_t psm, const std::function<void(int)>& onError);
 
-        void connect(const std::string& address, uint16_t psm, const std::string& bindAddress, const std::function<void(int)>& onError) {
-            connect(SocketAddress(address, psm), SocketAddress(bindAddress), onError);
-        }
+        void connect(const std::string& address, uint16_t psm, const std::string& bindAddress, const std::function<void(int)>& onError);
 
         void connect(const std::string& address,
                      uint16_t psm,
                      const std::string& bindAddress,
                      uint16_t bindPsm,
-                     const std::function<void(int)>& onError) {
-            connect(SocketAddress(address, psm), SocketAddress(bindAddress, bindPsm), onError);
-        }
+                     const std::function<void(int)>& onError);
     };
 
 } // namespace net::l2::stream

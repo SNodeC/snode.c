@@ -38,24 +38,18 @@ namespace net::in6::stream {
         connect(const SocketAddress& remoteAddress, const SocketAddress& bindAddress, const std::function<void(int)>& onError) const = 0;
         virtual void connect(const SocketAddress& remoteAddress, const std::function<void(int)>& onError) const = 0;
 
-        void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
-            connect(SocketAddress(ipOrHostname, port), onError);
-        }
+        void connect(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError);
 
         void connect(const std::string& ipOrHostname,
                      uint16_t port,
                      const std::string& bindIpOrHostname,
-                     const std::function<void(int)>& onError) {
-            connect(SocketAddress(ipOrHostname, port), SocketAddress(bindIpOrHostname), onError);
-        }
+                     const std::function<void(int)>& onError);
 
         void connect(const std::string& ipOrHostname,
                      uint16_t port,
                      const std::string& bindIpOrHostname,
                      uint16_t bindPort,
-                     const std::function<void(int)>& onError) {
-            connect(SocketAddress(ipOrHostname, port), SocketAddress(bindIpOrHostname, bindPort), onError);
-        }
+                     const std::function<void(int)>& onError);
     };
 
 } // namespace net::in6::stream

@@ -6,7 +6,10 @@ pkg_check_modules(BLUEZ bluez)
 
 if(BLUEZ_FOUND)
 
-    add_library(net-l2 SHARED SocketAddress.cpp stream/Socket.cpp)
+    add_library(
+        net-l2 SHARED SocketAddress.cpp stream/Socket.cpp
+                      stream/ServerSocket.cpp stream/ClientSocket.cpp
+    )
     add_library(snodec::net-l2 ALIAS net-l2)
 
     target_include_directories(

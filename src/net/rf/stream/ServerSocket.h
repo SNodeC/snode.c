@@ -36,17 +36,11 @@ namespace net::rf::stream {
 
         virtual void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const = 0;
 
-        void listen(uint8_t channel, int backlog, const std::function<void(int)>& onError) {
-            listen(SocketAddress(channel), backlog, onError);
-        }
+        void listen(uint8_t channel, int backlog, const std::function<void(int)>& onError);
 
-        void listen(const std::string& address, int backlog, const std::function<void(int)>& onError) {
-            listen(SocketAddress(address), backlog, onError);
-        }
+        void listen(const std::string& address, int backlog, const std::function<void(int)>& onError);
 
-        void listen(const std::string& address, uint8_t channel, int backlog, const std::function<void(int)>& onError) {
-            listen(SocketAddress(address, channel), backlog, onError);
-        }
+        void listen(const std::string& address, uint8_t channel, int backlog, const std::function<void(int)>& onError);
     };
 
 } // namespace net::rf::stream
