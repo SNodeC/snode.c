@@ -31,9 +31,6 @@ namespace net::l2::stream {
     class Socket : public core::socket::Socket<net::l2::SocketAddress> {
     protected:
         int create(int flags = 0) override;
-
-    public:
-        using SocketAddress = net::l2::SocketAddress;
     };
 
 } // namespace net::l2::stream

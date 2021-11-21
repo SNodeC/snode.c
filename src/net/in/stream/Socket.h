@@ -31,9 +31,6 @@ namespace net::in::stream {
     class Socket : public core::socket::Socket<net::in::SocketAddress> {
     protected:
         int create(int flags) override;
-
-    public:
-        using SocketAddress = net::in::SocketAddress;
     };
 
 } // namespace net::in::stream
