@@ -16,29 +16,33 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_SOCKET_CLIENTSOCKET_H
-#define CORE_SOCKET_CLIENTSOCKET_H
+#ifndef NET_UN_SOCKETADDRESS_H
+#define NET_UN_SOCKETADDRESS_H
+
+#include "core/socket/SocketAddress.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
+#include <cstdint>
+#include <exception>
+#include <string>
+#include <sys/un.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket {
+namespace net::un {
 
-    template <typename SocketT>
-    class ClientSocket {
+    class SocketAddress : public core::socket::SocketAddress<struct sockaddr_un> {
     public:
-        using Socket = SocketT;
+        using core::socket::SocketAddress<struct sockaddr_un>::SocketAddress;
 
-        virtual void connect(const typename Socket::SocketAddress& remoteAddress,
-                             const typename Socket::SocketAddress& bindAddress,
-                             const std::function<void(int)>& onError) const = 0;
+        SocketAddress();
+        explicit SocketAddress(const std::string& sunPath);
 
-        virtual void connect(const typename Socket::SocketAddress& remoteAddress, const std::function<void(int)>& onError) const = 0;
+        std::string address() const override;
+        std::string toString() const override;
     };
 
-} // namespace core::socket
+} // namespace net::un
 
-#endif // CORE_SOCKET_CLIENTSOCKET_H
+#endif // NET_UN_SOCKETADDRESS_H

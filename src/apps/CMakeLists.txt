@@ -128,4 +128,12 @@ add_executable(testpipe testpipe.cpp)
 target_link_libraries(testpipe PRIVATE snodec::core)
 install(TARGETS testpipe RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
+add_executable(unlowlevelclient unlowlevelclient.cpp)
+target_link_libraries(unlowlevelclient PRIVATE snodec::net-un)
+install(TARGETS unlowlevelclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+add_executable(unlowlevelserver unlowlevelserver.cpp)
+target_link_libraries(unlowlevelserver PRIVATE snodec::net-un)
+install(TARGETS unlowlevelserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
 add_subdirectory(websocket)

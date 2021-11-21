@@ -16,29 +16,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_SOCKET_CLIENTSOCKET_H
-#define CORE_SOCKET_CLIENTSOCKET_H
+#include "net/un/stream/ClientSocket.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket {
+namespace net::un::stream {
 
-    template <typename SocketT>
-    class ClientSocket {
-    public:
-        using Socket = SocketT;
+    void ClientSocket::connect(const std::string& sunPath, const std::function<void(int)>& onError) {
+        connect(SocketAddress(sunPath), onError);
+    }
 
-        virtual void connect(const typename Socket::SocketAddress& remoteAddress,
-                             const typename Socket::SocketAddress& bindAddress,
-                             const std::function<void(int)>& onError) const = 0;
-
-        virtual void connect(const typename Socket::SocketAddress& remoteAddress, const std::function<void(int)>& onError) const = 0;
-    };
-
-} // namespace core::socket
-
-#endif // CORE_SOCKET_CLIENTSOCKET_H
+} // namespace net::un::stream

@@ -16,29 +16,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_SOCKET_CLIENTSOCKET_H
-#define CORE_SOCKET_CLIENTSOCKET_H
+#ifndef NET_UN_STREAM_LEGACY_SOCKETCLIENT_H
+#define NET_UN_STREAM_LEGACY_SOCKETCLIENT_H
+
+#include "core/socket/stream/legacy/SocketClient.h" // IWYU pragma: export
+#include "net/un/stream/ClientSocket.h"             // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <functional>
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+namespace net::un::stream::legacy {
 
-namespace core::socket {
+    template <typename SocketContextFactoryT>
+    using SocketClient = core::socket::stream::legacy::SocketClient<net::un::stream::ClientSocket, SocketContextFactoryT>;
 
-    template <typename SocketT>
-    class ClientSocket {
-    public:
-        using Socket = SocketT;
+} // namespace net::un::stream::legacy
 
-        virtual void connect(const typename Socket::SocketAddress& remoteAddress,
-                             const typename Socket::SocketAddress& bindAddress,
-                             const std::function<void(int)>& onError) const = 0;
-
-        virtual void connect(const typename Socket::SocketAddress& remoteAddress, const std::function<void(int)>& onError) const = 0;
-    };
-
-} // namespace core::socket
-
-#endif // CORE_SOCKET_CLIENTSOCKET_H
+#endif // NET_UN_STREAM_LEGACY_SOCKETCLIENT_H

@@ -42,6 +42,8 @@ namespace core::socket {
         Socket& operator=(const Socket&) = delete;
 
     protected:
+        virtual ~Socket() = default;
+
         virtual int create(int flags) = 0;
 
     public:
