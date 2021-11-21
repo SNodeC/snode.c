@@ -66,13 +66,15 @@ namespace core::socket::stream {
 
         using ClientSocket::connect;
 
-        void connect(const SocketAddress& remoteAddress, const SocketAddress& bindAddress, const std::function<void(int)>& onError) const {
+        void connect(const SocketAddress& remoteAddress,
+                     const SocketAddress& bindAddress,
+                     const std::function<void(int)>& onError) const override {
             SocketConnector* socketConnector = new SocketConnector(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
 
             socketConnector->connect(remoteAddress, bindAddress, onError);
         }
 
-        void connect(const SocketAddress& remoteAddress, const std::function<void(int)>& onError) const {
+        void connect(const SocketAddress& remoteAddress, const std::function<void(int)>& onError) const override {
             connect(remoteAddress, SocketAddress(), onError);
         }
 

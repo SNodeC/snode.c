@@ -60,7 +60,7 @@ namespace core::socket::stream {
 
         using ServerSocket::listen;
 
-        void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const {
+        void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const override {
             SocketAcceptor* socketAcceptor = new SocketAcceptor(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
 
             socketAcceptor->listen(bindAddress, backlog, onError);
