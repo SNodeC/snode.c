@@ -14,6 +14,7 @@ set(net-in_DEPENDENCIES core-legacy core-tls)
 set(net-in6_DEPENDENCIES core-legacy core-tls)
 set(net-rf_DEPENDENCIES core-legacy core-tls)
 set(net-l2_DEPENDENCIES core-legacy core-tls)
+set(net-un_DEPENDENCIES core-legacy core-tls)
 
 set(core-legacy_DEPENDENCIES core)
 set(core-tls_DEPENDENCIES core)
@@ -50,6 +51,7 @@ set(_supported_components
     net-in6
     net-rf
     net-l2
+    net-un
     http
     httpserver
     httpclient
