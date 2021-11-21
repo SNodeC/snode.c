@@ -25,14 +25,14 @@
 namespace net::rf::stream {
 
     void ClientSocket::connect(const std::string& address, uint8_t channel, const std::function<void(int)>& onError) {
-        connect(SocketAddress(address, channel), onError);
+        connect(Socket::SocketAddress(address, channel), onError);
     }
 
     void ClientSocket::connect(const std::string& address,
                                uint8_t channel,
                                const std::string& bindAddress,
                                const std::function<void(int)>& onError) {
-        connect(SocketAddress(address, channel), SocketAddress(bindAddress), onError);
+        connect(Socket::SocketAddress(address, channel), Socket::SocketAddress(bindAddress), onError);
     }
 
     void ClientSocket::connect(const std::string& address,
@@ -40,7 +40,7 @@ namespace net::rf::stream {
                                const std::string& bindAddress,
                                uint8_t bindChannel,
                                const std::function<void(int)>& onError) {
-        connect(SocketAddress(address, channel), SocketAddress(bindAddress, bindChannel), onError);
+        connect(Socket::SocketAddress(address, channel), Socket::SocketAddress(bindAddress, bindChannel), onError);
     }
 
 } // namespace net::rf::stream

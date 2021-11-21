@@ -32,11 +32,12 @@ namespace net::l2::stream {
     class ClientSocket {
     public:
         using Socket = net::l2::stream::Socket;
-        using SocketAddress = Socket::SocketAddress;
 
-        virtual void
-        connect(const SocketAddress& remoteAddress, const SocketAddress& bindAddress, const std::function<void(int)>& onError) const = 0;
-        virtual void connect(const SocketAddress& remoteAddress, const std::function<void(int)>& onError) const = 0;
+        virtual void connect(const Socket::SocketAddress& remoteAddress,
+                             const Socket::SocketAddress& bindAddress,
+                             const std::function<void(int)>& onError) const = 0;
+
+        virtual void connect(const Socket::SocketAddress& remoteAddress, const std::function<void(int)>& onError) const = 0;
 
         void connect(const std::string& address, uint16_t psm, const std::function<void(int)>& onError);
 

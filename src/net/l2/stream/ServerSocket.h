@@ -32,9 +32,8 @@ namespace net::l2::stream {
     class ServerSocket {
     public:
         using Socket = net::l2::stream::Socket;
-        using SocketAddress = Socket::SocketAddress;
 
-        virtual void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const = 0;
+        virtual void listen(const Socket::SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const = 0;
 
         void listen(uint16_t psm, int backlog, const std::function<void(int)>& onError);
 

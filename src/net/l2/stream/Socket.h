@@ -19,12 +19,12 @@
 #ifndef NET_L2_STREAM_SOCKET_H
 #define NET_L2_STREAM_SOCKET_H
 
+#include "core/socket/Socket.h"
+#include "net/l2/SocketAddress.h" // IWYU pragma: export
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "core/socket/Socket.h"
-#include "net/l2/SocketAddress.h" // IWYU pragma: export
 
 namespace net::l2::stream {
 

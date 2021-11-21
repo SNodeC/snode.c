@@ -32,11 +32,12 @@ namespace net::rf::stream {
     class ClientSocket {
     public:
         using Socket = net::rf::stream::Socket;
-        using SocketAddress = Socket::SocketAddress;
 
-        virtual void
-        connect(const SocketAddress& remoteAddress, const SocketAddress& bindAddress, const std::function<void(int)>& onError) const = 0;
-        virtual void connect(const SocketAddress& remoteAddress, const std::function<void(int)>& onError) const = 0;
+        virtual void connect(const Socket::SocketAddress& remoteAddress,
+                             const Socket::SocketAddress& bindAddress,
+                             const std::function<void(int)>& onError) const = 0;
+
+        virtual void connect(const Socket::SocketAddress& remoteAddress, const std::function<void(int)>& onError) const = 0;
 
         void connect(const std::string& address, uint8_t channel, const std::function<void(int)>& onError);
 

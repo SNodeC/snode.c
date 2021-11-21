@@ -28,12 +28,12 @@
 
 namespace net::rf::stream {
 
-    class Socket : public core::socket::Socket<net::rf::SocketAdderess> {
+    class Socket : public core::socket::Socket<net::rf::SocketAddress> {
     protected:
         int create(int flags) override;
 
     public:
-        using SocketAddress = net::rf::SocketAdderess;
+        using SocketAddress = net::rf::SocketAddress;
     };
 
 } // namespace net::rf::stream

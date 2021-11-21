@@ -32,14 +32,14 @@
 
 namespace net::rf {
 
-    class SocketAdderess : public core::socket::SocketAddress<struct sockaddr_rc> {
+    class SocketAddress : public core::socket::SocketAddress<struct sockaddr_rc> {
     public:
         using core::socket::SocketAddress<struct sockaddr_rc>::SocketAddress;
 
-        SocketAdderess();
-        explicit SocketAdderess(const std::string& btAddress);
-        SocketAdderess(const std::string& btAddress, uint8_t channel);
-        explicit SocketAdderess(uint8_t channel);
+        SocketAddress();
+        explicit SocketAddress(const std::string& btAddress);
+        SocketAddress(const std::string& btAddress, uint8_t channel);
+        explicit SocketAddress(uint8_t channel);
 
         uint8_t channel() const;
 

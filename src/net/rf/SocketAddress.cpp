@@ -26,42 +26,42 @@
 
 namespace net::rf {
 
-    SocketAdderess::SocketAdderess() {
+    SocketAddress::SocketAddress() {
         sockAddr.rc_family = AF_BLUETOOTH;
         sockAddr.rc_bdaddr = {{0, 0, 0, 0, 0, 0}};
         sockAddr.rc_channel = (uint8_t) 0;
     }
 
-    SocketAdderess::SocketAdderess(const std::string& btAddress) {
+    SocketAddress::SocketAddress(const std::string& btAddress) {
         sockAddr.rc_family = AF_BLUETOOTH;
         str2ba(btAddress.c_str(), &sockAddr.rc_bdaddr);
         sockAddr.rc_channel = (uint8_t) 0;
     }
 
-    SocketAdderess::SocketAdderess(uint8_t channel) {
+    SocketAddress::SocketAddress(uint8_t channel) {
         sockAddr.rc_family = AF_BLUETOOTH;
         sockAddr.rc_bdaddr = {{0, 0, 0, 0, 0, 0}};
         sockAddr.rc_channel = channel;
     }
 
-    SocketAdderess::SocketAdderess(const std::string& btAddress, uint8_t channel) {
+    SocketAddress::SocketAddress(const std::string& btAddress, uint8_t channel) {
         sockAddr.rc_family = AF_BLUETOOTH;
         str2ba(btAddress.c_str(), &sockAddr.rc_bdaddr);
         sockAddr.rc_channel = channel;
     }
 
-    uint8_t SocketAdderess::channel() const {
+    uint8_t SocketAddress::channel() const {
         return sockAddr.rc_channel;
     }
 
-    std::string SocketAdderess::address() const {
+    std::string SocketAddress::address() const {
         char address[256];
         ba2str(&sockAddr.rc_bdaddr, address);
 
         return address;
     }
 
-    std::string SocketAdderess::toString() const {
+    std::string SocketAddress::toString() const {
         return address() + ":" + std::to_string(channel());
     }
 

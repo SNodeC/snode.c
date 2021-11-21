@@ -25,15 +25,15 @@
 namespace net::in::stream {
 
     void ServerSocket::listen(uint16_t port, int backlog, const std::function<void(int)>& onError) {
-        listen(SocketAddress(port), backlog, onError);
+        listen(Socket::SocketAddress(port), backlog, onError);
     }
 
     void ServerSocket::listen(const std::string& ipOrHostname, int backlog, const std::function<void(int)>& onError) {
-        listen(SocketAddress(ipOrHostname), backlog, onError);
+        listen(Socket::SocketAddress(ipOrHostname), backlog, onError);
     }
 
     void ServerSocket::listen(const std::string& ipOrHostname, uint16_t port, int backlog, const std::function<void(int)>& onError) {
-        listen(SocketAddress(ipOrHostname, port), backlog, onError);
+        listen(Socket::SocketAddress(ipOrHostname, port), backlog, onError);
     }
 
 } // namespace net::in::stream
