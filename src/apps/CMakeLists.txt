@@ -136,4 +136,12 @@ add_executable(unlowlevelserver unlowlevelserver.cpp)
 target_link_libraries(unlowlevelserver PRIVATE snodec::net-un)
 install(TARGETS unlowlevelserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
+add_executable(unlowleveltlsclient unlowleveltlsclient.cpp)
+target_link_libraries(unlowleveltlsclient PRIVATE snodec::net-un)
+install(TARGETS unlowleveltlsclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+add_executable(unlowleveltlsserver unlowleveltlsserver.cpp)
+target_link_libraries(unlowleveltlsserver PRIVATE snodec::net-un)
+install(TARGETS unlowleveltlsserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
 add_subdirectory(websocket)
