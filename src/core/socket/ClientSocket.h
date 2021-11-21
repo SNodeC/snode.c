@@ -16,11 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_IN_STREAM_SERVERSOCKET_H
-#define NET_IN_STREAM_SERVERSOCKET_H
-
-#include "core/socket/ServerSocket.h" // IWYU pragma: export
-#include "net/in/stream/Socket.h"     // IWYU pragma: export
+#ifndef CORE_SOCKET_CLIENTSOCKET_H
+#define CORE_SOCKET_CLIENTSOCKET_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -28,19 +25,19 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::in::stream {
+namespace core::socket {
 
-    class ServerSocket : public core::socket::ServerSocket<net::in::stream::Socket> {
+    template <typename SocketT>
+    class ClientSocket {
     public:
-        using core::socket::ServerSocket<net::in::stream::Socket>::listen;
+        using Socket = SocketT;
 
-        void listen(uint16_t port, int backlog, const std::function<void(int)>& onError);
+        virtual void
+        connect(const typename Socket::SocketAddress& remoteAddress, const typename Socket::SocketAddress& bindAddress, const std::function<void(int)>& onError) const = 0;
 
-        void listen(const std::string& ipOrHostname, int backlog, const std::function<void(int)>& onError);
-
-        void listen(const std::string& ipOrHostname, uint16_t port, int backlog, const std::function<void(int)>& onError);
+        virtual void connect(const typename Socket::SocketAddress& remoteAddress, const std::function<void(int)>& onError) const = 0;
     };
 
-} // namespace net::in::stream
+} // namespace core::socket
 
-#endif // NET_IN_STREAM_SERVERSOCKET_H
+#endif // CORE_SOCKET_CLIENTSOCKET_H

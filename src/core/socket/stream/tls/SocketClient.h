@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_STREAM_TLS_SOCKETCLIENT_H
-#define NET_SOCKET_STREAM_TLS_SOCKETCLIENT_H
+#ifndef CORE_SOCKET_STREAM_TLS_SOCKETCLIENT_H
+#define CORE_SOCKET_STREAM_TLS_SOCKETCLIENT_H
 
 #include "core/socket/stream/SocketClient.h"        // IWYU pragma: export
 #include "core/socket/stream/tls/SocketConnector.h" // IWYU pragma: export
@@ -39,4 +39,4 @@ namespace core::socket::stream::tls {
 
 } // namespace core::socket::stream::tls
 
-#endif // NET_SOCKET_STREAM_TLS_SOCKETCLIENT_H
+#endif // CORE_SOCKET_STREAM_TLS_SOCKETCLIENT_H

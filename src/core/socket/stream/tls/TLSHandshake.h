@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_STREAM_TLS_TLSHANDSHAKE_H
-#define NET_SOCKET_STREAM_TLS_TLSHANDSHAKE_H
+#ifndef CORE_SOCKET_STREAM_TLS_TLSHANDSHAKE_H
+#define CORE_SOCKET_STREAM_TLS_TLSHANDSHAKE_H
 
 #include "core/ReadEventReceiver.h"
 #include "core/WriteEventReceiver.h"
@@ -65,4 +65,4 @@ namespace core::socket::stream::tls {
 
 } // namespace core::socket::stream::tls
 
-#endif // NET_SOCKET_STREAM_TLS_TLSHANDSHAKE_H
+#endif // CORE_SOCKET_STREAM_TLS_TLSHANDSHAKE_H

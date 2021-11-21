@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_SOCKETADDRESS_H
-#define NET_SOCKET_SOCKETADDRESS_H
+#ifndef CORE_SOCKET_SOCKETADDRESS_H
+#define CORE_SOCKET_SOCKETADDRESS_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -78,4 +78,4 @@ namespace core::socket {
 
 } // namespace core::socket
 
-#endif // NET_SOCKET_SOCKETADDRESS_H
+#endif // CORE_SOCKET_SOCKETADDRESS_H

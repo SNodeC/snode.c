@@ -19,7 +19,8 @@
 #ifndef NET_L2_STREAM_CLIENTSOCKET_H
 #define NET_L2_STREAM_CLIENTSOCKET_H
 
-#include "net/l2/stream/Socket.h" // IWYU pragma: export
+#include "core/socket/ClientSocket.h" // IWYU pragma: export
+#include "net/l2/stream/Socket.h"     // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,15 +30,9 @@
 
 namespace net::l2::stream {
 
-    class ClientSocket {
+    class ClientSocket : public core::socket::ClientSocket<net::l2::stream::Socket> {
     public:
-        using Socket = net::l2::stream::Socket;
-
-        virtual void connect(const Socket::SocketAddress& remoteAddress,
-                             const Socket::SocketAddress& bindAddress,
-                             const std::function<void(int)>& onError) const = 0;
-
-        virtual void connect(const Socket::SocketAddress& remoteAddress, const std::function<void(int)>& onError) const = 0;
+        using core::socket::ClientSocket<net::l2::stream::Socket>::connect;
 
         void connect(const std::string& address, uint16_t psm, const std::function<void(int)>& onError);
 

@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_STREAM_SOCKETCONTEXT_H
-#define NET_SOCKET_STREAM_SOCKETCONTEXT_H
+#ifndef CORE_SOCKET_STREAM_SOCKETCONTEXT_H
+#define CORE_SOCKET_STREAM_SOCKETCONTEXT_H
 
 namespace core::socket::stream {
     class SocketContextFactory;
@@ -68,4 +68,4 @@ namespace core::socket::stream {
 
 } // namespace core::socket::stream
 
-#endif // NET_SOCKET_STREAM_SOCKETCONTEXT_H
+#endif // CORE_SOCKET_STREAM_SOCKETCONTEXT_H

@@ -19,7 +19,8 @@
 #ifndef NET_RF_STREAM_CLIENTSOCKET_H
 #define NET_RF_STREAM_CLIENTSOCKET_H
 
-#include "net/rf/stream/Socket.h" // IWYU pragma: export
+#include "core/socket/ClientSocket.h" // IWYU pragma: export
+#include "net/rf/stream/Socket.h"     // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,15 +30,9 @@
 
 namespace net::rf::stream {
 
-    class ClientSocket {
+    class ClientSocket : public core::socket::ClientSocket<net::rf::stream::Socket> {
     public:
-        using Socket = net::rf::stream::Socket;
-
-        virtual void connect(const Socket::SocketAddress& remoteAddress,
-                             const Socket::SocketAddress& bindAddress,
-                             const std::function<void(int)>& onError) const = 0;
-
-        virtual void connect(const Socket::SocketAddress& remoteAddress, const std::function<void(int)>& onError) const = 0;
+        using core::socket::ClientSocket<net::rf::stream::Socket>::connect;
 
         void connect(const std::string& address, uint8_t channel, const std::function<void(int)>& onError);
 

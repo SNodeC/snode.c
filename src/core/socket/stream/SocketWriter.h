@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_STREAM_SOCKETWRITER_H
-#define NET_SOCKET_STREAM_SOCKETWRITER_H
+#ifndef CORE_SOCKET_STREAM_SOCKETWRITER_H
+#define CORE_SOCKET_STREAM_SOCKETWRITER_H
 
 #include "core/WriteEventReceiver.h"
 
@@ -108,4 +108,4 @@ namespace core::socket::stream {
 
 } // namespace core::socket::stream
 
-#endif // NET_SOCKET_STREAM_SOCKETWRITER_H
+#endif // CORE_SOCKET_STREAM_SOCKETWRITER_H

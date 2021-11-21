@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_STREAM_LEGACY_SOCKETACCEPTOR_H
-#define NET_SOCKET_STREAM_LEGACY_SOCKETACCEPTOR_H
+#ifndef CORE_SOCKET_STREAM_LEGACY_SOCKETACCEPTOR_H
+#define CORE_SOCKET_STREAM_LEGACY_SOCKETACCEPTOR_H
 
 #include "core/socket/stream/SocketAcceptor.h"
 #include "core/socket/stream/legacy/SocketConnection.h" // IWYU pragma: export
@@ -56,4 +56,4 @@ namespace core::socket::stream::legacy {
 
 } // namespace core::socket::stream::legacy
 
-#endif // NET_SOCKET_STREAM_LEGACY_SOCKETACCEPTOR_H
+#endif // CORE_SOCKET_STREAM_LEGACY_SOCKETACCEPTOR_H

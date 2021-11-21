@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SOCKET_STREAM_SOCKETCONNECTOR_H
-#define NET_SOCKET_STREAM_SOCKETCONNECTOR_H
+#ifndef CORE_SOCKET_STREAM_SOCKETCONNECTOR_H
+#define CORE_SOCKET_STREAM_SOCKETCONNECTOR_H
 
 #include "core/ConnectEventReceiver.h"
 #include "core/system/socket.h"
@@ -172,4 +172,4 @@ namespace core::socket::stream {
 
 } // namespace core::socket::stream
 
-#endif // NET_SOCKET_STREAM_SOCKETCONNECTOR_H
+#endif // CORE_SOCKET_STREAM_SOCKETCONNECTOR_H

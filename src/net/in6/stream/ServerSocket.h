@@ -19,7 +19,8 @@
 #ifndef NET_IN6_STREAM_STREAM_SERVERSOCKET_H
 #define NET_IN6_STREAM_STREAM_SERVERSOCKET_H
 
-#include "net/in6/stream/Socket.h" // IWYU pragma: export
+#include "core/socket/ServerSocket.h" // IWYU pragma: export
+#include "net/in6/stream/Socket.h"    // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,12 +30,9 @@
 
 namespace net::in6::stream {
 
-    class ServerSocket {
+    class ServerSocket : public core::socket::ServerSocket<net::in6::stream::Socket> {
     public:
-        using Socket = net::in6::stream::Socket;
-
-    public:
-        virtual void listen(const Socket::SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const = 0;
+        using core::socket::ServerSocket<net::in6::stream::Socket>::listen;
 
         void listen(uint16_t port, int backlog, const std::function<void(int)>& onError);
 
