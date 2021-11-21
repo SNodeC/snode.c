@@ -26,6 +26,8 @@
 #include "core/socket/stream/tls/SocketClient.h"     // for SocketClient
 #include "log/Logger.h"                              // for Writer, Storage
 #include "net/in/stream/ClientSocket.h"              // for Socket
+#include "net/in/stream/legacy/SocketClient.h"       // for SocketC...
+#include "net/in/stream/tls/SocketClient.h"          // for SocketC...
 #include "web/http/client/ResponseParser.h"          // for ResponseParser
 
 #include <cstring>
@@ -50,11 +52,7 @@ namespace web::http {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-// using namespace core::socket::ip;
-using namespace net::in;
-using namespace core::socket::stream;
-
-static web::http::client::ResponseParser* getResponseParser(SocketContext* socketContext) {
+static web::http::client::ResponseParser* getResponseParser(core::socket::stream::SocketContext* socketContext) {
     web::http::client::ResponseParser* responseParser = new web::http::client::ResponseParser(
         socketContext,
         [](void) -> void {
@@ -94,10 +92,10 @@ static web::http::client::ResponseParser* getResponseParser(SocketContext* socke
     return responseParser;
 }
 
-class SimpleSocketProtocol : public SocketContext {
+class SimpleSocketProtocol : public core::socket::stream::SocketContext {
 public:
     explicit SimpleSocketProtocol(core::socket::stream::SocketConnection* socketConnection)
-        : SocketContext(socketConnection) {
+        : core::socket::stream::SocketContext(socketConnection) {
         responseParser = getResponseParser(this);
     }
 
@@ -123,146 +121,132 @@ private:
 
 class SimpleSocketProtocolFactory : public core::socket::stream::SocketContextFactory {
 private:
-    SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
+    core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
         return new SimpleSocketProtocol(socketConnection);
     }
 };
 
-tls::SocketClient<net::in::stream::ClientSocket, SimpleSocketProtocolFactory> getTlsClient() {
-    tls::SocketClient<net::in::stream::ClientSocket, SimpleSocketProtocolFactory> tlsClient(
-        [](const tls::SocketClient<net::in::stream::ClientSocket, SimpleSocketProtocolFactory>::SocketAddress& localAddress,
-           const tls::SocketClient<net::in::stream::ClientSocket, SimpleSocketProtocolFactory>::SocketAddress& remoteAddress)
-            -> void { // OnConnect
-            VLOG(0) << "OnConnect";
+namespace tls {
 
-            VLOG(0) << "\tServer: " + remoteAddress.toString();
-            VLOG(0) << "\tClient: " + localAddress.toString();
-        },
-        [](tls::SocketClient<net::in::stream::ClientSocket, SimpleSocketProtocolFactory>::SocketConnection* socketConnection)
-            -> void { // onConnected
-            VLOG(0) << "OnConnected";
+    using SocketClient = net::in::stream::tls::SocketClient<SimpleSocketProtocolFactory>;
+    using SocketAddress = SocketClient::SocketAddress;
+    using SocketConnection = SocketClient::SocketConnection;
 
-            socketConnection->sendToPeer("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
+    SocketClient getClient() {
+        SocketClient client(
+            [](const SocketAddress& localAddress,
+               const SocketAddress& remoteAddress) -> void { // onConnect
+                VLOG(0) << "OnConnect";
 
-            X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
-            if (server_cert != nullptr) {
-                long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
+                VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
+                VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
+            },
+            [](SocketConnection* socketConnection) -> void { // onConnected
+                VLOG(0) << "OnConnected";
 
-                VLOG(0) << "\tServer certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
+                X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
+                if (server_cert != nullptr) {
+                    long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
-                char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), 0, 0);
-                VLOG(0) << "\t   Subject: " + std::string(str);
-                OPENSSL_free(str);
+                    VLOG(0) << "     Server certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
 
-                str = X509_NAME_oneline(X509_get_issuer_name(server_cert), 0, 0);
-                VLOG(0) << "\t   Issuer: " + std::string(str);
-                OPENSSL_free(str);
+                    char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), 0, 0);
+                    VLOG(0) << "        Subject: " + std::string(str);
+                    OPENSSL_free(str);
 
-                // We could do all sorts of certificate verification stuff here before deallocating the certificate.
+                    str = X509_NAME_oneline(X509_get_issuer_name(server_cert), 0, 0);
+                    VLOG(0) << "        Issuer: " + std::string(str);
+                    OPENSSL_free(str);
 
-                GENERAL_NAMES* subjectAltNames =
-                    static_cast<GENERAL_NAMES*>(X509_get_ext_d2i(server_cert, NID_subject_alt_name, nullptr, nullptr));
+                    // We could do all sorts of certificate verification stuff here before deallocating the certificate.
 
-                int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
-                VLOG(0) << "\t   Subject alternative name count: " << altNameCount;
-                for (int32_t i = 0; i < altNameCount; ++i) {
-                    GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
-                    if (generalName->type == GEN_URI) {
-                        std::string subjectAltName =
-                            std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
-                                        static_cast<std::size_t>(ASN1_STRING_length(generalName->d.uniformResourceIdentifier)));
-                        VLOG(0) << "\t      SAN (URI): '" + subjectAltName;
-                    } else if (generalName->type == GEN_DNS) {
-                        std::string subjectAltName =
-                            std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
-                                        static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
-                        VLOG(0) << "\t      SAN (DNS): '" + subjectAltName;
-                    } else {
-                        VLOG(0) << "\t      SAN (Type): '" + std::to_string(generalName->type);
+                    GENERAL_NAMES* subjectAltNames =
+                        static_cast<GENERAL_NAMES*>(X509_get_ext_d2i(server_cert, NID_subject_alt_name, nullptr, nullptr));
+
+                    int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
+                    VLOG(0) << "        Subject alternative name count: " << altNameCount;
+                    for (int32_t i = 0; i < altNameCount; ++i) {
+                        GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
+                        if (generalName->type == GEN_URI) {
+                            std::string subjectAltName =
+                                std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
+                                            static_cast<std::size_t>(ASN1_STRING_length(generalName->d.uniformResourceIdentifier)));
+                            VLOG(0) << "           SAN (URI): '" + subjectAltName;
+                        } else if (generalName->type == GEN_DNS) {
+                            std::string subjectAltName =
+                                std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
+                                            static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
+                            VLOG(0) << "           SAN (DNS): '" + subjectAltName;
+                        } else {
+                            VLOG(0) << "           SAN (Type): '" + std::to_string(generalName->type);
+                        }
                     }
-                    //                    sk_GENERAL_NAME_free(generalName);
+                    sk_GENERAL_NAME_pop_free(subjectAltNames, GENERAL_NAME_free);
+
+                    X509_free(server_cert);
+                } else {
+                    VLOG(0) << "     Server certificate: no certificate";
                 }
-                sk_GENERAL_NAME_pop_free(subjectAltNames, GENERAL_NAME_free);
 
-                X509_free(server_cert);
+                socketConnection->sendToPeer("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
+            },
+            [](SocketConnection* socketConnection) -> void { // onDisconnect
+                VLOG(0) << "OnDisconnect";
+
+                VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+                VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+
+            },
+            {{"certChain", CLIENTCERTF}, {"keyPEM", CLIENTKEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}});
+
+        SocketAddress remoteAddress("localhost", 8088);
+
+        client.connect(remoteAddress, [](int err) -> void {
+            if (err) {
+                PLOG(ERROR) << "Connect: " + std::to_string(err);
             } else {
-                VLOG(0) << "\tServer certificate: no certificate";
+                VLOG(0) << "Connected";
             }
-        },
-        [](tls::SocketClient<net::in::stream::ClientSocket, SimpleSocketProtocolFactory>::SocketConnection* socketConnection)
-            -> void { // onDisconnect
-            VLOG(0) << "OnDisconnect";
+        });
 
-            VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
-            VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
+        return client;
+    }
 
-        },
-        {{"certChain", CLIENTCERTF}, {"keyPEM", CLIENTKEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}});
+} // namespace tls
 
-    SocketAddress remoteAddress("localhost", 8088);
+namespace legacy {
 
-    tlsClient.connect(remoteAddress, [](int err) -> void {
-        if (err) {
-            PLOG(ERROR) << "Connect: " + std::to_string(err);
-        } else {
-            VLOG(0) << "Connected";
-        }
-    });
+    using SocketClient = net::in::stream::legacy::SocketClient<SimpleSocketProtocolFactory>;
+    using SocketAddress = SocketClient::SocketAddress;
+    using SocketConnection = SocketClient::SocketConnection;
 
-    return tlsClient;
-}
+    SocketClient getLegacyClient() {
+        SocketClient legacyClient(
+            [](const SocketAddress& localAddress,
+               const SocketAddress& remoteAddress) -> void { // OnConnect
+                VLOG(0) << "OnConnect";
 
-legacy::SocketClient<net::in::stream::ClientSocket, SimpleSocketProtocolFactory> getLegacyClient() {
-    core::socket::stream::legacy::SocketClient<net::in::stream::ClientSocket, SimpleSocketProtocolFactory> legacyClient(
-        [](const core::socket::stream::legacy::SocketClient<net::in::stream::ClientSocket, SimpleSocketProtocolFactory>::SocketAddress&
-               localAddress,
-           const core::socket::stream::legacy::SocketClient<net::in::stream::ClientSocket, SimpleSocketProtocolFactory>::SocketAddress&
-               remoteAddress) -> void { // OnConnect
-            VLOG(0) << "OnConnect";
+                VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
+                VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
+            },
+            [](SocketConnection* socketConnection) -> void { // onConnected
+                VLOG(0) << "OnConnected";
 
-            VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
-            VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
-        },
-        [](legacy::SocketClient<net::in::stream::ClientSocket, SimpleSocketProtocolFactory>::SocketConnection* socketConnection)
-            -> void { // onConnected
-            VLOG(0) << "OnConnected";
+                socketConnection->sendToPeer("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
+            },
+            [](SocketConnection* socketConnection) -> void { // onDisconnect
+                VLOG(0) << "OnDisconnect";
 
-            socketConnection->sendToPeer("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
-        },
-        [](legacy::SocketClient<net::in::stream::ClientSocket, SimpleSocketProtocolFactory>::SocketConnection* socketConnection)
-            -> void { // onDisconnect
-            VLOG(0) << "OnDisconnect";
+                VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
+                               socketConnection->getRemoteAddress().toString();
+                VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
+                               socketConnection->getLocalAddress().toString();
+            },
+            {{}});
 
-            VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
-                           socketConnection->getRemoteAddress().toString();
-            VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
-                           socketConnection->getLocalAddress().toString();
-        },
-        {{}});
-
-    SocketAddress remoteAddress("localhost", 8080);
-
-    legacyClient.connect(remoteAddress, [](int err) -> void {
-        if (err) {
-            PLOG(ERROR) << "Connect: " << std::to_string(err);
-        } else {
-            VLOG(0) << "Connected";
-        }
-    });
-
-    return legacyClient;
-}
-
-int main(int argc, char* argv[]) {
-    core::SNodeC::init(argc, argv);
-
-    {
         SocketAddress remoteAddress("localhost", 8080);
 
-        core::socket::stream::legacy::SocketClient<net::in::stream::ClientSocket, SimpleSocketProtocolFactory> legacyClient =
-            getLegacyClient();
-
-        legacyClient.connect(remoteAddress, [](int err) -> void { // example.com:81 simulate connnect timeout
+        legacyClient.connect(remoteAddress, [](int err) -> void {
             if (err) {
                 PLOG(ERROR) << "Connect: " << std::to_string(err);
             } else {
@@ -270,11 +254,33 @@ int main(int argc, char* argv[]) {
             }
         });
 
-        remoteAddress = SocketAddress("localhost", 8088);
+        return legacyClient;
+    }
 
-        tls::SocketClient<net::in::stream::ClientSocket, SimpleSocketProtocolFactory> tlsClient = getTlsClient();
+} // namespace legacy
 
-        tlsClient.connect(remoteAddress, [](int err) -> void {
+int main(int argc, char* argv[]) {
+    core::SNodeC::init(argc, argv);
+
+    {
+        legacy::SocketAddress legacyRemoteAddress("localhost", 8080);
+
+        core::socket::stream::legacy::SocketClient<net::in::stream::ClientSocket, SimpleSocketProtocolFactory> legacyClient =
+            legacy::getLegacyClient();
+
+        legacyClient.connect(legacyRemoteAddress, [](int err) -> void { // example.com:81 simulate connnect timeout
+            if (err) {
+                PLOG(ERROR) << "Connect: " << std::to_string(err);
+            } else {
+                VLOG(0) << "Connected";
+            }
+        });
+
+        tls::SocketAddress tlsRemoteAddress = tls::SocketAddress("localhost", 8088);
+
+        tls::SocketClient tlsClient = tls::getClient();
+
+        tlsClient.connect(tlsRemoteAddress, [](int err) -> void {
             if (err) {
                 PLOG(ERROR) << "Connect: " << std::to_string(err);
             } else {

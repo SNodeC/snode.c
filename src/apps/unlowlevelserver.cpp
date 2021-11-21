@@ -31,8 +31,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-using namespace net::un::stream::legacy;
-
 class SimpleSocketProtocol : public core::socket::stream::SocketContext {
 public:
     explicit SimpleSocketProtocol(core::socket::stream::SocketConnection* socketConnection)
@@ -67,21 +65,25 @@ private:
     }
 };
 
+using SocketServer = net::un::stream::legacy::SocketServer<SimpleSocketProtocolFactory>;
+using SocketAddress = SocketServer::SocketAddress;
+using SocketConnection = SocketServer::SocketConnection;
+
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
-    SocketServer<SimpleSocketProtocolFactory> btServer(
-        [](const SocketServer<SimpleSocketProtocolFactory>::SocketAddress& localAddress,
-           const SocketServer<SimpleSocketProtocolFactory>::SocketAddress& remoteAddress) -> void { // OnConnect
+    SocketServer server(
+        [](const SocketAddress& localAddress,
+           const SocketAddress& remoteAddress) -> void { // OnConnect
             VLOG(0) << "OnConnect";
 
             VLOG(0) << "\tServer: (" + localAddress.address() + ") " + localAddress.toString();
             VLOG(0) << "\tClient: (" + remoteAddress.address() + ") " + remoteAddress.toString();
         },
-        []([[maybe_unused]] SocketServer<SimpleSocketProtocolFactory>::SocketConnection* socketConnection) -> void { // onConnected
+        []([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnected
             VLOG(0) << "OnConnected";
         },
-        [](SocketServer<SimpleSocketProtocolFactory>::SocketConnection* socketConnection) -> void { // onDisconnect
+        [](SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
 
             VLOG(0) << "\tServer: (" + socketConnection->getLocalAddress().address() + ") " +
@@ -90,7 +92,7 @@ int main(int argc, char* argv[]) {
                            socketConnection->getRemoteAddress().toString();
         });
 
-    btServer.listen("/tmp/testme", 5, [](int errnum) -> void { // titan
+    server.listen("/tmp/testme", 5, [](int errnum) -> void { // titan
         if (errnum != 0) {
             PLOG(ERROR) << "UN listen: " << errnum;
         } else {

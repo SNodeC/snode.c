@@ -31,8 +31,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-using namespace net::un::stream::legacy;
-
 class SimpleSocketProtocol : public core::socket::stream::SocketContext {
 public:
     explicit SimpleSocketProtocol(core::socket::stream::SocketConnection* socketConnection)
@@ -67,21 +65,25 @@ private:
     }
 };
 
-SocketClient<SimpleSocketProtocolFactory> getClient() {
-    return SocketClient<SimpleSocketProtocolFactory>(
-        [](const SocketClient<SimpleSocketProtocolFactory>::SocketAddress& localAddress,
-           const SocketClient<SimpleSocketProtocolFactory>::SocketAddress& remoteAddress) -> void { // onConnect
+using SocketClient = net::un::stream::legacy::SocketClient<SimpleSocketProtocolFactory>;
+using SocketAddress = SocketClient::SocketAddress;
+using SocketConnection = SocketClient::SocketConnection;
+
+SocketClient getClient() {
+    return SocketClient(
+        [](const SocketAddress& localAddress,
+           const SocketAddress& remoteAddress) -> void { // onConnect
             VLOG(0) << "OnConnect";
 
             VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
             VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
         },
-        [](SocketClient<SimpleSocketProtocolFactory>::SocketConnection* socketConnection) -> void { // onConnected
+        [](SocketConnection* socketConnection) -> void { // onConnected
             VLOG(0) << "OnConnected";
 
-            socketConnection->sendToPeer("Hello unix connection!");
+            socketConnection->sendToPeer("Hello peer! Nice to see you!");
         },
-        [](SocketClient<SimpleSocketProtocolFactory>::SocketConnection* socketConnection) -> void { // onDisconnect
+        [](SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
 
             VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
@@ -95,7 +97,7 @@ SocketClient<SimpleSocketProtocolFactory> getClient() {
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
-    SocketClient<SimpleSocketProtocolFactory> client = getClient();
+    SocketClient client = getClient();
 
     client.connect("/tmp/testme", [](int err) -> void {
         if (err) {

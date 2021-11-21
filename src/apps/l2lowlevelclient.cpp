@@ -31,8 +31,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-using namespace net::l2::stream::legacy;
-
 class SimpleSocketProtocol : public core::socket::stream::SocketContext {
 public:
     explicit SimpleSocketProtocol(core::socket::stream::SocketConnection* socketConnection)
@@ -67,31 +65,32 @@ public:
     }
 };
 
-SocketClient<SimpleSocketProtocolFactory> getClient() {
-    SocketClient<SimpleSocketProtocolFactory> client(
-        [](const SocketClient<SimpleSocketProtocolFactory>::SocketAddress& localAddress,
-           const SocketClient<SimpleSocketProtocolFactory>::SocketAddress& remoteAddress) -> void { // OnConnect
+using SocketClient = net::l2::stream::legacy::SocketClient<SimpleSocketProtocolFactory>;
+using SocketAddress = SocketClient::SocketAddress;
+using SocketConnection = SocketClient::SocketConnection;
+
+SocketClient getClient() {
+    return SocketClient(
+        [](const SocketAddress& localAddress,
+           const SocketAddress& remoteAddress) -> void { // onConnect
             VLOG(0) << "OnConnect";
 
             VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
             VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
         },
-        [](SocketClient<SimpleSocketProtocolFactory>::SocketConnection* socketConnection) -> void { // onConnected
+        [](SocketConnection* socketConnection) -> void { // onConnected
             VLOG(0) << "OnConnected";
 
-            socketConnection->sendToPeer("Hello rfcomm connection!");
+            socketConnection->sendToPeer("Hello peer! Nice to see you!");
         },
-        [](SocketClient<SimpleSocketProtocolFactory>::SocketConnection* socketConnection) -> void { // onDisconnect
+        [](SocketConnection* socketConnection) -> void { // onDisconnect
             VLOG(0) << "OnDisconnect";
 
             VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
                            socketConnection->getRemoteAddress().toString();
             VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
                            socketConnection->getLocalAddress().toString();
-        },
-        {{}});
-
-    return client;
+        });
 }
 
 int main(int argc, char* argv[]) {
@@ -101,7 +100,7 @@ int main(int argc, char* argv[]) {
         // "A4:B1:C1:2C:82:37" titan
         // "44:01:BB:A3:63:32"  mpow
 
-        SocketClient<SimpleSocketProtocolFactory> client = getClient();
+        SocketClient client = getClient();
 
         client.connect("A4:B1:C1:2C:82:37", 0x1023, "44:01:BB:A3:63:32", [](int err) -> void {
             if (err) {
