@@ -68,41 +68,6 @@ target_link_libraries(warema-jalousien PRIVATE snodec::express)
 install(TARGETS warema-jalousien RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 if(BLUEZ_FOUND)
-    add_executable(btlowlevelclient btlowlevelclient.cpp)
-    target_link_libraries(btlowlevelclient PRIVATE snodec::net-rf)
-    install(TARGETS btlowlevelclient
-            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    )
-
-    add_executable(btlowlevelserver btlowlevelserver.cpp)
-    target_link_libraries(btlowlevelserver PRIVATE snodec::net-rf)
-    install(TARGETS btlowlevelserver
-            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    )
-
-    add_executable(btlowleveltlsclient btlowleveltlsclient.cpp)
-    target_link_libraries(btlowleveltlsclient PRIVATE snodec::net-rf)
-    install(TARGETS btlowleveltlsclient
-            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    )
-
-    add_executable(btlowleveltlsserver btlowleveltlsserver.cpp)
-    target_link_libraries(btlowleveltlsserver PRIVATE snodec::net-rf)
-    install(TARGETS btlowleveltlsserver
-            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    )
-
-    add_executable(l2lowlevelclient l2lowlevelclient.cpp)
-    target_link_libraries(l2lowlevelclient PRIVATE snodec::net-l2)
-    install(TARGETS l2lowlevelclient
-            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    )
-
-    add_executable(l2lowlevelserver l2lowlevelserver.cpp)
-    target_link_libraries(l2lowlevelserver PRIVATE snodec::net-l2)
-    install(TARGETS l2lowlevelserver
-            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    )
 
     add_executable(simpleserverrfcomm simpleserverrfcomm.cpp)
     target_link_libraries(
@@ -128,20 +93,10 @@ add_executable(testpipe testpipe.cpp)
 target_link_libraries(testpipe PRIVATE snodec::core)
 install(TARGETS testpipe RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-add_executable(unlowlevelclient unlowlevelclient.cpp)
-target_link_libraries(unlowlevelclient PRIVATE snodec::net-un)
-install(TARGETS unlowlevelclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
-add_executable(unlowlevelserver unlowlevelserver.cpp)
-target_link_libraries(unlowlevelserver PRIVATE snodec::net-un)
-install(TARGETS unlowlevelserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
-add_executable(unlowleveltlsclient unlowleveltlsclient.cpp)
-target_link_libraries(unlowleveltlsclient PRIVATE snodec::net-un)
-install(TARGETS unlowleveltlsclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
-add_executable(unlowleveltlsserver unlowleveltlsserver.cpp)
-target_link_libraries(unlowleveltlsserver PRIVATE snodec::net-un)
-install(TARGETS unlowleveltlsserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
 add_subdirectory(websocket)
+add_subdirectory(all)
+add_subdirectory(rf)
+add_subdirectory(l2)
+# add_subdirectory(in)
+add_subdirectory(in6)
+add_subdirectory(un)

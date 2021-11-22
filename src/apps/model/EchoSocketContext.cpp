@@ -16,31 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_UN_SOCKETADDRESS_H
-#define NET_UN_SOCKETADDRESS_H
-
-#include "core/socket/SocketAddress.h"
+#include "EchoSocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
-#include <sys/un.h>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace net::un {
-
-    class SocketAddress : public core::socket::SocketAddress<struct sockaddr_un> {
-    public:
-        using core::socket::SocketAddress<struct sockaddr_un>::SocketAddress;
-
-        SocketAddress();
-        explicit SocketAddress(const std::string& sunPath);
-
-        std::string address() const override;
-        std::string toString() const override;
-    };
-
-} // namespace net::un
-
-#endif // NET_UN_SOCKETADDRESS_H
+namespace apps::model {} // namespace apps::model

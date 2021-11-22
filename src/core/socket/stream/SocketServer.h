@@ -24,8 +24,8 @@
 #include <any> // IWYU pragma: export
 #include <cerrno>
 #include <cstddef>
-#include <functional>
-#include <map>
+#include <functional> // IWYU pragma: export
+#include <map>        // IWYU pragma: export
 #include <memory>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

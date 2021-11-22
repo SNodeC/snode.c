@@ -24,7 +24,6 @@
 #include "log/Logger.h"
 
 #include <cstddef>            // for size_t, NULL
-#include <cstdint>            // for int32_t
 #include <openssl/asn1.h>     // for ASN1_STRING_get0...
 #include <openssl/crypto.h>   // for OPENSSL_free
 #include <openssl/obj_mac.h>  // for NID_subject_alt_...
@@ -32,7 +31,6 @@
 #include <openssl/ssl3.h>     // for SSL_get_peer_cer...
 #include <openssl/x509.h>     // for X509_NAME_oneline
 #include <openssl/x509v3.h>
-#include <string> // for string, allocator
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

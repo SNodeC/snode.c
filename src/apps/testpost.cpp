@@ -24,7 +24,6 @@
 #include "log/Logger.h"
 
 #include <cstring>
-#include <string> // for string, allocator, stoul, stoi
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

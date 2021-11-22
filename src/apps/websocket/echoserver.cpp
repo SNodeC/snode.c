@@ -26,7 +26,6 @@
 
 #include <iostream>
 #include <stdio.h> // for perror
-#include <string>  // for string, allocator, operator==
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

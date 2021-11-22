@@ -4,8 +4,6 @@
 #include "log/Logger.h"
 
 #include <cstdlib>
-#include <map>    // for map
-#include <string> // for string, allocator, char_traits
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

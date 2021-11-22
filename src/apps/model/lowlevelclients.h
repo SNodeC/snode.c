@@ -16,43 +16,79 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef APPS_MODEL_LOWLEVELLEGACYCLIENT_H
+#define APPS_MODEL_LOWLEVELLEGACYCLIENT_H
+
+#include "config.h"
+#include "log/Logger.h" // for Writer
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h" // just for this example app
-#include "core/SNodeC.h"
-#include "log/Logger.h"
-#include "web/http/client/Request.h" // for Request
-#include "web/http/client/Response.h"
-#include "web/http/client/tls/Client.h"
-
-#include <cstring>
-#include <openssl/asn1.h>     // for ASN1_STRING_get0...
-#include <openssl/crypto.h>   // for OPENSSL_free
-#include <openssl/obj_mac.h>  // for NID_subject_alt_...
-#include <openssl/ossl_typ.h> // for X509
-#include <openssl/ssl3.h>     // for SSL_get_peer_cer...
-#include <openssl/x509.h>     // for X509_NAME_oneline
+#if (TYPEI == TLS) // tls
+#include <cstddef> // for size_t
+#include <openssl/ssl.h>
 #include <openssl/x509v3.h>
-#include <type_traits> // for add_const<>::type
-#include <utility>     // for tuple_element<>:...
+#endif
+
+#include <string> // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-using namespace web::http::client;
+#if (TYPEI == LEGACY) // legacy
 
-int main(int argc, char* argv[]) {
-    core::SNodeC::init(argc, argv);
+namespace apps::model::legacy {
 
-    {
-        tls::Client6<Request, Response> tlsClient(
-            [](const tls::Client6<>::SocketAddress& localAddress, const tls::Client6<>::SocketAddress& remoteAddress) -> void {
-                VLOG(0) << "-- OnConnect";
+    template <typename SocketClientT>
+    SocketClientT getClient() {
+        using SocketClient = SocketClientT;
+        using SocketAddress = typename SocketClient::SocketAddress;
+        using SocketConnection = typename SocketClient::SocketConnection;
+
+        return SocketClient(
+            [](const SocketAddress& localAddress,
+               const SocketAddress& remoteAddress) -> void { // onConnect
+                VLOG(0) << "OnConnect";
 
                 VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
                 VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
             },
-            [](tls::Client6<>::SocketConnection* socketConnection) -> void {
-                VLOG(0) << "-- OnConnected";
+            [](SocketConnection* socketConnection) -> void { // onConnected
+                VLOG(0) << "OnConnected";
+
+                socketConnection->sendToPeer("Hello peer! Nice to see you!");
+            },
+            [](SocketConnection* socketConnection) -> void { // onDisconnect
+                VLOG(0) << "OnDisconnect";
+
+                VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
+                               socketConnection->getRemoteAddress().toString();
+                VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
+                               socketConnection->getLocalAddress().toString();
+            });
+    }
+
+} // namespace apps::model::legacy
+
+#elif (TYPEI == TLS) // tls
+
+namespace apps::model::tls {
+
+    template <typename SocketClientT>
+    SocketClientT getClient() {
+        using SocketClient = SocketClientT;
+        using SocketAddress = typename SocketClient::SocketAddress;
+        using SocketConnection = typename SocketClient::SocketConnection;
+
+        return SocketClient(
+            [](const SocketAddress& localAddress,
+               const SocketAddress& remoteAddress) -> void { // onConnect
+                VLOG(0) << "OnConnect";
+
+                VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
+                VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
+            },
+            [](SocketConnection* socketConnection) -> void { // onConnected
+                VLOG(0) << "OnConnected";
 
                 X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
                 if (server_cert != nullptr) {
@@ -97,69 +133,23 @@ int main(int argc, char* argv[]) {
                 } else {
                     VLOG(0) << "     Server certificate: no certificate";
                 }
+
+                socketConnection->sendToPeer("Hello peer! Nice to see you!");
             },
-            [](Request& request) -> void {
-                request.url = "/index.html";
-                request.set("Connection", "close");
-                request.start();
-            },
-            []([[maybe_unused]] Request& request, Response& response) -> void {
-                VLOG(0) << "-- OnResponse";
-                VLOG(0) << "     Status:";
-                VLOG(0) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
-
-                VLOG(0) << "     Headers:";
-                for (const auto& [field, value] : *response.headers) {
-                    VLOG(0) << "       " << field + " = " + value;
-                }
-
-                VLOG(0) << "     Cookies:";
-                for (const auto& [name, cookie] : *response.cookies) {
-                    VLOG(0) << "       " + name + " = " + cookie.getValue();
-                    for (const auto& [option, value] : cookie.getOptions()) {
-                        VLOG(0) << "         " + option + " = " + value;
-                    }
-                }
-
-                char* body = new char[response.contentLength + 1];
-                memcpy(body, response.body, response.contentLength);
-                body[response.contentLength] = 0;
-
-                VLOG(1) << "     Body:\n----------- start body -----------\n" << body << "------------ end body ------------";
-
-                delete[] body;
-            },
-            [](int status, const std::string& reason) -> void {
-                VLOG(0) << "-- OnResponseError";
-                VLOG(0) << "     Status: " << status;
-                VLOG(0) << "     Reason: " << reason;
-            },
-            [](tls::Client6<>::SocketConnection* socketConnection) -> void {
-                VLOG(0) << "-- OnDisconnect";
+            [](SocketConnection* socketConnection) -> void { // onDisconnect
+                VLOG(0) << "OnDisconnect";
 
                 VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
                                socketConnection->getRemoteAddress().toString();
                 VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
                                socketConnection->getLocalAddress().toString();
             },
-            {{"certChain", CLIENTCERTF},
-             {"keyPEM", CLIENTKEYF},
-             {"password", KEYFPASS},
-             {"caFile", SERVERCAFILE},
-             {"SNI", "snodec.home.vchrist.at"}});
 
-        tlsClient.connect("localhost", 8088, [](int err) -> void {
-            if (err != 0) {
-                PLOG(ERROR) << "OnError: " << err;
-            }
-        });
-
-        tlsClient.connect("localhost", 8088, [](int err) -> void {
-            if (err != 0) {
-                PLOG(ERROR) << "OnError: " << err;
-            }
-        });
+            {{"certChain", CLIENTCERTF}, {"keyPEM", CLIENTKEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}});
     }
 
-    return core::SNodeC::start();
-}
+} // namespace apps::model::tls
+
+#endif
+
+#endif // APPS_MODEL_LOWLEVELLEGACYCLIENT_H

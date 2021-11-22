@@ -22,17 +22,12 @@
 #include "core/SNodeC.h"                             // for SNodeC
 #include "core/socket/stream/SocketContext.h"        // for SocketProtocol
 #include "core/socket/stream/SocketContextFactory.h" // for SocketProtocolF...
-#include "core/socket/stream/legacy/SocketClient.h"  // for SocketClient
-#include "core/socket/stream/tls/SocketClient.h"     // for SocketClient
 #include "log/Logger.h"                              // for Writer, Storage
-#include "net/in/stream/ClientSocket.h"              // for Socket
 #include "net/in/stream/legacy/SocketClient.h"       // for SocketC...
 #include "net/in/stream/tls/SocketClient.h"          // for SocketC...
 #include "web/http/client/ResponseParser.h"          // for ResponseParser
 
 #include <cstring>
-#include <functional>         // for function
-#include <map>                // for map, operator==
 #include <openssl/asn1.h>     // for ASN1_STRING_get...
 #include <openssl/crypto.h>   // for OPENSSL_free
 #include <openssl/obj_mac.h>  // for NID_subject_alt...
@@ -41,8 +36,6 @@
 #include <openssl/x509.h>     // for X509_NAME_oneline
 #include <openssl/x509v3.h>   // for GENERAL_NAME
 #include <ostream>            // for size_t, endl
-#include <stdint.h>           // for int32_t
-#include <string>             // for allocator, string
 #include <type_traits>        // for add_const<>::type
 #include <utility>            // for tuple_element<>...
 

@@ -27,9 +27,6 @@
 #include "web/http/client/legacy/Client.h" // for Client, Client<>...
 
 #include <cstring>     // for memcpy
-#include <functional>  // for function
-#include <map>         // for map, operator==
-#include <string>      // for allocator, opera...
 #include <type_traits> // for add_const<>::type
 #include <utility>     // for tuple_element<>:...
 

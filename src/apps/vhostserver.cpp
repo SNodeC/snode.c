@@ -25,8 +25,6 @@
 #include "express/tls/WebApp.h"
 #include "log/Logger.h"
 
-#include <string> // for string, allocator
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 using namespace express;

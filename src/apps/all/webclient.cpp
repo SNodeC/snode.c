@@ -16,25 +16,35 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define QUOTE_INCLUDE(a) STR_INCLUDE(a)
+#define STR_INCLUDE(a) #a
+
+// clang-format off
+#define SOCKETCLIENT_INCLUDE QUOTE_INCLUDE(net/NET/stream/TYPE/SocketClient.h)
+// clang-format on
+
+//#include SOCKETCLIENT_INCLUDE
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h" // just for this example app
-#include "core/SNodeC.h"
-#include "log/Logger.h"
-#include "web/http/client/Request.h" // for Request
-#include "web/http/client/Response.h"
-#include "web/http/client/tls/Client.h"
+#include "config.h"                        // for SERVERCAFILE
+#include "core/SNodeC.h"                   // for SNodeC
+#include "log/Logger.h"                    // for Writer, Storage
+#include "web/http/client/Request.h"       // for Request, client
+#include "web/http/client/Response.h"      // for Response
+#include "web/http/client/legacy/Client.h" // for Client, Client<>...
+#include "web/http/client/tls/Client.h"    // for Client, Client<>...
 
-#include <cstring>
+#include <cstring>            // for memcpy
 #include <openssl/asn1.h>     // for ASN1_STRING_get0...
 #include <openssl/crypto.h>   // for OPENSSL_free
 #include <openssl/obj_mac.h>  // for NID_subject_alt_...
 #include <openssl/ossl_typ.h> // for X509
 #include <openssl/ssl3.h>     // for SSL_get_peer_cer...
 #include <openssl/x509.h>     // for X509_NAME_oneline
-#include <openssl/x509v3.h>
-#include <type_traits> // for add_const<>::type
-#include <utility>     // for tuple_element<>:...
+#include <openssl/x509v3.h>   // for GENERAL_NAME
+#include <type_traits>        // for add_const<>::type
+#include <utility>            // for tuple_element<>:...
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -44,16 +54,73 @@ int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
     {
-        tls::Client6<Request, Response> tlsClient(
-            [](const tls::Client6<>::SocketAddress& localAddress, const tls::Client6<>::SocketAddress& remoteAddress) -> void {
+        legacy::Client<Request, Response> legacyClient(
+            [](const legacy::Client<Request, Response>::SocketAddress& localAddress,
+               const legacy::Client<Request, Response>::SocketAddress& remoteAddress) -> void {
                 VLOG(0) << "-- OnConnect";
 
                 VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
                 VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
             },
-            [](tls::Client6<>::SocketConnection* socketConnection) -> void {
+            []([[maybe_unused]] legacy::Client<Request, Response>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnConnected";
+            },
+            [](Request& request) -> void {
+                request.host = "localhost:8080";
+                request.url = "/index.html";
+                request.set("Connection", "close");
+                request.start();
+            },
+            []([[maybe_unused]] const Request& request, const Response& response) -> void {
+                VLOG(0) << "-- OnResponse";
+                VLOG(0) << "     Status:";
+                VLOG(0) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
 
+                VLOG(0) << "     Headers:";
+                for (const auto& [field, value] : *response.headers) {
+                    VLOG(0) << "       " << field + " = " + value;
+                }
+
+                VLOG(0) << "     Cookies:";
+                for (const auto& [name, cookie] : *response.cookies) {
+                    VLOG(0) << "       " + name + " = " + cookie.getValue();
+                    for (const auto& [option, value] : cookie.getOptions()) {
+                        VLOG(0) << "         " + option + " = " + value;
+                    }
+                }
+
+                char* body = new char[response.contentLength + 1];
+                memcpy(body, response.body, response.contentLength);
+                body[response.contentLength] = 0;
+
+                VLOG(1) << "     Body:\n----------- start body -----------\n" << body << "------------ end body ------------";
+
+                delete[] body;
+            },
+            [](int status, const std::string& reason) -> void {
+                VLOG(0) << "-- OnResponseError";
+                VLOG(0) << "     Status: " << status;
+                VLOG(0) << "     Reason: " << reason;
+            },
+            [](legacy::Client<Request, Response>::SocketConnection* socketConnection) -> void {
+                VLOG(0) << "-- OnDisconnect";
+
+                VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
+                               socketConnection->getRemoteAddress().toString();
+                VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
+                               socketConnection->getLocalAddress().toString();
+            });
+
+        tls::Client<Request, Response> tlsClient(
+            [](const tls::Client<Request, Response>::SocketAddress& localAddress,
+               const tls::Client<Request, Response>::SocketAddress& remoteAddress) -> void {
+                VLOG(0) << "-- OnConnect";
+
+                VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
+                VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
+            },
+            [](tls::Client<Request, Response>::SocketConnection* socketConnection) -> void {
+                VLOG(0) << "-- OnConnected";
                 X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
                 if (server_cert != nullptr) {
                     long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
@@ -103,7 +170,7 @@ int main(int argc, char* argv[]) {
                 request.set("Connection", "close");
                 request.start();
             },
-            []([[maybe_unused]] Request& request, Response& response) -> void {
+            []([[maybe_unused]] const Request& request, const Response& response) -> void {
                 VLOG(0) << "-- OnResponse";
                 VLOG(0) << "     Status:";
                 VLOG(0) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
@@ -134,7 +201,7 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "     Status: " << status;
                 VLOG(0) << "     Reason: " << reason;
             },
-            [](tls::Client6<>::SocketConnection* socketConnection) -> void {
+            [](tls::Client<Request, Response>::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnDisconnect";
 
                 VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
@@ -142,11 +209,19 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
                                socketConnection->getLocalAddress().toString();
             },
-            {{"certChain", CLIENTCERTF},
-             {"keyPEM", CLIENTKEYF},
-             {"password", KEYFPASS},
-             {"caFile", SERVERCAFILE},
-             {"SNI", "snodec.home.vchrist.at"}});
+            {{"caFile", SERVERCAFILE}});
+
+        legacyClient.connect("localhost", 8080, [](int err) -> void {
+            if (err != 0) {
+                PLOG(ERROR) << "OnError: " << err;
+            }
+        });
+
+        legacyClient.connect("localhost", 8080, [](int err) -> void {
+            if (err != 0) {
+                PLOG(ERROR) << "OnError: " << err;
+            }
+        });
 
         tlsClient.connect("localhost", 8088, [](int err) -> void {
             if (err != 0) {

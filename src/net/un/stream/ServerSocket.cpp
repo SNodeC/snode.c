@@ -20,7 +20,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <stdio.h>
+#include <cerrno> // for errno, ENOENT
+#include <cstdio> // for remove
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

@@ -16,100 +16,35 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "apps/model/EchoSocketContext.h" // IWYU pragma: keep
+#include "apps/model/lowlevellegacyclient.h"
+#include "core/SNodeC.h"                       // for SNodeC
+#include "log/Logger.h"                        // for Writer
+#include "net/l2/stream/legacy/SocketClient.h" // for SocketC...
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/SNodeC.h"
-#include "core/socket/stream/SocketContext.h"
-#include "core/socket/stream/SocketContextFactory.h"
-#include "log/Logger.h"
-#include "net/l2/stream/legacy/SocketClient.h"
-
-#include <cstddef>
-#include <functional>  // for function
-#include <string>      // for string, alloc...
-#include <sys/types.h> // for ssize_t
+#include <memory> // for allocator
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-class SimpleSocketProtocol : public core::socket::stream::SocketContext {
-public:
-    explicit SimpleSocketProtocol(core::socket::stream::SocketConnection* socketConnection)
-        : core::socket::stream::SocketContext(socketConnection) {
-    }
-
-    void onReceiveFromPeer() override {
-        char junk[4096];
-
-        ssize_t ret = readFromPeer(junk, 4096);
-
-        if (ret > 0) {
-            std::size_t junklen = static_cast<std::size_t>(ret);
-            VLOG(0) << "Data to reflect: " << std::string(junk, junklen);
-            sendToPeer(junk, junklen);
-        }
-    }
-
-    void onWriteError(int errnum) override {
-        VLOG(0) << "OnWriteError: " << errnum;
-    }
-
-    void onReadError(int errnum) override {
-        VLOG(0) << "OnReadError: " << errnum;
-    }
-};
-
-class SimpleSocketProtocolFactory : public core::socket::stream::SocketContextFactory {
-public:
-    core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
-        return new SimpleSocketProtocol(socketConnection);
-    }
-};
-
-using SocketClient = net::l2::stream::legacy::SocketClient<SimpleSocketProtocolFactory>;
-using SocketAddress = SocketClient::SocketAddress;
-using SocketConnection = SocketClient::SocketConnection;
-
-SocketClient getClient() {
-    return SocketClient(
-        [](const SocketAddress& localAddress,
-           const SocketAddress& remoteAddress) -> void { // onConnect
-            VLOG(0) << "OnConnect";
-
-            VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
-            VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
-        },
-        [](SocketConnection* socketConnection) -> void { // onConnected
-            VLOG(0) << "OnConnected";
-
-            socketConnection->sendToPeer("Hello peer! Nice to see you!");
-        },
-        [](SocketConnection* socketConnection) -> void { // onDisconnect
-            VLOG(0) << "OnDisconnect";
-
-            VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
-                           socketConnection->getRemoteAddress().toString();
-            VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
-                           socketConnection->getLocalAddress().toString();
-        });
-}
 
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
-    {
-        // "A4:B1:C1:2C:82:37" titan
-        // "44:01:BB:A3:63:32"  mpow
+    // "A4:B1:C1:2C:82:37" titan
+    // "44:01:BB:A3:63:32"  mpow
 
-        SocketClient client = getClient();
+    using SocketClient = net::l2::stream::legacy::SocketClient<apps::model::EchoSocketContextFactory>; // this makes it an rf-EchoClient
 
-        client.connect("A4:B1:C1:2C:82:37", 0x1023, "44:01:BB:A3:63:32", [](int err) -> void {
-            if (err) {
-                PLOG(ERROR) << "Connect: " << std::to_string(err);
-            } else {
-                VLOG(0) << "Connected";
-            }
-        });
-    }
+    SocketClient client = apps::model::lowlevellegacy::getClient<SocketClient>();
+
+    client.connect("A4:B1:C1:2C:82:37", 0x1023, "44:01:BB:A3:63:32", [](int err) -> void {
+        if (err) {
+            PLOG(ERROR) << "Connect: " << err;
+        } else {
+            VLOG(0) << "Connected";
+        }
+    });
 
     return core::SNodeC::start();
 }

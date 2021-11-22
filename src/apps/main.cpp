@@ -22,11 +22,9 @@
 #include "core/timer/IntervalTimer.h"
 #include "express/legacy/WebApp.h"
 
-#include <cstring>
-#include <functional> // for function
 #include <iostream>
-#include <stdio.h> // for perror
-#include <string>  // for string, allocator, operator<<
+#include <stdio.h>  // for perror
+#include <string.h> // for strerror
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
