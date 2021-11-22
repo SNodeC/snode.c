@@ -18,8 +18,6 @@
 
 #include "log/Logger.h" // for Writer
 
-#if (NETI != L2) // l2
-
 #define QUOTE_INCLUDE(a) STR_INCLUDE(a)
 #define STR_INCLUDE(a) #a
 
@@ -29,8 +27,8 @@
 
 #include SOCKETSERVER_INCLUDE
 
-#include "apps/model/EchoSocketContext.h" // IWYU pragma: keep
-#include "apps/model/lowlevelservers.h"
+#include "apps/all/model/EchoSocketContext.h" // IWYU pragma: keep
+#include "apps/all/model/servers.h"
 #include "core/SNodeC.h" // for SNodeC
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -40,63 +38,27 @@
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
-    using SocketServer = net::NET::stream::TYPE::SocketServer<apps::model::EchoSocketContextFactory>; // this makes it an rf-EchoServer
+    using SocketServer = net::NET::stream::TYPE::SocketServer<apps::all::model::EchoSocketContextFactory>; // this makes it an rf-EchoServer
 
-#if (TYPEI == LEGACY) // legacy
-    SocketServer server = apps::model::legacy::getServer<SocketServer>();
-#elif (TYPEI == TLS) // tls
-    SocketServer server = apps::model::tls::getServer<SocketServer>();
-#endif
+    SocketServer server = apps::model::TYPE::getServer<SocketServer>();
 
 #if (NETI == IN) // in
-    server.listen(8080, 5, [](int err) -> void {
-        if (err != 0) {
-            PLOG(FATAL) << "listen on port 8080";
-        } else {
-            VLOG(0) << "snode.c listening on port 8088 for SSL/TLS connections";
-        }
-    });
+    server.listen(8080, 5, [](int errnum) -> void {
 #elif (NETI == IN6) // in6
-    server.listen(8080, 5, [](int err) -> void {
-        if (err != 0) {
-            PLOG(FATAL) << "listen on port 8080";
-        } else {
-            VLOG(0) << "snode.c listening on port 8088 for SSL/TLS connections";
-        }
-    });
+    server.listen(8080, 5, [](int errnum) -> void {
 #elif (NETI == L2)  // l2
     server.listen("A4:B1:C1:2C:82:37", 0x1023, 5, [](int errnum) -> void { // titan
-        if (errnum != 0) {
-            LOG(ERROR) << "BT listen: " << errnum;
-        } else {
-            LOG(INFO) << "BT listening on psm 0x1023";
-        }
-    });
 #elif (NETI == RF)  // rf
     server.listen("A4:B1:C1:2C:82:37", 1, 5, [](int errnum) -> void { // titan
-        if (errnum != 0) {
-            PLOG(ERROR) << "BT listen: " << errnum;
-        } else {
-            LOG(INFO) << "BT listening on channel 1";
-        }
-    });
 #elif (NETI == UN)  // un
     server.listen("/tmp/testme", 5, [](int errnum) -> void { // titan
+#endif
         if (errnum != 0) {
-            PLOG(ERROR) << "UN listen: " << errnum;
+            PLOG(FATAL) << "listen on port 8080";
         } else {
-            LOG(INFO) << "UN listening on /tmp/testme";
+            VLOG(0) << "snode.c listening";
         }
     });
-#endif
+
     return core::SNodeC::start();
 }
-
-#else
-
-int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
-    VLOG(0) << "Not implemented";
-    return 0;
-}
-
-#endif

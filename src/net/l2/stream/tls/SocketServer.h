@@ -16,10 +16,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EchoSocketContext.h"
+#ifndef NET_L2_STREAM_LEGACY_SOCKETSERVER_H
+#define NET_L2_STREAM_LEGACY_SOCKETSERVER_H
+
+#include "core/socket/stream/tls/SocketServer.h" // IWYU pragma: export
+#include "net/l2/stream/ServerSocket.h"             // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace apps::model {} // namespace apps::model
+namespace net::l2::stream::tls {
+
+    template <typename SocketContextFactoryT>
+    using SocketServer = core::socket::stream::tls::SocketServer<net::l2::stream::ServerSocket, SocketContextFactoryT>;
+
+} // namespace net::l2::stream::legacy
+
+#endif // NET_L2_STREAM_LEGACY_SOCKETSERVER_H

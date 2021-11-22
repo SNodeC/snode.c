@@ -21,35 +21,26 @@
 
 #include "core/socket/stream/SocketContext.h"        // for SocketP...
 #include "core/socket/stream/SocketContextFactory.h" // for SocketP...
-#include "log/Logger.h"                              // for Writer
 
-namespace apps::model {
+namespace core::socket::stream {
+    class SocketConnection;
+}
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+namespace apps::all::model {
 
     class EchoSocketContext : public core::socket::stream::SocketContext {
     public:
-        explicit EchoSocketContext(core::socket::stream::SocketConnection* socketConnection)
-            : core::socket::stream::SocketContext(socketConnection) {
-        }
+        explicit EchoSocketContext(core::socket::stream::SocketConnection* socketConnection);
 
-        void onReceiveFromPeer() override {
-            char junk[4096];
+        void onReceiveFromPeer() override;
 
-            ssize_t ret = readFromPeer(junk, 4096);
+        void onWriteError(int errnum) override;
 
-            if (ret > 0) {
-                std::size_t junklen = static_cast<std::size_t>(ret);
-                VLOG(0) << "Data to reflect: " << std::string(junk, junklen);
-                sendToPeer(junk, junklen);
-            }
-        }
-
-        void onWriteError(int errnum) override {
-            VLOG(0) << "OnWriteError: " << errnum;
-        }
-
-        void onReadError(int errnum) override {
-            VLOG(0) << "OnReadError: " << errnum;
-        }
+        void onReadError(int errnum) override;
     };
 
     class EchoSocketContextFactory : public core::socket::stream::SocketContextFactory {
@@ -59,6 +50,6 @@ namespace apps::model {
         }
     };
 
-} // namespace apps::model
+} // namespace apps::all::model
 
 #endif // APPS_MODEL_ECHOSOCKETCONTEXT_H

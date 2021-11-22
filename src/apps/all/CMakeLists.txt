@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
+add_subdirectory(model)
+
 get_filename_component(CURRENT_DIR ${CMAKE_CURRENT_LIST_DIR} NAME)
 
 set(NET ${CURRENT_DIR})
@@ -52,7 +54,7 @@ foreach(NET IN LISTS NETS)
 
         add_executable(${NET}${TYPE}echoclient echoclient.cpp)
         target_link_libraries(
-            ${NET}${TYPE}echoclient PRIVATE snodec::net-${NET}
+            ${NET}${TYPE}echoclient PRIVATE snodec::net-${NET} echo
         )
         target_compile_definitions(
             ${NET}${TYPE}echoclient PRIVATE NET=${NET} TYPE=${TYPE}
@@ -64,7 +66,7 @@ foreach(NET IN LISTS NETS)
 
         add_executable(${NET}${TYPE}echoserver echoserver.cpp)
         target_link_libraries(
-            ${NET}${TYPE}echoserver PRIVATE snodec::net-${NET}
+            ${NET}${TYPE}echoserver PRIVATE snodec::net-${NET} echo
         )
         target_compile_definitions(
             ${NET}${TYPE}echoserver PRIVATE NET=${NET} TYPE=${TYPE}
