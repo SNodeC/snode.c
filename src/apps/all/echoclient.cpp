@@ -22,7 +22,7 @@
 #define STR(a) #a
 
 // clang-format off
-#define SOCKETCLIENT_INCLUDE QUOTE_INCLUDE(net/NET/stream/TYPE/SocketClient.h)
+#define SOCKETCLIENT_INCLUDE QUOTE_INCLUDE(net/NET/stream/STREAM/SocketClient.h)
 // clang-format on
 
 #include SOCKETCLIENT_INCLUDE
@@ -38,9 +38,9 @@
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
-    using SocketClient = net::NET::stream::TYPE::SocketClient<apps::all::model::EchoSocketContextFactory>; // this makes it an rf-EchoClient
+    using SocketClient = net::NET::stream::STREAM::SocketClient<apps::all::model::EchoSocketContextFactory>; // this makes it an rf-EchoClient
 
-    SocketClient client = apps::model::TYPE::getClient<SocketClient>();
+    SocketClient client = apps::model::STREAM::getClient<SocketClient>();
 
 #if (NETI == IN) // in
     client.connect("localhost", 8080, [](int errnum) -> void {

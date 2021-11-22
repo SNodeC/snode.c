@@ -44,35 +44,35 @@ foreach(NET IN LISTS NETS)
         set(NETI ${UN})
     endif()
 
-    set(TYPES "legacy" "tls")
-    foreach(TYPE IN LISTS TYPES)
-        if(${TYPE} STREQUAL "legacy")
+    set(STREAMS "legacy" "tls")
+    foreach(STREAM IN LISTS STREAMS)
+        if(${STREAM} STREQUAL "legacy")
             set(TYPEI ${LEGACY})
-        elseif(${TYPE} STREQUAL "tls")
+        elseif(${STREAM} STREQUAL "tls")
             set(TYPEI ${TLS})
         endif()
 
-        add_executable(${NET}${TYPE}echoclient echoclient.cpp)
+        add_executable(${NET}${STREAM}echoclient echoclient.cpp)
         target_link_libraries(
-            ${NET}${TYPE}echoclient PRIVATE snodec::net-${NET} echo
+            ${NET}${STREAM}echoclient PRIVATE snodec::net-${NET} echo
         )
         target_compile_definitions(
-            ${NET}${TYPE}echoclient PRIVATE NET=${NET} TYPE=${TYPE}
+            ${NET}${STREAM}echoclient PRIVATE NET=${NET} STREAM=${STREAM}
                                                 NETI=${NETI} TYPEI=${TYPEI}
         )
-        install(TARGETS ${NET}${TYPE}echoclient
+        install(TARGETS ${NET}${STREAM}echoclient
                 RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         )
 
-        add_executable(${NET}${TYPE}echoserver echoserver.cpp)
+        add_executable(${NET}${STREAM}echoserver echoserver.cpp)
         target_link_libraries(
-            ${NET}${TYPE}echoserver PRIVATE snodec::net-${NET} echo
+            ${NET}${STREAM}echoserver PRIVATE snodec::net-${NET} echo
         )
         target_compile_definitions(
-            ${NET}${TYPE}echoserver PRIVATE NET=${NET} TYPE=${TYPE}
+            ${NET}${STREAM}echoserver PRIVATE NET=${NET} STREAM=${STREAM}
                                                 NETI=${NETI} TYPEI=${TYPEI}
         )
-        install(TARGETS ${NET}${TYPE}echoserver
+        install(TARGETS ${NET}${STREAM}echoserver
                 RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         )
 
