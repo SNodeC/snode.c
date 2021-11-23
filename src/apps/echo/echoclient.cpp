@@ -27,9 +27,9 @@
 
 #include SOCKETCLIENT_INCLUDE
 
-#include "apps/all/model/EchoSocketContext.h" // IWYU pragma: keep
-#include "apps/all/model/clients.h"
-#include "core/SNodeC.h" // for SNodeC
+#include "core/SNodeC.h"             // for SNodeC
+#include "model/EchoSocketContext.h" // IWYU pragma: keep
+#include "model/clients.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -38,9 +38,10 @@
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
-    using SocketClient = net::NET::stream::STREAM::SocketClient<apps::all::model::EchoSocketContextFactory>; // this makes it an rf-EchoClient
+    using SocketClient =
+        net::NET::stream::STREAM::SocketClient<apps::echo::model::EchoSocketContextFactory>; // this makes it an rf-EchoClient
 
-    SocketClient client = apps::model::STREAM::getClient<SocketClient>();
+    SocketClient client = apps::echo::model::STREAM::getClient<SocketClient>();
 
 #if (NETI == IN) // in
     client.connect("localhost", 8080, [](int errnum) -> void {

@@ -94,7 +94,7 @@ target_link_libraries(testpipe PRIVATE snodec::core)
 install(TARGETS testpipe RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_subdirectory(websocket)
-add_subdirectory(all)
+add_subdirectory(echo)
 add_subdirectory(rf)
 add_subdirectory(l2)
 add_subdirectory(in)

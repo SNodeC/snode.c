@@ -30,7 +30,7 @@ namespace core::socket::stream {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace apps::all::model {
+namespace apps::echo::model {
 
     class EchoSocketContext : public core::socket::stream::SocketContext {
     public:
@@ -45,11 +45,9 @@ namespace apps::all::model {
 
     class EchoSocketContextFactory : public core::socket::stream::SocketContextFactory {
     private:
-        core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
-            return new EchoSocketContext(socketConnection);
-        }
+        core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override;
     };
 
-} // namespace apps::all::model
+} // namespace apps::echo::model
 
 #endif // APPS_MODEL_ECHOSOCKETCONTEXT_H

@@ -28,7 +28,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace apps::all::model {
+namespace apps::echo::model {
 
     EchoSocketContext::EchoSocketContext(core::socket::stream::SocketConnection* socketConnection)
         : core::socket::stream::SocketContext(socketConnection) {
@@ -54,4 +54,8 @@ namespace apps::all::model {
         VLOG(0) << "OnReadError: " << errnum;
     }
 
-} // namespace apps::all::model
+    core::socket::stream::SocketContext* EchoSocketContextFactory::create(core::socket::stream::SocketConnection* socketConnection) {
+        return new EchoSocketContext(socketConnection);
+    }
+
+} // namespace apps::echo::model

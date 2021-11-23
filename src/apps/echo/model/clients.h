@@ -36,7 +36,7 @@
 
 #if (TYPEI == LEGACY) // legacy
 
-namespace apps::model::legacy {
+namespace apps::echo::model::legacy {
 
     template <typename SocketClientT>
     SocketClientT getClient() {
@@ -67,11 +67,11 @@ namespace apps::model::legacy {
             });
     }
 
-} // namespace apps::model::legacy
+} // namespace apps::echo::model::legacy
 
 #elif (TYPEI == TLS) // tls
 
-namespace apps::model::tls {
+namespace apps::echo::model::tls {
 
     template <typename SocketClientT>
     SocketClientT getClient() {
@@ -148,7 +148,7 @@ namespace apps::model::tls {
             {{"certChain", CLIENTCERTF}, {"keyPEM", CLIENTKEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}});
     }
 
-} // namespace apps::model::tls
+} // namespace apps::echo::model::tls
 
 #endif
 

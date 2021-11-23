@@ -36,7 +36,7 @@
 
 #if (TYPEI == LEGACY) // legacy
 
-namespace apps::model::legacy {
+namespace apps::echo::model::legacy {
 
     template <typename SocketServerT>
     SocketServerT getServer() {
@@ -65,11 +65,11 @@ namespace apps::model::legacy {
             });
     }
 
-} // namespace apps::model::legacy
+} // namespace apps::echo::model::legacy
 
 #elif (TYPEI == TLS) // tls
 
-namespace apps::model::tls {
+namespace apps::echo::model::tls {
 
     template <typename SocketServerT>
     SocketServerT getServer() {
@@ -149,7 +149,7 @@ namespace apps::model::tls {
         return server;
     }
 
-} // namespace apps::model::tls
+} // namespace apps::echo::model::tls
 
 #endif
 
