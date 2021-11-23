@@ -151,6 +151,9 @@ namespace core::socket::stream {
             destruct();
         }
 
+        void terminate() override {
+        }
+
     protected:
         void destruct() {
             delete this;

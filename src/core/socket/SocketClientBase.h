@@ -16,46 +16,29 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_FILE_FILEREADER_H
-#define CORE_FILE_FILEREADER_H
-
-#include "core/ReadEventReceiver.h"
-#include "core/file/File.h"
-#include "core/pipe/Source.h"
+#ifndef CORE_SOCKET_CLIENTSOCKET_H
+#define CORE_SOCKET_CLIENTSOCKET_H
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <functional>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::pipe {
-    class Sink;
-}
+namespace core::socket {
 
-namespace core::file {
-
-    class FileReader
-        : public core::ReadEventReceiver
-        , public core::pipe::Source
-        , virtual public File {
-    protected:
-        FileReader(int fd, core::pipe::Sink& writeStream);
-
+    template <typename SocketT>
+    class SocketClientBase {
     public:
-        static FileReader* connect(const std::string& path, core::pipe::Sink& writeStream, const std::function<void(int err)>& onError);
+        using Socket = SocketT;
 
-        void readEvent() override;
+        virtual void connect(const typename Socket::SocketAddress& remoteAddress,
+                             const typename Socket::SocketAddress& bindAddress,
+                             const std::function<void(int)>& onError) const = 0;
 
-    private:
-        void terminate() override;
-
-        void sinkDisconnected() override;
-
-        void unobservedEvent() override;
+        virtual void connect(const typename Socket::SocketAddress& remoteAddress, const std::function<void(int)>& onError) const = 0;
     };
 
-} // namespace core::file
+} // namespace core::socket
 
-#endif // CORE_FILE_FILEREADER_H
+#endif // CORE_SOCKET_CLIENTSOCKET_H

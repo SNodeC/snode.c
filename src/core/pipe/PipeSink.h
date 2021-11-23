@@ -44,6 +44,9 @@ namespace core::pipe {
         void setOnEof(const std::function<void()>& onEof);
         void setOnError(const std::function<void(int errnum)>& onError);
 
+    private:
+        void terminate() override;
+
     protected:
         void readEvent() override;
         void unobservedEvent() override;

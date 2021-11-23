@@ -38,8 +38,10 @@ namespace core {
     }
 
     void Descriptor::attach(int fd, enum Descriptor::FLAGS flags) {
-        this->fd = fd;
-        this->flags = flags;
+        if (this->fd < 0) {
+            this->fd = fd;
+            this->flags = flags;
+        }
     }
 
     int Descriptor::getFd() const {
@@ -52,6 +54,13 @@ namespace core {
 
     bool Descriptor::dontClose() const {
         return (flags & FLAGS::dontClose) == FLAGS::dontClose;
+    }
+
+    void Descriptor::close() {
+        if (fd >= 0) {
+            core::system::close(fd);
+            fd = -1;
+        }
     }
 
     enum Descriptor::FLAGS operator|(const enum Descriptor::FLAGS& f1, const enum Descriptor::FLAGS& f2) {

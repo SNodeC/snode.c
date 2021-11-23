@@ -82,4 +82,7 @@ namespace core::pipe {
         delete this;
     }
 
+    void PipeSource::terminate() {
+    }
+
 } // namespace core::pipe

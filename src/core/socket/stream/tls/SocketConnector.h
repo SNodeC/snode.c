@@ -99,7 +99,10 @@ namespace core::socket::stream::tls {
             }
         }
 
-    protected:
+    private:
+        void terminate() override {
+        }
+
         SSL_CTX* ctx = nullptr;
     };
 

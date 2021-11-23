@@ -109,6 +109,11 @@ namespace core::socket::stream::tls {
             return SSL_pending(ssl) || core::socket::stream::SocketReader<SocketT>::continueReadImmediately();
         }
 
+        virtual void readEvent() override = 0;
+
+        void terminate() override {
+        }
+
     protected:
         virtual void doSSLHandshake(const std::function<void()>& onSuccess,
                                     const std::function<void()>& onTimeout,

@@ -84,6 +84,10 @@ namespace core {
         return _suspended;
     }
 
+    void EventReceiver::terminate() {
+        disable();
+    }
+
     void EventReceiver::setTimeout(long timeout) {
         if (timeout != TIMEOUT::DEFAULT) {
             this->maxInactivity = timeout;

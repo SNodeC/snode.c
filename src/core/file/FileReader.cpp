@@ -69,6 +69,9 @@ namespace core::file {
         }
     }
 
+    void FileReader::terminate() {
+    }
+
     void FileReader::sinkDisconnected() {
         ReadEventReceiver::disable();
     }

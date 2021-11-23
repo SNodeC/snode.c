@@ -44,6 +44,11 @@ namespace core::socket::stream::legacy {
         int getError() override {
             return errno;
         }
+
+        virtual void writeEvent() override = 0;
+
+        void terminate() override {
+        }
     };
 
 } // namespace core::socket::stream::legacy

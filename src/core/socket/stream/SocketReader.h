@@ -67,6 +67,11 @@ namespace core::socket::stream {
     private:
         virtual ssize_t read(char* junk, std::size_t junkLen) = 0;
 
+        virtual void readEvent() override = 0;
+
+        void terminate() override {
+        }
+
     protected:
         ssize_t readFromPeer(char* junk, std::size_t junkLen) {
             ssize_t ret = 0;

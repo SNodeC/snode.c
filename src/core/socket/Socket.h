@@ -69,6 +69,8 @@ namespace core::socket {
             }
         }
 
+        using core::Descriptor::close;
+
         enum shutdown { WR = SHUT_WR, RD = SHUT_RD, RDWR = SHUT_RDWR };
 
         void shutdown(shutdown how) {

@@ -174,7 +174,7 @@ namespace core {
 
     int EventLoop::start(struct timeval timeOut) {
         if (!initialized) {
-            PLOG(ERROR) << "snode.c not initialized. Use EventLoop::init(argc, argv) before EventLoop::start().";
+            PLOG(ERROR) << "snode.c not initialized. Use SNodeC::init(argc, argv) before SNodeC::start().";
             exit(1);
         }
 
@@ -190,13 +190,11 @@ namespace core {
 
             stopped = false;
 
-            do {
-                while (!stopped && eventLoop._tick(timeOut) == TickStatus::SUCCESS) {
-                    eventLoop.tickCounter++;
-                };
+            while (!stopped && eventLoop._tick(timeOut) == TickStatus::SUCCESS) {
+                eventLoop.tickCounter++;
+            };
 
-                eventLoop._free();
-            } while (!stopped && false);
+            eventLoop._free();
 
             running = false;
         }
@@ -219,7 +217,7 @@ namespace core {
 
     TickStatus EventLoop::tick(struct timeval timeOut) {
         if (!initialized) {
-            PLOG(ERROR) << "snode.c not initialized. Use EventLoop::init(argc, argv) before EventLoop::start().";
+            PLOG(ERROR) << "snode.c not initialized. Use SNodeC::init(argc, argv) before SNodeC::tick().";
             exit(1);
         }
 

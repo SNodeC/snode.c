@@ -52,6 +52,10 @@ namespace core::socket::stream::legacy {
                   onDisconnect,
                   options) {
         }
+
+    private:
+        void terminate() override {
+        }
     };
 
 } // namespace core::socket::stream::legacy

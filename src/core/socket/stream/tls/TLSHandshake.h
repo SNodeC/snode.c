@@ -53,6 +53,8 @@ namespace core::socket::stream::tls {
 
         void unobservedEvent() override;
 
+        void terminate() override;
+
         SSL* ssl = nullptr;
         std::function<void(void)> onSuccess;
         std::function<void(void)> onTimeout;

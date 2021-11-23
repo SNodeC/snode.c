@@ -46,6 +46,9 @@ namespace core {
         void dontClose(bool dontClose);
         bool dontClose() const;
 
+    public:
+        virtual void close();
+
     private:
         int fd = -1;
 

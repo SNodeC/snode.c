@@ -122,6 +122,11 @@ namespace core::socket::stream::tls {
             return ret;
         }
 
+        virtual void writeEvent() override = 0;
+
+        void terminate() override {
+        }
+
     protected:
         virtual void doSSLHandshake(const std::function<void()>& onSuccess,
                                     const std::function<void()>& onTimeout,

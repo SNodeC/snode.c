@@ -74,6 +74,9 @@ namespace core::pipe {
         this->onError = onError;
     }
 
+    void PipeSink::terminate() {
+    }
+
     void PipeSink::unobservedEvent() {
         delete this;
     }

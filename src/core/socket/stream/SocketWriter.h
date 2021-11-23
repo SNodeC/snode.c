@@ -75,6 +75,11 @@ namespace core::socket::stream {
     private:
         virtual ssize_t write(const char* junk, std::size_t junkLen) = 0;
 
+        virtual void writeEvent() override = 0;
+
+        void terminate() override {
+        }
+
     protected:
         void doWrite() {
             if (writeBuffer.empty()) {

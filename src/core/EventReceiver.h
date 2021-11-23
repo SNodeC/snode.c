@@ -70,6 +70,8 @@ namespace core {
         bool isEnabled() const;
         bool isSuspended() const;
 
+        virtual void terminate();
+
     private:
         virtual void dispatchEvent() = 0;
         virtual void timeoutEvent();

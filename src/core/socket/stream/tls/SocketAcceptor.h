@@ -170,6 +170,9 @@ namespace core::socket::stream::tls {
         }
 
     private:
+        void terminate() override {
+        }
+
         SSL_CTX* masterSslCtx = nullptr;
         std::set<std::string> masterSslCtxDomains;
 

@@ -49,6 +49,11 @@ namespace core::socket::stream::legacy {
         bool continueReadImmediately() override {
             return core::socket::stream::SocketReader<SocketT>::continueReadImmediately();
         }
+
+        virtual void readEvent() override = 0;
+
+        void terminate() override {
+        }
     };
 
 } // namespace core::socket::stream::legacy
