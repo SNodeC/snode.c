@@ -26,6 +26,7 @@
 #include <cerrno>
 #include <cstddef> // for std::size_t
 #include <functional>
+#include <sys/types.h>
 #include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
