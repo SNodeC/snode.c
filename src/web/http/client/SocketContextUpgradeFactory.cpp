@@ -28,7 +28,7 @@
 namespace web::http::client {
 
     SocketContextUpgradeFactory::SocketContextUpgradeFactory()
-        : web::http::SocketContextUpgradeFactory<Request, Response>(http::SocketContextUpgradeFactory<Request, Response>::Role::CLIENT) {
+        : web::http::SocketContextUpgradeFactory<Request, Response>() {
     }
 
     void SocketContextUpgradeFactory::checkRefCount() {

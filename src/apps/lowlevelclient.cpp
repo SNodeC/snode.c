@@ -88,7 +88,7 @@ static web::http::client::ResponseParser* getResponseParser(core::socket::stream
 class SimpleSocketProtocol : public core::socket::stream::SocketContext {
 public:
     explicit SimpleSocketProtocol(core::socket::stream::SocketConnection* socketConnection)
-        : core::socket::stream::SocketContext(socketConnection) {
+        : core::socket::stream::SocketContext(socketConnection, Role::CLIENT) {
         responseParser = getResponseParser(this);
     }
 

@@ -16,6 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "web/http/SocketContextUpgrade.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <list>
@@ -43,7 +45,7 @@ namespace web::http {
         using Response = typename SocketContextUpgradeFactory::Response;
 
     protected:
-        SocketContextUpgradeFactorySelector(typename SocketContextUpgradeFactory::Role role);
+        SocketContextUpgradeFactorySelector() = default;
         virtual ~SocketContextUpgradeFactorySelector() = default;
 
     public:
@@ -63,15 +65,13 @@ namespace web::http {
         void addSocketContextUpgradeSearchPath(const std::string& searchPath);
 
         virtual SocketContextUpgradeFactory* load(const std::string& upgradeContextName) = 0;
-        SocketContextUpgradeFactory* load(const std::string& upgradeContextName, typename SocketContextUpgradeFactory::Role role);
+        SocketContextUpgradeFactory* load(const std::string& upgradeContextName, core::socket::stream::SocketContext::Role role);
 
         bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handler);
 
         std::map<std::string, SocketContextPlugin<SocketContextUpgradeFactory>> socketContextUpgradePlugins;
         std::map<std::string, SocketContextUpgradeFactory* (*) ()> linkedSocketContextUpgradePlugins;
         std::list<std::string> searchPaths;
-
-        const typename SocketContextUpgradeFactory::Role role;
 
     private:
         bool onlyLinked = false;

@@ -31,12 +31,6 @@
 namespace web::http {
 
     template <typename SocketContextUpgradeFactory>
-    SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::SocketContextUpgradeFactorySelector(
-        typename SocketContextUpgradeFactory::Role role)
-        : role(role) {
-    }
-
-    template <typename SocketContextUpgradeFactory>
     void
     SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::addSocketContextUpgradeSearchPath(const std::string& searchPath) {
         searchPaths.push_front(searchPath);
@@ -47,7 +41,7 @@ namespace web::http {
                                                                                void* handle) {
         bool success = false;
 
-        if (socketContextUpgradeFactory != nullptr && socketContextUpgradeFactory->getRole() == role) {
+        if (socketContextUpgradeFactory != nullptr) {
             SocketContextPlugin<SocketContextUpgradeFactory> socketContextPlugin = {
                 .socketContextUpgradeFactory = socketContextUpgradeFactory, .handle = handle};
             std::tie(std::ignore, success) = socketContextUpgradePlugins.insert({socketContextUpgradeFactory->name(), socketContextPlugin});
@@ -69,7 +63,7 @@ namespace web::http {
     template <typename SocketContextUpgradeFactory>
     SocketContextUpgradeFactory*
     SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::load(const std::string& upgradeContextName,
-                                                                           typename SocketContextUpgradeFactory::Role role) {
+                                                                           core::socket::stream::SocketContext::Role role) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
         for (const std::string& searchPath : searchPaths) {
@@ -80,7 +74,7 @@ namespace web::http {
                 SocketContextUpgradeFactory* (*getSocketContextUpgradeFactory)() =
                     core::DynamicLoader::dlSym<SocketContextUpgradeFactory* (*) ()>(
                         handle,
-                        upgradeContextName + (role == SocketContextUpgradeFactory::Role::SERVER ? "Server" : "Client") +
+                        upgradeContextName + (role == core::socket::stream::SocketContext::Role::SERVER ? "Server" : "Client") +
                             "ContextUpgradeFactory");
 
                 if (getSocketContextUpgradeFactory != nullptr) {

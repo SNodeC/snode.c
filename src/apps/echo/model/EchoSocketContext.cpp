@@ -31,7 +31,7 @@
 namespace apps::echo::model {
 
     EchoServerSocketContext::EchoServerSocketContext(core::socket::stream::SocketConnection* socketConnection)
-        : core::socket::stream::SocketContext(socketConnection) {
+        : core::socket::stream::SocketContext(socketConnection, Role::SERVER) {
     }
 
     void EchoServerSocketContext::onConnected() {
@@ -66,7 +66,7 @@ namespace apps::echo::model {
     }
 
     EchoClientSocketContext::EchoClientSocketContext(core::socket::stream::SocketConnection* socketConnection)
-        : core::socket::stream::SocketContext(socketConnection) {
+        : core::socket::stream::SocketContext(socketConnection, Role::CLIENT) {
     }
 
     void EchoClientSocketContext::onConnected() {

@@ -61,15 +61,15 @@ namespace web::websocket {
         using web::http::SocketContextUpgrade<Request, Response>::setTimeout;
 
     protected:
-        enum class Role { SERVER, CLIENT };
+        //        enum class Role { SERVER, CLIENT };
 
     protected:
         SocketContextUpgrade(core::socket::stream::SocketConnection* socketConnection,
                              web::http::SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory,
                              SubProtocol* subProtocol,
-                             Role role)
-            : web::http::SocketContextUpgrade<Request, Response>(socketConnection, socketContextUpgradeFactory)
-            , Transmitter(role == Role::CLIENT)
+                             core::socket::stream::SocketContext::Role role)
+            : web::http::SocketContextUpgrade<Request, Response>(socketConnection, role, socketContextUpgradeFactory)
+            , Transmitter(role == core::socket::stream::SocketContext::Role::CLIENT)
             , subProtocol(subProtocol) {
         }
 

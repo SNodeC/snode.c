@@ -44,18 +44,14 @@ namespace web::http {
         using Request = RequestT;
         using Response = ResponseT;
 
-        enum class Role { CLIENT, SERVER };
-
     protected:
-        SocketContextUpgradeFactory(Role role);
+        SocketContextUpgradeFactory();
         ~SocketContextUpgradeFactory() override = default;
 
     public:
         virtual std::string name() = 0;
 
         void prepare(Request& request, Response& response);
-
-        SocketContextUpgradeFactory<Request, Response>::Role getRole() const;
 
         void destroy();
 
@@ -76,8 +72,6 @@ namespace web::http {
         create(core::socket::stream::SocketConnection* socketConnection, Request* request, Response* response) = 0;
 
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) final;
-
-        Role role;
     };
 
 } // namespace web::http

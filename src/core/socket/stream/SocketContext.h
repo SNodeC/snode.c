@@ -35,8 +35,11 @@ namespace core::socket::stream {
 namespace core::socket::stream {
 
     class SocketContext {
+    public:
+        enum class Role { SERVER, CLIENT };
+
     protected:
-        explicit SocketContext(SocketConnection* socketConnection);
+        explicit SocketContext(SocketConnection* socketConnection, Role role);
         virtual ~SocketContext() = default;
 
     public:
@@ -59,8 +62,13 @@ namespace core::socket::stream {
         virtual void onConnected();
         virtual void onDisconnected();
 
+        Role getRole() const;
+
     private:
         SocketConnection* socketConnection;
+
+    protected:
+        Role role;
 
         template <typename SocketReaderT, typename SocketWriterT, typename SocketAddressT>
         friend class SocketConnectionT;

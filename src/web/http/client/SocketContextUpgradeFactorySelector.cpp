@@ -31,8 +31,7 @@
 namespace web::http::client {
 
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactorySelector()
-        : web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>(
-              web::http::SocketContextUpgradeFactory<Request, Response>::Role::CLIENT) {
+        : web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>() {
         addSocketContextUpgradeSearchPath(HTTP_SOCKETCONTEXTUPGRADE_CLIENT_INSTALL_LIBDIR);
 
 #if !defined(NDEBUG) && defined(HTTP_SOCKETCONTEXTUPGRADE_CLIENT_COMPILE_LIBDIR)
@@ -50,8 +49,8 @@ namespace web::http::client {
 
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactory*
     SocketContextUpgradeFactorySelector::load(const std::string& upgradeContextName) {
-        return web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::load(upgradeContextName,
-                                                                                                 SocketContextUpgradeFactory::Role::CLIENT);
+        return web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::load(
+            upgradeContextName, core::socket::stream::SocketContext::Role::CLIENT);
     }
 
     SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(const std::string& upgradeContextName, Request& req) {

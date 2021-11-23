@@ -36,7 +36,7 @@ namespace web::websocket::server {
                                                SocketContextUpgradeFactory* socketContextUpgradeFactory,
                                                SubProtocol* subProtocol)
         : web::websocket::SocketContextUpgrade<SubProtocol, web::http::server::Request, web::http::server::Response>(
-              socketConnection, socketContextUpgradeFactory, subProtocol, Role::SERVER) {
+              socketConnection, socketContextUpgradeFactory, subProtocol, core::socket::stream::SocketContext::Role::SERVER) {
         subProtocol->setSocketContextUpgrade(this);
     }
 

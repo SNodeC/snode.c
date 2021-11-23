@@ -33,8 +33,7 @@
 namespace web::http::server {
 
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactorySelector()
-        : web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>(
-              web::http::SocketContextUpgradeFactory<Request, Response>::Role::SERVER) {
+        : web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>() {
         addSocketContextUpgradeSearchPath(HTTP_SOCKETCONTEXTUPGRADE_SERVER_INSTALL_LIBDIR);
 
 #if !defined(NDEBUG) && defined(HTTP_SOCKETCONTEXTUPGRADE_SERVER_COMPILE_LIBDIR)
@@ -52,8 +51,8 @@ namespace web::http::server {
 
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactory*
     SocketContextUpgradeFactorySelector::load(const std::string& upgradeContextName) {
-        return web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::load(upgradeContextName,
-                                                                                                 SocketContextUpgradeFactory::Role::SERVER);
+        return web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::load(
+            upgradeContextName, core::socket::stream::SocketContext::Role::SERVER);
     }
 
     /* do not remove */

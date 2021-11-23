@@ -27,13 +27,7 @@
 namespace web::http {
 
     template <typename Request, typename Response>
-    SocketContextUpgradeFactory<Request, Response>::SocketContextUpgradeFactory(Role role)
-        : role(role) {
-    }
-
-    template <typename Request, typename Response>
-    typename SocketContextUpgradeFactory<Request, Response>::Role SocketContextUpgradeFactory<Request, Response>::getRole() const {
-        return role;
+    SocketContextUpgradeFactory<Request, Response>::SocketContextUpgradeFactory() {
     }
 
     template <typename Request, typename Response>

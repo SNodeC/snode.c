@@ -43,8 +43,9 @@ namespace web::http {
         using Response = ResponseT;
 
         SocketContextUpgrade(core::socket::stream::SocketConnection* socketConnection,
+                             SocketContext::Role role,
                              SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory)
-            : core::socket::stream::SocketContext(socketConnection)
+            : core::socket::stream::SocketContext(socketConnection, role)
             , socketContextUpgradeFactory(socketContextUpgradeFactory) {
             socketContextUpgradeFactory->incRefCount();
         }
