@@ -72,8 +72,6 @@ namespace web::websocket {
         }
 
     protected:
-        virtual SubProtocolFactory* load(const std::string& subProtocolName) = 0;
-
         SubProtocolFactory* load(const std::string& subProtocolName, Role role) {
             SubProtocolFactory* subProtocolFactory = nullptr;
 
@@ -108,7 +106,7 @@ namespace web::websocket {
         }
 
     public:
-        SubProtocolFactory* select(const std::string& subProtocolName) {
+        SubProtocolFactory* select(const std::string& subProtocolName, Role role) {
             SubProtocolFactory* subProtocolFactory = nullptr;
 
             if (subProtocolPlugins.contains(subProtocolName)) {
@@ -120,7 +118,7 @@ namespace web::websocket {
                     add(subProtocolFactory, nullptr);
                 }
             } else if (!onlyLinked) {
-                subProtocolFactory = load(subProtocolName);
+                subProtocolFactory = load(subProtocolName, role);
             }
 
             return subProtocolFactory;

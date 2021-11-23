@@ -18,8 +18,6 @@
 
 #include "web/websocket/client/SubProtocolFactorySelector.h"
 
-#include "web/websocket/client/SubProtocolFactory.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -55,10 +53,6 @@ namespace web::websocket::client {
 
     void SubProtocolFactorySelector::allowDlOpen() {
         SubProtocolFactorySelector::instance()->web::websocket::SubProtocolFactorySelector<SubProtocolFactory>::allowDlOpen();
-    }
-
-    SubProtocolFactory* SubProtocolFactorySelector::load(const std::string& subProtocolName) {
-        return load(subProtocolName, Role::CLIENT);
     }
 
 } // namespace web::websocket::client

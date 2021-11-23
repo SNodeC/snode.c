@@ -37,8 +37,6 @@ namespace web::websocket {
         using SocketContextUpgrade = SocketContextUpgradeT;
 
     protected:
-        enum class Role { SERVER, CLIENT };
-
         SubProtocol() = default;
 
         SubProtocol(const SubProtocol&) = delete;

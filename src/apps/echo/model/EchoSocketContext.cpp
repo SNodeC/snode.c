@@ -71,7 +71,7 @@ namespace apps::echo::model {
 
     void EchoClientSocketContext::onConnected() {
         VLOG(0) << "Echo connected";
-        sendToPeer("Hello Peer! Nice to see you!!!");
+        sendToPeer("Hello peer! Nice to see you!!!");
     }
     void EchoClientSocketContext::onDisconnected() {
         VLOG(0) << "Echo disconnected";

@@ -36,7 +36,7 @@ namespace web::websocket::client {
                                                SocketContextUpgradeFactory* socketContextUpgradeFactory,
                                                SubProtocol* subProtocol)
         : web::websocket::SocketContextUpgrade<SubProtocol, web::http::client::Request, web::http::client::Response>(
-              socketConnection, socketContextUpgradeFactory, subProtocol, core::socket::stream::SocketContext::Role::SERVER) {
+              socketConnection, socketContextUpgradeFactory, subProtocol, core::socket::stream::SocketContext::Role::CLIENT) {
         subProtocol->setSocketContextUpgrade(this);
     }
 
@@ -45,7 +45,8 @@ namespace web::websocket::client {
                                                        const std::string& subProtocolName) {
         SocketContextUpgrade* socketContextUpgrade = nullptr;
 
-        SubProtocolFactory* subProtocolFactory = SubProtocolFactorySelector::instance()->select(subProtocolName);
+        SubProtocolFactory* subProtocolFactory =
+            SubProtocolFactorySelector::instance()->select(subProtocolName, SubProtocolFactorySelector::Role::CLIENT);
 
         if (subProtocolFactory != nullptr) {
             SubProtocol* subProtocol = subProtocolFactory->createSubProtocol();
@@ -63,7 +64,8 @@ namespace web::websocket::client {
     }
 
     SocketContextUpgrade::~SocketContextUpgrade() {
-        SubProtocolFactory* subProtocolFactory = SubProtocolFactorySelector::instance()->select(subProtocol->getName());
+        SubProtocolFactory* subProtocolFactory =
+            SubProtocolFactorySelector::instance()->select(subProtocol->getName(), SubProtocolFactorySelector::Role::CLIENT);
 
         subProtocolFactory->deleteSubProtocol(subProtocol);
     }

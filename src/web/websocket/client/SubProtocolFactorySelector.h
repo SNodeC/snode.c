@@ -19,7 +19,7 @@
 #ifndef WEB_WEBSOCKET_CLIENT_SUBPROTOCOLSELECTOR_H
 #define WEB_WEBSOCKET_CLIENT_SUBPROTOCOLSELECTOR_H
 
-#include "web/websocket/SubProtocolFactorySelector.h"
+#include "web/websocket/SubProtocolFactorySelector.h" // IWYU pragma: export
 
 namespace web::websocket::client {
     class SubProtocolFactory;
@@ -49,8 +49,6 @@ namespace web::websocket::client {
         SubProtocolFactorySelector& operator=(const SubProtocolFactorySelector&) = delete;
 
         using web::websocket::SubProtocolFactorySelector<web::websocket::client::SubProtocolFactory>::load;
-
-        SubProtocolFactory* load(const std::string& subProtocolName) override;
     };
 
 } // namespace web::websocket::client
