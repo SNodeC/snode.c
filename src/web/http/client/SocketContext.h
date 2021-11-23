@@ -63,8 +63,8 @@ namespace web::http::client {
 
         void sendToPeerCompleted() override;
 
-        void onConnected();
-        void onDisconnected();
+        void onConnected() override;
+        void onDisconnected() override;
 
         Request request;
         Response response;
