@@ -30,18 +30,18 @@
 
 namespace apps::echo::model {
 
-    EchoSocketContext::EchoSocketContext(core::socket::stream::SocketConnection* socketConnection)
+    EchoServerSocketContext::EchoServerSocketContext(core::socket::stream::SocketConnection* socketConnection)
         : core::socket::stream::SocketContext(socketConnection) {
     }
 
-    void EchoSocketContext::onConnected() {
+    void EchoServerSocketContext::onConnected() {
         VLOG(0) << "Echo connected";
     }
-    void EchoSocketContext::onDisconnected() {
+    void EchoServerSocketContext::onDisconnected() {
         VLOG(0) << "Echo disconnected";
     }
 
-    void EchoSocketContext::onReceiveFromPeer() {
+    void EchoServerSocketContext::onReceiveFromPeer() {
         char junk[4096];
 
         ssize_t ret = readFromPeer(junk, 4096);
@@ -53,16 +53,52 @@ namespace apps::echo::model {
         }
     }
 
-    void EchoSocketContext::onWriteError(int errnum) {
+    void EchoServerSocketContext::onWriteError(int errnum) {
         VLOG(0) << "OnWriteError: " << errnum;
     }
 
-    void EchoSocketContext::onReadError(int errnum) {
+    void EchoServerSocketContext::onReadError(int errnum) {
         VLOG(0) << "OnReadError: " << errnum;
     }
 
-    core::socket::stream::SocketContext* EchoSocketContextFactory::create(core::socket::stream::SocketConnection* socketConnection) {
-        return new EchoSocketContext(socketConnection);
+    core::socket::stream::SocketContext* EchoServerSocketContextFactory::create(core::socket::stream::SocketConnection* socketConnection) {
+        return new EchoServerSocketContext(socketConnection);
+    }
+
+    EchoClientSocketContext::EchoClientSocketContext(core::socket::stream::SocketConnection* socketConnection)
+        : core::socket::stream::SocketContext(socketConnection) {
+    }
+
+    void EchoClientSocketContext::onConnected() {
+        VLOG(0) << "Echo connected";
+        sendToPeer("Hello Peer! Nice to see you!!!");
+    }
+    void EchoClientSocketContext::onDisconnected() {
+        VLOG(0) << "Echo disconnected";
+    }
+
+    void EchoClientSocketContext::onReceiveFromPeer() {
+        char junk[4096];
+
+        ssize_t ret = readFromPeer(junk, 4096);
+
+        if (ret > 0) {
+            std::size_t junklen = static_cast<std::size_t>(ret);
+            VLOG(0) << "Data to reflect: " << std::string(junk, junklen);
+            sendToPeer(junk, junklen);
+        }
+    }
+
+    void EchoClientSocketContext::onWriteError(int errnum) {
+        VLOG(0) << "OnWriteError: " << errnum;
+    }
+
+    void EchoClientSocketContext::onReadError(int errnum) {
+        VLOG(0) << "OnReadError: " << errnum;
+    }
+
+    core::socket::stream::SocketContext* EchoClientSocketContextFactory::create(core::socket::stream::SocketConnection* socketConnection) {
+        return new EchoClientSocketContext(socketConnection);
     }
 
 } // namespace apps::echo::model

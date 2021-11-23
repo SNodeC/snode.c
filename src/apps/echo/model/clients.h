@@ -52,10 +52,8 @@ namespace apps::echo::model::legacy {
                 VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
                 VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
             },
-            [](SocketConnection* socketConnection) -> void { // onConnected
+            []([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnected
                 VLOG(0) << "OnConnected";
-
-                socketConnection->sendToPeer("Hello peer! Nice to see you!");
             },
             [](SocketConnection* socketConnection) -> void { // onDisconnect
                 VLOG(0) << "OnDisconnect";
@@ -133,8 +131,6 @@ namespace apps::echo::model::tls {
                 } else {
                     VLOG(0) << "     Server certificate: no certificate";
                 }
-
-                socketConnection->sendToPeer("Hello peer! Nice to see you!");
             },
             [](SocketConnection* socketConnection) -> void { // onDisconnect
                 VLOG(0) << "OnDisconnect";

@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
     using SocketClient =
-        net::NET::stream::STREAM::SocketClient<apps::echo::model::EchoSocketContextFactory>; // this makes it an rf-EchoClient
+        net::NET::stream::STREAM::SocketClient<apps::echo::model::EchoClientSocketContextFactory>; // this makes it an rf-EchoClient
 
     SocketClient client = apps::echo::model::STREAM::getClient<SocketClient>();
 

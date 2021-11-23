@@ -32,9 +32,9 @@ namespace core::socket::stream {
 
 namespace apps::echo::model {
 
-    class EchoSocketContext : public core::socket::stream::SocketContext {
+    class EchoServerSocketContext : public core::socket::stream::SocketContext {
     public:
-        explicit EchoSocketContext(core::socket::stream::SocketConnection* socketConnection);
+        explicit EchoServerSocketContext(core::socket::stream::SocketConnection* socketConnection);
 
         void onConnected() override;
         void onDisconnected() override;
@@ -45,7 +45,25 @@ namespace apps::echo::model {
         void onReadError(int errnum) override;
     };
 
-    class EchoSocketContextFactory : public core::socket::stream::SocketContextFactory {
+    class EchoServerSocketContextFactory : public core::socket::stream::SocketContextFactory {
+    private:
+        core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override;
+    };
+
+    class EchoClientSocketContext : public core::socket::stream::SocketContext {
+    public:
+        explicit EchoClientSocketContext(core::socket::stream::SocketConnection* socketConnection);
+
+        void onConnected() override;
+        void onDisconnected() override;
+
+        void onReceiveFromPeer() override;
+
+        void onWriteError(int errnum) override;
+        void onReadError(int errnum) override;
+    };
+
+    class EchoClientSocketContextFactory : public core::socket::stream::SocketContextFactory {
     private:
         core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override;
     };
