@@ -1,4 +1,4 @@
 cmake_minimum_required(VERSION 3.0)
 
-add_library(echo STATIC EchoSocketContext.cpp)
-target_include_directories(echo PRIVATE ${PROJECT_SOURCE_DIR})
+add_library(echosocketcontext STATIC EchoSocketContext.cpp)
+target_include_directories(echosocketcontext PRIVATE ${PROJECT_SOURCE_DIR})

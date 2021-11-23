@@ -19,27 +19,28 @@
 #ifndef APPS_MODEL_LOWLEVELLEGACYCLIENT_H
 #define APPS_MODEL_LOWLEVELLEGACYCLIENT_H
 
-#include "config.h"
 #include "log/Logger.h" // for Writer
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#if (TYPEI == TLS) // tls
-#include <cstddef> // for size_t
+#include <any>
+#include <map>
+#include <string> // for string
+
+#if (STREAM_TYPE == TLS) // tls
+#include <cstddef>       // for size_t
 #include <openssl/ssl.h>
 #include <openssl/x509v3.h>
 #endif
 
-#include <string> // for string
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#if (TYPEI == LEGACY) // legacy
+#if (STREAM_TYPE == LEGACY) // legacy
 
 namespace apps::echo::model::legacy {
 
     template <typename SocketClientT>
-    SocketClientT getClient() {
+    SocketClientT getClient(const std::map<std::string, std::any>& options) {
         using SocketClient = SocketClientT;
         using SocketAddress = typename SocketClient::SocketAddress;
         using SocketConnection = typename SocketClient::SocketConnection;
@@ -62,17 +63,18 @@ namespace apps::echo::model::legacy {
                                socketConnection->getRemoteAddress().toString();
                 VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
                                socketConnection->getLocalAddress().toString();
-            });
+            },
+            options);
     }
 
 } // namespace apps::echo::model::legacy
 
-#elif (TYPEI == TLS) // tls
+#elif (STREAM_TYPE == TLS) // tls
 
 namespace apps::echo::model::tls {
 
     template <typename SocketClientT>
-    SocketClientT getClient() {
+    SocketClientT getClient(const std::map<std::string, std::any>& options) {
         using SocketClient = SocketClientT;
         using SocketAddress = typename SocketClient::SocketAddress;
         using SocketConnection = typename SocketClient::SocketConnection;
@@ -140,8 +142,7 @@ namespace apps::echo::model::tls {
                 VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
                                socketConnection->getLocalAddress().toString();
             },
-
-            {{"certChain", CLIENTCERTF}, {"keyPEM", CLIENTKEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}});
+            options);
     }
 
 } // namespace apps::echo::model::tls

@@ -16,6 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "config.h"     // IWYU pragma: keep
 #include "log/Logger.h" // for Writer
 
 #define QUOTE_INCLUDE(a) STR(a)
@@ -38,20 +39,27 @@
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
+#if (STREAM_TYPE == LEGACY)
+    std::map<std::string, std::any> options = {{}};
+#elif (STREAM_TYPE == TLS)
+    std::map<std::string, std::any> options = {
+        {"certChain", CLIENTCERTF}, {"keyPEM", CLIENTKEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}};
+#endif
+
     using SocketClient =
         net::NET::stream::STREAM::SocketClient<apps::echo::model::EchoClientSocketContextFactory>; // this makes it an rf-EchoClient
 
-    SocketClient client = apps::echo::model::STREAM::getClient<SocketClient>();
+    SocketClient client = apps::echo::model::STREAM::getClient<SocketClient>(options);
 
-#if (NETI == IN) // in
+#if (NET_TYPE == IN) // in
     client.connect("localhost", 8080, [](int errnum) -> void {
-#elif (NETI == IN6) // in6
+#elif (NET_TYPE == IN6) // in6
     client.connect("localhost", 8080, [](int errnum) -> void {
-#elif (NETI == L2)  // l2
+#elif (NET_TYPE == L2)  // l2
     client.connect("A4:B1:C1:2C:82:37", 0x1023, "44:01:BB:A3:63:32", [](int errnum) -> void {
-#elif (NETI == RF)  // rf
+#elif (NET_TYPE == RF)  // rf
     client.connect("A4:B1:C1:2C:82:37", 1, "44:01:BB:A3:63:32", [](int errnum) -> void {
-#elif (NETI == UN)  // un
+#elif (NET_TYPE == UN)  // un
     client.connect("/tmp/testme", [](int errnum) -> void {
 #endif
         if (errnum != 0) {

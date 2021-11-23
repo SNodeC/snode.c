@@ -33,32 +33,34 @@ add_compile_definitions(
 set(NETS "in" "in6" "l2" "rf" "un")
 foreach(NET IN LISTS NETS)
     if(${NET} STREQUAL "in")
-        set(NETI ${IN})
+        set(NET_TYPE ${IN})
     elseif(${NET} STREQUAL "in6")
-        set(NETI ${IN6})
+        set(NET_TYPE ${IN6})
     elseif(${NET} STREQUAL "l2")
-        set(NETI ${L2})
+        set(NET_TYPE ${L2})
     elseif(${NET} STREQUAL "rf")
-        set(NETI ${RF})
+        set(NET_TYPE ${RF})
     elseif(${NET} STREQUAL "un")
-        set(NETI ${UN})
+        set(NET_TYPE ${UN})
     endif()
 
     set(STREAMS "legacy" "tls")
     foreach(STREAM IN LISTS STREAMS)
         if(${STREAM} STREQUAL "legacy")
-            set(TYPEI ${LEGACY})
+            set(STREAM_TYPE ${LEGACY})
         elseif(${STREAM} STREQUAL "tls")
-            set(TYPEI ${TLS})
+            set(STREAM_TYPE ${TLS})
         endif()
 
         add_executable(${NET}${STREAM}echoclient echoclient.cpp)
         target_link_libraries(
-            ${NET}${STREAM}echoclient PRIVATE snodec::net-${NET} echo
+            ${NET}${STREAM}echoclient PRIVATE snodec::net-${NET}
+                                              echosocketcontext
         )
         target_compile_definitions(
-            ${NET}${STREAM}echoclient PRIVATE NET=${NET} STREAM=${STREAM}
-                                              NETI=${NETI} TYPEI=${TYPEI}
+            ${NET}${STREAM}echoclient
+            PRIVATE NET=${NET} NET_TYPE=${NET_TYPE} STREAM=${STREAM}
+                    STREAM_TYPE=${STREAM_TYPE}
         )
         install(TARGETS ${NET}${STREAM}echoclient
                 RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -66,11 +68,13 @@ foreach(NET IN LISTS NETS)
 
         add_executable(${NET}${STREAM}echoserver echoserver.cpp)
         target_link_libraries(
-            ${NET}${STREAM}echoserver PRIVATE snodec::net-${NET} echo
+            ${NET}${STREAM}echoserver PRIVATE snodec::net-${NET}
+                                              echosocketcontext
         )
         target_compile_definitions(
-            ${NET}${STREAM}echoserver PRIVATE NET=${NET} STREAM=${STREAM}
-                                              NETI=${NETI} TYPEI=${TYPEI}
+            ${NET}${STREAM}echoserver
+            PRIVATE NET=${NET} NET_TYPE=${NET_TYPE} STREAM=${STREAM}
+                    STREAM_TYPE=${STREAM_TYPE}
         )
         install(TARGETS ${NET}${STREAM}echoserver
                 RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}

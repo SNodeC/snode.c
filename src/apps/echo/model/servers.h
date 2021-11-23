@@ -19,27 +19,28 @@
 #ifndef APPS_MODEL_LOWLEVELLEGACYCLIENT_H
 #define APPS_MODEL_LOWLEVELLEGACYCLIENT_H
 
-#include "config.h"
 #include "log/Logger.h" // for Writer
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#if (TYPEI == TLS) // tls
-#include <cstddef> // for size_t
+#include <any>
+#include <map>
+#include <string> // for string
+
+#if (STREAM_TYPE == TLS) // tls
+#include <cstddef>       // for size_t
 #include <openssl/ssl.h>
 #include <openssl/x509v3.h>
 #endif
 
-#include <string> // for string
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#if (TYPEI == LEGACY) // legacy
+#if (STREAM_TYPE == LEGACY) // legacy
 
 namespace apps::echo::model::legacy {
 
     template <typename SocketServerT>
-    SocketServerT getServer() {
+    SocketServerT getServer(const std::map<std::string, std::any>& options) {
         using SocketServer = SocketServerT;
         using SocketAddress = typename SocketServer::SocketAddress;
         using SocketConnection = typename SocketServer::SocketConnection;
@@ -62,17 +63,18 @@ namespace apps::echo::model::legacy {
                                socketConnection->getLocalAddress().toString();
                 VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " +
                                socketConnection->getRemoteAddress().toString();
-            });
+            },
+            options);
     }
 
 } // namespace apps::echo::model::legacy
 
-#elif (TYPEI == TLS) // tls
+#elif (STREAM_TYPE == TLS) // tls
 
 namespace apps::echo::model::tls {
 
     template <typename SocketServerT>
-    SocketServerT getServer() {
+    SocketServerT getServer(const std::map<std::string, std::any>& options) {
         using SocketServer = SocketServerT;
         using SocketAddress = typename SocketServer::SocketAddress;
         using SocketConnection = typename SocketServer::SocketConnection;
@@ -93,14 +95,14 @@ namespace apps::echo::model::tls {
                 if (client_cert != nullptr) {
                     long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
-                    VLOG(2) << "\tClient certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
+                    VLOG(0) << "\tClient certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
 
                     char* str = X509_NAME_oneline(X509_get_subject_name(client_cert), 0, 0);
-                    VLOG(2) << "\t   Subject: " + std::string(str);
+                    VLOG(0) << "\t   Subject: " + std::string(str);
                     OPENSSL_free(str);
 
                     str = X509_NAME_oneline(X509_get_issuer_name(client_cert), 0, 0);
-                    VLOG(2) << "\t   Issuer: " + std::string(str);
+                    VLOG(0) << "\t   Issuer: " + std::string(str);
                     OPENSSL_free(str);
 
                     // We could do all sorts of certificate verification stuff here before deallocating the certificate.
@@ -109,28 +111,28 @@ namespace apps::echo::model::tls {
                         static_cast<GENERAL_NAMES*>(X509_get_ext_d2i(client_cert, NID_subject_alt_name, nullptr, nullptr));
 
                     int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
-                    VLOG(2) << "\t   Subject alternative name count: " << altNameCount;
+                    VLOG(0) << "\t   Subject alternative name count: " << altNameCount;
                     for (int32_t i = 0; i < altNameCount; ++i) {
                         GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
                         if (generalName->type == GEN_URI) {
                             std::string subjectAltName =
                                 std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
                                             static_cast<std::size_t>(ASN1_STRING_length(generalName->d.uniformResourceIdentifier)));
-                            VLOG(2) << "\t      SAN (URI): '" + subjectAltName;
+                            VLOG(0) << "\t      SAN (URI): '" + subjectAltName;
                         } else if (generalName->type == GEN_DNS) {
                             std::string subjectAltName =
                                 std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                             static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
-                            VLOG(2) << "\t      SAN (DNS): '" + subjectAltName;
+                            VLOG(0) << "\t      SAN (DNS): '" + subjectAltName;
                         } else {
-                            VLOG(2) << "\t      SAN (Type): '" + std::to_string(generalName->type);
+                            VLOG(0) << "\t      SAN (Type): '" + std::to_string(generalName->type);
                         }
                     }
                     sk_GENERAL_NAME_pop_free(subjectAltNames, GENERAL_NAME_free);
 
                     X509_free(client_cert);
                 } else {
-                    VLOG(2) << "\tClient certificate: no certificate";
+                    VLOG(0) << "\tClient certificate: no certificate";
                 }
             },
             [](SocketConnection* socketConnection) -> void { // onDisconnect
@@ -141,11 +143,11 @@ namespace apps::echo::model::tls {
                 VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " +
                                socketConnection->getRemoteAddress().toString();
             },
-            {{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}, {"caFile", CLIENTCAFILE}});
-
-        server.addSniCert("snodec.home.vchrist.at",
-                          {{"certChain", SNODECCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}, {"caFile", CLIENTCAFILE}});
-
+            options);
+        /*
+                server.addSniCert("snodec.home.vchrist.at",
+                                  {{"certChain", SNODECCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}, {"caFile", CLIENTCAFILE}});
+        */
         return server;
     }
 
