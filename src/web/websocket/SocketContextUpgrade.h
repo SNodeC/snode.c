@@ -20,7 +20,7 @@
 #define WEB_WEBSOCKET_SOCKETCONTEXT_H
 
 #include "log/Logger.h"
-#include "web/http/SocketContextUpgrade.h"
+#include "web/http/SocketContextUpgrade.h" // IWYU pragma: export
 #include "web/websocket/Receiver.h"
 #include "web/websocket/Transmitter.h"
 

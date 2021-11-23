@@ -58,7 +58,7 @@ foreach(NET IN LISTS NETS)
         )
         target_compile_definitions(
             ${NET}${STREAM}echoclient PRIVATE NET=${NET} STREAM=${STREAM}
-                                                NETI=${NETI} TYPEI=${TYPEI}
+                                              NETI=${NETI} TYPEI=${TYPEI}
         )
         install(TARGETS ${NET}${STREAM}echoclient
                 RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -70,7 +70,7 @@ foreach(NET IN LISTS NETS)
         )
         target_compile_definitions(
             ${NET}${STREAM}echoserver PRIVATE NET=${NET} STREAM=${STREAM}
-                                                NETI=${NETI} TYPEI=${TYPEI}
+                                              NETI=${NETI} TYPEI=${TYPEI}
         )
         install(TARGETS ${NET}${STREAM}echoserver
                 RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
