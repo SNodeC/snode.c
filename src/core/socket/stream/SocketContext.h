@@ -56,8 +56,8 @@ namespace core::socket::stream {
         virtual void onWriteError(int errnum) = 0;
         virtual void onReadError(int errnum) = 0;
 
-        virtual void onConnected() = 0;
-        virtual void onDisconnected() = 0;
+        virtual void onConnected();
+        virtual void onDisconnected();
 
     private:
         SocketConnection* socketConnection;
