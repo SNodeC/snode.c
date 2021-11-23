@@ -20,11 +20,28 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <exception>
 #include <sys/socket.h> // for AF_BLUETOOTH
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::rf {
+
+    class bad_bdaddress : public std::exception {
+    public:
+        explicit bad_bdaddress(const std::string& bdAddress) {
+            message = "Bad bad bdaddress \"" + bdAddress + "\"";
+        }
+
+        const char* what() const noexcept override {
+            return message.c_str();
+        }
+
+    protected:
+        static std::string message;
+    };
+
+    std::string bad_bdaddress::message;
 
     SocketAddress::SocketAddress() {
         sockAddr.rc_family = AF_BLUETOOTH;
@@ -38,15 +55,13 @@ namespace net::rf {
         sockAddr.rc_channel = (uint8_t) 0;
     }
 
-    SocketAddress::SocketAddress(uint8_t channel) {
-        sockAddr.rc_family = AF_BLUETOOTH;
-        sockAddr.rc_bdaddr = {{0, 0, 0, 0, 0, 0}};
+    SocketAddress::SocketAddress(uint8_t channel)
+        : SocketAddress() {
         sockAddr.rc_channel = channel;
     }
 
-    SocketAddress::SocketAddress(const std::string& btAddress, uint8_t channel) {
-        sockAddr.rc_family = AF_BLUETOOTH;
-        str2ba(btAddress.c_str(), &sockAddr.rc_bdaddr);
+    SocketAddress::SocketAddress(const std::string& btAddress, uint8_t channel)
+        : SocketAddress(btAddress) {
         sockAddr.rc_channel = channel;
     }
 

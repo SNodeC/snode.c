@@ -73,7 +73,7 @@ namespace core::socket::stream {
     }
 
     void SocketContext::onDisconnected() {
-        VLOG(0) << "Protocol disconnecteded";
+        VLOG(0) << "Protocol disconnected";
     }
 
     SocketContext::Role SocketContext::getRole() const {

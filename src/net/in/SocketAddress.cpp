@@ -23,10 +23,25 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstring>
+#include <exception>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::in {
+
+    class bad_hostname : public std::exception {
+    public:
+        explicit bad_hostname(const std::string& hostName) {
+            message = "Bad hostname \"" + hostName + "\"";
+        }
+
+        const char* what() const noexcept override {
+            return message.c_str();
+        }
+
+    protected:
+        static std::string message;
+    };
 
     std::string bad_hostname::message;
 

@@ -20,11 +20,28 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <exception>
 #include <sys/socket.h> // for AF_BLUETOOTH
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 namespace net::l2 {
+
+    class bad_bdaddress : public std::exception {
+    public:
+        explicit bad_bdaddress(const std::string& bdAddress) {
+            message = "Bad bad bdaddress \"" + bdAddress + "\"";
+        }
+
+        const char* what() const noexcept override {
+            return message.c_str();
+        }
+
+    protected:
+        static std::string message;
+    };
+
+    std::string bad_bdaddress::message;
 
     SocketAddress::SocketAddress() {
         sockAddr.l2_family = AF_BLUETOOTH;
@@ -38,15 +55,13 @@ namespace net::l2 {
         sockAddr.l2_psm = htobs(0);
     }
 
-    SocketAddress::SocketAddress(uint16_t psm) {
-        sockAddr.l2_family = AF_BLUETOOTH;
-        sockAddr.l2_bdaddr = {{0, 0, 0, 0, 0, 0}};
+    SocketAddress::SocketAddress(uint16_t psm)
+        : SocketAddress() {
         sockAddr.l2_psm = htobs(psm);
     }
 
-    SocketAddress::SocketAddress(const std::string& btAddress, uint16_t psm) {
-        sockAddr.l2_family = AF_BLUETOOTH;
-        str2ba(btAddress.c_str(), &sockAddr.l2_bdaddr);
+    SocketAddress::SocketAddress(const std::string& btAddress, uint16_t psm)
+        : SocketAddress(btAddress) {
         sockAddr.l2_psm = htobs(psm);
     }
 

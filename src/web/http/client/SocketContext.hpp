@@ -108,7 +108,7 @@ namespace web::http::client {
 
     template <typename Request, typename Response>
     void SocketContext<Request, Response>::onDisconnected() {
-        VLOG(0) << "HTTP disconnecteded";
+        VLOG(0) << "HTTP disconnected";
     }
 
 } // namespace web::http::client

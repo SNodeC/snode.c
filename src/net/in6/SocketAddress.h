@@ -24,27 +24,12 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint>
-#include <exception>
 #include <netinet/in.h>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace net::in6 {
-
-    class bad_hostname : public std::exception {
-    public:
-        explicit bad_hostname(const std::string& hostName) {
-            bad_hostname::message = "Bad hostname \"" + hostName + "\"";
-        }
-
-        const char* what() const noexcept override {
-            return bad_hostname::message.c_str();
-        }
-
-    protected:
-        static std::string message;
-    };
 
     class SocketAddress : public core::socket::SocketAddress<struct sockaddr_in6> {
     public:

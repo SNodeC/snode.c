@@ -211,8 +211,8 @@ namespace web::websocket {
         }
 
         void onDisconnected() override {
-            VLOG(0) << "Websocket disconnected";
             subProtocol->onDisconnected();
+            VLOG(0) << "Websocket disconnected";
         }
 
         /* Facade to SocketProtocol used from WSTransmitter */
