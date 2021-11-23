@@ -32,7 +32,6 @@ namespace web::http::server {
 
 namespace web::websocket::server {
     class SubProtocol;
-    class SocketContextUpgradeFactory;
 } // namespace web::websocket::server
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -46,17 +45,19 @@ namespace web::websocket::server {
     class SocketContextUpgrade
         : public web::websocket::SocketContextUpgrade<SubProtocol, web::http::server::Request, web::http::server::Response> {
     public:
-        SocketContextUpgrade(core::socket::stream::SocketConnection* socketConnection,
-                             SocketContextUpgradeFactory* socketContextUpgradeFactory,
-                             web::websocket::server::SubProtocol* subProtocol);
+        SocketContextUpgrade(
+            core::socket::stream::SocketConnection* socketConnection,
+            web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response>* socketContextUpgradeFactory,
+            web::websocket::server::SubProtocol* subProtocol);
 
     protected:
         ~SocketContextUpgrade() override;
 
     public:
-        static SocketContextUpgrade* create(SocketContextUpgradeFactory* socketContextUpgradeFactory,
-                                            core::socket::stream::SocketConnection* socketConnection,
-                                            const std::string& subProtocolName);
+        static SocketContextUpgrade*
+        create(web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response>* socketContextUpgradeFactory,
+               core::socket::stream::SocketConnection* socketConnection,
+               const std::string& subProtocolName);
     };
 
 } // namespace web::websocket::server

@@ -18,7 +18,6 @@
 
 #include "web/websocket/client/SocketContextUpgrade.h"
 
-#include "web/websocket/client/SocketContextUpgradeFactory.h"
 #include "web/websocket/client/SubProtocolFactory.h"
 #include "web/websocket/client/SubProtocolFactorySelector.h"
 
@@ -32,17 +31,19 @@ namespace core::socket::stream {
 
 namespace web::websocket::client {
 
-    SocketContextUpgrade::SocketContextUpgrade(core::socket::stream::SocketConnection* socketConnection,
-                                               SocketContextUpgradeFactory* socketContextUpgradeFactory,
-                                               SubProtocol* subProtocol)
+    SocketContextUpgrade::SocketContextUpgrade(
+        core::socket::stream::SocketConnection* socketConnection,
+        web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response>* socketContextUpgradeFactory,
+        SubProtocol* subProtocol)
         : web::websocket::SocketContextUpgrade<SubProtocol, web::http::client::Request, web::http::client::Response>(
               socketConnection, socketContextUpgradeFactory, subProtocol, core::socket::stream::SocketContext::Role::CLIENT) {
         subProtocol->setSocketContextUpgrade(this);
     }
 
-    SocketContextUpgrade* SocketContextUpgrade::create(SocketContextUpgradeFactory* socketContextUpgradeFactory,
-                                                       core::socket::stream::SocketConnection* socketConnection,
-                                                       const std::string& subProtocolName) {
+    SocketContextUpgrade* SocketContextUpgrade::create(
+        web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response>* socketContextUpgradeFactory,
+        core::socket::stream::SocketConnection* socketConnection,
+        const std::string& subProtocolName) {
         SocketContextUpgrade* socketContextUpgrade = nullptr;
 
         SubProtocolFactory* subProtocolFactory =

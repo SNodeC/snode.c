@@ -19,15 +19,11 @@
 #ifndef WEB_HTTP_SOCKETCONTEXTUPGRADE_H
 #define WEB_HTTP_SOCKETCONTEXTUPGRADE_H
 
-#include "core/socket/stream/SocketContext.h" // IWYU pragma: export
+#include "core/socket/stream/SocketContext.h"     // IWYU pragma: export
+#include "web/http/SocketContextUpgradeFactory.h" // IWYU pragma: export
 
 namespace core::socket::stream {
     class SocketConnection;
-}
-
-namespace web::http {
-    template <typename RequestT, typename ResponseT>
-    class SocketContextUpgradeFactory;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

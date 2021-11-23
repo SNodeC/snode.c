@@ -18,7 +18,6 @@
 
 #include "web/http/SocketContextUpgrade.h"
 #include "web/http/SocketContextUpgradeFactory.h"
-#include "web/http/SocketContextUpgradeFactorySelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

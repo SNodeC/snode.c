@@ -61,9 +61,6 @@ namespace web::websocket {
         using web::http::SocketContextUpgrade<Request, Response>::setTimeout;
 
     protected:
-        //        enum class Role { SERVER, CLIENT };
-
-    protected:
         SocketContextUpgrade(core::socket::stream::SocketConnection* socketConnection,
                              web::http::SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory,
                              SubProtocol* subProtocol,
