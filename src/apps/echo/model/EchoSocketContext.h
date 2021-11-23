@@ -36,10 +36,12 @@ namespace apps::echo::model {
     public:
         explicit EchoSocketContext(core::socket::stream::SocketConnection* socketConnection);
 
+        void onConnected() override;
+        void onDisconnected() override;
+
         void onReceiveFromPeer() override;
 
         void onWriteError(int errnum) override;
-
         void onReadError(int errnum) override;
     };
 

@@ -50,7 +50,7 @@ namespace web::websocket::subprotocol::echo::server {
     }
 
     void Echo::onConnected() {
-        VLOG(0) << "On protocol connected:";
+        VLOG(0) << "Echo connected:";
 
         sendMessage("Welcome to SimpleChat");
         sendMessage("=====================");
@@ -92,7 +92,7 @@ namespace web::websocket::subprotocol::echo::server {
     }
 
     void Echo::onDisconnected() {
-        VLOG(0) << "On protocol disconnected:";
+        VLOG(0) << "Echo disconnected:";
 
         VLOG(0) << "\tServer: " + getLocalAddressAsString();
         VLOG(0) << "\tClient: " + getRemoteAddressAsString();

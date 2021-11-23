@@ -76,6 +76,9 @@ namespace web::http::server {
 
         void sendToPeerCompleted() override;
 
+        void onConnected() override;
+        void onDisconnected() override;
+
         void requestParsed();
 
         void reset();

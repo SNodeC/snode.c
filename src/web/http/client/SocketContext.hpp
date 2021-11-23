@@ -101,4 +101,14 @@ namespace web::http::client {
         return response;
     }
 
+    template <typename Request, typename Response>
+    void SocketContext<Request, Response>::SocketContext::onConnected() {
+        VLOG(0) << "HTTP connected";
+    }
+
+    template <typename Request, typename Response>
+    void SocketContext<Request, Response>::onDisconnected() {
+        VLOG(0) << "HTTP disconnecteded";
+    }
+
 } // namespace web::http::client

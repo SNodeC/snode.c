@@ -209,10 +209,12 @@ namespace web::websocket {
 
         /* Callbacks (API) socketConnection -> WSProtocol */
         void onConnected() override {
+            VLOG(0) << "Websocket connected";
             subProtocol->onConnected();
         }
 
         void onDisconnected() override {
+            VLOG(0) << "Websocket disconnected";
             subProtocol->onDisconnected();
         }
 

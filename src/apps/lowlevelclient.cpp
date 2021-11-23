@@ -96,6 +96,13 @@ public:
         delete responseParser;
     }
 
+    void onConnected() override {
+        VLOG(0) << "SimpleSocketProtocol connected";
+    }
+    void onDisconnected() override {
+        VLOG(0) << "SimpleSocketProtocol disconnected";
+    }
+
     void onReceiveFromPeer() override {
         responseParser->parse();
     }

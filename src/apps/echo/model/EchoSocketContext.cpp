@@ -34,6 +34,13 @@ namespace apps::echo::model {
         : core::socket::stream::SocketContext(socketConnection) {
     }
 
+    void EchoSocketContext::onConnected() {
+        VLOG(0) << "Echo connected";
+    }
+    void EchoSocketContext::onDisconnected() {
+        VLOG(0) << "Echo disconnected";
+    }
+
     void EchoSocketContext::onReceiveFromPeer() {
         char junk[4096];
 

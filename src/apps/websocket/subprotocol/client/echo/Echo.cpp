@@ -50,7 +50,7 @@ namespace web::websocket::subprotocol::echo::client {
     }
 
     void Echo::onConnected() {
-        VLOG(0) << "On protocol connected:";
+        VLOG(0) << "Echo connected:";
 
         VLOG(0) << "\tServer: " + getLocalAddressAsString();
         VLOG(0) << "\tClient: " + getRemoteAddressAsString();
@@ -89,7 +89,7 @@ namespace web::websocket::subprotocol::echo::client {
     }
 
     void Echo::onDisconnected() {
-        VLOG(0) << "On protocol disconnected:";
+        VLOG(0) << "Echo disconnected:";
 
         VLOG(0) << "\tServer: " + getLocalAddressAsString();
         VLOG(0) << "\tClient: " + getRemoteAddressAsString();

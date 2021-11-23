@@ -66,13 +66,14 @@ namespace core::socket::stream {
     void SocketContext::setTimeout(int timeout) {
         socketConnection->setTimeout(timeout);
     }
+    /*
+        void SocketContext::onConnected() {
+            VLOG(0) << "Protocol connected";
+        }
 
-    void SocketContext::onConnected() {
-        VLOG(0) << "Protocol connected";
-    }
-
-    void SocketContext::onDisconnected() {
-        VLOG(0) << "Protocol disconnecteded";
-    }
+        void SocketContext::onDisconnected() {
+            VLOG(0) << "Protocol disconnecteded";
+        }
+        */
 
 } // namespace core::socket::stream
