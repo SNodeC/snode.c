@@ -45,10 +45,7 @@ namespace web::websocket {
         virtual SubProtocol* createSubProtocol() {
             SubProtocol* subProtocol = create();
 
-            if (subProtocol != nullptr) {
-                subProtocol->setName(subProtocolName);
-                refCount++;
-            }
+            refCount++;
 
             return subProtocol;
         }

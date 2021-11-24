@@ -26,6 +26,15 @@
 
 namespace web::websocket::server {
 
+    SubProtocol::SubProtocol(const std::string& name)
+        : web::websocket::SubProtocol<web::websocket::server::SocketContextUpgrade>(name) {
+        GroupsManager::instance()->subscribe(this);
+    }
+
+    SubProtocol::~SubProtocol() {
+        GroupsManager::instance()->unsubscribe(this);
+    }
+
     void SubProtocol::subscribe(const std::string& group) {
         GroupsManager::instance()->subscribe(this, group);
         // subscibe(group, this);

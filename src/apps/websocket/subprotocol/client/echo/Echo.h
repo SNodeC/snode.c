@@ -33,16 +33,11 @@ namespace core::timer {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define NAME "echo"
-
 namespace web::websocket::subprotocol::echo::client {
 
     class Echo : public web::websocket::client::SubProtocol {
     public:
-        Echo();
-
-        Echo(const Echo&) = delete;
-        Echo& operator=(const Echo&) = delete;
+        Echo(const std::string& name);
 
     protected:
         ~Echo() override;

@@ -24,10 +24,12 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#define NAME "echo"
+
 namespace web::websocket::subprotocol::echo::server {
 
     web::websocket::server::SubProtocolFactory::SubProtocol* EchoFactory::create() {
-        return new Echo();
+        return new Echo(getName());
     }
 
     extern "C" web::websocket::server::SubProtocolFactory* echoServerSubProtocolFactory() {

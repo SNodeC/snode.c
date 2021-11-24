@@ -37,7 +37,10 @@ namespace web::websocket {
         using SocketContextUpgrade = SocketContextUpgradeT;
 
     protected:
-        SubProtocol() = default;
+        SubProtocol() = delete;
+        SubProtocol(const std::string& name) {
+            this->name = name;
+        }
 
         SubProtocol(const SubProtocol&) = delete;
         SubProtocol& operator=(const SubProtocol&) = delete;
