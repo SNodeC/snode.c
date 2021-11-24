@@ -26,15 +26,14 @@
 
 namespace web::websocket::server {
 
-    GroupsManager* GroupsManager::channelManager = nullptr;
+    GroupsManager* GroupsManager::groupsManager = nullptr;
 
     GroupsManager::~GroupsManager() {
-        GroupsManager::channelManager = nullptr;
+        GroupsManager::groupsManager = nullptr;
     }
 
     GroupsManager* GroupsManager::instance() {
-        return GroupsManager::channelManager == nullptr ? GroupsManager::channelManager = new GroupsManager()
-                                                         : GroupsManager::channelManager;
+        return GroupsManager::groupsManager == nullptr ? GroupsManager::groupsManager = new GroupsManager() : GroupsManager::groupsManager;
     }
 
     void GroupsManager::subscribe(SubProtocol* subProtocol, std::string channel) {
@@ -42,26 +41,26 @@ namespace web::websocket::server {
             channel = subProtocol->getName();
         }
 
-        if (subProtocol->channel != channel) {
+        if (subProtocol->group != channel) {
             std::string newChannel = subProtocol->getName() + "/" + channel;
 
-            channels[newChannel].insert(subProtocol);
+            groups[newChannel].insert(subProtocol);
 
-            if (!subProtocol->channel.empty()) {
+            if (!subProtocol->group.empty()) {
                 unsubscribe(subProtocol);
             }
 
-            subProtocol->channel = newChannel;
+            subProtocol->group = newChannel;
         }
     }
 
     void GroupsManager::unsubscribe(SubProtocol* subProtocol) {
-        if (channels.contains(subProtocol->channel)) {
-            channels[subProtocol->channel].erase(subProtocol);
+        if (groups.contains(subProtocol->group)) {
+            groups[subProtocol->group].erase(subProtocol);
 
-            if (channels[subProtocol->channel].size() == 0) {
-                channels.erase(subProtocol->channel);
-                if (channels.size() == 0) {
+            if (groups[subProtocol->group].size() == 0) {
+                groups.erase(subProtocol->group);
+                if (groups.size() == 0) {
                     delete this;
                 }
             }
@@ -69,11 +68,11 @@ namespace web::websocket::server {
     }
 
     void GroupsManager::sendBroadcast(const std::string& channel,
-                                       const char* message,
-                                       std::size_t messageLength,
-                                       const SubProtocol* excludedClient) {
-        if (channels.contains(channel)) {
-            for (SubProtocol* client : channels[channel]) {
+                                      const char* message,
+                                      std::size_t messageLength,
+                                      const SubProtocol* excludedClient) {
+        if (groups.contains(channel)) {
+            for (SubProtocol* client : groups[channel]) {
                 if (client != excludedClient) {
                     client->sendMessage(message, messageLength);
                 }
@@ -82,8 +81,8 @@ namespace web::websocket::server {
     }
 
     void GroupsManager::sendBroadcast(const std::string& channel, const std::string& message, const SubProtocol* excludedClient) {
-        if (channels.contains(channel)) {
-            for (SubProtocol* client : channels[channel]) {
+        if (groups.contains(channel)) {
+            for (SubProtocol* client : groups[channel]) {
                 if (client != excludedClient) {
                     client->sendMessage(message);
                 }
@@ -92,11 +91,11 @@ namespace web::websocket::server {
     }
 
     void GroupsManager::sendBroadcastStart(const std::string& channel,
-                                            const char* message,
-                                            std::size_t messageLength,
-                                            const SubProtocol* excludedClient) {
-        if (channels.contains(channel)) {
-            for (SubProtocol* client : channels[channel]) {
+                                           const char* message,
+                                           std::size_t messageLength,
+                                           const SubProtocol* excludedClient) {
+        if (groups.contains(channel)) {
+            for (SubProtocol* client : groups[channel]) {
                 if (client != excludedClient) {
                     client->sendMessageStart(message, messageLength);
                 }
@@ -109,11 +108,11 @@ namespace web::websocket::server {
     }
 
     void GroupsManager::sendBroadcastFrame(const std::string& channel,
-                                            const char* message,
-                                            std::size_t messageLength,
-                                            const SubProtocol* excludedClient) {
-        if (channels.contains(channel)) {
-            for (SubProtocol* client : channels[channel]) {
+                                           const char* message,
+                                           std::size_t messageLength,
+                                           const SubProtocol* excludedClient) {
+        if (groups.contains(channel)) {
+            for (SubProtocol* client : groups[channel]) {
                 if (client != excludedClient) {
                     client->sendMessageFrame(message, messageLength);
                 }
@@ -126,11 +125,11 @@ namespace web::websocket::server {
     }
 
     void GroupsManager::sendBroadcastEnd(const std::string& channel,
-                                          const char* message,
-                                          std::size_t messageLength,
-                                          const SubProtocol* excludedClient) {
-        if (channels.contains(channel)) {
-            for (SubProtocol* client : channels[channel]) {
+                                         const char* message,
+                                         std::size_t messageLength,
+                                         const SubProtocol* excludedClient) {
+        if (groups.contains(channel)) {
+            for (SubProtocol* client : groups[channel]) {
                 if (client != excludedClient) {
                     client->sendMessageEnd(message, messageLength);
                 }
@@ -143,10 +142,10 @@ namespace web::websocket::server {
     }
 
     void GroupsManager::forEachClient(const std::string& channel,
-                                       const std::function<void(SubProtocol*)>& sendToClient,
-                                       const SubProtocol* excludedClient) {
-        if (channels.contains(channel)) {
-            for (SubProtocol* client : channels[channel]) {
+                                      const std::function<void(SubProtocol*)>& sendToClient,
+                                      const SubProtocol* excludedClient) {
+        if (groups.contains(channel)) {
+            for (SubProtocol* client : groups[channel]) {
                 if (client != excludedClient) {
                     sendToClient(client);
                 }

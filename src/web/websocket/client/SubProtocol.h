@@ -67,7 +67,7 @@ namespace web::websocket::client {
         template <typename RequestT, typename ResponseT, typename SubProtocolT>
         friend class web::websocket::SocketContextUpgrade;
 
-        friend class ChannelManager;
+        friend class GroupsManager;
     };
 
 } // namespace web::websocket::client

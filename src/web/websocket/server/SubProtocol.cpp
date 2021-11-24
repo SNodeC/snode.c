@@ -18,7 +18,7 @@
 
 #include "web/websocket/server/SubProtocol.h"
 
-#include "web/websocket/server/ChannelManager.h"
+#include "web/websocket/server/GroupsManager.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -26,47 +26,47 @@
 
 namespace web::websocket::server {
 
-    void SubProtocol::subscribe(const std::string& channel) {
-        ChannelManager::instance()->subscribe(this, channel);
-        // subscibe(channel, this);
-        // unsubscribe(this->channel, this);
-        // this->channel = channel;
+    void SubProtocol::subscribe(const std::string& group) {
+        GroupsManager::instance()->subscribe(this, group);
+        // subscibe(group, this);
+        // unsubscribe(this->group, this);
+        // this->group = group;
     }
 
     void SubProtocol::sendBroadcast(const std::string& message, bool excludeSelf) {
-        ChannelManager::instance()->sendBroadcast(channel, message, excludeSelf ? this : nullptr);
+        GroupsManager::instance()->sendBroadcast(group, message, excludeSelf ? this : nullptr);
     }
 
     void SubProtocol::sendBroadcast(const char* message, std::size_t messageLength, bool excludeSelf) {
-        ChannelManager::instance()->sendBroadcast(channel, message, messageLength, excludeSelf ? this : nullptr);
+        GroupsManager::instance()->sendBroadcast(group, message, messageLength, excludeSelf ? this : nullptr);
     }
 
     void SubProtocol::sendBroadcastStart(const char* message, std::size_t messageLength, bool excludeSelf) {
-        ChannelManager::instance()->sendBroadcastStart(channel, message, messageLength, excludeSelf ? this : nullptr);
+        GroupsManager::instance()->sendBroadcastStart(group, message, messageLength, excludeSelf ? this : nullptr);
     }
 
     void SubProtocol::sendBroadcastStart(const std::string& message, bool excludeSelf) {
-        ChannelManager::instance()->sendBroadcastStart(channel, message, excludeSelf ? this : nullptr);
+        GroupsManager::instance()->sendBroadcastStart(group, message, excludeSelf ? this : nullptr);
     }
 
     void SubProtocol::sendBroadcastFrame(const char* message, std::size_t messageLength, bool excludeSelf) {
-        ChannelManager::instance()->sendBroadcastFrame(channel, message, messageLength, excludeSelf ? this : nullptr);
+        GroupsManager::instance()->sendBroadcastFrame(group, message, messageLength, excludeSelf ? this : nullptr);
     }
 
     void SubProtocol::sendBroadcastFrame(const std::string& message, bool excludeSelf) {
-        ChannelManager::instance()->sendBroadcastFrame(channel, message.data(), message.length(), excludeSelf ? this : nullptr);
+        GroupsManager::instance()->sendBroadcastFrame(group, message.data(), message.length(), excludeSelf ? this : nullptr);
     }
 
     void SubProtocol::sendBroadcastEnd(const char* message, std::size_t messageLength, bool excludeSelf) {
-        ChannelManager::instance()->sendBroadcastEnd(channel, message, messageLength, excludeSelf ? this : nullptr);
+        GroupsManager::instance()->sendBroadcastEnd(group, message, messageLength, excludeSelf ? this : nullptr);
     }
 
     void SubProtocol::sendBroadcastEnd(const std::string& message, bool excludeSelf) {
-        ChannelManager::instance()->sendBroadcastEnd(channel, message.data(), message.length(), excludeSelf ? this : nullptr);
+        GroupsManager::instance()->sendBroadcastEnd(group, message.data(), message.length(), excludeSelf ? this : nullptr);
     }
 
     void SubProtocol::forEachClient(const std::function<void(SubProtocol*)>& sendToClient, bool excludeSelf) {
-        ChannelManager::instance()->forEachClient(channel, sendToClient, excludeSelf ? this : nullptr);
+        GroupsManager::instance()->forEachClient(group, sendToClient, excludeSelf ? this : nullptr);
     }
 
 } // namespace web::websocket::server

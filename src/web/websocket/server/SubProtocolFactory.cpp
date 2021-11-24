@@ -18,7 +18,7 @@
 
 #include "web/websocket/server/SubProtocolFactory.h"
 
-#include "web/websocket/server/ChannelManager.h"
+#include "web/websocket/server/GroupsManager.h"
 #include "web/websocket/server/SubProtocolFactorySelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -30,13 +30,13 @@ namespace web::websocket::server {
     SubProtocolFactory::SubProtocol* SubProtocolFactory::createSubProtocol() {
         SubProtocol* subProtocol = web::websocket::SubProtocolFactory<web::websocket::server::SubProtocol>::createSubProtocol();
 
-        ChannelManager::instance()->subscribe(subProtocol);
+        GroupsManager::instance()->subscribe(subProtocol);
 
         return subProtocol;
     }
 
     void SubProtocolFactory::deleteSubProtocol(SubProtocol* subProtocol) {
-        ChannelManager::instance()->unsubscribe(subProtocol);
+        GroupsManager::instance()->unsubscribe(subProtocol);
 
         web::websocket::SubProtocolFactory<SubProtocol>::deleteSubProtocol(subProtocol);
 

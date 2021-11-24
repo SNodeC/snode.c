@@ -76,12 +76,12 @@ namespace web::websocket::server {
         void onConnected() override = 0;
         void onDisconnected() override = 0;
 
-        std::string channel;
+        std::string group;
 
         template <typename RequestT, typename ResponseT, typename SubProtocolT>
         friend class web::websocket::SocketContextUpgrade;
 
-        friend class ChannelManager;
+        friend class GroupsManager;
     };
 
 } // namespace web::websocket::server

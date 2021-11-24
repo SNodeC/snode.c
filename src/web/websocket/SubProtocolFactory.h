@@ -35,7 +35,7 @@ namespace web::websocket {
         using SubProtocol = SubProtocolT;
 
         SubProtocolFactory(const std::string& name)
-            : name(name) {
+            : subProtocolName(name) {
         }
 
         SubProtocolFactory() = delete;
@@ -46,7 +46,7 @@ namespace web::websocket {
             SubProtocol* subProtocol = create();
 
             if (subProtocol != nullptr) {
-                subProtocol->setName(name);
+                subProtocol->setName(subProtocolName);
                 refCount++;
             }
 
@@ -60,7 +60,7 @@ namespace web::websocket {
         }
 
         const std::string& getName() {
-            return name;
+            return subProtocolName;
         }
 
         virtual SubProtocol* create() = 0;
@@ -68,7 +68,7 @@ namespace web::websocket {
     protected:
         std::size_t refCount = 0;
 
-        std::string name;
+        std::string subProtocolName;
     };
 
 } // namespace web::websocket
