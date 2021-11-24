@@ -34,12 +34,13 @@ namespace core {
     int SNodeC::start(struct timeval timeOut) {
         return EventLoop::start(timeOut);
     }
-    void SNodeC::stop() {
-        EventLoop::stop();
-    }
 
     TickStatus SNodeC::tick(struct timeval timeOut) {
         return EventLoop::tick(timeOut);
+    }
+
+    void SNodeC::release() {
+        EventLoop::release();
     }
 
 } // namespace core

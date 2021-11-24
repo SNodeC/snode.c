@@ -41,8 +41,8 @@ namespace express {
         return core::SNodeC::start();
     }
 
-    void WebApp::stop() {
-        core::SNodeC::stop();
+    void WebApp::release() {
+        core::SNodeC::release();
     }
 
 } // namespace express

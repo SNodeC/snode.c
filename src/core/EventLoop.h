@@ -56,13 +56,13 @@ namespace core {
         static void init(int argc, char* argv[]);
         static int start(struct timeval timeOut);
         static TickStatus tick(struct timeval timeOut = {});
-        static void stop();
+        static void release();
 
     private:
         static void stoponsig(int sig);
 
         TickStatus _tick(struct timeval timeOut);
-        void _stop();
+        void _release();
 
         static EventLoop eventLoop;
 

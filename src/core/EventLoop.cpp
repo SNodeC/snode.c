@@ -206,28 +206,28 @@ namespace core {
         return tickStatus;
     }
 
-    void EventLoop::_stop() {
+    void EventLoop::_release() {
         EventLoop::instance().readEventDispatcher.terminateObservedEvents();
         EventLoop::instance().writeEventDispatcher.terminateObservedEvents();
         EventLoop::instance().exceptionalConditionEventDispatcher.terminateObservedEvents();
     }
 
-    void EventLoop::stop() {
-        eventLoop._stop();
+    void EventLoop::release() {
+        eventLoop._release();
 
-        while (tick() == TickStatus::SUCCESS)
+        while (EventLoop::instance().tick() == TickStatus::SUCCESS)
             ;
 
         EventLoop::instance().timerEventDispatcher.cancelAll();
 
-        while (tick() == TickStatus::SUCCESS)
+        while (EventLoop::instance().tick() == TickStatus::SUCCESS)
             ;
     }
 
     void EventLoop::stoponsig(int sig) {
         stopsig = sig;
 
-        EventLoop::instance()._stop();
+        EventLoop::instance()._release();
     }
 
     unsigned long EventLoop::getEventCounter() {

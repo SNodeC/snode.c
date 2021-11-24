@@ -34,7 +34,7 @@ namespace express {
     public:
         static void init(int argc, char* argv[]);
         static int start();
-        static void stop();
+        static void release();
 
     private:
         static bool initialized;

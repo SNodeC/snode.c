@@ -54,15 +54,11 @@ namespace core::socket::stream {
                           const std::function<void()>& onDisconnect)
             : SocketConnection(socketContextFactory)
             , SocketReader([this](int errnum) -> void {
-                if (SocketWriter::isEnabled()) {
-                    SocketWriter::disable();
-                }
+                SocketWriter::disable();
                 socketContext->onReadError(errnum);
             })
             , SocketWriter([this](int errnum) -> void {
-                if (SocketReader::isEnabled()) {
-                    SocketReader::disable();
-                }
+                SocketReader::disable();
                 socketContext->onWriteError(errnum);
             })
             , localAddress(localAddress)

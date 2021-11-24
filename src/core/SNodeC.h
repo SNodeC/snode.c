@@ -42,8 +42,8 @@ namespace core {
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
         static void init(int argc, char* argv[]);
         static int start(struct timeval timeOut = {LONG_MAX, 0});
-        static void stop();
         static TickStatus tick(struct timeval timeOut = {0, 0});
+        static void release();
     };
 
 } // namespace core

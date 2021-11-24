@@ -48,23 +48,23 @@ int main(int argc, char* argv[]) {
         legacy::Client<Request, Response> legacyClient(
             [](const legacy::Client<Request, Response>::SocketAddress& localAddress,
                const legacy::Client<Request, Response>::SocketAddress& remoteAddress) -> void {
-                VLOG(0) << "-- OnConnect";
+                VLOG(0) << "OnConnect";
 
                 VLOG(0) << "\tServer: " + remoteAddress.toString();
                 VLOG(0) << "\tClient: " + localAddress.toString();
             },
             []([[maybe_unused]] legacy::Client<Request, Response>::SocketConnection* socketConnection) -> void {
-                VLOG(0) << "-- OnConnected";
+                VLOG(0) << "OnConnected";
             },
             [](Request& request) -> void {
-                VLOG(0) << "-- OnRequestBegin";
+                VLOG(0) << "OnRequestBegin";
 
                 request.set("Sec-WebSocket-Protocol", "echo");
 
                 request.upgrade("/ws/", "websocket");
             },
             [](Request& request, Response& response) -> void {
-                VLOG(0) << "-- OnResponse";
+                VLOG(0) << "OnResponse";
                 VLOG(0) << "     Status:";
                 VLOG(0) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
 
@@ -92,12 +92,12 @@ int main(int argc, char* argv[]) {
                 delete[] body;
             },
             [](int status, const std::string& reason) -> void {
-                VLOG(0) << "-- OnResponseError";
+                VLOG(0) << "OnResponseError";
                 VLOG(0) << "     Status: " << status;
                 VLOG(0) << "     Reason: " << reason;
             },
             [](legacy::Client<Request, Response>::SocketConnection* socketConnection) -> void {
-                VLOG(0) << "-- OnDisconnect";
+                VLOG(0) << "OnDisconnect";
 
                 VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
                 VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
@@ -106,13 +106,13 @@ int main(int argc, char* argv[]) {
         tls::Client<Request, Response> tlsClient(
             [](const tls::Client<Request, Response>::SocketAddress& localAddress,
                const tls::Client<Request, Response>::SocketAddress& remoteAddress) -> void {
-                VLOG(0) << "-- OnConnect";
+                VLOG(0) << "OnConnect";
 
                 VLOG(0) << "\tServer: " + remoteAddress.toString();
                 VLOG(0) << "\tClient: " + localAddress.toString();
             },
             [](tls::Client<Request, Response>::SocketConnection* socketConnection) -> void {
-                VLOG(0) << "-- OnConnected";
+                VLOG(0) << "OnConnected";
                 X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
                 if (server_cert != nullptr) {
                     long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
@@ -158,14 +158,14 @@ int main(int argc, char* argv[]) {
                 }
             },
             [](Request& request) -> void {
-                VLOG(0) << "-- OnRequestBegin";
+                VLOG(0) << "OnRequestBegin";
 
                 request.set("Sec-WebSocket-Protocol", "echo");
 
                 request.upgrade("/ws/", "websocket");
             },
             [](Request& request, Response& response) -> void {
-                VLOG(0) << "-- OnResponse";
+                VLOG(0) << "OnResponse";
                 VLOG(0) << "     Status:";
                 VLOG(0) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
 
@@ -194,12 +194,12 @@ int main(int argc, char* argv[]) {
                 response.upgrade(request);
             },
             [](int status, const std::string& reason) -> void {
-                VLOG(0) << "-- OnResponseError";
+                VLOG(0) << "OnResponseError";
                 VLOG(0) << "     Status: " << status;
                 VLOG(0) << "     Reason: " << reason;
             },
             [](tls::Client<Request, Response>::SocketConnection* socketConnection) -> void {
-                VLOG(0) << "-- OnDisconnect";
+                VLOG(0) << "OnDisconnect";
 
                 VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
                 VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
