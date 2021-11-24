@@ -83,6 +83,7 @@ namespace core::pipe {
     }
 
     void PipeSource::terminate() {
+        WriteEventReceiver::terminate();
     }
 
 } // namespace core::pipe

@@ -53,8 +53,9 @@ namespace core::socket::stream::legacy {
                   options) {
         }
 
-    private:
+    protected:
         void terminate() override {
+            core::socket::stream::SocketConnector<legacy::SocketConnection<SocketT>>::terminate();
         }
     };
 

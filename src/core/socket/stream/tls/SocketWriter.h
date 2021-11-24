@@ -41,20 +41,23 @@ namespace core::socket::stream::tls {
 
     private:
         void doShutdown() override {
-            SSL_shutdown(ssl);
-            doSSLHandshake(
-                [this](void) -> void { // onSuccess
-                    LOG(INFO) << "SSL/TLS shutdown handshake success";
-                    core::socket::stream::SocketWriter<SocketT>::doShutdown();
-                },
-                [this](void) -> void { // onTimeout
-                    LOG(WARNING) << "SSL/TLS shutdown handshake timed out";
-                    core::socket::stream::SocketWriter<SocketT>::doShutdown();
-                },
-                [this](int sslErr) -> void { // onError
-                    ssl_log("SSL/TLS shutdown handshake failed", sslErr);
-                    core::socket::stream::SocketWriter<SocketT>::doShutdown();
-                });
+            if (SSL_shutdown(ssl) >= 0) {
+                doSSLHandshake(
+                    [this](void) -> void { // onSuccess
+                        LOG(INFO) << "SSL/TLS shutdown handshake success";
+                        core::socket::stream::SocketWriter<SocketT>::doShutdown();
+                    },
+                    [this](void) -> void { // onTimeout
+                        LOG(WARNING) << "SSL/TLS shutdown handshake timed out";
+                        core::socket::stream::SocketWriter<SocketT>::doShutdown();
+                    },
+                    [this](int sslErr) -> void { // onError
+                        ssl_log("SSL/TLS shutdown handshake failed", sslErr);
+                        core::socket::stream::SocketWriter<SocketT>::doShutdown();
+                    });
+            } else {
+                core::socket::stream::SocketWriter<SocketT>::doShutdown();
+            }
         }
 
         ssize_t write(const char* junk, std::size_t junkLen) override {
@@ -124,10 +127,11 @@ namespace core::socket::stream::tls {
 
         virtual void writeEvent() override = 0;
 
+    protected:
         void terminate() override {
+            core::socket::stream::SocketWriter<SocketT>::terminate();
         }
 
-    protected:
         virtual void doSSLHandshake(const std::function<void()>& onSuccess,
                                     const std::function<void()>& onTimeout,
                                     const std::function<void(int)>& onError) = 0;

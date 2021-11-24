@@ -75,6 +75,7 @@ namespace core::pipe {
     }
 
     void PipeSink::terminate() {
+        ReadEventReceiver::terminate();
     }
 
     void PipeSink::unobservedEvent() {

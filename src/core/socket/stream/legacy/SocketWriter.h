@@ -47,7 +47,9 @@ namespace core::socket::stream::legacy {
 
         virtual void writeEvent() override = 0;
 
+    protected:
         void terminate() override {
+            core::socket::stream::SocketWriter<SocketT>::terminate();
         }
     };
 

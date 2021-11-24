@@ -56,17 +56,18 @@ namespace core::socket::stream {
         void sendToPeer(const char* junk, std::size_t junkLen) {
             writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
 
-            if (WriteEventReceiver::isSuspended()) {
-                WriteEventReceiver::resume();
+            if (isSuspended()) {
+                resume();
             }
         }
 
         virtual void doShutdown() {
             Socket::shutdown(Socket::shutdown::WR);
+            resume();
         }
 
         void shutdown() {
-            if (isSuspended() || !isEnabled()) {
+            if (isSuspended()) {
                 doShutdown();
             } else {
                 markShutdown = true;
@@ -78,13 +79,14 @@ namespace core::socket::stream {
 
         virtual void writeEvent() override = 0;
 
+    protected:
         void terminate() override {
+            shutdown();
         }
 
-    protected:
         void doWrite() {
             if (writeBuffer.empty()) {
-                WriteEventReceiver::suspend();
+                suspend();
                 if (markShutdown) {
                     doShutdown();
                     markShutdown = false;
@@ -96,7 +98,7 @@ namespace core::socket::stream {
                 if (retWrite > 0) {
                     writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);
                 } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
-                    WriteEventReceiver::disable();
+                    disable();
                     onError(getError());
                 }
             }

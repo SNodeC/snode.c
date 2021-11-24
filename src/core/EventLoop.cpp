@@ -105,7 +105,7 @@ namespace core {
                                                &exceptionalConditionEventDispatcher.getFdSet(),
                                                &nextEventTimeout);
 
-            if (counter >= 0) {
+            if (counter >= 0 || errno == EINTR) {
                 nextEventTimeout = {LONG_MAX, 0};
 
                 timerEventDispatcher.dispatch();
@@ -130,7 +130,7 @@ namespace core {
                 exceptionalConditionEventDispatcher.releaseUnobservedEvents();
 
                 DynamicLoader::execDlCloseDeleyed();
-            } else if (errno != EINTR) {
+            } else {
                 PLOG(ERROR) << "select";
                 tickStatus = TickStatus::SELECT_ERROR;
             }
@@ -139,28 +139,6 @@ namespace core {
         }
 
         return tickStatus;
-    }
-
-    void EventLoop::_free() {
-        readEventDispatcher.observeEnabledEvents();
-        writeEventDispatcher.observeEnabledEvents();
-        exceptionalConditionEventDispatcher.observeEnabledEvents();
-
-        readEventDispatcher.disableObservedEvents();
-        writeEventDispatcher.disableObservedEvents();
-        exceptionalConditionEventDispatcher.disableObservedEvents();
-
-        readEventDispatcher.unobserveDisabledEvents();
-        writeEventDispatcher.unobserveDisabledEvents();
-        exceptionalConditionEventDispatcher.unobserveDisabledEvents();
-
-        readEventDispatcher.releaseUnobservedEvents();
-        writeEventDispatcher.releaseUnobservedEvents();
-        exceptionalConditionEventDispatcher.releaseUnobservedEvents();
-
-        timerEventDispatcher.cancelAll();
-
-        DynamicLoader::execDlCloseAll();
     }
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
@@ -193,8 +171,6 @@ namespace core {
             while (!stopped && eventLoop._tick(timeOut) == TickStatus::SUCCESS) {
                 eventLoop.tickCounter++;
             };
-
-            eventLoop._free();
 
             running = false;
         }
@@ -230,17 +206,28 @@ namespace core {
         return tickStatus;
     }
 
-    void EventLoop::stop() {
-        stopped = true;
+    void EventLoop::_stop() {
+        EventLoop::instance().readEventDispatcher.terminateObservedEvents();
+        EventLoop::instance().writeEventDispatcher.terminateObservedEvents();
+        EventLoop::instance().exceptionalConditionEventDispatcher.terminateObservedEvents();
     }
 
-    void EventLoop::free() {
-        eventLoop._free();
+    void EventLoop::stop() {
+        eventLoop._stop();
+
+        while (tick() == TickStatus::SUCCESS)
+            ;
+
+        EventLoop::instance().timerEventDispatcher.cancelAll();
+
+        while (tick() == TickStatus::SUCCESS)
+            ;
     }
 
     void EventLoop::stoponsig(int sig) {
         stopsig = sig;
-        stop();
+
+        EventLoop::instance()._stop();
     }
 
     unsigned long EventLoop::getEventCounter() {

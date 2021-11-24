@@ -78,12 +78,12 @@ namespace core {
                 unobservedEventReceiver.remove(eventReceiver);
             }
         } else {
-            LOG(WARNING) << "EventReceiver double enable";
+            LOG(WARNING) << "EventReceiver double enable " << fd;
         }
     }
 
     void EventDispatcher::disable(EventReceiver* eventReceiver, int fd) {
-        if (enabledEventReceiver[fd].contains(eventReceiver)) {
+        if (enabledEventReceiver.contains(fd) && enabledEventReceiver[fd].contains(eventReceiver)) {
             // same tick as enable
             enabledEventReceiver[fd].remove(eventReceiver);
             eventReceiver->disabled();
@@ -95,7 +95,7 @@ namespace core {
             // next tick as enable
             disabledEventReceiver[fd].push_back(eventReceiver);
         } else {
-            LOG(WARNING) << "EventReceiver double disable";
+            LOG(WARNING) << "EventReceiver double disable " << fd;
         }
     }
 
@@ -117,7 +117,7 @@ namespace core {
                 fdSet.set(fd);
             }
         } else {
-            LOG(WARNING) << "EventReceiver double resume";
+            LOG(WARNING) << "EventReceiver double resume " << fd;
         }
     }
 
@@ -220,10 +220,10 @@ namespace core {
         unobservedEventReceiver.clear();
     }
 
-    void EventDispatcher::disableObservedEvents() {
+    void EventDispatcher::terminateObservedEvents() {
         for (const auto& [fd, eventReceivers] : observedEventReceiver) {
             for (EventReceiver* eventReceiver : eventReceivers) {
-                disabledEventReceiver[fd].push_back(eventReceiver);
+                eventReceiver->terminate();
             }
         }
     }

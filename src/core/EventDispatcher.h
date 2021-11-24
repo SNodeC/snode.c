@@ -76,12 +76,12 @@ namespace core {
         int getMaxFd() const;
         fd_set& getFdSet();
 
-        struct timeval dispatchActiveEvents(struct timeval currentTime);
-
         struct timeval observeEnabledEvents();
+        struct timeval dispatchActiveEvents(struct timeval currentTime);
         void unobserveDisabledEvents();
         void releaseUnobservedEvents();
-        void disableObservedEvents();
+
+        void terminateObservedEvents();
 
         std::map<int, DescriptorEventReceiverList> enabledEventReceiver;
         std::map<int, DescriptorEventReceiverList> observedEventReceiver;

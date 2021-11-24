@@ -42,8 +42,4 @@ namespace core {
         return EventLoop::tick(timeOut);
     }
 
-    void SNodeC::free() {
-        EventLoop::free();
-    }
-
 } // namespace core

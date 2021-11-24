@@ -52,7 +52,9 @@ namespace core::socket::stream::legacy {
 
         virtual void readEvent() override = 0;
 
+    protected:
         void terminate() override {
+            core::socket::stream::SocketReader<SocketT>::terminate();
         }
     };
 

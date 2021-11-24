@@ -43,9 +43,7 @@ namespace core {
         static void init(int argc, char* argv[]);
         static int start(struct timeval timeOut = {LONG_MAX, 0});
         static void stop();
-
         static TickStatus tick(struct timeval timeOut = {0, 0});
-        static void free();
     };
 
 } // namespace core

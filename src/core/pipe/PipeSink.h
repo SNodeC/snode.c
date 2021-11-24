@@ -32,8 +32,8 @@
 namespace core::pipe {
 
     class PipeSink
-        : public Descriptor
-        , public ReadEventReceiver {
+        : public core::Descriptor
+        , public core::ReadEventReceiver {
         PipeSink(const PipeSink&) = delete;
         PipeSink& operator=(const PipeSink&) = delete;
 

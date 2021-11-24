@@ -70,6 +70,7 @@ namespace core::file {
     }
 
     void FileReader::terminate() {
+        core::ReadEventReceiver::terminate();
     }
 
     void FileReader::sinkDisconnected() {
