@@ -32,12 +32,6 @@
 
 namespace web::websocket {
 
-    template <typename SubProtocolFactory>
-    struct SubProtocolPlugin {
-        SubProtocolFactory* subProtocolFactory;
-        void* handle = nullptr;
-    };
-
     template <typename SubProtocolFactoryT>
     class SubProtocolFactorySelector {
     public:
@@ -57,10 +51,11 @@ namespace web::websocket {
         void add(SubProtocolFactory* subProtocolFactory) {
             void* handle = subProtocolFactory->getHandle();
 
-            SubProtocolPlugin<SubProtocolFactory> subProtocolPlugin = {.subProtocolFactory = subProtocolFactory, .handle = handle};
+            //            SubProtocolPlugin<SubProtocolFactory> subProtocolPlugin = {.subProtocolFactory = subProtocolFactory, .handle1 =
+            //            handle};
 
             if (subProtocolFactory != nullptr) {
-                const auto [it, success] = subProtocolPlugins.insert({subProtocolFactory->getName(), subProtocolPlugin});
+                const auto [it, success] = subProtocolFactories.insert({subProtocolFactory->getName(), subProtocolFactory});
                 if (!success) {
                     VLOG(0) << "Subprotocol already existing: not using " << subProtocolFactory->getName();
                     delete subProtocolFactory;
@@ -111,8 +106,8 @@ namespace web::websocket {
         SubProtocolFactory* select(const std::string& subProtocolName) {
             SubProtocolFactory* subProtocolFactory = nullptr;
 
-            if (subProtocolPlugins.contains(subProtocolName)) {
-                subProtocolFactory = subProtocolPlugins[subProtocolName].subProtocolFactory;
+            if (subProtocolFactories.contains(subProtocolName)) {
+                subProtocolFactory = subProtocolFactories[subProtocolName];
             }
 
             return subProtocolFactory;
@@ -141,16 +136,15 @@ namespace web::websocket {
         void unload(SubProtocolFactory* subProtocolFactory) {
             std::string name = subProtocolFactory->getName();
 
-            if (subProtocolPlugins.contains(name)) {
+            if (subProtocolFactories.contains(name)) {
+                void* handle = subProtocolFactory->getHandle();
                 delete subProtocolFactory;
 
-                SubProtocolPlugin<SubProtocolFactory>& subProtocolPlugin = subProtocolPlugins[name];
-
-                if (subProtocolPlugin.handle != nullptr) {
-                    core::DynamicLoader::dlClose(subProtocolPlugin.handle);
+                if (handle != nullptr) {
+                    core::DynamicLoader::dlClose(handle);
                 }
 
-                subProtocolPlugins.erase(name);
+                subProtocolFactories.erase(name);
             }
         }
 
@@ -159,13 +153,13 @@ namespace web::websocket {
             onlyLinked = false;
         }
 
-        void linkSubProtocol(const std::string& subProtocolName, void* (*linkedPlugin)()) {
+        void linkSubProtocolFactory(const std::string& subProtocolName, void* (*subProtocolFactory)()) {
             onlyLinked = true;
-            linkedSubProtocolFactories[subProtocolName] = reinterpret_cast<SubProtocolFactory* (*) ()>(linkedPlugin);
+            linkedSubProtocolFactories[subProtocolName] = reinterpret_cast<SubProtocolFactory* (*) ()>(subProtocolFactory);
         }
 
     private:
-        std::map<std::string, SubProtocolPlugin<SubProtocolFactory>> subProtocolPlugins;
+        std::map<std::string, SubProtocolFactory*> subProtocolFactories;
         std::map<std::string, SubProtocolFactory* (*) ()> linkedSubProtocolFactories;
         std::list<std::string> searchPaths;
 

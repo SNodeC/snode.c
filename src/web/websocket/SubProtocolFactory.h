@@ -72,7 +72,7 @@ namespace web::websocket {
             return handle;
         }
 
-    protected:
+    private:
         std::size_t refCount = 0;
 
         std::string subProtocolName;
