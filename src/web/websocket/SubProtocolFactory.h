@@ -64,10 +64,20 @@ namespace web::websocket {
 
         virtual SubProtocol* create() = 0;
 
+        void setHandle(void* handle) {
+            this->handle = handle;
+        }
+
+        void* getHandle() {
+            return handle;
+        }
+
     protected:
         std::size_t refCount = 0;
 
         std::string subProtocolName;
+
+        void* handle = nullptr;
     };
 
 } // namespace web::websocket

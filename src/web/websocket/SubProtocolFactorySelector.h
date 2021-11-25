@@ -54,7 +54,9 @@ namespace web::websocket {
         virtual ~SubProtocolFactorySelector() = default;
 
     private:
-        void add(SubProtocolFactory* subProtocolFactory, void* handle = nullptr) {
+        void add(SubProtocolFactory* subProtocolFactory) {
+            void* handle = subProtocolFactory->getHandle();
+
             SubProtocolPlugin<SubProtocolFactory> subProtocolPlugin = {.subProtocolFactory = subProtocolFactory, .handle = handle};
 
             if (subProtocolFactory != nullptr) {
@@ -85,6 +87,7 @@ namespace web::websocket {
                     if (getSubProtocolFactory != nullptr) {
                         subProtocolFactory = getSubProtocolFactory();
                         if (subProtocolFactory != nullptr) {
+                            subProtocolFactory->setHandle(handle);
                             break;
                         } else {
                             core::DynamicLoader::dlClose(handle);
@@ -127,15 +130,15 @@ namespace web::websocket {
                 }
 
                 if (subProtocolFactory != nullptr) {
-                    add(subProtocolFactory, nullptr);
+                    add(subProtocolFactory);
                 }
             }
 
             return subProtocolFactory;
         }
 
-    private:
-        std::string doUnload(SubProtocolFactory* subProtocolFactory) {
+    public:
+        void unload(SubProtocolFactory* subProtocolFactory) {
             std::string name = subProtocolFactory->getName();
 
             if (subProtocolPlugins.contains(name)) {
@@ -146,14 +149,9 @@ namespace web::websocket {
                 if (subProtocolPlugin.handle != nullptr) {
                     core::DynamicLoader::dlClose(subProtocolPlugin.handle);
                 }
+
+                subProtocolPlugins.erase(name);
             }
-
-            return name;
-        }
-
-    public:
-        void unload(SubProtocolFactory* subProtocolFactory) {
-            subProtocolPlugins.erase(doUnload(subProtocolFactory));
         }
 
     protected:
