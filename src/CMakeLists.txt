@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(snode.c)
+project(snode.c-code)
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)

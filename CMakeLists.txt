@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(snode.c-master)
+project(snode.c)
 
 set(CPACK_PROJECT_NAME "snodec")
 
