@@ -78,6 +78,10 @@ namespace core {
         return ret;
     }
 
+    void* DynamicLoader::dlSym(void* handle, const std::string& symbol) {
+        return core::system::dlsym(handle, symbol.c_str());
+    }
+
     char* DynamicLoader::dlError() {
         return core::system::dlerror();
     }

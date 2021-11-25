@@ -47,10 +47,7 @@ namespace core {
         static void dlCloseDelayed(void* handle);
         static int dlClose(void* handle);
 
-        template <typename Symbol>
-        static Symbol dlSym(void* handle, const std::string& symbol) {
-            return reinterpret_cast<Symbol>(core::system::dlsym(handle, symbol.c_str()));
-        }
+        static void* dlSym(void* handle, const std::string& symbol);
 
         static char* dlError();
 

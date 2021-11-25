@@ -32,7 +32,7 @@
 
 namespace net::rf::stream {
 
-    class ClientSocket : public core::socket::ClientSocket<net::rf::stream::Socket> {
+    class ClientSocket : protected core::socket::ClientSocket<net::rf::stream::Socket> {
     public:
         using core::socket::ClientSocket<net::rf::stream::Socket>::connect;
 

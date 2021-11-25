@@ -72,10 +72,10 @@ namespace web::http {
 
             if (handle != nullptr) {
                 SocketContextUpgradeFactory* (*getSocketContextUpgradeFactory)() =
-                    core::DynamicLoader::dlSym<SocketContextUpgradeFactory* (*) ()>(
+                    reinterpret_cast<SocketContextUpgradeFactory* (*) ()>(core::DynamicLoader::dlSym(
                         handle,
                         upgradeContextName + (role == core::socket::stream::SocketContext::Role::SERVER ? "Server" : "Client") +
-                            "ContextUpgradeFactory");
+                            "ContextUpgradeFactory"));
 
                 if (getSocketContextUpgradeFactory != nullptr) {
                     socketContextUpgradeFactory = getSocketContextUpgradeFactory();

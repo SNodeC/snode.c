@@ -31,7 +31,7 @@
 
 namespace net::un::stream {
 
-    class ServerSocket : public core::socket::ServerSocket<net::un::stream::Socket> {
+    class ServerSocket : protected core::socket::ServerSocket<net::un::stream::Socket> {
     public:
         using core::socket::ServerSocket<net::un::stream::Socket>::listen;
 

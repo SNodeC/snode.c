@@ -77,8 +77,9 @@ namespace web::websocket {
                     core::DynamicLoader::dlOpen(searchPath + "/libsnodec-websocket-" + subProtocolName + ".so", RTLD_LAZY | RTLD_LOCAL);
 
                 if (handle != nullptr) {
-                    SubProtocolFactory* (*getSubProtocolFactory)() = core::DynamicLoader::dlSym<SubProtocolFactory* (*) ()>(
-                        handle, subProtocolName + (role == Role::SERVER ? "Server" : "Client") + "SubProtocolFactory");
+                    SubProtocolFactory* (*getSubProtocolFactory)() =
+                        reinterpret_cast<SubProtocolFactory* (*) ()>(core::DynamicLoader::dlSym(
+                            handle, subProtocolName + (role == Role::SERVER ? "Server" : "Client") + "SubProtocolFactory"));
                     if (getSubProtocolFactory != nullptr) {
                         subProtocolFactory = getSubProtocolFactory();
                         if (subProtocolFactory != nullptr) {
