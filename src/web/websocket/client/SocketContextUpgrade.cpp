@@ -65,10 +65,9 @@ namespace web::websocket::client {
     }
 
     SocketContextUpgrade::~SocketContextUpgrade() {
-        SubProtocolFactory* subProtocolFactory =
-            SubProtocolFactorySelector::instance()->select(subProtocol->getName(), SubProtocolFactorySelector::Role::CLIENT);
+        SubProtocolFactory* subProtocolFactory = SubProtocolFactorySelector::instance()->select(subProtocol->getName());
 
-        if (subProtocolFactory->deleteSubProtocol(subProtocol) == 0) {
+        if (subProtocolFactory != nullptr && subProtocolFactory->deleteSubProtocol(subProtocol) == 0) {
             SubProtocolFactorySelector::instance()->unload(subProtocolFactory);
         }
     }

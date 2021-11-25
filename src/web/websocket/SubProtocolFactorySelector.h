@@ -85,7 +85,6 @@ namespace web::websocket {
                     if (getSubProtocolFactory != nullptr) {
                         subProtocolFactory = getSubProtocolFactory();
                         if (subProtocolFactory != nullptr) {
-                            add(subProtocolFactory, handle);
                             break;
                         } else {
                             core::DynamicLoader::dlClose(handle);
@@ -106,19 +105,30 @@ namespace web::websocket {
         }
 
     public:
-        SubProtocolFactory* select(const std::string& subProtocolName, Role role) {
+        SubProtocolFactory* select(const std::string& subProtocolName) {
             SubProtocolFactory* subProtocolFactory = nullptr;
 
             if (subProtocolPlugins.contains(subProtocolName)) {
                 subProtocolFactory = subProtocolPlugins[subProtocolName].subProtocolFactory;
-            } else if (linkedSubProtocolFactories.contains(subProtocolName)) {
-                SubProtocolFactory* (*plugin)() = linkedSubProtocolFactories[subProtocolName];
-                subProtocolFactory = plugin();
+            }
+
+            return subProtocolFactory;
+        }
+
+        SubProtocolFactory* select(const std::string& subProtocolName, Role role) {
+            SubProtocolFactory* subProtocolFactory = select(subProtocolName);
+
+            if (subProtocolFactory == nullptr) {
+                if (linkedSubProtocolFactories.contains(subProtocolName)) {
+                    SubProtocolFactory* (*plugin)() = linkedSubProtocolFactories[subProtocolName];
+                    subProtocolFactory = plugin();
+                } else if (!onlyLinked) {
+                    subProtocolFactory = load(subProtocolName, role);
+                }
+
                 if (subProtocolFactory != nullptr) {
                     add(subProtocolFactory, nullptr);
                 }
-            } else if (!onlyLinked) {
-                subProtocolFactory = load(subProtocolName, role);
             }
 
             return subProtocolFactory;
