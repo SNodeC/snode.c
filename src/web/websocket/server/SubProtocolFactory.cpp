@@ -24,20 +24,4 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::websocket::server {
-
-    SubProtocolFactory::SubProtocol* SubProtocolFactory::createSubProtocol() {
-        SubProtocol* subProtocol = web::websocket::SubProtocolFactory<web::websocket::server::SubProtocol>::createSubProtocol();
-
-        return subProtocol;
-    }
-
-    void SubProtocolFactory::deleteSubProtocol(SubProtocol* subProtocol) {
-        web::websocket::SubProtocolFactory<SubProtocol>::deleteSubProtocol(subProtocol);
-
-        if (refCount == 0) {
-            SubProtocolFactorySelector::instance()->unload(this);
-        }
-    }
-
-} // namespace web::websocket::server
+namespace web::websocket::server {} // namespace web::websocket::server

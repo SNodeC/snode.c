@@ -42,7 +42,7 @@ namespace web::websocket {
 
         virtual ~SubProtocolFactory() = default;
 
-        virtual SubProtocol* createSubProtocol() {
+        SubProtocol* createSubProtocol() {
             SubProtocol* subProtocol = create();
 
             refCount++;
@@ -50,10 +50,12 @@ namespace web::websocket {
             return subProtocol;
         }
 
-        virtual void deleteSubProtocol(SubProtocol* subProtocol) {
+        virtual std::size_t deleteSubProtocol(SubProtocol* subProtocol) {
             delete subProtocol;
 
             refCount--;
+
+            return refCount;
         }
 
         const std::string& getName() {

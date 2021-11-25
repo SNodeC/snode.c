@@ -55,8 +55,8 @@ namespace web::websocket::client {
             if (subProtocol != nullptr) {
                 socketContextUpgrade = new SocketContextUpgrade(socketConnection, socketContextUpgradeFactory, subProtocol);
 
-                if (socketContextUpgrade == nullptr) {
-                    subProtocolFactory->deleteSubProtocol(subProtocol);
+                if (socketContextUpgrade == nullptr && subProtocolFactory->deleteSubProtocol(subProtocol) == 0) {
+                    SubProtocolFactorySelector::instance()->unload(subProtocolFactory);
                 }
             }
         }
@@ -68,7 +68,9 @@ namespace web::websocket::client {
         SubProtocolFactory* subProtocolFactory =
             SubProtocolFactorySelector::instance()->select(subProtocol->getName(), SubProtocolFactorySelector::Role::CLIENT);
 
-        subProtocolFactory->deleteSubProtocol(subProtocol);
+        if (subProtocolFactory->deleteSubProtocol(subProtocol) == 0) {
+            SubProtocolFactorySelector::instance()->unload(subProtocolFactory);
+        }
     }
 
 } // namespace web::websocket::client

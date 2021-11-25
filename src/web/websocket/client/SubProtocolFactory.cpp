@@ -24,14 +24,4 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace web::websocket::client {
-
-    void SubProtocolFactory::deleteSubProtocol(SubProtocol* subProtocol) {
-        web::websocket::SubProtocolFactory<SubProtocol>::deleteSubProtocol(subProtocol);
-
-        if (refCount == 0) {
-            SubProtocolFactorySelector::instance()->unload(this);
-        }
-    }
-
-} // namespace web::websocket::client
+namespace web::websocket::client {} // namespace web::websocket::client
