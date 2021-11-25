@@ -19,7 +19,8 @@
 #ifndef WEB_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H
 #define WEB_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H
 
-#include "web/websocket/client/SubProtocolFactory.h"
+#include "Echo.h"
+#include "web/websocket/SubProtocolFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,15 +30,15 @@
 
 namespace web::websocket::subprotocol::echo::client {
 
-    class EchoFactory : public web::websocket::client::SubProtocolFactory {
+    class EchoFactory : public web::websocket::SubProtocolFactory<Echo> {
     public:
-        using web::websocket::client::SubProtocolFactory::SubProtocolFactory;
+        using web::websocket::SubProtocolFactory<Echo>::SubProtocolFactory;
 
     private:
-        web::websocket::client::SubProtocolFactory::SubProtocol* create() override;
+        web::websocket::SubProtocolFactory<Echo>::SubProtocol* create() override;
     };
 
-    extern "C" web::websocket::client::SubProtocolFactory* echoClientSubProtocolFactory();
+    extern "C" void* echoClientSubProtocolFactory();
 
 } // namespace web::websocket::subprotocol::echo::client
 

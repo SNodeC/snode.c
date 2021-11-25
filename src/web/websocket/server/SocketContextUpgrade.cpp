@@ -18,7 +18,8 @@
 
 #include "web/websocket/server/SocketContextUpgrade.h"
 
-#include "web/websocket/server/SubProtocolFactory.h"
+#include "web/websocket/SubProtocolFactory.h"
+#include "web/websocket/server/SubProtocol.h"
 #include "web/websocket/server/SubProtocolFactorySelector.h"
 
 namespace core::socket::stream {
@@ -46,7 +47,7 @@ namespace web::websocket::server {
         const std::string& subProtocolName) {
         SocketContextUpgrade* socketContextUpgrade = nullptr;
 
-        SubProtocolFactory* subProtocolFactory =
+        web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory =
             SubProtocolFactorySelector::instance()->select(subProtocolName, SubProtocolFactorySelector::Role::SERVER);
 
         if (subProtocolFactory != nullptr) {
@@ -65,7 +66,8 @@ namespace web::websocket::server {
     }
 
     SocketContextUpgrade::~SocketContextUpgrade() {
-        SubProtocolFactory* subProtocolFactory = SubProtocolFactorySelector::instance()->select(subProtocol->getName());
+        web::websocket::SubProtocolFactory<SubProtocol>* subProtocolFactory =
+            SubProtocolFactorySelector::instance()->select(subProtocol->getName());
 
         if (subProtocolFactory != nullptr && subProtocolFactory->deleteSubProtocol(subProtocol) == 0) {
             SubProtocolFactorySelector::instance()->unload(subProtocolFactory);

@@ -19,10 +19,11 @@
 #ifndef WEB_WEBSOCKET_CLIENT_SUBPROTOCOLSELECTOR_H
 #define WEB_WEBSOCKET_CLIENT_SUBPROTOCOLSELECTOR_H
 
+#include "web/websocket/SubProtocolFactory.h"
 #include "web/websocket/SubProtocolFactorySelector.h" // IWYU pragma: export
 
 namespace web::websocket::client {
-    class SubProtocolFactory;
+    class SubProtocol;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -33,11 +34,12 @@ namespace web::websocket::client {
 
 namespace web::websocket::client {
 
-    class SubProtocolFactorySelector : public web::websocket::SubProtocolFactorySelector<web::websocket::client::SubProtocolFactory> {
+    class SubProtocolFactorySelector
+        : public web::websocket::SubProtocolFactorySelector<web::websocket::SubProtocolFactory<web::websocket::client::SubProtocol>> {
     public:
         static SubProtocolFactorySelector* instance();
 
-        static void link(const std::string& subProtocolName, SubProtocolFactory* (*getSubProtocolFactory)());
+        static void link(const std::string& subProtocolName, void* (*getSubProtocolFactory)());
         static void addSubProtocolSearchPath(const std::string& searchPath);
         static void allowDlOpen();
 
@@ -47,8 +49,6 @@ namespace web::websocket::client {
         SubProtocolFactorySelector(const SubProtocolFactorySelector&) = delete;
 
         SubProtocolFactorySelector& operator=(const SubProtocolFactorySelector&) = delete;
-
-        using web::websocket::SubProtocolFactorySelector<web::websocket::client::SubProtocolFactory>::load;
     };
 
 } // namespace web::websocket::client

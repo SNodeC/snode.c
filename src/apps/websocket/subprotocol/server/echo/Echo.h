@@ -38,8 +38,6 @@ namespace web::websocket::subprotocol::echo::server {
     class Echo : public web::websocket::server::SubProtocol {
     public:
         Echo(const std::string& name);
-
-    protected:
         ~Echo() override;
 
     private:

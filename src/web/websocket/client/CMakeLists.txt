@@ -21,7 +21,7 @@ set(WEBSOCKET_SUBPROTOCOL_CLIENT_INSTALL_LIBDIR
 add_library(
     websocketclient SHARED
     SocketContextUpgrade.cpp SocketContextUpgradeFactory.cpp SubProtocol.cpp
-    SubProtocolFactory.cpp SubProtocolFactorySelector.cpp
+    SubProtocolFactorySelector.cpp
 )
 add_library(snodec::websocketclient ALIAS websocketclient)
 

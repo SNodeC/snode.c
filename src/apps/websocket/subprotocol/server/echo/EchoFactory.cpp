@@ -28,11 +28,11 @@
 
 namespace web::websocket::subprotocol::echo::server {
 
-    web::websocket::server::SubProtocolFactory::SubProtocol* EchoFactory::create() {
+    web::websocket::SubProtocolFactory<Echo>::SubProtocol* EchoFactory::create() {
         return new Echo(getName());
     }
 
-    extern "C" web::websocket::server::SubProtocolFactory* echoServerSubProtocolFactory() {
+    extern "C" void* echoServerSubProtocolFactory() {
         return new EchoFactory(NAME);
     }
 

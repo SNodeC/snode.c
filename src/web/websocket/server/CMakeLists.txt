@@ -20,7 +20,7 @@ set(WEBSOCKET_SUBPROTOCOL_SERVER_INSTALL_LIBDIR
 add_library(
     websocketserver SHARED
     GroupsManager.cpp SocketContextUpgrade.cpp SocketContextUpgradeFactory.cpp
-    SubProtocol.cpp SubProtocolFactory.cpp SubProtocolFactorySelector.cpp
+    SubProtocol.cpp SubProtocolFactorySelector.cpp
 )
 add_library(snodec::websocketserver ALIAS websocketserver)
 
