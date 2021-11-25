@@ -57,38 +57,32 @@ namespace core {
 
         virtual ~EventReceiver() = default;
 
-    public:
+    protected:
         void enable(int fd);
         void disable();
+        bool isEnabled() const;
 
         void suspend();
         void resume();
-
-    protected:
-        void setTimeout(long timeout);
-
-        bool isEnabled() const;
         bool isSuspended() const;
 
         virtual void terminate();
 
+        void setTimeout(long timeout);
+
     private:
-        virtual void dispatchEvent() = 0;
-        virtual void timeoutEvent();
-        virtual void unobservedEvent() = 0;
-
-        virtual bool continueImmediately() = 0;
-
-        void enabled();
         void disabled();
-
-        void suspended();
-        void resumed();
 
         struct timeval getTimeout() const;
         struct timeval getLastTriggered();
 
         void triggered(struct timeval lastTriggered = {time(nullptr), 0});
+
+        virtual void dispatchEvent() = 0;
+        virtual void timeoutEvent();
+        virtual void unobservedEvent() = 0;
+
+        virtual bool continueImmediately() = 0;
 
         EventDispatcher& descriptorEventDispatcher;
 

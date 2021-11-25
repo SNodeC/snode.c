@@ -34,7 +34,11 @@ namespace core {
 
     void EventReceiver::enable(int fd) {
         this->fd = fd;
+
+        ObservationCounter::observationCounter++;
+
         descriptorEventDispatcher.enable(this, fd);
+        lastTriggered = {time(nullptr), 0};
         _enabled = true;
     }
 
@@ -47,23 +51,7 @@ namespace core {
         _enabled = false;
     }
 
-    void EventReceiver::suspend() {
-        descriptorEventDispatcher.suspend(this, fd);
-    }
-
-    void EventReceiver::resume() {
-        if (isEnabled()) {
-            descriptorEventDispatcher.resume(this, fd);
-        }
-    }
-
-    void EventReceiver::enabled() {
-        ObservationCounter::observationCounter++;
-        lastTriggered = {time(nullptr), 0};
-    }
-
     void EventReceiver::disabled() {
-        this->fd = -1;
         ObservationCounter::observationCounter--;
     }
 
@@ -71,13 +59,19 @@ namespace core {
         return _enabled;
     }
 
-    void EventReceiver::suspended() {
-        _suspended = true;
+    void EventReceiver::suspend() {
+        if (isEnabled()) {
+            descriptorEventDispatcher.suspend(this, fd);
+            _suspended = true;
+        }
     }
 
-    void EventReceiver::resumed() {
-        _suspended = false;
-        lastTriggered = {time(nullptr), 0};
+    void EventReceiver::resume() {
+        if (isEnabled()) {
+            descriptorEventDispatcher.resume(this, fd);
+            _suspended = false;
+            lastTriggered = {time(nullptr), 0};
+        }
     }
 
     bool EventReceiver::isSuspended() const {

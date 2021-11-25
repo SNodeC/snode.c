@@ -73,7 +73,6 @@ namespace core {
                    (!enabledEventReceiver.contains(fd) || !enabledEventReceiver[fd].contains(eventReceiver))) {
             // next tick as disable
             enabledEventReceiver[fd].push_back(eventReceiver);
-            eventReceiver->enabled();
             if (unobservedEventReceiver.contains(eventReceiver)) {
                 unobservedEventReceiver.remove(eventReceiver);
             }
@@ -101,7 +100,6 @@ namespace core {
 
     void EventDispatcher::suspend(EventReceiver* eventReceiver, int fd) {
         if (!eventReceiver->isSuspended()) {
-            eventReceiver->suspended();
             if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
                 fdSet.clr(fd);
             }
@@ -112,7 +110,6 @@ namespace core {
 
     void EventDispatcher::resume(EventReceiver* eventReceiver, int fd) {
         if (eventReceiver->isSuspended()) {
-            eventReceiver->resumed();
             if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
                 fdSet.set(fd);
             }
