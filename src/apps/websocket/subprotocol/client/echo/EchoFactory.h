@@ -19,8 +19,11 @@
 #ifndef WEB_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H
 #define WEB_WEBSOCKET_SUBPROTOCOL_ECHO_SERVER_ECHOINTERFACE_H
 
-#include "Echo.h"
 #include "web/websocket/SubProtocolFactory.h"
+
+namespace web::websocket::subprotocol::echo::client {
+    class Echo;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
