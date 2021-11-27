@@ -40,26 +40,6 @@ namespace core::socket::stream::tls {
         using core::socket::stream::SocketReader<SocketT>::SocketReader;
 
     private:
-        void doShutdown() override {
-            if (SSL_shutdown(ssl) >= 0) {
-                doSSLHandshake(
-                    [this](void) -> void { // onSuccess
-                        LOG(INFO) << "SSL/TLS shutdown handshake success";
-                        core::socket::stream::SocketReader<SocketT>::doShutdown();
-                    },
-                    [this](void) -> void { // onTimeout
-                        LOG(WARNING) << "SSL/TLS shutdown handshake timed out";
-                        core::socket::stream::SocketReader<SocketT>::doShutdown();
-                    },
-                    [this](int sslErr) -> void { // onError
-                        ssl_log("SSL/TLS shutdown handshake failed", sslErr);
-                        core::socket::stream::SocketReader<SocketT>::doShutdown();
-                    });
-            } else {
-                core::socket::stream::SocketReader<SocketT>::doShutdown();
-            }
-        }
-
         ssize_t read(char* junk, std::size_t junkLen) override {
             sslErr = 0;
 

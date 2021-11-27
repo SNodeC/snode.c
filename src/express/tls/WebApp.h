@@ -28,16 +28,16 @@
 
 namespace express::tls {
 
-    class WebApp : public WebAppT<web::http::server::tls::Server<express::Request, express::Response>> {
-        using WebAppT<web::http::server::tls::Server<express::Request, express::Response>>::WebAppT;
+    class WebApp : public WebAppT<web::http::server::tls::in::Server<express::Request, express::Response>> {
+        using WebAppT<web::http::server::tls::in::Server<express::Request, express::Response>>::WebAppT;
     };
 
-    class WebApp6 : public WebAppT<web::http::server::tls::Server6<express::Request, express::Response>> {
-        using WebAppT<web::http::server::tls::Server6<express::Request, express::Response>>::WebAppT;
+    class WebApp6 : public WebAppT<web::http::server::tls::in6::Server<express::Request, express::Response>> {
+        using WebAppT<web::http::server::tls::in6::Server<express::Request, express::Response>>::WebAppT;
     };
 
-    class WebAppRfComm : public WebAppT<web::http::server::tls::ServerRfComm<express::Request, express::Response>> {
-        using WebAppT<web::http::server::tls::ServerRfComm<express::Request, express::Response>>::WebAppT;
+    class WebAppRfComm : public WebAppT<web::http::server::tls::rf::Server<express::Request, express::Response>> {
+        using WebAppT<web::http::server::tls::rf::Server<express::Request, express::Response>>::WebAppT;
     };
 
 } // namespace express::tls

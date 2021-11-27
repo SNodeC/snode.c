@@ -30,87 +30,99 @@
 
 namespace web::http::server::tls {
 
-    template <typename Request, typename Response>
-    class Server : public web::http::server::Server<net::in::stream::tls::SocketServer, Request, Response> {
-        using web::http::server::Server<net::in::stream::tls::SocketServer, Request, Response>::Server;
+    namespace in {
 
-    protected:
-        using SocketServer = net::in::stream::tls::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
+        template <typename Request, typename Response>
+        class Server : public web::http::server::Server<net::in::stream::tls::SocketServer, Request, Response> {
+            using web::http::server::Server<net::in::stream::tls::SocketServer, Request, Response>::Server;
 
-    public:
-        using web::http::server::Server<net::in::stream::tls::SocketServer, Request, Response>::listen;
+        protected:
+            using SocketServer = net::in::stream::tls::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
 
-        void addSniCert(const std::string& domain, const std::map<std::string, std::any>& options) {
-            SocketServer::addSniCert(domain, options);
-        }
+        public:
+            using web::http::server::Server<net::in::stream::tls::SocketServer, Request, Response>::listen;
 
-        void listen(uint16_t port, const std::function<void(int)>& onError) {
-            SocketServer::listen(port, LISTEN_BACKLOG, onError);
-        }
+            void addSniCert(const std::string& domain, const std::map<std::string, std::any>& options) {
+                SocketServer::addSniCert(domain, options);
+            }
 
-        void listen(const std::string& ipOrHostname, const std::function<void(int)>& onError) {
-            SocketServer::listen(ipOrHostname, LISTEN_BACKLOG, onError);
-        }
+            void listen(uint16_t port, const std::function<void(int)>& onError) {
+                SocketServer::listen(port, LISTEN_BACKLOG, onError);
+            }
 
-        void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
-            SocketServer::listen(ipOrHostname, port, LISTEN_BACKLOG, onError);
-        }
-    };
+            void listen(const std::string& ipOrHostname, const std::function<void(int)>& onError) {
+                SocketServer::listen(ipOrHostname, LISTEN_BACKLOG, onError);
+            }
 
-    template <typename Request = web::http::server::Request, typename Response = web::http::server::Response>
-    class Server6 : public web::http::server::Server<net::in6::stream::tls::SocketServer, Request, Response> {
-        using web::http::server::Server<net::in6::stream::tls::SocketServer, Request, Response>::Server;
+            void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
+                SocketServer::listen(ipOrHostname, port, LISTEN_BACKLOG, onError);
+            }
+        };
 
-    protected:
-        using SocketServer = net::in6::stream::tls::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
+    } // namespace in
 
-    public:
-        using web::http::server::Server<net::in6::stream::tls::SocketServer, Request, Response>::listen;
+    namespace in6 {
 
-        void addSniCert(const std::string& domain, const std::map<std::string, std::any>& options) {
-            SocketServer::addSniCert(domain, options);
-        }
+        template <typename Request = web::http::server::Request, typename Response = web::http::server::Response>
+        class Server : public web::http::server::Server<net::in6::stream::tls::SocketServer, Request, Response> {
+            using web::http::server::Server<net::in6::stream::tls::SocketServer, Request, Response>::Server;
 
-        void listen(uint16_t port, const std::function<void(int)>& onError) {
-            SocketServer::listen(port, LISTEN_BACKLOG, onError);
-        }
+        protected:
+            using SocketServer = net::in6::stream::tls::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
 
-        void listen(const std::string& ipOrHostname, const std::function<void(int)>& onError) {
-            SocketServer::listen(ipOrHostname, LISTEN_BACKLOG, onError);
-        }
+        public:
+            using web::http::server::Server<net::in6::stream::tls::SocketServer, Request, Response>::listen;
 
-        void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
-            SocketServer::listen(ipOrHostname, port, LISTEN_BACKLOG, onError);
-        }
-    };
+            void addSniCert(const std::string& domain, const std::map<std::string, std::any>& options) {
+                SocketServer::addSniCert(domain, options);
+            }
 
-    template <typename Request = web::http::server::Request, typename Response = web::http::server::Response>
-    class ServerRfComm : public web::http::server::Server<net::rf::stream::tls::SocketServer, Request, Response> {
-        using web::http::server::Server<net::rf::stream::tls::SocketServer, Request, Response>::Server;
+            void listen(uint16_t port, const std::function<void(int)>& onError) {
+                SocketServer::listen(port, LISTEN_BACKLOG, onError);
+            }
 
-    public:
-        using SocketServer = net::rf::stream::tls::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
+            void listen(const std::string& ipOrHostname, const std::function<void(int)>& onError) {
+                SocketServer::listen(ipOrHostname, LISTEN_BACKLOG, onError);
+            }
 
-        using SocketAddress = typename SocketServer::SocketAddress;
+            void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
+                SocketServer::listen(ipOrHostname, port, LISTEN_BACKLOG, onError);
+            }
+        };
 
-        using web::http::server::Server<net::rf::stream::tls::SocketServer, Request, Response>::listen;
+    } // namespace in6
 
-        void addSniCert(const std::string& domain, const std::map<std::string, std::any>& options) {
-            SocketServer::addSniCert(domain, options);
-        }
+    namespace rf {
 
-        void listen(uint8_t channel, const std::function<void(int)>& onError) {
-            SocketServer::listen(channel, LISTEN_BACKLOG, onError);
-        }
+        template <typename Request = web::http::server::Request, typename Response = web::http::server::Response>
+        class Server : public web::http::server::Server<net::rf::stream::tls::SocketServer, Request, Response> {
+            using web::http::server::Server<net::rf::stream::tls::SocketServer, Request, Response>::Server;
 
-        void listen(const std::string& address, const std::function<void(int)>& onError) {
-            SocketServer::listen(address, LISTEN_BACKLOG, onError);
-        }
+        public:
+            using SocketServer = net::rf::stream::tls::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
 
-        void listen(const std::string& address, uint8_t channel, const std::function<void(int)>& onError) {
-            SocketServer::listen(address, channel, LISTEN_BACKLOG, onError);
-        }
-    };
+            using SocketAddress = typename SocketServer::SocketAddress;
+
+            using web::http::server::Server<net::rf::stream::tls::SocketServer, Request, Response>::listen;
+
+            void addSniCert(const std::string& domain, const std::map<std::string, std::any>& options) {
+                SocketServer::addSniCert(domain, options);
+            }
+
+            void listen(uint8_t channel, const std::function<void(int)>& onError) {
+                SocketServer::listen(channel, LISTEN_BACKLOG, onError);
+            }
+
+            void listen(const std::string& address, const std::function<void(int)>& onError) {
+                SocketServer::listen(address, LISTEN_BACKLOG, onError);
+            }
+
+            void listen(const std::string& address, uint8_t channel, const std::function<void(int)>& onError) {
+                SocketServer::listen(address, channel, LISTEN_BACKLOG, onError);
+            }
+        };
+
+    } // namespace rf
 
 } // namespace web::http::server::tls
 

@@ -1,67 +1,52 @@
-/*
- * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published
- * by the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+#ifndef APPS_HTTP__MODEL_CLIENTS_H
+#define APPS_HTTP__MODEL_CLIENTS_H
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#include "config.h"                   // for SERVERCAFILE
+#include "log/Logger.h"               // for Writer, Storage
+#include "web/http/client/Request.h"  // for Request, client
+#include "web/http/client/Response.h" // for Response
 
-#include "config.h"                        // for SERVERCAFILE
-#include "core/SNodeC.h"                   // for SNodeC
-#include "log/Logger.h"                    // for Writer, Storage
-#include "web/http/client/Request.h"       // for Request, client
-#include "web/http/client/Response.h"      // for Response
-#include "web/http/client/legacy/Client.h" // for Client6, Client6...
-#include "web/http/client/tls/Client.h"    // for Client6, Client6...
+#define QUOTE_INCLUDE(a) STR_INCLUDE(a)
+#define STR_INCLUDE(a) #a
 
-#include <cstring>            // for memcpy
-#include <openssl/asn1.h>     // for ASN1_STRING_get0...
-#include <openssl/crypto.h>   // for OPENSSL_free
-#include <openssl/obj_mac.h>  // for NID_subject_alt_...
-#include <openssl/ossl_typ.h> // for X509
-#include <openssl/ssl3.h>     // for SSL_get_peer_cer...
-#include <openssl/x509.h>     // for X509_NAME_oneline
-#include <openssl/x509v3.h>   // for GENERAL_NAME
-#include <type_traits>        // for add_const<>::type
-#include <utility>            // for tuple_element<>:...
+// clang-format off
+#define CLIENT_INCLUDE QUOTE_INCLUDE(web/http/client/STREAM/Client.h)
+// clang-format on
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#include CLIENT_INCLUDE
 
-using namespace web::http::client;
+#if (STREAM_TYPE == TLS) // tls
+#include <cstddef>       // for size_t
+#include <openssl/ssl.h>
+#include <openssl/x509v3.h>
+#endif
 
-int main(int argc, char* argv[]) {
-    core::SNodeC::init(argc, argv);
+#if (STREAM_TYPE == LEGACY) // legacy
 
-    {
-        legacy::ClientRfComm<Request, Response> legacyClient(
-            [](const legacy::ClientRfComm<>::SocketAddress& localAddress,
-               const legacy::ClientRfComm<>::SocketAddress& remoteAddress) -> void {
+namespace apps::http::legacy {
+    web::http::client::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>
+    getClient(const std::map<std::string, std::any>& options) {
+        web::http::client::STREAM::NET ::Client<web::http::client::Request, web::http::client::Response> client(
+            [](const web::http::client::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>::SocketAddress&
+                   localAddress,
+               const web::http::client::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>::SocketAddress&
+                   remoteAddress) -> void {
                 VLOG(0) << "-- OnConnect";
 
                 VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
                 VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
             },
-            []([[maybe_unused]] legacy::ClientRfComm<>::SocketConnection* socketConnection) -> void {
+            []([[maybe_unused]] web::http::client::STREAM::NET::Client<web::http::client::Request,
+                                                                       web::http::client::Response>::SocketConnection* socketConnection)
+                -> void {
                 VLOG(0) << "-- OnConnected";
             },
-            [](Request& request) -> void {
+            [](web::http::client::Request& request) -> void {
                 request.url = "/index.html";
                 request.set("Connection", "close");
                 request.start();
             },
-            []([[maybe_unused]] Request& request, Response& response) -> void {
+            []([[maybe_unused]] web::http::client::Request& request, web::http::client::Response& response) -> void {
                 VLOG(0) << "-- OnResponse";
                 VLOG(0) << "     Status:";
                 VLOG(0) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
@@ -92,23 +77,42 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "     Status: " << status;
                 VLOG(0) << "     Reason: " << reason;
             },
-            [](legacy::ClientRfComm<>::SocketConnection* socketConnection) -> void {
+            [](web::http::client::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>::SocketConnection*
+                   socketConnection) -> void {
                 VLOG(0) << "-- OnDisconnect";
 
                 VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
                                socketConnection->getRemoteAddress().toString();
                 VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
                                socketConnection->getLocalAddress().toString();
-            });
+            },
+            options);
 
-        tls::ClientRfComm<Request, Response> tlsClient(
-            [](const tls::ClientRfComm<>::SocketAddress& localAddress, const tls::ClientRfComm<>::SocketAddress& remoteAddress) -> void {
+        return client;
+    }
+
+} // namespace apps::http::legacy
+
+#endif // (STREAM_TYPE == LEGACY) // legacy
+
+#if (STREAM_TYPE == TLS) // tls
+
+namespace apps::http::tls {
+
+    web::http::client::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>
+    getClient(const std::map<std::string, std::any>& options) {
+        web::http::client::STREAM::NET ::Client<web::http::client::Request, web::http::client::Response> client(
+            [](const web::http::client::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>::SocketAddress&
+                   localAddress,
+               const web::http::client::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>::SocketAddress&
+                   remoteAddress) -> void {
                 VLOG(0) << "-- OnConnect";
 
                 VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
                 VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
             },
-            [](tls::ClientRfComm<>::SocketConnection* socketConnection) -> void {
+            [](web::http::client::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>::SocketConnection*
+                   socketConnection) -> void {
                 VLOG(0) << "-- OnConnected";
 
                 X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
@@ -155,12 +159,12 @@ int main(int argc, char* argv[]) {
                     VLOG(0) << "     Server certificate: no certificate";
                 }
             },
-            [](Request& request) -> void {
+            [](web::http::client::Request& request) -> void {
                 request.url = "/index.html";
                 request.set("Connection", "close");
                 request.start();
             },
-            []([[maybe_unused]] Request& request, const Response& response) -> void {
+            []([[maybe_unused]] web::http::client::Request& request, const web::http::client::Response& response) -> void {
                 VLOG(0) << "-- OnResponse";
                 VLOG(0) << "     Status:";
                 VLOG(0) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
@@ -191,7 +195,8 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "     Status: " << status;
                 VLOG(0) << "     Reason: " << reason;
             },
-            [](tls::ClientRfComm<>::SocketConnection* socketConnection) -> void {
+            [](web::http::client::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>::SocketConnection*
+                   socketConnection) -> void {
                 VLOG(0) << "-- OnDisconnect";
 
                 VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
@@ -199,23 +204,13 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
                                socketConnection->getLocalAddress().toString();
             },
-            {{"caFile", SERVERCAFILE}, {"Host", "myhost"}});
+            options);
 
-        // "A4:B1:C1:2C:82:37" titan
-        // "44:01:BB:A3:63:32"  mpow
-
-        legacyClient.connect("A4:B1:C1:2C:82:37", 1, "44:01:BB:A3:63:32", [](int err) -> void {
-            if (err != 0) {
-                PLOG(ERROR) << "OnError: " << err;
-            }
-        });
-
-        tlsClient.connect("A4:B1:C1:2C:82:37", 2, "44:01:BB:A3:63:32", [](int err) -> void {
-            if (err != 0) {
-                PLOG(ERROR) << "OnError: " << err;
-            }
-        });
+        return client;
     }
 
-    return core::SNodeC::start();
-}
+} // namespace apps::http::tls
+
+#endif // (STREAM_TYPE == TLS) // tls
+
+#endif // APPS_HTTP__MODEL_CLIENTS_H

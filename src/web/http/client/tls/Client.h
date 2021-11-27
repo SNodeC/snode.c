@@ -30,39 +30,51 @@
 
 namespace web::http::client::tls {
 
-    template <typename Request, typename Response>
-    class Client : public web::http::client::Client<net::in::stream::tls::SocketClient, Request, Response> {
-        using web::http::client::Client<net::in::stream::tls::SocketClient, Request, Response>::Client;
+    namespace in {
 
-    protected:
-        using SocketClient = net::in::stream::tls::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
+        template <typename Request, typename Response>
+        class Client : public web::http::client::Client<net::in::stream::tls::SocketClient, Request, Response> {
+            using web::http::client::Client<net::in::stream::tls::SocketClient, Request, Response>::Client;
 
-    public:
-        using web::http::client::Client<net::in::stream::tls::SocketClient, Request, Response>::connect;
-    };
+        protected:
+            using SocketClient = net::in::stream::tls::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
 
-    template <typename Request = web::http::client::Request, typename Response = web::http::client::Response>
-    class Client6 : public web::http::client::Client<net::in6::stream::tls::SocketClient, Request, Response> {
-        using web::http::client::Client<net::in6::stream::tls::SocketClient, Request, Response>::Client;
+        public:
+            using web::http::client::Client<net::in::stream::tls::SocketClient, Request, Response>::connect;
+        };
 
-    protected:
-        using SocketClient = net::in6::stream::tls::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
+    } // namespace in
 
-    public:
-        using web::http::client::Client<net::in6::stream::tls::SocketClient, Request, Response>::connect;
-    };
+    namespace in6 {
 
-    template <typename Request = web::http::client::Request, typename Response = web::http::client::Response>
-    class ClientRfComm : public web::http::client::Client<net::rf::stream::tls::SocketClient, Request, Response> {
-        using web::http::client::Client<net::rf::stream::tls::SocketClient, Request, Response>::Client;
+        template <typename Request = web::http::client::Request, typename Response = web::http::client::Response>
+        class Client : public web::http::client::Client<net::in6::stream::tls::SocketClient, Request, Response> {
+            using web::http::client::Client<net::in6::stream::tls::SocketClient, Request, Response>::Client;
 
-    public:
-        using SocketClient = net::rf::stream::tls::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
+        protected:
+            using SocketClient = net::in6::stream::tls::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
 
-        using SocketAddress = typename SocketClient::SocketAddress;
+        public:
+            using web::http::client::Client<net::in6::stream::tls::SocketClient, Request, Response>::connect;
+        };
 
-        using web::http::client::Client<net::rf::stream::tls::SocketClient, Request, Response>::connect;
-    };
+    } // namespace in6
+
+    namespace rf {
+
+        template <typename Request = web::http::client::Request, typename Response = web::http::client::Response>
+        class Client : public web::http::client::Client<net::rf::stream::tls::SocketClient, Request, Response> {
+            using web::http::client::Client<net::rf::stream::tls::SocketClient, Request, Response>::Client;
+
+        public:
+            using SocketClient = net::rf::stream::tls::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
+
+            using SocketAddress = typename SocketClient::SocketAddress;
+
+            using web::http::client::Client<net::rf::stream::tls::SocketClient, Request, Response>::connect;
+        };
+
+    } // namespace rf
 
 } // namespace web::http::client::tls
 

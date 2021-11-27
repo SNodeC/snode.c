@@ -48,8 +48,14 @@ target_include_directories(
 )
 
 target_link_libraries(
-    httpclient PUBLIC snodec::net-in snodec::net-in6 snodec::core-tls
-                      snodec::http ${LIBMAGIC_LIBRARIES} dl
+    httpclient
+    PUBLIC snodec::net-in
+           snodec::net-in6
+           snodec::net-rf
+           snodec::core-tls
+           snodec::http
+           ${LIBMAGIC_LIBRARIES}
+           dl
 )
 
 set_target_properties(

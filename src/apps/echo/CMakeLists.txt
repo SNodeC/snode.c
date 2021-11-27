@@ -6,11 +6,6 @@ get_filename_component(CURRENT_DIR ${CMAKE_CURRENT_LIST_DIR} NAME)
 
 set(NET ${CURRENT_DIR})
 
-add_executable(${NET}web${TYPE}client webclient.cpp)
-target_link_libraries(${NET}web${TYPE}client PRIVATE snodec::httpclient)
-target_compile_definitions(${NET}webclient PRIVATE TYPE=legacy)
-install(TARGETS ${NET}webclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
 set(IN 1)
 set(IN6 2)
 set(L2 3)
@@ -30,7 +25,11 @@ add_compile_definitions(
     TLS=${TLS}
 )
 
-set(NETS "in" "in6" "l2" "rf" "un")
+set(NETS "in" "in6" "un")
+if(BLUEZ_FOUND)
+    list(APPEND NETS "l2" "rf")
+endif(BLUEZ_FOUND)
+
 foreach(NET IN LISTS NETS)
     if(${NET} STREQUAL "in")
         set(NET_TYPE ${IN})

@@ -28,16 +28,16 @@
 
 namespace express::legacy {
 
-    class WebApp : public WebAppT<web::http::server::legacy::Server<express::Request, express::Response>> {
-        using WebAppT<web::http::server::legacy::Server<express::Request, express::Response>>::WebAppT;
+    class WebApp : public WebAppT<web::http::server::legacy::in::Server<express::Request, express::Response>> {
+        using WebAppT<web::http::server::legacy::in::Server<express::Request, express::Response>>::WebAppT;
     };
 
-    class WebApp6 : public WebAppT<web::http::server::legacy::Server6<express::Request, express::Response>> {
-        using WebAppT<web::http::server::legacy::Server6<express::Request, express::Response>>::WebAppT;
+    class WebApp6 : public WebAppT<web::http::server::legacy::in6::Server<express::Request, express::Response>> {
+        using WebAppT<web::http::server::legacy::in6::Server<express::Request, express::Response>>::WebAppT;
     };
 
-    class WebAppRfComm : public WebAppT<web::http::server::legacy::ServerRfComm<express::Request, express::Response>> {
-        using WebAppT<web::http::server::legacy::ServerRfComm<express::Request, express::Response>>::WebAppT;
+    class WebAppRfComm : public WebAppT<web::http::server::legacy::rf::Server<express::Request, express::Response>> {
+        using WebAppT<web::http::server::legacy::rf::Server<express::Request, express::Response>>::WebAppT;
     };
 
 } // namespace express::legacy

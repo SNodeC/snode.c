@@ -35,17 +35,19 @@
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
-    web::http::client::legacy::Client<web::http::client::Request, web::http::client::Response> jsonClient(
-        [](const web::http::client::legacy::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& localAddress,
-           const web::http::client::legacy::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& remoteAddress)
-            -> void {
+    web::http::client::legacy::in::Client<web::http::client::Request, web::http::client::Response> jsonClient(
+        [](const web::http::client::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress&
+               localAddress,
+           const web::http::client::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress&
+               remoteAddress) -> void {
             VLOG(0) << "-- OnConnect";
 
             VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
             VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
         },
-        []([[maybe_unused]] web::http::client::legacy::Client<web::http::client::Request, web::http::client::Response>::SocketConnection*
-               socketConnection) -> void {
+        []([[maybe_unused]] web::http::client::legacy::in::Client<web::http::client::Request,
+                                                                  web::http::client::Response>::SocketConnection* socketConnection)
+            -> void {
             VLOG(0) << "-- OnConnected";
         },
         [](web::http::client::Request& request) -> void {
@@ -87,8 +89,8 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "     Status: " << status;
             VLOG(0) << "     Reason: " << reason;
         },
-        [](web::http::client::legacy::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection)
-            -> void {
+        [](web::http::client::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection*
+               socketConnection) -> void {
             VLOG(0) << "-- OnDisconnect";
 
             VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +

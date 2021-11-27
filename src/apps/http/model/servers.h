@@ -1,66 +1,80 @@
-/*
- * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published
- * by the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#ifndef APPS_HTTP_MODEL_SERVERS_H
+#define APPS_HTTP_MODEL_SERVERS_H
 
 #include "config.h" // just for this example app
+#include "express/Router.h"
 #include "express/middleware/StaticMiddleware.h"
-#include "express/tls/WebApp.h"
-#include "log/Logger.h"
 
-#include <cstddef>            // for size_t, NULL
-#include <openssl/asn1.h>     // for ASN1_STRING_get0...
-#include <openssl/crypto.h>   // for OPENSSL_free
-#include <openssl/obj_mac.h>  // for NID_subject_alt_...
-#include <openssl/ossl_typ.h> // for X509
-#include <openssl/ssl3.h>     // for SSL_get_peer_cer...
-#include <openssl/x509.h>     // for X509_NAME_oneline
+#define QUOTE_INCLUDE(a) STR_INCLUDE(a)
+#define STR_INCLUDE(a) #a
+
+// clang-format off
+#define WEBAPP_INCLUDE QUOTE_INCLUDE(express/STREAM/WebApp.h)
+// clang-format on
+
+#include WEBAPP_INCLUDE
+
+#if (STREAM_TYPE == TLS) // tls
+#include <cstddef>       // for size_t
+#include <openssl/ssl.h>
 #include <openssl/x509v3.h>
+#endif
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+express::Router getRouter() {
+    express::Router router;
 
-using namespace express;
-
-Router getRouter() {
-    Router router;
-
-    router.use(middleware::StaticMiddleware(SERVERROOT));
+    router.use(express::middleware::StaticMiddleware(SERVERROOT));
 
     return router;
 }
 
-int main(int argc, char* argv[]) {
-    logger::Logger::setVerboseLevel(2);
+#if (STREAM_TYPE == LEGACY) // legacy
 
-    WebApp::init(argc, argv);
+namespace apps::http::legacy {
 
-    {
-        tls::WebApp6 tlsApp(getRouter(),
-                            {{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}, {"caFile", CLIENTCAFILE}});
+    express::legacy::WebApp getWebApp(const std::map<std::string, std::any>& options) {
+        express::legacy::WebApp webApp(getRouter(), options);
 
-        tlsApp.onConnect([](const tls::WebApp6::SocketAddress& localAddress, const tls::WebApp6::SocketAddress& remoteAddress) -> void {
+        webApp.onConnect([](const express::legacy::WebApp::SocketAddress& localAddress,
+                            const express::legacy::WebApp::SocketAddress& remoteAddress) -> void {
             VLOG(0) << "OnConnect:";
 
             VLOG(0) << "\tServer: (" + localAddress.address() + ") " + localAddress.toString();
             VLOG(0) << "\tClient: (" + remoteAddress.address() + ") " + remoteAddress.toString();
         });
 
-        tlsApp.onConnected([](tls::WebApp6::SocketConnection* socketConnection) -> void {
+        webApp.onDisconnect([](express::legacy::WebApp::SocketConnection* socketConnection) -> void {
+            VLOG(0) << "OnDisconnect:";
+
+            VLOG(0) << "\tServer: (" + socketConnection->getLocalAddress().address() + ") " +
+                           socketConnection->getLocalAddress().toString();
+            VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " +
+                           socketConnection->getRemoteAddress().toString();
+        });
+
+        return webApp;
+    }
+
+} // namespace apps::http::legacy
+
+#endif // (STREAM_TYPE == LEGACY) // legacy
+
+#if (STREAM_TYPE == TLS) // tls
+
+namespace apps::http::tls {
+
+    express::tls::WebApp getWebApp(const std::map<std::string, std::any>& options) {
+        express::tls::WebApp webApp(getRouter(), options);
+
+        webApp.onConnect(
+            [](const express::tls::WebApp::SocketAddress& localAddress, const express::tls::WebApp::SocketAddress& remoteAddress) -> void {
+                VLOG(0) << "OnConnect:";
+
+                VLOG(0) << "\tServer: (" + localAddress.address() + ") " + localAddress.toString();
+                VLOG(0) << "\tClient: (" + remoteAddress.address() + ") " + remoteAddress.toString();
+            });
+
+        webApp.onConnected([](express::tls::WebApp::SocketConnection* socketConnection) -> void {
             VLOG(0) << "OnConnected:";
 
             X509* client_cert = SSL_get_peer_certificate(socketConnection->getSSL());
@@ -110,7 +124,7 @@ int main(int argc, char* argv[]) {
             }
         });
 
-        tlsApp.onDisconnect([](tls::WebApp6::SocketConnection* socketConnection) -> void {
+        webApp.onDisconnect([](express::tls::WebApp::SocketConnection* socketConnection) -> void {
             VLOG(0) << "OnDisconnect:";
 
             VLOG(0) << "\tServer: (" + socketConnection->getLocalAddress().address() + ") " +
@@ -119,17 +133,14 @@ int main(int argc, char* argv[]) {
                            socketConnection->getRemoteAddress().toString();
         });
 
-        tlsApp.addSniCert("snodec.home.vchrist.at",
+        webApp.addSniCert("snodec.home.vchrist.at",
                           {{"certChain", SNODECCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}, {"caFile", CLIENTCAFILE}});
 
-        tlsApp.listen(8088, [](int err) -> void {
-            if (err != 0) {
-                PLOG(FATAL) << "listen on port 8088";
-            } else {
-                VLOG(0) << "snode.c listening on port 8088 for SSL/TLS connections";
-            }
-        });
+        return webApp;
     }
 
-    return WebApp::start();
-}
+} // namespace apps::http::tls
+
+#endif // (STREAM_TYPE == TLS) // tls
+
+#endif // APPS_HTTP_MODEL_SERVERS_H
