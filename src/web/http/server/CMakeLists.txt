@@ -48,10 +48,7 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(
-    httpserver PUBLIC snodec::net-in snodec::net-in6 snodec::core-tls
-                      snodec::http ${LIBMAGIC_LIBRARIES} dl
-)
+target_link_libraries(httpserver PUBLIC snodec::http ${LIBMAGIC_LIBRARIES} dl)
 
 set_target_properties(
     httpserver
