@@ -82,7 +82,10 @@ int main(int argc, char* argv[]) {
         } else {
             VLOG(0) << "snode.c listening on " << socket.getBindAddress().toString();
         }
+
+#ifdef NET_TYPE
     });
+#endif
 
     return core::SNodeC::start();
 }

@@ -68,7 +68,10 @@ int main(int argc, char* argv[]) {
         } else {
             VLOG(0) << "snode.c connected";
         }
+
+#ifdef NET_TYPE
     });
+#endif
 
     return core::SNodeC::start();
 }

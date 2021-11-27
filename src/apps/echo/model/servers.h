@@ -144,10 +144,7 @@ namespace apps::echo::model::tls {
                                socketConnection->getRemoteAddress().toString();
             },
             options);
-        /*
-                server.addSniCert("snodec.home.vchrist.at",
-                                  {{"certChain", SNODECCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}, {"caFile", CLIENTCAFILE}});
-        */
+
         return server;
     }
 

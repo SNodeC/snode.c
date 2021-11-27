@@ -26,16 +26,17 @@
 #include "web/http/client/legacy/Client.h" // for Client, Client<>...
 #include "web/http/client/tls/Client.h"    // for Client, Client<>...
 
-#include <cstring>            // for memcpy
-#include <openssl/asn1.h>     // for ASN1_STRING_get0...
+#include <cstddef>            // for size_t
+#include <openssl/asn1.h>     // for ASN1_STRING_get0_data, ASN1_STRING_length
 #include <openssl/crypto.h>   // for OPENSSL_free
-#include <openssl/obj_mac.h>  // for NID_subject_alt_...
+#include <openssl/obj_mac.h>  // for NID_subject_alt_name
 #include <openssl/ossl_typ.h> // for X509
-#include <openssl/ssl3.h>     // for SSL_get_peer_cer...
-#include <openssl/x509.h>     // for X509_NAME_oneline
-#include <openssl/x509v3.h>   // for GENERAL_NAME
-#include <type_traits>        // for add_const<>::type
-#include <utility>            // for tuple_element<>:...
+#include <openssl/ssl3.h>     // for SSL_get_peer_certificate, SSL_get_verify_result
+#include <openssl/x509.h> // for X509_NAME_oneline, X509_free, X509_get_ext_d2i, X509_get_issuer_name, X509_get_subject_name, X509_verify_...
+#include <openssl/x509v3.h>
+#include <string.h>    // for memcpy
+#include <type_traits> // for add_const<>::type
+#include <utility>     // for tuple_element<>::type
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
