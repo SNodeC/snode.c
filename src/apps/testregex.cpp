@@ -115,11 +115,11 @@ Router router() {
 int main(int argc, char* argv[]) {
     WebApp::init(argc, argv);
 
-    legacy::WebApp legacyApp;
+    legacy::in::WebApp legacyApp;
 
     legacyApp.use(router());
 
-    legacyApp.listen(8080, [](const legacy::WebApp::Socket& socket, int err) -> void {
+    legacyApp.listen(8080, [](const legacy::in::WebApp::Socket& socket, int err) -> void {
         if (err != 0) {
             PLOG(FATAL) << "listen on port 8080 " << std::to_string(err);
         } else {
@@ -127,25 +127,26 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    legacyApp.onConnect([](const legacy::WebApp::SocketAddress& localAddress, const legacy::WebApp::SocketAddress& remoteAddress) -> void {
-        VLOG(0) << "OnConnect:";
+    legacyApp.onConnect(
+        [](const legacy::in::WebApp::SocketAddress& localAddress, const legacy::in::WebApp::SocketAddress& remoteAddress) -> void {
+            VLOG(0) << "OnConnect:";
 
-        VLOG(0) << "\tServer: " + remoteAddress.toString();
-        VLOG(0) << "\tClient: " + localAddress.toString();
-    });
+            VLOG(0) << "\tServer: " + remoteAddress.toString();
+            VLOG(0) << "\tClient: " + localAddress.toString();
+        });
 
-    legacyApp.onDisconnect([](legacy::WebApp::SocketConnection* socketConnection) -> void {
+    legacyApp.onDisconnect([](legacy::in::WebApp::SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnDisconnect:";
 
         VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
         VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
     });
 
-    tls::WebApp tlsApp({{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
+    tls::in::WebApp tlsApp({{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
 
     tlsApp.use(router());
 
-    tlsApp.listen(8088, [](const tls::WebApp::Socket& socket, int err) -> void {
+    tlsApp.listen(8088, [](const tls::in::WebApp::Socket& socket, int err) -> void {
         if (err != 0) {
             PLOG(FATAL) << "listen on port 8088 " << std::to_string(err);
         } else {
@@ -153,14 +154,14 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    tlsApp.onConnect([](const tls::WebApp::SocketAddress& localAddress, const tls::WebApp::SocketAddress& remoteAddress) -> void {
+    tlsApp.onConnect([](const tls::in::WebApp::SocketAddress& localAddress, const tls::in::WebApp::SocketAddress& remoteAddress) -> void {
         VLOG(0) << "OnConnect:";
 
         VLOG(0) << "\tServer: " + remoteAddress.toString();
         VLOG(0) << "\tClient: " + localAddress.toString();
     });
 
-    tlsApp.onConnected([](tls::WebApp::SocketConnection* socketConnection) {
+    tlsApp.onConnected([](tls::in::WebApp::SocketConnection* socketConnection) {
         VLOG(0) << "OnConnected:";
 
         X509* client_cert = SSL_get_peer_certificate(socketConnection->getSSL());
@@ -208,7 +209,7 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    tlsApp.onDisconnect([](tls::WebApp::SocketConnection* socketConnection) -> void {
+    tlsApp.onDisconnect([](tls::in::WebApp::SocketConnection* socketConnection) -> void {
         VLOG(0) << "OnDisconnect:";
 
         VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();

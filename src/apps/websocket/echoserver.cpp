@@ -32,9 +32,9 @@
 using namespace express;
 
 int main(int argc, char* argv[]) {
-    legacy::WebApp::init(argc, argv);
+    express::WebApp::init(argc, argv);
 
-    legacy::WebApp legacyApp;
+    legacy::in::WebApp legacyApp;
 
     legacyApp.get("/", [] MIDDLEWARE(req, res, next) {
         if (req.url == "/") {
@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    legacyApp.listen(8080, [](const legacy::WebApp::Socket& socket, int err) -> void {
+    legacyApp.listen(8080, [](const legacy::in::WebApp::Socket& socket, int err) -> void {
         if (err != 0) {
             perror("Listen");
         } else {
@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
     });
 
     {
-        tls::WebApp tlsApp({{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
+        tls::in::WebApp tlsApp({{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
 
         tlsApp.get("/", [] MIDDLEWARE(req, res, next) {
             if (req.url == "/") {
@@ -127,7 +127,7 @@ int main(int argc, char* argv[]) {
             }
         });
 
-        tlsApp.listen(8088, [](const tls::WebApp::Socket& socket, int err) -> void {
+        tlsApp.listen(8088, [](const tls::in::WebApp::Socket& socket, int err) -> void {
             if (err != 0) {
                 perror("Listen");
             } else {
@@ -136,7 +136,7 @@ int main(int argc, char* argv[]) {
         });
     }
 
-    return legacy::WebApp::start();
+    return express::WebApp::start();
 }
 
 /*

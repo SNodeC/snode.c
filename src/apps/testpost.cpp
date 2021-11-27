@@ -30,7 +30,7 @@
 int main(int argc, char* argv[]) {
     express::WebApp::init(argc, argv);
 
-    express::legacy::WebApp legacyApp;
+    express::legacy::in::WebApp legacyApp;
 
     legacyApp.get("/", [] APPLICATION(req, res) {
         res.send("<html>"
@@ -84,10 +84,10 @@ int main(int argc, char* argv[]) {
                  "</html>");
     });
 
-    express::tls::WebApp tlsApp({{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
+    express::tls::in::WebApp tlsApp({{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
     tlsApp.use(legacyApp);
 
-    legacyApp.listen(8080, [](const express::legacy::WebApp::Socket& socket, int err) -> void {
+    legacyApp.listen(8080, [](const express::legacy::in::WebApp::Socket& socket, int err) -> void {
         if (err != 0) {
             PLOG(FATAL) << "listen on port 8080";
         } else {
@@ -95,7 +95,7 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    tlsApp.listen(8088, [](const express::tls::WebApp::Socket& socket, int err) -> void {
+    tlsApp.listen(8088, [](const express::tls::in::WebApp::Socket& socket, int err) -> void {
         if (err != 0) {
             PLOG(FATAL) << "listen on port 8088";
         } else {

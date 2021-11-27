@@ -32,18 +32,18 @@ express::Router getRouter() {
 
 namespace apps::http::legacy {
 
-    express::legacy::WebApp getWebApp(const std::map<std::string, std::any>& options) {
-        express::legacy::WebApp webApp(getRouter(), options);
+    express::legacy::NET::WebApp getWebApp(const std::map<std::string, std::any>& options) {
+        express::legacy::NET::WebApp webApp(getRouter(), options);
 
-        webApp.onConnect([](const express::legacy::WebApp::SocketAddress& localAddress,
-                            const express::legacy::WebApp::SocketAddress& remoteAddress) -> void {
+        webApp.onConnect([](const express::legacy::NET::WebApp::SocketAddress& localAddress,
+                            const express::legacy::NET::WebApp::SocketAddress& remoteAddress) -> void {
             VLOG(0) << "OnConnect:";
 
             VLOG(0) << "\tServer: (" + localAddress.address() + ") " + localAddress.toString();
             VLOG(0) << "\tClient: (" + remoteAddress.address() + ") " + remoteAddress.toString();
         });
 
-        webApp.onDisconnect([](express::legacy::WebApp::SocketConnection* socketConnection) -> void {
+        webApp.onDisconnect([](express::legacy::NET::WebApp::SocketConnection* socketConnection) -> void {
             VLOG(0) << "OnDisconnect:";
 
             VLOG(0) << "\tServer: (" + socketConnection->getLocalAddress().address() + ") " +
@@ -63,18 +63,18 @@ namespace apps::http::legacy {
 
 namespace apps::http::tls {
 
-    express::tls::WebApp getWebApp(const std::map<std::string, std::any>& options) {
-        express::tls::WebApp webApp(getRouter(), options);
+    express::tls::NET::WebApp getWebApp(const std::map<std::string, std::any>& options) {
+        express::tls::NET::WebApp webApp(getRouter(), options);
 
-        webApp.onConnect(
-            [](const express::tls::WebApp::SocketAddress& localAddress, const express::tls::WebApp::SocketAddress& remoteAddress) -> void {
-                VLOG(0) << "OnConnect:";
+        webApp.onConnect([](const express::tls::NET::WebApp::SocketAddress& localAddress,
+                            const express::tls::NET::WebApp::SocketAddress& remoteAddress) -> void {
+            VLOG(0) << "OnConnect:";
 
-                VLOG(0) << "\tServer: (" + localAddress.address() + ") " + localAddress.toString();
-                VLOG(0) << "\tClient: (" + remoteAddress.address() + ") " + remoteAddress.toString();
-            });
+            VLOG(0) << "\tServer: (" + localAddress.address() + ") " + localAddress.toString();
+            VLOG(0) << "\tClient: (" + remoteAddress.address() + ") " + remoteAddress.toString();
+        });
 
-        webApp.onConnected([](express::tls::WebApp::SocketConnection* socketConnection) -> void {
+        webApp.onConnected([](express::tls::NET::WebApp::SocketConnection* socketConnection) -> void {
             VLOG(0) << "OnConnected:";
 
             X509* client_cert = SSL_get_peer_certificate(socketConnection->getSSL());
@@ -125,7 +125,7 @@ namespace apps::http::tls {
             }
         });
 
-        webApp.onDisconnect([](express::tls::WebApp::SocketConnection* socketConnection) -> void {
+        webApp.onDisconnect([](express::tls::NET::WebApp::SocketConnection* socketConnection) -> void {
             VLOG(0) << "OnDisconnect:";
 
             VLOG(0) << "\tServer: (" + socketConnection->getLocalAddress().address() + ") " +

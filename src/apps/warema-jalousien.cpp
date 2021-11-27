@@ -23,7 +23,7 @@ std::map<std::string, std::string> actions = {{"open", "up"}, {"close", "down"},
 int main(int argc, char* argv[]) {
     WebApp::init(argc, argv);
 
-    legacy::WebApp webApp;
+    legacy::in::WebApp webApp;
 
     //    tls::WebApp wa;
 
@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
         res.status(404).send("No Jalousie specified");
     });
 
-    webApp.listen(8080, [](const legacy::WebApp::Socket& socket, int err) -> void {
+    webApp.listen(8080, [](const legacy::in::WebApp::Socket& socket, int err) -> void {
         if (err != 0) {
             PLOG(FATAL) << "listen on port 8080 " << std::to_string(err);
         } else {

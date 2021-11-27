@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
     WebApp::init(argc, argv);
 
     {
-        legacy::WebApp6 legacyApp;
+        legacy::in6::WebApp legacyApp;
 
         Router& router = middleware::VHost("localhost:8080");
         router.use(middleware::StaticMiddleware(SERVERROOT));
@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
             res.status(404).send("The requested resource is not found.");
         });
 
-        legacyApp.listen(8080, [](const legacy::WebApp6::Socket& socket, int err) -> void {
+        legacyApp.listen(8080, [](const legacy::in6::WebApp::Socket& socket, int err) -> void {
             if (err != 0) {
                 PLOG(FATAL) << "listen on port 8080";
             } else {
@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
         });
 
         {
-            express::tls::WebApp6 tlsApp({{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
+            express::tls::in6::WebApp tlsApp({{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
 
             tlsApp.use(middleware::VHost("localhost:8088").use(getRouter()));
 
@@ -80,15 +80,15 @@ int main(int argc, char* argv[]) {
                 res.status(404).send("The requested resource is not found.");
             });
 
-            tlsApp.onConnect([](const express::tls::WebApp6::SocketAddress& localAddress,
-                                const express::tls::WebApp6::SocketAddress& remoteAddress) -> void {
+            tlsApp.onConnect([](const express::tls::in6::WebApp::SocketAddress& localAddress,
+                                const express::tls::in6::WebApp::SocketAddress& remoteAddress) -> void {
                 VLOG(0) << "OnConnect:";
 
                 VLOG(0) << "\tServer: (" + localAddress.address() + ") " + localAddress.toString();
                 VLOG(0) << "\tClient: (" + remoteAddress.address() + ") " + remoteAddress.toString();
             });
 
-            tlsApp.onDisconnect([](tls::WebApp6::SocketConnection* socketConnection) -> void {
+            tlsApp.onDisconnect([](tls::in6::WebApp::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "OnDisconnect:";
 
                 VLOG(0) << "\tServer: (" + socketConnection->getLocalAddress().address() + ") " +
@@ -97,7 +97,7 @@ int main(int argc, char* argv[]) {
                                socketConnection->getRemoteAddress().toString();
             });
 
-            tlsApp.listen(8088, [](const express::tls::WebApp6::Socket& socket, int err) -> void {
+            tlsApp.listen(8088, [](const express::tls::in6::WebApp::Socket& socket, int err) -> void {
                 if (err != 0) {
                     PLOG(FATAL) << "listen on port 8088";
                 } else {

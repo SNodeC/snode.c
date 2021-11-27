@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
     std::map<std::string, std::any> options{{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}};
 #endif
 
-    using WebApp = express::STREAM::WebApp;
+    using WebApp = express::STREAM::NET::WebApp;
     WebApp webApp(apps::http::STREAM::getWebApp(options));
 
 #if (NET_TYPE == IN) // in

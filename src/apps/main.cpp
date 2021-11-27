@@ -49,7 +49,7 @@ int timerApp() {
 
     bool canceled = false;
 
-    express::legacy::WebApp app;
+    express::legacy::in::WebApp app;
 
     app.get("/", [&canceled, &tack](express::Request& req, express::Response& res) -> void {
         std::string uri = req.originalUrl;
@@ -121,7 +121,7 @@ int timerApp() {
         res.upgrade(req);
     });
 
-    app.listen(8080, [](const express::legacy::WebApp::Server::Socket& socket, int err) -> void {
+    app.listen(8080, [](const express::legacy::in::WebApp::Server::Socket& socket, int err) -> void {
         if (err != 0) {
             perror("Listen");
         } else {
