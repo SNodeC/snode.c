@@ -19,7 +19,7 @@
 #ifndef NET_DYNAMICLOADER_H
 #define NET_DYNAMICLOADER_H
 
-#include "core/system/dlfcn.h"
+#include "core/system/dlfcn.h" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

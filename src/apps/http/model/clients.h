@@ -1,7 +1,6 @@
 #ifndef APPS_HTTP__MODEL_CLIENTS_H
 #define APPS_HTTP__MODEL_CLIENTS_H
 
-#include "config.h"                   // for SERVERCAFILE
 #include "log/Logger.h"               // for Writer, Storage
 #include "web/http/client/Request.h"  // for Request, client
 #include "web/http/client/Response.h" // for Response
@@ -13,7 +12,7 @@
 #define CLIENT_INCLUDE QUOTE_INCLUDE(web/http/client/STREAM/Client.h)
 // clang-format on
 
-#include CLIENT_INCLUDE
+#include CLIENT_INCLUDE // IWYU pragma: export
 
 #if (STREAM_TYPE == TLS) // tls
 #include <cstddef>       // for size_t

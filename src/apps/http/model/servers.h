@@ -1,7 +1,6 @@
 #ifndef APPS_HTTP_MODEL_SERVERS_H
 #define APPS_HTTP_MODEL_SERVERS_H
 
-#include "config.h" // just for this example app
 #include "express/Router.h"
 #include "express/middleware/StaticMiddleware.h"
 
@@ -12,7 +11,7 @@
 #define WEBAPP_INCLUDE QUOTE_INCLUDE(express/STREAM/WebApp.h)
 // clang-format on
 
-#include WEBAPP_INCLUDE
+#include WEBAPP_INCLUDE // IWYU pragma: export
 
 #if (STREAM_TYPE == TLS) // tls
 #include <cstddef>       // for size_t
@@ -20,10 +19,10 @@
 #include <openssl/x509v3.h>
 #endif
 
-express::Router getRouter() {
+express::Router getRouter(const std::string& rootPath) {
     express::Router router;
 
-    router.use(express::middleware::StaticMiddleware(SERVERROOT));
+    router.use(express::middleware::StaticMiddleware(rootPath));
 
     return router;
 }
@@ -32,8 +31,8 @@ express::Router getRouter() {
 
 namespace apps::http::legacy {
 
-    express::legacy::NET::WebApp getWebApp(const std::map<std::string, std::any>& options) {
-        express::legacy::NET::WebApp webApp(getRouter(), options);
+    express::legacy::NET::WebApp getWebApp(const std::string& rootPath, const std::map<std::string, std::any>& options) {
+        express::legacy::NET::WebApp webApp(getRouter(rootPath), options);
 
         webApp.onConnect([](const express::legacy::NET::WebApp::SocketAddress& localAddress,
                             const express::legacy::NET::WebApp::SocketAddress& remoteAddress) -> void {
@@ -63,8 +62,8 @@ namespace apps::http::legacy {
 
 namespace apps::http::tls {
 
-    express::tls::NET::WebApp getWebApp(const std::map<std::string, std::any>& options) {
-        express::tls::NET::WebApp webApp(getRouter(), options);
+    express::tls::NET::WebApp getWebApp(const std::string& rootPath, const std::map<std::string, std::any>& options) {
+        express::tls::NET::WebApp webApp(getRouter(rootPath), options);
 
         webApp.onConnect([](const express::tls::NET::WebApp::SocketAddress& localAddress,
                             const express::tls::NET::WebApp::SocketAddress& remoteAddress) -> void {
@@ -133,9 +132,6 @@ namespace apps::http::tls {
             VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " +
                            socketConnection->getRemoteAddress().toString();
         });
-
-        webApp.addSniCert("snodec.home.vchrist.at",
-                          {{"certChain", SNODECCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}, {"caFile", CLIENTCAFILE}});
 
         return webApp;
     }

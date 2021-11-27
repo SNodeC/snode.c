@@ -19,11 +19,16 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "apps/http/model/clients.h"
-#include "config.h"                   // for SERVERCAFILE
-#include "core/SNodeC.h"              // for SNodeC
-#include "log/Logger.h"               // for Writer, Storage
-#include "web/http/client/Request.h"  // for Request, client
-#include "web/http/client/Response.h" // for Response
+#include "config.h"      // IWYU pragma: keep
+#include "core/SNodeC.h" // for SNodeC
+#include "log/Logger.h"  // for Writer, Storage
+
+namespace web::http::client {
+    class Request;
+}
+namespace web::http::client {
+    class Response;
+}
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

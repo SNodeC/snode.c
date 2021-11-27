@@ -24,9 +24,6 @@
 #include "log/Logger.h"
 #include "web/http/http_utils.h" // for ci_contains
 
-#include <iostream>
-#include <stdio.h> // for perror
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 using namespace express;
@@ -78,9 +75,9 @@ int main(int argc, char* argv[]) {
 
     legacyApp.listen(8080, [](const legacy::in::WebApp::Socket& socket, int err) -> void {
         if (err != 0) {
-            perror("Listen");
+            PLOG(ERROR) << "OnError: " << err;
         } else {
-            std::cout << "snode.c listening on " << socket.getBindAddress().toString();
+            VLOG(0) << "snode.c listening on " << socket.getBindAddress().toString();
         }
     });
 
@@ -129,9 +126,9 @@ int main(int argc, char* argv[]) {
 
         tlsApp.listen(8088, [](const tls::in::WebApp::Socket& socket, int err) -> void {
             if (err != 0) {
-                perror("Listen");
+                PLOG(ERROR) << "OnError: " << err;
             } else {
-                std::cout << "snode.c listening on " << socket.getBindAddress().toString();
+                VLOG(0) << "snode.c listening on " << socket.getBindAddress().toString();
             }
         });
     }
