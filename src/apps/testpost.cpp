@@ -87,19 +87,19 @@ int main(int argc, char* argv[]) {
     express::tls::WebApp tlsApp({{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
     tlsApp.use(legacyApp);
 
-    legacyApp.listen(8080, [](int err) -> void {
+    legacyApp.listen(8080, [](const express::legacy::WebApp::Socket& socket, int err) -> void {
         if (err != 0) {
             PLOG(FATAL) << "listen on port 8080";
         } else {
-            VLOG(0) << "snode.c listening on port 8080 for legacy connections";
+            VLOG(0) << "snode.c listening on " << socket.getBindAddress().toString();
         }
     });
 
-    tlsApp.listen(8088, [](int err) -> void {
+    tlsApp.listen(8088, [](const express::tls::WebApp::Socket& socket, int err) -> void {
         if (err != 0) {
             PLOG(FATAL) << "listen on port 8088";
         } else {
-            VLOG(0) << "snode.c listening on port 8088 for SSL/TLS connections";
+            VLOG(0) << "snode.c listening on " << socket.getBindAddress().toString();
         }
     });
 

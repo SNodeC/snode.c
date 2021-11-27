@@ -36,11 +36,11 @@ namespace net::l2::stream {
     public:
         using core::socket::ServerSocket<net::l2::stream::Socket>::listen;
 
-        void listen(uint16_t psm, int backlog, const std::function<void(int)>& onError);
+        void listen(uint16_t psm, int backlog, const std::function<void(const Socket& socket, int)>& onError);
 
-        void listen(const std::string& address, int backlog, const std::function<void(int)>& onError);
+        void listen(const std::string& address, int backlog, const std::function<void(const Socket& socket, int)>& onError);
 
-        void listen(const std::string& address, uint16_t psm, int backlog, const std::function<void(int)>& onError);
+        void listen(const std::string& address, uint16_t psm, int backlog, const std::function<void(const Socket& socket, int)>& onError);
     };
 
 } // namespace net::l2::stream

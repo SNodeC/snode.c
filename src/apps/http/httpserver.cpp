@@ -37,31 +37,32 @@ int main(int argc, char* argv[]) {
     std::map<std::string, std::any> options{{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}};
 #endif
 
-    express::STREAM::WebApp webApp(apps::http::STREAM::getWebApp(options));
+    using WebApp = express::STREAM::WebApp;
+    WebApp webApp(apps::http::STREAM::getWebApp(options));
 
 #if (NET_TYPE == IN) // in
 #if (STREAM_TYPE == LEGACY)
-    webApp.listen(8080, 5, [](int errnum) -> void {
+    webApp.listen(8080, 5, [](const WebApp::Socket& socket, int errnum) -> void {
 #elif (STREAM_TYPE == TLS)
-    webApp.listen(8088, 5, [](int errnum) -> void {
+    webApp.listen(8088, 5, [](const WebApp::Socket& socket, int errnum) -> void {
 #endif
 #elif (NET_TYPE == IN6) // in6
 #if (STREAM_TYPE == LEGACY)
-    webApp.listen(8080, 5, [](int errnum) -> void {
+    webApp.listen(8080, 5, [](const WebApp::Socket& socket, int errnum) -> void {
 #elif (STREAM_TYPE == TLS)
-    webApp.listen(8088, 5, [](int errnum) -> void {
+    webApp.listen(8088, 5, [](const WebApp::Socket& socket, int errnum) -> void {
 #endif
 #elif (NET_TYPE == L2) // l2
-    webApp.listen("A4:B1:C1:2C:82:37", 0x1023, 5, [](int errnum) -> void { // titan
+    webApp.listen("A4:B1:C1:2C:82:37", 0x1023, 5, [](const WebApp::Socket& socket, int errnum) -> void { // titan
 #elif (NET_TYPE == RF) // rf
-    webApp.listen("A4:B1:C1:2C:82:37", 1, 5, [](int errnum) -> void { // titan
+    webApp.listen("A4:B1:C1:2C:82:37", 1, 5, [](const WebApp::Socket& socket, int errnum) -> void { // titan
 #elif (NET_TYPE == UN) // un
-    webApp.listen("/tmp/testme", 5, [](int errnum) -> void { // titan
+    webApp.listen("/tmp/testme", 5, [](const WebApp::Socket& socket, int errnum) -> void { // titan
 #endif
         if (errnum != 0) {
             PLOG(FATAL) << "listen";
         } else {
-            VLOG(0) << "snode.c listening for client connections";
+            VLOG(0) << "snode.c listening on " << socket.getBindAddress().toString();
         }
     });
 

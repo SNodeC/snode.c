@@ -59,20 +59,28 @@ int main(int argc, char* argv[]) {
 #endif
 
 #if (NET_TYPE == IN) // in
-    server.listen(8080, 5, [](int errnum) -> void {
+#if (STREAM_TYPE == LEGACY)
+    server.listen(8080, 5, [](const SocketServer::Socket& socket, int errnum) -> void {
+#elif (STREAM_TYPE == TLS)
+    server.listen(8088, 5, [](const SocketServer::Socket& socket, int errnum) -> void {
+#endif
 #elif (NET_TYPE == IN6) // in6
-    server.listen(8080, 5, [](int errnum) -> void {
-#elif (NET_TYPE == L2)  // l2
-    server.listen("A4:B1:C1:2C:82:37", 0x1023, 5, [](int errnum) -> void { // titan
-#elif (NET_TYPE == RF)  // rf
-    server.listen("A4:B1:C1:2C:82:37", 1, 5, [](int errnum) -> void { // titan
-#elif (NET_TYPE == UN)  // un
-    server.listen("/tmp/testme", 5, [](int errnum) -> void { // titan
+#if (STREAM_TYPE == LEGACY)
+    server.listen(8080, 5, [](const SocketServer::Socket& socket, int errnum) -> void {
+#elif (STREAM_TYPE == TLS)
+    server.listen(8088, 5, [](const SocketServer::Socket& socket, int errnum) -> void {
+#endif
+#elif (NET_TYPE == L2) // l2
+    server.listen("A4:B1:C1:2C:82:37", 0x1023, 5, [](const SocketServer::Socket& socket, int errnum) -> void { // titan
+#elif (NET_TYPE == RF) // rf
+    server.listen("A4:B1:C1:2C:82:37", 1, 5, [](const SocketServer::Socket& socket, int errnum) -> void { // titan
+#elif (NET_TYPE == UN) // un
+    server.listen("/tmp/testme", 5, [](const SocketServer::Socket& socket, int errnum) -> void { // titan
 #endif
         if (errnum != 0) {
             PLOG(FATAL) << "listen on port 8080";
         } else {
-            VLOG(0) << "snode.c listening";
+            VLOG(0) << "snode.c listening on " << socket.getBindAddress().toString();
         }
     });
 

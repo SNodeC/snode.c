@@ -18,6 +18,8 @@
 
 #include "net/un/stream/ServerSocket.h" // IWYU pragma: export
 
+#include "log/Logger.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cerrno> // for errno, ENOENT
@@ -27,9 +29,9 @@
 
 namespace net::un::stream {
 
-    void ServerSocket::listen(const std::string& sunPath, int backlog, const std::function<void(int)>& onError) {
+    void ServerSocket::listen(const std::string& sunPath, int backlog, const std::function<void(const Socket& socket, int)>& onError) {
         if (std::remove(sunPath.data()) != 0 && errno != ENOENT) {
-            onError(errno);
+            PLOG(ERROR) << "listen: sunPath";
         } else {
             listen(SocketAddress(sunPath), backlog, onError);
         }

@@ -98,10 +98,10 @@ namespace core::socket::stream::tls {
             ssl_ctx_free(masterSslCtx);
         }
 
-        void listen(const SocketAddress& localAddress, int backlog, const std::function<void(int)>& onError) {
+        void listen(const SocketAddress& localAddress, int backlog, const std::function<void(const Socket& socket, int)>& onError) {
             if (masterSslCtx == nullptr) {
                 errno = EINVAL;
-                onError(errno);
+                onError(static_cast<const Socket&>(*this), errno);
                 core::socket::stream::SocketAcceptor<SocketConnection>::destruct();
             } else {
                 core::socket::stream::SocketAcceptor<SocketConnection>::listen(localAddress, backlog, onError);

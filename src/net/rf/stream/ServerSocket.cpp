@@ -24,15 +24,18 @@
 
 namespace net::rf::stream {
 
-    void ServerSocket::listen(uint8_t channel, int backlog, const std::function<void(int)>& onError) {
+    void ServerSocket::listen(uint8_t channel, int backlog, const std::function<void(const Socket& socket, int)>& onError) {
         listen(SocketAddress(channel), backlog, onError);
     }
 
-    void ServerSocket::listen(const std::string& address, int backlog, const std::function<void(int)>& onError) {
+    void ServerSocket::listen(const std::string& address, int backlog, const std::function<void(const Socket& socket, int)>& onError) {
         listen(SocketAddress(address), backlog, onError);
     }
 
-    void ServerSocket::listen(const std::string& address, uint8_t channel, int backlog, const std::function<void(int)>& onError) {
+    void ServerSocket::listen(const std::string& address,
+                              uint8_t channel,
+                              int backlog,
+                              const std::function<void(const Socket& socket, int)>& onError) {
         listen(SocketAddress(address, channel), backlog, onError);
     }
 

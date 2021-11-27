@@ -71,31 +71,31 @@ namespace core::socket::stream {
 
         virtual ~SocketAcceptor() = default;
 
-        void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) {
+        void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(const Socket& socket, int)>& onError) {
             Socket::open([this, &bindAddress, &backlog, &onError](int errnum) -> void {
                 if (errnum > 0) {
-                    onError(errnum);
+                    onError(static_cast<const Socket&>(*this), errnum);
                     destruct();
                 } else {
 #if !defined(NDEBUG)
                     reuseAddress([this, &bindAddress, &backlog, &onError](int errnum) -> void {
                         if (errnum != 0) {
-                            onError(errnum);
+                            onError(static_cast<const Socket&>(*this), errnum);
                             destruct();
                         } else {
 #endif
                             Socket::bind(bindAddress, [this, &backlog, &onError](int errnum) -> void {
                                 if (errnum > 0) {
-                                    onError(errnum);
+                                    onError(static_cast<const Socket&>(*this), errnum);
                                     destruct();
                                 } else {
                                     int ret = core::system::listen(SocketAcceptor::getFd(), backlog);
 
                                     if (ret == 0) {
                                         AcceptEventReceiver::enable(SocketAcceptor::getFd());
-                                        onError(0);
+                                        onError(static_cast<const Socket&>(*this), 0);
                                     } else {
-                                        onError(errno);
+                                        onError(static_cast<const Socket&>(*this), errno);
                                         destruct();
                                     }
                                 }

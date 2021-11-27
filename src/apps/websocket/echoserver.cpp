@@ -76,11 +76,11 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    legacyApp.listen(8080, [](int err) -> void {
+    legacyApp.listen(8080, [](const legacy::WebApp::Socket& socket, int err) -> void {
         if (err != 0) {
             perror("Listen");
         } else {
-            std::cout << "snode.c listening on port 8080" << std::endl;
+            std::cout << "snode.c listening on " << socket.getBindAddress().toString();
         }
     });
 
@@ -127,11 +127,11 @@ int main(int argc, char* argv[]) {
             }
         });
 
-        tlsApp.listen(8088, [](int err) -> void {
+        tlsApp.listen(8088, [](const tls::WebApp::Socket& socket, int err) -> void {
             if (err != 0) {
                 perror("Listen");
             } else {
-                std::cout << "snode.c listening on port 8088" << std::endl;
+                std::cout << "snode.c listening on " << socket.getBindAddress().toString();
             }
         });
     }

@@ -119,11 +119,11 @@ int main(int argc, char* argv[]) {
 
     legacyApp.use(router());
 
-    legacyApp.listen(8080, [](int err) -> void {
+    legacyApp.listen(8080, [](const legacy::WebApp::Socket& socket, int err) -> void {
         if (err != 0) {
             PLOG(FATAL) << "listen on port 8080 " << std::to_string(err);
         } else {
-            VLOG(0) << "snode.c listening on port 8080 for legacy connections";
+            VLOG(0) << "snode.c listening on " << socket.getBindAddress().toString();
         }
     });
 
@@ -145,11 +145,11 @@ int main(int argc, char* argv[]) {
 
     tlsApp.use(router());
 
-    tlsApp.listen(8088, [](int err) -> void {
+    tlsApp.listen(8088, [](const tls::WebApp::Socket& socket, int err) -> void {
         if (err != 0) {
             PLOG(FATAL) << "listen on port 8088 " << std::to_string(err);
         } else {
-            VLOG(0) << "snode.c listening on port 8088 for SSL/TLS connections";
+            VLOG(0) << "snode.c listening on " << socket.getBindAddress().toString();
         }
     });
 

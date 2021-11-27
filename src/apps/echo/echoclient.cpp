@@ -51,15 +51,23 @@ int main(int argc, char* argv[]) {
 
     SocketClient client = apps::echo::model::STREAM::getClient<SocketClient>(options);
 
-#if (NET_TYPE == IN) // in
+#if (NET_TYPE == IN) // in.
+#if (STREAM_TYPE == LEGACY)
     client.connect("localhost", 8080, [](int errnum) -> void {
+#elif (STREAM_TYPE == TLS)
+    client.connect("localhost", 8088, [](int errnum) -> void {
+#endif
 #elif (NET_TYPE == IN6) // in6
+#if (STREAM_TYPE == LEGACY)
     client.connect("localhost", 8080, [](int errnum) -> void {
-#elif (NET_TYPE == L2)  // l2
+#elif (STREAM_TYPE == TLS)
+    client.connect("localhost", 8088, [](int errnum) -> void {
+#endif
+#elif (NET_TYPE == L2) // l2
     client.connect("A4:B1:C1:2C:82:37", 0x1023, "44:01:BB:A3:63:32", [](int errnum) -> void {
-#elif (NET_TYPE == RF)  // rf
+#elif (NET_TYPE == RF) // rf
     client.connect("A4:B1:C1:2C:82:37", 1, "44:01:BB:A3:63:32", [](int errnum) -> void {
-#elif (NET_TYPE == UN)  // un
+#elif (NET_TYPE == UN) // un
     client.connect("/tmp/testme", [](int errnum) -> void {
 #endif
         if (errnum != 0) {

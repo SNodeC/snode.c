@@ -121,11 +121,11 @@ int timerApp() {
         res.upgrade(req);
     });
 
-    app.listen(8080, [](int err) -> void {
+    app.listen(8080, [](const express::legacy::WebApp::Server::Socket& socket, int err) -> void {
         if (err != 0) {
             perror("Listen");
         } else {
-            std::cout << "snode.c listening on port 8080" << std::endl;
+            std::cout << "snode.c listening: " << socket.getBindAddress().toString();
         }
     });
 

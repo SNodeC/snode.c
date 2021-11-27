@@ -32,8 +32,9 @@ namespace core::socket {
     public:
         using Socket = SocketT;
 
-        virtual void
-        listen(const typename Socket::SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const = 0;
+        virtual void listen(const typename Socket::SocketAddress& bindAddress,
+                            int backlog,
+                            const std::function<void(const Socket& socket, int)>& onError) const = 0;
     };
 
 } // namespace core::socket

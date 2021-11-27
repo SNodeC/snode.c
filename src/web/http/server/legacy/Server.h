@@ -46,15 +46,17 @@ namespace web::http::server::legacy {
                 SocketServer::addSniCert(domain, options);
             }
 
-            void listen(uint16_t port, const std::function<void(int)>& onError) {
+            void listen(uint16_t port, const std::function<void(const net::in::stream::Socket&, int)>& onError) {
                 SocketServer::listen(port, LISTEN_BACKLOG, onError);
             }
 
-            void listen(const std::string& ipOrHostname, const std::function<void(int)>& onError) {
+            void listen(const std::string& ipOrHostname, const std::function<void(const net::in::stream::Socket&, int)>& onError) {
                 SocketServer::listen(ipOrHostname, LISTEN_BACKLOG, onError);
             }
 
-            void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
+            void listen(const std::string& ipOrHostname,
+                        uint16_t port,
+                        const std::function<void(const net::in::stream::Socket&, int)>& onError) {
                 SocketServer::listen(ipOrHostname, port, LISTEN_BACKLOG, onError);
             }
         };
@@ -77,15 +79,17 @@ namespace web::http::server::legacy {
                 SocketServer::addSniCert(domain, options);
             }
 
-            void listen(uint16_t port, const std::function<void(int)>& onError) {
+            void listen(uint16_t port, const std::function<void(const net::in6::stream::Socket&, int)>& onError) {
                 SocketServer::listen(port, LISTEN_BACKLOG, onError);
             }
 
-            void listen(const std::string& ipOrHostname, const std::function<void(int)>& onError) {
+            void listen(const std::string& ipOrHostname, const std::function<void(const net::in6::stream::Socket&, int)>& onError) {
                 SocketServer::listen(ipOrHostname, LISTEN_BACKLOG, onError);
             }
 
-            void listen(const std::string& ipOrHostname, uint16_t port, const std::function<void(int)>& onError) {
+            void listen(const std::string& ipOrHostname,
+                        uint16_t port,
+                        const std::function<void(const net::in6::stream::Socket&, int)>& onError) {
                 SocketServer::listen(ipOrHostname, port, LISTEN_BACKLOG, onError);
             }
         };
@@ -105,15 +109,16 @@ namespace web::http::server::legacy {
 
             using web::http::server::Server<net::rf::stream::legacy::SocketServer, Request, Response>::listen;
 
-            void listen(uint8_t channel, const std::function<void(int)>& onError) {
+            void listen(uint8_t channel, const std::function<void(const net::rf::stream::Socket&, int)>& onError) {
                 SocketServer::listen(channel, LISTEN_BACKLOG, onError);
             }
 
-            void listen(const std::string& address, const std::function<void(int)>& onError) {
+            void listen(const std::string& address, const std::function<void(const net::rf::stream::Socket&, int)>& onError) {
                 SocketServer::listen(address, LISTEN_BACKLOG, onError);
             }
 
-            void listen(const std::string& address, uint8_t channel, const std::function<void(int)>& onError) {
+            void
+            listen(const std::string& address, uint8_t channel, const std::function<void(const net::rf::stream::Socket&, int)>& onError) {
                 SocketServer::listen(address, channel, LISTEN_BACKLOG, onError);
             }
         };

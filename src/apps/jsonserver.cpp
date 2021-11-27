@@ -38,11 +38,11 @@ int main(int argc, char* argv[]) {
 
     legacyApp.use(middleware::JsonMiddleware());
 
-    legacyApp.listen(8080, [](int err) -> void {
+    legacyApp.listen(8080, [](const legacy::WebApp::Socket& socket, int err) -> void {
         if (err != 0) {
             PLOG(FATAL) << "listen on port 8080 " << std::to_string(err);
         } else {
-            VLOG(0) << "jsonserver.c listening on port 8080 for legacy connections";
+            VLOG(0) << "jsonserver.c listening on " << socket.getBindAddress().toString();
         }
     });
 

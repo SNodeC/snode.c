@@ -120,7 +120,8 @@ namespace apps::http::tls {
                 X509_free(client_cert);
             } else {
                 VLOG(2) << "\tClient certificate: no certificate";
-                socketConnection->close();
+                // Here we can close the connection in case client didn't send a certificate
+                // socketConnection->close();
             }
         });
 

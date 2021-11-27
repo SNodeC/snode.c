@@ -42,8 +42,9 @@ namespace core::socket::stream {
         using SocketContextFactory = SocketContextFactoryT;
 
     public:
+        using Socket = typename ServerSocketT::Socket;
+        using SocketAddress = typename Socket::SocketAddress;
         using SocketConnection = typename SocketAcceptor::SocketConnection;
-        using SocketAddress = typename SocketConnection::Socket::SocketAddress;
 
         SocketServer(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                      const std::function<void(SocketConnection*)>& onConnected,
@@ -60,7 +61,9 @@ namespace core::socket::stream {
 
         using ServerSocket::listen;
 
-        void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(int)>& onError) const override {
+        void listen(const SocketAddress& bindAddress,
+                    int backlog,
+                    const std::function<void(const Socket& socket, int)>& onError) const override {
             SocketAcceptor* socketAcceptor = new SocketAcceptor(socketContextFactory, _onConnect, _onConnected, _onDisconnect, options);
 
             socketAcceptor->listen(bindAddress, backlog, onError);
