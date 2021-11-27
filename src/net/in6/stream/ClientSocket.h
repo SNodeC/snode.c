@@ -32,7 +32,7 @@
 
 namespace net::in6::stream {
 
-    class ClientSocket : protected core::socket::ClientSocket<net::in6::stream::Socket> {
+    class ClientSocket : public core::socket::ClientSocket<net::in6::stream::Socket> {
     public:
         using core::socket::ClientSocket<net::in6::stream::Socket>::connect;
 

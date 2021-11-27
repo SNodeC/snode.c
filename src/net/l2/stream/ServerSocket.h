@@ -32,7 +32,7 @@
 
 namespace net::l2::stream {
 
-    class ServerSocket : protected core::socket::ServerSocket<net::l2::stream::Socket> {
+    class ServerSocket : public core::socket::ServerSocket<net::l2::stream::Socket> {
     public:
         using core::socket::ServerSocket<net::l2::stream::Socket>::listen;
 

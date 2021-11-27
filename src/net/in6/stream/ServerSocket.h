@@ -32,7 +32,7 @@
 
 namespace net::in6::stream {
 
-    class ServerSocket : protected core::socket::ServerSocket<net::in6::stream::Socket> {
+    class ServerSocket : public core::socket::ServerSocket<net::in6::stream::Socket> {
     public:
         using core::socket::ServerSocket<net::in6::stream::Socket>::listen;
 

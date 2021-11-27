@@ -32,7 +32,7 @@
 
 namespace net::l2::stream {
 
-    class ClientSocket : protected core::socket::ClientSocket<net::l2::stream::Socket> {
+    class ClientSocket : public core::socket::ClientSocket<net::l2::stream::Socket> {
     public:
         using core::socket::ClientSocket<net::l2::stream::Socket>::connect;
 

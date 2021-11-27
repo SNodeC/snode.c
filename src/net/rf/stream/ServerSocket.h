@@ -32,7 +32,7 @@
 
 namespace net::rf::stream {
 
-    class ServerSocket : protected core::socket::ServerSocket<net::rf::stream::Socket> {
+    class ServerSocket : public core::socket::ServerSocket<net::rf::stream::Socket> {
     public:
         using core::socket::ServerSocket<net::rf::stream::Socket>::listen;
 

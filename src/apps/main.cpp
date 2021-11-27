@@ -28,7 +28,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-using namespace express;
 using namespace core::timer;
 
 int timerApp() {
@@ -50,9 +49,9 @@ int timerApp() {
 
     bool canceled = false;
 
-    legacy::WebApp app;
+    express::legacy::WebApp app;
 
-    app.get("/", [&canceled, &tack](Request& req, Response& res) -> void {
+    app.get("/", [&canceled, &tack](express::Request& req, express::Response& res) -> void {
         std::string uri = req.originalUrl;
 
         if (uri == "/") {
@@ -90,7 +89,7 @@ int timerApp() {
         }
     });
 
-    app.get("/search/", [&](Request& req, Response& res) -> void {
+    app.get("/search/", [&](express::Request& req, express::Response& res) -> void {
         //                  res.set({{"Content-Length", "7"}});
 
         std::string host = req.header("Host");
@@ -130,13 +129,13 @@ int timerApp() {
         }
     });
 
-    WebApp::start();
+    express::WebApp::start();
 
     return 0;
 }
 
 int main(int argc, char** argv) {
-    WebApp::init(argc, argv);
+    express::WebApp::init(argc, argv);
 
     return timerApp();
 }
