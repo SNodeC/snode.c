@@ -42,10 +42,6 @@ namespace web::http::server::legacy {
         public:
             using web::http::server::Server<net::in::stream::legacy::SocketServer, Request, Response>::listen;
 
-            void addSniCert(const std::string& domain, const std::map<std::string, std::any>& options) {
-                SocketServer::addSniCert(domain, options);
-            }
-
             void listen(uint16_t port, const std::function<void(const net::in::stream::Socket&, int)>& onError) {
                 SocketServer::listen(port, LISTEN_BACKLOG, onError);
             }

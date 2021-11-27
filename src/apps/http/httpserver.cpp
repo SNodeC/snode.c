@@ -35,15 +35,15 @@ int main(int argc, char* argv[]) {
     std::map<std::string, std::any> options{};
 #elif (STREAM_TYPE == TLS)
     std::map<std::string, std::any> options{{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}};
-    std::map<std::string, std::any> sniOptions = {
-        {"certChain", SNODECCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}, {"caFile", CLIENTCAFILE}};
+    std::map<std::string, std::map<std::string, std::any>> sniCerts = {
+        {"snodec.home.vchrist.at", {{"certChain", SNODECCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}}}};
 #endif
 
     using WebApp = express::STREAM::NET::WebApp;
     WebApp webApp(apps::http::STREAM::getWebApp(SERVERROOT, options));
 
 #if (STREAM_TYPE == TLS)
-    webApp.addSniCert("snodec.home.vchrist.at", sniOptions);
+    webApp.addSniCerts(sniCerts);
 #endif
 
 #if (NET_TYPE == IN) // in

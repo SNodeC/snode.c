@@ -88,7 +88,7 @@ namespace core::socket::stream::tls {
 
             if (masterSslCtx != nullptr) {
                 SSL_CTX_set_tlsext_servername_callback(masterSslCtx, serverNameCallback);
-                addMasterCert(masterSslCtx);
+                addMasterCtx(masterSslCtx);
             }
 
             sniSslCtxs = std::any_cast<std::shared_ptr<std::map<std::string, SSL_CTX*>>>(options.find("SNI_SSL_CTXS")->second);
@@ -109,9 +109,9 @@ namespace core::socket::stream::tls {
         }
 
     private:
-        void addMasterCert(SSL_CTX* sSlCtx) {
-            if (sSlCtx != nullptr) {
-                X509* x509 = SSL_CTX_get0_certificate(sSlCtx);
+        void addMasterCtx(SSL_CTX* sslCtx) {
+            if (sslCtx != nullptr) {
+                X509* x509 = SSL_CTX_get0_certificate(sslCtx);
                 if (x509 != nullptr) {
                     GENERAL_NAMES* subjectAltNames =
                         static_cast<GENERAL_NAMES*>(X509_get_ext_d2i(x509, NID_subject_alt_name, nullptr, nullptr));
@@ -152,17 +152,18 @@ namespace core::socket::stream::tls {
                         if (nowUsedSslCtx == sniSslCtx) {
                             LOG(INFO) << "SSL_CTX: Switched for SNI '" << serverNameIndication << "'";
                         } else if (nowUsedSslCtx != nullptr) {
-                            LOG(INFO) << "SSL_CTX: Not switcher for SNI '" << serverNameIndication << "': still using master SSL_CTX";
+                            LOG(INFO) << "SSL_CTX: Not switcher for SNI. Master SSL_CTX still used for SNI '" << serverNameIndication
+                                      << "'";
                             ret = SSL_TLSEXT_ERR_NOACK;
                         } else {
                             LOG(WARNING) << "SSL_CTX: Found but none used for SNI '" << serverNameIndication << '"';
                         }
                     } else {
-                        LOG(INFO) << "SSL_CTX: Not found for SNI '" << serverNameIndication;
+                        LOG(INFO) << "SSL_CTX: Not found for SNI. Master SSL_CTX still used for SNI '" << serverNameIndication << "'";
                         ret = SSL_TLSEXT_ERR_NOACK;
                     }
                 } else {
-                    LOG(INFO) << "SSL_CTX: Master SSL_CTX already provides: '" << serverNameIndication << "'";
+                    LOG(INFO) << "SSL_CTX: Master SSL_CTX already provides SNI '" << serverNameIndication << "'";
                 }
             }
 

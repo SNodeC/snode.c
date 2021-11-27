@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
     std::map<std::string, std::any> options = {
         {"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}, {"caFile", CLIENTCAFILE}};
 
-    std::map<std::string, std::any> sniOptions = {
+    std::map<std::string, std::any> sniCert = {
         {"certChain", SNODECCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}, {"caFile", CLIENTCAFILE}};
 #endif
 
@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
     SocketServer server = apps::echo::model::STREAM::getServer<SocketServer>(options);
 
 #if (STREAM_TYPE == TLS)
-    server.addSniCert("snodec.home.vchrist.at", sniOptions);
+    server.addSniCert("snodec.home.vchrist.at", sniCert);
 #endif
 
 #if (NET_TYPE == IN) // in
