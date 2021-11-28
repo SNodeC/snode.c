@@ -19,11 +19,15 @@
 #ifndef WEB_HTTP_SOCKETCONTEXTUPGRADEFACTORY_H
 #define WEB_HTTP_SOCKETCONTEXTUPGRADEFACTORY_H
 
-#include "core/socket/stream/SocketContextFactory.h" // IWYU pragma: export
+#include "core/socket/SocketContextFactory.h" // IWYU pragma: export
 
-namespace core::socket::stream {
+namespace core::socket {
     class SocketContext;
 }
+
+namespace core::socket::stream {
+    class SocketConnection;
+} // namespace core::socket::stream
 
 namespace web::http {
     template <typename RequestT, typename ResponseT>
@@ -39,7 +43,7 @@ namespace web::http {
 namespace web::http {
 
     template <typename RequestT, typename ResponseT>
-    class SocketContextUpgradeFactory : public core::socket::stream::SocketContextFactory {
+    class SocketContextUpgradeFactory : public core::socket::SocketContextFactory {
     public:
         using Request = RequestT;
         using Response = ResponseT;

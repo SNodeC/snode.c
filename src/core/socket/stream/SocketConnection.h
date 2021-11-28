@@ -23,9 +23,9 @@ namespace core::socket {
     class SocketContext;
 }
 
-namespace core::socket::stream {
+namespace core::socket {
     class SocketContextFactory;
-} // namespace core::socket::stream
+} // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -63,10 +63,10 @@ namespace core::socket::stream {
 
         virtual void setTimeout(int timeout) = 0;
 
-        virtual SocketContext* switchSocketContext(SocketContextFactory* socketContextFactory) = 0;
+        virtual SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory) = 0;
 
     protected:
-        SocketContext* socketContext = nullptr;
+        core::socket::SocketContext* socketContext = nullptr;
 
         friend SocketContext;
     };

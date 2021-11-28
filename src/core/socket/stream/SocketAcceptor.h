@@ -24,7 +24,7 @@
 #include "core/system/unistd.h"
 #include "log/Logger.h"
 
-namespace core::socket::stream {
+namespace core::socket {
     class SocketContextFactory;
 }
 

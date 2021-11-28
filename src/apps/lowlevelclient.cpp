@@ -18,14 +18,14 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "config.h"                                  // for CLIENTCERTF
-#include "core/SNodeC.h"                             // for SNodeC
-#include "core/socket/SocketContext.h"               // for SocketProtocol
-#include "core/socket/stream/SocketContextFactory.h" // for SocketProtocolF...
-#include "log/Logger.h"                              // for Writer, Storage
-#include "net/in/stream/legacy/SocketClient.h"       // for SocketC...
-#include "net/in/stream/tls/SocketClient.h"          // for SocketC...
-#include "web/http/client/ResponseParser.h"          // for ResponseParser
+#include "config.h"                            // for CLIENTCERTF
+#include "core/SNodeC.h"                       // for SNodeC
+#include "core/socket/SocketContext.h"         // for SocketProtocol
+#include "core/socket/SocketContextFactory.h"  // for SocketProtocolF...
+#include "log/Logger.h"                        // for Writer, Storage
+#include "net/in/stream/legacy/SocketClient.h" // for SocketC...
+#include "net/in/stream/tls/SocketClient.h"    // for SocketC...
+#include "web/http/client/ResponseParser.h"    // for ResponseParser
 
 #include <cstring>
 #include <openssl/asn1.h>     // for ASN1_STRING_get...
@@ -119,7 +119,7 @@ private:
     web::http::client::ResponseParser* responseParser;
 };
 
-class SimpleSocketProtocolFactory : public core::socket::stream::SocketContextFactory {
+class SimpleSocketProtocolFactory : public core::socket::SocketContextFactory {
 private:
     core::socket::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
         return new SimpleSocketProtocol(socketConnection);

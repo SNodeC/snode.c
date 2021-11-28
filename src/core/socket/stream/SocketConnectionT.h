@@ -20,8 +20,8 @@
 #define CORE_SOCKET_STREAM_SOCKETCONNECTION_H
 
 #include "core/socket/SocketContext.h"
+#include "core/socket/SocketContextFactory.h"
 #include "core/socket/stream/SocketConnection.h" // IWYU pragma: export
-#include "core/socket/stream/SocketContextFactory.h"
 #include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -128,7 +128,7 @@ namespace core::socket::stream {
             SocketWriter::setTimeout(timeout);
         }
 
-        SocketContext* switchSocketContext(SocketContextFactory* socketContextFactory) override {
+        SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory) override {
             newSocketContext = socketContextFactory->create(this);
 
             if (newSocketContext == nullptr) {

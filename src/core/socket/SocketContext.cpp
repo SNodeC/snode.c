@@ -60,7 +60,7 @@ namespace core::socket {
         socketConnection->close();
     }
 
-    SocketContext* SocketContext::switchSocketContext(stream::SocketContextFactory* socketContextFactory) {
+    SocketContext* SocketContext::switchSocketContext(SocketContextFactory* socketContextFactory) {
         return socketConnection->switchSocketContext(socketContextFactory);
     }
 

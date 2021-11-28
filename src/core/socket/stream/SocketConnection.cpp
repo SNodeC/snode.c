@@ -18,7 +18,7 @@
 
 #include "core/socket/stream/SocketConnection.h"
 
-#include "core/socket/stream/SocketContextFactory.h"
+#include "core/socket/SocketContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

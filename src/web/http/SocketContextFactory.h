@@ -19,7 +19,7 @@
 #ifndef WEB_HTTP_SOCKETCONTEXTFACTORY_H
 #define WEB_HTTP_SOCKETCONTEXTFACTORY_H
 
-#include "core/socket/stream/SocketContextFactory.h"
+#include "core/socket/SocketContextFactory.h"
 
 namespace core::socket::stream {
     class SocketConnection;
@@ -31,7 +31,7 @@ namespace core::socket::stream {
 
 namespace web::http {
     template <template <typename RequestT, typename ResponseT> class SocketContextT, typename RequestT, typename ResponseT>
-    class SocketContextFactory : public core::socket::stream::SocketContextFactory {
+    class SocketContextFactory : public core::socket::SocketContextFactory {
     public:
         using SocketContext = SocketContextT<RequestT, ResponseT>;
         using Request = RequestT;

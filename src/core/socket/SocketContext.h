@@ -19,12 +19,12 @@
 #ifndef CORE_SOCKET_SOCKETCONTEXT_H
 #define CORE_SOCKET_SOCKETCONTEXT_H
 
-namespace core::socket::stream {
+namespace core::socket {
     class SocketContextFactory;
-    class SocketConnection;
+}
 
-    template <typename SocketReaderT, typename SocketWriterT, typename SocketAddressT>
-    class SocketConnectionT;
+namespace core::socket::stream {
+    class SocketConnection;
 } // namespace core::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -43,9 +43,10 @@ namespace core::socket {
 
     protected:
         explicit SocketContext(stream::SocketConnection* socketConnection, Role role);
-        virtual ~SocketContext() = default;
 
     public:
+        virtual ~SocketContext() = default;
+
         void sendToPeer(const char* junk, std::size_t junkLen);
         void sendToPeer(const std::string& data);
         ssize_t readFromPeer(char* junk, std::size_t junklen);
@@ -54,7 +55,7 @@ namespace core::socket {
         std::string getLocalAddressAsString() const;
         std::string getRemoteAddressAsString() const;
 
-        SocketContext* switchSocketContext(stream::SocketContextFactory* socketContextFactory);
+        SocketContext* switchSocketContext(SocketContextFactory* socketContextFactory);
 
         void setTimeout(int timeout);
 
@@ -72,9 +73,6 @@ namespace core::socket {
 
     protected:
         Role role;
-
-        template <typename SocketReaderT, typename SocketWriterT, typename SocketAddressT>
-        friend class stream::SocketConnectionT;
     };
 
 } // namespace core::socket

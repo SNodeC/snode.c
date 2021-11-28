@@ -22,7 +22,7 @@
 #include "core/ConnectEventReceiver.h"
 #include "core/system/socket.h"
 
-namespace core::socket::stream {
+namespace core::socket {
     class SocketContextFactory;
 }
 

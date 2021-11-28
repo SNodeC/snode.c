@@ -23,15 +23,17 @@ namespace core::socket {
     class SocketContext;
 }
 
+namespace core::socket::stream {
+class SocketConnection;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket::stream {
-
-    class SocketConnection;
+namespace core::socket {
 
     class SocketContextFactory {
     protected:
@@ -40,9 +42,9 @@ namespace core::socket::stream {
         virtual ~SocketContextFactory() = default;
 
     public:
-        virtual core::socket::SocketContext* create(SocketConnection* socketConnection) = 0;
+        virtual core::socket::SocketContext* create(stream::SocketConnection* socketConnection) = 0;
     };
 
-} // namespace core::socket::stream
+} // namespace core::socket
 
 #endif // CORE_SOCKET_STREAM_SOCKETCONTEXTFACTORY_H
