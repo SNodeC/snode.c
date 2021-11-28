@@ -21,9 +21,6 @@
 
 namespace core::socket {
     class SocketContext;
-}
-
-namespace core::socket {
     class SocketContextFactory;
 } // namespace core::socket
 
