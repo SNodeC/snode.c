@@ -22,9 +22,9 @@
 #include "web/http/CookieOptions.h"
 #include "web/http/Parser.h"
 
-namespace core::socket::stream {
+namespace core::socket {
     class SocketContext;
-} // namespace core::socket::stream
+} // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -37,7 +37,7 @@ namespace core::socket::stream {
 
 namespace web::http::client {
 
-    class ResponseParser : public Parser {
+    class ResponseParser : public web::http::Parser {
     public:
         ResponseParser(core::socket::SocketContext* socketContext,
                        const std::function<void(void)>& onStart,

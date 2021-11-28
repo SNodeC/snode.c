@@ -21,9 +21,9 @@
 
 #include "web/http/Parser.h"
 
-namespace core ::socket ::stream {
+namespace core::socket {
     class SocketContext;
-} // namespace core::socket::stream
+} // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -37,7 +37,7 @@ namespace core ::socket ::stream {
 
 namespace web::http::server {
 
-    class RequestParser : public Parser {
+    class RequestParser : public web::http::Parser {
     public:
         RequestParser(
             core::socket::SocketContext* socketContext,

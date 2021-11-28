@@ -20,9 +20,7 @@
 #define WEB_HTTP_PARSER_H
 
 namespace core::socket {
-
     class SocketContext;
-
 } // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
