@@ -18,7 +18,7 @@
 
 #include "core/socket/SocketContext.h"
 
-#include "core/socket/stream/SocketConnection.h"
+#include "core/socket/SocketConnection.h"
 #include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -27,7 +27,7 @@
 
 namespace core::socket {
 
-    SocketContext::SocketContext(stream::SocketConnection* socketConnection, Role role)
+    SocketContext::SocketContext(SocketConnection* socketConnection, Role role)
         : socketConnection(socketConnection)
         , role(role) {
     }

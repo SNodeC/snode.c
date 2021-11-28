@@ -30,7 +30,7 @@
 
 namespace apps::echo::model {
 
-    EchoSocketContext::EchoSocketContext(core::socket::stream::SocketConnection* socketConnection, Role role)
+    EchoSocketContext::EchoSocketContext(core::socket::SocketConnection* socketConnection, Role role)
         : core::socket::SocketContext(socketConnection, role) {
     }
 
@@ -66,19 +66,19 @@ namespace apps::echo::model {
         VLOG(0) << "OnReadError: " << errnum;
     }
 
-    EchoServerSocketContext::EchoServerSocketContext(core::socket::stream::SocketConnection* socketConnection)
+    EchoServerSocketContext::EchoServerSocketContext(core::socket::SocketConnection* socketConnection)
         : EchoSocketContext(socketConnection, Role::SERVER) {
     }
 
-    EchoClientSocketContext::EchoClientSocketContext(core::socket::stream::SocketConnection* socketConnection)
+    EchoClientSocketContext::EchoClientSocketContext(core::socket::SocketConnection* socketConnection)
         : EchoSocketContext(socketConnection, Role::CLIENT) {
     }
 
-    core::socket::SocketContext* EchoServerSocketContextFactory::create(core::socket::stream::SocketConnection* socketConnection) {
+    core::socket::SocketContext* EchoServerSocketContextFactory::create(core::socket::SocketConnection* socketConnection) {
         return new EchoServerSocketContext(socketConnection);
     }
 
-    core::socket::SocketContext* EchoClientSocketContextFactory::create(core::socket::stream::SocketConnection* socketConnection) {
+    core::socket::SocketContext* EchoClientSocketContextFactory::create(core::socket::SocketConnection* socketConnection) {
         return new EchoClientSocketContext(socketConnection);
     }
 

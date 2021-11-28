@@ -21,11 +21,8 @@
 
 namespace core::socket {
     class SocketContextFactory;
-}
-
-namespace core::socket::stream {
     class SocketConnection;
-} // namespace core::socket::stream
+} // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -42,7 +39,7 @@ namespace core::socket {
         enum class Role { SERVER, CLIENT };
 
     protected:
-        explicit SocketContext(stream::SocketConnection* socketConnection, Role role);
+        explicit SocketContext(SocketConnection* socketConnection, Role role);
 
     public:
         virtual ~SocketContext() = default;
@@ -69,7 +66,7 @@ namespace core::socket {
         Role getRole() const;
 
     private:
-        stream::SocketConnection* socketConnection;
+        SocketConnection* socketConnection;
 
     protected:
         Role role;

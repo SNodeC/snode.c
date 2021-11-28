@@ -23,11 +23,8 @@
 
 namespace core::socket {
     class SocketContext;
-}
-
-namespace core::socket::stream {
     class SocketConnection;
-} // namespace core::socket::stream
+} // namespace core::socket
 
 namespace web::http {
     template <typename RequestT, typename ResponseT>
@@ -73,9 +70,9 @@ namespace web::http {
         Response* response;
 
         virtual SocketContextUpgrade<Request, Response>*
-        create(core::socket::stream::SocketConnection* socketConnection, Request* request, Response* response) = 0;
+        create(core::socket::SocketConnection* socketConnection, Request* request, Response* response) = 0;
 
-        core::socket::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) final;
+        core::socket::SocketContext* create(core::socket::SocketConnection* socketConnection) final;
     };
 
 } // namespace web::http

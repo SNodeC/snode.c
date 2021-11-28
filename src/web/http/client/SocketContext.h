@@ -22,9 +22,9 @@
 #include "web/http/SocketContext.h"
 #include "web/http/client/ResponseParser.h"
 
-namespace core::socket::stream {
+namespace core::socket {
     class SocketConnection;
-} // namespace core::socket::stream
+} // namespace core::socket
 
 namespace web::http::client {
     class Request;
@@ -46,7 +46,7 @@ namespace web::http::client {
         using Request = RequestT;
         using Response = ResponseT;
 
-        SocketContext(core::socket::stream::SocketConnection* socketConnection,
+        SocketContext(core::socket::SocketConnection* socketConnection,
                       const std::function<void(RequestT&, Response&)>& onResponse,
                       const std::function<void(int, const std::string&)>& onError);
 

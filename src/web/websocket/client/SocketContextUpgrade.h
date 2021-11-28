@@ -21,9 +21,9 @@
 
 #include "web/websocket/SocketContextUpgrade.h" // IWYU pragma: export
 
-namespace core::socket::stream {
+namespace core::socket {
     class SocketConnection;
-} // namespace core::socket::stream
+} // namespace core::socket
 
 namespace web::http::client {
     class Request;
@@ -46,7 +46,7 @@ namespace web::websocket::client {
         : public web::websocket::SocketContextUpgrade<SubProtocol, web::http::client::Request, web::http::client::Response> {
     public:
         SocketContextUpgrade(
-            core::socket::stream::SocketConnection* socketConnection,
+            core::socket::SocketConnection* socketConnection,
             web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response>* socketContextUpgradeFactory,
             web::websocket::client::SubProtocol* subProtocol);
 
@@ -56,7 +56,7 @@ namespace web::websocket::client {
     public:
         static SocketContextUpgrade*
         create(web::http::SocketContextUpgradeFactory<web::http::client::Request, web::http::client::Response>* socketContextUpgradeFactory,
-               core::socket::stream::SocketConnection* socketConnection,
+               core::socket::SocketConnection* socketConnection,
                const std::string& subProtocolName);
     };
 

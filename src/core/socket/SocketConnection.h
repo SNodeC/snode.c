@@ -36,7 +36,7 @@ namespace core::socket {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket::stream {
+namespace core::socket {
 
     class SocketConnection {
         SocketConnection() = delete;
@@ -71,6 +71,6 @@ namespace core::socket::stream {
         friend SocketContext;
     };
 
-} // namespace core::socket::stream
+} // namespace core::socket
 
 #endif // CORE_SOCKET_STREAM_SOCKETCONNECTIONBASE_H

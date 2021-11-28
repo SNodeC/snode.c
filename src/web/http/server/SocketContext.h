@@ -22,9 +22,9 @@
 #include "web/http/SocketContext.h"
 #include "web/http/server/RequestParser.h"
 
-namespace core::socket::stream {
+namespace core::socket {
     class SocketConnection;
-} // namespace core::socket::stream
+} // namespace core::socket
 
 namespace web::http::server {
     class Request;
@@ -65,8 +65,7 @@ namespace web::http::server {
         };
 
     public:
-        SocketContext(core::socket::stream::SocketConnection* socketConnection,
-                      const std::function<void(Request&, Response&)>& onRequestReady);
+        SocketContext(core::socket::SocketConnection* socketConnection, const std::function<void(Request&, Response&)>& onRequestReady);
 
     private:
         void onReceiveFromPeer() override;

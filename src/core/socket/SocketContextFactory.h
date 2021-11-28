@@ -23,7 +23,7 @@ namespace core::socket {
     class SocketContext;
 }
 
-namespace core::socket::stream {
+namespace core::socket {
 class SocketConnection;
 }
 
@@ -42,7 +42,7 @@ namespace core::socket {
         virtual ~SocketContextFactory() = default;
 
     public:
-        virtual core::socket::SocketContext* create(stream::SocketConnection* socketConnection) = 0;
+        virtual core::socket::SocketContext* create(SocketConnection* socketConnection) = 0;
     };
 
 } // namespace core::socket

@@ -38,7 +38,7 @@ namespace web::http {
         using Request = RequestT;
         using Response = ResponseT;
 
-        SocketContextUpgrade(core::socket::stream::SocketConnection* socketConnection,
+        SocketContextUpgrade(core::socket::SocketConnection* socketConnection,
                              SocketContext::Role role,
                              SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory)
             : core::socket::SocketContext(socketConnection, role)

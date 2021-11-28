@@ -87,7 +87,7 @@ static web::http::client::ResponseParser* getResponseParser(core::socket::Socket
 
 class SimpleSocketProtocol : public core::socket::SocketContext {
 public:
-    explicit SimpleSocketProtocol(core::socket::stream::SocketConnection* socketConnection)
+    explicit SimpleSocketProtocol(core::socket::SocketConnection* socketConnection)
         : core::socket::SocketContext(socketConnection, core::socket::SocketContext::Role::CLIENT) {
         responseParser = getResponseParser(this);
     }
@@ -121,7 +121,7 @@ private:
 
 class SimpleSocketProtocolFactory : public core::socket::SocketContextFactory {
 private:
-    core::socket::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
+    core::socket::SocketContext* create(core::socket::SocketConnection* socketConnection) override {
         return new SimpleSocketProtocol(socketConnection);
     }
 };

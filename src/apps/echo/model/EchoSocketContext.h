@@ -22,7 +22,7 @@
 #include "core/socket/SocketContext.h"        // for SocketP...
 #include "core/socket/SocketContextFactory.h" // for SocketP...
 
-namespace core::socket::stream {
+namespace core::socket {
     class SocketConnection;
 }
 
@@ -34,7 +34,7 @@ namespace apps::echo::model {
 
     class EchoSocketContext : public core::socket::SocketContext {
     public:
-        explicit EchoSocketContext(core::socket::stream::SocketConnection* socketConnection, Role role);
+        explicit EchoSocketContext(core::socket::SocketConnection* socketConnection, Role role);
 
         void onConnected() override;
         void onDisconnected() override;
@@ -47,22 +47,22 @@ namespace apps::echo::model {
 
     class EchoServerSocketContext : public EchoSocketContext {
     public:
-        explicit EchoServerSocketContext(core::socket::stream::SocketConnection* socketConnection);
+        explicit EchoServerSocketContext(core::socket::SocketConnection* socketConnection);
     };
 
     class EchoClientSocketContext : public EchoSocketContext {
     public:
-        explicit EchoClientSocketContext(core::socket::stream::SocketConnection* socketConnection);
+        explicit EchoClientSocketContext(core::socket::SocketConnection* socketConnection);
     };
 
     class EchoServerSocketContextFactory : public core::socket::SocketContextFactory {
     private:
-        core::socket::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override;
+        core::socket::SocketContext* create(core::socket::SocketConnection* socketConnection) override;
     };
 
     class EchoClientSocketContextFactory : public core::socket::SocketContextFactory {
     private:
-        core::socket::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override;
+        core::socket::SocketContext* create(core::socket::SocketConnection* socketConnection) override;
     };
 
 } // namespace apps::echo::model

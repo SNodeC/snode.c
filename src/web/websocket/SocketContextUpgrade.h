@@ -61,7 +61,7 @@ namespace web::websocket {
         using web::http::SocketContextUpgrade<Request, Response>::setTimeout;
 
     protected:
-        SocketContextUpgrade(core::socket::stream::SocketConnection* socketConnection,
+        SocketContextUpgrade(core::socket::SocketConnection* socketConnection,
                              web::http::SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory,
                              SubProtocol* subProtocol,
                              core::socket::SocketContext::Role role)

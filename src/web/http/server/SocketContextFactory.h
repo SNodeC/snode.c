@@ -22,9 +22,9 @@
 #include "web/http/SocketContextFactory.h"
 #include "web/http/server/SocketContext.hpp"
 
-namespace core::socket::stream {
+namespace core::socket {
     class SocketConnection;
-} // namespace core::socket::stream
+} // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -50,7 +50,7 @@ namespace web::http::server {
         }
 
     private:
-        core::socket::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
+        core::socket::SocketContext* create(core::socket::SocketConnection* socketConnection) override {
             return new SocketContext<Request, Response>(socketConnection, onRequestReady);
         }
 

@@ -19,10 +19,6 @@
 #include "log/Logger.h"
 #include "web/http/client/SocketContext.h"
 
-namespace core::socket::stream {
-    class SocketConnection;
-} // namespace core::socket::stream
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string>
@@ -32,7 +28,7 @@ namespace core::socket::stream {
 namespace web::http::client {
 
     template <typename Request, typename Response>
-    SocketContext<Request, Response>::SocketContext(core::socket::stream::SocketConnection* socketConnection,
+    SocketContext<Request, Response>::SocketContext(core::socket::SocketConnection* socketConnection,
                                                     const std::function<void(Request&, Response&)>& onResponse,
                                                     const std::function<void(int, const std::string&)>& onError)
         : web::http::SocketContext(socketConnection, Role::CLIENT)

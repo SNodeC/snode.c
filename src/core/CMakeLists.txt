@@ -21,7 +21,7 @@ add_library(
     pipe/Pipe.cpp
     pipe/PipeSink.cpp
     pipe/PipeSource.cpp
-    socket/stream/SocketConnection.cpp
+    socket/SocketConnection.cpp
     socket/SocketContext.cpp
     system/dlfcn.cpp
     system/netdb.cpp

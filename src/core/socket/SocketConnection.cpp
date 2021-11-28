@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/socket/stream/SocketConnection.h"
+#include "core/socket/SocketConnection.h"
 
 #include "core/socket/SocketContextFactory.h"
 
@@ -24,7 +24,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket::stream {
+namespace core::socket {
 
     SocketConnection::SocketConnection(const std::shared_ptr<SocketContextFactory>& socketContextFactory)
         : socketContext(socketContextFactory->create(this)) {
@@ -34,4 +34,4 @@ namespace core::socket::stream {
         return socketContext;
     }
 
-} // namespace core::socket::stream
+} // namespace core::socket

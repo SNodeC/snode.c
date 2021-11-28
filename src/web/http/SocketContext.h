@@ -29,7 +29,7 @@ namespace web::http {
 
     class SocketContext : public core::socket::SocketContext {
     public:
-        using SocketConnection = core::socket::stream::SocketConnection;
+        using SocketConnection = core::socket::SocketConnection;
 
     protected:
         using core::socket::SocketContext::SocketContext;
