@@ -65,7 +65,7 @@ namespace web::http {
         void addSocketContextUpgradeSearchPath(const std::string& searchPath);
 
         virtual SocketContextUpgradeFactory* load(const std::string& upgradeContextName) = 0;
-        SocketContextUpgradeFactory* load(const std::string& upgradeContextName, core::socket::stream::SocketContext::Role role);
+        SocketContextUpgradeFactory* load(const std::string& upgradeContextName, core::socket::SocketContext::Role role);
 
         bool add(SocketContextUpgradeFactory* socketContextUpgradeFactory, void* handler);
 

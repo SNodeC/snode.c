@@ -49,8 +49,8 @@ namespace web::http::client {
 
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactory*
     SocketContextUpgradeFactorySelector::load(const std::string& upgradeContextName) {
-        return web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::load(
-            upgradeContextName, core::socket::stream::SocketContext::Role::CLIENT);
+        return web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::load(upgradeContextName,
+                                                                                                 core::socket::SocketContext::Role::CLIENT);
     }
 
     SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(const std::string& upgradeContextName, Request& req) {

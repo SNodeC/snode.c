@@ -19,11 +19,11 @@
 #ifndef WEB_HTTP_PARSER_H
 #define WEB_HTTP_PARSER_H
 
-namespace core::socket::stream {
+namespace core::socket {
 
     class SocketContext;
 
-} // namespace core::socket::stream
+} // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -57,7 +57,7 @@ namespace web::http {
         } hTTPCompliance;
 
     public:
-        explicit Parser(core::socket::stream::SocketContext* socketContext,
+        explicit Parser(core::socket::SocketContext* socketContext,
                         const enum HTTPCompliance& compliance = HTTPCompliance::RFC2616 | HTTPCompliance::RFC7230);
 
         virtual ~Parser() = default;
@@ -85,7 +85,7 @@ namespace web::http {
         std::map<std::string, std::string> headers;
 
     private:
-        core::socket::stream::SocketContext* socketContext = nullptr;
+        core::socket::SocketContext* socketContext = nullptr;
 
         ssize_t readStartLine();
         ssize_t readHeaderLine();

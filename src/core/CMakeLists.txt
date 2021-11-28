@@ -22,7 +22,7 @@ add_library(
     pipe/PipeSink.cpp
     pipe/PipeSource.cpp
     socket/stream/SocketConnection.cpp
-    socket/stream/SocketContext.cpp
+    socket/SocketContext.cpp
     system/dlfcn.cpp
     system/netdb.cpp
     system/select.cpp

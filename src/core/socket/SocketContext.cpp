@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/socket/stream/SocketContext.h"
+#include "core/socket/SocketContext.h"
 
 #include "core/socket/stream/SocketConnection.h"
 #include "log/Logger.h"
@@ -25,9 +25,9 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket::stream {
+namespace core::socket {
 
-    SocketContext::SocketContext(SocketConnection* socketConnection, Role role)
+    SocketContext::SocketContext(stream::SocketConnection* socketConnection, Role role)
         : socketConnection(socketConnection)
         , role(role) {
     }
@@ -60,7 +60,7 @@ namespace core::socket::stream {
         socketConnection->close();
     }
 
-    SocketContext* SocketContext::switchSocketContext(SocketContextFactory* socketContextFactory) {
+    SocketContext* SocketContext::switchSocketContext(stream::SocketContextFactory* socketContextFactory) {
         return socketConnection->switchSocketContext(socketContextFactory);
     }
 
@@ -80,4 +80,4 @@ namespace core::socket::stream {
         return role;
     }
 
-} // namespace core::socket::stream
+} // namespace core::socket

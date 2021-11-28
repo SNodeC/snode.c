@@ -19,8 +19,11 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETCONNECTIONBASE_H
 #define CORE_SOCKET_STREAM_SOCKETCONNECTIONBASE_H
 
-namespace core::socket::stream {
+namespace core::socket {
     class SocketContext;
+}
+
+namespace core::socket::stream {
     class SocketContextFactory;
 } // namespace core::socket::stream
 

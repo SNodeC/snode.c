@@ -64,9 +64,9 @@ namespace web::websocket {
         SocketContextUpgrade(core::socket::stream::SocketConnection* socketConnection,
                              web::http::SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory,
                              SubProtocol* subProtocol,
-                             core::socket::stream::SocketContext::Role role)
+                             core::socket::SocketContext::Role role)
             : web::http::SocketContextUpgrade<Request, Response>(socketConnection, role, socketContextUpgradeFactory)
-            , Transmitter(role == core::socket::stream::SocketContext::Role::CLIENT)
+            , Transmitter(role == core::socket::SocketContext::Role::CLIENT)
             , subProtocol(subProtocol) {
         }
 

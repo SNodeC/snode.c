@@ -18,7 +18,7 @@
 
 #include "web/http/Parser.h"
 
-#include "core/socket/stream/SocketContext.h"
+#include "core/socket/SocketContext.h"
 #include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -34,7 +34,7 @@ namespace web::http {
     // HTTP/x.x
     std::regex Parser::httpVersionRegex("^HTTP/([[:digit:]])\\.([[:digit:]])$");
 
-    Parser::Parser(core::socket::stream::SocketContext* socketContext, const enum Parser::HTTPCompliance& compliance)
+    Parser::Parser(core::socket::SocketContext* socketContext, const enum Parser::HTTPCompliance& compliance)
         : hTTPCompliance(compliance)
         , socketContext(socketContext) {
     }

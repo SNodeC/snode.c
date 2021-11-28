@@ -36,7 +36,7 @@ namespace web::http {
     }
 
     template <typename Request, typename Response>
-    core::socket::stream::SocketContext*
+    core::socket::SocketContext*
     SocketContextUpgradeFactory<Request, Response>::create(core::socket::stream::SocketConnection* socketConnection) {
         SocketContextUpgrade<Request, Response>* socketContext = create(socketConnection, request, response);
 

@@ -19,6 +19,10 @@
 #ifndef CORE_SOCKET_STREAM_SOCKETCONTEXTFACTORY_H
 #define CORE_SOCKET_STREAM_SOCKETCONTEXTFACTORY_H
 
+namespace core::socket {
+    class SocketContext;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string>
@@ -28,7 +32,6 @@
 namespace core::socket::stream {
 
     class SocketConnection;
-    class SocketContext;
 
     class SocketContextFactory {
     protected:
@@ -37,7 +40,7 @@ namespace core::socket::stream {
         virtual ~SocketContextFactory() = default;
 
     public:
-        virtual SocketContext* create(SocketConnection* socketConnection) = 0;
+        virtual core::socket::SocketContext* create(SocketConnection* socketConnection) = 0;
     };
 
 } // namespace core::socket::stream

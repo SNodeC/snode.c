@@ -39,7 +39,7 @@ namespace web::http::client {
 
     class ResponseParser : public Parser {
     public:
-        ResponseParser(core::socket::stream::SocketContext* socketContext,
+        ResponseParser(core::socket::SocketContext* socketContext,
                        const std::function<void(void)>& onStart,
                        const std::function<void(const std::string&, const std::string&, const std::string&)>& onResponse,
                        const std::function<void(const std::map<std::string, std::string>&,

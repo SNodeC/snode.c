@@ -19,7 +19,7 @@
 #ifndef WEB_HTTP_SOCKETCONTEXTUPGRADE_H
 #define WEB_HTTP_SOCKETCONTEXTUPGRADE_H
 
-#include "core/socket/stream/SocketContext.h"     // IWYU pragma: export
+#include "core/socket/SocketContext.h"            // IWYU pragma: export
 #include "web/http/SocketContextUpgradeFactory.h" // IWYU pragma: export
 
 namespace core::socket::stream {
@@ -33,7 +33,7 @@ namespace core::socket::stream {
 namespace web::http {
 
     template <typename RequestT, typename ResponseT>
-    class SocketContextUpgrade : public core::socket::stream::SocketContext {
+    class SocketContextUpgrade : public core::socket::SocketContext {
     public:
         using Request = RequestT;
         using Response = ResponseT;
@@ -41,7 +41,7 @@ namespace web::http {
         SocketContextUpgrade(core::socket::stream::SocketConnection* socketConnection,
                              SocketContext::Role role,
                              SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory)
-            : core::socket::stream::SocketContext(socketConnection, role)
+            : core::socket::SocketContext(socketConnection, role)
             , socketContextUpgradeFactory(socketContextUpgradeFactory) {
             socketContextUpgradeFactory->incRefCount();
         }
@@ -50,7 +50,7 @@ namespace web::http {
             socketContextUpgradeFactory->decRefCount();
         }
 
-        using core::socket::stream::SocketContext::setTimeout;
+        using core::socket::SocketContext::setTimeout;
 
     protected:
         SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory = nullptr;

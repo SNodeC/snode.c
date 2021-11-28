@@ -71,7 +71,7 @@ namespace web::http {
         virtual SocketContextUpgrade<Request, Response>*
         create(core::socket::stream::SocketConnection* socketConnection, Request* request, Response* response) = 0;
 
-        core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) final;
+        core::socket::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) final;
     };
 
 } // namespace web::http

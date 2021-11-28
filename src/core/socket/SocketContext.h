@@ -16,12 +16,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_SOCKET_STREAM_SOCKETCONTEXT_H
-#define CORE_SOCKET_STREAM_SOCKETCONTEXT_H
+#ifndef CORE_SOCKET_SOCKETCONTEXT_H
+#define CORE_SOCKET_SOCKETCONTEXT_H
 
 namespace core::socket::stream {
     class SocketContextFactory;
     class SocketConnection;
+
+    template <typename SocketReaderT, typename SocketWriterT, typename SocketAddressT>
+    class SocketConnectionT;
 } // namespace core::socket::stream
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -32,14 +35,14 @@ namespace core::socket::stream {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket::stream {
+namespace core::socket {
 
     class SocketContext {
     public:
         enum class Role { SERVER, CLIENT };
 
     protected:
-        explicit SocketContext(SocketConnection* socketConnection, Role role);
+        explicit SocketContext(stream::SocketConnection* socketConnection, Role role);
         virtual ~SocketContext() = default;
 
     public:
@@ -51,7 +54,7 @@ namespace core::socket::stream {
         std::string getLocalAddressAsString() const;
         std::string getRemoteAddressAsString() const;
 
-        SocketContext* switchSocketContext(SocketContextFactory* socketContextFactory);
+        SocketContext* switchSocketContext(stream::SocketContextFactory* socketContextFactory);
 
         void setTimeout(int timeout);
 
@@ -65,15 +68,15 @@ namespace core::socket::stream {
         Role getRole() const;
 
     private:
-        SocketConnection* socketConnection;
+        stream::SocketConnection* socketConnection;
 
     protected:
         Role role;
 
         template <typename SocketReaderT, typename SocketWriterT, typename SocketAddressT>
-        friend class SocketConnectionT;
+        friend class stream::SocketConnectionT;
     };
 
-} // namespace core::socket::stream
+} // namespace core::socket
 
-#endif // CORE_SOCKET_STREAM_SOCKETCONTEXT_H
+#endif // CORE_SOCKET_SOCKETCONTEXT_H

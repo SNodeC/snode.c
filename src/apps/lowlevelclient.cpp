@@ -20,7 +20,7 @@
 
 #include "config.h"                                  // for CLIENTCERTF
 #include "core/SNodeC.h"                             // for SNodeC
-#include "core/socket/stream/SocketContext.h"        // for SocketProtocol
+#include "core/socket/SocketContext.h"               // for SocketProtocol
 #include "core/socket/stream/SocketContextFactory.h" // for SocketProtocolF...
 #include "log/Logger.h"                              // for Writer, Storage
 #include "net/in/stream/legacy/SocketClient.h"       // for SocketC...
@@ -45,7 +45,7 @@ namespace web::http {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-static web::http::client::ResponseParser* getResponseParser(core::socket::stream::SocketContext* socketContext) {
+static web::http::client::ResponseParser* getResponseParser(core::socket::SocketContext* socketContext) {
     web::http::client::ResponseParser* responseParser = new web::http::client::ResponseParser(
         socketContext,
         [](void) -> void {
@@ -85,10 +85,10 @@ static web::http::client::ResponseParser* getResponseParser(core::socket::stream
     return responseParser;
 }
 
-class SimpleSocketProtocol : public core::socket::stream::SocketContext {
+class SimpleSocketProtocol : public core::socket::SocketContext {
 public:
     explicit SimpleSocketProtocol(core::socket::stream::SocketConnection* socketConnection)
-        : core::socket::stream::SocketContext(socketConnection, Role::CLIENT) {
+        : core::socket::SocketContext(socketConnection, core::socket::SocketContext::Role::CLIENT) {
         responseParser = getResponseParser(this);
     }
 
@@ -121,7 +121,7 @@ private:
 
 class SimpleSocketProtocolFactory : public core::socket::stream::SocketContextFactory {
 private:
-    core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
+    core::socket::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
         return new SimpleSocketProtocol(socketConnection);
     }
 };

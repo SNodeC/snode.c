@@ -51,8 +51,8 @@ namespace web::http::server {
 
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactory*
     SocketContextUpgradeFactorySelector::load(const std::string& upgradeContextName) {
-        return web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::load(
-            upgradeContextName, core::socket::stream::SocketContext::Role::SERVER);
+        return web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::load(upgradeContextName,
+                                                                                                 core::socket::SocketContext::Role::SERVER);
     }
 
     /* do not remove */
