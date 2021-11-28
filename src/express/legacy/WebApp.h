@@ -19,8 +19,10 @@
 #ifndef EXPRESS_LEGACY_WEBAPP_H
 #define EXPRESS_LEGACY_WEBAPP_H
 
-#include "express/WebAppT.h"               // IWYU pragma: export
-#include "web/http/server/legacy/Server.h" // IWYU pragma: export
+#include "express/WebAppT.h"            // IWYU pragma: export
+#include "web/http/legacy/in/Server.h"  // IWYU pragma: export
+#include "web/http/legacy/in6/Server.h" // IWYU pragma: export
+#include "web/http/legacy/rf/Server.h"  // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,24 +32,24 @@ namespace express::legacy {
 
     namespace in {
 
-        class WebApp : public WebAppT<web::http::server::legacy::in::Server<express::Request, express::Response>> {
-            using WebAppT<web::http::server::legacy::in::Server<express::Request, express::Response>>::WebAppT;
+        class WebApp : public WebAppT<web::http::legacy::in::Server<express::Request, express::Response>> {
+            using WebAppT<web::http::legacy::in::Server<express::Request, express::Response>>::WebAppT;
         };
 
     } // namespace in
 
     namespace in6 {
 
-        class WebApp : public WebAppT<web::http::server::legacy::in6::Server<express::Request, express::Response>> {
-            using WebAppT<web::http::server::legacy::in6::Server<express::Request, express::Response>>::WebAppT;
+        class WebApp : public WebAppT<web::http::legacy::in6::Server<express::Request, express::Response>> {
+            using WebAppT<web::http::legacy::in6::Server<express::Request, express::Response>>::WebAppT;
         };
 
     } // namespace in6
 
     namespace rf {
 
-        class WebApp : public WebAppT<web::http::server::legacy::rf::Server<express::Request, express::Response>> {
-            using WebAppT<web::http::server::legacy::rf::Server<express::Request, express::Response>>::WebAppT;
+        class WebApp : public WebAppT<web::http::legacy::rf::Server<express::Request, express::Response>> {
+            using WebAppT<web::http::legacy::rf::Server<express::Request, express::Response>>::WebAppT;
         };
 
     } // namespace rf

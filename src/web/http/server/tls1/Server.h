@@ -71,10 +71,6 @@ namespace web::http::server::tls {
         public:
             using web::http::server::Server<net::in6::stream::tls::SocketServer, Request, Response>::listen;
 
-            void addSniCert(const std::string& domain, const std::map<std::string, std::any>& options) {
-                SocketServer::addSniCert(domain, options);
-            }
-
             void listen(uint16_t port, const std::function<void(const net::in6::stream::Socket&, int)>& onError) {
                 SocketServer::listen(port, LISTEN_BACKLOG, onError);
             }
@@ -98,16 +94,11 @@ namespace web::http::server::tls {
         class Server : public web::http::server::Server<net::rf::stream::tls::SocketServer, Request, Response> {
             using web::http::server::Server<net::rf::stream::tls::SocketServer, Request, Response>::Server;
 
-        public:
+        protected:
             using SocketServer = net::rf::stream::tls::SocketServer<web::http::server::SocketContextFactory<Request, Response>>;
 
-            using SocketAddress = typename SocketServer::SocketAddress;
-
+        public:
             using web::http::server::Server<net::rf::stream::tls::SocketServer, Request, Response>::listen;
-
-            void addSniCert(const std::string& domain, const std::map<std::string, std::any>& options) {
-                SocketServer::addSniCert(domain, options);
-            }
 
             void listen(uint8_t channel, const std::function<void(const net::rf::stream::Socket&, int)>& onError) {
                 SocketServer::listen(channel, LISTEN_BACKLOG, onError);

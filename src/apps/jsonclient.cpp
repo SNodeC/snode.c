@@ -20,11 +20,11 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/SNodeC.h"                   // for SNodeC
-#include "log/Logger.h"                    // for Writer, Storage
-#include "web/http/client/Request.h"       // for Request
-#include "web/http/client/Response.h"      // for Response
-#include "web/http/client/legacy/Client.h" // for Client, Client<>...
+#include "core/SNodeC.h"               // for SNodeC
+#include "log/Logger.h"                // for Writer, Storage
+#include "web/http/client/Request.h"   // for Request
+#include "web/http/client/Response.h"  // for Response
+#include "web/http/legacy/in/Client.h" // for Client, Client<>...
 
 #include <cstring>     // for memcpy
 #include <type_traits> // for add_const<>::type
@@ -35,19 +35,17 @@
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
-    web::http::client::legacy::in::Client<web::http::client::Request, web::http::client::Response> jsonClient(
-        [](const web::http::client::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress&
-               localAddress,
-           const web::http::client::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress&
-               remoteAddress) -> void {
+    web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response> jsonClient(
+        [](const web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& localAddress,
+           const web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& remoteAddress)
+            -> void {
             VLOG(0) << "-- OnConnect";
 
             VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
             VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
         },
-        []([[maybe_unused]] web::http::client::legacy::in::Client<web::http::client::Request,
-                                                                  web::http::client::Response>::SocketConnection* socketConnection)
-            -> void {
+        []([[maybe_unused]] web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection*
+               socketConnection) -> void {
             VLOG(0) << "-- OnConnected";
         },
         [](web::http::client::Request& request) -> void {
@@ -89,8 +87,8 @@ int main(int argc, char* argv[]) {
             VLOG(0) << "     Status: " << status;
             VLOG(0) << "     Reason: " << reason;
         },
-        [](web::http::client::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection*
-               socketConnection) -> void {
+        [](web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection)
+            -> void {
             VLOG(0) << "-- OnDisconnect";
 
             VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +

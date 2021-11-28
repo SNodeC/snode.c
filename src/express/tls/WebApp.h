@@ -19,8 +19,10 @@
 #ifndef EXPRESS_TLS_WEBAPP_H
 #define EXPRESS_TLS_WEBAPP_H
 
-#include "express/WebAppT.h"            // IWYU pragma: export
-#include "web/http/server/tls/Server.h" // IWYU pragma: export
+#include "express/WebAppT.h"         // IWYU pragma: export
+#include "web/http/tls/in/Server.h"  // IWYU pragma: export
+#include "web/http/tls/in6/Server.h" // IWYU pragma: export
+#include "web/http/tls/rf/Server.h"  // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -30,24 +32,24 @@ namespace express::tls {
 
     namespace in {
 
-        class WebApp : public WebAppT<web::http::server::tls::in::Server<express::Request, express::Response>> {
-            using WebAppT<web::http::server::tls::in::Server<express::Request, express::Response>>::WebAppT;
+        class WebApp : public WebAppT<web::http::tls::in::Server<express::Request, express::Response>> {
+            using WebAppT<web::http::tls::in::Server<express::Request, express::Response>>::WebAppT;
         };
 
     } // namespace in
 
     namespace in6 {
 
-        class WebApp : public WebAppT<web::http::server::tls::in6::Server<express::Request, express::Response>> {
-            using WebAppT<web::http::server::tls::in6::Server<express::Request, express::Response>>::WebAppT;
+        class WebApp : public WebAppT<web::http::tls::in6::Server<express::Request, express::Response>> {
+            using WebAppT<web::http::tls::in6::Server<express::Request, express::Response>>::WebAppT;
         };
 
     } // namespace in6
 
     namespace rf {
 
-        class WebApp : public WebAppT<web::http::server::tls::rf::Server<express::Request, express::Response>> {
-            using WebAppT<web::http::server::tls::rf::Server<express::Request, express::Response>>::WebAppT;
+        class WebApp : public WebAppT<web::http::tls::rf::Server<express::Request, express::Response>> {
+            using WebAppT<web::http::tls::rf::Server<express::Request, express::Response>>::WebAppT;
         };
 
     } // namespace rf

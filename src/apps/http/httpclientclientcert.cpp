@@ -45,8 +45,7 @@ int main(int argc, char* argv[]) {
                                             {"SNI", "snodec.home.vchrist.at"}};
 #endif
 
-    web::http::client::STREAM::NET::Client<web::http::client::Request, web::http::client::Response> client =
-        apps::http::STREAM::getClient(options);
+    web::http::STREAM::NET::Client<web::http::client::Request, web::http::client::Response> client = apps::http::STREAM::getClient(options);
 
 #if (NET_TYPE == IN) // in
 #if (STREAM_TYPE == LEGACY)

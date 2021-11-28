@@ -9,7 +9,7 @@
 #define STR_INCLUDE(a) #a
 
 // clang-format off
-#define CLIENT_INCLUDE QUOTE_INCLUDE(web/http/client/STREAM/Client.h)
+#define CLIENT_INCLUDE QUOTE_INCLUDE(web/http/STREAM/NET/Client.h)
 // clang-format on
 
 #include CLIENT_INCLUDE // IWYU pragma: export
@@ -23,21 +23,19 @@
 #if (STREAM_TYPE == LEGACY) // legacy
 
 namespace apps::http::legacy {
-    web::http::client::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>
+    web::http::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>
     getClient(const std::map<std::string, std::any>& options) {
-        web::http::client::STREAM::NET ::Client<web::http::client::Request, web::http::client::Response> client(
-            [](const web::http::client::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>::SocketAddress&
-                   localAddress,
-               const web::http::client::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>::SocketAddress&
-                   remoteAddress) -> void {
+        web::http::STREAM::NET ::Client<web::http::client::Request, web::http::client::Response> client(
+            [](const web::http::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& localAddress,
+               const web::http::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& remoteAddress)
+                -> void {
                 VLOG(0) << "-- OnConnect";
 
                 VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
                 VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
             },
-            []([[maybe_unused]] web::http::client::STREAM::NET::Client<web::http::client::Request,
-                                                                       web::http::client::Response>::SocketConnection* socketConnection)
-                -> void {
+            []([[maybe_unused]] web::http::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>::SocketConnection*
+                   socketConnection) -> void {
                 VLOG(0) << "-- OnConnected";
             },
             [](web::http::client::Request& request) -> void {
@@ -76,8 +74,8 @@ namespace apps::http::legacy {
                 VLOG(0) << "     Status: " << status;
                 VLOG(0) << "     Reason: " << reason;
             },
-            [](web::http::client::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>::SocketConnection*
-                   socketConnection) -> void {
+            [](web::http::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection)
+                -> void {
                 VLOG(0) << "-- OnDisconnect";
 
                 VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
@@ -98,20 +96,19 @@ namespace apps::http::legacy {
 
 namespace apps::http::tls {
 
-    web::http::client::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>
+    web::http::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>
     getClient(const std::map<std::string, std::any>& options) {
-        web::http::client::STREAM::NET ::Client<web::http::client::Request, web::http::client::Response> client(
-            [](const web::http::client::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>::SocketAddress&
-                   localAddress,
-               const web::http::client::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>::SocketAddress&
-                   remoteAddress) -> void {
+        web::http::STREAM::NET ::Client<web::http::client::Request, web::http::client::Response> client(
+            [](const web::http::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& localAddress,
+               const web::http::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& remoteAddress)
+                -> void {
                 VLOG(0) << "-- OnConnect";
 
                 VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
                 VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
             },
-            [](web::http::client::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>::SocketConnection*
-                   socketConnection) -> void {
+            [](web::http::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection)
+                -> void {
                 VLOG(0) << "-- OnConnected";
 
                 X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
@@ -194,8 +191,8 @@ namespace apps::http::tls {
                 VLOG(0) << "     Status: " << status;
                 VLOG(0) << "     Reason: " << reason;
             },
-            [](web::http::client::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>::SocketConnection*
-                   socketConnection) -> void {
+            [](web::http::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection)
+                -> void {
                 VLOG(0) << "-- OnDisconnect";
 
                 VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +

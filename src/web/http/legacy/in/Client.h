@@ -16,32 +16,29 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_SOCKET_SOCKETCONTEXTFACTORY_H
-#define CORE_SOCKET_SOCKETCONTEXTFACTORY_H
+#ifndef WEB_HTTP_LEGACY_IN_CLIENT_H
+#define WEB_HTTP_LEGACY_IN_CLIENT_H
 
-namespace core::socket {
-    class SocketContext;
-    class SocketConnection;
-} // namespace core::socket
+#include "net/in/stream/legacy/SocketClient.h" // IWYU pragma: export
+#include "web/http/client/Client.h"            // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <string>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::socket {
+namespace web::http::legacy::in {
 
-    class SocketContextFactory {
+    template <typename Request, typename Response>
+    class Client : public web::http::client::Client<net::in::stream::legacy::SocketClient, Request, Response> {
+        using web::http::client::Client<net::in::stream::legacy::SocketClient, Request, Response>::Client;
+
     protected:
-        SocketContextFactory() = default;
-
-        virtual ~SocketContextFactory() = default;
+        using SocketClient = net::in::stream::legacy::SocketClient<web::http::client::SocketContextFactory<Request, Response>>;
 
     public:
-        virtual core::socket::SocketContext* create(SocketConnection* socketConnection) = 0;
+        using web::http::client::Client<net::in::stream::legacy::SocketClient, Request, Response>::connect;
     };
 
-} // namespace core::socket
+} // namespace web::http::legacy::in
 
-#endif // CORE_SOCKET_SOCKETCONTEXTFACTORY_H
+#endif // WEB_HTTP_LEGACY_IN_CLIENT_H
