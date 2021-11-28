@@ -37,12 +37,8 @@ target_include_directories(
 )
 
 target_link_libraries(
-    http
-    PUBLIC snodec::net-in
-           snodec::net-in6
-           snodec::net-rf
-           ${LIBMAGIC_LIBRARIES}
-           dl
+    http PUBLIC snodec::net-in snodec::net-in6 snodec::net-rf
+                ${LIBMAGIC_LIBRARIES} dl
 )
 
 set_target_properties(

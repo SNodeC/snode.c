@@ -24,7 +24,7 @@ namespace core::socket {
 }
 
 namespace core::socket {
-class SocketConnection;
+    class SocketConnection;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

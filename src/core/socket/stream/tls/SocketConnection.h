@@ -19,7 +19,7 @@
 #ifndef CORE_SOCKET_STREAM_TLS_SOCKETCONNECTION_H
 #define CORE_SOCKET_STREAM_TLS_SOCKETCONNECTION_H
 
-#include "core/socket/stream/SocketConnectionT.h" // IWYU pragma: export
+#include "core/socket/stream/SocketConnection.h" // IWYU pragma: export
 #include "core/socket/stream/tls/SocketReader.h"
 #include "core/socket/stream/tls/SocketWriter.h"
 #include "log/Logger.h"
@@ -35,7 +35,7 @@ namespace core::socket::stream::tls {
 
     template <typename SocketT>
     class SocketConnection
-        : public core::socket::stream::SocketConnectionT<SocketReader<SocketT>, SocketWriter<SocketT>, typename SocketT::SocketAddress> {
+        : public core::socket::stream::SocketConnection<SocketReader<SocketT>, SocketWriter<SocketT>, typename SocketT::SocketAddress> {
     public:
         using Socket = SocketT;
         using SocketAddress = typename Socket::SocketAddress;
@@ -47,8 +47,8 @@ namespace core::socket::stream::tls {
                          const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                          const std::function<void(SocketConnection*)>& onDisconnect)
             : SocketConnection::Descriptor(fd)
-            , core::socket::stream::SocketConnectionT<SocketReader<Socket>, SocketWriter<Socket>, typename Socket::SocketAddress>::
-                  SocketConnectionT(socketContextFactory, localAddress, remoteAddress, onConnect, [onDisconnect, this]() -> void {
+            , core::socket::stream::SocketConnection<SocketReader<Socket>, SocketWriter<Socket>, typename Socket::SocketAddress>::
+                  SocketConnection(socketContextFactory, localAddress, remoteAddress, onConnect, [onDisconnect, this]() -> void {
                       onDisconnect(this);
                   }) {
         }

@@ -35,11 +35,11 @@
 namespace core::socket::stream {
 
     template <typename SocketReaderT, typename SocketWriterT, typename SocketAddressT>
-    class SocketConnectionT
-        : public SocketConnection
+    class SocketConnection
+        : public core::socket::SocketConnection
         , protected SocketReaderT
         , protected SocketWriterT {
-        SocketConnectionT() = delete;
+        SocketConnection() = delete;
 
     public:
         using SocketReader = SocketReaderT;
@@ -47,12 +47,12 @@ namespace core::socket::stream {
         using SocketAddress = SocketAddressT;
 
     protected:
-        SocketConnectionT(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
-                          const SocketAddress& localAddress,
-                          const SocketAddress& remoteAddress,
-                          const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
-                          const std::function<void()>& onDisconnect)
-            : SocketConnection(socketContextFactory)
+        SocketConnection(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
+                         const SocketAddress& localAddress,
+                         const SocketAddress& remoteAddress,
+                         const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
+                         const std::function<void()>& onDisconnect)
+            : core::socket::SocketConnection(socketContextFactory)
             , SocketReader([this](int errnum) -> void {
                 SocketWriter::disable();
                 socketContext->onReadError(errnum);
@@ -64,15 +64,15 @@ namespace core::socket::stream {
             , localAddress(localAddress)
             , remoteAddress(remoteAddress)
             , onDisconnect(onDisconnect) {
-            SocketReader::enable(SocketConnectionT::getFd());
-            SocketWriter::enable(SocketConnectionT::getFd());
+            SocketReader::enable(SocketConnection::getFd());
+            SocketWriter::enable(SocketConnection::getFd());
             SocketReader::suspend();
             SocketWriter::suspend();
             onConnect(localAddress, remoteAddress);
             socketContext->onConnected();
         }
 
-        virtual ~SocketConnectionT() {
+        virtual ~SocketConnection() {
             socketContext->onDisconnected();
             onDisconnect();
             delete socketContext;
