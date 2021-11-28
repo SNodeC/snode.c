@@ -1,6 +1,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "express/legacy/WebApp.h"
+#include "express/legacy/in/WebApp.h"
 #include "log/Logger.h"
 
 #include <cstdlib>

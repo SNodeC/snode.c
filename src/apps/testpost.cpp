@@ -19,8 +19,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "config.h" // just for this example app
-#include "express/legacy/WebApp.h"
-#include "express/tls/WebApp.h"
+#include "express/legacy/in/WebApp.h"
+#include "express/tls/in/WebApp.h"
 #include "log/Logger.h"
 
 #include <cstring>

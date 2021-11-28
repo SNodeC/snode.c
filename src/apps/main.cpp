@@ -20,7 +20,7 @@
 
 #include "config.h"
 #include "core/timer/IntervalTimer.h"
-#include "express/legacy/WebApp.h"
+#include "express/legacy/in/WebApp.h"
 
 #include <iostream>
 #include <stdio.h>  // for perror

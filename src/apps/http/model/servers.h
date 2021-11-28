@@ -8,7 +8,7 @@
 #define STR_INCLUDE(a) #a
 
 // clang-format off
-#define WEBAPP_INCLUDE QUOTE_INCLUDE(express/STREAM/WebApp.h)
+#define WEBAPP_INCLUDE QUOTE_INCLUDE(express/STREAM/NET/WebApp.h)
 // clang-format on
 
 #include WEBAPP_INCLUDE // IWYU pragma: export

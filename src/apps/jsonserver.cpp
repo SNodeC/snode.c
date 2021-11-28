@@ -20,7 +20,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "express/legacy/WebApp.h"
+#include "express/legacy/in/WebApp.h"
 #include "express/middleware/JsonMiddleware.h"
 #include "log/Logger.h"
 

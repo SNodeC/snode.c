@@ -19,10 +19,10 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "config.h" // just for this example app
-#include "express/legacy/WebApp.h"
+#include "express/legacy/in6/WebApp.h"
 #include "express/middleware/StaticMiddleware.h"
 #include "express/middleware/VHost.h"
-#include "express/tls/WebApp.h"
+#include "express/tls/in6/WebApp.h"
 #include "log/Logger.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
