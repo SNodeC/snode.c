@@ -24,9 +24,9 @@
 #include "web/websocket/Receiver.h"
 #include "web/websocket/Transmitter.h"
 
-namespace core::socket::stream {
+namespace core::socket {
     class SocketConnection;
-} // namespace core::socket::stream
+} // namespace core::socket
 
 namespace web::http {
     template <typename RequestT, typename ResponseT>

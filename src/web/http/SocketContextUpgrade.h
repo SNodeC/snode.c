@@ -22,7 +22,7 @@
 #include "core/socket/SocketContext.h"            // IWYU pragma: export
 #include "web/http/SocketContextUpgradeFactory.h" // IWYU pragma: export
 
-namespace core::socket::stream {
+namespace core::socket {
     class SocketConnection;
 }
 
