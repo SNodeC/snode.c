@@ -48,57 +48,57 @@ foreach(NET IN LISTS NETS)
             set(STREAM_TYPE ${TLS})
         endif()
 
-        add_executable(${NET}${STREAM}httpserver httpserver.cpp)
-        target_link_libraries(${NET}${STREAM}httpserver PRIVATE snodec::express)
+        add_executable(httpserver-${STREAM}-${NET} httpserver.cpp)
+        target_link_libraries(httpserver-${STREAM}-${NET} PRIVATE snodec::express)
         target_compile_definitions(
-            ${NET}${STREAM}httpserver
+            httpserver-${STREAM}-${NET}
             PRIVATE NET=${NET} NET_TYPE=${NET_TYPE} STREAM=${STREAM}
                     STREAM_TYPE=${STREAM_TYPE}
         )
-        install(TARGETS ${NET}${STREAM}httpserver
+        install(TARGETS httpserver-${STREAM}-${NET}
                 RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         )
 
         add_executable(
-            ${NET}${STREAM}httpserverclientcert httpserverclientcert.cpp
+            httpserverclientcert-${STREAM}-${NET} httpserverclientcert.cpp
         )
         target_link_libraries(
-            ${NET}${STREAM}httpserverclientcert PRIVATE snodec::express
+            httpserverclientcert-${STREAM}-${NET} PRIVATE snodec::express
         )
         target_compile_definitions(
-            ${NET}${STREAM}httpserverclientcert
+            httpserverclientcert-${STREAM}-${NET}
             PRIVATE NET=${NET} NET_TYPE=${NET_TYPE} STREAM=${STREAM}
                     STREAM_TYPE=${STREAM_TYPE}
         )
-        install(TARGETS ${NET}${STREAM}httpserverclientcert
+        install(TARGETS httpserverclientcert-${STREAM}-${NET}
                 RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         )
 
-        add_executable(${NET}${STREAM}httpclient httpclient.cpp)
+        add_executable(httpclient-${STREAM}-${NET} httpclient.cpp)
         target_link_libraries(
-            ${NET}${STREAM}httpclient PRIVATE snodec::httpclient
+            httpclient-${STREAM}-${NET} PRIVATE snodec::httpclient
         )
         target_compile_definitions(
-            ${NET}${STREAM}httpclient
+            httpclient-${STREAM}-${NET}
             PRIVATE NET=${NET} NET_TYPE=${NET_TYPE} STREAM=${STREAM}
                     STREAM_TYPE=${STREAM_TYPE}
         )
-        install(TARGETS ${NET}${STREAM}httpclient
+        install(TARGETS httpclient-${STREAM}-${NET}
                 RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         )
 
         add_executable(
-            ${NET}${STREAM}httpclientclientcert httpclientclientcert.cpp
+            httpclientclientcert-${STREAM}-${NET} httpclientclientcert.cpp
         )
         target_link_libraries(
-            ${NET}${STREAM}httpclientclientcert PRIVATE snodec::httpclient
+            httpclientclientcert-${STREAM}-${NET} PRIVATE snodec::httpclient
         )
         target_compile_definitions(
-            ${NET}${STREAM}httpclientclientcert
+            httpclientclientcert-${STREAM}-${NET}
             PRIVATE NET=${NET} NET_TYPE=${NET_TYPE} STREAM=${STREAM}
                     STREAM_TYPE=${STREAM_TYPE}
         )
-        install(TARGETS ${NET}${STREAM}httpclientclientcert
+        install(TARGETS httpclientclientcert-${STREAM}-${NET}
                 RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         )
 

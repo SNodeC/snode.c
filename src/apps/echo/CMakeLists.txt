@@ -51,31 +51,31 @@ foreach(NET IN LISTS NETS)
             set(STREAM_TYPE ${TLS})
         endif()
 
-        add_executable(${NET}${STREAM}echoclient echoclient.cpp)
+        add_executable(echoclient-${STREAM}-${NET} echoclient.cpp)
         target_link_libraries(
-            ${NET}${STREAM}echoclient PRIVATE snodec::net-${NET}
+            echoclient-${STREAM}-${NET} PRIVATE snodec::net-${NET}
                                               echosocketcontext
         )
         target_compile_definitions(
-            ${NET}${STREAM}echoclient
+            echoclient-${STREAM}-${NET}
             PRIVATE NET=${NET} NET_TYPE=${NET_TYPE} STREAM=${STREAM}
                     STREAM_TYPE=${STREAM_TYPE}
         )
-        install(TARGETS ${NET}${STREAM}echoclient
+        install(TARGETS echoclient-${STREAM}-${NET}
                 RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         )
 
-        add_executable(${NET}${STREAM}echoserver echoserver.cpp)
+        add_executable(echoserver-${STREAM}-${NET} echoserver.cpp)
         target_link_libraries(
-            ${NET}${STREAM}echoserver PRIVATE snodec::net-${NET}
+            echoserver-${STREAM}-${NET} PRIVATE snodec::net-${NET}
                                               echosocketcontext
         )
         target_compile_definitions(
-            ${NET}${STREAM}echoserver
+            echoserver-${STREAM}-${NET}
             PRIVATE NET=${NET} NET_TYPE=${NET_TYPE} STREAM=${STREAM}
                     STREAM_TYPE=${STREAM_TYPE}
         )
-        install(TARGETS ${NET}${STREAM}echoserver
+        install(TARGETS echoserver-${STREAM}-${NET}
                 RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         )
 
