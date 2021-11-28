@@ -54,7 +54,7 @@ foreach(NET IN LISTS NETS)
         add_executable(echoclient-${STREAM}-${NET} echoclient.cpp)
         target_link_libraries(
             echoclient-${STREAM}-${NET} PRIVATE snodec::net-${NET}
-                                              echosocketcontext
+                                                echosocketcontext
         )
         target_compile_definitions(
             echoclient-${STREAM}-${NET}
@@ -68,7 +68,7 @@ foreach(NET IN LISTS NETS)
         add_executable(echoserver-${STREAM}-${NET} echoserver.cpp)
         target_link_libraries(
             echoserver-${STREAM}-${NET} PRIVATE snodec::net-${NET}
-                                              echosocketcontext
+                                                echosocketcontext
         )
         target_compile_definitions(
             echoserver-${STREAM}-${NET}

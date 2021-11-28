@@ -49,7 +49,9 @@ foreach(NET IN LISTS NETS)
         endif()
 
         add_executable(httpserver-${STREAM}-${NET} httpserver.cpp)
-        target_link_libraries(httpserver-${STREAM}-${NET} PRIVATE snodec::express)
+        target_link_libraries(
+            httpserver-${STREAM}-${NET} PRIVATE snodec::express
+        )
         target_compile_definitions(
             httpserver-${STREAM}-${NET}
             PRIVATE NET=${NET} NET_TYPE=${NET_TYPE} STREAM=${STREAM}
