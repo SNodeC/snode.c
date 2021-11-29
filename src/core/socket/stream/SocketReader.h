@@ -20,6 +20,7 @@
 #define CORE_SOCKET_STREAM_SOCKETREADER_H
 
 #include "core/ReadEventReceiver.h"
+#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -59,10 +60,13 @@ namespace core::socket::stream {
         }
 
         void shutdown() {
-            if (!isSuspended()) {
-                suspend();
+            if (!shut) {
+                if (!isSuspended()) {
+                    suspend();
+                }
+                doShutdown();
+                shut = true;
             }
-            doShutdown();
         }
 
     private:
@@ -72,23 +76,28 @@ namespace core::socket::stream {
 
     protected:
         void terminate() override {
-            shutdown();
+            //            shutdown(); // do not shutdown our read side because we try to do a full tcp shutdown sequence.
         }
 
         ssize_t readFromPeer(char* junk, std::size_t junkLen) {
+            errno = 0;
+
             ssize_t ret = 0;
 
             if (size == 0) {
                 coursor = 0;
+
                 ssize_t retRead = read(data, MAX_READ_JUNKSIZE);
 
+                int errnum = getError();
+
                 if (retRead <= 0) {
-                    if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
-                        disable();
-                        onError(getError());
-                        ret = -1;
+                    if (errnum != EAGAIN && errnum != EWOULDBLOCK && errnum != EINTR) {
+                        disable(); // if we get a EOF or an other error disable the reader;
+                        shut = true;
+                        onError(errnum);
                     } else {
-                        ret = 0;
+                        // Just continue in case of EAGAIN/EWOULDBLOCK or EINTR
                     }
                 } else {
                     size += static_cast<std::size_t>(retRead);
@@ -123,6 +132,8 @@ namespace core::socket::stream {
         char data[MAX_READ_JUNKSIZE];
 
         bool markShutdown = false;
+
+        bool shut = false;
     };
 
 } // namespace core::socket::stream

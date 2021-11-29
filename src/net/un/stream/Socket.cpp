@@ -18,6 +18,8 @@
 
 #include "net/un/stream/Socket.h"
 
+#include "log/Logger.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdio> // for remove
@@ -28,7 +30,9 @@
 namespace net::un::stream {
 
     Socket::~Socket() {
-        std::remove(getBindAddress().address().data());
+        if (!getBindAddress().toString().empty() && std::remove(getBindAddress().address().data()) != 0) {
+            PLOG(ERROR) << "remove: sunPath: " << getBindAddress().toString();
+        }
     }
 
     int Socket::create(int flags) {

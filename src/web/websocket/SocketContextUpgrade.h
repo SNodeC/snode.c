@@ -261,18 +261,6 @@ namespace web::websocket {
             Receiver::receive();
         }
 
-        void onReadError(int errnum) override {
-            if (errnum != 0) {
-                PLOG(INFO) << "OnReadError:";
-            }
-        }
-
-        void onWriteError(int errnum) override {
-            if (errnum != 0) {
-                PLOG(INFO) << "OnWriteError:";
-            }
-        }
-
     protected:
         SubProtocol* subProtocol = nullptr;
 

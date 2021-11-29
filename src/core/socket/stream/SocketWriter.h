@@ -63,14 +63,20 @@ namespace core::socket::stream {
 
         virtual void doShutdown() {
             Socket::shutdown(Socket::shutdown::WR);
+            shut = true;
             resume();
+            // disable(); // Normally this should be sufficient - but google-chrome
         }
 
         void shutdown() {
-            if (isSuspended()) {
-                doShutdown();
-            } else {
-                markShutdown = true;
+            if (!shut) {
+                if (!markShutdown) {
+                    if (isSuspended()) {
+                        doShutdown();
+                    } else {
+                        markShutdown = true;
+                    }
+                }
             }
         }
 
@@ -85,21 +91,29 @@ namespace core::socket::stream {
         }
 
         void doWrite() {
+            errno = 0;
+
+            ssize_t retWrite = 0;
+
+            std::size_t writeLen = (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE;
+
+            retWrite = write(writeBuffer.data(), writeLen);
+
+            int errnum = getError();
+
+            if (retWrite < 0 && errnum != EAGAIN && errnum != EWOULDBLOCK && errnum != EINTR) {
+                disable();
+                shut = true;
+
+                onError(errnum);
+            } else { // Remove on shutdown and on regular write
+                writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);
+            }
+
             if (writeBuffer.empty()) {
                 suspend();
-                if (markShutdown) {
+                if (markShutdown && !shut) {
                     doShutdown();
-                    markShutdown = false;
-                }
-            } else {
-                ssize_t retWrite =
-                    write(writeBuffer.data(), (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE);
-
-                if (retWrite > 0) {
-                    writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);
-                } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
-                    disable();
-                    onError(getError());
                 }
             }
         }
@@ -112,6 +126,8 @@ namespace core::socket::stream {
         std::vector<char> writeBuffer;
 
         bool markShutdown = false;
+
+        bool shut = false;
     };
 
 } // namespace core::socket::stream

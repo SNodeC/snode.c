@@ -18,4 +18,13 @@
 
 #include "web/http/SocketContext.h"
 
-namespace web::http {} // namespace web::http
+#include "log/Logger.h"
+
+namespace web::http {
+
+    void SocketContext::onWriteError(int errnum) {
+        PLOG(ERROR) << "OnWriteError - HTTP1: " << errnum;
+        shutdownRead(); // Because google chrome did not close the our read side in case we cloused the our write side
+    }
+
+} // namespace web::http

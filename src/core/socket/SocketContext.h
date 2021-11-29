@@ -57,13 +57,17 @@ namespace core::socket {
         void setTimeout(int timeout);
 
         virtual void onReceiveFromPeer() = 0;
-        virtual void onWriteError(int errnum) = 0;
-        virtual void onReadError(int errnum) = 0;
+
+        virtual void onWriteError(int errnum);
+        virtual void onReadError(int errnum);
 
         virtual void onConnected();
         virtual void onDisconnected();
 
         Role getRole() const;
+
+        void shutdownRead();
+        void shutdownWrite();
 
     private:
         SocketConnection* socketConnection;

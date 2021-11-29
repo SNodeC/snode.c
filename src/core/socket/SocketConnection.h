@@ -58,6 +58,9 @@ namespace core::socket {
 
         virtual void close() = 0;
 
+        virtual void shutdownRead() = 0;
+        virtual void shutdownWrite() = 0;
+
         virtual void setTimeout(int timeout) = 0;
 
         virtual SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory) = 0;

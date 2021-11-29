@@ -58,9 +58,6 @@ namespace web::http::client {
     private:
         void onReceiveFromPeer() override;
 
-        void onWriteError(int errnum) override;
-        void onReadError(int errnum) override;
-
         void sendToPeerCompleted() override;
 
         void onConnected() override;

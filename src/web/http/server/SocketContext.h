@@ -70,9 +70,6 @@ namespace web::http::server {
     private:
         void onReceiveFromPeer() override;
 
-        void onReadError(int errnum) override;
-        void onWriteError(int errnum) override;
-
         void sendToPeerCompleted() override;
 
         void onConnected() override;
