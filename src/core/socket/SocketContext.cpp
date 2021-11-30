@@ -90,13 +90,12 @@ namespace core::socket {
 
     void SocketContext::onWriteError([[maybe_unused]] int errnum) {
         PLOG(ERROR) << "OnWriteError: " << errnum;
+        shutdownRead();
     }
 
     void SocketContext::onReadError([[maybe_unused]] int errnum) {
         PLOG(ERROR) << "OnReadError: " << errnum;
-        //        if (errnum == 0) { // if we get EOF gracefully shut down also the write side
         shutdownWrite();
-        //        }
     }
 
 } // namespace core::socket

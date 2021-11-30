@@ -98,16 +98,13 @@ namespace core::socket::stream {
                     retRead = read(data, MAX_READ_JUNKSIZE);
                 }
 
-                //            int errnum = getError();
-                int errnum = errno;
-
                 if (retRead > 0) {
                     size += static_cast<std::size_t>(retRead);
-                } else if (errnum != EAGAIN && errnum != EWOULDBLOCK && errnum != EINTR) {
+                } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
                     size = 0;
                     cursor = 0;
                     disable(); // if we get a EOF or an other error disable the reader;
-                    onError(errnum);
+                    onError(errno);
                 }
             }
 
@@ -136,10 +133,9 @@ namespace core::socket::stream {
     private:
         std::function<void(int)> onError;
 
-        std::size_t cursor = 0;
-        std::size_t size = 0;
-
         char data[MAX_READ_JUNKSIZE];
+        std::size_t size = 0;
+        std::size_t cursor = 0;
 
         bool shutdownTriggered = false;
     };

@@ -37,8 +37,6 @@ namespace web::http {
         SocketContext(const SocketContext&) = delete;
         SocketContext& operator=(const SocketContext&) = delete;
 
-        void onWriteError([[maybe_unused]] int errnum) override;
-
     public:
         virtual void sendToPeerCompleted() = 0;
     };

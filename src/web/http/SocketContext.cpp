@@ -20,11 +20,4 @@
 
 #include "log/Logger.h"
 
-namespace web::http {
-
-    void SocketContext::onWriteError(int errnum) {
-        PLOG(ERROR) << "OnWriteError: " << errnum;
-        shutdownRead(); // Because google chrome did not close the our read side in case we cloused the our write side
-    }
-
-} // namespace web::http
+namespace web::http {} // namespace web::http

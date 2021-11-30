@@ -104,14 +104,11 @@ namespace core::socket::stream {
                 retWrite = write(writeBuffer.data(), writeLen);
             }
 
-            //            int errnum = getError();
-            int errnum = errno;
-
             if (retWrite >= 0) {
                 writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);
-            } else if (errnum != EAGAIN && errnum != EWOULDBLOCK && errnum != EINTR) {
+            } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
                 disable();
-                onError(errnum);
+                onError(errno);
             }
 
             if (writeBuffer.empty()) {
