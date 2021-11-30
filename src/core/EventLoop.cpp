@@ -108,13 +108,18 @@ namespace core {
                                                &exceptionalConditionEventDispatcher.getFdSet(),
                                                &nextEventTimeout);
 
-            if (counter >= 0 || errno == EINTR) {
+            if (counter >= 0 || stopsig != 0) {
                 timerEventDispatcher.dispatch();
                 currentTime = {core::system::time(nullptr), 0};
 
-                readEventDispatcher.dispatchActiveEvents(currentTime);
-                writeEventDispatcher.dispatchActiveEvents(currentTime);
-                exceptionalConditionEventDispatcher.dispatchActiveEvents(currentTime);
+                if (stopsig == 0) {
+                    readEventDispatcher.dispatchActiveEvents(currentTime);
+                    writeEventDispatcher.dispatchActiveEvents(currentTime);
+                    exceptionalConditionEventDispatcher.dispatchActiveEvents(currentTime);
+                } else {
+                    EventLoop::instance()._release();
+                    stopsig = 0;
+                }
 
                 readEventDispatcher.unobserveDisabledEvents();
                 writeEventDispatcher.unobserveDisabledEvents();
@@ -222,7 +227,7 @@ namespace core {
     void EventLoop::stoponsig(int sig) {
         stopsig = sig;
 
-        EventLoop::instance()._release();
+        //        EventLoop::instance()._release();
     }
 
     unsigned long EventLoop::getEventCounter() {

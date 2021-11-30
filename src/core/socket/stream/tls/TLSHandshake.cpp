@@ -149,6 +149,8 @@ namespace core::socket::stream::tls {
     }
 
     void TLSHandshake::terminate() {
+        ReadEventReceiver::disable();
+        WriteEventReceiver::disable();
     }
 
 } // namespace core::socket::stream::tls
