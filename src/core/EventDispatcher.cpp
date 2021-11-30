@@ -136,6 +136,28 @@ namespace core {
         return fdSet.get();
     }
 
+    timeval EventDispatcher::getNextTimeout(struct timeval currentTime) const {
+        struct timeval nextInactivityTimeout {
+            LONG_MAX, 0
+        };
+
+        for ([[maybe_unused]] const auto& [fd, eventReceivers] : observedEventReceiver) {
+            EventReceiver* eventReceiver = eventReceivers.front();
+
+            if (!eventReceiver->isSuspended()) {
+                if (eventReceiver->continueImmediately()) {
+                    nextInactivityTimeout = {0, 0};
+                } else {
+                    struct timeval maxInactivity = eventReceiver->getTimeout();
+                    struct timeval inactivity = currentTime - eventReceiver->getLastTriggered();
+                    nextInactivityTimeout = std::min(maxInactivity - inactivity, nextInactivityTimeout);
+                }
+            }
+        }
+
+        return nextInactivityTimeout;
+    }
+
     struct timeval EventDispatcher::observeEnabledEvents() {
         struct timeval nextTimeout = {LONG_MAX, 0};
 

@@ -88,6 +88,13 @@ namespace core {
         nextDispatcherTimeout = exceptionalConditionEventDispatcher.observeEnabledEvents();
         nextEventTimeout = std::min(nextDispatcherTimeout, nextEventTimeout);
 
+        struct timeval currentTime1 = {core::system::time(nullptr), 0};
+        nextEventTimeout = readEventDispatcher.getNextTimeout(currentTime1);
+        nextDispatcherTimeout = writeEventDispatcher.getNextTimeout(currentTime1);
+        nextEventTimeout = std::min(nextDispatcherTimeout, nextEventTimeout);
+        nextDispatcherTimeout = exceptionalConditionEventDispatcher.getNextTimeout(currentTime1);
+        nextEventTimeout = std::min(nextDispatcherTimeout, nextEventTimeout);
+
         nextDispatcherTimeout = timerEventDispatcher.getNextTimeout();
         nextEventTimeout = std::min(nextDispatcherTimeout, nextEventTimeout);
 
