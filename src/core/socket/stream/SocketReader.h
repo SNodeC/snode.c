@@ -58,38 +58,37 @@ namespace core::socket::stream {
 
         virtual ~SocketReader() = default;
 
-        virtual void doShutdown() {
-            Socket::shutdown(Socket::shutdown::RD);
-            resume();
-            setTimeout(MAX_SHUTDOWN_TIMEOUT);
-        }
-
-        void shutdown() {
-            if (!shut) {
-                if (!isSuspended()) {
-                    suspend();
-                }
-                doShutdown();
-                shut = true;
-            }
-        }
-
     private:
         virtual ssize_t read(char* junk, std::size_t junkLen) = 0;
 
         virtual void readEvent() override = 0;
 
     protected:
+        virtual void doShutdown() {
+            Socket::shutdown(Socket::shutdown::RD);
+            resume();
+            shutdownTriggered = true;
+        }
+
+        void shutdown() {
+            if (!shutdownTriggered) {
+                if (!isSuspended()) {
+                    suspend();
+                }
+                doShutdown();
+                setTimeout(MAX_SHUTDOWN_TIMEOUT);
+                triggered();
+            }
+        }
+
         void terminate() override {
             setTimeout(MAX_SHUTDOWN_TIMEOUT);
             triggered();
-            //            shutdown(); // do not shutdown our read side because we try to do a full tcp shutdown sequence.
+            // shutdown(); // do not shutdown our read side because we try to do a full tcp shutdown sequence.
         }
 
         ssize_t readFromPeer(char* junk, std::size_t junkLen) {
             errno = 0;
-
-            ssize_t ret = 0;
 
             if (size == 0) {
                 coursor = 0;
@@ -101,7 +100,7 @@ namespace core::socket::stream {
                 if (retRead <= 0) {
                     if (errnum != EAGAIN && errnum != EWOULDBLOCK && errnum != EINTR) {
                         disable(); // if we get a EOF or an other error disable the reader;
-                        shut = true;
+                        shutdownTriggered = true;
                         onError(errnum);
                     } else {
                         // Just continue in case of EAGAIN/EWOULDBLOCK or EINTR
@@ -110,6 +109,8 @@ namespace core::socket::stream {
                     size += static_cast<std::size_t>(retRead);
                 }
             }
+
+            ssize_t ret = 0;
 
             if (size > 0) {
                 std::size_t maxReturn = std::min(junkLen, size);
@@ -138,9 +139,7 @@ namespace core::socket::stream {
 
         char data[MAX_READ_JUNKSIZE];
 
-        bool markShutdown = false;
-
-        bool shut = false;
+        bool shutdownTriggered = false;
     };
 
 } // namespace core::socket::stream
