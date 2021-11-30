@@ -58,14 +58,6 @@ namespace apps::echo::model {
         }
     }
 
-    void EchoSocketContext::onWriteError(int errnum) {
-        VLOG(0) << "OnWriteError: " << errnum;
-    }
-
-    void EchoSocketContext::onReadError(int errnum) {
-        VLOG(0) << "OnReadError: " << errnum;
-    }
-
     EchoServerSocketContext::EchoServerSocketContext(core::socket::SocketConnection* socketConnection)
         : EchoSocketContext(socketConnection, Role::SERVER) {
     }

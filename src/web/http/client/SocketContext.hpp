@@ -74,20 +74,6 @@ namespace web::http::client {
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::onWriteError(int errnum) {
-        if (errnum != 0 && errnum != ECONNRESET) {
-            PLOG(ERROR) << "Connection write: " << errnum;
-        }
-    }
-
-    template <typename Request, typename Response>
-    void SocketContext<Request, Response>::onReadError(int errnum) {
-        if (errnum != 0 && errnum != ECONNRESET) {
-            PLOG(ERROR) << "Connection read: " << errnum;
-        }
-    }
-
-    template <typename Request, typename Response>
     Request& SocketContext<Request, Response>::getRequest() {
         return request;
     }

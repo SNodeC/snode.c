@@ -60,7 +60,7 @@ namespace core::socket::stream::tls {
                             },
                             [this](int sslErr) -> void {
                                 ssl_log("SSL/TLS renegotiation", sslErr);
-                                setSSLError(sslErr);
+                                this->sslErr = sslErr;
                             });
                         errno = EAGAIN;
                         break;
@@ -68,39 +68,18 @@ namespace core::socket::stream::tls {
                         ret = 0;
                         errno = EAGAIN;
                         break;
-                    case SSL_ERROR_ZERO_RETURN:
-                        ret = 0;
-                        errno = 0;
+                    case SSL_ERROR_ZERO_RETURN: // shutdown cleanly
+                        ret = -1;               // on the write side this means a TCP broken pipe
                         break;
                     case SSL_ERROR_SYSCALL:
-                        if (errno != 0) {
-                            ssl_log("SSL/TLS write failed", sslErr);
-                        }
+                        ret = -1;
                         break;
                     default:
                         ssl_log("SSL/TLS write failed", sslErr);
+                        ret = -1;
                         break;
                 }
             }
-
-            return ret;
-        }
-
-        int getError() override {
-            int ret = errno;
-
-            switch (sslErr) {
-                case SSL_ERROR_NONE:
-                    [[fallthrough]];
-                case SSL_ERROR_ZERO_RETURN:
-                    ret = 0;
-                    break;
-                case SSL_ERROR_SYSCALL:
-                    break;
-                default:
-                    ret = -sslErr;
-                    break;
-            };
 
             return ret;
         }
@@ -115,10 +94,6 @@ namespace core::socket::stream::tls {
         virtual void doSSLHandshake(const std::function<void()>& onSuccess,
                                     const std::function<void()>& onTimeout,
                                     const std::function<void(int)>& onError) = 0;
-
-        void setSSLError(int sslErr) {
-            this->sslErr = sslErr;
-        }
 
         SSL* ssl = nullptr;
 

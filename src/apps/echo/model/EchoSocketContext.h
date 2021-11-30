@@ -40,9 +40,6 @@ namespace apps::echo::model {
         void onDisconnected() override;
 
         void onReceiveFromPeer() override;
-
-        void onWriteError(int errnum) override;
-        void onReadError(int errnum) override;
     };
 
     class EchoServerSocketContext : public EchoSocketContext {

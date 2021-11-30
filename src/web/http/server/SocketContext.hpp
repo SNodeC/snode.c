@@ -117,22 +117,6 @@ namespace web::http::server {
     }
 
     template <typename Request, typename Response>
-    void SocketContext<Request, Response>::onReadError(int errnum) {
-        if (errnum != 0 && errnum != ECONNRESET) {
-            PLOG(ERROR) << "Connection read: " << errnum;
-            reset();
-        }
-    }
-
-    template <typename Request, typename Response>
-    void SocketContext<Request, Response>::onWriteError(int errnum) {
-        if (errnum != 0 && errnum != ECONNRESET) {
-            PLOG(ERROR) << "Connection write: " << errnum;
-            reset();
-        }
-    }
-
-    template <typename Request, typename Response>
     void SocketContext<Request, Response>::requestParsed() {
         if (!requestInProgress) {
             RequestContext& requestContext = requestContexts.front();

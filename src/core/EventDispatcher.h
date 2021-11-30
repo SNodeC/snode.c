@@ -76,8 +76,10 @@ namespace core {
         int getMaxFd() const;
         fd_set& getFdSet();
 
-        struct timeval observeEnabledEvents();
-        struct timeval dispatchActiveEvents(struct timeval currentTime);
+        struct timeval getNextTimeout(struct timeval currentTime) const;
+
+        void observeEnabledEvents();
+        void dispatchActiveEvents(struct timeval currentTime);
         void unobserveDisabledEvents();
         void releaseUnobservedEvents();
 

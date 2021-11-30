@@ -79,22 +79,23 @@ namespace core {
     }
 
     void EventReceiver::terminate() {
-        disable();
+        if (isEnabled()) {
+            disable();
+        }
     }
 
     void EventReceiver::setTimeout(long timeout) {
-        if (timeout != TIMEOUT::DEFAULT) {
-            this->maxInactivity = timeout;
-        } else {
+        if (timeout == TIMEOUT::DEFAULT) {
             this->maxInactivity = initialTimeout;
+        } else {
+            this->maxInactivity = timeout;
         }
+
+        triggered();
     }
 
     timeval EventReceiver::getTimeout() const {
         return {maxInactivity, 0};
-    }
-
-    void EventReceiver::timeoutEvent() {
     }
 
     void EventReceiver::triggered(struct timeval lastTriggered) {

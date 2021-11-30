@@ -42,10 +42,6 @@ namespace core::socket::stream::legacy {
             return core::system::recv(this->getFd(), junk, junkLen, 0);
         }
 
-        int getError() override {
-            return errno;
-        }
-
         bool continueReadImmediately() override {
             return core::socket::stream::SocketReader<SocketT>::continueReadImmediately();
         }

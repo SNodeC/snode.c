@@ -148,7 +148,4 @@ namespace core::socket::stream::tls {
         delete this;
     }
 
-    void TLSHandshake::terminate() {
-    }
-
 } // namespace core::socket::stream::tls

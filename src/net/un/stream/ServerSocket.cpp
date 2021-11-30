@@ -31,7 +31,7 @@ namespace net::un::stream {
 
     void ServerSocket::listen(const std::string& sunPath, int backlog, const std::function<void(const Socket& socket, int)>& onError) {
         if (std::remove(sunPath.data()) != 0 && errno != ENOENT) {
-            PLOG(ERROR) << "listen: sunPath";
+            PLOG(ERROR) << "listen: sunPath: " << sunPath;
         } else {
             listen(SocketAddress(sunPath), backlog, onError);
         }

@@ -35,6 +35,10 @@
 #define MAX_SEND_JUNKSIZE 16384
 #endif
 
+#ifndef MAX_SHUTDOWN_TIMEOUT
+#define MAX_SHUTDOWN_TIMEOUT 1
+#endif
+
 namespace core::socket::stream {
 
     template <typename SocketT>
@@ -61,57 +65,71 @@ namespace core::socket::stream {
             }
         }
 
-        virtual void doShutdown() {
-            Socket::shutdown(Socket::shutdown::WR);
-            resume();
-        }
-
-        void shutdown() {
-            if (isSuspended()) {
-                doShutdown();
-            } else {
-                markShutdown = true;
-            }
-        }
-
     private:
         virtual ssize_t write(const char* junk, std::size_t junkLen) = 0;
 
         virtual void writeEvent() override = 0;
 
     protected:
+        virtual void doShutdown() {
+            Socket::shutdown(Socket::shutdown::WR);
+            resume();
+            shutdownTriggered = true;
+            // disable(); // Normally this should be sufficient - but google-chrome
+        }
+
+        void shutdown() {
+            if (!shutdownTriggered) {
+                if (isSuspended()) {
+                    doShutdown();
+                    markShutdown = false;
+                } else {
+                    markShutdown = true;
+                }
+                setTimeout(MAX_SHUTDOWN_TIMEOUT);
+            }
+        }
+
         void terminate() override {
             shutdown();
         }
 
         void doWrite() {
+            errno = 0;
+
+            std::size_t writeLen = (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE;
+
+            ssize_t retWrite = -1;
+            if (!shutdownTriggered) {
+                retWrite = write(writeBuffer.data(), writeLen);
+            }
+
+            //            int errnum = getError();
+            int errnum = errno;
+
+            if (retWrite >= 0) {
+                writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);
+            } else if (errnum != EAGAIN && errnum != EWOULDBLOCK && errnum != EINTR) {
+                disable();
+                onError(errnum);
+            }
+
             if (writeBuffer.empty()) {
                 suspend();
                 if (markShutdown) {
-                    doShutdown();
-                    markShutdown = false;
-                }
-            } else {
-                ssize_t retWrite =
-                    write(writeBuffer.data(), (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE);
-
-                if (retWrite > 0) {
-                    writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);
-                } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
-                    disable();
-                    onError(getError());
+                    shutdown();
                 }
             }
         }
 
     private:
-        virtual int getError() = 0;
-
         std::function<void(int)> onError;
 
         std::vector<char> writeBuffer;
 
         bool markShutdown = false;
+
+        bool shutdownTriggered = false;
     };
 
 } // namespace core::socket::stream
