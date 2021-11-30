@@ -79,28 +79,24 @@ namespace core {
     TickStatus EventLoop::_tick(struct timeval timeOut) {
         TickStatus tickStatus = TickStatus::SUCCESS;
 
-        struct timeval nextDispatcherTimeout = readEventDispatcher.observeEnabledEvents();
-        nextEventTimeout = std::min(nextDispatcherTimeout, nextEventTimeout);
-
-        nextDispatcherTimeout = writeEventDispatcher.observeEnabledEvents();
-        nextEventTimeout = std::min(nextDispatcherTimeout, nextEventTimeout);
-
-        nextDispatcherTimeout = exceptionalConditionEventDispatcher.observeEnabledEvents();
-        nextEventTimeout = std::min(nextDispatcherTimeout, nextEventTimeout);
-
-        struct timeval currentTime1 = {core::system::time(nullptr), 0};
-        nextEventTimeout = readEventDispatcher.getNextTimeout(currentTime1);
-        nextDispatcherTimeout = writeEventDispatcher.getNextTimeout(currentTime1);
-        nextEventTimeout = std::min(nextDispatcherTimeout, nextEventTimeout);
-        nextDispatcherTimeout = exceptionalConditionEventDispatcher.getNextTimeout(currentTime1);
-        nextEventTimeout = std::min(nextDispatcherTimeout, nextEventTimeout);
-
-        nextDispatcherTimeout = timerEventDispatcher.getNextTimeout();
-        nextEventTimeout = std::min(nextDispatcherTimeout, nextEventTimeout);
+        readEventDispatcher.observeEnabledEvents();
+        writeEventDispatcher.observeEnabledEvents();
+        exceptionalConditionEventDispatcher.observeEnabledEvents();
 
         int maxFd = readEventDispatcher.getMaxFd();
         maxFd = std::max(writeEventDispatcher.getMaxFd(), maxFd);
         maxFd = std::max(exceptionalConditionEventDispatcher.getMaxFd(), maxFd);
+
+        struct timeval currentTime = {core::system::time(nullptr), 0};
+
+        nextEventTimeout = readEventDispatcher.getNextTimeout(currentTime);
+        struct timeval nextDispatcherTimeout = writeEventDispatcher.getNextTimeout(currentTime);
+        nextEventTimeout = std::min(nextDispatcherTimeout, nextEventTimeout);
+        nextDispatcherTimeout = exceptionalConditionEventDispatcher.getNextTimeout(currentTime);
+        nextEventTimeout = std::min(nextDispatcherTimeout, nextEventTimeout);
+
+        nextDispatcherTimeout = timerEventDispatcher.getNextTimeout();
+        nextEventTimeout = std::min(nextDispatcherTimeout, nextEventTimeout);
 
         if (maxFd >= 0 || !timerEventDispatcher.empty()) {
             nextEventTimeout = std::max(nextEventTimeout, {0, 0});
@@ -113,20 +109,12 @@ namespace core {
                                                &nextEventTimeout);
 
             if (counter >= 0 || errno == EINTR) {
-                nextEventTimeout = {LONG_MAX, 0};
-
                 timerEventDispatcher.dispatch();
+                currentTime = {core::system::time(nullptr), 0};
 
-                struct timeval currentTime = {core::system::time(nullptr), 0};
-
-                nextDispatcherTimeout = readEventDispatcher.dispatchActiveEvents(currentTime);
-                nextEventTimeout = std::min(nextDispatcherTimeout, nextEventTimeout);
-
-                nextDispatcherTimeout = writeEventDispatcher.dispatchActiveEvents(currentTime);
-                nextEventTimeout = std::min(nextDispatcherTimeout, nextEventTimeout);
-
-                nextDispatcherTimeout = exceptionalConditionEventDispatcher.dispatchActiveEvents(currentTime);
-                nextEventTimeout = std::min(nextDispatcherTimeout, nextEventTimeout);
+                readEventDispatcher.dispatchActiveEvents(currentTime);
+                writeEventDispatcher.dispatchActiveEvents(currentTime);
+                exceptionalConditionEventDispatcher.dispatchActiveEvents(currentTime);
 
                 readEventDispatcher.unobserveDisabledEvents();
                 writeEventDispatcher.unobserveDisabledEvents();

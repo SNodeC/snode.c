@@ -78,8 +78,8 @@ namespace core {
 
         struct timeval getNextTimeout(struct timeval currentTime) const;
 
-        struct timeval observeEnabledEvents();
-        struct timeval dispatchActiveEvents(struct timeval currentTime);
+        void observeEnabledEvents();
+        void dispatchActiveEvents(struct timeval currentTime);
         void unobserveDisabledEvents();
         void releaseUnobservedEvents();
 

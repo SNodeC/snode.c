@@ -35,6 +35,10 @@
 #define MAX_SEND_JUNKSIZE 16384
 #endif
 
+#ifndef MAX_SHUTDOWN_TIMEOUT
+#define MAX_SHUTDOWN_TIMEOUT 1
+#endif
+
 namespace core::socket::stream {
 
     template <typename SocketT>
@@ -65,6 +69,8 @@ namespace core::socket::stream {
             Socket::shutdown(Socket::shutdown::WR);
             shut = true;
             resume();
+            setTimeout(MAX_SHUTDOWN_TIMEOUT);
+            triggered();
             // disable(); // Normally this should be sufficient - but google-chrome
         }
 

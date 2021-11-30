@@ -69,13 +69,13 @@ namespace core {
 
         void setTimeout(long timeout);
 
+        void triggered(struct timeval lastTriggered = {time(nullptr), 0});
+
     private:
         void disabled();
 
         struct timeval getTimeout() const;
         struct timeval getLastTriggered();
-
-        void triggered(struct timeval lastTriggered = {time(nullptr), 0});
 
         virtual void dispatchEvent() = 0;
         virtual void timeoutEvent();

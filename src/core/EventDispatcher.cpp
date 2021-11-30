@@ -158,30 +158,21 @@ namespace core {
         return nextInactivityTimeout;
     }
 
-    struct timeval EventDispatcher::observeEnabledEvents() {
-        struct timeval nextTimeout = {LONG_MAX, 0};
-
+    void EventDispatcher::observeEnabledEvents() {
         for (const auto& [fd, eventReceivers] : enabledEventReceiver) {
             for (EventReceiver* eventReceiver : eventReceivers) {
                 observedEventReceiver[fd].push_front(eventReceiver);
                 if (!eventReceiver->isSuspended()) {
                     fdSet.set(fd);
-                    nextTimeout = std::min(nextTimeout, eventReceiver->getTimeout());
                 } else {
                     fdSet.clr(fd);
                 }
             }
         }
         enabledEventReceiver.clear();
-
-        return nextTimeout;
     }
 
-    struct timeval EventDispatcher::dispatchActiveEvents(struct timeval currentTime) {
-        struct timeval nextInactivityTimeout {
-            LONG_MAX, 0
-        };
-
+    void EventDispatcher::dispatchActiveEvents(struct timeval currentTime) {
         for (const auto& [fd, eventReceivers] : observedEventReceiver) {
             EventReceiver* eventReceiver = eventReceivers.front();
             struct timeval maxInactivity = eventReceiver->getTimeout();
@@ -189,24 +180,13 @@ namespace core {
                 eventCounter++;
                 eventReceiver->dispatchEvent();
                 eventReceiver->triggered(currentTime);
-                if (!eventReceiver->isSuspended()) {
-                    if (eventReceiver->continueImmediately()) {
-                        nextInactivityTimeout = {0, 0};
-                    } else {
-                        nextInactivityTimeout = std::min(nextInactivityTimeout, maxInactivity);
-                    }
-                }
             } else {
                 struct timeval inactivity = currentTime - eventReceiver->getLastTriggered();
                 if (inactivity >= maxInactivity) {
                     eventReceiver->timeoutEvent();
-                } else {
-                    nextInactivityTimeout = std::min(maxInactivity - inactivity, nextInactivityTimeout);
                 }
             }
         }
-
-        return nextInactivityTimeout;
     }
 
     void EventDispatcher::unobserveDisabledEvents() {

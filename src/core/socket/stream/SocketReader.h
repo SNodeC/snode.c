@@ -36,6 +36,10 @@
 #define MAX_READ_JUNKSIZE 16384
 #endif
 
+#ifndef MAX_SHUTDOWN_TIMEOUT
+#define MAX_SHUTDOWN_TIMEOUT 1
+#endif
+
 namespace core::socket::stream {
 
     template <typename SocketT>
@@ -57,6 +61,7 @@ namespace core::socket::stream {
         virtual void doShutdown() {
             Socket::shutdown(Socket::shutdown::RD);
             resume();
+            setTimeout(MAX_SHUTDOWN_TIMEOUT);
         }
 
         void shutdown() {
@@ -76,6 +81,8 @@ namespace core::socket::stream {
 
     protected:
         void terminate() override {
+            setTimeout(MAX_SHUTDOWN_TIMEOUT);
+            triggered();
             //            shutdown(); // do not shutdown our read side because we try to do a full tcp shutdown sequence.
         }
 
