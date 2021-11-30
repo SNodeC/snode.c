@@ -39,7 +39,6 @@ namespace core {
 
     protected:
         int observationCounter = 0;
-        struct timeval lastTriggered = {0, 0};
     };
 
     class EventReceiver : virtual public ObservationCounter {
@@ -90,6 +89,8 @@ namespace core {
 
         bool _enabled = false;
         bool _suspended = false;
+
+        struct timeval lastTriggered = {0, 0};
 
         long maxInactivity = LONG_MAX;
         const long initialTimeout;
