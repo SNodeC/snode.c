@@ -23,7 +23,7 @@
 namespace web::http {
 
     void SocketContext::onWriteError(int errnum) {
-        PLOG(ERROR) << "OnWriteError - HTTP1: " << errnum;
+        PLOG(ERROR) << "OnWriteError: " << errnum;
         shutdownRead(); // Because google chrome did not close the our read side in case we cloused the our write side
     }
 

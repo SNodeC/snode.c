@@ -60,7 +60,7 @@ namespace core::socket::stream::tls {
                             },
                             [this](int sslErr) -> void {
                                 ssl_log("SSL/TLS renegotiation", sslErr);
-                                setSSLError(sslErr);
+                                this->sslErr = sslErr;
                             });
                         errno = EAGAIN;
                         break;
@@ -84,24 +84,6 @@ namespace core::socket::stream::tls {
             return ret;
         }
 
-        int getError() override {
-            int ret = errno;
-
-            switch (sslErr) {
-                case SSL_ERROR_NONE:
-                    break;
-                case SSL_ERROR_ZERO_RETURN:
-                    break;
-                case SSL_ERROR_SYSCALL:
-                    break;
-                default:
-                    ret = errno;
-                    break;
-            };
-
-            return ret;
-        }
-
         virtual void writeEvent() override = 0;
 
     protected:
@@ -112,10 +94,6 @@ namespace core::socket::stream::tls {
         virtual void doSSLHandshake(const std::function<void()>& onSuccess,
                                     const std::function<void()>& onTimeout,
                                     const std::function<void(int)>& onError) = 0;
-
-        void setSSLError(int sslErr) {
-            this->sslErr = sslErr;
-        }
 
         SSL* ssl = nullptr;
 

@@ -79,7 +79,7 @@ namespace core {
     }
 
     void EventReceiver::terminate() {
-        if (!isSuspended()) {
+        if (isEnabled()) {
             disable();
         }
     }
@@ -90,13 +90,12 @@ namespace core {
         } else {
             this->maxInactivity = timeout;
         }
+
+        triggered();
     }
 
     timeval EventReceiver::getTimeout() const {
         return {maxInactivity, 0};
-    }
-
-    void EventReceiver::timeoutEvent() {
     }
 
     void EventReceiver::triggered(struct timeval lastTriggered) {

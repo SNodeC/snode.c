@@ -80,15 +80,13 @@ namespace core::socket::stream {
 
         void shutdown() {
             if (!shutdownTriggered) {
-                if (!markShutdown) {
-                    if (isSuspended()) {
-                        doShutdown();
-                    } else {
-                        markShutdown = true;
-                    }
+                if (isSuspended()) {
+                    doShutdown();
+                    markShutdown = false;
+                } else {
+                    markShutdown = true;
                 }
                 setTimeout(MAX_SHUTDOWN_TIMEOUT);
-                triggered();
             }
         }
 
@@ -99,38 +97,32 @@ namespace core::socket::stream {
         void doWrite() {
             errno = 0;
 
-            ssize_t retWrite = 0;
-
             std::size_t writeLen = (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE;
 
-            retWrite = write(writeBuffer.data(), writeLen);
+            ssize_t retWrite = -1;
+            if (!shutdownTriggered) {
+                retWrite = write(writeBuffer.data(), writeLen);
+            }
 
-            int errnum = getError();
+            //            int errnum = getError();
+            int errnum = errno;
 
-            if (retWrite < 0) {
-                if (errnum != EAGAIN && errnum != EWOULDBLOCK && errnum != EINTR) {
-                    disable();
-                    shutdownTriggered = true;
-
-                    onError(errnum);
-                } else {
-                    // Just continue in case of EAGAIN/EWOULDBLOCK or EINTR
-                }
-            } else { // Remove on shutdown and on regular write
+            if (retWrite >= 0) {
                 writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);
+            } else if (errnum != EAGAIN && errnum != EWOULDBLOCK && errnum != EINTR) {
+                disable();
+                onError(errnum);
             }
 
             if (writeBuffer.empty()) {
                 suspend();
-                if (markShutdown && !shutdownTriggered) {
-                    doShutdown();
+                if (markShutdown) {
+                    shutdown();
                 }
             }
         }
 
     private:
-        virtual int getError() = 0;
-
         std::function<void(int)> onError;
 
         std::vector<char> writeBuffer;

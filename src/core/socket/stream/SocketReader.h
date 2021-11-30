@@ -77,49 +77,53 @@ namespace core::socket::stream {
                 }
                 doShutdown();
                 setTimeout(MAX_SHUTDOWN_TIMEOUT);
-                triggered();
             }
         }
 
         void terminate() override {
             setTimeout(MAX_SHUTDOWN_TIMEOUT);
-            triggered();
             // shutdown(); // do not shutdown our read side because we try to do a full tcp shutdown sequence.
         }
 
         ssize_t readFromPeer(char* junk, std::size_t junkLen) {
             errno = 0;
 
+            ssize_t ret = 0;
+
             if (size == 0) {
-                coursor = 0;
+                cursor = 0;
 
-                ssize_t retRead = read(data, MAX_READ_JUNKSIZE);
+                ssize_t retRead = 0;
+                if (!shutdownTriggered) {
+                    retRead = read(data, MAX_READ_JUNKSIZE);
+                }
 
-                int errnum = getError();
+                //            int errnum = getError();
+                int errnum = errno;
 
-                if (retRead <= 0) {
-                    if (errnum != EAGAIN && errnum != EWOULDBLOCK && errnum != EINTR) {
-                        disable(); // if we get a EOF or an other error disable the reader;
-                        shutdownTriggered = true;
-                        onError(errnum);
-                    } else {
-                        // Just continue in case of EAGAIN/EWOULDBLOCK or EINTR
-                    }
-                } else {
+                if (retRead > 0) {
                     size += static_cast<std::size_t>(retRead);
+                } else if (errnum != EAGAIN && errnum != EWOULDBLOCK && errnum != EINTR) {
+                    size = 0;
+                    cursor = 0;
+                    disable(); // if we get a EOF or an other error disable the reader;
+                    onError(errnum);
                 }
             }
 
-            ssize_t ret = 0;
-
             if (size > 0) {
-                std::size_t maxReturn = std::min(junkLen, size);
+                if (!shutdownTriggered) {
+                    std::size_t maxReturn = std::min(junkLen, size);
 
-                std::copy(data + coursor, data + coursor + maxReturn, junk);
-                coursor += maxReturn;
-                size -= maxReturn;
+                    std::copy(data + cursor, data + cursor + maxReturn, junk);
+                    cursor += maxReturn;
+                    size -= maxReturn;
 
-                ret = static_cast<ssize_t>(maxReturn);
+                    ret = static_cast<ssize_t>(maxReturn);
+                } else {
+                    size = 0;
+                    cursor = 0;
+                }
             }
 
             return ret;
@@ -130,11 +134,9 @@ namespace core::socket::stream {
         }
 
     private:
-        virtual int getError() = 0;
-
         std::function<void(int)> onError;
 
-        std::size_t coursor = 0;
+        std::size_t cursor = 0;
         std::size_t size = 0;
 
         char data[MAX_READ_JUNKSIZE];

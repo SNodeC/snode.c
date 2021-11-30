@@ -41,10 +41,6 @@ namespace core::socket::stream::legacy {
             return core::system::send(this->getFd(), junk, junkLen, MSG_NOSIGNAL);
         }
 
-        int getError() override {
-            return errno;
-        }
-
         virtual void writeEvent() override = 0;
 
     protected:
