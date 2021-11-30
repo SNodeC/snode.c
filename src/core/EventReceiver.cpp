@@ -83,10 +83,10 @@ namespace core {
     }
 
     void EventReceiver::setTimeout(long timeout) {
-        if (timeout != TIMEOUT::DEFAULT) {
-            this->maxInactivity = timeout;
-        } else {
+        if (timeout == TIMEOUT::DEFAULT) {
             this->maxInactivity = initialTimeout;
+        } else {
+            this->maxInactivity = timeout;
         }
     }
 
