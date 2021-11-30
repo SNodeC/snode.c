@@ -65,17 +65,21 @@ namespace core::socket::stream {
             }
         }
 
+    private:
+        virtual ssize_t write(const char* junk, std::size_t junkLen) = 0;
+
+        virtual void writeEvent() override = 0;
+
+    protected:
         virtual void doShutdown() {
             Socket::shutdown(Socket::shutdown::WR);
-            shut = true;
             resume();
-            setTimeout(MAX_SHUTDOWN_TIMEOUT);
-            triggered();
+            shutdownTriggered = true;
             // disable(); // Normally this should be sufficient - but google-chrome
         }
 
         void shutdown() {
-            if (!shut) {
+            if (!shutdownTriggered) {
                 if (!markShutdown) {
                     if (isSuspended()) {
                         doShutdown();
@@ -83,15 +87,11 @@ namespace core::socket::stream {
                         markShutdown = true;
                     }
                 }
+                setTimeout(MAX_SHUTDOWN_TIMEOUT);
+                triggered();
             }
         }
 
-    private:
-        virtual ssize_t write(const char* junk, std::size_t junkLen) = 0;
-
-        virtual void writeEvent() override = 0;
-
-    protected:
         void terminate() override {
             shutdown();
         }
@@ -107,18 +107,22 @@ namespace core::socket::stream {
 
             int errnum = getError();
 
-            if (retWrite < 0 && errnum != EAGAIN && errnum != EWOULDBLOCK && errnum != EINTR) {
-                disable();
-                shut = true;
+            if (retWrite < 0) {
+                if (errnum != EAGAIN && errnum != EWOULDBLOCK && errnum != EINTR) {
+                    disable();
+                    shutdownTriggered = true;
 
-                onError(errnum);
+                    onError(errnum);
+                } else {
+                    // Just continue in case of EAGAIN/EWOULDBLOCK or EINTR
+                }
             } else { // Remove on shutdown and on regular write
                 writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);
             }
 
             if (writeBuffer.empty()) {
                 suspend();
-                if (markShutdown && !shut) {
+                if (markShutdown && !shutdownTriggered) {
                     doShutdown();
                 }
             }
@@ -133,7 +137,7 @@ namespace core::socket::stream {
 
         bool markShutdown = false;
 
-        bool shut = false;
+        bool shutdownTriggered = false;
     };
 
 } // namespace core::socket::stream
