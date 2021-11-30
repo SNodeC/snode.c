@@ -226,8 +226,6 @@ namespace core {
 
     void EventLoop::stoponsig(int sig) {
         stopsig = sig;
-
-        //        EventLoop::instance()._release();
     }
 
     unsigned long EventLoop::getEventCounter() {
