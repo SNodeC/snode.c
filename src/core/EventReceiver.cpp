@@ -79,7 +79,9 @@ namespace core {
     }
 
     void EventReceiver::terminate() {
-        disable();
+        if (!isSuspended()) {
+            disable();
+        }
     }
 
     void EventReceiver::setTimeout(long timeout) {
