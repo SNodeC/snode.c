@@ -58,33 +58,6 @@ namespace core::socket::stream {
 
         virtual ~SocketReader() = default;
 
-    private:
-        virtual ssize_t read(char* junk, std::size_t junkLen) = 0;
-
-        virtual void readEvent() override = 0;
-
-    protected:
-        virtual void doShutdown() {
-            Socket::shutdown(Socket::shutdown::RD);
-            resume();
-            shutdownTriggered = true;
-        }
-
-        void shutdown() {
-            if (!shutdownTriggered) {
-                if (!isSuspended()) {
-                    suspend();
-                }
-                doShutdown();
-                setTimeout(MAX_SHUTDOWN_TIMEOUT);
-            }
-        }
-
-        void terminate() override {
-            setTimeout(MAX_SHUTDOWN_TIMEOUT);
-            // shutdown(); // do not shutdown our read side because we try to do a full tcp shutdown sequence.
-        }
-
         ssize_t readFromPeer(char* junk, std::size_t junkLen) {
             errno = 0;
 
@@ -128,6 +101,33 @@ namespace core::socket::stream {
 
         bool continueReadImmediately() override {
             return size > 0;
+        }
+
+    private:
+        virtual ssize_t read(char* junk, std::size_t junkLen) = 0;
+
+        void readEvent() override = 0;
+
+        virtual void doShutdown() {
+            Socket::shutdown(Socket::shutdown::RD);
+            resume();
+            shutdownTriggered = true;
+        }
+
+    protected:
+        void shutdown() {
+            if (!shutdownTriggered) {
+                if (!isSuspended()) {
+                    suspend();
+                }
+                doShutdown();
+                setTimeout(MAX_SHUTDOWN_TIMEOUT);
+            }
+        }
+
+        void terminate() override {
+            setTimeout(MAX_SHUTDOWN_TIMEOUT);
+            // shutdown(); // do not shutdown our read side because we try to do a full tcp shutdown sequence.
         }
 
     private:

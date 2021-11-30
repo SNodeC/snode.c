@@ -28,14 +28,13 @@
 namespace web::http {
 
     class SocketContext : public core::socket::SocketContext {
-    public:
-        using SocketConnection = core::socket::SocketConnection;
-
     protected:
         using core::socket::SocketContext::SocketContext;
 
         SocketContext(const SocketContext&) = delete;
         SocketContext& operator=(const SocketContext&) = delete;
+
+        void onReceiveFromPeer() override = 0;
 
         void onWriteError([[maybe_unused]] int errnum) override;
 

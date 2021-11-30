@@ -68,9 +68,8 @@ namespace core::socket::stream {
     private:
         virtual ssize_t write(const char* junk, std::size_t junkLen) = 0;
 
-        virtual void writeEvent() override = 0;
+        void writeEvent() override = 0;
 
-    protected:
         virtual void doShutdown() {
             Socket::shutdown(Socket::shutdown::WR);
             resume();
@@ -78,6 +77,7 @@ namespace core::socket::stream {
             // disable(); // Normally this should be sufficient - but google-chrome
         }
 
+    protected:
         void shutdown() {
             if (!shutdownTriggered) {
                 if (isSuspended()) {
