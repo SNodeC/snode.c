@@ -27,7 +27,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm> // for min, max
-#include <cerrno>    // for EINTR, errno
 #include <cstdlib>   // for exit
 #include <string>    // for string, to_string
 

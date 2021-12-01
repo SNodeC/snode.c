@@ -24,8 +24,6 @@
 #include "express/middleware/JsonMiddleware.h"
 #include "log/Logger.h"
 
-#include <string> // for allocator, opera...
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 using namespace express;

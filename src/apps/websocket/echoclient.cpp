@@ -40,21 +40,20 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-using namespace web::http;
-
 int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
     {
-        legacy::in::Client<web::http::client::Request, web::http::client::Response> legacyClient(
-            [](const legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& localAddress,
-               const legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& remoteAddress) -> void {
+        web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response> legacyClient(
+            [](const web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& localAddress,
+               const web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& remoteAddress)
+                -> void {
                 VLOG(0) << "OnConnect";
 
                 VLOG(0) << "\tServer: " + remoteAddress.toString();
                 VLOG(0) << "\tClient: " + localAddress.toString();
             },
-            []([[maybe_unused]] legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection*
+            []([[maybe_unused]] web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection*
                    socketConnection) -> void {
                 VLOG(0) << "OnConnected";
             },
@@ -98,22 +97,25 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "     Status: " << status;
                 VLOG(0) << "     Reason: " << reason;
             },
-            [](legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection) -> void {
+            [](web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection)
+                -> void {
                 VLOG(0) << "OnDisconnect";
 
                 VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
                 VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
             });
 
-        tls::in::Client<web::http::client::Request, web::http::client::Response> tlsClient(
-            [](const tls::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& localAddress,
-               const tls::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& remoteAddress) -> void {
+        web::http::tls::in::Client<web::http::client::Request, web::http::client::Response> tlsClient(
+            [](const web::http::tls::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& localAddress,
+               const web::http::tls::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& remoteAddress)
+                -> void {
                 VLOG(0) << "OnConnect";
 
                 VLOG(0) << "\tServer: " + remoteAddress.toString();
                 VLOG(0) << "\tClient: " + localAddress.toString();
             },
-            [](tls::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection) -> void {
+            [](web::http::tls::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection)
+                -> void {
                 VLOG(0) << "OnConnected";
                 X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
                 if (server_cert != nullptr) {
@@ -200,7 +202,8 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "     Status: " << status;
                 VLOG(0) << "     Reason: " << reason;
             },
-            [](tls::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection) -> void {
+            [](web::http::tls::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection)
+                -> void {
                 VLOG(0) << "OnDisconnect";
 
                 VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();

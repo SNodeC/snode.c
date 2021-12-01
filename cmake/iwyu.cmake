@@ -6,7 +6,7 @@ if(iwyu_path)
         set(iwyu_path_and_options
             ${iwyu_path}
             -Xiwyu
-            --verbose=1
+            --verbose=3
             -Xiwyu
             --cxx17ns
             -Xiwyu

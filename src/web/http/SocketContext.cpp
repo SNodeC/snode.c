@@ -18,6 +18,4 @@
 
 #include "web/http/SocketContext.h"
 
-#include "log/Logger.h"
-
 namespace web::http {} // namespace web::http
