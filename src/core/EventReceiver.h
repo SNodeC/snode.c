@@ -78,7 +78,7 @@ namespace core {
         struct timeval getLastTriggered();
 
         virtual void dispatchEvent() = 0;
-        virtual void timeoutEvent();
+        virtual void timeoutEvent() = 0;
         virtual void unobservedEvent() = 0;
 
         virtual bool continueImmediately() = 0;
