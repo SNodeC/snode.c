@@ -84,8 +84,6 @@ namespace core::socket::stream::tls {
             return ret;
         }
 
-        virtual void writeEvent() override = 0;
-
     protected:
         void terminate() override {
             core::socket::stream::SocketWriter<SocketT>::terminate();

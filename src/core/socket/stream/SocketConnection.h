@@ -157,10 +157,6 @@ namespace core::socket::stream {
             }
         }
 
-        void writeEvent() override {
-            SocketWriter::doWrite();
-        }
-
         void unobservedEvent() override {
             delete this;
         }

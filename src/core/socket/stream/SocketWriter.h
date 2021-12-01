@@ -68,7 +68,9 @@ namespace core::socket::stream {
     private:
         virtual ssize_t write(const char* junk, std::size_t junkLen) = 0;
 
-        void writeEvent() override = 0;
+        void writeEvent() override {
+            doWrite();
+        }
 
         virtual void doShutdown() {
             Socket::shutdown(Socket::shutdown::WR);

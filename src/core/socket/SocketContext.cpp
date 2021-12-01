@@ -88,12 +88,12 @@ namespace core::socket {
         socketConnection->shutdownWrite();
     }
 
-    void SocketContext::onWriteError([[maybe_unused]] int errnum) {
+    void SocketContext::onWriteError(int errnum) { // By default we do a cross-shutdown
         PLOG(ERROR) << "OnWriteError: " << errnum;
         shutdownRead();
     }
 
-    void SocketContext::onReadError([[maybe_unused]] int errnum) {
+    void SocketContext::onReadError(int errnum) { // By default we do a cross-shutdown
         PLOG(ERROR) << "OnReadError: " << errnum;
         shutdownWrite();
     }

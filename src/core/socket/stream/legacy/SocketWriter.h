@@ -41,8 +41,6 @@ namespace core::socket::stream::legacy {
             return core::system::send(this->getFd(), junk, junkLen, MSG_NOSIGNAL);
         }
 
-        virtual void writeEvent() override = 0;
-
     protected:
         void terminate() override {
             core::socket::stream::SocketWriter<SocketT>::terminate();
