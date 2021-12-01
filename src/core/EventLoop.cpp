@@ -111,13 +111,14 @@ namespace core {
                 timerEventDispatcher.dispatch();
                 currentTime = {core::system::time(nullptr), 0};
 
-                if (stopsig == 0) {
+                if (stopsig == 0) { // dispatchActiveEvents-section
                     readEventDispatcher.dispatchActiveEvents(currentTime);
                     writeEventDispatcher.dispatchActiveEvents(currentTime);
                     exceptionalConditionEventDispatcher.dispatchActiveEvents(currentTime);
                 } else {
                     EventLoop::instance()._release();
-                    stopsig = 0;
+                    stopsig = 0; // We have to set it back to zero because on next tick we
+                                 // have to enter the dispatchActiveEvents-section again!
                 }
 
                 readEventDispatcher.unobserveDisabledEvents();
