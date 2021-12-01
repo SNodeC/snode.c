@@ -33,7 +33,7 @@
 
 namespace web::http::client {
 
-    Response::Response(SocketContext* clientContext)
+    Response::Response(web::http::SocketContext* clientContext)
         : socketContext(clientContext) {
     }
 

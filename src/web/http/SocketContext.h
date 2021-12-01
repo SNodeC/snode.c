@@ -36,8 +36,6 @@ namespace web::http {
 
         void onReceiveFromPeer() override = 0;
 
-        void onWriteError(int errnum) override;
-
     public:
         virtual void sendToPeerCompleted() = 0;
     };

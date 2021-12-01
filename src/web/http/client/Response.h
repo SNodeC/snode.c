@@ -40,9 +40,9 @@ namespace web::http::client {
 
     class Response {
     protected:
-        Response(SocketContext* clientContext);
+        Response(web::http::SocketContext* clientContext);
 
-        SocketContext* socketContext;
+        web::http::SocketContext* socketContext;
 
         void reset();
 

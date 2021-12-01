@@ -38,7 +38,7 @@ namespace web::http::client {
 
     class Request : public core::pipe::Sink {
     protected:
-        explicit Request(SocketContext* clientContext);
+        explicit Request(web::http::SocketContext* clientContext);
 
     public:
         std::string method = "GET";
@@ -77,7 +77,7 @@ namespace web::http::client {
         std::size_t contentSent = 0;
         std::size_t contentLength = 0;
 
-        SocketContext* socketContext;
+        web::http::SocketContext* socketContext;
 
         virtual void reset();
 

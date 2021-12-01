@@ -1,9 +1,6 @@
 #ifndef APPS_HTTP_MODEL_SERVERS_H
 #define APPS_HTTP_MODEL_SERVERS_H
 
-#include "express/Router.h"
-#include "express/middleware/StaticMiddleware.h"
-
 #define QUOTE_INCLUDE(a) STR_INCLUDE(a)
 #define STR_INCLUDE(a) #a
 
@@ -12,6 +9,9 @@
 // clang-format on
 
 #include WEBAPP_INCLUDE // IWYU pragma: export
+
+#include "express/Router.h"
+#include "express/middleware/StaticMiddleware.h"
 
 #if (STREAM_TYPE == TLS) // tls
 #include <cstddef>       // for size_t

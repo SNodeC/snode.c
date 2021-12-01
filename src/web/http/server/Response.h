@@ -43,7 +43,7 @@ namespace web::http::server {
 
     class Response : public core::pipe::Sink {
     protected:
-        explicit Response(SocketContext* serverContext);
+        explicit Response(web::http::SocketContext* serverContext);
 
     public:
         void send(const char* junk, std::size_t junkLen);
@@ -64,7 +64,7 @@ namespace web::http::server {
     protected:
         virtual void reset();
 
-        SocketContext* socketContext;
+        web::http::SocketContext* socketContext;
 
         int responseStatus = 200;
 

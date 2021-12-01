@@ -31,7 +31,7 @@
 
 namespace web::http::client {
 
-    Request::Request(SocketContext* clientContext)
+    Request::Request(web::http::SocketContext* clientContext)
         : socketContext(clientContext) {
     }
 
