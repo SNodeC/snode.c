@@ -78,24 +78,14 @@ namespace core {
     TickStatus EventLoop::_tick(struct timeval timeOut) {
         TickStatus tickStatus = TickStatus::SUCCESS;
 
-        readEventDispatcher.observeEnabledEvents();
-        writeEventDispatcher.observeEnabledEvents();
-        exceptionalConditionEventDispatcher.observeEnabledEvents();
+        EventDispatcher::observeEnabledEvents();
 
-        int maxFd = readEventDispatcher.getMaxFd();
-        maxFd = std::max(writeEventDispatcher.getMaxFd(), maxFd);
-        maxFd = std::max(exceptionalConditionEventDispatcher.getMaxFd(), maxFd);
+        int maxFd = EventDispatcher::getMaxFd();
 
         struct timeval currentTime = {core::system::time(nullptr), 0};
+        struct timeval nextEventTimeout = EventDispatcher::getNextTimeout(currentTime);
 
-        nextEventTimeout = readEventDispatcher.getNextTimeout(currentTime);
-        struct timeval nextDispatcherTimeout = writeEventDispatcher.getNextTimeout(currentTime);
-        nextEventTimeout = std::min(nextDispatcherTimeout, nextEventTimeout);
-        nextDispatcherTimeout = exceptionalConditionEventDispatcher.getNextTimeout(currentTime);
-        nextEventTimeout = std::min(nextDispatcherTimeout, nextEventTimeout);
-
-        nextDispatcherTimeout = timerEventDispatcher.getNextTimeout();
-        nextEventTimeout = std::min(nextDispatcherTimeout, nextEventTimeout);
+        nextEventTimeout = std::min(timerEventDispatcher.getNextTimeout(), nextEventTimeout);
 
         if (maxFd >= 0 || !timerEventDispatcher.empty()) {
             nextEventTimeout = std::max(nextEventTimeout, {0, 0});
@@ -109,25 +99,18 @@ namespace core {
 
             if (counter >= 0 || stopsig != 0) {
                 timerEventDispatcher.dispatch();
-                currentTime = {core::system::time(nullptr), 0};
 
+                currentTime = {core::system::time(nullptr), 0};
                 if (stopsig == 0) { // dispatchActiveEvents-section
-                    readEventDispatcher.dispatchActiveEvents(currentTime);
-                    writeEventDispatcher.dispatchActiveEvents(currentTime);
-                    exceptionalConditionEventDispatcher.dispatchActiveEvents(currentTime);
+                    EventDispatcher::dispatchActiveEvents(currentTime);
                 } else {
-                    EventLoop::instance()._release();
+                    EventDispatcher::terminateObservedEvents();
                     stopsig = 0; // We have to set it back to zero because on next tick we
                                  // have to enter the dispatchActiveEvents-section again!
                 }
 
-                readEventDispatcher.unobserveDisabledEvents();
-                writeEventDispatcher.unobserveDisabledEvents();
-                exceptionalConditionEventDispatcher.unobserveDisabledEvents();
-
-                readEventDispatcher.releaseUnobservedEvents();
-                writeEventDispatcher.releaseUnobservedEvents();
-                exceptionalConditionEventDispatcher.releaseUnobservedEvents();
+                EventDispatcher::unobserveDisabledEvents();
+                EventDispatcher::releaseUnobservedEvents();
 
                 DynamicLoader::execDlCloseDeleyed();
             } else {
@@ -206,20 +189,12 @@ namespace core {
         return tickStatus;
     }
 
-    void EventLoop::_release() {
-        EventLoop::instance().readEventDispatcher.terminateObservedEvents();
-        EventLoop::instance().writeEventDispatcher.terminateObservedEvents();
-        EventLoop::instance().exceptionalConditionEventDispatcher.terminateObservedEvents();
-    }
-
     void EventLoop::release() {
-        eventLoop._release();
-
+        EventDispatcher::terminateObservedEvents();
         while (EventLoop::instance().tick() == TickStatus::SUCCESS)
             ;
 
         EventLoop::instance().timerEventDispatcher.cancelAll();
-
         while (EventLoop::instance().tick() == TickStatus::SUCCESS)
             ;
     }

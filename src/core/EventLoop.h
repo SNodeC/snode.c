@@ -62,7 +62,6 @@ namespace core {
         static void stoponsig(int sig);
 
         TickStatus _tick(struct timeval timeOut);
-        void _release();
 
         static EventLoop eventLoop;
 
@@ -71,8 +70,6 @@ namespace core {
         EventDispatcher exceptionalConditionEventDispatcher;
 
         TimerEventDispatcher timerEventDispatcher;
-
-        struct timeval nextEventTimeout = {LONG_MAX, 0};
 
         static bool running;
         static bool stopped;

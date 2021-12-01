@@ -34,6 +34,16 @@
 
 namespace core {
 
+    std::list<EventDispatcher*> EventDispatcher::eventDispatchers;
+
+    EventDispatcher::EventDispatcher() {
+        eventDispatchers.push_back(this);
+    }
+
+    EventDispatcher::~EventDispatcher() {
+        eventDispatchers.remove(this);
+    }
+
     EventDispatcher::FdSet::FdSet() {
         zero();
     }
@@ -122,7 +132,21 @@ namespace core {
         return eventCounter;
     }
 
-    int EventDispatcher::getMaxFd() const {
+    fd_set& EventDispatcher::getFdSet() {
+        return fdSet.get();
+    }
+
+    int EventDispatcher::getMaxFd() {
+        int maxFd = -1;
+
+        for (EventDispatcher* eventDispatcher : eventDispatchers) {
+            maxFd = std::max(eventDispatcher->_getMaxFd(), maxFd);
+        }
+
+        return maxFd;
+    }
+
+    int EventDispatcher::_getMaxFd() const {
         int maxFd = -1;
 
         if (!observedEventReceiver.empty()) {
@@ -132,11 +156,17 @@ namespace core {
         return maxFd;
     }
 
-    fd_set& EventDispatcher::getFdSet() {
-        return fdSet.get();
+    timeval EventDispatcher::getNextTimeout([[maybe_unused]] timeval currentTime) {
+        struct timeval nextTimeout = {LONG_MAX, 0};
+
+        for (EventDispatcher* eventDispatcher : eventDispatchers) {
+            nextTimeout = std::min(eventDispatcher->_getNextTimeout(currentTime), nextTimeout);
+        }
+
+        return nextTimeout;
     }
 
-    timeval EventDispatcher::getNextTimeout(struct timeval currentTime) const {
+    timeval EventDispatcher::_getNextTimeout(struct timeval currentTime) const {
         struct timeval nextInactivityTimeout {
             LONG_MAX, 0
         };
@@ -159,6 +189,12 @@ namespace core {
     }
 
     void EventDispatcher::observeEnabledEvents() {
+        for (EventDispatcher* eventDispatcher : eventDispatchers) {
+            eventDispatcher->_observeEnabledEvents();
+        }
+    }
+
+    void EventDispatcher::_observeEnabledEvents() {
         for (const auto& [fd, eventReceivers] : enabledEventReceiver) {
             for (EventReceiver* eventReceiver : eventReceivers) {
                 observedEventReceiver[fd].push_front(eventReceiver);
@@ -172,7 +208,13 @@ namespace core {
         enabledEventReceiver.clear();
     }
 
-    void EventDispatcher::dispatchActiveEvents(struct timeval currentTime) {
+    void EventDispatcher::dispatchActiveEvents(timeval currentTime) {
+        for (EventDispatcher* eventDispatcher : eventDispatchers) {
+            eventDispatcher->_dispatchActiveEvents(currentTime);
+        }
+    }
+
+    void EventDispatcher::_dispatchActiveEvents(struct timeval currentTime) {
         for (const auto& [fd, eventReceivers] : observedEventReceiver) {
             EventReceiver* eventReceiver = eventReceivers.front();
             struct timeval maxInactivity = eventReceiver->getTimeout();
@@ -190,6 +232,12 @@ namespace core {
     }
 
     void EventDispatcher::unobserveDisabledEvents() {
+        for (EventDispatcher* eventDispatcher : eventDispatchers) {
+            eventDispatcher->_unobserveDisabledEvents();
+        }
+    }
+
+    void EventDispatcher::_unobserveDisabledEvents() {
         for (const auto& [fd, eventReceivers] : disabledEventReceiver) {
             for (EventReceiver* eventReceiver : eventReceivers) {
                 observedEventReceiver[fd].remove(eventReceiver);
@@ -213,6 +261,12 @@ namespace core {
     }
 
     void EventDispatcher::releaseUnobservedEvents() {
+        for (EventDispatcher* eventDispatcher : eventDispatchers) {
+            eventDispatcher->_releaseUnobservedEvents();
+        }
+    }
+
+    void EventDispatcher::_releaseUnobservedEvents() {
         for (EventReceiver* eventReceiver : unobservedEventReceiver) {
             eventReceiver->unobservedEvent();
         }
@@ -220,6 +274,12 @@ namespace core {
     }
 
     void EventDispatcher::terminateObservedEvents() {
+        for (EventDispatcher* eventDispatcher : eventDispatchers) {
+            eventDispatcher->_terminateObservedEvents();
+        }
+    }
+
+    void EventDispatcher::_terminateObservedEvents() {
         for (const auto& [fd, eventReceivers] : observedEventReceiver) {
             for (EventReceiver* eventReceiver : eventReceivers) {
                 eventReceiver->terminate();

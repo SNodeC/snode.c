@@ -1,4 +1,4 @@
-/*
+﻿/*
  * snode.c - a slim toolkit for network communication
  * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
  *
@@ -38,6 +38,9 @@ namespace core {
         EventDispatcher& operator=(const EventDispatcher&) = delete;
 
     private:
+        EventDispatcher();
+        ~EventDispatcher();
+
         class FdSet {
         public:
             FdSet();
@@ -54,8 +57,6 @@ namespace core {
         };
 
     public:
-        EventDispatcher() = default;
-
         void enable(EventReceiver* eventReceiver, int fd);
         void disable(EventReceiver* eventReceiver, int fd);
         void suspend(EventReceiver* eventReceiver, int fd);
@@ -73,17 +74,30 @@ namespace core {
             bool contains(EventReceiver* descriptorEventReceiver) const;
         };
 
-        int getMaxFd() const;
         fd_set& getFdSet();
 
-        struct timeval getNextTimeout(struct timeval currentTime) const;
+        static int getMaxFd();
+        int _getMaxFd() const;
 
-        void observeEnabledEvents();
-        void dispatchActiveEvents(struct timeval currentTime);
-        void unobserveDisabledEvents();
-        void releaseUnobservedEvents();
+        static struct timeval getNextTimeout(struct timeval currentTime);
+        struct timeval _getNextTimeout(struct timeval currentTime) const;
 
-        void terminateObservedEvents();
+        static void observeEnabledEvents();
+        void _observeEnabledEvents();
+
+        static void dispatchActiveEvents(struct timeval currentTime);
+        void _dispatchActiveEvents(struct timeval currentTime);
+
+        static void unobserveDisabledEvents();
+        void _unobserveDisabledEvents();
+
+        static void releaseUnobservedEvents();
+        void _releaseUnobservedEvents();
+
+        static void terminateObservedEvents();
+        void _terminateObservedEvents();
+
+        static std::list<EventDispatcher*> eventDispatchers;
 
         std::map<int, DescriptorEventReceiverList> enabledEventReceiver;
         std::map<int, DescriptorEventReceiverList> observedEventReceiver;
