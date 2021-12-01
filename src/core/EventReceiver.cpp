@@ -106,4 +106,10 @@ namespace core {
         return lastTriggered;
     }
 
+    void EventReceiver::timeoutEvent() {
+        if (isEnabled()) {
+            disable();
+        }
+    }
+
 } // namespace core
