@@ -28,9 +28,7 @@
 
 namespace express::legacy::in6 {
 
-    class WebApp : public WebAppT<web::http::legacy::in6::Server<express::Request, express::Response>> {
-        using WebAppT<web::http::legacy::in6::Server<express::Request, express::Response>>::WebAppT;
-    };
+    using WebApp = WebAppT<web::http::legacy::in6::Server<express::Request, express::Response>>;
 
 } // namespace express::legacy::in6
 

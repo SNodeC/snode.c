@@ -28,9 +28,7 @@
 
 namespace express::tls::in {
 
-    class WebApp : public WebAppT<web::http::tls::in::Server<express::Request, express::Response>> {
-        using WebAppT<web::http::tls::in::Server<express::Request, express::Response>>::WebAppT;
-    };
+    using WebApp = WebAppT<web::http::tls::in::Server<express::Request, express::Response>>;
 
 } // namespace express::tls::in
 
