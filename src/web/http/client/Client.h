@@ -33,11 +33,11 @@
 namespace web::http::client {
 
     template <template <typename SocketContextFactoryT> typename SocketClientT, typename RequestT, typename ResponseT>
-    class Client : public SocketClientT<SocketContextFactory<RequestT, ResponseT>> {
+    class Client : public SocketClientT<web::http::client::SocketContextFactory<RequestT, ResponseT>> {
     public:
         using Request = RequestT;
         using Response = ResponseT;
-        using SocketClient = SocketClientT<SocketContextFactory<Request, Response>>; // this makes it an HTTP client;
+        using SocketClient = SocketClientT<web::http::client::SocketContextFactory<Request, Response>>; // this makes it an HTTP client;
         using SocketConnection = typename SocketClient::SocketConnection;
         using SocketAddress = typename SocketConnection::SocketAddress;
 
