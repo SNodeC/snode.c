@@ -142,7 +142,7 @@ int main(int argc, char* argv[]) {
         VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
     });
 
-    tls::in::WebApp tlsApp({{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
+    tls::in::WebApp tlsApp({{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}});
 
     tlsApp.use(router());
 

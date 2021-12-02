@@ -103,9 +103,7 @@ namespace core {
         FdSet fdSet;
 
         unsigned long eventCounter = 0;
-
-        // friend class EventLoop;
-    }; // namespace net
+    };
 
 } // namespace core
 

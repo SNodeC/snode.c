@@ -197,7 +197,7 @@ namespace tls {
                 VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
 
             },
-            {{"certChain", CLIENTCERTF}, {"keyPEM", CLIENTKEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}});
+            {{"CertChain", CLIENTCERTF}, {"CertChainKey", CLIENTKEYF}, {"Password", KEYFPASS}, {"CaFile", SERVERCAFILE}});
 
         SocketAddress remoteAddress("localhost", 8088);
 

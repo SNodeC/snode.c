@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
         });
 
         {
-            express::tls::in6::WebApp tlsApp({{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
+            express::tls::in6::WebApp tlsApp({{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}});
 
             tlsApp.use(middleware::VHost("localhost:8088").use(getRouter()));
 

@@ -34,9 +34,9 @@ int main(int argc, char* argv[]) {
 #if (STREAM_TYPE == LEGACY)
     std::map<std::string, std::any> options{};
 #elif (STREAM_TYPE == TLS)
-    std::map<std::string, std::any> options{{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}};
+    std::map<std::string, std::any> options{{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}};
     std::map<std::string, std::map<std::string, std::any>> sniCerts = {
-        {"snodec.home.vchrist.at", {{"certChain", SNODECCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}}}};
+        {"snodec.home.vchrist.at", {{"CertChain", SNODECCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}}}};
 #endif
 
     using WebApp = express::STREAM::NET::WebApp;

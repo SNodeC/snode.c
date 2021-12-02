@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
     std::map<std::string, std::any> options = {{}};
 #elif (STREAM_TYPE == TLS)
     std::map<std::string, std::any> options = {
-        {"certChain", CLIENTCERTF}, {"keyPEM", CLIENTKEYF}, {"password", KEYFPASS}, {"caFile", SERVERCAFILE}};
+        {"CertChain", CLIENTCERTF}, {"CertChainKey", CLIENTKEYF}, {"Password", KEYFPASS}, {"CaFile", SERVERCAFILE}};
 #endif
 
     using SocketClient =

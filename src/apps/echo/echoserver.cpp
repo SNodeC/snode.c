@@ -43,10 +43,10 @@ int main(int argc, char* argv[]) {
     std::map<std::string, std::any> options = {{}};
 #elif (STREAM_TYPE == TLS)
     std::map<std::string, std::any> options = {
-        {"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}, {"caFile", CLIENTCAFILE}};
+        {"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}, {"CaFile", CLIENTCAFILE}};
 
     std::map<std::string, std::any> sniCert = {
-        {"certChain", SNODECCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}, {"caFile", CLIENTCAFILE}};
+        {"CertChain", SNODECCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}, {"CaFile", CLIENTCAFILE}};
 #endif
 
     using SocketServer =

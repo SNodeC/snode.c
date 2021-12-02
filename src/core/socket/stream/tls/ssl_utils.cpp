@@ -38,11 +38,11 @@ namespace core::socket::stream::tls {
 
 #define SSL_VERIFY_FLAGS (SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE)
 
-    static int password_callback(char* buf, int size, int, void* u) {
+    static int Password_callback(char* buf, int size, int, void* u) {
         strncpy(buf, static_cast<char*>(u), static_cast<std::size_t>(size));
         buf[size - 1] = '\0';
 
-        memset(u, 0, ::strlen(static_cast<char*>(u))); // garble password
+        memset(u, 0, ::strlen(static_cast<char*>(u))); // garble Password
         free(u);
 
         return static_cast<int>(::strlen(buf));
@@ -56,25 +56,25 @@ namespace core::socket::stream::tls {
 
     SSL_CTX* ssl_ctx_new(const std::map<std::string, std::any>& options, bool server) {
         std::string certChain;
-        std::string keyPEM;
+        std::string certChainKey;
         std::string password;
         std::string caFile;
         std::string caDir;
-        bool useDefaultCADir = false;
+        bool useDefaultCaDir = false;
 
         for (const auto& [name, value] : options) {
-            if (name == "certChain") {
+            if (name == "CertChain") {
                 certChain = std::any_cast<const char*>(value);
-            } else if (name == "keyPEM") {
-                keyPEM = std::any_cast<const char*>(value);
-            } else if (name == "password") {
+            } else if (name == "CertChainKey") {
+                certChainKey = std::any_cast<const char*>(value);
+            } else if (name == "Password") {
                 password = std::any_cast<const char*>(value);
-            } else if (name == "caFile") {
+            } else if (name == "CaFile") {
                 caFile = std::any_cast<const char*>(value);
-            } else if (name == "caDir") {
+            } else if (name == "CaDir") {
                 caDir = std::any_cast<const char*>(value);
-            } else if (name == "useDefaultCADir") {
-                useDefaultCADir = std::any_cast<bool>(value);
+            } else if (name == "UseDefaultCaDir") {
+                useDefaultCaDir = std::any_cast<bool>(value);
             }
         }
 
@@ -94,14 +94,14 @@ namespace core::socket::stream::tls {
                     sslErr = true;
                 }
             }
-            if (!sslErr && useDefaultCADir) {
+            if (!sslErr && useDefaultCaDir) {
                 if (!SSL_CTX_set_default_verify_paths(ctx)) {
                     ssl_log_error("Can not load default CA directory");
                     sslErr = true;
                 }
             }
             if (!sslErr) {
-                if (server && (useDefaultCADir || !caFile.empty() || !caDir.empty())) {
+                if (server && (useDefaultCaDir || !caFile.empty() || !caDir.empty())) {
                     SSL_CTX_set_verify_depth(ctx, 5);
                     SSL_CTX_set_verify(ctx, SSL_VERIFY_FLAGS, verify_callback);
                 }
@@ -109,12 +109,12 @@ namespace core::socket::stream::tls {
                     if (SSL_CTX_use_certificate_chain_file(ctx, certChain.c_str()) != 1) {
                         ssl_log_error("Can not load certificate chain");
                         sslErr = true;
-                    } else if (!keyPEM.empty()) {
+                    } else if (!certChainKey.empty()) {
                         if (!password.empty()) {
-                            SSL_CTX_set_default_passwd_cb(ctx, password_callback);
+                            SSL_CTX_set_default_passwd_cb(ctx, Password_callback);
                             SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(password.c_str()));
                         }
-                        if (SSL_CTX_use_PrivateKey_file(ctx, keyPEM.c_str(), SSL_FILETYPE_PEM) != 1) {
+                        if (SSL_CTX_use_PrivateKey_file(ctx, certChainKey.c_str(), SSL_FILETYPE_PEM) != 1) {
                             errno = EINVAL;
                             ssl_log_error("Can not load private key");
                             sslErr = true;

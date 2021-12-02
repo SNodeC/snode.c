@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
     });
 
     {
-        tls::in::WebApp tlsApp({{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
+        tls::in::WebApp tlsApp({{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}});
 
         tlsApp.get("/", [] MIDDLEWARE(req, res, next) {
             if (req.url == "/") {

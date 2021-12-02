@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
 #if (STREAM_TYPE == LEGACY)
     std::map<std::string, std::any> options{};
 #elif (STREAM_TYPE == TLS)
-    std::map<std::string, std::any> options{{"caFile", SERVERCAFILE}};
+    std::map<std::string, std::any> options{{"CaFile", SERVERCAFILE}};
 #endif
 
     web::http::STREAM::NET::Client<web::http::client::Request, web::http::client::Response> client = apps::http::STREAM::getClient(options);

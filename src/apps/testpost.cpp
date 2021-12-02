@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
                  "</html>");
     });
 
-    express::tls::in::WebApp tlsApp({{"certChain", SERVERCERTF}, {"keyPEM", SERVERKEYF}, {"password", KEYFPASS}});
+    express::tls::in::WebApp tlsApp({{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}});
     tlsApp.use(legacyApp);
 
     legacyApp.listen(8080, [](const express::legacy::in::WebApp::Socket& socket, int err) -> void {
