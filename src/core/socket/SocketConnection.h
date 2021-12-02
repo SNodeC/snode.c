@@ -40,8 +40,11 @@ namespace core::socket {
         SocketConnection(const core::socket::SocketConnection&) = delete;
         SocketConnection& operator=(const core::socket::SocketConnection&) = delete;
 
+    private:
+        using SocketContextFactory = core::socket::SocketContextFactory;
+
     protected:
-        SocketConnection(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory);
+        SocketConnection(const std::shared_ptr<SocketContextFactory>& socketContextFactory);
 
         virtual ~SocketConnection() = default;
 
@@ -63,10 +66,10 @@ namespace core::socket {
 
         virtual void setTimeout(int timeout) = 0;
 
-        virtual SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory) = 0;
+        virtual SocketContext* switchSocketContext(SocketContextFactory* socketContextFactory) = 0;
 
     protected:
-        core::socket::SocketContext* socketContext = nullptr;
+        SocketContext* socketContext = nullptr;
 
         friend SocketContext;
     };

@@ -41,6 +41,10 @@ namespace core::socket::stream {
         , protected SocketWriterT {
         SocketConnection() = delete;
 
+    private:
+        using SocketContextFactory = core::socket::SocketContextFactory;
+        using SocketContext = core::socket::SocketContext;
+
     public:
         using SocketReader = SocketReaderT;
         using SocketWriter = SocketWriterT;
@@ -134,7 +138,7 @@ namespace core::socket::stream {
             SocketWriter::setTimeout(timeout);
         }
 
-        SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory) override {
+        SocketContext* switchSocketContext(SocketContextFactory* socketContextFactory) override {
             newSocketContext = socketContextFactory->create(this);
 
             if (newSocketContext == nullptr) {

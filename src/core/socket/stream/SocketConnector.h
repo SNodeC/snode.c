@@ -49,6 +49,9 @@ namespace core::socket::stream {
         SocketConnector(const SocketConnector&) = delete;
         SocketConnector& operator=(const SocketConnector&) = delete;
 
+    private:
+        using SocketContextFactory = core::socket::SocketContextFactory;
+
     public:
         using SocketConnection = SocketConnectionT;
         using Socket = typename SocketConnection::Socket;

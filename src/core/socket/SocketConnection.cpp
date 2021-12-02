@@ -26,7 +26,7 @@
 
 namespace core::socket {
 
-    SocketConnection::SocketConnection(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory)
+    SocketConnection::SocketConnection(const std::shared_ptr<SocketContextFactory>& socketContextFactory)
         : socketContext(socketContextFactory->create(this)) {
     }
 

@@ -27,7 +27,7 @@
 
 namespace core::socket {
 
-    SocketContext::SocketContext(core::socket::SocketConnection* socketConnection, Role role)
+    SocketContext::SocketContext(SocketConnection* socketConnection, Role role)
         : socketConnection(socketConnection)
         , role(role) {
     }
@@ -60,7 +60,7 @@ namespace core::socket {
         socketConnection->close();
     }
 
-    SocketContext* SocketContext::switchSocketContext(core::socket::SocketContextFactory* socketContextFactory) {
+    SocketContext* SocketContext::switchSocketContext(SocketContextFactory* socketContextFactory) {
         return socketConnection->switchSocketContext(socketContextFactory);
     }
 

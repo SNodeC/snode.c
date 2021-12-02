@@ -35,26 +35,36 @@ namespace core::socket {
 namespace core::socket {
 
     class SocketContext {
+    private:
+        using SocketContextFactory = core::socket::SocketContextFactory;
+        using SocketConnection = core::socket::SocketConnection;
+
     public:
         enum class Role { SERVER, CLIENT };
 
     protected:
-        explicit SocketContext(core::socket::SocketConnection* socketConnection, Role role);
+        explicit SocketContext(SocketConnection* socketConnection, Role role);
 
     public:
         virtual ~SocketContext() = default;
 
-        void sendToPeer(const char* junk, std::size_t junkLen);
-        void sendToPeer(const std::string& data);
-        ssize_t readFromPeer(char* junk, std::size_t junklen);
-        void close();
+        Role getRole() const;
 
         std::string getLocalAddressAsString() const;
         std::string getRemoteAddressAsString() const;
 
-        SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory);
+        void sendToPeer(const char* junk, std::size_t junkLen);
+        void sendToPeer(const std::string& data);
+        ssize_t readFromPeer(char* junk, std::size_t junklen);
+
+        void shutdownRead();
+        void shutdownWrite();
+
+        void close();
 
         void setTimeout(int timeout);
+
+        SocketContext* switchSocketContext(SocketContextFactory* socketContextFactory);
 
         virtual void onReceiveFromPeer() = 0;
 
@@ -64,13 +74,8 @@ namespace core::socket {
         virtual void onConnected();
         virtual void onDisconnected();
 
-        Role getRole() const;
-
-        void shutdownRead();
-        void shutdownWrite();
-
     private:
-        core::socket::SocketConnection* socketConnection;
+        SocketConnection* socketConnection;
 
     protected:
         Role role;
