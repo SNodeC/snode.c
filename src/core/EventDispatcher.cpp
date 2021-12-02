@@ -19,6 +19,7 @@
 #include "core/EventDispatcher.h"
 
 #include "core/EventReceiver.h"
+#include "core/system/time.h"
 #include "log/Logger.h"    // for Writer, CWARNING, LOG
 #include "utils/Timeval.h" // for operator-, operator<, operator>=
 
@@ -156,7 +157,8 @@ namespace core {
         return maxFd;
     }
 
-    timeval EventDispatcher::getNextTimeout([[maybe_unused]] timeval currentTime) {
+    timeval EventDispatcher::getNextTimeout() {
+        struct timeval currentTime = {core::system::time(nullptr), 0};
         struct timeval nextTimeout = {LONG_MAX, 0};
 
         for (EventDispatcher* eventDispatcher : eventDispatchers) {
@@ -208,7 +210,9 @@ namespace core {
         enabledEventReceiver.clear();
     }
 
-    void EventDispatcher::dispatchActiveEvents(timeval currentTime) {
+    void EventDispatcher::dispatchActiveEvents() {
+        struct timeval currentTime = {core::system::time(nullptr), 0};
+
         for (EventDispatcher* eventDispatcher : eventDispatchers) {
             eventDispatcher->_dispatchActiveEvents(currentTime);
         }

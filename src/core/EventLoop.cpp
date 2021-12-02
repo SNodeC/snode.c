@@ -21,7 +21,6 @@
 #include "core/DynamicLoader.h"
 #include "core/system/select.h"
 #include "core/system/signal.h"
-#include "core/system/time.h"
 #include "log/Logger.h" // for Logger
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -75,34 +74,33 @@ namespace core {
         return timerEventDispatcher;
     }
 
-    TickStatus EventLoop::_tick(struct timeval timeOut) {
+    TickStatus EventLoop::_tick(struct timeval tickTimeOut) {
         TickStatus tickStatus = TickStatus::SUCCESS;
 
         EventDispatcher::observeEnabledEvents();
 
         int maxFd = EventDispatcher::getMaxFd();
 
-        struct timeval currentTime = {core::system::time(nullptr), 0};
-        struct timeval nextEventTimeout = EventDispatcher::getNextTimeout(currentTime);
+        struct timeval nextEventTimeout = EventDispatcher::getNextTimeout();
+        struct timeval nextTimerTimeout = timerEventDispatcher.getNextTimeout();
 
-        nextEventTimeout = std::min(timerEventDispatcher.getNextTimeout(), nextEventTimeout);
+        struct timeval nextTimeout = std::min(nextTimerTimeout, nextEventTimeout);
 
         if (maxFd >= 0 || !timerEventDispatcher.empty()) {
-            nextEventTimeout = std::max(nextEventTimeout, {0, 0});
-            nextEventTimeout = std::min(nextEventTimeout, timeOut);
+            nextTimeout = std::max(nextTimeout, {0, 0}); // In case nextEventTimeout is negativ
+            nextTimeout = std::min(nextTimeout, tickTimeOut);
 
             int counter = core::system::select(maxFd + 1,
                                                &readEventDispatcher.getFdSet(),
                                                &writeEventDispatcher.getFdSet(),
                                                &exceptionalConditionEventDispatcher.getFdSet(),
-                                               &nextEventTimeout);
+                                               &nextTimeout);
 
             if (counter >= 0 || stopsig != 0) {
                 timerEventDispatcher.dispatch();
 
-                currentTime = {core::system::time(nullptr), 0};
                 if (stopsig == 0) { // dispatchActiveEvents-section
-                    EventDispatcher::dispatchActiveEvents(currentTime);
+                    EventDispatcher::dispatchActiveEvents();
                 } else {
                     EventDispatcher::terminateObservedEvents();
                     stopsig = 0; // We have to set it back to zero because on next tick we

@@ -79,13 +79,13 @@ namespace core {
         static int getMaxFd();
         int _getMaxFd() const;
 
-        static struct timeval getNextTimeout(struct timeval currentTime);
+        static struct timeval getNextTimeout();
         struct timeval _getNextTimeout(struct timeval currentTime) const;
 
         static void observeEnabledEvents();
         void _observeEnabledEvents();
 
-        static void dispatchActiveEvents(struct timeval currentTime);
+        static void dispatchActiveEvents();
         void _dispatchActiveEvents(struct timeval currentTime);
 
         static void unobserveDisabledEvents();
