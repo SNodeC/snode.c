@@ -37,10 +37,11 @@ namespace core {
         EventDispatcher(const EventDispatcher&) = delete;
         EventDispatcher& operator=(const EventDispatcher&) = delete;
 
-    private:
+    public:
         EventDispatcher();
         ~EventDispatcher();
 
+    private:
         class FdSet {
         public:
             FdSet();
@@ -56,15 +57,6 @@ namespace core {
             fd_set active;
         };
 
-    public:
-        void enable(EventReceiver* eventReceiver, int fd);
-        void disable(EventReceiver* eventReceiver, int fd);
-        void suspend(EventReceiver* eventReceiver, int fd);
-        void resume(EventReceiver* eventReceiver, int fd);
-
-        unsigned long getEventCounter() const;
-
-    private:
         class DescriptorEventReceiverList : public std::list<EventReceiver*> {
         public:
             using std::list<EventReceiver*>::begin;
@@ -74,27 +66,32 @@ namespace core {
             bool contains(EventReceiver* descriptorEventReceiver) const;
         };
 
-        fd_set& getFdSet();
+    public:
+        void enable(EventReceiver* eventReceiver, int fd);
+        void disable(EventReceiver* eventReceiver, int fd);
+        void suspend(EventReceiver* eventReceiver, int fd);
+        void resume(EventReceiver* eventReceiver, int fd);
 
+        unsigned long getEventCounter() const;
+
+        fd_set& getFdSet();
         static int getMaxFd();
-        int _getMaxFd() const;
 
         static struct timeval getNextTimeout();
-        struct timeval _getNextTimeout(struct timeval currentTime) const;
 
         static void observeEnabledEvents();
-        void _observeEnabledEvents();
-
         static void dispatchActiveEvents();
-        void _dispatchActiveEvents(struct timeval currentTime);
-
         static void unobserveDisabledEvents();
-        void _unobserveDisabledEvents();
-
-        static void releaseUnobservedEvents();
-        void _releaseUnobservedEvents();
-
         static void terminateObservedEvents();
+
+    private:
+        int _getMaxFd() const;
+
+        struct timeval _getNextTimeout(struct timeval currentTime) const;
+
+        void _observeEnabledEvents();
+        void _dispatchActiveEvents(struct timeval currentTime);
+        void _unobserveDisabledEvents();
         void _terminateObservedEvents();
 
         static std::list<EventDispatcher*> eventDispatchers;
@@ -102,13 +99,12 @@ namespace core {
         std::map<int, DescriptorEventReceiverList> enabledEventReceiver;
         std::map<int, DescriptorEventReceiverList> observedEventReceiver;
         std::map<int, DescriptorEventReceiverList> disabledEventReceiver;
-        DescriptorEventReceiverList unobservedEventReceiver;
 
         FdSet fdSet;
 
         unsigned long eventCounter = 0;
 
-        friend class EventLoop;
+        // friend class EventLoop;
     }; // namespace net
 
 } // namespace core

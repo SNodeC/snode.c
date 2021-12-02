@@ -47,14 +47,13 @@ namespace core {
         return tick;
     }
 
-    EventLoop EventLoop::eventLoop;
-
     bool EventLoop::initialized = false;
     bool EventLoop::running = false;
     bool EventLoop::stopped = true;
     int EventLoop::stopsig = 0;
 
     EventLoop& EventLoop::instance() {
+        static EventLoop eventLoop;
         return eventLoop;
     }
 
@@ -90,13 +89,13 @@ namespace core {
             nextTimeout = std::max(nextTimeout, {0, 0}); // In case nextEventTimeout is negativ
             nextTimeout = std::min(nextTimeout, tickTimeOut);
 
-            int counter = core::system::select(maxFd + 1,
-                                               &readEventDispatcher.getFdSet(),
-                                               &writeEventDispatcher.getFdSet(),
-                                               &exceptionalConditionEventDispatcher.getFdSet(),
-                                               &nextTimeout);
+            int ret = core::system::select(maxFd + 1,
+                                           &readEventDispatcher.getFdSet(),
+                                           &writeEventDispatcher.getFdSet(),
+                                           &exceptionalConditionEventDispatcher.getFdSet(),
+                                           &nextTimeout);
 
-            if (counter >= 0 || stopsig != 0) {
+            if (ret >= 0 || stopsig != 0) {
                 timerEventDispatcher.dispatch();
 
                 if (stopsig == 0) { // dispatchActiveEvents-section
@@ -108,7 +107,6 @@ namespace core {
                 }
 
                 EventDispatcher::unobserveDisabledEvents();
-                EventDispatcher::releaseUnobservedEvents();
 
                 DynamicLoader::execDlCloseDeleyed();
             } else {
@@ -149,8 +147,8 @@ namespace core {
 
             stopped = false;
 
-            while (!stopped && eventLoop._tick(timeOut) == TickStatus::SUCCESS) {
-                eventLoop.tickCounter++;
+            while (!stopped && EventLoop::instance()._tick(timeOut) == TickStatus::SUCCESS) {
+                EventLoop::instance().tickCounter++;
             };
 
             running = false;
@@ -180,7 +178,7 @@ namespace core {
 
         sighandler_t oldSigPipeHandler = core::system::signal(SIGPIPE, SIG_IGN);
 
-        TickStatus tickStatus = eventLoop._tick(timeOut);
+        TickStatus tickStatus = EventLoop::instance()._tick(timeOut);
 
         core::system::signal(SIGPIPE, oldSigPipeHandler);
 

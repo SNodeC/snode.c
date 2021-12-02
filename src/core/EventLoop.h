@@ -25,8 +25,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <climits>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
@@ -37,7 +35,6 @@ namespace core {
 
     private:
         EventLoop() = default;
-
         ~EventLoop() = default;
 
     public:
@@ -51,19 +48,16 @@ namespace core {
         unsigned long getEventCounter();
         unsigned long getTickCounter();
 
-    protected:
+    private:
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
         static void init(int argc, char* argv[]);
         static int start(struct timeval timeOut);
         static TickStatus tick(struct timeval timeOut = {});
         static void release();
 
-    private:
         static void stoponsig(int sig);
 
         TickStatus _tick(struct timeval timeOut);
-
-        static EventLoop eventLoop;
 
         EventDispatcher readEventDispatcher;
         EventDispatcher writeEventDispatcher;

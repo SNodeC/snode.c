@@ -77,16 +77,13 @@ namespace core {
     }
 
     void EventDispatcher::enable(EventReceiver* eventReceiver, int fd) {
-        if (disabledEventReceiver[fd].contains(eventReceiver)) {
+        if (disabledEventReceiver.contains(fd) && disabledEventReceiver[fd].contains(eventReceiver)) {
             // same tick as disable
             disabledEventReceiver[fd].remove(eventReceiver);
         } else if (!eventReceiver->isEnabled() &&
                    (!enabledEventReceiver.contains(fd) || !enabledEventReceiver[fd].contains(eventReceiver))) {
             // next tick as disable
             enabledEventReceiver[fd].push_back(eventReceiver);
-            if (unobservedEventReceiver.contains(eventReceiver)) {
-                unobservedEventReceiver.remove(eventReceiver);
-            }
         } else {
             LOG(WARNING) << "EventReceiver double enable " << fd;
         }
@@ -97,9 +94,6 @@ namespace core {
             // same tick as enable
             enabledEventReceiver[fd].remove(eventReceiver);
             eventReceiver->disabled();
-            if (eventReceiver->observationCounter == 0) {
-                unobservedEventReceiver.push_back(eventReceiver);
-            }
         } else if (eventReceiver->isEnabled() &&
                    (!disabledEventReceiver.contains(fd) || !disabledEventReceiver[fd].contains(eventReceiver))) {
             // next tick as enable
@@ -173,7 +167,7 @@ namespace core {
             LONG_MAX, 0
         };
 
-        for ([[maybe_unused]] const auto& [fd, eventReceivers] : observedEventReceiver) {
+        for (const auto& [fd, eventReceivers] : observedEventReceiver) {
             EventReceiver* eventReceiver = eventReceivers.front();
 
             if (!eventReceiver->isSuspended()) {
@@ -256,25 +250,11 @@ namespace core {
                 }
                 eventReceiver->disabled();
                 if (eventReceiver->observationCounter == 0) {
-                    unobservedEventReceiver.push_back(eventReceiver);
+                    eventReceiver->unobservedEvent();
                 }
-                eventReceiver->fd = -1;
             }
         }
         disabledEventReceiver.clear();
-    }
-
-    void EventDispatcher::releaseUnobservedEvents() {
-        for (EventDispatcher* eventDispatcher : eventDispatchers) {
-            eventDispatcher->_releaseUnobservedEvents();
-        }
-    }
-
-    void EventDispatcher::_releaseUnobservedEvents() {
-        for (EventReceiver* eventReceiver : unobservedEventReceiver) {
-            eventReceiver->unobservedEvent();
-        }
-        unobservedEventReceiver.clear();
     }
 
     void EventDispatcher::terminateObservedEvents() {
