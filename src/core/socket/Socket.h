@@ -48,10 +48,9 @@ namespace core::socket {
 
     public:
         void open(const std::function<void(int)>& onError, int flags = 0) {
-            int fd = create(flags);
+            fd = create(flags);
 
             if (fd >= 0) {
-                attach(fd);
                 onError(0);
             } else {
                 onError(errno);

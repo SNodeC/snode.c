@@ -21,6 +21,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <functional>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
@@ -37,22 +39,18 @@ namespace core {
 
     protected:
         Descriptor(int fd = -1, enum Descriptor::FLAGS flags = FLAGS::none);
-
         ~Descriptor();
 
-        void attach(int fd, enum Descriptor::FLAGS flags = FLAGS::none);
+        // virtual void open(const std::function<void(int)>& onError, int flags = 0) = 0;
 
         int getFd() const;
         void dontClose(bool dontClose);
         bool dontClose() const;
 
-    public:
-        virtual void close();
+        void close();
 
-    private:
         int fd = -1;
 
-    protected:
         friend enum FLAGS operator|(const enum FLAGS& f1, const enum FLAGS& f2);
         friend enum FLAGS operator&(const enum FLAGS& f1, const enum FLAGS& f2);
     };
