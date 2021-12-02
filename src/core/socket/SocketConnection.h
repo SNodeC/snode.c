@@ -19,9 +19,11 @@
 #ifndef CORE_SOCKET_SOCKETCONNECTION_H
 #define CORE_SOCKET_SOCKETCONNECTION_H
 
+// IWYU pragma: no_include "core/socket/SocketContextFactory.h"
+
 namespace core::socket {
-    class SocketContext;
-    class SocketContextFactory;
+    class SocketContextFactory; // IWYU pragma: keep
+    class SocketContext;        // IWYU pragma: keep
 } // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -42,6 +44,7 @@ namespace core::socket {
 
     private:
         using SocketContextFactory = core::socket::SocketContextFactory;
+        using SocketContext = core::socket::SocketContext;
 
     protected:
         SocketConnection(const std::shared_ptr<SocketContextFactory>& socketContextFactory);

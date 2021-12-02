@@ -19,9 +19,11 @@
 #ifndef CORE_SOCKET_SOCKETCONTEXT_H
 #define CORE_SOCKET_SOCKETCONTEXT_H
 
+// IWYU pragma: no_include "core/socket/SocketConnection.h"
+
 namespace core::socket {
-    class SocketContextFactory;
-    class SocketConnection;
+    class SocketConnection;     // IWYU pragma: keep
+    class SocketContextFactory; // IWYU pragma: keep
 } // namespace core::socket
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

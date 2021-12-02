@@ -18,7 +18,7 @@
 
 #include "core/socket/SocketContext.h"
 
-#include "core/socket/SocketConnection.h"
+#include "core/socket/SocketConnection.h" // IWYU pragma: keep
 #include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
