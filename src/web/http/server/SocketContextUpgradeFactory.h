@@ -35,7 +35,8 @@ namespace web::http::server {
 
 namespace web::http::server {
 
-    class SocketContextUpgradeFactory : public web::http::SocketContextUpgradeFactory<Request, Response> {
+    class SocketContextUpgradeFactory
+        : public web::http::SocketContextUpgradeFactory<web::http::server::Request, web::http::server::Response> {
     public:
         using Resquest = web::http::server::Request;
         using Reponse = web::http::server::Response;

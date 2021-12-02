@@ -32,12 +32,12 @@
 namespace core::socket::stream::tls {
 
     template <typename SocketT>
-    class SocketConnector : public core::socket::stream::SocketConnector<tls::SocketConnection<SocketT>> {
+    class SocketConnector : public core::socket::stream::SocketConnector<core::socket::stream::tls::SocketConnection<SocketT>> {
     private:
         using Socket = SocketT;
 
     public:
-        using SocketConnection = tls::SocketConnection<Socket>;
+        using SocketConnection = core::socket::stream::tls::SocketConnection<Socket>;
         using SocketAddress = typename Socket::SocketAddress;
 
         SocketConnector(const std::shared_ptr<SocketContextFactory>& socketContextFactory,

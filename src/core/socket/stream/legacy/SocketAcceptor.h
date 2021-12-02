@@ -29,12 +29,12 @@
 namespace core::socket::stream::legacy {
 
     template <typename SocketT>
-    class SocketAcceptor : public core::socket::stream::SocketAcceptor<legacy::SocketConnection<SocketT>> {
+    class SocketAcceptor : public core::socket::stream::SocketAcceptor<core::socket::stream::legacy::SocketConnection<SocketT>> {
     private:
         using Socket = SocketT;
 
     public:
-        using SocketConnection = legacy::SocketConnection<Socket>;
+        using SocketConnection = core::socket::stream::legacy::SocketConnection<Socket>;
         using SocketAddress = typename Socket::SocketAddress;
 
         SocketAcceptor(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
@@ -51,11 +51,6 @@ namespace core::socket::stream::legacy {
                   },
                   onDisconnect,
                   options) {
-        }
-
-    protected:
-        void terminate() override {
-            core::socket::stream::SocketAcceptor<legacy::SocketConnection<SocketT>>::terminate();
         }
     };
 

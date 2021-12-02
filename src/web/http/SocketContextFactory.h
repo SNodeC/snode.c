@@ -29,9 +29,9 @@ namespace web::http {
     template <template <typename RequestT, typename ResponseT> class SocketContextT, typename RequestT, typename ResponseT>
     class SocketContextFactory : public core::socket::SocketContextFactory {
     public:
-        using SocketContext = SocketContextT<RequestT, ResponseT>;
         using Request = RequestT;
         using Response = ResponseT;
+        using SocketContext = SocketContextT<Request, Response>;
 
     protected:
         SocketContextFactory() = default;
