@@ -105,11 +105,11 @@ namespace core {
     timeval EventReceiver::getLastTriggered() {
         return lastTriggered;
     }
-
-    void EventReceiver::timeoutEvent() {
-        if (isEnabled()) {
-            disable();
+    /*
+        void EventReceiver::timeoutEvent() {
+            if (isEnabled()) {
+                disable();
+            }
         }
-    }
-
+    */
 } // namespace core

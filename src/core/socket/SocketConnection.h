@@ -37,11 +37,11 @@ namespace core::socket {
 
     class SocketConnection {
         SocketConnection() = delete;
-        SocketConnection(const SocketConnection&) = delete;
-        SocketConnection& operator=(const SocketConnection&) = delete;
+        SocketConnection(const core::socket::SocketConnection&) = delete;
+        SocketConnection& operator=(const core::socket::SocketConnection&) = delete;
 
     protected:
-        SocketConnection(const std::shared_ptr<SocketContextFactory>& socketContextFactory);
+        SocketConnection(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory);
 
         virtual ~SocketConnection() = default;
 

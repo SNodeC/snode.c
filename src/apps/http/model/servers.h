@@ -19,6 +19,8 @@
 #include <openssl/x509v3.h>
 #endif
 
+#include "log/Logger.h"
+
 express::Router getRouter(const std::string& rootPath) {
     express::Router router;
 

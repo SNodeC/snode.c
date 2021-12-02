@@ -21,6 +21,8 @@
 #include <openssl/x509v3.h>
 #endif
 
+#include "log/Logger.h"
+
 #if (STREAM_TYPE == LEGACY) // legacy
 
 namespace apps::http::legacy {

@@ -35,7 +35,9 @@ namespace core::socket::stream::tls {
 
     template <typename SocketT>
     class SocketConnection
-        : public core::socket::stream::SocketConnection<SocketReader<SocketT>, SocketWriter<SocketT>, typename SocketT::SocketAddress> {
+        : public core::socket::stream::SocketConnection<core::socket::stream::tls::SocketReader<SocketT>,
+                                                        core::socket::stream::tls::SocketWriter<SocketT>,
+                                                        typename SocketT::SocketAddress> {
     public:
         using Socket = SocketT;
         using SocketAddress = typename Socket::SocketAddress;
@@ -47,10 +49,15 @@ namespace core::socket::stream::tls {
                          const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                          const std::function<void(SocketConnection*)>& onDisconnect)
             : SocketConnection::Descriptor(fd)
-            , core::socket::stream::SocketConnection<SocketReader<Socket>, SocketWriter<Socket>, typename Socket::SocketAddress>::
-                  SocketConnection(socketContextFactory, localAddress, remoteAddress, onConnect, [onDisconnect, this]() -> void {
-                      onDisconnect(this);
-                  }) {
+            , core::socket::stream::SocketConnection<core::socket::stream::tls::SocketReader<Socket>,
+                                                     core::socket::stream::tls::SocketWriter<Socket>,
+                                                     typename Socket::SocketAddress>::SocketConnection(socketContextFactory,
+                                                                                                       localAddress,
+                                                                                                       remoteAddress,
+                                                                                                       onConnect,
+                                                                                                       [onDisconnect, this]() -> void {
+                                                                                                           onDisconnect(this);
+                                                                                                       }) {
         }
 
         SSL* getSSL() const {

@@ -30,9 +30,13 @@ namespace core::socket::stream::legacy {
 
     template <typename ServerSocketT, typename SocketContextFactoryT>
     class SocketServer
-        : public core::socket::stream::SocketServer<ServerSocketT, SocketAcceptor<typename ServerSocketT::Socket>, SocketContextFactoryT> {
+        : public core::socket::stream::SocketServer<ServerSocketT,
+                                                    core::socket::stream::legacy::SocketAcceptor<typename ServerSocketT::Socket>,
+                                                    SocketContextFactoryT> {
         using SocketServerBase =
-            core::socket::stream::SocketServer<ServerSocketT, SocketAcceptor<typename ServerSocketT::Socket>, SocketContextFactoryT>;
+            core::socket::stream::SocketServer<ServerSocketT,
+                                               core::socket::stream::legacy::SocketAcceptor<typename ServerSocketT::Socket>,
+                                               SocketContextFactoryT>;
 
         using SocketServerBase::SocketServerBase;
     };

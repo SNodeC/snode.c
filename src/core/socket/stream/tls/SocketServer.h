@@ -32,9 +32,11 @@ namespace core::socket::stream::tls {
 
     template <typename ServerSocketT, typename SocketContextFactoryT>
     class SocketServer
-        : public core::socket::stream::SocketServer<ServerSocketT, SocketAcceptor<typename ServerSocketT::Socket>, SocketContextFactoryT> {
-        using SocketServerBase =
-            core::socket::stream::SocketServer<ServerSocketT, SocketAcceptor<typename ServerSocketT::Socket>, SocketContextFactoryT>;
+        : public core::socket::stream::SocketServer<ServerSocketT,
+                                                    core::socket::stream::tls::SocketAcceptor<typename ServerSocketT::Socket>,
+                                                    SocketContextFactoryT> {
+        using SocketServerBase = core::socket::stream::
+            SocketServer<ServerSocketT, core::socket::stream::tls::SocketAcceptor<typename ServerSocketT::Socket>, SocketContextFactoryT>;
 
         using SocketServerBase::SocketServerBase;
 

@@ -39,7 +39,7 @@ namespace core::socket {
         enum class Role { SERVER, CLIENT };
 
     protected:
-        explicit SocketContext(SocketConnection* socketConnection, Role role);
+        explicit SocketContext(core::socket::SocketConnection* socketConnection, Role role);
 
     public:
         virtual ~SocketContext() = default;
@@ -52,7 +52,7 @@ namespace core::socket {
         std::string getLocalAddressAsString() const;
         std::string getRemoteAddressAsString() const;
 
-        SocketContext* switchSocketContext(SocketContextFactory* socketContextFactory);
+        SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory);
 
         void setTimeout(int timeout);
 
@@ -70,7 +70,7 @@ namespace core::socket {
         void shutdownWrite();
 
     private:
-        SocketConnection* socketConnection;
+        core::socket::SocketConnection* socketConnection;
 
     protected:
         Role role;

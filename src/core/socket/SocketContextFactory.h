@@ -39,7 +39,7 @@ namespace core::socket {
         virtual ~SocketContextFactory() = default;
 
     public:
-        virtual core::socket::SocketContext* create(SocketConnection* socketConnection) = 0;
+        virtual core::socket::SocketContext* create(core::socket::SocketConnection* socketConnection) = 0;
     };
 
 } // namespace core::socket
