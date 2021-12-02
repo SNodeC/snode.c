@@ -16,20 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "config.h"     // IWYU pragma: keep
-#include "log/Logger.h" // for Writer
-
-#define QUOTE_INCLUDE(a) STR_INCLUDE(a)
-#define STR_INCLUDE(a) #a
-
-// clang-format off
-#define SOCKETSERVER_INCLUDE QUOTE_INCLUDE(net/NET/stream/STREAM/SocketServer.h)
-// clang-format on
-
-#include SOCKETSERVER_INCLUDE
-
-#include "core/SNodeC.h"             // for SNodeC
-#include "model/EchoSocketContext.h" // IWYU pragma: keep
+#include "config.h"      // IWYU pragma: keep
+#include "core/SNodeC.h" // for SNodeC
+#include "log/Logger.h"  // for Writer
 #include "model/servers.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -49,10 +38,8 @@ int main(int argc, char* argv[]) {
         {"CertChain", SNODECCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}, {"CaFile", CLIENTCAFILE}};
 #endif
 
-    using SocketServer =
-        net::NET::stream::STREAM::SocketServer<apps::echo::model::EchoServerSocketContextFactory>; // this makes it an rf-EchoServer
-
-    SocketServer server = apps::echo::model::STREAM::getServer<SocketServer>(options);
+    using SocketServer = apps::echo::model::STREAM::EchoSocketServer;
+    SocketServer server = apps::echo::model::STREAM::getServer(options);
 
 #if (STREAM_TYPE == TLS)
     server.addSniCert("snodec.home.vchrist.at", sniCert);

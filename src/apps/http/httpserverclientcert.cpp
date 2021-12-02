@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
         {"snodec.home.vchrist.at", {{"CertChain", SNODECCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}}}};
 #endif
 
-    using WebApp = express::STREAM::NET::WebApp;
+    using WebApp = apps::http::STREAM::WebApp;
     WebApp webApp(apps::http::STREAM::getWebApp(SERVERROOT, options));
 
 #if (STREAM_TYPE == TLS)

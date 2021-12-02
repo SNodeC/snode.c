@@ -21,6 +21,17 @@
 
 #include "log/Logger.h" // for Writer
 
+#define QUOTE_INCLUDE(a) STR_INCLUDE(a)
+#define STR_INCLUDE(a) #a
+
+// clang-format off
+#define SOCKETSERVER_INCLUDE QUOTE_INCLUDE(net/NET/stream/STREAM/SocketServer.h)
+// clang-format on
+
+#include SOCKETSERVER_INCLUDE // IWYU pragma: export
+
+#include "EchoSocketContext.h" // IWYU pragma: keep
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <any>
@@ -39,13 +50,13 @@
 
 namespace apps::echo::model::legacy {
 
-    template <typename SocketServerT>
-    SocketServerT getServer(const std::map<std::string, std::any>& options) {
-        using SocketServer = SocketServerT;
-        using SocketAddress = typename SocketServer::SocketAddress;
-        using SocketConnection = typename SocketServer::SocketConnection;
+    using EchoSocketServer = net::NET::stream::STREAM::SocketServer<apps::echo::model::EchoClientSocketContextFactory>;
 
-        return SocketServer(
+    EchoSocketServer getServer(const std::map<std::string, std::any>& options) {
+        using SocketAddress = typename EchoSocketServer::SocketAddress;
+        using SocketConnection = typename EchoSocketServer::SocketConnection;
+
+        return EchoSocketServer(
             [](const SocketAddress& localAddress,
                const SocketAddress& remoteAddress) -> void { // OnConnect
                 VLOG(0) << "OnConnect";
@@ -73,13 +84,13 @@ namespace apps::echo::model::legacy {
 
 namespace apps::echo::model::tls {
 
-    template <typename SocketServerT>
-    SocketServerT getServer(const std::map<std::string, std::any>& options) {
-        using SocketServer = SocketServerT;
-        using SocketAddress = typename SocketServer::SocketAddress;
-        using SocketConnection = typename SocketServer::SocketConnection;
+    using EchoSocketServer = net::NET::stream::STREAM::SocketServer<apps::echo::model::EchoClientSocketContextFactory>;
 
-        SocketServer server(
+    EchoSocketServer getServer(const std::map<std::string, std::any>& options) {
+        using SocketAddress = typename EchoSocketServer::SocketAddress;
+        using SocketConnection = typename EchoSocketServer::SocketConnection;
+
+        return EchoSocketServer(
             [](const SocketAddress& localAddress,
                const SocketAddress& remoteAddress) -> void { // OnConnect
                 VLOG(0) << "OnConnect";
@@ -144,8 +155,6 @@ namespace apps::echo::model::tls {
                                socketConnection->getRemoteAddress().toString();
             },
             options);
-
-        return server;
     }
 
 } // namespace apps::echo::model::tls

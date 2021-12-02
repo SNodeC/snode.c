@@ -23,13 +23,6 @@
 #include "core/SNodeC.h" // for SNodeC
 #include "log/Logger.h"  // for Writer, Storage
 
-namespace web::http::client {
-    class Request;
-}
-namespace web::http::client {
-    class Response;
-}
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 int main(int argc, char* argv[]) {
@@ -45,7 +38,8 @@ int main(int argc, char* argv[]) {
                                             {"SNI", "snodec.home.vchrist.at"}};
 #endif
 
-    web::http::STREAM::NET::Client<web::http::client::Request, web::http::client::Response> client = apps::http::STREAM::getClient(options);
+    using Client = apps::http::STREAM::Client;
+    Client client = apps::http::STREAM::getClient(options);
 
 #if (NET_TYPE == IN) // in
 #if (STREAM_TYPE == LEGACY)

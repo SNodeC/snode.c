@@ -16,20 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "config.h"     // IWYU pragma: keep
-#include "log/Logger.h" // for Writer
-
-#define QUOTE_INCLUDE(a) STR(a)
-#define STR(a) #a
-
-// clang-format off
-#define SOCKETCLIENT_INCLUDE QUOTE_INCLUDE(net/NET/stream/STREAM/SocketClient.h)
-// clang-format on
-
-#include SOCKETCLIENT_INCLUDE
-
-#include "core/SNodeC.h"             // for SNodeC
-#include "model/EchoSocketContext.h" // IWYU pragma: keep
+#include "config.h"      // IWYU pragma: keep
+#include "core/SNodeC.h" // for SNodeC
+#include "log/Logger.h"  // for Writer
 #include "model/clients.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -46,10 +35,8 @@ int main(int argc, char* argv[]) {
         {"CertChain", CLIENTCERTF}, {"CertChainKey", CLIENTKEYF}, {"Password", KEYFPASS}, {"CaFile", SERVERCAFILE}};
 #endif
 
-    using SocketClient =
-        net::NET::stream::STREAM::SocketClient<apps::echo::model::EchoClientSocketContextFactory>; // this makes it an rf-EchoClient
-
-    SocketClient client = apps::echo::model::STREAM::getClient<SocketClient>(options);
+    using SocketClient = apps::echo::model::STREAM::EchoSocketClient;
+    SocketClient client = apps::echo::model::STREAM::getClient(options);
 
 #if (NET_TYPE == IN) // in.
 #if (STREAM_TYPE == LEGACY)
