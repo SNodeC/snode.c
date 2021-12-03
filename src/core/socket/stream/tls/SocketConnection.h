@@ -34,13 +34,16 @@
 namespace core::socket::stream::tls {
 
     template <typename SocketT>
-    class SocketConnection
-        : public core::socket::stream::SocketConnection<core::socket::stream::tls::SocketReader<SocketT>,
-                                                        core::socket::stream::tls::SocketWriter<SocketT>,
-                                                        typename SocketT::SocketAddress> {
+    using SocketConnectionSuper = core::socket::stream::SocketConnection<core::socket::stream::tls::SocketReader<SocketT>,
+                                                                         core::socket::stream::tls::SocketWriter<SocketT>,
+                                                                         typename SocketT::SocketAddress>;
+
+    template <typename SocketT>
+    class SocketConnection : public SocketConnectionSuper<SocketT> {
     public:
         using Socket = SocketT;
-        using SocketAddress = typename Socket::SocketAddress;
+        using Super = SocketConnectionSuper<Socket>;
+        using SocketAddress = typename Super::SocketAddress;
 
         SocketConnection(int fd,
                          const std::shared_ptr<SocketContextFactory>& socketContextFactory,
@@ -48,16 +51,10 @@ namespace core::socket::stream::tls {
                          const SocketAddress& remoteAddress,
                          const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                          const std::function<void(SocketConnection*)>& onDisconnect)
-            : SocketConnection::Descriptor(fd)
-            , core::socket::stream::SocketConnection<core::socket::stream::tls::SocketReader<Socket>,
-                                                     core::socket::stream::tls::SocketWriter<Socket>,
-                                                     typename Socket::SocketAddress>::SocketConnection(socketContextFactory,
-                                                                                                       localAddress,
-                                                                                                       remoteAddress,
-                                                                                                       onConnect,
-                                                                                                       [onDisconnect, this]() -> void {
-                                                                                                           onDisconnect(this);
-                                                                                                       }) {
+            : Super::Descriptor(fd)
+            , Super(socketContextFactory, localAddress, remoteAddress, onConnect, [onDisconnect, this]() -> void {
+                onDisconnect(this);
+            }) {
         }
 
         SSL* getSSL() const {

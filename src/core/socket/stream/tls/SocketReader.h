@@ -36,10 +36,14 @@
 namespace core::socket::stream::tls {
 
     template <typename SocketT>
-    class SocketReader : public core::socket::stream::SocketReader<SocketT> {
-        using core::socket::stream::SocketReader<SocketT>::SocketReader;
+    using SocketReaderSuper = core::socket::stream::SocketReader<SocketT>;
 
+    template <typename SocketT>
+    class SocketReader : public SocketReaderSuper<SocketT> {
     private:
+        using Super = SocketReaderSuper<SocketT>;
+        using Super::Super;
+
         ssize_t read(char* junk, std::size_t junkLen) override {
             sslErr = 0;
 
@@ -85,12 +89,16 @@ namespace core::socket::stream::tls {
         }
 
         bool continueReadImmediately() override {
-            return SSL_pending(ssl) || core::socket::stream::SocketReader<SocketT>::continueReadImmediately();
+            return SSL_pending(ssl) || Super::continueReadImmediately();
         }
 
         virtual void readEvent() override = 0;
 
     protected:
+        void terminate() override {
+            Super::terminate();
+        }
+
         virtual void doSSLHandshake(const std::function<void()>& onSuccess,
                                     const std::function<void()>& onTimeout,
                                     const std::function<void(int)>& onError) = 0;

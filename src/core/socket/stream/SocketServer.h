@@ -42,7 +42,7 @@ namespace core::socket::stream {
         using SocketContextFactory = SocketContextFactoryT;
 
     public:
-        using Socket = typename ServerSocketT::Socket;
+        using Socket = typename ServerSocket::Socket;
         using SocketAddress = typename Socket::SocketAddress;
         using SocketConnection = typename SocketAcceptor::SocketConnection;
 

@@ -34,23 +34,27 @@
 namespace core::socket::stream::legacy {
 
     template <typename SocketT>
-    class SocketReader : public core::socket::stream::SocketReader<SocketT> {
-        using core::socket::stream::SocketReader<SocketT>::SocketReader;
+    using SocketReaderSuper = core::socket::stream::SocketReader<SocketT>;
 
+    template <typename SocketT>
+    class SocketReader : public SocketReaderSuper<SocketT> {
     private:
+        using Super = SocketReaderSuper<SocketT>;
+        using Super::Super;
+
         ssize_t read(char* junk, std::size_t junkLen) override {
             return core::system::recv(this->getFd(), junk, junkLen, 0);
         }
 
         bool continueReadImmediately() override {
-            return core::socket::stream::SocketReader<SocketT>::continueReadImmediately();
+            return Super::continueReadImmediately();
         }
 
         virtual void readEvent() override = 0;
 
     protected:
         void terminate() override {
-            core::socket::stream::SocketReader<SocketT>::terminate();
+            Super::terminate();
         }
     };
 

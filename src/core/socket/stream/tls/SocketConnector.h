@@ -51,7 +51,7 @@ namespace core::socket::stream::tls {
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,
                         const std::map<std::string, std::any>& options)
-            : core::socket::stream::SocketConnector<SocketConnection>(
+            : Super(
                   socketContextFactory,
                   onConnect,
                   [onConnected, this](SocketConnection* socketConnection) -> void { // onConnect

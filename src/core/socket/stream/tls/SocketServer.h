@@ -31,24 +31,24 @@
 namespace core::socket::stream::tls {
 
     template <typename ServerSocketT, typename SocketContextFactoryT>
-    class SocketServer
-        : public core::socket::stream::SocketServer<ServerSocketT,
-                                                    core::socket::stream::tls::SocketAcceptor<typename ServerSocketT::Socket>,
-                                                    SocketContextFactoryT> {
-        using SocketServerBase = core::socket::stream::
-            SocketServer<ServerSocketT, core::socket::stream::tls::SocketAcceptor<typename ServerSocketT::Socket>, SocketContextFactoryT>;
+    using SocketServerSuper = core::socket::stream::
+        SocketServer<ServerSocketT, core::socket::stream::tls::SocketAcceptor<typename ServerSocketT::Socket>, SocketContextFactoryT>;
 
-        using SocketServerBase::SocketServerBase;
+    template <typename ServerSocketT, typename SocketContextFactoryT>
+    class SocketServer : public SocketServerSuper<ServerSocketT, SocketContextFactoryT> {
+    private:
+        using Super = SocketServerSuper<ServerSocketT, SocketContextFactoryT>;
+        using Super::Super;
 
     public:
-        using SocketConnection = typename SocketAcceptor<typename ServerSocketT::Socket>::SocketConnection;
-        using SocketAddress = typename SocketConnection::Socket::SocketAddress;
+        using SocketConnection = typename Super::SocketConnection;
+        using SocketAddress = typename Super::SocketAddress;
 
         SocketServer(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                      const std::function<void(SocketConnection*)>& onConnected,
                      const std::function<void(SocketConnection*)>& onDisconnect,
                      const std::map<std::string, std::any>& options = {{}})
-            : SocketServerBase(onConnect, onConnected, onDisconnect, options)
+            : Super(onConnect, onConnected, onDisconnect, options)
             , sniSslCtxs(new std::map<std::string, SSL_CTX*>, [](std::map<std::string, SSL_CTX*>* sniSslCtxs) {
                 for (const auto& [domain, sniSslCtx] : *sniSslCtxs) {
                     ssl_ctx_free(sniSslCtx);

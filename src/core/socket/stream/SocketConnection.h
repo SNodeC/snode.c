@@ -34,16 +34,20 @@
 
 namespace core::socket::stream {
 
+    using SocketConnectionSuper = core::socket::SocketConnection;
+
     template <typename SocketReaderT, typename SocketWriterT, typename SocketAddressT>
     class SocketConnection
-        : public core::socket::SocketConnection
+        : public SocketConnectionSuper
         , protected SocketReaderT
         , protected SocketWriterT {
         SocketConnection() = delete;
 
     protected:
-        using SocketContextFactory = core::socket::SocketContextFactory;
-        using SocketContext = core::socket::SocketContext;
+        using Super = SocketConnectionSuper;
+
+        using SocketContextFactory = Super::SocketContextFactory;
+        using SocketContext = Super::SocketContext;
 
     public:
         using SocketReader = SocketReaderT;
@@ -56,7 +60,7 @@ namespace core::socket::stream {
                          const SocketAddress& remoteAddress,
                          const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                          const std::function<void()>& onDisconnect)
-            : core::socket::SocketConnection(socketContextFactory)
+            : Super(socketContextFactory)
             , SocketReader([this](int errnum) -> void {
                 socketContext->onReadError(errnum);
             })

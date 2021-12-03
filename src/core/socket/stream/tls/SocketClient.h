@@ -29,14 +29,13 @@
 namespace core::socket::stream::tls {
 
     template <typename ClientSocketT, typename SocketContextFactoryT>
-    class SocketClient
-        : public core::socket::stream::SocketClient<ClientSocketT,
-                                                    core::socket::stream::tls::SocketConnector<typename ClientSocketT::Socket>,
-                                                    SocketContextFactoryT> {
-        using SocketClientBase = core::socket::stream::
-            SocketClient<ClientSocketT, core::socket::stream::tls::SocketConnector<typename ClientSocketT::Socket>, SocketContextFactoryT>;
+    using SocketClientSuper = core::socket::stream::
+        SocketClient<ClientSocketT, core::socket::stream::tls::SocketConnector<typename ClientSocketT::Socket>, SocketContextFactoryT>;
 
-        using SocketClientBase::SocketClientBase;
+    template <typename ClientSocketT, typename SocketContextFactoryT>
+    class SocketClient : public SocketClientSuper<ClientSocketT, SocketContextFactoryT> {
+        using Super = SocketClientSuper<ClientSocketT, SocketContextFactoryT>;
+        using Super::Super;
     };
 
 } // namespace core::socket::stream::tls

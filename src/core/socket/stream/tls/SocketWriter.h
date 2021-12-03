@@ -36,10 +36,14 @@
 namespace core::socket::stream::tls {
 
     template <typename SocketT>
-    class SocketWriter : public core::socket::stream::SocketWriter<SocketT> {
-        using core::socket::stream::SocketWriter<SocketT>::SocketWriter;
+    using SocketWriterSuper = core::socket::stream::SocketWriter<SocketT>;
 
+    template <typename SocketT>
+    class SocketWriter : public SocketWriterSuper<SocketT> {
     private:
+        using Super = SocketWriterSuper<SocketT>;
+        using Super::Super;
+
         ssize_t write(const char* junk, std::size_t junkLen) override {
             sslErr = 0;
 
@@ -86,7 +90,7 @@ namespace core::socket::stream::tls {
 
     protected:
         void terminate() override {
-            core::socket::stream::SocketWriter<SocketT>::terminate();
+            Super::terminate();
         }
 
         virtual void doSSLHandshake(const std::function<void()>& onSuccess,
