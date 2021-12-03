@@ -266,7 +266,9 @@ namespace core {
     void EventDispatcher::_terminateObservedEvents() {
         for (const auto& [fd, eventReceivers] : observedEventReceiver) {
             for (EventReceiver* eventReceiver : eventReceivers) {
-                eventReceiver->terminate();
+                if (eventReceiver->isEnabled()) {
+                    eventReceiver->terminate();
+                }
             }
         }
     }

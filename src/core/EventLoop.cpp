@@ -73,7 +73,7 @@ namespace core {
         return timerEventDispatcher;
     }
 
-    TickStatus EventLoop::_tick(struct timeval tickTimeOut) {
+    TickStatus EventLoop::_tick(struct timeval tickTimeOut, bool ignoreTimer) {
         TickStatus tickStatus = TickStatus::SUCCESS;
 
         EventDispatcher::observeEnabledEvents();
@@ -85,7 +85,7 @@ namespace core {
 
         struct timeval nextTimeout = std::min(nextTimerTimeout, nextEventTimeout);
 
-        if (maxFd >= 0 || !timerEventDispatcher.empty()) {
+        if (maxFd >= 0 || (!timerEventDispatcher.empty() && !ignoreTimer)) {
             nextTimeout = std::max(nextTimeout, {0, 0}); // In case nextEventTimeout is negativ
             nextTimeout = std::min(nextTimeout, tickTimeOut);
 
@@ -94,18 +94,9 @@ namespace core {
                                            &writeEventDispatcher.getFdSet(),
                                            &exceptionalConditionEventDispatcher.getFdSet(),
                                            &nextTimeout);
-
-            if (ret >= 0 || stopsig != 0) {
+            if (ret >= 0) {
                 timerEventDispatcher.dispatch();
-
-                if (stopsig == 0) { // dispatchActiveEvents-section
-                    EventDispatcher::dispatchActiveEvents();
-                } else {
-                    EventDispatcher::terminateObservedEvents();
-                    stopsig = 0; // We have to set it back to zero because on next tick we
-                                 // have to enter the dispatchActiveEvents-section again!
-                }
-
+                EventDispatcher::dispatchActiveEvents();
                 EventDispatcher::unobserveDisabledEvents();
 
                 DynamicLoader::execDlCloseDeleyed();
@@ -147,9 +138,13 @@ namespace core {
 
             stopped = false;
 
-            while (!stopped && EventLoop::instance()._tick(timeOut) == TickStatus::SUCCESS) {
+            while (EventLoop::instance()._tick(timeOut) == TickStatus::SUCCESS && stopsig == 0 && !stopped) {
                 EventLoop::instance().tickCounter++;
             };
+
+            if (stopsig != 0) {
+                free();
+            }
 
             running = false;
         }
@@ -170,7 +165,7 @@ namespace core {
         return returnReason;
     }
 
-    TickStatus EventLoop::tick(struct timeval timeOut) {
+    TickStatus EventLoop::tick(struct timeval timeOut, bool ignoreTimer) {
         if (!initialized) {
             PLOG(ERROR) << "snode.c not initialized. Use SNodeC::init(argc, argv) before SNodeC::tick().";
             exit(1);
@@ -178,16 +173,16 @@ namespace core {
 
         sighandler_t oldSigPipeHandler = core::system::signal(SIGPIPE, SIG_IGN);
 
-        TickStatus tickStatus = EventLoop::instance()._tick(timeOut);
+        TickStatus tickStatus = EventLoop::instance()._tick(timeOut, ignoreTimer);
 
         core::system::signal(SIGPIPE, oldSigPipeHandler);
 
         return tickStatus;
     }
 
-    void EventLoop::release() {
+    void EventLoop::free() {
         EventDispatcher::terminateObservedEvents();
-        while (EventLoop::instance().tick() == TickStatus::SUCCESS)
+        while (EventLoop::instance().tick({0, 0}, true) == TickStatus::SUCCESS)
             ;
 
         EventLoop::instance().timerEventDispatcher.cancelAll();

@@ -52,12 +52,12 @@ namespace core {
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
         static void init(int argc, char* argv[]);
         static int start(struct timeval timeOut);
-        static TickStatus tick(struct timeval timeOut = {});
-        static void release();
+        static TickStatus tick(struct timeval timeOut = {}, bool ignoreTimer = false);
+        static void free();
 
         static void stoponsig(int sig);
 
-        TickStatus _tick(struct timeval timeOut);
+        TickStatus _tick(struct timeval timeOut, bool ignoreTimer = false);
 
         EventDispatcher readEventDispatcher;
         EventDispatcher writeEventDispatcher;

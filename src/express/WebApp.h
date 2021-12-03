@@ -19,6 +19,7 @@
 #ifndef EXPRESS_WEBAPP_H
 #define EXPRESS_WEBAPP_H
 
+#include "core/TickStatus.h"
 #include "express/Router.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -33,8 +34,9 @@ namespace express {
 
     public:
         static void init(int argc, char* argv[]);
-        static int start();
-        static void release();
+        static int start(struct timeval timeOut = {LONG_MAX, 0});
+        static core::TickStatus tick(struct timeval timeOut = {0, 0});
+        static void free();
 
     private:
         static bool initialized;

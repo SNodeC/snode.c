@@ -26,7 +26,6 @@
 
 namespace core {
 
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
     void SNodeC::init(int argc, char* argv[]) {
         EventLoop::init(argc, argv);
     }
@@ -39,8 +38,8 @@ namespace core {
         return EventLoop::tick(timeOut);
     }
 
-    void SNodeC::release() {
-        EventLoop::release();
+    void SNodeC::free() {
+        EventLoop::free();
     }
 
 } // namespace core
