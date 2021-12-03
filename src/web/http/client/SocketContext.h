@@ -40,12 +40,18 @@ namespace web::http::client {
 
 namespace web::http::client {
 
+    using SocketContextSuper = web::http::SocketContext;
+
     template <typename RequestT, typename ResponseT>
-    class SocketContext : public web::http::SocketContext {
-    public:
+    class SocketContext : public SocketContextSuper {
+    private:
+        using Super = SocketContextSuper;
+        using SocketConnection = Super::SocketConnection;
+
         using Request = RequestT;
         using Response = ResponseT;
 
+    public:
         SocketContext(core::socket::SocketConnection* socketConnection,
                       const std::function<void(Request&, Response&)>& onResponse,
                       const std::function<void(int, const std::string&)>& onError);

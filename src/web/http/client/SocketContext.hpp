@@ -28,10 +28,10 @@
 namespace web::http::client {
 
     template <typename Request, typename Response>
-    SocketContext<Request, Response>::SocketContext(core::socket::SocketConnection* socketConnection,
+    SocketContext<Request, Response>::SocketContext(SocketConnection* socketConnection,
                                                     const std::function<void(Request&, Response&)>& onResponse,
                                                     const std::function<void(int, const std::string&)>& onError)
-        : web::http::SocketContext(socketConnection, Role::CLIENT)
+        : Super(socketConnection, Role::CLIENT)
         , request(this)
         , response(this)
         , parser(

@@ -34,13 +34,17 @@ namespace web::http {
 
     template <typename RequestT, typename ResponseT>
     class SocketContextUpgrade : public core::socket::SocketContext {
-    public:
+    protected:
         using Request = RequestT;
         using Response = ResponseT;
+        using SocketConnection = core::socket::SocketConnection;
+        using SocketContext = core::socket::SocketContext;
 
-        SocketContextUpgrade(core::socket::SocketConnection* socketConnection,
+        using SocketContextUpgradeFactory = web::http::SocketContextUpgradeFactory<Request, Response>;
+
+        SocketContextUpgrade(SocketConnection* socketConnection,
                              SocketContext::Role role,
-                             SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory)
+                             SocketContextUpgradeFactory* socketContextUpgradeFactory)
             : core::socket::SocketContext(socketConnection, role)
             , socketContextUpgradeFactory(socketContextUpgradeFactory) {
             socketContextUpgradeFactory->incRefCount();
@@ -50,10 +54,7 @@ namespace web::http {
             socketContextUpgradeFactory->decRefCount();
         }
 
-        using core::socket::SocketContext::setTimeout;
-
-    protected:
-        SocketContextUpgradeFactory<Request, Response>* socketContextUpgradeFactory = nullptr;
+        SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
     };
 
 } // namespace web::http

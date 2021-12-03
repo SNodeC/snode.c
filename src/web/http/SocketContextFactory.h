@@ -26,20 +26,21 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http {
+
     template <template <typename RequestT, typename ResponseT> class SocketContextT, typename RequestT, typename ResponseT>
     class SocketContextFactory : public core::socket::SocketContextFactory {
-    public:
+    protected:
         using Request = RequestT;
         using Response = ResponseT;
         using SocketContext = SocketContextT<Request, Response>;
 
-    protected:
         SocketContextFactory() = default;
         ~SocketContextFactory() override = default;
 
         SocketContextFactory(const SocketContextFactory&) = delete;
         SocketContextFactory& operator=(const SocketContextFactory&) = delete;
     };
+
 } // namespace web::http
 
 #endif // WEB_HTTP_ SOCKETCONTEXTFACTORY_H
