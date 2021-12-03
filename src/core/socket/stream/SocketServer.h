@@ -36,7 +36,7 @@ namespace core::socket::stream {
     class SocketServer : public ServerSocketT {
         SocketServer() = delete;
 
-    private:
+    protected:
         using ServerSocket = ServerSocketT;
         using SocketAcceptor = SocketAcceptorT;
         using SocketContextFactory = SocketContextFactoryT;

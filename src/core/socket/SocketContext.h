@@ -37,7 +37,7 @@ namespace core::socket {
 namespace core::socket {
 
     class SocketContext {
-    private:
+    protected:
         using SocketContextFactory = core::socket::SocketContextFactory;
         using SocketConnection = core::socket::SocketConnection;
 

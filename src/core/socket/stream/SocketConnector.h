@@ -49,7 +49,7 @@ namespace core::socket::stream {
         SocketConnector(const SocketConnector&) = delete;
         SocketConnector& operator=(const SocketConnector&) = delete;
 
-    private:
+    protected:
         using SocketContextFactory = core::socket::SocketContextFactory;
 
     public:

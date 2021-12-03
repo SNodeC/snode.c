@@ -37,13 +37,19 @@
 namespace core::socket::stream::tls {
 
     template <typename SocketT>
-    class SocketAcceptor : public core::socket::stream::SocketAcceptor<core::socket::stream::tls::SocketConnection<SocketT>> {
+    using SocketAcceptorSuper = core::socket::stream::SocketAcceptor<core::socket::stream::tls::SocketConnection<SocketT>>;
+
+    template <typename SocketT>
+    class SocketAcceptor : public SocketAcceptorSuper<SocketT> {
     private:
-        using Socket = SocketT;
+        using Super = SocketAcceptorSuper<SocketT>;
+
+        using Socket = typename Super::Socket;
+        using SocketContextFactory = typename Super::SocketContextFactory;
 
     public:
-        using SocketConnection = core::socket::stream::tls::SocketConnection<Socket>;
-        using SocketAddress = typename Socket::SocketAddress;
+        using SocketConnection = typename Super::SocketConnection;
+        using SocketAddress = typename Super::SocketAddress;
 
         SocketAcceptor(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
                        const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
@@ -102,9 +108,9 @@ namespace core::socket::stream::tls {
             if (masterSslCtx == nullptr) {
                 errno = EINVAL;
                 onError(static_cast<const Socket&>(*this), errno);
-                core::socket::stream::SocketAcceptor<SocketConnection>::destruct();
+                Super::destruct();
             } else {
-                core::socket::stream::SocketAcceptor<SocketConnection>::listen(localAddress, backlog, onError);
+                Super::listen(localAddress, backlog, onError);
             }
         }
 

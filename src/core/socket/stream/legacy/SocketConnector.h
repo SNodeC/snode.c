@@ -29,13 +29,17 @@
 namespace core::socket::stream::legacy {
 
     template <typename SocketT>
-    class SocketConnector : public core::socket::stream::SocketConnector<core::socket::stream::legacy::SocketConnection<SocketT>> {
+    using SocketConnectorSuper = core::socket::stream::SocketConnector<core::socket::stream::legacy::SocketConnection<SocketT>>;
+
+    template <typename SocketT>
+    class SocketConnector : public SocketConnectorSuper<SocketT> {
     private:
-        using Socket = SocketT;
+        using Super = SocketConnectorSuper<SocketT>;
+        using Socket = typename Super::Socket;
 
     public:
-        using SocketConnection = core::socket::stream::legacy::SocketConnection<Socket>;
-        using SocketAddress = typename Socket::SocketAddress;
+        using SocketConnection = typename Super::SocketConnection;
+        using SocketAddress = typename Super::SocketAddress;
 
         SocketConnector(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
                         const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,

@@ -42,11 +42,10 @@ namespace core::socket {
         SocketConnection(const core::socket::SocketConnection&) = delete;
         SocketConnection& operator=(const core::socket::SocketConnection&) = delete;
 
-    private:
+    protected:
         using SocketContextFactory = core::socket::SocketContextFactory;
         using SocketContext = core::socket::SocketContext;
 
-    protected:
         SocketConnection(const std::shared_ptr<SocketContextFactory>& socketContextFactory);
 
         virtual ~SocketConnection() = default;

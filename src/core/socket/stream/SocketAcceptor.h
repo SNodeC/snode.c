@@ -47,7 +47,7 @@ namespace core::socket::stream {
         SocketAcceptor(const SocketAcceptor&) = delete;
         SocketAcceptor& operator=(const SocketAcceptor&) = delete;
 
-    private:
+    protected:
         using SocketContextFactory = core::socket::SocketContextFactory;
 
     public:

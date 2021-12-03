@@ -33,11 +33,10 @@ namespace core::socket {
 namespace core::socket {
 
     class SocketContextFactory {
-    private:
+    protected:
         using SocketContext = core::socket::SocketContext;
         using SocketConnection = core::socket::SocketConnection;
 
-    protected:
         SocketContextFactory() = default;
 
         virtual ~SocketContextFactory() = default;

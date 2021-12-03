@@ -42,7 +42,7 @@ namespace core::socket::stream {
 
         SocketClient() = delete;
 
-    private:
+    protected:
         using ClientSocket = ClientSocketT;
         using SocketConnector = SocketConnectorT;
         using SocketContextFactory = SocketContextFactoryT;

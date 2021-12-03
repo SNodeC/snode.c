@@ -41,7 +41,7 @@ namespace core::socket::stream {
         , protected SocketWriterT {
         SocketConnection() = delete;
 
-    private:
+    protected:
         using SocketContextFactory = core::socket::SocketContextFactory;
         using SocketContext = core::socket::SocketContext;
 

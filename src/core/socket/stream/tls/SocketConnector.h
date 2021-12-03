@@ -32,13 +32,19 @@
 namespace core::socket::stream::tls {
 
     template <typename SocketT>
-    class SocketConnector : public core::socket::stream::SocketConnector<core::socket::stream::tls::SocketConnection<SocketT>> {
+    using SocketConnectorSuper = core::socket::stream::SocketConnector<core::socket::stream::tls::SocketConnection<SocketT>>;
+
+    template <typename SocketT>
+    class SocketConnector : public SocketConnectorSuper<SocketT> {
     private:
-        using Socket = SocketT;
+        using Super = SocketConnectorSuper<SocketT>;
+
+        using Socket = typename Super::Socket;
+        using SocketContextFactory = typename Super::SocketContextFactory;
 
     public:
-        using SocketConnection = core::socket::stream::tls::SocketConnection<Socket>;
-        using SocketAddress = typename Socket::SocketAddress;
+        using SocketConnection = typename Super::SocketConnection;
+        using SocketAddress = typename Super::SocketAddress;
 
         SocketConnector(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
                         const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
@@ -93,9 +99,9 @@ namespace core::socket::stream::tls {
             if (ctx == nullptr) {
                 errno = EINVAL;
                 onError(errno);
-                core::socket::stream::SocketConnector<SocketConnection>::destruct();
+                Super::destruct();
             } else {
-                core::socket::stream::SocketConnector<SocketConnection>::connect(remoteAddress, bindAddress, onError);
+                Super::connect(remoteAddress, bindAddress, onError);
             }
         }
 
