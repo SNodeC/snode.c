@@ -26,12 +26,12 @@
 #if (STREAM_TYPE == LEGACY) // legacy
 
 namespace apps::http::legacy {
-    using Client = web::http::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>;
+
+    using Request = web::http::client::Request;
+    using Response = web::http::client::Response;
+    using Client = web::http::STREAM::NET::Client<Request, Response>;
 
     Client getClient(const std::map<std::string, std::any>& options) {
-        using Request = web::http::client::Request;
-        using Response = web::http::client::Response;
-
         return Client(
             [](const Client::SocketAddress& localAddress, const Client::SocketAddress& remoteAddress) -> void {
                 VLOG(0) << "-- OnConnect";
@@ -97,12 +97,11 @@ namespace apps::http::legacy {
 
 namespace apps::http::tls {
 
-    using Client = web::http::STREAM::NET::Client<web::http::client::Request, web::http::client::Response>;
+    using Request = web::http::client::Request;
+    using Response = web::http::client::Response;
+    using Client = web::http::STREAM::NET::Client<Request, Response>;
 
     Client getClient(const std::map<std::string, std::any>& options) {
-        using Request = web::http::client::Request;
-        using Response = web::http::client::Response;
-
         return Client(
             [](const Client::SocketAddress& localAddress, const Client::SocketAddress& remoteAddress) -> void {
                 VLOG(0) << "-- OnConnect";
