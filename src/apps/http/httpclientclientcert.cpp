@@ -54,9 +54,16 @@ int main(int argc, char* argv[]) {
     client.connect("localhost", 8088, [](int errnum) -> void {
 #endif
 #elif (NET_TYPE == L2) // l2
-    client.connect("A4:B1:C1:2C:82:37", 0x1023, "44:01:BB:A3:63:32", [](int errnum) -> void {
+    // DIONE: 10:3D:1C:AC:BA:9C
+    // TITAN: A4:B1:C1:2C:82:37
+
+    // USB: 44:01:BB:A3:63:32
+
+    // client.connect("A4:B1:C1:2C:82:37", 0x1023, "44:01:BB:A3:63:32", [](int errnum) -> void {
+    client.connect("10:3D:1C:AC:BA:9C", 0x1023, "44:01:BB:A3:63:32", [](int errnum) -> void {
 #elif (NET_TYPE == RF) // rf
-    client.connect("A4:B1:C1:2C:82:37", 1, "44:01:BB:A3:63:32", [](int errnum) -> void {
+    // client.connect("A4:B1:C1:2C:82:37", 1, "44:01:BB:A3:63:32", [](int errnum) -> void {
+    client.connect("10:3D:1C:AC:BA:9C", 1, "44:01:BB:A3:63:32", [](int errnum) -> void {
 #elif (NET_TYPE == UN) // un
     client.connect("/tmp/testme", [](int errnum) -> void {
 #endif
