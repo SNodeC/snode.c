@@ -33,19 +33,20 @@
 namespace web::websocket::client {
 
     class SubProtocol : public web::websocket::SubProtocol<web::websocket::client::SocketContextUpgrade> {
-    protected:
-        using web::websocket::SubProtocol<web::websocket::client::SocketContextUpgrade>::SubProtocol;
+    private:
+        using Super = web::websocket::SubProtocol<web::websocket::client::SocketContextUpgrade>;
+        using Super::Super;
 
     public:
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from SubProtocol-Subclasses */
-        using web::websocket::SubProtocol<web::websocket::client::SocketContextUpgrade>::sendMessage;
+        using Super::sendMessage;
 
-        using web::websocket::SubProtocol<web::websocket::client::SocketContextUpgrade>::sendMessageEnd;
-        using web::websocket::SubProtocol<web::websocket::client::SocketContextUpgrade>::sendMessageFrame;
-        using web::websocket::SubProtocol<web::websocket::client::SocketContextUpgrade>::sendMessageStart;
+        using Super::sendMessageEnd;
+        using Super::sendMessageFrame;
+        using Super::sendMessageStart;
 
-        using web::websocket::SubProtocol<web::websocket::client::SocketContextUpgrade>::sendClose;
-        using web::websocket::SubProtocol<web::websocket::client::SocketContextUpgrade>::sendPing;
+        using Super::sendClose;
+        using Super::sendPing;
 
     private:
         /* Callbacks (API) WSReceiver -> SubProtocol-Subclasses */

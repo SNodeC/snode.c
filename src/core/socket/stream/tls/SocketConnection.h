@@ -34,19 +34,21 @@
 namespace core::socket::stream::tls {
 
     template <typename SocketT>
-    using SocketConnectionSuper = core::socket::stream::SocketConnection<core::socket::stream::tls::SocketReader<SocketT>,
-                                                                         core::socket::stream::tls::SocketWriter<SocketT>,
-                                                                         typename SocketT::SocketAddress>;
+    class SocketConnection
+        : public core::socket::stream::SocketConnection<core::socket::stream::tls::SocketReader<SocketT>,
+                                                        core::socket::stream::tls::SocketWriter<SocketT>,
+                                                        typename SocketT::SocketAddress> {
+    private:
+        using Super = core::socket::stream::SocketConnection<core::socket::stream::tls::SocketReader<SocketT>,
+                                                             core::socket::stream::tls::SocketWriter<SocketT>,
+                                                             typename SocketT::SocketAddress>;
 
-    template <typename SocketT>
-    class SocketConnection : public SocketConnectionSuper<SocketT> {
     public:
         using Socket = SocketT;
-        using Super = SocketConnectionSuper<Socket>;
         using SocketAddress = typename Super::SocketAddress;
 
         SocketConnection(int fd,
-                         const std::shared_ptr<SocketContextFactory>& socketContextFactory,
+                         const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
                          const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,

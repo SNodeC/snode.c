@@ -34,20 +34,15 @@
 
 namespace core::socket::stream {
 
-    using SocketConnectionSuper = core::socket::SocketConnection;
-
     template <typename SocketReaderT, typename SocketWriterT, typename SocketAddressT>
     class SocketConnection
-        : public SocketConnectionSuper
+        : public core::socket::SocketConnection
         , protected SocketReaderT
         , protected SocketWriterT {
         SocketConnection() = delete;
 
-    protected:
-        using Super = SocketConnectionSuper;
-
-        using SocketContextFactory = Super::SocketContextFactory;
-        using SocketContext = Super::SocketContext;
+    private:
+        using Super = core::socket::SocketConnection;
 
     public:
         using SocketReader = SocketReaderT;
@@ -55,7 +50,7 @@ namespace core::socket::stream {
         using SocketAddress = SocketAddressT;
 
     protected:
-        SocketConnection(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
+        SocketConnection(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
                          const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
@@ -142,7 +137,7 @@ namespace core::socket::stream {
             SocketWriter::setTimeout(timeout);
         }
 
-        SocketContext* switchSocketContext(SocketContextFactory* socketContextFactory) override {
+        core::socket::SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory) override {
             newSocketContext = socketContextFactory->create(this);
 
             if (newSocketContext == nullptr) {
@@ -172,7 +167,7 @@ namespace core::socket::stream {
         SocketAddress localAddress{};
         SocketAddress remoteAddress{};
 
-        SocketContext* newSocketContext = nullptr;
+        core::socket::SocketContext* newSocketContext = nullptr;
 
         std::function<void()> onDisconnect;
     };

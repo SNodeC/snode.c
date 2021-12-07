@@ -44,10 +44,9 @@ namespace web::http::server {
     using SocketContextSuper = web::http::SocketContext;
 
     template <typename RequestT, typename ResponseT>
-    class SocketContext : public SocketContextSuper {
+    class SocketContext : public web::http::SocketContext {
     private:
-        using Super = SocketContextSuper;
-        using SocketConnection = Super::SocketConnection;
+        using Super = web::http::SocketContext;
 
         using Request = RequestT;
         using Response = ResponseT;
@@ -69,7 +68,7 @@ namespace web::http::server {
         };
 
     public:
-        SocketContext(SocketConnection* socketConnection, const std::function<void(Request&, Response&)>& onRequestReady);
+        SocketContext(core::socket::SocketConnection* socketConnection, const std::function<void(Request&, Response&)>& onRequestReady);
 
     private:
         void onReceiveFromPeer() override;

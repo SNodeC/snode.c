@@ -45,6 +45,8 @@ namespace web::http::server {
     protected:
         explicit Response(web::http::SocketContext* serverContext);
 
+        virtual ~Response() = default;
+
     public:
         void send(const char* junk, std::size_t junkLen);
         void send(const std::string& junk);

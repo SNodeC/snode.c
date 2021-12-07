@@ -47,7 +47,7 @@ namespace web::http::client {
 
     private:
         core::socket::SocketContext* create(core::socket::SocketConnection* socketConnection) override {
-            return new SocketContext<Request, Response>(socketConnection, onResponseReady, onResponseError);
+            return new web::http::client::SocketContext<Request, Response>(socketConnection, onResponseReady, onResponseError);
         }
 
     public:

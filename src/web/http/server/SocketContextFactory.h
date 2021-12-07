@@ -51,7 +51,7 @@ namespace web::http::server {
 
     private:
         core::socket::SocketContext* create(core::socket::SocketConnection* socketConnection) override {
-            return new SocketContext<Request, Response>(socketConnection, onRequestReady);
+            return new web::http::server::SocketContext<Request, Response>(socketConnection, onRequestReady);
         }
 
         std::function<void(Request&, Response&)> onRequestReady;

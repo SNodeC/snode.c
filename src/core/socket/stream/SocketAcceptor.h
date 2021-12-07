@@ -47,9 +47,6 @@ namespace core::socket::stream {
         SocketAcceptor(const SocketAcceptor&) = delete;
         SocketAcceptor& operator=(const SocketAcceptor&) = delete;
 
-    protected:
-        using SocketContextFactory = core::socket::SocketContextFactory;
-
     public:
         using SocketConnection = SocketConnectionT;
         using Socket = typename SocketConnection::Socket;
@@ -60,7 +57,7 @@ namespace core::socket::stream {
 !include core/socket/stream/pu/SocketAcceptor.pu!0
 @enduml
 */
-        SocketAcceptor(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
+        SocketAcceptor(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                        const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,
@@ -164,7 +161,7 @@ namespace core::socket::stream {
         }
 
     private:
-        std::shared_ptr<SocketContextFactory> socketContextFactory = nullptr;
+        std::shared_ptr<core::socket::SocketContextFactory> socketContextFactory = nullptr;
 
     protected:
         std::map<std::string, std::any> options;

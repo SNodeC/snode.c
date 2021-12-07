@@ -37,13 +37,11 @@ namespace web::http {
     protected:
         using Request = RequestT;
         using Response = ResponseT;
-        using SocketConnection = core::socket::SocketConnection;
-        using SocketContext = core::socket::SocketContext;
 
         using SocketContextUpgradeFactory = web::http::SocketContextUpgradeFactory<Request, Response>;
 
-        SocketContextUpgrade(SocketConnection* socketConnection,
-                             SocketContext::Role role,
+        SocketContextUpgrade(core::socket::SocketConnection* socketConnection,
+                             core::socket::SocketContext::Role role,
                              SocketContextUpgradeFactory* socketContextUpgradeFactory)
             : core::socket::SocketContext(socketConnection, role)
             , socketContextUpgradeFactory(socketContextUpgradeFactory) {

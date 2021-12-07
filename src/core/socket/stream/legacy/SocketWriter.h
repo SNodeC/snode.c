@@ -33,12 +33,9 @@
 namespace core::socket::stream::legacy {
 
     template <typename SocketT>
-    using SocketWriterSuper = core::socket::stream::SocketWriter<SocketT>;
-
-    template <typename SocketT>
-    class SocketWriter : public SocketWriterSuper<SocketT> {
+    class SocketWriter : public core::socket::stream::SocketWriter<SocketT> {
     private:
-        using Super = SocketWriterSuper<SocketT>;
+        using Super = core::socket::stream::SocketWriter<SocketT>;
         using Super::Super;
 
         ssize_t write(const char* junk, std::size_t junkLen) override {

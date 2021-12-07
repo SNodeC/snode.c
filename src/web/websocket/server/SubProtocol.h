@@ -34,22 +34,24 @@
 namespace web::websocket::server {
 
     class SubProtocol : public web::websocket::SubProtocol<web::websocket::server::SocketContextUpgrade> {
+    private:
+        using Super = web::websocket::SubProtocol<web::websocket::server::SocketContextUpgrade>;
+
     protected:
-        using web::websocket::SubProtocol<web::websocket::server::SocketContextUpgrade>::SubProtocol;
         SubProtocol(const std::string& name);
 
     public:
         ~SubProtocol();
 
         /* Facade (API) to WSServerContext -> WSTransmitter to be used from SubProtocol-Subclasses */
-        using web::websocket::SubProtocol<web::websocket::server::SocketContextUpgrade>::sendMessage;
+        using Super::sendMessage;
 
-        using web::websocket::SubProtocol<web::websocket::server::SocketContextUpgrade>::sendMessageEnd;
-        using web::websocket::SubProtocol<web::websocket::server::SocketContextUpgrade>::sendMessageFrame;
-        using web::websocket::SubProtocol<web::websocket::server::SocketContextUpgrade>::sendMessageStart;
+        using Super::sendMessageEnd;
+        using Super::sendMessageFrame;
+        using Super::sendMessageStart;
 
-        using web::websocket::SubProtocol<web::websocket::server::SocketContextUpgrade>::sendClose;
-        using web::websocket::SubProtocol<web::websocket::server::SocketContextUpgrade>::sendPing;
+        using Super::sendClose;
+        using Super::sendPing;
 
         void subscribe(const std::string& channel);
 

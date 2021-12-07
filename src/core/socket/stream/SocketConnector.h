@@ -49,15 +49,12 @@ namespace core::socket::stream {
         SocketConnector(const SocketConnector&) = delete;
         SocketConnector& operator=(const SocketConnector&) = delete;
 
-    protected:
-        using SocketContextFactory = core::socket::SocketContextFactory;
-
     public:
         using SocketConnection = SocketConnectionT;
         using Socket = typename SocketConnection::Socket;
         using SocketAddress = typename Socket::SocketAddress;
 
-        SocketConnector(const std::shared_ptr<SocketContextFactory>& socketContextFactory,
+        SocketConnector(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                         const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,
@@ -160,7 +157,7 @@ namespace core::socket::stream {
         }
 
     private:
-        std::shared_ptr<SocketContextFactory> socketContextFactory = nullptr;
+        std::shared_ptr<core::socket::SocketContextFactory> socketContextFactory = nullptr;
 
     protected:
         std::function<void(int err)> onError;

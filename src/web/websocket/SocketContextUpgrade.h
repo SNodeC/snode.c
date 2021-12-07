@@ -49,16 +49,19 @@ namespace web::websocket {
         : public web::http::SocketContextUpgrade<RequestT, ResponseT>
         , protected web::websocket::Receiver
         , protected web::websocket::Transmitter {
+    private:
+        using Super = web::http::SocketContextUpgrade<RequestT, ResponseT>;
+
     public:
         using SubProtocol = SubProtocolT;
         using Request = RequestT;
         using Response = ResponseT;
 
     private:
-        using web::http::SocketContextUpgrade<Request, Response>::sendToPeer;
-        using web::http::SocketContextUpgrade<Request, Response>::readFromPeer;
-        using web::http::SocketContextUpgrade<Request, Response>::close;
-        using web::http::SocketContextUpgrade<Request, Response>::setTimeout;
+        using Super::close;
+        using Super::readFromPeer;
+        using Super::sendToPeer;
+        using Super::setTimeout;
 
     protected:
         SocketContextUpgrade(core::socket::SocketConnection* socketConnection,

@@ -37,15 +37,11 @@ namespace core::socket {
 namespace core::socket {
 
     class SocketContext {
-    protected:
-        using SocketContextFactory = core::socket::SocketContextFactory;
-        using SocketConnection = core::socket::SocketConnection;
-
     public:
         enum class Role { SERVER, CLIENT };
 
     protected:
-        explicit SocketContext(SocketConnection* socketConnection, Role role);
+        explicit SocketContext(core::socket::SocketConnection* socketConnection, Role role);
 
     public:
         virtual ~SocketContext() = default;
@@ -66,7 +62,7 @@ namespace core::socket {
 
         void setTimeout(int timeout);
 
-        SocketContext* switchSocketContext(SocketContextFactory* socketContextFactory);
+        SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory);
 
         virtual void onReceiveFromPeer() = 0;
 
@@ -77,7 +73,7 @@ namespace core::socket {
         virtual void onDisconnected();
 
     private:
-        SocketConnection* socketConnection;
+        core::socket::SocketConnection* socketConnection;
 
     protected:
         Role role;

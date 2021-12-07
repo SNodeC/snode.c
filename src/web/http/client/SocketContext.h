@@ -46,7 +46,6 @@ namespace web::http::client {
     class SocketContext : public SocketContextSuper {
     private:
         using Super = SocketContextSuper;
-        using SocketConnection = Super::SocketConnection;
 
         using Request = RequestT;
         using Response = ResponseT;

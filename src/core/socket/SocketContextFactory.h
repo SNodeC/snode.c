@@ -34,15 +34,12 @@ namespace core::socket {
 
     class SocketContextFactory {
     protected:
-        using SocketContext = core::socket::SocketContext;
-        using SocketConnection = core::socket::SocketConnection;
-
         SocketContextFactory() = default;
 
         virtual ~SocketContextFactory() = default;
 
     public:
-        virtual SocketContext* create(SocketConnection* socketConnection) = 0;
+        virtual core::socket::SocketContext* create(core::socket::SocketConnection* socketConnection) = 0;
     };
 
 } // namespace core::socket

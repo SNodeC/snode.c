@@ -34,12 +34,9 @@
 namespace core::socket::stream::legacy {
 
     template <typename SocketT>
-    using SocketReaderSuper = core::socket::stream::SocketReader<SocketT>;
-
-    template <typename SocketT>
-    class SocketReader : public SocketReaderSuper<SocketT> {
+    class SocketReader : public core::socket::stream::SocketReader<SocketT> {
     private:
-        using Super = SocketReaderSuper<SocketT>;
+        using Super = core::socket::stream::SocketReader<SocketT>;
         using Super::Super;
 
         ssize_t read(char* junk, std::size_t junkLen) override {

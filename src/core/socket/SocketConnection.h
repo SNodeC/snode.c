@@ -43,15 +43,12 @@ namespace core::socket {
         SocketConnection& operator=(const core::socket::SocketConnection&) = delete;
 
     protected:
-        using SocketContextFactory = core::socket::SocketContextFactory;
-        using SocketContext = core::socket::SocketContext;
-
-        SocketConnection(const std::shared_ptr<SocketContextFactory>& socketContextFactory);
+        SocketConnection(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory);
 
         virtual ~SocketConnection() = default;
 
     public:
-        SocketContext* getSocketContext();
+        core::socket::SocketContext* getSocketContext();
 
         virtual std::string getLocalAddressAsString() const = 0;
         virtual std::string getRemoteAddressAsString() const = 0;
@@ -68,12 +65,12 @@ namespace core::socket {
 
         virtual void setTimeout(int timeout) = 0;
 
-        virtual SocketContext* switchSocketContext(SocketContextFactory* socketContextFactory) = 0;
+        virtual core::socket::SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory) = 0;
 
     protected:
-        SocketContext* socketContext = nullptr;
+        core::socket::SocketContext* socketContext = nullptr;
 
-        friend SocketContext;
+        friend core::socket::SocketContext;
     };
 
 } // namespace core::socket

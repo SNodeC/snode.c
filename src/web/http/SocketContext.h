@@ -27,15 +27,12 @@
 
 namespace web::http {
 
-    using SocketContextSuper = core::socket::SocketContext;
-
-    class SocketContext : public SocketContextSuper {
-    protected:
-        using Super = SocketContextSuper;
-        using SocketConnection = Super::SocketConnection;
-
+    class SocketContext : public core::socket::SocketContext {
+    private:
+        using Super = core::socket::SocketContext;
         using Super::Super;
 
+    protected:
         SocketContext(const SocketContext&) = delete;
         SocketContext& operator=(const SocketContext&) = delete;
 

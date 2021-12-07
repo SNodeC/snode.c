@@ -39,8 +39,12 @@ namespace web::http::server {
     public:
         using Request = RequestT;
         using Response = ResponseT;
-        using SocketServer = SocketServerT<web::http::server::SocketContextFactory<Request, Response>>; // this makes it an HTTP server
-        using SocketConnection = typename SocketServer::SocketConnection;
+
+    private:
+        using Super = SocketServerT<web::http::server::SocketContextFactory<Request, Response>>; // this makes it an HTTP server
+
+    public:
+        using SocketConnection = typename Super::SocketConnection;
         using SocketAddress = typename SocketConnection::SocketAddress;
 
         Server(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
@@ -48,7 +52,7 @@ namespace web::http::server {
                const std::function<void(Request&, Response&)>& onRequestReady,
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
-            : SocketServer(
+            : Super(
                   [onConnect](const SocketAddress& localAddress,
                               const SocketAddress& remoteAddress) -> void { // OnConnect
                       onConnect(localAddress, remoteAddress);
@@ -60,13 +64,13 @@ namespace web::http::server {
                       onDisconnect(socketConnection);
                   },
                   options) {
-            SocketServer::getSocketContextFactory()->setOnRequestReady(onRequestReady);
+            Super::getSocketContextFactory()->setOnRequestReady(onRequestReady);
         }
 
-        using SocketServer::listen;
+        using Super::listen;
 
         void listen(const SocketAddress& socketAddress, const std::function<void(int)>& onError) {
-            SocketServer::listen(socketAddress, LISTEN_BACKLOG, onError);
+            Super::listen(socketAddress, LISTEN_BACKLOG, onError);
         }
     };
 
