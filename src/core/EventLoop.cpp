@@ -138,13 +138,11 @@ namespace core {
 
             stopped = false;
 
-            while (EventLoop::instance()._tick(timeOut) == TickStatus::SUCCESS && stopsig == 0 && !stopped) {
+            while (EventLoop::instance()._tick(timeOut) == TickStatus::SUCCESS && !stopped) {
                 EventLoop::instance().tickCounter++;
             };
 
-            if (stopsig != 0) {
-                free();
-            }
+            free();
 
             running = false;
         }
@@ -192,6 +190,7 @@ namespace core {
 
     void EventLoop::stoponsig(int sig) {
         stopsig = sig;
+        stopped = true;
     }
 
     unsigned long EventLoop::getEventCounter() {

@@ -31,10 +31,6 @@
 namespace core::socket::stream::tls {
 
     template <typename ServerSocketT, typename SocketContextFactoryT>
-    using SocketServerSuper = core::socket::stream::
-        SocketServer<ServerSocketT, core::socket::stream::tls::SocketAcceptor<typename ServerSocketT::Socket>, SocketContextFactoryT>;
-
-    template <typename ServerSocketT, typename SocketContextFactoryT>
     class SocketServer
         : public core::socket::stream::SocketServer<ServerSocketT,
                                                     core::socket::stream::tls::SocketAcceptor<typename ServerSocketT::Socket>,
@@ -53,15 +49,13 @@ namespace core::socket::stream::tls {
                      const std::function<void(SocketConnection*)>& onDisconnect,
                      const std::map<std::string, std::any>& options = {{}})
             : Super(onConnect, onConnected, onDisconnect, options)
-            , sniSslCtxs(new std::map<std::string, SSL_CTX*>, [](std::map<std::string, SSL_CTX*>* sniSslCtxs) {
-                for (const auto& [domain, sniSslCtx] : *sniSslCtxs) {
-                    ssl_ctx_free(sniSslCtx);
-                }
-                delete sniSslCtxs;
+            , sniSslCtxs(new std::map<std::string, SSL_CTX*>, [this](std::map<std::string, SSL_CTX*>* sniSslCtxs) {
+                freeSniCerts(sniSslCtxs);
             }) {
             this->options.insert({{"SNI_SSL_CTXS", sniSslCtxs}});
         }
 
+    private:
         void addSniCtx(const std::string& domain, SSL_CTX* sslCtx) {
             if (sslCtx != nullptr) {
                 sniSslCtxs->insert({{domain, sslCtx}});
@@ -71,6 +65,7 @@ namespace core::socket::stream::tls {
             }
         }
 
+    public:
         void addSniCert(const std::string& domain, const std::map<std::string, std::any>& sniCert) {
             SSL_CTX* sslCtx = ssl_ctx_new(sniCert, true);
             addSniCtx(domain, sslCtx);
@@ -83,6 +78,13 @@ namespace core::socket::stream::tls {
         }
 
     private:
+        void freeSniCerts(std::map<std::string, SSL_CTX*>* sniSslCtxs) {
+            for (const auto& [domain, sniSslCtx] : *sniSslCtxs) {
+                ssl_ctx_free(sniSslCtx);
+            }
+            delete sniSslCtxs;
+        }
+
         std::shared_ptr<std::map<std::string, SSL_CTX*>> sniSslCtxs;
     };
 
