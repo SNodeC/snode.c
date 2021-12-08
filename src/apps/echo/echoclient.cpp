@@ -31,8 +31,11 @@ int main(int argc, char* argv[]) {
 #if (STREAM_TYPE == LEGACY)
     std::map<std::string, std::any> options = {{}};
 #elif (STREAM_TYPE == TLS)
-    std::map<std::string, std::any> options = {
-        {"CertChain", CLIENTCERTF}, {"CertChainKey", CLIENTKEYF}, {"Password", KEYFPASS}, {"CaFile", SERVERCAFILE}};
+    std::map<std::string, std::any> options = {{"CertChain", CLIENTCERTF},
+                                               {"CertChainKey", CLIENTKEYF},
+                                               {"Password", KEYFPASS},
+                                               {"CaFile", SERVERCAFILE},
+                                               {"SNI", "snodec.home.vchrist.at"}};
 #endif
 
     using SocketClient = apps::echo::model::STREAM::EchoSocketClient;
