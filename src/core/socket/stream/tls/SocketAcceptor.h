@@ -160,7 +160,7 @@ namespace core::socket::stream::tls {
                             LOG(WARNING) << "SSL_CTX: Found but none used for SNI '" << serverNameIndication << '"';
                         }
                     } else {
-                        LOG(INFO) << "SSL_CTX: Not found for SNI. Master SSL_CTX still used for SNI '" << serverNameIndication << "'";
+                        LOG(INFO) << "SSL_CTX: Not found for SNI '" << serverNameIndication << "'. Master SSL_CTX still used.";
                         ret = SSL_TLSEXT_ERR_NOACK;
                     }
                 } else {
