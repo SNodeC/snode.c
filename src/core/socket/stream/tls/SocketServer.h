@@ -41,8 +41,9 @@ namespace core::socket::stream::tls {
         using Super::Super;
 
     public:
-        using SocketConnection = typename Super::SocketConnection;
+        using Socket = typename Super::Socket;
         using SocketAddress = typename Super::SocketAddress;
+        using SocketConnection = typename Super::SocketConnection;
 
         SocketServer(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
                      const std::function<void(SocketConnection*)>& onConnected,
@@ -53,6 +54,7 @@ namespace core::socket::stream::tls {
                 freeSniCerts(sniSslCtxs);
             }) {
             this->options.insert({{"SNI_SSL_CTXS", sniSslCtxs}});
+            this->options.insert({{"FORCE_SNI", &forceSni}});
         }
 
     private:
@@ -77,6 +79,10 @@ namespace core::socket::stream::tls {
             }
         }
 
+        void setForceSni() {
+            forceSni = true;
+        }
+
     private:
         void freeSniCerts(std::map<std::string, SSL_CTX*>* sniSslCtxs) {
             for (const auto& [domain, sniSslCtx] : *sniSslCtxs) {
@@ -86,6 +92,7 @@ namespace core::socket::stream::tls {
         }
 
         std::shared_ptr<std::map<std::string, SSL_CTX*>> sniSslCtxs;
+        bool forceSni = false;
     };
 
 } // namespace core::socket::stream::tls

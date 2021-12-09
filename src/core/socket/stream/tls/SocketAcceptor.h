@@ -93,6 +93,7 @@ namespace core::socket::stream::tls {
             }
 
             sniSslCtxs = std::any_cast<std::shared_ptr<std::map<std::string, SSL_CTX*>>>(options.find("SNI_SSL_CTXS")->second);
+            forceSni = *std::any_cast<bool*>(options.find("FORCE_SNI")->second);
         }
 
         ~SocketAcceptor() override {
@@ -153,15 +154,31 @@ namespace core::socket::stream::tls {
                         if (nowUsedSslCtx == sniSslCtx) {
                             LOG(INFO) << "SSL_CTX: Switched for SNI '" << serverNameIndication << "'";
                         } else if (nowUsedSslCtx != nullptr) {
-                            LOG(INFO) << "SSL_CTX: Not switcher for SNI. Master SSL_CTX still used for SNI '" << serverNameIndication
-                                      << "'";
-                            ret = SSL_TLSEXT_ERR_NOACK;
+                            if (!socketAcceptor->forceSni) {
+                                LOG(WARNING) << "SSL_CTX: Not switcher for SNI '" << serverNameIndication
+                                             << "'. Master SSL_CTX still used.";
+                                ret = SSL_TLSEXT_ERR_ALERT_WARNING;
+                            } else {
+                                LOG(ERROR) << "SSL_CTX: Not switcher for SNI '" << serverNameIndication << "'.";
+                                ret = SSL_TLSEXT_ERR_ALERT_FATAL;
+                            }
                         } else {
-                            LOG(WARNING) << "SSL_CTX: Found but none used for SNI '" << serverNameIndication << '"';
+                            if (!socketAcceptor->forceSni) {
+                                LOG(WARNING) << "SSL_CTX: Not switcher for SNI '" << serverNameIndication
+                                             << "'. Master SSL_CTX still used.";
+                                ret = SSL_TLSEXT_ERR_ALERT_WARNING;
+                            } else {
+                                LOG(ERROR) << "SSL_CTX: Found but none used for SNI '" << serverNameIndication << '"';
+                                ret = SSL_TLSEXT_ERR_ALERT_FATAL;
+                            }
                         }
                     } else {
-                        LOG(INFO) << "SSL_CTX: Not found for SNI '" << serverNameIndication << "'. Master SSL_CTX still used.";
-                        ret = SSL_TLSEXT_ERR_NOACK;
+                        if (!socketAcceptor->forceSni) {
+                            LOG(WARNING) << "SSL_CTX: Not found for SNI '" << serverNameIndication << "'. Master SSL_CTX still used.";
+                        } else {
+                            LOG(ERROR) << "SSL_CTX: Not found for SNI '" << serverNameIndication << "'.";
+                            ret = SSL_TLSEXT_ERR_ALERT_FATAL;
+                        }
                     }
                 } else {
                     LOG(INFO) << "SSL_CTX: Master SSL_CTX already provides SNI '" << serverNameIndication << "'";
@@ -176,6 +193,7 @@ namespace core::socket::stream::tls {
         std::set<std::string> masterSslCtxDomains;
 
         std::shared_ptr<std::map<std::string, SSL_CTX*>> sniSslCtxs;
+        bool forceSni = false;
     };
 
 } // namespace core::socket::stream::tls

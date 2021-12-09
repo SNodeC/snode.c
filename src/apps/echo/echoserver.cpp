@@ -43,6 +43,7 @@ int main(int argc, char* argv[]) {
 
 #if (STREAM_TYPE == TLS)
     server.addSniCert("snodec.home.vchrist.at", sniCert);
+//    server.setForceSni();
 #endif
 
 #if (NET_TYPE == IN) // in

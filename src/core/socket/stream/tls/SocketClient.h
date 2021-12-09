@@ -33,6 +33,7 @@ namespace core::socket::stream::tls {
         : public core::socket::stream::SocketClient<ClientSocketT,
                                                     core::socket::stream::tls::SocketConnector<typename ClientSocketT::Socket>,
                                                     SocketContextFactoryT> {
+    private:
         using Super = core::socket::stream::
             SocketClient<ClientSocketT, core::socket::stream::tls::SocketConnector<typename ClientSocketT::Socket>, SocketContextFactoryT>;
         using Super::Super;
