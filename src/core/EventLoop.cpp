@@ -73,12 +73,11 @@ namespace core {
         return timerEventDispatcher;
     }
 
-    TickStatus EventLoop::_tick(struct timeval tickTimeOut, bool ignoreTimer) {
+    TickStatus EventLoop::_tick(struct timeval tickTimeOut) {
         TickStatus tickStatus = TickStatus::SUCCESS;
         tickCounter++;
 
         EventDispatcher::observeEnabledEvents();
-
         int maxFd = EventDispatcher::getMaxFd();
 
         struct timeval nextEventTimeout = EventDispatcher::getNextTimeout();
@@ -86,7 +85,7 @@ namespace core {
 
         struct timeval nextTimeout = std::min(nextTimerTimeout, nextEventTimeout);
 
-        if (maxFd >= 0 || (!timerEventDispatcher.empty() && !ignoreTimer)) {
+        if (maxFd >= 0 || (!timerEventDispatcher.empty() && !stopped)) {
             nextTimeout = std::max(nextTimeout, {0, 0}); // In case nextEventTimeout is negativ
             nextTimeout = std::min(nextTimeout, tickTimeOut);
 
@@ -165,7 +164,7 @@ namespace core {
         return returnReason;
     }
 
-    TickStatus EventLoop::tick(struct timeval timeOut, bool ignoreTimer) {
+    TickStatus EventLoop::tick(struct timeval timeOut) {
         if (!initialized) {
             PLOG(ERROR) << "snode.c not initialized. Use SNodeC::init(argc, argv) before SNodeC::tick().";
             exit(1);
@@ -173,7 +172,7 @@ namespace core {
 
         sighandler_t oldSigPipeHandler = core::system::signal(SIGPIPE, SIG_IGN);
 
-        TickStatus tickStatus = EventLoop::instance()._tick(timeOut, ignoreTimer);
+        TickStatus tickStatus = EventLoop::instance()._tick(timeOut);
 
         core::system::signal(SIGPIPE, oldSigPipeHandler);
 
@@ -181,13 +180,17 @@ namespace core {
     }
 
     void EventLoop::free() {
+        core::TickStatus tickStatus = TickStatus::SUCCESS;
+
         do {
             EventDispatcher::terminateObservedEvents();
-        } while (EventLoop::instance().tick({0, 0}, true) == TickStatus::SUCCESS);
+            tickStatus = EventLoop::tick({0, 0});
+        } while (tickStatus == TickStatus::SUCCESS);
 
         do {
             EventLoop::instance().timerEventDispatcher.cancelAll();
-        } while (EventLoop::instance().tick() == TickStatus::SUCCESS);
+            tickStatus = EventLoop::tick({0, 0});
+        } while (tickStatus == TickStatus::SUCCESS);
     }
 
     void EventLoop::stoponsig(int sig) {
