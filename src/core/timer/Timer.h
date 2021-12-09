@@ -60,9 +60,9 @@ namespace core::timer {
         const void* arg;
 
         void update();
-        void destroy() override;
+        void unobservedEvent() override;
 
-        struct timeval& timeout() override;
+        struct timeval getTimeout() const override;
 
         explicit operator struct timeval() const override;
 

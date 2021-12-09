@@ -45,7 +45,7 @@ namespace core::timer {
 
         ~IntervalTimer() override = default;
 
-        bool dispatch() override {
+        bool dispatchEvent() override {
             bool stop = false;
 
             if (dispatcherS) {

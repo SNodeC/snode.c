@@ -38,7 +38,7 @@ namespace core::timer {
 
         ~SingleshotTimer() override = default;
 
-        bool dispatch() override {
+        bool dispatchEvent() override {
             dispatcher(arg);
             cancel();
             return false;

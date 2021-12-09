@@ -40,6 +40,7 @@ namespace core {
         addedList.clear();
 
         for (TimerEventReceiver* timer : removedList) {
+            timer->unobservedEvent();
             timerList.remove(timer);
             timerListDirty = true;
         }
@@ -51,7 +52,7 @@ namespace core {
                 timerListDirty = false;
             }
 
-            tv = (*(timerList.begin()))->timeout();
+            tv = (*(timerList.begin()))->getTimeout();
 
             struct timeval currentTime {
                 0, 0
@@ -76,8 +77,8 @@ namespace core {
         core::system::gettimeofday(&currentTime, nullptr);
 
         for (TimerEventReceiver* timer : timerList) {
-            if (timer->timeout() <= currentTime) {
-                timerListDirty = timer->dispatch();
+            if (timer->getTimeout() <= currentTime) {
+                timerListDirty = timer->dispatchEvent();
             } else {
                 break;
             }
@@ -86,7 +87,6 @@ namespace core {
 
     void TimerEventDispatcher::remove(TimerEventReceiver* timer) {
         removedList.push_back(timer);
-        timer->destroy();
     }
 
     void TimerEventDispatcher::add(TimerEventReceiver* timer) {

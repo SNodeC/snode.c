@@ -29,9 +29,9 @@ namespace core {
 
     class TimerEventReceiver {
     private:
-        virtual struct timeval& timeout() = 0;
-        virtual bool dispatch() = 0;
-        virtual void destroy() = 0;
+        virtual struct timeval getTimeout() const = 0;
+        virtual bool dispatchEvent() = 0;
+        virtual void unobservedEvent() = 0;
 
         virtual explicit operator struct timeval() const = 0;
 

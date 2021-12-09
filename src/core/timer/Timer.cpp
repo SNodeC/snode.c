@@ -72,11 +72,11 @@ namespace core::timer {
         absoluteTimeout = absoluteTimeout + delay;
     }
 
-    void Timer::destroy() {
+    void Timer::unobservedEvent() {
         delete this;
     }
 
-    struct timeval& Timer::timeout() {
+    struct timeval Timer::getTimeout() const {
         return absoluteTimeout;
     }
 
