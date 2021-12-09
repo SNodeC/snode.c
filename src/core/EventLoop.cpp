@@ -75,6 +75,7 @@ namespace core {
 
     TickStatus EventLoop::_tick(struct timeval tickTimeOut, bool ignoreTimer) {
         TickStatus tickStatus = TickStatus::SUCCESS;
+        tickCounter++;
 
         EventDispatcher::observeEnabledEvents();
 
@@ -138,9 +139,10 @@ namespace core {
 
             stopped = false;
 
-            while (EventLoop::instance()._tick(timeOut) == TickStatus::SUCCESS && !stopped) {
-                EventLoop::instance().tickCounter++;
-            };
+            core::TickStatus tickStatus = TickStatus::SUCCESS;
+            do {
+                tickStatus = EventLoop::instance()._tick(timeOut);
+            } while (tickStatus == TickStatus::SUCCESS && !stopped);
 
             free();
 
@@ -179,13 +181,13 @@ namespace core {
     }
 
     void EventLoop::free() {
-        EventDispatcher::terminateObservedEvents();
-        while (EventLoop::instance().tick({0, 0}, true) == TickStatus::SUCCESS)
-            ;
+        do {
+            EventDispatcher::terminateObservedEvents();
+        } while (EventLoop::instance().tick({0, 0}, true) == TickStatus::SUCCESS);
 
-        EventLoop::instance().timerEventDispatcher.cancelAll();
-        while (EventLoop::instance().tick() == TickStatus::SUCCESS)
-            ;
+        do {
+            EventLoop::instance().timerEventDispatcher.cancelAll();
+        } while (EventLoop::instance().tick() == TickStatus::SUCCESS);
     }
 
     void EventLoop::stoponsig(int sig) {
