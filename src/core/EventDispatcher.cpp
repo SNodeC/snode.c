@@ -92,8 +92,10 @@ namespace core {
     void EventDispatcher::disable(EventReceiver* eventReceiver, int fd) {
         if (enabledEventReceiver.contains(fd) && enabledEventReceiver[fd].contains(eventReceiver)) {
             // same tick as enable
-            enabledEventReceiver[fd].remove(eventReceiver);
             eventReceiver->disabled();
+            if (eventReceiver->observationCounter > 0) {
+                enabledEventReceiver[fd].remove(eventReceiver);
+            }
         } else if (eventReceiver->isEnabled() &&
                    (!disabledEventReceiver.contains(fd) || !disabledEventReceiver[fd].contains(eventReceiver))) {
             // next tick as enable
@@ -193,11 +195,15 @@ namespace core {
     void EventDispatcher::_observeEnabledEvents() {
         for (const auto& [fd, eventReceivers] : enabledEventReceiver) {
             for (EventReceiver* eventReceiver : eventReceivers) {
-                observedEventReceiver[fd].push_front(eventReceiver);
-                if (!eventReceiver->isSuspended()) {
-                    fdSet.set(fd);
+                if (eventReceiver->isEnabled()) {
+                    observedEventReceiver[fd].push_front(eventReceiver);
+                    if (!eventReceiver->isSuspended()) {
+                        fdSet.set(fd);
+                    } else {
+                        fdSet.clr(fd);
+                    }
                 } else {
-                    fdSet.clr(fd);
+                    eventReceiver->unobservedEvent();
                 }
             }
         }
