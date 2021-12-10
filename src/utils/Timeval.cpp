@@ -70,3 +70,86 @@ struct timeval operator-(const struct timeval& tv1, const struct timeval& tv2) {
 
     return help;
 }
+
+Timeval::Timeval(double time) {
+    timeVal.tv_sec = (time_t) time;
+    timeVal.tv_usec = (suseconds_t) ((time - (double) timeVal.tv_sec) * 1000000);
+
+    normalize();
+}
+
+Timeval::Timeval(const timeval& timeVal)
+    : Timeval((double) timeVal.tv_sec + (double) timeVal.tv_usec / 100000.0) {
+}
+
+Timeval::Timeval(const time_t timeVal)
+    : Timeval({timeVal, 0}) {
+}
+
+Timeval::Timeval(const Timeval& timeVal)
+    : Timeval(timeVal.timeVal) {
+}
+
+Timeval Timeval::operator=(const Timeval& timeVal) {
+    return this->timeVal = timeVal.timeVal;
+}
+
+Timeval Timeval::operator+(const Timeval& timeVal) {
+    return Timeval(this->timeVal + timeVal.timeVal).normalize();
+}
+
+Timeval Timeval::operator-(const Timeval& timeVal) {
+    return Timeval(this->timeVal - timeVal.timeVal).normalize();
+}
+
+bool Timeval::operator<(const Timeval& timeVal) {
+    return this->timeVal < timeVal.timeVal;
+}
+
+bool Timeval::operator>(const Timeval& timeVal) {
+    return this->timeVal > timeVal.timeVal;
+}
+
+bool Timeval::operator<=(const Timeval& timeVal) {
+    return this->timeVal <= timeVal.timeVal;
+}
+
+bool Timeval::operator>=(const Timeval& timeVal) {
+    return this->timeVal >= timeVal.timeVal;
+}
+
+bool Timeval::operator==(const Timeval& timeVal) {
+    return this->timeVal == timeVal.timeVal;
+}
+
+Timeval::operator timeval() {
+    return timeVal;
+}
+
+Timeval::operator timeval*() {
+    return &timeVal;
+}
+
+Timeval::operator double() {
+    return (double) timeVal.tv_sec + (double) timeVal.tv_usec / 1000000.0;
+}
+
+timeval& Timeval::getTimeVal() {
+    return timeVal;
+}
+
+const Timeval& Timeval::normalize() {
+    if (timeVal.tv_usec > 999999) {
+        timeVal.tv_usec -= 1000000;
+        timeVal.tv_sec++;
+    } else if (timeVal.tv_usec < 0) {
+        timeVal.tv_usec += 1000000;
+        timeVal.tv_sec--;
+    }
+
+    if (timeVal.tv_sec < 0) {
+        timeVal = {0, 0};
+    }
+
+    return *this;
+}

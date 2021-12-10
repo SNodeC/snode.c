@@ -25,6 +25,36 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+class Timeval {
+public:
+    Timeval(const Timeval& timeVal);
+    Timeval(double time);
+    Timeval(const struct timeval& timeVal);
+    Timeval(const time_t timeVal);
+
+    Timeval operator=(const Timeval& timeVal);
+
+    Timeval operator+(const Timeval& timeVal);
+    Timeval operator-(const Timeval& timeVal);
+
+    bool operator<(const Timeval& timeVal);
+    bool operator>(const Timeval& timeVal);
+    bool operator<=(const Timeval& timeVal);
+    bool operator>=(const Timeval& timeVal);
+    bool operator==(const Timeval& timeVal);
+
+    operator struct timeval();
+    operator struct timeval *();
+    operator double();
+
+    struct timeval& getTimeVal();
+
+private:
+    const Timeval& normalize();
+
+    struct timeval timeVal = {0, 0};
+};
+
 bool operator<(const struct timeval& tv1, const struct timeval& tv2);
 bool operator>(const struct timeval& tv1, const struct timeval& tv2);
 bool operator<=(const struct timeval& tv1, const struct timeval& tv2);
