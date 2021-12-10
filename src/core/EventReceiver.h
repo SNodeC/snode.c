@@ -19,8 +19,11 @@
 #ifndef NET_EVENTRECEIVER_H
 #define NET_EVENTRECEIVER_H
 
+#include "utils/Timeval.h" // for operator-, operator<, operator>=
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <algorithm>
 #include <climits>
 #include <ctime>
 #include <sys/time.h> // for timeval
@@ -31,17 +34,30 @@ namespace core {
 
     class EventDispatcher;
 
-    class ObservationCounter {
+    class Observer {
     public:
         bool isObserved() {
             return observationCounter > 0;
         }
 
+    private:
+        virtual void unobservedEvent() = 0;
+
     protected:
+        void observed() {
+            observationCounter++;
+        }
+
+        void unObserved() {
+            observationCounter--;
+        }
+
         int observationCounter = 0;
+
+        friend class EventDispatcher;
     };
 
-    class EventReceiver : virtual public ObservationCounter {
+    class EventReceiver : virtual public Observer {
         EventReceiver(const EventReceiver&) = delete;
         EventReceiver& operator=(const EventReceiver&) = delete;
 
@@ -79,7 +95,6 @@ namespace core {
 
         virtual void dispatchEvent() = 0;
         virtual void timeoutEvent() = 0;
-        virtual void unobservedEvent() = 0;
 
         virtual bool continueImmediately() = 0;
 
@@ -96,6 +111,62 @@ namespace core {
         const long initialTimeout;
 
         friend class EventDispatcher;
+
+        // New API
+        enum class State { NEW, ACTIVE, INACTIVE, STOPED } state = State::NEW;
+
+        class Timeout {
+        public:
+            static const struct timeval constexpr DEFAULT = {-1, 0};
+            static const struct timeval constexpr DISABLE = {LONG_MAX, 0};
+        };
+
+        bool isNew() {
+            return state == State::NEW;
+        }
+
+        void n_activate() {
+            state = State::ACTIVE;
+        }
+
+        bool isActive() {
+            return state == State::ACTIVE;
+        }
+
+        void n_inactivate() {
+            state = State::INACTIVE;
+        }
+
+        bool isInactive() {
+            return state == State::INACTIVE;
+        }
+
+        void n_stop() {
+            state = State::STOPED;
+        }
+
+        bool isStopped() {
+            return state == State::STOPED;
+        }
+
+        struct timeval n_maxInactivity = {LONG_MAX, 0};
+        struct timeval n_initialTimeout = n_maxInactivity;
+        struct timeval n_lastTriggered = {0, 0};
+
+        void n_setTimeout(struct timeval timeout) {
+            if (timeout == Timeout::DEFAULT) {
+                n_maxInactivity = n_initialTimeout;
+            } else {
+                n_maxInactivity = timeout;
+            }
+        }
+
+        struct timeval n_getTimeout() {
+            struct timeval currentTime = {0, 0};
+            gettimeofday(&currentTime, NULL);
+
+            return std::max(n_maxInactivity - (currentTime - n_lastTriggered), {0, 0});
+        }
     };
 
 } // namespace core

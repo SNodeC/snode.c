@@ -19,13 +19,13 @@
 #ifndef NET_EVENTDISPATCHER_H
 #define NET_EVENTDISPATCHER_H
 
-#include "core/system/select.h"
+#include "core/system/select.h" // IWYU pragma: keep
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <list>
 #include <map>
-#include <sys/time.h> // for timeval
+#include <sys/time.h> // IWYU pragma: keep
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

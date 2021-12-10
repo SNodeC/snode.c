@@ -34,8 +34,7 @@ namespace core {
 
     void EventReceiver::enable(int fd) {
         this->fd = fd;
-
-        ObservationCounter::observationCounter++;
+        observed();
 
         descriptorEventDispatcher.enable(this, fd);
         lastTriggered = {time(nullptr), 0};
@@ -52,7 +51,7 @@ namespace core {
     }
 
     void EventReceiver::disabled() {
-        ObservationCounter::observationCounter--;
+        unObserved();
     }
 
     bool EventReceiver::isEnabled() const {
