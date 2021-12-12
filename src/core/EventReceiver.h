@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_EVENTRECEIVER_H
-#define NET_EVENTRECEIVER_H
+#ifndef CORE_EVENTRECEIVER_H
+#define CORE_EVENTRECEIVER_H
 
 #include "utils/Timeval.h" // for operator-, operator<, operator>=
 
@@ -171,4 +171,4 @@ namespace core {
 
 } // namespace core
 
-#endif // NET_EVENTRECEIVER_H
+#endif // CORE_EVENTRECEIVER_H

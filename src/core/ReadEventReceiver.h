@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_READEVENTRECEIVER_H
-#define NET_READEVENTRECEIVER_H
+#ifndef CORE_READEVENTRECEIVER_H
+#define CORE_READEVENTRECEIVER_H
 
 #include "core/EventReceiver.h"
 
@@ -47,4 +47,4 @@ namespace core {
 
 } // namespace core
 
-#endif // NET_READEVENTRECEIVER_H
+#endif // CORE_READEVENTRECEIVER_H

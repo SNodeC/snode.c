@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SNODEC_H
-#define NET_SNODEC_H
+#ifndef CORE_SNODEC_H
+#define CORE_SNODEC_H
 
 #include "core/TickStatus.h"
 
@@ -47,4 +47,4 @@ namespace core {
 
 } // namespace core
 
-#endif // NET_SNODEC_H
+#endif // CORE_SNODEC_H

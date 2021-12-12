@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_EVENTLOOP_H
-#define NET_EVENTLOOP_H
+#ifndef CORE_EVENTLOOP_H
+#define CORE_EVENTLOOP_H
 
 #include "core/EventDispatcher.h"
 #include "core/TickStatus.h"
@@ -77,4 +77,4 @@ namespace core {
 
 } // namespace core
 
-#endif // NET_EVENTLOOP_H
+#endif // CORE_EVENTLOOP_H
