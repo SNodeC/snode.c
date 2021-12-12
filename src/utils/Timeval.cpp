@@ -24,34 +24,45 @@
 
 namespace ttime {
 
+    Timeval::Timeval()
+        : timeVal({0, 0}) {
+    }
+
+    Timeval::Timeval(const Timeval& timeVal) {
+        this->timeVal = timeVal.timeVal;
+    }
+
+    Timeval::Timeval(time_t tv_sec, suseconds_t tv_usec) {
+        this->timeVal.tv_sec = tv_sec;
+        this->timeVal.tv_usec = tv_usec;
+
+        normalize();
+    }
+
     Timeval::Timeval(double time) {
         timeVal.tv_sec = (time_t) time;
         timeVal.tv_usec = (suseconds_t) ((time - (double) timeVal.tv_sec) * 1000000.0);
         normalize();
     }
 
-    Timeval::Timeval(const timeval& timeVal)
-        : Timeval((double) timeVal.tv_sec + (double) timeVal.tv_usec / 1000000.0) {
-    }
-
     Timeval::Timeval(const time_t timeVal)
         : Timeval({timeVal, 0}) {
     }
 
-    Timeval::Timeval()
-        : Timeval((time_t) 0) {
-    }
-
-    Timeval::Timeval(const Timeval& timeVal)
-        : Timeval(timeVal.timeVal) {
-    }
-
     Timeval Timeval::operator=(const Timeval& timeVal) {
-        return this->timeVal = timeVal.timeVal;
+        this->timeVal.tv_sec = timeVal.timeVal.tv_sec;
+        this->timeVal.tv_usec = timeVal.timeVal.tv_usec;
+
+        return *this;
     }
 
     Timeval Timeval::operator+(const Timeval& timeVal) const {
-        return Timeval(this->timeVal + timeVal.timeVal).normalize();
+        ttime::Timeval help;
+
+        help.timeVal.tv_sec = this->timeVal.tv_sec + timeVal.timeVal.tv_sec;
+        help.timeVal.tv_usec = this->timeVal.tv_usec + timeVal.timeVal.tv_usec;
+
+        return help.normalize();
     }
 
     Timeval Timeval::operator+=(const Timeval& timeVal) {
@@ -60,7 +71,12 @@ namespace ttime {
     }
 
     Timeval Timeval::operator-(const Timeval& timeVal) const {
-        return Timeval(this->timeVal - timeVal.timeVal).normalize();
+        ttime::Timeval help;
+
+        help.timeVal.tv_sec = this->timeVal.tv_sec - timeVal.timeVal.tv_sec;
+        help.timeVal.tv_usec = this->timeVal.tv_usec - timeVal.timeVal.tv_usec;
+
+        return help.normalize();
     }
 
     Timeval Timeval::operator-=(const Timeval& timeVal) {
@@ -154,6 +170,7 @@ std::ostream& operator<<(std::ostream& ostream, const ttime::Timeval& timeVal) {
     return ostream;
 }
 
+/*
 bool operator<(const struct timeval& tv1, const struct timeval& tv2) {
     return (tv1.tv_sec < tv2.tv_sec) || ((tv1.tv_sec == tv2.tv_sec) && (tv1.tv_usec < tv2.tv_usec));
 }
@@ -202,3 +219,4 @@ struct timeval operator-(const struct timeval& tv1, const struct timeval& tv2) {
 
     return help;
 }
+*/

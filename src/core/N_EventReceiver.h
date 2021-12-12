@@ -98,9 +98,9 @@ namespace core {
 
         EventDispatcher& descriptorEventDispatcher;
 
-        ttime::Timeval maxInactivity{{LONG_MAX, 0}};
+        ttime::Timeval maxInactivity{LONG_MAX, 0};
         ttime::Timeval initialTimeout = maxInactivity;
-        ttime::Timeval lastTriggered = {{0, 0}};
+        ttime::Timeval lastTriggered{0, 0};
     };
 
 } // namespace core

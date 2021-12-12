@@ -42,14 +42,14 @@ namespace core::timer {
 
     public:
         static IntervalTimer& intervalTimer(const std::function<void(const void*, const std::function<void()>& stop)>& dispatcher,
-                                            const struct timeval& timeout,
+                                            const ttime::Timeval& timeout,
                                             const void* arg);
 
         static IntervalTimer&
-        intervalTimer(const std::function<void(const void*)>& dispatcher, const struct timeval& timeout, const void* arg);
+        intervalTimer(const std::function<void(const void*)>& dispatcher, const ttime::Timeval& timeout, const void* arg);
 
         static SingleshotTimer&
-        singleshotTimer(const std::function<void(const void*)>& dispatcher, const struct timeval& timeout, const void* arg);
+        singleshotTimer(const std::function<void(const void*)>& dispatcher, const ttime::Timeval& timeout, const void* arg);
 
         void cancel();
 

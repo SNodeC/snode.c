@@ -44,7 +44,7 @@ int timerApp() {
             static int i = 0;
             std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
         },
-        {1, 100000},
+        1.1,
         "Tack");
 
     bool canceled = false;

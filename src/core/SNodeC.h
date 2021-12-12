@@ -20,6 +20,7 @@
 #define NET_SNODEC_H
 
 #include "core/TickStatus.h"
+#include "utils/Timeval.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -40,8 +41,8 @@ namespace core {
 
     public:
         static void init(int argc, char* argv[]);
-        static int start(struct timeval timeOut = {LONG_MAX, 0});
-        static TickStatus tick(struct timeval timeOut = {0, 0});
+        static int start(const ttime::Timeval& timeOut = LONG_MAX);
+        static TickStatus tick(const ttime::Timeval& timeOut = 0L);
         static void free();
     };
 

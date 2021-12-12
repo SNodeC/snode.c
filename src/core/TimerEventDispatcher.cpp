@@ -18,8 +18,6 @@
 
 #include "core/TimerEventDispatcher.h"
 
-#include "core/system/time.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <climits>

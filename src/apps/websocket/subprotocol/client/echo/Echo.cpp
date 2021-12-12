@@ -28,7 +28,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define MAX_FLYING_PINGS 3
-#define PING_DELAY 5
+#define PING_DELAY 5L
 
 namespace web::websocket::subprotocol::echo::client {
 
@@ -42,7 +42,7 @@ namespace web::websocket::subprotocol::echo::client {
                       this->sendClose();
                   }
               },
-              {PING_DELAY, 0},
+              PING_DELAY,
               nullptr)) {
     }
 

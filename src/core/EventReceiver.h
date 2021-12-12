@@ -24,7 +24,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <climits>
-#include <ctime>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -82,12 +81,12 @@ namespace core {
 
         void setTimeout(long timeout);
 
-        void triggered(struct timeval lastTriggered = {time(nullptr), 0});
+        void triggered();
 
     private:
         void disabled();
 
-        struct timeval getTimeout() const;
+        ttime::Timeval getTimeout() const;
         ttime::Timeval getLastTriggered();
 
         virtual void dispatchEvent() = 0;

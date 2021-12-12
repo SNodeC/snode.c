@@ -30,7 +30,7 @@
 namespace core::timer {
 
     SingleshotTimer&
-    Timer::singleshotTimer(const std::function<void(const void*)>& dispatcher, const struct timeval& timeout, const void* arg) {
+    Timer::singleshotTimer(const std::function<void(const void*)>& dispatcher, const ttime::Timeval& timeout, const void* arg) {
         SingleshotTimer* st = new SingleshotTimer(dispatcher, timeout, arg);
 
         EventLoop::instance().getTimerEventDispatcher().add(st);
@@ -39,7 +39,7 @@ namespace core::timer {
     }
 
     IntervalTimer& Timer::intervalTimer(const std::function<void(const void*, const std::function<void()>& stop)>& dispatcher,
-                                        const struct timeval& timeout,
+                                        const ttime::Timeval& timeout,
                                         const void* arg) {
         IntervalTimer* ct = new IntervalTimer(dispatcher, timeout, arg);
 
@@ -49,7 +49,7 @@ namespace core::timer {
     }
 
     IntervalTimer&
-    Timer::intervalTimer(const std::function<void(const void*)>& dispatcher, const struct timeval& timeout, const void* arg) {
+    Timer::intervalTimer(const std::function<void(const void*)>& dispatcher, const ttime::Timeval& timeout, const void* arg) {
         IntervalTimer* ct = new IntervalTimer(dispatcher, timeout, arg);
 
         EventLoop::instance().getTimerEventDispatcher().add(ct);

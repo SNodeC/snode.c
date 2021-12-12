@@ -93,7 +93,7 @@ namespace core {
         ttime::Timeval _getNextTimeout(const ttime::Timeval& currentTime) const;
 
         void _observeEnabledEvents();
-        void _dispatchActiveEvents(struct timeval currentTime);
+        void _dispatchActiveEvents(const ttime::Timeval &currentTime);
         void _unobserveDisabledEvents();
         void _terminateObservedEvents();
 

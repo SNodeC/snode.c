@@ -27,8 +27,8 @@
 
 namespace core {
 
-    const ttime::Timeval N_EventReceiver::Timeout::DEFAULT = {{-1, 0}};
-    const ttime::Timeval N_EventReceiver::Timeout::DISABLE = {{LONG_MAX, 0}};
+    const ttime::Timeval N_EventReceiver::Timeout::DEFAULT{-1, 0};
+    const ttime::Timeval N_EventReceiver::Timeout::DISABLE{LONG_MAX, 0};
 
     N_EventReceiver::N_EventReceiver(EventDispatcher& descriptorEventDispatcher, const ttime::Timeval& timeout)
         : descriptorEventDispatcher(descriptorEventDispatcher)
@@ -50,7 +50,7 @@ namespace core {
         ttime::Timeval currentTime;
         core::system::gettimeofday(currentTime, NULL);
 
-        return std::max(maxInactivity - (currentTime - lastTriggered), {{0, 0}});
+        return std::max(maxInactivity - (currentTime - lastTriggered), ttime::Timeval());
     }
 
     void N_EventReceiver::triggered() {

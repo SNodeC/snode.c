@@ -38,7 +38,7 @@ namespace core {
 
         descriptorEventDispatcher.enable(this, fd);
 
-        core::system::gettimeofday(lastTriggered, NULL);
+        core::system::gettimeofday(lastTriggered, nullptr);
         _enabled = true;
     }
 
@@ -94,12 +94,12 @@ namespace core {
         triggered();
     }
 
-    timeval EventReceiver::getTimeout() const {
-        return {maxInactivity, 0};
+    ttime::Timeval EventReceiver::getTimeout() const {
+        return maxInactivity;
     }
 
-    void EventReceiver::triggered(struct timeval lastTriggered) {
-        this->lastTriggered = lastTriggered;
+    void EventReceiver::triggered() {
+        core::system::gettimeofday(lastTriggered, nullptr);
     }
 
     ttime::Timeval EventReceiver::getLastTriggered() {

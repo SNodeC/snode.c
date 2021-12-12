@@ -210,23 +210,25 @@ namespace core {
     }
 
     void EventDispatcher::dispatchActiveEvents() {
-        struct timeval currentTime = {core::system::time(nullptr), 0};
+        //        struct timeval currentTime = {core::system::time(nullptr), 0};
+        ttime::Timeval currentTime;
+        core::system::gettimeofday(currentTime, nullptr);
 
         for (EventDispatcher* eventDispatcher : eventDispatchers) {
             eventDispatcher->_dispatchActiveEvents(currentTime);
         }
     }
 
-    void EventDispatcher::_dispatchActiveEvents(struct timeval currentTime) {
+    void EventDispatcher::_dispatchActiveEvents(const ttime::Timeval& currentTime) {
         for (const auto& [fd, eventReceivers] : observedEventReceiver) {
             EventReceiver* eventReceiver = eventReceivers.front();
-            struct timeval maxInactivity = eventReceiver->getTimeout();
+            ttime::Timeval maxInactivity = eventReceiver->getTimeout();
             if (fdSet.isSet(fd) || (eventReceiver->continueImmediately())) {
                 eventCounter++;
                 eventReceiver->dispatchEvent();
-                eventReceiver->triggered(currentTime);
+                eventReceiver->triggered();
             } else {
-                struct timeval inactivity = currentTime - eventReceiver->getLastTriggered();
+                ttime::Timeval inactivity = currentTime - eventReceiver->getLastTriggered();
                 if (inactivity >= maxInactivity) {
                     eventReceiver->timeoutEvent();
                 }

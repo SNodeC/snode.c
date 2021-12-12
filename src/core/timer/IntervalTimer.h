@@ -32,13 +32,13 @@ namespace core::timer {
 
     public:
         IntervalTimer(const std::function<void(const void*, const std::function<void()>& stop)>& dispatcher,
-                      const struct timeval& timeout,
+                      const ttime::Timeval& timeout,
                       const void* arg)
             : Timer(timeout, arg)
             , dispatcherS(dispatcher) {
         }
 
-        IntervalTimer(const std::function<void(const void*)>& dispatcher, const struct timeval& timeout, const void* arg)
+        IntervalTimer(const std::function<void(const void*)>& dispatcher, const ttime::Timeval& timeout, const void* arg)
             : Timer(timeout, arg)
             , dispatcherC(dispatcher) {
         }

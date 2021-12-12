@@ -33,11 +33,11 @@ namespace ttime {
 
     class Timeval {
     public:
-        Timeval(const Timeval& timeVal);
-        Timeval(double time);
-        Timeval(const struct timeval& timeVal);
-        Timeval(const time_t timeVal);
         Timeval();
+        Timeval(const Timeval& timeVal);
+        Timeval(time_t tv_sec, suseconds_t tv_usec);
+        Timeval(double time);
+        Timeval(const time_t timeVal);
 
         Timeval operator=(const Timeval& timeVal);
 
@@ -78,14 +78,5 @@ namespace ttime {
 } // namespace ttime
 
 std::ostream& operator<<(std::ostream& ostream, const ttime::Timeval& timeVal);
-
-bool operator<(const struct timeval& tv1, const struct timeval& tv2);
-bool operator>(const struct timeval& tv1, const struct timeval& tv2);
-bool operator<=(const struct timeval& tv1, const struct timeval& tv2);
-bool operator>=(const struct timeval& tv1, const struct timeval& tv2);
-bool operator==(const struct timeval& tv1, const struct timeval& tv2);
-
-struct timeval operator+(const struct timeval& tv1, const struct timeval& tv2);
-struct timeval operator-(const struct timeval& tv1, const struct timeval& tv2);
 
 #endif // UTILS_TIMEVAL_H
