@@ -28,10 +28,8 @@
 
 namespace core {
 
-    struct timeval TimerEventDispatcher::getNextTimeout() {
-        struct timeval tv {
-            LONG_MAX, 0
-        };
+    ttime::Timeval TimerEventDispatcher::getNextTimeout() {
+        ttime::Timeval nextTimeout(LONG_MAX);
 
         for (TimerEventReceiver* timer : addedList) {
             timerList.push_back(timer);
@@ -52,29 +50,24 @@ namespace core {
                 timerListDirty = false;
             }
 
-            tv = (*(timerList.begin()))->getTimeout();
+            nextTimeout = (*(timerList.begin()))->getTimeout();
 
-            struct timeval currentTime {
-                0, 0
-            };
-            core::system::gettimeofday(&currentTime, nullptr);
+            ttime::Timeval currentTime;
+            core::system::gettimeofday(currentTime, nullptr);
 
-            if (tv < currentTime) {
-                tv.tv_sec = 0;
-                tv.tv_usec = 0;
+            if (nextTimeout < currentTime) {
+                nextTimeout = 0L;
             } else {
-                tv = tv - currentTime;
+                nextTimeout -= currentTime;
             }
         }
 
-        return tv;
+        return nextTimeout;
     }
 
     void TimerEventDispatcher::dispatch() {
-        struct timeval currentTime {
-            0, 0
-        };
-        core::system::gettimeofday(&currentTime, nullptr);
+        ttime::Timeval currentTime;
+        core::system::gettimeofday(currentTime, nullptr);
 
         for (TimerEventReceiver* timer : timerList) {
             if (timer->getTimeout() <= currentTime) {

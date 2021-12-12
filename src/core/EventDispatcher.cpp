@@ -152,9 +152,11 @@ namespace core {
         return maxFd;
     }
 
-    timeval EventDispatcher::getNextTimeout() {
-        struct timeval currentTime = {core::system::time(nullptr), 0};
-        struct timeval nextTimeout = {LONG_MAX, 0};
+    ttime::Timeval EventDispatcher::getNextTimeout() {
+        ttime::Timeval currentTime;
+        core::system::gettimeofday(currentTime, NULL);
+
+        ttime::Timeval nextTimeout = LONG_MAX;
 
         for (EventDispatcher* eventDispatcher : eventDispatchers) {
             nextTimeout = std::min(eventDispatcher->_getNextTimeout(currentTime), nextTimeout);
@@ -163,20 +165,18 @@ namespace core {
         return nextTimeout;
     }
 
-    timeval EventDispatcher::_getNextTimeout(struct timeval currentTime) const {
-        struct timeval nextInactivityTimeout {
-            LONG_MAX, 0
-        };
+    ttime::Timeval EventDispatcher::_getNextTimeout(const ttime::Timeval& currentTime) const {
+        ttime::Timeval nextInactivityTimeout = LONG_MAX;
 
         for (const auto& [fd, eventReceivers] : observedEventReceiver) {
             EventReceiver* eventReceiver = eventReceivers.front();
 
             if (!eventReceiver->isSuspended()) {
                 if (eventReceiver->continueImmediately()) {
-                    nextInactivityTimeout = {0, 0};
+                    nextInactivityTimeout = 0L;
                 } else {
-                    struct timeval maxInactivity = eventReceiver->getTimeout();
-                    struct timeval inactivity = currentTime - eventReceiver->getLastTriggered();
+                    ttime::Timeval maxInactivity = eventReceiver->getTimeout();
+                    ttime::Timeval inactivity = currentTime - eventReceiver->getLastTriggered();
                     nextInactivityTimeout = std::min(maxInactivity - inactivity, nextInactivityTimeout);
                 }
             }

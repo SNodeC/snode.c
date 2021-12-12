@@ -73,27 +73,27 @@ namespace core {
         return timerEventDispatcher;
     }
 
-    TickStatus EventLoop::_tick(struct timeval tickTimeOut) {
+    TickStatus EventLoop::_tick(const ttime::Timeval& tickTimeOut) {
         TickStatus tickStatus = TickStatus::SUCCESS;
         tickCounter++;
 
         EventDispatcher::observeEnabledEvents();
         int maxFd = EventDispatcher::getMaxFd();
 
-        struct timeval nextEventTimeout = EventDispatcher::getNextTimeout();
-        struct timeval nextTimerTimeout = timerEventDispatcher.getNextTimeout();
+        ttime::Timeval nextEventTimeout = EventDispatcher::getNextTimeout();
+        ttime::Timeval nextTimerTimeout = timerEventDispatcher.getNextTimeout();
 
-        struct timeval nextTimeout = std::min(nextTimerTimeout, nextEventTimeout);
+        ttime::Timeval nextTimeout = std::min(nextTimerTimeout, nextEventTimeout);
 
         if (maxFd >= 0 || (!timerEventDispatcher.empty() && !stopped)) {
-            nextTimeout = std::max(nextTimeout, {0, 0}); // In case nextEventTimeout is negativ
+            nextTimeout = std::max(nextTimeout, ttime::Timeval()); // In case nextEventTimeout is negativ
             nextTimeout = std::min(nextTimeout, tickTimeOut);
 
             int ret = core::system::select(maxFd + 1,
                                            &readEventDispatcher.getFdSet(),
                                            &writeEventDispatcher.getFdSet(),
                                            &exceptionalConditionEventDispatcher.getFdSet(),
-                                           &nextTimeout);
+                                           nextTimeout);
             if (ret >= 0) {
                 timerEventDispatcher.dispatch();
                 EventDispatcher::dispatchActiveEvents();

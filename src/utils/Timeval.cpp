@@ -20,21 +20,18 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-struct timeval;
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace ttime {
 
     Timeval::Timeval(double time) {
         timeVal.tv_sec = (time_t) time;
-        timeVal.tv_usec = (suseconds_t) ((time - (double) timeVal.tv_sec) * 1000000);
-
+        timeVal.tv_usec = (suseconds_t) ((time - (double) timeVal.tv_sec) * 1000000.0);
         normalize();
     }
 
     Timeval::Timeval(const timeval& timeVal)
-        : Timeval((double) timeVal.tv_sec + (double) timeVal.tv_usec / 100000.0) {
+        : Timeval((double) timeVal.tv_sec + (double) timeVal.tv_usec / 1000000.0) {
     }
 
     Timeval::Timeval(const time_t timeVal)
@@ -57,8 +54,18 @@ namespace ttime {
         return Timeval(this->timeVal + timeVal.timeVal).normalize();
     }
 
+    Timeval Timeval::operator+=(const Timeval& timeVal) {
+        *this = (*this + timeVal).normalize();
+        return *this;
+    }
+
     Timeval Timeval::operator-(const Timeval& timeVal) const {
         return Timeval(this->timeVal - timeVal.timeVal).normalize();
+    }
+
+    Timeval Timeval::operator-=(const Timeval& timeVal) {
+        *this = (*this - timeVal).normalize();
+        return *this;
     }
 
     bool Timeval::operator<(const Timeval& timeVal) const {
@@ -86,6 +93,14 @@ namespace ttime {
         return timeVal;
     }
 
+    Timeval::operator timeval&() {
+        return timeVal;
+    }
+
+    Timeval::operator timeval const&() const {
+        return timeVal;
+    }
+
     Timeval::operator timeval const*() const {
         return &timeVal;
     }
@@ -95,6 +110,20 @@ namespace ttime {
     }
 
     Timeval::operator double() const {
+        return (double) timeVal.tv_sec + (double) timeVal.tv_usec / 1000000.0;
+    }
+
+    ttime::Timeval::operator std::string() {
+        std::string string = "{" + std::to_string(timeVal.tv_sec) + ":" + std::to_string(timeVal.tv_usec) + "}";
+        return string;
+    }
+
+    ttime::Timeval::operator std::string() const {
+        std::string string = "{" + std::to_string(timeVal.tv_sec) + ":" + std::to_string(timeVal.tv_usec) + "}";
+        return string;
+    }
+
+    Timeval::operator double() {
         return (double) timeVal.tv_sec + (double) timeVal.tv_usec / 1000000.0;
     }
 
@@ -119,6 +148,11 @@ namespace ttime {
     }
 
 } // namespace ttime
+
+std::ostream& operator<<(std::ostream& ostream, const ttime::Timeval& timeVal) {
+    ostream << "TimeVal: " << (std::string) timeVal;
+    return ostream;
+}
 
 bool operator<(const struct timeval& tv1, const struct timeval& tv2) {
     return (tv1.tv_sec < tv2.tv_sec) || ((tv1.tv_sec == tv2.tv_sec) && (tv1.tv_usec < tv2.tv_usec));

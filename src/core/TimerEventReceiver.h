@@ -28,12 +28,34 @@
 namespace core {
 
     class TimerEventReceiver {
+    public:
+        TimerEventReceiver(const TimerEventReceiver&) = delete;
+        TimerEventReceiver& operator=(const TimerEventReceiver&) = delete;
+
+        TimerEventReceiver(const ttime::Timeval& timeVal, const void* arg)
+            : delay(timeVal)
+            , arg(arg) {
+            core::system::gettimeofday(absoluteTimeout, nullptr);
+            update();
+        }
+
+        virtual ttime::Timeval getTimeout() const = 0;
+
     private:
-        virtual struct timeval getTimeout() const = 0;
         virtual bool dispatchEvent() = 0;
         virtual void unobservedEvent() = 0;
 
-        virtual explicit operator struct timeval() const = 0;
+        virtual bool operator<(const TimerEventReceiver& timerEventReceiver) const = 0;
+
+    protected:
+        void update() {
+            absoluteTimeout += delay;
+        }
+
+        ttime::Timeval absoluteTimeout;
+        ttime::Timeval delay;
+
+        const void* arg;
 
         friend class TimerEventDispatcher;
     };

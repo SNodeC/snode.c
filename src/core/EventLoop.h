@@ -57,7 +57,7 @@ namespace core {
 
         static void stoponsig(int sig);
 
-        TickStatus _tick(struct timeval timeOut);
+        TickStatus _tick(const ttime::Timeval &timeOut);
 
         EventDispatcher readEventDispatcher;
         EventDispatcher writeEventDispatcher;

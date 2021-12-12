@@ -19,11 +19,12 @@
 #ifndef NET_EVENTRECEIVER_H
 #define NET_EVENTRECEIVER_H
 
+#include "utils/Timeval.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <climits>
 #include <ctime>
-#include <sys/time.h> // for timeval
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -87,7 +88,7 @@ namespace core {
         void disabled();
 
         struct timeval getTimeout() const;
-        struct timeval getLastTriggered();
+        ttime::Timeval getLastTriggered();
 
         virtual void dispatchEvent() = 0;
         virtual void timeoutEvent() = 0;
@@ -101,7 +102,7 @@ namespace core {
         bool _enabled = false;
         bool _suspended = false;
 
-        struct timeval lastTriggered = {0, 0};
+        ttime::Timeval lastTriggered;
 
         long maxInactivity = LONG_MAX;
         const long initialTimeout;

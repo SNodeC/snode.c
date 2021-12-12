@@ -35,11 +35,8 @@ namespace core::timer {
 namespace core::timer {
 
     class Timer : public TimerEventReceiver {
-        Timer(const Timer&) = delete;
-        Timer& operator=(const Timer& timer) = delete;
-
     protected:
-        Timer(const struct timeval& timeout, const void* arg);
+        using TimerEventReceiver::TimerEventReceiver;
 
         virtual ~Timer() = default;
 
@@ -57,18 +54,11 @@ namespace core::timer {
         void cancel();
 
     protected:
-        const void* arg;
-
-        void update();
         void unobservedEvent() override;
 
-        struct timeval getTimeout() const override;
+        ttime::Timeval getTimeout() const override;
 
-        explicit operator struct timeval() const override;
-
-    private:
-        struct timeval absoluteTimeout {};
-        struct timeval delay;
+        bool operator<(const TimerEventReceiver& timerEventReceiver) const override;
     };
 
 } // namespace core::timer

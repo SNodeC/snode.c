@@ -20,18 +20,21 @@
 #define NET_EVENTDISPATCHER_H
 
 #include "core/system/select.h" // IWYU pragma: keep
+#include "utils/Timeval.h"
+
+namespace core {
+    class EventReceiver;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <list>
 #include <map>
-#include <sys/time.h> // IWYU pragma: keep
+//#include <sys/time.h> // IWYU pragma: keep
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
-
-    class EventReceiver;
 
     class EventDispatcher {
         EventDispatcher(const EventDispatcher&) = delete;
@@ -77,7 +80,7 @@ namespace core {
         fd_set& getFdSet();
         static int getMaxFd();
 
-        static struct timeval getNextTimeout();
+        static ttime::Timeval getNextTimeout();
 
         static void observeEnabledEvents();
         static void dispatchActiveEvents();
@@ -87,7 +90,7 @@ namespace core {
     private:
         int _getMaxFd() const;
 
-        struct timeval _getNextTimeout(struct timeval currentTime) const;
+        ttime::Timeval _getNextTimeout(const ttime::Timeval& currentTime) const;
 
         void _observeEnabledEvents();
         void _dispatchActiveEvents(struct timeval currentTime);

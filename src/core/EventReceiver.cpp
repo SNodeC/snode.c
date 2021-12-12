@@ -37,7 +37,8 @@ namespace core {
         observed();
 
         descriptorEventDispatcher.enable(this, fd);
-        lastTriggered = {time(nullptr), 0};
+
+        core::system::gettimeofday(lastTriggered, NULL);
         _enabled = true;
     }
 
@@ -69,7 +70,7 @@ namespace core {
         if (isEnabled()) {
             descriptorEventDispatcher.resume(this, fd);
             _suspended = false;
-            lastTriggered = {time(nullptr), 0};
+            core::system::gettimeofday(lastTriggered, NULL);
         }
     }
 
@@ -101,7 +102,7 @@ namespace core {
         this->lastTriggered = lastTriggered;
     }
 
-    timeval EventReceiver::getLastTriggered() {
+    ttime::Timeval EventReceiver::getLastTriggered() {
         return lastTriggered;
     }
 

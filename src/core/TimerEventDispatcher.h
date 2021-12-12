@@ -20,6 +20,7 @@
 #define NET_TIMEREVENTDISPATCHER_H
 
 #include "core/TimerEventReceiver.h" // IWYU pragma: export
+#include "utils/Timeval.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -33,7 +34,7 @@ namespace core {
     public:
         TimerEventDispatcher() = default;
 
-        struct timeval getNextTimeout();
+        ttime::Timeval getNextTimeout();
 
         void dispatch();
 
@@ -52,7 +53,8 @@ namespace core {
         class timernode_lt {
         public:
             bool operator()(const TimerEventReceiver* t1, const TimerEventReceiver* t2) const {
-                return static_cast<struct timeval>(*t1) < static_cast<struct timeval>(*t2);
+                return *t1 < *t2;
+                //                return static_cast<struct timeval>(*t1) < static_cast<struct timeval>(*t2);
             }
         };
 

@@ -19,9 +19,13 @@
 #ifndef UTILS_TIMEVAL_H
 #define UTILS_TIMEVAL_H
 
+#include "core/system/time.h" // IWYU pragma: export
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/time.h" // IWYU pragma: export
+struct timeval;
+#include <iostream>
+#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -38,7 +42,10 @@ namespace ttime {
         Timeval operator=(const Timeval& timeVal);
 
         Timeval operator+(const Timeval& timeVal) const;
+        Timeval operator+=(const Timeval& timeVal);
+
         Timeval operator-(const Timeval& timeVal) const;
+        Timeval operator-=(const Timeval& timeVal);
 
         bool operator<(const Timeval& timeVal) const;
         bool operator>(const Timeval& timeVal) const;
@@ -46,22 +53,31 @@ namespace ttime {
         bool operator>=(const Timeval& timeVal) const;
         bool operator==(const Timeval& timeVal) const;
 
-        operator struct timeval() const;
-        operator struct timeval &();
-        operator struct timeval &() const;
-        operator struct timeval const*() const;
-        operator struct timeval *();
+        operator timeval() const;
+
+        operator timeval&();
+        operator timeval const&() const;
+
+        operator timeval*();
+        operator timeval const*() const;
+
+        operator double();
         operator double() const;
 
-        struct timeval& getTimeVal();
+        operator std::string();
+        operator std::string() const;
+
+        timeval& getTimeVal();
 
     private:
         const Timeval& normalize();
 
-        struct timeval timeVal = {0, 0};
+        timeval timeVal = {0, 0};
     };
 
 } // namespace ttime
+
+std::ostream& operator<<(std::ostream& ostream, const ttime::Timeval& timeVal);
 
 bool operator<(const struct timeval& tv1, const struct timeval& tv2);
 bool operator>(const struct timeval& tv1, const struct timeval& tv2);

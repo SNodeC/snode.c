@@ -29,13 +29,6 @@
 
 namespace core::timer {
 
-    Timer::Timer(const struct timeval& timeout, const void* arg)
-        : arg(arg)
-        , delay(timeout) {
-        gettimeofday(&absoluteTimeout, nullptr);
-        update();
-    }
-
     SingleshotTimer&
     Timer::singleshotTimer(const std::function<void(const void*)>& dispatcher, const struct timeval& timeout, const void* arg) {
         SingleshotTimer* st = new SingleshotTimer(dispatcher, timeout, arg);
@@ -68,20 +61,16 @@ namespace core::timer {
         EventLoop::instance().getTimerEventDispatcher().remove(this);
     }
 
-    void Timer::update() {
-        absoluteTimeout = absoluteTimeout + delay;
-    }
-
     void Timer::unobservedEvent() {
         delete this;
     }
 
-    struct timeval Timer::getTimeout() const {
+    ttime::Timeval Timer::getTimeout() const {
         return absoluteTimeout;
     }
 
-    Timer::operator struct timeval() const {
-        return absoluteTimeout;
+    bool Timer::operator<(const TimerEventReceiver& timerEventReceiver) const {
+        return absoluteTimeout < timerEventReceiver.getTimeout();
     }
 
 } // namespace core::timer
