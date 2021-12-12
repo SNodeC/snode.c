@@ -21,39 +21,47 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <sys/time.h> // IWYU pragma: export
+#include "core/system/time.h" // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-class Timeval {
-public:
-    Timeval(const Timeval& timeVal);
-    Timeval(double time);
-    Timeval(const struct timeval& timeVal);
-    Timeval(const time_t timeVal);
+namespace ttime {
 
-    Timeval operator=(const Timeval& timeVal);
+    class Timeval {
+    public:
+        Timeval(const Timeval& timeVal);
+        Timeval(double time);
+        Timeval(const struct timeval& timeVal);
+        Timeval(const time_t timeVal);
+        Timeval();
 
-    Timeval operator+(const Timeval& timeVal);
-    Timeval operator-(const Timeval& timeVal);
+        Timeval operator=(const Timeval& timeVal);
 
-    bool operator<(const Timeval& timeVal);
-    bool operator>(const Timeval& timeVal);
-    bool operator<=(const Timeval& timeVal);
-    bool operator>=(const Timeval& timeVal);
-    bool operator==(const Timeval& timeVal);
+        Timeval operator+(const Timeval& timeVal) const;
+        Timeval operator-(const Timeval& timeVal) const;
 
-    operator struct timeval();
-    operator struct timeval *();
-    operator double();
+        bool operator<(const Timeval& timeVal) const;
+        bool operator>(const Timeval& timeVal) const;
+        bool operator<=(const Timeval& timeVal) const;
+        bool operator>=(const Timeval& timeVal) const;
+        bool operator==(const Timeval& timeVal) const;
 
-    struct timeval& getTimeVal();
+        operator struct timeval() const;
+        operator struct timeval &();
+        operator struct timeval &() const;
+        operator struct timeval const*() const;
+        operator struct timeval *();
+        operator double() const;
 
-private:
-    const Timeval& normalize();
+        struct timeval& getTimeVal();
 
-    struct timeval timeVal = {0, 0};
-};
+    private:
+        const Timeval& normalize();
+
+        struct timeval timeVal = {0, 0};
+    };
+
+} // namespace ttime
 
 bool operator<(const struct timeval& tv1, const struct timeval& tv2);
 bool operator>(const struct timeval& tv1, const struct timeval& tv2);

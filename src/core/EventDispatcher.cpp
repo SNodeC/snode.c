@@ -19,7 +19,6 @@
 #include "core/EventDispatcher.h"
 
 #include "core/EventReceiver.h"
-#include "core/system/time.h"
 #include "log/Logger.h"    // for Writer, CWARNING, LOG
 #include "utils/Timeval.h" // for operator-, operator<, operator>=
 

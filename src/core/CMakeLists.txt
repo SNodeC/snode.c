@@ -31,6 +31,7 @@ add_library(
     system/time.cpp
     system/unistd.cpp
     timer/Timer.cpp
+    N_EventReceiver.cpp
 )
 add_library(snodec::core ALIAS core)
 

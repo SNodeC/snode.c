@@ -16,14 +16,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_EVENTRECEIVER_H
-#define NET_EVENTRECEIVER_H
+#ifndef CORE_NEVENTRECEIVER_H
+#define CORE_NEVENTRECEIVER_H
+
+#include "utils/Timeval.h" // for operator-, operator<, operator>=
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <climits>
-#include <ctime>
-#include <sys/time.h> // for timeval
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -31,8 +31,11 @@ namespace core {
 
     class EventDispatcher;
 
-    class Observer {
-    private:
+    class N_Observer {
+    public:
+        virtual ~N_Observer() = default;
+
+    protected:
         bool isObserved() {
             return observationCounter > 0;
         }
@@ -45,70 +48,61 @@ namespace core {
             observationCounter--;
         }
 
+        void destroy() {
+            delete this;
+        }
+
+    private:
         virtual void unobservedEvent() = 0;
 
         int observationCounter = 0;
-
-        friend class EventDispatcher;
-        friend class EventReceiver;
     };
 
-    class EventReceiver : virtual public Observer {
-        EventReceiver(const EventReceiver&) = delete;
-        EventReceiver& operator=(const EventReceiver&) = delete;
+    class N_EventReceiver : virtual public N_Observer {
+        N_EventReceiver(const N_EventReceiver&) = delete;
+        N_EventReceiver& operator=(const N_EventReceiver&) = delete;
 
     protected:
-        class TIMEOUT {
+        class Timeout {
         public:
-            static const long DEFAULT = -1;
-            static const long DISABLE = LONG_MAX;
+            static const ttime::Timeval DEFAULT;
+            static const ttime::Timeval DISABLE;
         };
 
-        explicit EventReceiver(EventDispatcher& descriptorEventDispatcher, long timeout = TIMEOUT::DISABLE);
+        enum class State { NEW, ACTIVE, INACTIVE, STOPPED } state = State::NEW;
 
-        virtual ~EventReceiver() = default;
+        N_EventReceiver(EventDispatcher& descriptorEventDispatcher, const ttime::Timeval& timeout = Timeout::DISABLE);
 
-    protected:
-        void enable(int fd);
-        void disable();
-        bool isEnabled() const;
+        virtual ~N_EventReceiver() = default;
+        void setTimeout(const ttime::Timeval& timeout);
+        ttime::Timeval getTimeout() const;
 
-        void suspend();
-        void resume();
-        bool isSuspended() const;
+        void triggered();
+
+        void activate();
+        void inactivate();
+        void stop();
 
         virtual void terminate();
 
-        void setTimeout(long timeout);
-
-        void triggered(struct timeval lastTriggered = {time(nullptr), 0});
+        bool isNew() const;
+        bool isActive() const;
+        bool isInactive() const;
+        bool isStopped() const;
 
     private:
-        void disabled();
-
-        struct timeval getTimeout() const;
-        struct timeval getLastTriggered();
-
         virtual void dispatchEvent() = 0;
         virtual void timeoutEvent() = 0;
 
-        virtual bool continueImmediately() = 0;
+        virtual ttime::Timeval continueIn() = 0;
 
         EventDispatcher& descriptorEventDispatcher;
 
-        int fd = -1;
-
-        bool _enabled = false;
-        bool _suspended = false;
-
-        struct timeval lastTriggered = {0, 0};
-
-        long maxInactivity = LONG_MAX;
-        const long initialTimeout;
-
-        friend class EventDispatcher;
+        ttime::Timeval maxInactivity{{LONG_MAX, 0}};
+        ttime::Timeval initialTimeout = maxInactivity;
+        ttime::Timeval lastTriggered = {{0, 0}};
     };
 
 } // namespace core
 
-#endif // NET_EVENTRECEIVER_H
+#endif // CORE_NEVENTRECEIVER_H
