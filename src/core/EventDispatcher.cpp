@@ -210,7 +210,6 @@ namespace core {
     }
 
     void EventDispatcher::dispatchActiveEvents() {
-        //        struct timeval currentTime = {core::system::time(nullptr), 0};
         utils::Timeval currentTime;
         core::system::gettimeofday(currentTime, nullptr);
 
