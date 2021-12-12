@@ -65,17 +65,17 @@ namespace core {
     protected:
         class Timeout {
         public:
-            static const ttime::Timeval DEFAULT;
-            static const ttime::Timeval DISABLE;
+            static const utils::Timeval DEFAULT;
+            static const utils::Timeval DISABLE;
         };
 
         enum class State { NEW, ACTIVE, INACTIVE, STOPPED } state = State::NEW;
 
-        N_EventReceiver(EventDispatcher& descriptorEventDispatcher, const ttime::Timeval& timeout = Timeout::DISABLE);
+        N_EventReceiver(EventDispatcher& descriptorEventDispatcher, const utils::Timeval& timeout = Timeout::DISABLE);
 
         virtual ~N_EventReceiver() = default;
-        void setTimeout(const ttime::Timeval& timeout);
-        ttime::Timeval getTimeout() const;
+        void setTimeout(const utils::Timeval& timeout);
+        utils::Timeval getTimeout() const;
 
         void triggered();
 
@@ -94,13 +94,13 @@ namespace core {
         virtual void dispatchEvent() = 0;
         virtual void timeoutEvent() = 0;
 
-        virtual ttime::Timeval continueIn() = 0;
+        virtual utils::Timeval continueIn() = 0;
 
         EventDispatcher& descriptorEventDispatcher;
 
-        ttime::Timeval maxInactivity{LONG_MAX, 0};
-        ttime::Timeval initialTimeout = maxInactivity;
-        ttime::Timeval lastTriggered{0, 0};
+        utils::Timeval maxInactivity{LONG_MAX, 0};
+        utils::Timeval initialTimeout = maxInactivity;
+        utils::Timeval lastTriggered{0, 0};
     };
 
 } // namespace core

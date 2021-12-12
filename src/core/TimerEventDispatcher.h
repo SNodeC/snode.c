@@ -34,7 +34,7 @@ namespace core {
     public:
         TimerEventDispatcher() = default;
 
-        ttime::Timeval getNextTimeout();
+        utils::Timeval getNextTimeout();
 
         void dispatch();
 

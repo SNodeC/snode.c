@@ -22,7 +22,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace ttime {
+namespace utils {
 
     Timeval::Timeval()
         : timeVal({0, 0}) {
@@ -57,7 +57,7 @@ namespace ttime {
     }
 
     Timeval Timeval::operator+(const Timeval& timeVal) const {
-        ttime::Timeval help;
+        utils::Timeval help;
 
         help.timeVal.tv_sec = this->timeVal.tv_sec + timeVal.timeVal.tv_sec;
         help.timeVal.tv_usec = this->timeVal.tv_usec + timeVal.timeVal.tv_usec;
@@ -71,7 +71,7 @@ namespace ttime {
     }
 
     Timeval Timeval::operator-(const Timeval& timeVal) const {
-        ttime::Timeval help;
+        utils::Timeval help;
 
         help.timeVal.tv_sec = this->timeVal.tv_sec - timeVal.timeVal.tv_sec;
         help.timeVal.tv_usec = this->timeVal.tv_usec - timeVal.timeVal.tv_usec;
@@ -129,12 +129,12 @@ namespace ttime {
         return (double) timeVal.tv_sec + (double) timeVal.tv_usec / 1000000.0;
     }
 
-    ttime::Timeval::operator std::string() {
+    utils::Timeval::operator std::string() {
         std::string string = "{" + std::to_string(timeVal.tv_sec) + ":" + std::to_string(timeVal.tv_usec) + "}";
         return string;
     }
 
-    ttime::Timeval::operator std::string() const {
+    utils::Timeval::operator std::string() const {
         std::string string = "{" + std::to_string(timeVal.tv_sec) + ":" + std::to_string(timeVal.tv_usec) + "}";
         return string;
     }
@@ -163,60 +163,9 @@ namespace ttime {
         return *this;
     }
 
-} // namespace ttime
+} // namespace utils
 
-std::ostream& operator<<(std::ostream& ostream, const ttime::Timeval& timeVal) {
+std::ostream& operator<<(std::ostream& ostream, const utils::Timeval& timeVal) {
     ostream << "TimeVal: " << (std::string) timeVal;
     return ostream;
 }
-
-/*
-bool operator<(const struct timeval& tv1, const struct timeval& tv2) {
-    return (tv1.tv_sec < tv2.tv_sec) || ((tv1.tv_sec == tv2.tv_sec) && (tv1.tv_usec < tv2.tv_usec));
-}
-
-bool operator>(const struct timeval& tv1, const struct timeval& tv2) {
-    return (tv2.tv_sec < tv1.tv_sec) || ((tv2.tv_sec == tv1.tv_sec) && (tv2.tv_usec < tv1.tv_usec));
-}
-
-bool operator<=(const struct timeval& tv1, const struct timeval& tv2) {
-    return !(tv1 > tv2);
-}
-
-bool operator>=(const struct timeval& tv1, const struct timeval& tv2) {
-    return !(tv1 < tv2);
-}
-
-bool operator==(const struct timeval& tv1, const struct timeval& tv2) {
-    return !(tv1 < tv2) && !(tv2 < tv1);
-}
-
-struct timeval operator+(const struct timeval& tv1, const struct timeval& tv2) {
-    struct timeval help {};
-
-    help.tv_sec = tv1.tv_sec + tv2.tv_sec;
-
-    help.tv_usec = tv1.tv_usec + tv2.tv_usec;
-
-    if (help.tv_usec > 999999) {
-        help.tv_usec -= 1000000;
-        help.tv_sec++;
-    }
-
-    return help;
-}
-
-struct timeval operator-(const struct timeval& tv1, const struct timeval& tv2) {
-    struct timeval help {};
-
-    help.tv_sec = tv1.tv_sec - tv2.tv_sec;
-    help.tv_usec = tv1.tv_usec - tv2.tv_usec;
-
-    if (help.tv_usec < 0) {
-        help.tv_usec += 1000000;
-        help.tv_sec--;
-    }
-
-    return help;
-}
-*/

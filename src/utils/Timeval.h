@@ -29,7 +29,7 @@ struct timeval;
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace ttime {
+namespace utils {
 
     class Timeval {
     public:
@@ -75,8 +75,8 @@ namespace ttime {
         timeval timeVal = {0, 0};
     };
 
-} // namespace ttime
+} // namespace utils
 
-std::ostream& operator<<(std::ostream& ostream, const ttime::Timeval& timeVal);
+std::ostream& operator<<(std::ostream& ostream, const utils::Timeval& timeVal);
 
 #endif // UTILS_TIMEVAL_H

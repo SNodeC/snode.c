@@ -27,16 +27,16 @@
 
 namespace core {
 
-    const ttime::Timeval N_EventReceiver::Timeout::DEFAULT{-1, 0};
-    const ttime::Timeval N_EventReceiver::Timeout::DISABLE{LONG_MAX, 0};
+    const utils::Timeval N_EventReceiver::Timeout::DEFAULT{-1, 0};
+    const utils::Timeval N_EventReceiver::Timeout::DISABLE{LONG_MAX, 0};
 
-    N_EventReceiver::N_EventReceiver(EventDispatcher& descriptorEventDispatcher, const ttime::Timeval& timeout)
+    N_EventReceiver::N_EventReceiver(EventDispatcher& descriptorEventDispatcher, const utils::Timeval& timeout)
         : descriptorEventDispatcher(descriptorEventDispatcher)
         , maxInactivity(timeout)
         , initialTimeout(timeout) {
     }
 
-    void N_EventReceiver::setTimeout(const ttime::Timeval& timeout) {
+    void N_EventReceiver::setTimeout(const utils::Timeval& timeout) {
         if (timeout == Timeout::DEFAULT) {
             this->maxInactivity = initialTimeout;
         } else {
@@ -46,11 +46,11 @@ namespace core {
         triggered();
     }
 
-    ttime::Timeval N_EventReceiver::getTimeout() const {
-        ttime::Timeval currentTime;
+    utils::Timeval N_EventReceiver::getTimeout() const {
+        utils::Timeval currentTime;
         core::system::gettimeofday(currentTime, NULL);
 
-        return std::max(maxInactivity - (currentTime - lastTriggered), ttime::Timeval());
+        return std::max(maxInactivity - (currentTime - lastTriggered), utils::Timeval());
     }
 
     void N_EventReceiver::triggered() {

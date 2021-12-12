@@ -94,7 +94,7 @@ namespace core {
         triggered();
     }
 
-    ttime::Timeval EventReceiver::getTimeout() const {
+    utils::Timeval EventReceiver::getTimeout() const {
         return maxInactivity;
     }
 
@@ -102,7 +102,7 @@ namespace core {
         core::system::gettimeofday(lastTriggered, nullptr);
     }
 
-    ttime::Timeval EventReceiver::getLastTriggered() {
+    utils::Timeval EventReceiver::getLastTriggered() {
         return lastTriggered;
     }
 

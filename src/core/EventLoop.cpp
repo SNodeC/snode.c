@@ -73,20 +73,20 @@ namespace core {
         return timerEventDispatcher;
     }
 
-    TickStatus EventLoop::_tick(const ttime::Timeval& tickTimeOut) {
+    TickStatus EventLoop::_tick(const utils::Timeval& tickTimeOut) {
         TickStatus tickStatus = TickStatus::SUCCESS;
         tickCounter++;
 
         EventDispatcher::observeEnabledEvents();
         int maxFd = EventDispatcher::getMaxFd();
 
-        ttime::Timeval nextEventTimeout = EventDispatcher::getNextTimeout();
-        ttime::Timeval nextTimerTimeout = timerEventDispatcher.getNextTimeout();
+        utils::Timeval nextEventTimeout = EventDispatcher::getNextTimeout();
+        utils::Timeval nextTimerTimeout = timerEventDispatcher.getNextTimeout();
 
-        ttime::Timeval nextTimeout = std::min(nextTimerTimeout, nextEventTimeout);
+        utils::Timeval nextTimeout = std::min(nextTimerTimeout, nextEventTimeout);
 
         if (maxFd >= 0 || (!timerEventDispatcher.empty() && !stopped)) {
-            nextTimeout = std::max(nextTimeout, ttime::Timeval()); // In case nextEventTimeout is negativ
+            nextTimeout = std::max(nextTimeout, utils::Timeval()); // In case nextEventTimeout is negativ
             nextTimeout = std::min(nextTimeout, tickTimeOut);
 
             int ret = core::system::select(maxFd + 1,
@@ -120,7 +120,7 @@ namespace core {
         EventLoop::initialized = true;
     }
 
-    int EventLoop::start(const ttime::Timeval& timeOut) {
+    int EventLoop::start(const utils::Timeval& timeOut) {
         if (!initialized) {
             PLOG(ERROR) << "snode.c not initialized. Use SNodeC::init(argc, argv) before SNodeC::start().";
             exit(1);
@@ -164,7 +164,7 @@ namespace core {
         return returnReason;
     }
 
-    TickStatus EventLoop::tick(const ttime::Timeval& timeOut) {
+    TickStatus EventLoop::tick(const utils::Timeval& timeOut) {
         if (!initialized) {
             PLOG(ERROR) << "snode.c not initialized. Use SNodeC::init(argc, argv) before SNodeC::tick().";
             exit(1);

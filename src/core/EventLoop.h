@@ -51,13 +51,13 @@ namespace core {
     private:
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
         static void init(int argc, char* argv[]);
-        static int start(const ttime::Timeval& timeOut);
-        static TickStatus tick(const ttime::Timeval& timeOut = {});
+        static int start(const utils::Timeval& timeOut);
+        static TickStatus tick(const utils::Timeval& timeOut = {});
         static void free();
 
         static void stoponsig(int sig);
 
-        TickStatus _tick(const ttime::Timeval& timeOut);
+        TickStatus _tick(const utils::Timeval& timeOut);
 
         EventDispatcher readEventDispatcher;
         EventDispatcher writeEventDispatcher;

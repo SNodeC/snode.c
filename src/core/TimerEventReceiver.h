@@ -32,14 +32,14 @@ namespace core {
         TimerEventReceiver(const TimerEventReceiver&) = delete;
         TimerEventReceiver& operator=(const TimerEventReceiver&) = delete;
 
-        TimerEventReceiver(const ttime::Timeval& timeVal, const void* arg)
+        TimerEventReceiver(const utils::Timeval& timeVal, const void* arg)
             : delay(timeVal)
             , arg(arg) {
             core::system::gettimeofday(absoluteTimeout, nullptr);
             update();
         }
 
-        virtual ttime::Timeval getTimeout() const = 0;
+        virtual utils::Timeval getTimeout() const = 0;
 
     private:
         virtual bool dispatchEvent() = 0;
@@ -52,8 +52,8 @@ namespace core {
             absoluteTimeout += delay;
         }
 
-        ttime::Timeval absoluteTimeout;
-        ttime::Timeval delay;
+        utils::Timeval absoluteTimeout;
+        utils::Timeval delay;
 
         const void* arg;
 

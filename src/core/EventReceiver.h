@@ -86,8 +86,8 @@ namespace core {
     private:
         void disabled();
 
-        ttime::Timeval getTimeout() const;
-        ttime::Timeval getLastTriggered();
+        utils::Timeval getTimeout() const;
+        utils::Timeval getLastTriggered();
 
         virtual void dispatchEvent() = 0;
         virtual void timeoutEvent() = 0;
@@ -101,7 +101,7 @@ namespace core {
         bool _enabled = false;
         bool _suspended = false;
 
-        ttime::Timeval lastTriggered;
+        utils::Timeval lastTriggered;
 
         long maxInactivity = LONG_MAX;
         const long initialTimeout;

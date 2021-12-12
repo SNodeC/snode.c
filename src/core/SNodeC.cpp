@@ -30,11 +30,11 @@ namespace core {
         EventLoop::init(argc, argv);
     }
 
-    int SNodeC::start(const ttime::Timeval& timeOut) {
+    int SNodeC::start(const utils::Timeval& timeOut) {
         return EventLoop::start(timeOut);
     }
 
-    TickStatus SNodeC::tick(const ttime::Timeval& timeOut) {
+    TickStatus SNodeC::tick(const utils::Timeval& timeOut) {
         return EventLoop::tick(timeOut);
     }
 

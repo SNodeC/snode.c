@@ -42,21 +42,21 @@ namespace core::timer {
 
     public:
         static IntervalTimer& intervalTimer(const std::function<void(const void*, const std::function<void()>& stop)>& dispatcher,
-                                            const ttime::Timeval& timeout,
+                                            const utils::Timeval& timeout,
                                             const void* arg);
 
         static IntervalTimer&
-        intervalTimer(const std::function<void(const void*)>& dispatcher, const ttime::Timeval& timeout, const void* arg);
+        intervalTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg);
 
         static SingleshotTimer&
-        singleshotTimer(const std::function<void(const void*)>& dispatcher, const ttime::Timeval& timeout, const void* arg);
+        singleshotTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg);
 
         void cancel();
 
     protected:
         void unobservedEvent() override;
 
-        ttime::Timeval getTimeout() const override;
+        utils::Timeval getTimeout() const override;
 
         bool operator<(const TimerEventReceiver& timerEventReceiver) const override;
     };

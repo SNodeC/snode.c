@@ -26,8 +26,8 @@
 
 namespace core {
 
-    ttime::Timeval TimerEventDispatcher::getNextTimeout() {
-        ttime::Timeval nextTimeout(LONG_MAX);
+    utils::Timeval TimerEventDispatcher::getNextTimeout() {
+        utils::Timeval nextTimeout(LONG_MAX);
 
         for (TimerEventReceiver* timer : addedList) {
             timerList.push_back(timer);
@@ -50,7 +50,7 @@ namespace core {
 
             nextTimeout = (*(timerList.begin()))->getTimeout();
 
-            ttime::Timeval currentTime;
+            utils::Timeval currentTime;
             core::system::gettimeofday(currentTime, nullptr);
 
             if (nextTimeout < currentTime) {
@@ -64,7 +64,7 @@ namespace core {
     }
 
     void TimerEventDispatcher::dispatch() {
-        ttime::Timeval currentTime;
+        utils::Timeval currentTime;
         core::system::gettimeofday(currentTime, nullptr);
 
         for (TimerEventReceiver* timer : timerList) {

@@ -80,7 +80,7 @@ namespace core {
         fd_set& getFdSet();
         static int getMaxFd();
 
-        static ttime::Timeval getNextTimeout();
+        static utils::Timeval getNextTimeout();
 
         static void observeEnabledEvents();
         static void dispatchActiveEvents();
@@ -90,10 +90,10 @@ namespace core {
     private:
         int _getMaxFd() const;
 
-        ttime::Timeval _getNextTimeout(const ttime::Timeval& currentTime) const;
+        utils::Timeval _getNextTimeout(const utils::Timeval& currentTime) const;
 
         void _observeEnabledEvents();
-        void _dispatchActiveEvents(const ttime::Timeval &currentTime);
+        void _dispatchActiveEvents(const utils::Timeval& currentTime);
         void _unobserveDisabledEvents();
         void _terminateObservedEvents();
 

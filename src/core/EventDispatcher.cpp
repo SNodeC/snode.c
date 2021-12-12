@@ -152,11 +152,11 @@ namespace core {
         return maxFd;
     }
 
-    ttime::Timeval EventDispatcher::getNextTimeout() {
-        ttime::Timeval currentTime;
+    utils::Timeval EventDispatcher::getNextTimeout() {
+        utils::Timeval currentTime;
         core::system::gettimeofday(currentTime, NULL);
 
-        ttime::Timeval nextTimeout = LONG_MAX;
+        utils::Timeval nextTimeout = LONG_MAX;
 
         for (EventDispatcher* eventDispatcher : eventDispatchers) {
             nextTimeout = std::min(eventDispatcher->_getNextTimeout(currentTime), nextTimeout);
@@ -165,8 +165,8 @@ namespace core {
         return nextTimeout;
     }
 
-    ttime::Timeval EventDispatcher::_getNextTimeout(const ttime::Timeval& currentTime) const {
-        ttime::Timeval nextInactivityTimeout = LONG_MAX;
+    utils::Timeval EventDispatcher::_getNextTimeout(const utils::Timeval& currentTime) const {
+        utils::Timeval nextInactivityTimeout = LONG_MAX;
 
         for (const auto& [fd, eventReceivers] : observedEventReceiver) {
             EventReceiver* eventReceiver = eventReceivers.front();
@@ -175,8 +175,8 @@ namespace core {
                 if (eventReceiver->continueImmediately()) {
                     nextInactivityTimeout = 0L;
                 } else {
-                    ttime::Timeval maxInactivity = eventReceiver->getTimeout();
-                    ttime::Timeval inactivity = currentTime - eventReceiver->getLastTriggered();
+                    utils::Timeval maxInactivity = eventReceiver->getTimeout();
+                    utils::Timeval inactivity = currentTime - eventReceiver->getLastTriggered();
                     nextInactivityTimeout = std::min(maxInactivity - inactivity, nextInactivityTimeout);
                 }
             }
@@ -211,7 +211,7 @@ namespace core {
 
     void EventDispatcher::dispatchActiveEvents() {
         //        struct timeval currentTime = {core::system::time(nullptr), 0};
-        ttime::Timeval currentTime;
+        utils::Timeval currentTime;
         core::system::gettimeofday(currentTime, nullptr);
 
         for (EventDispatcher* eventDispatcher : eventDispatchers) {
@@ -219,16 +219,16 @@ namespace core {
         }
     }
 
-    void EventDispatcher::_dispatchActiveEvents(const ttime::Timeval& currentTime) {
+    void EventDispatcher::_dispatchActiveEvents(const utils::Timeval& currentTime) {
         for (const auto& [fd, eventReceivers] : observedEventReceiver) {
             EventReceiver* eventReceiver = eventReceivers.front();
-            ttime::Timeval maxInactivity = eventReceiver->getTimeout();
+            utils::Timeval maxInactivity = eventReceiver->getTimeout();
             if (fdSet.isSet(fd) || (eventReceiver->continueImmediately())) {
                 eventCounter++;
                 eventReceiver->dispatchEvent();
                 eventReceiver->triggered();
             } else {
-                ttime::Timeval inactivity = currentTime - eventReceiver->getLastTriggered();
+                utils::Timeval inactivity = currentTime - eventReceiver->getLastTriggered();
                 if (inactivity >= maxInactivity) {
                     eventReceiver->timeoutEvent();
                 }

@@ -37,11 +37,11 @@ namespace express {
         WebApp::initialized = true;
     }
 
-    int WebApp::start(const ttime::Timeval& timeOut) {
+    int WebApp::start(const utils::Timeval& timeOut) {
         return core::SNodeC::start(timeOut);
     }
 
-    core::TickStatus WebApp::tick(const ttime::Timeval& timeOut) {
+    core::TickStatus WebApp::tick(const utils::Timeval& timeOut) {
         return core::SNodeC::tick(timeOut);
     }
 

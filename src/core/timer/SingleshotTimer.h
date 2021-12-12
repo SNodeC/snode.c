@@ -31,7 +31,7 @@ namespace core::timer {
         SingleshotTimer& operator=(const SingleshotTimer& timer) = delete;
 
     public:
-        SingleshotTimer(const std::function<void(const void*)>& dispatcher, const ttime::Timeval& timeout, const void* arg)
+        SingleshotTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg)
             : Timer(timeout, arg)
             , dispatcher(dispatcher) {
         }
