@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_SNODEC_H
-#define NET_SNODEC_H
+#ifndef CORE_SNODEC_H
+#define CORE_SNODEC_H
 
 #include "core/TickStatus.h"
 #include "utils/Timeval.h"
@@ -25,8 +25,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <climits>
-#include <cstddef>    // for size_t
-#include <sys/time.h> // IWYU pragma: keep
+#include <cstddef> // for size_t
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -48,4 +47,4 @@ namespace core {
 
 } // namespace core
 
-#endif // NET_SNODEC_H
+#endif // CORE_SNODEC_H

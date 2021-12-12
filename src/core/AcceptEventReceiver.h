@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_ACCEPTEVENTRECEIVER_H
-#define NET_ACCEPTEVENTRECEIVER_H
+#ifndef CORE_ACCEPTEVENTRECEIVER_H
+#define CORE_ACCEPTEVENTRECEIVER_H
 
 #include "core/EventReceiver.h"
 
@@ -49,4 +49,4 @@ namespace core {
 
 } // namespace core
 
-#endif // NET_ACCEPTEVENTRECEIVER_H
+#endif // CORE_ACCEPTEVENTRECEIVER_H

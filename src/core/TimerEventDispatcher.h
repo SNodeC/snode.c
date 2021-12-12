@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NET_TIMEREVENTDISPATCHER_H
-#define NET_TIMEREVENTDISPATCHER_H
+#ifndef CORE_TIMEREVENTDISPATCHER_H
+#define CORE_TIMEREVENTDISPATCHER_H
 
 #include "core/TimerEventReceiver.h" // IWYU pragma: export
 #include "utils/Timeval.h"
@@ -63,4 +63,4 @@ namespace core {
 
 } // namespace core
 
-#endif // NET_TIMEREVENTDISPATCHER_H
+#endif // CORE_TIMEREVENTDISPATCHER_H
