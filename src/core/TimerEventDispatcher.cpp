@@ -36,7 +36,6 @@ namespace core {
         addedList.clear();
 
         for (TimerEventReceiver* timer : removedList) {
-            timer->unobservedEvent();
             timerList.remove(timer);
             timerListDirty = true;
         }
@@ -72,6 +71,7 @@ namespace core {
 
     void TimerEventDispatcher::remove(TimerEventReceiver* timer) {
         removedList.push_back(timer);
+        timer->unobservedEvent();
     }
 
     void TimerEventDispatcher::add(TimerEventReceiver* timer) {
