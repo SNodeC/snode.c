@@ -85,7 +85,7 @@ namespace core {
         utils::Timeval nextEventTimeout = EventDispatcher::getNextTimeout(currentTime);
         utils::Timeval nextTimerTimeout = timerEventDispatcher.getNextTimeout(currentTime);
 
-        utils::Timeval nextTimeout = std::min(nextTimerTimeout, nextEventTimeout);
+        utils::Timeval nextTimeout = tickTimeOut >= 0L ? std::min(nextTimerTimeout, nextEventTimeout) : nextEventTimeout;
 
         if (maxFd >= 0 || (!timerEventDispatcher.empty() && !stopped)) {
             nextTimeout = std::min(nextTimeout, tickTimeOut);
@@ -143,9 +143,9 @@ namespace core {
             stopped = false;
 
             core::TickStatus tickStatus = TickStatus::SUCCESS;
-            do {
+            while (tickStatus == TickStatus::SUCCESS && !stopped) {
                 tickStatus = EventLoop::instance()._tick(timeOut);
-            } while (tickStatus == TickStatus::SUCCESS && !stopped);
+            }
 
             free();
 
@@ -188,12 +188,12 @@ namespace core {
 
         do {
             EventDispatcher::terminateObservedEvents();
-            tickStatus = EventLoop::tick(0L);
+            tickStatus = EventLoop::tick(-1L);
         } while (tickStatus == TickStatus::SUCCESS);
 
         do {
             EventLoop::instance().timerEventDispatcher.cancelAll();
-            tickStatus = EventLoop::tick(0L);
+            tickStatus = EventLoop::tick(-1L);
         } while (tickStatus == TickStatus::SUCCESS);
     }
 
