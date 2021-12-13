@@ -38,7 +38,8 @@ namespace core {
 
         descriptorEventDispatcher.enable(this, fd);
 
-        core::system::gettimeofday(lastTriggered, nullptr);
+        lastTriggered = utils::Timeval::currentTime();
+
         _enabled = true;
     }
 
@@ -70,7 +71,7 @@ namespace core {
         if (isEnabled()) {
             descriptorEventDispatcher.resume(this, fd);
             _suspended = false;
-            core::system::gettimeofday(lastTriggered, NULL);
+            lastTriggered = utils::Timeval::currentTime();
         }
     }
 
@@ -91,19 +92,27 @@ namespace core {
             this->maxInactivity = timeout;
         }
 
-        triggered();
+        triggered(utils::Timeval::currentTime());
     }
 
-    utils::Timeval EventReceiver::getTimeout() const {
-        return maxInactivity;
+    utils::Timeval EventReceiver::getTimeout(const utils::Timeval& currentTime) const {
+        return maxInactivity - (currentTime - lastTriggered);
     }
 
-    void EventReceiver::triggered() {
-        core::system::gettimeofday(lastTriggered, nullptr);
+    void EventReceiver::triggered(const utils::Timeval& currentTime) {
+        lastTriggered = currentTime;
     }
 
-    utils::Timeval EventReceiver::getLastTriggered() {
-        return lastTriggered;
+    void EventReceiver::trigger(const utils::Timeval& currentTime) {
+        triggered(currentTime);
+
+        dispatchEvent();
+    }
+
+    void EventReceiver::checkTimeout(const utils::Timeval& currentTime) {
+        if (currentTime - lastTriggered >= maxInactivity) {
+            timeoutEvent();
+        }
     }
 
 } // namespace core

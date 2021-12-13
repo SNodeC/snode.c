@@ -80,11 +80,11 @@ namespace core {
         fd_set& getFdSet();
         static int getMaxFd();
 
-        static utils::Timeval getNextTimeout();
+        static utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
 
         static void observeEnabledEvents();
-        static void dispatchActiveEvents();
-        static void unobserveDisabledEvents();
+        static void dispatchActiveEvents(const utils::Timeval& currentTime);
+        static void unobserveDisabledEvents(const utils::Timeval& currentTime);
         static void terminateObservedEvents();
 
     private:
@@ -94,7 +94,7 @@ namespace core {
 
         void _observeEnabledEvents();
         void _dispatchActiveEvents(const utils::Timeval& currentTime);
-        void _unobserveDisabledEvents();
+        void _unobserveDisabledEvents(const utils::Timeval& currentTime);
         void _terminateObservedEvents();
 
         static std::list<EventDispatcher*> eventDispatchers;

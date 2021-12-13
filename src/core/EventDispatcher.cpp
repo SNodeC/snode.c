@@ -152,10 +152,7 @@ namespace core {
         return maxFd;
     }
 
-    utils::Timeval EventDispatcher::getNextTimeout() {
-        utils::Timeval currentTime;
-        core::system::gettimeofday(currentTime, NULL);
-
+    utils::Timeval EventDispatcher::getNextTimeout(const utils::Timeval& currentTime) {
         utils::Timeval nextTimeout = LONG_MAX;
 
         for (EventDispatcher* eventDispatcher : eventDispatchers) {
@@ -166,23 +163,21 @@ namespace core {
     }
 
     utils::Timeval EventDispatcher::_getNextTimeout(const utils::Timeval& currentTime) const {
-        utils::Timeval nextInactivityTimeout = LONG_MAX;
+        utils::Timeval nextTimeout = LONG_MAX;
 
         for (const auto& [fd, eventReceivers] : observedEventReceiver) {
             EventReceiver* eventReceiver = eventReceivers.front();
 
             if (!eventReceiver->isSuspended()) {
                 if (eventReceiver->continueImmediately()) {
-                    nextInactivityTimeout = 0L;
+                    nextTimeout = 0L;
                 } else {
-                    utils::Timeval maxInactivity = eventReceiver->getTimeout();
-                    utils::Timeval inactivity = currentTime - eventReceiver->getLastTriggered();
-                    nextInactivityTimeout = std::min(maxInactivity - inactivity, nextInactivityTimeout);
+                    nextTimeout = std::min(eventReceiver->getTimeout(currentTime), nextTimeout);
                 }
             }
         }
 
-        return nextInactivityTimeout;
+        return nextTimeout;
     }
 
     void EventDispatcher::observeEnabledEvents() {
@@ -209,10 +204,7 @@ namespace core {
         enabledEventReceiver.clear();
     }
 
-    void EventDispatcher::dispatchActiveEvents() {
-        utils::Timeval currentTime;
-        core::system::gettimeofday(currentTime, nullptr);
-
+    void EventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
         for (EventDispatcher* eventDispatcher : eventDispatchers) {
             eventDispatcher->_dispatchActiveEvents(currentTime);
         }
@@ -221,27 +213,22 @@ namespace core {
     void EventDispatcher::_dispatchActiveEvents(const utils::Timeval& currentTime) {
         for (const auto& [fd, eventReceivers] : observedEventReceiver) {
             EventReceiver* eventReceiver = eventReceivers.front();
-            utils::Timeval maxInactivity = eventReceiver->getTimeout();
             if (fdSet.isSet(fd) || (eventReceiver->continueImmediately())) {
                 eventCounter++;
-                eventReceiver->dispatchEvent();
-                eventReceiver->triggered();
+                eventReceiver->trigger(currentTime);
             } else {
-                utils::Timeval inactivity = currentTime - eventReceiver->getLastTriggered();
-                if (inactivity >= maxInactivity) {
-                    eventReceiver->timeoutEvent();
-                }
+                eventReceiver->checkTimeout(currentTime);
             }
         }
     }
 
-    void EventDispatcher::unobserveDisabledEvents() {
+    void EventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
         for (EventDispatcher* eventDispatcher : eventDispatchers) {
-            eventDispatcher->_unobserveDisabledEvents();
+            eventDispatcher->_unobserveDisabledEvents(currentTime);
         }
     }
 
-    void EventDispatcher::_unobserveDisabledEvents() {
+    void EventDispatcher::_unobserveDisabledEvents(const utils::Timeval& currentTime) {
         for (const auto& [fd, eventReceivers] : disabledEventReceiver) {
             for (EventReceiver* eventReceiver : eventReceivers) {
                 observedEventReceiver[fd].remove(eventReceiver);
@@ -252,7 +239,7 @@ namespace core {
                     fdSet.clr(fd);
                 } else {
                     fdSet.set(fd);
-                    observedEventReceiver[fd].front()->triggered();
+                    observedEventReceiver[fd].front()->triggered(currentTime);
                 }
                 eventReceiver->disabled();
                 if (eventReceiver->observationCounter == 0) {

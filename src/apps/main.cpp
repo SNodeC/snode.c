@@ -36,7 +36,7 @@ int timerApp() {
             static int i = 0;
             std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
         },
-        {0, 500000},
+        0.5,
         "Tick");
 
     Timer& tack = Timer::intervalTimer(

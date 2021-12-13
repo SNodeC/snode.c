@@ -32,26 +32,38 @@ namespace utils {
         this->timeVal = timeVal.timeVal;
     }
 
-    Timeval::Timeval(time_t tv_sec, suseconds_t tv_usec) {
-        this->timeVal.tv_sec = tv_sec;
-        this->timeVal.tv_usec = tv_usec;
-
-        normalize();
-    }
-
     Timeval::Timeval(double time) {
         timeVal.tv_sec = (time_t) time;
         timeVal.tv_usec = (suseconds_t) ((time - (double) timeVal.tv_sec) * 1000000.0);
+
         normalize();
     }
 
-    Timeval::Timeval(const time_t timeVal)
-        : Timeval({timeVal, 0}) {
+    Timeval::Timeval(time_t time)
+        : Timeval({time, 0}) {
     }
 
-    Timeval Timeval::operator=(const Timeval& timeVal) {
+    Timeval::Timeval(const timeval& timeVal)
+        : timeVal(timeVal) {
+    }
+
+    Timeval Timeval::currentTime() {
+        utils::Timeval currentTime;
+        core::system::gettimeofday(&currentTime, NULL);
+
+        return currentTime;
+    }
+
+    Timeval& Timeval::operator=(const Timeval& timeVal) {
         this->timeVal.tv_sec = timeVal.timeVal.tv_sec;
         this->timeVal.tv_usec = timeVal.timeVal.tv_usec;
+
+        return *this;
+    }
+
+    Timeval& Timeval::operator=(const timeval& timeVal) {
+        this->timeVal.tv_sec = timeVal.tv_sec;
+        this->timeVal.tv_usec = timeVal.tv_usec;
 
         return *this;
     }
@@ -65,11 +77,6 @@ namespace utils {
         return help.normalize();
     }
 
-    Timeval Timeval::operator+=(const Timeval& timeVal) {
-        *this = (*this + timeVal).normalize();
-        return *this;
-    }
-
     Timeval Timeval::operator-(const Timeval& timeVal) const {
         utils::Timeval help;
 
@@ -79,7 +86,12 @@ namespace utils {
         return help.normalize();
     }
 
-    Timeval Timeval::operator-=(const Timeval& timeVal) {
+    Timeval& Timeval::operator+=(const Timeval& timeVal) {
+        *this = (*this + timeVal).normalize();
+        return *this;
+    }
+
+    Timeval& Timeval::operator-=(const Timeval& timeVal) {
         *this = (*this - timeVal).normalize();
         return *this;
     }
@@ -105,46 +117,12 @@ namespace utils {
         return !(*this < timeVal) && !(*this > timeVal);
     }
 
-    Timeval::operator timeval() const {
-        return timeVal;
-    }
-
-    Timeval::operator timeval&() {
-        return timeVal;
-    }
-
-    Timeval::operator timeval const&() const {
-        return timeVal;
-    }
-
-    Timeval::operator timeval const*() const {
+    timeval* Timeval::operator&() {
         return &timeVal;
     }
 
-    Timeval::operator timeval*() {
+    const timeval* Timeval::operator&() const {
         return &timeVal;
-    }
-
-    Timeval::operator double() const {
-        return (double) timeVal.tv_sec + (double) timeVal.tv_usec / 1000000.0;
-    }
-
-    utils::Timeval::operator std::string() {
-        std::string string = "{" + std::to_string(timeVal.tv_sec) + ":" + std::to_string(timeVal.tv_usec) + "}";
-        return string;
-    }
-
-    utils::Timeval::operator std::string() const {
-        std::string string = "{" + std::to_string(timeVal.tv_sec) + ":" + std::to_string(timeVal.tv_usec) + "}";
-        return string;
-    }
-
-    Timeval::operator double() {
-        return (double) timeVal.tv_sec + (double) timeVal.tv_usec / 1000000.0;
-    }
-
-    timeval& Timeval::getTimeVal() {
-        return timeVal;
     }
 
     const Timeval& Timeval::normalize() {
@@ -163,9 +141,8 @@ namespace utils {
         return *this;
     }
 
-} // namespace utils
+    std::ostream& operator<<(std::ostream& ostream, const utils::Timeval& timeVal) {
+        return ostream << "{" + std::to_string(timeVal.timeVal.tv_sec) + ":" + std::to_string(timeVal.timeVal.tv_usec) + "}";
+    }
 
-std::ostream& operator<<(std::ostream& ostream, const utils::Timeval& timeVal) {
-    ostream << "TimeVal: " << (std::string) timeVal;
-    return ostream;
-}
+} // namespace utils

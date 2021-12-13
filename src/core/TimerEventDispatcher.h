@@ -34,9 +34,9 @@ namespace core {
     public:
         TimerEventDispatcher() = default;
 
-        utils::Timeval getNextTimeout();
+        utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
 
-        void dispatch();
+        void dispatch(const utils::Timeval& currentTime);
 
         void remove(TimerEventReceiver* timer);
         void add(TimerEventReceiver* timer);
@@ -54,7 +54,6 @@ namespace core {
         public:
             bool operator()(const TimerEventReceiver* t1, const TimerEventReceiver* t2) const {
                 return *t1 < *t2;
-                //                return static_cast<struct timeval>(*t1) < static_cast<struct timeval>(*t2);
             }
         };
 

@@ -21,9 +21,9 @@
 
 #include "utils/Timeval.h" // for operator-, operator<, operator>=
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+namespace core {}
 
-#include <climits>
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -63,19 +63,20 @@ namespace core {
         N_EventReceiver& operator=(const N_EventReceiver&) = delete;
 
     protected:
+        enum class State { NEW, ACTIVE, INACTIVE, STOPPED };
+
         class Timeout {
         public:
             static const utils::Timeval DEFAULT;
             static const utils::Timeval DISABLE;
         };
 
-        enum class State { NEW, ACTIVE, INACTIVE, STOPPED } state = State::NEW;
-
-        N_EventReceiver(EventDispatcher& descriptorEventDispatcher, const utils::Timeval& timeout = Timeout::DISABLE);
+        N_EventReceiver(EventDispatcher& eventDispatcher, const utils::Timeval& timeout = Timeout::DISABLE);
 
         virtual ~N_EventReceiver() = default;
+
         void setTimeout(const utils::Timeval& timeout);
-        utils::Timeval getTimeout() const;
+        utils::Timeval getTimeout(const utils::Timeval& currentTime) const;
 
         void triggered();
 
@@ -90,17 +91,19 @@ namespace core {
         bool isInactive() const;
         bool isStopped() const;
 
+        EventDispatcher& eventDispatcher;
+
     private:
         virtual void dispatchEvent() = 0;
         virtual void timeoutEvent() = 0;
 
         virtual utils::Timeval continueIn() = 0;
 
-        EventDispatcher& descriptorEventDispatcher;
+        State state = State::NEW;
 
-        utils::Timeval maxInactivity{LONG_MAX, 0};
-        utils::Timeval initialTimeout = maxInactivity;
-        utils::Timeval lastTriggered{0, 0};
+        utils::Timeval maxInactivity;
+        utils::Timeval initialTimeout;
+        utils::Timeval lastTriggered;
     };
 
 } // namespace core

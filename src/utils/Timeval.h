@@ -35,17 +35,20 @@ namespace utils {
     public:
         Timeval();
         Timeval(const Timeval& timeVal);
-        Timeval(time_t tv_sec, suseconds_t tv_usec);
         Timeval(double time);
-        Timeval(const time_t timeVal);
+        Timeval(time_t time);
+        Timeval(const timeval& timeVal);
 
-        Timeval operator=(const Timeval& timeVal);
+        static Timeval currentTime();
+
+        Timeval& operator=(const Timeval& timeVal);
+        Timeval& operator=(const timeval& timeVal);
 
         Timeval operator+(const Timeval& timeVal) const;
-        Timeval operator+=(const Timeval& timeVal);
-
         Timeval operator-(const Timeval& timeVal) const;
-        Timeval operator-=(const Timeval& timeVal);
+
+        Timeval& operator+=(const Timeval& timeVal);
+        Timeval& operator-=(const Timeval& timeVal);
 
         bool operator<(const Timeval& timeVal) const;
         bool operator>(const Timeval& timeVal) const;
@@ -53,30 +56,18 @@ namespace utils {
         bool operator>=(const Timeval& timeVal) const;
         bool operator==(const Timeval& timeVal) const;
 
-        operator timeval() const;
-
-        operator timeval&();
-        operator timeval const&() const;
-
-        operator timeval*();
-        operator timeval const*() const;
-
-        operator double();
-        operator double() const;
-
-        operator std::string();
-        operator std::string() const;
-
-        timeval& getTimeVal();
+        timeval* operator&();
+        const timeval* operator&() const;
 
     private:
         const Timeval& normalize();
 
         timeval timeVal = {0, 0};
+
+    public:
+        friend std::ostream& operator<<(std::ostream& ostream, const utils::Timeval& timeVal);
     };
 
 } // namespace utils
-
-std::ostream& operator<<(std::ostream& ostream, const utils::Timeval& timeVal);
 
 #endif // UTILS_TIMEVAL_H

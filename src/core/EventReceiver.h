@@ -77,17 +77,19 @@ namespace core {
         void resume();
         bool isSuspended() const;
 
-        virtual void terminate();
-
         void setTimeout(long timeout);
 
-        void triggered();
+        virtual void terminate();
 
     private:
+        void triggered(const utils::Timeval& currentTime);
+        void trigger(const utils::Timeval& currentTime);
+
+        void checkTimeout(const utils::Timeval& currentTime);
+
         void disabled();
 
-        utils::Timeval getTimeout() const;
-        utils::Timeval getLastTriggered();
+        utils::Timeval getTimeout(const utils::Timeval& currentTime) const;
 
         virtual void dispatchEvent() = 0;
         virtual void timeoutEvent() = 0;
@@ -102,8 +104,8 @@ namespace core {
         bool _suspended = false;
 
         utils::Timeval lastTriggered;
+        utils::Timeval maxInactivity = LONG_MAX;
 
-        long maxInactivity = LONG_MAX;
         const long initialTimeout;
 
         friend class EventDispatcher;

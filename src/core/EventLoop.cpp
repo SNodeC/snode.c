@@ -80,24 +80,28 @@ namespace core {
         EventDispatcher::observeEnabledEvents();
         int maxFd = EventDispatcher::getMaxFd();
 
-        utils::Timeval nextEventTimeout = EventDispatcher::getNextTimeout();
-        utils::Timeval nextTimerTimeout = timerEventDispatcher.getNextTimeout();
+        utils::Timeval currentTime = utils::Timeval::currentTime();
+
+        utils::Timeval nextEventTimeout = EventDispatcher::getNextTimeout(currentTime);
+        utils::Timeval nextTimerTimeout = timerEventDispatcher.getNextTimeout(currentTime);
 
         utils::Timeval nextTimeout = std::min(nextTimerTimeout, nextEventTimeout);
 
         if (maxFd >= 0 || (!timerEventDispatcher.empty() && !stopped)) {
-            nextTimeout = std::max(nextTimeout, utils::Timeval()); // In case nextEventTimeout is negativ
             nextTimeout = std::min(nextTimeout, tickTimeOut);
+            nextTimeout = std::max(nextTimeout, utils::Timeval()); // In case nextEventTimeout is negativ
 
             int ret = core::system::select(maxFd + 1,
                                            &readEventDispatcher.getFdSet(),
                                            &writeEventDispatcher.getFdSet(),
                                            &exceptionalConditionEventDispatcher.getFdSet(),
-                                           nextTimeout);
+                                           &nextTimeout);
             if (ret >= 0) {
-                timerEventDispatcher.dispatch();
-                EventDispatcher::dispatchActiveEvents();
-                EventDispatcher::unobserveDisabledEvents();
+                currentTime = utils::Timeval::currentTime();
+
+                timerEventDispatcher.dispatch(currentTime);
+                EventDispatcher::dispatchActiveEvents(currentTime);
+                EventDispatcher::unobserveDisabledEvents(currentTime);
 
                 DynamicLoader::execDlCloseDeleyed();
             } else {

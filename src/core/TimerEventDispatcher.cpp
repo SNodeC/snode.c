@@ -26,7 +26,7 @@
 
 namespace core {
 
-    utils::Timeval TimerEventDispatcher::getNextTimeout() {
+    utils::Timeval TimerEventDispatcher::getNextTimeout(const utils::Timeval& currentTime) {
         utils::Timeval nextTimeout(LONG_MAX);
 
         for (TimerEventReceiver* timer : addedList) {
@@ -50,9 +50,6 @@ namespace core {
 
             nextTimeout = (*(timerList.begin()))->getTimeout();
 
-            utils::Timeval currentTime;
-            core::system::gettimeofday(currentTime, nullptr);
-
             if (nextTimeout < currentTime) {
                 nextTimeout = 0L;
             } else {
@@ -63,10 +60,7 @@ namespace core {
         return nextTimeout;
     }
 
-    void TimerEventDispatcher::dispatch() {
-        utils::Timeval currentTime;
-        core::system::gettimeofday(currentTime, nullptr);
-
+    void TimerEventDispatcher::dispatch(const utils::Timeval& currentTime) {
         for (TimerEventReceiver* timer : timerList) {
             if (timer->getTimeout() <= currentTime) {
                 timerListDirty = timer->dispatchEvent();
@@ -89,13 +83,15 @@ namespace core {
     }
 
     void TimerEventDispatcher::cancelAll() {
-        getNextTimeout();
+        utils::Timeval currentTime = utils::Timeval::currentTime();
+
+        getNextTimeout(currentTime);
 
         for (TimerEventReceiver* timer : timerList) {
             remove(timer);
         }
 
-        getNextTimeout();
+        getNextTimeout(currentTime);
     }
 
 } // namespace core
