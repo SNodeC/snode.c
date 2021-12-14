@@ -19,11 +19,9 @@
 #ifndef CORE_EVENTRECEIVER_H
 #define CORE_EVENTRECEIVER_H
 
-#include "utils/Timeval.h"
+#include "utils/Timeval.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include <climits>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
