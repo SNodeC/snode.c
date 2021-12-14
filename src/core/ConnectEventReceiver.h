@@ -31,7 +31,7 @@ namespace core {
 
     class ConnectEventReceiver : public EventReceiver {
     protected:
-        ConnectEventReceiver(long timeout = MAX_CONNECT_INACTIVITY);
+        ConnectEventReceiver(const utils::Timeval& timeout = MAX_CONNECT_INACTIVITY);
 
     private:
         virtual void connectEvent() = 0;

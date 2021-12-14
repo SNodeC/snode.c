@@ -26,7 +26,10 @@
 
 namespace core {
 
-    EventReceiver::EventReceiver(EventDispatcher& descriptorEventDispatcher, long timeout)
+    const utils::Timeval EventReceiver::TIMEOUT::DEFAULT = {-1, 0};
+    const utils::Timeval EventReceiver::TIMEOUT::DISABLE = {LONG_MAX, 0};
+
+    EventReceiver::EventReceiver(EventDispatcher& descriptorEventDispatcher, const utils::Timeval& timeout)
         : descriptorEventDispatcher(descriptorEventDispatcher)
         , maxInactivity(timeout)
         , initialTimeout(timeout) {

@@ -24,6 +24,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 struct timeval;
+#include <initializer_list>
 #include <iostream>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -33,14 +34,15 @@ namespace utils {
     class Timeval {
     public:
         Timeval();
+        Timeval(const std::initializer_list<time_t>& initList); // cppcheck-suppress noExplicitConstructor
         Timeval(const Timeval& timeVal);
         Timeval(double time);            // cppcheck-suppress noExplicitConstructor
-        Timeval(time_t time);            // cppcheck-suppress noExplicitConstructor
         Timeval(const timeval& timeVal); // cppcheck-suppress noExplicitConstructor
 
         static Timeval currentTime();
 
         Timeval& operator=(const Timeval& timeVal);
+        Timeval& operator=(const std::initializer_list<time_t>& initList);
         Timeval& operator=(const timeval& timeVal);
 
         Timeval operator+(const Timeval& timeVal) const;

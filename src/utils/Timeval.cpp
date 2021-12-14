@@ -18,6 +18,8 @@
 
 #include "utils/Timeval.h"
 
+#include "log/Logger.h"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string>
@@ -30,19 +32,25 @@ namespace utils {
         : timeVal({0, 0}) {
     }
 
+    Timeval::Timeval(const std::initializer_list<time_t>& initList)
+        : timeVal({0, 0}) {
+        if (initList.size() == 2) {
+            timeVal.tv_sec = *initList.begin();
+            timeVal.tv_usec = static_cast<useconds_t>(*(initList.begin() + 1));
+        } else {
+            LOG(WARNING) << "Timeval initialized with an list size != 2. Initializing Timeval with 0";
+        }
+    }
+
     Timeval::Timeval(const Timeval& timeVal) {
         this->timeVal = timeVal.timeVal;
     }
 
     Timeval::Timeval(double time) {
-        timeVal.tv_sec = (time_t) time;
-        timeVal.tv_usec = (suseconds_t) ((time - (double) timeVal.tv_sec) * 1000000.0);
+        timeVal.tv_sec = static_cast<time_t>(time);
+        timeVal.tv_usec = static_cast<useconds_t>((time - (double) timeVal.tv_sec) * 1'000'000.0);
 
         normalize();
-    }
-
-    Timeval::Timeval(time_t time)
-        : Timeval({time, 0}) {
     }
 
     Timeval::Timeval(const timeval& timeVal)
@@ -63,9 +71,21 @@ namespace utils {
         return *this;
     }
 
+    Timeval& Timeval::operator=(const std::initializer_list<time_t>& initList) {
+        if (initList.size() == 2) {
+            timeVal.tv_sec = *initList.begin();
+            timeVal.tv_usec = static_cast<useconds_t>(*(initList.begin() + 1));
+        } else {
+            this->timeVal.tv_sec = 0;
+            this->timeVal.tv_usec = 0;
+            LOG(WARNING) << "Timeval assigned with an list size != 2. Assigning Timeval with 0";
+        }
+
+        return *this;
+    }
+
     Timeval& Timeval::operator=(const timeval& timeVal) {
-        this->timeVal.tv_sec = timeVal.tv_sec;
-        this->timeVal.tv_usec = timeVal.tv_usec;
+        this->timeVal = timeVal;
 
         return *this;
     }
@@ -132,11 +152,11 @@ namespace utils {
     }
 
     const Timeval& Timeval::normalize() {
-        if (timeVal.tv_usec > 999999) {
-            timeVal.tv_usec -= 1000000;
+        if (timeVal.tv_usec > 999'999) {
+            timeVal.tv_usec -= 1'000'000;
             timeVal.tv_sec++;
         } else if (timeVal.tv_usec < 0) {
-            timeVal.tv_usec += 1000000;
+            timeVal.tv_usec += 1'000'000;
             timeVal.tv_sec--;
         }
 

@@ -40,8 +40,8 @@ namespace core {
 
     public:
         static void init(int argc, char* argv[]);
-        static int start(const utils::Timeval& timeOut = LONG_MAX);
-        static TickStatus tick(const utils::Timeval& timeOut = 0L);
+        static int start(const utils::Timeval& timeOut = {LONG_MAX, 0});
+        static TickStatus tick(const utils::Timeval& timeOut = 0);
         static void free();
     };
 

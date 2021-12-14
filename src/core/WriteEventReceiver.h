@@ -31,7 +31,7 @@ namespace core {
 
     class WriteEventReceiver : public EventReceiver {
     protected:
-        WriteEventReceiver(long timeout = MAX_WRITE_INACTIVITY);
+        WriteEventReceiver(const utils::Timeval& timeout = MAX_WRITE_INACTIVITY);
 
     private:
         virtual void writeEvent() = 0;

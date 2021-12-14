@@ -33,7 +33,7 @@ namespace core {
 
     class AcceptEventReceiver : public EventReceiver {
     protected:
-        AcceptEventReceiver(long timeout = MAX_ACCEPT_INACTIVITY);
+        AcceptEventReceiver(const utils::Timeval& timeout = {MAX_ACCEPT_INACTIVITY, 0});
 
     private:
         virtual void acceptEvent() = 0;

@@ -60,11 +60,11 @@ namespace core {
     protected:
         class TIMEOUT {
         public:
-            static const long DEFAULT = -1;
-            static const long DISABLE = LONG_MAX;
+            static const utils::Timeval DEFAULT;
+            static const utils::Timeval DISABLE;
         };
 
-        explicit EventReceiver(EventDispatcher& descriptorEventDispatcher, long timeout = TIMEOUT::DISABLE);
+        explicit EventReceiver(EventDispatcher& descriptorEventDispatcher, const utils::Timeval& timeout = TIMEOUT::DISABLE);
 
         virtual ~EventReceiver() = default;
 
@@ -104,9 +104,8 @@ namespace core {
         bool _suspended = false;
 
         utils::Timeval lastTriggered;
-        utils::Timeval maxInactivity = LONG_MAX;
-
-        const long initialTimeout;
+        utils::Timeval maxInactivity;
+        const utils::Timeval initialTimeout;
 
         friend class EventDispatcher;
     };

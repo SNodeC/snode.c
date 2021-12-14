@@ -31,7 +31,7 @@ namespace core {
 
     class ReadEventReceiver : public EventReceiver {
     protected:
-        ReadEventReceiver(long timeout = MAX_READ_INACTIVITY);
+        ReadEventReceiver(const utils::Timeval& timeout = MAX_READ_INACTIVITY);
 
     private:
         virtual void readEvent() = 0;

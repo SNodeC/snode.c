@@ -28,7 +28,7 @@
 namespace core {
 
     utils::Timeval TimerEventDispatcher::getNextTimeout(const utils::Timeval& currentTime) {
-        utils::Timeval nextTimeout(LONG_MAX);
+        utils::Timeval nextTimeout({LONG_MAX, 0});
 
         for (TimerEventReceiver* timer : addedList) {
             timerList.push_back(timer);
@@ -52,7 +52,7 @@ namespace core {
             nextTimeout = (*(timerList.begin()))->getTimeout();
 
             if (nextTimeout < currentTime) {
-                nextTimeout = 0L;
+                nextTimeout = 0;
             } else {
                 nextTimeout -= currentTime;
             }

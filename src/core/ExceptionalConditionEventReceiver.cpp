@@ -26,7 +26,7 @@
 
 namespace core {
 
-    ExceptionalConditionEventReceiver::ExceptionalConditionEventReceiver(long timeout)
+    ExceptionalConditionEventReceiver::ExceptionalConditionEventReceiver(const utils::Timeval &timeout)
         : EventReceiver(EventLoop::instance().getExceptionalConditionEventDispatcher(), timeout) {
     }
 

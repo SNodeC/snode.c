@@ -41,7 +41,7 @@ namespace web::http {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define CLOSE_SOCKET_TIMEOUT 10L
+#define CLOSE_SOCKET_TIMEOUT 10
 
 namespace web::websocket {
 

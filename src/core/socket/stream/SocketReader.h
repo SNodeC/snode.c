@@ -37,7 +37,7 @@
 #endif
 
 #ifndef MAX_SHUTDOWN_TIMEOUT
-#define MAX_SHUTDOWN_TIMEOUT 1L
+#define MAX_SHUTDOWN_TIMEOUT 1
 #endif
 
 namespace core::socket::stream {

@@ -153,7 +153,7 @@ namespace core {
     }
 
     utils::Timeval EventDispatcher::getNextTimeout(const utils::Timeval& currentTime) {
-        utils::Timeval nextTimeout = LONG_MAX;
+        utils::Timeval nextTimeout = {LONG_MAX, 0};
 
         for (EventDispatcher* eventDispatcher : eventDispatchers) {
             nextTimeout = std::min(eventDispatcher->_getNextTimeout(currentTime), nextTimeout);
@@ -163,14 +163,14 @@ namespace core {
     }
 
     utils::Timeval EventDispatcher::_getNextTimeout(const utils::Timeval& currentTime) const {
-        utils::Timeval nextTimeout = LONG_MAX;
+        utils::Timeval nextTimeout = {LONG_MAX, 0};
 
         for (const auto& [fd, eventReceivers] : observedEventReceiver) { // cppcheck-suppress unusedVariable
             EventReceiver* eventReceiver = eventReceivers.front();
 
             if (!eventReceiver->isSuspended()) {
                 if (eventReceiver->continueImmediately()) {
-                    nextTimeout = 0L;
+                    nextTimeout = 0;
                 } else {
                     nextTimeout = std::min(eventReceiver->getTimeout(currentTime), nextTimeout);
                 }
