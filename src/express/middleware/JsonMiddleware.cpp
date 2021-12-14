@@ -55,10 +55,10 @@ namespace express::middleware {
         });
     }
 
-    // Keep the created json middleware alive
-    static std::shared_ptr<class JsonMiddleware> jsonMiddleware = nullptr;
-
     const class JsonMiddleware& JsonMiddleware::instance() {
+        // Keep the created json middleware alive
+        static std::shared_ptr<class JsonMiddleware> jsonMiddleware = nullptr;
+
         if (jsonMiddleware == nullptr) {
             jsonMiddleware = std::shared_ptr<JsonMiddleware>(new JsonMiddleware());
         }
