@@ -21,6 +21,10 @@
 
 // IWYU pragma: no_include "core/socket/SocketContextFactory.h"
 
+namespace utils {
+    class Timeval;
+}
+
 namespace core::socket {
     class SocketContextFactory; // IWYU pragma: keep
     class SocketContext;        // IWYU pragma: keep
@@ -63,7 +67,7 @@ namespace core::socket {
         virtual void shutdownRead() = 0;
         virtual void shutdownWrite() = 0;
 
-        virtual void setTimeout(int timeout) = 0;
+        virtual void setTimeout(const utils::Timeval& timeout) = 0;
 
         virtual core::socket::SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory) = 0;
 

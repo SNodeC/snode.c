@@ -45,6 +45,11 @@ namespace core {
         virtual void unobservedEvent() = 0;
 
         virtual bool operator<(const TimerEventReceiver& timerEventReceiver) const = 0;
+        virtual bool operator>(const TimerEventReceiver& timerEventReceiver) const = 0;
+        virtual bool operator<=(const TimerEventReceiver& timerEventReceiver) const = 0;
+        virtual bool operator>=(const TimerEventReceiver& timerEventReceiver) const = 0;
+        virtual bool operator==(const TimerEventReceiver& timerEventReceiver) const = 0;
+        virtual bool operator!=(const TimerEventReceiver& timerEventReceiver) const = 0;
 
     protected:
         void update() {

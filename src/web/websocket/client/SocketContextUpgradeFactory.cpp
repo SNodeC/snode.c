@@ -59,7 +59,8 @@ namespace web::websocket::client {
         static bool linked = false;
 
         if (!linked) {
-            web::http::client::SocketContextUpgradeFactory::link("websocket", websocketClientContextUpgradeFactory);
+            web::http::client::SocketContextUpgradeFactory::link(
+                "websocket", websocketClientContextUpgradeFactory); // cppcheck-suppress leakNoVarFunctionCall
             linked = true;
         }
     }

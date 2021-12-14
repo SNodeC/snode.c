@@ -64,7 +64,7 @@ namespace core::socket {
         return socketConnection->switchSocketContext(socketContextFactory);
     }
 
-    void SocketContext::setTimeout(int timeout) {
+    void SocketContext::setTimeout(const utils::Timeval& timeout) {
         socketConnection->setTimeout(timeout);
     }
 

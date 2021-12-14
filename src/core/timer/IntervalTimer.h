@@ -20,6 +20,7 @@
 #define NET_TIMER_INTERVALTIMER_H
 
 #include "core/timer/Timer.h" // IWYU pragma: export
+#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -66,6 +67,16 @@ namespace core::timer {
         }
 
     private:
+        void cancel() override {
+            dispatcherS = nullptr;
+            dispatcherC = nullptr;
+            core::timer::Timer::cancel();
+        }
+
+        void unobservedEvent() override {
+            core::timer::Timer::unobservedEvent();
+        }
+
         std::function<void(const void*, const std::function<void()>&)> dispatcherS = nullptr;
         std::function<void(const void*)> dispatcherC = nullptr;
     };

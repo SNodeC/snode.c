@@ -38,7 +38,7 @@ namespace core::pipe {
         PipeSink& operator=(const PipeSink&) = delete;
 
     public:
-        PipeSink(int fd);
+        explicit PipeSink(int fd);
 
         void setOnData(const std::function<void(const char* junk, std::size_t junkLen)>& onData);
         void setOnEof(const std::function<void()>& onEof);

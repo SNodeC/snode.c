@@ -25,7 +25,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
     core::SNodeC::init(argc, argv);
 
 #if (STREAM_TYPE == LEGACY)
@@ -79,7 +79,7 @@ int main(int argc, char* argv[]) {
         }
 
 #ifdef NET_TYPE
-    });
+    }); // cppcheck-suppress syntaxError
 #endif
 
     return core::SNodeC::start();

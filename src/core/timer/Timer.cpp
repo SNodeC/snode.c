@@ -73,4 +73,24 @@ namespace core::timer {
         return absoluteTimeout < timerEventReceiver.getTimeout();
     }
 
+    bool Timer::operator>(const TimerEventReceiver& timerEventReceiver) const {
+        return absoluteTimeout > timerEventReceiver.getTimeout();
+    }
+
+    bool Timer::operator<=(const TimerEventReceiver& timerEventReceiver) const {
+        return absoluteTimeout <= timerEventReceiver.getTimeout();
+    }
+
+    bool Timer::operator>=(const TimerEventReceiver& timerEventReceiver) const {
+        return absoluteTimeout >= timerEventReceiver.getTimeout();
+    }
+
+    bool Timer::operator==(const TimerEventReceiver& timerEventReceiver) const {
+        return absoluteTimeout == timerEventReceiver.getTimeout();
+    }
+
+    bool Timer::operator!=(const TimerEventReceiver& timerEventReceiver) const {
+        return absoluteTimeout != timerEventReceiver.getTimeout();
+    }
+
 } // namespace core::timer

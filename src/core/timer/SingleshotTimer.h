@@ -45,6 +45,16 @@ namespace core::timer {
         }
 
     private:
+        void cancel() override {
+            dispatcher = nullptr;
+            core::timer::Timer::cancel();
+        }
+
+        void unobservedEvent() override {
+            dispatcher = nullptr;
+            core::timer::Timer::unobservedEvent();
+        }
+
         std::function<void(const void*)> dispatcher;
     };
 

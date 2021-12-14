@@ -40,7 +40,7 @@ namespace web::http::client {
 
     class Response {
     protected:
-        Response(web::http::SocketContext* clientContext);
+        explicit Response(web::http::SocketContext* clientContext);
 
         web::http::SocketContext* socketContext;
 

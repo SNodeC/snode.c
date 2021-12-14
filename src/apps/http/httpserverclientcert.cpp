@@ -26,7 +26,7 @@
 
 using namespace express;
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
     logger::Logger::setVerboseLevel(2);
 
     WebApp::init(argc, argv);
@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
         }
 
 #ifdef NET_TYPE
-    });
+    }); // cppcheck-suppress syntaxError
 #endif
 
     return WebApp::start();

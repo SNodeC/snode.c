@@ -34,7 +34,7 @@ namespace express {
 
     class WebApp : public Router {
     protected:
-        WebApp(const Router& router);
+        explicit WebApp(const Router& router);
 
     public:
         static void init(int argc, char* argv[]);

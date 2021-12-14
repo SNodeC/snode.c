@@ -30,11 +30,6 @@
 
 namespace web::http::client {
 
-    struct SocketContextPlugin {
-        SocketContextUpgradeFactory* socketContextUpgradeFactory;
-        void* handle = nullptr;
-    };
-
     class SocketContextUpgradeFactorySelector : public web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory> {
     private:
         SocketContextUpgradeFactorySelector();

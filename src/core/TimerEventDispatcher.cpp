@@ -20,6 +20,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <algorithm>
 #include <climits>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -37,6 +38,7 @@ namespace core {
 
         for (TimerEventReceiver* timer : removedList) {
             timerList.remove(timer);
+            timer->unobservedEvent();
             timerListDirty = true;
         }
         removedList.clear();
@@ -70,8 +72,10 @@ namespace core {
     }
 
     void TimerEventDispatcher::remove(TimerEventReceiver* timer) {
-        removedList.push_back(timer);
-        timer->unobservedEvent();
+        if (std::find(timerList.begin(), timerList.end(), timer) != timerList.end() &&
+            std::find(removedList.begin(), removedList.end(), timer) == removedList.end()) {
+            removedList.push_back(timer);
+        }
     }
 
     void TimerEventDispatcher::add(TimerEventReceiver* timer) {

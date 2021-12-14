@@ -85,7 +85,7 @@ namespace core {
         }
     }
 
-    void EventReceiver::setTimeout(long timeout) {
+    void EventReceiver::setTimeout(const utils::Timeval& timeout) {
         if (timeout == TIMEOUT::DEFAULT) {
             this->maxInactivity = initialTimeout;
         } else {

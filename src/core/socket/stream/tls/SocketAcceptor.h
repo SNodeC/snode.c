@@ -141,14 +141,13 @@ namespace core::socket::stream::tls {
             int ret = SSL_TLSEXT_ERR_OK;
 
             SocketAcceptor* socketAcceptor = static_cast<SocketAcceptor*>(arg);
-            std::shared_ptr<std::map<std::string, SSL_CTX*>> sniSslCtxs = socketAcceptor->sniSslCtxs;
 
             if (SSL_get_servername_type(ssl) != -1) {
                 std::string serverNameIndication = SSL_get_servername(ssl, TLSEXT_NAMETYPE_host_name);
 
                 if (!socketAcceptor->masterSslCtxDomains.contains(serverNameIndication)) {
-                    if (sniSslCtxs->contains(serverNameIndication)) {
-                        SSL_CTX* sniSslCtx = (*sniSslCtxs.get())[serverNameIndication];
+                    if (socketAcceptor->sniSslCtxs->contains(serverNameIndication)) {
+                        SSL_CTX* sniSslCtx = (*socketAcceptor->sniSslCtxs.get())[serverNameIndication];
 
                         SSL_CTX* nowUsedSslCtx = SSL_set_SSL_CTX(ssl, sniSslCtx);
                         if (nowUsedSslCtx == sniSslCtx) {

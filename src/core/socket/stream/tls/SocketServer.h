@@ -85,7 +85,7 @@ namespace core::socket::stream::tls {
 
     private:
         void freeSniCerts(std::map<std::string, SSL_CTX*>* sniSslCtxs) {
-            for (const auto& [domain, sniSslCtx] : *sniSslCtxs) {
+            for (const auto& [domain, sniSslCtx] : *sniSslCtxs) { // cppcheck-suppress unusedVariable
                 ssl_ctx_free(sniSslCtx);
             }
             delete sniSslCtxs;

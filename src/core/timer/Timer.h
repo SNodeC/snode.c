@@ -51,7 +51,7 @@ namespace core::timer {
         static SingleshotTimer&
         singleshotTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg);
 
-        void cancel();
+        virtual void cancel();
 
     protected:
         void unobservedEvent() override;
@@ -59,6 +59,11 @@ namespace core::timer {
         utils::Timeval getTimeout() const override;
 
         bool operator<(const TimerEventReceiver& timerEventReceiver) const override;
+        bool operator>(const TimerEventReceiver& timerEventReceiver) const override;
+        bool operator<=(const TimerEventReceiver& timerEventReceiver) const override;
+        bool operator>=(const TimerEventReceiver& timerEventReceiver) const override;
+        bool operator==(const TimerEventReceiver& timerEventReceiver) const override;
+        bool operator!=(const TimerEventReceiver& timerEventReceiver) const override;
     };
 
 } // namespace core::timer

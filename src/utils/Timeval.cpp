@@ -20,6 +20,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <string>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace utils {
@@ -115,6 +117,10 @@ namespace utils {
 
     bool Timeval::operator==(const Timeval& timeVal) const {
         return !(*this < timeVal) && !(*this > timeVal);
+    }
+
+    bool Timeval::operator!=(const Timeval& timeVal) const {
+        return !(*this == timeVal);
     }
 
     timeval* Timeval::operator&() {

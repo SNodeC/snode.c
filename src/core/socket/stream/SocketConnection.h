@@ -132,7 +132,7 @@ namespace core::socket::stream {
             SocketWriter::shutdown();
         }
 
-        void setTimeout(int timeout) override {
+        void setTimeout(const utils::Timeval& timeout) override {
             SocketReader::setTimeout(timeout);
             SocketWriter::setTimeout(timeout);
         }

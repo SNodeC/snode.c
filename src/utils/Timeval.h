@@ -25,7 +25,6 @@
 
 struct timeval;
 #include <iostream>
-#include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -35,9 +34,9 @@ namespace utils {
     public:
         Timeval();
         Timeval(const Timeval& timeVal);
-        Timeval(double time);
-        Timeval(time_t time);
-        Timeval(const timeval& timeVal);
+        Timeval(double time);            // cppcheck-suppress noExplicitConstructor
+        Timeval(time_t time);            // cppcheck-suppress noExplicitConstructor
+        Timeval(const timeval& timeVal); // cppcheck-suppress noExplicitConstructor
 
         static Timeval currentTime();
 
@@ -55,6 +54,7 @@ namespace utils {
         bool operator<=(const Timeval& timeVal) const;
         bool operator>=(const Timeval& timeVal) const;
         bool operator==(const Timeval& timeVal) const;
+        bool operator!=(const Timeval& timeVal) const;
 
         timeval* operator&();
         const timeval* operator&() const;

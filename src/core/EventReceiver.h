@@ -77,7 +77,7 @@ namespace core {
         void resume();
         bool isSuspended() const;
 
-        void setTimeout(long timeout);
+        void setTimeout(const utils::Timeval& timeout);
 
         virtual void terminate();
 

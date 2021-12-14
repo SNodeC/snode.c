@@ -31,7 +31,7 @@ namespace express::middleware {
 
     class VHost : public Router {
     protected:
-        VHost(const std::string& host);
+        explicit VHost(const std::string& host);
         static class VHost& instance(const std::string& host);
 
     protected:

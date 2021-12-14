@@ -62,7 +62,7 @@ namespace core::socket::stream::tls {
         std::string caDir;
         bool useDefaultCaDir = false;
 
-        for (const auto& [name, value] : options) {
+        for (const auto& [name, value] : options) { // cppcheck-suppress unassignedVariable
             if (name == "CertChain") {
                 certChain = std::any_cast<const char*>(value);
             } else if (name == "CertChainKey") {

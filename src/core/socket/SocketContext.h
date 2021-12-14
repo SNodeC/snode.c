@@ -21,6 +21,10 @@
 
 // IWYU pragma: no_include "core/socket/SocketConnection.h"
 
+namespace utils {
+    class Timeval;
+}
+
 namespace core::socket {
     class SocketConnection;     // IWYU pragma: keep
     class SocketContextFactory; // IWYU pragma: keep
@@ -60,7 +64,7 @@ namespace core::socket {
 
         void close();
 
-        void setTimeout(int timeout);
+        void setTimeout(const utils::Timeval& timeout);
 
         SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory);
 

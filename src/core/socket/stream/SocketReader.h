@@ -37,7 +37,7 @@
 #endif
 
 #ifndef MAX_SHUTDOWN_TIMEOUT
-#define MAX_SHUTDOWN_TIMEOUT 1
+#define MAX_SHUTDOWN_TIMEOUT 1L
 #endif
 
 namespace core::socket::stream {
@@ -133,7 +133,7 @@ namespace core::socket::stream {
     private:
         std::function<void(int)> onError;
 
-        char data[MAX_READ_JUNKSIZE];
+        char data[MAX_READ_JUNKSIZE] = {};
         std::size_t size = 0;
         std::size_t cursor = 0;
 

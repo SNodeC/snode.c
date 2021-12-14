@@ -50,7 +50,7 @@ namespace express {
             : WebAppT(Router(), options) {
         }
 
-        WebAppT(const Router& router, const std::map<std::string, std::any>& options = {{}})
+        explicit WebAppT(const Router& router, const std::map<std::string, std::any>& options = {{}})
             : WebApp(router)
             , Server(
                   [](const SocketAddress& localAddress,
