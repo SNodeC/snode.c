@@ -14,11 +14,30 @@ find_package(PkgConfig REQUIRED)
 
 pkg_check_modules(LIBMAGIC libmagic)
 
-add_library(
-    httpserver SHARED
-    RequestParser.cpp Request.cpp Response.cpp SocketContextUpgradeFactory.cpp
+set(HTTPSERVER_CPP
+    Request.cpp RequestParser.cpp Response.cpp SocketContextUpgradeFactory.cpp
     SocketContextUpgradeFactorySelector.cpp
 )
+
+set(HTTPSERVER_H
+    Request.h
+    RequestParser.h
+    Response.h
+    Server.h
+    SocketContext.h
+    SocketContext.hpp
+    SocketContextFactory.h
+    SocketContextUpgradeFactory.h
+    SocketContextUpgradeFactorySelector.h
+    ../legacy/in/Server.h
+    ../legacy/in6/Server.h
+    ../legacy/rf/Server.h
+    ../tls/in/Server.h
+    ../tls/in6/Server.h
+    ../tls/rf/Server.h
+)
+
+add_library(httpserver SHARED ${HTTPSERVER_CPP} ${HTTPSERVER_h})
 add_library(snodec::httpserver ALIAS httpserver)
 
 if(LIBMAGIC_FOUND)

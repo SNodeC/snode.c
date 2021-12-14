@@ -21,6 +21,18 @@ add_compile_definitions(
     TLS=${TLS}
 )
 
+set(HTTPCLIENT_CPP httpclient.cpp)
+set(HTTPCLIENT_H model/clients.h)
+
+set(HTTPCLIENTCLIENTCERT_CPP httpclientclientcert.cpp)
+set(HTTPCLIENTCLIENTCERT_H model/clients.h)
+
+set(HTTPSERVER_CPP httpserver.cpp)
+set(HTTPSERVER_H model/servers.h)
+
+set(HTTPSERVERCLIENTCERT_CPP httpserverclientcert.cpp)
+set(HTTPSERVERCLIENTCERT_H model/servers.h)
+
 # set(NETS "in" "in6" "l2" "rf" "un")
 set(NETS "in" "in6")
 if(BLUEZ_FOUND)
@@ -48,7 +60,9 @@ foreach(NET IN LISTS NETS)
             set(STREAM_TYPE ${TLS})
         endif()
 
-        add_executable(httpserver-${STREAM}-${NET} httpserver.cpp)
+        add_executable(
+            httpserver-${STREAM}-${NET} ${HTTPSERVER_CPP} ${HTTPSERVER_H}
+        )
         target_link_libraries(
             httpserver-${STREAM}-${NET} PRIVATE snodec::express
         )
@@ -62,7 +76,8 @@ foreach(NET IN LISTS NETS)
         )
 
         add_executable(
-            httpserverclientcert-${STREAM}-${NET} httpserverclientcert.cpp
+            httpserverclientcert-${STREAM}-${NET} ${HTTPSERVERCLIENTCERT_CPP}
+                                                  ${HTTPSERVERCLIENTCERT_H}
         )
         target_link_libraries(
             httpserverclientcert-${STREAM}-${NET} PRIVATE snodec::express
@@ -76,7 +91,9 @@ foreach(NET IN LISTS NETS)
                 RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         )
 
-        add_executable(httpclient-${STREAM}-${NET} httpclient.cpp)
+        add_executable(
+            httpclient-${STREAM}-${NET} ${HTTPCLIENT_CPP} ${HTTPCLIENT_H}
+        )
         target_link_libraries(
             httpclient-${STREAM}-${NET} PRIVATE snodec::httpclient
         )
@@ -90,7 +107,8 @@ foreach(NET IN LISTS NETS)
         )
 
         add_executable(
-            httpclientclientcert-${STREAM}-${NET} httpclientclientcert.cpp
+            httpclientclientcert-${STREAM}-${NET} ${HTTPCLIENTCLIENTCERT_CPP}
+                                                  ${HTTPCLIENTCLIENTCERT_H}
         )
         target_link_libraries(
             httpclientclientcert-${STREAM}-${NET} PRIVATE snodec::httpclient

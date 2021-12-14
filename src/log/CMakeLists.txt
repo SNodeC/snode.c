@@ -31,9 +31,11 @@ find_package(EASYLOGGINGPP REQUIRED)
 # download\nhttps://github.com/amrayn/easyloggingpp/archive/v9.96.7.tar.gz\nno
 # internet connection?") endif() endif()
 
-add_library(
-    logger SHARED Logger.cpp ${EASYLOGGINGPP_INCLUDE_DIR}/easylogging++.cc
-)
+set(LOGGER_CPP Logger.cpp ${EASYLOGGINGPP_INCLUDE_DIR}/easylogging++.cc)
+
+set(LOGGER_H Logger.h)
+
+add_library(logger SHARED ${LOGGER_CPP} ${LOGGER_H})
 add_library(snodec::logger ALIAS logger)
 
 set_source_files_properties(

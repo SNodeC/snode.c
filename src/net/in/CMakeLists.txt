@@ -1,9 +1,21 @@
 cmake_minimum_required(VERSION 3.0)
 
-add_library(
-    net-in SHARED SocketAddress.cpp stream/Socket.cpp stream/ServerSocket.cpp
-                  stream/ClientSocket.cpp
+set(NET-IN_CPP SocketAddress.cpp stream/Socket.cpp stream/ServerSocket.cpp
+               stream/ClientSocket.cpp
 )
+
+set(NET-IN_H
+    SocketAddress.h
+    stream/Socket.h
+    stream/ServerSocket.h
+    stream/ClientSocket.h
+    stream/legacy/SocketServer.h
+    stream/legacy/SocketClient.h
+    stream/tls/SocketServer.h
+    stream/tls/SocketClient.h
+)
+
+add_library(net-in SHARED ${NET-IN_CPP} ${NET-IN_H})
 add_library(snodec::net-in ALIAS net-in)
 
 target_include_directories(

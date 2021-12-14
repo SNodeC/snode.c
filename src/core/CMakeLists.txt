@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-add_library(
-    core SHARED
+set(CORE_CPP
     AcceptEventReceiver.cpp
     ConnectEventReceiver.cpp
     Descriptor.cpp
@@ -9,6 +8,7 @@ add_library(
     EventDispatcher.cpp
     EventLoop.cpp
     EventReceiver.cpp
+    EventReceiver.h
     ExceptionalConditionEventReceiver.cpp
     ReadEventReceiver.cpp
     SNodeC.cpp
@@ -33,6 +33,57 @@ add_library(
     timer/Timer.cpp
     N_EventReceiver.cpp
 )
+
+set(CORE_H
+    AcceptEventReceiver.h
+    ConnectEventReceiver.h
+    Descriptor.h
+    DynamicLoader.h
+    EventDispatcher.h
+    EventLoop.h
+    EventReceiver.h
+    EventReceiver.h
+    ExceptionalConditionEventReceiver.h
+    ReadEventReceiver.h
+    SNodeC.h
+    TickStatus.h
+    TimerEventDispatcher.h
+    WriteEventReceiver.h
+    file/File.h
+    file/FileReader.h
+    pipe/Source.h
+    pipe/Sink.h
+    pipe/Pipe.h
+    pipe/PipeSink.h
+    pipe/PipeSource.h
+    socket/ClientSocket.h
+    socket/ServerSocket.h
+    socket/Socket.h
+    socket/SocketAddress.h
+    socket/SocketConnection.h
+    socket/SocketContext.h
+    socket/SocketContextFactory.h
+    socket/stream/SocketAcceptor.h
+    socket/stream/SocketClient.h
+    socket/stream/SocketConnection.h
+    socket/stream/SocketConnector.h
+    socket/stream/SocketReader.h
+    socket/stream/SocketServer.h
+    socket/stream/SocketWriter.h
+    system/dlfcn.h
+    system/netdb.h
+    system/select.h
+    system/signal.h
+    system/socket.h
+    system/time.h
+    system/unistd.h
+    timer/Timer.h
+    timer/IntervalTimer.h
+    timer/SingleshotTimer.h
+    N_EventReceiver.h
+)
+
+add_library(core SHARED ${CORE_CPP} ${CORE_H})
 add_library(snodec::core ALIAS core)
 
 target_include_directories(
@@ -51,7 +102,7 @@ install(
     EXPORT snodec_core_Targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     INCLUDES
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/snode.c/core
 )
 
 install(
@@ -61,8 +112,6 @@ install(
     PATTERN "*.h"
     PATTERN "*.hpp"
     PATTERN "cmake" EXCLUDE
-    PATTERN "socket/ip" EXCLUDE
-    PATTERN "socket/bluetooth" EXCLUDE
     PATTERN "socket/stream/tls" EXCLUDE
     PATTERN "socket/stream/legacy" EXCLUDE
 )

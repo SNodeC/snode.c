@@ -10,7 +10,21 @@ if(NOT OpenSSL_FOUND)
     )
 else(NOT OpenSSL_FOUND)
 
-    add_library(core-tls SHARED ssl_utils.cpp TLSHandshake.cpp system/ssl.cpp)
+    set(CORE-TLS_CPP ssl_utils.cpp TLSHandshake.cpp system/ssl.cpp)
+
+    set(CORE-TLS_H
+        SocketAcceptor.h
+        SocketClient.h
+        SocketConnection.h
+        SocketConnector.h
+        SocketReader.h
+        SocketServer.h
+        SocketWriter.h
+        ssl_utils.h
+        system/ssl.h
+    )
+
+    add_library(core-tls SHARED ${CORE-TLS_CPP} ${CORE-TLS_H})
     add_library(snodec::core-tls ALIAS core-tls)
 
     target_include_directories(

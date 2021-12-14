@@ -1,6 +1,18 @@
 cmake_minimum_required(VERSION 3.0)
 
-add_library(core-legacy INTERFACE)
+set(CORE-LEGACY_CPP)
+
+set(CORE-LEGACY_H
+    SocketAcceptor.h
+    SocketClient.h
+    SocketConnection.h
+    SocketConnector.h
+    SocketReader.h
+    SocketServer.h
+    SocketWriter.h
+)
+
+add_library(core-legacy INTERFACE ${CORE-LEGACY_CPP} ${CORE-LEGACY_H})
 add_library(snodec::core-legacy ALIAS core-legacy)
 
 target_include_directories(

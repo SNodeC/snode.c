@@ -5,7 +5,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 find_package(nlohmann_json 3.7.0 QUIET)
 
 if(NLOHMANN_JSON_FOUND)
-    set(JSON_MIDDLEWARE_SOURCES middleware/JsonMiddleware.cpp)
+    set(JSONMIDDLEWARE_CPP middleware/JsonMiddleware.cpp)
+    set(JSONMIDDLEWARE_H middleware/JsonMiddleware.h)
     set(JSON_LIBRARY nlohmann_json::nlohmann_json)
 else(NLOHMANN_JSON_FOUND)
     message(
@@ -21,16 +22,34 @@ set(NLOHMANN_JSON_FOUND
     CACHE INTERNAL "nlohmann found?" FORCE
 )
 
-add_library(
-    express SHARED
-    Response.cpp
+set(EXPRESS_CPP
     Request.cpp
+    Response.cpp
     Router.cpp
     WebApp.cpp
-    ${JSON_MIDDLEWARE_SOURCES}
     middleware/StaticMiddleware.cpp
     middleware/VHost.cpp
+    ${JSONMIDDLEWARE_CPP}
 )
+
+set(EXPRESS_H
+    Request.h
+    Response.h
+    Router.h
+    WebApp.h
+    WebAppT.h
+    middleware/StaticMiddleware.h
+    middleware/VHost.h
+    ${JSONMIDDLEWARE_H}
+    legacy/in/WebApp.h
+    legacy/in6/WebApp.h
+    legacy/rf/WebApp.h
+    tls/in/WebApp.h
+    tls/in6/WebApp.h
+    tls/rf/WebApp.h
+)
+
+add_library(express SHARED ${EXPRESS_CPP} ${EXPRESS_H})
 add_library(snodec::express ALIAS express)
 
 target_include_directories(

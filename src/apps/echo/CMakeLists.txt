@@ -30,6 +30,12 @@ if(BLUEZ_FOUND)
     list(APPEND NETS "l2" "rf")
 endif(BLUEZ_FOUND)
 
+set(ECHOCLIENT_CPP echoclient.cpp)
+set(ECHOCLIENT_H model/clients.h)
+
+set(ECHOSERVER_CPP echoserver.cpp)
+set(ECHOSERVER_H model/servers.h)
+
 foreach(NET IN LISTS NETS)
     if(${NET} STREQUAL "in")
         set(NET_TYPE ${IN})
@@ -51,7 +57,9 @@ foreach(NET IN LISTS NETS)
             set(STREAM_TYPE ${TLS})
         endif()
 
-        add_executable(echoclient-${STREAM}-${NET} echoclient.cpp)
+        add_executable(
+            echoclient-${STREAM}-${NET} ${ECHOCLIENT_CPP} ${ECHOCLIENT_H}
+        )
         target_link_libraries(
             echoclient-${STREAM}-${NET} PRIVATE snodec::net-${NET}
                                                 echosocketcontext
@@ -65,7 +73,9 @@ foreach(NET IN LISTS NETS)
                 RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         )
 
-        add_executable(echoserver-${STREAM}-${NET} echoserver.cpp)
+        add_executable(
+            echoserver-${STREAM}-${NET} ${ECHOSERVER_CPP} ${ECHOSERVER_H}
+        )
         target_link_libraries(
             echoserver-${STREAM}-${NET} PRIVATE snodec::net-${NET}
                                                 echosocketcontext
@@ -78,6 +88,5 @@ foreach(NET IN LISTS NETS)
         install(TARGETS echoserver-${STREAM}-${NET}
                 RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         )
-
     endforeach()
 endforeach()
