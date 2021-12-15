@@ -19,7 +19,7 @@
 #ifndef NET_L2_SOCKETADDRESS_H
 #define NET_L2_SOCKETADDRESS_H
 
-#include "core/socket/SocketAddress.h"
+#include "core/socket/SocketAddress.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,7 +27,6 @@
 #include <bluetooth/l2cap.h>
 #include <cstdint> // for uint16_t
 #include <string>
-// IWYU pragma: no_include <bits/exception.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

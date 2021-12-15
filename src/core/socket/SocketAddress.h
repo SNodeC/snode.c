@@ -19,12 +19,12 @@
 #ifndef CORE_SOCKET_SOCKETADDRESS_H
 #define CORE_SOCKET_SOCKETADDRESS_H
 
+#include "core/system/socket.h" // IWYU pragma: export
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstring>
 #include <string>
-#include <sys/socket.h>
-#include <sys/types.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

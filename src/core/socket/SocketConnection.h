@@ -32,7 +32,7 @@ namespace core::socket {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
+#include <cstddef> // for size_t
 #include <memory>
 #include <string>
 #include <sys/types.h> // for ssize_t

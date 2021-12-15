@@ -21,7 +21,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <exception>
-#include <sys/socket.h> // for AF_BLUETOOTH
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

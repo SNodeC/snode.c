@@ -26,7 +26,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <climits>
-#include <sys/time.h> // IWYU pragma: keep
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

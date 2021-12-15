@@ -30,7 +30,6 @@ namespace core {
 
 #include <list>
 #include <map>
-//#include <sys/time.h> // IWYU pragma: keep
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
