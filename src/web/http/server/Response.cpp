@@ -159,18 +159,12 @@ namespace web::http::server {
                 web::http::server::SocketContextUpgradeFactorySelector::instance()->select(req, *this);
 
             if (socketContextUpgradeFactory != nullptr) {
-                if (socketContext->switchSocketContext(socketContextUpgradeFactory) == nullptr) {
-                    set("Connection", "close");
-                    this->status(500).end();
-                }
+                socketContext->switchSocketContext(socketContextUpgradeFactory);
             } else {
-                set("Connection", "close");
-                this->status(404).end();
+                set("Connection", "close").status(404).end();
             }
-
         } else {
-            set("Connection", "close");
-            this->status(400).end();
+            set("Connection", "close").status(400).end();
         }
     }
 

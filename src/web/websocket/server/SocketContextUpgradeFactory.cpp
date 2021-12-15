@@ -37,15 +37,26 @@ namespace web::websocket::server {
                                                               web::http::server::Response* response) {
         std::string subProtocolName = request->header("sec-websocket-protocol");
 
-        SocketContextUpgrade* socketContext = SocketContextUpgrade::create(this, socketConnection, subProtocolName);
+        SocketContextUpgrade* socketContext = nullptr;
 
-        if (socketContext != nullptr) {
-            response->set("Upgrade", "websocket");
-            response->set("Connection", "Upgrade");
-            response->set("Sec-WebSocket-Protocol", subProtocolName);
-            response->set("Sec-WebSocket-Accept", base64::serverWebSocketKey(request->header("sec-websocket-key")));
+        if (request->header("Sec-WebSocket-Version") == "13") {
+            socketContext = SocketContextUpgrade::create(this, socketConnection, subProtocolName);
 
-            response->status(101).end(); // Switch Protocol
+            if (socketContext != nullptr) {
+                response->set("Upgrade", "websocket");
+                response->set("Connection", "Upgrade");
+                response->set("Sec-WebSocket-Protocol", subProtocolName);
+                response->set("Sec-WebSocket-Accept", base64::serverWebSocketKey(request->header("sec-websocket-key")));
+
+                response->status(101).end(); // Switch Protocol
+            } else {
+                response->set("Connection", "close");
+                response->status(400).end();
+            }
+        } else {
+            response->set("Sec-WebSocket-Version", "13");
+            response->set("Connection", "close");
+            response->status(400).end();
         }
 
         return socketContext;

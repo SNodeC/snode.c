@@ -35,6 +35,7 @@ namespace web::websocket::client {
         getentropy(ebytes, 16);
 
         request.set("Sec-WebSocket-Key", base64::base64_encode(ebytes, 16));
+        request.set("Sec-WebSocket-Version", "13");
     }
 
     std::string SocketContextUpgradeFactory::name() {
