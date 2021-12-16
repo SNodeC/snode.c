@@ -164,7 +164,7 @@ int main(int argc, char* argv[]) {
             [](web::http::client::Request& request) -> void {
                 VLOG(0) << "OnRequestBegin";
 
-                request.set("Sec-WebSocket-Protocol", "echo");
+                request.set("Sec-WebSocket-Protocol", "test, echo");
 
                 request.upgrade("/ws/", "websocket");
             },
@@ -194,7 +194,6 @@ int main(int argc, char* argv[]) {
 
                 delete[] body;
 
-                //                request.upgrade(response);
                 response.upgrade(request);
             },
             [](int status, const std::string& reason) -> void {
