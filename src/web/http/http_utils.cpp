@@ -160,7 +160,7 @@ namespace httputils {
         struct stat attrib {};
         stat(filePath.c_str(), &attrib); // TODO: to core::system
 
-        strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", gmtime(&(attrib.st_mtime)));
+        strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", gmtime(&(attrib.st_mtime))); // TODO: to core::system
 
         return std::string(buf);
     }
