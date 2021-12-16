@@ -99,7 +99,7 @@ namespace core {
             if (ret >= 0) {
                 currentTime = utils::Timeval::currentTime();
 
-                timerEventDispatcher.dispatch(currentTime);
+                timerEventDispatcher.dispatchActiveEvents(currentTime);
                 EventDispatcher::dispatchActiveEvents(currentTime);
                 EventDispatcher::unobserveDisabledEvents(currentTime);
 

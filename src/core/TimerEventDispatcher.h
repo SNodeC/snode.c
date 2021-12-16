@@ -36,7 +36,7 @@ namespace core {
 
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
 
-        void dispatch(const utils::Timeval& currentTime);
+        void dispatchActiveEvents(const utils::Timeval& currentTime);
 
         void remove(TimerEventReceiver* timer);
         void add(TimerEventReceiver* timer);

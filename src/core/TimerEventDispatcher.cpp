@@ -61,7 +61,7 @@ namespace core {
         return nextTimeout;
     }
 
-    void TimerEventDispatcher::dispatch(const utils::Timeval& currentTime) {
+    void TimerEventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
         for (TimerEventReceiver* timer : timerList) {
             if (timer->getTimeout() <= currentTime) {
                 timerListDirty = timer->trigger();
