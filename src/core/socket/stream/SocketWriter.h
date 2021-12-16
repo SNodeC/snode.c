@@ -84,11 +84,11 @@ namespace core::socket::stream {
             if (!shutdownTriggered) {
                 if (isSuspended()) {
                     doShutdown();
+                    setTimeout(MAX_SHUTDOWN_TIMEOUT);
                     markShutdown = false;
                 } else {
                     markShutdown = true;
                 }
-                setTimeout(MAX_SHUTDOWN_TIMEOUT);
             }
         }
 
