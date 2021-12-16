@@ -121,7 +121,8 @@ namespace core::socket::stream {
         }
 
         void close() final {
-            SocketWriter::shutdown();
+            SocketWriter::disable();
+            SocketReader::disable();
         }
 
         void shutdownRead() final {
