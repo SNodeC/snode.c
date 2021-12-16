@@ -157,7 +157,7 @@ namespace web::http::server {
             (requestContext.request.httpMajor == 1 && requestContext.request.httpMinor == 1 &&
              requestContext.request.connectionState == ConnectionState::Close) ||
             (requestContext.response.connectionState == ConnectionState::Close)) {
-            close();
+            shutdown();
         } else {
             reset();
 
@@ -171,7 +171,7 @@ namespace web::http::server {
                     onRequestReady(requestContext.request, requestContext.response);
                 } else {
                     requestContext.response.status(requestContext.status).send(requestContext.reason);
-                    close();
+                    shutdown();
                 }
             }
         }

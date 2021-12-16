@@ -56,10 +56,6 @@ namespace core::socket {
         return socketConnection->getRemoteAddressAsString();
     }
 
-    void SocketContext::close() {
-        socketConnection->close();
-    }
-
     SocketContext* SocketContext::switchSocketContext(core::socket::SocketContextFactory* socketContextFactory) {
         return socketConnection->switchSocketContext(socketContextFactory);
     }
@@ -86,6 +82,15 @@ namespace core::socket {
 
     void SocketContext::shutdownWrite() {
         socketConnection->shutdownWrite();
+    }
+
+    void SocketContext::shutdown() {
+        shutdownRead();
+        shutdownWrite();
+    }
+
+    void SocketContext::close() {
+        socketConnection->close();
     }
 
     void SocketContext::onWriteError(int errnum) { // By default we do a cross-shutdown

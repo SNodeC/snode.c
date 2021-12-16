@@ -61,6 +61,7 @@ namespace core::socket {
 
         void shutdownRead();
         void shutdownWrite();
+        void shutdown();
 
         void close();
 
