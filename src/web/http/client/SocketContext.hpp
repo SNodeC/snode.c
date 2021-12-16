@@ -53,8 +53,13 @@ namespace web::http::client {
                   response.body = content;
                   response.contentLength = contentLength;
               },
-              [&response = this->response, &request = this->request, onResponse](web::http::client::ResponseParser& parser) -> void {
+              [onResponse, this](web::http::client::ResponseParser& parser) -> void {
                   onResponse(request, response);
+
+                  if (response.header("connection") == "close" || request.header("connection") == "close") {
+                      shutdown();
+                  }
+
                   parser.reset();
                   request.reset();
                   response.reset();
