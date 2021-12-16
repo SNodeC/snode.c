@@ -19,10 +19,13 @@
 #include "web/websocket/server/SocketContextUpgradeFactory.h"
 
 #include "utils/base64.h"
+#include "web/http/http_utils.h"
 #include "web/http/server/Request.h"  // for Request
 #include "web/http/server/Response.h" // for Response
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <tuple>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -35,12 +38,18 @@ namespace web::websocket::server {
     SocketContextUpgrade* SocketContextUpgradeFactory::create(core::socket::SocketConnection* socketConnection,
                                                               web::http::server::Request* request,
                                                               web::http::server::Response* response) {
-        std::string subProtocolName = request->header("sec-websocket-protocol");
-
         SocketContextUpgrade* socketContext = nullptr;
 
         if (request->header("Sec-WebSocket-Version") == "13") {
-            socketContext = SocketContextUpgrade::create(this, socketConnection, subProtocolName);
+            std::string subProtocolNames = request->header("sec-websocket-protocol");
+            std::string subProtocolName;
+
+            do {
+                std::tie(subProtocolName, subProtocolNames) = httputils::str_split(subProtocolNames, ',');
+                httputils::str_trimm(subProtocolName);
+
+                socketContext = SocketContextUpgrade::create(this, socketConnection, subProtocolName);
+            } while (subProtocolNames.length() > 0 && socketContext == nullptr);
 
             if (socketContext != nullptr) {
                 response->set("Upgrade", "websocket");
