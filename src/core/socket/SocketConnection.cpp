@@ -18,6 +18,7 @@
 
 #include "core/socket/SocketConnection.h"
 
+#include "core/socket/SocketContext.h"
 #include "core/socket/SocketContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -28,6 +29,26 @@ namespace core::socket {
 
     SocketConnection::SocketConnection(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory)
         : socketContext(socketContextFactory->create(this)) {
+    }
+
+    void SocketConnection::onConnected() {
+        socketContext->onConnected();
+    }
+
+    void SocketConnection::onDisconnected() {
+        socketContext->onDisconnected();
+    }
+
+    void SocketConnection::onReceiveFromPeer() {
+        socketContext->onReceiveFromPeer();
+    }
+
+    void SocketConnection::onWriteError(int errnum) {
+        socketContext->onWriteError(errnum);
+    }
+
+    void SocketConnection::onReadError(int errnum) {
+        socketContext->onReadError(errnum);
     }
 
     core::socket::SocketContext* SocketConnection::getSocketContext() {

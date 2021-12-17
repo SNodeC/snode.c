@@ -57,10 +57,10 @@ namespace core::socket::stream {
                          const std::function<void()>& onDisconnect)
             : Super(socketContextFactory)
             , SocketReader([this](int errnum) -> void {
-                socketContext->onReadError(errnum);
+                onReadError(errnum);
             })
             , SocketWriter([this](int errnum) -> void {
-                socketContext->onWriteError(errnum);
+                onWriteError(errnum);
             })
             , localAddress(localAddress)
             , remoteAddress(remoteAddress)
@@ -70,11 +70,11 @@ namespace core::socket::stream {
             SocketReader::suspend();
             SocketWriter::suspend();
             onConnect(localAddress, remoteAddress);
-            socketContext->onConnected();
+            onConnected();
         }
 
         virtual ~SocketConnection() {
-            socketContext->onDisconnected();
+            onDisconnected();
             onDisconnect();
             delete socketContext;
         }
@@ -150,14 +150,14 @@ namespace core::socket::stream {
 
     private:
         void readEvent() override {
-            socketContext->onReceiveFromPeer();
+            onReceiveFromPeer();
 
             if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
-                socketContext->onDisconnected();
+                onDisconnected();
                 delete socketContext;
                 socketContext = newSocketContext;
                 newSocketContext = nullptr;
-                socketContext->onConnected();
+                onConnected();
             }
         }
 

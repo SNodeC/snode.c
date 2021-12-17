@@ -41,11 +41,7 @@ namespace core::socket {
     }
 
     ssize_t SocketContext::readFromPeer(char* junk, std::size_t junklen) {
-        ssize_t ret = 0;
-
-        ret = socketConnection->readFromPeer(junk, junklen);
-
-        return ret;
+        return socketConnection->readFromPeer(junk, junklen);
     }
 
     std::string SocketContext::getLocalAddressAsString() const {
@@ -65,11 +61,11 @@ namespace core::socket {
     }
 
     void SocketContext::onConnected() {
-        VLOG(0) << "Protocol connected";
+        PLOG(INFO) << "Protocol connected";
     }
 
     void SocketContext::onDisconnected() {
-        VLOG(0) << "Protocol disconnected";
+        PLOG(INFO) << "Protocol disconnected";
     }
 
     SocketContext::Role SocketContext::getRole() const {

@@ -51,6 +51,14 @@ namespace core::socket {
 
         virtual ~SocketConnection() = default;
 
+        void onConnected();
+        void onDisconnected();
+
+        void onReceiveFromPeer();
+
+        void onWriteError(int errnum);
+        void onReadError(int errnum);
+
     public:
         core::socket::SocketContext* getSocketContext();
 

@@ -51,6 +51,7 @@ namespace core::socket {
         virtual ~SocketContext() = default;
 
         Role getRole() const;
+        void setTimeout(const utils::Timeval& timeout);
 
         std::string getLocalAddressAsString() const;
         std::string getRemoteAddressAsString() const;
@@ -65,23 +66,24 @@ namespace core::socket {
 
         void close();
 
-        void setTimeout(const utils::Timeval& timeout);
-
         SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory);
 
+    protected:
         virtual void onReceiveFromPeer() = 0;
-
-        virtual void onWriteError(int errnum);
-        virtual void onReadError(int errnum);
 
         virtual void onConnected();
         virtual void onDisconnected();
+
+        virtual void onWriteError(int errnum);
+        virtual void onReadError(int errnum);
 
     private:
         core::socket::SocketConnection* socketConnection;
 
     protected:
         Role role;
+
+        friend class core::socket::SocketConnection;
     };
 
 } // namespace core::socket
