@@ -38,7 +38,7 @@ namespace core::socket::stream::tls {
 
 #define SSL_VERIFY_FLAGS (SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE)
 
-    static int Password_callback(char* buf, int size, int, void* u) {
+    static int password_callback(char* buf, int size, int, void* u) {
         strncpy(buf, static_cast<char*>(u), static_cast<std::size_t>(size));
         buf[size - 1] = '\0';
 
@@ -48,8 +48,8 @@ namespace core::socket::stream::tls {
         return static_cast<int>(::strlen(buf));
     }
 
-    static int verify_callback([[maybe_unused]] int preverify_ok, [[maybe_unused]] X509_STORE_CTX* ctx) {
-        return 1;
+    static int verify_callback(int preverify_ok, [[maybe_unused]] X509_STORE_CTX* ctx) {
+        return preverify_ok;
     }
 
     static int sslSessionCtxId = 1;
@@ -111,7 +111,7 @@ namespace core::socket::stream::tls {
                         sslErr = true;
                     } else if (!certChainKey.empty()) {
                         if (!password.empty()) {
-                            SSL_CTX_set_default_passwd_cb(ctx, Password_callback);
+                            SSL_CTX_set_default_passwd_cb(ctx, password_callback);
                             SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(password.c_str()));
                         }
                         if (SSL_CTX_use_PrivateKey_file(ctx, certChainKey.c_str(), SSL_FILETYPE_PEM) != 1) {
