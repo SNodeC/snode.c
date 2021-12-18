@@ -147,8 +147,6 @@ namespace core {
                 tickStatus = EventLoop::instance()._tick(timeOut);
             }
 
-            free();
-
             running = false;
         }
 
@@ -158,6 +156,8 @@ namespace core {
         core::system::signal(SIGINT, oldSigIntHandler);
         core::system::signal(SIGTERM, oldSigTermHandler);
         core::system::signal(SIGABRT, oldSigAbrtHandler);
+
+        free();
 
         int returnReason = 0;
 

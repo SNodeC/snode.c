@@ -54,7 +54,8 @@ namespace core::socket {
     public:
         core::socket::SocketContext* getSocketContext();
 
-    private: // will become public in subclasses
+    private: // will become public in subclasses to be call able from user code. This private pure virtual methods will be called polymorph
+             // from friend class SocketContext
         virtual void close() = 0;
 
         virtual void shutdownRead() = 0;
@@ -62,7 +63,7 @@ namespace core::socket {
 
         virtual void setTimeout(const utils::Timeval& timeout) = 0;
 
-    protected: // must be callable from subclasses
+    protected: // must be call able from subclasses
         void onConnected();
         void onDisconnected();
 

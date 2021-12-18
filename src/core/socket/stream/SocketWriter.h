@@ -66,7 +66,6 @@ namespace core::socket::stream {
             Socket::shutdown(Socket::shutdown::WR);
             resume();
             shutdownTriggered = true;
-            // disable(); // Normally this should be sufficient - but google-chrome
         }
 
     protected:

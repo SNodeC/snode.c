@@ -47,9 +47,9 @@ namespace core::socket {
     protected:
         explicit SocketContext(core::socket::SocketConnection* socketConnection, Role role);
 
-    public:
         virtual ~SocketContext() = default;
 
+    public:
         Role getRole() const;
         void setTimeout(const utils::Timeval& timeout);
 
