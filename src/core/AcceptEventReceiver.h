@@ -43,7 +43,6 @@ namespace core {
         void timeoutEvent() final;
         bool continueImmediately() final;
 
-    protected:
         virtual bool continueAcceptImmediately();
     };
 
