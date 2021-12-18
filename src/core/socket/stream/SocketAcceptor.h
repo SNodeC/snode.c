@@ -63,10 +63,10 @@ namespace core::socket::stream {
                        const std::function<void(SocketConnection*)>& onDisconnect,
                        const std::map<std::string, std::any>& options)
             : socketContextFactory(socketContextFactory)
-            , options(options)
             , onConnect(onConnect)
             , onConnected(onConnected)
-            , onDisconnect(onDisconnect) {
+            , onDisconnect(onDisconnect)
+            , options(options) {
         }
 
         virtual ~SocketAcceptor() = default;
@@ -147,10 +147,6 @@ namespace core::socket::stream {
             }
         }
 
-        void end() {
-            AcceptEventReceiver::disable(SocketAcceptor::getFd());
-        }
-
         void unobservedEvent() override {
             destruct();
         }
@@ -163,13 +159,13 @@ namespace core::socket::stream {
     private:
         std::shared_ptr<core::socket::SocketContextFactory> socketContextFactory = nullptr;
 
-    protected:
-        std::map<std::string, std::any> options;
-
         std::function<void(SocketConnection*)> onConnect;
         std::function<void(SocketConnection*)> onDestruct;
         std::function<void(SocketConnection*)> onConnected;
         std::function<void(SocketConnection*)> onDisconnect;
+
+    protected:
+        std::map<std::string, std::any> options;
     };
 
 } // namespace core::socket::stream

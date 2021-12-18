@@ -62,7 +62,7 @@ namespace core::socket {
 
         virtual void setTimeout(const utils::Timeval& timeout) = 0;
 
-    protected:
+    protected: // must be callable from subclasses
         void onConnected();
         void onDisconnected();
 
@@ -71,7 +71,7 @@ namespace core::socket {
         void onWriteError(int errnum);
         void onReadError(int errnum);
 
-    private:
+    private: // will be called from friend class SocketContext
         virtual std::string getLocalAddressAsString() const = 0;
         virtual std::string getRemoteAddressAsString() const = 0;
 

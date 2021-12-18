@@ -52,9 +52,9 @@ namespace core::socket::stream::tls {
         return preverify_ok;
     }
 
-    static int sslSessionCtxId = 1;
-
     SSL_CTX* ssl_ctx_new(const std::map<std::string, std::any>& options, bool server) {
+        static int sslSessionCtxId = 1;
+
         std::string certChain;
         std::string certChainKey;
         std::string password;
