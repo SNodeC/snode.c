@@ -47,7 +47,7 @@ namespace core::socket::stream::legacy {
                   socketContextFactory,
                   onConnect,
                   [onConnected](SocketConnection* socketConnection) -> void {
-                      if (socketConnection->SocketReader::isSuspended()) {
+                      if (socketConnection->SocketConnection::SocketReader::isSuspended()) {
                           socketConnection->SocketConnection::SocketReader::resume();
                           onConnected(socketConnection);
                       }

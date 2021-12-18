@@ -50,7 +50,7 @@ namespace core::socket::stream::tls {
                   socketContextFactory,
                   onConnect,
                   [onConnected, this](SocketConnection* socketConnection) -> void { // onConnect
-                      if (socketConnection->SocketReader::isSuspended()) {
+                      if (socketConnection->SocketConnection::SocketReader::isSuspended()) {
                           SSL* ssl = socketConnection->startSSL(this->ctx);
 
                           if (ssl != nullptr) {
