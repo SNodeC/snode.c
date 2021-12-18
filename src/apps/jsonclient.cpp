@@ -52,6 +52,7 @@ int main(int argc, char* argv[]) {
             request.method = "POST";
             request.url = "/index.html";
             request.type("application/json");
+            request.set("Connection", "close");
             request.send("{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}");
         },
         []([[maybe_unused]] const web::http::client::Request& request, const web::http::client::Response& response) -> void {

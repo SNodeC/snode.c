@@ -80,6 +80,7 @@ namespace web::http::client {
 
             if (socketContextUpgradeFactory != nullptr) {
                 if (socketContext->switchSocketContext(socketContextUpgradeFactory) == nullptr) {
+                    VLOG(0) << "SocketContextUpgrade not created";
                     socketContext->close();
                 }
             } else {

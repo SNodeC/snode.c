@@ -20,6 +20,7 @@
 #define CORE_SOCKET_STREAM_SOCKETREADER_H
 
 #include "core/ReadEventReceiver.h"
+#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -57,28 +58,20 @@ namespace core::socket::stream {
 
         virtual ~SocketReader() = default;
 
+    private:
+        virtual ssize_t read(char* junk, std::size_t junkLen) = 0;
+
+        void readEvent() override = 0;
+
+        virtual void doShutdown() {
+            Socket::shutdown(Socket::shutdown::RD);
+            resume();
+            shutdownTriggered = true;
+        }
+
+    protected:
         ssize_t readFromPeer(char* junk, std::size_t junkLen) {
-            errno = 0;
-
             ssize_t ret = 0;
-
-            if (size == 0) {
-                cursor = 0;
-
-                ssize_t retRead = 0;
-                if (!shutdownTriggered) {
-                    retRead = read(data, MAX_READ_JUNKSIZE);
-                }
-
-                if (retRead > 0) {
-                    size += static_cast<std::size_t>(retRead);
-                } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
-                    size = 0;
-                    cursor = 0;
-                    disable(); // if we get a EOF or an other error disable the reader;
-                    onError(errno);
-                }
-            }
 
             if (size > 0) {
                 if (!shutdownTriggered) {
@@ -98,22 +91,31 @@ namespace core::socket::stream {
             return ret;
         }
 
+        void doRead() {
+            errno = 0;
+
+            if (size == 0) {
+                cursor = 0;
+                std::size_t readLen = MAX_READ_JUNKSIZE - size;
+
+                ssize_t retRead = 0;
+                if (!shutdownTriggered) {
+                    retRead = read(data + size, readLen);
+                }
+
+                if (retRead > 0) {
+                    size += static_cast<std::size_t>(retRead);
+                } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
+                    disable(); // if we get a EOF or an other error disable the reader;
+                    onError(errno);
+                }
+            }
+        }
+
         bool continueReadImmediately() override {
             return size > 0;
         }
 
-    private:
-        virtual ssize_t read(char* junk, std::size_t junkLen) = 0;
-
-        void readEvent() override = 0;
-
-        virtual void doShutdown() {
-            Socket::shutdown(Socket::shutdown::RD);
-            resume();
-            shutdownTriggered = true;
-        }
-
-    protected:
         void shutdown() {
             if (!shutdownTriggered) {
                 if (!isSuspended()) {

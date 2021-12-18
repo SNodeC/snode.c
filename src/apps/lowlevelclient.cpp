@@ -74,9 +74,11 @@ static web::http::client::ResponseParser* getResponseParser(core::socket::Socket
             VLOG(0) << "++   OnContent: " << contentLength << std::endl << strContent;
             delete[] strContent;
         },
-        [](web::http::client::ResponseParser& parser) -> void {
+        [socketContext](web::http::client::ResponseParser& parser) -> void {
             VLOG(0) << "++   OnParsed";
             parser.reset();
+
+            socketContext->shutdown();
         },
         [](int status, const std::string& reason) -> void {
             VLOG(0) << "++   OnError: " + std::to_string(status) + " - " + reason;
@@ -98,7 +100,9 @@ public:
 
     void onConnected() override {
         VLOG(0) << "SimpleSocketProtocol connected";
+        sendToPeer("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
     }
+
     void onDisconnected() override {
         VLOG(0) << "SimpleSocketProtocol disconnected";
     }
@@ -187,8 +191,6 @@ namespace tls {
                 } else {
                     VLOG(0) << "     Server certificate: no certificate";
                 }
-
-                socketConnection->sendToPeer("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
             },
             [](SocketConnection* socketConnection) -> void { // onDisconnect
                 VLOG(0) << "OnDisconnect";
@@ -229,10 +231,8 @@ namespace legacy {
                 VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
                 VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
             },
-            [](SocketConnection* socketConnection) -> void { // onConnected
+            []([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnected
                 VLOG(0) << "OnConnected";
-
-                socketConnection->sendToPeer("GET /index.html HTTP/1.1\r\nConnection: close\r\n\r\n"); // Connection: close\r\n\r\n");
             },
             [](SocketConnection* socketConnection) -> void { // onDisconnect
                 VLOG(0) << "OnDisconnect";
@@ -263,11 +263,9 @@ int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
     {
+        legacy::SocketClient legacyClient = legacy::getLegacyClient();
+
         legacy::SocketAddress legacyRemoteAddress("localhost", 8080);
-
-        core::socket::stream::legacy::SocketClient<net::in::stream::ClientSocket, SimpleSocketProtocolFactory> legacyClient =
-            legacy::getLegacyClient();
-
         legacyClient.connect(legacyRemoteAddress, [](int err) -> void { // example.com:81 simulate connnect timeout
             if (err) {
                 PLOG(ERROR) << "Connect: " << std::to_string(err);
@@ -276,10 +274,9 @@ int main(int argc, char* argv[]) {
             }
         });
 
-        tls::SocketAddress tlsRemoteAddress = tls::SocketAddress("localhost", 8088);
-
         tls::SocketClient tlsClient = tls::getClient();
 
+        tls::SocketAddress tlsRemoteAddress = tls::SocketAddress("localhost", 8088);
         tlsClient.connect(tlsRemoteAddress, [](int err) -> void {
             if (err) {
                 PLOG(ERROR) << "Connect: " << std::to_string(err);

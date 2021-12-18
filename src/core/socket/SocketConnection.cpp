@@ -20,6 +20,7 @@
 
 #include "core/socket/SocketContext.h"
 #include "core/socket/SocketContextFactory.h"
+#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,6 +30,10 @@ namespace core::socket {
 
     SocketConnection::SocketConnection(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory)
         : socketContext(socketContextFactory->create(this)) {
+    }
+
+    SocketConnection::~SocketConnection() {
+        delete socketContext;
     }
 
     void SocketConnection::onConnected() {
@@ -41,6 +46,14 @@ namespace core::socket {
 
     void SocketConnection::onReceiveFromPeer() {
         socketContext->onReceiveFromPeer();
+
+        if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
+            onDisconnected();
+            delete socketContext;
+            socketContext = newSocketContext;
+            newSocketContext = nullptr;
+            onConnected();
+        }
     }
 
     void SocketConnection::onWriteError(int errnum) {
@@ -53,6 +66,16 @@ namespace core::socket {
 
     core::socket::SocketContext* SocketConnection::getSocketContext() {
         return socketContext;
+    }
+
+    core::socket::SocketContext* SocketConnection::switchSocketContext(core::socket::SocketContextFactory* socketContextFactory) {
+        newSocketContext = socketContextFactory->create(this);
+
+        if (newSocketContext == nullptr) {
+            VLOG(0) << "Switch socket context unsuccessull: new socket context not created";
+        }
+
+        return newSocketContext;
     }
 
 } // namespace core::socket

@@ -76,7 +76,6 @@ namespace core::socket::stream {
         virtual ~SocketConnection() {
             onDisconnected();
             onDisconnect();
-            delete socketContext;
         }
 
     public:
@@ -88,6 +87,7 @@ namespace core::socket::stream {
             return localAddress;
         }
 
+    private:
         std::string getLocalAddressAsString() const override {
             return localAddress.toString();
         }
@@ -108,7 +108,7 @@ namespace core::socket::stream {
             return ret;
         }
 
-        void sendToPeer(const char* junk, std::size_t junkLen) override {
+        void sendToPeer(const char* junk, std::size_t junkLen) final {
             if (newSocketContext == nullptr) {
                 SocketWriter::sendToPeer(junk, junkLen);
             } else {
@@ -116,7 +116,7 @@ namespace core::socket::stream {
             }
         }
 
-        void sendToPeer(const std::string& data) override {
+        void sendToPeer(const std::string& data) final {
             sendToPeer(data.data(), data.size());
         }
 
@@ -138,27 +138,15 @@ namespace core::socket::stream {
             SocketWriter::setTimeout(timeout);
         }
 
-        core::socket::SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory) override {
-            newSocketContext = socketContextFactory->create(this);
-
-            if (newSocketContext == nullptr) {
-                VLOG(0) << "Switch socket context unsuccessull: new socket context not created";
-            }
-
-            return newSocketContext;
-        }
-
     private:
         void readEvent() override {
-            onReceiveFromPeer();
+            SocketReader::doRead();
 
-            if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
-                onDisconnected();
-                delete socketContext;
-                socketContext = newSocketContext;
-                newSocketContext = nullptr;
-                onConnected();
-            }
+            onReceiveFromPeer();
+        }
+
+        void writeEvent() override {
+            SocketWriter::doWrite();
         }
 
         void unobservedEvent() override {

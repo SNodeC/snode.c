@@ -69,10 +69,10 @@ namespace core::socket {
         SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory);
 
     protected:
-        virtual void onReceiveFromPeer() = 0;
-
         virtual void onConnected();
         virtual void onDisconnected();
+
+        virtual void onReceiveFromPeer() = 0;
 
         virtual void onWriteError(int errnum);
         virtual void onReadError(int errnum);

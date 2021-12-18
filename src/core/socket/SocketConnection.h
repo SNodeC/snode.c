@@ -49,8 +49,12 @@ namespace core::socket {
     protected:
         SocketConnection(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory);
 
-        virtual ~SocketConnection() = default;
+        virtual ~SocketConnection();
 
+    public:
+        core::socket::SocketContext* getSocketContext();
+
+    protected:
         void onConnected();
         void onDisconnected();
 
@@ -59,9 +63,7 @@ namespace core::socket {
         void onWriteError(int errnum);
         void onReadError(int errnum);
 
-    public:
-        core::socket::SocketContext* getSocketContext();
-
+    private:
         virtual std::string getLocalAddressAsString() const = 0;
         virtual std::string getRemoteAddressAsString() const = 0;
 
@@ -77,10 +79,10 @@ namespace core::socket {
 
         virtual void setTimeout(const utils::Timeval& timeout) = 0;
 
-        virtual core::socket::SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory) = 0;
+        core::socket::SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory);
 
-    protected:
         core::socket::SocketContext* socketContext = nullptr;
+        core::socket::SocketContext* newSocketContext = nullptr;
 
         friend core::socket::SocketContext;
     };

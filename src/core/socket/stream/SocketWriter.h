@@ -57,20 +57,10 @@ namespace core::socket::stream {
 
         virtual ~SocketWriter() = default;
 
-        void sendToPeer(const char* junk, std::size_t junkLen) {
-            writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
-
-            if (isSuspended()) {
-                resume();
-            }
-        }
-
     private:
         virtual ssize_t write(const char* junk, std::size_t junkLen) = 0;
 
-        void writeEvent() override {
-            doWrite();
-        }
+        void writeEvent() override = 0;
 
         virtual void doShutdown() {
             Socket::shutdown(Socket::shutdown::WR);
@@ -80,20 +70,12 @@ namespace core::socket::stream {
         }
 
     protected:
-        void shutdown() {
-            if (!shutdownTriggered) {
-                if (isSuspended()) {
-                    doShutdown();
-                    setTimeout(MAX_SHUTDOWN_TIMEOUT);
-                    markShutdown = false;
-                } else {
-                    markShutdown = true;
-                }
-            }
-        }
+        void sendToPeer(const char* junk, std::size_t junkLen) {
+            writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
 
-        void terminate() override {
-            shutdown();
+            if (isSuspended()) {
+                resume();
+            }
         }
 
         void doWrite() {
@@ -119,6 +101,22 @@ namespace core::socket::stream {
                     shutdown();
                 }
             }
+        }
+
+        void shutdown() {
+            if (!shutdownTriggered) {
+                if (isSuspended()) {
+                    doShutdown();
+                    setTimeout(MAX_SHUTDOWN_TIMEOUT);
+                    markShutdown = false;
+                } else {
+                    markShutdown = true;
+                }
+            }
+        }
+
+        void terminate() override {
+            shutdown();
         }
 
     private:
