@@ -54,6 +54,14 @@ namespace core::socket {
     public:
         core::socket::SocketContext* getSocketContext();
 
+    private: // will become public in subclasses
+        virtual void close() = 0;
+
+        virtual void shutdownRead() = 0;
+        virtual void shutdownWrite() = 0;
+
+        virtual void setTimeout(const utils::Timeval& timeout) = 0;
+
     protected:
         void onConnected();
         void onDisconnected();
@@ -71,13 +79,6 @@ namespace core::socket {
         virtual void sendToPeer(const std::string& data) = 0;
 
         virtual ssize_t readFromPeer(char* junk, std::size_t junkLen) = 0;
-
-        virtual void close() = 0;
-
-        virtual void shutdownRead() = 0;
-        virtual void shutdownWrite() = 0;
-
-        virtual void setTimeout(const utils::Timeval& timeout) = 0;
 
         core::socket::SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory);
 

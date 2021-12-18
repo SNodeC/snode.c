@@ -58,7 +58,7 @@ namespace core::socket::stream {
 @enduml
 */
         SocketAcceptor(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
-                       const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
+                       const std::function<void(SocketConnection*)>& onConnect,
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,
                        const std::map<std::string, std::any>& options)
@@ -166,7 +166,7 @@ namespace core::socket::stream {
     protected:
         std::map<std::string, std::any> options;
 
-        std::function<void(const SocketAddress&, const SocketAddress&)> onConnect;
+        std::function<void(SocketConnection*)> onConnect;
         std::function<void(SocketConnection*)> onDestruct;
         std::function<void(SocketConnection*)> onConnected;
         std::function<void(SocketConnection*)> onDisconnect;

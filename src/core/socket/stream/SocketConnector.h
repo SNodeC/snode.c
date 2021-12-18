@@ -54,7 +54,7 @@ namespace core::socket::stream {
         using SocketAddress = typename Socket::SocketAddress;
 
         SocketConnector(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
-                        const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
+                        const std::function<void(SocketConnection*)>& onConnect,
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,
                         const std::map<std::string, std::any>& options)
@@ -163,7 +163,7 @@ namespace core::socket::stream {
         std::map<std::string, std::any> options;
 
     private:
-        std::function<void(const SocketAddress&, const SocketAddress&)> onConnect;
+        std::function<void(SocketConnection*)> onConnect;
         std::function<void(SocketConnection*)> onDestruct;
         std::function<void(SocketConnection*)> onConnected;
         std::function<void(SocketConnection*)> onDisconnect;

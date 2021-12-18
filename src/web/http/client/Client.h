@@ -41,7 +41,7 @@ namespace web::http::client {
         using SocketConnection = typename SocketClient::SocketConnection;
         using SocketAddress = typename SocketConnection::SocketAddress;
 
-        Client(const std::function<void(const Client::SocketAddress&, const Client::SocketAddress&)>& onConnect,
+        Client(const std::function<void(SocketConnection*)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
                const std::function<void(Request&)>& onRequestBegin,
                const std::function<void(Request&, Response&)>& onResponseReady,
@@ -49,9 +49,8 @@ namespace web::http::client {
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
             : SocketClient(
-                  [onConnect](const Client::SocketAddress& localAddress,
-                              const Client::SocketAddress& remoteAddress) -> void { // onConnect
-                      onConnect(localAddress, remoteAddress);
+                  [onConnect](SocketConnection* socketConnection) -> void { // onConnect
+                      onConnect(socketConnection);
                   },
                   [onConnected, onRequestBegin](SocketConnection* socketConnection) -> void { // onConnected
                       Request& request =

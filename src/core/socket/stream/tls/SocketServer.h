@@ -45,7 +45,7 @@ namespace core::socket::stream::tls {
         using SocketAddress = typename Super::SocketAddress;
         using SocketConnection = typename Super::SocketConnection;
 
-        SocketServer(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
+        SocketServer(const std::function<void(SocketConnection*)>& onConnect,
                      const std::function<void(SocketConnection*)>& onConnected,
                      const std::function<void(SocketConnection*)>& onDisconnect,
                      const std::map<std::string, std::any>& options = {{}})

@@ -38,11 +38,13 @@ namespace apps::http::legacy {
     WebApp getWebApp(const std::string& rootPath, const std::map<std::string, std::any>& options) {
         WebApp webApp(getRouter(rootPath), options);
 
-        webApp.onConnect([](const WebApp::SocketAddress& localAddress, const WebApp::SocketAddress& remoteAddress) -> void {
+        webApp.onConnect([](WebApp::SocketConnection* socketConnection) -> void {
             VLOG(0) << "OnConnect:";
 
-            VLOG(0) << "\tServer: (" + localAddress.address() + ") " + localAddress.toString();
-            VLOG(0) << "\tClient: (" + remoteAddress.address() + ") " + remoteAddress.toString();
+            VLOG(0) << "\tServer: (" + socketConnection->getLocalAddress().address() + ") " +
+                           socketConnection->getLocalAddress().toString();
+            VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " +
+                           socketConnection->getRemoteAddress().toString();
         });
 
         webApp.onDisconnect([](WebApp::SocketConnection* socketConnection) -> void {
@@ -70,11 +72,13 @@ namespace apps::http::tls {
     WebApp getWebApp(const std::string& rootPath, const std::map<std::string, std::any>& options) {
         WebApp webApp(getRouter(rootPath), options);
 
-        webApp.onConnect([](const WebApp::SocketAddress& localAddress, const WebApp::SocketAddress& remoteAddress) -> void {
+        webApp.onConnect([](WebApp::SocketConnection* socketConnection) -> void {
             VLOG(0) << "OnConnect:";
 
-            VLOG(0) << "\tServer: (" + localAddress.address() + ") " + localAddress.toString();
-            VLOG(0) << "\tClient: (" + remoteAddress.address() + ") " + remoteAddress.toString();
+            VLOG(0) << "\tServer: (" + socketConnection->getLocalAddress().address() + ") " +
+                           socketConnection->getLocalAddress().toString();
+            VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " +
+                           socketConnection->getRemoteAddress().toString();
         });
 
         webApp.onConnected([](WebApp::SocketConnection* socketConnection) -> void {

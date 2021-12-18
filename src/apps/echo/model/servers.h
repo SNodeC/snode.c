@@ -54,16 +54,16 @@ namespace apps::echo::model::legacy {
     using EchoSocketServer = net::NET::stream::STREAM::SocketServer<EchoServerSocketContextFactory>;
 
     EchoSocketServer getServer(const std::map<std::string, std::any>& options) {
-        using SocketAddress = typename EchoSocketServer::SocketAddress;
         using SocketConnection = typename EchoSocketServer::SocketConnection;
 
         return EchoSocketServer(
-            [](const SocketAddress& localAddress,
-               const SocketAddress& remoteAddress) -> void { // OnConnect
+            [](SocketConnection* socketConnection) -> void { // onConnect
                 VLOG(0) << "OnConnect";
 
-                VLOG(0) << "\tServer: (" + localAddress.address() + ") " + localAddress.toString();
-                VLOG(0) << "\tClient: (" + remoteAddress.address() + ") " + remoteAddress.toString();
+                VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
+                               socketConnection->getRemoteAddress().toString();
+                VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
+                               socketConnection->getLocalAddress().toString();
             },
             []([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnected
                 VLOG(0) << "OnConnected";
@@ -89,16 +89,16 @@ namespace apps::echo::model::tls {
     using EchoSocketServer = net::NET::stream::STREAM::SocketServer<EchoServerSocketContextFactory>;
 
     EchoSocketServer getServer(const std::map<std::string, std::any>& options) {
-        using SocketAddress = typename EchoSocketServer::SocketAddress;
         using SocketConnection = typename EchoSocketServer::SocketConnection;
 
         return EchoSocketServer(
-            [](const SocketAddress& localAddress,
-               const SocketAddress& remoteAddress) -> void { // OnConnect
+            [](SocketConnection* socketConnection) -> void { // onConnect
                 VLOG(0) << "OnConnect";
 
-                VLOG(0) << "\tServer: (" + localAddress.address() + ") " + localAddress.toString();
-                VLOG(0) << "\tClient: (" + remoteAddress.address() + ") " + remoteAddress.toString();
+                VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
+                               socketConnection->getRemoteAddress().toString();
+                VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
+                               socketConnection->getLocalAddress().toString();
             },
             []([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnected
                 VLOG(0) << "OnConnected";

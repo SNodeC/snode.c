@@ -49,13 +49,23 @@ namespace core::socket::stream::legacy {
                          const std::shared_ptr<core::socket::SocketContextFactory>& socketProtocolFactory,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
-                         const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
+                         const std::function<void(SocketConnection*)>& onConnect,
                          const std::function<void(SocketConnection*)>& onDisconnect)
             : Super::Descriptor(fd)
-            , Super(socketProtocolFactory, localAddress, remoteAddress, onConnect, [onDisconnect, this]() -> void {
-                onDisconnect(this);
-            }) {
+            , Super(
+                  socketProtocolFactory,
+                  localAddress,
+                  remoteAddress,
+                  [onConnect, this]() -> void {
+                      onConnect(this);
+                  },
+                  [onDisconnect, this]() -> void {
+                      onDisconnect(this);
+                  }) {
         }
+
+    private:
+        ~SocketConnection() override = default;
 
         template <typename Socket>
         friend class SocketAcceptor;

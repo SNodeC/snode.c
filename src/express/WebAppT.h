@@ -53,12 +53,13 @@ namespace express {
         explicit WebAppT(const Router& router, const std::map<std::string, std::any>& options = {{}})
             : WebApp(router)
             , Server(
-                  [](const SocketAddress& localAddress,
-                     const SocketAddress& remoteAddress) -> void { // onConnect
+                  [](SocketConnection* socketConnection) -> void { // onConnect
                       VLOG(0) << "OnConnect:";
 
-                      VLOG(0) << "\tServer: (" + localAddress.address() + ") " + localAddress.toString();
-                      VLOG(0) << "\tClient: (" + remoteAddress.address() + ") " + remoteAddress.toString();
+                      VLOG(0) << "\tServer: (" + socketConnection->getLocalAddress().address() + ") " +
+                                     socketConnection->getLocalAddress().toString();
+                      VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " +
+                                     socketConnection->getRemoteAddress().toString();
                   },
                   [](SocketConnection* socketConnection) -> void { // onConnected
                       VLOG(0) << "OnConnected:";

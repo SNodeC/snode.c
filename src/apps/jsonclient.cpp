@@ -36,13 +36,14 @@ int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
     web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response> jsonClient(
-        [](const web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& localAddress,
-           const web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& remoteAddress)
+        [](web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection)
             -> void {
             VLOG(0) << "-- OnConnect";
 
-            VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
-            VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
+            VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
+                           socketConnection->getRemoteAddress().toString();
+            VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
+                           socketConnection->getLocalAddress().toString();
         },
         []([[maybe_unused]] web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection*
                socketConnection) -> void {

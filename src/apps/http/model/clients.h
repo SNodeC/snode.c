@@ -33,11 +33,13 @@ namespace apps::http::legacy {
 
     Client getClient(const std::map<std::string, std::any>& options) {
         return Client(
-            [](const Client::SocketAddress& localAddress, const Client::SocketAddress& remoteAddress) -> void {
-                VLOG(0) << "-- OnConnect";
+            [](Client::SocketConnection* socketConnection) -> void { // onConnect
+                VLOG(0) << "OnConnect";
 
-                VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
-                VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
+                VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
+                               socketConnection->getRemoteAddress().toString();
+                VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
+                               socketConnection->getLocalAddress().toString();
             },
             []([[maybe_unused]] Client::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnConnected";
@@ -103,11 +105,13 @@ namespace apps::http::tls {
 
     Client getClient(const std::map<std::string, std::any>& options) {
         return Client(
-            [](const Client::SocketAddress& localAddress, const Client::SocketAddress& remoteAddress) -> void {
-                VLOG(0) << "-- OnConnect";
+            [](Client::SocketConnection* socketConnection) -> void { // onConnect
+                VLOG(0) << "OnConnect";
 
-                VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
-                VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
+                VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
+                               socketConnection->getRemoteAddress().toString();
+                VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
+                               socketConnection->getLocalAddress().toString();
             },
             [](Client::SocketConnection* socketConnection) -> void {
                 VLOG(0) << "-- OnConnected";

@@ -51,12 +51,19 @@ namespace core::socket::stream::tls {
                          const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
-                         const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
+                         const std::function<void(SocketConnection*)>& onConnect,
                          const std::function<void(SocketConnection*)>& onDisconnect)
             : Super::Descriptor(fd)
-            , Super(socketContextFactory, localAddress, remoteAddress, onConnect, [onDisconnect, this]() -> void {
-                onDisconnect(this);
-            }) {
+            , Super(
+                  socketContextFactory,
+                  localAddress,
+                  remoteAddress,
+                  [onConnect, this]() -> void {
+                      onConnect(this);
+                  },
+                  [onDisconnect, this]() -> void {
+                      onDisconnect(this);
+                  }) {
         }
 
         SSL* getSSL() const {
@@ -64,6 +71,8 @@ namespace core::socket::stream::tls {
         }
 
     private:
+        ~SocketConnection() override = default;
+
         SSL* startSSL(SSL_CTX* ctx) {
             if (ctx != nullptr) {
                 ssl = SSL_new(ctx);

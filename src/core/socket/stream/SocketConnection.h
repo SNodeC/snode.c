@@ -53,7 +53,7 @@ namespace core::socket::stream {
         SocketConnection(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
-                         const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
+                         const std::function<void()>& onConnect,
                          const std::function<void()>& onDisconnect)
             : Super(socketContextFactory)
             , SocketReader([this](int errnum) -> void {
@@ -69,16 +69,34 @@ namespace core::socket::stream {
             SocketWriter::enable(SocketConnection::getFd());
             SocketReader::suspend();
             SocketWriter::suspend();
-            onConnect(localAddress, remoteAddress);
+            onConnect();
             onConnected();
         }
 
-        virtual ~SocketConnection() {
+        ~SocketConnection() override {
             onDisconnected();
             onDisconnect();
         }
 
     public:
+        void close() final {
+            SocketWriter::disable();
+            SocketReader::disable();
+        }
+
+        void shutdownRead() final {
+            SocketReader::shutdown();
+        }
+
+        void shutdownWrite() final {
+            SocketWriter::shutdown();
+        }
+
+        void setTimeout(const utils::Timeval& timeout) final {
+            SocketReader::setTimeout(timeout);
+            SocketWriter::setTimeout(timeout);
+        }
+
         const SocketAddress& getRemoteAddress() const {
             return remoteAddress;
         }
@@ -88,15 +106,15 @@ namespace core::socket::stream {
         }
 
     private:
-        std::string getLocalAddressAsString() const override {
+        std::string getLocalAddressAsString() const final {
             return localAddress.toString();
         }
 
-        std::string getRemoteAddressAsString() const override {
+        std::string getRemoteAddressAsString() const final {
             return remoteAddress.toString();
         }
 
-        ssize_t readFromPeer(char* junk, std::size_t junkLen) override {
+        ssize_t readFromPeer(char* junk, std::size_t junkLen) final {
             ssize_t ret = 0;
 
             if (newSocketContext == nullptr) {
@@ -120,36 +138,17 @@ namespace core::socket::stream {
             sendToPeer(data.data(), data.size());
         }
 
-        void close() final {
-            SocketWriter::disable();
-            SocketReader::disable();
-        }
-
-        void shutdownRead() final {
-            SocketReader::shutdown();
-        }
-
-        void shutdownWrite() final {
-            SocketWriter::shutdown();
-        }
-
-        void setTimeout(const utils::Timeval& timeout) override {
-            SocketReader::setTimeout(timeout);
-            SocketWriter::setTimeout(timeout);
-        }
-
-    private:
-        void readEvent() override {
+        void readEvent() final {
             SocketReader::doRead();
 
             onReceiveFromPeer();
         }
 
-        void writeEvent() override {
+        void writeEvent() final {
             SocketWriter::doWrite();
         }
 
-        void unobservedEvent() override {
+        void unobservedEvent() final {
             delete this;
         }
 

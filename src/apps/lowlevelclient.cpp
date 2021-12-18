@@ -138,12 +138,13 @@ namespace tls {
 
     SocketClient getClient() {
         SocketClient client(
-            [](const SocketAddress& localAddress,
-               const SocketAddress& remoteAddress) -> void { // onConnect
+            [](SocketConnection* socketConnection) -> void { // onConnect
                 VLOG(0) << "OnConnect";
 
-                VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
-                VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
+                VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
+                               socketConnection->getRemoteAddress().toString();
+                VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
+                               socketConnection->getLocalAddress().toString();
             },
             [](SocketConnection* socketConnection) -> void { // onConnected
                 VLOG(0) << "OnConnected";
@@ -224,12 +225,13 @@ namespace legacy {
 
     SocketClient getLegacyClient() {
         SocketClient legacyClient(
-            [](const SocketAddress& localAddress,
-               const SocketAddress& remoteAddress) -> void { // OnConnect
+            [](SocketConnection* socketConnection) -> void { // onConnect
                 VLOG(0) << "OnConnect";
 
-                VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
-                VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
+                VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
+                               socketConnection->getRemoteAddress().toString();
+                VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
+                               socketConnection->getLocalAddress().toString();
             },
             []([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnected
                 VLOG(0) << "OnConnected";

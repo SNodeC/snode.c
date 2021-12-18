@@ -45,13 +45,12 @@ int main(int argc, char* argv[]) {
 
     {
         web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response> legacyClient(
-            [](const web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& localAddress,
-               const web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& remoteAddress)
+            [](web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection)
                 -> void {
                 VLOG(0) << "OnConnect";
 
-                VLOG(0) << "\tServer: " + remoteAddress.toString();
-                VLOG(0) << "\tClient: " + localAddress.toString();
+                VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+                VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
             },
             []([[maybe_unused]] web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection*
                    socketConnection) -> void {
@@ -106,13 +105,12 @@ int main(int argc, char* argv[]) {
             });
 
         web::http::tls::in::Client<web::http::client::Request, web::http::client::Response> tlsClient(
-            [](const web::http::tls::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& localAddress,
-               const web::http::tls::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& remoteAddress)
+            [](web::http::tls::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection)
                 -> void {
                 VLOG(0) << "OnConnect";
 
-                VLOG(0) << "\tServer: " + remoteAddress.toString();
-                VLOG(0) << "\tClient: " + localAddress.toString();
+                VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+                VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
             },
             [](web::http::tls::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection)
                 -> void {
