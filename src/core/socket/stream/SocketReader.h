@@ -71,22 +71,13 @@ namespace core::socket::stream {
 
     protected:
         ssize_t readFromPeer(char* junk, std::size_t junkLen) {
-            ssize_t ret = 0;
+            std::size_t maxReturn = std::min(junkLen, size);
 
-            if (size > 0) {
-                if (!shutdownTriggered) {
-                    std::size_t maxReturn = std::min(junkLen, size);
+            std::copy(data + cursor, data + cursor + maxReturn, junk);
 
-                    std::copy(data + cursor, data + cursor + maxReturn, junk);
-                    cursor += maxReturn;
-                    size -= maxReturn;
-
-                    ret = static_cast<ssize_t>(maxReturn);
-                } else {
-                    size = 0;
-                    cursor = 0;
-                }
-            }
+            cursor += maxReturn;
+            size -= maxReturn;
+            ssize_t ret = static_cast<ssize_t>(maxReturn);
 
             return ret;
         }
@@ -99,9 +90,7 @@ namespace core::socket::stream {
                 std::size_t readLen = MAX_READ_JUNKSIZE - size;
 
                 ssize_t retRead = 0;
-                if (!shutdownTriggered) {
-                    retRead = read(data + size, readLen);
-                }
+                retRead = read(data + size, readLen);
 
                 if (retRead > 0) {
                     size += static_cast<std::size_t>(retRead);

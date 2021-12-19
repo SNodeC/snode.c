@@ -57,7 +57,7 @@ namespace web::http::client {
                   onResponse(request, response);
 
                   if (response.header("connection") == "close" || request.header("connection") == "close") {
-                      shutdown();
+                      shutdownWrite();
                   }
 
                   parser.reset();

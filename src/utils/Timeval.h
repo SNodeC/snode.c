@@ -51,6 +51,8 @@ namespace utils {
         Timeval& operator+=(const Timeval& timeVal);
         Timeval& operator-=(const Timeval& timeVal);
 
+        Timeval operator-() const;
+
         bool operator<(const Timeval& timeVal) const;
         bool operator>(const Timeval& timeVal) const;
         bool operator<=(const Timeval& timeVal) const;

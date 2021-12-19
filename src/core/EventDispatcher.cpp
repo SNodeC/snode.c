@@ -174,6 +174,8 @@ namespace core {
                 } else {
                     nextTimeout = std::min(eventReceiver->getTimeout(currentTime), nextTimeout);
                 }
+            } else if (!eventReceiver->isEnabled()) {
+                nextTimeout = 0;
             }
         }
 
@@ -213,10 +215,10 @@ namespace core {
     void EventDispatcher::_dispatchActiveEvents(const utils::Timeval& currentTime) {
         for (const auto& [fd, eventReceivers] : observedEventReceiver) {
             EventReceiver* eventReceiver = eventReceivers.front();
-            if (fdSet.isSet(fd) || (eventReceiver->continueImmediately())) {
+            if ((fdSet.isSet(fd) || (eventReceiver->continueImmediately())) && !eventReceiver->isSuspended()) {
                 eventCounter++;
                 eventReceiver->trigger(currentTime);
-            } else {
+            } else if (eventReceiver->isEnabled()) {
                 eventReceiver->checkTimeout(currentTime);
             }
         }

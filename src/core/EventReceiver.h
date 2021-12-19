@@ -94,7 +94,7 @@ namespace core {
 
         virtual bool continueImmediately() = 0;
 
-        EventDispatcher& descriptorEventDispatcher;
+        EventDispatcher& eventDispatcher;
 
         int fd = -1;
 

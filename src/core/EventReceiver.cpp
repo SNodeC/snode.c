@@ -32,7 +32,7 @@ namespace core {
     const utils::Timeval EventReceiver::TIMEOUT::DISABLE = {LONG_MAX, 0};
 
     EventReceiver::EventReceiver(EventDispatcher& descriptorEventDispatcher, const utils::Timeval& timeout)
-        : descriptorEventDispatcher(descriptorEventDispatcher)
+        : eventDispatcher(descriptorEventDispatcher)
         , maxInactivity(timeout)
         , initialTimeout(timeout) {
     }
@@ -41,7 +41,7 @@ namespace core {
         this->fd = fd;
         observed();
 
-        descriptorEventDispatcher.enable(this, fd);
+        eventDispatcher.enable(this, fd);
 
         lastTriggered = utils::Timeval::currentTime();
 
@@ -53,7 +53,7 @@ namespace core {
             suspend();
         }
 
-        descriptorEventDispatcher.disable(this, fd);
+        eventDispatcher.disable(this, fd);
         _enabled = false;
     }
 
@@ -67,14 +67,14 @@ namespace core {
 
     void EventReceiver::suspend() {
         if (isEnabled()) {
-            descriptorEventDispatcher.suspend(this, fd);
+            eventDispatcher.suspend(this, fd);
             _suspended = true;
         }
     }
 
     void EventReceiver::resume() {
         if (isEnabled()) {
-            descriptorEventDispatcher.resume(this, fd);
+            eventDispatcher.resume(this, fd);
             _suspended = false;
             lastTriggered = utils::Timeval::currentTime();
         }

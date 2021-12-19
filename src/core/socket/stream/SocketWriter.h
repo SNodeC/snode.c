@@ -20,6 +20,7 @@
 #define CORE_SOCKET_STREAM_SOCKETWRITER_H
 
 #include "core/WriteEventReceiver.h"
+#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -70,7 +71,9 @@ namespace core::socket::stream {
 
     protected:
         void sendToPeer(const char* junk, std::size_t junkLen) {
-            writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
+            if (!shutdownTriggered) {
+                writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
+            }
 
             if (isSuspended()) {
                 resume();
@@ -83,9 +86,7 @@ namespace core::socket::stream {
             std::size_t writeLen = (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE;
 
             ssize_t retWrite = -1;
-            if (!shutdownTriggered) {
-                retWrite = write(writeBuffer.data(), writeLen);
-            }
+            retWrite = write(writeBuffer.data(), writeLen);
 
             if (retWrite >= 0) {
                 writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);

@@ -119,6 +119,15 @@ namespace utils {
         return *this;
     }
 
+    Timeval Timeval::operator-() const {
+        Timeval timeVal;
+
+        timeVal.timeVal.tv_sec = -this->timeVal.tv_sec;
+        timeVal.timeVal.tv_usec = -this->timeVal.tv_usec;
+
+        return timeVal.normalize();
+    }
+
     bool Timeval::operator<(const Timeval& timeVal) const {
         return (this->timeVal.tv_sec < timeVal.timeVal.tv_sec) ||
                ((this->timeVal.tv_sec == timeVal.timeVal.tv_sec) && (this->timeVal.tv_usec < timeVal.timeVal.tv_usec));
@@ -159,10 +168,6 @@ namespace utils {
         } else if (timeVal.tv_usec < 0) {
             timeVal.tv_usec += 1'000'000;
             timeVal.tv_sec--;
-        }
-
-        if (timeVal.tv_sec < 0) {
-            timeVal = {0, 0};
         }
 
         return *this;

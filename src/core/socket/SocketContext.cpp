@@ -89,12 +89,12 @@ namespace core::socket {
         socketConnection->close();
     }
 
-    void SocketContext::onWriteError(int errnum) { // By default we do a cross-shutdown
+    void SocketContext::onWriteError(int errnum) { // By default we do nothing because we may still want to read data
         PLOG(ERROR) << "OnWriteError: " << errnum;
-        shutdownRead();
     }
 
-    void SocketContext::onReadError(int errnum) { // By default we do a cross-shutdown
+    void SocketContext::onReadError(int errnum) { // By default we do a cross-shutdown. Override this method in case your protocol still
+                                                  // wants to send data after peers sending side has closed the connection.
         PLOG(ERROR) << "OnReadError: " << errnum;
         shutdownWrite();
     }

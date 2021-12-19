@@ -39,7 +39,7 @@ int timerApp() {
         0.5,
         "Tick");
 
-    Timer& tack = Timer::intervalTimer(
+    [[maybe_unused]] Timer& tack = Timer::intervalTimer(
         [](const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
             static int i = 0;
             std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
@@ -47,91 +47,90 @@ int timerApp() {
         1.1,
         "Tack");
 
-    bool canceled = false;
+    [[maybe_unused]] bool canceled = false;
+    /*
+        express::legacy::in::WebApp app;
 
-    express::legacy::in::WebApp app;
+        app.get("/", [&canceled, &tack](express::Request& req, express::Response& res) -> void {
+            std::string uri = req.originalUrl;
 
-    app.get("/", [&canceled, &tack](express::Request& req, express::Response& res) -> void {
-        std::string uri = req.originalUrl;
+            if (uri == "/") {
+                res.redirect("/index.html");
+            } else {
+                std::cout << "OriginalUri: " << uri << std::endl;
+                std::cout << "Uri: " << req.url << std::endl;
 
-        if (uri == "/") {
-            res.redirect("/index.html");
-        } else {
+                std::cout << "RCookie: " << req.cookie("doxygen_width") << std::endl;
+                std::cout << "RCookie: " << req.cookie("test") << std::endl;
+
+                //            std::cout << "RHeader: " << req.header("Content-Length") << std::endl;
+                std::cout << "RHeader: " << req.header("Accept") << std::endl;
+
+                std::cout << "If-Modified: " << req.header("If-Modified-Since") << std::endl;
+
+                std::cout << "RQuery: " << req.query("Hallo") << std::endl;
+
+                res.cookie("Test", "me", {{"Max-Age", "3600"}});
+
+                //            res.set("Connection", "close");
+                res.sendFile(SERVERROOT + uri, [uri](int ret) -> void {
+                    if (ret != 0) {
+                        perror(uri.c_str());
+                        //                    std::cout << "Error: " << ret << ", " << uri << std::endl;
+                    }
+                });
+
+                if (!canceled) {
+                    tack.cancel();
+                    canceled = true;
+                    //                app.destroy();
+                }
+                //            Multiplexer::stop();
+            }
+        });
+
+        app.get("/search/", [&](express::Request& req, express::Response& res) -> void {
+            //                  res.set({{"Content-Length", "7"}});
+
+            std::string host = req.header("Host");
+
+            //                std::cout << "Host: " << host << std::endl;
+
+            std::string uri = req.originalUrl;
+
+            //                std::cout << "RHeader: " << req.header("Accept") << std::endl;
+
             std::cout << "OriginalUri: " << uri << std::endl;
             std::cout << "Uri: " << req.url << std::endl;
 
-            std::cout << "RCookie: " << req.cookie("doxygen_width") << std::endl;
-            std::cout << "RCookie: " << req.cookie("test") << std::endl;
+            if (uri == "/") {
+                res.redirect("/index.html");
+            } else {
+                //                    std::cout << uri << std::endl;
 
-            //            std::cout << "RHeader: " << req.header("Content-Length") << std::endl;
-            std::cout << "RHeader: " << req.header("Accept") << std::endl;
-
-            std::cout << "If-Modified: " << req.header("If-Modified-Since") << std::endl;
-
-            std::cout << "RQuery: " << req.query("Hallo") << std::endl;
-
-            res.cookie("Test", "me", {{"Max-Age", "3600"}});
-
-            //            res.set("Connection", "close");
-            res.sendFile(SERVERROOT + uri, [uri](int ret) -> void {
-                if (ret != 0) {
-                    perror(uri.c_str());
-                    //                    std::cout << "Error: " << ret << ", " << uri << std::endl;
+                if (req.bodyLength() != 0) {
+                    std::cout << "Body: " << req.body << std::endl;
                 }
-            });
 
-            if (!canceled) {
-                tack.cancel();
-                canceled = true;
-                //                app.destroy();
+                res.sendFile(SERVERROOT + uri, [uri](int ret) -> void {
+                    if (ret != 0) {
+                        std::cerr << uri << ": " << strerror(ret) << std::endl;
+                    }
+                });
             }
-            //            Multiplexer::stop();
-        }
-    });
+            res.upgrade(req);
+        });
 
-    app.get("/search/", [&](express::Request& req, express::Response& res) -> void {
-        //                  res.set({{"Content-Length", "7"}});
-
-        std::string host = req.header("Host");
-
-        //                std::cout << "Host: " << host << std::endl;
-
-        std::string uri = req.originalUrl;
-
-        //                std::cout << "RHeader: " << req.header("Accept") << std::endl;
-
-        std::cout << "OriginalUri: " << uri << std::endl;
-        std::cout << "Uri: " << req.url << std::endl;
-
-        if (uri == "/") {
-            res.redirect("/index.html");
-        } else {
-            //                    std::cout << uri << std::endl;
-
-            if (req.bodyLength() != 0) {
-                std::cout << "Body: " << req.body << std::endl;
+        app.listen(8080, [](const express::legacy::in::WebApp::Server::Socket& socket, int err) -> void {
+            if (err != 0) {
+                perror("Listen");
+            } else {
+                std::cout << "snode.c listening: " << socket.getBindAddress().toString();
             }
+        });
+    */
 
-            res.sendFile(SERVERROOT + uri, [uri](int ret) -> void {
-                if (ret != 0) {
-                    std::cerr << uri << ": " << strerror(ret) << std::endl;
-                }
-            });
-        }
-        res.upgrade(req);
-    });
-
-    app.listen(8080, [](const express::legacy::in::WebApp::Server::Socket& socket, int err) -> void {
-        if (err != 0) {
-            perror("Listen");
-        } else {
-            std::cout << "snode.c listening: " << socket.getBindAddress().toString();
-        }
-    });
-
-    express::WebApp::start();
-
-    return 0;
+    return express::WebApp::start();
 }
 
 int main(int argc, char** argv) {
