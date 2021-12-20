@@ -37,7 +37,8 @@ int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
     std::map<std::string, std::any> options{
         {"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}, {"CaFile", CLIENTCAFILE}};
     std::map<std::string, std::map<std::string, std::any>> sniCerts = {
-        {"snodec.home.vchrist.at", {{"CertChain", SNODECCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}}}};
+        {"snodec.home.vchrist.at",
+         {{"CertChain", SNODECCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}, {"CaFile", CLIENTCAFILE}}}};
 #endif
 
     using WebApp = apps::http::STREAM::WebApp;
