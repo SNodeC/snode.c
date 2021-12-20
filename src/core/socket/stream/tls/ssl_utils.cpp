@@ -49,6 +49,40 @@ namespace core::socket::stream::tls {
     }
 
     static int verify_callback(int preverify_ok, [[maybe_unused]] X509_STORE_CTX* ctx) {
+        char buf[256];
+        X509* err_cert;
+        int err = 0;
+        int depth = 0;
+
+        err_cert = X509_STORE_CTX_get_current_cert(ctx);
+        err = X509_STORE_CTX_get_error(ctx);
+        depth = X509_STORE_CTX_get_error_depth(ctx);
+
+        X509_NAME_oneline(X509_get_subject_name(err_cert), buf, 256);
+
+        if (!preverify_ok) {
+            //            printf("verify error:num=%d:%s:depth=%d:%s\n", err, X509_verify_cert_error_string(err), depth, buf);
+            LOG(INFO) << "verify_error:num=" << err << ":" << X509_verify_cert_error_string(err) << ":depth=" << depth << ":" << buf;
+        } else {
+            //            printf("depth=%d:%s\n", depth, buf);
+            LOG(INFO) << "depth=" << depth << ":" << buf;
+        }
+
+        /*
+         * At this point, err contains the last verification error. We can use
+         * it for something special
+         */
+        /*
+                if (!preverify_ok && (err == X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT)) {
+                    X509_NAME_oneline(X509_get_issuer_name(err_cert), buf, 256);
+                    printf("issuer= %s\n", buf);
+                }
+        */
+
+        if (err == X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN) {
+            preverify_ok = true;
+        }
+
         return preverify_ok;
     }
 
