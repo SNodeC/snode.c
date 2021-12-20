@@ -48,87 +48,86 @@ int timerApp() {
         "Tack");
 
     [[maybe_unused]] bool canceled = false;
-    /*
-        express::legacy::in::WebApp app;
 
-        app.get("/", [&canceled, &tack](express::Request& req, express::Response& res) -> void {
-            std::string uri = req.originalUrl;
+    express::legacy::in::WebApp app;
 
-            if (uri == "/") {
-                res.redirect("/index.html");
-            } else {
-                std::cout << "OriginalUri: " << uri << std::endl;
-                std::cout << "Uri: " << req.url << std::endl;
+    app.get("/", [&canceled, &tack](express::Request& req, express::Response& res) -> void {
+        std::string uri = req.originalUrl;
 
-                std::cout << "RCookie: " << req.cookie("doxygen_width") << std::endl;
-                std::cout << "RCookie: " << req.cookie("test") << std::endl;
-
-                //            std::cout << "RHeader: " << req.header("Content-Length") << std::endl;
-                std::cout << "RHeader: " << req.header("Accept") << std::endl;
-
-                std::cout << "If-Modified: " << req.header("If-Modified-Since") << std::endl;
-
-                std::cout << "RQuery: " << req.query("Hallo") << std::endl;
-
-                res.cookie("Test", "me", {{"Max-Age", "3600"}});
-
-                //            res.set("Connection", "close");
-                res.sendFile(SERVERROOT + uri, [uri](int ret) -> void {
-                    if (ret != 0) {
-                        perror(uri.c_str());
-                        //                    std::cout << "Error: " << ret << ", " << uri << std::endl;
-                    }
-                });
-
-                if (!canceled) {
-                    tack.cancel();
-                    canceled = true;
-                    //                app.destroy();
-                }
-                //            Multiplexer::stop();
-            }
-        });
-
-        app.get("/search/", [&](express::Request& req, express::Response& res) -> void {
-            //                  res.set({{"Content-Length", "7"}});
-
-            std::string host = req.header("Host");
-
-            //                std::cout << "Host: " << host << std::endl;
-
-            std::string uri = req.originalUrl;
-
-            //                std::cout << "RHeader: " << req.header("Accept") << std::endl;
-
+        if (uri == "/") {
+            res.redirect("/index.html");
+        } else {
             std::cout << "OriginalUri: " << uri << std::endl;
             std::cout << "Uri: " << req.url << std::endl;
 
-            if (uri == "/") {
-                res.redirect("/index.html");
-            } else {
-                //                    std::cout << uri << std::endl;
+            std::cout << "RCookie: " << req.cookie("doxygen_width") << std::endl;
+            std::cout << "RCookie: " << req.cookie("test") << std::endl;
 
-                if (req.bodyLength() != 0) {
-                    std::cout << "Body: " << req.body << std::endl;
+            //            std::cout << "RHeader: " << req.header("Content-Length") << std::endl;
+            std::cout << "RHeader: " << req.header("Accept") << std::endl;
+
+            std::cout << "If-Modified: " << req.header("If-Modified-Since") << std::endl;
+
+            std::cout << "RQuery: " << req.query("Hallo") << std::endl;
+
+            res.cookie("Test", "me", {{"Max-Age", "3600"}});
+
+            //            res.set("Connection", "close");
+            res.sendFile(SERVERROOT + uri, [uri](int ret) -> void {
+                if (ret != 0) {
+                    perror(uri.c_str());
+                    //                    std::cout << "Error: " << ret << ", " << uri << std::endl;
                 }
+            });
 
-                res.sendFile(SERVERROOT + uri, [uri](int ret) -> void {
-                    if (ret != 0) {
-                        std::cerr << uri << ": " << strerror(ret) << std::endl;
-                    }
-                });
+            if (!canceled) {
+                tack.cancel();
+                canceled = true;
+                //                app.destroy();
             }
-            res.upgrade(req);
-        });
+            //            Multiplexer::stop();
+        }
+    });
 
-        app.listen(8080, [](const express::legacy::in::WebApp::Server::Socket& socket, int err) -> void {
-            if (err != 0) {
-                perror("Listen");
-            } else {
-                std::cout << "snode.c listening: " << socket.getBindAddress().toString();
+    app.get("/search/", [&](express::Request& req, express::Response& res) -> void {
+        //                  res.set({{"Content-Length", "7"}});
+
+        std::string host = req.header("Host");
+
+        //                std::cout << "Host: " << host << std::endl;
+
+        std::string uri = req.originalUrl;
+
+        //                std::cout << "RHeader: " << req.header("Accept") << std::endl;
+
+        std::cout << "OriginalUri: " << uri << std::endl;
+        std::cout << "Uri: " << req.url << std::endl;
+
+        if (uri == "/") {
+            res.redirect("/index.html");
+        } else {
+            //                    std::cout << uri << std::endl;
+
+            if (req.bodyLength() != 0) {
+                std::cout << "Body: " << req.body << std::endl;
             }
-        });
-    */
+
+            res.sendFile(SERVERROOT + uri, [uri](int ret) -> void {
+                if (ret != 0) {
+                    std::cerr << uri << ": " << strerror(ret) << std::endl;
+                }
+            });
+        }
+        res.upgrade(req);
+    });
+
+    app.listen(8080, [](const express::legacy::in::WebApp::Server::Socket& socket, int err) -> void {
+        if (err != 0) {
+            perror("Listen");
+        } else {
+            std::cout << "snode.c listening: " << socket.getBindAddress().toString();
+        }
+    });
 
     return express::WebApp::start();
 }

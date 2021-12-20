@@ -25,8 +25,9 @@
 #include <cerrno>  // for errno
 #include <cstdlib> // for free
 #include <cstring>
-#include <openssl/err.h> // for ERR_peek_error
-#include <openssl/ssl.h> // IWYU pragma: keep
+#include <openssl/err.h>  // for ERR_peek_error
+#include <openssl/ssl.h>  // IWYU pragma: keep
+#include <openssl/x509.h> // for X509_NAME_oneline, X509_STORE_CTX_get_current_cert, X509_STORE_CTX_get_error, X509_STORE_CTX_get_error_depth, X509_get_subject_name, X509_verify_cert_error_string, X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN
 #include <string>
 #include <utility> // for tuple_element<>::type
 
@@ -61,10 +62,8 @@ namespace core::socket::stream::tls {
         X509_NAME_oneline(X509_get_subject_name(err_cert), buf, 256);
 
         if (!preverify_ok) {
-            //            printf("verify error:num=%d:%s:depth=%d:%s\n", err, X509_verify_cert_error_string(err), depth, buf);
             LOG(INFO) << "verify_error:num=" << err << ":" << X509_verify_cert_error_string(err) << ":depth=" << depth << ":" << buf;
         } else {
-            //            printf("depth=%d:%s\n", depth, buf);
             LOG(INFO) << "depth=" << depth << ":" << buf;
         }
 
@@ -80,7 +79,7 @@ namespace core::socket::stream::tls {
         */
 
         if (err == X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN) {
-            preverify_ok = true;
+            //            preverify_ok = true;
         }
 
         return preverify_ok;
