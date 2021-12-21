@@ -77,11 +77,8 @@ namespace web::http::server {
         // Data specific to HTTP request messages
         std::string method;
         std::string url;
-        std::string httpVersion;
         std::map<std::string, std::string> cookies;
         std::map<std::string, std::string> queries;
-        int httpMajor = 0;
-        int httpMinor = 0;
 
         // Callbacks
         std::function<void(void)> onStart;

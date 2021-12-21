@@ -73,6 +73,9 @@ namespace web::http::client {
             if (!std::regex_match(httpVersion, httpVersionMatch, httpVersionRegex)) {
                 parserState = parsingError(400, "Wrong protocol version");
             } else {
+                httpMajor = std::stoi(httpVersionMatch.str(1));
+                httpMinor = std::stoi(httpVersionMatch.str(2));
+
                 std::tie(statusCode, reason) = httputils::str_split(remaining, ' ');
                 if (StatusCode::contains(std::stoi(statusCode))) {
                     if (!reason.empty()) {

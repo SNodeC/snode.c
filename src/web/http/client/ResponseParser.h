@@ -61,7 +61,6 @@ namespace web::http::client {
 
         void parsingFinished();
 
-        std::string httpVersion;
         std::string statusCode;
         std::string reason;
         std::map<std::string, CookieOptions> cookies;

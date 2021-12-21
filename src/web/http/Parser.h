@@ -82,6 +82,10 @@ namespace web::http {
         std::size_t contentLength = 0;
         std::map<std::string, std::string> headers;
 
+        std::string httpVersion;
+        int httpMajor = 0;
+        int httpMinor = 0;
+
     private:
         core::socket::SocketContext* socketContext = nullptr;
 
