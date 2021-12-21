@@ -20,7 +20,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <list>
+#include <list> // IWYU pragma: export
 #include <map>
 #include <string>
 

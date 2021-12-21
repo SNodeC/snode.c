@@ -40,6 +40,9 @@ namespace web::websocket::server {
 
     class SubProtocolFactorySelector
         : public web::websocket::SubProtocolFactorySelector<web::websocket::SubProtocolFactory<web::websocket::server::SubProtocol>> {
+    private:
+        using Super = web::websocket::SubProtocolFactorySelector<web::websocket::SubProtocolFactory<web::websocket::server::SubProtocol>>;
+
     public:
         static SubProtocolFactorySelector* instance();
 

@@ -78,10 +78,6 @@ namespace core::socket::stream::tls {
                 }
         */
 
-        if (err == X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN) {
-            //            preverify_ok = true;
-        }
-
         return preverify_ok;
     }
 

@@ -77,6 +77,8 @@ namespace core {
         TickStatus tickStatus = TickStatus::SUCCESS;
         tickCounter++;
 
+        //        timerEventDispatcher.observeEnabledTimers();
+
         EventDispatcher::observeEnabledEvents();
         int maxFd = EventDispatcher::getMaxFd();
 
@@ -102,6 +104,8 @@ namespace core {
                 timerEventDispatcher.dispatchActiveEvents(currentTime);
                 EventDispatcher::dispatchActiveEvents(currentTime);
                 EventDispatcher::unobserveDisabledEvents(currentTime);
+
+                // timerEventDispathcer.unobserveDisabledTimers(currentTime);
 
                 DynamicLoader::execDlCloseDeleyed();
             } else {
@@ -189,7 +193,9 @@ namespace core {
             EventDispatcher::terminateObservedEvents();
             tickStatus = EventLoop::tick(2);
         } while (tickStatus == TickStatus::SUCCESS);
+
         stopped = false;
+
         do {
             EventLoop::instance().timerEventDispatcher.cancelAll();
             tickStatus = EventLoop::tick();

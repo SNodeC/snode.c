@@ -24,8 +24,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <list> // for list
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace web::http::client {
@@ -49,15 +47,13 @@ namespace web::http::client {
 
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactory*
     SocketContextUpgradeFactorySelector::load(const std::string& upgradeContextName) {
-        return web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::load(upgradeContextName,
-                                                                                                 core::socket::SocketContext::Role::CLIENT);
+        return load(upgradeContextName, core::socket::SocketContext::Role::CLIENT);
     }
 
     SocketContextUpgradeFactory* SocketContextUpgradeFactorySelector::select(const std::string& upgradeContextName, Request& req) {
         SocketContextUpgradeFactory* socketContextUpgradeFactory = nullptr;
 
-        socketContextUpgradeFactory =
-            web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::select(upgradeContextName);
+        socketContextUpgradeFactory = select(upgradeContextName);
 
         if (socketContextUpgradeFactory != nullptr) {
             socketContextUpgradeFactory->prepare(req); // Fill in the missing header fields into the request object
@@ -74,8 +70,7 @@ namespace web::http::client {
         if (!upgradeContextName.empty()) {
             httputils::to_lower(upgradeContextName);
 
-            socketContextUpgradeFactory =
-                web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::select(upgradeContextName);
+            socketContextUpgradeFactory = select(upgradeContextName);
 
             if (socketContextUpgradeFactory != nullptr) {
                 socketContextUpgradeFactory->web::http::SocketContextUpgradeFactory<Request, Response>::prepare(
