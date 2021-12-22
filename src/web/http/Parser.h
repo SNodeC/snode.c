@@ -75,16 +75,14 @@ namespace web::http {
         virtual void begin() = 0;
         virtual enum ParserState parseStartLine(const std::string& line) = 0;
         virtual enum ParserState parseHeader() = 0;
-        virtual enum ParserState parseContent(char* content, std::size_t size) = 0;
-        virtual enum ParserState vParseContent(std::vector<char>& vContent) = 0;
+        virtual enum ParserState parseContent(std::vector<uint8_t>& vContent) = 0;
         virtual enum ParserState parsingError(int code, const std::string& reason) = 0;
 
     protected:
         // Data common to all HTTP messages (Request/Response)
-        char* content = nullptr;
         std::size_t contentLength = 0;
         std::map<std::string, std::string> headers;
-        std::vector<char> vContent;
+        std::vector<uint8_t> content;
 
         std::string httpVersion;
         int httpMajor = 0;
@@ -97,7 +95,6 @@ namespace web::http {
         ssize_t readHeaderLine();
         void splitHeaderLine(const std::string& line);
         ssize_t readContent();
-        ssize_t vReadContent();
 
         // Line state
         bool EOL{false};

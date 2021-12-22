@@ -43,12 +43,8 @@ namespace web::http {
         parserState = ParserState::BEGIN;
         headers.clear();
         contentLength = 0;
-        vContent.clear();
+        content.clear();
         contentRead = 0;
-        if (content != nullptr) {
-            delete[] content;
-            content = nullptr;
-        }
     }
 
     void Parser::parse() {
@@ -69,7 +65,7 @@ namespace web::http {
                     consumed = readHeaderLine();
                     break;
                 case ParserState::BODY:
-                    consumed = vReadContent();
+                    consumed = readContent();
                     break;
                 case ParserState::ERROR:
                     parsingError = true;
@@ -186,42 +182,6 @@ namespace web::http {
     }
 
     ssize_t Parser::readContent() {
-        if (contentRead == 0) {
-            content = new char[contentLength];
-        }
-
-        std::size_t contentJunkLenLeft =
-            (contentLength - contentRead < MAX_CONTENT_JUNK_LEN) ? contentLength - contentRead : MAX_CONTENT_JUNK_LEN;
-
-        ssize_t ret = socketContext->readFromPeer(contentJunk, contentJunkLenLeft);
-
-        if (ret > 0) {
-            std::size_t contentJunkLen = static_cast<std::size_t>(ret);
-            if (contentRead + contentJunkLen <= contentLength) {
-                memcpy(content + contentRead, contentJunk, contentJunkLen); // NOLINT(clang-analyzer-core.NonNullParamChecker)
-
-                contentRead += contentJunkLen;
-                if (contentRead == contentLength) {
-                    parserState = parseContent(content, contentLength);
-
-                    delete[] content;
-                    content = nullptr;
-                    contentRead = 0;
-                }
-            } else {
-                parserState = parsingError(400, "Content to long");
-
-                if (content != nullptr) {
-                    delete[] content;
-                    content = nullptr;
-                }
-            }
-        }
-
-        return ret;
-    }
-
-    ssize_t Parser::vReadContent() {
         ssize_t ret = 0;
 
         if (httpMinor == 0 && contentLength == 0) {
@@ -229,9 +189,9 @@ namespace web::http {
 
             std::size_t contentJunkLen = static_cast<std::size_t>(ret);
             if (contentJunkLen > 0) {
-                vContent.insert(vContent.end(), contentJunk, contentJunk + contentJunkLen);
+                content.insert(content.end(), contentJunk, contentJunk + contentJunkLen);
             } else {
-                parserState = vParseContent(vContent);
+                parserState = parseContent(content);
             }
         } else if (httpMinor == 1) {
             std::size_t contentJunkLenLeft =
@@ -242,11 +202,11 @@ namespace web::http {
             std::size_t contentJunkLen = static_cast<std::size_t>(ret);
             if (contentJunkLen > 0) {
                 if (contentRead + contentJunkLen <= contentLength) {
-                    vContent.insert(vContent.end(), contentJunk, contentJunk + contentJunkLen);
+                    content.insert(content.end(), contentJunk, contentJunk + contentJunkLen);
 
                     contentRead += contentJunkLen;
                     if (contentRead == contentLength) {
-                        parserState = vParseContent(vContent);
+                        parserState = parseContent(content);
                     }
                 } else {
                     parserState = parsingError(400, "Content to long");

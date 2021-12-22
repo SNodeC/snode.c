@@ -152,15 +152,8 @@ namespace web::http::server {
         return parserState;
     }
 
-    enum Parser::ParserState RequestParser::parseContent(char* content, std::size_t size) {
-        onContent(content, size);
-        parsingFinished();
-
-        return ParserState::BEGIN;
-    }
-
-    Parser::ParserState RequestParser::vParseContent(std::vector<char>& vContent) {
-        onContent(vContent.data(), static_cast<std::size_t>(vContent.size()));
+    Parser::ParserState RequestParser::parseContent(std::vector<uint8_t>& content) {
+        onContent(reinterpret_cast<char*>(content.data()), static_cast<std::size_t>(content.size()));
         parsingFinished();
 
         return ParserState::BEGIN;

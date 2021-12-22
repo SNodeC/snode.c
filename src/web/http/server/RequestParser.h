@@ -65,8 +65,7 @@ namespace web::http::server {
         // Parsers and Validators
         enum Parser::ParserState parseStartLine(const std::string& line) override;
         enum Parser::ParserState parseHeader() override;
-        enum Parser::ParserState parseContent(char* content, std::size_t size) override;
-        enum Parser::ParserState vParseContent(std::vector<char>& vContent) override;
+        enum Parser::ParserState parseContent(std::vector<uint8_t>& content) override;
 
         // Exits
         void parsingFinished();
