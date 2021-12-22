@@ -108,8 +108,9 @@ int timerApp() {
         } else {
             //                    std::cout << uri << std::endl;
 
-            if (req.bodyLength() != 0) {
-                std::cout << "Body: " << req.body << std::endl;
+            if (req.body.size() > 0) {
+                req.body.push_back(0);
+                std::cout << "Body: " << req.body.data() << std::endl;
             }
 
             res.sendFile(SERVERROOT + uri, [uri](int ret) -> void {

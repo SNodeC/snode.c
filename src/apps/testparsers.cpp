@@ -66,14 +66,8 @@ int main(int argc, char* argv[]) {
             }
         },
         [](std::vector<uint8_t>& content) -> void {
-            std::ranges::copy(content, std::ostream_iterator<char>(std::cout, " "));
-            /*
-            char* strContent = new char[contentLength + 1];
-            memcpy(strContent, content, contentLength);
-            strContent[contentLength] = 0;
-            VLOG(0) << "++   OnContent: " << contentLength << " : " << strContent;
-            delete[] strContent;
-            */
+            content.push_back(0);
+            VLOG(0) << content.data();
         },
         []() -> void {
             VLOG(0) << "++    OnParsed";
@@ -130,14 +124,8 @@ int main(int argc, char* argv[]) {
             }
         },
         [](std::vector<uint8_t>& content) -> void {
-            std::ranges::copy(content, std::ostream_iterator<char>(std::cout, " "));
-            /*
-            char* strContent = new char[contentLength + 1];
-            memcpy(strContent, content, contentLength);
-            strContent[contentLength] = 0;
-            VLOG(0) << "++   OnContent: " << contentLength << " : " << strContent;
-            delete[] strContent;
-            */
+            content.push_back(0);
+            VLOG(0) << content.data();
         },
         [](client::ResponseParser& parser) -> void {
             VLOG(0) << "++   OnParsed";

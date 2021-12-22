@@ -27,10 +27,7 @@
 #include "net/in/stream/tls/SocketClient.h"    // for SocketC...
 #include "web/http/client/ResponseParser.h"    // for ResponseParser
 
-#include <algorithm> // for __copy_fn, copy
 #include <cstring>
-#include <iostream>           // for operator<<, basic_ostream, cout
-#include <iterator>           // for ostream_iterator
 #include <openssl/asn1.h>     // for ASN1_STRING_get...
 #include <openssl/crypto.h>   // for OPENSSL_free
 #include <openssl/obj_mac.h>  // for NID_subject_alt...
@@ -70,7 +67,8 @@ static web::http::client::ResponseParser* getResponseParser(core::socket::Socket
             }
         },
         [](std::vector<uint8_t>& content) -> void {
-            std::ranges::copy(content, std::ostream_iterator<char>(std::cout, " "));
+            content.push_back(0);
+            VLOG(0) << content.data();
         },
         [socketContext](web::http::client::ResponseParser& parser) -> void {
             VLOG(0) << "++   OnParsed";

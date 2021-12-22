@@ -86,8 +86,7 @@ namespace web::http::server {
 
                   Request& request = requestContexts.back().request;
 
-                  request.body = content.data();
-                  request.contentLength = content.size();
+                  request.body = std::move(content);
               },
               [this]() -> void {
                   VLOG(3) << "++ Parsed ++";

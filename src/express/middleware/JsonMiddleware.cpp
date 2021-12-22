@@ -28,12 +28,10 @@ namespace express {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint>                        // for uint8_t
 #include <initializer_list>               // for initializer_list
 #include <map>                            // for operator==
 #include <memory>                         // for shared_ptr, operator==
 #include <nlohmann/detail/exceptions.hpp> // for parse_error
-#include <vector>                         // for vector
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -44,7 +42,10 @@ namespace express::middleware {
             try {
                 // parse body string with json library
                 // store it as type json from nlohmann library
-                nlohmann::json json = nlohmann::json::parse(req.body, req.body + req.contentLength);
+                //                nlohmann::json json = nlohmann::json::parse(req.body, req.body + req.contentLength);
+
+                req.body.push_back(0);
+                nlohmann::json json = nlohmann::json::parse(req.body);
 
                 // set all the json data as attributes in the request object
                 req.setAttribute<nlohmann::json>(json);

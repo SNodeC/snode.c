@@ -24,10 +24,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // for size_t
-#include <cstdint>
-#include <map> // for map
+#include <cstdint> // IWYU pragma: export
+#include <map>     // for map
 #include <string>
+#include <vector> // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -43,7 +43,6 @@ namespace web::http::server {
         const std::string& header(const std::string& key, int i = 0) const;
         const std::string& cookie(const std::string& key) const;
         const std::string& query(const std::string& key) const;
-        std::size_t bodyLength() const;
 
         // Properties
         std::string method;
@@ -51,8 +50,7 @@ namespace web::http::server {
         std::string httpVersion;
         int httpMajor = 0;
         int httpMinor = 0;
-        uint8_t* body = nullptr;
-        std::size_t contentLength = 0;
+        std::vector<uint8_t> body;
 
     protected:
         ConnectionState connectionState = ConnectionState::Default;

@@ -69,10 +69,6 @@ namespace web::http::client {
         }
     }
 
-    std::size_t Response::bodyLength() const {
-        return contentLength;
-    }
-
     void Response::upgrade(Request& request) {
         if (httputils::ci_contains(this->header("connection"), "Upgrade")) {
             web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =

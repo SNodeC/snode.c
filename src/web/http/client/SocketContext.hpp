@@ -50,8 +50,7 @@ namespace web::http::client {
                   response.cookies = &cookies;
               },
               [&response = this->response](std::vector<uint8_t>& content) -> void {
-                  response.body = content.data();
-                  response.contentLength = content.size();
+                  response.body = std::move(content);
               },
               [onResponse, this](web::http::client::ResponseParser& parser) -> void {
                   onResponse(request, response);

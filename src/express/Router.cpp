@@ -29,7 +29,7 @@
 #include <regex>
 #include <sstream> // for basic_stringbuf<>::int_type, basic_ist...
 #include <utility> // for move
-#include <vector>
+#include <vector>  // IWYU pragma: keep
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

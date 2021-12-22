@@ -67,13 +67,9 @@ namespace apps::http::legacy {
                     }
                 }
 
-                char* body = new char[response.contentLength + 1];
-                memcpy(body, response.body, response.contentLength);
-                body[response.contentLength] = 0;
-
-                VLOG(1) << "     Body:\n----------- start body -----------\n" << body << "------------ end body ------------";
-
-                delete[] body;
+                response.body.push_back(0);
+                VLOG(0) << "     Body:\n----------- start body -----------" << response.body.data()
+                        << "\n------------ end body ------------";
             },
             [](int status, const std::string& reason) -> void {
                 VLOG(0) << "-- OnResponseError";
@@ -165,7 +161,7 @@ namespace apps::http::tls {
                 request.set("Connection", "close");
                 request.start();
             },
-            []([[maybe_unused]] Request& request, const Response& response) -> void {
+            []([[maybe_unused]] Request& request, Response& response) -> void {
                 VLOG(0) << "-- OnResponse";
                 VLOG(0) << "     Status:";
                 VLOG(0) << "       " << response.httpVersion << " " << response.statusCode << " " << response.reason;
@@ -183,13 +179,9 @@ namespace apps::http::tls {
                     }
                 }
 
-                char* body = new char[response.contentLength + 1];
-                memcpy(body, response.body, response.contentLength);
-                body[response.contentLength] = 0;
-
-                VLOG(1) << "     Body:\n----------- start body -----------\n" << body << "------------ end body ------------";
-
-                delete[] body;
+                response.body.push_back(0);
+                VLOG(0) << "     Body:\n----------- start body -----------" << response.body.data()
+                        << "\n------------ end body ------------";
             },
             [](int status, const std::string& reason) -> void {
                 VLOG(0) << "-- OnResponseError";

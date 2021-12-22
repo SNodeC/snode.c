@@ -26,7 +26,6 @@
 #include "web/http/client/Response.h"  // for Response
 #include "web/http/legacy/in/Client.h" // for Client, Client<>...
 
-#include <cstring>     // for memcpy
 #include <type_traits> // for add_const<>::type
 #include <utility>     // for tuple_element<>:...
 
@@ -56,7 +55,7 @@ int main(int argc, char* argv[]) {
             request.set("Connection", "close");
             request.send("{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}");
         },
-        []([[maybe_unused]] const web::http::client::Request& request, const web::http::client::Response& response) -> void {
+        []([[maybe_unused]] web::http::client::Request& request, web::http::client::Response& response) -> void {
             VLOG(0) << "-- OnResponse";
             VLOG(0) << "     Status:";
             VLOG(0) << "       " << response.httpVersion;
@@ -76,13 +75,8 @@ int main(int argc, char* argv[]) {
                 }
             }
 
-            char* body = new char[response.contentLength + 1];
-            memcpy(body, response.body, response.contentLength);
-            body[response.contentLength] = 0;
-
-            VLOG(1) << "     Body:\n----------- start body -----------\n" << body << "\n------------ end body ------------";
-
-            delete[] body;
+            response.body.push_back(0);
+            VLOG(0) << "     Body:\n----------- start body -----------" << response.body.data() << "\n------------ end body ------------";
         },
         [](int status, const std::string& reason) -> void {
             VLOG(0) << "-- OnResponseError";
