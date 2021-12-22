@@ -22,8 +22,9 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef> // for size_t
-#include <map>     // for map
-#include <string>  // for string
+#include <cstdint>
+#include <map>    // for map
+#include <string> // for string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -55,7 +56,7 @@ namespace web::http::client {
         std::string httpVersion;
         std::string statusCode;
         std::string reason;
-        char* body = nullptr;
+        uint8_t* body = nullptr;
         std::size_t contentLength = 0;
 
         void upgrade(Request& request);

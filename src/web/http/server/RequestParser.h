@@ -19,7 +19,7 @@
 #ifndef WEB_HTTP_SERVER_REQUESTPARSER_H
 #define WEB_HTTP_SERVER_REQUESTPARSER_H
 
-#include "web/http/Parser.h"
+#include "web/http/Parser.h" // IWYU pragma: export
 
 namespace core::socket {
     class SocketContext;
@@ -27,7 +27,6 @@ namespace core::socket {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // for std::size_t
 #include <functional>
 #include <map>
 #include <set>
@@ -46,7 +45,7 @@ namespace web::http::server {
                 void(const std::string&, const std::string&, const std::string&, int, int, const std::map<std::string, std::string>&)>&
                 onRequest,
             const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>& onHeader,
-            const std::function<void(char*, std::size_t)>& onContent,
+            const std::function<void(std::vector<uint8_t>&)>& onContent,
             const std::function<void()>& onParsed,
             const std::function<void(int, const std::string&)>& onError);
 
@@ -85,7 +84,7 @@ namespace web::http::server {
         std::function<void(const std::string&, const std::string&, const std::string&, int, int, const std::map<std::string, std::string>&)>
             onRequest;
         std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)> onHeader;
-        std::function<void(char*, std::size_t)> onContent;
+        std::function<void(std::vector<uint8_t>&)> onContent;
         std::function<void()> onParsed;
         std::function<void(int, const std::string&)> onError;
     };

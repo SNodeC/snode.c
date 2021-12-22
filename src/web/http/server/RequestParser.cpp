@@ -25,7 +25,6 @@
 #include <regex>
 #include <tuple> // for tie, tuple
 #include <utility>
-#include <vector> // for vector
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -37,7 +36,7 @@ namespace web::http::server {
         const std::function<void(
             const std::string&, const std::string&, const std::string&, int, int, const std::map<std::string, std::string>&)>& onRequest,
         const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>& onHeader,
-        const std::function<void(char*, std::size_t)>& onContent,
+        const std::function<void(std::vector<uint8_t>&)>& onContent,
         const std::function<void()>& onParsed,
         const std::function<void(int, const std::string&)>& onError)
         : Parser(socketContext)
@@ -153,7 +152,7 @@ namespace web::http::server {
     }
 
     Parser::ParserState RequestParser::parseContent(std::vector<uint8_t>& content) {
-        onContent(reinterpret_cast<char*>(content.data()), static_cast<std::size_t>(content.size()));
+        onContent(content);
         parsingFinished();
 
         return ParserState::BEGIN;

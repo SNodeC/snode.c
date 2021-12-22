@@ -24,8 +24,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cctype> // for isblank
-#include <cstring>
-#include <tuple> // for tie, tuple
+#include <tuple>  // for tie, tuple
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

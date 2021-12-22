@@ -28,6 +28,7 @@ namespace express {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstdint>                        // for uint8_t
 #include <initializer_list>               // for initializer_list
 #include <map>                            // for operator==
 #include <memory>                         // for shared_ptr, operator==

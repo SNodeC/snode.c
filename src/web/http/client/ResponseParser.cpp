@@ -23,10 +23,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
 #include <regex>   // for regex_match, match_results<>::_Base_type
 #include <tuple>   // for tie, tuple
 #include <utility> // for tuple_element<>::type, pair
-#include <vector>  // for vector
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -41,7 +41,7 @@ namespace web::http::client {
         const std::function<void(void)>& onStart,
         const std::function<void(const std::string&, const std::string&, const std::string&)>& onResponse,
         const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, CookieOptions>&)>& onHeader,
-        const std::function<void(char*, std::size_t)>& onContent,
+        const std::function<void(std::vector<uint8_t>&)>& onContent,
         const std::function<void(ResponseParser&)>& onParsed,
         const std::function<void(int, const std::string&)>& onError)
         : Parser(socketContext)
@@ -156,7 +156,7 @@ namespace web::http::client {
     }
 
     Parser::ParserState ResponseParser::parseContent(std::vector<uint8_t>& content) {
-        onContent(reinterpret_cast<char*>(content.data()), static_cast<std::size_t>(content.size()));
+        onContent(content);
         parsingFinished();
 
         return ParserState::BEGIN;

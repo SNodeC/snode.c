@@ -27,7 +27,10 @@
 #include "net/in/stream/tls/SocketClient.h"    // for SocketC...
 #include "web/http/client/ResponseParser.h"    // for ResponseParser
 
+#include <algorithm> // for __copy_fn, copy
 #include <cstring>
+#include <iostream>           // for operator<<, basic_ostream, cout
+#include <iterator>           // for ostream_iterator
 #include <openssl/asn1.h>     // for ASN1_STRING_get...
 #include <openssl/crypto.h>   // for OPENSSL_free
 #include <openssl/obj_mac.h>  // for NID_subject_alt...
@@ -35,7 +38,6 @@
 #include <openssl/ssl3.h>     // for SSL_free, SSL_new
 #include <openssl/x509.h>     // for X509_NAME_oneline
 #include <openssl/x509v3.h>   // for GENERAL_NAME
-#include <ostream>            // for size_t, endl
 #include <type_traits>        // for add_const<>::type
 #include <utility>            // for tuple_element<>...
 
@@ -67,12 +69,8 @@ static web::http::client::ResponseParser* getResponseParser(core::socket::Socket
                 }
             }
         },
-        [](char* content, std::size_t contentLength) -> void {
-            char* strContent = new char[contentLength + 1];
-            memcpy(strContent, content, contentLength);
-            strContent[contentLength] = 0;
-            VLOG(0) << "++   OnContent: " << contentLength << std::endl << strContent;
-            delete[] strContent;
+        [](std::vector<uint8_t>& content) -> void {
+            std::ranges::copy(content, std::ostream_iterator<char>(std::cout, " "));
         },
         [socketContext](web::http::client::ResponseParser& parser) -> void {
             VLOG(0) << "++   OnParsed";

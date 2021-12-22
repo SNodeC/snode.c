@@ -81,13 +81,13 @@ namespace web::http::server {
                       VLOG(3) << "     " << cookie << ": " << value;
                   }
               },
-              [&requestContexts = this->requestContexts](char* content, std::size_t contentLength) -> void {
-                  VLOG(3) << "++ Content: " << contentLength;
+              [&requestContexts = this->requestContexts](std::vector<uint8_t>& content) -> void {
+                  VLOG(3) << "++ Content: ";
 
                   Request& request = requestContexts.back().request;
 
-                  request.body = content;
-                  request.contentLength = contentLength;
+                  request.body = content.data();
+                  request.contentLength = content.size();
               },
               [this]() -> void {
                   VLOG(3) << "++ Parsed ++";

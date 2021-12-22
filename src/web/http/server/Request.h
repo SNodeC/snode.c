@@ -25,7 +25,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef> // for size_t
-#include <map>     // for map
+#include <cstdint>
+#include <map> // for map
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -50,7 +51,7 @@ namespace web::http::server {
         std::string httpVersion;
         int httpMajor = 0;
         int httpMinor = 0;
-        char* body = nullptr;
+        uint8_t* body = nullptr;
         std::size_t contentLength = 0;
 
     protected:

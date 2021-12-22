@@ -49,9 +49,9 @@ namespace web::http::client {
                   response.headers = &headers;
                   response.cookies = &cookies;
               },
-              [&response = this->response](char* content, std::size_t contentLength) -> void {
-                  response.body = content;
-                  response.contentLength = contentLength;
+              [&response = this->response](std::vector<uint8_t>& content) -> void {
+                  response.body = content.data();
+                  response.contentLength = content.size();
               },
               [onResponse, this](web::http::client::ResponseParser& parser) -> void {
                   onResponse(request, response);
