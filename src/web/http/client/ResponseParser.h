@@ -57,6 +57,7 @@ namespace web::http::client {
         enum Parser::ParserState parseStartLine(const std::string& line) override;
         enum Parser::ParserState parseHeader() override;
         enum Parser::ParserState parseContent(char* content, std::size_t size) override;
+        enum Parser::ParserState vParseContent(std::vector<char>& vContent) override;
         enum Parser::ParserState parsingError(int code, const std::string& reason) override;
 
         void parsingFinished();

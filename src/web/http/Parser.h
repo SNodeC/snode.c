@@ -26,10 +26,12 @@ namespace core::socket {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef> // for std::size_t
+#include <cstdint> // IWYU pragma: export
 #include <map>
 #include <regex>
 #include <string>
 #include <sys/types.h> // for ssize_t
+#include <vector>      // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -74,6 +76,7 @@ namespace web::http {
         virtual enum ParserState parseStartLine(const std::string& line) = 0;
         virtual enum ParserState parseHeader() = 0;
         virtual enum ParserState parseContent(char* content, std::size_t size) = 0;
+        virtual enum ParserState vParseContent(std::vector<char>& vContent) = 0;
         virtual enum ParserState parsingError(int code, const std::string& reason) = 0;
 
     protected:
@@ -81,6 +84,7 @@ namespace web::http {
         char* content = nullptr;
         std::size_t contentLength = 0;
         std::map<std::string, std::string> headers;
+        std::vector<char> vContent;
 
         std::string httpVersion;
         int httpMajor = 0;
@@ -93,6 +97,7 @@ namespace web::http {
         ssize_t readHeaderLine();
         void splitHeaderLine(const std::string& line);
         ssize_t readContent();
+        ssize_t vReadContent();
 
         // Line state
         bool EOL{false};
@@ -100,7 +105,7 @@ namespace web::http {
         // Used during parseing data
         std::string line;
         std::size_t contentRead = 0;
-        char contentJunk[MAX_CONTENT_JUNK_LEN]{};
+        char contentJunk[MAX_CONTENT_JUNK_LEN];
 
         friend enum HTTPCompliance operator|(const enum HTTPCompliance& c1, const enum HTTPCompliance& c2);
         friend enum HTTPCompliance operator&(const enum HTTPCompliance& c1, const enum HTTPCompliance& c2);

@@ -30,6 +30,10 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+// ************** TWO LINER ***************
+// openssl s_server -CAfile snode.c_-_Root_CA.crt -cert snode.c_-_server.pem -CAfile snode.c_-_Root_CA.crt -key
+// snode.c_-_server.key.encrypted.pem -www -port 8088 -msg -Verify 1
+
 namespace web::http::client {
 
     ResponseParser::ResponseParser(
@@ -143,7 +147,7 @@ namespace web::http::client {
         onHeader(Parser::headers, cookies);
 
         enum Parser::ParserState parserState = Parser::ParserState::BODY;
-        if (contentLength == 0) {
+        if (contentLength == 0 && httpMinor == 1) {
             parsingFinished();
             parserState = ParserState::BEGIN;
         }
@@ -153,6 +157,13 @@ namespace web::http::client {
 
     enum Parser::ParserState ResponseParser::parseContent(char* content, std::size_t size) {
         onContent(content, size);
+        parsingFinished();
+
+        return ParserState::BEGIN;
+    }
+
+    Parser::ParserState ResponseParser::vParseContent(std::vector<char>& vContent) {
+        onContent(vContent.data(), static_cast<std::size_t>(vContent.size()));
         parsingFinished();
 
         return ParserState::BEGIN;

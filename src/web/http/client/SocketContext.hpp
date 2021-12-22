@@ -64,8 +64,10 @@ namespace web::http::client {
                   request.reset();
                   response.reset();
               },
-              [onError](int status, const std::string& reason) -> void {
+              [onError, this](int status, const std::string& reason) -> void {
                   onError(status, reason);
+
+                  close();
               }) {
     }
 

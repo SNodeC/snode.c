@@ -43,6 +43,8 @@ namespace web::http {
         parserState = ParserState::BEGIN;
         headers.clear();
         contentLength = 0;
+        vContent.clear();
+        contentRead = 0;
         if (content != nullptr) {
             delete[] content;
             content = nullptr;
@@ -56,8 +58,9 @@ namespace web::http {
         do {
             switch (parserState) {
                 case ParserState::BEGIN:
-                    parserState = ParserState::FIRSTLINE;
+                    reset();
                     begin();
+                    parserState = ParserState::FIRSTLINE;
                     [[fallthrough]];
                 case ParserState::FIRSTLINE:
                     consumed = readStartLine();
@@ -66,11 +69,10 @@ namespace web::http {
                     consumed = readHeaderLine();
                     break;
                 case ParserState::BODY:
-                    consumed = readContent();
+                    consumed = vReadContent();
                     break;
                 case ParserState::ERROR:
                     parsingError = true;
-                    reset();
                     break;
             };
         } while (consumed > 0 && parserState != ParserState::BEGIN && !parsingError); // && parserState != ParserState::BEGIN);
@@ -212,6 +214,42 @@ namespace web::http {
                 if (content != nullptr) {
                     delete[] content;
                     content = nullptr;
+                }
+            }
+        }
+
+        return ret;
+    }
+
+    ssize_t Parser::vReadContent() {
+        ssize_t ret = 0;
+
+        if (httpMinor == 0 && contentLength == 0) {
+            ret = socketContext->readFromPeer(contentJunk, MAX_CONTENT_JUNK_LEN);
+
+            std::size_t contentJunkLen = static_cast<std::size_t>(ret);
+            if (contentJunkLen > 0) {
+                vContent.insert(vContent.end(), contentJunk, contentJunk + contentJunkLen);
+            } else {
+                parserState = vParseContent(vContent);
+            }
+        } else if (httpMinor == 1) {
+            std::size_t contentJunkLenLeft =
+                (contentLength - contentRead < MAX_CONTENT_JUNK_LEN) ? contentLength - contentRead : MAX_CONTENT_JUNK_LEN;
+
+            ret = socketContext->readFromPeer(contentJunk, contentJunkLenLeft);
+
+            std::size_t contentJunkLen = static_cast<std::size_t>(ret);
+            if (contentJunkLen > 0) {
+                if (contentRead + contentJunkLen <= contentLength) {
+                    vContent.insert(vContent.end(), contentJunk, contentJunk + contentJunkLen);
+
+                    contentRead += contentJunkLen;
+                    if (contentRead == contentLength) {
+                        parserState = vParseContent(vContent);
+                    }
+                } else {
+                    parserState = parsingError(400, "Content to long");
                 }
             }
         }

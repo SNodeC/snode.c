@@ -144,7 +144,7 @@ namespace web::http::server {
         onHeader(Parser::headers, cookies);
 
         enum Parser::ParserState parserState = Parser::ParserState::BODY;
-        if (contentLength == 0) {
+        if (contentLength == 0 && httpMinor == 1) {
             parsingFinished();
             parserState = ParserState::BEGIN;
         }
@@ -159,9 +159,15 @@ namespace web::http::server {
         return ParserState::BEGIN;
     }
 
+    Parser::ParserState RequestParser::vParseContent(std::vector<char>& vContent) {
+        onContent(vContent.data(), static_cast<std::size_t>(vContent.size()));
+        parsingFinished();
+
+        return ParserState::BEGIN;
+    }
+
     void RequestParser::parsingFinished() {
         onParsed();
-        reset();
     }
 
     enum Parser::ParserState RequestParser::parsingError(int code, const std::string& reason) {

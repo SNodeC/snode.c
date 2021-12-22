@@ -107,7 +107,7 @@ namespace web::http::server {
                   requestContext.reason = reason;
                   requestContext.ready = true;
 
-                  requestParsed();
+                  close();
               }) {
     }
 
@@ -137,7 +137,7 @@ namespace web::http::server {
                 onRequestReady(requestContext.request, requestContext.response);
             } else {
                 requestContext.response.status(requestContext.status).send(requestContext.reason);
-                close();
+                shutdownWrite();
             }
         }
     }
