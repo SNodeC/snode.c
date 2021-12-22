@@ -18,9 +18,9 @@
 
 #include "core/pipe/PipeSource.h"
 
-#include "core/system/unistd.h" // for write, ssize_t
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "core/system/unistd.h" // for write, ssize_t
 
 #include <errno.h> // for errno, EAGAIN, EINTR, EWOULDBLOCK
 #include <string>  // for string

@@ -20,9 +20,10 @@
 #define CORE_SOCKET_STREAM_LEGACY_SOCKETWRITER_H
 
 #include "core/socket/stream/SocketWriter.h"
-#include "core/system/socket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "core/system/socket.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

@@ -20,13 +20,14 @@
 #define CORE_SOCKET_STREAM_SOCKETCONNECTOR_H
 
 #include "core/ConnectEventReceiver.h"
-#include "core/system/socket.h"
 
 namespace core::socket {
     class SocketContextFactory;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "core/system/socket.h"
 
 #include <any>
 #include <cstddef>

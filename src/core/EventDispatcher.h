@@ -19,7 +19,6 @@
 #ifndef CORE_EVENTDISPATCHER_H
 #define CORE_EVENTDISPATCHER_H
 
-#include "core/system/select.h" // IWYU pragma: keep
 #include "utils/Timeval.h"
 
 namespace core {
@@ -27,6 +26,8 @@ namespace core {
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "core/system/select.h" // IWYU pragma: keep
 
 #include <list>
 #include <map>

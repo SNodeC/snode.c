@@ -19,7 +19,7 @@
 #ifndef CORE_FILE_FILE_H
 #define CORE_FILE_FILE_H
 
-#include "core/Descriptor.h"
+#include "core/Descriptor.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

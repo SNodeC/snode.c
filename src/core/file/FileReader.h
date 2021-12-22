@@ -20,7 +20,7 @@
 #define CORE_FILE_FILEREADER_H
 
 #include "core/ReadEventReceiver.h"
-#include "core/file/File.h"
+#include "core/file/File.h" // IWYU pragma: export
 #include "core/pipe/Source.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

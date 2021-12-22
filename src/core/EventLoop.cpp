@@ -19,11 +19,12 @@
 #include "core/EventLoop.h" // for EventLoop
 
 #include "core/DynamicLoader.h"
-#include "core/system/select.h"
-#include "core/system/signal.h"
 #include "log/Logger.h" // for Logger
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "core/system/select.h"
+#include "core/system/signal.h"
 
 #include <algorithm> // for min, max
 #include <cstdlib>   // for exit

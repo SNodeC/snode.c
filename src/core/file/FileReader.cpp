@@ -20,10 +20,9 @@
 
 #include "core/file/FileReader.h"
 
-#include "core/Descriptor.h" // for Descriptor
-#include "core/system/unistd.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "core/system/unistd.h"
 
 #include <cerrno>
 

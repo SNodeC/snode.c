@@ -19,9 +19,9 @@
 #ifndef CORE_DYNAMICLOADER_H
 #define CORE_DYNAMICLOADER_H
 
-#include "core/system/dlfcn.h" // IWYU pragma: keep
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "core/system/dlfcn.h" // IWYU pragma: keep
 
 #include <cstddef>
 #include <map>

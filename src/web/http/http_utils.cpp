@@ -18,9 +18,9 @@
 
 #include "web/http/http_utils.h"
 
-#include "core/system/time.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "core/system/time.h"
 
 #include <algorithm>
 #include <cctype>

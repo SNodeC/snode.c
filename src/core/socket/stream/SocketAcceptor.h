@@ -20,8 +20,6 @@
 #define CORE_SOCKET_STREAM_SOCKETACCEPTOR_H
 
 #include "core/AcceptEventReceiver.h"
-#include "core/system/socket.h"
-#include "core/system/unistd.h"
 #include "log/Logger.h"
 
 namespace core::socket {
@@ -29,6 +27,9 @@ namespace core::socket {
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "core/system/socket.h"
+#include "core/system/unistd.h"
 
 #include <any>
 #include <functional>

@@ -19,9 +19,9 @@
 #ifndef UTILS_TIMEVAL_H
 #define UTILS_TIMEVAL_H
 
-#include "core/system/time.h" // IWYU pragma: export
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "core/system/time.h" // IWYU pragma: export
 
 struct timeval;
 #include <initializer_list>
