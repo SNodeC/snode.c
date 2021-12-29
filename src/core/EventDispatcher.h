@@ -60,7 +60,7 @@ namespace core {
             fd_set active;
         };
 
-        class DescriptorEventReceiverList : public std::list<EventReceiver*> {
+        class EventReceiverList : public std::list<EventReceiver*> {
         public:
             using std::list<EventReceiver*>::begin;
             using std::list<EventReceiver*>::end;
@@ -99,9 +99,9 @@ namespace core {
 
         static std::list<EventDispatcher*> eventDispatchers;
 
-        std::map<int, DescriptorEventReceiverList> enabledEventReceiver;
-        std::map<int, DescriptorEventReceiverList> observedEventReceiver;
-        std::map<int, DescriptorEventReceiverList> disabledEventReceiver;
+        std::map<int, EventReceiverList> enabledEventReceiver;
+        std::map<int, EventReceiverList> observedEventReceiver;
+        std::map<int, EventReceiverList> disabledEventReceiver;
 
         FdSet fdSet;
 

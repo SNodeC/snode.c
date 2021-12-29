@@ -71,7 +71,7 @@ namespace core {
         return active;
     }
 
-    bool EventDispatcher::DescriptorEventReceiverList::contains(EventReceiver* eventReceiver) const {
+    bool EventDispatcher::EventReceiverList::contains(EventReceiver* eventReceiver) const {
         return std::find(begin(), end(), eventReceiver) != end();
     }
 
