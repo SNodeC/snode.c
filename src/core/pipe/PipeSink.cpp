@@ -41,7 +41,7 @@ namespace core::pipe {
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
         static char junk[MAX_READ_JUNKSIZE];
 
-        ssize_t ret = core::system::read(getFd(), junk, MAX_READ_JUNKSIZE);
+        ssize_t ret = core::system::read(Descriptor::fd, junk, MAX_READ_JUNKSIZE);
 
         if (ret > 0) {
             if (onData) {

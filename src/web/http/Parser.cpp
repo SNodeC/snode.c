@@ -181,6 +181,8 @@ namespace web::http {
     }
 
     ssize_t Parser::readContent() {
+        static char contentJunk[MAX_CONTENT_JUNK_LEN];
+
         ssize_t ret = 0;
 
         if (httpMinor == 0 && contentLength == 0) {
