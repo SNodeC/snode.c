@@ -37,6 +37,12 @@ namespace core {
         , initialTimeout(timeout) {
     }
 
+    EventReceiver::EventReceiver(EventDispatcher::DISP_TYPE dispType, const utils::Timeval& timeout)
+        : eventDispatcher(EventDispatcher::getDescriptorEventDispatcher(dispType))
+        , maxInactivity(timeout)
+        , initialTimeout(timeout) {
+    }
+
     void EventReceiver::enable(int fd) {
         this->fd = fd;
         observed();

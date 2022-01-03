@@ -62,6 +62,7 @@ namespace core {
         void suspend(EventReceiver* eventReceiver);
         void resume(EventReceiver* eventReceiver);
 
+    private:
         unsigned long getEventCounter() const;
 
         fd_set& getFdSet();
@@ -73,9 +74,8 @@ namespace core {
         void observeEnabledEvents();
         void dispatchActiveEvents(const utils::Timeval& currentTime);
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
-        void terminateObservedEvents();
+        void stop();
 
-    private:
         std::map<int, EventReceiverList> enabledEventReceiver;
         std::map<int, EventReceiverList> observedEventReceiver;
         std::map<int, EventReceiverList> disabledEventReceiver;
@@ -83,6 +83,8 @@ namespace core {
         EventDispatcher::FdSet fdSet;
 
         unsigned long eventCounter = 0;
+
+        friend class core::EventDispatcher;
     };
 } // namespace core
 

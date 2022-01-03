@@ -86,7 +86,7 @@ namespace core {
         return timerList.empty();
     }
 
-    void TimerEventDispatcher::cancelAll() {
+    void TimerEventDispatcher::stop() {
         utils::Timeval currentTime = utils::Timeval::currentTime();
 
         getNextTimeout(currentTime);

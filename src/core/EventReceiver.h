@@ -19,6 +19,7 @@
 #ifndef CORE_EVENTRECEIVER_H
 #define CORE_EVENTRECEIVER_H
 
+#include "core/EventDispatcher.h"
 #include "utils/Timeval.h" // IWYU pragma: export
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -63,6 +64,7 @@ namespace core {
         };
 
         explicit EventReceiver(DescriptorEventDispatcher& descriptorEventDispatcher, const utils::Timeval& timeout = TIMEOUT::DISABLE);
+        explicit EventReceiver(core::EventDispatcher::DISP_TYPE dispType, const utils::Timeval& timeout = TIMEOUT::DISABLE);
 
         virtual ~EventReceiver() = default;
 

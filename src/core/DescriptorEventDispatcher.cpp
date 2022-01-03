@@ -184,7 +184,7 @@ namespace core {
         disabledEventReceiver.clear();
     }
 
-    void DescriptorEventDispatcher::terminateObservedEvents() {
+    void DescriptorEventDispatcher::stop() {
         for (const auto& [fd, eventReceivers] : observedEventReceiver) { // cppcheck-suppress unusedVariable
             for (EventReceiver* eventReceiver : eventReceivers) {
                 if (eventReceiver->isEnabled()) {

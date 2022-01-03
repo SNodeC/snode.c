@@ -32,7 +32,7 @@ namespace utils {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/select.h" // IWYU pragma: keep
+#include "core/system/select.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -46,28 +46,31 @@ namespace core {
         EventDispatcher() = default;
 
     public:
-        static int getMaxFd();
-        static utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
-
-        static void observeEnabledEvents();
-        static void dispatchActiveEvents(const utils::Timeval& currentTime);
-        static void unobserveDisabledEvents(const utils::Timeval& currentTime);
-        static void terminateObservedEvents();
-        static void terminateTimerEvents();
-
-        static TickStatus dispatch(const utils::Timeval& tickTimeOut, bool stopped);
-
         static DescriptorEventDispatcher& getReadEventDispatcher();
         static DescriptorEventDispatcher& getWriteEventDispatcher();
         static DescriptorEventDispatcher& getExceptionalConditionEventDispatcher();
 
         static TimerEventDispatcher& getTimerEventDispatcher();
 
-    private:
+        static TickStatus dispatch(const utils::Timeval& tickTimeOut, bool stopped);
+
+        static void stop();
+
         enum DISP_TYPE { RD = 0, WR = 1, EX = 2, TI = 3 };
+        static DescriptorEventDispatcher& getDescriptorEventDispatcher(DISP_TYPE dispType);
+
+    private:
+        static int getMaxFd();
+        static utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
+
+        static void observeEnabledEvents();
+        static void dispatchActiveEvents(const utils::Timeval& currentTime);
+        static void unobserveDisabledEvents(const utils::Timeval& currentTime);
+
+        static void stopDescriptorEvents();
+        static void stopTimerEvents();
 
         static DescriptorEventDispatcher eventDispatcher[4];
-
         static TimerEventDispatcher timerEventDispatcher;
 
     public:

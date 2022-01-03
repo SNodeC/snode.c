@@ -103,7 +103,7 @@ namespace core {
 
         int returnReason = 0;
         if (stopsig != 0) {
-            returnReason = -1;
+            returnReason = -stopsig;
         }
 
         return returnReason;
@@ -145,8 +145,9 @@ namespace core {
     }
 
     void EventLoop::free() {
-        EventDispatcher::terminateObservedEvents();
-        EventDispatcher::terminateTimerEvents();
+        EventDispatcher::stop();
+
+        DynamicLoader::execDlCloseAll();
     }
 
     void EventLoop::stoponsig(int sig) {

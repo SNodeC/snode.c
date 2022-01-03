@@ -43,7 +43,7 @@ namespace core {
 
         bool empty();
 
-        void cancelAll();
+        void stop();
 
     private:
         std::list<TimerEventReceiver*> timerList;

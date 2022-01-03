@@ -20,7 +20,6 @@
 
 #include "core/DescriptorEventDispatcher.h"
 #include "core/TimerEventDispatcher.h"
-#include "core/system/select.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -48,6 +47,10 @@ namespace core {
 
     TimerEventDispatcher& EventDispatcher::getTimerEventDispatcher() {
         return timerEventDispatcher;
+    }
+
+    DescriptorEventDispatcher& EventDispatcher::getDescriptorEventDispatcher(DISP_TYPE dispType) {
+        return eventDispatcher[dispType];
     }
 
     EventDispatcher::FdSet::FdSet() {
@@ -119,6 +122,7 @@ namespace core {
         TickStatus tickStatus = TickStatus::SUCCESS;
 
         EventDispatcher::observeEnabledEvents();
+
         int maxFd = EventDispatcher::getMaxFd();
 
         utils::Timeval currentTime = utils::Timeval::currentTime();
@@ -150,24 +154,29 @@ namespace core {
         return tickStatus;
     }
 
-    void EventDispatcher::terminateObservedEvents() {
+    void EventDispatcher::stopDescriptorEvents() {
         core::TickStatus tickStatus;
 
         do {
             for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
-                eventDispatcher.terminateObservedEvents();
+                eventDispatcher.stop();
             }
             tickStatus = dispatch(2, true);
         } while (tickStatus == TickStatus::SUCCESS);
     }
 
-    void EventDispatcher::terminateTimerEvents() {
+    void EventDispatcher::stopTimerEvents() {
         core::TickStatus tickStatus;
 
         do {
-            timerEventDispatcher.cancelAll();
+            timerEventDispatcher.stop();
             tickStatus = dispatch(0, false);
         } while (tickStatus == TickStatus::SUCCESS);
+    }
+
+    void EventDispatcher::stop() {
+        stopDescriptorEvents();
+        stopTimerEvents();
     }
 
 } // namespace core
