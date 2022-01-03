@@ -29,7 +29,6 @@
 namespace core {
 
     class EventLoop {
-    private:
         EventLoop() = delete;
 
         EventLoop(const EventLoop& eventLoop) = delete;
@@ -39,16 +38,13 @@ namespace core {
 
     public:
         static unsigned long getTickCounter();
-        EventLoop& instance();
 
     private:
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
         static void init(int argc, char* argv[]);
-        static int start(const utils::Timeval& timeOut);
-
         static TickStatus _tick(const utils::Timeval& timeOut, bool stopped);
-
         static TickStatus tick(const utils::Timeval& timeOut = 0);
+        static int start(const utils::Timeval& timeOut);
         static void free();
 
         static void stoponsig(int sig);

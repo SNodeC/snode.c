@@ -29,7 +29,7 @@ namespace core {}
 
 namespace core {
 
-    class EventDispatcher;
+    class EventDispatchers;
 
     class N_Observer {
     public:
@@ -71,7 +71,7 @@ namespace core {
             static const utils::Timeval DISABLE;
         };
 
-        N_EventReceiver(EventDispatcher& eventDispatcher, const utils::Timeval& timeout = Timeout::DISABLE);
+        N_EventReceiver(EventDispatchers& eventDispatcher, const utils::Timeval& timeout = Timeout::DISABLE);
 
         virtual ~N_EventReceiver() = default;
 
@@ -91,7 +91,7 @@ namespace core {
         bool isInactive() const;
         bool isStopped() const;
 
-        EventDispatcher& eventDispatcher;
+        EventDispatchers& eventDispatcher;
 
     private:
         virtual void dispatchEvent() = 0;

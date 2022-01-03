@@ -30,7 +30,7 @@ namespace core {
     const utils::Timeval N_EventReceiver::Timeout::DEFAULT = {-1, 0};
     const utils::Timeval N_EventReceiver::Timeout::DISABLE = {LONG_MAX, 0};
 
-    N_EventReceiver::N_EventReceiver(EventDispatcher& eventDispatcher, const utils::Timeval& timeout)
+    N_EventReceiver::N_EventReceiver(EventDispatchers& eventDispatcher, const utils::Timeval& timeout)
         : eventDispatcher(eventDispatcher)
         , maxInactivity(timeout)
         , initialTimeout(timeout)

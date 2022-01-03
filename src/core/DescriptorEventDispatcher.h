@@ -19,7 +19,7 @@
 #ifndef CORE_DESCRIPTOREVENTDISPATCHER_H
 #define CORE_DESCRIPTOREVENTDISPATCHER_H
 
-#include "core/EventDispatcher.h"
+#include "core/EventDispatchers.h"
 #include "core/system/select.h" // IWYU pragma: keep
 
 namespace core {
@@ -79,11 +79,11 @@ namespace core {
         std::map<int, EventReceiverList> observedEventReceiver;
         std::map<int, EventReceiverList> disabledEventReceiver;
 
-        EventDispatcher::FdSet fdSet;
+        EventDispatchers::FdSet fdSet;
 
         unsigned long eventCounter = 0;
 
-        friend class core::EventDispatcher;
+        friend class core::EventDispatchers;
     };
 } // namespace core
 

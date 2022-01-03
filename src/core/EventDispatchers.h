@@ -44,9 +44,13 @@ namespace utils {
 
 namespace core {
 
-    class EventDispatcher {
-        EventDispatcher(const EventDispatcher&) = delete;
-        EventDispatcher& operator=(const EventDispatcher&) = delete;
+    class EventDispatchers {
+        EventDispatchers() = delete;
+
+        EventDispatchers(const EventDispatchers&) = delete;
+        EventDispatchers& operator=(const EventDispatchers&) = delete;
+
+        ~EventDispatchers() = delete;
 
     public:
         enum DISP_TYPE { RD = 0, WR = 1, EX = 2, TI = 3 };
@@ -80,9 +84,6 @@ namespace core {
         static TickStatus dispatch(const utils::Timeval& tickTimeOut, bool stopped);
 
         static void stop();
-
-        static void stopDescriptorEvents();
-        static void stopTimerEvents();
 
         static DescriptorEventDispatcher eventDispatcher[4];
         static TimerEventDispatcher timerEventDispatcher;

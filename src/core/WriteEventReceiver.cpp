@@ -18,7 +18,7 @@
 
 #include "core/WriteEventReceiver.h"
 
-#include "core/EventDispatcher.h"
+#include "core/EventDispatchers.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,7 +27,7 @@
 namespace core {
 
     WriteEventReceiver::WriteEventReceiver(const utils::Timeval& timeout)
-        : EventReceiver(EventDispatcher::DISP_TYPE::WR, timeout) {
+        : EventReceiver(EventDispatchers::DISP_TYPE::WR, timeout) {
     }
 
     void WriteEventReceiver::writeTimeout() {

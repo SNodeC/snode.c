@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/EventDispatcher.h"
+#include "core/EventDispatchers.h"
 
 #include "core/DescriptorEventDispatcher.h"
 #include "core/TimerEventDispatcher.h"
@@ -30,45 +30,45 @@
 
 namespace core {
 
-    DescriptorEventDispatcher EventDispatcher::eventDispatcher[];
-    TimerEventDispatcher EventDispatcher::timerEventDispatcher;
+    DescriptorEventDispatcher EventDispatchers::eventDispatcher[];
+    TimerEventDispatcher EventDispatchers::timerEventDispatcher;
 
-    TimerEventDispatcher& EventDispatcher::getTimerEventDispatcher() {
+    TimerEventDispatcher& EventDispatchers::getTimerEventDispatcher() {
         return timerEventDispatcher;
     }
 
-    DescriptorEventDispatcher& EventDispatcher::getDescriptorEventDispatcher(DISP_TYPE dispType) {
+    DescriptorEventDispatcher& EventDispatchers::getDescriptorEventDispatcher(DISP_TYPE dispType) {
         return eventDispatcher[dispType];
     }
 
-    EventDispatcher::FdSet::FdSet() {
+    EventDispatchers::FdSet::FdSet() {
         zero();
     }
 
-    void EventDispatcher::FdSet::set(int fd) {
+    void EventDispatchers::FdSet::set(int fd) {
         FD_SET(fd, &registered);
     }
 
-    void EventDispatcher::FdSet::clr(int fd) {
+    void EventDispatchers::FdSet::clr(int fd) {
         FD_CLR(fd, &registered);
         FD_CLR(fd, &active);
     }
 
-    int EventDispatcher::FdSet::isSet(int fd) const {
+    int EventDispatchers::FdSet::isSet(int fd) const {
         return FD_ISSET(fd, &active);
     }
 
-    void EventDispatcher::FdSet::zero() {
+    void EventDispatchers::FdSet::zero() {
         FD_ZERO(&registered);
         FD_ZERO(&active);
     }
 
-    fd_set& EventDispatcher::FdSet::get() {
+    fd_set& EventDispatchers::FdSet::get() {
         active = registered;
         return active;
     }
 
-    int EventDispatcher::getMaxFd() {
+    int EventDispatchers::getMaxFd() {
         int maxFd = -1;
 
         for (const DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
@@ -78,7 +78,7 @@ namespace core {
         return maxFd;
     }
 
-    utils::Timeval EventDispatcher::getNextTimeout(const utils::Timeval& currentTime) {
+    utils::Timeval EventDispatchers::getNextTimeout(const utils::Timeval& currentTime) {
         utils::Timeval nextTimeout = {LONG_MAX, 0};
 
         for (const DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
@@ -88,34 +88,34 @@ namespace core {
         return nextTimeout;
     }
 
-    void EventDispatcher::observeEnabledEvents() {
+    void EventDispatchers::observeEnabledEvents() {
         for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
             eventDispatcher.observeEnabledEvents();
         }
     }
 
-    void EventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
+    void EventDispatchers::dispatchActiveEvents(const utils::Timeval& currentTime) {
         for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
             eventDispatcher.dispatchActiveEvents(currentTime);
         }
     }
 
-    void EventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
+    void EventDispatchers::unobserveDisabledEvents(const utils::Timeval& currentTime) {
         for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
             eventDispatcher.unobserveDisabledEvents(currentTime);
         }
     }
 
-    TickStatus EventDispatcher::dispatch(const utils::Timeval& tickTimeOut, bool stopped) {
+    TickStatus EventDispatchers::dispatch(const utils::Timeval& tickTimeOut, bool stopped) {
         TickStatus tickStatus = TickStatus::SUCCESS;
 
-        EventDispatcher::observeEnabledEvents();
+        EventDispatchers::observeEnabledEvents();
 
-        int maxFd = EventDispatcher::getMaxFd();
+        int maxFd = EventDispatchers::getMaxFd();
 
         utils::Timeval currentTime = utils::Timeval::currentTime();
 
-        utils::Timeval nextEventTimeout = EventDispatcher::getNextTimeout(currentTime);
+        utils::Timeval nextEventTimeout = EventDispatchers::getNextTimeout(currentTime);
         utils::Timeval nextTimerTimeout = timerEventDispatcher.getNextTimeout(currentTime);
 
         utils::Timeval nextTimeout = std::min(nextTimerTimeout, nextEventTimeout);
@@ -130,8 +130,8 @@ namespace core {
                 currentTime = utils::Timeval::currentTime();
 
                 timerEventDispatcher.dispatchActiveEvents(currentTime);
-                EventDispatcher::dispatchActiveEvents(currentTime);
-                EventDispatcher::unobserveDisabledEvents(currentTime);
+                EventDispatchers::dispatchActiveEvents(currentTime);
+                EventDispatchers::unobserveDisabledEvents(currentTime);
             } else {
                 tickStatus = TickStatus::ERROR;
             }
@@ -142,7 +142,7 @@ namespace core {
         return tickStatus;
     }
 
-    void EventDispatcher::stopDescriptorEvents() {
+    void EventDispatchers::stop() {
         core::TickStatus tickStatus;
 
         do {
@@ -151,20 +151,11 @@ namespace core {
             }
             tickStatus = dispatch(2, true);
         } while (tickStatus == TickStatus::SUCCESS);
-    }
-
-    void EventDispatcher::stopTimerEvents() {
-        core::TickStatus tickStatus;
 
         do {
             timerEventDispatcher.stop();
             tickStatus = dispatch(0, false);
         } while (tickStatus == TickStatus::SUCCESS);
-    }
-
-    void EventDispatcher::stop() {
-        stopDescriptorEvents();
-        stopTimerEvents();
     }
 
 } // namespace core

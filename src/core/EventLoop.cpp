@@ -19,7 +19,7 @@
 #include "core/EventLoop.h" // for EventLoop
 
 #include "core/DynamicLoader.h"
-#include "core/EventDispatcher.h"
+#include "core/EventDispatchers.h"
 #include "log/Logger.h" // for Logger
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -112,7 +112,7 @@ namespace core {
     TickStatus EventLoop::_tick(const utils::Timeval& tickTimeOut, bool stopped) {
         tickCounter++;
 
-        TickStatus tickStatus = EventDispatcher::dispatch(tickTimeOut, stopped);
+        TickStatus tickStatus = EventDispatchers::dispatch(tickTimeOut, stopped);
 
         switch (tickStatus) {
             case TickStatus::SUCCESS:
@@ -145,7 +145,7 @@ namespace core {
     }
 
     void EventLoop::free() {
-        EventDispatcher::stop();
+        EventDispatchers::stop();
 
         DynamicLoader::execDlCloseAll();
     }
