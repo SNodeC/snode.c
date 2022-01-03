@@ -40,21 +40,11 @@ namespace utils {
 namespace core {
 
     class DescriptorEventDispatcher {
-    public:
-        DescriptorEventDispatcher() = default;
-
         DescriptorEventDispatcher(const DescriptorEventDispatcher&) = delete;
         DescriptorEventDispatcher& operator=(const DescriptorEventDispatcher&) = delete;
 
     private:
-        class EventReceiverList : public std::list<EventReceiver*> {
-        public:
-            using std::list<EventReceiver*>::begin;
-            using std::list<EventReceiver*>::end;
-            using std::list<EventReceiver*>::front;
-
-            bool contains(EventReceiver* descriptorEventReceiver) const;
-        };
+        DescriptorEventDispatcher() = default;
 
     public:
         void enable(EventReceiver* eventReceiver);
@@ -75,6 +65,15 @@ namespace core {
         void dispatchActiveEvents(const utils::Timeval& currentTime);
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
         void stop();
+
+        class EventReceiverList : public std::list<EventReceiver*> {
+        public:
+            using std::list<EventReceiver*>::begin;
+            using std::list<EventReceiver*>::end;
+            using std::list<EventReceiver*>::front;
+
+            bool contains(EventReceiver* descriptorEventReceiver) const;
+        };
 
         std::map<int, EventReceiverList> enabledEventReceiver;
         std::map<int, EventReceiverList> observedEventReceiver;

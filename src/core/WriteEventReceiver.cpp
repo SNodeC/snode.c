@@ -27,7 +27,7 @@
 namespace core {
 
     WriteEventReceiver::WriteEventReceiver(const utils::Timeval& timeout)
-        : EventReceiver(EventDispatcher::getWriteEventDispatcher(), timeout) {
+        : EventReceiver(EventDispatcher::DISP_TYPE::WR, timeout) {
     }
 
     void WriteEventReceiver::writeTimeout() {

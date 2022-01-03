@@ -63,7 +63,6 @@ namespace core {
             static const utils::Timeval DISABLE;
         };
 
-        explicit EventReceiver(DescriptorEventDispatcher& descriptorEventDispatcher, const utils::Timeval& timeout = TIMEOUT::DISABLE);
         explicit EventReceiver(core::EventDispatcher::DISP_TYPE dispType, const utils::Timeval& timeout = TIMEOUT::DISABLE);
 
         virtual ~EventReceiver() = default;

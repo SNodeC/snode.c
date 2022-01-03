@@ -27,7 +27,7 @@
 namespace core {
 
     ReadEventReceiver::ReadEventReceiver(const utils::Timeval& timeout)
-        : EventReceiver(EventDispatcher::getReadEventDispatcher(), timeout) {
+        : EventReceiver(EventDispatcher::DISP_TYPE::RD, timeout) {
     }
 
     void ReadEventReceiver::readTimeout() {

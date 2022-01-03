@@ -33,18 +33,6 @@ namespace core {
     DescriptorEventDispatcher EventDispatcher::eventDispatcher[];
     TimerEventDispatcher EventDispatcher::timerEventDispatcher;
 
-    DescriptorEventDispatcher& EventDispatcher::getReadEventDispatcher() {
-        return eventDispatcher[RD];
-    }
-
-    DescriptorEventDispatcher& EventDispatcher::getWriteEventDispatcher() {
-        return eventDispatcher[WR];
-    }
-
-    DescriptorEventDispatcher& EventDispatcher::getExceptionalConditionEventDispatcher() {
-        return eventDispatcher[EX];
-    }
-
     TimerEventDispatcher& EventDispatcher::getTimerEventDispatcher() {
         return timerEventDispatcher;
     }

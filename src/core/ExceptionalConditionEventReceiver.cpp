@@ -27,7 +27,7 @@
 namespace core {
 
     ExceptionalConditionEventReceiver::ExceptionalConditionEventReceiver(const utils::Timeval& timeout)
-        : EventReceiver(EventDispatcher::getExceptionalConditionEventDispatcher(), timeout) {
+        : EventReceiver(EventDispatcher::DISP_TYPE::EX, timeout) {
     }
 
     void ExceptionalConditionEventReceiver::outOfBandTimeout() {
