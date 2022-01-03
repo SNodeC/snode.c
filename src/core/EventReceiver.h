@@ -27,7 +27,7 @@
 
 namespace core {
 
-    class EventDispatcher;
+    class DescriptorEventDispatcher;
 
     class Observer {
     private:
@@ -47,8 +47,8 @@ namespace core {
 
         int observationCounter = 0;
 
-        friend class EventDispatcher;
         friend class EventReceiver;
+        friend class DescriptorEventDispatcher;
     };
 
     class EventReceiver : virtual public Observer {
@@ -62,7 +62,7 @@ namespace core {
             static const utils::Timeval DISABLE;
         };
 
-        explicit EventReceiver(EventDispatcher& descriptorEventDispatcher, const utils::Timeval& timeout = TIMEOUT::DISABLE);
+        explicit EventReceiver(DescriptorEventDispatcher& descriptorEventDispatcher, const utils::Timeval& timeout = TIMEOUT::DISABLE);
 
         virtual ~EventReceiver() = default;
 
@@ -94,7 +94,7 @@ namespace core {
 
         virtual bool continueImmediately() = 0;
 
-        EventDispatcher& eventDispatcher;
+        DescriptorEventDispatcher& eventDispatcher;
 
         int fd = -1;
 
@@ -105,7 +105,7 @@ namespace core {
         utils::Timeval maxInactivity;
         const utils::Timeval initialTimeout;
 
-        friend class EventDispatcher;
+        friend class DescriptorEventDispatcher;
     };
 
 } // namespace core

@@ -18,7 +18,7 @@
 
 #include "core/EventReceiver.h"
 
-#include "core/EventDispatcher.h"
+#include "core/DescriptorEventDispatcher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -31,7 +31,7 @@ namespace core {
     const utils::Timeval EventReceiver::TIMEOUT::DEFAULT = {-1, 0};
     const utils::Timeval EventReceiver::TIMEOUT::DISABLE = {LONG_MAX, 0};
 
-    EventReceiver::EventReceiver(EventDispatcher& descriptorEventDispatcher, const utils::Timeval& timeout)
+    EventReceiver::EventReceiver(DescriptorEventDispatcher& descriptorEventDispatcher, const utils::Timeval& timeout)
         : eventDispatcher(descriptorEventDispatcher)
         , maxInactivity(timeout)
         , initialTimeout(timeout) {
@@ -41,7 +41,7 @@ namespace core {
         this->fd = fd;
         observed();
 
-        eventDispatcher.enable(this, fd);
+        eventDispatcher.enable(this);
 
         lastTriggered = utils::Timeval::currentTime();
 
@@ -53,7 +53,7 @@ namespace core {
             suspend();
         }
 
-        eventDispatcher.disable(this, fd);
+        eventDispatcher.disable(this);
         _enabled = false;
     }
 
@@ -67,14 +67,14 @@ namespace core {
 
     void EventReceiver::suspend() {
         if (isEnabled()) {
-            eventDispatcher.suspend(this, fd);
+            eventDispatcher.suspend(this);
             _suspended = true;
         }
     }
 
     void EventReceiver::resume() {
         if (isEnabled()) {
-            eventDispatcher.resume(this, fd);
+            eventDispatcher.resume(this);
             _suspended = false;
             lastTriggered = utils::Timeval::currentTime();
         }

@@ -38,7 +38,7 @@
 namespace core {
 
     static std::string getTickCounterAsString(const el::LogMessage*) {
-        std::string tick = std::to_string(EventLoop::instance().getTickCounter());
+        std::string tick = std::to_string(EventLoop::getTickCounter());
 
         if (tick.length() < 10) {
             tick.insert(0, 10 - tick.length(), '0');
@@ -51,22 +51,10 @@ namespace core {
     bool EventLoop::running = false;
     bool EventLoop::stopped = true;
     int EventLoop::stopsig = 0;
+    unsigned long EventLoop::tickCounter = 0;
 
-    EventLoop& EventLoop::instance() {
-        static EventLoop eventLoop;
-        return eventLoop;
-    }
-
-    TickStatus EventLoop::_tick(const utils::Timeval& tickTimeOut) {
-        tickCounter++;
-
-        TickStatus tickStatus = EventDispatcher::dispatch(tickTimeOut, stopped);
-
-        if (tickStatus == TickStatus::SUCCESS) {
-            DynamicLoader::execDlCloseDeleyed();
-        }
-
-        return tickStatus;
+    unsigned long EventLoop::getTickCounter() {
+        return tickCounter;
     }
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
@@ -98,7 +86,7 @@ namespace core {
 
             core::TickStatus tickStatus = TickStatus::SUCCESS;
             while (tickStatus == TickStatus::SUCCESS && !stopped) {
-                tickStatus = EventLoop::instance()._tick(timeOut);
+                tickStatus = EventLoop::_tick(timeOut, stopped);
             }
 
             running = false;
@@ -121,6 +109,26 @@ namespace core {
         return returnReason;
     }
 
+    TickStatus EventLoop::_tick(const utils::Timeval& tickTimeOut, bool stopped) {
+        tickCounter++;
+
+        TickStatus tickStatus = EventDispatcher::dispatch(tickTimeOut, stopped);
+
+        switch (tickStatus) {
+            case TickStatus::SUCCESS:
+                DynamicLoader::execDlCloseDeleyed();
+                break;
+            case TickStatus::NO_OBSERVER:
+                LOG(INFO) << "EventLoop: No Observer - exiting";
+                break;
+            case TickStatus::ERROR:
+                PLOG(ERROR) << "EventDispatcher::dispatch()";
+                break;
+        }
+
+        return tickStatus;
+    }
+
     TickStatus EventLoop::tick(const utils::Timeval& timeOut) {
         if (!initialized) {
             PLOG(ERROR) << "snode.c not initialized. Use SNodeC::init(argc, argv) before SNodeC::tick().";
@@ -129,7 +137,7 @@ namespace core {
 
         sighandler_t oldSigPipeHandler = core::system::signal(SIGPIPE, SIG_IGN);
 
-        TickStatus tickStatus = EventLoop::instance()._tick(timeOut);
+        TickStatus tickStatus = EventLoop::_tick(timeOut, stopped);
 
         core::system::signal(SIGPIPE, oldSigPipeHandler);
 
@@ -144,10 +152,6 @@ namespace core {
     void EventLoop::stoponsig(int sig) {
         stopsig = sig;
         stopped = true;
-    }
-
-    unsigned long EventLoop::getTickCounter() {
-        return tickCounter;
     }
 
 } // namespace core

@@ -20,34 +20,33 @@
 #define CORE_EVENTDISPATCHER_H
 
 #include "core/TickStatus.h"
-#include "utils/Timeval.h"
 
 namespace core {
-    class EventReceiver;
     class TimerEventDispatcher;
+    class DescriptorEventDispatcher;
 } // namespace core
+
+namespace utils {
+    class Timeval;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/select.h" // IWYU pragma: keep
-
-#include <list>
-#include <map>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
 
     class EventDispatcher {
+    private:
         EventDispatcher(const EventDispatcher&) = delete;
         EventDispatcher& operator=(const EventDispatcher&) = delete;
 
-    private:
         EventDispatcher() = default;
 
     public:
         static int getMaxFd();
-
         static utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
 
         static void observeEnabledEvents();
@@ -58,20 +57,20 @@ namespace core {
 
         static TickStatus dispatch(const utils::Timeval& tickTimeOut, bool stopped);
 
-        static EventDispatcher& getReadEventDispatcher();
-        static EventDispatcher& getWriteEventDispatcher();
-        static EventDispatcher& getExceptionalConditionEventDispatcher();
+        static DescriptorEventDispatcher& getReadEventDispatcher();
+        static DescriptorEventDispatcher& getWriteEventDispatcher();
+        static DescriptorEventDispatcher& getExceptionalConditionEventDispatcher();
 
         static TimerEventDispatcher& getTimerEventDispatcher();
 
     private:
         enum DISP_TYPE { RD = 0, WR = 1, EX = 2, TI = 3 };
 
-        static EventDispatcher eventDispatcher[4];
+        static DescriptorEventDispatcher eventDispatcher[4];
 
         static TimerEventDispatcher timerEventDispatcher;
 
-    private:
+    public:
         class FdSet {
         public:
             FdSet();
@@ -86,43 +85,6 @@ namespace core {
             fd_set registered;
             fd_set active;
         };
-
-        class EventReceiverList : public std::list<EventReceiver*> {
-        public:
-            using std::list<EventReceiver*>::begin;
-            using std::list<EventReceiver*>::end;
-            using std::list<EventReceiver*>::front;
-
-            bool contains(EventReceiver* descriptorEventReceiver) const;
-        };
-
-    public:
-        void enable(EventReceiver* eventReceiver, int fd);
-        void disable(EventReceiver* eventReceiver, int fd);
-        void suspend(EventReceiver* eventReceiver, int fd);
-        void resume(EventReceiver* eventReceiver, int fd);
-
-        unsigned long _getEventCounter() const;
-
-        fd_set& getFdSet();
-
-    private:
-        int _getMaxFd() const;
-
-        utils::Timeval _getNextTimeout(const utils::Timeval& currentTime) const;
-
-        void _observeEnabledEvents();
-        void _dispatchActiveEvents(const utils::Timeval& currentTime);
-        void _unobserveDisabledEvents(const utils::Timeval& currentTime);
-        void _terminateObservedEvents();
-
-        std::map<int, EventReceiverList> enabledEventReceiver;
-        std::map<int, EventReceiverList> observedEventReceiver;
-        std::map<int, EventReceiverList> disabledEventReceiver;
-
-        FdSet fdSet;
-
-        unsigned long eventCounter = 0;
     };
 
 } // namespace core
