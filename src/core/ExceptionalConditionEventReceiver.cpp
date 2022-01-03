@@ -34,7 +34,7 @@ namespace core {
         disable();
     }
 
-    bool ExceptionalConditionEventReceiver::continueOutOfBandImmediately() {
+    bool ExceptionalConditionEventReceiver::continueOutOfBandImmediately() const {
         return false;
     }
 
@@ -46,7 +46,7 @@ namespace core {
         outOfBandTimeout();
     }
 
-    bool ExceptionalConditionEventReceiver::continueImmediately() {
+    bool ExceptionalConditionEventReceiver::continueImmediately() const {
         return continueOutOfBandImmediately();
     }
 

@@ -101,7 +101,7 @@ namespace core::socket::stream {
             }
         }
 
-        bool continueReadImmediately() override {
+        bool continueReadImmediately() const override {
             return size > 0;
         }
 

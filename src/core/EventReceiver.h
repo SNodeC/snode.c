@@ -92,7 +92,7 @@ namespace core {
         virtual void dispatchEvent() = 0;
         virtual void timeoutEvent() = 0;
 
-        virtual bool continueImmediately() = 0;
+        virtual bool continueImmediately() const = 0;
 
         DescriptorEventDispatcher& eventDispatcher;
 

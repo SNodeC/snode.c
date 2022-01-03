@@ -36,7 +36,7 @@ namespace core {
         disable();
     }
 
-    bool AcceptEventReceiver::continueAcceptImmediately() {
+    bool AcceptEventReceiver::continueAcceptImmediately() const {
         return false;
     }
 
@@ -48,7 +48,7 @@ namespace core {
         acceptTimeout();
     }
 
-    bool AcceptEventReceiver::continueImmediately() {
+    bool AcceptEventReceiver::continueImmediately() const {
         return continueAcceptImmediately();
     }
 

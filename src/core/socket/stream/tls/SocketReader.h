@@ -83,7 +83,7 @@ namespace core::socket::stream::tls {
             return ret;
         }
 
-        bool continueReadImmediately() override {
+        bool continueReadImmediately() const override {
             return SSL_pending(ssl) || Super::continueReadImmediately();
         }
 

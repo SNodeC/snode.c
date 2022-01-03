@@ -34,7 +34,7 @@ namespace core {
         disable();
     }
 
-    bool ConnectEventReceiver::continueConnectImmediately() {
+    bool ConnectEventReceiver::continueConnectImmediately() const {
         return false;
     }
 
@@ -46,7 +46,7 @@ namespace core {
         connectTimeout();
     }
 
-    bool ConnectEventReceiver::continueImmediately() {
+    bool ConnectEventReceiver::continueImmediately() const {
         return continueConnectImmediately();
     }
 

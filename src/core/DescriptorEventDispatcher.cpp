@@ -25,9 +25,9 @@
 
 #include <algorithm> // for find, min
 #include <climits>
-#include <iterator> // for reverse_iterator
-//#include <type_traits> // for add_const<>::type
-#include <utility> // for tuple_element<>::type, pair
+#include <iterator>    // for reverse_iterator
+#include <type_traits> // for add_const<>::type
+#include <utility>     // for tuple_element<>::type, pair
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -116,7 +116,7 @@ namespace core {
         utils::Timeval nextTimeout = {LONG_MAX, 0};
 
         for (const auto& [fd, eventReceivers] : observedEventReceiver) { // cppcheck-suppress unusedVariable
-            EventReceiver* eventReceiver = eventReceivers.front();
+            const EventReceiver* eventReceiver = eventReceivers.front();
 
             if (!eventReceiver->isSuspended()) {
                 if (eventReceiver->continueImmediately()) {

@@ -34,7 +34,7 @@ namespace core {
         disable();
     }
 
-    bool WriteEventReceiver::continueWriteImmediately() {
+    bool WriteEventReceiver::continueWriteImmediately() const {
         return false;
     }
 
@@ -46,7 +46,7 @@ namespace core {
         writeTimeout();
     }
 
-    bool WriteEventReceiver::continueImmediately() {
+    bool WriteEventReceiver::continueImmediately() const {
         return continueWriteImmediately();
     }
 

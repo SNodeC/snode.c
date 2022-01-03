@@ -39,7 +39,7 @@ namespace core::socket::stream::legacy {
             return core::system::recv(this->getFd(), junk, junkLen, 0);
         }
 
-        bool continueReadImmediately() override {
+        bool continueReadImmediately() const override {
             return Super::continueReadImmediately();
         }
 

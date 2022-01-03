@@ -34,7 +34,7 @@ namespace core {
         disable();
     }
 
-    bool ReadEventReceiver::continueReadImmediately() {
+    bool ReadEventReceiver::continueReadImmediately() const {
         return false;
     }
 
@@ -46,7 +46,7 @@ namespace core {
         readTimeout();
     }
 
-    bool ReadEventReceiver::continueImmediately() {
+    bool ReadEventReceiver::continueImmediately() const {
         return continueReadImmediately();
     }
 
