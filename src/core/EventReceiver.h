@@ -22,13 +22,15 @@
 #include "core/EventDispatchers.h"
 #include "utils/Timeval.h" // IWYU pragma: export
 
+namespace core {
+    class DescriptorEventDispatcher;
+} // namespace core
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
-
-    class DescriptorEventDispatcher;
 
     class Observer {
     private:
@@ -95,12 +97,12 @@ namespace core {
 
         virtual bool continueImmediately() const = 0;
 
-        DescriptorEventDispatcher& eventDispatcher;
+        DescriptorEventDispatcher& descriptorEventDispatcher;
 
         int fd = -1;
 
-        bool _enabled = false;
-        bool _suspended = false;
+        bool enabled = false;
+        bool suspended = false;
 
         utils::Timeval lastTriggered;
         utils::Timeval maxInactivity;

@@ -32,7 +32,7 @@ namespace core {
     const utils::Timeval EventReceiver::TIMEOUT::DISABLE = {LONG_MAX, 0};
 
     EventReceiver::EventReceiver(EventDispatchers::DISP_TYPE dispType, const utils::Timeval& timeout)
-        : eventDispatcher(EventDispatchers::getDescriptorEventDispatcher(dispType))
+        : descriptorEventDispatcher(EventDispatchers::getDescriptorEventDispatcher(dispType))
         , maxInactivity(timeout)
         , initialTimeout(timeout) {
     }
@@ -41,11 +41,11 @@ namespace core {
         this->fd = fd;
         observed();
 
-        eventDispatcher.enable(this);
+        descriptorEventDispatcher.enable(this);
 
         lastTriggered = utils::Timeval::currentTime();
 
-        _enabled = true;
+        enabled = true;
     }
 
     void EventReceiver::disable() {
@@ -53,8 +53,8 @@ namespace core {
             suspend();
         }
 
-        eventDispatcher.disable(this);
-        _enabled = false;
+        descriptorEventDispatcher.disable(this);
+        enabled = false;
     }
 
     void EventReceiver::disabled() {
@@ -62,26 +62,26 @@ namespace core {
     }
 
     bool EventReceiver::isEnabled() const {
-        return _enabled;
+        return enabled;
     }
 
     void EventReceiver::suspend() {
         if (isEnabled()) {
-            eventDispatcher.suspend(this);
-            _suspended = true;
+            descriptorEventDispatcher.suspend(this);
+            suspended = true;
         }
     }
 
     void EventReceiver::resume() {
         if (isEnabled()) {
-            eventDispatcher.resume(this);
-            _suspended = false;
+            descriptorEventDispatcher.resume(this);
+            suspended = false;
             lastTriggered = utils::Timeval::currentTime();
         }
     }
 
     bool EventReceiver::isSuspended() const {
-        return _suspended;
+        return suspended;
     }
 
     void EventReceiver::terminate() {

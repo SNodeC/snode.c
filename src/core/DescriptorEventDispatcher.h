@@ -85,6 +85,7 @@ namespace core {
 
         friend class core::EventDispatchers;
     };
+
 } // namespace core
 
 #endif // CORE_DESCRIPTOREVENTDISPATCHER_H

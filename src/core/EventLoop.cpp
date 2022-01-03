@@ -66,6 +66,41 @@ namespace core {
         EventLoop::initialized = true;
     }
 
+    TickStatus EventLoop::_tick(const utils::Timeval& tickTimeOut, bool stopped) {
+        tickCounter++;
+
+        TickStatus tickStatus = EventDispatchers::dispatch(tickTimeOut, stopped);
+
+        switch (tickStatus) {
+            case TickStatus::SUCCESS:
+                DynamicLoader::execDlCloseDeleyed();
+                break;
+            case TickStatus::NO_OBSERVER:
+                LOG(INFO) << "EventLoop: No Observer - exiting";
+                break;
+            case TickStatus::ERROR:
+                PLOG(ERROR) << "EventDispatcher::dispatch()";
+                break;
+        }
+
+        return tickStatus;
+    }
+
+    TickStatus EventLoop::tick(const utils::Timeval& timeOut) {
+        if (!initialized) {
+            PLOG(ERROR) << "snode.c not initialized. Use SNodeC::init(argc, argv) before SNodeC::tick().";
+            exit(1);
+        }
+
+        sighandler_t oldSigPipeHandler = core::system::signal(SIGPIPE, SIG_IGN);
+
+        TickStatus tickStatus = EventLoop::_tick(timeOut, stopped);
+
+        core::system::signal(SIGPIPE, oldSigPipeHandler);
+
+        return tickStatus;
+    }
+
     int EventLoop::start(const utils::Timeval& timeOut) {
         if (!initialized) {
             PLOG(ERROR) << "snode.c not initialized. Use SNodeC::init(argc, argv) before SNodeC::start().";
@@ -109,44 +144,10 @@ namespace core {
         return returnReason;
     }
 
-    TickStatus EventLoop::_tick(const utils::Timeval& tickTimeOut, bool stopped) {
-        tickCounter++;
-
-        TickStatus tickStatus = EventDispatchers::dispatch(tickTimeOut, stopped);
-
-        switch (tickStatus) {
-            case TickStatus::SUCCESS:
-                DynamicLoader::execDlCloseDeleyed();
-                break;
-            case TickStatus::NO_OBSERVER:
-                LOG(INFO) << "EventLoop: No Observer - exiting";
-                break;
-            case TickStatus::ERROR:
-                PLOG(ERROR) << "EventDispatcher::dispatch()";
-                break;
-        }
-
-        return tickStatus;
-    }
-
-    TickStatus EventLoop::tick(const utils::Timeval& timeOut) {
-        if (!initialized) {
-            PLOG(ERROR) << "snode.c not initialized. Use SNodeC::init(argc, argv) before SNodeC::tick().";
-            exit(1);
-        }
-
-        sighandler_t oldSigPipeHandler = core::system::signal(SIGPIPE, SIG_IGN);
-
-        TickStatus tickStatus = EventLoop::_tick(timeOut, stopped);
-
-        core::system::signal(SIGPIPE, oldSigPipeHandler);
-
-        return tickStatus;
-    }
-
     void EventLoop::free() {
         EventDispatchers::stop();
 
+        DynamicLoader::execDlCloseDeleyed();
         DynamicLoader::execDlCloseAll();
     }
 
