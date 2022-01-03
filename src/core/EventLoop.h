@@ -19,9 +19,8 @@
 #ifndef CORE_EVENTLOOP_H
 #define CORE_EVENTLOOP_H
 
-#include "core/EventDispatcher.h"
 #include "core/TickStatus.h"
-#include "core/TimerEventDispatcher.h"
+#include "utils/Timeval.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -40,12 +39,6 @@ namespace core {
     public:
         static EventLoop& instance();
 
-        EventDispatcher& getReadEventDispatcher();
-        EventDispatcher& getWriteEventDispatcher();
-        EventDispatcher& getExceptionalConditionEventDispatcher();
-        TimerEventDispatcher& getTimerEventDispatcher();
-
-        unsigned long getEventCounter();
         unsigned long getTickCounter();
 
     private:
@@ -58,12 +51,6 @@ namespace core {
         static void stoponsig(int sig);
 
         TickStatus _tick(const utils::Timeval& timeOut);
-
-        EventDispatcher readEventDispatcher;
-        EventDispatcher writeEventDispatcher;
-        EventDispatcher exceptionalConditionEventDispatcher;
-
-        TimerEventDispatcher timerEventDispatcher;
 
         static bool running;
         static bool stopped;

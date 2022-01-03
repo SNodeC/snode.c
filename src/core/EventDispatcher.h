@@ -19,11 +19,13 @@
 #ifndef CORE_EVENTDISPATCHER_H
 #define CORE_EVENTDISPATCHER_H
 
+#include "core/TickStatus.h"
 #include "utils/Timeval.h"
 
 namespace core {
     class EventReceiver;
-}
+    class TimerEventDispatcher;
+} // namespace core
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -40,9 +42,34 @@ namespace core {
         EventDispatcher(const EventDispatcher&) = delete;
         EventDispatcher& operator=(const EventDispatcher&) = delete;
 
+    private:
+        EventDispatcher() = default;
+
     public:
-        EventDispatcher();
-        ~EventDispatcher();
+        static int getMaxFd();
+
+        static utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
+
+        static void observeEnabledEvents();
+        static void dispatchActiveEvents(const utils::Timeval& currentTime);
+        static void unobserveDisabledEvents(const utils::Timeval& currentTime);
+        static void terminateObservedEvents();
+        static void terminateTimerEvents();
+
+        static TickStatus dispatch(const utils::Timeval& tickTimeOut, bool stopped);
+
+        static EventDispatcher& getReadEventDispatcher();
+        static EventDispatcher& getWriteEventDispatcher();
+        static EventDispatcher& getExceptionalConditionEventDispatcher();
+
+        static TimerEventDispatcher& getTimerEventDispatcher();
+
+    private:
+        enum DISP_TYPE { RD = 0, WR = 1, EX = 2, TI = 3 };
+
+        static EventDispatcher eventDispatcher[4];
+
+        static TimerEventDispatcher timerEventDispatcher;
 
     private:
         class FdSet {
@@ -75,17 +102,9 @@ namespace core {
         void suspend(EventReceiver* eventReceiver, int fd);
         void resume(EventReceiver* eventReceiver, int fd);
 
-        unsigned long getEventCounter() const;
+        unsigned long _getEventCounter() const;
 
         fd_set& getFdSet();
-        static int getMaxFd();
-
-        static utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
-
-        static void observeEnabledEvents();
-        static void dispatchActiveEvents(const utils::Timeval& currentTime);
-        static void unobserveDisabledEvents(const utils::Timeval& currentTime);
-        static void terminateObservedEvents();
 
     private:
         int _getMaxFd() const;
@@ -96,8 +115,6 @@ namespace core {
         void _dispatchActiveEvents(const utils::Timeval& currentTime);
         void _unobserveDisabledEvents(const utils::Timeval& currentTime);
         void _terminateObservedEvents();
-
-        static std::list<EventDispatcher*> eventDispatchers;
 
         std::map<int, EventReceiverList> enabledEventReceiver;
         std::map<int, EventReceiverList> observedEventReceiver;

@@ -23,10 +23,7 @@
 #include "web/http/client/ResponseParser.h" // for HTTPResponseParser, ResponseCookie
 #include "web/http/server/RequestParser.h"  // for RequestParser
 
-#include <algorithm>   // for __copy_fn, copy
 #include <functional>  // for function
-#include <iostream>    // for operator<<, cout, basic_ostream
-#include <iterator>    // for ostream_iterator
 #include <map>         // for map
 #include <string>      // for allocator, string, operator+, char_t...
 #include <type_traits> // for add_const<>::type

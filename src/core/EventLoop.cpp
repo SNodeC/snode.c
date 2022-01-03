@@ -19,16 +19,15 @@
 #include "core/EventLoop.h" // for EventLoop
 
 #include "core/DynamicLoader.h"
+#include "core/EventDispatcher.h"
 #include "log/Logger.h" // for Logger
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "core/system/select.h"
 #include "core/system/signal.h"
 
-#include <algorithm> // for min, max
-#include <cstdlib>   // for exit
-#include <string>    // for string, to_string
+#include <cstdlib> // for exit
+#include <string>  // for string, to_string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -58,63 +57,13 @@ namespace core {
         return eventLoop;
     }
 
-    EventDispatcher& EventLoop::getReadEventDispatcher() {
-        return readEventDispatcher;
-    }
-
-    EventDispatcher& EventLoop::getWriteEventDispatcher() {
-        return writeEventDispatcher;
-    }
-
-    EventDispatcher& EventLoop::getExceptionalConditionEventDispatcher() {
-        return exceptionalConditionEventDispatcher;
-    }
-
-    TimerEventDispatcher& EventLoop::getTimerEventDispatcher() {
-        return timerEventDispatcher;
-    }
-
     TickStatus EventLoop::_tick(const utils::Timeval& tickTimeOut) {
-        TickStatus tickStatus = TickStatus::SUCCESS;
         tickCounter++;
 
-        //        timerEventDispatcher.observeEnabledTimers();
+        TickStatus tickStatus = EventDispatcher::dispatch(tickTimeOut, stopped);
 
-        EventDispatcher::observeEnabledEvents();
-        int maxFd = EventDispatcher::getMaxFd();
-
-        utils::Timeval currentTime = utils::Timeval::currentTime();
-
-        utils::Timeval nextEventTimeout = EventDispatcher::getNextTimeout(currentTime);
-        utils::Timeval nextTimerTimeout = timerEventDispatcher.getNextTimeout(currentTime);
-
-        utils::Timeval nextTimeout = std::min(nextTimerTimeout, nextEventTimeout);
-
-        if (maxFd >= 0 || (!timerEventDispatcher.empty() && !stopped)) {
-            nextTimeout = std::min(nextTimeout, tickTimeOut);
-            nextTimeout = std::max(nextTimeout, utils::Timeval()); // In case nextEventTimeout is negativ
-
-            int ret = core::system::select(maxFd + 1,
-                                           &readEventDispatcher.getFdSet(),
-                                           &writeEventDispatcher.getFdSet(),
-                                           &exceptionalConditionEventDispatcher.getFdSet(),
-                                           &nextTimeout);
-            if (ret >= 0) {
-                currentTime = utils::Timeval::currentTime();
-
-                timerEventDispatcher.dispatchActiveEvents(currentTime);
-                EventDispatcher::dispatchActiveEvents(currentTime);
-                EventDispatcher::unobserveDisabledEvents(currentTime);
-
-                // timerEventDispathcer.unobserveDisabledTimers(currentTime);
-
-                DynamicLoader::execDlCloseDeleyed();
-            } else {
-                PLOG(ERROR) << "select";
-                tickStatus = TickStatus::SELECT_ERROR;
-            }
-        } else {
-            tickStatus = TickStatus::NO_OBSERVER;
+        if (tickStatus == TickStatus::SUCCESS) {
+            DynamicLoader::execDlCloseDeleyed();
         }
 
         return tickStatus;
@@ -188,29 +137,13 @@ namespace core {
     }
 
     void EventLoop::free() {
-        core::TickStatus tickStatus = TickStatus::SUCCESS;
-
-        do {
-            EventDispatcher::terminateObservedEvents();
-            tickStatus = EventLoop::tick(2);
-        } while (tickStatus == TickStatus::SUCCESS);
-
-        stopped = false;
-
-        do {
-            EventLoop::instance().timerEventDispatcher.cancelAll();
-            tickStatus = EventLoop::tick();
-        } while (tickStatus == TickStatus::SUCCESS);
+        EventDispatcher::terminateObservedEvents();
+        EventDispatcher::terminateTimerEvents();
     }
 
     void EventLoop::stoponsig(int sig) {
         stopsig = sig;
         stopped = true;
-    }
-
-    unsigned long EventLoop::getEventCounter() {
-        return readEventDispatcher.getEventCounter() + writeEventDispatcher.getEventCounter() +
-               exceptionalConditionEventDispatcher.getEventCounter();
     }
 
     unsigned long EventLoop::getTickCounter() {

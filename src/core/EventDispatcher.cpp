@@ -19,6 +19,8 @@
 #include "core/EventDispatcher.h"
 
 #include "core/EventReceiver.h"
+#include "core/TimerEventDispatcher.h"
+#include "core/system/select.h"
 #include "log/Logger.h"    // for Writer, CWARNING, LOG
 #include "utils/Timeval.h" // for operator-, operator<, operator>=
 
@@ -34,14 +36,23 @@
 
 namespace core {
 
-    std::list<EventDispatcher*> EventDispatcher::eventDispatchers;
+    EventDispatcher EventDispatcher::eventDispatcher[];
+    TimerEventDispatcher EventDispatcher::timerEventDispatcher;
 
-    EventDispatcher::EventDispatcher() {
-        eventDispatchers.push_back(this);
+    EventDispatcher& EventDispatcher::getReadEventDispatcher() {
+        return eventDispatcher[RD];
     }
 
-    EventDispatcher::~EventDispatcher() {
-        eventDispatchers.remove(this);
+    EventDispatcher& EventDispatcher::getWriteEventDispatcher() {
+        return eventDispatcher[WR];
+    }
+
+    EventDispatcher& EventDispatcher::getExceptionalConditionEventDispatcher() {
+        return eventDispatcher[EX];
+    }
+
+    TimerEventDispatcher& EventDispatcher::getTimerEventDispatcher() {
+        return timerEventDispatcher;
     }
 
     EventDispatcher::FdSet::FdSet() {
@@ -124,7 +135,7 @@ namespace core {
         }
     }
 
-    unsigned long EventDispatcher::getEventCounter() const {
+    unsigned long EventDispatcher::_getEventCounter() const {
         return eventCounter;
     }
 
@@ -135,8 +146,8 @@ namespace core {
     int EventDispatcher::getMaxFd() {
         int maxFd = -1;
 
-        for (EventDispatcher* eventDispatcher : eventDispatchers) {
-            maxFd = std::max(eventDispatcher->_getMaxFd(), maxFd);
+        for (const EventDispatcher& eventDispatcher : eventDispatcher) {
+            maxFd = std::max(eventDispatcher._getMaxFd(), maxFd);
         }
 
         return maxFd;
@@ -155,8 +166,8 @@ namespace core {
     utils::Timeval EventDispatcher::getNextTimeout(const utils::Timeval& currentTime) {
         utils::Timeval nextTimeout = {LONG_MAX, 0};
 
-        for (EventDispatcher* eventDispatcher : eventDispatchers) {
-            nextTimeout = std::min(eventDispatcher->_getNextTimeout(currentTime), nextTimeout);
+        for (const EventDispatcher& eventDispatcher : eventDispatcher) {
+            nextTimeout = std::min(eventDispatcher._getNextTimeout(currentTime), nextTimeout);
         }
 
         return nextTimeout;
@@ -183,8 +194,8 @@ namespace core {
     }
 
     void EventDispatcher::observeEnabledEvents() {
-        for (EventDispatcher* eventDispatcher : eventDispatchers) {
-            eventDispatcher->_observeEnabledEvents();
+        for (EventDispatcher& eventDispatcher : eventDispatcher) {
+            eventDispatcher._observeEnabledEvents();
         }
     }
 
@@ -207,8 +218,8 @@ namespace core {
     }
 
     void EventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
-        for (EventDispatcher* eventDispatcher : eventDispatchers) {
-            eventDispatcher->_dispatchActiveEvents(currentTime);
+        for (EventDispatcher& eventDispatcher : eventDispatcher) {
+            eventDispatcher._dispatchActiveEvents(currentTime);
         }
     }
 
@@ -225,8 +236,8 @@ namespace core {
     }
 
     void EventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
-        for (EventDispatcher* eventDispatcher : eventDispatchers) {
-            eventDispatcher->_unobserveDisabledEvents(currentTime);
+        for (EventDispatcher& eventDispatcher : eventDispatcher) {
+            eventDispatcher._unobserveDisabledEvents(currentTime);
         }
     }
 
@@ -252,10 +263,51 @@ namespace core {
         disabledEventReceiver.clear();
     }
 
-    void EventDispatcher::terminateObservedEvents() {
-        for (EventDispatcher* eventDispatcher : eventDispatchers) {
-            eventDispatcher->_terminateObservedEvents();
+    TickStatus EventDispatcher::dispatch(const utils::Timeval& tickTimeOut, bool stopped) {
+        TickStatus tickStatus = TickStatus::SUCCESS;
+
+        EventDispatcher::observeEnabledEvents();
+        int maxFd = EventDispatcher::getMaxFd();
+
+        utils::Timeval currentTime = utils::Timeval::currentTime();
+
+        utils::Timeval nextEventTimeout = EventDispatcher::getNextTimeout(currentTime);
+        utils::Timeval nextTimerTimeout = timerEventDispatcher.getNextTimeout(currentTime);
+
+        utils::Timeval nextTimeout = std::min(nextTimerTimeout, nextEventTimeout);
+
+        if (maxFd >= 0 || (!timerEventDispatcher.empty() && !stopped)) {
+            nextTimeout = std::min(nextTimeout, tickTimeOut);
+            nextTimeout = std::max(nextTimeout, utils::Timeval()); // In case nextEventTimeout is negativ
+
+            int ret = core::system::select(
+                maxFd + 1, &eventDispatcher[RD].getFdSet(), &eventDispatcher[WR].getFdSet(), &eventDispatcher[EX].getFdSet(), &nextTimeout);
+            if (ret >= 0) {
+                currentTime = utils::Timeval::currentTime();
+
+                timerEventDispatcher.dispatchActiveEvents(currentTime);
+                EventDispatcher::dispatchActiveEvents(currentTime);
+                EventDispatcher::unobserveDisabledEvents(currentTime);
+            } else {
+                PLOG(ERROR) << "select";
+                tickStatus = TickStatus::SELECT_ERROR;
+            }
+        } else {
+            tickStatus = TickStatus::NO_OBSERVER;
         }
+
+        return tickStatus;
+    }
+
+    void EventDispatcher::terminateObservedEvents() {
+        core::TickStatus tickStatus;
+
+        do {
+            for (EventDispatcher& eventDispatcher : eventDispatcher) {
+                eventDispatcher._terminateObservedEvents();
+            }
+            tickStatus = dispatch(2, true);
+        } while (tickStatus == TickStatus::SUCCESS);
     }
 
     void EventDispatcher::_terminateObservedEvents() {
@@ -266,6 +318,15 @@ namespace core {
                 }
             }
         }
+    }
+
+    void EventDispatcher::terminateTimerEvents() {
+        core::TickStatus tickStatus;
+
+        do {
+            timerEventDispatcher.cancelAll();
+            tickStatus = dispatch(0, false);
+        } while (tickStatus == TickStatus::SUCCESS);
     }
 
 } // namespace core

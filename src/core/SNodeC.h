@@ -25,7 +25,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <climits>
-#include <cstddef> // for size_t
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
