@@ -89,9 +89,10 @@ namespace core::socket::stream {
 
             if (size == 0) {
                 cursor = 0;
-                std::size_t readLen = MAX_READ_JUNKSIZE - size;
 
                 ssize_t retRead = 0;
+
+                std::size_t readLen = MAX_READ_JUNKSIZE - size;
                 retRead = read(data + size, readLen);
 
                 if (retRead > 0) {

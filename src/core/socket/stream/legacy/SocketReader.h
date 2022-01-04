@@ -43,8 +43,6 @@ namespace core::socket::stream::legacy {
             return Super::continueReadImmediately();
         }
 
-        virtual void readEvent() override = 0;
-
     protected:
         void terminate() override {
             Super::terminate();

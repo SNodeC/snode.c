@@ -103,8 +103,6 @@ namespace core::socket::stream::tls {
             return SSL_has_pending(ssl) || Super::continueReadImmediately();
         }
 
-        virtual void readEvent() override = 0;
-
     protected:
         void terminate() override {
             Super::terminate();
