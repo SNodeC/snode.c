@@ -43,45 +43,54 @@ namespace core::socket::stream::tls {
             int ret = 0;
             int ssl_err = this->sslErr;
 
-            if (ssl_err == SSL_ERROR_NONE) {
-                ret = SSL_read(ssl, junk, static_cast<int>(junkLen));
+            switch (SSL_get_shutdown(ssl)) {
+                case 0:
+                case SSL_SENT_SHUTDOWN:
+                    if (ssl_err == SSL_ERROR_NONE) {
+                        ret = SSL_read(ssl, junk, static_cast<int>(junkLen));
 
-                if (ret <= 0) {
-                    ssl_err = SSL_get_error(ssl, ret);
-                }
-            }
+                        if (ret <= 0) {
+                            ssl_err = SSL_get_error(ssl, ret);
+                        }
+                    }
 
-            switch (ssl_err) {
-                case SSL_ERROR_NONE:
+                    switch (ssl_err) {
+                        case SSL_ERROR_NONE:
+                            break;
+                        case SSL_ERROR_WANT_READ:
+                            ret = 0;
+                            errno = EAGAIN;
+                            break;
+                        case SSL_ERROR_WANT_WRITE:
+                            LOG(INFO) << "SSL/TLS start renegotiation on read";
+                            doSSLHandshake(
+                                [](void) -> void {
+                                    LOG(INFO) << "SSL/TLS renegotiation on read success";
+                                },
+                                [](void) -> void {
+                                    LOG(WARNING) << "SSL/TLS renegotiation on read timed out";
+                                },
+                                [this](int sslErr) -> void {
+                                    ssl_log("SSL/TLS renegotiation", sslErr);
+                                    this->sslErr = sslErr;
+                                });
+                            errno = EAGAIN;
+                            break;
+                        case SSL_ERROR_ZERO_RETURN: // shutdonw cleanly
+                            ret = 0;                // On the read side propagate the zerro
+                            break;
+                        case SSL_ERROR_SYSCALL:
+                            ret = -1;
+                            break;
+                        default:
+                            ssl_log("SSL/TLS read failed", sslErr);
+                            ret = -1;
+                            break;
+                    }
                     break;
-                case SSL_ERROR_WANT_READ:
+                case SSL_RECEIVED_SHUTDOWN:
+                case SSL_RECEIVED_SHUTDOWN | SSL_SENT_SHUTDOWN:
                     ret = 0;
-                    errno = EAGAIN;
-                    break;
-                case SSL_ERROR_WANT_WRITE:
-                    LOG(INFO) << "SSL/TLS start renegotiation on read";
-                    doSSLHandshake(
-                        [](void) -> void {
-                            LOG(INFO) << "SSL/TLS renegotiation on read success";
-                        },
-                        [](void) -> void {
-                            LOG(WARNING) << "SSL/TLS renegotiation on read timed out";
-                        },
-                        [this](int sslErr) -> void {
-                            ssl_log("SSL/TLS renegotiation", sslErr);
-                            this->sslErr = sslErr;
-                        });
-                    errno = EAGAIN;
-                    break;
-                case SSL_ERROR_ZERO_RETURN: // shutdonw cleanly
-                    ret = 0;                // On the read side propagate the zerro
-                    break;
-                case SSL_ERROR_SYSCALL:
-                    ret = -1;
-                    break;
-                default:
-                    ssl_log("SSL/TLS read failed", sslErr);
-                    ret = -1;
                     break;
             }
 
@@ -89,7 +98,7 @@ namespace core::socket::stream::tls {
         }
 
         bool continueReadImmediately() const override {
-            return SSL_pending(ssl) || Super::continueReadImmediately();
+            return SSL_has_pending(ssl) || Super::continueReadImmediately();
         }
 
         virtual void readEvent() override = 0;

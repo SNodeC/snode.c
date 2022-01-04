@@ -43,45 +43,54 @@ namespace core::socket::stream::tls {
             int ret = 0;
             int ssl_err = this->sslErr;
 
-            if (ssl_err == SSL_ERROR_NONE) {
-                ret = SSL_write(ssl, junk, static_cast<int>(junkLen));
+            switch (SSL_get_shutdown(ssl)) {
+                case 0:
+                case SSL_RECEIVED_SHUTDOWN:
+                    if (ssl_err == SSL_ERROR_NONE) {
+                        ret = SSL_write(ssl, junk, static_cast<int>(junkLen));
 
-                if (ret <= 0) {
-                    ssl_err = SSL_get_error(ssl, ret);
-                }
-            }
+                        if (ret <= 0) {
+                            ssl_err = SSL_get_error(ssl, ret);
+                        }
+                    }
 
-            switch (ssl_err) {
-                case SSL_ERROR_NONE:
+                    switch (ssl_err) {
+                        case SSL_ERROR_NONE:
+                            break;
+                        case SSL_ERROR_WANT_READ:
+                            LOG(INFO) << "SSL/TLS start renegotiation on write";
+                            doSSLHandshake(
+                                [](void) -> void {
+                                    LOG(INFO) << "SSL/TLS renegotiation on write success";
+                                },
+                                [](void) -> void {
+                                    LOG(WARNING) << "SSL/TLS renegotiation on write timed out";
+                                },
+                                [this](int sslErr) -> void {
+                                    ssl_log("SSL/TLS renegotiation", sslErr);
+                                    this->sslErr = sslErr;
+                                });
+                            errno = EAGAIN;
+                            break;
+                        case SSL_ERROR_WANT_WRITE:
+                            ret = 0;
+                            errno = EAGAIN;
+                            break;
+                        case SSL_ERROR_ZERO_RETURN: // shutdown cleanly
+                            ret = -1;               // on the write side this means a TCP broken pipe
+                            break;
+                        case SSL_ERROR_SYSCALL:
+                            ret = -1;
+                            break;
+                        default:
+                            VLOG(0) << "WRITE: " << ssl_err;
+                            ssl_log("SSL/TLS write failed", ssl_err);
+                            ret = -1;
+                            break;
+                    }
                     break;
-                case SSL_ERROR_WANT_READ:
-                    LOG(INFO) << "SSL/TLS start renegotiation on write";
-                    doSSLHandshake(
-                        [](void) -> void {
-                            LOG(INFO) << "SSL/TLS renegotiation on write success";
-                        },
-                        [](void) -> void {
-                            LOG(WARNING) << "SSL/TLS renegotiation on write timed out";
-                        },
-                        [this](int sslErr) -> void {
-                            ssl_log("SSL/TLS renegotiation", sslErr);
-                            this->sslErr = sslErr;
-                        });
-                    errno = EAGAIN;
-                    break;
-                case SSL_ERROR_WANT_WRITE:
-                    ret = 0;
-                    errno = EAGAIN;
-                    break;
-                case SSL_ERROR_ZERO_RETURN: // shutdown cleanly
-                    ret = -1;               // on the write side this means a TCP broken pipe
-                    break;
-                case SSL_ERROR_SYSCALL:
-                    ret = -1;
-                    break;
-                default:
-                    VLOG(0) << "WRITE: " << ssl_err;
-                    ssl_log("SSL/TLS write failed", ssl_err);
+                case SSL_SENT_SHUTDOWN:
+                case SSL_RECEIVED_SHUTDOWN | SSL_SENT_SHUTDOWN:
                     ret = -1;
                     break;
             }

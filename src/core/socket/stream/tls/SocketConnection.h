@@ -91,6 +91,39 @@ namespace core::socket::stream::tls {
             return ssl;
         }
 
+        void stopSSL() {
+            if (ssl != nullptr) {
+                SSL_free(ssl);
+
+                ssl = nullptr;
+                SocketConnection::SocketReader::ssl = nullptr;
+                SocketConnection::SocketWriter::ssl = nullptr;
+            }
+        }
+
+        void doShutdown() override {
+            if (SSL_get_shutdown(ssl) != SSL_SENT_SHUTDOWN) { // do not send shutdown twice
+                SSL_shutdown(ssl);
+
+                doSSLHandshake(
+                    [this](void) -> void {
+                        LOG(INFO) << "SSL/TLS shutdown success";
+                        SocketConnection::SocketWriter::doShutdown();
+                    },
+                    [this](void) -> void {
+                        LOG(WARNING) << "SSL/TLS shutdown timed out";
+                        SocketConnection::SocketReader::doShutdown();
+                        SocketConnection::SocketWriter::doShutdown();
+                    },
+                    [this](int sslErr) -> void {
+                        ssl_log("SSL/TLS shutdown ", sslErr);
+                        this->sslErr = sslErr;
+                        SocketConnection::SocketReader::doShutdown();
+                        SocketConnection::SocketWriter::doShutdown();
+                    });
+            }
+        }
+
         void doSSLHandshake(const std::function<void()>& onSuccess,
                             const std::function<void()>& onTimeout,
                             const std::function<void(int)>& onError) override {
@@ -137,16 +170,6 @@ namespace core::socket::stream::tls {
                     }
                     onError(sslErr);
                 });
-        }
-
-        void stopSSL() {
-            if (ssl != nullptr) {
-                SSL_free(ssl);
-
-                ssl = nullptr;
-                SocketConnection::SocketReader::ssl = nullptr;
-                SocketConnection::SocketWriter::ssl = nullptr;
-            }
         }
 
         void setSSLError(int sslErr) {
