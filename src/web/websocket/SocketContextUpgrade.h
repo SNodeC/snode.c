@@ -59,10 +59,10 @@ namespace web::websocket {
         using Response = ResponseT;
 
     private:
-        using Super::close;
         using Super::readFromPeer;
         using Super::sendToPeer;
         using Super::setTimeout;
+        using Super::shutdownWrite;
 
     protected:
         SocketContextUpgrade(core::socket::SocketConnection* socketConnection,
@@ -132,7 +132,8 @@ namespace web::websocket {
     private:
         void sendClose(const char* message, std::size_t messageLength) {
             sendMessage(8, message, messageLength);
-            close();
+            shutdownWrite();
+            //            close();
         }
 
         /* WSReceiver */
