@@ -63,13 +63,13 @@ namespace core::socket::stream {
 
         void writeEvent() override = 0;
 
+    protected:
         virtual void doShutdown() {
             Socket::shutdown(Socket::shutdown::WR);
             resume();
             shutdownTriggered = true;
         }
 
-    protected:
         void sendToPeer(const char* junk, std::size_t junkLen) {
             if (!shutdownTriggered) {
                 writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);

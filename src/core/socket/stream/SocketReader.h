@@ -63,13 +63,13 @@ namespace core::socket::stream {
 
         void readEvent() override = 0;
 
+    protected:
         virtual void doShutdown() {
             Socket::shutdown(Socket::shutdown::RD);
             resume();
             shutdownTriggered = true;
         }
 
-    protected:
         ssize_t readFromPeer(char* junk, std::size_t junkLen) {
             std::size_t maxReturn = std::min(junkLen, size);
 
