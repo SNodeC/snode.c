@@ -83,8 +83,9 @@ namespace core::socket::stream::tls {
                             ret = -1;
                             break;
                         default:
-                            VLOG(0) << "WRITE: " << ssl_err;
+                            int errnum = errno;
                             ssl_log("SSL/TLS write failed", ssl_err);
+                            errno = errnum;
                             ret = -1;
                             break;
                     }
