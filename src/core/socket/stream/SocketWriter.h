@@ -85,10 +85,12 @@ namespace core::socket::stream {
         void doWrite() {
             errno = 0;
 
-            std::size_t writeLen = (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE;
-
             ssize_t retWrite = -1;
-            retWrite = write(writeBuffer.data(), writeLen);
+
+            std::size_t writeLen = (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE;
+            if (!shutdownTriggered) {
+                retWrite = write(writeBuffer.data(), writeLen);
+            }
 
             if (retWrite >= 0) {
                 writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);
