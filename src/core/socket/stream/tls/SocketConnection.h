@@ -105,13 +105,15 @@ namespace core::socket::stream::tls {
             int sh = SSL_get_shutdown(ssl);
             // TODO: Important: SSL_shutdown should be called in a non-blocking way!!!
 
-            if ((sh | SSL_SENT_SHUTDOWN) || (sh | SSL_RECEIVED_SHUTDOWN)) {                 // Did we already sent or receive close_notify?
+            if ((sh & SSL_SENT_SHUTDOWN) || (sh & SSL_RECEIVED_SHUTDOWN)) {                 // Did we already sent or receive close_notify?
                 VLOG(0) << "SSL_shutdown: Eighter close_notify received or already sent";   //
                 if (sh == SSL_RECEIVED_SHUTDOWN) {                                          // If we only have received close_notify
                     VLOG(0) << "SSL_shutdown: Received close_notify, sending close_notify"; //
                     SSL_shutdown(ssl);                                                      // also sent one
-                }                                                                           //
-                VLOG(0) << "SSL_shutdown: Shutdown completed. Closing underlying Writer";   //
+                } else {
+                    VLOG(0) << "SSL_shutdown: Both close_notify present";
+                }
+                VLOG(0) << "SSL_shutdown: Shutdown completed. Closing underlying Writer"; //
                 SocketConnection::SocketWriter::SocketWriter::doShutdown();       // SSL shutdown completed - shutdown the underlying socket
             } else {                                                              // We neighter have sent nor received close_notify
                 VLOG(0) << "SSL_shutdown: Beeing the first to send close_notify"; //
@@ -120,13 +122,15 @@ namespace core::socket::stream::tls {
                     VLOG(0) << "SSL_shutdown: Underlying Reader already receifed TCP-FIN. Closing unerlying Writer";
                     SocketConnection::SocketWriter::SocketWriter::doShutdown(); // we can not wait for the close_notify from the peer
                                                                                 // thus shutdown the underlying Writer
+                } else {
+                    VLOG(0) << "Waiting for peer's close_notify";
                 }
             }
         }
 
         void doHandshake(const std::function<void()>& onSuccess,
-                            const std::function<void()>& onTimeout,
-                            const std::function<void(int)>& onError) override {
+                         const std::function<void()>& onTimeout,
+                         const std::function<void(int)>& onError) override {
             int resumeSocketReader = false;
             int resumeSocketWriter = false;
 
