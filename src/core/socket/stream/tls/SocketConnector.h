@@ -58,7 +58,7 @@ namespace core::socket::stream::tls {
 
                               SSL_set_connect_state(ssl);
 
-                              socketConnection->doSSLHandshake(
+                              socketConnection->doHandshake(
                                   [onConnected, socketConnection](void) -> void { // onSuccess
                                       LOG(INFO) << "SSL/TLS initial handshake success";
                                       socketConnection->SocketConnection::SocketReader::resume();
