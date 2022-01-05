@@ -102,25 +102,25 @@ namespace core::socket::stream::tls {
         }
 
         void doShutdown() override {
-            if (SSL_get_shutdown(ssl) != SSL_SENT_SHUTDOWN) { // do not send shutdown twice
-                SSL_shutdown(ssl);
+            int sh = SSL_get_shutdown(ssl);
+            // TODO: Important: SSL_shutdown should be called in a non-blocking way!!!
 
-                doSSLHandshake(
-                    [this](void) -> void {
-                        LOG(INFO) << "SSL/TLS shutdown success";
-                        SocketConnection::SocketWriter::doShutdown();
-                    },
-                    [this](void) -> void {
-                        LOG(WARNING) << "SSL/TLS shutdown timed out";
-                        SocketConnection::SocketReader::doShutdown();
-                        SocketConnection::SocketWriter::doShutdown();
-                    },
-                    [this](int sslErr) -> void {
-                        ssl_log("SSL/TLS shutdown ", sslErr);
-                        this->sslErr = sslErr;
-                        SocketConnection::SocketReader::doShutdown();
-                        SocketConnection::SocketWriter::doShutdown();
-                    });
+            if ((sh | SSL_SENT_SHUTDOWN) || (sh | SSL_RECEIVED_SHUTDOWN)) {                 // Did we already sent or receive close_notify?
+                VLOG(0) << "SSL_shutdown: Eighter close_notify received or already sent";   //
+                if (sh == SSL_RECEIVED_SHUTDOWN) {                                          // If we only have received close_notify
+                    VLOG(0) << "SSL_shutdown: Received close_notify, sending close_notify"; //
+                    SSL_shutdown(ssl);                                                      // also sent one
+                }                                                                           //
+                VLOG(0) << "SSL_shutdown: Shutdown completed. Closing underlying Writer";   //
+                SocketConnection::SocketWriter::SocketWriter::doShutdown();       // SSL shutdown completed - shutdown the underlying socket
+            } else {                                                              // We neighter have sent nor received close_notify
+                VLOG(0) << "SSL_shutdown: Beeing the first to send close_notify"; //
+                SSL_shutdown(ssl);                                                // thus send one
+                if (!SocketConnection::SocketReader::isEnabled()) {               // If the underlying Reader has already received a FIN
+                    VLOG(0) << "SSL_shutdown: Underlying Reader already receifed TCP-FIN. Closing unerlying Writer";
+                    SocketConnection::SocketWriter::SocketWriter::doShutdown(); // we can not wait for the close_notify from the peer
+                                                                                // thus shutdown the underlying Writer
+                }
             }
         }
 
