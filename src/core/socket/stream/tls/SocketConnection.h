@@ -123,7 +123,7 @@ namespace core::socket::stream::tls {
                     SocketConnection::SocketWriter::SocketWriter::doShutdown(); // we can not wait for the close_notify from the peer
                                                                                 // thus shutdown the underlying Writer
                 } else {
-                    VLOG(0) << "Waiting for peer's close_notify";
+                    VLOG(0) << "SSL_shutdown: Waiting for peer's close_notify";
                 }
             }
         }
