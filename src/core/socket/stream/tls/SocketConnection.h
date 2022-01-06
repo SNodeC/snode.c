@@ -222,24 +222,31 @@ namespace core::socket::stream::tls {
                     VLOG(0) << "SSL_shutdown: Shutdown completed. Closing underlying Writer"; //
                     SocketConnection::SocketWriter::doShutdown(); // SSL shutdown completed - shutdown the underlying socket
                 }
-            } else {                                                              // We neighter have sent nor received close_notify
-                VLOG(0) << "SSL_shutdown: Beeing the first to send close_notify"; //
-                doSSLShutdown(
-                    [this]() -> void {                                      // thus send one
-                        if (!SocketConnection::SocketReader::isEnabled()) { // If the underlying Reader has already received a FIN
-                            VLOG(0) << "SSL_shutdown: Underlying Reader already receifed TCP-FIN. Closing unerlying Writer";
-                            SocketConnection::SocketWriter::doShutdown(); // we can not wait for the close_notify from the peer
-                                                                          // thus shutdown the underlying Writer
-                        } else {
-                            VLOG(0) << "SSL_shutdown: Waiting for peer's close_notify";
-                        }
-                    },
-                    []() -> void {
-                        LOG(WARNING) << "SSL/TLS shutdown handshake timed out";
-                    },
-                    [](int sslErr) -> void {
-                        ssl_log("SSL/TLS initial handshake failed", sslErr);
-                    });
+            } else { // We neighter have sent nor received close_notify
+                VLOG(0) << "SSL_shutdown: Close_notify neighter received or already sent";
+                if (SocketConnection::SocketReader::isEnabled()) { // Good: Not received TCP-FIN going through SSL_shutdown handshake
+                    VLOG(0) << "SSL_shutdown: Beeing the first to send close_notify"; //
+                    doSSLShutdown(
+                        [this]() -> void {                                      // thus send one
+                            if (!SocketConnection::SocketReader::isEnabled()) { // If the underlying Reader has already received a FIN
+                                VLOG(0) << "SSL_shutdown: Underlying Reader already receifed TCP-FIN. Closing unerlying Writer";
+                                SocketConnection::SocketWriter::doShutdown(); // we can not wait for the close_notify from the peer
+                                                                              // thus shutdown the underlying Writer
+                            } else {
+                                VLOG(0) << "SSL_shutdown: Waiting for peer's close_notify";
+                            }
+                        },
+                        []() -> void {
+                            LOG(WARNING) << "SSL/TLS shutdown handshake timed out";
+                        },
+                        [](int sslErr) -> void {
+                            ssl_log("SSL/TLS initial handshake failed", sslErr);
+                        });
+                } else { // Bad:
+                    VLOG(0) << "SSL_shutdown: Underlying Reader already receifed TCP-FIN. Closing unerlying Writer";
+                    SocketConnection::SocketWriter::doShutdown(); // we can not wait for the close_notify from the peer
+                                                                  // thus shutdown the underlying Writer
+                }
             }
         }
 
