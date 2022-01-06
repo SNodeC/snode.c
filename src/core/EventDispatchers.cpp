@@ -115,10 +115,10 @@ namespace core {
 
         utils::Timeval currentTime = utils::Timeval::currentTime();
 
-        if (maxFd >= 0 || (!timerEventDispatcher.empty() && !stopped)) {
-            utils::Timeval nextEventTimeout = EventDispatchers::getNextTimeout(currentTime);
-            utils::Timeval nextTimerTimeout = timerEventDispatcher.getNextTimeout(currentTime);
+        utils::Timeval nextEventTimeout = EventDispatchers::getNextTimeout(currentTime);
+        utils::Timeval nextTimerTimeout = timerEventDispatcher.getNextTimeout(currentTime);
 
+        if (maxFd >= 0 || (!timerEventDispatcher.empty() && !stopped)) {
             utils::Timeval nextTimeout = stopped ? nextEventTimeout : std::min(nextTimerTimeout, nextEventTimeout);
 
             nextTimeout = std::min(nextTimeout, tickTimeOut);
