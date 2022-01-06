@@ -244,7 +244,7 @@ namespace core::socket::stream::tls {
                 } else { // Bad: E.g. behaviour of google chrome
                     VLOG(0) << "SSL_shutdown: Bad: Underlying Reader already receifed TCP-FIN. Closing underlying Writer";
                     SocketConnection::SocketWriter::doShutdown(); // We can not wait for the close_notify from the peer
-                                                                  // thus shutdown the underlying Writer
+                                                                  // thus do not sent one but shutdown the underlying Writer
                 }
             }
         }
