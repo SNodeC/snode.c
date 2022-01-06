@@ -128,9 +128,9 @@ namespace core::socket::stream::tls {
             }
         }
 
-        void doHandshake(const std::function<void()>& onSuccess,
-                         const std::function<void()>& onTimeout,
-                         const std::function<void(int)>& onError) override {
+        void doSSLHandshake(const std::function<void()>& onSuccess,
+                            const std::function<void()>& onTimeout,
+                            const std::function<void(int)>& onError) override {
             int resumeSocketReader = false;
             int resumeSocketWriter = false;
 

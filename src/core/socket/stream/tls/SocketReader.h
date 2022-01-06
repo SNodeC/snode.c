@@ -63,7 +63,7 @@ namespace core::socket::stream::tls {
                             break;
                         case SSL_ERROR_WANT_WRITE:
                             LOG(INFO) << "SSL/TLS start renegotiation on read";
-                            doHandshake(
+                            doSSLHandshake(
                                 [](void) -> void {
                                     LOG(INFO) << "SSL/TLS renegotiation on read success";
                                 },
@@ -108,9 +108,9 @@ namespace core::socket::stream::tls {
             Super::terminate();
         }
 
-        virtual void doHandshake(const std::function<void()>& onSuccess,
-                                 const std::function<void()>& onTimeout,
-                                 const std::function<void(int)>& onError) = 0;
+        virtual void doSSLHandshake(const std::function<void()>& onSuccess,
+                                    const std::function<void()>& onTimeout,
+                                    const std::function<void(int)>& onError) = 0;
 
         SSL* ssl = nullptr;
 
