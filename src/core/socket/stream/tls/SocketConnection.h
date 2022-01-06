@@ -201,20 +201,20 @@ namespace core::socket::stream::tls {
         void doShutdown() override {
             int sh = SSL_get_shutdown(ssl);
 
-            if ((sh & SSL_SENT_SHUTDOWN) || (sh & SSL_RECEIVED_SHUTDOWN)) { // Did we already sent or receive close_notify?
-                VLOG(0) << "SSL_shutdown: Close_notify received and/or already sent ... checking"; //
-                if (sh == SSL_RECEIVED_SHUTDOWN) {                                                 // If we only have received close_notify
+            if ((sh & SSL_SENT_SHUTDOWN) || (sh & SSL_RECEIVED_SHUTDOWN)) { // Did we already received or sent close_notify?
+                VLOG(0) << "SSL_shutdown: Close_notify received and/or already sent ... checking"; // We already have sent or received
+                                                                                                   // close_notify.
+                if (sh == SSL_RECEIVED_SHUTDOWN) {                                                 // We have only received close_notify
                     VLOG(0) << "SSL_shutdown: Close_notify received but not sent, now send close_notify"; // We can get a TCP-RST if peer
                                                                                                           // immediately shuts down the read
                                                                                                           // side after sending
-                                                                                                          // close_notify. Thus, it is not
+                                                                                                          // close_notify. Thus, peer is not
                                                                                                           // waiting for our close_notify.
                                                                                                           // E.g. firefox behaves like that
                     doSSLShutdown(
-                        [this]() -> void {                                                            // also sent one
-                            VLOG(0) << "SSL_shutdown: Shutdown completed. Closing underlying Writer"; //
-                            SocketConnection::SocketWriter::doShutdown(); // SSL shutdown completed - shutdown the underlying
-                                                                          // socket
+                        [this]() -> void {                                                            // Send our close_notify
+                            VLOG(0) << "SSL_shutdown: Shutdown completed. Closing underlying Writer"; // SSL shutdown completed!
+                            SocketConnection::SocketWriter::doShutdown();                             // So shutdown the underlying Writer
                         },
                         []() -> void {
                             LOG(WARNING) << "SSL/TLS shutdown handshake timed out";
@@ -222,7 +222,7 @@ namespace core::socket::stream::tls {
                         [](int sslErr) -> void {
                             ssl_log("SSL/TLS shutdown handshake failed", sslErr);
                         });
-                } else {
+                } else { // Both close_notify present
                     VLOG(0) << "SSL_shutdown: Close_notify received and sent";
                     VLOG(0) << "SSL_shutdown: Shutdown completed. Closing underlying Writer"; //
                     SocketConnection::SocketWriter::doShutdown(); // SSL shutdown completed - shutdown the underlying socket
@@ -243,7 +243,7 @@ namespace core::socket::stream::tls {
                         });
                 } else { // Bad: E.g. behaviour of google chrome
                     VLOG(0) << "SSL_shutdown: Bad: Underlying Reader already receifed TCP-FIN. Closing underlying Writer";
-                    SocketConnection::SocketWriter::doShutdown(); // we can not wait for the close_notify from the peer
+                    SocketConnection::SocketWriter::doShutdown(); // We can not wait for the close_notify from the peer
                                                                   // thus shutdown the underlying Writer
                 }
             }
