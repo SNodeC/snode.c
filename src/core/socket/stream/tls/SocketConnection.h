@@ -220,7 +220,7 @@ namespace core::socket::stream::tls {
                             LOG(WARNING) << "SSL/TLS shutdown handshake timed out";
                         },
                         [](int sslErr) -> void {
-                            ssl_log("SSL/TLS initial handshake failed", sslErr);
+                            ssl_log("SSL/TLS shutdown handshake failed", sslErr);
                         });
                 } else {
                     VLOG(0) << "SSL_shutdown: Close_notify received and sent";
