@@ -110,18 +110,20 @@ namespace core::socket::stream::tls {
                 if (sh == SSL_RECEIVED_SHUTDOWN) {                                          // If we only have received close_notify
                     VLOG(0) << "SSL_shutdown: Received close_notify, sending close_notify"; //
                     SSL_shutdown(ssl);                                                      // also sent one
+                    VLOG(0) << "SSL_shutdown: Shutdown completed. Closing underlying Writer"; //
+                    SocketConnection::SocketWriter::doShutdown(); // SSL shutdown completed - shutdown the underlying socket
                 } else {
                     VLOG(0) << "SSL_shutdown: Both close_notify present";
+                    VLOG(0) << "SSL_shutdown: Shutdown completed. Closing underlying Writer"; //
+                    SocketConnection::SocketWriter::doShutdown(); // SSL shutdown completed - shutdown the underlying socket
                 }
-                VLOG(0) << "SSL_shutdown: Shutdown completed. Closing underlying Writer"; //
-                SocketConnection::SocketWriter::SocketWriter::doShutdown();       // SSL shutdown completed - shutdown the underlying socket
             } else {                                                              // We neighter have sent nor received close_notify
                 VLOG(0) << "SSL_shutdown: Beeing the first to send close_notify"; //
                 SSL_shutdown(ssl);                                                // thus send one
                 if (!SocketConnection::SocketReader::isEnabled()) {               // If the underlying Reader has already received a FIN
                     VLOG(0) << "SSL_shutdown: Underlying Reader already receifed TCP-FIN. Closing unerlying Writer";
-                    SocketConnection::SocketWriter::SocketWriter::doShutdown(); // we can not wait for the close_notify from the peer
-                                                                                // thus shutdown the underlying Writer
+                    SocketConnection::SocketWriter::doShutdown(); // we can not wait for the close_notify from the peer
+                                                                  // thus shutdown the underlying Writer
                 } else {
                     VLOG(0) << "SSL_shutdown: Waiting for peer's close_notify";
                 }
