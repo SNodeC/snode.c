@@ -56,7 +56,11 @@ namespace core::socket::stream::tls {
         WriteEventReceiver::suspend();
 
         int ret = SSL_do_handshake(ssl);
-        int sslErr = SSL_get_error(ssl, ret);
+
+        int sslErr = SSL_ERROR_NONE;
+        if (ret < 1) {
+            sslErr = SSL_get_error(ssl, ret);
+        }
 
         switch (sslErr) {
             case SSL_ERROR_WANT_READ:
@@ -80,7 +84,11 @@ namespace core::socket::stream::tls {
 
     void TLSHandshake::readEvent() {
         int ret = SSL_do_handshake(ssl);
-        int sslErr = SSL_get_error(ssl, ret);
+
+        int sslErr = SSL_ERROR_NONE;
+        if (ret < 1) {
+            sslErr = SSL_get_error(ssl, ret);
+        }
 
         switch (sslErr) {
             case SSL_ERROR_WANT_READ:
@@ -104,7 +112,11 @@ namespace core::socket::stream::tls {
 
     void TLSHandshake::writeEvent() {
         int ret = SSL_do_handshake(ssl);
-        int sslErr = SSL_get_error(ssl, ret);
+
+        int sslErr = SSL_ERROR_NONE;
+        if (ret < 1) {
+            sslErr = SSL_get_error(ssl, ret);
+        }
 
         switch (sslErr) {
             case SSL_ERROR_WANT_READ:
