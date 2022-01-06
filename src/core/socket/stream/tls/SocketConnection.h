@@ -22,6 +22,7 @@
 #include "core/socket/stream/SocketConnection.h" // IWYU pragma: export
 #include "core/socket/stream/tls/SocketReader.h"
 #include "core/socket/stream/tls/SocketWriter.h"
+#include "core/socket/stream/tls/TLSShutdown.h"
 #include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -101,35 +102,6 @@ namespace core::socket::stream::tls {
             }
         }
 
-        void doShutdown() override {
-            int sh = SSL_get_shutdown(ssl);
-            // TODO: Important: SSL_shutdown should be called in a non-blocking way!!!
-
-            if ((sh & SSL_SENT_SHUTDOWN) || (sh & SSL_RECEIVED_SHUTDOWN)) {                 // Did we already sent or receive close_notify?
-                VLOG(0) << "SSL_shutdown: Eighter close_notify received or already sent";   //
-                if (sh == SSL_RECEIVED_SHUTDOWN) {                                          // If we only have received close_notify
-                    VLOG(0) << "SSL_shutdown: Received close_notify, sending close_notify"; //
-                    SSL_shutdown(ssl);                                                      // also sent one
-                    VLOG(0) << "SSL_shutdown: Shutdown completed. Closing underlying Writer"; //
-                    SocketConnection::SocketWriter::doShutdown(); // SSL shutdown completed - shutdown the underlying socket
-                } else {
-                    VLOG(0) << "SSL_shutdown: Both close_notify present";
-                    VLOG(0) << "SSL_shutdown: Shutdown completed. Closing underlying Writer"; //
-                    SocketConnection::SocketWriter::doShutdown(); // SSL shutdown completed - shutdown the underlying socket
-                }
-            } else {                                                              // We neighter have sent nor received close_notify
-                VLOG(0) << "SSL_shutdown: Beeing the first to send close_notify"; //
-                SSL_shutdown(ssl);                                                // thus send one
-                if (!SocketConnection::SocketReader::isEnabled()) {               // If the underlying Reader has already received a FIN
-                    VLOG(0) << "SSL_shutdown: Underlying Reader already receifed TCP-FIN. Closing unerlying Writer";
-                    SocketConnection::SocketWriter::doShutdown(); // we can not wait for the close_notify from the peer
-                                                                  // thus shutdown the underlying Writer
-                } else {
-                    VLOG(0) << "SSL_shutdown: Waiting for peer's close_notify";
-                }
-            }
-        }
-
         void doSSLHandshake(const std::function<void()>& onSuccess,
                             const std::function<void()>& onTimeout,
                             const std::function<void(int)>& onError) override {
@@ -176,6 +148,99 @@ namespace core::socket::stream::tls {
                     }
                     onError(sslErr);
                 });
+        }
+
+        void doSSLShutdown(const std::function<void()>& onSuccess,
+                           const std::function<void()>& onTimeout,
+                           const std::function<void(int)>& onError) {
+            int resumeSocketReader = false;
+            int resumeSocketWriter = false;
+
+            if (!SocketConnection::SocketReader::isSuspended()) {
+                SocketConnection::SocketReader::suspend();
+                resumeSocketReader = true;
+            }
+
+            if (!SocketConnection::SocketWriter::isSuspended()) {
+                SocketConnection::SocketWriter::suspend();
+                resumeSocketWriter = true;
+            }
+
+            TLSShutdown::doShutdown(
+                ssl,
+                [onSuccess, this, resumeSocketReader, resumeSocketWriter](void) -> void { // onSuccess
+                    if (resumeSocketReader) {
+                        SocketConnection::SocketReader::resume();
+                    }
+                    if (resumeSocketWriter) {
+                        SocketConnection::SocketWriter::resume();
+                    }
+                    onSuccess();
+                },
+                [onTimeout, this](void) -> void { // onTimeout
+                    if (SocketConnection::SocketReader::isEnabled()) {
+                        SocketConnection::SocketReader::disable();
+                    }
+                    if (SocketConnection::SocketWriter::isEnabled()) {
+                        SocketConnection::SocketWriter::disable();
+                    }
+                    onTimeout();
+                },
+                [onError, this](int sslErr) -> void { // onError
+                    setSSLError(sslErr);
+                    if (SocketConnection::SocketReader::isEnabled()) {
+                        SocketConnection::SocketReader::disable();
+                    }
+                    if (SocketConnection::SocketWriter::isEnabled()) {
+                        SocketConnection::SocketWriter::disable();
+                    }
+                    onError(sslErr);
+                });
+        }
+
+        void doShutdown() override {
+            int sh = SSL_get_shutdown(ssl);
+
+            if ((sh & SSL_SENT_SHUTDOWN) || (sh & SSL_RECEIVED_SHUTDOWN)) { // Did we already sent or receive close_notify?
+                VLOG(0) << "SSL_shutdown: Close_notify received and/or already sent ... checking"; //
+                if (sh == SSL_RECEIVED_SHUTDOWN) {                                                 // If we only have received close_notify
+                    VLOG(0) << "SSL_shutdown: Close_notify received but not sent, now send close_notify"; //
+                    doSSLShutdown(
+                        [this]() -> void {                                                            // also sent one
+                            VLOG(0) << "SSL_shutdown: Shutdown completed. Closing underlying Writer"; //
+                            SocketConnection::SocketWriter::doShutdown(); // SSL shutdown completed - shutdown the underlying
+                                                                          // socket
+                        },
+                        []() -> void {
+                            LOG(WARNING) << "SSL/TLS shutdown handshake timed out";
+                        },
+                        [](int sslErr) -> void {
+                            ssl_log("SSL/TLS initial handshake failed", sslErr);
+                        });
+                } else {
+                    VLOG(0) << "SSL_shutdown: Close_notify received and sent";
+                    VLOG(0) << "SSL_shutdown: Shutdown completed. Closing underlying Writer"; //
+                    SocketConnection::SocketWriter::doShutdown(); // SSL shutdown completed - shutdown the underlying socket
+                }
+            } else {                                                              // We neighter have sent nor received close_notify
+                VLOG(0) << "SSL_shutdown: Beeing the first to send close_notify"; //
+                doSSLShutdown(
+                    [this]() -> void {                                      // thus send one
+                        if (!SocketConnection::SocketReader::isEnabled()) { // If the underlying Reader has already received a FIN
+                            VLOG(0) << "SSL_shutdown: Underlying Reader already receifed TCP-FIN. Closing unerlying Writer";
+                            SocketConnection::SocketWriter::doShutdown(); // we can not wait for the close_notify from the peer
+                                                                          // thus shutdown the underlying Writer
+                        } else {
+                            VLOG(0) << "SSL_shutdown: Waiting for peer's close_notify";
+                        }
+                    },
+                    []() -> void {
+                        LOG(WARNING) << "SSL/TLS shutdown handshake timed out";
+                    },
+                    [](int sslErr) -> void {
+                        ssl_log("SSL/TLS initial handshake failed", sslErr);
+                    });
+            }
         }
 
         void setSSLError(int sslErr) {
