@@ -243,7 +243,7 @@ namespace core::socket::stream::tls {
                             ssl_log("SSL/TLS initial handshake failed", sslErr);
                         });
                 } else { // Bad:
-                    VLOG(0) << "SSL_shutdown: Underlying Reader already receifed TCP-FIN. Closing unerlying Writer";
+                    VLOG(0) << "SSL_shutdown: Underlying Reader already receifed TCP-FIN. Closing underlying Writer";
                     SocketConnection::SocketWriter::doShutdown(); // we can not wait for the close_notify from the peer
                                                                   // thus shutdown the underlying Writer
                 }
