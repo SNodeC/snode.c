@@ -204,7 +204,12 @@ namespace core::socket::stream::tls {
             if ((sh & SSL_SENT_SHUTDOWN) || (sh & SSL_RECEIVED_SHUTDOWN)) { // Did we already sent or receive close_notify?
                 VLOG(0) << "SSL_shutdown: Close_notify received and/or already sent ... checking"; //
                 if (sh == SSL_RECEIVED_SHUTDOWN) {                                                 // If we only have received close_notify
-                    VLOG(0) << "SSL_shutdown: Close_notify received but not sent, now send close_notify"; //
+                    VLOG(0) << "SSL_shutdown: Close_notify received but not sent, now send close_notify"; // We can get a TCP-RST if peer
+                                                                                                          // immediately shuts down the read
+                                                                                                          // side after sending
+                                                                                                          // close_notify. Thus, it is not
+                                                                                                          // waiting for our close_notify.
+                                                                                                          // E.g. firefox behaves like that
                     doSSLShutdown(
                         [this]() -> void {                                                            // also sent one
                             VLOG(0) << "SSL_shutdown: Shutdown completed. Closing underlying Writer"; //
@@ -223,27 +228,21 @@ namespace core::socket::stream::tls {
                     SocketConnection::SocketWriter::doShutdown(); // SSL shutdown completed - shutdown the underlying socket
                 }
             } else { // We neighter have sent nor received close_notify
-                VLOG(0) << "SSL_shutdown: Close_notify neighter received or already sent";
+                VLOG(0) << "SSL_shutdown: Close_notify neither received nor sent";
                 if (SocketConnection::SocketReader::isEnabled()) { // Good: Not received TCP-FIN going through SSL_shutdown handshake
-                    VLOG(0) << "SSL_shutdown: Beeing the first to send close_notify"; //
+                    VLOG(0) << "SSL_shutdown: Good: Beeing the first to send close_notify"; //
                     doSSLShutdown(
-                        [this]() -> void {                                      // thus send one
-                            if (!SocketConnection::SocketReader::isEnabled()) { // If the underlying Reader has already received a FIN
-                                VLOG(0) << "SSL_shutdown: Underlying Reader already receifed TCP-FIN. Closing unerlying Writer";
-                                SocketConnection::SocketWriter::doShutdown(); // we can not wait for the close_notify from the peer
-                                                                              // thus shutdown the underlying Writer
-                            } else {
-                                VLOG(0) << "SSL_shutdown: Waiting for peer's close_notify";
-                            }
+                        []() -> void { // thus send one
+                            VLOG(0) << "SSL_shutdown: Close_notify sent. Waiting for peer's close_notify";
                         },
                         []() -> void {
                             LOG(WARNING) << "SSL/TLS shutdown handshake timed out";
                         },
                         [](int sslErr) -> void {
-                            ssl_log("SSL/TLS initial handshake failed", sslErr);
+                            ssl_log("SSL/TLS shutdown handshake failed", sslErr);
                         });
-                } else { // Bad:
-                    VLOG(0) << "SSL_shutdown: Underlying Reader already receifed TCP-FIN. Closing underlying Writer";
+                } else { // Bad: E.g. behaviour of google chrome
+                    VLOG(0) << "SSL_shutdown: Bad: Underlying Reader already receifed TCP-FIN. Closing underlying Writer";
                     SocketConnection::SocketWriter::doShutdown(); // we can not wait for the close_notify from the peer
                                                                   // thus shutdown the underlying Writer
                 }
