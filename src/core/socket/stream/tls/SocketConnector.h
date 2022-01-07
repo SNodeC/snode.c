@@ -50,34 +50,31 @@ namespace core::socket::stream::tls {
                   socketContextFactory,
                   onConnect,
                   [onConnected, this](SocketConnection* socketConnection) -> void { // onConnect
-                      if (socketConnection->SocketConnection::SocketReader::isSuspended()) {
-                          SSL* ssl = socketConnection->startSSL(this->ctx);
+                      SSL* ssl = socketConnection->startSSL(this->ctx);
 
-                          if (ssl != nullptr) {
-                              ssl_set_sni(ssl, this->options);
+                      if (ssl != nullptr) {
+                          ssl_set_sni(ssl, this->options);
 
-                              SSL_set_connect_state(ssl);
+                          SSL_set_connect_state(ssl);
 
-                              socketConnection->doSSLHandshake(
-                                  [onConnected, socketConnection](void) -> void { // onSuccess
-                                      LOG(INFO) << "SSL/TLS initial handshake success";
-                                      socketConnection->SocketConnection::SocketReader::resume();
-                                      onConnected(socketConnection);
-                                  },
-                                  [this](void) -> void { // onTimeout
-                                      LOG(WARNING) << "SSL/TLS initial handshake timed out";
-                                      this->onError(ETIMEDOUT);
-                                  },
-                                  [this](int sslErr) -> void { // onError
-                                      ssl_log("SSL/TLS initial handshake failed", sslErr);
-                                      this->onError(-sslErr);
-                                  });
-                          } else {
-                              socketConnection->SocketConnection::SocketReader::disable();
-                              socketConnection->SocketConnection::SocketWriter::disable();
-                              ssl_log_error("SSL/TLS initialization failed");
-                              this->onError(-SSL_ERROR_SSL);
-                          }
+                          socketConnection->doSSLHandshake(
+                              [onConnected, socketConnection](void) -> void { // onSuccess
+                                  LOG(INFO) << "SSL/TLS initial handshake success";
+                                  onConnected(socketConnection);
+                              },
+                              [this](void) -> void { // onTimeout
+                                  LOG(WARNING) << "SSL/TLS initial handshake timed out";
+                                  this->onError(ETIMEDOUT);
+                              },
+                              [this](int sslErr) -> void { // onError
+                                  ssl_log("SSL/TLS initial handshake failed", sslErr);
+                                  this->onError(-sslErr);
+                              });
+                      } else {
+                          socketConnection->SocketConnection::SocketReader::disable();
+                          socketConnection->SocketConnection::SocketWriter::disable();
+                          ssl_log_error("SSL/TLS initialization failed");
+                          this->onError(-SSL_ERROR_SSL);
                       }
                   },
                   [onDisconnect](SocketConnection* socketConnection) -> void { // onDisconnect

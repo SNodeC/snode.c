@@ -82,12 +82,11 @@ namespace core::socket::stream {
                                 onError(errnum);
                                 destruct();
                             } else {
-                                int ret = core::system::connect(
-                                    SocketConnector::getFd(), &remoteAddress.getSockAddr(), remoteAddress.getSockAddrLen());
+                                int ret = core::system::connect(Socket::fd, &remoteAddress.getSockAddr(), remoteAddress.getSockAddrLen());
 
                                 if (ret == 0 || errno == EINPROGRESS) {
-                                    ConnectEventReceiver::enable(SocketConnector::getFd());
-                                    SocketConnector::dontClose(true);
+                                    enable(SocketConnector::getFd());
+                                    Socket::dontClose(true);
                                 } else {
                                     onError(errno);
                                     destruct();
@@ -116,26 +115,24 @@ namespace core::socket::stream {
                         typename SocketAddress::SockAddr remoteAddress{};
                         socklen_t remoteAddressLength = sizeof(remoteAddress);
 
-                        if (core::system::getsockname(
-                                SocketConnector::getFd(), reinterpret_cast<sockaddr*>(&localAddress), &localAddressLength) == 0 &&
-                            core::system::getpeername(
-                                SocketConnector::getFd(), reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) == 0) {
+                        if (core::system::getsockname(Socket::fd, reinterpret_cast<sockaddr*>(&localAddress), &localAddressLength) == 0 &&
+                            core::system::getpeername(Socket::fd, reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) == 0) {
                             SocketConnection* socketConnection = new SocketConnection(SocketConnector::getFd(),
                                                                                       socketContextFactory,
                                                                                       SocketAddress(localAddress),
                                                                                       SocketAddress(remoteAddress),
                                                                                       onConnect,
                                                                                       onDisconnect);
-                            SocketConnector::ConnectEventReceiver::disable();
+                            disable();
 
                             onConnected(socketConnection);
                             onError(0);
                         } else {
-                            SocketConnector::ConnectEventReceiver::disable();
+                            disable();
                             onError(errno);
                         }
                     } else {
-                        SocketConnector::ConnectEventReceiver::disable();
+                        disable();
                         onError(errno);
                     }
                 } else {

@@ -41,6 +41,9 @@ namespace core::socket::stream::legacy {
                                                              core::socket::stream::legacy::SocketWriter<SocketT>,
                                                              typename SocketT::SocketAddress>;
 
+        using SocketReader = core::socket::stream::legacy::SocketReader<SocketT>;
+        using SocketWriter = core::socket::stream::legacy::SocketWriter<SocketT>;
+
     public:
         using Socket = SocketT;
         using SocketAddress = typename Super::SocketAddress;

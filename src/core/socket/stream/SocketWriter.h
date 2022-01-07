@@ -54,6 +54,8 @@ namespace core::socket::stream {
     protected:
         explicit SocketWriter(const std::function<void(int)>& onError)
             : onError(onError) {
+            enable(Socket::fd);
+            suspend();
         }
 
         virtual ~SocketWriter() = default;

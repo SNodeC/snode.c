@@ -90,10 +90,10 @@ namespace core::socket::stream {
                                     onError(static_cast<const Socket&>(*this), errnum);
                                     destruct();
                                 } else {
-                                    int ret = core::system::listen(SocketAcceptor::getFd(), backlog);
+                                    int ret = core::system::listen(Socket::fd, backlog);
 
                                     if (ret == 0) {
-                                        AcceptEventReceiver::enable(SocketAcceptor::getFd());
+                                        enable(Socket::fd);
                                         onError(static_cast<const Socket&>(*this), 0);
                                     } else {
                                         onError(static_cast<const Socket&>(*this), errno);
@@ -113,7 +113,7 @@ namespace core::socket::stream {
         void reuseAddress(const std::function<void(int)>& onError) {
             int sockopt = 1;
 
-            if (core::system::setsockopt(SocketAcceptor::getFd(), SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
+            if (core::system::setsockopt(Socket::fd, SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt)) < 0) {
                 onError(errno);
             } else {
                 onError(0);
@@ -126,8 +126,7 @@ namespace core::socket::stream {
 
             int fd = -1;
 
-            fd = core::system::accept4(
-                SocketAcceptor::getFd(), reinterpret_cast<struct sockaddr*>(&remoteAddress), &remoteAddressLength, SOCK_NONBLOCK);
+            fd = core::system::accept4(Socket::fd, reinterpret_cast<struct sockaddr*>(&remoteAddress), &remoteAddressLength, SOCK_NONBLOCK);
 
             if (fd >= 0) {
                 typename SocketAddress::SockAddr localAddress{};

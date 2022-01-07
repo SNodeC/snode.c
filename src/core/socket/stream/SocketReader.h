@@ -54,6 +54,7 @@ namespace core::socket::stream {
     protected:
         explicit SocketReader(const std::function<void(int)>& onError)
             : onError(onError) {
+            enable(Socket::fd);
         }
 
         virtual ~SocketReader() = default;

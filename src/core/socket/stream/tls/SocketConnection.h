@@ -44,6 +44,9 @@ namespace core::socket::stream::tls {
                                                              core::socket::stream::tls::SocketWriter<SocketT>,
                                                              typename SocketT::SocketAddress>;
 
+        using SocketReader = core::socket::stream::tls::SocketReader<SocketT>;
+        using SocketWriter = core::socket::stream::tls::SocketWriter<SocketT>;
+
     public:
         using Socket = SocketT;
         using SocketAddress = typename Super::SocketAddress;
@@ -80,8 +83,8 @@ namespace core::socket::stream::tls {
 
                 if (ssl != nullptr) {
                     if (SSL_set_fd(ssl, Socket::getFd()) == 1) {
-                        SocketConnection::SocketReader::ssl = ssl;
-                        SocketConnection::SocketWriter::ssl = ssl;
+                        SocketReader::ssl = ssl;
+                        SocketWriter::ssl = ssl;
                     } else {
                         SSL_free(ssl);
                         ssl = nullptr;
@@ -97,8 +100,8 @@ namespace core::socket::stream::tls {
                 SSL_free(ssl);
 
                 ssl = nullptr;
-                SocketConnection::SocketReader::ssl = nullptr;
-                SocketConnection::SocketWriter::ssl = nullptr;
+                SocketReader::ssl = nullptr;
+                SocketWriter::ssl = nullptr;
             }
         }
 
@@ -108,13 +111,13 @@ namespace core::socket::stream::tls {
             int resumeSocketReader = false;
             int resumeSocketWriter = false;
 
-            if (!SocketConnection::SocketReader::isSuspended()) {
-                SocketConnection::SocketReader::suspend();
+            if (!SocketReader::isSuspended()) {
+                SocketReader::suspend();
                 resumeSocketReader = true;
             }
 
-            if (!SocketConnection::SocketWriter::isSuspended()) {
-                SocketConnection::SocketWriter::suspend();
+            if (!SocketWriter::isSuspended()) {
+                SocketWriter::suspend();
                 resumeSocketWriter = true;
             }
 
@@ -122,29 +125,29 @@ namespace core::socket::stream::tls {
                 ssl,
                 [onSuccess, this, resumeSocketReader, resumeSocketWriter](void) -> void { // onSuccess
                     if (resumeSocketReader) {
-                        SocketConnection::SocketReader::resume();
+                        SocketReader::resume();
                     }
                     if (resumeSocketWriter) {
-                        SocketConnection::SocketWriter::resume();
+                        SocketWriter::resume();
                     }
                     onSuccess();
                 },
                 [onTimeout, this](void) -> void { // onTimeout
-                    if (SocketConnection::SocketReader::isEnabled()) {
-                        SocketConnection::SocketReader::disable();
+                    if (SocketReader::isEnabled()) {
+                        SocketReader::disable();
                     }
-                    if (SocketConnection::SocketWriter::isEnabled()) {
-                        SocketConnection::SocketWriter::disable();
+                    if (SocketWriter::isEnabled()) {
+                        SocketWriter::disable();
                     }
                     onTimeout();
                 },
                 [onError, this](int sslErr) -> void { // onError
                     setSSLError(sslErr);
-                    if (SocketConnection::SocketReader::isEnabled()) {
-                        SocketConnection::SocketReader::disable();
+                    if (SocketReader::isEnabled()) {
+                        SocketReader::disable();
                     }
-                    if (SocketConnection::SocketWriter::isEnabled()) {
-                        SocketConnection::SocketWriter::disable();
+                    if (SocketWriter::isEnabled()) {
+                        SocketWriter::disable();
                     }
                     onError(sslErr);
                 });
@@ -156,13 +159,13 @@ namespace core::socket::stream::tls {
             int resumeSocketReader = false;
             int resumeSocketWriter = false;
 
-            if (!SocketConnection::SocketReader::isSuspended()) {
-                SocketConnection::SocketReader::suspend();
+            if (!SocketReader::isSuspended()) {
+                SocketReader::suspend();
                 resumeSocketReader = true;
             }
 
-            if (!SocketConnection::SocketWriter::isSuspended()) {
-                SocketConnection::SocketWriter::suspend();
+            if (!SocketWriter::isSuspended()) {
+                SocketWriter::suspend();
                 resumeSocketWriter = true;
             }
 
@@ -170,29 +173,29 @@ namespace core::socket::stream::tls {
                 ssl,
                 [onSuccess, this, resumeSocketReader, resumeSocketWriter](void) -> void { // onSuccess
                     if (resumeSocketReader) {
-                        SocketConnection::SocketReader::resume();
+                        SocketReader::resume();
                     }
                     if (resumeSocketWriter) {
-                        SocketConnection::SocketWriter::resume();
+                        SocketWriter::resume();
                     }
                     onSuccess();
                 },
                 [onTimeout, this](void) -> void { // onTimeout
-                    if (SocketConnection::SocketReader::isEnabled()) {
-                        SocketConnection::SocketReader::disable();
+                    if (SocketReader::isEnabled()) {
+                        SocketReader::disable();
                     }
-                    if (SocketConnection::SocketWriter::isEnabled()) {
-                        SocketConnection::SocketWriter::disable();
+                    if (SocketWriter::isEnabled()) {
+                        SocketWriter::disable();
                     }
                     onTimeout();
                 },
                 [onError, this](int sslErr) -> void { // onError
                     setSSLError(sslErr);
-                    if (SocketConnection::SocketReader::isEnabled()) {
-                        SocketConnection::SocketReader::disable();
+                    if (SocketReader::isEnabled()) {
+                        SocketReader::disable();
                     }
-                    if (SocketConnection::SocketWriter::isEnabled()) {
-                        SocketConnection::SocketWriter::disable();
+                    if (SocketWriter::isEnabled()) {
+                        SocketWriter::disable();
                     }
                     onError(sslErr);
                 });
@@ -214,7 +217,7 @@ namespace core::socket::stream::tls {
                     doSSLShutdown(
                         [this]() -> void {                                                            // Send our close_notify
                             VLOG(0) << "SSL_shutdown: Shutdown completed. Closing underlying Writer"; // SSL shutdown completed!
-                            SocketConnection::SocketWriter::doShutdown();                             // So shutdown the underlying Writer
+                            SocketWriter::doShutdown();                                               // So shutdown the underlying Writer
                         },
                         []() -> void {
                             LOG(WARNING) << "SSL/TLS shutdown handshake timed out";
@@ -225,11 +228,11 @@ namespace core::socket::stream::tls {
                 } else { // Both close_notify present
                     VLOG(0) << "SSL_shutdown: Close_notify received and sent";
                     VLOG(0) << "SSL_shutdown: Shutdown completed. Closing underlying Writer"; //
-                    SocketConnection::SocketWriter::doShutdown(); // SSL shutdown completed - shutdown the underlying socket
+                    SocketWriter::doShutdown(); // SSL shutdown completed - shutdown the underlying socket
                 }
             } else { // We neighter have sent nor received close_notify
                 VLOG(0) << "SSL_shutdown: Close_notify neither received nor sent";
-                if (SocketConnection::SocketReader::isEnabled()) { // Good: Not received TCP-FIN going through SSL_shutdown handshake
+                if (SocketReader::isEnabled()) { // Good: Not received TCP-FIN going through SSL_shutdown handshake
                     VLOG(0) << "SSL_shutdown: Good: Beeing the first to send close_notify"; //
                     doSSLShutdown(
                         []() -> void { // thus send one
@@ -243,8 +246,8 @@ namespace core::socket::stream::tls {
                         });
                 } else { // Bad: E.g. behaviour of google chrome
                     VLOG(0) << "SSL_shutdown: Bad: Underlying Reader already receifed TCP-FIN. Closing underlying Writer";
-                    SocketConnection::SocketWriter::doShutdown(); // We can not wait for the close_notify from the peer
-                                                                  // thus do not sent one but shutdown the underlying Writer
+                    SocketWriter::doShutdown(); // We can not wait for the close_notify from the peer
+                                                // thus do not sent one but shutdown the underlying Writer
                 }
             }
         }

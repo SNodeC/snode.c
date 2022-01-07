@@ -65,10 +65,6 @@ namespace core::socket::stream {
             , localAddress(localAddress)
             , remoteAddress(remoteAddress)
             , onDisconnect(onDisconnect) {
-            SocketReader::enable(SocketConnection::getFd());
-            SocketWriter::enable(SocketConnection::getFd());
-            SocketReader::suspend();
-            SocketWriter::suspend();
             onConnect();
             onConnected();
         }

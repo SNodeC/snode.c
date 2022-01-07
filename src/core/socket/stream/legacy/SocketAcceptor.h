@@ -43,17 +43,7 @@ namespace core::socket::stream::legacy {
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,
                        const std::map<std::string, std::any>& options)
-            : core::socket::stream::SocketAcceptor<SocketConnection>(
-                  socketContextFactory,
-                  onConnect,
-                  [onConnected](SocketConnection* socketConnection) -> void {
-                      if (socketConnection->SocketConnection::SocketReader::isSuspended()) {
-                          socketConnection->SocketConnection::SocketReader::resume();
-                          onConnected(socketConnection);
-                      }
-                  },
-                  onDisconnect,
-                  options) {
+            : core::socket::stream::SocketAcceptor<SocketConnection>(socketContextFactory, onConnect, onConnected, onDisconnect, options) {
         }
     };
 
