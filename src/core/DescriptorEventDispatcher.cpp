@@ -153,7 +153,7 @@ namespace core {
     void DescriptorEventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
         for (const auto& [fd, eventReceivers] : observedEventReceiver) {
             EventReceiver* eventReceiver = eventReceivers.front();
-            if ((fdSet.isSet(fd) || (eventReceiver->continueImmediately())) && !eventReceiver->isSuspended()) {
+            if ((fdSet.isSet(fd) || eventReceiver->continueImmediately()) && !eventReceiver->isSuspended()) {
                 eventCounter++;
                 eventReceiver->trigger(currentTime);
             } else if (eventReceiver->isEnabled()) {

@@ -69,7 +69,6 @@ namespace core {
 
         virtual ~EventReceiver() = default;
 
-    protected:
         void enable(int fd);
         void disable();
         bool isEnabled() const;

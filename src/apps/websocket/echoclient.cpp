@@ -80,9 +80,8 @@ int main(int argc, char* argv[]) {
                     }
                 }
 
-                response.body.push_back(0);
-                VLOG(0) << "     Body:\n----------- start body -----------" << response.body.data()
-                        << "\n------------ end body ------------";
+                response.body.push_back(0); // make it a c-string
+                VLOG(0) << "Body:\n----------- start body -----------\n" << response.body.data() << "\n------------ end body ------------";
 
                 response.upgrade(request);
             },
@@ -179,9 +178,8 @@ int main(int argc, char* argv[]) {
                     }
                 }
 
-                response.body.push_back(0);
-                VLOG(0) << "     Body:\n----------- start body -----------" << response.body.data()
-                        << "\n------------ end body ------------";
+                response.body.push_back(0); // make it a c-string
+                VLOG(0) << "Body:\n----------- start body -----------\n" << response.body.data() << "\n------------ end body ------------";
 
                 response.upgrade(request);
             },

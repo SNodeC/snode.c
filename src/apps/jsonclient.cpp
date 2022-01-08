@@ -104,6 +104,7 @@ int main(int argc, char* argv[]) {
             PLOG(ERROR) << "OnError: " << err;
         }
     });
+
     /*
         jsonClient.post("localhost", 8080, "/index.html", "{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}", [](int err) -> void {
             if (err != 0) {
@@ -111,5 +112,6 @@ int main(int argc, char* argv[]) {
             }
         });
     */
+
     return core::SNodeC::start();
 }

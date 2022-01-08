@@ -41,7 +41,7 @@ namespace core::socket::stream::tls {
 
         ssize_t write(const char* junk, std::size_t junkLen) override {
             int ret = 0;
-            int ssl_err = this->sslErr;
+            int ssl_err = sslErr;
 
             switch (SSL_get_shutdown(ssl)) {
                 case 0:
@@ -66,14 +66,15 @@ namespace core::socket::stream::tls {
                                 [](void) -> void {
                                     LOG(WARNING) << "SSL/TLS renegotiation on write timed out";
                                 },
-                                [this](int sslErr) -> void {
-                                    ssl_log("SSL/TLS renegotiation", sslErr);
-                                    this->sslErr = sslErr;
+                                [this](int ssl_err) -> void {
+                                    ssl_log("SSL/TLS renegotiation", ssl_err);
+                                    sslErr = ssl_err;
                                 });
+                            ret = -1;
                             errno = EAGAIN;
                             break;
                         case SSL_ERROR_WANT_WRITE:
-                            ret = 0;
+                            ret = -1;
                             errno = EAGAIN;
                             break;
                         case SSL_ERROR_ZERO_RETURN: // shutdown cleanly
@@ -91,7 +92,7 @@ namespace core::socket::stream::tls {
                     }
                     break;
                 case SSL_SENT_SHUTDOWN:
-                case SSL_RECEIVED_SHUTDOWN | SSL_SENT_SHUTDOWN:
+                case SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN:
                     ret = -1;
                     break;
             }
