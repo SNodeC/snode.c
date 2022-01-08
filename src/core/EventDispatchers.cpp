@@ -41,33 +41,6 @@ namespace core {
         return eventDispatcher[dispType];
     }
 
-    EventDispatchers::FdSet::FdSet() {
-        zero();
-    }
-
-    void EventDispatchers::FdSet::set(int fd) {
-        FD_SET(fd, &registered);
-    }
-
-    void EventDispatchers::FdSet::clr(int fd) {
-        FD_CLR(fd, &registered);
-        FD_CLR(fd, &active);
-    }
-
-    int EventDispatchers::FdSet::isSet(int fd) const {
-        return FD_ISSET(fd, &active);
-    }
-
-    void EventDispatchers::FdSet::zero() {
-        FD_ZERO(&registered);
-        FD_ZERO(&active);
-    }
-
-    fd_set& EventDispatchers::FdSet::get() {
-        active = registered;
-        return active;
-    }
-
     int EventDispatchers::getMaxFd() {
         int maxFd = -1;
 

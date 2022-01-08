@@ -33,6 +33,33 @@
 
 namespace core {
 
+    DescriptorEventDispatcher::FdSet::FdSet() {
+        zero();
+    }
+
+    void DescriptorEventDispatcher::FdSet::set(int fd) {
+        FD_SET(fd, &registered);
+    }
+
+    void DescriptorEventDispatcher::FdSet::clr(int fd) {
+        FD_CLR(fd, &registered);
+        FD_CLR(fd, &active);
+    }
+
+    int DescriptorEventDispatcher::FdSet::isSet(int fd) const {
+        return FD_ISSET(fd, &active);
+    }
+
+    void DescriptorEventDispatcher::FdSet::zero() {
+        FD_ZERO(&registered);
+        FD_ZERO(&active);
+    }
+
+    fd_set& DescriptorEventDispatcher::FdSet::get() {
+        active = registered;
+        return active;
+    }
+
     bool DescriptorEventDispatcher::EventReceiverList::contains(EventReceiver* eventReceiver) const {
         return std::find(begin(), end(), eventReceiver) != end();
     }

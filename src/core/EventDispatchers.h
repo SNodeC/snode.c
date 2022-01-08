@@ -55,21 +55,6 @@ namespace core {
     public:
         enum DISP_TYPE { RD = 0, WR = 1, EX = 2, TI = 3 };
 
-        class FdSet {
-        public:
-            FdSet();
-
-            void set(int fd);
-            void clr(int fd);
-            int isSet(int fd) const;
-            void zero();
-            fd_set& get();
-
-        protected:
-            fd_set registered;
-            fd_set active;
-        };
-
     private:
         static DescriptorEventDispatcher& getDescriptorEventDispatcher(DISP_TYPE dispType);
         static TimerEventDispatcher& getTimerEventDispatcher();

@@ -46,6 +46,21 @@ namespace core {
     private:
         DescriptorEventDispatcher() = default;
 
+        class FdSet {
+        public:
+            FdSet();
+
+            void set(int fd);
+            void clr(int fd);
+            int isSet(int fd) const;
+            void zero();
+            fd_set& get();
+
+        protected:
+            fd_set registered;
+            fd_set active;
+        };
+
     public:
         void enable(EventReceiver* eventReceiver);
         void disable(EventReceiver* eventReceiver);
@@ -79,7 +94,7 @@ namespace core {
         std::map<int, EventReceiverList> observedEventReceiver;
         std::map<int, EventReceiverList> disabledEventReceiver;
 
-        EventDispatchers::FdSet fdSet;
+        FdSet fdSet;
 
         unsigned long eventCounter = 0;
 
