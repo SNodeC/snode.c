@@ -6,7 +6,7 @@ set(CORE_CPP
     Descriptor.cpp
     DescriptorEventDispatcher.cpp
     DynamicLoader.cpp
-    EventDispatchers.cpp
+    EventDispatcher.cpp
     EventLoop.cpp
     EventReceiver.cpp
     EventReceiver.h
@@ -41,7 +41,7 @@ set(CORE_H
     Descriptor.h
     DescriptorEventDispatcher.h
     DynamicLoader.h
-    EventDispatchers.h
+    EventDispatcher.h
     EventLoop.h
     EventReceiver.h
     EventReceiver.h

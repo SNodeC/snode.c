@@ -19,6 +19,7 @@
 #ifndef CORE_EVENTLOOP_H
 #define CORE_EVENTLOOP_H
 
+#include "core/EventDispatcher.h"
 #include "core/TickStatus.h"
 #include "utils/Timeval.h"
 
@@ -38,6 +39,7 @@ namespace core {
 
     public:
         static unsigned long getTickCounter();
+        static EventDispatcher& getEventDispatcher();
 
     private:
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
@@ -48,6 +50,8 @@ namespace core {
         static void free();
 
         static void stoponsig(int sig);
+
+        static EventDispatcher eventDispatcher;
 
         static bool running;
         static bool stopped;

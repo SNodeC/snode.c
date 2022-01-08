@@ -19,7 +19,7 @@
 #ifndef CORE_DESCRIPTOREVENTDISPATCHER_H
 #define CORE_DESCRIPTOREVENTDISPATCHER_H
 
-#include "core/EventDispatchers.h"
+#include "core/EventDispatcher.h"
 #include "core/system/select.h" // IWYU pragma: keep
 
 namespace core {
@@ -98,7 +98,7 @@ namespace core {
 
         unsigned long eventCounter = 0;
 
-        friend class core::EventDispatchers;
+        friend class core::EventDispatcher;
     };
 
 } // namespace core

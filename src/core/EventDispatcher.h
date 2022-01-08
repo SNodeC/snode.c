@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_EVENTDISPATCHERS_H
-#define CORE_EVENTDISPATCHERS_H
+#ifndef CORE_EVENTDISPATCHER_H
+#define CORE_EVENTDISPATCHER_H
 
 #include "core/TickStatus.h"
 
@@ -44,31 +44,31 @@ namespace utils {
 
 namespace core {
 
-    class EventDispatchers {
-        EventDispatchers() = delete;
+    class EventDispatcher {
+        EventDispatcher() = default;
 
-        EventDispatchers(const EventDispatchers&) = delete;
-        EventDispatchers& operator=(const EventDispatchers&) = delete;
+        EventDispatcher(const EventDispatcher&) = delete;
+        EventDispatcher& operator=(const EventDispatcher&) = delete;
 
-        ~EventDispatchers() = delete;
+        ~EventDispatcher() = default;
 
     public:
         enum DISP_TYPE { RD = 0, WR = 1, EX = 2, TI = 3 };
 
     private:
-        static DescriptorEventDispatcher& getDescriptorEventDispatcher(DISP_TYPE dispType);
-        static TimerEventDispatcher& getTimerEventDispatcher();
+        DescriptorEventDispatcher& getDescriptorEventDispatcher(DISP_TYPE dispType);
+        TimerEventDispatcher& getTimerEventDispatcher();
 
-        static int getMaxFd();
-        static utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
+        int getMaxFd();
+        utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
 
-        static void observeEnabledEvents();
-        static void dispatchActiveEvents(const utils::Timeval& currentTime);
-        static void unobserveDisabledEvents(const utils::Timeval& currentTime);
+        void observeEnabledEvents();
+        void dispatchActiveEvents(const utils::Timeval& currentTime);
+        void unobserveDisabledEvents(const utils::Timeval& currentTime);
 
-        static TickStatus dispatch(const utils::Timeval& tickTimeOut, bool stopped);
+        TickStatus dispatch(const utils::Timeval& tickTimeOut, bool stopped);
 
-        static void stop();
+        void stop();
 
         static DescriptorEventDispatcher eventDispatcher[4];
         static TimerEventDispatcher timerEventDispatcher;
@@ -80,4 +80,4 @@ namespace core {
 
 } // namespace core
 
-#endif // CORE_EVENTDISPATCHERS_H
+#endif // CORE_EVENTDISPATCHER_H

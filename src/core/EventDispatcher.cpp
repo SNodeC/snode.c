@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/EventDispatchers.h"
+#include "core/EventDispatcher.h"
 
 #include "core/DescriptorEventDispatcher.h"
 #include "core/TimerEventDispatcher.h"
@@ -30,18 +30,18 @@
 
 namespace core {
 
-    DescriptorEventDispatcher EventDispatchers::eventDispatcher[];
-    TimerEventDispatcher EventDispatchers::timerEventDispatcher;
+    DescriptorEventDispatcher EventDispatcher::eventDispatcher[];
+    TimerEventDispatcher EventDispatcher::timerEventDispatcher;
 
-    TimerEventDispatcher& EventDispatchers::getTimerEventDispatcher() {
+    TimerEventDispatcher& EventDispatcher::getTimerEventDispatcher() {
         return timerEventDispatcher;
     }
 
-    DescriptorEventDispatcher& EventDispatchers::getDescriptorEventDispatcher(DISP_TYPE dispType) {
+    DescriptorEventDispatcher& EventDispatcher::getDescriptorEventDispatcher(DISP_TYPE dispType) {
         return eventDispatcher[dispType];
     }
 
-    int EventDispatchers::getMaxFd() {
+    int EventDispatcher::getMaxFd() {
         int maxFd = -1;
 
         for (const DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
@@ -51,7 +51,7 @@ namespace core {
         return maxFd;
     }
 
-    utils::Timeval EventDispatchers::getNextTimeout(const utils::Timeval& currentTime) {
+    utils::Timeval EventDispatcher::getNextTimeout(const utils::Timeval& currentTime) {
         utils::Timeval nextTimeout = {LONG_MAX, 0};
 
         for (const DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
@@ -61,34 +61,34 @@ namespace core {
         return nextTimeout;
     }
 
-    void EventDispatchers::observeEnabledEvents() {
+    void EventDispatcher::observeEnabledEvents() {
         for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
             eventDispatcher.observeEnabledEvents();
         }
     }
 
-    void EventDispatchers::dispatchActiveEvents(const utils::Timeval& currentTime) {
+    void EventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
         for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
             eventDispatcher.dispatchActiveEvents(currentTime);
         }
     }
 
-    void EventDispatchers::unobserveDisabledEvents(const utils::Timeval& currentTime) {
+    void EventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
         for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
             eventDispatcher.unobserveDisabledEvents(currentTime);
         }
     }
 
-    TickStatus EventDispatchers::dispatch(const utils::Timeval& tickTimeOut, bool stopped) {
+    TickStatus EventDispatcher::dispatch(const utils::Timeval& tickTimeOut, bool stopped) {
         TickStatus tickStatus = TickStatus::SUCCESS;
 
-        EventDispatchers::observeEnabledEvents();
+        EventDispatcher::observeEnabledEvents();
 
-        int maxFd = EventDispatchers::getMaxFd();
+        int maxFd = EventDispatcher::getMaxFd();
 
         utils::Timeval currentTime = utils::Timeval::currentTime();
 
-        utils::Timeval nextEventTimeout = EventDispatchers::getNextTimeout(currentTime);
+        utils::Timeval nextEventTimeout = EventDispatcher::getNextTimeout(currentTime);
         utils::Timeval nextTimerTimeout = timerEventDispatcher.getNextTimeout(currentTime);
 
         if (maxFd >= 0 || (!timerEventDispatcher.empty() && !stopped)) {
@@ -103,8 +103,8 @@ namespace core {
                 currentTime = utils::Timeval::currentTime();
 
                 timerEventDispatcher.dispatchActiveEvents(currentTime);
-                EventDispatchers::dispatchActiveEvents(currentTime);
-                EventDispatchers::unobserveDisabledEvents(currentTime);
+                EventDispatcher::dispatchActiveEvents(currentTime);
+                EventDispatcher::unobserveDisabledEvents(currentTime);
             } else {
                 tickStatus = TickStatus::ERROR;
             }
@@ -115,7 +115,7 @@ namespace core {
         return tickStatus;
     }
 
-    void EventDispatchers::stop() {
+    void EventDispatcher::stop() {
         core::TickStatus tickStatus;
 
         do {

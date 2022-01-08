@@ -18,7 +18,7 @@
 
 #include "core/AcceptEventReceiver.h"
 
-#include "core/EventDispatchers.h"
+#include "core/EventDispatcher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,7 +29,7 @@
 namespace core {
 
     AcceptEventReceiver::AcceptEventReceiver(const utils::Timeval& timeout)
-        : EventReceiver(EventDispatchers::DISP_TYPE::RD, timeout) {
+        : EventReceiver(EventDispatcher::DISP_TYPE::RD, timeout) {
     }
 
     void AcceptEventReceiver::acceptTimeout() {

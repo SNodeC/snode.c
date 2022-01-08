@@ -18,7 +18,8 @@
 
 #include "core/timer/Timer.h"
 
-#include "core/EventDispatchers.h"
+#include "core/EventDispatcher.h"
+#include "core/EventLoop.h"
 #include "core/TimerEventDispatcher.h" // for ManagedTimer
 #include "core/timer/IntervalTimer.h"
 #include "core/timer/SingleshotTimer.h"
@@ -33,7 +34,7 @@ namespace core::timer {
     Timer::singleshotTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg) {
         SingleshotTimer* st = new SingleshotTimer(dispatcher, timeout, arg);
 
-        EventDispatchers::getTimerEventDispatcher().add(st);
+        EventLoop::getEventDispatcher().getTimerEventDispatcher().add(st);
 
         return *st;
     }
@@ -43,7 +44,7 @@ namespace core::timer {
                                         const void* arg) {
         IntervalTimer* ct = new IntervalTimer(dispatcher, timeout, arg);
 
-        EventDispatchers::getTimerEventDispatcher().add(ct);
+        EventLoop::getEventDispatcher().getTimerEventDispatcher().add(ct);
 
         return *ct;
     }
@@ -52,13 +53,13 @@ namespace core::timer {
     Timer::intervalTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg) {
         IntervalTimer* ct = new IntervalTimer(dispatcher, timeout, arg);
 
-        EventDispatchers::getTimerEventDispatcher().add(ct);
+        EventLoop::getEventDispatcher().getTimerEventDispatcher().add(ct);
 
         return *ct;
     }
 
     void Timer::cancel() {
-        EventDispatchers::getTimerEventDispatcher().remove(this);
+        EventLoop::getEventDispatcher().getTimerEventDispatcher().remove(this);
     }
 
     void Timer::unobservedEvent() {

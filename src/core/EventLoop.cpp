@@ -19,7 +19,7 @@
 #include "core/EventLoop.h" // for EventLoop
 
 #include "core/DynamicLoader.h"
-#include "core/EventDispatchers.h"
+#include "core/EventDispatcher.h"
 #include "log/Logger.h" // for Logger
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -47,6 +47,8 @@ namespace core {
         return tick;
     }
 
+    EventDispatcher EventLoop::eventDispatcher;
+
     bool EventLoop::initialized = false;
     bool EventLoop::running = false;
     bool EventLoop::stopped = true;
@@ -55,6 +57,10 @@ namespace core {
 
     unsigned long EventLoop::getTickCounter() {
         return tickCounter;
+    }
+
+    EventDispatcher& EventLoop::getEventDispatcher() {
+        return eventDispatcher;
     }
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
@@ -69,7 +75,7 @@ namespace core {
     TickStatus EventLoop::_tick(const utils::Timeval& tickTimeOut, bool stopped) {
         tickCounter++;
 
-        TickStatus tickStatus = EventDispatchers::dispatch(tickTimeOut, stopped);
+        TickStatus tickStatus = eventDispatcher.dispatch(tickTimeOut, stopped);
 
         switch (tickStatus) {
             case TickStatus::SUCCESS:
@@ -145,7 +151,7 @@ namespace core {
     }
 
     void EventLoop::free() {
-        EventDispatchers::stop();
+        eventDispatcher.stop();
 
         DynamicLoader::execDlCloseDeleyed();
         DynamicLoader::execDlCloseAll();

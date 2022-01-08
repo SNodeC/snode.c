@@ -18,7 +18,7 @@
 
 #include "core/ExceptionalConditionEventReceiver.h"
 
-#include "core/EventDispatchers.h"
+#include "core/EventDispatcher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -27,7 +27,7 @@
 namespace core {
 
     ExceptionalConditionEventReceiver::ExceptionalConditionEventReceiver(const utils::Timeval& timeout)
-        : EventReceiver(EventDispatchers::DISP_TYPE::EX, timeout) {
+        : EventReceiver(EventDispatcher::DISP_TYPE::EX, timeout) {
     }
 
     void ExceptionalConditionEventReceiver::outOfBandTimeout() {
