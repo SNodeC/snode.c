@@ -71,8 +71,7 @@ namespace core::socket::stream::tls {
                                   this->onError(-sslErr);
                               });
                       } else {
-                          socketConnection->SocketConnection::SocketReader::disable();
-                          socketConnection->SocketConnection::SocketWriter::disable();
+                          socketConnection->close();
                           ssl_log_error("SSL/TLS initialization failed");
                           this->onError(-SSL_ERROR_SSL);
                       }

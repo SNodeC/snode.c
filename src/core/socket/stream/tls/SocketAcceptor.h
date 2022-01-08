@@ -74,8 +74,7 @@ namespace core::socket::stream::tls {
                                   ssl_log("SSL/TLS initial handshake failed", sslErr);
                               });
                       } else {
-                          socketConnection->SocketConnection::SocketReader::disable();
-                          socketConnection->SocketConnection::SocketWriter::disable();
+                          socketConnection->close();
                           ssl_log_error("SSL/TLS initialization failed");
                       }
                   },

@@ -85,8 +85,7 @@ namespace core::socket::stream {
                                 int ret = core::system::connect(Socket::fd, &remoteAddress.getSockAddr(), remoteAddress.getSockAddrLen());
 
                                 if (ret == 0 || errno == EINPROGRESS) {
-                                    enable(SocketConnector::getFd());
-                                    Socket::dontClose(true);
+                                    enable(Socket::fd);
                                 } else {
                                     onError(errno);
                                     destruct();
@@ -123,24 +122,26 @@ namespace core::socket::stream {
                                                                                       SocketAddress(remoteAddress),
                                                                                       onConnect,
                                                                                       onDisconnect);
-                            disable();
 
                             onConnected(socketConnection);
                             onError(0);
-                        } else {
+
+                            Socket::dontClose(true);
                             disable();
+                        } else {
                             onError(errno);
+                            disable();
                         }
                     } else {
-                        disable();
                         onError(errno);
+                        disable();
                     }
                 } else {
-                    // connect() still in progress
+                    // Do nothing: connect() still in progress
                 }
             } else {
-                SocketConnector::ConnectEventReceiver::disable();
                 onError(errno);
+                disable();
             }
         }
 
