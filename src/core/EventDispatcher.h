@@ -19,7 +19,7 @@
 #ifndef CORE_EVENTDISPATCHER_H
 #define CORE_EVENTDISPATCHER_H
 
-#include "core/TickStatus.h"
+#include "core/TickStatus.h" // IWYU pragma: export
 
 namespace core {
     class EventLoop;

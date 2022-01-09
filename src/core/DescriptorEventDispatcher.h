@@ -19,8 +19,6 @@
 #ifndef CORE_DESCRIPTOREVENTDISPATCHER_H
 #define CORE_DESCRIPTOREVENTDISPATCHER_H
 
-#include "core/system/select.h" // IWYU pragma: keep
-
 namespace core {
     class EventReceiver;
     class EventDispatcher;

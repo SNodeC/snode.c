@@ -20,7 +20,6 @@
 #define CORE_TIMEREVENTDISPATCHER_H
 
 #include "core/TimerEventReceiver.h" // IWYU pragma: export
-#include "utils/Timeval.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

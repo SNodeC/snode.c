@@ -18,8 +18,6 @@
 
 #include "core/select/EventDispatcher.h"
 
-#include "core/DescriptorEventDispatcher.h"
-#include "core/TimerEventDispatcher.h"
 #include "core/system/select.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

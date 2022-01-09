@@ -19,8 +19,8 @@
 #ifndef CORE_SELECT_DESCRIPTOREVENTDISPATCHER_H
 #define CORE_SELECT_DESCRIPTOREVENTDISPATCHER_H
 
-#include "core/DescriptorEventDispatcher.h"
-#include "core/system/select.h" // IWYU pragma: keep
+#include "core/DescriptorEventDispatcher.h" // IWYU pragma: export
+#include "core/system/select.h"
 #include "utils/Timeval.h"
 
 namespace core {

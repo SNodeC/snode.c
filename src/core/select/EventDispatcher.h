@@ -19,10 +19,7 @@
 #ifndef CORE_SELECT_EVENTDISPATCHER_H
 #define CORE_SELECT_EVENTDISPATCHER_H
 
-#include "core/DescriptorEventDispatcher.h" // for DescriptorEventDispatcher
 #include "core/EventDispatcher.h"
-#include "core/TickStatus.h"
-#include "core/TimerEventDispatcher.h" // for TimerEventDispatcher
 #include "core/select/DescriptorEventDispatcher.h"
 #include "core/select/TimerEventDispatcher.h"
 
