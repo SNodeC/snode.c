@@ -69,12 +69,6 @@ namespace core::socket::stream::legacy {
 
     private:
         ~SocketConnection() override = default;
-
-        template <typename Socket>
-        friend class SocketAcceptor;
-
-        template <typename Socket>
-        friend class SocketConnector;
     };
 
 } // namespace core::socket::stream::legacy

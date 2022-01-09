@@ -36,7 +36,7 @@ namespace core::socket::stream {
 
     template <typename SocketReaderT, typename SocketWriterT, typename SocketAddressT>
     class SocketConnection
-        : public core::socket::SocketConnection
+        : protected core::socket::SocketConnection
         , protected SocketReaderT
         , protected SocketWriterT {
         SocketConnection() = delete;
@@ -75,6 +75,8 @@ namespace core::socket::stream {
         }
 
     public:
+        using Super::getSocketContext;
+
         void close() final {
             SocketWriter::disable();
             SocketReader::disable();

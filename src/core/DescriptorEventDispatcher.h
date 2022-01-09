@@ -59,8 +59,6 @@ namespace core {
         virtual void dispatchActiveEvents(const utils::Timeval& currentTime) = 0;
         virtual void unobserveDisabledEvents(const utils::Timeval& currentTime) = 0;
         virtual void stop() = 0;
-
-        friend class core::EventDispatcher;
     };
 
 } // namespace core

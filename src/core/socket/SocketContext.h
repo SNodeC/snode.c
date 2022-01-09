@@ -68,7 +68,7 @@ namespace core::socket {
 
         SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory);
 
-    protected:
+    private:
         virtual void onConnected();
         virtual void onDisconnected();
 
@@ -77,10 +77,8 @@ namespace core::socket {
         virtual void onWriteError(int errnum);
         virtual void onReadError(int errnum);
 
-    private:
         core::socket::SocketConnection* socketConnection;
 
-    protected:
         Role role;
 
         friend class core::socket::SocketConnection;

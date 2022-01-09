@@ -54,8 +54,6 @@ namespace core {
     protected:
         virtual TickStatus dispatch(const utils::Timeval& tickTimeOut, bool stopped) = 0;
         virtual void stop() = 0;
-
-        friend class core::EventLoop;
     };
 
 } // namespace core

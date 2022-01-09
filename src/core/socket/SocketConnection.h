@@ -54,8 +54,6 @@ namespace core::socket {
     public:
         core::socket::SocketContext* getSocketContext();
 
-    private: // will become public in subclasses to be call able from user code. This private pure virtual methods will be called polymorph
-             // from friend class SocketContext
         virtual void close() = 0;
 
         virtual void shutdownRead() = 0;
@@ -72,7 +70,7 @@ namespace core::socket {
         void onWriteError(int errnum);
         void onReadError(int errnum);
 
-    private: // will be called from friend class SocketContext
+    public: // will be called from friend class SocketContext
         virtual std::string getLocalAddressAsString() const = 0;
         virtual std::string getRemoteAddressAsString() const = 0;
 
@@ -83,10 +81,9 @@ namespace core::socket {
 
         core::socket::SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory);
 
+    private:
         core::socket::SocketContext* socketContext = nullptr;
         core::socket::SocketContext* newSocketContext = nullptr;
-
-        friend core::socket::SocketContext;
     };
 
 } // namespace core::socket
