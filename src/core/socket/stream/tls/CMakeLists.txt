@@ -10,7 +10,9 @@ if(NOT OpenSSL_FOUND)
     )
 else(NOT OpenSSL_FOUND)
 
-    set(CORE-TLS_CPP ssl_utils.cpp TLSHandshake.cpp TLSShutdown.cpp system/ssl.cpp)
+    set(CORE-TLS_CPP ssl_utils.cpp TLSHandshake.cpp TLSShutdown.cpp
+                     system/ssl.cpp
+    )
 
     set(CORE-TLS_H
         SocketAcceptor.h

@@ -90,7 +90,9 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(core PUBLIC snodec::core-select snodec::logger snodec::utils)
+target_link_libraries(
+    core PUBLIC snodec::core-select snodec::logger snodec::utils
+)
 
 set_target_properties(core PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-core)
 
