@@ -22,21 +22,24 @@
 #include "core/TickStatus.h"
 #include "utils/Timeval.h"
 
+#define USE_EPOLL
+
 namespace core {
     class EventDispatcher;
-    namespace select {
-        class EventDispatcher;
-    }
+#ifdef USE_EPOLL
     namespace epoll {
         class EventDispatcher;
     }
+#else
+    namespace select {
+        class EventDispatcher;
+    }
+#endif
 } // namespace core
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#define USE_EPOLL
 
 namespace core {
 

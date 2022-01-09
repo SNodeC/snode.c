@@ -25,6 +25,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <sys/epoll.h>
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::epoll {
@@ -37,7 +39,7 @@ namespace core::epoll {
         EventDispatcher();
         ~EventDispatcher() = default;
 
-        enum DISP_TYPE { RD = 0, WR = 1, EX = 2, TI = 3 };
+        enum DISP_TYPE { RD = 0, WR = 1, EX = 2 };
 
         core::DescriptorEventDispatcher& getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE dispType) override;
         core::TimerEventDispatcher& getTimerEventDispatcher() override;
@@ -53,7 +55,7 @@ namespace core::epoll {
         void dispatchActiveEvents(int count, const utils::Timeval& currentTime, const utils::Timeval& timeOut);
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
 
-        core::epoll::DescriptorEventDispatcher eventDispatcher[4];
+        core::epoll::DescriptorEventDispatcher eventDispatcher[3];
         core::epoll::TimerEventDispatcher timerEventDispatcher;
 
         epoll_event ePollEvents[4];

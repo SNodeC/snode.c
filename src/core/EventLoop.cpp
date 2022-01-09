@@ -19,8 +19,12 @@
 #include "core/EventLoop.h" // for EventLoop
 
 #include "core/DynamicLoader.h"
+
+#ifdef USE_EPOLL
 #include "core/epoll/EventDispatcher.h"
+#else
 #include "core/select/EventDispatcher.h"
+#endif
 #include "log/Logger.h" // for Logger
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

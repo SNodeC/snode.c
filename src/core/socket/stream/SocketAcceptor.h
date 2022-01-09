@@ -34,6 +34,7 @@ namespace core::socket {
 #include <any>
 #include <functional>
 #include <map>
+#include <memory>
 #include <string>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

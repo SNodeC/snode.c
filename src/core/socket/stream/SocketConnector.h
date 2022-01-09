@@ -30,12 +30,10 @@ namespace core::socket {
 #include "core/system/socket.h"
 
 #include <any>
-#include <cstddef>
 #include <functional>
 #include <map>
 #include <memory>
 #include <string>
-#include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

@@ -24,8 +24,8 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm> // for find, min
+#include <cerrno>
 #include <climits>
-#include <iterator>    // for reverse_iterator
 #include <type_traits> // for add_const<>::type
 #include <utility>     // for tuple_element<>::type, pair
 
@@ -145,7 +145,6 @@ namespace core::epoll {
 
         if (!eventReceiver->isSuspended()) {
             if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
-                //                fdSet.clr(fd);
                 ePollEvents.del(eventReceiver);
             }
         } else {
@@ -158,7 +157,6 @@ namespace core::epoll {
 
         if (eventReceiver->isSuspended()) {
             if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
-                //                fdSet.set(fd);
                 ePollEvents.add(eventReceiver, events);
             }
         } else {
@@ -171,7 +169,8 @@ namespace core::epoll {
     }
 
     int DescriptorEventDispatcher::getReceiverCount() const {
-        return ePollEvents.getMaxEvents();
+        return static_cast<int>(observedEventReceiver.size());
+        //        return ePollEvents.getMaxEvents();
     }
 
     int DescriptorEventDispatcher::getEPFd() const {
@@ -199,16 +198,12 @@ namespace core::epoll {
     }
 
     void DescriptorEventDispatcher::observeEnabledEvents() {
-        for (const auto& [fd, eventReceivers] : enabledEventReceiver) {
+        for (const auto& [fd, eventReceivers] : enabledEventReceiver) { // cppcheck-suppress unassignedVariable
             for (core::EventReceiver* eventReceiver : eventReceivers) {
                 if (eventReceiver->isEnabled()) {
                     observedEventReceiver[fd].push_front(eventReceiver);
                     if (!eventReceiver->isSuspended()) {
-                        //                        fdSet.set(fd);
                         ePollEvents.add(eventReceiver, events);
-                    } else {
-                        //                        fdSet.clr(fd);
-                        ePollEvents.del(eventReceiver);
                     }
                 } else {
                     eventReceiver->unobservedEvent();
@@ -223,15 +218,15 @@ namespace core::epoll {
 
         for (int i = 0; i < count; i++) {
             core::EventReceiver* eventReceiver = static_cast<core::EventReceiver*>(ePollEvents.getEvents()[i].data.ptr);
-            if (!eventReceiver->isSuspended()) {
+            if (ePollEvents.getEvents()[i].events != 0 && !eventReceiver->isSuspended() && !eventReceiver->continueImmediately()) {
                 eventCounter++;
                 eventReceiver->trigger(currentTime);
             }
         }
     }
 
-    void DescriptorEventDispatcher::doContinueImmediately(const utils::Timeval &currentTime) {
-        for (const auto& [fd, eventReceivers] : observedEventReceiver) {
+    void DescriptorEventDispatcher::dispatchImmediateEvents(const utils::Timeval& currentTime) {
+        for (const auto& [fd, eventReceivers] : observedEventReceiver) { // cppcheck-suppress unusedVariable
             core::EventReceiver* eventReceiver = eventReceivers.front();
             if (eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
                 eventCounter++;
@@ -250,10 +245,7 @@ namespace core::epoll {
                     if (observedEventReceiver[fd].empty()) {
                         observedEventReceiver.erase(fd);
                     }
-                    //                    fdSet.clr(fd);
-                    ePollEvents.del(eventReceiver);
                 } else {
-                    //                    fdSet.set(fd);
                     ePollEvents.add(observedEventReceiver[fd].front(), events);
                     observedEventReceiver[fd].front()->triggered(currentTime);
                 }

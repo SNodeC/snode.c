@@ -35,8 +35,7 @@ namespace core::epoll {
     EventDispatcher::EventDispatcher()
         : eventDispatcher{core::epoll::DescriptorEventDispatcher(EPOLLIN),
                           core::epoll::DescriptorEventDispatcher(EPOLLOUT),
-                          core::epoll::DescriptorEventDispatcher(EPOLLPRI),
-                          core::epoll::DescriptorEventDispatcher(EPOLLIN)} {
+                          core::epoll::DescriptorEventDispatcher(EPOLLPRI)} {
         epfd = epoll_create1(EPOLL_CLOEXEC);
 
         epoll_event event;
@@ -89,10 +88,8 @@ namespace core::epoll {
             }
         }
 
-        if (timeOut == 0) {
-            for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
-                eventDispatcher.doContinueImmediately(currentTime);
-            }
+        for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
+            eventDispatcher.dispatchImmediateEvents(currentTime);
         }
     }
 
@@ -120,9 +117,8 @@ namespace core::epoll {
             nextTimeout = std::min(nextTimeout, tickTimeOut);
             nextTimeout = std::max(nextTimeout, utils::Timeval()); // In case nextEventTimeout is negativ
 
-            int ret = 0;
+            int ret = epoll_wait(epfd, ePollEvents, 3, nextTimeout.ms());
 
-            ret = epoll_wait(epfd, ePollEvents, 3, nextTimeout.ms());
             if (ret >= 0) {
                 currentTime = utils::Timeval::currentTime();
 

@@ -77,7 +77,7 @@ namespace core::epoll {
 
         void observeEnabledEvents();
         void dispatchActiveEvents(const utils::Timeval& currentTime, const utils::Timeval& timeOut);
-        void doContinueImmediately(const utils::Timeval& currentTime);
+        void dispatchImmediateEvents(const utils::Timeval& currentTime);
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
         void stop() override;
 
