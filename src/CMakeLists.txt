@@ -8,6 +8,14 @@ include(iwyu)
 include(instrumentation)
 include(rpath-use-always)
 
+option(USE_EPOLL "Use epoll_wait instead of select" ON)
+
+if(${USE_EPOLL} STREQUAL "ON")
+    set(NONE_BLOCKING_LIBRARY core-epoll)
+else(${USE_EPOLL} STREQUAL "ON")
+    set(NONE_BLOCKING_LIBRARY core-select)
+endif(${USE_EPOLL} STREQUAL "ON")
+
 configure_package_config_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/snodecConfig.cmake

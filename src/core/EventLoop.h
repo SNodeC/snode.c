@@ -22,8 +22,6 @@
 #include "core/TickStatus.h"
 #include "utils/Timeval.h"
 
-#define USE_EPOLL
-
 namespace core {
     class EventDispatcher;
 #ifdef USE_EPOLL

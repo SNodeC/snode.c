@@ -1,4 +1,4 @@
-@PACKAGE_INIT@
+
 
 set(websocketserver_DEPENDENCIES websocketbase httpserver)
 set(websocketclient_DEPENDENCIES websocketbase httpclient)
@@ -19,7 +19,7 @@ set(net-un_DEPENDENCIES core-legacy core-tls)
 set(core-legacy_DEPENDENCIES core)
 set(core-tls_DEPENDENCIES core)
 
-set(core_DEPENDENCIES core-epoll core-select utils logger)
+set(core_DEPENDENCIES @NONE_BLOCKING_LIBRARY@ utils logger)
 
 macro(LOAD_COMPONENT_WITH_DEPENDENCIES _comp)
     message("Loading component: " ${_comp})
