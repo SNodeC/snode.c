@@ -19,9 +19,6 @@ set(CORE_CPP
     pipe/Pipe.cpp
     pipe/PipeSink.cpp
     pipe/PipeSource.cpp
-    select/DescriptorEventDispatcher.cpp
-    select/EventDispatcher.cpp
-    select/TimerEventDispatcher.cpp
     socket/SocketConnection.cpp
     socket/SocketContext.cpp
     system/dlfcn.cpp
@@ -56,9 +53,6 @@ set(CORE_H
     pipe/Pipe.h
     pipe/PipeSink.h
     pipe/PipeSource.h
-    select/EventDispatcher.h
-    select/DescriptorEventDispatcher.h
-    select/TimerEventDispatcher.h
     socket/ClientSocket.h
     socket/ServerSocket.h
     socket/Socket.h
@@ -96,7 +90,7 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-target_link_libraries(core PUBLIC snodec::logger snodec::utils)
+target_link_libraries(core PUBLIC snodec::core-select snodec::logger snodec::utils)
 
 set_target_properties(core PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-core)
 
@@ -126,5 +120,6 @@ install(
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
 
+add_subdirectory(select)
 add_subdirectory(socket/stream/legacy)
 add_subdirectory(socket/stream/tls)
