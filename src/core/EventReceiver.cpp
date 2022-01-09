@@ -19,7 +19,6 @@
 #include "core/EventReceiver.h"
 
 #include "core/DescriptorEventDispatcher.h"
-#include "core/EventLoop.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -32,8 +31,8 @@ namespace core {
     const utils::Timeval EventReceiver::TIMEOUT::DEFAULT = {-1, 0};
     const utils::Timeval EventReceiver::TIMEOUT::DISABLE = {LONG_MAX, 0};
 
-    EventReceiver::EventReceiver(EventDispatcher::DISP_TYPE dispType, const utils::Timeval& timeout)
-        : descriptorEventDispatcher(EventLoop::getEventDispatcher().getDescriptorEventDispatcher(dispType))
+    EventReceiver::EventReceiver(DescriptorEventDispatcher& descriptorEventDispatcher, const utils::Timeval& timeout)
+        : descriptorEventDispatcher(descriptorEventDispatcher)
         , maxInactivity(timeout)
         , initialTimeout(timeout) {
     }

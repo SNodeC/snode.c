@@ -19,9 +19,12 @@
 #ifndef CORE_EVENTLOOP_H
 #define CORE_EVENTLOOP_H
 
-#include "core/EventDispatcher.h"
 #include "core/TickStatus.h"
 #include "utils/Timeval.h"
+
+namespace core {
+    class EventDispatcher;
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

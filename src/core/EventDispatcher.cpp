@@ -20,6 +20,7 @@
 
 #include "core/DescriptorEventDispatcher.h"
 #include "core/TimerEventDispatcher.h"
+#include "core/system/select.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -29,9 +30,6 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
-
-    DescriptorEventDispatcher EventDispatcher::eventDispatcher[];
-    TimerEventDispatcher EventDispatcher::timerEventDispatcher;
 
     TimerEventDispatcher& EventDispatcher::getTimerEventDispatcher() {
         return timerEventDispatcher;
@@ -99,6 +97,7 @@ namespace core {
 
             int ret = core::system::select(
                 maxFd + 1, &eventDispatcher[RD].getFdSet(), &eventDispatcher[WR].getFdSet(), &eventDispatcher[EX].getFdSet(), &nextTimeout);
+
             if (ret >= 0) {
                 currentTime = utils::Timeval::currentTime();
 
@@ -122,6 +121,7 @@ namespace core {
             for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
                 eventDispatcher.stop();
             }
+
             tickStatus = dispatch(2, true);
         } while (tickStatus == TickStatus::SUCCESS);
 

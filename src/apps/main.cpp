@@ -189,20 +189,6 @@ int timerApp() {
     return express::WebApp::start();
 }
 
-class Parent {
-public:
-    virtual void a() {
-        VLOG(0) << "From Parent";
-    }
-};
-
-class Child : public Parent {
-public:
-    void a() override {
-        VLOG(0) << "From Child";
-    }
-};
-
 int main(int argc, char** argv) {
     express::WebApp::init(argc, argv);
 
@@ -215,13 +201,6 @@ int main(int argc, char** argv) {
     std::cout << "FileReader: " << test1.rflags << " : " << O_RDONLY << std::endl;
     std::cout << "FileWriter: " << test2.rflags << " : " << O_WRONLY << std::endl;
     std::cout << "FileIO: " << test3.rflags << " : " << O_RDWR << std::endl;
-
-    void* vChild = new Child();
-
-    Parent* parent = reinterpret_cast<Parent*>(vChild);
-
-    parent->Parent::a();
-    parent->a();
 
     return timerApp();
 }

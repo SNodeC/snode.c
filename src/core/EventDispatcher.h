@@ -19,46 +19,35 @@
 #ifndef CORE_EVENTDISPATCHER_H
 #define CORE_EVENTDISPATCHER_H
 
+#include "core/DescriptorEventDispatcher.h"
 #include "core/TickStatus.h"
+#include "core/TimerEventDispatcher.h"
 
 namespace core {
-    class TimerEventDispatcher;
-    class DescriptorEventDispatcher;
     class EventLoop;
-    class EventReceiver;
-
-    namespace timer {
-        class Timer;
-    }
-} // namespace core
-
-namespace utils {
-    class Timeval;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include "core/system/select.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
 
     class EventDispatcher {
-        EventDispatcher() = default;
-
         EventDispatcher(const EventDispatcher&) = delete;
         EventDispatcher& operator=(const EventDispatcher&) = delete;
 
+    private:
+        EventDispatcher() = default;
         ~EventDispatcher() = default;
 
     public:
         enum DISP_TYPE { RD = 0, WR = 1, EX = 2, TI = 3 };
 
-    private:
         DescriptorEventDispatcher& getDescriptorEventDispatcher(DISP_TYPE dispType);
         TimerEventDispatcher& getTimerEventDispatcher();
 
+    private:
         int getMaxFd();
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
 
@@ -70,12 +59,10 @@ namespace core {
 
         void stop();
 
-        static DescriptorEventDispatcher eventDispatcher[4];
-        static TimerEventDispatcher timerEventDispatcher;
+        DescriptorEventDispatcher eventDispatcher[4];
+        TimerEventDispatcher timerEventDispatcher;
 
         friend class core::EventLoop;
-        friend class core::EventReceiver;
-        friend class core::timer::Timer;
     };
 
 } // namespace core
