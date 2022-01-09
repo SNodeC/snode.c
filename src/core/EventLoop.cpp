@@ -19,6 +19,7 @@
 #include "core/EventLoop.h" // for EventLoop
 
 #include "core/DynamicLoader.h"
+#include "core/epoll/EventDispatcher.h"
 #include "core/select/EventDispatcher.h"
 #include "log/Logger.h" // for Logger
 
@@ -47,7 +48,11 @@ namespace core {
         return tick;
     }
 
+#ifdef USE_EPOLL
+    core::epoll::EventDispatcher EventLoop::eventDispatcher;
+#else
     core::select::EventDispatcher EventLoop::eventDispatcher;
+#endif
 
     bool EventLoop::initialized = false;
     bool EventLoop::running = false;

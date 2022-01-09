@@ -16,11 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_SELECT_DESCRIPTOREVENTDISPATCHER_H
-#define CORE_SELECT_DESCRIPTOREVENTDISPATCHER_H
+#ifndef CORE_EPOLL_DESCRIPTOREVENTDISPATCHER_H
+#define CORE_EPOLL_DESCRIPTOREVENTDISPATCHER_H
 
 #include "core/DescriptorEventDispatcher.h" // IWYU pragma: export
-#include "core/system/select.h"
 #include "utils/Timeval.h"
 
 namespace core {
@@ -29,48 +28,56 @@ namespace core {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstdint>
 #include <list>
 #include <map>
+#include <sys/epoll.h>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core::select {
+namespace core::epoll {
 
     class DescriptorEventDispatcher : public core::DescriptorEventDispatcher {
         DescriptorEventDispatcher(const DescriptorEventDispatcher&) = delete;
         DescriptorEventDispatcher& operator=(const DescriptorEventDispatcher&) = delete;
 
     private:
-        class FdSet {
+        class EPollEvents {
         public:
-            FdSet();
+            EPollEvents();
 
-            void set(int fd);
-            void clr(int fd);
-            int isSet(int fd) const;
-            void zero();
-            fd_set& get();
+            void add(core::EventReceiver* eventReceiver, uint32_t events);
+            void mod(core::EventReceiver* eventReceiver, uint32_t events);
+            void del(core::EventReceiver* eventReceiver);
+
+            int getEPFd() const;
+            epoll_event* getEvents();
+            int getMaxEvents() const;
 
         protected:
-            fd_set registered;
-            fd_set active;
+            int epfd;
+            std::vector<epoll_event> ePollEvents;
+            uint32_t size;
         };
 
     public:
-        DescriptorEventDispatcher() = default;
+        explicit DescriptorEventDispatcher(uint32_t events);
 
         void enable(core::EventReceiver* eventReceiver) override;
         void disable(core::EventReceiver* eventReceiver) override;
         void suspend(core::EventReceiver* eventReceiver) override;
         void resume(core::EventReceiver* eventReceiver) override;
 
-        int getMaxFd() const;
-        fd_set& getFdSet();
+        int getReceiverCount() const;
+
+        int getEPFd() const;
 
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime) const;
 
         void observeEnabledEvents();
-        void dispatchActiveEvents(const utils::Timeval& currentTime);
+        void dispatchActiveEvents(const utils::Timeval& currentTime, const utils::Timeval& timeOut);
+        void doContinueImmediately(const utils::Timeval& currentTime);
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
         void stop() override;
 
@@ -90,11 +97,12 @@ namespace core::select {
         std::map<int, EventReceiverList> observedEventReceiver;
         std::map<int, EventReceiverList> disabledEventReceiver;
 
-        FdSet fdSet;
+        EPollEvents ePollEvents;
+        uint32_t events;
 
         unsigned long eventCounter = 0;
     };
 
-} // namespace core::select
+} // namespace core::epoll
 
-#endif // CORE_SELECT_DESCRIPTOREVENTDISPATCHER_H
+#endif // CORE_EPOLL_DESCRIPTOREVENTDISPATCHER_H

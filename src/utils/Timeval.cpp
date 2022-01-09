@@ -157,6 +157,10 @@ namespace utils {
         return &timeVal;
     }
 
+    int Timeval::ms() const {
+        return static_cast<int>(timeVal.tv_sec * 1'000 + timeVal.tv_usec / 1'000);
+    }
+
     const timeval* Timeval::operator&() const {
         return &timeVal;
     }

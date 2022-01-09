@@ -80,4 +80,8 @@ namespace core::file {
         delete this;
     }
 
+    bool FileReader::continueReadImmediately() const {
+        return true;
+    }
+
 } // namespace core::file

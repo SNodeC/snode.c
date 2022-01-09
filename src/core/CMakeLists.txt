@@ -91,7 +91,7 @@ target_include_directories(
 )
 
 target_link_libraries(
-    core PUBLIC snodec::core-select snodec::logger snodec::utils
+    core PUBLIC snodec::core-epoll snodec::core-select snodec::logger snodec::utils
 )
 
 set_target_properties(core PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-core)
@@ -122,6 +122,7 @@ install(
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
 
+add_subdirectory(epoll)
 add_subdirectory(select)
 add_subdirectory(socket/stream/legacy)
 add_subdirectory(socket/stream/tls)

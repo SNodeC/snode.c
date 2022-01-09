@@ -52,10 +52,11 @@ namespace core {
 
     private:
         virtual unsigned long getEventCounter() const = 0;
-
-        virtual void observeEnabledEvents() = 0;
-        virtual void dispatchActiveEvents(const utils::Timeval& currentTime) = 0;
-        virtual void unobserveDisabledEvents(const utils::Timeval& currentTime) = 0;
+        /*
+                virtual void observeEnabledEvents() = 0;
+                virtual void dispatchActiveEvents(const utils::Timeval& currentTime) = 0;
+                virtual void unobserveDisabledEvents(const utils::Timeval& currentTime) = 0;
+                */
         virtual void stop() = 0;
     };
 
