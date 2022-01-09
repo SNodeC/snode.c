@@ -70,7 +70,7 @@ namespace core::socket {
         void onWriteError(int errnum);
         void onReadError(int errnum);
 
-    public: // will be called from friend class SocketContext
+    public: // will be called class SocketContext
         virtual std::string getLocalAddressAsString() const = 0;
         virtual std::string getRemoteAddressAsString() const = 0;
 

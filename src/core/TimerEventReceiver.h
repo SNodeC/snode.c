@@ -43,14 +43,6 @@ namespace core {
         virtual bool trigger() = 0;
         virtual void unobservedEvent() = 0;
 
-    private:
-        virtual bool operator<(const TimerEventReceiver& timerEventReceiver) const = 0;
-        virtual bool operator>(const TimerEventReceiver& timerEventReceiver) const = 0;
-        virtual bool operator<=(const TimerEventReceiver& timerEventReceiver) const = 0;
-        virtual bool operator>=(const TimerEventReceiver& timerEventReceiver) const = 0;
-        virtual bool operator==(const TimerEventReceiver& timerEventReceiver) const = 0;
-        virtual bool operator!=(const TimerEventReceiver& timerEventReceiver) const = 0;
-
     protected:
         void update() {
             absoluteTimeout += delay;

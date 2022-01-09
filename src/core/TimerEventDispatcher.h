@@ -44,7 +44,7 @@ namespace core {
         class timernode_lt {
         public:
             bool operator()(const TimerEventReceiver* t1, const TimerEventReceiver* t2) const {
-                return *t1 < *t2;
+                return t1->getTimeout() < t2->getTimeout();
             }
         };
     };

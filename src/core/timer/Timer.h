@@ -34,7 +34,7 @@ namespace core::timer {
 
 namespace core::timer {
 
-    class Timer : public TimerEventReceiver {
+    class Timer : protected TimerEventReceiver {
     protected:
         using TimerEventReceiver::TimerEventReceiver;
 
@@ -57,13 +57,6 @@ namespace core::timer {
         void unobservedEvent() override;
 
         utils::Timeval getTimeout() const override;
-
-        bool operator<(const TimerEventReceiver& timerEventReceiver) const override;
-        bool operator>(const TimerEventReceiver& timerEventReceiver) const override;
-        bool operator<=(const TimerEventReceiver& timerEventReceiver) const override;
-        bool operator>=(const TimerEventReceiver& timerEventReceiver) const override;
-        bool operator==(const TimerEventReceiver& timerEventReceiver) const override;
-        bool operator!=(const TimerEventReceiver& timerEventReceiver) const override;
     };
 
 } // namespace core::timer
