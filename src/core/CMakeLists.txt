@@ -4,16 +4,13 @@ set(CORE_CPP
     AcceptEventReceiver.cpp
     ConnectEventReceiver.cpp
     Descriptor.cpp
-    DescriptorEventDispatcher.cpp
     DynamicLoader.cpp
-    EventDispatcher.cpp
     EventLoop.cpp
     EventReceiver.cpp
     EventReceiver.h
     ExceptionalConditionEventReceiver.cpp
     ReadEventReceiver.cpp
     SNodeC.cpp
-    TimerEventDispatcher.cpp
     WriteEventReceiver.cpp
     file/File.cpp
     file/FileReader.cpp
@@ -22,6 +19,9 @@ set(CORE_CPP
     pipe/Pipe.cpp
     pipe/PipeSink.cpp
     pipe/PipeSource.cpp
+    select/DescriptorEventDispatcher.cpp
+    select/EventDispatcher.cpp
+    select/TimerEventDispatcher.cpp
     socket/SocketConnection.cpp
     socket/SocketContext.cpp
     system/dlfcn.cpp
@@ -44,12 +44,10 @@ set(CORE_H
     EventDispatcher.h
     EventLoop.h
     EventReceiver.h
-    EventReceiver.h
     ExceptionalConditionEventReceiver.h
     ReadEventReceiver.h
     SNodeC.h
     TickStatus.h
-    TimerEventDispatcher.h
     WriteEventReceiver.h
     file/File.h
     file/FileReader.h
@@ -58,6 +56,9 @@ set(CORE_H
     pipe/Pipe.h
     pipe/PipeSink.h
     pipe/PipeSource.h
+    select/EventDispatcher.h
+    select/DescriptorEventDispatcher.h
+    select/TimerEventDispatcher.h
     socket/ClientSocket.h
     socket/ServerSocket.h
     socket/Socket.h

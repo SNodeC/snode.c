@@ -19,12 +19,16 @@
 #ifndef CORE_EVENTDISPATCHER_H
 #define CORE_EVENTDISPATCHER_H
 
-#include "core/DescriptorEventDispatcher.h"
 #include "core/TickStatus.h"
-#include "core/TimerEventDispatcher.h"
 
 namespace core {
     class EventLoop;
+    class DescriptorEventDispatcher;
+    class TimerEventDispatcher;
+} // namespace core
+
+namespace utils {
+    class Timeval;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -37,30 +41,19 @@ namespace core {
         EventDispatcher(const EventDispatcher&) = delete;
         EventDispatcher& operator=(const EventDispatcher&) = delete;
 
-    private:
+    protected:
         EventDispatcher() = default;
         ~EventDispatcher() = default;
 
     public:
         enum DISP_TYPE { RD = 0, WR = 1, EX = 2, TI = 3 };
 
-        DescriptorEventDispatcher& getDescriptorEventDispatcher(DISP_TYPE dispType);
-        TimerEventDispatcher& getTimerEventDispatcher();
+        virtual DescriptorEventDispatcher& getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE dispType) = 0;
+        virtual TimerEventDispatcher& getTimerEventDispatcher() = 0;
 
-    private:
-        int getMaxFd();
-        utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
-
-        void observeEnabledEvents();
-        void dispatchActiveEvents(const utils::Timeval& currentTime);
-        void unobserveDisabledEvents(const utils::Timeval& currentTime);
-
-        TickStatus dispatch(const utils::Timeval& tickTimeOut, bool stopped);
-
-        void stop();
-
-        DescriptorEventDispatcher eventDispatcher[4];
-        TimerEventDispatcher timerEventDispatcher;
+    protected:
+        virtual TickStatus dispatch(const utils::Timeval& tickTimeOut, bool stopped) = 0;
+        virtual void stop() = 0;
 
         friend class core::EventLoop;
     };

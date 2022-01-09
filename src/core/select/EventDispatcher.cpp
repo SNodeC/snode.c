@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/EventDispatcher.h"
+#include "core/select/EventDispatcher.h"
 
 #include "core/DescriptorEventDispatcher.h"
 #include "core/TimerEventDispatcher.h"
@@ -29,13 +29,13 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core {
+namespace core::select {
 
-    TimerEventDispatcher& EventDispatcher::getTimerEventDispatcher() {
+    core::TimerEventDispatcher& EventDispatcher::getTimerEventDispatcher() {
         return timerEventDispatcher;
     }
 
-    DescriptorEventDispatcher& EventDispatcher::getDescriptorEventDispatcher(DISP_TYPE dispType) {
+    core::DescriptorEventDispatcher& EventDispatcher::getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE dispType) {
         return eventDispatcher[dispType];
     }
 
@@ -131,4 +131,4 @@ namespace core {
         } while (tickStatus == TickStatus::SUCCESS);
     }
 
-} // namespace core
+} // namespace core::select

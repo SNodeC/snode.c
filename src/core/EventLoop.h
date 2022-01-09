@@ -24,7 +24,10 @@
 
 namespace core {
     class EventDispatcher;
-}
+    namespace select {
+        class EventDispatcher;
+    }
+} // namespace core
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -54,7 +57,7 @@ namespace core {
 
         static void stoponsig(int sig);
 
-        static EventDispatcher eventDispatcher;
+        static core::select::EventDispatcher eventDispatcher;
 
         static bool running;
         static bool stopped;

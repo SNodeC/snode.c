@@ -43,60 +43,22 @@ namespace core {
         DescriptorEventDispatcher(const DescriptorEventDispatcher&) = delete;
         DescriptorEventDispatcher& operator=(const DescriptorEventDispatcher&) = delete;
 
-    private:
+    protected:
         DescriptorEventDispatcher() = default;
 
-        class FdSet {
-        public:
-            FdSet();
-
-            void set(int fd);
-            void clr(int fd);
-            int isSet(int fd) const;
-            void zero();
-            fd_set& get();
-
-        protected:
-            fd_set registered;
-            fd_set active;
-        };
-
     public:
-        void enable(EventReceiver* eventReceiver);
-        void disable(EventReceiver* eventReceiver);
-        void suspend(EventReceiver* eventReceiver);
-        void resume(EventReceiver* eventReceiver);
+        virtual void enable(EventReceiver* eventReceiver) = 0;
+        virtual void disable(EventReceiver* eventReceiver) = 0;
+        virtual void suspend(EventReceiver* eventReceiver) = 0;
+        virtual void resume(EventReceiver* eventReceiver) = 0;
 
     private:
-        unsigned long getEventCounter() const;
+        virtual unsigned long getEventCounter() const = 0;
 
-        fd_set& getFdSet();
-
-        int getMaxFd() const;
-
-        utils::Timeval getNextTimeout(const utils::Timeval& currentTime) const;
-
-        void observeEnabledEvents();
-        void dispatchActiveEvents(const utils::Timeval& currentTime);
-        void unobserveDisabledEvents(const utils::Timeval& currentTime);
-        void stop();
-
-        class EventReceiverList : public std::list<EventReceiver*> {
-        public:
-            using std::list<EventReceiver*>::begin;
-            using std::list<EventReceiver*>::end;
-            using std::list<EventReceiver*>::front;
-
-            bool contains(EventReceiver* descriptorEventReceiver) const;
-        };
-
-        std::map<int, EventReceiverList> enabledEventReceiver;
-        std::map<int, EventReceiverList> observedEventReceiver;
-        std::map<int, EventReceiverList> disabledEventReceiver;
-
-        FdSet fdSet;
-
-        unsigned long eventCounter = 0;
+        virtual void observeEnabledEvents() = 0;
+        virtual void dispatchActiveEvents(const utils::Timeval& currentTime) = 0;
+        virtual void unobserveDisabledEvents(const utils::Timeval& currentTime) = 0;
+        virtual void stop() = 0;
 
         friend class core::EventDispatcher;
     };

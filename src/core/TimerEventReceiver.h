@@ -40,10 +40,10 @@ namespace core {
 
         virtual utils::Timeval getTimeout() const = 0;
 
-    private:
         virtual bool trigger() = 0;
         virtual void unobservedEvent() = 0;
 
+    private:
         virtual bool operator<(const TimerEventReceiver& timerEventReceiver) const = 0;
         virtual bool operator>(const TimerEventReceiver& timerEventReceiver) const = 0;
         virtual bool operator<=(const TimerEventReceiver& timerEventReceiver) const = 0;

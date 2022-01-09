@@ -29,7 +29,7 @@
 namespace core::socket::stream::legacy {
 
     template <typename SocketT>
-    class SocketAcceptor : public core::socket::stream::SocketAcceptor<core::socket::stream::legacy::SocketConnection<SocketT>> {
+    class SocketAcceptor : protected core::socket::stream::SocketAcceptor<core::socket::stream::legacy::SocketConnection<SocketT>> {
     private:
         using Super = core::socket::stream::SocketAcceptor<core::socket::stream::legacy::SocketConnection<SocketT>>;
 
@@ -45,6 +45,8 @@ namespace core::socket::stream::legacy {
                        const std::map<std::string, std::any>& options)
             : core::socket::stream::SocketAcceptor<SocketConnection>(socketContextFactory, onConnect, onConnected, onDisconnect, options) {
         }
+
+        using Super::listen;
     };
 
 } // namespace core::socket::stream::legacy

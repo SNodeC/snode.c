@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/DescriptorEventDispatcher.h"
+#include "core/select/DescriptorEventDispatcher.h"
 
 #include "core/EventReceiver.h"
 #include "log/Logger.h"
@@ -31,7 +31,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core {
+namespace core::select {
 
     DescriptorEventDispatcher::FdSet::FdSet() {
         zero();
@@ -65,9 +65,9 @@ namespace core {
     }
 
     void DescriptorEventDispatcher::enable(EventReceiver* eventReceiver) {
-        int fd = eventReceiver->fd;
+        int fd = eventReceiver->getRegisteredFd();
 
-        if (disabledEventReceiver.contains(eventReceiver->fd) && disabledEventReceiver[fd].contains(eventReceiver)) {
+        if (disabledEventReceiver.contains(fd) && disabledEventReceiver[fd].contains(eventReceiver)) {
             // same tick as disable
             disabledEventReceiver[fd].remove(eventReceiver);
         } else if (!eventReceiver->isEnabled() &&
@@ -80,12 +80,12 @@ namespace core {
     }
 
     void DescriptorEventDispatcher::disable(EventReceiver* eventReceiver) {
-        int fd = eventReceiver->fd;
+        int fd = eventReceiver->getRegisteredFd();
 
         if (enabledEventReceiver.contains(fd) && enabledEventReceiver[fd].contains(eventReceiver)) {
             // same tick as enable
             eventReceiver->disabled();
-            if (eventReceiver->observationCounter > 0) {
+            if (eventReceiver->getObservationCounter() > 0) {
                 enabledEventReceiver[fd].remove(eventReceiver);
             }
         } else if (eventReceiver->isEnabled() &&
@@ -98,7 +98,7 @@ namespace core {
     }
 
     void DescriptorEventDispatcher::suspend(EventReceiver* eventReceiver) {
-        int fd = eventReceiver->fd;
+        int fd = eventReceiver->getRegisteredFd();
 
         if (!eventReceiver->isSuspended()) {
             if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
@@ -110,7 +110,7 @@ namespace core {
     }
 
     void DescriptorEventDispatcher::resume(EventReceiver* eventReceiver) {
-        int fd = eventReceiver->fd;
+        int fd = eventReceiver->getRegisteredFd();
 
         if (eventReceiver->isSuspended()) {
             if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
@@ -203,7 +203,7 @@ namespace core {
                     observedEventReceiver[fd].front()->triggered(currentTime);
                 }
                 eventReceiver->disabled();
-                if (eventReceiver->observationCounter == 0) {
+                if (eventReceiver->getObservationCounter() == 0) {
                     eventReceiver->unobservedEvent();
                 }
             }
@@ -221,4 +221,4 @@ namespace core {
         }
     }
 
-} // namespace core
+} // namespace core::select

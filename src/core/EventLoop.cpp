@@ -19,7 +19,7 @@
 #include "core/EventLoop.h" // for EventLoop
 
 #include "core/DynamicLoader.h"
-#include "core/EventDispatcher.h"
+#include "core/select/EventDispatcher.h"
 #include "log/Logger.h" // for Logger
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -47,7 +47,7 @@ namespace core {
         return tick;
     }
 
-    EventDispatcher EventLoop::eventDispatcher;
+    core::select::EventDispatcher EventLoop::eventDispatcher;
 
     bool EventLoop::initialized = false;
     bool EventLoop::running = false;

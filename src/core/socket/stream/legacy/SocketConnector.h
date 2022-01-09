@@ -29,7 +29,7 @@
 namespace core::socket::stream::legacy {
 
     template <typename SocketT>
-    class SocketConnector : public core::socket::stream::SocketConnector<core::socket::stream::legacy::SocketConnection<SocketT>> {
+    class SocketConnector : protected core::socket::stream::SocketConnector<core::socket::stream::legacy::SocketConnection<SocketT>> {
     private:
         using Super = core::socket::stream::SocketConnector<core::socket::stream::legacy::SocketConnection<SocketT>>;
 
@@ -45,6 +45,8 @@ namespace core::socket::stream::legacy {
                         const std::map<std::string, std::any>& options)
             : Super(socketContextFactory, onConnect, onConnected, onDisconnect, options) {
         }
+
+        using Super::connect;
     };
 
 } // namespace core::socket::stream::legacy

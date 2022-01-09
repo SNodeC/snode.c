@@ -37,8 +37,12 @@ namespace core {
         , initialTimeout(timeout) {
     }
 
+    int EventReceiver::getRegisteredFd() {
+        return registeredFd;
+    }
+
     void EventReceiver::enable(int fd) {
-        this->fd = fd;
+        this->registeredFd = fd;
         observed();
 
         descriptorEventDispatcher.enable(this);

@@ -16,9 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_TIMEREVENTDISPATCHER_H
-#define CORE_TIMEREVENTDISPATCHER_H
+#ifndef CORE_SELECT_TIMEREVENTDISPATCHER_H
+#define CORE_SELECT_TIMEREVENTDISPATCHER_H
 
+#include "core/TimerEventDispatcher.h"
 #include "core/TimerEventReceiver.h" // IWYU pragma: export
 #include "utils/Timeval.h"
 
@@ -28,27 +29,31 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core {
+namespace core::select {
 
-    class TimerEventDispatcher {
+    class TimerEventDispatcher : public core::TimerEventDispatcher {
     public:
         TimerEventDispatcher() = default;
 
-        virtual void remove(TimerEventReceiver* timer) = 0;
-        virtual void add(TimerEventReceiver* timer) = 0;
+        utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
 
-        virtual bool empty() = 0;
+        void dispatchActiveEvents(const utils::Timeval& currentTime);
 
-        virtual void stop() = 0;
+        void remove(core::TimerEventReceiver* timer);
+        void add(core::TimerEventReceiver* timer);
 
-        class timernode_lt {
-        public:
-            bool operator()(const TimerEventReceiver* t1, const TimerEventReceiver* t2) const {
-                return *t1 < *t2;
-            }
-        };
+        bool empty();
+
+        void stop();
+
+    private:
+        std::list<core::TimerEventReceiver*> timerList;
+        std::list<core::TimerEventReceiver*> addedList;
+        std::list<core::TimerEventReceiver*> removedList;
+
+        bool timerListDirty = false;
     };
 
-} // namespace core
+} // namespace core::select
 
-#endif // CORE_TIMEREVENTDISPATCHER_H
+#endif // CORE_SELECT_TIMEREVENTDISPATCHER_H

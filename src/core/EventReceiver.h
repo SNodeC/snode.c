@@ -32,7 +32,7 @@ namespace core {
 namespace core {
 
     class Observer {
-    private:
+    public:
         bool isObserved() {
             return observationCounter > 0;
         }
@@ -45,18 +45,21 @@ namespace core {
             observationCounter--;
         }
 
+        int getObservationCounter() {
+            return observationCounter;
+        }
+
         virtual void unobservedEvent() = 0;
 
+    private:
         int observationCounter = 0;
-
-        friend class EventReceiver;
-        friend class DescriptorEventDispatcher;
     };
 
     class EventReceiver : virtual public Observer {
         EventReceiver(const EventReceiver&) = delete;
         EventReceiver& operator=(const EventReceiver&) = delete;
 
+    public:
     protected:
         class TIMEOUT {
         public:
@@ -65,8 +68,11 @@ namespace core {
         };
 
         explicit EventReceiver(DescriptorEventDispatcher& descriptorEventDispatcher, const utils::Timeval& timeout = TIMEOUT::DISABLE);
-
         virtual ~EventReceiver() = default;
+
+    public:
+        int getRegisteredFd();
+        virtual bool continueImmediately() const = 0;
 
         void enable(int fd);
         void disable();
@@ -76,28 +82,24 @@ namespace core {
         void resume();
         bool isSuspended() const;
 
-        void setTimeout(const utils::Timeval& timeout);
-
-        virtual void terminate();
-
-    private:
         void triggered(const utils::Timeval& currentTime);
         void trigger(const utils::Timeval& currentTime);
 
-        void checkTimeout(const utils::Timeval& currentTime);
-
         void disabled();
 
-        utils::Timeval getTimeout(const utils::Timeval& currentTime) const;
+        virtual void terminate();
 
+        void setTimeout(const utils::Timeval& timeout);
+        utils::Timeval getTimeout(const utils::Timeval& currentTime) const;
+        void checkTimeout(const utils::Timeval& currentTime);
+
+    private:
         virtual void dispatchEvent() = 0;
         virtual void timeoutEvent() = 0;
 
-        virtual bool continueImmediately() const = 0;
-
         DescriptorEventDispatcher& descriptorEventDispatcher;
 
-        int fd = -1;
+        int registeredFd = -1;
 
         bool enabled = false;
         bool suspended = false;
@@ -105,8 +107,6 @@ namespace core {
         utils::Timeval lastTriggered;
         utils::Timeval maxInactivity;
         const utils::Timeval initialTimeout;
-
-        friend class DescriptorEventDispatcher;
     };
 
 } // namespace core

@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/TimerEventDispatcher.h"
+#include "core/select/TimerEventDispatcher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -25,7 +25,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core {
+namespace core::select {
 
     utils::Timeval TimerEventDispatcher::getNextTimeout(const utils::Timeval& currentTime) {
         utils::Timeval nextTimeout({LONG_MAX, 0});
@@ -45,7 +45,7 @@ namespace core {
 
         if (!timerList.empty()) {
             if (timerListDirty) {
-                timerList.sort(timernode_lt());
+                timerList.sort(core::TimerEventDispatcher::timernode_lt());
                 timerListDirty = false;
             }
 
@@ -98,4 +98,4 @@ namespace core {
         getNextTimeout(currentTime);
     }
 
-} // namespace core
+} // namespace core::select
