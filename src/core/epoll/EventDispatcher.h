@@ -52,7 +52,7 @@ namespace core::epoll {
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
 
         void observeEnabledEvents();
-        void dispatchActiveEvents(int count, const utils::Timeval& currentTime, const utils::Timeval& timeOut);
+        void dispatchActiveEvents(int count, const utils::Timeval& currentTime);
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
 
         core::epoll::DescriptorEventDispatcher eventDispatcher[3];

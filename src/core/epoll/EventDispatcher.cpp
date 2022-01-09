@@ -81,10 +81,10 @@ namespace core::epoll {
         }
     }
 
-    void EventDispatcher::dispatchActiveEvents(int count, const utils::Timeval& currentTime, const utils::Timeval& timeOut) {
+    void EventDispatcher::dispatchActiveEvents(int count, const utils::Timeval& currentTime) {
         if (count > 0) {
             for (int i = 0; i < count; i++) {
-                static_cast<DescriptorEventDispatcher*>(ePollEvents[i].data.ptr)->dispatchActiveEvents(currentTime, timeOut);
+                static_cast<DescriptorEventDispatcher*>(ePollEvents[i].data.ptr)->dispatchActiveEvents(currentTime);
             }
         }
 
@@ -123,7 +123,7 @@ namespace core::epoll {
                 currentTime = utils::Timeval::currentTime();
 
                 timerEventDispatcher.dispatchActiveEvents(currentTime);
-                EventDispatcher::dispatchActiveEvents(ret, currentTime, nextTimeout);
+                EventDispatcher::dispatchActiveEvents(ret, currentTime);
                 EventDispatcher::unobserveDisabledEvents(currentTime);
             } else {
                 tickStatus = TickStatus::ERROR;

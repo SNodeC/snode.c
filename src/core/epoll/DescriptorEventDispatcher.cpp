@@ -213,8 +213,8 @@ namespace core::epoll {
         enabledEventReceiver.clear();
     }
 
-    void DescriptorEventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime, const utils::Timeval& timeOut) {
-        int count = epoll_wait(ePollEvents.getEPFd(), ePollEvents.getEvents(), ePollEvents.getMaxEvents(), timeOut.ms());
+    void DescriptorEventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
+        int count = epoll_wait(ePollEvents.getEPFd(), ePollEvents.getEvents(), ePollEvents.getMaxEvents(), 0);
 
         for (int i = 0; i < count; i++) {
             core::EventReceiver* eventReceiver = static_cast<core::EventReceiver*>(ePollEvents.getEvents()[i].data.ptr);
