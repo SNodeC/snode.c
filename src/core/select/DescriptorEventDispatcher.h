@@ -59,10 +59,10 @@ namespace core::select {
     public:
         DescriptorEventDispatcher() = default;
 
-        void enable(EventReceiver* eventReceiver) override;
-        void disable(EventReceiver* eventReceiver) override;
-        void suspend(EventReceiver* eventReceiver) override;
-        void resume(EventReceiver* eventReceiver) override;
+        void enable(core::EventReceiver* eventReceiver) override;
+        void disable(core::EventReceiver* eventReceiver) override;
+        void suspend(core::EventReceiver* eventReceiver) override;
+        void resume(core::EventReceiver* eventReceiver) override;
 
         int getMaxFd() const;
         fd_set& getFdSet();
@@ -77,13 +77,13 @@ namespace core::select {
     private:
         unsigned long getEventCounter() const override;
 
-        class EventReceiverList : public std::list<EventReceiver*> {
+        class EventReceiverList : public std::list<core::EventReceiver*> {
         public:
-            using std::list<EventReceiver*>::begin;
-            using std::list<EventReceiver*>::end;
-            using std::list<EventReceiver*>::front;
+            using std::list<core::EventReceiver*>::begin;
+            using std::list<core::EventReceiver*>::end;
+            using std::list<core::EventReceiver*>::front;
 
-            bool contains(EventReceiver* descriptorEventReceiver) const;
+            bool contains(core::EventReceiver* descriptorEventReceiver) const;
         };
 
         std::map<int, EventReceiverList> enabledEventReceiver;

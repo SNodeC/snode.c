@@ -60,11 +60,11 @@ namespace core::select {
         return active;
     }
 
-    bool DescriptorEventDispatcher::EventReceiverList::contains(EventReceiver* eventReceiver) const {
+    bool DescriptorEventDispatcher::EventReceiverList::contains(core::EventReceiver* eventReceiver) const {
         return std::find(begin(), end(), eventReceiver) != end();
     }
 
-    void DescriptorEventDispatcher::enable(EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::enable(core::EventReceiver* eventReceiver) {
         int fd = eventReceiver->getRegisteredFd();
 
         if (disabledEventReceiver.contains(fd) && disabledEventReceiver[fd].contains(eventReceiver)) {
@@ -79,7 +79,7 @@ namespace core::select {
         }
     }
 
-    void DescriptorEventDispatcher::disable(EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::disable(core::EventReceiver* eventReceiver) {
         int fd = eventReceiver->getRegisteredFd();
 
         if (enabledEventReceiver.contains(fd) && enabledEventReceiver[fd].contains(eventReceiver)) {
@@ -97,7 +97,7 @@ namespace core::select {
         }
     }
 
-    void DescriptorEventDispatcher::suspend(EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::suspend(core::EventReceiver* eventReceiver) {
         int fd = eventReceiver->getRegisteredFd();
 
         if (!eventReceiver->isSuspended()) {
@@ -109,7 +109,7 @@ namespace core::select {
         }
     }
 
-    void DescriptorEventDispatcher::resume(EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::resume(core::EventReceiver* eventReceiver) {
         int fd = eventReceiver->getRegisteredFd();
 
         if (eventReceiver->isSuspended()) {
@@ -143,7 +143,7 @@ namespace core::select {
         utils::Timeval nextTimeout = {LONG_MAX, 0};
 
         for (const auto& [fd, eventReceivers] : observedEventReceiver) { // cppcheck-suppress unusedVariable
-            const EventReceiver* eventReceiver = eventReceivers.front();
+            const core::EventReceiver* eventReceiver = eventReceivers.front();
 
             if (eventReceiver->isEnabled()) {
                 if (!eventReceiver->isSuspended() && eventReceiver->continueImmediately()) {
@@ -161,7 +161,7 @@ namespace core::select {
 
     void DescriptorEventDispatcher::observeEnabledEvents() {
         for (const auto& [fd, eventReceivers] : enabledEventReceiver) {
-            for (EventReceiver* eventReceiver : eventReceivers) {
+            for (core::EventReceiver* eventReceiver : eventReceivers) {
                 if (eventReceiver->isEnabled()) {
                     observedEventReceiver[fd].push_front(eventReceiver);
                     if (!eventReceiver->isSuspended()) {
@@ -179,7 +179,7 @@ namespace core::select {
 
     void DescriptorEventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
         for (const auto& [fd, eventReceivers] : observedEventReceiver) {
-            EventReceiver* eventReceiver = eventReceivers.front();
+            core::EventReceiver* eventReceiver = eventReceivers.front();
             if ((fdSet.isSet(fd) || eventReceiver->continueImmediately()) && !eventReceiver->isSuspended()) {
                 eventCounter++;
                 eventReceiver->trigger(currentTime);
@@ -191,7 +191,7 @@ namespace core::select {
 
     void DescriptorEventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
         for (const auto& [fd, eventReceivers] : disabledEventReceiver) {
-            for (EventReceiver* eventReceiver : eventReceivers) {
+            for (core::EventReceiver* eventReceiver : eventReceivers) {
                 observedEventReceiver[fd].remove(eventReceiver);
                 if (observedEventReceiver[fd].empty() || observedEventReceiver[fd].front()->isSuspended()) {
                     if (observedEventReceiver[fd].empty()) {
@@ -213,7 +213,7 @@ namespace core::select {
 
     void DescriptorEventDispatcher::stop() {
         for (const auto& [fd, eventReceivers] : observedEventReceiver) { // cppcheck-suppress unusedVariable
-            for (EventReceiver* eventReceiver : eventReceivers) {
+            for (core::EventReceiver* eventReceiver : eventReceivers) {
                 if (eventReceiver->isEnabled()) {
                     eventReceiver->terminate();
                 }
