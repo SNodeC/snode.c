@@ -39,6 +39,8 @@ namespace core::socket {
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+#define MAX_ACCEPTS_PER_TICK 20
+
 namespace core::socket::stream {
 
     template <typename SocketConnectionT>
@@ -74,40 +76,42 @@ namespace core::socket::stream {
         virtual ~SocketAcceptor() = default;
 
         void listen(const SocketAddress& bindAddress, int backlog, const std::function<void(const Socket& socket, int)>& onError) {
-            Socket::open([this, &bindAddress, &backlog, &onError](int errnum) -> void {
-                if (errnum > 0) {
-                    onError(static_cast<const Socket&>(*this), errnum);
-                    destruct();
-                } else {
+            Socket::open(
+                [this, &bindAddress, &backlog, &onError](int errnum) -> void {
+                    if (errnum > 0) {
+                        onError(static_cast<const Socket&>(*this), errnum);
+                        destruct();
+                    } else {
 #if !defined(NDEBUG)
-                    reuseAddress([this, &bindAddress, &backlog, &onError](int errnum) -> void {
-                        if (errnum != 0) {
-                            onError(static_cast<const Socket&>(*this), errnum);
-                            destruct();
-                        } else {
+                        reuseAddress([this, &bindAddress, &backlog, &onError](int errnum) -> void {
+                            if (errnum != 0) {
+                                onError(static_cast<const Socket&>(*this), errnum);
+                                destruct();
+                            } else {
 #endif
-                            Socket::bind(bindAddress, [this, &backlog, &onError](int errnum) -> void {
-                                if (errnum > 0) {
-                                    onError(static_cast<const Socket&>(*this), errnum);
-                                    destruct();
-                                } else {
-                                    int ret = core::system::listen(Socket::fd, backlog);
-
-                                    if (ret == 0) {
-                                        enable(Socket::fd);
-                                        onError(static_cast<const Socket&>(*this), 0);
-                                    } else {
-                                        onError(static_cast<const Socket&>(*this), errno);
+                                Socket::bind(bindAddress, [this, &backlog, &onError](int errnum) -> void {
+                                    if (errnum > 0) {
+                                        onError(static_cast<const Socket&>(*this), errnum);
                                         destruct();
+                                    } else {
+                                        int ret = core::system::listen(Socket::fd, backlog);
+
+                                        if (ret == 0) {
+                                            enable(Socket::fd);
+                                            onError(static_cast<const Socket&>(*this), 0);
+                                        } else {
+                                            onError(static_cast<const Socket&>(*this), errno);
+                                            destruct();
+                                        }
                                     }
-                                }
-                            });
+                                });
 #if !defined(NDEBUG)
-                        }
-                    });
+                            }
+                        });
 #endif
-                }
-            });
+                    }
+                },
+                SOCK_NONBLOCK);
         }
 
     private:
@@ -127,23 +131,30 @@ namespace core::socket::stream {
 
             int fd = -1;
 
-            fd = core::system::accept4(Socket::fd, reinterpret_cast<struct sockaddr*>(&remoteAddress), &remoteAddressLength, SOCK_NONBLOCK);
+            int count = MAX_ACCEPTS_PER_TICK;
 
-            if (fd >= 0) {
-                typename SocketAddress::SockAddr localAddress{};
-                socklen_t addressLength = sizeof(localAddress);
+            do {
+                fd = core::system::accept4(
+                    Socket::fd, reinterpret_cast<struct sockaddr*>(&remoteAddress), &remoteAddressLength, SOCK_NONBLOCK);
 
-                if (core::system::getsockname(fd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
-                    SocketConnection* socketConnection = new SocketConnection(
-                        fd, socketContextFactory, SocketAddress(localAddress), SocketAddress(remoteAddress), onConnect, onDisconnect);
+                if (fd >= 0) {
+                    typename SocketAddress::SockAddr localAddress{};
+                    socklen_t addressLength = sizeof(localAddress);
 
-                    onConnected(socketConnection);
-                } else {
-                    PLOG(ERROR) << "getsockname";
-                    core::system::shutdown(fd, SHUT_RDWR);
-                    core::system::close(fd);
+                    if (core::system::getsockname(fd, reinterpret_cast<sockaddr*>(&localAddress), &addressLength) == 0) {
+                        SocketConnection* socketConnection = new SocketConnection(
+                            fd, socketContextFactory, SocketAddress(localAddress), SocketAddress(remoteAddress), onConnect, onDisconnect);
+
+                        onConnected(socketConnection);
+                    } else {
+                        PLOG(ERROR) << "getsockname";
+                        core::system::shutdown(fd, SHUT_RDWR);
+                        core::system::close(fd);
+                    }
                 }
-            } else if (errno != EINTR) {
+            } while (fd >= 0 && --count > 0);
+
+            if (fd < 0 && errno != EINTR && errno != EAGAIN) {
                 PLOG(ERROR) << "accept";
             }
         }
