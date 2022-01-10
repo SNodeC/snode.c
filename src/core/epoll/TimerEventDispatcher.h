@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CORE_POLL_TIMEREVENTDISPATCHER_H
-#define CORE_POLL_TIMEREVENTDISPATCHER_H
+#ifndef CORE_EPOLL_TIMEREVENTDISPATCHER_H
+#define CORE_EPOLL_TIMEREVENTDISPATCHER_H
 
 #include "core/TimerEventDispatcher.h" // IWYU pragma: export
 
@@ -54,4 +54,4 @@ namespace core::epoll {
 
 } // namespace core::epoll
 
-#endif // CORE_POLL_TIMEREVENTDISPATCHER_H
+#endif // CORE_EPOLL_TIMEREVENTDISPATCHER_H

@@ -22,7 +22,6 @@
 
 #include <algorithm> // for min, find
 #include <climits>
-#include <sys/epoll.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

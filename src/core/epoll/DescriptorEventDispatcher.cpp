@@ -83,6 +83,14 @@ namespace core::epoll {
         }
     }
 
+    epoll_event* DescriptorEventDispatcher::EPollEvents::getEvents() {
+        return ePollEvents.data();
+    }
+
+    int DescriptorEventDispatcher::EPollEvents::getMaxEvents() const {
+        return static_cast<int>(size);
+    }
+
     void DescriptorEventDispatcher::EPollEvents::compress() {
         while (ePollEvents.size() > (size * 2) + 1) {
             ePollEvents.resize(ePollEvents.size() / 2);
@@ -95,14 +103,6 @@ namespace core::epoll {
 
     int DescriptorEventDispatcher::EPollEvents::getEPFd() const {
         return epfd;
-    }
-
-    epoll_event* DescriptorEventDispatcher::EPollEvents::getEvents() {
-        return ePollEvents.data();
-    }
-
-    int DescriptorEventDispatcher::EPollEvents::getMaxEvents() const {
-        return static_cast<int>(size);
     }
 
     bool DescriptorEventDispatcher::EventReceiverList::contains(core::EventReceiver* eventReceiver) const {
