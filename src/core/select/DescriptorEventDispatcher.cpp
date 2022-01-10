@@ -166,8 +166,6 @@ namespace core::select {
                     observedEventReceiver[fd].push_front(eventReceiver);
                     if (!eventReceiver->isSuspended()) {
                         fdSet.set(fd);
-                    } else {
-                        fdSet.clr(fd);
                     }
                 } else {
                     eventReceiver->unobservedEvent();
@@ -197,7 +195,6 @@ namespace core::select {
                     if (observedEventReceiver[fd].empty()) {
                         observedEventReceiver.erase(fd);
                     }
-                    fdSet.clr(fd);
                 } else {
                     fdSet.set(fd);
                     observedEventReceiver[fd].front()->triggered(currentTime);
