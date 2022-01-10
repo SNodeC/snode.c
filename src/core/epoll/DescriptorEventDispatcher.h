@@ -54,6 +54,7 @@ namespace core::epoll {
             int getEPFd() const;
             epoll_event* getEvents();
             int getMaxEvents() const;
+            void compress();
 
         protected:
             int epfd;

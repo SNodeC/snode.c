@@ -45,7 +45,12 @@ namespace core::epoll {
         event.data.ptr = eventReceiver;
         event.events = events;
 
-        if (epoll_ctl(epfd, EPOLL_CTL_ADD, eventReceiver->getRegisteredFd(), &event) < 0) {
+        if (epoll_ctl(epfd, EPOLL_CTL_ADD, eventReceiver->getRegisteredFd(), &event) == 0) {
+            size++;
+            if (size > ePollEvents.size()) {
+                ePollEvents.resize(ePollEvents.size() * 2);
+            }
+        } else {
             switch (errno) {
                 case EEXIST:
                     del(eventReceiver);
@@ -53,11 +58,6 @@ namespace core::epoll {
                     break;
                 default:
                     break;
-            }
-        } else {
-            size++;
-            if (ePollEvents.size() < size) {
-                ePollEvents.resize(ePollEvents.size() * 2);
             }
         }
     }
@@ -72,18 +72,21 @@ namespace core::epoll {
     }
 
     void DescriptorEventDispatcher::EPollEvents::del(EventReceiver* eventReceiver) {
-        if (epoll_ctl(epfd, EPOLL_CTL_DEL, eventReceiver->getRegisteredFd(), nullptr) < 0) {
+        if (epoll_ctl(epfd, EPOLL_CTL_DEL, eventReceiver->getRegisteredFd(), nullptr) == 0) {
+            size--;
+        } else {
             switch (errno) {
                 case ENOENT:
                     break;
                 default:
                     break;
             }
-        } else {
-            size--;
-            if (ePollEvents.size() > (size / 2) + 1) {
-                ePollEvents.resize(ePollEvents.size() / 2);
-            }
+        }
+    }
+
+    void DescriptorEventDispatcher::EPollEvents::compress() {
+        while (ePollEvents.size() > (size * 2) + 1) {
+            ePollEvents.resize(ePollEvents.size() / 2);
         }
     }
 
@@ -170,7 +173,6 @@ namespace core::epoll {
 
     int DescriptorEventDispatcher::getReceiverCount() const {
         return static_cast<int>(observedEventReceiver.size());
-        //        return ePollEvents.getMaxEvents();
     }
 
     int DescriptorEventDispatcher::getEPFd() const {
@@ -218,7 +220,7 @@ namespace core::epoll {
 
         for (int i = 0; i < count; i++) {
             core::EventReceiver* eventReceiver = static_cast<core::EventReceiver*>(ePollEvents.getEvents()[i].data.ptr);
-            if (ePollEvents.getEvents()[i].events != 0 && !eventReceiver->isSuspended() && !eventReceiver->continueImmediately()) {
+            if (!eventReceiver->isSuspended() && !eventReceiver->continueImmediately()) {
                 eventCounter++;
                 eventReceiver->trigger(currentTime);
             }
@@ -255,6 +257,9 @@ namespace core::epoll {
                 }
             }
         }
+
+        ePollEvents.compress();
+
         disabledEventReceiver.clear();
     }
 
