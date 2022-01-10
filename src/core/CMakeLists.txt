@@ -29,7 +29,6 @@ set(CORE_CPP
     system/time.cpp
     system/unistd.cpp
     timer/Timer.cpp
-    N_EventReceiver.cpp
 )
 
 set(CORE_H
@@ -77,7 +76,6 @@ set(CORE_H
     timer/Timer.h
     timer/IntervalTimer.h
     timer/SingleshotTimer.h
-    N_EventReceiver.h
 )
 
 add_library(core SHARED ${CORE_CPP} ${CORE_H})
@@ -117,6 +115,8 @@ install(
     PATTERN "cmake" EXCLUDE
     PATTERN "socket/stream/tls" EXCLUDE
     PATTERN "socket/stream/legacy" EXCLUDE
+    PATTERN "select" EXCLUDE
+    PATTERN "epoll" EXCLUDE
 )
 
 install(

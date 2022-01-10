@@ -46,7 +46,7 @@ namespace core {
         ~EventDispatcher() = default;
 
     public:
-        enum DISP_TYPE { RD = 0, WR = 1, EX = 2, TI = 3 };
+        enum DISP_TYPE { RD = 0, WR = 1, EX = 2 };
 
         virtual DescriptorEventDispatcher& getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE dispType) = 0;
         virtual TimerEventDispatcher& getTimerEventDispatcher() = 0;

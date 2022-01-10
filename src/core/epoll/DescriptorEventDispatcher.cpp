@@ -90,6 +90,10 @@ namespace core::epoll {
         }
     }
 
+    void DescriptorEventDispatcher::EPollEvents::printStats() {
+        VLOG(0) << "EPollEvents stats: Vector size = " << ePollEvents.size() << ", interrest count = " << size;
+    }
+
     int DescriptorEventDispatcher::EPollEvents::getEPFd() const {
         return epfd;
     }
@@ -220,7 +224,7 @@ namespace core::epoll {
 
         for (int i = 0; i < count; i++) {
             core::EventReceiver* eventReceiver = static_cast<core::EventReceiver*>(ePollEvents.getEvents()[i].data.ptr);
-            if (!eventReceiver->isSuspended() && !eventReceiver->continueImmediately()) {
+            if (!eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
                 eventCounter++;
                 eventReceiver->trigger(currentTime);
             }

@@ -55,8 +55,9 @@ namespace core::epoll {
             epoll_event* getEvents();
             int getMaxEvents() const;
             void compress();
+            void printStats();
 
-        protected:
+        private:
             int epfd;
             std::vector<epoll_event> ePollEvents;
             uint32_t size;

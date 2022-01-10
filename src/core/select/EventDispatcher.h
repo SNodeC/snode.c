@@ -37,8 +37,6 @@ namespace core::select {
         EventDispatcher() = default;
         ~EventDispatcher() = default;
 
-        enum DISP_TYPE { RD = 0, WR = 1, EX = 2, TI = 3 };
-
         core::DescriptorEventDispatcher& getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE dispType) override;
         core::TimerEventDispatcher& getTimerEventDispatcher() override;
 
@@ -53,7 +51,7 @@ namespace core::select {
         void dispatchActiveEvents(const utils::Timeval& currentTime);
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
 
-        core::select::DescriptorEventDispatcher eventDispatcher[4];
+        core::select::DescriptorEventDispatcher eventDispatcher[3];
         core::select::TimerEventDispatcher timerEventDispatcher;
     };
 

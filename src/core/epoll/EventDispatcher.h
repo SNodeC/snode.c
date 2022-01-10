@@ -39,8 +39,6 @@ namespace core::epoll {
         EventDispatcher();
         ~EventDispatcher() = default;
 
-        enum DISP_TYPE { RD = 0, WR = 1, EX = 2 };
-
         core::DescriptorEventDispatcher& getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE dispType) override;
         core::TimerEventDispatcher& getTimerEventDispatcher() override;
 
@@ -58,8 +56,8 @@ namespace core::epoll {
         core::epoll::DescriptorEventDispatcher eventDispatcher[3];
         core::epoll::TimerEventDispatcher timerEventDispatcher;
 
-        epoll_event ePollEvents[4];
         int epfd;
+        epoll_event ePollEvents[3];
     };
 
 } // namespace core::epoll

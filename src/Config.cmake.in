@@ -1,4 +1,4 @@
-
+@PACKAGE_INIT@
 
 set(websocketserver_DEPENDENCIES websocketbase httpserver)
 set(websocketclient_DEPENDENCIES websocketbase httpclient)
