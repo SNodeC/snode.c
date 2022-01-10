@@ -30,7 +30,7 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#define LISTEN_BACKLOG 5
+#define LISTEN_BACKLOG 512
 
 namespace web::http::server {
 
