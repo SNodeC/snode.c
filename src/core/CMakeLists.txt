@@ -89,10 +89,12 @@ target_include_directories(
 )
 
 if(${IO_Multiplexer} STREQUAL "epoll")
-    target_compile_definitions(core PRIVATE USE_EPOLL)
+    set(USED_MULTIPLEXER USE_EPOLL)
 elseif(${IO_Multiplexer} STREQUAL "select")
-    target_compile_definitions(core PRIVATE USE_SELECT)
+    set(USED_MULTIPLEXER USE_SELECT)
 endif()
+
+target_compile_definitions(core PRIVATE ${USED_MULTIPLEXER})
 
 target_link_libraries(
     core PUBLIC snodec::core-${IO_Multiplexer} snodec::logger snodec::utils
