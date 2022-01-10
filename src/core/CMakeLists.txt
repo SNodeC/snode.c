@@ -88,12 +88,14 @@ target_include_directories(
            "$<INSTALL_INTERFACE:include/snode.c>"
 )
 
-if(${USE_EPOLL} STREQUAL "ON")
-    target_compile_definitions(core PRIVATE USE_EPOLL=${USE_EPOLL})
-endif(${USE_EPOLL} STREQUAL "ON")
+if(${IO_Multiplexer} STREQUAL "epoll")
+    target_compile_definitions(core PRIVATE USE_EPOLL)
+elseif(${IO_Multiplexer} STREQUAL "select")
+    target_compile_definitions(core PRIVATE USE_SELECT)
+endif()
 
 target_link_libraries(
-    core PUBLIC snodec::${NONE_BLOCKING_LIBRARY} snodec::logger snodec::utils
+    core PUBLIC snodec::core-${IO_Multiplexer} snodec::logger snodec::utils
 )
 
 set_target_properties(core PROPERTIES SOVERSION 1 OUTPUT_NAME snodec-core)
@@ -126,10 +128,11 @@ install(
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/snodec
 )
 
-if(${USE_EPOLL} STREQUAL "ON")
+if(${IO_Multiplexer} STREQUAL "epoll")
     add_subdirectory(epoll)
-else(${USE_EPOLL} STREQUAL "ON")
+elseif(${IO_Multiplexer} STREQUAL "select")
     add_subdirectory(select)
-endif(${USE_EPOLL} STREQUAL "ON")
+endif()
+
 add_subdirectory(socket/stream/legacy)
 add_subdirectory(socket/stream/tls)

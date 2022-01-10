@@ -22,8 +22,10 @@
 
 #ifdef USE_EPOLL
 #include "core/epoll/EventDispatcher.h"
-#else
+#elif USE_SELECT
 #include "core/select/EventDispatcher.h"
+#else
+#error "No vaid I/O-Multiplexer selected! Use cmake option -DIO_Multiplexer=[epoll|select]"
 #endif
 #include "log/Logger.h" // for Logger
 
@@ -54,7 +56,7 @@ namespace core {
 
 #ifdef USE_EPOLL
     core::epoll::EventDispatcher EventLoop::eventDispatcher;
-#else
+#elif USE_SELECT
     core::select::EventDispatcher EventLoop::eventDispatcher;
 #endif
 

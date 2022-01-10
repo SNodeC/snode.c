@@ -65,7 +65,7 @@ namespace core {
 
 #ifdef USE_EPOLL
         static core::epoll::EventDispatcher eventDispatcher;
-#else
+#elif USE_SELECT
         static core::select::EventDispatcher eventDispatcher;
 #endif
 
