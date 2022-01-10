@@ -53,8 +53,7 @@ namespace core::epoll {
         } else {
             switch (errno) {
                 case EEXIST:
-                    del(eventReceiver);
-                    add(eventReceiver, events);
+                    mod(eventReceiver, events);
                     break;
                 default:
                     break;
