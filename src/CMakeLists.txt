@@ -12,7 +12,7 @@ set(IO_Multiplexer
     "epoll"
     CACHE STRING "I/O-Multiplexer to use"
 )
-set(IO_Multiplexers "epoll;select")
+set(IO_Multiplexers "epoll;poll;select")
 set_property(CACHE IO_Multiplexer PROPERTY STRINGS ${IO_Multiplexers})
 message(STATUS "I/O-Multiplexer selected: '${IO_Multiplexer}'")
 

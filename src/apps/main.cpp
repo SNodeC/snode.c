@@ -26,6 +26,7 @@
 #include <iostream>
 #include <stdio.h>  // for perror
 #include <string.h> // for strerror
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -190,6 +191,42 @@ int timerApp() {
 }
 
 int main(int argc, char** argv) {
+    std::vector<int> v{};
+
+    std::vector<int>::iterator it = v.begin();
+    std::vector<int>::iterator rit = v.end() - 1;
+
+    int k = 0;
+    while (it < rit) {
+        while (it != v.end() && *it != -1) {
+            k++;
+            ++it;
+        }
+        while (rit != v.begin() && *rit == -1) {
+            k++;
+            --rit;
+        }
+
+        while (*it == -1 && *rit != -1 && it < rit) {
+            k++;
+            std::cout << *it << " <-> " << *rit << std::endl;
+            int tmp = *it;
+            *it = *rit;
+            *rit = tmp;
+            ++it;
+            --rit;
+            std::cout << *it << " >-< " << *rit << std::endl;
+        }
+    }
+
+    for ([[maybe_unused]] int i : v) {
+        std::cout << i << ", " << std::endl;
+    }
+
+    std::cout << "hihi " << k << std::endl;
+
+    exit(0);
+
     express::WebApp::init(argc, argv);
 
     File test;

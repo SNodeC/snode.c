@@ -20,13 +20,16 @@
 
 #include "core/DynamicLoader.h"
 
-#ifdef USE_EPOLL
+#if defined(USE_EPOLL)
 #include "core/epoll/EventDispatcher.h"
-#elif USE_SELECT
+#elif defined(USE_POLL)
+#include "core/poll/EventDispatcher.h"
+#elif defined(USE_SELECT)
 #include "core/select/EventDispatcher.h"
 #else
-#error "No vaid I/O-Multiplexer selected! Use cmake option -DIO_Multiplexer=[epoll|select]"
+#error "No valid I/O-Multiplexer selected! Use cmake option -DIO_Multiplexer=[epoll|poll|select]"
 #endif
+
 #include "log/Logger.h" // for Logger
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -54,9 +57,11 @@ namespace core {
         return tick;
     }
 
-#ifdef USE_EPOLL
+#if defined(USE_EPOLL)
     core::epoll::EventDispatcher EventLoop::eventDispatcher;
-#elif USE_SELECT
+#elif defined(USE_POLL)
+    core::poll::EventDispatcher EventLoop::eventDispatcher;
+#elif defined(USE_SELECT)
     core::select::EventDispatcher EventLoop::eventDispatcher;
 #endif
 

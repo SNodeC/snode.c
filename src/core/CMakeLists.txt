@@ -90,6 +90,8 @@ target_include_directories(
 
 if(${IO_Multiplexer} STREQUAL "epoll")
     set(USED_MULTIPLEXER USE_EPOLL)
+elseif(${IO_Multiplexer} STREQUAL "poll")
+    set(USED_MULTIPLEXER USE_POLL)
 elseif(${IO_Multiplexer} STREQUAL "select")
     set(USED_MULTIPLEXER USE_SELECT)
 endif()
@@ -120,6 +122,7 @@ install(
     PATTERN "socket/stream/tls" EXCLUDE
     PATTERN "socket/stream/legacy" EXCLUDE
     PATTERN "select" EXCLUDE
+    PATTERN "poll" EXCLUDE
     PATTERN "epoll" EXCLUDE
 )
 
@@ -132,6 +135,8 @@ install(
 
 if(${IO_Multiplexer} STREQUAL "epoll")
     add_subdirectory(epoll)
+elseif(${IO_Multiplexer} STREQUAL "poll")
+    add_subdirectory(poll)
 elseif(${IO_Multiplexer} STREQUAL "select")
     add_subdirectory(select)
 endif()

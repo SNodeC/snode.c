@@ -24,11 +24,15 @@
 
 namespace core {
     class EventDispatcher;
-#ifdef USE_EPOLL
+#if defined(USE_EPOLL)
     namespace epoll {
         class EventDispatcher;
     }
-#else
+#elif defined(USE_POLL)
+    namespace poll {
+        class EventDispatcher;
+    }
+#elif defined(USE_SELECT)
     namespace select {
         class EventDispatcher;
     }
@@ -63,9 +67,11 @@ namespace core {
 
         static void stoponsig(int sig);
 
-#ifdef USE_EPOLL
+#if defined(USE_EPOLL)
         static core::epoll::EventDispatcher eventDispatcher;
-#elif USE_SELECT
+#elif defined(USE_POLL)
+        static core::poll::EventDispatcher eventDispatcher;
+#elif defined(USE_SELECT)
         static core::select::EventDispatcher eventDispatcher;
 #endif
 
