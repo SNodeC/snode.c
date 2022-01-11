@@ -260,11 +260,11 @@ namespace core::epoll {
                 if (observedEventReceiver[fd].empty()) {
                     ePollEvents.del(eventReceiver);
                     observedEventReceiver.erase(fd);
-                } else if (observedEventReceiver[fd].front()->isSuspended()) {
-                    ePollEvents.modOff(observedEventReceiver[fd].front());
-                } else {
+                } else if (!observedEventReceiver[fd].front()->isSuspended()) {
                     ePollEvents.modOn(observedEventReceiver[fd].front());
                     observedEventReceiver[fd].front()->triggered(currentTime);
+                } else {
+                    ePollEvents.modOff(observedEventReceiver[fd].front());
                 }
                 eventReceiver->disabled();
                 if (eventReceiver->getObservationCounter() == 0) {
@@ -274,8 +274,6 @@ namespace core::epoll {
         }
 
         ePollEvents.compress();
-
-        ePollEvents.printStats();
 
         disabledEventReceiver.clear();
     }
