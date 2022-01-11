@@ -84,6 +84,16 @@ namespace core::epoll {
         }
     }
 
+    void DescriptorEventDispatcher::EPollEvents::compress() {
+        while (ePollEvents.size() > (size * 2) + 1) {
+            ePollEvents.resize(ePollEvents.size() / 2);
+        }
+    }
+
+    int DescriptorEventDispatcher::EPollEvents::getEPFd() const {
+        return epfd;
+    }
+
     epoll_event* DescriptorEventDispatcher::EPollEvents::getEvents() {
         return ePollEvents.data();
     }
@@ -91,19 +101,8 @@ namespace core::epoll {
     int DescriptorEventDispatcher::EPollEvents::getMaxEvents() const {
         return static_cast<int>(size);
     }
-
-    void DescriptorEventDispatcher::EPollEvents::compress() {
-        while (ePollEvents.size() > (size * 2) + 1) {
-            ePollEvents.resize(ePollEvents.size() / 2);
-        }
-    }
-
-    void DescriptorEventDispatcher::EPollEvents::printStats() {
-        VLOG(0) << "EPollEvents stats: Vector size = " << ePollEvents.size() << ", interrest count = " << size;
-    }
-
-    int DescriptorEventDispatcher::EPollEvents::getEPFd() const {
-        return epfd;
+    void DescriptorEventDispatcher::EPollEvents::printStats(uint32_t events) {
+        VLOG(0) << "EPollEvents stats: Vector size = " << ePollEvents.size() << ", interrest count = " << size << ", events = " << events;
     }
 
     bool DescriptorEventDispatcher::EventReceiverList::contains(core::EventReceiver* eventReceiver) const {
@@ -216,6 +215,7 @@ namespace core::epoll {
                 }
             }
         }
+
         enabledEventReceiver.clear();
     }
 
@@ -262,7 +262,9 @@ namespace core::epoll {
             }
         }
 
-        ePollEvents.compress();
+        if (!disabledEventReceiver.empty()) {
+            ePollEvents.compress();
+        }
 
         disabledEventReceiver.clear();
     }

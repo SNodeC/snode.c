@@ -52,11 +52,12 @@ namespace core::epoll {
             void mod(core::EventReceiver* eventReceiver, uint32_t events);
             void del(core::EventReceiver* eventReceiver);
 
+            void compress();
+
             int getEPFd() const;
             epoll_event* getEvents();
             int getMaxEvents() const;
-            void compress();
-            void printStats();
+            void printStats(uint32_t events);
 
         private:
             int epfd;
