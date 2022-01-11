@@ -25,234 +25,328 @@
 
 #include <algorithm> // for min, find
 #include <climits>
+#include <iostream>
 #include <sys/poll.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::poll {
 
-    EventDispatcher::PollFds::PollFds() {
-        size = 0;
+    PollFds::PollFds() {
+        interestCount = 0;
         pollfd pollFd;
         pollFd.fd = 0;
         pollFd.events = 0;
+        pollFd.revents = 0;
         pollFds.resize(1, pollFd);
     }
 
-    void EventDispatcher::PollFds::add(EventReceiver* eventReceiver, short events) {
+    void PollFds::add(EventReceiver* eventReceiver, short event) {
         int fd = eventReceiver->getRegisteredFd();
 
-        std::vector<pollfd>::iterator pollFd = std::find_if(pollFds.begin(), pollFds.begin() + size, [&fd](pollfd pollFd) -> bool {
-            return pollFd.fd == fd;
-        });
+        std::map<int, PollEvent>::iterator it = pollEvents.find(fd);
+        if (it == pollEvents.end()) {
+            pollFds[interestCount].events = event;
+            pollFds[interestCount].fd = fd;
 
-        if (pollFd != (pollFds.begin() + size)) {
-            pollFd->events |= events;
-        } else {
-            pollFds[size].events = events;
-            pollFds[size].fd = eventReceiver->getRegisteredFd();
+            PollEvent pollEvent(interestCount);
+            pollEvent.add(event, eventReceiver);
+            pollEvents.insert({fd, pollEvent});
 
-            size++;
-            if (size >= pollFds.size()) {
+            interestCount++;
+            if (interestCount >= pollFds.size()) {
                 pollfd pollFd;
-                pollFd.fd = 0;
+                pollFd.fd = -1;
                 pollFd.events = 0;
+                pollFd.revents = 0;
                 pollFds.resize(pollFds.size() * 2, pollFd);
             }
+
+        } else {
+            PollEvent& pollEvent = it->second;
+
+            pollEvent.add(event, eventReceiver);
+            pollFds[pollEvent.fds].events |= event;
         }
     }
 
-    void EventDispatcher::PollFds::del(EventReceiver* eventReceiver, short events) {
+    void PollFds::del(EventReceiver* eventReceiver, short event) {
         int fd = eventReceiver->getRegisteredFd();
 
-        std::vector<pollfd>::iterator pollFd = std::find_if(pollFds.begin(), pollFds.begin() + size, [&fd](pollfd pollFd) -> bool {
-            return pollFd.fd == fd;
-        });
+        std::map<int, PollEvent>::iterator it = pollEvents.find(fd);
+        if (it != pollEvents.end()) {
+            PollEvent& pollEvent = it->second;
 
-        if (pollFd != (pollFds.begin() + size)) {
-            pollFd->events &= ~events;
-            if (pollFd->events == 0) {
-                pollFd->events = -1;
-                size--;
+            pollfd& pollFd = pollFds[pollEvent.fds];
+            pollFd.events &= ~event;
+
+            if (pollFd.events == 0) {
+                pollFd.fd = -1;
+                interestCount--;
+                //                pollEvents.erase(fd);
+            } else {
+                //                pollEvent.del(event);
             }
         }
     }
 
-    pollfd* EventDispatcher::PollFds::getEvents() {
+    void PollFds::finish(EventReceiver* eventReceiver) {
+        int fd = eventReceiver->getRegisteredFd();
+        pollEvents.erase(fd);
+    }
+
+    void PollFds::modOn(EventReceiver* eventReceiver, short event) {
+        int fd = eventReceiver->getRegisteredFd();
+
+        std::map<int, PollEvent>::iterator it = pollEvents.find(fd);
+        if (it != pollEvents.end()) {
+            PollEvent& pollEvent = it->second;
+
+            pollfd& pollFd = pollFds[pollEvent.fds];
+            pollFd.events |= event;
+        }
+    }
+
+    void PollFds::modOff(EventReceiver* eventReceiver, short event) {
+        int fd = eventReceiver->getRegisteredFd();
+
+        std::map<int, PollEvent>::iterator it = pollEvents.find(fd);
+        if (it != pollEvents.end()) {
+            PollEvent& pollEvent = it->second;
+
+            pollfd& pollFd = pollFds[pollEvent.fds];
+            pollFd.events &= ~event;
+        }
+    }
+
+    void PollFds::dispatch(short event, const utils::Timeval& currentTime) {
+        for (uint32_t i = 0; i < interestCount; i++) {
+            pollfd& pollFd = pollFds[i];
+            if ((pollFd.revents & event) != 0) {
+                pollFd.revents &= ~event;
+                std::map<int, PollEvent>::iterator it = pollEvents.find(pollFd.fd);
+                if (it != pollEvents.end()) {
+                    if (it->second.eventReceivers.contains(event)) {
+                        core::EventReceiver* eventReceiver = it->second.eventReceivers[event];
+                        if (!eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
+                            it->second.eventReceivers[event]->trigger(currentTime);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    pollfd* PollFds::getEvents() {
         return pollFds.data();
     }
 
-    int EventDispatcher::PollFds::getMaxEvents() const {
-        return static_cast<int>(size);
+    nfds_t PollFds::getMaxEvents() const {
+        return interestCount;
     }
 
-    void EventDispatcher::PollFds::compress() {
-        if (pollFds.size() > (size * 2) + 1) {
-            std::vector<pollfd>::iterator it = pollFds.begin();
-            std::vector<pollfd>::iterator rit = pollFds.begin() + size - 1;
+    void PollFds::compress() {
+        std::vector<pollfd>::iterator it = pollFds.begin();
+        std::vector<pollfd>::iterator rit = pollFds.begin() + static_cast<long>(pollFds.size()) - 1;
 
-            while (it < rit) {
-                while (it != pollFds.end() && it->events != 0) {
-                    ++it;
-                }
-
-                //                while (rit >= it && rit->fd == 0) {
-                while (rit != pollFds.begin() && rit->events == 0) {
-                    --rit;
-                }
-
-                while (it->events == 0 && rit->events != 0 && it < rit) {
-                    pollfd tPollFd = *it;
-                    *it = *rit;
-                    *rit = tPollFd;
-                    ++it;
-                    --rit;
-                }
+        while (it < rit) {
+            while (it != pollFds.end() && it->fd != -1) {
+                ++it;
             }
 
-            while (pollFds.size() > (size * 2) + 1) {
-                pollFds.resize(pollFds.size() / 2);
+            while (rit >= it && rit->fd == -1) {
+                --rit;
             }
+
+            while (it->fd == -1 && rit->fd != -1 && it < rit) {
+                pollfd tPollFd = *it;
+                *it = *rit;
+                *rit = tPollFd;
+                ++it;
+                --rit;
+            }
+        }
+
+        while (pollFds.size() > (interestCount * 2) + 1) {
+            pollFds.resize(pollFds.size() / 2);
         }
     }
-    /*
-    std::vector<int> v{-1, -1, 3, 3, 5, -1, 4, 3, 2, 1};
 
-    std::vector<int>::iterator it = v.begin();
-    std::vector<int>::iterator rit = v.end() - 1;
+    void PollFds::printStats(const std::string& what) {
+        std::cout << "-----------------------------------------------------------------------------" << std::endl;
+        std::cout << "Current Status for: " << what << std::endl;
+        std::cout << "      PollFds: Vector size = " << pollFds.size() << ", map size = " << pollEvents.size()
+                  << ", interrest count = " << interestCount << std::endl;
 
-    int k = 0;
-    while (it < rit) {
-        for (; it != v.end() && *it != -1; ++it)
-            ;
-        for (; rit >= it && *rit == -1; --rit)
-            ;
+        for (auto& [fd, pollEvent] : this->pollEvents) {
+            std::map<int, PollEvent>::iterator it = pollEvents.find(fd);
 
-        while (*it == -1 && *rit != -1 && it < rit) {
-            int tmp = *it;
-            *it = *rit;
-            *rit = tmp;
-            ++it;
-            --rit;
-        }
-    }
-    */
-
-    void EventDispatcher::PollFds::printStats() {
-        VLOG(0) << "PollFds stats: Vector size = " << pollFds.size() << ", interrest count = " << size;
-    }
-
-    /*
-        core::TimerEventDispatcher& EventDispatcher::getTimerEventDispatcher() {
-            return timerEventDispatcher;
-        }
-
-        EventDispatcher::EventDispatcher()
-            : eventDispatcher{core::poll::DescriptorEventDispatcher(POLLIN),
-                              core::poll::DescriptorEventDispatcher(POLLOUT),
-                              core::poll::DescriptorEventDispatcher(POLLPRI)} {
-        }
-
-        core::DescriptorEventDispatcher& EventDispatcher::getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE dispType) {
-            return eventDispatcher[dispType];
-        }
-
-        int EventDispatcher::getReceiverCount() {
-            int receiverCount = 0;
-
-            for (const DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
-                receiverCount += eventDispatcher.getReceiverCount();
-            }
-
-            return receiverCount;
-        }
-
-        utils::Timeval EventDispatcher::getNextTimeout(const utils::Timeval& currentTime) {
-            utils::Timeval nextTimeout = {LONG_MAX, 0};
-
-            for (const DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
-                nextTimeout = std::min(eventDispatcher.getNextTimeout(currentTime), nextTimeout);
-            }
-
-            return nextTimeout;
-        }
-
-        void EventDispatcher::observeEnabledEvents() {
-            for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
-                eventDispatcher.observeEnabledEvents();
-            }
-        }
-
-        void EventDispatcher::dispatchActiveEvents(int count, const utils::Timeval& currentTime) {
-            if (count > 0) {
-                for (int i = 0; i < count; i++) {
-                    static_cast<DescriptorEventDispatcher*>(ePollEvents[i].data.ptr)->dispatchActiveEvents(currentTime);
-                }
-            }
-
-            for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
-                eventDispatcher.dispatchImmediateEvents(currentTime);
-            }
-        }
-
-        void EventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
-            for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
-                eventDispatcher.unobserveDisabledEvents(currentTime);
-            }
-        }
-
-        TickStatus EventDispatcher::dispatch(const utils::Timeval& tickTimeOut, bool stopped) {
-            TickStatus tickStatus = TickStatus::SUCCESS;
-
-            EventDispatcher::observeEnabledEvents();
-
-            int receiverCount = EventDispatcher::getReceiverCount();
-
-            utils::Timeval currentTime = utils::Timeval::currentTime();
-
-            utils::Timeval nextEventTimeout = EventDispatcher::getNextTimeout(currentTime);
-            utils::Timeval nextTimerTimeout = timerEventDispatcher.getNextTimeout(currentTime);
-
-            if (receiverCount > 0 || (!timerEventDispatcher.empty() && !stopped)) {
-                utils::Timeval nextTimeout = stopped ? nextEventTimeout : std::min(nextTimerTimeout, nextEventTimeout);
-
-                nextTimeout = std::min(nextTimeout, tickTimeOut);
-                nextTimeout = std::max(nextTimeout, utils::Timeval()); // In case nextEventTimeout is negativ
-
-                int ret = epoll_wait(epfd, ePollEvents, 3, nextTimeout.ms());
-
-                if (ret >= 0) {
-                    currentTime = utils::Timeval::currentTime();
-
-                    timerEventDispatcher.dispatchActiveEvents(currentTime);
-                    EventDispatcher::dispatchActiveEvents(ret, currentTime);
-                    EventDispatcher::unobserveDisabledEvents(currentTime);
-                } else {
-                    tickStatus = TickStatus::ERROR;
-                }
+            short events = 0;
+            short rEvents = 0;
+            if (it != pollEvents.end()) {
+                events = pollFds[it->second.fds].events;
+                rEvents = pollFds[it->second.fds].revents;
             } else {
-                tickStatus = TickStatus::NO_OBSERVER;
+                events = -1;
+                rEvents = -1;
             }
 
-            return tickStatus;
+            std::string sEvents = "[";
+            if ((events & POLLIN) != 0) {
+                sEvents += "POLLIN";
+            }
+            if ((events & POLLOUT) != 0) {
+                sEvents += "|POLOUT";
+            }
+            if ((events & POLLPRI) != 0) {
+                sEvents += "|POLLPRI";
+            }
+            if (events == -1) {
+                sEvents += "xxx";
+            }
+            sEvents += "]";
+
+            std::string rSEvents = "[";
+            if ((rEvents & POLLIN) != 0) {
+                rSEvents += "POLLIN";
+            }
+            if ((rEvents & POLLOUT) != 0) {
+                rSEvents += "|POLLOUT";
+            }
+            if ((rEvents & POLLPRI) != 0) {
+                rSEvents += "|POLLPRI";
+            }
+            if (rEvents == -1) {
+                rSEvents += "xxx";
+            }
+            rSEvents += "]";
+
+            std::cout << "    PollEvent Structure for fd = " << fd << ", events = " << sEvents << ", revents = " << rSEvents
+                      << ", size = " << pollEvents.size() << std::endl;
+
+            for (auto& [event, eventReceiver] : pollEvent.eventReceivers) {
+                std::cout << "        Event = "
+                          << ((event == POLLIN)    ? "POLLIN"
+                              : (event == POLLOUT) ? "POLLOUT"
+                                                   : "POLLPRI")
+                          << ", EventReceiver = " << eventReceiver << std::endl;
+            }
+        }
+        std::cout << "-----------------------------------------------------------------------------" << std::endl;
+    }
+
+    core::TimerEventDispatcher& EventDispatcher::getTimerEventDispatcher() {
+        return timerEventDispatcher;
+    }
+
+    EventDispatcher::EventDispatcher()
+        : eventDispatcher{core::poll::DescriptorEventDispatcher(pollFds, POLLIN),
+                          core::poll::DescriptorEventDispatcher(pollFds, POLLOUT),
+                          core::poll::DescriptorEventDispatcher(pollFds, POLLPRI)} {
+    }
+
+    core::DescriptorEventDispatcher& EventDispatcher::getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE dispType) {
+        return eventDispatcher[dispType];
+    }
+
+    int EventDispatcher::getReceiverCount() {
+        int receiverCount = 0;
+
+        for (const DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
+            receiverCount += eventDispatcher.getReceiverCount();
         }
 
-        void EventDispatcher::stop() {
-            core::TickStatus tickStatus;
+        return receiverCount;
+    }
 
-            do {
-                for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
-                    eventDispatcher.stop();
-                }
+    utils::Timeval EventDispatcher::getNextTimeout(const utils::Timeval& currentTime) {
+        utils::Timeval nextTimeout = {LONG_MAX, 0};
 
-                tickStatus = dispatch(2, true);
-            } while (tickStatus == TickStatus::SUCCESS);
-
-            do {
-                timerEventDispatcher.stop();
-                tickStatus = dispatch(0, false);
-            } while (tickStatus == TickStatus::SUCCESS);
+        for (const DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
+            nextTimeout = std::min(eventDispatcher.getNextTimeout(currentTime), nextTimeout);
         }
-        */
+
+        return nextTimeout;
+    }
+
+    void EventDispatcher::observeEnabledEvents() {
+        for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
+            eventDispatcher.observeEnabledEvents();
+        }
+        //        pollFds.printStats("Observed");
+    }
+
+    void EventDispatcher::dispatchActiveEvents(int count, const utils::Timeval& currentTime) {
+        //        pollFds.printStats("Dispatchd");
+
+        if (count > 0) {
+            for (core::poll::DescriptorEventDispatcher& ed : eventDispatcher) {
+                ed.dispatchActiveEvents(currentTime);
+            }
+        }
+
+        for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
+            eventDispatcher.dispatchImmediateEvents(currentTime);
+        }
+    }
+
+    void EventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
+        for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
+            eventDispatcher.unobserveDisabledEvents(currentTime);
+        }
+    }
+
+    TickStatus EventDispatcher::dispatch(const utils::Timeval& tickTimeOut, bool stopped) {
+        TickStatus tickStatus = TickStatus::SUCCESS;
+
+        EventDispatcher::observeEnabledEvents();
+
+        int receiverCount = EventDispatcher::getReceiverCount();
+
+        utils::Timeval currentTime = utils::Timeval::currentTime();
+
+        utils::Timeval nextEventTimeout = EventDispatcher::getNextTimeout(currentTime);
+        utils::Timeval nextTimerTimeout = timerEventDispatcher.getNextTimeout(currentTime);
+
+        if (receiverCount > 0 || (!timerEventDispatcher.empty() && !stopped)) {
+            utils::Timeval nextTimeout = stopped ? nextEventTimeout : std::min(nextTimerTimeout, nextEventTimeout);
+
+            nextTimeout = std::min(nextTimeout, tickTimeOut);
+            nextTimeout = std::max(nextTimeout, utils::Timeval()); // In case nextEventTimeout is negativ
+
+            int ret = ::poll(pollFds.getEvents(), pollFds.getMaxEvents(), nextTimeout.ms());
+
+            if (ret >= 0) {
+                currentTime = utils::Timeval::currentTime();
+
+                timerEventDispatcher.dispatchActiveEvents(currentTime);
+                EventDispatcher::dispatchActiveEvents(ret, currentTime);
+                EventDispatcher::unobserveDisabledEvents(currentTime);
+            } else {
+                tickStatus = TickStatus::ERROR;
+            }
+        } else {
+            tickStatus = TickStatus::NO_OBSERVER;
+        }
+
+        return tickStatus;
+    }
+
+    void EventDispatcher::stop() {
+        core::TickStatus tickStatus;
+
+        do {
+            for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
+                eventDispatcher.stop();
+            }
+
+            tickStatus = dispatch(2, true);
+        } while (tickStatus == TickStatus::SUCCESS);
+
+        do {
+            timerEventDispatcher.stop();
+            tickStatus = dispatch(0, false);
+        } while (tickStatus == TickStatus::SUCCESS);
+    }
 
 } // namespace core::poll

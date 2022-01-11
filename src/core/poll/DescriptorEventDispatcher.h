@@ -19,10 +19,13 @@
 #ifndef CORE_POLL_DESCRIPTOREVENTDISPATCHER_H
 #define CORE_POLL_DESCRIPTOREVENTDISPATCHER_H
 
-#include "core/DescriptorEventDispatcher.h" // IWYU pragma: export
+#include "core/DescriptorEventDispatcher.h" // IWYU pragma: exportx
 
 namespace core {
     class EventReceiver;
+    namespace poll {
+        class PollFds;
+    }
 } // namespace core
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -43,29 +46,8 @@ namespace core::poll {
         DescriptorEventDispatcher(const DescriptorEventDispatcher&) = delete;
         DescriptorEventDispatcher& operator=(const DescriptorEventDispatcher&) = delete;
 
-    private:
-        class EPollEvents {
-        public:
-            EPollEvents();
-
-            void add(core::EventReceiver* eventReceiver, uint32_t events);
-            void mod(core::EventReceiver* eventReceiver, uint32_t events);
-            void del(core::EventReceiver* eventReceiver);
-
-            int getEPFd() const;
-            epoll_event* getEvents();
-            int getMaxEvents() const;
-            void compress();
-            void printStats();
-
-        private:
-            int epfd;
-            std::vector<epoll_event> ePollEvents;
-            uint32_t size;
-        };
-
     public:
-        explicit DescriptorEventDispatcher(uint32_t events);
+        DescriptorEventDispatcher(core::poll::PollFds& pollFds, short events);
 
         void enable(core::EventReceiver* eventReceiver) override;
         void disable(core::EventReceiver* eventReceiver) override;
@@ -73,8 +55,6 @@ namespace core::poll {
         void resume(core::EventReceiver* eventReceiver) override;
 
         int getReceiverCount() const;
-
-        int getEPFd() const;
 
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime) const;
 
@@ -96,12 +76,13 @@ namespace core::poll {
             bool contains(core::EventReceiver* descriptorEventReceiver) const;
         };
 
+        [[maybe_unused]] core::poll::PollFds& pollFds;
+
         std::map<int, EventReceiverList> enabledEventReceiver;
         std::map<int, EventReceiverList> observedEventReceiver;
         std::map<int, EventReceiverList> disabledEventReceiver;
 
-        EPollEvents ePollEvents;
-        uint32_t events;
+        short events;
 
         unsigned long eventCounter = 0;
     };

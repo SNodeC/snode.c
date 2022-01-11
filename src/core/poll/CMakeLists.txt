@@ -1,13 +1,11 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(CORE_POLL_CPP EventDispatcher.cpp
-    # DescriptorEventDispatcher.cpp
-    # TimerEventDispatcher.cpp
+set(CORE_POLL_CPP EventDispatcher.cpp DescriptorEventDispatcher.cpp
+                  TimerEventDispatcher.cpp
 )
 
-set(CORE_POLL_H EventDispatcher.h
-    # DescriptorEventDispatcher.h
-    # TimerEventDispatcher.h
+set(CORE_POLL_H EventDispatcher.h DescriptorEventDispatcher.h
+                TimerEventDispatcher.h
 )
 
 add_library(core-poll SHARED ${CORE_POLL_CPP} ${CORE_POLL_H})

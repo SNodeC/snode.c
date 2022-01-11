@@ -25,55 +25,83 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <map>
 #include <sys/poll.h>
+#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::poll {
 
+    class PollFds {
+    public:
+        using pollfds_size_type = std::vector<pollfd>::size_type;
+        PollFds();
+
+        void add(core::EventReceiver* eventReceiver, short event);
+        void del(core::EventReceiver* eventReceiver, short event);
+        void finish(core::EventReceiver* eventReceiver);
+
+    public:
+        void modOn(core::EventReceiver* eventReceiver, short event);
+        void modOff(core::EventReceiver* eventReceiver, short event);
+
+        void dispatch(short event, const utils::Timeval& currentTime);
+
+        pollfd* getEvents();
+        nfds_t getMaxEvents() const;
+        void compress();
+        void printStats(const std::string& what);
+
+    private:
+        struct PollEvent {
+            explicit PollEvent(pollfds_size_type fds)
+                : fds(fds) {
+            }
+
+            void add(short event, core::EventReceiver* eventReceiver) {
+                eventReceivers.insert({event, eventReceiver});
+            }
+
+            void del(short event) {
+                eventReceivers.erase(event);
+            }
+
+            pollfds_size_type fds;
+            std::map<short, core::EventReceiver*> eventReceivers;
+        };
+
+        std::vector<pollfd> pollFds;
+
+        std::map<int, PollEvent> pollEvents; // map fd -> index into pollFds;
+        uint32_t interestCount;
+    };
+
     class EventDispatcher : public core::EventDispatcher {
         EventDispatcher(const EventDispatcher&) = delete;
         EventDispatcher& operator=(const EventDispatcher&) = delete;
 
+    public:
+        EventDispatcher();
+        ~EventDispatcher() = default;
+
+        core::DescriptorEventDispatcher& getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE dispType) override;
+        core::TimerEventDispatcher& getTimerEventDispatcher() override;
+
+        TickStatus dispatch(const utils::Timeval& tickTimeOut, bool stopped) override;
+        void stop() override;
+
     private:
-        class PollFds {
-        public:
-            PollFds();
+        int getReceiverCount();
+        utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
 
-            void add(core::EventReceiver* eventReceiver, short events);
-            void del(core::EventReceiver* eventReceiver, short events);
+        void observeEnabledEvents();
+        void dispatchActiveEvents(int count, const utils::Timeval& currentTime);
+        void unobserveDisabledEvents(const utils::Timeval& currentTime);
 
-            pollfd* getEvents();
-            int getMaxEvents() const;
-            void compress();
-            void printStats();
+        core::poll::DescriptorEventDispatcher eventDispatcher[3];
+        core::poll::TimerEventDispatcher timerEventDispatcher;
 
-        private:
-            std::vector<pollfd> pollFds;
-            uint32_t size;
-        };
-        /*
-            public:
-                EventDispatcher();
-                ~EventDispatcher() = default;
-
-                core::DescriptorEventDispatcher& getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE dispType) override;
-                core::TimerEventDispatcher& getTimerEventDispatcher() override;
-
-                TickStatus dispatch(const utils::Timeval& tickTimeOut, bool stopped) override;
-                void stop() override;
-
-            private:
-                int getReceiverCount();
-                utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
-
-                void observeEnabledEvents();
-                void dispatchActiveEvents(int count, const utils::Timeval& currentTime);
-                void unobserveDisabledEvents(const utils::Timeval& currentTime);
-
-                core::poll::DescriptorEventDispatcher eventDispatcher[3];
-                core::poll::TimerEventDispatcher timerEventDispatcher;
-        */
         PollFds pollFds;
     };
 
