@@ -62,7 +62,7 @@ namespace core::epoll {
         private:
             int epfd;
             std::vector<epoll_event> ePollEvents;
-            uint32_t size;
+            uint32_t interestCount;
         };
 
     public:

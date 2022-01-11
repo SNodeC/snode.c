@@ -36,7 +36,7 @@ namespace core::epoll {
 
     DescriptorEventDispatcher::EPollEvents::EPollEvents() {
         epfd = epoll_create1(EPOLL_CLOEXEC);
-        size = 0;
+        interestCount = 0;
         ePollEvents.resize(1);
     }
 
@@ -47,8 +47,8 @@ namespace core::epoll {
         event.events = events;
 
         if (epoll_ctl(epfd, EPOLL_CTL_ADD, eventReceiver->getRegisteredFd(), &event) == 0) {
-            size++;
-            if (size > ePollEvents.size()) {
+            interestCount++;
+            if (interestCount > ePollEvents.size()) {
                 ePollEvents.resize(ePollEvents.size() * 2);
             }
         } else {
@@ -73,7 +73,7 @@ namespace core::epoll {
 
     void DescriptorEventDispatcher::EPollEvents::del(EventReceiver* eventReceiver) {
         if (epoll_ctl(epfd, EPOLL_CTL_DEL, eventReceiver->getRegisteredFd(), nullptr) == 0) {
-            size--;
+            interestCount--;
         } else {
             switch (errno) {
                 case ENOENT:
@@ -85,7 +85,7 @@ namespace core::epoll {
     }
 
     void DescriptorEventDispatcher::EPollEvents::compress() {
-        while (ePollEvents.size() > (size * 2) + 1) {
+        while (ePollEvents.size() > (interestCount * 2) + 1) {
             ePollEvents.resize(ePollEvents.size() / 2);
         }
     }
@@ -99,10 +99,10 @@ namespace core::epoll {
     }
 
     int DescriptorEventDispatcher::EPollEvents::getMaxEvents() const {
-        return static_cast<int>(size);
+        return static_cast<int>(interestCount);
     }
     void DescriptorEventDispatcher::EPollEvents::printStats(uint32_t events) {
-        VLOG(0) << "EPollEvents stats: Vector size = " << ePollEvents.size() << ", interrest count = " << size << ", events = " << events;
+        VLOG(0) << "EPollEvents stats: Events = " << events << ", size = " << ePollEvents.size() << ", interest count = " << interestCount;
     }
 
     bool DescriptorEventDispatcher::EventReceiverList::contains(core::EventReceiver* eventReceiver) const {
@@ -151,7 +151,7 @@ namespace core::epoll {
 
         if (!eventReceiver->isSuspended()) {
             if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
-                ePollEvents.del(eventReceiver);
+                ePollEvents.mod(eventReceiver, 0);
             }
         } else {
             LOG(WARNING) << "EventReceiver double suspend";
@@ -163,7 +163,7 @@ namespace core::epoll {
 
         if (eventReceiver->isSuspended()) {
             if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
-                ePollEvents.add(eventReceiver, events);
+                ePollEvents.mod(eventReceiver, events);
             }
         } else {
             LOG(WARNING) << "EventReceiver double resume " << fd;
@@ -209,6 +209,8 @@ namespace core::epoll {
                     observedEventReceiver[fd].push_front(eventReceiver);
                     if (!eventReceiver->isSuspended()) {
                         ePollEvents.add(eventReceiver, events);
+                    } else {
+                        ePollEvents.add(eventReceiver, 0);
                     }
                 } else {
                     eventReceiver->unobservedEvent();
@@ -247,12 +249,13 @@ namespace core::epoll {
         for (const auto& [fd, eventReceivers] : disabledEventReceiver) {
             for (core::EventReceiver* eventReceiver : eventReceivers) {
                 observedEventReceiver[fd].remove(eventReceiver);
-                if (observedEventReceiver[fd].empty() || observedEventReceiver[fd].front()->isSuspended()) {
-                    if (observedEventReceiver[fd].empty()) {
-                        observedEventReceiver.erase(fd);
-                    }
+                if (observedEventReceiver[fd].empty()) {
+                    ePollEvents.del(eventReceiver);
+                    observedEventReceiver.erase(fd);
+                } else if (observedEventReceiver[fd].front()->isSuspended()) {
+                    ePollEvents.mod(observedEventReceiver[fd].front(), 0);
                 } else {
-                    ePollEvents.add(observedEventReceiver[fd].front(), events);
+                    ePollEvents.mod(observedEventReceiver[fd].front(), events);
                     observedEventReceiver[fd].front()->triggered(currentTime);
                 }
                 eventReceiver->disabled();
@@ -262,9 +265,9 @@ namespace core::epoll {
             }
         }
 
-        if (!disabledEventReceiver.empty()) {
-            ePollEvents.compress();
-        }
+        ePollEvents.compress();
+
+        ePollEvents.printStats(events);
 
         disabledEventReceiver.clear();
     }
