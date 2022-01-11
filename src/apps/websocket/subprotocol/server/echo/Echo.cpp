@@ -29,7 +29,7 @@
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #define MAX_FLYING_PINGS 3
-#define PING_DELAY 5L
+#define PING_DELAY 5
 
 namespace web::websocket::subprotocol::echo::server {
 
