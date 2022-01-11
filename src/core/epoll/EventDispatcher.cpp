@@ -81,11 +81,9 @@ namespace core::epoll {
     }
 
     void EventDispatcher::dispatchActiveEvents(int count, const utils::Timeval& currentTime) {
-        if (count > 0) {
-            for (int i = 0; i < count; i++) {
-                if ((ePollEvents[i].events & EPOLLIN) != 0) {
-                    static_cast<DescriptorEventDispatcher*>(ePollEvents[i].data.ptr)->dispatchActiveEvents(currentTime);
-                }
+        for (int i = 0; i < count; i++) {
+            if ((ePollEvents[i].events & EPOLLIN) != 0) {
+                static_cast<DescriptorEventDispatcher*>(ePollEvents[i].data.ptr)->dispatchActiveEvents(currentTime);
             }
         }
 
