@@ -46,23 +46,31 @@ namespace core::epoll {
     private:
         class EPollEvents {
         public:
-            EPollEvents();
+            explicit EPollEvents(uint32_t event);
 
-            void add(core::EventReceiver* eventReceiver, uint32_t events);
-            void mod(core::EventReceiver* eventReceiver, uint32_t events);
+            void add(core::EventReceiver* eventReceiver);
             void del(core::EventReceiver* eventReceiver);
+
+        private:
+            void mod(core::EventReceiver* eventReceiver, uint32_t events);
+
+        public:
+            void modOn(core::EventReceiver* eventReceiver);
+            void modOff(core::EventReceiver* eventReceiver);
 
             void compress();
 
             int getEPFd() const;
             epoll_event* getEvents();
             int getMaxEvents() const;
-            void printStats(uint32_t events);
+            void printStats();
 
         private:
             int epfd;
             std::vector<epoll_event> ePollEvents;
             uint32_t interestCount;
+
+            uint32_t events;
         };
 
     public:
@@ -102,7 +110,6 @@ namespace core::epoll {
         std::map<int, EventReceiverList> disabledEventReceiver;
 
         EPollEvents ePollEvents;
-        uint32_t events;
 
         unsigned long eventCounter = 0;
     };
