@@ -19,9 +19,10 @@
 #include "core/epoll/DescriptorEventDispatcher.h"
 
 #include "core/EventReceiver.h"
-#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <algorithm> // for find, min
 #include <cerrno>

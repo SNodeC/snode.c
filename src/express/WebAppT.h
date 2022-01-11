@@ -22,9 +22,10 @@
 #include "express/Request.h"  // IWYU pragma: export
 #include "express/Response.h" // IWYU pragma: export
 #include "express/WebApp.h"   // IWYU pragma: export
-#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <any> // IWYU pragma: export
 #include <functional>

@@ -18,9 +18,9 @@
 
 #include "core/select/EventDispatcher.h"
 
-#include "core/system/select.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "core/system/select.h"
 
 #include <algorithm> // for min, find
 #include <climits>

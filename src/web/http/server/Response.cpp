@@ -18,7 +18,6 @@
 
 #include "web/http/server/Response.h"
 
-#include "log/Logger.h"
 #include "web/http/SocketContext.h"
 #include "web/http/StatusCodes.h"
 #include "web/http/http_utils.h"
@@ -28,6 +27,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/time.h"
+#include "log/Logger.h"
 
 #include <numeric>
 #include <utility> // for pair

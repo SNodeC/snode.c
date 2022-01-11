@@ -19,13 +19,13 @@
 #ifndef CORE_EVENTRECEIVER_H
 #define CORE_EVENTRECEIVER_H
 
-#include "utils/Timeval.h" // IWYU pragma: export
-
 namespace core {
     class DescriptorEventDispatcher;
 } // namespace core
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "utils/Timeval.h" // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

@@ -30,11 +30,10 @@
 #error "No valid I/O-Multiplexer selected! Use cmake option -DIO_Multiplexer=[epoll|poll|select]"
 #endif
 
-#include "log/Logger.h" // for Logger
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/signal.h"
+#include "log/Logger.h" // for Logger
 
 #include <cstdlib> // for exit
 #include <string>  // for string, to_string

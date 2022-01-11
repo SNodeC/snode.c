@@ -21,9 +21,10 @@
 
 #include "core/TickStatus.h"
 #include "express/Router.h" // IWYU pragma: export
-#include "utils/Timeval.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "utils/Timeval.h"
 
 #include <climits>
 

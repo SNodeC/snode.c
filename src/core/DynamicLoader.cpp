@@ -18,9 +18,9 @@
 
 #include "DynamicLoader.h"
 
-#include "log/Logger.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <utility> // for pair
 

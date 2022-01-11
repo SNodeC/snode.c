@@ -18,13 +18,14 @@
 
 #include "web/http/client/Response.h"
 
-#include "log/Logger.h"
 #include "web/http/CookieOptions.h"
 #include "web/http/SocketContext.h"
 #include "web/http/client/SocketContextUpgradeFactorySelector.h"
 #include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <iterator> // for advance, distance
 #include <utility>  // for pair

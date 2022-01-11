@@ -18,11 +18,12 @@
  */
 
 #include "core/DynamicLoader.h"
-#include "log/Logger.h"
 #include "web/http/SocketContextUpgradeFactorySelector.h"
 #include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <tuple> // for tie, tuple
 

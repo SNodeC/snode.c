@@ -17,11 +17,15 @@
         -- Volker Christian <me@vchrist.at>
 */
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include "utils/sha1.h"
 
 #include <cstdlib>
 #include <iomanip>
 #include <sys/types.h>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 /* Help macros */
 #define SHA1_ROL(value, bits) (((value) << (bits)) | (((value) &0xffffffff) >> (32 - (bits))))

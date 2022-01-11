@@ -20,9 +20,10 @@
 #define CORE_SNODEC_H
 
 #include "core/TickStatus.h"
-#include "utils/Timeval.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "utils/Timeval.h"
 
 #include <climits>
 

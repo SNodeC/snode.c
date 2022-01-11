@@ -21,9 +21,10 @@
 
 #include "core/socket/stream/SocketConnector.h"
 #include "core/socket/stream/tls/SocketConnection.h" // IWYU pragma: export
-#include "core/socket/stream/tls/ssl_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "core/socket/stream/tls/ssl_utils.h"
 
 #include <cstddef>
 

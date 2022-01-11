@@ -20,7 +20,6 @@
 #define CORE_EVENTLOOP_H
 
 #include "core/TickStatus.h"
-#include "utils/Timeval.h"
 
 namespace core {
     class EventDispatcher;
@@ -40,6 +39,8 @@ namespace core {
 } // namespace core
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "utils/Timeval.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

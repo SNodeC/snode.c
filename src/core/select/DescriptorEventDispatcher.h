@@ -20,14 +20,15 @@
 #define CORE_SELECT_DESCRIPTOREVENTDISPATCHER_H
 
 #include "core/DescriptorEventDispatcher.h" // IWYU pragma: export
-#include "core/system/select.h"
-#include "utils/Timeval.h"
 
 namespace core {
     class EventReceiver;
 } // namespace core
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "core/system/select.h"
+#include "utils/Timeval.h"
 
 #include <list>
 #include <map>

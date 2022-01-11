@@ -19,9 +19,9 @@
 #ifndef CORE_TIMEREVENTRECEIVER_H
 #define CORE_TIMEREVENTRECEIVER_H
 
-#include "utils/Timeval.h" // IWYU pragma: export
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "utils/Timeval.h" // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

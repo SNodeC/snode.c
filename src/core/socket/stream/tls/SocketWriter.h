@@ -21,10 +21,11 @@
 
 #include "core/socket/stream/SocketWriter.h"
 #include "core/socket/stream/tls/TLSHandshake.h"
-#include "core/socket/stream/tls/ssl_utils.h"
-#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "core/socket/stream/tls/ssl_utils.h"
+#include "log/Logger.h"
 
 #include <openssl/err.h>
 #include <openssl/ssl.h>

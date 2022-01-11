@@ -18,12 +18,13 @@
 
 #include "web/websocket/server/SocketContextUpgradeFactory.h"
 
-#include "utils/base64.h"
 #include "web/http/http_utils.h"
 #include "web/http/server/Request.h"  // for Request
 #include "web/http/server/Response.h" // for Response
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "utils/base64.h"
 
 #include <tuple>
 

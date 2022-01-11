@@ -20,9 +20,10 @@
 
 #include "express/Request.h"
 #include "express/Response.h"
-#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <map>
 #include <memory> // for shared_ptr, __shared_ptr_access

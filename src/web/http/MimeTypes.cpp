@@ -18,9 +18,9 @@
 
 #include "web/http/MimeTypes.h"
 
-#include "log/Logger.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <filesystem>
 #include <utility>

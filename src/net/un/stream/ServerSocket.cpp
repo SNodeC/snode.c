@@ -18,9 +18,9 @@
 
 #include "net/un/stream/ServerSocket.h" // IWYU pragma: export
 
-#include "log/Logger.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <cerrno> // for errno, ENOENT
 #include <cstdio> // for remove

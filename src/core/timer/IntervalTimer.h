@@ -20,9 +20,10 @@
 #define NET_TIMER_INTERVALTIMER_H
 
 #include "core/timer/Timer.h" // IWYU pragma: export
-#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

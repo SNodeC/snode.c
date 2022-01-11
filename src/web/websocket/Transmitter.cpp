@@ -18,9 +18,9 @@
 
 #include "web/websocket/Transmitter.h"
 
-#include "log/Logger.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <endian.h> // for be16toh, be32toh, be64toh, htobe32
 #include <iomanip>  // for operator<<, setfill, setw

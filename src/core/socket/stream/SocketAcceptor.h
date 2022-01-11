@@ -20,7 +20,6 @@
 #define CORE_SOCKET_STREAM_SOCKETACCEPTOR_H
 
 #include "core/AcceptEventReceiver.h"
-#include "log/Logger.h"
 
 namespace core::socket {
     class SocketContextFactory;
@@ -30,6 +29,7 @@ namespace core::socket {
 
 #include "core/system/socket.h"
 #include "core/system/unistd.h"
+#include "log/Logger.h"
 
 #include <any>
 #include <functional>

@@ -19,9 +19,9 @@
 #ifndef WEB_WEBSOCKET_SUBSPROTOCOL_H
 #define WEB_WEBSOCKET_SUBSPROTOCOL_H
 
-#include "log/Logger.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <cstddef>
 #include <cstdint>

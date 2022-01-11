@@ -20,9 +20,10 @@
 #define CORE_SOCKET_STREAM_SOCKETREADER_H
 
 #include "core/ReadEventReceiver.h"
-#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <cerrno>
 #include <cstddef> // for std::size_t

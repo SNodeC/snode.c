@@ -72,7 +72,7 @@ namespace core::poll {
         if (pollFd != (pollFds.begin() + size)) {
             pollFd->events &= ~events;
             if (pollFd->events == 0) {
-                pollFd->fd = -1;
+                pollFd->events = -1;
                 size--;
             }
         }
@@ -89,18 +89,19 @@ namespace core::poll {
     void EventDispatcher::PollFds::compress() {
         if (pollFds.size() > (size * 2) + 1) {
             std::vector<pollfd>::iterator it = pollFds.begin();
-            std::vector<pollfd>::iterator rit = pollFds.end() - 1;
+            std::vector<pollfd>::iterator rit = pollFds.begin() + size - 1;
 
             while (it < rit) {
-                while (it != pollFds.end() && it->fd != -1) {
+                while (it != pollFds.end() && it->events != 0) {
                     ++it;
                 }
-                //                while (rit >= it && rit->fd == -1) {
-                while (rit != pollFds.begin() && rit->fd == -1) {
+
+                //                while (rit >= it && rit->fd == 0) {
+                while (rit != pollFds.begin() && rit->events == 0) {
                     --rit;
                 }
 
-                while (it->fd == -1 && rit->fd != -1 && it < rit) {
+                while (it->events == 0 && rit->events != 0 && it < rit) {
                     pollfd tPollFd = *it;
                     *it = *rit;
                     *rit = tPollFd;

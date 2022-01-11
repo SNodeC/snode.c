@@ -22,9 +22,10 @@
 #include "core/socket/SocketConnection.h" // IWYU pragma: export
 #include "core/socket/SocketContext.h"
 #include "core/socket/SocketContextFactory.h"
-#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <cstddef>
 #include <functional>

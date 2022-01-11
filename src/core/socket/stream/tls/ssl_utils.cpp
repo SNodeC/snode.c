@@ -16,11 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include "core/socket/stream/tls/ssl_utils.h"
 
 #include "log/Logger.h"
-
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cerrno>  // for errno
 #include <cstdlib> // for free
