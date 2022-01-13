@@ -156,11 +156,11 @@ namespace core::poll {
                 exit(0);
             }
 
+            pollEvents.erase(fd);
+
             pollFd.fd = -1;
             interestCount--;
         }
-
-        pollEvents.erase(fd);
     }
 
     void PollFds::modOn(EventReceiver* eventReceiver, short event) {
@@ -184,10 +184,6 @@ namespace core::poll {
 
             pollfd& pollFd = pollFds[pollEvent.fds];
             pollFd.events &= ~event;
-            if (pollFd.events == 0) {
-                //                pollFd.fd = -2;
-            }
-            // pollFd.revents &= ~event;
             pollFd.revents = 0;
         }
     }
@@ -201,21 +197,7 @@ namespace core::poll {
                 std::map<int, PollEvent>::iterator it = pollEvents.find(pollFd.fd);
                 PollEvent& pollEvent = it->second;
 
-                /*
-                if ((revents & (POLLHUP | POLLRDHUP | POLLERR | POLLNVAL)) != 0) {
-                    switch (revents) {
-                        case POLLHUP:
-                        case POLLRDHUP:
-                        case POLLERR:
-                            pollEvent.eventReceivers[POLLIN]->trigger(currentTime);
-                            break;
-                        case POLLNVAL:
-                            PLOG(ERROR) << "This should never happen";
-                            break;
-                    }
-                } else {
-                */
-                if ((revents & (POLLIN | POLLHUP | POLLRDHUP | POLLERR)) != 0) {
+                if ((revents & (POLLIN /*| POLLHUP*/ | POLLRDHUP | POLLERR)) != 0) { // POLLHUP leads to doubleDisable
                     pollEvent.eventReceivers[POLLIN]->trigger(currentTime);
                 }
                 if ((revents & POLLOUT) != 0) {
@@ -229,7 +211,6 @@ namespace core::poll {
                                 << std::endl;
                     exit(0);
                 }
-                //            }
             }
         }
     }
@@ -243,25 +224,29 @@ namespace core::poll {
     }
 
     void PollFds::compress() {
-        std::vector<pollfd>::iterator it = pollFds.begin();
-        std::vector<pollfd>::iterator rit = pollFds.begin() + static_cast<long>(pollFds.size()) - 1;
+        if (interestCount > 0) {
+            //            if (pollFds.size() > 1) {
+            std::vector<pollfd>::iterator it = pollFds.begin();
+            std::vector<pollfd>::iterator rit = pollFds.begin() + static_cast<long>(pollFds.size()) - 1;
 
-        while (it < rit) {
-            while (it != pollFds.end() && it->fd != -1) {
-                ++it;
-            }
+            while (it < rit) {
+                while (it != pollFds.end() && it->fd != -1) {
+                    ++it;
+                }
 
-            while (rit >= it && rit->fd == -1) {
-                --rit;
-            }
+                while (rit != pollFds.begin() && rit->fd == -1) {
+                    --rit;
+                }
 
-            while (it->fd == -1 && rit->fd != -1 && it < rit) {
-                pollfd tPollFd = *it;
-                *it = *rit;
-                *rit = tPollFd;
-                ++it;
-                --rit;
+                while (it->fd == -1 && rit->fd != -1 && it < rit) {
+                    pollfd tPollFd = *it;
+                    *it = *rit;
+                    *rit = tPollFd;
+                    ++it;
+                    --rit;
+                }
             }
+            //            }
         }
 
         while (pollFds.size() > (interestCount * 2) + 1) {
