@@ -117,8 +117,6 @@ namespace core::poll {
 
             pollEvent.set(event, eventReceiver);
 
-            VLOG(0) << "Event registered: fd = " << fd << ", fds = " << pollEvent.fds << ", event = " << std::hex << event << std::dec;
-
             pollFds[pollEvent.fds].events |= event;
             pollFds[pollEvent.fds].fd = fd;
         }
@@ -127,7 +125,9 @@ namespace core::poll {
     void PollFds::del(EventReceiver* eventReceiver, short event) {
         int fd = eventReceiver->getRegisteredFd();
 
+#ifdef DEBUG_DEL
         VLOG(0) << "Call del fd = " << fd << ", event = " << std::hex << event << std::dec << std::endl;
+#endif
 
         std::map<int, PollEvent>::iterator it = pollEvents.find(fd);
         if (it != pollEvents.end()) {
@@ -136,11 +136,6 @@ namespace core::poll {
             pollfd& pollFd = pollFds[pollEvent.fds];
             pollFd.events &= ~event;
             pollFd.fd = fd;
-
-            //            if (pollFd.events == 0) {
-            //                pollFd.fd = -1;
-            //                interestCount--;
-            //            }
         }
     }
 
@@ -153,7 +148,9 @@ namespace core::poll {
 
             pollfd& pollFd = pollFds[pollEvent.fds];
 
+#ifdef DEBUG_FINISH
             std::cout << "Calling finished: pollFd.fd = " << pollFd.fd << " fds = " << pollEvent.fds << std::endl;
+#endif
 
             if (pollFd.fd != fd && pollFd.fd != -2 && pollFd.fd != -1) {
                 exit(0);
@@ -272,9 +269,10 @@ namespace core::poll {
         }
 
         for (uint32_t i = 0; i < interestCount; i++) {
+#ifdef DEBUG_COMPRESS
             VLOG(0) << "Compress: fd = " << pollFds[i].fd << ", bevore fds = " << pollEvents.find(pollFds[i].fd)->second.fds
                     << ", new fds = " << i;
-
+#endif
             if (pollFds[i].fd >= 0) {
                 pollEvents.find(pollFds[i].fd)->second.fds = i;
             } else {
@@ -393,39 +391,53 @@ namespace core::poll {
     }
 
     void EventDispatcher::observeEnabledEvents() {
+#ifdef DEBUG_STATS
         pollFds.printStats("Bevore observed");
+#endif
 
         for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
             eventDispatcher.observeEnabledEvents();
         }
 
+#ifdef DEBUG_STATS
         pollFds.printStats("After observed");
+#endif
     }
 
     void EventDispatcher::dispatchActiveEvents(int count, const utils::Timeval& currentTime) {
+#ifdef DEBUG_STATS
         pollFds.printStats("Bevore dispatchd");
+#endif
 
         if (count > 0) {
             pollFds.dispatch(currentTime);
         }
 
+#ifdef DEBUG_STATS
         pollFds.printStats("Midd dispatchd");
+#endif
 
         for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
             eventDispatcher.dispatchImmediateEvents(currentTime);
         }
 
+#ifdef DEBUG_STATS
         pollFds.printStats("After dispatchd");
+#endif
     }
 
     void EventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
+#ifdef DEBUG_STATS
         pollFds.printStats("Bevore unobserve");
+#endif
 
         for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
             eventDispatcher.unobserveDisabledEvents(currentTime);
         }
 
+#ifdef DEBUG_STATS
         pollFds.printStats("After unobserve");
+#endif
     }
 
     TickStatus EventDispatcher::dispatch(const utils::Timeval& tickTimeOut, bool stopped) {
