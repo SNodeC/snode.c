@@ -76,7 +76,7 @@ namespace core::poll {
             bool contains(core::EventReceiver* descriptorEventReceiver) const;
         };
 
-        [[maybe_unused]] core::poll::PollFds& pollFds;
+        core::poll::PollFds& pollFds;
 
         std::map<int, EventReceiverList> enabledEventReceiver;
         std::map<int, EventReceiverList> observedEventReceiver;

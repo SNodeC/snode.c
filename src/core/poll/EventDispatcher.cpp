@@ -109,7 +109,7 @@ namespace core::poll {
                 pollFd.events = 0;
                 pollFd.revents = 0;
 
-                pollFds.resize(pollFds.size() * 2, {-1, 0, 0});
+                pollFds.resize(pollFds.size() * 2, pollFd);
             }
 
         } else {
@@ -134,7 +134,7 @@ namespace core::poll {
             PollEvent& pollEvent = it->second;
 
             pollfd& pollFd = pollFds[pollEvent.fds];
-            pollFd.events &= ~event;
+            pollFd.events &= static_cast<short>(~event);
             pollFd.fd = fd;
         }
     }
@@ -183,7 +183,7 @@ namespace core::poll {
             PollEvent& pollEvent = it->second;
 
             pollfd& pollFd = pollFds[pollEvent.fds];
-            pollFd.events &= ~event;
+            pollFd.events &= static_cast<short>(~event);
             pollFd.revents = 0;
         }
     }
@@ -207,8 +207,8 @@ namespace core::poll {
                     pollEvent.eventReceivers[POLLPRI]->trigger(currentTime);
                 }
                 if ((revents & POLLNVAL) != 0) {
-                    PLOG(ERROR) << "This should never happen fd = " << pollFd.fd << ", revents = " << std::hex << revents << std::dec
-                                << std::endl;
+                    PLOG(ERROR) << "Poll revents countains POLLNVAL. This should never happen fd = " << pollFd.fd
+                                << ", revents = " << std::hex << revents << std::dec << std::endl;
                     exit(0);
                 }
             }
@@ -225,7 +225,6 @@ namespace core::poll {
 
     void PollFds::compress() {
         if (interestCount > 0) {
-            //            if (pollFds.size() > 1) {
             std::vector<pollfd>::iterator it = pollFds.begin();
             std::vector<pollfd>::iterator rit = pollFds.begin() + static_cast<long>(pollFds.size()) - 1;
 
@@ -234,7 +233,7 @@ namespace core::poll {
                     ++it;
                 }
 
-                while (rit != pollFds.begin() && rit->fd == -1) {
+                while (rit >= it && rit->fd == -1) {
                     --rit;
                 }
 
@@ -246,22 +245,21 @@ namespace core::poll {
                     --rit;
                 }
             }
-            //            }
-        }
 
-        while (pollFds.size() > (interestCount * 2) + 1) {
-            pollFds.resize(pollFds.size() / 2);
-        }
+            while (pollFds.size() > (interestCount * 2) + 1) {
+                pollFds.resize(pollFds.size() / 2);
+            }
 
-        for (uint32_t i = 0; i < interestCount; i++) {
+            for (uint32_t i = 0; i < interestCount; i++) {
 #ifdef DEBUG_COMPRESS
-            VLOG(0) << "Compress: fd = " << pollFds[i].fd << ", bevore fds = " << pollEvents.find(pollFds[i].fd)->second.fds
-                    << ", new fds = " << i;
+                VLOG(0) << "Compress: fd = " << pollFds[i].fd << ", bevore fds = " << pollEvents.find(pollFds[i].fd)->second.fds
+                        << ", new fds = " << i;
 #endif
-            if (pollFds[i].fd >= 0) {
-                pollEvents.find(pollFds[i].fd)->second.fds = i;
-            } else {
-                exit(0);
+                if (pollFds[i].fd >= 0) {
+                    pollEvents.find(pollFds[i].fd)->second.fds = i;
+                } else {
+                    exit(0);
+                }
             }
         }
     }
