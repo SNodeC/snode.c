@@ -93,6 +93,10 @@ namespace core::socket::stream {
             std::size_t writeLen = (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE;
             if (!shutdownTriggered) {
                 retWrite = write(writeBuffer.data(), writeLen);
+
+                int errnum = errno;
+                //                PLOG(ERROR) << "Write++++++++++";
+                errno = errnum;
             }
 
             if (retWrite >= 0) {

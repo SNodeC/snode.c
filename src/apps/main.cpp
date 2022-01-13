@@ -191,6 +191,14 @@ int timerApp() {
 }
 
 int main(int argc, char** argv) {
+    std::vector<int> v1{1, 2, 3, 4, 5};
+    for (std::vector<int>::reverse_iterator it = v1.rbegin(); it != v1.rend(); ++it) {
+        std::cout << *it;
+    } // prints 54321
+
+    std::cout << std::endl;
+    exit(0);
+
     std::vector<int> v{};
 
     std::vector<int>::iterator it = v.begin();
@@ -202,7 +210,7 @@ int main(int argc, char** argv) {
             k++;
             ++it;
         }
-        while (rit != v.begin() && *rit == -1) {
+        while (rit >= it && *rit == -1) {
             k++;
             --rit;
         }

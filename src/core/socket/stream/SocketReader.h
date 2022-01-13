@@ -97,6 +97,10 @@ namespace core::socket::stream {
                 std::size_t readLen = MAX_READ_JUNKSIZE - size;
                 retRead = read(data + size, readLen);
 
+                int errnum = errno;
+                //                PLOG(ERROR) << "Read++++++++++";
+                errno = errnum;
+
                 if (retRead > 0) {
                     size += static_cast<std::size_t>(retRead);
                 } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {

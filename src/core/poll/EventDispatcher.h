@@ -46,6 +46,7 @@ namespace core::poll {
         void modOn(core::EventReceiver* eventReceiver, short event);
         void modOff(core::EventReceiver* eventReceiver, short event);
 
+        void dispatch(const utils::Timeval& currentTime);
         void dispatch(short event, const utils::Timeval& currentTime);
 
         pollfd* getEvents();
@@ -55,17 +56,11 @@ namespace core::poll {
 
     private:
         struct PollEvent {
-            explicit PollEvent(pollfds_size_type fds)
-                : fds(fds) {
-            }
+            explicit PollEvent(pollfds_size_type fds);
 
-            void add(short event, core::EventReceiver* eventReceiver) {
-                eventReceivers.insert({event, eventReceiver});
-            }
+            void set(short event, core::EventReceiver* eventReceiver);
 
-            void del(short event) {
-                eventReceivers.erase(event);
-            }
+            void del1(short event);
 
             pollfds_size_type fds;
             std::map<short, core::EventReceiver*> eventReceivers;
