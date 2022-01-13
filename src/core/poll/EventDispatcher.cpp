@@ -237,42 +237,6 @@ namespace core::poll {
         }
     }
 
-    void PollFds::dispatch(short event, const utils::Timeval& currentTime) {
-        VLOG(0) << "===========================================";
-        for (uint32_t i = 0; i < interestCount; i++) {
-            pollfd& pollFd = pollFds[i];
-
-            VLOG(0) << "********* 1 : fd = " << pollFd.fd << ", events = " << pollFd.revents << ", pevents = " << event;
-
-            if ((pollFd.revents & (event | POLLNVAL)) != 0) {
-                VLOG(0) << "********* 2 : " << pollFd.events;
-                pollFd.revents &= ~event;
-                std::map<int, PollEvent>::iterator it = pollEvents.find(pollFd.fd);
-                if (it != pollEvents.end()) {
-                    VLOG(0) << "********* 3 : " << pollFd.events;
-                    if (it->second.eventReceivers.contains(event)) {
-                        core::EventReceiver* eventReceiver = it->second.eventReceivers[event];
-                        VLOG(0) << "********* 4 : " << pollFd.events << ", immediately: " << eventReceiver->continueImmediately()
-                                << ", suspended: " << eventReceiver->isSuspended();
-                        if (!eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
-                            VLOG(0) << "********* 5 : " << pollFd.events;
-                            it->second.eventReceivers[event]->trigger(currentTime);
-                        }
-                    } else {
-                        VLOG(0) << "Event not found";
-                        exit(0);
-                    }
-                } else {
-                    VLOG(0) << "Fd not found";
-                    exit(0);
-                }
-            } else {
-                VLOG(0) << "Not my event";
-            }
-        }
-        VLOG(0) << "===========================================";
-    }
-
     pollfd* PollFds::getEvents() {
         return pollFds.data();
     }
@@ -443,10 +407,6 @@ namespace core::poll {
 
         if (count > 0) {
             pollFds.dispatch(currentTime);
-            /*for (core::poll::DescriptorEventDispatcher& ed : eventDispatcher) {
-                ed.dispatchActiveEvents(currentTime);
-            }
-            */
         }
 
         pollFds.printStats("Midd dispatchd");

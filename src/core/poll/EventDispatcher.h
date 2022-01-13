@@ -47,7 +47,6 @@ namespace core::poll {
         void modOff(core::EventReceiver* eventReceiver, short event);
 
         void dispatch(const utils::Timeval& currentTime);
-        void dispatch(short event, const utils::Timeval& currentTime);
 
         pollfd* getEvents();
         nfds_t getMaxEvents() const;

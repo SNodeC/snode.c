@@ -148,7 +148,7 @@ namespace core::poll {
     }
 
     void DescriptorEventDispatcher::dispatchActiveEvents([[maybe_unused]] const utils::Timeval& currentTime) {
-        pollFds.dispatch(events, currentTime);
+        pollFds.dispatch(currentTime);
     }
 
     void DescriptorEventDispatcher::dispatchImmediateEvents(const utils::Timeval& currentTime) {
