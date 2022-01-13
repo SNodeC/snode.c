@@ -92,6 +92,7 @@ namespace core::poll {
         int fd = eventReceiver->getRegisteredFd();
 
         std::map<int, PollEvent>::iterator it = pollEvents.find(fd);
+
         if (it == pollEvents.end()) {
             pollFds[interestCount].events = event;
             pollFds[interestCount].fd = fd;
@@ -102,7 +103,7 @@ namespace core::poll {
             pollEvents.insert({fd, pollEvent});
             interestCount++;
 
-            if (interestCount >= pollFds.size()) {
+            if (interestCount == pollFds.size()) {
                 pollfd pollFd;
 
                 pollFd.fd = -1;
@@ -111,7 +112,6 @@ namespace core::poll {
 
                 pollFds.resize(pollFds.size() * 2, pollFd);
             }
-
         } else {
             PollEvent& pollEvent = it->second;
 
@@ -123,43 +123,40 @@ namespace core::poll {
     }
 
     void PollFds::del(EventReceiver* eventReceiver, short event) {
-        int fd = eventReceiver->getRegisteredFd();
-
 #ifdef DEBUG_DEL
         VLOG(0) << "Call del fd = " << fd << ", event = " << std::hex << event << std::dec << std::endl;
 #endif
 
+        int fd = eventReceiver->getRegisteredFd();
+
         std::map<int, PollEvent>::iterator it = pollEvents.find(fd);
+
         if (it != pollEvents.end()) {
             PollEvent& pollEvent = it->second;
 
             pollfd& pollFd = pollFds[pollEvent.fds];
-            pollFd.events &= static_cast<short>(~event);
-            pollFd.fd = fd;
+            pollFd.events &= static_cast<short>(~event); // tilde promotes to int
         }
     }
 
     void PollFds::finish(EventReceiver* eventReceiver) {
+#ifdef DEBUG_FINISH
+        std::cout << "Calling finished: pollFd.fd = " << pollFd.fd << " fds = " << pollEvent.fds << std::endl;
+#endif
+
         int fd = eventReceiver->getRegisteredFd();
 
         std::map<int, PollEvent>::iterator it = pollEvents.find(fd);
+
         if (it != pollEvents.end()) {
             PollEvent& pollEvent = it->second;
 
             pollfd& pollFd = pollFds[pollEvent.fds];
 
-#ifdef DEBUG_FINISH
-            std::cout << "Calling finished: pollFd.fd = " << pollFd.fd << " fds = " << pollEvent.fds << std::endl;
-#endif
-
-            if (pollFd.fd != fd && pollFd.fd != -2 && pollFd.fd != -1) {
-                exit(0);
-            }
+            pollFd.fd = -1; // Compress will keep track of that descriptor
+            interestCount--;
 
             pollEvents.erase(fd);
-
-            pollFd.fd = -1;
-            interestCount--;
         }
     }
 

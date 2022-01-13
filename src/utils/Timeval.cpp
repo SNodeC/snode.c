@@ -160,7 +160,8 @@ namespace utils {
 
     int Timeval::ms() const {
         int ms = 0;
-        if (timeVal.tv_sec > (LONG_MAX / 1'000) - 1) {
+
+        if (timeVal.tv_sec > INT_MAX - 1) {
             ms = INT_MAX;
         } else {
             ms = static_cast<int>(timeVal.tv_sec * 1'000 + timeVal.tv_usec / 1'000);

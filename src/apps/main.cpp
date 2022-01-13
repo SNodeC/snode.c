@@ -191,50 +191,6 @@ int timerApp() {
 }
 
 int main(int argc, char** argv) {
-    std::vector<int> v1{1, 2, 3, 4, 5};
-    for (std::vector<int>::reverse_iterator it = v1.rbegin(); it != v1.rend(); ++it) {
-        std::cout << *it;
-    } // prints 54321
-
-    std::cout << std::endl;
-    exit(0);
-
-    std::vector<int> v{};
-
-    std::vector<int>::iterator it = v.begin();
-    std::vector<int>::iterator rit = v.end() - 1;
-
-    int k = 0;
-    while (it < rit) {
-        while (it != v.end() && *it != -1) {
-            k++;
-            ++it;
-        }
-        while (rit >= it && *rit == -1) {
-            k++;
-            --rit;
-        }
-
-        while (*it == -1 && *rit != -1 && it < rit) {
-            k++;
-            std::cout << *it << " <-> " << *rit << std::endl;
-            int tmp = *it;
-            *it = *rit;
-            *rit = tmp;
-            ++it;
-            --rit;
-            std::cout << *it << " >-< " << *rit << std::endl;
-        }
-    }
-
-    for ([[maybe_unused]] int i : v) {
-        std::cout << i << ", " << std::endl;
-    }
-
-    std::cout << "hihi " << k << std::endl;
-
-    exit(0);
-
     express::WebApp::init(argc, argv);
 
     File test;
