@@ -28,8 +28,8 @@
 
 namespace core {
 
-    const utils::Timeval EventReceiver::TIMEOUT::DEFAULT = {-1, 0};
-    const utils::Timeval EventReceiver::TIMEOUT::DISABLE = {LONG_MAX, 0};
+    const utils::Timeval EventReceiver::TIMEOUT::DEFAULT = {-2, 0};
+    const utils::Timeval EventReceiver::TIMEOUT::DISABLE = {-1, 0};
 
     EventReceiver::EventReceiver(DescriptorEventDispatcher& descriptorEventDispatcher, const utils::Timeval& timeout)
         : descriptorEventDispatcher(descriptorEventDispatcher)
@@ -105,7 +105,7 @@ namespace core {
     }
 
     utils::Timeval EventReceiver::getTimeout(const utils::Timeval& currentTime) const {
-        return maxInactivity - (currentTime - lastTriggered);
+        return (maxInactivity > 0) ? maxInactivity - (currentTime - lastTriggered) : utils::Timeval({LONG_MAX, 0});
     }
 
     void EventReceiver::triggered(const utils::Timeval& currentTime) {
@@ -119,7 +119,7 @@ namespace core {
     }
 
     void EventReceiver::checkTimeout(const utils::Timeval& currentTime) {
-        if (currentTime - lastTriggered >= maxInactivity) {
+        if (maxInactivity > 0 && currentTime - lastTriggered >= maxInactivity) {
             timeoutEvent();
         }
     }

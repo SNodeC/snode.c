@@ -25,8 +25,6 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define MAX_ACCEPT_INACTIVITY LONG_MAX
-
 namespace core {
 
     AcceptEventReceiver::AcceptEventReceiver(const utils::Timeval& timeout)
