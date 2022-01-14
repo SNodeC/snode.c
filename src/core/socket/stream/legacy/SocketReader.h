@@ -20,14 +20,10 @@
 #define CORE_SOCKET_STREAM_LEGACY_SOCKETREADER_H
 
 #include "core/socket/stream/SocketReader.h"
-#include "core/system/socket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cerrno>
-#include <cstddef> // for std::size_t
-#include <sys/socket.h>
-#include <sys/types.h> // for ssize_t
+#include "core/system/socket.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -43,11 +39,9 @@ namespace core::socket::stream::legacy {
             return core::system::recv(this->getFd(), junk, junkLen, 0);
         }
 
-        bool continueReadImmediately() override {
+        bool continueReadImmediately() const override {
             return Super::continueReadImmediately();
         }
-
-        virtual void readEvent() override = 0;
 
     protected:
         void terminate() override {

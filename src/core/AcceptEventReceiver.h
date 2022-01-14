@@ -23,17 +23,15 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <climits> // for LONG_MAX
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define MAX_ACCEPT_INACTIVITY LONG_MAX
+#define MAX_ACCEPT_INACTIVITY EventReceiver::TIMEOUT::DISABLE
 
 namespace core {
 
     class AcceptEventReceiver : public EventReceiver {
     protected:
-        AcceptEventReceiver(long timeout = MAX_ACCEPT_INACTIVITY);
+        AcceptEventReceiver(const utils::Timeval& timeout = MAX_ACCEPT_INACTIVITY);
 
     private:
         virtual void acceptEvent() = 0;
@@ -41,10 +39,9 @@ namespace core {
 
         void dispatchEvent() final;
         void timeoutEvent() final;
-        bool continueImmediately() final;
+        bool continueImmediately() const final;
 
-    protected:
-        virtual bool continueAcceptImmediately();
+        virtual bool continueAcceptImmediately() const;
     };
 
 } // namespace core

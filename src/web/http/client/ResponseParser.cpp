@@ -23,12 +23,16 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <cstddef>
 #include <regex>   // for regex_match, match_results<>::_Base_type
 #include <tuple>   // for tie, tuple
 #include <utility> // for tuple_element<>::type, pair
-#include <vector>  // for vector
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+// ************** TWO LINER ***************
+// openssl s_server -CAfile snode.c_-_Root_CA.crt -cert snode.c_-_server.pem -CAfile snode.c_-_Root_CA.crt -key
+// snode.c_-_server.key.encrypted.pem -www -port 8088 -msg -Verify 1
 
 namespace web::http::client {
 
@@ -37,7 +41,7 @@ namespace web::http::client {
         const std::function<void(void)>& onStart,
         const std::function<void(const std::string&, const std::string&, const std::string&)>& onResponse,
         const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, CookieOptions>&)>& onHeader,
-        const std::function<void(char*, std::size_t)>& onContent,
+        const std::function<void(std::vector<uint8_t>&)>& onContent,
         const std::function<void(ResponseParser&)>& onParsed,
         const std::function<void(int, const std::string&)>& onError)
         : Parser(socketContext)
@@ -73,6 +77,9 @@ namespace web::http::client {
             if (!std::regex_match(httpVersion, httpVersionMatch, httpVersionRegex)) {
                 parserState = parsingError(400, "Wrong protocol version");
             } else {
+                httpMajor = std::stoi(httpVersionMatch.str(1));
+                httpMinor = std::stoi(httpVersionMatch.str(2));
+
                 std::tie(statusCode, reason) = httputils::str_split(remaining, ' ');
                 if (StatusCode::contains(std::stoi(statusCode))) {
                     if (!reason.empty()) {
@@ -91,7 +98,7 @@ namespace web::http::client {
     }
 
     enum Parser::ParserState ResponseParser::parseHeader() {
-        for (const auto& [headerFieldName, headerFieldValue] : Parser::headers) {
+        for (const auto& [headerFieldName, headerFieldValue] : Parser::headers) { // cppcheck-suppress unassignedVariable
             if (headerFieldName != "set-cookie") {
                 if (headerFieldName == "content-length") {
                     Parser::contentLength = static_cast<std::size_t>(std::stoi(headerFieldValue));
@@ -140,7 +147,7 @@ namespace web::http::client {
         onHeader(Parser::headers, cookies);
 
         enum Parser::ParserState parserState = Parser::ParserState::BODY;
-        if (contentLength == 0) {
+        if (contentLength == 0 && httpMinor == 1) {
             parsingFinished();
             parserState = ParserState::BEGIN;
         }
@@ -148,8 +155,8 @@ namespace web::http::client {
         return parserState;
     }
 
-    enum Parser::ParserState ResponseParser::parseContent(char* content, std::size_t size) {
-        onContent(content, size);
+    Parser::ParserState ResponseParser::parseContent(std::vector<uint8_t>& content) {
+        onContent(content);
         parsingFinished();
 
         return ParserState::BEGIN;

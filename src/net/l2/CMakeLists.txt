@@ -5,11 +5,22 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(BLUEZ bluez)
 
 if(BLUEZ_FOUND)
-
-    add_library(
-        net-l2 SHARED SocketAddress.cpp stream/Socket.cpp
-                      stream/ServerSocket.cpp stream/ClientSocket.cpp
+    set(NET-L2_CPP SocketAddress.cpp stream/Socket.cpp stream/ServerSocket.cpp
+                   stream/ClientSocket.cpp
     )
+
+    set(NET-L2_H
+        SocketAddress.h
+        stream/Socket.h
+        stream/ServerSocket.h
+        stream/ClientSocket.h
+        stream/legacy/SocketServer.h
+        stream/legacy/SocketClient.h
+        stream/tls/SocketServer.h
+        stream/tls/SocketClient.h
+    )
+
+    add_library(net-l2 SHARED ${NET-L2_CPP} ${NET-L2_H})
     add_library(snodec::net-l2 ALIAS net-l2)
 
     target_include_directories(

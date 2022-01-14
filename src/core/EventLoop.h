@@ -19,58 +19,69 @@
 #ifndef CORE_EVENTLOOP_H
 #define CORE_EVENTLOOP_H
 
-#include "core/EventDispatcher.h"
 #include "core/TickStatus.h"
-#include "core/TimerEventDispatcher.h"
+
+namespace core {
+    class EventDispatcher;
+#if defined(USE_EPOLL)
+    namespace epoll {
+        class EventDispatcher;
+    }
+#elif defined(USE_POLL)
+    namespace poll {
+        class EventDispatcher;
+    }
+#elif defined(USE_SELECT)
+    namespace select {
+        class EventDispatcher;
+    }
+#endif
+} // namespace core
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "utils/Timeval.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
 
     class EventLoop {
+        EventLoop() = delete;
+
         EventLoop(const EventLoop& eventLoop) = delete;
         EventLoop& operator=(const EventLoop& eventLoop) = delete;
 
-    private:
-        EventLoop() = default;
-        ~EventLoop() = default;
+        ~EventLoop() = delete;
 
     public:
-        static EventLoop& instance();
-
-        EventDispatcher& getReadEventDispatcher();
-        EventDispatcher& getWriteEventDispatcher();
-        EventDispatcher& getExceptionalConditionEventDispatcher();
-        TimerEventDispatcher& getTimerEventDispatcher();
-
-        unsigned long getEventCounter();
-        unsigned long getTickCounter();
+        static unsigned long getTickCounter();
+        static EventDispatcher& getEventDispatcher();
 
     private:
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
         static void init(int argc, char* argv[]);
-        static int start(struct timeval timeOut);
-        static TickStatus tick(struct timeval timeOut = {});
+        static TickStatus _tick(const utils::Timeval& timeOut, bool stopped);
+        static TickStatus tick(const utils::Timeval& timeOut = 0);
+        static int start(const utils::Timeval& timeOut);
         static void free();
 
         static void stoponsig(int sig);
 
-        TickStatus _tick(struct timeval timeOut);
-
-        EventDispatcher readEventDispatcher;
-        EventDispatcher writeEventDispatcher;
-        EventDispatcher exceptionalConditionEventDispatcher;
-
-        TimerEventDispatcher timerEventDispatcher;
+#if defined(USE_EPOLL)
+        static core::epoll::EventDispatcher eventDispatcher;
+#elif defined(USE_POLL)
+        static core::poll::EventDispatcher eventDispatcher;
+#elif defined(USE_SELECT)
+        static core::select::EventDispatcher eventDispatcher;
+#endif
 
         static bool running;
         static bool stopped;
         static int stopsig;
         static bool initialized;
 
-        unsigned long tickCounter = 0;
+        static unsigned long tickCounter;
 
         friend class SNodeC;
     };

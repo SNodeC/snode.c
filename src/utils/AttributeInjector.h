@@ -30,7 +30,7 @@ namespace std {
     template <unsigned N>
     struct fixed_string {
         char buf[N + 1]{};
-        constexpr fixed_string(char const* s) {
+        constexpr fixed_string(char const* s) { // cppcheck-suppress noExplicitConstructor
             for (unsigned i = 0; i != N; ++i)
                 buf[i] = s[i];
         }
@@ -56,7 +56,7 @@ namespace utils {
     template <InjectableAttribute Attribute>
     class AttributeProxy {
     public:
-        explicit constexpr AttributeProxy(const Attribute& attribute)
+        constexpr explicit AttributeProxy(const Attribute& attribute)
             : attribute(attribute) { // copy constructor neccessary
         }
 

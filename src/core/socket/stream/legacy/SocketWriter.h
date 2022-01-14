@@ -20,13 +20,10 @@
 #define CORE_SOCKET_STREAM_LEGACY_SOCKETWRITER_H
 
 #include "core/socket/stream/SocketWriter.h"
-#include "core/system/socket.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // for std::size_t
-#include <sys/socket.h>
-#include <sys/types.h> // for ssize_t
+#include "core/system/socket.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

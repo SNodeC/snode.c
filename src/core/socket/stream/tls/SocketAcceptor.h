@@ -21,10 +21,11 @@
 
 #include "core/socket/stream/SocketAcceptor.h"
 #include "core/socket/stream/tls/SocketConnection.h" // IWYU pragma: export
-#include "core/socket/stream/tls/ssl_utils.h"
-#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "core/socket/stream/tls/ssl_utils.h"
+#include "log/Logger.h"
 
 #include <cstddef>
 #include <map>
@@ -37,7 +38,7 @@
 namespace core::socket::stream::tls {
 
     template <typename SocketT>
-    class SocketAcceptor : public core::socket::stream::SocketAcceptor<core::socket::stream::tls::SocketConnection<SocketT>> {
+    class SocketAcceptor : protected core::socket::stream::SocketAcceptor<core::socket::stream::tls::SocketConnection<SocketT>> {
     private:
         using Super = core::socket::stream::SocketAcceptor<core::socket::stream::tls::SocketConnection<SocketT>>;
 
@@ -47,7 +48,7 @@ namespace core::socket::stream::tls {
         using SocketAddress = typename Super::SocketAddress;
 
         SocketAcceptor(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
-                       const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
+                       const std::function<void(SocketConnection*)>& onConnect,
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,
                        const std::map<std::string, std::any>& options)
@@ -65,7 +66,6 @@ namespace core::socket::stream::tls {
                           socketConnection->doSSLHandshake(
                               [&onConnected, socketConnection](void) -> void { // onSuccess
                                   LOG(INFO) << "SSL/TLS initial handshake success";
-                                  socketConnection->SocketConnection::SocketReader::resume();
                                   onConnected(socketConnection);
                               },
                               [](void) -> void { // onTimeout
@@ -75,8 +75,7 @@ namespace core::socket::stream::tls {
                                   ssl_log("SSL/TLS initial handshake failed", sslErr);
                               });
                       } else {
-                          socketConnection->SocketConnection::SocketReader::disable();
-                          socketConnection->SocketConnection::SocketWriter::disable();
+                          socketConnection->close();
                           ssl_log_error("SSL/TLS initialization failed");
                       }
                   },
@@ -141,16 +140,16 @@ namespace core::socket::stream::tls {
             int ret = SSL_TLSEXT_ERR_OK;
 
             SocketAcceptor* socketAcceptor = static_cast<SocketAcceptor*>(arg);
-            std::shared_ptr<std::map<std::string, SSL_CTX*>> sniSslCtxs = socketAcceptor->sniSslCtxs;
 
             if (SSL_get_servername_type(ssl) != -1) {
                 std::string serverNameIndication = SSL_get_servername(ssl, TLSEXT_NAMETYPE_host_name);
 
                 if (!socketAcceptor->masterSslCtxDomains.contains(serverNameIndication)) {
-                    if (sniSslCtxs->contains(serverNameIndication)) {
-                        SSL_CTX* sniSslCtx = (*sniSslCtxs.get())[serverNameIndication];
+                    if (socketAcceptor->sniSslCtxs->contains(serverNameIndication)) {
+                        SSL_CTX* sniSslCtx = (*socketAcceptor->sniSslCtxs.get())[serverNameIndication];
 
                         SSL_CTX* nowUsedSslCtx = SSL_set_SSL_CTX(ssl, sniSslCtx);
+
                         if (nowUsedSslCtx == sniSslCtx) {
                             LOG(INFO) << "SSL_CTX: Switched for SNI '" << serverNameIndication << "'";
                         } else if (nowUsedSslCtx != nullptr) {

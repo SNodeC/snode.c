@@ -34,41 +34,29 @@ namespace core::timer {
 
 namespace core::timer {
 
-    class Timer : public TimerEventReceiver {
-        Timer(const Timer&) = delete;
-        Timer& operator=(const Timer& timer) = delete;
-
+    class Timer : protected TimerEventReceiver {
     protected:
-        Timer(const struct timeval& timeout, const void* arg);
+        using TimerEventReceiver::TimerEventReceiver;
 
         virtual ~Timer() = default;
 
     public:
         static IntervalTimer& intervalTimer(const std::function<void(const void*, const std::function<void()>& stop)>& dispatcher,
-                                            const struct timeval& timeout,
+                                            const utils::Timeval& timeout,
                                             const void* arg);
 
         static IntervalTimer&
-        intervalTimer(const std::function<void(const void*)>& dispatcher, const struct timeval& timeout, const void* arg);
+        intervalTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg);
 
         static SingleshotTimer&
-        singleshotTimer(const std::function<void(const void*)>& dispatcher, const struct timeval& timeout, const void* arg);
+        singleshotTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg);
 
-        void cancel();
+        virtual void cancel();
 
     protected:
-        const void* arg;
-
-        void update();
         void unobservedEvent() override;
 
-        struct timeval getTimeout() const override;
-
-        explicit operator struct timeval() const override;
-
-    private:
-        struct timeval absoluteTimeout {};
-        struct timeval delay;
+        utils::Timeval getTimeout() const override;
     };
 
 } // namespace core::timer

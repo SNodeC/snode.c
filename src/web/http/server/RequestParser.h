@@ -19,7 +19,7 @@
 #ifndef WEB_HTTP_SERVER_REQUESTPARSER_H
 #define WEB_HTTP_SERVER_REQUESTPARSER_H
 
-#include "web/http/Parser.h"
+#include "web/http/Parser.h" // IWYU pragma: export
 
 namespace core::socket {
     class SocketContext;
@@ -27,7 +27,6 @@ namespace core::socket {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // for std::size_t
 #include <functional>
 #include <map>
 #include <set>
@@ -46,7 +45,7 @@ namespace web::http::server {
                 void(const std::string&, const std::string&, const std::string&, int, int, const std::map<std::string, std::string>&)>&
                 onRequest,
             const std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)>& onHeader,
-            const std::function<void(char*, std::size_t)>& onContent,
+            const std::function<void(std::vector<uint8_t>&)>& onContent,
             const std::function<void()>& onParsed,
             const std::function<void(int, const std::string&)>& onError);
 
@@ -65,7 +64,7 @@ namespace web::http::server {
         // Parsers and Validators
         enum Parser::ParserState parseStartLine(const std::string& line) override;
         enum Parser::ParserState parseHeader() override;
-        enum Parser::ParserState parseContent(char* content, std::size_t size) override;
+        enum Parser::ParserState parseContent(std::vector<uint8_t>& content) override;
 
         // Exits
         void parsingFinished();
@@ -77,18 +76,15 @@ namespace web::http::server {
         // Data specific to HTTP request messages
         std::string method;
         std::string url;
-        std::string httpVersion;
         std::map<std::string, std::string> cookies;
         std::map<std::string, std::string> queries;
-        int httpMajor = 0;
-        int httpMinor = 0;
 
         // Callbacks
         std::function<void(void)> onStart;
         std::function<void(const std::string&, const std::string&, const std::string&, int, int, const std::map<std::string, std::string>&)>
             onRequest;
         std::function<void(const std::map<std::string, std::string>&, const std::map<std::string, std::string>&)> onHeader;
-        std::function<void(char*, std::size_t)> onContent;
+        std::function<void(std::vector<uint8_t>&)> onContent;
         std::function<void()> onParsed;
         std::function<void(int, const std::string&)> onError;
     };

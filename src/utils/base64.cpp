@@ -16,11 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include "utils/base64.h"
 
 #include "utils/sha1.h"
-
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cctype>
 #include <string>

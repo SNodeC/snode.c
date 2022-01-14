@@ -60,10 +60,6 @@ namespace web::http::server {
         }
     }
 
-    std::size_t Request::bodyLength() const {
-        return contentLength;
-    }
-
     const std::string& Request::query(const std::string& key) const {
         std::map<std::string, std::string>::const_iterator it;
 
@@ -80,8 +76,6 @@ namespace web::http::server {
         httpVersion.clear();
         httpMajor = 0;
         httpMinor = 0;
-        body = nullptr;
-        contentLength = 0;
         connectionState = ConnectionState::Default;
         headers = nullptr;
         cookies = nullptr;

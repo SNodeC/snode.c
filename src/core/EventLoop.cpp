@@ -19,15 +19,24 @@
 #include "core/EventLoop.h" // for EventLoop
 
 #include "core/DynamicLoader.h"
-#include "core/system/select.h"
-#include "core/system/signal.h"
-#include "log/Logger.h" // for Logger
+
+#if defined(USE_EPOLL)
+#include "core/epoll/EventDispatcher.h"
+#elif defined(USE_POLL)
+#include "core/poll/EventDispatcher.h"
+#elif defined(USE_SELECT)
+#include "core/select/EventDispatcher.h"
+#else
+#error "No valid I/O-Multiplexer selected! Use cmake option -DIO_Multiplexer=[epoll|poll|select]"
+#endif
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <algorithm> // for min, max
-#include <cstdlib>   // for exit
-#include <string>    // for string, to_string
+#include "core/system/signal.h"
+#include "log/Logger.h" // for Logger
+
+#include <cstdlib> // for exit
+#include <string>  // for string, to_string
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -38,7 +47,7 @@
 namespace core {
 
     static std::string getTickCounterAsString(const el::LogMessage*) {
-        std::string tick = std::to_string(EventLoop::instance().getTickCounter());
+        std::string tick = std::to_string(EventLoop::getTickCounter());
 
         if (tick.length() < 10) {
             tick.insert(0, 10 - tick.length(), '0');
@@ -47,68 +56,26 @@ namespace core {
         return tick;
     }
 
+#if defined(USE_EPOLL)
+    core::epoll::EventDispatcher EventLoop::eventDispatcher;
+#elif defined(USE_POLL)
+    core::poll::EventDispatcher EventLoop::eventDispatcher;
+#elif defined(USE_SELECT)
+    core::select::EventDispatcher EventLoop::eventDispatcher;
+#endif
+
     bool EventLoop::initialized = false;
     bool EventLoop::running = false;
     bool EventLoop::stopped = true;
     int EventLoop::stopsig = 0;
+    unsigned long EventLoop::tickCounter = 0;
 
-    EventLoop& EventLoop::instance() {
-        static EventLoop eventLoop;
-        return eventLoop;
+    unsigned long EventLoop::getTickCounter() {
+        return tickCounter;
     }
 
-    EventDispatcher& EventLoop::getReadEventDispatcher() {
-        return readEventDispatcher;
-    }
-
-    EventDispatcher& EventLoop::getWriteEventDispatcher() {
-        return writeEventDispatcher;
-    }
-
-    EventDispatcher& EventLoop::getExceptionalConditionEventDispatcher() {
-        return exceptionalConditionEventDispatcher;
-    }
-
-    TimerEventDispatcher& EventLoop::getTimerEventDispatcher() {
-        return timerEventDispatcher;
-    }
-
-    TickStatus EventLoop::_tick(struct timeval tickTimeOut) {
-        TickStatus tickStatus = TickStatus::SUCCESS;
-        tickCounter++;
-
-        EventDispatcher::observeEnabledEvents();
-        int maxFd = EventDispatcher::getMaxFd();
-
-        struct timeval nextEventTimeout = EventDispatcher::getNextTimeout();
-        struct timeval nextTimerTimeout = timerEventDispatcher.getNextTimeout();
-
-        struct timeval nextTimeout = std::min(nextTimerTimeout, nextEventTimeout);
-
-        if (maxFd >= 0 || (!timerEventDispatcher.empty() && !stopped)) {
-            nextTimeout = std::max(nextTimeout, {0, 0}); // In case nextEventTimeout is negativ
-            nextTimeout = std::min(nextTimeout, tickTimeOut);
-
-            int ret = core::system::select(maxFd + 1,
-                                           &readEventDispatcher.getFdSet(),
-                                           &writeEventDispatcher.getFdSet(),
-                                           &exceptionalConditionEventDispatcher.getFdSet(),
-                                           &nextTimeout);
-            if (ret >= 0) {
-                timerEventDispatcher.dispatch();
-                EventDispatcher::dispatchActiveEvents();
-                EventDispatcher::unobserveDisabledEvents();
-
-                DynamicLoader::execDlCloseDeleyed();
-            } else {
-                PLOG(ERROR) << "select";
-                tickStatus = TickStatus::SELECT_ERROR;
-            }
-        } else {
-            tickStatus = TickStatus::NO_OBSERVER;
-        }
-
-        return tickStatus;
+    EventDispatcher& EventLoop::getEventDispatcher() {
+        return eventDispatcher;
     }
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays, modernize-avoid-c-arrays)
@@ -120,7 +87,42 @@ namespace core {
         EventLoop::initialized = true;
     }
 
-    int EventLoop::start(struct timeval timeOut) {
+    TickStatus EventLoop::_tick(const utils::Timeval& tickTimeOut, bool stopped) {
+        tickCounter++;
+
+        TickStatus tickStatus = eventDispatcher.dispatch(tickTimeOut, stopped);
+
+        switch (tickStatus) {
+            case TickStatus::SUCCESS:
+                DynamicLoader::execDlCloseDeleyed();
+                break;
+            case TickStatus::NO_OBSERVER:
+                LOG(INFO) << "EventLoop: No Observer - exiting";
+                break;
+            case TickStatus::ERROR:
+                PLOG(ERROR) << "EventDispatcher::dispatch()";
+                break;
+        }
+
+        return tickStatus;
+    }
+
+    TickStatus EventLoop::tick(const utils::Timeval& timeOut) {
+        if (!initialized) {
+            PLOG(ERROR) << "snode.c not initialized. Use SNodeC::init(argc, argv) before SNodeC::tick().";
+            exit(1);
+        }
+
+        sighandler_t oldSigPipeHandler = core::system::signal(SIGPIPE, SIG_IGN);
+
+        TickStatus tickStatus = EventLoop::_tick(timeOut, stopped);
+
+        core::system::signal(SIGPIPE, oldSigPipeHandler);
+
+        return tickStatus;
+    }
+
+    int EventLoop::start(const utils::Timeval& timeOut) {
         if (!initialized) {
             PLOG(ERROR) << "snode.c not initialized. Use SNodeC::init(argc, argv) before SNodeC::start().";
             exit(1);
@@ -139,11 +141,9 @@ namespace core {
             stopped = false;
 
             core::TickStatus tickStatus = TickStatus::SUCCESS;
-            do {
-                tickStatus = EventLoop::instance()._tick(timeOut);
-            } while (tickStatus == TickStatus::SUCCESS && !stopped);
-
-            free();
+            while (tickStatus == TickStatus::SUCCESS && !stopped) {
+                tickStatus = EventLoop::_tick(timeOut, stopped);
+            }
 
             running = false;
         }
@@ -155,56 +155,26 @@ namespace core {
         core::system::signal(SIGTERM, oldSigTermHandler);
         core::system::signal(SIGABRT, oldSigAbrtHandler);
 
-        int returnReason = 0;
+        free();
 
+        int returnReason = 0;
         if (stopsig != 0) {
-            returnReason = -1;
+            returnReason = -stopsig;
         }
 
         return returnReason;
     }
 
-    TickStatus EventLoop::tick(struct timeval timeOut) {
-        if (!initialized) {
-            PLOG(ERROR) << "snode.c not initialized. Use SNodeC::init(argc, argv) before SNodeC::tick().";
-            exit(1);
-        }
-
-        sighandler_t oldSigPipeHandler = core::system::signal(SIGPIPE, SIG_IGN);
-
-        TickStatus tickStatus = EventLoop::instance()._tick(timeOut);
-
-        core::system::signal(SIGPIPE, oldSigPipeHandler);
-
-        return tickStatus;
-    }
-
     void EventLoop::free() {
-        core::TickStatus tickStatus = TickStatus::SUCCESS;
+        eventDispatcher.stop();
 
-        do {
-            EventDispatcher::terminateObservedEvents();
-            tickStatus = EventLoop::tick({0, 0});
-        } while (tickStatus == TickStatus::SUCCESS);
-
-        do {
-            EventLoop::instance().timerEventDispatcher.cancelAll();
-            tickStatus = EventLoop::tick({0, 0});
-        } while (tickStatus == TickStatus::SUCCESS);
+        DynamicLoader::execDlCloseDeleyed();
+        DynamicLoader::execDlCloseAll();
     }
 
     void EventLoop::stoponsig(int sig) {
         stopsig = sig;
         stopped = true;
-    }
-
-    unsigned long EventLoop::getEventCounter() {
-        return readEventDispatcher.getEventCounter() + writeEventDispatcher.getEventCounter() +
-               exceptionalConditionEventDispatcher.getEventCounter();
-    }
-
-    unsigned long EventLoop::getTickCounter() {
-        return tickCounter;
     }
 
 } // namespace core

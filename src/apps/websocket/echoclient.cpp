@@ -34,7 +34,6 @@
 #include <openssl/ssl3.h>     // for SSL_get_peer_certificate, SSL_get_verify_result
 #include <openssl/x509.h> // for X509_NAME_oneline, X509_free, X509_get_ext_d2i, X509_get_issuer_name, X509_get_subject_name, X509_verify_...
 #include <openssl/x509v3.h>
-#include <string.h>    // for memcpy
 #include <type_traits> // for add_const<>::type
 #include <utility>     // for tuple_element<>::type
 
@@ -45,13 +44,12 @@ int main(int argc, char* argv[]) {
 
     {
         web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response> legacyClient(
-            [](const web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& localAddress,
-               const web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& remoteAddress)
+            [](web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection)
                 -> void {
                 VLOG(0) << "OnConnect";
 
-                VLOG(0) << "\tServer: " + remoteAddress.toString();
-                VLOG(0) << "\tClient: " + localAddress.toString();
+                VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+                VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
             },
             []([[maybe_unused]] web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection*
                    socketConnection) -> void {
@@ -82,15 +80,10 @@ int main(int argc, char* argv[]) {
                     }
                 }
 
-                char* body = new char[response.contentLength + 1];
-                memcpy(body, response.body, response.contentLength);
-                body[response.contentLength] = 0;
-
-                VLOG(1) << "     Body:\n----------- start body -----------\n" << body << "------------ end body ------------";
+                response.body.push_back(0); // make it a c-string
+                VLOG(0) << "Body:\n----------- start body -----------\n" << response.body.data() << "\n------------ end body ------------";
 
                 response.upgrade(request);
-
-                delete[] body;
             },
             [](int status, const std::string& reason) -> void {
                 VLOG(0) << "OnResponseError";
@@ -106,13 +99,12 @@ int main(int argc, char* argv[]) {
             });
 
         web::http::tls::in::Client<web::http::client::Request, web::http::client::Response> tlsClient(
-            [](const web::http::tls::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& localAddress,
-               const web::http::tls::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& remoteAddress)
+            [](web::http::tls::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection)
                 -> void {
                 VLOG(0) << "OnConnect";
 
-                VLOG(0) << "\tServer: " + remoteAddress.toString();
-                VLOG(0) << "\tClient: " + localAddress.toString();
+                VLOG(0) << "\tServer: " + socketConnection->getRemoteAddress().toString();
+                VLOG(0) << "\tClient: " + socketConnection->getLocalAddress().toString();
             },
             [](web::http::tls::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection)
                 -> void {
@@ -164,7 +156,7 @@ int main(int argc, char* argv[]) {
             [](web::http::client::Request& request) -> void {
                 VLOG(0) << "OnRequestBegin";
 
-                request.set("Sec-WebSocket-Protocol", "echo");
+                request.set("Sec-WebSocket-Protocol", "test, echo");
 
                 request.upgrade("/ws/", "websocket");
             },
@@ -186,15 +178,9 @@ int main(int argc, char* argv[]) {
                     }
                 }
 
-                char* body = new char[response.contentLength + 1];
-                memcpy(body, response.body, response.contentLength);
-                body[response.contentLength] = 0;
+                response.body.push_back(0); // make it a c-string
+                VLOG(0) << "Body:\n----------- start body -----------\n" << response.body.data() << "\n------------ end body ------------";
 
-                VLOG(1) << "     Body:\n----------- start body -----------\n" << body << "------------ end body ------------";
-
-                delete[] body;
-
-                //                request.upgrade(response);
                 response.upgrade(request);
             },
             [](int status, const std::string& reason) -> void {

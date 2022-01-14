@@ -24,8 +24,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cctype> // for isblank
-#include <cstring>
-#include <tuple> // for tie, tuple
+#include <tuple>  // for tie, tuple
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -43,10 +42,8 @@ namespace web::http {
         parserState = ParserState::BEGIN;
         headers.clear();
         contentLength = 0;
-        if (content != nullptr) {
-            delete[] content;
-            content = nullptr;
-        }
+        content.clear();
+        contentRead = 0;
     }
 
     void Parser::parse() {
@@ -56,8 +53,9 @@ namespace web::http {
         do {
             switch (parserState) {
                 case ParserState::BEGIN:
-                    parserState = ParserState::FIRSTLINE;
+                    reset();
                     begin();
+                    parserState = ParserState::FIRSTLINE;
                     [[fallthrough]];
                 case ParserState::FIRSTLINE:
                     consumed = readStartLine();
@@ -70,7 +68,6 @@ namespace web::http {
                     break;
                 case ParserState::ERROR:
                     parsingError = true;
-                    reset();
                     break;
             };
         } while (consumed > 0 && parserState != ParserState::BEGIN && !parsingError); // && parserState != ParserState::BEGIN);
@@ -184,34 +181,36 @@ namespace web::http {
     }
 
     ssize_t Parser::readContent() {
-        if (contentRead == 0) {
-            content = new char[contentLength];
-        }
+        static char contentJunk[MAX_CONTENT_JUNK_LEN];
 
-        std::size_t contentJunkLenLeft =
-            (contentLength - contentRead < MAX_CONTENT_JUNK_LEN) ? contentLength - contentRead : MAX_CONTENT_JUNK_LEN;
+        ssize_t ret = 0;
 
-        ssize_t ret = socketContext->readFromPeer(contentJunk, contentJunkLenLeft);
+        if (httpMinor == 0 && contentLength == 0) {
+            ret = socketContext->readFromPeer(contentJunk, MAX_CONTENT_JUNK_LEN);
 
-        if (ret > 0) {
             std::size_t contentJunkLen = static_cast<std::size_t>(ret);
-            if (contentRead + contentJunkLen <= contentLength) {
-                memcpy(content + contentRead, contentJunk, contentJunkLen); // NOLINT(clang-analyzer-core.NonNullParamChecker)
-
-                contentRead += contentJunkLen;
-                if (contentRead == contentLength) {
-                    parserState = parseContent(content, contentLength);
-
-                    delete[] content;
-                    content = nullptr;
-                    contentRead = 0;
-                }
+            if (contentJunkLen > 0) {
+                content.insert(content.end(), contentJunk, contentJunk + contentJunkLen);
             } else {
-                parserState = parsingError(400, "Content to long");
+                parserState = parseContent(content);
+            }
+        } else if (httpMinor == 1) {
+            std::size_t contentJunkLenLeft =
+                (contentLength - contentRead < MAX_CONTENT_JUNK_LEN) ? contentLength - contentRead : MAX_CONTENT_JUNK_LEN;
 
-                if (content != nullptr) {
-                    delete[] content;
-                    content = nullptr;
+            ret = socketContext->readFromPeer(contentJunk, contentJunkLenLeft);
+
+            std::size_t contentJunkLen = static_cast<std::size_t>(ret);
+            if (contentJunkLen > 0) {
+                if (contentRead + contentJunkLen <= contentLength) {
+                    content.insert(content.end(), contentJunk, contentJunk + contentJunkLen);
+
+                    contentRead += contentJunkLen;
+                    if (contentRead == contentLength) {
+                        parserState = parseContent(content);
+                    }
+                } else {
+                    parserState = parsingError(400, "Content to long");
                 }
             }
         }

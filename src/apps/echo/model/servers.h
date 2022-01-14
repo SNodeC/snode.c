@@ -54,16 +54,16 @@ namespace apps::echo::model::legacy {
     using EchoSocketServer = net::NET::stream::STREAM::SocketServer<EchoServerSocketContextFactory>;
 
     EchoSocketServer getServer(const std::map<std::string, std::any>& options) {
-        using SocketAddress = typename EchoSocketServer::SocketAddress;
         using SocketConnection = typename EchoSocketServer::SocketConnection;
 
         return EchoSocketServer(
-            [](const SocketAddress& localAddress,
-               const SocketAddress& remoteAddress) -> void { // OnConnect
+            [](SocketConnection* socketConnection) -> void { // onConnect
                 VLOG(0) << "OnConnect";
 
-                VLOG(0) << "\tServer: (" + localAddress.address() + ") " + localAddress.toString();
-                VLOG(0) << "\tClient: (" + remoteAddress.address() + ") " + remoteAddress.toString();
+                VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
+                               socketConnection->getLocalAddress().toString();
+                VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+                               socketConnection->getRemoteAddress().toString();
             },
             []([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnected
                 VLOG(0) << "OnConnected";
@@ -71,9 +71,9 @@ namespace apps::echo::model::legacy {
             [](SocketConnection* socketConnection) -> void { // onDisconnect
                 VLOG(0) << "OnDisconnect";
 
-                VLOG(0) << "\tServer: (" + socketConnection->getLocalAddress().address() + ") " +
+                VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
                                socketConnection->getLocalAddress().toString();
-                VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " +
+                VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
                                socketConnection->getRemoteAddress().toString();
             },
             options);
@@ -89,26 +89,25 @@ namespace apps::echo::model::tls {
     using EchoSocketServer = net::NET::stream::STREAM::SocketServer<EchoServerSocketContextFactory>;
 
     EchoSocketServer getServer(const std::map<std::string, std::any>& options) {
-        using SocketAddress = typename EchoSocketServer::SocketAddress;
         using SocketConnection = typename EchoSocketServer::SocketConnection;
 
         return EchoSocketServer(
-            [](const SocketAddress& localAddress,
-               const SocketAddress& remoteAddress) -> void { // OnConnect
+            [](SocketConnection* socketConnection) -> void { // onConnect
                 VLOG(0) << "OnConnect";
 
-                VLOG(0) << "\tServer: (" + localAddress.address() + ") " + localAddress.toString();
-                VLOG(0) << "\tClient: (" + remoteAddress.address() + ") " + remoteAddress.toString();
+                VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
+                               socketConnection->getLocalAddress().toString();
+                VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+                               socketConnection->getRemoteAddress().toString();
             },
-            []([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnected
+            [](SocketConnection* socketConnection) -> void { // onConnected
                 VLOG(0) << "OnConnected";
 
                 X509* client_cert = SSL_get_peer_certificate(socketConnection->getSSL());
-
                 if (client_cert != nullptr) {
                     long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
-                    VLOG(0) << "\tClient certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
+                    VLOG(0) << "\tPeer certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
 
                     char* str = X509_NAME_oneline(X509_get_subject_name(client_cert), 0, 0);
                     VLOG(0) << "\t   Subject: " + std::string(str);
@@ -145,15 +144,15 @@ namespace apps::echo::model::tls {
 
                     X509_free(client_cert);
                 } else {
-                    VLOG(0) << "\tClient certificate: no certificate";
+                    VLOG(0) << "\tPeer certificate: no certificate";
                 }
             },
             [](SocketConnection* socketConnection) -> void { // onDisconnect
                 VLOG(0) << "OnDisconnect";
 
-                VLOG(0) << "\tServer: (" + socketConnection->getLocalAddress().address() + ") " +
+                VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
                                socketConnection->getLocalAddress().toString();
-                VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " +
+                VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
                                socketConnection->getRemoteAddress().toString();
             },
             options);

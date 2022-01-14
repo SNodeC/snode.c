@@ -21,10 +21,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "core/system/socket.h" // IWYU pragma: export
+
 #include <cstring>
 #include <string>
-#include <sys/socket.h>
-#include <sys/types.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

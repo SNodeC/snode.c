@@ -24,8 +24,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/Timeval.h"
+
 #include <climits>
-#include <sys/time.h> // IWYU pragma: keep
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -33,12 +34,12 @@ namespace express {
 
     class WebApp : public Router {
     protected:
-        WebApp(const Router& router);
+        explicit WebApp(const Router& router);
 
     public:
         static void init(int argc, char* argv[]);
-        static int start(struct timeval timeOut = {LONG_MAX, 0});
-        static core::TickStatus tick(struct timeval timeOut = {0, 0});
+        static int start(const utils::Timeval& timeOut = {LONG_MAX, 0});
+        static core::TickStatus tick(const utils::Timeval& timeOut = 0);
         static void free();
 
     private:

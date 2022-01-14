@@ -45,7 +45,7 @@ namespace core::socket::stream::tls {
         using SocketAddress = typename Super::SocketAddress;
         using SocketConnection = typename Super::SocketConnection;
 
-        SocketServer(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
+        SocketServer(const std::function<void(SocketConnection*)>& onConnect,
                      const std::function<void(SocketConnection*)>& onConnected,
                      const std::function<void(SocketConnection*)>& onDisconnect,
                      const std::map<std::string, std::any>& options = {{}})
@@ -85,7 +85,7 @@ namespace core::socket::stream::tls {
 
     private:
         void freeSniCerts(std::map<std::string, SSL_CTX*>* sniSslCtxs) {
-            for (const auto& [domain, sniSslCtx] : *sniSslCtxs) {
+            for (const auto& [domain, sniSslCtx] : *sniSslCtxs) { // cppcheck-suppress unusedVariable
                 ssl_ctx_free(sniSslCtx);
             }
             delete sniSslCtxs;

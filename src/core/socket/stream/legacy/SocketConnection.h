@@ -41,6 +41,9 @@ namespace core::socket::stream::legacy {
                                                              core::socket::stream::legacy::SocketWriter<SocketT>,
                                                              typename SocketT::SocketAddress>;
 
+        using SocketReader = core::socket::stream::legacy::SocketReader<SocketT>;
+        using SocketWriter = core::socket::stream::legacy::SocketWriter<SocketT>;
+
     public:
         using Socket = SocketT;
         using SocketAddress = typename Super::SocketAddress;
@@ -49,19 +52,23 @@ namespace core::socket::stream::legacy {
                          const std::shared_ptr<core::socket::SocketContextFactory>& socketProtocolFactory,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
-                         const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
+                         const std::function<void(SocketConnection*)>& onConnect,
                          const std::function<void(SocketConnection*)>& onDisconnect)
             : Super::Descriptor(fd)
-            , Super(socketProtocolFactory, localAddress, remoteAddress, onConnect, [onDisconnect, this]() -> void {
-                onDisconnect(this);
-            }) {
+            , Super(
+                  socketProtocolFactory,
+                  localAddress,
+                  remoteAddress,
+                  [onConnect, this]() -> void {
+                      onConnect(this);
+                  },
+                  [onDisconnect, this]() -> void {
+                      onDisconnect(this);
+                  }) {
         }
 
-        template <typename Socket>
-        friend class SocketAcceptor;
-
-        template <typename Socket>
-        friend class SocketConnector;
+    private:
+        ~SocketConnection() override = default;
     };
 
 } // namespace core::socket::stream::legacy

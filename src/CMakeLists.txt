@@ -8,6 +8,14 @@ include(iwyu)
 include(instrumentation)
 include(rpath-use-always)
 
+set(IO_Multiplexer
+    "epoll"
+    CACHE STRING "I/O-Multiplexer to use"
+)
+set(IO_Multiplexers "epoll;poll;select")
+set_property(CACHE IO_Multiplexer PROPERTY STRINGS ${IO_Multiplexers})
+message(STATUS "I/O-Multiplexer selected: '${IO_Multiplexer}'")
+
 configure_package_config_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/snodecConfig.cmake

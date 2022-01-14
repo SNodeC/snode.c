@@ -29,7 +29,7 @@
 namespace core::socket::stream::legacy {
 
     template <typename SocketT>
-    class SocketAcceptor : public core::socket::stream::SocketAcceptor<core::socket::stream::legacy::SocketConnection<SocketT>> {
+    class SocketAcceptor : protected core::socket::stream::SocketAcceptor<core::socket::stream::legacy::SocketConnection<SocketT>> {
     private:
         using Super = core::socket::stream::SocketAcceptor<core::socket::stream::legacy::SocketConnection<SocketT>>;
 
@@ -39,20 +39,14 @@ namespace core::socket::stream::legacy {
         using SocketAddress = typename Super::SocketAddress;
 
         SocketAcceptor(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
-                       const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
+                       const std::function<void(SocketConnection*)>& onConnect,
                        const std::function<void(SocketConnection*)>& onConnected,
                        const std::function<void(SocketConnection*)>& onDisconnect,
                        const std::map<std::string, std::any>& options)
-            : core::socket::stream::SocketAcceptor<SocketConnection>(
-                  socketContextFactory,
-                  onConnect,
-                  [onConnected](SocketConnection* socketConnection) -> void {
-                      socketConnection->SocketConnection::SocketReader::resume();
-                      onConnected(socketConnection);
-                  },
-                  onDisconnect,
-                  options) {
+            : core::socket::stream::SocketAcceptor<SocketConnection>(socketContextFactory, onConnect, onConnected, onDisconnect, options) {
         }
+
+        using Super::listen;
     };
 
 } // namespace core::socket::stream::legacy

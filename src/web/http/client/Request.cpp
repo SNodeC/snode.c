@@ -18,12 +18,13 @@
 
 #include "web/http/client/Request.h"
 
-#include "log/Logger.h"
 #include "web/http/SocketContext.h"
 #include "web/http/client/SocketContextUpgradeFactorySelector.h"
 #include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <utility> // for pair, tuple_element<>::type
 
@@ -160,21 +161,15 @@ namespace web::http::client {
 
         headers.insert({{"Cache-Control", "public, max-age=0"}, {"Accept-Ranges", "bytes"}, {"X-Powered-By", "snode.c"}});
 
-        for (const auto& [field, value] : headers) {
+        for (const auto& [field, value] : headers) { // cppcheck-suppress unassignedVariable
             enqueue(field + ":" + value + "\r\n");
         }
 
         if (contentLength != 0) {
             enqueue("Content-Length: " + std::to_string(contentLength) + "\r\n");
         }
-        /*
-                if (connectionState == ConnectionState::Keep) {
-                    enqueue("Connection: keep-alive\r\n");
-                } else if (connectionState == ConnectionState::Close) {
-                    enqueue("Connection: close\r\n");
-                }
-        */
-        for (const auto& [name, value] : cookies) {
+
+        for (const auto& [name, value] : cookies) { // cppcheck-suppress unassignedVariable
             enqueue("Cookie:" + name + "=" + value + "\r\n");
         }
 
@@ -207,7 +202,6 @@ namespace web::http::client {
         this->url = url;
 
         set("Connection", "Upgrade", true);
-
         set("Upgrade", protocol);
 
         // load upgrade context

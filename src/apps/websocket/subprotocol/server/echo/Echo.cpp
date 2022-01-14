@@ -19,9 +19,10 @@
 #include "Echo.h"
 
 #include "core/timer/IntervalTimer.h"
-#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <functional> // for function
 
@@ -42,7 +43,7 @@ namespace web::websocket::subprotocol::echo::server {
                       this->sendClose();
                   }
               },
-              {PING_DELAY, 0},
+              PING_DELAY,
               nullptr)) {
     }
 
@@ -55,9 +56,6 @@ namespace web::websocket::subprotocol::echo::server {
 
         sendMessage("Welcome to SimpleChat");
         sendMessage("=====================");
-
-        VLOG(0) << "\tServer: " + getLocalAddressAsString();
-        VLOG(0) << "\tClient: " + getRemoteAddressAsString();
     }
 
     void Echo::onMessageStart(int opCode) {
@@ -94,9 +92,6 @@ namespace web::websocket::subprotocol::echo::server {
 
     void Echo::onDisconnected() {
         VLOG(0) << "Echo disconnected:";
-
-        VLOG(0) << "\tServer: " + getLocalAddressAsString();
-        VLOG(0) << "\tClient: " + getRemoteAddressAsString();
     }
 
 } // namespace web::websocket::subprotocol::echo::server

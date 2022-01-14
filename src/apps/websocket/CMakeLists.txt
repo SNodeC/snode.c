@@ -1,14 +1,22 @@
 cmake_minimum_required(VERSION 3.0)
 
-add_executable(echoserver echoserver.cpp)
-target_compile_definitions(
-    echoserver PRIVATE CMAKE_CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
-)
-target_link_libraries(echoserver PRIVATE snodec::express)
-install(TARGETS echoserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+set(WSECHOSERVER_CPP echoserver.cpp)
 
-add_executable(echoclient echoclient.cpp)
-target_link_libraries(echoclient PRIVATE snodec::httpclient)
-install(TARGETS echoclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+set(WSECHOSERVER_H)
+
+add_executable(wsechoserver ${WSECHOSERVER_CPP} ${WSECHOSERVER_H})
+target_compile_definitions(
+    wsechoserver PRIVATE CMAKE_CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
+)
+target_link_libraries(wsechoserver PRIVATE snodec::express)
+install(TARGETS wsechoserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+set(WSECHOCLIENT_CPP echoclient.cpp)
+
+set(WSECHOCLIENT_H)
+
+add_executable(wsechoclient ${WSECHOCLIENT_CPP} ${WSECHOCLIENT_H})
+target_link_libraries(wsechoclient PRIVATE snodec::httpclient)
+install(TARGETS wsechoclient RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_subdirectory(subprotocol)

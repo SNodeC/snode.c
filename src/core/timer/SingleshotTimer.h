@@ -31,20 +31,30 @@ namespace core::timer {
         SingleshotTimer& operator=(const SingleshotTimer& timer) = delete;
 
     public:
-        SingleshotTimer(const std::function<void(const void*)>& dispatcher, const struct timeval& timeout, const void* arg)
+        SingleshotTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg)
             : Timer(timeout, arg)
             , dispatcher(dispatcher) {
         }
 
         ~SingleshotTimer() override = default;
 
-        bool dispatchEvent() override {
+        bool trigger() override {
             dispatcher(arg);
             cancel();
             return false;
         }
 
     private:
+        void cancel() override {
+            dispatcher = nullptr;
+            core::timer::Timer::cancel();
+        }
+
+        void unobservedEvent() override {
+            dispatcher = nullptr;
+            core::timer::Timer::unobservedEvent();
+        }
+
         std::function<void(const void*)> dispatcher;
     };
 

@@ -70,6 +70,9 @@ namespace web::http::server {
     public:
         SocketContext(core::socket::SocketConnection* socketConnection, const std::function<void(Request&, Response&)>& onRequestReady);
 
+    protected:
+        ~SocketContext() override = default;
+
     private:
         void onReceiveFromPeer() override;
 

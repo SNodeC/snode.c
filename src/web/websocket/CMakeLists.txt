@@ -7,7 +7,13 @@ get_target_property(
     HTTP_SOCKETCONTEXTUPGRADE_INSTALL_LIBDIR
 )
 
-add_library(websocketbase SHARED Receiver.cpp Transmitter.cpp)
+set(WEBSOCKETBASE_CPP Receiver.cpp Transmitter.cpp)
+set(WEBSOCKETBASE_H
+    Receiver.h SocketContextUpgrade.h SubProtocol.h SubProtocolFactory.h
+    SubProtocolFactorySelector.h Transmitter.h
+)
+
+add_library(websocketbase SHARED ${WEBSOCKETBASE_CPP} ${WEBSOCKETBASE_H})
 add_library(snodec::websocketbase ALIAS websocketbase)
 
 target_include_directories(

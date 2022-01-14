@@ -18,15 +18,16 @@
 
 #include "web/http/http_utils.h"
 
-#include "core/system/time.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "core/system/time.h"
 
 #include <algorithm>
 #include <cctype>
 #include <iomanip> // std::setw
 #include <sstream>
 #include <sys/stat.h>
+// IWYU pragma: no_include <bits/struct_stat.h>  // for st_mtime
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -157,9 +158,9 @@ namespace httputils {
         char buf[100];
 
         struct stat attrib {};
-        stat(filePath.c_str(), &attrib);
+        stat(filePath.c_str(), &attrib); // TODO: to core::system
 
-        strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", gmtime(&(attrib.st_mtime)));
+        strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", gmtime(&(attrib.st_mtime))); // TODO: to core::system
 
         return std::string(buf);
     }

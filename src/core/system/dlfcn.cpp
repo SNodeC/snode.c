@@ -16,9 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/system/dlfcn.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "core/system/dlfcn.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

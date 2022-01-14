@@ -18,9 +18,9 @@
 
 #include "net/un/stream/Socket.h"
 
-#include "log/Logger.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <cstdio> // for remove
 #include <string> // for string

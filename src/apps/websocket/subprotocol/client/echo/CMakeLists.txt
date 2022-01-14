@@ -15,7 +15,14 @@ get_target_property(
     WEBSOCKET_SUBPROTOCOL_CLIENT_COMPILE_LIBDIR
 )
 
-add_library(echoclientsubprotocol SHARED Echo.cpp EchoFactory.cpp)
+set(ECHOCLIENTSUBPROTOCOL_CPP Echo.cpp EchoFactory.cpp)
+
+set(ECHOCLIENTSUBPROTOCOL_H Echo.h EchoFactory.h)
+
+add_library(
+    echoclientsubprotocol SHARED ${ECHOCLIENTSUBPROTOCOL_CPP}
+                                 ${ECHOCLIENTSUBPROTOCOL_H}
+)
 
 target_include_directories(
     echoclientsubprotocol PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"

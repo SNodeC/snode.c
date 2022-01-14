@@ -20,9 +20,10 @@
 #define WEB_WEBSOCKET_SUBPROTOCOLSELECTOR_H
 
 #include "core/DynamicLoader.h"
-#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <list>
 #include <map>
@@ -46,27 +47,6 @@ namespace web::websocket {
         SubProtocolFactorySelector& operator=(const SubProtocolFactorySelector&) = delete;
 
         virtual ~SubProtocolFactorySelector() = default;
-
-    private:
-        void add(SubProtocolFactory* subProtocolFactory) {
-            void* handle = subProtocolFactory->getHandle();
-
-            //            SubProtocolPlugin<SubProtocolFactory> subProtocolPlugin = {.subProtocolFactory = subProtocolFactory, .handle1 =
-            //            handle};
-
-            if (subProtocolFactory != nullptr) {
-                const auto [it, success] = subProtocolFactories.insert({subProtocolFactory->getName(), subProtocolFactory});
-                if (!success) {
-                    VLOG(0) << "Subprotocol already existing: not using " << subProtocolFactory->getName();
-                    delete subProtocolFactory;
-                    if (handle != nullptr) {
-                        core::DynamicLoader::dlClose(handle);
-                    }
-                }
-            } else if (handle != nullptr) {
-                core::DynamicLoader::dlClose(handle);
-            }
-        }
 
     protected:
         SubProtocolFactory* load(const std::string& subProtocolName, Role role) {
@@ -126,7 +106,7 @@ namespace web::websocket {
                 }
 
                 if (subProtocolFactory != nullptr) {
-                    add(subProtocolFactory);
+                    subProtocolFactories.insert({subProtocolName, subProtocolFactory});
                 }
             }
 

@@ -18,27 +18,38 @@
 
 #include "core/EventReceiver.h"
 
-#include "core/EventDispatcher.h"
+#include "core/DescriptorEventDispatcher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include <climits>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
 
-    EventReceiver::EventReceiver(EventDispatcher& descriptorEventDispatcher, long timeout)
+    const utils::Timeval EventReceiver::TIMEOUT::DEFAULT = {-2, 0};
+    const utils::Timeval EventReceiver::TIMEOUT::DISABLE = {-1, 0};
+
+    EventReceiver::EventReceiver(DescriptorEventDispatcher& descriptorEventDispatcher, const utils::Timeval& timeout)
         : descriptorEventDispatcher(descriptorEventDispatcher)
         , maxInactivity(timeout)
         , initialTimeout(timeout) {
     }
 
+    int EventReceiver::getRegisteredFd() {
+        return registeredFd;
+    }
+
     void EventReceiver::enable(int fd) {
-        this->fd = fd;
+        this->registeredFd = fd;
         observed();
 
-        descriptorEventDispatcher.enable(this, fd);
-        lastTriggered = {time(nullptr), 0};
-        _enabled = true;
+        descriptorEventDispatcher.enable(this);
+
+        lastTriggered = utils::Timeval::currentTime();
+
+        enabled = true;
     }
 
     void EventReceiver::disable() {
@@ -46,8 +57,8 @@ namespace core {
             suspend();
         }
 
-        descriptorEventDispatcher.disable(this, fd);
-        _enabled = false;
+        descriptorEventDispatcher.disable(this);
+        enabled = false;
     }
 
     void EventReceiver::disabled() {
@@ -55,26 +66,26 @@ namespace core {
     }
 
     bool EventReceiver::isEnabled() const {
-        return _enabled;
+        return enabled;
     }
 
     void EventReceiver::suspend() {
         if (isEnabled()) {
-            descriptorEventDispatcher.suspend(this, fd);
-            _suspended = true;
+            descriptorEventDispatcher.suspend(this);
+            suspended = true;
         }
     }
 
     void EventReceiver::resume() {
         if (isEnabled()) {
-            descriptorEventDispatcher.resume(this, fd);
-            _suspended = false;
-            lastTriggered = {time(nullptr), 0};
+            descriptorEventDispatcher.resume(this);
+            suspended = false;
+            lastTriggered = utils::Timeval::currentTime();
         }
     }
 
     bool EventReceiver::isSuspended() const {
-        return _suspended;
+        return suspended;
     }
 
     void EventReceiver::terminate() {
@@ -83,26 +94,34 @@ namespace core {
         }
     }
 
-    void EventReceiver::setTimeout(long timeout) {
+    void EventReceiver::setTimeout(const utils::Timeval& timeout) {
         if (timeout == TIMEOUT::DEFAULT) {
             this->maxInactivity = initialTimeout;
         } else {
             this->maxInactivity = timeout;
         }
 
-        triggered();
+        triggered(utils::Timeval::currentTime());
     }
 
-    timeval EventReceiver::getTimeout() const {
-        return {maxInactivity, 0};
+    utils::Timeval EventReceiver::getTimeout(const utils::Timeval& currentTime) const {
+        return (maxInactivity > 0) ? maxInactivity - (currentTime - lastTriggered) : utils::Timeval({LONG_MAX, 0});
     }
 
-    void EventReceiver::triggered(struct timeval lastTriggered) {
-        this->lastTriggered = lastTriggered;
+    void EventReceiver::triggered(const utils::Timeval& currentTime) {
+        lastTriggered = currentTime;
     }
 
-    timeval EventReceiver::getLastTriggered() {
-        return lastTriggered;
+    void EventReceiver::trigger(const utils::Timeval& currentTime) {
+        triggered(currentTime);
+
+        dispatchEvent();
+    }
+
+    void EventReceiver::checkTimeout(const utils::Timeval& currentTime) {
+        if (maxInactivity > 0 && currentTime - lastTriggered >= maxInactivity) {
+            timeoutEvent();
+        }
     }
 
 } // namespace core

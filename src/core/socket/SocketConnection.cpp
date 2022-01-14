@@ -18,9 +18,12 @@
 
 #include "core/socket/SocketConnection.h"
 
+#include "core/socket/SocketContext.h"
 #include "core/socket/SocketContextFactory.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -30,8 +33,50 @@ namespace core::socket {
         : socketContext(socketContextFactory->create(this)) {
     }
 
+    SocketConnection::~SocketConnection() {
+        delete socketContext;
+    }
+
+    void SocketConnection::onConnected() {
+        socketContext->onConnected();
+    }
+
+    void SocketConnection::onDisconnected() {
+        socketContext->onDisconnected();
+    }
+
+    void SocketConnection::onReceiveFromPeer() {
+        socketContext->onReceiveFromPeer();
+
+        if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
+            onDisconnected();
+            delete socketContext;
+            socketContext = newSocketContext;
+            newSocketContext = nullptr;
+            onConnected();
+        }
+    }
+
+    void SocketConnection::onWriteError(int errnum) {
+        socketContext->onWriteError(errnum);
+    }
+
+    void SocketConnection::onReadError(int errnum) {
+        socketContext->onReadError(errnum);
+    }
+
     core::socket::SocketContext* SocketConnection::getSocketContext() {
         return socketContext;
+    }
+
+    core::socket::SocketContext* SocketConnection::switchSocketContext(core::socket::SocketContextFactory* socketContextFactory) {
+        newSocketContext = socketContextFactory->create(this);
+
+        if (newSocketContext == nullptr) {
+            VLOG(0) << "Switch socket context unsuccessull: new socket context not created";
+        }
+
+        return newSocketContext;
     }
 
 } // namespace core::socket

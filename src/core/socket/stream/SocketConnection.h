@@ -22,9 +22,10 @@
 #include "core/socket/SocketConnection.h" // IWYU pragma: export
 #include "core/socket/SocketContext.h"
 #include "core/socket/SocketContextFactory.h"
-#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <cstddef>
 #include <functional>
@@ -36,7 +37,7 @@ namespace core::socket::stream {
 
     template <typename SocketReaderT, typename SocketWriterT, typename SocketAddressT>
     class SocketConnection
-        : public core::socket::SocketConnection
+        : protected core::socket::SocketConnection
         , protected SocketReaderT
         , protected SocketWriterT {
         SocketConnection() = delete;
@@ -53,33 +54,48 @@ namespace core::socket::stream {
         SocketConnection(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
                          const SocketAddress& localAddress,
                          const SocketAddress& remoteAddress,
-                         const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
+                         const std::function<void()>& onConnect,
                          const std::function<void()>& onDisconnect)
             : Super(socketContextFactory)
             , SocketReader([this](int errnum) -> void {
-                socketContext->onReadError(errnum);
+                onReadError(errnum);
             })
             , SocketWriter([this](int errnum) -> void {
-                socketContext->onWriteError(errnum);
+                onWriteError(errnum);
             })
             , localAddress(localAddress)
             , remoteAddress(remoteAddress)
             , onDisconnect(onDisconnect) {
-            SocketReader::enable(SocketConnection::getFd());
-            SocketWriter::enable(SocketConnection::getFd());
-            SocketReader::suspend();
-            SocketWriter::suspend();
-            onConnect(localAddress, remoteAddress);
-            socketContext->onConnected();
+            onConnect();
+            onConnected();
         }
 
-        virtual ~SocketConnection() {
-            socketContext->onDisconnected();
+        ~SocketConnection() override {
+            onDisconnected();
             onDisconnect();
-            delete socketContext;
         }
 
     public:
+        using Super::getSocketContext;
+
+        void close() final {
+            SocketWriter::disable();
+            SocketReader::disable();
+        }
+
+        void shutdownRead() final {
+            SocketReader::shutdown();
+        }
+
+        void shutdownWrite() final {
+            SocketWriter::shutdown();
+        }
+
+        void setTimeout(const utils::Timeval& timeout) final {
+            SocketReader::setTimeout(timeout);
+            SocketWriter::setTimeout(timeout);
+        }
+
         const SocketAddress& getRemoteAddress() const {
             return remoteAddress;
         }
@@ -88,15 +104,16 @@ namespace core::socket::stream {
             return localAddress;
         }
 
-        std::string getLocalAddressAsString() const override {
+    private:
+        std::string getLocalAddressAsString() const final {
             return localAddress.toString();
         }
 
-        std::string getRemoteAddressAsString() const override {
+        std::string getRemoteAddressAsString() const final {
             return remoteAddress.toString();
         }
 
-        ssize_t readFromPeer(char* junk, std::size_t junkLen) override {
+        ssize_t readFromPeer(char* junk, std::size_t junkLen) final {
             ssize_t ret = 0;
 
             if (newSocketContext == nullptr) {
@@ -108,7 +125,7 @@ namespace core::socket::stream {
             return ret;
         }
 
-        void sendToPeer(const char* junk, std::size_t junkLen) override {
+        void sendToPeer(const char* junk, std::size_t junkLen) final {
             if (newSocketContext == nullptr) {
                 SocketWriter::sendToPeer(junk, junkLen);
             } else {
@@ -116,51 +133,21 @@ namespace core::socket::stream {
             }
         }
 
-        void sendToPeer(const std::string& data) override {
+        void sendToPeer(const std::string& data) final {
             sendToPeer(data.data(), data.size());
         }
 
-        void close() final {
-            SocketWriter::shutdown();
+        void readEvent() final {
+            SocketReader::doRead();
+
+            onReceiveFromPeer();
         }
 
-        void shutdownRead() final {
-            SocketReader::shutdown();
+        void writeEvent() final {
+            SocketWriter::doWrite();
         }
 
-        void shutdownWrite() final {
-            SocketWriter::shutdown();
-        }
-
-        void setTimeout(int timeout) override {
-            SocketReader::setTimeout(timeout);
-            SocketWriter::setTimeout(timeout);
-        }
-
-        core::socket::SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory) override {
-            newSocketContext = socketContextFactory->create(this);
-
-            if (newSocketContext == nullptr) {
-                VLOG(0) << "Switch socket context unsuccessull: new socket context not created";
-            }
-
-            return newSocketContext;
-        }
-
-    private:
-        void readEvent() override {
-            socketContext->onReceiveFromPeer();
-
-            if (newSocketContext != nullptr) { // Perform a pending SocketContextSwitch
-                socketContext->onDisconnected();
-                delete socketContext;
-                socketContext = newSocketContext;
-                newSocketContext = nullptr;
-                socketContext->onConnected();
-            }
-        }
-
-        void unobservedEvent() override {
+        void unobservedEvent() final {
             delete this;
         }
 

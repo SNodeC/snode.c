@@ -38,19 +38,19 @@ namespace apps::http::legacy {
     WebApp getWebApp(const std::string& rootPath, const std::map<std::string, std::any>& options) {
         WebApp webApp(getRouter(rootPath), options);
 
-        webApp.onConnect([](const WebApp::SocketAddress& localAddress, const WebApp::SocketAddress& remoteAddress) -> void {
+        webApp.onConnect([](WebApp::SocketConnection* socketConnection) -> void {
             VLOG(0) << "OnConnect:";
 
-            VLOG(0) << "\tServer: (" + localAddress.address() + ") " + localAddress.toString();
-            VLOG(0) << "\tClient: (" + remoteAddress.address() + ") " + remoteAddress.toString();
+            VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " + socketConnection->getLocalAddress().toString();
+            VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+                           socketConnection->getRemoteAddress().toString();
         });
 
         webApp.onDisconnect([](WebApp::SocketConnection* socketConnection) -> void {
             VLOG(0) << "OnDisconnect:";
 
-            VLOG(0) << "\tServer: (" + socketConnection->getLocalAddress().address() + ") " +
-                           socketConnection->getLocalAddress().toString();
-            VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " +
+            VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " + socketConnection->getLocalAddress().toString();
+            VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
                            socketConnection->getRemoteAddress().toString();
         });
 
@@ -70,59 +70,59 @@ namespace apps::http::tls {
     WebApp getWebApp(const std::string& rootPath, const std::map<std::string, std::any>& options) {
         WebApp webApp(getRouter(rootPath), options);
 
-        webApp.onConnect([](const WebApp::SocketAddress& localAddress, const WebApp::SocketAddress& remoteAddress) -> void {
+        webApp.onConnect([](WebApp::SocketConnection* socketConnection) -> void {
             VLOG(0) << "OnConnect:";
 
-            VLOG(0) << "\tServer: (" + localAddress.address() + ") " + localAddress.toString();
-            VLOG(0) << "\tClient: (" + remoteAddress.address() + ") " + remoteAddress.toString();
+            VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " + socketConnection->getLocalAddress().toString();
+            VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+                           socketConnection->getRemoteAddress().toString();
         });
 
         webApp.onConnected([](WebApp::SocketConnection* socketConnection) -> void {
-            VLOG(0) << "OnConnected:";
+            VLOG(0) << "OnConnected";
 
-            X509* client_cert = SSL_get_peer_certificate(socketConnection->getSSL());
-
-            if (client_cert != nullptr) {
+            X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
+            if (server_cert != nullptr) {
                 long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
-                VLOG(2) << "\tClient certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
+                VLOG(0) << "\tPeer certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
 
-                char* str = X509_NAME_oneline(X509_get_subject_name(client_cert), 0, 0);
-                VLOG(2) << "\t   Subject: " + std::string(str);
+                char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), 0, 0);
+                VLOG(0) << "\t   Subject: " + std::string(str);
                 OPENSSL_free(str);
 
-                str = X509_NAME_oneline(X509_get_issuer_name(client_cert), 0, 0);
-                VLOG(2) << "\t   Issuer: " + std::string(str);
+                str = X509_NAME_oneline(X509_get_issuer_name(server_cert), 0, 0);
+                VLOG(0) << "\t   Issuer: " + std::string(str);
                 OPENSSL_free(str);
 
                 // We could do all sorts of certificate verification stuff here before deallocating the certificate.
 
                 GENERAL_NAMES* subjectAltNames =
-                    static_cast<GENERAL_NAMES*>(X509_get_ext_d2i(client_cert, NID_subject_alt_name, nullptr, nullptr));
+                    static_cast<GENERAL_NAMES*>(X509_get_ext_d2i(server_cert, NID_subject_alt_name, nullptr, nullptr));
 
                 int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
-                VLOG(2) << "\t   Subject alternative name count: " << altNameCount;
+                VLOG(0) << "\t   Subject alternative name count: " << altNameCount;
                 for (int32_t i = 0; i < altNameCount; ++i) {
                     GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
                     if (generalName->type == GEN_URI) {
                         std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.uniformResourceIdentifier)));
-                        VLOG(2) << "\t      SAN (URI): '" + subjectAltName;
+                        VLOG(0) << "\t      SAN (URI): '" + subjectAltName;
                     } else if (generalName->type == GEN_DNS) {
                         std::string subjectAltName =
                             std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                         static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
-                        VLOG(2) << "\t      SAN (DNS): '" + subjectAltName;
+                        VLOG(0) << "\t      SAN (DNS): '" + subjectAltName;
                     } else {
-                        VLOG(2) << "\t      SAN (Type): '" + std::to_string(generalName->type);
+                        VLOG(0) << "\t      SAN (Type): '" + std::to_string(generalName->type);
                     }
                 }
                 sk_GENERAL_NAME_pop_free(subjectAltNames, GENERAL_NAME_free);
 
-                X509_free(client_cert);
+                X509_free(server_cert);
             } else {
-                VLOG(2) << "\tClient certificate: no certificate";
+                VLOG(0) << "\tPeer certificate: no certificate";
                 // Here we can close the connection in case client didn't send a certificate
                 // socketConnection->close();
             }
@@ -131,9 +131,8 @@ namespace apps::http::tls {
         webApp.onDisconnect([](WebApp::SocketConnection* socketConnection) -> void {
             VLOG(0) << "OnDisconnect:";
 
-            VLOG(0) << "\tServer: (" + socketConnection->getLocalAddress().address() + ") " +
-                           socketConnection->getLocalAddress().toString();
-            VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " +
+            VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " + socketConnection->getLocalAddress().toString();
+            VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
                            socketConnection->getRemoteAddress().toString();
         });
 

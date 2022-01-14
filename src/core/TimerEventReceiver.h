@@ -23,17 +23,37 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/Timeval.h" // IWYU pragma: export
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
 
     class TimerEventReceiver {
-    private:
-        virtual struct timeval getTimeout() const = 0;
-        virtual bool dispatchEvent() = 0;
+    public:
+        TimerEventReceiver(const TimerEventReceiver&) = delete;
+        TimerEventReceiver& operator=(const TimerEventReceiver&) = delete;
+
+        TimerEventReceiver(const utils::Timeval& delay, const void* arg)
+            : absoluteTimeout(utils::Timeval::currentTime() + delay)
+            , delay(delay)
+            , arg(arg) {
+        }
+
+        virtual utils::Timeval getTimeout() const = 0;
+
+        virtual bool trigger() = 0;
         virtual void unobservedEvent() = 0;
 
-        virtual explicit operator struct timeval() const = 0;
+    protected:
+        void update() {
+            absoluteTimeout += delay;
+        }
+
+        utils::Timeval absoluteTimeout;
+        utils::Timeval delay;
+
+        const void* arg;
 
         friend class TimerEventDispatcher;
     };

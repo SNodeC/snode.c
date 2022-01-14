@@ -18,8 +18,6 @@
 
 #include "web/http/server/Response.h"
 
-#include "core/system/time.h"
-#include "log/Logger.h"
 #include "web/http/SocketContext.h"
 #include "web/http/StatusCodes.h"
 #include "web/http/http_utils.h"
@@ -27,6 +25,9 @@
 #include "web/http/server/SocketContextUpgradeFactorySelector.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "core/system/time.h"
+#include "log/Logger.h"
 
 #include <numeric>
 #include <utility> // for pair
@@ -159,18 +160,12 @@ namespace web::http::server {
                 web::http::server::SocketContextUpgradeFactorySelector::instance()->select(req, *this);
 
             if (socketContextUpgradeFactory != nullptr) {
-                if (socketContext->switchSocketContext(socketContextUpgradeFactory) == nullptr) {
-                    set("Connection", "close");
-                    this->status(500).end();
-                }
+                socketContext->switchSocketContext(socketContextUpgradeFactory);
             } else {
-                set("Connection", "close");
-                this->status(404).end();
+                set("Connection", "close").status(404).end();
             }
-
         } else {
-            set("Connection", "close");
-            this->status(400).end();
+            set("Connection", "close").status(400).end();
         }
     }
 

@@ -18,9 +18,9 @@
 
 #include "net/in/SocketAddress.h"
 
-#include "core/system/netdb.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "core/system/netdb.h"
 
 #include <cstring>
 #include <exception>

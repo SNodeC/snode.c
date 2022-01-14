@@ -21,15 +21,14 @@
 
 #include "core/socket/stream/SocketReader.h"
 #include "core/socket/stream/tls/TLSHandshake.h"
-#include "core/socket/stream/tls/ssl_utils.h"
-#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // for std::size_t
+#include "core/socket/stream/tls/ssl_utils.h"
+#include "log/Logger.h"
+
 #include <openssl/err.h>
 #include <openssl/ssl.h>
-#include <sys/types.h> // for ssize_t
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -42,54 +41,69 @@ namespace core::socket::stream::tls {
         using Super::Super;
 
         ssize_t read(char* junk, std::size_t junkLen) override {
-            sslErr = 0;
+            int ret = 0;
+            int ssl_err = sslErr;
 
-            int ret = SSL_read(ssl, junk, static_cast<int>(junkLen));
+            switch (SSL_get_shutdown(ssl)) {
+                case 0:
+                case SSL_SENT_SHUTDOWN:
+                    if (ssl_err == SSL_ERROR_NONE) {
+                        ret = SSL_read(ssl, junk, static_cast<int>(junkLen));
 
-            if (ret <= 0) {
-                sslErr = SSL_get_error(ssl, ret);
+                        if (ret <= 0) {
+                            ssl_err = SSL_get_error(ssl, ret);
+                        }
+                    }
 
-                switch (sslErr) {
-                    case SSL_ERROR_WANT_WRITE:
-                        LOG(INFO) << "SSL/TLS start renegotiation on read";
-                        doSSLHandshake(
-                            [](void) -> void {
-                                LOG(INFO) << "SSL/TLS renegotiation on read success";
-                            },
-                            [](void) -> void {
-                                LOG(WARNING) << "SSL/TLS renegotiation on read timed out";
-                            },
-                            [this](int sslErr) -> void {
-                                ssl_log("SSL/TLS renegotiation", sslErr);
-                                this->sslErr = sslErr;
-                            });
-                        errno = EAGAIN;
-                        break;
-                    case SSL_ERROR_WANT_READ:
-                        ret = 0;
-                        errno = EAGAIN;
-                        break;
-                    case SSL_ERROR_ZERO_RETURN: // shutdonw cleanly
-                        ret = 0;                // On the read side propagate the zerro
-                        break;
-                    case SSL_ERROR_SYSCALL:
-                        ret = -1;
-                        break;
-                    default:
-                        ssl_log("SSL/TLS read failed", sslErr);
-                        ret = -1;
-                        break;
-                }
+                    switch (ssl_err) {
+                        case SSL_ERROR_NONE:
+                            break;
+                        case SSL_ERROR_WANT_READ:
+                            ret = 0;
+                            errno = EAGAIN;
+                            break;
+                        case SSL_ERROR_WANT_WRITE:
+                            LOG(INFO) << "SSL/TLS start renegotiation on read";
+                            doSSLHandshake(
+                                [](void) -> void {
+                                    LOG(INFO) << "SSL/TLS renegotiation on read success";
+                                },
+                                [](void) -> void {
+                                    LOG(WARNING) << "SSL/TLS renegotiation on read timed out";
+                                },
+                                [this](int ssl_err) -> void {
+                                    ssl_log("SSL/TLS renegotiation", ssl_err);
+                                    sslErr = ssl_err;
+                                });
+                            ret = 0;
+                            errno = EAGAIN;
+                            break;
+                        case SSL_ERROR_ZERO_RETURN: // shutdonw cleanly
+                            ret = 0;                // On the read side propagate the zerro
+                            break;
+                        case SSL_ERROR_SYSCALL:
+                            ret = 0;
+                            break;
+                        default:
+                            int errnum = errno;
+                            ssl_log("SSL/TLS read failed", ssl_err);
+                            errno = errnum;
+                            ret = 0;
+                            break;
+                    }
+                    break;
+                case SSL_RECEIVED_SHUTDOWN:
+                case SSL_RECEIVED_SHUTDOWN | SSL_SENT_SHUTDOWN:
+                    ret = 0;
+                    break;
             }
 
             return ret;
         }
 
-        bool continueReadImmediately() override {
-            return SSL_pending(ssl) || Super::continueReadImmediately();
+        bool continueReadImmediately() const override {
+            return SSL_has_pending(ssl) || Super::continueReadImmediately();
         }
-
-        virtual void readEvent() override = 0;
 
     protected:
         void terminate() override {

@@ -21,17 +21,59 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <sys/time.h> // IWYU pragma: export
+#include "core/system/time.h" // IWYU pragma: export
+
+struct timeval;
+#include <initializer_list>
+#include <iostream>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-bool operator<(const struct timeval& tv1, const struct timeval& tv2);
-bool operator>(const struct timeval& tv1, const struct timeval& tv2);
-bool operator<=(const struct timeval& tv1, const struct timeval& tv2);
-bool operator>=(const struct timeval& tv1, const struct timeval& tv2);
-bool operator==(const struct timeval& tv1, const struct timeval& tv2);
+namespace utils {
 
-struct timeval operator+(const struct timeval& tv1, const struct timeval& tv2);
-struct timeval operator-(const struct timeval& tv1, const struct timeval& tv2);
+    class Timeval {
+    public:
+        Timeval();
+        Timeval(const std::initializer_list<time_t>& initList); // cppcheck-suppress noExplicitConstructor
+        Timeval(const Timeval& timeVal);
+        Timeval(double time);            // cppcheck-suppress noExplicitConstructor
+        Timeval(const timeval& timeVal); // cppcheck-suppress noExplicitConstructor
+
+        static Timeval currentTime();
+
+        Timeval& operator=(const Timeval& timeVal);
+        Timeval& operator=(const std::initializer_list<time_t>& initList);
+        Timeval& operator=(const timeval& timeVal);
+
+        Timeval operator+(const Timeval& timeVal) const;
+        Timeval operator-(const Timeval& timeVal) const;
+
+        Timeval& operator+=(const Timeval& timeVal);
+        Timeval& operator-=(const Timeval& timeVal);
+
+        Timeval operator-() const;
+
+        bool operator<(const Timeval& timeVal) const;
+        bool operator>(const Timeval& timeVal) const;
+        bool operator<=(const Timeval& timeVal) const;
+        bool operator>=(const Timeval& timeVal) const;
+        bool operator==(const Timeval& timeVal) const;
+        bool operator!=(const Timeval& timeVal) const;
+
+        timeval* operator&();
+        const timeval* operator&() const;
+
+        int ms() const;
+
+    private:
+        const Timeval& normalize();
+
+        timeval timeVal = {0, 0};
+
+    public:
+        friend std::ostream& operator<<(std::ostream& ostream, const utils::Timeval& timeVal);
+    };
+
+} // namespace utils
 
 #endif // UTILS_TIMEVAL_H

@@ -20,7 +20,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <list>
+#include <list> // IWYU pragma: export
 #include <map>
 #include <string>
 
@@ -33,8 +33,8 @@ namespace web::http {
 
     template <typename SocketContextUpgradeFactory>
     struct SocketContextPlugin {
-        SocketContextUpgradeFactory* socketContextUpgradeFactory;
-        void* handle = nullptr;
+        SocketContextUpgradeFactory* socketContextUpgradeFactory; // cppcheck-suppress unusedStructMember
+        void* handle = nullptr;                                   // cppcheck-suppress unusedStructMember
     };
 
     template <typename SocketContextUpgradeFactoryT>

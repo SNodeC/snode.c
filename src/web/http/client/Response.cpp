@@ -18,13 +18,14 @@
 
 #include "web/http/client/Response.h"
 
-#include "log/Logger.h"
 #include "web/http/CookieOptions.h"
 #include "web/http/SocketContext.h"
 #include "web/http/client/SocketContextUpgradeFactorySelector.h"
 #include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <iterator> // for advance, distance
 #include <utility>  // for pair
@@ -69,10 +70,6 @@ namespace web::http::client {
         }
     }
 
-    std::size_t Response::bodyLength() const {
-        return contentLength;
-    }
-
     void Response::upgrade(Request& request) {
         if (httputils::ci_contains(this->header("connection"), "Upgrade")) {
             web::http::client::SocketContextUpgradeFactory* socketContextUpgradeFactory =
@@ -80,6 +77,7 @@ namespace web::http::client {
 
             if (socketContextUpgradeFactory != nullptr) {
                 if (socketContext->switchSocketContext(socketContextUpgradeFactory) == nullptr) {
+                    VLOG(0) << "SocketContextUpgrade not created";
                     socketContext->close();
                 }
             } else {

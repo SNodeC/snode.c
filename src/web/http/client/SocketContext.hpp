@@ -16,10 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "log/Logger.h"
 #include "web/http/client/SocketContext.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <string>
 
@@ -49,18 +50,24 @@ namespace web::http::client {
                   response.headers = &headers;
                   response.cookies = &cookies;
               },
-              [&response = this->response](char* content, std::size_t contentLength) -> void {
-                  response.body = content;
-                  response.contentLength = contentLength;
+              [&response = this->response](std::vector<uint8_t>& content) -> void {
+                  response.body = std::move(content);
               },
-              [&response = this->response, &request = this->request, onResponse](web::http::client::ResponseParser& parser) -> void {
+              [onResponse, this](web::http::client::ResponseParser& parser) -> void {
                   onResponse(request, response);
+
+                  if (response.header("connection") == "close" || request.header("connection") == "close") {
+                      shutdownWrite();
+                  }
+
                   parser.reset();
                   request.reset();
                   response.reset();
               },
-              [onError](int status, const std::string& reason) -> void {
+              [onError, this](int status, const std::string& reason) -> void {
                   onError(status, reason);
+
+                  close();
               }) {
     }
 

@@ -43,3 +43,18 @@ namespace core::socket::stream::tls {
 } // namespace core::socket::stream::tls
 
 #endif // CORE_SOCKET_STREAM_TLS_SSL_UTILS_H
+
+/*
+ssl.h:# define SSL_ERROR_NONE                  0
+ssl.h:# define SSL_ERROR_SSL                   1
+ssl.h:# define SSL_ERROR_WANT_READ             2
+ssl.h:# define SSL_ERROR_WANT_WRITE            3
+ssl.h:# define SSL_ERROR_WANT_X509_LOOKUP      4
+ssl.h:# define SSL_ERROR_SYSCALL               5 // look at error stack/return
+ssl.h:# define SSL_ERROR_ZERO_RETURN           6
+ssl.h:# define SSL_ERROR_WANT_CONNECT          7
+ssl.h:# define SSL_ERROR_WANT_ACCEPT           8
+ssl.h:# define SSL_ERROR_WANT_ASYNC            9
+ssl.h:# define SSL_ERROR_WANT_ASYNC_JOB       10
+ssl.h:# define SSL_ERROR_WANT_CLIENT_HELLO_CB 11
+*/

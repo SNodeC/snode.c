@@ -55,8 +55,10 @@ namespace web::http::client {
                       const std::function<void(Request&, Response&)>& onResponse,
                       const std::function<void(int, const std::string&)>& onError);
 
+    protected:
         ~SocketContext() override = default;
 
+    public:
         Request& getRequest();
         Response& getResponse();
 

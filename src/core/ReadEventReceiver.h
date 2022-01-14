@@ -31,7 +31,7 @@ namespace core {
 
     class ReadEventReceiver : public EventReceiver {
     protected:
-        ReadEventReceiver(long timeout = MAX_READ_INACTIVITY);
+        ReadEventReceiver(const utils::Timeval& timeout = MAX_READ_INACTIVITY);
 
     private:
         virtual void readEvent() = 0;
@@ -39,10 +39,9 @@ namespace core {
 
         void dispatchEvent() final;
         void timeoutEvent() final;
-        bool continueImmediately() final;
+        bool continueImmediately() const final;
 
-    protected:
-        virtual bool continueReadImmediately();
+        virtual bool continueReadImmediately() const;
     };
 
 } // namespace core

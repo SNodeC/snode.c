@@ -19,9 +19,10 @@
 #include "core/socket/SocketContext.h"
 
 #include "core/socket/SocketConnection.h" // IWYU pragma: keep
-#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -41,11 +42,7 @@ namespace core::socket {
     }
 
     ssize_t SocketContext::readFromPeer(char* junk, std::size_t junklen) {
-        ssize_t ret = 0;
-
-        ret = socketConnection->readFromPeer(junk, junklen);
-
-        return ret;
+        return socketConnection->readFromPeer(junk, junklen);
     }
 
     std::string SocketContext::getLocalAddressAsString() const {
@@ -56,24 +53,20 @@ namespace core::socket {
         return socketConnection->getRemoteAddressAsString();
     }
 
-    void SocketContext::close() {
-        socketConnection->close();
-    }
-
     SocketContext* SocketContext::switchSocketContext(core::socket::SocketContextFactory* socketContextFactory) {
         return socketConnection->switchSocketContext(socketContextFactory);
     }
 
-    void SocketContext::setTimeout(int timeout) {
+    void SocketContext::setTimeout(const utils::Timeval& timeout) {
         socketConnection->setTimeout(timeout);
     }
 
     void SocketContext::onConnected() {
-        VLOG(0) << "Protocol connected";
+        PLOG(INFO) << "Protocol connected";
     }
 
     void SocketContext::onDisconnected() {
-        VLOG(0) << "Protocol disconnected";
+        PLOG(INFO) << "Protocol disconnected";
     }
 
     SocketContext::Role SocketContext::getRole() const {
@@ -88,13 +81,26 @@ namespace core::socket {
         socketConnection->shutdownWrite();
     }
 
-    void SocketContext::onWriteError(int errnum) { // By default we do a cross-shutdown
-        PLOG(ERROR) << "OnWriteError: " << errnum;
+    void SocketContext::shutdown() {
         shutdownRead();
+        shutdownWrite();
     }
 
-    void SocketContext::onReadError(int errnum) { // By default we do a cross-shutdown
-        PLOG(ERROR) << "OnReadError: " << errnum;
+    void SocketContext::close() {
+        socketConnection->close();
+    }
+
+    void SocketContext::onWriteError(int errnum) { // By default we do nothing because we may still want to read data
+        if (errnum != 0) {
+            PLOG(ERROR) << "OnWriteError: " << errnum;
+        }
+    }
+
+    void SocketContext::onReadError(int errnum) { // By default we do a cross-shutdown. Override this method in case your protocol still
+                                                  // wants to send data after peers sending side has closed the connection.
+        if (errnum != 0) {
+            PLOG(ERROR) << "OnReadError: " << errnum;
+        }
         shutdownWrite();
     }
 

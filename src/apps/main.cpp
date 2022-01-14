@@ -22,6 +22,7 @@
 #include "core/timer/IntervalTimer.h"
 #include "express/legacy/in/WebApp.h"
 
+#include <fcntl.h>
 #include <iostream>
 #include <stdio.h>  // for perror
 #include <string.h> // for strerror
@@ -30,24 +31,79 @@
 
 using namespace core::timer;
 
+class File {
+public:
+    File()
+        : flags(0) {
+    }
+
+    explicit File(int flags) {
+        this->flags |= flags;
+    }
+
+    void setFlags(int flags) {
+        this->flags |= flags;
+
+        if ((this->flags & FL_RDONLY) && !(this->flags & FL_WRONLY)) {
+            rflags = O_RDONLY;
+        } else if (!(this->flags & FL_RDONLY) && (this->flags & FL_WRONLY)) {
+            rflags = O_WRONLY;
+        } else if ((this->flags & FL_RDONLY) && (this->flags & FL_WRONLY)) {
+            rflags = O_RDWR;
+        }
+    }
+
+    void addFlags(int flags) {
+        this->flags |= flags;
+    }
+
+    int flags = 0;
+    int rflags = 0;
+
+    int FL_RDONLY = 1;
+    int FL_WRONLY = 2;
+};
+
+class FileReader : public virtual File {
+public:
+    FileReader() {
+        File::setFlags(FL_RDONLY);
+    }
+};
+
+class FileWriter : public virtual File {
+public:
+    FileWriter() {
+        File::setFlags(FL_WRONLY);
+    }
+};
+
+class FileIO
+    : public FileReader
+    , public FileWriter {
+public:
+    FileIO() {
+    }
+};
+
 int timerApp() {
     [[maybe_unused]] const Timer& tick = Timer::intervalTimer(
         [](const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
             static int i = 0;
             std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
         },
-        {0, 500000},
+        0.5,
         "Tick");
 
-    Timer& tack = Timer::intervalTimer(
+    [[maybe_unused]] Timer& tack = Timer::intervalTimer(
         [](const void* arg, [[maybe_unused]] const std::function<void()>& stop) -> void {
             static int i = 0;
             std::cout << static_cast<const char*>(arg) << " " << i++ << std::endl;
         },
-        {1, 100000},
+        1.1,
         "Tack");
 
-    bool canceled = false;
+    [[maybe_unused]] bool canceled = false;
 
     express::legacy::in::WebApp app;
 
@@ -108,8 +164,9 @@ int timerApp() {
         } else {
             //                    std::cout << uri << std::endl;
 
-            if (req.bodyLength() != 0) {
-                std::cout << "Body: " << req.body << std::endl;
+            if (req.body.size() > 0) {
+                req.body.push_back(0);
+                std::cout << "Body: " << req.body.data() << std::endl;
             }
 
             res.sendFile(SERVERROOT + uri, [uri](int ret) -> void {
@@ -129,13 +186,21 @@ int timerApp() {
         }
     });
 
-    express::WebApp::start();
-
-    return 0;
+    return express::WebApp::start();
 }
 
 int main(int argc, char** argv) {
     express::WebApp::init(argc, argv);
+
+    File test;
+    FileReader test1;
+    FileWriter test2;
+    FileIO test3;
+
+    std::cout << "File: " << test.rflags << std::endl;
+    std::cout << "FileReader: " << test1.rflags << " : " << O_RDONLY << std::endl;
+    std::cout << "FileWriter: " << test2.rflags << " : " << O_WRONLY << std::endl;
+    std::cout << "FileIO: " << test3.rflags << " : " << O_RDWR << std::endl;
 
     return timerApp();
 }

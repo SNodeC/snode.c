@@ -18,11 +18,12 @@
 
 #include "web/websocket/client/SocketContextUpgradeFactory.h"
 
-#include "utils/base64.h"
 #include "web/http/client/Request.h"  // for Request
 #include "web/http/client/Response.h" // for Response
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "utils/base64.h"
 
 #include <unistd.h>
 
@@ -35,6 +36,7 @@ namespace web::websocket::client {
         getentropy(ebytes, 16);
 
         request.set("Sec-WebSocket-Key", base64::base64_encode(ebytes, 16));
+        request.set("Sec-WebSocket-Version", "13");
     }
 
     std::string SocketContextUpgradeFactory::name() {
@@ -59,7 +61,8 @@ namespace web::websocket::client {
         static bool linked = false;
 
         if (!linked) {
-            web::http::client::SocketContextUpgradeFactory::link("websocket", websocketClientContextUpgradeFactory);
+            web::http::client::SocketContextUpgradeFactory::link(
+                "websocket", websocketClientContextUpgradeFactory); // cppcheck-suppress leakNoVarFunctionCall
             linked = true;
         }
     }

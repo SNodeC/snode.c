@@ -18,6 +18,7 @@
 
 #include "core/ConnectEventReceiver.h"
 
+#include "core/EventDispatcher.h"
 #include "core/EventLoop.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -26,15 +27,15 @@
 
 namespace core {
 
-    ConnectEventReceiver::ConnectEventReceiver(long timeout)
-        : EventReceiver(EventLoop::instance().getWriteEventDispatcher(), timeout) {
+    ConnectEventReceiver::ConnectEventReceiver(const utils::Timeval& timeout)
+        : EventReceiver(EventLoop::getEventDispatcher().getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE::WR), timeout) {
     }
 
     void ConnectEventReceiver::connectTimeout() {
         disable();
     }
 
-    bool ConnectEventReceiver::continueConnectImmediately() {
+    bool ConnectEventReceiver::continueConnectImmediately() const {
         return false;
     }
 
@@ -46,7 +47,7 @@ namespace core {
         connectTimeout();
     }
 
-    bool ConnectEventReceiver::continueImmediately() {
+    bool ConnectEventReceiver::continueImmediately() const {
         return continueConnectImmediately();
     }
 

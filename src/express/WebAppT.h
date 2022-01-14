@@ -22,9 +22,10 @@
 #include "express/Request.h"  // IWYU pragma: export
 #include "express/Response.h" // IWYU pragma: export
 #include "express/WebApp.h"   // IWYU pragma: export
-#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <any> // IWYU pragma: export
 #include <functional>
@@ -50,15 +51,16 @@ namespace express {
             : WebAppT(Router(), options) {
         }
 
-        WebAppT(const Router& router, const std::map<std::string, std::any>& options = {{}})
+        explicit WebAppT(const Router& router, const std::map<std::string, std::any>& options = {{}})
             : WebApp(router)
             , Server(
-                  [](const SocketAddress& localAddress,
-                     const SocketAddress& remoteAddress) -> void { // onConnect
+                  [](SocketConnection* socketConnection) -> void { // onConnect
                       VLOG(0) << "OnConnect:";
 
-                      VLOG(0) << "\tServer: (" + localAddress.address() + ") " + localAddress.toString();
-                      VLOG(0) << "\tClient: (" + remoteAddress.address() + ") " + remoteAddress.toString();
+                      VLOG(0) << "\tServer: (" + socketConnection->getLocalAddress().address() + ") " +
+                                     socketConnection->getLocalAddress().toString();
+                      VLOG(0) << "\tClient: (" + socketConnection->getRemoteAddress().address() + ") " +
+                                     socketConnection->getRemoteAddress().toString();
                   },
                   [](SocketConnection* socketConnection) -> void { // onConnected
                       VLOG(0) << "OnConnected:";

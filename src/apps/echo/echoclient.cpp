@@ -25,7 +25,7 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
     core::SNodeC::init(argc, argv);
 
 #if (STREAM_TYPE == LEGACY)
@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
     client.connect("localhost", 8088, [](int errnum) -> void {
 #endif
 #elif (NET_TYPE == L2) // l2
-    // DIONE: 10:3D:1C:AC:BA:9C
+    // ATLAS: 10:3D:1C:AC:BA:9C
     // TITAN: A4:B1:C1:2C:82:37
 
     // USB: 44:01:BB:A3:63:32
@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
         }
 
 #ifdef NET_TYPE
-    });
+    }); // cppcheck-suppress syntaxError
 #endif
 
     return core::SNodeC::start();

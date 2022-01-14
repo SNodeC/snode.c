@@ -40,7 +40,7 @@ namespace core::pipe {
         PipeSource& operator=(const PipeSource&) = delete;
 
     public:
-        PipeSource(int fd);
+        explicit PipeSource(int fd);
 
         void send(const char* junk, std::size_t junkLen);
         void send(const std::string& data);

@@ -31,7 +31,7 @@ namespace core {
 
     class WriteEventReceiver : public EventReceiver {
     protected:
-        WriteEventReceiver(long timeout = MAX_WRITE_INACTIVITY);
+        WriteEventReceiver(const utils::Timeval& timeout = MAX_WRITE_INACTIVITY);
 
     private:
         virtual void writeEvent() = 0;
@@ -39,10 +39,9 @@ namespace core {
 
         void dispatchEvent() final;
         void timeoutEvent() final;
-        bool continueImmediately() final;
+        bool continueImmediately() const final;
 
-    protected:
-        virtual bool continueWriteImmediately();
+        virtual bool continueWriteImmediately() const;
     };
 
 } // namespace core

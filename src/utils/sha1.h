@@ -20,10 +20,14 @@
         -- Volker Christian <me@vchrist.at>
 */
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
 #include <string>
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 class SHA1 {
 public:

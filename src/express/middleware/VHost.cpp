@@ -44,10 +44,10 @@ namespace express::middleware {
         });
     }
 
-    // Keep all created vhost middlewares alive
-    static std::list<std::shared_ptr<class VHost>> vhostMiddlewares;
-
     class VHost& VHost::instance(const std::string& host) {
+        // Keep all created vhost middlewares alive
+        static std::list<std::shared_ptr<class VHost>> vhostMiddlewares;
+
         std::shared_ptr<VHost> vhost = std::shared_ptr<VHost>(new VHost(host));
         vhostMiddlewares.push_back(vhost);
 

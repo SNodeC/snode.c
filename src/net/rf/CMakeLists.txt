@@ -5,11 +5,22 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(BLUEZ bluez)
 
 if(BLUEZ_FOUND)
-
-    add_library(
-        net-rf SHARED SocketAddress.cpp stream/Socket.cpp
-                      stream/ServerSocket.cpp stream/ClientSocket.cpp
+    set(NET-RF_CPP SocketAddress.cpp stream/Socket.cpp stream/ServerSocket.cpp
+                   stream/ClientSocket.cpp
     )
+
+    set(NET-RF_H
+        SocketAddress.h
+        stream/Socket.h
+        stream/ServerSocket.h
+        stream/ClientSocket.h
+        stream/legacy/SocketServer.h
+        stream/legacy/SocketClient.h
+        stream/tls/SocketServer.h
+        stream/tls/SocketClient.h
+    )
+
+    add_library(net-rf SHARED ${NET-RF_CPP} ${NET-RF_H})
     add_library(snodec::net-rf ALIAS net-rf)
 
     target_include_directories(

@@ -40,11 +40,16 @@ namespace web::websocket::client {
 
     class SubProtocolFactorySelector
         : public web::websocket::SubProtocolFactorySelector<web::websocket::SubProtocolFactory<web::websocket::client::SubProtocol>> {
+    private:
+        using Super = web::websocket::SubProtocolFactorySelector<web::websocket::SubProtocolFactory<web::websocket::client::SubProtocol>>;
+
     public:
         static SubProtocolFactorySelector* instance();
 
         static void link(const std::string& subProtocolName, void* (*getSubProtocolFactory)());
         static void addSubProtocolSearchPath(const std::string& searchPath);
+
+        using web::websocket::SubProtocolFactorySelector<SubProtocolFactory>::allowDlOpen;
         static void allowDlOpen();
 
     private:

@@ -26,7 +26,7 @@
 
 using namespace express;
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) { // cppcheck-suppress syntaxError
     logger::Logger::setVerboseLevel(2);
 
     WebApp::init(argc, argv);
@@ -37,7 +37,8 @@ int main(int argc, char* argv[]) {
     std::map<std::string, std::any> options{
         {"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}, {"CaFile", CLIENTCAFILE}};
     std::map<std::string, std::map<std::string, std::any>> sniCerts = {
-        {"snodec.home.vchrist.at", {{"CertChain", SNODECCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}}}};
+        {"snodec.home.vchrist.at",
+         {{"CertChain", SNODECCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}, {"CaFile", CLIENTCAFILE}}}};
 #endif
 
     using WebApp = apps::http::STREAM::WebApp;
@@ -60,7 +61,7 @@ int main(int argc, char* argv[]) {
     webApp.listen(8088, 5, [](const WebApp::Socket& socket, int errnum) -> void {
 #endif
 #elif (NET_TYPE == L2) //
-    // DIONE: 10:3D:1C:AC:BA:9C
+    // ATLAS: 10:3D:1C:AC:BA:9C
     // TITAN: A4:B1:C1:2C:82:37
 
     // USB: 44:01:BB:A3:63:32
@@ -80,7 +81,7 @@ int main(int argc, char* argv[]) {
         }
 
 #ifdef NET_TYPE
-    });
+    }); // cppcheck-suppress syntaxError
 #endif
 
     return WebApp::start();

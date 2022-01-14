@@ -23,6 +23,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "core/system/dlfcn.h" // IWYU pragma: keep
+
 #include <cstddef>
 #include <map>
 #include <string>
@@ -34,8 +36,8 @@ namespace core {
     class DynamicLoader {
     private:
         struct Library {
-            std::string fileName = "";
-            std::size_t refCount = 0;
+            std::string fileName = ""; // cppcheck-suppress unusedStructMember
+            std::size_t refCount = 0;  // cppcheck-suppress unusedStructMember
         };
 
         DynamicLoader() = delete;

@@ -23,9 +23,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/Timeval.h"
+
 #include <climits>
-#include <cstddef>    // for size_t
-#include <sys/time.h> // IWYU pragma: keep
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -40,8 +40,8 @@ namespace core {
 
     public:
         static void init(int argc, char* argv[]);
-        static int start(struct timeval timeOut = {LONG_MAX, 0});
-        static TickStatus tick(struct timeval timeOut = {0, 0});
+        static int start(const utils::Timeval& timeOut = {LONG_MAX, 0});
+        static TickStatus tick(const utils::Timeval& timeOut = 0);
         static void free();
     };
 

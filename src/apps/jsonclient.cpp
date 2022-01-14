@@ -26,7 +26,6 @@
 #include "web/http/client/Response.h"  // for Response
 #include "web/http/legacy/in/Client.h" // for Client, Client<>...
 
-#include <cstring>     // for memcpy
 #include <type_traits> // for add_const<>::type
 #include <utility>     // for tuple_element<>:...
 
@@ -36,13 +35,14 @@ int main(int argc, char* argv[]) {
     core::SNodeC::init(argc, argv);
 
     web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response> jsonClient(
-        [](const web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& localAddress,
-           const web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketAddress& remoteAddress)
+        [](web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection* socketConnection)
             -> void {
             VLOG(0) << "-- OnConnect";
 
-            VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
-            VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
+            VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
+                           socketConnection->getRemoteAddress().toString();
+            VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
+                           socketConnection->getLocalAddress().toString();
         },
         []([[maybe_unused]] web::http::legacy::in::Client<web::http::client::Request, web::http::client::Response>::SocketConnection*
                socketConnection) -> void {
@@ -52,9 +52,10 @@ int main(int argc, char* argv[]) {
             request.method = "POST";
             request.url = "/index.html";
             request.type("application/json");
+            request.set("Connection", "close");
             request.send("{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}");
         },
-        []([[maybe_unused]] const web::http::client::Request& request, const web::http::client::Response& response) -> void {
+        []([[maybe_unused]] web::http::client::Request& request, web::http::client::Response& response) -> void {
             VLOG(0) << "-- OnResponse";
             VLOG(0) << "     Status:";
             VLOG(0) << "       " << response.httpVersion;
@@ -74,13 +75,8 @@ int main(int argc, char* argv[]) {
                 }
             }
 
-            char* body = new char[response.contentLength + 1];
-            memcpy(body, response.body, response.contentLength);
-            body[response.contentLength] = 0;
-
-            VLOG(1) << "     Body:\n----------- start body -----------\n" << body << "\n------------ end body ------------";
-
-            delete[] body;
+            response.body.push_back(0);
+            VLOG(0) << "     Body:\n----------- start body -----------" << response.body.data() << "\n------------ end body ------------";
         },
         [](int status, const std::string& reason) -> void {
             VLOG(0) << "-- OnResponseError";
@@ -108,6 +104,7 @@ int main(int argc, char* argv[]) {
             PLOG(ERROR) << "OnError: " << err;
         }
     });
+
     /*
         jsonClient.post("localhost", 8080, "/index.html", "{\"userId\":1,\"schnitzel\":\"good\",\"hungry\":false}", [](int err) -> void {
             if (err != 0) {
@@ -115,5 +112,6 @@ int main(int argc, char* argv[]) {
             }
         });
     */
+
     return core::SNodeC::start();
 }

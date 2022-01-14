@@ -18,9 +18,9 @@
 
 #include "core/Descriptor.h"
 
-#include "core/system/unistd.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "core/system/unistd.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

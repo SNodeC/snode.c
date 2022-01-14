@@ -24,9 +24,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <list>   // for list
-#include <string> // for string, all...
-#include <tuple>  // for tie, tuple
+#include <tuple> // for tie, tuple
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -51,8 +49,7 @@ namespace web::http::server {
 
     SocketContextUpgradeFactorySelector::SocketContextUpgradeFactory*
     SocketContextUpgradeFactorySelector::load(const std::string& upgradeContextName) {
-        return web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::load(upgradeContextName,
-                                                                                                 core::socket::SocketContext::Role::SERVER);
+        return load(upgradeContextName, core::socket::SocketContext::Role::SERVER);
     }
 
     /* do not remove */
@@ -65,13 +62,13 @@ namespace web::http::server {
             std::string upgradeContextName;
             std::string upgradeContextPriority;
 
-            std::tie(upgradeContextName, upgradeContextNames) = httputils::str_split(upgradeContextNames, ',');
+            std::tie(upgradeContextName, upgradeContextNames) =
+                httputils::str_split(upgradeContextNames, ','); // TODO honor priorities - needs a for loop´
             std::tie(upgradeContextName, upgradeContextPriority) = httputils::str_split(upgradeContextName, '/');
 
             httputils::to_lower(upgradeContextName);
 
-            socketContextUpgradeFactory =
-                web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>::select(upgradeContextName);
+            socketContextUpgradeFactory = select(upgradeContextName);
 
             if (socketContextUpgradeFactory != nullptr) {
                 socketContextUpgradeFactory->prepare(req, res);

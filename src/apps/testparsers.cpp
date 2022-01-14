@@ -23,8 +23,6 @@
 #include "web/http/client/ResponseParser.h" // for HTTPResponseParser, ResponseCookie
 #include "web/http/server/RequestParser.h"  // for RequestParser
 
-#include <cstddef>
-#include <cstring>     // for memcpy, std::size_t
 #include <functional>  // for function
 #include <map>         // for map
 #include <string>      // for allocator, string, operator+, char_t...
@@ -64,12 +62,9 @@ int main(int argc, char* argv[]) {
                 VLOG(0) << "++      " << cookieName << " = " << cookieValue;
             }
         },
-        [](char* content, std::size_t contentLength) -> void {
-            char* strContent = new char[contentLength + 1];
-            memcpy(strContent, content, contentLength);
-            strContent[contentLength] = 0;
-            VLOG(0) << "++    OnContent: " << contentLength << " : " << strContent;
-            delete[] strContent;
+        [](std::vector<uint8_t>& content) -> void {
+            content.push_back(0);
+            VLOG(0) << content.data();
         },
         []() -> void {
             VLOG(0) << "++    OnParsed";
@@ -125,12 +120,9 @@ int main(int argc, char* argv[]) {
                 }
             }
         },
-        [](char* content, std::size_t contentLength) -> void {
-            char* strContent = new char[contentLength + 1];
-            memcpy(strContent, content, contentLength);
-            strContent[contentLength] = 0;
-            VLOG(0) << "++   OnContent: " << contentLength << " : " << strContent;
-            delete[] strContent;
+        [](std::vector<uint8_t>& content) -> void {
+            content.push_back(0);
+            VLOG(0) << content.data();
         },
         [](client::ResponseParser& parser) -> void {
             VLOG(0) << "++   OnParsed";

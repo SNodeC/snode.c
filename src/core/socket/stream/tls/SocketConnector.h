@@ -21,9 +21,10 @@
 
 #include "core/socket/stream/SocketConnector.h"
 #include "core/socket/stream/tls/SocketConnection.h" // IWYU pragma: export
-#include "core/socket/stream/tls/ssl_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "core/socket/stream/tls/ssl_utils.h"
 
 #include <cstddef>
 
@@ -32,7 +33,7 @@
 namespace core::socket::stream::tls {
 
     template <typename SocketT>
-    class SocketConnector : public core::socket::stream::SocketConnector<core::socket::stream::tls::SocketConnection<SocketT>> {
+    class SocketConnector : protected core::socket::stream::SocketConnector<core::socket::stream::tls::SocketConnection<SocketT>> {
     private:
         using Super = core::socket::stream::SocketConnector<core::socket::stream::tls::SocketConnection<SocketT>>;
 
@@ -42,7 +43,7 @@ namespace core::socket::stream::tls {
         using SocketAddress = typename Super::SocketAddress;
 
         SocketConnector(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
-                        const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
+                        const std::function<void(SocketConnection*)>& onConnect,
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,
                         const std::map<std::string, std::any>& options)
@@ -60,7 +61,6 @@ namespace core::socket::stream::tls {
                           socketConnection->doSSLHandshake(
                               [onConnected, socketConnection](void) -> void { // onSuccess
                                   LOG(INFO) << "SSL/TLS initial handshake success";
-                                  socketConnection->SocketConnection::SocketReader::resume();
                                   onConnected(socketConnection);
                               },
                               [this](void) -> void { // onTimeout
@@ -72,8 +72,7 @@ namespace core::socket::stream::tls {
                                   this->onError(-sslErr);
                               });
                       } else {
-                          socketConnection->SocketConnection::SocketReader::disable();
-                          socketConnection->SocketConnection::SocketWriter::disable();
+                          socketConnection->close();
                           ssl_log_error("SSL/TLS initialization failed");
                           this->onError(-SSL_ERROR_SSL);
                       }

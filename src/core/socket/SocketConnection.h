@@ -21,6 +21,10 @@
 
 // IWYU pragma: no_include "core/socket/SocketContextFactory.h"
 
+namespace utils {
+    class Timeval;
+}
+
 namespace core::socket {
     class SocketContextFactory; // IWYU pragma: keep
     class SocketContext;        // IWYU pragma: keep
@@ -28,7 +32,7 @@ namespace core::socket {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>
+#include <cstddef> // for size_t
 #include <memory>
 #include <string>
 #include <sys/types.h> // for ssize_t
@@ -45,11 +49,28 @@ namespace core::socket {
     protected:
         SocketConnection(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory);
 
-        virtual ~SocketConnection() = default;
+        virtual ~SocketConnection();
 
     public:
         core::socket::SocketContext* getSocketContext();
 
+        virtual void close() = 0;
+
+        virtual void shutdownRead() = 0;
+        virtual void shutdownWrite() = 0;
+
+        virtual void setTimeout(const utils::Timeval& timeout) = 0;
+
+    protected: // must be call able from subclasses
+        void onConnected();
+        void onDisconnected();
+
+        void onReceiveFromPeer();
+
+        void onWriteError(int errnum);
+        void onReadError(int errnum);
+
+    public: // will be called class SocketContext
         virtual std::string getLocalAddressAsString() const = 0;
         virtual std::string getRemoteAddressAsString() const = 0;
 
@@ -58,19 +79,11 @@ namespace core::socket {
 
         virtual ssize_t readFromPeer(char* junk, std::size_t junkLen) = 0;
 
-        virtual void close() = 0;
+        core::socket::SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory);
 
-        virtual void shutdownRead() = 0;
-        virtual void shutdownWrite() = 0;
-
-        virtual void setTimeout(int timeout) = 0;
-
-        virtual core::socket::SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory) = 0;
-
-    protected:
+    private:
         core::socket::SocketContext* socketContext = nullptr;
-
-        friend core::socket::SocketContext;
+        core::socket::SocketContext* newSocketContext = nullptr;
     };
 
 } // namespace core::socket

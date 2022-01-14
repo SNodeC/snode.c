@@ -46,7 +46,7 @@ namespace core::socket::stream {
         using SocketAddress = typename Socket::SocketAddress;
         using SocketConnection = typename SocketAcceptor::SocketConnection;
 
-        SocketServer(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
+        SocketServer(const std::function<void(SocketConnection*)>& onConnect,
                      const std::function<void(SocketConnection*)>& onConnected,
                      const std::function<void(SocketConnection*)>& onDisconnect,
                      const std::map<std::string, std::any>& options = {{}})
@@ -69,7 +69,7 @@ namespace core::socket::stream {
             socketAcceptor->listen(bindAddress, backlog, onError);
         }
 
-        void onConnect(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect) {
+        void onConnect(const std::function<void(SocketConnection*)>& onConnect) {
             _onConnect = onConnect;
         }
 
@@ -88,7 +88,7 @@ namespace core::socket::stream {
     protected:
         std::shared_ptr<SocketContextFactory> socketContextFactory;
 
-        std::function<void(const SocketAddress&, const SocketAddress&)> _onConnect;
+        std::function<void(SocketConnection*)> _onConnect;
         std::function<void(SocketConnection*)> _onConnected;
         std::function<void(SocketConnection*)> _onDisconnect;
 

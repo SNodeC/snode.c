@@ -21,6 +21,10 @@
 
 // IWYU pragma: no_include "core/socket/SocketConnection.h"
 
+namespace utils {
+    class Timeval;
+}
+
 namespace core::socket {
     class SocketConnection;     // IWYU pragma: keep
     class SocketContextFactory; // IWYU pragma: keep
@@ -43,10 +47,11 @@ namespace core::socket {
     protected:
         explicit SocketContext(core::socket::SocketConnection* socketConnection, Role role);
 
-    public:
         virtual ~SocketContext() = default;
 
+    public:
         Role getRole() const;
+        void setTimeout(const utils::Timeval& timeout);
 
         std::string getLocalAddressAsString() const;
         std::string getRemoteAddressAsString() const;
@@ -57,26 +62,26 @@ namespace core::socket {
 
         void shutdownRead();
         void shutdownWrite();
+        void shutdown();
 
         void close();
 
-        void setTimeout(int timeout);
-
         SocketContext* switchSocketContext(core::socket::SocketContextFactory* socketContextFactory);
+
+    private:
+        virtual void onConnected();
+        virtual void onDisconnected();
 
         virtual void onReceiveFromPeer() = 0;
 
         virtual void onWriteError(int errnum);
         virtual void onReadError(int errnum);
 
-        virtual void onConnected();
-        virtual void onDisconnected();
-
-    private:
         core::socket::SocketConnection* socketConnection;
 
-    protected:
         Role role;
+
+        friend class core::socket::SocketConnection;
     };
 
 } // namespace core::socket

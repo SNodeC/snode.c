@@ -23,6 +23,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <cerrno>
 #include <cstddef> // for std::size_t
 #include <functional>
@@ -53,57 +55,48 @@ namespace core::socket::stream {
     protected:
         explicit SocketWriter(const std::function<void(int)>& onError)
             : onError(onError) {
+            enable(Socket::fd);
+            suspend();
         }
 
         virtual ~SocketWriter() = default;
 
+    private:
+        virtual ssize_t write(const char* junk, std::size_t junkLen) = 0;
+
+        void writeEvent() override = 0;
+
+    protected:
+        virtual void doShutdown() {
+            Socket::shutdown(Socket::shutdown::WR);
+            if (isSuspended()) {
+                resume();
+            }
+            shutdownTriggered = true;
+        }
+
         void sendToPeer(const char* junk, std::size_t junkLen) {
-            writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
+            if (!shutdownTriggered) {
+                writeBuffer.insert(writeBuffer.end(), junk, junk + junkLen);
+            }
 
             if (isSuspended()) {
                 resume();
             }
         }
 
-    private:
-        virtual ssize_t write(const char* junk, std::size_t junkLen) = 0;
-
-        void writeEvent() override {
-            doWrite();
-        }
-
-        virtual void doShutdown() {
-            Socket::shutdown(Socket::shutdown::WR);
-            resume();
-            shutdownTriggered = true;
-            // disable(); // Normally this should be sufficient - but google-chrome
-        }
-
-    protected:
-        void shutdown() {
-            if (!shutdownTriggered) {
-                if (isSuspended()) {
-                    doShutdown();
-                    markShutdown = false;
-                } else {
-                    markShutdown = true;
-                }
-                setTimeout(MAX_SHUTDOWN_TIMEOUT);
-            }
-        }
-
-        void terminate() override {
-            shutdown();
-        }
-
         void doWrite() {
             errno = 0;
 
-            std::size_t writeLen = (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE;
-
             ssize_t retWrite = -1;
+
+            std::size_t writeLen = (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE;
             if (!shutdownTriggered) {
                 retWrite = write(writeBuffer.data(), writeLen);
+
+                int errnum = errno;
+                //                PLOG(ERROR) << "Write++++++++++";
+                errno = errnum;
             }
 
             if (retWrite >= 0) {
@@ -119,6 +112,22 @@ namespace core::socket::stream {
                     shutdown();
                 }
             }
+        }
+
+        void shutdown() {
+            if (!shutdownTriggered) {
+                if (isSuspended()) {
+                    doShutdown();
+                    setTimeout(MAX_SHUTDOWN_TIMEOUT);
+                    markShutdown = false;
+                } else {
+                    markShutdown = true;
+                }
+            }
+        }
+
+        void terminate() override {
+            shutdown();
         }
 
     private:

@@ -30,7 +30,7 @@
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#define LISTEN_BACKLOG 5
+#define LISTEN_BACKLOG 512
 
 namespace web::http::server {
 
@@ -47,15 +47,14 @@ namespace web::http::server {
         using SocketConnection = typename Super::SocketConnection;
         using SocketAddress = typename SocketConnection::SocketAddress;
 
-        Server(const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
+        Server(const std::function<void(SocketConnection*)>& onConnect,
                const std::function<void(SocketConnection*)>& onConnected,
                const std::function<void(Request&, Response&)>& onRequestReady,
                const std::function<void(SocketConnection*)>& onDisconnect,
                const std::map<std::string, std::any>& options = {{}})
             : Super(
-                  [onConnect](const SocketAddress& localAddress,
-                              const SocketAddress& remoteAddress) -> void { // OnConnect
-                      onConnect(localAddress, remoteAddress);
+                  [onConnect](SocketConnection* socketConnection) -> void { // OnConnect
+                      onConnect(socketConnection);
                   },
                   [onConnected](SocketConnection* socketConnection) -> void { // onConnected.
                       onConnected(socketConnection);

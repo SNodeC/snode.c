@@ -18,11 +18,16 @@ set(WEBSOCKET_SUBPROTOCOL_CLIENT_INSTALL_LIBDIR
     "${CMAKE_INSTALL_PREFIX}/${WEBSOCKET_SUBPROTOCOL_INSTALL_LIBDIR}/client"
 )
 
-add_library(
-    websocketclient SHARED
+set(WEBSOCKETCLIENT_CPP
     SocketContextUpgrade.cpp SocketContextUpgradeFactory.cpp SubProtocol.cpp
     SubProtocolFactorySelector.cpp
 )
+
+set(WEBSOCKETCLIENT_H SocketContextUpgrade.h SocketContextUpgradeFactory.h
+                      SubProtocol.h SubProtocolFactorySelector.h
+)
+
+add_library(websocketclient SHARED ${WEBSOCKETCLIENT_CPP} ${WEBSOCKETCLIENT_H})
 add_library(snodec::websocketclient ALIAS websocketclient)
 
 target_compile_definitions(

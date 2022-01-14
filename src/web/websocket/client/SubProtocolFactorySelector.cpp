@@ -25,13 +25,11 @@
 namespace web::websocket::client {
 
     SubProtocolFactorySelector::SubProtocolFactorySelector() {
-        web::websocket::SubProtocolFactorySelector<SubProtocolFactory>::addSubProtocolSearchPath(
-            WEBSOCKET_SUBPROTOCOL_CLIENT_INSTALL_LIBDIR);
+        Super::addSubProtocolSearchPath(WEBSOCKET_SUBPROTOCOL_CLIENT_INSTALL_LIBDIR);
 
 #if !defined(NDEBUG) && defined(WEBSOCKET_SUBPROTOCOL_CLIENT_COMPILE_LIBDIR)
 
-        web::websocket::SubProtocolFactorySelector<SubProtocolFactory>::addSubProtocolSearchPath(
-            WEBSOCKET_SUBPROTOCOL_CLIENT_COMPILE_LIBDIR);
+        Super::addSubProtocolSearchPath(WEBSOCKET_SUBPROTOCOL_CLIENT_COMPILE_LIBDIR);
 
 #endif // !defined(NDEBUG) && defined(WEBSOCKET_SUBPROTOCOL_CLIENT_COMPILE_LIBDIR)
     }
@@ -47,12 +45,11 @@ namespace web::websocket::client {
     }
 
     void SubProtocolFactorySelector::addSubProtocolSearchPath(const std::string& searchPath) {
-        SubProtocolFactorySelector::instance()->web::websocket::SubProtocolFactorySelector<SubProtocolFactory>::addSubProtocolSearchPath(
-            searchPath);
+        SubProtocolFactorySelector::instance()->Super::addSubProtocolSearchPath(searchPath);
     }
 
     void SubProtocolFactorySelector::allowDlOpen() {
-        SubProtocolFactorySelector::instance()->web::websocket::SubProtocolFactorySelector<SubProtocolFactory>::allowDlOpen();
+        SubProtocolFactorySelector::instance()->Super::allowDlOpen();
     }
 
 } // namespace web::websocket::client

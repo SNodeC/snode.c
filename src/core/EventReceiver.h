@@ -19,20 +19,17 @@
 #ifndef CORE_EVENTRECEIVER_H
 #define CORE_EVENTRECEIVER_H
 
-#include "utils/Timeval.h" // for operator-, operator<, operator>=
+namespace core {
+    class DescriptorEventDispatcher;
+} // namespace core
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <algorithm>
-#include <climits>
-#include <ctime>
-#include <sys/time.h> // for timeval
+#include "utils/Timeval.h" // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
-
-    class EventDispatcher;
 
     class Observer {
     public:
@@ -40,10 +37,6 @@ namespace core {
             return observationCounter > 0;
         }
 
-    private:
-        virtual void unobservedEvent() = 0;
-
-    protected:
         void observed() {
             observationCounter++;
         }
@@ -52,27 +45,35 @@ namespace core {
             observationCounter--;
         }
 
-        int observationCounter = 0;
+        int getObservationCounter() {
+            return observationCounter;
+        }
 
-        friend class EventDispatcher;
+        virtual void unobservedEvent() = 0;
+
+    private:
+        int observationCounter = 0;
     };
 
     class EventReceiver : virtual public Observer {
         EventReceiver(const EventReceiver&) = delete;
         EventReceiver& operator=(const EventReceiver&) = delete;
 
+    public:
     protected:
         class TIMEOUT {
         public:
-            static const long DEFAULT = -1;
-            static const long DISABLE = LONG_MAX;
+            static const utils::Timeval DEFAULT;
+            static const utils::Timeval DISABLE;
         };
 
-        explicit EventReceiver(EventDispatcher& descriptorEventDispatcher, long timeout = TIMEOUT::DISABLE);
-
+        explicit EventReceiver(DescriptorEventDispatcher& descriptorEventDispatcher, const utils::Timeval& timeout = TIMEOUT::DISABLE);
         virtual ~EventReceiver() = default;
 
-    protected:
+    public:
+        int getRegisteredFd();
+        virtual bool continueImmediately() const = 0;
+
         void enable(int fd);
         void disable();
         bool isEnabled() const;
@@ -81,92 +82,31 @@ namespace core {
         void resume();
         bool isSuspended() const;
 
-        virtual void terminate();
+        void triggered(const utils::Timeval& currentTime);
+        void trigger(const utils::Timeval& currentTime);
 
-        void setTimeout(long timeout);
-
-        void triggered(struct timeval lastTriggered = {time(nullptr), 0});
-
-    private:
         void disabled();
 
-        struct timeval getTimeout() const;
-        struct timeval getLastTriggered();
+        virtual void terminate();
 
+        void setTimeout(const utils::Timeval& timeout);
+        utils::Timeval getTimeout(const utils::Timeval& currentTime) const;
+        void checkTimeout(const utils::Timeval& currentTime);
+
+    private:
         virtual void dispatchEvent() = 0;
         virtual void timeoutEvent() = 0;
 
-        virtual bool continueImmediately() = 0;
+        DescriptorEventDispatcher& descriptorEventDispatcher;
 
-        EventDispatcher& descriptorEventDispatcher;
+        int registeredFd = -1;
 
-        int fd = -1;
+        bool enabled = false;
+        bool suspended = false;
 
-        bool _enabled = false;
-        bool _suspended = false;
-
-        struct timeval lastTriggered = {0, 0};
-
-        long maxInactivity = LONG_MAX;
-        const long initialTimeout;
-
-        friend class EventDispatcher;
-
-        // New API
-        enum class State { NEW, ACTIVE, INACTIVE, STOPED } state = State::NEW;
-
-        class Timeout {
-        public:
-            static const struct timeval constexpr DEFAULT = {-1, 0};
-            static const struct timeval constexpr DISABLE = {LONG_MAX, 0};
-        };
-
-        bool isNew() {
-            return state == State::NEW;
-        }
-
-        void n_activate() {
-            state = State::ACTIVE;
-        }
-
-        bool isActive() {
-            return state == State::ACTIVE;
-        }
-
-        void n_inactivate() {
-            state = State::INACTIVE;
-        }
-
-        bool isInactive() {
-            return state == State::INACTIVE;
-        }
-
-        void n_stop() {
-            state = State::STOPED;
-        }
-
-        bool isStopped() {
-            return state == State::STOPED;
-        }
-
-        struct timeval n_maxInactivity = {LONG_MAX, 0};
-        struct timeval n_initialTimeout = n_maxInactivity;
-        struct timeval n_lastTriggered = {0, 0};
-
-        void n_setTimeout(struct timeval timeout) {
-            if (timeout == Timeout::DEFAULT) {
-                n_maxInactivity = n_initialTimeout;
-            } else {
-                n_maxInactivity = timeout;
-            }
-        }
-
-        struct timeval n_getTimeout() {
-            struct timeval currentTime = {0, 0};
-            gettimeofday(&currentTime, NULL);
-
-            return std::max(n_maxInactivity - (currentTime - n_lastTriggered), {0, 0});
-        }
+        utils::Timeval lastTriggered;
+        utils::Timeval maxInactivity;
+        const utils::Timeval initialTimeout;
     };
 
 } // namespace core

@@ -81,13 +81,12 @@ namespace web::http::server {
                       VLOG(3) << "     " << cookie << ": " << value;
                   }
               },
-              [&requestContexts = this->requestContexts](char* content, std::size_t contentLength) -> void {
-                  VLOG(3) << "++ Content: " << contentLength;
+              [&requestContexts = this->requestContexts](std::vector<uint8_t>& content) -> void {
+                  VLOG(3) << "++ Content: ";
 
                   Request& request = requestContexts.back().request;
 
-                  request.body = content;
-                  request.contentLength = contentLength;
+                  request.body = std::move(content);
               },
               [this]() -> void {
                   VLOG(3) << "++ Parsed ++";
@@ -107,7 +106,7 @@ namespace web::http::server {
                   requestContext.reason = reason;
                   requestContext.ready = true;
 
-                  requestParsed();
+                  close();
               }) {
     }
 
@@ -137,7 +136,7 @@ namespace web::http::server {
                 onRequestReady(requestContext.request, requestContext.response);
             } else {
                 requestContext.response.status(requestContext.status).send(requestContext.reason);
-                close();
+                shutdownWrite();
             }
         }
     }
@@ -157,7 +156,7 @@ namespace web::http::server {
             (requestContext.request.httpMajor == 1 && requestContext.request.httpMinor == 1 &&
              requestContext.request.connectionState == ConnectionState::Close) ||
             (requestContext.response.connectionState == ConnectionState::Close)) {
-            close();
+            shutdownWrite();
         } else {
             reset();
 
@@ -171,7 +170,7 @@ namespace web::http::server {
                     onRequestReady(requestContext.request, requestContext.response);
                 } else {
                     requestContext.response.status(requestContext.status).send(requestContext.reason);
-                    close();
+                    shutdownWrite();
                 }
             }
         }

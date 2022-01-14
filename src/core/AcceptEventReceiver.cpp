@@ -18,25 +18,24 @@
 
 #include "core/AcceptEventReceiver.h"
 
+#include "core/EventDispatcher.h"
 #include "core/EventLoop.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#define MAX_ACCEPT_INACTIVITY LONG_MAX
-
 namespace core {
 
-    AcceptEventReceiver::AcceptEventReceiver(long timeout)
-        : EventReceiver(EventLoop::instance().getReadEventDispatcher(), timeout) {
+    AcceptEventReceiver::AcceptEventReceiver(const utils::Timeval& timeout)
+        : EventReceiver(EventLoop::getEventDispatcher().getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE::RD), timeout) {
     }
 
     void AcceptEventReceiver::acceptTimeout() {
         disable();
     }
 
-    bool AcceptEventReceiver::continueAcceptImmediately() {
+    bool AcceptEventReceiver::continueAcceptImmediately() const {
         return false;
     }
 
@@ -48,7 +47,7 @@ namespace core {
         acceptTimeout();
     }
 
-    bool AcceptEventReceiver::continueImmediately() {
+    bool AcceptEventReceiver::continueImmediately() const {
         return continueAcceptImmediately();
     }
 

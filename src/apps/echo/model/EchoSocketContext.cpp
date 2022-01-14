@@ -22,7 +22,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef>     // for ssize_t
+#include <cstddef>     // for size_t
 #include <string>      // for string
 #include <sys/types.h> // for ssize_t
 

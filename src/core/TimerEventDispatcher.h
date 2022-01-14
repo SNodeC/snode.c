@@ -33,30 +33,19 @@ namespace core {
     public:
         TimerEventDispatcher() = default;
 
-        struct timeval getNextTimeout();
+        virtual void remove(TimerEventReceiver* timer) = 0;
+        virtual void add(TimerEventReceiver* timer) = 0;
 
-        void dispatch();
+        virtual bool empty() = 0;
 
-        void remove(TimerEventReceiver* timer);
-        void add(TimerEventReceiver* timer);
-
-        bool empty();
-
-        void cancelAll();
-
-    private:
-        std::list<TimerEventReceiver*> timerList;
-        std::list<TimerEventReceiver*> addedList;
-        std::list<TimerEventReceiver*> removedList;
+        virtual void stop() = 0;
 
         class timernode_lt {
         public:
             bool operator()(const TimerEventReceiver* t1, const TimerEventReceiver* t2) const {
-                return static_cast<struct timeval>(*t1) < static_cast<struct timeval>(*t2);
+                return t1->getTimeout() < t2->getTimeout();
             }
         };
-
-        bool timerListDirty = false;
     };
 
 } // namespace core

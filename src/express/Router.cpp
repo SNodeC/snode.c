@@ -29,15 +29,11 @@
 #include <regex>
 #include <sstream> // for basic_stringbuf<>::int_type, basic_ist...
 #include <utility> // for move
-#include <vector>
+#include <vector>  // IWYU pragma: keep
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace express {
-
-#define PATH_REGEX ":[a-zA-Z0-9]+(\\(.+?\\))?"
-
-    static std::regex pathregex = std::regex(PATH_REGEX);
 
     static const std::string path_concat(const std::vector<std::string>& stringvec) {
         std::string s;
@@ -62,10 +58,17 @@ namespace express {
         return result;
     }
 
+#define PATH_REGEX ":[a-zA-Z0-9]+(\\(.+?\\))?"
+    static const std::regex& pathRegex() {
+        static std::regex pathregex = std::regex(PATH_REGEX);
+
+        return pathregex;
+    }
+
     static const std::smatch matchResult(const std::string& cpath) {
         std::smatch smatch;
 
-        std::regex_search(cpath, smatch, pathregex);
+        std::regex_search(cpath, smatch, pathRegex());
 
         return smatch;
     }
@@ -73,7 +76,7 @@ namespace express {
     static bool hasResult(const std::string& cpath) {
         std::smatch smatch;
 
-        return std::regex_search(cpath, smatch, pathregex);
+        return std::regex_search(cpath, smatch, pathRegex());
     }
 
     static bool matchFunction(const std::string& cpath, const std::string& reqpath) {

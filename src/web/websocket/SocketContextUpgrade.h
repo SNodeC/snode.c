@@ -19,7 +19,6 @@
 #ifndef WEB_WEBSOCKET_SOCKETCONTEXT_H
 #define WEB_WEBSOCKET_SOCKETCONTEXT_H
 
-#include "log/Logger.h"
 #include "web/http/SocketContextUpgrade.h" // IWYU pragma: export
 #include "web/websocket/Receiver.h"
 #include "web/websocket/Transmitter.h"
@@ -34,6 +33,9 @@ namespace web::http {
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
+#include "utils/Timeval.h"
 
 #include <cstdint>
 #include <string>
@@ -58,10 +60,10 @@ namespace web::websocket {
         using Response = ResponseT;
 
     private:
-        using Super::close;
         using Super::readFromPeer;
         using Super::sendToPeer;
         using Super::setTimeout;
+        using Super::shutdownWrite;
 
     protected:
         SocketContextUpgrade(core::socket::SocketConnection* socketConnection,
@@ -131,7 +133,8 @@ namespace web::websocket {
     private:
         void sendClose(const char* message, std::size_t messageLength) {
             sendMessage(8, message, messageLength);
-            close();
+            shutdownWrite();
+            //            close();
         }
 
         /* WSReceiver */

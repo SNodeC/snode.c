@@ -26,10 +26,12 @@ namespace core::socket {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstddef> // for std::size_t
+#include <cstdint> // IWYU pragma: export
 #include <map>
 #include <regex>
 #include <string>
 #include <sys/types.h> // for ssize_t
+#include <vector>      // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -73,14 +75,18 @@ namespace web::http {
         virtual void begin() = 0;
         virtual enum ParserState parseStartLine(const std::string& line) = 0;
         virtual enum ParserState parseHeader() = 0;
-        virtual enum ParserState parseContent(char* content, std::size_t size) = 0;
+        virtual enum ParserState parseContent(std::vector<uint8_t>& vContent) = 0;
         virtual enum ParserState parsingError(int code, const std::string& reason) = 0;
 
     protected:
         // Data common to all HTTP messages (Request/Response)
-        char* content = nullptr;
         std::size_t contentLength = 0;
         std::map<std::string, std::string> headers;
+        std::vector<uint8_t> content;
+
+        std::string httpVersion;
+        int httpMajor = 0;
+        int httpMinor = 0;
 
     private:
         core::socket::SocketContext* socketContext = nullptr;
@@ -96,7 +102,6 @@ namespace web::http {
         // Used during parseing data
         std::string line;
         std::size_t contentRead = 0;
-        char contentJunk[MAX_CONTENT_JUNK_LEN]{};
 
         friend enum HTTPCompliance operator|(const enum HTTPCompliance& c1, const enum HTTPCompliance& c2);
         friend enum HTTPCompliance operator&(const enum HTTPCompliance& c1, const enum HTTPCompliance& c2);

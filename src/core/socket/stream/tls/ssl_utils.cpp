@@ -16,17 +16,18 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include "core/socket/stream/tls/ssl_utils.h"
 
 #include "log/Logger.h"
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
 #include <cerrno>  // for errno
 #include <cstdlib> // for free
 #include <cstring>
-#include <openssl/err.h> // for ERR_peek_error
-#include <openssl/ssl.h> // IWYU pragma: keep
+#include <openssl/err.h>  // for ERR_peek_error
+#include <openssl/ssl.h>  // IWYU pragma: keep
+#include <openssl/x509.h> // for X509_NAME_oneline, X509_STORE_CTX_get_current_cert, X509_STORE_CTX_get_error, X509_STORE_CTX_get_error_depth, X509_get_subject_name, X509_verify_cert_error_string, X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN
 #include <string>
 #include <utility> // for tuple_element<>::type
 
@@ -38,7 +39,7 @@ namespace core::socket::stream::tls {
 
 #define SSL_VERIFY_FLAGS (SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE)
 
-    static int Password_callback(char* buf, int size, int, void* u) {
+    static int password_callback(char* buf, int size, int, void* u) {
         strncpy(buf, static_cast<char*>(u), static_cast<std::size_t>(size));
         buf[size - 1] = '\0';
 
@@ -48,13 +49,41 @@ namespace core::socket::stream::tls {
         return static_cast<int>(::strlen(buf));
     }
 
-    static int verify_callback([[maybe_unused]] int preverify_ok, [[maybe_unused]] X509_STORE_CTX* ctx) {
-        return 1;
+    static int verify_callback(int preverify_ok, [[maybe_unused]] X509_STORE_CTX* ctx) {
+        char buf[256];
+        X509* err_cert;
+        int err = 0;
+        int depth = 0;
+
+        err_cert = X509_STORE_CTX_get_current_cert(ctx);
+        err = X509_STORE_CTX_get_error(ctx);
+        depth = X509_STORE_CTX_get_error_depth(ctx);
+
+        X509_NAME_oneline(X509_get_subject_name(err_cert), buf, 256);
+
+        if (!preverify_ok) {
+            LOG(INFO) << "verify_error:num=" << err << ":" << X509_verify_cert_error_string(err) << ":depth=" << depth << ":" << buf;
+        } else {
+            LOG(INFO) << "depth=" << depth << ":" << buf;
+        }
+
+        /*
+         * At this point, err contains the last verification error. We can use
+         * it for something special
+         */
+        /*
+                if (!preverify_ok && (err == X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT)) {
+                    X509_NAME_oneline(X509_get_issuer_name(err_cert), buf, 256);
+                    printf("issuer= %s\n", buf);
+                }
+        */
+
+        return preverify_ok;
     }
 
-    static int sslSessionCtxId = 1;
-
     SSL_CTX* ssl_ctx_new(const std::map<std::string, std::any>& options, bool server) {
+        static int sslSessionCtxId = 1;
+
         std::string certChain;
         std::string certChainKey;
         std::string password;
@@ -62,7 +91,7 @@ namespace core::socket::stream::tls {
         std::string caDir;
         bool useDefaultCaDir = false;
 
-        for (const auto& [name, value] : options) {
+        for (const auto& [name, value] : options) { // cppcheck-suppress unassignedVariable
             if (name == "CertChain") {
                 certChain = std::any_cast<const char*>(value);
             } else if (name == "CertChainKey") {
@@ -111,7 +140,7 @@ namespace core::socket::stream::tls {
                         sslErr = true;
                     } else if (!certChainKey.empty()) {
                         if (!password.empty()) {
-                            SSL_CTX_set_default_passwd_cb(ctx, Password_callback);
+                            SSL_CTX_set_default_passwd_cb(ctx, password_callback);
                             SSL_CTX_set_default_passwd_cb_userdata(ctx, ::strdup(password.c_str()));
                         }
                         if (SSL_CTX_use_PrivateKey_file(ctx, certChainKey.c_str(), SSL_FILETYPE_PEM) != 1) {

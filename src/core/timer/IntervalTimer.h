@@ -23,6 +23,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::timer {
@@ -32,20 +34,20 @@ namespace core::timer {
 
     public:
         IntervalTimer(const std::function<void(const void*, const std::function<void()>& stop)>& dispatcher,
-                      const struct timeval& timeout,
+                      const utils::Timeval& timeout,
                       const void* arg)
             : Timer(timeout, arg)
             , dispatcherS(dispatcher) {
         }
 
-        IntervalTimer(const std::function<void(const void*)>& dispatcher, const struct timeval& timeout, const void* arg)
+        IntervalTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg)
             : Timer(timeout, arg)
             , dispatcherC(dispatcher) {
         }
 
         ~IntervalTimer() override = default;
 
-        bool dispatchEvent() override {
+        bool trigger() override {
             bool stop = false;
 
             if (dispatcherS) {
@@ -66,6 +68,16 @@ namespace core::timer {
         }
 
     private:
+        void cancel() override {
+            dispatcherS = nullptr;
+            dispatcherC = nullptr;
+            core::timer::Timer::cancel();
+        }
+
+        void unobservedEvent() override {
+            core::timer::Timer::unobservedEvent();
+        }
+
         std::function<void(const void*, const std::function<void()>&)> dispatcherS = nullptr;
         std::function<void(const void*)> dispatcherC = nullptr;
     };

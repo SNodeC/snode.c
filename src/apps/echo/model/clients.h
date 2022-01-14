@@ -55,16 +55,16 @@ namespace apps::echo::model::legacy {
     using EchoSocketClient = net::NET::stream::STREAM::SocketClient<EchoClientSocketContextFactory>;
 
     EchoSocketClient getClient(const std::map<std::string, std::any>& options) {
-        using SocketAddress = typename EchoSocketClient::SocketAddress;
         using SocketConnection = typename EchoSocketClient::SocketConnection;
 
         return EchoSocketClient(
-            [](const SocketAddress& localAddress,
-               const SocketAddress& remoteAddress) -> void { // onConnect
+            [](SocketConnection* socketConnection) -> void { // onConnect
                 VLOG(0) << "OnConnect";
 
-                VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
-                VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
+                VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
+                               socketConnection->getLocalAddress().toString();
+                VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+                               socketConnection->getRemoteAddress().toString();
             },
             []([[maybe_unused]] SocketConnection* socketConnection) -> void { // onConnected
                 VLOG(0) << "OnConnected";
@@ -72,10 +72,10 @@ namespace apps::echo::model::legacy {
             [](SocketConnection* socketConnection) -> void { // onDisconnect
                 VLOG(0) << "OnDisconnect";
 
-                VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
-                               socketConnection->getRemoteAddress().toString();
-                VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
+                VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
                                socketConnection->getLocalAddress().toString();
+                VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+                               socketConnection->getRemoteAddress().toString();
             },
             options);
     }
@@ -91,16 +91,16 @@ namespace apps::echo::model::tls {
     using EchoSocketClient = net::NET::stream::STREAM::SocketClient<EchoClientSocketContextFactory>;
 
     EchoSocketClient getClient(const std::map<std::string, std::any>& options) {
-        using SocketAddress = typename EchoSocketClient::SocketAddress;
         using SocketConnection = typename EchoSocketClient::SocketConnection;
 
         return EchoSocketClient(
-            [](const SocketAddress& localAddress,
-               const SocketAddress& remoteAddress) -> void { // onConnect
+            [](SocketConnection* socketConnection) -> void { // onConnect
                 VLOG(0) << "OnConnect";
 
-                VLOG(0) << "\tServer: (" + remoteAddress.address() + ") " + remoteAddress.toString();
-                VLOG(0) << "\tClient: (" + localAddress.address() + ") " + localAddress.toString();
+                VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
+                               socketConnection->getLocalAddress().toString();
+                VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+                               socketConnection->getRemoteAddress().toString();
             },
             [](SocketConnection* socketConnection) -> void { // onConnected
                 VLOG(0) << "OnConnected";
@@ -109,14 +109,14 @@ namespace apps::echo::model::tls {
                 if (server_cert != nullptr) {
                     long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
-                    VLOG(0) << "     Server certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
+                    VLOG(0) << "\tPeer certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
 
                     char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), 0, 0);
-                    VLOG(0) << "        Subject: " + std::string(str);
+                    VLOG(0) << "\t   Subject: " + std::string(str);
                     OPENSSL_free(str);
 
                     str = X509_NAME_oneline(X509_get_issuer_name(server_cert), 0, 0);
-                    VLOG(0) << "        Issuer: " + std::string(str);
+                    VLOG(0) << "\t   Issuer: " + std::string(str);
                     OPENSSL_free(str);
 
                     // We could do all sorts of certificate verification stuff here before deallocating the certificate.
@@ -125,37 +125,37 @@ namespace apps::echo::model::tls {
                         static_cast<GENERAL_NAMES*>(X509_get_ext_d2i(server_cert, NID_subject_alt_name, nullptr, nullptr));
 
                     int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
-                    VLOG(0) << "        Subject alternative name count: " << altNameCount;
+                    VLOG(0) << "\t   Subject alternative name count: " << altNameCount;
                     for (int32_t i = 0; i < altNameCount; ++i) {
                         GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
                         if (generalName->type == GEN_URI) {
                             std::string subjectAltName =
                                 std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
                                             static_cast<std::size_t>(ASN1_STRING_length(generalName->d.uniformResourceIdentifier)));
-                            VLOG(0) << "           SAN (URI): '" + subjectAltName;
+                            VLOG(0) << "\t      SAN (URI): '" + subjectAltName;
                         } else if (generalName->type == GEN_DNS) {
                             std::string subjectAltName =
                                 std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                             static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
-                            VLOG(0) << "           SAN (DNS): '" + subjectAltName;
+                            VLOG(0) << "\t      SAN (DNS): '" + subjectAltName;
                         } else {
-                            VLOG(0) << "           SAN (Type): '" + std::to_string(generalName->type);
+                            VLOG(0) << "\t      SAN (Type): '" + std::to_string(generalName->type);
                         }
                     }
                     sk_GENERAL_NAME_pop_free(subjectAltNames, GENERAL_NAME_free);
 
                     X509_free(server_cert);
                 } else {
-                    VLOG(0) << "     Server certificate: no certificate";
+                    VLOG(0) << "\tPeer certificate: no certificate";
                 }
             },
             [](SocketConnection* socketConnection) -> void { // onDisconnect
                 VLOG(0) << "OnDisconnect";
 
-                VLOG(0) << "\tServer: (" + socketConnection->getRemoteAddress().address() + ") " +
-                               socketConnection->getRemoteAddress().toString();
-                VLOG(0) << "\tClient: (" + socketConnection->getLocalAddress().address() + ") " +
+                VLOG(0) << "\tLocal: (" + socketConnection->getLocalAddress().address() + ") " +
                                socketConnection->getLocalAddress().toString();
+                VLOG(0) << "\tPeer:  (" + socketConnection->getRemoteAddress().address() + ") " +
+                               socketConnection->getRemoteAddress().toString();
             },
             options);
     }

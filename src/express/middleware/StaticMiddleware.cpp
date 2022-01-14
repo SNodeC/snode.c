@@ -20,9 +20,10 @@
 
 #include "express/Request.h"
 #include "express/Response.h"
-#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <map>
 #include <memory> // for shared_ptr, __shared_ptr_access
@@ -109,10 +110,10 @@ namespace express::middleware {
         return *this;
     }
 
-    // Keep all created static middlewares alive
-    static std::map<const std::string, std::shared_ptr<class StaticMiddleware>> staticMiddlewares;
-
     class StaticMiddleware& StaticMiddleware::instance(const std::string& root) {
+        // Keep all created static middlewares alive
+        static std::map<const std::string, std::shared_ptr<class StaticMiddleware>> staticMiddlewares;
+
         if (!staticMiddlewares.contains(root)) {
             staticMiddlewares[root] = std::shared_ptr<StaticMiddleware>(new StaticMiddleware(root));
         }

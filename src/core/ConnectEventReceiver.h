@@ -31,7 +31,7 @@ namespace core {
 
     class ConnectEventReceiver : public EventReceiver {
     protected:
-        ConnectEventReceiver(long timeout = MAX_CONNECT_INACTIVITY);
+        ConnectEventReceiver(const utils::Timeval& timeout = MAX_CONNECT_INACTIVITY);
 
     private:
         virtual void connectEvent() = 0;
@@ -39,10 +39,9 @@ namespace core {
 
         void dispatchEvent() final;
         void timeoutEvent() final;
-        bool continueImmediately() final;
+        bool continueImmediately() const final;
 
-    protected:
-        virtual bool continueConnectImmediately();
+        virtual bool continueConnectImmediately() const;
     };
 
 } // namespace core

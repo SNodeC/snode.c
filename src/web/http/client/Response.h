@@ -21,9 +21,10 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstddef> // for size_t
+#include <cstdint> // IWYU pragma: export
 #include <map>     // for map
 #include <string>  // for string
+#include <vector>  // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -40,7 +41,7 @@ namespace web::http::client {
 
     class Response {
     protected:
-        Response(web::http::SocketContext* clientContext);
+        explicit Response(web::http::SocketContext* clientContext);
 
         web::http::SocketContext* socketContext;
 
@@ -50,13 +51,11 @@ namespace web::http::client {
     public:
         const std::string& header(const std::string& key, int i = 0) const;
         const std::string& cookie(const std::string& key) const;
-        std::size_t bodyLength() const;
 
         std::string httpVersion;
         std::string statusCode;
         std::string reason;
-        char* body = nullptr;
-        std::size_t contentLength = 0;
+        std::vector<uint8_t> body;
 
         void upgrade(Request& request);
 

@@ -18,9 +18,9 @@
 
 #include "net/in6/SocketAddress.h"
 
-#include "core/system/netdb.h"
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "core/system/netdb.h"
 
 #include <cstring>
 #include <exception>
@@ -60,8 +60,8 @@ namespace net::in6 {
         struct addrinfo* res;
         struct addrinfo* resalloc;
 
-        memset(&hints, 0, sizeof(hints));
-        memset(&sockAddr, 0, sizeof(sockAddr));
+        std::memset(&hints, 0, sizeof(hints));
+        std::memset(&sockAddr, 0, sizeof(sockAddr));
 
         /* We only care about IPV6 results */
         hints.ai_family = AF_INET6;

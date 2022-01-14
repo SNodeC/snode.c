@@ -16,22 +16,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/TimerEventDispatcher.h"
-
-#include "core/system/time.h"
+#include "core/epoll/TimerEventDispatcher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include <algorithm>
 #include <climits>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-namespace core {
+namespace core::epoll {
 
-    struct timeval TimerEventDispatcher::getNextTimeout() {
-        struct timeval tv {
-            LONG_MAX, 0
-        };
+    utils::Timeval TimerEventDispatcher::getNextTimeout(const utils::Timeval& currentTime) {
+        utils::Timeval nextTimeout({LONG_MAX, 0});
 
         for (TimerEventReceiver* timer : addedList) {
             timerList.push_back(timer);
@@ -40,45 +37,34 @@ namespace core {
         addedList.clear();
 
         for (TimerEventReceiver* timer : removedList) {
-            timer->unobservedEvent();
             timerList.remove(timer);
+            timer->unobservedEvent();
             timerListDirty = true;
         }
         removedList.clear();
 
         if (!timerList.empty()) {
             if (timerListDirty) {
-                timerList.sort(timernode_lt());
+                timerList.sort(core::TimerEventDispatcher::timernode_lt());
                 timerListDirty = false;
             }
 
-            tv = (*(timerList.begin()))->getTimeout();
+            nextTimeout = (*(timerList.begin()))->getTimeout();
 
-            struct timeval currentTime {
-                0, 0
-            };
-            core::system::gettimeofday(&currentTime, nullptr);
-
-            if (tv < currentTime) {
-                tv.tv_sec = 0;
-                tv.tv_usec = 0;
+            if (nextTimeout < currentTime) {
+                nextTimeout = 0;
             } else {
-                tv = tv - currentTime;
+                nextTimeout -= currentTime;
             }
         }
 
-        return tv;
+        return nextTimeout;
     }
 
-    void TimerEventDispatcher::dispatch() {
-        struct timeval currentTime {
-            0, 0
-        };
-        core::system::gettimeofday(&currentTime, nullptr);
-
+    void TimerEventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
         for (TimerEventReceiver* timer : timerList) {
             if (timer->getTimeout() <= currentTime) {
-                timerListDirty = timer->dispatchEvent();
+                timerListDirty = timer->trigger();
             } else {
                 break;
             }
@@ -86,7 +72,10 @@ namespace core {
     }
 
     void TimerEventDispatcher::remove(TimerEventReceiver* timer) {
-        removedList.push_back(timer);
+        if (std::find(timerList.begin(), timerList.end(), timer) != timerList.end() &&
+            std::find(removedList.begin(), removedList.end(), timer) == removedList.end()) {
+            removedList.push_back(timer);
+        }
     }
 
     void TimerEventDispatcher::add(TimerEventReceiver* timer) {
@@ -97,14 +86,16 @@ namespace core {
         return timerList.empty();
     }
 
-    void TimerEventDispatcher::cancelAll() {
-        getNextTimeout();
+    void TimerEventDispatcher::stop() {
+        utils::Timeval currentTime = utils::Timeval::currentTime();
+
+        getNextTimeout(currentTime);
 
         for (TimerEventReceiver* timer : timerList) {
             remove(timer);
         }
 
-        getNextTimeout();
+        getNextTimeout(currentTime);
     }
 
-} // namespace core
+} // namespace core::epoll

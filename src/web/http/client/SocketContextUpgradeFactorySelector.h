@@ -22,6 +22,8 @@
 #include "web/http/SocketContextUpgradeFactorySelector.h"
 #include "web/http/client/SocketContextUpgradeFactory.h" // IWYU pragma: export
 
+// IWYU pragma: no_include "web/http/SocketContextUpgradeFactorySelector.hpp"
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <string> // for string
@@ -30,14 +32,14 @@
 
 namespace web::http::client {
 
-    struct SocketContextPlugin {
-        SocketContextUpgradeFactory* socketContextUpgradeFactory;
-        void* handle = nullptr;
-    };
-
     class SocketContextUpgradeFactorySelector : public web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory> {
     private:
+        using Super = web::http::SocketContextUpgradeFactorySelector<SocketContextUpgradeFactory>;
+
         SocketContextUpgradeFactorySelector();
+
+        using Super::load;
+        using Super::select;
 
     protected:
         ~SocketContextUpgradeFactorySelector() override = default;

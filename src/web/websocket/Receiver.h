@@ -44,8 +44,8 @@ namespace web::websocket {
 
     private:
         union MaskingKey {
-            uint32_t key;
-            char keyAsArray[4];
+            uint32_t key;       // cppcheck-suppress unusedStructMember
+            char keyAsArray[4]; // cppcheck-suppress unusedStructMember
         };
 
         ssize_t readOpcode();

@@ -23,8 +23,6 @@
 #include "express/tls/in/WebApp.h"
 #include "log/Logger.h"
 
-#include <cstring>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 int main(int argc, char* argv[]) {
@@ -68,14 +66,8 @@ int main(int argc, char* argv[]) {
         VLOG(0) << "Content-Type: " << req.header("Content-Type");
         VLOG(0) << "Content-Length: " << req.header("Content-Length");
 
-        char* body = new char[std::stoul(req.header("Content-Length")) + 1];
-        memcpy(body, req.body, std::stoul(req.header("Content-Length")));
-        body[std::stoi(req.header("Content-Length"))] = 0;
-
-        VLOG(0) << "Body: ";
-        VLOG(0) << body;
-
-        delete[] body;
+        req.body.push_back(0);
+        VLOG(0) << req.body.data();
 
         res.send("<html>"
                  "    <body>"

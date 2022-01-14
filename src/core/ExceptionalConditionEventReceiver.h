@@ -31,7 +31,7 @@ namespace core {
 
     class ExceptionalConditionEventReceiver : public EventReceiver {
     protected:
-        ExceptionalConditionEventReceiver(long timeout = MAX_OUTOFBAND_INACTIVITY);
+        ExceptionalConditionEventReceiver(const utils::Timeval& timeout = MAX_OUTOFBAND_INACTIVITY);
 
     private:
         virtual void outOfBandEvent() = 0;
@@ -39,10 +39,9 @@ namespace core {
 
         void dispatchEvent() final;
         void timeoutEvent() final;
-        bool continueImmediately() final;
+        bool continueImmediately() const final;
 
-    protected:
-        virtual bool continueOutOfBandImmediately();
+        virtual bool continueOutOfBandImmediately() const;
     };
 
 } // namespace core

@@ -19,7 +19,7 @@ set(net-un_DEPENDENCIES core-legacy core-tls)
 set(core-legacy_DEPENDENCIES core)
 set(core-tls_DEPENDENCIES core)
 
-set(core_DEPENDENCIES utils logger)
+set(core_DEPENDENCIES core-@IO_Multiplexer@ utils logger)
 
 macro(LOAD_COMPONENT_WITH_DEPENDENCIES _comp)
     message("Loading component: " ${_comp})

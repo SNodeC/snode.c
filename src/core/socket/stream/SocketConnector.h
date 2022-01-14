@@ -20,7 +20,6 @@
 #define CORE_SOCKET_STREAM_SOCKETCONNECTOR_H
 
 #include "core/ConnectEventReceiver.h"
-#include "core/system/socket.h"
 
 namespace core::socket {
     class SocketContextFactory;
@@ -28,14 +27,13 @@ namespace core::socket {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "core/system/socket.h"
+
 #include <any>
-#include <cstddef>
 #include <functional>
 #include <map>
 #include <memory>
 #include <string>
-#include <sys/socket.h>
-#include <unistd.h>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -43,8 +41,8 @@ namespace core::socket::stream {
 
     template <typename SocketConnectionT>
     class SocketConnector
-        : public SocketConnectionT::Socket
-        , public ConnectEventReceiver {
+        : protected SocketConnectionT::Socket
+        , protected ConnectEventReceiver {
         SocketConnector() = delete;
         SocketConnector(const SocketConnector&) = delete;
         SocketConnector& operator=(const SocketConnector&) = delete;
@@ -55,15 +53,15 @@ namespace core::socket::stream {
         using SocketAddress = typename Socket::SocketAddress;
 
         SocketConnector(const std::shared_ptr<core::socket::SocketContextFactory>& socketContextFactory,
-                        const std::function<void(const SocketAddress&, const SocketAddress&)>& onConnect,
+                        const std::function<void(SocketConnection*)>& onConnect,
                         const std::function<void(SocketConnection*)>& onConnected,
                         const std::function<void(SocketConnection*)>& onDisconnect,
                         const std::map<std::string, std::any>& options)
             : socketContextFactory(socketContextFactory)
-            , options(options)
             , onConnect(onConnect)
             , onConnected(onConnected)
-            , onDisconnect(onDisconnect) {
+            , onDisconnect(onDisconnect)
+            , options(options) {
         }
 
         virtual ~SocketConnector() = default;
@@ -82,12 +80,10 @@ namespace core::socket::stream {
                                 onError(errnum);
                                 destruct();
                             } else {
-                                int ret = core::system::connect(
-                                    SocketConnector::getFd(), &remoteAddress.getSockAddr(), remoteAddress.getSockAddrLen());
+                                int ret = core::system::connect(Socket::fd, &remoteAddress.getSockAddr(), remoteAddress.getSockAddrLen());
 
                                 if (ret == 0 || errno == EINPROGRESS) {
-                                    ConnectEventReceiver::enable(SocketConnector::getFd());
-                                    SocketConnector::dontClose(true);
+                                    enable(Socket::fd);
                                 } else {
                                     onError(errno);
                                     destruct();
@@ -116,34 +112,34 @@ namespace core::socket::stream {
                         typename SocketAddress::SockAddr remoteAddress{};
                         socklen_t remoteAddressLength = sizeof(remoteAddress);
 
-                        if (core::system::getsockname(
-                                SocketConnector::getFd(), reinterpret_cast<sockaddr*>(&localAddress), &localAddressLength) == 0 &&
-                            core::system::getpeername(
-                                SocketConnector::getFd(), reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) == 0) {
+                        if (core::system::getsockname(Socket::fd, reinterpret_cast<sockaddr*>(&localAddress), &localAddressLength) == 0 &&
+                            core::system::getpeername(Socket::fd, reinterpret_cast<sockaddr*>(&remoteAddress), &remoteAddressLength) == 0) {
                             SocketConnection* socketConnection = new SocketConnection(SocketConnector::getFd(),
                                                                                       socketContextFactory,
                                                                                       SocketAddress(localAddress),
                                                                                       SocketAddress(remoteAddress),
                                                                                       onConnect,
                                                                                       onDisconnect);
-                            SocketConnector::ConnectEventReceiver::disable();
 
                             onConnected(socketConnection);
                             onError(0);
+
+                            Socket::dontClose(true);
+                            disable();
                         } else {
-                            SocketConnector::ConnectEventReceiver::disable();
                             onError(errno);
+                            disable();
                         }
                     } else {
-                        SocketConnector::ConnectEventReceiver::disable();
                         onError(errno);
+                        disable();
                     }
                 } else {
-                    // connect() still in progress
+                    // Do nothing: connect() still in progress
                 }
             } else {
-                SocketConnector::ConnectEventReceiver::disable();
                 onError(errno);
+                disable();
             }
         }
 
@@ -159,15 +155,15 @@ namespace core::socket::stream {
     private:
         std::shared_ptr<core::socket::SocketContextFactory> socketContextFactory = nullptr;
 
-    protected:
-        std::function<void(int err)> onError;
-        std::map<std::string, std::any> options;
-
-    private:
-        std::function<void(const SocketAddress&, const SocketAddress&)> onConnect;
+        std::function<void(SocketConnection*)> onConnect;
         std::function<void(SocketConnection*)> onDestruct;
         std::function<void(SocketConnection*)> onConnected;
         std::function<void(SocketConnection*)> onDisconnect;
+
+    protected:
+        std::function<void(int err)> onError;
+
+        std::map<std::string, std::any> options;
     };
 
 } // namespace core::socket::stream

@@ -18,6 +18,7 @@
 
 #include "core/ReadEventReceiver.h"
 
+#include "core/EventDispatcher.h"
 #include "core/EventLoop.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -26,15 +27,15 @@
 
 namespace core {
 
-    ReadEventReceiver::ReadEventReceiver(long timeout)
-        : EventReceiver(EventLoop::instance().getReadEventDispatcher(), timeout) {
+    ReadEventReceiver::ReadEventReceiver(const utils::Timeval& timeout)
+        : EventReceiver(EventLoop::getEventDispatcher().getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE::RD), timeout) {
     }
 
     void ReadEventReceiver::readTimeout() {
         disable();
     }
 
-    bool ReadEventReceiver::continueReadImmediately() {
+    bool ReadEventReceiver::continueReadImmediately() const {
         return false;
     }
 
@@ -46,7 +47,7 @@ namespace core {
         readTimeout();
     }
 
-    bool ReadEventReceiver::continueImmediately() {
+    bool ReadEventReceiver::continueImmediately() const {
         return continueReadImmediately();
     }
 

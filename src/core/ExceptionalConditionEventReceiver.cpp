@@ -18,6 +18,7 @@
 
 #include "core/ExceptionalConditionEventReceiver.h"
 
+#include "core/EventDispatcher.h"
 #include "core/EventLoop.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -26,15 +27,15 @@
 
 namespace core {
 
-    ExceptionalConditionEventReceiver::ExceptionalConditionEventReceiver(long timeout)
-        : EventReceiver(EventLoop::instance().getExceptionalConditionEventDispatcher(), timeout) {
+    ExceptionalConditionEventReceiver::ExceptionalConditionEventReceiver(const utils::Timeval& timeout)
+        : EventReceiver(EventLoop::getEventDispatcher().getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE::EX), timeout) {
     }
 
     void ExceptionalConditionEventReceiver::outOfBandTimeout() {
         disable();
     }
 
-    bool ExceptionalConditionEventReceiver::continueOutOfBandImmediately() {
+    bool ExceptionalConditionEventReceiver::continueOutOfBandImmediately() const {
         return false;
     }
 
@@ -46,7 +47,7 @@ namespace core {
         outOfBandTimeout();
     }
 
-    bool ExceptionalConditionEventReceiver::continueImmediately() {
+    bool ExceptionalConditionEventReceiver::continueImmediately() const {
         return continueOutOfBandImmediately();
     }
 

@@ -36,7 +36,7 @@ namespace express::middleware {
         StaticMiddleware& operator=(const StaticMiddleware&) = delete;
 
     protected:
-        StaticMiddleware(const std::string& root);
+        explicit StaticMiddleware(const std::string& root);
         static class StaticMiddleware& instance(const std::string& root);
 
     public:

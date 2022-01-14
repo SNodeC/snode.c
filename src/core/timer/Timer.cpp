@@ -18,6 +18,7 @@
 
 #include "core/timer/Timer.h"
 
+#include "core/EventDispatcher.h"
 #include "core/EventLoop.h"
 #include "core/TimerEventDispatcher.h" // for ManagedTimer
 #include "core/timer/IntervalTimer.h"
@@ -29,58 +30,43 @@
 
 namespace core::timer {
 
-    Timer::Timer(const struct timeval& timeout, const void* arg)
-        : arg(arg)
-        , delay(timeout) {
-        gettimeofday(&absoluteTimeout, nullptr);
-        update();
-    }
-
     SingleshotTimer&
-    Timer::singleshotTimer(const std::function<void(const void*)>& dispatcher, const struct timeval& timeout, const void* arg) {
+    Timer::singleshotTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg) {
         SingleshotTimer* st = new SingleshotTimer(dispatcher, timeout, arg);
 
-        EventLoop::instance().getTimerEventDispatcher().add(st);
+        EventLoop::getEventDispatcher().getTimerEventDispatcher().add(st);
 
         return *st;
     }
 
     IntervalTimer& Timer::intervalTimer(const std::function<void(const void*, const std::function<void()>& stop)>& dispatcher,
-                                        const struct timeval& timeout,
+                                        const utils::Timeval& timeout,
                                         const void* arg) {
         IntervalTimer* ct = new IntervalTimer(dispatcher, timeout, arg);
 
-        EventLoop::instance().getTimerEventDispatcher().add(ct);
+        EventLoop::getEventDispatcher().getTimerEventDispatcher().add(ct);
 
         return *ct;
     }
 
     IntervalTimer&
-    Timer::intervalTimer(const std::function<void(const void*)>& dispatcher, const struct timeval& timeout, const void* arg) {
+    Timer::intervalTimer(const std::function<void(const void*)>& dispatcher, const utils::Timeval& timeout, const void* arg) {
         IntervalTimer* ct = new IntervalTimer(dispatcher, timeout, arg);
 
-        EventLoop::instance().getTimerEventDispatcher().add(ct);
+        EventLoop::getEventDispatcher().getTimerEventDispatcher().add(ct);
 
         return *ct;
     }
 
     void Timer::cancel() {
-        EventLoop::instance().getTimerEventDispatcher().remove(this);
-    }
-
-    void Timer::update() {
-        absoluteTimeout = absoluteTimeout + delay;
+        EventLoop::getEventDispatcher().getTimerEventDispatcher().remove(this);
     }
 
     void Timer::unobservedEvent() {
         delete this;
     }
 
-    struct timeval Timer::getTimeout() const {
-        return absoluteTimeout;
-    }
-
-    Timer::operator struct timeval() const {
+    utils::Timeval Timer::getTimeout() const {
         return absoluteTimeout;
     }
 

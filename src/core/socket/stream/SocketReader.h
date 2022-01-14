@@ -20,9 +20,10 @@
 #define CORE_SOCKET_STREAM_SOCKETREADER_H
 
 #include "core/ReadEventReceiver.h"
-#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <cerrno>
 #include <cstddef> // for std::size_t
@@ -54,67 +55,65 @@ namespace core::socket::stream {
     protected:
         explicit SocketReader(const std::function<void(int)>& onError)
             : onError(onError) {
+            enable(Socket::fd);
         }
 
         virtual ~SocketReader() = default;
-
-        ssize_t readFromPeer(char* junk, std::size_t junkLen) {
-            errno = 0;
-
-            ssize_t ret = 0;
-
-            if (size == 0) {
-                cursor = 0;
-
-                ssize_t retRead = 0;
-                if (!shutdownTriggered) {
-                    retRead = read(data, MAX_READ_JUNKSIZE);
-                }
-
-                if (retRead > 0) {
-                    size += static_cast<std::size_t>(retRead);
-                } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
-                    size = 0;
-                    cursor = 0;
-                    disable(); // if we get a EOF or an other error disable the reader;
-                    onError(errno);
-                }
-            }
-
-            if (size > 0) {
-                if (!shutdownTriggered) {
-                    std::size_t maxReturn = std::min(junkLen, size);
-
-                    std::copy(data + cursor, data + cursor + maxReturn, junk);
-                    cursor += maxReturn;
-                    size -= maxReturn;
-
-                    ret = static_cast<ssize_t>(maxReturn);
-                } else {
-                    size = 0;
-                    cursor = 0;
-                }
-            }
-
-            return ret;
-        }
-
-        bool continueReadImmediately() override {
-            return size > 0;
-        }
 
     private:
         virtual ssize_t read(char* junk, std::size_t junkLen) = 0;
 
         void readEvent() override = 0;
 
+    protected:
         virtual void doShutdown() {
             Socket::shutdown(Socket::shutdown::RD);
-            resume();
+            if (isSuspended()) {
+                resume();
+            }
             shutdownTriggered = true;
         }
 
-    protected:
+        ssize_t readFromPeer(char* junk, std::size_t junkLen) {
+            std::size_t maxReturn = std::min(junkLen, size);
+
+            std::copy(data + cursor, data + cursor + maxReturn, junk);
+
+            cursor += maxReturn;
+            size -= maxReturn;
+            ssize_t ret = static_cast<ssize_t>(maxReturn);
+
+            return ret;
+        }
+
+        void doRead() {
+            errno = 0;
+
+            if (size == 0) {
+                cursor = 0;
+
+                ssize_t retRead = 0;
+
+                std::size_t readLen = MAX_READ_JUNKSIZE - size;
+                retRead = read(data + size, readLen);
+
+                int errnum = errno;
+                //                PLOG(ERROR) << "Read++++++++++";
+                errno = errnum;
+
+                if (retRead > 0) {
+                    size += static_cast<std::size_t>(retRead);
+                } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
+                    disable(); // if we get a EOF or an other error disable the reader;
+                    onError(errno);
+                }
+            }
+        }
+
+        bool continueReadImmediately() const override {
+            return size > 0;
+        }
+
         void shutdown() {
             if (!shutdownTriggered) {
                 if (!isSuspended()) {
@@ -133,7 +132,7 @@ namespace core::socket::stream {
     private:
         std::function<void(int)> onError;
 
-        char data[MAX_READ_JUNKSIZE];
+        char data[MAX_READ_JUNKSIZE] = {};
         std::size_t size = 0;
         std::size_t cursor = 0;
 
