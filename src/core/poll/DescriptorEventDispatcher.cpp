@@ -178,7 +178,6 @@ namespace core::poll {
                 }
                 eventReceiver->disabled();
                 if (eventReceiver->getObservationCounter() == 0) {
-                    pollFds.finish(eventReceiver);
                     eventReceiver->unobservedEvent();
                 }
             }

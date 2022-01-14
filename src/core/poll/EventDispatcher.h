@@ -40,7 +40,6 @@ namespace core::poll {
 
         void add(core::EventReceiver* eventReceiver, short event);
         void del(core::EventReceiver* eventReceiver, short event);
-        void finish(core::EventReceiver* eventReceiver);
 
     public:
         void modOn(core::EventReceiver* eventReceiver, short event);
@@ -59,7 +58,7 @@ namespace core::poll {
 
             void set(short event, core::EventReceiver* eventReceiver);
 
-            void del1(short event);
+            //            void del1(short event);
 
             pollfds_size_type fds;
             std::map<short, core::EventReceiver*> eventReceivers;

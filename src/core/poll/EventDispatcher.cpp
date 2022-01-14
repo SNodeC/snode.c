@@ -122,12 +122,14 @@ namespace core::poll {
         }
     }
 
+    // #define DEBUG_DEL
+
     void PollFds::del(EventReceiver* eventReceiver, short event) {
+        int fd = eventReceiver->getRegisteredFd();
+
 #ifdef DEBUG_DEL
         VLOG(0) << "Call del fd = " << fd << ", event = " << std::hex << event << std::dec << std::endl;
 #endif
-
-        int fd = eventReceiver->getRegisteredFd();
 
         std::map<int, PollEvent>::iterator it = pollEvents.find(fd);
 
@@ -136,27 +138,16 @@ namespace core::poll {
 
             pollfd& pollFd = pollFds[pollEvent.fds];
             pollFd.events &= static_cast<short>(~event); // tilde promotes to int
-        }
-    }
+            pollEvent.eventReceivers.erase(event);
 
-    void PollFds::finish(EventReceiver* eventReceiver) {
-#ifdef DEBUG_FINISH
-        std::cout << "Calling finished: pollFd.fd = " << pollFd.fd << " fds = " << pollEvent.fds << std::endl;
+            if (pollEvent.eventReceivers.empty()) {
+#ifdef DEBUG_DEL
+                VLOG(0) << "Disable and remove fd = " << fd;
 #endif
-
-        int fd = eventReceiver->getRegisteredFd();
-
-        std::map<int, PollEvent>::iterator it = pollEvents.find(fd);
-
-        if (it != pollEvents.end()) {
-            PollEvent& pollEvent = it->second;
-
-            pollfd& pollFd = pollFds[pollEvent.fds];
-
-            pollFd.fd = -1; // Compress will keep track of that descriptor
-            interestCount--;
-
-            pollEvents.erase(fd);
+                pollEvents.erase(fd);
+                pollFd.fd = -1; // Compress will keep track of that descriptor
+                interestCount--;
+            }
         }
     }
 
@@ -166,6 +157,7 @@ namespace core::poll {
         std::map<int, PollEvent>::iterator it = pollEvents.find(fd);
         if (it != pollEvents.end()) {
             PollEvent& pollEvent = it->second;
+            pollEvent.eventReceivers[event] = eventReceiver;
 
             pollfd& pollFd = pollFds[pollEvent.fds];
             pollFd.events |= event;
@@ -194,7 +186,7 @@ namespace core::poll {
                 std::map<int, PollEvent>::iterator it = pollEvents.find(pollFd.fd);
                 PollEvent& pollEvent = it->second;
 
-                if ((revents & (POLLIN /*| POLLHUP*/ | POLLRDHUP | POLLERR)) != 0) { // POLLHUP leads to doubleDisable
+                if ((revents & (POLLIN /*| POLLHUP | POLLRDHUP | POLLERR */)) != 0) { // POLLHUP leads to doubleDisable
                     pollEvent.eventReceivers[POLLIN]->trigger(currentTime);
                 }
                 if ((revents & POLLOUT) != 0) {
@@ -220,43 +212,43 @@ namespace core::poll {
         return interestCount;
     }
 
+    // #define DEBUG_COMPRESS
+
     void PollFds::compress() {
-        if (interestCount > 0) {
-            std::vector<pollfd>::iterator it = pollFds.begin();
-            std::vector<pollfd>::iterator rit = pollFds.begin() + static_cast<long>(pollFds.size()) - 1;
+        std::vector<pollfd>::iterator it = pollFds.begin();
+        std::vector<pollfd>::iterator rit = pollFds.begin() + static_cast<long>(pollFds.size()) - 1;
 
-            while (it < rit) {
-                while (it != pollFds.end() && it->fd != -1) {
-                    ++it;
-                }
-
-                while (rit >= it && rit->fd == -1) {
-                    --rit;
-                }
-
-                while (it->fd == -1 && rit->fd != -1 && it < rit) {
-                    pollfd tPollFd = *it;
-                    *it = *rit;
-                    *rit = tPollFd;
-                    ++it;
-                    --rit;
-                }
+        while (it < rit) {
+            while (it != pollFds.end() && it->fd != -1) {
+                ++it;
             }
 
-            while (pollFds.size() > (interestCount * 2) + 1) {
-                pollFds.resize(pollFds.size() / 2);
+            while (rit >= it && rit->fd == -1) {
+                --rit;
             }
 
-            for (uint32_t i = 0; i < interestCount; i++) {
+            while (it < rit && it->fd == -1 && rit->fd != -1) {
+                pollfd tPollFd = *it;
+                *it = *rit;
+                *rit = tPollFd;
+                ++it;
+                --rit;
+            }
+        }
+
+        while (pollFds.size() > (interestCount * 2) + 1) {
+            pollFds.resize(pollFds.size() / 2);
+        }
+
+        for (uint32_t i = 0; i < interestCount; i++) {
 #ifdef DEBUG_COMPRESS
-                VLOG(0) << "Compress: fd = " << pollFds[i].fd << ", bevore fds = " << pollEvents.find(pollFds[i].fd)->second.fds
-                        << ", new fds = " << i;
+            VLOG(0) << "Compress: fd = " << pollFds[i].fd << ", bevore fds = " << pollEvents.find(pollFds[i].fd)->second.fds
+                    << ", new fds = " << i;
 #endif
-                if (pollFds[i].fd >= 0) {
-                    pollEvents.find(pollFds[i].fd)->second.fds = i;
-                } else {
-                    exit(0);
-                }
+            if (pollFds[i].fd >= 0) {
+                pollEvents.find(pollFds[i].fd)->second.fds = i;
+            } else {
+                exit(0);
             }
         }
     }
@@ -291,7 +283,7 @@ namespace core::poll {
                 sEvents += "POLLIN";
             }
             if ((events & POLLOUT) != 0) {
-                sEvents += "|POLOUT";
+                sEvents += "|POLLOUT";
             }
             if ((events & POLLPRI) != 0) {
                 sEvents += "|POLLPRI";
@@ -369,6 +361,8 @@ namespace core::poll {
 
         return nextTimeout;
     }
+
+    // #define DEBUG_STATS
 
     void EventDispatcher::observeEnabledEvents() {
 #ifdef DEBUG_STATS
