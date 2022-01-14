@@ -25,8 +25,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <map>
 #include <sys/poll.h>
+#include <unordered_map>
 #include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -56,17 +56,14 @@ namespace core::poll {
         struct PollEvent {
             explicit PollEvent(pollfds_size_type fds);
 
-            void set(short event, core::EventReceiver* eventReceiver);
-
-            //            void del1(short event);
-
             pollfds_size_type fds;
-            std::map<short, core::EventReceiver*> eventReceivers;
+            std::unordered_map<short, core::EventReceiver*> eventReceivers;
         };
 
         std::vector<pollfd> pollFds;
 
-        std::map<int, PollEvent> pollEvents; // map fd -> index into pollFds;
+        // Use an unordered_map: It is a hash_map
+        std::unordered_map<int, PollEvent, std::hash<int>> pollEvents; // map fd -> index into pollFds;
         uint32_t interestCount;
     };
 

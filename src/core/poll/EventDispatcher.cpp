@@ -69,14 +69,6 @@ namespace core::poll {
         : fds(fds) {
     }
 
-    void PollFds::PollEvent::set(short event, EventReceiver* eventReceiver) {
-        const auto [it, success] = eventReceivers.insert({event, eventReceiver});
-
-        if (!success) {
-            it->second = eventReceiver;
-        }
-    }
-
     PollFds::PollFds()
         : interestCount(0) {
         pollfd pollFd;
@@ -91,14 +83,14 @@ namespace core::poll {
     void PollFds::add(EventReceiver* eventReceiver, short event) {
         int fd = eventReceiver->getRegisteredFd();
 
-        std::map<int, PollEvent>::iterator it = pollEvents.find(fd);
+        std::unordered_map<int, PollEvent>::iterator it = pollEvents.find(fd);
 
         if (it == pollEvents.end()) {
             pollFds[interestCount].events = event;
             pollFds[interestCount].fd = fd;
 
             PollEvent pollEvent(interestCount);
-            pollEvent.set(event, eventReceiver);
+            pollEvent.eventReceivers[event] = eventReceiver;
 
             pollEvents.insert({fd, pollEvent});
             interestCount++;
@@ -114,8 +106,7 @@ namespace core::poll {
             }
         } else {
             PollEvent& pollEvent = it->second;
-
-            pollEvent.set(event, eventReceiver);
+            pollEvent.eventReceivers[event] = eventReceiver;
 
             pollFds[pollEvent.fds].events |= event;
             pollFds[pollEvent.fds].fd = fd;
@@ -131,7 +122,7 @@ namespace core::poll {
         VLOG(0) << "Call del fd = " << fd << ", event = " << std::hex << event << std::dec << std::endl;
 #endif
 
-        std::map<int, PollEvent>::iterator it = pollEvents.find(fd);
+        std::unordered_map<int, PollEvent>::iterator it = pollEvents.find(fd);
 
         if (it != pollEvents.end()) {
             PollEvent& pollEvent = it->second;
@@ -154,7 +145,8 @@ namespace core::poll {
     void PollFds::modOn(EventReceiver* eventReceiver, short event) {
         int fd = eventReceiver->getRegisteredFd();
 
-        std::map<int, PollEvent>::iterator it = pollEvents.find(fd);
+        std::unordered_map<int, PollEvent>::iterator it = pollEvents.find(fd);
+
         if (it != pollEvents.end()) {
             PollEvent& pollEvent = it->second;
             pollEvent.eventReceivers[event] = eventReceiver;
@@ -167,7 +159,8 @@ namespace core::poll {
     void PollFds::modOff(EventReceiver* eventReceiver, short event) {
         int fd = eventReceiver->getRegisteredFd();
 
-        std::map<int, PollEvent>::iterator it = pollEvents.find(fd);
+        std::unordered_map<int, PollEvent>::iterator it = pollEvents.find(fd);
+
         if (it != pollEvents.end()) {
             PollEvent& pollEvent = it->second;
 
@@ -183,7 +176,7 @@ namespace core::poll {
             short revents = pollFd.revents;
 
             if (pollFd.revents != 0) {
-                std::map<int, PollEvent>::iterator it = pollEvents.find(pollFd.fd);
+                std::unordered_map<int, PollEvent>::iterator it = pollEvents.find(pollFd.fd);
                 PollEvent& pollEvent = it->second;
 
                 if ((revents & (POLLIN /*| POLLHUP | POLLRDHUP | POLLERR */)) != 0) { // POLLHUP leads to doubleDisable
@@ -266,7 +259,7 @@ namespace core::poll {
         std::cout << s << std::endl;
 
         for (auto& [fd, pollEvent] : this->pollEvents) {
-            std::map<int, PollEvent>::iterator it = pollEvents.find(fd);
+            std::unordered_map<int, PollEvent>::iterator it = pollEvents.find(fd);
 
             short events = 0;
             short rEvents = 0;

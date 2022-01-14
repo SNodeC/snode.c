@@ -164,6 +164,8 @@ namespace core::poll {
     }
 
     void DescriptorEventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
+        bool doCompress = false;
+
         for (const auto& [fd, eventReceivers] : disabledEventReceiver) {
             for (core::EventReceiver* eventReceiver : eventReceivers) {
                 observedEventReceiver[fd].remove(eventReceiver);
@@ -179,11 +181,14 @@ namespace core::poll {
                 eventReceiver->disabled();
                 if (eventReceiver->getObservationCounter() == 0) {
                     eventReceiver->unobservedEvent();
+                    doCompress = true;
                 }
             }
         }
 
-        pollFds.compress();
+        if (doCompress) {
+            pollFds.compress();
+        }
 
         disabledEventReceiver.clear();
     }
