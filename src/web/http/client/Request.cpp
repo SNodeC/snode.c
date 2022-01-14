@@ -18,12 +18,13 @@
 
 #include "web/http/client/Request.h"
 
-#include "log/Logger.h"
 #include "web/http/SocketContext.h"
 #include "web/http/client/SocketContextUpgradeFactorySelector.h"
 #include "web/http/http_utils.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#include "log/Logger.h"
 
 #include <utility> // for pair, tuple_element<>::type
 
@@ -201,7 +202,6 @@ namespace web::http::client {
         this->url = url;
 
         set("Connection", "Upgrade", true);
-
         set("Upgrade", protocol);
 
         // load upgrade context
