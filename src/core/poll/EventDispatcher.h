@@ -23,9 +23,15 @@
 #include "core/poll/DescriptorEventDispatcher.h"
 #include "core/poll/TimerEventDispatcher.h"
 
+namespace core {
+    class EventReceiver;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <sys/poll.h>
+#include <cstdint>
+#include <poll.h>
+#include <string>
 #include <unordered_map>
 #include <vector>
 

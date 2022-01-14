@@ -25,8 +25,10 @@
 
 #include <algorithm> // for min, find
 #include <climits>
+#include <compare> // for operator<, __synth3way_t, operator>=
 #include <iostream>
-#include <sys/poll.h>
+#include <memory>  // for allocator_traits<>::value_type
+#include <utility> // for pair
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -191,7 +193,6 @@ namespace core::poll {
                 if ((revents & POLLNVAL) != 0) {
                     PLOG(ERROR) << "Poll revents countains POLLNVAL. This should never happen fd = " << pollFd.fd
                                 << ", revents = " << std::hex << revents << std::dec << std::endl;
-                    exit(0);
                 }
             }
         }
@@ -240,8 +241,6 @@ namespace core::poll {
 #endif
             if (pollFds[i].fd >= 0) {
                 pollEvents.find(pollFds[i].fd)->second.fds = i;
-            } else {
-                exit(0);
             }
         }
     }
@@ -314,7 +313,6 @@ namespace core::poll {
 
             if ((events & rEvents) == 0 && events == 0 && rEvents != 0) {
                 std::cout << "        Error: Revents not in Event" << std::endl;
-                exit(0);
             }
         }
 

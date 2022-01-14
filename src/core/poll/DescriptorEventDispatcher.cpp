@@ -25,7 +25,6 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm> // for find, min
-#include <cerrno>
 #include <climits>
 #include <type_traits> // for add_const<>::type
 #include <utility>     // for tuple_element<>::type, pair

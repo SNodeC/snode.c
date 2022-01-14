@@ -19,7 +19,7 @@
 #ifndef CORE_POLL_DESCRIPTOREVENTDISPATCHER_H
 #define CORE_POLL_DESCRIPTOREVENTDISPATCHER_H
 
-#include "core/DescriptorEventDispatcher.h" // IWYU pragma: exportx
+#include "core/DescriptorEventDispatcher.h" // IWYU pragma: export
 
 namespace core {
     class EventReceiver;
@@ -32,11 +32,8 @@ namespace core {
 
 #include "utils/Timeval.h"
 
-#include <cstdint>
 #include <list>
 #include <map>
-#include <sys/epoll.h>
-#include <vector>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
