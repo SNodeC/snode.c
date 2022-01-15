@@ -27,7 +27,8 @@
 #include <cerrno>
 #include <compare> // for operator<, __synth3way_t, operator>=
 #include <iostream>
-#include <memory>  // for allocator_traits<>::value_type
+#include <memory> // for allocator_traits<>::value_type
+#include <numeric>
 #include <utility> // for pair
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -52,7 +53,7 @@ namespace core::poll {
         pollFd.events = 0;
         pollFd.revents = 0;
 
-        pollFds.resize(1, pollFd);
+        pollfds.resize(1, pollFd);
     }
 
     void PollFds::add(EventReceiver* eventReceiver, short event) {
@@ -61,8 +62,8 @@ namespace core::poll {
         std::unordered_map<int, PollEvent>::iterator it = pollEvents.find(fd);
 
         if (it == pollEvents.end()) {
-            pollFds[interestCount].events = event;
-            pollFds[interestCount].fd = fd;
+            pollfds[interestCount].events = event;
+            pollfds[interestCount].fd = fd;
 
             PollEvent pollEvent(interestCount);
             pollEvent.eventReceivers[event] = eventReceiver;
@@ -70,21 +71,21 @@ namespace core::poll {
             pollEvents.insert({fd, pollEvent});
             interestCount++;
 
-            if (interestCount == pollFds.size()) {
+            if (interestCount == pollfds.size()) {
                 pollfd pollFd;
 
                 pollFd.fd = -1;
                 pollFd.events = 0;
                 pollFd.revents = 0;
 
-                pollFds.resize(pollFds.size() * 2, pollFd);
+                pollfds.resize(pollfds.size() * 2, pollFd);
             }
         } else {
             PollEvent& pollEvent = it->second;
             pollEvent.eventReceivers[event] = eventReceiver;
 
-            pollFds[pollEvent.fds].events |= event;
-            pollFds[pollEvent.fds].fd = fd;
+            pollfds[pollEvent.fds].events |= event;
+            pollfds[pollEvent.fds].fd = fd;
         }
     }
 
@@ -102,7 +103,7 @@ namespace core::poll {
         if (it != pollEvents.end()) {
             PollEvent& pollEvent = it->second;
 
-            pollfd& pollFd = pollFds[pollEvent.fds];
+            pollfd& pollFd = pollfds[pollEvent.fds];
             pollFd.events &= static_cast<short>(~event); // tilde promotes to int
             pollEvent.eventReceivers.erase(event);
 
@@ -126,7 +127,7 @@ namespace core::poll {
             PollEvent& pollEvent = it->second;
             pollEvent.eventReceivers[event] = eventReceiver;
 
-            pollfd& pollFd = pollFds[pollEvent.fds];
+            pollfd& pollFd = pollfds[pollEvent.fds];
             pollFd.events |= event;
         }
     }
@@ -139,7 +140,7 @@ namespace core::poll {
         if (it != pollEvents.end()) {
             PollEvent& pollEvent = it->second;
 
-            pollfd& pollFd = pollFds[pollEvent.fds];
+            pollfd& pollFd = pollfds[pollEvent.fds];
             pollFd.events &= static_cast<short>(~event);
             pollFd.revents = 0;
         }
@@ -147,7 +148,7 @@ namespace core::poll {
 
     void PollFds::dispatch(const utils::Timeval& currentTime) {
         for (uint32_t i = 0; i < interestCount; i++) {
-            pollfd& pollFd = pollFds[i];
+            pollfd& pollFd = pollfds[i];
             short events = pollFd.events;
             short revents = pollFd.revents;
 
@@ -155,7 +156,7 @@ namespace core::poll {
                 std::unordered_map<int, PollEvent>::iterator it = pollEvents.find(pollFd.fd);
                 PollEvent& pollEvent = it->second;
 
-                if ((events & POLLIN) != 0 && (revents & (POLLIN | POLLHUP | POLLRDHUP | POLLERR)) != 0) { // POLLHUP leads to doubleDisable
+                if ((events & POLLIN) != 0 && (revents & (POLLIN | POLLHUP | POLLRDHUP | POLLERR)) != 0) {
                     core::EventReceiver* eventReceiver = pollEvent.eventReceivers[POLLIN];
                     if (!eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
                         eventReceiver->trigger(currentTime);
@@ -182,7 +183,7 @@ namespace core::poll {
     }
 
     pollfd* PollFds::getEvents() {
-        return pollFds.data();
+        return pollfds.data();
     }
 
     nfds_t PollFds::getMaxEvents() const {
@@ -192,11 +193,11 @@ namespace core::poll {
     // #define DEBUG_COMPRESS
 
     void PollFds::compress() {
-        std::vector<pollfd>::iterator it = pollFds.begin();
-        std::vector<pollfd>::iterator rit = pollFds.begin() + static_cast<long>(pollFds.size()) - 1;
+        std::vector<pollfd>::iterator it = pollfds.begin();
+        std::vector<pollfd>::iterator rit = pollfds.begin() + static_cast<long>(pollfds.size()) - 1;
 
         while (it < rit) {
-            while (it != pollFds.end() && it->fd != -1) {
+            while (it != pollfds.end() && it->fd != -1) {
                 ++it;
             }
 
@@ -213,8 +214,8 @@ namespace core::poll {
             }
         }
 
-        while (pollFds.size() > (interestCount * 2) + 1) {
-            pollFds.resize(pollFds.size() / 2);
+        while (pollfds.size() > (interestCount * 2) + 1) {
+            pollfds.resize(pollfds.size() / 2);
         }
 
         for (uint32_t i = 0; i < interestCount; i++) {
@@ -222,8 +223,8 @@ namespace core::poll {
             VLOG(0) << "Compress: fd = " << pollFds[i].fd << ", bevore fds = " << pollEvents.find(pollFds[i].fd)->second.fds
                     << ", new fds = " << i;
 #endif
-            if (pollFds[i].fd >= 0) {
-                pollEvents.find(pollFds[i].fd)->second.fds = i;
+            if (pollfds[i].fd >= 0) {
+                pollEvents.find(pollfds[i].fd)->second.fds = i;
             }
         }
     }
@@ -231,14 +232,14 @@ namespace core::poll {
     void PollFds::printStats(const std::string& what) {
         std::cout << "-----------------------------------------------------------------------------" << std::endl;
         std::cout << "Current Status for: " << what << std::endl;
-        std::cout << "  PollFds: Vector size = " << pollFds.size() << ", map size = " << pollEvents.size()
+        std::cout << "  PollFds: Vector size = " << pollfds.size() << ", map size = " << pollEvents.size()
                   << ", interrest count = " << interestCount << std::endl;
 
-        std::string s = "  PollFds: Fd = ";
-        for (auto& pollfd : pollFds) {
-            s += std::to_string(pollfd.fd) + ", ";
+        std::string pollFdsString = "  PollFds: Fd = ";
+        for (auto& pollfd : pollfds) {
+            pollFdsString += std::to_string(pollfd.fd) + ", ";
         }
-        std::cout << s << std::endl;
+        std::cout << pollFdsString << std::endl;
 
         for (auto& [fd, pollEvent] : this->pollEvents) {
             std::unordered_map<int, PollEvent>::iterator it = pollEvents.find(fd);
@@ -246,8 +247,8 @@ namespace core::poll {
             short events = 0;
             short rEvents = 0;
             if (it != pollEvents.end()) {
-                events = pollFds[it->second.fds].events;
-                rEvents = pollFds[it->second.fds].revents;
+                events = pollfds[it->second.fds].events;
+                rEvents = pollfds[it->second.fds].revents;
             } else {
                 events = -1;
                 rEvents = -1;
@@ -317,11 +318,10 @@ namespace core::poll {
     }
 
     int EventDispatcher::getReceiverCount() {
-        int receiverCount = 0;
-
-        for (const DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
-            receiverCount += eventDispatcher.getReceiverCount();
-        }
+        int receiverCount = std::accumulate(
+            eventDispatcher, eventDispatcher + 3, 0, [](int count, DescriptorEventDispatcher& descriptorEventDispatcher) -> int {
+                return count + descriptorEventDispatcher.getReceiverCount();
+            });
 
         return receiverCount;
     }

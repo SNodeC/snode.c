@@ -66,9 +66,7 @@ namespace core::poll {
             std::unordered_map<short, core::EventReceiver*> eventReceivers;
         };
 
-        std::vector<pollfd> pollFds;
-
-        // Use an unordered_map: It is a hash_map
+        std::vector<pollfd> pollfds;
         std::unordered_map<int, PollEvent, std::hash<int>> pollEvents; // map fd -> index into pollFds;
         uint32_t interestCount;
     };
