@@ -53,9 +53,11 @@ namespace core::poll {
 
         void dispatch(const utils::Timeval& currentTime);
 
-        pollfd* getEvents();
-        nfds_t getMaxEvents() const;
         void compress();
+
+        pollfd* getEvents();
+        nfds_t getInterestCount() const;
+
         void printStats(const std::string& what);
 
     private:

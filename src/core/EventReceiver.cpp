@@ -109,14 +109,14 @@ namespace core {
         return (maxInactivity > 0) ? maxInactivity - (currentTime - lastTriggered) : TIMEOUT::MAX;
     }
 
-    void EventReceiver::triggered(const utils::Timeval& currentTime) {
-        lastTriggered = currentTime;
-    }
-
-    void EventReceiver::trigger(const utils::Timeval& currentTime) {
+    void EventReceiver::dispatch(const utils::Timeval& currentTime) {
         triggered(currentTime);
 
         dispatchEvent();
+    }
+
+    void EventReceiver::triggered(const utils::Timeval& currentTime) {
+        lastTriggered = currentTime;
     }
 
     void EventReceiver::checkTimeout(const utils::Timeval& currentTime) {

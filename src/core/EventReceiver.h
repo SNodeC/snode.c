@@ -83,8 +83,9 @@ namespace core {
         void resume();
         bool isSuspended() const;
 
+        void dispatch(const utils::Timeval& currentTime);
+
         void triggered(const utils::Timeval& currentTime);
-        void trigger(const utils::Timeval& currentTime);
 
         void disabled();
 

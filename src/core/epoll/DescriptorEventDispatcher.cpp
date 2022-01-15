@@ -235,7 +235,7 @@ namespace core::epoll {
             core::EventReceiver* eventReceiver = static_cast<core::EventReceiver*>(ePollEvents.getEvents()[i].data.ptr);
             if (!eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
                 eventCounter++;
-                eventReceiver->trigger(currentTime);
+                eventReceiver->dispatch(currentTime);
             }
         }
     }
@@ -245,7 +245,7 @@ namespace core::epoll {
             core::EventReceiver* eventReceiver = eventReceivers.front();
             if (eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
                 eventCounter++;
-                eventReceiver->trigger(currentTime);
+                eventReceiver->dispatch(currentTime);
             } else if (eventReceiver->isEnabled()) {
                 eventReceiver->checkTimeout(currentTime);
             }

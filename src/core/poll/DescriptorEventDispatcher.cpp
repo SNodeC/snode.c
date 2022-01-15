@@ -154,7 +154,7 @@ namespace core::poll {
             core::EventReceiver* eventReceiver = eventReceivers.front();
             if (eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
                 eventCounter++;
-                eventReceiver->trigger(currentTime);
+                eventReceiver->dispatch(currentTime);
             } else if (eventReceiver->isEnabled()) {
                 eventReceiver->checkTimeout(currentTime);
             }

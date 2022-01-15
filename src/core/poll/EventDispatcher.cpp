@@ -159,19 +159,19 @@ namespace core::poll {
                 if ((events & POLLIN) != 0 && (revents & (POLLIN | POLLHUP | POLLRDHUP | POLLERR)) != 0) {
                     core::EventReceiver* eventReceiver = pollEvent.eventReceivers[POLLIN];
                     if (!eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
-                        eventReceiver->trigger(currentTime);
+                        eventReceiver->dispatch(currentTime);
                     }
                 }
                 if ((revents & POLLOUT) != 0) {
                     core::EventReceiver* eventReceiver = pollEvent.eventReceivers[POLLOUT];
                     if (!eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
-                        eventReceiver->trigger(currentTime);
+                        eventReceiver->dispatch(currentTime);
                     }
                 }
                 if ((revents & POLLPRI) != 0) {
                     core::EventReceiver* eventReceiver = pollEvent.eventReceivers[POLLPRI];
                     if (!eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
-                        eventReceiver->trigger(currentTime);
+                        eventReceiver->dispatch(currentTime);
                     }
                 }
                 if ((revents & POLLNVAL) != 0) {
@@ -180,14 +180,6 @@ namespace core::poll {
                 }
             }
         }
-    }
-
-    pollfd* PollFds::getEvents() {
-        return pollfds.data();
-    }
-
-    nfds_t PollFds::getMaxEvents() const {
-        return interestCount;
     }
 
     // #define DEBUG_COMPRESS
@@ -227,6 +219,14 @@ namespace core::poll {
                 pollEvents.find(pollfds[i].fd)->second.fds = i;
             }
         }
+    }
+
+    pollfd* PollFds::getEvents() {
+        return pollfds.data();
+    }
+
+    nfds_t PollFds::getInterestCount() const {
+        return interestCount;
     }
 
     void PollFds::printStats(const std::string& what) {
@@ -303,10 +303,6 @@ namespace core::poll {
         std::cout << "-----------------------------------------------------------------------------" << std::endl;
     }
 
-    core::TimerEventDispatcher& EventDispatcher::getTimerEventDispatcher() {
-        return timerEventDispatcher;
-    }
-
     EventDispatcher::EventDispatcher()
         : eventDispatcher{core::poll::DescriptorEventDispatcher(pollFds, POLLIN),
                           core::poll::DescriptorEventDispatcher(pollFds, POLLOUT),
@@ -315,6 +311,10 @@ namespace core::poll {
 
     core::DescriptorEventDispatcher& EventDispatcher::getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE dispType) {
         return eventDispatcher[dispType];
+    }
+
+    core::TimerEventDispatcher& EventDispatcher::getTimerEventDispatcher() {
+        return timerEventDispatcher;
     }
 
     int EventDispatcher::getReceiverCount() {
@@ -406,7 +406,7 @@ namespace core::poll {
             nextTimeout = std::min(nextTimeout, tickTimeOut);
             nextTimeout = std::max(nextTimeout, utils::Timeval()); // In case nextEventTimeout is negativ
 
-            int ret = ::poll(pollFds.getEvents(), pollFds.getMaxEvents(), nextTimeout.ms());
+            int ret = ::poll(pollFds.getEvents(), pollFds.getInterestCount(), nextTimeout.ms());
 
             if (ret >= 0) {
                 currentTime = utils::Timeval::currentTime();

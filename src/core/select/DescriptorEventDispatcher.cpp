@@ -179,7 +179,7 @@ namespace core::select {
             core::EventReceiver* eventReceiver = eventReceivers.front();
             if ((fdSet.isSet(fd) || eventReceiver->continueImmediately()) && !eventReceiver->isSuspended()) {
                 eventCounter++;
-                eventReceiver->trigger(currentTime);
+                eventReceiver->dispatch(currentTime);
             } else if (eventReceiver->isEnabled()) {
                 eventReceiver->checkTimeout(currentTime);
             }
