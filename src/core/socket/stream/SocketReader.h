@@ -98,14 +98,16 @@ namespace core::socket::stream {
                 retRead = read(data + size, readLen);
 
                 int errnum = errno;
-                //                PLOG(ERROR) << "Read++++++++++";
                 errno = errnum;
 
                 if (retRead > 0) {
                     size += static_cast<std::size_t>(retRead);
-                } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
-                    disable(); // if we get a EOF or an other error disable the reader;
-                    onError(errno);
+                } else if (/*errno != EAGAIN && errno != EWOULDBLOCK &&*/ errno != EINTR) {
+                    disable();
+                    if (errno != EAGAIN && errno != EWOULDBLOCK) { // Do not report EAGAIN or EWOULDBLOCK because this
+                                                                   // is intentionally expected for some protocols eg. BTPROTO_L2CAP
+                        onError(errno);
+                    }
                 }
             }
         }

@@ -95,15 +95,17 @@ namespace core::socket::stream {
                 retWrite = write(writeBuffer.data(), writeLen);
 
                 int errnum = errno;
-                //                PLOG(ERROR) << "Write++++++++++";
                 errno = errnum;
             }
 
             if (retWrite >= 0) {
                 writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);
-            } else if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR) {
+            } else if (/*errno != EAGAIN && errno != EWOULDBLOCK &&*/ errno != EINTR) {
                 disable();
-                onError(errno);
+                if (errno != EAGAIN && errno != EWOULDBLOCK) { // Do not report EAGAIN or EWOULDBLOCK because this
+                                                               // is expected for some protocols eg. BTPROTO_L2CAP
+                    onError(errno);
+                }
             }
 
             if (writeBuffer.empty()) {
