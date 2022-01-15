@@ -224,7 +224,6 @@ namespace core::epoll {
                 }
             }
         }
-
         enabledEventReceiver.clear();
     }
 
@@ -253,6 +252,8 @@ namespace core::epoll {
     }
 
     void DescriptorEventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
+        bool doCompress = false;
+
         for (const auto& [fd, eventReceivers] : disabledEventReceiver) {
             for (core::EventReceiver* eventReceiver : eventReceivers) {
                 observedEventReceiver[fd].remove(eventReceiver);
@@ -268,11 +269,14 @@ namespace core::epoll {
                 eventReceiver->disabled();
                 if (eventReceiver->getObservationCounter() == 0) {
                     eventReceiver->unobservedEvent();
+                    doCompress = true;
                 }
             }
         }
 
-        ePollEvents.compress();
+        if (doCompress) {
+            ePollEvents.compress();
+        }
 
         disabledEventReceiver.clear();
     }

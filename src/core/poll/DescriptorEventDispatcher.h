@@ -56,7 +56,6 @@ namespace core::poll {
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime) const;
 
         void observeEnabledEvents();
-        void dispatchActiveEvents(const utils::Timeval& currentTime);
         void dispatchImmediateEvents(const utils::Timeval& currentTime);
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
         void stop() override;

@@ -79,7 +79,6 @@ namespace core::poll {
 
         if (!eventReceiver->isSuspended()) {
             if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
-                //                ePollEvents.del(eventReceiver);
                 pollFds.modOff(eventReceiver, events);
             }
         } else {
@@ -143,10 +142,6 @@ namespace core::poll {
             }
         }
         enabledEventReceiver.clear();
-    }
-
-    void DescriptorEventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
-        pollFds.dispatch(currentTime);
     }
 
     void DescriptorEventDispatcher::dispatchImmediateEvents(const utils::Timeval& currentTime) {
