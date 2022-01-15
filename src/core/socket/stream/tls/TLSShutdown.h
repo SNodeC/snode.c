@@ -53,8 +53,6 @@ namespace core::socket::stream::tls {
 
         void unobservedEvent() override;
 
-        bool continueReadImmediately() const override;
-
         SSL* ssl = nullptr;
         std::function<void(void)> onSuccess;
         std::function<void(void)> onTimeout;

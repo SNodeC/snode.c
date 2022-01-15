@@ -160,8 +160,4 @@ namespace core::socket::stream::tls {
         delete this;
     }
 
-    bool TLSShutdown::continueReadImmediately() const {
-        return SSL_has_pending(ssl);
-    }
-
 } // namespace core::socket::stream::tls
