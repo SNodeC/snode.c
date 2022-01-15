@@ -24,7 +24,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm> // for min, find
-#include <climits>
+#include <cerrno>
 #include <compare> // for operator<, __synth3way_t, operator>=
 #include <iostream>
 #include <memory>  // for allocator_traits<>::value_type
@@ -327,7 +327,7 @@ namespace core::poll {
     }
 
     utils::Timeval EventDispatcher::getNextTimeout(const utils::Timeval& currentTime) {
-        utils::Timeval nextTimeout = {LONG_MAX, 0};
+        utils::Timeval nextTimeout = core::EventReceiver::TIMEOUT::MAX;
 
         for (const DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
             nextTimeout = std::min(eventDispatcher.getNextTimeout(currentTime), nextTimeout);
@@ -416,7 +416,9 @@ namespace core::poll {
                 EventDispatcher::dispatchActiveEvents(ret, currentTime);
                 EventDispatcher::unobserveDisabledEvents(currentTime);
             } else {
-                tickStatus = TickStatus::ERROR;
+                if (errno != EINTR) {
+                    tickStatus = TickStatus::ERROR;
+                }
             }
         } else {
             tickStatus = TickStatus::NO_OBSERVER;

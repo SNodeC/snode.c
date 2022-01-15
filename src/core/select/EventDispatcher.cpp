@@ -23,6 +23,7 @@
 #include "core/system/select.h"
 
 #include <algorithm> // for min, find
+#include <cerrno>
 #include <climits>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -109,7 +110,9 @@ namespace core::select {
                 EventDispatcher::dispatchActiveEvents(currentTime);
                 EventDispatcher::unobserveDisabledEvents(currentTime);
             } else {
-                tickStatus = TickStatus::ERROR;
+                if (errno != EINTR) {
+                    tickStatus = TickStatus::ERROR;
+                }
             }
         } else {
             tickStatus = TickStatus::NO_OBSERVER;

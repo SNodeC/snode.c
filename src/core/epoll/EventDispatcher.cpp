@@ -21,6 +21,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <algorithm> // for min, find
+#include <cerrno>
 #include <climits>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
@@ -131,7 +132,9 @@ namespace core::epoll {
                 EventDispatcher::dispatchActiveEvents(ret, currentTime);
                 EventDispatcher::unobserveDisabledEvents(currentTime);
             } else {
-                tickStatus = TickStatus::ERROR;
+                if (errno != EINTR) {
+                    tickStatus = TickStatus::ERROR;
+                }
             }
         } else {
             tickStatus = TickStatus::NO_OBSERVER;
