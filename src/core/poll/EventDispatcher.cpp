@@ -156,13 +156,22 @@ namespace core::poll {
                 PollEvent& pollEvent = it->second;
 
                 if ((events & POLLIN) != 0 && (revents & (POLLIN | POLLHUP | POLLRDHUP | POLLERR)) != 0) { // POLLHUP leads to doubleDisable
-                    pollEvent.eventReceivers[POLLIN]->trigger(currentTime);
+                    core::EventReceiver* eventReceiver = pollEvent.eventReceivers[POLLIN];
+                    if (!eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
+                        eventReceiver->trigger(currentTime);
+                    }
                 }
                 if ((revents & POLLOUT) != 0) {
-                    pollEvent.eventReceivers[POLLOUT]->trigger(currentTime);
+                    core::EventReceiver* eventReceiver = pollEvent.eventReceivers[POLLOUT];
+                    if (!eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
+                        eventReceiver->trigger(currentTime);
+                    }
                 }
                 if ((revents & POLLPRI) != 0) {
-                    pollEvent.eventReceivers[POLLPRI]->trigger(currentTime);
+                    core::EventReceiver* eventReceiver = pollEvent.eventReceivers[POLLPRI];
+                    if (!eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
+                        eventReceiver->trigger(currentTime);
+                    }
                 }
                 if ((revents & POLLNVAL) != 0) {
                     PLOG(ERROR) << "Poll revents countains POLLNVAL. This should never happen fd = " << pollFd.fd
