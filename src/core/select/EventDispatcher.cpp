@@ -27,6 +27,12 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+core::EventDispatcher& EventDispatcher() {
+    static core::select::EventDispatcher eventDispatcher;
+
+    return eventDispatcher;
+}
+
 namespace core::select {
 
     core::TimerEventDispatcher& EventDispatcher::getTimerEventDispatcher() {

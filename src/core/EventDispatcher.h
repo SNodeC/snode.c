@@ -51,7 +51,6 @@ namespace core {
         virtual DescriptorEventDispatcher& getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE dispType) = 0;
         virtual TimerEventDispatcher& getTimerEventDispatcher() = 0;
 
-    protected:
         virtual TickStatus dispatch(const utils::Timeval& tickTimeOut, bool stopped) = 0;
         virtual void stop() = 0;
     };

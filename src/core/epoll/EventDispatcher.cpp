@@ -25,6 +25,12 @@
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
+core::EventDispatcher& EventDispatcher() {
+    static core::epoll::EventDispatcher eventDispatcher;
+
+    return eventDispatcher;
+}
+
 namespace core::epoll {
 
     core::TimerEventDispatcher& EventDispatcher::getTimerEventDispatcher() {

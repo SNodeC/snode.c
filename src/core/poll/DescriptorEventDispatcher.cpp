@@ -146,7 +146,7 @@ namespace core::poll {
         enabledEventReceiver.clear();
     }
 
-    void DescriptorEventDispatcher::dispatchActiveEvents([[maybe_unused]] const utils::Timeval& currentTime) {
+    void DescriptorEventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
         pollFds.dispatch(currentTime);
     }
 

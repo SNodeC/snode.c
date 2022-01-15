@@ -19,16 +19,7 @@
 #include "core/EventLoop.h" // for EventLoop
 
 #include "core/DynamicLoader.h"
-
-#if defined(USE_EPOLL)
-#include "core/epoll/EventDispatcher.h"
-#elif defined(USE_POLL)
-#include "core/poll/EventDispatcher.h"
-#elif defined(USE_SELECT)
-#include "core/select/EventDispatcher.h"
-#else
-#error "No valid I/O-Multiplexer selected! Use cmake option -DIO_Multiplexer=[epoll|poll|select]"
-#endif
+#include "core/EventDispatcher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -44,7 +35,17 @@
 #define MAX_WRITE_INACTIVITY 60
 #define MAX_OUTOFBAND_INACTIVITY 60
 
+/* Must be implemented in every variant of a multiplexer api */
+core::EventDispatcher& EventDispatcher();
+
 namespace core {
+
+    core::EventDispatcher& EventLoop::eventDispatcher = ::EventDispatcher();
+    bool EventLoop::initialized = false;
+    bool EventLoop::running = false;
+    bool EventLoop::stopped = true;
+    int EventLoop::stopsig = 0;
+    unsigned long EventLoop::tickCounter = 0;
 
     static std::string getTickCounterAsString(const el::LogMessage*) {
         std::string tick = std::to_string(EventLoop::getTickCounter());
@@ -55,20 +56,6 @@ namespace core {
 
         return tick;
     }
-
-#if defined(USE_EPOLL)
-    core::epoll::EventDispatcher EventLoop::eventDispatcher;
-#elif defined(USE_POLL)
-    core::poll::EventDispatcher EventLoop::eventDispatcher;
-#elif defined(USE_SELECT)
-    core::select::EventDispatcher EventLoop::eventDispatcher;
-#endif
-
-    bool EventLoop::initialized = false;
-    bool EventLoop::running = false;
-    bool EventLoop::stopped = true;
-    int EventLoop::stopsig = 0;
-    unsigned long EventLoop::tickCounter = 0;
 
     unsigned long EventLoop::getTickCounter() {
         return tickCounter;

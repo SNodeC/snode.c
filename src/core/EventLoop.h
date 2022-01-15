@@ -23,19 +23,6 @@
 
 namespace core {
     class EventDispatcher;
-#if defined(USE_EPOLL)
-    namespace epoll {
-        class EventDispatcher;
-    }
-#elif defined(USE_POLL)
-    namespace poll {
-        class EventDispatcher;
-    }
-#elif defined(USE_SELECT)
-    namespace select {
-        class EventDispatcher;
-    }
-#endif
 } // namespace core
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -68,13 +55,7 @@ namespace core {
 
         static void stoponsig(int sig);
 
-#if defined(USE_EPOLL)
-        static core::epoll::EventDispatcher eventDispatcher;
-#elif defined(USE_POLL)
-        static core::poll::EventDispatcher eventDispatcher;
-#elif defined(USE_SELECT)
-        static core::select::EventDispatcher eventDispatcher;
-#endif
+        static core::EventDispatcher& eventDispatcher;
 
         static bool running;
         static bool stopped;
