@@ -91,16 +91,13 @@ namespace core::socket::stream {
             ssize_t retWrite = -1;
 
             std::size_t writeLen = (writeBuffer.size() < MAX_SEND_JUNKSIZE) ? writeBuffer.size() : MAX_SEND_JUNKSIZE;
-            if (!shutdownTriggered) {
+            if (!shutdownTriggered) { // Avoid a EPIPE
                 retWrite = write(writeBuffer.data(), writeLen);
-
-                int errnum = errno;
-                errno = errnum;
             }
 
             if (retWrite >= 0) {
                 writeBuffer.erase(writeBuffer.begin(), writeBuffer.begin() + retWrite);
-            } else if (/*errno != EAGAIN && errno != EWOULDBLOCK &&*/ errno != EINTR) {
+            } else if (errno != EINTR) {
                 disable();
                 if (errno != EAGAIN && errno != EWOULDBLOCK) { // Do not report EAGAIN or EWOULDBLOCK because this
                                                                // is expected for some protocols eg. BTPROTO_L2CAP
