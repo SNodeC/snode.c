@@ -26,7 +26,6 @@
 
 #include <algorithm> // for find, min
 #include <cerrno>
-#include <climits>
 #include <type_traits> // for add_const<>::type
 #include <utility>     // for tuple_element<>::type, pair
 
@@ -192,7 +191,7 @@ namespace core::epoll {
     }
 
     utils::Timeval DescriptorEventDispatcher::getNextTimeout(const utils::Timeval& currentTime) const {
-        utils::Timeval nextTimeout = {LONG_MAX, 0};
+        utils::Timeval nextTimeout = core::EventReceiver::TIMEOUT::MAX;
 
         for (const auto& [fd, eventReceivers] : observedEventReceiver) { // cppcheck-suppress unusedVariable
             const core::EventReceiver* eventReceiver = eventReceivers.front();

@@ -60,13 +60,14 @@ namespace core {
         EventReceiver& operator=(const EventReceiver&) = delete;
 
     public:
-    protected:
         class TIMEOUT {
         public:
             static const utils::Timeval DEFAULT;
             static const utils::Timeval DISABLE;
+            static const utils::Timeval MAX;
         };
 
+    protected:
         explicit EventReceiver(DescriptorEventDispatcher& descriptorEventDispatcher, const utils::Timeval& timeout = TIMEOUT::DISABLE);
         virtual ~EventReceiver() = default;
 
