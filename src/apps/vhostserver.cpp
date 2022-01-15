@@ -49,9 +49,9 @@ int main(int argc, char* argv[]) {
         router.use(middleware::StaticMiddleware(SERVERROOT));
         legacyApp.use(router);
 
-        router = middleware::VHost("titan.home.vchrist.at:8080");
+        router = middleware::VHost("atlas.home.vchrist.at:8080");
         router.get("/", [] APPLICATION(req, res) {
-            res.send("Hello! I am VHOST titan.home.vchrist.at.");
+            res.send("Hello! I am VHOST atlas.home.vchrist.at.");
         });
         legacyApp.use(router);
 
@@ -72,8 +72,8 @@ int main(int argc, char* argv[]) {
 
             tlsApp.use(middleware::VHost("localhost:8088").use(getRouter()));
 
-            tlsApp.use(middleware::VHost("titan.home.vchrist.at:8088").get("/", [] APPLICATION(req, res) {
-                res.send("Hello! I am VHOST titan.home.vchrist.at.");
+            tlsApp.use(middleware::VHost("atlas.home.vchrist.at:8088").get("/", [] APPLICATION(req, res) {
+                res.send("Hello! I am VHOST atlas.home.vchrist.at.");
             }));
 
             tlsApp.use([] APPLICATION(req, res) {

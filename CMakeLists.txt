@@ -16,4 +16,8 @@ include(format)
 include(doxygen)
 include(uninstall)
 
+set(CPACK_GENERATOR "DEB")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Volker Christian") # required
+include(CPack)
+
 add_subdirectory(src)
