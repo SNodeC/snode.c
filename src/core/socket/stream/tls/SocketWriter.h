@@ -72,11 +72,11 @@ namespace core::socket::stream::tls {
                                     sslErr = ssl_err;
                                 });
                             ret = -1;
-                            errno = EAGAIN;
+                            errno = EINTR;
                             break;
                         case SSL_ERROR_WANT_WRITE:
                             ret = -1;
-                            errno = EAGAIN;
+                            errno = EINTR;
                             break;
                         case SSL_ERROR_ZERO_RETURN: // shutdown cleanly
                             ret = -1;               // on the write side this means a TCP broken pipe

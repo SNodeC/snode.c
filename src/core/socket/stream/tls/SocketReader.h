@@ -60,7 +60,7 @@ namespace core::socket::stream::tls {
                             break;
                         case SSL_ERROR_WANT_READ:
                             ret = 0;
-                            errno = EAGAIN;
+                            errno = EINTR;
                             break;
                         case SSL_ERROR_WANT_WRITE:
                             LOG(INFO) << "SSL/TLS start renegotiation on read";
@@ -76,7 +76,7 @@ namespace core::socket::stream::tls {
                                     sslErr = ssl_err;
                                 });
                             ret = 0;
-                            errno = EAGAIN;
+                            errno = EINTR;
                             break;
                         case SSL_ERROR_ZERO_RETURN: // shutdonw cleanly
                             ret = 0;                // On the read side propagate the zerro
@@ -84,10 +84,11 @@ namespace core::socket::stream::tls {
                         case SSL_ERROR_SYSCALL:
                             ret = 0;
                             break;
-                        default:
+                        default: {
                             int errnum = errno;
                             ssl_log("SSL/TLS read failed", ssl_err);
                             errno = errnum;
+                        }
                             ret = 0;
                             break;
                     }
