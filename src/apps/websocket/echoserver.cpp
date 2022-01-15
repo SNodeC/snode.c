@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
     legacy::in::WebApp legacyApp;
 
     legacyApp.get("/", [] MIDDLEWARE(req, res, next) {
-        if (req.url == "/") {
+        if (req.url == "/" || req.url == "/index.html") {
             req.url = "/wstest.html";
         }
 
@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
         tls::in::WebApp tlsApp({{"CertChain", SERVERCERTF}, {"CertChainKey", SERVERKEYF}, {"Password", KEYFPASS}});
 
         tlsApp.get("/", [] MIDDLEWARE(req, res, next) {
-            if (req.url == "/") {
+            if (req.url == "/" || req.url == "/index.html") {
                 req.url = "/wstest.html";
             }
 
