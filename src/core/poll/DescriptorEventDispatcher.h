@@ -25,12 +25,14 @@ namespace core {
     class EventReceiver;
     namespace poll {
         class PollFds;
-    }
+    } // namespace poll
 } // namespace core
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "utils/Timeval.h"
+
+#include <unordered_map>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -41,7 +43,7 @@ namespace core::poll {
         DescriptorEventDispatcher& operator=(const DescriptorEventDispatcher&) = delete;
 
     public:
-        DescriptorEventDispatcher(core::poll::PollFds& pollFds, short events);
+        DescriptorEventDispatcher(core::poll::PollFds& pollFds, short events, short revents);
 
     private:
         void modAdd(EventReceiver* eventReceiver) override;
@@ -52,11 +54,16 @@ namespace core::poll {
     public:
         int getInterestCount() const;
 
+        void dispatchActiveEvents(const utils::Timeval& currentTime);
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
 
     private:
         core::poll::PollFds& pollFds;
+
+        std::unordered_map<int, EventReceiver*, std::hash<int>> pollEvents; // map fd -> to EventReceiver;
+
         short events;
+        short revents;
     };
 
 } // namespace core::poll

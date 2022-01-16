@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(CORE_POLL_CPP EventDispatcher.cpp DescriptorEventDispatcher.cpp
+set(CORE_POLL_CPP DescriptorEventDispatcher.cpp EventDispatcher.cpp
                   TimerEventDispatcher.cpp
 )
 
-set(CORE_POLL_H EventDispatcher.h DescriptorEventDispatcher.h
+set(CORE_POLL_H DescriptorEventDispatcher.h EventDispatcher.h
                 TimerEventDispatcher.h
 )
 

@@ -31,7 +31,6 @@ namespace core {
 
 #include <cstdint> // for uint32_t
 #include <poll.h>
-#include <string> // for string
 #include <unordered_map>
 #include <vector>
 
@@ -39,37 +38,36 @@ namespace core {
 
 namespace core::poll {
 
+    struct PollFdIndex {
+        using pollfds_size_type = std::vector<pollfd>::size_type;
+
+        pollfds_size_type index; // cppcheck-suppress unusedStructMember
+        uint8_t refCount;        // cppcheck-suppress unusedStructMember
+    };
+
     class PollFds {
     public:
         using pollfds_size_type = std::vector<pollfd>::size_type;
-        PollFds();
+        explicit PollFds();
 
-        void add(core::EventReceiver* eventReceiver, short event);
-        void del(core::EventReceiver* eventReceiver, short event);
+        void add(std::unordered_map<int, EventReceiver*, std::hash<int>>& pollEvents, core::EventReceiver* eventReceiver, short event);
+        void del(std::unordered_map<int, EventReceiver*, std::hash<int>>& pollEvents, core::EventReceiver* eventReceiver, short event);
 
-    public:
-        void modOn(core::EventReceiver* eventReceiver, short event);
-        void modOff(core::EventReceiver* eventReceiver, short event);
-
-        void dispatch(const utils::Timeval& currentTime);
+        void modOn(std::unordered_map<int, EventReceiver*, std::hash<int>>& pollEvents, core::EventReceiver* eventReceiver, short event);
+        void modOff(std::unordered_map<int, EventReceiver*, std::hash<int>>& pollEvents, core::EventReceiver* eventReceiver, short event);
 
         void compress();
 
         pollfd* getEvents();
+
+        std::unordered_map<int, PollFdIndex>& getPollFdIndices();
+
         nfds_t getInterestCount() const;
 
-        void printStats(const std::string& what);
-
     private:
-        struct PollEvent {
-            explicit PollEvent(pollfds_size_type fds);
-
-            pollfds_size_type fds;
-            std::unordered_map<short, core::EventReceiver*> eventReceivers;
-        };
-
         std::vector<pollfd> pollfds;
-        std::unordered_map<int, PollEvent, std::hash<int>> pollEvents; // map fd -> index into pollFds;
+        std::unordered_map<int, PollFdIndex> pollFdIndices;
+
         uint32_t interestCount;
     };
 
@@ -96,7 +94,10 @@ namespace core::poll {
 
         void dispatchActiveEvents(int count, const utils::Timeval& currentTime);
 
+    public:
         core::poll::DescriptorEventDispatcher eventDispatcher[3];
+
+    private:
         core::poll::TimerEventDispatcher timerEventDispatcher;
 
         PollFds pollFds;

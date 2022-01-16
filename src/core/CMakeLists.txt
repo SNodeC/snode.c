@@ -4,6 +4,7 @@ set(CORE_CPP
     AcceptEventReceiver.cpp
     ConnectEventReceiver.cpp
     Descriptor.cpp
+    DescriptorEventDispatcher.cpp
     DynamicLoader.cpp
     EventLoop.cpp
     EventReceiver.cpp

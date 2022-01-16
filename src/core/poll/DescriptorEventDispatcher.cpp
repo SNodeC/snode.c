@@ -23,35 +23,66 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
+#include <ostream> // for dec, endl, hex
+#include <poll.h>  // for pollfd, POLLNVAL
 #include <utility> // for tuple_element<>::type
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::poll {
 
-    DescriptorEventDispatcher::DescriptorEventDispatcher(PollFds& pollFds, short events)
+    DescriptorEventDispatcher::DescriptorEventDispatcher(PollFds& pollFds, short events, short revents)
         : pollFds(pollFds)
-        , events(events) {
+        , events(events)
+        , revents(revents) {
     }
 
     void DescriptorEventDispatcher::modAdd(EventReceiver* eventReceiver) {
-        pollFds.add(eventReceiver, events);
+        pollFds.add(pollEvents, eventReceiver, events);
     }
 
     void DescriptorEventDispatcher::modDel(EventReceiver* eventReceiver) {
-        pollFds.del(eventReceiver, events);
+        pollFds.del(pollEvents, eventReceiver, events);
     }
 
     void DescriptorEventDispatcher::modOn(EventReceiver* eventReceiver) {
-        pollFds.modOn(eventReceiver, events);
+        pollFds.modOn(pollEvents, eventReceiver, events);
     }
 
     void DescriptorEventDispatcher::modOff(EventReceiver* eventReceiver) {
-        pollFds.modOff(eventReceiver, events);
+        pollFds.modOff(pollEvents, eventReceiver, events);
     }
 
     int DescriptorEventDispatcher::getInterestCount() const {
         return static_cast<int>(observedEventReceiver.size());
+    }
+
+    void DescriptorEventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
+        pollfd* pollfds = pollFds.getEvents();
+
+        std::unordered_map<int, PollFdIndex> pollFdsIndices = pollFds.getPollFdIndices();
+
+        for (auto& [fd, eventReceiver] : pollEvents) { // cppcheck-suppress unassignedVariable
+            pollfd& pollFd = pollfds[pollFdsIndices[fd].index];
+
+            short events = pollFd.events;
+            short revents = pollFd.revents;
+
+            if (revents != 0) {
+                if ((events & this->events) != 0 && (revents & this->revents) != 0) {
+                    if (!eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
+                        eventReceiver->dispatch(currentTime);
+                    }
+                }
+
+                if ((revents & POLLNVAL) != 0) {
+                    PLOG(ERROR) << "Poll revents countains POLLNVAL. This should never happen fd = " << pollFd.fd
+                                << ", revents = " << std::hex << revents << std::dec << std::endl;
+                }
+            }
+        }
     }
 
     void DescriptorEventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
