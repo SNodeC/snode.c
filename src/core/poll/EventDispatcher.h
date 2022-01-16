@@ -29,9 +29,9 @@ namespace core {
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <cstdint>
+#include <cstdint> // for uint32_t
 #include <poll.h>
-#include <string>
+#include <string> // for string
 #include <unordered_map>
 #include <vector>
 
@@ -88,12 +88,13 @@ namespace core::poll {
         void stop() override;
 
     private:
-        int getReceiverCount();
+        int getInterestCount();
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
 
         void observeEnabledEvents();
-        void dispatchActiveEvents(int count, const utils::Timeval& currentTime);
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
+
+        void dispatchActiveEvents(int count, const utils::Timeval& currentTime);
 
         core::poll::DescriptorEventDispatcher eventDispatcher[3];
         core::poll::TimerEventDispatcher timerEventDispatcher;

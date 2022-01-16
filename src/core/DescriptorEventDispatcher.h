@@ -21,17 +21,19 @@
 
 namespace core {
     class EventReceiver;
-    class EventDispatcher;
+    //    class EventDispatcher;
 } // namespace core
 
 namespace utils {
-    class Timeval;
+    //    class Timeval;
 } // namespace utils
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <list>
-#include <map>
+#include "utils/Timeval.h"
+
+#include <list> // IWYU pragma: export
+#include <map>  // IWYU pragma: export
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -45,15 +47,41 @@ namespace core {
         DescriptorEventDispatcher() = default;
 
     public:
-        virtual void enable(EventReceiver* eventReceiver) = 0;
-        virtual void disable(EventReceiver* eventReceiver) = 0;
-        virtual void suspend(EventReceiver* eventReceiver) = 0;
-        virtual void resume(EventReceiver* eventReceiver) = 0;
+        void enable(EventReceiver* eventReceiver);
+        void disable(EventReceiver* eventReceiver);
+        void suspend(EventReceiver* eventReceiver);
+        void resume(EventReceiver* eventReceiver);
 
-    private:
-        virtual unsigned long getEventCounter() const = 0;
+    protected:
+        virtual void modAdd(EventReceiver* eventReceiver) = 0;
+        virtual void modDel(EventReceiver* eventReceiver) = 0;
+        virtual void modOn(EventReceiver* eventReceiver) = 0;
+        virtual void modOff(EventReceiver* eventReceiver) = 0;
 
-        virtual void stop() = 0;
+    public:
+        void observeEnabledEvents();
+
+        void dispatchImmediateEvents(const utils::Timeval& currentTime);
+
+        utils::Timeval getNextTimeout(const utils::Timeval& currentTime) const;
+
+        void stop();
+
+    protected:
+        class EventReceiverList : public std::list<core::EventReceiver*> {
+        public:
+            using std::list<core::EventReceiver*>::begin;
+            using std::list<core::EventReceiver*>::end;
+            using std::list<core::EventReceiver*>::front;
+
+            bool contains(core::EventReceiver* descriptorEventReceiver) const;
+        };
+
+        std::map<int, EventReceiverList> enabledEventReceiver;
+        std::map<int, EventReceiverList> observedEventReceiver;
+        std::map<int, EventReceiverList> disabledEventReceiver;
+
+        unsigned long eventCounter = 0;
     };
 
 } // namespace core

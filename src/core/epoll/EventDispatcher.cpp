@@ -20,7 +20,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <algorithm> // for min, find
+#include <algorithm> // for min, max
 #include <cerrno>
 #include <climits>
 
@@ -61,11 +61,11 @@ namespace core::epoll {
         return eventDispatcher[dispType];
     }
 
-    int EventDispatcher::getReceiverCount() {
+    int EventDispatcher::getInterestCount() {
         int receiverCount = 0;
 
         for (const DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
-            receiverCount += eventDispatcher.getReceiverCount();
+            receiverCount += eventDispatcher.getInterestCount();
         }
 
         return receiverCount;
@@ -87,6 +87,12 @@ namespace core::epoll {
         }
     }
 
+    void EventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
+        for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
+            eventDispatcher.unobserveDisabledEvents(currentTime);
+        }
+    }
+
     void EventDispatcher::dispatchActiveEvents(int count, const utils::Timeval& currentTime) {
         for (int i = 0; i < count; i++) {
             if ((ePollEvents[i].events & EPOLLIN) != 0) {
@@ -99,18 +105,12 @@ namespace core::epoll {
         }
     }
 
-    void EventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
-        for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
-            eventDispatcher.unobserveDisabledEvents(currentTime);
-        }
-    }
-
     TickStatus EventDispatcher::dispatch(const utils::Timeval& tickTimeOut, bool stopped) {
         TickStatus tickStatus = TickStatus::SUCCESS;
 
         EventDispatcher::observeEnabledEvents();
 
-        int receiverCount = EventDispatcher::getReceiverCount();
+        int receiverCount = EventDispatcher::getInterestCount();
 
         utils::Timeval currentTime = utils::Timeval::currentTime();
 
@@ -129,6 +129,7 @@ namespace core::epoll {
                 currentTime = utils::Timeval::currentTime();
 
                 timerEventDispatcher.dispatchActiveEvents(currentTime);
+
                 EventDispatcher::dispatchActiveEvents(ret, currentTime);
                 EventDispatcher::unobserveDisabledEvents(currentTime);
             } else {

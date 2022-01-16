@@ -22,7 +22,7 @@
 #include "core/TickStatus.h" // IWYU pragma: export
 
 namespace core {
-    class EventLoop;
+    //    class EventLoop;
     class DescriptorEventDispatcher;
     class TimerEventDispatcher;
 } // namespace core
@@ -53,6 +53,16 @@ namespace core {
 
         virtual TickStatus dispatch(const utils::Timeval& tickTimeOut, bool stopped) = 0;
         virtual void stop() = 0;
+
+    protected:
+        void observeEnabledEvents();
+        void unobserveDisabledEvents(const utils::Timeval& currentTime);
+
+        utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
+        /*
+        core::DescriptorEventDispatcher& eventDispatcherrr[];
+        core::TimerEventDispatcher& timerEventDispatcherrr;
+        */
     };
 
 } // namespace core

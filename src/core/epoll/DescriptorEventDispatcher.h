@@ -30,8 +30,6 @@ namespace core {
 #include "utils/Timeval.h"
 
 #include <cstdint>
-#include <list>
-#include <map>
 #include <sys/epoll.h>
 #include <vector>
 
@@ -73,45 +71,23 @@ namespace core::epoll {
             uint32_t events;
         };
 
+        void modAdd(EventReceiver* eventReceiver) override;
+        void modDel(EventReceiver* eventReceiver) override;
+        void modOn(EventReceiver* eventReceiver) override;
+        void modOff(EventReceiver* eventReceiver) override;
+
     public:
         explicit DescriptorEventDispatcher(uint32_t events);
 
-        void enable(core::EventReceiver* eventReceiver) override;
-        void disable(core::EventReceiver* eventReceiver) override;
-        void suspend(core::EventReceiver* eventReceiver) override;
-        void resume(core::EventReceiver* eventReceiver) override;
-
-        int getReceiverCount() const;
+        int getInterestCount() const;
 
         int getEPFd() const;
 
-        utils::Timeval getNextTimeout(const utils::Timeval& currentTime) const;
-
-        void observeEnabledEvents();
         void dispatchActiveEvents(const utils::Timeval& currentTime);
-        void dispatchImmediateEvents(const utils::Timeval& currentTime);
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
-        void stop() override;
 
     private:
-        unsigned long getEventCounter() const override;
-
-        class EventReceiverList : public std::list<core::EventReceiver*> {
-        public:
-            using std::list<core::EventReceiver*>::begin;
-            using std::list<core::EventReceiver*>::end;
-            using std::list<core::EventReceiver*>::front;
-
-            bool contains(core::EventReceiver* descriptorEventReceiver) const;
-        };
-
-        std::map<int, EventReceiverList> enabledEventReceiver;
-        std::map<int, EventReceiverList> observedEventReceiver;
-        std::map<int, EventReceiverList> disabledEventReceiver;
-
         EPollEvents ePollEvents;
-
-        unsigned long eventCounter = 0;
     };
 
 } // namespace core::epoll

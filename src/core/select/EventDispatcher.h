@@ -44,12 +44,13 @@ namespace core::select {
         void stop() override;
 
     private:
-        int getMaxFd();
+        int getInterestCount();
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
 
         void observeEnabledEvents();
-        void dispatchActiveEvents(const utils::Timeval& currentTime);
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
+
+        void dispatchActiveEvents(const utils::Timeval& currentTime);
 
         core::select::DescriptorEventDispatcher eventDispatcher[3];
         core::select::TimerEventDispatcher timerEventDispatcher;

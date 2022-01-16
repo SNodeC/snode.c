@@ -24,10 +24,8 @@
 
 #include "log/Logger.h"
 
-#include <algorithm> // for find, min
 #include <cerrno>
-#include <type_traits> // for add_const<>::type
-#include <utility>     // for tuple_element<>::type, pair
+#include <utility> // for tuple_element<>::type
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -113,118 +111,32 @@ namespace core::epoll {
         VLOG(0) << "EPollEvents stats: Events = " << events << ", size = " << ePollEvents.size() << ", interest count = " << interestCount;
     }
 
-    bool DescriptorEventDispatcher::EventReceiverList::contains(core::EventReceiver* eventReceiver) const {
-        return std::find(begin(), end(), eventReceiver) != end();
-    }
-
     DescriptorEventDispatcher::DescriptorEventDispatcher(uint32_t events)
         : ePollEvents(events) {
     }
 
-    void DescriptorEventDispatcher::enable(core::EventReceiver* eventReceiver) {
-        int fd = eventReceiver->getRegisteredFd();
-
-        if (disabledEventReceiver.contains(fd) && disabledEventReceiver[fd].contains(eventReceiver)) {
-            // same tick as disable
-            disabledEventReceiver[fd].remove(eventReceiver);
-        } else if (!eventReceiver->isEnabled() &&
-                   (!enabledEventReceiver.contains(fd) || !enabledEventReceiver[fd].contains(eventReceiver))) {
-            // next tick as disable
-            enabledEventReceiver[fd].push_back(eventReceiver);
-        } else {
-            LOG(WARNING) << "EventReceiver double enable " << fd;
-        }
+    void DescriptorEventDispatcher::modAdd(EventReceiver* eventReceiver) {
+        ePollEvents.add(eventReceiver);
     }
 
-    void DescriptorEventDispatcher::disable(core::EventReceiver* eventReceiver) {
-        int fd = eventReceiver->getRegisteredFd();
-
-        if (enabledEventReceiver.contains(fd) && enabledEventReceiver[fd].contains(eventReceiver)) {
-            // same tick as enable
-            eventReceiver->disabled();
-            if (eventReceiver->getObservationCounter() > 0) {
-                enabledEventReceiver[fd].remove(eventReceiver);
-            }
-        } else if (eventReceiver->isEnabled() &&
-                   (!disabledEventReceiver.contains(fd) || !disabledEventReceiver[fd].contains(eventReceiver))) {
-            // next tick as enable
-            disabledEventReceiver[fd].push_back(eventReceiver);
-        } else {
-            LOG(WARNING) << "EventReceiver double disable " << fd;
-        }
+    void DescriptorEventDispatcher::modDel(EventReceiver* eventReceiver) {
+        ePollEvents.del(eventReceiver);
     }
 
-    void DescriptorEventDispatcher::suspend(core::EventReceiver* eventReceiver) {
-        int fd = eventReceiver->getRegisteredFd();
-
-        if (!eventReceiver->isSuspended()) {
-            if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
-                ePollEvents.modOff(eventReceiver);
-            }
-        } else {
-            LOG(WARNING) << "EventReceiver double suspend";
-        }
+    void DescriptorEventDispatcher::modOn(EventReceiver* eventReceiver) {
+        ePollEvents.modOn(eventReceiver);
     }
 
-    void DescriptorEventDispatcher::resume(core::EventReceiver* eventReceiver) {
-        int fd = eventReceiver->getRegisteredFd();
-
-        if (eventReceiver->isSuspended()) {
-            if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
-                ePollEvents.modOn(eventReceiver);
-            }
-        } else {
-            LOG(WARNING) << "EventReceiver double resume " << fd;
-        }
+    void DescriptorEventDispatcher::modOff(EventReceiver* eventReceiver) {
+        ePollEvents.modOff(eventReceiver);
     }
 
-    unsigned long DescriptorEventDispatcher::getEventCounter() const {
-        return eventCounter;
-    }
-
-    int DescriptorEventDispatcher::getReceiverCount() const {
+    int DescriptorEventDispatcher::getInterestCount() const {
         return static_cast<int>(observedEventReceiver.size());
     }
 
     int DescriptorEventDispatcher::getEPFd() const {
         return ePollEvents.getEPFd();
-    }
-
-    utils::Timeval DescriptorEventDispatcher::getNextTimeout(const utils::Timeval& currentTime) const {
-        utils::Timeval nextTimeout = core::EventReceiver::TIMEOUT::MAX;
-
-        for (const auto& [fd, eventReceivers] : observedEventReceiver) { // cppcheck-suppress unusedVariable
-            const core::EventReceiver* eventReceiver = eventReceivers.front();
-
-            if (eventReceiver->isEnabled()) {
-                if (!eventReceiver->isSuspended() && eventReceiver->continueImmediately()) {
-                    nextTimeout = 0;
-                } else {
-                    nextTimeout = std::min(eventReceiver->getTimeout(currentTime), nextTimeout);
-                }
-            } else {
-                nextTimeout = 0;
-            }
-        }
-
-        return nextTimeout;
-    }
-
-    void DescriptorEventDispatcher::observeEnabledEvents() {
-        for (const auto& [fd, eventReceivers] : enabledEventReceiver) { // cppcheck-suppress unassignedVariable
-            for (core::EventReceiver* eventReceiver : eventReceivers) {
-                if (eventReceiver->isEnabled()) {
-                    observedEventReceiver[fd].push_front(eventReceiver);
-                    ePollEvents.add(eventReceiver);
-                    if (eventReceiver->isSuspended()) {
-                        ePollEvents.modOff(eventReceiver);
-                    }
-                } else {
-                    eventReceiver->unobservedEvent();
-                }
-            }
-        }
-        enabledEventReceiver.clear();
     }
 
     void DescriptorEventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
@@ -239,18 +151,6 @@ namespace core::epoll {
         }
     }
 
-    void DescriptorEventDispatcher::dispatchImmediateEvents(const utils::Timeval& currentTime) {
-        for (const auto& [fd, eventReceivers] : observedEventReceiver) { // cppcheck-suppress unusedVariable
-            core::EventReceiver* eventReceiver = eventReceivers.front();
-            if (eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
-                eventCounter++;
-                eventReceiver->dispatch(currentTime);
-            } else if (eventReceiver->isEnabled()) {
-                eventReceiver->checkTimeout(currentTime);
-            }
-        }
-    }
-
     void DescriptorEventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
         bool doCompress = false;
 
@@ -258,13 +158,13 @@ namespace core::epoll {
             for (core::EventReceiver* eventReceiver : eventReceivers) {
                 observedEventReceiver[fd].remove(eventReceiver);
                 if (observedEventReceiver[fd].empty()) {
-                    ePollEvents.del(eventReceiver);
+                    modDel(eventReceiver);
                     observedEventReceiver.erase(fd);
                 } else if (!observedEventReceiver[fd].front()->isSuspended()) {
-                    ePollEvents.modOn(observedEventReceiver[fd].front());
+                    modOn(observedEventReceiver[fd].front());
                     observedEventReceiver[fd].front()->triggered(currentTime);
                 } else {
-                    ePollEvents.modOff(observedEventReceiver[fd].front());
+                    modOff(observedEventReceiver[fd].front());
                 }
                 eventReceiver->disabled();
                 if (eventReceiver->getObservationCounter() == 0) {
@@ -274,20 +174,10 @@ namespace core::epoll {
             }
         }
 
+        disabledEventReceiver.clear();
+
         if (doCompress) {
             ePollEvents.compress();
-        }
-
-        disabledEventReceiver.clear();
-    }
-
-    void DescriptorEventDispatcher::stop() {
-        for (const auto& [fd, eventReceivers] : observedEventReceiver) { // cppcheck-suppress unusedVariable
-            for (core::EventReceiver* eventReceiver : eventReceivers) {
-                if (eventReceiver->isEnabled()) {
-                    eventReceiver->terminate();
-                }
-            }
         }
     }
 

@@ -44,11 +44,11 @@ namespace core::select {
         return eventDispatcher[dispType];
     }
 
-    int EventDispatcher::getMaxFd() {
+    int EventDispatcher::getInterestCount() {
         int maxFd = -1;
 
         for (const DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
-            maxFd = std::max(eventDispatcher.getMaxFd(), maxFd);
+            maxFd = std::max(eventDispatcher.getInterestCount(), maxFd);
         }
 
         return maxFd;
@@ -70,15 +70,19 @@ namespace core::select {
         }
     }
 
+    void EventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
+        for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
+            eventDispatcher.unobserveDisabledEvents(currentTime);
+        }
+    }
+
     void EventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
         for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
             eventDispatcher.dispatchActiveEvents(currentTime);
         }
-    }
 
-    void EventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
         for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
-            eventDispatcher.unobserveDisabledEvents(currentTime);
+            eventDispatcher.dispatchImmediateEvents(currentTime);
         }
     }
 
@@ -87,21 +91,24 @@ namespace core::select {
 
         EventDispatcher::observeEnabledEvents();
 
-        int maxFd = EventDispatcher::getMaxFd();
+        int interestCount = EventDispatcher::getInterestCount();
 
         utils::Timeval currentTime = utils::Timeval::currentTime();
 
         utils::Timeval nextEventTimeout = EventDispatcher::getNextTimeout(currentTime);
         utils::Timeval nextTimerTimeout = timerEventDispatcher.getNextTimeout(currentTime);
 
-        if (maxFd >= 0 || (!timerEventDispatcher.empty() && !stopped)) {
+        if (interestCount >= 0 || (!timerEventDispatcher.empty() && !stopped)) {
             utils::Timeval nextTimeout = stopped ? nextEventTimeout : std::min(nextTimerTimeout, nextEventTimeout);
 
             nextTimeout = std::min(nextTimeout, tickTimeOut);
             nextTimeout = std::max(nextTimeout, utils::Timeval()); // In case nextEventTimeout is negativ
 
-            int ret = core::system::select(
-                maxFd + 1, &eventDispatcher[RD].getFdSet(), &eventDispatcher[WR].getFdSet(), &eventDispatcher[EX].getFdSet(), &nextTimeout);
+            int ret = core::system::select(interestCount + 1,
+                                           &eventDispatcher[RD].getFdSet(),
+                                           &eventDispatcher[WR].getFdSet(),
+                                           &eventDispatcher[EX].getFdSet(),
+                                           &nextTimeout);
 
             if (ret >= 0) {
                 currentTime = utils::Timeval::currentTime();

@@ -46,12 +46,13 @@ namespace core::epoll {
         void stop() override;
 
     private:
-        int getReceiverCount();
+        int getInterestCount();
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
 
         void observeEnabledEvents();
-        void dispatchActiveEvents(int count, const utils::Timeval& currentTime);
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
+
+        void dispatchActiveEvents(int count, const utils::Timeval& currentTime);
 
         core::epoll::DescriptorEventDispatcher eventDispatcher[3];
         core::epoll::TimerEventDispatcher timerEventDispatcher;

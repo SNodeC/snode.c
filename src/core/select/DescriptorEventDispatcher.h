@@ -30,9 +30,6 @@ namespace core {
 #include "core/system/select.h"
 #include "utils/Timeval.h"
 
-#include <list>
-#include <map>
-
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::select {
@@ -60,40 +57,21 @@ namespace core::select {
     public:
         DescriptorEventDispatcher() = default;
 
-        void enable(core::EventReceiver* eventReceiver) override;
-        void disable(core::EventReceiver* eventReceiver) override;
-        void suspend(core::EventReceiver* eventReceiver) override;
-        void resume(core::EventReceiver* eventReceiver) override;
+    private:
+        void modAdd(EventReceiver* eventReceiver) override;
+        void modDel(EventReceiver* eventReceiver) override;
+        void modOn(EventReceiver* eventReceiver) override;
+        void modOff(EventReceiver* eventReceiver) override;
 
-        int getMaxFd() const;
+    public:
+        int getInterestCount() const;
         fd_set& getFdSet();
 
-        utils::Timeval getNextTimeout(const utils::Timeval& currentTime) const;
-
-        void observeEnabledEvents();
         void dispatchActiveEvents(const utils::Timeval& currentTime);
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
-        void stop() override;
 
     private:
-        unsigned long getEventCounter() const override;
-
-        class EventReceiverList : public std::list<core::EventReceiver*> {
-        public:
-            using std::list<core::EventReceiver*>::begin;
-            using std::list<core::EventReceiver*>::end;
-            using std::list<core::EventReceiver*>::front;
-
-            bool contains(core::EventReceiver* descriptorEventReceiver) const;
-        };
-
-        std::map<int, EventReceiverList> enabledEventReceiver;
-        std::map<int, EventReceiverList> observedEventReceiver;
-        std::map<int, EventReceiverList> disabledEventReceiver;
-
         FdSet fdSet;
-
-        unsigned long eventCounter = 0;
     };
 
 } // namespace core::select

@@ -19,11 +19,12 @@
 #include "core/poll/EventDispatcher.h"
 
 #include "core/EventReceiver.h"
-#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <algorithm> // for min, find
+#include "log/Logger.h"
+
+#include <algorithm> // for min, max
 #include <cerrno>
 #include <compare> // for operator<, __synth3way_t, operator>=
 #include <iostream>
@@ -162,18 +163,21 @@ namespace core::poll {
                         eventReceiver->dispatch(currentTime);
                     }
                 }
+
                 if ((revents & POLLOUT) != 0) {
                     core::EventReceiver* eventReceiver = pollEvent.eventReceivers[POLLOUT];
                     if (!eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
                         eventReceiver->dispatch(currentTime);
                     }
                 }
+
                 if ((revents & POLLPRI) != 0) {
                     core::EventReceiver* eventReceiver = pollEvent.eventReceivers[POLLPRI];
                     if (!eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
                         eventReceiver->dispatch(currentTime);
                     }
                 }
+
                 if ((revents & POLLNVAL) != 0) {
                     PLOG(ERROR) << "Poll revents countains POLLNVAL. This should never happen fd = " << pollFd.fd
                                 << ", revents = " << std::hex << revents << std::dec << std::endl;
@@ -317,10 +321,10 @@ namespace core::poll {
         return timerEventDispatcher;
     }
 
-    int EventDispatcher::getReceiverCount() {
+    int EventDispatcher::getInterestCount() {
         int receiverCount = std::accumulate(
             eventDispatcher, eventDispatcher + 3, 0, [](int count, DescriptorEventDispatcher& descriptorEventDispatcher) -> int {
-                return count + descriptorEventDispatcher.getReceiverCount();
+                return count + descriptorEventDispatcher.getInterestCount();
             });
 
         return receiverCount;
@@ -336,56 +340,26 @@ namespace core::poll {
         return nextTimeout;
     }
 
-    // #define DEBUG_STATS
-
     void EventDispatcher::observeEnabledEvents() {
-#ifdef DEBUG_STATS
-        pollFds.printStats("Bevore observed");
-#endif
-
         for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
             eventDispatcher.observeEnabledEvents();
         }
+    }
 
-#ifdef DEBUG_STATS
-        pollFds.printStats("After observed");
-#endif
+    void EventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
+        for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
+            eventDispatcher.unobserveDisabledEvents(currentTime);
+        }
     }
 
     void EventDispatcher::dispatchActiveEvents(int count, const utils::Timeval& currentTime) {
-#ifdef DEBUG_STATS
-        pollFds.printStats("Bevore dispatchd");
-#endif
-
         if (count > 0) {
             pollFds.dispatch(currentTime);
         }
 
-#ifdef DEBUG_STATS
-        pollFds.printStats("Midd dispatchd");
-#endif
-
         for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
             eventDispatcher.dispatchImmediateEvents(currentTime);
         }
-
-#ifdef DEBUG_STATS
-        pollFds.printStats("After dispatchd");
-#endif
-    }
-
-    void EventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
-#ifdef DEBUG_STATS
-        pollFds.printStats("Bevore unobserve");
-#endif
-
-        for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
-            eventDispatcher.unobserveDisabledEvents(currentTime);
-        }
-
-#ifdef DEBUG_STATS
-        pollFds.printStats("After unobserve");
-#endif
     }
 
     TickStatus EventDispatcher::dispatch(const utils::Timeval& tickTimeOut, bool stopped) {
@@ -393,7 +367,7 @@ namespace core::poll {
 
         EventDispatcher::observeEnabledEvents();
 
-        int receiverCount = EventDispatcher::getReceiverCount();
+        int receiverCount = EventDispatcher::getInterestCount();
 
         utils::Timeval currentTime = utils::Timeval::currentTime();
 

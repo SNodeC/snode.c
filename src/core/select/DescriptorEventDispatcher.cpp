@@ -19,11 +19,9 @@
 #include "core/select/DescriptorEventDispatcher.h"
 
 #include "core/EventReceiver.h"
-#include "log/Logger.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <algorithm>   // for find, min
 #include <iterator>    // for reverse_iterator
 #include <type_traits> // for add_const<>::type
 #include <utility>     // for tuple_element<>::type, pair
@@ -59,72 +57,27 @@ namespace core::select {
         return active;
     }
 
-    bool DescriptorEventDispatcher::EventReceiverList::contains(core::EventReceiver* eventReceiver) const {
-        return std::find(begin(), end(), eventReceiver) != end();
-    }
-
-    void DescriptorEventDispatcher::enable(core::EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::modAdd(EventReceiver* eventReceiver) {
         int fd = eventReceiver->getRegisteredFd();
-
-        if (disabledEventReceiver.contains(fd) && disabledEventReceiver[fd].contains(eventReceiver)) {
-            // same tick as disable
-            disabledEventReceiver[fd].remove(eventReceiver);
-        } else if (!eventReceiver->isEnabled() &&
-                   (!enabledEventReceiver.contains(fd) || !enabledEventReceiver[fd].contains(eventReceiver))) {
-            // next tick as disable
-            enabledEventReceiver[fd].push_back(eventReceiver);
-        } else {
-            LOG(WARNING) << "EventReceiver double enable " << fd;
-        }
+        fdSet.set(fd);
     }
 
-    void DescriptorEventDispatcher::disable(core::EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::modDel(EventReceiver* eventReceiver) {
         int fd = eventReceiver->getRegisteredFd();
-
-        if (enabledEventReceiver.contains(fd) && enabledEventReceiver[fd].contains(eventReceiver)) {
-            // same tick as enable
-            eventReceiver->disabled();
-            if (eventReceiver->getObservationCounter() > 0) {
-                enabledEventReceiver[fd].remove(eventReceiver);
-            }
-        } else if (eventReceiver->isEnabled() &&
-                   (!disabledEventReceiver.contains(fd) || !disabledEventReceiver[fd].contains(eventReceiver))) {
-            // next tick as enable
-            disabledEventReceiver[fd].push_back(eventReceiver);
-        } else {
-            LOG(WARNING) << "EventReceiver double disable " << fd;
-        }
+        fdSet.clr(fd);
     }
 
-    void DescriptorEventDispatcher::suspend(core::EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::modOn(EventReceiver* eventReceiver) {
         int fd = eventReceiver->getRegisteredFd();
-
-        if (!eventReceiver->isSuspended()) {
-            if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
-                fdSet.clr(fd);
-            }
-        } else {
-            LOG(WARNING) << "EventReceiver double suspend";
-        }
+        fdSet.set(fd);
     }
 
-    void DescriptorEventDispatcher::resume(core::EventReceiver* eventReceiver) {
+    void DescriptorEventDispatcher::modOff(EventReceiver* eventReceiver) {
         int fd = eventReceiver->getRegisteredFd();
-
-        if (eventReceiver->isSuspended()) {
-            if (observedEventReceiver.contains(fd) && observedEventReceiver[fd].front() == eventReceiver) {
-                fdSet.set(fd);
-            }
-        } else {
-            LOG(WARNING) << "EventReceiver double resume " << fd;
-        }
+        fdSet.clr(fd);
     }
 
-    unsigned long DescriptorEventDispatcher::getEventCounter() const {
-        return eventCounter;
-    }
-
-    int DescriptorEventDispatcher::getMaxFd() const {
+    int DescriptorEventDispatcher::getInterestCount() const {
         int maxFd = -1;
 
         if (!observedEventReceiver.empty()) {
@@ -138,82 +91,42 @@ namespace core::select {
         return fdSet.get();
     }
 
-    utils::Timeval DescriptorEventDispatcher::getNextTimeout(const utils::Timeval& currentTime) const {
-        utils::Timeval nextTimeout = core::EventReceiver::TIMEOUT::MAX;
-
-        for (const auto& [fd, eventReceivers] : observedEventReceiver) { // cppcheck-suppress unusedVariable
-            const core::EventReceiver* eventReceiver = eventReceivers.front();
-
-            if (eventReceiver->isEnabled()) {
-                if (!eventReceiver->isSuspended() && eventReceiver->continueImmediately()) {
-                    nextTimeout = 0;
-                } else {
-                    nextTimeout = std::min(eventReceiver->getTimeout(currentTime), nextTimeout);
-                }
-            } else {
-                nextTimeout = 0;
-            }
-        }
-
-        return nextTimeout;
-    }
-
-    void DescriptorEventDispatcher::observeEnabledEvents() {
-        for (const auto& [fd, eventReceivers] : enabledEventReceiver) {
-            for (core::EventReceiver* eventReceiver : eventReceivers) {
-                if (eventReceiver->isEnabled()) {
-                    observedEventReceiver[fd].push_front(eventReceiver);
-                    if (!eventReceiver->isSuspended()) {
-                        fdSet.set(fd);
-                    }
-                } else {
-                    eventReceiver->unobservedEvent();
-                }
-            }
-        }
-        enabledEventReceiver.clear();
-    }
-
     void DescriptorEventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
         for (const auto& [fd, eventReceivers] : observedEventReceiver) {
             core::EventReceiver* eventReceiver = eventReceivers.front();
-            if ((fdSet.isSet(fd) || eventReceiver->continueImmediately()) && !eventReceiver->isSuspended()) {
+            if (fdSet.isSet(fd) && !eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
                 eventCounter++;
                 eventReceiver->dispatch(currentTime);
-            } else if (eventReceiver->isEnabled()) {
-                eventReceiver->checkTimeout(currentTime);
             }
         }
     }
 
     void DescriptorEventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
+        bool doCompress = false;
+
         for (const auto& [fd, eventReceivers] : disabledEventReceiver) {
             for (core::EventReceiver* eventReceiver : eventReceivers) {
                 observedEventReceiver[fd].remove(eventReceiver);
-                if (observedEventReceiver[fd].empty() || observedEventReceiver[fd].front()->isSuspended()) {
-                    if (observedEventReceiver[fd].empty()) {
-                        observedEventReceiver.erase(fd);
-                    }
-                } else {
-                    fdSet.set(fd);
+                if (observedEventReceiver[fd].empty()) {
+                    modDel(eventReceiver);
+                    observedEventReceiver.erase(fd);
+                } else if (!observedEventReceiver[fd].front()->isSuspended()) {
+                    modOn(observedEventReceiver[fd].front());
                     observedEventReceiver[fd].front()->triggered(currentTime);
+                } else {
+                    modOff(observedEventReceiver[fd].front());
                 }
                 eventReceiver->disabled();
                 if (eventReceiver->getObservationCounter() == 0) {
                     eventReceiver->unobservedEvent();
+                    doCompress = true;
                 }
             }
         }
-        disabledEventReceiver.clear();
-    }
 
-    void DescriptorEventDispatcher::stop() {
-        for (const auto& [fd, eventReceivers] : observedEventReceiver) { // cppcheck-suppress unusedVariable
-            for (core::EventReceiver* eventReceiver : eventReceivers) {
-                if (eventReceiver->isEnabled()) {
-                    eventReceiver->terminate();
-                }
-            }
+        disabledEventReceiver.clear();
+
+        if (doCompress) {
         }
     }
 
