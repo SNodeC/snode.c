@@ -23,6 +23,7 @@
 #include <algorithm> // for min, max
 #include <cerrno>
 #include <climits>
+#include <numeric>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -62,11 +63,10 @@ namespace core::epoll {
     }
 
     int EventDispatcher::getInterestCount() {
-        int receiverCount = 0;
-
-        for (const DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
-            receiverCount += eventDispatcher.getInterestCount();
-        }
+        int receiverCount = std::accumulate(
+            eventDispatcher, eventDispatcher + 3, 0, [](int count, DescriptorEventDispatcher& descriptorEventDispatcher) -> int {
+                return count + descriptorEventDispatcher.getInterestCount();
+            });
 
         return receiverCount;
     }

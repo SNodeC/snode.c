@@ -67,19 +67,9 @@ namespace core::poll {
         for (auto& [fd, eventReceiver] : pollEvents) { // cppcheck-suppress unassignedVariable
             pollfd& pollFd = pollfds[pollFdsIndices[fd].index];
 
-            short events = pollFd.events;
-            short revents = pollFd.revents;
-
-            if (revents != 0) {
-                if ((events & this->events) != 0 && (revents & this->revents) != 0) {
-                    if (!eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
-                        eventReceiver->dispatch(currentTime);
-                    }
-                }
-
-                if ((revents & POLLNVAL) != 0) {
-                    PLOG(ERROR) << "Poll revents countains POLLNVAL. This should never happen fd = " << pollFd.fd
-                                << ", revents = " << std::hex << revents << std::dec << std::endl;
+            if ((pollFd.events & events) != 0 && (pollFd.revents & this->revents) != 0) {
+                if (!eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
+                    eventReceiver->dispatch(currentTime);
                 }
             }
         }

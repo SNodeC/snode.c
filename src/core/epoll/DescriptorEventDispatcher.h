@@ -46,13 +46,13 @@ namespace core::epoll {
         public:
             explicit EPollEvents(uint32_t event);
 
-            void add(core::EventReceiver* eventReceiver);
-            void del(core::EventReceiver* eventReceiver);
-
         private:
             void mod(core::EventReceiver* eventReceiver, uint32_t events);
 
         public:
+            void add(core::EventReceiver* eventReceiver);
+            void del(core::EventReceiver* eventReceiver);
+
             void modOn(core::EventReceiver* eventReceiver);
             void modOff(core::EventReceiver* eventReceiver);
 
@@ -60,7 +60,9 @@ namespace core::epoll {
 
             int getEPFd() const;
             epoll_event* getEvents();
+
             int getMaxEvents() const;
+
             void printStats();
 
         private:
