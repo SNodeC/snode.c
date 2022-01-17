@@ -23,8 +23,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #include <cerrno>
 #include <cstddef> // for std::size_t
 #include <functional>

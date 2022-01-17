@@ -76,7 +76,7 @@ namespace core::poll {
     }
 
     void DescriptorEventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
-        bool doCompress = false;
+        std::map<int, EventReceiverList> unobservedEventReceiver;
 
         for (const auto& [fd, eventReceivers] : disabledEventReceiver) {
             for (core::EventReceiver* eventReceiver : eventReceivers) {
@@ -92,15 +92,20 @@ namespace core::poll {
                 }
                 eventReceiver->disabled();
                 if (eventReceiver->getObservationCounter() == 0) {
-                    eventReceiver->unobservedEvent();
-                    doCompress = true;
+                    unobservedEventReceiver[fd].push_back(eventReceiver);
                 }
             }
         }
 
         disabledEventReceiver.clear();
 
-        if (doCompress) {
+        if (!unobservedEventReceiver.empty()) {
+            for (const auto& [fd, eventReceivers] : unobservedEventReceiver) {
+                for (EventReceiver* eventReceiver : eventReceivers) {
+                    eventReceiver->unobservedEvent();
+                }
+            }
+
             pollFds.compress();
         }
     }

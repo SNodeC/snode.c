@@ -73,7 +73,9 @@ namespace core::file {
     }
 
     void FileReader::sinkDisconnected() {
-        ReadEventReceiver::disable();
+        if (ReadEventReceiver::isEnabled()) {
+            ReadEventReceiver::disable();
+        }
     }
 
     void FileReader::unobservedEvent() {
