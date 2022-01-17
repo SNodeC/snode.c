@@ -1,6 +1,6 @@
 /*
  * snode.c - a slim toolkit for network communication
- * Copyright (C) 2020, 2021 Volker Christian <me@vchrist.at>
+ * Copyright (C) 2020, 2021, 2022 Volker Christian <me@vchrist.at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
             [](web::http::client::Request& request) -> void {
                 VLOG(0) << "OnRequestBegin";
 
-                request.set("Sec-WebSocket-Protocol", "echo");
+                request.set("Sec-WebSocket-Protocol", "test, echo");
 
                 request.upgrade("/ws/", "websocket");
             },
