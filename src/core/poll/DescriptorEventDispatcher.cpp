@@ -69,6 +69,7 @@ namespace core::poll {
 
             if ((pollFd.events & events) != 0 && (pollFd.revents & this->revents) != 0) {
                 if (!eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
+                    eventCounter++;
                     eventReceiver->dispatch(currentTime);
                 }
             }
