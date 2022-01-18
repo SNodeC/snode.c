@@ -37,8 +37,6 @@ namespace core::select {
         ~EventDispatcher() = default;
 
     private:
-        int getMaxFd();
-
         int multiplex(utils::Timeval& tickTimeOut) override;
         void dispatchActiveEvents(int count, const utils::Timeval& currentTime) override;
 

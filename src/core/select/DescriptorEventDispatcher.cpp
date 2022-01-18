@@ -81,15 +81,6 @@ namespace core::select {
         fdSet.clr(fd);
     }
 
-    int DescriptorEventDispatcher::getInterestCount() const {
-        int maxFd = -1;
-
-        if (!observedEventReceiver.empty()) {
-            maxFd = observedEventReceiver.rbegin()->first;
-        }
-
-        return maxFd;
-    }
     void DescriptorEventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
         for (const auto& [fd, eventReceivers] : observedEventReceiver) {
             core::EventReceiver* eventReceiver = eventReceivers.front();

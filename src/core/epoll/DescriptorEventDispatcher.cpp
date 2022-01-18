@@ -104,11 +104,8 @@ namespace core::epoll {
         return ePollEvents.data();
     }
 
-    int DescriptorEventDispatcher::EPollEvents::getMaxEvents() const {
+    int DescriptorEventDispatcher::EPollEvents::getInterestCount() const {
         return static_cast<int>(interestCount);
-    }
-    void DescriptorEventDispatcher::EPollEvents::printStats() {
-        VLOG(0) << "EPollEvents stats: Events = " << events << ", size = " << ePollEvents.size() << ", interest count = " << interestCount;
     }
 
     DescriptorEventDispatcher::DescriptorEventDispatcher(int& epfd, uint32_t events)
@@ -131,12 +128,8 @@ namespace core::epoll {
         ePollEvents.modOff(eventReceiver);
     }
 
-    int DescriptorEventDispatcher::getInterestCount() const {
-        return static_cast<int>(observedEventReceiver.size());
-    }
-
     void DescriptorEventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
-        int count = epoll_wait(ePollEvents.getEPFd(), ePollEvents.getEvents(), ePollEvents.getMaxEvents(), 0);
+        int count = epoll_wait(ePollEvents.getEPFd(), ePollEvents.getEvents(), ePollEvents.getInterestCount(), 0);
 
         for (int i = 0; i < count; i++) {
             core::EventReceiver* eventReceiver = static_cast<core::EventReceiver*>(ePollEvents.getEvents()[i].data.ptr);

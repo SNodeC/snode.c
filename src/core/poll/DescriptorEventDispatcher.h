@@ -51,8 +51,6 @@ namespace core::poll {
         void modOn(EventReceiver* eventReceiver) override;
         void modOff(EventReceiver* eventReceiver) override;
 
-        int getInterestCount() const override;
-
         void dispatchActiveEvents(const utils::Timeval& currentTime) override;
         void finishTick() override;
 

@@ -87,7 +87,7 @@ namespace core::poll {
                 pollFdIndices[fd].index = static_cast<PollFdIndex::pollfds_size_type>(std::distance(pollfds.begin(), itPollFd));
                 pollFdIndices[fd].refCount++;
             } else {
-                if (itPollEvent->second == nullptr) {
+                if (itPollEvent->second == nullptr) { // This is why we need pollEvents - maybe there is a way to detect it otherwise.
                     pollFdIndices[fd].refCount++;
                 }
                 itPollEvent->second = eventReceiver;

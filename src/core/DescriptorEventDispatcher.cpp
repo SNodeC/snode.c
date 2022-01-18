@@ -159,6 +159,20 @@ namespace core {
     void DescriptorEventDispatcher::finishTick() {
     }
 
+    int DescriptorEventDispatcher::getObservedEventReceiverCount() const {
+        return static_cast<int>(observedEventReceiver.size());
+    }
+
+    int DescriptorEventDispatcher::getMaxFd() const {
+        int maxFd = -1;
+
+        if (!observedEventReceiver.empty()) {
+            maxFd = observedEventReceiver.rbegin()->first;
+        }
+
+        return maxFd;
+    }
+
     utils::Timeval DescriptorEventDispatcher::getNextTimeout(const utils::Timeval& currentTime) const {
         utils::Timeval nextTimeout = core::EventReceiver::TIMEOUT::MAX;
 

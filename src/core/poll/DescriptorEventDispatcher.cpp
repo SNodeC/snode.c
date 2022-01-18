@@ -51,10 +51,6 @@ namespace core::poll {
         pollFds.modOff(pollEvents, eventReceiver, events);
     }
 
-    int DescriptorEventDispatcher::getInterestCount() const {
-        return static_cast<int>(observedEventReceiver.size());
-    }
-
     void DescriptorEventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
         pollfd* pollfds = pollFds.getEvents();
 

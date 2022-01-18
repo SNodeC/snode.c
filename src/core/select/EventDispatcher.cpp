@@ -40,24 +40,15 @@ namespace core::select {
                                 new core::select::DescriptorEventDispatcher(fdSets[EX])) {
     }
 
-    int EventDispatcher::getMaxFd() {
-        int maxFd = -1;
-
-        std::for_each(
-            descriptorEventDispatcher, descriptorEventDispatcher + 3, [&maxFd](core::DescriptorEventDispatcher* eventDispatcher) -> void {
-                maxFd = std::max(eventDispatcher->getInterestCount(), maxFd);
-            });
-
-        return maxFd;
-    }
-
     int EventDispatcher::multiplex(utils::Timeval& tickTimeOut) {
         return core::system::select(getMaxFd() + 1, &fdSets[RD].get(), &fdSets[WR].get(), &fdSets[EX].get(), &tickTimeOut);
     }
 
-    void EventDispatcher::dispatchActiveEvents([[maybe_unused]] int count, const utils::Timeval& currentTime) {
-        for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
-            eventDispatcher->dispatchActiveEvents(currentTime);
+    void EventDispatcher::dispatchActiveEvents(int count, const utils::Timeval& currentTime) {
+        if (count > 0) {
+            for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
+                eventDispatcher->dispatchActiveEvents(currentTime);
+            }
         }
 
         for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {

@@ -57,8 +57,11 @@ namespace core {
         TickStatus dispatch(const utils::Timeval& tickTimeOut, bool stopped);
         void stop();
 
+    protected:
+        int getObservedEventReceiverCount();
+        int getMaxFd();
+
     private:
-        int getInterestCount();
         virtual int multiplex(utils::Timeval& tickTimeOut) = 0;
 
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime);

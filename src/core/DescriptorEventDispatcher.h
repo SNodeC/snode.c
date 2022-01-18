@@ -60,7 +60,9 @@ namespace core {
         void unobserveDisabledEvents(const utils::Timeval& currentTime);
         virtual void finishTick();
 
-        virtual int getInterestCount() const = 0;
+        int getObservedEventReceiverCount() const;
+        int getMaxFd() const;
+
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime) const;
 
         void stop();

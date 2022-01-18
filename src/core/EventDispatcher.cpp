@@ -55,15 +55,22 @@ namespace core {
         return *timerEventDispatcher;
     }
 
-    int EventDispatcher::getInterestCount() {
-        int receiverCount = std::accumulate(descriptorEventDispatcher,
-                                            descriptorEventDispatcher + 3,
-                                            0,
-                                            [](int count, core::DescriptorEventDispatcher* descriptorEventDispatcher) -> int {
-                                                return count + descriptorEventDispatcher->getInterestCount();
-                                            });
+    int EventDispatcher::getObservedEventReceiverCount() {
+        return std::accumulate(descriptorEventDispatcher,
+                               descriptorEventDispatcher + 3,
+                               0,
+                               [](int count, core::DescriptorEventDispatcher* descriptorEventDispatcher) -> int {
+                                   return count + descriptorEventDispatcher->getObservedEventReceiverCount();
+                               });
+    }
 
-        return receiverCount;
+    int EventDispatcher::getMaxFd() {
+        return std::accumulate(descriptorEventDispatcher,
+                               descriptorEventDispatcher + 3,
+                               -1,
+                               [](int count, core::DescriptorEventDispatcher* descriptorEventDispatcher) -> int {
+                                   return std::max(descriptorEventDispatcher->getMaxFd(), count);
+                               });
     }
 
     TickStatus EventDispatcher::dispatch(const utils::Timeval& tickTimeOut, bool stopped) {
@@ -71,14 +78,14 @@ namespace core {
 
         EventDispatcher::observeEnabledEvents();
 
-        int receiverCount = getInterestCount();
+        int observedEventReceiverCount = getObservedEventReceiverCount();
 
         utils::Timeval currentTime = utils::Timeval::currentTime();
 
         utils::Timeval nextEventTimeout = getNextTimeout(currentTime);
         utils::Timeval nextTimerTimeout = timerEventDispatcher->getNextTimeout(currentTime);
 
-        if (receiverCount > 0 || (!timerEventDispatcher->empty() && !stopped)) {
+        if (observedEventReceiverCount > 0 || (!timerEventDispatcher->empty() && !stopped)) {
             utils::Timeval nextTimeout = stopped ? nextEventTimeout : std::min(nextTimerTimeout, nextEventTimeout);
 
             nextTimeout = std::min(nextTimeout, tickTimeOut);
