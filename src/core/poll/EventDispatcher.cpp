@@ -88,13 +88,17 @@ namespace core::poll {
         std::unordered_map<int, PollFdIndex>::iterator itPollFdIndex = pollFdIndices.find(fd);
 
         if (itPollFdIndex != pollFdIndices.end()) {
-            pollfds[itPollFdIndex->second.index].events &= static_cast<short>(~event); // tilde promotes to int
+            unsigned long index = itPollFdIndex->second.index;
+
+            pollfds[index].events &= static_cast<short>(~event); // tilde promotes to int
 
             itPollFdIndex->second.events &= static_cast<short>(~event); // tilde promotes to int
 
             if (itPollFdIndex->second.events == 0) {
-                pollfds[itPollFdIndex->second.index].fd = -1; // Compress will keep track of that descriptor
+                pollfds[index].fd = -1; // Compress will keep track of that descriptor
+
                 pollFdIndices.erase(itPollFdIndex);
+
                 interestCount--;
             }
         }
@@ -116,8 +120,10 @@ namespace core::poll {
         std::unordered_map<int, PollFdIndex>::iterator itPollFdIndex = pollFdIndices.find(fd);
 
         if (itPollFdIndex != pollFdIndices.end()) {
-            pollfds[itPollFdIndex->second.index].events &= static_cast<short>(~event);
-            pollfds[itPollFdIndex->second.index].revents = 0;
+            pollfd& pollFd = pollfds[itPollFdIndex->second.index];
+
+            pollFd.events &= static_cast<short>(~event);
+            pollFd.revents = 0;
         }
     }
 

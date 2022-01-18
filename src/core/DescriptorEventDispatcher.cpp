@@ -145,7 +145,7 @@ namespace core {
         disabledEventReceiver.clear();
 
         if (!unobservedEventReceiver.empty()) {
-            for (const auto& [fd, eventReceivers] : unobservedEventReceiver) {
+            for (const auto& [fd, eventReceivers] : unobservedEventReceiver) { // cppcheck-suppress unusedVariable
                 for (EventReceiver* eventReceiver : eventReceivers) {
                     eventReceiver->unobservedEvent();
                 }
