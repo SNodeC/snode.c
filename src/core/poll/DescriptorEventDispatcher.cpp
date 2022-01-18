@@ -36,19 +36,19 @@ namespace core::poll {
     }
 
     void DescriptorEventDispatcher::modAdd(EventReceiver* eventReceiver) {
-        pollFds.add(pollEvents, eventReceiver, events);
+        pollFds.add(eventReceiver, events);
     }
 
     void DescriptorEventDispatcher::modDel(EventReceiver* eventReceiver) {
-        pollFds.del(pollEvents, eventReceiver, events);
+        pollFds.del(eventReceiver, events);
     }
 
     void DescriptorEventDispatcher::modOn(EventReceiver* eventReceiver) {
-        pollFds.modOn(pollEvents, eventReceiver, events);
+        pollFds.modOn(eventReceiver, events);
     }
 
     void DescriptorEventDispatcher::modOff(EventReceiver* eventReceiver) {
-        pollFds.modOff(pollEvents, eventReceiver, events);
+        pollFds.modOff(eventReceiver, events);
     }
 
     void DescriptorEventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
@@ -56,10 +56,11 @@ namespace core::poll {
 
         std::unordered_map<int, PollFdIndex> pollFdsIndices = pollFds.getPollFdIndices();
 
-        for (auto& [fd, eventReceiver] : pollEvents) { // cppcheck-suppress unassignedVariable
+        for (auto& [fd, eventReceivers] : observedEventReceiver) { // cppcheck-suppress unassignedVariable
             pollfd& pollFd = pollfds[pollFdsIndices[fd].index];
 
             if ((pollFd.events & events) != 0 && (pollFd.revents & this->revents) != 0) {
+                EventReceiver* eventReceiver = eventReceivers.front();
                 if (!eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
                     eventCounter++;
                     eventReceiver->dispatch(currentTime);

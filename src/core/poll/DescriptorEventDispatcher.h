@@ -54,8 +54,6 @@ namespace core::poll {
         void dispatchActiveEvents(const utils::Timeval& currentTime) override;
         void finishTick() override;
 
-        std::unordered_map<int, EventReceiver*, std::hash<int>> pollEvents; // map fd -> to EventReceiver;
-
         core::poll::PollFds& pollFds;
         short events;
         short revents;

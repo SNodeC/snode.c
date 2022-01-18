@@ -40,7 +40,7 @@ namespace core::poll {
         using pollfds_size_type = std::vector<pollfd>::size_type;
 
         pollfds_size_type index; // cppcheck-suppress unusedStructMember
-        uint8_t refCount;        // cppcheck-suppress unusedStructMember
+        short events;            // cppcheck-suppress unusedStructMember
     };
 
     class PollFds {
@@ -48,11 +48,11 @@ namespace core::poll {
         using pollfds_size_type = std::vector<pollfd>::size_type;
         explicit PollFds();
 
-        void add(std::unordered_map<int, EventReceiver*, std::hash<int>>& pollEvents, core::EventReceiver* eventReceiver, short event);
-        void del(std::unordered_map<int, EventReceiver*, std::hash<int>>& pollEvents, core::EventReceiver* eventReceiver, short event);
+        void add(core::EventReceiver* eventReceiver, short event);
+        void del(core::EventReceiver* eventReceiver, short event);
 
-        void modOn(std::unordered_map<int, EventReceiver*, std::hash<int>>& pollEvents, core::EventReceiver* eventReceiver, short event);
-        void modOff(std::unordered_map<int, EventReceiver*, std::hash<int>>& pollEvents, core::EventReceiver* eventReceiver, short event);
+        void modOn(core::EventReceiver* eventReceiver, short event);
+        void modOff(core::EventReceiver* eventReceiver, short event);
 
         void compress();
 

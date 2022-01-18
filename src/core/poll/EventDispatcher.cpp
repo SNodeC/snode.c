@@ -23,6 +23,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "log/Logger.h"
+
 #include <algorithm> // for min, max
 #include <compare>   // for operator<, __synth3way_t, operator>=
 #include <iterator>  // for distance
@@ -50,20 +52,17 @@ namespace core::poll {
         pollfds.resize(1, pollFd);
     }
 
-    void PollFds::add(std::unordered_map<int, EventReceiver*, std::hash<int>>& pollEvents, EventReceiver* eventReceiver, short event) {
+    void PollFds::add(EventReceiver* eventReceiver, short event) {
         int fd = eventReceiver->getRegisteredFd();
 
-        std::vector<pollfd>::iterator itPollFd = std::find_if(pollfds.begin(), pollfds.end(), [fd](const pollfd& pollFd) {
-            return fd == pollFd.fd;
-        });
+        std::unordered_map<int, PollFdIndex>::iterator itPollFdIndex = pollFdIndices.find(fd);
 
-        if (itPollFd == pollfds.end()) {
+        if (itPollFdIndex == pollFdIndices.end()) {
             pollfds[interestCount].events = event;
             pollfds[interestCount].fd = fd;
 
-            pollEvents.insert({fd, eventReceiver});
             pollFdIndices[fd].index = interestCount;
-            pollFdIndices[fd].refCount++;
+            pollFdIndices[fd].events = event;
 
             interestCount++;
 
@@ -77,70 +76,48 @@ namespace core::poll {
                 pollfds.resize(pollfds.size() * 2, pollFd);
             }
         } else {
-            itPollFd->events |= event;
-            itPollFd->fd = fd;
+            pollfds[itPollFdIndex->second.index].events |= event;
 
-            std::unordered_map<int, EventReceiver*>::iterator itPollEvent = pollEvents.find(fd);
-
-            if (itPollEvent == pollEvents.end()) {
-                pollEvents.insert({fd, eventReceiver});
-                pollFdIndices[fd].index = static_cast<PollFdIndex::pollfds_size_type>(std::distance(pollfds.begin(), itPollFd));
-                pollFdIndices[fd].refCount++;
-            } else {
-                if (itPollEvent->second == nullptr) { // This is why we need pollEvents - maybe there is a way to detect it otherwise.
-                    pollFdIndices[fd].refCount++;
-                }
-                itPollEvent->second = eventReceiver;
-            }
+            itPollFdIndex->second.events |= event;
         }
     }
 
-    // #define DEBUG_DEL
-
-    void PollFds::del(std::unordered_map<int, EventReceiver*, std::hash<int>>& pollEvents, EventReceiver* eventReceiver, short event) {
+    void PollFds::del(EventReceiver* eventReceiver, short event) {
         int fd = eventReceiver->getRegisteredFd();
 
-        std::unordered_map<int, EventReceiver*>::iterator it = pollEvents.find(fd);
+        std::unordered_map<int, PollFdIndex>::iterator itPollFdIndex = pollFdIndices.find(fd);
 
-        if (it != pollEvents.end()) {
-            pollfd& pollFd = pollfds[pollFdIndices[fd].index];
-            pollFd.events &= static_cast<short>(~event); // tilde promotes to int
+        if (itPollFdIndex != pollFdIndices.end()) {
+            pollfds[itPollFdIndex->second.index].events &= static_cast<short>(~event); // tilde promotes to int
 
-            it->second = nullptr;
-            pollFdIndices[fd].refCount--;
+            itPollFdIndex->second.events &= static_cast<short>(~event); // tilde promotes to int
 
-            pollEvents.erase(fd);
-
-            if (pollFdIndices[fd].refCount == 0) {
-                pollFdIndices.erase(fd);
-                pollFd.fd = -1; // Compress will keep track of that descriptor
+            if (itPollFdIndex->second.events == 0) {
+                pollfds[itPollFdIndex->second.index].fd = -1; // Compress will keep track of that descriptor
+                pollFdIndices.erase(itPollFdIndex);
                 interestCount--;
             }
         }
     }
 
-    void PollFds::modOn(std::unordered_map<int, EventReceiver*, std::hash<int>>& pollEvents, EventReceiver* eventReceiver, short event) {
+    void PollFds::modOn(EventReceiver* eventReceiver, short event) {
         int fd = eventReceiver->getRegisteredFd();
 
-        std::unordered_map<int, EventReceiver*>::iterator it = pollEvents.find(fd);
+        std::unordered_map<int, PollFdIndex>::iterator itPollFdIndex = pollFdIndices.find(fd);
 
-        if (it != pollEvents.end()) {
-            it->second = eventReceiver;
-
-            pollfd& pollFd = pollfds[pollFdIndices[fd].index];
-            pollFd.events |= event;
+        if (itPollFdIndex != pollFdIndices.end()) {
+            pollfds[itPollFdIndex->second.index].events |= event;
         }
     }
 
-    void PollFds::modOff(std::unordered_map<int, EventReceiver*, std::hash<int>>& pollEvents, EventReceiver* eventReceiver, short event) {
+    void PollFds::modOff(EventReceiver* eventReceiver, short event) {
         int fd = eventReceiver->getRegisteredFd();
 
-        std::unordered_map<int, EventReceiver*>::iterator it = pollEvents.find(fd);
+        std::unordered_map<int, PollFdIndex>::iterator itPollFdIndex = pollFdIndices.find(fd);
 
-        if (it != pollEvents.end()) {
-            pollfd& pollFd = pollfds[pollFdIndices[fd].index];
-            pollFd.events &= static_cast<short>(~event);
-            pollFd.revents = 0;
+        if (itPollFdIndex != pollFdIndices.end()) {
+            pollfds[itPollFdIndex->second.index].events &= static_cast<short>(~event);
+            pollfds[itPollFdIndex->second.index].revents = 0;
         }
     }
 
