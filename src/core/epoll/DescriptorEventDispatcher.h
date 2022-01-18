@@ -44,7 +44,7 @@ namespace core::epoll {
     private:
         class EPollEvents {
         public:
-            explicit EPollEvents(uint32_t event);
+            explicit EPollEvents(int& epfd, uint32_t event);
 
         private:
             void mod(core::EventReceiver* eventReceiver, uint32_t events);
@@ -60,33 +60,31 @@ namespace core::epoll {
 
             int getEPFd() const;
             epoll_event* getEvents();
-
             int getMaxEvents() const;
 
             void printStats();
 
         private:
-            int epfd;
+            int& epfd;
+            uint32_t events;
+
             std::vector<epoll_event> ePollEvents;
             uint32_t interestCount;
-
-            uint32_t events;
         };
 
+    public:
+        explicit DescriptorEventDispatcher(int& epfd, uint32_t events);
+
+    private:
         void modAdd(EventReceiver* eventReceiver) override;
         void modDel(EventReceiver* eventReceiver) override;
         void modOn(EventReceiver* eventReceiver) override;
         void modOff(EventReceiver* eventReceiver) override;
 
-    public:
-        explicit DescriptorEventDispatcher(uint32_t events);
+        int getInterestCount() const override;
 
-        int getInterestCount() const;
-
-        int getEPFd() const;
-
-        void dispatchActiveEvents(const utils::Timeval& currentTime);
-        void unobserveDisabledEvents(const utils::Timeval& currentTime);
+        void dispatchActiveEvents(const utils::Timeval& currentTime) override;
+        void finishTick() override;
 
     private:
         EPollEvents ePollEvents;

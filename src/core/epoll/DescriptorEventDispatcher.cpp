@@ -25,14 +25,14 @@
 #include "log/Logger.h"
 
 #include <cerrno>
-#include <utility> // for tuple_element<>::type
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core::epoll {
 
-    DescriptorEventDispatcher::EPollEvents::EPollEvents(uint32_t events)
-        : events(events) {
+    DescriptorEventDispatcher::EPollEvents::EPollEvents(int& epfd, uint32_t events)
+        : epfd(epfd)
+        , events(events) {
         epfd = epoll_create1(EPOLL_CLOEXEC);
         interestCount = 0;
         ePollEvents.resize(1);
@@ -111,8 +111,8 @@ namespace core::epoll {
         VLOG(0) << "EPollEvents stats: Events = " << events << ", size = " << ePollEvents.size() << ", interest count = " << interestCount;
     }
 
-    DescriptorEventDispatcher::DescriptorEventDispatcher(uint32_t events)
-        : ePollEvents(events) {
+    DescriptorEventDispatcher::DescriptorEventDispatcher(int& epfd, uint32_t events)
+        : ePollEvents(epfd, events) {
     }
 
     void DescriptorEventDispatcher::modAdd(EventReceiver* eventReceiver) {
@@ -135,10 +135,6 @@ namespace core::epoll {
         return static_cast<int>(observedEventReceiver.size());
     }
 
-    int DescriptorEventDispatcher::getEPFd() const {
-        return ePollEvents.getEPFd();
-    }
-
     void DescriptorEventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
         int count = epoll_wait(ePollEvents.getEPFd(), ePollEvents.getEvents(), ePollEvents.getMaxEvents(), 0);
 
@@ -151,39 +147,8 @@ namespace core::epoll {
         }
     }
 
-    void DescriptorEventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
-        std::map<int, EventReceiverList> unobservedEventReceiver;
-
-        for (const auto& [fd, eventReceivers] : disabledEventReceiver) {
-            for (core::EventReceiver* eventReceiver : eventReceivers) {
-                observedEventReceiver[fd].remove(eventReceiver);
-                if (observedEventReceiver[fd].empty()) {
-                    modDel(eventReceiver);
-                    observedEventReceiver.erase(fd);
-                } else if (!observedEventReceiver[fd].front()->isSuspended()) {
-                    modOn(observedEventReceiver[fd].front());
-                    observedEventReceiver[fd].front()->triggered(currentTime);
-                } else {
-                    modOff(observedEventReceiver[fd].front());
-                }
-                eventReceiver->disabled();
-                if (eventReceiver->getObservationCounter() == 0) {
-                    unobservedEventReceiver[fd].push_back(eventReceiver);
-                }
-            }
-        }
-
-        disabledEventReceiver.clear();
-
-        if (!unobservedEventReceiver.empty()) {
-            for (const auto& [fd, eventReceivers] : unobservedEventReceiver) {
-                for (EventReceiver* eventReceiver : eventReceivers) {
-                    eventReceiver->unobservedEvent();
-                }
-            }
-
-            ePollEvents.compress();
-        }
+    void core::epoll::DescriptorEventDispatcher::finishTick() {
+        ePollEvents.compress();
     }
 
 } // namespace core::epoll

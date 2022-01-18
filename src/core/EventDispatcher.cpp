@@ -18,55 +18,130 @@
 
 #include "core/EventDispatcher.h"
 
-// #include "core/DescriptorEventDispatcher.h"
+#include "core/DescriptorEventDispatcher.h"
+#include "core/EventReceiver.h"
+#include "core/TimerEventDispatcher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-// #include <climits>
+#include <algorithm> // for min, max
+#include <cerrno>    // for EINTR, errno
+#include <numeric>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 namespace core {
 
-    /*
-        void EventDispatcher::observeEnabledEvents() {
-            for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
-                eventDispatcher.observeEnabledEvents();
-            }
+    core::EventDispatcher::EventDispatcher(DescriptorEventDispatcher* const readDescriptorEventDispatcher,
+                                           DescriptorEventDispatcher* const writeDescriptorEventDispatcher,
+                                           DescriptorEventDispatcher* const exceptionDescriptorEventDispatcher,
+                                           TimerEventDispatcher* const timerEventDispatcher)
+        : descriptorEventDispatcher{readDescriptorEventDispatcher, writeDescriptorEventDispatcher, exceptionDescriptorEventDispatcher}
+        , timerEventDispatcher(timerEventDispatcher) {
+    }
+
+    EventDispatcher::~EventDispatcher() {
+        for (int i = 0; i < 3; i++) {
+            delete descriptorEventDispatcher[i];
         }
 
-        void EventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
-            for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
-                eventDispatcher.unobserveDisabledEvents(currentTime);
-            }
-        }
+        delete timerEventDispatcher;
+    }
 
-        utils::Timeval EventDispatcher::getNextTimeout(const utils::Timeval& currentTime) {
-            utils::Timeval nextTimeout = {LONG_MAX, 0};
+    core::DescriptorEventDispatcher& EventDispatcher::getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE dispType) {
+        return *descriptorEventDispatcher[dispType];
+    }
 
-            for (const DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
-                nextTimeout = std::min(eventDispatcher.getNextTimeout(currentTime), nextTimeout);
-            }
+    core::TimerEventDispatcher& EventDispatcher::getTimerEventDispatcher() {
+        return *timerEventDispatcher;
+    }
 
-            return nextTimeout;
-        }
+    int EventDispatcher::getInterestCount() {
+        int receiverCount = std::accumulate(descriptorEventDispatcher,
+                                            descriptorEventDispatcher + 3,
+                                            0,
+                                            [](int count, core::DescriptorEventDispatcher* descriptorEventDispatcher) -> int {
+                                                return count + descriptorEventDispatcher->getInterestCount();
+                                            });
 
-        void EventDispatcher::stop() {
-            core::TickStatus tickStatus;
+        return receiverCount;
+    }
 
-            do {
-                for (DescriptorEventDispatcher& eventDispatcher : eventDispatcher) {
-                    eventDispatcher.stop();
+    TickStatus EventDispatcher::dispatch(const utils::Timeval& tickTimeOut, bool stopped) {
+        TickStatus tickStatus = TickStatus::SUCCESS;
+
+        EventDispatcher::observeEnabledEvents();
+
+        int receiverCount = getInterestCount();
+
+        utils::Timeval currentTime = utils::Timeval::currentTime();
+
+        utils::Timeval nextEventTimeout = getNextTimeout(currentTime);
+        utils::Timeval nextTimerTimeout = timerEventDispatcher->getNextTimeout(currentTime);
+
+        if (receiverCount > 0 || (!timerEventDispatcher->empty() && !stopped)) {
+            utils::Timeval nextTimeout = stopped ? nextEventTimeout : std::min(nextTimerTimeout, nextEventTimeout);
+
+            nextTimeout = std::min(nextTimeout, tickTimeOut);
+            nextTimeout = std::max(nextTimeout, utils::Timeval()); // In case nextEventTimeout is negativ
+
+            int ret = multiplex(nextTimeout);
+
+            if (ret >= 0) {
+                currentTime = utils::Timeval::currentTime();
+
+                timerEventDispatcher->dispatchActiveEvents(currentTime);
+
+                dispatchActiveEvents(ret, currentTime);
+                unobserveDisabledEvents(currentTime);
+            } else {
+                if (errno != EINTR) {
+                    tickStatus = TickStatus::ERROR;
                 }
-
-                tickStatus = dispatch(2, true);
-            } while (tickStatus == TickStatus::SUCCESS);
-
-            do {
-                timerEventDispatcher.stop();
-                tickStatus = dispatch(0, false);
-            } while (tickStatus == TickStatus::SUCCESS);
+            }
+        } else {
+            tickStatus = TickStatus::NO_OBSERVER;
         }
-    */
+
+        return tickStatus;
+    }
+
+    void EventDispatcher::stop() {
+        core::TickStatus tickStatus;
+
+        do {
+            for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
+                eventDispatcher->stop();
+            }
+
+            tickStatus = dispatch(2, true);
+        } while (tickStatus == TickStatus::SUCCESS);
+
+        do {
+            timerEventDispatcher->stop();
+            tickStatus = dispatch(0, false);
+        } while (tickStatus == TickStatus::SUCCESS);
+    }
+
+    utils::Timeval EventDispatcher::getNextTimeout(const utils::Timeval& currentTime) {
+        utils::Timeval nextTimeout = core::EventReceiver::TIMEOUT::MAX;
+
+        for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
+            nextTimeout = std::min(eventDispatcher->getNextTimeout(currentTime), nextTimeout);
+        }
+        return nextTimeout;
+    }
+
+    void EventDispatcher::observeEnabledEvents() {
+        for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
+            eventDispatcher->observeEnabledEvents();
+        }
+    }
+
+    void EventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
+        for (core::DescriptorEventDispatcher* const eventDispatcher : descriptorEventDispatcher) {
+            eventDispatcher->unobserveDisabledEvents(currentTime);
+        }
+    }
 
 } // namespace core

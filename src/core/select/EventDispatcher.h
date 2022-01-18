@@ -34,26 +34,16 @@ namespace core::select {
         EventDispatcher& operator=(const EventDispatcher&) = delete;
 
     public:
-        EventDispatcher() = default;
+        EventDispatcher();
         ~EventDispatcher() = default;
 
-        core::DescriptorEventDispatcher& getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE dispType) override;
-        core::TimerEventDispatcher& getTimerEventDispatcher() override;
-
-        TickStatus dispatch(const utils::Timeval& tickTimeOut, bool stopped) override;
-        void stop() override;
-
     private:
-        int getInterestCount();
-        utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
+        int getMaxFd();
 
-        void observeEnabledEvents();
-        void unobserveDisabledEvents(const utils::Timeval& currentTime);
+        int multiplex(utils::Timeval& tickTimeOut) override;
+        void dispatchActiveEvents(int count, const utils::Timeval& currentTime) override;
 
-        void dispatchActiveEvents(const utils::Timeval& currentTime);
-
-        core::select::DescriptorEventDispatcher eventDispatcher[3];
-        core::select::TimerEventDispatcher timerEventDispatcher;
+        FdSet fdSets[3];
     };
 
 } // namespace core::select

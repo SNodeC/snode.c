@@ -20,7 +20,6 @@
 #define CORE_POLL_EVENTDISPATCHER_H
 
 #include "core/EventDispatcher.h"
-#include "core/poll/DescriptorEventDispatcher.h"
 #include "core/poll/TimerEventDispatcher.h"
 
 namespace core {
@@ -79,63 +78,14 @@ namespace core::poll {
         EventDispatcher();
         ~EventDispatcher() = default;
 
-        core::DescriptorEventDispatcher& getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE dispType) override;
-        core::TimerEventDispatcher& getTimerEventDispatcher() override;
-
-        TickStatus dispatch(const utils::Timeval& tickTimeOut, bool stopped) override;
-        void stop() override;
+    private:
+        int multiplex(utils::Timeval& tickTimeOut) override;
+        void dispatchActiveEvents(int count, const utils::Timeval& currentTime) override;
 
     private:
-        int getInterestCount();
-        utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
-
-        void observeEnabledEvents();
-        void unobserveDisabledEvents(const utils::Timeval& currentTime);
-
-        void dispatchActiveEvents(int count, const utils::Timeval& currentTime);
-
-    public:
-        core::poll::DescriptorEventDispatcher eventDispatcher[3];
-
-    private:
-        core::poll::TimerEventDispatcher timerEventDispatcher;
-
         PollFds pollFds;
     };
 
 } // namespace core::poll
 
 #endif // CORE_POLL_EVENTDISPATCHER_H
-
-#ifdef NOBLOCK
-
-/* Event types that can be polled for.  These bits may be set in `events'
-   to indicate the interesting event types; they will appear in `revents'
-   to indicate the status of the file descriptor.  */
-#define POLLIN 0x001  /* There is data to read.  */
-#define POLLPRI 0x002 /* There is urgent data to read.  */
-#define POLLOUT 0x004 /* Writing now will not block.  */
-
-#if defined __USE_XOPEN || defined __USE_XOPEN2K8
-/* These values are defined in XPG4.2.  */
-#define POLLRDNORM 0x040 /* Normal data may be read.  */
-#define POLLRDBAND 0x080 /* Priority data may be read.  */
-#define POLLWRNORM 0x100 /* Writing now will not block.  */
-#define POLLWRBAND 0x200 /* Priority data may be written.  */
-#endif
-
-#ifdef __USE_GNU
-/* These are extensions for Linux.  */
-#define POLLMSG 0x400
-#define POLLREMOVE 0x1000
-#define POLLRDHUP 0x2000
-#endif
-
-/* Event types always implicitly polled for.  These bits need not be set in
-   `events', but they will appear in `revents' to indicate the status of
-   the file descriptor.  */
-#define POLLERR 0x008  /* Error condition.  */
-#define POLLHUP 0x010  /* Hung up.  */
-#define POLLNVAL 0x020 /* Invalid polling request.  */
-
-#endif

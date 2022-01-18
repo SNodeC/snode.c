@@ -51,17 +51,14 @@ namespace core::poll {
         void modOn(EventReceiver* eventReceiver) override;
         void modOff(EventReceiver* eventReceiver) override;
 
-    public:
-        int getInterestCount() const;
+        int getInterestCount() const override;
 
-        void dispatchActiveEvents(const utils::Timeval& currentTime);
-        void unobserveDisabledEvents(const utils::Timeval& currentTime);
-
-    private:
-        core::poll::PollFds& pollFds;
+        void dispatchActiveEvents(const utils::Timeval& currentTime) override;
+        void finishTick() override;
 
         std::unordered_map<int, EventReceiver*, std::hash<int>> pollEvents; // map fd -> to EventReceiver;
 
+        core::poll::PollFds& pollFds;
         short events;
         short revents;
     };

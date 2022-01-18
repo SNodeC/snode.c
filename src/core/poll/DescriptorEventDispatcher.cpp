@@ -23,8 +23,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <poll.h>  // for pollfd, POLLNVAL
-#include <utility> // for tuple_element<>::type
+#include <poll.h> // for pollfd, POLLNVAL
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -73,39 +72,8 @@ namespace core::poll {
         }
     }
 
-    void DescriptorEventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
-        std::map<int, EventReceiverList> unobservedEventReceiver;
-
-        for (const auto& [fd, eventReceivers] : disabledEventReceiver) {
-            for (core::EventReceiver* eventReceiver : eventReceivers) {
-                observedEventReceiver[fd].remove(eventReceiver);
-                if (observedEventReceiver[fd].empty()) {
-                    modDel(eventReceiver);
-                    observedEventReceiver.erase(fd);
-                } else if (!observedEventReceiver[fd].front()->isSuspended()) {
-                    modOn(observedEventReceiver[fd].front());
-                    observedEventReceiver[fd].front()->triggered(currentTime);
-                } else {
-                    modOff(observedEventReceiver[fd].front());
-                }
-                eventReceiver->disabled();
-                if (eventReceiver->getObservationCounter() == 0) {
-                    unobservedEventReceiver[fd].push_back(eventReceiver);
-                }
-            }
-        }
-
-        disabledEventReceiver.clear();
-
-        if (!unobservedEventReceiver.empty()) {
-            for (const auto& [fd, eventReceivers] : unobservedEventReceiver) {
-                for (EventReceiver* eventReceiver : eventReceivers) {
-                    eventReceiver->unobservedEvent();
-                }
-            }
-
-            pollFds.compress();
-        }
+    void core::poll::DescriptorEventDispatcher::finishTick() {
+        pollFds.compress();
     }
 
 } // namespace core::poll

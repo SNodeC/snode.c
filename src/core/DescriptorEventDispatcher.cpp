@@ -122,6 +122,43 @@ namespace core {
         }
     }
 
+    void DescriptorEventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
+        for (const auto& [fd, eventReceivers] : disabledEventReceiver) {
+            for (core::EventReceiver* eventReceiver : eventReceivers) {
+                observedEventReceiver[fd].remove(eventReceiver);
+                if (observedEventReceiver[fd].empty()) {
+                    modDel(eventReceiver);
+                    observedEventReceiver.erase(fd);
+                } else if (!observedEventReceiver[fd].front()->isSuspended()) {
+                    modOn(observedEventReceiver[fd].front());
+                    observedEventReceiver[fd].front()->triggered(currentTime);
+                } else {
+                    modOff(observedEventReceiver[fd].front());
+                }
+                eventReceiver->disabled();
+                if (eventReceiver->getObservationCounter() == 0) {
+                    unobservedEventReceiver[fd].push_back(eventReceiver);
+                }
+            }
+        }
+
+        disabledEventReceiver.clear();
+
+        if (!unobservedEventReceiver.empty()) {
+            for (const auto& [fd, eventReceivers] : unobservedEventReceiver) {
+                for (EventReceiver* eventReceiver : eventReceivers) {
+                    eventReceiver->unobservedEvent();
+                }
+            }
+            unobservedEventReceiver.clear();
+
+            finishTick();
+        }
+    }
+
+    void DescriptorEventDispatcher::finishTick() {
+    }
+
     utils::Timeval DescriptorEventDispatcher::getNextTimeout(const utils::Timeval& currentTime) const {
         utils::Timeval nextTimeout = core::EventReceiver::TIMEOUT::MAX;
 

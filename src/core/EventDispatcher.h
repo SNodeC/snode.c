@@ -42,27 +42,37 @@ namespace core {
         EventDispatcher& operator=(const EventDispatcher&) = delete;
 
     protected:
-        EventDispatcher() = default;
-        ~EventDispatcher() = default;
+        EventDispatcher(core::DescriptorEventDispatcher* const readDescriptorEventDispatcher,
+                        core::DescriptorEventDispatcher* const writeDescriptorEventDispatcher,
+                        core::DescriptorEventDispatcher* const exceptionDescriptorEventDispatcher,
+                        core::TimerEventDispatcher* const timerEventDispatcher);
+
+        ~EventDispatcher();
 
     public:
         enum DISP_TYPE { RD = 0, WR = 1, EX = 2 };
 
-        virtual DescriptorEventDispatcher& getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE dispType) = 0;
-        virtual TimerEventDispatcher& getTimerEventDispatcher() = 0;
+        DescriptorEventDispatcher& getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE dispType);
+        TimerEventDispatcher& getTimerEventDispatcher();
 
-        virtual TickStatus dispatch(const utils::Timeval& tickTimeOut, bool stopped) = 0;
-        virtual void stop() = 0;
+        TickStatus dispatch(const utils::Timeval& tickTimeOut, bool stopped);
+        void stop();
 
-    protected:
-        void observeEnabledEvents();
-        void unobserveDisabledEvents(const utils::Timeval& currentTime);
+    private:
+        int getInterestCount();
+        virtual int multiplex(utils::Timeval& tickTimeOut) = 0;
 
         utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
-        /*
-        core::DescriptorEventDispatcher& eventDispatcherrr[];
-        core::TimerEventDispatcher& timerEventDispatcherrr;
-        */
+
+        void observeEnabledEvents();
+        virtual void dispatchActiveEvents(int count, const utils::Timeval& currentTime) = 0;
+        void unobserveDisabledEvents(const utils::Timeval& currentTime);
+
+    protected:
+        core::DescriptorEventDispatcher* const descriptorEventDispatcher[3];
+
+    private:
+        core::TimerEventDispatcher* const timerEventDispatcher;
     };
 
 } // namespace core

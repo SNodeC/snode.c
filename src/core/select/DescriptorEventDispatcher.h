@@ -34,28 +34,27 @@ namespace core {
 
 namespace core::select {
 
+    class FdSet {
+    public:
+        FdSet();
+
+        void set(int fd);
+        void clr(int fd);
+        int isSet(int fd) const;
+        void zero();
+        fd_set& get();
+
+    protected:
+        fd_set registered;
+        fd_set active;
+    };
+
     class DescriptorEventDispatcher : public core::DescriptorEventDispatcher {
         DescriptorEventDispatcher(const DescriptorEventDispatcher&) = delete;
         DescriptorEventDispatcher& operator=(const DescriptorEventDispatcher&) = delete;
 
-    private:
-        class FdSet {
-        public:
-            FdSet();
-
-            void set(int fd);
-            void clr(int fd);
-            int isSet(int fd) const;
-            void zero();
-            fd_set& get();
-
-        protected:
-            fd_set registered;
-            fd_set active;
-        };
-
     public:
-        DescriptorEventDispatcher() = default;
+        explicit DescriptorEventDispatcher(FdSet& fdSet);
 
     private:
         void modAdd(EventReceiver* eventReceiver) override;
@@ -63,15 +62,11 @@ namespace core::select {
         void modOn(EventReceiver* eventReceiver) override;
         void modOff(EventReceiver* eventReceiver) override;
 
-    public:
-        int getInterestCount() const;
-        fd_set& getFdSet();
+        int getInterestCount() const override;
 
-        void dispatchActiveEvents(const utils::Timeval& currentTime);
-        void unobserveDisabledEvents(const utils::Timeval& currentTime);
+        void dispatchActiveEvents(const utils::Timeval& currentTime) override;
 
-    private:
-        FdSet fdSet;
+        FdSet& fdSet;
     };
 
 } // namespace core::select

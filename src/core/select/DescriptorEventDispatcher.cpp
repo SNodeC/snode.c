@@ -30,31 +30,35 @@
 
 namespace core::select {
 
-    DescriptorEventDispatcher::FdSet::FdSet() {
+    FdSet::FdSet() {
         zero();
     }
 
-    void DescriptorEventDispatcher::FdSet::set(int fd) {
+    void FdSet::set(int fd) {
         FD_SET(fd, &registered);
     }
 
-    void DescriptorEventDispatcher::FdSet::clr(int fd) {
+    void FdSet::clr(int fd) {
         FD_CLR(fd, &registered);
         FD_CLR(fd, &active);
     }
 
-    int DescriptorEventDispatcher::FdSet::isSet(int fd) const {
+    int FdSet::isSet(int fd) const {
         return FD_ISSET(fd, &active);
     }
 
-    void DescriptorEventDispatcher::FdSet::zero() {
+    void FdSet::zero() {
         FD_ZERO(&registered);
         FD_ZERO(&active);
     }
 
-    fd_set& DescriptorEventDispatcher::FdSet::get() {
+    fd_set& FdSet::get() {
         active = registered;
         return active;
+    }
+
+    DescriptorEventDispatcher::DescriptorEventDispatcher(FdSet& fdSet)
+        : fdSet(fdSet) {
     }
 
     void DescriptorEventDispatcher::modAdd(EventReceiver* eventReceiver) {
@@ -86,50 +90,12 @@ namespace core::select {
 
         return maxFd;
     }
-
-    fd_set& DescriptorEventDispatcher::getFdSet() {
-        return fdSet.get();
-    }
-
     void DescriptorEventDispatcher::dispatchActiveEvents(const utils::Timeval& currentTime) {
         for (const auto& [fd, eventReceivers] : observedEventReceiver) {
             core::EventReceiver* eventReceiver = eventReceivers.front();
             if (fdSet.isSet(fd) && !eventReceiver->continueImmediately() && !eventReceiver->isSuspended()) {
                 eventCounter++;
                 eventReceiver->dispatch(currentTime);
-            }
-        }
-    }
-
-    void DescriptorEventDispatcher::unobserveDisabledEvents(const utils::Timeval& currentTime) {
-        std::map<int, EventReceiverList> unobservedEventReceiver;
-
-        for (const auto& [fd, eventReceivers] : disabledEventReceiver) {
-            for (core::EventReceiver* eventReceiver : eventReceivers) {
-                observedEventReceiver[fd].remove(eventReceiver);
-                if (observedEventReceiver[fd].empty()) {
-                    modDel(eventReceiver);
-                    observedEventReceiver.erase(fd);
-                } else if (!observedEventReceiver[fd].front()->isSuspended()) {
-                    modOn(observedEventReceiver[fd].front());
-                    observedEventReceiver[fd].front()->triggered(currentTime);
-                } else {
-                    modOff(observedEventReceiver[fd].front());
-                }
-                eventReceiver->disabled();
-                if (eventReceiver->getObservationCounter() == 0) {
-                    unobservedEventReceiver[fd].push_back(eventReceiver);
-                }
-            }
-        }
-
-        disabledEventReceiver.clear();
-
-        if (!unobservedEventReceiver.empty()) {
-            for (const auto& [fd, eventReceivers] : unobservedEventReceiver) {
-                for (EventReceiver* eventReceiver : eventReceivers) {
-                    eventReceiver->unobservedEvent();
-                }
             }
         }
     }

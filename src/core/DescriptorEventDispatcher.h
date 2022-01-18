@@ -47,25 +47,29 @@ namespace core {
         DescriptorEventDispatcher() = default;
 
     public:
+        virtual ~DescriptorEventDispatcher() = default;
+
         void enable(EventReceiver* eventReceiver);
         void disable(EventReceiver* eventReceiver);
         void suspend(EventReceiver* eventReceiver);
         void resume(EventReceiver* eventReceiver);
+
+        void observeEnabledEvents();
+        virtual void dispatchActiveEvents(const utils::Timeval& currentTime) = 0;
+        void dispatchImmediateEvents(const utils::Timeval& currentTime);
+        void unobserveDisabledEvents(const utils::Timeval& currentTime);
+        virtual void finishTick();
+
+        virtual int getInterestCount() const = 0;
+        utils::Timeval getNextTimeout(const utils::Timeval& currentTime) const;
+
+        void stop();
 
     protected:
         virtual void modAdd(EventReceiver* eventReceiver) = 0;
         virtual void modDel(EventReceiver* eventReceiver) = 0;
         virtual void modOn(EventReceiver* eventReceiver) = 0;
         virtual void modOff(EventReceiver* eventReceiver) = 0;
-
-    public:
-        void observeEnabledEvents();
-
-        void dispatchImmediateEvents(const utils::Timeval& currentTime);
-
-        utils::Timeval getNextTimeout(const utils::Timeval& currentTime) const;
-
-        void stop();
 
     protected:
         class EventReceiverList : public std::list<core::EventReceiver*> {
@@ -80,6 +84,7 @@ namespace core {
         std::map<int, EventReceiverList> enabledEventReceiver;
         std::map<int, EventReceiverList> observedEventReceiver;
         std::map<int, EventReceiverList> disabledEventReceiver;
+        std::map<int, EventReceiverList> unobservedEventReceiver;
 
         unsigned long eventCounter = 0;
     };

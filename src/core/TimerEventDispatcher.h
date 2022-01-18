@@ -32,6 +32,7 @@ namespace core {
     class TimerEventDispatcher {
     public:
         TimerEventDispatcher() = default;
+        virtual ~TimerEventDispatcher() = default;
 
         virtual void remove(TimerEventReceiver* timer) = 0;
         virtual void add(TimerEventReceiver* timer) = 0;
@@ -39,6 +40,9 @@ namespace core {
         virtual bool empty() = 0;
 
         virtual void stop() = 0;
+
+        virtual utils::Timeval getNextTimeout(const utils::Timeval& currentTime) = 0;
+        virtual void dispatchActiveEvents(const utils::Timeval& currentTime) = 0;
 
         class timernode_lt {
         public:

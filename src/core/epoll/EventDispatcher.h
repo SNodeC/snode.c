@@ -20,7 +20,6 @@
 #define CORE_EPOLL_EVENTDISPATCHER_H
 
 #include "core/EventDispatcher.h"
-#include "core/epoll/DescriptorEventDispatcher.h"
 #include "core/epoll/TimerEventDispatcher.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -39,25 +38,13 @@ namespace core::epoll {
         EventDispatcher();
         ~EventDispatcher() = default;
 
-        core::DescriptorEventDispatcher& getDescriptorEventDispatcher(core::EventDispatcher::DISP_TYPE dispType) override;
-        core::TimerEventDispatcher& getTimerEventDispatcher() override;
-
-        TickStatus dispatch(const utils::Timeval& tickTimeOut, bool stopped) override;
-        void stop() override;
-
     private:
-        int getInterestCount();
-        utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
-
-        void observeEnabledEvents();
-        void unobserveDisabledEvents(const utils::Timeval& currentTime);
-
-        void dispatchActiveEvents(int count, const utils::Timeval& currentTime);
-
-        core::epoll::DescriptorEventDispatcher eventDispatcher[3];
-        core::epoll::TimerEventDispatcher timerEventDispatcher;
+        int multiplex(utils::Timeval& tickTimeout) override;
+        void dispatchActiveEvents(int count, const utils::Timeval& currentTime) override;
 
         int epfd;
+
+        int epfds[3];
         epoll_event ePollEvents[3];
     };
 

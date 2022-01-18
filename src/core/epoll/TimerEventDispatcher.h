@@ -33,16 +33,16 @@ namespace core::epoll {
     public:
         TimerEventDispatcher() = default;
 
-        utils::Timeval getNextTimeout(const utils::Timeval& currentTime);
+        utils::Timeval getNextTimeout(const utils::Timeval& currentTime) override;
 
-        void dispatchActiveEvents(const utils::Timeval& currentTime);
+        void dispatchActiveEvents(const utils::Timeval& currentTime) override;
 
-        void remove(core::TimerEventReceiver* timer);
-        void add(core::TimerEventReceiver* timer);
+        void remove(core::TimerEventReceiver* timer) override;
+        void add(core::TimerEventReceiver* timer) override;
 
-        bool empty();
+        bool empty() override;
 
-        void stop();
+        void stop() override;
 
     private:
         std::list<core::TimerEventReceiver*> timerList;
