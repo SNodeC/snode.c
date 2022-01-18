@@ -22,6 +22,10 @@
 #include "core/EventDispatcher.h"
 #include "core/select/DescriptorEventDispatcher.h"
 
+namespace utils {
+    class Timeval;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

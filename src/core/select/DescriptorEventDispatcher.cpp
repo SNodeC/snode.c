@@ -22,7 +22,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include <iterator>    // for reverse_iterator
 #include <type_traits> // for add_const<>::type
 #include <utility>     // for tuple_element<>::type, pair
 

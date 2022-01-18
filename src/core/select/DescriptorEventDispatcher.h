@@ -25,10 +25,13 @@ namespace core {
     class EventReceiver;
 } // namespace core
 
+namespace utils {
+    class Timeval;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/select.h"
-#include "utils/Timeval.h"
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

@@ -22,8 +22,6 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
-
 #include <cerrno>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

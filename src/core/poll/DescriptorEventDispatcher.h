@@ -28,11 +28,11 @@ namespace core {
     } // namespace poll
 } // namespace core
 
+namespace utils {
+    class Timeval;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include "utils/Timeval.h"
-
-#include <unordered_map>
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

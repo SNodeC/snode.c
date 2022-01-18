@@ -21,16 +21,13 @@
 
 namespace core {
     class EventReceiver;
-    //    class EventDispatcher;
 } // namespace core
 
 namespace utils {
-    //    class Timeval;
+    class Timeval;
 } // namespace utils
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-#include "utils/Timeval.h"
 
 #include <list> // IWYU pragma: export
 #include <map>  // IWYU pragma: export

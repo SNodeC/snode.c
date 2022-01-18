@@ -25,6 +25,10 @@ namespace core {
     class EventReceiver;
 }
 
+namespace utils {
+    class Timeval;
+}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include <cstdint> // for uint32_t

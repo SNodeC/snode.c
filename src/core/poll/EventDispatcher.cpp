@@ -23,13 +23,11 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "log/Logger.h"
+#include "utils/Timeval.h" // IWYU pragma: keep
 
-#include <algorithm> // for min, max
-#include <compare>   // for operator<, __synth3way_t, operator>=
-#include <iterator>  // for distance
-#include <memory>    // for allocator_traits<>::value_type
-#include <utility>   // for pair
+#include <compare> // for operator<, __synth3way_t, operator>=
+#include <memory>  // for allocator_traits<>::value_type
+#include <utility> // for pair
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

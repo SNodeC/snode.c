@@ -19,8 +19,6 @@
 #ifndef CORE_TIMEREVENTDISPATCHER_H
 #define CORE_TIMEREVENTDISPATCHER_H
 
-#include "core/TimerEventDispatcher.h" // IWYU pragma: export
-
 namespace core {
     class TimerEventReceiver;
 }

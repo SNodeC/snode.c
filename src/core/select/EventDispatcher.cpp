@@ -21,8 +21,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "core/system/select.h"
-
-#include <algorithm> // for min, find
+#include "utils/Timeval.h" // for Timeval
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

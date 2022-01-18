@@ -22,7 +22,6 @@
 #include "core/TickStatus.h" // IWYU pragma: export
 
 namespace core {
-    //    class EventLoop;
     class DescriptorEventDispatcher;
     class TimerEventDispatcher;
 } // namespace core

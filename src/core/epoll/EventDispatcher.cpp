@@ -22,6 +22,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "utils/Timeval.h" // for Timeval
+
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 core::EventDispatcher& EventDispatcher() {

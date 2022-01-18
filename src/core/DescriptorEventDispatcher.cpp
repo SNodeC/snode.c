@@ -25,6 +25,7 @@
 #include "log/Logger.h"
 
 #include <algorithm>
+#include <iterator>    // for reverse_iterator
 #include <type_traits> // for add_const<>::type
 #include <utility>     // for tuple_element<>::type
 
