@@ -162,7 +162,7 @@ namespace core::poll {
         return pollfds.data();
     }
 
-    std::unordered_map<int, PollFdIndex>& PollFds::getPollFdIndices() {
+    const std::unordered_map<int, PollFdIndex> &PollFds::getPollFdIndices() const {
         return pollFdIndices;
     }
 

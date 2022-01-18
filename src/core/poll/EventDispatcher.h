@@ -62,7 +62,7 @@ namespace core::poll {
 
         pollfd* getEvents();
 
-        std::unordered_map<int, PollFdIndex>& getPollFdIndices();
+        const std::unordered_map<int, PollFdIndex>& getPollFdIndices() const;
 
         nfds_t getInterestCount() const;
 
